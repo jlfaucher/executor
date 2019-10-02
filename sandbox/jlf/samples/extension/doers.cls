@@ -10,19 +10,19 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -----------------------------------------------------------------------------
 -- Mixin.
 /*
-A DoerFactory is an object which knows how to create a doer.
-A doer can be created from :
-- a RexxBlock :
-  Can be costly since the interpreter must parse the source and create an AST.
-  But you do it only once... After, you get an executable in your hands, which you can use
-  as a target for the 'do' message.
-- an executable (Routine or Method) :
-  No cost, this is for convenience, the doer is the executable itself.
-- a wrapper of executable (Coactivity, Closure) :
-  No cost, this is for convenience, the doer is the wrapper itself.
+    A DoerFactory is an object which knows how to create a doer.
+    A doer can be created from :
+    - a RexxBlock :
+      At parse-time, the interpreter creates a raw executable (always a routine) from the source.
+      At runtime, an executable is created using the raw executable.
+      No cost if the executable is a routine, slight cost if the executable is a Coactivity or a Closure, to create the wrapper.
+    - an executable (Routine or Method) :
+      No cost, this is for convenience, the doer is the executable itself.
+    - a wrapper of executable (Coactivity, Closure) :
+      No cost, this is for convenience, the doer is the wrapper itself.
 
-Examples :
-See doers-samples.rex
+    Examples :
+    See doers-samples.rex
 */
 
 ::class "DoerFactory" mixinclass Object public
@@ -42,6 +42,7 @@ See doers-samples.rex
 ::method doWith abstract
 ::method source abstract
 
+
 -- Used by higher-order functions, to decide which arguments to pass
 ::method arity unguarded
     expose arity
@@ -53,32 +54,35 @@ See doers-samples.rex
     else if \var("arity") then return -1 -- unknown arity
     else return arity
 
+
 -- Tilde call
 ::method "~()" unguarded
     forward message "do"
 
+
 ::method go unguarded
     return self~startWith("do", arg(1,"a"))
+
 
 ::method goWith unguarded
     use strict arg array
     return self~startWith("doWith", .array~of(array))
 
+
 ::method trampoline unguarded
     doer = self
-    if self~hasMethod("functionDoer") then doer=self~functionDoer -- Add support for implicit return
     forward message "do" to (doer) continue -- any number of arguments supported for the first call
     if \var("result") then return
     v = result
     -- The test \v~needsObject lets eliminate the StringDoers (and the MethodDoers, but the point is on StringDoers) :
     -- when you return a String, you don't want the error "Not enough arguments in method; 1 expected".
     do while v~isA(.Doer), \v~needsObject
-        if v~hasMethod("functionDoer") then v=v~functionDoer -- Add support for implicit return
         v~do -- here, no args. Most of the time, v will be a closure which holds all the needed informations.
         if \var("result") then return
         v = result
     end
     return v
+
 
 ::method partial unguarded
     args1 = arg(1, "a")
@@ -119,40 +123,44 @@ See doers-samples.rex
     use strict arg -- none
     return self
 
+
 ::method needsObject unguarded
     return .false -- No need to pass an object as first argument when calling do or doWith
+
 
 ::method do unguarded
     forward message "call"
 
+
 ::method doWith unguarded
     forward message "callWith"
 
+
 /*
-Inspired by http://mvanier.livejournal.com/2897.html.
-Y = λf.(λx.f (λv.((x x) v))) (λx.f (λv.((x x) v)))
+    Inspired by http://mvanier.livejournal.com/2897.html.
+    Y = λf.(λx.f (λv.((x x) v))) (λx.f (λv.((x x) v)))
 
-(define Y
-  (lambda (f)
-    ( (lambda (x) (f (lambda (v) ((x x) v))))
-      (lambda (x) (f (lambda (v) ((x x) v)))))))
+    (define Y
+      (lambda (f)
+        ( (lambda (x) (f (lambda (v) ((x x) v))))
+          (lambda (x) (f (lambda (v) ((x x) v)))))))
 
-Equivalent form:
+    Equivalent form:
 
-(define Y
-  (lambda (f)
-    ( (lambda (a) (a a))
-      (lambda (x) (f (lambda (y) ((x x) y)))))))
+    (define Y
+      (lambda (f)
+        ( (lambda (a) (a a))
+          (lambda (x) (f (lambda (y) ((x x) y)))))))
 
-The Y combinator allows recursion to be defined as a set of rewrite rules.
-It takes a single argument, which is a function that isn't recursive (JLF : here, no argument, use self which is a Doer).
-It returns a version of the function which is recursive.
+    The Y combinator allows recursion to be defined as a set of rewrite rules.
+    It takes a single argument, which is a function that isn't recursive (JLF : here, no argument, use self which is a Doer).
+    It returns a version of the function which is recursive.
 
-Example :
-    say {use arg f; return {expose f; use arg n; if n==0 then return 1; else return n * f~(n-1) } }~Y~(10)
+    Example :
+        say {use arg f; return {expose f; use arg n; if n==0 then return 1; else return n * f~(n-1) } }~Y~(10)
 
-Remember : ooRexx supports anonymous recursion, no need of the Y combinator in the real life...
-    say { use arg n; if n==0 then return 1; else return n * .context~executable~(n-1)}~(10)
+    Remember : ooRexx supports anonymous recursion, no need of the Y combinator in the real life...
+        say { use arg n; if n==0 then return 1; else return n * .context~executable~(n-1)}~(10)
 */
 ::method Y unguarded
     use strict arg verbose=.false
@@ -164,6 +172,7 @@ Remember : ooRexx supports anonymous recursion, no need of the Y combinator in t
         use strict arg x
         return f ~ { expose x verbose; if verbose then trace i ; use strict arg v ; return x~(x)~(v) }
     }
+
 
 -- Y combinator with memoization
 ::method YM unguarded
@@ -190,24 +199,28 @@ Remember : ooRexx supports anonymous recursion, no need of the Y combinator in t
 -- Mixin.
 
 /*
-Remember :
-The method 'run' is a private method. So can be called only from another method of object...
-"hello"~run(aMethod) --> Error : Object "hello" does not understand message "RUN" (ok, 'run' is private)
-aMethod~do("hello") --> No error, display "hello" (so the private method is visible ?)
---> It's because the ~run method is called from the ~do method which has been added by extension.
+    Remember :
+    The method 'run' is a private method. So can be called only from another method of object...
+    "hello"~run(aMethod) --> Error : Object "hello" does not understand message "RUN" (ok, 'run' is private)
+    aMethod~do("hello") --> No error, display "hello" (so the private method is visible ?)
+    --> It's because the ~run method is called from the ~do method which has been added by extension.
 */
 ::class "MethodDoer" mixinclass Object public inherit Doer
+
 
 ::method doer unguarded
     use strict arg -- none
     return self
 
+
 ::method needsObject unguarded
     return .true -- Must pass an object as first argument when calling do or doWith
+
 
 ::method do unguarded
     use strict arg object, ...
     forward to (object) message "run" array (self, "a", arg(2,"a"))
+
 
 ::method doWith unguarded
     use strict arg object, array
@@ -223,16 +236,20 @@ aMethod~do("hello") --> No error, display "hello" (so the private method is visi
     use strict arg -- none
     return self -- When used as a doer factory, a string is a message
 
+
 ::method needsObject unguarded
     return .true -- Must pass an object as first argument when calling do or doWith
+
 
 ::method do unguarded
     use strict arg object, ...
     forward to (object) message "sendWith" array (self, arg(2,"a"))
 
+
 ::method doWith unguarded
     use strict arg object, array
     forward to (object) message "sendWith" array (self, array)
+
 
 ::method source unguarded
     return self -- When used as a doer, a string is a message. Assume the message is the source.
@@ -243,21 +260,55 @@ aMethod~do("hello") --> No error, display "hello" (so the private method is visi
 
 ::class "RexxBlockDoer" mixinclass Object public inherit DoerFactory Doer
 
+/*
+    Big picture :
+
+    a RexxSourceLiteral is an internal rexx object, created by the parser, not accessible from ooRexx scripts.
+    a RexxSourceLiteral holds the following properties, shared by all the RexxBlock instances created from it :
+    - source : the text between the curly brackets {...} as an array of lines, including the tag ::xxx if any.
+    - package : the package which contain the source literal.
+    - kind : kind of source, derived from the source's tag.
+    - rawExecutable : routine or method created at parse-time (immediate parsing) after transformation of the source.
+    The source is transformed to accept auto named arguments, and to return implicitely the result of the last evaluated expression.
+    Source before transformation: ...
+    Source after transformation: use auto name arg ; option "NOCOMMANDS";...;if var("result") then return result
+
+    a RexxBlock is created each time the RexxSourceLiteral is evaluated, and is accessible from ooRexx scripts.
+    a RexxBlock contains informations that depends on the evaluation context.
+    In particular, when a RexxBlock is a closure's source, it will hold a snapshot of the context's variables.
+    ~source : source of the RexxSourceLiteral before transformation.
+    ~variables : snapshot of the context's variables (a directory), created only if the source starts with "expose".
+    ~rawExecutable : the raw executable of the RexxSourceLiteral, created at parse-time (routine or method).
+    ~executable : cached executable, managed by doers.cls.
+
+    Example:
+        blocks=.array~new
+        loop i=1 to 10
+            blocks~append{expose i; say i}          -- At each loop, the RexxSourceLiteral is evaluated and a new
+                                                    -- instance of RexxBlock is created, with its own snapshot
+                                                    -- of variables (the variable 'i' is different at each loop).
+                                                    -- This snapshot is the closure.
+        end
+        blocks~each{item~()} -- display 1 to 10     -- here the closure is finalized by ~doer and cached on the RexxBlock.
+        blocks~each{item~()} -- display 1 to 10     -- here the closure cached on the RexxBlock is reused.
+*/
+
 ::method init
     expose executable
     executable = .nil
     self~init:super
+
 
 ::method doer unguarded
     expose executable
     if .nil <> executable then return executable
 
     use strict arg -- none
-    executable = self~sourceDoer -- The source is transformed to accept auto named arguments, and to return implicitely the result of the last evaluated expression
+    executable = self~sourceDoer
 
     -- The arity can be set on the RexxBlock before calling ~doer.
     -- If already set (<> -1) then this arity will be stored on the executable
-    -- otherwise the arbitrary value 9999 is stored on the executable
+    -- otherwise the arbitrary value 9999 is stored on the executable.
     -- The arity of the RexxBlock is unchanged.
     arity = self~arity
     if arity == -1 then arity = 9999
@@ -265,16 +316,18 @@ aMethod~do("hello") --> No error, display "hello" (so the private method is visi
 
     return executable
 
+
 ::method executable unguarded
     expose executable
     return executable
 
+
 /*
-Helper to create a doer from a source, after transformation of the source if requested.
-Possible transformations :
-- Insert a clause at the begining (takes care of the expose instruction, keep it always as
-  first instruction).
-- Insert a clause at the end.
+    Helper to create a doer from a source, after transformation of the source if requested.
+    Possible transformations :
+    - Insert a clause at the begining (takes care of the expose instruction, keep it always as
+      first instruction).
+    - Insert a clause at the end.
 */
 ::method sourceDoer unguarded
     use strict arg clauseBefore="", clauseAfter="", context=.nil
@@ -298,6 +351,7 @@ Possible transformations :
     else if kind == "cl.co" then return .Coactivity~new(.Closure~new(self~variables, rawExecutable))
     return .nil -- should never happen
 
+
 ::method functionDoer
     expose executable
     if .nil <> executable then return executable
@@ -307,6 +361,7 @@ Possible transformations :
     executable = self~sourceDoer(clauseBefore, clauseAfter)
     return executable
 
+
 ::method actionDoer
     expose executable
     if .nil <> executable then return executable
@@ -314,29 +369,33 @@ Possible transformations :
     executable = self~sourceDoer(clauseBefore, clauseAfter)
     return executable
 
+
 -- Even if unknown is defined, must explicitely provide a concrete implementation because abstract
 ::method needsObject unguarded
     forward to (self~doer)
+
 
 -- Even if unknown is defined, must explicitely provide a concrete implementation because abstract
 ::method do unguarded
     forward to (self~doer)
 
+
 -- Even if unknown is defined, must explicitely provide a concrete implementation because abstract
 ::method doWith unguarded
     forward to (self~doer)
 
+
 /*
-I want to support that (no ~doer in the following expression) :
+    I want to support that (no ~doer in the following expression) :
                                                                                                 ****
-    1~pipe(.inject {{::coactivity expose item ; do forever ; .yield[item] ; item += 1 ; end}} iterateAfter | .take 10 | .console)
+        1~pipe(.inject {{::coactivity expose item ; do forever ; .yield[item] ; item += 1 ; end}} iterateAfter | .take 10 | .console)
                                                                                                 ****
-In this example, the block passed to .inject returns another block whose doer is a coactivity.
-The option "iterateAfter" checks if the current item has the "supplier" method. If yes, then it iterates over the items returned by the supplier.
-A RexxBlock has no "supplier" method, but its doer may have one. This is the case in this example.
-Without this redefinition, I should write :
+    In this example, the block passed to .inject returns another block whose doer is a coactivity.
+    The option "iterateAfter" checks if the current item has the "supplier" method. If yes, then it iterates over the items returned by the supplier.
+    A RexxBlock has no "supplier" method, but its doer may have one. This is the case in this example.
+    Without this redefinition, I should write :
                                                                                                 ****
-    1~pipe(.inject {{::coactivity expose item ; do forever ; .yield[item] ; item += 1 ; end}~doer} iterateAfter | .take 10 | .console)
+        1~pipe(.inject {{::coactivity expose item ; do forever ; .yield[item] ; item += 1 ; end}~doer} iterateAfter | .take 10 | .console)
                                                                                                 ****
 */
 ::method hasMethod unguarded
@@ -344,16 +403,18 @@ Without this redefinition, I should write :
     if self~hasMethod:super(methodName) then return .true
     forward to (self~doer)
 
+
 /*
-Normally, it's not a good idea to define an "unknown" method on a mixin class...
-But here, I think it's ok to do that...
-I find more natural to support directly blocks in the following samples (no need to send the message ~doer to the block) :
-{::coactivity i=1 ; do forever; .yield[i]; i += 1 ; end}~take(5)~iterator~each{say item}
-{::coactivity i=1 ; do forever; .yield[i]; i += 1 ; end}~select{item//2 == 0}~take(5)~iterator~each{say item}
+    Normally, it's not a good idea to define an "unknown" method on a mixin class...
+    But here, I think it's ok to do that...
+    I find more natural to support directly blocks in the following samples (no need to send the message ~doer to the block) :
+    {::coactivity i=1 ; do forever; .yield[i]; i += 1 ; end}~take(5)~iterator~each{say item}
+    {::coactivity i=1 ; do forever; .yield[i]; i += 1 ; end}~select{item//2 == 0}~take(5)~iterator~each{say item}
 */
 ::method unknown unguarded
     use arg msg, args
-    forward message (msg) arguments (args) to (self~doer)
+    use named arg namedArguments
+    forward message (msg) arguments (args) namedArguments (namedArguments) to (self~doer)
 
 
 -----------------------------------------------------------------------------
@@ -365,15 +426,19 @@ I find more natural to support directly blocks in the following samples (no need
     use strict arg -- none
     return self
 
+
 ::method needsObject unguarded
     return .false -- No need to pass an object as first argument when calling do or doWith
+
 
 ::method do unguarded
     forward message "resume"
 
+
 ::method doWith unguarded
     use strict arg array
     forward message "resume" arguments (array)
+
 
 ::method source unguarded
     return self~executable~source
@@ -401,6 +466,7 @@ I find more natural to support directly blocks in the following samples (no need
         self~setMethod("do", method, "Object")
     end
 
+
 ::method initVariables
     expose !_closure.variableNames_! (!_closure.variableNames_!)
     -- Must use variable names that will not collide with user-defined variables
@@ -411,24 +477,30 @@ I find more natural to support directly blocks in the following samples (no need
         !_closure.supplier_!~next
     end
 
+
 ::method setMethod public unguarded -- override the private setMethod inherited from Object to make it public
     forward class (super)
+
 
 ::method doer unguarded
     use strict arg -- none
     return self
 
+
 ::method needsObject unguarded
     return .false -- The closure itself is the object
+
 
 ::method doWith unguarded
     use strict arg array
     forward message "do" arguments (array)
 
+
 ::method source unguarded
     doMethod = self~instanceMethod("do")
     if .nil == doMethod then return .nil
     return doMethod~source
+
 
 ::method variables
     expose !_closure.variableNames_! (!_closure.variableNames_!)

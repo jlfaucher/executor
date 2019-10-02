@@ -66,14 +66,17 @@
             expose action returnIndex self
             use strict arg -- none
             -- parse only once, before iteration
-            if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
-                                                else doer = action~doer
+            -- if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
+            --                                     else doer = action~doer
+            doer = action~doer
             arity = doer~arity
             do while self~available
                 item = self~item
                 index = self~index
-                if arity >= 2 then doer~do(item, index) -- Most of the time, we need only the item, that's why it's the first arg.
-                              else doer~do(item)
+                if arity >= 2 then doer~do(      item,        index,-
+                                           item: item, index: index) -- Most of the time, we need only the item, that's why it's the first arg.
+                              else doer~do(      item,-
+                                           item: item)
                 if var("result") then do
                     doResult = result
                     if returnIndex then newItem = .array~of(doResult, index)
@@ -348,8 +351,9 @@
 
 ::method dropUntilImpl private unguarded
     use strict arg predicate, returnIndex
-    if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
-                                           else doer = predicate~doer
+    -- if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
+    --                                        else doer = predicate~doer
+    doer = predicate~doer
     return {::coactivity
             expose doer returnIndex self
             use strict arg -- none
@@ -358,8 +362,10 @@
                 item = self~item
                 index = self~index
                 self~next -- do it before testing the predicate
-                if arity >= 2 then logicalValue = doer~do(item, index)
-                              else logicalValue = doer~do(item)
+                if arity >= 2 then logicalValue = doer~do(      item,        index,-
+                                                          item: item, index: index)
+                              else logicalValue = doer~do(      item,-
+                                                          item: item)
                 if logicalValue then leave
             end
             do while self~available
@@ -375,8 +381,9 @@
 
 ::method dropWhileImpl private unguarded
     use strict arg predicate, returnIndex
-    if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
-                                           else doer = predicate~doer
+    -- if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
+    --                                        else doer = predicate~doer
+    doer = predicate~doer
     return {::coactivity
             expose doer returnIndex self
             use strict arg -- none
@@ -384,8 +391,10 @@
             do while self~available
                 item = self~item
                 index = self~index
-                if arity >= 2 then logicalValue = doer~do(item, index)
-                              else logicalValue = doer~do(item)
+                if arity >= 2 then logicalValue = doer~do(      item,        index,-
+                                                          item: item, index: index)
+                              else logicalValue = doer~do(      item,-
+                                                          item: item)
                 if \ logicalValue then leave
                 self~next
             end
@@ -406,14 +415,17 @@
             expose predicate returnIndex self
             use strict arg -- none
             -- parse only once, before iteration
-            if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
-                                                   else doer = predicate~doer
+            -- if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
+            --                                        else doer = predicate~doer
+            doer = predicate~doer
             arity = doer~arity
             do while self~available
                 item = self~item
                 index = self~index
-                if arity >= 2 then doer~do(item, index) -- Most of the time, we need only the item, that's why it's the first arg.
-                              else doer~do(item)
+                if arity >= 2 then doer~do(      item,        index,-
+                                           item: item, index: index) -- Most of the time, we need only the item, that's why it's the first arg.
+                              else doer~do(      item,-
+                                           item: item)
                 if var("result") then do
                     doResult = result
                     if \doResult then do
@@ -433,14 +445,17 @@
             expose predicate returnIndex self
             use strict arg -- none
             -- parse only once, before iteration
-            if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
-                                                   else doer = predicate~doer
+            -- if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
+            --                                        else doer = predicate~doer
+            doer = predicate~doer
             arity = doer~arity
             do while self~available
                 item = self~item
                 index = self~index
-                if arity >= 2 then doer~do(item, index) -- Most of the time, we need only the item, that's why it's the first arg.
-                              else doer~do(item)
+                if arity >= 2 then doer~do(      item,        index,-
+                                           item: item, index: index) -- Most of the time, we need only the item, that's why it's the first arg.
+                              else doer~do(      item,-
+                                           item: item)
                 if var("result") then do
                     doResult = result
                     if doResult then do
@@ -495,8 +510,9 @@
 
 ::method takeUntilImpl private unguarded
     use strict arg predicate, returnIndex
-    if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
-                                           else doer = predicate~doer
+    -- if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
+    --                                        else doer = predicate~doer
+    doer = predicate~doer
     return {::coactivity
             expose doer returnIndex self
             use strict arg -- none
@@ -509,16 +525,19 @@
                                else newItem = item
                 .yield[newItem]
                 use strict arg -- none
-                if arity >= 2 then logicalValue = doer~do(item, index)
-                              else logicalValue = doer~do(item)
+                if arity >= 2 then logicalValue = doer~do(      item,        index,-
+                                                          item: item, index: index)
+                              else logicalValue = doer~do(      item,-
+                                                          item: item)
                 if logicalValue then leave
             end
            }~doer
 
 ::method takeWhileImpl private unguarded
     use strict arg predicate, returnIndex
-    if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
-                                           else doer = predicate~doer
+    -- if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
+    --                                        else doer = predicate~doer
+    doer = predicate~doer
     return {::coactivity
             expose doer returnIndex self
             use strict arg -- none
@@ -526,8 +545,10 @@
             do while self~available
                 item = self~item
                 index = self~index
-                if arity >=2 then logicalValue = doer~do(item, index)
-                             else logicalValue = doer~do(item)
+                if arity >=2 then logicalValue = doer~do(      item,        index,-
+                                                         item: item, index: index)
+                             else logicalValue = doer~do(      item,-
+                                                         item: item)
                 if \ logicalValue then leave
                 if returnIndex then newItem = .array~of(item, index)
                                else newItem = item
@@ -572,13 +593,15 @@
     use strict arg upperLimit, action={arg(1)}
     if \ self~dataType("N") then raise syntax 93.900 array ("self must be a number; found" self)
     if \ upperLimit~dataType("N") then raise syntax 93.900 array ("upperLimit must be a number; found" upperLimit)
-    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item")~arity(1)
-                                        else doer = action~doer
+    -- if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item")~arity(1)
+    --                                     else doer = action~doer
+    doer = action~doer
     return {::coactivity
             expose doer upperLimit self
             use strict arg -- none
             do i = self to upperLimit
-                doer~do(i)
+                doer~do(      i,-
+                        item: i)
                 if var("result") then .yield[result]; else .yield[]
                 use strict arg -- none
             end
@@ -596,13 +619,15 @@
     use strict arg lowerLimit, action={arg(1)}
     if \ self~dataType("N") then raise syntax 93.900 array ("self must be a number; found" self)
     if \ lowerLimit~dataType("N") then raise syntax 93.900 array ("lowerLimit must be a number; found" lowerLimit)
-    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item")~arity(1)
-                                        else doer = action~doer
+    -- if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item")~arity(1)
+    --                                     else doer = action~doer
+    doer = action~doer
     return {::coactivity
             expose doer lowerLimit self
             use strict arg -- none
             do i = self to lowerLimit by -1
-                doer~do(i)
+                doer~do(      i,-
+                        item: i)
                 if var("result") then .yield[result]; else .yield[]
                 use strict arg -- none
             end
@@ -853,10 +878,14 @@
         use strict arg -- none
     end
     arity = doer~arity
-    if arity >= 4 then doer~do(item, index, depth, stack)
-    else if arity == 3 then doer~do(item, index, depth)
-    else if arity == 2 then doer~do(item, index)
-    else doer~do(item)
+    if arity >= 4 then doer~do(      item,        index,        depth,        stack,-
+                               item: item, index: index, depth: depth, stack: stack)
+    else if arity == 3 then doer~do(      item,        index,        depth,-
+                                    item: item, index: index, depth: depth)
+    else if arity == 2 then doer~do(      item,        index,-
+                                    item: item, index: index)
+    else doer~do(      item,-
+                 item: item)
     if \ var("result") then do
         -- No result returned, nothing to yield, but the yield must be done, synchronisation is important !
         -- The next calculation will be done only on resume.
@@ -941,10 +970,14 @@
         use strict arg -- none
     end
     arity = doer~arity
-    if arity >= 4 then doer~do(item, index, depth, stack)
-    else if arity == 3 then doer~do(item, index, depth)
-    else if arity == 2 then doer~do(item, index)
-    else doer~do(item)
+    if arity >= 4 then doer~do(      item,        index,        depth,        stack,-
+                               item: item, index: index, depth: depth, stack: stack)
+    else if arity == 3 then doer~do(      item,        index,        depth,-
+                                    item: item, index: index, depth: depth)
+    else if arity == 2 then doer~do(      item,        index,-
+                                    item: item, index: index)
+    else doer~do(      item,-
+                 item: item)
     if \ var("result") then do
         -- No result returned, nothing to yield, but the yield must be done, synchronisation is important !
         -- The next calculation will be done only on resume.
@@ -1003,8 +1036,11 @@
 ::method action2doer private
     expose allowCommands trace
     if trace then trace i
+    if allowCommands then raise syntax 93.900 array("allowCommands is not supported")
     use strict arg action
     if action == .nil then action = {arg(1)}
+    return action~doer
+    /*
     if allowCommands, action~hasMethod("actionDoer") then do
         doer = action~actionDoer("use arg item, index, depth, stack")~arity(4)
         return doer
@@ -1018,6 +1054,7 @@
         return doer
     end
     raise syntax 93.900 array(self~class~id ":" action "is not a doer factory")
+    */
 
 ::method main
     expose action depthFirst detectCycles doer once recursive source stackSize trace
@@ -1080,8 +1117,11 @@ Temporary, for trying to understand why the GC is not working
 ::method action2doer private
     expose allowCommands trace
     if trace then trace i
+    if allowCommands then raise syntax 93.900 array("allowCommands is not supported")
     use strict arg action
     if action == .nil then action = {arg(1)}
+    return action~doer
+    /*
     if allowCommands, action~hasMethod("actionDoer") then do
         doer = action~actionDoer("use arg item, index, depth, stack")~arity(4)
         return doer
@@ -1095,6 +1135,7 @@ Temporary, for trying to understand why the GC is not working
         return doer
     end
     raise syntax 93.900 array(self~class~id ":" action "is not a doer factory")
+    */
 
 ::method main
     expose action doer source trace

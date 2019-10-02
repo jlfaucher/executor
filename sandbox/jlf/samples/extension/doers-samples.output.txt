@@ -20,9 +20,6 @@ The String class
 The Routine class
 4
 
-The Routine class
-4
-
 RexxBlock:1 --> Closure:2 --> 1 4
 RexxBlock:3 --> Closure:4 --> 2 4
 RexxBlock:5 --> Closure:6 --> 3 4

@@ -33,12 +33,14 @@ call dump2      .array~new(2,3)~of(1,,3,,5,6)
 -- . 5 6
 
 -- For me, there is a problem (bug ?) when the last arguments are explicitely omitted : they are not counted by the interpreter !
+-- I passed explicitely 6 arguments, 3 of them being omitted.
+-- 19/09/2017 Fixed in Executor
 call dump2      .array~new(2,3)~of(1,,3,,5,)
 -- 1 . 3
--- . 5 1
--- I was expecting this result, because I passed explicitely 6 arguments, 3 of them being omitted :
--- 1 . 3
 -- . 5 .
+-- Before the fix, the last omitted argument was ignored and the result was :
+-- 1 . 3
+-- . 5 1
 
 -- Rules inspired by APL :
 -- If there are too many items, the extra items are ignored.
@@ -47,7 +49,7 @@ call dump2      .array~new(2,3)~of(1,2)
 -- 1 2 1
 -- 2 1 2
 
--- Test case that demonstrated a bug in ~functionDoer (a new generator was created when initializing the second array)
+-- Test case that demonstrated a bug (a new generator was created when initializing the second array)
 g={::coactivity loop i=0; if i//2 == 0 then .yield[i]; else .yield[]; end}
 call dump2      .array~new(2,3)~of(g)
 -- 0 . 2
@@ -365,3 +367,87 @@ syntax:
 ::requires "pipeline/pipe_extension.cls"
 ::requires "rgf_util2/rgf_util2_wrappers.rex"
 
+
+/*
+
+Examples of new display when self reference
+old     (*n is the number of levels to cross to reach the self reference, only vertical)
+---
+new     (*v is the variable giving the self reference, can be vertical or horizontal)
+
+
+
+// ok
+['string1','string2',['string2',*1],*0]
+---
+a1=['string1','string2',['string2',*a1],*a1]
+
+
+// ok
+source:3,[v1='string2',['string1',v1,*1,*0]]
+---
+source:3,a1=[v1='string2',a2=['string1',*v1,*a1,*a2]]
+
+
+// ok
+source:4,['string1',v1='string2',[v1,*1],*0]
+---
+source:4,a1=['string1',v1='string2',[*v1,*a1],*a1]
+
+
+// ok
+source:1,v1='string1' | inject:1,v1
+---
+source:1,v1='string1' | inject:1,*v1
+
+
+// ok
+source:2,v1='string2' | inject:2,v1
+---
+source:2,v1='string2' | inject:2,*v1
+
+
+// ok
+source:3,[v1='string2',['string1',v1,*1,*0]] | inject:1,v1
+---
+source:3,a1=[v1='string2',a2=['string1',*v1,*a1,*a2]] | inject:1,*v1
+
+
+// ok
+// The structure of the list after inject looks different, but that's ok.
+// It's because in new, we have directly a reference to the list *a2 which has a reference to *a1 which is a list with 2 elements, so similar to old [v1,*1]
+source:3,[v1='string2',[v2='string1',v1,*1,*0]] | inject:2,[v2,v1,[v1,*1],*0]
+---
+source:3,a1=[v1='string2',a2=['string1',*v1,*a1,*a2]] | inject:2,*a2
+
+
+// ok
+source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:1,v1
+---
+source:4,a1=[v1='string1',v2='string2',[*v2,*a1],*a1] | inject:1,*v1
+
+
+// ok
+source:4,['string1',v1='string2',[v1,*1],*0] | inject:2,v1
+---
+source:4,a1=['string1',v1='string2',[*v1,*a1],*a1] | inject:2,*v1
+
+
+// ok
+source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:3,[v2,[v1,v2,*1,*0]]
+---
+source:4,a1=['string1',v1='string2',a2=[*v1,*a1],*a1] | inject:3,*a2
+
+
+// ok
+source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:4,[v1,v2,[v2,*1],*0]
+---
+source:4,a1=['string1',v1='string2',[*v1,*a1],*a1] | inject:4,*a1
+
+
+// ok
+['a',['b',['c',['d',*3]]]]
+---
+a1=['a',['b',['c',['d',*a1]]]]
+
+*/

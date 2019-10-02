@@ -33,30 +33,23 @@ doer~do("Keith") -- <nothing done, the coactivity is ended>
 say
 
 -- When used as a doer, a string is a message
-block = "length"
-doer = block~doer
+message = "length"
+doer = message~doer
 say doer~class -- The String class
 say doer~do("John") -- 4
-say block~("John") -- 4
+say message~("John") -- 4
 say
 
 -- Implicit arguments and implicit return.
 -- The original source
 --    x~length
 -- becomes :
---    use strict arg x ; options "NOCOMMANDS" ; x~length
+--    use auto named arg ; options "NOCOMMANDS" ; x~length
 --    return result
 block = {x~length}
-doer = block~sourceDoer('use strict arg x ; options NOCOMMANDS', "return result")
+doer = block~doer
 say doer~class -- The Routine class
-say doer~do("John") -- 4
-say
-
--- The method functionDoer (which calls sourceDoer) takes care of the implicit return
-block = {x~length}
-doer = block~functionDoer("use strict arg x")
-say doer~class -- The Routine class
-say doer~do("John") -- 4
+say doer~do(x: "John") -- 4
 say
 
 -- closure by value

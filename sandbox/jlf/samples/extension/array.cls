@@ -632,7 +632,6 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
             oneValue = .true
             value = arg1
         end
-        else if arg1~hasMethod("functionDoer") then doer = arg1~functionDoer("use arg item, index")~arity(2)
         else if arg1~hasMethod("doer") then doer = arg1~doer
         else if arg1~isA(.array), arg1~dimension == 1 then arrayIn = arg1 -- omitted item in the array passed as argument ==> no item in the array under initialization
         else if arg1~hasMethod("supplier") then supplier = arg1~supplier -- omitted items are ignored, because not available from the supplier
@@ -680,8 +679,10 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
             else if .nil <> doer then do
                 if self~dimension == 1 then index = selfArrayIndex
                                        else index = selfArrayIndex~copy -- to avoid any side effect from the doer
-                if arity >= 2 then doer~do(selfIntegerIndex, index)
-                else if arity == 1 then doer~do(selfIntegerIndex)
+                if arity >= 2 then doer~do(      selfIntegerIndex,        index,-
+                                           item: selfIntegerIndex, index: index)
+                else if arity == 1 then doer~do(      selfIntegerIndex,-
+                                                item: selfIntegerIndex)
                 else doer~do
                 if var("result") then self~put(result, selfArrayIndex)
                 -- Needed to offer the same behaviour for
@@ -892,7 +893,7 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
         do while s~available
             item = s~item
             index = s~index
-            if maxItems >= 0, items >= maxItems then return
+            if maxItems >= 0, items >= maxItems then return referencesTable
             val~collectReferences(maxItems, item, referencesTable)
             items += 1
             s~next -- skip sparse section, if any
@@ -968,8 +969,7 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
         --   op Array
         --   op EnclosedArray
 
-        if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index, depth")~arity(3)
-                                            else doer = action~doer
+        doer = action~doer
         arity = doer~arity
 
         if self~isA(.EnclosedArray) then do
@@ -995,8 +995,10 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
                 r[index] = item
             end
             else do
-                if arity >= 3 then doer~do(item, index, depth)
-                              else doer~do(item)
+                if arity >= 3 then doer~do(      item,        index,        depth,-
+                                           item: item, index: index, depth: depth)
+                              else doer~do(      item,-
+                                           item: item)
                 if var("result") then r[index] = result
             end
             supplier~next
@@ -1013,8 +1015,7 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
     --   EnclosedArray op EnclosedArray : error
     --   EnclosedArray op Other : manage enclosedArray as a non enclosed array
 
-    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg itemLeft, itemRight, indexLeft, indexRight, depth")~arity(5)
-                                        else doer = action~doer
+    doer = action~doer
     arity = doer~arity
 
     if self~isA(.EnclosedArray) then do
@@ -1049,8 +1050,10 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
                 r[index] = item
             end
             else do
-                if arity >= 5 then doer~do(item, rightArg[index], index, index, depth)
-                              else doer~do(item, rightArg[index])
+                if arity >= 5 then doer~do(          item,            rightArg[index],            index,             index,        depth,-
+                                           itemLeft: item, itemRight: rightArg[index], indexLeft: index, indexRight: index, depth: depth)
+                              else doer~do(          item,            rightArg[index],-
+                                           itemLeft: item, itemRight: rightArg[index])
                 if var("result") then r[index] = result
             end
             supplier~next
@@ -1086,8 +1089,10 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
                 r[index] = item
             end
             else do
-                if arity >= 5 then doer~do(item, rightArg, index, index, depth)
-                              else doer~do(item, rightArg)
+                if arity >= 5 then doer~do(          item,            rightArg,            index,             index,        depth,-
+                                           itemLeft: item, itemRight: rightArg, indexLeft: index, indexRight: index, depth: depth)
+                              else doer~do(          item,            rightArg,-
+                                           itemLeft: item, itemRight: rightArg)
                 if var("result") then r[index] = result
             end
             supplier~next
@@ -1112,8 +1117,7 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
     counterpart = stack[self]
     if counterpart <> .nil then return counterpart -- stop infinite recursion
 
-    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg itemLeft, itemRight, indexLeft, indexRight, depth")~arity(5)
-                                        else doer = action~doer
+    doer = action~doer
     arity = doer~arity
 
     if leftArg~isA(.array) then return leftArg~leftElementWise(doer, self, depth, stack)
@@ -1152,8 +1156,10 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
             r[index] = item
         end
         else do
-            if arity >= 5 then doer~do(leftArg, item, index, index, depth)
-                          else doer~do(leftArg, item)
+            if arity >= 5 then doer~do(         leftArg,            item,            index,             index,        depth,-
+                                       itemLeft:leftArg, itemRight: item, indexleft: index, indexRight: index, depth: depth)
+                          else doer~do(          leftArg,            item,-
+                                       itemLeft: leftArg, itemRight: item)
             if var("result") then r[index] = result
         end
         supplier~next

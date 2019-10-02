@@ -57,8 +57,8 @@ nop
 -- Reduce
 --   arg(1) - accu  : accumulated result
 --   arg(2) - item : current item of collection
---   arg(3) - index : current index of collection (passed if the action has the ~functionDoer method)
--- The messages like "+" "-" etc. have no ~functionDoer method, and as such are called with two arguments (no index).
+--   arg(3) - index : current index of collection (passed if the action has an arity >= 3).
+-- The messages like "+" "-" etc. have the default arity -1, and as such are called with two arguments (no index).
 -- Any doer which is created from a RexxBlock is called with three arguments (index).
 
 -- Ordered collection, the operation can be non-commutative
@@ -419,16 +419,14 @@ buffer~dump -- mutable buffer after mapping
 -- Reduce :
 --   arg(1) - accu  : accumulated result
 --   arg(2) - item : current item of collection
---   arg(3) - index : current index of collection (passed if the doer has the ~functionDoer method)
+--   arg(3) - index : current index of collection (passed if the doer has an arity >= 3)
 
--- The source literal is transformed by ~reduce before creating an executable,
--- which lets use an implicit return.
--- See method ~functionDoer in doers.cls for more details.
+-- The source literal is transformed at parse time, which lets use an implicit return.
 -- You can see the transformed source by running that from ooRexxShell :
---    {accu + item + index}~functionDoer("use arg accu, item, index")~source=
+--    {accu + item + index}~doer~source=
 -- The output is :
---    # 1: index=[1] -> item=[use arg accu, item, index ; options "NOCOMMANDS" ; accu + item + index]
---    # 2: index=[2] -> item=[ ; if var("result") then return result]
+--  1 : 'use auto named arg ; options "NOCOMMANDS" ; accu + item + index'
+--  2 : 'if var("result") then return result'
 
 .Array~of(10, 20, 30)~reduce{accu + item + index}~dump -- returns 10 + 20+2 + 30+3 = 65
 .Array~of(10, 20, 30)~reduce(0){accu + item + index}~dump -- returns 0 + 10+1 + 20+2 + 30+3 = 66
@@ -551,7 +549,7 @@ buffer~dump -- mutable buffer after mapping
 
 -- Map :
 --   arg(1) - item : current item of collection
---   arg(2) - index : current index of collection (passed if the action has the ~functionDoer method)
+--   arg(2) - index : current index of collection (passed if the action has an arity >= 3)
 
 .Array~of(1,2,3,4)~map{item * 2}~dump
 
@@ -601,7 +599,6 @@ buffer~dump -- mutable buffer after mapping
 
 
 -- A routine object can be used directly.
--- In this case, there is no source transformation.
 .Array~of(1,2,3,4)~map(.context~package~findRoutine("factorial"))~dump
 
 

@@ -50,8 +50,7 @@ num=0; (num==0)~~ifTrue{say "zero"}~ifFalse{say "not zero"}
     if \ expressionSpecified then return
     -- The test \ expression~needsObject lets eliminate the StringDoers and the MethodDoers
     if expression~isA(.doer), \ expression~needsObject then do
-        if expression~hasMethod("functionDoer") then doer = expression~functionDoer
-                                                else doer = expression~doer
+        doer = expression~doer
         doer~()
         if var("result") then return result
     end
