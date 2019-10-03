@@ -22,9 +22,9 @@ So I added the 'pipe' method which injects the object in the pipe :
     -- the expression read consistently from left to right.
     -- f(x~m1) can be rewritten x~m1~pipe{f(item)}
     if pipe~isA(.doer) then do
-        if pipe~hasMethod("functionDoer") then doer = pipe~functionDoer("use arg item")~arity(1)
-                                            else doer = pipe~doer
-        doer~do(object)
+        doer = pipe~doer
+        doer~do(      object,-
+                item: object)
         if var("result") then return result -- trush Txy = yx : reverse evaluation.
         return object                       -- kestrel Kxy = x : return a constant function.
     end
@@ -33,6 +33,7 @@ So I added the 'pipe' method which injects the object in the pipe :
     if pipe~isa(.class) then pipe = pipe~new
     pipe~go(object, profile)
     return pipe
+
 
 ::routine coactivePipe
     use strict arg object, pipe, profile
@@ -50,10 +51,12 @@ So I added the 'pipe' method which injects the object in the pipe :
     use strict arg pipe, profile=.false
     return pipe(self, pipe, profile)
 
+
 -- Must review the extension mechanisms ! Not normal to have to do that...
 ::method coactivePipe class unguarded
     use strict arg pipe, profile=.false
     return coactivePipe(self, pipe, profile)
+
 
 ::extension Object
 
@@ -62,22 +65,27 @@ So I added the 'pipe' method which injects the object in the pipe :
     use strict arg pipe, profile=.false
     return pipe(self, pipe, profile)
 
+
 -- Must review the extension mechanisms ! Not normal to have to do that...
 ::method coactivePipe class unguarded
     use strict arg pipe, profile=.false
     return coactivePipe(self, pipe, profile)
 
+
 ::method pipe unguarded
     use strict arg pipe, profile=.false
     return pipe(self, pipe, profile)
+
 
 ::method coactivePipe unguarded
     use strict arg pipe, profile=.false
     return coactivePipe(self, pipe, profile)
 
+
 ::method pipeProfile unguarded
     use strict arg pipe
     return self~pipe(pipe, .true)
+
 
 ::method coactivePipeProfile unguarded
     use strict arg pipe
@@ -97,6 +105,7 @@ So I added the 'pipe' method which injects the object in the pipe :
     use strict arg -- none
     forward class (super)
 
+
 ::method initOptions
     expose actions showPool showTags
     actions = .array~new
@@ -111,12 +120,6 @@ So I added the 'pipe' method which injects the object in the pipe :
                 actions~append("yieldItem")
                 iterate
             end
-        end
-        -- "actionDoer" not candidate here, we want a result.
-        else if a~hasMethod("functionDoer") then do
-            function = a~functionDoer("use arg item, index, dataflow")~arity(3)
-            actions~append(function)
-            iterate
         end
         else if a~hasMethod("doer") then do
             function = a~doer
@@ -140,7 +143,8 @@ So I added the 'pipe' method which injects the object in the pipe :
         if action == "yieldIndex" then .yield[index]
         else if action == "yieldItem" then .yield[item]
         else do
-            action~do(item, index, dataflow)
+            action~do(      item,        index,           dataflow,-
+                      item: item, index: index, dataflow: dataflow)
             if \var("result") then do
                 -- No result returned, nothing to yield, but the yield must be done, synchronisation is important !
                 .yield[]
@@ -181,11 +185,8 @@ The option iterate (no need of 'After') is automatically activated when the prod
         end
         else do
             if .nil <> producer then raise syntax 93.900 array(self~class~id ": Only one producer is supported")
-            -- if doer then parse now, to detect possible errors before running the pipe.
-            -- "actionDoer" not candidate here, we want a result.
-            -- "functionDoer" : no need of args (called from ~eof, not from ~process).
-            if a~hasMethod("functionDoer") then producer = a~functionDoer
-            else if a~hasMethod("doer") then producer = a~doer
+            -- no need of args (called from ~eof, not from ~process).
+            if a~hasMethod("doer") then producer = a~doer
             else producer = a -- will be used as a supplier (if capable) or as a single item
             iterate
         end
@@ -230,12 +231,11 @@ The option iterate (no need of 'After') is automatically activated when the prod
 ::class "inject" public subclass pipeStage
 
 ::method init
-expose allowCommands
-use strict arg allowCommands=.false -- by default, the doer is a function whose result is never used as command
 self~init:super
 
+
 ::method initOptions
-    expose after allowCommands before detectCycles doer iterateBefore iterateAfter limit once recursive depthFirst recursiveMemorize trace
+    expose after before detectCycles doer iterateBefore iterateAfter limit once recursive depthFirst recursiveMemorize trace
     after = .false
     before = .false
     depthFirst = .true
@@ -275,16 +275,6 @@ self~init:super
             unknown~append(a)
             iterate -- do that now, otherwise you will enter in the doer section
         end
-        if allowCommands, a~hasMethod("actionDoer") then do
-            if .nil <> doer then raise syntax 93.900 array(self~class~id ": Only one producer is supported")
-            doer = a~actionDoer("use arg item, index, dataflow")
-            iterate
-        end
-        if a~hasMethod("functionDoer") then do
-            if .nil <> doer then raise syntax 93.900 array(self~class~id ": Only one producer is supported")
-            doer = a~functionDoer("use arg item, index, dataflow")~arity(3)
-            iterate
-        end
         if a~hasMethod("doer") then do
             if .nil <> doer then raise syntax 93.900 array(self~class~id ": Only one producer is supported")
             doer = a~doer
@@ -294,6 +284,7 @@ self~init:super
     end
     if .nil == doer then raise syntax 93.900 array(self~class~id ": No producer specified")
     forward class (super) arguments (unknown) -- forward the initialization to super to process the unknown options
+
 
 ::method newDataflow
     -- Overload default method, called by ~write and ~writeSecondary
@@ -310,6 +301,7 @@ self~init:super
         if self~memorize then newDataflow = .dataflow~create(initialDataflow, self, item, index)
     end
     return newDataflow
+
 
 ::method processDepthFirst.3 private
     expose detectCycles limit once recursive trace
@@ -359,6 +351,7 @@ self~init:super
         if once then previousItems~append(item)
     end
 
+
 ::method processDepthFirst.2 private
     expose doer iterateAfter passIndex trace
     -- not a block do...end, to not see the 'end' in the trace output
@@ -366,7 +359,8 @@ self~init:super
     if trace then trace i
     if self~isEOP then return
     use strict arg item, index, dataflow, previousItems, stack, depth
-    doer~do(item, index, dataflow)
+    doer~do(      item,        index,           dataflow,-
+            item: item, index: index, dataflow: dataflow)
     if \ var("result") then return -- no result returned, nothing to inject
     doResult = result
     -- Similar to .pipeStage~begin :
@@ -378,6 +372,7 @@ self~init:super
         end
     end
     else self~processDepthFirst.3(doResult, index, dataflow, previousItems, stack, depth)
+
 
 ::method processDepthFirst.1 private
     expose iterateBefore trace
@@ -448,13 +443,15 @@ self~init:super
         if once then previousItems~append(item)
     end
 
+
 ::method processBreadthFirst.2 private
     expose doer iterateAfter trace
     -- not a block do...end, to not see the 'end' in the trace output
     if trace then .traceOutput~say("       >I> Method .inject~processBreadthFirst.2")
     if trace then trace i
     use strict arg item, index, dataflow, toprocess, previousItems, stack, depth
-    doer~do(item, index, dataflow)
+    doer~do(      item,        index,           dataflow,-
+            item: item, index: index, dataflow: dataflow)
     if \ var("result") then return -- no result returned, nothing to inject
     doResult = result
     -- Similar to .pipeStage~begin :
@@ -468,6 +465,7 @@ self~init:super
     else do
         self~processBreadthFirst.3(doResult, index, dataflow, toprocess, previousItems, stack, depth)
     end
+
 
 ::method processBreadthFirst.1 private
     expose detectCycles iterateBefore trace
@@ -497,6 +495,7 @@ self~init:super
         end
         else depth = toprocess~pull
     end
+
 
 ::method process
     expose after before depthFirst detectCycles doer initialDataflow once trace
@@ -529,17 +528,13 @@ self~init:super
 
 /******************************************************************************/
 -- A 'do' pipeStage to execute an action passed as argument.
--- CAREFULL ! There is NO automatic insertion of the "return" instruction, and
--- the commands are authorized here, so DON'T FORGET the "return" instruction
--- if you want to return a value !!!!
--- Ex : assuming item==10
--- .do {2*item} will not insert 20 in the pipeline, but will instead run the command "20".
+-- Same as 'inject', but sometimes the name '.do' is better than ".inject".
 
 ::class "do" public subclass inject
 
 ::method init
 use strict arg -- none
-self~init:super(.true) -- allow commands
+self~init:super
 
 
 /******************************************************************************/
@@ -554,9 +549,7 @@ self~init:super(.true) -- allow commands
     do a over arg(1, "a")
         if a~isA(.String) then nop
         else do
-            -- "actionDoer" not candidate here, we want a result.
-            if a~hasMethod("functionDoer") then doer = a~functionDoer("use arg item, index, dataflow")~arity(3)
-                                           else doer = a~doer
+            doer = a~doer
             iterate
         end
         unknown~append(a)
@@ -564,10 +557,12 @@ self~init:super(.true) -- allow commands
     if .nil == doer then raise syntax 93.900 array(self~class~id ": No filter specified")
     forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
+
 ::method process
     expose doer
     use strict arg item, index, dataflow
-    if doer~do(item, index, dataflow) then do   -- apply the filter to the data item
+    if doer~do(      item,        index,           dataflow,-
+               item: item, index: index, dataflow: dataflow) then do   -- apply the filter to the data item
         self~write(item, index, dataflow)       -- the selected items are sent
     end
     else do
@@ -589,7 +584,7 @@ self~init:super(.true) -- allow commands
         if \item~isA(.File) then item = .File~new(item~string)
         childs = item~listFilesIfNotSymbolicLink -- don't dereference symbolic links
         if .nil <> childs then return childs
-    }~doer -- get the doer now, to avoid application of functionDoer later
+    }
     args = arg(1, "a")
     args~append(producer)
     args~append("iterateAfter")
@@ -605,7 +600,7 @@ self~init:super(.true) -- allow commands
 ::class "superClasses" public subclass inject
 
 ::method initOptions
-    producer = {use arg item ; return item~superclasses}~doer -- get the doer now, to avoid application of functionDoer later
+    producer = {use arg item ; return item~superclasses}
     args = arg(1, "a")
     args~append(producer)
     args~append("iterateAfter")
@@ -621,7 +616,7 @@ self~init:super(.true) -- allow commands
 ::class "subClasses" public subclass inject
 
 ::method initOptions
-    producer = {use arg item ; return item~subclasses}~doer -- get the doer now, to avoid application of functionDoer later
+    producer = {use arg item ; return item~subclasses}
     args = arg(1, "a")
     args~append(producer)
     args~append("iterateAfter")
@@ -637,7 +632,7 @@ self~init:super(.true) -- allow commands
 ::class "class.instanceMethods" public subclass inject
 
 ::method initOptions
-    producer = {use arg item ; return item~methods(.nil)}~doer -- get the doer now, to avoid application of functionDoer later
+    producer = {use arg item ; return item~methods(.nil)}
     args = arg(1, "a")
     args~append(producer)
     args~append("iterateAfter")
@@ -652,7 +647,7 @@ self~init:super(.true) -- allow commands
 ::class "instanceMethods" public subclass inject
 
 ::method initOptions
-    producer = {use arg item ; return item~instanceMethods(item~class)}~doer -- get the doer now, to avoid application of functionDoer later
+    producer = {use arg item ; return item~instanceMethods(item~class)}
     args = arg(1, "a")
     args~append(producer)
     args~append("iterateAfter")
@@ -666,7 +661,7 @@ self~init:super(.true) -- allow commands
 ::class "importedPackages" public subclass inject
 
 ::method initOptions
-    producer = {use arg item ; return item~importedPackages}~doer -- get the doer now, to avoid application of functionDoer later
+    producer = {use arg item ; return item~importedPackages}
     args = arg(1, "a")
     args~append(producer)
     args~append("iterateAfter")

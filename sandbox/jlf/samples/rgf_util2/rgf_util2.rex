@@ -1797,8 +1797,7 @@ syntax:              -- propagate condition
   -- JLF
   doer = .nil
   if .nil <> action then do
-    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
-                                        else doer = action~doer
+    doer = action~doer
   end
 
   if coll~isA(.supplier) then
@@ -1832,13 +1831,7 @@ syntax:              -- propagate condition
   count=0
 
 
-  if coll~isA(.Collection) then
-  do
-     if interpreter_extended() then
-         s=makeSortedSupplier(coll, comparator, maxCount)
-     else
-         s=makeSortedSupplier(coll, comparator) -- maxCount not supported
-  end
+  if coll~isA(.Collection) then s=makeSortedSupplier(coll, comparator, maxCount)
 
    -- determine maximum length of "pretty printed" index-value
   maxWidth=0
@@ -1861,8 +1854,11 @@ syntax:              -- propagate condition
             say ppIndex2(s~index, surroundIndexByQuotes)~left(maxWidth) ":" pp2(subitem, surroundItemByQuotes)
             -- JLF
             if .nil <> doer then do
-              if doer~arity >= 2 then doer~do(subitem, s~index)
-                                 else doer~do(subitem)
+              -- can't use the named argument notation, because this file must remain compatible with official oorexx
+              if doer~arity >= 2 then doer~do(      subitem,        s~index,-
+                                              item: subitem, index: s~index)
+                                 else doer~do(      subitem,-
+                                              item: subitem)
             end
          end
      end
@@ -1872,8 +1868,11 @@ syntax:              -- propagate condition
          say ppIndex2(s~index, surroundIndexByQuotes)~left(maxWidth) ":" pp2(s~item, surroundItemByQuotes)
          -- JLF
          if .nil <> doer then do
-           if doer~arity >= 2 then doer~do(s~item, s~index)
-                              else doer~do(s~item)
+           -- can't use the named argument notation, because this file must remain compatible with official oorexx
+           if doer~arity >= 2 then doer~do(      s~item,        s~index,-
+                                           item: s~item, index: s~index)
+                              else doer~do(      s~item,-
+                                           item: s~item)
          end
      end
      s~next

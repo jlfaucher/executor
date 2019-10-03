@@ -109,16 +109,6 @@ pipeStages
     ['trace']
     <producer-doerFactory>
 
-.do : I1 --- O1
-    ['after']
-    ['before']
-    [iterateAfter]
-    [iterateBefore]
-    ['once']
-    ['recursive[.<limit>][.breadthFirst|.depthFirst][.cycles][.memorize]']
-    ['trace']
-    <producer-doerFactory>
-
 .fileTree : I1 --- O1
     ['after']
     ['before']

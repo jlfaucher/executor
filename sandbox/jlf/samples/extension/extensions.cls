@@ -2,26 +2,28 @@
 This script needs a modified ooRexx interpreter which support extension of predefined ooRexx classes.
 */
 
-::requires "extension/array.cls"
-::requires "extension/complex.cls"
-::requires "extension/infinity.cls"
-::requires "extension/indeterminate.cls"
-::requires "extension/file.cls"
-::requires "extension/string.cls"
-::requires "extension/doers.cls"
-::requires "extension/functionals.cls"
-::requires "extension/logical.cls"
 ::requires "concurrency/coactivity.cls"
 ::requires "concurrency/generator.cls"
+::requires "extension/array.cls"
+::requires "extension/collection.cls"
+::requires "extension/complex.cls"
+::requires "extension/doers.cls"
+::requires "extension/file.cls"
+::requires "extension/indeterminate.cls"
+::requires "extension/infinity.cls"
+::requires "extension/string.cls"
+::requires "extension/functionals.cls"
+::requires "extension/logical.cls"
+
 
 ::extension Routine                         inherit RoutineDoer
 ::extension Method                          inherit MethodDoer
 ::extension RexxBlock                       inherit RexxBlockDoer
 
 ::extension Coactivity                      inherit CoactivityDoer CoactivityFilter                      CoactivityIterator                      CoactivityReducer    CoactivityGenerator
-::extension String                          inherit StringDoer     StringFilter                          StringIterator                          StringReducer        StringGenerator        StringMapper        StringHelpers StringPrettyPrinter RepeaterCollector RepeaterGenerator LogicalExtension EncodedString ComplexString
+::extension String                          inherit StringDoer     StringFilter                          StringIterator                          StringReducer        StringGenerator        StringMapper        StringHelpers           StringPrettyPrinter RepeaterCollector RepeaterGenerator LogicalExtension EncodedString ComplexString
 ::extension MutableBuffer                   inherit                MutableBufferFilter                   MutableBufferIterator                   MutableBufferReducer MutableBufferGenerator MutableBufferMapper
-::extension Collection                      inherit                CollectionFilter                      CollectionIterator                      CollectionReducer    CollectionGenerator    CollectionMapper
+::extension Collection                      inherit                CollectionFilter                      CollectionIterator                      CollectionReducer    CollectionGenerator    CollectionMapper    CollectionPrettyPrinter
 ::extension OrderedCollection               inherit                OrderedCollectionFilter
 ::extension Supplier                        inherit                SupplierFilter                        SupplierIterator                        SupplierReducer      SupplierGenerator
 ::extension CoactivitySupplierForGeneration inherit                CoactivitySupplierForGenerationFilter CoactivitySupplierForGenerationIterator

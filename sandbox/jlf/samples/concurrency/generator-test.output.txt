@@ -1,0 +1,148 @@
+Generation without index of all natural numbers : 1 2 3 ...
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+...
+
+Generator : provide the option ~stack for a better control of the stack size in case of recursion.
+Before the change, the stack size was arbitrarily 3 when the option 'cycles' was not used.
+Now the default stack size is 0. That brings a little optimization.
+
+stack(0):    0.0470  0.0440  0.0440  0.0430  0.0470  0.0440     mean= 0.0448
+stack(1):    0.0540  0.0480  0.0560  0.0520  0.0590  0.0570     mean= 0.0543
+stack(2):    0.0490  0.0590  0.0850  0.0670  0.0620  0.0650     mean= 0.0645
+stack(3):    0.0540  0.0520  0.0530  0.0510  0.0600  0.0660     mean= 0.0560
+stack(10):   0.0560  0.0650  0.0690  0.0700  0.0600  0.0600     mean= 0.0633
+stack(100):  0.0850  0.0770  0.0770  0.0620  0.0610  0.0650     mean= 0.0712
+
+Generation with index and stack(0) of all natural numbers : 1 2 3 ...
+[1,1,0,(The NIL object)]
+[2,1,1,(The NIL object)]
+[3,1,2,(The NIL object)]
+[4,1,3,(The NIL object)]
+[5,1,4,(The NIL object)]
+[6,1,5,(The NIL object)]
+[7,1,6,(The NIL object)]
+[8,1,7,(The NIL object)]
+[9,1,8,(The NIL object)]
+[10,1,9,(The NIL object)]
+...
+
+Generation with index and stack(1) of all natural numbers : 1 2 3 ...
+[1,1,0,CircularQueue(an Array no shape, 0 items)]
+[2,1,1,CircularQueue[1]]
+[3,1,2,CircularQueue[2]]
+[4,1,3,CircularQueue[3]]
+[5,1,4,CircularQueue[4]]
+[6,1,5,CircularQueue[5]]
+[7,1,6,CircularQueue[6]]
+[8,1,7,CircularQueue[7]]
+[9,1,8,CircularQueue[8]]
+[10,1,9,CircularQueue[9]]
+...
+
+Generation with index and stack(2) of all natural numbers : 1 2 3 ...
+[1,1,0,CircularQueue(an Array no shape, 0 items)]
+[2,1,1,CircularQueue[1]]
+[3,1,2,CircularQueue[2,1]]
+[4,1,3,CircularQueue[3,2]]
+[5,1,4,CircularQueue[4,3]]
+[6,1,5,CircularQueue[5,4]]
+[7,1,6,CircularQueue[6,5]]
+[8,1,7,CircularQueue[7,6]]
+[9,1,8,CircularQueue[8,7]]
+[10,1,9,CircularQueue[9,8]]
+...
+
+Generation with index and stack(3) of all natural numbers : 1 2 3 ...
+[1,1,0,CircularQueue(an Array no shape, 0 items)]
+[2,1,1,CircularQueue[1]]
+[3,1,2,CircularQueue[2,1]]
+[4,1,3,CircularQueue[3,2,1]]
+[5,1,4,CircularQueue[4,3,2]]
+[6,1,5,CircularQueue[5,4,3]]
+[7,1,6,CircularQueue[6,5,4]]
+[8,1,7,CircularQueue[7,6,5]]
+[9,1,8,CircularQueue[8,7,6]]
+[10,1,9,CircularQueue[9,8,7]]
+...
+
+Generation with index and unlimited stack of all natural numbers : 1 2 3 ...
+[1,1,0,Queue(an Array no shape, 0 items)]
+[2,1,1,Queue[1]]
+[3,1,2,Queue[2,1]]
+[4,1,3,Queue[3,2,1]]
+[5,1,4,Queue[4,3,2,1]]
+[6,1,5,Queue[5,4,3,2,1]]
+[7,1,6,Queue[6,5,4,3,2,1]]
+[8,1,7,Queue[7,6,5,4,3,2,1]]
+[9,1,8,Queue[8,7,6,5,4,3,2,1]]
+[10,1,9,Queue[9,8,7,6,5,4,3,2,1]]
+...
+
+Illustration of depthFirst (default) vs breadthFirst
+['one','ne','e','','two','wo','o','','three','hree','ree','ee','e','']
+['one','two','three','ne','wo','hree','e','o','ree','','','ee','e','']
+
+Factorial
+1
+2
+6
+9.33262137E+157
+
+*NAIVE* generation of factorials from 0
+0! = 1
+1! = 1
+2! = 2
+3! = 6
+4! = 24
+5! = 120
+6! = 720
+7! = 5040
+8! = 40320
+9! = 362880
+
+Less naive generation of factorials from 0
+0! = 1
+1! = 1
+2! = 2
+3! = 6
+4! = 24
+5! = 120
+6! = 720
+7! = 5040
+8! = 40320
+9! = 362880
+
+Collect all items in an array and then generate each array's item one by one (you don't get the first item immediatly)
+2468101214161820222426283032343638404244464850525456586062646668707274767880828486889092949698100102104106108110112114116118120122124126128130132134136138140142144146148150152154156158160162164166168170172174176178180182184186188190192194196198200
+
+Generate directly each item one by one (you get the first item immediatly)
+2468101214161820222426283032343638404244464850525456586062646668707274767880828486889092949698100102104106108110112114116118120122124126128130132134136138140142144146148150152154156158160162164166168170172174176178180182184186188190192194196198200
+
+Generator : don't yield when no result if this is the last yield before end.
+This is similar to the behavior of Coactivity, see yieldLast.
+Not applicable when iterating over a supplier (options iterateBefore, iterateAfter).
+
+applicable: the last execution returns no result, we are not iterating over a supplier
+(an Array no shape, 0 items)
+
+not applicable: we are iterating over a supplier. For 2 and 4, there was a yield of 'no result', and the last one is not discarded.
+[1,(The NIL object),3,(The NIL object)]
+
+This decision was taken while playing with executor to see how to split a string in substrings of 3 characters.
+The string below, when encoded in UTF-8, is made of 3 bytes per character.
+Before applying the change, the first one-liner returned an array of 8 items, because the last one was .nil (because of the last yield).
+After the change, both one-liners return ['こ','ん','に','ち','は','世','界']
+
+['こ','ん','に','ち','は','世','界']
+['こ','ん','に','ち','は','世','界']
+
+Ended coactivities: 46

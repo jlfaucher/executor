@@ -12,13 +12,16 @@
     use strict arg action={item}
     return .Generator~new(self)~action(action)
 
+
 ::method generateI class
     use strict arg action={item}
     return .Generator~new(self)~action(action)~returnIndex
 
+
 ::method generate
     use strict arg action={item}
     return .Generator~new(self)~action(action)
+
 
 ::method generateI
     use strict arg action={item}
@@ -38,6 +41,7 @@
 ::method each unguarded
     forward to (self~supplier)
 
+
 -- Iterate over the values yielded by the coactivity and apply the given action to (current_yielded_value, current_yielded_index).
 -- Each pair (result, index) is yielded one by one.
 ::method eachI unguarded
@@ -54,20 +58,19 @@
     use strict arg action={arg(1)}
     return self~eachImpl(action, .false)
 
+
 -- Iterate over the items of the supplier and apply the given action to (current_item, current_index).
 -- Each pair (result, index) is yielded one by one.
 ::method eachI unguarded
     use strict arg action={arg(1)}
     return self~eachImpl(action, .true)
 
+
 ::method eachImpl private unguarded
     use strict arg action, returnIndex=.false
     return {::coactivity
             expose action returnIndex self
             use strict arg -- none
-            -- parse only once, before iteration
-            -- if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
-            --                                     else doer = action~doer
             doer = action~doer
             arity = doer~arity
             do while self~available
@@ -101,85 +104,110 @@
 ::method drop unguarded
     forward to (self~supplier)
 
+
 ::method dropI unguarded
     forward to (self~supplier)
+
 
 ::method dropLast unguarded
     forward to (self~supplier)
 
+
 ::method dropLastI unguarded
     forward to (self~supplier)
+
 
 ::method dropUntil unguarded
     forward to (self~supplier)
 
+
 ::method dropUntilI unguarded
     forward to (self~supplier)
+
 
 ::method dropWhile unguarded
     forward to (self~supplier)
 
+
 ::method dropWhileI unguarded
     forward to (self~supplier)
+
 
 -- Iterate over the values yielded by the coactivity and reject the values for which the given filter applied to (current_yielded_value) returns true.
 -- Each not rejected item is yielded one by one.
 ::method reject unguarded
     forward to (self~supplier)
 
+
 -- Iterate over the values yielded by the coactivity and reject the values for which the given filter applied to (current_yielded_value, current_yielded_index) returns true.
 -- Each pair (not rejected item, index) is yielded one by one.
 ::method rejectI unguarded
     forward to (self~supplier)
+
 
 -- Iterate over the values yielded by the coactivity and select the values for which the given filter applied to (current_yielded_value) returns true.
 -- Each selected item is yielded one by one.
 ::method select unguarded
     forward to (self~supplier)
 
+
 -- Iterate over the values yielded by the coactivity and select the values for which the given filter applied to (current_yielded_value, current_yielded_index) returns true.
 -- Each pair (selected item, index) is yielded one by one.
 ::method selectI unguarded
     forward to (self~supplier)
 
+
 ::method takeFirst unguarded
     forward to (self~supplier)
+
 
 ::method take unguarded
     forward to (self~supplier)
 
+
 ::method takeFirstI unguarded
     forward to (self~supplier)
+
 
 ::method takeI unguarded
     forward to (self~supplier)
 
+
 ::method takeLast unguarded
     forward to (self~supplier)
+
 
 ::method takeLastI unguarded
     forward to (self~supplier)
 
+
 ::method takeUntil unguarded
     forward to (self~supplier)
+
 
 ::method until unguarded
     forward to (self~supplier)
 
+
 ::method takeUntilI unguarded
     forward to (self~supplier)
+
 
 ::method untilI unguarded
     forward to (self~supplier)
 
+
 ::method takeWhile unguarded
     forward to (self~supplier)
+
 
 ::method while unguarded
     forward to (self~supplier)
 
+
 ::method takeWhileI unguarded
     forward to (self~supplier)
+
 
 ::method whileI unguarded
     forward to (self~supplier)
@@ -193,41 +221,51 @@
     use strict arg count=1
     return self~dropFirstImpl(count, .false)
 
+
 ::method drop unguarded
     use strict arg count=1
     return self~dropFirstImpl(count, .false)
+
 
 ::method dropFirstI unguarded
     use strict arg count=1
     return self~dropFirstImpl(count, .true)
 
+
 ::method dropI unguarded
     use strict arg count=1
     return self~dropFirstImpl(count, .true)
+
 
 ::method dropLast unguarded
     use strict arg count=1
     return self~dropLastImpl(count, .false)
 
+
 ::method dropLastI unguarded
     use strict arg count=1
     return self~dropLastImpl(count, .true)
+
 
 ::method dropUntil unguarded
     use strict arg predicate
     return self~dropUntilImpl(predicate, .false)
 
+
 ::method dropUntilI unguarded
     use strict arg predicate
     return self~dropUntilImpl(predicate, .true)
+
 
 ::method dropWhile unguarded
     use strict arg predicate
     return self~dropWhileImpl(predicate, .false)
 
+
 ::method dropWhileI unguarded
     use strict arg predicate
     return self~dropWhileImpl(predicate, .true)
+
 
 -- Iterate over the items of the supplier and reject the items for which the given filter applied to (current_item) returns true.
 -- Each not rejected item is yielded one by one.
@@ -235,11 +273,13 @@
     use strict arg predicate
     return self~rejectImpl(predicate, .false)
 
+
 -- Iterate over the items of the supplier and reject the items for which the given filter applied to (current_item, current_index) returns true.
 -- Each pair (not rejected item, index) is yielded one by one.
 ::method rejectI unguarded
     use strict arg predicate
     return self~rejectImpl(predicate, .true)
+
 
 -- Iterate over the items of the supplier and select the items for which the given filter applied to (current_item) returns true.
 -- Each selected item is yielded one by one.
@@ -247,67 +287,83 @@
     use strict arg predicate
     return self~selectImpl(predicate, .false)
 
+
 -- Iterate over the items of the supplier and select the items for which the given filter applied to (current_item, current_index) returns true.
 -- Each pair (selected item, index) is yielded one by one.
 ::method selectI unguarded
     use strict arg predicate
     return self~selectImpl(predicate, .true)
 
+
 ::method takeFirst unguarded
     use strict arg count=1
     return self~takeFirstImpl(count, .false)
+
 
 ::method take unguarded
     use strict arg count=1
     return self~takeFirstImpl(count, .false)
 
+
 ::method takeFirstI unguarded
     use strict arg count=1
     return self~takeFirstImpl(count, .true)
+
 
 ::method takeI unguarded
     use strict arg count=1
     return self~takeFirstImpl(count, .true)
 
+
 ::method takeLast unguarded
     use strict arg count=1
     return self~takeLastImpl(count, .false)
+
 
 ::method takeLastI unguarded
     use strict arg count=1
     return self~takeLastImpl(count, .true)
 
+
 ::method takeUntil unguarded
     use strict arg predicate
     return self~takeUntilImpl(predicate, .false)
+
 
 ::method until unguarded
     use strict arg predicate
     return self~takeUntilImpl(predicate, .false)
 
+
 ::method takeUntilI unguarded
     use strict arg predicate
     return self~takeUntilImpl(predicate, .true)
+
 
 ::method untilI unguarded
     use strict arg predicate
     return self~takeUntilImpl(predicate, .true)
 
+
 ::method takeWhile unguarded
     use strict arg predicate
     return self~takeWhileImpl(predicate, .false)
+
 
 ::method while unguarded
     use strict arg predicate
     return self~takeWhileImpl(predicate, .false)
 
+
 ::method takeWhileI unguarded
     use strict arg predicate
     return self~takeWhileImpl(predicate, .true)
 
+
 ::method whileI unguarded
     use strict arg predicate
     return self~takeWhileImpl(predicate, .true)
+
 
 ::method dropFirstImpl private unguarded
     use strict arg count, returnIndex
@@ -329,6 +385,7 @@
             end
            }~doer
 
+
 ::method dropLastImpl private unguarded
     use strict arg count, returnIndex
     return {::coactivity
@@ -349,10 +406,9 @@
             end
            }~doer
 
+
 ::method dropUntilImpl private unguarded
     use strict arg predicate, returnIndex
-    -- if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
-    --                                        else doer = predicate~doer
     doer = predicate~doer
     return {::coactivity
             expose doer returnIndex self
@@ -379,10 +435,9 @@
             end
            }~doer
 
+
 ::method dropWhileImpl private unguarded
     use strict arg predicate, returnIndex
-    -- if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
-    --                                        else doer = predicate~doer
     doer = predicate~doer
     return {::coactivity
             expose doer returnIndex self
@@ -409,14 +464,12 @@
             end
            }~doer
 
+
 ::method rejectImpl private unguarded
     use strict arg predicate, returnIndex=.false
     return {::coactivity
             expose predicate returnIndex self
             use strict arg -- none
-            -- parse only once, before iteration
-            -- if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
-            --                                        else doer = predicate~doer
             doer = predicate~doer
             arity = doer~arity
             do while self~available
@@ -439,14 +492,12 @@
             end
            }~doer
 
+
 ::method selectImpl private unguarded
     use strict arg predicate, returnIndex=.false
     return {::coactivity
             expose predicate returnIndex self
             use strict arg -- none
-            -- parse only once, before iteration
-            -- if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
-            --                                        else doer = predicate~doer
             doer = predicate~doer
             arity = doer~arity
             do while self~available
@@ -469,6 +520,7 @@
             end
            }~doer
 
+
 ::method takeFirstImpl private unguarded
     use strict arg count, returnIndex
     return {::coactivity
@@ -485,6 +537,7 @@
                 count -= 1
             end
            }~doer
+
 
 ::method takeLastImpl private unguarded
     use strict arg count, returnIndex
@@ -508,10 +561,9 @@
             end
            }~doer
 
+
 ::method takeUntilImpl private unguarded
     use strict arg predicate, returnIndex
-    -- if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
-    --                                        else doer = predicate~doer
     doer = predicate~doer
     return {::coactivity
             expose doer returnIndex self
@@ -533,10 +585,9 @@
             end
            }~doer
 
+
 ::method takeWhileImpl private unguarded
     use strict arg predicate, returnIndex
-    -- if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
-    --                                        else doer = predicate~doer
     doer = predicate~doer
     return {::coactivity
             expose doer returnIndex self
@@ -581,6 +632,7 @@
     if \ (self >= 0) then raise syntax 93.900 array ("self must be zero or a positive whole number; found" self)
     forward to 1 message "generate.upto" array(self, action)
 
+
 -- Lazy repeater : returns a coactivity.
 -- Repeat the given action from self up to upper limit (self and upper limit are numbers).
 -- When the action returns a result during the loop, this result is yielded.
@@ -593,8 +645,6 @@
     use strict arg upperLimit, action={arg(1)}
     if \ self~dataType("N") then raise syntax 93.900 array ("self must be a number; found" self)
     if \ upperLimit~dataType("N") then raise syntax 93.900 array ("upperLimit must be a number; found" upperLimit)
-    -- if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item")~arity(1)
-    --                                     else doer = action~doer
     doer = action~doer
     return {::coactivity
             expose doer upperLimit self
@@ -606,6 +656,7 @@
                 use strict arg -- none
             end
            }~doer
+
 
 -- Lazy repeater : returns a coactivity.
 -- Repeat the given action from self down to lower limit (self and lower limit are numbers).
@@ -619,8 +670,6 @@
     use strict arg lowerLimit, action={arg(1)}
     if \ self~dataType("N") then raise syntax 93.900 array ("self must be a number; found" self)
     if \ lowerLimit~dataType("N") then raise syntax 93.900 array ("lowerLimit must be a number; found" lowerLimit)
-    -- if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item")~arity(1)
-    --                                     else doer = action~doer
     doer = action~doer
     return {::coactivity
             expose doer lowerLimit self
@@ -647,15 +696,18 @@
     use strict arg action={arg(1)}
     return .Generator~new(self~makeArray(""))~iterateBefore~action(action)
 
+
 -- Yield each character one by one, as a pair (char, char_pos)
 ::method generateCI unguarded
     use strict arg action={arg(1)}
     return .Generator~new(self~makeArray(""))~iterateBefore~action(action)~returnIndex
 
+
 -- Yield each word one by one
 ::method generateW unguarded
     use strict arg action={arg(1)}
     return .Generator~new(self~subwords)~iterateBefore~action(action)
+
 
 -- Yield each word one by one, as a pair (word, word_index)
 ::method generateWI unguarded
@@ -672,15 +724,18 @@
     use strict arg action={arg(1)}
     return .Generator~new(self~makeArray(""))~iterateBefore~action(action)
 
+
 -- Yield each character one by one, as a pair (char, char_pos)
 ::method generateCI unguarded
     use strict arg action={arg(1)}
     return .Generator~new(self~makeArray(""))~iterateBefore~action(action)~returnIndex
 
+
 -- Yield each word one by one
 ::method generateW unguarded
     use strict arg action={arg(1)}
     return .Generator~new(self~subwords)~iterateBefore~action(action)
+
 
 -- Yield each word one by one, as a pair (word, word_index)
 ::method generateWI unguarded
@@ -696,6 +751,7 @@
 ::method generate unguarded
     forward to (self~supplier)
 
+
 -- Yield each item one by one, as a pair (item, index)
 ::method generateI unguarded
     forward to (self~supplier)
@@ -710,6 +766,7 @@
     use strict arg action={arg(1)}
     return .Generator~new(self)~iterateBefore~action(action)
 
+
 -- Yield each item one by one, as a pair (item, index)
 ::method generateI unguarded
     use strict arg action={arg(1)}
@@ -723,6 +780,7 @@
 ::method generate unguarded
     forward to (self~supplier)
 
+
 ::method generateI unguarded
     forward to (self~supplier)
 
@@ -732,12 +790,11 @@
 ---------------------------------------------
 
 ::method init
-    expose action allowCommands depthFirst detectCycles doer iterateBefore iterateAfter limit once pendingYieldNoResult recursive returnIndex source stackSize trace
+    expose action depthFirst detectCycles doer iterateBefore iterateAfter limit once pendingYieldNoResult recursive returnIndex source stackSize trace
     --say "Generator~init : self=" self self~identityHash
     self~init:super
     use strict arg source=.nil -- the seed of the generation, called "source" by analogy with pipes
     action = .nil
-    allowCommands = .false -- by default, the doer is a function whose result is never used as command
     depthFirst = .true
     detectCycles = .false
     doer = .nil
@@ -751,25 +808,21 @@
     stackSize = 0
     trace = .false
 
+
 ::method uninit
     --say "Generator~uninit" -- Temporary, for trying to understand why the GC is not working
     self~uninit:super
 
+
 ::method action unguarded
     expose action trace
+    if trace then .traceOutput~say("       >I> Method .Generator~action")
     if trace then trace i
     if self~isStarted then raise syntax 93.900 array(self~class~id ": has been started, too late to change the options! ")
     guard on
     use strict arg action
     return self
 
-::method allowCommands unguarded
-    expose allowCommands
-    if self~isStarted then raise syntax 93.900 array(self~class~id ": has been started, too late to change the options! ")
-    guard on
-    use strict arg -- none
-    allowCommands = .true
-    return self
 
 ::method iterateBefore unguarded
     expose iterateBefore
@@ -779,6 +832,7 @@
     iterateBefore = .true
     return self
 
+
 ::method iterateAfter unguarded
     expose iterateAfter
     if self~isStarted then raise syntax 93.900 array(self~class~id ": has been started, too late to change the options! ")
@@ -787,8 +841,10 @@
     iterateAfter = .true
     return self
 
+
 ::method recursive unguarded
     expose depthFirst detectCycles limit recursive trace
+    if trace then .traceOutput~say("       >I> Method .Generator~recursive")
     if trace then trace i
     if self~isStarted then raise syntax 93.900 array(self~class~id ": has been started, too late to change the options! ")
     use strict arg options=""
@@ -805,6 +861,7 @@
     end
     return self
 
+
 ::method returnIndex unguarded
     expose returnIndex
     if self~isStarted then raise syntax 93.900 array(self~class~id ": has been started, too late to change the options! ")
@@ -812,6 +869,7 @@
     use strict arg -- none
     returnIndex = .true
     return self
+
 
 ::method stack unguarded
     expose stackSize
@@ -821,6 +879,7 @@
     if datatype(stackSize, "W"), stackSize >= 0 then return self
     raise syntax 93.900 array("stack: argument must be an integer >= 0, got" stackSize~string)
 
+
 ::method trace unguarded
     expose trace
     if self~isStarted then raise syntax 93.900 array(self~class~id ": has been started, too late to change the options! ")
@@ -828,6 +887,7 @@
     use strict arg -- none
     trace = .true
     return self
+
 
 ::method once unguarded
     expose once
@@ -837,6 +897,7 @@
     once = .true
     return self
 
+
 ::method yieldResult private
     expose recursive returnIndex
     use strict arg item, index, depth, stack
@@ -844,6 +905,7 @@
     else if returnIndex then self~yield(.array~of(item, index))
     else self~yield(item)
     use strict arg -- none
+
 
 ::method processDepthFirst.3 private
     expose detectCycles limit once recursive trace
@@ -864,6 +926,7 @@
         self~yieldResult(item, index, depth, stack)
         if once then previousItems~append(item)
     end
+
 
 ::method processDepthFirst.2 private
     expose doer iterateAfter pendingYieldNoResult trace
@@ -911,6 +974,7 @@
     end
     else self~processDepthFirst.3(doResult, index, previousItems, stack, depth)
 
+
 ::method processDepthFirst.1 private
     expose iterateBefore pendingYieldNoResult trace
     -- not a block do...end, to not see the 'end' in the trace output
@@ -931,6 +995,7 @@
         end
     end
     else self~processDepthFirst.2(item, index, previousItems, stack, depth)
+
 
 ::method processBreadthFirst.3 private
     expose detectCycles limit once recursive trace
@@ -956,6 +1021,7 @@
         self~yieldResult(item, index, depth, stack)
         if once then previousItems~append(item)
     end
+
 
 ::method processBreadthFirst.2 private
     expose doer iterateAfter pendingYieldNoResult trace
@@ -1003,6 +1069,7 @@
     end
     else self~processBreadthFirst.3(doResult, index, toprocess, previousItems, stack, depth)
 
+
 ::method processBreadthFirst.1 private
     expose iterateBefore pendingYieldNoResult trace
     -- not a block do...end, to not see the 'end' in the trace output
@@ -1033,28 +1100,15 @@
         depth = toprocess~pull
     end
 
+
 ::method action2doer private
-    expose allowCommands trace
+    expose trace
+    if trace then .traceOutput~say("       >I> Method .Generator~action2doer")
     if trace then trace i
-    if allowCommands then raise syntax 93.900 array("allowCommands is not supported")
     use strict arg action
     if action == .nil then action = {arg(1)}
     return action~doer
-    /*
-    if allowCommands, action~hasMethod("actionDoer") then do
-        doer = action~actionDoer("use arg item, index, depth, stack")~arity(4)
-        return doer
-    end
-    if action~hasMethod("functionDoer") then do
-        doer = action~functionDoer("use arg item, index, depth, stack")~arity(4)
-        return doer
-    end
-    if action~hasMethod("doer") then do
-        doer = action~doer
-        return doer
-    end
-    raise syntax 93.900 array(self~class~id ":" action "is not a doer factory")
-    */
+
 
 ::method main
     expose action depthFirst detectCycles doer once recursive source stackSize trace
@@ -1084,7 +1138,7 @@ Temporary, for trying to understand why the GC is not working
 */
 
 ::method init
-    expose action doer trace source allowCommands
+    expose action doer trace source
     say "jlf~init : self=" self self~identityHash
     self~init:super
     --forward class (super) continue
@@ -1092,19 +1146,22 @@ Temporary, for trying to understand why the GC is not working
     action = .nil
     doer = .nil
     trace = .false
-    allowCommands = .false
+
 
 ::method uninit
     say "jlf~uninit"
     self~uninit:super
 
+
 ::method action unguarded
     expose action trace
+    if trace then .traceOutput~say("       >I> Method .jlf~action")
     if trace then trace i
     if self~isStarted then raise syntax 93.900 array(self~class~id ": has been started, too late to change the options! ")
     guard on
     use strict arg action
     return self
+
 
 ::method trace unguarded
     expose trace
@@ -1114,28 +1171,15 @@ Temporary, for trying to understand why the GC is not working
     trace = .true
     return self
 
+
 ::method action2doer private
-    expose allowCommands trace
+    expose trace
+    if trace then .traceOutput~say("       >I> Method .jlf~action2doer")
     if trace then trace i
-    if allowCommands then raise syntax 93.900 array("allowCommands is not supported")
     use strict arg action
     if action == .nil then action = {arg(1)}
     return action~doer
-    /*
-    if allowCommands, action~hasMethod("actionDoer") then do
-        doer = action~actionDoer("use arg item, index, depth, stack")~arity(4)
-        return doer
-    end
-    if action~hasMethod("functionDoer") then do
-        doer = action~functionDoer("use arg item, index, depth, stack")~arity(4)
-        return doer
-    end
-    if action~hasMethod("doer") then do
-        doer = action~doer
-        return doer
-    end
-    raise syntax 93.900 array(self~class~id ":" action "is not a doer factory")
-    */
+
 
 ::method main
     expose action doer source trace

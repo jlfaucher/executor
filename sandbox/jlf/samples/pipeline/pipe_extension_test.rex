@@ -243,18 +243,18 @@ say df5 ; say df5~makeString(1234, .true)
 -- .do and .inject pipeStages
 -- ----------------------------------------------------------------------------
 
--- .do is action-oriented, whereas .inject is function-oriented.
--- Both support the same options.
--- .do {"echo" item} -- no implicit return, this is a command
--- .inject {"echo" item} -- implicit return, commands are disabled
+-- .do is a synonym of .inject.
+-- Sometimes, the name '.do' is better than the name '.inject'.
+-- Both support the same options and have the same behavior.
+
 
 -- Do something for each item (no returned value, so no value passed to .console).
-.array~of(1, , 2, , 3)~pipe(.do {say 'item='item 'dataflow='dataflow~makeString} | .console)
+.array~of(1, , 2, , 3)~pipe(.inject {say 'item='item 'dataflow='dataflow~makeString} | .console)
 
 
--- Do something for each item (the returned result replaces the item's value).
+-- Inject something for each item (the returned result replaces the item's value).
 -- Here, only one result is calculated for an item, so resultIndex is always 1.
-.array~of(1, , 2, , 3)~pipe(.do {return 2*item} memorize | .console)
+.array~of(1, , 2, , 3)~pipe(.inject {return 2*item} memorize | .console)
 
 
 -- Inject a value for each item (the returned value is injected after the input item).
@@ -401,10 +401,10 @@ say df5 ; say df5~makeString(1234, .true)
 -- has been reached, whatever its position in the pipeline.
 -- Note the "" at the end of the first .console. This is an indicator to not insert a newline.
 supplier = .array~of(1,2,3,4,5,6,7,8,9)~supplier
-supplier~pipe(.console "2*" item "=" "" | .do {return 2*item} | .take 2 | .console item)
+supplier~pipe(.console "2*" item "=" "" | .inject {return 2*item} | .take 2 | .console item)
 say supplier~index -- this is the index of the last processed item
 supplier~next -- skip the last processed item
-supplier~pipe(.console "4*" item "=" "" | .do {return 4*item} | .take 4 | .console item)
+supplier~pipe(.console "4*" item "=" "" | .inject {return 4*item} | .take 4 | .console item)
 say supplier~index
 
 

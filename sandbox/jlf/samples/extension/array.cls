@@ -802,6 +802,9 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:3,a1=[*v2,a2=[
 source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,a2=[*v2,*a1],*a1]
     */
     use strict arg maxItems=(-1), sparse="..", ellipsis="...", separator=",", val=(self), referencesTable=.nil
+    use named arg trace=.false
+    if trace then .traceOutput~say("       >I> Method .ArrayPrettyPrinter~ppRepresentation")
+    if trace then trace i
     -- Remember : this code has been duplicated in pipe.rex, routine dataflow_representation.
     if referencesTable == .nil then referencesTable = self~collectReferences(maxItems) -- do it before pretty printing, to display the reference identifiers only when needed
     if val~isA(.enclosedArray) then do
@@ -811,7 +814,7 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
         reference~displayed(.true)
         valstr = ""
         if reference~selfReferenceId <> 0 then valstr = "e" || reference~selfReferenceId || "="
-        return valstr || "<"val~ppRepresentation(maxItems, sparse, ellipsis, separator, val~disclose, referencesTable)">"
+        return valstr || "<"val~ppRepresentation(maxItems, sparse, ellipsis, separator, val~disclose, referencesTable, trace: trace)">"
     end
     else if val~isA(.array), val~dimension == 1 then do
         reference = referencesTable[val]
@@ -837,7 +840,7 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
                 valstr ||= sep || sparse
                 sep = separator
             end
-            valstr ||= sep || val~ppRepresentation(maxItems, sparse, ellipsis, separator, item, referencesTable)
+            valstr ||= sep || val~ppRepresentation(maxItems, sparse, ellipsis, separator, item, referencesTable, trace: trace)
             sep = separator
             items += 1
             i = index + 1 -- next index

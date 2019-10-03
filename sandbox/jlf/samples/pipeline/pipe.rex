@@ -117,20 +117,24 @@ nop
 ::method '[]' class                         -- create a pipeStage instance with arguments
 forward to (self) message('NEW')            -- just forward this as a new message
 
+
 ::method '|' class                          -- concatenate an instance of a pipeStage with following pipeStage
 use strict arg follower
 me = self~new                               -- create a new pipeStage instance
 return me|follower                          -- perform the hook up
+
 
 ::method '>' class                          -- concatenate an instance of a pipeStage with following pipeStage
 use strict arg follower
 me = self~new                               -- create a new pipeStage instance
 return me>follower                          -- perform the hook up
 
+
 ::method '>>' class                         -- concatenate an instance of a pipeStage with following pipeStage
 use strict arg follower
 me = self~new                               -- create a new pipeStage instance
 return me>>follower                         -- perform the hook up
+
 
 -- .myStep arg1 arg2
 ::method " " class                          -- another way to pass arguments (one by one)
@@ -153,6 +157,7 @@ return me
 ::method new                                -- the pipeStage chaining process
 return self                                 -- just return ourself
 
+
 ::method init
 expose I1Counter I2Counter isEOP memorize next options secondary tag var varName
 I1Counter = 0
@@ -164,26 +169,31 @@ options = .array~new                        -- options are passed like that : .m
 secondary = .nil                            -- all pipeStages have a secondary output potential
 tag = ""
 
+
 ::method '|'
 use strict arg follower
 follower = follower~new                     -- make sure this is an instance
 return self~append(follower)                -- do the chain append logic
+
 
 ::method '>'
 use strict arg follower
 follower = follower~new                     -- make sure this is an instance
 return self~append(follower)                -- do the chain append logic
 
+
 ::method '>>'
 use strict arg follower
 follower = follower~new                     -- make sure this is an instance
 return self~appendSecondary(follower)       -- do the chain append logic
+
 
 ::method " "                                -- the options are passed one by one
 expose options
 use strict arg arg
 options~append(arg)
 return self                                 -- by returning self, let chain the blank operators
+
 
 ::method append                             -- append a pipeStage to the entire chain
 expose next
@@ -195,6 +205,7 @@ else do
     next~append(follower)                   -- have our successor append it.
 end
 return self                                 -- we're our own return value
+
 
 ::method appendSecondary                    -- append a pipeStage to the secondary output of entire chain
 expose next
@@ -215,6 +226,7 @@ else do
 end
 return self                                 -- we're our own return value
 
+
 ::method insert                             -- insert a pipeStage after this one, but before the next
 expose next
 user strict arg newpipeStage
@@ -223,45 +235,54 @@ next~I1UnlinkFromO1(self)                   -- unlink self primary output (O1) t
 newpipeStage~I1LinkFromO1(self)             -- link self primary output (O1) to newpipeStage primary input (I1)
 return self                                 -- we're our own return value
 
+
 ::method I1LinkFromO1                       -- link previousPipeStage primary output (O1) to self primary input (I1)
 use strict arg previousPipeStage
 previousPipeStage~next = self
 self~I1Counter += 1
+
 
 ::method I1UnlinkFromO1                     -- unlink previousPipeStage primary output (O1) to self primary input (I1)
 use strict arg previousPipeStage
 previousPipeStage~next = .nil
 self~I1Counter -= 1
 
+
 ::method I2LinkFromO1                       -- link previousPipeStage primary output (O1) to self secondary input (I2)
 use strict arg previousPipeStage
 previousPipeStage~next = self
 self~I2Counter += 1
+
 
 ::method I2UnlinkFromO1                     -- unlink previousPipeStage primary output (O1) to self secondary input (I2)
 use strict arg previousPipeStage
 previousPipeStage~next = .nil
 self~I2Counter -= 1
 
+
 ::method I1LinkFromO2                       -- link previousPipeStage secondary output (O2) to self primary input (I1)
 use strict arg previousPipeStage
 previousPipeStage~secondary = self
 self~I1Counter += 1
+
 
 ::method I1UnlinkFromO2                     -- unlink previousPipeStage secondary output (O2) to self primary input (I1)
 use strict arg previousPipeStage
 previousPipeStage~secondary = .nil
 self~I1Counter -= 1
 
+
 ::method I2LinkFromO2                       -- link previousPipeStage secondary output (O2) to self secondary input (I2)
 use strict arg previousPipeStage
 previousPipeStage~secondary = self
 self~I2Counter += 1
 
+
 ::method I2UnlinkFromO2                     -- link previousPipeStage secondary output (O2) to self secondary input (I2)
 use strict arg previousPipeStage
 previousPipeStage~secondary = .nil
 self~I2Counter -= 1
+
 
 ::method go                                 -- execute using a provided object
 use strict arg source, profile=.false
@@ -285,6 +306,7 @@ finalize:
 anyError:
     anyErrorTrapped = .true
     signal finalize
+
 
 ::method begin                              -- start pumping the pipeline
 use strict arg source
@@ -312,6 +334,7 @@ else do
     end
 end
 
+
 ::method start                              -- process "start-of-pipe" condition
 expose next options secondary
 forward continue arguments (options) message "initOptions" -- now we have all the options, lets process them
@@ -321,6 +344,7 @@ end
 if .nil <> secondary then do
     secondary~start                         -- only forward if we have a successor
 end
+
 
 ::method initOptions
 -- Here, we receive the options that are unknown to the current pipeStage.
@@ -348,6 +372,7 @@ do a over arg(1, "a")
 end
 if error then raise syntax 93.900 array(self~class~id ": Unknown option")
 
+
 ::method checkEOP
 -- Accept zero to n arguments, each argument being a pipeStage or .nil
 -- If all the args are .nil then don't change isEOP (this is a terminal pipeStage).
@@ -362,15 +387,18 @@ end
 if allNIL then return
 self~isEOP = .true
 
+
 ::method process                            -- default data processing
 use strict arg item, index, dataflow        -- get the data item
 self~write(item, index, dataflow)           -- send this down the line
 self~checkEOP(self~next)
 
+
 ::method newDataflow
 -- Can be redefined by subclasses (ex : .inject)
 use strict arg previousDataflow, item, index
 return .dataflow~create(previousDataflow, self, item, index)
+
 
 ::method write                              -- handle the result from a process method
 expose next
@@ -383,6 +411,7 @@ if .nil <> next, \next~isEOP then do
 end
 return .nil
 
+
 ::method writeSecondary                     -- handle a secondary output result from a process method
 expose secondary
 use strict arg item, index, dataflow
@@ -394,8 +423,10 @@ if .nil <> secondary, \secondary~isEOP then do
 end
 return .nil
 
+
 ::method processSecondary                   -- handle a secondary input result from a process method
 forward message('PROCESS')                  -- this by default is a merge operation
+
 
 ::method eof                                -- process "end-of-pipe" condition
 expose next secondary
@@ -406,6 +437,7 @@ if .nil <> secondary then do
     secondary~eof                           -- only forward if we have a successor
 end
 
+
 ::method secondaryEof                       -- process "end-of-pipe" condition
 expose next secondary
 if .nil <> next then do
@@ -414,6 +446,7 @@ end
 if .nil <> secondary then do
     secondary~secondaryEof                  -- only forward if we have a successor
 end
+
 
 ::method reset
 expose next secondary
@@ -446,6 +479,7 @@ See .fanin and .merge for more examples.
 */
 nop
 
+
 ::method append                             -- append a secondaryConnector pipeStage to the entire chain
 use strict arg follower
 if .nil == self~next then do                -- if we're the end already, just update the next
@@ -455,6 +489,7 @@ else do
     self~next~append(follower)              -- have our successor append it.
 end
 return self                                 -- we're our own return value
+
 
 ::method appendSecondary                    -- append a secondaryConnector pipeStage to the secondary output of entire chain
 use strict arg follower
@@ -466,6 +501,7 @@ else do
 end
 return self                                 -- we're our own return value
 
+
 ::method insert                             -- insert a pipeStage after this one, but before the next
 user strict arg newpipeStage
 newpipeStage~append(self~next)              -- if newpipeStage has followers, then the last follower will be linked to next
@@ -473,8 +509,10 @@ self~next~I2UnlinkFromO1(self)              -- unlink self primary output (O1) t
 newpipeStage~I2LinkFromO1(self)             -- link self primary output (O1) to newpipeStage secondary input (I2)
 return self                                 -- we're our own return value
 
+
 ::method process                            -- processing operations connect with nextPipeStage secondaries
 forward to(self~next) message('processSecondary')
+
 
 ::method eof                                -- processing operations connect with nextPipeStage secondaries
 forward to(self~next) message('secondaryEof')
@@ -495,12 +533,14 @@ See also : .Profiler
 */
 nop
 
+
 ::method instrumentClass class
 use strict arg class, messages
 self~instrumentMethods(class, messages)
 do class over class~subclasses
     self~instrumentClass(class, messages) -- recursively instrument this class and its subclasses
 end
+
 
 ::method instrument class
 use strict arg message, ...
@@ -532,6 +572,7 @@ if o1~isA(.array) then return 1 -- array > notArray
 if o2~isA(.array) then return -1 -- notArray < array
 */
 return compareStrings(o1~string, o2~string, caseless, strict)
+
 
 ::routine compareStrings
 use strict arg s1, s2, caseless, strict
@@ -660,42 +701,53 @@ dataflow~index = index
 dataflow~item = item
 return dataflow
 
+
 ::method "previous="
 use strict arg previous
 self[1] = previous
 
+
 ::method previous
 return self[1]
+
 
 ::method "tag="
 use strict arg tag
 self[2] = tag
 
+
 ::method tag
 return self[2]
+
 
 ::method "index="
 use strict arg index
 self[3] = index
 
+
 ::method index
 return self[3]
+
 
 ::method "item="
 use strict arg item
 self[4] = item
 
+
 ::method item
 return self[4]
+
 
 ::method length
 if .nil <> self~previous then return 1 + self~previous~length
 return 1
 
+
 ::method "[]"
 use strict arg index, ...
 if index~isA(.String), index~dataType("W"), index > 0 then forward class (super)
 forward message "get"
+
 
 ::method get
 -- Retrieve a dataflow by tag. Start from self, and go to previous dataflows.
@@ -723,6 +775,7 @@ else do
 end
 return .nil -- not found
 
+
 ::method compareTo
 use strict arg other, caseless=.false, strict=.false
 -- compare the tags
@@ -741,6 +794,7 @@ if .nil == previousDataflow1 & .nil == previousDataflow2 then return 0
 else if .nil == previousDataflow1 then return -1 -- nil < nonNil
 else if .nil == previousDataflow2 then return 1 -- nonNil > nil
 return previousDataflow1~compareTo(previousDataflow2)
+
 
 ::method makeString
 /*
@@ -783,6 +837,7 @@ do index = self~firstIndexPoolManaged to self~dimension(1)
 end
 return string
 
+
 ::routine dataflow_value
 /*
 pool~values is a collection which remembers the values inserted in the dataflow representation.
@@ -813,6 +868,7 @@ else if val~isA(.array), val~dimension == 1, val~items <= .dataflow~arrayPrintMa
         call dataflow_value v, showPool, pool
     end
 end
+
 
 ::routine dataflow_representation
 /*
@@ -905,6 +961,7 @@ end
 expose dataflow index item
 use strict arg item, index, dataflow
 
+
 ::method compareTo
 use strict arg other, start=1, length=(-1), caseless=.false
 -- This method is called by ooRexx 'sort' framework, when appropriate.
@@ -920,9 +977,11 @@ comparator = .indexedItemComparator~new(caseless)
 comparison = comparator~compareTo(self, other, start, length)
 return comparison
 
+
 ::method caselessCompareTo
 use strict arg other, start=1, length=(-1)
 return self~compareTo(other, start, length, .true)
+
 
 -- Remember : compareTo and caselessCompareTo above are still necessary because the
 -- 'other' argument is of type indexedItem. The unknown method below unboxes the
@@ -939,12 +998,14 @@ forward to (self~item) message (msg) arguments (args)
 expose caseless criterion strict
 use strict arg caseless=.false, strict=.false, criterion="item"
 
+
 ::method compareIndexes
 expose caseless strict
 use strict arg first, second
 index1 = first~index
 index2 = second~index
 return compareObjects(index1, index2, caseless, strict)
+
 
 ::method compareItems
 expose caseless strict
@@ -953,12 +1014,16 @@ item1 = first~item
 item2 = second~item
 return compareObjects(item1, item2, caseless, strict)
 
+
 ::method compareExpressions
 expose caseless criterion strict
 use strict arg first, second
-result1 = criterion~do(first~item, first~index, first~dataflow)
-result2 = criterion~do(second~item, second~index, second~dataflow)
+result1 = criterion~do(      first~item,        first~index,           first~dataflow,-
+                       item: first~item, index: first~index, dataflow: first~dataflow)
+result2 = criterion~do(      second~item,        second~index,           second~dataflow,-
+                       item: second~item, index: second~index, dataflow: second~dataflow)
 return compareObjects(result1, result2, caseless, strict)
+
 
 ::method compare
 expose criterion
@@ -966,6 +1031,7 @@ use strict arg first, second
 if criterion~string == "index" then return self~compareIndexes(first, second)
 if criterion~string == "item" then return self~compareItems(first, second)
 return self~compareExpressions(first, second)
+
 
 -- For convenience, add support for .ColumnComparator.
 -- The comparison is by item.
@@ -1009,6 +1075,7 @@ use strict arg -- none
 items = .array~new                          -- create a new list
 forward class (super)
 
+
 ::method initOptions
 expose caseless criteria descending quickSort strict
 descending = .false
@@ -1031,12 +1098,6 @@ do a over arg(1, "a")
         if "strict"~caselessAbbrev(a, 3) then do ; criteria~append(.array~of("strict=", .true)) ; iterate ; end
     end
     else do
-        -- "actionDoer" not candidate here, we want a result.
-        if a~hasMethod("functionDoer") then do
-            function = a~functionDoer("use arg item, index, dataflow")~arity(3)
-            criteria~append(.array~of("sortBy", function))
-            iterate
-        end
         if a~hasMethod("doer") then do
             function = a~doer
             criteria~append(.array~of("sortBy", function))
@@ -1047,6 +1108,7 @@ do a over arg(1, "a")
 end
 forward class (super) arguments (unknown)    -- forward the initialization to super to process the unknown options
 
+
 ::method sortBy
 expose caseless descending items quickSort strict
 use strict arg criterion
@@ -1055,10 +1117,12 @@ if descending then comparator = .InvertingComparator~new(comparator)
 if quickSort then items~sortWith(comparator)
              else items~stableSortWith(comparator)
 
+
 ::method process                            -- process sorter piped data item
 expose items                                -- access internal state data
 use strict arg item, index, dataflow        -- access the passed item
 items~append(.indexedItem~new(item, index, dataflow))
+
 
 ::method eof                                -- process the "end-of-pipe"
 expose criteria items
@@ -1076,6 +1140,7 @@ do i = 1 to items~items while .nil <> self~next, \self~next~isEOP -- copy all so
 end
 forward class(super)                        -- make sure we propagate the done message
 
+
 ::method reset
 expose items
 use strict arg -- none
@@ -1092,6 +1157,7 @@ use strict arg comparator                   -- get the comparator
 items = .array~new                          -- create a new list
 forward class (super)                       -- forward the initialization
 
+
 ::method initOptions
 expose quickSort
 quickSort = .false -- use a stable sort by default
@@ -1105,10 +1171,12 @@ do a over arg(1, "a")
 end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
+
 ::method process                            -- process sorter piped data item
 expose items                                -- access internal state data
 use strict arg item, index, dataflow        -- access the passed item
 items~append(.indexedItem~new(item, index, dataflow)) -- append the item to the accumulator array
+
 
 ::method eof                                -- process the "end-of-pipe"
 expose comparator items quickSort
@@ -1119,6 +1187,7 @@ do i = 1 to items~items while .nil <> self~next, \self~next~isEOP -- copy all so
    self~write(indexedItem~item, indexedItem~index, indexedItem~dataflow)
 end
 forward class(super)                        -- make sure we propagate the done message
+
 
 ::method reset
 expose items
@@ -1165,6 +1234,7 @@ expose count new old
 use strict arg old, new, count = 999999999  -- old and new are required, default count is max item
 forward class (super)                       -- forward the initialization
 
+
 ::method process                            -- pipeStage processing item
 expose count new old
 use strict arg item, index, dataflow        -- get the data item
@@ -1181,6 +1251,7 @@ expose length offset
 use strict arg offset, length               -- both are required.
 forward class (super)                       -- forward the initialization
 
+
 ::method process                            -- pipeStage processing item
 expose length offset
 use strict arg item, index, dataflow        -- get the data item
@@ -1196,6 +1267,7 @@ self~checkEOP(self~next)
 expose length
 use strict arg length                       -- the length is the left part
 forward class (super)                       -- forward the initialization
+
 
 ::method process                            -- pipeStage processing item
 expose length
@@ -1214,6 +1286,7 @@ self~checkEOP(self~next, self~secondary)
 expose length
 use strict arg length                       -- the length is the right part
 forward class (super)                       -- forward the initialization
+
 
 ::method process                            -- pipeStage processing item
 expose length offset
@@ -1236,6 +1309,7 @@ expose insert offset
 use strict arg insert, offset               -- we need an offset and an insertion string
 forward class (super)                       -- forward the initialization
 
+
 ::method process                            -- pipeStage processing item
 expose insert offset
 use strict arg item, index, dataflow        -- get the data item
@@ -1251,6 +1325,7 @@ self~checkEOP(self~next)
 expose offset overlay
 use strict arg overlay, offset              -- we need an offset and an insertion string
 forward class (super)                       -- forward the initialization
+
 
 ::method process                            -- pipeStage processing item
 expose offset overlay
@@ -1283,6 +1358,7 @@ partitionCount = 0
 previousPartitionItem = .nil
 forward class (super)                       -- forward the initialization
 
+
 ::method initOptions
 expose count first partitionFunction
 first = .true                               -- selects items from the begining by default
@@ -1317,12 +1393,6 @@ do a over arg(1, "a")
         unknown~append(a)
         iterate
     end
-    -- "actionDoer" not candidate here, we want a result.
-    if a~hasMethod("functionDoer") then do
-        if .nil <> partitionFunction then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
-        partitionFunction = a~functionDoer("use arg item, index, dataflow")~arity(3)
-        iterate
-    end
     if a~hasMethod("doer") then do
         if .nil <> partitionFunction then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
         partitionFunction = a~doer
@@ -1332,11 +1402,13 @@ do a over arg(1, "a")
 end
 forward class (super) arguments (unknown)    -- forward the initialization to super to process the unknown options
 
+
 ::method processFirst
 expose count counter partitionCount partitionFunction previousPartitionItem
 use strict arg item, index, dataflow
 if .nil <> partitionFunction then do
-    partitionItem = partitionFunction~do(item, index, dataflow)
+    partitionItem = partitionFunction~do(      item,        index,           dataflow,-
+                                         item: item, index: index, dataflow: dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
         previousPartitionItem = partitionItem
@@ -1357,6 +1429,7 @@ end
 self~checkEOP(self~next, self~secondary)
 if counter >= count & .nil == self~next & .nil == partitionFunction then self~isEOP = .true
 
+
 ::method endOfPartition
 expose array count
 if array~items < count then do              -- didn't even receive that many items?
@@ -1376,11 +1449,13 @@ else do
     end
 end
 
+
 ::method processLast
 expose array partitionCount partitionFunction previousPartitionItem
 use strict arg item, index, dataflow
 if .nil <> partitionFunction then do
-    partitionItem = partitionFunction~do(item, index, dataflow)
+    partitionItem = partitionFunction~do(      item,        index,           dataflow,-
+                                         item: item, index: index, dataflow: dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
         previousPartitionItem = partitionItem
@@ -1394,16 +1469,19 @@ if .nil <> partitionFunction then do
 end
 array~append(.indexedItem~new(item, index, dataflow)) -- just add to the accumulator
 
+
 ::method process
 expose first
 use strict arg item, index, dataflow
 if first then self~processFirst(item, index, dataflow)
          else self~processLast(item, index, dataflow)
 
+
 ::method eof
 expose first
 if \first then self~endOfPartition
 forward class(super)                        -- make sure we propagate the done message
+
 
 ::method reset
 counter = 0                                 -- if first, we need to count the processed items
@@ -1425,6 +1503,7 @@ partitionCount = 0
 previousPartitionItem = .nil
 forward class (super)                       -- forward the initialization
 
+
 ::method initOptions
 expose count first partitionFunction
 first = .true                               -- selects items from the begining by default
@@ -1459,12 +1538,6 @@ do a over arg(1, "a")
         unknown~append(a)
         iterate
     end
-    -- "actionDoer" not candidate here, we want a result.
-    if a~hasMethod("functionDoer") then do
-        if .nil <> partitionFunction then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
-        partitionFunction = a~functionDoer("use arg item, index, dataflow")~arity(3)
-        iterate
-    end
     if a~hasMethod("doer") then do
         if .nil <> partitionFunction then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
         partitionFunction = a~doer
@@ -1474,11 +1547,13 @@ do a over arg(1, "a")
 end
 forward class (super) arguments (unknown)    -- forward the initialization to super to process the unknown options
 
+
 ::method processFirst
 expose count counter partitionCount partitionFunction previousPartitionItem
 use strict arg item, index, dataflow
 if .nil <> partitionFunction then do
-    partitionItem = partitionFunction~do(item, index, dataflow)
+    partitionItem = partitionFunction~do(      item,        index,           dataflow,-
+                                         item: item, index: index, dataflow: dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
         previousPartitionItem = partitionItem
@@ -1499,6 +1574,7 @@ end
 self~checkEOP(self~next, self~secondary)
 if counter >= count & .nil == self~secondary & .nil == partitionFunction then self~isEOP = .true
 
+
 :: method endOfPartition
 expose array count
 if array~items < count then do          -- didn't even receive that many items?
@@ -1518,11 +1594,13 @@ else do
     end
 end
 
+
 ::method processLast
 expose array partitionCount partitionFunction previousPartitionItem
 use strict arg item, index, dataflow
 if .nil <> partitionFunction then do
-    partitionItem = partitionFunction~do(item, index, dataflow)
+    partitionItem = partitionFunction~do(      item,        index,           dataflow,-
+                                         item: item, index: index, dataflow: dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
         previousPartitionItem = partitionItem
@@ -1536,16 +1614,19 @@ if .nil <> partitionFunction then do
 end
 array~append(.indexedItem~new(item, index, dataflow))-- just add to the accumulator
 
+
 ::method process
 expose first
 use strict arg item, index, dataflow
 if first then self~processFirst(item, index, dataflow)
          else self~processLast(item, index, dataflow)
 
+
 ::method eof
 expose first
 if \first then self~endOfPartition
 forward class(super)                        -- make sure we propagate the done message
+
 
 ::method reset
 counter = 0                                 -- if first, we need to count the processed items
@@ -1619,6 +1700,7 @@ Example :
 */
 nop
 
+
 ::method init
 expose primaryEof secondaryEof array        -- need pair of EOF conditions
 use strict arg -- none
@@ -1627,10 +1709,12 @@ secondaryEof = .false
 array = .array~new                          -- accumulator for secondary
 forward class (super)                       -- forward the initialization
 
+
 ::method processSecondary                   -- handle the secondary input
 expose array
 use strict arg item, index, dataflow
 array~append(.indexedItem~new(item, index, dataflow)) -- just append to the end of the array
+
 
 ::method finalize
 expose primaryEof secondaryEof array
@@ -1645,15 +1729,18 @@ if primaryEof & secondaryEof then do
     forward class (super) message('secondaryEof') continue
 end
 
+
 ::method eof
 expose primaryEof
 primaryEof = .true                          -- mark this branch as finished.
 self~finalize                               -- will finalize if the other input hit EOF already
 
+
 ::method secondaryEof                       -- eof on the secondary input
 expose secondaryEof
 secondaryEof = .true                        -- mark ourselves finished
 self~finalize                               -- will finalize if both branches finished
+
 
 ::method reset
 primaryEof = .false
@@ -1677,6 +1764,7 @@ do a over arg(1, "a")
 end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
+
 ::method process                            -- pipeStage processing item
 expose copies
 use strict arg item, index, dataflow        -- get the data item
@@ -1692,6 +1780,7 @@ self~checkEOP(self~next)
 ::method init
 use strict arg -- none
 forward class (super)
+
 
 ::method initOptions
 expose actions showPool showTags
@@ -1734,12 +1823,6 @@ do a over arg(1, "a")
             iterate
         end
     end
-    -- "actionDoer" not candidate here, we want a result.
-    else if a~hasMethod("functionDoer") then do
-        function = a~functionDoer("use arg item, index, dataflow")~arity(3)
-        actions~append(.array~of("displayExpression", function))
-        iterate
-    end
     else if a~hasMethod("doer") then do
         function = a~doer
         actions~append(.array~of("displayExpression", function))
@@ -1749,9 +1832,11 @@ do a over arg(1, "a")
 end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
+
 ::method representation
 use strict arg val
 return dataflow_representation(val, .false, .nil) -- showPool=.false, pool=.nil, values=.nil
+
 
 ::method displayDataflow -- private (in comment otherwise error "does not understand message DISPLAYDATAFLOW_UNPROTECTED when profiling)
 expose showPool showTags
@@ -1761,6 +1846,7 @@ use strict arg width, item, index, dataflow
 if width == -1 then .output~charout(dataflow~makeString(mask, showPool))
                else .output~charout(dataflow~makeString(mask, showPool)~left(width))
 .output~charout(" ")
+
 
 ::method displayIndex -- private (in comment otherwise error "does not understand message DISPLAY_INDEX_UNPROTECTED when profiling)
 use strict arg width, item, index, dataflow
@@ -1774,6 +1860,7 @@ if width == -1 then .output~charout(self~representation(item))
                else .output~charout(self~representation(item)~left(width))
 .output~charout(" ")
 
+
 ::method displayString -- private (in comment otherwise error "does not understand message DISPLAYSTRING_UNPROTECTED when profiling)
 expose isEmptyString
 use strict arg string, item, index, dataflow
@@ -1781,11 +1868,14 @@ isEmptyString = (string == "")
 .output~charout(string)
 .output~charout(" ")
 
+
 ::method displayExpression -- private (in comment otherwise error "does not understand message DISPLAYEXPRESSION_UNPROTECTED when profiling)
 use strict arg expression, item, index, dataflow
-val = expression~do(item, index, dataflow)
+val = expression~do(      item,        index,           dataflow,-
+                    item: item, index: index, dataflow: dataflow)
 .output~charout(val~string)
 .output~charout(" ")
+
 
 ::method process                            -- process a data item
 expose actions isEmptyString showPool
@@ -1816,6 +1906,7 @@ expose patterns                             -- access the exposed item
 patterns = arg(1,'a')                       -- get the patterns list
 forward class (super)                       -- forward the initialization
 
+
 ::method initOptions
 expose caseless
 caseless = .false
@@ -1827,6 +1918,7 @@ do a over arg(1, "a")
     unknown~append(a)
 end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
+
 
 ::method process                            -- process a selection pipeStage
 expose caseless patterns                    -- expose the pattern list
@@ -1850,6 +1942,7 @@ expose patterns                             -- access the exposed item
 patterns = arg(1,'a')                       -- get the patterns list
 forward class (super)                       -- forward the initialization
 
+
 ::method initOptions
 expose caseless
 caseless = .false
@@ -1861,6 +1954,7 @@ do a over arg(1, "a")
     unknown~append(a)
 end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
+
 
 ::method process                            -- process a selection pipeStage
 expose caseless patterns                    -- expose the pattern list
@@ -1884,6 +1978,7 @@ expose patterns                             -- access the exposed item
 patterns = arg(1,'a')                       -- get the patterns list
 forward class (super)                       -- forward the initialization
 
+
 ::method initOptions
 expose caseless
 caseless = .false
@@ -1895,6 +1990,7 @@ do a over arg(1, "a")
     unknown~append(a)
 end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
+
 
 ::method process                            -- process a selection pipeStage
 expose caseless patterns                    -- expose the pattern list
@@ -1918,6 +2014,7 @@ expose patterns                             -- access the exposed item
 patterns = arg(1,'a')                       -- get the patterns list
 forward class (super)                       -- forward the initialization
 
+
 ::method initOptions
 expose caseless
 caseless = .false
@@ -1929,6 +2026,7 @@ do a over arg(1, "a")
     unknown~append(a)
 end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
+
 
 ::method process                            -- process a selection pipeStage
 expose caseless patterns                    -- expose the pattern list
@@ -1962,6 +2060,7 @@ use strict arg stem.                        -- get the stem variable target
 if \stem.0~datatype("N") then stem.0 = 0    -- start with zero items, only if stem.0 is not a number
 forward class (super)                       -- forward the initialization
 
+
 ::method process                            -- process a stem pipeStage item
 expose stem.                                -- expose the stem
 use strict arg item, index, dataflow        -- get the data item
@@ -1970,6 +2069,7 @@ stem.[stem.0, 'VALUE'] = item               -- save the item
 stem.[stem.0, 'INDEX'] = index              -- save the index
 stem.[stem.0, 'DATAFLOW'] = dataflow        -- save the dataflow
 forward class(super)
+
 
 -- No need of reset, the reset of the collected  datas is under the responsability of the user
 -- ::method reset
@@ -1987,6 +2087,7 @@ use strict arg itemArray, indexArray=.nil, dataflowArray=.nil -- get the array v
 -- if .nil <> dataflowArray then dataflowArray~empty
 forward class (super)                       -- forward the initialization
 
+
 ::method process                            -- process a stem pipeStage item
 expose dataflowArray idx indexArray itemArray -- expose the array
 use strict arg item, index, dataflow        -- get the data item
@@ -1994,6 +2095,7 @@ itemArray~append(item)                      -- save the item
 if .nil <> indexArray then indexArray~append(index) -- save the index
 if .nil <> dataflowArray then dataflowArray~append(dataflow) -- save the dataflow
 forward class(super)                        -- allow superclass to send down pipe
+
 
 -- No need of reset, the reset of the collected  datas is under the responsability of the user
 -- ::method reset
@@ -2009,6 +2111,7 @@ started = .false                            -- not processing any lines yet
 finished = .false
 forward class (super)                       -- forward the initialization
 
+
 ::method initOptions
 expose caseless
 caseless = .false
@@ -2020,6 +2123,7 @@ do a over arg(1, "a")
     unknown~append(a)
 end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
+
 
 ::method process
 expose endString finished started startString
@@ -2040,6 +2144,7 @@ else do
 end
 self~checkEOP(self~next, self~secondary)
 
+
 ::method reset
 expose finished started
 started = .false                            -- not processing any lines yet
@@ -2056,6 +2161,7 @@ use strict arg startString
 started = .false                            -- not processing any lines yet
 forward class (super)                       -- forward the initialization
 
+
 ::method initOptions
 expose caseless
 caseless = .false
@@ -2068,6 +2174,7 @@ do a over arg(1, "a")
 end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
+
 ::method process
 expose caseless endString started startString
 use strict arg item, index, dataflow
@@ -2078,6 +2185,7 @@ if \started then do                         -- not turned on yet?  see if we've 
 end
 else self~write(item, index, dataflow)      -- pass along
 self~checkEOP(self~next, self~secondary)
+
 
 ::method reset
 expose started
@@ -2094,6 +2202,7 @@ use strict arg endString
 finished = .false
 forward class (super)                       -- forward the initialization
 
+
 ::method initOptions
 expose caseless
 caseless = .false
@@ -2105,6 +2214,7 @@ do a over arg(1, "a")
     unknown~append(a)
 end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
+
 
 ::method process
 expose caseless endString finished
@@ -2119,6 +2229,7 @@ else do
     self~writeSecondary(item, index, dataflow) -- non-selected lines go to the secondary bucket
 end
 self~checkEOP(self~next, self~secondary)
+
 
 ::method reset
 expose finished
@@ -2137,6 +2248,7 @@ partitionCount = 0
 previousPartitionItem = .nil
 forward class (super)                       -- forward the initialization
 
+
 ::method initOptions
 expose count first partitionFunction
 partitionFunction = .nil
@@ -2144,12 +2256,6 @@ unknown = .array~new
 do a over arg(1, "a")
     if a~isA(.String) then do
         unknown~append(a)
-        iterate
-    end
-    -- "actionDoer" not candidate here, we want a result.
-    if a~hasMethod("functionDoer") then do
-        if .nil <> partitionFunction then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
-        partitionFunction = a~functionDoer("use arg item, index, dataflow")~arity(3)
         iterate
     end
     if a~hasMethod("doer") then do
@@ -2160,6 +2266,7 @@ do a over arg(1, "a")
     unknown~append(a)
 end
 forward class (super) arguments (unknown)    -- forward the initialization to super to process the unknown options
+
 
 ::method endOfPartition
 expose buffer count delimiter partitionCount
@@ -2173,11 +2280,13 @@ loop i = 1 to count while .nil <> self~next, \self~next~isEOP -- now write copie
      end
 end
 
+
 ::method process
 expose buffer partitionCount partitionFunction previousPartitionItem
 use strict arg item, index, dataflow
 if .nil <> partitionFunction then do
-    partitionItem = partitionFunction~do(item, index, dataflow)
+    partitionItem = partitionFunction~do(      item,        index,           dataflow,-
+                                         item: item, index: index, dataflow: dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
         previousPartitionItem = partitionItem
@@ -2191,9 +2300,11 @@ if .nil <> partitionFunction then do
 end
 buffer~append(.indexedItem~new(item, index, dataflow)) -- just accumulate the item
 
+
 ::method eof
 self~endOfPartition
 forward class(super)                        -- and send the done message along
+
 
 ::method reset
 expose buffer partitionCount previousPartitionItem
@@ -2214,6 +2325,7 @@ partitionCount = 0
 previousPartitionItem = .nil
 forward class (super)                       -- forward the initialization
 
+
 ::method initOptions
 expose first count partitionFunction
 partitionFunction = .nil
@@ -2221,12 +2333,6 @@ unknown = .array~new
 do a over arg(1, "a")
     if a~isA(.String) then do
         unknown~append(a)
-        iterate
-    end
-    -- "actionDoer" not candidate here, we want a result.
-    if a~hasMethod("functionDoer") then do
-        if .nil <> partitionFunction then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
-        partitionFunction = a~functionDoer("use arg item, index, dataflow")~arity(3)
         iterate
     end
     if a~hasMethod("doer") then do
@@ -2238,17 +2344,21 @@ do a over arg(1, "a")
 end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
+
 ::method endOfPartition
 expose counter partitionCount previousPartitionItem
 self~write(counter, previousPartitionItem, .nil); -- write out the counter message
 
+
 ::method count abstract
+
 
 ::method process
 expose counter partitionCount partitionFunction previousPartitionItem
 use strict arg item, index, dataflow
 if .nil <> partitionFunction then do
-    partitionItem = partitionFunction~do(item, index, dataflow)
+    partitionItem = partitionFunction~do(      item,        index,           dataflow,-
+                                         item: item, index: index, dataflow: dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
         previousPartitionItem = partitionItem
@@ -2262,9 +2372,11 @@ if .nil <> partitionFunction then do
 end
 counter += self~count(item, index, dataflow)
 
+
 ::method eof
 self~endOfPartition
 forward class(super)                        -- and send the done message along
+
 
 ::method reset
 expose counter partitionCount previousPartitionItem
@@ -2314,6 +2426,7 @@ forward class (super) continue              -- forward the initialization
 -- store the pipeStage item and hook up the two output streams
 use strict arg pivotItem, self~next, self~secondary
 
+
 ::method process                            -- process the split
 expose pivotItem
 use strict arg item, index, dataflow
@@ -2343,11 +2456,13 @@ expose stages
 stages = arg(1, 'A')                        -- just save the arguments as an array
 forward class (super)                       -- forward the initialization
 
+
 ::method start                              -- process "start-of-pipe" condition
 expose stages
 do stage over stages
     forward continue to (stage)
 end
+
 
 ::method append                             -- override for the single append version
 expose stages
@@ -2359,14 +2474,17 @@ if self~next == .nil then do                -- if first append
 end
 forward class (super)                       -- to update splitter's next. Nothing will go trough it, but useful to know what's the next stage.
 
+
 ::method insert                             -- this doesn't make sense for a splitter
 raise syntax 93.963                         -- Can't do this, so raise an unsupported error
+
 
 ::method write                              -- broadcast a result to a particular filter
 expose stages
 use strict arg which, item, index, dataflow -- which is the fiter index, item is the result
 stage = stages[which]
 if \stage~isEOP then stage~process(item, index, dataflow); -- have the filter handle this
+
 
 ::method eof                                -- broadcast a done message down all of the branches
 expose stages
@@ -2375,6 +2493,7 @@ do stage over stages
 end
 -- needed ? forward class(super)                        -- make sure we propagate the done message
 
+
 ::method process                            -- process the stage stream
 expose stages
 use strict arg item, index, dataflow
@@ -2382,6 +2501,7 @@ do stage over stages                        -- send this down all of the branche
     stage~process(item, index, dataflow)
 end
 forward message ("checkEOP") arguments (stages)
+
 
 --::method reset
 -- Nothing to reset. Must keep the stages provided at creation.
@@ -2472,14 +2592,7 @@ do a over arg(1, "a")
         end
     end
     else do
-        -- "actionDoer" not tested here because you don't want to run a system command from the doer.
         -- The doer is supposed to return the command to execute.
-        if a~hasMethod("functionDoer") then do
-            if .nil <> command then raise syntax 93.900 array(self~class~id ": Only one command is supported")
-            command = a
-            doer = a~functionDoer("use arg item, index, dataflow")~arity(3)
-            iterate
-        end
         if a~hasMethod("doer") then do
             if .nil <> command then raise syntax 93.900 array(self~class~id ": Only one command is supported")
             command = a
@@ -2498,7 +2611,8 @@ expose command doer trace
 if trace then .traceOutput~say("       >I> Method .system~process")
 if trace then trace i
 use strict arg item, index, dataflow
-if .nil <> doer then command = doer~do(item, index, dataflow)
+if .nil <> doer then command = doer~do(      item,        index,           dataflow,-
+                                       item: item, index: index, dataflow: dataflow)
 queue = .RexxQueue~new(.RexxQueue~create)
 command '| rxqueue "'queue~get'"'
 error = (RC <> 0) -- doesn't work ! RC is the return code of rxqueue, not the return code of command

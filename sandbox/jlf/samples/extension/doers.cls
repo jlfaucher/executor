@@ -352,24 +352,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
     return .nil -- should never happen
 
 
-::method functionDoer
-    expose executable
-    if .nil <> executable then return executable
-    use strict arg clauseBefore="", clauseAfter=""
-    clauseBefore ||= ' ; options "NOCOMMANDS"'
-    clauseAfter ||= ' ; if var("result") then return result'
-    executable = self~sourceDoer(clauseBefore, clauseAfter)
-    return executable
-
-
-::method actionDoer
-    expose executable
-    if .nil <> executable then return executable
-    use strict arg clauseBefore="", clauseAfter=""
-    executable = self~sourceDoer(clauseBefore, clauseAfter)
-    return executable
-
-
 -- Even if unknown is defined, must explicitely provide a concrete implementation because abstract
 ::method needsObject unguarded
     forward to (self~doer)
