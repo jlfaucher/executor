@@ -579,12 +579,12 @@ Helpers
     end
     if \.platform~is("windows") then do
         call loadLibrary("rxunixsys")
+        call loadPackage("ncurses.cls")
     end
     call loadPackage("csvStream.cls")
     if loadLibrary("hostemu") then .ooRexxShell~interpreters~setEntry("hostemu", "HostEmu")
     call loadPackage("json.cls")
     call loadPackage("mime.cls")
-    call loadPackage("ncurses.cls")
     call loadPackage("rxftp.cls")
     call loadLibrary("rxmath")
     call loadPackage("rxregexp.cls")
