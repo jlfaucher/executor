@@ -53,7 +53,9 @@ odd~duration(0)
 odd~duration(1)
 odd~duration(2)
 odd~duration(101)
-odd~duration(1000) -- control stack full with ooRexx 64-bit + crash (to debug...)
+odd~duration(854)
+--odd~duration(855) -- crash
+--odd~duration(1000) -- control stack full with ooRexx 64-bit + crash (to debug...)
 --odd~duration(10001) -- control stack full
 syntax:
 say

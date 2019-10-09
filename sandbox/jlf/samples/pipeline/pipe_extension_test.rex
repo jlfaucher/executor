@@ -82,8 +82,9 @@ say df5 ; say df5~makeString(1234, .true)
 -- Example :
 -- This coactivity yields two results.
 -- The hello outputs are not in the pipeline flow (not displayed by the .console).
-{::coactivity echo hello ; .yield["a"] ; say hello ; .yield["b"] }~doer~pipe(.console)
-{::coactivity echo hello ; .yield["a"] ; say hello ; .yield["b"] }~doer~pipe(.console dataflow)
+-- 07/10/2019 : now the RexxBlock are always with implicit return. Must add options "COMMANDS".
+{::coactivity options "COMMANDS"; echo hello ; .yield["a"] ; say hello ; .yield["b"] }~doer~pipe(.console)
+{::coactivity options "COMMANDS"; echo hello ; .yield["a"] ; say hello ; .yield["b"] }~doer~pipe(.console dataflow)
 
 
 -- ----------------------------------------------------------------------------
@@ -249,12 +250,12 @@ say df5 ; say df5~makeString(1234, .true)
 
 
 -- Do something for each item (no returned value, so no value passed to .console).
-.array~of(1, , 2, , 3)~pipe(.inject {say 'item='item 'dataflow='dataflow~makeString} | .console)
+.array~of(1, , 2, , 3)~pipe(.do {say 'item='item 'dataflow='dataflow~makeString} | .console)
 
 
--- Inject something for each item (the returned result replaces the item's value).
+-- Do something for each item (the returned result replaces the item's value).
 -- Here, only one result is calculated for an item, so resultIndex is always 1.
-.array~of(1, , 2, , 3)~pipe(.inject {return 2*item} memorize | .console)
+.array~of(1, , 2, , 3)~pipe(.do {return 2*item} memorize | .console)
 
 
 -- Inject a value for each item (the returned value is injected after the input item).
@@ -401,10 +402,10 @@ say df5 ; say df5~makeString(1234, .true)
 -- has been reached, whatever its position in the pipeline.
 -- Note the "" at the end of the first .console. This is an indicator to not insert a newline.
 supplier = .array~of(1,2,3,4,5,6,7,8,9)~supplier
-supplier~pipe(.console "2*" item "=" "" | .inject {return 2*item} | .take 2 | .console item)
+supplier~pipe(.console "2*" item "=" "" | .do {return 2*item} | .take 2 | .console item)
 say supplier~index -- this is the index of the last processed item
 supplier~next -- skip the last processed item
-supplier~pipe(.console "4*" item "=" "" | .inject {return 4*item} | .take 4 | .console item)
+supplier~pipe(.console "4*" item "=" "" | .do {return 4*item} | .take 4 | .console item)
 say supplier~index
 
 

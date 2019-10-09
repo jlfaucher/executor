@@ -1,23 +1,23 @@
 separator = "-"~copies(80)
 
 say separator
-say "Object's methods with their identity hash"
-.object~methods~pipe(.sort byIndex | .console {dataflow["source"]~index~quoted~left(30)} " : " {item~identityHash} | .linecount | .console)
+say "Object's methods"
+.object~methods~pipe(.sort byIndex | .console {dataflow["source"]~index~quoted~left(30)} | .linecount | .console)
 
 
 say separator
-say "Object's instance methods with their identity hash"
-.object~instancemethods~pipe(.sort byIndex | .console {dataflow["source"]~index~quoted~left(30)} " : " {item~identityHash} | .linecount | .console)
+say "Object's instance methods"
+.object~instancemethods~pipe(.sort byIndex | .console {dataflow["source"]~index~quoted~left(30)}| .linecount | .console)
 
 
 say separator
-say "Class' methods with their identity hash"
-.class~methods~pipe(.sort byindex | .console {dataflow["source"]~index~quoted~left(30)} " : " {item~identityHash} | .linecount | .console)
+say "Class' methods"
+.class~methods~pipe(.sort byindex | .console {dataflow["source"]~index~quoted~left(30)} | .linecount | .console)
 
 
 say separator
-say "Class' instance methods with their identity hash"
-.class~instancemethods~pipe(.sort byIndex | .console {dataflow["source"]~index~quoted~left(30)} " : " {item~identityHash} | .linecount | .console)
+say "Class' instance methods"
+.class~instancemethods~pipe(.sort byIndex | .console {dataflow["source"]~index~quoted~left(30)} | .linecount | .console)
 
 
 say separator
@@ -28,11 +28,6 @@ say "RexxBlock' methods, with their defining class"
 say separator
 say "All classes having their own _description_ method."
 .object~pipe(.subClasses recursive once | .select {item~instanceMethods(item)~allIndexes~hasItem("_DESCRIPTION_") } | .sort | .console item)
-
-
-say separator
-say "All classes understanding the ~help method"
-.object~pipe(.subClasses recursive once | .select {item~hasMethod("help") } | .sort | .console item)
 
 
 say separator

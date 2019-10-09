@@ -1835,7 +1835,8 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 
 ::method representation
 use strict arg val
-return dataflow_representation(val, .false, .nil) -- showPool=.false, pool=.nil, values=.nil
+-- The arrays and enclosed arrays are always managed with a pool, even if not showPool, to support self-referencing.
+return dataflow_representation(val, .false, .dataflowPool~new) -- showPool=.false, pool=.nil, values=.dataflowPool~new
 
 
 ::method displayDataflow -- private (in comment otherwise error "does not understand message DISPLAYDATAFLOW_UNPROTECTED when profiling)

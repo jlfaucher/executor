@@ -807,7 +807,7 @@ Note that the automatic variable stem.v4 is available, since the stem is not res
 
 Testing the display of trace
 {...<source>..}~(a:1,b:"letter b",stem.:"default", stem.a:100, stem.b:200, stem.c:300)
-call sayCollection "source", .context~executable~source, displayHeader:.false, displayIndex:.false, displayIndent:.false
+use auto named arg ; options "NOCOMMANDS" ; call sayCollection "source", .context~executable~source, displayHeader:.false, displayIndex:.false, displayIndent:.false
     say "-----------------------------------------"
     trace i
     -- the names of the compound symbols are used for matching, independently of the values of their components.
@@ -822,6 +822,7 @@ call sayCollection "source", .context~executable~source, displayHeader:.false, d
     call sayCollection "variables", .context~variables
     call sayCollection "stem", stem.
     say; say
+if var("result") then return result
 -----------------------------------------
      7 *-* a = 50
        >L>   "50"
@@ -1324,8 +1325,8 @@ n1=1 n2=2
         N1 : 1
         N2 : 2
 
-    
-On entry in the thread (migrated arguments)
+
+    On entry in the thread (migrated arguments)
     positional count=2 size=2
         1 : 1
         2 : 2

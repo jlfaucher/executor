@@ -51,7 +51,7 @@ tag1:'index1','item1' | tag2:'index2','item2' | tag3:(my file),(22222)
    df5 = .dataflow~create(df4, "tag5", .mutableBuffer~new(22222), "a")
    say df5 ; say df5~makeString(1234, .true)
 tag1:'index1','item1' | tag2:'index2','item2' | tag3:(my file),(22222) | tag4:'a',(my file) | tag5:'a',(22222)
-tag1:'index1','item1' | tag2:'index2','item2' | tag3:v1=(my file),(22222) | tag4:v2='a',v1 | tag5:v2,(22222)
+tag1:'index1','item1' | tag2:'index2','item2' | tag3:v1=(my file),(22222) | tag4:v2='a',*v1 | tag5:*v2,(22222)
 
 
 -- ----------------------------------------------------------------------------
@@ -89,12 +89,13 @@ source:3,30
 -- Example :
 -- This coactivity yields two results.
 -- The hello outputs are not in the pipeline flow (not displayed by the .console).
-   {::coactivity echo hello ; .yield["a"] ; say hello ; .yield["b"] }~doer~pipe(.console)
+-- 07/10/2019 : now the RexxBlock are always with implicit return. Must add options "COMMANDS".
+   {::coactivity options "COMMANDS"; echo hello ; .yield["a"] ; say hello ; .yield["b"] }~doer~pipe(.console)
 HELLO
 1 : 'a'
 HELLO
 2 : 'b'
-   {::coactivity echo hello ; .yield["a"] ; say hello ; .yield["b"] }~doer~pipe(.console dataflow)
+   {::coactivity options "COMMANDS"; echo hello ; .yield["a"] ; say hello ; .yield["b"] }~doer~pipe(.console dataflow)
 HELLO
 source:1,'a' 
 HELLO
@@ -307,34 +308,34 @@ source:1,'48656c6c6f' | x2c:1,'Hello'
 
 
    .array~of("a", "", "b", , "c", , "", "d")~pipe(.dropNull memorize | .console dataflow)
-source:1,v1='a' | dropNull:1,v1 
-source:3,v1='b' | dropNull:3,v1 
-source:5,v1='c' | dropNull:5,v1 
-source:8,v1='d' | dropNull:8,v1 
+source:1,v1='a' | dropNull:1,*v1 
+source:3,v1='b' | dropNull:3,*v1 
+source:5,v1='c' | dropNull:5,*v1 
+source:8,v1='d' | dropNull:8,*v1 
 
 
    .array~of("header", 1, 2 ,3 , "footer")~pipe(,
        .drop first memorize >> .console "secondary of drop first :" dataflow |,
        .drop last memorize >> .console "secondary of drop last :" dataflow |,
        .console "primary:" dataflow) -- Remove header and footer
-secondary of drop first : source:1,v1='header' | drop:1,v1 
+secondary of drop first : source:1,v1='header' | drop:1,*v1 
 primary: source:2,1 | drop:2,1 | drop:2,1 
 primary: source:3,2 | drop:3,2 | drop:3,2 
 primary: source:4,3 | drop:4,3 | drop:4,3 
-secondary of drop last : source:5,v1='footer' | drop:5,v1 | drop:5,v1 
+secondary of drop last : source:5,v1='footer' | drop:5,*v1 | drop:5,*v1 
 
 
 -- ----------------------------------------------------------------------------
 -- .do and .inject pipeStages
 -- ----------------------------------------------------------------------------
 
--- .do is action-oriented, whereas .inject is function-oriented.
--- Both support the same options.
--- .do {"echo" item} -- no implicit return, this is a command
--- .inject {"echo" item} -- implicit return, commands are disabled
+-- .do is a synonym of .inject.
+-- Sometimes, the name '.do' is better than the name '.inject'.
+-- Both support the same options and have the same behavior.
+
 
 -- Do something for each item (no returned value, so no value passed to .console).
-   .array~of(1, , 2, , 3)~pipe(.do {say 'item='item 'dataflow='dataflow} | .console)
+   .array~of(1, , 2, , 3)~pipe(.do {say 'item='item 'dataflow='dataflow~makeString} | .console)
 item=1 dataflow=source:1,1
 item=2 dataflow=source:3,2
 item=3 dataflow=source:5,3
@@ -403,7 +404,7 @@ source:5,3 item = 81000
 -- Same as previous example, but here, the recursive.memorize option is used.
 -- The dataflow is like a call stack.
 -- Ex : the last line is
--- source:5,3 | inject:1,90 | inject:1,2700 | inject:1,81000 item = 81000 
+-- source:5,3 | inject:1,90 | inject:1,2700 | inject:1,81000 item = 81000
 -- The item at index 5 in input array has injected 3 "inject" dataflows by recursion.
    .array~of(1, , 2, , 3)~pipe(.inject {item*10} recursive.0.memorize | .console dataflow "item =" item)
 source:1,1 | inject:1,10 item = 10 
@@ -476,7 +477,7 @@ source:11,9 362880
 
 
 -- Another illustration of the "iterateAfter" option.
--- In this example, the block passed to .inject returns another block whose doer is a coactivity. 
+-- In this example, the block passed to .inject returns another block whose doer is a coactivity.
 -- The option "iterateAfter" force to check if the returned value has the "supplier" method.
 -- If yes, then .inject iterates over the items returned by the supplier and sends them to the next pipeStage.
 -- A block has no "supplier" method, but its doer may have one. This is the case in this example.
@@ -484,7 +485,7 @@ source:11,9 362880
 -- The method "supplier" has been defined on RexxBlock to forward to its doer.
 -- Note :
 -- The pipeStage .take is mandatory because the generator passed to .inject will generate an infinite sequence of numbers.
-   1~pipe(.inject {{::closure.coactive expose item ; do forever ; .yield[item] ; item += 1 ; end}} iterateAfter | .take 10 | .console)
+   1~pipe(.inject {{::coactivity expose item ; do forever ; .yield[item] ; item += 1 ; end}} iterateAfter | .take 10 | .console)
 1 : 1
 2 : 2
 3 : 3
@@ -508,13 +509,7 @@ source:11,9 362880
        .sortWith[.MessageComparator~new("length/N")] |,
        .console dataflow {"length="item~length},
        )
-source:248,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.exp) length=894 
-source:249,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.lib) length=1728 
-source:251,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.obj) length=22989 
-source:122,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath2.obj) length=54923 
-source:121,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath.obj) length=57340 
-source:250,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.map) length=76043 
-source:247,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.dll) length=139776 
+source:23,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rxmath.dll) length=165376 
 
 
 -- Same as above, but simpler... You can sort directly by length, no need of MessageComparator
@@ -523,13 +518,7 @@ source:247,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.dll) leng
        .sort {item~length} |,
        .console dataflow {"length="item~length},
        )
-source:248,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.exp) length=894 
-source:249,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.lib) length=1728 
-source:251,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.obj) length=22989 
-source:122,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath2.obj) length=54923 
-source:121,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath.obj) length=57340 
-source:250,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.map) length=76043 
-source:247,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.dll) length=139776 
+source:23,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rxmath.dll) length=165376 
 
 
 -- Sort by file size, then by file extension (with only one .sort pipestage)
@@ -538,13 +527,7 @@ source:247,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.dll) leng
        .sort {item~length} {filespec('e', item~name)} |,
        .console dataflow {"length="item~length},
        )
-source:247,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.dll) length=139776 
-source:248,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.exp) length=894 
-source:249,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.lib) length=1728 
-source:250,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.map) length=76043 
-source:251,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.obj) length=22989 
-source:122,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath2.obj) length=54923 
-source:121,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath.obj) length=57340 
+source:23,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rxmath.dll) length=165376 
 
 
 -- ----------------------------------------------------------------------------
@@ -562,7 +545,6 @@ source:121,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath
 '==' : (a Method)
 '><' : (a Method)
 'ARGS' : (a Method)
-'ARGS=' : (a Method)
 'CLASS' : (a Method)
 'COACTIVEPIPE' : (a Method)
 'COACTIVEPIPEPROFILE' : (a Method)
@@ -570,13 +552,18 @@ source:121,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath
 'COPY' : (a Method)
 'COPY' : (a Method)
 'DEFAULTNAME' : (a Method)
+'DEPTH' : (a Method)
 'DIGITS' : (a Method)
+'DISCLOSE' : (a Method)
 'DUMP2' : (a Method)
+'EACH' : (a Method)
+'ENCLOSE' : (a Method)
 'EXECUTABLE' : (a Method)
 'FORM' : (a Method)
 'FUZZ' : (a Method)
 'GENERATE' : (a Method)
 'GENERATEI' : (a Method)
+'GETUSERDATA' : (a Method)
 'HASHCODE' : (a Method)
 'HASMETHOD' : (a Method)
 'IDENTITYHASH' : (a Method)
@@ -587,6 +574,7 @@ source:121,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath
 'ISINSTANCEOF' : (a Method)
 'LINE' : (a Method)
 'NAME' : (a Method)
+'NAMEDARGS' : (a Method)
 'OBJECTNAME' : (a Method)
 'OBJECTNAME=' : (a Method)
 'PACKAGE' : (a Method)
@@ -595,16 +583,25 @@ source:121,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath
 'PIPEPROFILE' : (a Method)
 'PP2' : (a Method)
 'PPINDEX2' : (a Method)
+'PPSTRING' : (a Method)
+'RANK' : (a Method)
 'REQUEST' : (a Method)
+'RESHAPE' : (a Method)
 'RS' : (a Method)
 'RUN' : (a Method)
 'SEND' : (a Method)
 'SENDWITH' : (a Method)
+'SETARGS' : (a Method)
 'SETMETHOD' : (a Method)
 'SETMETHOD1' : (a Method)
+'SETUSERDATA' : (a Method)
+'SHAPE' : (a Method)
+'SHAPETOSTRING' : (a Method)
+'STACKFRAMES' : (a Method)
 'START' : (a Method)
 'STARTWITH' : (a Method)
 'STRING' : (a Method)
+'UNKNOWN' : (a Method)
 'UNSETMETHOD' : (a Method)
 'VARIABLES' : (a Method)
 '\=' : (a Method)
@@ -633,7 +630,7 @@ source:121,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath
 source:3,(The Method class) | inject:'!DEFINE_CLASS_METHOD',(a Method) 
 source:3,(The Method class) | inject:'!DEFINE_METHODS',(a Method) 
 source:3,(The Method class) | inject:'!REXXDEFINED',(a Method) 
-source:3,v1=(The Method class) | inject:1,v1 
+source:3,v1=(The Method class) | inject:1,*v1 
 source:3,(The Method class) | inject:'<>',(a Method) 
 source:3,(The Method class) | inject:'=',(a Method) 
 source:3,(The Method class) | inject:'==',(a Method) 
@@ -660,7 +657,7 @@ source:3,(The Method class) | inject:'SUPERCLASSES',(a Method)
 source:3,(The Method class) | inject:'UNINHERIT',(a Method) 
 source:3,(The Method class) | inject:'\=',(a Method) 
 source:3,(The Method class) | inject:'\==',(a Method) 
-source:2,v1=(The Package class) | inject:1,v1 
+source:2,v1=(The Package class) | inject:1,*v1 
 source:2,(The Package class) | inject:'<>',(a Method) 
 source:2,(The Package class) | inject:'=',(a Method) 
 source:2,(The Package class) | inject:'==',(a Method) 
@@ -687,7 +684,7 @@ source:2,(The Package class) | inject:'SUPERCLASSES',(a Method)
 source:2,(The Package class) | inject:'UNINHERIT',(a Method) 
 source:2,(The Package class) | inject:'\=',(a Method) 
 source:2,(The Package class) | inject:'\==',(a Method) 
-source:1,v1=(The RexxContext class) | inject:1,v1 
+source:1,v1=(The RexxContext class) | inject:1,*v1 
 source:1,(The RexxContext class) | inject:'<>',(a Method) 
 source:1,(The RexxContext class) | inject:'=',(a Method) 
 source:1,(The RexxContext class) | inject:'==',(a Method) 
@@ -724,7 +721,7 @@ source:1,(The RexxContext class) | inject:'\==',(a Method)
        .sort byIndex {dataflow["source"]~item} |,
        .console dataflow,
        )
-source:'RELATION',v1=(The Relation class) | inject:1,v1 
+source:'RELATION',v1=(The Relation class) | inject:1,*v1 
 source:'RELATION',(The Relation class) | inject:'ALLAT',(a Method) 
 source:'RELATION',(The Relation class) | inject:'ALLINDEX',(a Method) 
 source:'RELATION',(The Relation class) | inject:'ALLINDEXES',(a Method) 
@@ -752,16 +749,15 @@ source:'RELATION',(The Relation class) | inject:'WRITEOBJECT',(a Method)
 source:'RELATION',(The Relation class) | inject:'XOR',(a Method) 
 source:'RELATION',(The Relation class) | inject:'[]',(a Method) 
 source:'RELATION',(The Relation class) | inject:'[]=',(a Method) 
-source:'REXXBLOCK',v1=(The RexxBlock class) | inject:1,v1 
+source:'REXXBLOCK',v1=(The RexxBlock class) | inject:1,*v1 
 source:'REXXBLOCK',(The RexxBlock class) | inject:'COPY',(a Method) 
 source:'REXXBLOCK',(The RexxBlock class) | inject:'KIND',(a Method) 
 source:'REXXBLOCK',(The RexxBlock class) | inject:'PACKAGE',(a Method) 
 source:'REXXBLOCK',(The RexxBlock class) | inject:'RAWEXECUTABLE',(a Method) 
 source:'REXXBLOCK',(The RexxBlock class) | inject:'SOURCE',(a Method) 
 source:'REXXBLOCK',(The RexxBlock class) | inject:'VARIABLES',(a Method) 
-source:'REXXCONTEXT',v1=(The RexxContext class) | inject:1,v1 
+source:'REXXCONTEXT',v1=(The RexxContext class) | inject:1,*v1 
 source:'REXXCONTEXT',(The RexxContext class) | inject:'ARGS',(a Method) 
-source:'REXXCONTEXT',(The RexxContext class) | inject:'ARGS=',(a Method) 
 source:'REXXCONTEXT',(The RexxContext class) | inject:'CONDITION',(a Method) 
 source:'REXXCONTEXT',(The RexxContext class) | inject:'COPY',(a Method) 
 source:'REXXCONTEXT',(The RexxContext class) | inject:'DIGITS',(a Method) 
@@ -770,11 +766,14 @@ source:'REXXCONTEXT',(The RexxContext class) | inject:'FORM',(a Method)
 source:'REXXCONTEXT',(The RexxContext class) | inject:'FUZZ',(a Method) 
 source:'REXXCONTEXT',(The RexxContext class) | inject:'LINE',(a Method) 
 source:'REXXCONTEXT',(The RexxContext class) | inject:'NAME',(a Method) 
+source:'REXXCONTEXT',(The RexxContext class) | inject:'NAMEDARGS',(a Method) 
 source:'REXXCONTEXT',(The RexxContext class) | inject:'PACKAGE',(a Method) 
 source:'REXXCONTEXT',(The RexxContext class) | inject:'PARENTCONTEXT',(a Method) 
 source:'REXXCONTEXT',(The RexxContext class) | inject:'RS',(a Method) 
+source:'REXXCONTEXT',(The RexxContext class) | inject:'SETARGS',(a Method) 
+source:'REXXCONTEXT',(The RexxContext class) | inject:'STACKFRAMES',(a Method) 
 source:'REXXCONTEXT',(The RexxContext class) | inject:'VARIABLES',(a Method) 
-source:'REXXQUEUE',v1=(The RexxQueue class) | inject:1,v1 
+source:'REXXQUEUE',v1=(The RexxQueue class) | inject:1,*v1 
 source:'REXXQUEUE',(The RexxQueue class) | inject:'DELETE',(a Method) 
 source:'REXXQUEUE',(The RexxQueue class) | inject:'EMPTY',(a Method) 
 source:'REXXQUEUE',(The RexxQueue class) | inject:'GET',(a Method) 
@@ -788,7 +787,8 @@ source:'REXXQUEUE',(The RexxQueue class) | inject:'QUEUE',(a Method)
 source:'REXXQUEUE',(The RexxQueue class) | inject:'QUEUED',(a Method) 
 source:'REXXQUEUE',(The RexxQueue class) | inject:'SAY',(a Method) 
 source:'REXXQUEUE',(The RexxQueue class) | inject:'SET',(a Method) 
-source:'ROUTINE',v1=(The Routine class) | inject:1,v1 
+source:'REXXTEXT',v1=(The RexxText class) | inject:1,*v1 
+source:'ROUTINE',v1=(The Routine class) | inject:1,*v1 
 source:'ROUTINE',(The Routine class) | inject:'CALL',(a Method) 
 source:'ROUTINE',(The Routine class) | inject:'CALLWITH',(a Method) 
 source:'ROUTINE',(The Routine class) | inject:'PACKAGE',(a Method) 
@@ -806,23 +806,41 @@ source:'ROUTINE',(The Routine class) | inject:'SOURCE',(a Method)
        pipe.rex 
          profiling.cls 
        extensions.cls 
-         array.cls 
-         file.cls 
-         string.cls 
-         doers.cls 
-           coactivity.cls 
-         functionals.cls 
-           doers.cls 
-             coactivity.cls 
-         logical.cls 
-           doers.cls 
-             coactivity.cls 
          coactivity.cls 
          generator.cls 
            coactivity.cls 
            functionals.cls 
              doers.cls 
                coactivity.cls 
+         array.cls 
+           infinity.cls 
+             indeterminate.cls 
+               novalue.cls 
+             novalue.cls 
+         collection.cls 
+           array.cls 
+             infinity.cls 
+               indeterminate.cls 
+                 novalue.cls 
+               novalue.cls 
+         complex.cls 
+           novalue.cls 
+         doers.cls 
+           coactivity.cls 
+         file.cls 
+         indeterminate.cls 
+           novalue.cls 
+         infinity.cls 
+           indeterminate.cls 
+             novalue.cls 
+           novalue.cls 
+         string.cls 
+         functionals.cls 
+           doers.cls 
+             coactivity.cls 
+         logical.cls 
+           doers.cls 
+             coactivity.cls 
      rgf_util2_wrappers.rex 
        rgf_util2.rex 
 
@@ -839,23 +857,41 @@ source:'ROUTINE',(The Routine class) | inject:'SOURCE',(a Method)
        extensions.cls 
        rgf_util2.rex 
          profiling.cls 
-         array.cls 
-         file.cls 
-         string.cls 
-         doers.cls 
-         functionals.cls 
-         logical.cls 
          coactivity.cls 
          generator.cls 
-           coactivity.cls 
-           doers.cls 
-           doers.cls 
+         array.cls 
+         collection.cls 
+         complex.cls 
+         doers.cls 
+         file.cls 
+         indeterminate.cls 
+         infinity.cls 
+         string.cls 
+         functionals.cls 
+         logical.cls 
            coactivity.cls 
            functionals.cls 
-             coactivity.cls 
-             coactivity.cls 
+           infinity.cls 
+           array.cls 
+           novalue.cls 
+           coactivity.cls 
+           novalue.cls 
+           indeterminate.cls 
+           novalue.cls 
+           doers.cls 
+           doers.cls 
              doers.cls 
+             indeterminate.cls 
+             novalue.cls 
+             infinity.cls 
+             novalue.cls 
+             coactivity.cls 
+             coactivity.cls 
                coactivity.cls 
+               novalue.cls 
+               indeterminate.cls 
+               novalue.cls 
+                 novalue.cls 
 
 
 -- ----------------------------------------------------------------------------
@@ -906,21 +942,17 @@ source:'ROUTINE',(The Routine class) | inject:'SOURCE',(a Method)
        .take 15 |,
        .console,
        )
-154 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls)
-155 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.dll)
-156 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.exp)
-157 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.lib)
-158 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.map)
-159 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.obj)
-188 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.dll)
-189 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.exe)
-190 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.exp)
-191 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.img)
-192 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.lib)
-193 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.map)
-194 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.obj)
-195 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.res)
-196 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\RexxActivation.obj)
+10 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\orexxole.dll)
+11 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rexx.dll)
+12 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rexx.exe)
+13 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rexx.ico)
+14 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rexx.img)
+15 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rexxapi.dll)
+16 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rexxc.exe)
+17 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rexxhide.exe)
+18 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rexxpaws.exe)
+19 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rexxtry.rex)
+20 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rexxutil.dll)
 
 
 -- ----------------------------------------------------------------------------
@@ -1105,24 +1137,24 @@ source:'ROUTINE',(The Routine class) | inject:'SOURCE',(a Method)
    fanout1 = .left[3]  memorize | .lower memorize
    fanout2 = .right[3] memorize | .upper memorize | .inject after {"my_"item}
    .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout memorize >> fanout2 > fanout1 | .console dataflow item)
-source:1,v1='aaaBBB' | fanout:1,v1 | left:1,v2='aaa' | lower:1,v2 'aaa' 
-source:2,v1='CCCddd' | fanout:2,v1 | left:1,'CCC' | lower:1,'ccc' 'ccc' 
-source:3,v1='eEeFfF' | fanout:3,v1 | left:1,'eEe' | lower:1,'eee' 'eee' 
+source:1,v1='aaaBBB' | fanout:1,*v1 | left:1,v2='aaa' | lower:1,*v2 'aaa' 
+source:2,v1='CCCddd' | fanout:2,*v1 | left:1,'CCC' | lower:1,'ccc' 'ccc' 
+source:3,v1='eEeFfF' | fanout:3,*v1 | left:1,'eEe' | lower:1,'eee' 'eee' 
 
 
 -- Here, each branch of the fanout remains separated. Each branch has its own console.
    fanout1 = .left[3]  memorize | .lower memorize | .console dataflow item
    fanout2 = .right[3] memorize | .upper memorize | .inject after {"my_"item} | .console dataflow item
    .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout memorize >> fanout2 > fanout1)
-source:1,v1='aaaBBB' | fanout:1,v1 | left:1,v2='aaa' | lower:1,v2 'aaa' 
-source:1,v1='aaaBBB' | fanout:1,v1 | right:1,v2='BBB' | upper:1,v2 'BBB' 
-source:1,v1='aaaBBB' | fanout:1,v1 | right:1,v2='BBB' | upper:1,v2 'my_BBB' 
-source:2,v1='CCCddd' | fanout:2,v1 | left:1,'CCC' | lower:1,'ccc' 'ccc' 
-source:2,v1='CCCddd' | fanout:2,v1 | right:1,'ddd' | upper:1,'DDD' 'DDD' 
-source:2,v1='CCCddd' | fanout:2,v1 | right:1,'ddd' | upper:1,'DDD' 'my_DDD' 
-source:3,v1='eEeFfF' | fanout:3,v1 | left:1,'eEe' | lower:1,'eee' 'eee' 
-source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,'FFF' 'FFF' 
-source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,'FFF' 'my_FFF' 
+source:1,v1='aaaBBB' | fanout:1,*v1 | left:1,v2='aaa' | lower:1,*v2 'aaa' 
+source:1,v1='aaaBBB' | fanout:1,*v1 | right:1,v2='BBB' | upper:1,*v2 'BBB' 
+source:1,v1='aaaBBB' | fanout:1,*v1 | right:1,v2='BBB' | upper:1,*v2 'my_BBB' 
+source:2,v1='CCCddd' | fanout:2,*v1 | left:1,'CCC' | lower:1,'ccc' 'ccc' 
+source:2,v1='CCCddd' | fanout:2,*v1 | right:1,'ddd' | upper:1,'DDD' 'DDD' 
+source:2,v1='CCCddd' | fanout:2,*v1 | right:1,'ddd' | upper:1,'DDD' 'my_DDD' 
+source:3,v1='eEeFfF' | fanout:3,*v1 | left:1,'eEe' | lower:1,'eee' 'eee' 
+source:3,v1='eEeFfF' | fanout:3,*v1 | right:1,'FfF' | upper:1,'FFF' 'FFF' 
+source:3,v1='eEeFfF' | fanout:3,*v1 | right:1,'FfF' | upper:1,'FFF' 'my_FFF' 
 
 
 -- Here, a fanin is used to serialize the branches of the fanout.
@@ -1131,15 +1163,15 @@ source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,'FFF' 'my_FFF'
    fanout1 = .left[3]  memorize | .lower memorize | fanin  -- not bufferized
    fanout2 = .right[3] memorize | .upper memorize | .inject after {"my_"item} | .secondaryConnector | fanin -- bufferized until fanout1 is eof
    .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout memorize >> fanout2 > fanout1)
-source:1,v1='aaaBBB' | fanout:1,v1 | left:1,v2='aaa' | lower:1,v2 | fanin:1,v2 'aaa' 
-source:2,v1='CCCddd' | fanout:2,v1 | left:1,'CCC' | lower:1,v2='ccc' | fanin:1,v2 'ccc' 
-source:3,v1='eEeFfF' | fanout:3,v1 | left:1,'eEe' | lower:1,v2='eee' | fanin:1,v2 'eee' 
-source:1,v1='aaaBBB' | fanout:1,v1 | right:1,v2='BBB' | upper:1,v2 | fanin:1,v2 'BBB' 
-source:1,v1='aaaBBB' | fanout:1,v1 | right:1,v2='BBB' | upper:1,v2 | fanin:1,'my_BBB' 'my_BBB' 
-source:2,v1='CCCddd' | fanout:2,v1 | right:1,'ddd' | upper:1,v2='DDD' | fanin:1,v2 'DDD' 
-source:2,v1='CCCddd' | fanout:2,v1 | right:1,'ddd' | upper:1,'DDD' | fanin:1,'my_DDD' 'my_DDD' 
-source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,v2='FFF' | fanin:1,v2 'FFF' 
-source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,'FFF' | fanin:1,'my_FFF' 'my_FFF' 
+source:1,v1='aaaBBB' | fanout:1,*v1 | left:1,v2='aaa' | lower:1,*v2 | fanin:1,*v2 'aaa' 
+source:2,v1='CCCddd' | fanout:2,*v1 | left:1,'CCC' | lower:1,v2='ccc' | fanin:1,*v2 'ccc' 
+source:3,v1='eEeFfF' | fanout:3,*v1 | left:1,'eEe' | lower:1,v2='eee' | fanin:1,*v2 'eee' 
+source:1,v1='aaaBBB' | fanout:1,*v1 | right:1,v2='BBB' | upper:1,*v2 | fanin:1,*v2 'BBB' 
+source:1,v1='aaaBBB' | fanout:1,*v1 | right:1,v2='BBB' | upper:1,*v2 | fanin:1,'my_BBB' 'my_BBB' 
+source:2,v1='CCCddd' | fanout:2,*v1 | right:1,'ddd' | upper:1,v2='DDD' | fanin:1,*v2 'DDD' 
+source:2,v1='CCCddd' | fanout:2,*v1 | right:1,'ddd' | upper:1,'DDD' | fanin:1,'my_DDD' 'my_DDD' 
+source:3,v1='eEeFfF' | fanout:3,*v1 | right:1,'FfF' | upper:1,v2='FFF' | fanin:1,*v2 'FFF' 
+source:3,v1='eEeFfF' | fanout:3,*v1 | right:1,'FfF' | upper:1,'FFF' | fanin:1,'my_FFF' 'my_FFF' 
 
 -- Here, a merge is used to serialize the branches of the fanout.
 -- There is no specific order (no delay).
@@ -1147,15 +1179,15 @@ source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,'FFF' | fanin:1,'my
    fanout1 = .left[3]  memorize | .lower memorize | merge  -- not bufferized
    fanout2 = .right[3] memorize | .upper memorize | .inject after {"my_"item} | .secondaryConnector | merge -- not bufferized
    .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout memorize >> fanout2 > fanout1)
-source:1,v1='aaaBBB' | fanout:1,v1 | left:1,v2='aaa' | lower:1,v2 | merge:1,v2 'aaa' 
-source:1,v1='aaaBBB' | fanout:1,v1 | right:1,v2='BBB' | upper:1,v2 | merge:1,v2 'BBB' 
-source:1,v1='aaaBBB' | fanout:1,v1 | right:1,v2='BBB' | upper:1,v2 | merge:1,'my_BBB' 'my_BBB' 
-source:2,v1='CCCddd' | fanout:2,v1 | left:1,'CCC' | lower:1,v2='ccc' | merge:1,v2 'ccc' 
-source:2,v1='CCCddd' | fanout:2,v1 | right:1,'ddd' | upper:1,v2='DDD' | merge:1,v2 'DDD' 
-source:2,v1='CCCddd' | fanout:2,v1 | right:1,'ddd' | upper:1,'DDD' | merge:1,'my_DDD' 'my_DDD' 
-source:3,v1='eEeFfF' | fanout:3,v1 | left:1,'eEe' | lower:1,v2='eee' | merge:1,v2 'eee' 
-source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,v2='FFF' | merge:1,v2 'FFF' 
-source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'my_FFF' 'my_FFF' 
+source:1,v1='aaaBBB' | fanout:1,*v1 | left:1,v2='aaa' | lower:1,*v2 | merge:1,*v2 'aaa' 
+source:1,v1='aaaBBB' | fanout:1,*v1 | right:1,v2='BBB' | upper:1,*v2 | merge:1,*v2 'BBB' 
+source:1,v1='aaaBBB' | fanout:1,*v1 | right:1,v2='BBB' | upper:1,*v2 | merge:1,'my_BBB' 'my_BBB' 
+source:2,v1='CCCddd' | fanout:2,*v1 | left:1,'CCC' | lower:1,v2='ccc' | merge:1,*v2 'ccc' 
+source:2,v1='CCCddd' | fanout:2,*v1 | right:1,'ddd' | upper:1,v2='DDD' | merge:1,*v2 'DDD' 
+source:2,v1='CCCddd' | fanout:2,*v1 | right:1,'ddd' | upper:1,'DDD' | merge:1,'my_DDD' 'my_DDD' 
+source:3,v1='eEeFfF' | fanout:3,*v1 | left:1,'eEe' | lower:1,v2='eee' | merge:1,*v2 'eee' 
+source:3,v1='eEeFfF' | fanout:3,*v1 | right:1,'FfF' | upper:1,v2='FFF' | merge:1,*v2 'FFF' 
+source:3,v1='eEeFfF' | fanout:3,*v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'my_FFF' 'my_FFF' 
 
 
 -- ----------------------------------------------------------------------------
@@ -1168,21 +1200,16 @@ source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'my
        .endsWith[".cls"] |,
        .console,
        )
-33 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls)
-116 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\mime.cls)
-134 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls)
-145 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodPlain.cls)
-152 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodWin32.cls)
-154 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls)
-246 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxftp.cls)
-255 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxregexp.cls)
-283 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\smtp.cls)
-284 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\socket.cls)
-292 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\streamsocket.cls)
-9 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\wchar\ooDialog.cls)
-19 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\wchar\oodPlain.cls)
-26 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\wchar\oodWin32.cls)
-339 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls)
+3 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\csvStream.cls)
+8 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\json.cls)
+9 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\mime.cls)
+22 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rxftp.cls)
+25 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rxregexp.cls)
+2 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\samples\ole\methinfo\methinfo.cls)
+31 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\smtp.cls)
+32 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\socket.cls)
+33 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\streamsocket.cls)
+34 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\winsystm.cls)
 
 
 -- Total number of lines in the *.cls files of ooRexx
@@ -1192,7 +1219,7 @@ source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'my
        .fileLines | .lineCount |,
        .console,
        )
-(The NIL object) : 23704
+(The NIL object) : 6124
 
 
 -- Number of lines in each *.cls files of ooRexx
@@ -1202,21 +1229,16 @@ source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'my
        .fileLines | .lineCount {dataflow["file"]~item} |,
        .console,
        )
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls) : 490
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\mime.cls) : 236
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls) : 9385
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodPlain.cls) : 39
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodWin32.cls) : 39
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls) : 208
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxftp.cls) : 2028
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxregexp.cls) : 56
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\smtp.cls) : 416
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\socket.cls) : 887
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\streamsocket.cls) : 409
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\wchar\ooDialog.cls) : 8325
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\wchar\oodPlain.cls) : 39
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\wchar\oodWin32.cls) : 39
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) : 1108
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\csvStream.cls) : 490
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\json.cls) : 423
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\mime.cls) : 236
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rxftp.cls) : 2028
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rxregexp.cls) : 56
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\samples\ole\methinfo\methinfo.cls) : 71
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\smtp.cls) : 416
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\socket.cls) : 887
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\streamsocket.cls) : 409
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\winsystm.cls) : 1108
 
 
 -- Total number of words in the *.cls files of ooRexx
@@ -1226,7 +1248,7 @@ source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'my
        .fileLines | .wordCount |,
        .console,
        )
-(The NIL object) : 106827
+(The NIL object) : 26226
 
 
 -- Number of words in each *.cls files of ooRexx
@@ -1236,21 +1258,16 @@ source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'my
        .fileLines | .wordCount {dataflow["file"]~item} |,
        .console,
        )
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls) : 2105
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\mime.cls) : 955
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls) : 42313
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodPlain.cls) : 337
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodWin32.cls) : 337
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls) : 875
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxftp.cls) : 7721
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxregexp.cls) : 397
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\smtp.cls) : 1665
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\socket.cls) : 4598
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\streamsocket.cls) : 1660
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\wchar\ooDialog.cls) : 38007
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\wchar\oodPlain.cls) : 337
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\wchar\oodWin32.cls) : 337
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) : 5183
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\csvStream.cls) : 2105
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\json.cls) : 1481
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\mime.cls) : 955
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rxftp.cls) : 7721
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rxregexp.cls) : 397
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\samples\ole\methinfo\methinfo.cls) : 461
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\smtp.cls) : 1665
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\socket.cls) : 4598
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\streamsocket.cls) : 1660
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\winsystm.cls) : 5183
 
 
 -- Total number of characters in the *.cls files of ooRexx (not counting the newline characters)
@@ -1260,7 +1277,7 @@ source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'my
        .fileLines | .charCount |,
        .console,
        )
-(The NIL object) : 891875
+(The NIL object) : 235726
 
 
 -- Number of characters in each *.cls files of ooRexx (not counting the newline characters)
@@ -1270,21 +1287,16 @@ source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'my
        .fileLines | .charCount {dataflow["file"]~item} |,
        .console,
        )
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls) : 24470
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\mime.cls) : 11208
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls) : 348722
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodPlain.cls) : 2985
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodWin32.cls) : 2985
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls) : 7948
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxftp.cls) : 63958
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxregexp.cls) : 3433
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\smtp.cls) : 18255
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\socket.cls) : 43999
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\streamsocket.cls) : 18066
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\wchar\ooDialog.cls) : 304785
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\wchar\oodPlain.cls) : 2985
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\wchar\oodWin32.cls) : 2985
-(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) : 35091
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\csvStream.cls) : 24470
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\json.cls) : 13111
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\mime.cls) : 11208
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rxftp.cls) : 63947
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rxregexp.cls) : 3433
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\samples\ole\methinfo\methinfo.cls) : 4146
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\smtp.cls) : 18255
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\socket.cls) : 43999
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\streamsocket.cls) : 18066
+(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\winsystm.cls) : 35091
 
 
 -- Alphanumeric words of 16+ chars found in the *.cls files of ooRexx.
@@ -1292,7 +1304,7 @@ source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'my
 --     .take 2 {dataflow["file"]~item}
 -- Here, the partition expression returns the current file object produced by the pipeStage "fileTree".
 -- Exemple of result :
--- source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:338,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) | fileLines:250,'::method DeleteDesktopIcon' | words:2,'DeleteDesktopIcon' 'DeleteDesktopIcon' 
+-- source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:338,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) | fileLines:250,'::method DeleteDesktopIcon' | words:2,'DeleteDesktopIcon' 'DeleteDesktopIcon'
 -- "DeleteDesktopIcon" is the 2nd word of the 250th line of the file
 -- "d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\winsystm.cls"
 -- which is the 338th file/directory of the directory
@@ -1307,19 +1319,15 @@ source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'my
        .fileLines memorize | .words memorize | .select {item~datatype('a') & item~length >= 16} |,
        .take 2 {dataflow["file"]~item} | .sort caseless | .console dataflow item,
        )
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:339,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) | fileLines:250,'::method DeleteDesktopIcon' | words:2,'DeleteDesktopIcon' 'DeleteDesktopIcon' 
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:154,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls) | fileLines:70,'::METHOD disconnectEvents EXTERNAL "LIBRARY OREXXOLE OLEObject_disconnectEvents"' | words:2,'disconnectEvents' 'disconnectEvents' 
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:9,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\wchar\ooDialog.cls) | fileLines:71,'::method getSystemMetrics class external "LIBRARY oodialog dlgutil_getSystemMetrics_cls"' | words:2,'getSystemMetrics' 'getSystemMetrics' 
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:33,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls) | fileLines:64,'::Attribute headerLineAbsent      private -- headersexist but absent' | words:2,'headerLineAbsent' 'headerLineAbsent' 
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:292,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\streamsocket.cls) | fileLines:52,'::class 'StreamSocket' public subclass InputOutputStream' | words:5,'InputOutputStream' 'InputOutputStream' 
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:9,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\wchar\ooDialog.cls) | fileLines:94,'::method isAtLeastWindows7 class external "LIBRARY oodialog os_isVersion"' | words:2,'isAtLeastWindows7' 'isAtLeastWindows7' 
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:33,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls) | fileLines:63,'::Attribute originalRawHeaders    private -- for comparison' | words:2,'originalRawHeaders' 'originalRawHeaders' 
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:134,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls) | fileLines:68,'::method parseIncludeFile' | words:2,'parseIncludeFile' 'parseIncludeFile' 
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:154,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls) | fileLines:71,'::METHOD removeEventHandler EXTERNAL "LIBRARY OREXXOLE OLEObject_removeEventHandler"' | words:2,'removeEventHandler' 'removeEventHandler' 
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:134,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls) | fileLines:109,'::method skipThroughIfDefs private' | words:2,'skipThroughIfDefs' 'skipThroughIfDefs' 
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:339,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) | fileLines:188,'/*********************************** WindowsProgramManager ****************************************/' | words:2,'WindowsProgramManager' 'WindowsProgramManager' 
+source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:34,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\winsystm.cls) | fileLines:250,'::method DeleteDesktopIcon' | words:2,'DeleteDesktopIcon' 'DeleteDesktopIcon' 
+source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:3,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\csvStream.cls) | fileLines:64,'::Attribute headerLineAbsent      private -- headersexist but absent' | words:2,'headerLineAbsent' 'headerLineAbsent' 
+source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:33,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\streamsocket.cls) | fileLines:52,'::class 'StreamSocket' public subclass InputOutputStream' | words:5,'InputOutputStream' 'InputOutputStream' 
+source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:8,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\json.cls) | fileLines:174,'    expose jsonString jsonPos jsonStringLength' | words:4,'jsonStringLength' 'jsonStringLength' 
+source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:3,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\csvStream.cls) | fileLines:63,'::Attribute originalRawHeaders    private -- for comparison' | words:2,'originalRawHeaders' 'originalRawHeaders' 
+source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:8,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\json.cls) | fileLines:130,'::method parseRexxDirectory private' | words:2,'parseRexxDirectory' 'parseRexxDirectory' 
+source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:34,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\winsystm.cls) | fileLines:188,'/*********************************** WindowsProgramManager ****************************************/' | words:2,'WindowsProgramManager' 'WindowsProgramManager' 
    say "duration="time('e') -- elapsed duration
-duration=4.902000
+duration=1.045000
 
 
 -- From here, some methods of the pipeline classes are instrumented to let profiling.
@@ -1335,58 +1343,53 @@ duration=4.902000
        .fileLines memorize | .words memorize | .select {item~datatype('a') & item~length >= 16} |,
        .take 2 {dataflow["file"]~item} | .sort caseless | .console dataflow item,
        )
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:339,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) | fileLines:250,'::method DeleteDesktopIcon' | words:2,'DeleteDesktopIcon' 'DeleteDesktopIcon' 
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:154,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls) | fileLines:70,'::METHOD disconnectEvents EXTERNAL "LIBRARY OREXXOLE OLEObject_disconnectEvents"' | words:2,'disconnectEvents' 'disconnectEvents' 
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:9,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\wchar\ooDialog.cls) | fileLines:71,'::method getSystemMetrics class external "LIBRARY oodialog dlgutil_getSystemMetrics_cls"' | words:2,'getSystemMetrics' 'getSystemMetrics' 
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:33,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls) | fileLines:64,'::Attribute headerLineAbsent      private -- headersexist but absent' | words:2,'headerLineAbsent' 'headerLineAbsent' 
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:292,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\streamsocket.cls) | fileLines:52,'::class 'StreamSocket' public subclass InputOutputStream' | words:5,'InputOutputStream' 'InputOutputStream' 
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:9,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\wchar\ooDialog.cls) | fileLines:94,'::method isAtLeastWindows7 class external "LIBRARY oodialog os_isVersion"' | words:2,'isAtLeastWindows7' 'isAtLeastWindows7' 
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:33,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls) | fileLines:63,'::Attribute originalRawHeaders    private -- for comparison' | words:2,'originalRawHeaders' 'originalRawHeaders' 
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:134,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls) | fileLines:68,'::method parseIncludeFile' | words:2,'parseIncludeFile' 'parseIncludeFile' 
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:154,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls) | fileLines:71,'::METHOD removeEventHandler EXTERNAL "LIBRARY OREXXOLE OLEObject_removeEventHandler"' | words:2,'removeEventHandler' 'removeEventHandler' 
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:134,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls) | fileLines:109,'::method skipThroughIfDefs private' | words:2,'skipThroughIfDefs' 'skipThroughIfDefs' 
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:339,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) | fileLines:188,'/*********************************** WindowsProgramManager ****************************************/' | words:2,'WindowsProgramManager' 'WindowsProgramManager' 
+source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:34,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\winsystm.cls) | fileLines:250,'::method DeleteDesktopIcon' | words:2,'DeleteDesktopIcon' 'DeleteDesktopIcon' 
+source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:3,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\csvStream.cls) | fileLines:64,'::Attribute headerLineAbsent      private -- headersexist but absent' | words:2,'headerLineAbsent' 'headerLineAbsent' 
+source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:33,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\streamsocket.cls) | fileLines:52,'::class 'StreamSocket' public subclass InputOutputStream' | words:5,'InputOutputStream' 'InputOutputStream' 
+source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:8,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\json.cls) | fileLines:174,'    expose jsonString jsonPos jsonStringLength' | words:4,'jsonStringLength' 'jsonStringLength' 
+source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:3,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\csvStream.cls) | fileLines:63,'::Attribute originalRawHeaders    private -- for comparison' | words:2,'originalRawHeaders' 'originalRawHeaders' 
+source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:8,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\json.cls) | fileLines:130,'::method parseRexxDirectory private' | words:2,'parseRexxDirectory' 'parseRexxDirectory' 
+source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:34,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\winsystm.cls) | fileLines:188,'/*********************************** WindowsProgramManager ****************************************/' | words:2,'WindowsProgramManager' 'WindowsProgramManager' 
 ----------------------------------------
 .fileTree~go
-  .fileTree~EOF count=1 duration=0.019000
-    .endsWith~EOF count=1 duration=0.019000
-      .fileLines~EOF count=1 duration=0.018000
-        .words~EOF count=1 duration=0.018000
-          .select~EOF count=1 duration=0.018000
-            .take~EOF count=1 duration=0.018000
-              .sort~EOF count=1 duration=0.018000
-                .console~EOF count=1 duration=0
-                .console~ISEOP count=22 duration=0
-                .console~PROCESS count=11 duration=0.017000
-  .fileTree~PROCESS count=1 duration=20.978000
-    .endsWith~ISEOP count=1306 duration=0.007000
-    .endsWith~PROCESS count=653 duration=20.675000
-      .fileLines~ISEOP count=668 duration=0.001000
-      .fileLines~PROCESS count=15 duration=20.618000
-        .words~ISEOP count=47438 duration=0.083000
-        .words~PROCESS count=23704 duration=18.237000
-          .select~ISEOP count=237358 duration=0.404000
-          .select~PROCESS count=106827 duration=7.789000
-            .take~ISEOP count=107582 duration=0.211000
-            .take~PROCESS count=755 duration=0.147000
-              .sort~ISEOP count=766 duration=0.002000
-              .sort~PROCESS count=11 duration=0.001000
-  .fileTree~START count=1 duration=0.001000
-    .endsWith~START count=1 duration=0.001000
-      .fileLines~START count=1 duration=0.001000
-        .words~START count=1 duration=0.001000
-          .select~START count=1 duration=0.001000
+  .fileTree~PROCESS count=1 duration=2.920000
+    .endsWith~ISEOP count=334 duration=0.001000
+    .endsWith~PROCESS count=167 duration=2.842000
+      .fileLines~ISEOP count=177 duration=0
+      .fileLines~PROCESS count=10 duration=2.837000
+        .words~ISEOP count=12268 duration=0.015000
+        .words~PROCESS count=6124 duration=2.478000
+          .select~ISEOP count=58576 duration=0.075000
+          .select~PROCESS count=26226 duration=0.999000
+            .take~ISEOP count=26258 duration=0.024000
+            .take~PROCESS count=32 duration=0.005000
+              .sort~ISEOP count=39 duration=0
+              .sort~PROCESS count=7 duration=0
+  .fileTree~START count=1 duration=0
+    .endsWith~START count=1 duration=0
+      .fileLines~START count=1 duration=0
+        .words~START count=1 duration=0
+          .select~START count=1 duration=0
             .take~START count=1 duration=0
               .sort~START count=1 duration=0
                 .console~START count=1 duration=0
-duration=20.998000
+  .endsWith~EOF count=1 duration=0.010000
+    .fileLines~EOF count=1 duration=0.010000
+      .words~EOF count=1 duration=0.010000
+        .select~EOF count=1 duration=0.010000
+          .take~EOF count=1 duration=0.010000
+            .sort~EOF count=1 duration=0.010000
+              .console~EOF count=1 duration=0
+              .console~ISEOP count=14 duration=0
+              .console~PROCESS count=7 duration=0.009000
+duration=2.930000
 ----------------------------------------
    say "duration="time('e') -- elapsed duration
-duration=21.129000
+duration=3.071000
 
 
    say installdir() ; say
-d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/
+C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/
 
 
 Ended coactivities: 0

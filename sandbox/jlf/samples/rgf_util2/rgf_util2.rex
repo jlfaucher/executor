@@ -1854,7 +1854,7 @@ syntax:              -- propagate condition
             say ppIndex2(s~index, surroundIndexByQuotes)~left(maxWidth) ":" pp2(subitem, surroundItemByQuotes)
             -- JLF
             if .nil <> doer then do
-              -- can't use the named argument notation, because this file must remain compatible with official oorexx
+              -- named argument notation, not namespace notation!
               if doer~arity >= 2 then doer~do(      subitem,        s~index,-
                                               item: subitem, index: s~index)
                                  else doer~do(      subitem,-
@@ -1868,7 +1868,7 @@ syntax:              -- propagate condition
          say ppIndex2(s~index, surroundIndexByQuotes)~left(maxWidth) ":" pp2(s~item, surroundItemByQuotes)
          -- JLF
          if .nil <> doer then do
-           -- can't use the named argument notation, because this file must remain compatible with official oorexx
+           -- named argument notation, not namespace notation!
            if doer~arity >= 2 then doer~do(      s~item,        s~index,-
                                            item: s~item, index: s~index)
                               else doer~do(      s~item,-
