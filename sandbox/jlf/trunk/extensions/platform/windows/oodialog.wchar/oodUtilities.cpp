@@ -462,13 +462,15 @@ RexxMethod1(RexxStringObject, dlgutil_version_cls, OPTIONAL_CSTRING, format)
             break;
 
         case 'S' :
-            _snprintf(buf, RXITEMCOUNT(buf), "%u.%u.%u.%u", ORX_VER, ORX_REL, ORX_MOD, OOREXX_BLD);
+            // _snprintf(buf, RXITEMCOUNT(buf), "%u.%u.%u.%u", ORX_VER, ORX_REL, ORX_MOD, OOREXX_BLD);
+            _snprintf(buf, RXITEMCOUNT(buf), "%u.%u.%u.%u", ORX_VER, ORX_REL, ORX_MOD, OOD_BLD);
             break;
 
         case '\0' :
         default :
             _snprintf(buf, RXITEMCOUNT(buf), "ooDialog Version %u.%u.%u.%u (an ooRexx Windows Extension)",
-                      ORX_VER, ORX_REL, ORX_MOD, OOREXX_BLD);
+                      // ORX_VER, ORX_REL, ORX_MOD, OOREXX_BLD);
+                      ORX_VER, ORX_REL, ORX_MOD, OOD_BLD);
             break;
 
     }

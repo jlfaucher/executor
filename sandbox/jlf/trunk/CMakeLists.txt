@@ -1426,16 +1426,17 @@ if (WIN32)
 endif ()
 
 #################### oodialog ################
-if (FALSE) # (WIN32)        # jlf : oodialog not activated
+if (WIN32) # (FALSE)        # jlf : oodialog wchar not activated
    set (OOD_MAJOR 4)
    set (OOD_MINOR 2)
-   set (OOD_MOD_LVL 4)
-   set (OOD_BLD_LVL 11506)
-   set (OOD_VER_STR "4.2.4.11506")
+   set (OOD_MOD_LVL 4)                # 4 --> 0 (au pif)
+   set (OOD_BLD_LVL 5500)             # 11506 --> 5500
+   set (OOD_VER_STR "4.2.0.5500")     # 4.11506 --> 0.5500
    set (OOD_COPY_YEAR "2005-2018")
-   set (OOD_SVN_REVSION 11506)
+   set (OOD_SVN_REVSION 5500)         # 11506 --> 5500
 
    #################### ooshapes.dll ################
+if (FALSE)                 # jlf : not existing in oodialog wchar
    # Sources for ooshapes.dll
    add_library(ooshapes SHARED
                 ${build_extensions_oodialog_dir}/APICommon.cpp
@@ -1462,7 +1463,7 @@ if (FALSE) # (WIN32)        # jlf : oodialog not activated
    copy_build_file(ooShapes.cls ${build_extensions_oodialog_dir})
    install(PROGRAMS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/ooShapes.cls COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR})
    add_custom_target(ooshapes_cls ALL DEPENDS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/ooShapes.cls)
-
+endif ()    # ooshapes.dll
 
    #################### oodialog.dll ################
    # Sources for oodialog.dll
@@ -1476,28 +1477,29 @@ if (FALSE) # (WIN32)        # jlf : oodialog not activated
                 ${build_extensions_oodialog_dir}/oodData.cpp
                 ${build_extensions_oodialog_dir}/oodDeviceGraphics.cpp
                 ${build_extensions_oodialog_dir}/ooDialog.cpp
-                ${build_extensions_oodialog_dir}/oodKeyboard.cpp
-                ${build_extensions_oodialog_dir}/oodListView.cpp
+#                ${build_extensions_oodialog_dir}/oodKeyboard.cpp
+#                ${build_extensions_oodialog_dir}/oodListView.cpp
                 ${build_extensions_oodialog_dir}/oodMenu.cpp
                 ${build_extensions_oodialog_dir}/oodMessaging.cpp
-                ${build_extensions_oodialog_dir}/oodMouse.cpp
+#                ${build_extensions_oodialog_dir}/oodMouse.cpp
                 ${build_extensions_oodialog_dir}/oodPackageEntry.cpp
                 ${build_extensions_oodialog_dir}/oodPropertySheetDialog.cpp
-                ${build_extensions_oodialog_dir}/oodReBar.cpp
-                ${build_extensions_oodialog_dir}/oodResizableDialog.cpp
+#                ${build_extensions_oodialog_dir}/oodReBar.cpp
+#                ${build_extensions_oodialog_dir}/oodResizableDialog.cpp
                 ${build_extensions_oodialog_dir}/oodResources.cpp
                 ${build_extensions_oodialog_dir}/oodRoutines.cpp
-                ${build_extensions_oodialog_dir}/oodShared.cpp
-                ${build_extensions_oodialog_dir}/oodShellObjects.cpp
-                ${build_extensions_oodialog_dir}/oodStatusBar.cpp
-                ${build_extensions_oodialog_dir}/oodToolBar.cpp
-                ${build_extensions_oodialog_dir}/oodToolTip.cpp
-                ${build_extensions_oodialog_dir}/oodTreeView.cpp
+#                ${build_extensions_oodialog_dir}/oodShared.cpp
+#                ${build_extensions_oodialog_dir}/oodShellObjects.cpp
+#                ${build_extensions_oodialog_dir}/oodStatusBar.cpp
+#                ${build_extensions_oodialog_dir}/oodToolBar.cpp
+#                ${build_extensions_oodialog_dir}/oodToolTip.cpp
+#                ${build_extensions_oodialog_dir}/oodTreeView.cpp
                 ${build_extensions_oodialog_dir}/oodUser.cpp
                 ${build_extensions_oodialog_dir}/oodUtilities.cpp
                 ${build_extensions_oodialog_dir}/oodViewControls.cpp
 #               ${build_extensions_oodialog_dir}/ooShapes.cpp
 #               ${build_extensions_oodialog_dir}/ooShapesAid.cpp
+                ${build_extensions_oodialog_dir}/rxwchar.cpp
                 ${build_extensions_oodialog_dir}/ooDialog.rc)
    # Override the compile definitions with ooDialog-exclusive defines
    set_property(TARGET oodialog
@@ -1519,10 +1521,12 @@ if (FALSE) # (WIN32)        # jlf : oodialog not activated
    target_include_directories(oodialog PUBLIC
                 ${build_extensions_oodialog_dir})
    # Extra link library definitions
-   target_link_libraries(oodialog ooshapes rexx rexxapi winmm comdlg32 comctl32 shlwapi oleacc uxtheme rpcrt4 propsys delayimp)
+   # target_link_libraries(oodialog ooshapes rexx rexxapi winmm comdlg32 comctl32 shlwapi oleacc uxtheme rpcrt4 propsys delayimp)
+   target_link_libraries(  oodialog          rexx rexxapi winmm comdlg32 comctl32 shlwapi oleacc uxtheme rpcrt4 propsys delayimp)
    install(TARGETS oodialog RUNTIME COMPONENT Core DESTINATION ${INSTALL_LIB_DIR})
 
    #################### ooDialog.exe (executable) ##########################
+if (FALSE)                 # jlf : not existing in oodialog wchar
    # Sources for ooDialog.exe
    add_executable(oodialog_exe WIN32 ${build_extensions_oodialog_dir}/oodWinMain.cpp
                                      ${build_extensions_oodialog_dir}/oodShared.cpp
@@ -1557,8 +1561,10 @@ if (FALSE) # (WIN32)        # jlf : oodialog not activated
       COMMAND "mt.exe" -nologo -manifest \"${EXE_MANIFEST_FILE}\" "-inputresource:bin\\ooDialog.exe;#1" "-outputresource:bin\\ooDialog.exe;#1"
       COMMENT "Adding custom manifest to ooDialog.exe...")
    install(TARGETS oodialog_exe RUNTIME COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR})
+endif ()    # ooDialog.exe
 
    #################### ooDialog.com (executable) ##########################
+if (FALSE)                 # jlf : not existing in oodialog wchar
    # Sources for ooDialog.com
    add_executable(oodialog_com ${build_extensions_oodialog_dir}/oodMain.cpp
                                ${build_extensions_oodialog_dir}/oodShared.cpp
@@ -1594,6 +1600,7 @@ if (FALSE) # (WIN32)        # jlf : oodialog not activated
       COMMAND "mt.exe" -nologo -manifest \"${EXE_MANIFEST_FILE}\" "-inputresource:bin\\ooDialog.com;#1" "-outputresource:bin\\ooDialog.com;#1"
       COMMENT "Adding custom manifest to ooDialog.com...")
    install(TARGETS oodialog_com RUNTIME COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR})
+endif ()    # ooDialog.com
 
 
    # Generate the oodialog .cls files used for the ::requires.  These are generated from
@@ -1604,12 +1611,12 @@ if (FALSE) # (WIN32)        # jlf : oodialog not activated
       ${build_extensions_oodialog_dir}/BaseDialog.cls
       ${build_extensions_oodialog_dir}/ControlDialog.cls
       ${build_extensions_oodialog_dir}/DialogControls.cls
-      ${build_extensions_oodialog_dir}/ListView.cls
-      ${build_extensions_oodialog_dir}/ReBar.cls
-      ${build_extensions_oodialog_dir}/StatusBar.cls
-      ${build_extensions_oodialog_dir}/ToolBar.cls
-      ${build_extensions_oodialog_dir}/ToolTip.cls
-      ${build_extensions_oodialog_dir}/TreeView.cls
+#      ${build_extensions_oodialog_dir}/ListView.cls
+#      ${build_extensions_oodialog_dir}/ReBar.cls
+#      ${build_extensions_oodialog_dir}/StatusBar.cls
+#      ${build_extensions_oodialog_dir}/ToolBar.cls
+#      ${build_extensions_oodialog_dir}/ToolTip.cls
+#      ${build_extensions_oodialog_dir}/TreeView.cls
       ${build_extensions_oodialog_dir}/DialogExtensions.cls
       ${build_extensions_oodialog_dir}/DynamicDialog.cls
       ${build_extensions_oodialog_dir}/EventNotification.cls
@@ -1619,7 +1626,12 @@ if (FALSE) # (WIN32)        # jlf : oodialog not activated
       ${build_extensions_oodialog_dir}/ResDialog.cls
       ${build_extensions_oodialog_dir}/UserDialog.cls
       ${build_extensions_oodialog_dir}/DeprecatedClasses.cls
-      ${build_extensions_oodialog_dir}/ShellObjects.cls)
+      ${build_extensions_oodialog_dir}/ShellObjects.cls          # )
+
+   # Existing in oodialog wchar
+      ${build_extensions_oodialog_dir}/CategoryDialog.cls
+      ${build_extensions_oodialog_dir}/PropertySheet.cls
+      )
 
 
    # We run a rexx program to generate these files, so we need to have the interpreter

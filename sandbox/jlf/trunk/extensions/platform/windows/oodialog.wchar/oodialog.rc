@@ -41,11 +41,13 @@
 IDI_DLG_OODIALOG    ICON   "oodialog.ico"
 IDI_DLG_APPICON     ICON   "AppIcon.ico"
 IDI_DLG_APPICON2    ICON   "AppIcon2.ico"
-IDI_DLG_OOREXX      ICON   "rexx.ico"
+IDI_DLG_OOREXX      ICON   "..\\..\\..\\..\\platform\\windows\\rexx.ico"
 
 1 VERSIONINFO
- FILEVERSION OOREXX_VER,OOREXX_REL,OOREXX_SUB,OOREXX_BLD
- PRODUCTVERSION OOREXX_VER,OOREXX_REL,OOREXX_SUB,OOREXX_BLD
+ // FILEVERSION OOREXX_VER,OOREXX_REL,OOREXX_SUB,OOREXX_BLD
+ FILEVERSION OOD_VER,OOD_REL,OOD_MOD,OOD_BLD
+ // PRODUCTVERSION OOREXX_VER,OOREXX_REL,OOREXX_SUB,OOREXX_BLD
+ PRODUCTVERSION OOD_VER,OOD_REL,OOD_MOD,OOD_BLD
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -62,12 +64,14 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Rexx Language Association\0"
             VALUE "FileDescription", "Open Object Rexx OODIALOG\0"
-            VALUE "FileVersion", OOREXX_VER_STR "\0"
+            // VALUE "FileVersion", OOREXX_VER_STR "\0"
+            VALUE "FileVersion", OOD_VER_STR "\0"
             VALUE "InternalName", "OODIALOG GUI\0"
             VALUE "LegalCopyright", "Copyright © RexxLA " OOREXX_COPY_YEAR ".\0"
             VALUE "OriginalFilename", "oodialog.dll\0"
             VALUE "ProductName", "Open Object Rexx for Windows\0"
-            VALUE "ProductVersion",  OOREXX_VER_STR "\0"
+            // VALUE "ProductVersion",  OOREXX_VER_STR "\0"
+            VALUE "ProductVersion",  OOD_VER_STR "\0"
         END
     END
     BLOCK "VarFileInfo"
