@@ -1,4 +1,232 @@
 ===================================================================================
+Extracted from
+https://news.ycombinator.com/item?id=21227430
+Larry Wall has approved renaming Perl 6 to Raku (github.com)
+
+
+weff_
+I'm trying to understand, what kind of scripting requires first-class concurrency that isn't fulfilled by say Python?
+
+
+dragonwriter
+For concurrency I think Raku has slightly more developed async support than Python, but the bigger advantage, I think,
+is in parallelism where, aside from the CPython GIL limiting practical parallelism in the main implementation
+(which is a big deal), Python as a language lacks the parallel iterables produced by the hyper (parallel but constrained
+to return in order) and race (parallel and not constrained in order) methods on the Iterable role in Raku, or anything
+like Raku’s hyperoperators that are semantically concurrent and parallelizable at the discretion of the optimizer.
+(Come to think of it, while also parallel, all those are also high-level concurrency constructs that Python lacks
+equivalents to.)
+Python as a language can support parallelism via threads, and CPython as an implementation can via multiprocessing,
+but those are both very low level abstractions; Raku has higher level abstractions which allow much more succinct
+expression of parallel operations.
+
+
+Too
+Sounds like multiprocessing.Pool.imap and imap_unordered?
+When dealing with io you also have async/await equivalent iterators like asyncio.as_completed().
+
+
+Grinnz
+I am not that familiar with Python, but the GIL has long prevented any real in-process concurrency.
+Perl has concurrency but it's complex, heavy, and poorly supported.
+Raku's approach to this is built to avoid all these problems (like Elixir).
+
+
+weff_
+I agree the GIL is a problem but it's only an issue for CPU-bound problems.
+Is there really an important amount of CPU-bound work that is written in a scripting language?
+If it's CPU-bound, wouldn't you want to use something lower level?
+
+
+nuclear_eclipse
+If it's entirely CPU bound, you can use multiprocessing to negate most of the GIL issues,
+and transparently send inputs/outputs between the parent and child processes.
+If it's I/O bound, then AsyncIO is a great way to express asynchronous workflows.
+If it's a combination of both I/O and CPU bound workloads, there are ways to mix multiprocessing
+and AsyncIO to better saturate your cores without losing the simplicity or readability of Python:
+https://github.com/jreese/aiomultiprocess
+
+
+weff_
+Very true, I had not even thought about the multiprocessing package;
+it's sometimes not as convenient as multithreading but it'll get those other cores working.
+
+
+karmakaze
+It's not just CPU bound problems, handling multiple overlapping i/o operations is more trouble than it ought to be.
+
+
+weff_
+Can you expand a bit on that? I'm not familiar with the issue you're describing.
+
+
+Grinnz
+Indeed and as a Perl developer I make use of XS/external libraries, cooperative multitasking
+(event loops/promises), and forking to cover these use cases.
+It doesn't preclude wanting the additional option to take advantage of threads in a useful way, since they do exist.
+
+
+vaer-k
+Why should first-class concurrency needs be required to script in Elixir?
+This question seems to imply that Python is somehow a default language and special requirements must be needed to
+justify writing in something else. Elixir is general-use and pleasant to write scripts in so seems reasonable to me
+for someone to do so if that's their thing.
+
+
+weff_
+Ovid2 said Perl6 has a good concurrency model
+lliamander replied that Elixir does too and it's worth a look
+To that, 7thaccount replied that Perl6 and Elixir fill different niches.
+So far, it seems Perl6 fills a niche that requires scripting and first-class concurrency.
+My question then is: what is this niche that requires very solid concurrency but also scripting.
+In other words, what does Perl6 have in terms of concurrency that Python does not (given they are both scripting languages)?
+
+
+Ultimatt
+Jonathan Worthington (Rakudo Compiler Architect). Keynote: Perl 6 Concurrency
+https://www.youtube.com/watch?v=hGyzsviI48M
+
+
+lliamander
+A fair question.
+I don't know of many instances where scripting and concurrency would be needed in the same application.
+But if you wanted to use single language both for scripting tasks and applications that require concurrency,
+then Raku or Elixir would work.
+One instance I can actually think of, that would be specific to Erlang/Elixir, is if you have a long running
+service that you sometimes run batch jobs against (like importing data from a CSV). An Elixir script can hook
+directly into an Elixir/Erlang service and interact with it using message passing. It's a heck of a lot simpler
+than RMI, and avoids the need to expose new HTTP endpoints specifically for such tasks.
+
+
+weff_
+Is that like the relationship between C# and PowerShell?
+
+
+lliamander
+I think so, at least in some ways.
+I've shipped a project using PowerShell to script Windows Server/Hyper-V, and it was a pretty pleasant experience.
+Having a scripting language that not only does typical scripting stuff (wrangling text, etc.) and understands
+your application's objects is excellent.
+Some differences:
+* You can actually write your whole application in Elixir, whereas I could not see doing that with PowerShell
+* In Erlang/Elixir, instead of objects you have processes. Think of your application as a microservice architecture
+  on steroids, using the Erlang RPC protocol as a means for inter-process communication.
+Because each process just sends and receives messages, your script can just send messages to any of the processes
+that make up your application, as if they were your own service. All you have to do is connect to the remote
+application using the Erlang Distribution Protocol (to connect different runtimes over the network).
+
+
+weff_
+I heard so much about the actor model, I should really try it in its intended glory one day.
+
+
+lliamander
+It's a trip, and it took me a little while to wrap my head around.
+However, I now much prefer it to working with other concurrency abstractions (such as callbacks).
+
+
+labster
+Does Python 3 have any operators that transform ordinary method calls into concurrent method calls?
+Perl 6/Raku does.
+
+
+dragonwriter
+More to the point, does Python 3 have operators that transform sequential operations into operations
+that are both concurrent and parallelizable, and, in the case of iteration, provide control of parallelism
+parameters and whether results are constrained to be in-order or not.
+To which the answer is “not only does Python not have them, but with the GIL CPython couldn't do much with
+them even if the language had them.”
+
+
+maksimum
+Yes, async/await. https://docs.python.org/3/library/asyncio-task.html#awaitabl...
+
+
+weff_
+Is that a bit like Go's `go` keyword?
+edit: that is, as far as I can tell, after a quick Google, it's not too different from Python's Thread object.
+
+
+pmezard
+It is, python Threads are system threads.
+
+
+greggman2
+I'm embarrased to say I write scripts in node :P
+I used to write scripts in python but I've been writing so much JS that it's just easier for me in node.
+Plus, node defaults to locally installed deps so I don't have to deal with virutal environments.
+
+
+tekknik
+Why do you think this is embarrassing? Javascript is great for small scripts. Largr codebases then sure
+
+
+Grinnz
+Which is a similar response to the comments asking "why Perl over Python?" I ask, why not (both)?
+
+
+dnautics
+Well just from experience untangling async calls in python is a nightmare and sometimes hard to reason about.
+The red/blue function problem is real. Meanwhile dispatching concurrent long-running scripting tasks is basically
+trivial in elixir (Enum.map over Task.async, then Enum.map over Task.await)
+
+
+ajoseps
+I'm guessing because Python's concurrency relies on the Global Interpreter Lock.
+Although I think concurrent.futures might address that. Haven't worked with python concurrency libraries in a bit.
+
+
+weff_
+as I posted above:
+I agree the GIL is a problem but it's only an issue for CPU-bound problems.
+Is there really an important amount of CPU-bound work that is written in a scripting language?
+If it's CPU-bound, wouldn't you want to use something lower level?
+
+
+zaphirplane
+There is machine learning, which usually calls into numpy or other c extensions With a lot of the data preparation
+done in python
+
+
+rubyn00bie
+tldr; Using a scripting language that allows for native threads or has a strong concurrency model builtin to the core
+would be beneficial for any CPU bound scripting task...
+Python's concurrency model is good for waiting on network or disk I/O because of its GIL (Global Interpreter Lock):
+https://realpython.com/python-gil/#the-impact-on-multi-threa...
+If your program is CPU bound the GIL will slow you down.
+I'm sure since the python ecosystem is quite vast there are ways around the GIL...
+but then you have to worry about every library you use not supporting "real" multi-threading,
+or (b)locking for no reason and shitting all over your efforts.
+
+
+weff_
+As I've posted above, I'm a bit confused by CPU-bound work being processed in a scripting language.
+If you're planning on doing intense CPU-bound work, maybe use a lower-level language?
+I'm not saying abandon Python: you can extend Python with C or just use IPC to transfer data between
+a Python front-end and a computation back-end.
+
+
+zmmmmm
+At one time it was an obvious dichotomy that you would not use a scripting language for CPU bound work,
+but these days it is a much more blurry line. Partly because modern efficient languages are becoming ergonomic
+enough to work well as scripting languages while still giving you very good performance.
+I actually love doing CPU bound work in Groovy which is usually described as a scripting language.
+But it gets converted straight to java byte code which is JIT'd and ends up as machine code.
+It only takes a few static typed hints here and there and it runs in the same league as C++ implementations.
+And it gets Java's excellent concurrency support for free.
+
+
+rubyn00bie
+I totally you feel you, I guess I thought your question was substantially more surface level than it was. My apologies.
+I'm personally with you. I also don't tend to think object boxing is really the performance bottleneck for most applications,
+and if/when it is, likely the other requirements should've already ruled out using one (a scripting language).
+It's like writing Nifs for Elixir, yeah sure you _can_, they have their purpose, but you could also just write another
+application to do that one thing and like you said, use IPC.
+So in summary, we agree with each other, here's to:
+the right tool for the job!
+
+
+===================================================================================
 node.js
 
 http://bjouhier.wordpress.com/2012/03/11/fibers-and-threads-in-node-js-what-for/
