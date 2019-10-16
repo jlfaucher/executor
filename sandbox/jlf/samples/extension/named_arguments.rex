@@ -623,7 +623,7 @@ interpret: procedure
 :: routine useAutoNamed_SimpleSymbol
     call sayArg .context
     call indent
-    say 'use auto named arg v1=item, v2=index'
+    say 'use auto named arg v1=(item), v2=(index)'
          use auto named arg v1=(item), v2=(index)
     call sayCollection "variables", .context~variables
     return ""
@@ -835,7 +835,7 @@ interpret: procedure
 
 --------------------------------------------------------------------------------
 
--- .directory~of(a1:1, a2,2)
+-- .directory~of(a1:1, a2:2)
 -- Next step : Modify the parser to support directly a directory literal (a1:1, a2:2)
 ::extension Directory
 ::method of class

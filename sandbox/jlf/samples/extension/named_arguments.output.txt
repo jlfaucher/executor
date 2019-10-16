@@ -691,7 +691,7 @@ call useAutoNamed_SimpleSymbol v1:1, v3:3, v5:5, index:"My index", item:"My item
         V1 : 1
         V3 : 3
         V5 : 5
-    use auto named arg v1=item, v2=index
+    use auto named arg v1=(item), v2=(index)
     variables count=6
         INDEX : My index
         ITEM : My item
@@ -1325,8 +1325,8 @@ n1=1 n2=2
         N1 : 1
         N2 : 2
 
-
-    On entry in the thread (migrated arguments)
+    
+On entry in the thread (migrated arguments)
     positional count=2 size=2
         1 : 1
         2 : 2
