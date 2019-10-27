@@ -106,8 +106,9 @@ class RexxNativeActivation : public RexxActivationBase
   void   resetNext();
   bool   fetchNext(RexxString **name, RexxObject **value);
   void   raiseCondition(RexxString *condition, RexxString *description, RexxObject *additional, RexxObject *result);
-  RexxArray *getArguments();
-  RexxObject *getArgument(size_t index);
+  RexxArray *getPositionalArguments();
+  RexxObject *getPositionalArgument(size_t index);
+  RexxDirectory *getNamedArguments();
   RexxObject *getSuper();
   RexxObject *getScope();
   RexxStem *resolveStemVariable(RexxObject *s);
@@ -177,7 +178,7 @@ class RexxNativeActivation : public RexxActivationBase
   int stemSort(const char *stemname, int order, int type, size_t start, size_t end, size_t firstcol, size_t lastcol);
   inline void enableConditionTrap() { trapConditions = true; }
 
-  void forwardMessage(RexxObject *to, RexxString *msg, RexxClass *super, RexxArray *args, ProtectedObject &result);
+  void forwardMessage(RexxObject *to, RexxString *msg, RexxClass *super, RexxArray *positionalArgs, RexxDirectory *namedArgs, ProtectedObject &result);
   void enableConditionTraps() { trapErrors = true; }
   void disableConditionTraps() { trapErrors = false; }
   StackFrameClass *createStackFrame();
@@ -199,8 +200,15 @@ protected:
     RexxObject     *receiver;            // the object receiving the message
     RexxString     *msgname;             /* name of the message running       */
     RexxActivation *activation;          /* parent activation                 */
+
+   // Positional arguments from arglist[0] to arglist[argcount-1]
+   // namedArgcount = arglist[argcount]
+   // Named arguments from arglist[argcount+1] to arglist[argcount+1 + (2*namedArgcount)-1]
     RexxObject    **arglist;             /* copy of the argument list         */
-    RexxArray      *argArray;            /* optionally create argument array  */
+
+    RexxArray      *argArray;            /* optionally create positional argument array  */
+    RexxDirectory  *argDirectory;        /* optionally create named argument directory  */
+
     RexxIdentityTable   *savelist;       /* list of saved objects             */
     RexxObject     *result;              /* result from RexxRaise call        */
     ActivationType  activationType;      // the type of activation
@@ -212,7 +220,7 @@ protected:
     RexxVariableDictionary *nextcurrent; /* current processed vdict           */
     RexxCompoundElement *compoundelement;/* current compound variable value   */
     RexxVariable   *nextstem;            /* our working stem variable         */
-    size_t          argcount;            /* size of the argument list         */
+    size_t          argcount;            /* count of positional arguments     */
     bool            vpavailable;         /* Variable pool access flag         */
     int             object_scope;        /* reserve/release state of variables*/
     bool            stackBase;           // this is a stack base marker

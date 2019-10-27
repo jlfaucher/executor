@@ -118,6 +118,7 @@ void RexxNativeActivation::live(size_t liveMark)
     memory_mark(this->previous);
     memory_mark(this->executable);
     memory_mark(this->argArray);
+    memory_mark(this->argDirectory);
     memory_mark(this->receiver);
     memory_mark(this->activity);
     memory_mark(this->activation);
@@ -149,6 +150,7 @@ void RexxNativeActivation::liveGeneral(int reason)
     memory_mark_general(this->previous);
     memory_mark_general(this->executable);
     memory_mark_general(this->argArray);
+    memory_mark_general(this->argDirectory);
     memory_mark_general(this->receiver);
     memory_mark_general(this->activity);
     memory_mark_general(this->activation);
@@ -248,416 +250,416 @@ void RexxNativeActivation::processArguments(size_t _argcount, RexxObject **_argl
         {
             // reference to the receiver object...if this is a function call,
             // then this will be OREF NULL.
-            case REXX_VALUE_OSELF:                /* reference to SELF                 */
+        case REXX_VALUE_OSELF:                /* reference to SELF                 */
+        {
+            // this doesn't make any sense for a function call
+            if (activationType != METHOD_ACTIVATION)
             {
-                // this doesn't make any sense for a function call
-                if (activationType != METHOD_ACTIVATION)
+                reportSignatureError();
+            }
+            // fill in the receiver object and mark it...
+            descriptors[outputIndex].value.value_RexxObjectPtr = (RexxObjectPtr)this->receiver;
+            descriptors[outputIndex].flags = ARGUMENT_EXISTS | SPECIAL_ARGUMENT;
+            break;
+        }
+
+        // reference to the method scope...if this is a function call,
+        // then this will be OREF NULL.
+        case REXX_VALUE_SCOPE:
+        {
+            // this doesn't make any sense for a function call
+            if (activationType != METHOD_ACTIVATION)
+            {
+                reportSignatureError();
+            }
+            // fill in the receiver object and mark it...
+            descriptors[outputIndex].value.value_RexxObjectPtr = (RexxObjectPtr)this->getScope();
+            descriptors[outputIndex].flags = ARGUMENT_EXISTS | SPECIAL_ARGUMENT;
+            break;
+        }
+
+        // reference to the superclass scope...if this is a function call,
+        // then this will be OREF NULL.
+        case REXX_VALUE_SUPER:
+        {
+            // this doesn't make any sense for a function call
+            if (activationType != METHOD_ACTIVATION)
+            {
+                reportSignatureError();
+            }
+            // fill in the receiver object and mark it...
+            descriptors[outputIndex].value.value_RexxObjectPtr = (RexxClassObject)this->getSuper();
+            descriptors[outputIndex].flags = ARGUMENT_EXISTS | SPECIAL_ARGUMENT;
+            break;
+        }
+
+        case REXX_VALUE_CSELF:                /* reference to CSELF                */
+        {
+            // this doesn't make any sense for a function call
+            if (activationType != METHOD_ACTIVATION)
+            {
+                reportSignatureError();
+            }
+            descriptors[outputIndex].value.value_POINTER = this->cself();
+            descriptors[outputIndex].flags = ARGUMENT_EXISTS | SPECIAL_ARGUMENT;
+            break;
+        }
+
+        case REXX_VALUE_ARGLIST:              /* need the argument list            */
+        {
+            descriptors[outputIndex].flags = ARGUMENT_EXISTS | SPECIAL_ARGUMENT;
+            descriptors[outputIndex].value.value_RexxArrayObject = (RexxArrayObject)getPositionalArguments();
+            // we've used this
+            usedArglist = true;
+            break;
+        }
+
+        // This is either the message name used to invoke a method or
+        // the name used to call a function
+        case REXX_VALUE_NAME:
+        {
+            descriptors[outputIndex].flags = ARGUMENT_EXISTS | SPECIAL_ARGUMENT;
+            descriptors[outputIndex].value.value_CSTRING = (CSTRING)this->msgname->getStringData();
+            break;
+        }
+
+        // this is a real argument taken from the argument list
+        default:                         /* still within argument bounds?     */
+        {
+            if (inputIndex < _argcount && _arglist[inputIndex] != OREF_NULL)
+            {
+                // all of these arguments exist
+                descriptors[outputIndex].flags = ARGUMENT_EXISTS;
+                RexxObject *argument = _arglist[inputIndex];    /* get the next argument             */
+                switch (type)
+                {               /* process this type                 */
+
+                case REXX_VALUE_RexxObjectPtr:  /* arbitrary object reference        */
                 {
-                    reportSignatureError();
+                    descriptors[outputIndex].value.value_RexxObjectPtr = (RexxObjectPtr)argument;
+                    break;
                 }
-                // fill in the receiver object and mark it...
-                descriptors[outputIndex].value.value_RexxObjectPtr = (RexxObjectPtr)this->receiver;
-                descriptors[outputIndex].flags = ARGUMENT_EXISTS | SPECIAL_ARGUMENT;
-                break;
-            }
 
-            // reference to the method scope...if this is a function call,
-            // then this will be OREF NULL.
-            case REXX_VALUE_SCOPE:
-            {
-                // this doesn't make any sense for a function call
-                if (activationType != METHOD_ACTIVATION)
+                case REXX_VALUE_int:            /* integer value                     */
                 {
-                    reportSignatureError();
+                    // convert and copy                  */
+                    descriptors[outputIndex].value.value_int = (int)signedIntegerValue(argument, inputIndex, INT_MAX, INT_MIN);
+                    break;
                 }
-                // fill in the receiver object and mark it...
-                descriptors[outputIndex].value.value_RexxObjectPtr = (RexxObjectPtr)this->getScope();
-                descriptors[outputIndex].flags = ARGUMENT_EXISTS | SPECIAL_ARGUMENT;
-                break;
-            }
 
-            // reference to the superclass scope...if this is a function call,
-            // then this will be OREF NULL.
-            case REXX_VALUE_SUPER:
-            {
-                // this doesn't make any sense for a function call
-                if (activationType != METHOD_ACTIVATION)
+                case REXX_VALUE_int8_t:            /* 8-bit integer value               */
                 {
-                    reportSignatureError();
+                    descriptors[outputIndex].value.value_int8_t = (int8_t)signedIntegerValue(argument, inputIndex, INT8_MAX, INT8_MIN);
+                    break;
                 }
-                // fill in the receiver object and mark it...
-                descriptors[outputIndex].value.value_RexxObjectPtr = (RexxClassObject)this->getSuper();
-                descriptors[outputIndex].flags = ARGUMENT_EXISTS | SPECIAL_ARGUMENT;
-                break;
-            }
 
-            case REXX_VALUE_CSELF:                /* reference to CSELF                */
-            {
-                // this doesn't make any sense for a function call
-                if (activationType != METHOD_ACTIVATION)
+                case REXX_VALUE_int16_t:            /* integer value                     */
                 {
-                    reportSignatureError();
+                    descriptors[outputIndex].value.value_int16_t = (int16_t)signedIntegerValue(argument, inputIndex, INT16_MAX, INT16_MIN);
+                    break;
                 }
-                descriptors[outputIndex].value.value_POINTER = this->cself();
-                descriptors[outputIndex].flags = ARGUMENT_EXISTS | SPECIAL_ARGUMENT;
-                break;
-            }
 
-            case REXX_VALUE_ARGLIST:              /* need the argument list            */
-            {
-                descriptors[outputIndex].flags = ARGUMENT_EXISTS | SPECIAL_ARGUMENT;
-                descriptors[outputIndex].value.value_RexxArrayObject = (RexxArrayObject)getArguments();
-                // we've used this
-                usedArglist = true;
-                break;
-            }
-
-            // This is either the message name used to invoke a method or
-            // the name used to call a function
-            case REXX_VALUE_NAME:
-            {
-                descriptors[outputIndex].flags = ARGUMENT_EXISTS | SPECIAL_ARGUMENT;
-                descriptors[outputIndex].value.value_CSTRING = (CSTRING)this->msgname->getStringData();
-                break;
-            }
-
-            // this is a real argument taken from the argument list
-            default:                         /* still within argument bounds?     */
-            {
-                if (inputIndex < _argcount && _arglist[inputIndex] != OREF_NULL)
+                case REXX_VALUE_int32_t:            /* integer value                     */
                 {
-                    // all of these arguments exist
-                    descriptors[outputIndex].flags = ARGUMENT_EXISTS;
-                    RexxObject *argument = _arglist[inputIndex];    /* get the next argument             */
-                    switch (type)
-                    {               /* process this type                 */
-
-                        case REXX_VALUE_RexxObjectPtr:  /* arbitrary object reference        */
-                        {
-                            descriptors[outputIndex].value.value_RexxObjectPtr = (RexxObjectPtr)argument;
-                            break;
-                        }
-
-                        case REXX_VALUE_int:            /* integer value                     */
-                        {
-                            // convert and copy                  */
-                            descriptors[outputIndex].value.value_int = (int)signedIntegerValue(argument, inputIndex, INT_MAX, INT_MIN);
-                            break;
-                        }
-
-                        case REXX_VALUE_int8_t:            /* 8-bit integer value               */
-                        {
-                            descriptors[outputIndex].value.value_int8_t = (int8_t)signedIntegerValue(argument, inputIndex, INT8_MAX, INT8_MIN);
-                            break;
-                        }
-
-                        case REXX_VALUE_int16_t:            /* integer value                     */
-                        {
-                            descriptors[outputIndex].value.value_int16_t = (int16_t)signedIntegerValue(argument, inputIndex, INT16_MAX, INT16_MIN);
-                            break;
-                        }
-
-                        case REXX_VALUE_int32_t:            /* integer value                     */
-                        {
-                            descriptors[outputIndex].value.value_int32_t = (int32_t)signedIntegerValue(argument, inputIndex, INT32_MAX, INT32_MIN);
-                            break;
-                        }
-
-                        case REXX_VALUE_int64_t:            /* integer value                     */
-                        {
-                            descriptors[outputIndex].value.value_int64_t = (int64_t)int64Value(argument, inputIndex);
-                            break;
-                        }
-
-                        case REXX_VALUE_ssize_t:            /* integer value                     */
-                        {
-                            descriptors[outputIndex].value.value_ssize_t = (ssize_t)signedIntegerValue(argument, inputIndex, SSIZE_MAX, -SSIZE_MAX - 1);
-                            break;
-                        }
-
-                        case REXX_VALUE_intptr_t:         /* integer value                     */
-                        {
-                            descriptors[outputIndex].value.value_intptr_t = (intptr_t)signedIntegerValue(argument, inputIndex, INTPTR_MAX, INTPTR_MIN);
-                            break;
-                        }
-
-                        case REXX_VALUE_uint8_t:            /* 8-bit integer value               */
-                        {
-                            descriptors[outputIndex].value.value_uint8_t = (uint8_t)unsignedIntegerValue(argument, inputIndex, UINT8_MAX);
-                            break;
-                        }
-
-                        case REXX_VALUE_uint16_t:            /* integer value                     */
-                        {
-                            descriptors[outputIndex].value.value_uint16_t = (uint16_t)unsignedIntegerValue(argument, inputIndex, UINT16_MAX);
-                            break;
-                        }
-
-                        case REXX_VALUE_uint32_t:            /* integer value                     */
-                        {
-                            descriptors[outputIndex].value.value_uint32_t = (uint32_t)unsignedIntegerValue(argument, inputIndex, UINT32_MAX);
-                            break;
-                        }
-
-                        case REXX_VALUE_uint64_t:            /* integer value                     */
-                        {
-                            descriptors[outputIndex].value.value_uint64_t = (uint64_t)unsignedInt64Value(argument, inputIndex);
-                            break;
-                        }
-
-                        case REXX_VALUE_size_t:            /* integer value                     */
-                        {
-                            descriptors[outputIndex].value.value_size_t = (size_t)unsignedIntegerValue(argument, inputIndex, SIZE_MAX);
-                            break;
-                        }
-
-                        case REXX_VALUE_uintptr_t:         /* integer value                     */
-                        {
-                            descriptors[outputIndex].value.value_uintptr_t = (uintptr_t)unsignedIntegerValue(argument, inputIndex, UINTPTR_MAX);
-                            break;
-                        }
-
-                        case REXX_VALUE_logical_t:         /* integer value                     */
-                        {
-                            descriptors[outputIndex].value.value_logical_t = argument->truthValue(Error_Logical_value_method);
-                            break;
-                        }
-
-                        // The Rexx whole number one is checked against the human digits limit
-                        case REXX_VALUE_wholenumber_t:  /* number value                      */
-                        {
-                            descriptors[outputIndex].value.value_wholenumber_t = (wholenumber_t)signedIntegerValue(argument, inputIndex, Numerics::MAX_WHOLENUMBER, Numerics::MIN_WHOLENUMBER);
-                            break;
-                        }
-
-                        // an unsigned string number value
-                        case REXX_VALUE_stringsize_t:
-                        {
-                            descriptors[outputIndex].value.value_stringsize_t = (stringsize_t)unsignedIntegerValue(argument, inputIndex, Numerics::MAX_STRINGSIZE);
-                            break;
-                        }
-
-                        case REXX_VALUE_double:         /* double value                      */
-                        {
-                            descriptors[outputIndex].value.value_double = this->getDoubleValue(argument, inputIndex);
-                            break;
-                        }
-
-
-                        case REXX_VALUE_float:          /* float value                      */
-                        {
-                            descriptors[outputIndex].value.value_float = (float)this->getDoubleValue(argument, inputIndex);
-                            break;
-                        }
-
-                        case REXX_VALUE_CSTRING:        /* ASCII-Z string value              */
-                        {
-                            descriptors[outputIndex].value.value_CSTRING = this->cstring(argument);
-                            break;
-                        }
-
-                        case REXX_VALUE_RexxStringObject: /* Required STRING object            */
-                        {
-                            /* force to a string value           */
-                            RexxString *temp = stringArgument(argument, OREF_POSITIONAL, inputIndex + 1) ;
-                            // if this forced a string object to be created,
-                            // we need to protect it here.
-                            if (temp != argument)
-                            {
-                                                     /* make it safe                      */
-                                createLocalReference(temp);
-                            }
-                            /* set the result in                 */
-                            descriptors[outputIndex].value.value_RexxStringObject = (RexxStringObject)temp;
-                            break;
-
-                        }
-
-                        case REXX_VALUE_RexxArrayObject: /* Required ARRAY object            */
-                        {
-                            /* force to a string value           */
-                            RexxArray *temp = arrayArgument(argument, OREF_POSITIONAL, inputIndex + 1) ;
-                            // if this forced a string object to be created,
-                            // we need to protect it here.
-                            if (temp != argument)
-                            {
-                                                     /* make it safe                      */
-                                createLocalReference(temp);
-                            }
-                            /* set the result in                 */
-                            descriptors[outputIndex].value.value_RexxArrayObject = (RexxArrayObject)temp;
-                            break;
-
-                        }
-
-                        case REXX_VALUE_RexxStemObject: /* Required Stem object            */
-                        {
-                            // Stem arguments get special handling.  If the argument
-                            // object is already a stem object, we're done.  Otherwise,
-                            // we get the string value of the argument and use that
-                            // to resolve a stem name in the current context.  If the
-                            // trailing period is not given on the name, one will be added.
-                            // Note that the second form is only available if this is a
-                            // call context.  This is an error for a method context.
-
-                            // is this a stem already?
-                            if (isStem(argument))
-                            {
-                                /* set the result in                 */
-                                descriptors[outputIndex].value.value_RexxStemObject = (RexxStemObject)argument;
-                                break;
-                            }
-
-                            // this spesn't make any sense for a function call
-                            if (activationType == METHOD_ACTIVATION)
-                            {
-                                reportStemError(inputIndex, argument);
-                            }
-
-                            /* force to a string value           */
-                            RexxString *temp = argument->requestString();
-                            if ((RexxObject *)temp == TheNilObject)
-                            {
-                                reportStemError(inputIndex, argument);
-                            }
-                            // if this forced a string object to be created,
-                            // we need to protect it here.
-                            if (temp != argument)
-                            {
-                                                     /* make it safe                      */
-                                createLocalReference(temp);
-                            }
-
-                            // see if we can retrieve this stem
-                            RexxObject *stem = getContextStem(temp);
-                            if (stem == OREF_NULL)
-                            {
-                                reportStemError(inputIndex, argument);
-                            }
-                            /* set the result in                 */
-                            descriptors[outputIndex].value.value_RexxStemObject = (RexxStemObject)stem;
-                            break;
-                        }
-
-                        case REXX_VALUE_RexxClassObject: // required class object
-                        {
-                            // this must be a class object
-                            if (!argument->isInstanceOf(TheClassClass))
-                            {
-                                reportException(Error_Invalid_argument_noclass, OREF_POSITIONAL, inputIndex + 1, TheClassClass->getId());
-                            }
-                            /* set the result in                 */
-                            descriptors[outputIndex].value.value_RexxClassObject = (RexxClassObject)argument;
-                            break;
-                        }
-
-                        case REXX_VALUE_POINTER:
-                        {
-                            // this must be a pointer object
-                            if (!argument->isInstanceOf(ThePointerClass))
-                            {
-                                reportException(Error_Invalid_argument_noclass, OREF_POSITIONAL, inputIndex + 1, ThePointerClass->getId());
-                            }
-                            descriptors[outputIndex].value.value_POINTER = this->pointer(argument);
-                            break;
-                        }
-
-                        case REXX_VALUE_POINTERSTRING:
-                        {
-                            descriptors[outputIndex].value.value_POINTERSTRING = this->pointerString(argument, inputIndex);
-                            break;
-                        }
-
-                        case REXX_VALUE_RexxMutableBufferObject:
-                        {
-                            // this must be a pointer object
-                            if (!argument->isInstanceOf(TheMutableBufferClass))
-                            {
-                                reportException(Error_Invalid_argument_noclass, OREF_POSITIONAL, inputIndex + 1, TheMutableBufferClass->getId());
-                            }
-                            descriptors[outputIndex].value.value_RexxMutableBufferObject = (RexxMutableBufferObject)argument;
-                            break;
-                        }
-
-                        default:                   /* something messed up               */
-                        {
-                            reportSignatureError();
-                            break;
-                        }
-                    }
+                    descriptors[outputIndex].value.value_int32_t = (int32_t)signedIntegerValue(argument, inputIndex, INT32_MAX, INT32_MIN);
+                    break;
                 }
-                else
+
+                case REXX_VALUE_int64_t:            /* integer value                     */
                 {
-                    // if this was not an option argument
-                    if (!isOptional)
+                    descriptors[outputIndex].value.value_int64_t = (int64_t)int64Value(argument, inputIndex);
+                    break;
+                }
+
+                case REXX_VALUE_ssize_t:            /* integer value                     */
+                {
+                    descriptors[outputIndex].value.value_ssize_t = (ssize_t)signedIntegerValue(argument, inputIndex, SSIZE_MAX, -SSIZE_MAX - 1);
+                    break;
+                }
+
+                case REXX_VALUE_intptr_t:         /* integer value                     */
+                {
+                    descriptors[outputIndex].value.value_intptr_t = (intptr_t)signedIntegerValue(argument, inputIndex, INTPTR_MAX, INTPTR_MIN);
+                    break;
+                }
+
+                case REXX_VALUE_uint8_t:            /* 8-bit integer value               */
+                {
+                    descriptors[outputIndex].value.value_uint8_t = (uint8_t)unsignedIntegerValue(argument, inputIndex, UINT8_MAX);
+                    break;
+                }
+
+                case REXX_VALUE_uint16_t:            /* integer value                     */
+                {
+                    descriptors[outputIndex].value.value_uint16_t = (uint16_t)unsignedIntegerValue(argument, inputIndex, UINT16_MAX);
+                    break;
+                }
+
+                case REXX_VALUE_uint32_t:            /* integer value                     */
+                {
+                    descriptors[outputIndex].value.value_uint32_t = (uint32_t)unsignedIntegerValue(argument, inputIndex, UINT32_MAX);
+                    break;
+                }
+
+                case REXX_VALUE_uint64_t:            /* integer value                     */
+                {
+                    descriptors[outputIndex].value.value_uint64_t = (uint64_t)unsignedInt64Value(argument, inputIndex);
+                    break;
+                }
+
+                case REXX_VALUE_size_t:            /* integer value                     */
+                {
+                    descriptors[outputIndex].value.value_size_t = (size_t)unsignedIntegerValue(argument, inputIndex, SIZE_MAX);
+                    break;
+                }
+
+                case REXX_VALUE_uintptr_t:         /* integer value                     */
+                {
+                    descriptors[outputIndex].value.value_uintptr_t = (uintptr_t)unsignedIntegerValue(argument, inputIndex, UINTPTR_MAX);
+                    break;
+                }
+
+                case REXX_VALUE_logical_t:         /* integer value                     */
+                {
+                    descriptors[outputIndex].value.value_logical_t = argument->truthValue(Error_Logical_value_method);
+                    break;
+                }
+
+                // The Rexx whole number one is checked against the human digits limit
+                case REXX_VALUE_wholenumber_t:  /* number value                      */
+                {
+                    descriptors[outputIndex].value.value_wholenumber_t = (wholenumber_t)signedIntegerValue(argument, inputIndex, Numerics::MAX_WHOLENUMBER, Numerics::MIN_WHOLENUMBER);
+                    break;
+                }
+
+                // an unsigned string number value
+                case REXX_VALUE_stringsize_t:
+                {
+                    descriptors[outputIndex].value.value_stringsize_t = (stringsize_t)unsignedIntegerValue(argument, inputIndex, Numerics::MAX_STRINGSIZE);
+                    break;
+                }
+
+                case REXX_VALUE_double:         /* double value                      */
+                {
+                    descriptors[outputIndex].value.value_double = this->getDoubleValue(argument, inputIndex);
+                    break;
+                }
+
+
+                case REXX_VALUE_float:          /* float value                      */
+                {
+                    descriptors[outputIndex].value.value_float = (float)this->getDoubleValue(argument, inputIndex);
+                    break;
+                }
+
+                case REXX_VALUE_CSTRING:        /* ASCII-Z string value              */
+                {
+                    descriptors[outputIndex].value.value_CSTRING = this->cstring(argument);
+                    break;
+                }
+
+                case REXX_VALUE_RexxStringObject: /* Required STRING object            */
+                {
+                    /* force to a string value           */
+                    RexxString *temp = stringArgument(argument, OREF_POSITIONAL, inputIndex + 1);
+                    // if this forced a string object to be created,
+                    // we need to protect it here.
+                    if (temp != argument)
                     {
-                                       /* just raise the error              */
-                        reportException(Error_Invalid_argument_noarg, OREF_POSITIONAL, inputIndex + 1);
+                        /* make it safe                      */
+                        createLocalReference(temp);
                     }
+                    /* set the result in                 */
+                    descriptors[outputIndex].value.value_RexxStringObject = (RexxStringObject)temp;
+                    break;
 
-                    // this is a non-specified argument
-                    descriptors[outputIndex].flags = 0;
-                    switch (type)
-                    {
-
-                        case REXX_VALUE_RexxObjectPtr:     // no object here
-                        case REXX_VALUE_int:               // non-integer value
-                        case REXX_VALUE_wholenumber_t:     // non-existent long
-                        case REXX_VALUE_CSTRING:           // missing character string
-                        case REXX_VALUE_POINTER:
-                        case REXX_VALUE_RexxStringObject:  // no object here
-                        case REXX_VALUE_stringsize_t:      // non-existent long
-                        case REXX_VALUE_int8_t:            // non-integer value
-                        case REXX_VALUE_int16_t:           // non-integer value
-                        case REXX_VALUE_int32_t:           // non-integer value
-                        case REXX_VALUE_int64_t:           // non-integer value
-                        case REXX_VALUE_uint8_t:           // non-integer value
-                        case REXX_VALUE_uint16_t:          // non-integer value
-                        case REXX_VALUE_uint32_t:          // non-integer value
-                        case REXX_VALUE_uint64_t:          // non-integer value
-                        case REXX_VALUE_size_t:
-                        case REXX_VALUE_ssize_t:
-                        case REXX_VALUE_intptr_t:
-                        case REXX_VALUE_uintptr_t:
-                        case REXX_VALUE_logical_t:         // this must be a boolean value
-                        case REXX_VALUE_RexxArrayObject:   // no object here
-                        case REXX_VALUE_RexxStemObject:
-                        case REXX_VALUE_RexxClassObject:
-                        case REXX_VALUE_RexxMutableBufferObject:
-                        case REXX_VALUE_POINTERSTRING:
-                        {
-                            // set this as a 64-bit value to clear everything out
-                            descriptors[outputIndex].value.value_int64_t = 0;
-                            break;
-                        }
-                        case REXX_VALUE_double:         /* non-existent double               */
-                        {
-                            descriptors[outputIndex].value.value_double = 0.0;
-                            break;
-                        }
-                        case REXX_VALUE_float:          /* non-existent double               */
-                        {
-                            descriptors[outputIndex].value.value_float = 0.0;
-                            break;
-                        }
-                                                   /* still an error if not there       */
-                        default:                   /* something messed up               */
-                        {
-                            reportSignatureError();
-                            break;
-                        }
-                    }
                 }
-                inputIndex++;              // we've used up one more input argument
-                break;
+
+                case REXX_VALUE_RexxArrayObject: /* Required ARRAY object            */
+                {
+                    /* force to a string value           */
+                    RexxArray *temp = arrayArgument(argument, OREF_POSITIONAL, inputIndex + 1);
+                    // if this forced a string object to be created,
+                    // we need to protect it here.
+                    if (temp != argument)
+                    {
+                        /* make it safe                      */
+                        createLocalReference(temp);
+                    }
+                    /* set the result in                 */
+                    descriptors[outputIndex].value.value_RexxArrayObject = (RexxArrayObject)temp;
+                    break;
+
+                }
+
+                case REXX_VALUE_RexxStemObject: /* Required Stem object            */
+                {
+                    // Stem arguments get special handling.  If the argument
+                    // object is already a stem object, we're done.  Otherwise,
+                    // we get the string value of the argument and use that
+                    // to resolve a stem name in the current context.  If the
+                    // trailing period is not given on the name, one will be added.
+                    // Note that the second form is only available if this is a
+                    // call context.  This is an error for a method context.
+
+                    // is this a stem already?
+                    if (isStem(argument))
+                    {
+                        /* set the result in                 */
+                        descriptors[outputIndex].value.value_RexxStemObject = (RexxStemObject)argument;
+                        break;
+                    }
+
+                    // this spesn't make any sense for a function call
+                    if (activationType == METHOD_ACTIVATION)
+                    {
+                        reportStemError(inputIndex, argument);
+                    }
+
+                    /* force to a string value           */
+                    RexxString *temp = argument->requestString();
+                    if ((RexxObject *)temp == TheNilObject)
+                    {
+                        reportStemError(inputIndex, argument);
+                    }
+                    // if this forced a string object to be created,
+                    // we need to protect it here.
+                    if (temp != argument)
+                    {
+                        /* make it safe                      */
+                        createLocalReference(temp);
+                    }
+
+                    // see if we can retrieve this stem
+                    RexxObject *stem = getContextStem(temp);
+                    if (stem == OREF_NULL)
+                    {
+                        reportStemError(inputIndex, argument);
+                    }
+                    /* set the result in                 */
+                    descriptors[outputIndex].value.value_RexxStemObject = (RexxStemObject)stem;
+                    break;
+                }
+
+                case REXX_VALUE_RexxClassObject: // required class object
+                {
+                    // this must be a class object
+                    if (!argument->isInstanceOf(TheClassClass))
+                    {
+                        reportException(Error_Invalid_argument_noclass, OREF_POSITIONAL, inputIndex + 1, TheClassClass->getId());
+                    }
+                    /* set the result in                 */
+                    descriptors[outputIndex].value.value_RexxClassObject = (RexxClassObject)argument;
+                    break;
+                }
+
+                case REXX_VALUE_POINTER:
+                {
+                    // this must be a pointer object
+                    if (!argument->isInstanceOf(ThePointerClass))
+                    {
+                        reportException(Error_Invalid_argument_noclass, OREF_POSITIONAL, inputIndex + 1, ThePointerClass->getId());
+                    }
+                    descriptors[outputIndex].value.value_POINTER = this->pointer(argument);
+                    break;
+                }
+
+                case REXX_VALUE_POINTERSTRING:
+                {
+                    descriptors[outputIndex].value.value_POINTERSTRING = this->pointerString(argument, inputIndex);
+                    break;
+                }
+
+                case REXX_VALUE_RexxMutableBufferObject:
+                {
+                    // this must be a pointer object
+                    if (!argument->isInstanceOf(TheMutableBufferClass))
+                    {
+                        reportException(Error_Invalid_argument_noclass, OREF_POSITIONAL, inputIndex + 1, TheMutableBufferClass->getId());
+                    }
+                    descriptors[outputIndex].value.value_RexxMutableBufferObject = (RexxMutableBufferObject)argument;
+                    break;
+                }
+
+                default:                   /* something messed up               */
+                {
+                    reportSignatureError();
+                    break;
+                }
+                }
             }
+            else
+            {
+                // if this was not an option argument
+                if (!isOptional)
+                {
+                    /* just raise the error              */
+                    reportException(Error_Invalid_argument_noarg, OREF_POSITIONAL, inputIndex + 1);
+                }
+
+                // this is a non-specified argument
+                descriptors[outputIndex].flags = 0;
+                switch (type)
+                {
+
+                case REXX_VALUE_RexxObjectPtr:     // no object here
+                case REXX_VALUE_int:               // non-integer value
+                case REXX_VALUE_wholenumber_t:     // non-existent long
+                case REXX_VALUE_CSTRING:           // missing character string
+                case REXX_VALUE_POINTER:
+                case REXX_VALUE_RexxStringObject:  // no object here
+                case REXX_VALUE_stringsize_t:      // non-existent long
+                case REXX_VALUE_int8_t:            // non-integer value
+                case REXX_VALUE_int16_t:           // non-integer value
+                case REXX_VALUE_int32_t:           // non-integer value
+                case REXX_VALUE_int64_t:           // non-integer value
+                case REXX_VALUE_uint8_t:           // non-integer value
+                case REXX_VALUE_uint16_t:          // non-integer value
+                case REXX_VALUE_uint32_t:          // non-integer value
+                case REXX_VALUE_uint64_t:          // non-integer value
+                case REXX_VALUE_size_t:
+                case REXX_VALUE_ssize_t:
+                case REXX_VALUE_intptr_t:
+                case REXX_VALUE_uintptr_t:
+                case REXX_VALUE_logical_t:         // this must be a boolean value
+                case REXX_VALUE_RexxArrayObject:   // no object here
+                case REXX_VALUE_RexxStemObject:
+                case REXX_VALUE_RexxClassObject:
+                case REXX_VALUE_RexxMutableBufferObject:
+                case REXX_VALUE_POINTERSTRING:
+                {
+                    // set this as a 64-bit value to clear everything out
+                    descriptors[outputIndex].value.value_int64_t = 0;
+                    break;
+                }
+                case REXX_VALUE_double:         /* non-existent double               */
+                {
+                    descriptors[outputIndex].value.value_double = 0.0;
+                    break;
+                }
+                case REXX_VALUE_float:          /* non-existent double               */
+                {
+                    descriptors[outputIndex].value.value_float = 0.0;
+                    break;
+                }
+                /* still an error if not there       */
+                default:                   /* something messed up               */
+                {
+                    reportSignatureError();
+                    break;
+                }
+                }
+            }
+            inputIndex++;              // we've used up one more input argument
+            break;
+        }
         }
         outputIndex++;                 /* step to the next argument         */
         argumentTypes++;               // and the next output position pointer
     }
     if (inputIndex < _argcount && !usedArglist)    /* extra, unwanted arguments?        */
     {
-                                         /* got too many                      */
+        /* got too many                      */
         reportException(Error_Invalid_argument_maxarg, OREF_POSITIONAL, inputIndex);
     }
 }
@@ -698,141 +700,141 @@ RexxObject *RexxNativeActivation::valueToObject(ValueDescriptor *value)
 {
     switch (value->type)
     {
-        case REXX_VALUE_RexxObjectPtr:          // object reference.  All object types get
-        case REXX_VALUE_RexxStringObject:       // returned as a Rexx object
-        case REXX_VALUE_RexxArrayObject:
-        case REXX_VALUE_RexxClassObject:
-        case REXX_VALUE_RexxStemObject:
-        case REXX_VALUE_RexxMutableBufferObject:
-        {
-            return (RexxObject *)value->value.value_RexxObjectPtr; // just return the object value
-        }
+    case REXX_VALUE_RexxObjectPtr:          // object reference.  All object types get
+    case REXX_VALUE_RexxStringObject:       // returned as a Rexx object
+    case REXX_VALUE_RexxArrayObject:
+    case REXX_VALUE_RexxClassObject:
+    case REXX_VALUE_RexxStemObject:
+    case REXX_VALUE_RexxMutableBufferObject:
+    {
+        return (RexxObject *)value->value.value_RexxObjectPtr; // just return the object value
+    }
 
-        case REXX_VALUE_int:                    /* integer value                     */
-        {
-            return Numerics::wholenumberToObject((wholenumber_t)value->value.value_int);
-        }
+    case REXX_VALUE_int:                    /* integer value                     */
+    {
+        return Numerics::wholenumberToObject((wholenumber_t)value->value.value_int);
+    }
 
-        case REXX_VALUE_int8_t:                         /* integer value                     */
-        {
-            return Numerics::wholenumberToObject((wholenumber_t)value->value.value_int8_t);
-        }
+    case REXX_VALUE_int8_t:                         /* integer value                     */
+    {
+        return Numerics::wholenumberToObject((wholenumber_t)value->value.value_int8_t);
+    }
 
-        case REXX_VALUE_int16_t:                        /* integer value                     */
-        {
-            return Numerics::wholenumberToObject((wholenumber_t)value->value.value_int16_t);
-        }
+    case REXX_VALUE_int16_t:                        /* integer value                     */
+    {
+        return Numerics::wholenumberToObject((wholenumber_t)value->value.value_int16_t);
+    }
 
-        case REXX_VALUE_int32_t:                        /* integer value                     */
-        {
-            return Numerics::wholenumberToObject((wholenumber_t)value->value.value_int32_t);
-        }
+    case REXX_VALUE_int32_t:                        /* integer value                     */
+    {
+        return Numerics::wholenumberToObject((wholenumber_t)value->value.value_int32_t);
+    }
 
-        case REXX_VALUE_int64_t:                        /* integer value                     */
-        {
-            return Numerics::int64ToObject(value->value.value_int64_t);
-        }
+    case REXX_VALUE_int64_t:                        /* integer value                     */
+    {
+        return Numerics::int64ToObject(value->value.value_int64_t);
+    }
 
-        case REXX_VALUE_intptr_t:                       /* integer value                     */
-        {
-            return Numerics::wholenumberToObject((wholenumber_t)value->value.value_intptr_t);
-        }
+    case REXX_VALUE_intptr_t:                       /* integer value                     */
+    {
+        return Numerics::wholenumberToObject((wholenumber_t)value->value.value_intptr_t);
+    }
 
-        case REXX_VALUE_uint8_t:                         /* integer value                     */
-        {
-            return Numerics::stringsizeToObject((stringsize_t)value->value.value_uint8_t);
-        }
+    case REXX_VALUE_uint8_t:                         /* integer value                     */
+    {
+        return Numerics::stringsizeToObject((stringsize_t)value->value.value_uint8_t);
+    }
 
-        case REXX_VALUE_uint16_t:                        /* integer value                     */
-        {
-            return Numerics::stringsizeToObject((stringsize_t)value->value.value_uint16_t);
-        }
+    case REXX_VALUE_uint16_t:                        /* integer value                     */
+    {
+        return Numerics::stringsizeToObject((stringsize_t)value->value.value_uint16_t);
+    }
 
-        case REXX_VALUE_uint32_t:                        /* integer value                     */
-        {
-            return Numerics::stringsizeToObject((stringsize_t)value->value.value_uint32_t);
-        }
+    case REXX_VALUE_uint32_t:                        /* integer value                     */
+    {
+        return Numerics::stringsizeToObject((stringsize_t)value->value.value_uint32_t);
+    }
 
-        case REXX_VALUE_uint64_t:                        /* integer value                     */
-        {
-            return Numerics::uint64ToObject(value->value.value_uint64_t);
-        }
+    case REXX_VALUE_uint64_t:                        /* integer value                     */
+    {
+        return Numerics::uint64ToObject(value->value.value_uint64_t);
+    }
 
-        case REXX_VALUE_uintptr_t:                       /* integer value                     */
-        {
-            return Numerics::stringsizeToObject((stringsize_t)value->value.value_uintptr_t);
-        }
+    case REXX_VALUE_uintptr_t:                       /* integer value                     */
+    {
+        return Numerics::stringsizeToObject((stringsize_t)value->value.value_uintptr_t);
+    }
 
-        case REXX_VALUE_logical_t:                        /* logical value                     */
-        {
-            return value->value.value_logical_t == 0 ? TheFalseObject : TheTrueObject;
-        }
+    case REXX_VALUE_logical_t:                        /* logical value                     */
+    {
+        return value->value.value_logical_t == 0 ? TheFalseObject : TheTrueObject;
+    }
 
-        case REXX_VALUE_size_t:                        /* integer value                     */
-        {
-            return Numerics::stringsizeToObject((stringsize_t)value->value.value_size_t);
-        }
+    case REXX_VALUE_size_t:                        /* integer value                     */
+    {
+        return Numerics::stringsizeToObject((stringsize_t)value->value.value_size_t);
+    }
 
-        case REXX_VALUE_ssize_t:                        /* integer value                     */
-        {
-            return Numerics::wholenumberToObject((wholenumber_t)value->value.value_size_t);
-        }
+    case REXX_VALUE_ssize_t:                        /* integer value                     */
+    {
+        return Numerics::wholenumberToObject((wholenumber_t)value->value.value_size_t);
+    }
 
-        case REXX_VALUE_wholenumber_t:        /* long integer value                */
-        {
-            return Numerics::wholenumberToObject((wholenumber_t)value->value.value_wholenumber_t);
-        }
+    case REXX_VALUE_wholenumber_t:        /* long integer value                */
+    {
+        return Numerics::wholenumberToObject((wholenumber_t)value->value.value_wholenumber_t);
+    }
 
-        case REXX_VALUE_stringsize_t:     /* long integer value                */
-        {
-            return Numerics::stringsizeToObject((stringsize_t)value->value.value_stringsize_t);
-        }
+    case REXX_VALUE_stringsize_t:     /* long integer value                */
+    {
+        return Numerics::stringsizeToObject((stringsize_t)value->value.value_stringsize_t);
+    }
 
-        case REXX_VALUE_double:                 /* double value                      */
-        {
-            return new_string(value->value.value_double);
-        }
+    case REXX_VALUE_double:                 /* double value                      */
+    {
+        return new_string(value->value.value_double);
+    }
 
-        case REXX_VALUE_float:                  /* float value                      */
-        {
-            return new_string(value->value.value_float);
-        }
+    case REXX_VALUE_float:                  /* float value                      */
+    {
+        return new_string(value->value.value_float);
+    }
 
-        case REXX_VALUE_CSTRING:                /* ASCII-Z string                    */
+    case REXX_VALUE_CSTRING:                /* ASCII-Z string                    */
+    {
+        const char *string = value->value.value_CSTRING;
+        // return return nothing if a null pointer is returned.
+        if (string == NULL)
         {
-            const char *string = value->value.value_CSTRING;
-            // return return nothing if a null pointer is returned.
-            if (string == NULL)
-            {
-                return OREF_NULL;
-            }
-            return new_string(string);             // make a Rexx string from this
-        }
-
-        case REXX_VALUE_POINTER:
-        {
-            // just wrap the pointer in a pointer object
-            return new_pointer(value->value.value_POINTER);
-        }
-
-        case REXX_VALUE_POINTERSTRING:
-        {
-            // format this into a chracter string
-            return Numerics::pointerToString(value->value.value_POINTER);
-        }
-
-        case 0:
-        {
-            // useful for creating argument lists.  This is an omitted value, so just return
-            // a null value
             return OREF_NULL;
         }
+        return new_string(string);             // make a Rexx string from this
+    }
 
-        default:
-        {
-            reportSignatureError();      // bad method signature problem
-            break;
-        }
+    case REXX_VALUE_POINTER:
+    {
+        // just wrap the pointer in a pointer object
+        return new_pointer(value->value.value_POINTER);
+    }
+
+    case REXX_VALUE_POINTERSTRING:
+    {
+        // format this into a chracter string
+        return Numerics::pointerToString(value->value.value_POINTER);
+    }
+
+    case 0:
+    {
+        // useful for creating argument lists.  This is an omitted value, so just return
+        // a null value
+        return OREF_NULL;
+    }
+
+    default:
+    {
+        reportSignatureError();      // bad method signature problem
+        break;
+    }
     }
     return OREF_NULL;
 }
@@ -850,304 +852,304 @@ bool RexxNativeActivation::objectToValue(RexxObject *o, ValueDescriptor *value)
 {
     switch (value->type)
     {
-        case REXX_VALUE_RexxObjectPtr:          /* Object reference                  */
-        {
-            // silly, but this always works.
-            value->value.value_RexxObjectPtr = (RexxObjectPtr)o;
-            return true;
-        }
-        case REXX_VALUE_RexxClassObject: // required class object
-        {
-            // this must be a class object
-            if (!o->isInstanceOf(TheClassClass))
-            {
-                return false;
-            }
-            /* set the result in                 */
-            value->value.value_RexxClassObject = (RexxClassObject)o;
-            return true;
-        }
-        case REXX_VALUE_RexxMutableBufferObject: // required mutablebuffer object
-        {
-            // this must be a mutablebuffer object
-            if (!o->isInstanceOf(TheMutableBufferClass))
-            {
-                return false;
-            }
-            /* set the result in                 */
-            value->value.value_RexxMutableBufferObject = (RexxMutableBufferObject)o;
-            return true;
-        }
-        case REXX_VALUE_int:            /* integer value                     */
-        {
-            ssize_t temp = 0;
-            // convert and copy                  */
-            bool success = Numerics::objectToSignedInteger(o, temp, INT_MAX, INT_MIN);
-            value->value.value_int = (int)temp;
-            return success;
-        }
-
-        case REXX_VALUE_int8_t:            /* 8-bit integer value               */
-        {
-            ssize_t temp = 0;
-            // convert and copy                  */
-            bool success = Numerics::objectToSignedInteger(o, temp, INT8_MAX, INT8_MIN);
-            value->value.value_int8_t = (int8_t)temp;
-            return success;
-        }
-
-        case REXX_VALUE_int16_t:            /* integer value                     */
-        {
-            ssize_t temp = 0;
-            // convert and copy                  */
-            bool success = Numerics::objectToSignedInteger(o, temp, INT16_MAX, INT16_MIN);
-            value->value.value_int16_t = (int16_t)temp;
-            return success;
-        }
-
-        case REXX_VALUE_int32_t:            /* integer value                     */
-        {
-            ssize_t temp = 0;
-            // convert and copy                  */
-            bool success = Numerics::objectToSignedInteger(o, temp, INT32_MAX, INT32_MIN);
-            value->value.value_int32_t = (int32_t)temp;
-            return success;
-        }
-
-        case REXX_VALUE_intptr_t:           /* integer value                     */
-        {
-            intptr_t temp = 0;
-            // convert and copy                  */
-            bool success = Numerics::objectToIntptr(o, temp);
-            value->value.value_intptr_t = (intptr_t)temp;
-            return success;
-        }
-
-        case REXX_VALUE_int64_t:            /* integer value                     */
-        {
-            int64_t temp = 0;
-            // convert and copy                  */
-            bool success = Numerics::objectToInt64(o, temp);
-            value->value.value_int64_t = (int64_t)temp;
-            return success;
-        }
-
-        case REXX_VALUE_uint8_t:            /* 8-bit integer value               */
-        {
-            size_t temp = 0;
-            // convert and copy                  */
-            bool success = Numerics::objectToUnsignedInteger(o, temp, UINT8_MAX);
-            value->value.value_uint8_t = (uint8_t)temp;
-            return success;
-        }
-
-        case REXX_VALUE_uint16_t:            /* integer value                     */
-        {
-            size_t temp = 0;
-            // convert and copy                  */
-            bool success = Numerics::objectToUnsignedInteger(o, temp, UINT16_MAX);
-            value->value.value_uint16_t = (uint16_t)temp;
-            return success;
-        }
-
-        case REXX_VALUE_uint32_t:            /* integer value                     */
-        {
-            size_t temp = 0;
-            // convert and copy                  */
-            bool success = Numerics::objectToUnsignedInteger(o, temp, UINT32_MAX);
-            value->value.value_uint32_t = (uint32_t)temp;
-            return success;
-        }
-
-        case REXX_VALUE_uintptr_t:         /* integer value                     */
-        {
-            uintptr_t temp = 0;
-            // convert and copy                  */
-            bool success = Numerics::objectToUintptr(o, temp);
-            value->value.value_uintptr_t = (uintptr_t)temp;
-            return success;
-        }
-
-        case REXX_VALUE_uint64_t:            /* integer value                     */
-        {
-            uint64_t temp = 0;
-            // convert and copy                  */
-            bool success = Numerics::objectToUnsignedInt64(o, temp);
-            value->value.value_uint64_t = (uint64_t)temp;
-            return success;
-        }
-
-        case REXX_VALUE_size_t:            /* integer value                     */
-        {
-            size_t temp = 0;
-            // convert and copy                  */
-            bool success = Numerics::objectToUnsignedInteger(o, temp, SIZE_MAX);
-            value->value.value_size_t = (size_t)temp;
-            return success;
-        }
-
-        case REXX_VALUE_logical_t:         /* integer value                     */
-        {
-            // this converts without raising an error
-            return o->logicalValue(value->value.value_logical_t);
-        }
-
-        // The Rexx whole number one is checked against the human digits limit
-        case REXX_VALUE_wholenumber_t:  /* number value                      */
-        {
-            wholenumber_t temp = 0;
-            // convert and copy                  */
-            bool success = Numerics::objectToWholeNumber(o, temp, Numerics::MAX_WHOLENUMBER, Numerics::MIN_WHOLENUMBER);
-            value->value.value_wholenumber_t = (wholenumber_t)temp;
-            return success;
-        }
-
-        // The Rexx whole number one is checked against the human digits limit
-        case REXX_VALUE_ssize_t:  /* ssize_t value                     */
-        {
-            ssize_t temp = 0;
-            // convert and copy                  */
-            // NB:  SSIZE_MIN appears to be defined as 0 for some bizarre reason on some platforms,
-            // so we'll make things relative to SIZE_MAX.
-            bool success = Numerics::objectToSignedInteger(o, temp, SSIZE_MAX, (-SSIZE_MAX) - 1);
-            value->value.value_wholenumber_t = (wholenumber_t)temp;
-            return success;
-        }
-
-        // an unsigned string number value
-        case REXX_VALUE_stringsize_t:
-        {
-            stringsize_t temp = 0;
-            // convert and copy                  */
-            bool success = Numerics::objectToStringSize(o, temp, Numerics::MAX_STRINGSIZE);
-            value->value.value_stringsize_t = temp;
-            return success;
-        }
-
-        case REXX_VALUE_double:         /* double value                      */
-        {
-            return o->doubleValue(value->value.value_double);
-        }
-
-
-        case REXX_VALUE_float:          /* float value                      */
-        {
-            double temp = 0.0;
-            bool success = o->doubleValue(temp);
-            value->value.value_float = (float)temp;
-            return success;
-        }
-
-        case REXX_VALUE_CSTRING:        /* ASCII-Z string value              */
-        {
-            value->value.value_CSTRING = this->cstring(o);
-            return true;
-        }
-
-        case REXX_VALUE_RexxStringObject: /* Required STRING object            */
-        {
-            /* force to a string value           */
-            RexxString *temp = stringArgument(o, OREF_POSITIONAL, 1) ;
-            // if this forced a string object to be created,
-            // we need to protect it here.
-            if (temp != o)
-            {
-                                     /* make it safe                      */
-                createLocalReference(temp);
-            }
-            /* set the result in                 */
-            value->value.value_RexxStringObject = (RexxStringObject)temp;
-            return true;
-
-        }
-
-        case REXX_VALUE_RexxArrayObject: /* Required ARRAY object            */
-        {
-            /* force to a string value           */
-            RexxArray *temp = arrayArgument(o, OREF_positional, 1) ;
-            // if this forced a string object to be created,
-            // we need to protect it here.
-            if (temp != o)
-            {
-                                     /* make it safe                      */
-                createLocalReference(temp);
-            }
-            /* set the result in                 */
-            value->value.value_RexxArrayObject = (RexxArrayObject)temp;
-            return true;
-
-        }
-
-        case REXX_VALUE_RexxStemObject: /* Required Stem object            */
-        {
-            // Stem os get special handling.  If the o
-            // object is already a stem object, we're done.  Otherwise,
-            // we get the string value of the o and use that
-            // to resolve a stem name in the current context.  If the
-            // trailing period is not given on the name, one will be added.
-            // Note that the second form is only available if this is a
-            // call context.  This is an error for a method context.
-
-            // is this a stem already?
-            if (isStem(o))
-            {
-                /* set the result in                 */
-                value->value.value_RexxStemObject = (RexxStemObject)o;
-                return true;
-            }
-
-            // this doesn't make any sense for a function call
-            if (activationType == METHOD_ACTIVATION)
-            {
-                return false;
-            }
-
-            /* force to a string value           */
-            RexxString *temp = stringArgument(o, OREF_positional, 1) ;
-            // if this forced a string object to be created,
-            // we need to protect it here.
-            if (temp != o)
-            {
-                                     /* make it safe                      */
-                createLocalReference(temp);
-            }
-
-            // see if we can retrieve this stem
-            RexxObject *stem = getContextStem(temp);
-            if (stem == OREF_NULL)
-            {
-                return false;
-            }
-            /* set the result in                 */
-            value->value.value_RexxStemObject = (RexxStemObject)stem;
-            return true;
-        }
-
-        case REXX_VALUE_POINTER:
-        {
-            value->value.value_POINTER = this->pointer(o);
-            return true;
-        }
-
-        case REXX_VALUE_POINTERSTRING:
-        {
-            /* force to a string value           */
-            RexxString *string = o->stringValue();
-
-            void *pointerVal;
-            if (sscanf(string->getStringData(), "0x%p", &pointerVal) != 1)
-            {
-                return false;
-            }
-
-            value->value.value_POINTER = pointerVal;
-            return true;
-        }
-
-        default:                   /* something messed up               */
+    case REXX_VALUE_RexxObjectPtr:          /* Object reference                  */
+    {
+        // silly, but this always works.
+        value->value.value_RexxObjectPtr = (RexxObjectPtr)o;
+        return true;
+    }
+    case REXX_VALUE_RexxClassObject: // required class object
+    {
+        // this must be a class object
+        if (!o->isInstanceOf(TheClassClass))
         {
             return false;
         }
+        /* set the result in                 */
+        value->value.value_RexxClassObject = (RexxClassObject)o;
+        return true;
+    }
+    case REXX_VALUE_RexxMutableBufferObject: // required mutablebuffer object
+    {
+        // this must be a mutablebuffer object
+        if (!o->isInstanceOf(TheMutableBufferClass))
+        {
+            return false;
+        }
+        /* set the result in                 */
+        value->value.value_RexxMutableBufferObject = (RexxMutableBufferObject)o;
+        return true;
+    }
+    case REXX_VALUE_int:            /* integer value                     */
+    {
+        ssize_t temp = 0;
+        // convert and copy                  */
+        bool success = Numerics::objectToSignedInteger(o, temp, INT_MAX, INT_MIN);
+        value->value.value_int = (int)temp;
+        return success;
+    }
+
+    case REXX_VALUE_int8_t:            /* 8-bit integer value               */
+    {
+        ssize_t temp = 0;
+        // convert and copy                  */
+        bool success = Numerics::objectToSignedInteger(o, temp, INT8_MAX, INT8_MIN);
+        value->value.value_int8_t = (int8_t)temp;
+        return success;
+    }
+
+    case REXX_VALUE_int16_t:            /* integer value                     */
+    {
+        ssize_t temp = 0;
+        // convert and copy                  */
+        bool success = Numerics::objectToSignedInteger(o, temp, INT16_MAX, INT16_MIN);
+        value->value.value_int16_t = (int16_t)temp;
+        return success;
+    }
+
+    case REXX_VALUE_int32_t:            /* integer value                     */
+    {
+        ssize_t temp = 0;
+        // convert and copy                  */
+        bool success = Numerics::objectToSignedInteger(o, temp, INT32_MAX, INT32_MIN);
+        value->value.value_int32_t = (int32_t)temp;
+        return success;
+    }
+
+    case REXX_VALUE_intptr_t:           /* integer value                     */
+    {
+        intptr_t temp = 0;
+        // convert and copy                  */
+        bool success = Numerics::objectToIntptr(o, temp);
+        value->value.value_intptr_t = (intptr_t)temp;
+        return success;
+    }
+
+    case REXX_VALUE_int64_t:            /* integer value                     */
+    {
+        int64_t temp = 0;
+        // convert and copy                  */
+        bool success = Numerics::objectToInt64(o, temp);
+        value->value.value_int64_t = (int64_t)temp;
+        return success;
+    }
+
+    case REXX_VALUE_uint8_t:            /* 8-bit integer value               */
+    {
+        size_t temp = 0;
+        // convert and copy                  */
+        bool success = Numerics::objectToUnsignedInteger(o, temp, UINT8_MAX);
+        value->value.value_uint8_t = (uint8_t)temp;
+        return success;
+    }
+
+    case REXX_VALUE_uint16_t:            /* integer value                     */
+    {
+        size_t temp = 0;
+        // convert and copy                  */
+        bool success = Numerics::objectToUnsignedInteger(o, temp, UINT16_MAX);
+        value->value.value_uint16_t = (uint16_t)temp;
+        return success;
+    }
+
+    case REXX_VALUE_uint32_t:            /* integer value                     */
+    {
+        size_t temp = 0;
+        // convert and copy                  */
+        bool success = Numerics::objectToUnsignedInteger(o, temp, UINT32_MAX);
+        value->value.value_uint32_t = (uint32_t)temp;
+        return success;
+    }
+
+    case REXX_VALUE_uintptr_t:         /* integer value                     */
+    {
+        uintptr_t temp = 0;
+        // convert and copy                  */
+        bool success = Numerics::objectToUintptr(o, temp);
+        value->value.value_uintptr_t = (uintptr_t)temp;
+        return success;
+    }
+
+    case REXX_VALUE_uint64_t:            /* integer value                     */
+    {
+        uint64_t temp = 0;
+        // convert and copy                  */
+        bool success = Numerics::objectToUnsignedInt64(o, temp);
+        value->value.value_uint64_t = (uint64_t)temp;
+        return success;
+    }
+
+    case REXX_VALUE_size_t:            /* integer value                     */
+    {
+        size_t temp = 0;
+        // convert and copy                  */
+        bool success = Numerics::objectToUnsignedInteger(o, temp, SIZE_MAX);
+        value->value.value_size_t = (size_t)temp;
+        return success;
+    }
+
+    case REXX_VALUE_logical_t:         /* integer value                     */
+    {
+        // this converts without raising an error
+        return o->logicalValue(value->value.value_logical_t);
+    }
+
+    // The Rexx whole number one is checked against the human digits limit
+    case REXX_VALUE_wholenumber_t:  /* number value                      */
+    {
+        wholenumber_t temp = 0;
+        // convert and copy                  */
+        bool success = Numerics::objectToWholeNumber(o, temp, Numerics::MAX_WHOLENUMBER, Numerics::MIN_WHOLENUMBER);
+        value->value.value_wholenumber_t = (wholenumber_t)temp;
+        return success;
+    }
+
+    // The Rexx whole number one is checked against the human digits limit
+    case REXX_VALUE_ssize_t:  /* ssize_t value                     */
+    {
+        ssize_t temp = 0;
+        // convert and copy                  */
+        // NB:  SSIZE_MIN appears to be defined as 0 for some bizarre reason on some platforms,
+        // so we'll make things relative to SIZE_MAX.
+        bool success = Numerics::objectToSignedInteger(o, temp, SSIZE_MAX, (-SSIZE_MAX) - 1);
+        value->value.value_wholenumber_t = (wholenumber_t)temp;
+        return success;
+    }
+
+    // an unsigned string number value
+    case REXX_VALUE_stringsize_t:
+    {
+        stringsize_t temp = 0;
+        // convert and copy                  */
+        bool success = Numerics::objectToStringSize(o, temp, Numerics::MAX_STRINGSIZE);
+        value->value.value_stringsize_t = temp;
+        return success;
+    }
+
+    case REXX_VALUE_double:         /* double value                      */
+    {
+        return o->doubleValue(value->value.value_double);
+    }
+
+
+    case REXX_VALUE_float:          /* float value                      */
+    {
+        double temp = 0.0;
+        bool success = o->doubleValue(temp);
+        value->value.value_float = (float)temp;
+        return success;
+    }
+
+    case REXX_VALUE_CSTRING:        /* ASCII-Z string value              */
+    {
+        value->value.value_CSTRING = this->cstring(o);
+        return true;
+    }
+
+    case REXX_VALUE_RexxStringObject: /* Required STRING object            */
+    {
+        /* force to a string value           */
+        RexxString *temp = stringArgument(o, OREF_POSITIONAL, 1);
+        // if this forced a string object to be created,
+        // we need to protect it here.
+        if (temp != o)
+        {
+            /* make it safe                      */
+            createLocalReference(temp);
+        }
+        /* set the result in                 */
+        value->value.value_RexxStringObject = (RexxStringObject)temp;
+        return true;
+
+    }
+
+    case REXX_VALUE_RexxArrayObject: /* Required ARRAY object            */
+    {
+        /* force to a string value           */
+        RexxArray *temp = arrayArgument(o, OREF_positional, 1);
+        // if this forced a string object to be created,
+        // we need to protect it here.
+        if (temp != o)
+        {
+            /* make it safe                      */
+            createLocalReference(temp);
+        }
+        /* set the result in                 */
+        value->value.value_RexxArrayObject = (RexxArrayObject)temp;
+        return true;
+
+    }
+
+    case REXX_VALUE_RexxStemObject: /* Required Stem object            */
+    {
+        // Stem os get special handling.  If the o
+        // object is already a stem object, we're done.  Otherwise,
+        // we get the string value of the o and use that
+        // to resolve a stem name in the current context.  If the
+        // trailing period is not given on the name, one will be added.
+        // Note that the second form is only available if this is a
+        // call context.  This is an error for a method context.
+
+        // is this a stem already?
+        if (isStem(o))
+        {
+            /* set the result in                 */
+            value->value.value_RexxStemObject = (RexxStemObject)o;
+            return true;
+        }
+
+        // this doesn't make any sense for a function call
+        if (activationType == METHOD_ACTIVATION)
+        {
+            return false;
+        }
+
+        /* force to a string value           */
+        RexxString *temp = stringArgument(o, OREF_positional, 1);
+        // if this forced a string object to be created,
+        // we need to protect it here.
+        if (temp != o)
+        {
+            /* make it safe                      */
+            createLocalReference(temp);
+        }
+
+        // see if we can retrieve this stem
+        RexxObject *stem = getContextStem(temp);
+        if (stem == OREF_NULL)
+        {
+            return false;
+        }
+        /* set the result in                 */
+        value->value.value_RexxStemObject = (RexxStemObject)stem;
+        return true;
+    }
+
+    case REXX_VALUE_POINTER:
+    {
+        value->value.value_POINTER = this->pointer(o);
+        return true;
+    }
+
+    case REXX_VALUE_POINTERSTRING:
+    {
+        /* force to a string value           */
+        RexxString *string = o->stringValue();
+
+        void *pointerVal;
+        if (sscanf(string->getStringData(), "0x%p", &pointerVal) != 1)
+        {
+            return false;
+        }
+
+        value->value.value_POINTER = pointerVal;
+        return true;
+    }
+
+    default:                   /* something messed up               */
+    {
+        return false;
+    }
     }
     return false;
 }
@@ -1185,17 +1187,17 @@ void RexxNativeActivation::createLocalReference(RexxObject *objr)
 void RexxNativeActivation::removeLocalReference(RexxObject *objr)
 {
     // if the reference is non-null
-  if (objr != OREF_NULL)
-  {
-      // make sure we have a savelist before trying to remove this
-      if (savelist != OREF_NULL)
-      {
-          // NB...this is a special remove that functions using the object
-          // identify to avoid false positives or potential exceptions caused
-          // by calling EQUALS methods.
-          savelist->remove(objr);
-      }
-  }
+    if (objr != OREF_NULL)
+    {
+        // make sure we have a savelist before trying to remove this
+        if (savelist != OREF_NULL)
+        {
+            // NB...this is a special remove that functions using the object
+            // identify to avoid false positives or potential exceptions caused
+            // by calling EQUALS methods.
+            savelist->remove(objr);
+        }
+    }
 }
 
 
@@ -1344,7 +1346,7 @@ void RexxNativeActivation::callNativeRoutine(RoutineClass *_routine, RexxNativeR
     // Temporary : I have crashes when running live or liveGeneral
     // because arglist has no named argument count after the positional argumenst.
     // Get the count of named arguments now, to have a crash now.
-    // TODO: o remove when no more crashes...
+    // TODO: to remove when no more crashes...
     size_t namedArgcount = 0;
     arglist[argcount]->unsignedNumberValue(namedArgcount);
 
@@ -1475,7 +1477,7 @@ void RexxNativeActivation::callRegisteredRoutine(RoutineClass *_routine, Registe
     }
 
     // all of the arguments now need to be converted to string arguments
-    for (size_t argindex=0; argindex < count; argindex++)
+    for (size_t argindex = 0; argindex < count; argindex++)
     {
         /* get the next argument             */
         RexxObject *argument = list[argindex];
@@ -1580,7 +1582,7 @@ void RexxNativeActivation::callRegisteredRoutine(RoutineClass *_routine, Registe
             /* make a string result              */
             resultObj = new_string(funcresult);
             /* user give us a new buffer?        */
-            if (funcresult.strptr != default_return_buffer )
+            if (funcresult.strptr != default_return_buffer)
             {
                 /* free it                           */
                 SystemInterpreter::releaseResultMemory(funcresult.strptr);
@@ -1782,7 +1784,7 @@ void RexxNativeActivation::checkConditions()
             {
                 // this prevents us from trying to trap this again
                 trapErrors = false;
-                                                 /* go propagate the condition        */
+                /* go propagate the condition        */
                 activity->reraiseException(conditionObj);
             }
             else
@@ -2113,7 +2115,7 @@ void RexxNativeActivation::setDigits(
 }
 
 void RexxNativeActivation::setFuzz(
-    size_t _fuzz )                     /* new NUMERIC FUZZ value            */
+    size_t _fuzz)                     /* new NUMERIC FUZZ value            */
 /******************************************************************************/
 /* Function:  Set a new numeric fuzz setting                                  */
 /******************************************************************************/
@@ -2126,7 +2128,7 @@ void RexxNativeActivation::setFuzz(
 }
 
 void RexxNativeActivation::setForm(
-    bool _form )                        /* new NUMERIC FORM value            */
+    bool _form)                        /* new NUMERIC FORM value            */
 /******************************************************************************/
 /* Function:  Set a new numeric form setting                                  */
 /******************************************************************************/
@@ -2320,8 +2322,8 @@ void RexxNativeActivation::enableVariablepool()
 /* Function:  Enable the variable pool                                        */
 /******************************************************************************/
 {
-  this->resetNext();                   /* reset fetch next calls            */
-  this->vpavailable = true;            /* allow the calls                   */
+    this->resetNext();                   /* reset fetch next calls            */
+    this->vpavailable = true;            /* allow the calls                   */
 }
 
 void RexxNativeActivation::disableVariablepool()
@@ -2329,8 +2331,8 @@ void RexxNativeActivation::disableVariablepool()
 /* Function:  Disable the variable pool                                       */
 /******************************************************************************/
 {
-  this->resetNext();                   /* reset fetch next calls            */
-  this->vpavailable = false;           /* no more external calls            */
+    this->resetNext();                   /* reset fetch next calls            */
+    this->vpavailable = false;           /* no more external calls            */
 }
 
 void RexxNativeActivation::resetNext()
@@ -2338,10 +2340,10 @@ void RexxNativeActivation::resetNext()
 /* Function: Reset the next state of the variable pool                        */
 /******************************************************************************/
 {
-  this->nextvariable = SIZE_MAX;       /* turn off next index               */
-  this->nextcurrent = OREF_NULL;       /* clear the next value              */
-  this->nextstem = OREF_NULL;          /* clear the secondary pointer       */
-  this->compoundelement = OREF_NULL;
+    this->nextvariable = SIZE_MAX;       /* turn off next index               */
+    this->nextcurrent = OREF_NULL;       /* clear the next value              */
+    this->nextstem = OREF_NULL;          /* clear the secondary pointer       */
+    this->compoundelement = OREF_NULL;
 }
 
 
@@ -2493,13 +2495,13 @@ void RexxNativeActivation::raiseCondition(RexxString *condition, RexxString *des
 
 
 /**
- * Return the method context arguments as an array.
+ * Return the method context positional arguments as an array.
  *
- * @return An array containing the method arguments.
+ * @return An array containing the method positional arguments.
  */
-RexxArray *RexxNativeActivation::getArguments()
+RexxArray *RexxNativeActivation::getPositionalArguments()
 {
-    // if we've not requested this before, convert the arguments to an
+    // if we've not requested this before, convert the positional arguments to an
     // array object.
     if (argArray == OREF_NULL)
     {
@@ -2512,20 +2514,48 @@ RexxArray *RexxNativeActivation::getArguments()
 }
 
 /**
- * Retrieve a specific argument from the method invocation context.
+ * Retrieve a specific positional argument from the method invocation context.
  *
- * @param index  The argument of interest.
+ * @param index  The positional argument of interest.
  *
  * @return The object mapped to that argument.  Returns OREF_NULL for
  *         omitted arguments.
  */
-RexxObject *RexxNativeActivation::getArgument(size_t index)
+RexxObject *RexxNativeActivation::getPositionalArgument(size_t index)
 {
     if (index <= argcount)
     {
         return arglist[index - 1];
     }
     return OREF_NULL;
+}
+
+/**
+ * Return the method context named arguments as a directory.
+ *
+ * @return A directory containing the method named arguments.
+ */
+RexxDirectory *RexxNativeActivation::getNamedArguments()
+{
+    // if we've not requested this before, convert the named arguments to a
+    // directory object.
+    if (argDirectory == OREF_NULL)
+    {
+        /* create the named argument directory */
+        if (arglist == OREF_NULL) argDirectory = new_directory(); // Empty directory
+        else
+        {
+            size_t namedArgcount = 0;
+            arglist[argcount]->unsignedNumberValue(namedArgcount);
+
+            if (namedArgcount == 0) argDirectory = new_directory(); // Empty directory
+            else argDirectory = RexxDirectory::fromIndexItemArray(arglist + argcount + 1, namedArgcount); // Here we are sure to have a directory on return (and not OREF_NULL)
+        }
+
+        // make sure the directory is anchored in our activation
+        createLocalReference(argDirectory);
+    }
+    return argDirectory;
 }
 
 /**
@@ -2839,10 +2869,10 @@ RexxSource *RexxNativeActivation::getSourceObject()
  */
 void * RexxNativeActivation::operator new(size_t size)
 {
-                                       /* Get new object                    */
-  RexxObject *newObject = new_object(size, T_NativeActivation);
-  newObject->clearObject();            /* clear out at start                */
-  return newObject;                    /* return the new object             */
+    /* Get new object                    */
+    RexxObject *newObject = new_object(size, T_NativeActivation);
+    newObject->clearObject();            /* clear out at start                */
+    return newObject;                    /* return the new object             */
 }
 
 
@@ -2897,9 +2927,9 @@ RexxReturnCode RexxNativeActivation::variablePoolInterface(PSHVBLOCK pshvblock)
 RexxVariableBase *RexxNativeActivation::variablePoolGetVariable(PSHVBLOCK pshvblock, bool symbolic)
 {
     /* no name given?                    */
-    if (pshvblock->shvname.strptr==NULL)
+    if (pshvblock->shvname.strptr == NULL)
     {
-        pshvblock->shvret|=RXSHV_BADN;   /* this is bad                       */
+        pshvblock->shvret |= RXSHV_BADN;   /* this is bad                       */
     }
     else
     {
@@ -2918,7 +2948,7 @@ RexxVariableBase *RexxNativeActivation::variablePoolGetVariable(PSHVBLOCK pshvbl
         }
         if (retriever == OREF_NULL)      /* have a bad name?                  */
         {
-            pshvblock->shvret|=RXSHV_BADN; /* this is bad                       */
+            pshvblock->shvret |= RXSHV_BADN; /* this is bad                       */
         }
         else
         {
@@ -2948,8 +2978,8 @@ void RexxNativeActivation::variablePoolFetchVariable(PSHVBLOCK pshvblock)
         }
         else
         {
-                                           /* have a non-name retriever         */
-                                           /* and a new variable?               */
+            /* have a non-name retriever         */
+            /* and a new variable?               */
             if (!retriever->exists(activation))
             {
                 /* flag this in the block            */
@@ -2988,8 +3018,8 @@ void RexxNativeActivation::variablePoolSetVariable(PSHVBLOCK pshvblock)
         }
         else
         {
-                                           /* have a non-name retriever         */
-                                           /* and a new variable?               */
+            /* have a non-name retriever         */
+            /* and a new variable?               */
             if (!retriever->exists(activation))
             {
                 /* flag this in the block            */
@@ -3020,8 +3050,8 @@ void RexxNativeActivation::variablePoolDropVariable(PSHVBLOCK pshvblock)
         }
         else
         {
-                                           /* have a non-name retriever         */
-                                           /* and a new variable?               */
+            /* have a non-name retriever         */
+            /* and a new variable?               */
             if (!retriever->exists(activation))
             {
                 /* flag this in the block            */
@@ -3068,9 +3098,9 @@ void RexxNativeActivation::variablePoolFetchPrivate(PSHVBLOCK pshvblock)
     /* and VP is enabled                 */
     /* private block should always be enabled */
     /* no name given?                    */
-    if (pshvblock->shvname.strptr==NULL)
+    if (pshvblock->shvname.strptr == NULL)
     {
-        pshvblock->shvret|=RXSHV_BADN;   /* this is bad                       */
+        pshvblock->shvret |= RXSHV_BADN;   /* this is bad                       */
     }
     else
     {
@@ -3114,7 +3144,7 @@ void RexxNativeActivation::variablePoolFetchPrivate(PSHVBLOCK pshvblock)
             if (!tail->numberValue(value_position) || value_position <= 0)
             {
                 /* this is a bad name                */
-                pshvblock->shvret|=RXSHV_BADN;
+                pshvblock->shvret |= RXSHV_BADN;
             }
             else
             {
@@ -3130,7 +3160,7 @@ void RexxNativeActivation::variablePoolFetchPrivate(PSHVBLOCK pshvblock)
         }
         else
         {
-            pshvblock->shvret|=RXSHV_BADN; /* this is a bad name                */
+            pshvblock->shvret |= RXSHV_BADN; /* this is a bad name                */
         }
     }
 }
@@ -3147,39 +3177,39 @@ void RexxNativeActivation::variablePoolRequest(PSHVBLOCK pshvblock)
 
     switch (pshvblock->shvcode)
     {
-        case RXSHV_FETCH:
-        case RXSHV_SYFET:
-        {
-            variablePoolFetchVariable(pshvblock);
-            break;
-        }
-        case RXSHV_SET:
-        case RXSHV_SYSET:
-        {
-            variablePoolSetVariable(pshvblock);
-            break;
-        }
-        case RXSHV_DROPV:
-        case RXSHV_SYDRO:
-        {
-            variablePoolDropVariable(pshvblock);
-            break;
-        }
-        case RXSHV_NEXTV:
-        {
-            variablePoolNextVariable(pshvblock);
-            break;
-        }
-        case RXSHV_PRIV:
-        {
-            variablePoolFetchPrivate(pshvblock);
-            break;
-        }
-        default:
-        {
-            pshvblock->shvret |= RXSHV_BADF;   /* bad function                      */
-            break;
-        }
+    case RXSHV_FETCH:
+    case RXSHV_SYFET:
+    {
+        variablePoolFetchVariable(pshvblock);
+        break;
+    }
+    case RXSHV_SET:
+    case RXSHV_SYSET:
+    {
+        variablePoolSetVariable(pshvblock);
+        break;
+    }
+    case RXSHV_DROPV:
+    case RXSHV_SYDRO:
+    {
+        variablePoolDropVariable(pshvblock);
+        break;
+    }
+    case RXSHV_NEXTV:
+    {
+        variablePoolNextVariable(pshvblock);
+        break;
+    }
+    case RXSHV_PRIV:
+    {
+        variablePoolFetchPrivate(pshvblock);
+        break;
+    }
+    default:
+    {
+        pshvblock->shvret |= RXSHV_BADF;   /* bad function                      */
+        break;
+    }
     }
 }
 
@@ -3283,12 +3313,12 @@ int RexxNativeActivation::stemSort(const char *stemname, int order, int type, si
 
         /* this must be a stem variable in order for the sorting to work. */
 
-        if ( (!isOfClass(StemVariableTerm, retriever)) && (!isOfClass(CompoundVariableTerm, retriever)) )
+        if ((!isOfClass(StemVariableTerm, retriever)) && (!isOfClass(CompoundVariableTerm, retriever)))
         {
             return false;
         }
 
-        RexxString *tail = OREF_NULLSTRING ;
+        RexxString *tail = OREF_NULLSTRING;
         ProtectedObject p2(tail); // JLF useless here !
 
         if (isOfClass(CompoundVariableTerm, retriever))
@@ -3321,34 +3351,59 @@ int RexxNativeActivation::stemSort(const char *stemname, int order, int type, si
  * @param to     The target object.  Defaults to SELF
  * @param msg    The target message name.  Defaults to current message.
  * @param super  Any superclass override.  Defaults to none.
- * @param args   The message arguments.  Defaults to current argument set.
+ * @param args   The message positional arguments.  Defaults to current argument set.
  *
  * @return The message send result.
  */
-void RexxNativeActivation::forwardMessage(RexxObject *to, RexxString *msg, RexxClass *super, RexxArray *args, ProtectedObject &_result)
+void RexxNativeActivation::forwardMessage(RexxObject *to, RexxString *msg, RexxClass *super, RexxArray *positionalArgs, RexxDirectory *namedArgs, ProtectedObject &_result)
 {
     // process all of the non-overridden values
     if (to == OREF_NULL)
     {
         to = getSelf();
     }
+
     if (msg == OREF_NULL)
     {
         msg = getMessageName();
     }
-    if (args == OREF_NULL)
+
+    // By default, use the positional & named arguments of the native activation...
+    size_t _argcount = this->argcount;
+    RexxObject **_arglist = this->arglist;
+
+    // ... unless overriden
+    ProtectedObject p_arguments;
+    if (positionalArgs != OREF_NULL || namedArgs != OREF_NULL)
     {
-        args = getArguments();
+        if (positionalArgs == OREF_NULL)
+        {
+            positionalArgs = getPositionalArguments();
+        }
+
+        if (namedArgs == OREF_NULL)
+        {
+            namedArgs = getNamedArguments();
+        }
+
+        _argcount = positionalArgs->size(); // count of positional arguments
+        RexxArray *arguments = (RexxArray *)positionalArgs->copy();
+        p_arguments = arguments;
+        arguments->put(IntegerZero, _argcount + 1); // Placeholder at index count+1 of the count of named arguments
+        size_t namedCount = namedArgs->appendAllIndexesItemsTo(arguments);
+        arguments->put(new_integer(namedCount), _argcount + 1);
+
+        _arglist = arguments->data();
     }
 
     // no super class override?  Normal message send
     if (super == OREF_NULL)
     {
-        to->messageSend(msg, args->data(), args->size(), _result);
+        to->messageSend(msg, _arglist, _argcount, _result);
     }
     else
     {
-        to->messageSend(msg, args->data(), args->size(), super, _result);
+        to->messageSend(msg, _arglist, _argcount, super, _result);
     }
 }
 
@@ -3367,7 +3422,7 @@ StackFrameClass *RexxNativeActivation::createStackFrame()
 
         RexxString *message = activity->buildMessage(Message_Translations_compiled_routine_invocation, info);
         p = message;
-        return new StackFrameClass(FRAME_ROUTINE, getMessageName(), (BaseExecutable *)getExecutableObject(), NULL, getArguments(), message, SIZE_MAX);
+        return new StackFrameClass(FRAME_ROUTINE, getMessageName(), (BaseExecutable *)getExecutableObject(), NULL, getPositionalArguments(), message, SIZE_MAX);
     }
     else
     {
@@ -3379,7 +3434,7 @@ StackFrameClass *RexxNativeActivation::createStackFrame()
 
         RexxString *message = activity->buildMessage(Message_Translations_compiled_method_invocation, info);
         p = message;
-        RexxArray *arguments = getArguments();
+        RexxArray *arguments = getPositionalArguments();
         ProtectedObject p_arguments(arguments); // getArguments() returns a new array, so must be protected
         return new StackFrameClass(FRAME_METHOD, getMessageName(), (BaseExecutable *)getExecutableObject(), receiver, arguments, message, SIZE_MAX);
     }

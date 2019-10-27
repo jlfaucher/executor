@@ -407,9 +407,9 @@ Example:
     namedArguments[1] = NamedArgument("INDEX", 2, IntegerZero);     // At least 2 characters, default value = 0
     namedArguments[2] = NamedArgument("MAXDEPTH", 1, IntegerTen);   // At least 1 character, default value = 10
     // For each named argument passed by the caller
-    checkNamedArgument(name1, value1, namedArguments);
-    checkNamedArgument(name2, value2, namedArguments);
-    checkNamedArgument(name3, value3, namedArguments);
+    namedArguments.check(name1, value1, namedArguments);
+    namedArguments.check(name2, value2, namedArguments);
+    namedArguments.check(name3, value3, namedArguments);
 */
 bool NamedArguments::check(RexxString *name, RexxObject *value, bool strict)
 {
@@ -424,10 +424,10 @@ bool NamedArguments::check(RexxString *name, RexxObject *value, bool strict)
     // There is no order for the named argument, so try all the expected names
     for (size_t i=0; i < this->count; i++)
     {
+        if (this->namedArguments[i].assigned) continue; // Already matched (assumption: you will not call this helper with the same name twice)
+
         const char *nameIterator = name->getStringData();
         const char *expectedNameIterator = this->namedArguments[i].name;
-
-        if (this->namedArguments[i].assigned) continue; // Already matched
 
         size_t minimumLength = this->namedArguments[i].minimumLength;
         while(1)

@@ -634,7 +634,7 @@ typedef struct
     void             (RexxEntry *SetObjectVariable)(RexxMethodContext *, CSTRING, RexxObjectPtr);
     RexxObjectPtr    (RexxEntry *GetObjectVariable)(RexxMethodContext *, CSTRING);
     void             (RexxEntry *DropObjectVariable)(RexxMethodContext *, CSTRING);
-    RexxObjectPtr    (RexxEntry *ForwardMessage)(RexxMethodContext *, RexxObjectPtr, CSTRING, RexxClassObject, RexxArrayObject);
+    RexxObjectPtr    (RexxEntry *ForwardMessage)(RexxMethodContext *, RexxObjectPtr, CSTRING, RexxClassObject, RexxArrayObject, RexxDirectoryObject);
     void             (RexxEntry *SetGuardOn)(RexxMethodContext *);
     void             (RexxEntry *SetGuardOff)(RexxMethodContext *);
     RexxClassObject  (RexxEntry *FindContextClass)(RexxMethodContext *, CSTRING);
@@ -2176,9 +2176,9 @@ struct RexxMethodContext_
     {
         functions->DropObjectVariable(this, s);
     }
-    RexxObjectPtr ForwardMessage(RexxObjectPtr o, CSTRING s, RexxClassObject c, RexxArrayObject a)
+    RexxObjectPtr ForwardMessage(RexxObjectPtr o, CSTRING s, RexxClassObject c, RexxArrayObject a, RexxDirectoryObject d=NULL)
     {
-        return functions->ForwardMessage(this, o, s, c, a);
+        return functions->ForwardMessage(this, o, s, c, a, d);
     }
     void SetGuardOn()
     {

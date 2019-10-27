@@ -70,7 +70,7 @@ See documentation for version control
     call setCodePage 65001 -- UTF-8 -- This routine is available only with wide-char ooDialog
     .local~ooRexx.wcharOOdialog = .true
     after.setCodePage:
-    
+
     call LoadEnvironment                        -- Set up the environment to work with
     .platform~initialize
     call LoadOptionalComponents
@@ -84,15 +84,15 @@ See documentation for version control
     say "This console will receive the output of your system commands."
     say "Try 'dir' for example."
     say
-    
+
     -- In case of error, must end any running coactivity, otherwise the program doesn't terminate
     signal on any name error
-    
+
     code~Execute('ShowTop')                     -- Execute the dialog
-    
+
     error:
     if .local~ooRexx.isExtended then .Coactivity~endAll
-    
+
     code~DeInstall                              -- Finished, so deInstall
 exit
 
@@ -122,21 +122,10 @@ loadOptionalComponents:
     if .local~ooRexx.isExtended then do
         call loadPackage("pipeline/pipe_extension.cls")
         call loadPackage("rgf_util2/rgf_util2_wrappers.rex")
-        if .local~ooRexx.hasBsf then do
-            .local~ooRexx.BsfJavaThreadId = BsfGetTid()
-            onStartSource = .array~of(,
-                'use strict arg coactivity;',
-                'signal on syntax;',
-                'call BsfAttachToTid .local~ooRexx~BsfJavaThreadId;',
-                'coactivity~setMethod("onTerminate", "call BsfDetach");',
-                'syntax:')
-            onStartMethod = .method~new("", onStartSource) -- When explictely creating a method like that, then .ooRexxShell is visible when running the method...
-            .Coactivity~setMethod('onStart', onStartMethod) -- If passing onStartSource here, then .ooRexxShell is not visible when running the method...
-        end
     end
 
     return
-    
+
 
 -------------------------------------------------------------------------------
 -- Remember : don't implement that as a procedure or routine or method !
@@ -150,7 +139,7 @@ loadPackage:
     say "loadPackage KO for" filename
     return .false
 
-    
+
 -------------------------------------------------------------------------------
 -- Remember : don't implement that as a procedure or routine or method !
 loadLibrary:
@@ -164,7 +153,7 @@ loadLibrary:
     say "loadLibrary KO for" filename
     return .false
 
-    
+
 -------------------------------------------------------------------------------
 ::requires "ooDialog.cls"                       -- Needed for the dialog
 ::requires 'winsystm.cls'                       -- Needed for the Windows clipboard
@@ -452,7 +441,7 @@ transformSource: procedure
         if clause~left(2) == "::" then leave -- don't transform code inside directives
         if clause~right(1) == "=" then do
             clause = clause~left(clause~length - 1)
-            -- Remember : when assigning a value to current clause, sourceArray is impacted 
+            -- Remember : when assigning a value to current clause, sourceArray is impacted
             clauser~clause = 'options "NOCOMMANDS";' clause ';call dumpResult var("result"), result; options "COMMANDS"'
         end
         clauser~nextClause
@@ -495,7 +484,7 @@ return
         package~addPackage(p)
     end
 
-    
+
 ::routine dumpResult public
     use strict arg hasValue, value
     if \hasValue then do
@@ -1147,8 +1136,8 @@ return
 ::method is class
     use strict arg name
     return self~name~caselessEquals(name)
-    
-    
+
+
 ::method unknown class -- delegates to the singleton
     use strict arg msg, args
     forward to (self~current) message (msg) arguments (args)

@@ -286,7 +286,8 @@ RexxObject *RoutineClass::callWithRexx(RexxArray *args,
     size_t count = args->size();
 
     // Named arguments
-    // >>-callWith(array, namedArguments:namedArguments)----------------------------><
+    // >>-callWith(-array-+--------------------------+-)---><
+    //                    +-,-namedArguments-:-exprd-+
 
     // Should check that named_args_name = "NAMEDARGUMENTS"
 

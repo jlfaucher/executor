@@ -427,7 +427,7 @@ class RexxObject : public RexxInternalObject {
      RexxObject  *unsetMethod(RexxString *);
      RexxObject  *requestRexx(RexxString *);
      RexxMessage *start(RexxObject **, size_t);
-     RexxMessage *startWith(RexxObject *, RexxArray *);
+     RexxMessage *startWith(RexxObject *, RexxArray *, RexxString *, RexxDirectory *);
      RexxObject  *send(RexxObject **, size_t);
      RexxObject  *sendWith(RexxObject *, RexxArray *, RexxString *, RexxDirectory *);
      RexxMessage *startCommon(RexxObject *message, RexxObject **arguments, size_t argCount);

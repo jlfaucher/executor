@@ -58,7 +58,7 @@ RexxArrayObject RexxEntry GetCallArguments(RexxCallContext *c)
     ApiContext context(c);
     try
     {
-        return (RexxArrayObject)context.context->getArguments();
+        return (RexxArrayObject)context.context->getPositionalArguments();
     }
     catch (RexxNativeActivation *)
     {
@@ -71,7 +71,7 @@ RexxObjectPtr RexxEntry GetCallArgument(RexxCallContext *c, stringsize_t i)
     ApiContext context(c);
     try
     {
-        return (RexxObjectPtr)context.context->getArgument(i);
+        return (RexxObjectPtr)context.context->getPositionalArgument(i);
     }
     catch (RexxNativeActivation *)
     {
