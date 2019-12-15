@@ -598,10 +598,10 @@ Helpers
     call loadPackage("streamsocket.cls")
     call loadPackage("pipeline/pipe.rex")
     --call loadPackage("ooSQLite.cls")
-    .ooRexxShell~hasRgfUtil2 = .false
+    .ooRexxShell~hasRgfUtil2Extended = .false
     if loadPackage("rgf_util2/rgf_util2.rex"),, -- derived from the offical rgf_util2.rex (in BSF4ooRexx)
        .nil <> .context~package~findroutine("rgf_util_extended") then do
-            .ooRexxShell~hasRgfUtil2 = .true
+            .ooRexxShell~hasRgfUtil2Extended = .true
             .ooRexxShell~dump2 = .context~package~findroutine("dump2")
             .ooRexxShell~pp2 = .context~package~findroutine("pp2")
     end
@@ -662,7 +662,7 @@ Helpers
 ::attribute hasBsf class -- Will be .true if BSF.cls has been loaded
 ::attribute hasQueries class -- Will be true if oorexxshell_queries.cls has been loaded
 ::attribute hasRegex class -- Will be .true is regex.cls has been loaded
-::attribute hasRgfUtil2 class -- Will be .true if rgf_util2.rex has been loaded
+::attribute hasRgfUtil2Extended class -- Will be .true if rgf_util2.rex has been loaded and is the extended version
 ::attribute historyFile class
 ::attribute initialAddress class -- The initial address on startup, not necessarily the system address (can be "THE")
 ::attribute initialArgument class -- The command line argument on startup
@@ -711,7 +711,7 @@ Helpers
     self~hasBsf = .false
     self~hasQueries = .false
     self~hasRegex = .false
-    self~hasRgfUtil2 = .false
+    self~hasRgfUtil2Extended = .false
     self~isExtended = .false
     self~isInteractive = .false
     self~maxItemsDisplayed = 1000
@@ -753,7 +753,6 @@ Helpers
 ---------------
 -- Displayer --
 ---------------
-
 
 ::method sayInfo class
     use strict arg text=""
@@ -1028,24 +1027,49 @@ Helpers
     else .ooRexxShell~sayError("Query not understood:" queryFilter)
 
 
+::method checkQueryManagerPrerequisites class
+    use strict arg verbose=.true
+    if \.ooRexxShell~isExtended then do
+        if verbose then .ooRexxShell~sayError("Needs extended ooRexx")
+        return .false
+    end
+    if \.ooRexxShell~hasRgfUtil2Extended then do
+        if verbose then .ooRexxShell~sayError("Needs extended rgf_util2")
+        return .false
+    end
+    if \.ooRexxShell~hasQueries then do
+        if verbose then .ooRexxShell~sayError("Package 'queries' not loaded")
+        return .false
+    end
+    return .true
+
+
+::method sayQueryManagerCommand class
+    -- Display the text in error color if the interpreter is not extended.
+    -- That will allow to see immediatly which commands are available only in extended mode.
+    use strict arg text
+    if .ooRexxShell~checkQueryManagerPrerequisites(.false) then say text
+    else .ooRexxShell~sayError(text)
+
+
 ::method helpCommands class
-    say "Help:"
-    say "    ?: display help."
-    say "    ?c[lasses] c1 c2... : display classes."
-    say "    ?c[lasses].m[ethods] c1 c2... : display local methods per classes (cm)."
-    say "    ?c[lasses].m[ethods].i[nherited] c1 c2... : local & inherited methods (cmi)."
-    say "    ?d[ocumentation]: invoke ooRexx documentation."
-    say "    ?f[lags]: describe the flags displayed for classes & methods & routines."
-    say "    ?h[elp] c1 c2 ... : local description of classes."
-    say "    ?h[elp].i[nherited] c1 c2 ... : local & inherited description of classes (hi)."
-    say "    ?i[nterpreters]: interpreters that can be selected."
-    say "    ?m[ethods] method1 method2 ... : display methods."
-    say "    ?p[ackages]: display the loaded packages."
-    say "    ?path v1 v2 ... : display value of system variable, splitted by path separator."
-    say "    ?r[outines] routine1 routine2... : display routines."
-    say "    ?v[ariables]: display the defined variables."
-    say "    To display the source of methods, packages or routines: add the option .s[ource]."
-    say "        Short: ?cms, ?cmis, ?ms, ?ps, ?rs."
+    say                                 "Help:"
+    say                                 "    ?: display help."
+    .ooRexxShell~sayQueryManagerCommand("    ?c[lasses] c1 c2... : display classes.")
+    .ooRexxShell~sayQueryManagerCommand("    ?c[lasses].m[ethods] c1 c2... : display local methods per classes (cm).")
+    .ooRexxShell~sayQueryManagerCommand("    ?c[lasses].m[ethods].i[nherited] c1 c2... : local & inherited methods (cmi).")
+    say                                 "    ?d[ocumentation]: invoke ooRexx documentation."
+    .ooRexxShell~sayQueryManagerCommand("    ?f[lags]: describe the flags displayed for classes & methods & routines.")
+    .ooRexxShell~sayQueryManagerCommand("    ?h[elp] c1 c2 ... : local description of classes.")
+    .ooRexxShell~sayQueryManagerCommand("    ?h[elp].i[nherited] c1 c2 ... : local & inherited description of classes (hi).")
+    say                                 "    ?i[nterpreters]: interpreters that can be selected."
+    .ooRexxShell~sayQueryManagerCommand("    ?m[ethods] method1 method2 ... : display methods.")
+    .ooRexxShell~sayQueryManagerCommand("    ?p[ackages]: display the loaded packages.")
+    .ooRexxShell~sayQueryManagerCommand("    ?path v1 v2 ... : display value of system variable, splitted by path separator.")
+    .ooRexxShell~sayQueryManagerCommand("    ?r[outines] routine1 routine2... : display routines.")
+    say                                 "    ?v[ariables]: display the defined variables."
+    .ooRexxShell~sayQueryManagerCommand("    To display the source of methods, packages or routines: add the option .s[ource].")
+    .ooRexxShell~sayQueryManagerCommand("        Short: ?cms, ?cmis, ?ms, ?ps, ?rs.")
     .ooRexxShell~helpInterpreters
     say "Other commands:"
     say "    bt: display the backtrace of the last error (same as tb)."
@@ -1070,20 +1094,14 @@ Helpers
 
 ::method helpClasses class
     -- All or specified classes (public & private) that are visible from current context, with their package
-    if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
-    if \.ooRexxShell~hasRgfUtil2 then do; .ooRexxShell~sayError("Needs extended rgf_util2"); return; end
-    if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
     use strict arg classnames
-    .QueryManager~displayClasses(classnames, self, .context)
+    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayClasses(classnames, self, .context)
 
 
 ::method helpClassMethods class
     -- Display the methods of each specified class
-    if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
-    if \.ooRexxShell~hasRgfUtil2 then do; .ooRexxShell~sayError("Needs extended rgf_util2"); return; end
-    if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
     use strict arg classnames, inherited, displaySource, filteringStream
-    .QueryManager~displayClassMethods(classnames, inherited, displaySource, self, .context, filteringStream)
+    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayClassMethods(classnames, inherited, displaySource, self, .context, filteringStream)
 
 
 ::method helpDocumentation class
@@ -1111,18 +1129,12 @@ Helpers
 
 
 ::method helpFlags class
-    if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
-    if \.ooRexxShell~hasRgfUtil2 then do; .ooRexxShell~sayError("Needs extended rgf_util2"); return; end
-    if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
-    .QueryManager~displayFlags
+    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayFlags
 
 
 ::method helpHelp class
-    if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
-    if \.ooRexxShell~hasRgfUtil2 then do; .ooRexxShell~sayError("Needs extended rgf_util2"); return; end
-    if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
     use strict arg classnames, inherited
-    .QueryManager~displayHelp(classnames, inherited, self, .context)
+    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayHelp(classnames, inherited, self, .context)
 
 
 ::method helpInterpreters class
@@ -1134,40 +1146,28 @@ Helpers
 
 ::method helpMethods class
     -- Display the defining classes of each specified method
-    if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
-    if \.ooRexxShell~hasRgfUtil2 then do; .ooRexxShell~sayError("Needs extended rgf_util2"); return; end
-    if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
     use strict arg methodnames, displaySource
-    .QueryManager~displayMethods(methodnames, displaySource, self, .context)
+    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayMethods(methodnames, displaySource, self, .context)
 
 
 ::method helpPackages class
     -- All packages that are visible from current context, including the current package (source of the pipeline).
-    if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
-    if \.ooRexxShell~hasRgfUtil2 then do; .ooRexxShell~sayError("Needs extended rgf_util2"); return; end
-    if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
     use strict arg packagenames, displaySource
-    .QueryManager~displayPackages(packagenames, displaySource, self, .context)
+    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayPackages(packagenames, displaySource, self, .context)
 
 
 ::method helpPath class
     -- Display the value of the specified system variables , one path per line.
     -- Example of variables: LD_LIBRARY_PATH, MANPATH, PATH
     -- Can be filtered, as any help output.
-    if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
-    if \.ooRexxShell~hasRgfUtil2 then do; .ooRexxShell~sayError("Needs extended rgf_util2"); return; end
-    if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
     use strict arg variablenames
-    .QueryManager~displayPath(variablenames)
+    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayPath(variablenames)
 
 
 ::method helpRoutines class
     -- Display the defining package of each specified routine
-    if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
-    if \.ooRexxShell~hasRgfUtil2 then do; .ooRexxShell~sayError("Needs extended rgf_util2"); return; end
-    if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
     use strict arg routinenames, displaySource
-    .QueryManager~displayRoutines(routinenames, displaySource, self, .context)
+    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayRoutines(routinenames, displaySource, self, .context)
 
 
 ::method helpVariables class
