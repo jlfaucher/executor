@@ -201,8 +201,7 @@ v()               | []                            | 1         | [0]             
     -- R←≡Y (Equal Underbar)
     -- Here, Y is an array. Y has depth 1 greater than that of its most deeply nested item.
     use arg stack=(.queue~new)
-    level = stack~index(self)
-    if .nil <> level then return .infinity~positive
+    if .nil <> stack~index(self) then return .infinity~positive
     stack~push(self)
     depth = 1 + self~reduce(0){expose stack; depth = item~depth(stack); if depth > accu then depth}
     stack~pull
@@ -541,7 +540,12 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
     -- Here, Y is a scalar array.  R is a scalar array whose item is the scalar array Y.
     -- R has a depth whose magnitude is one greater than the magnitude of the depth of Y.
     expose object
-    return 1 + object~depth
+    use arg stack=(.queue~new)
+    if .nil <> stack~index(object) then return .infinity~positive
+    stack~push(object)
+    depth = 1 + object~depth(stack)
+    stack~pull
+    return depth
 
 
 ::method leftElementWise
@@ -853,7 +857,6 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
             end
         end
         valstr ||= "]"
-        --stack~pull
         return valstr
     end
     else if val~isA(.array) then do
