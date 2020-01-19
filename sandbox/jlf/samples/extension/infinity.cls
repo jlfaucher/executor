@@ -60,9 +60,13 @@ direction=1     complex infinity
     */
 
     --return
+    /*
+    -- Don't ask me why, but when using setMethod to add makestring, the method ppString is no longer found
+    -- No problem if I use ::method makestring.
     self~negative~setMethod("makestring", "return self~objectName", "OBJECT")
     self~positive~setMethod("makestring", "return self~objectName", "OBJECT")
     self~complex~setMethod("makestring", "return self~objectName", "OBJECT")
+    */
 
 ::attribute direction   -- -1 or 0 or 1 (0 if complex)
 ::attribute opposite
@@ -71,6 +75,9 @@ direction=1     complex infinity
     use strict arg objectName, direction
     self~objectName = objectName
     self~direction = direction
+
+::method makestring
+    return self~objectName
 
 ::method sign
     -- return self~direction~sign

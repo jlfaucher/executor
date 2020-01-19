@@ -12,12 +12,19 @@
 
 ::method initialize class -- init not supported (can't instantiate itself or subclass from init)
     self~value = self~new("The indeterminate value")
+    /*
+    -- Don't ask me why, but when using setMethod to add makestring, the method ppString is no longer found.
+    -- No problem if I use ::method makestring.
     self~value~setMethod("makestring", "return self~objectName", "OBJECT")
+    */
     .GlobalVariable~declare("INDETERMINATE", self~value)
 
 ::method init
     use strict arg objectName
     self~objectName = objectName
+
+::method makestring
+    return self~objectName
 
 -- ::method " "
 
