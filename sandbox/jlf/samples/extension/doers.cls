@@ -69,6 +69,29 @@ This script needs a modified ooRexx interpreter which support extension of prede
     return self~startWith("doWith", .array~of(array))
 
 
+/*
+http://en.wikipedia.org/wiki/Tail_call#Through_trampolining
+A trampoline is a technique to transform recursive calls into a sequence of calls
+to doers. Instead of returning the result, the doer returns a doer which returns
+the result. While the result returned by the doer is a doer, the result is called.
+The loop is ended when the result is not a doer.
+
+Ex :
+    say {say "one" ; return {say "two" ; return "three"}}~trampoline -- one two three
+
+Ex :
+    factorial = {
+        use strict arg n, accu=1
+        if n <= 1 then return accu
+        executable = .context~executable
+        return {
+            expose n accu executable
+            return executable~(n-1, n*accu)
+        }
+    }
+    say factorial~trampoline(1000000) -- 8.26394406E+5565708
+*/
+
 ::method trampoline unguarded
     doer = self
     forward message "do" to (doer) continue -- any number of arguments supported for the first call
@@ -83,6 +106,72 @@ This script needs a modified ooRexx interpreter which support extension of prede
     end
     return v
 
+
+/*
+http://en.wikipedia.org/wiki/Partial_application
+Returns a closure which remembers the arguments passed to ~partial.
+When this closure is called with the remaining arguments, a whole argument array is
+built from both argument lists (partial and remaining) and passed to the target of
+~partial.
+
+Ex :
+    add10 = "+"~partial(10)
+    say add10~(1) -- 11
+
+Ex :
+    /*
+    The ~partial method takes care of the omitted arguments.
+    In this example, "-"~partial(, 10), a partial array is created, which keeps the first arg omitted :
+    +---+----+
+    |   | 10 |
+    +---+----+
+    When you do sub10~(1) then 1 goes into the first free cell :
+    +---+----+
+    | 1 | 10 |
+    +---+----+
+    */
+
+    sub10 = "-"~partial(, 10)
+    say sub10~(1) -- -9
+
+    /*
+    That's the same principle with more omitted arguments :
+    - any omitted argument when calling ~partial will create an empty cell.
+    - any omitted argument when calling a partial closure (returned by ~partial) will remain an omitted argument :
+      the first free cell remains empty and the next empty cell becomes the first free cell.
+    - a non empty cell is always skipped.
+    */
+        block = {do a over arg(1, "a") ; .output~charout(a" ") ; end; say}
+        partial1 = block~partial( , , 3, , , 6, , , 9)
+        -- +---+---+---+---+---+---+---+---+---+
+        -- |   |   | 3 |   |   | 6 |   |   | 9 |
+        -- +---+---+---+---+---+---+---+---+---+
+        partial1~() -- 3 6 9
+        partial2 = partial1~partial( , 2, , 5, , 8, , 11)
+        -- +---+---+---+---+---+---+---+---+---+----+----+
+        -- |   | 2 | 3 |   | 5 | 6 |   | 8 | 9 |    | 11 |
+        -- +---+---+---+---+---+---+---+---+---+----+----+
+        partial2~() -- 2 3 5 6 8 9 11
+        partial2~(1, 4, 7, 10, 12) -- 1 2 3 4 5 6 7 8 9 10 11 12
+        -- +---+---+---+---+---+---+---+---+---+----+----+----+
+        -- | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 |
+        -- +---+---+---+---+---+---+---+---+---+----+----+----+
+
+Ex :
+    myArguments = .context~package~findRoutine("myArguments")
+    p1 = myArguments~partial(1,,3,,5)
+    p1~()                               -- 1:1 3:3 5:5
+    p1~(2,,6)                           -- 1:1 2:2 3:3 5:5 6:6
+    p1~(2,4,6,,8)                       -- 1:1 2:2 3:3 4:4 5:5 6:6 8:8
+    p2 = myArguments~partial(,,3,4)
+    p2~()                               -- 3:3 4:4
+    p2~(2,,6)                           -- 1:2 3:3 4:4 5:6
+    p2~(2,4,6,,8)                       -- 1:2 2:4 3:3 4:4 5:6 7:8
+    ::routine myArguments
+        arg(1, "a")~each{call charout, index":"item" "}
+        say
+    ::requires "extension/extensions.cls"
+*/
 
 ::method partial unguarded
     args1 = arg(1, "a")
@@ -430,6 +519,44 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Closure by value : not yet a real closure but useful anyway
 -- (assuming that only closures by reference are real closures...)
 -- good point, no risk of race conditions...
+
+/*
+A closure is an object, created from a block whose source first word after the optional tag is "expose".
+
+A closure remembers the values of the variables defined in the outer environment of the block.
+The behaviour of the closure is a method generated from the block, which is attached to
+the closure under the name "do". The values of the captured variables are accessible from
+this method "do" using expose. Updating a variable from the closure will have no impact on
+the original context (hence the name "closure by value").
+A closure can be passed as argument, or returned as result.
+
+
+Examples :
+    v = 1                      -- captured, belongs to the outer environment of the following blocks
+    {expose v ; say v}~doer~do -- display 1
+    {expose v ; say v}~do      -- display 1 (implicit call to ~doer)
+    {expose v ; say v}~()      -- display 1 (alternative notation, more functional)
+
+
+    range = { use arg min, max ; return { expose min max ; use arg num ; return min <= num & num <= max }}
+    from5to8 = range~(5, 8)
+    from20to30 = range~(20, 30)
+    say from5to8~(6) -- 1
+    say from5to8~(9) -- 0
+    say from20to30~(6) -- 0
+    say from20to30~(25) -- 1
+
+    /*
+    The first block can be rewritten as a routine, no more nested blocks, but the code is less compact,
+    and the order less natural (you discover the definition of the routine after the place from where it's called).
+    The inner block is an object (RexxBlock) returned by the routine.
+    */
+    from5to8 = range(5, 8) -- function call, here no tilde
+    say from5to8~(6) -- from5to8 is a RexxBlock to which the message "~()" is sent
+    ::routine range
+    use arg min, max
+    return { expose min max ; use arg num ; return min <= num & num <= max }
+*/
 
 ::class "Closure" public inherit Doer
 
