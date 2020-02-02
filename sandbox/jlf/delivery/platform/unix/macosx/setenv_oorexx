@@ -1,5 +1,7 @@
 #!/bin/bash
 
+if [ "$0" = "$BASH_SOURCE" ] ; then echo "Usage : source ${BASH_SOURCE[0]}" ; exit 1 ; fi
+
 version="ooRexx sandbox-jlf"
 echo Setting environment for running $version
 
@@ -11,8 +13,12 @@ prepend_path()
   fi
 }
 
-me=$(readlink -f ${BASH_SOURCE[0]})
-export OOREXX_HOME=`dirname "$me"`
+# Under macos, readlink doesn't support the option -f
+#me=$(readlink -f ${BASH_SOURCE[0]})
+#export OOREXX_HOME=`dirname "$me"`
+
+me="${BASH_SOURCE[0]}"
+export OOREXX_HOME="$( cd -P "$(dirname "$me")" && pwd )"
 
 echo -n -e "\033]0;$version\007"
 
