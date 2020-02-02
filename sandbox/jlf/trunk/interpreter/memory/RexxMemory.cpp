@@ -158,7 +158,18 @@ RexxMemory::RexxMemory()
 }
 
 
-void RexxMemory::initialize(bool _restoringImage)
+/**
+ * Initialize the memory object, including getting the
+ * initial memory pool allocations.
+ *
+ * @param restoringImage
+ *               True if we are initializing during an image restore, false
+ *               if we need to build the initial image environemnt (i.e., called
+ *               via rexximage during a build).
+ * @param imageTarget
+ *               The location to store the image if this is a save operation.
+ */
+void RexxMemory::initialize(bool restoringImage, const char *imageTarget)
 /******************************************************************************/
 /* Function:  Gain access to all Pools                                        */
 /******************************************************************************/
@@ -198,7 +209,7 @@ void RexxMemory::initialize(bool _restoringImage)
     /* remember the original one         */
     originalLiveStack = liveStack;
 
-    if (_restoringImage)                 /* restoring the image?              */
+    if (restoringImage)                 /* restoring the image?              */
     {
         restoreImage();                  /* do it now...                      */
     }
@@ -221,9 +232,9 @@ void RexxMemory::initialize(bool _restoringImage)
 
     // is this image creation?  This will build and save the image, then
     // terminate
-    if (!_restoringImage)
+    if (!restoringImage)
     {
-        createImage();
+        createImage(imageTarget);
     }
     restore();                           // go restore the state of the memory object
 }
@@ -1663,7 +1674,11 @@ RexxObject *RexxMemory::setParms(RexxObject *deadSegs, RexxObject *notUsed)
     return OREF_NULL;
 }
 
-void RexxMemory::saveImage(void)
+/**
+ * Save the memory image as part of the interpreter
+ * build.
+ */
+void RexxMemory::saveImage(const char *imageTarget)
 /******************************************************************************/
 /* Function:  Save the memory image as part of interpreter build              */
 /******************************************************************************/
@@ -1763,7 +1778,8 @@ void RexxMemory::saveImage(void)
             memory_mark_general(copyObject->behaviour);
     }
 
-    image = fopen(BASEIMAGE,"wb");
+    image = fopen(imageTarget == NULL ? BASEIMAGE : imageTarget,"wb");
+//  image.open(imageTarget == NULL ? BASEIMAGE : imageTarget, RX_O_CREAT | RX_O_TRUNC | RX_O_WRONLY, RX_S_IREAD | RX_S_IWRITE, RX_SH_DENYRW);
     /* PLace actual size at beginning of buffer*/
     memcpy(image_buffer, &image_offset, sizeof(size_t));
     /* Write out buffer (image)      */

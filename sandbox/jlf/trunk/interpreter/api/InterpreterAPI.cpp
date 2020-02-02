@@ -79,7 +79,7 @@ int REXXENTRY RexxInitialize ()
 /******************************************************************************/
 {
     // start this up for normal execution
-    Interpreter::startInterpreter(Interpreter::RUN_MODE);
+    Interpreter::startInterpreter(Interpreter::RUN_MODE, NULL);
     // this always returns true
     return true;
 }
@@ -90,10 +90,10 @@ int REXXENTRY RexxInitialize ()
  *
  * @return Nothing
  */
-void REXXENTRY RexxCreateInterpreterImage()
+void REXXENTRY RexxCreateInterpreterImage(const char *target)
 {
     // start this up and save the image.  This never returns to here
-    Interpreter::startInterpreter(Interpreter::SAVE_IMAGE_MODE);
+    Interpreter::startInterpreter(Interpreter::SAVE_IMAGE_MODE, target);
 }
 
 

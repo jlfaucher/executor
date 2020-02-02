@@ -136,7 +136,13 @@ void RexxMemory::definePrivateKernelMethod(
 }
 
 
-void RexxMemory::createImage()
+/**
+ * Initialize the Rexx memory environment during an image built.
+ *
+ * @param imageTarget
+ *               The location to save the created image file.
+ */
+void RexxMemory::createImage(const char *imageTarget)
 /******************************************************************************/
 /* Function:  Initialize the kernel on image build                            */
 /******************************************************************************/
@@ -1582,7 +1588,7 @@ void RexxMemory::createImage()
   TheObjectClass->removeClassMethod(new_string("!DEFINE_CLASS_METHOD"));
 
   // now save the image
-  memoryObject.saveImage();
+  memoryObject.saveImage(imageTarget);
   ActivityManager::returnActivity(ActivityManager::currentActivity);
   exit(RC_OK);                         // successful build
 }

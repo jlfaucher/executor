@@ -41,5 +41,5 @@
 
 int main(int argc, char *argv[])
 {
-    RexxCreateInterpreterImage();
+    RexxCreateInterpreterImage(argc >= 2 ? argv[1] : NULL);
 }

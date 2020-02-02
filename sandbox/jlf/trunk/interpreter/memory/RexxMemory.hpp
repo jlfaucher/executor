@@ -183,7 +183,7 @@ class RexxMemory : public RexxInternalObject
   void flatten(RexxEnvelope *);
   RexxObject  *makeProxy(RexxEnvelope *);
 
-  void        initialize(bool restoringImage);
+  void        initialize(bool restoringImage, const char *imageTarget);
   MemorySegment *newSegment(size_t requestLength, size_t minLength);
   MemorySegment *newLargeSegment(size_t requestLength, size_t minLength);
   RexxObject *oldObject(size_t size);
@@ -213,7 +213,7 @@ class RexxMemory : public RexxInternalObject
   inline void        removeHold(RexxInternalObject *obj) { this->saveStack->remove((RexxObject *)obj); }
   void        discardHoldObject(RexxInternalObject *obj);
   RexxObject *holdObject(RexxInternalObject *obj);
-  void        saveImage();
+  void        saveImage(const char *imageTarget);
   bool        savingImage() { return saveimage; }
   bool        restoringImage() { return restoreimage; }
   RexxObject *setDump(RexxObject *);
@@ -289,7 +289,7 @@ class RexxMemory : public RexxInternalObject
   static void restore();
   static void buildVirtualFunctionTable();
   static void create();
-  static void createImage();
+  static void createImage(const char *imageTarget);
   static RexxString *getGlobalName(const char *value);
   static void createStrings();
   static RexxArray *saveStrings();
