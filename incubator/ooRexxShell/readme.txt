@@ -243,6 +243,7 @@ Known problems under Windows
 
 - If you want the colors then you must put gci.dll in your PATH.
   You can get gci here: http://rexx-gci.sourceforge.net
+  For 64-bit support and new type aliases, see https://github.com/jlfaucher/builder/tree/master/adaptations
 
 - If you launch ooRexxShell from a .bat file, then you need to prepend cmd /c to have the
   doskey history working correctly.

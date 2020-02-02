@@ -1436,31 +1436,13 @@ Helpers
 
 
 /*
-To compile gci-sources.1.1 for ooRexx under Win32, I had to create the file rexxsaa.h,
-located above the GCI source directory, which contains:
+Windows:
+If you want the colors in the console then you must put gci.dll in your PATH.
+You can get gci 32-bit here: http://rexx-gci.sourceforge.net
+For 64-bit support and new type aliases, see https://github.com/jlfaucher/builder/tree/master/adaptations
 
-#include "<your path to> rexx.h"
-typedef void* PVOID ;
-#define APIRET ULONG
-typedef CONST char *PCSZ ;
-
-Other change in gci_win32.def, to fix a syntax error:
-4c4
-< LIBRARY gci INITINSTANCE
----
-> LIBRARY gci ; INITINSTANCE
-
-Other change in gci_convert.win32.vc, to support 64 bits:
-89c89,94
-< #define GCI_STACK_ELEMENT unsigned
----
-> #if defined(_M_IX86)
-> #define GCI_STACK_ELEMENT unsigned __int32
-> #else
-> #define GCI_STACK_ELEMENT unsigned __int64
-> #endif
->
-
+Linux, MacOs : gci not needed.
+The colors are managed with escape characters.
 */
 
 

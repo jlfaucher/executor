@@ -390,7 +390,7 @@ attribute traceFilter
     end
     return
 
-    displayClassHelp: procedure
+    displayClassHelp: procedure expose displayer
         use strict arg class
         description = class~instanceMethod("_description_")
         if description <> .nil then do
