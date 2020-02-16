@@ -8,7 +8,7 @@ In CoreClasses.orx, the class CircularQueue has a method string.
 .CircularQueue~of(1,2,3)~string=     -- "1,2,3"
 
 The method ppString defined at Object level delegates to string,
-that why I see (1,2,3) when pretty printing an array which contains
+that's why I see (1,2,3) when pretty printing an array which contains
 this CircularQueue.
 
 The class Queue has no method string, and is displayed (a Queue)
@@ -23,7 +23,10 @@ All the collections will benefit from this display.
 ::class "CollectionPrettyPrinter" mixinclass Object public
 
 ::method ppString
-    -- todo ? add a parameter maxIems to ~makearray
+    -- Workaround, the method ~ppString defined in array.cls is not called
+    if self~isa(.array) then return self~ppRepresentation
+
+    -- todo ? add a parameter maxItems to ~makearray
     return self~class~id || self~makearray~ppRepresentation
 
 

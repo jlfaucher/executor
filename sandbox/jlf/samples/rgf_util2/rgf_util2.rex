@@ -2661,14 +2661,22 @@ createCodeSnippet: procedure
 /* Enclose string in square brackets show non-printable chars as Rexx hex-strings.
    If non-string object, then show its string value and hash-value.
 */
+
 ::routine pp2 public       -- rgf, 20091214
   use strict arg a1, surroundByQuotes=.true
+
+  if a1~hasMethod("ppString") then return a1~ppString(surroundByQuotes)
+
+  -- JLF : this routine is redundant with the method ~ppstring defined by extension
 
   -- JLF : can't use .Text, its package is not imported here
   a1.isaText = (a1~class~id=="RexxText")
 
   -- JLF : texts are prefixed with "T"
   if a1.isaText then return escape3("T'"a1~string"'") -- JLF : Use 0xXX notation for escaped characters
+
+  -- JLF : mutable buffers are prefixed with "M"
+  if a1~isa(.MutableBuffer) then return escape3("M'"a1~string"'") -- JLF : Use 0xXX notation for escaped characters
 
   -- JLF : strings are surrounded by quotes, except string numbers.
   if a1~isA(.string) then do

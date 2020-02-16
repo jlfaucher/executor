@@ -78,12 +78,25 @@ Similar to ~makeArray(separator), with these differences:
 ::class "StringPrettyPrinter" mixinclass Object public
 
 ::method ppString
-    use strict arg surroundByQuotes=.true
+    use arg surroundByQuotes=.true
     -- strings are surrounded by quotes, except string numbers.
-    if self~dataType("N") then return self
+    if self~dataType("N") then do
+        if self < 0 then return self -- the first character is the minus sign
+        return " "self               -- the first character is a space (could also display a plus sign)
+    end
     pp = self
     if surroundByQuotes then pp = pp~quoted("'")
     return escape3(pp) -- JLF : Use 0xXX notation for escaped characters
+
+
+/******************************************************************************/
+::class "MutableBufferPrettyPrinter" mixinclass Object public
+
+::method ppString
+    -- Mutable buffers are prefixed with "M"
+    pp = "M'"self~string"'"
+    -- Use 0xXX notation for escaped character
+    return escape3(pp)
 
 
 /******************************************************************************/

@@ -21,8 +21,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::extension RexxBlock                       inherit RexxBlockDoer
 
 ::extension Coactivity                      inherit CoactivityDoer CoactivityFilter                      CoactivityIterator                      CoactivityReducer    CoactivityGenerator
-::extension String                          inherit StringDoer     StringFilter                          StringIterator                          StringReducer        StringGenerator        StringMapper        StringHelpers           StringPrettyPrinter RepeaterCollector RepeaterGenerator LogicalExtension EncodedString ComplexString
-::extension MutableBuffer                   inherit                MutableBufferFilter                   MutableBufferIterator                   MutableBufferReducer MutableBufferGenerator MutableBufferMapper
+::extension String                          inherit StringDoer     StringFilter                          StringIterator                          StringReducer        StringGenerator        StringMapper        StringPrettyPrinter        StringHelpers RepeaterCollector RepeaterGenerator LogicalExtension EncodedString ComplexString
+::extension MutableBuffer                   inherit                MutableBufferFilter                   MutableBufferIterator                   MutableBufferReducer MutableBufferGenerator MutableBufferMapper MutableBufferPrettyPrinter
 ::extension Collection                      inherit                CollectionFilter                      CollectionIterator                      CollectionReducer    CollectionGenerator    CollectionMapper    CollectionPrettyPrinter
 ::extension OrderedCollection               inherit                OrderedCollectionFilter
 ::extension Supplier                        inherit                SupplierFilter                        SupplierIterator                        SupplierReducer      SupplierGenerator

@@ -749,6 +749,10 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
 /******************************************************************************/
 ::class "ArrayPrettyPrinter" mixinclass Object public
 
+::method ppString
+    return self~ppRepresentation
+
+
 ::method ppRepresentation
     /*
     Return a condensed string representation of the array.
