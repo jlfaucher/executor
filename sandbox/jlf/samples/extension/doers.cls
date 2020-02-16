@@ -61,12 +61,11 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 
 ::method go unguarded
-    return self~startWith("do", arg(1,"a"))
+    return self~startWith("do", .context~args, n:.context~namedArgs)
 
 
 ::method goWith unguarded
-    use strict arg array
-    return self~startWith("doWith", .array~of(array))
+    return self~startWith("doWith", .context~args, n:.context~namedArgs)
 
 
 /*
@@ -110,8 +109,8 @@ Ex :
 /*
 http://en.wikipedia.org/wiki/Partial_application
 Returns a closure which remembers the arguments passed to ~partial.
-When this closure is called with the remaining arguments, a whole argument array is
-built from both argument lists (partial and remaining) and passed to the target of
+When this closure is called with the remaining arguments, a whole positional argument array is
+built from both positional argument lists (partial and remaining) and passed to the target of
 ~partial.
 
 Ex :
@@ -120,7 +119,7 @@ Ex :
 
 Ex :
     /*
-    The ~partial method takes care of the omitted arguments.
+    The ~partial method takes care of the omitted positional arguments.
     In this example, "-"~partial(, 10), a partial array is created, which keeps the first arg omitted :
     +---+----+
     |   | 10 |
@@ -135,7 +134,7 @@ Ex :
     say sub10~(1) -- -9
 
     /*
-    That's the same principle with more omitted arguments :
+    That's the same principle with more omitted positional arguments :
     - any omitted argument when calling ~partial will create an empty cell.
     - any omitted argument when calling a partial closure (returned by ~partial) will remain an omitted argument :
       the first free cell remains empty and the next empty cell becomes the first free cell.
@@ -174,12 +173,15 @@ Ex :
 */
 
 ::method partial unguarded
-    args1 = arg(1, "a")
-    return {expose args1 self
-            args2 = arg(1, "a")
+    args1 = .context~args
+    namedArgs1 = .context~namedArgs
+    return {expose args1 namedArgs1 self
+            args2 = .context~args
+            namedArgs2 = .context~namedArgs
             args = partialMergeArrays(args1, args2)
+            namedArgs = mergeDirectoriesInPlace(namedArgs1, namedArgs2)
             -- Must forward explicitely to (self) otherwise stack overflow because forwarded to the closure itself.
-            forward message "do" arguments (args) to (self)
+            forward message "do" arguments (args) namedArguments (namedArgs) to (self)
            }~doer
 
 
@@ -201,6 +203,19 @@ Ex :
         end
     end
     return args
+
+
+::routine mergeDirectoriesInPlace
+    -- dir1 is updated in place with the elements of dir2
+    use strict arg dir1, dir2
+    size2 = dir2~items
+    if size2 == 0 then return dir1
+    dir2indexes = dir2~allIndexes
+    dir2items = dir2~allItems
+    do i=1 to size2
+        dir1~put(dir2items[i], dir2indexes[i])
+    end
+    return dir1
 
 
 -----------------------------------------------------------------------------
@@ -308,12 +323,14 @@ Ex :
 
 ::method do unguarded
     use strict arg object, ...
-    forward to (object) message "run" array (self, "a", arg(2,"a"))
+    forward to (object) message "run" array (self, "a", arg(2,"a"), n:.context~namedArgs)
 
 
 ::method doWith unguarded
     use strict arg object, array
-    forward to (object) message "run" array (self, "a", array)
+    -- To rework: here, the abbreviation n: is not supported (the caller MUST pass the name 'namedArguments')
+    use strict named arg namedArguments = (.nil)
+    forward to (object) message "run" array (self, "a", array, n:namedArguments)
 
 
 -----------------------------------------------------------------------------
@@ -332,12 +349,14 @@ Ex :
 
 ::method do unguarded
     use strict arg object, ...
-    forward to (object) message "sendWith" array (self, arg(2,"a"))
+    forward to (object) message "sendWith" array (self, arg(2,"a"), n:.context~namedArgs)
 
 
 ::method doWith unguarded
     use strict arg object, array
-    forward to (object) message "sendWith" array (self, array)
+    -- To rework: here, the abbreviation n: is not supported (the caller MUST pass the name 'namedArguments')
+    use strict named arg namedArguments = (.nil)
+    forward to (object) message "sendWith" array (self, array, n:namedArguments)
 
 
 ::method source unguarded
@@ -508,7 +527,9 @@ Ex :
 
 ::method doWith unguarded
     use strict arg array
-    forward message "resume" arguments (array)
+    -- To rework: here, the abbreviation n: is not supported (the caller MUST pass the name 'namedArguments')
+    use strict named arg namedArguments = (.nil)
+    forward message "resume" arguments (array) namedArguments(namedArguments)
 
 
 ::method source unguarded
@@ -602,7 +623,9 @@ Examples :
 
 ::method doWith unguarded
     use strict arg array
-    forward message "do" arguments (array)
+    -- To rework: here, the abbreviation n: is not supported (the caller MUST pass the name 'namedArguments')
+    use strict named arg namedArguments = (.nil)
+    forward message "do" arguments (array) namedArguments(namedArguments)
 
 
 ::method source unguarded

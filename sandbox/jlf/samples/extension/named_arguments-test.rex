@@ -1,5 +1,7 @@
 /*
 Named arguments
+Keep this file independent of the extensions (no requires).
+See the file named_arguments-test_with_extensions.rex for the tests of extensions.
 */
 
 -------------------

@@ -171,9 +171,6 @@ Message~sendWith: new method
 Message~start allows to pass arguments
 Message~startWith: new method
 
-Routine~callWith
-to implement
-
 StackFrame~namedArguments
 to implement
 
@@ -195,6 +192,124 @@ The source location reported for this error
 is not good when inside a block.
 The line number is relative to the opening bracket of the block, should be
 relative to the begining of the file.
+
+
+Known bugs
+---------
+
+ok
+{use named arg n; say n}~(n:1)
+    1
+
+KO
+{use named arg n,n; say n}~(n:1)
+    N
+
+
+
+To rework
+---------
+Abbreviated names.
+The native methods like run, setArgs, sendWith, startWith, callWith supports abbreviations for 'namedArguments':
+    n:
+    na:
+    nam:
+etc...
+I wanted that because ooRexx has this kind of abbreviation for "array" --> "a", "individual" --> "i"
+
+The abbreviated names are managed by specifying the minimum length of the name.
+Currently only Object~run and Context~setArgs have a real check.
+The other methods doesn't check the argument name, only the count of named arguments is checked (which is 1).
+
+Example of abbreviation specification (here: 1)
+    RexxObject  *RexxObject::run(
+        RexxObject **arguments,            /* method arguments                  */
+        size_t       argumentsCount)       /* the number of positional arguments*/
+    {
+            ...
+            // use strict named arg namedArguments=.NIL
+            size_t named_argumentsCount = 0;
+            arguments[argumentsCount]->unsignedNumberValue(named_argumentsCount);
+            if (named_argumentsCount > 1) reportException(Error_Incorrect_method_maxarg, OREF_named, 1); // Only zero or one named argument is supported by Object~run
+            RexxObject **named_arguments = arguments + argumentsCount + 1;
+            RexxString *argName0 = (0 < named_argumentsCount) ? (RexxString *)named_arguments[(2 * 0)] : OREF_NULL;
+            RexxObject *argValue0 = (0 < named_argumentsCount) ? named_arguments[(2 * 0) + 1] : OREF_NULL;
+            NamedArguments expectedNamedArguments(1); // At most, one named argument
+      -->   expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", 1, TheNilObject); // At least 1 character, default value = .NIL
+            expectedNamedArguments.check(argName0, argValue0, true); // Strict, will raise an error if no match
+            argdirectory = (RexxDirectory *)expectedNamedArguments[0].value;
+            ...
+    }
+
+The instruction 'use named arg' is managed by RexxInstructionUseStrict::executeNamedArguments
+where only the name is passed to the checker.
+    // Iterate over the named arguments declared by the callee with the instruction USE NAMED ARG.
+    // Collect their names.
+    for (size_t i = 0; i < this->variableCount; i++)
+    {
+        RexxVariableBase *variable = this->variables[i].variable;
+        expectedNamedArguments[i].name = variable->getName()->getStringData();
+    }
+
+If a minimal lenght must be passed to the checker, then it must be provided by the Rexx programmer...
+Like that ?
+use named arg command(1) = (.nil)
+
+Currently, the interpreter checks that the names are unique on caller side (it's an error to specify the same name twice).
+But there is no check on called side.
+
+If the minimal length is specified, then the interpreter should check that the abbreviated names are unique.
+The interpreter should also check that the minimal lengths are discriminating.
+use named arg command(1) = (.nil), option          -- ok: "option" doesn't start with "c"
+use named arg command(1) = (.nil), comOption       -- ko: "comOption" starts with "c"
+use named arg command(2) = (.nil), comOption       -- ko: "comOption" starts with "co"
+use named arg command(4) = (.nil), comOption       -- ok: "comOption" doesn't start with "comma"
+
+
+To check
+--------
+Is it correct ? I always have difficulties to understand the stems...
+
+-- Sounds strange to have the variable name=john, because i'm not using auto.
+-- Must check what is the name of a stem variable, I expect here it's "NAME.1", so the variable 'name' should not be assigned.
+{call dump2 .context~namedargs; use named arg name.1; say "name="name name~class; say "name.="name. name.~class; say "name.1="name.1}~(name:"john")
+    a Directory (1 items)
+        'NAME' : 'john'
+    name=john The String class
+    name.=NAME. The Stem class
+    name.1=NAME.1
+
+
+-- Looks good.
+{call dump2 .context~namedargs; use named arg name.1; say "name="name name~class; say "name.="name. name.~class; say "name.1="name.1}~(name.1:"john")
+    a Directory (1 items)
+        'NAME.1' : 'john'
+    name=NAME The String class
+    name.=NAME. The Stem class
+    name.1=john
+
+
+-- Looks good.
+-- But according the notes above about abbreviated names and checks, the interpreter should raise an error at parse time :
+-- "name.1" starts with "name", so it's ambiguous.
+{call dump2 .context~namedargs; use named arg name, name.1; say "name="name name~class; say "name.="name. name.~class; say "name.1="name.1}~(name:"john")
+    a Directory (1 items)
+        'NAME' : 'john'
+    name=john The String class
+    name.=NAME. The Stem class
+    name.1=NAME.1
+
+
+-- Looks good.
+-- But according the notes above about abbreviated names and checks, the interpreter should raise an error at parse time :
+-- "name.1" starts with "name", so it's ambiguous.
+{call dump2 .context~namedargs; use named arg name, name.1; say "name="name name~class; say "name.="name. name.~class; say "name.1="name.1}~(name.1:"john")
+    a Directory (1 items)
+        'NAME.1' : 'john'
+    name=NAME The String class
+    name.=NAME. The Stem class
+    name.1=john
+
 
 Maybe to rework
 ---------------
@@ -254,6 +369,41 @@ see if named arguments must be supported here:
     // retrieve the argument signatures and process them
     uint16_t *types = (*methp)((RexxMethodContext *)&context, NULL);
     processArguments(argcount, arglist, types, arguments, MAX_NATIVE_ARGUMENTS);
+
+
+===============================================================================
+2020 feb 16
+
+Add support for the named arguments in the methods provided by doers.cls:
+    ~do
+    ~doWith
+    ~go
+    ~goWith
+    ~partial
+New file for testing:
+    named_arguments-test_with_extensions.rex
+That made appear a problem with the abbreviated names: there is no way currently
+to specifiy a minimal lenght with the instruction 'use named arg'.
+
+
+Add method ~of to the class Directory:
+.directory~of("key 1", "value 1","key 2", 2, key3:"value 3", key4:4)
+    a Directory (4 items)
+    'KEY3'  : 'value 3'
+    'KEY4'  :  4
+    'key 1' : 'value 1'
+    'key 2' :  2
+Add routine d(...) to create a directory with values.
+
+
+For compatibility with ooRexx5:
+Add the methods ~contains and ~caselessContains to the class String (not native, by extension).
+
+
+Pretty-print
+A mutable buffer is now displayed M"value of mutable buffer"
+A positive number is displayed with a space " " in front, to align with negative numbers.
+The routine pp2 in rgf_util2 delegates to the method ppString if available.
 
 
 ===============================================================================
