@@ -62,6 +62,18 @@ Similar to ~makeArray(separator), with these differences:
     return self~split(separator, .true)
 
 
+::method contains
+    -- regex.cls uses the method .String~contains which is available only from ooRexx v5.
+    forward message "pos" continue
+    return result <> 0
+
+
+::method caselessContains
+    -- ooRexx v5
+    forward message "caselessPos" continue
+    return result <> 0
+
+
 /******************************************************************************/
 ::class "StringPrettyPrinter" mixinclass Object public
 

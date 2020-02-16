@@ -617,9 +617,6 @@ Helpers
         .ooRexxShell~hasQueries = loadPackage("oorexxshell_queries.cls")
         call loadPackage("pipeline/pipe_extension.cls")
         call loadPackage("rgf_util2/rgf_util2_wrappers.rex")
-        -- regex.cls uses the method .String~contains which is available only from ooRexx v5.
-        -- Add this method if not available.
-        if \ ""~hasMethod("contains") then .String~define("contains", "use strict arg needle; return self~pos(needle) <> 0")
     end
 
     return
