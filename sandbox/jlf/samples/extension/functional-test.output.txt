@@ -14,93 +14,93 @@
 
 -- Ordered collection, the operation can be non-commutative
    .Array~of(1,2,3)~reduce("-")~dump -- initial value is the first item (default)
-[-4]
+-4
    .Array~of(1,2,3)~reduce(100, "-")~dump -- initial value is 100
-[94]
+ 94
 
 
 -- Non-ordered collection, the operation must be commutative
    .Bag~of(1,2,3)~reduce("+")~dump
-[6]
+ 6
    .Bag~of(1,2,3)~reduce(100, "+")~dump
-[106]
+ 106
 
 
 -- Ordered collection, the operation can be non-commutative
    .CircularQueue~of(1,2,3)~reduce("-")~dump
-[-4]
+-4
    .CircularQueue~of(1,2,3)~reduce(100, "-")~dump
-[94]
+ 94
 
 
 -- Non-ordered collection, the operation must be commutative
    .Directory~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce("+")~dump
-[6]
+ 6
    .Directory~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce(100, "+")~dump
-[106]
+ 106
 
 
 -- Ordered collection, the operation can be non-commutative
    .List~of(1,2,3)~reduce("-")~dump
-[-4]
+-4
    .List~of(1,2,3)~reduce(100, "-")~dump
-[94]
+ 94
 
 
 -- Non-ordered collection, the operation must be commutative
    .Properties~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce("+")~dump
-[6]
+ 6
    .Properties~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce(100, "+")~dump
-[106]
+ 106
 
 
 -- Ordered collection, the operation can be non-commutative
    .Queue~of(1,2,3)~reduce("-")~dump
-[-4]
+-4
    .Queue~of(1,2,3)~reduce(100, "-")~dump
-[94]
+ 94
 
 
 -- Non-ordered collection, the operation must be commutative
    .Relation~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce("+")~dump
-[6]
+ 6
    .Relation~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce(100, "+")~dump
-[106]
+ 106
 
 
 -- A relation which has more than one item per index is supported
    .Relation~new~~put(1, "v1")~~put(2, "v1")~~put(3, "v3")~reduce("+")~dump
-[6]
+ 6
    .Relation~new~~put(1, "v1")~~put(2, "v1")~~put(3, "v3")~reduce(100, "+")~dump
-[106]
+ 106
 
 
 -- Non-ordered collection, the operation must be commutative
    .Set~of(1,2,3)~reduce("+")~dump
-[6]
+ 6
    .Set~of(1,2,3)~reduce(100, "+")~dump
-[106]
+ 106
 
 
 -- Non-ordered collection, the operation must be commutative
    .Stem~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce("+")~dump
-[6]
+ 6
    .Stem~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce(100, "+")~dump
-[106]
+ 106
 
 
 -- Non-ordered collection, the operation must be commutative
    .Table~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce("+")~dump
-[6]
+ 6
    .Table~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce(100, "+")~dump
-[106]
+ 106
 
 
 -- Non-ordered collection, the operation must be commutative
    .IdentityTable~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce("+")~dump
-[6]
+ 6
    .IdentityTable~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce(100, "+")~dump
-[106]
+ 106
 
 
 -- --------------------------------------------------------------
@@ -109,30 +109,30 @@
 
 -- initial value is the first char (default)
    123~reduceC("-")~dump
-[-4]
+-4
 
 
 -- initial value is 100
    123~reduceC(100, "-")~dump
-[94]
+ 94
 
 
    123~reduceC("min")~dump
-[1]
+ 1
 
 
    123~reduceC("max")~dump
-[3]
+ 3
 
 
 -- initial value is the first word (default)
    "10 20 30"~reduceW("-")~dump
-[-40]
+-40
 
 
 -- initial value is 100
    "10 20 30"~reduceW(100, "-")~dump
-[40]
+ 40
 
 
 -- http://projecteuler.net/problem=16
@@ -141,7 +141,7 @@
 -- What is the sum of the digits of the number 2^1000?
 -- Factor : 2 1000 (pow) number>string 1 group [ string>number ] map sum
    numeric digits 302; (2**1000)~reduceC("+")~dump
-[1366]
+ 1366
 
 
 -- --------------------------------------------------------------
@@ -150,30 +150,30 @@
 
 -- initial value is the first char (default)
    .MutableBuffer~new(123)~reduceC("-")~dump
-[-4]
+-4
 
 
 -- initial value is 100
    .MutableBuffer~new(123)~reduceC(100, "-")~dump
-[94]
+ 94
 
 
    .MutableBuffer~new(123)~reduceC("min")~dump
-[1]
+ 1
 
 
    .MutableBuffer~new(123)~reduceC("max")~dump
-[3]
+ 3
 
 
 -- initial value is the first word (default)
    .MutableBuffer~new("10 20 30")~reduceW("-")~dump
-[-40]
+-40
 
 
 -- initial value is 100
    .MutableBuffer~new("10 20 30")~reduceW(100, "-")~dump
-[40]
+ 40
 
 
 -- --------------------------------------------------------------
@@ -184,12 +184,12 @@
 -- The shortest abbreviation is "::co".
 -- initial value is the first yielded item (default)
    {::coactivity .yield[10]; .yield[20]; .yield[30]}~doer~reduce("-")~dump
-[-40]
+-40
 
 
 -- initial value is 100
    {::coactivity .yield[10]; .yield[20]; .yield[30]}~doer~reduce(100, "-")~dump
-[40]
+ 40
 
 
 -- --------------------------------------------------------------
@@ -198,276 +198,234 @@
 
    array = .Array~of(-1,2,-3)
    array~dump -- collection before mapping
-[Array:
-  1  : -1
-  2  :  2
-  3  : -3
-]
+an Array (shape [3], 3 items)
+ 1 : -1
+ 2 :  2
+ 3 : -3
    array~map("sign")~dump
-[Array:
-  1  : -1
-  2  :  1
-  3  : -1
-]
+an Array (shape [3], 3 items)
+ 1 : -1
+ 2 :  1
+ 3 : -1
    array~dump -- collection after mapping (unchanged)
-[Array:
-  1  : -1
-  2  :  2
-  3  : -3
-]
+an Array (shape [3], 3 items)
+ 1 : -1
+ 2 :  2
+ 3 : -3
 
 
    bag = .Bag~of(-1,2,-3)
    bag~dump -- collection before mapping
-[Bag:
- -1  : -1
- -3  : -3
-  2  :  2
-]
+a Bag (3 items)
+-1 : -1
+-3 : -3
+ 2 :  2
    bag~map("sign")~dump
-[Bag:
- -1  : -1
-  1  :  1
- -1  : -1
-]
+a Bag (3 items)
+-1 : -1
+-1 : -1
+ 1 :  1
    bag~dump -- collection after mapping (unchanged)
-[Bag:
- -1  : -1
- -3  : -3
-  2  :  2
-]
+a Bag (3 items)
+-1 : -1
+-3 : -3
+ 2 :  2
 
 
    circularQueue = .CircularQueue~of(-1,2,-3)
    circularQueue~dump -- collection before mapping
-[CircularQueue:
-  1  : -1
-  2  :  2
-  3  : -3
-]
+a CircularQueue (3 items)
+ 1 : -1
+ 2 :  2
+ 3 : -3
    circularQueue~map("sign")~dump
-[CircularQueue:
-  1  : -1
-  2  :  1
-  3  : -1
-]
+a CircularQueue (3 items)
+ 1 : -1
+ 2 :  1
+ 3 : -1
    circularQueue~dump -- collection after mapping (unchanged)
-[CircularQueue:
-  1  : -1
-  2  :  2
-  3  : -3
-]
+a CircularQueue (3 items)
+ 1 : -1
+ 2 :  2
+ 3 : -3
 
 
    directory = .Directory~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
    directory~dump -- collection before mapping
-[Directory:
- v1  : -1
- v2  :  2
- v3  : -3
-]
+a Directory (3 items)
+'v1' : -1
+'v2' :  2
+'v3' : -3
    directory~map("sign")~dump
-[Directory:
- v1  : -1
- v2  :  1
- v3  : -1
-]
+a Directory (3 items)
+'v1' : -1
+'v2' :  1
+'v3' : -1
    directory~dump -- collection after mapping (unchanged)
-[Directory:
- v1  : -1
- v2  :  2
- v3  : -3
-]
+a Directory (3 items)
+'v1' : -1
+'v2' :  2
+'v3' : -3
 
 
    list = .List~of(-1,2,-3)
    list~dump -- collection before mapping
-[List:
-  0  : -1
-  1  :  2
-  2  : -3
-]
+a List (3 items)
+ 0 : -1
+ 1 :  2
+ 2 : -3
    list~map("sign")~dump
-[List:
-  0  : -1
-  1  :  1
-  2  : -1
-]
+a List (3 items)
+ 0 : -1
+ 1 :  1
+ 2 : -1
    list~dump -- collection after mapping (unchanged)
-[List:
-  0  : -1
-  1  :  2
-  2  : -3
-]
+a List (3 items)
+ 0 : -1
+ 1 :  2
+ 2 : -3
 
 
    properties = .Properties~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
    properties~dump -- collection before mapping
-[Properties:
- v1  : -1
- v2  :  2
- v3  : -3
-]
+a Properties (3 items)
+'v1' : -1
+'v2' :  2
+'v3' : -3
    properties~map("sign")~dump
-[Properties:
- v1  : -1
- v2  :  1
- v3  : -1
-]
+a Properties (3 items)
+'v1' : -1
+'v2' :  1
+'v3' : -1
    properties~dump -- collection after mapping (unchanged)
-[Properties:
- v1  : -1
- v2  :  2
- v3  : -3
-]
+a Properties (3 items)
+'v1' : -1
+'v2' :  2
+'v3' : -3
 
 
    queue = .Queue~of(-1,2,-3)
    queue~dump -- collection before mapping
-[Queue:
-  1  : -1
-  2  :  2
-  3  : -3
-]
+a Queue (3 items)
+ 1 : -1
+ 2 :  2
+ 3 : -3
    queue~map("sign")~dump
-[Queue:
-  1  : -1
-  2  :  1
-  3  : -1
-]
+a Queue (3 items)
+ 1 : -1
+ 2 :  1
+ 3 : -1
    queue~dump -- collection after mapping (unchanged)
-[Queue:
-  1  : -1
-  2  :  2
-  3  : -3
-]
+a Queue (3 items)
+ 1 : -1
+ 2 :  2
+ 3 : -3
 
 
    relation = .Relation~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
    relation~dump -- collection before mapping
-[Relation:
- v1  : -1
- v2  :  2
- v3  : -3
-]
+a Relation (3 items)
+'v1' : -1
+'v2' :  2
+'v3' : -3
    relation~map("sign")~dump
-[Relation:
- v1  : -1
- v2  :  1
- v3  : -1
-]
+a Relation (3 items)
+'v1' : -1
+'v2' :  1
+'v3' : -1
    relation~dump -- collection after mapping (unchanged)
-[Relation:
- v1  : -1
- v2  :  2
- v3  : -3
-]
+a Relation (3 items)
+'v1' : -1
+'v2' :  2
+'v3' : -3
 
 
 -- A relation which has more than one item per index is supported
    relation = .Relation~new~~put(-1, "v1")~~put(1, "v1")~~put(-3, "v3")
    relation~dump -- collection before mapping
-[Relation:
- v1  :  1
- v3  : -3
- v1  : -1
-]
+a Relation (3 items)
+'v1' : [ 1,-1]
+'v3' : -3
    relation~map("sign")~dump
-[Relation:
- v1  : -1
- v3  : -1
- v1  :  1
-]
+a Relation (3 items)
+'v1' : [-1, 1]
+'v3' : -1
    relation~dump -- collection after mapping (unchanged)
-[Relation:
- v1  :  1
- v3  : -3
- v1  : -1
-]
+a Relation (3 items)
+'v1' : [ 1,-1]
+'v3' : -3
 
 
 -- The resulting set has less items (normal... it's a set)
    set = .Set~of(-1,2,-3)
    set~dump -- collection before mapping
-[Set:
- -1  : -1
- -3  : -3
-  2  :  2
-]
+a Set (3 items)
+-1 : -1
+-3 : -3
+ 2 :  2
    set~map("sign")~dump
-[Set:
- -1  : -1
-  1  :  1
-]
+a Set (2 items)
+-1 : -1
+ 1 :  1
    set~dump -- collection after mapping (unchanged)
-[Set:
- -1  : -1
- -3  : -3
-  2  :  2
-]
+a Set (3 items)
+-1 : -1
+-3 : -3
+ 2 :  2
 
 
    stem = .Stem~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
    stem~dump -- collection before mapping
-[Stem:
- v1  : -1
- v3  : -3
- v2  :  2
-]
+a Stem (3 items)
+'v1' : -1
+'v2' :  2
+'v3' : -3
    stem~map("sign")~dump
-[Stem:
- v2  :  1
- v1  : -1
- v3  : -1
-]
+a Stem (3 items)
+'v1' : -1
+'v2' :  1
+'v3' : -1
    stem~dump -- collection after mapping (unchanged)
-[Stem:
- v1  : -1
- v3  : -3
- v2  :  2
-]
+a Stem (3 items)
+'v1' : -1
+'v2' :  2
+'v3' : -3
 
 
    table = .Table~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
    table~dump -- collection before mapping
-[Table:
- v1  : -1
- v2  :  2
- v3  : -3
-]
+a Table (3 items)
+'v1' : -1
+'v2' :  2
+'v3' : -3
    table~map("sign")~dump
-[Table:
- v1  : -1
- v2  :  1
- v3  : -1
-]
+a Table (3 items)
+'v1' : -1
+'v2' :  1
+'v3' : -1
    table~dump -- collection after mapping (unchanged)
-[Table:
- v1  : -1
- v2  :  2
- v3  : -3
-]
+a Table (3 items)
+'v1' : -1
+'v2' :  2
+'v3' : -3
 
 
    identityTable = .IdentityTable~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
    identityTable~dump -- collection before mapping
-[IdentityTable:
- v1  : -1
- v2  :  2
- v3  : -3
-]
+an IdentityTable (3 items)
+'v1' : -1
+'v2' :  2
+'v3' : -3
    identityTable~map("sign")~dump
-[IdentityTable:
- v1  : -1
- v2  :  1
- v3  : -1
-]
+an IdentityTable (3 items)
+'v1' : -1
+'v2' :  1
+'v3' : -1
    identityTable~dump -- collection after mapping (unchanged)
-[IdentityTable:
- v1  : -1
- v2  :  2
- v3  : -3
-]
+an IdentityTable (3 items)
+'v1' : -1
+'v2' :  2
+'v3' : -3
 
 
 -- --------------------------------------------------------------
@@ -476,275 +434,233 @@
 
    array = .Array~of(-1,2,-3)
    array~dump -- collection before mapping
-[Array:
-  1  : -1
-  2  :  2
-  3  : -3
-]
+an Array (shape [3], 3 items)
+ 1 : -1
+ 2 :  2
+ 3 : -3
    array~mapR("sign")~dump
-[Array:
-  1  : -1
-  2  :  1
-  3  : -1
-]
+an Array (shape [3], 3 items)
+ 1 : -1
+ 2 :  1
+ 3 : -1
    array~dump -- collection after mapping (impacted by mapping)
-[Array:
-  1  : -1
-  2  :  1
-  3  : -1
-]
+an Array (shape [3], 3 items)
+ 1 : -1
+ 2 :  1
+ 3 : -1
 
 
    bag = .Bag~of(-1,2,-3)
    bag~dump -- collection before mapping
-[Bag:
- -1  : -1
- -3  : -3
-  2  :  2
-]
+a Bag (3 items)
+-1 : -1
+-3 : -3
+ 2 :  2
    bag~mapR("sign")~dump
-[Bag:
- -1  : -1
-  1  :  1
- -1  : -1
-]
+a Bag (3 items)
+-1 : -1
+-1 : -1
+ 1 :  1
    bag~dump -- collection after mapping (impacted by mapping
-[Bag:
- -1  : -1
-  1  :  1
- -1  : -1
-]
+a Bag (3 items)
+-1 : -1
+-1 : -1
+ 1 :  1
 
 
    circularQueue = .CircularQueue~of(-1,2,-3)
    circularQueue~dump -- collection before mapping
-[CircularQueue:
-  1  : -1
-  2  :  2
-  3  : -3
-]
+a CircularQueue (3 items)
+ 1 : -1
+ 2 :  2
+ 3 : -3
    circularQueue~mapR("sign")~dump
-[CircularQueue:
-  1  : -1
-  2  :  1
-  3  : -1
-]
+a CircularQueue (3 items)
+ 1 : -1
+ 2 :  1
+ 3 : -1
    circularQueue~dump -- collection after mapping (impacted by mapping
-[CircularQueue:
-  1  : -1
-  2  :  1
-  3  : -1
-]
+a CircularQueue (3 items)
+ 1 : -1
+ 2 :  1
+ 3 : -1
 
 
    directory = .Directory~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
    directory~dump -- collection before mapping
-[Directory:
- v1  : -1
- v2  :  2
- v3  : -3
-]
+a Directory (3 items)
+'v1' : -1
+'v2' :  2
+'v3' : -3
    directory~mapR("sign")~dump
-[Directory:
- v1  : -1
- v2  :  1
- v3  : -1
-]
+a Directory (3 items)
+'v1' : -1
+'v2' :  1
+'v3' : -1
    directory~dump -- collection after mapping (impacted by mapping
-[Directory:
- v1  : -1
- v2  :  1
- v3  : -1
-]
+a Directory (3 items)
+'v1' : -1
+'v2' :  1
+'v3' : -1
 
 
    list = .List~of(-1,2,-3)
    list~dump -- collection before mapping
-[List:
-  0  : -1
-  1  :  2
-  2  : -3
-]
+a List (3 items)
+ 0 : -1
+ 1 :  2
+ 2 : -3
    list~mapR("sign")~dump
-[List:
-  0  : -1
-  1  :  1
-  2  : -1
-]
+a List (3 items)
+ 0 : -1
+ 1 :  1
+ 2 : -1
    list~dump -- collection after mapping (impacted by mapping
-[List:
-  0  : -1
-  1  :  1
-  2  : -1
-]
+a List (3 items)
+ 0 : -1
+ 1 :  1
+ 2 : -1
 
 
    properties = .Properties~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
    properties~dump -- collection before mapping
-[Properties:
- v1  : -1
- v2  :  2
- v3  : -3
-]
+a Properties (3 items)
+'v1' : -1
+'v2' :  2
+'v3' : -3
    properties~mapR("sign")~dump
-[Properties:
- v1  : -1
- v2  :  1
- v3  : -1
-]
+a Properties (3 items)
+'v1' : -1
+'v2' :  1
+'v3' : -1
    properties~dump -- collection after mapping (impacted by mapping
-[Properties:
- v1  : -1
- v2  :  1
- v3  : -1
-]
+a Properties (3 items)
+'v1' : -1
+'v2' :  1
+'v3' : -1
 
 
    queue = .Queue~of(-1,2,-3)
    queue~dump -- collection before mapping
-[Queue:
-  1  : -1
-  2  :  2
-  3  : -3
-]
+a Queue (3 items)
+ 1 : -1
+ 2 :  2
+ 3 : -3
    queue~mapR("sign")~dump
-[Queue:
-  1  : -1
-  2  :  1
-  3  : -1
-]
+a Queue (3 items)
+ 1 : -1
+ 2 :  1
+ 3 : -1
    queue~dump -- collection after mapping (impacted by mapping
-[Queue:
-  1  : -1
-  2  :  1
-  3  : -1
-]
+a Queue (3 items)
+ 1 : -1
+ 2 :  1
+ 3 : -1
 
 
    relation = .Relation~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
    relation~dump -- collection before mapping
-[Relation:
- v1  : -1
- v2  :  2
- v3  : -3
-]
+a Relation (3 items)
+'v1' : -1
+'v2' :  2
+'v3' : -3
    relation~mapR("sign")~dump
-[Relation:
- v1  : -1
- v2  :  1
- v3  : -1
-]
+a Relation (3 items)
+'v1' : -1
+'v2' :  1
+'v3' : -1
    relation~dump -- collection after mapping (impacted by mapping
-[Relation:
- v1  : -1
- v2  :  1
- v3  : -1
-]
+a Relation (3 items)
+'v1' : -1
+'v2' :  1
+'v3' : -1
 
 
 -- A relation which has more than one item per index is supported
    relation = .Relation~new~~put(-1, "v1")~~put(1, "v1")~~put(-3, "v3")
    relation~dump -- collection before mapping
-[Relation:
- v1  :  1
- v3  : -3
- v1  : -1
-]
+a Relation (3 items)
+'v1' : [ 1,-1]
+'v3' : -3
    relation~mapR("sign")~dump
-[Relation:
- v1  : -1
- v3  : -1
- v1  :  1
-]
+a Relation (3 items)
+'v1' : [-1, 1]
+'v3' : -1
    relation~dump -- collection after mapping (impacted by mapping
-[Relation:
- v1  : -1
- v3  : -1
- v1  :  1
-]
+a Relation (3 items)
+'v1' : [-1, 1]
+'v3' : -1
 
 
 -- The resulting set has less items (normal... it's a set)
    set = .Set~of(-1,2,-3)
    set~dump -- collection before mapping
-[Set:
- -1  : -1
- -3  : -3
-  2  :  2
-]
+a Set (3 items)
+-1 : -1
+-3 : -3
+ 2 :  2
    set~mapR("sign")~dump
-[Set:
- -1  : -1
-  1  :  1
-]
+a Set (2 items)
+-1 : -1
+ 1 :  1
    set~dump -- collection after mapping (impacted by mapping
-[Set:
- -1  : -1
-  1  :  1
-]
+a Set (2 items)
+-1 : -1
+ 1 :  1
 
 
    stem = .Stem~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
    stem~dump -- collection before mapping
-[Stem:
- v1  : -1
- v3  : -3
- v2  :  2
-]
+a Stem (3 items)
+'v1' : -1
+'v2' :  2
+'v3' : -3
    stem~mapR("sign")~dump
-[Stem:
- v1  : -1
- v3  : -1
- v2  :  1
-]
+a Stem (3 items)
+'v1' : -1
+'v2' :  1
+'v3' : -1
    stem~dump -- collection after mapping (impacted by mapping
-[Stem:
- v1  : -1
- v3  : -1
- v2  :  1
-]
+a Stem (3 items)
+'v1' : -1
+'v2' :  1
+'v3' : -1
 
 
    table = .Table~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
    table~dump -- collection before mapping
-[Table:
- v1  : -1
- v2  :  2
- v3  : -3
-]
+a Table (3 items)
+'v1' : -1
+'v2' :  2
+'v3' : -3
    table~mapR("sign")~dump
-[Table:
- v1  : -1
- v2  :  1
- v3  : -1
-]
+a Table (3 items)
+'v1' : -1
+'v2' :  1
+'v3' : -1
    table~dump -- collection after mapping (impacted by mapping
-[Table:
- v1  : -1
- v2  :  1
- v3  : -1
-]
+a Table (3 items)
+'v1' : -1
+'v2' :  1
+'v3' : -1
 
 
    identityTable = .IdentityTable~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
    identityTable~dump -- collection before mapping
-[IdentityTable:
- v1  : -1
- v2  :  2
- v3  : -3
-]
+an IdentityTable (3 items)
+'v1' : -1
+'v2' :  2
+'v3' : -3
    identityTable~mapR("sign")~dump
-[IdentityTable:
- v1  : -1
- v2  :  1
- v3  : -1
-]
+an IdentityTable (3 items)
+'v1' : -1
+'v2' :  1
+'v3' : -1
    identityTable~dump -- collection after mapping (impacted by mapping
-[IdentityTable:
- v1  : -1
- v2  :  1
- v3  : -1
-]
+an IdentityTable (3 items)
+'v1' : -1
+'v2' :  1
+'v3' : -1
 
 
 -- --------------------------------------------------------------
@@ -752,11 +668,11 @@
 -- --------------------------------------------------------------
 
    "abcdefghijklmnopqrstuvwxyz"~mapC("c2x")~dump
-["6162636465666768696A6B6C6D6E6F707172737475767778797A"]
+'6162636465666768696A6B6C6D6E6F707172737475767778797A'
 
 
    "The quick brown fox jumps over the lazy dog"~mapW("length")~dump
-["3 5 5 3 5 4 3 4 3"]
+'3 5 5 3 5 4 3 4 3'
 
 
 -- --------------------------------------------------------------
@@ -766,41 +682,41 @@
 --  Not-in-place mapping (map the characters)
    buffer = .MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")
    buffer~dump -- mutable buffer before mapping
-["abcdefghijklmnopqrstuvwxyz"]
+M'abcdefghijklmnopqrstuvwxyz'
    buffer~mapC("c2x")~dump
-["6162636465666768696A6B6C6D6E6F707172737475767778797A"]
+M'6162636465666768696A6B6C6D6E6F707172737475767778797A'
    buffer~dump -- mutable buffer after mapping
-["abcdefghijklmnopqrstuvwxyz"]
+M'abcdefghijklmnopqrstuvwxyz'
 
 
 --  Not-in-place mapping (map the words)
    buffer = .MutableBuffer~new("The quick brown fox jumps over the lazy dog")
    buffer~dump -- mutable buffer before mapping
-["The quick brown fox jumps over the lazy dog"]
+M'The quick brown fox jumps over the lazy dog'
    buffer~mapW("length")~dump
-["3 5 5 3 5 4 3 4 3"]
+M'3 5 5 3 5 4 3 4 3'
    buffer~dump -- mutable buffer after mapping
-["The quick brown fox jumps over the lazy dog"]
+M'The quick brown fox jumps over the lazy dog'
 
 
 -- In place mapping (Replace the characters)
    buffer = .MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")
    buffer~dump -- mutable buffer before mapping
-["abcdefghijklmnopqrstuvwxyz"]
+M'abcdefghijklmnopqrstuvwxyz'
    buffer~mapCR("c2x")~dump
-["6162636465666768696A6B6C6D6E6F707172737475767778797A"]
+M'6162636465666768696A6B6C6D6E6F707172737475767778797A'
    buffer~dump -- mutable buffer after mapping
-["6162636465666768696A6B6C6D6E6F707172737475767778797A"]
+M'6162636465666768696A6B6C6D6E6F707172737475767778797A'
 
 
 -- In place mapping (Replace the words)
    buffer = .MutableBuffer~new("The quick brown fox jumps over the lazy dog")
    buffer~dump -- mutable buffer before mapping
-["The quick brown fox jumps over the lazy dog"]
+M'The quick brown fox jumps over the lazy dog'
    buffer~mapWR("length")~dump
-["3 5 5 3 5 4 3 4 3"]
+M'3 5 5 3 5 4 3 4 3'
    buffer~dump -- mutable buffer after mapping
-["3 5 5 3 5 4 3 4 3"]
+M'3 5 5 3 5 4 3 4 3'
 
 
 -- --------------------------------------------------------------
@@ -822,92 +738,92 @@
 --  2 : 'if var("result") then return result'
 
    .Array~of(10, 20, 30)~reduce{accu + item + index}~dump -- returns 10 + 20+2 + 30+3 = 65
-[65]
+ 65
    .Array~of(10, 20, 30)~reduce(0){accu + item + index}~dump -- returns 0 + 10+1 + 20+2 + 30+3 = 66
-[66]
+ 66
 
 
 -- Remember ! In a bag, the index and the item have the same value
    .Bag~of(10 ,20 ,30)~reduce{accu + item + index}~dump
-[90]
+ 90
    .Bag~of(10 ,20 ,30)~reduce(0){accu + item + index}~dump
-[120]
+ 120
 
 
    .CircularQueue~of(10, 20, 30)~reduce{accu + item + index}~dump
-[65]
+ 65
    .CircularQueue~of(10, 20, 30)~reduce(0){accu + item + index}~dump
-[66]
+ 66
 
 
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
    .Directory~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce{accu + item + index~c2d}~dump
-[60577]
+ 60577
    .Directory~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce(0){accu + item + index~c2d}~dump
-[90834]
+ 90834
 
 
 -- Special case ! The index of a list starts at 0...
    .List~of(10, 20, 30)~reduce{accu + item + index}~dump
-[63]
+ 63
    .List~of(10, 20, 30)~reduce(0){accu + item + index}~dump
-[63]
+ 63
 
 
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
    .Properties~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce{accu + item + index~c2d}~dump
-[60577]
+ 60577
    .Properties~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce(0){accu + item + index~c2d}~dump
-[90834]
+ 90834
 
 
    .Queue~of(10, 20, 30)~reduce{accu + item + index}~dump
-[65]
+ 65
    .Queue~of(10, 20, 30)~reduce(0){accu + item + index}~dump
-[66]
+ 66
 
 
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
    .Relation~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce{accu + item + index~c2d}~dump
-[60577]
+ 60577
    .Relation~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce(0){accu + item + index~c2d}~dump
-[90834]
+ 90834
 
 
 -- A relation which has more than one item per index is supported
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
    .Relation~new~~put(10, "v1")~~put(20, "v1")~~put(30, "v3")~reduce{accu + item + index~c2d}~dump
-[60576]
+ 60576
    .Relation~new~~put(10, "v1")~~put(20, "v1")~~put(30, "v3")~reduce(0){accu + item + index~c2d}~dump
-[90833]
+ 90833
 
 
 -- Remember ! In a set, the index and the item have the same value
    .Set~of(10 ,20 ,30)~reduce{accu + item + index}~dump
-[90]
+ 90
    .Set~of(10 ,20 ,30)~reduce(0){accu + item + index}~dump
-[120]
+ 120
 
 
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
    .Stem~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce{accu + item + index~c2d}~dump
-[60577]
+ 60577
    .Stem~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce(0){accu + item + index~c2d}~dump
-[90834]
+ 90834
 
 
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
    .Table~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce{accu + item + index~c2d}~dump
-[60577]
+ 60577
    .Table~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce(0){accu + item + index~c2d}~dump
-[90834]
+ 90834
 
 
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
    .IdentityTable~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce{accu + item + index~c2d}~dump
-[60577]
+ 60577
    .IdentityTable~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce(0){accu + item + index~c2d}~dump
-[90834]
+ 90834
 
 
 -- --------------------------------------------------------------
@@ -916,22 +832,22 @@
 
 -- initial value is the first char (default), index passed as 3rd argument, returns 1 + 2+2 + 3+3 = 11
    123~reduceC{accu + item + index}~dump
-[11]
+ 11
 
 
 -- initial value is 0, index passed as 3rd argument, returns 0 + 1+1 + 2+2 + 3+3 = 12
    123~reduceC(0){accu + item + index}~dump
-[12]
+ 12
 
 
 -- initial value is the first word (default), index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
    "10 20 30"~reduceW{accu + item + index}~dump
-[65]
+ 65
 
 
 -- initial value is 0, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
    "10 20 30"~reduceW(0){accu + item + index}~dump
-[66]
+ 66
 
 
 -- --------------------------------------------------------------
@@ -940,22 +856,22 @@
 
 -- initial value is the first char (default), index passed as 3rd argument, returns 1 + 2+2 + 3+3 = 11
    .MutableBuffer~new(123)~reduceC{accu + item + index}~dump
-[11]
+ 11
 
 
 -- initial value is 0, index passed as 3rd argument, returns 0 + 1+1 + 2+2 + 3+3 = 12
    .MutableBuffer~new(123)~reduceC(0){accu + item + index}~dump
-[12]
+ 12
 
 
 -- initial value is the first word (default), index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
    .MutableBuffer~new("10 20 30")~reduceW{accu + item + index}~dump
-[65]
+ 65
 
 
 -- initial value is 0, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
    .MutableBuffer~new("10 20 30")~reduceW(0){accu + item + index}~dump
-[66]
+ 66
 
 
 -- --------------------------------------------------------------
@@ -964,12 +880,12 @@
 
 -- initial value is the first yielded item (default)
    {::coactivity .yield[10]; .yield[20]; .yield[30]}~doer~reduce{accu + item + index}~dump
-[65]
+ 65
 
 
 -- initial value is 0
    {::coactivity .yield[10]; .yield[20]; .yield[30]}~doer~reduce(0){accu + item + index}~dump
-[66]
+ 66
 
 
 -- --------------------------------------------------------------
@@ -981,168 +897,145 @@
 --   arg(2) - index : current index of collection (passed if the action has an arity >= 3)
 
    .Array~of(1,2,3,4)~map{item * 2}~dump
-[Array:
-  1  :  2
-  2  :  4
-  3  :  6
-  4  :  8
-]
+an Array (shape [4], 4 items)
+ 1 :  2
+ 2 :  4
+ 3 :  6
+ 4 :  8
 
 
    .Array~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump
-[Array:
-  1  :  1
-  2  :  2
-  3  :  6
-  4  :  24
-]
+an Array (shape [4], 4 items)
+ 1 :  1
+ 2 :  2
+ 3 :  6
+ 4 :  24
 
 
    .List~of(1,2,3,4)~map{item * 2}~dump
-[List:
-  0  :  2
-  1  :  4
-  2  :  6
-  3  :  8
-]
+a List (4 items)
+ 0 :  2
+ 1 :  4
+ 2 :  6
+ 3 :  8
 
 
    .List~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump
-[List:
-  0  :  1
-  1  :  2
-  2  :  6
-  3  :  24
-]
+a List (4 items)
+ 0 :  1
+ 1 :  2
+ 2 :  6
+ 3 :  24
 
 
    .Queue~of(1,2,3,4)~map{item * 2}~dump
-[Queue:
-  1  :  2
-  2  :  4
-  3  :  6
-  4  :  8
-]
+a Queue (4 items)
+ 1 :  2
+ 2 :  4
+ 3 :  6
+ 4 :  8
 
 
    .Queue~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump
-[Queue:
-  1  :  1
-  2  :  2
-  3  :  6
-  4  :  24
-]
+a Queue (4 items)
+ 1 :  1
+ 2 :  2
+ 3 :  6
+ 4 :  24
 
 
    .CircularQueue~of(1,2,3,4)~map{item * 2}~dump
-[CircularQueue:
-  1  :  2
-  2  :  4
-  3  :  6
-  4  :  8
-]
+a CircularQueue (4 items)
+ 1 :  2
+ 2 :  4
+ 3 :  6
+ 4 :  8
 
 
    .CircularQueue~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump
-[CircularQueue:
-  1  :  1
-  2  :  2
-  3  :  6
-  4  :  24
-]
+a CircularQueue (4 items)
+ 1 :  1
+ 2 :  2
+ 3 :  6
+ 4 :  24
 
 
 -- Filtering : When no value is returned by the routine, then the current item is removed from the collection.
    .Array~of("one", "two", "three")~map{if item~length == 3 then item}~dump
-[Array:
-  1  : one
-  2  : two
-]
+an Array (shape [3], 2 items)
+ 1 : 'one'
+ 2 : 'two'
    .Bag~of("one", "two", "three")~map{if item~length == 3 then item}~dump
-[Bag:
- one : one
- two : two
-]
+a Bag (2 items)
+'one' : 'one'
+'two' : 'two'
    .CircularQueue~of("one", "two", "three")~map{if item~length == 3 then item}~dump
-[CircularQueue:
-  1  : one
-  2  : two
-]
+a CircularQueue (2 items)
+ 1 : 'one'
+ 2 : 'two'
    .Directory~new~~put(1, "one")~~put(2, "two")~~put(3, "three")~map{if index~length == 3 then item}~dump
-[Directory:
- one :  1
- two :  2
-]
+a Directory (2 items)
+'one' :  1
+'two' :  2
    .IdentityTable~new~~put(1, "one")~~put(2, "two")~~put(3, "three")~map{if index~length == 3 then item}~dump
-[IdentityTable:
- one :  1
- two :  2
-]
+an IdentityTable (2 items)
+'one' :  1
+'two' :  2
    .List~of("one", "two", "three")~map{if item~length == 3 then item}~dump
-[List:
-  0  : one
-  1  : two
-]
+a List (2 items)
+ 0 : 'one'
+ 1 : 'two'
    .Properties~new~~put(1, "one")~~put(2, "two")~~put(3, "three")~map{if index~length == 3 then item}~dump
-[Properties:
- one :  1
- two :  2
-]
+a Properties (2 items)
+'one' :  1
+'two' :  2
    .Queue~of("one", "two", "three")~map{if item~length == 3 then item}~dump
-[Queue:
-  1  : one
-  2  : two
-]
+a Queue (2 items)
+ 1 : 'one'
+ 2 : 'two'
    .Relation~new~~put(1, "one")~~put(2, "two")~~put(3, "three")~map{if index~length == 3 then item}~dump
-[Relation:
- one :  1
- two :  2
-]
+a Relation (2 items)
+'one' :  1
+'two' :  2
    .Set~of("one", "two", "three")~map{if item~length == 3 then item}~dump
-[Set:
- one : one
- two : two
-]
+a Set (2 items)
+'one' : 'one'
+'two' : 'two'
    .Stem~new~~put(1, "one")~~put(2, "two")~~put(3, "three")~map{if index~length == 3 then item}~dump
-[Stem:
- two :  2
- one :  1
-]
+a Stem (2 items)
+'one' :  1
+'two' :  2
    .Table~new~~put(1, "one")~~put(2, "two")~~put(3, "three")~map{if index~length == 3 then item}~dump
-[Table:
- one :  1
- two :  2
-]
+a Table (2 items)
+'one' :  1
+'two' :  2
 
 
 -- A source can be tagged explicitely as a routine (but you don't need that, because it's the default)
    .Array~of(1,2,3,4)~map{::routine item * 2}~dump
-[Array:
-  1  :  2
-  2  :  4
-  3  :  6
-  4  :  8
-]
+an Array (shape [4], 4 items)
+ 1 :  2
+ 2 :  4
+ 3 :  6
+ 4 :  8
 
 
 -- The shortest abbreviation of "::routine" is "::r"
    .Array~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump
-[Array:
-  1  :  1
-  2  :  2
-  3  :  6
-  4  :  24
-]
+an Array (shape [4], 4 items)
+ 1 :  1
+ 2 :  2
+ 3 :  6
+ 4 :  24
 
 
 -- A routine object can be used directly.
    .Array~of(1,2,3,4)~map(.context~package~findRoutine("factorial"))~dump
-[Array:
-  1  :  1
-  2  :  2
-  3  :  6
-  4  :  24
-]
+an Array (shape [4], 4 items)
+ 1 :  1
+ 2 :  2
+ 3 :  6
+ 4 :  24
 
 
 -- --------------------------------------------------------------
@@ -1150,21 +1043,21 @@
 -- --------------------------------------------------------------
 
    "abcdefghijklmnopqrstuvwxyz"~mapC{item~verify('aeiouy')}~dump
-[01110111011111011111011101]
+ 01110111011111011111011101
 
 
 -- Filtering (if no result returned by the doer, then nothing appended)
    "abcdefghijklmnopqrstuvwxyz"~mapC{if item~verify('aeiouy') then item}~dump
-["bcdfghjklmnpqrstvwxz"]
+'bcdfghjklmnpqrstvwxz'
 
 
    "one two three"~mapW{if item~length == 3 then item}~dump
-["one two"]
+'one two'
 
 
 -- Reminder : index passed as 2nd argument
    "one two three"~mapW{index":"item}~dump
-["1:one 2:two 3:three"]
+'1:one 2:two 3:three'
 
 
 -- --------------------------------------------------------------
@@ -1173,19 +1066,19 @@
 
 -- Looks like a filtering, but it's not : a value is returned for each character (can be empty string)
    .MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapC{if item~verify('aeiouy') == 1 then item ; else ''}~dump
-["bcdfghjklmnpqrstvwxz"]
+M'bcdfghjklmnpqrstvwxz'
 
 
    .MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapC{if item~verify('aeiouy') == 1 then item}~dump
-["bcdfghjklmnpqrstvwxz"]
+M'bcdfghjklmnpqrstvwxz'
 
 
    translation = .Directory~of("quick", "slow", "lazy", "nervous", "brown", "yellow", "dog", "cat")
    translation~setMethod("UNKNOWN", "return arg(1)")
    "The quick brown fox jumps over the lazy dog"~mapW{expose translation ; translation[arg(1)]}~dump
-["The slow yellow fox jumps over the nervous cat"]
+'The slow yellow fox jumps over the nervous cat'
    .MutableBuffer~new("The quick brown fox jumps over the lazy dog")~mapW{expose translation ; translation[arg(1)]}~dump
-["The slow yellow fox jumps over the nervous cat"]
+M'The slow yellow fox jumps over the nervous cat'
 
 
 -- --------------------------------------------------------------
@@ -1201,28 +1094,25 @@
 
 -- ~times can act as an array collector : it collects the values returned by the doer.
    3~times{2*item}~dump
-[Array:
-  1  :  2
-  2  :  4
-  3  :  6
-]
+an Array (shape [3], 3 items)
+ 1 :  2
+ 2 :  4
+ 3 :  6
 
 
    3~times{0}~dump
-[Array:
-  1  :  0
-  2  :  0
-  3  :  0
-]
+an Array (shape [3], 3 items)
+ 1 :  0
+ 2 :  0
+ 3 :  0
 
 
 -- returns .array~of(1,2,3) because the default action is {item}
    3~times~dump
-[Array:
-  1  :  1
-  2  :  2
-  3  :  3
-]
+an Array (shape [3], 3 items)
+ 1 :  1
+ 2 :  2
+ 3 :  3
 
 
 -- No resulting array because no result returned during the iteration.
@@ -1234,39 +1124,35 @@
 
 -- ~upto can act as an array collector : it collects the values returned by the doer.
    11~upto(13){2*item}~dump
-[Array:
-  1  :  22
-  2  :  24
-  3  :  26
-]
+an Array (shape [3], 3 items)
+ 1 :  22
+ 2 :  24
+ 3 :  26
 
 
    11~upto(13){0}~dump
-[Array:
-  1  :  0
-  2  :  0
-  3  :  0
-]
+an Array (shape [3], 3 items)
+ 1 :  0
+ 2 :  0
+ 3 :  0
 
 
 -- returns .array~of(11,12,13) because the default action is {item}
    11~upto(13)~dump
-[Array:
-  1  :  11
-  2  :  12
-  3  :  13
-]
+an Array (shape [3], 3 items)
+ 1 :  11
+ 2 :  12
+ 3 :  13
 
 
 -- Note that -1 MUST be surrounded by paren or quotes
    (-1)~upto(3)~dump
-[Array:
-  1  : -1
-  2  :  0
-  3  :  1
-  4  :  2
-  5  :  3
-]
+an Array (shape [5], 5 items)
+ 1 : -1
+ 2 :  0
+ 3 :  1
+ 4 :  2
+ 5 :  3
 
 
 -- No resulting array because no result returned during the iteration
@@ -1278,30 +1164,27 @@
 
 -- ~downto can act as an array collector : it collects the values returned by the doer.
    13~downto(11){2*item}~dump
-[Array:
-  1  :  26
-  2  :  24
-  3  :  22
-]
+an Array (shape [3], 3 items)
+ 1 :  26
+ 2 :  24
+ 3 :  22
 
 
 -- returns .array~of(13,12,11) because the default action is {item}
    13~downto(11)~dump
-[Array:
-  1  :  13
-  2  :  12
-  3  :  11
-]
+an Array (shape [3], 3 items)
+ 1 :  13
+ 2 :  12
+ 3 :  11
 
 
    3~downto(-1)~dump
-[Array:
-  1  :  3
-  2  :  2
-  3  :  1
-  4  :  0
-  5  : -1
-]
+an Array (shape [5], 5 items)
+ 1 :  3
+ 2 :  2
+ 3 :  1
+ 4 :  0
+ 5 : -1
 
 
 -- --------------------------------------------------------------
@@ -1312,393 +1195,213 @@
 -- The values returned by the action are collected in an array
 
    .Array~of(1,2,3)~each{2*item}~dump
-[Array:
-  1  :  2
-  2  :  4
-  3  :  6
-]
+an Array (shape [3], 3 items)
+ 1 :  2
+ 2 :  4
+ 3 :  6
    .Array~of(1,2,3)~each{2*item + index}~dump
-[Array:
-  1  :  3
-  2  :  6
-  3  :  9
-]
+an Array (shape [3], 3 items)
+ 1 :  3
+ 2 :  6
+ 3 :  9
    .Array~of(1,2,3)~eachI{2*item + index}~dump
-[Array:
-  1  : 
-    [Array:
-      1  :  3
-      2  :  1
-    ]
-  2  : 
-    [Array:
-      1  :  6
-      2  :  2
-    ]
-  3  : 
-    [Array:
-      1  :  9
-      2  :  3
-    ]
-]
+an Array (shape [3], 3 items)
+ 1 : [ 3, 1]
+ 2 : [ 6, 2]
+ 3 : [ 9, 3]
 
 
    .Bag~of(1,2,3)~each{2*item}~dump
-[Array:
-  1  :  2
-  2  :  4
-  3  :  6
-]
+an Array (shape [3], 3 items)
+ 1 :  2
+ 2 :  4
+ 3 :  6
    .Bag~of(1,2,3)~each{2*item + index}~dump
-[Array:
-  1  :  3
-  2  :  6
-  3  :  9
-]
+an Array (shape [3], 3 items)
+ 1 :  3
+ 2 :  6
+ 3 :  9
    .Bag~of(1,2,3)~eachI{2*item + index}~dump
-[Array:
-  1  : 
-    [Array:
-      1  :  3
-      2  :  1
-    ]
-  2  : 
-    [Array:
-      1  :  6
-      2  :  2
-    ]
-  3  : 
-    [Array:
-      1  :  9
-      2  :  3
-    ]
-]
+an Array (shape [3], 3 items)
+ 1 : [ 3, 1]
+ 2 : [ 6, 2]
+ 3 : [ 9, 3]
 
 
    .CircularQueue~of(1,2,3)~each{2*item}~dump
-[Array:
-  1  :  2
-  2  :  4
-  3  :  6
-]
+an Array (shape [3], 3 items)
+ 1 :  2
+ 2 :  4
+ 3 :  6
    .CircularQueue~of(1,2,3)~each{2*item + index}~dump
-[Array:
-  1  :  3
-  2  :  6
-  3  :  9
-]
+an Array (shape [3], 3 items)
+ 1 :  3
+ 2 :  6
+ 3 :  9
    .CircularQueue~of(1,2,3)~eachI{2*item + index}~dump
-[Array:
-  1  : 
-    [Array:
-      1  :  3
-      2  :  1
-    ]
-  2  : 
-    [Array:
-      1  :  6
-      2  :  2
-    ]
-  3  : 
-    [Array:
-      1  :  9
-      2  :  3
-    ]
-]
+an Array (shape [3], 3 items)
+ 1 : [ 3, 1]
+ 2 : [ 6, 2]
+ 3 : [ 9, 3]
 
 
    .Directory~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*item}~dump
-[Array:
-  1  :  2
-  2  :  4
-  3  :  6
-]
+an Array (shape [3], 3 items)
+ 1 :  2
+ 2 :  4
+ 3 :  6
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
    .Directory~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*item + index~c2d}~dump
-[Array:
-  1  :  30259
-  2  :  30262
-  3  :  30265
-]
+an Array (shape [3], 3 items)
+ 1 :  30259
+ 2 :  30262
+ 3 :  30265
    .Directory~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*item + index~c2d}~dump
-[Array:
-  1  : 
-    [Array:
-      1  :  30259
-      2  : v1
-    ]
-  2  : 
-    [Array:
-      1  :  30262
-      2  : v2
-    ]
-  3  : 
-    [Array:
-      1  :  30265
-      2  : v3
-    ]
-]
+an Array (shape [3], 3 items)
+ 1 : [ 30259,'v1']
+ 2 : [ 30262,'v2']
+ 3 : [ 30265,'v3']
 
 
    .List~of(1,2,3)~each{2*item}~dump
-[Array:
-  1  :  2
-  2  :  4
-  3  :  6
-]
+an Array (shape [3], 3 items)
+ 1 :  2
+ 2 :  4
+ 3 :  6
    .List~of(1,2,3)~each{2*item + index}~dump
-[Array:
-  1  :  2
-  2  :  5
-  3  :  8
-]
+an Array (shape [3], 3 items)
+ 1 :  2
+ 2 :  5
+ 3 :  8
    .List~of(1,2,3)~eachI{2*item + index}~dump
-[Array:
-  1  : 
-    [Array:
-      1  :  2
-      2  :  0
-    ]
-  2  : 
-    [Array:
-      1  :  5
-      2  :  1
-    ]
-  3  : 
-    [Array:
-      1  :  8
-      2  :  2
-    ]
-]
+an Array (shape [3], 3 items)
+ 1 : [ 2, 0]
+ 2 : [ 5, 1]
+ 3 : [ 8, 2]
 
 
    .Properties~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*item}~dump
-[Array:
-  1  :  2
-  2  :  4
-  3  :  6
-]
+an Array (shape [3], 3 items)
+ 1 :  2
+ 2 :  4
+ 3 :  6
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
    .Properties~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*item + index~c2d}~dump
-[Array:
-  1  :  30259
-  2  :  30262
-  3  :  30265
-]
+an Array (shape [3], 3 items)
+ 1 :  30259
+ 2 :  30262
+ 3 :  30265
    .Properties~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*item + index~c2d}~dump
-[Array:
-  1  : 
-    [Array:
-      1  :  30259
-      2  : v1
-    ]
-  2  : 
-    [Array:
-      1  :  30262
-      2  : v2
-    ]
-  3  : 
-    [Array:
-      1  :  30265
-      2  : v3
-    ]
-]
+an Array (shape [3], 3 items)
+ 1 : [ 30259,'v1']
+ 2 : [ 30262,'v2']
+ 3 : [ 30265,'v3']
 
 
    .Queue~of(1,2,3)~each{2*item}~dump
-[Array:
-  1  :  2
-  2  :  4
-  3  :  6
-]
+an Array (shape [3], 3 items)
+ 1 :  2
+ 2 :  4
+ 3 :  6
    .Queue~of(1,2,3)~each{2*item + index}~dump
-[Array:
-  1  :  3
-  2  :  6
-  3  :  9
-]
+an Array (shape [3], 3 items)
+ 1 :  3
+ 2 :  6
+ 3 :  9
    .Queue~of(1,2,3)~eachI{2*item + index}~dump
-[Array:
-  1  : 
-    [Array:
-      1  :  3
-      2  :  1
-    ]
-  2  : 
-    [Array:
-      1  :  6
-      2  :  2
-    ]
-  3  : 
-    [Array:
-      1  :  9
-      2  :  3
-    ]
-]
+an Array (shape [3], 3 items)
+ 1 : [ 3, 1]
+ 2 : [ 6, 2]
+ 3 : [ 9, 3]
 
 
    .Relation~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*item}~dump
-[Array:
-  1  :  2
-  2  :  4
-  3  :  6
-]
+an Array (shape [3], 3 items)
+ 1 :  2
+ 2 :  4
+ 3 :  6
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
    .Relation~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*item + index~c2d}~dump
-[Array:
-  1  :  30259
-  2  :  30262
-  3  :  30265
-]
+an Array (shape [3], 3 items)
+ 1 :  30259
+ 2 :  30262
+ 3 :  30265
    .Relation~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*item + index~c2d}~dump
-[Array:
-  1  : 
-    [Array:
-      1  :  30259
-      2  : v1
-    ]
-  2  : 
-    [Array:
-      1  :  30262
-      2  : v2
-    ]
-  3  : 
-    [Array:
-      1  :  30265
-      2  : v3
-    ]
-]
+an Array (shape [3], 3 items)
+ 1 : [ 30259,'v1']
+ 2 : [ 30262,'v2']
+ 3 : [ 30265,'v3']
 
 
    .Set~of(1,2,3)~each{2*item}~dump
-[Array:
-  1  :  2
-  2  :  4
-  3  :  6
-]
+an Array (shape [3], 3 items)
+ 1 :  2
+ 2 :  4
+ 3 :  6
    .Set~of(1,2,3)~each{2*item + index}~dump
-[Array:
-  1  :  3
-  2  :  6
-  3  :  9
-]
+an Array (shape [3], 3 items)
+ 1 :  3
+ 2 :  6
+ 3 :  9
    .Set~of(1,2,3)~eachI{2*item + index}~dump
-[Array:
-  1  : 
-    [Array:
-      1  :  3
-      2  :  1
-    ]
-  2  : 
-    [Array:
-      1  :  6
-      2  :  2
-    ]
-  3  : 
-    [Array:
-      1  :  9
-      2  :  3
-    ]
-]
+an Array (shape [3], 3 items)
+ 1 : [ 3, 1]
+ 2 : [ 6, 2]
+ 3 : [ 9, 3]
 
 
    .Stem~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*item}~dump
-[Array:
-  1  :  2
-  2  :  6
-  3  :  4
-]
+an Array (shape [3], 3 items)
+ 1 :  2
+ 2 :  6
+ 3 :  4
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
    .Stem~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*item + index~c2d}~dump
-[Array:
-  1  :  30259
-  2  :  30265
-  3  :  30262
-]
+an Array (shape [3], 3 items)
+ 1 :  30259
+ 2 :  30265
+ 3 :  30262
    .Stem~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*item + index~c2d}~dump
-[Array:
-  1  : 
-    [Array:
-      1  :  30259
-      2  : v1
-    ]
-  2  : 
-    [Array:
-      1  :  30265
-      2  : v3
-    ]
-  3  : 
-    [Array:
-      1  :  30262
-      2  : v2
-    ]
-]
+an Array (shape [3], 3 items)
+ 1 : [ 30259,'v1']
+ 2 : [ 30265,'v3']
+ 3 : [ 30262,'v2']
 
 
    .Table~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*item}~dump
-[Array:
-  1  :  2
-  2  :  4
-  3  :  6
-]
+an Array (shape [3], 3 items)
+ 1 :  2
+ 2 :  4
+ 3 :  6
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
    .Table~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*item + index~c2d}~dump
-[Array:
-  1  :  30259
-  2  :  30262
-  3  :  30265
-]
+an Array (shape [3], 3 items)
+ 1 :  30259
+ 2 :  30262
+ 3 :  30265
    .Table~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*item + index~c2d}~dump
-[Array:
-  1  : 
-    [Array:
-      1  :  30259
-      2  : v1
-    ]
-  2  : 
-    [Array:
-      1  :  30262
-      2  : v2
-    ]
-  3  : 
-    [Array:
-      1  :  30265
-      2  : v3
-    ]
-]
+an Array (shape [3], 3 items)
+ 1 : [ 30259,'v1']
+ 2 : [ 30262,'v2']
+ 3 : [ 30265,'v3']
 
 
    .IdentityTable~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*item}~dump
-[Array:
-  1  :  2
-  2  :  4
-  3  :  6
-]
+an Array (shape [3], 3 items)
+ 1 :  2
+ 2 :  4
+ 3 :  6
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
    .IdentityTable~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*item + index~c2d}~dump
-[Array:
-  1  :  30259
-  2  :  30262
-  3  :  30265
-]
+an Array (shape [3], 3 items)
+ 1 :  30259
+ 2 :  30262
+ 3 :  30265
    .IdentityTable~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*item + index~c2d}~dump
-[Array:
-  1  : 
-    [Array:
-      1  :  30259
-      2  : v1
-    ]
-  2  : 
-    [Array:
-      1  :  30262
-      2  : v2
-    ]
-  3  : 
-    [Array:
-      1  :  30265
-      2  : v3
-    ]
-]
+an Array (shape [3], 3 items)
+ 1 : [ 30259,'v1']
+ 2 : [ 30262,'v2']
+ 3 : [ 30265,'v3']
 
 
 -- --------------------------------------------------------------
@@ -1707,11 +1410,10 @@
 
 -- supplier : the collection generated by ~each is always an array
    .set~of(1,2,3)~supplier~each{2*item}~dump
-[Array:
-  1  :  2
-  2  :  4
-  3  :  6
-]
+an Array (shape [3], 3 items)
+ 1 :  2
+ 2 :  4
+ 3 :  6
 
 
 -- --------------------------------------------------------------
@@ -1721,95 +1423,49 @@
 -- string : the collection generated by ~each is always an array
 
    "abcdef"~eachC{item}~dump
-[Array:
-  1  : a
-  2  : b
-  3  : c
-  4  : d
-  5  : e
-  6  : f
-]
+an Array (shape [6], 6 items)
+ 1 : 'a'
+ 2 : 'b'
+ 3 : 'c'
+ 4 : 'd'
+ 5 : 'e'
+ 6 : 'f'
    "abcdef"~eachC{".."~copies(index)item}~dump
-[Array:
-  1  : ..a
-  2  : ....b
-  3  : ......c
-  4  : ........d
-  5  : ..........e
-  6  : ............f
-]
+an Array (shape [6], 6 items)
+ 1 : '..a'
+ 2 : '....b'
+ 3 : '......c'
+ 4 : '........d'
+ 5 : '..........e'
+ 6 : '............f'
    "abcdef"~eachCI{".."~copies(index)item}~dump
-[Array:
-  1  : 
-    [Array:
-      1  : ..a
-      2  :  1
-    ]
-  2  : 
-    [Array:
-      1  : ....b
-      2  :  2
-    ]
-  3  : 
-    [Array:
-      1  : ......c
-      2  :  3
-    ]
-  4  : 
-    [Array:
-      1  : ........d
-      2  :  4
-    ]
-  5  : 
-    [Array:
-      1  : ..........e
-      2  :  5
-    ]
-  6  : 
-    [Array:
-      1  : ............f
-      2  :  6
-    ]
-]
+an Array (shape [6], 6 items)
+ 1 : ['..a', 1]
+ 2 : ['....b', 2]
+ 3 : ['......c', 3]
+ 4 : ['........d', 4]
+ 5 : ['..........e', 5]
+ 6 : ['............f', 6]
 
 
    "The quick brown fox"~eachW{item}~dump
-[Array:
-  1  : The
-  2  : quick
-  3  : brown
-  4  : fox
-]
+an Array (shape [4], 4 items)
+ 1 : 'The'
+ 2 : 'quick'
+ 3 : 'brown'
+ 4 : 'fox'
    "The quick brown fox"~eachW{".."~copies(index)item}~dump
-[Array:
-  1  : ..The
-  2  : ....quick
-  3  : ......brown
-  4  : ........fox
-]
+an Array (shape [4], 4 items)
+ 1 : '..The'
+ 2 : '....quick'
+ 3 : '......brown'
+ 4 : '........fox'
    "The quick brown fox"~eachWI{".."~copies(index)item}~dump
-[Array:
-  1  : 
-    [Array:
-      1  : ..The
-      2  :  1
-    ]
-  2  : 
-    [Array:
-      1  : ....quick
-      2  :  2
-    ]
-  3  : 
-    [Array:
-      1  : ......brown
-      2  :  3
-    ]
-  4  : 
-    [Array:
-      1  : ........fox
-      2  :  4
-    ]
-]
+an Array (shape [4], 4 items)
+ 1 : ['..The', 1]
+ 2 : ['....quick', 2]
+ 3 : ['......brown', 3]
+ 4 : ['........fox', 4]
 
 
 -- --------------------------------------------------------------
@@ -1819,95 +1475,49 @@
 -- mutable buffer : the collection generated by ~each is always an array
 
    .MutableBuffer~new("abcdef")~eachC{item}~dump
-[Array:
-  1  : a
-  2  : b
-  3  : c
-  4  : d
-  5  : e
-  6  : f
-]
+an Array (shape [6], 6 items)
+ 1 : 'a'
+ 2 : 'b'
+ 3 : 'c'
+ 4 : 'd'
+ 5 : 'e'
+ 6 : 'f'
    .MutableBuffer~new("abcdef")~eachC{".."~copies(index)item}~dump
-[Array:
-  1  : ..a
-  2  : ....b
-  3  : ......c
-  4  : ........d
-  5  : ..........e
-  6  : ............f
-]
+an Array (shape [6], 6 items)
+ 1 : '..a'
+ 2 : '....b'
+ 3 : '......c'
+ 4 : '........d'
+ 5 : '..........e'
+ 6 : '............f'
    .MutableBuffer~new("abcdef")~eachCI{".."~copies(index)item}~dump
-[Array:
-  1  : 
-    [Array:
-      1  : ..a
-      2  :  1
-    ]
-  2  : 
-    [Array:
-      1  : ....b
-      2  :  2
-    ]
-  3  : 
-    [Array:
-      1  : ......c
-      2  :  3
-    ]
-  4  : 
-    [Array:
-      1  : ........d
-      2  :  4
-    ]
-  5  : 
-    [Array:
-      1  : ..........e
-      2  :  5
-    ]
-  6  : 
-    [Array:
-      1  : ............f
-      2  :  6
-    ]
-]
+an Array (shape [6], 6 items)
+ 1 : ['..a', 1]
+ 2 : ['....b', 2]
+ 3 : ['......c', 3]
+ 4 : ['........d', 4]
+ 5 : ['..........e', 5]
+ 6 : ['............f', 6]
 
 
    .MutableBuffer~new("The quick brown fox")~eachW{item}~dump
-[Array:
-  1  : The
-  2  : quick
-  3  : brown
-  4  : fox
-]
+an Array (shape [4], 4 items)
+ 1 : 'The'
+ 2 : 'quick'
+ 3 : 'brown'
+ 4 : 'fox'
    .MutableBuffer~new("The quick brown fox")~eachW{".."~copies(index)item}~dump
-[Array:
-  1  : ..The
-  2  : ....quick
-  3  : ......brown
-  4  : ........fox
-]
+an Array (shape [4], 4 items)
+ 1 : '..The'
+ 2 : '....quick'
+ 3 : '......brown'
+ 4 : '........fox'
    .MutableBuffer~new("The quick brown fox")~eachWI{".."~copies(index)item}~dump
-[Array:
-  1  : 
-    [Array:
-      1  : ..The
-      2  :  1
-    ]
-  2  : 
-    [Array:
-      1  : ....quick
-      2  :  2
-    ]
-  3  : 
-    [Array:
-      1  : ......brown
-      2  :  3
-    ]
-  4  : 
-    [Array:
-      1  : ........fox
-      2  :  4
-    ]
-]
+an Array (shape [4], 4 items)
+ 1 : ['..The', 1]
+ 2 : ['....quick', 2]
+ 3 : ['......brown', 3]
+ 4 : ['........fox', 4]
 
 
 -- --------------------------------------------------------------
@@ -1917,35 +1527,20 @@
 -- coactivity : ~makeArray is not a lazy method : it collects ALL the yielded values and return an array
 
    {::coactivity do i=1 to 3; .yield[i]; end}~doer~each{2*item}~makeArray~dump
-[Array:
-  1  :  2
-  2  :  4
-  3  :  6
-]
+an Array (shape [3], 3 items)
+ 1 :  2
+ 2 :  4
+ 3 :  6
    {::coactivity do i=1 to 3; .yield[i]; end}~doer~each{2*item + index}~makeArray~dump
-[Array:
-  1  :  3
-  2  :  6
-  3  :  9
-]
+an Array (shape [3], 3 items)
+ 1 :  3
+ 2 :  6
+ 3 :  9
    {::coactivity do i=1 to 3; .yield[i]; end}~doer~eachI{2*item + index}~makeArray~dump
-[Array:
-  1  : 
-    [Array:
-      1  :  3
-      2  :  1
-    ]
-  2  : 
-    [Array:
-      1  :  6
-      2  :  2
-    ]
-  3  : 
-    [Array:
-      1  :  9
-      2  :  3
-    ]
-]
+an Array (shape [3], 3 items)
+ 1 : [ 3, 1]
+ 2 : [ 6, 2]
+ 3 : [ 9, 3]
 
 
 -- --------------------------------------------------------------
@@ -1958,42 +1553,39 @@
 -- each example creates 2 coactivities : the first one by ~doer, the second one by ~each.
    c = {::coactivity do i=1 to 3; .yield[i]; end}~doer~each{2*item}
    c~dump
-[a Coactivity]
+(a Coactivity)
    c~do~dump
-[2]
+ 2
    c~do~dump
-[4]
+ 4
    c~do~dump
-[6]
+ 6
    c~do -- optional, this is to end the chain of coactivities
    c = {::coactivity do i=1 to 3; .yield[i]; end}~doer~each{2*item + index}
    c~dump
-[a Coactivity]
+(a Coactivity)
    c~do~dump
-[3]
+ 3
    c~do~dump
-[6]
+ 6
    c~do~dump
-[9]
+ 9
    c~do -- optional, this is to end the chain of coactivities
    c = {::coactivity do i=1 to 3; .yield[i]; end}~doer~eachI{2*item + index}
    c~dump
-[a Coactivity]
+(a Coactivity)
    c~do~dump
-[Array:
-  1  :  3
-  2  :  1
-]
+an Array (shape [2], 2 items)
+ 1 :  3
+ 2 :  1
    c~do~dump
-[Array:
-  1  :  6
-  2  :  2
-]
+an Array (shape [2], 2 items)
+ 1 :  6
+ 2 :  2
    c~do~dump
-[Array:
-  1  :  9
-  2  :  3
-]
+an Array (shape [2], 2 items)
+ 1 :  9
+ 2 :  3
    c~do -- optional, this is to end the chain of coactivities
 
 
@@ -2012,32 +1604,29 @@
 -- A method object can be used directly
 -- No need to define the method on the receiver class...
    colors~map(.methods~entry("decimalColor"))~dump
-[Array:
-  1  : 0 (0, 0, 0)
-  2  : 255 (0, 0, 255)
-  3  : 32768 (0, 128, 0)
-  4  : 12500670 (190, 190, 190)
-]
+an Array (shape [4], 4 items)
+ 1 : '0 (0, 0, 0)'
+ 2 : '255 (0, 0, 255)'
+ 3 : '32768 (0, 128, 0)'
+ 4 : '12500670 (190, 190, 190)'
 
 
 -- ... except when the method is recursive and recalls itself by name
    .String~define("factorial", .methods~entry("factorial"))
    .Array~of(1,2,3,4)~map(.methods~entry("factorial"))~dump
-[Array:
-  1  :  1
-  2  :  2
-  3  :  6
-  4  :  24
-]
+an Array (shape [4], 4 items)
+ 1 :  1
+ 2 :  2
+ 3 :  6
+ 4 :  24
 
 
 -- Here, the method is recursive, but does not recall itself by name
    .Array~of(1,2,3,4)~map(.methods~entry("factorialExecutable"))~dump
-[Array:
-  1  :  1
-  2  :  2
-  3  :  6
-  4  :  24
-]
+an Array (shape [4], 4 items)
+ 1 :  1
+ 2 :  2
+ 3 :  6
+ 4 :  24
 
 Ended coactivities: 0

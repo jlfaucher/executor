@@ -913,71 +913,9 @@ colors~map(.methods~entry("decimalColor"))~dump
 -- Helpers
 -----------------------------------------------------------------
 
-::extension Directory
-::method of class
-    use strict arg key, value, ...
-    directory = .Directory~new
-    do i = 1 to arg() by 2
-        directory[arg(i)] = arg(i+1)
-    end
-    return directory
-
-
 ::extension Object
 ::method dump
-    say '['self~string']'
-
-
-::extension String
-::method dump
-    valstr = self~string
-    isnum = self~dataType("N")
-    if \isnum then valstr = '"'valstr'"' -- strings are surrounded by quotes, except string numbers
-    say '['valstr']'
-
-
-::extension MutableBuffer
--- Unlike the routine pp2, this method does not display the identityHash
--- (to avoid false differences when comparing with previous output)
-::method dump
-    self~string~dump
-
-
-::extension Collection
-::method dump
-    call dump self
-
-
-::extension Supplier
-::method dump
-    call dump self
-
-
------------------------------------------------------------------
-::routine dump
-    use arg coll, indent=""
-
-    say indent"["coll~class~id":"
-    s=coll~supplier
-    do while s~available
-        .output~charout(indent layout(s~index)~left(3)" : ")
-        if s~item~isA(.Collection) then do
-            say
-            call dump s~item, "    "indent
-        end
-        else say layout(s~item)
-        s~next
-    end
-    say indent"]"
-
-
-::routine layout
-    use strict arg obj
-    if \obj~isA(.String) then return obj~string
-    if \obj~dataType("N") then return obj
-    if obj < 0 then return obj
-    return " "obj
-
+    forward message "dump2"
 
 -----------------------------------------------------------------
 ::routine evaluate
@@ -1026,5 +964,6 @@ syntax:
 
 -----------------------------------------------------------------
 ::requires "extension/extensions.cls"
+::requires "rgf_util2/rgf_util2_wrappers.rex" -- for the dump2 methods
 
 
