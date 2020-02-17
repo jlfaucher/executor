@@ -132,9 +132,8 @@ method~do(.MyClass, 1, , 3, a1:1, a2:2)
 
 -- The ~doWith method now supports named arguments
 -- Illustration with a doer of type method
--- To rework: here, the abbreviation n: is not supported when calling doWith
 method = .MyClass~instancemethod("myMethod")
-method~doWith(.MyClass, v(1, , 3), namedArguments:d(a1:1, a2:2))
+method~doWith(.MyClass, v(1, , 3), n:d(a1:1, a2:2))
 /*
     an Array (shape [3], 2 items)
      1 :  1
@@ -147,8 +146,7 @@ method~doWith(.MyClass, v(1, , 3), namedArguments:d(a1:1, a2:2))
 
 -- The ~doWith method now supports named arguments
 -- Illustration with a doer of type message
--- To rework: here, the abbreviation n: is not supported when calling doWith
-"myMethod"~doWith(.MyClass, v(1, , 3), namedArguments:d(a1:1, a2:2))
+"myMethod"~doWith(.MyClass, v(1, , 3), n:d(a1:1, a2:2))
 /*
     an Array (shape [3], 2 items)
      1 :  1
@@ -161,8 +159,7 @@ method~doWith(.MyClass, v(1, , 3), namedArguments:d(a1:1, a2:2))
 
 -- The ~doWith method now supports named arguments
 -- Illustration with a doer of type closure
--- To rework: here, the abbreviation n: is not supported when calling doWith
-{expose dummy; call dump2 .context~args; call dump2 .context~namedargs}~doWith(v(1, , 3), namedArguments:d(a1:1, a2:2))
+{expose dummy; call dump2 .context~args; call dump2 .context~namedargs}~doWith(v(1, , 3), n:d(a1:1, a2:2))
 /*
     an Array (shape [3], 2 items)
     1 : 1
@@ -175,8 +172,7 @@ method~doWith(.MyClass, v(1, , 3), namedArguments:d(a1:1, a2:2))
 
 -- The ~doWith method now supports named arguments
 -- Illustration with a doer of type coactivity
--- To rework: here, the abbreviation n: is not supported when calling doWith
-{::co call dump2 .context~args; call dump2 .context~namedargs}~doWith(v(1, , 3), namedArguments:d(a1:1, a2:2))
+{::co call dump2 .context~args; call dump2 .context~namedargs}~doWith(v(1, , 3), n:d(a1:1, a2:2))
 /*
     an Array (shape [3], 2 items)
     1 : 1
@@ -267,7 +263,6 @@ call syssleep delay -- to avoid messing the output because of the concurrent exe
 
 -- The ~goWith method now supports named arguments
 -- Illustration with a doer of type routine
--- Here the abbreviation 'n' is supported because goWith forwards directly to callWith
 {call dump2 .context~args; call dump2 .context~namedargs}~goWith(v(1, , 3), n:d(a1:1, a2:2))
 /*
     an Array (shape [3], 2 items)
@@ -282,9 +277,8 @@ call syssleep delay -- to avoid messing the output because of the concurrent exe
 
 -- The ~goWith method now supports named arguments
 -- Illustration with a doer of type method
--- To rework: here, the abbreviation n: is not supported when calling goWith
 method = .MyClass~instancemethod("myMethod")
-message = method~goWith(.MyClass, v(1, , 3), namedArguments:d(a1:1, a2:2))
+message = method~goWith(.MyClass, v(1, , 3), n:d(a1:1, a2:2))
 /*
     an Array (shape [3], 2 items)
      1 :  1
@@ -298,8 +292,7 @@ call syssleep delay -- to avoid messing the output because of the concurrent exe
 
 -- The ~goWith method now supports named arguments
 -- Illustration with a doer of type message
--- To rework: here, the abbreviation n: is not supported when calling goWith
-message = "myMethod"~goWith(.MyClass, v(1, , 3), namedArguments:d(a1:1, a2:2))
+message = "myMethod"~goWith(.MyClass, v(1, , 3), n:d(a1:1, a2:2))
 /*
     an Array (shape [3], 2 items)
      1 :  1
@@ -313,8 +306,7 @@ call syssleep delay -- to avoid messing the output because of the concurrent exe
 
 -- The ~goWith method now supports named arguments
 -- Illustration with a doer of type closure
--- To rework: here, the abbreviation n: is not supported when calling goWith
-{expose dummy; call dump2 .context~args; call dump2 .context~namedargs}~goWith(v(1, , 3), namedArguments:d(a1:1, a2:2))
+{expose dummy; call dump2 .context~args; call dump2 .context~namedargs}~goWith(v(1, , 3), n:d(a1:1, a2:2))
 /*
     an Array (shape [3], 2 items)
     1 : 1
@@ -328,8 +320,7 @@ call syssleep delay -- to avoid messing the output because of the concurrent exe
 
 -- The ~goWith method now supports named arguments
 -- Illustration with a doer of type coactivity
--- To rework: here, the abbreviation n: is not supported when calling goWith
-{::co call dump2 .context~args; call dump2 .context~namedargs}~goWith(v(1, , 3), namedArguments:d(a1:1, a2:2))
+{::co call dump2 .context~args; call dump2 .context~namedargs}~goWith(v(1, , 3), n:d(a1:1, a2:2))
 /*
     an Array (shape [3], 2 items)
     1 : 1

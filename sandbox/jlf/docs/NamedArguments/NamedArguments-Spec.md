@@ -23,7 +23,7 @@ Named arguments are after the last positional argument.
 
     caller: "one two three one"~reduce("put", by:"word", initial:.set~new)
 
-The abbreviated syntax of arguments list is still available:
+The simplified syntax of arguments list for block (when last positional argument) is still available:
 
     f(a1,a2,n1:v1,n2:v2){...}
 
@@ -178,11 +178,11 @@ exprn is a directory of named arguments.
 Instruction USE
 ---------------
 
-                                                           +-,----------------------+
-                                                           V                        |
-    >>-USE--+----------+--+--------+-----NAMED-----ARG--+------name-+----------+----+--+----------+---+-----><
-            +--STRICT--+  +--AUTO--+                    |           +-=--expr--+       +--,--...--+   |
-                                                        +--+-------+----------------------------------+
+                                                           +-,----------------------------------+
+                                                           V                                    |
+    >>-USE--+----------+--+--------+-----NAMED-----ARG--+------name-+-------+---+----------+----+--+----------+----+--><
+            +--STRICT--+  +--AUTO--+                    |           +-(-n-)-+   +-=--expr--+       +--,--...--+    |
+                                                        +--+-------+-----------------------------------------------+
                                                            +--...--+
 
 ![USE NAMED ARG](SyntaxDiagram/sd_Instruction_USE.png)
@@ -196,6 +196,9 @@ When the option 'NAMED' is specified:
 There is no evaluation of a default value when a value has been provided by the caller.  
 The order of evaluation is the order of declaration in USE NAMED ARG (left-to-right).  
 The automatic variables are already created and can be used during the evaluation of a default value.
+
+An optional minimum length can be specified after the name, allowing abbreviation.  
+For example: namedArgument(1) will allow to pass n:
 
 
 --------------
@@ -221,11 +224,11 @@ There, ARRAY is followed by a list of arguments. ARGUMENTS is followed by a mand
     >>-new(-target-,-messagename-+-------------------------------------------------------+-)--><
                                  +-,-"Individual"--| Arguments |-------------------------+
                                  +--+-------------------+--+--------------------------+--+
-                                    +-,-"Array"-,-expra-+  +-,-namedArguments-:-exprd-+
+                                    +-,-"Array"-,-expra-+  +-,-NAMEDARGUMENTS-:-exprd-+
 
 ![USE NAMED ARG](SyntaxDiagram/sd_Message_new.png)
 
-namedArguments: can be abreviated to 1 letter (n:).  
+NAMEDARGUMENTS: can be abbreviated to 1 letter (n:).  
 
 
 -------------
@@ -246,11 +249,11 @@ There, ARRAY is followed by a list of arguments. ARGUMENTS is followed by a mand
     >>-run(-method-+-------------------------------------------------------+-)--><
                    +-,-"Individual"---| Arguments |------------------------+
                    +--+-------------------+--+--------------------------+--+
-                      +-,-"Array"-,-expra-+  +-,-namedArguments-:-exprd-+
+                      +-,-"Array"-,-expra-+  +-,-NAMEDARGUMENTS-:-exprd-+
 
 ![USE NAMED ARG](SyntaxDiagram/sd_Object_run.png)
 
-namedArguments: can be abreviated to 1 letter (n:).  
+NAMEDARGUMENTS: can be abbreviated to 1 letter (n:).  
 
 
 ---------------
@@ -258,11 +261,11 @@ Object~sendWith
 ---------------
 
     >>-sendWith(-messagename-,-arguments-+--------------------------+--)---><
-                                         +-,-namedArguments-:-exprd-+
+                                         +-,-NAMEDARGUMENTS-:-exprd-+
 
 ![USE NAMED ARG](SyntaxDiagram/sd_Object_sendWith.png)
 
-namedArguments: can be abreviated to 1 letter (n:).  
+NAMEDARGUMENTS: can be abbreviated to 1 letter (n:).  
 
 
 ----------------
@@ -270,11 +273,11 @@ Object~startWith
 ----------------
 
     >>-startWith(-messagename-,-arguments-+--------------------------+-)---><
-                                          +-,-namedArguments-:-exprd-+
+                                          +-,-NAMEDARGUMENTS-:-exprd-+
 
 ![USE NAMED ARG](SyntaxDiagram/sd_Object_startWith.png)
 
-namedArguments: can be abreviated to 1 letter (n:).  
+NAMEDARGUMENTS: can be abbreviated to 1 letter (n:).  
 
 
 ----------------
@@ -282,11 +285,11 @@ Routine~callWith
 ----------------
 
     >>-callWith(-array-+--------------------------+-)---><
-                       +-,-namedArguments-:-exprd-+
+                       +-,-NAMEDARGUMENTS-:-exprd-+
 
 ![USE NAMED ARG](SyntaxDiagram/sd_Routine_callWith.png)
 
-namedArguments: can be abreviated to 1 letter (n:).  
+NAMEDARGUMENTS: can be abbreviated to 1 letter (n:).  
 
 
 -----------------
@@ -306,11 +309,11 @@ Context~setArgs
 -----------------
 
     >>-setArgs(-array-+--------------------------+-)---><
-                      +-,-namedArguments-:-exprd-+
+                      +-,-NAMEDARGUMENTS-:-exprd-+
 
 ![USE NAMED ARG](SyntaxDiagram/sd_Context_setArgs.png)
 
-namedArguments: can be abreviated to 1 letter (n:).  
+NAMEDARGUMENTS: can be abbreviated to 1 letter (n:).  
 
 Used to transfer to a coactivity the arguments passed with 'resume'.  
 A coactivity can be suspended, and can receive a new set of arguments after each resume.

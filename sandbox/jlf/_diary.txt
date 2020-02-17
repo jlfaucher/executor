@@ -182,134 +182,6 @@ Security manager METHOD
 Add NAMEDARGUMENTS: a directory of the method named arguments
 to the information directory.
 
-The source location reported for this error
-        10 *-* use strict auto named arg a, b, stem., stem.a, stem.b, stem.c
-           *-* Compiled method NEW with scope "Routine"
-        97 *-*     Method RAWEXECUTABLE with scope "SourceLiteralParser" in package "REXX" (no source available)
-       225 *-* {
-    REX0099E: Error 99:  Translation error
-    REX0648E: Error 99.900:  STRICT AUTO requires the "..." argument marker at the end of the argument list
-is not good when inside a block.
-The line number is relative to the opening bracket of the block, should be
-relative to the begining of the file.
-
-
-Known bugs
----------
-
-ok
-{use named arg n; say n}~(n:1)
-    1
-
-KO
-{use named arg n,n; say n}~(n:1)
-    N
-
-
-
-To rework
----------
-Abbreviated names.
-The native methods like run, setArgs, sendWith, startWith, callWith supports abbreviations for 'namedArguments':
-    n:
-    na:
-    nam:
-etc...
-I wanted that because ooRexx has this kind of abbreviation for "array" --> "a", "individual" --> "i"
-
-The abbreviated names are managed by specifying the minimum length of the name.
-Currently only Object~run and Context~setArgs have a real check.
-The other methods doesn't check the argument name, only the count of named arguments is checked (which is 1).
-
-Example of abbreviation specification (here: 1)
-    RexxObject  *RexxObject::run(
-        RexxObject **arguments,            /* method arguments                  */
-        size_t       argumentsCount)       /* the number of positional arguments*/
-    {
-            ...
-            // use strict named arg namedArguments=.NIL
-            size_t named_argumentsCount = 0;
-            arguments[argumentsCount]->unsignedNumberValue(named_argumentsCount);
-            if (named_argumentsCount > 1) reportException(Error_Incorrect_method_maxarg, OREF_named, 1); // Only zero or one named argument is supported by Object~run
-            RexxObject **named_arguments = arguments + argumentsCount + 1;
-            RexxString *argName0 = (0 < named_argumentsCount) ? (RexxString *)named_arguments[(2 * 0)] : OREF_NULL;
-            RexxObject *argValue0 = (0 < named_argumentsCount) ? named_arguments[(2 * 0) + 1] : OREF_NULL;
-            NamedArguments expectedNamedArguments(1); // At most, one named argument
-      -->   expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", 1, TheNilObject); // At least 1 character, default value = .NIL
-            expectedNamedArguments.check(argName0, argValue0, true); // Strict, will raise an error if no match
-            argdirectory = (RexxDirectory *)expectedNamedArguments[0].value;
-            ...
-    }
-
-The instruction 'use named arg' is managed by RexxInstructionUseStrict::executeNamedArguments
-where only the name is passed to the checker.
-    // Iterate over the named arguments declared by the callee with the instruction USE NAMED ARG.
-    // Collect their names.
-    for (size_t i = 0; i < this->variableCount; i++)
-    {
-        RexxVariableBase *variable = this->variables[i].variable;
-        expectedNamedArguments[i].name = variable->getName()->getStringData();
-    }
-
-If a minimal lenght must be passed to the checker, then it must be provided by the Rexx programmer...
-Like that ?
-use named arg command(1) = (.nil)
-
-Currently, the interpreter checks that the names are unique on caller side (it's an error to specify the same name twice).
-But there is no check on called side.
-
-If the minimal length is specified, then the interpreter should check that the abbreviated names are unique.
-The interpreter should also check that the minimal lengths are discriminating.
-use named arg command(1) = (.nil), option          -- ok: "option" doesn't start with "c"
-use named arg command(1) = (.nil), comOption       -- ko: "comOption" starts with "c"
-use named arg command(2) = (.nil), comOption       -- ko: "comOption" starts with "co"
-use named arg command(4) = (.nil), comOption       -- ok: "comOption" doesn't start with "comma"
-
-
-To check
---------
-Is it correct ? I always have difficulties to understand the stems...
-
--- Sounds strange to have the variable name=john, because i'm not using auto.
--- Must check what is the name of a stem variable, I expect here it's "NAME.1", so the variable 'name' should not be assigned.
-{call dump2 .context~namedargs; use named arg name.1; say "name="name name~class; say "name.="name. name.~class; say "name.1="name.1}~(name:"john")
-    a Directory (1 items)
-        'NAME' : 'john'
-    name=john The String class
-    name.=NAME. The Stem class
-    name.1=NAME.1
-
-
--- Looks good.
-{call dump2 .context~namedargs; use named arg name.1; say "name="name name~class; say "name.="name. name.~class; say "name.1="name.1}~(name.1:"john")
-    a Directory (1 items)
-        'NAME.1' : 'john'
-    name=NAME The String class
-    name.=NAME. The Stem class
-    name.1=john
-
-
--- Looks good.
--- But according the notes above about abbreviated names and checks, the interpreter should raise an error at parse time :
--- "name.1" starts with "name", so it's ambiguous.
-{call dump2 .context~namedargs; use named arg name, name.1; say "name="name name~class; say "name.="name. name.~class; say "name.1="name.1}~(name:"john")
-    a Directory (1 items)
-        'NAME' : 'john'
-    name=john The String class
-    name.=NAME. The Stem class
-    name.1=NAME.1
-
-
--- Looks good.
--- But according the notes above about abbreviated names and checks, the interpreter should raise an error at parse time :
--- "name.1" starts with "name", so it's ambiguous.
-{call dump2 .context~namedargs; use named arg name, name.1; say "name="name name~class; say "name.="name. name.~class; say "name.1="name.1}~(name.1:"john")
-    a Directory (1 items)
-        'NAME.1' : 'john'
-    name=NAME The String class
-    name.=NAME. The Stem class
-    name.1=john
-
 
 Maybe to rework
 ---------------
@@ -369,6 +241,70 @@ see if named arguments must be supported here:
     // retrieve the argument signatures and process them
     uint16_t *types = (*methp)((RexxMethodContext *)&context, NULL);
     processArguments(argcount, arglist, types, arguments, MAX_NATIVE_ARGUMENTS);
+
+
+===============================================================================
+2020 feb 16
+
+Named arguments:
+Add support for optional declaration of minimum length (abbreviation):
+    use named arg abbreviated(1)=(.nil)
+    use named arg abbreviated (1) = (.nil)
+
+-- ok, this error message should be reworked to say that only digits are accepted
+{use named arg abbreviated (+1) = (.nil)}
+    Named argument minimum length must be a positive whole number
+    Code= 26.900
+
+The interpreter checks at parsetime that the names are unique.
+The interpreter also checks at parsetime that the minimal lengths are discriminating.
+use named arg command(1), option          -- ok: "option" is different from "command"
+use named arg command(1), comOption       -- ok: "comOption" has 9 mandatory characters, no collision with "command(1)"
+use named arg command(1), commands        -- ok: "commands" has 8 mandatory characters, no collision with "command(1)"
+use named arg command(1), commands(7)     -- ko: "commands(7)" can be abbreviated "command" and that collides with "command(1)"
+use named arg command, commands(7)        -- ko: "commands(7)" can be abbreviated "command" and that collides with "command"
+
+
+was KO before enforcing the detection of doubling names:
+{use named arg n,n; say n}~(n:1)
+    N
+This happened because the named parameter 'n' was mapped with the first argument 'n' in the USE instruction.
+The second named argument 'n' was not mapped, and stayed without value.
+Since the mode is not strict, the second 'n' was deleted, which deleted the assignment n=1 made for the first argument 'n'.
+Now, this case cannot happen, because an error is raised at parsetime : "The named argument names are not unique".
+
+-- remember: the blocks always start with 'use auto named arg'. That's why X is set to 1.
+{use named arg option, options; .context~variables}~(x:1)=
+    a Directory (1 items)
+    'X' :  1
+
+-- Add 'strict' and default value
+{use strict named arg option=10, options=20; .context~variables}~(x:1)=
+    named argument X is not an expected argument name
+    Code= 88.917
+
+-- Pass a good named param. No ambiguity.
+{use strict named arg option=10, options=20; .context~variables}~(option:1)=
+    a Directory (2 items)
+    'OPTION'  :  1
+    'OPTIONS' :  20
+
+-- Pass 2 good named param
+{use strict named arg option=10, options=20; .context~variables}~(options:2, option:1)=
+    a Directory (2 items)
+    'OPTION'  :  1
+    'OPTIONS' :  2
+
+-- The minimum length 6 creates a collision of names
+{use strict named arg option=10, options(6)=20; .context~variables}~(options:2, option:1)=
+    The named argument names are not unique, or their abbreviation is not distinctive enough
+    Code= 99.900
+
+-- The minimum length 7 does not create a collision of names
+{use strict named arg option=10, options(7)=20; .context~variables}~(options:2, option:1)=
+    a Directory (2 items)
+    'OPTION'  :  1
+    'OPTIONS' :  2
 
 
 ===============================================================================

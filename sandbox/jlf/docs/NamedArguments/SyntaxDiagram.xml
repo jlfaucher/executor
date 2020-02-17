@@ -1,0 +1,587 @@
+<syntaxdiagrams>
+
+<!--============================================================================
+
+=============================================================================-->
+
+<![CDATA[
+             1         2         3         4         5         6    
+    1234567890123456789012345678901234567890123456789012345678901234
+  1                                                                 
+  2 Arguments:                                                      
+  3                                                                 
+  4 |----+----------------------------------------------------+----|
+  5      +--| Positional arguments |--------------------------+     
+  6      +-------------------------------| Named arguments |--+     
+  7      +--| Positional arguments |--,--| Named arguments |--+     
+  8                                                                 
+]]>
+
+<syntaxdiagram>
+    <fragment>
+        <title>sd_Arguments</title>
+        <groupchoice>
+            <groupseq>
+            </groupseq>
+            <fragref>Positional arguments</fragref>
+            <fragref>Named arguments</fragref>
+            <groupseq>
+                <fragref>Positional arguments</fragref>
+                <sep>,</sep>
+                <fragref>Named arguments</fragref>
+            </groupseq>
+        </groupchoice>
+    </fragment>
+</syntaxdiagram>
+
+<!--============================================================================
+_2
+=============================================================================-->
+
+<![CDATA[
+             1         2       
+    123456789012345678901234567
+  1                            
+  2 Positional arguments:      
+  3                            
+  4     +-,--------------+     
+  5     V                |     
+  6 |-----+------------+-+----|
+  7       |            |       
+  8       +-expression-+       
+  9                            
+]]>
+
+<syntaxdiagram>
+    <fragment>
+        <title>sd_Positional_arguments</title>
+        <groupseq>
+            <repsep>,</repsep>
+            <kwd importance="optional">expression</kwd>
+        </groupseq>
+    </fragment>
+</syntaxdiagram>
+
+<!--============================================================================
+_3
+=============================================================================-->
+
+<![CDATA[
+             1         2         3      
+    123456789012345678901234567890123456
+  1                                     
+  2 Named arguments:                    
+  3                                     
+  4     +-,-----------------------+     
+  5     V                         |     
+  6 |-----argName-:-argExpression-+----|
+  7                                     
+]]>
+
+<syntaxdiagram>
+    <fragment>
+        <title>sd_Named_arguments</title>
+        <groupseq>
+            <repsep>,</repsep>
+            <groupseq>
+                <kwd>argName</kwd>
+                <sep>:</sep>
+                <var>argExpression</var>
+            </groupseq>
+        </groupseq>
+    </fragment>
+</syntaxdiagram>
+
+<!--============================================================================
+_4
+=============================================================================-->
+
+<![CDATA[
+             1         2         3         4         5         6         7      
+    1234567890123456789012345678901234567890123456789012345678901234567890123456
+  1                                                                             
+  2 Message term:                                                               
+  3                                                                             
+  4 >>-receiver-+- ~ --+-messagename--+----------+--+---------------------+---><
+  5             +- ~~ -+              +-:-symbol-+  +-(--| Arguments |--)-+     
+  6                                                                             
+  7 Message term index:                                                         
+  8                                                                             
+  9 >>-receiver[--| Arguments |--]----------------------------><                
+ 10                                                                             
+]]>
+
+<syntaxdiagram>
+    <title>sd_Message_term</title>
+    <groupseq>
+        <kwd>receiver</kwd>
+    </groupseq>
+    <groupchoice>
+        <oper>~</oper>
+        <sep> ~~ </sep>
+    </groupchoice>
+    <groupseq>
+        <var>messagename</var>
+    </groupseq>
+    <groupseq importance="optional">
+        <sep>:</sep>
+        <var>symbol</var>
+    </groupseq>
+    <groupseq importance="optional">
+        <delim>(</delim>
+        <fragref>Arguments</fragref>
+        <delim>)</delim>
+    </groupseq>
+</syntaxdiagram>
+<syntaxdiagram>
+    <title>sd_Message_term_index</title>
+    <groupcomp>
+        <kwd>receiver</kwd>
+        <delim>[</delim>
+    </groupcomp>
+    <groupseq>
+        <fragref>Arguments</fragref>
+        <delim>]</delim>
+    </groupseq>
+</syntaxdiagram>
+
+<!--============================================================================
+_5
+=============================================================================-->
+
+<![CDATA[
+             1         2         3         4         5         6  
+    12345678901234567890123456789012345678901234567890123456789012
+  1                                                               
+  2 Instruction CALL:                                             
+  3                                                               
+  4 >>-CALL----+-name-----+----| Arguments |--------------------><
+  5            +-(-expr-)-+                                       
+  6                                                               
+]]>
+
+<syntaxdiagram>
+    <title>sd_Instruction_CALL</title>
+    <groupseq>
+        <kwd>CALL</kwd>
+    </groupseq>
+    <groupchoice>
+        <var>name</var>
+        <groupseq>
+            <delim>(</delim>
+            <var>expr</var>
+            <delim>)</delim>
+        </groupseq>
+    </groupchoice>
+    <fragref>Arguments</fragref>
+</syntaxdiagram>
+
+<!--============================================================================
+_6
+=============================================================================-->
+
+<![CDATA[
+             1         2         3         4         5         6
+    123456789012345678901234567890123456789012345678901234567890
+  1                                                             
+  2 Function:                                                   
+  3                                                             
+  4 >>-function_name(----| Arguments |----)-------------------><
+  5                                                             
+]]>
+
+<syntaxdiagram>
+    <title>sd_Function</title>
+    <groupcomp>
+        <kwd>function_name</kwd>
+        <delim>(</delim>
+    </groupcomp>
+    <groupseq>
+        <fragref>Arguments</fragref>
+        <delim>)</delim>
+    </groupseq>
+</syntaxdiagram>
+
+<!--============================================================================
+_7
+=============================================================================-->
+
+<![CDATA[
+             1         2         3         4         5         6         7         8         9         0         1         2         3         4         5  
+    12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
+  1                                                                                                                                                         
+  2 Instruction FORWARD:                                                                                                                                    
+  3                                                                                                                                                         
+  4 >>-FORWARD--+------------+--+---+--------------------+--+-------------------------+---+--+------------------+--+----------------+--+-------------+----><
+  5             +--CONTINUE--+  |   +--ARGUMENTS--expra--+  +--NAMEDARGUMENTS--exprd--+   |  +--MESSAGE--exprm--+  +--CLASS--exprs--+  +--TO--exprt--+      
+  6                             +--------------ARRAY----(--| Arguments |--)---------------+                                                                 
+  7                                                                                                                                                         
+]]>
+
+<syntaxdiagram>
+    <title>sd_Instruction_FORWARD</title>
+    <groupseq>
+        <kwd>FORWARD</kwd>
+        <kwd importance="optional">CONTINUE</kwd>
+    </groupseq>
+    <groupchoice>
+        <groupseq>
+            <groupseq importance="optional">
+                <kwd>ARGUMENTS</kwd>
+                <var>expra</var>
+            </groupseq>
+            <groupseq importance="optional">
+                <kwd>NAMEDARGUMENTS</kwd>
+                <var>exprd</var>
+            </groupseq>
+        </groupseq>
+        <groupseq>
+            <kwd>ARRAY</kwd>
+            <delim>(</delim>
+            <fragref>Arguments</fragref>
+            <delim>)</delim>
+        </groupseq>
+    </groupchoice>
+    <groupseq importance="optional">
+        <kwd>MESSAGE</kwd>
+        <var>exprm</var>
+    </groupseq>
+    <groupseq importance="optional">
+        <kwd>CLASS</kwd>
+        <var>exprs</var>
+    </groupseq>
+    <groupseq importance="optional">
+        <kwd>TO</kwd>
+        <var>exprt</var>
+    </groupseq>
+</syntaxdiagram>
+
+<!--============================================================================
+_8
+=============================================================================-->
+
+<![CDATA[
+             1         2         3         4         5         6         7         8         9         0         1         2
+    123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+  1                                                                                                                         
+  2 Instruction USE:                                                                                                        
+  3                                                                                                                         
+  4                                                            +-,----------------------------------+                       
+  5                                                            V                                    |                       
+  6     >>-USE--+----------+--+--------+-----NAMED-----ARG--+------name-+-------+---+----------+----+--+----------+----+--><
+  7             +--STRICT--+  +--AUTO--+                    |           +-(-n-)-+   +-=--expr--+       +--,--...--+    |    
+  8                                                         +--+-------+-----------------------------------------------+    
+  9                                                            +--...--+                                                    
+ 10                                                                                                                         
+]]>
+
+<syntaxdiagram>
+    <title>sd_Instruction_USE</title>
+    <groupseq>
+        <kwd>USE</kwd>
+        <kwd importance="optional">STRICT</kwd>
+        <kwd importance="optional">AUTO</kwd>
+    </groupseq>
+    <groupseq>
+        <kwd>NAMED</kwd>
+        <kwd>ARG</kwd>
+    </groupseq>
+    <groupchoice>
+        <groupseq>
+            <groupseq>
+                <repsep>,</repsep>
+                <var>name</var>
+                <groupseq importance="optional">
+                    <delim>(</delim>
+                    <var>n</var>
+                    <delim>)</delim>
+                </groupseq>
+                <groupseq importance="optional">
+                    <oper>=</oper>
+                    <var>expr</var>
+                </groupseq>
+            </groupseq>
+            <groupseq importance="optional">
+                <sep>,</sep>
+                <sep>...</sep>
+            </groupseq>
+        </groupseq>
+        <sep importance="optional">...</sep>
+    </groupchoice>
+</syntaxdiagram>
+
+<!--============================================================================
+_9
+=============================================================================-->
+
+<![CDATA[
+             1         2         3         4         5         6         7         8         9  
+    12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
+  1                                                                                             
+  2 Message~new:                                                                                
+  3                                                                                             
+  4 >>-new(-target-,-messagename-+-------------------------------------------------------+-)--><
+  5                              +-,-"Individual"--| Arguments |-------------------------+      
+  6                              +--+-------------------+--+--------------------------+--+      
+  7                                 +-,-"Array"-,-expra-+  +-,-NAMEDARGUMENTS-:-exprd-+         
+  8                                                                                             
+]]>
+
+<syntaxdiagram>
+    <title>sd_Message_new</title>
+    <groupcomp>
+        <kwd>new</kwd>
+        <delim>(</delim>
+    </groupcomp>
+    <groupseq>
+        <var>target</var>
+        <sep>,</sep>
+        <var>messagename</var>
+    </groupseq>
+    <groupchoice>
+        <groupseq>
+        </groupseq>
+        <groupseq>
+            <sep>,</sep>
+            <groupcomp>
+                <delim>"</delim>
+                <kwd>Individual</kwd>
+                <delim>"</delim>
+            </groupcomp>
+            <fragref>Arguments</fragref>
+        </groupseq>
+        <groupseq>
+            <groupseq importance="optional">
+                <sep>,</sep>
+                <groupcomp>
+                    <delim>"</delim>
+                    <kwd>Array</kwd>
+                    <delim>"</delim>
+                </groupcomp>
+                <groupseq>
+                    <sep>,</sep>
+                    <var>expra</var>
+                </groupseq>
+            </groupseq>
+            <groupseq importance="optional">
+                <sep>,</sep>
+                <kwd>NAMEDARGUMENTS</kwd>
+                <sep>:</sep>
+                <var>exprd</var>
+            </groupseq>
+        </groupseq>
+    </groupchoice>
+    <groupseq>
+        <delim>)</delim>
+    </groupseq>
+</syntaxdiagram>
+
+<!--============================================================================
+_10
+=============================================================================-->
+
+<![CDATA[
+             1         2         3         4         5         6         7        
+    123456789012345678901234567890123456789012345678901234567890123456789012345678
+  1                                                                               
+  2 Object~run:                                                                   
+  3                                                                               
+  4 >>-run(-method-+-------------------------------------------------------+-)--><
+  5                +-,-"Individual"---| Arguments |------------------------+      
+  6                +--+-------------------+--+--------------------------+--+      
+  7                   +-,-"Array"-,-expra-+  +-,-NAMEDARGUMENTS-:-exprd-+         
+  8                                                                               
+]]>
+
+<syntaxdiagram>
+    <title>sd_Object_run</title>
+    <groupcomp>
+        <kwd>run</kwd>
+        <delim>(</delim>
+    </groupcomp>
+    <groupseq>
+        <var>method</var>
+    </groupseq>
+    <groupchoice>
+        <groupseq>
+        </groupseq>
+        <groupseq>
+            <sep>,</sep>
+            <groupcomp>
+                <delim>"</delim>
+                <kwd>Individual</kwd>
+                <delim>"</delim>
+            </groupcomp>
+            <fragref>Arguments</fragref>
+        </groupseq>
+        <groupseq>
+            <groupseq importance="optional">
+                <sep>,</sep>
+                <groupcomp>
+                    <delim>"</delim>
+                    <kwd>Array</kwd>
+                    <delim>"</delim>
+                </groupcomp>
+                <groupseq>
+                    <sep>,</sep>
+                    <var>expra</var>
+                </groupseq>
+            </groupseq>
+            <groupseq importance="optional">
+                <sep>,</sep>
+                <kwd>NAMEDARGUMENTS</kwd>
+                <sep>:</sep>
+                <var>exprd</var>
+            </groupseq>
+        </groupseq>
+    </groupchoice>
+    <groupseq>
+        <delim>)</delim>
+    </groupseq>
+</syntaxdiagram>
+
+<!--============================================================================
+_11
+=============================================================================-->
+
+<![CDATA[
+             1         2         3         4         5         6         7   
+    1234567890123456789012345678901234567890123456789012345678901234567890123
+  1                                                                          
+  2 Object~sendWith:                                                         
+  3                                                                          
+  4 >>-sendWith(-messagename-,-arguments-+--------------------------+--)---><
+  5                                      +-,-NAMEDARGUMENTS-:-exprd-+        
+  6                                                                          
+]]>
+
+<syntaxdiagram>
+    <title>sd_Object_sendWith</title>
+    <groupcomp>
+        <kwd>sendWith</kwd>
+        <delim>(</delim>
+    </groupcomp>
+    <groupseq>
+        <var>messagename</var>
+        <sep>,</sep>
+        <var>arguments</var>
+    </groupseq>
+    <groupseq importance="optional">
+        <sep>,</sep>
+        <kwd>NAMEDARGUMENTS</kwd>
+        <sep>:</sep>
+        <var>exprd</var>
+    </groupseq>
+    <groupseq>
+        <delim>)</delim>
+    </groupseq>
+</syntaxdiagram>
+
+<!--============================================================================
+_12
+=============================================================================-->
+
+<![CDATA[
+             1         2         3         4         5         6         7   
+    1234567890123456789012345678901234567890123456789012345678901234567890123
+  1                                                                          
+  2 Object~startWith:                                                        
+  3                                                                          
+  4 >>-startWith(-messagename-,-arguments-+--------------------------+-)---><
+  5                                       +-,-NAMEDARGUMENTS-:-exprd-+       
+  6                                                                          
+]]>
+
+<syntaxdiagram>
+    <title>sd_Object_startWith</title>
+    <groupcomp>
+        <kwd>startWith</kwd>
+        <delim>(</delim>
+    </groupcomp>
+    <groupseq>
+        <var>messagename</var>
+        <sep>,</sep>
+        <var>arguments</var>
+    </groupseq>
+    <groupseq importance="optional">
+        <sep>,</sep>
+        <kwd>NAMEDARGUMENTS</kwd>
+        <sep>:</sep>
+        <var>exprd</var>
+    </groupseq>
+    <groupseq>
+        <delim>)</delim>
+    </groupseq>
+</syntaxdiagram>
+
+<!--============================================================================
+_13
+=============================================================================-->
+
+<![CDATA[
+             1         2         3         4         5    
+    123456789012345678901234567890123456789012345678901234
+  1                                                       
+  2 Routine~callWith:                                     
+  3                                                       
+  4 >>-callWith(-array-+--------------------------+-)---><
+  5                    +-,-NAMEDARGUMENTS-:-exprd-+       
+  6                                                       
+]]>
+
+<syntaxdiagram>
+    <title>sd_Routine_callWith</title>
+    <groupcomp>
+        <kwd>callWith</kwd>
+        <delim>(</delim>
+    </groupcomp>
+    <groupseq>
+        <var>array</var>
+    </groupseq>
+    <groupseq importance="optional">
+        <sep>,</sep>
+        <kwd>NAMEDARGUMENTS</kwd>
+        <sep>:</sep>
+        <var>exprd</var>
+    </groupseq>
+    <groupseq>
+        <delim>)</delim>
+    </groupseq>
+</syntaxdiagram>
+
+<!--============================================================================
+_14
+=============================================================================-->
+
+<![CDATA[
+             1         2         3         4         5   
+    12345678901234567890123456789012345678901234567890123
+  1                                                      
+  2 Context~setArgs:                                     
+  3                                                      
+  4 >>-setArgs(-array-+--------------------------+-)---><
+  5                   +-,-NAMEDARGUMENTS-:-exprd-+       
+  6                                                      
+]]>
+
+<syntaxdiagram>
+    <title>sd_Context_setArgs</title>
+    <groupcomp>
+        <kwd>setArgs</kwd>
+        <delim>(</delim>
+    </groupcomp>
+    <groupseq>
+        <var>array</var>
+    </groupseq>
+    <groupseq importance="optional">
+        <sep>,</sep>
+        <kwd>NAMEDARGUMENTS</kwd>
+        <sep>:</sep>
+        <var>exprd</var>
+    </groupseq>
+    <groupseq>
+        <delim>)</delim>
+    </groupseq>
+</syntaxdiagram>
+
+</syntaxdiagrams>

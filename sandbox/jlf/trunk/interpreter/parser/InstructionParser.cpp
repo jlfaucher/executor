@@ -2544,6 +2544,8 @@ RexxInstruction *RexxSource::useNew()
     saveObject(variable_list);
     RexxQueue *defaults_list = new_queue();
     saveObject(defaults_list);
+    RexxQueue *minimumLength_list = new_queue(); // Minimum length for abbreviation
+    saveObject(minimumLength_list);
     token = nextReal();                  /* get the next token                */
 
     bool allowOptionals = false;  // we don't allow trailing optionals unless the list ends with "..."
@@ -2559,6 +2561,7 @@ RexxInstruction *RexxSource::useNew()
             // we also need to push empty entries on the other queues to keep everything in sync.
             variable_list->push(OREF_NULL);
             defaults_list->push(OREF_NULL);
+            minimumLength_list->push(OREF_NULL);
             variableCount++;
             // step to the next token, and go process more
             token = nextReal();
@@ -2600,6 +2603,42 @@ RexxInstruction *RexxSource::useNew()
             variable_list->push(retriever);
             variableCount++;
             token = nextReal();
+
+            // For named argument only : optional minimum length specified after the name
+            // USE NAMED ARG myname(4)
+            if (namedArg && token->classId == TOKEN_LEFT)
+            {
+                RexxToken *tokenLeft = token; // will be used for error message
+                token = nextReal();
+                RexxString *token_strvalue = token->value;
+                size_t token_intvalue = 0;
+                if (token->subclass == SYMBOL_CONSTANT
+                    && token->numeric == INTEGER_CONSTANT
+                    && token_strvalue->requestUnsignedNumber(token_intvalue, number_digits())
+                    &&  token_intvalue > 0)
+                {
+                    RexxInteger * minimumLength = new_integer(token_intvalue);
+                    ProtectedObject p(minimumLength);
+                    minimumLength_list->push(minimumLength);
+                }
+                else
+                {
+                    RexxString *message = new_string("Named argument minimum length must be a positive whole number");
+                    ProtectedObject p(message);
+                    syntaxError(Error_Invalid_whole_number_user_defined, message);
+                }
+                token = nextReal();
+                if (token->classId != TOKEN_RIGHT)
+                {
+                    syntaxErrorAt(Error_Unmatched_parenthesis_paren, tokenLeft);
+                }
+                token = nextReal();
+            }
+            else
+            {
+                minimumLength_list->push(OREF_NULL);
+            }
+
             // a terminator takes us out.  We need to keep all 3 lists in sync with dummy entries.
             if (token->isEndOfClause())
             {
@@ -2613,8 +2652,10 @@ RexxInstruction *RexxSource::useNew()
                 token = nextReal();
                 continue;
             }
+
             // if this is NOT a comma, we potentially have a
             // default value
+
             if (token->subclass == OPERATOR_EQUAL)
             {
                 // this is a constant expression value.  Single token forms
@@ -2652,11 +2693,12 @@ RexxInstruction *RexxSource::useNew()
     }
 
     RexxInstruction *newObject = new_variable_instruction(USE, Use, sizeof(RexxInstructionUseStrict) + (variableCount == 0 ? 0 : (variableCount - 1)) * sizeof(UseVariable));
-    new ((void *)newObject) RexxInstructionUseStrict(variableCount, strictChecking, allowOptionals, autoCreation, namedArg, variable_list, defaults_list);
+    new ((void *)newObject) RexxInstructionUseStrict(variableCount, strictChecking, allowOptionals, autoCreation, namedArg, variable_list, defaults_list, minimumLength_list);
 
     // release the object locks and return;
     removeObj(variable_list);
     removeObj(defaults_list);
+    removeObj(minimumLength_list);
     return newObject;
 }
 

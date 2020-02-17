@@ -50,7 +50,7 @@
 #include "ExpressionBaseVariable.hpp"
 
 
-RexxInstructionUseStrict::RexxInstructionUseStrict(size_t count, bool strict, bool extraAllowed, bool autoCreate, bool named, RexxQueue *variable_list, RexxQueue *defaults)
+RexxInstructionUseStrict::RexxInstructionUseStrict(size_t count, bool strict, bool extraAllowed, bool autoCreate, bool named, RexxQueue *variable_list, RexxQueue *defaults, RexxQueue *minimumLength_list)
 {
     if (strict && autoCreate && named && !extraAllowed)
     {
@@ -74,6 +74,7 @@ RexxInstructionUseStrict::RexxInstructionUseStrict(size_t count, bool strict, bo
         count--;
         OrefSet(this, variables[count].variable, (RexxVariableBase *)variable_list->pop());
         OrefSet(this, variables[count].defaultValue, defaults->pop());
+        OrefSet(this, variables[count].minimumLength, (RexxInteger *)minimumLength_list->pop());
 
         // if this is a real variable, see if this is the last of the required ones.
         if (minimumRequired < count + 1 && variables[count].variable != OREF_NULL)
@@ -85,6 +86,14 @@ RexxInstructionUseStrict::RexxInstructionUseStrict(size_t count, bool strict, bo
             }
         }
     }
+
+//#if 0
+    if (this->namedArg && this->checkNamedArguments() == false)
+    {
+        reportException(Error_Translation_user_defined, "The named argument names are not unique, or their abbreviation is not distinctive enough");
+
+    }
+//#endif
 }
 
 
@@ -101,6 +110,7 @@ void RexxInstructionUseStrict::live(size_t liveMark)
   {
       memory_mark(this->variables[i].variable);
       memory_mark(this->variables[i].defaultValue);
+      memory_mark(this->variables[i].minimumLength);
   }
 }
 
@@ -120,6 +130,7 @@ void RexxInstructionUseStrict::liveGeneral(int reason)
   {
       memory_mark_general(this->variables[i].variable);
       memory_mark_general(this->variables[i].defaultValue);
+      memory_mark_general(this->variables[i].minimumLength);
   }
 }
 
@@ -141,6 +152,7 @@ void RexxInstructionUseStrict::flatten(RexxEnvelope *envelope)
   {
       flatten_reference(newThis->variables[i].variable, envelope);
       flatten_reference(newThis->variables[i].defaultValue, envelope);
+      flatten_reference(newThis->variables[i].minimumLength, envelope);
   }
   cleanUpFlatten
 }
@@ -317,6 +329,9 @@ void RexxInstructionUseStrict::executeNamedArguments(RexxActivation *context, Re
     {
         RexxVariableBase *variable = this->variables[i].variable;
         expectedNamedArguments[i].name = variable->getName()->getStringData();
+        expectedNamedArguments[i].minimumLength = -1; // by default, no abbreviation
+        RexxInteger *RexxMinimumLength = this->variables[i].minimumLength;
+        if (RexxMinimumLength != OREF_NULL) RexxMinimumLength->numberValue(expectedNamedArguments[i].minimumLength);
     }
 
     // Iterate over the named arguments passed by the caller, match them with the names declared by the callee.
@@ -393,6 +408,36 @@ void RexxInstructionUseStrict::executeNamedArguments(RexxActivation *context, Re
 }
 
 
+// Helper to check that the abbreviated argument names are distinct from each other.
+// This check is made at parse time, not at runtime.
+bool RexxInstructionUseStrict::checkNamedArguments()
+{
+    // Helper storage to detect the collisions of names
+    NamedArguments expectedNamedArguments(this->variableCount);
+
+    // Iterate over the named arguments declared by the callee with the instruction USE NAMED ARG.
+    // Collect their names.
+    for (size_t i = 0; i < this->variableCount; i++)
+    {
+        RexxVariableBase *variable = this->variables[i].variable;
+        expectedNamedArguments[i].name = variable->getName()->getStringData();
+        expectedNamedArguments[i].minimumLength = -1; // by default, no abbreviation
+        RexxInteger *RexxMinimumLength = this->variables[i].minimumLength;
+        if (RexxMinimumLength != OREF_NULL) RexxMinimumLength->numberValue(expectedNamedArguments[i].minimumLength);
+    }
+
+    // Iterate over the collected named arguments, and check each one with all others
+    // If there is a match then return false : the names are not unique
+    for (size_t i = 0; i < this->variableCount; i++)
+    {
+        expectedNamedArguments[i].assigned = true; // To not compare with itself, and to compare only once with others
+        bool match = expectedNamedArguments.check(expectedNamedArguments[i].name, OREF_NULL, false, true, expectedNamedArguments[i].minimumLength);
+        if (match) return false;
+    }
+    return true;
+}
+
+
 /*============================================================================*/
 /* Named argument helpers for internal methods                                */
 /*============================================================================*/
@@ -411,9 +456,16 @@ Example:
     namedArguments.check(name2, value2, namedArguments);
     namedArguments.check(name3, value3, namedArguments);
 */
-bool NamedArguments::check(RexxString *name, RexxObject *value, bool strict)
+
+bool NamedArguments::check(RexxString *name, RexxObject *value, bool strict, bool parsetime, ssize_t name_minimumLength)
 {
-    if (name == OREF_NULL) return false;
+    if (name == NULL) return false;
+    return this->check(name->getStringData(), value, strict, parsetime, name_minimumLength);
+}
+
+bool NamedArguments::check(const char *name, RexxObject *value, bool strict, bool parsetime, ssize_t name_minimumLength)
+{
+    if (name == NULL) return false;
 
     // The logic is similar to RexxString::abbrev, but here I avoid to use strlen.
     // For a given expected argument name, there is only one loop over the characters, which stops as soon as possible.
@@ -426,16 +478,44 @@ bool NamedArguments::check(RexxString *name, RexxObject *value, bool strict)
     {
         if (this->namedArguments[i].assigned) continue; // Already matched (assumption: you will not call this helper with the same name twice)
 
-        const char *nameIterator = name->getStringData();
+        const char *nameIterator = name;
         const char *expectedNameIterator = this->namedArguments[i].name;
 
-        size_t minimumLength = this->namedArguments[i].minimumLength;
+        ssize_t nameMinimumLength = name_minimumLength; // always -1 at run-time, can be -1 or >=1 at parse-time
+        ssize_t expectedNameMinimumLength = this->namedArguments[i].minimumLength;
+
         while(1)
         {
-            if (minimumLength > 0)
+            if (expectedNameMinimumLength != 0) // can be -1 (no abbreviation) or >=1 (abbreviation)
             {
-                // Checking the mandatory characters
+                // Checking the mandatory characters of expectedName
+
+                if (parsetime && nameMinimumLength == 0 && *expectedNameIterator == '\0')
+                {
+                    /*
+                        Illustration:
+                        USE NAMED ARG namedArguments(1), namedArgument
+                        Possible values for namedArguments(1):
+                         "n", "na", "nam", "name", ..., "namedArgumen" don't match with "namedArgument".
+                        "namedArgument" will match ! Must trigger an error.
+                        "namedArguments" dont match with "namedArgument".
+                    */
+
+                    // We are at parse-time, we check that the names are unique.
+                    // All the mandatory characters of 'name' have matched with 'expectedName'.
+                    // We are in the optional characters of 'name' (because nameMinimumLength == 0).
+                    // All the characters of 'expectedName' have been checked (because *expectedNameIterator == '\0').
+                    // We have a match even if 'name' has more characters (potential match detected at parse-time)
+
+                    this->namedArguments[i].value = value;
+                    this->namedArguments[i].assigned = true;
+                    return true;
+                }
+
                 if (*nameIterator != *expectedNameIterator) break; // no match
+
+                // Here, we know that the 2 characters are equal
+                // If one of them is \0 then the other is also \0
                 if (*nameIterator == '\0')
                 {
                     // good, the name matches an expected argument name
@@ -443,11 +523,13 @@ bool NamedArguments::check(RexxString *name, RexxObject *value, bool strict)
                     this->namedArguments[i].assigned = true;
                     return true;
                 }
-                minimumLength--;
+
+                if (nameMinimumLength > 0) nameMinimumLength--; // Will stay -1 when no abbreviation on caller side, or 0 when all mandatory characters have been checked
+                if (expectedNameMinimumLength > 0) expectedNameMinimumLength--; // Will stay 1 when no abbreviation on called side, or 0 when all mandatory characters have been checked
             }
-            else
+            else if (expectedNameMinimumLength == 0)
             {
-                // Checking the optional characters
+                // Checking the optional characters of expectedName
                 if (*nameIterator == '\0')
                 {
                     // good, the name matches an expected argument name
@@ -455,14 +537,19 @@ bool NamedArguments::check(RexxString *name, RexxObject *value, bool strict)
                     this->namedArguments[i].assigned = true;
                     return true;
                 }
+
                 if (*nameIterator != *expectedNameIterator) break; // no match
+
+                if (nameMinimumLength > 0) nameMinimumLength--; // Will stay -1 when no abbreviation on caller side, or 0 when all mandatory characters have been checked
             }
             nameIterator++;
             expectedNameIterator++;
         }
     }
     // The name did not match an expected argument name
-    if (strict) reportException(Error_Invalid_argument_general, OREF_named, name, "is not an expected argument name");
+    RexxString *rexxname = new_string(name);
+    ProtectedObject p(rexxname);
+    if (strict) reportException(Error_Invalid_argument_general, OREF_named, rexxname, "is not an expected argument name");
     return false;
 }
 

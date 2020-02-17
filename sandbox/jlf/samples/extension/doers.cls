@@ -328,8 +328,7 @@ Ex :
 
 ::method doWith unguarded
     use strict arg object, array
-    -- To rework: here, the abbreviation n: is not supported (the caller MUST pass the name 'namedArguments')
-    use strict named arg namedArguments = (.nil)
+    use strict named arg namedArguments(1) = (.nil)
     forward to (object) message "run" array (self, "a", array, n:namedArguments)
 
 
@@ -354,8 +353,7 @@ Ex :
 
 ::method doWith unguarded
     use strict arg object, array
-    -- To rework: here, the abbreviation n: is not supported (the caller MUST pass the name 'namedArguments')
-    use strict named arg namedArguments = (.nil)
+    use strict named arg namedArguments(1) = (.nil)
     forward to (object) message "sendWith" array (self, array, n:namedArguments)
 
 
@@ -503,7 +501,7 @@ Ex :
 */
 ::method unknown unguarded
     use arg msg, args
-    use named arg namedArguments
+    use named arg namedArguments(1)
     forward message (msg) arguments (args) namedArguments (namedArguments) to (self~doer)
 
 
@@ -527,8 +525,7 @@ Ex :
 
 ::method doWith unguarded
     use strict arg array
-    -- To rework: here, the abbreviation n: is not supported (the caller MUST pass the name 'namedArguments')
-    use strict named arg namedArguments = (.nil)
+    use strict named arg namedArguments(1) = (.nil)
     forward message "resume" arguments (array) namedArguments(namedArguments)
 
 
@@ -623,8 +620,7 @@ Examples :
 
 ::method doWith unguarded
     use strict arg array
-    -- To rework: here, the abbreviation n: is not supported (the caller MUST pass the name 'namedArguments')
-    use strict named arg namedArguments = (.nil)
+    use strict named arg namedArguments(1) = (.nil)
     forward message "do" arguments (array) namedArguments(namedArguments)
 
 

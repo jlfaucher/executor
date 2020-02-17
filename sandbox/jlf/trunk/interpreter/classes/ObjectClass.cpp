@@ -2140,7 +2140,7 @@ RexxObject  *RexxObject::run(
         RexxObject *argValue0 = (0 < named_argumentsCount) ? named_arguments[(2 * 0) + 1] : OREF_NULL;
         NamedArguments expectedNamedArguments(1); // At most, one named argument
         expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", 1, TheNilObject); // At least 1 character, default value = .NIL
-        expectedNamedArguments.check(argName0, argValue0, true); // Strict, will raise an error if no match
+        expectedNamedArguments.check(argName0, argValue0, true); // Strict, will raise an error if argName0 not null and no match
 
         argdirectory = (RexxDirectory *)expectedNamedArguments[0].value;
         if (argdirectory != TheNilObject)

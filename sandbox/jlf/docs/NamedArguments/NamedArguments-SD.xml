@@ -84,7 +84,7 @@ Function:
 Instruction FORWARD:
 
 >>-FORWARD--+------------+--+---+--------------------+--+-------------------------+---+--+------------------+--+----------------+--+-------------+----><
-            +--CONTINUE--+  |   +--ARGUMENTS--expra--+  +--NAMEDARGUMENTS--exprn--+   |  +--MESSAGE--exprm--+  +--CLASS--exprs--+  +--TO--exprt--+
+            +--CONTINUE--+  |   +--ARGUMENTS--expra--+  +--NAMEDARGUMENTS--exprd--+   |  +--MESSAGE--exprm--+  +--CLASS--exprs--+  +--TO--exprt--+
                             +--------------ARRAY----(--| Arguments |--)---------------+
 
 ]]>
@@ -95,12 +95,12 @@ Instruction FORWARD:
 <![CDATA[
 Instruction USE:
 
-                                                       +-,----------------------+
-                                                       V                        |
->>-USE--+----------+--+--------+-----NAMED-----ARG--+------name-+----------+----+--+----------+---+-----><
-        +--STRICT--+  +--AUTO--+                    |           +-=--expr--+       +--,--...--+   |
-                                                    +--+-------+----------------------------------+
-                                                       +--...--+
+                                                           +-,----------------------------------+
+                                                           V                                    |
+    >>-USE--+----------+--+--------+-----NAMED-----ARG--+------name-+-------+---+----------+----+--+----------+----+--><
+            +--STRICT--+  +--AUTO--+                    |           +-(-n-)-+   +-=--expr--+       +--,--...--+    |
+                                                        +--+-------+-----------------------------------------------+
+                                                           +--...--+
 
 ]]>
 </programlisting>
@@ -113,7 +113,7 @@ Message~new:
 >>-new(-target-,-messagename-+-------------------------------------------------------+-)--><
                              +-,-"Individual"--| Arguments |-------------------------+
                              +--+-------------------+--+--------------------------+--+
-                                +-,-"Array"-,-expra-+  +-,-namedArguments-:-exprd-+
+                                +-,-"Array"-,-expra-+  +-,-NAMEDARGUMENTS-:-exprd-+
 
 ]]>
 </programlisting>
@@ -126,7 +126,7 @@ Object~run:
 >>-run(-method-+-------------------------------------------------------+-)--><
                +-,-"Individual"---| Arguments |------------------------+
                +--+-------------------+--+--------------------------+--+
-                  +-,-"Array"-,-expra-+  +-,-namedArguments-:-exprd-+
+                  +-,-"Array"-,-expra-+  +-,-NAMEDARGUMENTS-:-exprd-+
 
 ]]>
 </programlisting>
@@ -136,7 +136,8 @@ Object~run:
 <![CDATA[
 Object~sendWith:
 
->>-sendWith(-messagename-,-arguments-,-namedArguments -:-namedArguments-)---><
+>>-sendWith(-messagename-,-arguments-+--------------------------+--)---><
+                                     +-,-NAMEDARGUMENTS-:-exprd-+
 
 ]]>
 </programlisting>
@@ -146,7 +147,8 @@ Object~sendWith:
 <![CDATA[
 Object~startWith:
 
->>-startWith(-messagename-,-arguments-,-namedArguments-:-namedArguments-)---><
+>>-startWith(-messagename-,-arguments-+--------------------------+-)---><
+                                      +-,-NAMEDARGUMENTS-:-exprd-+
 
 ]]>
 </programlisting>
@@ -156,7 +158,8 @@ Object~startWith:
 <![CDATA[
 Routine~callWith:
 
->>-callWith(-array-,-namedArguments-:-namedArguments-)----------------------><
+>>-callWith(-array-+--------------------------+-)---><
+                   +-,-NAMEDARGUMENTS-:-exprd-+
 
 ]]>
 </programlisting>
@@ -167,7 +170,7 @@ Routine~callWith:
 Context~setArgs:
 
 >>-setArgs(-array-+--------------------------+-)---><
-                  +-,-namedArguments-:-exprd-+
+                  +-,-NAMEDARGUMENTS-:-exprd-+
 
 ]]>
 </programlisting>
