@@ -508,13 +508,12 @@ class NamedArguments
     // name: name of the argument passed by the caller, to search in expectedNamedArguments. Can be null.
     // value: value of the argument passed by the caller, to store in expectedNamedArguments if name is found. Can be null.
     // strict: raise error if true and name not null and name not found.
-    // parsetime: true if checking the unicity of names, false if matching the names at runtime.
+    // name_minimumLength: passed when checking at parsetime the unicity of the names in the USE instruction
     //     @parsetime: check each name <N> declared in the USE instruction with all other names <ON> in this USE instruction.
     //                 name_minimumLength is the minimumLength of the name <N>.
     //     @runtime : check the name passed by the caller (no abbreviation on caller side, name_minimumLength is always -1).
-    // name_minimumLength: passed when checking at parsetime the unicity of the names in the USE instruction
-    bool check(RexxString *name, RexxObject *value, bool strict = true, bool parsetime = false, ssize_t name_minimumLength = -1);
-    bool check(const char *name, RexxObject *value, bool strict = true, bool parsetime = false, ssize_t name_minimumLength = -1);
+    bool check(RexxString *name, RexxObject *value, bool strict = true, ssize_t name_minimumLength = -1);
+    bool check(const char *name, RexxObject *value, bool strict = true, ssize_t name_minimumLength = -1);
 
     const size_t count;
 

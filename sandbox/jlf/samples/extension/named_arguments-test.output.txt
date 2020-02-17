@@ -1599,7 +1599,7 @@ call useStrictOneNamed_NoDefault
     positional count=0 size=0
     named count=0
     use strict named arg a1
-    [trapped] Not enough positional arguments in invocation of USESTRICTONENAMED_NODEFAULT; minimum expected is 1
+    [trapped] Not enough named arguments in invocation of USESTRICTONENAMED_NODEFAULT; minimum expected is 1
     [trapped] Code= 40.3
 Expected: Error 40.3: Not enough named arguments in invocation of USESTRICTONENAMED_NODEFAULT; minimum expected is 1
 

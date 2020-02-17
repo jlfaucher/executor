@@ -295,8 +295,8 @@ Now, this case cannot happen, because an error is raised at parsetime : "The nam
     'OPTION'  :  1
     'OPTIONS' :  2
 
--- The minimum length 6 creates a collision of names
-{use strict named arg option=10, options(6)=20; .context~variables}~(options:2, option:1)=
+-- The minimum length 6 creates a collision of names, detected at parsetime.
+{use strict named arg option=10, options(6)}=
     The named argument names are not unique, or their abbreviation is not distinctive enough
     Code= 99.900
 
@@ -305,6 +305,11 @@ Now, this case cannot happen, because an error is raised at parsetime : "The nam
     a Directory (2 items)
     'OPTION'  :  1
     'OPTIONS' :  2
+
+-- The minimum length 1 on both names creates a collision of names, detected at parsetime.
+{use named arg item(1), index(1)}=
+    The named argument names are not unique, or their abbreviation is not distinctive enough
+    Code= 99.900
 
 
 ===============================================================================
@@ -330,6 +335,8 @@ Add method ~of to the class Directory:
     'key 1' : 'value 1'
     'key 2' :  2
 Add routine d(...) to create a directory with values.
+A key-value where the key is compatible with a named  argument can be passed as named argument. The key is converted to uppercase.
+A key-value where the key is not compatible with a named argument must be passed as a pair of positional arguments.
 
 
 For compatibility with ooRexx5:
