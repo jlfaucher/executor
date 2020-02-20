@@ -424,12 +424,11 @@ bool RexxInstructionUseStrict::checkNamedArguments()
         if (RexxMinimumLength != OREF_NULL) RexxMinimumLength->numberValue(expectedNamedArguments[i].minimumLength);
     }
 
-    // Iterate over the collected named arguments, and check each one with all others
+    // Iterate over the collected named arguments, and check each one with all the followings
     // If there is a match then return false : the names are not unique
     for (size_t i = 0; i < this->variableCount; i++)
     {
-        expectedNamedArguments[i].assigned = true; // To not compare with itself, and to compare only once with others
-        bool match = expectedNamedArguments.check(expectedNamedArguments[i].name, OREF_NULL, false, expectedNamedArguments[i].minimumLength);
+        bool match = expectedNamedArguments.check(expectedNamedArguments[i].name, OREF_NULL, false, expectedNamedArguments[i].minimumLength, i+1);
         if (match) return false;
     }
     return true;
@@ -455,13 +454,13 @@ Example:
     namedArguments.check(name3, value3);
 */
 
-bool NamedArguments::check(RexxString *name, RexxObject *value, bool strict, ssize_t name_minimumLength)
+bool NamedArguments::check(RexxString *name, RexxObject *value, bool strict, ssize_t name_minimumLength, size_t from)
 {
     if (name == NULL) return false;
-    return this->check(name->getStringData(), value, strict, name_minimumLength);
+    return this->check(name->getStringData(), value, strict, name_minimumLength, from);
 }
 
-bool NamedArguments::check(const char *name, RexxObject *value, bool strict, ssize_t name_minimumLength)
+bool NamedArguments::check(const char *name, RexxObject *value, bool strict, ssize_t name_minimumLength, size_t from)
 {
     if (name == NULL) return false;
 
@@ -472,7 +471,8 @@ bool NamedArguments::check(const char *name, RexxObject *value, bool strict, ssi
     // (this kind of test is done in RexxObject::run: testing only the first character and ignoring the rest of the characters)
 
     // There is no order for the named argument, so try all the expected names
-    for (size_t i=0; i < this->count; i++)
+    // At parse-time, 'from' will be different from 0 (index+1 of the current name being checked for collision).
+    for (size_t i=from; i < this->count; i++)
     {
         if (this->namedArguments[i].assigned) continue; // Already matched (assumption: you will not call this helper with the same name twice)
 

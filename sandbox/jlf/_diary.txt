@@ -251,11 +251,6 @@ Add support for optional declaration of minimum length (abbreviation):
     use named arg abbreviated(1)=(.nil)
     use named arg abbreviated (1) = (.nil)
 
--- ok, this error message should be reworked to say that only digits are accepted
-{use named arg abbreviated (+1) = (.nil)}
-    Named argument minimum length must be a positive whole number
-    Code= 26.900
-
 The interpreter checks at parsetime that the names are unique.
 The interpreter also checks at parsetime that the minimal lengths are discriminating.
 use named arg command(1), option          -- ok: "option" is different from "command"

@@ -186,6 +186,7 @@ call interpret 'call useStrictOneNamed_WithDefaultExpression'
 call interpret 'call useStrictOneNamed_WithDefaultExpression a1:2'
 call interpret 'call useStrictAutoNamed_WithEllipse'
 call interpret 'call useNamed_SimpleSymbol v1:1, v3:3, v5:5'
+call interpret 'call useAutoNamed_WithMinimumLength'
 
 call interpret 'call useAutoNamed_SimpleSymbol v1:1, v3:3, v5:5, index:"My index", item:"My item"' -
              , 'The automatic variables are created first (here v3=3, v5=5, index="My index" and item="My item"), in the order of declaration on caller side (left to right).' -
@@ -218,6 +219,7 @@ call interpret 'call useAutoNamed_CompoundSymbol stem.v1:1, stem.v3:3, stem.v4:4
              , 'Then the declared named arguments are assigned with the passed values, in the order of declaration on called side (left to right).' -
              , 'Then the assignments stem.v1=1, stem.v2="My index" (default) and stem.v3=3 are made.' -
              , 'Note that the automatic variable stem.v4 is available, since the stem is not reset.'
+
 
 say "Testing the display of trace"
 say '{...<source>..}~(a:1,b:"letter b",stem.:"default", stem.a:100, stem.b:200, stem.c:300)'
@@ -480,6 +482,20 @@ call interpret 'call useStrictOneNamed_WithDefaultExpression b2:2' -
 call interpret 'call useStrictAutoNamed_WithoutEllipse' -
              , 'Error 99.900: STRICT AUTO requires the "..." argument marker at the end of the argument list'
 
+-- Abbreviation
+call interpret '{use named arg n()}' -
+             , 'Error 26.900: Named argument minimum length must be a positive whole number'
+call interpret '{use named arg n(0)}' -
+             , 'Error 26.900: Named argument minimum length must be a positive whole number'
+call interpret '{use named arg command, commands(7)}' -
+             , 'Error 99.900: The named argument names are not unique, or their abbreviation is not distinctive enough'
+call interpret '{use named arg command(1), commands(7)}' -
+             , 'Error 99.900: The named argument names are not unique, or their abbreviation is not distinctive enough'
+call interpret '{use named arg n, n}' -
+             , 'Error 99.900: The named argument names are not unique, or their abbreviation is not distinctive enough'
+call interpret '{use named arg item(1), index(1)}' -
+             , 'Error 99.900: The named argument names are not unique, or their abbreviation is not distinctive enough'
+
 -- Change arguments
 call interpret '.context~setArgs' -
              , 'Error 93.903: Missing positional argument in method; argument 1 is required'
@@ -598,6 +614,32 @@ interpret: procedure
     say 'use named arg v1, v2=2'
          use named arg v1, v2=2
     call sayCollection "variables", .context~variables
+    return ""
+
+--------------------------------------------------------------------------------
+::routine useAutoNamed_WithMinimumLength
+    -- Specifying a minimum length
+
+    call indent
+    say 'use named arg n(1)'
+         use named arg n(1)
+
+    call indent
+    say 'use named arg n(10)'
+         use named arg n(10)
+
+    call indent
+    say 'use named arg n(100)'
+         use named arg n(100)
+
+    call indent
+    say 'use named arg n(+1)'
+         use named arg n(+1)
+
+    call indent
+    say 'use named arg n(1) = 10'
+         use named arg n(1) = 10
+
     return ""
 
 --------------------------------------------------------------------------------

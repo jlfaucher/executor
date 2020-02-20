@@ -683,6 +683,14 @@ call useNamed_SimpleSymbol v1:1, v3:3, v5:5
         V2 : 2
 
 
+call useAutoNamed_WithMinimumLength
+    use named arg n(1)
+    use named arg n(10)
+    use named arg n(100)
+    use named arg n(+1)
+    use named arg n(1) = 10
+
+
 call useAutoNamed_SimpleSymbol v1:1, v3:3, v5:5, index:"My index", item:"My item"
     positional count=0 size=0
     named count=5
@@ -1325,8 +1333,8 @@ n1=1 n2=2
         N1 : 1
         N2 : 2
 
-    
-On entry in the thread (migrated arguments)
+    On entry in the thread (migrated arguments)
+
     positional count=2 size=2
         1 : 1
         2 : 2
@@ -1649,6 +1657,42 @@ call useStrictAutoNamed_WithoutEllipse
     [trapped] STRICT AUTO requires the "..." argument marker at the end of the argument list
     [trapped] Code= 99.900
 Expected: Error 99.900: STRICT AUTO requires the "..." argument marker at the end of the argument list
+
+
+{use named arg n()}
+    [trapped] Named argument minimum length must be a positive whole number
+    [trapped] Code= 26.900
+Expected: Error 26.900: Named argument minimum length must be a positive whole number
+
+
+{use named arg n(0)}
+    [trapped] Named argument minimum length must be a positive whole number
+    [trapped] Code= 26.900
+Expected: Error 26.900: Named argument minimum length must be a positive whole number
+
+
+{use named arg command, commands(7)}
+    [trapped] The named argument names are not unique, or their abbreviation is not distinctive enough
+    [trapped] Code= 99.900
+Expected: Error 99.900: The named argument names are not unique, or their abbreviation is not distinctive enough
+
+
+{use named arg command(1), commands(7)}
+    [trapped] The named argument names are not unique, or their abbreviation is not distinctive enough
+    [trapped] Code= 99.900
+Expected: Error 99.900: The named argument names are not unique, or their abbreviation is not distinctive enough
+
+
+{use named arg n, n}
+    [trapped] The named argument names are not unique, or their abbreviation is not distinctive enough
+    [trapped] Code= 99.900
+Expected: Error 99.900: The named argument names are not unique, or their abbreviation is not distinctive enough
+
+
+{use named arg item(1), index(1)}
+    [trapped] The named argument names are not unique, or their abbreviation is not distinctive enough
+    [trapped] Code= 99.900
+Expected: Error 99.900: The named argument names are not unique, or their abbreviation is not distinctive enough
 
 
 .context~setArgs

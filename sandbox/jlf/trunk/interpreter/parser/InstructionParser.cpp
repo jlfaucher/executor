@@ -2610,6 +2610,12 @@ RexxInstruction *RexxSource::useNew()
             {
                 RexxToken *tokenLeft = token; // will be used for error message
                 token = nextReal();
+
+                // if "+" then skip it
+                if (token->isOperator() && token->subclass == OPERATOR_PLUS)
+                {
+                    token = nextReal();
+                }
                 RexxString *token_strvalue = token->value;
                 size_t token_intvalue = 0;
                 if (token->subclass == SYMBOL_CONSTANT

@@ -512,8 +512,8 @@ class NamedArguments
     //     @parsetime: check each name <N> declared in the USE instruction with all other names <ON> in this USE instruction.
     //                 name_minimumLength is the minimumLength of the name <N>.
     //     @runtime : check the name passed by the caller (no abbreviation on caller side, name_minimumLength is always -1).
-    bool check(RexxString *name, RexxObject *value, bool strict = true, ssize_t name_minimumLength = -1);
-    bool check(const char *name, RexxObject *value, bool strict = true, ssize_t name_minimumLength = -1);
+    bool check(RexxString *name, RexxObject *value, bool strict = true, ssize_t name_minimumLength = -1, size_t from=0);
+    bool check(const char *name, RexxObject *value, bool strict = true, ssize_t name_minimumLength = -1, size_t from=0);
 
     const size_t count;
 
