@@ -437,6 +437,16 @@ call interpret 'r = .myclass~sendWith("mymethod", (1, 2), namedArguments: "not a
              , 'Error 98.900: sendWith: The value of NAMEDARGUMENTS must be a directory or NIL'
 
 
+-- Method 'callWith'
+call interpret '{}~rawExecutable~callwith(.array~of(), n:.directory~of(""))' -
+             , 'Error 20.900: Expected a symbol for the named argument name; found ""'
+call interpret '{}~rawExecutable~callwith(.array~of(), n:.directory~of("1"))' -
+             , 'Error 20.900: Expected a symbol for the named argument name; found "1"'
+call interpret '{}~rawExecutable~callwith(.array~of(), n:.directory~of("a 1"))' -
+             , 'Error 20.900: Expected a symbol for the named argument name; found "a 1"'
+call interpret '{}~rawExecutable~callwith(.array~of(), n:.directory~of(".a"))' -
+             , 'Error 20.900: Expected a symbol for the named argument name; found ".a"'
+
 -- Instruction 'forward'
 source = 'forward message "mymethod" namedArguments continue'
 call interpret 'm = .method~new("",' quoted(source)')' -
@@ -879,9 +889,15 @@ interpret: procedure
 
 --------------------------------------------------------------------------------
 
--- .directory~of(a1:1, a2:2)
--- Next step : Modify the parser to support directly a directory literal (a1:1, a2:2)
+-- Directory initializer
+--     .directory~of("key 1":"value 1", "key 2":2, a1:1, a2:2)
+-- The key-value where the key is compatible with a named  argument can be passed as named argument.
+-- The key-value where the key is not compatible with a named argument can be passed as a pair of positional arguments.
 ::extension Directory
 ::method of class
-    use strict arg -- no positional argument
-    return .context~namedArgs
+    use arg key, value, ...
+    directory = .context~namedArgs
+    do i = 1 to arg() by 2
+        directory[arg(i)] = arg(i+1)
+    end
+    return directory

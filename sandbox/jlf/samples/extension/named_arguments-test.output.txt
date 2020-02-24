@@ -1332,8 +1332,8 @@ n1=1 n2=2
     named count=2
         N1 : 1
         N2 : 2
-
-    On entry in the thread (migrated arguments)
+    
+On entry in the thread (migrated arguments)
 
     positional count=2 size=2
         1 : 1
@@ -1527,6 +1527,30 @@ r = .myclass~sendWith("mymethod", (1, 2), namedArguments: "not a directory")
     [trapped] SENDWITH namedArguments must be a directory or NIL
     [trapped] Code= 98.900
 Expected: Error 98.900: sendWith: The value of NAMEDARGUMENTS must be a directory or NIL
+
+
+{}~rawExecutable~callwith(.array~of(), n:.directory~of(""))
+    [trapped] Expected a symbol for the named argument name; found ""
+    [trapped] Code= 20.900
+Expected: Error 20.900: Expected a symbol for the named argument name; found ""
+
+
+{}~rawExecutable~callwith(.array~of(), n:.directory~of("1"))
+    [trapped] Expected a symbol for the named argument name; found "1"
+    [trapped] Code= 20.900
+Expected: Error 20.900: Expected a symbol for the named argument name; found "1"
+
+
+{}~rawExecutable~callwith(.array~of(), n:.directory~of("a 1"))
+    [trapped] Expected a symbol for the named argument name; found "a 1"
+    [trapped] Code= 20.900
+Expected: Error 20.900: Expected a symbol for the named argument name; found "a 1"
+
+
+{}~rawExecutable~callwith(.array~of(), n:.directory~of(".a"))
+    [trapped] Expected a symbol for the named argument name; found ".a"
+    [trapped] Code= 20.900
+Expected: Error 20.900: Expected a symbol for the named argument name; found ".a"
 
 
 m = .method~new("", 'forward message "mymethod" namedArguments continue')

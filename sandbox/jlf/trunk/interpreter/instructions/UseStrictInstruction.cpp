@@ -344,7 +344,16 @@ void RexxInstructionUseStrict::executeNamedArguments(RexxActivation *context, Re
         if (!match && this->autoCreation)
         {
             context->traceResult(argValue); // trace if necessary
-            RexxVariableBase *retriever = RexxVariableDictionary::getVariableRetriever(argName);
+            RexxVariableBase *retriever = OREF_NULL;
+            if (argName != OREF_NULL) retriever = RexxVariableDictionary::getVariableRetriever(argName);
+            if (retriever == OREF_NULL || argName->getCharC(0) == '.' || isdigit(argName->getCharC(0)))
+            {
+                RexxString *error = argName->concatToCstring("Expected a symbol for the named argument name; found \"");
+                ProtectedObject p(error);
+                error = error->concatWithCstring("\"");
+                p = error;
+                reportException(Error_Symbol_expected_user_defined, error);
+            }
             retriever->assign(context, stack, argValue);
         }
     }
