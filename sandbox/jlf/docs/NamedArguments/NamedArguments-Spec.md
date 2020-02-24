@@ -161,11 +161,11 @@ Function
 Instruction FORWARD
 -------------------
 
-Inconsistency with Message~new and Object~run.  
-Here, ARRAY is followed by a list of arguments.  
-There, "Array" is followed by a mandatory array. "Individual" is followed by a list of arguments.
+Inconsistency with `Message~new` and `Object~run`.  
+Here, `ARRAY` is followed by a list of arguments.  
+There, `"Array"` is followed by a mandatory array. `"Individual"` is followed by a list of arguments.
 
-exprn is a directory of named arguments.
+`exprn` is a directory of named arguments.
 
     >>-FORWARD--+------------+--+---+--------------------+--+-------------------------+---+--+------------------+--+----------------+--+-------------+----><
                 +--CONTINUE--+  |   +--ARGUMENTS--expra--+  +--NAMEDARGUMENTS--exprd--+   |  +--MESSAGE--exprm--+  +--CLASS--exprs--+  +--TO--exprt--+
@@ -187,18 +187,18 @@ Instruction USE
 
 ![USE NAMED ARG](SyntaxDiagram/sd_Instruction_USE.png)
 
-When the option 'NAMED' is specified:
+When the option `NAMED` is specified:
 
 - name is a simple symbol, a stem or a compound symbol.
 - Message term are not supported.
 - Skipped names are not allowed.
 
 There is no evaluation of a default value when a value has been provided by the caller.  
-The order of evaluation is the order of declaration in USE NAMED ARG (left-to-right).  
+The order of evaluation is the order of declaration in `USE NAMED ARG` (left-to-right).  
 The automatic variables are already created and can be used during the evaluation of a default value.
 
 An optional minimum length can be specified after the name, allowing abbreviation.  
-For example: namedArgument(1) will allow to pass n:
+For example: `namedArgument(1)` will allow to pass `n:`
 
 
 --------------
@@ -217,9 +217,9 @@ UNKNOWN method
 Message~new
 -------------
 
-Inconsistency with the instruction 'forward'.  
-Here, "Array" is followed by a mandatory array.  
-There, ARRAY is followed by a list of arguments. ARGUMENTS is followed by a mandatory array.
+Inconsistency with the instruction `FORWARD`.  
+Here, `"Array"` is followed by a mandatory array.  
+There, `ARRAY` is followed by a list of arguments. `ARGUMENTS` is followed by a mandatory array.
 
     >>-new(-target-,-messagename-+-------------------------------------------------------+-)--><
                                  +-,-"Individual"--| Arguments |-------------------------+
@@ -228,7 +228,7 @@ There, ARRAY is followed by a list of arguments. ARGUMENTS is followed by a mand
 
 ![USE NAMED ARG](SyntaxDiagram/sd_Message_new.png)
 
-NAMEDARGUMENTS: can be abbreviated to 1 letter (n:).  
+`NAMEDARGUMENTS:` can be abbreviated to 1 letter (`n:`).  
 
 
 -------------
@@ -242,9 +242,9 @@ Returns a directory of named arguments used to invoke the message.
 Object~run
 ----------
 
-Inconsistency with the instruction 'forward'.  
-Here, "Array" is followed by a mandatory array.  
-There, ARRAY is followed by a list of arguments. ARGUMENTS is followed by a mandatory array.
+Inconsistency with the instruction `FORWARD`.  
+Here, `"Array"` is followed by a mandatory array.  
+There, `ARRAY` is followed by a list of arguments. `ARGUMENTS` is followed by a mandatory array.
 
     >>-run(-method-+-------------------------------------------------------+-)--><
                    +-,-"Individual"---| Arguments |------------------------+
@@ -253,7 +253,7 @@ There, ARRAY is followed by a list of arguments. ARGUMENTS is followed by a mand
 
 ![USE NAMED ARG](SyntaxDiagram/sd_Object_run.png)
 
-NAMEDARGUMENTS: can be abbreviated to 1 letter (n:).  
+`NAMEDARGUMENTS:` can be abbreviated to 1 letter (`n:`).  
 
 
 ---------------
@@ -265,7 +265,7 @@ Object~sendWith
 
 ![USE NAMED ARG](SyntaxDiagram/sd_Object_sendWith.png)
 
-NAMEDARGUMENTS: can be abbreviated to 1 letter (n:).  
+`NAMEDARGUMENTS:` can be abbreviated to 1 letter (`n:`).  
 
 
 ----------------
@@ -277,7 +277,7 @@ Object~startWith
 
 ![USE NAMED ARG](SyntaxDiagram/sd_Object_startWith.png)
 
-NAMEDARGUMENTS: can be abbreviated to 1 letter (n:).  
+`NAMEDARGUMENTS:` can be abbreviated to 1 letter (`n:`).  
 
 
 ----------------
@@ -289,19 +289,19 @@ Routine~callWith
 
 ![USE NAMED ARG](SyntaxDiagram/sd_Routine_callWith.png)
 
-NAMEDARGUMENTS: can be abbreviated to 1 letter (n:).  
+`NAMEDARGUMENTS`: can be abbreviated to 1 letter (`n:`).  
 
 
 -----------------
 Context~namedArgs
 -----------------
 
-Why not ~namedArguments ?  
-Because I follow the naming convention used for the method Args.
+Why not `~namedArguments` ?  
+Because I follow the naming convention used for the method `Args`.
 
 Returns a directory of named arguments used to invoke the current context.  
 There is no equivalent as built-in function.  
-The ARG built-in function doesn't give access to the named arguments.
+The `ARG` built-in function doesn't give access to the named arguments.
 
 
 ------------------
@@ -313,9 +313,9 @@ Context~setArgs
 
 ![USE NAMED ARG](SyntaxDiagram/sd_Context_setArgs.png)
 
-NAMEDARGUMENTS: can be abbreviated to 1 letter (n:).  
+`NAMEDARGUMENTS:` can be abbreviated to 1 letter (`n:`).  
 
-Used to transfer to a coactivity the arguments passed with 'resume'.  
+Used to transfer to a coactivity the arguments passed with `resume`.  
 A coactivity can be suspended, and can receive a new set of arguments after each resume.
 
     client (thread1)                            coactivity (thread2)
@@ -355,7 +355,7 @@ Security manager CALL
 ---------------------
 
 The information directory contains:  
-NAMEDARGUMENTS: a directory of the function's named arguments
+`NAMEDARGUMENTS`: a directory of the function's named arguments
 
 
 -----------------------
@@ -363,4 +363,4 @@ Security manager METHOD
 -----------------------
 
 The information directory contains:  
-NAMEDARGUMENTS: a directory of the method's named arguments
+`NAMEDARGUMENTS`: a directory of the method's named arguments
