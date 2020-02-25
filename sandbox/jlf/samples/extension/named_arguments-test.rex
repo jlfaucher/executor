@@ -24,12 +24,20 @@ call interpret 'call myprocedure 1, {}, a2:2, a3:3'
 -- Instruction CALL with continuation
 -------------------------------------
 call title "Continuation of the interpreted string"
+say "call interpret 'call myprocedure 1,',"
+say "               'a2:2, a3:3'"
 call interpret 'call myprocedure 1,',
                'a2:2, a3:3'
+say "call interpret 'call myprocedure 1, a2',"
+say "               ':2, a3:3'"
 call interpret 'call myprocedure 1, a2',
                ':2, a3:3'
+say "call interpret 'call myprocedure 1, a2:',"
+say "               '2, a3:3'"
 call interpret 'call myprocedure 1, a2:',
                '2, a3:3'
+say "call interpret 'call myprocedure 1, a2:2,',"
+say "               'a3:3'"
 call interpret 'call myprocedure 1, a2:2,',
                'a3:3'
 
@@ -82,12 +90,20 @@ call interpret 'r = myprocedure(1, a2:2, a3:3){}'
 -- Function call with continuation
 ----------------------------------
 call title "Continuation of the interpreted string"
+say "call interpret 'r=myprocedure(1,',"
+say "               'a2:2, a3:3)'"
 call interpret 'r=myprocedure(1,',
                'a2:2, a3:3)'
+say "call interpret 'r = myprocedure(1, a2',"
+say "               ':2, a3:3)'"
 call interpret 'r = myprocedure(1, a2',
                ':2, a3:3)'
+say "call interpret 'r = myprocedure(1, a2:',"
+say "               '2, a3:3)'"
 call interpret 'r = myprocedure(1, a2:',
                '2, a3:3)'
+say "call interpret 'r = myprocedure(1, a2:2,',"
+say "               'a3:3)'"
 call interpret 'r = myprocedure(1, a2:2,',
                'a3:3)'
 
@@ -186,7 +202,7 @@ call interpret 'call useStrictOneNamed_WithDefaultExpression'
 call interpret 'call useStrictOneNamed_WithDefaultExpression a1:2'
 call interpret 'call useStrictAutoNamed_WithEllipse'
 call interpret 'call useNamed_SimpleSymbol v1:1, v3:3, v5:5'
-call interpret 'call useAutoNamed_WithMinimumLength'
+call interpret 'call useNamed_WithMinimumLength'
 
 call interpret 'call useAutoNamed_SimpleSymbol v1:1, v3:3, v5:5, index:"My index", item:"My item"' -
              , 'The automatic variables are created first (here v3=3, v5=5, index="My index" and item="My item"), in the order of declaration on caller side (left to right).' -
@@ -627,7 +643,7 @@ interpret: procedure
     return ""
 
 --------------------------------------------------------------------------------
-::routine useAutoNamed_WithMinimumLength
+::routine useNamed_WithMinimumLength
     -- Specifying a minimum length
 
     call indent
