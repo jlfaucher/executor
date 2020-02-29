@@ -457,8 +457,7 @@ RexxObject *RexxDirectory::remove(
 RexxObject *RexxDirectory::unknown(
   RexxString *msgname,                 /* name of unknown message           */
   RexxArray  *arguments,               /* arguments to the message          */
-  RexxString *namedArgumentsName,      // name of 1st named argument
-  RexxDirectory *namedArgumentsValue)  // value of 1st named argument
+  RexxDirectory *named_arguments)
 /******************************************************************************/
 /* Function:     This is the REXX version of unknown.  It invokes entry_rexx  */
 /*               instead of entry, to ensure the proper error checking and    */

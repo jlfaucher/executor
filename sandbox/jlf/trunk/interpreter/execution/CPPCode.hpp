@@ -52,21 +52,21 @@ public:
     inline void *operator new(size_t size, void *ptr) { return ptr; };
     inline void operator delete(void *) { }
     inline void operator delete(void *, void *) { }
-    CPPCode(size_t, PCPPM, size_t, size_t);
+    CPPCode(size_t, PCPPM, size_t, bool);
     inline CPPCode(RESTORETYPE restoreType) { ; };
     void liveGeneral(int reason);
     RexxObject *unflatten(RexxEnvelope *envelope);
 
     void run(RexxActivity *, RexxMethod *, RexxObject *, RexxString *, RexxObject **, size_t, ProtectedObject &);
 
-    static CPPCode *resolveExportedMethod(const char *, PCPPM targetMethod, size_t argcount, size_t named_argcount);
+    static CPPCode *resolveExportedMethod(const char *, PCPPM targetMethod, size_t argcount, bool passNamedArgs);
     // The table of exported methods.
     static PCPPM exportedMethods[];
 
 protected:
     uint16_t   methodIndex;           // kernel method number
     uint16_t   argumentCount;         // argument count
-    uint16_t   named_argumentCount;
+    bool       passNamedArguments;
     PCPPM      cppEntry;              // C++ Method entry point.
 };
 

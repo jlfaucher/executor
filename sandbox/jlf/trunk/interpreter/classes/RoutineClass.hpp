@@ -69,7 +69,7 @@ public:
     void          runProgram(RexxActivity *activity, RexxObject **arguments, size_t argCount, ProtectedObject &result);
 
     RexxObject   *callRexx(RexxObject **, size_t);
-    RexxObject   *callWithRexx(RexxArray *, RexxString *, RexxDirectory *);
+    RexxObject   *callWithRexx(RexxArray *, /* named arguments*/ RexxObject **, size_t);
 
     RexxBuffer *save();
     void save(PRXSTRING outBuffer);

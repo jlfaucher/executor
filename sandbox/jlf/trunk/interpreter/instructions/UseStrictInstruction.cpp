@@ -344,8 +344,9 @@ void RexxInstructionUseStrict::executeNamedArguments(RexxActivation *context, Re
 
     // Iterate over the named arguments passed by the caller, match them with the names declared by the callee.
     // In case of additional argument not declared by the callee (no match):
-    // - If strict without ellipsis (...) then an error is raised by the function namedArgument
+    // - If strict without ellipsis (...) then an error is raised
     // - otherwise if mode auto then a variable is created.
+    // - otherwise the additional argument is ignored
     for (size_t i= argcount + 1; i < (argcount + 1 + (2 * named_argcount)); i+=2)
     {
         RexxString *argName = (RexxString *)arglist[i];
@@ -458,6 +459,49 @@ bool RexxInstructionUseStrict::checkNamedArguments()
 /* Named argument helpers for internal methods                                */
 /*============================================================================*/
 
+void NamedArguments::check(RexxObject **namedArglist, size_t namedArgCount, bool strict, bool extraAllowed, size_t minimumRequired)
+{
+    // strict checking means we need to enforce min/max limits
+    if (strict)
+    {
+        // not enough of the required arguments?  That's an error
+        if (namedArgCount < minimumRequired)
+        {
+		    reportException(Error_Incorrect_method_minarg, OREF_named, minimumRequired);
+        }
+        // potentially too many?
+        if (!extraAllowed && namedArgCount > this->count)
+        {
+            reportException(Error_Incorrect_method_maxarg, OREF_named, this->count);
+        }
+    }
+
+    // Iterate over the named arguments passed by the caller, match them with the names declared by the callee.
+    // In case of additional argument not declared by the callee (no match):
+    // - If strict and not extraAllowed then an error is raised
+    // - otherwise the additional argument is ignored.
+    for (size_t i= 0; i < (2 * namedArgCount); i+=2)
+    {
+        RexxString *argName = (RexxString *)namedArglist[i];
+        RexxObject *argValue = namedArglist[i+1];
+        bool match = this->check(argName, argValue, strict && !extraAllowed);
+    }
+
+    // Now that we have matched each named argument of the caller, we can check if some mandatory arguments are missing.
+    if  (strict)
+    {
+        for (size_t i=0;  i < this->count; i++)
+        {
+            NamedArgument &namedArgument = (*this)[i];
+            if (!namedArgument.assigned && namedArgument.value == OREF_NULL)
+            {
+                reportException(Error_Incorrect_method_noarg, OREF_named, namedArgument.name);
+            }
+        }
+    }
+}
+
+
 /*
 Store the value of the named argument in the right box, if recognized (abbreviation supported)
 Assumption: you will not call this helper with the same name twice, because once a name has been matched, it is skipped.
@@ -524,7 +568,7 @@ bool NamedArguments::check(const char *name, RexxObject *value, bool strict, ssi
                     // All the characters of 'expectedName' have been checked (because *expectedNameIterator == '\0').
                     // We have a match even if 'name' has more characters (potential match detected at parse-time)
 
-                    this->namedArguments[i].value = value;
+                    if (value != OREF_NULL) this->namedArguments[i].value = value;
                     this->namedArguments[i].assigned = true;
                     return true;
                 }
@@ -536,7 +580,7 @@ bool NamedArguments::check(const char *name, RexxObject *value, bool strict, ssi
                 if (*nameIterator == '\0')
                 {
                     // good, the name matches an expected argument name
-                    this->namedArguments[i].value = value;
+                    if (value != OREF_NULL) this->namedArguments[i].value = value;
                     this->namedArguments[i].assigned = true;
                     return true;
                 }
@@ -550,7 +594,7 @@ bool NamedArguments::check(const char *name, RexxObject *value, bool strict, ssi
                 if (*nameIterator == '\0')
                 {
                     // good, the name matches an expected argument name
-                    this->namedArguments[i].value = value;
+                    if (value != OREF_NULL) this->namedArguments[i].value = value;
                     this->namedArguments[i].assigned = true;
                     return true;
                 }
@@ -568,7 +612,7 @@ bool NamedArguments::check(const char *name, RexxObject *value, bool strict, ssi
                     // We are in the optional characters of 'expectedName' (because expectedNameMinimumLength == 0)
                     // We have a match even if 'name' and 'expectedName' have more characters (potential match detected at parse-time)
 
-                    this->namedArguments[i].value = value;
+                    if (value != OREF_NULL) this->namedArguments[i].value = value;
                     this->namedArguments[i].assigned = true;
                     return true;
                 }

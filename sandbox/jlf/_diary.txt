@@ -244,6 +244,48 @@ see if named arguments must be supported here:
 
 
 ===============================================================================
+28/02/2020
+
+Named arguments:
+Simplification to pass named arguments to natives functions.
+Internally, the named arguments are passed as an array appended to the array of
+positional arguments. The count of named arguments is inserted between the two
+arrays.       +----+----+----+---+----+----+----+----+
+              | P1 | P2 | P3 | 2 | N1 | V1 | N2 | V2 |
+              +----+----+----+---+----+----+----+----+
+                               |
+                             count
+Before:
+    The named arguments were passed to the C++ method as 2 C++ parameters per named argument.
+        native_cpp_method(P1, P2, P3, N1, V1, N2, V2)
+    The order was the order used by the caller to pass the named arguments.
+    That was acceptable when only one named argument is expected, but not a good approach for a general support.
+    Moreover, CPPCode::run had to support many cases to pass the C++ arguments.
+Now:
+    The named arguments are passed as an array: ptr and count.
+        native_cpp_method(P1, P2, P3, N1, array_ptr, array_count)
+    CPPCode::run has only two cases to support : with or without name arguments.
+    The callee can use the helper NamedArguments.check to collect the named arguments in a useful order.
+Later ?
+    The helper NamedArguments.check could be run from CPPCode::run if I can find a way to associate the
+    description of the named arguments to CPPCode.
+    That would allow to pass only the values of named arguments, without their names, because the order
+    would be the order used by the callee to declare the expected named arguments.
+        native_cpp_method(P1, P2, P3, V1, V2)
+
+
+Native methods which support named arguments:
+    TheObjectBehaviour        RexxObject::startWith
+    TheObjectBehaviour        RexxObject::sendWith
+    TheRoutineBehaviour       RoutineClass::callWithRexx
+    TheRexxContextBehaviour   RexxContext::setArgs
+    TheDirectoryBehaviour     RexxObject::unknownRexx
+    TheStemBehaviour          RexxObject::unknownRexx
+    TheIntegerBehaviour       RexxObject::unknownRexx
+    TheNumberStringBehaviour  RexxObject::unknownRexx
+
+
+===============================================================================
 2020 feb 16
 
 Named arguments:

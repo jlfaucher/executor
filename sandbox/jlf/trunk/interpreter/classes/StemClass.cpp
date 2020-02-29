@@ -185,8 +185,7 @@ RexxObject *RexxStem::getStemValue()
 RexxObject *RexxStem::unknown(
     RexxString *msgname,               /* unknown message name              */
     RexxArray  *arguments,             /* message arguments                 */
-    RexxString *namedargumentsName,    // name of 1st named argument
-    RexxDirectory *namedArgumentsValue)// value of 1st named argument
+    RexxDirectory *named_arguments)
 /******************************************************************************/
 /* Function:  Forward an unknown message to the value of the stem.            */
 /******************************************************************************/
@@ -204,24 +203,22 @@ RexxObject *RexxStem::unknown(
         reportException(Error_Incorrect_method_noarray, OREF_positional, IntegerTwo);
     }
 
-    // Should check that namedargumentsName = "NAMEDARGUMENTS"
-
-    ProtectedObject p_namedArgumentsValue;
-    if (namedArgumentsValue != OREF_NULL && namedArgumentsValue != TheNilObject)
+    ProtectedObject p_named_arguments;
+    if (named_arguments != OREF_NULL && named_arguments != TheNilObject)
     {
         /* get a directory version           */
-        namedArgumentsValue = namedArgumentsValue->requestDirectory();
-        p_namedArgumentsValue = namedArgumentsValue; // GC protect
+        named_arguments = named_arguments->requestDirectory();
+        p_named_arguments = named_arguments; // GC protect
 
         /* not a directory item ? */
-        if (namedArgumentsValue == TheNilObject)
+        if (named_arguments == TheNilObject)
         {
             reportException(Error_Execution_user_defined , "UNKNOWN namedArguments must be a directory or NIL");
         }
     }
 
     size_t argumentsCount = arguments ? arguments->size() : 0;
-    size_t namedArgumentsCount = (namedArgumentsValue && namedArgumentsValue != TheNilObject) ? namedArgumentsValue->items() : 0;
+    size_t namedArgumentsCount = (named_arguments != OREF_NULL && named_arguments != TheNilObject) ? named_arguments->items() : 0;
 
     // Optimization: don't create an intermediate array if no arg
     if (argumentsCount == 0 && namedArgumentsCount == 0) return this->value->sendMessage(msgname, (RexxObject**)OREF_NULL, (size_t)0);
@@ -229,7 +226,7 @@ RexxObject *RexxStem::unknown(
     RexxArray *args = (RexxArray *)arguments->copy();
     ProtectedObject p_args(args);
     args->put(new_integer(namedArgumentsCount), argumentsCount + 1); // Counter of named arguments. To support correctly omitted positional arguments, don't use append!
-    if (namedArgumentsCount != 0) namedArgumentsValue->appendAllIndexesItemsTo(args);
+    if (namedArgumentsCount != 0) named_arguments->appendAllIndexesItemsTo(args);
 
     return this->value->sendMessage(msgname, args->data(), argumentsCount);
 }

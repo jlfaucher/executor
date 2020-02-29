@@ -160,7 +160,7 @@
     RexxObject *ceilingInternal();
     RexxObject *round();
     RexxObject *roundInternal();
-    RexxObject *unknown(RexxString *, RexxArray *, RexxString *, RexxDirectory *);
+    RexxObject *unknown(RexxString *, RexxArray *, RexxDirectory *);
     bool        isInstanceOf(RexxClass *);
     RexxMethod   *instanceMethod(RexxString *);
     RexxSupplier *instanceMethods(RexxClass *);

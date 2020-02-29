@@ -480,7 +480,7 @@ struct NamedArgument
     : name(name), minimumLength(minimumLength), value(value), assigned(assigned) {};
 
     const char *name;       // name to search
-    ssize_t minimumLength;   // abbreviation supported, pass -1 if no abbreviation
+    ssize_t minimumLength;  // abbreviation supported, pass -1 if no abbreviation
     RexxObject *value;      // you can pass OREF_NULL or a default value
     bool assigned;          // true if already assigned
 };
@@ -505,6 +505,8 @@ class NamedArguments
     }
 
     // Resides in UseStrictInstruction.cpp.
+    void check(RexxObject **namedArglist, size_t namedArgCount, bool strict, bool extraAllowed, size_t minimumRequired=0);
+
     // name: name of the argument passed by the caller, to search in expectedNamedArguments. Can be null.
     // value: value of the argument passed by the caller, to store in expectedNamedArguments if name is found. Can be null.
     // strict: raise error if true and name not null and name not found.

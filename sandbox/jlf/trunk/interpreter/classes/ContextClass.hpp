@@ -79,7 +79,7 @@ public:
     RexxObject *getNamedArgs(); // return a directory (index1=item1, index2=item2, ...)
 
     // Set positional & named arguments
-    RexxObject *setArgs(RexxObject *, RexxString *, RexxObject *);
+    RexxObject *setArgs(RexxObject *, /* named arguments*/ RexxObject **, size_t);
 
     RexxObject *getCondition();
     RexxObject *getLine();

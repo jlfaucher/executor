@@ -183,6 +183,7 @@ class RexxObject;
 /* Method pointer special types                                               */
 /******************************************************************************/
 
+ // With positional arguments only
  typedef RexxObject *  (RexxObject::*PCPPM0)();
  typedef RexxObject *  (RexxObject::*PCPPM1)(RexxObject *);
  typedef RexxObject *  (RexxObject::*PCPPM2)(RexxObject *, RexxObject *);
@@ -191,6 +192,18 @@ class RexxObject;
  typedef RexxObject *  (RexxObject::*PCPPM5)(RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *);
  typedef RexxObject *  (RexxObject::*PCPPM6)(RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *);
  typedef RexxObject *  (RexxObject::*PCPPM7)(RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *);
+
+ // With positional and named arguments
+ typedef RexxObject *  (RexxObject::*PCPPM0N)(RexxObject **, size_t);
+ typedef RexxObject *  (RexxObject::*PCPPM1N)(RexxObject *, RexxObject **, size_t);
+ typedef RexxObject *  (RexxObject::*PCPPM2N)(RexxObject *, RexxObject *, RexxObject **, size_t);
+ typedef RexxObject *  (RexxObject::*PCPPM3N)(RexxObject *, RexxObject *, RexxObject *, RexxObject **, size_t);
+ typedef RexxObject *  (RexxObject::*PCPPM4N)(RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject **, size_t);
+ typedef RexxObject *  (RexxObject::*PCPPM5N)(RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject **, size_t);
+ typedef RexxObject *  (RexxObject::*PCPPM6N)(RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject **, size_t);
+ typedef RexxObject *  (RexxObject::*PCPPM7N)(RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject **, size_t);
+
+ // Not used ?
  typedef RexxObject *  (RexxObject::*PCPPMA1)(RexxArray *);
  typedef RexxObject *  (RexxObject::*PCPPMC1)(RexxObject **, size_t);
 
@@ -370,9 +383,7 @@ class RexxObject : public RexxInternalObject {
      virtual RexxObject  *defMethod(RexxString *, RexxMethod *, RexxString *a = OREF_NULL);
      virtual RexxString  *defaultName();
 
-     // 2 positional arguments, plus one named argument: directory of named arguments
-     // See the explanations for unknownRexx below.
-     virtual RexxObject  *unknown(RexxString *msg, RexxArray *args, RexxString *, RexxDirectory *){return OREF_NULL;};
+     virtual RexxObject  *unknown(RexxString *msg, RexxArray *args, RexxDirectory *named_args){return OREF_NULL;};
 
      virtual RexxInteger *hasMethod(RexxString *msg);
              bool         hasUninitMethod();
@@ -427,9 +438,9 @@ class RexxObject : public RexxInternalObject {
      RexxObject  *unsetMethod(RexxString *);
      RexxObject  *requestRexx(RexxString *);
      RexxMessage *start(RexxObject **, size_t);
-     RexxMessage *startWith(RexxObject *, RexxArray *, RexxString *, RexxDirectory *);
+     RexxMessage *startWith(RexxObject *, RexxArray *, /* named arguments*/ RexxObject **, size_t);
      RexxObject  *send(RexxObject **, size_t);
-     RexxObject  *sendWith(RexxObject *, RexxArray *, RexxString *, RexxDirectory *);
+     RexxObject  *sendWith(RexxObject *, RexxArray *, /* named arguments*/ RexxObject **, size_t);
      RexxMessage *startCommon(RexxObject *message, RexxObject **arguments, size_t argCount);
      static void decodeMessageName(RexxObject *target, RexxObject *message, RexxString *&messageName, RexxObject *&startScope);
      RexxString  *oref();
@@ -495,9 +506,9 @@ class RexxObject : public RexxInternalObject {
      RexxString  *defaultNameRexx();
      RexxObject  *copyRexx();
 
-     // In setup.cpp, the methods "UNKOWN" are declared with 2 positional arguments and 1 named argument.
+     // In setup.cpp, the methods "UNKOWN" are declared with 2 positional arguments and a list of named arguments.
      // See CPPCode::run to see how the named arguments are passed to the native methods.
-     RexxObject  *unknownRexx(RexxString *, RexxArray *, RexxString *, RexxDirectory *);
+     RexxObject  *unknownRexx(RexxString *, RexxArray *, /* named arguments*/ RexxObject **, size_t);
 
      RexxObject  *hasMethodRexx(RexxString *);
      void *getCSelf();

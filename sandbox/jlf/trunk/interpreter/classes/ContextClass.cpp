@@ -274,7 +274,8 @@ RexxObject *RexxContext::getNamedArgs()
 /**
  * Set the positional & named arguments used to invoke the current context
  */
-RexxObject *RexxContext::setArgs(RexxObject *positionalArguments, RexxString *namedArgumentsName, RexxObject *namedArgumentsValue)
+RexxObject *RexxContext::setArgs(RexxObject *positionalArguments,
+                                 /* named arguments*/ RexxObject **named_arglist, size_t named_argcount)
 {
     checkValid();
 
@@ -282,10 +283,9 @@ RexxObject *RexxContext::setArgs(RexxObject *positionalArguments, RexxString *na
     ProtectedObject p1(positionalArgumentsArray);
 
     // use strict named arg namedArguments=.NIL
-    // namedArgumentsName and namedArgumentsValue can be NULL
     NamedArguments expectedNamedArguments(1); // At most, one named argument
     expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", 1, TheNilObject); // At least 1 characters, default value = .NIL
-    expectedNamedArguments.check(namedArgumentsName, namedArgumentsValue, true); // Strict, will raise an error if namedArgumentsName not null and no match
+    expectedNamedArguments.check(named_arglist, named_argcount, /*strict*/ true, /*extraAllowed*/ false);
 
     ProtectedObject p2;
     RexxDirectory *namedArgumentsDirectory = (RexxDirectory *)expectedNamedArguments[0].value;

@@ -1738,7 +1738,7 @@ RexxObject  *RexxObject::requestRexx(
  * @return The method result.
  */
 RexxObject *RexxObject::sendWith(RexxObject *message, RexxArray *arguments,
-    RexxString *named_arguments_name, RexxDirectory *named_arguments_value)
+    RexxObject **named_arglist, size_t named_argcount)
 {
     RexxString *messageName;
     RexxObject *startScope;
@@ -1754,7 +1754,12 @@ RexxObject *RexxObject::sendWith(RexxObject *message, RexxArray *arguments,
     // >>-sendWith(-messagename-,-arguments-+--------------------------+--)---><
     //                                      +-,-namedArguments-:-exprd-+
 
+    // use strict named arg namedArguments=.NIL
+    NamedArguments expectedNamedArguments(1); // At most, one named argument
+    expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", 1, TheNilObject); // At least 1 characters, default value = .NIL
+    expectedNamedArguments.check(named_arglist, named_argcount, /*strict*/ true, /*extraAllowed*/ false);
 
+    RexxDirectory *named_arguments_value = (RexxDirectory*)expectedNamedArguments[0].value;
     ProtectedObject p_named_arguments_value;
     size_t named_count = 0;
     if (named_arguments_value != OREF_NULL && named_arguments_value != TheNilObject)
@@ -1838,7 +1843,7 @@ RexxObject *RexxObject::send(RexxObject **arguments, size_t argCount)
  * @return The message object.
  */
 RexxMessage *RexxObject::startWith(RexxObject *message, RexxArray *arguments,
-    RexxString *named_arguments_name, RexxDirectory *named_arguments_value)
+    RexxObject **named_arglist, size_t named_argcount)
 {
     // the message is required
     requiredArgument(message, OREF_positional, ARG_ONE);
@@ -1850,6 +1855,12 @@ RexxMessage *RexxObject::startWith(RexxObject *message, RexxArray *arguments,
     // Named arguments
     // >> -startWith(-messagename - , -arguments - +-------------------------- + -)---> <
     //                                             +-, -namedArguments-:-exprd-+
+
+    // use strict named arg namedArguments=.NIL
+    NamedArguments expectedNamedArguments(1); // At most, one named argument
+    expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", 1, TheNilObject); // At least 1 characters, default value = .NIL
+    expectedNamedArguments.check(named_arglist, named_argcount, /*strict*/ true, /*extraAllowed*/ false);
+    RexxDirectory *named_arguments_value = (RexxDirectory*)expectedNamedArguments[0].value;
 
     ProtectedObject p_named_arguments_value;
     size_t named_count = 0;
@@ -2747,14 +2758,20 @@ RexxObject *RexxObject::copyRexx()
 RexxObject *RexxObject::unknownRexx(
     RexxString *message,               /* unknown message                   */
     RexxArray  *arguments,             /* message arguments                 */
-    RexxString *namedArgumentsName,    // name of 1st named argument
-    RexxDirectory *namedArgumentsValue)// value of 1st named argument
+    RexxObject **named_arglist,
+    size_t named_argcount)
 /******************************************************************************/
 /* Function:  Exported access to an object virtual function                   */
 /******************************************************************************/
 {
+    // use strict named arg namedArguments=.NIL
+    NamedArguments expectedNamedArguments(1); // At most, one named argument
+    expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", 1, TheNilObject); // At least 1 characters, default value = .NIL
+    expectedNamedArguments.check(named_arglist, named_argcount, /*strict*/ true, /*extraAllowed*/ false);
+    RexxDirectory *namedArguments = (RexxDirectory*)expectedNamedArguments[0].value;
+
     /* forward to the virtual function   */
-    return this->unknown(message, arguments, namedArgumentsName, namedArgumentsValue);
+    return this->unknown(message, arguments, namedArguments);
 }
 
 RexxObject *RexxObject::hasMethodRexx(
