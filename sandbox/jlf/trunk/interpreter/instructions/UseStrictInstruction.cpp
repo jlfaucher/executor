@@ -76,13 +76,23 @@ RexxInstructionUseStrict::RexxInstructionUseStrict(size_t count, bool strict, bo
         OrefSet(this, variables[count].defaultValue, defaults->pop());
         OrefSet(this, variables[count].minimumLength, (RexxInteger *)minimumLength_list->pop());
 
-        // if this is a real variable, see if this is the last of the required ones.
-        if (minimumRequired < count + 1 && variables[count].variable != OREF_NULL)
+        if (this->strictChecking)
         {
-            // no default value means this is a required argument, this is the min we'll accept.
-            if (variables[count].defaultValue == OREF_NULL)
+            if (this->namedArg)
             {
-                minimumRequired = count + 1;
+                if (variables[count].defaultValue == OREF_NULL) minimumRequired++;
+            }
+            else
+            {
+                // if this is a real variable, see if this is the last of the required ones.
+                if (minimumRequired < count + 1 && variables[count].variable != OREF_NULL)
+                {
+                    // no default value means this is a required argument, this is the min we'll accept.
+                    if (variables[count].defaultValue == OREF_NULL)
+                    {
+                        minimumRequired = count + 1;
+                    }
+                }
             }
         }
     }

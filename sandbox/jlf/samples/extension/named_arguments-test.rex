@@ -499,6 +499,12 @@ call interpret 'call useStrictOneNamed_NoDefault' -
              , 'Error 40.3: Not enough named arguments in invocation of USESTRICTONENAMED_NODEFAULT; minimum expected is 1'
 call interpret 'call useStrictOneNamed_NoDefault b1:1' -
              , 'Error 88.917: named argument B1 is not an expected argument name'
+call interpret '{use strict named arg n1,n2,n3}~rawExecutable~call()' -
+             , 'Error 40.3: Not enough named arguments in invocation of ; minimum expected is 3'
+call interpret '{use strict named arg n1=1,n2,n3}~rawExecutable~call()' -
+             , 'Error 40.3: Not enough named arguments in invocation of ; minimum expected is 2'
+call interpret '{use strict named arg n1=1,n2,n3=3}~rawExecutable~call()' -
+             , 'Error 40.3: Not enough named arguments in invocation of ; minimum expected is 1'
 call interpret 'call useStrictOneNamed_NoDefault b1:1, b2:2' -
              , 'Error 40.4: Too many named arguments in invocation of USESTRICTONENAMED_NODEFAULT; maximum expected is 1'
 call interpret 'call useStrictOneNamed_WithDefault b2:2' -
