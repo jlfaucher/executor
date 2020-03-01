@@ -296,8 +296,7 @@ void RexxInstructionUseStrict::executeNamedArguments(RexxActivation *context, Re
     // get the argument information from the context
     RexxObject **arglist = context->getMethodArgumentList();
     size_t argcount = context->getMethodArgumentCount();
-    size_t named_argcount = 0;
-    if (arglist != OREF_NULL) arglist[argcount]->unsignedNumberValue(named_argcount);
+    size_t named_argcount = context->getMethodNamedArgumentCount();
 
     // strict checking means we need to enforce min/max limits
     if (strictChecking)
@@ -347,7 +346,7 @@ void RexxInstructionUseStrict::executeNamedArguments(RexxActivation *context, Re
     // - If strict without ellipsis (...) then an error is raised
     // - otherwise if mode auto then a variable is created.
     // - otherwise the additional argument is ignored
-    for (size_t i= argcount + 1; i < (argcount + 1 + (2 * named_argcount)); i+=2)
+    for (size_t i= argcount; i < (argcount + (2 * named_argcount)); i+=2)
     {
         RexxString *argName = (RexxString *)arglist[i];
         RexxObject *argValue = arglist[i+1];

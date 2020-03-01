@@ -74,7 +74,7 @@ class RexxNativeActivation : public RexxActivationBase
   void live(size_t);
   void liveGeneral(int reason);
   void run(RexxMethod *_method, RexxNativeMethod *_code, RexxObject  *_receiver,
-      RexxString  *_msgname, RexxObject **_arglist, size_t _argcount, ProtectedObject &resultObj);
+      RexxString  *_msgname, RexxObject **_arglist, size_t _argcount, size_t _named_argcount, ProtectedObject &resultObj);
   void run(ActivityDispatcher &dispatcher);
   void run(CallbackDispatcher &dispatcher);
   void run(TrappingDispatcher &dispatcher);
@@ -161,9 +161,9 @@ class RexxNativeActivation : public RexxActivationBase
   void createLocalReference(RexxObject *objr);
   void removeLocalReference(RexxObject *objr);
   void callNativeRoutine(RoutineClass *routine, RexxNativeRoutine *code, RexxString *functionName,
-      RexxObject **list, size_t count, ProtectedObject &result);
+      RexxObject **list, size_t count, size_t named_count, ProtectedObject &result);
   void callRegisteredRoutine(RoutineClass *routine, RegisteredRoutine *code, RexxString *functionName,
-      RexxObject **list, size_t count, ProtectedObject &resultObj);
+      RexxObject **list, size_t count, size_t named_count, ProtectedObject &resultObj);
 
   RexxReturnCode variablePoolInterface(PSHVBLOCK requests);
   RexxVariableBase *variablePoolGetVariable(PSHVBLOCK pshvblock, bool symbolic);
@@ -202,8 +202,7 @@ protected:
     RexxActivation *activation;          /* parent activation                 */
 
    // Positional arguments from arglist[0] to arglist[argcount-1]
-   // namedArgcount = arglist[argcount]
-   // Named arguments from arglist[argcount+1] to arglist[argcount+1 + (2*namedArgcount)-1]
+   // Named arguments from arglist[argcount] to arglist[argcount + (2*namedArgcount)-1]
     RexxObject    **arglist;             /* copy of the argument list         */
 
     RexxArray      *argArray;            /* optionally create positional argument array  */
@@ -221,6 +220,7 @@ protected:
     RexxCompoundElement *compoundelement;/* current compound variable value   */
     RexxVariable   *nextstem;            /* our working stem variable         */
     size_t          argcount;            /* count of positional arguments     */
+    size_t          named_argcount;
     bool            vpavailable;         /* Variable pool access flag         */
     int             object_scope;        /* reserve/release state of variables*/
     bool            stackBase;           // this is a stack base marker

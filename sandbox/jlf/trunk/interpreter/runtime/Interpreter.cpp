@@ -151,7 +151,7 @@ void Interpreter::startInterpreter(InterpreterStartupMode mode, const char *imag
             {
                 ProtectedObject result;
                 /* create a new server object        */
-                server_class->messageSend(OREF_NEW, OREF_NULL, 0, result);
+                server_class->messageSend(OREF_NEW, OREF_NULL, 0, 0, result);
                 localServer = (RexxObject *)result;
             }
         }
@@ -171,7 +171,7 @@ void Interpreter::initLocal()
     {
         // this will insert the initial .local objects
         ProtectedObject result;
-        localServer->messageSend(OREF_INITINSTANCE, OREF_NULL, 0, result);
+        localServer->messageSend(OREF_INITINSTANCE, OREF_NULL, 0, 0, result);
     }
 }
 

@@ -69,7 +69,7 @@ void RexxIdentityTable::createInstance()
  *
  * @return The constructed instance.
  */
-RexxObject *RexxIdentityTable::newRexx(RexxObject **args, size_t argCount)
+RexxObject *RexxIdentityTable::newRexx(RexxObject **args, size_t argCount, size_t named_argCount)
 {
     RexxIdentityTable *newObj = new_identity_table();
     ProtectedObject p(newObj);
@@ -80,7 +80,7 @@ RexxObject *RexxIdentityTable::newRexx(RexxObject **args, size_t argCount)
         newObj->hasUninit();              /* Make sure everyone is notified.   */
     }
     /* call any rexx level init's        */
-    newObj->sendMessage(OREF_INIT, args, argCount);
+    newObj->sendMessage(OREF_INIT, args, argCount, named_argCount);
     return newObj;                       /* return the new object             */
 }
 

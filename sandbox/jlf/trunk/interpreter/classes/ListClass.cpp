@@ -1214,7 +1214,8 @@ void *RexxList::operator new(size_t size)
 
 RexxList *RexxList::newRexx(
     RexxObject **init_args,
-    size_t       argCount)
+    size_t       argCount,
+    size_t       named_argCount)
 /******************************************************************************/
 /* Function:  Construct and initialized a new list item                       */
 /******************************************************************************/
@@ -1234,13 +1235,14 @@ RexxList *RexxList::newRexx(
     }
 
     /* Initialize the new list instance  */
-    newList->sendMessage(OREF_INIT, init_args, argCount);
+    newList->sendMessage(OREF_INIT, init_args, argCount, named_argCount);
     return newList;                      /* return the new list item          */
 }
 
 RexxList *RexxList::classOf(
      RexxObject **args,                /* array of list items               */
-     size_t       argCount)            /* size of the argument array        */
+     size_t       argCount,            /* size of the argument array        */
+     size_t       named_argCount)
 /******************************************************************************/
 /* Function:  Create a new list containing the given list items               */
 /******************************************************************************/

@@ -66,7 +66,7 @@ public:
     virtual HashCode getHashValue();
     virtual RexxString *stringValue();
 
-    RexxObject *newRexx(RexxObject **args, size_t argc);
+    RexxObject *newRexx(RexxObject **args, size_t argc, size_t named_argc);
 
     static void createInstance();
 

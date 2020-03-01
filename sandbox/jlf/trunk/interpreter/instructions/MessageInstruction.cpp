@@ -229,7 +229,6 @@ void RexxInstructionMessage::execute (
 
     // Named arguments
     namedArgcount = this->namedArgumentCount;
-    stack->push(new_integer(namedArgcount));
     for (i = argcount; i < argcount + (2 * namedArgcount); i+=2)
     {
         // Argument name: string literal

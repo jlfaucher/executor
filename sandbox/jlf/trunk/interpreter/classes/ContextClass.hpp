@@ -89,7 +89,7 @@ public:
     RexxObject *getName();
     RexxObject *getStackFrames();
 
-    RexxObject *newRexx(RexxObject **args, size_t argc);
+    RexxObject *newRexx(RexxObject **args, size_t argc, size_t named_argc);
 
     inline void detach() { activation = OREF_NULL; }
 

@@ -68,7 +68,7 @@ void RexxStartDispatcher::run()
 
     savedObjects.add(name);              /* protect from garbage collect      */
     // get an array version of the arguments and protect
-    RexxArray *new_arglist = new_array(argcount + 1); // + 1 to store count of named arguments = 0
+    RexxArray *new_arglist = new_array(argcount);
     savedObjects.add(new_arglist);
 
     // for compatibility reasons, if this is a command invocation and there is a leading blank
@@ -89,11 +89,6 @@ void RexxStartDispatcher::run()
             }
         }
     }
-
-    // Counter of named arguments. To support correctly omitted positional arguments, don't use append!
-    // Omitted positional arguments not applicable here, but better to have the same approach everywhere.
-    // Here, no named arguments : Zero.
-    new_arglist->put(IntegerZero, argcount + 1);
 
     RexxString *source_calltype;
 
@@ -150,7 +145,7 @@ void RexxStartDispatcher::run()
     {
         ProtectedObject program_result;
         // call the program
-        program->runProgram(activity, source_calltype, initial_address, new_arglist->data(), argcount, program_result);
+        program->runProgram(activity, source_calltype, initial_address, new_arglist->data(), argcount, 0, program_result);
         if (result != NULL)          /* if return provided for            */
         {
             /* actually have a result to return? */
@@ -207,12 +202,12 @@ void CallRoutineDispatcher::run()
     if (arguments != OREF_NULL)
     {
         // we use a null string for the name when things are called directly
-        routine->call(activity, OREF_NULLSTRING, arguments->data(), arguments->size(), result);
+        routine->call(activity, OREF_NULLSTRING, arguments->data(), arguments->size(), 0, result);
     }
     else
     {
         // we use a null string for the name when things are called directly
-        routine->call(activity, OREF_NULLSTRING, NULL, 0, result);
+        routine->call(activity, OREF_NULLSTRING, NULL, 0, 0, result);
     }
 }
 
@@ -239,15 +234,12 @@ void CallProgramDispatcher::run()
     if (arguments != OREF_NULL)
     {
         size_t argumentsCount = arguments->size();
-        RexxArray *argumentsCopy = (RexxArray *)arguments->copy();
-        ProtectedObject p(argumentsCopy);
-        argumentsCopy->put(IntegerZero, argumentsCount + 1); // Counter of named arguments (Zero). To support correctly omitted positional arguments, don't use append!
         // use the provided name for the call name
-        routine->runProgram(activity, argumentsCopy->data(), argumentsCount, result);
+        routine->runProgram(activity, arguments->data(), argumentsCount, 0, result);
     }
     else
     {
         // we use a null string for the name when things are called directly
-        routine->runProgram(activity, NULL, 0, result);
+        routine->runProgram(activity, NULL, 0, 0, result);
     }
 }

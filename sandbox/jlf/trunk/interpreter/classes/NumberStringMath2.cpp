@@ -702,10 +702,9 @@ RexxNumberString *RexxNumberString::power(RexxObject *PowerObj)
     {
         ProtectedObject result;
         RexxObject *self = this;
-        RexxObject *args[2];
+        RexxObject *args[1];
         args[0] = self; // positional argument
-        args[1] = IntegerZero; // 0 named argument
-        bool alternativeResult = PowerObj->messageSend(OREF_POWER_RIGHT, args, 1, result, false);
+        bool alternativeResult = PowerObj->messageSend(OREF_POWER_RIGHT, args, 1, 0, result, false);
         if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
         reportException(Error_Invalid_whole_number_power, PowerObj);
     }

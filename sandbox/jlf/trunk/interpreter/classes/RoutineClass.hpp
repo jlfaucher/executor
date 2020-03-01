@@ -63,12 +63,12 @@ public:
     void liveGeneral(int reason);
     void flatten(RexxEnvelope*);
 
-    void          call(RexxActivity *,  RexxString *,  RexxObject **, size_t, RexxString *, RexxString *, int, ProtectedObject &);
-    void          call(RexxActivity *,  RexxString *,  RexxObject **, size_t, ProtectedObject &);
-    void          runProgram(RexxActivity *activity, RexxString * calltype, RexxString * environment, RexxObject **arguments, size_t argCount, ProtectedObject &result);
-    void          runProgram(RexxActivity *activity, RexxObject **arguments, size_t argCount, ProtectedObject &result);
+    void          call(RexxActivity *,  RexxString *,  RexxObject **, size_t, size_t, RexxString *, RexxString *, int, ProtectedObject &);
+    void          call(RexxActivity *,  RexxString *,  RexxObject **, size_t, size_t, ProtectedObject &);
+    void          runProgram(RexxActivity *activity, RexxString * calltype, RexxString * environment, RexxObject **arguments, size_t argCount, size_t named_argCount, ProtectedObject &result);
+    void          runProgram(RexxActivity *activity, RexxObject **arguments, size_t argCount, size_t named_argCount, ProtectedObject &result);
 
-    RexxObject   *callRexx(RexxObject **, size_t);
+    RexxObject   *callRexx(RexxObject **, size_t, size_t);
     RexxObject   *callWithRexx(RexxArray *, /* named arguments*/ RexxObject **, size_t);
 
     RexxBuffer *save();
@@ -76,7 +76,7 @@ public:
     void save(const char *filename);
     RexxObject  *setSecurityManager(RexxObject *);
 
-    RoutineClass *newRexx(RexxObject **, size_t);
+    RoutineClass *newRexx(RexxObject **, size_t, size_t);
     RoutineClass *newFileRexx(RexxString *);
     RoutineClass *loadExternalRoutine(RexxString *name, RexxString *descriptor);
 

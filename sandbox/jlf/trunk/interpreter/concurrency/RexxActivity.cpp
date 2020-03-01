@@ -2652,7 +2652,8 @@ bool RexxActivity::callObjectFunctionExit(
     RexxObject     *calltype,          /* type of call                      */
     ProtectedObject &funcresult,       /* function result                   */
     RexxObject    **arguments,         /* argument array                    */
-    size_t          argcount)          /* argument count                    */
+    size_t          argcount,          /* argument count                    */
+    size_t          named_argcount)
 /******************************************************************************/
 /* Function:   Calls the SysExitHandler method on the System Object to run    */
 /*             the function system exit.                                      */
@@ -2662,7 +2663,7 @@ bool RexxActivity::callObjectFunctionExit(
     SecurityManager *manager = activation->getEffectiveSecurityManager();
     if (manager != OREF_NULL)
     {
-        if (manager->checkFunctionCall(rname, argcount, arguments, funcresult))
+        if (manager->checkFunctionCall(rname, argcount, named_argcount, arguments, funcresult))
         {
             return false;
         }

@@ -62,9 +62,9 @@ class PackageClass;
 class BaseCode : public RexxInternalObject
 {
 public:
-    virtual void run(RexxActivity *, RexxMethod *, RexxObject *, RexxString *,  RexxObject **, size_t, ProtectedObject &);
-    virtual void call(RexxActivity *, RoutineClass *, RexxString *,  RexxObject **, size_t, RexxString *, RexxString *, int, ProtectedObject &);
-    virtual void call(RexxActivity *, RoutineClass *, RexxString *,  RexxObject **, size_t, ProtectedObject &);
+    virtual void run(RexxActivity *, RexxMethod *, RexxObject *, RexxString *,  RexxObject **, size_t, size_t, ProtectedObject &);
+    virtual void call(RexxActivity *, RoutineClass *, RexxString *,  RexxObject **, size_t, size_t, RexxString *, RexxString *, int, ProtectedObject &);
+    virtual void call(RexxActivity *, RoutineClass *, RexxString *,  RexxObject **, size_t, size_t, ProtectedObject &);
     virtual RexxArray *getSource();
     virtual RexxObject *setSecurityManager(RexxObject *manager);
     virtual RexxSource *getSourceObject();
@@ -116,7 +116,7 @@ protected:
   void liveGeneral(int reason);
   void flatten(RexxEnvelope*);
 
-  void         run(RexxActivity *,  RexxObject *, RexxString *,  RexxObject **, size_t, ProtectedObject &);
+  void         run(RexxActivity *,  RexxObject *, RexxString *,  RexxObject **, size_t, size_t, ProtectedObject &);
   RexxMethod  *newScope(RexxClass  *);
   void         setScope(RexxClass  *);
   RexxSmartBuffer  *saveMethod();
@@ -143,7 +143,7 @@ protected:
    inline RexxClass *getScope() {return this->scope;}
 
    inline BaseCode  *getCode()     { return this->code; }
-   RexxMethod  *newRexx(RexxObject **, size_t);
+   RexxMethod  *newRexx(RexxObject **, size_t, size_t);
    RexxMethod  *newFileRexx(RexxString *);
    RexxMethod  *loadExternalMethod(RexxString *name, RexxString *descriptor);
 

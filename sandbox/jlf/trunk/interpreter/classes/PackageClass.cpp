@@ -544,7 +544,8 @@ RexxObject *PackageClass::setSecurityManager(RexxObject *manager)
 
 PackageClass *PackageClass::newRexx(
     RexxObject **init_args,            /* subclass init arguments           */
-    size_t       argCount)             /* number of arguments passed        */
+    size_t       argCount,             /* number of arguments passed        */
+    size_t       named_argCount)
 /******************************************************************************/
 /* Function:  Create a new packag from REXX code contained in a file or an    */
 /*            array                                                           */
@@ -590,7 +591,7 @@ PackageClass *PackageClass::newRexx(
         package->hasUninit();         /* Make sure everyone is notified.   */
     }
     /* now send an INIT message          */
-    package->sendMessage(OREF_INIT, init_args, initCount);
+    package->sendMessage(OREF_INIT, init_args, initCount, named_argCount);
     return package;                      /* return the new method             */
 }
 

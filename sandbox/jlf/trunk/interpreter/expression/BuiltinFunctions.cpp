@@ -2023,13 +2023,13 @@ BUILTIN(ORXMAX)
     { /* how about already numeric?        */
         /* we can process this without conversion */
         // return((RexxNumberString *)argument)->Max(stack->arguments(argcount - 1), argcount - 1);
-        return((RexxNumberString *)argument)->Max(arguments + 1, argcount - 1);
+        return((RexxNumberString *)argument)->Max(arguments + 1, argcount - 1, named_argcount);
     }
     /* get the target string             */
     RexxString *target = required_string(ORXMAX, target);
     /* go perform the MIN function       */
     // return target->Max(stack->arguments(argcount - 1), argcount - 1);
-    return target->Max(arguments + 1, argcount - 1);
+    return target->Max(arguments + 1, argcount - 1, named_argcount);
 }
 
 // Must use a prefix different from MAX because CHAR_MAX seems to be an integer instead of a char* (compilation error)
@@ -2046,13 +2046,13 @@ BUILTIN(ORXMIN)
     { /* how about already numeric?        */
         /* we can process this without conversion */
         // return((RexxNumberString *)argument)->Min(stack->arguments(argcount - 1), argcount - 1);
-        return((RexxNumberString *)argument)->Min(arguments + 1, argcount - 1);
+        return((RexxNumberString *)argument)->Min(arguments + 1, argcount - 1, named_argcount);
     }
     /* get the target string             */
     RexxString *target = required_string(ORXMIN, target);
     /* go perform the MIN function       */
     // return target->Min(stack->arguments(argcount - 1), argcount - 1);
-    return target->Min(arguments + 1, argcount - 1);
+    return target->Min(arguments + 1, argcount - 1, named_argcount);
 }
 
 #define SOURCELINE_MIN 0

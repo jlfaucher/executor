@@ -85,10 +85,10 @@ RexxCode::RexxCode(
  * @param argcount The count of arguments,
  * @param result   The returned result.
  */
-void RexxCode::call(RexxActivity *activity, RoutineClass *routine, RexxString *msgname, RexxObject**argPtr, size_t argcount, ProtectedObject &result)
+void RexxCode::call(RexxActivity *activity, RoutineClass *routine, RexxString *msgname, RexxObject**argPtr, size_t argcount, size_t named_argcount, ProtectedObject &result)
 {
     // just forward to the more general method
-    this->call(activity, routine, msgname, argPtr, argcount, OREF_SUBROUTINE, OREF_NULL, EXTERNALCALL, result);
+    this->call(activity, routine, msgname, argPtr, argcount, named_argcount, OREF_SUBROUTINE, OREF_NULL, EXTERNALCALL, result);
 }
 
 
@@ -97,7 +97,8 @@ void RexxCode::call(
     RoutineClass *routine,             // top level routine instance
     RexxString *msgname,               /* message to be run                 */
     RexxObject**argPtr,                /* arguments to the method           */
-    size_t      argcount,              /* the count of arguments            */
+    size_t      argcount,              /* the count of positional arguments */
+    size_t      named_argcount,        /* the count of named arguments      */
     RexxString *calltype,              /* COMMAND/ROUTINE/FUNCTION          */
     RexxString *environment,           /* initial command environment       */
     int   context,                     /* type of context                   */
@@ -112,7 +113,7 @@ void RexxCode::call(
     RexxActivation *newacta = ActivityManager::newActivation(activity, routine, this, calltype, environment, context);
     activity->pushStackFrame(newacta);
                 /* run the method and return result  */
-    newacta->run(OREF_NULL, msgname, OREF_NULL, argPtr, argcount, OREF_NULL, result);
+    newacta->run(OREF_NULL, msgname, OREF_NULL, argPtr, argcount, named_argcount, OREF_NULL, result);
 }
 
 
@@ -122,7 +123,8 @@ void RexxCode::run(
     RexxObject *receiver,              /* object receiving the message      */
     RexxString *msgname,               /* message to be run                 */
     RexxObject**argPtr,                /* arguments to the method           */
-    size_t      argcount,              /* the count of arguments            */
+    size_t      argcount,              /* the count of positional arguments */
+    size_t      named_argcount,        /* the count of named arguments      */
     ProtectedObject &result)           // the method result
 /******************************************************************************/
 /* Function:  Call a method as a top level program or external function call  */
@@ -132,7 +134,7 @@ void RexxCode::run(
                                        /* add to the activity stack         */
     activity->pushStackFrame(newacta);
                                        /* run the method and return result  */
-    newacta->run(receiver, msgname, OREF_NULL, argPtr, argcount, OREF_NULL, result);
+    newacta->run(receiver, msgname, OREF_NULL, argPtr, argcount, named_argcount, OREF_NULL, result);
     activity->relinquish();            /* yield control now */
 }
 

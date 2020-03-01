@@ -1756,7 +1756,7 @@ void RexxSource::install()
         RoutineClass *code = new RoutineClass(programName, stub);
         p2 = code;
         ProtectedObject dummy;
-        code->call(ActivityManager::currentActivity, programName, NULL, 0, dummy);
+        code->call(ActivityManager::currentActivity, programName, NULL, 0, 0, dummy);
     }
 }
 
@@ -5507,11 +5507,6 @@ void RexxSource::argList(
         }
     }
 
-    // The count of named parameters (namedCount) will be always appended after the array of positional arguments
-    // p1, p2, ..., pP, namedCount, n1, v1, n2, V2, ..., nN, vN
-    // so push a dummy term to take into account this additional item for the calculation of the stack size
-    this->pushTerm(OREF_NULL);
-
     /* not closed with expected ')'?     */
     if (terminators & TERM_RIGHT && token->classId != TOKEN_RIGHT)
     {
@@ -5526,7 +5521,7 @@ void RexxSource::argList(
         syntaxErrorAt(Error_Unmatched_parenthesis_square, _first);
     }
 
-    this->popNTerms(total + (1 + (2 * namedTotal)));              /* pop all items off the term stack  */
+    this->popNTerms(total + ((2 * namedTotal)));              /* pop all items off the term stack  */
     /* pop off any trailing omitteds     */
     //while (total > realcount)
     //{

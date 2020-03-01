@@ -114,7 +114,7 @@ void *RexxBuffer::operator new(size_t size, size_t _length)
 }
 
 
-RexxObject *RexxBuffer::newRexx(RexxObject **args, size_t argc)
+RexxObject *RexxBuffer::newRexx(RexxObject **args, size_t argc, size_t named_argc)
 /******************************************************************************/
 /* Function:  Allocate a buffer  object from Rexx code.                       */
 /******************************************************************************/

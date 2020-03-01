@@ -422,12 +422,12 @@ RexxObject * RexxActivation::dispatch()
 {
     ProtectedObject r;
                                        /* go run this                       */
-    return this->run(receiver, settings.msgname, arguments, arglist, argcount, OREF_NULL, r);
+    return this->run(receiver, settings.msgname, arguments, arglist, argcount, named_argcount, OREF_NULL, r);
 }
 
 
 RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, RexxArray *_arguments, RexxObject **_arglist,
-     size_t _argcount, RexxInstruction * start, ProtectedObject &resultObj)
+     size_t _argcount, size_t _named_argcount, RexxInstruction * start, ProtectedObject &resultObj)
 /******************************************************************************/
 /* Function:  Run a REXX method...this is it!  This is the heart of the       */
 /*            interpreter that makes the whole thing run!                     */
@@ -460,16 +460,7 @@ RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, Rex
         this->arguments = _arguments; // Protect arglist against GC
         this->arglist = _arglist;           /* set the argument list             */
         this->argcount = _argcount;
-
-        if (arglist != OREF_NULL)
-        {
-            // Temporary : I have crashes when running live or liveGeneral
-            // because arglist has no named argument count after the positional argumenst.
-            // Get the count of named arguments now, to have a crash now.
-            // TODO: to remove when no more crashes...
-            size_t namedArgcount = 0;
-            arglist[argcount]->unsignedNumberValue(namedArgcount);
-        }
+        this->named_argcount = _named_argcount;
 
         /* first entry into here?            */
         if (this->isTopLevelCall())
@@ -480,6 +471,7 @@ RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, Rex
             settings.parent_arguments = _arguments;
             settings.parent_arglist = arglist;
             settings.parent_argcount = argcount;
+            settings.parent_named_argcount = named_argcount;
             this->code->install(this);       /* do any required installations     */
             this->next = this->code->getFirstInstruction();  /* ask the method for the start point*/
             this->current = this->next;      /* set the current too (for errors)  */
@@ -654,12 +646,10 @@ RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, Rex
                 /* if we have arguments, we need to migrate those also, as they are subject to overwriting once we return to the parent activation.  */
                 if (arglist != OREF_NULL)
                 {
-                    size_t namedArgcount = 0;
-                    arglist[argcount]->unsignedNumberValue(namedArgcount);
-                    if ((argcount + 1 + (2 * namedArgcount)) > 0) // ok, I could remove this test because always true, but I prefer to keep it in case I undo some changes
+                    if ((argcount + (2 * named_argcount)) > 0)
                     {
-                        RexxObject **newArguments = activity->allocateFrame(argcount + 1 + (2 * namedArgcount));
-                        memcpy(newArguments, arglist, sizeof(RexxObject *) * (argcount + 1 + (2 * namedArgcount)));
+                        RexxObject **newArguments = activity->allocateFrame(argcount + (2 * named_argcount));
+                        memcpy(newArguments, arglist, sizeof(RexxObject *) * (argcount + (2 * named_argcount)));
                         this->arglist = newArguments;  /* must be set on "this"  */
                         this->arguments = OREF_NULL; // no need of protection against GC, the newArguments are not shared
                         settings.parent_arglist = newArguments;
@@ -1041,9 +1031,7 @@ void RexxActivation::live(size_t liveMark)
     size_t i;
     if (arglist != OREF_NULL)
     {
-        size_t namedArgcount = 0;
-        arglist[argcount]->unsignedNumberValue(namedArgcount);
-        for (i = 0; i < (argcount + 1 + (2 * namedArgcount)); i++)
+        for (i = 0; i < (argcount + (2 * named_argcount)); i++)
         {
             memory_mark(arglist[i]);
         }
@@ -1052,9 +1040,7 @@ void RexxActivation::live(size_t liveMark)
     memory_mark(settings.parent_arguments); // arguments can be user-redefined (ex : yield), must be marked
     if (settings.parent_arglist != OREF_NULL)
     {
-        size_t parent_namedArgcount = 0;
-        settings.parent_arglist[settings.parent_argcount]->unsignedNumberValue(parent_namedArgcount);
-        for (i = 0; i < (settings.parent_argcount + 1 + (2 * parent_namedArgcount)); i++)
+        for (i = 0; i < (settings.parent_argcount + (2 * settings.parent_named_argcount)); i++)
         {
             memory_mark(settings.parent_arglist[i]);
         }
@@ -1104,9 +1090,7 @@ void RexxActivation::liveGeneral(int reason)
     size_t i;
     if (arglist != OREF_NULL)
     {
-        size_t namedArgcount = 0;
-        arglist[argcount]->unsignedNumberValue(namedArgcount);
-        for (i = 0; i < (argcount + 1 + (2 * namedArgcount)); i++)
+        for (i = 0; i < (argcount + (2 * named_argcount)); i++)
         {
             memory_mark_general(arglist[i]);
         }
@@ -1115,9 +1099,7 @@ void RexxActivation::liveGeneral(int reason)
     memory_mark_general(settings.parent_arguments); // arguments can be user-redefined (ex : yield), must be marked
     if (settings.parent_arglist != OREF_NULL)
     {
-        size_t parent_namedArgcount = 0;
-        settings.parent_arglist[settings.parent_argcount]->unsignedNumberValue(parent_namedArgcount);
-        for (i = 0; i < (settings.parent_argcount + 1 + (2 * parent_namedArgcount)); i++)
+        for (i = 0; i < (settings.parent_argcount + (2 * settings.parent_named_argcount)); i++)
         {
             memory_mark_general(settings.parent_arglist[i]);
         }
@@ -1348,6 +1330,7 @@ RexxObject *RexxActivation::forward(
     RexxObject  * superClass,          /* class over ride                   */
     RexxObject ** _arguments,          /* message arguments                 */
     size_t        _argcount,           /* count of message positional arguments */
+    size_t        _named_argcount,
     bool          continuing)          /* return/continue flag              */
 /******************************************************************************/
 /* Function:  Process a REXX FORWARD instruction                              */
@@ -1365,6 +1348,7 @@ RexxObject *RexxActivation::forward(
     {       /* no arguments given?               */
         _arguments = this->arglist;        /* use the same arguments            */
         _argcount = this->argcount;
+        _named_argcount = this->named_argcount;
     }
     if (continuing)
     {                    /* just processing the message?      */
@@ -1372,12 +1356,12 @@ RexxObject *RexxActivation::forward(
         if (superClass == OREF_NULL)       /* no override?                      */
         {
             /* issue the message and return      */
-            target->messageSend(message, _arguments, _argcount, r);
+            target->messageSend(message, _arguments, _argcount, _named_argcount, r);
         }
         else
         {
             /* issue the message with override   */
-            target->messageSend(message, _arguments, _argcount, superClass, r);
+            target->messageSend(message, _arguments, _argcount, _named_argcount, superClass, r);
         }
         return(RexxObject *)r;
     }
@@ -1402,12 +1386,12 @@ RexxObject *RexxActivation::forward(
         if (superClass == OREF_NULL)       /* no over ride?                     */
         {
             /* issue the simple message          */
-            target->messageSend(message, _arguments, _argcount, r);
+            target->messageSend(message, _arguments, _argcount, _named_argcount, r);
         }
         else
         {
             /* use the full override             */
-            target->messageSend(message, _arguments, _argcount, superClass, r);
+            target->messageSend(message, _arguments, _argcount, _named_argcount, superClass, r);
         }
         this->result = (RexxObject *)r;    /* save the result value             */
                                            /* already had a reply issued?       */
@@ -2499,7 +2483,7 @@ void RexxActivation::interpret(RexxString * codestring)
     ProtectedObject r;
     /* run the internal routine on the   */
     /* new activation                    */
-    newActivation->run(OREF_NULL, OREF_NULL, arguments, arglist, argcount, OREF_NULL, r);
+    newActivation->run(OREF_NULL, OREF_NULL, arguments, arglist, argcount, named_argcount, OREF_NULL, r);
 }
 
 
@@ -2520,7 +2504,7 @@ void RexxActivation::debugInterpret(   /* interpret interactive debug input */
         ProtectedObject r;
                                              /* run the internal routine on the   */
                                              /* new activation                    */
-        newActivation->run(receiver, settings.msgname, arguments, arglist, argcount, OREF_NULL, r);
+        newActivation->run(receiver, settings.msgname, arguments, arglist, argcount, named_argcount, OREF_NULL, r);
         // turn this off when done executing
         this->debug_pause = false;
     }
@@ -2726,7 +2710,7 @@ RexxObject *RexxActivation::getParentContextObject()
  * @return true if the macrospace function was located and called.
  */
 bool RexxActivation::callMacroSpaceFunction(RexxString * target, RexxObject **_arguments,
-    size_t _argcount, RexxString * calltype, int order, ProtectedObject &_result)
+    size_t _argcount, size_t _named_argcount, RexxString * calltype, int order, ProtectedObject &_result)
 {
     if (this->enableMacrospace())
     {
@@ -2748,7 +2732,7 @@ bool RexxActivation::callMacroSpaceFunction(RexxString * target, RexxObject **_a
                 return false;
             }
             /* run as a call                     */
-            routine->call(activity, target, _arguments, _argcount, calltype, OREF_NULL, EXTERNALCALL, _result);
+            routine->call(activity, target, _arguments, _argcount, _named_argcount, calltype, OREF_NULL, EXTERNALCALL, _result);
             // merge (class) definitions from macro with current settings
             getSourceObject()->mergeRequired(routine->getSourceObject());
             return true;                       /* return success we found it flag   */
@@ -2772,7 +2756,7 @@ bool RexxActivation::callMacroSpaceFunction(RexxString * target, RexxObject **_a
  *         object reference.
  */
 RexxObject *RexxActivation::externalCall(RexxString *target, RexxObject **_arguments, size_t _argcount,
-    RexxString *calltype, ProtectedObject &resultObj)
+    size_t _named_argcount, RexxString *calltype, ProtectedObject &resultObj)
 {
     // Step 1:  Check the global functions directory
     // this is actually considered part of the built-in functions, but these are
@@ -2781,7 +2765,7 @@ RexxObject *RexxActivation::externalCall(RexxString *target, RexxObject **_argum
     if (routine != OREF_NULL)        /* not found yet?                    */
     {
         // call and return the result
-        routine->call(this->activity, target, _arguments, _argcount, calltype, OREF_NULL, EXTERNALCALL, resultObj);
+        routine->call(this->activity, target, _arguments, _argcount, _named_argcount, calltype, OREF_NULL, EXTERNALCALL, resultObj);
         return(RexxObject *)resultObj;
     }
 
@@ -2790,11 +2774,11 @@ RexxObject *RexxActivation::externalCall(RexxString *target, RexxObject **_argum
     if (routine != OREF_NULL)
     {
         // call and return the result
-        routine->call(this->activity, target, _arguments, _argcount, calltype, OREF_NULL, EXTERNALCALL, resultObj);
+        routine->call(this->activity, target, _arguments, _argcount, _named_argcount, calltype, OREF_NULL, EXTERNALCALL, resultObj);
         return(RexxObject *)resultObj;
     }
     // Step 2a:  See if the function call exit fields this one
-    if (!activity->callObjectFunctionExit(this, target, calltype, resultObj, _arguments, _argcount))
+    if (!activity->callObjectFunctionExit(this, target, calltype, resultObj, _arguments, _argcount, _named_argcount))
     {
         return(RexxObject *)resultObj;
     }
@@ -2806,7 +2790,7 @@ RexxObject *RexxActivation::externalCall(RexxString *target, RexxObject **_argum
     }
 
     // Step 3:  Perform all platform-specific searches
-    if (SystemInterpreter::invokeExternalFunction(this, this->activity, target, _arguments, _argcount, calltype, resultObj))
+    if (SystemInterpreter::invokeExternalFunction(this, this->activity, target, _arguments, _argcount, _named_argcount, calltype, resultObj))
     {
         return(RexxObject *)resultObj;
     }
@@ -2843,6 +2827,7 @@ bool RexxActivation::callExternalRexx(
   RexxString *      target,            /* Name of external function         */
   RexxObject **     _arguments,        /* Argument array                    */
   size_t            _argcount,         /* number of positional arguments in the call   */
+  size_t            _named_argcount,
   RexxString *      calltype,          /* Type of call                      */
   ProtectedObject  &resultObj)         /* Result of function call           */
 /******************************************************************************/
@@ -2865,7 +2850,7 @@ bool RexxActivation::callExternalRexx(
         {
             ProtectedObject p(routine);
             /* run as a call                     */
-            routine->call(this->activity, target, _arguments, _argcount, calltype, this->settings.current_env, EXTERNALCALL, resultObj);
+            routine->call(this->activity, target, _arguments, _argcount, _named_argcount, calltype, this->settings.current_env, EXTERNALCALL, resultObj);
             /* now merge all of the public info  */
             this->settings.parent_code->mergeRequired(routine->getSourceObject());
             return true;                     /* Return routine found flag         */
@@ -3016,7 +3001,7 @@ void RexxActivation::loadLibrary(RexxString *target, RexxInstruction *instructio
  * @return The return value object
  */
 RexxObject * RexxActivation::internalCall(RexxString *name, RexxInstruction *target,
-    RexxObject **_arguments, size_t _argcount, ProtectedObject &returnObject)
+    RexxObject **_arguments, size_t _argcount, size_t _named_argcount, ProtectedObject &returnObject)
 {
     RexxActivation * newActivation;      /* new activation for call           */
     size_t           lineNum;            /* line number of the call           */
@@ -3030,7 +3015,7 @@ RexxObject * RexxActivation::internalCall(RexxString *name, RexxInstruction *tar
     this->activity->pushStackFrame(newActivation); /* push on the activity stack        */
     /* run the internal routine on the   */
     /* new activation                    */
-    return newActivation->run(receiver, name, OREF_NULL, _arguments, _argcount, target, returnObject);
+    return newActivation->run(receiver, name, OREF_NULL, _arguments, _argcount, _named_argcount, target, returnObject);
 }
 
 /**
@@ -3059,7 +3044,7 @@ RexxObject * RexxActivation::internalCallTrap(RexxString *name, RexxInstruction 
     this->activity->pushStackFrame(newActivation); /* push on the activity stack        */
     /* run the internal routine on the   */
     /* new activation                    */
-    return newActivation->run(OREF_NULL, name, OREF_NULL, NULL, 0, target, resultObj);
+    return newActivation->run(OREF_NULL, name, OREF_NULL, NULL, 0, 0, target, resultObj);
 }
 
 
@@ -4607,14 +4592,14 @@ void RexxActivation::setArguments(RexxArray *positionalArguments, RexxDirectory 
     size_t count = positionalArguments->size(); // count of positional arguments
     RexxArray *arguments = (RexxArray *)positionalArguments->copy();
     ProtectedObject p(arguments);
-    arguments->put(IntegerZero, count + 1); // Placeholder at index count+1 of the count of named arguments
+    size_t namedCount  = 0;
     if (namedArguments != OREF_NULL && namedArguments != TheNilObject)
     {
-        size_t namedCount = namedArguments->appendAllIndexesItemsTo(arguments);
-        arguments->put(new_integer(namedCount), count + 1);
+        namedCount = namedArguments->appendAllIndexesItemsTo(arguments, /*from*/ count+1); // from is 1-based index
     }
     this->arglist = arguments->data();
-    this->argcount = count; // yes, only the count of positional arguments.
+    this->argcount = count;
+    this->named_argcount = namedCount;
     this->arguments = arguments; // Protect against GC as long as the activation exists and uses it
 }
 

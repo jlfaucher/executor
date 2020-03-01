@@ -73,7 +73,7 @@ BUILTIN(ABBREV)
 }
 
 Macro expansion:
-RexxObject *builtin_function_abbrev ( RexxActivation * context, RexxObject **arguments, size_t argcount, RexxExpressionStack *stack )
+RexxObject *builtin_function_abbrev ( RexxActivation * context, RexxObject **arguments, size_t argcount, size_t named_argcount, RexxExpressionStack *stack )
 {
     expandArgs(arguments, argcount, 2, 3, CHAR_ABBREV);
     RexxString *information = requiredStringArg(argcount - 1)
@@ -106,7 +106,7 @@ stack top-1     "Print"         stack top-1     "Pri"
 #define arg_exists(x,n) ((argcount < x##_##n) ? false : arguments[x##_##n - 1] != OREF_NULL )
 #define arg_omitted(x,n) ((argcount < x##_##n) ? true : arguments[x##_##n - 1] == OREF_NULL )
 
-#define BUILTIN(x) RexxObject *builtin_function_##x ( RexxActivation * context, RexxObject **arguments, size_t argcount, RexxExpressionStack *stack )
+#define BUILTIN(x) RexxObject *builtin_function_##x ( RexxActivation * context, RexxObject **arguments, size_t argcount, size_t named_argcount, RexxExpressionStack *stack )
 
 #define positive_integer(n,f,p) if (n <= 0) reportException(Error_Incorrect_call_positive, CHAR_##f, OREF_positional, p, n)
 #define nonnegative_integer(n,f,p) if (n < 0) reportException(Error_Incorrect_call_nonnegative, CHAR_##f, OREF_positional, p, n)

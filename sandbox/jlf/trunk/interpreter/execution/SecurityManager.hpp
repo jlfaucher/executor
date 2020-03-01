@@ -64,8 +64,8 @@ public:
     void         liveGeneral(int reason);
     RexxObject  *checkLocalAccess(RexxString *index);
     RexxObject  *checkEnvironmentAccess(RexxString *index);
-    bool         checkProtectedMethod(RexxObject *target, RexxString *messageName, size_t count, RexxObject **arguments, ProtectedObject &result);
-    bool         checkFunctionCall(RexxString *functionName, size_t count, RexxObject **arguments, ProtectedObject &result);
+    bool         checkProtectedMethod(RexxObject *target, RexxString *messageName, size_t count, size_t named_count, RexxObject **arguments, ProtectedObject &result);
+    bool         checkFunctionCall(RexxString *functionName, size_t count, size_t named_count, RexxObject **arguments, ProtectedObject &result);
     bool         checkCommand(RexxActivity *, RexxString *address, RexxString *command, ProtectedObject &result, ProtectedObject &condition);
     RexxObject  *checkStreamAccess(RexxString *name);
     RexxString  *checkRequiresAccess(RexxString *name, RexxObject *&securityManager);

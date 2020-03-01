@@ -205,13 +205,74 @@ Probably no. There is no impact for the ooRexx user, and the option "Directory"
 is a natural extension.
 
 
+To investigate
+--------------
+
+RexxDirectory::unknown
+see if named arguments must be supported
+
+
+RexxNativeActivation::run
+see if named arguments must be supported here:
+    // retrieve the argument signatures and process them
+    uint16_t *types = (*methp)((RexxMethodContext *)&context, NULL);
+    processArguments(argcount, arglist, types, arguments, MAX_NATIVE_ARGUMENTS);
+
+
+RexxClass::enhanced
+RexxObject::newRexx
+RexxClass::newRexx
+RexxDirectory::newRexx
+RexxList::newRexx
+RexxMethod::newRexx
+RexxMutableBufferClass::newRexx
+PackageClass::newRexx
+RexxQueue::newRexx
+RexxRelation::newRexx
+
+
+RexxObject::run     rework how the directory NAMEDARGUMENTS is retrieved
+
+
+RexxObject  *RexxArray::of(RexxObject **args, size_t argCount, size_t named_argCount)
+TODO
+The named arguments could be added to the returned array (splitting the key:value).
+    .array~of(1,2,n3:3,n4:4) --> [1,2,n3,3,n4,4]
+That would be the opposite of what I do with .Directory~of (grouping in key:value)
+    .directory~of(1,2,n3:3,n4:4) --> [1:2,n3:3,n4:4]
+
+
+.List~of(v1,v2,...,vn)
+RexxList *RexxList::classOf(
+     RexxObject **args,                /* array of list items               */
+     size_t       argCount,            /* size of the argument array        */
+     size_t       named_argCount)
+TODO
+The named arguments could be added to the returned array (splitting the key:value).
+
+
+===============================================================================
+01/03/2020
+
+Named arguments:
+Reworked how the count of named arguments is passed.
+Now this count is passed with an additional C++ parameter.
+count=3, named_count=2
+              +----+----+----+----+----+----+----+
+              | P1 | P2 | P3 | N1 | V1 | N2 | V2 |
+              +----+----+----+----+----+----+----+
+
+
+For history, keep this part where I describe the previous implementation.
+<<
 Internally, the named arguments are passed as an array appended to the array of
 positional arguments. The count of named arguments is inserted between the two
 arrays.       +----+----+----+---+----+----+----+----+
               | P1 | P2 | P3 | 2 | N1 | V1 | N2 | V2 |
               +----+----+----+---+----+----+----+----+
                                |
-                             count
+                             count                       <-- DEPRECATED
+
 This representation allows to pass both arrays to the existing C++ methods,
 without adding a parameter to pass the count of named arguments.
     sendMessage(RexxString *message, RexxObject **args, size_t argCount)
@@ -227,20 +288,7 @@ This is the approach I used initially, many methods were impacted.
 I abandonned this approach because I thought that all the native methods should
 be updated to add a parameter named_argCount.
 Now, I know it's not the case... Maybe I should try again.
-
-
-To investigate
---------------
-
-RexxDirectory::unknown
-see if named arguments must be supported
-
-
-RexxNativeActivation::run
-see if named arguments must be supported here:
-    // retrieve the argument signatures and process them
-    uint16_t *types = (*methp)((RexxMethodContext *)&context, NULL);
-    processArguments(argcount, arglist, types, arguments, MAX_NATIVE_ARGUMENTS);
+>>
 
 
 ===============================================================================
@@ -248,13 +296,7 @@ see if named arguments must be supported here:
 
 Named arguments:
 Simplification to pass named arguments to natives functions.
-Internally, the named arguments are passed as an array appended to the array of
-positional arguments. The count of named arguments is inserted between the two
-arrays.       +----+----+----+---+----+----+----+----+
-              | P1 | P2 | P3 | 2 | N1 | V1 | N2 | V2 |
-              +----+----+----+---+----+----+----+----+
-                               |
-                             count
+
 Before:
     The named arguments were passed to the C++ method as 2 C++ parameters per named argument.
         native_cpp_method(P1, P2, P3, N1, V1, N2, V2)
@@ -274,7 +316,8 @@ Later ?
         native_cpp_method(P1, P2, P3, V1, V2)
 
 
-Native methods which support named arguments:
+All the native methods A_COUNT support named arguments.
+Native methods not A_COUNT which support named arguments:
     TheObjectBehaviour        RexxObject::startWith
     TheObjectBehaviour        RexxObject::sendWith
     TheRoutineBehaviour       RoutineClass::callWithRexx

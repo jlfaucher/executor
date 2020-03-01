@@ -56,7 +56,7 @@
 #include "ProtectedObject.hpp"
 
 
-RexxNumberString *RexxNumberString::maxMin(RexxObject **args, size_t argCount, unsigned int operation)
+RexxNumberString *RexxNumberString::maxMin(RexxObject **args, size_t argCount, size_t named_argCount, unsigned int operation)
 /*********************************************************************/
 /* Function:  Process the MAX and MIN builtin functions and methods  */
 /*********************************************************************/

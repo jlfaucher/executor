@@ -136,7 +136,7 @@ void RexxNativeActivation::live(size_t liveMark)
     /* are created.  Since in some places, this argument list comes */
     /* from the C stack, we need to handle the marker ourselves. */
     size_t i;
-    for (i = 0; i < argcount; i++)
+    for (i = 0; i < (argcount + (2 * named_argcount)); i++)
     {
         memory_mark(arglist[i]);
     }
@@ -168,7 +168,7 @@ void RexxNativeActivation::liveGeneral(int reason)
     /* are created.  Since in some places, this argument list comes */
     /* from the C stack, we need to handle the marker ourselves. */
     size_t i;
-    for (i = 0; i < argcount; i++)
+    for (i = 0; i < (argcount + (2 * named_argcount)); i++)
     {
         memory_mark_general(arglist[i]);
     }
@@ -1211,7 +1211,7 @@ void RexxNativeActivation::removeLocalReference(RexxObject *objr)
  * @param resultObj The returned result object.
  */
 void RexxNativeActivation::run(RexxMethod *_method, RexxNativeMethod *_code, RexxObject  *_receiver,
-    RexxString  *_msgname, RexxObject **_arglist, size_t _argcount, ProtectedObject &resultObj)
+    RexxString  *_msgname, RexxObject **_arglist, size_t _argcount, size_t _named_argcount, ProtectedObject &resultObj)
 {
     // add the frame to the execution stack
     NativeActivationFrame frame(activity, this);
@@ -1221,17 +1221,8 @@ void RexxNativeActivation::run(RexxMethod *_method, RexxNativeMethod *_code, Rex
     msgname = _msgname;
     arglist = _arglist;
     argcount = _argcount;
+    named_argcount = _named_argcount;
     activationType = METHOD_ACTIVATION;      // this is for running a method
-
-    if (arglist != OREF_NULL)
-    {
-        // Temporary : I have crashes when running live or liveGeneral
-        // because arglist has no named argument count after the positional argumenst.
-        // Get the count of named arguments now, to have a crash now.
-        // TODO: to remove when no more crashes...
-        size_t namedArgcount = 0;
-        arglist[argcount]->unsignedNumberValue(namedArgcount);
-    }
 
     ValueDescriptor arguments[MAX_NATIVE_ARGUMENTS];
 
@@ -1298,6 +1289,7 @@ void RexxNativeActivation::run(RexxMethod *_method, RexxNativeMethod *_code, Rex
     }
     this->guardOff();                  /* release any variable locks        */
     this->argcount = 0;                /* make sure we don't try to mark any arguments */
+    this->named_argcount = 0;
     // the lock holder gets here by longjmp from a kernel reentry.  We need to
     // make sure the activation count gets reset, else we'll accumulate bogus
     // nesting levels that will make it look like this activity is still in use
@@ -1312,6 +1304,7 @@ void RexxNativeActivation::run(RexxMethod *_method, RexxNativeMethod *_code, Rex
     // set the return value and get outta here
     resultObj = this->result;
     this->argcount = 0;                  /* make sure we don't try to mark any arguments */
+    this->named_argcount = 0;
 
 
     this->activity->popStackFrame(this); /* pop this from the activity        */
@@ -1331,7 +1324,7 @@ void RexxNativeActivation::run(RexxMethod *_method, RexxNativeMethod *_code, Rex
  * @param resultObj The return value.
  */
 void RexxNativeActivation::callNativeRoutine(RoutineClass *_routine, RexxNativeRoutine *_code, RexxString *functionName,
-    RexxObject **list, size_t count, ProtectedObject &resultObj)
+    RexxObject **list, size_t count, size_t named_count, ProtectedObject &resultObj)
 {
     NativeActivationFrame frame(activity, this);
 
@@ -1340,15 +1333,9 @@ void RexxNativeActivation::callNativeRoutine(RoutineClass *_routine, RexxNativeR
     msgname = functionName;
     arglist = list;
     argcount = count;
+    named_argcount = named_count;
     activationType = FUNCTION_ACTIVATION;      // this is for running a method
     accessCallerContext();                   // we need this to access the caller's context
-
-    // Temporary : I have crashes when running live or liveGeneral
-    // because arglist has no named argument count after the positional argumenst.
-    // Get the count of named arguments now, to have a crash now.
-    // TODO: to remove when no more crashes...
-    size_t namedArgcount = 0;
-    arglist[argcount]->unsignedNumberValue(namedArgcount);
 
     ValueDescriptor arguments[MAX_NATIVE_ARGUMENTS];
 
@@ -1421,6 +1408,7 @@ void RexxNativeActivation::callNativeRoutine(RoutineClass *_routine, RexxNativeR
     // set the return value and get outta here.
     resultObj = this->result;
     this->argcount = 0;                  /* make sure we don't try to mark any arguments */
+    this->named_argcount = 0;
 
     this->activity->popStackFrame(this); /* pop this from the activity        */
     this->setHasNoReferences();          /* mark this as not having references in case we get marked */
@@ -1436,7 +1424,7 @@ void RexxNativeActivation::callNativeRoutine(RoutineClass *_routine, RexxNativeR
  * @param result     A protected object to receive the function result.
  */
 void RexxNativeActivation::callRegisteredRoutine(RoutineClass *_routine, RegisteredRoutine *_code, RexxString *functionName,
-    RexxObject **list, size_t count, ProtectedObject &resultObj)
+    RexxObject **list, size_t count, size_t named_count, ProtectedObject &resultObj)
 {
     NativeActivationFrame frame(activity, this);
 
@@ -1445,14 +1433,8 @@ void RexxNativeActivation::callRegisteredRoutine(RoutineClass *_routine, Registe
     executable = _routine;
     arglist = list;
     argcount = count;
+    named_argcount = named_count;
     accessCallerContext();                   // we need this to access the caller's context
-
-    // Temporary : I have crashes when running live or liveGeneral
-    // because arglist has no named argument count after the positional argumenst.
-    // Get the count of named arguments now, to have a crash now.
-    // TODO: o remove when no more crashes...
-    size_t namedArgcount = 0;
-    arglist[argcount]->unsignedNumberValue(namedArgcount);
 
     activationType = FUNCTION_ACTIVATION;      // this is for running a method
     // use the default security manager
@@ -1521,6 +1503,7 @@ void RexxNativeActivation::callRegisteredRoutine(RoutineClass *_routine, Registe
         enableVariablepool();                // enable the variable pool interface here
         activity->releaseAccess();           /* force this to "safe" mode         */
         // now process the function call
+        // Something TODO for named arguments ???
         functionrc = (int)(*methp)(functionName->getStringData(), count, argPtr, queuename, &funcresult);
         activity->requestAccess();           /* now in unsafe mode again          */
     }
@@ -1534,6 +1517,7 @@ void RexxNativeActivation::callRegisteredRoutine(RoutineClass *_routine, Registe
         }
 
         this->argcount = 0;                /* make sure we don't try to mark any arguments */
+        this->named_argcount = 0;
         // the lock holder gets here by longjmp from a kernel reentry.  We need to
         // make sure the activation count gets reset, else we'll accumulate bogus
         // nesting levels that will make it look like this activity is still in use
@@ -1555,6 +1539,7 @@ void RexxNativeActivation::callRegisteredRoutine(RoutineClass *_routine, Registe
             activity->requestAccess();
         }
         this->argcount = 0;                /* make sure we don't try to mark any arguments */
+        this->named_argcount = 0;
         // the lock holder gets here by longjmp from a kernel reentry.  We need to
         // make sure the activation count gets reset, else we'll accumulate bogus
         // nesting levels that will make it look like this activity is still in use
@@ -1596,6 +1581,7 @@ void RexxNativeActivation::callRegisteredRoutine(RoutineClass *_routine, Registe
     }
 
     this->argcount = 0;                  /* make sure we don't try to mark any arguments */
+    this->named_argcount = 0;
     this->activity->popStackFrame(this); /* pop this from the activity        */
     this->setHasNoReferences();          /* mark this as not having references in case we get marked */
 }
@@ -2049,7 +2035,7 @@ RexxObject *RexxNativeActivation::dispatch()
 /******************************************************************************/
 {
     ProtectedObject r;
-    this->run((RexxMethod *)executable, (RexxNativeMethod *)code, receiver, msgname, arglist, argcount, r);  /* just do a method run              */
+    this->run((RexxMethod *)executable, (RexxNativeMethod *)code, receiver, msgname, arglist, argcount, named_argcount, r);  /* just do a method run              */
     return (RexxObject *)r;
 }
 
@@ -2545,11 +2531,8 @@ RexxDirectory *RexxNativeActivation::getNamedArguments()
         if (arglist == OREF_NULL) argDirectory = new_directory(); // Empty directory
         else
         {
-            size_t namedArgcount = 0;
-            arglist[argcount]->unsignedNumberValue(namedArgcount);
-
-            if (namedArgcount == 0) argDirectory = new_directory(); // Empty directory
-            else argDirectory = RexxDirectory::fromIndexItemArray(arglist + argcount + 1, namedArgcount); // Here we are sure to have a directory on return (and not OREF_NULL)
+            if (named_argcount == 0) argDirectory = new_directory(); // Empty directory
+            else argDirectory = RexxDirectory::fromIndexItemArray(arglist + argcount, named_argcount); // Here we are sure to have a directory on return (and not OREF_NULL)
         }
 
         // make sure the directory is anchored in our activation
@@ -3370,6 +3353,7 @@ void RexxNativeActivation::forwardMessage(RexxObject *to, RexxString *msg, RexxC
 
     // By default, use the positional & named arguments of the native activation...
     size_t _argcount = this->argcount;
+    size_t _named_argcount = this->named_argcount;
     RexxObject **_arglist = this->arglist;
 
     // ... unless overriden
@@ -3389,9 +3373,7 @@ void RexxNativeActivation::forwardMessage(RexxObject *to, RexxString *msg, RexxC
         _argcount = positionalArgs->size(); // count of positional arguments
         RexxArray *arguments = (RexxArray *)positionalArgs->copy();
         p_arguments = arguments;
-        arguments->put(IntegerZero, _argcount + 1); // Placeholder at index count+1 of the count of named arguments
-        size_t namedCount = namedArgs->appendAllIndexesItemsTo(arguments);
-        arguments->put(new_integer(namedCount), _argcount + 1);
+        _named_argcount = namedArgs->appendAllIndexesItemsTo(arguments, /*from*/ _argcount+1); // from is 1-based index
 
         _arglist = arguments->data();
     }
@@ -3399,11 +3381,11 @@ void RexxNativeActivation::forwardMessage(RexxObject *to, RexxString *msg, RexxC
     // no super class override?  Normal message send
     if (super == OREF_NULL)
     {
-        to->messageSend(msg, _arglist, _argcount, _result);
+        to->messageSend(msg, _arglist, _argcount, _named_argcount, _result);
     }
     else
     {
-        to->messageSend(msg, _arglist, _argcount, super, _result);
+        to->messageSend(msg, _arglist, _argcount, _named_argcount, super, _result);
     }
 }
 

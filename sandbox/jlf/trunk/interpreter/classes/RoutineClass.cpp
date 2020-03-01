@@ -223,6 +223,7 @@ void RoutineClass::call(
     RexxString *msgname,               /* message to be run                 */
     RexxObject**argPtr,                /* arguments to the method           */
     size_t      argcount,              /* the count of arguments            */
+    size_t      named_argcount,
     ProtectedObject &result)           // the method result
 /******************************************************************************/
 /* Function:  Call a method as a top level program or external function call  */
@@ -230,7 +231,7 @@ void RoutineClass::call(
 {
     ProtectedObject p(this);           // belt-and-braces to make sure this is protected
     // just forward this to the code object
-    code->call(activity, this, msgname, argPtr, argcount, result);
+    code->call(activity, this, msgname, argPtr, argcount, named_argcount, result);
 }
 
 
@@ -239,6 +240,7 @@ void RoutineClass::call(
     RexxString *msgname,               /* message to be run                 */
     RexxObject**argPtr,                /* arguments to the method           */
     size_t      argcount,              /* the count of arguments            */
+    size_t      named_argcount,
     RexxString *calltype,              /* COMMAND/ROUTINE/FUNCTION          */
     RexxString *environment,           /* initial command environment       */
     int   context,                     /* type of context                   */
@@ -249,7 +251,7 @@ void RoutineClass::call(
 {
     ProtectedObject p(this);           // belt-and-braces to make sure this is protected
     // just forward this to the code object
-    code->call(activity, this, msgname, argPtr, argcount, calltype, environment, context, result);
+    code->call(activity, this, msgname, argPtr, argcount, named_argcount, calltype, environment, context, result);
 }
 
 
@@ -261,11 +263,11 @@ void RoutineClass::call(
  *
  * @return The call result (if any).
  */
-RexxObject *RoutineClass::callRexx(RexxObject **args, size_t count)
+RexxObject *RoutineClass::callRexx(RexxObject **args, size_t count, size_t named_count)
 {
     ProtectedObject result;
 
-    code->call(ActivityManager::currentActivity, this, executableName, args, count, result);
+    code->call(ActivityManager::currentActivity, this, executableName, args, count, named_count, result);
     return (RexxObject *)result;
 }
 
@@ -311,13 +313,17 @@ RexxObject *RoutineClass::callWithRexx(RexxArray *args,
         named_count = named_args_value->items();
     }
 
-    RexxArray *new_args = (RexxArray *)args->copy();
-    ProtectedObject p_new_args(new_args);
-    new_args->put(new_integer(named_count), count + 1); // Counter of named arguments. To support correctly omitted positional arguments, don't use append!
-    if (named_count != 0) named_args_value->appendAllIndexesItemsTo(new_args);
+    RexxArray *new_args = args;
+    ProtectedObject p_new_args;
+    if (named_count != 0)
+    {
+        new_args = (RexxArray *)args->copy();
+        p_new_args = new_args;
+        named_args_value->appendAllIndexesItemsTo(new_args, /*from*/ count+1); // from is 1-based index
+    }
 
     ProtectedObject result;
-    code->call(ActivityManager::currentActivity, this, executableName, new_args->data(), count, result);
+    code->call(ActivityManager::currentActivity, this, executableName, new_args->data(), count, named_count, result);
     return (RexxObject *)result;
 }
 
@@ -329,13 +335,14 @@ void RoutineClass::runProgram(
     RexxString * environment,          /* initial address                   */
     RexxObject **arguments,            /* array of arguments                */
     size_t       argCount,             /* the number of arguments           */
+    size_t       named_argCount,
     ProtectedObject &result)           // the method result
 /****************************************************************************/
 /* Function:  Run a method as a program                                     */
 /****************************************************************************/
 {
     ProtectedObject p(this);           // belt-and-braces to make sure this is protected
-    code->call(activity, this, executableName, arguments, argCount, calltype, environment, PROGRAMCALL, result);
+    code->call(activity, this, executableName, arguments, argCount, named_argCount, calltype, environment, PROGRAMCALL, result);
 }
 
 
@@ -343,13 +350,14 @@ void RoutineClass::runProgram(
     RexxActivity *activity,
     RexxObject **arguments,            /* array of arguments                */
     size_t       argCount,             /* the number of arguments           */
+    size_t       named_argCount,
     ProtectedObject &result)           // the method result
 /****************************************************************************/
 /* Function:  Run a method as a program                                     */
 /****************************************************************************/
 {
     ProtectedObject p(this);           // belt-and-braces to make sure this is protected
-    code->call(activity, this, executableName, arguments, argCount, OREF_COMMAND, activity->getInstance()->getDefaultEnvironment(), PROGRAMCALL, result);
+    code->call(activity, this, executableName, arguments, argCount, named_argCount, OREF_COMMAND, activity->getInstance()->getDefaultEnvironment(), PROGRAMCALL, result);
 }
 
 
@@ -585,7 +593,8 @@ RoutineClass *RoutineClass::newRoutineObject(RexxString *pgmname, RexxArray *sou
 
 RoutineClass *RoutineClass::newRexx(
     RexxObject **init_args,            /* subclass init arguments           */
-    size_t       argCount)             /* number of arguments passed        */
+    size_t       argCount,             /* number of arguments passed        */
+    size_t       named_argCount)
 /******************************************************************************/
 /* Function:  Create a new method from REXX code contained in a string or an  */
 /*            array                                                           */
@@ -646,7 +655,7 @@ RoutineClass *RoutineClass::newRexx(
         newRoutine->hasUninit();         /* Make sure everyone is notified.   */
     }
     /* now send an INIT message          */
-    newRoutine->sendMessage(OREF_INIT, init_args, initCount);
+    newRoutine->sendMessage(OREF_INIT, init_args, initCount, named_argCount);
     return newRoutine;                   /* return the new method             */
 }
 

@@ -55,7 +55,7 @@ class RexxMutableBufferClass : public RexxClass {
  public:
    RexxMutableBufferClass(RESTORETYPE restoreType) { ; };
    void *operator new(size_t size, void *ptr) { return ptr; };
-   RexxMutableBuffer *newRexx(RexxObject**, size_t); // in behaviour
+   RexxMutableBuffer *newRexx(RexxObject**, size_t, size_t); // in behaviour
 };
 
  class RexxMutableBuffer : public RexxObject {

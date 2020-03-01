@@ -119,7 +119,7 @@ StackFrameClass::StackFrameClass(const char *ty, RexxString *n, BaseExecutable *
  *
  * @return Never returns.
  */
-RexxObject *StackFrameClass::newRexx(RexxObject **args, size_t argc)
+RexxObject *StackFrameClass::newRexx(RexxObject **args, size_t argc, size_t named_argc)
 {
     // we do not allow these to be allocated from Rexx code...
     reportException(Error_Unsupported_new_method, ((RexxClass *)this)->getId());

@@ -111,9 +111,9 @@ RexxObject *CPPCode::unflatten(RexxEnvelope *envelope)
  * @param result   The returned result.
  */
 void CPPCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiver, RexxString *messageName,
-    RexxObject **argPtr, size_t count, ProtectedObject &result)
+    RexxObject **argPtr, size_t count, size_t named_count, ProtectedObject &result)
 {
-    InternalActivationFrame frame(activity, messageName, receiver, method, argPtr, count);
+    InternalActivationFrame frame(activity, messageName, receiver, method, argPtr, count, named_count);
     PCPPM methodEntry = this->cppEntry;  /* get the entry point               */
                                        /* expecting an array?               */
                                        /* expecting a pointer/count pair?   */
@@ -121,7 +121,7 @@ void CPPCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiv
     {
       // Here, named arguments are automatically supported
                                        /* we can pass this right on         */
-      result = (receiver->*((PCPPMC1)methodEntry))(argPtr, count);
+      result = (receiver->*((PCPPMC1)methodEntry))(argPtr, count, named_count);
     }
     else
     {
@@ -129,12 +129,6 @@ void CPPCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiv
         {
             reportException(Error_Incorrect_method_maxarg, OREF_positional, this->argumentCount);
         }
-
-        // Remember: get named_count NOW, before building argument_list
-        // because argPtr may refer to argument_list where ALL the arguments after named_count are NULLified.
-        size_t named_count = 0;
-        if (argPtr != OREF_NULL) argPtr[count]->unsignedNumberValue(named_count);
-        RexxObject **named_argPtr = argPtr + count + 1;
 
         // JLF: example with UNKNOWN method
         // RexxObject::processUnknown : put all the positional arguments in the 2nd arg, put all the named arguments in the named argument NAMEDARGUMENT
@@ -205,6 +199,7 @@ void CPPCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiv
         }
         else
         {
+            RexxObject **named_argPtr = argPtr + count;
             switch (argumentCount)
             {
               case 0:                        /* zero                              */
@@ -306,7 +301,7 @@ void AttributeGetterCode::flatten(RexxEnvelope *envelope)
  * @param result   The returned result.
  */
 void AttributeGetterCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiver, RexxString *messageName,
-    RexxObject **argPtr, size_t count, ProtectedObject &result)
+    RexxObject **argPtr, size_t count, size_t named_count, ProtectedObject &result)
 {
     // validate the number of arguments
     if (count > 0)
@@ -356,7 +351,7 @@ void *AttributeSetterCode::operator new(size_t size)
  * @param result   The returned result.
  */
 void AttributeSetterCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiver, RexxString *messageName,
-    RexxObject **argPtr, size_t count, ProtectedObject &result)
+    RexxObject **argPtr, size_t count, size_t named_count, ProtectedObject &result)
 {
     // validate the number of arguments
     if (count > 1)
@@ -442,7 +437,7 @@ void ConstantGetterCode::flatten(RexxEnvelope *envelope)
  * @param result   The returned result.
  */
 void ConstantGetterCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiver, RexxString *messageName,
-    RexxObject **argPtr, size_t count, ProtectedObject &result)
+    RexxObject **argPtr, size_t count, size_t named_count, ProtectedObject &result)
 {
     // validate the number of arguments
     if (count > 0)
@@ -480,7 +475,7 @@ void *AbstractCode::operator new(size_t size)
  * @param result   The returned result.
  */
 void AbstractCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiver, RexxString *messageName,
-    RexxObject **argPtr, size_t count, ProtectedObject &result)
+    RexxObject **argPtr, size_t count, size_t named_count, ProtectedObject &result)
 {
     reportException(Error_Incorrect_method_abstract, messageName);
 }

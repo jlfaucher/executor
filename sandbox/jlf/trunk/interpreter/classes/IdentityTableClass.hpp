@@ -64,7 +64,7 @@ class RexxIdentityTable : public RexxTable {
    inline RexxArray   *allAt(RexxObject *key) {return this->contents->primitiveGetAll(key);}
    inline RexxObject  *findSuperScope(RexxObject *v) { return this->contents->primitiveNextItem(v, TheNilObject); };
 
-   RexxObject *newRexx(RexxObject **, size_t);
+   RexxObject *newRexx(RexxObject **, size_t, size_t);
    static void createInstance();
    static RexxIdentityTable *newInstance(size_t size);
    static RexxClass *classInstance;

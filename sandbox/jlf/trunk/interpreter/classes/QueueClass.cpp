@@ -583,7 +583,7 @@ RexxObject *RexxQueue::sectionSubclass(LISTENTRY *element, size_t counter)
 }
 
 
-RexxObject *RexxQueue::newRexx(RexxObject **init_args, size_t argCount)
+RexxObject *RexxQueue::newRexx(RexxObject **init_args, size_t argCount, size_t named_argCount)
 /******************************************************************************/
 /* Function:  Create an instance of a queue                                   */
 /******************************************************************************/
@@ -597,13 +597,14 @@ RexxObject *RexxQueue::newRexx(RexxObject **init_args, size_t argCount)
         newObj->hasUninit();
     }
 
-    newObj->sendMessage(OREF_INIT, init_args, argCount);
+    newObj->sendMessage(OREF_INIT, init_args, argCount, named_argCount);
     return(RexxObject *)newObj;         /* return the new object             */
 }
 
 RexxQueue *RexxQueue::ofRexx(
      RexxObject **args,                /* array of list items               */
-     size_t       argCount)            /* size of the argument array        */
+     size_t       argCount,            /* size of the argument array        */
+     size_t       named_argCount)
 /******************************************************************************/
 /* Function:  Create a new queue containing the given items                   */
 /******************************************************************************/

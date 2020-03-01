@@ -271,7 +271,6 @@ void RexxInstructionCall::execute(
         }
 
         // Named arguments
-        stack->push(new_integer(namedArgumentCount));
         for (size_t i = argumentCount; i < argumentCount + (2 * namedArgumentCount); i+=2)
         {
             // Argument name: string literal
@@ -285,24 +284,24 @@ void RexxInstructionCall::execute(
         }
 
         // More easy to work with an array of arguments (address of the first argument) than a stack of arguments (address of the last argument).
-        RexxObject **_arguments = stack->arguments(argumentCount + 1 + (2 * namedArgumentCount));
+        RexxObject **_arguments = stack->arguments(argumentCount + (2 * namedArgumentCount));
 
         switch (type)                    /* process various call types        */
         {
 
             case call_internal:              /* need to process internal routine  */
                 /* go process the internal call      */
-                context->internalCall(_name, _target, _arguments, argumentCount, result);
+                context->internalCall(_name, _target, _arguments, argumentCount, namedArgumentCount, result);
                 break;
 
             case call_builtin:               /* builtin function call             */
                 /* call the function                 */
-                result = (*(RexxSource::builtinTable[builtin_index]))(context, _arguments, argumentCount, stack);
+                result = (*(RexxSource::builtinTable[builtin_index]))(context, _arguments, argumentCount, namedArgumentCount, stack);
                 break;
 
             case call_external:              /* need to call externally           */
                 /* go process the external call      */
-                context->externalCall(_name, _arguments, argumentCount, OREF_ROUTINENAME, result);
+                context->externalCall(_name, _arguments, argumentCount, namedArgumentCount, OREF_ROUTINENAME, result);
                 break;
         }
         if ((RexxObject *)result != OREF_NULL)   /* result returned?                  */
@@ -340,12 +339,12 @@ void RexxInstructionCall::trap(
 
         case call_builtin:                 /* builtin function call             */
             /* call the function                 */
-            (*(RexxSource::builtinTable[builtinIndex]))(context, NULL, 0, context->getStack());
+            (*(RexxSource::builtinTable[builtinIndex]))(context, NULL, 0, 0, context->getStack());
             break;
 
         case call_external:                /* need to call externally           */
             /* go process the externnl call      */
-            context->externalCall((RexxString *)this->name, NULL, 0, OREF_ROUTINENAME, result);
+            context->externalCall((RexxString *)this->name, NULL, 0, 0, OREF_ROUTINENAME, result);
             break;
     }
     /* restore the trap state            */

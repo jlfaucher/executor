@@ -96,7 +96,7 @@ public:
     RexxBlock(RexxSourceLiteral *, RexxContext *);
     inline RexxBlock(RESTORETYPE restoreType) { ; };
 
-    RexxObject *newRexx(RexxObject **args, size_t argc);
+    RexxObject *newRexx(RexxObject **args, size_t argc, size_t named_argc);
     RexxObject *copyRexx();
 
     RexxArray *getSource() { return (RexxArray *)(sourceLiteral->getSource()->copy()); }
@@ -129,7 +129,7 @@ public:
     RexxClosure(RexxSourceLiteral *, RexxContext *);
     inline RexxClosure(RESTORETYPE restoreType) { ; };
 
-    RexxObject *newRexx(RexxObject **args, size_t argc);
+    RexxObject *newRexx(RexxObject **args, size_t argc, size_t named_argc);
     RexxObject *copyRexx();
 
     static void createInstance();

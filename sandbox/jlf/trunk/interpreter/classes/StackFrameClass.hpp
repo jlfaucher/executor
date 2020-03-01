@@ -84,7 +84,7 @@ public:
     virtual     RexxString  *makeString();
     virtual     RexxString  *stringValue();
 
-    RexxObject *newRexx(RexxObject **args, size_t argc);
+    RexxObject *newRexx(RexxObject **args, size_t argc, size_t named_argc);
 
 protected:
     const char *type;               // the type of frame

@@ -127,8 +127,8 @@
    RexxObject   *append(RexxObject *);
    RexxArray    *weakReferenceArray();
 
-   RexxList     *newRexx(RexxObject **, size_t);
-   RexxList     *classOf(RexxObject **, size_t);
+   RexxList     *newRexx(RexxObject **, size_t, size_t);
+   RexxList     *classOf(RexxObject **, size_t, size_t);
 
    static void createInstance();
    static RexxClass *classInstance;

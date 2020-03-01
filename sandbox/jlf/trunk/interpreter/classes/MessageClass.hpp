@@ -56,7 +56,7 @@
    void * operator new(size_t);
    inline void * operator new(size_t size, void *objectPtr) { return objectPtr; };
                                         /* So it doesn't need to do anythin*/
-   RexxMessage(RexxObject *, RexxString *, RexxObject *, RexxObject **, size_t);
+   RexxMessage(RexxObject *, RexxString *, RexxObject *, RexxObject **, size_t, size_t);
    inline RexxMessage(RESTORETYPE restoreType) : waitResultSem("RexxMessage::waitResultSem") { ; };
 
    void          live(size_t);
@@ -74,7 +74,7 @@
    RexxArray    *arguments();
    RexxObject   *hasError();
    RexxObject   *errorCondition();
-   RexxObject   *newRexx(RexxObject **, size_t);
+   RexxObject   *newRexx(RexxObject **, size_t, size_t);
    RexxActivity *getActivity() { return startActivity; }
 
    inline bool          resultReturned() { return (this->dataFlags & flagResultReturned) != 0; };
@@ -110,10 +110,10 @@
    size_t NumWaiting;                  /* activities waiting on result      */
 
    // Positional arguments from arglist[0] to arglist[argcount-1]
-   // named_argcount = arglist[argcount]
-   // Named arguments from arglist[argcount+1] to arglist[argcount+1 + (2*namedArgcount)-1]
+   // Named arguments from arglist[argcount] to arglist[argcount + (2*named_argcount)-1]
    RexxObject ** arglist;              // list of positional & named arguments
    size_t argcount;                    // count of positional arguments
+   size_t named_argcount;              // count of named arguments
  };
 
 #endif

@@ -93,7 +93,7 @@ RexxContext::RexxContext(RexxActivation *a)
  *
  * @return Never returns.
  */
-RexxObject *RexxContext::newRexx(RexxObject **args, size_t argc)
+RexxObject *RexxContext::newRexx(RexxObject **args, size_t argc, size_t named_argc)
 {
     // we do not allow these to be allocated from Rexx code...
     reportException(Error_Unsupported_new_method, ((RexxClass *)this)->getId());
@@ -261,13 +261,12 @@ RexxObject *RexxContext::getNamedArgs()
     if (arglist == OREF_NULL) return new_directory(); // Empty directory
 
     size_t argcount = activation->getMethodArgumentCount();
-    size_t namedArgcount = 0;
-    arglist[argcount]->unsignedNumberValue(namedArgcount);
+    size_t named_argcount = activation->getMethodNamedArgumentCount();;
 
-    if (namedArgcount == 0) return new_directory(); // Empty directory
+    if (named_argcount == 0) return new_directory(); // Empty directory
 
     // Now we are sure to have a directory on return (and not OREF_NULL)
-    return RexxDirectory::fromIndexItemArray(arglist + argcount + 1, namedArgcount);
+    return RexxDirectory::fromIndexItemArray(arglist + argcount, named_argcount);
 }
 
 

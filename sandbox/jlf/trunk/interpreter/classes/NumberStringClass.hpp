@@ -218,9 +218,9 @@
     RexxNumberString *abs();
     RexxInteger *Sign();
     RexxObject  *notOp();
-    RexxNumberString *Max(RexxObject **, size_t);
-    RexxNumberString *Min(RexxObject **, size_t);
-    RexxNumberString *maxMin(RexxObject **, size_t, unsigned int);
+    RexxNumberString *Max(RexxObject **, size_t, size_t);
+    RexxNumberString *Min(RexxObject **, size_t, size_t);
+    RexxNumberString *maxMin(RexxObject **, size_t, size_t, unsigned int);
     RexxObject *isInteger();
     RexxString *d2c(RexxObject *);
     RexxString *d2x(RexxObject *);

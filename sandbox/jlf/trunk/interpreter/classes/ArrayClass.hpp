@@ -140,13 +140,13 @@ typedef struct copyElementParm {
 #if 0
    RexxString  *primitiveMakeString();
 #endif
-   RexxObject  *getRexx(RexxObject **, size_t);
+   RexxObject  *getRexx(RexxObject **, size_t, size_t);
    RexxObject  *getApi(size_t pos);
    void         put(RexxObject * eref, size_t pos);
-   RexxObject  *putRexx(RexxObject **, size_t);
+   RexxObject  *putRexx(RexxObject **, size_t, size_t);
    void         putApi(RexxObject * eref, size_t pos);
    RexxObject  *remove(size_t);
-   RexxObject  *removeRexx(RexxObject **, size_t);
+   RexxObject  *removeRexx(RexxObject **, size_t, size_t);
    RexxObject  *appendRexx(RexxObject *);
    size_t       append(RexxObject *);
    void         setExpansion(RexxObject * expansion);
@@ -158,13 +158,13 @@ typedef struct copyElementParm {
    RexxObject  *firstItem();
    RexxObject  *lastItem();
    size_t       lastIndex();
-   RexxObject  *nextRexx(RexxObject **, size_t);
-   RexxObject  *previousRexx(RexxObject **, size_t);
+   RexxObject  *nextRexx(RexxObject **, size_t, size_t);
+   RexxObject  *previousRexx(RexxObject **, size_t, size_t);
    RexxArray   *section(size_t, size_t);
    RexxObject  *sectionRexx(RexxObject *, RexxObject *);
    RexxObject  *sectionSubclass(size_t, size_t);
    bool         hasIndexNative(size_t);
-   RexxObject  *hasIndexRexx(RexxObject **, size_t);
+   RexxObject  *hasIndexRexx(RexxObject **, size_t, size_t);
    bool         hasIndexApi(size_t);
    size_t       items();
    RexxObject  *itemsRexx();
@@ -179,8 +179,8 @@ typedef struct copyElementParm {
    RexxArray   *extendMulti(RexxObject **, size_t, size_t);
    void         resize();
    void         ensureSpace(size_t newSize);
-   RexxObject  *newRexx(RexxObject **, size_t);
-   RexxObject  *of(RexxObject **, size_t);
+   RexxObject  *newRexx(RexxObject **, size_t, size_t);
+   RexxObject  *of(RexxObject **, size_t, size_t);
    RexxObject  *empty();
    RexxObject  *isEmpty();
    RexxObject  *fill(RexxObject *);

@@ -191,7 +191,7 @@ RexxSupplier *RexxDirectory::supplier(void)
             RexxMethod *method = (RexxMethod *)methodTable->value(i);
             ProtectedObject v;
             /* run the method                    */
-            method->run(ActivityManager::currentActivity, this, name, NULL, 0, v);
+            method->run(ActivityManager::currentActivity, this, name, NULL, 0, 0, v);
             result->put((RexxObject *)v, name);  /* add to the table                  */
         }
     }
@@ -289,7 +289,7 @@ RexxArray *RexxDirectory::allItems()
             RexxMethod *method = (RexxMethod *)methodTable->value(j);
             ProtectedObject v;
             /* run the method                    */
-            method->run(ActivityManager::currentActivity, this, name, NULL, 0, v);
+            method->run(ActivityManager::currentActivity, this, name, NULL, 0, 0, v);
             result->put((RexxObject *)v, i++);  /* add to the array                  */
         }
     }
@@ -591,7 +591,7 @@ RexxObject *RexxDirectory::at(
             {
                 ProtectedObject v;
                 /* run the method                    */
-                method->run(ActivityManager::currentActivity, this, _index, NULL, 0, v);
+                method->run(ActivityManager::currentActivity, this, _index, NULL, 0, 0, v);
                 return(RexxObject *)v;
 
             }
@@ -600,12 +600,11 @@ RexxObject *RexxDirectory::at(
         if (this->unknown_method != OREF_NULL)
         {
             RexxObject *arg = _index;
-            RexxObject *args[2];
+            RexxObject *args[1];
             args[0] = _index; // positional argument
-            args[1] = IntegerZero; // 0 named arguments
             ProtectedObject v;
             /* run it                            */
-            this->unknown_method->run(ActivityManager::currentActivity, this, OREF_UNKNOWN, args, 1, v);
+            this->unknown_method->run(ActivityManager::currentActivity, this, OREF_UNKNOWN, args, 1, 0, v);
             return(RexxObject *)v;
         }
     }
@@ -737,7 +736,7 @@ RexxObject *RexxDirectory::indexRexx(RexxObject *target)
                 RexxString *name = (RexxString *)methodTable->index(i);
                 RexxMethod *method = (RexxMethod *)methodTable->value(i);
                 ProtectedObject v;
-                method->run(ActivityManager::currentActivity, this, name, NULL, 0, v);
+                method->run(ActivityManager::currentActivity, this, name, NULL, 0, 0, v);
                 // got a match?
                 if (target->equalValue((RexxObject *)v))
                 {
@@ -788,7 +787,8 @@ RexxObject *RexxDirectory::removeItem(RexxObject *target)
 
 RexxObject *RexxDirectory::newRexx(
     RexxObject **init_args,
-    size_t       argCount)
+    size_t       argCount,
+    size_t       named_argCount)
 /******************************************************************************/
 /* Function:  Create a new directory for a REXX program                       */
 /******************************************************************************/
@@ -807,7 +807,7 @@ RexxObject *RexxDirectory::newRexx(
         newDirectory->hasUninit();         /* Make sure everyone is notified.   */
     }
     /* call any rexx level init's        */
-    newDirectory->sendMessage(OREF_INIT, init_args, argCount);
+    newDirectory->sendMessage(OREF_INIT, init_args, argCount, named_argCount);
     return newDirectory;                 /* return the new directory          */
 }
 
@@ -880,7 +880,7 @@ RexxArray *RexxDirectory::allIndexesItems(void)
             RexxMethod *method = (RexxMethod *)methodTable->value(i);
             ProtectedObject v;
             /* run the method                    */
-            method->run(ActivityManager::currentActivity, this, name, NULL, 0, v);
+            method->run(ActivityManager::currentActivity, this, name, NULL, 0, 0, v);
             result->put((RexxObject *)v, out++);  /* add to the array                  */
         }
     }
@@ -919,7 +919,7 @@ size_t RexxDirectory::pushAllIndexesItemsTo(RexxExpressionStack *stack)
             RexxMethod *method = (RexxMethod *)methodTable->value(i);
             ProtectedObject v;
             /* run the method                    */
-            method->run(ActivityManager::currentActivity, this, name, NULL, 0, v);
+            method->run(ActivityManager::currentActivity, this, name, NULL, 0, 0, v);
             stack->push(v);
         }
     }
@@ -931,28 +931,13 @@ size_t RexxDirectory::pushAllIndexesItemsTo(RexxExpressionStack *stack)
  * Helper for named arguments.
  * Append to the array all the directory indices &items, including those
  * of all the SETMETHOD methods: index1, item1, index2, item2, ...
- * Precondition :
- * To support correctly a sparse array of positional arguments (omitted arguments),
- * the counter of named arguments MUST be already put in the array.
- * Don't append the counter, you MUST put it!
- * No need to put the real value, you can just put 0 to create the placeholder,
- * and later you replace 0 by the real value (typically the result of this helper).
- * That way, the field lastElement of the array is correctly set (index after the very last omitted argument, if any).
  *
- * Example of good use:
- * Positional arguments with omitted arguments:                 (,,3,,)                 arraySize == 5,  lastElement == 3
- * You put the counter of named arguments at index arraySize+1: (,,3,,,2)               arraySize == 6,  lastElement == 6
- * You append the named arguments:                              (,,3,,,2,"a1",1,"a2",2) arraySize == 10, lastElement == 10
- *
- * Example of bad use:
- * Positional arguments with omitted arguments:                 (,,3,,)                 arraySize == 5,  lastElement == 3
- * You append the counter of named arguments:                   (,,3,2,)                arraySize == 5,  lastElement == 4
- * You append the named arguments:                              (,,3,2,"a1",1,"a2",2)   arraySize == 8,  lastElement == 8 (not good, the omitted arguments at the end are lost)
- *
+ * from: at which position to start storing using the method array.put.
+ * CAREFUL! 1-based, so NEVER pass 0.
  *
  * @return The count of appended pairs index & item (= this->items())
  */
-size_t RexxDirectory::appendAllIndexesItemsTo(RexxArray *array)
+size_t RexxDirectory::appendAllIndexesItemsTo(RexxArray *array, size_t from)
 {
     size_t out = 0;
     // we're working directly off of the contents.
@@ -961,8 +946,8 @@ size_t RexxDirectory::appendAllIndexesItemsTo(RexxArray *array)
     // traverse the entire table coping over the items.
     for (HashLink i = hashTab->first(); hashTab->index(i) != OREF_NULL; i = hashTab->next(i), out++)
     {
-        array->append(hashTab->index(i));
-        array->append(hashTab->value(i));
+        array->put(hashTab->index(i), from++);
+        array->put(hashTab->value(i), from++);
     }
     // if has a method table, we need to copy those indices also
     if (this->method_table != OREF_NULL)
@@ -971,13 +956,13 @@ size_t RexxDirectory::appendAllIndexesItemsTo(RexxArray *array)
         for (HashLink i = methodTable->first(); methodTable->available(i); i = methodTable->next(i), out++)
         {
             RexxString *name = (RexxString *)methodTable->index(i);
-            array->append(name);
+            array->put(name, from++);
 
             RexxMethod *method = (RexxMethod *)methodTable->value(i);
             ProtectedObject v;
             /* run the method                    */
-            method->run(ActivityManager::currentActivity, this, name, NULL, 0, v);
-            array->append(v);
+            method->run(ActivityManager::currentActivity, this, name, NULL, 0, 0, v);
+            array->put(v, from++);
         }
     }
     return out;

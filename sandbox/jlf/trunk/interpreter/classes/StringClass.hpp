@@ -221,8 +221,8 @@ inline char IntToHexDigit(int n)
    RexxObject *andOp(RexxObject *); // in behaviour
    RexxObject *orOp(RexxObject *); // in behaviour
    RexxObject *xorOp(RexxObject *); // in behaviour
-   RexxObject *Max(RexxObject **args, size_t argCount); // in behaviour
-   RexxObject *Min(RexxObject **args, size_t argCount); // in behaviour
+   RexxObject *Max(RexxObject **args, size_t argCount, size_t named_argCount); // in behaviour
+   RexxObject *Min(RexxObject **args, size_t argCount, size_t named_argCount); // in behaviour
    RexxObject *trunc(RexxInteger *decimals); // in behaviour
    RexxObject *floor();
    RexxObject *ceiling();
@@ -509,7 +509,7 @@ inline char IntToHexDigit(int n)
    static RexxString *newString(double d, size_t precision);
    static RexxString *newProxy(const char *);
    // NB:  newRexx() cannot be static and exported as an ooRexx method.
-          RexxString *newRexx(RexxObject **, size_t); // in behaviour
+          RexxString *newRexx(RexxObject **, size_t, size_t); // in behaviour
    static PCPPM operatorMethods[];
 
    static void createInstance();

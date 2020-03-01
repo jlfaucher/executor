@@ -85,7 +85,7 @@ class RexxDirectory : public RexxHashTableCollection {
   RexxObject   *hasItem(RexxObject *);
   RexxObject   *removeItem(RexxObject *);
 
-  RexxObject   *newRexx(RexxObject **init_args, size_t);
+  RexxObject   *newRexx(RexxObject **init_args, size_t, size_t);
 
   RexxTable  *method_table;            /* table of added methods            */
   RexxMethod *unknown_method;          /* unknown method entry              */
@@ -93,7 +93,7 @@ class RexxDirectory : public RexxHashTableCollection {
   // Helpers for named arguments
   RexxArray *allIndexesItems(void); // return an array containing all of the directory indices & items: index1, item1, index2, item2, ...
   size_t pushAllIndexesItemsTo(RexxExpressionStack *stack); // Push on the stack all the directory indices & items: index1, item1, index2, item2, ...
-  size_t appendAllIndexesItemsTo(RexxArray *array); // Append to the array all the directory indices & items: index1, item1, index2, item2, ...
+  size_t appendAllIndexesItemsTo(RexxArray *array, size_t from); // Append to the array all the directory indices & items: index1, item1, index2, item2, ...
   static RexxDirectory *fromIndexItemArray(RexxObject **arglist, size_t count); // return REF_NULL when count==0, otherwise return a directory made from an array of(index1, item1, index2, item2, ...)
 
   static RexxDirectory *newInstance();

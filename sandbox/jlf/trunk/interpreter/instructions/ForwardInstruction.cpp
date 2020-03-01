@@ -265,9 +265,6 @@ void RexxInstructionForward::execute(
         // - this->namedArgumentsArray: an array of name, value, name, value, etc...
         // Both are exclusive (enforced by the parser)
 
-        // Placeholder for namedCount (not yet known)
-        newArguments->put(IntegerZero, count + 1); // Counter of named arguments. To support correctly omitted positional arguments, don't use append!
-
         if (this->namedArgumentsExpression != OREF_NULL) /* overriding the named arguments? */
         {
             /* get the expression value          */
@@ -289,7 +286,7 @@ void RexxInstructionForward::execute(
                     // todo: Should create the error Error_Execution_forward_namedarguments
                     reportException(Error_Execution_user_defined , "FORWARD namedArguments must be a directory or NIL");
                 }
-                namedCount = argDirectory->appendAllIndexesItemsTo(newArguments);
+                namedCount = argDirectory->appendAllIndexesItemsTo(newArguments, /*from*/ count+1); // from is 1-based index
             }
         }
 
@@ -311,8 +308,8 @@ void RexxInstructionForward::execute(
         {
             RexxObject **arglist = context->getMethodArgumentList();
             size_t argcount = context->getMethodArgumentCount();
-            if (arglist != OREF_NULL) arglist[argcount]->unsignedNumberValue(namedCount);
-            for (i = argcount + 1; i < argcount + 1 + (2 * namedCount); i += 2)
+            namedCount = context->getMethodNamedArgumentCount();
+            for (i = argcount; i < argcount + (2 * namedCount); i += 2)
             {
                 RexxString *argName = (RexxString *)arglist[i];
                 newArguments->append(argName);
@@ -322,14 +319,11 @@ void RexxInstructionForward::execute(
             }
         }
 
-        // Now we can store namedCount
-        newArguments->put(new_integer(namedCount), count + 1);
-
         _arguments = newArguments->data();
     }
 
     /* go forward this                   */
-    result = context->forward(_target, _message, _superClass, _arguments, count, instructionFlags&forward_continue);
+    result = context->forward(_target, _message, _superClass, _arguments, count, namedCount, instructionFlags&forward_continue);
     if (instructionFlags&forward_continue)  /* not exiting?                      */
     {
         if (result != OREF_NULL)         /* result returned?                  */

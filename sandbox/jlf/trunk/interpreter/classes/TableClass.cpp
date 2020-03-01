@@ -186,7 +186,8 @@ void RexxTable::reHash(void)
 
 RexxObject *RexxTable::newRexx(
     RexxObject **args,                 /* subclass init arguments           */
-    size_t argCount)                   /* count of arguments                */
+    size_t argCount,                   /* count of arguments                */
+    size_t named_argCount)
 /******************************************************************************/
 /* Function:  Create an instance of a table                                   */
 /******************************************************************************/
@@ -200,7 +201,7 @@ RexxObject *RexxTable::newRexx(
         newObj->hasUninit();              /* Make sure everyone is notified.   */
     }
     /* call any rexx level init's        */
-    newObj->sendMessage(OREF_INIT, args, argCount);
+    newObj->sendMessage(OREF_INIT, args, argCount, named_argCount);
     return newObj;                       /* return the new object             */
 }
 

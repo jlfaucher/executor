@@ -111,7 +111,7 @@ public:
     inline RexxBuffer(RESTORETYPE restoreType) { ; }
 
     RexxBuffer *expand(sizeB_t);
-    RexxObject *newRexx(RexxObject **args, size_t argc);
+    RexxObject *newRexx(RexxObject **args, size_t argc, size_t named_argc);
     virtual char *getData() { return data; }
 
     static void createInstance();

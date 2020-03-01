@@ -69,7 +69,7 @@ void RexxMutableBuffer::createInstance()
 #define DEFAULT_BUFFER_LENGTH 256
 
 // in behaviour
-RexxMutableBuffer *RexxMutableBufferClass::newRexx(RexxObject **args, size_t argc)
+RexxMutableBuffer *RexxMutableBufferClass::newRexx(RexxObject **args, size_t argc, size_t named_argc)
 /******************************************************************************/
 /* Function:  Allocate (and initialize) a string object                       */
 /******************************************************************************/
@@ -116,7 +116,7 @@ RexxMutableBuffer *RexxMutableBufferClass::newRexx(RexxObject **args, size_t arg
     newBuffer->copyData(0, string->getStringData(), string->getBLength());
 
     ProtectedObject p_newBuffer(newBuffer);
-    newBuffer->sendMessage(OREF_INIT, args, argc > 2 ? argc - 2 : 0);
+    newBuffer->sendMessage(OREF_INIT, args, argc > 2 ? argc - 2 : 0, named_argc);
     return newBuffer;
 }
 

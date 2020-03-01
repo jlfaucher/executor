@@ -244,7 +244,8 @@ RexxObject *RexxSupplier::initRexx(RexxArray *_values, RexxArray *_indexes)
 
 RexxObject  *RexxSupplierClass::newRexx(
     RexxObject **init_args,            /* subclass init arguments           */
-    size_t argCount)                   /* count of arguments                */
+    size_t argCount,                   /* count of arguments                */
+    size_t named_argCount)
 /****************************************************************************/
 /* Function:  Public REXX supplier new method                               */
 /****************************************************************************/
@@ -257,6 +258,6 @@ RexxObject  *RexxSupplierClass::newRexx(
         newObj->hasUninit();
     }
                                        /* Initialize the new instance       */
-    newObj->sendMessage(OREF_INIT, init_args, argCount);
+    newObj->sendMessage(OREF_INIT, init_args, argCount, named_argCount);
     return newObj;                       /* return the new supplier           */
 }

@@ -220,20 +220,23 @@ RexxObject *RexxStem::unknown(
     size_t argumentsCount = arguments ? arguments->size() : 0;
     size_t namedArgumentsCount = (named_arguments != OREF_NULL && named_arguments != TheNilObject) ? named_arguments->items() : 0;
 
-    // Optimization: don't create an intermediate array if no arg
-    if (argumentsCount == 0 && namedArgumentsCount == 0) return this->value->sendMessage(msgname, (RexxObject**)OREF_NULL, (size_t)0);
+    RexxArray *args = arguments;
+    ProtectedObject p_args;
+    if (namedArgumentsCount != 0)
+    {
+        // Optimization: create a copy of the positional arguments only if some named arguments must be added
+        args = (RexxArray *)arguments->copy();
+        p_args = args;
+        named_arguments->appendAllIndexesItemsTo(args, /*from*/ argumentsCount+1); // from is 1-based index
+    }
 
-    RexxArray *args = (RexxArray *)arguments->copy();
-    ProtectedObject p_args(args);
-    args->put(new_integer(namedArgumentsCount), argumentsCount + 1); // Counter of named arguments. To support correctly omitted positional arguments, don't use append!
-    if (namedArgumentsCount != 0) named_arguments->appendAllIndexesItemsTo(args);
-
-    return this->value->sendMessage(msgname, args->data(), argumentsCount);
+    return this->value->sendMessage(msgname, args->data(), argumentsCount, namedArgumentsCount);
 }
 
 RexxObject *RexxStem::bracket(
     RexxObject **tailElements,         /* tail elements                     */
-    size_t      argCount)              /* number of tail elements           */
+    size_t      argCount,              /* number of tail elements           */
+    size_t      named_argCount)
 /******************************************************************************/
 /* Function:  Resolve the "stem.[a,b,c]" to the equivalent stem.a.b.c form,   */
 /*            with all of the indices taken as constants                      */
@@ -259,7 +262,7 @@ RexxObject *RexxStem::bracket(
  * @return True if the fully resolved tail exists in the stem, false
  *         otherwise.
  */
-RexxObject *RexxStem::hasIndex(RexxObject **tailElements, size_t argCount)
+RexxObject *RexxStem::hasIndex(RexxObject **tailElements, size_t argCount, size_t named_argCount)
 {
     if (argCount == 0)
     {
@@ -290,7 +293,7 @@ RexxObject *RexxStem::hasIndex(RexxObject **tailElements, size_t argCount)
  * @return The removed object.  If nothing was removed, this returns
  *         .nil.
  */
-RexxObject *RexxStem::remove(RexxObject **tailElements, size_t argCount)
+RexxObject *RexxStem::remove(RexxObject **tailElements, size_t argCount, size_t named_argCount)
 {
     // if asked to remove the default value, reset this back to the name
     if (argCount == 0)
@@ -386,7 +389,8 @@ RexxObject *RexxStem::itemsRexx()
 
 RexxObject *RexxStem::bracketEqual(
     RexxObject **tailElements,         /* tail elements                     */
-    size_t      argCount)              /* number of tail elements           */
+    size_t      argCount,              /* number of tail elements           */
+    size_t      named_argCount)
 /******************************************************************************/
 /* Function:  Resolve the "stem.[a,b,c]=" to the equivalent stem.a.b.c= form, */
 /*            with all of the indices taken as constants                      */
@@ -533,7 +537,8 @@ RexxObject *RexxStem::request(
 
 RexxObject *RexxStem::newRexx(
     RexxObject **init_args,           /* subclass init arguments           */
-    size_t       argCount)            /* the number of arguments           */
+    size_t       argCount,            /* the number of arguments           */
+    size_t       named_argCount)
 /******************************************************************************/
 /* Function:  Create an instance of a stem                                    */
 /******************************************************************************/
@@ -552,7 +557,7 @@ RexxObject *RexxStem::newRexx(
         newObj->hasUninit();              /* Make sure everyone is notified.   */
     }
                                           /* Initialize the new instance       */
-    newObj->sendMessage(OREF_INIT, init_args, argCount);
+    newObj->sendMessage(OREF_INIT, init_args, argCount, named_argCount);
     return newObj;                       /* return the new object             */
 }
 

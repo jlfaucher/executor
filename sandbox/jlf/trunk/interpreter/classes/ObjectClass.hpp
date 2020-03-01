@@ -203,9 +203,8 @@ class RexxObject;
  typedef RexxObject *  (RexxObject::*PCPPM6N)(RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject **, size_t);
  typedef RexxObject *  (RexxObject::*PCPPM7N)(RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject **, size_t);
 
- // Not used ?
- typedef RexxObject *  (RexxObject::*PCPPMA1)(RexxArray *);
- typedef RexxObject *  (RexxObject::*PCPPMC1)(RexxObject **, size_t);
+ typedef RexxObject *  (RexxObject::*PCPPMA1)(RexxArray *);  // Not used ?
+ typedef RexxObject *  (RexxObject::*PCPPMC1)(RexxObject **, size_t, size_t); // Signature of methods A_COUNT
 
                                        /* pointer to method function        */
  typedef RexxObject *  (RexxObject::*PCPPM)();
@@ -220,7 +219,7 @@ inline uintptr_t HASHOREF(RexxVirtualBase *r) { return ((uintptr_t)r) >> OREFSHI
     public:
 
      void * operator new(size_t, RexxClass *);
-     void * operator new(size_t, RexxClass *, RexxObject **, size_t);
+     void * operator new(size_t, RexxClass *, RexxObject **, size_t, size_t);
      inline void *operator new(size_t size, void *ptr) {return ptr;}
      inline void   operator delete(void *) { ; }
      inline void operator delete(void *p, void *ptr) { }
@@ -324,7 +323,7 @@ inline uintptr_t HASHOREF(RexxVirtualBase *r) { return ((uintptr_t)r) >> OREFSHI
 class RexxObject : public RexxInternalObject {
   public:
      void * operator new(size_t, RexxClass *);
-     void * operator new(size_t, RexxClass *, RexxObject **, size_t);
+     void * operator new(size_t, RexxClass *, RexxObject **, size_t, size_t);
      void * operator new(size_t size, void *objectPtr) { return objectPtr; };
      inline void  operator delete(void *, void *) {;}
      inline void  operator delete(void *) {;}
@@ -333,7 +332,7 @@ class RexxObject : public RexxInternalObject {
                                        // Followin are used to create new objects.
                                        // Assumed that the message is sent to a class Object
                                        // These may move to RexxClass in the future......
-     RexxObject *newRexx(RexxObject **arguments, size_t argCount);
+     RexxObject *newRexx(RexxObject **arguments, size_t argCount, size_t named_argCount);
      RexxObject *newObject() {return new ((RexxClass *)this) RexxObject; };
 
      operator RexxInternalObject*() { return (RexxInternalObject *)this; };
@@ -437,33 +436,41 @@ class RexxObject : public RexxInternalObject {
      RexxObject  *setMethod(RexxString *, RexxMethod *, RexxString *a = OREF_NULL);
      RexxObject  *unsetMethod(RexxString *);
      RexxObject  *requestRexx(RexxString *);
-     RexxMessage *start(RexxObject **, size_t);
+     RexxMessage *start(RexxObject **, size_t, size_t);
      RexxMessage *startWith(RexxObject *, RexxArray *, /* named arguments*/ RexxObject **, size_t);
-     RexxObject  *send(RexxObject **, size_t);
+     RexxObject  *send(RexxObject **, size_t, size_t);
      RexxObject  *sendWith(RexxObject *, RexxArray *, /* named arguments*/ RexxObject **, size_t);
-     RexxMessage *startCommon(RexxObject *message, RexxObject **arguments, size_t argCount);
+     RexxMessage *startCommon(RexxObject *message, RexxObject **arguments, size_t argCount, size_t named_argCount);
      static void decodeMessageName(RexxObject *target, RexxObject *message, RexxString *&messageName, RexxObject *&startScope);
      RexxString  *oref();
      RexxObject  *pmdict();
-     RexxObject  *run(RexxObject **, size_t);
+     RexxObject  *run(RexxObject **, size_t, size_t);
 
-     bool         messageSend(RexxString *, RexxObject **, size_t, ProtectedObject &, bool processUnknown=true);
-     bool         messageSend(RexxString *, RexxObject **, size_t, RexxObject *, ProtectedObject &, bool processUnknown=true);
+     bool         messageSend(RexxString *, RexxObject **, size_t, size_t, ProtectedObject &, bool processUnknown=true);
+     bool         messageSend(RexxString *, RexxObject **, size_t, size_t, RexxObject *, ProtectedObject &, bool processUnknown=true);
+
      RexxMethod  *checkPrivate(RexxMethod *);
-     void         processUnknown(RexxString *, RexxObject **, size_t, ProtectedObject &);
-     void         processProtectedMethod(RexxString *, RexxMethod *, RexxObject **, size_t, ProtectedObject &);
-     void         sendMessage(RexxString *, RexxArray *, ProtectedObject &);
-     inline void  sendMessage(RexxString *message, ProtectedObject &result) { this->messageSend(message, OREF_NULL, 0, result); };
-     inline void  sendMessage(RexxString *message, RexxObject **args, size_t argCount, ProtectedObject &result) { this->messageSend(message, args, argCount, result); };
+     void         processUnknown(RexxString *, RexxObject **, size_t, size_t, ProtectedObject &);
+     void         processProtectedMethod(RexxString *, RexxMethod *, RexxObject **, size_t, size_t, ProtectedObject &);
+
+     // This method should be named "sendWith"
+     void         sendMessage(RexxString *, RexxArray *, RexxDirectory *, ProtectedObject &);
+
+     inline void  sendMessage(RexxString *message, RexxObject **args, size_t argCount, size_t named_argCount, ProtectedObject &result) { this->messageSend(message, args, argCount, named_argCount, result); };
+
+     inline void  sendMessage(RexxString *message, ProtectedObject &result) { this->messageSend(message, OREF_NULL, 0, 0, result); };
      void         sendMessage(RexxString *message, RexxObject *argument1, ProtectedObject &result);
      void         sendMessage(RexxString *, RexxObject *, RexxObject *, ProtectedObject &);
      void         sendMessage(RexxString *, RexxObject *, RexxObject *, RexxObject *, ProtectedObject &);
      void         sendMessage(RexxString *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, ProtectedObject &);
      void         sendMessage(RexxString *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, ProtectedObject&);
 
-     RexxObject  *sendMessage(RexxString *, RexxArray *);
+     // This method should be named "sendWith"
+     RexxObject  *sendMessage(RexxString *, RexxArray *, RexxDirectory* = OREF_NULL);
+
+     RexxObject  *sendMessage(RexxString *message, RexxObject **args, size_t argCount, size_t named_argCount);
+
      RexxObject  *sendMessage(RexxString *message);
-     RexxObject  *sendMessage(RexxString *message, RexxObject **args, size_t argCount);
      RexxObject  *sendMessage(RexxString *message, RexxObject *argument1);
      RexxObject  *sendMessage(RexxString *, RexxObject *, RexxObject *);
      RexxObject  *sendMessage(RexxString *, RexxObject *, RexxObject *, RexxObject *);

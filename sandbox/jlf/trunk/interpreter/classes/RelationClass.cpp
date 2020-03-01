@@ -229,7 +229,8 @@ RexxObject *RexxRelation::put(
 
 RexxObject *RexxRelation::newRexx(
      RexxObject **init_args,           /* subclass init arguments           */
-     size_t       argCount)            /* the number of arguments           */
+     size_t       argCount,            /* the number of arguments           */
+     size_t       named_argCount)
 /******************************************************************************/
 /* Function:  Create an instance of a relation                                */
 /******************************************************************************/
@@ -239,7 +240,7 @@ RexxObject *RexxRelation::newRexx(
     /* object parse_assignment behaviour */
     newObj->setBehaviour(((RexxClass *)this)->getInstanceBehaviour());
     /* Initialize the new list instance  */
-    newObj->sendMessage(OREF_INIT, init_args, argCount);
+    newObj->sendMessage(OREF_INIT, init_args, argCount, named_argCount);
     return newObj;                       /* return the new object             */
 }
 

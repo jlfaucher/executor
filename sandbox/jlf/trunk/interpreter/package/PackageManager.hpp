@@ -87,7 +87,7 @@ public:
     static RexxObject *dropRegisteredRoutine(RexxString *name);
     static RexxObject *queryRegisteredRoutine(RexxString *name);
     static bool        callNativeRoutine(RexxActivity *activity, RexxString *name,
-        RexxObject **arguments, size_t argcount, ProtectedObject &result);
+        RexxObject **arguments, size_t argcount, size_t named_argcount, ProtectedObject &result);
 
     static RoutineClass *loadRequires(RexxActivity *activity, RexxString *shortName, RexxString *resolvedName, ProtectedObject &result);
     static RoutineClass *getMacroSpaceRequires(RexxActivity *activity, RexxString *name, ProtectedObject &result, RexxObject *securityManager);

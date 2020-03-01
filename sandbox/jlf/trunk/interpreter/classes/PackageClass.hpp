@@ -91,7 +91,7 @@ public:
     RexxObject    *form();
     RexxObject    *trace();
 
-    PackageClass  *newRexx(RexxObject **init_args, size_t argCount);
+    PackageClass  *newRexx(RexxObject **init_args, size_t argCount, size_t named_argCount);
 
     inline RexxSource *getSourceObject() { return source; }
 

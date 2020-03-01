@@ -225,7 +225,7 @@ void RexxArray::put(RexxObject * eref, size_t pos)
  *
  * @return Always return nothing.
  */
-RexxObject  *RexxArray::putRexx(RexxObject **arguments, size_t argCount)
+RexxObject  *RexxArray::putRexx(RexxObject **arguments, size_t argCount, size_t named_argCount)
 {
     size_t position;                     /* array position                    */
 
@@ -503,7 +503,7 @@ size_t RexxArray::append(RexxObject *value)
  * @return Value at the provided index or .nil if the item does
  *         not exist.
  */
-RexxObject  *RexxArray::getRexx(RexxObject **arguments, size_t argCount)
+RexxObject  *RexxArray::getRexx(RexxObject **arguments, size_t argCount, size_t named_argCount)
 {
     size_t position;                     /* array position                    */
     RexxObject * _result;                /* returned result                   */
@@ -623,7 +623,7 @@ RexxObject *RexxArray::remove(size_t _index)
     }
 }
 
-RexxObject  *RexxArray::removeRexx(RexxObject **arguments, size_t argCount)
+RexxObject  *RexxArray::removeRexx(RexxObject **arguments, size_t argCount, size_t named_argCount)
 /******************************************************************************/
 /* Function:  Remove an item from the array and return the item.  .nil        */
 /*            is returned if the item does not exist                          */
@@ -1326,7 +1326,7 @@ size_t RexxArray::lastIndex()
     return lastElement;       // we've kept track of this
 }
 
-RexxObject  *RexxArray::nextRexx(RexxObject **arguments, size_t argCount)
+RexxObject  *RexxArray::nextRexx(RexxObject **arguments, size_t argCount, size_t named_argCount)
 /******************************************************************************/
 /* Function:  Return the next entry after a given array index                 */
 /******************************************************************************/
@@ -1359,7 +1359,7 @@ RexxObject  *RexxArray::nextRexx(RexxObject **arguments, size_t argCount)
     }
 }
 
-RexxObject  *RexxArray::previousRexx(RexxObject **arguments, size_t argCount)
+RexxObject  *RexxArray::previousRexx(RexxObject **arguments, size_t argCount, size_t named_argCount)
 /******************************************************************************/
 /* Function:  Return the index preceeding a given index                       */
 /******************************************************************************/
@@ -1403,7 +1403,7 @@ RexxObject  *RexxArray::previousRexx(RexxObject **arguments, size_t argCount)
     }
 }
 
-RexxObject  *RexxArray::hasIndexRexx(RexxObject ** _index, size_t _indexCount)
+RexxObject  *RexxArray::hasIndexRexx(RexxObject ** _index, size_t _indexCount, size_t _named_argCount)
 /******************************************************************************/
 /*  Function:  True if array has an entry for the index, false otherwise      */
 /*  Note:  This routine should not raise an error, regardless of the indices  */
@@ -1564,7 +1564,7 @@ RexxString *RexxArray::toString(       /* concatenate array elements to create s
     RexxObject *item;                     /* inserted value item               */
     int i_form = 0;                       /* 1 == line, 2 == char              */
 
-    mutbuffer = ((RexxMutableBufferClass*) TheMutableBufferClass)->newRexx(NULL, 0);
+    mutbuffer = ((RexxMutableBufferClass*) TheMutableBufferClass)->newRexx(NULL, 0, 0);
     ProtectedObject p1(mutbuffer);
 
     newArray = this->makeArray();          /* maybe multidimensional, make onedimensional  */
@@ -2772,15 +2772,15 @@ void *RexxArray::operator new(size_t newSize, size_t size, size_t maxSize, RexxC
     return newArray;                     /* return the new array to caller    */
 }
 
-RexxObject * RexxArray::newRexx(RexxObject **arguments, size_t argCount)
+RexxObject * RexxArray::newRexx(RexxObject **arguments, size_t argCount, size_t named_argCount)
 /******************************************************************************/
 /* Function:  Exported ARRAY NEW method                                       */
 /******************************************************************************/
 {
-  return new (arguments, argCount, (RexxClass *) this) RexxArray;
+  return new (arguments, (argCount + (2 * named_argCount)), (RexxClass *) this) RexxArray;
 }
 
-RexxObject  *RexxArray::of(RexxObject **args, size_t argCount)
+RexxObject  *RexxArray::of(RexxObject **args, size_t argCount, size_t named_argCount)
 /******************************************************************************/
 /* Function:  Exported REXX OF method                                         */
 /******************************************************************************/
@@ -2788,6 +2788,9 @@ RexxObject  *RexxArray::of(RexxObject **args, size_t argCount)
     RexxArray *newArray;                 /* new array item                    */
     size_t i;                            /* loop index                        */
     RexxObject*item;                     /* individual array item             */
+
+    // TODO
+    // The named arguments could be added to the returned array.
 
                                          /* is array obj to be from internal  */
     if (TheArrayClass != (RexxClass *)this)

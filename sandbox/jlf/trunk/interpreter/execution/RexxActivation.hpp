@@ -106,6 +106,7 @@ class ActivationSettings
       RexxArray     * parent_arguments;    /* protect parent_arglist against GC */
       RexxObject   ** parent_arglist;      /* arguments to top level program    */
       size_t          parent_argcount;     /* number of positional arguments to the top level program */
+      size_t          parent_named_argcount;  /* number of named arguments to the top level program */
       RexxMethod    * parent_method;       /* method object for top level       */
       RexxCode      * parent_code;         /* source of the parent method       */
       RexxString    * current_env;         /* current address environment       */
@@ -238,14 +239,14 @@ class ActivationSettings
    even when the parent activity's array of arguments is replaced by a new array.
    */
    RexxObject *run(RexxObject *_receiver, RexxString *msgname, RexxArray *_arguments, RexxObject **_arglist,
-       size_t _argcount, RexxInstruction * start, ProtectedObject &resultObj);
-   inline     RexxObject *run(RexxArray *_arguments, RexxObject **_arglist, size_t _argcount, ProtectedObject &_result)
+       size_t _argcount, size_t _named_argcount, RexxInstruction * start, ProtectedObject &resultObj);
+   inline     RexxObject *run(RexxArray *_arguments, RexxObject **_arglist, size_t _argcount, size_t _named_argcount, ProtectedObject &_result)
    {
-       return run(OREF_NULL, OREF_NULL, _arguments, _arglist, _argcount, OREF_NULL, _result);
+       return run(OREF_NULL, OREF_NULL, _arguments, _arglist, _argcount, _named_argcount, OREF_NULL, _result);
    }
 
    void              reply(RexxObject *);
-   RexxObject      * forward(RexxObject *, RexxString *, RexxObject *, RexxObject **, size_t, bool);
+   RexxObject      * forward(RexxObject *, RexxString *, RexxObject *, RexxObject **, size_t, size_t, bool);
    void              returnFrom(RexxObject *result);
    void              exitFrom(RexxObject *);
    void              procedureExpose(RexxVariableBase **variables, size_t count);
@@ -273,11 +274,11 @@ class ActivationSettings
    RexxString      * trapState(RexxString *);
    void              trapDelay(RexxString *);
    void              trapUndelay(RexxString *);
-   bool              callExternalRexx(RexxString *, RexxObject **, size_t, RexxString *, ProtectedObject &);
-   RexxObject      * externalCall(RexxString *, RexxObject **, size_t, RexxString *, ProtectedObject &);
-   RexxObject      * internalCall(RexxString *, RexxInstruction *, RexxObject **, size_t, ProtectedObject &);
+   bool              callExternalRexx(RexxString *, RexxObject **, size_t, size_t, RexxString *, ProtectedObject &);
+   RexxObject      * externalCall(RexxString *, RexxObject **, size_t, size_t, RexxString *, ProtectedObject &);
+   RexxObject      * internalCall(RexxString *, RexxInstruction *, RexxObject **, size_t, size_t, ProtectedObject &);
    RexxObject      * internalCallTrap(RexxString *, RexxInstruction *, RexxDirectory *, ProtectedObject &);
-   bool              callMacroSpaceFunction(RexxString *, RexxObject **, size_t, RexxString *, int, ProtectedObject &);
+   bool              callMacroSpaceFunction(RexxString *, RexxObject **, size_t, size_t, RexxString *, int, ProtectedObject &);
    static RoutineClass* getMacroCode(RexxString *macroName);
    RexxString       *resolveProgramName(RexxString *name);
    RexxClass        *findClass(RexxString *name);
@@ -459,6 +460,7 @@ class ActivationSettings
 
    inline RexxObject     ** getMethodArgumentList() {return this->arglist;};
    inline size_t            getMethodArgumentCount() { return argcount; }
+   inline size_t            getMethodNamedArgumentCount() { return named_argcount; }
    inline RexxObject *      getMethodArgument(size_t position) {
        if (position > getMethodArgumentCount()) {
            return OREF_NULL;
@@ -473,6 +475,7 @@ class ActivationSettings
 
    inline RexxObject      **getProgramArgumentlist() {return this->settings.parent_arglist;};
    inline size_t            getProgramArgumentCount() { return settings.parent_argcount; }
+   inline size_t            getProgramNamedArgumentCount() { return settings.parent_named_argcount; }
 
    inline RexxObject *      getProgramArgument(size_t position) {
        if (position > getProgramArgumentCount()) {
@@ -651,6 +654,7 @@ class ActivationSettings
    RexxObject         **arglist;       /* activity argument list            */
 
    size_t               argcount;      /* the count of positional arguments */
+   size_t               named_argcount;
    RexxDoBlock         *dostack;       /* stack of DO loops                 */
    RexxInstruction     *current;       /* current execution pointer         */
    RexxInstruction     *next;          /* next instruction to execute       */

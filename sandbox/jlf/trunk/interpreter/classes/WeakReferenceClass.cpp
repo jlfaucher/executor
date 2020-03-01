@@ -184,7 +184,7 @@ RexxObject *WeakReference::value()
 }
 
 
-RexxObject *WeakReference::newRexx(RexxObject **init_args, size_t argCount)
+RexxObject *WeakReference::newRexx(RexxObject **init_args, size_t argCount, size_t named_argCount)
 /******************************************************************************/
 /* Arguments: Subclass init arguments                                         */
 /* Function:  Create a new string value (used primarily for subclasses)       */
@@ -207,6 +207,6 @@ RexxObject *WeakReference::newRexx(RexxObject **init_args, size_t argCount)
   }
 
                                        /* Initialize the new instance       */
-  newObj->sendMessage(OREF_INIT, init_args, argCount);
+  newObj->sendMessage(OREF_INIT, init_args, argCount, named_argCount);
   return newObj;                       /* return the new instance           */
 }

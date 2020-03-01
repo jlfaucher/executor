@@ -119,8 +119,8 @@ class RexxInteger : public RexxObject {
 
   RexxObject *abs();
   RexxObject *sign();
-  RexxObject *Max(RexxObject **, size_t);
-  RexxObject *Min(RexxObject **, size_t);
+  RexxObject *Max(RexxObject **, size_t, size_t);
+  RexxObject *Min(RexxObject **, size_t, size_t);
   RexxObject *trunc(RexxObject *);
   RexxObject *floor();
   RexxObject *ceiling();

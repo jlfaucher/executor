@@ -262,27 +262,28 @@ bool SystemInterpreter::invokeExternalFunction(
   RexxActivity   * activity,           /* activity in use                   */
   RexxString     * target,             /* Name of external function         */
   RexxObject    ** arguments,          /* Argument array                    */
-  size_t           argcount,           /* count of arguments                */
+  size_t           argcount,           /* count of positional arguments     */
+  size_t           named_argcount,     /* count of named arguments          */
   RexxString     * calltype,           /* Type of call                      */
   ProtectedObject &result)
 {
-  if (activation->callMacroSpaceFunction(target, arguments, argcount, calltype, MS_PREORDER, result))
+  if (activation->callMacroSpaceFunction(target, arguments, argcount, named_argcount, calltype, MS_PREORDER, result))
   {
       return true;
   }
                                        /* no luck try for a registered func */
-  if (PackageManager::callNativeRoutine(activity, target, arguments, argcount, result))
+  if (PackageManager::callNativeRoutine(activity, target, arguments, argcount, named_argcount, result))
   {
       return true;
   }
                                        /* have activation do the call       */
-  if (activation->callExternalRexx(target, arguments, argcount, calltype, result))
+  if (activation->callExternalRexx(target, arguments, argcount, calltype, named_argcount, result))
   {
       return true;
   }
                                        /* function.  If still not found,    */
                                        /* then raise an error               */
-  if (activation->callMacroSpaceFunction(target, arguments, argcount, calltype, MS_POSTORDER, result))
+  if (activation->callMacroSpaceFunction(target, arguments, argcount, named_argcount, calltype, MS_POSTORDER, result))
   {
       return true;
   }

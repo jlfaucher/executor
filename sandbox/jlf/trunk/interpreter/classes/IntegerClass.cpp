@@ -418,20 +418,7 @@ RexxObject *RexxInteger::unknown(
 /******************************************************************************/
 {
                                        /* just reissue this                 */
-    // return this->stringValue()->sendMessage(msgname, arguments);
-
-    size_t argumentsCount = arguments ? arguments->size() : 0;
-    size_t namedArgumentsCount = (named_arguments != OREF_NULL && named_arguments != TheNilObject) ? named_arguments->items() : 0;
-
-    // Optimization: don't create an intermediate array if no arg
-    if (argumentsCount == 0 && namedArgumentsCount == 0) return this->stringValue()->sendMessage(msgname, (RexxObject**)OREF_NULL, (size_t)0);
-
-    RexxArray *args = (RexxArray *)arguments->copy();
-    ProtectedObject p(args);
-    args->put(new_integer(namedArgumentsCount), argumentsCount + 1); // Counter of named arguments. To support correctly omitted positional arguments, don't use append!
-    if (namedArgumentsCount != 0) named_arguments->appendAllIndexesItemsTo(args);
-
-    return this->stringValue()->sendMessage(msgname, args->data(), argumentsCount);
+    return this->stringValue()->sendMessage(msgname, arguments, named_arguments);
 }
 
 
@@ -1043,7 +1030,8 @@ RexxObject *RexxInteger::sign()
 
 RexxObject *RexxInteger::Max(
     RexxObject **args,                 /* array of comparison values        */
-    size_t argCount)                   /* count of arguments                */
+    size_t argCount,                   /* count of arguments                */
+    size_t named_argCount)
 /******************************************************************************/
 /* Function:  Perform MAX function on integer objects                         */
 /******************************************************************************/
@@ -1056,7 +1044,7 @@ RexxObject *RexxInteger::Max(
                                        /* are we using default digits?      */
   if (number_digits() != Numerics::DEFAULT_DIGITS )
                                        /* nope, we can't do integer max.    */
-   return this->numberString()->Max(args, argCount);
+   return this->numberString()->Max(args, argCount, named_argCount);
 
   if (argCount < 1)                    /* no comparisons to do?             */
     return (RexxObject *)this;         /* just return this as the result    */
@@ -1082,7 +1070,7 @@ RexxObject *RexxInteger::Max(
                                          /* not all integers, convert into a  */
                                          /* NumberString, and let NumberString*/
                                          /* figure this out.                  */
-      return this->numberString()->Max(args, argCount);
+      return this->numberString()->Max(args, argCount, named_argCount);
     }
   }
 
@@ -1091,7 +1079,8 @@ RexxObject *RexxInteger::Max(
 
 RexxObject *RexxInteger::Min(
     RexxObject **args,                 /* array of comparison values        */
-    size_t argCount)                   /* count of arguments                */
+    size_t argCount,                   /* count of arguments                */
+    size_t named_argCount)
 /******************************************************************************/
 /* Function:  Perform MAX function on integer objects                         */
 /******************************************************************************/
@@ -1103,7 +1092,7 @@ RexxObject *RexxInteger::Min(
                                        /* are we using default digits?      */
   if (number_digits() != Numerics::DEFAULT_DIGITS )
                                        /* nope, we can't do integer max.    */
-   return this->numberString()->Min(args, argCount);
+   return this->numberString()->Min(args, argCount, named_argCount);
 
   if (argCount < 1)                    /* no comparisons to do?             */
     return (RexxObject *)this;         /* just return this as the result    */
@@ -1129,7 +1118,7 @@ RexxObject *RexxInteger::Min(
                                          /* not all integers, convert into a  */
                                          /* NumberString, and let NumberString*/
                                          /* figure this out.                  */
-      return this->numberString()->Min(args, argCount);
+      return this->numberString()->Min(args, argCount, named_argCount);
     }
   }
 

@@ -1321,7 +1321,8 @@ void RexxClass::removeSubclass(RexxClass *c)
 
 RexxObject *RexxClass::enhanced(
     RexxObject **args,                 /* enhanced arguments                */
-    size_t       argCount)             /* the number of arguments           */
+    size_t       argCount,             /* the number of positional arguments*/
+    size_t named_argCount)             /* the number of named arguments     */
 /*****************************************************************************/
 /* Function:  Create a new object that is an instance of the receiver class  */
 /*            object that has had it's instance mdict enhanced.              */
@@ -1353,7 +1354,7 @@ RexxObject *RexxClass::enhanced(
     ProtectedObject r;
     /* get an instance of the enhanced   */
     /* subclass                          */
-    dummy_subclass->sendMessage(OREF_NEW, args + 1, argCount - 1, r);
+    dummy_subclass->sendMessage(OREF_NEW, args + 1, argCount - 1, named_argCount, r);
     RexxObject *enhanced_object = (RexxObject *)r;
     /* change the create_class in the    */
     /* instance behaviour to point to the*/
@@ -1612,7 +1613,7 @@ void  *RexxClass::operator new(size_t size,
     return(void *)new_class;            /* should be ready                   */
 }
 
-RexxClass  *RexxClass::newRexx(RexxObject **args, size_t argCount)
+RexxClass  *RexxClass::newRexx(RexxObject **args, size_t argCount, size_t named_argCount)
 /*****************************************************************************/
 /* Function:  Create a new class for a rexx class                            */
 /*            A copy of this class object is made                            */
@@ -1709,7 +1710,7 @@ RexxClass  *RexxClass::newRexx(RexxObject **args, size_t argCount)
     {
         new_class->setHasUninitDefined();
     }
-    new_class->sendMessage(OREF_INIT, args + 1, argCount - 1);
+    new_class->sendMessage(OREF_INIT, args + 1, argCount - 1, named_argCount);
     return new_class;                    /* return the new class              */
 }
 

@@ -63,7 +63,7 @@ class RexxRelation : public RexxTable {
    RexxSupplier *supplier(RexxObject *);
    RexxObject   *removeItem(RexxObject *, RexxObject *);
 
-   RexxObject   *newRexx(RexxObject **, size_t);
+   RexxObject   *newRexx(RexxObject **, size_t, size_t);
 
    static RexxRelation *newInstance();
    static void createInstance();

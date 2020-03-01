@@ -190,7 +190,7 @@ bool SecurityManager::callSecurityManager(RexxString *methodName, RexxDirectory 
  *
  * @return true if the security manager handled this call, false otherwise.
  */
-bool SecurityManager::checkProtectedMethod(RexxObject *target, RexxString *messageName, size_t count, RexxObject **arguments, ProtectedObject &result)
+bool SecurityManager::checkProtectedMethod(RexxObject *target, RexxString *messageName, size_t count, size_t named_count, RexxObject **arguments, ProtectedObject &result)
 {
     // no method here
     if (manager == OREF_NULL || supportMethod == false)
@@ -204,6 +204,10 @@ bool SecurityManager::checkProtectedMethod(RexxObject *target, RexxString *messa
     securityArgs->put(messageName, OREF_NAME);
     RexxArray *argumentArray = new (count, arguments) RexxArray;
     securityArgs->put(argumentArray, OREF_ARGUMENTS);
+    
+    // TODO
+    // Directory of named arguments
+    
     if (callSecurityManager(OREF_METHODNAME, securityArgs))
     {
         // get the result and return
@@ -225,7 +229,7 @@ bool SecurityManager::checkProtectedMethod(RexxObject *target, RexxString *messa
  *
  * @return true if the security manager handled this call, false otherwise.
  */
-bool SecurityManager::checkFunctionCall(RexxString *functionName, size_t count, RexxObject **arguments, ProtectedObject &result)
+bool SecurityManager::checkFunctionCall(RexxString *functionName, size_t count, size_t named_count, RexxObject **arguments, ProtectedObject &result)
 {
     // no method here
     if (manager == OREF_NULL || supportCall == false)
@@ -238,6 +242,10 @@ bool SecurityManager::checkFunctionCall(RexxString *functionName, size_t count, 
     securityArgs->put(functionName, OREF_NAME);
     RexxArray *argumentArray = new (count, arguments) RexxArray;
     securityArgs->put(argumentArray, OREF_ARGUMENTS);
+    
+    // TODO
+    // Directory of named arguments
+    
     if (callSecurityManager(OREF_CALL, securityArgs))
     {
         // get the result and return

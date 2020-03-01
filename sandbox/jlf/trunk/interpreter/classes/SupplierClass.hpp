@@ -73,7 +73,7 @@
  };
  class RexxSupplierClass : public RexxClass  {
   public:
-   RexxObject  *newRexx(RexxObject **, size_t);
+   RexxObject  *newRexx(RexxObject **, size_t, size_t);
  };
 
 

@@ -125,7 +125,7 @@ void *RexxPointer::operator new(size_t size)
 }
 
 
-RexxObject *RexxPointer::newRexx(RexxObject **args, size_t argc)
+RexxObject *RexxPointer::newRexx(RexxObject **args, size_t argc, size_t named_argc)
 /******************************************************************************/
 /* Function:  Allocate a pointer object from Rexx code.                       */
 /******************************************************************************/

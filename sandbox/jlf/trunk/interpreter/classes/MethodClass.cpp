@@ -314,6 +314,7 @@ void RexxMethod::run(
     RexxString *msgname,               /* message to be run                 */
     RexxObject **argPtr,               /* arguments to the method           */
     size_t count,                      /* count of arguments                */
+    size_t named_count,
     ProtectedObject &result)           // the returned result
 /******************************************************************************/
 /* Function:  Run a method on an object                                       */
@@ -321,7 +322,7 @@ void RexxMethod::run(
 {
     ProtectedObject p(this);           // belt-and-braces to make sure this is protected
     // just forward this to the code object
-    code->run(activity, this, receiver, msgname, argPtr, count, result);
+    code->run(activity, this, receiver, msgname, argPtr, count, named_count, result);
 }
 
 
@@ -578,7 +579,8 @@ RexxMethod *RexxMethod::newMethodObject(RexxString *pgmname, RexxObject *source,
 
 RexxMethod *RexxMethod::newRexx(
     RexxObject **init_args,            /* subclass init arguments           */
-    size_t       argCount)             /* number of arguments passed        */
+    size_t       argCount,             /* number of posit arguments passed  */
+    size_t       named_argCount)       /* number of named arguments passed  */
 /******************************************************************************/
 /* Function:  Create a new method from REXX code contained in a string or an  */
 /*            array                                                           */
@@ -654,7 +656,7 @@ RexxMethod *RexxMethod::newRexx(
         newMethod->hasUninit();              /* Make sure everyone is notified.   */
     }
     /* now send an INIT message          */
-    newMethod->sendMessage(OREF_INIT, init_args, initCount);
+    newMethod->sendMessage(OREF_INIT, init_args, initCount, named_argCount);
     return newMethod;                    /* return the new method             */
 }
 
@@ -711,11 +713,12 @@ RexxMethod *RexxMethod::restore(
  * @param method    The method we're invoking.
  * @param receiver  The method target object.
  * @param msgname   The name the method was invoked under.
- * @param argCount  The count of arguments.
+ * @param argCount  The count of positional arguments.
+ * @param named_argCount    The count of named arguments.
  * @param arguments The argument pointer.
  * @param result    The returned result.
  */
-void BaseCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiver, RexxString *msgname, RexxObject **arguments, size_t argCount, ProtectedObject &result)
+void BaseCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiver, RexxString *msgname, RexxObject **arguments, size_t argCount, size_t named_argCount, ProtectedObject &result)
 {
     // The subcasses decide which of run and call are allowed
     reportException(Error_Interpretation);
@@ -730,18 +733,19 @@ void BaseCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *recei
  * @param activity  The activity we're running under.
  * @param msgname   The name of the program or name used to invoke the routine.
  * @param arguments The arguments to the method.
- * @param argcount  The count of arguments.
+ * @param argcount  The count of positional arguments.
+ * @param named_argcount    The count of named arguments.
  * @param ct        The call context.
  * @param env       The current address environment.
  * @param context   The type of call being made (program call, internal call, interpret,
  *                  etc.)
  * @param result    The returned result.
  */
-void BaseCode::call(RexxActivity *activity, RoutineClass *routine, RexxString *msgname, RexxObject **arguments, size_t argcount, RexxString *ct, RexxString *env, int context, ProtectedObject &result)
+void BaseCode::call(RexxActivity *activity, RoutineClass *routine, RexxString *msgname, RexxObject **arguments, size_t argcount, size_t named_argcount, RexxString *ct, RexxString *env, int context, ProtectedObject &result)
 {
     // the default for this is the simplified call.   This is used by Rexx code to make calls to
     // both Rexx programs and native routines, so the polymorphism simplifies the processing.
-    call(activity, routine, msgname, arguments, argcount, result);
+    call(activity, routine, msgname, arguments, argcount, named_argcount, result);
 }
 
 
@@ -751,10 +755,11 @@ void BaseCode::call(RexxActivity *activity, RoutineClass *routine, RexxString *m
  * @param activity  The current activity.
  * @param msgname   The name of the call.
  * @param arguments the call arguments.
- * @param argcount  The count of arguments.
+ * @param argcount  The count of positional arguments.
+ * @param named_argcount    The count of named arguments.
  * @param result    The returned result.
  */
-void BaseCode::call(RexxActivity *activity, RoutineClass *routine, RexxString *msgname, RexxObject **arguments, size_t argcount, ProtectedObject &result)
+void BaseCode::call(RexxActivity *activity, RoutineClass *routine, RexxString *msgname, RexxObject **arguments, size_t argcount, size_t named_argcount, ProtectedObject &result)
 {
     // The subcasses decide which of run and call are allowed
     reportException(Error_Interpretation);

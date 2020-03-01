@@ -223,7 +223,6 @@ RexxObject *RexxExpressionFunction::evaluate(
 
     // Named arguments
     namedArgcount = this->named_argument_count;
-    stack->push(new_integer(namedArgcount));
     for (i = argcount; i < argcount + (2 * namedArgcount); i+=2)
     {
         // Argument name: string literal
@@ -237,7 +236,7 @@ RexxObject *RexxExpressionFunction::evaluate(
     }
 
     // More easy to work with an array of arguments (address of the first argument) than a stack of arguments (address of the last argument).
-    RexxObject **_arguments = stack->arguments(argcount + 1 + (2 * namedArgcount));
+    RexxObject **_arguments = stack->arguments(argcount + (2 * namedArgcount));
 
     /* process various call types        */
     switch (this->flags&function_type_mask)
@@ -245,17 +244,17 @@ RexxObject *RexxExpressionFunction::evaluate(
 
         case function_internal:            /* need to process internal routine  */
             /* go process the internal call      */
-            context->internalCall(this->functionName, this->target, _arguments, argcount, result);
+            context->internalCall(this->functionName, this->target, _arguments, argcount, namedArgcount, result);
             break;
 
         case function_builtin:             /* builtin function call             */
             /* call the function                 */
-            result = (RexxObject *) (*(RexxSource::builtinTable[this->builtin_index]))(context, _arguments, argcount, stack);
+            result = (RexxObject *) (*(RexxSource::builtinTable[this->builtin_index]))(context, _arguments, argcount, namedArgcount, stack);
             break;
 
         case function_external:            /* need to call externally           */
             /* go process the internal call      */
-            context->externalCall(this->functionName, _arguments, argcount, OREF_FUNCTIONNAME, result);
+            context->externalCall(this->functionName, _arguments, argcount, namedArgcount, OREF_FUNCTIONNAME, result);
             break;
     }
     if ((RexxObject *)result == OREF_NULL)    /* result returned?                  */
@@ -279,6 +278,7 @@ RexxObject *RexxExpressionFunction::evaluate(
 
 void *RexxExpressionFunction::operator new(size_t size,
     size_t   argCount)                 /* count of arguments                */
+    // REMEMBER: argCount includes the count of named arguments, no need to pass a separated named_argCount
 /******************************************************************************/
 /* Function:  Create a new translator object                                  */
 /******************************************************************************/

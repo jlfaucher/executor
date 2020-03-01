@@ -2652,20 +2652,7 @@ RexxObject *RexxNumberString::unknown(RexxString *msgname, RexxArray *arguments,
 /*            representation                                                  */
 /******************************************************************************/
 {
-    // return this->stringValue()->sendMessage(msgname, arguments);
-
-    size_t argumentsCount = arguments ? arguments->size() : 0;
-size_t namedArgumentsCount = (named_arguments != OREF_NULL && named_arguments != TheNilObject) ? named_arguments->items() : 0;
-
-    // Optimization: don't create an intermediate array if no arg
-    if (argumentsCount == 0 && namedArgumentsCount == 0) return this->stringValue()->sendMessage(msgname, (RexxObject**)OREF_NULL, (size_t)0);
-
-    RexxArray *args = (RexxArray *)arguments->copy();
-    ProtectedObject p(args);
-    args->put(new_integer(namedArgumentsCount), argumentsCount + 1); // Counter of named arguments. To support correctly omitted positional arguments, don't use append!
-    if (namedArgumentsCount != 0) named_arguments->appendAllIndexesItemsTo(args);
-
-    return this->stringValue()->sendMessage(msgname, args->data(), argumentsCount);
+    return this->stringValue()->sendMessage(msgname, arguments, named_arguments);
 }
 
 
@@ -2836,10 +2823,9 @@ wholenumber_t RexxNumberString::comp(
             // That's why a separated parameter is used to return this boolean result.
             ProtectedObject result;
             RexxObject *left = this;
-            RexxObject *args[2];
+            RexxObject *args[1];
             args[0] = left; // positional argument
-            args[1] = IntegerZero; // 0 named argument
-            bool alternativeResult = right->messageSend(alternativeOperator, args, 1, result, false);
+            bool alternativeResult = right->messageSend(alternativeOperator, args, 1, 0, result, false);
             if (alternativeResult && (RexxObject *)result != OREF_NULL)
             {
                 *alternativeOperatorResultPtr = (RexxInteger *)(RexxObject *)result;
@@ -3158,10 +3144,9 @@ RexxNumberString *RexxNumberString::plus(RexxObject *right)
             // Try an alternative operator
             ProtectedObject result;
             RexxObject *self = this;
-            RexxObject *args[2];
+            RexxObject *args[1];
             args[0] = self; // positional argument
-            args[1] = IntegerZero; // 0 named argument
-            bool alternativeResult = right->messageSend(OREF_PLUS_RIGHT, args, 1, result, false);
+            bool alternativeResult = right->messageSend(OREF_PLUS_RIGHT, args, 1, 0, result, false);
             if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
             /* nope, this is an error            */
             reportException(Error_Conversion_operator, right);
@@ -3202,10 +3187,9 @@ RexxNumberString *RexxNumberString::minus(RexxObject *right)
             // Try an alternative operator
             ProtectedObject result;
             RexxObject *self = this;
-            RexxObject *args[2];
+            RexxObject *args[1];
             args[0] = self; // positional argument
-            args[1] = IntegerZero; // 0 named argument
-            bool alternativeResult = right->messageSend(OREF_SUBTRACT_RIGHT, args, 1, result, false);
+            bool alternativeResult = right->messageSend(OREF_SUBTRACT_RIGHT, args, 1, 0, result, false);
             if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
             /* nope, this is an error            */
             reportException(Error_Conversion_operator, right);
@@ -3237,10 +3221,9 @@ RexxNumberString *RexxNumberString::multiply(RexxObject *right)
         // Try an alternative operator
         ProtectedObject result;
         RexxObject *self = this;
-        RexxObject *args[2];
+        RexxObject *args[1];
         args[0] = self; // positional argument
-        args[1] = IntegerZero; // 0 named argument
-        bool alternativeResult = right->messageSend(OREF_MULTIPLY_RIGHT, args, 1, result, false);
+        bool alternativeResult = right->messageSend(OREF_MULTIPLY_RIGHT, args, 1, 0, result, false);
         if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
         /* nope, this is an error            */
         reportException(Error_Conversion_operator, right);
@@ -3263,10 +3246,9 @@ RexxNumberString *RexxNumberString::divide(RexxObject *right)
         // Try an alternative operator
         ProtectedObject result;
         RexxObject *self = this;
-        RexxObject *args[2];
+        RexxObject *args[1];
         args[0] = self; // positional argument
-        args[1] = IntegerZero; // 0 named argument
-        bool alternativeResult = right->messageSend(OREF_DIVIDE_RIGHT, args, 1, result, false);
+        bool alternativeResult = right->messageSend(OREF_DIVIDE_RIGHT, args, 1, 0, result, false);
         if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
         /* nope, this is an error            */
         reportException(Error_Conversion_operator, right);
@@ -3289,10 +3271,9 @@ RexxNumberString *RexxNumberString::integerDivide(RexxObject *right)
         // Try an alternative operator
         ProtectedObject result;
         RexxObject *self = this;
-        RexxObject *args[2];
+        RexxObject *args[1];
         args[0] = self; // positional argument
-        args[1] = IntegerZero; // 0 named argument
-        bool alternativeResult = right->messageSend(OREF_INTDIV_RIGHT, args, 1, result, false);
+        bool alternativeResult = right->messageSend(OREF_INTDIV_RIGHT, args, 1, 0, result, false);
         if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
         /* nope, this is an error            */
         reportException(Error_Conversion_operator, right);
@@ -3316,10 +3297,9 @@ RexxNumberString *RexxNumberString::remainder(RexxObject *right)
         // Try an alternative operator
         ProtectedObject result;
         RexxObject *self = this;
-        RexxObject *args[2];
+        RexxObject *args[1];
         args[0] = self; // positional argument
-        args[1] = IntegerZero; // 0 named argument
-        bool alternativeResult = right->messageSend(OREF_REMAINDER_RIGHT, args, 1, result, false);
+        bool alternativeResult = right->messageSend(OREF_REMAINDER_RIGHT, args, 1, 0, result, false);
         if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
         /* nope, this is an error            */
         reportException(Error_Conversion_operator, right);
@@ -3372,22 +3352,24 @@ RexxObject  *RexxNumberString::operatorNot(RexxObject *right)
 
 RexxNumberString *RexxNumberString::Max(
     RexxObject **args,                 /* array of comparison values        */
-    size_t argCount)                   /* count of arguments                */
+    size_t argCount,                   /* count of arguments                */
+    size_t named_argCount)
 /********************************************************************/
 /* Function:  Process MAX function                                  */
 /********************************************************************/
 {
-   return this->maxMin(args, argCount, OT_MAX);
+   return this->maxMin(args, argCount, named_argCount, OT_MAX);
 }
 
 RexxNumberString *RexxNumberString::Min(
     RexxObject **args,                 /* array of comparison values        */
-    size_t argCount)                   /* count of arguments                */
+    size_t argCount,                   /* count of arguments                */
+    size_t named_argCount)
 /********************************************************************/
 /* Function:  Process the MIN function                              */
 /********************************************************************/
 {
-   return this->maxMin(args, argCount, OT_MIN);
+   return this->maxMin(args, argCount, named_argCount, OT_MIN);
 }
 
 RexxObject *RexxNumberString::isInteger()

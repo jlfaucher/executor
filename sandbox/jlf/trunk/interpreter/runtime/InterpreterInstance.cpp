@@ -874,7 +874,7 @@ void InterpreterInstance::runRequires(RexxActivity *activity, RexxString *name, 
 
     // make sure we reference the circular reference stack
     activity->addRunningRequires(name);
-    code->call(activity, name, NULL, 0, dummy);
+    code->call(activity, name, NULL, 0, 0, dummy);
                                          /* No longer installing routine.     */
     activity->removeRunningRequires(name);
 }

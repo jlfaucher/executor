@@ -120,11 +120,10 @@ RexxSourceLiteral::RexxSourceLiteral(RexxString *s, PackageClass *p, size_t star
     ProtectedObject pClauser(clauser);
 
     // kind = clauser~kind(remove: .true)
-    RexxObject *arguments[0 + (1+ 1*2)]; // 0 positional arg, 1 cell for named arg count, 1 named arg
-    arguments[0] = IntegerOne; // 1 named arg
-    arguments[1] = OREF_REMOVE; // named arg name
-    arguments[2] = TheTrueObject; // named arg value
-    this->kind = (RexxString *)clauser->sendMessage(OREF_KIND, arguments, 0); // transient, no need of OrefSet
+    RexxObject *arguments[0 + (1*2)]; // 0 positional arg, 1 named arg
+    arguments[0] = OREF_REMOVE; // named arg name
+    arguments[1] = TheTrueObject; // named arg value
+    this->kind = (RexxString *)clauser->sendMessage(OREF_KIND, arguments, 0, 2); // transient, no need of OrefSet
 
     // clauser~transformSource(clauseBefore, clauseAfter)
     // Transform the source to accept auto named arguments, and to return implicitely the result of the last evaluated expression
@@ -228,7 +227,7 @@ RexxBlock::RexxBlock(RexxSourceLiteral *s, RexxContext *c)
  *
  * @return Never returns.
  */
-RexxObject *RexxBlock::newRexx(RexxObject **args, size_t argc)
+RexxObject *RexxBlock::newRexx(RexxObject **args, size_t argc, size_t named_argc)
 {
     // we do not allow these to be allocated from Rexx code...
     reportException(Error_Unsupported_new_method, ((RexxClass *)this)->getId());

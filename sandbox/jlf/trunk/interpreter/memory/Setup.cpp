@@ -1523,12 +1523,11 @@ void RexxMemory::createImage(const char *imageTarget)
 
 
           // RexxObject *args = kernel_methods;   // temporary to avoid type-punning warnings
-          RexxObject *args[2];
+          RexxObject *args[1];
           args[0] = kernel_methods; // 1 positional argument
-          args[1] = IntegerZero; // 0 named arguments
           ProtectedObject result;
                                                /* now call BaseClasses to finish the image*/
-          loader->runProgram(ActivityManager::currentActivity, OREF_PROGRAM, OREF_NULL, (RexxObject **)&args, 1, result);
+          loader->runProgram(ActivityManager::currentActivity, OREF_PROGRAM, OREF_NULL, (RexxObject **)&args, 1, 0, result);
       }
       catch (ActivityException )
       {

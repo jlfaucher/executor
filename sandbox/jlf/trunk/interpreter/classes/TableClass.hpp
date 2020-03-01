@@ -66,7 +66,7 @@ class RexxTable : public RexxHashTableCollection {
    inline RexxArray  * stringGetAll(RexxString *key) {return this->contents->stringGetAll(key); };
    inline       RexxObject * stringGet(RexxString *key) {return this->contents->stringGet(key); };
 
-   RexxObject *newRexx(RexxObject **, size_t);
+   RexxObject *newRexx(RexxObject **, size_t, size_t);
    static RexxTable  *newInstance();
    static void createInstance();
    static RexxClass *classInstance;

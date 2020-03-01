@@ -101,10 +101,10 @@
    RexxTable  *methodDictionaryCreate(RexxTable *, RexxClass *);
    RexxObject *inherit(RexxClass *, RexxClass *);
    RexxObject *uninherit(RexxClass *);
-   RexxObject *enhanced(RexxObject **, size_t);
+   RexxObject *enhanced(RexxObject **, size_t, size_t);
    RexxClass  *mixinclass(RexxString *, RexxClass *, RexxTable *);
    RexxClass  *subclass(RexxString *, RexxClass *, RexxTable *);
-   RexxClass  *newRexx(RexxObject **args, size_t argCount);
+   RexxClass  *newRexx(RexxObject **args, size_t argCount, size_t named_argCount);
    void        setMetaClass(RexxClass *);
    bool        isCompatibleWith(RexxClass *other);
    RexxObject *isSubclassOf(RexxClass *other);

@@ -655,7 +655,7 @@ void PackageManager::unload()
  *         means the function is not located as a native function.
  */
 bool PackageManager::callNativeRoutine(RexxActivity *activity, RexxString *name,
-    RexxObject **arguments, size_t argcount, ProtectedObject &result)
+    RexxObject **arguments, size_t argcount, size_t named_argcount, ProtectedObject &result)
 {
     // all of our tables use uppercase names...make this a case-insensitive lookup
     name = name->upper();
@@ -665,7 +665,7 @@ bool PackageManager::callNativeRoutine(RexxActivity *activity, RexxString *name,
     RoutineClass *function = (RoutineClass *)packageRoutines->at(name);
     if (function != OREF_NULL)
     {
-        function->call(activity, name, arguments, argcount, result);
+        function->call(activity, name, arguments, argcount, named_argcount, result);
         return true;
     }
 
@@ -674,7 +674,7 @@ bool PackageManager::callNativeRoutine(RexxActivity *activity, RexxString *name,
     function = resolveRoutine(name);
     if (function != OREF_NULL)
     {
-        function->call(activity, name, arguments, argcount, result);
+        function->call(activity, name, arguments, argcount, named_argcount, result);
         return true;
     }
 

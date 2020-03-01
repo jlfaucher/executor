@@ -152,7 +152,6 @@ RexxObject *RexxExpressionMessage::evaluate(
 
     // Named arguments
     namedArgcount = this->namedArgumentCount;
-    stack->push(new_integer(namedArgcount));
     for (i = argcount; i < argcount + (2 * namedArgcount); i+=2)
     {
         // Argument name: string literal
@@ -175,7 +174,7 @@ RexxObject *RexxExpressionMessage::evaluate(
         /* evaluate the message w/override   */
         stack->send(this->messageName, _super, argcount, namedArgcount, result);
     }
-    stack->popn(argcount + 1 + (2 * namedArgcount));  /* remove any arguments              */
+    stack->popn(argcount + (2 * namedArgcount));  /* remove any arguments              */
 
     if (this->doubleTilde)               /* double twiddle form?              */
     {
@@ -310,7 +309,6 @@ void RexxExpressionMessage::assign(
 
     // Named arguments
     size_t namedArgcount = this->namedArgumentCount;
-    stack->push(new_integer(namedArgcount));
     for (size_t i = argcount; i < argcount + (2 * namedArgcount); i+=2)
     {
         // Argument name: string literal
@@ -340,7 +338,7 @@ void RexxExpressionMessage::assign(
     context->traceAssignment(messageName, (RexxObject *)result);
     // remove all arguments (arguments + target + assignment value)
     // and all named arguments
-    stack->popn((argcount + 2) + (1 + (2 * namedArgcount)));
+    stack->popn((argcount + 2) + ((2 * namedArgcount)));
 }
 
 

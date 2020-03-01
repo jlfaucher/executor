@@ -101,11 +101,11 @@ class RexxNativeActivation;
   void        dropValue();
   RexxObject *getStemValue();
   RexxObject *unknown (RexxString *, RexxArray *, RexxDirectory *);
-  RexxObject *bracket (RexxObject **, size_t);
-  RexxObject *bracketEqual(RexxObject **, size_t);
+  RexxObject *bracket (RexxObject **, size_t, size_t);
+  RexxObject *bracketEqual(RexxObject **, size_t, size_t);
 
-  RexxObject *hasIndex(RexxObject **, size_t);
-  RexxObject *remove(RexxObject **, size_t);
+  RexxObject *hasIndex(RexxObject **, size_t, size_t);
+  RexxObject *remove(RexxObject **, size_t, size_t);
   RexxObject *hasItem(RexxObject *);
   RexxObject *index(RexxObject *);
   RexxObject *itemsRexx();
@@ -113,7 +113,7 @@ class RexxNativeActivation;
 
 
   RexxString *tail(RexxArray *, size_t);
-  RexxObject *newRexx(RexxObject **, size_t);
+  RexxObject *newRexx(RexxObject **, size_t, size_t);
   RexxObject *evaluateCompoundVariableValue(RexxActivation *context, RexxString *stemVariableName, RexxCompoundTail *resolved_tail);
   RexxObject *getCompoundVariableValue(RexxCompoundTail *resolved_tail);
   RexxObject *getCompoundVariableRealValue(RexxCompoundTail *resolved_tail);
