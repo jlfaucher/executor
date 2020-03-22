@@ -930,7 +930,7 @@ interpret: procedure
 --------------------------------------------------------------------------------
 
 -- Directory initializer
---     .directory~of("key 1":"value 1", "key 2":2, a1:1, a2:2)
+--     .directory~of("key 1", "value 1", "key 2", 2, a1:1, a2:2)
 -- The key-value where the key is compatible with a named  argument can be passed as named argument.
 -- The key-value where the key is not compatible with a named argument can be passed as a pair of positional arguments.
 ::extension Directory

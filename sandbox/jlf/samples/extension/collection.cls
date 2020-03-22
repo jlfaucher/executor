@@ -36,7 +36,7 @@ All the collections will benefit from this display.
 /******************************************************************************/
 
 -- Directory initializer
---     .directory~of("key 1":"value 1", "key 2":2, a1:1, a2:2)
+--     .directory~of("key 1", "value 1", "key 2", 2, a1:1, a2:2)
 -- The key-value where the key is compatible with a named  argument can be passed as named argument.
 -- The key-value where the key is not compatible with a named argument can be passed as a pair of positional arguments.
 ::extension Directory
@@ -51,7 +51,7 @@ All the collections will benefit from this display.
 
 -- helper routine d() to create a directory
 --     d(a1:1, a2:2)
---     d("key 1":"value 1", "key 2":2, a1:1, a2:2)
+--     d("key 1", "value 1", "key 2", 2, a1:1, a2:2)
 -- Next step : Modify the parser to support directly a directory literal (a1:1, a2:2)
 -- Should support any string as key, with a notation "my key":1
 -- Or maybe still more general, for a table: (expressionKey1:expressionValue1, ...)
