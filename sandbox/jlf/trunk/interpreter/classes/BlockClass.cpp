@@ -123,7 +123,7 @@ RexxSourceLiteral::RexxSourceLiteral(RexxString *s, PackageClass *p, size_t star
     RexxObject *arguments[0 + (1*2)]; // 0 positional arg, 1 named arg
     arguments[0] = OREF_REMOVE; // named arg name
     arguments[1] = TheTrueObject; // named arg value
-    this->kind = (RexxString *)clauser->sendMessage(OREF_KIND, arguments, 0, 2); // transient, no need of OrefSet
+    this->kind = (RexxString *)clauser->sendMessage(OREF_KIND, arguments, 0, 1); // transient, no need of OrefSet
 
     // clauser~transformSource(clauseBefore, clauseAfter)
     // Transform the source to accept auto named arguments, and to return implicitely the result of the last evaluated expression
