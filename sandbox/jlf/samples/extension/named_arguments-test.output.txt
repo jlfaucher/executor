@@ -729,7 +729,7 @@ Then the declared named arguments are assigned with the passed values, in the or
 So it's possible to initialize a named argument with an automatic variable (here v2 is assigned the value of index).
 
 
-call useNamed_Stem_CompoundSymbol stem.v1:1, stem.:0, stem.v3:3, stem.v4:4, index:"My index", item:"My item"
+call useNamed_Stem_CompoundSymbol_1 stem.v1:1, stem.:0, stem.v3:3, stem.v4:4, index:"My index", item:"My item"
     positional count=0 size=0
     named count=6
         INDEX : My index
@@ -747,9 +747,34 @@ call useNamed_Stem_CompoundSymbol stem.v1:1, stem.:0, stem.v3:3, stem.v4:4, inde
         V3 : 3
 Expected:
 The option auto is not used, so stem.v4, index and item are not created as local variables.
-The declared named arguments are assigned with the passed values, in the order of declaration on called side (left to right).
-The assignment stem.=0 resets the stem.
-Then the assignments stem.v1=1, stem.v2="ITEM" (default) and stem.v3=3 are made.
+The declared named arguments are assigned with the passed values, in the order of declaration on called side (left to right):
+- The assignment stem.=0 resets the stem.
+- Then the assignments stem.v1=1, stem.v2="ITEM" (default) and stem.v3=3 are made.
+Note that the value of the named argument item ("My item") is NOT used to initialize stem.v2 because the expression of the default value is (item) and item is an uninitialized variable.
+
+
+call useNamed_Stem_CompoundSymbol_2 stem.v1:1, stem.:0, stem.v3:3, stem.v4:4, index:"My index", item:"My item"
+    positional count=0 size=0
+    named count=6
+        INDEX : My index
+        ITEM : My item
+        STEM. : 0
+        STEM.V1 : 1
+        STEM.V3 : 3
+        STEM.V4 : 4
+    use named arg stem., stem.v1, stem.v2=(.Context~namedArgs~item), stem.v3=(.Context~namedArgs~index)
+    variables count=1
+        STEM. : 0
+    stem count=3
+        V1 : 1
+        V2 : My item
+        V3 : 3
+Expected:
+The option auto is not used, so stem.v4, index and item are not created as local variables.
+The declared named arguments are assigned with the passed values, in the order of declaration on called side (left to right):
+- The assignment stem.=0 resets the stem.
+- Then the assignments stem.v1=1, stem.v2=.Context~namedArgs~index (default="My index") and stem.v3=3 are made.
+Note that the value of the named argument item ("My item") is used to initialize stem.v2 because the expression of the default value is (Context~namedArgs~item).
 
 
 call useAutoNamed_Stem_CompoundSymbol stem.v1:1, stem.:0, stem.v3:3, stem.v4:4, index:"My index", item:"My item"
@@ -1348,9 +1373,9 @@ n1=1 n2=2
     named count=2
         N1 : 1
         N2 : 2
-    
-On entry in the thread (migrated arguments)
 
+
+    On entry in the thread (migrated arguments)
     positional count=2 size=2
         1 : 1
         2 : 2

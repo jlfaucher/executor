@@ -209,11 +209,19 @@ call interpret 'call useAutoNamed_SimpleSymbol v1:1, v3:3, v5:5, index:"My index
              , 'Then the declared named arguments are assigned with the passed values, in the order of declaration on called side (left to right).' -
              , 'So it''s possible to initialize a named argument with an automatic variable (here v2 is assigned the value of index).'
 
-call interpret 'call useNamed_Stem_CompoundSymbol stem.v1:1, stem.:0, stem.v3:3, stem.v4:4, index:"My index", item:"My item"' -
+call interpret 'call useNamed_Stem_CompoundSymbol_1 stem.v1:1, stem.:0, stem.v3:3, stem.v4:4, index:"My index", item:"My item"' -
              , 'The option auto is not used, so stem.v4, index and item are not created as local variables.' -
-             , 'The declared named arguments are assigned with the passed values, in the order of declaration on called side (left to right).' -
-             , 'The assignment stem.=0 resets the stem.' -
-             , 'Then the assignments stem.v1=1, stem.v2="ITEM" (default) and stem.v3=3 are made.'
+             , 'The declared named arguments are assigned with the passed values, in the order of declaration on called side (left to right):' -
+             , '- The assignment stem.=0 resets the stem.' -
+             , '- Then the assignments stem.v1=1, stem.v2="ITEM" (default) and stem.v3=3 are made.' -
+             , 'Note that the value of the named argument item ("My item") is NOT used to initialize stem.v2 because the expression of the default value is (item) and item is an uninitialized variable'.
+
+call interpret 'call useNamed_Stem_CompoundSymbol_2 stem.v1:1, stem.:0, stem.v3:3, stem.v4:4, index:"My index", item:"My item"' -
+             , 'The option auto is not used, so stem.v4, index and item are not created as local variables.' -
+             , 'The declared named arguments are assigned with the passed values, in the order of declaration on called side (left to right):' -
+             , '- The assignment stem.=0 resets the stem.' -
+             , '- Then the assignments stem.v1=1, stem.v2=.Context~namedArgs~index (default="My index") and stem.v3=3 are made.' -
+             , 'Note that the value of the named argument item ("My item") is used to initialize stem.v2 because the expression of the default value is (Context~namedArgs~item)'.
 
 call interpret 'call useAutoNamed_Stem_CompoundSymbol stem.v1:1, stem.:0, stem.v3:3, stem.v4:4, index:"My index", item:"My item"' -
              , 'Same test case as previous, except the option auto which is used.' -
@@ -705,11 +713,21 @@ interpret: procedure
     return ""
 
 --------------------------------------------------------------------------------
-:: routine useNamed_Stem_CompoundSymbol
+:: routine useNamed_Stem_CompoundSymbol_1
     call sayArg .context
     call indent
     say 'use named arg stem., stem.v1, stem.v2=(item), stem.v3=(index)'
          use named arg stem., stem.v1, stem.v2=(item), stem.v3=(index)
+    call sayCollection "variables", .context~variables
+    call sayCollection "stem", stem.
+    return ""
+
+--------------------------------------------------------------------------------
+:: routine useNamed_Stem_CompoundSymbol_2
+    call sayArg .context
+    call indent
+    say 'use named arg stem., stem.v1, stem.v2=(.Context~namedArgs~item), stem.v3=(.Context~namedArgs~index)'
+         use named arg stem., stem.v1, stem.v2=(.Context~namedArgs~item), stem.v3=(.Context~namedArgs~index)
     call sayCollection "variables", .context~variables
     call sayCollection "stem", stem.
     return ""
