@@ -44,6 +44,7 @@
 #include <time.h>
 #include <shlobj.h>
 #include <shlwapi.h>
+#include <algorithm>
 
 #define STR_BUFFER    256
 #define MAX_TIME_DATE 128
@@ -2100,7 +2101,7 @@ char * getEventUserName(PEVENTLOGRECORD pEvLogRecord)
         // Get the size required for the return buffers
         LookupAccountSid(NULL, psid, pUserID, &sizeID, pDomain, &sizeDomain, &strDummy);
 
-        pUserID = (char *)LocalAlloc(LPTR, max(sizeID, (DWORD)strlen(defUserID) + 1));
+        pUserID = (char *)LocalAlloc(LPTR, std::max(sizeID, (DWORD)strlen(defUserID) + 1));
         pDomain = (char *)LocalAlloc(LPTR, sizeDomain);
 
         if ( LookupAccountSid(NULL, psid, pUserID, &sizeID, pDomain, &sizeDomain, &strDummy) == 0 )

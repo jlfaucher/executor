@@ -177,6 +177,7 @@
 #include <limits.h>
 #include <shlwapi.h>
 #include <math.h>                      // isnan(), HUGE_VAL
+#include <algorithm>
 
 #define OM_WAKEUP (WM_USER+10)
 VOID CALLBACK SleepTimerProc( HWND, UINT, UINT, DWORD);
@@ -633,7 +634,7 @@ bool ReadNextBuffer(GetFileData *filedata)
     DWORD  bytesRead;
 
     /* get size of this read      */
-    size = min(MAX_READ, filedata->residual);
+    size = std::min(size_t(MAX_READ), filedata->residual);
 
     /* read the file in           */
     if ( !ReadFile(filedata->handle, filedata->buffer, (DWORD)size, &bytesRead, NULL) )
@@ -702,7 +703,7 @@ bool GetLine(
   if (scan) {                          /* found one                  */
                                        /* calculate the length       */
     length = scan - filedata->scan;
-    copylength = min(length, size);    /* get length to copy         */
+    copylength = std::min(length, size);    /* get length to copy         */
                                        /* copy over the data         */
     memcpy(line, filedata->scan, copylength);
     line[copylength] = '\0';           /* make into ASCIIZ string    */
@@ -760,7 +761,7 @@ bool GetLine(
     }
     else        /* the line is full, scan until LF found but no copy */
     {
-       copylength = min(size, filedata->data);
+       copylength = std::min(size, filedata->data);
                                          /* copy over the data       */
        memcpy(line, filedata->scan, copylength);
        line[copylength] = '\0';          /* make into ASCIIZ string  */
@@ -1506,8 +1507,8 @@ size_t RexxEntry SysFileSearch(const char *name, size_t numargs, CONSTRXSTRING a
       if (linenums) {
         wsprintf(ldp.ibuf, "%d ", num);
         len2 = strlen(ldp.ibuf);
-        memcpy(ldp.ibuf+len2, line, min(len, IBUF_LEN-len2));
-        ldp.vlen = min(IBUF_LEN, len+len2);
+        memcpy(ldp.ibuf+len2, line, std::min(len, IBUF_LEN-len2));
+        ldp.vlen = std::min(size_t(IBUF_LEN), len+len2);
       }
       else {
         memcpy(ldp.ibuf, line, len);

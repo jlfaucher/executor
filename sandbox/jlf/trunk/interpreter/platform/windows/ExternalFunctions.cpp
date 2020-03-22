@@ -277,7 +277,7 @@ bool SystemInterpreter::invokeExternalFunction(
       return true;
   }
                                        /* have activation do the call       */
-  if (activation->callExternalRexx(target, arguments, argcount, calltype, named_argcount, result))
+  if (activation->callExternalRexx(target, arguments, argcount, named_argcount, calltype, result))
   {
       return true;
   }
