@@ -153,6 +153,48 @@ Remember : a multi-line source literal is flattened only if a transformation is
 made on the clause which contains it.
 
 
+See if it's possible to modify the implementation of FORWARD to reduce the
+comsumption of stack frames.
+Should be possible when the option CONTINUE is not used.
+Could be used to emulate tail recursion.
+Under MacOs, last value before stack overflow when calculating the factorial:
+1056
+    use arg n
+    say factorial(n)
+    return
+    factorial:
+    use arg n;
+    if n==0 then return 1
+    else return n * factorial(n-1)
+736
+    use arg n
+    say factorial(n)
+    return
+    ::routine factorial
+    use arg n;
+    if n==0 then return 1
+    else return n * factorial(n-1)
+487
+    use arg n
+    say factorial(n)
+    return
+    ::routine factorial
+    use arg n;
+    if n==0 then return 1
+    else return n * .context~executable~call(n-1)
+484
+    {use arg n; if n==0 then return 1; else return n * .context~executable~call(n-1) }~call(484)=
+197
+    {use arg n; if n==0 then return 1; else return n * .context~executable~(n-1) }~(197)=
+I would like to support the same limit 484 when using the doer method ~().
+    ::class "Doer" mixinclass Object public inherit DoerFactory
+    ::method "~()" unguarded
+        forward message "do"
+    ::class "RoutineDoer" mixinclass Object public inherit Doer
+    ::method do unguarded
+        forward message "call"
+
+
 ===============================================================================
 (next)
 
@@ -231,9 +273,6 @@ RexxQueue::newRexx
 RexxRelation::newRexx
 
 
-RexxObject::run     rework how the directory NAMEDARGUMENTS is retrieved
-
-
 RexxObject  *RexxArray::of(RexxObject **args, size_t argCount, size_t named_argCount)
 TODO
 The named arguments could be added to the returned array (splitting the key:value).
@@ -249,6 +288,19 @@ RexxList *RexxList::classOf(
      size_t       named_argCount)
 TODO
 The named arguments could be added to the returned array (splitting the key:value).
+
+
+===============================================================================
+22/03/2020
+
+Doers.cls
+Use the instruction FORWARD when possible.
+I noticed that the number of recursive calls is divided by 2 or 3 when using
+a method of a doer instead of calling directly the routine or sending directly
+the message.
+Using FORWARD will not change that for the moment, but I expect to work in the
+future on the tail recursion, and FORWARD (without CONTINUE) is a good candidate
+to reduce the comsumption of stack frames.
 
 
 ===============================================================================

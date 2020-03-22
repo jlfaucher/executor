@@ -61,11 +61,13 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 
 ::method go unguarded
-    return self~startWith("do", .context~args, n:.context~namedArgs)
+    --return self~startWith("do", .context~args, n:.context~namedArgs)
+    forward message "startWith" array("do", .context~args, n:.context~namedArgs)
 
 
 ::method goWith unguarded
-    return self~startWith("doWith", .context~args, n:.context~namedArgs)
+    --return self~startWith("doWith", .context~args, n:.context~namedArgs)
+    forward message "startWith" array("doWith", .context~args, n:.context~namedArgs)
 
 
 /*
