@@ -134,9 +134,9 @@ void CPPCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiv
         // RexxObject::processUnknown : put all the positional arguments in the 2nd arg, put all the named arguments in the named argument NAMEDARGUMENT
         //     calls RexxMethod::run : forward the 2 positional args + 1 named arg to the code object
         //         calls CPPCode::run : call a CPP method by passing the positional & named args as C++ parameters,
-        //             calls RexxObject::unknownRexx : forward to the virtual function (message, arguments)
-        //                 calls RexxInteger::unknown : just reissue to the string value (message, arguments)
-        //                     calls RexxObject::sendMessage(RexxString *message, RexxArray *args)
+        //             calls RexxObject::unknownRexx : forward to the virtual function (message, arguments, namedArguments)
+        //                 calls RexxInteger::unknown : just reissue to the string value (message, arguments, namedArguments)
+        //                     calls RexxObject::sendMessage(RexxString *message, RexxArray *args, RexxDirectory *namedArgs)
         //                         calls RexxObject::sendMessage(RexxString *message, RexxArray  *arguments, ProtectedObject &result
         //                         Now we are back to the standard way to pass arguments:
         //                             passing arguments->data(), arguments->size()
