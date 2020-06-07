@@ -102,8 +102,13 @@ Closure
 A closure remembers the values of the variables defined in the outer environment of the block.  
 Updating a variable from the closure will have no impact on the original context (closure by value).
 
-    v = 1                                -- captured
-    {expose v ; say v}~()      -- 1
+    v = 1
+    closure = {expose v; say v; v += 10}    -- capture the value of v: 1
+    v = 2
+    closure~()                              -- display 1
+    closure~()                              -- display 11
+    closure~()                              -- display 21
+    say v                                   -- v not impacted by the closure: 2
 
 ### Array initializer
 
@@ -112,7 +117,7 @@ Inspired by [APL][apl_glimpse_heaven]
 
 If there is only one argument, and this argument has the method ~supplier then each item returned by the argument's supplier is an item.
 
-    .array~new(2,3)~of(1~upto(6))
+    .array~new(2,3)~of(1~6)
     1 2 3
     4 5 6
 
@@ -310,7 +315,7 @@ Class BinaryTree
 
 A more compact code... item is an implicit parameter.
 
-    1~upto(10){ {expose item; return item * item} } ~ take(9) ~ each{ say item~() }
+    1~10{ {expose item; return item * item} } ~ take(9) ~ each{ say item~() }
 
 ### Accumulator factory
 
@@ -715,19 +720,19 @@ The ~pipe method has been modified to support the T & K combinators.
 Example without thrush:  
 Square (take the numbers from 1 to 100, select the odd ones, and take the sum of those).
 
-    {return arg(1) ** 2}~(1~upto(100)~select{item // 2 == 1}~reduce("+"))=
+    {return arg(1) ** 2}~(1~100~select{item // 2 == 1}~reduce("+"))=
     -- return 6250000
 
 Same example with thrush:  
 Take the numbers from 1 to 100, keep the odd ones, take the sum of those, and then answer the square of that number.  
 Here, the block benefits from the implicit argument "item" and implicit return.
 
-    1~upto(100)~select{item // 2 == 1}~reduce("+")~pipe{item ** 2}=
+    1~100~select{item // 2 == 1}~reduce("+")~pipe{item ** 2}=
     -- return 6250000
 
 Same example with kestrels, to log intermediate results:
 
-    1~upto(100)~select{item // 2 == 1}~pipe{say item~ppRepresentation}~reduce("+")~pipe{say item}~pipe{item ** 2}=
+    1~100~select{item // 2 == 1}~pipe{say item~ppRepresentation}~reduce("+")~pipe{say item}~pipe{item ** 2}=
     -- display [1,3,5,7,9,11,13,15,17,19,...,91,93,95,97,99]
     -- display 2500
     -- return  6250000
