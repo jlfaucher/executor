@@ -15,7 +15,7 @@ So I added the 'pipe' method which injects the object in the pipe :
 "a"~pipe(.upper|.console)
 */
 
-::routine pipe
+::routine pipe private
     use strict arg object, pipe, profile
 
     -- case 1 : permuting combinator, to reverse the normal order of evaluation.
@@ -35,7 +35,7 @@ So I added the 'pipe' method which injects the object in the pipe :
     return pipe
 
 
-::routine coactivePipe
+::routine coactivePipe private
     use strict arg object, pipe, profile
     return {::coactivity
             expose object pipe profile
@@ -267,7 +267,7 @@ self~init:super
                     else if "cycles"~caselessAbbrev(first, 1) then detectCycles = .true
                     else if "depthFirst"~caselessAbbrev(first, 1) then depthFirst = .true
                     else if "memorize"~caselessAbbrev(first, 3) then do ; recursiveMemorize = .true ; self~memorize = .true ; end
-                    else raise syntax 93.900 array(self~class~id ": Expected 'breadthFirst' or 'cycles' or 'depthFirst' or 'memorize' after "first". in "a)
+                    else raise syntax 93.900 array(self~class~id ": Expected a recursion limit or 'breadthFirst' or 'cycles' or 'depthFirst' or 'memorize', got "first".")
                 end
                 iterate
             end
@@ -592,7 +592,7 @@ self~init:super
 
 
 /******************************************************************************/
--- A 'superClass' pipeStage to get the superClasses of the current item.
+-- A 'superClasses' pipeStage to get the superClasses of the current item.
 -- The input item must be a .Class instance.
 -- By default, return the immediate superclasses.
 -- Use the option 'recursive' to get all the superclasses up to the root .Object.
@@ -608,7 +608,7 @@ self~init:super
 
 
 /******************************************************************************/
--- A 'subClass' pipeStage to get the subClasses of the current item.
+-- A 'subClasses' pipeStage to get the subClasses of the current item.
 -- The input item must be a .Class instance.
 -- By default, return the immediate subclasses.
 -- Use the option 'recursive' to get all the subclasses up to the leaves.
