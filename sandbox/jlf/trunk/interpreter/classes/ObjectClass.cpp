@@ -691,7 +691,7 @@ void RexxObject::sendMessage(
         size_t argumentsCount = arguments ? arguments->size() : 0;
         RexxArray *args = arguments ? (RexxArray *)arguments->copy() : new_array();
         ProtectedObject p(args);
-        size_t namedArgumentsCount = named_arguments->appendAllIndexesItemsTo(args, /*from*/ argumentsCount);
+        size_t namedArgumentsCount = named_arguments->appendAllIndexesItemsTo(args, /*from*/ argumentsCount+1); // from is 1-based index
 
         this->messageSend(message, args->data(), argumentsCount, namedArgumentsCount, result);
     }
