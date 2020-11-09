@@ -98,47 +98,47 @@ Review the extension mechanisms :
   2018 aug 11: workaround implemented.
 - The class .stream doesn't have the methods ~pipe, ~generate.
   Problem of propagation ?
-    ----- Generate the list of all classes and the list of classes having the method ~pipe
-    allClasses = .object~generate("subClasses")~iterateAfter~recursive~once
-    classesWithPipe = .object~generate("subClasses")~iterateAfter~recursive~once~select{item~hasMethod("pipe")}
-    ----- Print difference between the two lists
-    set1 = allClasses~reduce(.set~new, "put")
-    set2 = classesWithPipe~reduce(.set~new, "put")
-    difference = set1~difference(set2)
-    difference~pipe(.sort caseless | .console item)
-    -----
-    Result :
+    .object~pipe(.subclasses recursive once | .select {item~hasMethod("pipe")==.false} | .sort byItem caseless | .console item)
+    Display :
+        (The ByteEncoding class)
+        (The CapturingGroupEnvelope class)
+        (The CaselessGroupBackReferenceNode class)
+        (The CaselessResultBackReferenceNode class)
+        (The CaselessStringNode class)
         (The CircularQueue class)
+        (The ClassOrNode class)
         (The CoactivitySupplierForGeneration class)
         (The CoactivitySupplierForGenerationFilter class)
         (The CoactivitySupplierForGenerationIterator class)
+        (The CSVSTREAM class)
         (The DescendingComparator class)
         (The do class)
+        (The EveryThingNode class)
+        (The GreedyGroupQuestionNode class)
+        (The GreedyGroupRepetitionNode class)
+        (The GreedyQuestionNode class)
+        (The GreedyRepetitionNode class)
+        (The GroupBackReferenceNode class)
+        (The GroupMatchResult class)
+        (The GroupTerminator class)
+        (The InternetDotNode class)
         (The lineCount class)
+        (The LowerTransformer class)
+        (The NegativeLookBehindNode class)
+        (The NotClassBoundaryNode class)
+        (The NotClassNode class)
         (The OrderedCollection class)
+        (The PAD class)
         (The pipeProfiler class)
         (The Properties class)
         (The secondaryConnector class)
         (The Set class)
         (The Stream class)
         (The StreamSupplier class)
+        (The TransformingFormatter class)
         (The WeakProxy class)
+        (The WINDOWSPLATFORM class)
     What's the problem with these classes ???
-- Similar problem with the ~help method, but the list of classes is different.
-  The pipeStage classes don't have the problem of missing method ~help, why ?
-  This method ~help is not redefined in the pipe framework...
-        (The CircularQueue class)
-        (The Class class)
-        (The CoactivitySupplierForGeneration class)
-        (The CoactivitySupplierForGenerationFilter class)
-        (The CoactivitySupplierForGenerationIterator class)
-        (The DescendingComparator class)
-        (The OrderedCollection class)
-        (The Properties class)
-        (The Set class)
-        (The Stream class)
-        (The StreamSupplier class)
-        (The WeakProxy class)
 
 
 Profiler todo :
@@ -288,6 +288,23 @@ RexxList *RexxList::classOf(
      size_t       named_argCount)
 TODO
 The named arguments could be added to the returned array (splitting the key:value).
+
+
+===============================================================================
+08/06/2020
+
+Add support of these named arguments to ~upTo, ~downTo:
+- by
+- for
+- action
+1~10(by:2)=             -- [ 1, 3, 5, 7, 9]
+1~100(by:3, for:-5)=    -- [ 88, 91, 94, 97, 100]
+0~15(action:"d2x")=
+
+Named arguments:
+Bug detected with 1~10(step:2)
+which raised "named argument 2 is not an expected argument name"
+Fixed in method  RexxObject::sendMessage (arrays are 1-based)
 
 
 ===============================================================================
