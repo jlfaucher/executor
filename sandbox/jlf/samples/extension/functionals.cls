@@ -1218,20 +1218,21 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- 11~upto(13) -- returns .array~of(11,12,13)
 -- (-1)~upto(3) -- returns .array~of(-1,0,1,2,3) -- Note that -1 MUST be surrounded by paren or quotes
 ::method upto unguarded
-    step = 1
-    count = .nil -- no count by default
-    action = {arg(1)}
+    by = 1
+    for = .nil -- no 'for' by default
+    action = {item} -- action default: return the current item (see controlledLoop)
     if arg() <= 1 then use strict arg limit
     else if arg() == 2 then do
-        if arg(2)~isA(.String), arg(2)~dataType("N") then use arg limit, step=(step)
+        if arg(2)~isA(.String), arg(2)~dataType("N") then use arg limit, by=(by)
         else use arg limit, action=(action)
     end
     else if arg() == 3 then do
-        if arg(3)~isA(.String), arg(3)~dataType("N") then use arg limit, step=(step), count=(count)
-        else use arg limit, step=(step), action=(action)
+        if arg(3)~isA(.String), arg(3)~dataType("N") then use arg limit, by=(by), for=(for)
+        else use arg limit, by=(by), action=(action)
     end
-    else use strict arg limit, step=(step), count=(count), action=(action)
-    return controlledLoop(self, limit, step, count, action)
+    else use strict arg limit, by=(by), for=(for), action=(action)
+    use strict named arg by=(by), for=(for), action=(action)
+    return controlledLoop(self, limit, by, for, action)
 
 -- Repeat the given action from self down to lower limit (self and lower limit are numbers).
 -- An array of results is returned (can be empty).
@@ -1240,42 +1241,57 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- 13~downto(11) -- returns .array~of(13,12,11)
 -- 3~upto(-1) -- returns .array~of(3,2,1,0,-1)
 ::method downto unguarded
-    step = -1
-    count = .nil -- no count by default
-    action = {arg(1)}
+    by = -1
+    for = .nil -- no 'for'' by default
+    action = {item} -- action default: return the current item (see controlledLoop)
     if arg() <= 1 then use strict arg limit
     else if arg() == 2 then do
-        if arg(2)~isA(.String), arg(2)~dataType("N") then use arg limit, step=(step)
+        if arg(2)~isA(.String), arg(2)~dataType("N") then use arg limit, by=(by)
         else use arg limit, action=(action)
     end
     else if arg() == 3 then do
-        if arg(3)~isA(.String), arg(3)~dataType("N") then use arg limit, step=(step), count=(count)
-        else use arg limit, step=(step), action=(action)
+        if arg(3)~isA(.String), arg(3)~dataType("N") then use arg limit, by=(by), for=(for)
+        else use arg limit, by=(by), action=(action)
     end
-    else use strict arg limit, step=(step), count=(count), action=(action)
-    return controlledLoop(self, limit, step, count, action)
+    else use strict arg limit, by=(by), for=(for), action=(action)
+    use strict named arg by=(by), for=(for), action=(action)
+    return controlledLoop(self, limit, by, for, action)
 
 -- Shorter notation for upto (1~10) & downto (10~1)
 -- when both self and the message are a number.
 ::method unknown unguarded
     use arg msg, args
+    use named arg namedArguments
     if self~dataType("N"), msg~dataType("N") then do
-        if msg >= self then return self~sendWith("upto", args~~insert(msg, .nil))
-        else return self~sendWith("downto", args~~insert(msg, .nil))
+        if msg >= self then return self~sendWith("upto", args~~insert(msg, .nil), n:namedArguments)
+        else return self~sendWith("downto", args~~insert(msg, .nil), n:namedArguments)
     end
     -- Remember: I can forward the message "unknown" because I added by extension the method "unknown" to the class .Object.
     -- Without this extension, you get a stack overflow.
     forward class (super)
 
-::routine controlledLoop
+::routine controlledLoop private
     use strict arg from, limit, step, count, action
-    if step == 0 then raise syntax 93.900 array ("The step in a controlled loop can't be zero")
-    loop
-        fps = from + step
-        lps = limit + step
-        if fps <> from, (from <> 0 & fps <> step), lps <> limit, (limit <> 0 & lps <> step) then leave
-        numeric digits digits() + digits() % 2
-    end
+    if step == 0 then raise syntax 93.900 array ("The progression step in a controlled loop can't be zero")
+
+    -- Experimental : adjust the precision to ensure that we have a progression and a halt
+    expFrom = expValue(from)
+    expLimit = expValue(limit)
+    expStep = expValue(step)
+    expMin = min(expFrom, expLimit, expStep)
+    expMax = max(expFrom, expLimit, expStep)
+    if expMin < 0, expMax >= 0 then precision = abs(expMin) + expMax + 1
+    else precision = max(abs(expMin), abs(expMax)) + 1
+    numeric digits max(digits(), precision)
+
+    -- Checks that the precision is good
+    if (from + 0) = from,,
+       (from - step - from) = -step,,
+       (limit + 0) = limit,,
+       (limit + step - limit) = step,
+    then nop
+    else raise syntax 93.900 array ("The needed precision is too high, or the algorithm for setting the precision is wrong")
+
     doer = action~doer
     arity = doer~arity
     collectedItems = .array~new
@@ -1307,3 +1323,18 @@ This script needs a modified ooRexx interpreter which support extension of prede
         end
     end
     return collectedItems
+
+    expValue: procedure
+        /*
+        Precondition : num is a valid number.
+        Returns the value of the exponent part.
+            0 --> 0
+            9 --> 0
+            10 --> +1
+            0.1 --> -1
+        */
+        use strict arg num
+        num = num~format(2,0,,0)
+        epos = num~pos("E")
+        if epos == 0 then return 0
+        return num~substr(epos+1) -- skip E
