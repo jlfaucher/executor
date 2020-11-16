@@ -75,6 +75,32 @@ The named arguments are declared separately from the positional arguments.
 
 ![USE NAMED ARG](sandbox/jlf/docs/NamedArguments/SyntaxDiagram/sd_Instruction_USE.png)
 
+#### Example
+
+[Rosetta Code][rosetta_code_named_parameters]
+
+    say f(2,3)
+    say f(arg2:3,arg1:2)
+    say f(2,arg2:3)
+    say f(,3,arg1:2)
+    exit
+    f: procedure
+    use arg p1,p2
+    use named arg arg1=(p1), arg2=(p2)
+    say "p1="p1 "p2="p2 "arg1="arg1 "arg2="arg2
+    return arg1**arg2
+
+output:
+
+    p1=2 p2=3 arg1=2 arg2=3
+    8
+    p1=P1 p2=P2 arg1=2 arg2=3
+    8
+    p1=2 p2=P2 arg1=2 arg2=3
+    8
+    p1=P1 p2=3 arg1=2 arg2=3
+    8
+
 ### Blocks (source literals)
 
 A RexxBlock is a piece of source code surrounded by curly brackets.
@@ -109,6 +135,49 @@ Updating a variable from the closure will have no impact on the original context
     closure~()                              -- display 11
     closure~()                              -- display 21
     say v                                   -- v not impacted by the closure: 2
+
+### Blocks (source transformation)
+
+The source code of a RexxBlock is transformed at parse-time:
+
+- For implicit arguments, thanks to: use auto named arg.
+- For implicit return, thanks to: options "NOCOMMANDS".
+
+During the execution, there is no source transformation, no performance penalty.
+
+#### Example
+
+    introduction = {"My name is" lastname"," firstname lastname"!"}
+
+##### Original source
+
+    introduction~source==
+
+output:
+
+    an Array (shape [1], 1 items)
+     1 : '"My name is" lastname"," firstname lastname"!"'
+
+##### Transformed source
+
+    introduction~rawexecutable==
+    introduction~rawexecutable~source==
+
+output:
+
+    (a Routine)
+    
+    an Array (shape [2], 2 items)
+     1 : 'use auto named arg ; options "NOCOMMANDS" ; "My name is" lastname"," firstname lastname"!"'
+     2 : 'if var("result") then return result'
+
+##### Execution
+
+    say introduction~(firstname:"James", lastname:"Bond")
+
+output:
+
+    My name is Bond, James Bond!
 
 ### Array initializer
 
@@ -442,16 +511,21 @@ ooRexx supports anonymous recursive functions...
                    }
     }
 
+The code above of Y and YM is a simplified version of the real implementation.  
+The real implementation supports several positional arguments (not just v) and
+named arguments.  
 Application to fibonacci :
 
-    fibm = { use arg fib;
-             return {expose fib ; use arg n
+    fibm = { use arg fib
+             use named arg p=(digits())
+             return {expose fib p; use arg n
+                     numeric digits p
                      if n==0 then return 0
                      if n==1 then return 1
                      if n<0 then return fib~(n+2) - fib~(n+1)
                      return fib~(n-2) + fib~(n-1)
                     }
-           }~YM
+           }~YM(p:2090)
     say fibm~(25) -- 75025
 
 fibm~(25) is calculated almost instantly,  
@@ -461,11 +535,11 @@ Both Y and YM are subject to stack overflow.
 But YM can be used by steps, to calculate very big fibonacci numbers, thanks to the memoization :
 
     do i=1 to 100; say "fibm~("i*100")="fibm~(i*100); end
-    -- fibm~(100)=3.54224847E+20
-    -- fibm~(200)=2.80571176E+41
-    -- fibm~(300)=2.22232246E+62
+    -- fibm~(100)=354224848179261915075
+    -- fibm~(200)=280571172992510140037611932413038677189525
+    -- fibm~(300)=222232244629420445529739893461909967206666939096499764990979600
     ...
-    -- fibm~(10000)=3.36447936E+2089
+    -- fibm~(10000)=33644764876431783266621612005107543310302148460680063906564769974680081442166662368155595513633734025582065332680836159373734790483865268263040892463056431887354544369559827491606602099884183933864652731300088830269235673613135117579297437854413752130520504347701602264758318906527890855154366159582987279682987510631200575428783453215515103870818298969791613127856265033195487140214287532698187962046936097879900350962302291026368131493195275630227837628441540360584402572114334961180023091208287046088923962328835461505776583271252546093591128203925285393434620904245248929403901706233888991085841065183173360437470737908552631764325733993712871937587746897479926305837065742830161637408969178426378624212835258112820516370298089332099905707920064367426202389783111470054074998459250360633560933883831923386783056136435351892133279732908133732642652633989763922723407882928177953580570993691049175470808931841056146322338217465637321248226383092103297701648054726243842374862411453093812206564914032751086643394517512161526545361333111314042436854805106765843493523836959653428071768775328348234345557366719731392746273629108210679280784718035329131176778924659089938635459327894523777674406192240337638674004021330343297496902028328145933418826817683893072003634795623117103101291953169794607632737589253530772552375943788434504067715555779056450443016640119462580972216729758615026968443146952034614932291105970676243268515992834709891284706740862008587135016260312071903172086094081298321581077282076353186624611278245537208532365305775956430072517744315051539600905168603220349163222640885248852433158051534849622434848299380905070483482449327453732624567755879089187190803662058009594743150052402532709746995318770724376825907419939632265984147498193609285223945039707165443156421328157688908058783183404917434556270520223564846495196112460268313970975069382648706613264507665074611512677522748621598642530711298441182622661057163515069260029861704945425047491378115154139941550671256271197133252763631939606902895650288268608362241082050562430701794976171121233066073310059947366875
 
 The first execution needs around 2.5 sec.  
 The following executions need less than 0.01 sec.
@@ -489,7 +563,7 @@ The count per directory is done by partitioning the instances of .File flowing t
 
     "d:\"~pipe(.fileTree recursive.1.breadthFirst | .lineCount {item~parent} | .console {item~right(6)} index)
 
-output :
+output:
 
         70 'd:'
          1 'd:\$RECYCLE.BIN'
@@ -508,33 +582,10 @@ All packages that are visible from current context, including the current packag
 
 output, when run from ooRexxShell:
 
-    D:\oorexx\Win64rel-master-delivery\bin\bchar\ooDialog.cls
     D:\oorexx\Win64rel-master-delivery\bin\mime.cls
     D:\oorexx\Win64rel-master-delivery\bin\rxftp.cls
     D:\oorexx\Win64rel-master-delivery\bin\rxregexp.cls
-    D:\oorexx\Win64rel-master-delivery\bin\smtp.cls
-    D:\oorexx\Win64rel-master-delivery\bin\socket.cls
-    D:\oorexx\Win64rel-master-delivery\bin\streamsocket.cls
-    D:\oorexx\Win64rel-master-delivery\bin\winsystm.cls
-    D:\oorexx\Win64rel-master-delivery\bsf4oorexx\BSF.CLS
-    D:\oorexx\Win64rel-master-delivery\packages\concurrency\coactivity.cls
-    D:\oorexx\Win64rel-master-delivery\packages\concurrency\generator.cls
-    D:\oorexx\Win64rel-master-delivery\packages\extension\array.cls
-    D:\oorexx\Win64rel-master-delivery\packages\extension\complex.cls
-    D:\oorexx\Win64rel-master-delivery\packages\extension\doers.cls
-    D:\oorexx\Win64rel-master-delivery\packages\extension\extensions.cls
-    D:\oorexx\Win64rel-master-delivery\packages\extension\file.cls
-    D:\oorexx\Win64rel-master-delivery\packages\extension\functionals.cls
-    D:\oorexx\Win64rel-master-delivery\packages\extension\logical.cls
-    D:\oorexx\Win64rel-master-delivery\packages\extension\string.cls
-    D:\oorexx\Win64rel-master-delivery\packages\ooSQLite.cls
-    D:\oorexx\Win64rel-master-delivery\packages\oorexxshell.rex
-    D:\oorexx\Win64rel-master-delivery\packages\pipeline\pipe.rex
-    D:\oorexx\Win64rel-master-delivery\packages\pipeline\pipe_extension.cls
-    D:\oorexx\Win64rel-master-delivery\packages\profiling\profiling.cls
-    D:\oorexx\Win64rel-master-delivery\packages\regex\regex.cls
-    D:\oorexx\Win64rel-master-delivery\packages\rgf_util2\rgf_util2.rex
-    D:\oorexx\Win64rel-master-delivery\packages\rgf_util2\rgf_util2_wrappers.rex
+    ...
 
 Example:  
 Public classes by package.
@@ -548,166 +599,11 @@ Public classes by package.
 
 output, when run from ooRexxShell:
 
-    ooDialog.cls : (The AdvancedControls class)
-    ooDialog.cls : (The Alerter class)
-    ooDialog.cls : (The AnimatedButton class)
-    ooDialog.cls : (The ApplicationManager class)
-    ooDialog.cls : (The BaseDialog class)
-    ...
     mime.cls : (The MIMEMULTIPART class)
     mime.cls : (The MIMEPART class)
     rxftp.cls : (The rxftp class)
     rxregexp.cls : (The RegularExpression class)
-    smtp.cls : (The SMTP class)
-    smtp.cls : (The SMTPMSG class)
-    socket.cls : (The HOSTINFO class)
-    socket.cls : (The INETADDRESS class)
-    socket.cls : (The Socket class)
-    streamsocket.cls : (The StreamSocket class)
-    winsystm.cls : (The MenuObject class)
-    winsystm.cls : (The VirtualKeyCodes class)
-    winsystm.cls : (The WindowObject class)
-    winsystm.cls : (The WindowsClipboard class)
-    winsystm.cls : (The WindowsEventLog class)
-    winsystm.cls : (The WindowsManager class)
-    winsystm.cls : (The WindowsProgramManager class)
-    winsystm.cls : (The WindowsRegistry class)
-    BSF.CLS : (The B4R class)
-    BSF.CLS : (The BSF class)
-    BSF.CLS : (The BSF.DIALOG class)
-    BSF.CLS : (The BSF4REXX class)
-    BSF.CLS : (The BSF_PROXY class)
-    coactivity.cls : (The Coactivity class)
-    coactivity.cls : (The CoactivitySupplier class)
-    coactivity.cls : (The CoactivitySupplierForGeneration class)
-    coactivity.cls : (The CoactivitySupplierForIteration class)
-    coactivity.cls : (The WeakProxy class)
-    coactivity.cls : (The yield class)
-    generator.cls : (The CoactivityFilter class)
-    generator.cls : (The CoactivityGenerator class)
-    generator.cls : (The CoactivityIterator class)
-    generator.cls : (The CoactivitySupplierForGenerationFilter class)
-    generator.cls : (The CoactivitySupplierForGenerationIterator class)
-    generator.cls : (The CollectionGenerator class)
-    generator.cls : (The Generator class)
-    generator.cls : (The MutableBufferGenerator class)
-    generator.cls : (The RepeaterGenerator class)
-    generator.cls : (The StringGenerator class)
-    generator.cls : (The SupplierGenerator class)
-    array.cls : (The ArrayInitializer class)
-    array.cls : (The ArrayPrettyPrinter class)
-    complex.cls : (The COMPLEX class)
-    doers.cls : (The Closure class)
-    doers.cls : (The CoactivityDoer class)
-    doers.cls : (The Doer class)
-    doers.cls : (The DoerFactory class)
-    doers.cls : (The MethodDoer class)
-    doers.cls : (The RexxBlockDoer class)
-    doers.cls : (The RoutineDoer class)
-    doers.cls : (The StringDoer class)
-    file.cls : (The FileExtension class)
-    functionals.cls : (The CoactivityReducer class)
-    functionals.cls : (The CollectionFilter class)
-    functionals.cls : (The CollectionIterator class)
-    functionals.cls : (The CollectionMapper class)
-    functionals.cls : (The CollectionReducer class)
-    functionals.cls : (The MutableBufferFilter class)
-    functionals.cls : (The MutableBufferIterator class)
-    functionals.cls : (The MutableBufferMapper class)
-    functionals.cls : (The MutableBufferReducer class)
-    functionals.cls : (The OrderedCollectionFilter class)
-    functionals.cls : (The RepeaterCollector class)
-    functionals.cls : (The StringFilter class)
-    functionals.cls : (The StringIterator class)
-    functionals.cls : (The StringMapper class)
-    functionals.cls : (The StringReducer class)
-    functionals.cls : (The SupplierFilter class)
-    functionals.cls : (The SupplierIterator class)
-    functionals.cls : (The SupplierReducer class)
-    logical.cls : (The LogicalExtension class)
-    string.cls : (The StringHelpers class)
-    ooSQLite.cls : (The ooSQLCollation class)
-    ooSQLite.cls : (The ooSQLCollationNeeded class)
-    ooSQLite.cls : (The ooSQLExtensions class)
-    ooSQLite.cls : (The ooSQLFunction class)
-    ooSQLite.cls : (The ooSQLLibrary class)
-    ooSQLite.cls : (The ooSQLPackage class)
-    ooSQLite.cls : (The ooSQLResult class)
-    ooSQLite.cls : (The ooSQLValue class)
-    ooSQLite.cls : (The ooSQLite class)
-    ooSQLite.cls : (The ooSQLiteBackup class)
-    ooSQLite.cls : (The ooSQLiteConnection class)
-    ooSQLite.cls : (The ooSQLiteConstants class)
-    ooSQLite.cls : (The ooSQLiteMutex class)
-    ooSQLite.cls : (The ooSQLiteStmt class)
-    pipe.rex : (The after class)
-    pipe.rex : (The all class)
-    pipe.rex : (The arrayCollector class)
-    pipe.rex : (The before class)
-    pipe.rex : (The between class)
-    pipe.rex : (The bitbucket class)
-    pipe.rex : (The buffer class)
-    pipe.rex : (The changeStr class)
-    pipe.rex : (The charCount class)
-    pipe.rex : (The characters class)
-    pipe.rex : (The console class)
-    pipe.rex : (The dataflow class)
-    pipe.rex : (The delStr class)
-    pipe.rex : (The drop class)
-    pipe.rex : (The dropNull class)
-    pipe.rex : (The duplicate class)
-    pipe.rex : (The endsWith class)
-    pipe.rex : (The fanin class)
-    pipe.rex : (The fanout class)
-    pipe.rex : (The fileLines class)
-    pipe.rex : (The indexedItem class)
-    pipe.rex : (The indexedItemComparator class)
-    pipe.rex : (The insert class)
-    pipe.rex : (The left class)
-    pipe.rex : (The lineCount class)
-    pipe.rex : (The lower class)
-    pipe.rex : (The merge class)
-    pipe.rex : (The notAll class)
-    pipe.rex : (The overlay class)
-    pipe.rex : (The partitionedCounter class)
-    pipe.rex : (The pipeProfiler class)
-    pipe.rex : (The pipeStage class)
-    pipe.rex : (The pivot class)
-    pipe.rex : (The reverse class)
-    pipe.rex : (The right class)
-    pipe.rex : (The secondaryConnector class)
-    pipe.rex : (The sort class)
-    pipe.rex : (The sortWith class)
-    pipe.rex : (The splitter class)
-    pipe.rex : (The startsWith class)
-    pipe.rex : (The stemCollector class)
-    pipe.rex : (The system class)
-    pipe.rex : (The take class)
-    pipe.rex : (The upper class)
-    pipe.rex : (The wordCount class)
-    pipe.rex : (The words class)
-    pipe.rex : (The x2c class)
-    pipe_extension.cls : (The append class)
-    pipe_extension.cls : (The class.instanceMethods class)
-    pipe_extension.cls : (The do class)
-    pipe_extension.cls : (The fileTree class)
-    pipe_extension.cls : (The importedPackages class)
-    pipe_extension.cls : (The inject class)
-    pipe_extension.cls : (The instanceMethods class)
-    pipe_extension.cls : (The select class)
-    pipe_extension.cls : (The subClasses class)
-    pipe_extension.cls : (The superClasses class)
-    profiling.cls : (The PROFILER class)
-    regex.cls : (The MATCHREPLACEMENTRESULT class)
-    regex.cls : (The PARSER class)
-    regex.cls : (The PATTERN class)
-    regex.cls : (The REGEXCOMPILER class)
-    regex.cls : (The REPLACEMENTPATTERN class)
-    rgf_util2.rex : (The MessageComparator class)
-    rgf_util2.rex : (The NumberComparator class)
-    rgf_util2.rex : (The StringColumnComparator class)
-    rgf_util2.rex : (The StringComparator class)
-    rgf_util2.rex : (The StringOfWords class)
+    ...
 
 ### Thrush & Kestrel combinators
 
@@ -754,6 +650,7 @@ Same example with kestrels, to log intermediate results:
 [wikipedia_breadth_first_search]: http://en.wikipedia.org/wiki/Breadth-first_search
 [wikipedia_fixed_point_combinator]: http://en.wikipedia.org/wiki/Fixed-point_combinator#Y_combinator "Wikipedia fixed point combinator"
 [mike_vanier_article]: http://mvanier.livejournal.com/2897.html "Mike Vanier : Y combinator"
+[rosetta_code_named_parameters]: https://rosettacode.org/wiki/Named_parameters "Rosetta code : Named parameters"
 [rosetta_code_y_combinator]: http://rosettacode.org/wiki/Y_combinator "Rosetta code : Y combinator"
 [rosetta_code_accumulator_factory]: http://rosettacode.org/wiki/Accumulator_factory "Rosetta code : Accumulator factory"
 [rosetta_code_closures_value_capture]: http://rosettacode.org/wiki/Closures/Value_capture "Rosetta code : Closures/Value capture"
