@@ -139,6 +139,7 @@ Review the extension mechanisms :
         (The WeakProxy class)
         (The WINDOWSPLATFORM class)
     What's the problem with these classes ???
+    Check if some methods have been added using setmethod, could be a possible root cause.
 
 
 Profiler todo :
@@ -291,7 +292,85 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
-08/06/2020
+2020 nov 16
+
+Fix this error:
+ooRexx[bash]> 1e99~9.999999e99(by:0.5e99, for:2)==
+    Exponent "9.999999E99" is too large for 2 spaces
+Now returning
+    an Array (shape [2], 2 items)
+     1 :  1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+     2 :  1500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+
+About the calculation of the factorial or fibonacci number using the Y combinator:
+Rounding error when calculating fact(26) and above with default precision (9 digits).
+Rounding error when calculating fib(90) and above with default precision (9 digits).
+The precision can be hardcoded in the block, but how to proceed if we want to
+set the precision at the moment of the call ?
+Unfortunately, ooRexx doesn't allow to propagate automatically the current precision
+to the called procedure/routine/method. I'm thinking to modify how the settings
+are collected when an activation for a block is initialized. Currently the activation
+inherits the toplevel source options settings. For a closure, I could intherit the
+settings of the current activation, as written in Q2 of 2013 sep 15.
+In the meantime, I can pass the precision as a parameter. I had to modify ~Y and
+~YM to support several positional arguments, and to support named arguments.
+
+    solution 1: pass the precision as a positional argument of 'fact'. This argument must be explicitely repeated during the recursion.
+    fact = { use arg f ; { expose f ; use arg n, p=(digits()) ; numeric digits p ; if n == 0 then 1 ; else n * f~(n-1, p) } }~Y
+    fact(100)           -- 9.33262137E+157
+    fact~(100, 157)     -- 9.332621544394415268169923885626670049071596826438162146859296389521759999322991560894146397615651828625369792082722375825118521091686400000000000000000000000E+157
+
+    solution 2: pass the precision as a named argument. This argument must be explicitely repeated during the recursion.
+    fact = { use arg f ; { expose f ; use arg n ; use named arg p=(digits()) ; numeric digits p ; if n == 0 then 1 ; else n * f~(n-1, p:p) } }~Y
+    fact(100)           -- 9.33262137E+157
+    fact~(100, p:157)   -- 9.332621544394415268169923885626670049071596826438162146859296389521759999322991560894146397615651828625369792082722375825118521091686400000000000000000000000E+157
+
+    solution 3: pass the precision as a named argument of ~Y or ~YM.
+    fact = { use arg f ; use named arg p=(digits()) ; { expose f p; use arg n ; numeric digits p ; if n == 0 then 1 ; else n * f~(n-1) } }~Y(p:157)
+    fact(100)           -- 9.332621544394415268169923885626670049071596826438162146859296389521759999322991560894146397615651828625369792082722375825118521091686400000000000000000000000E+157
+
+The Y combinator with memoization now supports all the positional arguments, not just the first one.
+
+    factm = { use arg f ; { expose f ; use arg n, p=(digits()) ; numeric digits p ; if n == 0 then 1 ; else n * f~(n-1, p) } }~YM
+    do n=100 to 109; do p=100 to 180 by 10; say "factm~("n", "p")="factm~(n, p); end; end
+
+    factm~(100, 100)=9.332621544394415268169923885626670049071596826438162146859296389521759999322991560894146397615651822E+157
+    factm~(100, 110)=9.3326215443944152681699238856266700490715968264381621468592963895217599993229915608941463976156518286253697922E+157
+    factm~(100, 120)=9.33262154439441526816992388562667004907159682643816214685929638952175999932299156089414639761565182862536979208272237579E+157
+    ...
+    factm~(109, 160)=1.443859583202493582204882102462797533793128203133960291598340756222233378449834820996360011956152592770840333876198180928047377147583842443341602173747200000000E+176
+    factm~(109, 170)=1.4438595832024935822048821024627975337931282031339602915983407562222333784498348209963600119561525927708403338761981809280473771475838424433416021737472000000000000000000E+176
+    factm~(109, 180)=144385958320249358220488210246279753379312820313396029159834075622223337844983482099636001195615259277084033387619818092804737714758384244334160217374720000000000000000000000000
+
+The index is arg(1, "a")~tostring.
+
+    factm~variables=
+    a Directory (1 items)
+    'F' : (a RexxBlock)
+
+    factm~variables["F"]~variables=
+    a Directory (7 items)
+    'F'          : (a Routine)
+    'SELF'       : (a Closure)
+    'SUPER'      : (The Doer class)
+    'TABLE'      : Table['55[0A]100','101[0A]130','63[0A]100','51[0A]170','71[0A]100',...,'18[0A]120','32[0A]120','33[0A]120','52[0A]100']
+    'VERBOSE'    :  0
+    'X'          : (a RexxBlock)
+    'YNAMEDARGS' : Directory(an Array no shape, 0 items)
+
+
+Clean CmakeLists.txt:
+in the previous commit, I was not sure what to do with VERSION vs SOVERSION.
+More clear with the comment of official Rev 12101:
+20200727 Make sure that on Linux and MacOS the shared/dylib library versions use
+API level 4. Add ORX_API_LEVEL to control the SOVERSION value; change VERSION to
+SOVERSION where applicable; tested on Linux, MacOSX, Windows.
+Remember:
+
+
+===============================================================================
+2020 june 08
 
 Add support of these named arguments to ~upTo, ~downTo:
 - by
@@ -299,7 +378,7 @@ Add support of these named arguments to ~upTo, ~downTo:
 - action
 1~10(by:2)=             -- [ 1, 3, 5, 7, 9]
 1~100(by:3, for:-5)=    -- [ 88, 91, 94, 97, 100]
-0~15(action:"d2x")=
+0~15(action:"d2x")=     -- [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,'A','B','C','D','E','F']
 
 Named arguments:
 Bug detected with 1~10(step:2)
@@ -308,7 +387,7 @@ Fixed in method  RexxObject::sendMessage (arrays are 1-based)
 
 
 ===============================================================================
-22/03/2020
+2020 mar 22
 
 Doers.cls
 Use the instruction FORWARD when possible.
@@ -321,7 +400,7 @@ to reduce the comsumption of stack frames.
 
 
 ===============================================================================
-01/03/2020
+2020 mar 01
 
 Named arguments:
 Reworked how the count of named arguments is passed.
@@ -361,7 +440,7 @@ Now, I know it's not the case... Maybe I should try again.
 
 
 ===============================================================================
-28/02/2020
+2020 feb 28
 
 Named arguments:
 Simplification to pass named arguments to natives functions.
@@ -1893,6 +1972,7 @@ Ex :
 0.3~4.3(0.7, -5)=  -- [1.0,1.7,2.4,3.1,3.8]
 
 The setting of numeric digits is adjusted to ensure a correct progression.
+[2020 nov 14] This algorithm has been replaced by a more efficient calculation of the precision.
 Algorithm:
     loop
         if from + step - from = step & limit + step - limit = step then leave

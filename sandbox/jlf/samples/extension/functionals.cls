@@ -1285,9 +1285,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     numeric digits max(digits(), precision)
 
     -- Checks that the precision is good
-    if (from + 0) = from,,
-       (from - step - from) = -step,,
-       (limit + 0) = limit,,
+    if (from - step - from) = -step,,
        (limit + step - limit) = step,
     then nop
     else raise syntax 93.900 array ("The needed precision is too high, or the algorithm for setting the precision is wrong")
@@ -1334,7 +1332,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
             0.1 --> -1
         */
         use strict arg num
-        num = num~format(2,0,,0)
+        num = num~format(,,,0)
         epos = num~pos("E")
         if epos == 0 then return 0
         return num~substr(epos+1) -- skip E

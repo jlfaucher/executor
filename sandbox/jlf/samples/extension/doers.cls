@@ -256,7 +256,7 @@ Ex :
     (define Y
       (lambda (f)
         ( (lambda (a) (a a))
-          (lambda (x) (f (lambda (y) ((x x) y)))))))
+          (lambda (x) (f (lambda (v) ((x x) v)))))))
 
     The Y combinator allows recursion to be defined as a set of rewrite rules.
     It takes a single argument, which is a function that isn't recursive (JLF : here, no argument, use self which is a Doer).
@@ -269,36 +269,62 @@ Ex :
         say { use arg n; if n==0 then return 1; else return n * .context~executable~(n-1)}~(10)
 */
 ::method Y unguarded
-    use strict arg verbose=.false
+    use named arg verbose=.false
     if verbose then trace i
+
+    -- lambda_f
     f = self -- to be closer to the notation (would be passed by parameter to lambda_f when implemented by a function instead of a method)
-    return {use arg a ; return a~(a)} ~ {
-        expose f verbose
+    YnamedArgs = .context~namedArgs
+
+    lambda_a = {use arg a ; return a~(a)}
+
+    lambda_x = {
+        expose f verbose YnamedArgs
         if verbose then trace i
         use strict arg x
-        return f ~ { expose x verbose; if verbose then trace i ; use strict arg v ; return x~(x)~(v) }
+        lambda_v = {
+                     expose x verbose
+                     if verbose then trace i
+                     --use strict arg v
+                     v = arg(1, "a")
+                     return x~(x)~doWith(v, n:.context~namedArgs)
+                }
+        return f ~ doWith(.array~of(lambda_v), n:YnamedArgs)
     }
+    return lambda_a ~ (lambda_x)
 
 
 -- Y combinator with memoization
 ::method YM unguarded
-    use strict arg verbose=.false
+    use named arg verbose=.false
     if verbose then trace i
+
+    -- lambda_f
     f = self -- to be closer to the notation (would be passed by parameter to lambda_f when implemented by a function instead of a method)
+    YnamedArgs = .context~namedArgs
     table = .Table~new
-    return {use arg a ; return a~(a)} ~ {
-        expose f verbose table
+
+    lambda_a = {use arg a ; return a~(a)}
+
+    lambda_x = {
+        expose f verbose YnamedArgs table
         if verbose then trace i
         use strict arg x
-        return f ~ { expose x verbose table
+        lambda_v = {
+                     expose x verbose table
                      if verbose then trace i
-                     use strict arg v
-                     r = table[v]
+                     --use strict arg v
+                     v = arg(1, "a")
+                     v_index = v~tostring
+                     r = table[v_index]
                      if r <> .nil then return r
-                     r = x~(x)~(v)
-                     table[v] = r
-                     return r}
+                     r = x~(x)~doWith(v, n:.context~namedArgs)
+                     table[v_index] = r
+                     return r
+                }
+        return f ~ doWith(.array~of(lambda_v), n:YnamedArgs)
     }
+    return lambda_a ~ (lambda_x)
 
 
 -----------------------------------------------------------------------------
