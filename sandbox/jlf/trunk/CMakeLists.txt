@@ -687,8 +687,6 @@ target_link_libraries(rexxapi ${platform_rexxapi_libs} ${CMAKE_REQUIRED_LIBRARIE
 install(TARGETS rexxapi RUNTIME DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core
                         LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core
                         ARCHIVE DESTINATION ${INSTALL_INCLUDE_DIR} COMPONENT DevLib)
-# Not clear if I must replace VERSION (old) by SOVERSION (new)... For the moment, I keep both
-set_target_properties(rexxapi PROPERTIES VERSION ${ORX_VERSION})
 set_target_properties(rexxapi PROPERTIES SOVERSION ${ORX_API_LEVEL})
 create_install_symlink(rexxapi)
 
@@ -1019,8 +1017,6 @@ target_link_libraries(rexx rexxapi ${platform_interpreter_libs} ${CMAKE_REQUIRED
 install(TARGETS rexx RUNTIME DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core
                      LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core
                      ARCHIVE DESTINATION ${INSTALL_INCLUDE_DIR} COMPONENT DevLib)
-# Not clear if I must replace VERSION (old) by SOVERSION (new)... For the moment, I keep both
-set_target_properties(rexx PROPERTIES VERSION ${ORX_VERSION})
 set_target_properties(rexx PROPERTIES SOVERSION ${ORX_API_LEVEL})
 create_install_symlink(rexx)
 
@@ -1390,8 +1386,6 @@ target_include_directories(rxmath PUBLIC
 target_link_libraries(rxmath rexx rexxapi ${platform_rxmath_libs} ${CMAKE_REQUIRED_LIBRARIES})
 install(TARGETS rxmath RUNTIME COMPONENT Core DESTINATION ${INSTALL_LIB_DIR}
                        LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core)
-# Not clear if I must replace VERSION (old) by SOVERSION (new)... For the moment, I keep both
-set_target_properties(rxmath PROPERTIES VERSION ${ORX_VERSION})
 set_target_properties(rxmath PROPERTIES SOVERSION ${ORX_API_LEVEL})
 create_install_symlink(rxmath)
 
@@ -1410,8 +1404,6 @@ add_library(rxsock SHARED ${build_extensions_rxsock_dir}/rxsock.cpp
 target_link_libraries(rxsock rexx rexxapi ${platform_rxsock_libs} ${CMAKE_REQUIRED_LIBRARIES})
 install(TARGETS rxsock RUNTIME COMPONENT Core DESTINATION ${INSTALL_LIB_DIR}
                        LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core)
-# Not clear if I must replace VERSION (old) by SOVERSION (new)... For the moment, I keep both
-set_target_properties(rxsock PROPERTIES VERSION ${ORX_VERSION})
 set_target_properties(rxsock PROPERTIES SOVERSION ${ORX_API_LEVEL})
 create_install_symlink(rxsock)
 
@@ -1438,8 +1430,6 @@ target_include_directories(rxregexp PUBLIC
 target_link_libraries(rxregexp rexx rexxapi ${platform_rxregexp_libs} ${CMAKE_REQUIRED_LIBRARIES})
 install(TARGETS rxregexp RUNTIME COMPONENT Core DESTINATION ${INSTALL_LIB_DIR}
                          LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core)
-# Not clear if I must replace VERSION (old) by SOVERSION (new)... For the moment, I keep both
-set_target_properties(rxregexp PROPERTIES VERSION ${ORX_VERSION})
 set_target_properties(rxregexp PROPERTIES SOVERSION ${ORX_API_LEVEL})
 create_install_symlink(rxregexp)
 
@@ -1465,8 +1455,6 @@ target_include_directories(hostemu PUBLIC
 target_link_libraries(hostemu rexx rexxapi ${platform_hostemu_libs} ${CMAKE_REQUIRED_LIBRARIES})
 install(TARGETS hostemu RUNTIME COMPONENT Core DESTINATION ${INSTALL_LIB_DIR}
                         LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core)
-# Not clear if I must replace VERSION (old) by SOVERSION (new)... For the moment, I keep both
-set_target_properties(hostemu PROPERTIES VERSION ${ORX_VERSION})
 set_target_properties(hostemu PROPERTIES SOVERSION ${ORX_API_LEVEL})
 create_install_symlink(hostemu)
 
@@ -1488,8 +1476,6 @@ else ()
     target_link_libraries(rxunixsys rexx rexxapi ${CMAKE_REQUIRED_LIBRARIES})
 endif ()
 
-# Not clear if I must replace VERSION (old) by SOVERSION (new)... For the moment, I keep both
-set_target_properties(rxunixsys PROPERTIES VERSION ${ORX_VERSION})
 set_target_properties(rxunixsys PROPERTIES SOVERSION ${ORX_API_LEVEL})
 install(TARGETS rxunixsys RUNTIME DESTINATION ${INSTALL_LIB_DIR}
                           LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core)
@@ -1511,8 +1497,6 @@ if (HAVE_NCURSES_H)
    target_link_libraries(orxncurses rexx rexxapi ncurses ${CMAKE_REQUIRED_LIBRARIES})
    # Make sure ncurses.cls gets copied
    add_custom_target(ncurses_cls  ALL DEPENDS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/ncurses.cls)
-   # Not clear if I must replace VERSION (old) by SOVERSION (new)... For the moment, I keep both
-   set_target_properties(orxncurses PROPERTIES VERSION ${ORX_VERSION})
    set_target_properties(orxncurses PROPERTIES SOVERSION ${ORX_API_LEVEL})
    install(TARGETS orxncurses RUNTIME DESTINATION ${INSTALL_LIB_DIR}
                           LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core)
