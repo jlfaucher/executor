@@ -74,9 +74,9 @@
 <para>The queue name contains an invalid character.
         Only the following characters can appear in queue names:  </para>
 <programlisting>
-        
+
            'A' .. 'Z', '0' .. '9', '.', '!', '?', '_'
-        
+
         </programlisting>
 </section>
 <section id="ERR123">

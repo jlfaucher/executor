@@ -297,10 +297,10 @@ Say NOT EQUALS
 </para>
 <para>Your program exceeds the nesting level limit for control structures (for example, DO...END and IF...THEN...ELSE). This could be because of a looping INTERPRET instruction, such as:</para>
 <programlisting>
-    
+
       line='INTERPRET line'
       INTERPRET line
-    
+
     </programlisting>
 <para>These lines loop until they exceed the nesting level limit and the language processor issues this message. Similarly, a recursive subroutine or internal function that does not end correctly can loop until it causes this message.</para>
 <para>The associated subcodes are: </para>
@@ -398,19 +398,19 @@ Say NOT EQUALS
 </para>
 <para>Hexadecimal strings must not have leading or trailing whitespace characters and whitespace can only be embedded at byte boundaries.  Only the digits 0-9 and the letters a-f and A-F are allowed.  The following are valid hexadecimal strings: </para>
 <programlisting>
-    
+
         '13'x
         'A3C2 1c34'x
         '1de8'x
-    
+
     </programlisting>
 <para>Binary strings can have whitespace only at the boundaries of groups of four binary digits.  Only the digits 0 and 1 are allowed.  These are valid binary strings: </para>
 <programlisting>
-    
+
         '1011'b
         '110 1101'b
         '101101 11010011'b
-    
+
     </programlisting>
 <para>You might have mistyped one of the digits, for example, typing a letter O instead of the number 0. Or you might have used the one-character symbol X or B (the name of the variable X or B, respectively) after a literal string when the string is not intended as a hexadecimal or binary specification. In this case, use the explicit concatenation operator (||) to concatenate the string to the value of the symbol.</para>
 <para>The associated subcodes are: </para>
@@ -3935,9 +3935,9 @@ special character (such as a parenthesis).
 <para>The queue name contains an invalid character.
         Only the following characters can appear in queue names:  </para>
 <programlisting>
-        
+
            'A' .. 'Z', '0' .. '9', '.', '!', '?', '_'
-        
+
         </programlisting>
 </section>
 <section id="ERR123">
