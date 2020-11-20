@@ -182,12 +182,51 @@ main: procedure
     REPL:
         if .ooRexxShell~debug then trace i ; else trace off
         call on halt name haltHandler
-        .ooRexxShell~prompt = ""
-        if .ooRexxShell~isInteractive then .ooRexxShell~prompt = prompt(address())
-        .ooRexxShell~inputrx = readline(.ooRexxShell~prompt)~strip
-        .ooRexxShell~RC = 0
+
+        if .ooRexxShell~demo then do
+            .ooRexxShell~inputrx = readline("")~strip
+            .ooRexxShell~RC = 0
+            select
+                when .ooRexxShell~inputrx == "" then
+                    say
+
+                when .ooRexxShell~inputrx~left(2) == "--" then
+                    say .ooRexxShell~inputrx
+
+                when .ooRexxShell~inputrx~caselessEquals("demoend") then
+                    nop
+                when .ooRexxShell~inputrx~caselessEquals("demostart") then
+                    nop
+
+                when .ooRexxShell~inputrx~word(1)~caselessEquals("sleep") then
+                    nop
+
+                otherwise do
+                    .ooRexxShell~prompt = ""
+                    if .ooRexxShell~isInteractive then do
+                        .ooRexxShell~prompt = prompt(address())
+                    end
+                    call promptDirectory
+                    call charout , .ooRexxShell~prompt
+                    .ooRexxShell~saySlowly(.ooRexxShell~inputrx)
+                end
+            end
+        end
+        else do
+            .ooRexxShell~prompt = ""
+            if .ooRexxShell~isInteractive then do
+                call promptDirectory
+                .ooRexxShell~prompt = prompt(address())
+            end
+            .ooRexxShell~inputrx = readline(.ooRexxShell~prompt)~strip
+            .ooRexxShell~RC = 0
+        end
+
         select
             when .ooRexxShell~inputrx == "" then
+                nop
+
+            when .ooRexxShell~inputrx~left(2) == "--" then
                 nop
 
             when .ooRexxShell~inputrx~left(1) == "?" then
@@ -202,6 +241,11 @@ main: procedure
                 .ooRexxShell~debug = .false
             when .ooRexxShell~inputrx~caselessEquals("debugon") then
                 .ooRexxShell~debug = .true
+
+            when .ooRexxShell~inputrx~caselessEquals("demoend") then
+                .ooRexxShell~demo = .false
+            when .ooRexxShell~inputrx~caselessEquals("demostart") then
+                .ooRexxShell~demo = .true
 
             when .ooRexxShell~inputrx~caselessEquals("exit") then
                 exit
@@ -228,6 +272,9 @@ main: procedure
 
             when .ooRexxShell~inputrx~caselessEquals("sf") then
                 .oorexxShell~sayStackFrames
+
+            when .ooRexxShell~inputrx~word(1)~caselessEquals("sleep") then
+                .ooRexxShell~sleep(.ooRexxShell~inputrx)
 
             when .ooRexxShell~inputrx~caselessEquals("tb") then
                 .error~say(.ooRexxShell~traceback~makearray~tostring)
@@ -360,12 +407,15 @@ Helpers
 
 
 -------------------------------------------------------------------------------
-::routine prompt
-    use strict arg currentAddress
+::routine promptDirectory
+    use strict arg
     .color~select(.ooRexxShell~promptColor)
     say
     say directory()
     .color~select(.ooRexxShell~defaultColor)
+
+::routine prompt
+    use strict arg currentAddress
     -- No longer display the prompt, return it and let readline display it
     prompt = .ooRexxShell~interpreter
     if .ooRexxShell~interpreter~caselessEquals("ooRexx") then prompt ||= "["currentAddress"]" ; else prompt ||= "[ooRexx]"
@@ -471,10 +521,15 @@ Helpers
             end
         end
         otherwise do
-            call charout ,prompt
-            queue_or_stdin = queued() <> 0 | lines() <> 0
-            parse pull inputrx -- Input queue or standard input or keyboard.
-            if .ooRexxShell~isInteractive & queue_or_stdin then say inputrx -- display the input only if coming from queue or from stdin
+            if .ooRexxShell~demo then do
+                parse pull inputrx -- Input queue or standard input or keyboard.
+            end
+            else do
+                call charout ,prompt
+                queue_or_stdin = queued() <> 0 | lines() <> 0
+                parse pull inputrx -- Input queue or standard input or keyboard.
+                if .ooRexxShell~isInteractive & queue_or_stdin then say inputrx -- display the input only if coming from queue or from stdin
+            end
         end
     end
     if .ooRexxShell~traceReadline then do
@@ -655,6 +710,8 @@ Helpers
 
 ::attribute command class -- The current command to interpret, can be a substring of inputrx
 ::attribute commandInterpreter class -- The current interpreter, can be the first word of inputrx, or the default interpreter
+::attribute demo class
+::attribute defaultSleepDelay class
 ::attribute error class -- Will be .true if the last command raised an error
 ::attribute hasBsf class -- Will be .true if BSF.cls has been loaded
 ::attribute hasQueries class -- Will be true if oorexxshell_queries.cls has been loaded
@@ -703,6 +760,8 @@ Helpers
 
 ::method init class
     self~debug = .false
+    self~defaultSleepDelay = 1
+    self~demo = .false
     self~dump2 = .nil
     self~error = .false
     self~hasBsf = .false
@@ -819,6 +878,16 @@ Helpers
 ::method sayPrettyString class
     use strict arg value
     say self~prettyString(value)
+
+
+::method saySlowly class
+    use strict arg text, delay=0.15
+    do i=1 while char \== ""
+        char = text~subchar(i)
+        call charout , char
+        call SysSleep delay
+    end
+    say
 
 
 ::method prettyString class
@@ -1205,10 +1274,20 @@ Helpers
         self~trapSyntax = trap
     end
     do arg over string2args(rest)
-        if "lostdigit"~caselessAbbrev(arg) then self~trapLostdigits= trap
+        if "lostdigits"~caselessAbbrev(arg) then self~trapLostdigits= trap
         else if "syntax"~caselessAbbrev(arg) then self~trapSyntax = trap
         else .ooRexxShell~sayError("Unknown:" arg)
     end
+
+
+::method sleep class
+    use strict arg inputrx
+    parse var inputrx . word2 rest
+    delay = 0
+    if word2 == "" then delay = .ooRexxShell~defaultSleepDelay
+    else if word2~datatype == "NUM" then delay = word2
+    else .ooRexxShell~sayError("Expected a number, got:" word2 rest)
+    call SysSleep delay
 
 
 -------------------------------------------------------------------------------
