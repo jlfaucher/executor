@@ -633,6 +633,11 @@ Same example with kestrels, to log intermediate results:
     -- display 2500
     -- return  6250000
 
+### Demos with asciinema
+
+- ooRexxShell: [demo][oorexxshell_demo]
+- Run clasic Rexx Rosetta Code: [demo][run_classic_rexx_rosetta_code]
+
 
 [build_executor]: https://github.com/jlfaucher/builder/blob/master/build-executor.txt
 [sandbox_diary]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/_diary.txt "Sandbox diary"
@@ -658,3 +663,5 @@ Same example with kestrels, to log intermediate results:
 [apl_glimpse_heaven]: http://archive.vector.org.uk/art10011550 "APL - a Glimpse of Heaven"
 [raganwald_homoiconic]: https://github.com/raganwald-deprecated/homoiconic "Raganwald's Homoiconic"
 [wikipedia_memoization]: https://en.wikipedia.org/wiki/Memoization
+[oorexxshell_demo]:https://asciinema.org/a/SIW9ego7ky4RVYA99OcAKF7OB
+[run_classic_rexx_rosetta_code]: https://asciinema.org/a/oyhrULNtbneuZ3neIvp9l2aZT
