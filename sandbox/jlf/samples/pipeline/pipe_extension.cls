@@ -35,12 +35,13 @@ So I added the 'pipe' method which injects the object in the pipe :
     return pipe
 
 
-::routine coactivePipe private
+::routine copipe private
     use strict arg object, pipe, profile
     return {::coactivity
             expose object pipe profile
             object~pipe(pipe, profile)
             -- remember : don't return something here. The only way to "return" something is by using yield.
+            drop result
            }~doer
 
 
@@ -53,9 +54,9 @@ So I added the 'pipe' method which injects the object in the pipe :
 
 
 -- Must review the extension mechanisms ! Not normal to have to do that...
-::method coactivePipe class unguarded
+::method copipe class unguarded
     use strict arg pipe, profile=.false
-    return coactivePipe(self, pipe, profile)
+    return copipe(self, pipe, profile)
 
 
 ::extension Object
@@ -67,9 +68,9 @@ So I added the 'pipe' method which injects the object in the pipe :
 
 
 -- Must review the extension mechanisms ! Not normal to have to do that...
-::method coactivePipe class unguarded
+::method copipe class unguarded
     use strict arg pipe, profile=.false
-    return coactivePipe(self, pipe, profile)
+    return copipe(self, pipe, profile)
 
 
 ::method pipe unguarded
@@ -77,9 +78,9 @@ So I added the 'pipe' method which injects the object in the pipe :
     return pipe(self, pipe, profile)
 
 
-::method coactivePipe unguarded
+::method copipe unguarded
     use strict arg pipe, profile=.false
-    return coactivePipe(self, pipe, profile)
+    return copipe(self, pipe, profile)
 
 
 ::method pipeProfile unguarded
@@ -87,9 +88,9 @@ So I added the 'pipe' method which injects the object in the pipe :
     return self~pipe(pipe, .true)
 
 
-::method coactivePipeProfile unguarded
+::method copipeProfile unguarded
     use strict arg pipe
-    return coactivePipe(self, pipe, .true)
+    return copipe(self, pipe, .true)
 
 
 /******************************************************************************/

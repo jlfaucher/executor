@@ -502,32 +502,95 @@ source:11,9 362880
 -- Additional sorting facilities
 -- ----------------------------------------------------------------------------
 
--- Select files in the installation directory, whose path contains "math" , sorted by file size.
+-- Select files in the installation directory, whose path contains "rexx" , sorted by file size.
 -- The "length" message is sent to the item and the returned result is used as a key for sorting.
    .file~new(installdir())~listFiles~pipe(,
-       .all["math"] caseless |,
+       .all["rexx"] caseless |,
        .sortWith[.MessageComparator~new("length/N")] |,
        .console dataflow {"length="item~length},
        )
-source:23,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rxmath.dll) length=165376 
+source:7,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxregexp.cls) length=3489 
+source:15,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/mime.cls) length=11444 
+source:11,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/libwpipe2.dylib) length=12928 
+source:14,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx) length=13220 
+source:5,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/libwpipe1.dylib) length=13284 
+source:13,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxsubcom) length=13292 
+source:18,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexxc) length=13316 
+source:2,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/json.cls) length=13533 
+source:8,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/libwpipe3.dylib) length=13628 
+source:21,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexxtry.rex) length=14946 
+source:17,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/callrexx1) length=17100 
+source:4,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/callrexx2) length=17272 
+source:6,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxqueue) length=17812 
+source:22,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/streamsocket.cls) length=18475 
+source:19,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/smtp.cls) length=18671 
+source:10,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/csvStream.cls) length=24960 
+source:9,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/ncurses.cls) length=31791 
+source:3,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.cat) length=37915 
+source:12,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/socket.cls) length=44886 
+source:20,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxftp.cls) length=65975 
+source:1,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxapi) length=76108 
+source:16,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.img) length=1679320 
 
 
 -- Same as above, but simpler... You can sort directly by length, no need of MessageComparator
    .file~new(installdir())~listFiles~pipe(,
-       .all["math"] caseless |,
+       .all["rexx"] caseless |,
        .sort {item~length} |,
        .console dataflow {"length="item~length},
        )
-source:23,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rxmath.dll) length=165376 
+source:7,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxregexp.cls) length=3489 
+source:15,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/mime.cls) length=11444 
+source:11,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/libwpipe2.dylib) length=12928 
+source:14,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx) length=13220 
+source:5,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/libwpipe1.dylib) length=13284 
+source:13,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxsubcom) length=13292 
+source:18,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexxc) length=13316 
+source:2,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/json.cls) length=13533 
+source:8,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/libwpipe3.dylib) length=13628 
+source:21,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexxtry.rex) length=14946 
+source:17,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/callrexx1) length=17100 
+source:4,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/callrexx2) length=17272 
+source:6,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxqueue) length=17812 
+source:22,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/streamsocket.cls) length=18475 
+source:19,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/smtp.cls) length=18671 
+source:10,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/csvStream.cls) length=24960 
+source:9,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/ncurses.cls) length=31791 
+source:3,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.cat) length=37915 
+source:12,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/socket.cls) length=44886 
+source:20,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxftp.cls) length=65975 
+source:1,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxapi) length=76108 
+source:16,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.img) length=1679320 
 
 
 -- Sort by file size, then by file extension (with only one .sort pipestage)
    .file~new(installdir())~listFiles~pipe(,
-       .all["math"] caseless |,
+       .all["rexx"] caseless |,
        .sort {item~length} {filespec('e', item~name)} |,
        .console dataflow {"length="item~length},
        )
-source:23,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rxmath.dll) length=165376 
+source:14,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx) length=13220 
+source:13,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxsubcom) length=13292 
+source:18,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexxc) length=13316 
+source:17,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/callrexx1) length=17100 
+source:4,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/callrexx2) length=17272 
+source:6,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxqueue) length=17812 
+source:1,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxapi) length=76108 
+source:3,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.cat) length=37915 
+source:7,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxregexp.cls) length=3489 
+source:15,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/mime.cls) length=11444 
+source:2,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/json.cls) length=13533 
+source:22,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/streamsocket.cls) length=18475 
+source:19,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/smtp.cls) length=18671 
+source:10,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/csvStream.cls) length=24960 
+source:9,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/ncurses.cls) length=31791 
+source:12,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/socket.cls) length=44886 
+source:20,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxftp.cls) length=65975 
+source:11,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/libwpipe2.dylib) length=12928 
+source:5,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/libwpipe1.dylib) length=13284 
+source:8,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/libwpipe3.dylib) length=13628 
+source:16,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.img) length=1679320 
+source:21,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexxtry.rex) length=14946 
 
 
 -- ----------------------------------------------------------------------------
@@ -546,9 +609,9 @@ source:23,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\
 '><' : (a Method)
 'ARGS' : (a Method)
 'CLASS' : (a Method)
-'COACTIVEPIPE' : (a Method)
-'COACTIVEPIPEPROFILE' : (a Method)
 'CONDITION' : (a Method)
+'COPIPE' : (a Method)
+'COPIPEPROFILE' : (a Method)
 'COPY' : (a Method)
 'COPY' : (a Method)
 'DEFAULTNAME' : (a Method)
@@ -942,17 +1005,13 @@ source:'ROUTINE',(The Routine class) | inject:'SOURCE',(a Method)
        .take 15 |,
        .console,
        )
-10 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\orexxole.dll)
-11 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rexx.dll)
-12 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rexx.exe)
-13 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rexx.ico)
-14 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rexx.img)
-15 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rexxapi.dll)
-16 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rexxc.exe)
-17 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rexxhide.exe)
-18 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rexxpaws.exe)
-19 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rexxtry.rex)
-20 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rexxutil.dll)
+3 : (/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.cat)
+4 : (/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/callrexx2)
+14 : (/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx)
+16 : (/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.img)
+17 : (/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/callrexx1)
+18 : (/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexxc)
+21 : (/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexxtry.rex)
 
 
 -- ----------------------------------------------------------------------------
@@ -1200,16 +1259,15 @@ source:3,v1='eEeFfF' | fanout:3,*v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'m
        .endsWith[".cls"] |,
        .console,
        )
-3 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\csvStream.cls)
-8 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\json.cls)
-9 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\mime.cls)
-22 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rxftp.cls)
-25 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rxregexp.cls)
-2 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\samples\ole\methinfo\methinfo.cls)
-31 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\smtp.cls)
-32 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\socket.cls)
-33 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\streamsocket.cls)
-34 : (C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\winsystm.cls)
+2 : (/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/json.cls)
+7 : (/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxregexp.cls)
+9 : (/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/ncurses.cls)
+10 : (/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/csvStream.cls)
+12 : (/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/socket.cls)
+15 : (/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/mime.cls)
+19 : (/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/smtp.cls)
+20 : (/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxftp.cls)
+22 : (/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/streamsocket.cls)
 
 
 -- Total number of lines in the *.cls files of ooRexx
@@ -1219,7 +1277,7 @@ source:3,v1='eEeFfF' | fanout:3,*v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'m
        .fileLines | .lineCount |,
        .console,
        )
-(The NIL object) : 6124
+(The NIL object) : 5644
 
 
 -- Number of lines in each *.cls files of ooRexx
@@ -1229,16 +1287,15 @@ source:3,v1='eEeFfF' | fanout:3,*v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'m
        .fileLines | .lineCount {dataflow["file"]~item} |,
        .console,
        )
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\csvStream.cls) : 490
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\json.cls) : 423
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\mime.cls) : 236
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rxftp.cls) : 2028
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rxregexp.cls) : 56
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\samples\ole\methinfo\methinfo.cls) : 71
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\smtp.cls) : 416
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\socket.cls) : 887
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\streamsocket.cls) : 409
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\winsystm.cls) : 1108
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/json.cls) : 423
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxregexp.cls) : 56
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/ncurses.cls) : 699
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/csvStream.cls) : 490
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/socket.cls) : 887
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/mime.cls) : 236
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/smtp.cls) : 416
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxftp.cls) : 2028
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/streamsocket.cls) : 409
 
 
 -- Total number of words in the *.cls files of ooRexx
@@ -1248,7 +1305,7 @@ source:3,v1='eEeFfF' | fanout:3,*v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'m
        .fileLines | .wordCount |,
        .console,
        )
-(The NIL object) : 26226
+(The NIL object) : 24089
 
 
 -- Number of words in each *.cls files of ooRexx
@@ -1258,16 +1315,15 @@ source:3,v1='eEeFfF' | fanout:3,*v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'m
        .fileLines | .wordCount {dataflow["file"]~item} |,
        .console,
        )
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\csvStream.cls) : 2105
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\json.cls) : 1481
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\mime.cls) : 955
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rxftp.cls) : 7721
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rxregexp.cls) : 397
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\samples\ole\methinfo\methinfo.cls) : 461
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\smtp.cls) : 1665
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\socket.cls) : 4598
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\streamsocket.cls) : 1660
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\winsystm.cls) : 5183
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/json.cls) : 1481
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxregexp.cls) : 397
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/ncurses.cls) : 3507
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/csvStream.cls) : 2105
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/socket.cls) : 4598
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/mime.cls) : 955
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/smtp.cls) : 1665
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxftp.cls) : 7721
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/streamsocket.cls) : 1660
 
 
 -- Total number of characters in the *.cls files of ooRexx (not counting the newline characters)
@@ -1277,7 +1333,7 @@ source:3,v1='eEeFfF' | fanout:3,*v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'m
        .fileLines | .charCount |,
        .console,
        )
-(The NIL object) : 235726
+(The NIL object) : 227581
 
 
 -- Number of characters in each *.cls files of ooRexx (not counting the newline characters)
@@ -1287,16 +1343,15 @@ source:3,v1='eEeFfF' | fanout:3,*v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'m
        .fileLines | .charCount {dataflow["file"]~item} |,
        .console,
        )
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\csvStream.cls) : 24470
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\json.cls) : 13111
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\mime.cls) : 11208
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rxftp.cls) : 63947
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\rxregexp.cls) : 3433
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\samples\ole\methinfo\methinfo.cls) : 4146
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\smtp.cls) : 18255
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\socket.cls) : 43999
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\streamsocket.cls) : 18066
-(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\winsystm.cls) : 35091
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/json.cls) : 13111
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxregexp.cls) : 3433
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/ncurses.cls) : 31092
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/csvStream.cls) : 24470
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/socket.cls) : 43999
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/mime.cls) : 11208
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/smtp.cls) : 18255
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxftp.cls) : 63947
+(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/streamsocket.cls) : 18066
 
 
 -- Alphanumeric words of 16+ chars found in the *.cls files of ooRexx.
@@ -1319,15 +1374,14 @@ source:3,v1='eEeFfF' | fanout:3,*v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'m
        .fileLines memorize | .words memorize | .select {item~datatype('a') & item~length >= 16} |,
        .take 2 {dataflow["file"]~item} | .sort caseless | .console dataflow item,
        )
-source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:34,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\winsystm.cls) | fileLines:250,'::method DeleteDesktopIcon' | words:2,'DeleteDesktopIcon' 'DeleteDesktopIcon' 
-source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:3,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\csvStream.cls) | fileLines:64,'::Attribute headerLineAbsent      private -- headersexist but absent' | words:2,'headerLineAbsent' 'headerLineAbsent' 
-source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:33,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\streamsocket.cls) | fileLines:52,'::class 'StreamSocket' public subclass InputOutputStream' | words:5,'InputOutputStream' 'InputOutputStream' 
-source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:8,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\json.cls) | fileLines:174,'    expose jsonString jsonPos jsonStringLength' | words:4,'jsonStringLength' 'jsonStringLength' 
-source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:3,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\csvStream.cls) | fileLines:63,'::Attribute originalRawHeaders    private -- for comparison' | words:2,'originalRawHeaders' 'originalRawHeaders' 
-source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:8,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\json.cls) | fileLines:130,'::method parseRexxDirectory private' | words:2,'parseRexxDirectory' 'parseRexxDirectory' 
-source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:34,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\winsystm.cls) | fileLines:188,'/*********************************** WindowsProgramManager ****************************************/' | words:2,'WindowsProgramManager' 'WindowsProgramManager' 
+source:1,'/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/' | FILE:10,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/csvStream.cls) | fileLines:64,'::Attribute headerLineAbsent      private -- headersexist but absent' | words:2,'headerLineAbsent' 'headerLineAbsent' 
+source:1,'/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/' | FILE:22,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/streamsocket.cls) | fileLines:52,'::class 'StreamSocket' public subclass InputOutputStream' | words:5,'InputOutputStream' 'InputOutputStream' 
+source:1,'/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/' | FILE:2,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/json.cls) | fileLines:174,'    expose jsonString jsonPos jsonStringLength' | words:4,'jsonStringLength' 'jsonStringLength' 
+source:1,'/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/' | FILE:9,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/ncurses.cls) | fileLines:640,'::METHOD newsubpadprivate private EXTERNAL "LIBRARY orxncurses OrxCurSubpadprivate"' | words:2,'newsubpadprivate' 'newsubpadprivate' 
+source:1,'/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/' | FILE:10,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/csvStream.cls) | fileLines:63,'::Attribute originalRawHeaders    private -- for comparison' | words:2,'originalRawHeaders' 'originalRawHeaders' 
+source:1,'/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/' | FILE:2,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/json.cls) | fileLines:130,'::method parseRexxDirectory private' | words:2,'parseRexxDirectory' 'parseRexxDirectory' 
    say "duration="time('e') -- elapsed duration
-duration=1.045000
+duration=1.283527
 
 
 -- From here, some methods of the pipeline classes are instrumented to let profiling.
@@ -1343,53 +1397,52 @@ duration=1.045000
        .fileLines memorize | .words memorize | .select {item~datatype('a') & item~length >= 16} |,
        .take 2 {dataflow["file"]~item} | .sort caseless | .console dataflow item,
        )
-source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:34,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\winsystm.cls) | fileLines:250,'::method DeleteDesktopIcon' | words:2,'DeleteDesktopIcon' 'DeleteDesktopIcon' 
-source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:3,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\csvStream.cls) | fileLines:64,'::Attribute headerLineAbsent      private -- headersexist but absent' | words:2,'headerLineAbsent' 'headerLineAbsent' 
-source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:33,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\streamsocket.cls) | fileLines:52,'::class 'StreamSocket' public subclass InputOutputStream' | words:5,'InputOutputStream' 'InputOutputStream' 
-source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:8,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\json.cls) | fileLines:174,'    expose jsonString jsonPos jsonStringLength' | words:4,'jsonStringLength' 'jsonStringLength' 
-source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:3,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\csvStream.cls) | fileLines:63,'::Attribute originalRawHeaders    private -- for comparison' | words:2,'originalRawHeaders' 'originalRawHeaders' 
-source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:8,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\json.cls) | fileLines:130,'::method parseRexxDirectory private' | words:2,'parseRexxDirectory' 'parseRexxDirectory' 
-source:1,'C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/' | FILE:34,(C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\winsystm.cls) | fileLines:188,'/*********************************** WindowsProgramManager ****************************************/' | words:2,'WindowsProgramManager' 'WindowsProgramManager' 
+source:1,'/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/' | FILE:10,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/csvStream.cls) | fileLines:64,'::Attribute headerLineAbsent      private -- headersexist but absent' | words:2,'headerLineAbsent' 'headerLineAbsent' 
+source:1,'/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/' | FILE:22,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/streamsocket.cls) | fileLines:52,'::class 'StreamSocket' public subclass InputOutputStream' | words:5,'InputOutputStream' 'InputOutputStream' 
+source:1,'/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/' | FILE:2,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/json.cls) | fileLines:174,'    expose jsonString jsonPos jsonStringLength' | words:4,'jsonStringLength' 'jsonStringLength' 
+source:1,'/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/' | FILE:9,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/ncurses.cls) | fileLines:640,'::METHOD newsubpadprivate private EXTERNAL "LIBRARY orxncurses OrxCurSubpadprivate"' | words:2,'newsubpadprivate' 'newsubpadprivate' 
+source:1,'/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/' | FILE:10,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/csvStream.cls) | fileLines:63,'::Attribute originalRawHeaders    private -- for comparison' | words:2,'originalRawHeaders' 'originalRawHeaders' 
+source:1,'/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/' | FILE:2,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/json.cls) | fileLines:130,'::method parseRexxDirectory private' | words:2,'parseRexxDirectory' 'parseRexxDirectory' 
 ----------------------------------------
 .fileTree~go
-  .fileTree~PROCESS count=1 duration=2.920000
-    .endsWith~ISEOP count=334 duration=0.001000
-    .endsWith~PROCESS count=167 duration=2.842000
-      .fileLines~ISEOP count=177 duration=0
-      .fileLines~PROCESS count=10 duration=2.837000
-        .words~ISEOP count=12268 duration=0.015000
-        .words~PROCESS count=6124 duration=2.478000
-          .select~ISEOP count=58576 duration=0.075000
-          .select~PROCESS count=26226 duration=0.999000
-            .take~ISEOP count=26258 duration=0.024000
-            .take~PROCESS count=32 duration=0.005000
-              .sort~ISEOP count=39 duration=0
-              .sort~PROCESS count=7 duration=0
-  .fileTree~START count=1 duration=0
-    .endsWith~START count=1 duration=0
-      .fileLines~START count=1 duration=0
-        .words~START count=1 duration=0
-          .select~START count=1 duration=0
-            .take~START count=1 duration=0
-              .sort~START count=1 duration=0
-                .console~START count=1 duration=0
-  .endsWith~EOF count=1 duration=0.010000
-    .fileLines~EOF count=1 duration=0.010000
-      .words~EOF count=1 duration=0.010000
-        .select~EOF count=1 duration=0.010000
-          .take~EOF count=1 duration=0.010000
-            .sort~EOF count=1 duration=0.010000
-              .console~EOF count=1 duration=0
-              .console~ISEOP count=14 duration=0
-              .console~PROCESS count=7 duration=0.009000
-duration=2.930000
+  .fileTree~PROCESS count=1 duration=8.328144
+    .endsWith~ISEOP count=44 duration=0.000707
+    .endsWith~PROCESS count=22 duration=8.318549
+      .fileLines~ISEOP count=31 duration=0.000451
+      .fileLines~PROCESS count=9 duration=8.315722
+        .words~ISEOP count=11306 duration=0.168503
+        .words~PROCESS count=5644 duration=7.311846
+          .select~ISEOP count=53822 duration=0.824392
+          .select~PROCESS count=24089 duration=2.813601
+            .take~ISEOP count=24109 duration=0.378590
+            .take~PROCESS count=20 duration=0.005853
+              .sort~ISEOP count=26 duration=0.000431
+              .sort~PROCESS count=6 duration=0.000154
+  .fileTree~START count=1 duration=0.001148
+    .endsWith~START count=1 duration=0.000883
+      .fileLines~START count=1 duration=0.000784
+        .words~START count=1 duration=0.000671
+          .select~START count=1 duration=0.000559
+            .take~START count=1 duration=0.000442
+              .sort~START count=1 duration=0.000261
+                .console~START count=1 duration=0.000098
+  .endsWith~EOF count=1 duration=0.009661
+    .fileLines~EOF count=1 duration=0.009605
+      .words~EOF count=1 duration=0.009551
+        .select~EOF count=1 duration=0.009495
+          .take~EOF count=1 duration=0.009439
+            .sort~EOF count=1 duration=0.009377
+              .console~EOF count=1 duration=0.000024
+              .console~ISEOP count=12 duration=0.000174
+              .console~PROCESS count=6 duration=0.008335
+duration=8.338953
 ----------------------------------------
    say "duration="time('e') -- elapsed duration
-duration=3.071000
+duration=8.369368
 
 
    say installdir() ; say
-C:/jlf/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/win/cl/release/64/delivery/
+/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/
 
 
 Ended coactivities: 0

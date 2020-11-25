@@ -1197,6 +1197,17 @@ forward class (super)
 
 
 /******************************************************************************/
+::class "itemToIndexItem" public subclass pipeStage -- Extract the index & item from an item=(index, item)
+
+::method process                            -- pipeStage processing item
+use strict arg item, index, dataflow        -- get the data item
+newIndex = item[1]
+newItem = item[2]
+self~write(newItem, newIndex, dataflow)     -- send the new index & item
+self~checkEOP(self~next)
+
+
+/******************************************************************************/
 ::class "reverse" public subclass pipeStage -- a string reversal pipeStage
 
 ::method process                            -- pipeStage processing item
@@ -2095,6 +2106,28 @@ use strict arg item, index, dataflow        -- get the data item
 itemArray~append(item)                      -- save the item
 if .nil <> indexArray then indexArray~append(index) -- save the index
 if .nil <> dataflowArray then dataflowArray~append(dataflow) -- save the dataflow
+forward class(super)                        -- allow superclass to send down pipe
+
+
+-- No need of reset, the reset of the collected  datas is under the responsability of the user
+-- ::method reset
+
+
+/******************************************************************************/
+::class "directoryCollector" subclass pipeStage public-- collect items in a directory
+
+::method init                               -- initialize a collector
+expose directory
+use strict arg directory
+-- Don't reset the directory, up to the user to reset before running the pipe
+-- directory~empty
+forward class (super)                       -- forward the initialization
+
+
+::method process                            -- process a stem pipeStage item
+expose directory
+use strict arg item, index, dataflow        -- get the data item
+directory~put(item, index~makestring)       -- save the item
 forward class(super)                        -- allow superclass to send down pipe
 
 

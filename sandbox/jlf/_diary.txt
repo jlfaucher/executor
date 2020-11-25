@@ -292,6 +292,31 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2020 nov 25
+
+[pipes]
+
+New pipe stage itemToIndexItem
+New pipe stage directoryCollector
+Example:
+envvars = .directory~new ; "printenv"~pipe(.system | .inject {parse var item var "=" value; (var, value)} | .itemToIndexItem | .directoryCollector[envvars]); envvars=
+    'CC'                 : 'clang'
+    'CFLAGS'             : '-O3 -arch x86_64 '
+    'CMAKE_BUILD_TYPE'   : 'Release'
+    'CXX'                : 'clang++'
+    'CXXFLAGS'           : '-stdlib=libc++ -mmacosx-version-min=10.9 -O3 -arch x86_64 '
+    'DISPLAY'            : '/private/tmp/com.apple.launchd.RpwvUwMhyj/org.macosforge.xquartz:0'
+    'FIGNORE'            : ':.DS_Store:.DS_Store:.DS_Store:.DS_Store'
+    'GCI_HOME'           : '/Local/rexx/GCI/gci-source.1.1'
+    'GIT_ROOT'           : '/usr/local/git'
+
+Method coactivePipe renamed copipe.
+Method coactivePipeProfile renamed copipeProfile.
+Example:
+"printenv"~copipe(.system | .yield {parse var item var "=" value; (var, value)})~reduce(.directory~new){accu~~put(item[2], item[1])}=
+
+
+===============================================================================
 2020 nov 16
 
 Fix this error:

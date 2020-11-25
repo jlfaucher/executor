@@ -318,10 +318,10 @@ say df5 ; say df5~makeString(1234, .true)
 -- Additional sorting facilities
 -- ----------------------------------------------------------------------------
 
--- Select files in the installation directory, whose path contains "math" , sorted by file size.
+-- Select files in the installation directory, whose path contains "rexx" , sorted by file size.
 -- The "length" message is sent to the item and the returned result is used as a key for sorting.
 .file~new(installdir())~listFiles~pipe(,
-    .all["math"] caseless |,
+    .all["rexx"] caseless |,
     .sortWith[.MessageComparator~new("length/N")] |,
     .console dataflow {"length="item~length},
     )
@@ -329,7 +329,7 @@ say df5 ; say df5~makeString(1234, .true)
 
 -- Same as above, but simpler... You can sort directly by length, no need of MessageComparator
 .file~new(installdir())~listFiles~pipe(,
-    .all["math"] caseless |,
+    .all["rexx"] caseless |,
     .sort {item~length} |,
     .console dataflow {"length="item~length},
     )
@@ -337,7 +337,7 @@ say df5 ; say df5~makeString(1234, .true)
 
 -- Sort by file size, then by file extension (with only one .sort pipestage)
 .file~new(installdir())~listFiles~pipe(,
-    .all["math"] caseless |,
+    .all["rexx"] caseless |,
     .sort {item~length} {filespec('e', item~name)} |,
     .console dataflow {"length="item~length},
     )

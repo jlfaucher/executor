@@ -13,6 +13,8 @@ Connectors
 pipeStages
 ----------
 
+.ItemToIndexItem : I1 -- 01 -- Assuming item is an array [index, item], write index & item
+
 .SecondaryConnector : I1 --> I2 -- adapter which forwards to its follower's secondary input
 
 .sort : I1 --- O1 (delayed)
@@ -67,7 +69,8 @@ pipeStages
     ['caseless']
 
 .stemcollector[stem] : I1 (non blocking accumulator) --- O1
-.arraycollector[array] : I1 (non blocking accumulator) --- O1
+.arraycollector[itemArray, indexArray=.nil, dataFlowArray=.nil] : I1 (non blocking accumulator) --- O1
+.directorycollector[directory] : I1 (non blocking accumulator) --- O1
 
 .between[startString, endString] : I1 --- O1 (selected), O2 (not selected)
     ['caseless']
