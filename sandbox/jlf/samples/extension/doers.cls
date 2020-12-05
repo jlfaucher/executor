@@ -187,6 +187,38 @@ Ex :
            }~doer
 
 
+::method compose class
+    use named arg verbose=.false
+    if verbose then trace i
+    if arg() == 0 then return .nil
+    doers = .queue~new
+    do i=1 to arg()
+        doers~push(arg(i))
+    end
+    return {
+        expose doers verbose
+        if verbose then trace i
+        doer = doers~pull
+        -- The first doer can take any number of positional & named arguments
+        if doer~needsObject then doer~doWith(arg(1), arg(2, "a"), n:.context~namedArgs)
+        else doer~doWith(arg(1, "a"), n:.context~namedArgs)
+        r = .nil
+        if var("result") then r = result
+        if r == .nil then return .nil -- stop now because the first doer did not return a result
+        doer = doers~pull
+        -- The following doers take only one positional argument : the result returned by the previous doer
+        do while doer <> .nil
+            if doer~needsObject then doer~doWith(r, .array~of())
+            else doer~doWith(.array~of(r))
+            r = .nil
+            if var("result") then r = result
+            if r == .nil then return .nil -- stop now because the doer did not return a result
+            doer = doers~pull
+        end
+        return r
+    }
+
+
 ::routine partialMergeArrays
     use strict arg args1, args2
     size2 = args2~size

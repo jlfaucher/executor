@@ -294,6 +294,20 @@ The named arguments could be added to the returned array (splitting the key:valu
 ===============================================================================
 2020 dec 05
 
+New method .doer~compose.
+Accepts an unlimited number of doers:
+.doer~compose(doerN, ..., doer2, doer1)~(x) <==> doerN~(...doer2~(doer1~(x))...)
+The first doer can take any number of positional & named arguments.
+The other doers take only one argument : the result of the previous doer.
+Examples:
+    .doer~compose("/"~partial(,5), "-", { 2 * arg(1) })~(50)=       -- -(2 * 50)/5 = -20
+    binary2decimal = .doer~compose("x2d", "b2x")
+    binary2decimal~(11111111)=                                      -- 255
+
+
+===============================================================================
+2020 dec 05
+
 Auto named argument
 Change of behavior for the named arguments not explicitely declared by the callee:
 Assign the value only if the variable doesn't have a value already.
