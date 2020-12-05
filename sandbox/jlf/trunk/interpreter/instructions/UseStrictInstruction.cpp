@@ -364,7 +364,8 @@ void RexxInstructionUseStrict::executeNamedArguments(RexxActivation *context, Re
                 p = error;
                 reportException(Error_Symbol_expected_user_defined, error);
             }
-            retriever->assign(context, stack, argValue);
+            // a variable having already a value is not overwritten by an auto named argument
+            if (!retriever->exists(context)) retriever->assign(context, stack, argValue);
         }
     }
 

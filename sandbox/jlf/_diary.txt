@@ -292,6 +292,27 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2020 dec 05
+
+Auto named argument
+Change of behavior for the named arguments not explicitely declared by the callee:
+Assign the value only if the variable doesn't have a value already.
+When a named argument is explicitely declared by the callee, no change of behaviour,
+the value of the named argument is always stored in the variable.
+Examples (remember: a block always starts with 'auto named arg')
+    drop x; {expose x; say x; use auto named arg x; say x}~()           -- X X
+    drop x; {expose x; say x; use auto named arg x; say x}~(x:100)      -- 100 100
+    x=1;    {expose x; say x; use auto named arg x; say x}~()           -- 1 X
+    x=1;    {expose x; say x; use auto named arg x; say x}~(x:100)      -- 1 100
+Reason of this change :
+While playing with the Y combinator, I tested this (passing the named parameter 'f').
+The value of the variable 'f' was replaced by the value 'DUMMY' and of course an error was raised.
+    fac = {use arg f; return {expose f; use arg n; if n==0 then return 1; else return n * f~(n-1) } }~Y
+    fac(10, f:dummy)
+With this change of behavior, no more error.
+
+
+===============================================================================
 2020 nov 25
 
 [pipes]

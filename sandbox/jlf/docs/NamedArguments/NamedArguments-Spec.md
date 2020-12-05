@@ -75,7 +75,7 @@ The named arguments are declared separately from the positional arguments.
 
     use             named arg by, initial=.nil          -- If 'by' is not passed by the caller then the variable 'by' is dropped.
                                                         -- If 'initial' is not passed by the caller then the variable 'initial' is set to .nil.
-                                                        -- The named arguments passed by the caller and not explicitely declared by the callee are not available as local variables.
+                                                        -- The named arguments passed by the caller and not explicitely declared by the callee are not available as variables.
                                                         -- They are available in .Context~namedArgs.
 
     use strict      named arg by, initial=.nil          -- 'by' is mandatory.
@@ -85,14 +85,14 @@ The named arguments are declared separately from the positional arguments.
     use strict      named arg by, initial=.nil, ...     -- 'by' is mandatory.
                                                         -- 'initial' is optional, default value is .nil.
                                                         -- Any named argument is accepted.
-                                                        -- The named arguments passed by the caller and not explicitely declared by the callee are not available as local variables.
+                                                        -- The named arguments passed by the caller and not explicitely declared by the callee are not available as variables.
                                                         -- They are available in .Context~namedArgs.
 
-    use auto        named arg                           -- Automatic creation of local variable for each named argument passed by the caller.
+    use auto        named arg                           -- Automatic retrieval or creation of variable for each named argument passed by the caller.
 
     use auto        named arg by, initial=.nil          -- If 'by' is not passed by the caller then the variable 'by' is dropped.
                                                         -- If 'initial' is not passed by the caller then the variable 'initial' is set to .nil.
-                                                        -- The named arguments passed by the caller are available as local variables.
+                                                        -- The named arguments passed by the caller are available as variables.
                                                         -- They are also available in .Context~namedArgs.
 
     use strict auto named arg                           -- Error 99.900: STRICT AUTO requires the "..." argument marker at the end of the argument list
@@ -102,7 +102,7 @@ The named arguments are declared separately from the positional arguments.
     use strict auto named arg by, initial=.nil, ...     -- 'by' is mandatory.
                                                         -- 'initial' is optional, default value is .nil.
                                                         -- Any named argument is accepted.
-                                                        -- The named arguments passed by the caller are available as local variables.
+                                                        -- The named arguments passed by the caller are available as variables.
                                                         -- They are also available in .Context~namedArgs.
 
 
@@ -193,9 +193,13 @@ When the option `NAMED` is specified:
 - Message term are not supported.
 - Skipped names are not allowed.
 
-There is no evaluation of a default value when a value has been provided by the caller.  
+When the option 'AUTO' is specified then a variable is retrieved or created for each named argument passed by the caller and not explicitely declared by the callee.  
+If this variable has already a value then it's not overriden.  
+Otherwise the value of the named argument is assigned to the variable.
+
+There is no evaluation of the default value 'expr' when a value has been provided by the caller.  
 The order of evaluation is the order of declaration in `USE NAMED ARG` (left-to-right).  
-The automatic variables are already created and can be used during the evaluation of a default value.
+The automatic variables are already created and can be used during the evaluation of the default value.
 
 An optional minimum length can be specified after the name, allowing abbreviation.  
 For example: `namedArgument(1)` will allow to pass `n:`
