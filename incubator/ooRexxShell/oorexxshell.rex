@@ -114,18 +114,35 @@ end
 signal finalize
 
 -------------------------------------------------------------------------------
---::options trace i
+-- ::options trace i
 
 ::routine SHELL
+-- We enter in the routine which manages the interpret instruction.
+-- To avoid any accidental overwriting of ooRexxShell's variable by interpret,
+-- all the variables in this routine and its internal routines are attributes of
+-- the ooRexxShell class. If you choose to modify an attribute of ooRexxShell
+-- from the command line, it's because you want it.
 use strict arg .ooRexxShell~initialArgument, .ooRexxShell~initialAddress
 
-.ooRexxShell~readline = .true -- assign .false if you want only the basic "parse pull" functionality
-.ooRexxShell~showInfos = .true -- assign .false if you don't want the infos displayed after each line interpretation
-.oorexxShell~showColor = .true -- assign .false if you don't want the colors.
+if .ooRexxShell~isInteractive then do
+    .ooRexxShell~readline = .true -- history, tab completion
+    .ooRexxShell~showInfos = .true -- infos displayed after each line interpretation
+    .oorexxShell~showColor = .true
+end
+else do
+    .ooRexxShell~readline = .false -- basic "parse pull"
+    .ooRexxShell~showInfos = .false -- don't display infos after each line interpretation
+    .ooRexxShell~showColor = .false -- to not put control characters in stdout/stderr
+end
+
+-- Deactivate the realine mode when Windows, because the history is not managed correctly.
+-- We lose the doskey macros and the filename autocompletion. Too bad...
+if .platform~is("windows") then .ooRexxShell~readline = .false
 
 .ooRexxShell~defaultColor = "default"
 .ooRexxShell~errorColor = "bred"
 .ooRexxShell~infoColor = "bgreen"
+.ooRexxShell~commentColor = "blue"
 .ooRexxShell~promptColor = "byellow"
 .ooRexxShell~traceColor = "bpurple"
 if .platform~is("windows") & .color~defaultBackground == 15 /*white*/ then do
@@ -135,11 +152,30 @@ end
 
 .ooRexxShell~systemAddress = systemAddress()
 
+-- The index is always converted to uppercase, the item is used for display (list of possible values, prompt).
+-- The item, when converted to uppercase, must be equal to the index.
 .ooRexxShell~interpreters = .Directory~new
 .ooRexxShell~interpreters~setEntry("oorexx", "ooRexx")
 .ooRexxShell~interpreters~setEntry(.ooRexxShell~initialAddress, .ooRexxShell~initialAddress)
 .ooRexxShell~interpreters~setEntry(.ooRexxShell~systemAddress, .ooRexxShell~systemAddress)
 .ooRexxShell~interpreters~setEntry(address(), address()) -- maybe the same as systemAddress, maybe not
+.ooRexxShell~interpreters~setEntry("system", .ooRexxShell~systemAddress) -- an alias for .ooRexxShell~systemAddress)
+.ooRexxShell~interpreters~setEntry("cmd", .ooRexxShell~systemAddress) -- an alias for .ooRexxShell~systemAddress)
+if \.platform~is("windows") then do
+    .ooRexxShell~interpreters~setEntry("sh", "sh")
+    -- .ooRexxShell~interpreters~setEntry("zsh", "zsh")
+    -- .ooRexxShell~interpreters~setEntry("ksh", "ksh")
+    -- .ooRexxShell~interpreters~setEntry("csh", "csh")
+    -- .ooRexxShell~interpreters~setEntry("bsh", "bsh")
+    -- .ooRexxShell~interpreters~setEntry("tcsh", "tcsh")
+end
+
+/*
+builder/scripts/setenv-oorexx : declare the variable $rexx_environment, dump all the aliases in the file $rexx_environment
+~/.bashrc : declares the variable $BASH_ENV and $ENV = ~/.bash_env
+.bash_env : defines some aliases, calls $rexx_environment (id defined) which is a file defining more aliases (see builder/scripts/setenv-oorexx)
+oorexxshell.rex: expands the aliases : bash -O expand_aliases
+*/
 
 call loadOptionalComponents
 
@@ -153,9 +189,9 @@ if .nil <> Class_System then do
 end
 
 address value .ooRexxShell~initialAddress
-.ooRexxShell~interpreter = "oorexx"
+.ooRexxShell~interpreter = .ooRexxShell~interpreters~entry("oorexx")
 
-.ooRexxShell~queueName = rxqueue("create")
+.ooRexxShell~queueName = rxqueue("create") -- public input queue
 .ooRexxShell~queueInitialName = rxqueue("set", .ooRexxShell~queueName)
 
 call checkReadlineCapability
@@ -183,46 +219,25 @@ main: procedure
         if .ooRexxShell~debug then trace i ; else trace off
         call on halt name haltHandler
 
-        if .ooRexxShell~demo then do
-            .ooRexxShell~inputrx = readline("")~strip
-            .ooRexxShell~RC = 0
-            select
-                when .ooRexxShell~inputrx == "" then
-                    say
+        -- Will be used by saySlowly to test if the previous inputrx was an end of multline commment.
+        -- The duration of the pause will be proportional to the number of lines in the multiline comment.
+        .ooRexxShell~inputrxPrevious = .ooRexxShell~inputrx
 
-                when .ooRexxShell~inputrx~left(2) == "--" then
-                    say .ooRexxShell~inputrx
+        .ooRexxShell~prompt = prompt(address())
+        .ooRexxShell~inputrxRaw = readline(.ooRexxShell~prompt)
+        .ooRexxShell~inputrx = .ooRexxShell~inputrxRaw~strip -- remember: don't apply ~space here!
 
-                when .ooRexxShell~inputrx~caselessEquals("demoend") then
-                    nop
-                when .ooRexxShell~inputrx~caselessEquals("demostart") then
-                    nop
-
-                when .ooRexxShell~inputrx~word(1)~caselessEquals("sleep") then
-                    nop
-
-                otherwise do
-                    .ooRexxShell~prompt = ""
-                    if .ooRexxShell~isInteractive then do
-                        .ooRexxShell~prompt = prompt(address())
-                    end
-                    call promptDirectory
-                    call charout , .ooRexxShell~prompt
-                    .ooRexxShell~saySlowly(.ooRexxShell~inputrx)
-                end
-            end
-        end
-        else do
-            .ooRexxShell~prompt = ""
-            if .ooRexxShell~isInteractive then do
-                call promptDirectory
-                .ooRexxShell~prompt = prompt(address())
-            end
-            .ooRexxShell~inputrx = readline(.ooRexxShell~prompt)~strip
-            .ooRexxShell~RC = 0
-        end
-
+        .ooRexxShell~RC = 0
         select
+            when .ooRexxShell~inputrx~caselessEquals("*/") then -- This command is always recognized, even in showComment mode
+                .ooRexxShell~showComment = .false
+            when .ooRexxShell~showComment then -- No command is executed in showComment mode, even exit is not recognized
+                nop
+            when .ooRexxShell~inputrx~caselessEquals("/*") then do
+                .ooRexxShell~showComment = .true
+                .ooRexxShell~countCommentLines = 0
+            end
+
             when .ooRexxShell~inputrx == "" then
                 nop
 
@@ -232,27 +247,38 @@ main: procedure
             when .ooRexxShell~inputrx~left(1) == "?" then
                 .ooRexxShell~help(.context, .ooRexxShell~inputrx~substr(2))
 
-            when .ooRexxShell~inputrx~caselessEquals("coloroff") then
+            when .ooRexxShell~inputrx~space~caselessEquals("color off") then
                 .ooRexxShell~showColor = .false
-            when .ooRexxShell~inputrx~caselessEquals("coloron") then
+            when .ooRexxShell~inputrx~space~caselessEquals("color on") then
                 .ooRexxShell~showColor = .true
 
-            when .ooRexxShell~inputrx~caselessEquals("debugoff") then
+            when .ooRexxShell~inputrx~space~caselessEquals("debug off") then
                 .ooRexxShell~debug = .false
-            when .ooRexxShell~inputrx~caselessEquals("debugon") then
+            when .ooRexxShell~inputrx~space~caselessEquals("debug on") then
                 .ooRexxShell~debug = .true
 
-            when .ooRexxShell~inputrx~caselessEquals("demoend") then
+            when .ooRexxShell~inputrx~space~caselessEquals("demo off") then
                 .ooRexxShell~demo = .false
-            when .ooRexxShell~inputrx~caselessEquals("demostart") then
+            when .ooRexxShell~inputrx~space~caselessEquals("demo on") then do
                 .ooRexxShell~demo = .true
+                -- Generally, for a demo, ooRexxShell is started in mode non interactive
+                -- where the colors are not activated and the infos are not shown (batch mode).
+                -- Hence these settings, because we want colors and infos during the demo.
+                .ooRexxShell~showColor = .true
+                .ooRexxShell~showInfos = .true
+            end
 
             when .ooRexxShell~inputrx~caselessEquals("exit") then
                 exit
 
-            when .ooRexxShell~inputrx~caselessEquals("readlineoff") then
+            when .ooRexxShell~inputrx~space~caselessEquals("infos off") then
+                .ooRexxShell~showInfos = .false
+            when .ooRexxShell~inputrx~space~caselessEquals("infos on") then
+                .ooRexxShell~showInfos = .true
+
+            when .ooRexxShell~inputrx~space~caselessEquals("readline off") then
                 .ooRexxShell~readline = .false
-            when .ooRexxShell~inputrx~caselessEquals("readlineon") then do
+            when .ooRexxShell~inputrx~space~caselessEquals("readline on") then do
                 .ooRexxShell~readline = .true
                 call checkReadlineCapability
             end
@@ -265,30 +291,22 @@ main: procedure
                 exit
             end
 
-            when .ooRexxShell~inputrx~caselessEquals("securityoff") then
+            when .ooRexxShell~inputrx~space~caselessEquals("security off") then
                 .ooRexxShell~securityManager~isEnabledByUser = .false
-            when .ooRexxShell~inputrx~caselessEquals("securityon") then
+            when .ooRexxShell~inputrx~space~caselessEquals("security on") then
                 .ooRexxShell~securityManager~isEnabledByUser = .true
-
-            when .ooRexxShell~inputrx~caselessEquals("sf") then
-                .oorexxShell~sayStackFrames
 
             when .ooRexxShell~inputrx~word(1)~caselessEquals("sleep") then
                 .ooRexxShell~sleep(.ooRexxShell~inputrx)
 
-            when .ooRexxShell~inputrx~caselessEquals("tb") then
-                .error~say(.ooRexxShell~traceback~makearray~tostring)
-            when .ooRexxShell~inputrx~caselessEquals("bt") then -- backtrace seems a better name (command "bt" in lldb)
-                .error~say(.ooRexxShell~traceback~makearray~tostring)
-
-            when .ooRexxShell~inputrx~word(1)~caselessEquals("traceoff") then
+            when .ooRexxShell~inputrx~space~caselessAbbrev("trace off") then
                 .ooRexxShell~trace(.false, .ooRexxShell~inputrx)
-            when .ooRexxShell~inputrx~word(1)~caselessEquals("traceon") then
+            when .ooRexxShell~inputrx~space~caselessAbbrev("trace on") then
                 .ooRexxShell~trace(.true, .ooRexxShell~inputrx)
 
-            when .ooRexxShell~inputrx~word(1)~caselessEquals("trapoff") then
+            when .ooRexxShell~inputrx~space~caselessAbbrev("trap off") then
                 .ooRexxShell~trap(.false, .ooRexxShell~inputrx)
-            when .ooRexxShell~inputrx~word(1)~caselessEquals("trapon") then
+            when .ooRexxShell~inputrx~space~caselessAbbrev("trap on") then
                 .ooRexxShell~trap(.true, .ooRexxShell~inputrx)
 
             when .ooRexxShell~interpreters~hasEntry(.ooRexxShell~inputrx) then do
@@ -340,7 +358,7 @@ dispatchCommand:
     return_to_dispatchCommand:
     if .ooRexxshell~securityManager~isEnabledByUser then .ooRexxShell~securityManager~isEnabled = .false
     options "COMMANDS" -- Commands must be enabled for proper execution of ooRexxShell
-    call rxqueue "set", .ooRexxShell~queueName -- Back to the private ooRexxShell queue
+    call rxqueue "set", .ooRexxShell~queueName -- Back to the public ooRexxShell input queue
     if .ooRexxShell~error then .ooRexxShell~sayCondition(condition("O"))
     if RC <> 0 & \.ooRexxShell~error then do
         -- RC can be set by interpretCommand or by addressCommand
@@ -350,7 +368,7 @@ dispatchCommand:
     if RC <> 0 | .ooRexxShell~error then do
         .ooRexxShell~sayInfo(.ooRexxShell~command)
     end
-    if .ooRexxShell~isInteractive & .ooRexxShell~showInfos then do
+    if .ooRexxShell~showInfos then do
         .ooRexxShell~sayInfo("Duration:" time('e')) -- elapsed duration
         if .ooRexxShell~isExtended then .ooRexxShell~sayInfo("#Coactivities:" .Coactivity~count) -- counter of coactivities
     end
@@ -425,7 +443,7 @@ Helpers
 
 -------------------------------------------------------------------------------
 ::routine checkReadlineCapability
-    -- Bypass a bug in official ooRexx which delegates to system() when the passed address is bash.
+    -- Bypass a bug in official ooRexx 4 which delegates to system() when the passed address is bash.
     -- The bug is that system() delegates to /bin/sh, and should be called only when the passed address is sh.
     -- Because of this bug, the readline procedure (which depends on bash) is not working and must be deactivated.
     if .ooRexxShell~isInteractive, .ooRexxShell~systemAddress~caselessEquals("bash") then do
@@ -450,13 +468,17 @@ Helpers
     if .ooRexxShell~traceReadline then do
         .ooRexxShell~sayTrace("[readline] queued()=" queued())
         .ooRexxShell~sayTrace("[readline] lines()=" lines())
+        .ooRexxShell~sayTrace(".ooRexxShell~readline=" .ooRexxShell~readline)
     end
     select
         when queued() == 0 & lines() == 0 & .ooRexxShell~systemAddress~caselessEquals("cmd") & .ooRexxShell~readline then do
+            -- This doesn't work correctly (loss of history). Readline no longer activated by default under Windows.
+            --
             -- I want the doskey macros and filename tab autocompletion... Delegates the input to cmd.
             -- HKEY_CURRENT_USER/Software/Microsoft/Command Processor/CompletionChar = 9
             -- Tried to call clink, but it doesn't solve the problem of history lost.
             --    "(clink inject >nul 2>&1) &",
+            call promptDirectory
             address value .ooRexxShell~systemAddress
                 "(title ooRexxShell) &",
                 "(set inputrx=) &",
@@ -476,13 +498,22 @@ Helpers
             -- one generated by the internal command 'set', which manages the escaped characters.
             -- one generated by the internal command 'print', to get the input as-is.
             -- Temporary: A third string is pushed to rxqueue, to let me see what I get with printf %q
+            history = .stream~new(.ooRexxShell~historyFile)
+            if history~query("size")0 = 0 then do
+                -- Create the history file if not existent (size = '') or empty (size = 0).
+                -- The line "oorexx" is written because of this known problem:
+                -- https://superuser.com/questions/942009/bash-history-a-not-writing-unless-histfile-already-has-text
+                -- My Mac has an old version of bash, and this problem occurs.
+                history~~open~~say("oorexx")~~close
+            end
+            call promptDirectory
             address value .ooRexxShell~systemAddress
                 "set -o noglob ;",
                 "HISTFILE=".ooRexxShell~historyFile" ;",
                 "history -r ;",
                 "read -r -e -p "quoted(prompt)" inputrx ;",
                 "history -s -- $inputrx ;",
-                "history -w ;",
+                "history -a ;",
                 "(export LC_ALL=C; set | grep ^inputrx= | tr '\n' '\000' ; printf ""%s\000"" ""$inputrx"" ; printf ""%q"" ""$inputrx"") | rxqueue "quoted(.ooRexxShell~queueName)" /lifo"
             address -- restore
             if queued() <> 0 then do
@@ -522,10 +553,32 @@ Helpers
         end
         otherwise do
             if .ooRexxShell~demo then do
+                -- Don't display the prompt yet
+                -- because an empty input and the comments are displayed without prompt,
+                -- and because some commands are not displayed.
                 parse pull inputrx -- Input queue or standard input or keyboard.
+                input = inputrx~strip~space
+                select
+                    when input~caselessEquals("/*") then nop
+                    when input~caselessEquals("*/") then nop
+                    when input~caselessEquals("demo off") then nop
+                    when input~caselessEquals("demo on") then nop
+                    when input~word(1)~caselessEquals("sleep") then nop
+                    when .ooRexxShell~showComment then .ooRexxShell~sayComment(inputrx)
+                    when input~left(2) == "--" then .ooRexxShell~sayComment(inputrx)
+                    when input == "" then say
+                    otherwise do
+                        call promptDirectory
+                        call charout , prompt
+                        .ooRexxShell~saySlowly(inputrx)
+                    end
+                end
             end
             else do
-                call charout ,prompt
+                if .ooRexxShell~isInteractive then do
+                    call promptDirectory
+                    call charout , prompt
+                end
                 queue_or_stdin = queued() <> 0 | lines() <> 0
                 parse pull inputrx -- Input queue or standard input or keyboard.
                 if .ooRexxShell~isInteractive & queue_or_stdin then say inputrx -- display the input only if coming from queue or from stdin
@@ -549,7 +602,7 @@ Helpers
 -- to execute the command. But in THE (for example), the default address is THE,
 -- and that command wouldn't work.
 -- With Regina, I could use ADDRESS SYSTEM, but there is no such generic environment
--- in ooRexx (each platform has a different environment).
+-- in ooRexx 4 (each platform has a different environment).
 ::routine systemAddress
     select
         when .platform~is("windows") then return "cmd"
@@ -710,6 +763,7 @@ Helpers
 
 ::attribute command class -- The current command to interpret, can be a substring of inputrx
 ::attribute commandInterpreter class -- The current interpreter, can be the first word of inputrx, or the default interpreter
+::attribute countCommentLines class
 ::attribute demo class
 ::attribute defaultSleepDelay class
 ::attribute error class -- Will be .true if the last command raised an error
@@ -721,6 +775,8 @@ Helpers
 ::attribute initialAddress class -- The initial address on startup, not necessarily the system address (can be "THE")
 ::attribute initialArgument class -- The command line argument on startup
 ::attribute inputrx class -- The current input to interpret
+::attribute inputrxPrevious class -- The previous inputrx
+::attribute inputrxRaw class -- The current input returned by readline, with all the space characters
 ::attribute interpreter class -- One of the environments in 'interpreters' or the special value "ooRexx"
 ::attribute interpreters class -- The set of interpreters that can be activated
 ::attribute isExtended class -- Will be .true if the extended ooRexx interpreter is used.
@@ -735,6 +791,7 @@ Helpers
 ::attribute securityManager class
 ::attribute settingsFile class
 ::attribute showInfos class
+::attribute showComment class
 ::attribute stackFrames class -- stackframes of last error
 ::attribute systemAddress class -- "CMD" under windows, "bash" under linux, etc...
 ::attribute traceback class -- traceback of last error
@@ -745,6 +802,7 @@ Helpers
 ::attribute infoColor class
 ::attribute promptColor class
 ::attribute traceColor class
+::attribute commentColor class
 
 ::attribute traceDispatchCommand class
 ::attribute traceFilter class
@@ -759,6 +817,7 @@ Helpers
 ::attribute pp2 class -- The routine pp2 of extended rgf_util, or .nil
 
 ::method init class
+    self~countCommentLines = 0
     self~debug = .false
     self~defaultSleepDelay = 1
     self~demo = .false
@@ -774,6 +833,7 @@ Helpers
     self~pp2 = .nil
     self~readline = .false
     self~showColor = .false
+    self~showComment = .false
     self~stackFrames = .list~new
     self~traceReadline = .false
     self~traceDispatchCommand = .false
@@ -793,7 +853,7 @@ Helpers
     self~settingsFile = HOME || "/.oorexxshell.ini"
 
     -- When possible, use a history file specific for ooRexxShell
-    self~historyFile = HOME || "/.history_oorexxshell"
+    self~historyFile = HOME || "/.oorexxshell_history"
 
 
 ::method hasLastResult class
@@ -806,6 +866,46 @@ Helpers
     drop lastResult
 
 
+::method variables class
+    messages = (,
+    "commandInterpreter",,
+    "debug",,
+    "demo",,
+    "defaultSleepDelay",,
+    "hasBsf",,
+    "hasQueries",,
+    "hasRegex",,
+    "hasRgfUtil2Extended",,
+    "historyFile",,
+    "initialAddress",,
+    "initialArgument",,
+    "interpreter",,
+    "isExtended",,
+    "isInteractive",,
+    "maxItemsDisplayed",,
+    "prompt",,
+    "queueName",,
+    "queueInitialName",,
+    "RC",,
+    "readline",,
+    "settingsFile",,
+    "showInfos",,
+    "systemAddress",,
+    "showColor",,
+    "traceDispatchCommand",,
+    "traceFilter",,
+    "traceReadline",,
+    "trapLostdigits",,
+    "trapSyntax",
+    )
+    variables = .directory~new
+    do message over messages
+        value = .ooRexxshell~send(message)
+        variables~put(value, message)
+    end
+    return variables
+
+
 ---------------
 -- Displayer --
 ---------------
@@ -815,6 +915,14 @@ Helpers
     .color~select(.ooRexxShell~infoColor, .output)
     .output~say(text)
     .color~select(.ooRexxShell~defaultColor, .output)
+
+
+::method sayComment class
+    use strict arg text=""
+    .color~select(.ooRexxShell~commentColor, .output)
+    .output~say(text)
+    .color~select(.ooRexxShell~defaultColor, .output)
+    .ooRexxShell~countCommentLines += 1
 
 
 ::method sayTrace class
@@ -846,6 +954,7 @@ Helpers
 
 
 ::method sayStackFrames class
+    use strict arg stream=.output -- you can pass .error if you want to separate normal output and error output
     supplier = .ooRexxShell~stackFrames~supplier
     do while supplier~available
         stackFrame = supplier~item
@@ -854,10 +963,10 @@ Helpers
         package = .nil
         if executable <> .nil then package = executable~package
 
-        if package <> .nil then .error~say(package~name)
-        else .error~say("<No package>")
+        if package <> .nil then stream~say(package~name)
+        else stream~say("<No package>")
 
-        .error~say(stackFrame~traceLine)
+        stream~say(stackFrame~traceLine)
         supplier~next
     end
 
@@ -881,11 +990,13 @@ Helpers
 
 
 ::method saySlowly class
-    use strict arg text, delay=0.15
+    use strict arg text, delay=0.15, spaceRatio=2
     do i=1 while char \== ""
         char = text~subchar(i)
         call charout , char
-        call SysSleep delay
+        sleep = delay
+        if char == " " then sleep *= spaceRatio
+        call SysSleep sleep
     end
     say
 
@@ -1088,6 +1199,13 @@ Helpers
     -- For convenience... rs is shorter than r.s
     else if "rs"~caselessEquals(word1) then .ooRexxShell~helpRoutines(rest, .true)
 
+    else if "settings"~caselessAbbrev(word1, 1) & rest~isEmpty then .ooRexxShell~sayCollection(.ooRexxShell~variables)
+
+    else if "sf"~caselessEquals(word1) & rest~isEmpty then .oorexxShell~sayStackFrames
+
+    else if "tb"~caselessEquals(word1) & rest~isEmpty then say .ooRexxShell~traceback~makearray~tostring
+    else if "bt"~caselessEquals(word1) & rest~isEmpty then say .ooRexxShell~traceback~makearray~tostring -- backtrace seems a better name (command "bt" in lldb)
+
     else if "variables"~caselessAbbrev(word1,1) & rest~isEmpty then .ooRexxShell~helpVariables(interpreterContext)
 
     else .ooRexxShell~sayError("Query not understood:" queryFilter)
@@ -1121,6 +1239,7 @@ Helpers
 ::method helpCommands class
     say                                 "Help:"
     say                                 "    ?: display help."
+    say                                 "    ?bt: display the backtrace of the last error (same as ?tb)."
     .ooRexxShell~sayQueryManagerCommand("    ?c[lasses] c1 c2... : display classes.")
     .ooRexxShell~sayQueryManagerCommand("    ?c[lasses].m[ethods] c1 c2... : display local methods per classes (cm).")
     .ooRexxShell~sayQueryManagerCommand("    ?c[lasses].m[ethods].i[nherited] c1 c2... : local & inherited methods (cmi).")
@@ -1133,28 +1252,26 @@ Helpers
     .ooRexxShell~sayQueryManagerCommand("    ?p[ackages]: display the loaded packages.")
     .ooRexxShell~sayQueryManagerCommand("    ?path v1 v2 ... : display value of system variable, splitted by path separator.")
     .ooRexxShell~sayQueryManagerCommand("    ?r[outines] routine1 routine2... : display routines.")
+    say                                 "    ?s[ettings]: display ooRexxShell's settings."
+    say                                 "    ?sf: display the stack frames of the last error."
+    say                                 "    ?tb: display the traceback of the last error (same as ?bt)."
     say                                 "    ?v[ariables]: display the defined variables."
     .ooRexxShell~sayQueryManagerCommand("    To display the source of methods, packages or routines: add the option .s[ource].")
     .ooRexxShell~sayQueryManagerCommand("        Short: ?cms, ?cmis, ?ms, ?ps, ?rs.")
     .ooRexxShell~helpInterpreters
     say "Other commands:"
-    say "    bt: display the backtrace of the last error (same as tb)."
-    say "    coloroff: deactivate the colors."
-    say "    coloron : activate the colors."
-    say "    debugoff: deactivate the full trace of the internals of ooRexxShell."
-    say "    debugon : activate the full trace of the internals of ooRexxShell."
+    say "    color off|on: deactivate|activate the colors."
+    say "    demo off|on: deactivate|activate the demonstration mode."
+    say "    debug off|on: deactivate|activate the full trace of the internals of ooRexxShell."
     say "    exit: exit ooRexxShell."
-    say "    readlineoff: use the raw parse pull for the input."
-    say "    readlineon : delegate to the system readline (history, tab completion)."
+    say "    infos off|on: deactivate|activate the display of informations after each execution."
+    say "    readline off: use the raw parse pull for the input."
+    say "    readline on: delegate to the system readline (history, tab completion)."
     say "    reload: exit the current session and reload all the packages/librairies."
-    say "    securityoff: deactivate the security manager. No transformation of commands."
-    say "    securityon : activate the security manager. Transformation of commands."
-    say "    sf: display the stack frames of the last error."
-    say "    tb: display the traceback of the last error (same as bt)."
-    say "    traceoff [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity]]: deactivate the trace."
-    say "    traceon  [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity]]: activate the trace."
-    say "    trapoff [l[ostdigits]] [s[yntax]]: deactivate the conditions traps."
-    say "    trapon  [l[ostdigits]] [s[yntax]]: activate the conditions traps."
+    say "    security off: deactivate the security manager. No transformation of commands."
+    say "    security on : activate the security manager. Transformation of commands."
+    say "    trace off|on [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity]]: deactivate|activate the trace."
+    say "    trap off|on [l[ostdigits]] [s[yntax]]: deactivate|activate the conditions traps."
     say "Input queue name:" .ooRexxShell~queueName
 
 
@@ -1189,7 +1306,7 @@ Helpers
         when .platform~is("macosx") | .platform~is("darwin") then do
             'open "http://www.oorexx.org/docs/"' -- not perfect: switch to Safari but the new window is not visible (at least on my machine).
         end
-        otherwise .ooRexxShell~sayError(.platform~name "has no online help for ooRexx.")
+        otherwise .ooRexxShell~sayError("Open the URL 'http://www.oorexx.org/docs' in your favorite browser")
     end
     address -- restore
 
@@ -1250,7 +1367,7 @@ Helpers
 
 ::method trace class
     use strict arg trace, inputrx
-    parse var inputrx . rest
+    parse var inputrx . . rest
     if rest == "" then do
         self~traceDispatchCommand = trace
         self~traceFilter = trace
@@ -1268,7 +1385,7 @@ Helpers
 
 ::method trap class
     use strict arg trap, inputrx
-    parse var inputrx . rest
+    parse var inputrx . . rest
     if rest == "" then do
         self~trapLostdigits = trap
         self~trapSyntax = trap
@@ -1287,6 +1404,13 @@ Helpers
     if word2 == "" then delay = .ooRexxShell~defaultSleepDelay
     else if word2~datatype == "NUM" then delay = word2
     else .ooRexxShell~sayError("Expected a number, got:" word2 rest)
+
+    if .ooRexxShell~inputrxPrevious == "*/" then do
+        -- This sleep is immediatly after a multiline comment.
+        -- Add one second for each comment line, from the second line.
+        delay += max(0, .ooRexxShell~countCommentLines - 1)
+    end
+
     call SysSleep delay
 
 
@@ -1295,7 +1419,7 @@ Helpers
 -------------------------------------------------------------------------------
 -- Under the control of the user:
 
--- isEnabledByUser is true by default, can be set to false using the command securityoff.
+-- isEnabledByUser is true by default, can be set to false using the command 'security off'.
 -- When false, the security manager is deactivated (typically for debug purpose).
 ::attribute isEnabledByUser
 ::attribute traceCommand
@@ -1401,7 +1525,7 @@ Helpers
                    paren(command) ||,
                    ' & set OOREXXSHELL_ERRORLEVEL=!ERRORLEVEL!' ||,
                    ' & echo OOREXXSHELL_DIRECTORY=!CD! > ' || quoted(temporarySettingsFile) ||,
-                   ' & doskey' ||, -- seems to help keeping the history when a command fails, don't ask me why
+                   '' ||, -- ' & doskey' ||, -- seems to help keeping the history when a command fails, don't ask me why
                    ' & exit /b !OOREXXSHELL_ERRORLEVEL!',
                )
     end
@@ -1433,7 +1557,6 @@ Helpers
 ::attribute defaultForeground class -- 0 to 15
 
 ::method select class
-    if \ .ooRexxShell~isInteractive then return -- to not put control characters in stdout/stderr
     if \ .ooRexxShell~showColor then return -- you don't want the colors
     use strict arg color, stream=.stdout
     select

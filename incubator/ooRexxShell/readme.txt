@@ -310,6 +310,59 @@ History of changes
 ==================
 
 -----------------------------------------------
+2020 dec 05
+
+"cmd" and "system" are generic names to select the system interpreter.
+
+The readline mode is deactivated for Windows because I never succeded to have a good history management.
+Now we have a robust history management, but we lose the doskey macros and the filename expansion with 'tab'.
+
+The history filename is .oorexxshell_history (was .history_oorexxshell).
+Bypass a known problem with old versions of bash: the history file must not be empty.
+The history is now updated incrementally (history -a, instead of history -w).
+
+New command "demo":
+demo on|off: activate|deactivate the demonstration mode.
+When the demo mode is activated, the commands are displayed slowly (only when the readline mode is deactivated).
+Some commands are not displayed: demo, sleep, /*, */.
+
+New command "infos":
+infos on|off: activate|deactivate the display of the duration and coactivity count.
+
+New command "sleep":
+sleep [delay]
+The default delay is .ooRexxShell~defaultSleepDelay.
+
+New command "--" to enter a monoline comment in a demo script.
+
+New commands "/*" and "*/" to enter multilines comments in a demo script.
+If the command "*/" is immediatly followed by a command sleep then the duration is
+proportional to the number of lines in the comment.
+
+For better readability, the command names are separated from their argument:
+coloroff        --> color off
+coloron         --> color on
+debugoff        --> debug off
+debugon         --> debug on
+readlineoff     --> readline off
+readlineon      --> readline on
+securityoff     --> security off
+securityon      --> security on
+traceoff        --> trace off
+traceon         --> trace on
+trapoff         --> trap off
+trapon          --> trap on
+
+The following commands becomes queries, it's possible to filter their output, as for any query:
+sf --> ?sf
+tb --> ?tb
+bt --> ?bt
+
+New query "?settings":
+Display the main settings of ooRexxShell.
+
+
+-----------------------------------------------
 2017 sep 25
 
 Add query ?path v1 v2 ...
