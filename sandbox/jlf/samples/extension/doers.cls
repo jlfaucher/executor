@@ -193,26 +193,43 @@ Ex :
     if arg() == 0 then return .nil
     doers = .queue~new
     do i=1 to arg()
-        doers~push(arg(i))
+        if arg(i, "e") then doers~push(arg(i))
     end
     return {
         expose doers verbose
         if verbose then trace i
         doer = doers~pull
         -- The first doer can take any number of positional & named arguments
-        if doer~needsObject then doer~doWith(arg(1), arg(2, "a"), n:.context~namedArgs)
-        else doer~doWith(arg(1, "a"), n:.context~namedArgs)
-        r = .nil
+        -- If no named argument "item" has been passed, then at least one positional argument is needed
+        namedArgs = .context~namedArgs
+        if \ namedArgs~hasIndex("ITEM") then do
+            -- By convention, the first positional argument is also passed as the named argument "item"
+            use strict arg item, ...
+            namedArgs["ITEM"] = item
+        end
+        if arg() >= 1 then do
+            arg1 = arg(1)
+            if arg1 <> item then raise syntax 93.900 array ("When the positional parameter ITEM is provided then it must be equal to the first positional argument")
+            arg1a = arg(1, "a")
+            arg2a = arg(2, "a")
+        end
+        else do
+            arg1 = item
+            arg1a = .array~of(item)
+            arg2a = .array~of()
+        end
+        if doer~needsObject then doer~doWith(arg1, arg2a, n:namedArgs)
+        else doer~doWith(arg1a, n:namedArgs)
+        r = arg1
         if var("result") then r = result
-        if r == .nil then return .nil -- stop now because the first doer did not return a result
+        if r == .nil then return .nil -- stop now
         doer = doers~pull
         -- The following doers take only one positional argument : the result returned by the previous doer
         do while doer <> .nil
-            if doer~needsObject then doer~doWith(r, .array~of())
-            else doer~doWith(.array~of(r))
-            r = .nil
+            doer~do(r, item:r)
+            -- use the current result if any, otherwise use the previous result (that allow to use a doer to display intermediate value, for example)
             if var("result") then r = result
-            if r == .nil then return .nil -- stop now because the doer did not return a result
+            if r == .nil then return .nil -- stop now
             doer = doers~pull
         end
         return r

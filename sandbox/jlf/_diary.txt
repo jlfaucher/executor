@@ -292,6 +292,34 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2020 dec 06
+
+.doer~compose:
+Rework how the parameters and intermediate results are managed.
+For doers of type block, the convention is to pass the 1st positional argument
+also as the named argument "item".
+If no result is returned by the current doer, then return the previous result.
+This is equivalent to the Kestrel combinator already supported by ~pipe.
+Examples:
+    .doer~compose({item/3}, {say item}, {item-5}, {say item})~()=
+        Not enough positional arguments for method; 1 expected
+    .doer~compose({item/3}, {say item}, {item-5}, {say item})~(1)=
+        1
+        -4
+        -1.33333333
+    .doer~compose({item/3}, {say item}, {item-5}, {say item})~(item:1)=
+        1
+        -4
+        -1.33333333
+    .doer~compose({item/3}, {say item}, {item-5}, {say item})~(1, item:2)=
+        When the positional parameter ITEM is provided then it must be equal to the first positional argument
+    .doer~compose("/"~partial(,3), {say item}, "-"~partial(,5), {say item})~(1, item:1)=
+        1
+        -4
+        -1.33333333
+
+
+===============================================================================
 2020 dec 05
 
 New method .doer~compose.
