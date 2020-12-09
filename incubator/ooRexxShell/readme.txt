@@ -111,11 +111,12 @@ Help
 ====
 
 ?: display help.
+?bt: display the backtrace of the last error (same as ?tb).
 ?c[lasses] c1 c2... : display classes.
 ?c[lasses].m[ethods] c1 c2... : display local methods per classes (cm).
 ?c[lasses].m[ethods].i[nherited] c1 c2... : local & inherited methods (cmi).
 ?d[ocumentation]: invoke ooRexx documentation.
-?f[lags]: describe the flags displayed for classes & methods.
+?f[lags]: describe the flags displayed for classes & methods & routines.
 ?h[elp] c1 c2 ... : local description of classes.
 ?h[elp].i[nherited] c1 c2 ... : local & inherited description of classes (hi).
 ?i[nterpreters]: interpreters that can be selected.
@@ -123,6 +124,9 @@ Help
 ?p[ackages]: display the loaded packages.
 ?path v1 v2 ... : display value of system variable, splitted by path separator.
 ?r[outines] routine1 routine2... : display routines.
+?s[ettings]: display ooRexxShell's settings.
+?sf: display the stack frames of the last error.
+?tb: display the traceback of the last error (same as ?bt).
 ?v[ariables]: display the defined variables.
 To display the source of methods, packages or routines: add the option .s[ource].
     Short: ?cms, ?cmis, ?ms, ?ps, ?rs.
@@ -209,33 +213,32 @@ Examples:
 
 Interpreters
 ============
-cmd: to activate the cmd interpreter (if available).
-bash: to activate the bash interpreter (if available).
-hostemu: to activate the HostEmu interpreter (if available).
+bash: to activate the bash interpreter.
+cmd: to activate the bash interpreter.
+hostemu: to activate the HostEmu interpreter.
 oorexx: to activate the ooRexx interpreter.
+sh: to activate the sh interpreter.
+system: to activate the bash interpreter.
 
 
 Commands
 ========
 
 To be recognized, these commands must be the first word of the input line.
+If the input line starts with a space then these commands are not recognized.
 
-bt: display the backtrace of the last error (same as tb).
-coloroff: deactivate the colors.
-coloron : activate the colors.
-debugoff: deactivate the full trace of the internals of ooRexxShell.
-debugon : activate the full trace of the internals of ooRexxShell.
+color off|on: deactivate|activate the colors.
+demo off|on: deactivate|activate the demonstration mode.
+debug off|on: deactivate|activate the full trace of the internals of ooRexxShell.
 exit: exit ooRexxShell.
-readlineoff: use the raw parse pull for the input.
-readlineon : delegate to the system readline (history, tab completion).
+infos off|on: deactivate|activate the display of informations after each execution.
+readline off: use the raw parse pull for the input.
+readline on: delegate to the system readline (history, tab completion).
 reload: exit the current session and reload all the packages/librairies.
-securityoff: deactivate the security manager. No transformation of commands.
-securityon : activate the security manager. Transformation of commands.
-tb: display the traceback of the last error (same as bt).
-traceoff [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity]]: deactivate the trace.
-traceon  [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity]]: activate the trace.
-trapoff [l[ostdigits]] [s[yntax]]: deactivate the conditions traps.
-trapon  [l[ostdigits]] [s[yntax]]: activate the conditions traps.
+security off: deactivate the security manager. No transformation of commands.
+security on : activate the security manager. Transformation of commands.
+trace off|on [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity][.verbose]]: deactivate|activate the trace.
+trap off|on [l[ostdigits]] [s[yntax]]: deactivate|activate the conditions traps.
 
 
 Known problems under Windows
@@ -308,6 +311,26 @@ Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
 
 History of changes
 ==================
+
+-----------------------------------------------
+2020 dec 09
+
+If the input line starts with a space then no command recognition.
+
+New command "goto":
+    goto label
+    ...
+    label:
+This commands allows to skip lines in a demo script.
+
+The count of coactivities is displayed only when <> 0.
+
+Readline for bash: keep the spaces as entered by the user.
+
+Trace of the security manager: add an option ".verbose".
+By default, the trace is displayed only when the security manager is enabled.
+In verbose mode, the trace is displayed each time the security manager is called.
+
 
 -----------------------------------------------
 2020 dec 05

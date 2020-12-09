@@ -228,38 +228,48 @@ main: procedure
         .ooRexxShell~inputrx = .ooRexxShell~inputrxRaw~strip -- remember: don't apply ~space here!
 
         .ooRexxShell~RC = 0
-        select
-            when .ooRexxShell~inputrx~caselessEquals("*/") then -- This command is always recognized, even in showComment mode
+        -- If the input starts with a space then no command recognition.
+        .ooRexxShell~maybeCommand = .ooRexxShell~inputrxRaw~left(1, ".") <> " "
+        select label analyze_command
+            when .ooRexxShell~inputrx~caselessEquals("*/") & .ooRexxShell~maybeCommand then
                 .ooRexxShell~showComment = .false
             when .ooRexxShell~showComment then -- No command is executed in showComment mode, even exit is not recognized
                 nop
-            when .ooRexxShell~inputrx~caselessEquals("/*") then do
+            when .ooRexxShell~inputrx~caselessEquals("/*") & .ooRexxShell~maybeCommand then do
                 .ooRexxShell~showComment = .true
                 .ooRexxShell~countCommentLines = 0
             end
 
+            when .ooRexxShell~inputrx~word(1)~right(1) == ":" & .ooRexxShell~inputrx~words == 1 & .ooRexxShell~maybeCommand then do
+                -- label
+                if .ooRexxShell~gotoLabel":" == .ooRexxShell~inputrx~word(1) then
+                    .ooRexxShell~gotoLabel = "" -- We have reached the label, we can resume the normal interpretation
+            end
+            when .ooRexxShell~gotoLabel <> "" then -- No command is executed until we reach this label
+                nop
+
             when .ooRexxShell~inputrx == "" then
                 nop
 
-            when .ooRexxShell~inputrx~left(2) == "--" then
+            when .ooRexxShell~inputrx~left(2) == "--" & .ooRexxShell~maybeCommand then
                 nop
 
-            when .ooRexxShell~inputrx~left(1) == "?" then
+            when .ooRexxShell~inputrx~left(1) == "?" & .ooRexxShell~maybeCommand then
                 .ooRexxShell~help(.context, .ooRexxShell~inputrx~substr(2))
 
-            when .ooRexxShell~inputrx~space~caselessEquals("color off") then
+            when .ooRexxShell~inputrx~space~caselessEquals("color off") & .ooRexxShell~maybeCommand then
                 .ooRexxShell~showColor = .false
-            when .ooRexxShell~inputrx~space~caselessEquals("color on") then
+            when .ooRexxShell~inputrx~space~caselessEquals("color on") & .ooRexxShell~maybeCommand then
                 .ooRexxShell~showColor = .true
 
-            when .ooRexxShell~inputrx~space~caselessEquals("debug off") then
+            when .ooRexxShell~inputrx~space~caselessEquals("debug off") & .ooRexxShell~maybeCommand then
                 .ooRexxShell~debug = .false
-            when .ooRexxShell~inputrx~space~caselessEquals("debug on") then
+            when .ooRexxShell~inputrx~space~caselessEquals("debug on") & .ooRexxShell~maybeCommand then
                 .ooRexxShell~debug = .true
 
-            when .ooRexxShell~inputrx~space~caselessEquals("demo off") then
+            when .ooRexxShell~inputrx~space~caselessEquals("demo off") & .ooRexxShell~maybeCommand then
                 .ooRexxShell~demo = .false
-            when .ooRexxShell~inputrx~space~caselessEquals("demo on") then do
+            when .ooRexxShell~inputrx~space~caselessEquals("demo on") & .ooRexxShell~maybeCommand then do
                 .ooRexxShell~demo = .true
                 -- Generally, for a demo, ooRexxShell is started in mode non interactive
                 -- where the colors are not activated and the infos are not shown (batch mode).
@@ -268,22 +278,25 @@ main: procedure
                 .ooRexxShell~showInfos = .true
             end
 
-            when .ooRexxShell~inputrx~caselessEquals("exit") then
+            when .ooRexxShell~inputrx~caselessEquals("exit") & .ooRexxShell~maybeCommand then
                 exit
 
-            when .ooRexxShell~inputrx~space~caselessEquals("infos off") then
+            when .ooRexxShell~inputrx~word(1)~caselessEquals("goto") & .ooRexxShell~maybeCommand then
+                .ooRexxShell~goto(.ooRexxShell~inputrx)
+
+            when .ooRexxShell~inputrx~space~caselessEquals("infos off") & .ooRexxShell~maybeCommand then
                 .ooRexxShell~showInfos = .false
-            when .ooRexxShell~inputrx~space~caselessEquals("infos on") then
+            when .ooRexxShell~inputrx~space~caselessEquals("infos on") & .ooRexxShell~maybeCommand then
                 .ooRexxShell~showInfos = .true
 
-            when .ooRexxShell~inputrx~space~caselessEquals("readline off") then
+            when .ooRexxShell~inputrx~space~caselessEquals("readline off") & .ooRexxShell~maybeCommand then
                 .ooRexxShell~readline = .false
-            when .ooRexxShell~inputrx~space~caselessEquals("readline on") then do
+            when .ooRexxShell~inputrx~space~caselessEquals("readline on") & .ooRexxShell~maybeCommand then do
                 .ooRexxShell~readline = .true
                 call checkReadlineCapability
             end
 
-            when .ooRexxShell~inputrx~caselessEquals("reload") then do
+            when .ooRexxShell~inputrx~caselessEquals("reload") & .ooRexxShell~maybeCommand then do
                 -- Often, I modify some packages that are loaded by ooRexxShell at startup.
                 -- To benefit from the changes, I have to reload the components.
                 -- Can't do that without leaving the interpreter (to my knowledge).
@@ -291,30 +304,30 @@ main: procedure
                 exit
             end
 
-            when .ooRexxShell~inputrx~space~caselessEquals("security off") then
+            when .ooRexxShell~inputrx~space~caselessEquals("security off") & .ooRexxShell~maybeCommand then
                 .ooRexxShell~securityManager~isEnabledByUser = .false
-            when .ooRexxShell~inputrx~space~caselessEquals("security on") then
+            when .ooRexxShell~inputrx~space~caselessEquals("security on") & .ooRexxShell~maybeCommand then
                 .ooRexxShell~securityManager~isEnabledByUser = .true
 
-            when .ooRexxShell~inputrx~word(1)~caselessEquals("sleep") then
+            when .ooRexxShell~inputrx~word(1)~caselessEquals("sleep") & .ooRexxShell~maybeCommand then
                 .ooRexxShell~sleep(.ooRexxShell~inputrx)
 
-            when .ooRexxShell~inputrx~space~caselessAbbrev("trace off") then
+            when .ooRexxShell~inputrx~space~caselessAbbrev("trace off") & .ooRexxShell~maybeCommand then
                 .ooRexxShell~trace(.false, .ooRexxShell~inputrx)
-            when .ooRexxShell~inputrx~space~caselessAbbrev("trace on") then
+            when .ooRexxShell~inputrx~space~caselessAbbrev("trace on") & .ooRexxShell~maybeCommand then
                 .ooRexxShell~trace(.true, .ooRexxShell~inputrx)
 
-            when .ooRexxShell~inputrx~space~caselessAbbrev("trap off") then
+            when .ooRexxShell~inputrx~space~caselessAbbrev("trap off") & .ooRexxShell~maybeCommand then
                 .ooRexxShell~trap(.false, .ooRexxShell~inputrx)
-            when .ooRexxShell~inputrx~space~caselessAbbrev("trap on") then
+            when .ooRexxShell~inputrx~space~caselessAbbrev("trap on") & .ooRexxShell~maybeCommand then
                 .ooRexxShell~trap(.true, .ooRexxShell~inputrx)
 
-            when .ooRexxShell~interpreters~hasEntry(.ooRexxShell~inputrx) then do
+            when .ooRexxShell~interpreters~hasEntry(.ooRexxShell~inputrx) & .ooRexxShell~maybeCommand then do
                 -- Change the default interpreter
                 .ooRexxShell~interpreter = .ooRexxShell~interpreters~entry(.ooRexxShell~inputrx)
             end
 
-            when .ooRexxShell~interpreters~hasEntry(.ooRexxShell~inputrx~word(1)) then do
+            when .ooRexxShell~interpreters~hasEntry(.ooRexxShell~inputrx~word(1)) & .ooRexxShell~maybeCommand then do
                 -- The line starts with an interpreter name: use it instead of the default interpreter
                 .ooRexxShell~commandInterpreter = .ooRexxShell~interpreters~entry(.ooRexxShell~inputrx~word(1))
                 .ooRexxShell~command = .ooRexxShell~inputrx~substr(.ooRexxShell~inputrx~wordIndex(2))
@@ -327,7 +340,7 @@ main: procedure
                 .ooRexxShell~command = .ooRexxShell~inputrx
                 signal dispatchCommand -- don't call, because some ooRexx interpreter informations would be saved/restored
             end
-        end
+        end analyze_command
 
         CONTINUE_REPL:
         if var("RC") then .ooRexxShell~RC = RC
@@ -370,7 +383,7 @@ dispatchCommand:
     end
     if .ooRexxShell~showInfos then do
         .ooRexxShell~sayInfo("Duration:" time('e')) -- elapsed duration
-        if .ooRexxShell~isExtended then .ooRexxShell~sayInfo("#Coactivities:" .Coactivity~count) -- counter of coactivities
+        if .ooRexxShell~isExtended, .Coactivity~count <> 0 then .ooRexxShell~sayInfo("#Coactivities:" .Coactivity~count) -- counter of coactivities
     end
     signal CONTINUE_REPL
 
@@ -383,7 +396,7 @@ dispatchCommand:
 interpretCommand:
     .ooRexxShell~command =  transformSource(.ooRexxShell~command)
     if .ooRexxShell~traceDispatchCommand then do
-        .ooRexxShell~sayTrace("[interpret] command=" .ooRexxShell~command)
+        .ooRexxShell~sayTrace("[interpret]" .ooRexxShell~command)
     end
     if .ooRexxShell~hasLastResult then result = .ooRexxShell~lastResult -- restore previous result
                                   else drop result
@@ -406,6 +419,9 @@ interpretCommand:
 -- Remember: don't implement that as a procedure or routine or method !
 -- Moreover don't call it, you must jump to (signal) it...
 addressCommand:
+    if .ooRexxShell~traceDispatchCommand then do
+        .ooRexxShell~sayTrace("[address" .ooRexxShell~commandInterpreter"]" .ooRexxShell~command)
+    end
     address value .ooRexxShell~commandInterpreter
     (.ooRexxShell~command)
     address -- restore previous
@@ -468,7 +484,7 @@ Helpers
     if .ooRexxShell~traceReadline then do
         .ooRexxShell~sayTrace("[readline] queued()=" queued())
         .ooRexxShell~sayTrace("[readline] lines()=" lines())
-        .ooRexxShell~sayTrace(".ooRexxShell~readline=" .ooRexxShell~readline)
+        .ooRexxShell~sayTrace("[readline] .ooRexxShell~readline=" .ooRexxShell~readline)
     end
     select
         when queued() == 0 & lines() == 0 & .ooRexxShell~systemAddress~caselessEquals("cmd") & .ooRexxShell~readline then do
@@ -511,8 +527,8 @@ Helpers
                 "set -o noglob ;",
                 "HISTFILE=".ooRexxShell~historyFile" ;",
                 "history -r ;",
-                "read -r -e -p "quoted(prompt)" inputrx ;",
-                "history -s -- $inputrx ;",
+                "IFS= read -r -e -p "quoted(prompt)" inputrx ;",
+                "history -s -- ""$inputrx"" ;",
                 "history -a ;",
                 "(export LC_ALL=C; set | grep ^inputrx= | tr '\n' '\000' ; printf ""%s\000"" ""$inputrx"" ; printf ""%q"" ""$inputrx"") | rxqueue "quoted(.ooRexxShell~queueName)" /lifo"
             address -- restore
@@ -557,15 +573,20 @@ Helpers
                 -- because an empty input and the comments are displayed without prompt,
                 -- and because some commands are not displayed.
                 parse pull inputrx -- Input queue or standard input or keyboard.
+                -- If the input starts with a space then no command recognition.
+                maybeCommand = inputrx~left(1, ".") <> " "
                 input = inputrx~strip~space
                 select
-                    when input~caselessEquals("/*") then nop
-                    when input~caselessEquals("*/") then nop
-                    when input~caselessEquals("demo off") then nop
-                    when input~caselessEquals("demo on") then nop
-                    when input~word(1)~caselessEquals("sleep") then nop
+                    when input~caselessEquals("/*") & maybeCommand then nop
+                    when input~caselessEquals("*/") & maybeCommand then nop
+                    when input~caselessEquals("demo off") & maybeCommand then nop
+                    when input~caselessEquals("demo on") & maybeCommand then nop
+                    when input~word(1)~caselessEquals("goto") & maybeCommand then nop
+                    when input~word(1)~caselessEquals("sleep") & maybeCommand then nop
+                    when input~word(1)~right(1) == ":" & input~words == 1 & maybeCommand then nop -- label
+                    when .ooRexxShell~gotoLabel <> "" then nop
                     when .ooRexxShell~showComment then .ooRexxShell~sayComment(inputrx)
-                    when input~left(2) == "--" then .ooRexxShell~sayComment(inputrx)
+                    when input~left(2) == "--" & maybeCommand then .ooRexxShell~sayComment(inputrx)
                     when input == "" then say
                     otherwise do
                         call promptDirectory
@@ -767,6 +788,7 @@ Helpers
 ::attribute demo class
 ::attribute defaultSleepDelay class
 ::attribute error class -- Will be .true if the last command raised an error
+::attribute gotoLabel class -- Either "" or the label to reach
 ::attribute hasBsf class -- Will be .true if BSF.cls has been loaded
 ::attribute hasQueries class -- Will be true if oorexxshell_queries.cls has been loaded
 ::attribute hasRegex class -- Will be .true is regex.cls has been loaded
@@ -783,6 +805,7 @@ Helpers
 ::attribute isInteractive class -- Are we in interactive mode ?
 ::attribute lastResult class -- result's value from the last interpreted line
 ::attribute maxItemsDisplayed class -- The maximum number of items to display when displaying a collection
+::attribute maybeCommand class -- Temporary variable used during the analysis of the command line
 ::attribute prompt class -- The prompt to display
 ::attribute queueName class -- Private queue for no interference with the user commands
 ::attribute queueInitialName class -- Backup the initial external queue name (probably "SESSION")
@@ -823,6 +846,7 @@ Helpers
     self~demo = .false
     self~dump2 = .nil
     self~error = .false
+    self~gotoLabel = ""
     self~hasBsf = .false
     self~hasQueries = .false
     self~hasRegex = .false
@@ -903,6 +927,10 @@ Helpers
         value = .ooRexxshell~send(message)
         variables~put(value, message)
     end
+    variables~put(.ooRexxShell~securityManager~isEnabledByUser, "securityManager~isEnabledByUser")
+    variables~put(.ooRexxShell~securityManager~traceCommand, "securityManager~traceCommand")
+    variables~put(.ooRexxShell~securityManager~verbose, "securityManager~verbose")
+
     return variables
 
 
@@ -1112,7 +1140,7 @@ Helpers
             else if "inherited"~caselessAbbrev(first1,1) then inherited = .true
             else if "source"~caselessAbbrev(first1,1) then source = .true
             else do
-                .ooRexxShell~sayError("Expected 'methods' or 'inherited' or 'source' after" quoted(subword1".") "in" quoted(word1)". Got" quoted(first1))
+                .ooRexxShell~sayError("Expected 'm[ethods]' or 'i[nherited]' or 's[ource]' after" quoted(subword1".")". Got" quoted(first1))
                 return
             end
         end
@@ -1137,7 +1165,7 @@ Helpers
             parse var rest1 first1 "." rest1
             if "inherited"~caselessAbbrev(first1,1) then inherited = .true
             else do
-                .ooRexxShell~sayError("Expected 'inherited' after" quoted(subword1".") "in" quoted(word1)". Got" quoted(first1))
+                .ooRexxShell~sayError("Expected 'i[nherited]' after" quoted(subword1".")". Got" quoted(first1))
                 return
             end
         end
@@ -1155,7 +1183,7 @@ Helpers
             parse var rest1 first1 "." rest1
             if "source"~caselessAbbrev(first1,1) then source = .true
             else do
-                .ooRexxShell~sayError("Expected 'source' after" quoted(subword1".") "in" quoted(word1)". Got" quoted(first1))
+                .ooRexxShell~sayError("Expected 's[ource]' after" quoted(subword1".")". Got" quoted(first1))
                 return
             end
         end
@@ -1171,7 +1199,7 @@ Helpers
             parse var rest1 first1 "." rest1
             if "source"~caselessAbbrev(first1,1) then source = .true
             else do
-                .ooRexxShell~sayError("Expected 'source' after" quoted(subword1".") "in" quoted(word1)". Got" quoted(first1))
+                .ooRexxShell~sayError("Expected 's[ource]' after" quoted(subword1".")". Got" quoted(first1))
                 return
             end
         end
@@ -1189,7 +1217,7 @@ Helpers
             parse var rest1 first1 "." rest1
             if "source"~caselessAbbrev(first1,1) then source = .true
             else do
-                .ooRexxShell~sayError("Expected 'source' after" quoted(subword1".") "in" quoted(word1)". Got" quoted(first1))
+                .ooRexxShell~sayError("Expected 's[ource]' after" quoted(subword1".")". Got" quoted(first1))
                 return
             end
         end
@@ -1270,7 +1298,7 @@ Helpers
     say "    reload: exit the current session and reload all the packages/librairies."
     say "    security off: deactivate the security manager. No transformation of commands."
     say "    security on : activate the security manager. Transformation of commands."
-    say "    trace off|on [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity]]: deactivate|activate the trace."
+    say "    trace off|on [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity][.verbose]]: deactivate|activate the trace."
     say "    trap off|on [l[ostdigits]] [s[yntax]]: deactivate|activate the conditions traps."
     say "Input queue name:" .ooRexxShell~queueName
 
@@ -1373,12 +1401,26 @@ Helpers
         self~traceFilter = trace
         self~traceReadline = trace
         self~securityManager~traceCommand = trace
+        self~securityManager~verbose = .false
     end
     do arg over string2args(rest)
+        parse var arg word1 "." rest
         if "dispatchcommand"~caselessAbbrev(arg) then self~traceDispatchCommand = trace
         else if "filter"~caselessAbbrev(arg) then self~traceFilter = trace
         else if "readline"~caselessAbbrev(arg) then self~traceReadline = trace
-        else if "securitymanager"~caselessAbbrev(arg) then self~securityManager~traceCommand = trace
+        else if "securitymanager"~caselessAbbrev(word1) then do
+            self~securityManager~traceCommand = trace
+            self~securityManager~verbose = .false
+            if rest <> "" then do
+                if "verbose"~caselessAbbrev(rest) then self~securityManager~verbose = trace
+                else .ooRexxShell~sayError("Expected 'v[erbose]' after" quoted(word1".")". Got" quoted(rest))
+            end
+        end
+        -- for convenience: "sv" is shorter than "s.v"
+        else if "sv"~caselessEquals(arg) then do
+            self~securityManager~traceCommand = trace
+            self~securityManager~verbose = trace
+        end
         else .ooRexxShell~sayError("Unknown:" arg)
     end
 
@@ -1414,6 +1456,13 @@ Helpers
     call SysSleep delay
 
 
+::method goto class
+    use strict arg inputrx
+    parse var inputrx . word2 rest
+    if rest <> "" then .ooRexxShell~sayError("Expected a label, got:" word2 rest)
+    .ooRexxShell~gotoLabel = word2
+
+
 -------------------------------------------------------------------------------
 ::class SecurityManager
 -------------------------------------------------------------------------------
@@ -1423,6 +1472,7 @@ Helpers
 -- When false, the security manager is deactivated (typically for debug purpose).
 ::attribute isEnabledByUser
 ::attribute traceCommand
+::attribute verbose
 
 -- Under the control of ooRexxShell
 ::attribute isEnabled
@@ -1432,6 +1482,7 @@ Helpers
    self~isEnabledByUser = .true
    self~isEnabled = .false
    self~traceCommand = .false
+   self~verbose = .false
 
 
 ::method unknownDisabled
@@ -1473,17 +1524,31 @@ Helpers
     isEnabled = self~isEnabledByUser & self~isEnabled
     if isEnabled then status = "enabled" ; else status = "disabled"
 
+    if  \ self~verbose then do
+        -- When not verbose, don't trace the command
+        if \ isEnabled then return 0 -- delegate to system
+    end
+
     if self~traceCommand then do
         .ooRexxShell~sayTrace("[SecurityManager ("status")] address=" info~address)
         .ooRexxShell~sayTrace("[SecurityManager ("status")] command=" info~command)
     end
 
     if \ isEnabled then return 0 -- delegate to system
+
     -- Use a temporary property file to remember the child process directory
     temporarySettingsFile = .ooRexxShell~settingsFile"."SysQueryProcess("PID")
     if SysFileExists(temporarySettingsFile) then call SysFileDelete temporarySettingsFile -- will be created by the command execution, maybe
+
     command = self~adjustCommand(info~address, info~command, temporarySettingsFile)
     if command == info~command then return 0 -- command not impacted, delegate to system
+
+    -- When not verbose, display the transformed command now
+    -- When verbose, no need to display the command here, because the command is displayed at each entry in this method (1st entry: user command, 2nd entry: transformed command)
+    if \ self~verbose then do
+        if self~traceCommand then .ooRexxShell~sayTrace("[SecurityManager ("status")] command=" command)
+    end
+
     self~isEnabled = .false
         address value info~address
         command
