@@ -453,7 +453,7 @@ Helpers
     -- No longer display the prompt, return it and let readline display it
     prompt = .ooRexxShell~interpreter
     if .ooRexxShell~interpreter~caselessEquals("ooRexx") then prompt ||= "["currentAddress"]" ; else prompt ||= "[ooRexx]"
-    if .ooRexxShell~securityManager~isEnabledByUser then prompt ||= "> " ; else prompt ||= "!>"
+    if .ooRexxShell~securityManager~isEnabledByUser then prompt ||= "> " ; else prompt ||= "!> "
     return prompt
 
 
@@ -520,8 +520,9 @@ Helpers
                 -- The line "oorexx" is written because of this known problem:
                 -- https://superuser.com/questions/942009/bash-history-a-not-writing-unless-histfile-already-has-text
                 -- My Mac has an old version of bash, and this problem occurs.
-                history~~open~~say("oorexx")~~close
+                history~~open~~say("oorexx")
             end
+            history~close
             call promptDirectory
             address value .ooRexxShell~systemAddress
                 "set -o noglob ;",
@@ -999,6 +1000,15 @@ Helpers
     end
 
 
+::method sayTraceback class
+    use strict arg stream=.output -- you can pass .error if you want to separate normal output and error output
+    supplier = .ooRexxShell~traceback~supplier
+    do while supplier~available
+        stream~say(supplier~item)
+        supplier~next
+    end
+
+
 ::method sayCollection class
     use strict arg coll, title=(coll~defaultName), comparator=.nil, iterateOverItem=.false, surroundItemByQuotes=.true, surroundIndexByQuotes=.true, maxCount=(9~copies(digits())) /*no limit*/, action=.nil
     -- The package rgfutil2 is optional, use it if loaded.
@@ -1231,8 +1241,8 @@ Helpers
 
     else if "sf"~caselessEquals(word1) & rest~isEmpty then .oorexxShell~sayStackFrames
 
-    else if "tb"~caselessEquals(word1) & rest~isEmpty then say .ooRexxShell~traceback~makearray~tostring
-    else if "bt"~caselessEquals(word1) & rest~isEmpty then say .ooRexxShell~traceback~makearray~tostring -- backtrace seems a better name (command "bt" in lldb)
+    else if "tb"~caselessEquals(word1) & rest~isEmpty then .ooRexxShell~sayTraceback
+    else if "bt"~caselessEquals(word1) & rest~isEmpty then .ooRexxShell~sayTraceback -- backtrace seems a better name (command "bt" in lldb)
 
     else if "variables"~caselessAbbrev(word1,1) & rest~isEmpty then .ooRexxShell~helpVariables(interpreterContext)
 
@@ -1606,8 +1616,27 @@ Helpers
         -- One way to define them is to do:
         -- export BASH_ENV=~/bash_env
         -- and declare the aliases in this file.
+        -- This file is executed when bash is not interactive.
+        -- This file is also executed when bash is interactive because ~/.bashrc calls it.
+        -- (no longer need -O expand_aliases, because run in mode interactive: -i)
         -- The trap command is used to save the current directory of the child process
-        return "bash -O expand_aliases -c 'function trap_exit { echo OOREXXSHELL_DIRECTORY=$PWD > "temporarySettingsFile" ; } ; trap trap_exit EXIT ; history -r ; "command"'" -- the special characters have been already escaped by readline()
+        return "bash -i -c 'function trap_exit { echo OOREXXSHELL_DIRECTORY=$PWD > "temporarySettingsFile" ; } ; trap trap_exit EXIT ; "command"'" -- the special characters have been already escaped by readline()
+    end
+    else if address~caselessEquals("sh") then do
+        -- If directly managed by the systemCommandHandler then don't add bash in front of the command
+        -- if command~caselessEquals("cd") == 1 then return command -- home directory
+        -- if command~caselessPos("cd ") == 1 then return command -- change directory
+        if command~caselessPos("set ") == 1 then return command -- variable assignment
+        if command~caselessPos("unset ") == 1 then return command -- variable unassignment
+        if command~caselessPos("export ") == 1 then return command -- variable assignment
+        if command~word(1)~caselessEquals("sh") then return command -- already prefixed by "sh ..."
+        -- Expands the aliases, assuming you have defined them...
+        -- One way to define them is to do:
+        -- export ENV=~/bash_env
+        -- and declare the aliases in this file.
+        -- This file is executed when sh is interactive (yes! the opposite of bash...).
+        -- The trap command is used to save the current directory of the child process
+        return "sh -i -c 'trap_exit () { echo OOREXXSHELL_DIRECTORY=$PWD > "temporarySettingsFile" ; } ; trap trap_exit EXIT ; "command"'" -- the special characters have been already escaped by readline()
     end
     return command
 

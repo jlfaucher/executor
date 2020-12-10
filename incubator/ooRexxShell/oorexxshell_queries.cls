@@ -552,7 +552,6 @@ attribute traceFilter
             say variablename path~quoted(x2c(27))
         end
         say variablename "length:" variablevalue~length
-        say
     end
 
 ::constant separators ": ~ @ |"
