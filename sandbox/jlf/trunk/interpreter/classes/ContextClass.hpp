@@ -67,6 +67,7 @@ public:
 
     PackageClass *getPackage();
     RexxObject *getDigits();
+    RexxObject *getDigitsPropagate();
     RexxObject *getFuzz();
     RexxObject *getForm();
     RexxObject *getVariables();

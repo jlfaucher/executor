@@ -110,7 +110,7 @@ void RexxCode::call(
     // check the stack space before proceeding
     activity->checkStackSpace();       /* have enough stack space?          */
                                        /* add to the activity stack         */
-    RexxActivation *newacta = ActivityManager::newActivation(activity, routine, this, calltype, environment, context);
+    RexxActivation *newacta = ActivityManager::newActivation(activity, activity->getCurrentRexxFrame(), routine, this, calltype, environment, context);
     activity->pushStackFrame(newacta);
                 /* run the method and return result  */
     newacta->run(OREF_NULL, msgname, OREF_NULL, argPtr, argcount, named_argcount, OREF_NULL, result);
@@ -130,7 +130,7 @@ void RexxCode::run(
 /* Function:  Call a method as a top level program or external function call  */
 /******************************************************************************/
 {
-    RexxActivation *newacta = ActivityManager::newActivation(activity, method, this);
+    RexxActivation *newacta = ActivityManager::newActivation(activity, activity->getCurrentRexxFrame(), method, this);
                                        /* add to the activity stack         */
     activity->pushStackFrame(newacta);
                                        /* run the method and return result  */

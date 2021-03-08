@@ -672,6 +672,7 @@ void RexxMemory::createImage(const char *imageTarget)
   defineKernelMethod(CHAR_FORM          ,TheRexxContextBehaviour, CPPM(RexxContext::getForm), 0);
   defineKernelMethod(CHAR_FUZZ          ,TheRexxContextBehaviour, CPPM(RexxContext::getFuzz), 0);
   defineKernelMethod(CHAR_DIGITS        ,TheRexxContextBehaviour, CPPM(RexxContext::getDigits), 0);
+  defineKernelMethod("DIGITSPROPAGATE"  ,TheRexxContextBehaviour, CPPM(RexxContext::getDigitsPropagate), 0);
   defineKernelMethod(CHAR_VARIABLES     ,TheRexxContextBehaviour, CPPM(RexxContext::getVariables), 0);
   defineKernelMethod(CHAR_ARGS          ,TheRexxContextBehaviour, CPPM(RexxContext::getArgs), 0);
   defineKernelMethod(CHAR_SETARGS       ,TheRexxContextBehaviour, CPPM(RexxContext::setArgs), 1, true); // pass named arguments

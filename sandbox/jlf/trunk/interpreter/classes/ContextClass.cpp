@@ -187,6 +187,18 @@ RexxObject *RexxContext::getDigits()
 
 
 /**
+ * Return the current digits propagate setting for the running context
+ *
+ * @return The current digits propagate value
+ */
+RexxObject *RexxContext::getDigitsPropagate()
+{
+    checkValid();
+    return activation->propagateNumericSettings() ? TheTrueObject : TheFalseObject;
+}
+
+
+/**
  * Return the current fuzz setting for the running context
  *
  * @return The current fuzz value

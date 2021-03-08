@@ -114,6 +114,8 @@ void RexxInstructionNumeric::execute(
                 }
                 context->setDigits(setting);   /* now adjust the setting            */
             }
+            // For the moment, no default value on package (no ::OPTIONS DIGITS <digits> PROPAGATE)
+            context->propagateNumericSettings(instructionFlags & numeric_propagate);
             break;
 
         case numeric_fuzz:                 /* NUMERIC FUZZ instruction          */

@@ -158,7 +158,7 @@ RexxActivation::RexxActivation()
  * @param _method   The method being invoked.
  * @param _code     The code to execute.
  */
-RexxActivation::RexxActivation(RexxActivity* _activity, RexxMethod * _method, RexxCode *_code)
+RexxActivation::RexxActivation(RexxActivity* _activity, RexxActivation *_parent, RexxMethod * _method, RexxCode *_code)
 {
     this->clearObject();                 /* start with a fresh object         */
     this->activity = _activity;          /* save the activity pointer         */
@@ -205,6 +205,13 @@ RexxActivation::RexxActivation(RexxActivity* _activity, RexxMethod * _method, Re
     setTrace(referenceSource->getTraceSetting(), referenceSource->getTraceFlags());
     this->settings.enableCommands = referenceSource->getEnableCommands();
     this->settings.enableMacrospace = referenceSource->getEnableMacrospace();
+
+    this->settings.propagateNumericSettings = false;
+    if (_parent != NULL && _parent->settings.propagateNumericSettings)
+    {
+        this->settings.numericSettings = _parent->settings.numericSettings;
+        this->settings.propagateNumericSettings = true;
+    }
 
     if (_method->isGuarded())            // make sure we set the appropriate guarded state
     {
@@ -325,7 +332,7 @@ RexxActivation::RexxActivation(RexxActivity *_activity, RexxActivation *_parent,
  * @param env       The default address environment
  * @param context   The type of call context.
  */
-RexxActivation::RexxActivation(RexxActivity *_activity, RoutineClass *_routine, RexxCode *_code,
+RexxActivation::RexxActivation(RexxActivity *_activity, RexxActivation *_parent, RoutineClass *_routine, RexxCode *_code,
     RexxString *calltype, RexxString *env, int context)
 {
     this->clearObject();                 /* start with a fresh object         */
@@ -373,6 +380,13 @@ RexxActivation::RexxActivation(RexxActivity *_activity, RoutineClass *_routine, 
     this->settings.enableMacrospace = referenceSource->getEnableMacrospace();
     /* save the source also              */
     this->settings.parent_code = this->code;
+
+    this->settings.propagateNumericSettings = false;
+    if (_parent != NULL && _parent->settings.propagateNumericSettings)
+    {
+        this->settings.numericSettings = _parent->settings.numericSettings;
+        this->settings.propagateNumericSettings = true;
+    }
 
     /* allocate a frame for the local variables from activity stack */
     settings.local_variables.init(this, code->getLocalVariableSize());
@@ -2019,6 +2033,14 @@ bool RexxActivation::form()
     return this->settings.numericSettings.form;
 }
 
+bool RexxActivation::propagateNumericSettings()
+/******************************************************************************/
+/* Function:  Return the current numeric propagation setting                  */
+/******************************************************************************/
+{
+    return this->settings.propagateNumericSettings;
+}
+
 bool RexxActivation::enableCommands()
 /******************************************************************************/
 /* Function:  Return the current COMMANDS setting                             */
@@ -2085,6 +2107,15 @@ void RexxActivation::setForm(bool formVal)
 /******************************************************************************/
 {
     this->settings.numericSettings.form = formVal;
+}
+
+
+void RexxActivation::propagateNumericSettings(bool status)
+/******************************************************************************/
+/* Function:  Set the new current numeric propagation setting                 */
+/******************************************************************************/
+{
+    this->settings.propagateNumericSettings = status;
 }
 
 

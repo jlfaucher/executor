@@ -70,9 +70,9 @@ public:
     static void createLocks();
     static void closeLocks();
     static void init();
-    static RexxActivation *newActivation(RexxActivity *activity, RoutineClass *routine, RexxCode *code, RexxString *calltype, RexxString *environment, int context);
+    static RexxActivation *newActivation(RexxActivity *activity, RexxActivation *parent, RoutineClass *routine, RexxCode *code, RexxString *calltype, RexxString *environment, int context);
     static RexxActivation *newActivation(RexxActivity *activity, RexxActivation *parent, RexxCode *code, int context);
-    static RexxActivation *newActivation(RexxActivity *activity, RexxMethod *method, RexxCode *code);
+    static RexxActivation *newActivation(RexxActivity *activity, RexxActivation *parent, RexxMethod *method, RexxCode *code);
     static RexxNativeActivation *newNativeActivation(RexxActivity *activity, RexxActivation *parent);
     static RexxNativeActivation *newNativeActivation(RexxActivity *activity);
     static RexxActivity *createNewActivity();

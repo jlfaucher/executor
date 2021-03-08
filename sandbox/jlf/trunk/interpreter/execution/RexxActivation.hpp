@@ -125,6 +125,7 @@ class ActivationSettings
       int  return_status;                  /* command return status             */
       size_t  traceindent;                 /* trace indentation                 */
       NumericSettings numericSettings;     /* globally effective settings       */
+      bool propagateNumericSettings;       /* are current numeric settings reused by called activations ? */
       bool enableCommands;                 /* are commands enabled ?            */
       bool enableMacrospace;               /* is macrospace enabled ?           */
       int64_t elapsed_time;                /* elapsed time clock                */
@@ -167,8 +168,8 @@ class ActivationSettings
 
    inline RexxActivation(RESTORETYPE restoreType) { ; };
    RexxActivation();
-   RexxActivation(RexxActivity* _activity, RexxMethod *_method, RexxCode *_code);
-   RexxActivation(RexxActivity *_activity, RoutineClass *_routine, RexxCode *_code, RexxString *calltype, RexxString *env, int context);
+   RexxActivation(RexxActivity* _activity, RexxActivation *_parent, RexxMethod *_method, RexxCode *_code);
+   RexxActivation(RexxActivity *_activity, RexxActivation *_parent, RoutineClass *_routine, RexxCode *_code, RexxString *calltype, RexxString *env, int context);
    RexxActivation(RexxActivity *_activity, RexxActivation *_parent, RexxCode *_code, int context);
 
    void live(size_t);
@@ -177,6 +178,7 @@ class ActivationSettings
    size_t            digits();
    size_t            fuzz();
    bool              form();
+   bool              propagateNumericSettings();
    bool              enableCommands();
    bool              enableMacrospace();
    void              setDigits(size_t);
@@ -187,6 +189,7 @@ class ActivationSettings
    void              setDigits();
    void              setFuzz();
    void              setForm();
+   void              propagateNumericSettings(bool);
    bool              trap(RexxString *, RexxDirectory *);
    void              setObjNotify(RexxMessage *);
    void              termination();

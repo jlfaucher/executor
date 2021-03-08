@@ -259,11 +259,11 @@ void ActivityManager::shutdown()
  *
  * @return The newly created activation.
  */
-RexxActivation *ActivityManager::newActivation(RexxActivity *activity, RoutineClass *routine, RexxCode *code, RexxString *calltype, RexxString *environment, int context)
+RexxActivation *ActivityManager::newActivation(RexxActivity *activity, RexxActivation *parent, RoutineClass *routine, RexxCode *code, RexxString *calltype, RexxString *environment, int context)
 {
     // in heavily multithreaded environments, the activation cache is a source for race conditions
     // that can lead to crashes.  Just unconditionally create a new actvation
-    return new RexxActivation(activity, routine, code, calltype, environment, context);
+    return new RexxActivation(activity, parent, routine, code, calltype, environment, context);
 }
 
 
@@ -297,11 +297,11 @@ RexxActivation *ActivityManager::newActivation(RexxActivity *activity, RexxActiv
  *
  * @return The newly created activation.
  */
-RexxActivation *ActivityManager::newActivation(RexxActivity *activity, RexxMethod *method, RexxCode *code)
+RexxActivation *ActivityManager::newActivation(RexxActivity *activity, RexxActivation *parent, RexxMethod *method, RexxCode *code)
 {
     // in heavily multithreaded environments, the activation cache is a source for race conditions
     // that can lead to crashes.  Just unconditionally create a new actvation
-    return new RexxActivation(activity, method, code);
+    return new RexxActivation(activity, parent, method, code);
 }
 
 

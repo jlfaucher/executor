@@ -294,6 +294,75 @@ The named arguments could be added to the returned array (splitting the key:valu
 ===============================================================================
 2021 mar 08
 
+Numeric settings
+----------------
+
+The problem I want to fix:
+numeric digits has no effect on the called routines/methods.
+Setting the precision at package level with ::option digits is not helping when you want to test several settings interactively.
+With one-liners, you can hardcode the precision where you do a calculation, but the code becomes polluted by these declarations.
+If you don't want to hardcode the precision, the code is still more polluted with the use of arguments. See 2020 nov 16.
+
+numeric digits 30
+1~10000~reduce("*")=                               -- 2.84625960E+35659, the precision is the default one
+1~10000~reduce{numeric digits 30; accu * item}=    -- 2.84625968091705451890641321250E+35659
+
+How to fix:
+Propagate the numeric settings of the current activation to its child activations, recursively.
+Of course, that must be under control of the programmer.
+By default, the behavior is to not propagate.
+
+Solution:
+- add the option PROPAGATE to NUMERIC DIGITS
+- add the method .RexxContext~digitsPropagate
+The option is available only with NUMERIC DIGITS but it controls the propagation of all the numeric settings.
+
+numeric digits              -- default precision, local
+numeric digits propagate    -- default precision, digits form and fuzz are propagated
+numeric digits 30           -- precision is 30, local
+numeric digits propagate 30 -- precision is 30, digits form and fuzz are propagated
+1~10000~reduce("*")=        -- 2.84625968091705451890641321250E+35659, the precision has been propagated
+
+
+Remember
+--------
+
+Initially, I wanted to control this behavior using new methods on RexxContext.
+A RexxContext is linked to a RexxActivation which holds the numeric settings of the current code execution.
+So it sounded natural to add these methods which forward to the RexxActivation:
+    .RexxContext~numericSettingsPropagate
+    .RexxContext~setNumericSettingsPropagate(.true | .false)
+
+Worked good when using a script:
+    numeric digits 30
+    say 1~10000~reduce("*")                        -- 2.84625960E+35659
+    .context~setNumericSettingsPropagate(.true)
+    say 1~10000~reduce("*")                        -- 2.84625968091705451890641321250E+35659
+    ::requires "extension/extensions.cls"
+
+But didn't work from ooRexxShell because of that:
+- interpret ".context" returns the context of the interpret's PARENT activation,
+  so it's the PARENT activation which is updated and queried, not the interpret's activation.
+  (search for "CHAR_CONTEXT" in RexxActivation.cpp)
+- when the interpretation of a string is ended, the settings of the interpret's activation are copied to the PARENT activation,
+  so the update made to the PARENT activation (propagate .true) is overwritten by the setting of the interpret's activation (propagate .false).
+  (search for "this->parent->getSettings(this->settings)" in RexxActivation.cpp)
+
+                    call main
+                    return
+    [activation1]   main:
+    [activation2]   interpret ".context~setNumericSettingsPropagate(.true); -- activation1 updated, not activation2
+                               say .context~numericSettingsPropagate;       -- display .true because gets the setting of activation1
+                               numeric digits 30;                           -- activation2 updated
+                               say 1~10000~reduce("*")"                     -- display 2.84625960E+35659 because the propagation is not activated for activation2
+                    [activation1's settings <-- activation2's settings]
+                        activation1 digits <-- 30
+                        activation1 propagate <-- .false
+
+
+===============================================================================
+2021 mar 08
+
 Coactivity supplier:
 The cached value of a coactivity supplier is refreshed (aligned with the coactivity) when using the method
     ~available

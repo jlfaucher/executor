@@ -145,6 +145,7 @@ KeywordEntry RexxSource::subKeywords[] = {             /* language keyword table
    KeywordEntry(CHAR_OFF,         SUBKEY_OFF),
    KeywordEntry(CHAR_ON,          SUBKEY_ON),
    KeywordEntry(CHAR_OVER,        SUBKEY_OVER),
+   KeywordEntry(CHAR_PROPAGATE,   SUBKEY_PROPAGATE),
    KeywordEntry(CHAR_RETURN,      SUBKEY_RETURN),
    KeywordEntry(CHAR_SCIENTIFIC,  SUBKEY_SCIENTIFIC),
    KeywordEntry(CHAR_STRICT,      SUBKEY_STRICT),

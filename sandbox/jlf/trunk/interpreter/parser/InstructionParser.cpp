@@ -1386,8 +1386,26 @@ RexxInstruction *RexxSource::numericNew()
     switch (type)
     {                      /* process the subkeyword            */
         case SUBKEY_DIGITS:                /* NUMERIC DIGITS instruction        */
-            /* process the expression            */
-            _expression = this->expression(TERM_EOC);
+            token = nextReal();              /* get the next token                */
+            if (token->isEndOfClause()) /* just NUMERIC DIGITS?                */
+            {
+                // reset to the default for this package
+                _expression = OREF_NULL;
+                break;                         /* we're all finished                */
+            }
+            else if (token->isSymbol() && this->subKeyword(token) == SUBKEY_PROPAGATE)
+            {
+                // NUMERIC DIGITS PROPAGATE [expression]
+                refineSubclass(token, IS_SUBKEY);
+                _flags |= numeric_propagate;
+                _expression = this->expression(TERM_EOC);
+            }
+            else
+            {
+                // NUMERIC DIGITS expression
+                previousToken();
+                _expression = this->expression(TERM_EOC);
+            }
             break;
 
         case SUBKEY_FORM:                  /* NUMERIC FORM instruction          */
