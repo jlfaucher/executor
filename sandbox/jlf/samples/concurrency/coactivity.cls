@@ -1,8 +1,8 @@
 /*
 Coactivity is an emulation of coroutines in ooRexx.
 This script needs a modified ooRexx interpreter, because depends on :
-.context~args = <array>
-.context~namedArgs = <directory>
+.context~parentContext
+.context~setargs(<array>, <directory>)
 .threadLocal
 
 This is not a "real" coroutine implementation, because it's based on ooRexx activities
@@ -498,6 +498,18 @@ The pipeline itself can't be GC'ed because the first pipe stage is referenced fr
 When 5 values have been taken (.take 5), the pipeline is stopped and the method 'pipe' returns.
 From now, the pipeline can be GC'ed, because it's no longer referenced from the call stack.
 And once the pipeline is GC'ed, there is no more reference to the coactivity supplier, which can be GC'ed.
+
+Special note about ~refresh.
+This method aligns the cached index/item with the current index/item of the coactivity.
+The method ~available is doing a refresh.
+And that's enough to have the most recent index/item when your code is like that:
+    do while supplier~available
+        item = supplier~item
+        index = supplier~index
+        ...
+        supplier~next
+    end
+
 */
 ::class "CoactivitySupplier" public subclass Supplier
 
@@ -519,18 +531,21 @@ And once the pipeline is GC'ed, there is no more reference to the coactivity sup
 ::method available
     expose isAvailable
     if isAvailable == -1 then self~first
+    else self~refresh
     return isAvailable
 
 
 ::method index
     expose currentIndex isAvailable
     if isAvailable == -1 then self~first
+    -- else self~refresh    -- DON'T REFRESH! ~index and ~item must be ALWAYS consistent together, and consistent with ~available
     if isAvailable then return currentIndex
 
 
 ::method item
     expose currentItem isAvailable
     if isAvailable == -1 then self~first
+    -- else self~refresh    -- DON'T REFRESH! ~index and ~item must be ALWAYS consistent together, and consistent with ~available
     if isAvailable then return currentItem
 
 
@@ -546,6 +561,7 @@ And once the pipeline is GC'ed, there is no more reference to the coactivity sup
             currentItem = result[1]
             currentIndex = result[2]
             isAvailable = .true
+            return
         end
     end
     else do
@@ -554,16 +570,39 @@ And once the pipeline is GC'ed, there is no more reference to the coactivity sup
             currentItem = result[1]
             currentIndex = result[2]
             isAvailable = .true
+            return
         end
-        else if coactivity~isAlive then do
-            -- If no result returned by the coactivity, then item=.nil and index=.nil
-            -- This is conform to the description of .Supplier~new :
-            -- The supplier iterates for the number of items contained in the values array,
-            -- returning the Nil object for any nonexistent items in either array.
-            currentItem = .nil
-            currentIndex = .nil -- By testing index==.nil, you know that the coactivity yielded no item
-            isAvailable = .true
-        end
+    end
+    if coactivity~isAlive then do
+        -- If no result returned by the coactivity, then item=.nil and index=.nil
+        -- This is conform to the description of .Supplier~new :
+        -- The supplier iterates for the number of items contained in the values array,
+        -- returning the Nil object for any nonexistent items in either array.
+        currentItem = .nil
+        currentIndex = .nil -- By testing index==.nil, you know that the coactivity yielded no item
+        isAvailable = .true
+    end
+
+
+::method refresh private
+    expose coactivity currentIndex currentItem isAvailable
+
+    isAvailable = .false
+    coactivity~currentIndexItem
+    if var("result") then do
+        currentItem = result[1]
+        currentIndex = result[2]
+        isAvailable = .true
+        return
+    end
+    if coactivity~isAlive then do
+        -- If no result returned by the coactivity, then item=.nil and index=.nil
+        -- This is conform to the description of .Supplier~new :
+        -- The supplier iterates for the number of items contained in the values array,
+        -- returning the Nil object for any nonexistent items in either array.
+        currentItem = .nil
+        currentIndex = .nil -- By testing index==.nil, you know that the coactivity yielded no item
+        isAvailable = .true
     end
 
 
@@ -599,17 +638,20 @@ And once the pipeline is GC'ed, there is no more reference to the coactivity sup
 
 /*
 Problem with iterator of coactivity ? no...
+After adding the method refresh, I get results that are correctly aligned with
+the coactivity: the index/item cached on the iterator is refreshed to get the
+current index/item of the coactivity.
 
 g={::co loop i=1; .yield[i]; end}
 i=g~iterator
 i~take(10)=     -- [1,2,3,4,5,6,7,8,9,10]
 g~currentIndexItem= -- [11,11]
 g~()=           -- 12
-i~take(10)=     -- [11,13,14,15,16,17,18,19,20,21]      <-- 11 ?? yes... the next value is bufferized on the supplier
+i~take(10)=     -- [12,13,14,15,16,17,18,19,20,21]
 g~currentIndexItem= -- [22,22]
 g~()=           -- 23
 g~()=           -- 24
-i~take(10)=     -- [22,25,26,27,28,29,30,31,32,33]      <-- 22 ?? yes... the next value is bufferized on the supplier
+i~take(10)=     -- [24,25,26,27,28,29,30,31,32,33]
 
 After code review, no problem...
 See takeFirstImpl in functional.cls
@@ -626,7 +668,7 @@ g={::co loop i=1; .yield[i]; end}
 s=g~supplier
 s~take(10)~iterator~each=       -- [1,2,3,4,5,6,7,8,9,10]
 s~take(10)~iterator~each=       -- [11,12,13,14,15,16,17,18,19,20]
-s~take(10)~iterator~each=       -- [20,21,22,23,24,25,26,27,28,29,30]
+s~take(10)~iterator~each=       -- [21,22,23,24,25,26,27,28,29,30]
 
 Same behaviour when working directly with the coactivity...
 Behind the scene, a supplier is used...

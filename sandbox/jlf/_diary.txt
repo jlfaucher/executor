@@ -292,6 +292,44 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 mar 08
+
+Coactivity supplier:
+The cached value of a coactivity supplier is refreshed (aligned with the coactivity) when using the method
+    ~available
+
+Typical usage of a supplier:
+    do while supplier~available
+        item = supplier~item
+        index = supplier~index
+        ...
+        supplier~next
+    end
+
+g = 1~5~generate
+s = g~supplier
+s~item=                 -- 1
+g~currentIndexItem=     -- [ 1, 1]
+g~()=                   -- 2
+s~item=                 -- 1 (cached value not refreshed)
+s~next
+s~item=                 -- 3
+g~currentIndexItem=     -- [ 3, 3]
+g~()=                   -- 4
+s~item=                 -- 3 (cached value not refreshed)
+s~available=            -- .true (cached value refreshed)
+s~item=                 -- 4
+g~()=                   -- 5
+s~item=                 -- 4 (cached value not refreshed)
+s~available=            -- .true
+s~item=                 -- 5
+g~()=                   -- no result
+s~item=                 -- 5 (cached value not refreshed)
+s~available=            -- .false (refreshed)
+s~item=                 -- no result
+
+
+===============================================================================
 2020 dec 06
 
 .doer~compose:
@@ -1600,6 +1638,10 @@ Blocks: the security manager is inherited from the toplevel source.
 First need in ooRexxShell, where the external command "xcommand" in the expression
 { {"xcommand"}~() }~()
 must be trapped by the security manager.
+[update 2021 feb 23]
+By default, the commands are deactivated in a block.
+Must explicitely activate the commands.
+{ {options "commands"; "xcommand"}~() }~()
 
 
 ooRexxShell
@@ -2048,6 +2090,10 @@ in all block sources. Since the callee has no control over the names given by
 the caller, there was a risk to break encapsulation when the callee is a method
 which exposes some attributes. The caller could assign a value to any exposed
 variable, just by passing the variable name as implicit name.
+[update 2021 feb 23]
+I had the problem with a closure, where the block becomes a method of the closure.
+Now, when a variable has a value, it's not possible to overwrite this value using
+an auto named argument.
 
 
 ===============================================================================
