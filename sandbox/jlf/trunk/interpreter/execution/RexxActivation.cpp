@@ -2071,6 +2071,7 @@ void RexxActivation::setDigits(size_t digitsVal)
 /******************************************************************************/
 {
     this->settings.numericSettings.digits = digitsVal;
+    if (isInterpret()) parent->setDigits(digitsVal);
 }
 
 /**
@@ -2089,6 +2090,7 @@ void RexxActivation::setFuzz(size_t fuzzVal)
 /******************************************************************************/
 {
     this->settings.numericSettings.fuzz = fuzzVal;
+    if (isInterpret()) parent->setFuzz(fuzzVal);
 }
 
 /**
@@ -2107,6 +2109,7 @@ void RexxActivation::setForm(bool formVal)
 /******************************************************************************/
 {
     this->settings.numericSettings.form = formVal;
+    if (isInterpret()) parent->setForm(formVal);
 }
 
 
@@ -2116,6 +2119,7 @@ void RexxActivation::propagateNumericSettings(bool status)
 /******************************************************************************/
 {
     this->settings.propagateNumericSettings = status;
+    if (isInterpret()) parent->propagateNumericSettings(status);
 }
 
 
