@@ -2665,6 +2665,7 @@ createCodeSnippet: procedure
 ::routine pp2 public       -- rgf, 20091214
   use strict arg a1, surroundByQuotes=.true
 
+  -- JLF to rework: surroundByQuotes is supported only by String~ppString
   if a1~hasMethod("ppString") then return a1~ppString(surroundByQuotes)
 
   -- JLF : this routine is redundant with the method ~ppstring defined by extension
@@ -2685,6 +2686,8 @@ createCodeSnippet: procedure
       return escape3(a1) -- JLF : Use 0xXX notation for escaped characters
   end
 
+  -- JLF 21/02/2021 never activated because Array has the method ppString, which is tested on entry
+  --                moreover, the call of ppRepresentation is incorrect: the 2nd arg is not surroundByQuotes.
   -- JLF : condensed output, 100 items max
   if a1~isA(.array), /*a1~dimension == 1,*/ a1~hasMethod("ppRepresentation") then
      return a1~ppRepresentation(100, surroundByQuotes)

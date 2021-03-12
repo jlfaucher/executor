@@ -93,17 +93,15 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 -- Iterate over the items of the supplier and combine them into one value by applying the given action to (current_value, current_item)
 ::method reduce unguarded
-    if arg() == 2 then do
-        use strict arg initial, action
-        return self~reduceImpl(action, initial)
-    end
-    else do
-        use strict arg action
-        return self~reduceImpl(action)
-    end
+    initial = .nil
+    action = "action not specified"
+    if arg() >= 2 then use strict arg initial, action
+    else if arg() == 1 then use strict arg action
+    use strict named arg action=(action), initial=(initial)
+    return self~reduceImpl(action, initial)
 
 ::method reduceImpl private unguarded
-    use strict arg action, initial=.nil
+    use strict arg action, initial
     if \ self~available then return initial
     doer = action~doer
     arity = doer~arity
@@ -1223,14 +1221,14 @@ This script needs a modified ooRexx interpreter which support extension of prede
     action = {item} -- action default: return the current item (see controlledLoop)
     if arg() <= 1 then use strict arg limit
     else if arg() == 2 then do
-        if arg(2)~isA(.String), arg(2)~dataType("N") then use arg limit, by=(by)
-        else use arg limit, action=(action)
+        if arg(2)~isA(.String), arg(2)~dataType("N") then use arg limit, by
+        else use arg limit, action
     end
     else if arg() == 3 then do
-        if arg(3)~isA(.String), arg(3)~dataType("N") then use arg limit, by=(by), for=(for)
-        else use arg limit, by=(by), action=(action)
+        if arg(3)~isA(.String), arg(3)~dataType("N") then use arg limit, by, for
+        else use arg limit, by, action
     end
-    else use strict arg limit, by=(by), for=(for), action=(action)
+    else use strict arg limit, by, for, action
     use strict named arg by=(by), for=(for), action=(action)
     return controlledLoop(self, limit, by, for, action)
 
@@ -1239,21 +1237,21 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- 13~downto(11){say arg(1)} -- returns an empty array because no result returned during the iteration
 -- 13~downto(11){2*arg(1)} -- returns .array~of(26,24,22)
 -- 13~downto(11) -- returns .array~of(13,12,11)
--- 3~upto(-1) -- returns .array~of(3,2,1,0,-1)
+-- 3~downto(-1) -- returns .array~of(3,2,1,0,-1)
 ::method downto unguarded
     by = -1
     for = .nil -- no 'for'' by default
     action = {item} -- action default: return the current item (see controlledLoop)
     if arg() <= 1 then use strict arg limit
     else if arg() == 2 then do
-        if arg(2)~isA(.String), arg(2)~dataType("N") then use arg limit, by=(by)
-        else use arg limit, action=(action)
+        if arg(2)~isA(.String), arg(2)~dataType("N") then use arg limit, by
+        else use arg limit, action
     end
     else if arg() == 3 then do
-        if arg(3)~isA(.String), arg(3)~dataType("N") then use arg limit, by=(by), for=(for)
-        else use arg limit, by=(by), action=(action)
+        if arg(3)~isA(.String), arg(3)~dataType("N") then use arg limit, by, for
+        else use arg limit, by, action
     end
-    else use strict arg limit, by=(by), for=(for), action=(action)
+    else use strict arg limit, by, for, action
     use strict named arg by=(by), for=(for), action=(action)
     return controlledLoop(self, limit, by, for, action)
 

@@ -2,9 +2,9 @@
 http://functions.wolfram.com/Constants/DirectedInfinity/introductions/Symbols/ShowAll.html
 
 For the moment, supports only
-direction=-1    positive infinity
-direction=0     negative infinity
-direction=1     complex infinity
+direction=-1    negative infinity
+direction=1     positive infinity
+direction=0     complex infinity
 
 */
 

@@ -292,6 +292,34 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 mar 12
+
+Array programming
+-----------------
+
+Add named argument 'expansion(1)' to leftElementWise & rightElementWise
+This argument controls the expansion of self referencing arrays.
+    a=v()
+    a~append(a)
+    a~append(1)
+    a=                                  -- a1=[*a1, 1]
+    a~leftElementWise(e:0)=             -- a1=[*a1, 1]
+    a~leftElementWise(e:1)=             -- [a1=[*a1, 1], 1]
+    a~leftElementWise(e:2)=             -- [[a1=[*a1, 1], 1], 1]
+    a~leftElementWise(e:6)=             -- [[[[[[a1=[*a1, 1], 1], 1], 1], 1], 1], 1]
+    a~leftElementWise("-", e:6)=        -- [[[[[[a1=[*a1,-1],-1],-1],-1],-1],-1],-1]
+The named argument 'depth(1)' controls the depth of application of the doer.
+    a~leftElementWise("-", d:4, e:6)=   -- [[[[[[a1=[*a1, 1], 1], 1],-1],-1],-1],-1]
+
+
+Functionnal
+-----------
+
+~reduce supports 2 named arguments: action, initial
+1~10~reduce(action:"+", initial:100)=   -- 155
+
+
+===============================================================================
 2021 mar 08
 
 Numeric settings
@@ -326,6 +354,12 @@ numeric digits propagate 30 -- precision is 30, digits form and fuzz are propaga
 
 Remember
 --------
+
+[2021 mar 10]
+The problem described below has been fixed.
+I keep the new option PROPAGATE, it's more concise than using setNumericSettingsPropagate.
+Other advantage: the propagation is stopped as soon as NUMERIC DIGITS is used without PROPAGATE.
+So any legacy code using NUMERIC DIGITS will stop the propagation.
 
 Initially, I wanted to control this behavior using new methods on RexxContext.
 A RexxContext is linked to a RexxActivation which holds the numeric settings of the current code execution.
@@ -2442,10 +2476,10 @@ s2~c2x=                             -- 65 CC 81
 
 My goal :
 s1~text~length=                     -- 1 grapheme
-s1~text~codepoints~length=          -- 1 codepoint
+s1~text~codepoints~size=            -- 1 codepoint
 s1~text~string~length=              -- 2 bytes
 s2~text~length=                     -- 1 grapheme
-s2~text~codepoints~length=          -- 2 codepoints
+s2~text~codepoints~size=            -- 2 codepoints
 s2~text~string~length=              -- 3 bytes
 
 For a more complex example of combining characters, see

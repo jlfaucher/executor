@@ -55,8 +55,9 @@ a33~each=
     -- Remember :
     -- When called with no argument, this function returns an array
     -- which is definitively an array with no dimension : an Array (shape [] , 0 items)
-    -- Any attempt to assign a value to this array raises the error
+    -- Any attempt to assign a value to this array using one or more index raises the error
     -- "Too many subscripts for array; 0 expected"
+    -- but it's possible to assign a value by passing NO index: a()[]=value
 
     -- if arg() == 0 then return .array~new -- no dimension (yet), can be set later.
     -- Bug ? .array~new~dimensions returns [0], should return an array with no dimension (not [] which is an empty vector returned for arrays definitively with 0 dimension).
@@ -398,7 +399,7 @@ v()               | []                            | 1         | [0]             
     -- Ex :
     --     v( v(1), v(2) ) can be used with a vector : shape [2], depth 2. The indexes have 1 indice, the result is shape [2], depth 1.
     --     v( v(1,2), v(3,4) ) can be used with a matrix : shape [2], depth 2. The indexes have 2 indices, the result is shape [2], depth 1.
-    return index~leftElementWise({itemRight~atIndex(itemLeft)}, self~enclose, 1)
+    return index~leftElementWise({itemRight~atIndex(itemLeft)}, self~enclose, d:1)
 
 /*
     args = arg(1, "a")
@@ -542,7 +543,7 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
     expose object
     use arg stack=(.queue~new)
     if .nil <> stack~index(object) then return .infinity~positive
-    stack~push(object)
+    stack~push(self)
     depth = 1 + object~depth(stack)
     stack~pull
     return depth
@@ -758,8 +759,8 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
     Return a condensed string representation of the array.
     Ex :
     .array~of(1,"two", .array~of(1, "two", 3), .array~of(1, "two"))~ppRepresentation -- [[1,'two',[1,'two',3],[1,'two']]]
-    Recursive arrays are supported. A reference *N is inserted in the representation,
-    where N is the number of levels to follow from the current position.
+    Recursive arrays are supported. A reference *R is inserted in the representation,
+    where R is the reference of the part already displayed.
     Ex :
     a = .array~of("string1", "string2")
     b = .array~of("string2")
@@ -789,7 +790,7 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
         source:1,'string1'
         source:2,'string2'
         source:3,a1=[v1='string2',a2=['string1',*v1,*a1,*a2]]
-        source:4,a1=['string1',v1='string2',a2=[*v1,*a1],*a1]
+        source:4,a1=['string1',v1='string2',[*v1,*a1],*a1]
 
     a~pipe(.inject iterateBefore {item} recursive.0.memorize | .console dataflow)
         source:1,v1='string1' | inject:1,v1
@@ -968,12 +969,16 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
     The stack is used to manage the mapping between the nested arrays and their copy.
     It's possible to have self references that are not only vertical (between an item and a nested item inside this item),
     but also horizontal (between 2 items that have no common root)
-    This is the case for the self reference created by level4~append(level3).
+    This is the case for the self reference created by level5~append(level3).
     To adjust correctly this self reference, must not remove the mappings from the stack when returning from a recursive call.
     */
-    use strict arg action, rightArg=.nil, depth=(.infinity~positive), stack=(.identityTable~new)
+    use strict arg action={item}, rightArg=.nil, stack=(.identityTable~new)
+    use strict named arg depth(1)=(.infinity~positive), expansion(1)=0
     counterpart = stack[self]
-    if counterpart <> .nil then return counterpart -- stop infinite recursion
+    if counterpart <> .nil then do
+        if expansion <= 0 then return counterpart -- stop infinite recursion
+        expansion -= 1
+    end
     if \ arg(2, "e") then do
         -- unary operator (op self):
         --   op Array
@@ -986,7 +991,7 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
             er = .EnclosedArray~new(.nil)
             stack[self] = er -- in case of self reference, will be used to build the new self reference
             arg = self~disclose
-            r = arg~leftElementWise(doer, , depth-1, stack)
+            r = arg~leftElementWise(doer, , stack, d:depth-1, e:expansion)
             -- stack~remove(self)
             er~setEnclosed(r)
             return er
@@ -999,7 +1004,7 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
             index = supplier~index
             item = supplier~item
             if item~isA(.array) | item~isA(.EnclosedArray) then do
-                r[index] = item~leftElementWise(doer, , depth-1, stack)
+                r[index] = item~leftElementWise(doer, , stack, d:depth-1, e:expansion)
             end
             else if depth <= 0 then do
                 r[index] = item
@@ -1054,7 +1059,7 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
             index = supplier~index
             item = supplier~item
             if item~isA(.array) | item~isA(.EnclosedArray) then do
-                r[index] = item~leftElementWise(doer, rightArg[index], depth-1, stack)
+                r[index] = item~leftElementWise(doer, rightArg[index], stack, d:depth-1, e:expansion)
             end
             else if depth <= 0 then do
                 r[index] = item
@@ -1080,7 +1085,7 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
             er = .EnclosedArray~new(.nil)
             stack[self] = er -- in case of self reference, will be used to build the new self reference
             leftArg = self~disclose
-            r = leftArg~leftElementWise(doer, rightArg, depth-1, stack)
+            r = leftArg~leftElementWise(doer, rightArg, stack, d:depth-1, e:expansion)
             -- stack~remove(self)
             er~setEnclosed(r)
             return er
@@ -1093,7 +1098,7 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
             index = supplier~index
             item = supplier~item
             if item~isA(.array) | item~isA(.EnclosedArray) then do
-                r[index] = item~leftElementWise(doer, rightArg, depth-1, stack)
+                r[index] = item~leftElementWise(doer, rightArg, stack, d:depth-1, e:expansion)
             end
             else if depth <= 0 then do
                 r[index] = item
@@ -1123,14 +1128,18 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
     -- Other op EnclosedArray :         specific implementation
     -- Other op Other :                 can't happen (right is either Array or EnclosedArray)
 
-    use strict arg action, leftArg, depth=(.infinity~positive), stack=(.identityTable~new)
+    use strict arg action, leftArg, stack=(.identityTable~new)
+    use strict named arg depth(1)=(.infinity~positive), expansion(1)=0
     counterpart = stack[self]
-    if counterpart <> .nil then return counterpart -- stop infinite recursion
+    if counterpart <> .nil then do
+        if expansion <= 0 then return counterpart -- stop infinite recursion
+        expansion -= 1
+    end
 
     doer = action~doer
     arity = doer~arity
 
-    if leftArg~isA(.array) then return leftArg~leftElementWise(doer, self, depth, stack)
+    if leftArg~isA(.array) then return leftArg~leftElementWise(doer, self, stack, d:depth, e:expansion)
 
     if leftArg~isA(.EnclosedArray), self~isA(.EnclosedArray) then do
         -- binary operator with enclosed array on left & right : EnclosedArray op EnclosedArray
@@ -1146,7 +1155,7 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
         er = .EnclosedArray~new(.nil)
         stack[self] = er -- in case of self reference, will be used to build the new self reference
         rightArg = self~disclose
-        r = rightArg~rightElementWise(doer, leftArg, depth-1, stack)
+        r = rightArg~rightElementWise(doer, leftArg, stack, d:depth-1, e:expansion)
         -- stack~remove(self)
         er~setEnclosed(r)
         return er
@@ -1160,7 +1169,7 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
         index = supplier~index
         item = supplier~item
         if item~isA(.array) | item~isA(.EnclosedArray) then do
-            r[index] = item~rightElementWise(doer, leftArg, depth-1, stack)
+            r[index] = item~rightElementWise(doer, leftArg, stack, d:depth-1, e:expansion)
         end
         else if depth <= 0 then do
             r[index] = item
