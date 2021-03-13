@@ -23,7 +23,7 @@ Named arguments are after the last positional argument.
 
     caller: "one two three one"~reduce("put", by:"word", initial:.set~new)
 
-The simplified syntax of arguments list for block (when last positional argument) is still available:
+The syntax for trailing block (when last positional argument) is still available:
 
     f(a1,a2,n1:v1,n2:v2){...}
 
