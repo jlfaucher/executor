@@ -936,7 +936,7 @@ else do
         isnum = .false
         -- To make a distinction between a real string and other objects, surround by (...)
         -- For the arrays, indicate their shape
-        if val~isA(.array) then valstr = "("valstr val~shapeToString")"
+        if val~hasMethod("shapeToString"), val~isA(.array) then valstr = "("valstr val~shapeToString")"
         else valstr = "("valstr")"
     end
     if isnum | \showPool then return valstr
@@ -1018,10 +1018,8 @@ return compareObjects(item1, item2, caseless, strict)
 ::method compareExpressions
 expose caseless criterion strict
 use strict arg first, second
-result1 = criterion~do(      first~item,        first~index,           first~dataflow,-
-                       item: first~item, index: first~index, dataflow: first~dataflow)
-result2 = criterion~do(      second~item,        second~index,           second~dataflow,-
-                       item: second~item, index: second~index, dataflow: second~dataflow)
+result1 = criterion~doPassNamedArguments("item", first~item, "index", first~index, "dataflow", first~dataflow)
+result2 = criterion~doPassNamedArguments("item", second~item,"index", second~index,"dataflow", second~dataflow)
 return compareObjects(result1, result2, caseless, strict)
 
 
@@ -1418,8 +1416,7 @@ forward class (super) arguments (unknown)    -- forward the initialization to su
 expose count counter partitionCount partitionFunction previousPartitionItem
 use strict arg item, index, dataflow
 if .nil <> partitionFunction then do
-    partitionItem = partitionFunction~do(      item,        index,           dataflow,-
-                                         item: item, index: index, dataflow: dataflow)
+    partitionItem = partitionFunction~doPassNamedArguments("item", item, "index", index, "dataflow", dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
         previousPartitionItem = partitionItem
@@ -1465,8 +1462,7 @@ end
 expose array partitionCount partitionFunction previousPartitionItem
 use strict arg item, index, dataflow
 if .nil <> partitionFunction then do
-    partitionItem = partitionFunction~do(      item,        index,           dataflow,-
-                                         item: item, index: index, dataflow: dataflow)
+    partitionItem = partitionFunction~doPassNamedArguments("item", item, "index", index,"dataflow", dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
         previousPartitionItem = partitionItem
@@ -1563,8 +1559,7 @@ forward class (super) arguments (unknown)    -- forward the initialization to su
 expose count counter partitionCount partitionFunction previousPartitionItem
 use strict arg item, index, dataflow
 if .nil <> partitionFunction then do
-    partitionItem = partitionFunction~do(      item,        index,           dataflow,-
-                                         item: item, index: index, dataflow: dataflow)
+    partitionItem = partitionFunction~doPassNamedArguments("item", item, "index", index, "dataFlow", dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
         previousPartitionItem = partitionItem
@@ -1610,8 +1605,7 @@ end
 expose array partitionCount partitionFunction previousPartitionItem
 use strict arg item, index, dataflow
 if .nil <> partitionFunction then do
-    partitionItem = partitionFunction~do(      item,        index,           dataflow,-
-                                         item: item, index: index, dataflow: dataflow)
+    partitionItem = partitionFunction~doPassNamedArguments("item", item, "index", index, "dataFlow", dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
         previousPartitionItem = partitionItem
@@ -1883,8 +1877,7 @@ isEmptyString = (string == "")
 
 ::method displayExpression -- private (in comment otherwise error "does not understand message DISPLAYEXPRESSION_UNPROTECTED when profiling)
 use strict arg expression, item, index, dataflow
-val = expression~do(      item,        index,           dataflow,-
-                    item: item, index: index, dataflow: dataflow)
+val = expression~doPassNamedArguments("item", item, "index", index, "dataFlow", dataflow)
 .output~charout(val~string)
 .output~charout(" ")
 
@@ -2319,8 +2312,7 @@ end
 expose buffer partitionCount partitionFunction previousPartitionItem
 use strict arg item, index, dataflow
 if .nil <> partitionFunction then do
-    partitionItem = partitionFunction~do(      item,        index,           dataflow,-
-                                         item: item, index: index, dataflow: dataflow)
+    partitionItem = partitionFunction~doPassNamedArguments("item", item, "index", index, "dataFlow", dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
         previousPartitionItem = partitionItem
@@ -2391,8 +2383,7 @@ self~write(counter, previousPartitionItem, .nil); -- write out the counter messa
 expose counter partitionCount partitionFunction previousPartitionItem
 use strict arg item, index, dataflow
 if .nil <> partitionFunction then do
-    partitionItem = partitionFunction~do(      item,        index,           dataflow,-
-                                         item: item, index: index, dataflow: dataflow)
+    partitionItem = partitionFunction~doPassNamedArguments("item", item, "index", index, "dataflow", dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
         previousPartitionItem = partitionItem
@@ -2645,8 +2636,7 @@ expose command doer trace
 if trace then .traceOutput~say("       >I> Method .system~process")
 if trace then trace i
 use strict arg item, index, dataflow
-if .nil <> doer then command = doer~do(      item,        index,           dataflow,-
-                                       item: item, index: index, dataflow: dataflow)
+if .nil <> doer then command = doer~doPassNamedArguments("item", item, "index", index, "dataFlow", dataflow)
 queue = .RexxQueue~new(.RexxQueue~create)
 command '| rxqueue "'queue~get'"'
 error = (RC <> 0) -- doesn't work ! RC is the return code of rxqueue, not the return code of command

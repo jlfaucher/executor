@@ -1855,10 +1855,8 @@ syntax:              -- propagate condition
             -- JLF
             if .nil <> doer then do
               -- named argument notation, not namespace notation!
-              if doer~arity >= 2 then doer~do(      subitem,        s~index,-
-                                              item: subitem, index: s~index)
-                                 else doer~do(      subitem,-
-                                              item: subitem)
+              if doer~arity >= 2 then doer~doPassNamedArguments("item", subitem, "index", s~index)
+                                 else doer~doPassNamedArguments("item", subitem)
             end
          end
      end
@@ -1869,10 +1867,8 @@ syntax:              -- propagate condition
          -- JLF
          if .nil <> doer then do
            -- named argument notation, not namespace notation!
-           if doer~arity >= 2 then doer~do(      s~item,        s~index,-
-                                           item: s~item, index: s~index)
-                              else doer~do(      s~item,-
-                                           item: s~item)
+           if doer~arity >= 2 then doer~doPassNamedArguments("item", s~item, "index", s~index)
+                              else doer~doPassNamedArguments("item", s~item)
          end
      end
      s~next

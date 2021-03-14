@@ -60,6 +60,25 @@ This script needs a modified ooRexx interpreter which support extension of prede
     forward message "do"
 
 
+-- This method allows to pass named arguments without using the dedicated syntax.
+-- I use it in rgf_util2.rex and pipe.rex to keep then compatible with ooRexx 4.2
+-- Note that offical ooRexx5 supports the dedicated syntax, but only because it's
+-- the syntax for namespaces. So nothing to see with named arguments!
+::method doPassNamedArguments unguarded
+    use arg key, value, ...
+    array = .array~new
+    directory = .directory~new
+    -- The same arguments are passed as positional and named arguments.
+    -- The callee is free to use what's the most convenient for him.
+    do i = 1 to arg() by 2
+        key = arg(i)
+        value = arg(i+1)
+        array~append(value)
+        directory[key] = value
+    end
+    forward message "do" arguments (array) namedArguments (directory)
+
+
 ::method go unguarded
     --return self~startWith("do", .context~args, n:.context~namedArgs)
     forward message "startWith" array("do", .context~args, n:.context~namedArgs)
