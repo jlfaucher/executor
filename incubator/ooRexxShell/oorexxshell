@@ -11,9 +11,10 @@
 # the environment is inherited without being filtered by the default POSIX shell.
 
 rxapi >/dev/null & # Workaround to avoid crash at first execution
+[ -x rlwrap ] && rlwrap=rlwrap # workaround if bash readline can't be used
 while true
 do
-    rexx oorexxshell.rex $*
+    $rlwrap rexx oorexxshell.rex $*
     status=$?
     if test $status -ne 200; then break; fi
 done

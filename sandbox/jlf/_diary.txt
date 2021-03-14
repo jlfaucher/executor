@@ -292,6 +292,103 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 mar 13
+
+ooRexxShell
+-----------
+
+Add support for PowerShell core (pwsh).
+    ooRexx[bash]> pwsh
+    pwsh[ooRexx]>
+
+    Since pwsh is not (yet) supported natively as an address environment by ooRexx,
+    the execution is delegated to the system interpreter:
+    - cmd /c pwsh -command <raw command>
+    - sh -c pwsh -command '<raw command>'
+
+    As for the other shells, pwsh is a one-liner interpreter in ooRexxShell:
+    pwsh[ooRexx]> $i=1; echo $i             # display 1
+    If you split the previous command in 2 lines, it doesn't work:
+    pwsh[ooRexx]> $i=1
+    pwsh[ooRexx]> echo $i                   # display nothing because the variable i has no value
+
+systemAddress has been aligned with ooRexx 5: default is "sh" for Linux & MacOs.
+But note the default address() for executor and ooRexx 4 is still bash.
+
+No longer use systemAddress for readline, because it returns "sh" which is not supported.
+Now use readlineAddress which returns "bash", even if systemAddress is "sh".
+
+Linux & MacOs: the list of interpreters includes the shells listed in /etc/shells.
+
+If the input line starts with a space then no command recognition.
+
+New command "goto":
+    goto label
+    ...
+    label:
+This commands allows to skip lines in a demo script.
+The label is case insensitive.
+The label can't be a drive letter (A:, B:, ..., Z:).
+
+The count of coactivities is displayed only when <> 0.
+
+Readline for bash: keep the spaces as entered by the user.
+
+Trace of the security manager: add an option ".verbose".
+By default, the trace is displayed only when the security manager is enabled.
+In verbose mode, the trace is displayed each time the security manager is called.
+
+"cmd" "command" and "system" are generic names to select the system interpreter.
+
+The readline mode is deactivated for Windows because I never succeded to have a good history management.
+Now we have a robust history management, but we lose the doskey macros and the filename expansion with 'tab'.
+
+The history filename is .oorexxshell_history (was .history_oorexxshell).
+Bypass a known problem with old versions of bash: the history file must not be empty.
+The history is now updated incrementally (history -a, instead of history -w).
+
+New command "demo":
+demo on|off: activate|deactivate the demonstration mode.
+When the demo mode is activated, the commands are displayed slowly (only when the readline mode is deactivated).
+Some commands are not displayed: demo, sleep, /*, */.
+
+New command "infos":
+infos on|off: activate|deactivate the display of the duration and coactivity count.
+
+New command "sleep":
+sleep [delay]
+The default delay is .ooRexxShell~defaultSleepDelay.
+
+New command "--" to enter a monoline comment in a demo script.
+
+New commands "/*" and "*/" to enter multilines comments in a demo script.
+If the command "*/" is immediatly followed by a command sleep then the duration is
+proportional to the number of lines in the comment.
+
+For better readability, the command names are separated from their argument:
+coloroff        --> color off
+coloron         --> color on
+debugoff        --> debug off
+debugon         --> debug on
+readlineoff     --> readline off
+readlineon      --> readline on
+securityoff     --> security off
+securityon      --> security on
+traceoff        --> trace off
+traceon         --> trace on
+trapoff         --> trap off
+trapon          --> trap on
+
+The following commands becomes queries, it's possible to filter their output, as for any query:
+sf --> ?sf
+tb --> ?tb
+bt --> ?bt
+
+New query "?settings":
+Display the main settings of ooRexxShell.
+
+
+===============================================================================
 2021 mar 12
 
 Array programming
@@ -6027,7 +6124,7 @@ in RexxEnvelope.cpp :
 Fixed by making the class SourceLiteral an internal class.
 
 
-Added support for abbreviated syntax of arguments list (similar to Groovy syntax for closures) :
+Added support for trailing blocks (similar to Groovy & Swift syntax for closures) :
     f{...} is equivalent to f({...})
     f(a1,a2,...){...} is equivalent to f(a1,a2,...,{...})
 Example :

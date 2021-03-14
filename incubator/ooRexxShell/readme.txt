@@ -2,7 +2,9 @@ ooRexxShell, derived from rexxtry.
 
 This shell supports several interpreters:
 - ooRexx itself
-- the system address (cmd under Windows, bash under Linux)
+- the system address (cmd under Windows, sh under Linux & MacOs)
+- bash, zsh
+- PowerShell core (pwsh)
 - any other external environment (you need to modify this script, search for hostemu for an example).
 The prompt indicates which interpreter is active.
 By default the shell is in ooRexx mode.
@@ -107,8 +109,8 @@ If you typed a command in ooRexxShell, it will be executed first.
 Then each command read from the queue will be executed.
 
 
-Help
-====
+Queries
+=======
 
 ?: display help.
 ?bt: display the backtrace of the last error (same as ?tb).
@@ -160,6 +162,7 @@ Otherwise the names are just string patterns. The character "*" has a special
 meaning when first or last character, and not quoted:
     * or **        : matches everything
     "*" or "**"    : matches exactly "*" or "**", see case stringPattern
+    ***            : matches all names containing "*", see case *stringPattern*
     *"*"*          : matches all names containing "*", see case *stringPattern*
     *"**"*         : matches all names containing "**", see case *stringPattern*
     *stringPattern : string~right(stringPattern~length)~caselessEquals(stringPattern)
@@ -178,7 +181,7 @@ Examples:
 A second level of filtering is done at line level.
 The output of the help can be filtered line by line using these operators:
 \==     strict different: line selected if none of the patterns matches the line.
-==      strict equal : line selected if at least one pattern matches the lines.
+==      strict equal : line selected if at least one pattern matches the line.
 <>      caseless different: same as \== except caseless.
 =       caseless equal: same as == except caseless.
 
@@ -213,13 +216,32 @@ Examples:
 
 Interpreters
 ============
-bash: to activate the bash interpreter.
-cmd: to activate the bash interpreter.
-hostemu: to activate the HostEmu interpreter.
-oorexx: to activate the ooRexx interpreter.
-sh: to activate the sh interpreter.
-system: to activate the bash interpreter.
 
+This list depends on the platform.
+The shells declared in /etc/shells are automatically included.
+
+bash:          to activate the bash interpreter.
+cmd:     alias to activate the system address interpreter.
+csh:           to activate the csh interpreter.
+command: alias to activate the system address interpreter.
+hostemu:       to activate the HostEmu interpreter.
+ksh:           to activate the ksh interpreter.
+oorexx:        to activate the ooRexx interpreter.
+pwsh:          to activate the pwsh interpreter.
+sh:            to activate the sh interpreter.
+system:  alias to activate the system address interpreter.
+tcsh:          to activate the tcsh interpreter.
+zsh:           to activate the zsh interpreter.
+
+If the line starts with a space, then these words are not recognized as an interpreter name.
+Instead, the line is interpreted by oorexx, which maybe triggers an external command. 
+ooRexx[bash]> bash
+bash[ooRexx]>                        You are still in ooRexxShell
+bash[ooRexx]> oorexx
+ooRexx[bash]>  bash                  Under MacOs, run BASH (/bin/bash)
+/local/rexx/oorexx$                  You are no longer in ooRexxShell (see the prompt)
+/local/rexx/oorexx$ exit 0
+ooRexx[bash]> 
 
 Commands
 ========
@@ -232,6 +254,7 @@ demo off|on: deactivate|activate the demonstration mode.
 debug off|on: deactivate|activate the full trace of the internals of ooRexxShell.
 exit: exit ooRexxShell.
 infos off|on: deactivate|activate the display of informations after each execution.
+prompt directory off|on: deactivate|activate the display of the directory before the prompt.
 readline off: use the raw parse pull for the input.
 readline on: delegate to the system readline (history, tab completion).
 reload: exit the current session and reload all the packages/librairies.
@@ -313,6 +336,35 @@ History of changes
 ==================
 
 -----------------------------------------------
+2020 dec 14
+
+Add support for PowerShell core (pwsh).
+    ooRexx[bash]> pwsh
+    pwsh[ooRexx]>
+
+    Since pwsh is not (yet) supported natively as an address environment by ooRexx,
+    the execution is delegated to the system interpreter:
+    - cmd /c pwsh -command <raw command>
+    - sh -c pwsh -command '<raw command>'
+
+    As for the other shells, pwsh is a one-liner interpreter in ooRexxShell:
+    pwsh[ooRexx]> $i=1; echo $i             # display 1
+    If you split the previous command in 2 lines, it doesn't work:
+    pwsh[ooRexx]> $i=1
+    pwsh[ooRexx]> echo $i                   # display nothing because the variable i has no value
+
+systemAddress has been aligned with ooRexx 5: default is "sh" for Linux/MacOs.
+But note the default address() for executor and ooRexx 4 is still bash.
+
+No longer use systemAddress for readline, because it returns "sh" which is not supported.
+Now use readlineAddress which returns "bash", even if systemAddress is "sh".
+
+Linux & MacOs: the list of interpreters includes the shells listed in /etc/shells.
+
+"command" is a generic name to select the system interpreter.
+
+
+-----------------------------------------------
 2020 dec 09
 
 If the input line starts with a space then no command recognition.
@@ -322,6 +374,8 @@ New command "goto":
     ...
     label:
 This commands allows to skip lines in a demo script.
+The label is case insensitive.
+The label can't be a drive letter (A:, B:, ..., Z:).
 
 The count of coactivities is displayed only when <> 0.
 
