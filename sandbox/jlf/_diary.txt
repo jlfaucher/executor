@@ -292,6 +292,23 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 mar 15
+
+Encoded strings (prototype).
+Added support for UTF-8.
+Added suppliers for codepoints and graphemes.
+
+s = "ça va ?"
+s~length=                           -- 8
+s~eachC{item~c2x" "}=               -- ['C3 ','A7 ', 61 , 20 , 76 , 61 , 20 ,'3F ']
+s~text~encoding=                    -- (The Byte_Encoding class)
+s~text~length=                      -- 8
+s~text("utf8")~length==             -- 7
+s~text~codepoints~each=             -- [ 231, 97, 32, 118, 97, 32, 63]
+s~text~graphemes~each("c2x")=       -- ['C3A7', 61, 20, 76, 61, 20,'3F']
+
+
+===============================================================================
 2021 mar 13
 
 ooRexxShell
@@ -2594,7 +2611,7 @@ myText=                         -- T'où as tu été ?'
 myString~text == myText=        -- true, always return the same counterpart
 myText~string == myString=      -- true, always return the same counterpart
 myString~length=                -- 18
-myText~length=                  -- 14
+myText~length=                  -- 15
 
                                 -- 1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18
 myString~c2x=                   -- 6F C3 B9 20 61 73 20 74 75 20 65 CC 81 74 C3 A9 20 3F

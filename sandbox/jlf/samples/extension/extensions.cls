@@ -21,7 +21,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::extension RexxBlock                       inherit RexxBlockDoer
 
 ::extension Coactivity                      inherit CoactivityDoer CoactivityFilter                      CoactivityIterator                      CoactivityReducer    CoactivityGenerator
-::extension String                          inherit StringDoer     StringFilter                          StringIterator                          StringReducer        StringGenerator        StringMapper        StringPrettyPrinter        StringHelpers RepeaterCollector RepeaterGenerator LogicalExtension EncodedString ComplexString
+::extension String                          inherit StringDoer     StringFilter                          StringIterator                          StringReducer        StringGenerator        StringMapper        StringPrettyPrinter        StringHelpers RepeaterCollector RepeaterGenerator LogicalExtension ComplexString
 ::extension MutableBuffer                   inherit                MutableBufferFilter                   MutableBufferIterator                   MutableBufferReducer MutableBufferGenerator MutableBufferMapper MutableBufferPrettyPrinter
 ::extension Collection                      inherit                CollectionFilter                      CollectionIterator                      CollectionReducer    CollectionGenerator    CollectionMapper    CollectionPrettyPrinter
 ::extension OrderedCollection               inherit                OrderedCollectionFilter
@@ -29,7 +29,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::extension CoactivitySupplierForGeneration inherit                CoactivitySupplierForGenerationFilter CoactivitySupplierForGenerationIterator
 
 ::extension Array                           inherit ArrayInitializer    ArrayPrettyPrinter    ArrayOperators     APLArray
-::extension RexxText                        inherit RexxTextInitializer RexxTextPrettyPrinter RexxTextOperators
 ::extension File                            inherit FileExtension
 
 
