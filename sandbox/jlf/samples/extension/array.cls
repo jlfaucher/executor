@@ -810,7 +810,7 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:3,a1=[*v2,a2=[
         source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:1,[v1,v2,[v2,*1],*0]
 source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,a2=[*v2,*a1],*a1]
     */
-    use strict arg maxItems=(-1), sparse="..", ellipsis="...", separator=",", val=(self), referencesTable=.nil
+    use strict arg maxItems=(-1), sparse="..", ellipsis="...", separator=",", val=(self), referencesTable=.nil, counter=({n=0; {expose n; n+=1; n}}~())
     use named arg trace=.false
     if trace then .traceOutput~say("       >I> Method .ArrayPrettyPrinter~ppRepresentation")
     if trace then trace i
@@ -819,17 +819,23 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
     if val~isA(.enclosedArray) then do
         -- Remember : would be better to have a method ppRepresentation on class EnclosedArray, but I prefer to remain close to dataflow_representation.
         reference = referencesTable[val]
-        if reference~selfReferenceId <> 0, reference~displayed == .true then return "*e" || reference~selfReferenceId -- pointer to the enclosed array already displayed
-        reference~displayed(.true)
+        if reference~selfReference, reference~displayed then return "*e" || reference~id -- pointer to the enclosed array already displayed
+        reference~displayed = .true
         valstr = ""
-        if reference~selfReferenceId <> 0 then valstr = "e" || reference~selfReferenceId || "="
-        return valstr || "<"val~ppRepresentation(maxItems, sparse, ellipsis, separator, val~disclose, referencesTable, trace: trace)">"
+        if reference~selfReference then do
+            reference~id = counter~() -- id assigned at first display, to have a natural progression
+            valstr = "e" || reference~id || "="
+        end
+        return valstr || "<"val~ppRepresentation(maxItems, sparse, ellipsis, separator, val~disclose, referencesTable, counter, trace: trace)">"
     end
     else if val~isA(.array), val~dimension == 1 then do
         reference = referencesTable[val]
-        if reference~selfReferenceId <> 0, reference~displayed == .true then return "*a" || reference~selfReferenceId -- pointer to the array already displayed
-        reference~displayed(.true)
-        if reference~selfReferenceId <> 0 then valstr = "a" || reference~selfReferenceId || "=" || "["
+        if reference~selfReference, reference~displayed then return "*a" || reference~id -- pointer to the array already displayed
+        reference~displayed = .true
+        if reference~selfReference then do
+            reference~id = counter~() -- id assigned at first display, to have a natural progression
+            valstr = "a" || reference~id || "=" || "["
+        end
         else valstr = "["
         -- each item of the array is inserted.
         items = 0 -- Not global. Each item being an array will have maxItems items inserted.
@@ -849,7 +855,7 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
                 valstr ||= sep || sparse
                 sep = separator
             end
-            valstr ||= sep || val~ppRepresentation(maxItems, sparse, ellipsis, separator, item, referencesTable, trace: trace)
+            valstr ||= sep || val~ppRepresentation(maxItems, sparse, ellipsis, separator, item, referencesTable, counter, trace: trace)
             sep = separator
             items += 1
             i = index + 1 -- next index
@@ -877,12 +883,11 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
     -- Same code organization as ppstring, to make easier joint updates.
     -- Use the same logic as ppstring to limit the number of items to analyze.
     -- When a referenced array is seen more than once, then the reference is marked as selfReference, to stop the infinite recursion.
-    use strict arg maxItems=(-1), val=(self), referencesTable=.nil
-    if .nil == referencesTable then referencesTable = .identityTable~new
+    use strict arg maxItems=(-1), val=(self), referencesTable=(.identityTable~new)
     if val~isA(.enclosedArray) then do
         reference = referencesTable[val]
         if .nil <> reference then do
-            reference~selfReferenceId(1)
+            reference~selfReference = .true
             return referencesTable
         end
         referencesTable[val] = .reference~new
@@ -892,7 +897,7 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
     else if val~isA(.array), val~dimension == 1 then do
         reference = referencesTable[val]
         if .nil <> reference then do
-            reference~selfReferenceId(1)
+            reference~selfReference = .true
             return referencesTable
         end
         referencesTable[val] = .reference~new
@@ -914,26 +919,17 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
     return referencesTable
 
 
+/******************************************************************************/
 ::class reference private
 
+::attribute selfReference   -- indicator of self reference
+::attribute id              -- unique identifier, used for display of references by ppstring
+::attribute displayed       -- will be set to .true by the pretty-printer when displaying the referenced for the first time
+
 ::method init
-    expose selfReferenceId displayed -- unique identifier, used for display of references by ppstring
-    selfReferenceId = 0 -- when not 0, it's an indicator of self reference.
-    displayed = .false -- will be set to .true by the pretty-printer when displaying the referenced array for the first time
-
-::method selfReferenceId
-    expose selfReferenceId
-    use strict arg newValue=.nil
-    oldValue = selfReferenceId
-    if .nil <> newValue then selfReferenceId = newValue
-    return oldValue
-
-::method displayed
-    expose displayed
-    use strict arg newValue=.nil
-    oldValue = displayed
-    if .nil <> newValue then displayed = newValue
-    return oldValue
+    self~selfReference = .false
+    self~id = 0
+    self~displayed = .false
 
 
 /******************************************************************************/
@@ -973,10 +969,15 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
     To adjust correctly this self reference, must not remove the mappings from the stack when returning from a recursive call.
     */
     use strict arg action={item}, rightArg=.nil, stack=(.identityTable~new)
-    use strict named arg depth(1)=(.infinity~positive), expansion(1)=0
+    use strict named arg depth(1)=(.infinity~positive), expansion(1)=0, transform(1)={item}
     counterpart = stack[self]
     if counterpart <> .nil then do
-        if expansion <= 0 then return counterpart -- stop infinite recursion
+        if expansion <= 0 then do
+            -- stop infinite recursion
+            transform~(counterpart, item:counterpart)
+            if var("result") then return result
+            return
+        end
         expansion -= 1
     end
     if \ arg(2, "e") then do
@@ -991,10 +992,12 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
             er = .EnclosedArray~new(.nil)
             stack[self] = er -- in case of self reference, will be used to build the new self reference
             arg = self~disclose
-            r = arg~leftElementWise(doer, , stack, d:depth-1, e:expansion)
+            arg~leftElementWise(doer, , stack, d:depth-1, e:expansion, t:transform)
             -- stack~remove(self)
-            er~setEnclosed(r)
-            return er
+            if var("result") then do
+                er~setEnclosed(result)
+                return er
+            end
         end
         -- Here, self is an array
         r = .array~new(self~dimensions)
@@ -1004,7 +1007,8 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
             index = supplier~index
             item = supplier~item
             if item~isA(.array) | item~isA(.EnclosedArray) then do
-                r[index] = item~leftElementWise(doer, , stack, d:depth-1, e:expansion)
+                item~leftElementWise(doer, , stack, d:depth-1, e:expansion, t:transform)
+                if var("result") then r[index] = result
             end
             else if depth <= 0 then do
                 r[index] = item
@@ -1041,7 +1045,8 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
         end
         if rightArg~isA(.array) then do
             -- binary operator with enclosed array on left & not enclosed array on right : EnclosedArray op Array
-            return rightArg~rightElementWise(doer, self, depth, stack)
+            rightArg~rightElementWise(doer, self, stack, d:depth, e:expansion, t:transform)
+            if var("result") then return result
         end
     end
 
@@ -1059,7 +1064,8 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
             index = supplier~index
             item = supplier~item
             if item~isA(.array) | item~isA(.EnclosedArray) then do
-                r[index] = item~leftElementWise(doer, rightArg[index], stack, d:depth-1, e:expansion)
+                item~leftElementWise(doer, rightArg[index], stack, d:depth-1, e:expansion, t:transform)
+                if var("result") then r[index] = result
             end
             else if depth <= 0 then do
                 r[index] = item
@@ -1085,10 +1091,12 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
             er = .EnclosedArray~new(.nil)
             stack[self] = er -- in case of self reference, will be used to build the new self reference
             leftArg = self~disclose
-            r = leftArg~leftElementWise(doer, rightArg, stack, d:depth-1, e:expansion)
+            leftArg~leftElementWise(doer, rightArg, stack, d:depth-1, e:expansion, t:transform)
             -- stack~remove(self)
-            er~setEnclosed(r)
-            return er
+            if var("result") then do
+                er~setEnclosed(result)
+                return er
+            end
         end
         -- Here, self is an array
         r = .array~new(self~dimensions)
@@ -1098,7 +1106,8 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
             index = supplier~index
             item = supplier~item
             if item~isA(.array) | item~isA(.EnclosedArray) then do
-                r[index] = item~leftElementWise(doer, rightArg, stack, d:depth-1, e:expansion)
+                item~leftElementWise(doer, rightArg, stack, d:depth-1, e:expansion, t:transform)
+                if var("result") then r[index] = result
             end
             else if depth <= 0 then do
                 r[index] = item
@@ -1129,17 +1138,25 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
     -- Other op Other :                 can't happen (right is either Array or EnclosedArray)
 
     use strict arg action, leftArg, stack=(.identityTable~new)
-    use strict named arg depth(1)=(.infinity~positive), expansion(1)=0
+    use strict named arg depth(1)=(.infinity~positive), expansion(1)=0, transform(1)={item}
     counterpart = stack[self]
     if counterpart <> .nil then do
-        if expansion <= 0 then return counterpart -- stop infinite recursion
+        if expansion <= 0 then do
+            -- stop infinite recursion
+            transform~(counterpart, item:counterpart)
+            if var("result") then return result
+            return
+        end
         expansion -= 1
     end
 
     doer = action~doer
     arity = doer~arity
 
-    if leftArg~isA(.array) then return leftArg~leftElementWise(doer, self, stack, d:depth, e:expansion)
+    if leftArg~isA(.array) then do
+        leftArg~leftElementWise(doer, self, stack, d:depth, e:expansion, t:transform)
+        if var("result") then return result
+    end
 
     if leftArg~isA(.EnclosedArray), self~isA(.EnclosedArray) then do
         -- binary operator with enclosed array on left & right : EnclosedArray op EnclosedArray
@@ -1155,10 +1172,12 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
         er = .EnclosedArray~new(.nil)
         stack[self] = er -- in case of self reference, will be used to build the new self reference
         rightArg = self~disclose
-        r = rightArg~rightElementWise(doer, leftArg, stack, d:depth-1, e:expansion)
+        rightArg~rightElementWise(doer, leftArg, stack, d:depth-1, e:expansion, t:transform)
         -- stack~remove(self)
-        er~setEnclosed(r)
-        return er
+        if var("result") then do
+            er~setEnclosed(result)
+            return er
+        end
     end
     -- Here, self is an array
     rightArg = self
@@ -1169,7 +1188,8 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
         index = supplier~index
         item = supplier~item
         if item~isA(.array) | item~isA(.EnclosedArray) then do
-            r[index] = item~rightElementWise(doer, leftArg, stack, d:depth-1, e:expansion)
+            item~rightElementWise(doer, leftArg, stack, d:depth-1, e:expansion, t:transform)
+            if var("result") then r[index] = result
         end
         else if depth <= 0 then do
             r[index] = item
