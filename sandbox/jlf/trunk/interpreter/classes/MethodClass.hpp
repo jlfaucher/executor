@@ -137,7 +137,8 @@ protected:
 
    inline void   setUnguarded()    {this->methodFlags |= UNGUARDED_FLAG;};
    inline void   setGuarded()      {this->methodFlags &= ~UNGUARDED_FLAG;};
-   inline void   setPrivate()      {this->methodFlags |= (PRIVATE_FLAG | PROTECTED_FLAG);};
+   // On 03/07/2014, rev 10273, setPrivate was modified to no longer apply the flag PROTECTED_FLAG
+   inline void   setPrivate()      {this->methodFlags |= (PRIVATE_FLAG /* | PROTECTED_FLAG */);};
    inline void   setProtected()    {this->methodFlags |= PROTECTED_FLAG;};
           void   setAttributes(bool _private, bool _protected, bool _guarded);
    inline RexxClass *getScope() {return this->scope;}

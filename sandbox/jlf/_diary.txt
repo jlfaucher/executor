@@ -294,6 +294,15 @@ The named arguments could be added to the returned array (splitting the key:valu
 ===============================================================================
 2021 mar 24
 
+A private method is no longer declared protected by default.
+That was fixed in offical ooRexx several years ago:
+- On 20/07/2014, rev 10318, RexxMemory::definePrivateKernelMethod was modified to no longer call setProtected.
+- On 03/07/2014, rev 10273, RexxMethod::setPrivate was modified to no longer apply the flag PROTECTED_FLAG.
+
+
+===============================================================================
+2021 mar 24
+
 Optimization of String~isASCII:
 The old implementation checks from start to end.
 The new implementation checks from start ascending, from middle descending, from middle ascending, from end descending.

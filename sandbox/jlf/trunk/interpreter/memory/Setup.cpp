@@ -131,7 +131,8 @@ void RexxMemory::definePrivateKernelMethod(
 /******************************************************************************/
 {
     RexxMethod *method = behaviour->define(name, entryPoint, arguments, passNamedArgs);
-    method->setProtected();              /* make this protected               */
+    // On 20/07/2014 rev 10318, official ooRexx was updated to no longer declare protected
+    //method->setProtected();              /* make this protected               */
     method->setPrivate();                /* make this protected               */
 }
 
