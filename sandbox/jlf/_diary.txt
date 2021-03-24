@@ -292,6 +292,32 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 mar 24
+
+Optimization of String~isASCII:
+The old implementation checks from start to end.
+The new implementation checks from start ascending, from middle descending, from middle ascending, from end descending.
+That will divide by 4 the number of iterations, while increasing the chance to find a not-ascii character faster.
+Strangely, the new implementation is also faster when all the characters are ASCII.
+
+Benchmark using a version where the flag isASCII is not stored:
+big10m = "0123456789"~copies(1e6)
+s = big10m                              -- 10 millions of ASCII characters, must check all of them
+do 1000; s~isASCIIold; end              -- 9.3s
+do 1000; s~isASCII; end                 -- 6.2s
+s = "é" || big10m                       -- 1 non-ASCII character followed by 10 millions of ASCII characters
+do 1000; s~isASCIIold; end              -- 0.001s
+do 1000; s~isASCII; end                 -- 0.001s
+s = big10m || "é"                       -- 10 millions of ASCII characters followed by 1 non-ASCII character
+do 1000; s~isASCIIold; end              -- 9.3s
+do 1000; s~isASCII; end                 -- 0.001s
+big5m = "01234"~copies(1e6)
+s = big5m || "é" || big5m               -- 1 non-ASCII character in the middle of 10 millions of ASCII characters
+do 1000; s~isASCIIold; end              -- 4.7s
+do 1000; s~isASCII; end                 -- 0.001s
+
+
+===============================================================================
 2021 mar 15
 
 Encoded strings (prototype).

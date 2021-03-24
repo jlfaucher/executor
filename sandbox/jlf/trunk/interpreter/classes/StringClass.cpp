@@ -1638,14 +1638,22 @@ bool RexxString::checkIsASCII()
 
     this->setIsASCIIChecked();
 
-    const char *data = this->getStringData();        /* point to the string               */
-    const char *endData = data + this->getBLength();  /* set the end point                 */
+    if (this->getBLength() != 0)
+    {
+        // Check from start ascending, from middle descending, from middle ascending, from end descending.
+        // That will divide by 4 the number of iterations, while increasing the chance to find a not-ASCII character faster..
+        const char *i1 = this->getStringData();
+        const char *i2 = this->getStringData() + (this->getBLength() - 1) / 2;
+        const char *i3 = i2;
+        const char *i4 = this->getStringData() + this->getBLength() - 1;
 
-    while (data < endData)
-    {             /* loop through entire string        */
-        if ( ((unsigned int)*data) >= 128) return false;
-        data++;                            /* step the position                 */
+        do
+        {
+            if ( (*i1++ | *i2-- | *i3++ | *i4--) & 0x80 ) return false;
+        }
+        while (i1 <= i2 || i3 <= i4);
     }
+
     this->setIsASCII();
     return true;
 }
