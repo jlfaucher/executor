@@ -421,17 +421,26 @@ interpretCommand:
     end
     if .ooRexxShell~hasLastResult then result = .ooRexxShell~lastResult -- restore previous result
                                   else drop result
-    if .ooRexxShell~trapSyntax then signal on syntax name interpretError
     if .ooRexxShell~trapLostdigits then signal on lostdigits
+    if .ooRexxShell~trapNoMethod then signal on noMethod
+    if .ooRexxShell~trapNoString then signal on noString
+    if .ooRexxShell~trapNoValue then signal on noValue
+    if .ooRexxShell~trapSyntax then signal on syntax
     interpret .ooRexxShell~command
-    signal off syntax
     signal off lostdigits
+    signal off noMethod
+    signal off noString
+    signal off noValue
+    signal off syntax
     if var("result") then .ooRexxShell~lastResult = result -- backup current result
                      else .ooRexxShell~dropLastResult
     signal return_to_dispatchCommand
 
     lostdigits:
-    interpretError:
+    noMethod:
+    noString:
+    noValue:
+    syntax:
     .ooRexxShell~error = .true
     signal return_to_dispatchCommand
 
@@ -896,6 +905,9 @@ Helpers
 ::attribute debug class
 
 ::attribute trapLostdigits class -- default true: the condition LOSTDIGITS is trapped when interpreting the command
+::attribute trapNoMethod class -- default true
+::attribute trapNoString class -- default false, will be true if I find a way to optimize the integration of alternative operators
+::attribute trapNoValue class -- default true
 ::attribute trapSyntax class -- default true: the condition SYNTAX is trapped when interpreting the command
 
 ::attribute dump2 class -- The routine dump2 of extended rgf_util, or .nil
@@ -928,8 +940,11 @@ Helpers
     self~traceDispatchCommand = .false
     self~traceFilter = .false
     self~traceback = .array~new
-    self~trapSyntax = .true
     self~trapLostdigits = .true
+    self~trapNoMethod = .true
+    self~trapNoString = .false
+    self~trapNoValue = .true
+    self~trapSyntax = .true
 
     HOME = value("HOME",,"ENVIRONMENT") -- probably defined under MacOs and Linux, but maybe not under Windows
     if HOME == "" then do
@@ -989,6 +1004,9 @@ Helpers
     "traceFilter",
     "traceReadline",
     "trapLostdigits",
+    "trapNoMethod",
+    "trapNoString",
+    "trapNoValue",
     "trapSyntax"
     variables = .directory~new
     do message over messages~subwords
@@ -1382,7 +1400,7 @@ Helpers
     say "    security on : activate the security manager. Transformation of commands."
     say "    sleep [n] [no prompt]: used in demo mode to pause during n seconds (default" .ooRexxShell~defaultSleepDelay "sec)."
     say "    trace off|on [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity][.verbose]]: deactivate|activate the trace."
-    say "    trap off|on [l[ostdigits]] [s[yntax]]: deactivate|activate the conditions traps."
+    say "    trap off|on [l[ostdigits]] [nom[ethod]] [nos[tring]] [nov[alue]] [s[yntax]]: deactivate|activate the conditions traps."
     say "Input queue name:" .ooRexxShell~queueName
 
 
@@ -1513,10 +1531,16 @@ Helpers
     parse var input . . rest
     if rest == "" then do
         self~trapLostdigits = trap
+        self~trapNoMethod = trap
+        self~trapNoString = trap
+        self~trapNoValue = trap
         self~trapSyntax = trap
     end
     do arg over string2args(rest)
         if "lostdigits"~caselessAbbrev(arg) then self~trapLostdigits= trap
+        else if "nomethod"~caselessAbbrev(arg) then self~trapNoMethod = trap
+        else if "nostring"~caselessAbbrev(arg) then self~trapNoString = trap
+        else if "novalue"~caselessAbbrev(arg) then self~trapNoValue = trap
         else if "syntax"~caselessAbbrev(arg) then self~trapSyntax = trap
         else .ooRexxShell~sayError("Unknown:" arg)
     end
