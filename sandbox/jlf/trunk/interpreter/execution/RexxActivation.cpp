@@ -206,6 +206,22 @@ RexxActivation::RexxActivation(RexxActivity* _activity, RexxActivation *_parent,
     this->settings.enableCommands = referenceSource->getEnableCommands();
     this->settings.enableMacrospace = referenceSource->getEnableMacrospace();
 
+    // Get the RXTRACE settings from the parent activity.
+    // They override the package settings.
+    if (_parent != NULL && _parent->settings.externalTraceDepth != 0)
+    {
+        this->settings.externalTraceOption = _parent->settings.externalTraceOption;
+        this->settings.externalTraceFlags = _parent->settings.externalTraceFlags;
+        // If these 2 attributes are non-zero then an RXTRACE was found on startup.
+        // In this case, the settings given by RXTRACE are taken in priority,
+        // except if the method is in the image (to avoid infinite recursion by tracing the trace monitor)
+        if (!this->code->isOldSpace() && this->settings.externalTraceOption != 0 && this->settings.externalTraceFlags !=0)
+        {
+            setTrace(this->settings.externalTraceOption, this->settings.externalTraceFlags);
+        }
+        this->settings.externalTraceDepth = _parent->settings.externalTraceDepth - 1;
+    }
+
     this->settings.propagateNumericSettings = false;
     if (_parent != NULL && _parent->settings.propagateNumericSettings)
     {
@@ -381,6 +397,22 @@ RexxActivation::RexxActivation(RexxActivity *_activity, RexxActivation *_parent,
     /* save the source also              */
     this->settings.parent_code = this->code;
 
+    // Get the RXTRACE settings from the parent activity.
+    // They override the package settings.
+    if (_parent != NULL && _parent->settings.externalTraceDepth != 0)
+    {
+        this->settings.externalTraceOption = _parent->settings.externalTraceOption;
+        this->settings.externalTraceFlags = _parent->settings.externalTraceFlags;
+        // If these 2 attributes are non-zero then an RXTRACE was found on startup.
+        // In this case, the settings given by RXTRACE are taken in priority.
+        // except if the method is in the image (to avoid infinite recursion by tracing the trace monitor)
+        if (!this->code->isOldSpace() && this->settings.externalTraceOption != 0 && this->settings.externalTraceFlags !=0)
+        {
+            setTrace(this->settings.externalTraceOption, this->settings.externalTraceFlags);
+        }
+        this->settings.externalTraceDepth = _parent->settings.externalTraceDepth - 1;
+    }
+
     this->settings.propagateNumericSettings = false;
     if (_parent != NULL && _parent->settings.propagateNumericSettings)
     {
@@ -505,9 +537,14 @@ RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, Rex
                     this->settings.object_variables = this->receiver->getObjectVariables(this->scope);
 
                     // For proper diagnostic in case of deadlock, do the trace now
-                    if (tracingAll() && isMethodOrRoutine())
+                    if (tracingLabels() && isMethodOrRoutine())
                     {
                         traceEntry();
+                        if (!tracingAll())
+                        {
+                            // we pause on the label only for ::OPTIONS TRACE LABELS
+                            pauseLabel();
+                        }
                         traceEntryDone = true;
                     }
 
@@ -564,9 +601,18 @@ RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, Rex
     }
     this->execution_state = ACTIVE;      /* we are now actively processing    */
 
-    if (!traceEntryDone && tracingAll() && isMethodOrRoutine())
+    // we might have a package option that turned on tracing.  If this
+    // is a routine or method invocation in one of those packages, give the
+    // initial entry trace so the user knows where we are.
+    // Must be one of ::OPTIONS TRACE ALL/RESULTS/INTERMEDIATES/LABELS
+    if (!traceEntryDone && tracingLabels() && isMethodOrRoutine())
     {
         traceEntry();
+        if (!tracingAll())
+        {
+            // we pause on the label only for ::OPTIONS TRACE LABELS
+            pauseLabel();
+        }
     }
 
     while (true)                         // loop until we get a terminating condition
@@ -825,7 +871,7 @@ RexxString * RexxActivation::traceSetting()
  *
  * @param setting The new trace setting.
  */
-void RexxActivation::setTrace(RexxString *setting)
+void RexxActivation::setTrace(RexxString *setting, bool externalTrace, size_t depth)
 {
     size_t newsetting;                   /* new trace setting                 */
     size_t traceFlags;                   // the optimized trace flags
@@ -835,6 +881,12 @@ void RexxActivation::setTrace(RexxString *setting)
     if (!RexxSource::parseTraceSetting(setting, newsetting, traceFlags, traceOption))
     {
         reportException(Error_Invalid_trace_trace, new_string(&traceOption, 1));
+    }
+    if (externalTrace)
+    {
+        this->settings.externalTraceOption = newsetting;
+        this->settings.externalTraceFlags = traceFlags;
+        this->settings.externalTraceDepth = depth;
     }
                                        /* now change the setting            */
     setTrace(newsetting, traceFlags);
@@ -3803,7 +3855,8 @@ void RexxActivation::processClauseBoundary()
         this->settings.flags &= ~set_trace_on;
         this->setExternalTraceOn();        /* and save the current state        */
                                            /* turn on tracing                   */
-        this->setTrace(TRACE_RESULTS | DEBUG_ON, trace_results_flags | trace_debug);
+        // this->setTrace(TRACE_RESULTS | DEBUG_ON, trace_results_flags | trace_debug);
+        this->setTrace(this->settings.externalTraceOption, this->settings.externalTraceFlags);
     }
     /* need to turn off tracing?         */
     if (this->settings.flags&set_trace_off)
@@ -3828,9 +3881,17 @@ void RexxActivation::processClauseBoundary()
  * Turn on external trace at program startup (e.g, because
  * RXTRACE is set)
  */
-void RexxActivation::enableExternalTrace()
+void RexxActivation::enableExternalTrace(const char *option)
 {
-    this->setTrace(TRACE_RESULTS | DEBUG_ON, trace_results_flags | trace_debug);
+    //this->setTrace(TRACE_RESULTS | DEBUG_ON, trace_results_flags | trace_debug);
+
+    // The trace option can be followed by an optional  "colon <depth>".
+    const char *colon = strchr(option, ':');
+    RexxString *s = (colon == NULL) ? new_string(option) : new_string(option, colon - option);
+    if (s->strCaselessCompare("ON")) s = new_string("?R");
+    ProtectedObject p(s);
+    size_t depth = (colon == NULL) ? SIZE_MAX : atoi(colon+1); // will be zero if not a valid integer
+    this->setTrace(s, true, depth);
 }
 
 
@@ -3883,7 +3944,8 @@ void RexxActivation::externalTraceOn()
                                        /* turn on clause boundary checking  */
   this->settings.flags |= clause_boundary;
                                        /* turn on tracing                   */
-  this->setTrace(TRACE_RESULTS | DEBUG_ON, trace_results_flags | trace_debug);
+  // this->setTrace(TRACE_RESULTS | DEBUG_ON, trace_results_flags | trace_debug);
+  this->setTrace(this->settings.externalTraceOption, this->settings.externalTraceFlags);
 }
 
 void RexxActivation::externalTraceOff()

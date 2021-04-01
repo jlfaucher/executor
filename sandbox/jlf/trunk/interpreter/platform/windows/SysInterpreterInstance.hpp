@@ -63,6 +63,7 @@ protected:
 
     InterpreterInstance *instance;       // backlink to our instance container
     bool  externalTraceEnabled;   // are we started with external trace on
+    char *externalTraceOption; // given by RXTRACE
 };
 
 

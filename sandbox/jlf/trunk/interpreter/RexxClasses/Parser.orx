@@ -191,7 +191,7 @@ to get the executable to store on the RexxSourceLiteral.
 ::method rawExecutable class unguarded
     use strict arg kind, sourceArray, context=.nil, isBlock=.true
     parse var kind kind "." option
-    if kind == "r" then executable = .Routine~new("", sourceArray, context, isBlock)
+    if kind == "r" then executable = .Routine~new("<anonymous>", sourceArray, context, isBlock)
     else if kind == "cl" then executable = .Method~new("do", sourceArray, context, isBlock)
     else executable = .nil
     return executable

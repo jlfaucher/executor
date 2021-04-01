@@ -166,7 +166,7 @@ RoutineClass::RoutineClass(RexxString *name, const char *data, size_t length)
  * @param name   The name of the routine.
  * @param source the source buffer.
  */
-RoutineClass::RoutineClass(RexxString *name, RexxArray *s, size_t startLine)
+RoutineClass::RoutineClass(RexxString *name, RexxArray *s, size_t startLine, RexxString *programName)
 {
     // we need to protect this object until the constructor completes.
     // the code generation step will create lots of new objects, giving a
@@ -174,7 +174,7 @@ RoutineClass::RoutineClass(RexxString *name, RexxArray *s, size_t startLine)
     ProtectedObject p(this);
     OrefSet(this, this->executableName, name);
     // get a source object to generat this from
-    RexxSource *_source = new RexxSource(name, s);
+    RexxSource *_source = new RexxSource(programName ? programName : name, s);
     ProtectedObject p2(_source);
     if (startLine != 0) _source->adjustLine(startLine, startLine + s->size() - 1);
     // generate our code object and make the file hook up.
@@ -506,11 +506,6 @@ RoutineClass *RoutineClass::newRoutineObject(RexxString *pgmname, RexxObject *so
     }
     p_newSourceArray = newSourceArray;
 
-    // create the routine
-    RoutineClass *result = new RoutineClass(pgmname, newSourceArray);
-    ProtectedObject p(result);
-	result->getSourceObject()->setIsBlock(isBlock);
-
     // if we've been provided with a scope, use it
     if (parentSource == OREF_NULL)
     {
@@ -521,6 +516,19 @@ RoutineClass *RoutineClass::newRoutineObject(RexxString *pgmname, RexxObject *so
             parentSource = currentContext->getSourceObject();
         }
     }
+
+    // pgnname is the name of the routine (can be "").
+    // Until now, it was also used as programName for the RexxSource created from the source array.
+    // That was not good for the trace, because the name of the routine was also considered as the name of the package (or vice versa):    //     >I> Routine <routineName> in package <routineName>           bad case
+    //     >I> Routine <packageName> in package <packageName>           I saw that when tracing initialization of packages
+    //     >I> Routine  in package                                      I see that for RexxBlock which is an anonymous executable
+    // Now, for the package name, I use the programName of the parentSource, if available.
+    RexxString *programName = parentSource ? parentSource->getProgramName() : OREF_NULL;
+
+    // create the routine
+    RoutineClass *result = new RoutineClass(pgmname, newSourceArray, 0, programName);
+    ProtectedObject p(result);
+	result->getSourceObject()->setIsBlock(isBlock);
 
     // if there is a parent source, then merge in the scope information
     if (parentSource != OREF_NULL)

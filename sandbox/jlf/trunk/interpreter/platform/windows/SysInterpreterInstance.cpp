@@ -98,13 +98,21 @@ BOOL __stdcall WinConsoleCtrlHandler(DWORD dwCtrlType)
 void SysInterpreterInstance::initialize(InterpreterInstance *i, RexxOption *options)
 {
     externalTraceEnabled = false;    // off by default
-    TCHAR rxTraceBuf[8];
+    const bufferSize = 20; // was 8 but better to increase because now supports an optional :<depth>
+    TCHAR rxTraceBuf[bufferSize];
 
+    externalTraceOption = NULL;
     /* scan current environment,         */
-    if (GetEnvironmentVariable("RXTRACE", rxTraceBuf, 8))
+    // value syntax: ON[:<depth>] or <traceOption>[:<depth>]
+    // ON is replaced by ?R
+    // Example of possible values : on on:10 i i:10 ?r ?r:10
+    DWORD charcount = GetEnvironmentVariable("RXTRACE", rxTraceBuf, bufferSize);
+    if (charcount != 0 && charcount < bufferSize )
     {
-        if (!Utilities::strCaselessCompare(rxTraceBuf, "ON"))    /* request to turn on?               */
+        externalTraceOption = (char *)SystemInterpreter::allocateResultMemory(bufferSize);
+        if (externalTraceOption != NULL)
         {
+            strcpy(externalTraceOption, rxTraceBuf);
             externalTraceEnabled = true;   // turn on tracing of top-level activations for this instance
         }
     }
@@ -140,6 +148,7 @@ void SysInterpreterInstance::initialize(InterpreterInstance *i, RexxOption *opti
 void SysInterpreterInstance::terminate()
 {
     SetConsoleCtrlHandler(&WinConsoleCtrlHandler, false);
+    if (externalTraceOption != NULL) SystemInterpreter::releaseResultMemory(externalTraceOption);
 }
 
 
@@ -166,7 +175,7 @@ void SysInterpreterInstance::setupProgram(RexxActivation *activation)
     // trace this activation if turned on externally when the instance was started
     if (externalTraceEnabled)
     {
-        activation->enableExternalTrace();
+        activation->enableExternalTrace(externalTraceOption);
     }
 }
 

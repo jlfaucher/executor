@@ -91,6 +91,7 @@ public:
     RexxClass *findClass(RexxString *className);
     BaseExecutable *setSourceObject(RexxSource *s);
     RexxString *getName() { return executableName; }
+    void setName(RexxString *name) { executableName = name; }
 
 protected:
     RexxString *executableName;     // the created name of this routine

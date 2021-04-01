@@ -1,13 +1,47 @@
 --------------------------------------------------------------------------------------------------------------
 
 RXTRACE
+section update March 30, 2021
+I review it to prepare this change:
+support any trace setting in RXTRACE, not just "on".
 
-interpreter/platform/windows/MiscSystem.cpp
-void SystemInterpreter::setupProgram(RexxActivation *activation)
-/******************************************************************************/
-/* Function:  Do system specific program setup                                */
-/******************************************************************************/
+
+
+
+
+
+
+
+                        ***********************
+                        * START OF REVIEW 2021 *
+                        ***********************
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/platform/windows/SysInterpreterInstance.hpp
+--------------------------------------------------------------------------------------------------
+
+class SysInterpreterInstance
 {
+protected:
+    bool  externalTraceEnabled;   // are we started with external trace on
+};
+
+
+--------------------------------------------------------------------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/platform/windows/SysInterpreterInstance.cpp
+--------------------------------------------------------------------------------------------------
+
+void SysInterpreterInstance::initialize(InterpreterInstance *i, RexxOption *options)
+{
+    externalTraceEnabled = false;    // off by default
     TCHAR rxTraceBuf[8];
 
     /* scan current environment,         */
@@ -15,40 +49,319 @@ void SystemInterpreter::setupProgram(RexxActivation *activation)
     {
         if (!Utilities::strCaselessCompare(rxTraceBuf, "ON"))    /* request to turn on?               */
         {
-                                           /* turn on tracing                   */
-            activation->enableExternalTrace();
+            externalTraceEnabled = true;   // turn on tracing of top-level activations for this instance
         }
+    }
+
+
+void SysInterpreterInstance::setupProgram(RexxActivation *activation)
+{
+    // trace this activation if turned on externally when the instance was started
+    if (externalTraceEnabled)
+    {
+        activation->enableExternalTrace();
     }
 }
 
-interpreter/platform/unix/MiscSystem.cpp
-void SystemInterpreter::setupProgram(RexxActivation *activation)
-/******************************************************************************/
-/* Function:  Do system specific program setup                                */
-/******************************************************************************/
+
+--------------------------------------------------------------------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/platform/unix/SysInterpreterInstance.hpp
+--------------------------------------------------------------------------------------------------
+
+class SysInterpreterInstance
 {
+protected:
+    bool  externalTraceEnabled;   // are we started with external trace on
+};
+
+
+--------------------------------------------------------------------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/platform/unix/SysInterpreterInstance.cpp
+--------------------------------------------------------------------------------------------------
+
+void SysInterpreterInstance::initialize(InterpreterInstance *i, RexxOption *options)
+{
+    instance = i;
+
+    externalTraceEnabled = false;    // off by default
     /* scan current environment,         */
     const char *rxTraceBuf = getenv("RXTRACE");
     if (rxTraceBuf != NULL)
     {
         if (!Utilities::strCaselessCompare(rxTraceBuf, "ON"))    /* request to turn on?               */
         {
-                                           /* turn on tracing                   */
-            activation->enableExternalTrace();
+            externalTraceEnabled = true;   // turn on tracing of top-level activations for this instance
         }
+    }
+
+    // add our default search extension as both upper and lower case
+    addSearchExtension(".REX");
+    addSearchExtension(".rex");
+}
+
+
+void SysInterpreterInstance::setupProgram(RexxActivation *activation)
+{
+    // trace this activation if turned on externally when the instance was started
+    if (externalTraceEnabled)
+    {
+        activation->enableExternalTrace();
     }
 }
 
 
-RexxActivation.cpp
+
+--------------------------------------------------------------------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/execution/RexxActivation.hpp
+--------------------------------------------------------------------------------------------------
+
+ class RexxActivation : public RexxActivationBase {
+
+   void              externalTraceOn();
+   void              externalTraceOff();
+
+   inline bool              isExternalTraceOn() { return (this->settings.flags&trace_on) != 0; }
+   inline void              setExternalTraceOn() { this->settings.flags |= trace_on; }
+   inline void              setExternalTraceOff() { this->settings.flags &= ~trace_on; }
+          void              enableExternalTrace();          <-- called by SysInterpreterInstance
+
+   // constants
+   static const size_t trace_on;            /* external trace condition occurred */
+   static const size_t set_trace_on;        /* trace turned on externally        */
+   static const size_t set_trace_off;       /* trace turned off externally       */
+
+--------------------------------------------------------------------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/execution/RexxActivation.cpp
+--------------------------------------------------------------------------------------------------
+
+search "ExternalTrace"
+
+
+const size_t RexxActivation::trace_off           = 0x00000000; /* trace nothing                     */
+const size_t RexxActivation::trace_debug         = 0x00000001; /* interactive trace mode flag       */
+const size_t RexxActivation::trace_all           = 0x00000002; /* trace all instructions            */
+const size_t RexxActivation::trace_results       = 0x00000004; /* trace all results                 */
+const size_t RexxActivation::trace_intermediates = 0x00000008; /* trace all instructions            */
+const size_t RexxActivation::trace_commands      = 0x00000010; /* trace all commands                */
+const size_t RexxActivation::trace_labels        = 0x00000020; /* trace all labels                  */
+const size_t RexxActivation::trace_errors        = 0x00000040; /* trace all command errors          */
+const size_t RexxActivation::trace_failures      = 0x00000080; /* trace all command failures        */
+const size_t RexxActivation::trace_suppress      = 0x00000100; /* tracing is suppressed during skips*/
+const size_t RexxActivation::trace_flags         = 0x000001ff; /* all tracing flags                 */
+                                                 // the default trace setting
+const size_t RexxActivation::default_trace_flags = trace_failures;
+
+// now the flag sets for different settings
+const size_t RexxActivation::trace_all_flags = (trace_all | trace_labels | trace_commands);
+const size_t RexxActivation::trace_results_flags = (trace_all | trace_labels | trace_results | trace_commands);
+const size_t RexxActivation::trace_intermediates_flags = (trace_all | trace_labels | trace_results | trace_commands | trace_intermediates);
+
+const size_t RexxActivation::trace_on            = 0x00040000; /* external trace condition occurred */
+const size_t RexxActivation::source_traced       = 0x00080000; /* source string has been traced     */
+
+const size_t RexxActivation::set_trace_on        = 0x01000000; /* trace turned on externally        */
+const size_t RexxActivation::set_trace_off       = 0x02000000; /* trace turned off externally       */
+
+void RexxActivation::processClauseBoundary()
+/* Function:  Handle all clause boundary processing (raising of halt          */
+/*            conditions, turning on of external traces, and calling of halt  */
+/*            and trace clause boundary exits                                 */
+{
+    if (this->pending_count != 0)        /* do we have trapped conditions?    */
+    {
+        this->processTraps();              /* go dispatch the traps             */
+    }
+
+    this->activity->callHaltTestExit(this); /* Sys exit want to raise a halt?    */
+    /* did sysexit change trace state    */
+    if (!this->activity->callTraceTestExit(this, this->isExternalTraceOn()))
+    {
+        /* remember new state...             */
+        if (this->isExternalTraceOn())     /* if current setting is on          */
+        {
+            this->setExternalTraceOff();     /* turn it off                       */
+        }
+        else                               /* otherwise                         */
+        {
+            this->setExternalTraceOn();      /* turn it on                        */
+        }
+    }
+    /* yield situation occurred?         */
+    if (this->settings.flags&external_yield)
+    {
+        /* turn off the yield flag           */
+        this->settings.flags &= ~external_yield;
+        this->activity->relinquish();      /* yield control to the activity     */
+    }
+    /* halt condition occurred?          */
+    if (this->settings.flags&halt_condition)
+    {
+        /* turn off the halt flag            */
+        this->settings.flags &= ~halt_condition;
+        /* yes, raise the flag               */
+                                             /* process as common condition       */
+        if (!activity->raiseCondition(OREF_HALT, OREF_NULL, settings.halt_description, OREF_NULL, OREF_NULL))
+        {
+                                               /* raise as a syntax error           */
+            reportException(Error_Program_interrupted_condition, OREF_HALT);
+        }
+    }
+    /* need to turn on tracing?          */
+    if (this->settings.flags&set_trace_on)
+    {
+        /* turn off the trace flag           */
+        this->settings.flags &= ~set_trace_on;
+        this->setExternalTraceOn();        /* and save the current state        */
+                                           /* turn on tracing                   */
+        // jlf HERE, should support ANY trace setting
+        this->setTrace(TRACE_RESULTS | DEBUG_ON, trace_results_flags | trace_debug);             <===========
+    }
+    /* need to turn off tracing?         */
+    if (this->settings.flags&set_trace_off)
+    {
+        /* turn off the trace flag           */
+        this->settings.flags &= ~set_trace_off;
+        this->setExternalTraceOff();       /* and save the current state        */
+                                           /* turn on tracing                   */
+        this->setTrace(TRACE_OFF | DEBUG_OFF, trace_off);                                       <=========== no change
+    }
+    /* no clause exits and all conditions*/
+    /* have been processed?              */
+    if (!(this->settings.flags&clause_exits) && this->pending_count == 0)
+    {
+        /* turn off boundary processing      */
+        this->settings.flags &= ~clause_boundary;
+    }
+}
+
+
 /**
  * Turn on external trace at program startup (e.g, because
  * RXTRACE is set)
  */
 void RexxActivation::enableExternalTrace()
 {
-    this->setTrace(TRACE_RESULTS | DEBUG_ON, trace_results_flags | trace_debug);
+    // jlf HERE, should support ANY trace setting
+    this->setTrace(TRACE_RESULTS | DEBUG_ON, trace_results_flags | trace_debug);                <============
 }
+
+
+void RexxActivation::externalTraceOn()
+/* Function:  Flip ON the externally activated TRACE bit.                     */
+{
+  this->settings.flags |= set_trace_on;/* turn on the tracing flag          */
+                                       /* turn on clause boundary checking  */
+  this->settings.flags |= clause_boundary;
+                                       /* turn on tracing                   */
+  // jlf HERE, should support ANY trace setting
+  this->setTrace(TRACE_RESULTS | DEBUG_ON, trace_results_flags | trace_debug);                <=============
+}
+
+void RexxActivation::externalTraceOff()
+/* Function:  Flip OFF the externally activated TRACE bit.                    */
+{
+                                       /* turn off the tracing flag         */
+  this->settings.flags |= set_trace_off;
+                                       /* turn on clause boundary checking  */
+  this->settings.flags |= clause_boundary;
+}
+
+
+
+--------------------------------------------------------------------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/concurrency/RexxActivity.cpp
+--------------------------------------------------------------------------------------------------
+
+search "externalTraceOn"
+search "externalTraceOff"
+
+
+bool RexxActivity::setTrace(bool on)
+{
+                                       /* get the current activation        */
+    RexxActivation *activation = currentRexxFrame;
+                                       /* got an activation?                */
+    if (activation != NULL)
+    {
+        if (on)                        /* turning this on?                  */
+        {
+                                       /* turn tracing on                   */
+            activation->externalTraceOn();
+        }
+        else
+        {
+                                       /* turn tracing off                  */
+            activation->externalTraceOff();
+        }
+        return true;
+    }
+    return false;
+}
+
+
+/* Function:   Calls the SysExitHandler method on the System Object to run    */
+/*             the Test external trace indicator system exit.                 */
+bool  RexxActivity::callTraceTestExit(
+     RexxActivation *activation,       /* sending activation                */
+     bool currentsetting)              /* sending activation                */
+{
+    if (isExitEnabled(RXTRC))  // is the exit enabled?
+    {
+        RXTRCTST_PARM exit_parm;             /* exit parameters                   */
+                                             /* Clear Trace bit before  call      */
+        exit_parm.rxtrc_flags.rxftrace = 0;
+        /* call the handler                  */
+        if (!callExit(activation, "RXTRC", RXTRC, RXTRCTST, (void *)&exit_parm))
+        {
+            return true;                     /* this wasn't handled               */
+        }
+        /* if not tracing, and now it is     */
+        /* requsted                          */
+        if (!currentsetting && (exit_parm.rxtrc_flags.rxftrace == 1))
+        {
+            /* call routine to handle this       */
+            activation->externalTraceOn();
+            return false;                    /* this was handled                  */
+        }
+        // this could be a request to stop tracing
+        else if (currentsetting &&  (exit_parm.rxtrc_flags.rxftrace != 1))
+        {
+            /* call routine to handle this       */
+            activation->externalTraceOff();
+            return false;                  /* this was handled                  */
+        }
+    }
+    return true;                         /* not handled                       */
+}
+
+
+
+
+
+
+
+
+
+
+
+                        **********************
+                        * END OF REVIEW 2021 *
+                        **********************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 --------------------------------------------------------------------------------------------------------------
@@ -72,7 +385,7 @@ context->traceFunction(functionName, (RexxObject *)result);
 context->traceIntermediate(this, TRACE_PREFIX_LITERAL);
 context->traceMessage(messageName, (RexxObject *)result);
 context->traceOperator(operatorName(), result);
-this->traceOperatorValue(TRACE_PREFIX_OPERATOR, n, v); 
+this->traceOperatorValue(TRACE_PREFIX_OPERATOR, n, v);
 this->traceOutput(currentRexxFrame, text);
 context->tracePrefix(operatorName(), result);
 context->traceResult(value);
@@ -122,7 +435,7 @@ enum TracePrefixes {
     ajoute : TRACE_PREFIX_INVOCATION
 class class RexxActivity
     ajoute : RexxString *buildMessage(wholenumber_t, RexxArray *);
-    
+
 /main/trunk/interpreter/execution/RexxActivation.cpp
 #include "PackageClass.hpp"
 Dans RexxActivation::run :

@@ -121,6 +121,9 @@ class ActivationSettings
       RexxObject    * scope;               // scope of the method call
       size_t traceOption;                  /* current active trace option       */
       size_t flags;                        /* trace/numeric and other settings  */
+      size_t externalTraceOption;          /* trace option set with RXTRACE     */
+      size_t externalTraceFlags;           /* trace flags set with RXTRACE      */
+      size_t externalTraceDepth;           /* trace depth set with RXTRACE      */
       wholenumber_t trace_skip;            /* count of trace events to skip     */
       int  return_status;                  /* command return status             */
       size_t  traceindent;                 /* trace indentation                 */
@@ -255,7 +258,7 @@ class ActivationSettings
    void              procedureExpose(RexxVariableBase **variables, size_t count);
    void              expose(RexxVariableBase **variables, size_t count);
    void              setTrace(size_t, size_t);
-   void              setTrace(RexxString *);
+   void              setTrace(RexxString *, bool externalTrace=false, size_t depth=0);
    static size_t     processTraceSetting(size_t traceSetting);
    void              raise(RexxString *, RexxObject *, RexxString *, RexxObject *, RexxObject *, RexxDirectory *);
    void              toggleAddress();
@@ -432,6 +435,7 @@ class ActivationSettings
    inline bool              tracingFailures(void) { return (this->settings.flags&trace_failures) != 0; }
    inline void              traceInstruction(RexxInstruction * v) { if (this->settings.flags&trace_all) this->traceClause(v, TRACE_PREFIX_CLAUSE); }
    inline void              traceLabel(RexxInstruction * v) { if ((this->settings.flags&trace_labels) != 0) this->traceClause(v, TRACE_PREFIX_CLAUSE); };
+   inline bool              tracingLabels(void) { return (this->settings.flags&trace_labels) != 0; }
    inline void              traceCommand(RexxInstruction * v) { if ((this->settings.flags&trace_commands) != 0) this->traceClause(v, TRACE_PREFIX_CLAUSE); }
    inline bool              tracingCommands(void) { return (this->settings.flags&trace_commands) != 0; }
    inline bool              tracingAll(void) { return (this->settings.flags&trace_all) != 0; }
@@ -455,7 +459,7 @@ class ActivationSettings
    inline bool              isExternalTraceOn() { return (this->settings.flags&trace_on) != 0; }
    inline void              setExternalTraceOn() { this->settings.flags |= trace_on; }
    inline void              setExternalTraceOff() { this->settings.flags &= ~trace_on; }
-          void              enableExternalTrace();
+          void              enableExternalTrace(const char *option);
 
    inline bool              isElapsedTimerReset() { return (this->settings.flags&elapsed_reset) != 0; }
    inline void              setElapsedTimerInvalid() { this->settings.flags |= elapsed_reset; }

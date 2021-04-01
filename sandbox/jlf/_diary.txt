@@ -292,6 +292,48 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 mar 31
+
+Reworked the script tracer.rex to support a trace without concurrency trace.
+Can be used with official ooRexx5 to generate a CSV file.
+When no concurrency trace, it's not possible to get the name of the executable
+for each line of the CSV file.
+
+RXTRACE is no longer limited to "on".
+It's now possible to use the same options as with the instruction trace.
+An optional depth can also be specified: colon followed by a positive integer.
+Ex:
+RXTRACE=i rexx aScriptToTrace
+RXTRACE=i:3 RXTRACE_CONCURRENCY=on rexx aScriptToTrace 2>&1 | rexx tracer -csv > out.csv
+
+When RXTRACE is set, the trace options at package (source) level are overwritten by RXTRACE.
+By default, the trace is activated everywhere.
+The optional depth indicates how many RexxActivation can be traced in the call stack:
+    - 0: top-level only
+    - 1: top-level and executables called by top-level.
+    - 2: top-level and executables called by top-level and executables called by executables called by top-level.
+    - etc.
+The methods in the rexx image are not traced, to avoid an infinite recursion
+(which happens when tracing the trace monitor).
+
+Changed how the package name is inferred when creating a routine with .Routine~new
+Only one name is passed (the routine name), and this name was also used as programName
+for the internally created RexxSource. That gave traces like that:
+    >I> Routine <routineName> in package <routineName>           missing package name
+    >I> Routine <packageName> in package <packageName>           I saw that when tracing initialization of packages
+    >I> Routine  in package                                      I saw that for RexxBlock which is an anonymous executable
+Now, for the package name, I use the programName of the parentSource (parameter context), if available.
+
+Changed the name of the routine created to execute the prolog of a required file.
+Was the full path of the file.
+Now it's <prolog>.
+The full name of the file is still available in the trace (package name).
+
+Retrofit feature-requests:#791 from ooRexx5.
+::OPTIONS TRACE LABELS will now also trace (or pause for) method and routine invocations.
+
+
+===============================================================================
 2021 mar 24
 
 A private method is no longer declared protected by default.

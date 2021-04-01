@@ -922,6 +922,11 @@ PackageClass *InterpreterInstance::loadRequires(RexxActivity *activity, RexxStri
         reportException(Error_Routine_not_found_requires, shortName);
     }
 
+    // The current name is the full path of the file.
+    // In the trace output, it's doubling the package name which is also displayed.
+    // So give a better name.
+    requiresFile->setName(new_string("<prolog>"));
+
     package = requiresFile->getPackage();
     // make sure we lock this package until we finish running the requires.
     GuardLock lock(activity, package, ThePackageClass);

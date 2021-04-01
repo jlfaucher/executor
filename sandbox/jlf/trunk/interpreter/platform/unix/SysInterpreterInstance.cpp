@@ -57,12 +57,18 @@ void SysInterpreterInstance::initialize(InterpreterInstance *i, RexxOption *opti
     instance = i;
 
     externalTraceEnabled = false;    // off by default
+    externalTraceOption = NULL;
     /* scan current environment,         */
+    // value syntax: ON[:<depth>] or <traceOption>[:<depth>]
+    // ON is replaced by ?R
+    // Example of possible values : on on:10 i i:10 ?r ?r:10
     const char *rxTraceBuf = getenv("RXTRACE");
     if (rxTraceBuf != NULL)
     {
-        if (!Utilities::strCaselessCompare(rxTraceBuf, "ON"))    /* request to turn on?               */
+        externalTraceOption = (char *)SystemInterpreter::allocateResultMemory(1+strlen(rxTraceBuf));
+        if (externalTraceOption != NULL)
         {
+            strcpy(externalTraceOption, rxTraceBuf);
             externalTraceEnabled = true;   // turn on tracing of top-level activations for this instance
         }
     }
@@ -78,6 +84,7 @@ void SysInterpreterInstance::initialize(InterpreterInstance *i, RexxOption *opti
  */
 void SysInterpreterInstance::terminate()
 {
+    if (externalTraceOption != NULL) SystemInterpreter::releaseResultMemory(externalTraceOption);
 }
 
 
@@ -104,7 +111,7 @@ void SysInterpreterInstance::setupProgram(RexxActivation *activation)
     // trace this activation if turned on externally when the instance was started
     if (externalTraceEnabled)
     {
-        activation->enableExternalTrace();
+        activation->enableExternalTrace(externalTraceOption);
     }
 }
 
@@ -117,6 +124,8 @@ void SysInterpreterInstance::setupProgram(RexxActivation *activation)
  */
 SysSearchPath::SysSearchPath(const char *parentDir, const char *extensionPath)
 {
+    // jlf : dangerous to have 2 successive calls:
+    // The return value from getenv() may point to static data which may be overwritten by subsequent calls to getenv
     const char *sysPath = getenv("PATH");
     const char *rexxPath = getenv("REXX_PATH");
     size_t sysPathSize = sysPath == NULL ? 0 : strlen(sysPath);

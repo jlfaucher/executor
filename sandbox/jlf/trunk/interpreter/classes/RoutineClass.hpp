@@ -55,7 +55,7 @@ public:
     RoutineClass(RexxString *name);
     RoutineClass(RexxString *name, RexxBuffer *source);
     RoutineClass(RexxString *name, const char *data, size_t length);
-    RoutineClass(RexxString *name, RexxArray *source, size_t startLine=0);
+    RoutineClass(RexxString *name, RexxArray *source, size_t startLine=0, RexxString *programName=OREF_NULL);
     inline RoutineClass(RESTORETYPE restoreType) { ; };
 
     void execute(RexxObject *, RexxObject *);
