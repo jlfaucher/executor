@@ -1,0 +1,256 @@
+================================================================================
+Deprecated
+================================================================================
+
+RexxRegisterFunctionExe
+RexxRegisterFunctionDll
+
+#define RXFUNCADD_MIN 2
+#define RXFUNCADD_MAX 3
+#define RXFUNCADD_name   1
+#define RXFUNCADD_module 2
+#define RXFUNCADD_proc   3
+
+BUILTIN(RXFUNCADD)
+{
+    fix_args(RXFUNCADD);                 /* check on required number of args  */
+
+    // we require a name and module, but the
+    // procedure is optional.  If not specified, we
+    // use the function name directly.
+    RexxString *name = required_string(RXFUNCADD, name);
+    RexxString *module = required_string(RXFUNCADD, module);
+    RexxString *proc = optional_string(RXFUNCADD, proc);
+
+    if (proc == OREF_NULL)
+    {
+        proc = name;
+    }
+
+    // hand this off to the package manager.
+    return PackageManager::addRegisteredRoutine(name, module, proc);
+}
+
+================================================================================
+External function
+================================================================================
+
+jlf: Deprecated example, but good enough to debug the call of SysAddRexxMacro
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/unix/api/callrexx/load_macro.rex
+    call RxFuncAdd 'SysLoadFuncs', 'rexxutil', 'SysLoadFuncs'
+    call SysLoadFuncs         -- nop, no longer needed
+    rc = SysAddRexxMacro('upload.rex','macros.rex')
+    say 'i have added macros.rex with name upload.rex to the Macrospace. RC = ' rc
+
+
+
+rc = SysAddRexxMacro('upload.rex','macros.rex')
+calls:
+
+
+RexxObject *RexxExpressionFunction::evaluate(
+    RexxActivation      *context,      /* current activation context        */
+    RexxExpressionStack *stack )       /* evaluation stack                  */
+{
+...
+        case function_external:            /* need to call externally           */
+            /* go process the internal call      */
+            context->externalCall(this->functionName, _arguments, argcount, namedArgcount, OREF_FUNCTIONNAME, result);
+
+
+call:
+
+
+RexxObject *RexxActivation::externalCall(RexxString *target, RexxObject **_arguments, size_t _argcount,
+    size_t _named_argcount, RexxString *calltype, ProtectedObject &resultObj)
+{
+...
+    if (SystemInterpreter::invokeExternalFunction(this, this->activity, target, _arguments, _argcount, _named_argcount, calltype, resultObj))
+    {
+        return(RexxObject *)resultObj;
+    }
+
+
+calls:
+
+
+bool SystemInterpreter::invokeExternalFunction(
+  RexxActivation * activation,         /* Current Activation                */
+  RexxActivity   * activity,           /* activity in use                   */
+  RexxString     * target,             /* Name of external function         */
+  RexxObject    ** arguments,          /* Argument array                    */
+  size_t           argcount,           /* count of positional arguments     */
+  size_t           named_argcount,     /* count of named arguments          */
+  RexxString     * calltype,           /* Type of call                      */
+  ProtectedObject &result)
+{
+...
+    if (PackageManager::callNativeRoutine(activity, target, arguments, argcount, named_argcount, result))
+    {
+        return true;
+    }
+
+
+calls:
+
+
+bool PackageManager::callNativeRoutine(RexxActivity *activity, RexxString *name,
+    RexxObject **arguments, size_t argcount, size_t named_argcount, ProtectedObject &result)
+{
+...
+    RoutineClass *function = (RoutineClass *)packageRoutines->at(name);
+    if (function != OREF_NULL)
+    {
+        function->call(activity, name, arguments, argcount, named_argcount, result);
+        return true;
+    }
+
+
+calls:
+
+
+void RoutineClass::call(
+    RexxActivity *activity,            /* activity running under            */
+    RexxString *msgname,               /* message to be run                 */
+    RexxObject**argPtr,                /* arguments to the method           */
+    size_t      argcount,              /* the count of arguments            */
+    size_t      named_argcount,
+    ProtectedObject &result)           // the method result
+{
+...
+    // just forward this to the code object
+    code->call(activity, this, msgname, argPtr, argcount, named_argcount, result);
+
+
+calls:
+
+
+void RexxNativeRoutine::call(RexxActivity *activity, RoutineClass *routine, RexxString *functionName, RexxObject **argPtr, size_t count, size_t named_count, ProtectedObject &result)
+{
+...
+    // create a new native activation
+    RexxNativeActivation *newNActa = ActivityManager::newNativeActivation(activity);
+    activity->pushStackFrame(newNActa);
+    newNActa->callNativeRoutine(routine, this, functionName, argPtr, count, named_count, result);
+
+
+calls:
+
+
+void RexxNativeActivation::callNativeRoutine(RoutineClass *_routine, RexxNativeRoutine *_code, RexxString *functionName,
+    RexxObject **list, size_t count, size_t named_count, ProtectedObject &resultObj)
+{
+...
+    CallContext context;               // the passed out method context
+...
+    // build a context pointer to pass out
+    activity->createCallContext(context, this);
+
+    context.threadContext.arguments = arguments;
+...
+        (*methp)((RexxCallContext *)&context, arguments);
+
+
+calls:
+
+
+RexxRoutine3(int, SysAddRexxMacro, CSTRING, name, CSTRING, file, OPTIONAL_CSTRING, option)
+{
+...
+    // jlf: not in the real function.
+    // I add these 2 lines to let debug the creation and GC protection of the string
+    const char *s="test where this string will be protected";
+    RexxStringObject obj_s = context->NewString(s, strlen(s));
+
+
+calls:
+
+
+struct RexxCallContext_
+{
+    RexxThreadContext *threadContext;   // the interpreter instance state
+    CallContextInterface *functions;    // functions available in a method context
+    ValueDescriptor *arguments;         // the argument descriptor
+...
+    RexxStringObject NewString(CSTRING s, size_t len)
+    {
+        return threadContext->NewString(s, len);
+    }
+
+
+calls:
+
+
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/api/ThreadContextStubs.cpp
+::NewString
+RexxStringObject RexxEntry NewString(RexxThreadContext *c, CSTRING s, size_t l)
+{
+    ApiContext context(c);          //
+    try
+    {
+        return (RexxStringObject)context.ret(new_string(s, l));
+    }
+    catch (RexxNativeActivation *)
+    {
+    }
+    return NULLOBJECT;
+}
+
+
+calls:
+
+
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/api/ContextApi.hpp
+class ApiContext
+{
+    inline RexxObjectPtr ret(RexxObject *o)
+    {
+        context->createLocalReference(o);            // jlf: here, context is a RexxNativeActivation*
+        return (RexxObjectPtr)o;
+    }
+
+
+conclusion :
+The objects created by the native routine are GC protected by the RexxNativeActivation.
+When the native routine is ended, the RexxNativeActivation is ended and the GC protected objects are released.
+
+
+
+
+For information:
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/api/ContextApi.hpp
+class ApiContext
+{
+public:
+    /**
+     * Initialize an API context from a thread context.
+     *
+     * @param c      The source context.
+     */
+    inline ApiContext(RexxThreadContext *c)
+    {
+        // we need to cleanup on exit
+        releaseLock = true;
+        activity = contextToActivity(c);
+        context = activity->getApiContext();
+        context->enableConditionTraps();
+        // go acquire the kernel lock and take care of nesting
+        activity->enterCurrentThread();
+        // we need to validate the thread call context to ensure this
+        // is the correct thread
+        activity->validateThread();
+    }
+
+
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/concurrency/ActivationApiContexts.hpp
+inline RexxActivity *contextToActivity(RexxThreadContext *c)
+{
+    return ((ActivityContext *)c)->owningActivity;
+}
+
+
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/concurrency/RexxActivity.hpp
+ class RexxActivity : public RexxInternalObject {
+   inline RexxNativeActivation *getApiContext() { return (RexxNativeActivation *)topStackFrame; }
+
+
