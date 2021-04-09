@@ -21,6 +21,12 @@ Miscellaneous notes:
 - [Internal notes][internal_notes]
 - [Instructions to build Executor from scratch][build_executor]
 
+Internal documentation:
+
+- [Class index][internal_documentation_classes] 
+- [File list][internal_documentation_files] 
+
+
 Examples of extensions
 ----------------------
 
@@ -179,7 +185,9 @@ output:
 
     My name is Bond, James Bond!
 
-### Array initializer
+### Array programming
+
+#### Array initializer
 
 Initializer (instance method ~of) which takes into account the dimensions of the array.  
 Inspired by [APL][apl_glimpse_heaven]
@@ -223,8 +231,8 @@ many times as necessary to fill the array.
     1 2 1
     2 1 2
 
-Generation of an identity matrix (1 on the diagonal, 0 everywhere else).  
-Works for any shape with rank >= 2.  
+#### Generation of an identity matrix (1 on the diagonal, 0 everywhere else)
+
 When all the items of an index are equal then it's a diagonal index.
 
 - [1,1] is a diagonal index.
@@ -232,13 +240,21 @@ When all the items of an index are equal then it's a diagonal index.
 
 This can be tested by converting the index to a set and testing if the number of items is 1.
 
-    .array~new(3,3)~of{ index~reduce(.set~new, "put")~items==1 }=
+    .array~new(3,3)~of{ .set~new~~putall(index)~items==1 }=
     1 0 0
     0 1 0
     0 0 1
 
+One-liner for an identity matrix of any size:
 
-### Array programming
+    identity2D = {.array~new(arg(1), arg(1))~of{.set~new~~putall(index)~items==1}}
+
+One-liner for a multi-dimensional identity array of any shape with rank >= 1:
+
+    identityND = {.array~new(.array~new(arg(1))~of(arg(1)))~of{.set~new~~putall(index)~items==1}}
+
+
+### Symetric implementations of binary operators
 
 Thanks to the support of alternative messages for binary operators, it's now possible to provide symetric implementations of binary operators.  
 
@@ -517,15 +533,13 @@ named arguments.
 Application to fibonacci :
 
     fibm = { use arg fib
-             use named arg p=(digits())
-             return {expose fib p; use arg n
-                     numeric digits p
+             return {expose fib; use arg n
                      if n==0 then return 0
                      if n==1 then return 1
                      if n<0 then return fib~(n+2) - fib~(n+1)
                      return fib~(n-2) + fib~(n-1)
                     }
-           }~YM(p:2090)
+           }~YM
     say fibm~(25) -- 75025
 
 fibm~(25) is calculated almost instantly,  
@@ -534,6 +548,7 @@ whereas the not-memoizing version needs almost 30 sec.
 Both Y and YM are subject to stack overflow.  
 But YM can be used by steps, to calculate very big fibonacci numbers, thanks to the memoization :
 
+    numeric digits propagate 2090
     do i=1 to 100; say "fibm~("i*100")="fibm~(i*100); end
     -- fibm~(100)=354224848179261915075
     -- fibm~(200)=280571172992510140037611932413038677189525
@@ -635,6 +650,9 @@ Same example with kestrels, to log intermediate results:
 
 ### Demos with asciinema
 
+The setting of the terminal is 45 lines, 130 columns.  
+If the terminal is not visible in its entirety, you can switch to full screen: icon bottom right.
+
 - ooRexxShell: [demo][oorexxshell_demo]
 - Run clasic Rexx Rosetta Code: [demo][run_classic_rexx_rosetta_code]
 
@@ -665,3 +683,5 @@ Same example with kestrels, to log intermediate results:
 [wikipedia_memoization]: https://en.wikipedia.org/wiki/Memoization
 [oorexxshell_demo]:https://asciinema.org/a/SIW9ego7ky4RVYA99OcAKF7OB
 [run_classic_rexx_rosetta_code]: https://asciinema.org/a/oyhrULNtbneuZ3neIvp9l2aZT
+[internal_documentation_classes]: https://jlfaucher.github.io/executor.master/doxygen/html/classes.html
+[internal_documentation_files]: https://jlfaucher.github.io/executor.master/doxygen/html/files.html
