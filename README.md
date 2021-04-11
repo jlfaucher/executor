@@ -667,9 +667,9 @@ If the terminal is not visible in its entirety, you can switch to full screen: i
 [named_arguments_test_cases_output]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/samples/extension/named_arguments-test.output.txt "Test cases of named arguments (output)"
 [internal_notes]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/internals/notes "Internal notes"
 [pipes_documentation]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/samples/pipeline/pipe_readme.txt
-[doc]: https://www.dropbox.com/sh/5yjl44kulrrvvua/AAA_3d4flzAlZHwCSGxk9-G9a?dl=0 "Graphical syntax diagrams"
+[doc]: https://jlfaucher.github.io/oorexx/docs/trunk/index.html "Graphical syntax diagrams"
 [slides]: https://www.dropbox.com/s/d42l8sdodne81eb/slides-sandbox-jlf.pdf?dl=0 "slides-sandbox-jlf.pdf"
-[download]: https://www.dropbox.com/sh/i6dkh74d8xx8pdy/AAC9WOIbFmvwI6vLJsp3OflUa?dl=0 "Download"
+[download]: https://jlfaucher.github.io/oorexx/sandbox/index.html "Download"
 [wikipedia_breadth_first_search]: http://en.wikipedia.org/wiki/Breadth-first_search
 [wikipedia_fixed_point_combinator]: http://en.wikipedia.org/wiki/Fixed-point_combinator#Y_combinator "Wikipedia fixed point combinator"
 [mike_vanier_article]: http://mvanier.livejournal.com/2897.html "Mike Vanier : Y combinator"
