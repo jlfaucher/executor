@@ -335,10 +335,66 @@ bool  RexxActivity::callTraceTestExit(
 }
 
 
+================================================================================
+Compare "?R" with RXTRACE=on
+================================================================================
+
+
+RexxSource::formatTraceSetting(size_t source)
+    source & DEBUG_ON --> "?"
+    source&TRACE_SETTING_MASK --> gives the option character
+
+
+Review how RexxSource::parseTraceSetting analyzes "?R"
+
+    size_t setting = TRACE_IGNORE;       /* don't change trace setting yet    */
+    size_t debug = DEBUG_IGNORE;         /* and the default debug change      */
+
+    "?"
+    debug =
+        DEBUG_TOGGLE --> DEBUG_IGNORE
+        else         --> DEBUG_TOGGLE
+
+    "R"
+    settings = TRACE_RESULTS
+
+    newSetting = setting | debug           --> TRACE_RESULTS | DEBUG_TOGGLE                         <=====
+    debugFlags = RexxActivation::processTraceSetting(newSetting);
 
 
 
+Review how RexxActivation::processTraceSetting(size_t traceSetting) analyzes TRACE_RESULTS | DEBUG_TOGGLE
 
+    flags = 0
+    traceSetting & TRACE_DEBUG_MASK
+        DEBUG_TOGGLE has no impact, will be handled at runtime                                      <=====
+
+    traceSetting&RexxSource::TRACE_SETTING_MASK
+        TRACE_RESULTS --> flags |= (trace_all | trace_labels | trace_results | trace_commands);     <=====
+
+
+Conclusion
+----------
+
+"?R" gives
+    TRACE_RESULTS | DEBUG_TOGGLE
+    trace_all | trace_labels | trace_results | trace_commands
+
+
+RXTRACE=on gives
+    TRACE_RESULTS | DEBUG_ON
+    trace_results_flags | trace_debug
+        where trace_results_flags = (trace_all | trace_labels | trace_results | trace_commands)
+
+The only difference is DEBUG_TOGGLE versus DEBUG_ON
+
+
+RXTRACE has an impact in RexxActivation::processClauseBoundary()
+Each time a clause boundary is reached, the settings TRACE_RESULTS | DEBUG_ON are re-applied.
+This means that any change made with the instruction trace is overwritten.
+In the doc:
+"Any TRACE instructions in the program being traced are ignored to ensure that you are not taken out
+of interactive debugging unexpectedly"
 
 
 
