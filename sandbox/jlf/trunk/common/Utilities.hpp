@@ -53,6 +53,25 @@
 #define CONCURRENCY_BUFFER_SIZE 100 // Must be enough to support CONCURRENCY_TRACE
 
 
+// For concurrency trace
+class RexxActivity;
+class RexxActivation;
+class RexxVariableDictionary;
+struct ConcurrencyInfos
+{
+    wholenumber_t threadId;
+    RexxActivity *activity;
+    RexxActivation *activation;
+    RexxVariableDictionary *variableDictionary;
+    unsigned short reserveCount;
+    char lock;
+};
+
+// Can't include RexxActivation.hpp to call the function GetConcurrencyInfos
+// A pointer to this function will be passed during the initialization of the interpreter.
+typedef void (*ConcurrencyInfosCollector) (struct ConcurrencyInfos &concurrencyInfos);
+
+
 class Utilities
 {
 public:
@@ -69,6 +88,10 @@ public:
     static bool traceConcurrency();
     static void traceParsing(bool);
     static bool traceParsing();
+
+    // For concurrency trace
+    static void SetConcurrencyInfosCollector(ConcurrencyInfosCollector);
+    static void GetConcurrencyInfos(struct ConcurrencyInfos &concurrencyInfos);
 };
 
 #endif

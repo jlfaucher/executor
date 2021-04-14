@@ -52,5 +52,10 @@ void dbgprintf(const char *format, ...)
     n = _vsnprintf(p, sizeof buf - 1, format, args);
     va_end(args);
 
-    OutputDebugString(buf);
+    // I follow for Windows the decision I have taken for MacOs:
+    // Tired to fight under MacOs with syslogd, /etc/syslog.conf, /etc/asl.conf to have something somewhere.
+    // Now using a good old printf
+
+    // OutputDebugString(buf);
+    fprintf(stderr, "%s", buf);
 }

@@ -36,3 +36,64 @@ LOG_USER | LOG_DEBUG
 
 http://www.oklabs.net/skype-reverse-engineering-the-long-journey/
 Montre comment utiliser Olly dbg
+
+
+===============================================================================
+jlf Apr 14, 2021
+In dbgprintf, I replaced syslog (Linux & MacOs) and OutputDebugString (Windows)
+by printf
+because I was not able to retrieve the debug text under MacOs.
+The procedure described below did not work for me in 2021...
+
+
+(copied from _diary.txt)
+2010 may 15
+
+Added the function dbgprintf to write debug strings.
+Under Windows, it calls OutputDebugString.
+Under Linux, it calls syslog.
+
+Remember, typical debug session under PuppyLinux (with busybox) :
+Open a console :
+    syslogd -S -C   # -S Smaller loggin output. -C Log to share mem buffer (read it using logred).
+    logread -f
+    The output of syslog is displayed by logread in this console (lock management, on client and server side).
+Open a console, launch rxapi.
+    Has been compiled to stay as a foreground process.
+    It sends debug strings to stderr, more easy to follow in this console (messages between client and server).
+Open a console, run the rexx command. The two other consoles are updated with debug infos.
+
+
+[2011 apr 25 update]
+Under MacOsX, I see this message in console : process exceeded 500 log messages per second limit.
+To bypass this limit :
+Edit /System/Library/LaunchDaemons/com.apple.syslogd.plist with xcode (binary format)
+Search for : <string>/usr/sbin/syslogd</string>
+Add these lines to the program arguments section :
+<string>-mps_limit</string>
+<string>0</string>
+A value of 0 disables the limit. The default is 500 messages per second.
+Restart the syslog daemon with:
+sudo launchctl unload /System/Library/LaunchDaemons/com.apple.syslogd.plist
+sudo launchctl load /System/Library/LaunchDaemons/com.apple.syslogd.plist
+-----
+LOG_DEBUG messages still not visible in console...
+Probably because of /etc/asl.conf :
+    # save everything from emergency to notice
+    ? [<= Level notice] store
+Remember :
+    Emergency     (level 0)
+    Alert         (level 1)
+    Critical      (level 2)
+    Error         (level 3)
+    Warning       (level 4)
+    Notice        (level 5)
+    Info          (level 6)
+    Debug         (level 7)
+-----
+Create the file /var/log/debug.log :
+sudo touch /var/log/debug.log
+Add this line to /etc/syslog.conf to get the debug messages in /var/log/debug.log :
+*.debug   /var/log/debug.log
+then restart the syslogd daemon as explained above.
+

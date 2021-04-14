@@ -868,14 +868,24 @@ void dumpClauseImpl(const char *from, RexxSource *source, RexxClause *clause)
 
     RexxString *value = source->extract(clause->clauseLocation, true);
     ProtectedObject p(value);
-    if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-    dbgprintf("(Parsing)-------------------------------------------------\n");
-    if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-    dbgprintf("(Parsing)From %s\n", from);
-    if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-    dbgprintf("(Parsing)%s\n", value->getStringData());
-    if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-    dbgprintf("(Parsing)\n");
+    if (Utilities::traceConcurrency())
+    {
+        // To avoid mixing output from different threads , better to have each line displayed by one dbgprintf instead of two.
+        struct ConcurrencyInfos concurrencyInfos;
+        Utilities::GetConcurrencyInfos(concurrencyInfos);
+        dbgprintf(CONCURRENCY_TRACE "...... ... (Parsing)-------------------------------------------------\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock);
+        dbgprintf(CONCURRENCY_TRACE "...... ... (Parsing)From %s\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, from);
+        dbgprintf(CONCURRENCY_TRACE "...... ... (Parsing)%s\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, value->getStringData());
+        dbgprintf(CONCURRENCY_TRACE "...... ... (Parsing)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock);
+    }
+    else
+    {
+        // Here, we don't display concurrency trace, we have one dbgprintf per line, good.
+        dbgprintf("(Parsing)-------------------------------------------------\n");
+        dbgprintf("(Parsing)From %s\n", from);
+        dbgprintf("(Parsing)%s\n", value->getStringData());
+        dbgprintf("(Parsing)\n");
+    }
 }
 
 #ifdef _DEBUG
@@ -895,13 +905,30 @@ void dumpTokensImpl(const char *from, RexxSource *source, RexxClause *clause)
     for (size_t i=1/*clause->first*/; i < clause->free; i++)
     {
         RexxToken *token = (RexxToken *)clause->tokens->get(i);
-        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-        dbgprintf("(Parsing)startLine=%i startCol=%i endLine=%i endCol=%i ", token->tokenLocation.getLineNumber(), size_v(token->tokenLocation.getOffset()), token->tokenLocation.getEndLine(), size_v(token->tokenLocation.getEndOffset()));
-        dbgprintf("classId=%s subclass=%s numeric=%i ", RexxToken::codeText(token->classId), RexxToken::codeText(token->subclass), token->numeric);
-        if (token->value == NULL)
-            dbgprintf("token=NULL\n");
+        if (Utilities::traceConcurrency())
+        {
+            // To avoid mixing output from different threads , better to have one dbgprintf instead of several.
+            struct ConcurrencyInfos concurrencyInfos;
+            Utilities::GetConcurrencyInfos(concurrencyInfos);
+            dbgprintf(  CONCURRENCY_TRACE "...... ... "
+                        "(Parsing)startLine=%i startCol=%i endLine=%i endCol=%i "
+                        "classId=%s subclass=%s numeric=%i "
+                        "token=\"%s\"\n",
+                        concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock,
+                        token->tokenLocation.getLineNumber(), size_v(token->tokenLocation.getOffset()), token->tokenLocation.getEndLine(), size_v(token->tokenLocation.getEndOffset()),
+                        RexxToken::codeText(token->classId), RexxToken::codeText(token->subclass), token->numeric,
+                        token->value == NULL ? "NULL" : token->value->getStringData());
+        }
         else
-            dbgprintf("token=\"%s\"\n", token->value->getStringData());
+        {
+            // Here, we don't display concurrency trace, we have only one dbgprintf, good.
+            dbgprintf(  "(Parsing)startLine=%i startCol=%i endLine=%i endCol=%i "
+                        "classId=%s subclass=%s numeric=%i "
+                        "token=\"%s\"\n",
+                        token->tokenLocation.getLineNumber(), size_v(token->tokenLocation.getOffset()), token->tokenLocation.getEndLine(), size_v(token->tokenLocation.getEndOffset()),
+                        RexxToken::codeText(token->classId), RexxToken::codeText(token->subclass), token->numeric,
+                        token->value == NULL ? "NULL" : token->value->getStringData());
+        }
         if (token->classId == TOKEN_EOC) break;
     }
 }
@@ -4877,10 +4904,30 @@ void RexxSource::addClause(
     {
         RexxString *instructionSource = this->extract(_instruction->instructionLocation, true);
         ProtectedObject p(instructionSource);
-        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-        dbgprintf("(Parsing)Add RexxInstruction : instructionType=\"%s\" instructionFlags=%i ", RexxToken::keywordText(_instruction->instructionType), _instruction->instructionFlags);
-        dbgprintf("startLine=%i startCol=%i endLine=%i endCol=%i ", _instruction->instructionLocation.getLineNumber(), size_v(_instruction->instructionLocation.getOffset()), _instruction->instructionLocation.getEndLine(), size_v(_instruction->instructionLocation.getEndOffset()));
-        dbgprintf("instruction={%s}\n", instructionSource->getStringData());
+        if (Utilities::traceConcurrency())
+        {
+            // To avoid mixing output from different threads , better to have one dbgprintf instead of several.
+            struct ConcurrencyInfos concurrencyInfos;
+            Utilities::GetConcurrencyInfos(concurrencyInfos);
+            dbgprintf(  CONCURRENCY_TRACE "...... ... "
+                        "(Parsing)Add RexxInstruction : instructionType=\"%s\" instructionFlags=%i "
+                        "startLine=%i startCol=%i endLine=%i endCol=%i "
+                        "instruction={%s}\n",
+                        concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock,
+                        RexxToken::keywordText(_instruction->instructionType), _instruction->instructionFlags,
+                        _instruction->instructionLocation.getLineNumber(), size_v(_instruction->instructionLocation.getOffset()), _instruction->instructionLocation.getEndLine(), size_v(_instruction->instructionLocation.getEndOffset()),
+                        instructionSource->getStringData());
+        }
+        else
+        {
+            // Here, we don't display concurrency trace, we have only one dbgprintf, good.
+            dbgprintf(  "(Parsing)Add RexxInstruction : instructionType=\"%s\" instructionFlags=%i "
+                        "startLine=%i startCol=%i endLine=%i endCol=%i "
+                        "instruction={%s}\n",
+                        RexxToken::keywordText(_instruction->instructionType), _instruction->instructionFlags,
+                        _instruction->instructionLocation.getLineNumber(), size_v(_instruction->instructionLocation.getOffset()), _instruction->instructionLocation.getEndLine(), size_v(_instruction->instructionLocation.getEndOffset()),
+                        instructionSource->getStringData());
+        }
     }
 #endif
 

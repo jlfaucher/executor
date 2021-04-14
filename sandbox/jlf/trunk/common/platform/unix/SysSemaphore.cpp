@@ -184,20 +184,21 @@ void SysSemaphore::wait(const char *ds, int di)
     schedparam.sched_priority = 100;
     pthread_setschedparam(pthread_self(),SCHED_OTHER, &schedparam);
     rc = pthread_mutex_lock(&(this->semMutex));      // Lock access to semaphore
-    
+
     if (this->postedCount == 0)                      // Has it been posted?
     {
 #ifdef CONCURRENCY_DEBUG
-        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-        dbgprintf("(SysSemaphore)%s.wait : before pthread_cond_wait(0x%x, 0x%x) from %s (0x%x)\n", semVariable, &(this->semCond), &(this->semMutex), ds, di);
+        struct ConcurrencyInfos concurrencyInfos;
+        Utilities::GetConcurrencyInfos(concurrencyInfos);
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... (SysSemaphore)%s.wait : before pthread_cond_wait(0x%x, 0x%x) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, semVariable, &(this->semCond), &(this->semMutex), ds, di);
 #endif
         rc = pthread_cond_wait(&(this->semCond), &(this->semMutex)); // Nope, then wait on it.
 #ifdef CONCURRENCY_DEBUG
-        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-        dbgprintf("(SysSemaphore)%s.wait : after pthread_cond_wait(0x%x, 0x%x) from %s (0x%x)\n", semVariable, &(this->semCond), &(this->semMutex), ds, di);
+        Utilities::GetConcurrencyInfos(concurrencyInfos);
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... (SysSemaphore)%s.wait : after pthread_cond_wait(0x%x, 0x%x) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, semVariable, &(this->semCond), &(this->semMutex), ds, di);
 #endif
     }
-    
+
     pthread_mutex_unlock(&(this->semMutex));    // Release mutex lock
     schedparam.sched_priority = i_prio;
     pthread_setschedparam(pthread_self(),SCHED_OTHER, &schedparam);
@@ -215,14 +216,15 @@ bool SysSemaphore::wait(const char *ds, int di, uint32_t t)           // takes a
     if (!this->postedCount)                   // Has it been posted?
     {
 #ifdef CONCURRENCY_DEBUG
-        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-        dbgprintf("(SysSemaphore)%s.wait : before pthread_cond_timedwait(0x%x, 0x%x, &timestruct) from %s (0x%x)\n", semVariable, &(this->semCond), &(this->semMutex), ds, di);
+        struct ConcurrencyInfos concurrencyInfos;
+        Utilities::GetConcurrencyInfos(concurrencyInfos);
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... (SysSemaphore)%s.wait : before pthread_cond_timedwait(0x%x, 0x%x, &timestruct) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, semVariable, &(this->semCond), &(this->semMutex), ds, di);
 #endif
                                               // wait with timeout
         result = pthread_cond_timedwait(&(this->semCond),&(this->semMutex),&timestruct);
 #ifdef CONCURRENCY_DEBUG
-        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-        dbgprintf("(SysSemaphore)%s.wait : after pthread_cond_timedwait(0x%x, 0x%x, &timestruct) from %s (0x%x)\n", semVariable, &(this->semCond), &(this->semMutex), ds, di);
+        Utilities::GetConcurrencyInfos(concurrencyInfos);
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... (SysSemaphore)%s.wait : after pthread_cond_timedwait(0x%x, 0x%x, &timestruct) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, semVariable, &(this->semCond), &(this->semMutex), ds, di);
 #endif
     }
     pthread_mutex_unlock(&(this->semMutex));    // Release mutex lock

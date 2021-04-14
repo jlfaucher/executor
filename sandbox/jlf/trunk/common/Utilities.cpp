@@ -49,6 +49,21 @@
 #include <sys/types.h>
 #include "Utilities.hpp"
 
+// Pointer to the function GetConcurrencyInfos declared in RexxActivation.hpp
+static ConcurrencyInfosCollector concurrencyCollector;
+
+void Utilities::SetConcurrencyInfosCollector(ConcurrencyInfosCollector collector)
+{
+    concurrencyCollector = collector;
+}
+
+
+void Utilities::GetConcurrencyInfos(struct ConcurrencyInfos &concurrencyInfos)
+{
+    concurrencyCollector(concurrencyInfos);
+}
+
+
 const char *Utilities::locateCharacter(
   const char *string,                  /* search string                     */
   const char *set,                     /* reference set                     */

@@ -66,26 +66,27 @@ public:
      inline void wait(const char *ds, int di)
      {
 #if CONCURRENCY_DEBUG
-         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-         dbgprintf("(SysSemaphore)%s.wait : before waitHandle(0x%x) from %s (0x%x)\n", semVariable, sem, ds, di);
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... (SysSemaphore)%s.wait : before waitHandle(0x%x) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, semVariable, sem, ds, di);
 #endif
-         waitHandle(sem);
+        waitHandle(sem);
 #if CONCURRENCY_DEBUG
-         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-         dbgprintf("(SysSemaphore)%s.wait : after waitHandle(0x%x) from %s (0x%x)\n", semVariable, sem, ds, di);
+        struct ConcurrencyInfos concurrencyInfos;
+        Utilities::GetConcurrencyInfos(concurrencyInfos);
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... (SysSemaphore)%s.wait : after waitHandle(0x%x) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, semVariable, sem, ds, di);
 #endif
      }
 
      inline bool wait(const char *ds, int di, uint32_t timeout)
      {
 #ifdef CONCURRENCY_DEBUG
-         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-         dbgprintf("(SysSemaphore)%s.wait : before WaitForSingleObject(0x%x, timemout) from %s (0x%x)\n", semVariable, sem, timeout, ds, di);
+        struct ConcurrencyInfos concurrencyInfos;
+        Utilities::GetConcurrencyInfos(concurrencyInfos);
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... (SysSemaphore)%s.wait : before WaitForSingleObject(0x%x, timemout) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, semVariable, sem, timeout, ds, di);
 #endif
          bool result = WaitForSingleObject(sem, timeout) != WAIT_TIMEOUT;
 #ifdef CONCURRENCY_DEBUG
-         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-         dbgprintf("(SysSemaphore)%s.wait : after WaitForSingleObject(0x%x, timemout) from %s (0x%x)\n", semVariable, sem, timeout, ds, di);
+        Utilities::GetConcurrencyInfos(concurrencyInfos);
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... (SysSemaphore)%s.wait : after WaitForSingleObject(0x%x, timemout) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, semVariable, sem, timeout, ds, di);
 #endif
          return result;
      }
@@ -131,39 +132,42 @@ public:
      inline void request(const char *ds, int di)
      {
 #ifdef CONCURRENCY_DEBUG
-         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-         dbgprintf("(SysMutex)%s.request : before waitHandle(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, di);
+        struct ConcurrencyInfos concurrencyInfos;
+        Utilities::GetConcurrencyInfos(concurrencyInfos);
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... (SysMutex)%s.request : before waitHandle(0x%x) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, mutexVariable, mutexMutex, ds, di);
 #endif
          waitHandle(mutexMutex);
 #ifdef CONCURRENCY_DEBUG
-         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-         dbgprintf("(SysMutex)%s.request : after waitHandle(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, di);
+        Utilities::GetConcurrencyInfos(concurrencyInfos);
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... (SysMutex)%s.request : after waitHandle(0x%x) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, mutexVariable, mutexMutex, ds, di);
 #endif
      }
 
      inline void release(const char *ds, int di)
      {
 #ifdef CONCURRENCY_DEBUG
-         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-         dbgprintf("(SysMutex)%s.release : before ReleaseMutex(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, di);
+        struct ConcurrencyInfos concurrencyInfos;
+        Utilities::GetConcurrencyInfos(concurrencyInfos);
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... (SysMutex)%s.release : before ReleaseMutex(0x%x) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, mutexVariable, mutexMutex, ds, di);
 #endif
          ReleaseMutex(mutexMutex);
 #ifdef CONCURRENCY_DEBUG
-         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-         dbgprintf("(SysMutex)%s.release : after ReleaseMutex(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, di);
+        Utilities::GetConcurrencyInfos(concurrencyInfos);
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... (SysMutex)%s.release : after ReleaseMutex(0x%x) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, mutexVariable, mutexMutex, ds, di);
 #endif
      }
 
      inline bool requestImmediate(const char *ds, int di)
      {
 #ifdef CONCURRENCY_DEBUG
-         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-         dbgprintf("(SysMutex)%s.requestImmediate : before WaitForSingleObject(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, di);
+        struct ConcurrencyInfos concurrencyInfos;
+        Utilities::GetConcurrencyInfos(concurrencyInfos);
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... (SysMutex)%s.requestImmediate : before WaitForSingleObject(0x%x) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, mutexVariable, mutexMutex, ds, di);
 #endif
          bool result = WaitForSingleObject(mutexMutex, 0) != WAIT_TIMEOUT;
 #ifdef CONCURRENCY_DEBUG
-         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-         dbgprintf("(SysMutex)%s.requestImmediate : after WaitForSingleObject(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, di);
+        Utilities::GetConcurrencyInfos(concurrencyInfos);
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... (SysMutex)%s.requestImmediate : after WaitForSingleObject(0x%x) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, mutexVariable, mutexMutex, ds, di);
 #endif
          return result;
      }

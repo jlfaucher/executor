@@ -3171,16 +3171,19 @@ void  RexxActivity::traceOutput(       /* write a line of trace information */
         // Add thread id, activation id and lock flag.
         // Should help to analyze the traces of a multithreaded script...
         char buffer[CONCURRENCY_BUFFER_SIZE];
+        struct ConcurrencyInfos concurrencyInfos;
+        Utilities::GetConcurrencyInfos(concurrencyInfos);
         Utilities::snprintf(buffer, sizeof buffer - 1, CONCURRENCY_TRACE,
-                                                       Utilities::currentThreadId(),
-                                                       activation,
-                                                       (activation) ? activation->getVariableDictionary() : NULL,
-                                                       (activation) ? activation->getReserveCount() : 0,
-                                                       (activation && activation->isObjectScopeLocked()) ? '*' : ' ');
+                                                       concurrencyInfos.threadId,
+                                                       concurrencyInfos.activation,
+                                                       concurrencyInfos.variableDictionary,
+                                                       concurrencyInfos.reserveCount,
+                                                       concurrencyInfos.lock);
         p_line = ((RexxString*)p_line)->concatToCstring(buffer);
     }
 
-    dbgprintf("%s\n", ((RexxString*)p_line)->getStringData());
+    // Since I decided to replace syslog by a good old printf (because I can't understand how the logs are working), I must deactivate this line to avoid a double trace
+    //dbgprintf("%s\n", ((RexxString*)p_line)->getStringData());
 
     if (this->callTraceExit(activation, (RexxString*)p_line))
     {

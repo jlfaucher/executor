@@ -202,7 +202,7 @@ const char *ServerOperationText(ServerOperation code)
     ENUM_TEXT(PROCESS_CLEANUP)
     ENUM_TEXT(CONNECTION_ACTIVE)
     ENUM_TEXT(CLOSE_CONNECTION)
-	
+
 	default: return "<Unknown>";
     }
 }
@@ -227,8 +227,9 @@ void APIServer::processMessages(SysServerConnection *connection)
             // an error here is likely caused by the client closing the connection.
             // delete both the exception and the connection and terminate the thread.
 #ifdef _DEBUG
-            if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-			dbgprintf("(rxapi) %05i ServiceException caught\n", rxapiCounter);
+            // To avoid mixing output from different threads , better to have one dbgprintf instead of two.
+            if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... (rxapi) %05i ServiceException caught\n", Utilities::currentThreadId(), NULL, NULL, 0, ' ', rxapiCounter);
+			else dbgprintf("(rxapi) %05i ServiceException caught\n", rxapiCounter);
 #endif
             delete e;
             delete connection;
@@ -236,14 +237,22 @@ void APIServer::processMessages(SysServerConnection *connection)
         }
 
 #ifdef _DEBUG
-        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-        dbgprintf("(rxapi) %05i ServiceMessage %s %s\n", rxapiCounter, ServerManagerText(message.messageTarget), ServerOperationText(message.operation));
-        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-        dbgprintf("(rxapi) %05i session=%i\n", rxapiCounter, message.session);
-        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-        dbgprintf("(rxapi) %05i nameArg=%s\n", rxapiCounter, message.nameArg);
-        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-        dbgprintf("(rxapi) %05i userid=%s\n", rxapiCounter, message.userid);
+        if (Utilities::traceConcurrency())
+        {
+            // To avoid mixing output from different threads , better to have each line displayed by one dbgprintf instead of two.
+            dbgprintf(CONCURRENCY_TRACE "...... ... (rxapi) %05i ServiceMessage %s %s\n", Utilities::currentThreadId(), NULL, NULL, 0, ' ', rxapiCounter, ServerManagerText(message.messageTarget), ServerOperationText(message.operation));
+            dbgprintf(CONCURRENCY_TRACE "...... ... (rxapi) %05i session=%i\n", Utilities::currentThreadId(), NULL, NULL, 0, ' ', rxapiCounter, message.session);
+            dbgprintf(CONCURRENCY_TRACE "...... ... (rxapi) %05i nameArg=%s\n", Utilities::currentThreadId(), NULL, NULL, 0, ' ', rxapiCounter, message.nameArg);
+            dbgprintf(CONCURRENCY_TRACE "...... ... (rxapi) %05i userid=%s\n", Utilities::currentThreadId(), NULL, NULL, 0, ' ', rxapiCounter, message.userid);
+        }
+        else
+        {
+            // Here, we don't display concurrency trace, we have one dbgprintf per line, good.
+            dbgprintf("(rxapi) %05i ServiceMessage %s %s\n", rxapiCounter, ServerManagerText(message.messageTarget), ServerOperationText(message.operation));
+            dbgprintf("(rxapi) %05i session=%i\n", rxapiCounter, message.session);
+            dbgprintf("(rxapi) %05i nameArg=%s\n", rxapiCounter, message.nameArg);
+            dbgprintf("(rxapi) %05i userid=%s\n", rxapiCounter, message.userid);
+        }
 #endif
         message.result = MESSAGE_OK;     // unconditionally zero the result
         try

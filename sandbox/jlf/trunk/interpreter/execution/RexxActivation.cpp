@@ -131,6 +131,33 @@ const size_t RexxActivation::transfer_failed     = 0x10000000; /* transfer of va
 const size_t RexxActivation::elapsed_reset       = 0x20000000; // The elapsed time stamp was reset via time('r')
 const size_t RexxActivation::guarded_method      = 0x40000000; // this is a guarded method
 
+
+// For concurrency trace
+// This function is called via Utility::GetConcurrencyInfos, because sometimes
+// it's not possible to include RexxActivation.hpp to call directly this function.
+void GetConcurrencyInfos(ConcurrencyInfos &infos)
+{
+    infos.threadId = Utilities::currentThreadId();
+    infos.activity = ActivityManager::currentActivity;
+    infos.activation = (infos.activity ? infos.activity-> getCurrentRexxFrame() : NULL);
+    infos.variableDictionary = (infos.activation ? infos.activation->getVariableDictionary() : NULL);
+    infos.reserveCount = (infos.activation ? infos.activation-> getReserveCount() : 0);
+    infos.lock = (infos.activation && infos.activation->isObjectScopeLocked() ? '*' : ' ');
+}
+
+
+class ConcurrencyInfosCollectorInitializer
+{
+    public:
+    // Store a pointer to the functionGetConcurrencyInfos in the Utilities area.
+    ConcurrencyInfosCollectorInitializer() { Utilities::SetConcurrencyInfosCollector(&GetConcurrencyInfos); }
+};
+
+
+// The goal of this declaration is to activate the constructor during the initialization
+static ConcurrencyInfosCollectorInitializer initializer;
+
+
 void * RexxActivation::operator new(size_t size)
 /******************************************************************************/
 /* Function:  Create a new activation object                                  */
@@ -212,15 +239,23 @@ RexxActivation::RexxActivation(RexxActivity* _activity, RexxActivation *_parent,
     {
         this->settings.externalTraceOption = _parent->settings.externalTraceOption;
         this->settings.externalTraceFlags = _parent->settings.externalTraceFlags;
-        // If these 2 attributes are non-zero then an RXTRACE was found on startup.
-        // In this case, the settings given by RXTRACE are taken in priority,
+        // The settings given by RXTRACE are taken in priority,
         // except if the method is in the image (to avoid infinite recursion by tracing the trace monitor)
-        if (!this->code->isOldSpace() && this->settings.externalTraceOption != 0 && this->settings.externalTraceFlags !=0)
+        if (!this->code->isOldSpace())
         {
             setTrace(this->settings.externalTraceOption, this->settings.externalTraceFlags);
         }
         this->settings.externalTraceDepth = _parent->settings.externalTraceDepth - 1;
     }
+#ifdef VERBOSE_ACTIVATION
+    printf("activation for a method invocation: externalTraceDepth=%zx, externalTraceOption=%zx, externalTraceFlags=%zx\n", this->settings.externalTraceDepth, this->settings.externalTraceOption, this->settings.externalTraceFlags);
+    printf("                                  : traceOption=%zx, flags=%zx\n", this->settings.traceOption, this->settings.flags);
+    RexxString *methodName = _method->getName();
+    const char *methodNameStr = methodName ? methodName->getStringData() : "<NULL>";
+    RexxString *scope = (this->scope == TheNilObject ? this->scope->requestString() : this->scope->getId());
+    const char *scopeStr = scope ? scope->getStringData() : "<NULL>";
+    printf("                                  : method=%s, scope=%s\n", methodNameStr, scopeStr);
+#endif
 
     this->settings.propagateNumericSettings = false;
     if (_parent != NULL && _parent->settings.propagateNumericSettings)
@@ -321,6 +356,10 @@ RexxActivation::RexxActivation(RexxActivity *_activity, RexxActivation *_parent,
     }
     /* this is a nested call until we issue a procedure */
     settings.local_variables.setNested();
+#ifdef VERBOSE_ACTIVATION
+    printf("activation for an internal level call: externalTraceDepth=%zx, externalTraceOption=%zx, externalTraceFlags=%zx\n", this->settings.externalTraceDepth, this->settings.externalTraceOption, this->settings.externalTraceFlags);
+    printf("                                     : traceOption=%zx, flags=%zx\n", this->settings.traceOption, this->settings.flags);
+#endif
     // get the executable from the parent.
     this->executable = _parent->getExecutable();
     // for internal calls, this is the same source object as the parent
@@ -403,15 +442,18 @@ RexxActivation::RexxActivation(RexxActivity *_activity, RexxActivation *_parent,
     {
         this->settings.externalTraceOption = _parent->settings.externalTraceOption;
         this->settings.externalTraceFlags = _parent->settings.externalTraceFlags;
-        // If these 2 attributes are non-zero then an RXTRACE was found on startup.
-        // In this case, the settings given by RXTRACE are taken in priority.
+        // The settings given by RXTRACE are taken in priority.
         // except if the method is in the image (to avoid infinite recursion by tracing the trace monitor)
-        if (!this->code->isOldSpace() && this->settings.externalTraceOption != 0 && this->settings.externalTraceFlags !=0)
+        if (!this->code->isOldSpace())
         {
             setTrace(this->settings.externalTraceOption, this->settings.externalTraceFlags);
         }
         this->settings.externalTraceDepth = _parent->settings.externalTraceDepth - 1;
     }
+#ifdef VERBOSE_ACTIVATION
+    printf("activation for a toplevel program or an external call: externalTraceDepth=%zx, externalTraceOption=%zx, externalTraceFlags=%zx\n", this->settings.externalTraceDepth, this->settings.externalTraceOption, this->settings.externalTraceFlags);
+    printf("                                  : traceOption=%zx, flags=%zx\n", this->settings.traceOption, this->settings.flags);
+#endif
 
     this->settings.propagateNumericSettings = false;
     if (_parent != NULL && _parent->settings.propagateNumericSettings)
@@ -3855,8 +3897,8 @@ void RexxActivation::processClauseBoundary()
         this->settings.flags &= ~set_trace_on;
         this->setExternalTraceOn();        /* and save the current state        */
                                            /* turn on tracing                   */
-        // this->setTrace(TRACE_RESULTS | DEBUG_ON, trace_results_flags | trace_debug);
-        this->setTrace(this->settings.externalTraceOption, this->settings.externalTraceFlags);
+        this->setTrace(TRACE_RESULTS | DEBUG_ON, trace_results_flags | trace_debug);
+        // this->setTrace(this->settings.externalTraceOption, this->settings.externalTraceFlags);
     }
     /* need to turn off tracing?         */
     if (this->settings.flags&set_trace_off)
@@ -3887,11 +3929,18 @@ void RexxActivation::enableExternalTrace(const char *option)
 
     // The trace option can be followed by an optional  "colon <depth>".
     const char *colon = strchr(option, ':');
-    RexxString *s = (colon == NULL) ? new_string(option) : new_string(option, colon - option);
-    if (s->strCaselessCompare("ON")) s = new_string("?R");
-    ProtectedObject p(s);
-    size_t depth = (colon == NULL) ? SIZE_MAX : atoi(colon+1); // will be zero if not a valid integer
-    this->setTrace(s, true, depth);
+    RexxString *s = (colon == NULL) ? new_string(option) : new_string(option, stringsizeB_v(colon - option));
+    if (s->strCaselessCompare("ON"))
+    {
+        // ignore the depth
+        this->setTrace(TRACE_RESULTS | DEBUG_ON, trace_results_flags | trace_debug);
+    }
+    else
+    {
+        ProtectedObject p(s);
+        size_t depth = (colon == NULL) ? SIZE_MAX : atoi(colon+1); // will be zero if not a valid integer
+        this->setTrace(s, true, depth);
+    }
 }
 
 
@@ -3944,8 +3993,8 @@ void RexxActivation::externalTraceOn()
                                        /* turn on clause boundary checking  */
   this->settings.flags |= clause_boundary;
                                        /* turn on tracing                   */
-  // this->setTrace(TRACE_RESULTS | DEBUG_ON, trace_results_flags | trace_debug);
-  this->setTrace(this->settings.externalTraceOption, this->settings.externalTraceFlags);
+  this->setTrace(TRACE_RESULTS | DEBUG_ON, trace_results_flags | trace_debug);
+  // this->setTrace(this->settings.externalTraceOption, this->settings.externalTraceFlags);
 }
 
 void RexxActivation::externalTraceOff()

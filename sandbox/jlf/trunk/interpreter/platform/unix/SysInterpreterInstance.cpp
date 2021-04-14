@@ -59,9 +59,9 @@ void SysInterpreterInstance::initialize(InterpreterInstance *i, RexxOption *opti
     externalTraceEnabled = false;    // off by default
     externalTraceOption = NULL;
     /* scan current environment,         */
-    // value syntax: ON[:<depth>] or <traceOption>[:<depth>]
-    // ON is replaced by ?R
-    // Example of possible values : on on:10 i i:10 ?r ?r:10
+    // value syntax: ON or <traceOption>[:<depth>]
+    // ON is equivalent to ?R
+    // Example of possible values : on  i i:10 ?r ?r:10
     const char *rxTraceBuf = getenv("RXTRACE");
     if (rxTraceBuf != NULL)
     {
