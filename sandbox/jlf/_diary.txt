@@ -225,6 +225,12 @@ Security manager METHOD
 Add NAMEDARGUMENTS: a directory of the method named arguments
 to the information directory.
 
+RexxNativeActivation::callNativeRoutine(RoutineClass *_routine, RexxNativeRoutine *_code, RexxString *functionName,
+The named arguments are not passed to the native routine.
+void RexxNativeActivation::callNativeRoutine(RoutineClass *_routine, RexxNativeRoutine *_code, RexxString *functionName,
+    RexxObject **list, size_t count, size_t named_count, ProtectedObject &resultObj)
+
+
 
 Maybe to rework
 ---------------
@@ -1794,6 +1800,11 @@ Keep the trailing omitted arguments.
     .array~of(10,20,30,,)~dimensions= -- [5] instead of [3]
 This is consistent with the array literals:
     v(1,2,) is the same as 1,2,
+[03/04/2021]
+I just discovered that rexxref.pdf acknowledges this inconsistency:
+"If the array term has trailing commas, the returned array has a bigger size
+than what .Array~of(…) would have returned:"
+So for official ooRexx, that's normal to have this inconsistency.
 [01/05/2018]
 The change above has an unexpected effect on the regression tests:
 base/bif: [SYNTAX 40.5] raised unexpectedly
