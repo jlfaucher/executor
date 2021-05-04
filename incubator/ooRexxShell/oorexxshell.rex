@@ -427,6 +427,7 @@ interpretCommand:
     if .ooRexxShell~trapNoValue then signal on noValue
     if .ooRexxShell~trapSyntax then signal on syntax
     interpret .ooRexxShell~command
+    after_interpret:
     signal off lostdigits
     signal off noMethod
     signal off noString
@@ -442,7 +443,7 @@ interpretCommand:
     noValue:
     syntax:
     .ooRexxShell~error = .true
-    signal return_to_dispatchCommand
+    signal after_interpret -- to reset the trap errors
 
 
 -------------------------------------------------------------------------------
@@ -717,7 +718,7 @@ Helpers
 
             if dumpLevel <> 0 then do
                 clause = clause~left(clause~length - dumpLevel)
-                clauser~clause = 'options "NOCOMMANDS";' clause '; call dumpResult var("result"), result,' dumpLevel '; options "COMMANDS"'
+                clauser~clause = 'options "NOCOMMANDS";' clause '; if var("result") then call dumpResult result,' dumpLevel '; else call dumpResult ,' dumpLevel ';options "COMMANDS"'
             end
             clauser~nextClause
         end
@@ -740,7 +741,7 @@ Helpers
         if command~right(2) == "==" then dumpLevel = 2 -- no condensed output
         else if command~right(1) == "=" then dumpLevel = 1 -- condensed output when possible
 
-        if dumpLevel <> 0 then command = "result =" command~left(command~length - dumpLevel) "; call dumpResult .true, result," dumpLevel
+        if dumpLevel <> 0 then command = "result =" command~left(command~length - dumpLevel) "; call dumpResult result," dumpLevel
     end
     transformSourceError: -- in case of error, just return the original command: an error will be raised by interpret, and caught.
     return command
@@ -748,8 +749,9 @@ Helpers
 
 -------------------------------------------------------------------------------
 ::routine dumpResult
-    use strict arg hasValue, value, dumpLevel
-    if \hasValue then do
+    use strict arg value=.nil, dumpLevel=0
+    -- value is not passed when no result (to avoid triggering the "no value" condition)
+    if arg(1, "o") then do
         say "[no result]"
         return
     end
@@ -1537,12 +1539,12 @@ Helpers
         self~trapSyntax = trap
     end
     do arg over string2args(rest)
-        if "lostdigits"~caselessAbbrev(arg) then self~trapLostdigits= trap
-        else if "nomethod"~caselessAbbrev(arg) then self~trapNoMethod = trap
-        else if "nostring"~caselessAbbrev(arg) then self~trapNoString = trap
-        else if "novalue"~caselessAbbrev(arg) then self~trapNoValue = trap
-        else if "syntax"~caselessAbbrev(arg) then self~trapSyntax = trap
-        else .ooRexxShell~sayError("Unknown:" arg)
+        if "lostdigits"~caselessAbbrev(arg, 1) then self~trapLostdigits= trap
+        else if "nomethod"~caselessAbbrev(arg, 3) then self~trapNoMethod = trap
+        else if "nostring"~caselessAbbrev(arg, 3) then self~trapNoString = trap
+        else if "novalue"~caselessAbbrev(arg, 3) then self~trapNoValue = trap
+        else if "syntax"~caselessAbbrev(arg, 1) then self~trapSyntax = trap
+        else .ooRexxShell~sayError("Unknown condition:" arg)
     end
 
 
