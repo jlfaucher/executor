@@ -86,40 +86,61 @@ public:
      inline void request(const char *ds, int di)
      {
 #ifdef CONCURRENCY_DEBUG
-        struct ConcurrencyInfos concurrencyInfos;
-        Utilities::GetConcurrencyInfos(concurrencyInfos);
-        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... (SysMutex)%s.request : before pthread_mutex_lock(0x%x) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, mutexVariable, &mutexMutex, ds, di);
+        if (Utilities::traceConcurrency())
+        {
+            struct ConcurrencyInfos concurrencyInfos;
+            Utilities::GetConcurrencyInfos(concurrencyInfos);
+            dbgprintf(CONCURRENCY_TRACE "...... ... (SysMutex)%s.request : before pthread_mutex_lock(0x%x) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, mutexVariable, &mutexMutex, ds, di);
+        }
 #endif
          pthread_mutex_lock(&mutexMutex);
 #ifdef CONCURRENCY_DEBUG
-        Utilities::GetConcurrencyInfos(concurrencyInfos);
-        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... (SysMutex)%s.request : after pthread_mutex_lock(0x%x) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, mutexVariable, &mutexMutex, ds, di);
+        if (Utilities::traceConcurrency())
+        {
+            struct ConcurrencyInfos concurrencyInfos;
+            Utilities::GetConcurrencyInfos(concurrencyInfos);
+            dbgprintf(CONCURRENCY_TRACE "...... ... (SysMutex)%s.request : after pthread_mutex_lock(0x%x) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, mutexVariable, &mutexMutex, ds, di);
+        }
 #endif
      }
      inline void release(const char *ds, int di)
      {
 #ifdef CONCURRENCY_DEBUG
-        struct ConcurrencyInfos concurrencyInfos;
-        Utilities::GetConcurrencyInfos(concurrencyInfos);
-        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... (SysMutex)%s.release : before pthread_mutex_unlock(0x%x) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, mutexVariable, &mutexMutex, ds, di);
+        if (Utilities::traceConcurrency())
+        {
+            struct ConcurrencyInfos concurrencyInfos;
+            Utilities::GetConcurrencyInfos(concurrencyInfos);
+            dbgprintf(CONCURRENCY_TRACE "...... ... (SysMutex)%s.release : before pthread_mutex_unlock(0x%x) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, mutexVariable, &mutexMutex, ds, di);
+        }
 #endif
          pthread_mutex_unlock(&mutexMutex);
 #ifdef CONCURRENCY_DEBUG
-        Utilities::GetConcurrencyInfos(concurrencyInfos);
-        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... (SysMutex)%s.release : after pthread_mutex_unlock(0x%x) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, mutexVariable, &mutexMutex, ds, di);
+        if (Utilities::traceConcurrency())
+        {
+            struct ConcurrencyInfos concurrencyInfos;
+            Utilities::GetConcurrencyInfos(concurrencyInfos);
+            dbgprintf(CONCURRENCY_TRACE "...... ... (SysMutex)%s.release : after pthread_mutex_unlock(0x%x) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, mutexVariable, &mutexMutex, ds, di);
+        }
 #endif
      }
      inline bool requestImmediate(const char *ds, int di)
      {
 #ifdef CONCURRENCY_DEBUG
-        struct ConcurrencyInfos concurrencyInfos;
-        Utilities::GetConcurrencyInfos(concurrencyInfos);
-        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... (SysMutex)%s.requestImmediate : before pthread_mutex_trylock(0x%x) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, mutexVariable, &mutexMutex, ds, di);
+        if (Utilities::traceConcurrency())
+        {
+            struct ConcurrencyInfos concurrencyInfos;
+            Utilities::GetConcurrencyInfos(concurrencyInfos);
+            dbgprintf(CONCURRENCY_TRACE "...... ... (SysMutex)%s.requestImmediate : before pthread_mutex_trylock(0x%x) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, mutexVariable, &mutexMutex, ds, di);
+        }
 #endif
          bool result = pthread_mutex_trylock(&mutexMutex) == 0;
 #ifdef CONCURRENCY_DEBUG
-        Utilities::GetConcurrencyInfos(concurrencyInfos);
-        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... (SysMutex)%s.requestImmediate : after pthread_mutex_trylock(0x%x) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, mutexVariable, &mutexMutex, ds, di);
+        if (Utilities::traceConcurrency())
+        {
+            struct ConcurrencyInfos concurrencyInfos;
+            Utilities::GetConcurrencyInfos(concurrencyInfos);
+            dbgprintf(CONCURRENCY_TRACE "...... ... (SysMutex)%s.requestImmediate : after pthread_mutex_trylock(0x%x) from %s (0x%x)\n", concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock, mutexVariable, &mutexMutex, ds, di);
+        }
 #endif
          return result;
      }

@@ -60,11 +60,6 @@ https://julialang.org/
 todo...
 
 
-Tracer todo :
-Add support for classic trace (without multithread infos).
-The CSV format can be useful for classic trace, because each line has the name of the current executable.
-
-
 Pipes todo :
 .inject in breadthFirst mode is not limited by the ooRexx callstack size.
 Do the same for depthFirst mode.
@@ -295,6 +290,19 @@ RexxList *RexxList::classOf(
      size_t       named_argCount)
 TODO
 The named arguments could be added to the returned array (splitting the key:value).
+
+
+===============================================================================
+2021 apr 14
+
+Continue to work on concurrency trace:
+- No longer use syslog for tracing the internals, because I waste my time searching
+  how to display this tracing in the terminal.
+  Also not visible with the console app.
+  Now the display is sent to stderr. Simple, easy...
+- Display activation, variable dictionary, reserve count and lock when tracing
+  the internal semaphores.
+- Still investigating the global trace with RXTRACE.
 
 
 ===============================================================================

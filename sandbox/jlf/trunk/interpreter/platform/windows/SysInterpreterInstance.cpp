@@ -98,7 +98,7 @@ BOOL __stdcall WinConsoleCtrlHandler(DWORD dwCtrlType)
 void SysInterpreterInstance::initialize(InterpreterInstance *i, RexxOption *options)
 {
     externalTraceEnabled = false;    // off by default
-    const bufferSize = 20; // was 8 but better to increase because now supports an optional :<depth>
+    const int bufferSize = 20; // was 8 but better to increase because now supports an optional :<depth>
     TCHAR rxTraceBuf[bufferSize];
 
     externalTraceOption = NULL;

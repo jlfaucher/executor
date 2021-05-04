@@ -50,7 +50,7 @@
 #include "Utilities.hpp"
 
 // Pointer to the function GetConcurrencyInfos declared in RexxActivation.hpp
-static ConcurrencyInfosCollector concurrencyCollector;
+static ConcurrencyInfosCollector concurrencyCollector = NULL;
 
 void Utilities::SetConcurrencyInfosCollector(ConcurrencyInfosCollector collector)
 {
@@ -60,7 +60,12 @@ void Utilities::SetConcurrencyInfosCollector(ConcurrencyInfosCollector collector
 
 void Utilities::GetConcurrencyInfos(struct ConcurrencyInfos &concurrencyInfos)
 {
-    concurrencyCollector(concurrencyInfos);
+    if (concurrencyCollector != NULL) concurrencyCollector(concurrencyInfos);
+    else
+    {
+        memset(&concurrencyInfos, '\0', sizeof(concurrencyInfos));
+        concurrencyInfos.lock = '?'; // It's a way to know that the structure was not filled
+    }
 }
 
 
