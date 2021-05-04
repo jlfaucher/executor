@@ -1,2 +1,302 @@
 http://blog.smartbear.com/programming/7-reasons-that-rexx-still-matters/
 https://disqus.com/home/discussion/softwarequalityconnection/7_reasons_that_rexx_still_matters/
+
+
+ALL the messages of Jeff Glatt are deleted on https://groups.google.com/g/comp.lang.rexx
+But they are still available here :
+https://comp.lang.rexx.narkive.com/wLAvNpwq/questions-comments-for-jeff-glatt#post1
+https://comp.lang.rexx.narkive.com/wDrw3sLY/can-oorexx-regina-and-reginald-coexist
+https://comp.lang.rexx.narkive.com/IfmT3iUY/regina-reginald-what-t-the-diff
+
+
+https://comp.lang.rexx.narkive.com/uzliQJjK/can-a-reginald-rexx-exec-add-itself-to-the-explorer-right-click-menu
+Interesting summary of the divergence of Reginald compared to legacy Rexx.
+
+    There are lots of extensions. Indeed, using the new GUI automatically uses
+    Reginald's "REXX objects". Classic REXX has no concept of objects. There's DO
+    OVER, a host of new built-in functions, INTERPRET is vastly expanded to allow
+    labels, return statements, and just about any other legal REXX instruction, Net
+    REXX's "select shortcut", etc. Lots of stuff.
+
+    All of my add-on DLLs take a new format. They are loaded with a LIBRARY
+    statement, not RXFUNCADD. Reginald also allows you to load your own set of REXX
+    scripts as internal macros with a MACRO statement.
+
+    One big change is that error handling is done with Net REXX's CATCH/FINALLY,
+    rather than SIGNAL ON and CALL ON.
+
+    The other big change is that NOVALUE is enforced. And variables don't have a
+    "default" value.
+
+    The other thing that may affect you is that, instructions that aren't
+    understood by REXX are not automatically shipped off to the shell. You use
+    either the ITERATEEXE() function to run a Windows exe, or the RxCmd add-on to
+    run shell commands.
+
+
+https://comp.lang.rexx.narkive.com/nls5y8an/getting-started-with-reginald
+
+    Post by Three Lefts
+    Sahananda
+    Workbench was an IDE
+
+    Jeff Glatt:
+    You're being a bit charitable. It was a quasi-IDE. It did have some components,
+    such as a GUI builder (which supported only the most basic, early windows
+    controls -- not later controls such as tree, calendar, and date controls). But
+    these components weren't very well integrated. For example, you could launch
+    the GUI builder from the "IDE", and create a "window resource". But then you
+    were left with the task of writing all the REXX code to load that resource,
+    present the window, manage the GUI, and decode which control was operated by
+    the user. Add if you want to change something about the window, you have to
+    manually reload the resource into the GUI builder.
+
+    Reginald's GUI builder differs from this. Right in the GUI builder, you assign
+    some REXX variable/label name to a control. The GUI builder has a list of all
+    "actions" for that control. You just click on some action in the list, and
+    click on the "Add handler" button. Reginald's IDE adds a label to your script
+    (in the editor), and brings the cursor to that new function. You simply add
+    instructions to that function to handle that action for the control. The logic
+    of calling that function, when its associated action happens with that control,
+    has already been coded for you by Reginald. (This concept is borrowed from
+    Microsoft IDEs). Reginald's GUI builder is also much more complete, including
+    menu, string, and icon/bitmap editors. Object REXX was just a dialog builder,
+    not really a full GUI builder. Finally, Reginald shows a list of all the
+    "definitions" (ie, windows, menus, strings, icons, bitmaps, etc) used by the
+    current project, so if you want to change a particular resource, you just
+    double-click on it in Reginald's resource listing.
+
+    As another example, Object REXX's debugger consisted of little more than
+    redirecting the output of the TRACE command to an IDE "output window". Reginald
+    has a dedicated window for debugger output, with the output formatted much more
+    clearly/succinctly. There are other niceties too, such as being able to
+    double-click on any variable name in your script (editor) window, and have its
+    current value displayed. Reginald's "Watch variables" window is also a separate
+    window showing the current value of each watched variable, in binary (hex)
+    display, or as text.
+
+    And let's not forget that Object REXX's IDE has nothing even remotely similiar
+    to Reginald's online help window. Some people use Reginald just for that alone
+    since the online help is very, very detailed and well integrated. Forget what
+    the arguments are to the STREAM function? Just double-click on the word
+    "STREAM" in your script, and the help window displays the details about that
+    function.
+
+    And of course, this is just scratching the surface of the features of
+    Reginald's IDE. For example, you can configure the keyboard shortcuts for every
+    IDE command, and configure which commands appear in the toolbar. Also, the IDE
+    offers a macro language to control it, which is REXX itself. Etc.
+
+    When someone mentions Reginald's IDE and/or GUI Builder, it's a disservice to
+    simply say "Oh, Object REXX has that too", as if they're similiar or even
+    comparable. They aren't.
+
+
+    Post by Sahananda
+    Three Lefts
+    Visual Basic and the IDE. What a
+    difference. What a productivity enhancer.
+
+    Jeff Glatt:
+    Absolutely. A good IDE is a necessity for productive development today. I don't
+    use an IDE for Linux development, only because Linux IDEs suck in comparison to
+    MS Visual Studio. And that's one major reason why I can code much faster and
+    easier under Windows than Linux. Recently, I had to write some custom software
+    for a telephone ordering business. I debated whether to do it for Linux or
+    Windows, and went with Windows just because I knew it would be faster to code
+    and debug with Microsoft dev tools.
+
+    Post by Sahananda
+    I had been using Personal Rexx and "Trace ?i". Now that seems like the stone age.
+
+    Jeff Glatt:
+    REXX's interactive TRACE is dreadful. I would rather switch to another language
+    than debug REXX code using TRACE. The newest version of Reginald doesn't even
+    support TRACE since it's so vastly inferior to Reginald IDE's (ie, REXX
+    Programmer Center's) debugger.
+
+    If you use Reginald, you will never again deal with interactive trace. Not
+    ever.
+
+    There is a Reginald FAQ at http://home.roadrunner.com/~jgglatt/rexx/faq/faq.htm
+
+    I recommend that you read the "Basic questions" and "Installation tips" before
+    you install, and get started with, Reginald.
+
+    After you install Reginald and REXX Programmer Center, just run the latter exe,
+    and you'll see its help window listing all of the help books. I recommend
+    reading the book for REXX Programmer Center itself to learn details about all
+    of its features. If you plan to write REXX scripts with your own GUI, you'll
+    next want to read the book about that, to learn how to use the dialog,
+    icon/cursor, and menu editors. After that, you can pick and choose what
+    additional books to install/read based upon what add-on packages you intend to
+    use.
+
+
+https://comp.lang.rexx.narkive.com/cJlzvsWD/reginald-overhead-of-interpret
+
+    Post by Daniel B. Martin
+    Daniel B. Martin
+    Is there a significant overhead incurred when using INTERPRET?
+
+    Jeff Glatt
+    I try to avoid INTERPRET because, as Phil points out, it can make debugging a
+    little more difficult. Reginald's IDE tries to make it easier by actually
+    presenting the interpreted REXX instructions in a new editor window and letting
+    you step through them one at a time. So debugging an INTERPRET statement is
+    pretty much the same as debugging a subroutine call in Reginald's IDE. But if
+    you have subroutine calls inside the interpret string, it can start to get
+    confusing as to where you are. (NOTE: Reginald's version of INTERPRET is vastly
+    enhanced, and let's you have labels, subroutines, error handling, and pretty
+    much any legal REXX instruction). So wherever it can be done without INTERPRET,
+    that's the way I prefer to do it.
+
+    Most uses of INTERPRET seem to be employed in order to work around having to
+    hard-code specific variable names, or deal with variables whose name you don't
+    know until the script actually runs.
+
+    As Jeremy points out, you definitely should use VALUE() to assign a value to a
+    variable whose name you don't know ahead of time, rather than using INTERPRET.
+
+    Also, note that the USE ARG statement lets you create subroutines that are more
+    generic, and don't rely upon hard-coded variable names.
+
+    INTERPRET occurs a little more overhead in running your script because
+    instructions have to be "parsed" every time the INTERPRET instruction happens.
+    In normal REXX code, the parsing is done once when a script is loaded, and so
+    even if a particular line is executed more than once, it still is parsed once
+    only. But if your INTERPRET statement is not in a loop, and therefore executes
+    once only, that involves parsing two items -- the INTERPRET statement itself,
+    and then whatever is being interpreted. You're typically not going to see a big
+    speed penalty in such a situation (ie, one item parsed per instruction, versus
+    two items parsed).
+
+    But note that Reginald adds a whole lot of extensions to give you many options
+    for speed and simplicity. If you're looking for the fastest possible code, and
+    you like to keep your code in separate REXX scripts, then you may want to
+    investigate putting those scripts into a macro DLL. Then you'll load the macro
+    DLL at the start of your main script. This is akin to "in-lining" all of those
+    external scripts as if they were internal subroutines, and the speed difference
+    is accordingly faster.
+
+    There are lots of other features that may be useful when you're exploring speed
+    and simplicity of design. Definitely read the online help book "The REXX
+    Language", which also details many of these additional extensions.
+
+
+https://comp.lang.rexx.narkive.com/k7I8u5gH/reginald-extensions
+
+    Post by Daniel B. Martin
+    Daniel B. Martin
+    I don't know if you entertain suggestions for Reginald
+    extensions.
+
+    Jeff Glatt
+    Absolutely. In fact, most all of the extensions are there because various
+    Reginald endusers asked me for them. If I come up with some idea on my own,
+    what I do is first run it past the users via the Reginald forum. Everyone takes
+    a look at the proposal and weighs in on it. Some things may be changed, or
+    added/deleted. Then, if the majority gives a thumbs up, I start coding. In
+    fact, that's the case with all proposals from anyone. The usual procedure is to
+    publically propose something on the forum, in the same vein.
+
+    I'm not one of those programmers that says "No, I won't do that because some
+    document written 10 years ago didn't say I could do that, and therefore I don't
+    care what you need/want today". I'm very much a pragmatic programmer. Never be
+    afraid to ask me about something Reginald-related simply because you may have
+    dealt with vociferously dogmatic open source developers in the past. I'm not
+    one of those. And neither is anyone else using Reginald. Those sorts of people
+    are quickly redirected to some other project where they can all flame each
+    other with their "I don't want/need that, so you shouldn't want/need that
+    either" diatribes.
+
+    Post by Daniel B. Martin
+    T. = T. + 1
+    which would increment all stems which exist and have a numeric value.
+
+    Jeff Glatt:
+    Someone already requested a more intuitive way to perform a math operation
+    between a variable and a constant. That's already on my to do list. Your
+    suggestion would fit right into that.
+
+    But that proposal favored a C syntax for it as so:
+
+    T. += 1
+
+    The reason I favor it is because it would make it easier to parse for
+    optimization, and can also be an intuitive way to involve operands other than
+    constants, for example:
+
+    /* Calculate the total length of "Hello world", in pieces */
+    TotalLen = LENGTH("Hello ")
+    TotalLen += LENGTH("World") /* Instead of TotalLen = TotalLen +
+    LENGTH("World") */
+
+    But as someone else pointed out, a stem variable can have a value too. For
+    example, assume you have the following statements:
+
+    T. = 1
+    T. += 5
+
+    Doesn't this naturally look like you're incrementing the value of T. by 5 (and
+    now its new value is 6)?
+
+    So if you wanted to implement some sort of "pattern matching", it would be best
+    to notate it differently, and more explicitly. I see Gary suggested:
+
+    T.* += 5
+
+    Offhand, that looks appealing. But not so much so if you do a multiply
+    operation:
+
+    T.* *= 5
+
+    Or worse, raising to a power:
+
+    T.* **= 5
+
+    He also suggested:
+
+    T.() *= 5
+
+    That looks better to me, but I think (since T. is sort of like an array in
+    REXX) this looks best:
+
+    T.[] *= 5
+
+    If you're cool with that, then I'll put it to the Reginald folks and see what
+    they think. We already gave the thumbs up to the math shortcut (although not
+    yet implemented. That's the thing. Lately, I've been very busy with other
+    things so a lot of Reginald work has gotten backlogged).
+
+    Post by Daniel B. Martin
+    T. = left(T.,80)
+    would make all stems into 80-character records.
+
+    Jeff Glatt:
+    I'm not sure about this one. LEFT() returns a value, and it naturally looks
+    like you're assigning it to the stem. The above is already a legal REXX
+    instruction. I think this idea needs more work to find a useful way of notating
+    it.
+
+    Post by Daniel B. Martin
+    T. = A. + B.
+    would take all stems in A for which there is a corresponding
+    stem in
+    B, sum the respective values and store them in T with the
+    same stem.
+
+    Jeff Glatt:
+    Again, that's already a legal REXX instruction.
+
+    I think what you may be looking for in the above 2 requests are some sort of
+    new REXX instructions that operate upon a variable, like SORT does. For
+    example:
+
+    RECORD T. 80
+
+    ...where the RECORD instruction is followed by the stem name to operate upon,
+    and then the length of the desired "record", and it performs that operation you
+    want.
+
+    Sometimes it takes awhile to decide the best way to implement something.
