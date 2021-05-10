@@ -234,14 +234,14 @@ tcsh:          to activate the tcsh interpreter.
 zsh:           to activate the zsh interpreter.
 
 If the line starts with a space, then these words are not recognized as an interpreter name.
-Instead, the line is interpreted by oorexx, which maybe triggers an external command. 
+Instead, the line is interpreted by oorexx, which maybe triggers an external command.
 ooRexx[bash]> bash
 bash[ooRexx]>                        You are still in ooRexxShell
 bash[ooRexx]> oorexx
 ooRexx[bash]>  bash                  Under MacOs, run BASH (/bin/bash)
 /local/rexx/oorexx$                  You are no longer in ooRexxShell (see the prompt)
 /local/rexx/oorexx$ exit 0
-ooRexx[bash]> 
+ooRexx[bash]>
 
 Commands
 ========
@@ -257,7 +257,7 @@ infos off|on: deactivate|activate the display of informations after each executi
 prompt directory off|on: deactivate|activate the display of the directory before the prompt.
 readline off: use the raw parse pull for the input.
 readline on: delegate to the system readline (history, tab completion).
-reload: exit the current session and reload all the packages/librairies.
+reload: exit the current session and reload all the packages/libraries.
 security off: deactivate the security manager. No transformation of commands.
 security on : activate the security manager. Transformation of commands.
 trace off|on [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity][.verbose]]: deactivate|activate the trace.
@@ -334,6 +334,35 @@ Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
 
 History of changes
 ==================
+
+-----------------------------------------------
+2021 may 08
+
+Linux, MacOs:
+If the environment variable OOREXXSHELL_RLWRAP is defined then ooRexxShell
+starts in mode readline off, because the history and filename completion is
+managed by rlwrap. This variable is set in the script oorexxshell.
+Otherwise, ooRexxShell starts in mode readline on, where the input is delegated
+to bash (default behavior so far).
+
+The history is now correctly updated when several lines are pasted.
+Before, only the first line was stored in the history.
+
+Known problem with rlwrap:
+When switching from readline off (rlwrap mode) to readline on (bash readline),
+the history shows the inputs entered with rlwrap because the history file is
+read before each input (good).
+When switching back from readline on (bash readline) to readline off (rlwrap mode),
+the history doesn't show the inputs entered with bash readline, because rlwrap
+reads the history file only when launching ooRexxShell, or when using the
+command 'reload'. Only the inputs entered with rlwrap are visible. The history
+file itself is ok, it contains the inputs entered in both modes.
+
+Demo mode:
+If the command "*/" is immediatly followed by a command sleep then the duration is
+proportional to the number of characters in the comment (before, was proportional
+to the number of lines).
+
 
 -----------------------------------------------
 2020 dec 14

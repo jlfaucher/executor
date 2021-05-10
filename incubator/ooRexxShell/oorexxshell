@@ -11,10 +11,16 @@
 # the environment is inherited without being filtered by the default POSIX shell.
 
 rxapi >/dev/null & # Workaround to avoid crash at first execution
-[ -x rlwrap ] && rlwrap=rlwrap # workaround if bash readline can't be used
+
+# If the variable OOREXXSHELL_RLWRAP is defined
+# then ooRexxShell will use a basic parse pull
+# otherwise it will use the bash readline.
+# A negative histsize means "don't modify the history file". ooRexxShell takes care of the history file.
+[ -x "`which rlwrap`" ] && export OOREXXSHELL_RLWRAP="rlwrap --complete-filenames --command-name oorexxshell --histsize -300"
+
 while true
 do
-    $rlwrap rexx oorexxshell.rex $*
+    $OOREXXSHELL_RLWRAP rexx oorexxshell.rex $*
     status=$?
     if test $status -ne 200; then break; fi
 done

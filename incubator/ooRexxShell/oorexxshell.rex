@@ -149,6 +149,9 @@ end
 -- We lose the doskey macros and the filename autocompletion. Too bad...
 if .platform~is("windows") then .ooRexxShell~readline = .false
 
+-- Deactivate the readline mode when the environment variable OOREXXSHELL_RLWRAP is defined.
+if value("OOREXXSHELL_RLWRAP", , "ENVIRONMENT") <> "" then .ooRexxShell~readline = .false
+
 .ooRexxShell~defaultColor = "default"
 .ooRexxShell~errorColor = "bred"
 .ooRexxShell~infoColor = "bgreen"
@@ -238,6 +241,7 @@ main: procedure
 
         -- Will be used by charoutSlowly to test if the previous command was an end of multline commment.
         -- The duration of the pause will be proportional to the number of lines in the multiline comment.
+        -- Also used by readline to decide if the history file must be updated (a repeated input is stored only once).
         .ooRexxShell~inputrxPrevious = .ooRexxShell~inputrx
         .ooRexxShell~maybeCommandPrevious = .ooRexxShell~maybeCommand
 
@@ -257,6 +261,7 @@ main: procedure
             when .ooRexxShell~inputrx == "/*" then do
                 .ooRexxShell~showComment = .true
                 .ooRexxShell~countCommentLines = 0
+                .ooRexxShell~countCommentChars = 0
             end
 
             when .ooRexxShell~maybeCommand & .ooRexxShell~input~word(1)~right(1) == ":" & .ooRexxShell~input~words == 1 & \isDriveLetter(.ooRexxShell~input~word(1)) then do
@@ -512,13 +517,66 @@ Helpers
     use strict arg prompt
     inputrx = ""
     RC = 0
+
     if .ooRexxShell~traceReadline then do
         .ooRexxShell~sayTrace("[readline] queued()=" queued())
         .ooRexxShell~sayTrace("[readline] lines()=" lines())
         .ooRexxShell~sayTrace("[readline] .ooRexxShell~readline=" .ooRexxShell~readline)
     end
 
-    if .ooRexxShell~demo then do
+    history = .stream~new(.ooRexxShell~historyFile)
+    if history~query("size")0 = 0 then do
+        -- Create the history file if not existent (size = '') or empty (size = 0).
+        -- The line "oorexx" is written because of this known problem:
+        -- https://superuser.com/questions/942009/bash-history-a-not-writing-unless-histfile-already-has-text
+        -- My Mac has an old version of bash, and this problem occurs.
+        history~lineout("oorexx")
+        history~flush
+    end
+
+    select
+        when .ooRexxShell~demo then do
+            inputrx = readline_for_demo(prompt)
+            -- don't update history file
+        end
+        when queued() == 0 & lines() == 0 & .ooRexxShell~readlineAddress~caselessEquals("cmd") & .ooRexxShell~readline then do
+            inputrx = readline_with_cmd(prompt)
+            if inputrx <> "", inputrx <> .ooRexxShell~inputrxPrevious then history~lineout(inputrx)
+        end
+        when queued() == 0 & lines() == 0 & .ooRexxShell~readlineAddress~caselessEquals("bash") & .ooRexxShell~readline then do
+            inputrx = readline_with_bash(prompt)
+            if inputrx <> "", inputrx <> .ooRexxShell~inputrxPrevious then history~lineout(inputrx)
+        end
+        otherwise do
+            if .ooRexxShell~isInteractive then do
+                call promptDirectory
+                call charout , prompt
+            end
+            queue_or_stdin = queued() <> 0 | lines() <> 0
+            parse pull inputrx -- Input queue or standard input or keyboard.
+            if .ooRexxShell~isInteractive & queue_or_stdin then say inputrx -- display the input only if coming from queue or from stdin
+            if inputrx <> "", inputrx <> .ooRexxShell~inputrxPrevious then history~lineout(inputrx)
+        end
+    end
+
+    history~close
+
+    if .ooRexxShell~traceReadline then do
+        .ooRexxShell~sayTrace("[readline] inputrx=" inputrx)
+    end
+
+    if RC <> 0 then do
+        .ooRexxShell~readline = .false
+        .ooRexxShell~sayError("[readline] RC="RC)
+        .ooRexxShell~sayError("[readline] Something is not working, fallback to raw input (no more history, no more globbing)")
+    end
+
+    return inputrx
+
+
+    ---------------------------------------------------------------------------
+    readline_for_demo: procedure expose RC
+        use strict arg prompt
         -- Don't display the prompt yet
         -- because an empty input and the comments are displayed without prompt,
         -- and because some commands are not displayed.
@@ -559,119 +617,98 @@ Helpers
                 say -- "press enter"
             end
         end
-    end
-    else select
-        when queued() == 0 & lines() == 0 & .ooRexxShell~readlineAddress~caselessEquals("cmd") & .ooRexxShell~readline then do
-            -- This doesn't work correctly (loss of history). Readline no longer activated by default under Windows.
-            --
-            -- I want the doskey macros and filename tab autocompletion... Delegates the input to cmd.
-            -- HKEY_CURRENT_USER/Software/Microsoft/Command Processor/CompletionChar = 9
-            -- Tried to call clink, but it doesn't solve the problem of history lost.
-            --    "(clink inject >nul 2>&1) &",
-            call promptDirectory
-            address value .ooRexxShell~readlineAddress
-                "(title ooRexxShell) &",
-                "(set inputrx=) &",
-                "(set /p inputrx="quoted(prompt)") &",
-                "(if defined inputrx set inputrx | rxqueue "quoted(.ooRexxShell~queueName)" /lifo) &",
-                "(if not defined inputrx echo inputrx= | rxqueue "quoted(.ooRexxShell~queueName)" /lifo)"
-            address -- restore
-            if queued() <> 0 then parse pull inputrx
-            if inputrx == "" then do
-                if RC == 0 then inputrx = "exit" -- eof. Example: happens after "dir" has been processed when doing that: echo dir | oorexxshell
-            end
-            else if inputrx~abbrev("inputrx=") then inputrx = inputrx~substr(9) -- remove "inputrx="
+        return inputrx
+
+
+    ---------------------------------------------------------------------------
+    readline_with_cmd: procedure expose RC
+        -- This doesn't work correctly (loss of history). Readline no longer activated by default under Windows.
+        --
+        -- I want the doskey macros and filename tab autocompletion... Delegates the input to cmd.
+        -- HKEY_CURRENT_USER/Software/Microsoft/Command Processor/CompletionChar = 9
+        -- Tried to call clink, but it doesn't solve the problem of history lost.
+        --    "(clink inject >nul 2>&1) &",
+        use strict arg prompt
+        call promptDirectory
+        address value .ooRexxShell~readlineAddress
+            "(title ooRexxShell) &",
+            "(set inputrx=) &",
+            "(set /p inputrx="quoted(prompt)") &",
+            "(if defined inputrx set inputrx | rxqueue "quoted(.ooRexxShell~queueName)" /lifo) &",
+            "(if not defined inputrx echo inputrx= | rxqueue "quoted(.ooRexxShell~queueName)" /lifo)"
+        address -- restore
+        if queued() <> 0 then parse pull inputrx
+        if inputrx == "" then do
+            if RC == 0 then inputrx = "exit" -- eof. Example: happens after "dir" has been processed when doing that: echo dir | oorexxshell
         end
-        when queued() == 0 & lines() == 0 & .ooRexxShell~readlineAddress~caselessEquals("bash") & .ooRexxShell~readline then do
-            -- I want all the features of readline when editing my command line (history, tab completion, ...)
-            -- Two strings are pushed to rxqueue in one line, separated with \000 (NUL) :
-            -- one generated by the internal command 'set', which manages the escaped characters.
-            -- one generated by the internal command 'print', to get the input as-is.
-            -- Temporary: A third string is pushed to rxqueue, to let me see what I get with printf %q
-            history = .stream~new(.ooRexxShell~historyFile)
-            if history~query("size")0 = 0 then do
-                -- Create the history file if not existent (size = '') or empty (size = 0).
-                -- The line "oorexx" is written because of this known problem:
-                -- https://superuser.com/questions/942009/bash-history-a-not-writing-unless-histfile-already-has-text
-                -- My Mac has an old version of bash, and this problem occurs.
-                history~~open~~say("oorexx")
-            end
-            history~close
-            call promptDirectory
-            address value .ooRexxShell~readlineAddress
-                "set -o noglob ;",
-                "HISTFILE=".ooRexxShell~historyFile" ;",
-                "history -r ;",
-                "IFS= read -r -e -p "quoted(prompt)" inputrx ;",
-                "history -s -- ""$inputrx"" ;",
-                "history -a ;",
-                "(export LC_ALL=C; set | grep ^inputrx= | tr '\n' '\000' ; printf ""%s\000"" ""$inputrx"" ; printf ""%q"" ""$inputrx"") | rxqueue "quoted(.ooRexxShell~queueName)" /lifo"
-            address -- restore
-            if queued() <> 0 then do
-                -- inputrx1: quoted in a way that can be reused as shell input.
-                -- inputrx2: unquoted (as is)
-                parse pull inputrx
-                if inputrx == "" then inputrx = "exit" -- eof, happens after "ls" has been processed when doing that: echo ls | oorexxshell
+        else if inputrx~abbrev("inputrx=") then inputrx = inputrx~substr(9) -- remove "inputrx="
+        return inputrx
+
+
+    ---------------------------------------------------------------------------
+    readline_with_bash: procedure expose RC
+        -- I want all the features of readline when editing my command line (history, tab completion, ...)
+        -- Two strings are pushed to rxqueue in one line, separated with \000 (NUL) :
+        -- one generated by the internal command 'set', which manages the escaped characters.
+        -- one generated by the internal command 'print', to get the input as-is.
+        -- Temporary: A third string is pushed to rxqueue, to let me see what I get with printf %q
+        use strict arg prompt
+        call promptDirectory
+        address value .ooRexxShell~readlineAddress
+            "set -o noglob ;",
+            "HISTFILE=".ooRexxShell~historyFile" ;",
+            "history -r ;",
+            "IFS= read -r -e -p "quoted(prompt)" inputrx ;",
+            "history -s -- ""$inputrx"" ;",
+            /* "history -a ;" */ ,
+            "(export LC_ALL=C; set | grep ^inputrx= | tr '\n' '\000' ; printf ""%s\000"" ""$inputrx"" ; printf ""%q"" ""$inputrx"") | rxqueue "quoted(.ooRexxShell~queueName)" /lifo"
+        address -- restore
+        if queued() <> 0 then do
+            -- inputrx1: quoted in a way that can be reused as shell input.
+            -- inputrx2: unquoted (as is)
+            parse pull inputrx
+            if inputrx == "" then inputrx = "exit" -- eof, happens after "ls" has been processed when doing that: echo ls | oorexxshell
+            else do
+                if inputrx~abbrev("inputrx=") then do
+                    -- Since the line read from the queue starts with "inputrx=",
+                    -- we assume that this line has been sent by the read command.
+                    parse var inputrx "inputrx=" inputrx1 "0"x inputrx2 "0"x inputrx3
+
+                    -- Clean inputrx3: since all spaces are prefixed with \, the interpreter name is not recognized
+                    -- It's ok to systematically remove the \ at the end of the first word
+                    parse var inputrx3 word1 rest
+                    if word1~right(1) == "\" then inputrx3 = word1~left(word1~length - 1) rest
+
+                    if .ooRexxShell~traceReadline then do
+                        .ooRexxShell~sayTrace("[readline] inputrx1=" inputrx1)
+                        .ooRexxshell~sayTrace("[readline] inputrx2=" inputrx2)
+                        .ooRexxShell~sayTrace("[readline] inputrx3=" inputrx3) -- not used, I want just to compare with inputrx1
+                    end
+
+                    -- If inputrx1 contains more than one word, then it has been surrounded by quotes:
+                    -- Ex: echo, 'echo a', ls, 'ls -la'
+                    -- Remove these quotes.
+                    inputrx1 = unquoted(inputrx1, "'")
+
+                    -- Select the most appropriate line, depending on the target interpreter
+                    interpreter = .ooRexxShell~interpreter -- default
+                    maybeCommand = inputrx~left(1, ".") <> " "
+                    if maybeCommand & .ooRexxShell~interpreters~hasEntry(inputrx1~word(1)) then interpreter = .ooRexxShell~interpreters~entry(inputrx1~word(1)) -- temporary interpreter
+                    if interpreter~caselessEquals("bash") then inputrx = inputrx1
+                    else if interpreter~caselessEquals("sh") then inputrx = inputrx1
+                    else if interpreter~caselessEquals("zsh") then inputrx = inputrx1
+                    else inputrx = inputrx2
+                    -- if no transformation foreseen (because the security manager is not enabled)
+                    if \ .ooRexxShell~securityManager~isEnabledByUser then inputrx = inputrx2
+                end
                 else do
-                    if inputrx~abbrev("inputrx=") then do
-                        -- Since the line read from the queue starts with "inputrx=",
-                        -- we assume that this line has been sent by the read command.
-                        parse var inputrx "inputrx=" inputrx1 "0"x inputrx2 "0"x inputrx3
-
-                        -- Clean inputrx3: since all spaces are prefixed with \, the interpreter name is not recognized
-                        -- It's ok to systematically remove the \ at the end of the first word
-                        parse var inputrx3 word1 rest
-                        if word1~right(1) == "\" then inputrx3 = word1~left(word1~length - 1) rest
-
-                        if .ooRexxShell~traceReadline then do
-                            .ooRexxShell~sayTrace("[readline] inputrx1=" inputrx1)
-                            .ooRexxshell~sayTrace("[readline] inputrx2=" inputrx2)
-                            .ooRexxShell~sayTrace("[readline] inputrx3=" inputrx3) -- not used, I want just to compare with inputrx1
-                        end
-
-                        -- If inputrx1 contains more than one word, then it has been surrounded by quotes:
-                        -- Ex: echo, 'echo a', ls, 'ls -la'
-                        -- Remove these quotes.
-                        inputrx1 = unquoted(inputrx1, "'")
-
-                        -- Select the most appropriate line, depending on the target interpreter
-                        interpreter = .ooRexxShell~interpreter -- default
-                        maybeCommand = inputrx~left(1, ".") <> " "
-                        if maybeCommand & .ooRexxShell~interpreters~hasEntry(inputrx1~word(1)) then interpreter = .ooRexxShell~interpreters~entry(inputrx1~word(1)) -- temporary interpreter
-                        if interpreter~caselessEquals("bash") then inputrx = inputrx1
-                        else if interpreter~caselessEquals("sh") then inputrx = inputrx1
-                        else if interpreter~caselessEquals("zsh") then inputrx = inputrx1
-                        else inputrx = inputrx2
-                        -- if no transformation foreseen (because the security manager is not enabled)
-                        if \ .ooRexxShell~securityManager~isEnabledByUser then inputrx = inputrx2
-                    end
-                    else do
-                        -- Since the line read from the queue does not start with "inputrx",
-                        -- we assume that this line has been sent by another process, not by the read command.
-                        nop
-                    end
+                    -- Since the line read from the queue does not start with "inputrx",
+                    -- we assume that this line has been sent by another process, not by the read command.
+                    nop
                 end
             end
         end
-        otherwise do
-            if .ooRexxShell~isInteractive then do
-                call promptDirectory
-                call charout , prompt
-            end
-            queue_or_stdin = queued() <> 0 | lines() <> 0
-            parse pull inputrx -- Input queue or standard input or keyboard.
-            if .ooRexxShell~isInteractive & queue_or_stdin then say inputrx -- display the input only if coming from queue or from stdin
-        end
-    end
-    if .ooRexxShell~traceReadline then do
-        .ooRexxShell~sayTrace("[readline] inputrx=" inputrx)
-    end
-    if RC <> 0 then do
-        .ooRexxShell~readline = .false
-        .ooRexxShell~sayError("[readline] RC="RC)
-        .ooRexxShell~sayError("[readline] Something is not working, fallback to raw input (no more history, no more globbing)")
-    end
-    return inputrx
+        return inputrx
 
 
 -------------------------------------------------------------------------------
@@ -851,6 +888,7 @@ Helpers
 
 ::attribute command class -- The current command to interpret, can be a substring of inputrx
 ::attribute commandInterpreter class -- The current interpreter, can be the first word of inputrx, or the default interpreter
+::attribute countCommentChars class
 ::attribute countCommentLines class
 ::attribute demo class
 ::attribute defaultSleepDelay class
@@ -916,6 +954,7 @@ Helpers
 ::attribute pp2 class -- The routine pp2 of extended rgf_util, or .nil
 
 ::method init class
+    self~countCommentChars = 0
     self~countCommentLines = 0
     self~debug = .false
     self~defaultSleepDelay = 3
@@ -1040,6 +1079,7 @@ Helpers
     .output~say
     .color~select(.ooRexxShell~defaultColor, .output)
     .ooRexxShell~countCommentLines += 1
+    .ooRexxShell~countCommentChars += text~length
 
 
 ::method sayTrace class
@@ -1397,7 +1437,7 @@ Helpers
     say "    prompt directory off|on: deactivate|activate the display of the directory before the prompt."
     say "    readline off: use the raw parse pull for the input."
     say "    readline on: delegate to the system readline (history, tab completion)."
-    say "    reload: exit the current session and reload all the packages/librairies."
+    say "    reload: exit the current session and reload all the packages/libraries."
     say "    security off: deactivate the security manager. No transformation of commands."
     say "    security on : activate the security manager. Transformation of commands."
     say "    sleep [n] [no prompt]: used in demo mode to pause during n seconds (default" .ooRexxShell~defaultSleepDelay "sec)."
@@ -1578,8 +1618,11 @@ Helpers
     if \userDelay then do -- additional delay for comments
         if .ooRexxShell~inputrxPrevious == "*/" then do
             -- This sleep is immediatly after a multiline comment.
+            /*
             -- Add a delay for each comment line, from the second line.
-            delay += max(0, (.ooRexxShell~countCommentLines - 1) * 1.5)
+            delay += max(0, (.ooRexxShell~countCommentLines - 1) * 2)
+            */
+            delay = .ooRexxShell~countCommentChars / 20 -- sleep 1 second for 20 characters
         end
     end
 
