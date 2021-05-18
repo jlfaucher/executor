@@ -111,9 +111,7 @@ return .ooRexxShell~RC <> 0
 error:
 condition = condition("O")
 if condition <> .nil then do
-    if condition~message <> .nil then .ooRexxShell~sayError(condition~message)
-    else if condition~errortext <> .nil then .ooRexxShell~sayError(condition~errortext)
-    .ooRexxShell~sayError("Code=" condition~code)
+    .ooRexxShell~sayCondition(condition)
     .ooRexxShell~sayError(condition~traceback~makearray~tostring)
 end
 signal finalize
@@ -295,6 +293,9 @@ main: procedure
                 .ooRexxShell~demo = .false
             when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("demo on") then
                 .ooRexxShell~demo = .true
+
+            when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("demo fast") then
+                .ooRexxShell~demoFast = .true
 
             when .ooRexxShell~maybeCommand & .ooRexxShell~input~caselessEquals("exit") then
                 exit
@@ -613,7 +614,7 @@ Helpers
                     call charout , prompt
                 end
                 .ooRexxShell~charoutSlowly(inputrx, 0.1)
-                call SysSleep 2 -- Give time to read before "pressing enter"
+                .ooRexxShell~SysSleep(2) -- Give time to read before "pressing enter"
                 say -- "press enter"
             end
         end
@@ -891,8 +892,8 @@ Helpers
 ::attribute countCommentChars class
 ::attribute countCommentLines class
 ::attribute demo class
+::attribute demoFast class
 ::attribute defaultSleepDelay class
-::attribute defaultEnterDelay class
 ::attribute error class -- Will be .true if the last command raised an error
 ::attribute gotoLabel class -- Either "" or the label to reach
 ::attribute hasBsf class -- Will be .true if BSF.cls has been loaded
@@ -959,6 +960,7 @@ Helpers
     self~debug = .false
     self~defaultSleepDelay = 3
     self~demo = .false
+    self~demoFast = .false -- by default, the demo is slow (SysSleep is executed)
     self~dump2 = .nil
     self~error = .false
     self~gotoLabel = ""
@@ -1018,7 +1020,6 @@ Helpers
     "debug",
     "demo",
     "defaultSleepDelay",
-    "defaultEnterDelay",
     "hasBsf",
     "hasQueries",
     "hasRegex",
@@ -1098,13 +1099,14 @@ Helpers
 
 ::method sayCondition class
     use strict arg condition
+    if condition == .nil then return
     if condition~condition <> "SYNTAX" then .ooRexxShell~sayError(condition~condition)
     if condition~description <> .nil, condition~description <> "" then .ooRexxShell~sayError(condition~description)
 
     -- For SYNTAX conditions
     if condition~message <> .nil then .ooRexxShell~sayError(condition~message)
     else if condition~errortext <> .nil then .ooRexxShell~sayError(condition~errortext)
-    if condition~code <> .nil then .ooRexxShell~sayError("Code=" condition~code)
+    if condition~code <> .nil then .ooRexxShell~sayError("Error code=" condition~code)
 
     .ooRexxShell~traceback = condition~traceback
     .ooRexxShell~stackFrames = condition~stackFrames
@@ -1163,7 +1165,7 @@ Helpers
         call charout , char
         sleep = delay
         if char == " " then sleep *= spaceRatio
-        if previousChar <> " " then call SysSleep sleep -- in case od several spaces, be slow only for the first space.
+        if previousChar <> " " then .ooRexxShell~SysSleep(sleep) -- in case od several spaces, be slow only for the first space.
         previousChar = char
     end
 
@@ -1626,7 +1628,12 @@ Helpers
         end
     end
 
-    call SysSleep delay
+    .ooRexxShell~SysSleep(delay)
+
+
+::method SysSleep class
+    use strict arg delay
+    if \.ooRexxShell~demoFast then call SysSleep delay
 
 
 ::method goto class

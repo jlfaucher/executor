@@ -336,6 +336,16 @@ History of changes
 ==================
 
 -----------------------------------------------
+2021 may 13
+
+New command "demo fast" to disable the sleep coomands.
+
+Typical usage:
+Execute a demo at full speed when recording the output in a text file.
+cat executor-demo-text.txt | oorexxshell demo fast > out.txt 2>&1
+
+
+-----------------------------------------------
 2021 may 08
 
 Linux, MacOs:
