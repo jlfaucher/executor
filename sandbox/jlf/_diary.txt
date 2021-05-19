@@ -85,58 +85,6 @@ Extension todo :
 Add the parameters "unlock=.false, propagate=.false" to the methods .class~define and .class~inherit.
 
 
-Extension todo :
-Review the extension mechanisms :
-- An extension made on .Object is not available on a class.
-  There is a workaround in pipe_extensions.cls.
-- An extension made on .Object is not available on the .nil object.
-  2018 aug 11: workaround implemented.
-- The class .stream doesn't have the methods ~pipe, ~generate.
-  Problem of propagation ?
-    .object~pipe(.subclasses recursive once | .select {item~hasMethod("pipe")==.false} | .sort byItem caseless | .console item)
-    Display :
-        (The ByteEncoding class)
-        (The CapturingGroupEnvelope class)
-        (The CaselessGroupBackReferenceNode class)
-        (The CaselessResultBackReferenceNode class)
-        (The CaselessStringNode class)
-        (The CircularQueue class)
-        (The ClassOrNode class)
-        (The CoactivitySupplierForGeneration class)
-        (The CoactivitySupplierForGenerationFilter class)
-        (The CoactivitySupplierForGenerationIterator class)
-        (The CSVSTREAM class)
-        (The DescendingComparator class)
-        (The do class)
-        (The EveryThingNode class)
-        (The GreedyGroupQuestionNode class)
-        (The GreedyGroupRepetitionNode class)
-        (The GreedyQuestionNode class)
-        (The GreedyRepetitionNode class)
-        (The GroupBackReferenceNode class)
-        (The GroupMatchResult class)
-        (The GroupTerminator class)
-        (The InternetDotNode class)
-        (The lineCount class)
-        (The LowerTransformer class)
-        (The NegativeLookBehindNode class)
-        (The NotClassBoundaryNode class)
-        (The NotClassNode class)
-        (The OrderedCollection class)
-        (The PAD class)
-        (The pipeProfiler class)
-        (The Properties class)
-        (The secondaryConnector class)
-        (The Set class)
-        (The Stream class)
-        (The StreamSupplier class)
-        (The TransformingFormatter class)
-        (The WeakProxy class)
-        (The WINDOWSPLATFORM class)
-    What's the problem with these classes ???
-    Check if some methods have been added using setmethod, could be a possible root cause.
-
-
 Profiler todo :
 Error "does not understand message XXX_UNPROTECTED" when the method XXX is private.
 
@@ -290,6 +238,20 @@ RexxList *RexxList::classOf(
      size_t       named_argCount)
 TODO
 The named arguments could be added to the returned array (splitting the key:value).
+
+
+===============================================================================
+2021 may 19
+
+The problem of propagation of extension methods to some subclasses is fixed.
+Now an extension made on .Object is also available on a class.
+
+Was a bug in RexxClass::defineClassMethod, where the iteration over the subclasses
+was forgetting one subclass.
+old: for (size_t i = 1; i <  subclass_list_size; i++)
+new: for (size_t i = 1; i <= subclass_list_size; i++)
+
+Same problem in RexxClass::removeClassMethod
 
 
 ===============================================================================

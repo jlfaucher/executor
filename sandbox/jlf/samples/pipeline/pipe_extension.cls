@@ -45,29 +45,13 @@ So I added the 'pipe' method which injects the object in the pipe :
            }~doer
 
 
-::extension Class
-
--- Must review the extension mechanisms ! Not normal to have to do that...
-::method pipe class unguarded
-    use strict arg pipe, profile=.false
-    return pipe(self, pipe, profile)
-
-
--- Must review the extension mechanisms ! Not normal to have to do that...
-::method copipe class unguarded
-    use strict arg pipe, profile=.false
-    return copipe(self, pipe, profile)
-
-
 ::extension Object
 
--- Must review the extension mechanisms ! Not normal to have to do that...
 ::method pipe class unguarded
     use strict arg pipe, profile=.false
     return pipe(self, pipe, profile)
 
 
--- Must review the extension mechanisms ! Not normal to have to do that...
 ::method copipe class unguarded
     use strict arg pipe, profile=.false
     return copipe(self, pipe, profile)

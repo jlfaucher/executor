@@ -752,9 +752,13 @@ RexxObject *RexxClass::defineClassMethod(RexxString *method_name, RexxMethod *ne
 
     // propagate to all subclasses (JLF : don't know why it was not done, maybe not needed during image build ?)
     RexxArray *subclass_list = this->getSubClasses();
-    for (size_t i = 1; i < subclass_list->size(); i++)
+    ProtectedObject p2(subclass_list);
+    size_t subclass_list_size = subclass_list->size();
+    for (size_t i = 1; i <= subclass_list_size; i++)
     {
-        ((RexxClass *)subclass_list->get(i))->defineClassMethod(method_name, newMethod);
+        RexxClass *subclass = (RexxClass *)subclass_list->get(i);
+        if (subclass == NULL) continue;
+        subclass->defineClassMethod(method_name, newMethod);
     }
 
     return OREF_NULL;                    /* returns nothing                   */
@@ -773,9 +777,13 @@ void RexxClass::removeClassMethod(RexxString *method_name)
 
     // propagate to all subclasses
     RexxArray *subclass_list = getSubClasses();
-    for (size_t i = 1; i < subclass_list->size(); i++)
+    ProtectedObject p(subclass_list);
+    size_t subclass_list_size = subclass_list->size();
+    for (size_t i = 1; i <= subclass_list_size; i++)
     {
-        ((RexxClass *)subclass_list->get(i))->removeClassMethod(method_name);
+        RexxClass *subclass = (RexxClass *)subclass_list->get(i);
+        if (subclass == NULL) continue;
+        subclass->removeClassMethod(method_name);
     }
 }
 
@@ -892,11 +900,14 @@ void  RexxClass::updateSubClasses()
     ProtectedObject p(subClassList);
     /* loop thru the subclass doing the  */
     /* same for each of them             */
-    for (size_t index = 1; index <= subClassList->size(); index++)
+    size_t subClassList_size = subClassList->size();
+    for (size_t index = 1; index <= subClassList_size; index++)
     {
         /* get the next subclass             */
+        RexxClass * subclass = (RexxClass *)subClassList->get(index);
+        if (subclass == NULL) continue;
         /* and recursively update them       */
-        ((RexxClass *)subClassList->get(index))->updateSubClasses();
+        subclass->updateSubClasses();
     }
 }
 
@@ -914,11 +925,14 @@ void RexxClass::updateInstanceSubClasses()
     ProtectedObject p(subClassList);
     /* loop thru the subclass doing the  */
     /* same for each of them             */
-    for (size_t index = 1; index <= subClassList->size(); index++)
+    size_t subclass_list_size = subClassList->size();
+    for (size_t index = 1; index <= subclass_list_size /*subClassList->size()*/; index++)
     {
         /* get the next subclass             */
+        RexxClass *subclass = (RexxClass *)subClassList->get(index);
+        if (subclass == NULL) continue;
         /* recursively update these          */
-        ((RexxClass *)subClassList->get(index))->updateInstanceSubClasses();
+        subclass->updateInstanceSubClasses();
     }
 }
 

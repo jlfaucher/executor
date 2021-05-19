@@ -1155,14 +1155,32 @@ RexxObject *RexxList::itemsRexx(void)
 }
 
 
+/**
+ * Not really part of normal list operation, but classes
+ * maintain their subclasses as a list of weak references
+ * so that subclasses can get garbage collected when no
+ * longer needed.  When the class needs to iterate over
+ * the subclasses, it needs to resolve which weak references
+ * are still valid.  This method will check the weak
+ * references and remove any stale entries.  Then it
+ * will return an array of the dereferenced objects.
+ *
+ * @return An array of the dereferenced objects.
+ */
 RexxArray *RexxList::weakReferenceArray()
-/******************************************************************************/
-/* Function:  Scan the list removing all cleared weak reference objects,      */
-/*            and return an array of the dereferenced week array objects.     */
-/******************************************************************************/
 {
-    LISTENTRY *element;                  /* current working entry             */
+    // this is a little tricky.  We allocate the result array
+    // before we process the weak references.  If we prune
+    // the stale references first and then allocate an array,
+    // we might hit a GC window that could create more stale
+    // references.
 
+    // make this large enough to hold what is currently there.
+    // this could be more than we need, but that's fine. The initial size is zero.
+    RexxArray *result = (RexxArray *)new_array(this->count);
+    ProtectedObject p(result);
+
+    LISTENTRY *element;                  /* current working entry             */
     size_t i = this->firstIndex();              /* point to the first element        */
     size_t itemCount = this->count;
     while (itemCount--)                  /* step through the array elements   */
@@ -1171,9 +1189,10 @@ RexxArray *RexxList::weakReferenceArray()
         // step to the next element now, so we can remove this one
         i = element->next;
 
-        // get the reference value
+        // get the reference value and see if it is still valid
+        // if not, just delink this position and allow the weak reference
+        // to be garbage collected.
         WeakReference *ref = (WeakReference *)element->value;
-        // has the referenced object gone out of scope?
         if (ref->get() == OREF_NULL)
         {
             // remove this element from the list...note that this also
@@ -1181,23 +1200,15 @@ RexxArray *RexxList::weakReferenceArray()
             // loop iterations.
             primitiveRemove(element);
         }
+        // we have a good value, so add this to the result array.
+        else
+        {
+            result->append(ref->get());
+        }
     }
-
-    // we've removed the dead references, so make a second pass copying
-    // the real values into the returned array
-    RexxArray *array = (RexxArray *)new_array(this->count);
-    i = this->firstIndex();              /* point to the first element        */
-    for (size_t j = 1; j <= this->count; j++) /* step through the array elements   */
-    {
-        element = ENTRY_POINTER(i);      /* get the next item                 */
-                                         /* copy over to the array            */
-        // get the reference value
-        WeakReference *ref = (WeakReference *)element->value;
-        array->put(ref->get(), j);
-        i = element->next;               /* get the next pointer              */
-    }
-    return array;                        /* return the array element          */
+    return result;
 }
+
 
 void *RexxList::operator new(size_t size)
 /******************************************************************************/
