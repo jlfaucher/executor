@@ -342,16 +342,18 @@ else ()
             -DORX_SHARED_LIBRARY_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}"
             -DORX_REXXPATH="${CMAKE_REXXPATH}"
             -D${ORX_SYS_STR} -DOPSYS_${ORX_SYS_STR} -DHAVE_CONFIG_H)
-    set (ORX_SYSLIB_DL dl)
+    set (ORX_SYSLIB_DL ${CMAKE_DL_LIBS})
     set (ORX_SYSLIB_PTHREAD pthread)
 endif ()
 
 # Check header files and functions. These are all defined to the config.h file.
+check_include_file(xlocale.h HAVE_XLOCALE_H)
 check_include_file(ctype.h HAVE_CTYPE_H)
 check_include_file(float.h HAVE_FLOAT_H)
 check_include_file(limits.h HAVE_LIMITS_H)
 check_include_file(locale.h HAVE_LOCALE_H)
 check_include_file(malloc.h HAVE_MALLOC_H)
+check_include_file(alloca.h HAVE_ALLOCA_H)
 check_include_file(memory.h HAVE_MEMORY_H)
 check_function_exists(memset HAVE_MEMSET)
 check_function_exists(nsleep HAVE_NSLEEP)
@@ -368,8 +370,10 @@ check_include_file(fcntl.h HAVE_FCNTL_H)
 check_function_exists(nanosleep HAVE_NANOSLEEP)
 check_include_file(inttypes.h HAVE_INTTYPES_H)
 check_include_file(stdint.h HAVE_STDINT_H)
+check_symbol_exists(wordexp "wordexp.h;stdlib.h" HAVE_WORDEXP)
+check_include_file(wordexp.h HAVE_WORDEXP_H)
 if (NOT WIN32)
-  check_include_file(attr/xattr.h HAVE_ATTR_XATTR_H)
+  check_include_file(sys/xattr.h HAVE_SYS_XATTR_H)
   check_function_exists(catopen HAVE_CATOPEN)
   check_include_file(dlfcn.h HAVE_DLFCN_H)
   check_include_file(features.h HAVE_FEATURES_H)
@@ -381,6 +385,7 @@ if (NOT WIN32)
   check_function_exists(getpwuid HAVE_GETPWUID)
   check_function_exists(gettimeofday HAVE_GETTIMEOFDAY)
   check_function_exists(IDtouser HAVE_IDTOUSER)
+  check_function_exists(euidaccess HAVE_EUIDACCESS)
   find_library(HAVE_LIBPTHREAD pthread)
   find_library(HAVE_LIBRT rt)
   check_include_file(mesg.h HAVE_MESG_H)
@@ -406,7 +411,7 @@ if (NOT WIN32)
                            return 0;}"
                           HAVE_PTHREAD_MUTEX_RECURSIVE)
   # this requires -ldl on the link
-  set(CMAKE_REQUIRED_LIBRARIES dl)
+  set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_DL_LIBS})
   check_c_source_compiles("#include <dlfcn.h>
                            int main(int arg, char **argv) {
                            Dl_info DlInfo;
@@ -585,7 +590,7 @@ endif ()
 #/* Build targets                                                              */
 #/*----------------------------------------------------------------------------*/
 
-# 2019-01-04: macro to create and install symbolic links on Unix
+# macro to create and install symbolic links on Unix
 macro(create_install_symlink target)
    if (UNIX)   # checking for UNIX here simplifies invocation of this macro (no need to check operating system for the invoker)
       set(baseName   "${CMAKE_SHARED_LIBRARY_PREFIX}${target}")
@@ -1459,6 +1464,10 @@ create_install_symlink(hostemu)
 #################### librxunixsys.so ################
 if (NOT WIN32)
 # Sources for librxunixsys.so
+check_library_exists(crypt crypt "" HAVE_LIBCRYPT)
+if (HAVE_LIBCRYPT)
+   set (platform_rxunixsys_libs crypt)
+endif ()
 add_library(rxunixsys SHARED ${build_extensions_platform_dir}/rxunixsys/rxunixsys.cpp)
 # Include file definition
 target_include_directories(rxunixsys PUBLIC
@@ -2165,6 +2174,7 @@ endif ()
 
       add_custom_target(nsis_installer
          DEPENDS ${DOC_SOURCE_DIR}/readme.pdf
+                 ${DOC_SOURCE_DIR}/rexxapi.pdf
                  ${DOC_SOURCE_DIR}/rexxpg.pdf
                  ${DOC_SOURCE_DIR}/rexxref.pdf
                  ${DOC_SOURCE_DIR}/rxmath.pdf
@@ -2349,6 +2359,37 @@ if (BUILD_DEB)
    endif ()
    # The DEB generator does not support a multi-line description.
    set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Open Object Rexx is an object-oriented scripting language.")
+endif ()
+
+# Build for FREEBSD
+if (BUILD_FREEBSD)
+   set(CPACK_GENERATOR FREEBSD)
+   set(CPACK_FREEBSD_PACKAGE_NAME ooRexx)
+   if (DEFINED PROD)
+      set(CPACK_PACKAGE_RELEASE 1)
+   else ()
+      set(CPACK_PACKAGE_RELEASE ${ORX_BLD_LVL})
+   endif ()
+   set(CPACK_FREEBSD_PACKAGE_MAINTAINER "sahananda@users.sf.net")
+   set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
+   if (DEFINED OS_DIST)
+      set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${ORX_MAJOR}.${ORX_MINOR}.${ORX_MOD_LVL}-${CPACK_PACKAGE_RELEASE}.${OS_DIST}.${CMAKE_HOST_SYSTEM_PROCESSOR}")
+   else ()
+      set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${ORX_MAJOR}.${ORX_MINOR}.${ORX_MOD_LVL}-${CPACK_PACKAGE_RELEASE}.${CMAKE_HOST_SYSTEM_PROCESSOR}")
+   endif ()
+   set(CPACK_FREEBSD_PACKAGE_LICENSE "CPL")
+   set(CPACK_FREEBSD_PACKAGE_DESCRIPTION
+"Open Object Rexx is an object-oriented scripting language. The language
+is designed for both beginners and experienced Rexx programmers. It is
+easy to learn and use, and provides an excellent vehicle to enter the
+world of object-oriented programming without much effort.
+
+It extends the procedural way of Rexx programming with object-oriented
+features that allow you to gradually change your programming style as
+you learn more about objects.
+
+For more information on ooRexx, visit https://www.oorexx.org/
+For more information on Rexx, visit https://www.rexxla.org/")
 endif ()
 
 # Build for Apple macOS

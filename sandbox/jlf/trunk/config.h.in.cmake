@@ -1,13 +1,16 @@
 /* config.h.in.  Generated from CMake.  */
 
-/* Define to 1 if you have the <attr/xattr.h> header file. */
-#cmakedefine HAVE_ATTR_XATTR_H
+/* Define to 1 if you have the <sys/xattr.h> header file. */
+#cmakedefine HAVE_SYS_XATTR_H
 
 /* Define to 1 if you have the `catopen' function. */
 #cmakedefine HAVE_CATOPEN
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #cmakedefine HAVE_DLFCN_H
+
+/* Define to 1 if you have the 'euidaccess' function. */
+#cmakedefine HAVE_EUIDACCESS
 
 /* Define to 1 if you have the <fcntl.h> header file. */
 #cmakedefine HAVE_FCNTL_H
@@ -51,6 +54,9 @@
 /* Define to 1 if you have the `rt' library (-lrt). */
 #cmakedefine HAVE_LIBRT
 
+/* Define to 1 if you have the <xlocale.h> header file. */
+#cmakedefine HAVE_XLOCALE_H
+
 /* Define to 1 if you have the <limits.h> header file. */
 #cmakedefine HAVE_LIMITS_H
 
@@ -59,6 +65,14 @@
 
 /* Define to 1 if you have the <malloc.h> header file. */
 #cmakedefine HAVE_MALLOC_H
+
+/* Define to 1 if you have the <alloca.h> header file. */
+#cmakedefine HAVE_ALLOCA_H
+
+/* Define to 1 if you have the <wordexp.h> header file. */
+#cmakedefine HAVE_WORDEXP_H
+/* Define to 1 if you have the 'wordexp' function. */
+#cmakedefine HAVE_WORDEXP
 
 /* Define to 1 if you have the <memory.h> header file. */
 #cmakedefine HAVE_MEMORY_H
@@ -87,11 +101,41 @@
 /* Define to 1 if you have pthread_mutexattr_settype function */
 #cmakedefine HAVE_PTHREAD_MUTEXATTR_SETTYPE
 
+/* Define to 1 if you have pthread_mutex_timedlock function */
+#cmakedefine HAVE_PTHREAD_MUTEX_TIMEDLOCK
+
 /* Define to 1 if PTHREAD_MUTEX_ERRORCHECK is a valid value */
 #cmakedefine HAVE_PTHREAD_MUTEX_ERRORCHECK
 
 /* Define to 1 if PTHREAD_MUTEX_RECURSIVE is a valid value */
 #cmakedefine HAVE_PTHREAD_MUTEX_RECURSIVE
+
+/* Define to 1 if DLADDR is a valid value */
+#cmakedefine HAVE_DLADDR
+
+/* Define to 1 if _PC_HAVE_CASE_SENSITIVE is a valid value */
+#cmakedefine HAVE_PC_CASE_SENSITIVE
+
+/* Define to 1 if FNM_CASEFOLD is a valid value */
+#cmakedefine HAVE_FNM_CASEFOLD
+
+/* Define to 1 if KDMKTONE is a valid value */
+#cmakedefine HAVE_KDMKTONE
+
+/* Define to 1 if FS_CASEFOLD_FL is a valid value */
+#cmakedefine HAVE_FS_CASEFOLD_FL
+
+/* Define to 1 if _NSGetExecutablePath is a valid function */
+#cmakedefine HAVE_NSGETEXECUTABLEPATH
+
+/* Define to 1 if getexecname is a valid function */
+#cmakedefine HAVE_GETEXECNAME
+
+/* Define to 1 if struct lstat has a member st_mtim */
+#cmakedefine HAVE_STAT_ST_MTIM
+
+/* Define to 1 if struct lstat has a member st_mtimespec */
+#cmakedefine HAVE_STAT_ST_MTIMESPEC
 
 /* Define to 1 if you have the <pwd.h> header file. */
 #cmakedefine HAVE_PWD_H
