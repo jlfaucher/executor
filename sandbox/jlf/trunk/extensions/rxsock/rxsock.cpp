@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2009 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2021 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
 /* distribution. A copy is also available at the following address:           */
-/* http://www.oorexx.org/license.html                          */
+/* https://www.oorexx.org/license.html                                        */
 /*                                                                            */
 /* Redistribution and use in source and binary forms, with or                 */
 /* without modification, are permitted provided that the following            */
@@ -49,7 +49,7 @@
 
 #define PROG_DESC "REXX function package for tcp/ip sockets"
 #define PROG_COPY "(c) Copyright International Business Machines Corporation 1993, 2004"
-#define PROG_COPY1 "(c) Copyright Rexx Language Association 2005-2009"
+#define PROG_COPY1 "(c) Copyright Rexx Language Association 2005-2014"
 #define PROG_ALRRa "All Rights Reserved."
 #define PROG_ALRRb "This program and the accompanying materials"
 #define PROG_ALRRc "are made available under the terms of the Common Public License v1.0"
@@ -450,27 +450,38 @@ int stringToSockOpt(const char * pszOptName)
 /*------------------------------------------------------------------
  * set errno
  *------------------------------------------------------------------*/
-void setErrno(RexxCallContext *context)
+void setErrno(RexxCallContext *context, bool noError)
 {
     char szBuff[20];
     const char *pszErrno = szBuff;
     int   theErrno;
 
+    // h_errno is obsolete, but we still set it to 0
+    RexxStringObject zero = context->String("0");
+    context->SetContextVariable("h_errno", zero);
+
+    // if the function succeeded, errno has no meaning
+    if (noError)
+    {
+        context->SetContextVariable("errno", zero);
+        return;
+    }
+
 #if defined(WIN32)
     theErrno = WSAGetLastError();
-#elif defined(OPSYS_AIX) || defined(OPSYS_LINUX)
+#else
     theErrno = errno;
 #endif
 
     switch (theErrno)
     {
 #ifdef WIN32
-        case WSAEINTR              : pszErrno = "EINTR";                break;
-        case WSAEBADF              : pszErrno = "EBADF";                break;
-        case WSAEACCES             : pszErrno = "EACCES";               break;
-        case WSAEFAULT             : pszErrno = "EFAULT";               break;
-        case WSAEINVAL             : pszErrno = "EINVAL";               break;
-        case WSAEMFILE             : pszErrno = "EMFILE";               break;
+        case WSAEINTR           : pszErrno = "EINTR";                break;
+        case WSAEBADF           : pszErrno = "EBADF";                break;
+        case WSAEACCES          : pszErrno = "EACCES";               break;
+        case WSAEFAULT          : pszErrno = "EFAULT";               break;
+        case WSAEINVAL          : pszErrno = "EINVAL";               break;
+        case WSAEMFILE          : pszErrno = "EMFILE";               break;
         case WSAEWOULDBLOCK     : pszErrno = "EWOULDBLOCK";          break;
         case WSAEINPROGRESS     : pszErrno = "EINPROGRESS";          break;
         case WSAEALREADY        : pszErrno = "EALREADY";             break;
@@ -502,12 +513,12 @@ void setErrno(RexxCallContext *context)
         case WSAENAMETOOLONG    : pszErrno = "ENAMETOOLONG";         break;
         case WSAEHOSTDOWN       : pszErrno = "EHOSTDOWN";            break;
         case WSAEHOSTUNREACH    : pszErrno = "EHOSTUNREACH";         break;
-        case WSASYSNOTREADY               : pszErrno = "WSASYSNOTREADY";       break;
-        case WSAVERNOTSUPPORTED   : pszErrno = "WSASAVERNOTSUPPORTED"; break;
-        case WSANOTINITIALISED    : pszErrno = "WSANOTINITIALISED";    break;
+        case WSASYSNOTREADY     : pszErrno = "WSASYSNOTREADY";       break;
+        case WSAVERNOTSUPPORTED : pszErrno = "WSASAVERNOTSUPPORTED"; break;
+        case WSANOTINITIALISED  : pszErrno = "WSANOTINITIALISED";    break;
         case WSAHOST_NOT_FOUND  : pszErrno = "HOST_NOT_FOUND";       break;
-        case WSATRY_AGAIN       : pszErrno = "TRY_AGAIN";           break;
-        case WSANO_RECOVERY          : pszErrno = "NO_RECOVERY";          break;
+        case WSATRY_AGAIN       : pszErrno = "TRY_AGAIN";            break;
+        case WSANO_RECOVERY     : pszErrno = "NO_RECOVERY";          break;
         case WSANO_DATA         : pszErrno = "NO_DATA";              break;
 #else
 
@@ -551,41 +562,6 @@ void setErrno(RexxCallContext *context)
     context->SetContextVariable("errno", context->String(pszErrno));
 }
 
-
-/*------------------------------------------------------------------
- * set h_errno
- *------------------------------------------------------------------*/
-void setH_Errno(RexxCallContext *context)
-{
-    char szBuff[20];
-    const char *pszErrno = szBuff;
-    int   theErrno;
-
-    theErrno = 1541;
-
-    switch (theErrno)
-    {
-        case HOST_NOT_FOUND  : pszErrno = "HOST_NOT_FOUND";       break;
-        case TRY_AGAIN       : pszErrno = "TRY_AGAIN";            break;
-        case NO_RECOVERY     : pszErrno = "NO_RECOVERY";          break;
-        case NO_ADDRESS      : pszErrno = "NO_ADDRESS";           break;
-
-        default:
-            sprintf(szBuff,"%d",theErrno);
-    }
-
-    context->SetContextVariable("h_errno", context->String(pszErrno));
-}
-
-
-/*------------------------------------------------------------------
- * set the error variables at function cleanup.
- *------------------------------------------------------------------*/
-void cleanup(RexxCallContext *context)
-{
-    setErrno(context);
-    setH_Errno(context);
-}
 
 /*-/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\-*/
 /*-\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/-*/
@@ -634,6 +610,25 @@ RexxRoutine0(RexxStringObject, SockDropFuncs)
 RexxRoutine0(int, SockDie)
 {
     return 0;
+}
+
+
+/**
+ * A loader to perform an startup initialization
+ *
+ * @param context The loader thread context
+ *
+ * @return nothing
+ */
+void RexxEntry loader(RexxThreadContext *context)
+{
+// Windows requires the sockets system to be updated on a per-process basis.
+#ifdef WIN32
+    WORD wVersionRequested;
+    WSADATA wsaData;
+    wVersionRequested = MAKEWORD( 1, 1 );
+    int rc = WSAStartup( wVersionRequested, &wsaData );
+#endif
 }
 
 /*------------------------------------------------------------------
@@ -700,7 +695,7 @@ RexxRoutineEntry rxsock_functions[] =
     REXX_TYPED_ROUTINE( SockShutDown,       SockShutDown),
     REXX_TYPED_ROUTINE( SockSock_Errno,     SockSock_Errno),
     REXX_TYPED_ROUTINE( SockSocket,         SockSocket),
-    REXX_TYPED_ROUTINE( SockSoClose,        SockSoClose),
+    REXX_TYPED_ROUTINE( SockSoClose,        SockClose),
     REXX_TYPED_ROUTINE( SockVersion,        SockVersion),
     REXX_LAST_ROUTINE()
 };
@@ -709,10 +704,10 @@ RexxPackageEntry rxsock_package_entry =
 {
     STANDARD_PACKAGE_HEADER
     REXX_INTERPRETER_4_0_0,              // anything after 4.0.0 will work
-    "RXSOCK",                            // name of the package
+    "rxsock",                            // name of the package
     "4.0",                               // package information
-    NULL,                                // no load/unload functions
-    NULL,
+    loader,                              // we have some load time initialization
+    NULL,                                // but nothing to do at unload
     rxsock_functions,                    // the exported functions
     NULL                                 // no methods in this package
 };
