@@ -241,6 +241,21 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 may 23
+
+Alignment with official ooRexx:
+    Hostemu
+    Json
+    orxncurses
+    rxunixsys
+    rxftp
+    rxmath
+    rxregexp
+
+CMakeList.txt partially aligned with official ooRexx.
+
+
+===============================================================================
 2021 may 19
 
 The problem of propagation of extension methods to some subclasses is fixed.

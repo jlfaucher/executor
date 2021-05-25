@@ -168,12 +168,10 @@ endif ()
 include_directories(BEFORE api api/${ORX_PLATFORM_DIR})
 
 
-# Rexx search path
-set (CMAKE_REXXPATH ${CMAKE_CURRENT_BINARY_DIR}/bin)
+# defining ORX_REXXPATH will set a default for the REXX_PATH environment variable
 if (ORX_REXXPATH)
-    message(STATUS "Setting REXX search path to ${ORX_REXXPATH}")
+    message(STATUS "Setting REXX_PATH default to ${ORX_REXXPATH}")
     set (CMAKE_REXXPATH ${ORX_REXXPATH})
-
 endif ()
 
 
@@ -452,7 +450,10 @@ if (NOT WIN32)
                            return 0;}"
                           HAVE_UNION_SEMUN)
   check_include_file(unistd.h HAVE_UNISTD_H)
-  check_include_file(usersec.h HAVE_USERSEC_H)
+  set (CURSES_NEED_NCURSES TRUE)
+  include(FindCurses) # sets CURSES_HAVE_NCURSES_H and CURSES_HAVE_NCURSES_NCURSES_H
+  message(STATUS "CURSES_HAVE_NCURSES_H is ${CURSES_HAVE_NCURSES_H}")
+  message(STATUS "CURSES_HAVE_NCURSES_NCURSES_H is ${CURSES_HAVE_NCURSES_NCURSES_H}")
   if (CMAKE_SYSTEM_NAME MATCHES "(SunOS|Solaris)")
     check_library_exists(socket getaddrinfo "" HAVE_LIBSOCKET)
     if (HAVE_LIBSOCKET)
@@ -470,14 +471,6 @@ if (NOT WIN32)
     if (HAVE_LIBRT)
       set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} rt)
     endif (HAVE_LIBRT)
-    check_include_file(ncurses/ncurses.h NCURSES_H_)
-    if (NOT NCURSES_H_)
-      check_include_file(ncurses.h HAVE_NCURSES_H)
-    else ()
-      include_directories(/usr/include/ncurses)
-    endif (NOT NCURSES_H_)
-  else ()
-    check_include_file(ncurses.h HAVE_NCURSES_H)
   endif ()
 endif ()
 set (PACKAGE ${PROJECT_NAME})
@@ -647,6 +640,7 @@ set (common_rexxapi_sources
             ${build_common_platform_dir}/SysSemaphore.cpp
             ${build_common_platform_dir}/SysLibrary.cpp
             ${build_common_platform_dir}/SysFile.cpp
+#            ${build_common_platform_dir}/SysProcess.cpp                                            # official only
             ${build_common_platform_dir}/SysThread.cpp)
 # additional source files required by specific platforms
 if (WIN32)
@@ -789,6 +783,7 @@ set (memory_sources ${build_memory_dir}/DeadObject.cpp
 set (execution_sources ${build_execution_dir}/CPPCode.cpp
 #            ${build_execution_dir}/ActivationStack.cpp                                             # official only
             ${build_execution_dir}/RexxActivationStack.cpp                                          # executor
+#            ${build_execution_dir}/ActivationSettings.cpp                                          # official only
             ${build_execution_dir}/RexxActivation.cpp
 #            ${build_execution_dir}/BaseCode.cpp                                                    # official only
             ${build_execution_dir}/RexxCode.cpp
@@ -913,9 +908,9 @@ set (parser_sources ${build_parser_dir}/Clause.cpp
             ${build_parser_dir}/Scanner.cpp
             ${build_parser_dir}/SourceFile.cpp                                                      # executor
             ${build_parser_dir}/Token.cpp)
-set (platform_sources ${build_interpreter_platform_dir}/ErrorMessages.cpp
+set (platform_sources ${build_interpreter_platform_dir}/ErrorMessages.cpp                           # official only (ErrorMessages.cpp)
             ${build_interpreter_platform_dir}/ExternalFunctions.cpp
-            ${build_interpreter_platform_dir}/FileSystem.cpp
+            ${build_interpreter_platform_dir}/FileSystem.cpp                                        # executor
             ${build_interpreter_platform_dir}/MemorySupport.cpp
             ${build_interpreter_platform_dir}/MiscSystem.cpp
             ${build_interpreter_platform_dir}/SysActivity.cpp
@@ -969,8 +964,9 @@ set (common_interpreter_sources ${classes_sources}
 # additional source files required by specific platforms
 if (WIN32)
    set (platform_interpreter_sources ${build_interpreter_platform_dir}/wrexx.def                    # executor=wref.def, official=rexx.def
-            ${build_interpreter_platform_dir}/winmsgtb.rc)
-   set (platform_interpreter_libs comctl32)
+                                     ${build_interpreter_platform_dir}/winmsgtb.rc)                 # executor
+#                                     ${build_platform_dir}/verinfo.rc)                             # official
+   set (platform_interpreter_libs comctl32 shlwapi version)
 else ()
    set (platform_interpreter_sources ${build_interpreter_platform_dir}/RexxMain.cpp)
    set (platform_rexx_libs ${ORX_SYSLIB_DL} ${ORX_SYSLIB_PTHREAD})
@@ -1130,14 +1126,15 @@ endif ()
 
 # Build the rexx.img file
 add_custom_command(OUTPUT ${ORX_IMAGE_OUTPUT_LOCATION}/rexx.img
-           COMMAND $<TARGET_FILE:rexximage>
-#           COMMAND $<TARGET_FILE:rexximage> ${ORX_IMAGE_OUTPUT_LOCATION}/rexx.img
-           DEPENDS rexximage rxapi rexxutil ${image_class_files} ${platform_rexx_img_depends}
+           COMMAND $<TARGET_FILE:rexximage>                                                         # executor
+#           COMMAND $<TARGET_FILE:rexximage> ${ORX_IMAGE_OUTPUT_LOCATION}/rexx.img                  # official
+           DEPENDS rexximage rxapi rexxutil ${image_class_files} ${platform_rexx_img_depends}       # executor
+#           DEPENDS rexximage rxapi ${image_class_files} ${platform_rexx_img_depends}               # official
            WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 add_custom_target(rexx_img ALL DEPENDS ${ORX_IMAGE_OUTPUT_LOCATION}/rexx.img)
-install(PROGRAMS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rexx.img COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR} PERMISSIONS OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE OWNER_READ GROUP_READ WORLD_READ)
-#install(PROGRAMS ${ORX_IMAGE_OUTPUT_LOCATION}/rexx.img COMPONENT Core DESTINATION ${INSTALL_LIB_DIR} PERMISSIONS OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE OWNER_READ GROUP_READ WORLD_READ)
+install(PROGRAMS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rexx.img COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR} PERMISSIONS OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE OWNER_READ GROUP_READ WORLD_READ)    # executor
+#install(PROGRAMS ${ORX_IMAGE_OUTPUT_LOCATION}/rexx.img COMPONENT Core DESTINATION ${INSTALL_LIB_DIR} PERMISSIONS OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE OWNER_READ GROUP_READ WORLD_READ)               # official
 
 #################### rxapi (executable) #########################
 # additional source files required by specific platforms
@@ -1180,10 +1177,11 @@ add_executable(rxapi ${rxapi_executable_type}
          ${build_rexxapi_common_dir}/RegistrationTable.cpp
          ${build_rexxapi_common_dir}/ServiceMessage.cpp
          ${build_rexxapi_common_platform_dir}/SysAPIManager.cpp
-         ${build_rexxapi_common_platform_dir}/SysProcess.cpp
+         ${build_rexxapi_common_platform_dir}/SysProcess.cpp                                        # executor
          ${build_common_dir}/Utilities.cpp
          ${build_common_platform_dir}/SysDebug.cpp                                                  # executor
          ${build_common_platform_dir}/SysUtilities.cpp                                              # executor
+#         ${build_common_platform_dir}/SysProcess.cpp                                               # official
          ${build_common_platform_dir}/SysSemaphore.cpp
          ${build_common_platform_dir}/SysThread.cpp
          ${platform_rxapi_sources})
@@ -1245,8 +1243,8 @@ if (XALAN_EXECUTABLE)
     generate_message_file(${build_messages_dir}/errnumsrxqueue.xml ${build_messages_dir}/errnumsrxqueue.xsl)
     generate_message_file(${build_messages_dir}/errnumssubcom.xml ${build_messages_dir}/errnumssubcom.xsl)
     generate_message_file(${build_messages_dir}/errnumsrexxc.xml ${build_messages_dir}/errnumsrexxc.xsl)
-    generate_message_file(${build_interpreter_dir}/platform/windows/winmsgtb.rc ${build_interpreter_dir}/platform/windows/WinMessageResource.xsl)
-# Official: interpreter/platform/unix/gencat.inp
+    generate_message_file(${build_interpreter_dir}/platform/windows/winmsgtb.rc ${build_interpreter_dir}/platform/windows/WinMessageResource.xsl)       # executor
+# Official: NO LONGER USED interpreter/platform/unix/gencat.inp
 #    generate_message_file(${build_interpreter_dir}/platform/unix/gencat.inp ${build_interpreter_dir}/platform/unix/UnixGencat.xsl)
 # Executor: interpreter/messages/gencat.inp
     generate_message_file(${build_interpreter_dir}/messages/gencat.inp ${build_interpreter_dir}/platform/unix/UnixGencat.xsl)
@@ -1346,7 +1344,7 @@ target_include_directories(rxsubcom PUBLIC
 target_link_libraries(rxsubcom rexx rexxapi ${platform_subcom_libs} ${CMAKE_REQUIRED_LIBRARIES})
 install(TARGETS rxsubcom RUNTIME COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR})
 
-#################### librexxutil.so ################
+#################### librexxutil.so ################                                                # executor only
 # additional source files required by specific platforms
 if (WIN32)
    set (platform_rexxutil_sources
@@ -1475,14 +1473,7 @@ target_include_directories(rxunixsys PUBLIC
              ${build_api_platform_dir}
              ${extensions_unix_dir}/rxunixsys)
 # Extra link library definitions
-# gcc (at least on Linux) requires linking with -lcrypt
-# clang (at least on Darwin) doesn't have libcrypt
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_link_libraries(rxunixsys rexx rexxapi crypt ${CMAKE_REQUIRED_LIBRARIES})
-else ()
-    target_link_libraries(rxunixsys rexx rexxapi ${CMAKE_REQUIRED_LIBRARIES})
-endif ()
-
+target_link_libraries(rxunixsys rexx rexxapi ${platform_rxunixsys_libs} ${CMAKE_REQUIRED_LIBRARIES})
 set_target_properties(rxunixsys PROPERTIES SOVERSION ${ORX_API_LEVEL})
 install(TARGETS rxunixsys RUNTIME DESTINATION ${INSTALL_LIB_DIR}
                           LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core)
@@ -1490,7 +1481,7 @@ install(TARGETS rxunixsys RUNTIME DESTINATION ${INSTALL_LIB_DIR}
 endif ()
 
 #################### liborxncurses.so ################
-if (HAVE_NCURSES_H)
+if (NOT WIN32)
    # need to copy this to the binary dir
    copy_build_file(ncurses.cls ${build_extensions_orxncurses_dir})
    # Sources for liborxncurses.so
@@ -1553,7 +1544,7 @@ if (WIN32)
    set (OOD_MOD_LVL 0)                # 4 --> 0 (au pif)
    set (OOD_BLD_LVL 5500)             # 11861 --> 5500
    set (OOD_VER_STR "4.2.0.5500")     # 4.2.4.11861 --> 4.2.0.5500
-   set (OOD_COPY_YEAR "2005-2018")
+   set (OOD_COPY_YEAR "2005-2010")    # oodialog wchar is derived from an old oodialog version, around 2010
 
    #################### ooshapes.dll ################
 if (FALSE)                 # jlf : not existing in oodialog wchar
@@ -1641,8 +1632,8 @@ endif ()    # ooshapes.dll
    target_include_directories(oodialog PUBLIC
                 ${build_extensions_oodialog_dir})
    # Extra link library definitions
-   # target_link_libraries(oodialog ooshapes rexx rexxapi winmm comdlg32 comctl32 shlwapi oleacc uxtheme rpcrt4 propsys delayimp)
-   target_link_libraries(  oodialog          rexx rexxapi winmm comdlg32 comctl32 shlwapi oleacc uxtheme rpcrt4 propsys delayimp)
+   # target_link_libraries(oodialog ooshapes rexx rexxapi winmm comdlg32 comctl32 shlwapi oleacc uxtheme rpcrt4 propsys delayimp)   # official
+   target_link_libraries(  oodialog          rexx rexxapi winmm comdlg32 comctl32 shlwapi oleacc uxtheme rpcrt4 propsys delayimp)   # executor
    install(TARGETS oodialog RUNTIME COMPONENT Core DESTINATION ${INSTALL_LIB_DIR})
 
    #################### ooDialog.exe (executable) ##########################
@@ -1815,19 +1806,33 @@ copy_build_file(rxregexp.cls     ${build_extensions_rxregexp_dir})
 copy_build_file(rxftp.cls        ${build_extensions_rxftp_dir})
 copy_build_file(csvStream.cls    ${build_extensions_csvstream_dir})
 copy_build_file(json.cls         ${build_extensions_json_dir})
-#copy_build_file(dateparser.cls   ${build_extensions_dateparser_dir})                 # official
+#copy_build_file(dateparser.cls   ${build_extensions_dateparser_dir})                               # official
 copy_build_file(socket.cls       ${build_extensions_rxsock_dir})
 copy_build_file(streamsocket.cls ${build_extensions_rxsock_dir})
 copy_build_file(mime.cls         ${build_extensions_rxsock_dir})
 copy_build_file(smtp.cls         ${build_extensions_rxsock_dir})
+# copy_samples_file(complex.cls       ${build_samples_dir})                                         # official (renamed)
+copy_samples_file(complex.rex       ${build_samples_dir})                                           # executor
+# copy_samples_file(pipe.cls          ${build_samples_dir})                                         # official (renamed)
+copy_samples_file(pipe.rex          ${build_samples_dir})                                           # executor
+# copy_samples_file(semcls.cls        ${build_samples_dir})                                         # official (renamed)
+copy_samples_file(semcls.rex        ${build_samples_dir})                                           # executor
+# copy_samples_file(treeDirectory.cls ${build_samples_dir})                                         # official only
+# copy_samples_file(jabberwocky.txt   ${build_samples_dir})                                         # official only
 
 # the shebang line needs adjusting in the .rex files, so we need to
-# do this based on the build target
-configure_build_file(rexxtry.rex ${build_samples_dir})
-configure_build_file(rexxcps.rex ${build_samples_dir})
+# do this based on the build target, sorted here alphabetically
+# configure_build_file(arithmeticEvaluation.rex ${build_samples_dir})                               # official only
+# configure_build_file(arrayCallback.rex ${build_samples_dir})                                      # official only
 configure_build_file(ccreply.rex ${build_samples_dir})
+# configure_build_file(concurrency.rex ${build_samples_dir})                                        # official only
+# configure_build_file(constrained.rex ${build_samples_dir})                                        # official only
+# configure_build_file(delegation.rex ${build_samples_dir})                                         # official only
+# configure_build_file(dynamicMethod.rex ${build_samples_dir})                                      # official only
+# configure_build_file(factor.rex ${build_samples_dir})                                             # official only
 configure_build_file(greply.rex ${build_samples_dir})
 configure_build_file(guess.rex ${build_samples_dir})
+# configure_build_file(interface.rex ${build_samples_dir})                                          # official only
 configure_build_file(ktguard.rex ${build_samples_dir})
 configure_build_file(makestring.rex ${build_samples_dir})
 configure_build_file(month.rex ${build_samples_dir})
@@ -1835,25 +1840,21 @@ configure_build_file(philfork.rex ${build_samples_dir})
 configure_build_file(properties.rex ${build_samples_dir})
 configure_build_file(qdate.rex ${build_samples_dir})
 configure_build_file(qtime.rex ${build_samples_dir})
+configure_build_file(rexxtry.rex ${build_samples_dir})
+configure_build_file(rexxcps.rex ${build_samples_dir})
 configure_build_file(scclient.rex ${build_samples_dir})
 configure_build_file(scserver.rex ${build_samples_dir})
 configure_build_file(sfclient.rex ${build_samples_dir})
 configure_build_file(sfserver.rex ${build_samples_dir})
-configure_build_file(stack.rex ${build_samples_dir})
-configure_build_file(usecomp.rex ${build_samples_dir})
-configure_build_file(usepipe.rex ${build_samples_dir})
-# configure_build_file(arithmeticEvaluation.rex ${build_samples_dir})                               # official only
-# configure_build_file(arrayCallback.rex ${build_samples_dir})                                      # official only
-# configure_build_file(concurrency.rex ${build_samples_dir})                                        # official only
-# configure_build_file(constrained.rex ${build_samples_dir})                                        # official only
-# configure_build_file(timezone.rex ${build_samples_dir})                                           # official only
-# configure_build_file(delegation.rex ${build_samples_dir})                                         # official only
-# configure_build_file(dynamicMethod.rex ${build_samples_dir})                                      # official only
-# configure_build_file(interface.rex ${build_samples_dir})                                          # official only
 # configure_build_file(singleLinkedList.rex ${build_samples_dir})                                   # official only
 # configure_build_file(sortComposite.rex ${build_samples_dir})                                      # official only
+configure_build_file(stack.rex ${build_samples_dir})
 # configure_build_file(synchronousConcurrency.rex ${build_samples_dir})                             # official only
+# configure_build_file(timezone.rex ${build_samples_dir})                                           # official only
 # configure_build_file(treeTraversal.rex ${build_samples_dir})                                      # official only
+configure_build_file(usecomp.rex ${build_samples_dir})
+configure_build_file(usepipe.rex ${build_samples_dir})
+# configure_build_file(usesingleton.rex ${build_samples_dir})                                       # official only
 # configure_build_file(usetree.rex ${build_samples_dir})                                            # official only
 
 add_custom_target(class_files ALL DEPENDS
@@ -1866,8 +1867,17 @@ add_custom_target(class_files ALL DEPENDS
     ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/mime.cls
     ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/smtp.cls
 #    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dateparser.cls                                               # official only
-    ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/rexxtry.rex)
 
+#    ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/complex.cls                                                  # official (renamed)
+    ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/complex.rex
+#    ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/pipe.cls                                                     # official (renamed)
+    ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/pipe.rex
+#    ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/semcls.cls                                                   # official (renamed)
+    ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/semcls.rex
+#    ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/treeDirectory.cls                                            # official only
+#    ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/jabberwocky.txt                                              # official only
+
+    ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/rexxtry.rex)
 
 install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rxregexp.cls COMPONENT Core DESTINATION ${INSTALL_CLS_DIR})
 
@@ -1893,10 +1903,17 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${build_api_dir}/oorexxapi.h COMPONENT
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${build_api_dir}/oorexxerrors.h COMPONENT DevLib DESTINATION ${INSTALL_INCLUDE_DIR})
 
 # common sample programs
-install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/rexxcps.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})
+# install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/arithmeticEvaluation.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})             # official only
+# install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/arrayCallback.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                    # official only
 install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/ccreply.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})
+# install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/concurrency.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                      # official only
+# install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/constrained.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                      # official only
+# install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/delegation.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                       # official only
+# install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/dynamicMethod.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                    # official only
+# install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/factor.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                           # official only
 install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/greply.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})
 install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/guess.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})
+# install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/interface.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                        # official only
 install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/ktguard.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})
 install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/makestring.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})
 install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/month.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})
@@ -1908,21 +1925,15 @@ install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/scclient.rex COMPONENT Sample
 install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/scserver.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})
 install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/sfclient.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})
 install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/sfserver.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})
-install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/stack.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})
-install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/usecomp.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})
-install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/usepipe.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})
-# install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/arithmeticEvaluation.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})             # official only
-# install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/arrayCallback.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                    # official only
-# install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/concurrency.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                      # official only
-# install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/constrained.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                      # official only
-# install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/timezone.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                         # official only
-# install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/delegation.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                       # official only
-# install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/dynamicMethod.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                    # official only
-# install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/interface.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                        # official only
 # install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/singleLinkedList.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                 # official only
 # install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/sortComposite.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                    # official only
+install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/stack.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})
 # install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/synchronousConcurrency.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})           # official only
+# install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/timezone.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                         # official only
 # install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/treeTraversal.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                    # official only
+install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/usecomp.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})
+install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/usepipe.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})
+# install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/usesingleton.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                     # official only
 # install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/usetree.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                          # official only
 
 # install(PROGRAMS ${SAMPLES_SOURCE}/complex.cls COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                                          # official only (renamed)
@@ -1932,16 +1943,23 @@ install(PROGRAMS ${SAMPLES_SOURCE}/pipe.rex COMPONENT Samples DESTINATION ${INST
 # install(PROGRAMS ${SAMPLES_SOURCE}/semcls.cls COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                                           # official only (renamed)
 install(PROGRAMS ${SAMPLES_SOURCE}/semcls.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})
 # install(PROGRAMS ${SAMPLES_SOURCE}/treeDirectory.cls COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                                    # official only
+
+
+# used in synchronousConcurrency.rex
 # install(FILES ${SAMPLES_SOURCE}/jabberwocky.txt COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                                         # official only
 
+# Not strictly a sample but useful
+install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/rexxcps.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})
+
 if (NOT WIN32)
+   # executor only
    add_custom_command(OUTPUT rexx.cat
-#              COMMAND gencat rexx.cat ${CMAKE_CURRENT_SOURCE_DIR}/${build_interpreter_dir}/platform/unix/gencat.inp            # official
-              COMMAND gencat rexx.cat ${CMAKE_CURRENT_SOURCE_DIR}/${build_interpreter_dir}/messages/gencat.inp                  # executor
+              COMMAND gencat rexx.cat ${CMAKE_CURRENT_SOURCE_DIR}/${build_interpreter_dir}/messages/gencat.inp
               DEPENDS ${image_class_files} ${platform_rexx_img_depends}
               WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
    add_custom_target(rexx_cat ALL DEPENDS rexx.cat)
    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rexx.cat DESTINATION ${catdir} PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
+   # end of executor only
 
    macro (add_manpage name cat)
       add_custom_command(OUTPUT ${name}.${cat}.gz
@@ -1960,7 +1978,8 @@ if (NOT WIN32)
    add_manpage (rxqueue 1)
    add_manpage (rxsubcom 1)
 
-   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${build_samples_dir}/readme DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${CMAKE_PROJECT_NAME})
+#   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${build_samples_dir}/readme.txt DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${CMAKE_PROJECT_NAME})      # official: readme.txt
+   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${build_samples_dir}/readme DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${CMAKE_PROJECT_NAME})           # executor: readme
 endif ()
 
 
@@ -2040,11 +2059,11 @@ endif ()
        CONFIGURATIONS Debug RelWithDebInfo)
    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rexxhide.pdb COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR}
        CONFIGURATIONS Debug RelWithDebInfo)
-   install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rexximage.pdb COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR}
+   install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rexximage.pdb COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR}   # executor only
        CONFIGURATIONS Debug RelWithDebInfo)
    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rexxpaws.pdb COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR}
        CONFIGURATIONS Debug RelWithDebInfo)
-   install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rexxutil.pdb COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR}
+   install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rexxutil.pdb COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR}    # executor only
        CONFIGURATIONS Debug RelWithDebInfo)
    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rxapi.pdb COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR}
        CONFIGURATIONS Debug RelWithDebInfo)
