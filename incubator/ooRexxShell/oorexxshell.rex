@@ -797,7 +797,7 @@ Helpers
     if .CoactivitySupplier~isA(.Class), value~isA(.CoactivitySupplier) then .ooRexxShell~sayPrettyString(value) -- must not consume the datas
     else if .ooRexxShell~isExtended, value~isA(.enclosedArray), dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
     else if .ooRexxShell~isExtended, value~isA(.array), value~dimension == 1, dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
-    else if value~isA(.Collection) /* | value~isA(.Supplier) */ then .ooRexxShell~sayCollection(value, /*title*/, /*comparator*/, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
+    else if value~isA(.Collection), dumpLevel == 2  then .ooRexxShell~sayCollection(value, /*title*/, .NumberComparator~new, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
     else .ooRexxShell~sayPrettyString(value)
 
     return value -- To get this value in the variable RESULT
@@ -1174,7 +1174,9 @@ Helpers
     use strict arg value, surroundByQuotes=.true
     -- The package rgfutil2 is optional, use it if loaded.
     if .ooRexxShell~pp2 <> .nil then return .ooRexxShell~pp2~call(value, surroundByQuotes)
-    return arg(1)
+    -- Can't pass (surroundByQuotes) to ppString because it's by named argument. I want to keep ooRexxShell compatible with official ooRexx.
+    if value~hasMethod("ppString") then return value~ppString
+    return value
 
 
 ::method singularPlural class

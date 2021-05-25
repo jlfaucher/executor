@@ -22,8 +22,14 @@ while true
 do
     $OOREXXSHELL_RLWRAP rexx oorexxshell.rex $*
     status=$?
+    # echo "status=" $status
     if test $status -ne 200; then break; fi
 done
+
+# When using rlwrap, the terminal is in bracketed paste mode after leaving oorexxShell.
+# Running then command 'reset' in the terminal clears the bracketed paste mode.
+[ "$OOREXXSHELL_RLWRAP" ] && reset
+
 exit $status
 
 

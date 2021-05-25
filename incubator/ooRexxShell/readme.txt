@@ -368,6 +368,16 @@ reads the history file only when launching ooRexxShell, or when using the
 command 'reload'. Only the inputs entered with rlwrap are visible. The history
 file itself is ok, it contains the inputs entered in both modes.
 
+Known problem with rlwrap:
+After leaving oorexxShell, the terminal is in bracketed paste mode
+https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Bracketed-Paste-Mode
+When you paste SOMETHING, you have 00~SOMETHING~.
+Running then command 'reset' in the terminal clears the bracketed paste mode.
+
+Known problem with rlwrap:
+Sometimes, the code 200 returned by ooRexxShell when using the command 'reload'
+is lost by rlwrap which returns 0. Consequence: ooRexxShell is not reloaded.
+
 Demo mode:
 If the command "*/" is immediatly followed by a command sleep then the duration is
 proportional to the number of characters in the comment (before, was proportional
