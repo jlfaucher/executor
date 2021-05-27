@@ -129,11 +129,9 @@ if(SUBVERSION_FOUND)
 endif()
 message(STATUS "SVN Revision Number is ${ORX_BLD_LVL}")
 
-if (WIN32)
-# find a xalan executable, but only on windows for now.
+# find a xalan executable.
     FIND_PROGRAM(XALAN_EXECUTABLE xalan
        DOC "xalan command line xslt converter")
-endif()
 
 # The following supports the versioning of the rexx shared libraries
 # This defines the oorexx library version. For ooRexx this should always be the
