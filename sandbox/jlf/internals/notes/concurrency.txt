@@ -1,5 +1,6 @@
 ===============================================================================
-https://github.com/llvm-mirror/llvm/blob/master/docs/Atomics.rst
+
+https://github.com/llvm/llvm-project/blob/main/llvm/docs/Atomics.rst
 
 ===================================================================================
 Extracted from
