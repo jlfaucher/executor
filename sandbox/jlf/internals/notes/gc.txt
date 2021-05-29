@@ -37,6 +37,10 @@ in the list of dead objects.
 
 
 ================================================================================
+
+https://github.com/llvm/llvm-project/blob/main/llvm/docs/GarbageCollection.rst
+
+================================================================================
 2015 Sept
 
 GC review

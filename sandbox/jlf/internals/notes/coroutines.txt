@@ -1,5 +1,7 @@
 This file is not limited to co-routines. Also covers iterators, generators.
 
+https://github.com/llvm/llvm-project/blob/main/llvm/docs/Coroutines.rst
+
 https://davidwalsh.name/es6-generators
 
 http://jlongster.com/Taming-the-Asynchronous-Beast-with-CSP-in-JavaScript
