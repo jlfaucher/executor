@@ -1174,12 +1174,14 @@ Helpers
     use strict arg value, surroundByQuotes=.true
     -- The package rgfutil2 is optional, use it if loaded.
     if .ooRexxShell~pp2 <> .nil then return .ooRexxShell~pp2~call(value, surroundByQuotes)
-    -- Can't pass (surroundByQuotes) to ppString because it's by named argument. I want to keep ooRexxShell compatible with official ooRexx.
-    if value~hasMethod("ppString") then return value~ppString
+    -- JLF to rework: surroundByQuotes is supported only by String~ppString
+    -- Can't pass a named argument because I want to keep ooRexxShell compatible with official ooRexx.
+    if value~hasMethod("ppString") then return value~ppString(surroundByQuotes)
     return value
 
 
 ::method singularPlural class
+    -- Don't use the method singularPlural added on String by extension, because not available when using official ooRexx
     use strict arg count, singularText, pluralText
     if abs(count) <= 1 then return count singularText
     return count pluralText
@@ -1814,7 +1816,8 @@ Helpers
         -- This file is also executed when bash is interactive because ~/.bashrc calls it.
         -- (no longer need -O expand_aliases, because run in mode interactive: -i)
         -- The trap command is used to save the current directory of the child process
-        return .array~of(address, "bash -i -c 'function trap_exit { echo OOREXXSHELL_DIRECTORY=$PWD > "temporarySettingsFile" ; } ; trap trap_exit EXIT ; "command"'") -- the special characters have been already escaped by readline()
+        -- The 'set -m' command is used to get rid of the message "bash: no job control in this shell" when doing 'cat commands.txt | ooRexxShell', where a command is a system command
+        return .array~of(address, "set -m; bash -i -c 'function trap_exit { echo OOREXXSHELL_DIRECTORY=$PWD > "temporarySettingsFile" ; } ; trap trap_exit EXIT ; "command"'") -- the special characters have been already escaped by readline()
     end
     else if address~caselessEquals("sh") then do
         -- If directly managed by the systemCommandHandler then don't add bash in front of the command
@@ -1830,7 +1833,8 @@ Helpers
         -- and declare the aliases in this file.
         -- This file is executed when sh is interactive (yes! the opposite of bash...).
         -- The trap command is used to save the current directory of the child process
-        return .array~of(address, "sh -i -c 'trap_exit () { echo OOREXXSHELL_DIRECTORY=$PWD > "temporarySettingsFile" ; } ; trap trap_exit EXIT ; "command"'") -- the special characters have been already escaped by readline()
+        -- The 'set -m' command is used to get rid of the message "sh: no job control in this shell" when doing 'cat commands.txt | ooRexxShell', where a command is a system command
+        return .array~of(address, "set -m; sh -i -c 'trap_exit () { echo OOREXXSHELL_DIRECTORY=$PWD > "temporarySettingsFile" ; } ; trap trap_exit EXIT ; "command"'") -- the special characters have been already escaped by readline()
     end
     else if address~caselessEquals("zsh") then do
         -- Not supported by executor (yet) nor by ooRexx4. Supported natively by ooRexx5 but this workaround will work as well.
