@@ -336,6 +336,15 @@ History of changes
 ==================
 
 -----------------------------------------------
+2021 may 30
+
+rlwrap is the default input mode, if available,
+when ooRexxShell is interactive.
+
+(MacOs & Linux)
+
+
+-----------------------------------------------
 2021 may 13
 
 New command "demo fast" to disable the sleep coomands.
@@ -370,9 +379,9 @@ file itself is ok, it contains the inputs entered in both modes.
 
 Known problem with rlwrap:
 After leaving oorexxShell, the terminal is in bracketed paste mode
-https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Bracketed-Paste-Mode
-When you paste SOMETHING, you have 00~SOMETHING~.
-Running then command 'reset' in the terminal clears the bracketed paste mode.
+https://stackoverflow.com/questions/42212099/how-do-i-disable-the-weird-characters-from-bracketed-paste-mode-on-the-mac-os
+When you paste SOMETHING, you have 00~SOMETHING~01.
+Running then command printf '\e[?2004l' in the terminal clears the bracketed paste mode.
 
 Known problem with rlwrap:
 Sometimes, the code 200 returned by ooRexxShell when using the command 'reload'

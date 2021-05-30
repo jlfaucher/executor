@@ -13,22 +13,27 @@
 rxapi >/dev/null & # Workaround to avoid crash at first execution
 
 # If the variable OOREXXSHELL_RLWRAP is defined
-# then ooRexxShell will use a basic parse pull
+# then ooRexxShell will use a basic parse pull because rlwrap will manage the readline
 # otherwise it will use the bash readline.
 # A negative histsize means "don't modify the history file". ooRexxShell takes care of the history file.
 [ -x "`which rlwrap`" ] && export OOREXXSHELL_RLWRAP="rlwrap --complete-filenames --command-name oorexxshell --histsize -300"
 
+# Don't use rlwrap if ooRexxShell is not interactive.
+# I don't want the output be polluted by the cleaning of the bracketed paste mode.
+# ooRexxShell is interactive if stdin, stdout and stderr are associated with a terminal.
+[ -t 0 -a -t 1 -a -t 2 ] || export OOREXXSHELL_RLWRAP=
+
 while true
 do
-    $OOREXXSHELL_RLWRAP rexx oorexxshell.rex $*
+    $OOREXXSHELL_RLWRAP rexx oorexxshell.rex "$*"
     status=$?
     # echo "status=" $status
     if test $status -ne 200; then break; fi
 done
 
 # When using rlwrap, the terminal is in bracketed paste mode after leaving oorexxShell.
-# Running then command 'reset' in the terminal clears the bracketed paste mode.
-[ "$OOREXXSHELL_RLWRAP" ] && reset
+# Running the command printf '\e[?2004l' in the terminal clears the bracketed paste mode.
+[ "$OOREXXSHELL_RLWRAP" ] && printf '\e[?2004l'
 
 exit $status
 
