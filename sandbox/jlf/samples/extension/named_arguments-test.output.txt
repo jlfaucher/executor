@@ -1373,9 +1373,9 @@ n1=1 n2=2
     named count=2
         N1 : 1
         N2 : 2
+    
+On entry in the thread (migrated arguments)
 
-
-    On entry in the thread (migrated arguments)
     positional count=2 size=2
         1 : 1
         2 : 2
@@ -1488,7 +1488,7 @@ call myprocedure , , 3, , a5:5,
         3 : 3
     named count=1
         A5 : 5
-Expected: Should raise an error because of the trailing comma (TODO)
+Expected: Ok, no error because the trailing comma is a continuation character followed by nothing
 
 
 call myroutine , , 3, , a5:5,
@@ -1496,6 +1496,18 @@ call myroutine , , 3, , a5:5,
         3 : 3
     named count=1
         A5 : 5
+Expected: Ok, no error because the trailing comma is a continuation character followed by nothing
+
+
+call myprocedure , , 3, , a5:5,;
+    [trapped] Named argument: expected symbol followed by colon
+    [trapped] Code= 35.900
+Expected: Should raise an error because of the trailing comma (TODO)
+
+
+call myroutine , , 3, , a5:5,;
+    [trapped] Named argument: expected symbol followed by colon
+    [trapped] Code= 35.900
 Expected: Should raise an error because of the trailing comma (TODO)
 
 
@@ -1688,19 +1700,19 @@ Expected: Error 88.917: named argument B1 is not an expected argument name
 
 
 {use strict named arg n1,n2,n3}~rawExecutable~call()
-    [trapped] Not enough named arguments in invocation of ; minimum expected is 3
+    [trapped] Not enough named arguments in invocation of <anonymous>; minimum expected is 3
     [trapped] Code= 40.3
 Expected: Error 40.3: Not enough named arguments in invocation of ; minimum expected is 3
 
 
 {use strict named arg n1=1,n2,n3}~rawExecutable~call()
-    [trapped] Not enough named arguments in invocation of ; minimum expected is 2
+    [trapped] Not enough named arguments in invocation of <anonymous>; minimum expected is 2
     [trapped] Code= 40.3
 Expected: Error 40.3: Not enough named arguments in invocation of ; minimum expected is 2
 
 
 {use strict named arg n1=1,n2,n3=3}~rawExecutable~call()
-    [trapped] Not enough named arguments in invocation of ; minimum expected is 1
+    [trapped] Not enough named arguments in invocation of <anonymous>; minimum expected is 1
     [trapped] Code= 40.3
 Expected: Error 40.3: Not enough named arguments in invocation of ; minimum expected is 1
 

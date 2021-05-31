@@ -425,9 +425,16 @@ call interpret '{call sayArg .context}~rawExecutable~call(1, a2:2, a3:3){}'
 call title "Trapped expected errors"
 
 -- no error, should raise an error
+-- [later] why do you expect an error here ? The trailing comma is a continuation character followed by nothing
 call interpret 'call myprocedure , , 3, , a5:5,' -
-             , 'Should raise an error because of the trailing comma (TODO)'
+             , 'Ok, no error because the trailing comma is a continuation character followed by nothing'
 call interpret 'call myroutine , , 3, , a5:5,' -
+             , 'Ok, no error because the trailing comma is a continuation character followed by nothing'
+
+-- here the trailing comma is not a continuation character
+call interpret 'call myprocedure , , 3, , a5:5,;' -
+             , 'Should raise an error because of the trailing comma (TODO)'
+call interpret 'call myroutine , , 3, , a5:5,;' -
              , 'Should raise an error because of the trailing comma (TODO)'
 
 -- only assignable variable symbols are allowed
