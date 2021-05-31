@@ -170,6 +170,7 @@ EXTERNMEM RexxMemory  memoryObject;   /* memory object                     */
 #define TheStackFrameClass StackFrameClass::classInstance
 #define TheRexxBlockClass RexxBlock::classInstance
 #define TheRexxTextClass RexxText::classInstance
+#define TheUnicodeClass Unicode::classInstance
 
 #define TheEnvironment RexxMemory::environment
 #define TheStaticRequires RexxMemory::staticRequires
@@ -268,6 +269,8 @@ const int WHOLE       = 3;             /* integer must be whole             */
 // some very common class tests
 inline bool isString(RexxObject *o) { return isOfClass(String, o); }
 inline bool isInteger(RexxObject *o) { return isOfClass(Integer, o); }
+inline bool isNumberString(RexxObject *o) { return isOfClass(NumberString, o); }
+inline bool isPolymorphicString(RexxObject *o) { return isInteger(o) || isNumberString(o) || isString(o); }
 inline bool isArray(RexxObject *o) { return isOfClass(Array, o); }
 inline bool isStem(RexxObject *o) { return isOfClass(Stem, o); }
 inline bool isActivation(RexxObject *o) { return isOfClass(Activation, o); }

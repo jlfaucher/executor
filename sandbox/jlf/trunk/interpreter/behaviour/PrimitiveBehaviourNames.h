@@ -101,6 +101,8 @@
 #define TheRexxBlockClassBehaviour    (&RexxBehaviour::primitiveBehaviours[T_RexxBlockClass])
 #define TheRexxTextBehaviour      (&RexxBehaviour::primitiveBehaviours[T_RexxText])
 #define TheRexxTextClassBehaviour    (&RexxBehaviour::primitiveBehaviours[T_RexxTextClass])
+#define TheUnicodeBehaviour      (&RexxBehaviour::primitiveBehaviours[T_Unicode])
+#define TheUnicodeClassBehaviour    (&RexxBehaviour::primitiveBehaviours[T_UnicodeClass])
 #define TheNilObjectBehaviour      (&RexxBehaviour::primitiveBehaviours[T_NilObject])
 #define TheBehaviourBehaviour      (&RexxBehaviour::primitiveBehaviours[T_Behaviour])
 #define TheRexxSourceBehaviour      (&RexxBehaviour::primitiveBehaviours[T_RexxSource])

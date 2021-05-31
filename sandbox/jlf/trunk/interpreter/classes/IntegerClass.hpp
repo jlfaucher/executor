@@ -86,7 +86,7 @@ class RexxInteger : public RexxObject {
   RexxSupplier *instanceMethods(RexxClass *);
 
   bool        isEqual(RexxObject *);
-  wholenumber_t strictComp(RexxObject *);
+  wholenumber_t strictComp(RexxObject *, RexxString *alternativeOperator=OREF_NULL, RexxInteger **alternativeOperatorResultPtr=NULL);
   wholenumber_t comp(RexxObject *other, RexxString *alternativeOperator=OREF_NULL, RexxInteger **alternativeOperatorResultPtr=NULL);
 
   RexxInteger *equal(RexxObject *);

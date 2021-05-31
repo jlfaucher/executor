@@ -51,6 +51,7 @@ Investigate the Activation stack (reify ? closure ? continuation ?)
 Unicode ?
 --> added support for wide-chars in oodialog. [now deprecated]
 --> frozen : m17n (this is not the way proposed by Rick)
+--> investigate a new approach: Encoded strings (RexxText layer above String)
 
 
 Extension of the message term : keyword and multiple dispatch.
@@ -238,6 +239,68 @@ RexxList *RexxList::classOf(
      size_t       named_argCount)
 TODO
 The named arguments could be added to the returned array (splitting the key:value).
+
+
+===============================================================================
+2021 may 31
+
+Encodeded strings.
+The ooRexx programmer has the choice:
+- working with String at byte level
+- working with RexxText at grapheme level.
+- the same instance of String is used in both cases.
+
+    aString
+     ▲  text --------⮸ aRexxText
+     │                     indexer (anEncoding)
+     │                          codepoints (sequential access)
+     │                          graphemes  (direct access)
+     +-----------------------⮷- string
+
+First binding of utf8proc, for the detection of grapheme break.
+"( ͡° ͜ʖ﻿ ͡°)"~text~description=                    -- 'UTF-8 not-ASCII ( 9 graphemes, 12 codepoints, 20 bytes )'
+"( ͡° ͜ʖ﻿ ͡°)"~text~graphemes~each{item~c2x}=       -- [ 28,'20CDA1','C2B0','20CD9C','CA96','EFBBBF','20CDA1','C2B0', 29]
+
+Classes in relation with Unicode and encoded strings:
+?c *encoding* *encoded* *indexer* *codepoint* *grapheme* *RexxText* *Unicode*
+P.         'Byte_Encoding'           : (string.cls)
+P.         'CP1252_Encoding'         : (string.cls)
+P.         'CodePointSupplier'       : (string.cls)
+PM         'EncodedString'           : (string.cls)
+P.         'Encoding'                : (string.cls)
+P.         'GraphemeSupplier'        : (string.cls)
+P.         'RexxText'                : (REXX)
+PM         'RexxTextContents'        : (string.cls)
+PM         'RexxTextInitializer'     : (string.cls)
+PM         'RexxTextOperators'       : (string.cls)
+PM         'RexxTextPrettyPrinter'   : (string.cls)
+PM         'RexxTextStringInterface' : (string.cls)
+P.         'StringIndexer'           : (string.cls)
+P.         'UTF16BE_Encoding'        : (string.cls)
+P.         'UTF8_Encoding'           : (string.cls)
+P.         'Unicode'                 : (REXX)
+P.         'UnicodeCharacter'        : (string.cls)
+
+
+Start working on an optimization of the alternative operators, to avoid raising
+the condition "nostring" too early (isPolymorphicString).
+    deux = 2~text; do 10000; n = deux + 1; end          -- 0.3s
+    deux = 2~text; do 10000; n = 1 + deux; end          -- 2.0s (alternative operator)
+My goal : same duration 0.3s for both.
+
+
+Compatibility with ooRexx5:
+.String (methods added by extension)
+    append
+    []
+    startsWith
+    caselessStartsWith
+    endsWith
+    caselessEndsWith
+
+String (new methods)
+    concatenate         -- ", "~concatenate(10, 20, 30)=                        -- '10, 20, 30'
+    singularPlural      -- 0~2~each{item~singularPlural("tooth", "teeth")}=     -- ['0 tooth','1 tooth','2 teeth']
 
 
 ===============================================================================

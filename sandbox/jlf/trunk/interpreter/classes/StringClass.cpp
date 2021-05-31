@@ -628,6 +628,28 @@ wholenumber_t RexxString::comp(RexxObject *other, RexxString *alternativeOperato
     {
         return false;
     }
+
+    // Before doing a string comparison, try the alternative operator, if any.
+    // Do that only if 'other' is not a string and not a number and not an integer (no performance degradation)
+    if (!isPolymorphicString(other))
+    {
+        if (alternativeOperator != OREF_NULL && alternativeOperatorResultPtr != NULL)
+        {
+            // Try an alternative operator
+            // CAREFUL! Here, the operator returns a boolean result, not a value -1,0,1.
+            // That's why a separated parameter is used to return this boolean result.
+            ProtectedObject result;
+            RexxObject *args[1];
+            args[0] = this; // positional argument
+            bool alternativeResult = other->messageSend(alternativeOperator, args, 1, 0, result, false);
+            if (alternativeResult && (RexxObject *)result != OREF_NULL)
+            {
+                *alternativeOperatorResultPtr = (RexxInteger *)(RexxObject *)result;
+                return 0; // You are not supposed to test this value, because *alternativeOperatorResultPtr is non NULL
+            }
+        }
+    }
+
                                          /* try and convert both numbers      */
     firstNum = this->fastNumberString();
     secondNum = other->numberString();
@@ -637,36 +659,6 @@ wholenumber_t RexxString::comp(RexxObject *other, RexxString *alternativeOperato
         /* yes, send converted numbers and do*/
         /* the compare                       */
         return firstNum->comp(secondNum);
-    }
-
-    // Before doing a string comparison, try the alternative operator, if any.
-    // Note 1: There is no alternative operator when coming from RexxNumber::comp, so no risk of loop.
-    // Note 2: No message alternative operator is sent in case of String op String, to not degrade the performance.
-    // Consequence of note 2:
-    // Not possible to catch "infinity" > "pi".
-    // The result of the string comparison is .false: infinity not greater than pi...
-    if (firstNum != OREF_NULL ||            // Number op AnyObject (normally already trapped by RexxNumber::comp)
-        secondNum != OREF_NULL ||           // String op Number
-        isOfClass(String, other) == false)  // String op AnyObjectButString
-    {
-        if (alternativeOperator != OREF_NULL && alternativeOperatorResultPtr != NULL)
-        {
-            // Try an alternative operator
-            // CAREFUL! Here, the operator returns a boolean result, not a value -1,0,1.
-            // That's why a separated parameter is used to return this boolean result.
-            ProtectedObject result;
-            RexxObject *first = this;
-            RexxObject *second = other;
-            if (secondNum != OREF_NULL) second = second->stringValue(); // if second is a RexxInteger or a NumberString then must get its RexxString representation (only RexxString can be extended)
-            RexxObject *args[1];
-            args[0] = first; // positional argument
-            bool alternativeResult = second->messageSend(alternativeOperator, args, 1, 0, result, false);
-            if (alternativeResult && (RexxObject *)result != OREF_NULL)
-            {
-                *alternativeOperatorResultPtr = (RexxInteger *)(RexxObject *)result;
-                return 0; // You are not supposed to test this value, because *alternativeOperatorResultPtr is non NULL
-            }
-        }
     }
 
     second = REQUEST_STRING(other);      /* yes, get a string object.         */
@@ -742,7 +734,7 @@ wholenumber_t RexxString::comp(RexxObject *other, RexxString *alternativeOperato
     return result;                       /* return the compare result         */
 }
 
-wholenumber_t RexxString::strictComp(RexxObject *otherObj)
+wholenumber_t RexxString::strictComp(RexxObject *otherObj, RexxString *alternativeOperator, RexxInteger **alternativeOperatorResultPtr)
 /******************************************************************************/
 /* Function:  Do a strict comparison of two strings.  This returns:           */
 /*                                                                            */
@@ -754,6 +746,28 @@ wholenumber_t RexxString::strictComp(RexxObject *otherObj)
     wholenumber_t result;                /* compare result                    */
 
     requiredArgument(otherObj, OREF_positional, ARG_ONE);         /* this is required.                 */
+
+    // Before doing a string comparison, try the alternative operator, if any.
+    // Do that only if 'other' is not a string and not a number and not an integer (no performance degradation)
+    if (!isPolymorphicString(otherObj))
+    {
+        if (alternativeOperator != OREF_NULL && alternativeOperatorResultPtr != NULL)
+        {
+            // Try an alternative operator
+            // CAREFUL! Here, the operator returns a boolean result, not a value -1,0,1.
+            // That's why a separated parameter is used to return this boolean result.
+            ProtectedObject result;
+            RexxObject *args[1];
+            args[0] = this; // positional argument
+            bool alternativeResult = otherObj->messageSend(alternativeOperator, args, 1, 0, result, false);
+            if (alternativeResult && (RexxObject *)result != OREF_NULL)
+            {
+                *alternativeOperatorResultPtr = (RexxInteger *)(RexxObject *)result;
+                return 0; // You are not supposed to test this value, because *alternativeOperatorResultPtr is non NULL
+            }
+        }
+    }
+
     RexxString *other = REQUEST_STRING(otherObj);    /* force into string form            */
     sizeB_t otherLen = other->getBLength();       /* get length of second string.      */
     const char *otherData = other->getStringData();  /* get pointer to start of data.     */
@@ -1171,6 +1185,24 @@ RexxInteger *RexxString::strictEqual(RexxObject *other)
 /*            if sent with no other object                                    */
 /******************************************************************************/
 {
+    // Before doing a string comparison, try the alternative operator, if any.
+    // Do that only if 'other' is not a string and not a number and not an integer (no performance degradation)
+    if (!isPolymorphicString(other))
+    {
+        if (other == TheNilObject)        // strings never compare equal to the NIL object
+        {
+            return TheFalseObject;
+        }
+        // Try an alternative operator
+        ProtectedObject result;
+        result = (RexxObject *)OREF_NULL;
+        RexxObject *args[1];
+        args[0] = this; // positional argument
+        bool alternativeResult = other->messageSend(OREF_STRICT_EQUAL_RIGHT, args, 1, 0, result, false);
+        if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxInteger *)(RexxObject *)result;
+    }
+
+    // legacy implementation
     return this->primitiveIsEqual(other) ? TheTrueObject : TheFalseObject;
 }
 
@@ -1180,6 +1212,24 @@ RexxInteger *RexxString::strictNotEqual(RexxObject *other)
 /* Function:  Strict ("\==") inequality operator                              */
 /******************************************************************************/
 {
+    // Before doing a string comparison, try the alternative operator, if any.
+    // Do that only if 'other' is not a string and not a number and not an integer (no performance degradation)
+    if (!isPolymorphicString(other))
+    {
+        if (other == TheNilObject)        // strings never compare equal to the NIL object
+        {
+            return TheTrueObject;
+        }
+        // Try an alternative operator
+        ProtectedObject result;
+        result = (RexxObject *)OREF_NULL;
+        RexxObject *args[1];
+        args[0] = this; // positional argument
+        bool alternativeResult = other->messageSend(OREF_STRICT_BACKSLASH_EQUAL_RIGHT, args, 1, 0, result, false);
+        if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxInteger *)(RexxObject *)result;
+    }
+
+    // legacy implementation
     return !this->primitiveIsEqual(other) ? TheTrueObject : TheFalseObject;
 }
 
@@ -1295,7 +1345,11 @@ RexxInteger *RexxString::strictGreaterThan(RexxObject *other)
     {
         return TheFalseObject;
     }
-    return (this->strictComp(other) > 0) ? TheTrueObject : TheFalseObject;
+    // return (this->strictComp(other) > 0) ? TheTrueObject : TheFalseObject;
+    RexxInteger *alternativeResult = OREF_NULL;
+    wholenumber_t result = this->strictComp(other, OREF_STRICT_GREATERTHAN_RIGHT, &alternativeResult);
+    if (alternativeResult != OREF_NULL) return alternativeResult;
+    return (result > 0) ? TheTrueObject : TheFalseObject;
 }
 
 // in behaviour
@@ -1308,7 +1362,11 @@ RexxInteger *RexxString::strictLessThan(RexxObject *other)
     {
         return TheFalseObject;
     }
-    return (this->strictComp(other) < 0) ? TheTrueObject : TheFalseObject;
+    // return (this->strictComp(other) < 0) ? TheTrueObject : TheFalseObject;
+    RexxInteger *alternativeResult = OREF_NULL;
+    wholenumber_t result = this->strictComp(other, OREF_STRICT_LESSTHAN_RIGHT, &alternativeResult);
+    if (alternativeResult != OREF_NULL) return alternativeResult;
+    return (result < 0) ? TheTrueObject : TheFalseObject;
 }
 
 // in behaviour
@@ -1321,7 +1379,11 @@ RexxInteger *RexxString::strictGreaterOrEqual(RexxObject *other)
     {
         return TheFalseObject;
     }
-    return (this->strictComp(other) >= 0) ? TheTrueObject : TheFalseObject;
+    // return (this->strictComp(other) >= 0) ? TheTrueObject : TheFalseObject;
+    RexxInteger *alternativeResult = OREF_NULL;
+    wholenumber_t result = this->strictComp(other, OREF_STRICT_GREATERTHAN_EQUAL_RIGHT, &alternativeResult);
+    if (alternativeResult != OREF_NULL) return alternativeResult;
+    return (result >= 0) ? TheTrueObject : TheFalseObject;
 }
 
 // in behaviour
@@ -1334,7 +1396,11 @@ RexxInteger *RexxString::strictLessOrEqual(RexxObject *other)
     {
         return TheFalseObject;
     }
-    return (this->strictComp(other) <= 0) ? TheTrueObject : TheFalseObject;
+    // return (this->strictComp(other) <= 0) ? TheTrueObject : TheFalseObject;
+    RexxInteger *alternativeResult = OREF_NULL;
+    wholenumber_t result = this->strictComp(other, OREF_STRICT_LESSTHAN_EQUAL_RIGHT, &alternativeResult);
+    if (alternativeResult != OREF_NULL) return alternativeResult;
+    return (result <= 0) ? TheTrueObject : TheFalseObject;
 }
 
 RexxString *RexxString::concat(RexxString *other)
@@ -1397,12 +1463,11 @@ RexxString *RexxString::concatRexx(RexxObject *otherObj)
     requiredArgument(otherObj, OREF_positional, ARG_ONE);         /* this is required.                 */
                                          /* ensure a string value             */
 
-    if (!isOfClass(String, otherObj))
+    if (!isPolymorphicString(otherObj))
     {
         // Give a chance for an alternative operator before REQUEST_STRING
         ProtectedObject result;
         RexxObject *self = this;
-        if (otherObj->classObject() == TheIntegerClass || otherObj->classObject() == TheNumberStringClass) otherObj = otherObj->stringValue();
         RexxObject *args[1];
         args[0] = self; // positional argument
         bool alternativeResult = otherObj->messageSend(OREF_CONCATENATE_RIGHT, args, 1, 0, result, false);
@@ -1513,12 +1578,11 @@ RexxString *RexxString::concatBlank(RexxObject *otherObj)
 
     requiredArgument(otherObj, OREF_positional, ARG_ONE);         /* this is required.                 */
 
-    if (!isOfClass(String, otherObj))
+    if (!isPolymorphicString(otherObj))
     {
         // Give a chance for an alternative operator before REQUEST_STRING
         ProtectedObject result;
         RexxObject *self = this;
-        if (otherObj->classObject() == TheIntegerClass || otherObj->classObject() == TheNumberStringClass) otherObj = otherObj->stringValue();
         RexxObject *args[1];
         args[0] = self; // positional argument
         bool alternativeResult = otherObj->messageSend(OREF_BLANK_RIGHT, args, 1, 0, result, false);
@@ -2043,6 +2107,19 @@ RexxObject *RexxString::andOp(RexxObject *other)
     RexxObject *otherTruth;              /* truth value of the other object   */
 
     requiredArgument(other, OREF_positional, ARG_ONE);            /* make sure the argument is there   */
+
+    // Before doing a logical value operation, try the alternative operator, if any.
+    // Do that only if 'other' is not a string and not a number and not an integer (no performance degradation)
+    if (!isPolymorphicString(other))
+    {
+        // Try an alternative operator
+        ProtectedObject result;
+        RexxObject *args[1];
+        args[0] = this; // positional argument
+        bool alternativeResult = other->messageSend(OREF_AND_RIGHT, args, 1, 0, result, false);
+        if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
+    }
+
                                          /* validate the boolean              */
     otherTruth = other->truthValue(Error_Logical_value_method) ? TheTrueObject : TheFalseObject;
     /* perform the operation             */
@@ -2058,6 +2135,19 @@ RexxObject *RexxString::orOp(RexxObject *other)
     RexxObject *otherTruth;              /* truth value of the other object   */
 
     requiredArgument(other, OREF_positional, ARG_ONE);            /* make sure the argument is there   */
+
+    // Before doing a logical value operation, try the alternative operator, if any.
+    // Do that only if 'other' is not a string and not a number and not an integer (no performance degradation)
+    if (!isPolymorphicString(other))
+    {
+        // Try an alternative operator
+        ProtectedObject result;
+        RexxObject *args[1];
+        args[0] = this; // positional argument
+        bool alternativeResult = other->messageSend(OREF_OR_RIGHT, args, 1, 0, result, false);
+        if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
+    }
+
                                          /* validate the boolean              */
     otherTruth = other->truthValue(Error_Logical_value_method) ? TheTrueObject : TheFalseObject;
     /* perform the operation             */
@@ -2071,6 +2161,19 @@ RexxObject *RexxString::xorOp(RexxObject *other)
 /******************************************************************************/
 {
     requiredArgument(other, OREF_positional, ARG_ONE);            /* make sure the argument is there   */
+
+    // Before doing a logical value operation, try the alternative operator, if any.
+    // Do that only if 'other' is not a string and not a number and not an integer (no performance degradation)
+    if (!isPolymorphicString(other))
+    {
+        // Try an alternative operator
+        ProtectedObject result;
+        RexxObject *args[1];
+        args[0] = this; // positional argument
+        bool alternativeResult = other->messageSend(OREF_XOR_RIGHT, args, 1, 0, result, false);
+        if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
+    }
+
                                          /* get as a boolean                  */
     bool truth = other->truthValue(Error_Logical_value_method);
     /* first one false?                  */
@@ -2478,42 +2581,3 @@ PCPPM RexxString::operatorMethods[] =
    (PCPPM)&RexxString::xorOp,                   //  "&&"
    (PCPPM)&RexxString::operatorNot,             //  "\"
 };
-
-
-/******************************************************************************/
-/* REXX Kernel                                                                */
-/*                                                                            */
-/* Primitive RexxText Class                                                   */
-/*                                                                            */
-/******************************************************************************/
-
-// singleton class instance
-RexxClass *RexxText::classInstance = OREF_NULL;
-
-
-void RexxText::createInstance()
-{
-    CLASS_CREATE(RexxText, "RexxText", RexxClass);
-}
-
-void *RexxText::operator new(size_t size)
-{
-    return new_object(size, T_RexxText);
-}
-
-void RexxText::live(size_t liveMark)
-{
-    memory_mark(this->objectVariables);
-}
-
-void RexxText::liveGeneral(int reason)
-{
-    memory_mark_general(this->objectVariables);
-}
-
-void RexxText::flatten(RexxEnvelope *envelope)
-{
-    setUpFlatten(RexxText)
-    flatten_reference(newThis->objectVariables, envelope);
-    cleanUpFlatten
-}

@@ -87,6 +87,7 @@
 #include "ContextClass.hpp"
 #include "StackFrameClass.hpp"
 #include "BlockClass.hpp"
+#include "TextClass.hpp"
 
 
 void RexxMemory::defineKernelMethod(
@@ -236,6 +237,7 @@ void RexxMemory::createImage(const char *imageTarget)
   StackFrameClass::createInstance();
   RexxBlock::createInstance();
   RexxText::createInstance();
+  Unicode::createInstance();
 
                                        /* build the common retriever tables */
   TheCommonRetrievers = (RexxDirectory *)new_directory();
@@ -1422,7 +1424,7 @@ void RexxMemory::createImage(const char *imageTarget)
   /*           RexxText                                                      */
   /***************************************************************************/
 
-  defineKernelMethod(CHAR_NEW, TheRexxTextClassBehaviour, CPPM(RexxObject::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_NEW, TheRexxTextClassBehaviour, CPPM(RexxText::newRexx), A_COUNT);
                                        /* set the scope of the methods to   */
                                        /* this classes oref                 */
   TheRexxTextClassBehaviour->setMethodDictionaryScope(TheRexxTextClass);
@@ -1434,6 +1436,26 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheRexxTextClass->subClassable(true);
+
+  /***************************************************************************/
+  /*           Unicode                                                       */
+  /***************************************************************************/
+
+  defineKernelMethod(CHAR_NEW, TheUnicodeClassBehaviour, CPPM(Unicode::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_COPY, TheUnicodeClassBehaviour, CPPM(Unicode::copyRexx), 0);
+  defineKernelMethod("GRAPHEMEBREAK" , TheUnicodeClassBehaviour, CPPM(Unicode::GraphemeBreak), 1);
+                                       /* set the scope of the methods to   */
+                                       /* this classes oref                 */
+  TheUnicodeClassBehaviour->setMethodDictionaryScope(TheUnicodeClass);
+
+                                       /* set the scope of the methods to   */
+                                       /* this classes oref                 */
+  TheUnicodeBehaviour->setMethodDictionaryScope(TheUnicodeClass);
+
+                                       /* Now call the class subclassable   */
+                                       /* method                            */
+  TheUnicodeClass->subClassable(true);
+
 
   /***************************************************************************/
   /***************************************************************************/
@@ -1458,6 +1480,7 @@ void RexxMemory::createImage(const char *imageTarget)
   kernel_public(CHAR_REXXCONTEXT      ,TheRexxContextClass ,TheEnvironment);
   kernel_public(CHAR_REXXBLOCK        ,TheRexxBlockClass ,TheEnvironment);
   kernel_public(CHAR_REXXTEXT         ,TheRexxTextClass ,TheEnvironment);
+  kernel_public(CHAR_UNICODE          ,TheUnicodeClass ,TheEnvironment);
   kernel_public(CHAR_NIL              ,TheNilObject    ,TheEnvironment);
   kernel_public(CHAR_OBJECT           ,TheObjectClass  ,TheEnvironment);
   kernel_public(CHAR_QUEUE            ,TheQueueClass   ,TheEnvironment);

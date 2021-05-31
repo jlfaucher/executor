@@ -749,6 +749,7 @@ set (classes_sources ${build_classes_dir}/ArrayClass.cpp
             ${build_classes_dir}/StringClassWord.cpp
 #            ${build_classes_dir}/StringTableClass.cpp                                              # official only
             ${build_classes_dir}/SupplierClass.cpp
+            ${build_classes_dir}/TextClass.cpp
             ${build_classes_dir}/TableClass.cpp
             ${build_classes_dir}/IdentityTableClass.cpp
             ${build_classes_dir}/WeakReferenceClass.cpp

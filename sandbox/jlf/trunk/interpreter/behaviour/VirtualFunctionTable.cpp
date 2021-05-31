@@ -78,6 +78,7 @@
 #include "IdentityTableClass.hpp"
 #include "StackFrameClass.hpp"
 #include "BlockClass.hpp"
+#include "TextClass.hpp"
 #include "RexxBehaviour.hpp"
 #include "SourceFile.hpp"
 #include "LibraryPackage.hpp"
@@ -338,6 +339,12 @@ void RexxMemory::buildVirtualFunctionTable()
    
    objectPtr = new (objectLoc) RexxClass(RESTOREIMAGE);
    virtualFunctionTable[T_RexxTextClass] = getVftPointer(objectLoc);
+   
+   objectPtr = new (objectLoc) Unicode(RESTOREIMAGE);
+   virtualFunctionTable[T_Unicode] = getVftPointer(objectLoc);
+   
+   objectPtr = new (objectLoc) RexxClass(RESTOREIMAGE);
+   virtualFunctionTable[T_UnicodeClass] = getVftPointer(objectLoc);
    
    objectPtr = new (objectLoc) RexxNilObject(RESTOREIMAGE);
    virtualFunctionTable[T_NilObject] = getVftPointer(objectLoc);

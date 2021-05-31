@@ -60,7 +60,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <Class id="IdentityTable" class="RexxIdentityTable" include="IdentityTableClass.hpp"/>
 <Class id="StackFrame" class="StackFrameClass" include="StackFrameClass.hpp"/>
 <Class id="RexxBlock" class="RexxBlock" include="BlockClass.hpp"/>
-<Class id="RexxText" class="RexxText" include="StringClass.hpp"/>
+<Class id="RexxText" class="RexxText" include="TextClass.hpp"/>
+<Class id="Unicode" class="Unicode" include="TextClass.hpp"/>
 </Exported>
 <Internal>
 <Class id="NilObject" class="RexxNilObject" include="ObjectClass.hpp"/>

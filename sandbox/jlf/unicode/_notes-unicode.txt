@@ -1,0 +1,279 @@
+==================================
+Accumulation of URLs about Unicode
+==================================
+
+
+13/08/2013
+We don’t need a string type
+https://mortoray.com/2013/08/13/we-dont-need-a-string-type/
+
+26/11/2013
+Text normalization in Go
+https://blog.golang.org/normalization
+
+
+27/11/2013
+The string type is broken
+https://mortoray.com/2013/11/27/the-string-type-is-broken/
+In the comments
+Objective-C’s NSString type does correctly upper-case baﬄe into BAFFLE.
+(where the rectangle is a grapheme showing 2 small 'f')
+Q: What about getting the first three characters of “baﬄe”? Is “baf” the correct answer?
+A:  That’s a good question. I suspect “baf” is the correct answer, and I wonder if there is any library that does it.
+    I suspect if you normalize it first (since the ffl would disappear I think).
+A:  The ligarture disappears in NFK[CD] but not in NF[CD].
+    Whether normalization to NFK[CD] is a good idea depends (as always) on the situation.
+    For visual grapheme cluster counting, one would convert the entire text to NFKC.
+    For getting teaser text from an article i would not a normalization step
+    and let a ligature count as just one grapheme cluster even if it may resemble three of them logically.
+    I assume, that articles are stored in NFC (the nondestructive normalization form with smallest memory footprint).
+    The Unicode standard does not treat ligatures as containing more than one grapheme cluster for that normalization forms that permits them.
+    So “eﬄab” (jlf: efflab) is the correct result of reversing “baﬄe” (jlf: baffle)
+    and “baﬄe”[2] has to return “ﬄ” even when working on the grapheme cluster level!
+
+    There may or may not be a need for another grapheme cluster definition that permits splitting of ligatures in NF[CD].
+    A straight forward way to implement a reverse function adhering to that special definition would NFKC each Unicode grapheme cluster on the fly.
+    When that results in multiple Unicode grapheme clusters, that are used – else the original is preserved (so that “ℕ” does not become “N”).
+    The real problem is to find a good name for that special interpretation of a grapheme cluster…
+Note :
+    see also the comment of Tom Christiansen about casing.
+    I don't copy-paste here, too long.
+
+
+01/12/2013
+Strings in Ruby are UTF-8 now… right?
+http://andre.arko.net/2013/12/01/strings-in-ruby-are-utf-8-now/
+
+
+15/07/2017
+String Processing For Swift 4
+https://github.com/apple/swift/blob/master/docs/StringManifesto.md
+
+
+14/07/2017
+Testing Ruby's Unicode Support
+http://blog.honeybadger.io/ruby-s-unicode-support/
+
+
+22/05/2021
+List of all code points that can display differently via a variation sequence
+http://randomguy32.de/unicode/charts/standardized-variants/#emoji
+Safari is better to display the characters.
+Google Chrome and Opera have the same limitations: some characters are not supported (ex: section Phags-Pa).
+
+
+22/05/2021
+Emoji.length == 2
+https://news.ycombinator.com/item?id=13830177
+Lot of comments, did not read all, to continue
+
+https://www.unicode.org/reports/tr51/
+Unicode  emoji
+
+
+22/05/2021
+https://eev.ee/blog/2015/09/12/dark-corners-of-unicode/
+
+
+22/05/2021
+http://gernot-katzers-spice-pages.com/var/korean_hangul_unicode.html
+The Korean Writing System
+
+
+22/05/2021
+https://en.wikipedia.org/wiki/Regional_indicator_symbol
+Regional indicator symbol
+
+https://en.wikipedia.org/wiki/ISO_3166-1
+ISO 3166-1 (Codes for the representation of names of countries and their subdivisions)
+
+
+22/05/2021
+https://manishearth.github.io/blog/2017/01/14/stop-ascribing-meaning-to-unicode-code-points/
+Let's Stop Ascribing Meaning to Code Points
+
+
+22/05/2021
+https://onlineunicodetools.com/
+Online Unicode tools is a collection of useful browser-based utilities for manipulating Unicode text.
+
+
+23/05/2021
+https://www.unicode.org/notes/tn28/
+UNICODEMATH, A NEARLY PLAIN-TEXT ENCODING OF MATHEMATIC
+    𝑎𝑏𝑐
+    𝑑
+
+    𝑎 + 𝑐
+    𝑑
+
+    (𝑎 + 𝑏)𝑛 = ∑ (𝑛 𝑘) 𝑎𝑘𝑏𝑛−𝑘
+
+
+28/05/2021
+https://unicode.scarfboy.com/
+Search tool
+Provides plenty of information about Unicode characters
+but no encoding UTF16
+
+https://unicode-table.com/en/
+Provides the encoding UTF16
+
+
+29/05/2021
+https://stackoverflow.com/questions/1273693/why-is-u-used-to-designate-a-unicode-code-point/8891355
+The Python language defines the following string literals:
+    u'xyz' to indicate a Unicode string, a sequence of Unicode characters
+    '\uxxxx' to indicate a string with a unicode character denoted by four hex digits
+    '\Uxxxxxxxx' to indicate a string with a unicode character denoted by eight hex digits
+    \N{name}    Character named name in the Unicode database
+    \uxxxx      Character with 16-bit hex value xxxx. Exactly four hex digits are required.
+    \Uxxxxxxxx  Character with 32-bit hex value xxxxxxxx. Exactly eight hex digits are required.
+
+
+29/05/2021
+http://moarvm.com/releases.html
+    2017.07
+        Greatly reduce the cases when string concatenation needs renormalization
+        Use normalize_should_break to decide if concat needs normalization
+        Rename should_break to MVM_unicode_normalize_should_break
+        Fix memory leak in MVM_nfg_is_concat_stable
+        If both last_a and first_b during concat are non-0 CCC, re-NFG
+    --> maybe to review : the last sentence seems to be an optimization of concatenation.
+    2017.02
+        Implement support for synthetic graphemes in MVM_unicode_string_compare
+        Implement configurable collation_mode for MVM_unicode_string_compare
+    2017.01
+        Add a new unicmp_s op, which compares using the Unicode Collation Algorithm
+        Add support for Grapheme_Cluster_Break=Prepend from Unicode 9.0
+        Add a script to download the latest version of all of the Unicode data
+    --> should review this script
+    2015.11
+        NFG now uses Unicode Grapheme Cluster algorithm; "\r\n" is now one grapheme
+    --> ??? [later] ah, I had a bug! Was not analyzing an UTF-8 ASCII string... Now fixed:
+        "0A0D"x~text~description= -- UTF-8 ASCII ( 2 graphemes, 2 codepoints, 2 bytes )
+        "0D0A"x~text~description= -- UTF-8 ASCII ( 1 grapheme, 2 codepoints, 2 bytes )
+
+
+29/05/2021
+https://news.ycombinator.com/item?id=26591373
+String length functions for single emoji characters evaluate to greater than 1
+--> to check : MOAR VM really concatenate a 8bit string with a 32bit string using a string concatenation object ?
+
+    You could do it the way Raku does. It's implementation defined. (Rakudo on MoarVM)
+    The way MoarVM does it is that it does NFG, which is sort of like NFC except that it stores grapheme clusters as if they were negative codepoints.
+
+    If a string is ASCII it uses an 8bit storage format, otherwise it uses a 32bit one.
+    It also creates a tree of immutable string objects.
+    If you do a substring operation it creates a substring object that points at an existing string object.
+    If you combine two strings it creates a string concatenation object. Which is useful for combining an 8bit string with a 32bit one.
+    All of that is completely opaque at the Raku level of course.
+
+        my $str = "\c[FACE PALM, EMOJI MODIFIER FITZPATRICK TYPE-3, ZWJ, MALE SIGN, VARIATION SELECTOR-16]";
+
+        say $str.chars;        # 1
+        say $str.codes;        # 5
+        say $str.encode('utf16').elems; # 7
+        say $str.encode('utf16').bytes; # 14
+        say $str.encode.elems; # 17
+        say $str.encode.bytes; # 17
+        say $str.codes * 4;    # 20
+        #(utf32 encode/decode isn't implemented in MoarVM yet)
+
+        say for $str.uninames;
+        # FACE PALM
+        # EMOJI MODIFIER FITZPATRICK TYPE-3
+        # ZERO WIDTH JOINER
+        # MALE SIGN
+        # VARIATION SELECTOR-16
+    The reason we have utf8-c8 encode/decode is because filenames, usernames, and passwords are not actually Unicode.
+    (I have 4 files all named rèsumè in the same folder on my computer.)
+    utf8-c8 uses the same synthetic codepoint system as grapheme clusters.
+
+
+29/05/2021
+https://github.com/logannc/fuzzywuzzy-rs
+Rust port of the Python fuzzywuzzy
+https://github.com/seatgeek/fuzzywuzzy
+
+https://github.com/ztane/python-Levenshtein/
+The Levenshtein Python C extension module contains functions for fast computation of Levenshtein distance and string similarity
+
+
+29/05/2021
+https://tonsky.me/blog/emoji/
+https://observablehq.com/@jobleonard/which-unicode-flags-are-reversible
+
+
+29/05/2021
+https://github.com/alvinlindstam/grapheme
+https://pypi.org/project/grapheme/
+Here too, he says that CR+LF is a grapheme...
+
+Same here:
+https://www.reddit.com/r/programming/comments/m274cg/til_rn_crlf_is_a_single_grapheme_cluster/
+https://unicode.org/reports/tr29/#Table_Combining_Char_Sequences_and_Grapheme_Clusters
+
+
+30/05/2021
+https://www.perl.com/article/json-unicode-and-perl-oh-my-/
+Its \uXXXX escapes support only characters within Unicode’s BMP;
+to store emoji or other non-BMP characters you either have to encode to UTF-8 directly.
+or indicate a UTF-16 surrogate pair in \uXXXX escapes.
+
+https://github.com/toml-lang/toml
+Tom's Obvious, Minimal Language
+TOML is a nice serialization format for human-maintained data structures.
+It’s line-delimited and—of course!—allows comments, and any Unicode code point can be expressed in simple hexadecimal.
+TOML is fairly new, and its specification is still in flux;
+
+https://cbor.io/
+RFC 8949 Concise Binary Object Representation
+CBOR improves upon JSON’s efficiency and also allows for storage of binary strings.
+Whereas JSON encoders must stringify numbers and escape all strings,
+CBOR stores numbers “literally” and prefixes strings with their length,
+which obviates the need to escape those strings.
+
+https://www.rfc-editor.org/rfc/rfc8949.html
+RFC 8949 Concise Binary Object Representation (CBOR)
+In contrast to formats such as JSON, the Unicode characters in this type are never escaped.
+Thus, a newline character (U+000A) is always represented in a string as the byte 0x0a,
+and never as the bytes 0x5c6e (the characters "\" and "n")
+nor as 0x5c7530303061 (the characters "\", "u", "0", "0", "0", and "a").
+
+
+31/06/2021
+https://stackoverflow.com/questions/49662585/how-do-i-compare-a-unicode-string-that-has-different-bytes-but-the-same-value
+A pair NFC considers different but a user might consider the same is 'µ' (MICRO SIGN) and 'μ' (GREEK SMALL LETTER MU).
+NFKC will collapse these two.
+
+UNICODE COLLATION ALGORITHM
+Unicode has an official string collation algorithm called UCA
+http://unicode.org/reports/tr10/
+
+
+01/06/2021
+https://halt.software/optimizing-unicodes-grapheme-cluster-break-algorithm/
+They claim this improvement:
+For the simple data set, this was 0.38 of utf8proc time.
+For the complex data set, this was 0.56 of utf8proc time.
+
+
+01/06/2021
+https://tzlaine.github.io/text/doc/html/boost_text__proposed_/the_text_layer.html
+The Text Layer
+https://tzlaine.github.io/text/doc/html/
+Chapter 1. Boost.Text (Proposed) - 2018
+
+
+01/06/2021
+https://docs.rs/unicode-segmentation/1.7.1/unicode_segmentation/
+GraphemeCursor	Cursor-based segmenter for grapheme clusters.
+GraphemeIndices	External iterator for grapheme clusters and byte offsets.
+Graphemes	External iterator for a string's grapheme clusters.
+USentenceBoundIndices	External iterator for sentence boundaries and byte offsets.
+USentenceBounds	External iterator for a string's sentence boundaries.
+UWordBoundIndices	External iterator for word boundaries and byte offsets.
+UWordBounds	External iterator for a string's word boundaries.
+UnicodeSentences	An iterator over the substrings of a string which, after splitting the string on sentence boundaries, contain any characters with the Alphabetic property, or with General_Category=Number.
+UnicodeWords	An iterator over the substrings of a string which, after splitting the string on word boundaries, contain any characters with the Alphabetic property, or with General_Category=Number.

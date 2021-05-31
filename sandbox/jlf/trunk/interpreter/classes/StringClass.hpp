@@ -171,7 +171,7 @@ inline char IntToHexDigit(int n)
    bool        isEqual(RexxObject *); // in behaviour
    bool        primitiveIsEqual(RexxObject *);
    bool        primitiveCaselessIsEqual(RexxObject *);
-   wholenumber_t strictComp(RexxObject *);
+   wholenumber_t strictComp(RexxObject *, RexxString *alternativeOperator=NULL, RexxInteger **alternativeOperatorResultPtr=NULL);
    wholenumber_t comp(RexxObject *, RexxString *alternativeOperator=OREF_NULL, RexxInteger **alternativeOperatorResultPtr=NULL);
    wholenumber_t compareTo(RexxObject *);
    RexxInteger *equal(RexxObject *);
@@ -620,24 +620,5 @@ inline RexxString *new_upper_string(const char *string)
 {
     return new_upper_string(string, strlen(string), -1);
 }
-
-
-class RexxText : public RexxObject
-{
-public:
-    inline void *operator new(size_t, void *ptr) { return ptr; }
-    inline void  operator delete(void *, void *) { ; }
-    void *operator new(size_t);
-    inline void  operator delete(void *) { ; }
-
-    void live(size_t);
-    void liveGeneral(int reason);
-    void flatten(RexxEnvelope*);
-
-    inline RexxText(RESTORETYPE restoreType) { ; };
-
-    static void createInstance();
-    static RexxClass *classInstance;
-};
 
 #endif

@@ -517,6 +517,7 @@ void AbstractCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *r
 #include "ContextClass.hpp"
 #include "StackFrameClass.hpp"
 #include "BlockClass.hpp"
+#include "TextClass.hpp"
 
 PCPPM CPPCode::exportedMethods[] =     /* start of exported methods table   */
 {
@@ -1093,6 +1094,13 @@ CPPM(RexxBlock::getPackage),
 CPPM(RexxBlock::getVariables),
 CPPM(RexxBlock::getKind),
 CPPM(RexxBlock::getRawExecutable),
+
+CPPM(RexxText::newRexx),
+
+CPPM(Unicode::newRexx),
+CPPM(Unicode::copyRexx),
+CPPM(Unicode::GraphemeBreak),
+
 
 NULL                                   /* final terminating method          */
 };

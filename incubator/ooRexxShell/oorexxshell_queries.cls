@@ -89,6 +89,7 @@ loadPackage:
         'Supplier',
         'Table',
         'TimeSpan',
+        'Unicode',              -- extension
         'WeakReference',
         'server'
 

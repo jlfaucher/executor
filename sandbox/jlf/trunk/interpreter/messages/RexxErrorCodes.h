@@ -53,7 +53,7 @@
 
 /* error subcodes and message numbers                                         */
 /*      message identifier ----------------------------------- message number */
-
+   
 #define Error_Program_unreadable                           3000
 #define Error_Program_unreadable_name                      3001
 #define Error_Program_unreadable_user_defined              3900
