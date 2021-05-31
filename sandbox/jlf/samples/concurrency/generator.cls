@@ -1118,8 +1118,10 @@
     -- not a block do...end, to not see the 'end' in the trace output
     if trace then .traceOutput~say("       >I> Method .Generator~main")
     if trace then do -- additional info
+        doerSource = doer~source
         .traceOutput~say("-"~copies(20))
-        .traceOutput~say(doer~source~tostring)
+        if doerSource~isa(.array) then .traceOutput~say(doerSource~tostring)
+                            else .traceOutput~say(doerSource)
         .traceOutput~say("-"~copies(20))
     end
     if trace then trace i
@@ -1188,8 +1190,10 @@ Temporary, for trying to understand why the GC is not working
     -- not a block do...end, to not see the 'end' in the trace output
     if trace then .traceOutput~say("       >I> Method .jlf~main")
     if trace then do -- additional info
+        doerSource = doer~source
         .traceOutput~say("-"~copies(20))
-        .traceOutput~say(doer~source~tostring)
+        if doerSource~isa(.array) then .traceOutput~say(doerSource~tostring)
+                            else .traceOutput~say(doerSource)
         .traceOutput~say("-"~copies(20))
     end
     if trace then trace i
