@@ -1837,7 +1837,7 @@ syntax:              -- propagate condition
   maxWidth=0
   s2=s~copy
   do maxCount while s2~available
-     maxWidth=max(maxWidth,length(ppIndex2(s2~index, surroundIndexByQuotes)))
+     maxWidth=max(maxWidth,(ppIndex2(s2~index, surroundIndexByQuotes)~length))
      s2~next
   end
 
@@ -2662,15 +2662,11 @@ createCodeSnippet: procedure
   use strict arg a1, surroundByQuotes=.true
 
   -- JLF to rework: surroundByQuotes is supported only by String~ppString
+  -- Can't pass a named argument because I want to keep rgf_util2 compatible with official ooRexx.
   if a1~hasMethod("ppString") then return a1~ppString(surroundByQuotes)
 
   -- JLF : this routine is redundant with the method ~ppstring defined by extension
-
-  -- JLF : can't use .Text, its package is not imported here
-  a1.isaText = (a1~class~id=="RexxText")
-
-  -- JLF : texts are prefixed with "T"
-  if a1.isaText then return escape3("T'"a1~string"'") -- JLF : Use 0xXX notation for escaped characters
+  -- Still useful when called by oofficial ooRexx
 
   -- JLF : mutable buffers are prefixed with "M"
   if a1~isa(.MutableBuffer) then return escape3("M'"a1~string"'") -- JLF : Use 0xXX notation for escaped characters
@@ -2681,12 +2677,6 @@ createCodeSnippet: procedure
       if surroundByQuotes then a1 = "'"a1"'"
       return escape3(a1) -- JLF : Use 0xXX notation for escaped characters
   end
-
-  -- JLF 21/02/2021 never activated because Array has the method ppString, which is tested on entry
-  --                moreover, the call of ppRepresentation is incorrect: the 2nd arg is not surroundByQuotes.
-  -- JLF : condensed output, 100 items max
-  if a1~isA(.array), /*a1~dimension == 1,*/ a1~hasMethod("ppRepresentation") then
-     return a1~ppRepresentation(100, surroundByQuotes)
 
   -- JLF : Since I pretty-print array using square brackets, I prefer to avoid square brackets
   if a1~isA(.Collection) then do
@@ -2707,6 +2697,10 @@ createCodeSnippet: procedure
 */
 ::routine ppIndex2 public  -- rgf, 20091214
   use strict arg a1, surroundByQuotes=.true -- JLF: add surroundByQuotes
+
+  -- JLF to rework: surroundByQuotes is supported only by String~ppString
+  -- Can't pass a named argument because I want to keep rgf_util2 compatible with official ooRexx.
+  if a1~hasMethod("ppString") then return a1~ppString(surroundByQuotes)
 
   if \a1~isA(.string) then
   do

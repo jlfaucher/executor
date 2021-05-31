@@ -241,6 +241,43 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 may 31
+
+Pretty Print
+------------
+
+Experiment a way to pass options for pretty-printing.
+Use a stem ppOptions and named arguments ppOptions.xxx
+That way, it's possible for the caller to pass one or several options explicitely,
+which are accumulated automatically in the stem.
+The callee can declare explicitely the options he's expecting, with default values.
+
+
+
+Array programming
+-----------------
+
+ppString & ppRepresentation accepts a new named argument: ppOptions.expandCollection.
+When .true, all the items of type Collection are expanded.
+When .false, only the items of type array are expanded (this is the default).
+.local~ppstring=                                        -- 'The Local Directory'
+.local~ppstring(ppOptions.expandCollection:.true)=      -- 'Directory[''[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1FFF]'',''.!_?'', 0, 0123456789,''0x1037886e0'',''ABCDEFGHIJKLMNOPQRSTUVWXYZ'',(SESSION),(STDERR),(STDIN),(STDOUT),(The DEBUG INPUT monitor),(The ERROR monitor),(The GlobalVariable class),(The INPUT monitor),(The OUTPUT monitor),(The TRACE OUTPUT monitor),(a server),''abcdefghijklmnopqrstuvwxyz'',''abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'',''abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'',(an Array no shape, 0 items)]'
+
+
+leftElementWise, rightElementWise:
+Pass a new named parameter 'depth(1)' to the 'transform' doer.
+    a = .array~new
+    (1, a, (2, a, (3, a, (4, a, (5, a)))))~reduce(initial:a){accu~~append(item)}
+    a=                                                      -- a1=[ 1,*a1,[ 2,*a1,[ 3,*a1,[ 4,*a1,[ 5,*a1]]]]]
+    a~leftElementWise=                                      -- a1=[ 1,*a1,[ 2,*a1,[ 3,*a1,[ 4,*a1,[ 5,*a1]]]]]
+    -- Replace the self-references *a1 by the current depth.
+    -- The current depth is relative to the named argument d(epth) whose default value is the positive infinity:
+    a~leftElementWise(d:0, t:{depth})=                      -- [ 1,-1,[ 2,-2,[ 3,-3,[ 4,-4,[ 5,-5]]]]]
+    a~leftElementWise(d:1, t:{depth})=                      -- [ 1, 0,[ 2,-1,[ 3,-2,[ 4,-3,[ 5,-4]]]]]
+    a~leftElementWise(d:2, t:{depth})=                      -- [ 1, 1,[ 2, 0,[ 3,-1,[ 4,-2,[ 5,-3]]]]]
+
+
+===============================================================================
 2021 may 23
 
 Alignment with official ooRexx:

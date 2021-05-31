@@ -49,6 +49,7 @@ a33~each=
 
 --::options trace i
 ::requires "extension/infinity.cls"
+::requires "extension/collection.cls"
 
 ::routine a public
     -- Empty array of specified shape.
@@ -751,7 +752,8 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
 ::class "ArrayPrettyPrinter" mixinclass Object public
 
 ::method ppString
-    return self~ppRepresentation
+    use named arg ppOptions. = (.Stem~new)
+    return self~ppRepresentation(ppOptions.: ppOptions.)
 
 
 ::method ppRepresentation
@@ -811,7 +813,7 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:3,a1=[*v2,a2=[
 source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,a2=[*v2,*a1],*a1]
     */
     use strict arg maxItems=(-1), sparse="..", ellipsis="...", separator=",", val=(self), referencesTable=.nil, counter=({n=0; {expose n; n+=1; n}}~())
-    use named arg trace=.false
+    use named arg trace=.false, ppOptions. = (.Stem~new), ppOptions.expandCollection=.false
     if trace then .traceOutput~say("       >I> Method .ArrayPrettyPrinter~ppRepresentation")
     if trace then trace i
     -- Remember : this code has been duplicated in pipe.rex, routine dataflow_representation.
@@ -875,13 +877,29 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
         valstr = val~string
         return "("valstr shape(val, ", ") || val~items "items)"
     end
-    else return val~ppString
+    else if val~isA(.OrderedCollection) then do
+        if ppOptions.expandCollection then do
+            return self~class~id || self~allItems~ppRepresentation(maxItems, sparse, ellipsis, separator, item, referencesTable, counter, trace: trace, ppOptions. : ppOptions.)
+        end
+        else do
+            return val~string
+        end
+    end
+    else if val~isA(.Collection) then do
+        if ppOptions.expandCollection then do
+            return self~class~id || self~allItems~sortWith(.StringNumericComparator~new)~ppRepresentation(maxItems, sparse, ellipsis, separator, item, referencesTable, counter, trace: trace, ppOptions. : ppOptions.)
+        end
+        else do
+            return val~string
+        end
+    end
+    else return val~ppString(ppOptions. : ppOptions.)
 
 
-::method collectReferences
+::method collectReferences private
     -- Collect all the references to array or enclosedArray.
-    -- Same code organization as ppstring, to make easier joint updates.
-    -- Use the same logic as ppstring to limit the number of items to analyze.
+    -- Same code organization as ppRepresentation, to make easier joint updates.
+    -- Use the same logic as ppRepresentation to limit the number of items to analyze.
     -- When a referenced array is seen more than once, then the reference is marked as selfReference, to stop the infinite recursion.
     use strict arg maxItems=(-1), val=(self), referencesTable=(.identityTable~new)
     if val~isA(.enclosedArray) then do
@@ -904,7 +922,7 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
         -- each item of the array is analyzed.
         items = 0 -- Not global. Each item being an array will have maxItems items inserted.
                   -- Maybe a global count could be useful... Will see on usage.
-        if maxItems >= 0 then s = val~supplier(maxItems+1) -- +1 to follow the logic of ppstring
+        if maxItems >= 0 then s = val~supplier(maxItems+1) -- +1 to follow the logic of ppRepresentation
         else s = val~supplier
         do while s~available
             item = s~item
@@ -923,7 +941,7 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
 ::class reference private
 
 ::attribute selfReference   -- indicator of self reference
-::attribute id              -- unique identifier, used for display of references by ppstring
+::attribute id              -- unique identifier, used for display of references by ppRepresentation
 ::attribute displayed       -- will be set to .true by the pretty-printer when displaying the referenced for the first time
 
 ::method init
@@ -974,7 +992,7 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
     if counterpart <> .nil then do
         if expansion <= 0 then do
             -- stop infinite recursion
-            transform~(counterpart, item:counterpart)
+            transform~(counterpart, depth, item:counterpart, depth:depth)
             if var("result") then return result
             return
         end
@@ -1143,7 +1161,7 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
     if counterpart <> .nil then do
         if expansion <= 0 then do
             -- stop infinite recursion
-            transform~(counterpart, item:counterpart)
+            transform~(counterpart, depth, item:counterpart, depth:depth)
             if var("result") then return result
             return
         end
