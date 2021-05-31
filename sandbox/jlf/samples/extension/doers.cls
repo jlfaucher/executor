@@ -536,7 +536,7 @@ Ex :
     if .nil == context then context = self~package -- lookup scope
 
     kind = self~kind
-    rawExecutable = self~rawExecutable
+    rawExecutable = self~rawExecutable -- set at parse time
     if clauseBefore <> "" | clauseAfter <> "" | .nil == rawExecutable then do
         sourceArray = self~source -- always an array, even if empty or just one line
         clauser = .Clauser~new(sourceArray)
@@ -726,7 +726,7 @@ Examples :
     return doMethod~source
 
 
-::method variables
+::method variables unguarded -- must be unguarded otherwise deadlock when the closure is the executable of a running coactivity
     expose !_closure.variableNames_! (!_closure.variableNames_!)
     -- Must use variable names that will not collide with user-defined variables
     !_closure.directory_! = .Directory~new

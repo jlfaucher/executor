@@ -1,0 +1,2574 @@
+T1   A1                       >I> Routine <prolog> in package /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity.cls
+T1   A2                       >I> Routine <prolog> in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers.cls
+T1   A3                       >I> Routine <prolog> in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/functionals.cls
+T1   A4                       >I> Routine <prolog> in package /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/generator.cls
+T1   A5                       >I> Routine <prolog> in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/novalue.cls
+T1   A5                     1 *-* .local["NOVALUE"] = .GlobalVariable
+T1   A5                       >E>   .LOCAL => "The Local Directory"
+T1   A5                       >E>   .GLOBALVARIABLE => "The GlobalVariable class"
+T1   A5                       >A>   "The GlobalVariable class"
+T1   A5                       >L>   "NOVALUE"
+T1   A5                       >A>   "NOVALUE"
+T1   A6                       >I> Routine <prolog> in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/indeterminate.cls
+T1   A6                     1 *-* .indeterminate~initialize
+T1   A6                       >E>   .INDETERMINATE => "The indeterminate class"
+T1   A7     V1                >I> Method INITIALIZE with scope "indeterminate" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/indeterminate.cls
+T1   A7     V1      1*     14 *-* self~value = self~new("The indeterminate value")
+T1   A7     V1      1*        >V>   SELF => "The indeterminate class"
+T1   A7     V1      1*        >V>   SELF => "The indeterminate class"
+T1   A7     V1      1*        >L>   "The indeterminate value"
+T1   A7     V1      1*        >A>   "The indeterminate value"
+T1   A8     V2                >I> Method INIT with scope "indeterminate" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/indeterminate.cls
+T1   A8     V2      1*     23 *-* use strict arg objectName
+T1   A8     V2      1*        >>>   "The indeterminate value"
+T1   A8     V2      1*        >=>   OBJECTNAME <= "The indeterminate value"
+T1   A8     V2      1*     24 *-* self~objectName = objectName
+T1   A8     V2      1*        >V>   SELF => "an indeterminate"
+T1   A8     V2      1*        >V>   OBJECTNAME => "The indeterminate value"
+T1   A8     V2      1*        >A>   "The indeterminate value"
+T1   A7     V1      1*        >M>   "NEW" => "The indeterminate value"
+T1   A7     V1      1*        >A>   "The indeterminate value"
+T1   A7     V1      1*        >>>   "The indeterminate value"
+T1   A7     V1      1*     20 *-* .GlobalVariable~declare("INDETERMINATE", self~value)
+T1   A7     V1      1*        >E>   .GLOBALVARIABLE => "The GlobalVariable class"
+T1   A7     V1      1*        >L>   "INDETERMINATE"
+T1   A7     V1      1*        >A>   "INDETERMINATE"
+T1   A7     V1      1*        >V>   SELF => "The indeterminate class"
+T1   A7     V1      1*        >M>   "VALUE" => "The indeterminate value"
+T1   A7     V1      1*        >A>   "The indeterminate value"
+T1   A9     V3                >I> Method DECLARE with scope "GlobalVariable" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/novalue.cls
+T1   A9     V3      1*     16 *-* expose values
+T1   A9     V3      1*     17 *-* use strict arg name, value
+T1   A9     V3      1*        >>>   "INDETERMINATE"
+T1   A9     V3      1*        >=>   NAME <= "INDETERMINATE"
+T1   A9     V3      1*        >>>   "The indeterminate value"
+T1   A9     V3      1*        >=>   VALUE <= "The indeterminate value"
+T1   A9     V3      1*     18 *-* name = name~upper
+T1   A9     V3      1*        >V>   NAME => "INDETERMINATE"
+T1   A9     V3      1*        >M>   "UPPER" => "INDETERMINATE"
+T1   A9     V3      1*        >>>   "INDETERMINATE"
+T1   A9     V3      1*        >=>   NAME <= "INDETERMINATE"
+T1   A9     V3      1*     19 *-* if name == value 
+T1   A9     V3      1*        >V>   NAME => "INDETERMINATE"
+T1   A9     V3      1*        >V>   VALUE => "The indeterminate value"
+T1   A10    V2                >I> Method MAKESTRING with scope "indeterminate" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/indeterminate.cls
+T1   A10    V2      1*     27 *-* return self~objectName
+T1   A10    V2      1*        >V>   SELF => "The indeterminate value"
+T1   A10    V2      1*        >M>   "OBJECTNAME" => "The indeterminate value"
+T1   A10    V2      1*        >>>   "The indeterminate value"
+T1   A9     V3      1*        >O>   "==" => "0"
+T1   A9     V3      1*        >>>   "0"
+T1   A9     V3      1*     20 *-*   else
+T1   A9     V3      1*     20 *-*     values[name] = value
+T1   A9     V3      1*        >V>       VALUES => "a Directory"
+T1   A9     V3      1*        >V>       VALUE => "The indeterminate value"
+T1   A9     V3      1*        >A>       "The indeterminate value"
+T1   A9     V3      1*        >V>       NAME => "INDETERMINATE"
+T1   A9     V3      1*        >A>       "INDETERMINATE"
+T1   A11                      >I> Routine <prolog> in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/infinity.cls
+T1   A11                   11 *-* .infinity~initialize
+T1   A11                      >E>   .INFINITY => "The infinity class"
+T1   A12    V4                >I> Method INITIALIZE with scope "infinity" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/infinity.cls
+T1   A12    V4      1*     31 *-* self~negative = self~new("The negative infinity", -1)
+T1   A12    V4      1*        >V>   SELF => "The infinity class"
+T1   A12    V4      1*        >V>   SELF => "The infinity class"
+T1   A12    V4      1*        >L>   "The negative infinity"
+T1   A12    V4      1*        >A>   "The negative infinity"
+T1   A12    V4      1*        >L>   "1"
+T1   A12    V4      1*        >P>   "-" => "-1"
+T1   A12    V4      1*        >A>   "-1"
+T1   A13    V5                >I> Method INIT with scope "infinity" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/infinity.cls
+T1   A13    V5      1*     75 *-* use strict arg objectName, direction
+T1   A13    V5      1*        >>>   "The negative infinity"
+T1   A13    V5      1*        >=>   OBJECTNAME <= "The negative infinity"
+T1   A13    V5      1*        >>>   "-1"
+T1   A13    V5      1*        >=>   DIRECTION <= "-1"
+T1   A13    V5      1*     76 *-* self~objectName = objectName
+T1   A13    V5      1*        >V>   SELF => "an infinity"
+T1   A13    V5      1*        >V>   OBJECTNAME => "The negative infinity"
+T1   A13    V5      1*        >A>   "The negative infinity"
+T1   A13    V5      1*     77 *-* self~direction = direction
+T1   A13    V5      1*        >V>   SELF => "The negative infinity"
+T1   A13    V5      1*        >V>   DIRECTION => "-1"
+T1   A13    V5      1*        >A>   "-1"
+T1   A13    V5      1*        >>>   "-1"
+T1   A12    V4      1*        >M>   "NEW" => "The negative infinity"
+T1   A12    V4      1*        >A>   "The negative infinity"
+T1   A12    V4      1*        >>>   "The negative infinity"
+T1   A12    V4      1*     32 *-* self~positive = self~new("The positive infinity",  1)
+T1   A12    V4      1*        >V>   SELF => "The infinity class"
+T1   A12    V4      1*        >V>   SELF => "The infinity class"
+T1   A12    V4      1*        >L>   "The positive infinity"
+T1   A12    V4      1*        >A>   "The positive infinity"
+T1   A12    V4      1*        >L>   "1"
+T1   A12    V4      1*        >A>   "1"
+T1   A14    V6                >I> Method INIT with scope "infinity" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/infinity.cls
+T1   A14    V6      1*     75 *-* use strict arg objectName, direction
+T1   A14    V6      1*        >>>   "The positive infinity"
+T1   A14    V6      1*        >=>   OBJECTNAME <= "The positive infinity"
+T1   A14    V6      1*        >>>   "1"
+T1   A14    V6      1*        >=>   DIRECTION <= "1"
+T1   A14    V6      1*     76 *-* self~objectName = objectName
+T1   A14    V6      1*        >V>   SELF => "an infinity"
+T1   A14    V6      1*        >V>   OBJECTNAME => "The positive infinity"
+T1   A14    V6      1*        >A>   "The positive infinity"
+T1   A14    V6      1*     77 *-* self~direction = direction
+T1   A14    V6      1*        >V>   SELF => "The positive infinity"
+T1   A14    V6      1*        >V>   DIRECTION => "1"
+T1   A14    V6      1*        >A>   "1"
+T1   A14    V6      1*        >>>   "1"
+T1   A12    V4      1*        >M>   "NEW" => "The positive infinity"
+T1   A12    V4      1*        >A>   "The positive infinity"
+T1   A12    V4      1*        >>>   "The positive infinity"
+T1   A12    V4      1*     33 *-* self~complex =  self~new("The complex infinity",   0)
+T1   A12    V4      1*        >V>   SELF => "The infinity class"
+T1   A12    V4      1*        >V>   SELF => "The infinity class"
+T1   A12    V4      1*        >L>   "The complex infinity"
+T1   A12    V4      1*        >A>   "The complex infinity"
+T1   A12    V4      1*        >L>   "0"
+T1   A12    V4      1*        >A>   "0"
+T1   A15    V7                >I> Method INIT with scope "infinity" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/infinity.cls
+T1   A15    V7      1*     75 *-* use strict arg objectName, direction
+T1   A15    V7      1*        >>>   "The complex infinity"
+T1   A15    V7      1*        >=>   OBJECTNAME <= "The complex infinity"
+T1   A15    V7      1*        >>>   "0"
+T1   A15    V7      1*        >=>   DIRECTION <= "0"
+T1   A15    V7      1*     76 *-* self~objectName = objectName
+T1   A15    V7      1*        >V>   SELF => "an infinity"
+T1   A15    V7      1*        >V>   OBJECTNAME => "The complex infinity"
+T1   A15    V7      1*        >A>   "The complex infinity"
+T1   A15    V7      1*     77 *-* self~direction = direction
+T1   A15    V7      1*        >V>   SELF => "The complex infinity"
+T1   A15    V7      1*        >V>   DIRECTION => "0"
+T1   A15    V7      1*        >A>   "0"
+T1   A15    V7      1*        >>>   "0"
+T1   A12    V4      1*        >M>   "NEW" => "The complex infinity"
+T1   A12    V4      1*        >A>   "The complex infinity"
+T1   A12    V4      1*        >>>   "The complex infinity"
+T1   A12    V4      1*     35 *-* self~negative~opposite = self~positive
+T1   A12    V4      1*        >V>   SELF => "The infinity class"
+T1   A12    V4      1*        >M>   "NEGATIVE" => "The negative infinity"
+T1   A12    V4      1*        >V>   SELF => "The infinity class"
+T1   A12    V4      1*        >M>   "POSITIVE" => "The positive infinity"
+T1   A12    V4      1*        >A>   "The positive infinity"
+T1   A12    V4      1*        >>>   "The positive infinity"
+T1   A12    V4      1*     36 *-* self~positive~opposite = self~negative
+T1   A12    V4      1*        >V>   SELF => "The infinity class"
+T1   A12    V4      1*        >M>   "POSITIVE" => "The positive infinity"
+T1   A12    V4      1*        >V>   SELF => "The infinity class"
+T1   A12    V4      1*        >M>   "NEGATIVE" => "The negative infinity"
+T1   A12    V4      1*        >A>   "The negative infinity"
+T1   A12    V4      1*        >>>   "The negative infinity"
+T1   A12    V4      1*     37 *-* self~complex~opposite = self~complex
+T1   A12    V4      1*        >V>   SELF => "The infinity class"
+T1   A12    V4      1*        >M>   "COMPLEX" => "The complex infinity"
+T1   A12    V4      1*        >V>   SELF => "The infinity class"
+T1   A12    V4      1*        >M>   "COMPLEX" => "The complex infinity"
+T1   A12    V4      1*        >A>   "The complex infinity"
+T1   A12    V4      1*        >>>   "The complex infinity"
+T1   A12    V4      1*     39 *-* .GlobalVariable~declare("INFINITY", self~positive)
+T1   A12    V4      1*        >E>   .GLOBALVARIABLE => "The GlobalVariable class"
+T1   A12    V4      1*        >L>   "INFINITY"
+T1   A12    V4      1*        >A>   "INFINITY"
+T1   A12    V4      1*        >V>   SELF => "The infinity class"
+T1   A12    V4      1*        >M>   "POSITIVE" => "The positive infinity"
+T1   A12    V4      1*        >A>   "The positive infinity"
+T1   A16    V3                >I> Method DECLARE with scope "GlobalVariable" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/novalue.cls
+T1   A16    V3      1*     16 *-* expose values
+T1   A16    V3      1*     17 *-* use strict arg name, value
+T1   A16    V3      1*        >>>   "INFINITY"
+T1   A16    V3      1*        >=>   NAME <= "INFINITY"
+T1   A16    V3      1*        >>>   "The positive infinity"
+T1   A16    V3      1*        >=>   VALUE <= "The positive infinity"
+T1   A16    V3      1*     18 *-* name = name~upper
+T1   A16    V3      1*        >V>   NAME => "INFINITY"
+T1   A16    V3      1*        >M>   "UPPER" => "INFINITY"
+T1   A16    V3      1*        >>>   "INFINITY"
+T1   A16    V3      1*        >=>   NAME <= "INFINITY"
+T1   A16    V3      1*     19 *-* if name == value 
+T1   A16    V3      1*        >V>   NAME => "INFINITY"
+T1   A16    V3      1*        >V>   VALUE => "The positive infinity"
+T1   A17    V6                >I> Method MAKESTRING with scope "infinity" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/infinity.cls
+T1   A17    V6      1*     80 *-* return self~objectName
+T1   A17    V6      1*        >V>   SELF => "The positive infinity"
+T1   A17    V6      1*        >M>   "OBJECTNAME" => "The positive infinity"
+T1   A17    V6      1*        >>>   "The positive infinity"
+T1   A16    V3      1*        >O>   "==" => "0"
+T1   A16    V3      1*        >>>   "0"
+T1   A16    V3      1*     20 *-*   else
+T1   A16    V3      1*     20 *-*     values[name] = value
+T1   A16    V3      1*        >V>       VALUES => "a Directory"
+T1   A16    V3      1*        >V>       VALUE => "The positive infinity"
+T1   A16    V3      1*        >A>       "The positive infinity"
+T1   A16    V3      1*        >V>       NAME => "INFINITY"
+T1   A16    V3      1*        >A>       "INFINITY"
+T1   A12    V4      1*     40 *-* .GlobalVariable~declare("COMPLEXINFINITY", self~complex)
+T1   A12    V4      1*        >E>   .GLOBALVARIABLE => "The GlobalVariable class"
+T1   A12    V4      1*        >L>   "COMPLEXINFINITY"
+T1   A12    V4      1*        >A>   "COMPLEXINFINITY"
+T1   A12    V4      1*        >V>   SELF => "The infinity class"
+T1   A12    V4      1*        >M>   "COMPLEX" => "The complex infinity"
+T1   A12    V4      1*        >A>   "The complex infinity"
+T1   A18    V3                >I> Method DECLARE with scope "GlobalVariable" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/novalue.cls
+T1   A18    V3      1*     16 *-* expose values
+T1   A18    V3      1*     17 *-* use strict arg name, value
+T1   A18    V3      1*        >>>   "COMPLEXINFINITY"
+T1   A18    V3      1*        >=>   NAME <= "COMPLEXINFINITY"
+T1   A18    V3      1*        >>>   "The complex infinity"
+T1   A18    V3      1*        >=>   VALUE <= "The complex infinity"
+T1   A18    V3      1*     18 *-* name = name~upper
+T1   A18    V3      1*        >V>   NAME => "COMPLEXINFINITY"
+T1   A18    V3      1*        >M>   "UPPER" => "COMPLEXINFINITY"
+T1   A18    V3      1*        >>>   "COMPLEXINFINITY"
+T1   A18    V3      1*        >=>   NAME <= "COMPLEXINFINITY"
+T1   A18    V3      1*     19 *-* if name == value 
+T1   A18    V3      1*        >V>   NAME => "COMPLEXINFINITY"
+T1   A18    V3      1*        >V>   VALUE => "The complex infinity"
+T1   A19    V7                >I> Method MAKESTRING with scope "infinity" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/infinity.cls
+T1   A19    V7      1*     80 *-* return self~objectName
+T1   A19    V7      1*        >V>   SELF => "The complex infinity"
+T1   A19    V7      1*        >M>   "OBJECTNAME" => "The complex infinity"
+T1   A19    V7      1*        >>>   "The complex infinity"
+T1   A18    V3      1*        >O>   "==" => "0"
+T1   A18    V3      1*        >>>   "0"
+T1   A18    V3      1*     20 *-*   else
+T1   A18    V3      1*     20 *-*     values[name] = value
+T1   A18    V3      1*        >V>       VALUES => "a Directory"
+T1   A18    V3      1*        >V>       VALUE => "The complex infinity"
+T1   A18    V3      1*        >A>       "The complex infinity"
+T1   A18    V3      1*        >V>       NAME => "COMPLEXINFINITY"
+T1   A18    V3      1*        >A>       "COMPLEXINFINITY"
+T1   A20                      >I> Routine <prolog> in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/array.cls
+T1   A21                      >I> Routine <prolog> in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/collection.cls
+T1   A22                      >I> Routine <prolog> in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/complex.cls
+T1   A22                   50 *-* .complex~initialize
+T1   A22                      >E>   .COMPLEX => "The COMPLEX class"
+T1   A23    V8                >I> Method INITIALIZE with scope "COMPLEX" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/complex.cls
+T1   A23    V8      1*     62 *-* self~i = self~new(0, 1)
+T1   A23    V8      1*        >V>   SELF => "The COMPLEX class"
+T1   A23    V8      1*        >V>   SELF => "The COMPLEX class"
+T1   A23    V8      1*        >L>   "0"
+T1   A23    V8      1*        >A>   "0"
+T1   A23    V8      1*        >L>   "1"
+T1   A23    V8      1*        >A>   "1"
+T1   A24    V9                >I> Method INIT with scope "COMPLEX" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/complex.cls
+T1   A24    V9      1*     72 *-* expose real imaginary                       /* expose the state data          */
+T1   A24    V9      1*     73 *-* use arg first, second                       /* access the two numbers         */
+T1   A24    V9      1*        >>>   "0"
+T1   A24    V9      1*        >=>   FIRST <= "0"
+T1   A24    V9      1*        >>>   "1"
+T1   A24    V9      1*        >=>   SECOND <= "1"
+T1   A24    V9      1*     74 *-* if arg(1, 'o') 
+T1   A24    V9      1*        >L>   "1"
+T1   A24    V9      1*        >A>   "1"
+T1   A24    V9      1*        >L>   "o"
+T1   A24    V9      1*        >A>   "o"
+T1   A24    V9      1*        >F>   ARG => "0"
+T1   A24    V9      1*        >>>   "0"
+T1   A24    V9      1*     76 *-*   else
+T1   A24    V9      1*     77 *-*     real = first + 0                        /* force rounding               */
+T1   A24    V9      1*        >V>       FIRST => "0"
+T1   A24    V9      1*        >L>       "0"
+T1   A24    V9      1*        >O>       "+" => "0"
+T1   A24    V9      1*        >>>       "0"
+T1   A24    V9      1*        >=>       REAL <= "0"
+T1   A24    V9      1*     79 *-* if arg(2,'o') 
+T1   A24    V9      1*        >L>   "2"
+T1   A24    V9      1*        >A>   "2"
+T1   A24    V9      1*        >L>   "o"
+T1   A24    V9      1*        >A>   "o"
+T1   A24    V9      1*        >F>   ARG => "0"
+T1   A24    V9      1*        >>>   "0"
+T1   A24    V9      1*     81 *-*   else
+T1   A24    V9      1*     82 *-*     imaginary = second + 0                  /* force rounding on the second   */
+T1   A24    V9      1*        >V>       SECOND => "1"
+T1   A24    V9      1*        >L>       "0"
+T1   A24    V9      1*        >O>       "+" => "1"
+T1   A24    V9      1*        >>>       "1"
+T1   A24    V9      1*        >=>       IMAGINARY <= "1"
+T1   A23    V8      1*        >M>   "NEW" => "a COMPLEX"
+T1   A23    V8      1*        >A>   "a COMPLEX"
+T1   A23    V8      1*        >>>   "a COMPLEX"
+T1   A23    V8      1*     63 *-* .GlobalVariable~declare("I", self~i)
+T1   A23    V8      1*        >E>   .GLOBALVARIABLE => "The GlobalVariable class"
+T1   A23    V8      1*        >L>   "I"
+T1   A23    V8      1*        >A>   "I"
+T1   A23    V8      1*        >V>   SELF => "The COMPLEX class"
+T1   A23    V8      1*        >M>   "I" => "a COMPLEX"
+T1   A23    V8      1*        >A>   "a COMPLEX"
+T1   A25    V3                >I> Method DECLARE with scope "GlobalVariable" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/novalue.cls
+T1   A25    V3      1*     16 *-* expose values
+T1   A25    V3      1*     17 *-* use strict arg name, value
+T1   A25    V3      1*        >>>   "I"
+T1   A25    V3      1*        >=>   NAME <= "I"
+T1   A25    V3      1*        >>>   "a COMPLEX"
+T1   A25    V3      1*        >=>   VALUE <= "a COMPLEX"
+T1   A25    V3      1*     18 *-* name = name~upper
+T1   A25    V3      1*        >V>   NAME => "I"
+T1   A25    V3      1*        >M>   "UPPER" => "I"
+T1   A25    V3      1*        >>>   "I"
+T1   A25    V3      1*        >=>   NAME <= "I"
+T1   A25    V3      1*     19 *-* if name == value 
+T1   A25    V3      1*        >V>   NAME => "I"
+T1   A25    V3      1*        >V>   VALUE => "a COMPLEX"
+T1   A26    V9                >I> Method ==OP:RIGHT with scope "COMPLEX" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/complex.cls
+T1   A26    V9      1*    306 *-* use strict arg left
+T1   A26    V9      1*        >>>   "I"
+T1   A26    V9      1*        >=>   LEFT <= "I"
+T1   A26    V9      1*    307 *-* left = left~request("complex")
+T1   A26    V9      1*        >V>   LEFT => "I"
+T1   A26    V9      1*        >L>   "complex"
+T1   A26    V9      1*        >A>   "complex"
+T1   A26    V9      1*        >M>   "REQUEST" => "The NIL object"
+T1   A26    V9      1*        >>>   "The NIL object"
+T1   A26    V9      1*        >=>   LEFT <= "The NIL object"
+T1   A26    V9      1*    308 *-* if .nil == left 
+T1   A26    V9      1*        >E>   .NIL => "The NIL object"
+T1   A26    V9      1*        >V>   LEFT => "The NIL object"
+T1   A26    V9      1*        >O>   "==" => "1"
+T1   A26    V9      1*        >>>   "1"
+T1   A26    V9      1*    308 *-*   then
+T1   A26    V9      1*    308 *-*     return
+T1   A27    V9                >I> Method MAKESTRING with scope "COMPLEX" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/complex.cls
+T1   A27    V9      1*     87 *-* expose real imaginary                       /* get the state info             */
+T1   A27    V9      1*     88 *-* if imaginary < 0 
+T1   A27    V9      1*        >V>   IMAGINARY => "1"
+T1   A27    V9      1*        >L>   "0"
+T1   A27    V9      1*        >O>   "<" => "0"
+T1   A27    V9      1*        >>>   "0"
+T1   A27    V9      1*     89 *-* return real'+'imaginary'i'                  /* format as real+imaginaryi      */
+T1   A27    V9      1*        >V>   REAL => "0"
+T1   A27    V9      1*        >L>   "+"
+T1   A27    V9      1*        >O>   "" => "0+"
+T1   A27    V9      1*        >V>   IMAGINARY => "1"
+T1   A27    V9      1*        >O>   "" => "0+1"
+T1   A27    V9      1*        >L>   "i"
+T1   A27    V9      1*        >O>   "" => "0+1i"
+T1   A27    V9      1*        >>>   "0+1i"
+T1   A25    V3      1*        >O>   "==" => "0"
+T1   A25    V3      1*        >>>   "0"
+T1   A25    V3      1*     20 *-*   else
+T1   A25    V3      1*     20 *-*     values[name] = value
+T1   A25    V3      1*        >V>       VALUES => "a Directory"
+T1   A25    V3      1*        >V>       VALUE => "a COMPLEX"
+T1   A25    V3      1*        >A>       "a COMPLEX"
+T1   A25    V3      1*        >V>       NAME => "I"
+T1   A25    V3      1*        >A>       "I"
+T1   A28                      >I> Routine <prolog> in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/file.cls
+T1   A29                      >I> Routine <prolog> in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A29                    6 *-* .local~rgf.non.printable=xrange("00"x,"1F"x)||"FF"x
+T1   A29                      >E>   .LOCAL => "The Local Directory"
+T1   A29                      >L>   "?"
+T1   A29                      >A>   "?"
+T1   A29                      >L>   "?"
+T1   A29                      >A>   "?"
+T1   A29                      >F>   XRANGE => "?????????	??????????????????????"
+T1   A29                      >L>   "�"
+T1   A29                      >O>   "||" => "?????????	???????????????????????"
+T1   A29                      >A>   "?????????	???????????????????????"
+T1   A29                   22 *-* .Byte_Encoding~initialize
+T1   A29                      >E>   .BYTE_ENCODING => "The Byte_Encoding class"
+T1   A30    V10               >I> Method INITIALIZE with scope "Byte_Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A30    V10     1*    775 *-* self~declareCharacter("space", "20"x)
+T1   A30    V10     1*        >V>   SELF => "The Byte_Encoding class"
+T1   A30    V10     1*        >L>   "space"
+T1   A30    V10     1*        >A>   "space"
+T1   A30    V10     1*        >L>   " "
+T1   A30    V10     1*        >A>   " "
+T1   A31    V11               >I> Method DECLARECHARACTER with scope "Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A31    V11     1*    722 *-* expose characters
+T1   A31    V11     1*    723 *-* use strict arg name, encoded
+T1   A31    V11     1*        >>>   "space"
+T1   A31    V11     1*        >=>   NAME <= "space"
+T1   A31    V11     1*        >>>   " "
+T1   A31    V11     1*        >=>   ENCODED <= " "
+T1   A31    V11     1*    726 *-* characters~setEntry(name, .RexxText~new(.String~new(encoded), self))
+T1   A31    V11     1*        >V>   CHARACTERS => "a Directory"
+T1   A31    V11     1*        >V>   NAME => "space"
+T1   A31    V11     1*        >A>   "space"
+T1   A31    V11     1*        >E>   .REXXTEXT => "The RexxText class"
+T1   A31    V11     1*        >E>   .STRING => "The String class"
+T1   A31    V11     1*        >V>   ENCODED => " "
+T1   A31    V11     1*        >A>   " "
+T1   A31    V11     1*        >M>   "NEW" => " "
+T1   A31    V11     1*        >A>   " "
+T1   A31    V11     1*        >V>   SELF => "The Byte_Encoding class"
+T1   A31    V11     1*        >A>   "The Byte_Encoding class"
+T1   A32    V12               >I> Method INIT with scope "RexxTextInitializer" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A32    V12     1*    170 *-* expose indexer
+T1   A32    V12     1*    171 *-* use strict arg string, encoding="default"
+T1   A32    V12     1*        >>>   " "
+T1   A32    V12     1*        >=>   STRING <= " "
+T1   A32    V12     1*        >>>   "The Byte_Encoding class"
+T1   A32    V12     1*        >=>   ENCODING <= "The Byte_Encoding class"
+T1   A32    V12     1*    172 *-* if \string~isA(.String) 
+T1   A32    V12     1*        >V>   STRING => " "
+T1   A32    V12     1*        >E>   .STRING => "The String class"
+T1   A32    V12     1*        >A>   "The String class"
+T1   A32    V12     1*        >M>   "ISA" => "1"
+T1   A32    V12     1*        >P>   "\" => "0"
+T1   A32    V12     1*        >>>   "0"
+T1   A32    V12     1*    173 *-* encoding = .Encoding~factory(encoding)
+T1   A32    V12     1*        >E>   .ENCODING => "The Encoding class"
+T1   A32    V12     1*        >V>   ENCODING => "The Byte_Encoding class"
+T1   A32    V12     1*        >A>   "The Byte_Encoding class"
+T1   A33    V13               >I> Method FACTORY with scope "Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A33    V13     1*    664 *-* use strict arg encoding
+T1   A33    V13     1*        >>>   "The Byte_Encoding class"
+T1   A33    V13     1*        >=>   ENCODING <= "The Byte_Encoding class"
+T1   A33    V13     1*    665 *-* if encoding~isA(.Class), encoding~isSubClassOf(self) 
+T1   A33    V13     1*        >V>   ENCODING => "The Byte_Encoding class"
+T1   A33    V13     1*        >E>   .CLASS => "The Class class"
+T1   A33    V13     1*        >A>   "The Class class"
+T1   A33    V13     1*        >M>   "ISA" => "1"
+T1   A33    V13     1*        >>>   "1"
+T1   A33    V13     1*        >V>   ENCODING => "The Byte_Encoding class"
+T1   A33    V13     1*        >V>   SELF => "The Encoding class"
+T1   A33    V13     1*        >A>   "The Encoding class"
+T1   A33    V13     1*        >M>   "ISSUBCLASSOF" => "1"
+T1   A33    V13     1*        >>>   "1"
+T1   A33    V13     1*        >>>   "1"
+T1   A33    V13     1*    665 *-*   then
+T1   A33    V13     1*    665 *-*     return encoding
+T1   A33    V13     1*        >V>       ENCODING => "The Byte_Encoding class"
+T1   A33    V13     1*        >>>       "The Byte_Encoding class"
+T1   A32    V12     1*        >M>   "FACTORY" => "The Byte_Encoding class"
+T1   A32    V12     1*        >>>   "The Byte_Encoding class"
+T1   A32    V12     1*        >=>   ENCODING <= "The Byte_Encoding class"
+T1   A32    V12     1*    174 *-* indexer = encoding~analyze(string)
+T1   A32    V12     1*        >V>   ENCODING => "The Byte_Encoding class"
+T1   A32    V12     1*        >V>   STRING => " "
+T1   A32    V12     1*        >A>   " "
+T1   A34    V10     1         >I> Method ANALYZE with scope "Byte_Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A34    V10     2*    783 *-* use strict arg string
+T1   A34    V10     2*        >>>   " "
+T1   A34    V10     2*        >=>   STRING <= " "
+T1   A34    V10     2*    784 *-* size = string~length -- size in bytes
+T1   A34    V10     2*        >V>   STRING => " "
+T1   A34    V10     2*        >M>   "LENGTH" => "1"
+T1   A34    V10     2*        >>>   "1"
+T1   A34    V10     2*        >=>   SIZE <= "1"
+T1   A34    V10     2*    787 *-* return self~new(string, .nil, size, .nil, size)
+T1   A34    V10     2*        >V>   SELF => "The Byte_Encoding class"
+T1   A34    V10     2*        >V>   STRING => " "
+T1   A34    V10     2*        >A>   " "
+T1   A34    V10     2*        >E>   .NIL => "The NIL object"
+T1   A34    V10     2*        >A>   "The NIL object"
+T1   A34    V10     2*        >V>   SIZE => "1"
+T1   A34    V10     2*        >A>   "1"
+T1   A34    V10     2*        >E>   .NIL => "The NIL object"
+T1   A34    V10     2*        >A>   "The NIL object"
+T1   A34    V10     2*        >V>   SIZE => "1"
+T1   A34    V10     2*        >A>   "1"
+T1   A35    V14               >I> Method INIT with scope "Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A35    V14     1*    753 *-* expose string codepointIndexes codepointIndexesSize  graphemeIndexes graphemeIndexesSize
+T1   A35    V14     1*    754 *-* use strict arg string, codepointIndexes, codepointIndexesSize, graphemeIndexes, graphemeIndexesSize
+T1   A35    V14     1*        >>>   " "
+T1   A35    V14     1*        >=>   STRING <= " "
+T1   A35    V14     1*        >>>   "The NIL object"
+T1   A35    V14     1*        >=>   CODEPOINTINDEXES <= "The NIL object"
+T1   A35    V14     1*        >>>   "1"
+T1   A35    V14     1*        >=>   CODEPOINTINDEXESSIZE <= "1"
+T1   A35    V14     1*        >>>   "The NIL object"
+T1   A35    V14     1*        >=>   GRAPHEMEINDEXES <= "The NIL object"
+T1   A35    V14     1*        >>>   "1"
+T1   A35    V14     1*        >=>   GRAPHEMEINDEXESSIZE <= "1"
+T1   A34    V10     2*        >M>   "NEW" => "a Byte_Encoding"
+T1   A34    V10     2*        >>>   "a Byte_Encoding"
+T1   A32    V12     1*        >M>   "ANALYZE" => "a Byte_Encoding"
+T1   A32    V12     1*        >>>   "a Byte_Encoding"
+T1   A32    V12     1*        >=>   INDEXER <= "a Byte_Encoding"
+T1   A32    V12     1*    176 *-* string~text = self -- store itself as counterpart of string
+T1   A32    V12     1*        >V>   STRING => " "
+T1   A32    V12     1*        >V>   SELF => "a RexxText"
+T1   A32    V12     1*        >A>   "a RexxText"
+T1   A36    V15               >I> Method TEXT= with scope "EncodedString" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A36    V15     1*    148 *-* expose text -- attribute added on the String instance
+T1   A36    V15     1*    149 *-* use strict arg aText
+T1   A36    V15     1*        >>>   "a RexxText"
+T1   A36    V15     1*        >=>   ATEXT <= "a RexxText"
+T1   A36    V15     1*    150 *-* if \var("text") 
+T1   A36    V15     1*        >L>   "text"
+T1   A36    V15     1*        >A>   "text"
+T1   A36    V15     1*        >F>   VAR => "0"
+T1   A36    V15     1*        >P>   "\" => "1"
+T1   A36    V15     1*        >>>   "1"
+T1   A36    V15     1*    150 *-*   then
+T1   A36    V15     1*    150 *-*     do -- no stored counterpart
+T1   A36    V15     1*    151 *-*       if \aText~isA(.RexxText) 
+T1   A36    V15     1*        >V>         ATEXT => "a RexxText"
+T1   A36    V15     1*        >E>         .REXXTEXT => "The RexxText class"
+T1   A36    V15     1*        >A>         "The RexxText class"
+T1   A36    V15     1*        >M>         "ISA" => "1"
+T1   A36    V15     1*        >P>         "\" => "0"
+T1   A36    V15     1*        >>>         "0"
+T1   A36    V15     1*    152 *-*       text = aText -- store the Text counterpart passed by argument
+T1   A36    V15     1*        >V>         ATEXT => "a RexxText"
+T1   A36    V15     1*        >>>         "a RexxText"
+T1   A36    V15     1*        >=>         TEXT <= "a RexxText"
+T1   A36    V15     1*    153 *-*   end
+T1   A31    V11     1*        >M>   "NEW" => "a RexxText"
+T1   A31    V11     1*        >A>   "a RexxText"
+T1   A29                   23 *-* .UTF_8_Encoding~initialize
+T1   A29                      >E>   .UTF_8_ENCODING => "The UTF_8_Encoding class"
+T1   A37    V16               >I> Method INITIALIZE with scope "UTF_8_Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A37    V16     1*    810 *-* self~declareCharacter("combining acute accent", "cc81"x)
+T1   A37    V16     1*        >V>   SELF => "The UTF_8_Encoding class"
+T1   A37    V16     1*        >L>   "combining acute accent"
+T1   A37    V16     1*        >A>   "combining acute accent"
+T1   A37    V16     1*        >L>   "́"
+T1   A37    V16     1*        >A>   "́"
+T1   A38    V17               >I> Method DECLARECHARACTER with scope "Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A38    V17     1*    722 *-* expose characters
+T1   A38    V17     1*    723 *-* use strict arg name, encoded
+T1   A38    V17     1*        >>>   "combining acute accent"
+T1   A38    V17     1*        >=>   NAME <= "combining acute accent"
+T1   A38    V17     1*        >>>   "́"
+T1   A38    V17     1*        >=>   ENCODED <= "́"
+T1   A38    V17     1*    726 *-* characters~setEntry(name, .RexxText~new(.String~new(encoded), self))
+T1   A38    V17     1*        >V>   CHARACTERS => "a Directory"
+T1   A38    V17     1*        >V>   NAME => "combining acute accent"
+T1   A38    V17     1*        >A>   "combining acute accent"
+T1   A38    V17     1*        >E>   .REXXTEXT => "The RexxText class"
+T1   A38    V17     1*        >E>   .STRING => "The String class"
+T1   A38    V17     1*        >V>   ENCODED => "́"
+T1   A38    V17     1*        >A>   "́"
+T1   A38    V17     1*        >M>   "NEW" => "́"
+T1   A38    V17     1*        >A>   "́"
+T1   A38    V17     1*        >V>   SELF => "The UTF_8_Encoding class"
+T1   A38    V17     1*        >A>   "The UTF_8_Encoding class"
+T1   A39    V18               >I> Method INIT with scope "RexxTextInitializer" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A39    V18     1*    170 *-* expose indexer
+T1   A39    V18     1*    171 *-* use strict arg string, encoding="default"
+T1   A39    V18     1*        >>>   "́"
+T1   A39    V18     1*        >=>   STRING <= "́"
+T1   A39    V18     1*        >>>   "The UTF_8_Encoding class"
+T1   A39    V18     1*        >=>   ENCODING <= "The UTF_8_Encoding class"
+T1   A39    V18     1*    172 *-* if \string~isA(.String) 
+T1   A39    V18     1*        >V>   STRING => "́"
+T1   A39    V18     1*        >E>   .STRING => "The String class"
+T1   A39    V18     1*        >A>   "The String class"
+T1   A39    V18     1*        >M>   "ISA" => "1"
+T1   A39    V18     1*        >P>   "\" => "0"
+T1   A39    V18     1*        >>>   "0"
+T1   A39    V18     1*    173 *-* encoding = .Encoding~factory(encoding)
+T1   A39    V18     1*        >E>   .ENCODING => "The Encoding class"
+T1   A39    V18     1*        >V>   ENCODING => "The UTF_8_Encoding class"
+T1   A39    V18     1*        >A>   "The UTF_8_Encoding class"
+T1   A40    V13               >I> Method FACTORY with scope "Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A40    V13     1*    664 *-* use strict arg encoding
+T1   A40    V13     1*        >>>   "The UTF_8_Encoding class"
+T1   A40    V13     1*        >=>   ENCODING <= "The UTF_8_Encoding class"
+T1   A40    V13     1*    665 *-* if encoding~isA(.Class), encoding~isSubClassOf(self) 
+T1   A40    V13     1*        >V>   ENCODING => "The UTF_8_Encoding class"
+T1   A40    V13     1*        >E>   .CLASS => "The Class class"
+T1   A40    V13     1*        >A>   "The Class class"
+T1   A40    V13     1*        >M>   "ISA" => "1"
+T1   A40    V13     1*        >>>   "1"
+T1   A40    V13     1*        >V>   ENCODING => "The UTF_8_Encoding class"
+T1   A40    V13     1*        >V>   SELF => "The Encoding class"
+T1   A40    V13     1*        >A>   "The Encoding class"
+T1   A40    V13     1*        >M>   "ISSUBCLASSOF" => "1"
+T1   A40    V13     1*        >>>   "1"
+T1   A40    V13     1*        >>>   "1"
+T1   A40    V13     1*    665 *-*   then
+T1   A40    V13     1*    665 *-*     return encoding
+T1   A40    V13     1*        >V>       ENCODING => "The UTF_8_Encoding class"
+T1   A40    V13     1*        >>>       "The UTF_8_Encoding class"
+T1   A39    V18     1*        >M>   "FACTORY" => "The UTF_8_Encoding class"
+T1   A39    V18     1*        >>>   "The UTF_8_Encoding class"
+T1   A39    V18     1*        >=>   ENCODING <= "The UTF_8_Encoding class"
+T1   A39    V18     1*    174 *-* indexer = encoding~analyze(string)
+T1   A39    V18     1*        >V>   ENCODING => "The UTF_8_Encoding class"
+T1   A39    V18     1*        >V>   STRING => "́"
+T1   A39    V18     1*        >A>   "́"
+T1   A41    V16     1         >I> Method ANALYZE with scope "UTF_8_Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A41    V16     2*    819 *-* use strict arg string
+T1   A41    V16     2*        >>>   "́"
+T1   A41    V16     2*        >=>   STRING <= "́"
+T1   A41    V16     2*    820 *-* size = string~length -- size in bytes
+T1   A41    V16     2*        >V>   STRING => "́"
+T1   A41    V16     2*        >M>   "LENGTH" => "2"
+T1   A41    V16     2*        >>>   "2"
+T1   A41    V16     2*        >=>   SIZE <= "2"
+T1   A41    V16     2*    821 *-* if string~isASCII 
+T1   A41    V16     2*        >V>   STRING => "́"
+T1   A41    V16     2*        >M>   "ISASCII" => "0"
+T1   A41    V16     2*        >>>   "0"
+T1   A41    V16     2*    822 *-* codepointIndexes = .array~new(size)
+T1   A41    V16     2*        >E>   .ARRAY => "The Array class"
+T1   A41    V16     2*        >V>   SIZE => "2"
+T1   A41    V16     2*        >A>   "2"
+T1   A41    V16     2*        >M>   "NEW" => "an Array"
+T1   A41    V16     2*        >>>   "an Array"
+T1   A41    V16     2*        >=>   CODEPOINTINDEXES <= "an Array"
+T1   A41    V16     2*    823 *-* graphemeIndexes = .array~new(size)
+T1   A41    V16     2*        >E>   .ARRAY => "The Array class"
+T1   A41    V16     2*        >V>   SIZE => "2"
+T1   A41    V16     2*        >A>   "2"
+T1   A41    V16     2*        >M>   "NEW" => "an Array"
+T1   A41    V16     2*        >>>   "an Array"
+T1   A41    V16     2*        >=>   GRAPHEMEINDEXES <= "an Array"
+T1   A41    V16     2*    824 *-* index = 1
+T1   A41    V16     2*        >L>   "1"
+T1   A41    V16     2*        >>>   "1"
+T1   A41    V16     2*        >=>   INDEX <= "1"
+T1   A41    V16     2*    825 *-* do forever
+T1   A41    V16     2*    826 *-*   next = self~getchar(string, index)
+T1   A41    V16     2*        >V>     SELF => "The UTF_8_Encoding class"
+T1   A41    V16     2*        >V>     STRING => "́"
+T1   A41    V16     2*        >A>     "́"
+T1   A41    V16     2*        >V>     INDEX => "1"
+T1   A41    V16     2*        >A>     "1"
+T1   A42    V16     2         >I> Method GETCHAR with scope "UTF_8_Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A42    V16     3*    852 *-* use strict arg string, index
+T1   A42    V16     3*        >>>   "́"
+T1   A42    V16     3*        >=>   STRING <= "́"
+T1   A42    V16     3*        >>>   "1"
+T1   A42    V16     3*        >=>   INDEX <= "1"
+T1   A42    V16     3*    853 *-* c = string~subchar(index)
+T1   A42    V16     3*        >V>   STRING => "́"
+T1   A42    V16     3*        >V>   INDEX => "1"
+T1   A42    V16     3*        >A>   "1"
+T1   A42    V16     3*        >M>   "SUBCHAR" => "�"
+T1   A42    V16     3*        >>>   "�"
+T1   A42    V16     3*        >=>   C <= "�"
+T1   A42    V16     3*    854 *-* if c == "" 
+T1   A42    V16     3*        >V>   C => "�"
+T1   A42    V16     3*        >L>   ""
+T1   A42    V16     3*        >O>   "==" => "0"
+T1   A42    V16     3*        >>>   "0"
+T1   A42    V16     3*    855 *-* index += 1
+T1   A42    V16     3*        >V>   INDEX => "1"
+T1   A42    V16     3*        >L>   "1"
+T1   A42    V16     3*        >O>   "+" => "2"
+T1   A42    V16     3*        >>>   "2"
+T1   A42    V16     3*        >=>   INDEX <= "2"
+T1   A42    V16     3*    856 *-* b=c~c2x~x2b
+T1   A42    V16     3*        >V>   C => "�"
+T1   A42    V16     3*        >M>   "C2X" => "CC"
+T1   A42    V16     3*        >M>   "X2B" => "11001100"
+T1   A42    V16     3*        >>>   "11001100"
+T1   A42    V16     3*        >=>   B <= "11001100"
+T1   A42    V16     3*    857 *-* If left(b,1)=0 
+T1   A42    V16     3*        >V>   B => "11001100"
+T1   A42    V16     3*        >A>   "11001100"
+T1   A42    V16     3*        >L>   "1"
+T1   A42    V16     3*        >A>   "1"
+T1   A42    V16     3*        >F>   LEFT => "1"
+T1   A42    V16     3*        >L>   "0"
+T1   A42    V16     3*        >O>   "=" => "0"
+T1   A42    V16     3*        >>>   "0"
+T1   A42    V16     3*    859 *-*   Else
+T1   A42    V16     3*    859 *-*     Do
+T1   A42    V16     3*    860 *-*       p=pos('0',b)
+T1   A42    V16     3*        >L>         "0"
+T1   A42    V16     3*        >A>         "0"
+T1   A42    V16     3*        >V>         B => "11001100"
+T1   A42    V16     3*        >A>         "11001100"
+T1   A42    V16     3*        >F>         POS => "3"
+T1   A42    V16     3*        >>>         "3"
+T1   A42    V16     3*        >=>         P <= "3"
+T1   A42    V16     3*    861 *-*       if p < 3 | p > 5 
+T1   A42    V16     3*        >V>         P => "3"
+T1   A42    V16     3*        >L>         "3"
+T1   A42    V16     3*        >O>         "<" => "0"
+T1   A42    V16     3*        >V>         P => "3"
+T1   A42    V16     3*        >L>         "5"
+T1   A42    V16     3*        >O>         ">" => "0"
+T1   A42    V16     3*        >O>         "|" => "0"
+T1   A42    V16     3*        >>>         "0"
+T1   A42    V16     3*    862 *-*       Do i=1 To p-2
+T1   A42    V16     3*        >L>           "1"
+T1   A42    V16     3*        >V>           P => "3"
+T1   A42    V16     3*        >L>           "2"
+T1   A42    V16     3*        >O>           "-" => "1"
+T1   A42    V16     3*        >=>           I <= "1"
+T1   A42    V16     3*        >>>           "1"
+T1   A42    V16     3*    863 *-*         c = string~subchar(index)
+T1   A42    V16     3*        >V>           STRING => "́"
+T1   A42    V16     3*        >V>           INDEX => "2"
+T1   A42    V16     3*        >A>           "2"
+T1   A42    V16     3*        >M>           "SUBCHAR" => "�"
+T1   A42    V16     3*        >>>           "�"
+T1   A42    V16     3*        >=>           C <= "�"
+T1   A42    V16     3*    864 *-*         If c == "" 
+T1   A42    V16     3*        >V>           C => "�"
+T1   A42    V16     3*        >L>           ""
+T1   A42    V16     3*        >O>           "==" => "0"
+T1   A42    V16     3*        >>>           "0"
+T1   A42    V16     3*    865 *-*         b=c~c2x~x2b
+T1   A42    V16     3*        >V>           C => "�"
+T1   A42    V16     3*        >M>           "C2X" => "81"
+T1   A42    V16     3*        >M>           "X2B" => "10000001"
+T1   A42    V16     3*        >>>           "10000001"
+T1   A42    V16     3*        >=>           B <= "10000001"
+T1   A42    V16     3*    866 *-*         if b~left(2) <> "10" 
+T1   A42    V16     3*        >V>           B => "10000001"
+T1   A42    V16     3*        >L>           "2"
+T1   A42    V16     3*        >A>           "2"
+T1   A42    V16     3*        >M>           "LEFT" => "10"
+T1   A42    V16     3*        >L>           "10"
+T1   A42    V16     3*        >O>           "<>" => "0"
+T1   A42    V16     3*        >>>           "0"
+T1   A42    V16     3*    867 *-*         index += 1
+T1   A42    V16     3*        >V>           INDEX => "2"
+T1   A42    V16     3*        >L>           "1"
+T1   A42    V16     3*        >O>           "+" => "3"
+T1   A42    V16     3*        >>>           "3"
+T1   A42    V16     3*        >=>           INDEX <= "3"
+T1   A42    V16     3*    868 *-*       End
+T1   A42    V16     3*    862 *-*       Do i=1 To p-2
+T1   A42    V16     3*        >>>           "1"
+T1   A42    V16     3*        >>>           "2"
+T1   A42    V16     3*    869 *-* End
+T1   A42    V16     3*    870 *-* Return index
+T1   A42    V16     3*        >V>   INDEX => "3"
+T1   A42    V16     3*        >>>   "3"
+T1   A41    V16     2*        >M>     "GETCHAR" => "3"
+T1   A41    V16     2*        >>>     "3"
+T1   A41    V16     2*        >=>     NEXT <= "3"
+T1   A41    V16     2*    827 *-*   codepointIndexes~append(index)
+T1   A41    V16     2*        >V>     CODEPOINTINDEXES => "an Array"
+T1   A41    V16     2*        >V>     INDEX => "1"
+T1   A41    V16     2*        >A>     "1"
+T1   A41    V16     2*        >>>     "1"
+T1   A41    V16     2*    829 *-*   graphemeIndexes~append(index)
+T1   A41    V16     2*        >V>     GRAPHEMEINDEXES => "an Array"
+T1   A41    V16     2*        >V>     INDEX => "1"
+T1   A41    V16     2*        >A>     "1"
+T1   A41    V16     2*        >>>     "1"
+T1   A41    V16     2*    830 *-*   if next == index 
+T1   A41    V16     2*        >V>     NEXT => "3"
+T1   A41    V16     2*        >V>     INDEX => "1"
+T1   A41    V16     2*        >O>     "==" => "0"
+T1   A41    V16     2*        >>>     "0"
+T1   A41    V16     2*    831 *-*   index = next
+T1   A41    V16     2*        >V>     NEXT => "3"
+T1   A41    V16     2*        >>>     "3"
+T1   A41    V16     2*        >=>     INDEX <= "3"
+T1   A41    V16     2*    832 *-* end
+T1   A41    V16     2*    825 *-* do forever
+T1   A41    V16     2*    826 *-*   next = self~getchar(string, index)
+T1   A41    V16     2*        >V>     SELF => "The UTF_8_Encoding class"
+T1   A41    V16     2*        >V>     STRING => "́"
+T1   A41    V16     2*        >A>     "́"
+T1   A41    V16     2*        >V>     INDEX => "3"
+T1   A41    V16     2*        >A>     "3"
+T1   A43    V16     2         >I> Method GETCHAR with scope "UTF_8_Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A43    V16     3*    852 *-* use strict arg string, index
+T1   A43    V16     3*        >>>   "́"
+T1   A43    V16     3*        >=>   STRING <= "́"
+T1   A43    V16     3*        >>>   "3"
+T1   A43    V16     3*        >=>   INDEX <= "3"
+T1   A43    V16     3*    853 *-* c = string~subchar(index)
+T1   A43    V16     3*        >V>   STRING => "́"
+T1   A43    V16     3*        >V>   INDEX => "3"
+T1   A43    V16     3*        >A>   "3"
+T1   A43    V16     3*        >M>   "SUBCHAR" => ""
+T1   A43    V16     3*        >>>   ""
+T1   A43    V16     3*        >=>   C <= ""
+T1   A43    V16     3*    854 *-* if c == "" 
+T1   A43    V16     3*        >V>   C => ""
+T1   A43    V16     3*        >L>   ""
+T1   A43    V16     3*        >O>   "==" => "1"
+T1   A43    V16     3*        >>>   "1"
+T1   A43    V16     3*    854 *-*   then
+T1   A43    V16     3*    854 *-*     return index
+T1   A43    V16     3*        >V>       INDEX => "3"
+T1   A43    V16     3*        >>>       "3"
+T1   A41    V16     2*        >M>     "GETCHAR" => "3"
+T1   A41    V16     2*        >>>     "3"
+T1   A41    V16     2*        >=>     NEXT <= "3"
+T1   A41    V16     2*    827 *-*   codepointIndexes~append(index)
+T1   A41    V16     2*        >V>     CODEPOINTINDEXES => "an Array"
+T1   A41    V16     2*        >V>     INDEX => "3"
+T1   A41    V16     2*        >A>     "3"
+T1   A41    V16     2*        >>>     "2"
+T1   A41    V16     2*    829 *-*   graphemeIndexes~append(index)
+T1   A41    V16     2*        >V>     GRAPHEMEINDEXES => "an Array"
+T1   A41    V16     2*        >V>     INDEX => "3"
+T1   A41    V16     2*        >A>     "3"
+T1   A41    V16     2*        >>>     "2"
+T1   A41    V16     2*    830 *-*   if next == index 
+T1   A41    V16     2*        >V>     NEXT => "3"
+T1   A41    V16     2*        >V>     INDEX => "3"
+T1   A41    V16     2*        >O>     "==" => "1"
+T1   A41    V16     2*        >>>     "1"
+T1   A41    V16     2*    830 *-*     then
+T1   A41    V16     2*    830 *-*       leave
+T1   A41    V16     2*    834 *-* codepointIndexes = codepointIndexes~makeArray
+T1   A41    V16     2*        >V>   CODEPOINTINDEXES => "an Array"
+T1   A41    V16     2*        >M>   "MAKEARRAY" => "an Array"
+T1   A41    V16     2*        >>>   "an Array"
+T1   A41    V16     2*        >=>   CODEPOINTINDEXES <= "an Array"
+T1   A41    V16     2*    835 *-* graphemeIndexes = graphemeIndexes~makeArray
+T1   A41    V16     2*        >V>   GRAPHEMEINDEXES => "an Array"
+T1   A41    V16     2*        >M>   "MAKEARRAY" => "an Array"
+T1   A41    V16     2*        >>>   "an Array"
+T1   A41    V16     2*        >=>   GRAPHEMEINDEXES <= "an Array"
+T1   A41    V16     2*    836 *-* return self~new(string, codepointIndexes, codepointIndexes~size-1, graphemeIndexes, graphemeIndexes~size-1)
+T1   A41    V16     2*        >V>   SELF => "The UTF_8_Encoding class"
+T1   A41    V16     2*        >V>   STRING => "́"
+T1   A41    V16     2*        >A>   "́"
+T1   A41    V16     2*        >V>   CODEPOINTINDEXES => "an Array"
+T1   A41    V16     2*        >A>   "an Array"
+T1   A41    V16     2*        >V>   CODEPOINTINDEXES => "an Array"
+T1   A41    V16     2*        >M>   "SIZE" => "2"
+T1   A41    V16     2*        >L>   "1"
+T1   A41    V16     2*        >O>   "-" => "1"
+T1   A41    V16     2*        >A>   "1"
+T1   A41    V16     2*        >V>   GRAPHEMEINDEXES => "an Array"
+T1   A41    V16     2*        >A>   "an Array"
+T1   A41    V16     2*        >V>   GRAPHEMEINDEXES => "an Array"
+T1   A41    V16     2*        >M>   "SIZE" => "2"
+T1   A41    V16     2*        >L>   "1"
+T1   A41    V16     2*        >O>   "-" => "1"
+T1   A41    V16     2*        >A>   "1"
+T1   A44    V19               >I> Method INIT with scope "Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A44    V19     1*    753 *-* expose string codepointIndexes codepointIndexesSize  graphemeIndexes graphemeIndexesSize
+T1   A44    V19     1*    754 *-* use strict arg string, codepointIndexes, codepointIndexesSize, graphemeIndexes, graphemeIndexesSize
+T1   A44    V19     1*        >>>   "́"
+T1   A44    V19     1*        >=>   STRING <= "́"
+T1   A44    V19     1*        >>>   "an Array"
+T1   A44    V19     1*        >=>   CODEPOINTINDEXES <= "an Array"
+T1   A44    V19     1*        >>>   "1"
+T1   A44    V19     1*        >=>   CODEPOINTINDEXESSIZE <= "1"
+T1   A44    V19     1*        >>>   "an Array"
+T1   A44    V19     1*        >=>   GRAPHEMEINDEXES <= "an Array"
+T1   A44    V19     1*        >>>   "1"
+T1   A44    V19     1*        >=>   GRAPHEMEINDEXESSIZE <= "1"
+T1   A41    V16     2*        >M>   "NEW" => "an UTF_8_Encoding"
+T1   A41    V16     2*        >>>   "an UTF_8_Encoding"
+T1   A39    V18     1*        >M>   "ANALYZE" => "an UTF_8_Encoding"
+T1   A39    V18     1*        >>>   "an UTF_8_Encoding"
+T1   A39    V18     1*        >=>   INDEXER <= "an UTF_8_Encoding"
+T1   A39    V18     1*    176 *-* string~text = self -- store itself as counterpart of string
+T1   A39    V18     1*        >V>   STRING => "́"
+T1   A39    V18     1*        >V>   SELF => "a RexxText"
+T1   A39    V18     1*        >A>   "a RexxText"
+T1   A45    V20               >I> Method TEXT= with scope "EncodedString" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A45    V20     1*    148 *-* expose text -- attribute added on the String instance
+T1   A45    V20     1*    149 *-* use strict arg aText
+T1   A45    V20     1*        >>>   "a RexxText"
+T1   A45    V20     1*        >=>   ATEXT <= "a RexxText"
+T1   A45    V20     1*    150 *-* if \var("text") 
+T1   A45    V20     1*        >L>   "text"
+T1   A45    V20     1*        >A>   "text"
+T1   A45    V20     1*        >F>   VAR => "0"
+T1   A45    V20     1*        >P>   "\" => "1"
+T1   A45    V20     1*        >>>   "1"
+T1   A45    V20     1*    150 *-*   then
+T1   A45    V20     1*    150 *-*     do -- no stored counterpart
+T1   A45    V20     1*    151 *-*       if \aText~isA(.RexxText) 
+T1   A45    V20     1*        >V>         ATEXT => "a RexxText"
+T1   A45    V20     1*        >E>         .REXXTEXT => "The RexxText class"
+T1   A45    V20     1*        >A>         "The RexxText class"
+T1   A45    V20     1*        >M>         "ISA" => "1"
+T1   A45    V20     1*        >P>         "\" => "0"
+T1   A45    V20     1*        >>>         "0"
+T1   A45    V20     1*    152 *-*       text = aText -- store the Text counterpart passed by argument
+T1   A45    V20     1*        >V>         ATEXT => "a RexxText"
+T1   A45    V20     1*        >>>         "a RexxText"
+T1   A45    V20     1*        >=>         TEXT <= "a RexxText"
+T1   A45    V20     1*    153 *-*   end
+T1   A38    V17     1*        >M>   "NEW" => "a RexxText"
+T1   A38    V17     1*        >A>   "a RexxText"
+T1   A37    V16     1*    811 *-* self~declareCharacter("space", "20"x)
+T1   A37    V16     1*        >V>   SELF => "The UTF_8_Encoding class"
+T1   A37    V16     1*        >L>   "space"
+T1   A37    V16     1*        >A>   "space"
+T1   A37    V16     1*        >L>   " "
+T1   A37    V16     1*        >A>   " "
+T1   A46    V17               >I> Method DECLARECHARACTER with scope "Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A46    V17     1*    722 *-* expose characters
+T1   A46    V17     1*    723 *-* use strict arg name, encoded
+T1   A46    V17     1*        >>>   "space"
+T1   A46    V17     1*        >=>   NAME <= "space"
+T1   A46    V17     1*        >>>   " "
+T1   A46    V17     1*        >=>   ENCODED <= " "
+T1   A46    V17     1*    726 *-* characters~setEntry(name, .RexxText~new(.String~new(encoded), self))
+T1   A46    V17     1*        >V>   CHARACTERS => "a Directory"
+T1   A46    V17     1*        >V>   NAME => "space"
+T1   A46    V17     1*        >A>   "space"
+T1   A46    V17     1*        >E>   .REXXTEXT => "The RexxText class"
+T1   A46    V17     1*        >E>   .STRING => "The String class"
+T1   A46    V17     1*        >V>   ENCODED => " "
+T1   A46    V17     1*        >A>   " "
+T1   A46    V17     1*        >M>   "NEW" => " "
+T1   A46    V17     1*        >A>   " "
+T1   A46    V17     1*        >V>   SELF => "The UTF_8_Encoding class"
+T1   A46    V17     1*        >A>   "The UTF_8_Encoding class"
+T1   A47    V21               >I> Method INIT with scope "RexxTextInitializer" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A47    V21     1*    170 *-* expose indexer
+T1   A47    V21     1*    171 *-* use strict arg string, encoding="default"
+T1   A47    V21     1*        >>>   " "
+T1   A47    V21     1*        >=>   STRING <= " "
+T1   A47    V21     1*        >>>   "The UTF_8_Encoding class"
+T1   A47    V21     1*        >=>   ENCODING <= "The UTF_8_Encoding class"
+T1   A47    V21     1*    172 *-* if \string~isA(.String) 
+T1   A47    V21     1*        >V>   STRING => " "
+T1   A47    V21     1*        >E>   .STRING => "The String class"
+T1   A47    V21     1*        >A>   "The String class"
+T1   A47    V21     1*        >M>   "ISA" => "1"
+T1   A47    V21     1*        >P>   "\" => "0"
+T1   A47    V21     1*        >>>   "0"
+T1   A47    V21     1*    173 *-* encoding = .Encoding~factory(encoding)
+T1   A47    V21     1*        >E>   .ENCODING => "The Encoding class"
+T1   A47    V21     1*        >V>   ENCODING => "The UTF_8_Encoding class"
+T1   A47    V21     1*        >A>   "The UTF_8_Encoding class"
+T1   A48    V13               >I> Method FACTORY with scope "Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A48    V13     1*    664 *-* use strict arg encoding
+T1   A48    V13     1*        >>>   "The UTF_8_Encoding class"
+T1   A48    V13     1*        >=>   ENCODING <= "The UTF_8_Encoding class"
+T1   A48    V13     1*    665 *-* if encoding~isA(.Class), encoding~isSubClassOf(self) 
+T1   A48    V13     1*        >V>   ENCODING => "The UTF_8_Encoding class"
+T1   A48    V13     1*        >E>   .CLASS => "The Class class"
+T1   A48    V13     1*        >A>   "The Class class"
+T1   A48    V13     1*        >M>   "ISA" => "1"
+T1   A48    V13     1*        >>>   "1"
+T1   A48    V13     1*        >V>   ENCODING => "The UTF_8_Encoding class"
+T1   A48    V13     1*        >V>   SELF => "The Encoding class"
+T1   A48    V13     1*        >A>   "The Encoding class"
+T1   A48    V13     1*        >M>   "ISSUBCLASSOF" => "1"
+T1   A48    V13     1*        >>>   "1"
+T1   A48    V13     1*        >>>   "1"
+T1   A48    V13     1*    665 *-*   then
+T1   A48    V13     1*    665 *-*     return encoding
+T1   A48    V13     1*        >V>       ENCODING => "The UTF_8_Encoding class"
+T1   A48    V13     1*        >>>       "The UTF_8_Encoding class"
+T1   A47    V21     1*        >M>   "FACTORY" => "The UTF_8_Encoding class"
+T1   A47    V21     1*        >>>   "The UTF_8_Encoding class"
+T1   A47    V21     1*        >=>   ENCODING <= "The UTF_8_Encoding class"
+T1   A47    V21     1*    174 *-* indexer = encoding~analyze(string)
+T1   A47    V21     1*        >V>   ENCODING => "The UTF_8_Encoding class"
+T1   A47    V21     1*        >V>   STRING => " "
+T1   A47    V21     1*        >A>   " "
+T1   A49    V16     1         >I> Method ANALYZE with scope "UTF_8_Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A49    V16     2*    819 *-* use strict arg string
+T1   A49    V16     2*        >>>   " "
+T1   A49    V16     2*        >=>   STRING <= " "
+T1   A49    V16     2*    820 *-* size = string~length -- size in bytes
+T1   A49    V16     2*        >V>   STRING => " "
+T1   A49    V16     2*        >M>   "LENGTH" => "1"
+T1   A49    V16     2*        >>>   "1"
+T1   A49    V16     2*        >=>   SIZE <= "1"
+T1   A49    V16     2*    821 *-* if string~isASCII 
+T1   A49    V16     2*        >V>   STRING => " "
+T1   A49    V16     2*        >M>   "ISASCII" => "1"
+T1   A49    V16     2*        >>>   "1"
+T1   A49    V16     2*    821 *-*   then
+T1   A49    V16     2*    821 *-*     return self~new(string, .nil, size, .nil, size) -- no indexation needed
+T1   A49    V16     2*        >V>       SELF => "The UTF_8_Encoding class"
+T1   A49    V16     2*        >V>       STRING => " "
+T1   A49    V16     2*        >A>       " "
+T1   A49    V16     2*        >E>       .NIL => "The NIL object"
+T1   A49    V16     2*        >A>       "The NIL object"
+T1   A49    V16     2*        >V>       SIZE => "1"
+T1   A49    V16     2*        >A>       "1"
+T1   A49    V16     2*        >E>       .NIL => "The NIL object"
+T1   A49    V16     2*        >A>       "The NIL object"
+T1   A49    V16     2*        >V>       SIZE => "1"
+T1   A49    V16     2*        >A>       "1"
+T1   A50    V22               >I> Method INIT with scope "Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A50    V22     1*    753 *-* expose string codepointIndexes codepointIndexesSize  graphemeIndexes graphemeIndexesSize
+T1   A50    V22     1*    754 *-* use strict arg string, codepointIndexes, codepointIndexesSize, graphemeIndexes, graphemeIndexesSize
+T1   A50    V22     1*        >>>   " "
+T1   A50    V22     1*        >=>   STRING <= " "
+T1   A50    V22     1*        >>>   "The NIL object"
+T1   A50    V22     1*        >=>   CODEPOINTINDEXES <= "The NIL object"
+T1   A50    V22     1*        >>>   "1"
+T1   A50    V22     1*        >=>   CODEPOINTINDEXESSIZE <= "1"
+T1   A50    V22     1*        >>>   "The NIL object"
+T1   A50    V22     1*        >=>   GRAPHEMEINDEXES <= "The NIL object"
+T1   A50    V22     1*        >>>   "1"
+T1   A50    V22     1*        >=>   GRAPHEMEINDEXESSIZE <= "1"
+T1   A49    V16     2*        >M>       "NEW" => "an UTF_8_Encoding"
+T1   A49    V16     2*        >>>       "an UTF_8_Encoding"
+T1   A47    V21     1*        >M>   "ANALYZE" => "an UTF_8_Encoding"
+T1   A47    V21     1*        >>>   "an UTF_8_Encoding"
+T1   A47    V21     1*        >=>   INDEXER <= "an UTF_8_Encoding"
+T1   A47    V21     1*    176 *-* string~text = self -- store itself as counterpart of string
+T1   A47    V21     1*        >V>   STRING => " "
+T1   A47    V21     1*        >V>   SELF => "a RexxText"
+T1   A47    V21     1*        >A>   "a RexxText"
+T1   A51    V23               >I> Method TEXT= with scope "EncodedString" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A51    V23     1*    148 *-* expose text -- attribute added on the String instance
+T1   A51    V23     1*    149 *-* use strict arg aText
+T1   A51    V23     1*        >>>   "a RexxText"
+T1   A51    V23     1*        >=>   ATEXT <= "a RexxText"
+T1   A51    V23     1*    150 *-* if \var("text") 
+T1   A51    V23     1*        >L>   "text"
+T1   A51    V23     1*        >A>   "text"
+T1   A51    V23     1*        >F>   VAR => "0"
+T1   A51    V23     1*        >P>   "\" => "1"
+T1   A51    V23     1*        >>>   "1"
+T1   A51    V23     1*    150 *-*   then
+T1   A51    V23     1*    150 *-*     do -- no stored counterpart
+T1   A51    V23     1*    151 *-*       if \aText~isA(.RexxText) 
+T1   A51    V23     1*        >V>         ATEXT => "a RexxText"
+T1   A51    V23     1*        >E>         .REXXTEXT => "The RexxText class"
+T1   A51    V23     1*        >A>         "The RexxText class"
+T1   A51    V23     1*        >M>         "ISA" => "1"
+T1   A51    V23     1*        >P>         "\" => "0"
+T1   A51    V23     1*        >>>         "0"
+T1   A51    V23     1*    152 *-*       text = aText -- store the Text counterpart passed by argument
+T1   A51    V23     1*        >V>         ATEXT => "a RexxText"
+T1   A51    V23     1*        >>>         "a RexxText"
+T1   A51    V23     1*        >=>         TEXT <= "a RexxText"
+T1   A51    V23     1*    153 *-*   end
+T1   A46    V17     1*        >M>   "NEW" => "a RexxText"
+T1   A46    V17     1*        >A>   "a RexxText"
+T1   A29                   24 *-* .UTF_16BE_Encoding~initialize
+T1   A29                      >E>   .UTF_16BE_ENCODING => "The UTF_16BE_Encoding class"
+T1   A52    V24               >I> Method INITIALIZE with scope "UTF_16BE_Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A52    V24     1*    899 *-* self~declareCharacter("combining acute accent", "0301"x)
+T1   A52    V24     1*        >V>   SELF => "The UTF_16BE_Encoding class"
+T1   A52    V24     1*        >L>   "combining acute accent"
+T1   A52    V24     1*        >A>   "combining acute accent"
+T1   A52    V24     1*        >L>   "??"
+T1   A52    V24     1*        >A>   "??"
+T1   A53    V25               >I> Method DECLARECHARACTER with scope "Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A53    V25     1*    722 *-* expose characters
+T1   A53    V25     1*    723 *-* use strict arg name, encoded
+T1   A53    V25     1*        >>>   "combining acute accent"
+T1   A53    V25     1*        >=>   NAME <= "combining acute accent"
+T1   A53    V25     1*        >>>   "??"
+T1   A53    V25     1*        >=>   ENCODED <= "??"
+T1   A53    V25     1*    726 *-* characters~setEntry(name, .RexxText~new(.String~new(encoded), self))
+T1   A53    V25     1*        >V>   CHARACTERS => "a Directory"
+T1   A53    V25     1*        >V>   NAME => "combining acute accent"
+T1   A53    V25     1*        >A>   "combining acute accent"
+T1   A53    V25     1*        >E>   .REXXTEXT => "The RexxText class"
+T1   A53    V25     1*        >E>   .STRING => "The String class"
+T1   A53    V25     1*        >V>   ENCODED => "??"
+T1   A53    V25     1*        >A>   "??"
+T1   A53    V25     1*        >M>   "NEW" => "??"
+T1   A53    V25     1*        >A>   "??"
+T1   A53    V25     1*        >V>   SELF => "The UTF_16BE_Encoding class"
+T1   A53    V25     1*        >A>   "The UTF_16BE_Encoding class"
+T1   A54    V26               >I> Method INIT with scope "RexxTextInitializer" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A54    V26     1*    170 *-* expose indexer
+T1   A54    V26     1*    171 *-* use strict arg string, encoding="default"
+T1   A54    V26     1*        >>>   "??"
+T1   A54    V26     1*        >=>   STRING <= "??"
+T1   A54    V26     1*        >>>   "The UTF_16BE_Encoding class"
+T1   A54    V26     1*        >=>   ENCODING <= "The UTF_16BE_Encoding class"
+T1   A54    V26     1*    172 *-* if \string~isA(.String) 
+T1   A54    V26     1*        >V>   STRING => "??"
+T1   A54    V26     1*        >E>   .STRING => "The String class"
+T1   A54    V26     1*        >A>   "The String class"
+T1   A54    V26     1*        >M>   "ISA" => "1"
+T1   A54    V26     1*        >P>   "\" => "0"
+T1   A54    V26     1*        >>>   "0"
+T1   A54    V26     1*    173 *-* encoding = .Encoding~factory(encoding)
+T1   A54    V26     1*        >E>   .ENCODING => "The Encoding class"
+T1   A54    V26     1*        >V>   ENCODING => "The UTF_16BE_Encoding class"
+T1   A54    V26     1*        >A>   "The UTF_16BE_Encoding class"
+T1   A55    V13               >I> Method FACTORY with scope "Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A55    V13     1*    664 *-* use strict arg encoding
+T1   A55    V13     1*        >>>   "The UTF_16BE_Encoding class"
+T1   A55    V13     1*        >=>   ENCODING <= "The UTF_16BE_Encoding class"
+T1   A55    V13     1*    665 *-* if encoding~isA(.Class), encoding~isSubClassOf(self) 
+T1   A55    V13     1*        >V>   ENCODING => "The UTF_16BE_Encoding class"
+T1   A55    V13     1*        >E>   .CLASS => "The Class class"
+T1   A55    V13     1*        >A>   "The Class class"
+T1   A55    V13     1*        >M>   "ISA" => "1"
+T1   A55    V13     1*        >>>   "1"
+T1   A55    V13     1*        >V>   ENCODING => "The UTF_16BE_Encoding class"
+T1   A55    V13     1*        >V>   SELF => "The Encoding class"
+T1   A55    V13     1*        >A>   "The Encoding class"
+T1   A55    V13     1*        >M>   "ISSUBCLASSOF" => "1"
+T1   A55    V13     1*        >>>   "1"
+T1   A55    V13     1*        >>>   "1"
+T1   A55    V13     1*    665 *-*   then
+T1   A55    V13     1*    665 *-*     return encoding
+T1   A55    V13     1*        >V>       ENCODING => "The UTF_16BE_Encoding class"
+T1   A55    V13     1*        >>>       "The UTF_16BE_Encoding class"
+T1   A54    V26     1*        >M>   "FACTORY" => "The UTF_16BE_Encoding class"
+T1   A54    V26     1*        >>>   "The UTF_16BE_Encoding class"
+T1   A54    V26     1*        >=>   ENCODING <= "The UTF_16BE_Encoding class"
+T1   A54    V26     1*    174 *-* indexer = encoding~analyze(string)
+T1   A54    V26     1*        >V>   ENCODING => "The UTF_16BE_Encoding class"
+T1   A54    V26     1*        >V>   STRING => "??"
+T1   A54    V26     1*        >A>   "??"
+T1   A56    V24     1         >I> Method ANALYZE with scope "UTF_16BE_Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A56    V24     2*    908 *-* use strict arg string
+T1   A56    V24     2*        >>>   "??"
+T1   A56    V24     2*        >=>   STRING <= "??"
+T1   A56    V24     2*    909 *-* size = string~length -- size in bytes
+T1   A56    V24     2*        >V>   STRING => "??"
+T1   A56    V24     2*        >M>   "LENGTH" => "2"
+T1   A56    V24     2*        >>>   "2"
+T1   A56    V24     2*        >=>   SIZE <= "2"
+T1   A56    V24     2*    910 *-* codepointIndexes = .array~new(size)
+T1   A56    V24     2*        >E>   .ARRAY => "The Array class"
+T1   A56    V24     2*        >V>   SIZE => "2"
+T1   A56    V24     2*        >A>   "2"
+T1   A56    V24     2*        >M>   "NEW" => "an Array"
+T1   A56    V24     2*        >>>   "an Array"
+T1   A56    V24     2*        >=>   CODEPOINTINDEXES <= "an Array"
+T1   A56    V24     2*    911 *-* graphemeIndexes = .array~new(size)
+T1   A56    V24     2*        >E>   .ARRAY => "The Array class"
+T1   A56    V24     2*        >V>   SIZE => "2"
+T1   A56    V24     2*        >A>   "2"
+T1   A56    V24     2*        >M>   "NEW" => "an Array"
+T1   A56    V24     2*        >>>   "an Array"
+T1   A56    V24     2*        >=>   GRAPHEMEINDEXES <= "an Array"
+T1   A56    V24     2*    912 *-* index = 1
+T1   A56    V24     2*        >L>   "1"
+T1   A56    V24     2*        >>>   "1"
+T1   A56    V24     2*        >=>   INDEX <= "1"
+T1   A56    V24     2*    913 *-* do forever
+T1   A56    V24     2*    914 *-*   next = self~getchar(string, index)
+T1   A56    V24     2*        >V>     SELF => "The UTF_16BE_Encoding class"
+T1   A56    V24     2*        >V>     STRING => "??"
+T1   A56    V24     2*        >A>     "??"
+T1   A56    V24     2*        >V>     INDEX => "1"
+T1   A56    V24     2*        >A>     "1"
+T1   A57    V24     2         >I> Method GETCHAR with scope "UTF_16BE_Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A57    V24     3*    934 *-* use strict arg string, index
+T1   A57    V24     3*        >>>   "??"
+T1   A57    V24     3*        >=>   STRING <= "??"
+T1   A57    V24     3*        >>>   "1"
+T1   A57    V24     3*        >=>   INDEX <= "1"
+T1   A57    V24     3*    935 *-* length = string~length
+T1   A57    V24     3*        >V>   STRING => "??"
+T1   A57    V24     3*        >M>   "LENGTH" => "2"
+T1   A57    V24     3*        >>>   "2"
+T1   A57    V24     3*        >=>   LENGTH <= "2"
+T1   A57    V24     3*    936 *-* if index > length 
+T1   A57    V24     3*        >V>   INDEX => "1"
+T1   A57    V24     3*        >V>   LENGTH => "2"
+T1   A57    V24     3*        >O>   ">" => "0"
+T1   A57    V24     3*        >>>   "0"
+T1   A57    V24     3*    937 *-* if length - index < 1 
+T1   A57    V24     3*        >V>   LENGTH => "2"
+T1   A57    V24     3*        >V>   INDEX => "1"
+T1   A57    V24     3*        >O>   "-" => "1"
+T1   A57    V24     3*        >L>   "1"
+T1   A57    V24     3*        >O>   "<" => "0"
+T1   A57    V24     3*        >>>   "0"
+T1   A57    V24     3*    938 *-* c = string~substr(index, 2)
+T1   A57    V24     3*        >V>   STRING => "??"
+T1   A57    V24     3*        >V>   INDEX => "1"
+T1   A57    V24     3*        >A>   "1"
+T1   A57    V24     3*        >L>   "2"
+T1   A57    V24     3*        >A>   "2"
+T1   A57    V24     3*        >M>   "SUBSTR" => "??"
+T1   A57    V24     3*        >>>   "??"
+T1   A57    V24     3*        >=>   C <= "??"
+T1   A57    V24     3*    939 *-* index += 2
+T1   A57    V24     3*        >V>   INDEX => "1"
+T1   A57    V24     3*        >L>   "2"
+T1   A57    V24     3*        >O>   "+" => "3"
+T1   A57    V24     3*        >>>   "3"
+T1   A57    V24     3*        >=>   INDEX <= "3"
+T1   A57    V24     3*    940 *-* if c >= "D800"x & c <= "DBFF"x 
+T1   A57    V24     3*        >V>   C => "??"
+T1   A57    V24     3*        >L>   "??"
+T1   A57    V24     3*        >O>   ">=" => "0"
+T1   A57    V24     3*        >V>   C => "??"
+T1   A57    V24     3*        >L>   "��"
+T1   A57    V24     3*        >O>   "<=" => "1"
+T1   A57    V24     3*        >O>   "&" => "0"
+T1   A57    V24     3*        >>>   "0"
+T1   A57    V24     3*    947 *-* return index
+T1   A57    V24     3*        >V>   INDEX => "3"
+T1   A57    V24     3*        >>>   "3"
+T1   A56    V24     2*        >M>     "GETCHAR" => "3"
+T1   A56    V24     2*        >>>     "3"
+T1   A56    V24     2*        >=>     NEXT <= "3"
+T1   A56    V24     2*    915 *-*   codepointIndexes~append(index)
+T1   A56    V24     2*        >V>     CODEPOINTINDEXES => "an Array"
+T1   A56    V24     2*        >V>     INDEX => "1"
+T1   A56    V24     2*        >A>     "1"
+T1   A56    V24     2*        >>>     "1"
+T1   A56    V24     2*    917 *-*   graphemeIndexes~append(index)
+T1   A56    V24     2*        >V>     GRAPHEMEINDEXES => "an Array"
+T1   A56    V24     2*        >V>     INDEX => "1"
+T1   A56    V24     2*        >A>     "1"
+T1   A56    V24     2*        >>>     "1"
+T1   A56    V24     2*    918 *-*   if next == index 
+T1   A56    V24     2*        >V>     NEXT => "3"
+T1   A56    V24     2*        >V>     INDEX => "1"
+T1   A56    V24     2*        >O>     "==" => "0"
+T1   A56    V24     2*        >>>     "0"
+T1   A56    V24     2*    919 *-*   index = next
+T1   A56    V24     2*        >V>     NEXT => "3"
+T1   A56    V24     2*        >>>     "3"
+T1   A56    V24     2*        >=>     INDEX <= "3"
+T1   A56    V24     2*    920 *-* end
+T1   A56    V24     2*    913 *-* do forever
+T1   A56    V24     2*    914 *-*   next = self~getchar(string, index)
+T1   A56    V24     2*        >V>     SELF => "The UTF_16BE_Encoding class"
+T1   A56    V24     2*        >V>     STRING => "??"
+T1   A56    V24     2*        >A>     "??"
+T1   A56    V24     2*        >V>     INDEX => "3"
+T1   A56    V24     2*        >A>     "3"
+T1   A58    V24     2         >I> Method GETCHAR with scope "UTF_16BE_Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A58    V24     3*    934 *-* use strict arg string, index
+T1   A58    V24     3*        >>>   "??"
+T1   A58    V24     3*        >=>   STRING <= "??"
+T1   A58    V24     3*        >>>   "3"
+T1   A58    V24     3*        >=>   INDEX <= "3"
+T1   A58    V24     3*    935 *-* length = string~length
+T1   A58    V24     3*        >V>   STRING => "??"
+T1   A58    V24     3*        >M>   "LENGTH" => "2"
+T1   A58    V24     3*        >>>   "2"
+T1   A58    V24     3*        >=>   LENGTH <= "2"
+T1   A58    V24     3*    936 *-* if index > length 
+T1   A58    V24     3*        >V>   INDEX => "3"
+T1   A58    V24     3*        >V>   LENGTH => "2"
+T1   A58    V24     3*        >O>   ">" => "1"
+T1   A58    V24     3*        >>>   "1"
+T1   A58    V24     3*    936 *-*   then
+T1   A58    V24     3*    936 *-*     return index
+T1   A58    V24     3*        >V>       INDEX => "3"
+T1   A58    V24     3*        >>>       "3"
+T1   A56    V24     2*        >M>     "GETCHAR" => "3"
+T1   A56    V24     2*        >>>     "3"
+T1   A56    V24     2*        >=>     NEXT <= "3"
+T1   A56    V24     2*    915 *-*   codepointIndexes~append(index)
+T1   A56    V24     2*        >V>     CODEPOINTINDEXES => "an Array"
+T1   A56    V24     2*        >V>     INDEX => "3"
+T1   A56    V24     2*        >A>     "3"
+T1   A56    V24     2*        >>>     "2"
+T1   A56    V24     2*    917 *-*   graphemeIndexes~append(index)
+T1   A56    V24     2*        >V>     GRAPHEMEINDEXES => "an Array"
+T1   A56    V24     2*        >V>     INDEX => "3"
+T1   A56    V24     2*        >A>     "3"
+T1   A56    V24     2*        >>>     "2"
+T1   A56    V24     2*    918 *-*   if next == index 
+T1   A56    V24     2*        >V>     NEXT => "3"
+T1   A56    V24     2*        >V>     INDEX => "3"
+T1   A56    V24     2*        >O>     "==" => "1"
+T1   A56    V24     2*        >>>     "1"
+T1   A56    V24     2*    918 *-*     then
+T1   A56    V24     2*    918 *-*       leave
+T1   A56    V24     2*    922 *-* codepointIndexes = codepointIndexes~makeArray
+T1   A56    V24     2*        >V>   CODEPOINTINDEXES => "an Array"
+T1   A56    V24     2*        >M>   "MAKEARRAY" => "an Array"
+T1   A56    V24     2*        >>>   "an Array"
+T1   A56    V24     2*        >=>   CODEPOINTINDEXES <= "an Array"
+T1   A56    V24     2*    923 *-* graphemeIndexes = graphemeIndexes~makeArray
+T1   A56    V24     2*        >V>   GRAPHEMEINDEXES => "an Array"
+T1   A56    V24     2*        >M>   "MAKEARRAY" => "an Array"
+T1   A56    V24     2*        >>>   "an Array"
+T1   A56    V24     2*        >=>   GRAPHEMEINDEXES <= "an Array"
+T1   A56    V24     2*    924 *-* return self~new(string, codepointIndexes, codepointIndexes~size-1, graphemeIndexes, graphemeIndexes~size-1)
+T1   A56    V24     2*        >V>   SELF => "The UTF_16BE_Encoding class"
+T1   A56    V24     2*        >V>   STRING => "??"
+T1   A56    V24     2*        >A>   "??"
+T1   A56    V24     2*        >V>   CODEPOINTINDEXES => "an Array"
+T1   A56    V24     2*        >A>   "an Array"
+T1   A56    V24     2*        >V>   CODEPOINTINDEXES => "an Array"
+T1   A56    V24     2*        >M>   "SIZE" => "2"
+T1   A56    V24     2*        >L>   "1"
+T1   A56    V24     2*        >O>   "-" => "1"
+T1   A56    V24     2*        >A>   "1"
+T1   A56    V24     2*        >V>   GRAPHEMEINDEXES => "an Array"
+T1   A56    V24     2*        >A>   "an Array"
+T1   A56    V24     2*        >V>   GRAPHEMEINDEXES => "an Array"
+T1   A56    V24     2*        >M>   "SIZE" => "2"
+T1   A56    V24     2*        >L>   "1"
+T1   A56    V24     2*        >O>   "-" => "1"
+T1   A56    V24     2*        >A>   "1"
+T1   A59    V27               >I> Method INIT with scope "Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A59    V27     1*    753 *-* expose string codepointIndexes codepointIndexesSize  graphemeIndexes graphemeIndexesSize
+T1   A59    V27     1*    754 *-* use strict arg string, codepointIndexes, codepointIndexesSize, graphemeIndexes, graphemeIndexesSize
+T1   A59    V27     1*        >>>   "??"
+T1   A59    V27     1*        >=>   STRING <= "??"
+T1   A59    V27     1*        >>>   "an Array"
+T1   A59    V27     1*        >=>   CODEPOINTINDEXES <= "an Array"
+T1   A59    V27     1*        >>>   "1"
+T1   A59    V27     1*        >=>   CODEPOINTINDEXESSIZE <= "1"
+T1   A59    V27     1*        >>>   "an Array"
+T1   A59    V27     1*        >=>   GRAPHEMEINDEXES <= "an Array"
+T1   A59    V27     1*        >>>   "1"
+T1   A59    V27     1*        >=>   GRAPHEMEINDEXESSIZE <= "1"
+T1   A56    V24     2*        >M>   "NEW" => "an UTF_16BE_Encoding"
+T1   A56    V24     2*        >>>   "an UTF_16BE_Encoding"
+T1   A54    V26     1*        >M>   "ANALYZE" => "an UTF_16BE_Encoding"
+T1   A54    V26     1*        >>>   "an UTF_16BE_Encoding"
+T1   A54    V26     1*        >=>   INDEXER <= "an UTF_16BE_Encoding"
+T1   A54    V26     1*    176 *-* string~text = self -- store itself as counterpart of string
+T1   A54    V26     1*        >V>   STRING => "??"
+T1   A54    V26     1*        >V>   SELF => "a RexxText"
+T1   A54    V26     1*        >A>   "a RexxText"
+T1   A60    V28               >I> Method TEXT= with scope "EncodedString" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A60    V28     1*    148 *-* expose text -- attribute added on the String instance
+T1   A60    V28     1*    149 *-* use strict arg aText
+T1   A60    V28     1*        >>>   "a RexxText"
+T1   A60    V28     1*        >=>   ATEXT <= "a RexxText"
+T1   A60    V28     1*    150 *-* if \var("text") 
+T1   A60    V28     1*        >L>   "text"
+T1   A60    V28     1*        >A>   "text"
+T1   A60    V28     1*        >F>   VAR => "0"
+T1   A60    V28     1*        >P>   "\" => "1"
+T1   A60    V28     1*        >>>   "1"
+T1   A60    V28     1*    150 *-*   then
+T1   A60    V28     1*    150 *-*     do -- no stored counterpart
+T1   A60    V28     1*    151 *-*       if \aText~isA(.RexxText) 
+T1   A60    V28     1*        >V>         ATEXT => "a RexxText"
+T1   A60    V28     1*        >E>         .REXXTEXT => "The RexxText class"
+T1   A60    V28     1*        >A>         "The RexxText class"
+T1   A60    V28     1*        >M>         "ISA" => "1"
+T1   A60    V28     1*        >P>         "\" => "0"
+T1   A60    V28     1*        >>>         "0"
+T1   A60    V28     1*    152 *-*       text = aText -- store the Text counterpart passed by argument
+T1   A60    V28     1*        >V>         ATEXT => "a RexxText"
+T1   A60    V28     1*        >>>         "a RexxText"
+T1   A60    V28     1*        >=>         TEXT <= "a RexxText"
+T1   A60    V28     1*    153 *-*   end
+T1   A53    V25     1*        >M>   "NEW" => "a RexxText"
+T1   A53    V25     1*        >A>   "a RexxText"
+T1   A52    V24     1*    900 *-* self~declareCharacter("space", "0020"x)
+T1   A52    V24     1*        >V>   SELF => "The UTF_16BE_Encoding class"
+T1   A52    V24     1*        >L>   "space"
+T1   A52    V24     1*        >A>   "space"
+T1   A52    V24     1*        >L>   "? "
+T1   A52    V24     1*        >A>   "? "
+T1   A61    V25               >I> Method DECLARECHARACTER with scope "Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A61    V25     1*    722 *-* expose characters
+T1   A61    V25     1*    723 *-* use strict arg name, encoded
+T1   A61    V25     1*        >>>   "space"
+T1   A61    V25     1*        >=>   NAME <= "space"
+T1   A61    V25     1*        >>>   "? "
+T1   A61    V25     1*        >=>   ENCODED <= "? "
+T1   A61    V25     1*    726 *-* characters~setEntry(name, .RexxText~new(.String~new(encoded), self))
+T1   A61    V25     1*        >V>   CHARACTERS => "a Directory"
+T1   A61    V25     1*        >V>   NAME => "space"
+T1   A61    V25     1*        >A>   "space"
+T1   A61    V25     1*        >E>   .REXXTEXT => "The RexxText class"
+T1   A61    V25     1*        >E>   .STRING => "The String class"
+T1   A61    V25     1*        >V>   ENCODED => "? "
+T1   A61    V25     1*        >A>   "? "
+T1   A61    V25     1*        >M>   "NEW" => "? "
+T1   A61    V25     1*        >A>   "? "
+T1   A61    V25     1*        >V>   SELF => "The UTF_16BE_Encoding class"
+T1   A61    V25     1*        >A>   "The UTF_16BE_Encoding class"
+T1   A62    V29               >I> Method INIT with scope "RexxTextInitializer" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A62    V29     1*    170 *-* expose indexer
+T1   A62    V29     1*    171 *-* use strict arg string, encoding="default"
+T1   A62    V29     1*        >>>   "? "
+T1   A62    V29     1*        >=>   STRING <= "? "
+T1   A62    V29     1*        >>>   "The UTF_16BE_Encoding class"
+T1   A62    V29     1*        >=>   ENCODING <= "The UTF_16BE_Encoding class"
+T1   A62    V29     1*    172 *-* if \string~isA(.String) 
+T1   A62    V29     1*        >V>   STRING => "? "
+T1   A62    V29     1*        >E>   .STRING => "The String class"
+T1   A62    V29     1*        >A>   "The String class"
+T1   A62    V29     1*        >M>   "ISA" => "1"
+T1   A62    V29     1*        >P>   "\" => "0"
+T1   A62    V29     1*        >>>   "0"
+T1   A62    V29     1*    173 *-* encoding = .Encoding~factory(encoding)
+T1   A62    V29     1*        >E>   .ENCODING => "The Encoding class"
+T1   A62    V29     1*        >V>   ENCODING => "The UTF_16BE_Encoding class"
+T1   A62    V29     1*        >A>   "The UTF_16BE_Encoding class"
+T1   A63    V13               >I> Method FACTORY with scope "Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A63    V13     1*    664 *-* use strict arg encoding
+T1   A63    V13     1*        >>>   "The UTF_16BE_Encoding class"
+T1   A63    V13     1*        >=>   ENCODING <= "The UTF_16BE_Encoding class"
+T1   A63    V13     1*    665 *-* if encoding~isA(.Class), encoding~isSubClassOf(self) 
+T1   A63    V13     1*        >V>   ENCODING => "The UTF_16BE_Encoding class"
+T1   A63    V13     1*        >E>   .CLASS => "The Class class"
+T1   A63    V13     1*        >A>   "The Class class"
+T1   A63    V13     1*        >M>   "ISA" => "1"
+T1   A63    V13     1*        >>>   "1"
+T1   A63    V13     1*        >V>   ENCODING => "The UTF_16BE_Encoding class"
+T1   A63    V13     1*        >V>   SELF => "The Encoding class"
+T1   A63    V13     1*        >A>   "The Encoding class"
+T1   A63    V13     1*        >M>   "ISSUBCLASSOF" => "1"
+T1   A63    V13     1*        >>>   "1"
+T1   A63    V13     1*        >>>   "1"
+T1   A63    V13     1*    665 *-*   then
+T1   A63    V13     1*    665 *-*     return encoding
+T1   A63    V13     1*        >V>       ENCODING => "The UTF_16BE_Encoding class"
+T1   A63    V13     1*        >>>       "The UTF_16BE_Encoding class"
+T1   A62    V29     1*        >M>   "FACTORY" => "The UTF_16BE_Encoding class"
+T1   A62    V29     1*        >>>   "The UTF_16BE_Encoding class"
+T1   A62    V29     1*        >=>   ENCODING <= "The UTF_16BE_Encoding class"
+T1   A62    V29     1*    174 *-* indexer = encoding~analyze(string)
+T1   A62    V29     1*        >V>   ENCODING => "The UTF_16BE_Encoding class"
+T1   A62    V29     1*        >V>   STRING => "? "
+T1   A62    V29     1*        >A>   "? "
+T1   A64    V24     1         >I> Method ANALYZE with scope "UTF_16BE_Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A64    V24     2*    908 *-* use strict arg string
+T1   A64    V24     2*        >>>   "? "
+T1   A64    V24     2*        >=>   STRING <= "? "
+T1   A64    V24     2*    909 *-* size = string~length -- size in bytes
+T1   A64    V24     2*        >V>   STRING => "? "
+T1   A64    V24     2*        >M>   "LENGTH" => "2"
+T1   A64    V24     2*        >>>   "2"
+T1   A64    V24     2*        >=>   SIZE <= "2"
+T1   A64    V24     2*    910 *-* codepointIndexes = .array~new(size)
+T1   A64    V24     2*        >E>   .ARRAY => "The Array class"
+T1   A64    V24     2*        >V>   SIZE => "2"
+T1   A64    V24     2*        >A>   "2"
+T1   A64    V24     2*        >M>   "NEW" => "an Array"
+T1   A64    V24     2*        >>>   "an Array"
+T1   A64    V24     2*        >=>   CODEPOINTINDEXES <= "an Array"
+T1   A64    V24     2*    911 *-* graphemeIndexes = .array~new(size)
+T1   A64    V24     2*        >E>   .ARRAY => "The Array class"
+T1   A64    V24     2*        >V>   SIZE => "2"
+T1   A64    V24     2*        >A>   "2"
+T1   A64    V24     2*        >M>   "NEW" => "an Array"
+T1   A64    V24     2*        >>>   "an Array"
+T1   A64    V24     2*        >=>   GRAPHEMEINDEXES <= "an Array"
+T1   A64    V24     2*    912 *-* index = 1
+T1   A64    V24     2*        >L>   "1"
+T1   A64    V24     2*        >>>   "1"
+T1   A64    V24     2*        >=>   INDEX <= "1"
+T1   A64    V24     2*    913 *-* do forever
+T1   A64    V24     2*    914 *-*   next = self~getchar(string, index)
+T1   A64    V24     2*        >V>     SELF => "The UTF_16BE_Encoding class"
+T1   A64    V24     2*        >V>     STRING => "? "
+T1   A64    V24     2*        >A>     "? "
+T1   A64    V24     2*        >V>     INDEX => "1"
+T1   A64    V24     2*        >A>     "1"
+T1   A65    V24     2         >I> Method GETCHAR with scope "UTF_16BE_Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A65    V24     3*    934 *-* use strict arg string, index
+T1   A65    V24     3*        >>>   "? "
+T1   A65    V24     3*        >=>   STRING <= "? "
+T1   A65    V24     3*        >>>   "1"
+T1   A65    V24     3*        >=>   INDEX <= "1"
+T1   A65    V24     3*    935 *-* length = string~length
+T1   A65    V24     3*        >V>   STRING => "? "
+T1   A65    V24     3*        >M>   "LENGTH" => "2"
+T1   A65    V24     3*        >>>   "2"
+T1   A65    V24     3*        >=>   LENGTH <= "2"
+T1   A65    V24     3*    936 *-* if index > length 
+T1   A65    V24     3*        >V>   INDEX => "1"
+T1   A65    V24     3*        >V>   LENGTH => "2"
+T1   A65    V24     3*        >O>   ">" => "0"
+T1   A65    V24     3*        >>>   "0"
+T1   A65    V24     3*    937 *-* if length - index < 1 
+T1   A65    V24     3*        >V>   LENGTH => "2"
+T1   A65    V24     3*        >V>   INDEX => "1"
+T1   A65    V24     3*        >O>   "-" => "1"
+T1   A65    V24     3*        >L>   "1"
+T1   A65    V24     3*        >O>   "<" => "0"
+T1   A65    V24     3*        >>>   "0"
+T1   A65    V24     3*    938 *-* c = string~substr(index, 2)
+T1   A65    V24     3*        >V>   STRING => "? "
+T1   A65    V24     3*        >V>   INDEX => "1"
+T1   A65    V24     3*        >A>   "1"
+T1   A65    V24     3*        >L>   "2"
+T1   A65    V24     3*        >A>   "2"
+T1   A65    V24     3*        >M>   "SUBSTR" => "? "
+T1   A65    V24     3*        >>>   "? "
+T1   A65    V24     3*        >=>   C <= "? "
+T1   A65    V24     3*    939 *-* index += 2
+T1   A65    V24     3*        >V>   INDEX => "1"
+T1   A65    V24     3*        >L>   "2"
+T1   A65    V24     3*        >O>   "+" => "3"
+T1   A65    V24     3*        >>>   "3"
+T1   A65    V24     3*        >=>   INDEX <= "3"
+T1   A65    V24     3*    940 *-* if c >= "D800"x & c <= "DBFF"x 
+T1   A65    V24     3*        >V>   C => "? "
+T1   A65    V24     3*        >L>   "??"
+T1   A65    V24     3*        >O>   ">=" => "0"
+T1   A65    V24     3*        >V>   C => "? "
+T1   A65    V24     3*        >L>   "��"
+T1   A65    V24     3*        >O>   "<=" => "1"
+T1   A65    V24     3*        >O>   "&" => "0"
+T1   A65    V24     3*        >>>   "0"
+T1   A65    V24     3*    947 *-* return index
+T1   A65    V24     3*        >V>   INDEX => "3"
+T1   A65    V24     3*        >>>   "3"
+T1   A64    V24     2*        >M>     "GETCHAR" => "3"
+T1   A64    V24     2*        >>>     "3"
+T1   A64    V24     2*        >=>     NEXT <= "3"
+T1   A64    V24     2*    915 *-*   codepointIndexes~append(index)
+T1   A64    V24     2*        >V>     CODEPOINTINDEXES => "an Array"
+T1   A64    V24     2*        >V>     INDEX => "1"
+T1   A64    V24     2*        >A>     "1"
+T1   A64    V24     2*        >>>     "1"
+T1   A64    V24     2*    917 *-*   graphemeIndexes~append(index)
+T1   A64    V24     2*        >V>     GRAPHEMEINDEXES => "an Array"
+T1   A64    V24     2*        >V>     INDEX => "1"
+T1   A64    V24     2*        >A>     "1"
+T1   A64    V24     2*        >>>     "1"
+T1   A64    V24     2*    918 *-*   if next == index 
+T1   A64    V24     2*        >V>     NEXT => "3"
+T1   A64    V24     2*        >V>     INDEX => "1"
+T1   A64    V24     2*        >O>     "==" => "0"
+T1   A64    V24     2*        >>>     "0"
+T1   A64    V24     2*    919 *-*   index = next
+T1   A64    V24     2*        >V>     NEXT => "3"
+T1   A64    V24     2*        >>>     "3"
+T1   A64    V24     2*        >=>     INDEX <= "3"
+T1   A64    V24     2*    920 *-* end
+T1   A64    V24     2*    913 *-* do forever
+T1   A64    V24     2*    914 *-*   next = self~getchar(string, index)
+T1   A64    V24     2*        >V>     SELF => "The UTF_16BE_Encoding class"
+T1   A64    V24     2*        >V>     STRING => "? "
+T1   A64    V24     2*        >A>     "? "
+T1   A64    V24     2*        >V>     INDEX => "3"
+T1   A64    V24     2*        >A>     "3"
+T1   A66    V24     2         >I> Method GETCHAR with scope "UTF_16BE_Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A66    V24     3*    934 *-* use strict arg string, index
+T1   A66    V24     3*        >>>   "? "
+T1   A66    V24     3*        >=>   STRING <= "? "
+T1   A66    V24     3*        >>>   "3"
+T1   A66    V24     3*        >=>   INDEX <= "3"
+T1   A66    V24     3*    935 *-* length = string~length
+T1   A66    V24     3*        >V>   STRING => "? "
+T1   A66    V24     3*        >M>   "LENGTH" => "2"
+T1   A66    V24     3*        >>>   "2"
+T1   A66    V24     3*        >=>   LENGTH <= "2"
+T1   A66    V24     3*    936 *-* if index > length 
+T1   A66    V24     3*        >V>   INDEX => "3"
+T1   A66    V24     3*        >V>   LENGTH => "2"
+T1   A66    V24     3*        >O>   ">" => "1"
+T1   A66    V24     3*        >>>   "1"
+T1   A66    V24     3*    936 *-*   then
+T1   A66    V24     3*    936 *-*     return index
+T1   A66    V24     3*        >V>       INDEX => "3"
+T1   A66    V24     3*        >>>       "3"
+T1   A64    V24     2*        >M>     "GETCHAR" => "3"
+T1   A64    V24     2*        >>>     "3"
+T1   A64    V24     2*        >=>     NEXT <= "3"
+T1   A64    V24     2*    915 *-*   codepointIndexes~append(index)
+T1   A64    V24     2*        >V>     CODEPOINTINDEXES => "an Array"
+T1   A64    V24     2*        >V>     INDEX => "3"
+T1   A64    V24     2*        >A>     "3"
+T1   A64    V24     2*        >>>     "2"
+T1   A64    V24     2*    917 *-*   graphemeIndexes~append(index)
+T1   A64    V24     2*        >V>     GRAPHEMEINDEXES => "an Array"
+T1   A64    V24     2*        >V>     INDEX => "3"
+T1   A64    V24     2*        >A>     "3"
+T1   A64    V24     2*        >>>     "2"
+T1   A64    V24     2*    918 *-*   if next == index 
+T1   A64    V24     2*        >V>     NEXT => "3"
+T1   A64    V24     2*        >V>     INDEX => "3"
+T1   A64    V24     2*        >O>     "==" => "1"
+T1   A64    V24     2*        >>>     "1"
+T1   A64    V24     2*    918 *-*     then
+T1   A64    V24     2*    918 *-*       leave
+T1   A64    V24     2*    922 *-* codepointIndexes = codepointIndexes~makeArray
+T1   A64    V24     2*        >V>   CODEPOINTINDEXES => "an Array"
+T1   A64    V24     2*        >M>   "MAKEARRAY" => "an Array"
+T1   A64    V24     2*        >>>   "an Array"
+T1   A64    V24     2*        >=>   CODEPOINTINDEXES <= "an Array"
+T1   A64    V24     2*    923 *-* graphemeIndexes = graphemeIndexes~makeArray
+T1   A64    V24     2*        >V>   GRAPHEMEINDEXES => "an Array"
+T1   A64    V24     2*        >M>   "MAKEARRAY" => "an Array"
+T1   A64    V24     2*        >>>   "an Array"
+T1   A64    V24     2*        >=>   GRAPHEMEINDEXES <= "an Array"
+T1   A64    V24     2*    924 *-* return self~new(string, codepointIndexes, codepointIndexes~size-1, graphemeIndexes, graphemeIndexes~size-1)
+T1   A64    V24     2*        >V>   SELF => "The UTF_16BE_Encoding class"
+T1   A64    V24     2*        >V>   STRING => "? "
+T1   A64    V24     2*        >A>   "? "
+T1   A64    V24     2*        >V>   CODEPOINTINDEXES => "an Array"
+T1   A64    V24     2*        >A>   "an Array"
+T1   A64    V24     2*        >V>   CODEPOINTINDEXES => "an Array"
+T1   A64    V24     2*        >M>   "SIZE" => "2"
+T1   A64    V24     2*        >L>   "1"
+T1   A64    V24     2*        >O>   "-" => "1"
+T1   A64    V24     2*        >A>   "1"
+T1   A64    V24     2*        >V>   GRAPHEMEINDEXES => "an Array"
+T1   A64    V24     2*        >A>   "an Array"
+T1   A64    V24     2*        >V>   GRAPHEMEINDEXES => "an Array"
+T1   A64    V24     2*        >M>   "SIZE" => "2"
+T1   A64    V24     2*        >L>   "1"
+T1   A64    V24     2*        >O>   "-" => "1"
+T1   A64    V24     2*        >A>   "1"
+T1   A67    V30               >I> Method INIT with scope "Encoding" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A67    V30     1*    753 *-* expose string codepointIndexes codepointIndexesSize  graphemeIndexes graphemeIndexesSize
+T1   A67    V30     1*    754 *-* use strict arg string, codepointIndexes, codepointIndexesSize, graphemeIndexes, graphemeIndexesSize
+T1   A67    V30     1*        >>>   "? "
+T1   A67    V30     1*        >=>   STRING <= "? "
+T1   A67    V30     1*        >>>   "an Array"
+T1   A67    V30     1*        >=>   CODEPOINTINDEXES <= "an Array"
+T1   A67    V30     1*        >>>   "1"
+T1   A67    V30     1*        >=>   CODEPOINTINDEXESSIZE <= "1"
+T1   A67    V30     1*        >>>   "an Array"
+T1   A67    V30     1*        >=>   GRAPHEMEINDEXES <= "an Array"
+T1   A67    V30     1*        >>>   "1"
+T1   A67    V30     1*        >=>   GRAPHEMEINDEXESSIZE <= "1"
+T1   A64    V24     2*        >M>   "NEW" => "an UTF_16BE_Encoding"
+T1   A64    V24     2*        >>>   "an UTF_16BE_Encoding"
+T1   A62    V29     1*        >M>   "ANALYZE" => "an UTF_16BE_Encoding"
+T1   A62    V29     1*        >>>   "an UTF_16BE_Encoding"
+T1   A62    V29     1*        >=>   INDEXER <= "an UTF_16BE_Encoding"
+T1   A62    V29     1*    176 *-* string~text = self -- store itself as counterpart of string
+T1   A62    V29     1*        >V>   STRING => "? "
+T1   A62    V29     1*        >V>   SELF => "a RexxText"
+T1   A62    V29     1*        >A>   "a RexxText"
+T1   A68    V31               >I> Method TEXT= with scope "EncodedString" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+T1   A68    V31     1*    148 *-* expose text -- attribute added on the String instance
+T1   A68    V31     1*    149 *-* use strict arg aText
+T1   A68    V31     1*        >>>   "a RexxText"
+T1   A68    V31     1*        >=>   ATEXT <= "a RexxText"
+T1   A68    V31     1*    150 *-* if \var("text") 
+T1   A68    V31     1*        >L>   "text"
+T1   A68    V31     1*        >A>   "text"
+T1   A68    V31     1*        >F>   VAR => "0"
+T1   A68    V31     1*        >P>   "\" => "1"
+T1   A68    V31     1*        >>>   "1"
+T1   A68    V31     1*    150 *-*   then
+T1   A68    V31     1*    150 *-*     do -- no stored counterpart
+T1   A68    V31     1*    151 *-*       if \aText~isA(.RexxText) 
+T1   A68    V31     1*        >V>         ATEXT => "a RexxText"
+T1   A68    V31     1*        >E>         .REXXTEXT => "The RexxText class"
+T1   A68    V31     1*        >A>         "The RexxText class"
+T1   A68    V31     1*        >M>         "ISA" => "1"
+T1   A68    V31     1*        >P>         "\" => "0"
+T1   A68    V31     1*        >>>         "0"
+T1   A68    V31     1*    152 *-*       text = aText -- store the Text counterpart passed by argument
+T1   A68    V31     1*        >V>         ATEXT => "a RexxText"
+T1   A68    V31     1*        >>>         "a RexxText"
+T1   A68    V31     1*        >=>         TEXT <= "a RexxText"
+T1   A68    V31     1*    153 *-*   end
+T1   A61    V25     1*        >M>   "NEW" => "a RexxText"
+T1   A61    V25     1*        >A>   "a RexxText"
+T1   A69                      >I> Routine <prolog> in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/logical.cls
+T1   A70                      >I> Routine <prolog> in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/extensions.cls
+T1   A71                   11 *-* g=1~generate.upto(10)
+T1   A71                      >L>   "1"
+T1   A71                      >L>   "10"
+T1   A71                      >A>   "10"
+T1   A72    V32               >I> Method GENERATE.UPTO with scope "RepeaterGenerator" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/generator.cls
+T1   A72    V32           645 *-* use strict arg upperLimit, action={arg(1)}
+T1   A72    V32               >>>   "10"
+T1   A72    V32               >=>   UPPERLIMIT <= "10"
+T1   A73    V33               >I> Method INIT with scope "RexxBlockDoer" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers.cls
+T1   A73    V33     1*    499 *-* expose executable
+T1   A73    V33     1*    500 *-* executable = .nil
+T1   A73    V33     1*        >E>   .NIL => "The NIL object"
+T1   A73    V33     1*        >>>   "The NIL object"
+T1   A73    V33     1*        >=>   EXECUTABLE <= "The NIL object"
+T1   A73    V33     1*    501 *-* self~init:super
+T1   A73    V33     1*        >V>   SELF => "a RexxBlock"
+T1   A73    V33     1*        >V>   SUPER => "The Doer class"
+T1   A72    V32               >L>   "a RexxBlock"
+T1   A72    V32               >>>   "a RexxBlock"
+T1   A72    V32               >=>   ACTION <= "a RexxBlock"
+T1   A72    V32           646 *-* if \ self~dataType("N") 
+T1   A72    V32               >V>   SELF => "1"
+T1   A72    V32               >L>   "N"
+T1   A72    V32               >A>   "N"
+T1   A72    V32               >M>   "DATATYPE" => "1"
+T1   A72    V32               >P>   "\" => "0"
+T1   A72    V32               >>>   "0"
+T1   A72    V32           647 *-* if \ upperLimit~dataType("N") 
+T1   A72    V32               >V>   UPPERLIMIT => "10"
+T1   A72    V32               >L>   "N"
+T1   A72    V32               >A>   "N"
+T1   A72    V32               >M>   "DATATYPE" => "1"
+T1   A72    V32               >P>   "\" => "0"
+T1   A72    V32               >>>   "0"
+T1   A72    V32           648 *-* doer = action~doer
+T1   A72    V32               >V>   ACTION => "a RexxBlock"
+T1   A74    V33               >I> Method DOER with scope "RexxBlockDoer" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers.cls
+T1   A74    V33           505 *-* expose executable
+T1   A74    V33           506 *-* if .nil <> executable 
+T1   A74    V33               >E>   .NIL => "The NIL object"
+T1   A74    V33               >V>   EXECUTABLE => "The NIL object"
+T1   A74    V33               >O>   "<>" => "0"
+T1   A74    V33               >>>   "0"
+T1   A74    V33           508 *-* use strict arg -- none
+T1   A74    V33           509 *-* executable = self~sourceDoer
+T1   A74    V33               >V>   SELF => "a RexxBlock"
+T1   A75    V33               >I> Method SOURCEDOER with scope "RexxBlockDoer" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers.cls
+T1   A75    V33           535 *-* use strict arg clauseBefore="", clauseAfter="", context=.nil
+T1   A75    V33               >L>   ""
+T1   A75    V33               >>>   ""
+T1   A75    V33               >=>   CLAUSEBEFORE <= ""
+T1   A75    V33               >L>   ""
+T1   A75    V33               >>>   ""
+T1   A75    V33               >=>   CLAUSEAFTER <= ""
+T1   A75    V33               >E>   .NIL => "The NIL object"
+T1   A75    V33               >>>   "The NIL object"
+T1   A75    V33               >=>   CONTEXT <= "The NIL object"
+T1   A75    V33           536 *-* if .nil == context 
+T1   A75    V33               >E>   .NIL => "The NIL object"
+T1   A75    V33               >V>   CONTEXT => "The NIL object"
+T1   A75    V33               >O>   "==" => "1"
+T1   A75    V33               >>>   "1"
+T1   A75    V33           536 *-*   then
+T1   A75    V33           536 *-*     context = self~package -- lookup scope
+T1   A75    V33               >V>       SELF => "a RexxBlock"
+T1   A75    V33               >M>       "PACKAGE" => "a Package"
+T1   A75    V33               >>>       "a Package"
+T1   A75    V33               >=>       CONTEXT <= "a Package"
+T1   A75    V33           538 *-* kind = self~kind
+T1   A75    V33               >V>   SELF => "a RexxBlock"
+T1   A75    V33               >M>   "KIND" => "r"
+T1   A75    V33               >>>   "r"
+T1   A75    V33               >=>   KIND <= "r"
+T1   A75    V33           539 *-* rawExecutable = self~rawExecutable -- set at parse time
+T1   A75    V33               >V>   SELF => "a RexxBlock"
+T1   A75    V33               >M>   "RAWEXECUTABLE" => "a Routine"
+T1   A75    V33               >>>   "a Routine"
+T1   A75    V33               >=>   RAWEXECUTABLE <= "a Routine"
+T1   A75    V33           540 *-* if clauseBefore <> "" | clauseAfter <> "" | .nil == rawExecutable 
+T1   A75    V33               >V>   CLAUSEBEFORE => ""
+T1   A75    V33               >L>   ""
+T1   A75    V33               >O>   "<>" => "0"
+T1   A75    V33               >V>   CLAUSEAFTER => ""
+T1   A75    V33               >L>   ""
+T1   A75    V33               >O>   "<>" => "0"
+T1   A75    V33               >O>   "|" => "0"
+T1   A75    V33               >E>   .NIL => "The NIL object"
+T1   A75    V33               >V>   RAWEXECUTABLE => "a Routine"
+T1   A75    V33               >O>   "==" => "0"
+T1   A75    V33               >O>   "|" => "0"
+T1   A75    V33               >>>   "0"
+T1   A75    V33           550 *-* if kind == "r" 
+T1   A75    V33               >V>   KIND => "r"
+T1   A75    V33               >L>   "r"
+T1   A75    V33               >O>   "==" => "1"
+T1   A75    V33               >>>   "1"
+T1   A75    V33           550 *-*   then
+T1   A75    V33           550 *-*     return rawExecutable
+T1   A75    V33               >V>       RAWEXECUTABLE => "a Routine"
+T1   A75    V33               >>>       "a Routine"
+T1   A74    V33               >M>   "SOURCEDOER" => "a Routine"
+T1   A74    V33               >>>   "a Routine"
+T1   A74    V33               >=>   EXECUTABLE <= "a Routine"
+T1   A74    V33           515 *-* arity = self~arity
+T1   A74    V33               >V>   SELF => "a RexxBlock"
+T1   A76    V34               >I> Method ARITY with scope "Doer" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers.cls
+T1   A76    V34            48 *-* expose arity
+T1   A76    V34            49 *-* if arg() <> 0 
+T1   A76    V34               >F>   ARG => "0"
+T1   A76    V34               >L>   "0"
+T1   A76    V34               >O>   "<>" => "0"
+T1   A76    V34               >>>   "0"
+T1   A76    V34            54 *-*   else
+T1   A76    V34            54 *-*     if \var("arity") 
+T1   A76    V34               >L>       "arity"
+T1   A76    V34               >A>       "arity"
+T1   A76    V34               >F>       VAR => "0"
+T1   A76    V34               >P>       "\" => "1"
+T1   A76    V34               >>>       "1"
+T1   A76    V34            54 *-*       then
+T1   A76    V34            54 *-*         return -1 -- unknown arity
+T1   A76    V34               >L>           "1"
+T1   A76    V34               >P>           "-" => "-1"
+T1   A76    V34               >>>           "-1"
+T1   A74    V33               >M>   "ARITY" => "-1"
+T1   A74    V33               >>>   "-1"
+T1   A74    V33               >=>   ARITY <= "-1"
+T1   A74    V33           516 *-* if arity == -1 
+T1   A74    V33               >V>   ARITY => "-1"
+T1   A74    V33               >L>   "1"
+T1   A74    V33               >P>   "-" => "-1"
+T1   A74    V33               >O>   "==" => "1"
+T1   A74    V33               >>>   "1"
+T1   A74    V33           516 *-*   then
+T1   A74    V33           516 *-*     arity = 9999
+T1   A74    V33               >L>       "9999"
+T1   A74    V33               >>>       "9999"
+T1   A74    V33               >=>       ARITY <= "9999"
+T1   A74    V33           517 *-* executable~arity(arity)
+T1   A74    V33               >V>   EXECUTABLE => "a Routine"
+T1   A74    V33               >V>   ARITY => "9999"
+T1   A74    V33               >A>   "9999"
+T1   A77    V35               >I> Method ARITY with scope "Doer" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers.cls
+T1   A77    V35            48 *-* expose arity
+T1   A77    V35            49 *-* if arg() <> 0 
+T1   A77    V35               >F>   ARG => "1"
+T1   A77    V35               >L>   "0"
+T1   A77    V35               >O>   "<>" => "1"
+T1   A77    V35               >>>   "1"
+T1   A77    V35            49 *-*   then
+T1   A77    V35            49 *-*     do
+T1   A77    V35            50 *-*       guard on
+T1   A77    V35     1*     51 *-*       use strict arg arity -- store the arity
+T1   A77    V35     1*        >>>         "9999"
+T1   A77    V35     1*        >=>         ARITY <= "9999"
+T1   A77    V35     1*     52 *-*       return self -- for convenience, return the doer itself
+T1   A77    V35     1*        >V>         SELF => "a Routine"
+T1   A77    V35     1*        >>>         "a Routine"
+T1   A74    V33               >>>   "a Routine"
+T1   A74    V33           519 *-* return executable
+T1   A74    V33               >V>   EXECUTABLE => "a Routine"
+T1   A74    V33               >>>   "a Routine"
+T1   A72    V32               >M>   "DOER" => "a Routine"
+T1   A72    V32               >>>   "a Routine"
+T1   A72    V32               >=>   DOER <= "a Routine"
+T1   A72    V32           649 *-* return {::coactivity            expose doer upperLimit self            use strict arg -- none            do i = self to upperLimit                doer~do(      i,-                        item: i)                if var("result") then .yield[result]; else .yield[]                use strict arg -- none            end           }~doer
+T1   A78    V36               >I> Method INIT with scope "RexxBlockDoer" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers.cls
+T1   A78    V36     1*    499 *-* expose executable
+T1   A78    V36     1*    500 *-* executable = .nil
+T1   A78    V36     1*        >E>   .NIL => "The NIL object"
+T1   A78    V36     1*        >>>   "The NIL object"
+T1   A78    V36     1*        >=>   EXECUTABLE <= "The NIL object"
+T1   A78    V36     1*    501 *-* self~init:super
+T1   A78    V36     1*        >V>   SELF => "a RexxBlock"
+T1   A78    V36     1*        >V>   SUPER => "The Doer class"
+T1   A72    V32               >L>   "a RexxBlock"
+T1   A79    V36               >I> Method DOER with scope "RexxBlockDoer" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers.cls
+T1   A79    V36           505 *-* expose executable
+T1   A79    V36           506 *-* if .nil <> executable 
+T1   A79    V36               >E>   .NIL => "The NIL object"
+T1   A79    V36               >V>   EXECUTABLE => "The NIL object"
+T1   A79    V36               >O>   "<>" => "0"
+T1   A79    V36               >>>   "0"
+T1   A79    V36           508 *-* use strict arg -- none
+T1   A79    V36           509 *-* executable = self~sourceDoer
+T1   A79    V36               >V>   SELF => "a RexxBlock"
+T1   A80    V36               >I> Method SOURCEDOER with scope "RexxBlockDoer" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers.cls
+T1   A80    V36           535 *-* use strict arg clauseBefore="", clauseAfter="", context=.nil
+T1   A80    V36               >L>   ""
+T1   A80    V36               >>>   ""
+T1   A80    V36               >=>   CLAUSEBEFORE <= ""
+T1   A80    V36               >L>   ""
+T1   A80    V36               >>>   ""
+T1   A80    V36               >=>   CLAUSEAFTER <= ""
+T1   A80    V36               >E>   .NIL => "The NIL object"
+T1   A80    V36               >>>   "The NIL object"
+T1   A80    V36               >=>   CONTEXT <= "The NIL object"
+T1   A80    V36           536 *-* if .nil == context 
+T1   A80    V36               >E>   .NIL => "The NIL object"
+T1   A80    V36               >V>   CONTEXT => "The NIL object"
+T1   A80    V36               >O>   "==" => "1"
+T1   A80    V36               >>>   "1"
+T1   A80    V36           536 *-*   then
+T1   A80    V36           536 *-*     context = self~package -- lookup scope
+T1   A80    V36               >V>       SELF => "a RexxBlock"
+T1   A80    V36               >M>       "PACKAGE" => "a Package"
+T1   A80    V36               >>>       "a Package"
+T1   A80    V36               >=>       CONTEXT <= "a Package"
+T1   A80    V36           538 *-* kind = self~kind
+T1   A80    V36               >V>   SELF => "a RexxBlock"
+T1   A80    V36               >M>   "KIND" => "cl.co"
+T1   A80    V36               >>>   "cl.co"
+T1   A80    V36               >=>   KIND <= "cl.co"
+T1   A80    V36           539 *-* rawExecutable = self~rawExecutable -- set at parse time
+T1   A80    V36               >V>   SELF => "a RexxBlock"
+T1   A80    V36               >M>   "RAWEXECUTABLE" => "a Method"
+T1   A80    V36               >>>   "a Method"
+T1   A80    V36               >=>   RAWEXECUTABLE <= "a Method"
+T1   A80    V36           540 *-* if clauseBefore <> "" | clauseAfter <> "" | .nil == rawExecutable 
+T1   A80    V36               >V>   CLAUSEBEFORE => ""
+T1   A80    V36               >L>   ""
+T1   A80    V36               >O>   "<>" => "0"
+T1   A80    V36               >V>   CLAUSEAFTER => ""
+T1   A80    V36               >L>   ""
+T1   A80    V36               >O>   "<>" => "0"
+T1   A80    V36               >O>   "|" => "0"
+T1   A80    V36               >E>   .NIL => "The NIL object"
+T1   A80    V36               >V>   RAWEXECUTABLE => "a Method"
+T1   A80    V36               >O>   "==" => "0"
+T1   A80    V36               >O>   "|" => "0"
+T1   A80    V36               >>>   "0"
+T1   A80    V36           550 *-* if kind == "r" 
+T1   A80    V36               >V>   KIND => "cl.co"
+T1   A80    V36               >L>   "r"
+T1   A80    V36               >O>   "==" => "0"
+T1   A80    V36               >>>   "0"
+T1   A80    V36           551 *-*   else
+T1   A80    V36           551 *-*     if kind == "r.co" 
+T1   A80    V36               >V>       KIND => "cl.co"
+T1   A80    V36               >L>       "r.co"
+T1   A80    V36               >O>       "==" => "0"
+T1   A80    V36               >>>       "0"
+T1   A80    V36           552 *-*       else
+T1   A80    V36           552 *-*         if kind == "cl" 
+T1   A80    V36               >V>           KIND => "cl.co"
+T1   A80    V36               >L>           "cl"
+T1   A80    V36               >O>           "==" => "0"
+T1   A80    V36               >>>           "0"
+T1   A80    V36           553 *-*           else
+T1   A80    V36           553 *-*             if kind == "cl.co" 
+T1   A80    V36               >V>               KIND => "cl.co"
+T1   A80    V36               >L>               "cl.co"
+T1   A80    V36               >O>               "==" => "1"
+T1   A80    V36               >>>               "1"
+T1   A80    V36           553 *-*               then
+T1   A80    V36           553 *-*                 return .Coactivity~new(.Closure~new(self~variables, rawExecutable))
+T1   A80    V36               >E>                   .COACTIVITY => "The Coactivity class"
+T1   A80    V36               >E>                   .CLOSURE => "The Closure class"
+T1   A80    V36               >V>                   SELF => "a RexxBlock"
+T1   A80    V36               >M>                   "VARIABLES" => "a Directory"
+T1   A80    V36               >A>                   "a Directory"
+T1   A80    V36               >V>                   RAWEXECUTABLE => "a Method"
+T1   A80    V36               >A>                   "a Method"
+T1   A81    V37               >I> Method INIT with scope "Closure" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers.cls
+T1   A81    V37     1*    678 *-* expose !_closure.variableNames_!
+T1   A81    V37     1*        >C>   !_CLOSURE.VARIABLENAMES_! => "!_CLOSURE.VARIABLENAMES_!"
+T1   A81    V37     1*    679 *-* use strict arg variables=.nil, action=.nil
+T1   A81    V37     1*        >>>   "a Directory"
+T1   A81    V37     1*        >=>   VARIABLES <= "a Directory"
+T1   A81    V37     1*        >>>   "a Method"
+T1   A81    V37     1*        >=>   ACTION <= "a Method"
+T1   A81    V37     1*    680 *-* if .nil <> variables 
+T1   A81    V37     1*        >E>   .NIL => "The NIL object"
+T1   A81    V37     1*        >V>   VARIABLES => "a Directory"
+T1   A81    V37     1*        >O>   "<>" => "1"
+T1   A81    V37     1*        >>>   "1"
+T1   A81    V37     1*    680 *-*   then
+T1   A81    V37     1*    680 *-*     do
+T1   A81    V37     1*    681 *-*       !_closure.variableNames_! = ""
+T1   A81    V37     1*        >L>         ""
+T1   A81    V37     1*        >>>         ""
+T1   A81    V37     1*        >C>         !_CLOSURE.VARIABLENAMES_! => "!_CLOSURE.VARIABLENAMES_!"
+T1   A81    V37     1*        >=>         !_CLOSURE.VARIABLENAMES_! <= ""
+T1   A81    V37     1*    682 *-*       do v over variables
+T1   A81    V37     1*        >V>           VARIABLES => "a Directory"
+T1   A81    V37     1*        >>>           "a Directory"
+T1   A81    V37     1*        >=>           V <= "DOER"
+T1   A81    V37     1*        >>>           "DOER"
+T1   A81    V37     1*    683 *-*         !_closure.variableNames_! ||= " "v
+T1   A81    V37     1*        >C>           !_CLOSURE.VARIABLENAMES_! => "!_CLOSURE.VARIABLENAMES_!"
+T1   A81    V37     1*        >V>           !_CLOSURE.VARIABLENAMES_! => ""
+T1   A81    V37     1*        >L>           " "
+T1   A81    V37     1*        >V>           V => "DOER"
+T1   A81    V37     1*        >O>           "" => " DOER"
+T1   A81    V37     1*        >O>           "||" => " DOER"
+T1   A81    V37     1*        >>>           " DOER"
+T1   A81    V37     1*        >C>           !_CLOSURE.VARIABLENAMES_! => "!_CLOSURE.VARIABLENAMES_!"
+T1   A81    V37     1*        >=>           !_CLOSURE.VARIABLENAMES_! <= " DOER"
+T1   A81    V37     1*    684 *-*       end
+T1   A81    V37     1*    682 *-*       do v over variables
+T1   A81    V37     1*        >=>           V <= "SELF"
+T1   A81    V37     1*        >>>           "SELF"
+T1   A81    V37     1*    683 *-*         !_closure.variableNames_! ||= " "v
+T1   A81    V37     1*        >C>           !_CLOSURE.VARIABLENAMES_! => "!_CLOSURE.VARIABLENAMES_!"
+T1   A81    V37     1*        >V>           !_CLOSURE.VARIABLENAMES_! => " DOER"
+T1   A81    V37     1*        >L>           " "
+T1   A81    V37     1*        >V>           V => "SELF"
+T1   A81    V37     1*        >O>           "" => " SELF"
+T1   A81    V37     1*        >O>           "||" => " DOER SELF"
+T1   A81    V37     1*        >>>           " DOER SELF"
+T1   A81    V37     1*        >C>           !_CLOSURE.VARIABLENAMES_! => "!_CLOSURE.VARIABLENAMES_!"
+T1   A81    V37     1*        >=>           !_CLOSURE.VARIABLENAMES_! <= " DOER SELF"
+T1   A81    V37     1*    684 *-*       end
+T1   A81    V37     1*    682 *-*       do v over variables
+T1   A81    V37     1*        >=>           V <= "ACTION"
+T1   A81    V37     1*        >>>           "ACTION"
+T1   A81    V37     1*    683 *-*         !_closure.variableNames_! ||= " "v
+T1   A81    V37     1*        >C>           !_CLOSURE.VARIABLENAMES_! => "!_CLOSURE.VARIABLENAMES_!"
+T1   A81    V37     1*        >V>           !_CLOSURE.VARIABLENAMES_! => " DOER SELF"
+T1   A81    V37     1*        >L>           " "
+T1   A81    V37     1*        >V>           V => "ACTION"
+T1   A81    V37     1*        >O>           "" => " ACTION"
+T1   A81    V37     1*        >O>           "||" => " DOER SELF ACTION"
+T1   A81    V37     1*        >>>           " DOER SELF ACTION"
+T1   A81    V37     1*        >C>           !_CLOSURE.VARIABLENAMES_! => "!_CLOSURE.VARIABLENAMES_!"
+T1   A81    V37     1*        >=>           !_CLOSURE.VARIABLENAMES_! <= " DOER SELF ACTION"
+T1   A81    V37     1*    684 *-*       end
+T1   A81    V37     1*    682 *-*       do v over variables
+T1   A81    V37     1*        >=>           V <= "SUPER"
+T1   A81    V37     1*        >>>           "SUPER"
+T1   A81    V37     1*    683 *-*         !_closure.variableNames_! ||= " "v
+T1   A81    V37     1*        >C>           !_CLOSURE.VARIABLENAMES_! => "!_CLOSURE.VARIABLENAMES_!"
+T1   A81    V37     1*        >V>           !_CLOSURE.VARIABLENAMES_! => " DOER SELF ACTION"
+T1   A81    V37     1*        >L>           " "
+T1   A81    V37     1*        >V>           V => "SUPER"
+T1   A81    V37     1*        >O>           "" => " SUPER"
+T1   A81    V37     1*        >O>           "||" => " DOER SELF ACTION SUPER"
+T1   A81    V37     1*        >>>           " DOER SELF ACTION SUPER"
+T1   A81    V37     1*        >C>           !_CLOSURE.VARIABLENAMES_! => "!_CLOSURE.VARIABLENAMES_!"
+T1   A81    V37     1*        >=>           !_CLOSURE.VARIABLENAMES_! <= " DOER SELF ACTION SUPER"
+T1   A81    V37     1*    684 *-*       end
+T1   A81    V37     1*    682 *-*       do v over variables
+T1   A81    V37     1*        >=>           V <= "UPPERLIMIT"
+T1   A81    V37     1*        >>>           "UPPERLIMIT"
+T1   A81    V37     1*    683 *-*         !_closure.variableNames_! ||= " "v
+T1   A81    V37     1*        >C>           !_CLOSURE.VARIABLENAMES_! => "!_CLOSURE.VARIABLENAMES_!"
+T1   A81    V37     1*        >V>           !_CLOSURE.VARIABLENAMES_! => " DOER SELF ACTION SUPER"
+T1   A81    V37     1*        >L>           " "
+T1   A81    V37     1*        >V>           V => "UPPERLIMIT"
+T1   A81    V37     1*        >O>           "" => " UPPERLIMIT"
+T1   A81    V37     1*        >O>           "||" => " DOER SELF ACTION SUPER UPPERLIMIT"
+T1   A81    V37     1*        >>>           " DOER SELF ACTION SUPER UPPERLIMIT"
+T1   A81    V37     1*        >C>           !_CLOSURE.VARIABLENAMES_! => "!_CLOSURE.VARIABLENAMES_!"
+T1   A81    V37     1*        >=>           !_CLOSURE.VARIABLENAMES_! <= " DOER SELF ACTION SUPER UPPERLIMIT"
+T1   A81    V37     1*    684 *-*       end
+T1   A81    V37     1*    682 *-*       do v over variables
+T1   A81    V37     1*    685 *-*     self~initVariables(variables)
+T1   A81    V37     1*        >V>       SELF => "a Closure"
+T1   A81    V37     1*        >V>       VARIABLES => "a Directory"
+T1   A81    V37     1*        >A>       "a Directory"
+T1   A82    V37     1         >I> Method INITVARIABLES with scope "Closure" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers.cls
+T1   A82    V37     2*    694 *-* expose !_closure.variableNames_! (!_closure.variableNames_!)
+T1   A82    V37     2*        >C>   !_CLOSURE.VARIABLENAMES_! => "!_CLOSURE.VARIABLENAMES_!"
+T1   A82    V37     2*        >C>   !_CLOSURE.VARIABLENAMES_! => "!_CLOSURE.VARIABLENAMES_!"
+T1   A82    V37     2*        >V>   !_CLOSURE.VARIABLENAMES_! => " DOER SELF ACTION SUPER UPPERLIMIT"
+T1   A82    V37     2*        >C>   !_CLOSURE.VARIABLENAMES_! => "!_CLOSURE.VARIABLENAMES_!"
+T1   A82    V37     2*    696 *-* use strict arg !_closure.variables_!
+T1   A82    V37     2*        >>>   "a Directory"
+T1   A82    V37     2*        >C>   !_CLOSURE.VARIABLES_! => "!_CLOSURE.VARIABLES_!"
+T1   A82    V37     2*        >=>   !_CLOSURE.VARIABLES_! <= "a Directory"
+T1   A82    V37     2*    697 *-* !_closure.supplier_! = !_closure.variables_!~supplier
+T1   A82    V37     2*        >C>   !_CLOSURE.VARIABLES_! => "!_CLOSURE.VARIABLES_!"
+T1   A82    V37     2*        >V>   !_CLOSURE.VARIABLES_! => "a Directory"
+T1   A82    V37     2*        >M>   "SUPPLIER" => "a Supplier"
+T1   A82    V37     2*        >>>   "a Supplier"
+T1   A82    V37     2*        >C>   !_CLOSURE.SUPPLIER_! => "!_CLOSURE.SUPPLIER_!"
+T1   A82    V37     2*        >=>   !_CLOSURE.SUPPLIER_! <= "a Supplier"
+T1   A82    V37     2*    698 *-* do while !_closure.supplier_!~available
+T1   A82    V37     2*        >C>     !_CLOSURE.SUPPLIER_! => "!_CLOSURE.SUPPLIER_!"
+T1   A82    V37     2*        >V>     !_CLOSURE.SUPPLIER_! => "a Supplier"
+T1   A82    V37     2*        >M>     "AVAILABLE" => "1"
+T1   A82    V37     2*        >>>     "1"
+T1   A82    V37     2*    699 *-*   call value !_closure.supplier_!~index, !_closure.supplier_!~item
+T1   A82    V37     2*        >C>     !_CLOSURE.SUPPLIER_! => "!_CLOSURE.SUPPLIER_!"
+T1   A82    V37     2*        >V>     !_CLOSURE.SUPPLIER_! => "a Supplier"
+T1   A82    V37     2*        >M>     "INDEX" => "DOER"
+T1   A82    V37     2*        >A>     "DOER"
+T1   A82    V37     2*        >C>     !_CLOSURE.SUPPLIER_! => "!_CLOSURE.SUPPLIER_!"
+T1   A82    V37     2*        >V>     !_CLOSURE.SUPPLIER_! => "a Supplier"
+T1   A82    V37     2*        >M>     "ITEM" => "a Routine"
+T1   A82    V37     2*        >A>     "a Routine"
+T1   A82    V37     2*        >=>     DOER <= "a Routine"
+T1   A82    V37     2*        >>>     "DOER"
+T1   A82    V37     2*    700 *-*   !_closure.supplier_!~next
+T1   A82    V37     2*        >C>     !_CLOSURE.SUPPLIER_! => "!_CLOSURE.SUPPLIER_!"
+T1   A82    V37     2*        >V>     !_CLOSURE.SUPPLIER_! => "a Supplier"
+T1   A82    V37     2*    701 *-* end
+T1   A82    V37     2*    698 *-* do while !_closure.supplier_!~available
+T1   A82    V37     2*        >C>     !_CLOSURE.SUPPLIER_! => "!_CLOSURE.SUPPLIER_!"
+T1   A82    V37     2*        >V>     !_CLOSURE.SUPPLIER_! => "a Supplier"
+T1   A82    V37     2*        >M>     "AVAILABLE" => "1"
+T1   A82    V37     2*        >>>     "1"
+T1   A82    V37     2*    699 *-*   call value !_closure.supplier_!~index, !_closure.supplier_!~item
+T1   A82    V37     2*        >C>     !_CLOSURE.SUPPLIER_! => "!_CLOSURE.SUPPLIER_!"
+T1   A82    V37     2*        >V>     !_CLOSURE.SUPPLIER_! => "a Supplier"
+T1   A82    V37     2*        >M>     "INDEX" => "UPPERLIMIT"
+T1   A82    V37     2*        >A>     "UPPERLIMIT"
+T1   A82    V37     2*        >C>     !_CLOSURE.SUPPLIER_! => "!_CLOSURE.SUPPLIER_!"
+T1   A82    V37     2*        >V>     !_CLOSURE.SUPPLIER_! => "a Supplier"
+T1   A82    V37     2*        >M>     "ITEM" => "10"
+T1   A82    V37     2*        >A>     "10"
+T1   A82    V37     2*        >=>     UPPERLIMIT <= "10"
+T1   A82    V37     2*        >>>     "UPPERLIMIT"
+T1   A82    V37     2*    700 *-*   !_closure.supplier_!~next
+T1   A82    V37     2*        >C>     !_CLOSURE.SUPPLIER_! => "!_CLOSURE.SUPPLIER_!"
+T1   A82    V37     2*        >V>     !_CLOSURE.SUPPLIER_! => "a Supplier"
+T1   A82    V37     2*    701 *-* end
+T1   A82    V37     2*    698 *-* do while !_closure.supplier_!~available
+T1   A82    V37     2*        >C>     !_CLOSURE.SUPPLIER_! => "!_CLOSURE.SUPPLIER_!"
+T1   A82    V37     2*        >V>     !_CLOSURE.SUPPLIER_! => "a Supplier"
+T1   A82    V37     2*        >M>     "AVAILABLE" => "1"
+T1   A82    V37     2*        >>>     "1"
+T1   A82    V37     2*    699 *-*   call value !_closure.supplier_!~index, !_closure.supplier_!~item
+T1   A82    V37     2*        >C>     !_CLOSURE.SUPPLIER_! => "!_CLOSURE.SUPPLIER_!"
+T1   A82    V37     2*        >V>     !_CLOSURE.SUPPLIER_! => "a Supplier"
+T1   A82    V37     2*        >M>     "INDEX" => "ACTION"
+T1   A82    V37     2*        >A>     "ACTION"
+T1   A82    V37     2*        >C>     !_CLOSURE.SUPPLIER_! => "!_CLOSURE.SUPPLIER_!"
+T1   A82    V37     2*        >V>     !_CLOSURE.SUPPLIER_! => "a Supplier"
+T1   A82    V37     2*        >M>     "ITEM" => "a RexxBlock"
+T1   A82    V37     2*        >A>     "a RexxBlock"
+T1   A82    V37     2*        >=>     ACTION <= "a RexxBlock"
+T1   A82    V37     2*        >>>     "ACTION"
+T1   A82    V37     2*    700 *-*   !_closure.supplier_!~next
+T1   A82    V37     2*        >C>     !_CLOSURE.SUPPLIER_! => "!_CLOSURE.SUPPLIER_!"
+T1   A82    V37     2*        >V>     !_CLOSURE.SUPPLIER_! => "a Supplier"
+T1   A82    V37     2*    701 *-* end
+T1   A82    V37     2*    698 *-* do while !_closure.supplier_!~available
+T1   A82    V37     2*        >C>     !_CLOSURE.SUPPLIER_! => "!_CLOSURE.SUPPLIER_!"
+T1   A82    V37     2*        >V>     !_CLOSURE.SUPPLIER_! => "a Supplier"
+T1   A82    V37     2*        >M>     "AVAILABLE" => "1"
+T1   A82    V37     2*        >>>     "1"
+T1   A82    V37     2*    699 *-*   call value !_closure.supplier_!~index, !_closure.supplier_!~item
+T1   A82    V37     2*        >C>     !_CLOSURE.SUPPLIER_! => "!_CLOSURE.SUPPLIER_!"
+T1   A82    V37     2*        >V>     !_CLOSURE.SUPPLIER_! => "a Supplier"
+T1   A82    V37     2*        >M>     "INDEX" => "SUPER"
+T1   A82    V37     2*        >A>     "SUPER"
+T1   A82    V37     2*        >C>     !_CLOSURE.SUPPLIER_! => "!_CLOSURE.SUPPLIER_!"
+T1   A82    V37     2*        >V>     !_CLOSURE.SUPPLIER_! => "a Supplier"
+T1   A82    V37     2*        >M>     "ITEM" => "The LogicalExtension class"
+T1   A82    V37     2*        >A>     "The LogicalExtension class"
+T1   A82    V37     2*        >=>     SUPER <= "The LogicalExtension class"
+T1   A82    V37     2*        >>>     "SUPER"
+T1   A82    V37     2*    700 *-*   !_closure.supplier_!~next
+T1   A82    V37     2*        >C>     !_CLOSURE.SUPPLIER_! => "!_CLOSURE.SUPPLIER_!"
+T1   A82    V37     2*        >V>     !_CLOSURE.SUPPLIER_! => "a Supplier"
+T1   A82    V37     2*    701 *-* end
+T1   A82    V37     2*    698 *-* do while !_closure.supplier_!~available
+T1   A82    V37     2*        >C>     !_CLOSURE.SUPPLIER_! => "!_CLOSURE.SUPPLIER_!"
+T1   A82    V37     2*        >V>     !_CLOSURE.SUPPLIER_! => "a Supplier"
+T1   A82    V37     2*        >M>     "AVAILABLE" => "1"
+T1   A82    V37     2*        >>>     "1"
+T1   A82    V37     2*    699 *-*   call value !_closure.supplier_!~index, !_closure.supplier_!~item
+T1   A82    V37     2*        >C>     !_CLOSURE.SUPPLIER_! => "!_CLOSURE.SUPPLIER_!"
+T1   A82    V37     2*        >V>     !_CLOSURE.SUPPLIER_! => "a Supplier"
+T1   A82    V37     2*        >M>     "INDEX" => "SELF"
+T1   A82    V37     2*        >A>     "SELF"
+T1   A82    V37     2*        >C>     !_CLOSURE.SUPPLIER_! => "!_CLOSURE.SUPPLIER_!"
+T1   A82    V37     2*        >V>     !_CLOSURE.SUPPLIER_! => "a Supplier"
+T1   A82    V37     2*        >M>     "ITEM" => "1"
+T1   A82    V37     2*        >A>     "1"
+T1   A82    V37     2*        >=>     SELF <= "1"
+T1   A82    V37     2*        >>>     "SELF"
+T1   A82    V37     2*    700 *-*   !_closure.supplier_!~next
+T1   A82    V37     2*        >C>     !_CLOSURE.SUPPLIER_! => "!_CLOSURE.SUPPLIER_!"
+T1   A82    V37     2*        >V>     !_CLOSURE.SUPPLIER_! => "a Supplier"
+T1   A82    V37     2*    701 *-* end
+T1   A82    V37     2*    698 *-* do while !_closure.supplier_!~available
+T1   A82    V37     2*        >C>     !_CLOSURE.SUPPLIER_! => "!_CLOSURE.SUPPLIER_!"
+T1   A82    V37     2*        >V>     !_CLOSURE.SUPPLIER_! => "a Supplier"
+T1   A82    V37     2*        >M>     "AVAILABLE" => "0"
+T1   A82    V37     2*        >>>     "0"
+T1   A81    V37     1*    686 *-* end
+T1   A81    V37     1*    687 *-* if .nil <> action 
+T1   A81    V37     1*        >E>   .NIL => "The NIL object"
+T1   A81    V37     1*        >V>   ACTION => "a Method"
+T1   A81    V37     1*        >O>   "<>" => "1"
+T1   A81    V37     1*        >>>   "1"
+T1   A81    V37     1*    687 *-*   then
+T1   A81    V37     1*    687 *-*     do
+T1   A81    V37     1*    688 *-*       method = action~doer
+T1   A81    V37     1*        >V>         ACTION => "a Method"
+T1   A83    V38               >I> Method DOER with scope "MethodDoer" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers.cls
+T1   A83    V38           412 *-* use strict arg -- none
+T1   A83    V38           413 *-* return self
+T1   A83    V38               >V>   SELF => "a Method"
+T1   A83    V38               >>>   "a Method"
+T1   A81    V37     1*        >M>         "DOER" => "a Method"
+T1   A81    V37     1*        >>>         "a Method"
+T1   A81    V37     1*        >=>         METHOD <= "a Method"
+T1   A81    V37     1*    689 *-*       self~setMethod("do", method, "Object")
+T1   A81    V37     1*        >V>         SELF => "a Closure"
+T1   A81    V37     1*        >L>         "do"
+T1   A81    V37     1*        >A>         "do"
+T1   A81    V37     1*        >V>         METHOD => "a Method"
+T1   A81    V37     1*        >A>         "a Method"
+T1   A81    V37     1*        >L>         "Object"
+T1   A81    V37     1*        >A>         "Object"
+T1   A84    V37     1         >I> Method SETMETHOD with scope "Closure" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers.cls
+T1   A84    V37     1     705 *-* forward class (super)
+T1   A84    V37     1         >V>   SUPER => "The Doer class"
+T1   A81    V37     1*    690 *-*   end
+T1   A80    V36               >M>                   "NEW" => "a Closure"
+T1   A80    V36               >A>                   "a Closure"
+T1   A85    V39               >I> Method INIT with scope "Coactivity" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity.cls
+T1   A85    V39     1*    117 *-* expose coactivityObj
+T1   A85    V39     1*    118 *-* proxy = .WeakProxy~new(self)
+T1   A85    V39     1*        >E>   .WEAKPROXY => "The WeakProxy class"
+T1   A85    V39     1*        >V>   SELF => "a Coactivity"
+T1   A85    V39     1*        >A>   "a Coactivity"
+T1   A85    V39     1*        >M>   "NEW" => "a WeakProxy"
+T1   A85    V39     1*        >>>   "a WeakProxy"
+T1   A85    V39     1*        >=>   PROXY <= "a WeakProxy"
+T1   A85    V39     1*    119 *-* use strict arg action="main", start=.false, object=(proxy) -- object must reference the proxy, not directly the coactivity, otherwise the coactivity will never be GC'ed
+T1   A85    V39     1*        >>>   "a Closure"
+T1   A85    V39     1*        >=>   ACTION <= "a Closure"
+T1   A85    V39     1*        >E>   .FALSE => "0"
+T1   A85    V39     1*        >>>   "0"
+T1   A85    V39     1*        >=>   START <= "0"
+T1   A85    V39     1*        >V>   PROXY => "a WeakProxy"
+T1   A85    V39     1*        >>>   "a WeakProxy"
+T1   A85    V39     1*        >=>   OBJECT <= "a WeakProxy"
+T1   A85    V39     1*    122 *-* coactivityObj = .CoactivityObj~new(action, start, object, proxy)
+T1   A85    V39     1*        >E>   .COACTIVITYOBJ => "The CoactivityObj class"
+T1   A85    V39     1*        >V>   ACTION => "a Closure"
+T1   A85    V39     1*        >A>   "a Closure"
+T1   A85    V39     1*        >V>   START => "0"
+T1   A85    V39     1*        >A>   "0"
+T1   A85    V39     1*        >V>   OBJECT => "a WeakProxy"
+T1   A85    V39     1*        >A>   "a WeakProxy"
+T1   A85    V39     1*        >V>   PROXY => "a WeakProxy"
+T1   A85    V39     1*        >A>   "a WeakProxy"
+T1   A86    V40               >I> Method INIT with scope "CoactivityObj" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity.cls
+T1   A86    V40           281 *-* expose doer object proxy status yieldIndex
+T1   A86    V40           282 *-* use strict arg action, start, object, proxy
+T1   A86    V40               >>>   "a Closure"
+T1   A86    V40               >=>   ACTION <= "a Closure"
+T1   A86    V40               >>>   "0"
+T1   A86    V40               >=>   START <= "0"
+T1   A86    V40               >>>   "a WeakProxy"
+T1   A86    V40               >=>   OBJECT <= "a WeakProxy"
+T1   A86    V40               >>>   "a WeakProxy"
+T1   A86    V40               >=>   PROXY <= "a WeakProxy"
+T1   A86    V40           283 *-* doer = action~doer
+T1   A86    V40               >V>   ACTION => "a Closure"
+T1   A87    V37               >I> Method DOER with scope "Closure" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers.cls
+T1   A87    V37           709 *-* use strict arg -- none
+T1   A87    V37           710 *-* return self
+T1   A87    V37               >V>   SELF => "a Closure"
+T1   A87    V37               >>>   "a Closure"
+T1   A86    V40               >M>   "DOER" => "a Closure"
+T1   A86    V40               >>>   "a Closure"
+T1   A86    V40               >=>   DOER <= "a Closure"
+T1   A86    V40           284 *-* status = .CoactivityObj~notStarted
+T1   A86    V40               >E>   .COACTIVITYOBJ => "The CoactivityObj class"
+T1   A86    V40               >M>   "NOTSTARTED" => "0"
+T1   A86    V40               >>>   "0"
+T1   A86    V40               >=>   STATUS <= "0"
+T1   A86    V40           285 *-* yieldIndex = 0
+T1   A86    V40               >L>   "0"
+T1   A86    V40               >>>   "0"
+T1   A86    V40               >=>   YIELDINDEX <= "0"
+T1   A86    V40           286 *-* if start 
+T1   A86    V40               >V>   START => "0"
+T1   A86    V40               >>>   "0"
+T1   A85    V39     1*        >M>   "NEW" => "a CoactivityObj"
+T1   A85    V39     1*        >>>   "a CoactivityObj"
+T1   A85    V39     1*        >=>   COACTIVITYOBJ <= "a CoactivityObj"
+T1   A80    V36               >M>                   "NEW" => "a Coactivity"
+T1   A80    V36               >>>                   "a Coactivity"
+T1   A79    V36               >M>   "SOURCEDOER" => "a Coactivity"
+T1   A79    V36               >>>   "a Coactivity"
+T1   A79    V36               >=>   EXECUTABLE <= "a Coactivity"
+T1   A79    V36           515 *-* arity = self~arity
+T1   A79    V36               >V>   SELF => "a RexxBlock"
+T1   A88    V41               >I> Method ARITY with scope "Doer" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers.cls
+T1   A88    V41            48 *-* expose arity
+T1   A88    V41            49 *-* if arg() <> 0 
+T1   A88    V41               >F>   ARG => "0"
+T1   A88    V41               >L>   "0"
+T1   A88    V41               >O>   "<>" => "0"
+T1   A88    V41               >>>   "0"
+T1   A88    V41            54 *-*   else
+T1   A88    V41            54 *-*     if \var("arity") 
+T1   A88    V41               >L>       "arity"
+T1   A88    V41               >A>       "arity"
+T1   A88    V41               >F>       VAR => "0"
+T1   A88    V41               >P>       "\" => "1"
+T1   A88    V41               >>>       "1"
+T1   A88    V41            54 *-*       then
+T1   A88    V41            54 *-*         return -1 -- unknown arity
+T1   A88    V41               >L>           "1"
+T1   A88    V41               >P>           "-" => "-1"
+T1   A88    V41               >>>           "-1"
+T1   A79    V36               >M>   "ARITY" => "-1"
+T1   A79    V36               >>>   "-1"
+T1   A79    V36               >=>   ARITY <= "-1"
+T1   A79    V36           516 *-* if arity == -1 
+T1   A79    V36               >V>   ARITY => "-1"
+T1   A79    V36               >L>   "1"
+T1   A79    V36               >P>   "-" => "-1"
+T1   A79    V36               >O>   "==" => "1"
+T1   A79    V36               >>>   "1"
+T1   A79    V36           516 *-*   then
+T1   A79    V36           516 *-*     arity = 9999
+T1   A79    V36               >L>       "9999"
+T1   A79    V36               >>>       "9999"
+T1   A79    V36               >=>       ARITY <= "9999"
+T1   A79    V36           517 *-* executable~arity(arity)
+T1   A79    V36               >V>   EXECUTABLE => "a Coactivity"
+T1   A79    V36               >V>   ARITY => "9999"
+T1   A79    V36               >A>   "9999"
+T1   A89    V42               >I> Method ARITY with scope "Doer" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers.cls
+T1   A89    V42            48 *-* expose arity
+T1   A89    V42            49 *-* if arg() <> 0 
+T1   A89    V42               >F>   ARG => "1"
+T1   A89    V42               >L>   "0"
+T1   A89    V42               >O>   "<>" => "1"
+T1   A89    V42               >>>   "1"
+T1   A89    V42            49 *-*   then
+T1   A89    V42            49 *-*     do
+T1   A89    V42            50 *-*       guard on
+T1   A89    V42     1*     51 *-*       use strict arg arity -- store the arity
+T1   A89    V42     1*        >>>         "9999"
+T1   A89    V42     1*        >=>         ARITY <= "9999"
+T1   A89    V42     1*     52 *-*       return self -- for convenience, return the doer itself
+T1   A89    V42     1*        >V>         SELF => "a Coactivity"
+T1   A89    V42     1*        >>>         "a Coactivity"
+T1   A79    V36               >>>   "a Coactivity"
+T1   A79    V36           519 *-* return executable
+T1   A79    V36               >V>   EXECUTABLE => "a Coactivity"
+T1   A79    V36               >>>   "a Coactivity"
+T1   A72    V32               >M>   "DOER" => "a Coactivity"
+T1   A72    V32               >>>   "a Coactivity"
+T1   A71                      >M>   "GENERATE.UPTO" => "a Coactivity"
+T1   A71                      >>>   "a Coactivity"
+T1   A71                      >=>   G <= "a Coactivity"
+T1   A71                   12 *-* say g~()           -- 1
+T1   A71                      >V>   G => "a Coactivity"
+T1   A90    V42               >I> Method ~() with scope "Doer" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers.cls
+T1   A90    V42            60 *-* forward message "do"
+T1   A90    V42               >L>   "do"
+T1   A91    V43               >I> Method DO with scope "CoactivityDoer" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers.cls
+T1   A91    V43           619 *-* forward message "resume"
+T1   A91    V43               >L>   "resume"
+T1   A92    V39               >I> Method RESUME with scope "Coactivity" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity.cls
+T1   A92    V39     1*    190 *-* expose coactivityObj
+T1   A92    V39     1*    191 *-* forward to (coactivityObj)
+T1   A92    V39     1*        >V>   COACTIVITYOBJ => "a CoactivityObj"
+T1   A93    V40               >I> Method RESUME with scope "CoactivityObj" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity.cls
+T1   A93    V40     1*    380 *-* expose arguments namedArguments status yieldItem
+T1   A93    V40     1*    381 *-* if status == .CoactivityObj~notStarted 
+T1   A93    V40     1*        >V>   STATUS => "0"
+T1   A93    V40     1*        >E>   .COACTIVITYOBJ => "The CoactivityObj class"
+T1   A93    V40     1*        >M>   "NOTSTARTED" => "0"
+T1   A93    V40     1*        >O>   "==" => "1"
+T1   A93    V40     1*        >>>   "1"
+T1   A93    V40     1*    381 *-*   then
+T1   A93    V40     1*    381 *-*     self~start
+T1   A93    V40     1*        >V>       SELF => "a CoactivityObj"
+T1   A94    V40     1         >I> Method START with scope "CoactivityObj" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity.cls
+T1   A94    V40     2*    301 *-* expose arguments namedArguments doer object status
+T1   A94    V40     2*    302 *-* use strict arg -- no arg
+T1   A94    V40     2*    303 *-* if status <> .CoactivityObj~notStarted 
+T1   A94    V40     2*        >V>   STATUS => "0"
+T1   A94    V40     2*        >E>   .COACTIVITYOBJ => "The CoactivityObj class"
+T1   A94    V40     2*        >M>   "NOTSTARTED" => "0"
+T1   A94    V40     2*        >O>   "<>" => "0"
+T1   A94    V40     2*        >>>   "0"
+T1   A94    V40     2*    304 *-* status = .CoactivityObj~suspended
+T1   A94    V40     2*        >E>   .COACTIVITYOBJ => "The CoactivityObj class"
+T1   A94    V40     2*        >M>   "SUSPENDED" => "1"
+T1   A94    V40     2*        >>>   "1"
+T1   A94    V40     2*        >=>   STATUS <= "1"
+T1   A94    V40     2*    305 *-* reply self
+T1   A94    V40     2*        >V>   SELF => "a CoactivityObj"
+T1   A94    V40     2*        >>>   "a CoactivityObj"
+T1   A93    V40     1*        >>>       "a CoactivityObj"
+T1   A93    V40     1*    382 *-* if status == .CoactivityObj~killed 
+T1   A93    V40     1*        >V>   STATUS => "1"
+T1   A93    V40     1*        >E>   .COACTIVITYOBJ => "The CoactivityObj class"
+T1   A93    V40     1*        >M>   "KILLED" => "4"
+T1   A93    V40     1*        >O>   "==" => "0"
+T1   A93    V40     1*        >>>   "0"
+T1   A93    V40     1*    383 *-* if status == .CoactivityObj~ended 
+T1   A93    V40     1*        >V>   STATUS => "1"
+T1   A93    V40     1*        >E>   .COACTIVITYOBJ => "The CoactivityObj class"
+T1   A93    V40     1*        >M>   "ENDED" => "3"
+T1   A93    V40     1*        >O>   "==" => "0"
+T1   A93    V40     1*        >>>   "0"
+T1   A93    V40     1*    384 *-* arguments = .context~args
+T1   A93    V40     1*        >E>   .CONTEXT => "a RexxContext"
+T1   A93    V40     1*        >M>   "ARGS" => "an Array"
+T1   A93    V40     1*        >>>   "an Array"
+T1   A93    V40     1*        >=>   ARGUMENTS <= "an Array"
+T1   A93    V40     1*    385 *-* namedArguments = .context~namedArgs
+T1   A93    V40     1*        >E>   .CONTEXT => "a RexxContext"
+T1   A93    V40     1*        >M>   "NAMEDARGS" => "a Directory"
+T1   A93    V40     1*        >>>   "a Directory"
+T1   A93    V40     1*        >=>   NAMEDARGUMENTS <= "a Directory"
+T1   A93    V40     1*    386 *-* status = .CoactivityObj~running
+T1   A93    V40     1*        >E>   .COACTIVITYOBJ => "The CoactivityObj class"
+T1   A93    V40     1*        >M>   "RUNNING" => "2"
+T1   A93    V40     1*        >>>   "2"
+T1   A93    V40     1*        >=>   STATUS <= "2"
+T1   A93    V40     1*    387 *-* guard off
+T1   A93    V40     1     388 *-* guard on when status <> .CoactivityObj~running
+T2   A94    V40     1*        >I> Method START with scope "CoactivityObj" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity.cls
+T2   A94    V40     1*    306 *-* .threadLocal["coactivity"] = self
+T2   A94    V40     1*        >E>   .THREADLOCAL => "a Directory"
+T2   A94    V40     1*        >V>   SELF => "a CoactivityObj"
+T2   A94    V40     1*        >A>   "a CoactivityObj"
+T2   A94    V40     1*        >L>   "coactivity"
+T2   A94    V40     1*        >A>   "coactivity"
+T2   A94    V40     1*    307 *-* .Coactivity~register(self)
+T2   A94    V40     1*        >E>   .COACTIVITY => "The Coactivity class"
+T2   A94    V40     1*        >V>   SELF => "a CoactivityObj"
+T2   A94    V40     1*        >A>   "a CoactivityObj"
+T2   A95    V44               >I> Method REGISTER with scope "Coactivity" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity.cls
+T2   A95    V44     1*     69 *-* expose globalCache
+T2   A95    V44     1*     70 *-* use strict arg coactivityObj -- Remember : don't register the proxy ! that would forbid GC
+T2   A95    V44     1*        >>>   "a CoactivityObj"
+T2   A95    V44     1*        >=>   COACTIVITYOBJ <= "a CoactivityObj"
+T2   A95    V44     1*     74 *-* globalCache[coactivityObj~identityHash] = coactivityObj
+T2   A95    V44     1*        >V>   GLOBALCACHE => "a Directory"
+T2   A95    V44     1*        >V>   COACTIVITYOBJ => "a CoactivityObj"
+T2   A95    V44     1*        >A>   "a CoactivityObj"
+T2   A95    V44     1*        >V>   COACTIVITYOBJ => "a CoactivityObj"
+T2   A95    V44     1*        >M>   "IDENTITYHASH" => "561251590"
+T2   A95    V44     1*        >A>   "561251590"
+T2   A94    V40     1*    308 *-* signal on any name trapCondition -- catch all
+T2   A94    V40     1*    309 *-* signal on syntax name trapCondition -- gives better messages
+T2   A94    V40     1*    310 *-* guard off
+T2   A94    V40     1     311 *-* guard on when status <> .CoactivityObj~suspended
+T1   A93    V40     1*        >V>   STATUS => "2"
+T1   A93    V40     1*        >E>   .COACTIVITYOBJ => "The CoactivityObj class"
+T1   A93    V40     1*        >M>   "RUNNING" => "2"
+T1   A93    V40     1*        >O>   "<>" => "0"
+T1   A93    V40     1*        >>>   "0"
+T2   A94    V40     1*        >V>   STATUS => "2"
+T2   A94    V40     1*        >E>   .COACTIVITYOBJ => "The CoactivityObj class"
+T2   A94    V40     1*        >M>   "SUSPENDED" => "1"
+T2   A94    V40     1*        >O>   "<>" => "1"
+T2   A94    V40     1*        >>>   "1"
+T2   A94    V40     1*    312 *-* if status == .CoactivityObj~running 
+T2   A94    V40     1*        >V>   STATUS => "2"
+T2   A94    V40     1*        >E>   .COACTIVITYOBJ => "The CoactivityObj class"
+T2   A94    V40     1*        >M>   "RUNNING" => "2"
+T2   A94    V40     1*        >O>   "==" => "1"
+T2   A94    V40     1*        >>>   "1"
+T2   A94    V40     1*    312 *-*   then
+T2   A94    V40     1*    312 *-*     do
+T2   A94    V40     1*    313 *-*       guard off
+T2   A94    V40           315 *-*       if doer~needsObject 
+T2   A94    V40               >V>         DOER => "a Closure"
+T2   A96    V37               >I> Method NEEDSOBJECT with scope "Closure" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers.cls
+T2   A96    V37           714 *-* return .false -- The closure itself is the object
+T2   A96    V37               >E>   .FALSE => "0"
+T2   A96    V37               >>>   "0"
+T2   A94    V40               >M>         "NEEDSOBJECT" => "0"
+T2   A94    V40               >>>         "0"
+T2   A94    V40           316 *-*         else
+T2   A94    V40           316 *-*           doer~doWith(arguments, namedArguments: namedArguments) -- no object needed (routine)
+T2   A94    V40               >V>             DOER => "a Closure"
+T2   A94    V40               >V>             ARGUMENTS => "an Array"
+T2   A94    V40               >A>             "an Array"
+T2   A94    V40               >N>             "NAMEDARGUMENTS"
+T2   A94    V40               >V>             NAMEDARGUMENTS => "a Directory"
+T2   A94    V40               >A>             "a Directory"
+T2   A97    V37               >I> Method DOWITH with scope "Closure" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers.cls
+T2   A97    V37           718 *-* use strict arg array
+T2   A97    V37               >>>   "an Array"
+T2   A97    V37               >=>   ARRAY <= "an Array"
+T2   A97    V37           719 *-* use strict named arg namedArguments(1) = (.nil)
+T2   A97    V37               >>>   "a Directory"
+T2   A97    V37               >=>   NAMEDARGUMENTS <= "a Directory"
+T2   A97    V37           720 *-* forward message "do" arguments (array) namedArguments(namedArguments)
+T2   A97    V37               >L>   "do"
+T2   A97    V37               >V>   ARRAY => "an Array"
+T2   A97    V37               >V>   NAMEDARGUMENTS => "a Directory"
+T2   A98    V37               >I> Method DO with scope "Closure" in package do
+T2   A98    V37     1*      2 *-* expose doer upperLimit self
+T2   A98    V37     1*      3 *-* use auto named arg ;
+T2   A98    V37     1*      3 *-* options "NOCOMMANDS" ;
+T2   A98    V37     1*        >L>   "NOCOMMANDS"
+T2   A98    V37     1*        >>>   "NOCOMMANDS"
+T2   A98    V37     1*      3 *-* use strict arg
+T2   A98    V37     1*      4 *-* do i = self to upperLimit
+T2   A98    V37     1*        >V>     SELF => "1"
+T2   A98    V37     1*        >V>     UPPERLIMIT => "10"
+T2   A98    V37     1*        >=>     I <= "1"
+T2   A98    V37     1*        >>>     "1"
+T2   A98    V37     1*      5 *-*   doer~do(      i,-                        item: i)
+T2   A98    V37     1*        >V>     DOER => "a Routine"
+T2   A98    V37     1*        >V>     I => "1"
+T2   A98    V37     1*        >A>     "1"
+T2   A98    V37     1*        >N>     "ITEM"
+T2   A98    V37     1*        >V>     I => "1"
+T2   A98    V37     1*        >A>     "1"
+T2   A99    V45               >I> Method DO with scope "RoutineDoer" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers.cls
+T2   A99    V45           306 *-* forward message "call"
+T2   A99    V45               >L>   "call"
+T2   A100                     >I> Routine <anonymous> in package /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/generator.cls
+T2   A100                   1 *-* use auto named arg ;
+T2   A100                     >>>   "1"
+T2   A100                     >=>   ITEM <= "1"
+T2   A100                   1 *-* options "NOCOMMANDS" ;
+T2   A100                     >L>   "NOCOMMANDS"
+T2   A100                     >>>   "NOCOMMANDS"
+T2   A100                   1 *-* arg(1)
+T2   A100                     >L>   "1"
+T2   A100                     >A>   "1"
+T2   A100                     >F>   ARG => "1"
+T2   A100                     >>>   "1"
+T2   A100                   2 *-* if var("result") 
+T2   A100                     >L>   "result"
+T2   A100                     >A>   "result"
+T2   A100                     >F>   VAR => "1"
+T2   A100                     >>>   "1"
+T2   A100                   2 *-*   then
+T2   A100                   2 *-*     return result
+T2   A100                     >V>       RESULT => "1"
+T2   A100                     >>>       "1"
+T2   A98    V37     1*        >>>     "1"
+T2   A98    V37     1*      7 *-*   if var("result") 
+T2   A98    V37     1*        >L>     "result"
+T2   A98    V37     1*        >A>     "result"
+T2   A98    V37     1*        >F>     VAR => "1"
+T2   A98    V37     1*        >>>     "1"
+T2   A98    V37     1*      7 *-*     then
+T2   A98    V37     1*      7 *-*       .yield[result];
+T2   A98    V37     1*        >E>         .YIELD => "The yield class"
+T2   A98    V37     1*        >V>         RESULT => "1"
+T2   A98    V37     1*        >A>         "1"
+T2   A101   V46               >I> Method [] with scope "yield" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity.cls
+T2   A101   V46            28 *-* forward message ("yield") to (.Coactivity)
+T2   A101   V46               >E>   .COACTIVITY => "The Coactivity class"
+T2   A101   V46               >L>   "yield"
+T2   A102   V44               >I> Method YIELD with scope "Coactivity" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity.cls
+T2   A102   V44           168 *-* coactivityObj = .threadLocal["coactivity"]
+T2   A102   V44               >E>   .THREADLOCAL => "a Directory"
+T2   A102   V44               >L>   "coactivity"
+T2   A102   V44               >A>   "coactivity"
+T2   A102   V44               >M>   "[]" => "a CoactivityObj"
+T2   A102   V44               >>>   "a CoactivityObj"
+T2   A102   V44               >=>   COACTIVITYOBJ <= "a CoactivityObj"
+T2   A102   V44           169 *-* if .nil == coactivityObj 
+T2   A102   V44               >E>   .NIL => "The NIL object"
+T2   A102   V44               >V>   COACTIVITYOBJ => "a CoactivityObj"
+T2   A102   V44               >O>   "==" => "0"
+T2   A102   V44               >>>   "0"
+T2   A102   V44           170 *-* forward to (coactivityObj)
+T2   A102   V44               >V>   COACTIVITYOBJ => "a CoactivityObj"
+T2   A103   V40               >I> Method YIELD with scope "CoactivityObj" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity.cls
+T2   A103   V40     1*    336 *-* expose arguments namedArguments status yieldIndex yieldItem
+T2   A103   V40     1*    337 *-* drop yieldItem
+T2   A103   V40     1*        >=>   YIELDITEM <= is dropped
+T2   A103   V40     1*    338 *-* if status == .CoactivityObj~killed 
+T2   A103   V40     1*        >V>   STATUS => "2"
+T2   A103   V40     1*        >E>   .COACTIVITYOBJ => "The CoactivityObj class"
+T2   A103   V40     1*        >M>   "KILLED" => "4"
+T2   A103   V40     1*        >O>   "==" => "0"
+T2   A103   V40     1*        >>>   "0"
+T2   A103   V40     1*    339 *-* if status == .CoactivityObj~ended 
+T2   A103   V40     1*        >V>   STATUS => "2"
+T2   A103   V40     1*        >E>   .COACTIVITYOBJ => "The CoactivityObj class"
+T2   A103   V40     1*        >M>   "ENDED" => "3"
+T2   A103   V40     1*        >O>   "==" => "0"
+T2   A103   V40     1*        >>>   "0"
+T2   A103   V40     1*    340 *-* if arg() <> 0 
+T2   A103   V40     1*        >F>   ARG => "1"
+T2   A103   V40     1*        >L>   "0"
+T2   A103   V40     1*        >O>   "<>" => "1"
+T2   A103   V40     1*        >>>   "1"
+T2   A103   V40     1*    340 *-*   then
+T2   A103   V40     1*    340 *-*     do
+T2   A103   V40     1*    341 *-*       use strict arg yieldItem -- yieldItem will be returned to the Coactivity's client by 'resume'
+T2   A103   V40     1*        >>>         "1"
+T2   A103   V40     1*        >=>         YIELDITEM <= "1"
+T2   A103   V40     1*    342 *-*       yieldIndex += 1
+T2   A103   V40     1*        >V>         YIELDINDEX => "0"
+T2   A103   V40     1*        >L>         "1"
+T2   A103   V40     1*        >O>         "+" => "1"
+T2   A103   V40     1*        >>>         "1"
+T2   A103   V40     1*        >=>         YIELDINDEX <= "1"
+T2   A103   V40     1*    343 *-*   end
+T2   A103   V40     1*    344 *-* status = .CoactivityObj~suspended
+T2   A103   V40     1*        >E>   .COACTIVITYOBJ => "The CoactivityObj class"
+T2   A103   V40     1*        >M>   "SUSPENDED" => "1"
+T2   A103   V40     1*        >>>   "1"
+T2   A103   V40     1*        >=>   STATUS <= "1"
+T2   A103   V40     1*    345 *-* guard off
+T2   A103   V40           346 *-* guard on when status <> .CoactivityObj~suspended
+T2   A103   V40     1*        >V>   STATUS => "1"
+T2   A103   V40     1*        >E>   .COACTIVITYOBJ => "The CoactivityObj class"
+T2   A103   V40     1*        >M>   "SUSPENDED" => "1"
+T2   A103   V40     1*        >O>   "<>" => "0"
+T2   A103   V40     1*        >>>   "0"
+T1   A93    V40     1*        >V>   STATUS => "1"
+T1   A93    V40     1*        >E>   .COACTIVITYOBJ => "The CoactivityObj class"
+T1   A93    V40     1*        >M>   "RUNNING" => "2"
+T1   A93    V40     1*        >O>   "<>" => "1"
+T1   A93    V40     1*        >>>   "1"
+T1   A93    V40     1*    389 *-* if status == .CoactivityObj~killed 
+T1   A93    V40     1*        >V>   STATUS => "1"
+T1   A93    V40     1*        >E>   .COACTIVITYOBJ => "The CoactivityObj class"
+T1   A93    V40     1*        >M>   "KILLED" => "4"
+T1   A93    V40     1*        >O>   "==" => "0"
+T1   A93    V40     1*        >>>   "0"
+T1   A93    V40     1*    390 *-* if var("yieldItem") 
+T1   A93    V40     1*        >L>   "yieldItem"
+T1   A93    V40     1*        >A>   "yieldItem"
+T1   A93    V40     1*        >F>   VAR => "1"
+T1   A93    V40     1*        >>>   "1"
+T1   A93    V40     1*    390 *-*   then
+T1   A93    V40     1*    390 *-*     return yieldItem
+T1   A93    V40     1*        >V>       YIELDITEM => "1"
+T1   A93    V40     1*        >>>       "1"
+T1   A71                      >M>   "~()" => "1"
+T1   A71                      >>>   "1"
+1
+T1   A71                   13 *-* say g~executable~variables -- deadlock
+T1   A71                      >V>   G => "a Coactivity"
+T1   A104   V39               >I> Method EXECUTABLE with scope "Coactivity" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity.cls
+T1   A104   V39           138 *-* expose coactivityObj
+T1   A104   V39           139 *-* forward to (coactivityObj)
+T1   A104   V39               >V>   COACTIVITYOBJ => "a CoactivityObj"
+T1   A105   V40               >I> Method EXECUTABLE with scope "CoactivityObj" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity.cls
+T1   A105   V40           296 *-* expose doer
+T1   A105   V40           297 *-* return doer
+T1   A105   V40               >V>   DOER => "a Closure"
+T1   A105   V40               >>>   "a Closure"
+T1   A71                      >M>   "EXECUTABLE" => "a Closure"
+T1   A106   V37     1         >I> Method VARIABLES with scope "Closure" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers.cls
+
+*** Rexx interrupted.
