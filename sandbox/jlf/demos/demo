@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# Usage:
+# ./demo array
+# ./demo array force
+
+if [ -f ooRexxShell-demo-$1.txt ]
+then
+    [ "$2" = "force" ] && touch ooRexxShell-demo-$1.txt
+    make ooRexxShell-demo-$1.cast
+elif [ -f executor-demo-$1.txt ]
+then
+    [ "$2" = "force" ] && touch executor-demo-$1.txt
+    make executor-demo-$1.cast
+else
+    echo Input file "ooRexxShell-demo-$1.txt" not found
+    echo Input file "executor-demo-$1.txt" not found
+fi

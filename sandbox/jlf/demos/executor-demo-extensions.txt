@@ -1,0 +1,144 @@
+system cdoorexx
+prompt directory off
+demo on
+
+----------------------
+-- Executor extensions
+----------------------
+
+/*
+Complex numbers
+*/
+sleep
+say 2*(3-2i)
+sleep no prompt
+
+/*
+2i is interpreted as 2*i, where i has the default value .complex~new(0,1)
+This default value is managed by the class GlobalVariable.
+When a variable has no value, the interpreter sends the message "NOVALUE" to this class
+(because this class is registered in .LOCAL under the name "NOVALUE").
+This class is used to manage global variables like i, infinity, indeterminate.
+*/
+sleep
+.local~novalue=
+sleep
+?cm globalvariable
+sleep
+.globalvariable~values=
+sleep no prompt
+
+/*
+Range iterator
+*/
+sleep
+1~9=
+sleep no prompt
+
+/*
+The collection is displayed one item per line when the line ends with ==
+*/
+sleep
+1~9==
+sleep no prompt
+
+/*
+The precision of the range iterator is automatically adjusted
+*/
+sleep
+1~9(by:1e-100, for:10)==
+sleep no prompt
+
+/*
+To get the last 10 values of the range, pass for:-10
+*/
+sleep
+1~9(by:1e-100, for:-10)==
+sleep no prompt
+
+/*
+Y combinator:
+The Y combinator allows recursion to be defined as a set of rewrite rules.
+It takes a single argument, which is a function that isn't recursive (here, no argument, use self which is a Doer).
+It returns a version of the function which is recursive.
+*/
+sleep no prompt
+
+/*
+Inspired by http://mvanier.livejournal.com/2897.html
+Y = λf.(λx.f (λv.((x x) v))) (λx.f (λv.((x x) v)))
+
+(define Y
+  (lambda (f)
+    ( (lambda (a) (a a))
+      (lambda (x) (f (lambda (v) ((x x) v)))))))
+*/
+sleep no prompt
+
+/*
+Implementation of the Y combinator with memoization:
+*/
+sleep
+?ms YM
+sleep 10 no prompt
+
+/*
+Application to Fibonacci:
+*/
+sleep
+almost_fib = { use arg fib; {expose fib ; use arg n; if n==0 then return 0; if n==1 then return 1; if n<0 then return fib~(n+2) - fib~(n+1); return fib~(n-2) + fib~(n-1)}}
+sleep no prompt
+
+/*
+The not-memoizing version needs almost 15 sec.
+*/
+sleep
+fib_Y = almost_fib~Y
+infos next
+fib_Y~(23)=
+sleep no prompt
+
+/*
+The memoizing version calculates almost instantly.
+*/
+sleep
+fib_YM = almost_fib~YM
+infos next
+fib_YM~(23)=
+sleep no prompt
+
+/*
+fib_Y and fib_YM are closures.
+*/
+sleep
+fib_YM~executable=
+sleep
+fib_YM~executable~variables=
+sleep
+fib_YM~executable~variables["FIB"]~executable=
+sleep
+fib_YM~executable~variables["FIB"]~executable~variables=
+sleep no prompt
+
+/*
+TABLE is the table of values memoized by fib_YM for the calculation of fib_YM~(23).
+*/
+sleep
+fib_YM~executable~variables["FIB"]~executable~variables["TABLE"]=
+sleep no prompt
+
+/*
+Both fib_Y and fib_YM are subject to stack overflow.
+But fib_YM can be used by steps, to calculate very big fibonacci numbers, thanks to the memoization.
+*/
+sleep
+numeric digits propagate 100
+infos next
+do i=1 to 500; r = fib_YM~(i*50); if i//50=0 then say "fib_YM~("i*100")="r; end
+sleep no prompt
+
+/*
+End of demonstration.
+*/
+prompt directory on
+demo off

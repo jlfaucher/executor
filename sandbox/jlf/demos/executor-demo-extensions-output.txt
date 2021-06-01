@@ -1,0 +1,222 @@
+
+----------------------
+-- Executor extensions
+----------------------
+
+Complex numbers
+
+ooRexx[bash]> say 2*(3-2i)
+6-4i
+
+2i is interpreted as 2*i, where i has the default value .complex~new(0,1)
+This default value is managed by the class GlobalVariable.
+When a variable has no value, the interpreter sends the message "NOVALUE" to this class
+(because this class is registered in .LOCAL under the name "NOVALUE").
+This class is used to manage global variables like i, infinity, indeterminate.
+
+ooRexx[bash]> .local~novalue=
+(The GlobalVariable class)
+
+ooRexx[bash]> ?cm globalvariable
+
+[Info] [1] Class 'GlobalVariable' P. (novalue.cls)
+P. PCG.    'DECLARE' : 'GlobalVariable' (novalue.cls)
+P. PCG.    'INIT'    : 'GlobalVariable' (novalue.cls)
+P. PCG.    'NOVALUE' : 'GlobalVariable' (novalue.cls)
+P. PCG.    'VALUES'  : 'GlobalVariable' (novalue.cls)
+[Info] [1] Class 'GlobalVariable' has 4 methods
+[Info] 7 lines displayed
+
+ooRexx[bash]> .globalvariable~values=
+a Directory (4 items)
+'COMPLEXINFINITY' : (The complex infinity)
+'I'               : (0+1i)
+'INDETERMINATE'   : (The indeterminate value)
+'INFINITY'        : (The positive infinity)
+
+Range iterator
+
+ooRexx[bash]> 1~9=
+[ 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+The collection is displayed one item per line when the line ends with ==
+
+ooRexx[bash]> 1~9==
+an Array (shape [9], 9 items)
+ 1 :  1
+ 2 :  2
+ 3 :  3
+ 4 :  4
+ 5 :  5
+ 6 :  6
+ 7 :  7
+ 8 :  8
+ 9 :  9
+
+The precision of the range iterator is automatically adjusted
+
+ooRexx[bash]> 1~9(by:1e-100, for:10)==
+an Array (shape [10], 10 items)
+ 1  :  1
+ 2  :  1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001
+ 3  :  1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+ 4  :  1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003
+ 5  :  1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004
+ 6  :  1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005
+ 7  :  1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006
+ 8  :  1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000007
+ 9  :  1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008
+ 10 :  1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000009
+
+To get the last 10 values of the range, pass for:-10
+
+ooRexx[bash]> 1~9(by:1e-100, for:-10)==
+an Array (shape [10], 10 items)
+ 1  :  8.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999991
+ 2  :  8.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999992
+ 3  :  8.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999993
+ 4  :  8.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999994
+ 5  :  8.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999995
+ 6  :  8.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999996
+ 7  :  8.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999997
+ 8  :  8.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999998
+ 9  :  8.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999
+ 10 :  9.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+Y combinator:
+The Y combinator allows recursion to be defined as a set of rewrite rules.
+It takes a single argument, which is a function that isn't recursive (here, no argument, use self which is a Doer).
+It returns a version of the function which is recursive.
+
+Inspired by http://mvanier.livejournal.com/2897.html
+Y = λf.(λx.f (λv.((x x) v))) (λx.f (λv.((x x) v)))
+
+(define Y
+  (lambda (f)
+    ( (lambda (a) (a a))
+      (lambda (x) (f (lambda (v) ((x x) v)))))))
+
+Implementation of the Y combinator with memoization:
+
+ooRexx[bash]> ?ms YM
+PM P...    'YM' : 'RoutineDoer' (doers.cls)
+ > 0001 use named arg verbose=.false
+ > 0002     if verbose then trace i
+ > 0003 
+ > 0004     -- lambda_f
+ > 0005     f = self -- to be closer to the notation (would be passed by parameter to lambda_f when implemented by a function instead of a method)
+ > 0006     YnamedArgs = .context~namedArgs
+ > 0007     table = .Table~new
+ > 0008 
+ > 0009     lambda_a = {use arg a ; return a~(a)}
+ > 0010 
+ > 0011     lambda_x = {
+ > 0012         expose f verbose YnamedArgs table
+ > 0013         if verbose then trace i
+ > 0014         use strict arg x
+ > 0015         lambda_v = {
+ > 0016                      expose x verbose table
+ > 0017                      if verbose then trace i
+ > 0018                      --use strict arg v
+ > 0019                      v = arg(1, "a")
+ > 0020                      v_index = v~tostring
+ > 0021                      r = table[v_index]
+ > 0022                      if r <> .nil then return r
+ > 0023                      r = x~(x)~doWith(v, n:.context~namedArgs)
+ > 0024                      table[v_index] = r
+ > 0025                      return r
+ > 0026                 }
+ > 0027         return f ~ doWith(.array~of(lambda_v), n:YnamedArgs)
+ > 0028     }
+ > 0029     return lambda_a ~ (lambda_x)
+[Info] 30 lines displayed
+
+Application to Fibonacci:
+
+ooRexx[bash]> almost_fib = { use arg fib; {expose fib ; use arg n; if n==0 then return 0; if n==1 then return 1; if n<0 then return fib~(n+2) - fib~(n+1); return fib~(n-2) + fib~(n-1)}}
+
+The not-memoizing version needs almost 15 sec.
+
+ooRexx[bash]> fib_Y = almost_fib~Y
+
+ooRexx[bash]> fib_Y~(23)=
+ 28657
+Duration: 13.820953
+
+The memoizing version calculates almost instantly.
+
+ooRexx[bash]> fib_YM = almost_fib~YM
+
+ooRexx[bash]> fib_YM~(23)=
+ 28657
+Duration: 0.003523
+
+fib_Y and fib_YM are closures.
+
+ooRexx[bash]> fib_YM~executable=
+(a Closure)
+
+ooRexx[bash]> fib_YM~executable~variables=
+a Directory (1 items)
+'FIB' : (a RexxBlock)
+
+ooRexx[bash]> fib_YM~executable~variables["FIB"]~executable=
+(a Closure)
+
+ooRexx[bash]> fib_YM~executable~variables["FIB"]~executable~variables=
+a Directory (7 items)
+'F'          : (a Routine)
+'SELF'       : (a Closure)
+'SUPER'      : (The Doer class)
+'TABLE'      : a Table
+'VERBOSE'    :  0
+'X'          : (a RexxBlock)
+'YNAMEDARGS' : a Directory
+
+TABLE is the table of values memoized by fib_YM for the calculation of fib_YM~(23).
+
+ooRexx[bash]> fib_YM~executable~variables["FIB"]~executable~variables["TABLE"]=
+a Table (23 items)
+ 0  :  0
+ 1  :  1
+ 2  :  1
+ 3  :  2
+ 4  :  3
+ 5  :  5
+ 6  :  8
+ 7  :  13
+ 8  :  21
+ 9  :  34
+ 10 :  55
+ 11 :  89
+ 12 :  144
+ 13 :  233
+ 14 :  377
+ 15 :  610
+ 16 :  987
+ 17 :  1597
+ 18 :  2584
+ 19 :  4181
+ 20 :  6765
+ 21 :  10946
+ 22 :  17711
+
+Both fib_Y and fib_YM are subject to stack overflow.
+But fib_YM can be used by steps, to calculate very big fibonacci numbers, thanks to the memoization.
+
+ooRexx[bash]> numeric digits propagate 100
+
+ooRexx[bash]> do i=1 to 500; r = fib_YM~(i*50); if i//50=0 then say "fib_YM~("i*100")="r; end
+fib_YM~(5000)=1.317090516751949629522763087125316412066606964992507141887746936727530870405038425764503130123186429E+522
+fib_YM~(10000)=3.878968454388325633701916308325905312082127714646245106160597214895550139044037097010822916462210799E+1044
+fib_YM~(15000)=1.142396523152058704722048892865690419848718663331756079795903059573826364358830526396432108051699207E+1567
+fib_YM~(20000)=3.364476487643178326662161200510754331030214846068006390656476997468008144216666236815559551363373664E+2089
+fib_YM~(25000)=9.908732919346489283972390155590053108590838370898511971634619406801520847007023935403361324320167010E+2611
+fib_YM~(30000)=2.918224824204913830236407223698513202230962655711828774617138735156624458079183128895718558218554766E+3134
+fib_YM~(35000)=8.594475392487880685715609318313958956965186135981014406583281854302591776880967478349722433509870025E+3656
+fib_YM~(40000)=2.531162323732361242240155003520607291766356485802485278951929841991312781760541315230153423463759229E+4179
+fib_YM~(45000)=7.454536101973301545514060322899628474921968473702388044321015228379740189148914655473430519859925903E+4701
+fib_YM~(50000)=2.195438355517303012780791914841720922849015222302155773145178112730662303998294388326731046697794993E+5224
+Duration: 7.435008
+
+End of demonstration.

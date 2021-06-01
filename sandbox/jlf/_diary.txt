@@ -242,6 +242,24 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 june 01
+
+Demos:
+executor-demo-array.txt
+executor-demo-classic_rexx.txt
+executor-demo-extensions.txt
+executor-demo-text.txt
+ooRexxShell-demo-helpers.txt
+ooRexxShell-demo-interpreters.txt
+ooRexxShell-demo-queries.txt
+
+Each demo has 3 files:
+- demo.txt          The source file of the demo
+- demo-output.txt   The output of the demo
+- demo.cast         The record of the demo in asciicast format (JSON file)
+
+
+===============================================================================
 2021 may 31
 
 Encodeded strings.
@@ -257,7 +275,7 @@ The ooRexx programmer has the choice:
      │                          graphemes  (direct access)
      +-----------------------⮷- string
 
-First binding of utf8proc, for the detection of grapheme break.
+First binding of utf8proc, for the detection of grapheme cluster break.
 "( ͡° ͜ʖ﻿ ͡°)"~text~description=                    -- 'UTF-8 not-ASCII ( 9 graphemes, 12 codepoints, 20 bytes )'
 "( ͡° ͜ʖ﻿ ͡°)"~text~graphemes~each{item~c2x}=       -- [ 28,'20CDA1','C2B0','20CD9C','CA96','EFBBBF','20CDA1','C2B0', 29]
 

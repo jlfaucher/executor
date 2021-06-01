@@ -1,0 +1,296 @@
+
+----------------
+-- Text encoding
+----------------
+
+Start working on a prototype for encoded strings.
+
+Main ideas explored with this prototype :
+- No automatic conversion to Unicode by the interpreter.
+- The strings crossing the I/O barriers are kept unchanged.
+- Supported encodings : byte, UTF-8, UTF-16BE.
+- When no encoding has been explicitely specified, a default encoding is used.
+- Initially, the default encoding is "UTF8". It can be changed at anytime.
+
+- ABANDONNED: A string is made of slices, where each slice has its own encoding.
+- ABANDONNED: Strings with different encodings can be concatenated, there is no need of conversion.
+- NEW: Strings with different encodings can be concatenated if their encodings are compatible.
+       Example: a byte-encoded string containing only ASCII characters is compatible with UTF-8.
+       If not compatible then an error is raised.
+- The existing String class is kept unchanged, but its semantic becomes : "byte-oriented".
+- The prototype adds a layer of services working at grapheme level, provided by the RexxText class.
+- The RexxText class works on the bytes managed by the String class.
+- String instances are immutable, the same for RexxText instances.
+
+On my Mac, where locale returns :
+
+ooRexx[bash]> "locale"
+LANG=
+LC_COLLATE="en_US.UTF-8"
+LC_CTYPE="en_US.UTF-8"
+LC_MESSAGES="en_US.UTF-8"
+LC_MONETARY="en_US.UTF-8"
+LC_NUMERIC="en_US.UTF-8"
+LC_TIME="en_US.UTF-8"
+LC_ALL="en_US.UTF-8"
+
+I get that under ooRexxShell :
+
+ooRexx[bash]> s1 = "é"
+
+ooRexx[bash]> s1=                                 -- 'é'
+'é'
+
+ooRexx[bash]> s1~length=                          -- 2
+ 2
+
+ooRexx[bash]> s1~c2x=                             -- C3 A9
+'C3A9'
+
+ooRexx[bash]> combining_acute_accent = "cc81"x
+
+ooRexx[bash]> s2 = "e" || combining_acute_accent
+
+ooRexx[bash]> s2=                                 -- 'é'
+'é'
+
+ooRexx[bash]> s2~length=                          -- 3
+ 3
+
+ooRexx[bash]> s2~c2x=                             -- 65 CC 81
+'65CC81'
+
+My goal :
+s1~text~length=                     -- 1 grapheme
+s1~text~codepoints~size=            -- 1 codepoint
+s1~text~string~length=              -- 2 bytes
+s2~text~length=                     -- 1 grapheme
+s2~text~codepoints~size=            -- 2 codepoints
+s2~text~string~length=              -- 3 bytes
+
+
+
+ooRexx[bash]> .encoding~defaultEncoding = "utf8"
+
+ooRexx[bash]> s1~text~length=                     -- 1 grapheme
+ 1
+
+ooRexx[bash]> s1~text~codepoints~size=            -- 1 codepoint
+ 1
+
+ooRexx[bash]> s1~text~string~length=              -- 2 bytes
+ 2
+
+ooRexx[bash]> s2~text~length=                     -- 1 grapheme
+ 1
+
+ooRexx[bash]> s2~text~codepoints~size=            -- 2 codepoints
+ 2
+
+ooRexx[bash]> s2~text~string~length=              -- 3 bytes
+ 3
+
+A String is linked to a RexxText, which itself is linked to this String:
+
+    a String
+     ▲  text --------⮸ a RexxText
+     │                     indexer (anEncoding)
+     │                          codepoints (sequential access)
+     │                          graphemes  (direct access)
+     +-----------------------⮷- string
+
+The ooRexx programmer has the choice :
+- working with String at byte level
+- working with RexxText at grapheme level.
+- the same instance of String is used in both cases.
+
+ooRexx[bash]> myText = "où as tu e" || .Unicode~character("combining acute accent")~utf8 || "té ?"
+
+ooRexx[bash]> myText=                         -- T'où as tu été ?'
+T'où as tu été ?'
+
+ooRexx[bash]> myString = myText~string
+
+ooRexx[bash]> myString=                       -- 'où as tu été ?'
+'où as tu été ?'
+
+ooRexx[bash]> myString~text~identityHash == myText~identityHash=        -- true, always return the same counterpart
+ 1
+
+ooRexx[bash]> myText~string~identityHash == myString~identityHash=      -- true, always return the same counterpart
+ 1
+
+ooRexx[bash]> myString~length=                -- 18
+ 18
+
+ooRexx[bash]> myText~length=                  -- 14
+ 14
+
+                                -- 1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18
+myString                        -- 6F C3 B9 20 61 73 20 74 75 20 65 CC 81 74 C3 A9 20 3F
+                                -- o. ù....  . a. s.  . t. u.  . e. acute t. é....  . ?.
+
+ooRexx[bash]> myString~eachC{item~c2x}=
+['6F','C3','B9', 20, 61, 73, 20, 74, 75, 20, 65,'CC', 81, 74,'C3','A9', 20,'3F']
+
+                                -- 1  2     3  4  5  6  7  8  9  10       11 12    13 14
+myText                          -- 6F C3B9  20 61 73 20 74 75 20 65 CC81  74 C3A9  20 3F
+                                -- o. ù...   . a. s.  . t. u.  . e. acut  t. é...   . ?.
+
+ooRexx[bash]> myText~graphemes~each{item~c2x}=
+['6F','C3B9', 20, 61, 73, 20, 74, 75, 20,'65CC81', 74,'C3A9', 20,'3F']
+
+CR+LF is a grapheme made of 2 codepoints.
+LF+CR are 2 graphemes.
+
+ooRexx[bash]> "0D0A"x~text~description=
+'UTF-8 ASCII ( 1 grapheme, 2 codepoints, 2 bytes )'
+
+ooRexx[bash]> "0A0D"x~text~description=
+'UTF-8 ASCII ( 2 graphemes, 2 codepoints, 2 bytes )'
+
+More examples of encoded string
+
+ooRexx[bash]> "¯\_(ツ)_/¯"~text~description=
+'UTF-8 not-ASCII ( 9 graphemes, 9 codepoints, 13 bytes )'
+
+ooRexx[bash]> "¯\_(ツ)_/¯"~text~graphemes~each{item~c2x}=
+['C2AF','5C','5F', 28,'E38384', 29,'5F','2F','C2AF']
+
+ooRexx[bash]> "( ͡° ͜ʖ﻿ ͡°)"~text~description=
+'UTF-8 not-ASCII ( 9 graphemes, 12 codepoints, 20 bytes )'
+
+ooRexx[bash]> "( ͡° ͜ʖ﻿ ͡°)"~text~graphemes~each{item~c2x}=
+[ 28,'20CDA1','C2B0','20CD9C','CA96','EFBBBF','20CDA1','C2B0', 29]
+
+ooRexx[bash]> "(ノಠ益ಠ)ノ彡"~text~description=
+'UTF-8 not-ASCII ( 8 graphemes, 8 codepoints, 20 bytes )'
+
+ooRexx[bash]> "(ノಠ益ಠ)ノ彡"~text~graphemes~each{item~c2x}=
+[ 28,'E3838E','E0B2A0','E79B8A','E0B2A0', 29,'E3838E','E5BDA1']
+
+U+FE0E VARIATION SELECTOR-15 (UTF-8: EF B8 8E)
+https://codepoints.net/U+fe0e
+This codepoint may change the appearance of the preceding character.
+If that is a symbol, dingbat or emoji, U+FE0E forces it to be rendered in a
+textual fashion as compared to a colorful image.
+
+U+FE0F VARIATION SELECTOR-16 (UTF-8: EF B8 8F)
+https://codepoints.net/U+fe0f
+This codepoint may change the appearance of the preceding character.
+If that is a symbol, dingbat or emoji, U+FE0F forces it to be rendered as a
+colorful image as compared to a monochrome text variant.
+In theory ❤ and ❄ (and many other emoji) should display as text style by default
+without VS16, but many applications ignore that.
+
+ooRexx[bash]> emoji_array = ('❤', '❤️', '❄', '❄︎', '❄️', '⚪', '⚪️', '⚫', '⚫️')
+
+ooRexx[bash]> emoji_array~reduce(initial:.table~new){accu[item~text] = item~text~graphemes~each{arg(1)~c2x}}==
+a Table (9 items)
+T'⚪'    : ['E29AAA']
+T'⚪️' : ['E29AAAEFB88F']
+T'⚫'    : ['E29AAB']
+T'⚫️' : ['E29AABEFB88F']
+T'❄'    : ['E29D84']
+T'❄︎' : ['E29D84EFB88E']
+T'❄️' : ['E29D84EFB88F']
+T'❤'    : ['E29DA4']
+T'❤️' : ['E29DA4EFB88F']
+The table above is not well aligned
+because the alignement is based on the length of the indexes,
+which is (for the moment) a count of bytes, not a count of graphemes...
+
+🤦🏼‍♂️
+is one grapheme, made up of 5 codepoints.
+
+ooRexx[bash]> "🤦🏼‍♂️"~text~description=                                         -- 1 grapheme, 5 codepoints, 17 bytes
+'UTF-8 not-ASCII ( 1 grapheme, 5 codepoints, 17 bytes )'
+
+ooRexx[bash]> "🤦🏼‍♂️"~text~graphemes~each{item~c2x}=                            -- F09FA4A6F09F8FBCE2808DE29982EFB88F
+['F09FA4A6F09F8FBCE2808DE29982EFB88F']
+
+ooRexx[bash]> "🤦🏼‍♂️"~text~codepoints~each{.UTF8_Encoding~encode(item)~c2x}=    -- F09FA4A6 F09F8FBC E2808D E29982 EFB88F
+['F09FA4A6','F09F8FBC','E2808D','E29982','EFB88F']
+
+ooRexx[bash]> "🤦🏼‍♂️"~text~codepoints~each{"U+"item~d2x}=                       -- U+1F926 U+1F3FC U+200D U+2642 U+FE0F
+['U+1F926','U+1F3FC','U+200D','U+2642','U+FE0F']
+
+https://www.reddit.com/r/cpp/comments/aqzu7i
+👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦
+is one grapheme, made up of 13 codepoints (jlf: typo? I get 15 codepoints)
+
+ooRexx[bash]> "👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦"~text~description=                              -- 1 grapheme, 15 codepoints, 53 bytes
+'UTF-8 not-ASCII ( 1 grapheme, 15 codepoints, 53 bytes )'
+
+ooRexx[bash]> "👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦"~text~graphemes~each{item~c2x}=
+['F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7E2808DF09F91A6E2808DF09F91A7E2808DF09F91A7E2808DF09F91A6']
+
+ooRexx[bash]> "👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦"~text~codepoints~each{.UTF8_Encoding~encode(item)~c2x}=
+['F09F91A9','E2808D','F09F91A8','E2808D','F09F91A9','E2808D','F09F91A7','E2808D','F09F91A6','E2808D','F09F91A7','E2808D','F09F91A7','E2808D','F09F91A6']
+
+ooRexx[bash]> "👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦"~text~codepoints~each{"U+"item~d2x}=
+['U+1F469','U+200D','U+1F468','U+200D','U+1F469','U+200D','U+1F467','U+200D','U+1F466','U+200D','U+1F467','U+200D','U+1F467','U+200D','U+1F466']
+
+https://onlineunicodetools.com/generate-zalgo-unicode
+Uses Unicode combining characters to create symbol noise.
+"hello" zalgoified:
+h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞
+
+ooRexx[bash]> "h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞"~text~description=                                -- 5 graphemes, 54 codepoints, 111 bytes
+'UTF-8 not-ASCII ( 5 graphemes, 54 codepoints, 111 bytes )'
+
+ooRexx[bash]> "h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞"~text~graphemes~each{item~c2x}=
+['68CD86CCB5E1B78ACC9FCD89CD94CC9FCCB2','65CCBECCB7CD87CCBCCD89CCB2','6CEFB8A3EFB8A0CDA6CCB8CD93CCADCC97E1B7BFCCA8','6CCC91CC88CDAECD8CEFB8A1CC95CCB6CCAFCCBB','6FE1B783CDAACC86CC81E1B788CD81CD9ECCB5CC9DCD9CCCACCCAFE1B78ACDA2CCADCCAFCCA6']
+
+ooRexx[bash]> "h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞"~text~codepoints~each{.UTF8_Encoding~encode(item)~c2x}=
+[ 68,'CD86','CCB5','E1B78A','CC9F','CD89','CD94','CC9F','CCB2', 65,'CCBE','CCB7','CD87','CCBC','CD89','CCB2','6C','EFB8A3','EFB8A0','CDA6','CCB8','CD93','CCAD','CC97','E1B7BF','CCA8','6C','CC91','CC88','CDAE','CD8C','EFB8A1','CC95','CCB6','CCAF','CCBB','6F','E1B783','CDAA','CC86','CC81','E1B788','CD81','CD9E','CCB5','CC9D','CD9C','CCAC','CCAF','E1B78A','CDA2','CCAD','CCAF','CCA6']
+
+ooRexx[bash]> "h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞"~text~codepoints~each{"U+"item~d2x}=
+['U+68','U+346','U+335','U+1DCA','U+31F','U+349','U+354','U+31F','U+332','U+65','U+33E','U+337','U+347','U+33C','U+349','U+332','U+6C','U+FE23','U+FE20','U+366','U+338','U+353','U+32D','U+317','U+1DFF','U+328','U+6C','U+311','U+308','U+36E','U+34C','U+FE21','U+315','U+336','U+32F','U+33B','U+6F','U+1DC3','U+36A','U+306','U+301','U+1DC8','U+341','U+35E','U+335','U+31D','U+35C','U+32C','U+32F','U+1DCA','U+362','U+32D','U+32F','U+326']
+
+Supported encoding conversions:
+Byte to UTF-8
+Byte to UTF-16
+UTF-8 to UTF-16
+UTF-16 to UTF-8
+
+The Byte_Encoding can be specialized to add support for specific encoding conversions.
+
+ooRexx[bash]> .Encoding~supported~table==
+a Table (7 items)
+'BYTES'       : (The Byte_Encoding class)
+'CP1252'      : (The CP1252_Encoding class)
+'DEFAULT'     : 'DEFAULT'
+'UTF16'       : (The UTF16BE_Encoding class)
+'UTF16BE'     : (The UTF16BE_Encoding class)
+'UTF8'        : (The UTF8_Encoding class)
+'WINDOWS1252' : (The CP1252_Encoding class)
+
+Example: CP1252 to UTF-8
+"Un œuf de chez MaPoule™ coûte ±0.40€"
+
+ooRexx[bash]> str_cp1252 = "Un " || "9C"x || "uf de chez MaPoule" || "99"x || " co" || "FB"x || "te " || "B1"x || "0.40" || "80"x
+
+ooRexx[bash]> str_cp1252=
+'Un �uf de chez MaPoule� co�te �0.40�'
+
+ooRexx[bash]> txt_cp1252 = str_cp1252~text("cp1252")
+
+ooRexx[bash]> txt_cp1252~description=
+'CP1252 not-ASCII ( 36 graphemes, 36 codepoints, 36 bytes )'
+
+ooRexx[bash]> txt_cp1252~graphemes~each{item~c2x}=
+[ 55,'6E', 20,'9C', 75, 66, 20, 64, 65, 20, 63, 68, 65,'7A', 20,'4D', 61, 50,'6F', 75,'6C', 65, 99, 20, 63,'6F','FB', 74, 65, 20,'B1', 30,'2E', 34, 30, 80]
+
+ooRexx[bash]> txt_utf8 = txt_cp1252~utf8
+
+ooRexx[bash]> txt_utf8=
+T'Un œuf de chez MaPoule™ coûte ±0.40€'
+
+ooRexx[bash]> txt_utf8~description=
+'UTF-8 not-ASCII ( 36 graphemes, 36 codepoints, 43 bytes )'
+
+ooRexx[bash]> txt_utf8~graphemes~each{item~c2x}=
+[ 55,'6E', 20,'C593', 75, 66, 20, 64, 65, 20, 63, 68, 65,'7A', 20,'4D', 61, 50,'6F', 75,'6C', 65,'E284A2', 20, 63,'6F','C3BB', 74, 65, 20,'C2B1', 30,'2E', 34, 30,'E282AC']
+
+End of demonstration.

@@ -1,0 +1,208 @@
+
+--------------
+-- ooRexxShell
+--------------
+
+ooRexxShell, derived from rexxtry.
+
+This shell supports several interpreters:
+- ooRexx itself
+- the system address (cmd under Windows, sh or bash under Linux and MacOs)
+- PowerShell core (pwsh)
+- any other external environment (you need to modify ooRexxShell, search for hostemu for an example).
+
+The prompt indicates which interpreter is active.
+By default the shell is in ooRexx mode: ooRexx[bash]>
+When the interpreter is ooRexx, the value of address() is displayed between [].
+
+ooRexx[bash]> say "hello"
+hello
+
+ooRexx[bash]> say 1+2
+3
+
+A shell command can be used in ooRexx mode, surrounded with quotes.
+
+ooRexx[bash]> 'ls -lap'
+total 296
+drwxr-xr-x  18 jlfaucher  admin    576 May 30 11:48 ./
+drwxr-xr-x  66 jlfaucher  admin   2112 Apr 18 00:32 ../
+-rw-r--r--@  1 jlfaucher  admin   8196 May 19 15:22 .DS_Store
+-rw-r--r--@  1 jlfaucher  admin   5850 May 15 17:45 RexxClasses-executor.txt
+-rw-r--r--@  1 jlfaucher  admin   2718 May 14 20:47 RexxClasses-official.txt
+drwxr-xr-x  13 jlfaucher  admin    416 Mar 25  2018 _private/
+drwxr-xr-x   6 jlfaucher  admin    192 May 23 11:12 build/
+drwxr-xr-x   8 jlfaucher  admin    256 Mar 24  2018 cvs/
+lrwxr-xr-x   1 jlfaucher  admin     44 Dec 19  2015 doc -> /Users/jlfaucher/Dropbox/software/oorexx/doc
+-rw-r--r--@  1 jlfaucher  admin   1076 Apr 14 09:23 doxygen-executor-index.html alias
+-rw-r--r--@  1 jlfaucher  admin   1028 May  3 19:13 doxygen-offical-index.html alias
+drwxr-xr-x@ 15 jlfaucher  admin    480 May 21 13:15 executor/
+drwxr-xr-x   6 jlfaucher  admin    192 Jul 24  2016 executor5/
+drwxr-xr-x   4 jlfaucher  admin    128 Mar 24  2018 icons/
+drwxr-xr-x@ 21 jlfaucher  admin    672 Mar 14 10:23 official/
+-rw-r--r--   1 jlfaucher  admin  57622 Apr 22 22:53 say_hello-macos.txt
+-rw-------@  1 jlfaucher  admin  54347 Apr 22 09:05 say_hello-windows.txt
+drwxr-xr-x  19 jlfaucher  admin    608 May 31 23:38 scripts/
+
+When not in ooRexx mode, you enter raw commands that are passed directly to the external environment.
+You switch from an interpreter to an other one by entering its name alone.
+To get the list of all interpreter names, enter this command:
+?i[nterpreters]
+Under Linux & MacOs, this list includes the shells in /etc/shells.
+
+ooRexx[bash]> ?interpreters
+Interpreters:
+    bash: to activate the bash interpreter.
+    cmd: to activate the sh interpreter.
+    command: to activate the sh interpreter.
+    csh: to activate the csh interpreter.
+    hostemu: to activate the HostEmu interpreter.
+    ksh: to activate the ksh interpreter.
+    oorexx: to activate the ooRexx interpreter.
+    pwsh: to activate the pwsh interpreter.
+    screen: to activate the screen interpreter.
+    sh: to activate the sh interpreter.
+    system: to activate the sh interpreter.
+    tcsh: to activate the tcsh interpreter.
+    zsh: to activate the zsh interpreter.
+[Info] 14 lines displayed
+
+'cmd' 'command' and "system" are aliases to select the system interpreter.
+
+ooRexx[bash]> system
+
+Now the default interpreter is the system shell.
+No need to surround the commands with quotes.
+
+sh[ooRexx]> ls -lap
+total 296
+drwxr-xr-x  18 jlfaucher  admin    576 May 30 11:48 ./
+drwxr-xr-x  66 jlfaucher  admin   2112 Apr 18 00:32 ../
+-rw-r--r--@  1 jlfaucher  admin   8196 May 19 15:22 .DS_Store
+-rw-r--r--@  1 jlfaucher  admin   5850 May 15 17:45 RexxClasses-executor.txt
+-rw-r--r--@  1 jlfaucher  admin   2718 May 14 20:47 RexxClasses-official.txt
+drwxr-xr-x  13 jlfaucher  admin    416 Mar 25  2018 _private/
+drwxr-xr-x   6 jlfaucher  admin    192 May 23 11:12 build/
+drwxr-xr-x   8 jlfaucher  admin    256 Mar 24  2018 cvs/
+lrwxr-xr-x   1 jlfaucher  admin     44 Dec 19  2015 doc -> /Users/jlfaucher/Dropbox/software/oorexx/doc
+-rw-r--r--@  1 jlfaucher  admin   1076 Apr 14 09:23 doxygen-executor-index.html alias
+-rw-r--r--@  1 jlfaucher  admin   1028 May  3 19:13 doxygen-offical-index.html alias
+drwxr-xr-x@ 15 jlfaucher  admin    480 May 21 13:15 executor/
+drwxr-xr-x   6 jlfaucher  admin    192 Jul 24  2016 executor5/
+drwxr-xr-x   4 jlfaucher  admin    128 Mar 24  2018 icons/
+drwxr-xr-x@ 21 jlfaucher  admin    672 Mar 14 10:23 official/
+-rw-r--r--   1 jlfaucher  admin  57622 Apr 22 22:53 say_hello-macos.txt
+-rw-------@  1 jlfaucher  admin  54347 Apr 22 09:05 say_hello-windows.txt
+drwxr-xr-x  19 jlfaucher  admin    608 May 31 23:38 scripts/
+
+HostEmu is a subcommand environment that partially emulates a TSO/CMS environment.
+
+sh[ooRexx]> hostemu
+
+Now the default interpreteur is HostEmu.
+No need to surround the commands with quotes.
+
+EXECIO is an I/O mechanism.
+The following command will read the 10 first lines from the file "../builder/scripts/setenv".
+They are stored in the stem named "lines.".
+
+HostEmu[ooRexx]> execio 10 diskr "../builder/scripts/setenv" (finis stem lines.
+
+When in HostEmu mode, the ooRexx expressions are not recognized
+
+HostEmu[ooRexx]> lines.=
+hostemu: bad PLIST, token "syntax error"
+RC= 24
+lines.=
+
+You can switch temporarily to ooRexx to display the result.
+For that, start your command line with "oorexx".
+
+HostEmu[ooRexx]> oorexx lines.=
+a Stem (11 items)
+ 0  :  10
+ 1  : '#!/bin/bash'
+ 2  : ''
+ 3  : 'if [ "$0" = "$BASH_SOURCE" ] ; then echo "Usage : source ${BASH_SOURCE[0]}" ; exit 1 ; fi'
+ 4  : ''
+ 5  : '# Path to this script'
+ 6  : 'FILE="${BASH_SOURCE[0]}"'
+ 7  : 'export builder_scripts_dir="$( cd -P "$(dirname "$FILE")" && pwd )"'
+ 8  : ''
+ 9  : '# load the helpers'
+ 10 : '. $builder_scripts_dir/shellscriptlib'
+
+Switch to PowerShell core.
+pwsh
+
+HostEmu[ooRexx]> pwsh
+
+Now the default interpreter is pwsh.
+No need to surround the commands with quotes.
+
+Find the commands containing "rexx":
+
+pwsh[ooRexx]> get-command *rexx* | select -property name, source
+
+Name                             Source
+----                             ------
+bsf4ooRexx-v641-20201217-bin.jar /local/rexx/bsf4oorexx/BSF4ooRexx_install_v64…
+callrexx1                        /local/rexx/oorexx/build/executor.master/sand…
+callrexx2                        /local/rexx/oorexx/build/executor.master/sand…
+oorexxshell                      /local/rexx/oorexx/executor/incubator/ooRexxS…
+oorexx_collect_docfiles          /local/rexx/builder/scripts/oorexx_collect_do…
+oorexx_vars                      /local/rexx/builder/scripts/oorexx_vars
+refcardBSF4ooRexx.pdf            /local/rexx/bsf4oorexx/BSF4ooRexx_install_v64…
+rexx                             /local/rexx/oorexx/build/executor.master/sand…
+rexx.cat                         /local/rexx/oorexx/build/executor.master/sand…
+rexx.img                         /local/rexx/oorexx/build/executor.master/sand…
+rexxc                            /local/rexx/oorexx/build/executor.master/sand…
+rexxcUtil.rex                    /local/rexx/bsf4oorexx/BSF4ooRexx_install_v64…
+rexxj2-32.sh                     /local/rexx/bsf4oorexx/BSF4ooRexx_install_v64…
+rexxj2-64.sh                     /local/rexx/bsf4oorexx/BSF4ooRexx_install_v64…
+rexxj2.cmd                       /local/rexx/bsf4oorexx/BSF4ooRexx_install_v64…
+rexxj2.sh                        /local/rexx/bsf4oorexx/BSF4ooRexx_install_v64…
+rexxscriptlib.rex                /local/rexx/builder/scripts/rexxscriptlib.rex
+rexxtry.rex                      /local/rexx/oorexx/build/executor.master/sand…
+setenv-oorexx                    /local/rexx/builder/scripts/setenv-oorexx
+testOORexx.rex                   /local/rexx/oorexx/official/test/trunk/testOO…
+
+
+Same command, send the output to the rexx queue without the table headers.
+The empty lines are still in the output, they will be filtered on ooRexx side.
+
+pwsh[ooRexx]> get-command *rexx* | select -property name, source | format-table -HideTableHeaders | rxqueue
+
+Collect the lines of the rexx queue in an array, and then parse the lines to create an ooRexx directory.
+
+pwsh[ooRexx]> oorexx .rexxqueue~new~makearray~select{item <> ""}~reduce(.directory~new){parse value item~space with name source; accu[name]=source}=
+a Directory (20 items)
+'bsf4ooRexx-v641-20201217-bin.jar' : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641…'
+'callrexx1'                        : '/local/rexx/oorexx/build/executor.master/sandb…'
+'callrexx2'                        : '/local/rexx/oorexx/build/executor.master/sandb…'
+'oorexxshell'                      : '/local/rexx/oorexx/executor/incubator/ooRexxSh…'
+'oorexx_collect_docfiles'          : '/local/rexx/builder/scripts/oorexx_collect_doc…'
+'oorexx_vars'                      : '/local/rexx/builder/scripts/oorexx_vars'
+'refcardBSF4ooRexx.pdf'            : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641…'
+'rexx'                             : '/local/rexx/oorexx/build/executor.master/sandb…'
+'rexx.cat'                         : '/local/rexx/oorexx/build/executor.master/sandb…'
+'rexx.img'                         : '/local/rexx/oorexx/build/executor.master/sandb…'
+'rexxc'                            : '/local/rexx/oorexx/build/executor.master/sandb…'
+'rexxcUtil.rex'                    : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641…'
+'rexxj2-32.sh'                     : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641…'
+'rexxj2-64.sh'                     : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641…'
+'rexxj2.cmd'                       : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641…'
+'rexxj2.sh'                        : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641…'
+'rexxscriptlib.rex'                : '/local/rexx/builder/scripts/rexxscriptlib.rex'
+'rexxtry.rex'                      : '/local/rexx/oorexx/build/executor.master/sandb…'
+'setenv-oorexx'                    : '/local/rexx/builder/scripts/setenv-oorexx'
+'testOORexx.rex'                   : '/local/rexx/oorexx/official/test/trunk/testOOR…'
+
+Back to the ooRexx interpreter, by entering "oorexx" alone.
+
+pwsh[ooRexx]> oorexx
+
+ooRexx[bash]> say "The default interpreter is now ooRexx"
+The default interpreter is now ooRexx
+
+End of demonstration.
