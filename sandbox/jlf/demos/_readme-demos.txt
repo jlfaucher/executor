@@ -1,7 +1,8 @@
 Demonstration scripts.
 ooRexxShell has a demo mode with slow display.
 
-https://asciinema.org/
+https://asciinema.org/              asciinema   Terminal session recorder
+https://github.com/theZiz/aha       aha         Ansi HTML Adapter.
 
 Current demos:
 executor-demo-array.txt
@@ -18,18 +19,19 @@ cd demos
 ./demo classic_rexx
 etc...
 
-To capture the output of a demo:
+To capture the output of a demo in html format, with colors:
+cd demos
+asciinema cat executor-demo-array.cast | aha > executor-demo-array-output.html
+asciinema cat executor-demo-classic_rexx.cast | aha > executor-demo-classic_rexx-output.html
+etc...
+
+To capture the output of a demo in text format:
 cd demos
 cat executor-demo-array.txt | oorexxshell demo fast > executor-demo-array-output.txt 2>&1
 cat executor-demo-classic_rexx.txt | oorexxshell demo fast > executor-demo-classic_rexx-output.txt 2>&1
 
 This is automated with a Makefile:
 make all
-make casts
-make outputs
-
-
-Demos stored on asciinema.org:
-https://asciinema.org/a/oyhrULNtbneuZ3neIvp9l2aZT
-https://asciinema.org/a/SIW9ego7ky4RVYA99OcAKF7OB
-
+make cast
+make html
+make text

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- This file was created with the aha Ansi HTML Adapter. https://github.com/theZiz/aha -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xml+xhtml; charset=UTF-8"/>
+<title>stdin</title>
+</head>
+<body>
+<pre>
+<span style="font-weight:bold;color:green;">loadLibrary OK for rxunixsys
+</span><span style="font-weight:bold;color:green;">loadPackage OK for ncurses.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for csvStream.cls
+</span><span style="font-weight:bold;color:green;">loadLibrary OK for hostemu
+</span><span style="font-weight:bold;color:green;">loadPackage OK for json.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for mime.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for rxftp.cls
+</span><span style="font-weight:bold;color:green;">loadLibrary OK for rxmath
+</span><span style="font-weight:bold;color:green;">loadPackage OK for rxregexp.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for regex/regex.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for smtp.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for socket.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for streamsocket.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe.rex
+</span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2.rex
+</span><span style="font-weight:bold;color:green;">loadPackage OK for BSF.CLS
+</span><span style="font-weight:bold;color:green;">loadPackage OK for extension/extensions.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for oorexxshell_queries.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
+</span><span style="font-weight:bold;color:green;">
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 28 May 2021
+</span><span style="font-weight:bold;color:green;">Input queue name: S102c2Q7fcc76424920
+</span>
+<span style="color:blue;">--------------
+</span><span style="color:blue;">-- ooRexxShell
+</span><span style="color:blue;">--------------
+</span>
+<span style="color:blue;">Helper to display the system PATH:
+</span><span style="color:blue;">?path v1 v2 ... : display value of system variable, splitted by path separator.
+</span><span style="color:blue;">If no variable is specified then the value of the system variable PATH is displayed.
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; ?path
+PATH '/Users/jlfaucher/Dropbox/software/oorexx'
+PATH '/local/icu/icu4c-50_1_2-MacOSX64_GCC/usr/local/sbin'
+PATH '/local/icu/icu4c-50_1_2-MacOSX64_GCC/usr/local/bin'
+PATH '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20201217-beta/bsf4oorexx'
+PATH '/local/rexx/oorexx/executor/sandbox/jlf/samples'
+PATH '/local/rexx/oorexx/executor/incubator/ooRexxShell'
+PATH '/local/rexx/oorexx/executor/incubator/docmusings'
+PATH '/local/rexx/oorexx/executor/incubator'
+PATH '/local/rexx/oorexx/official/test/trunk/framework'
+PATH '/local/rexx/oorexx/official/test/trunk'
+PATH '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin'
+PATH '/local/rexx/oorexx/scripts'
+PATH '/local/rexx/builder/scripts'
+PATH '/Users/jlfaucher/bin'
+PATH '/Users/jlfaucher/.cargo/bin'
+PATH '/opt/local/bin'
+PATH '/opt/local/sbin'
+PATH '/opt/opendylan-2013.2/bin'
+PATH '/usr/local/bin'
+PATH '/Users/jlfaucher/Library/Haskell/bin'
+PATH '/usr/local/git/bin'
+PATH '/Applications/Mathematica.app/Contents/MacOS'
+PATH '/usr/local/opt/bison/bin'
+PATH '/usr/local/bin'
+PATH '/usr/bin'
+PATH '/bin'
+PATH '/usr/sbin'
+PATH '/sbin'
+PATH '/Library/TeX/texbin'
+PATH '/usr/local/go/bin'
+PATH '/opt/X11/bin'
+PATH '/usr/local/git/bin'
+PATH '/Applications/DjView.app/Contents/bin'
+PATH length: 1038
+<span style="font-weight:bold;color:green;">[Info] 34 lines displayed
+</span>
+<span style="color:blue;">Filter the system PATH to see only the folders in relation with rexx.
+</span><span style="color:blue;">?path = rexx
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; ?path = rexx
+PATH '/Users/jlfaucher/Dropbox/software/oorexx'
+PATH '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20201217-beta/bsf4oorexx'
+PATH '/local/rexx/oorexx/executor/sandbox/jlf/samples'
+PATH '/local/rexx/oorexx/executor/incubator/ooRexxShell'
+PATH '/local/rexx/oorexx/executor/incubator/docmusings'
+PATH '/local/rexx/oorexx/executor/incubator'
+PATH '/local/rexx/oorexx/official/test/trunk/framework'
+PATH '/local/rexx/oorexx/official/test/trunk'
+PATH '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin'
+PATH '/local/rexx/oorexx/scripts'
+PATH '/local/rexx/builder/scripts'
+<span style="font-weight:bold;color:green;">[Info] 11 lines displayed
+</span>
+<span style="color:blue;">Display the LIBRARY_PATH (Linux)
+</span><span style="color:blue;">?path LIBRARY_PATH
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; ?path LIBRARY_PATH
+LIBRARY_PATH '/local/icu/icu4c-50_1_2-MacOSX64_GCC/usr/local/lib'
+LIBRARY_PATH '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/lib'
+LIBRARY_PATH length: 146
+<span style="font-weight:bold;color:green;">[Info] 3 lines displayed
+</span>
+<span style="color:blue;">Display the DYLD_LIBRARY_PATH (MacOs)
+</span><span style="color:blue;">?path DYLD_LIBRARY_PATH
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; ?path DYLD_LIBRARY_PATH
+DYLD_LIBRARY_PATH '/local/icu/icu4c-50_1_2-MacOSX64_GCC/usr/local/lib'
+DYLD_LIBRARY_PATH '/Local/rexx/GCI/gci-source.1.1/build/macos/clang/release/64'
+DYLD_LIBRARY_PATH '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20201217-beta/bsf4oorexx/install/64'
+DYLD_LIBRARY_PATH '/Library/Java/JavaVirtualMachines/jdk1.8.0_131.jdk/Contents/Home/jre/lib/server'
+DYLD_LIBRARY_PATH '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/lib'
+DYLD_LIBRARY_PATH length: 369
+<span style="font-weight:bold;color:green;">[Info] 6 lines displayed
+</span>
+<span style="color:blue;">Display the CLASSPATH
+</span><span style="color:blue;">?path CLASSPATH
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; ?path CLASSPATH
+CLASSPATH '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20201217-beta/bsf4oorexx/bsf4ooRexx-v641-20201217-bin.jar'
+CLASSPATH length: 105
+<span style="font-weight:bold;color:green;">[Info] 2 lines displayed
+</span>
+<span style="color:blue;">End of demonstration.
+</span></pre>
+</body>
+</html>

@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- This file was created with the aha Ansi HTML Adapter. https://github.com/theZiz/aha -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xml+xhtml; charset=UTF-8"/>
+<title>stdin</title>
+</head>
+<body>
+<pre>
+<span style="font-weight:bold;color:green;">loadLibrary OK for rxunixsys
+</span><span style="font-weight:bold;color:green;">loadPackage OK for ncurses.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for csvStream.cls
+</span><span style="font-weight:bold;color:green;">loadLibrary OK for hostemu
+</span><span style="font-weight:bold;color:green;">loadPackage OK for json.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for mime.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for rxftp.cls
+</span><span style="font-weight:bold;color:green;">loadLibrary OK for rxmath
+</span><span style="font-weight:bold;color:green;">loadPackage OK for rxregexp.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for regex/regex.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for smtp.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for socket.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for streamsocket.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe.rex
+</span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2.rex
+</span><span style="font-weight:bold;color:green;">loadPackage OK for BSF.CLS
+</span><span style="font-weight:bold;color:green;">loadPackage OK for extension/extensions.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for oorexxshell_queries.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
+</span><span style="font-weight:bold;color:green;">
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 28 May 2021
+</span><span style="font-weight:bold;color:green;">Input queue name: Seb9eQ7fcc76423ea0
+</span>
+<span style="color:blue;">----------------
+</span><span style="color:blue;">-- Text encoding
+</span><span style="color:blue;">----------------
+</span>
+<span style="color:blue;">Start working on a prototype for encoded strings.
+</span><span style="color:blue;">
+</span><span style="color:blue;">Main ideas explored with this prototype :
+</span><span style="color:blue;">- No automatic conversion to Unicode by the interpreter.
+</span><span style="color:blue;">- The strings crossing the I/O barriers are kept unchanged.
+</span><span style="color:blue;">- Supported encodings : byte, UTF-8, UTF-16BE.
+</span><span style="color:blue;">- When no encoding has been explicitely specified, a default encoding is used.
+</span><span style="color:blue;">- Initially, the default encoding is &quot;UTF8&quot;. It can be changed at anytime.
+</span>
+<span style="color:blue;">- ABANDONNED: A string is made of slices, where each slice has its own encoding.
+</span><span style="color:blue;">- ABANDONNED: Strings with different encodings can be concatenated, there is no need of conversion.
+</span><span style="color:blue;">- NEW: Strings with different encodings can be concatenated if their encodings are compatible.
+</span><span style="color:blue;">       Example: a byte-encoded string containing only ASCII characters is compatible with UTF-8.
+</span><span style="color:blue;">       If not compatible then an error is raised.
+</span><span style="color:blue;">- The existing String class is kept unchanged, but its semantic becomes : &quot;byte-oriented&quot;.
+</span><span style="color:blue;">- The prototype adds a layer of services working at grapheme level, provided by the RexxText class.
+</span><span style="color:blue;">- The RexxText class works on the bytes managed by the String class.
+</span><span style="color:blue;">- String instances are immutable, the same for RexxText instances.
+</span>
+<span style="color:blue;">On my Mac, where locale returns :
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;locale&quot;
+LANG=
+LC_COLLATE=&quot;en_US.UTF-8&quot;
+LC_CTYPE=&quot;en_US.UTF-8&quot;
+LC_MESSAGES=&quot;en_US.UTF-8&quot;
+LC_MONETARY=&quot;en_US.UTF-8&quot;
+LC_NUMERIC=&quot;en_US.UTF-8&quot;
+LC_TIME=&quot;en_US.UTF-8&quot;
+LC_ALL=&quot;en_US.UTF-8&quot;
+
+<span style="color:blue;">I get that under ooRexxShell :
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; s1 = &quot;é&quot;
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; s1=                                 -- 'é'
+'é'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; s1~length=                          -- 2
+ 2
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; s1~c2x=                             -- C3 A9
+'C3A9'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; combining_acute_accent = &quot;cc81&quot;x
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; s2 = &quot;e&quot; || combining_acute_accent
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; s2=                                 -- 'é'
+'é'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; s2~length=                          -- 3
+ 3
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; s2~c2x=                             -- 65 CC 81
+'65CC81'
+
+<span style="color:blue;">My goal :
+</span><span style="color:blue;">s1~text~length=                     -- 1 grapheme
+</span><span style="color:blue;">s1~text~codepoints~size=            -- 1 codepoint
+</span><span style="color:blue;">s1~text~string~length=              -- 2 bytes
+</span><span style="color:blue;">s2~text~length=                     -- 1 grapheme
+</span><span style="color:blue;">s2~text~codepoints~size=            -- 2 codepoints
+</span><span style="color:blue;">s2~text~string~length=              -- 3 bytes
+</span>
+
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; .encoding~defaultEncoding = &quot;utf8&quot;
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; s1~text~length=                     -- 1 grapheme
+ 1
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; s1~text~codepoints~size=            -- 1 codepoint
+ 1
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; s1~text~string~length=              -- 2 bytes
+ 2
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; s2~text~length=                     -- 1 grapheme
+ 1
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; s2~text~codepoints~size=            -- 2 codepoints
+ 2
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; s2~text~string~length=              -- 3 bytes
+ 3
+
+<span style="color:blue;">A String is linked to a RexxText, which itself is linked to this String:
+</span><span style="color:blue;">
+</span><span style="color:blue;">    a String
+</span><span style="color:blue;">     ▲  text --------⮸ a RexxText
+</span><span style="color:blue;">     │                     indexer (anEncoding)
+</span><span style="color:blue;">     │                          codepoints (sequential access)
+</span><span style="color:blue;">     │                          graphemes  (direct access)
+</span><span style="color:blue;">     +-----------------------⮷- string
+</span><span style="color:blue;">
+</span><span style="color:blue;">The ooRexx programmer has the choice :
+</span><span style="color:blue;">- working with String at byte level
+</span><span style="color:blue;">- working with RexxText at grapheme level.
+</span><span style="color:blue;">- the same instance of String is used in both cases.
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; myText = &quot;où as tu e&quot; || .Unicode~character(&quot;combining acute accent&quot;)~utf8 || &quot;té ?&quot;
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; myText=                         -- T'où as tu été ?'
+T'où as tu été ?'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; myString = myText~string
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; myString=                       -- 'où as tu été ?'
+'où as tu été ?'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; myString~text~identityHash == myText~identityHash=        -- true, always return the same counterpart
+ 1
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; myText~string~identityHash == myString~identityHash=      -- true, always return the same counterpart
+ 1
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; myString~length=                -- 18
+ 18
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; myText~length=                  -- 14
+ 14
+
+<span style="color:blue;">                                -- 1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18
+</span><span style="color:blue;">myString                        -- 6F C3 B9 20 61 73 20 74 75 20 65 CC 81 74 C3 A9 20 3F
+</span><span style="color:blue;">                                -- o. ù....  . a. s.  . t. u.  . e. acute t. é....  . ?.
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; myString~eachC{item~c2x}=
+['6F','C3','B9', 20, 61, 73, 20, 74, 75, 20, 65,'CC', 81, 74,'C3','A9', 20,'3F']
+
+<span style="color:blue;">                                -- 1  2     3  4  5  6  7  8  9  10       11 12    13 14
+</span><span style="color:blue;">myText                          -- 6F C3B9  20 61 73 20 74 75 20 65 CC81  74 C3A9  20 3F
+</span><span style="color:blue;">                                -- o. ù...   . a. s.  . t. u.  . e. acut  t. é...   . ?.
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; myText~graphemes~each{item~c2x}=
+['6F','C3B9', 20, 61, 73, 20, 74, 75, 20,'65CC81', 74,'C3A9', 20,'3F']
+
+<span style="color:blue;">CR+LF is a grapheme made of 2 codepoints.
+</span><span style="color:blue;">LF+CR are 2 graphemes.
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;0D0A&quot;x~text~description=
+'UTF-8 ASCII ( 1 grapheme, 2 codepoints, 2 bytes )'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;0A0D&quot;x~text~description=
+'UTF-8 ASCII ( 2 graphemes, 2 codepoints, 2 bytes )'
+
+<span style="color:blue;">More examples of encoded string
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;¯\_(ツ)_/¯&quot;~text~description=
+'UTF-8 not-ASCII ( 9 graphemes, 9 codepoints, 13 bytes )'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;¯\_(ツ)_/¯&quot;~text~graphemes~each{item~c2x}=
+['C2AF','5C','5F', 28,'E38384', 29,'5F','2F','C2AF']
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;( ͡° ͜ʖ﻿ ͡°)&quot;~text~description=
+'UTF-8 not-ASCII ( 9 graphemes, 12 codepoints, 20 bytes )'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;( ͡° ͜ʖ﻿ ͡°)&quot;~text~graphemes~each{item~c2x}=
+[ 28,'20CDA1','C2B0','20CD9C','CA96','EFBBBF','20CDA1','C2B0', 29]
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;(ノಠ益ಠ)ノ彡&quot;~text~description=
+'UTF-8 not-ASCII ( 8 graphemes, 8 codepoints, 20 bytes )'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;(ノಠ益ಠ)ノ彡&quot;~text~graphemes~each{item~c2x}=
+[ 28,'E3838E','E0B2A0','E79B8A','E0B2A0', 29,'E3838E','E5BDA1']
+
+<span style="color:blue;">U+FE0E VARIATION SELECTOR-15 (UTF-8: EF B8 8E)
+</span><span style="color:blue;">https://codepoints.net/U+fe0e
+</span><span style="color:blue;">This codepoint may change the appearance of the preceding character.
+</span><span style="color:blue;">If that is a symbol, dingbat or emoji, U+FE0E forces it to be rendered in a
+</span><span style="color:blue;">textual fashion as compared to a colorful image.
+</span><span style="color:blue;">
+</span><span style="color:blue;">U+FE0F VARIATION SELECTOR-16 (UTF-8: EF B8 8F)
+</span><span style="color:blue;">https://codepoints.net/U+fe0f
+</span><span style="color:blue;">This codepoint may change the appearance of the preceding character.
+</span><span style="color:blue;">If that is a symbol, dingbat or emoji, U+FE0F forces it to be rendered as a
+</span><span style="color:blue;">colorful image as compared to a monochrome text variant.
+</span><span style="color:blue;">In theory ❤ and ❄ (and many other emoji) should display as text style by default
+</span><span style="color:blue;">without VS16, but many applications ignore that.
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; emoji_array = ('❤', '❤️', '❄', '❄︎', '❄️', '⚪', '⚪️', '⚫', '⚫️')
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; emoji_array~reduce(initial:.table~new){accu[item~text] = item~text~graphemes~each{arg(1)~c2x}}==
+a Table (9 items)
+T'⚪'    : ['E29AAA']
+T'⚪️' : ['E29AAAEFB88F']
+T'⚫'    : ['E29AAB']
+T'⚫️' : ['E29AABEFB88F']
+T'❄'    : ['E29D84']
+T'❄︎' : ['E29D84EFB88E']
+T'❄️' : ['E29D84EFB88F']
+T'❤'    : ['E29DA4']
+T'❤️' : ['E29DA4EFB88F']
+<span style="color:blue;">The table above is not well aligned
+</span><span style="color:blue;">because the alignement is based on the length of the indexes,
+</span><span style="color:blue;">which is (for the moment) a count of bytes, not a count of graphemes...
+</span>
+<span style="color:blue;">🤦🏼‍♂️
+</span><span style="color:blue;">is one grapheme, made up of 5 codepoints.
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;🤦🏼‍♂️&quot;~text~description=                                         -- 1 grapheme, 5 codepoints, 17 bytes
+'UTF-8 not-ASCII ( 1 grapheme, 5 codepoints, 17 bytes )'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;🤦🏼‍♂️&quot;~text~graphemes~each{item~c2x}=                            -- F09FA4A6F09F8FBCE2808DE29982EFB88F
+['F09FA4A6F09F8FBCE2808DE29982EFB88F']
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;🤦🏼‍♂️&quot;~text~codepoints~each{.UTF8_Encoding~encode(item)~c2x}=    -- F09FA4A6 F09F8FBC E2808D E29982 EFB88F
+['F09FA4A6','F09F8FBC','E2808D','E29982','EFB88F']
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;🤦🏼‍♂️&quot;~text~codepoints~each{&quot;U+&quot;item~d2x}=                       -- U+1F926 U+1F3FC U+200D U+2642 U+FE0F
+['U+1F926','U+1F3FC','U+200D','U+2642','U+FE0F']
+
+<span style="color:blue;">https://www.reddit.com/r/cpp/comments/aqzu7i
+</span><span style="color:blue;">👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦
+</span><span style="color:blue;">is one grapheme, made up of 13 codepoints (jlf: typo? I get 15 codepoints)
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦&quot;~text~description=                              -- 1 grapheme, 15 codepoints, 53 bytes
+'UTF-8 not-ASCII ( 1 grapheme, 15 codepoints, 53 bytes )'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦&quot;~text~graphemes~each{item~c2x}=
+['F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7E2808DF09F91A6E2808DF09F91A7E2808DF09F91A7E2808DF09F91A6']
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦&quot;~text~codepoints~each{.UTF8_Encoding~encode(item)~c2x}=
+['F09F91A9','E2808D','F09F91A8','E2808D','F09F91A9','E2808D','F09F91A7','E2808D','F09F91A6','E2808D','F09F91A7','E2808D','F09F91A7','E2808D','F09F91A6']
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦&quot;~text~codepoints~each{&quot;U+&quot;item~d2x}=
+['U+1F469','U+200D','U+1F468','U+200D','U+1F469','U+200D','U+1F467','U+200D','U+1F466','U+200D','U+1F467','U+200D','U+1F467','U+200D','U+1F466']
+
+<span style="color:blue;">https://onlineunicodetools.com/generate-zalgo-unicode
+</span><span style="color:blue;">Uses Unicode combining characters to create symbol noise.
+</span><span style="color:blue;">&quot;hello&quot; zalgoified:
+</span><span style="color:blue;">h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞&quot;~text~description=                                -- 5 graphemes, 54 codepoints, 111 bytes
+'UTF-8 not-ASCII ( 5 graphemes, 54 codepoints, 111 bytes )'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞&quot;~text~graphemes~each{item~c2x}=
+['68CD86CCB5E1B78ACC9FCD89CD94CC9FCCB2','65CCBECCB7CD87CCBCCD89CCB2','6CEFB8A3EFB8A0CDA6CCB8CD93CCADCC97E1B7BFCCA8','6CCC91CC88CDAECD8CEFB8A1CC95CCB6CCAFCCBB','6FE1B783CDAACC86CC81E1B788CD81CD9ECCB5CC9DCD9CCCACCCAFE1B78ACDA2CCADCCAFCCA6']
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞&quot;~text~codepoints~each{.UTF8_Encoding~encode(item)~c2x}=
+[ 68,'CD86','CCB5','E1B78A','CC9F','CD89','CD94','CC9F','CCB2', 65,'CCBE','CCB7','CD87','CCBC','CD89','CCB2','6C','EFB8A3','EFB8A0','CDA6','CCB8','CD93','CCAD','CC97','E1B7BF','CCA8','6C','CC91','CC88','CDAE','CD8C','EFB8A1','CC95','CCB6','CCAF','CCBB','6F','E1B783','CDAA','CC86','CC81','E1B788','CD81','CD9E','CCB5','CC9D','CD9C','CCAC','CCAF','E1B78A','CDA2','CCAD','CCAF','CCA6']
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞&quot;~text~codepoints~each{&quot;U+&quot;item~d2x}=
+['U+68','U+346','U+335','U+1DCA','U+31F','U+349','U+354','U+31F','U+332','U+65','U+33E','U+337','U+347','U+33C','U+349','U+332','U+6C','U+FE23','U+FE20','U+366','U+338','U+353','U+32D','U+317','U+1DFF','U+328','U+6C','U+311','U+308','U+36E','U+34C','U+FE21','U+315','U+336','U+32F','U+33B','U+6F','U+1DC3','U+36A','U+306','U+301','U+1DC8','U+341','U+35E','U+335','U+31D','U+35C','U+32C','U+32F','U+1DCA','U+362','U+32D','U+32F','U+326']
+
+<span style="color:blue;">Supported encoding conversions:
+</span><span style="color:blue;">Byte to UTF-8
+</span><span style="color:blue;">Byte to UTF-16
+</span><span style="color:blue;">UTF-8 to UTF-16
+</span><span style="color:blue;">UTF-16 to UTF-8
+</span>
+<span style="color:blue;">The Byte_Encoding can be specialized to add support for specific encoding conversions.
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; .Encoding~supported~table==
+a Table (7 items)
+'BYTES'       : (The Byte_Encoding class)
+'CP1252'      : (The CP1252_Encoding class)
+'DEFAULT'     : 'DEFAULT'
+'UTF16'       : (The UTF16BE_Encoding class)
+'UTF16BE'     : (The UTF16BE_Encoding class)
+'UTF8'        : (The UTF8_Encoding class)
+'WINDOWS1252' : (The CP1252_Encoding class)
+
+<span style="color:blue;">Example: CP1252 to UTF-8
+</span><span style="color:blue;">&quot;Un œuf de chez MaPoule™ coûte ±0.40€&quot;
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; str_cp1252 = &quot;Un &quot; || &quot;9C&quot;x || &quot;uf de chez MaPoule&quot; || &quot;99&quot;x || &quot; co&quot; || &quot;FB&quot;x || &quot;te &quot; || &quot;B1&quot;x || &quot;0.40&quot; || &quot;80&quot;x
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; str_cp1252=
+'Un �uf de chez MaPoule� co�te �0.40�'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; txt_cp1252 = str_cp1252~text(&quot;cp1252&quot;)
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; txt_cp1252~description=
+'CP1252 not-ASCII ( 36 graphemes, 36 codepoints, 36 bytes )'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; txt_cp1252~graphemes~each{item~c2x}=
+[ 55,'6E', 20,'9C', 75, 66, 20, 64, 65, 20, 63, 68, 65,'7A', 20,'4D', 61, 50,'6F', 75,'6C', 65, 99, 20, 63,'6F','FB', 74, 65, 20,'B1', 30,'2E', 34, 30, 80]
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; txt_utf8 = txt_cp1252~utf8
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; txt_utf8=
+T'Un œuf de chez MaPoule™ coûte ±0.40€'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; txt_utf8~description=
+'UTF-8 not-ASCII ( 36 graphemes, 36 codepoints, 43 bytes )'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; txt_utf8~graphemes~each{item~c2x}=
+[ 55,'6E', 20,'C593', 75, 66, 20, 64, 65, 20, 63, 68, 65,'7A', 20,'4D', 61, 50,'6F', 75,'6C', 65,'E284A2', 20, 63,'6F','C3BB', 74, 65, 20,'C2B1', 30,'2E', 34, 30,'E282AC']
+
+<span style="color:blue;">End of demonstration.
+</span></pre>
+</body>
+</html>

@@ -3,25 +3,35 @@ ooRexxShellDemos = helpers interpreters queries
 
 help:
 	@echo "make all"
-	@echo "make casts"
-	@echo "make outputs"
+	@echo "make cast"
+	@echo "make html"
+	@echo "make txt"
 
-all: casts outputs
+all: cast html txt
 
-casts::
+cast::
 	@for d in $(executorDemos); do (make executor-demo-$$d.cast); done
 
-casts::
+cast::
 	@for d in $(ooRexxShellDemos); do (make ooRexxShell-demo-$$d.cast); done
 
-outputs::
+html::
+	@for d in $(executorDemos); do (make executor-demo-$$d-output.html); done
+
+html::
+	@for d in $(ooRexxShellDemos); do (make ooRexxShell-demo-$$d-output.html); done
+
+txt::
 	@for d in $(executorDemos); do (make executor-demo-$$d-output.txt); done
 
-outputs::
+txt::
 	@for d in $(ooRexxShellDemos); do (make ooRexxShell-demo-$$d-output.txt); done
 
 %.cast : %.txt
 	asciinema rec -c "bash -i -c 'cat $? | oorexxshell --showInitialization'" --overwrite $@
+
+%-output.html : %.cast
+	bash -i -c 'asciinema cat $? | aha > $@'
 
 %-output.txt : %.txt
 	bash -i -c 'cat $? | oorexxshell demo fast > $@ 2>&1'
@@ -35,6 +45,6 @@ outputs::
 # - execution of ~/.bashrc which calls ~/.bash_env
 # - execution of ~/.bash_env which calls : . "$REXX_ENVIRONMENT"
 # where the file $REXX_ENVIRONMENT is created like that when initializing the environment:
-# echo "export LD_LIBRARY_PATH=`echo $LD_LIBRARY_PATH`" >> "$REXX_ENVIRONMENT"
-# echo "export DYLD_LIBRARY_PATH=`echo $DYLD_LIBRARY_PATH`" >> "$REXX_ENVIRONMENT"
+#     echo "export LD_LIBRARY_PATH=`echo $LD_LIBRARY_PATH`" >> "$REXX_ENVIRONMENT"
+#     echo "export DYLD_LIBRARY_PATH=`echo $DYLD_LIBRARY_PATH`" >> "$REXX_ENVIRONMENT"
 # These 2 variables are made available to the rexx process, and BSF4ooRexx is loaded.

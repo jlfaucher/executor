@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- This file was created with the aha Ansi HTML Adapter. https://github.com/theZiz/aha -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xml+xhtml; charset=UTF-8"/>
+<title>stdin</title>
+</head>
+<body>
+<pre>
+<span style="font-weight:bold;color:green;">loadLibrary OK for rxunixsys
+</span><span style="font-weight:bold;color:green;">loadPackage OK for ncurses.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for csvStream.cls
+</span><span style="font-weight:bold;color:green;">loadLibrary OK for hostemu
+</span><span style="font-weight:bold;color:green;">loadPackage OK for json.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for mime.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for rxftp.cls
+</span><span style="font-weight:bold;color:green;">loadLibrary OK for rxmath
+</span><span style="font-weight:bold;color:green;">loadPackage OK for rxregexp.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for regex/regex.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for smtp.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for socket.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for streamsocket.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe.rex
+</span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2.rex
+</span><span style="font-weight:bold;color:green;">loadPackage OK for BSF.CLS
+</span><span style="font-weight:bold;color:green;">loadPackage OK for extension/extensions.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for oorexxshell_queries.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
+</span><span style="font-weight:bold;color:green;">
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 28 May 2021
+</span><span style="font-weight:bold;color:green;">Input queue name: S9e2fQ7fcc76423470
+</span>
+<span style="color:blue;">----------------------
+</span><span style="color:blue;">-- Executor extensions
+</span><span style="color:blue;">----------------------
+</span>
+<span style="color:blue;">Complex numbers
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; say 2*(3-2i)
+6-4i
+
+<span style="color:blue;">2i is interpreted as 2*i, where i has the default value .complex~new(0,1)
+</span><span style="color:blue;">This default value is managed by the class GlobalVariable.
+</span><span style="color:blue;">When a variable has no value, the interpreter sends the message &quot;NOVALUE&quot; to this class
+</span><span style="color:blue;">(because this class is registered in .LOCAL under the name &quot;NOVALUE&quot;).
+</span><span style="color:blue;">This class is used to manage global variables like i, infinity, indeterminate.
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; .local~novalue=
+(The GlobalVariable class)
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; ?cm globalvariable
+
+<span style="font-weight:bold;color:green;">[Info] [1] Class 'GlobalVariable' P. (novalue.cls)
+</span>P. PCG.    'DECLARE' : 'GlobalVariable' (novalue.cls)
+P. PCG.    'INIT'    : 'GlobalVariable' (novalue.cls)
+P. PCG.    'NOVALUE' : 'GlobalVariable' (novalue.cls)
+P. PCG.    'VALUES'  : 'GlobalVariable' (novalue.cls)
+<span style="font-weight:bold;color:green;">[Info] [1] Class 'GlobalVariable' has 4 methods
+</span><span style="font-weight:bold;color:green;">[Info] 7 lines displayed
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; .globalvariable~values=
+a Directory (4 items)
+'COMPLEXINFINITY' : (The complex infinity)
+'I'               : (0+1i)
+'INDETERMINATE'   : (The indeterminate value)
+'INFINITY'        : (The positive infinity)
+
+<span style="color:blue;">Range iterator
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; 1~9=
+[ 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+<span style="color:blue;">The collection is displayed one item per line when the line ends with ==
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; 1~9==
+an Array (shape [9], 9 items)
+ 1 :  1
+ 2 :  2
+ 3 :  3
+ 4 :  4
+ 5 :  5
+ 6 :  6
+ 7 :  7
+ 8 :  8
+ 9 :  9
+
+<span style="color:blue;">The precision of the range iterator is automatically adjusted
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; 1~9(by:1e-100, for:10)==
+an Array (shape [10], 10 items)
+ 1  :  1
+ 2  :  1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001
+ 3  :  1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+ 4  :  1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003
+ 5  :  1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004
+ 6  :  1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005
+ 7  :  1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006
+ 8  :  1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000007
+ 9  :  1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008
+ 10 :  1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000009
+
+<span style="color:blue;">To get the last 10 values of the range, pass for:-10
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; 1~9(by:1e-100, for:-10)==
+an Array (shape [10], 10 items)
+ 1  :  8.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999991
+ 2  :  8.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999992
+ 3  :  8.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999993
+ 4  :  8.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999994
+ 5  :  8.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999995
+ 6  :  8.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999996
+ 7  :  8.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999997
+ 8  :  8.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999998
+ 9  :  8.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999
+ 10 :  9.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+<span style="color:blue;">Y combinator:
+</span><span style="color:blue;">The Y combinator allows recursion to be defined as a set of rewrite rules.
+</span><span style="color:blue;">It takes a single argument, which is a function that isn't recursive (here, no argument, use self which is a Doer).
+</span><span style="color:blue;">It returns a version of the function which is recursive.
+</span>
+<span style="color:blue;">Inspired by http://mvanier.livejournal.com/2897.html
+</span><span style="color:blue;">Y = λf.(λx.f (λv.((x x) v))) (λx.f (λv.((x x) v)))
+</span><span style="color:blue;">
+</span><span style="color:blue;">(define Y
+</span><span style="color:blue;">  (lambda (f)
+</span><span style="color:blue;">    ( (lambda (a) (a a))
+</span><span style="color:blue;">      (lambda (x) (f (lambda (v) ((x x) v)))))))
+</span>
+<span style="color:blue;">Implementation of the Y combinator with memoization:
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; ?ms YM
+PM P...    'YM' : 'RoutineDoer' (doers.cls)
+ &gt; 0001 use named arg verbose=.false
+ &gt; 0002     if verbose then trace i
+ &gt; 0003 
+ &gt; 0004     -- lambda_f
+ &gt; 0005     f = self -- to be closer to the notation (would be passed by parameter to lambda_f when implemented by a function instead of a method)
+ &gt; 0006     YnamedArgs = .context~namedArgs
+ &gt; 0007     table = .Table~new
+ &gt; 0008 
+ &gt; 0009     lambda_a = {use arg a ; return a~(a)}
+ &gt; 0010 
+ &gt; 0011     lambda_x = {
+ &gt; 0012         expose f verbose YnamedArgs table
+ &gt; 0013         if verbose then trace i
+ &gt; 0014         use strict arg x
+ &gt; 0015         lambda_v = {
+ &gt; 0016                      expose x verbose table
+ &gt; 0017                      if verbose then trace i
+ &gt; 0018                      --use strict arg v
+ &gt; 0019                      v = arg(1, &quot;a&quot;)
+ &gt; 0020                      v_index = v~tostring
+ &gt; 0021                      r = table[v_index]
+ &gt; 0022                      if r &lt;&gt; .nil then return r
+ &gt; 0023                      r = x~(x)~doWith(v, n:.context~namedArgs)
+ &gt; 0024                      table[v_index] = r
+ &gt; 0025                      return r
+ &gt; 0026                 }
+ &gt; 0027         return f ~ doWith(.array~of(lambda_v), n:YnamedArgs)
+ &gt; 0028     }
+ &gt; 0029     return lambda_a ~ (lambda_x)
+<span style="font-weight:bold;color:green;">[Info] 30 lines displayed
+</span>
+<span style="color:blue;">Application to Fibonacci:
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; almost_fib = { use arg fib; {expose fib ; use arg n; if n==0 then return 0; if n==1 then return 1; if n&lt;0 then return fib~(n+2) - fib~(n+1); return fib~(n-2) + fib~(n-1)}}
+
+<span style="color:blue;">The not-memoizing version needs almost 15 sec.
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; fib_Y = almost_fib~Y
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; fib_Y~(23)=
+ 28657
+<span style="font-weight:bold;color:green;">Duration: 13.648553
+</span>
+<span style="color:blue;">The memoizing version calculates almost instantly.
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; fib_YM = almost_fib~YM
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; fib_YM~(23)=
+ 28657
+<span style="font-weight:bold;color:green;">Duration: 0.003965
+</span>
+<span style="color:blue;">fib_Y and fib_YM are closures.
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; fib_YM~executable=
+(a Closure)
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; fib_YM~executable~variables=
+a Directory (1 items)
+'FIB' : (a RexxBlock)
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; fib_YM~executable~variables[&quot;FIB&quot;]~executable=
+(a Closure)
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; fib_YM~executable~variables[&quot;FIB&quot;]~executable~variables=
+a Directory (7 items)
+'F'          : (a Routine)
+'SELF'       : (a Closure)
+'SUPER'      : (The Doer class)
+'TABLE'      : a Table
+'VERBOSE'    :  0
+'X'          : (a RexxBlock)
+'YNAMEDARGS' : a Directory
+
+<span style="color:blue;">TABLE is the table of values memoized by fib_YM for the calculation of fib_YM~(23).
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; fib_YM~executable~variables[&quot;FIB&quot;]~executable~variables[&quot;TABLE&quot;]=
+a Table (23 items)
+ 0  :  0
+ 1  :  1
+ 2  :  1
+ 3  :  2
+ 4  :  3
+ 5  :  5
+ 6  :  8
+ 7  :  13
+ 8  :  21
+ 9  :  34
+ 10 :  55
+ 11 :  89
+ 12 :  144
+ 13 :  233
+ 14 :  377
+ 15 :  610
+ 16 :  987
+ 17 :  1597
+ 18 :  2584
+ 19 :  4181
+ 20 :  6765
+ 21 :  10946
+ 22 :  17711
+
+<span style="color:blue;">Both fib_Y and fib_YM are subject to stack overflow.
+</span><span style="color:blue;">But fib_YM can be used by steps, to calculate very big fibonacci numbers, thanks to the memoization.
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; numeric digits propagate 100
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; do i=1 to 500; r = fib_YM~(i*50); if i//50=0 then say &quot;fib_YM~(&quot;i*100&quot;)=&quot;r; end
+fib_YM~(5000)=1.317090516751949629522763087125316412066606964992507141887746936727530870405038425764503130123186429E+522
+fib_YM~(10000)=3.878968454388325633701916308325905312082127714646245106160597214895550139044037097010822916462210799E+1044
+fib_YM~(15000)=1.142396523152058704722048892865690419848718663331756079795903059573826364358830526396432108051699207E+1567
+fib_YM~(20000)=3.364476487643178326662161200510754331030214846068006390656476997468008144216666236815559551363373664E+2089
+fib_YM~(25000)=9.908732919346489283972390155590053108590838370898511971634619406801520847007023935403361324320167010E+2611
+fib_YM~(30000)=2.918224824204913830236407223698513202230962655711828774617138735156624458079183128895718558218554766E+3134
+fib_YM~(35000)=8.594475392487880685715609318313958956965186135981014406583281854302591776880967478349722433509870025E+3656
+fib_YM~(40000)=2.531162323732361242240155003520607291766356485802485278951929841991312781760541315230153423463759229E+4179
+fib_YM~(45000)=7.454536101973301545514060322899628474921968473702388044321015228379740189148914655473430519859925903E+4701
+fib_YM~(50000)=2.195438355517303012780791914841720922849015222302155773145178112730662303998294388326731046697794993E+5224
+<span style="font-weight:bold;color:green;">Duration: 8.328087
+</span>
+<span style="color:blue;">End of demonstration.
+</span></pre>
+</body>
+</html>
