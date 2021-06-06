@@ -176,6 +176,7 @@ queue_methods~put(.methods~queue_ro, "READOBJECT")
 .environment~setentry('DATETIME', .DateTime)
 .environment~setentry('TIMESPAN', .TimeSpan)
 .environment~setentry('ARGUTIL', .ArgUtil)
+.environment~setentry('VALIDATE', .Validate)
 
 .environment~setEntry('SERIALIZABLE', .Serializable)
 .environment~setEntry('SERIALIZEFUNCTIONS', .SerializeFunctions)
@@ -3702,108 +3703,253 @@ nomethod:
 
 ::CLASS 'ArgUtil' public
 ::METHOD validateNumber class
-  use strict arg name, number
+  use strict arg name, number, kind=""
   if \number~dataType('Number') then do
-      raise syntax 88.902 array(name, number)
+      raise syntax 88.902 array(kind, name, number)
   end
 
 -- Validates the argument is a number and is in range.  This gives the
 -- 907 message for all error conditions to be most specific.
 ::METHOD validateNumberRange class
-  use strict arg name, number, min, max
+  use strict arg name, number, min, max, digits=(digits()), kind=""
   numeric digits digits
   -- validate the numeric part first
   if \number~dataType('Number') then do
-      raise syntax 88.907 array(name, min, max, number)
+      raise syntax 88.907 array(kind, name, min, max, number)
   end
   -- now validate it's within range
   if number < min | number > max then do
-      raise syntax 88.907 array(name, min, max, number)
+      raise syntax 88.907 array(kind, name, min, max, number)
   end
 
 
 -- Validates the argument is a whole number and is in range.  This gives the
 -- 907 message for all error conditions to be most specific.
 ::METHOD validateWholeRange class
-  use strict arg name, number, min, max, digits=(digits())
+  use strict arg name, number, min, max, digits=(digits()), kind=""
   numeric digits digits
   -- validate the numeric part first
   if \number~dataType('Whole') then do
-      raise syntax 88.907 array(name, min, max, number)
+      raise syntax 88.907 array(kind, name, min, max, number)
   end
   -- now validate it's within range
   if number < min | number > max then do
-      raise syntax 88.907 array(name, min, max, number)
+      raise syntax 88.907 array(kind, name, min, max, number)
   end
 
 ::METHOD validateWhole class
-  use strict arg name, number, digits=(digits())
+  use strict arg name, number, digits=(digits()), kind=""
   numeric digits digits
   if \number~dataType('Whole') then do
-      raise syntax 88.903 array(name, number)
+      raise syntax 88.903 array(kind, name, number)
   end
 
 -- Note, this uses the 904 message for both, which is most specific
 ::METHOD validateNonNegative class
-  use strict arg name, number, digits=(digits())
+  use strict arg name, number, digits=(digits()), kind=""
   numeric digits digits
   -- first validate whole number status
   if \number~dataType('Whole') then do
-      raise syntax 88.904 array(name, number)
+      raise syntax 88.904 array(kind, name, number)
   end
   -- then check range status
   if number < 0 then do
-      raise syntax 88.904 array(name, number)
+      raise syntax 88.904 array(kind, name, number)
   end
 
 ::METHOD validatePositive class
-  use strict arg name, number, digits=(digits())
+  use strict arg name, number, digits=(digits()), kind=""
   numeric digits digits
   -- first validate whole number status
   if \number~dataType('Whole') then do
-      raise syntax 88.905 array(name, number)
+      raise syntax 88.905 array(kind, name, number)
   end
   -- then check range status
   if number <= 0 then do
-      raise syntax 88.905 array(name, number)
+      raise syntax 88.905 array(kind, name, number)
   end
 
 -- validate a length parameter.  This is essentially the same
 -- as validateNonNegative, but a more specific message.
 ::METHOD validateLength class
-  use strict arg name, number, digits=(digits())
+  use strict arg name, number, digits=(digits()), kind=""
   numeric digits digits
   -- first validate whole number status
   if \number~dataType('Whole') then do
-      raise syntax 88.911 array(name, number)
+      raise syntax 88.911 array(kind, name, number)
   end
   -- then check range status
   if number < 0 then do
-      raise syntax 88.911 array(name, number)
+      raise syntax 88.911 array(kind, name, number)
   end
 
 -- validate a position parameter.  This is essentially the same
 -- as validatePosition, but a more specific message.
 ::METHOD validatePosition class
-  use strict arg name, number, digits=(digits())
+  use strict arg name, number, digits=(digits()), kind=""
   numeric digits digits
   -- first validate whole number status
   if \number~dataType('Whole') then do
-      raise syntax 88.912 array(name, number)
+      raise syntax 88.912 array(kind, name, number)
   end
   -- then check range status
   if number <= 0 then do
-      raise syntax 88.912 array(name, number)
+      raise syntax 88.912 array(kind, name, number)
   end
 
 -- validate that an argument is an instance of a specific class.
 ::METHOD validateClass class
-  use strict arg name, obj, class
+  use strict arg name, obj, class, kind=""
 
   if \obj~isa(class) then do
-      raise syntax 88.914 array(name, class~id)
+      raise syntax 88.914 array(kind, name, class~id)
   end
 
+
+-- a class for performing easy argument validation
+::CLASS 'Validate' public
+
+-- validate that an argument is a valid Rexx number
+::METHOD number class
+  use strict arg name, number, kind=""
+  if \number~dataType("Number") then do
+      -- The NAME argument must be a number; found "NUMBER"
+      raise syntax 88.902 array(kind, name, number)
+  end
+
+-- validate that an argument is a number and is in range
+::METHOD numberRange class
+  use strict arg name, number, min, max, digits=(digits()), kind=""
+  numeric digits digits
+  -- must be numeric and within the given range
+  if number~dataType("Number"), number >= min, number <= max then do
+      return
+  end
+  -- The NAME argument must be in the range MIN to MAX; found "NUMBER"
+  raise syntax 88.907 array(kind, name, min, max, number)
+
+-- validate that an argument is zero or a positive number
+::METHOD nonNegativeNumber class
+  use strict arg name, number, digits=(digits()), kind=""
+  numeric digits digits
+  -- must be numeric and zero or positive
+  if number~dataType("Number"), number >= 0 then do
+      return
+  end
+  -- The NAME argument must be zero or a positive number; found "NUMBER"
+  raise syntax 88.925 array(kind, name, number)
+
+-- validate that an argument is a positive number
+::METHOD positiveNumber class
+  use strict arg name, number, digits=(digits()), kind=""
+  numeric digits digits
+  -- must be numeric and positive
+  if number~dataType("Number"), number > 0 then do
+      return
+  end
+  -- The NAME argument must be a positive number; found "NUMBER"
+  raise syntax 88.926 array(kind, name, number)
+
+-- validate that an argument is a whole number within the given digits
+::METHOD wholeNumber class
+  use strict arg name, number, digits=(digits()), kind=""
+  numeric digits digits
+  if \number~dataType("Whole") then do
+      -- The NAME argument must be a whole number; found "NUMBER"
+      raise syntax 88.903 array(kind, name, number)
+  end
+
+
+-- validate that an argument is a whole number and is in range
+::METHOD wholeNumberRange class
+  use strict arg name, number, min, max, digits=(digits()), kind=""
+  numeric digits digits
+  -- must be whole and within the given range
+  if number~dataType("Whole"), number >= min, number <= max then do
+      return
+  end
+  -- The NAME argument must be in the range MIN to MAX; found "NUMBER"
+  raise syntax 88.907 array(kind, name, min, max, number)
+
+-- validate that an argument is zero or a positive whole number
+::METHOD nonNegativeWholeNumber class
+  use strict arg name, number, digits=(digits()), kind=""
+  numeric digits digits
+  -- must be whole and zero or positive
+  if number~dataType("Whole"), number >= 0 then do
+      return
+  end
+  -- The NAME argument must be zero or a positive whole number; found "NUMBER"
+  raise syntax 88.904 array(kind, name, number)
+
+-- validate that an argument is a positive whole number
+::METHOD positiveWholeNumber class
+  use strict arg name, number, digits=(digits()), kind=""
+  numeric digits digits
+  -- must be whole and positive
+  if number~dataType("Whole"), number > 0 then do
+      return
+  end
+  -- The NAME argument must be a positive whole number; found "NUMBER"
+  raise syntax 88.905 array(kind, name, number)
+
+
+-- validates a length argument
+-- this is very similar to method nonNegativeWholeNumber, but with
+-- a different default digits concept and a more specific message.
+::METHOD length class
+  use strict arg name, number, digits=(.RexxInfo~internalDigits), kind=""
+  numeric digits digits
+  -- must be whole and zero or positive
+  if number~dataType("Whole"), number >= 0 then do
+      return
+  end
+  -- Argument NAME is an invalid length value; found "NUMBER"
+  raise syntax 88.911 array(kind, name, number)
+
+-- validates a position argument
+-- this is very similar to method positiveWholeNumber, but with
+-- a different default digits concept and a more specific message.
+::METHOD position class
+  use strict arg name, number, digits=(.RexxInfo~internalDigits), kind=""
+  numeric digits digits
+  -- must be whole and positive
+  if number~dataType("Whole"), number > 0 then do
+      return
+  end
+  -- Argument NAME is an invalid position value; found "NUMBER"
+  raise syntax 88.912 array(kind, name, number)
+
+-- validate that an argument is an instance of a specific class
+::METHOD classType class
+  use strict arg name, object, class, kind=""
+
+  if \object~isA(class) then do
+      -- Argument NAME must be an instance of the CLASS class
+      raise syntax 88.914 array(kind, name, class~id)
+  end
+
+-- validate that an argument can be expressed as an instance of a specific class
+::METHOD requestClassType class
+  use strict arg name, object, class, kind=""
+
+  newObject = object~request(class~id)
+
+  if \newObject~isA(class) then do
+      -- 93.978:  Method argument NAME could not be converted to type CLASS; found "OBJECT".
+      raise syntax 93.978 array(kind, name, class~id, object)
+  end
+
+  return newObject
+
+-- validate that an argument is a valid boolean
+::METHOD logical class
+  use strict arg name, number, kind=""
+
+  if number \== .true, number \== .false then do
+      -- The NAME argument must be exactly "0" or "1"; found NUMBER
+      raise syntax 88.927 array(kind, name, number)
+  end
 
 
 /* **************************************** */
