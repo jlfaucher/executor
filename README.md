@@ -651,11 +651,7 @@ Same example with kestrels, to log intermediate results:
 
 ### Demos with asciinema
 
-The setting of the terminal is 45 lines, 130 columns.  
-If the terminal is not visible in its entirety, you can switch to full screen: icon bottom right.
-
-- ooRexxShell: [demo][oorexxshell_demo]
-- Run clasic Rexx Rosetta Code: [demo][run_classic_rexx_rosetta_code]
+Several demos are available [here][demos_with_asciinema].
 
 
 [build_executor]: https://github.com/jlfaucher/builder/blob/master/build-executor.txt
@@ -682,7 +678,6 @@ If the terminal is not visible in its entirety, you can switch to full screen: i
 [apl_glimpse_heaven]: http://archive.vector.org.uk/art10011550 "APL - a Glimpse of Heaven"
 [raganwald_homoiconic]: https://github.com/raganwald-deprecated/homoiconic "Raganwald's Homoiconic"
 [wikipedia_memoization]: https://en.wikipedia.org/wiki/Memoization
-[oorexxshell_demo]:https://asciinema.org/a/SIW9ego7ky4RVYA99OcAKF7OB
-[run_classic_rexx_rosetta_code]: https://asciinema.org/a/oyhrULNtbneuZ3neIvp9l2aZT
 [internal_documentation_classes]: https://jlfaucher.github.io/executor.master/doxygen/html/classes.html
 [internal_documentation_files]: https://jlfaucher.github.io/executor.master/doxygen/html/files.html
+[demos_with_asciinema]: https://jlfaucher.github.io/executor.master/demos/index.html
