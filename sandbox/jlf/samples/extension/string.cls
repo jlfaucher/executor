@@ -4,7 +4,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 -- Compatibility with ooRexx5
 .string~define("append", .string~method("||"))
-.string~define("[]", .string~method("substr"))
 
 -- Copied from rgf_util2, needed for routine escape3
 .local~rgf.non.printable=xrange("00"x,"1F"x)||"FF"x
@@ -93,6 +92,14 @@ Similar to ~makeArray(separator), with these differences:
     */
     use strict arg separator
     return self~split(separator, .true)
+
+
+::method "[]"
+    -- ooRexx v5
+    use strict arg n, length=1
+    maxLength = self~length - n + 1 -- don't care about n<=0, will be caught by substr
+    if maxLength <= 0 then return ""
+    return self~substr(n, min(length, maxLength))
 
 
 ::method contains
