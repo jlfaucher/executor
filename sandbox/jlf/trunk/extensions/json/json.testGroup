@@ -1,0 +1,616 @@
+#!/usr/bin/env rexx
+/*
+  SVN Revision: $Rev: 12091 $
+  Change Date:  $Date: 2020-06-16 18:51:04 +0200 (Di., 16 Jun 2020) $
+*/
+/*----------------------------------------------------------------------------*/
+/*                                                                            */
+/* Copyright (c) 2007-2020 Rexx Language Association. All rights reserved.    */
+/*                                                                            */
+/* This program and the accompanying materials are made available under       */
+/* the terms of the Common Public License v1.0 which accompanies this         */
+/* distribution. A copy is also available at the following address:           */
+/* http://www.oorexx.org/license.html                                         */
+/*                                                                            */
+/* Redistribution and use in source and binary forms, with or                 */
+/* without modification, are permitted provided that the following            */
+/* conditions are met:                                                        */
+/*                                                                            */
+/* Redistributions of source code must retain the above copyright             */
+/* notice, this list of conditions and the following disclaimer.              */
+/* Redistributions in binary form must reproduce the above copyright          */
+/* notice, this list of conditions and the following disclaimer in            */
+/* the documentation and/or other materials provided with the distribution.   */
+/*                                                                            */
+/* Neither the name of Rexx Language Association nor the names                */
+/* of its contributors may be used to endorse or promote products             */
+/* derived from this software without specific prior written permission.      */
+/*                                                                            */
+/* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS        */
+/* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT          */
+/* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS          */
+/* FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT   */
+/* OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,      */
+/* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED   */
+/* TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,        */
+/* OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY     */
+/* OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING    */
+/* NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS         */
+/* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.               */
+/*                                                                            */
+/*----------------------------------------------------------------------------*/
+parse source . . fileSpec
+group = .TestGroup~new(fileSpec)
+group~add(.json.testGroup)
+if group~isAutomatedTest then
+  return group
+else
+  return group~suite~execute~~print
+
+::requires 'ooTest.frm' -- load the ooRexxUnit classes
+::requires 'json.cls'
+::class "JSON.testGroup" public subclass ooTestCase
+
+
+::method test_invalid_empty
+  self~expectSyntax(93.900) -- Invalid JSON value
+  .Json~new~fromJson("")
+
+::method test_invalid_empty_whitespace
+  self~expectSyntax(93.900) -- Invalid JSON value
+  .Json~new~fromJson('09'x)
+
+::method test_invalid_literal
+  self~expectSyntax(93.900) -- Invalid JSON value
+  .Json~new~fromJson("nullstring")
+
+
+-- According to its grammar, a JSON text can be true, false, null,
+-- or a number, a string, an array, or an object.
+
+
+-- true, false, null literals
+::method test_literals
+  j = .Json~new
+  self~assertSame(1, j~fromJson("true"))
+  self~assertSame(1, j~fromJson(" true"))
+  self~assertSame(0, j~fromJson("false"))
+  self~assertSame(0, j~fromJson("false" '09'x))
+  self~assertSame(.nil, j~fromJson("null"))
+  self~assertSame(.nil, j~fromJson('0d 0a'x "null"))
+  self~assertSame(.true, j~toJson(.true))
+  self~assertSame(.false, j~toJson(.false))
+  self~assertSame("null", j~toJson(.nil))
+
+
+-- number
+
+::method test_number_invalid_nan
+  self~expectSyntax(93.900) -- Invalid JSON value
+  .Json~new~fromJson("NaN")
+
+::method test_number_invalid_double_minus
+  self~expectSyntax(93.900) -- Invalid JSON value
+  .Json~new~fromJson("--1")
+
+::method test_number_invalid_exponential
+  self~expectSyntax(93.900) -- Invalid JSON value
+  .Json~new~fromJson("1e")
+
+::method test_number
+  -- strictly speaking, the JSON number grammar doesn't allow numbers like
+  -- 0123, 1., +3, or .2
+  -- json.cls allows for all valid Rexx numbers
+  -- https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf
+  -- number ::= '-'? ('0' | [1-9] [0-9]+) ('.' [0-9]+)? (('e' | 'E') ( | '+' | '-') [0-9]+)?
+
+  j = .Json~new
+  -- integer
+  do number over 0, 1, -4, 0123, 12345678901234567890
+    self~assertSame(number, j~toJson(j~fromJson(number)))
+  end
+
+  -- fractions
+  do number over 1.2, .2, -0.003, 0.00000000000000
+    self~assertSame(number, j~toJson(j~fromJson(number)))
+  end
+
+  -- exponential
+  do number over "1e0", "-1E0", 1E999999999, -2e5, 1e-9, -9e-9, 0.00003e4, -1.23e0
+    self~assertSame(number, j~toJson(j~fromJson(number)))
+  end
+
+  -- whitespace
+  number = 123
+  self~assertSame(number, j~toJson(j~fromJson(" " number)))
+  self~assertSame(number, j~toJson(j~fromJson(number || '0d 0a'x)))
+  self~assertSame(number, j~toJson(j~fromJson('20 0d 09 0a'x || number || '0a 09 20 0a'x)))
+
+
+-- string
+
+::method test_string_invalid_missing_quote
+  self~expectSyntax(93.900) -- Expected end of a quoted string
+  .Json~new~fromJson('"')
+
+::method test_string_invalid_superfluous_quote
+  self~expectSyntax(93.900) -- Expected end of input
+  .Json~new~fromJson('"""')
+
+::method test_string_invalid_unicode_escape
+  self~expectSyntax(93.900) -- Invalid escape sequence
+  .Json~new~fromJson('"\u00"')
+
+::method test_string_invalid_escape
+  self~expectSyntax(93.900) -- Invalid escape sequence
+  .Json~new~fromJson('"\x12"')
+
+::method test_string
+  j = .Json~new
+  -- standard
+  do string over '""', '" "', '"' || "x"~copies(256) || '"'
+    self~assertSame(string, j~toJson(j~fromJson(string)))
+  end
+
+  -- whitespace
+  string = '"abc"'
+  self~assertSame(string, j~toJson(j~fromJson(" " string)))
+  self~assertSame(string, j~toJson(j~fromJson(string || '0d 0a'x)))
+  self~assertSame(string, j~toJson(j~fromJson('20 0d 09 0a'x || string || '0a 09 20 0a'x)))
+
+
+::method test_string_escape
+  j = .Json~new
+
+  -- All code points may be placed within the quotation marks except for
+  -- quote, backslash, and the control characters '00'x through '1f'x,
+  -- which must be escaped.  There are eight two-character escape
+  -- sequence representations \" \\ \/ \b \f \n \r \t.
+
+  -- for control characters without two-character escapes \u00XX is used
+  do c over xrange('00'x, '07'x, '0b'x, '0b'x, '0e'x, '1f'x)~makeArray("")
+    self~assertSame(c, j~fromJson('"\u00' || c~c2x ||'"'))
+    self~assertSame('"\u00' || c~c2x ||'"', j~toJson(c))
+  end
+
+  self~assertSame('"', j~fromJson('"\""'))
+  self~assertSame("\", j~fromJson('"\\"'))
+  self~assertSame("/", j~fromJson('"\/"'))
+  self~assertSame('08'x, j~fromJson('"\b"'))
+  self~assertSame('0c'x, j~fromJson('"\f"'))
+  self~assertSame('0a'x, j~fromJson('"\n"'))
+  self~assertSame('0d'x, j~fromJson('"\r"'))
+  self~assertSame('09'x, j~fromJson('"\t"'))
+
+  self~assertSame('"\""', j~toJson('"'))
+  self~assertSame('"\\"', j~toJson("\"))
+  self~assertSame('"\/"', j~toJson("/"))
+  self~assertSame('"\b"', j~toJson('08'x))
+  self~assertSame('"\f"', j~toJson('0c'x))
+  self~assertSame('"\n"', j~toJson('0a'x))
+  self~assertSame('"\r"', j~toJson('0d'x))
+  self~assertSame('"\t"', j~toJson('09'x))
+
+  -- generally speaking, \uXXXX escape sequences are unsupported as
+  -- ooRexx doesn't provide Unicode support
+  -- but instead of failing the parse, we just just keep any \uXXXX
+  -- as-is for both the fromJson and the toJson methods
+  -- fromJson doesn't un-escape, and toJson doesn't escape any \uXXXX
+  escape = "abc\u123456"
+  self~assertSame(escape, j~fromJson('"' || escape || '"'))
+  self~assertSame('"' || escape || '"', j~toJson(escape))
+
+
+-- array
+
+::method test_array_invalid_missing_bracket
+  self~expectSyntax(93.900) -- Invalid JSON value
+  .Json~new~fromJson("[")
+
+::method test_array_invalid_missing_value
+  self~expectSyntax(93.900) -- Invalid JSON value
+  .Json~new~fromJson("[1,]")
+
+::method test_array
+  j = .Json~new
+
+  -- simple
+  do array over "[]", "[1]", "[2,3]", '[2, "string"]', '[3, "mno", "xyz"]'
+    r = j~fromJson(array)
+    self~assertIsA(r, .Array)
+    self~assertSame((r[1] = .nil)~?(0, r[1]), r~items)
+    self~assertSame(array~space(0), .json~minify(j~toJson(r)))
+  end
+
+  -- nested
+  nested = j~fromJson('[1, "string", []]')
+  self~assertIsA(nested, .Array)
+  self~assertSame(3, nested~items)
+  self~assertSame(1, nested[1])
+  self~assertSame("string", nested[2])
+  self~assertIsA(nested[3], .Array)
+  self~assertSame(0, nested[3]~items)
+
+  -- whitespace
+  do array over " [ ]", '[ "abc" ]', " [ 2  , 3 ] ", '09'x || "[" || '09'x || "]" || '09'x
+    self~assertIsA(j~fromJson(array), .Array)
+  end
+
+
+-- object
+
+::method test_object_invalid_missing_brace
+  self~expectSyntax(93.900) -- Name must be a quoted string
+  .Json~new~fromJson("{")
+
+::method test_object_invalid_missing_colon
+  self~expectSyntax(93.900) -- Expected colon separating object name and value
+  .Json~new~fromJson('{"name"}')
+
+::method test_object_invalid_missing_value
+  self~expectSyntax(93.900) -- Invalid JSON value
+  .Json~new~fromJson('{"name": }')
+
+::method test_object
+  j = .Json~new         -- minifying
+
+  json = "{}"
+  dir = j~fromJson(json)
+  self~assertIsA(dir, .directory)
+  self~assertSame(0, dir~items)
+  self~assertSame(json, j~toMinifiedJson(dir))  -- remove CRLF for comparison
+
+  json = '{"name": "value"}'
+  dir = j~fromJson(json)
+  self~assertIsA(dir, .directory)
+  self~assertSame(1, dir~items)
+  self~assertSame("value", dir["name"])
+
+  json = '{"first": 123, "second": "xyz"}'
+  dir = j~fromJson(json)
+  self~assertIsA(dir, .directory)
+  self~assertSame(2, dir~items)
+  self~assertSame(123, dir["first"])
+  self~assertSame("xyz", dir["second"])
+
+
+-- we have a bunch of samples in ./valid and ./invalid
+::method test_samples
+  here = .File~new(self~class~package~name)~parentFile
+  -- valid samples should parse successfully
+  do file over .File~new("valid", here)~listFiles
+    self~assertSame("", self~parseSample(file), file~name)
+  end
+  -- parsing invalid samples should fail
+  do file over .File~new("invalid", here)~listFiles
+    self~assertNotSame("", self~parseSample(file), file~name)
+  end
+
+::method parseSample
+  use strict arg file
+
+  s = .Stream~new(file)~~open("read shared")
+  text = s~charIn(, file~length)
+  s~close
+  signal on syntax
+  .Json~new~fromJson(text)
+  return ""
+
+  syntax:
+  return condition("object")["MESSAGE"]
+
+--- test new and enhanced features introduced with 100.20210606
+
+::method test_encodings
+  arr=.array~of( ("00 00 FE FF"x, "UTF-32BE", 5) , -
+                 ("FF FE 00 00"x, "UTF-32LE", 5) , -
+                 ("FE FF"x      , "UTF-16BE", 3) , -
+                 ("FF FE"x      , "UTF-16LE", 3))
+
+   -- test getEncoding
+  do a over arr
+     self~assertSame(a[2], .json~getEncoding(a[1]))
+  end
+  self~assertSame("UTF-8", .json~getEncoding())
+  self~assertSame("UTF-8", .json~getEncoding("012345"))
+
+   -- test getEncodingDataOffset
+  do a over arr
+     self~assertSame(a[3], .json~getEncodingDataOffset(a[1]))
+  end
+  self~assertSame(1, .json~getEncodingDataOffset())
+  self~assertSame(1, .json~getEncodingDataOffset("012345"))
+
+   -- test getJsonBOM
+  do a over arr
+     self~assertSame(a[1], .json~getJsonBom(a[2]))
+  end
+  self~assertSame("", .json~getJsonBom())
+  self~assertSame("", .json~getJsonBom("UTF-8"))
+
+::method test_version
+  v=.json~version
+  parse var v ver '.' date
+  parse var date year +4 month +2 day
+  self~assertTrue(ver>=100)
+  self~assertTrue(datatype(ver,'W'))   -- whole number
+  dt=.dateTime~fromStandardDate(date)
+  self~assertEquals(year, dt~year)
+  self~assertEquals(month, dt~month)
+  self~assertEquals(day, dt~day)
+
+::method test_json_boolean
+
+  t=.json~true
+  self~assertTrue(t~class~id~caselessequals("JSONBOOLEAN"))
+  self~assertTrue(datatype(t,'O'))        -- logical value?
+  self~assertTrue(t~value)                -- logical value?
+  self~assertTrue(t~request("string"))    -- logical value?
+  self~assertEquals("true", t~request("json"))  -- logical value?
+  self~assertSame(t, .json~true)
+  self~assertSame(.true, .json~true)
+
+  f=.json~false
+  self~assertTrue(f~class~id~caselessequals("JSONBOOLEAN"))
+  self~assertTrue(datatype(f,'O'))        -- logical value?
+  self~assertFalse(f~value)               -- logical value?
+  self~assertFalse(f~request("string"))   -- logical value?
+  self~assertEquals("false", f~request("json")) -- logical value?
+  self~assertSame(f, .json~false)
+  self~assertSame(.false, .json~false)
+
+::method test_json_null
+  j=.json~new
+
+  jnull=j~toJson(.nil)
+  self~assertEquals("null",jnull)
+
+  n=j~fromJson(jnull)
+  self~assertNil(n)
+
+::method test_jsonDirClass
+  self~assertEquals(.directory, .json~jsonDirClass)
+
+  .json~jsonDirClass=.stringTable
+  self~assertEquals(.stringTable, .json~jsonDirClass)
+
+  .json~jsonDirClass=.directory           -- reset to default
+  self~assertEquals(.directory, .json~jsonDirClass)
+
+::method test_legible
+  j=.json~new
+  self~assertFalse(j~legible)    -- default
+  j~legible=.true
+  self~assertTrue(j~legible)
+
+  j~legible=.false               -- reset
+  self~assertFalse(j~legible)
+
+::method test_object_stringTable
+  j = .Json~new         -- minifying
+  oldClz=.json~jsonDirClass
+  j~class~jsonDirClass=.StringTable
+
+  json = "{}"
+  dir = j~fromJson(json)
+  self~assertIsA(dir, .stringTable)
+  self~assertSame(0, dir~items)
+  self~assertSame(json, j~toMinifiedJson(dir))  -- remove CRLF for comparison
+
+  json = '{"name": "value"}'
+  dir = j~fromJson(json)
+  self~assertIsA(dir, .stringTable)
+  self~assertSame(1, dir~items)
+  self~assertSame("value", dir["name"])
+
+  json = '{"first": 123, "second": "xyz"}'
+  dir = j~fromJson(json)
+  self~assertIsA(dir, .stringTable)
+  self~assertSame(2, dir~items)
+  self~assertSame(123, dir["first"])
+  self~assertSame("xyz", dir["second"])
+
+  j~class~jsonDirClass=oldClz
+
+::method test_minified_legible_file
+  -- create an object with all relevant JSON types
+  o=.StringTable~new          -- a .StringTable (a MapCollection)
+  o['Name']    ="Caesar"      -- a string
+  o['children']=3             -- a number
+  o['Parents']= .array~of('Anna', 'Bertram') -- a .Array (an OrderableCollection)
+  o['Salary']  =.nil          -- no value at all (not employed)
+  o['rich']    =.json~false   -- use .Json's false (a JsonBoolean)
+  o['poor']    =.json~true    -- use .Json's true (a JsonBoolean)
+
+  j=.json~new                 -- create a minifying JSON converter
+  jsonString1=j~toJson(o)     -- encode oect as JSON string
+  minified='{"children":3,"Name":"Caesar","Parents":["Anna","Bertram"],"poor":true,"rich":false,"Salary":null}'
+  self~assertEquals(minified, jsonString1)
+
+  obj1=j~fromJson(jsonString1)
+  self~assertEquals(.json~jsonDirClass, obj1~class)
+  self~assertTrue(compareObj(o,obj1))
+
+  -- legible version
+
+  j~legible=.true             -- make JSON string legible for humans
+  jsonString2=j~toJson(o)
+  self~assertNotEquals(jsonString1,jsonString2)
+  self~assertTrue(jsonString2~pos(" ")>0)
+  self~assertTrue(jsonString2~pos("0d"x)>0)
+  self~assertTrue(jsonString2~pos("0a"x)>0)
+
+  min2=.json~minify(jsonString2)
+  self~assertEquals(minified,min2)
+
+  obj2=j~fromJson(jsonString2)
+  self~assertEquals(.json~jsonDirClass, obj2~class)
+  self~assertTrue(compareObj(o,obj2))
+
+  jBooleanClz=.json~true~class
+  self~assertIsA(obj2['rich'],jBooleanClz)
+  self~assertIsA(obj2['poor'],jBooleanClz)
+
+  ---
+  jsonString3=j~toMinifiedJson(o)
+  self~assertEquals(minified,jsonString3)
+
+
+  ---
+  j~legible=.false            -- make minified JSON strings
+  tms=.Test_MakeString~new
+  tmsj=j~toJson(tms)    -- triggers makestring
+  self~assertEquals(tms~jsonvalue,tmsj)
+
+  ---
+  tas=.Test_MakeArray~new
+  tasj=j~toJson(tas)    -- triggers makestring
+  self~assertEquals(tas~jsonvalue,tasj)
+
+  ---
+  tjs=.Test_MakeJson~new
+  tjsj=j~toJson(tjs)    -- triggers makestring
+  self~assertEquals(tjs~jsonvalue,tjsj)
+
+  --- test to/from file
+  testFile=filespec("l",self~class~package~name)"delete_this_testfile.json"
+  call sysFileDelete testFile    -- make sure we delete it
+
+      -- by default legible, if writing to file
+  .json~toJsonFile(testFile,o)
+  s=.stream~new(testFile)~~open("read")
+  data=s~charin(1,s~chars)
+  s~close
+  self~assertSame(jsonString2,data)
+
+  fobj1=.json~fromJsonFile(testFile)
+  self~assertTrue(compareObj(o,fobj1))
+
+      -- now writing minified version
+  .json~toJsonFile(testFile,o,.false)   -- now minified
+  s=.stream~new(testFile)~~open("read")
+  data=s~charin(1,s~chars)
+  s~close
+  self~assertSame(jsonString1,data)
+
+  fobj2=.json~fromJsonFile(testFile)
+  self~assertTrue(compareObj(o,fobj2))
+
+  call sysFileDelete testFile    -- make sure we delete it
+
+  return
+
+compareObj: procedure
+  use arg o, obj
+  entries="Name", "children", "Parents", "Salary", "rich", "poor"
+  do e over entries
+     if \o~hasindex(e) | \obj~hasindex(e) then return .false
+     if e="Parents" then
+     do
+        a =o[e]
+        a1=obj[e]
+        do i=1 to a~items
+           if a[i]<>a1[i] then return .false
+        end
+     end
+     else if o[e]<>obj[e] then return .false
+
+  end
+  return .true
+
+
+
+
+::method test_jsonBoolean
+  clz=.json~true~class        -- get JsonBoolean class object
+
+  true =clz~true
+  false=clz~false
+  self~assertSame(true,.json~true)
+  self~assertSame(false,.json~false)
+
+  self~assertSame(clz,.json~true~class)
+  self~assertSame(clz,.json~false~class)
+
+   -- test JsonBoolean's version string
+  v=clz~version
+  parse var v ver '.' date
+  parse var date year +4 month +2 day
+  self~assertTrue(ver>=100)
+  self~assertTrue(datatype(ver,'W'))   -- whole number
+  dt=.dateTime~fromStandardDate(date)
+  self~assertEquals(year, dt~year)
+  self~assertEquals(month, dt~month)
+  self~assertEquals(day, dt~day)
+
+   --
+  self~assertEquals(1, true)
+  self~assertEquals(0, false)
+
+  self~assertEquals(1, true~value)
+  self~assertEquals(0, false~value)
+
+  self~assertEquals(1, true~request("string"))
+  self~assertEquals(0, false~request("string"))
+
+  self~assertEquals("true",  true~request("json"))
+  self~assertEquals("false", false~request("json"))
+
+  self~assertTrue(clz~new(1))
+  self~assertTrue(clz~new("true"))
+  self~assertTrue(clz~new(.true))
+
+  self~assertFalse(clz~new(0))
+  self~assertFalse(clz~new("false"))
+  self~assertFalse(clz~new(.false))
+
+
+  -- last one
+  self~expectSyntax(88.900)
+  val=clz~new("not a logical value, nor 'false', 'true'")
+
+-- create private test classes that implement one of makestring, makejson, makearray
+--------------------------------------------------------------------
+::class test_makeString metaclass singleton
+::method init
+  expose value jsonvalue
+  value    ="one two three"
+  jsonvalue='"one two three"'
+
+::attribute value
+::attribute jsonvalue
+
+::method makeString
+  expose value jsonvalue
+  return value
+
+--------------------------------------------------------------------
+::class test_makeArray  metaclass singleton
+::method init
+  expose value jsonvalue
+  value    ="one","two","three"
+  jsonvalue='["one","two","three"]'
+
+::attribute value
+::attribute jsonvalue
+
+::method makeArray
+  expose value jsonvalue
+  return value
+
+--------------------------------------------------------------------
+::class test_makeJson   metaclass singleton
+::method init
+  expose value jsonvalue
+  value    ='{"children":3,"Name":"Caesar","Parents":["Anna","Bertram"],"poor":true,"rich":false,"Salary":null}'
+  jsonvalue=value
+
+::attribute value
+::attribute jsonvalue
+
+::method makeJson
+  expose value jsonvalue
+  return jsonvalue
+
+
+::options novalue error
