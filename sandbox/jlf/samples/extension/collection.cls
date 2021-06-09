@@ -1,6 +1,8 @@
+-- Compatibility with ooRexx5
+if \ .stringtable~isa(.class) then .environment["STRINGTABLE"] = .directory
+
 --::options trace i
 ::requires "extension/array.cls"
-
 
 /******************************************************************************/
 
