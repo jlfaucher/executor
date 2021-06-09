@@ -165,7 +165,6 @@ end
 .ooRexxShell~systemAddress = systemAddress()
 
 -- The index is always converted to uppercase, the item is used for display (list of possible values, prompt).
--- The item, when converted to uppercase, must be equal to the index.
 .ooRexxShell~interpreters = .Directory~new
 .ooRexxShell~interpreters~setEntry("oorexx", "ooRexx")
 .ooRexxShell~interpreters~setEntry(.ooRexxShell~initialAddress, .ooRexxShell~initialAddress)
@@ -238,7 +237,7 @@ main: procedure
         call on halt name haltHandler
 
         -- Will be used by charoutSlowly to test if the previous command was an end of multline commment.
-        -- The duration of the pause will be proportional to the number of lines in the multiline comment.
+        -- The duration of the pause will be proportional to the number of characters in the multiline comment.
         -- Also used by readline to decide if the history file must be updated (a repeated input is stored only once).
         .ooRexxShell~inputrxPrevious = .ooRexxShell~inputrx
         .ooRexxShell~maybeCommandPrevious = .ooRexxShell~maybeCommand
@@ -806,6 +805,13 @@ Helpers
 -------------------------------------------------------------------------------
 -- Load optional packages/libraries
 ::routine loadOptionalComponents
+    -- Load the extensions now, because some packages may depend on extensions (ex: json)
+    .ooRexxShell~isExtended = .true
+    if \loadPackage("extension/extensions.cls", .true) then do -- requires jlf sandbox ooRexx
+        .ooRexxShell~isExtended = .false
+        call loadPackage("extension/std/extensions-std.cls") -- works with standard ooRexx, but integration is weak
+    end
+
     if .platform~is("windows") then do
         -- call loadPackage("orexxole.cls") -- not needed, already included in the image
         call loadPackage("oodialog.cls")
@@ -823,8 +829,6 @@ Helpers
     call loadLibrary("rxmath")
     call loadPackage("rxregexp.cls")
 
-    -- regex.cls uses the class StringTable which is available only from ooRexx v5.
-    if \ .stringtable~isa(.class) then .environment["STRINGTABLE"] = .directory
     .ooRexxShell~hasRegex = loadPackage("regex/regex.cls")
 
     call loadPackage("smtp.cls")
@@ -839,13 +843,9 @@ Helpers
             .ooRexxShell~dump2 = .context~package~findroutine("dump2")
             .ooRexxShell~pp2 = .context~package~findroutine("pp2")
     end
+
     .ooRexxShell~hasBsf = loadPackage("BSF.CLS")
     if value("UNO_INSTALLED",,"ENVIRONMENT") <> "" then call loadPackage("UNO.CLS")
-    .ooRexxShell~isExtended = .true
-    if \loadPackage("extension/extensions.cls", .true) then do -- requires jlf sandbox ooRexx
-        .ooRexxShell~isExtended = .false
-        call loadPackage("extension/std/extensions-std.cls") -- works with standard ooRexx, but integration is weak
-    end
 
     if .ooRexxShell~isExtended then do
         .ooRexxShell~hasQueries = loadPackage("oorexxshell_queries.cls")
@@ -853,6 +853,7 @@ Helpers
         call loadPackage("rgf_util2/rgf_util2_wrappers.rex")
     end
 
+    call declareImportedPublicClasses
     return
 
 
@@ -882,7 +883,52 @@ Helpers
 
 
 -------------------------------------------------------------------------------
-::class ooRexxShell
+::routine declareImportedPublicClasses
+    -- Add all of the imported classes to .environment
+    -- I need that when I use ooRexxShell to execute a script which depends on extensions for compatibility with ooRexx 5
+    -- I don't use .context~package~importedClasses because I want to detect collisions, if any.
+    use strict arg package=(.context~package), packageStack=(.queue~new), visitedPackages=(.Set~new), visitedClasses=(.Relation~new), collisions=(.Set~new), level=0
+    if visitedPackages[package] <> .nil then return -- already visited
+
+    visitedPackages[package] = package
+    packageStack~push(package~name) -- will be used for a better diagnostic if collision
+        publicClassSupplier = package~publicClasses~supplier
+        do while publicClassSupplier~available
+            className = publicClassSupplier~index
+            classInstance = publicClassSupplier~item
+            current = .environment[className]
+            if current <> .nil, current <> classInstance then collisions[className] = className
+            .environment[className] = classInstance
+            visitedClasses[className] = packageStack~copy
+            publicClassSupplier~next
+        end
+
+        importedPackageSupplier = package~importedPackages~supplier
+        do while importedPackageSupplier~available
+            package = importedPackageSupplier~item
+            call declareImportedPublicClasses package, packageStack, visitedPackages, visitedClasses, collisions, level+1
+            importedPackageSupplier~next
+        end
+    packageStack~pull
+
+    -- Report the collisions, if any
+    if level == 0 then do
+        do className over collisions~allIndexes~sort
+            .ooRexxShell~sayError("Collision detected for class" className)
+            do packageStack over visitedClasses~allAt(className)~sort
+                .ooRexxShell~sayError("    Package stack:")
+                packageSupplier = packageStack~supplier
+                do while packageSupplier~available
+                    .ooRexxShell~sayError("        "packageSupplier~item)
+                    packageSupplier~next
+                end
+            end
+        end
+    end
+
+
+-------------------------------------------------------------------------------
+::class ooRexxShell public
 -------------------------------------------------------------------------------
 
 ::constant reload 200 -- Arbitrary value that will be returned to the system, to indicate that a restart of the shell is requested
@@ -1100,6 +1146,11 @@ Helpers
 ::method sayCondition class
     use strict arg condition
     if condition == .nil then return
+
+    .ooRexxShell~traceback = condition~traceback
+    .ooRexxShell~stackFrames = condition~stackFrames
+    if \ .ooRexxShell~isInteractive then .ooRexxShell~sayStackFrames
+
     if condition~condition <> "SYNTAX" then .ooRexxShell~sayError(condition~condition)
     if condition~description <> .nil, condition~description <> "" then .ooRexxShell~sayError(condition~description)
 
@@ -1107,9 +1158,6 @@ Helpers
     if condition~message <> .nil then .ooRexxShell~sayError(condition~message)
     else if condition~errortext <> .nil then .ooRexxShell~sayError(condition~errortext)
     if condition~code <> .nil then .ooRexxShell~sayError("Error code=" condition~code)
-
-    .ooRexxShell~traceback = condition~traceback
-    .ooRexxShell~stackFrames = condition~stackFrames
 
 
 ::method sayStackFrames class
@@ -1949,7 +1997,7 @@ The colors are managed with escape characters.
 
 
 -------------------------------------------------------------------------------
-::class platform
+::class platform public
 -------------------------------------------------------------------------------
 
 -- Class level
@@ -2305,7 +2353,7 @@ The colors are managed with escape characters.
 
 
 -------------------------------------------------------------------------------
-::class Argument
+::class Argument public
 -------------------------------------------------------------------------------
 
 ::attribute container           -- the string container from which the string value has been extracted
