@@ -25,6 +25,13 @@ num=0; (num==0)~~ifTrue{say "zero"}~ifFalse{say "not zero"}
 -- Should find a better name...
 ::class "LogicalExtension" mixinclass Object public
 
+-- Compatibility with ooRexx 5
+::method "?"
+    use strict arg whenTrue, whenFalse
+    .Validate~logical("Logical value", self)
+    if self then return whenTrue
+            else return whenFalse
+
 ::method "ifTrue" unguarded
     use arg whenTrue, whenFalse
     if \ self~dataType("O") then raise syntax 34.901 array(self)

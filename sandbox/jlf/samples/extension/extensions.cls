@@ -14,6 +14,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::requires "extension/string.cls"
 ::requires "extension/functionals.cls"
 ::requires "extension/logical.cls"
+::requires "extension/rexxinfo.cls"
 
 
 ::extension Routine                         inherit RoutineDoer
@@ -21,7 +22,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::extension RexxBlock                       inherit RexxBlockDoer
 
 ::extension Coactivity                      inherit CoactivityDoer CoactivityFilter                      CoactivityIterator                      CoactivityReducer    CoactivityGenerator
-::extension String                          inherit StringDoer     StringFilter                          StringIterator                          StringReducer        StringGenerator        StringMapper        StringPrettyPrinter        StringHelpers RepeaterCollector RepeaterGenerator LogicalExtension ComplexString
+::extension String                          inherit StringDoer     StringFilter                          StringIterator                          StringReducer        StringGenerator        StringMapper        StringPrettyPrinter        StringCompatibilityWithOORexx5        StringHelpers RepeaterCollector RepeaterGenerator LogicalExtension ComplexString
 ::extension MutableBuffer                   inherit                MutableBufferFilter                   MutableBufferIterator                   MutableBufferReducer MutableBufferGenerator MutableBufferMapper MutableBufferPrettyPrinter
 ::extension Collection                      inherit                CollectionFilter                      CollectionIterator                      CollectionReducer    CollectionGenerator    CollectionMapper    CollectionPrettyPrinter
 ::extension OrderedCollection               inherit                OrderedCollectionFilter
@@ -35,6 +36,14 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -------------------------------------------------------------------------------
 -- Object can't inherit from a mixinclass (would raise "cannot inherit from itself")
 ::extension Object
+
+------------------------------
+-- Compatibility with ooRexx 5
+------------------------------
+
+::method isNil
+    return self == .nil
+
 
 ------------
 -- User data

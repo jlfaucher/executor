@@ -5,6 +5,10 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Compatibility with ooRexx5
 .string~define("append", .string~method("||"))
 
+-- Compatibility with ooRexx5
+.MutableBuffer~define("appendLegacy", .MutableBuffer~method("append"))
+.MutableBuffer~define("append", "do i=1 to arg(); self~appendLegacy(arg(i)); end")
+
 -- Copied from rgf_util2, needed for routine escape3
 .local~rgf.non.printable=xrange("00"x,"1F"x)||"FF"x
 
@@ -94,13 +98,33 @@ Similar to ~makeArray(separator), with these differences:
     return self~split(separator, .true)
 
 
-::method "[]"
-    -- ooRexx v5
-    use strict arg n, length=1
-    maxLength = self~length - n + 1 -- don't care about n<=0, will be caught by substr
-    if maxLength <= 0 then return ""
-    return self~substr(n, min(length, maxLength))
+::method concatenate
+    -- Arguments : zero to N strings.
+    -- self is the separator
+    bufferSize = 0
+    do i = 1 to arg()
+        currentLength = arg(i)~length
+        if i > 1 & currentLength > 0 then bufferSize += self~length
+        bufferSize += currentLength
+    end
+    buffer = .mutableBuffer~new(, bufferSize)
+    do i = 1 to arg()
+        currentLength = arg(i)~length
+        if i > 1 & currentLength > 0 then buffer~append(self)
+        buffer~append(arg(i))
+    end
+    return buffer~string
 
+
+::method singularPlural
+    -- Precondition: self is a number
+    use strict arg singularText, pluralText
+    if abs(self) <= 1 then return self singularText
+    return self pluralText
+
+
+/******************************************************************************/
+::class "StringCompatibilityWithOORexx5" mixinclass Object public
 
 ::method contains
     -- regex.cls uses the method .String~contains which is available only from ooRexx v5.
@@ -140,29 +164,12 @@ Similar to ~makeArray(separator), with these differences:
     return self~caselessPos(substr, start) == start
 
 
-::method concatenate
-    -- Arguments : zero to N strings.
-    -- self is the separator
-    bufferSize = 0
-    do i = 1 to arg()
-        currentLength = arg(i)~length
-        if i > 1 & currentLength > 0 then bufferSize += self~length
-        bufferSize += currentLength
-    end
-    buffer = .mutableBuffer~new(, bufferSize)
-    do i = 1 to arg()
-        currentLength = arg(i)~length
-        if i > 1 & currentLength > 0 then buffer~append(self)
-        buffer~append(arg(i))
-    end
-    return buffer~string
-
-
-::method singularPlural
-    -- Precondition: self is a number
-    use strict arg singularText, pluralText
-    if abs(self) <= 1 then return self singularText
-    return self pluralText
+::method "[]"
+    -- ooRexx v5
+    use strict arg n, length=1
+    maxLength = self~length - n + 1 -- don't care about n<=0, will be caught by substr
+    if maxLength <= 0 then return ""
+    return self~substr(n, min(length, maxLength))
 
 
 /******************************************************************************/
