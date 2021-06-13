@@ -558,7 +558,7 @@ void RexxArray::putApi(RexxObject *o, size_t position)
     {
         if (position >= MAX_FIXEDARRAY_SIZE)
         {
-            reportException(Error_Incorrect_method_array_too_big);
+            reportException(Error_Incorrect_method_array_too_big, MAX_FIXEDARRAY_SIZE);
         }
         this->extend(position - this->size());
     }
@@ -934,7 +934,7 @@ bool  RexxArray::validateIndex(        /* validate an array index           */
         {
             if (position >= MAX_FIXEDARRAY_SIZE)
             {
-                reportException(Error_Incorrect_method_array_too_big);
+                reportException(Error_Incorrect_method_array_too_big, MAX_FIXEDARRAY_SIZE);
             }
             /* are we to expand the array?       */
             if (bounds_error & ExtendUpper)
@@ -1057,7 +1057,7 @@ void RexxArray::ensureSpace(size_t newSize)
     {
         if (newSize >= MAX_FIXEDARRAY_SIZE)
         {
-            reportException(Error_Incorrect_method_array_too_big);
+            reportException(Error_Incorrect_method_array_too_big, MAX_FIXEDARRAY_SIZE);
         }
         /* yes, compute amount to expand     */
         this->extend(newSize - this->size());
@@ -2305,7 +2305,7 @@ void *RexxArray::operator new(size_t size, RexxObject **args, size_t argCount, R
 
         if ((size_t)total_size >= MAX_FIXEDARRAY_SIZE)
         {
-            reportException(Error_Incorrect_method_array_too_big);
+            reportException(Error_Incorrect_method_array_too_big, MAX_FIXEDARRAY_SIZE);
         }
 
         /* Note: The following will leave the dimension field set to OREF_NULL, */
@@ -2357,7 +2357,7 @@ RexxArray *RexxArray::createMultidimensional(RexxObject **dims, size_t count, Re
         if (cur_size != 0 && ((MAX_FIXEDARRAY_SIZE / cur_size) < total_size))
         {
             /* this is an error                  */
-            reportException(Error_Incorrect_method_array_too_big);
+            reportException(Error_Incorrect_method_array_too_big, MAX_FIXEDARRAY_SIZE);
         }
         total_size *= cur_size;            /* keep running total size           */
                                            /* Put integer object into curren    */
@@ -2368,7 +2368,7 @@ RexxArray *RexxArray::createMultidimensional(RexxObject **dims, size_t count, Re
     /*  too big.                         */
     if (total_size >= MAX_FIXEDARRAY_SIZE)
     {
-        reportException(Error_Incorrect_method_array_too_big);
+        reportException(Error_Incorrect_method_array_too_big, MAX_FIXEDARRAY_SIZE);
     }
     /* Create the new array              */
     RexxArray *temp = (RexxArray *)new_externalArray(total_size, arrayClass);

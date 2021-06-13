@@ -242,6 +242,40 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 june 11
+
+
+After retrofit of the class Validate, I see some error messages are missing.
+    nonNegativeNumber   88.925
+    positiveNumber      88.926
+    requestClassType    93.978
+    logical             88.927
+Align rexxmsg.xml with official ooRexx.
+
+    Message numbers used more than once:
+    <MessageNumber>735</MessageNumber>  2000
+    <MessageNumber>736</MessageNumber>  2001
+    <MessageNumber>737</MessageNumber>  2002
+    <MessageNumber>739</MessageNumber>  2003
+    <MessageNumber>740</MessageNumber>  2004
+    <MessageNumber>746</MessageNumber>  2005
+    <MessageNumber>747</MessageNumber>  2006
+    <MessageNumber>748</MessageNumber>  2007
+
+    To review
+    Error_Incorrect_method_array_noclass
+    should talk about scope
+
+    Error_Translation_use_local_interpret	(official)
+    vs
+    Error_Translation_use_interpret		(executor)
+
+    Error_Translation_use_arg_ellipsis	(official)
+    vs
+    Error_Translation_use_strict_ellipsis	(executr)
+
+
+===============================================================================
 2021 june 01
 
 Demos:

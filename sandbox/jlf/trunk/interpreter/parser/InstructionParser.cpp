@@ -2689,7 +2689,7 @@ RexxInstruction *RexxSource::useNew()
                 // no expression is an error
                 if (defaultValue == OREF_NULL)
                 {
-                    syntaxError(Error_Invalid_expression_use_strict_default);
+                    syntaxError(Error_Invalid_expression_use_arg_default);
                 }
 
                 // add this to the defaults

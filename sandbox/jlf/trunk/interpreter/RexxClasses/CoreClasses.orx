@@ -563,6 +563,10 @@ nomethod:
   raise syntax 93.948 array(1, "Collection")
 
 
+/*****************************************/
+/* Local directory                       */
+/*****************************************/
+
 ::METHOD server_init
  /* initialize a server */
   expose input output error
@@ -597,6 +601,10 @@ nomethod:
 
   .local~setentry('STDQUE',.RexxQueue~new('SESSION'))
 
+
+/******************************************************************************/
+/* COLLECTION                                                                 */
+/******************************************************************************/
 
 -- tagging classes for Collection class types
 -- methods defined for all collection classes, abstract methods must be implemented
@@ -829,11 +837,20 @@ nomethod:
       -- an unknown method is an argument problem.  report it as such.
   raise syntax 93.948 array(1, "Collection")
 
+
+/******************************************************************************/
+/* SERIALIZABLE                                                               */
+/******************************************************************************/
+
 /** Serialization support **/
 ::CLASS "Serializable" MIXINCLASS Object PUBLIC
 ::METHOD writeObject ABSTRACT
 ::METHOD readObject ABSTRACT
 
+
+/******************************************************************************/
+/* ORDERED COLLECTION                                                         */
+/******************************************************************************/
 
 
 -- methods defined for OrderedCollection classes
@@ -1061,6 +1078,11 @@ nomethod:
 ::METHOD sortwith
   forward message('STABLESORTWITH') -- just use the stable variety
 
+
+/******************************************************************************/
+/* MAP COLLECTION                                                             */
+/******************************************************************************/
+
 ::CLASS 'MapCollection' MIXINCLASS Collection
 
 /*****************************************/
@@ -1087,6 +1109,10 @@ nomethod:
   return self~allIndexes
 
 
+/******************************************************************************/
+/* SET COLLECTION                                                             */
+/******************************************************************************/
+
 ::CLASS 'SetCollection' MIXINCLASS Collection INHERIT Serializable
 ::METHOD writeObject
     use strict arg handler
@@ -1103,6 +1129,10 @@ nomethod:
         self~put(o, o)
     end
 
+
+/******************************************************************************/
+/* SORT COMPARISON                                                            */
+/******************************************************************************/
 
 -- sort comparison classes.
 ::CLASS 'Comparable' MIXINCLASS Object
@@ -1986,6 +2016,11 @@ Output:
 
 */
 
+
+/******************************************************************************/
+/* CIRCULAR QUEUE                                                             */
+/******************************************************************************/
+
    -- circular buffer (round-robin queue) of a defined size
 ::CLASS 'CircularQueue' subclass queue public
 
@@ -2323,6 +2358,11 @@ nomethod:
       -- an unknown method is an argument problem.  report it as such.
   raise syntax 93.948 array(1, "Collection")
 
+
+/******************************************************************************/
+/* PROPERTIES                                                                 */
+/******************************************************************************/
+
 ::CLASS 'Properties' subclass Directory public
 ::METHOD load class
   use arg input
@@ -2479,6 +2519,10 @@ nomethod:
   forward class (super) array (value, name)
 
 
+
+/******************************************************************************/
+/* DATE TIME                                                                  */
+/******************************************************************************/
 
 ::CLASS 'DateTime' public inherit Comparable Orderable
 
@@ -3231,6 +3275,10 @@ nomethod:
   return self~isoDate
 
 
+/******************************************************************************/
+/* TIME SPAN                                                                  */
+/******************************************************************************/
+
 -- TimeSpan represents an interval of time.  Timespans are created by subtracting
 -- two DateTime objects.  They also can added to DateTime objects.
 ::CLASS 'TimeSpan' public inherit Comparable Orderable
@@ -3701,6 +3749,10 @@ nomethod:
   end
 
 
+/******************************************************************************/
+/* ARGUTIL (obsolete)                                                         */
+/******************************************************************************/
+
 ::CLASS 'ArgUtil' public
 ::METHOD validateNumber class
   use strict arg name, number, kind=""
@@ -3711,7 +3763,7 @@ nomethod:
 -- Validates the argument is a number and is in range.  This gives the
 -- 907 message for all error conditions to be most specific.
 ::METHOD validateNumberRange class
-  use strict arg name, number, min, max, digits=(digits()), kind=""
+  use strict arg name, number, min, max, digits=(digits()), kind="positional"
   numeric digits digits
   -- validate the numeric part first
   if \number~dataType('Number') then do
@@ -3726,7 +3778,7 @@ nomethod:
 -- Validates the argument is a whole number and is in range.  This gives the
 -- 907 message for all error conditions to be most specific.
 ::METHOD validateWholeRange class
-  use strict arg name, number, min, max, digits=(digits()), kind=""
+  use strict arg name, number, min, max, digits=(digits()), kind="positional"
   numeric digits digits
   -- validate the numeric part first
   if \number~dataType('Whole') then do
@@ -3738,7 +3790,7 @@ nomethod:
   end
 
 ::METHOD validateWhole class
-  use strict arg name, number, digits=(digits()), kind=""
+  use strict arg name, number, digits=(digits()), kind="positional"
   numeric digits digits
   if \number~dataType('Whole') then do
       raise syntax 88.903 array(kind, name, number)
@@ -3746,7 +3798,7 @@ nomethod:
 
 -- Note, this uses the 904 message for both, which is most specific
 ::METHOD validateNonNegative class
-  use strict arg name, number, digits=(digits()), kind=""
+  use strict arg name, number, digits=(digits()), kind="positional"
   numeric digits digits
   -- first validate whole number status
   if \number~dataType('Whole') then do
@@ -3758,7 +3810,7 @@ nomethod:
   end
 
 ::METHOD validatePositive class
-  use strict arg name, number, digits=(digits()), kind=""
+  use strict arg name, number, digits=(digits()), kind="positional"
   numeric digits digits
   -- first validate whole number status
   if \number~dataType('Whole') then do
@@ -3772,7 +3824,7 @@ nomethod:
 -- validate a length parameter.  This is essentially the same
 -- as validateNonNegative, but a more specific message.
 ::METHOD validateLength class
-  use strict arg name, number, digits=(digits()), kind=""
+  use strict arg name, number, digits=(digits()), kind="positional"
   numeric digits digits
   -- first validate whole number status
   if \number~dataType('Whole') then do
@@ -3786,7 +3838,7 @@ nomethod:
 -- validate a position parameter.  This is essentially the same
 -- as validatePosition, but a more specific message.
 ::METHOD validatePosition class
-  use strict arg name, number, digits=(digits()), kind=""
+  use strict arg name, number, digits=(digits()), kind="positional"
   numeric digits digits
   -- first validate whole number status
   if \number~dataType('Whole') then do
@@ -3799,19 +3851,23 @@ nomethod:
 
 -- validate that an argument is an instance of a specific class.
 ::METHOD validateClass class
-  use strict arg name, obj, class, kind=""
+  use strict arg name, obj, class, kind="positional"
 
   if \obj~isa(class) then do
       raise syntax 88.914 array(kind, name, class~id)
   end
 
 
+/******************************************************************************/
+/* VALIDATE                                                                   */
+/******************************************************************************/
+
 -- a class for performing easy argument validation
 ::CLASS 'Validate' public
 
 -- validate that an argument is a valid Rexx number
 ::METHOD number class
-  use strict arg name, number, kind=""
+  use strict arg name, number, kind="positional"
   if \number~dataType("Number") then do
       -- The NAME argument must be a number; found "NUMBER"
       raise syntax 88.902 array(kind, name, number)
@@ -3819,7 +3875,7 @@ nomethod:
 
 -- validate that an argument is a number and is in range
 ::METHOD numberRange class
-  use strict arg name, number, min, max, digits=(digits()), kind=""
+  use strict arg name, number, min, max, digits=(digits()), kind="positional"
   numeric digits digits
   -- must be numeric and within the given range
   if number~dataType("Number"), number >= min, number <= max then do
@@ -3830,7 +3886,7 @@ nomethod:
 
 -- validate that an argument is zero or a positive number
 ::METHOD nonNegativeNumber class
-  use strict arg name, number, digits=(digits()), kind=""
+  use strict arg name, number, digits=(digits()), kind="positional"
   numeric digits digits
   -- must be numeric and zero or positive
   if number~dataType("Number"), number >= 0 then do
@@ -3841,7 +3897,7 @@ nomethod:
 
 -- validate that an argument is a positive number
 ::METHOD positiveNumber class
-  use strict arg name, number, digits=(digits()), kind=""
+  use strict arg name, number, digits=(digits()), kind="positional"
   numeric digits digits
   -- must be numeric and positive
   if number~dataType("Number"), number > 0 then do
@@ -3852,7 +3908,7 @@ nomethod:
 
 -- validate that an argument is a whole number within the given digits
 ::METHOD wholeNumber class
-  use strict arg name, number, digits=(digits()), kind=""
+  use strict arg name, number, digits=(digits()), kind="positional"
   numeric digits digits
   if \number~dataType("Whole") then do
       -- The NAME argument must be a whole number; found "NUMBER"
@@ -3862,7 +3918,7 @@ nomethod:
 
 -- validate that an argument is a whole number and is in range
 ::METHOD wholeNumberRange class
-  use strict arg name, number, min, max, digits=(digits()), kind=""
+  use strict arg name, number, min, max, digits=(digits()), kind="positional"
   numeric digits digits
   -- must be whole and within the given range
   if number~dataType("Whole"), number >= min, number <= max then do
@@ -3873,7 +3929,7 @@ nomethod:
 
 -- validate that an argument is zero or a positive whole number
 ::METHOD nonNegativeWholeNumber class
-  use strict arg name, number, digits=(digits()), kind=""
+  use strict arg name, number, digits=(digits()), kind="positional"
   numeric digits digits
   -- must be whole and zero or positive
   if number~dataType("Whole"), number >= 0 then do
@@ -3884,7 +3940,7 @@ nomethod:
 
 -- validate that an argument is a positive whole number
 ::METHOD positiveWholeNumber class
-  use strict arg name, number, digits=(digits()), kind=""
+  use strict arg name, number, digits=(digits()), kind="positional"
   numeric digits digits
   -- must be whole and positive
   if number~dataType("Whole"), number > 0 then do
@@ -3898,7 +3954,7 @@ nomethod:
 -- this is very similar to method nonNegativeWholeNumber, but with
 -- a different default digits concept and a more specific message.
 ::METHOD length class
-  use strict arg name, number, digits=(.RexxInfo~internalDigits), kind=""
+  use strict arg name, number, digits=(.RexxInfo~internalDigits), kind="positional"
   numeric digits digits
   -- must be whole and zero or positive
   if number~dataType("Whole"), number >= 0 then do
@@ -3911,7 +3967,7 @@ nomethod:
 -- this is very similar to method positiveWholeNumber, but with
 -- a different default digits concept and a more specific message.
 ::METHOD position class
-  use strict arg name, number, digits=(.RexxInfo~internalDigits), kind=""
+  use strict arg name, number, digits=(.RexxInfo~internalDigits), kind="positional"
   numeric digits digits
   -- must be whole and positive
   if number~dataType("Whole"), number > 0 then do
@@ -3922,7 +3978,7 @@ nomethod:
 
 -- validate that an argument is an instance of a specific class
 ::METHOD classType class
-  use strict arg name, object, class, kind=""
+  use strict arg name, object, class, kind="positional"
 
   if \object~isA(class) then do
       -- Argument NAME must be an instance of the CLASS class
@@ -3931,7 +3987,7 @@ nomethod:
 
 -- validate that an argument can be expressed as an instance of a specific class
 ::METHOD requestClassType class
-  use strict arg name, object, class, kind=""
+  use strict arg name, object, class, kind="positional"
 
   newObject = object~request(class~id)
 
@@ -3944,7 +4000,7 @@ nomethod:
 
 -- validate that an argument is a valid boolean
 ::METHOD logical class
-  use strict arg name, number, kind=""
+  use strict arg name, number, kind="positional"
 
   if number \== .true, number \== .false then do
       -- The NAME argument must be exactly "0" or "1"; found NUMBER
@@ -4008,6 +4064,10 @@ nomethod:
 syntax: raise propagate
 
 
+
+/******************************************************************************/
+/* ORDERABLE                                                                  */
+/******************************************************************************/
 
 -- A mixin class for easily adding comparison methods to a
 -- class
