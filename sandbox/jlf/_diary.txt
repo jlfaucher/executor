@@ -242,6 +242,33 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 june 22
+
+Remember: not documented.
+    options "DUMPMEMORY"
+
+    RexxInstructionOptions::execute
+    #ifdef _DEBUG
+            else if (word->strCaselessCompare("DUMPMEMORY"))
+            {
+                memoryObject.dumpEnable = true;
+                memoryObject.dump();
+            }
+    #endif
+
+    rexx -e 'options "DUMPMEMORY"'
+    Console output:
+        Dumping object memory to orexdump.dmp
+        Creating dump key file in orexdump.key
+        Dumping Old Space Segments Segment 1 from 0x104d2d020 for 3145696
+        Dumping Normal Allocation Segments Segment 1 from 0x10502d050 for 16781232
+        Dumping Large Allocation Segments Segment 1 from 0x10608b050 for 2101168
+    2 files are created:
+        orexdump.dmp    binary file (22 MB under MacOs)
+        orexdump.key    text file
+
+
+===============================================================================
 2021 june 11
 
 
@@ -2079,7 +2106,7 @@ b)  A label starts with a number:
     2a:                         -- Incorrect expression detected at ":"
     do i=1 to 5; say i; end 2a  -- Data must not follow the END control variable name; found ""
 The case b) can be probably supported. Before raising the syntax error, check if the next token
-is an abuttal followed by a symbol. If yes then the parser can rebuild the orignal label.
+is an abuttal followed by a symbol. If yes then the parser can rebuild the original label.
 
 
 ===============================================================================
