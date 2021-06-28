@@ -8,7 +8,8 @@
 </head>
 <body>
 <pre>
-<span style="font-weight:bold;color:green;">loadLibrary OK for rxunixsys
+<span style="font-weight:bold;color:green;">loadPackage OK for extension/extensions.cls
+</span><span style="font-weight:bold;color:green;">loadLibrary OK for rxunixsys
 </span><span style="font-weight:bold;color:green;">loadPackage OK for ncurses.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for csvStream.cls
 </span><span style="font-weight:bold;color:green;">loadLibrary OK for hostemu
@@ -24,13 +25,12 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe.rex
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2.rex
 </span><span style="font-weight:bold;color:green;">loadPackage OK for BSF.CLS
-</span><span style="font-weight:bold;color:green;">loadPackage OK for extension/extensions.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for oorexxshell_queries.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 28 May 2021
-</span><span style="font-weight:bold;color:green;">Input queue name: Sf10bQ7fcc76521ea0
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 11 Jun 2021
+</span><span style="font-weight:bold;color:green;">Input queue name: S4179Q7fd448404190
 </span>
 <span style="color:blue;">----------------------
 </span><span style="color:blue;">-- Executor extensions
@@ -42,25 +42,25 @@
 6-4i
 
 <span style="color:blue;">2i is interpreted as 2*i, where i has the default value .complex~new(0,1)
-</span><span style="color:blue;">This default value is managed by the class GlobalVariable.
+</span><span style="color:blue;">This default value is managed by the class GlobalVariables.
 </span><span style="color:blue;">When a variable has no value, the interpreter sends the message &quot;NOVALUE&quot; to this class
 </span><span style="color:blue;">(because this class is registered in .LOCAL under the name &quot;NOVALUE&quot;).
 </span><span style="color:blue;">This class is used to manage global variables like i, infinity, indeterminate.
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; .local~novalue=
-(The GlobalVariable class)
+(The GlobalVariables class)
 <span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; ?cm globalvariable
+</span>ooRexx[bash]&gt; ?cm globalvariables
 
-<span style="font-weight:bold;color:green;">[Info] [1] Class 'GlobalVariable' P. (novalue.cls)
-</span>P. PCG.    'DECLARE' : 'GlobalVariable' (novalue.cls)
-P. PCG.    'INIT'    : 'GlobalVariable' (novalue.cls)
-P. PCG.    'NOVALUE' : 'GlobalVariable' (novalue.cls)
-P. PCG.    'VALUES'  : 'GlobalVariable' (novalue.cls)
-<span style="font-weight:bold;color:green;">[Info] [1] Class 'GlobalVariable' has 4 methods
+<span style="font-weight:bold;color:green;">[Info] [1] Class 'GlobalVariables' P. (novalue.cls)
+</span>P. PCG.    'DECLARE' : 'GlobalVariables' (novalue.cls)
+P. PCG.    'INIT'    : 'GlobalVariables' (novalue.cls)
+P. PCG.    'NOVALUE' : 'GlobalVariables' (novalue.cls)
+P. PCG.    'VALUES'  : 'GlobalVariables' (novalue.cls)
+<span style="font-weight:bold;color:green;">[Info] [1] Class 'GlobalVariables' has 4 methods
 </span><span style="font-weight:bold;color:green;">[Info] 7 lines displayed
 </span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .globalvariable~values=
+</span>ooRexx[bash]&gt; .globalvariables~values=
 a Directory (4 items)
 'COMPLEXINFINITY' : (The complex infinity)
 'I'               : (0+1i)
@@ -174,7 +174,7 @@ PM P...    'YM' : 'RoutineDoer' (doers.cls)
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; fib_Y~(23)=
  28657
-<span style="font-weight:bold;color:green;">Duration: 13.544395
+<span style="font-weight:bold;color:green;">Duration: 14.635457
 </span>
 <span style="color:blue;">The memoizing version calculates almost instantly.
 </span><span style="font-weight:bold;color:olive;">
@@ -182,7 +182,7 @@ PM P...    'YM' : 'RoutineDoer' (doers.cls)
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; fib_YM~(23)=
  28657
-<span style="font-weight:bold;color:green;">Duration: 0.003694
+<span style="font-weight:bold;color:green;">Duration: 0.025408
 </span>
 <span style="color:blue;">fib_Y and fib_YM are closures.
 </span><span style="font-weight:bold;color:olive;">
@@ -250,7 +250,7 @@ fib_YM~(17500)=8.594475392487880685715609318313958956965186135981014406583281854
 fib_YM~(20000)=2.531162323732361242240155003520607291766356485802485278951929841991312781760541315230153423463759229E+4179
 fib_YM~(22500)=7.454536101973301545514060322899628474921968473702388044321015228379740189148914655473430519859925903E+4701
 fib_YM~(25000)=2.195438355517303012780791914841720922849015222302155773145178112730662303998294388326731046697794993E+5224
-<span style="font-weight:bold;color:green;">Duration: 7.060886
+<span style="font-weight:bold;color:green;">Duration: 6.995293
 </span>
 <span style="color:blue;">End of demonstration.
 </span></pre>

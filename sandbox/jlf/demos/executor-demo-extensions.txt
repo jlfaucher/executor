@@ -15,7 +15,7 @@ sleep no prompt
 
 /*
 2i is interpreted as 2*i, where i has the default value .complex~new(0,1)
-This default value is managed by the class GlobalVariable.
+This default value is managed by the class GlobalVariables.
 When a variable has no value, the interpreter sends the message "NOVALUE" to this class
 (because this class is registered in .LOCAL under the name "NOVALUE").
 This class is used to manage global variables like i, infinity, indeterminate.
@@ -23,9 +23,9 @@ This class is used to manage global variables like i, infinity, indeterminate.
 sleep
 .local~novalue=
 sleep
-?cm globalvariable
+?cm globalvariables
 sleep
-.globalvariable~values=
+.globalvariables~values=
 sleep no prompt
 
 /*

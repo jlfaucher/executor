@@ -1,4 +1,4 @@
-.local["NOVALUE"] = .GlobalVariable
+.local["NOVALUE"] = .GlobalVariables
 
 --::options trace i
 
@@ -6,7 +6,7 @@
 -- (because this class is registered in .LOCAL under the name "NOVALUE").
 -- This class is used to manage global variables like i, infinity, indeterminate.
 
-::class "GlobalVariable" public
+::class "GlobalVariables" public
 
 ::method init class
     expose values

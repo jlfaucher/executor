@@ -9,25 +9,25 @@ ooRexx[bash]> say 2*(3-2i)
 6-4i
 
 2i is interpreted as 2*i, where i has the default value .complex~new(0,1)
-This default value is managed by the class GlobalVariable.
+This default value is managed by the class GlobalVariables.
 When a variable has no value, the interpreter sends the message "NOVALUE" to this class
 (because this class is registered in .LOCAL under the name "NOVALUE").
 This class is used to manage global variables like i, infinity, indeterminate.
 
 ooRexx[bash]> .local~novalue=
-(The GlobalVariable class)
+(The GlobalVariables class)
 
-ooRexx[bash]> ?cm globalvariable
+ooRexx[bash]> ?cm globalvariables
 
-[Info] [1] Class 'GlobalVariable' P. (novalue.cls)
-P. PCG.    'DECLARE' : 'GlobalVariable' (novalue.cls)
-P. PCG.    'INIT'    : 'GlobalVariable' (novalue.cls)
-P. PCG.    'NOVALUE' : 'GlobalVariable' (novalue.cls)
-P. PCG.    'VALUES'  : 'GlobalVariable' (novalue.cls)
-[Info] [1] Class 'GlobalVariable' has 4 methods
+[Info] [1] Class 'GlobalVariables' P. (novalue.cls)
+P. PCG.    'DECLARE' : 'GlobalVariables' (novalue.cls)
+P. PCG.    'INIT'    : 'GlobalVariables' (novalue.cls)
+P. PCG.    'NOVALUE' : 'GlobalVariables' (novalue.cls)
+P. PCG.    'VALUES'  : 'GlobalVariables' (novalue.cls)
+[Info] [1] Class 'GlobalVariables' has 4 methods
 [Info] 7 lines displayed
 
-ooRexx[bash]> .globalvariable~values=
+ooRexx[bash]> .globalvariables~values=
 a Directory (4 items)
 'COMPLEXINFINITY' : (The complex infinity)
 'I'               : (0+1i)
@@ -141,7 +141,7 @@ ooRexx[bash]> fib_Y = almost_fib~Y
 
 ooRexx[bash]> fib_Y~(23)=
  28657
-Duration: 14.180047
+Duration: 15.909369
 
 The memoizing version calculates almost instantly.
 
@@ -149,7 +149,7 @@ ooRexx[bash]> fib_YM = almost_fib~YM
 
 ooRexx[bash]> fib_YM~(23)=
  28657
-Duration: 0.003230
+Duration: 0.003898
 
 fib_Y and fib_YM are closures.
 
@@ -217,6 +217,6 @@ fib_YM~(17500)=8.594475392487880685715609318313958956965186135981014406583281854
 fib_YM~(20000)=2.531162323732361242240155003520607291766356485802485278951929841991312781760541315230153423463759229E+4179
 fib_YM~(22500)=7.454536101973301545514060322899628474921968473702388044321015228379740189148914655473430519859925903E+4701
 fib_YM~(25000)=2.195438355517303012780791914841720922849015222302155773145178112730662303998294388326731046697794993E+5224
-Duration: 7.402543
+Duration: 8.099044
 
 End of demonstration.

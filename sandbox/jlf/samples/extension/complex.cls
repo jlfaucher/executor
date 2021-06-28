@@ -60,7 +60,7 @@
 
 ::method initialize class -- init not supported (can't instantiate itself or subclass from init)
     self~i = self~new(0, 1)
-    .GlobalVariable~declare("I", self~i)
+    .GlobalVariables~declare("I", self~i)
 
 ::method '[]' class                             /* create a new complex number    */
     forward message('NEW')                      /* just forward this as a new message */

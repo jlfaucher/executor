@@ -17,7 +17,7 @@
     -- No problem if I use ::method makestring.
     self~value~setMethod("makestring", "return self~objectName", "OBJECT")
     */
-    .GlobalVariable~declare("INDETERMINATE", self~value)
+    .GlobalVariables~declare("INDETERMINATE", self~value)
 
 ::method init
     use strict arg objectName

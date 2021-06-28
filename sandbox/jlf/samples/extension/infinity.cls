@@ -36,8 +36,8 @@ direction=0     complex infinity
     self~positive~opposite = self~negative
     self~complex~opposite = self~complex
 
-    .GlobalVariable~declare("INFINITY", self~positive)
-    .GlobalVariable~declare("COMPLEXINFINITY", self~complex)
+    .GlobalVariables~declare("INFINITY", self~positive)
+    .GlobalVariables~declare("COMPLEXINFINITY", self~complex)
 
     /*
         The lack of method makestring & string can have a HUGE impact on performances !
