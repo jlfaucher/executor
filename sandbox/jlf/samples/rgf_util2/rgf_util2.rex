@@ -1763,7 +1763,7 @@ syntax:              -- propagate condition
    JLF: Helper to display the shape of an array.
 */
 
-::routine shape public
+::routine shape private -- jlf: private to avoid collision with array.cls where this routine is also declared
     use arg coll, separator=""
     if coll~hasMethod("shapeToString"), coll~isA(.array) then do
         shape = coll~shapeToString
@@ -2791,7 +2791,7 @@ createCodeSnippet: procedure
 
 
 /* Escape non-printable chars by printing them between square brackets []. */
-::routine escape3 public
+::routine escape3 private -- jlf: private to avoid collision with string.cls where this routine is duplicated
   parse arg a1
 
   res=""

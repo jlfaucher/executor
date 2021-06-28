@@ -242,6 +242,63 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 june 28
+
+New entry GLOBALROUTINES in .environment, which gives access to TheFunctionDirectory.
+This is a directory of global routines that are made available everywhere, like
+the builtin functions. No need of ::requires directive to use them.
+TheFunctionDirectory is no longer supported in ooRexx5 (deprecated).
+
+
+ooRexxShell can now be used to execute scripts that depends on extensions,
+without having to modify the script to add ::requires directives.
+This is done by:
+- declaring in .environment all the public classes of ooRexxShell, and all the
+public classes of the packages imported by ooRexxShell.
+- declaring in .globalRoutines all the public routines of ooRexxShell, and all
+the public routines of the packages imported by ooRexxShell.
+Usage:
+    oorexxshell call myUnmodifiedScript
+
+
+Collisions of routines detected by ooRexxShell with Executor:
+    Collision detected for routine ESCAPE3
+        Package stack 1
+            /local/rexx/oorexx/executor/sandbox/jlf/samples/rgf_util2/rgf_util2.rex
+            /local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell.rex
+        Package stack 2
+            /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls
+            /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/extensions.cls
+            /local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell.rex
+    Collision detected for routine SHAPE
+        Package stack 1
+            /local/rexx/oorexx/executor/sandbox/jlf/samples/rgf_util2/rgf_util2.rex
+            /local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell.rex
+        Package stack 2
+            /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/array.cls
+            /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/extensions.cls
+            /local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell.rex
+Fixed by declaring these routines private in rgf_util2.rex.
+No collision with ooRexx5 because the extensions can't be loaded.
+
+
+Collisions of classes detected by ooRexxShell with ooRexx5:
+    Collision detected for class BUFFER
+        Package stack 1
+            /local/rexx/oorexx/official/sandbox/jlf-executor/samples/pipeline/pipe.rex
+            /local/rexx/oorexx/official/incubator/ooRexxShell-executor/oorexxshell.rex
+Only one package stack because the collision is with the internal class "Buffer",
+described in rexxpg.pdf. Not sure why this class is put in .environment, a Buffer
+instance can only be created using the native code API...
+Could be fixed by renaming the "Buffer" class in pipe.rex.
+This collision has been fixed in Executor by not declaring the native Buffer class
+in .environment.
+
+Another collision with the "System" class has been fixed the same way in Executor
+(this class was no longer declared by official ooRexx5 in rev 10319 on 2014 July 21).
+
+
+===============================================================================
 2021 june 22
 
 Remember: not documented.

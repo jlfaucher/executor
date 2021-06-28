@@ -805,7 +805,8 @@ Helpers
 -------------------------------------------------------------------------------
 -- Load optional packages/libraries
 ::routine loadOptionalComponents
-    -- Load the extensions now, because some packages may depend on extensions (ex: json)
+    -- Load the extensions now, because some packages may depend on extensions
+    -- for compatibility with ooRexx5 (ex: json, regex)
     .ooRexxShell~isExtended = .true
     if \loadPackage("extension/extensions.cls", .true) then do -- requires jlf sandbox ooRexx
         .ooRexxShell~isExtended = .false
@@ -853,7 +854,8 @@ Helpers
         call loadPackage("rgf_util2/rgf_util2_wrappers.rex")
     end
 
-    call declareImportedPublicClasses
+    call declareAllPublicClasses
+    call declareAllPublicRoutines
     return
 
 
@@ -883,9 +885,10 @@ Helpers
 
 
 -------------------------------------------------------------------------------
-::routine declareImportedPublicClasses
-    -- Add all of the imported classes to .environment
-    -- I need that when I use ooRexxShell to execute a script which depends on extensions for compatibility with ooRexx 5
+::routine declareAllPublicClasses
+    -- Add all the public and imported public classes to .environment.
+    -- I need that when I use ooRexxShell to execute a script which depends on extensions for compatibility with ooRexx 5.
+    -- The goal is to keep the script unchanged (don't add any requires for that).
     -- I don't use .context~package~importedClasses because I want to detect collisions, if any.
     use strict arg package=(.context~package), packageStack=(.queue~new), visitedPackages=(.Set~new), visitedClasses=(.Relation~new), collisions=(.Set~new), level=0
     if visitedPackages[package] <> .nil then return -- already visited
@@ -898,7 +901,7 @@ Helpers
             classInstance = publicClassSupplier~item
             current = .environment[className]
             if current <> .nil, current <> classInstance then collisions[className] = className
-            .environment[className] = classInstance
+                                                         else .environment[className] = classInstance
             visitedClasses[className] = packageStack~copy
             publicClassSupplier~next
         end
@@ -906,7 +909,7 @@ Helpers
         importedPackageSupplier = package~importedPackages~supplier
         do while importedPackageSupplier~available
             package = importedPackageSupplier~item
-            call declareImportedPublicClasses package, packageStack, visitedPackages, visitedClasses, collisions, level+1
+            call declareAllPublicClasses package, packageStack, visitedPackages, visitedClasses, collisions, level+1
             importedPackageSupplier~next
         end
     packageStack~pull
@@ -915,13 +918,67 @@ Helpers
     if level == 0 then do
         do className over collisions~allIndexes~sort
             .ooRexxShell~sayError("Collision detected for class" className)
+            definitionNumber = 1
             do packageStack over visitedClasses~allAt(className)~sort
-                .ooRexxShell~sayError("    Package stack:")
+                .ooRexxShell~sayError("    Package stack" definitionNumber)
                 packageSupplier = packageStack~supplier
                 do while packageSupplier~available
                     .ooRexxShell~sayError("        "packageSupplier~item)
                     packageSupplier~next
                 end
+                definitionNumber += 1
+            end
+        end
+    end
+
+
+-------------------------------------------------------------------------------
+::routine declareAllPublicRoutines
+    -- Add all the public and imported public routines to .globalRoutines.
+    -- I need that when I use ooRexxShell to execute a script which depends on routines provided by rgf_util, for example.
+    -- The goal is to keep the script unchanged (don't add any requires for that).
+    -- I don't use .context~package~importedRoutines because I want to detect collisions, if any.
+    use strict arg package=(.context~package), packageStack=(.queue~new), visitedPackages=(.Set~new), visitedroutines=(.Relation~new), collisions=(.Set~new), level=0
+    if visitedPackages[package] <> .nil then return -- already visited
+
+    -- Official ooRexx doesn't support .globalRoutines
+    -- Make it work for the collision detection, will have no effect on global visibility
+    if .environment["GLOBALROUTINES"]~isNil then .environment["GLOBALROUTINES"] = .directory~new
+
+    visitedPackages[package] = package
+    packageStack~push(package~name) -- will be used for a better diagnostic if collision
+        publicRoutineSupplier = package~publicRoutines~supplier
+        do while publicRoutineSupplier~available
+            routineName = publicRoutineSupplier~index
+            routineInstance = publicRoutineSupplier~item
+            current = .globalRoutines[routineName]
+            if current <> .nil, current <> routineInstance then collisions[routineName] = routineName
+                                                           else .globalRoutines[routineName] = routineInstance
+            visitedRoutines[routineName] = packageStack~copy
+            publicRoutineSupplier~next
+        end
+
+        importedPackageSupplier = package~importedPackages~supplier
+        do while importedPackageSupplier~available
+            package = importedPackageSupplier~item
+            call declareAllPublicRoutines package, packageStack, visitedPackages, visitedRoutines, collisions, level+1
+            importedPackageSupplier~next
+        end
+    packageStack~pull
+
+    -- Report the collisions, if any
+    if level == 0 then do
+        do routineName over collisions~allIndexes~sort
+            .ooRexxShell~sayError("Collision detected for routine" routineName)
+            definitionNumber = 1
+            do packageStack over visitedRoutines~allAt(routineName) -- ~sort
+                .ooRexxShell~sayError("    Package stack" definitionNumber)
+                packageSupplier = packageStack~supplier
+                do while packageSupplier~available
+                    .ooRexxShell~sayError("        "packageSupplier~item)
+                    packageSupplier~next
+                end
+                definitionNumber += 1
             end
         end
     end
@@ -1263,7 +1320,7 @@ Helpers
 
     signal on syntax name helpError -- trap the exceptions that could be raised by the query manager
 
-    queryManager = .QueryManager~new(queryFilter, .routines~string2args)
+    queryManager = .QueryManager~new(queryFilter, .routines~entry("string2args"))
     if debugQueryFilter then do
         queryManager~dump(self)
         return
@@ -1748,11 +1805,14 @@ Helpers
 ::method unknown
     -- I assume that you often use the environment symbols .true, .false, .nil ?
     -- I assume that you often create instances of predefined classes like .array, .list, .directory, etc... ?
+    -- jlf 2021 June 28: ooRexx5 is now optimized for the cases above.
+    --                   but still not optimized for the other runtime objects (rexref chapter 6)
     -- If you are curious, then activate the following lines.
     -- You will see that each access to the global .environment will raise two messages sent to the security manager:
     -- "local" and then "environment".
     -- Messages sent for nothing, since I return 0 to indicate that the program is authorized to perform the action.
-    -- do 1000000;x=.true;end   -- 5.440 sec
+    -- do 1000000;x=.stdout;end   -- 6.25 sec with ooRexx5 on my (old) MacBookPro 2010, 0.25 sec with Executor
+    -- do 1000000;x=.context;end   -- 12.20 sec with ooRexx5 on my (old) MacBookPro 2010, 0.16 sec with Executor (special optimization)
     -- do 1000000;x=1;end       -- 0.080 sec (here, the security manager is not used)
 
     -- use arg message, arguments

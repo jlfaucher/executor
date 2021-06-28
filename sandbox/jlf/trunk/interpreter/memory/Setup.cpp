@@ -1472,6 +1472,7 @@ void RexxMemory::createImage(const char *imageTarget)
   kernel_public(CHAR_ENVIRONMENT      ,TheEnvironment  ,TheEnvironment);
   kernel_public(CHAR_FALSE            ,TheFalseObject  ,TheEnvironment);
   kernel_public(CHAR_KERNEL           ,TheKernel       ,TheEnvironment);
+  kernel_public("GLOBALROUTINES"      ,TheFunctionsDirectory  ,TheEnvironment); // jlf: give direct access to TheFunctionsDirectory. Later, TheKernel will be removed from TheEnvironment.
   kernel_public(CHAR_LIST             ,TheListClass    ,TheEnvironment);
   kernel_public(CHAR_MESSAGE          ,TheMessageClass ,TheEnvironment);
   kernel_public(CHAR_METHOD           ,TheMethodClass  ,TheEnvironment);

@@ -1,0 +1,63 @@
+TheFunctionDirectory is a directory of global routines that are made available everywhere,
+like the builtin functions.
+TheFunctionDirectory is no longer supported in ooRexx5 (deprecated).
+
+
+ooRexx4 Code review:
+    RexxCore.h
+        #define TheFunctionsDirectory RexxMemory::functionsDir
+
+    Setup.cpp
+        void RexxMemory::createImage(const char *imageTarget)
+        {
+          ...
+          TheFunctionsDirectory = new_directory();
+          ...
+          /* put the kernel-provided public objects in the environment directory */
+          kernel_public(CHAR_FUNCTIONS        ,TheFunctionsDirectory  ,TheKernel);
+          kernel_public(CHAR_NULLARRAY        ,TheNullArray           ,TheKernel);
+          kernel_public(CHAR_NULLPOINTER      ,TheNullPointer         ,TheKernel);
+          kernel_public(CHAR_COMMON_RETRIEVERS,TheCommonRetrievers    ,TheKernel);
+          kernel_public(CHAR_ENVIRONMENT      ,TheEnvironment         ,TheKernel);
+
+                                               /* set Oryx version                  */
+          kernel_public(CHAR_VERSION, Interpreter::getVersionNumber(), TheKernel);
+          ...
+        }
+
+    RexxMemory.cpp
+        void RexxMemory::restoreImage()
+        {
+            ...
+            TheFunctionsDirectory = (RexxDirectory *)saveArray->get(saveArray_FUNCTIONS);
+            ...
+        }
+
+        void RexxMemory::saveImage(const char *imageTarget)
+        {
+            ...
+            saveArray->put((RexxObject *)TheFunctionsDirectory,  saveArray_FUNCTIONS);
+            ...
+        }
+
+    RexxActivation.cpp
+        RexxObject *RexxActivation::externalCall(RexxString *target, RexxObject **_arguments, size_t _argcount,
+            size_t _named_argcount, RexxString *calltype, ProtectedObject &resultObj)
+        {
+            // Step 1:  Check the global functions directory
+            // this is actually considered part of the built-in functions, but these are
+            // written in ooRexx.  The names are also case sensitive
+            RoutineClass *routine = (RoutineClass *)TheFunctionsDirectory->get(target);
+            if (routine != OREF_NULL)        /* not found yet?                    */
+            {
+                // call and return the result
+                routine->call(this->activity, target, _arguments, _argcount, _named_argcount, calltype, OREF_NULL, EXTERNALCALL, resultObj);
+                return(RexxObject *)resultObj;
+            }
+
+
+Remember:
+TheFunctionDirectory is no longer supported in ooRexx5.
+    RexxActivation::externalCall
+        // Step 1: used to be the functions directory, which has been deprecated.
+        <empty>
