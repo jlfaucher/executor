@@ -2,48 +2,51 @@
 v0 = a(0)~of{index} -- equivalent to v()
 v0=
     []
+v0==
     an Array (shape [0], 0 items)
 
 v1 = a(1)~of{index} -- equivalent to v(1)
 v1=
-    [1]
+    [ 1]
+v1==
     an Array (shape [1], 1 items)
-    1 : 1
+    1 :  1
 
 v2 = a(2)~of{index} -- equivalent to v(1,2)
 v2=
-    [1,2]
+    [ 1, 2]
+v2==
     an Array (shape [2], 2 items)
-    1 : 1
-    2 : 2
+    1 :  1
+    2 :  2
 
 v3 = a(3)~of{index} -- equivalent to v(1,2,3)
 v3=
-    [1,2,3]
+    [ 1, 2, 3]
     an Array (shape [3], 3 items)
-    1 : 1
-    2 : 2
-    3 : 3
+    1 :  1
+    2 :  2
+    3 :  3
 
 a33 = a(3,3)~of{index}
 a33=
     an Array (shape [3,3], 9 items)
-    [1,1] : [1,1]
-    [1,2] : [1,2]
-    [1,3] : [1,3]
-    [2,1] : [2,1]
-    [2,2] : [2,2]
-    [2,3] : [2,3]
-    [3,1] : [3,1]
-    [3,2] : [3,2]
-    [3,3] : [3,3]
+    [ 1, 1] : [ 1, 1]
+    [ 1, 2] : [ 1, 2]
+    [ 1, 3] : [ 1, 3]
+    [ 2, 1] : [ 2, 1]
+    [ 2, 2] : [ 2, 2]
+    [ 2, 3] : [ 2, 3]
+    [ 3, 1] : [ 3, 1]
+    [ 3, 2] : [ 3, 2]
+    [ 3, 3] : [ 3, 3]
 
 APL     ,           ravel       monadic function (Comma)
 ooRexx  ~each
 inverse of reshape, which turns any data into a vector whose length is the product
 of the shape vector (the dimensions) of the operand array
 a33~each=
-[[1,1],[1,2],[1,3],[2,1],[2,2],[2,3],[3,1],[3,2],[3,3]]
+[[ 1, 1],[ 1, 2],[ 1, 3],[ 2, 1],[ 2, 2],[ 2, 3],[ 3, 1],[ 3, 2],[ 3, 3]]
 
 */
 
@@ -231,6 +234,8 @@ v()               | []                            | 1         | [0]             
     In the C++ implementation, the only way to know if an array is sparse is to iterate over
     all the cells (items) and test if there is at least one non-assigned cell.
     For the ooRexx user, a possible way is to compare the number of items with the size.
+    [Note] ooRexx5 has an optimized implementation of ~items (the value is stored).
+           The rest of the comments applies to ooRexx4 and Executor.
     Internally, the method ~items count the cells <> OREF_NULL (at each call, not stored).
     The bigger the array, the longer it takes :
         smallArray = .array~new(10,10); do 10000; n = smallArray~items; end -- near 0 sec
@@ -385,11 +390,6 @@ v()               | []                            | 1         | [0]             
         cube[;1;1]
             41 19
 
-    To review
-    ---------
-    matrix~indexer(1,1,1)= -- Not enough subscripts for array; 2 expected
-    The error message is surprising : 3 indices and complains "not enough"
-    This is because the list of arguments is interpreted as a list of 3 indexes made of 1 indice each.
     */
     if arg() <> 1 then return self~indexer(arg(1, "a"))
     use arg index
@@ -402,96 +402,81 @@ v()               | []                            | 1         | [0]             
     --     v( v(1,2), v(3,4) ) can be used with a matrix : shape [2], depth 2. The indexes have 2 indices, the result is shape [2], depth 1.
     return index~leftElementWise({itemRight~atIndex(itemLeft)}, self~enclose, d:1)
 
-/*
-    args = arg(1, "a")
-    if args~depth == 1 then return self~indexer(v(args)) -- one index, maybe with omitted indices
-    return self~indexer(arg(1, "a")) -- for convenience, indexer(i1,i2,...iN) equivalent to indexer(v(i1,i2,...iN))
+    /*
+        vector~indexer()=           []
+        vector~indexer(1)=          [ 41]
+        vector~indexer(1,1)=        [ 41, 41]
+        vector~indexer(1,)=         [ 41,...]
 
-vector~indexer()=           Not enough arguments for method; 1 expected     ok
-vector~indexer(1)=          41                                              ok
-vector~indexer(1,1)=        Too many subscripts for array; 1 expected       ok
-vector~indexer(1,)=         [41]                                            should raise error too many subscripts
-vector~indexer(v())=        []                                              ok
-vector~indexer(v(1))=       41                                              expected [41]
-vector~indexer(v(1,1))=     [41,41]                                         ok
-vector~indexer(v(1,))=      [41,...]                                        should raise error too many subscripts
+        vector~indexer(v())=        []
+        vector~indexer(v(1))=       [ 41]
+        vector~indexer(v(1,1))=     [ 41, 41]
+        vector~indexer(v(1,))=      [ 41,...]
 
+        matrix~indexer()=           []
+        matrix~indexer(1)=          [[ 41, 26, 38]]
+        matrix~indexer(1,1)=        [[ 41, 26, 38],[ 41, 26, 38]]
+        matrix~indexer(1,1,1)=      [[ 41, 26, 38],[ 41, 26, 38],[ 41, 26, 38]]
+        matrix~indexer(v())=        []                                              ok
 
-matrix~indexer()=           Not enough arguments for method; 1 expected     ok
-matrix~indexer(1)=          Not enough arguments for method; 1 expected     ok
-matrix~indexer(1,1)=        [41]                                            expected 41
-matrix~indexer(1,1,1)=      Too many subscripts for array; 2 expected       ok
-matrix~indexer(v())=        []                                              ok
-matrix~indexer(v(1))=       Not enough subscripts for array; 2 expected     ok
-matrix~indexer(v(1,1))=     41                                              expected [41]. [later] no ! should return a vector of 2 values but the indexes don't have enough subscripts
-matrix~indexer(v(1,))=      Not enough subscripts for array; 2 expected     ok, to extend. [later] no ! attempts to return a vector of 1 value and 1 omitted
-matrix~indexer(v(1,1,1))=   Not enough subscripts for array; 2 expected     surprising ? no ! attempts to return a vector of 3 values
-matrix~indexer(v(1,1,))=    Not enough subscripts for array; 2 expected     surprising ? no ! attempts to return a vector of 2 values and 1 omitted
+        matrix~indexer(v(1))=       [[ 41, 26, 38]]
+        matrix~indexer(v(1,1))=     [[ 41, 26, 38],[ 41, 26, 38]]
+        matrix~indexer(v(1,))=      [[ 41, 26, 38],..]
+        matrix~indexer(v(1,1,1))=   [[ 41, 26, 38],[ 41, 26, 38],[ 41, 26, 38]]
+        matrix~indexer(v(1,1,))=    [[ 41, 26, 38],[ 41, 26, 38],..]
+    */
 
-
-    args = arg(1, "a")
-    --if args~depth == 1 then return self~indexer(v(args)) -- one index, maybe with omitted indices
-    return self~indexer(arg(1, "a")) -- for convenience, indexer(i1,i2,...iN) equivalent to indexer(v(i1,i2,...iN))
-
-vector~indexer()=           []
-vector~indexer(1)=          41
-vector~indexer(1,1)=        [41,41]
-vector~indexer(1,)=         [41,...]
-vector~indexer()=           []
-*/
-
-/*
-    An index is an indice (whole number), or a vector of indices.
-    An index can be sparse: an omitted indice lets select all the items in the corresponding dimension.
-    Zero parameter:
-        all indices are omitted, returns a copy of the whole array (copy because in all other cases, the result is new array).
-    One parameter:
-        if type whole number: indice
-            if array rank <=1 (vector) then return the corresponding item (can be .nil if no item).
-                vector~indexer(1)
-                vector[1] or 1 ⌷ vector
-                    41 (scalar: rank = 0)
-            otherwise return the corresponding sub-array (indice in 1st dimension is provided, indices in next dimensions are omitted).
-                matrix~indexer(1)
-                1 ⌷ matrix
+    /*
+        An index is an indice (whole number), or a vector of indices.
+        An index can be sparse: an omitted indice lets select all the items in the corresponding dimension.
+        Zero parameter:
+            all indices are omitted, returns a copy of the whole array (copy because in all other cases, the result is new array).
+        One parameter:
+            if type whole number: indice
+                if array rank <=1 (vector) then return the corresponding item (can be .nil if no item).
+                    vector~indexer(1)
+                    vector[1] or 1 ⌷ vector
+                        41 (scalar: rank = 0)
+                otherwise return the corresponding sub-array (indice in 1st dimension is provided, indices in next dimensions are omitted).
+                    matrix~indexer(1)
+                    1 ⌷ matrix
+                        41 26 38
+            if type array: array of indexes, can have any shape, the result will have the same shape.
+                vector~indexer(v(1))
+                vector[1 ⍴ 1]
+                    41 (vector: rank = 1)
+                vector~indexer(v(1,2,3))
+                vector[1 2 3]
                     41 26 38
-        if type array: array of indexes, can have any shape, the result will have the same shape.
-            vector~indexer(v(1))
-            vector[1 ⍴ 1]
-                41 (vector: rank = 1)
-            vector~indexer(v(1,2,3))
-            vector[1 2 3]
-                41 26 38
-            matrix~indexer(v(index(1,1)))
-            APL ? matrix[(1 1)] rank error, why ?
-                41
-            matrix~indexer(v(index(1,1), index(1,2)))
-            matrix[(1 1)(1 2)]
-                41 26
-            matrix~indexer(v(1)) or matrix~indexer(v(1,))
-            matrix[1;])
-                41 26 38
-            matrix~indexer(v(1,2,3))
-            APL ? (matrix[1;]) (matrix[2;]) (matrix[3;])
-                41 26 38  14 87 52  30 28 19 (shape [1,3])
+                matrix~indexer(v(index(1,1)))
+                APL ? matrix[(1 1)] rank error, why ?
+                    41
+                matrix~indexer(v(index(1,1), index(1,2)))
+                matrix[(1 1)(1 2)]
+                    41 26
+                matrix~indexer(v(1)) or matrix~indexer(v(1,))
+                matrix[1;])
+                    41 26 38
+                matrix~indexer(v(1,2,3))
+                APL ? (matrix[1;]) (matrix[2;]) (matrix[3;])
+                    41 26 38  14 87 52  30 28 19 (shape [1,3])
 
-        otherwise: unsupported index
-    More than one parameter: each parameter is an indice or a vector of indices (not an index). An indice can be omitted.
-        matrix~indexer(1,1)
-        matrix[1;1]
-            41      rank 0
-        matrix~indexer(1,)
-        matrix[1;]
-            41 26 38
-        matrix~indexer(v(1,1),1)
-        matrix[1 1;1] or (1 1) 1 ⌷ matrix
-            41 41   rank 1
-        matrix~indexer(v(1,1),v(1,1)]
-        matrix[1 1;1 1] or (1 1) (1 1) ⌷ matrix
-            41 41   rank 2
-            41 41
-
-*/
+            otherwise: unsupported index
+        More than one parameter: each parameter is an indice or a vector of indices (not an index). An indice can be omitted.
+            matrix~indexer(1,1)
+            matrix[1;1]
+                41      rank 0
+            matrix~indexer(1,)
+            matrix[1;]
+                41 26 38
+            matrix~indexer(v(1,1),1)
+            matrix[1 1;1] or (1 1) 1 ⌷ matrix
+                41 41   rank 1
+            matrix~indexer(v(1,1),v(1,1)]
+            matrix[1 1;1 1] or (1 1) (1 1) ⌷ matrix
+                41 41   rank 2
+                41 41
+    */
 
 
 /******************************************************************************/
@@ -499,18 +484,18 @@ vector~indexer()=           []
 
 /*
 How to create a self-referencing enclosed array:
-a=(1,2)                         -- [1,2]
-b=a                             -- [1,2]
-a~append(b)                     -- [1,2,*0]                         -- self reference to array
-b=a~enclose                     -- <[1,2,*0]>
-a~append(b)                     -- [1,2,*0,<*1>]                    -- enclosed self reference to array
+a=(1,2)                         -- [ 1, 2]
+b=a                             -- [ 1, 2]
+a~append(b)                     -- a1=[ 1, 2,*a1]                   -- self reference to array
+b=a~enclose                     -- <a1=[ 1, 2,*a1]>
+a~append(b)                     -- a1=[ 1, 2,*a1,<*a1>]             -- enclosed self reference to array
 c = .EnclosedArray~new(.nil)    -- <(The NIL object)>
 d = c~enclose~enclose           -- <<<(The NIL object)>>>
-c~setEnclosed(d)                -- <<<*2>>>                         -- enclosed self reference to enclosed array
-a~append(c)                     -- [1,2,*0,<*1>,<<<*2>>>]
-b=a~enclose~enclose             -- <<[1,2,*0,<*1>,<<<*2>>>]>>
-a~append(b)                     -- [1,2,*0,<*1>,<<<*2>>>,<<*2>>]
-b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
+c~setEnclosed(d)                -- e1=<<<*e1>>>                     -- enclosed self reference to enclosed array
+a~append(c)                     -- a1=[ 1, 2,*a1,<*a1>,e2=<<<*e2>>>]
+b=a~enclose~enclose             -- <<a1=[ 1, 2,*a1,<*a1>,e2=<<<*e2>>>]>>
+a~append(b)                     -- a1=[ 1, 2,*a1,<*a1>,e2=<<<*e2>>>,<<*a1>>]
+b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
 */
 
 ::method init
@@ -760,7 +745,7 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
     /*
     Return a condensed string representation of the array.
     Ex :
-    .array~of(1,"two", .array~of(1, "two", 3), .array~of(1, "two"))~ppRepresentation -- [[1,'two',[1,'two',3],[1,'two']]]
+    .array~of(1,"two", .array~of(1, "two", 3), .array~of(1, "two"))~ppRepresentation -- [ 1,'two',[ 1,'two', 3],[ 1,'two']]
     Recursive arrays are supported. A reference *R is inserted in the representation,
     where R is the reference of the part already displayed.
     Ex :
@@ -788,29 +773,21 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
     say a~ppRepresentation
         a1=['string1','string2',['string2',*a1],*a1]
 
-    a~pipe(.console dataflow)
+    a~pipe(.console "dataflow")
         source:1,'string1'
         source:2,'string2'
         source:3,a1=[v1='string2',a2=['string1',*v1,*a1,*a2]]
         source:4,a1=['string1',v1='string2',[*v1,*a1],*a1]
 
-    a~pipe(.inject iterateBefore {item} recursive.0.memorize | .console dataflow)
-        source:1,v1='string1' | inject:1,v1
-source:1,v1='string1' | inject:1,*v1
-        source:2,v1='string2' | inject:1,v1
-source:2,v1='string2' | inject:2,*v1
-        source:3,[v1='string2',['string1',v1,*1,*0]] | inject:1,v1
-source:3,a1=[v1='string2',a2=['string1',*v1,*a1,*a2]] | inject:1,*v1
-        source:3,[v1='string2',[v2='string1',v1,*1,*0]] | inject:1,[v2,v1,[v1,*1],*0]
-source:3,a1=[v1='string2',a2=[v2='string1',*v1,*a1,*a2]] | inject:2,a1=[*v2,*v1,a2=[*v1,*a1],*a1]
-        source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:1,v1
-source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:1,*v1
-        source:4,['string1',v1='string2',[v1,*1],*0] | inject:1,v1
-source:4,a1=['string1',v1='string2',a2=[*v1,*a1],*a1] | inject:2,*v1
-        source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:1,[v2,[v1,v2,*1,*0]]
-source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:3,a1=[*v2,a2=[*v1,*v2,*a1,*a2]]
-        source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:1,[v1,v2,[v2,*1],*0]
-source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,a2=[*v2,*a1],*a1]
+    a~pipe(.inject "iterateBefore" {item} "recursive.0.memorize" | .console "dataflow")
+        source:1,v1='string1' | inject:1,*v1
+        source:2,v1='string2' | inject:2,*v1
+        source:3,a1=[v1='string2',a2=['string1',*v1,*a1,*a2]] | inject:1,*v1
+        source:3,a1=[v1='string2',a2=['string1',*v1,*a1,*a2]] | inject:2,*a2
+        source:4,a1=[v1='string1',v2='string2',[*v2,*a1],*a1] | inject:1,*v1
+        source:4,a1=['string1',v1='string2',[*v1,*a1],*a1] | inject:2,*v1
+        source:4,a1=['string1',v1='string2',a2=[*v1,*a1],*a1] | inject:3,*a2
+        source:4,a1=['string1',v1='string2',[*v1,*a1],*a1] | inject:4,*a1
     */
     use strict arg maxItems=(-1), sparse="..", ellipsis="...", separator=",", val=(self), referencesTable=.nil, counter=({n=0; {expose n; n+=1; n}}~())
     use named arg trace=.false, ppOptions. = (.Stem~new), ppOptions.expandCollection=.false
@@ -970,14 +947,14 @@ source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,
     level2~append(level1)               -- self reference
     level3~append(level5e)              -- indirect self reference part1
     level5~append(level3)               -- indirect self reference part2.
-    a = level1                          -- [11,12,[21,22,[31,32,<[51,52,*2]>],<[51,52,[31,32,*2]]>,*1]]
-    -a=                                 -- [-11,-12,[-21,-22,[-31,-32,<[-51,-52,*2]>],<[-51,-52,[-31,-32,*2]]>,*1]]
-    a~leftElementWise("-",,0)=          -- [11,12,[21,22,[31,32,<[51,52,*2]>],<[51,52,[31,32,*2]]>,*1]]
-    a~leftElementWise("-",,1)=          -- [-11,-12,[21,22,[31,32,<[51,52,*2]>],<[51,52,[31,32,*2]]>,*1]]
-    a~leftElementWise("-",,2)=          -- [-11,-12,[-21,-22,[31,32,<[51,52,*2]>],<[51,52,[31,32,*2]]>,*1]]
-    a~leftElementWise("-",,3)=          -- [-11,-12,[-21,-22,[-31,-32,<[51,52,*2]>],<[51,52,[-31,-32,*2]]>,*1]
-    a~leftElementWise("-",,4)=          -- [-11,-12,[-21,-22,[-31,-32,<[51,52,*2]>],<[51,52,[-31,-32,*2]]>,*1]]
-    a~leftElementWise("-",,5)=          -- [-11,-12,[-21,-22,[-31,-32,<[-51,-52,*2]>],<[-51,-52,[-31,-32,*2]]>,*1]]
+    a = level1                          -- a1=[ 11, 12,[ 21, 22,a2=[ 31, 32,e3=<[ 51, 52,*a2]>],*e3,*a1]]
+    -a=                                 -- a1=[-11,-12,[-21,-22,a2=[-31,-32,e3=<[-51,-52,*a2]>],*e3,*a1]]
+    a~leftElementWise("-", depth:0)=    -- a1=[ 11, 12,[ 21, 22,a2=[ 31, 32,e3=<[ 51, 52,*a2]>],*e3,*a1]]
+    a~leftElementWise("-", depth:1)=    -- a1=[-11,-12,[ 21, 22,a2=[ 31, 32,e3=<[ 51, 52,*a2]>],*e3,*a1]]
+    a~leftElementWise("-", depth:2)=    -- a1=[-11,-12,[-21,-22,a2=[ 31, 32,e3=<[ 51, 52,*a2]>],*e3,*a1]]
+    a~leftElementWise("-", depth:3)=    -- a1=[-11,-12,[-21,-22,a2=[-31,-32,e3=<[ 51, 52,*a2]>],*e3,*a1]]
+    a~leftElementWise("-", depth:4)=    -- a1=[-11,-12,[-21,-22,a2=[-31,-32,e3=<[ 51, 52,*a2]>],*e3,*a1]]
+    a~leftElementWise("-", depth:5)=    -- a1=[-11,-12,[-21,-22,a2=[-31,-32,e3=<[-51,-52,*a2]>],*e3,*a1]]
 
     Remember:
     The stack is used to manage the mapping between the nested arrays and their copy.
