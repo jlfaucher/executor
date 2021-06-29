@@ -41,6 +41,35 @@ Otherwise same error as above.
 --::options trace i
 
 /******************************************************************************/
+-- Functions compatibility with ooRexx5
+
+-- For the moment, I can't override the builtin function xrange by a routine.
+-- Hence the name "xrangeExt"...
+::routine xrangeExt public
+    if arg() == 0 then return "XRANGE"()
+    buffer = .mutableBuffer~new
+    i = 1
+    do while i <= arg()
+        if arg(i, "e") then arg1 = arg(i)
+                       else arg1 = "00"x
+        if arg1~length == 1 then do
+            i += 1
+            if arg(i, "e") then arg2 = arg(i)
+                           else arg2 = "FF"x
+            if arg2~length <> 1 then raise syntax 40.23 array("XRANGE", "Positional", i, arg2)
+            buffer~append("XRANGE"(arg1, arg2))
+        end
+        else do
+            characterSequence = arg1~posixClassCharacters
+            if characterSequence <> "" then buffer~append(characterSequence)
+            else raise syntax 40.28 array("XRANGE", "Positional", i, arg1)
+        end
+        i += 1
+    end
+    return buffer~string
+
+
+/******************************************************************************/
 -- Should find a better name...
 ::class "StringHelpers" mixinclass Object public
 
@@ -123,8 +152,80 @@ Similar to ~makeArray(separator), with these differences:
     return self pluralText
 
 
+::method posixClassCharacters
+    -- If self is a character class name then return the corresponding character sequence
+    -- otherwise return "".
+    use strict arg -- none
+    characterClassNames = "alnum alpha blank cntrl digit graph lower print punct space upper xdigit"
+    if self~words == 1, characterClassNames~wordpos(self~lower) <> 0 then return .string~send(self)
+    return ""
+
+
 /******************************************************************************/
 ::class "StringCompatibilityWithOORexx5" mixinclass Object public
+
+::method alnum class
+    use strict arg -- none
+    return "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+
+
+::method alpha class
+    use strict arg -- none
+    return "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+
+
+::method blank class
+    use strict arg -- none
+    return "09 20"x
+
+
+::method cntrl class
+    use strict arg -- none
+    return "00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 7F"x
+
+
+::method digit class
+    use strict arg -- none
+    return "0123456789"
+
+
+::method graph class
+    use strict arg -- none
+    -- !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_` abcdefghijklmnopqrstuvwxyz{|}
+    return "21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 37 38 39 3A 3B 3C 3D 3E 3F 40 41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F 50 51 52 53 54 55 56 57 58 59 5A 5B 5C 5D 5E 5F 60 20 61 62 63 64 65 66 67 68 69 6A 6B 6C 6D 6E 6F 70 71 72 73 74 75 76 77 78 79 7A 7B 7C 7D"x
+
+
+::method lower class
+    use strict arg -- none
+    return "abcdefghijklmnopqrstuvwxyz"
+
+
+::method print class
+    use strict arg -- none
+    -- <space>!"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_` abcdefghijklmnopqrstuvwxyz{|}~
+    return "20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 37 38 39 3A 3B 3C 3D 3E 3F 40 41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F 50 51 52 53 54 55 56 57 58 59 5A 5B 5C 5D 5E 5F 60 20 61 62 63 64 65 66 67 68 69 6A 6B 6C 6D 6E 6F 70 71 72 73 74 75 76 77 78 79 7A 7B 7C 7D"x
+
+
+::method punct class
+    use strict arg -- none
+    -- !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
+    return "21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 3A 3B 3C 3D 3E 3F 40 5B 5C 5D 5E 5F 60 7B 7C 7D 7E"x
+
+
+::method space class
+    use strict arg -- none
+    return "09 0A 0B 0C 0D 20"x
+
+
+::method upper class
+    use strict arg -- none
+    return "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+
+::method xdigit class
+    use strict arg -- none
+    return "0123456789ABCDEFabcdef"
+
 
 ::method contains
     -- regex.cls uses the method .String~contains which is available only from ooRexx v5.
@@ -186,6 +287,17 @@ Similar to ~makeArray(separator), with these differences:
     pp = self
     if ppOptions.surroundByQuotes then pp = pp~quoted("'")
     return escape3(pp) -- Use 0xXX notation for escaped characters
+
+
+/******************************************************************************/
+::class "MutableBufferCompatibilityWithOORexx5" mixinclass Object public
+
+::method "[]"
+    -- ooRexx v5
+    use strict arg n, length=1
+    maxLength = self~length - n + 1 -- don't care about n<=0, will be caught by substr
+    if maxLength <= 0 then return ""
+    return self~substr(n, min(length, maxLength))
 
 
 /******************************************************************************/

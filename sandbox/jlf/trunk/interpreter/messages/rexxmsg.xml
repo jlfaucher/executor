@@ -3246,7 +3246,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_call_pad_or_name</SymbolicName>
-        <Text><Sub position="1" name="function_name"/> argument <Sub position="2" name="argument_number"/> must be a character class name or a single character; found <q><Sub position="3" name="value"/></q>.</Text>
+        <Text><Sub position="1" name="function_name"/> <Sub position="2" name="kind"/> argument <Sub position="3" name="argument_number"/> must be a character class name or a single character; found <q><Sub position="4" name="value"/></q>.</Text>
       </SubMessage>
       <SubMessage>
         <Code>40</Code>

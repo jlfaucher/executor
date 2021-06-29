@@ -2345,7 +2345,7 @@ special character (such as a parenthesis).
 <term>028</term>
 <listitem>
 <para>
-<emphasis role="italic">function_name</emphasis> argument <emphasis role="italic">argument_number</emphasis> must be a character class name or a single character; found "<emphasis role="italic">value</emphasis>".</para>
+<emphasis role="italic">function_name</emphasis> <emphasis role="italic">kind</emphasis> argument <emphasis role="italic">argument_number</emphasis> must be a character class name or a single character; found "<emphasis role="italic">value</emphasis>".</para>
 </listitem>
 </varlistentry>
 <varlistentry>

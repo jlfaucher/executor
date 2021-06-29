@@ -242,6 +242,35 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 June 30
+
+Compatibility with ooRexx5:
+    .String (class methods added by extension)
+        alnum
+        alpha
+        blank
+        cntrl
+        digit
+        graph
+        lower
+        print
+        punct
+        space
+        upper
+        xdigit
+
+    Routine xrangeExt
+        For the moment, I can't override the builtin function xrange by a routine.
+        Hence the name "xrangeExt"...
+
+.String helper method
+    posixClassCharacters
+Ex:
+    "alnum"~posixClassCharacters=                   -- returns .string~alnum
+    "not a character class"~posixClassCharacters=   -- returns ""
+
+
+===============================================================================
 2021 june 28
 
 New entry GLOBALROUTINES in .environment, which gives access to TheFunctionDirectory.
@@ -323,6 +352,21 @@ Remember: not documented.
     2 files are created:
         orexdump.dmp    binary file (22 MB under MacOs)
         orexdump.key    text file
+
+
+===============================================================================
+2021 june 13
+
+Compatibility with ooRexx5:
+    .MutableBuffer~"[]"
+    .MutableBuffer~append
+    .Object~isNil
+    .RexxInfo (partial support)
+    .String~?
+
+Helper methods
+    .String~concatenate
+    .String~singularPlural
 
 
 ===============================================================================

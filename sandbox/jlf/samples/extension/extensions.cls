@@ -23,7 +23,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 ::extension Coactivity                      inherit CoactivityDoer CoactivityFilter                      CoactivityIterator                      CoactivityReducer    CoactivityGenerator
 ::extension String                          inherit StringDoer     StringFilter                          StringIterator                          StringReducer        StringGenerator        StringMapper        StringPrettyPrinter        StringCompatibilityWithOORexx5        StringHelpers RepeaterCollector RepeaterGenerator LogicalExtension ComplexString
-::extension MutableBuffer                   inherit                MutableBufferFilter                   MutableBufferIterator                   MutableBufferReducer MutableBufferGenerator MutableBufferMapper MutableBufferPrettyPrinter
+::extension MutableBuffer                   inherit                MutableBufferFilter                   MutableBufferIterator                   MutableBufferReducer MutableBufferGenerator MutableBufferMapper MutableBufferPrettyPrinter MutableBufferCompatibilityWithOORexx5
 ::extension Collection                      inherit                CollectionFilter                      CollectionIterator                      CollectionReducer    CollectionGenerator    CollectionMapper    CollectionPrettyPrinter
 ::extension OrderedCollection               inherit                OrderedCollectionFilter
 ::extension Supplier                        inherit                SupplierFilter                        SupplierIterator                        SupplierReducer      SupplierGenerator
