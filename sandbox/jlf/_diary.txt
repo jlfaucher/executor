@@ -98,33 +98,38 @@ Remember : a multi-line source literal is flattened only if a transformation is
 made on the clause which contains it.
 
 
+Error reporting todo :
+A block line number is relative to the block, should be relative to its package,
+except when interpreted (in ooRexxShell, I want the line number relative to the block).
+
+
 See if it's possible to modify the implementation of FORWARD to reduce the
 comsumption of stack frames.
 Should be possible when the option CONTINUE is not used.
 Could be used to emulate tail recursion.
 Under MacOs, last value before stack overflow when calculating the factorial:
-1056
+Executor: 1056      ooRexx5: 17441 (yes! and then segmentation fault)
     use arg n
     say factorial(n)
     return
     factorial:
-    use arg n;
+    use arg n
     if n==0 then return 1
     else return n * factorial(n-1)
-736
+Executor: 736       ooRexx5: 793
     use arg n
     say factorial(n)
     return
     ::routine factorial
-    use arg n;
+    use arg n
     if n==0 then return 1
     else return n * factorial(n-1)
-487
+Executor: 487       ooRexx5: 511
     use arg n
     say factorial(n)
     return
     ::routine factorial
-    use arg n;
+    use arg n
     if n==0 then return 1
     else return n * .context~executable~call(n-1)
 484
@@ -138,6 +143,33 @@ I would like to support the same limit 484 when using the doer method ~().
     ::class "RoutineDoer" mixinclass Object public inherit Doer
     ::method do unguarded
         forward message "call"
+
+
+ooRexx5 optimization retrofit todo:
+When an external routine has been resolved, cache the executable in the field
+externalTarget of the CallInstruction or ExpressionFunction. The next call will
+be a fast call, by avoiding to search again the executable.
+This optimization is not applicable to dynamic calls.
+
+
+ooRexx5 optimization retrofit todo:
+RexxDotVariable cachedValue
+
+
+ooRexx5 optimization retrofit todo:
+SpecialDotVariable for .nil, .true, .false
+
+
+ooRexx5 optimization retrofit todo:
+optimized implementation of .array~items (the value is stored)
+
+
+Needed retrofits for trunk/extensions/dateparser:
+    1)  ::CONSTANT DefaultDayNames ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+    2)  use local
+    3)  select  case (type)
+            when 'd', 'D' then do
+    4)  ::OPTIONS novalue error
 
 
 ===============================================================================
