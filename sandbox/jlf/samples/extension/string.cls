@@ -43,9 +43,8 @@ Otherwise same error as above.
 /******************************************************************************/
 -- Functions compatibility with ooRexx5
 
--- For the moment, I can't override the builtin function xrange by a routine.
--- Hence the name "xrangeExt"...
-::routine xrangeExt public
+-- A global routine with the same name as a builtin function overrides this function.
+::routine xrange public
     if arg() == 0 then return "XRANGE"()
     buffer = .mutableBuffer~new
     i = 1
@@ -61,7 +60,7 @@ Otherwise same error as above.
         end
         else do
             characterSequence = arg1~posixClassCharacters
-            if characterSequence <> "" then buffer~append(characterSequence)
+            if characterSequence \== "" then buffer~append(characterSequence) -- Don't test with <> because the sequence for "blank" is considered empty!
             else raise syntax 40.28 array("XRANGE", "Positional", i, arg1)
         end
         i += 1

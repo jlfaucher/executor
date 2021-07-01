@@ -274,6 +274,50 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 July 02
+
+A global routine with the same name as a builtin function overrides this function.
+This is done by searching in TheFunctionDirectory from
+    RexxExpressionFunction::evaluate
+    RexxInstructionCall::execute
+    RexxInstructionCall::trap
+when the target is a builtin function.
+If the call or function invocation uses a literal string, then the search in
+TheFunctionDirectory is bypassed.
+
+This new functionality is used to override the builtin function XRANGE, and make
+if compatible with ooRexx5.
+Remember: extensions.cls alone does not declare XRANGE as a global routine.
+You must do it explicitely, or use ooRexxShell.
+
+Example of builtin function override:
+    call internal   -- override with internal routine
+    call external   -- no override because the routine date is not global
+    call global     -- override with global routine
+
+    ::routine internal
+        say date()                                    -- Internal date is 2 Jul 2021
+        say "DATE"()                                  -- 2 Jul 2021
+        return
+        date: return "Internal date is " || "DATE"()
+
+    ::routine external
+        say date()                                    -- 2 Jul 2021
+        say "DATE"()                                  -- 2 Jul 2021
+
+    ::routine global
+        .globalRoutines["DATE"] = .routines["DATE"]
+        say date()                                    -- Global date is 2 Jul 2021
+        say "DATE"()                                  -- 2 Jul 2021
+
+    ::routine date
+        return "Global date is " || "DATE"()
+
+Note: despite what's written in rexxref.pdf, BEEP is not a builtin function.
+It's not possible to override it.
+
+
+===============================================================================
 2021 June 30
 
 Compatibility with ooRexx5:

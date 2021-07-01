@@ -169,7 +169,7 @@ void RexxInstructionCall::resolve(
     if (builtinIndex != NO_BUILTIN) {
       instructionFlags |= call_builtin;         /* this is a builtin function        */
                                        /* cast off the routine name         */
-      OrefSet(this, this->name, OREF_NULL);
+      // OrefSet(this, this->name, OREF_NULL); // jlf: I need this name when searching an overriding routine
     }
     else
       instructionFlags |= call_external;        /* have an external routine          */
@@ -216,7 +216,7 @@ void RexxInstructionCall::execute(
             stack->toss();                   /* toss the top item                 */
             _name = REQUEST_STRING(result);   /* force to string form              */
             p_name = _name;
-            context->traceResult(name);      /* trace if necessary                */
+            context->traceResult(_name);      /* trace if necessary                */
                                              /* resolve potential builtins        */
             builtin_index = RexxSource::resolveBuiltin(_name);
             _target = OREF_NULL;              /* clear out the target              */
@@ -295,8 +295,25 @@ void RexxInstructionCall::execute(
                 break;
 
             case call_builtin:               /* builtin function call             */
-                /* call the function                 */
-                result = (*(RexxSource::builtinTable[builtin_index]))(context, _arguments, argumentCount, namedArgumentCount, stack);
+                {
+                    // Check the global functions directory
+                    // this is actually considered part of the built-in functions, but these are
+                    // written in ooRexx.  The names are also case sensitive
+                    RoutineClass *routine = OREF_NULL;
+                    // Ignore the overridings if the flag call_nointernal is set
+                    // _name should not be OREF_NULL, but just in case...
+                    if (!(instructionFlags&call_nointernal) && _name != OREF_NULL) routine = (RoutineClass *)TheFunctionsDirectory->get(_name);
+                    if (routine != OREF_NULL)
+                    {
+                        // call the user-defined routine
+                        routine->call(ActivityManager::currentActivity, _name, _arguments, argumentCount, namedArgumentCount, OREF_SUBROUTINE, OREF_NULL, EXTERNALCALL, result);
+                    }
+                    else
+                    {
+                        /* call the function                 */
+                        result = (*(RexxSource::builtinTable[builtin_index]))(context, _arguments, argumentCount, namedArgumentCount, stack);
+                    }
+                }
                 break;
 
             case call_external:              /* need to call externally           */
@@ -338,8 +355,25 @@ void RexxInstructionCall::trap(
             break;
 
         case call_builtin:                 /* builtin function call             */
-            /* call the function                 */
-            (*(RexxSource::builtinTable[builtinIndex]))(context, NULL, 0, 0, context->getStack());
+            {
+                // Check the global functions directory
+                // this is actually considered part of the built-in functions, but these are
+                // written in ooRexx.  The names are also case sensitive
+                RoutineClass *routine = OREF_NULL;
+                // Ignore the overridings if the flag call_nointernal is set
+                // _name should not be OREF_NULL, but just in case...
+                if (!(instructionFlags&call_nointernal) && this->name != OREF_NULL) RoutineClass *routine = (RoutineClass *)TheFunctionsDirectory->get((RexxString *)this->name);
+                if (routine != OREF_NULL)
+                {
+                    // call the user-defined routine
+                    routine->call(ActivityManager::currentActivity, (RexxString *)this->name, NULL, 0, 0, OREF_SUBROUTINE, OREF_NULL, EXTERNALCALL, result);
+                }
+                else
+                {
+                    /* call the function                 */
+                    (*(RexxSource::builtinTable[builtinIndex]))(context, NULL, 0, 0, context->getStack());
+                }
+            }
             break;
 
         case call_external:                /* need to call externally           */

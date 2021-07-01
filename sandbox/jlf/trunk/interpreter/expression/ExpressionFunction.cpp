@@ -248,8 +248,25 @@ RexxObject *RexxExpressionFunction::evaluate(
             break;
 
         case function_builtin:             /* builtin function call             */
-            /* call the function                 */
-            result = (RexxObject *) (*(RexxSource::builtinTable[this->builtin_index]))(context, _arguments, argcount, namedArgcount, stack);
+            {
+                // Check the global functions directory
+                // this is actually considered part of the built-in functions, but these are
+                // written in ooRexx.  The names are also case sensitive
+                RoutineClass *routine = OREF_NULL;
+                // Ignore the overridings if the flag function_nointernal is set
+                // this->functionName should not be OREF_NULL, but just in case...
+                if (!(this->flags&function_nointernal) && this->functionName != OREF_NULL) routine = (RoutineClass *)TheFunctionsDirectory->get(this->functionName);
+                if (routine != OREF_NULL)
+                {
+                    // call the user-defined routine
+                    routine->call(ActivityManager::currentActivity, this->functionName, _arguments, argcount, namedArgcount, OREF_SUBROUTINE, OREF_NULL, EXTERNALCALL, result);
+                }
+                else
+                {
+                    /* call the function                 */
+                    result = (RexxObject *) (*(RexxSource::builtinTable[this->builtin_index]))(context, _arguments, argcount, namedArgcount, stack);
+                }
+            }
             break;
 
         case function_external:            /* need to call externally           */
