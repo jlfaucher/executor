@@ -42,6 +42,69 @@ todo
 According to
 http://www.nhplace.com/kent/Papers/Special-Forms.html
 fexpr must be avoided. Macros are better.
+[2021, July 4]
+Thoughts about lazy evaluation of arguments:
+        Some articles:
+            https://dlang.org/articles/lazy-evaluation.html
+            https://colinfay.me/lazyeval/
+        Goal:
+            x=5; say (x<>0)~?(1/x, "infinity")      -- 0.2
+            x=0; say (x<>0)~?(1/x, "infinity")      -- "infinity", instead of the error "divisor must not be zero"
+            a=1; b=2; call swap a, b; say a b       -- 2 1
+
+        When calling a routine, the target is evaluated and found.
+        The target indicates if the arguments must be evaluated or not. This is independant from any instruction 'use arg' on the target side.
+        If the arguments must be evaluated then it's the current implementation: pass an array of evaluated expressions
+        otherwise pass an array of not-evaluated expressions. Probably an array of LazyRexxExpression which is a wrapper holding the expression and the context for the evaluation (a RexxActivation).
+
+        Signature for evaluation:
+            virtual RexxObject  *evaluate(RexxActivation *, RexxExpressionStack *)
+        Concrete implementations (Executor):
+            RexxNumberString::evaluate          stack->push(this); return this;
+            RexxInteger::evaluate               stack->push(this); return this;
+            RexxUnaryOperator::evaluate         stack->prefixResult(result); return result;
+            RexxBinaryOperator::evaluate        stack->operatorResult(result); return result;
+            RexxExpressionMessage::evaluate     loop { this->arguments[i+1]->evaluate(context, stack); } stack->send(this->messageName, argcount, namedArgcount, result); return result;
+            RexxStemVariable::evaluate          value = context->getLocalStem(this->stem, this->index); stack->push(value); return value;
+            RexxCompoundVariable::evaluate      value = context->evaluateLocalCompoundVariable(stemName, index, &tails[0], tailCount);stack->push(value); return value;
+            RexxParseVariable::evaluate         variable = context->getLocalVariable(variableName, index); value = variable->getVariableValue(); stack->push(value); return value;
+            RexxString::evaluate                stack->push(this); return this;
+            RexxInternalObject::evaluate        return OREF_NULL
+            RexxSourceLiteral::evaluate         value = new RexxBlock(this, rexxContext); stack->push(value); return value;
+            RexxExpressionList::evaluate        result = new_array(expressionCount); loop { expr = expressions[i]; value = expr->evaluate(context, stack); result->put(value, i + 1); } stack->push(result); return result;
+            RexxExpressionFunction::evaluate    loop { this->arguments[i]->evaluate(context, stack); call internal or builtin or external...; stack->push(result); return result;
+            RexxDotVariable::evaluate           result = context->rexxVariable(this->variableName); stack->push(result); return result;
+            RexxExpressionLogical::evaluate     loop { value = expressions[i]->evaluate(context, stack); return true or false }
+
+        Example of lazy evaluation:
+            -- context = theRexxActivation1
+            a=1                 -- theRexxParseVariable1(variableName="A", index=6)
+                                --     when evaluated in the context theRexxActivation1, it's theRexxVariable1(variable_name="A", variableValue=1, creator=theRexxActivation1)
+            b=2                 -- theRexxParseVariable2(variableName="B", index=7)
+                                --     when evaluated in the context theRexxActivation1, it's theRexxVariable2(variable_name="B", variableValue=2, creator=theRexxActivation1)
+            call swap a, -      -- pass LazyRexxExpression~new(theRexxActivation1, theRexxParseVariable1)
+                      b         -- pass LazyRexxExpression~new(theRexxActivation1, theRexxParseVariable2)
+            say a               -- 2
+            say b               -- 1
+            ::routine swap lazyargs             -- The LAZYARGS option indicates that the arguments must not be evaluated on call
+                -- context = RexxActivation2    -- The callee's context is different from the caller's context
+                use strict arg x, y             -- x = theLazyRexxExpression1(theRexxActivation1, theRexxParseVariable1)
+                                                -- y = theLazyRexxExpression2(theRexxActivation1, theRexxParseVariable2)
+                                                -- If an argument is a LazyRexxExpression whose expression is a subclass of RexxVariableBase supporting assignment
+                                                -- (RexxStemVariable, RexxCompoundVariable, RexxParseVariable, but not RexxDotVariable)
+                                                -- then create an alias variable.
+                tmp = x                         -- First evaluation of x, the value 1 is cached on theLazyRexxExpression1
+                x = y                           -- First evaluation of y, the value 2 is cached on theLazyRexxExpression2
+                                                -- The assignment 'x =' is delegated to theRexxParseVariable1
+                y = x                           -- Retrieve the cached value 2 stored on theLazyRexxExpression1
+                                                -- The assignment 'y =' is delegated to theRexxParseVariable1
+        To investigate:
+            1) expose var
+               use arg >var -- Will it work with LazyRexxExpression ? ooRexx5 raises Error 98.995:  Unable to reference variable "VAR"; it must be an uninitialized local variable.
+            2) use arg >var
+               drop var     -- Will it work with LazyRexxExpression ? ooRexx5 drops the value of the referenced variable.
+            3) The reference operator supports stems but doesn't support compound symbols.
+               Will compound symbols be supported with LazyRexxExpression ?
 
 
 Investigate the Activation stack (reify ? closure ? continuation ?)
@@ -164,12 +227,126 @@ ooRexx5 optimization retrofit todo:
 optimized implementation of .array~items (the value is stored)
 
 
+ooRexx5 optimization for unknown processing to review:
+See comment of
+    StringHashCollection::processUnknown
+    RexxInteger::processUnknown
+    NumberString::processUnknown
+    StemClass::processUnknown
+    VariableReference::processUnknown
+
+
+ooRexx5 optimization for NativeActivation to review
+    RexxInternalObject *firstSavedObject;// first saved object...an optimization
+
+
 Needed retrofits for trunk/extensions/dateparser:
     1)  ::CONSTANT DefaultDayNames ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
     2)  use local
     3)  select  case (type)
             when 'd', 'D' then do
     4)  ::OPTIONS novalue error
+
+
+Needed retrofits for trunk/extensions/json.cls (Rony's version)
+    1) .Package~local (including the search of dot variables)
+    2) Extended xrange implementation: done
+
+
+Needed retrofits for trunk/extensions/json.testGroup (Rony's version)
+    1) .Class~package
+    2) ::options novalue error
+
+
+===============================================================================
+Things I don't like in ooRexx5:
+
+    The lack of consistency in ::OPTIONS:
+        The numeric options should start with "NUMERIC" (too late...).
+            ::OPTIONS NUMERIC DIGITS <digits>
+            ::OPTIONS NUMERIC FORM <form>
+            ::OPTIONS NUMERIC FUZZ <fuzz>
+
+        The error options should start with TRAP, to not have so many orphan keywords.
+        ("ALL" how do you know it's about trap errors ???).
+        The keywords SYNTAX and CONDITION in ::options should be respectively ON and OFF,
+        to be consistent with the instruction SIGNAL.
+            ::OPTIONS TRAP ERROR ON|OFF
+            ::OPTIONS TRAP ON|OFF ERROR
+
+        Why no option for NOMETHOD ? Maybe because it makes no sense to deactivate this trap ?
+
+
+    The syntax of the namespaces:
+        namespace:name collides with the usual syntax for named arguments.
+        This is not blocking, you can surround by parentheses when passing a qualified symbol as positional argument.
+            call myRoutine myNamedArgument:object
+            call myRoutine (myNamespace:object)
+            call myRoutine myNamedArgument:myNamespace:object
+
+
+    The syntax of the variable reference terms:
+        Why 2 reference operators '>' and '<' ?
+        Why impacting both the caller and the callee ?
+
+        The rest of this section is a code review and tests, not a list of things I don't like...
+        In fact, I learned to like these features during the review...
+        {
+            My understanding of why impacting both the caller and the callee:
+                - The reference operator on caller side is needed because the expression must be evaluated as a VariableReference instance.
+                  A VariableReference holds one attribute:  RexxVariable *variable; // the referenced variable object.
+                  A VariableReference can be used independently of use arg.
+                - The reference operator on callee side is needed to indicate that a special retriever must be used.
+                  UseVariable::handleArgument tests if this is a retriver for reference argument (>x on callee side):
+                      isOfClass(UseArgVariableRef, variable)
+                  and then UseVariable::handleReferenceArgument ensures that the argument passed by the caller is a VariableReference (>x on caller side):
+                      isVariableReference(argument)
+
+            Error management:
+            - There is an error raised when passing a normal variable to a routine which takes a variable reference.
+            - There is no error raised when passing a variable reference to a routine which takes a normal variable.
+                  A VariableReference can be used independently of use arg.
+                  A VariableReference can be passed to the routine R1 not expecting a variable reference, which pass it to the routine R2 expecting a variable reference.
+
+            It's possible to create an infinite loop:
+                x = >y; y = >z; z = >x; say x   -- The interpreter hangs
+            but ~value= is ok with such circularity:
+                x = >y; y = >z; z = >x; y~value = 20; say x~class"=" x; say y~class"=" y; say z~class"=" z
+                    The VariableReference class= 20
+                    The VariableReference class= 20
+                    The String class= 20
+             Note the difference when assigning directly to y:
+                x = >y; y = >z; z = >x; y = 20; say x~class"=" x; say y~class"=" y; say z~class"=" z
+                    The VariableReference class= 20
+                    The String class= 20
+                    The VariableReference class= 20
+
+            It's possible to get a reference to a variable no longer existing, by returning this reference from a routine.
+            That's ok because the variable stay alive thanks to the reference.
+                ::routine danglingReference
+                    v = "no longer existing"
+                    return >v
+
+            It's possible to return a reference to an object variable.
+                ::method secretObjectVariableAlias
+                    expose secretObjectVariable
+                    return >secretObjectVariable
+        }
+
+
+    The instruction USE LOCAL:
+        sounds like not related to EXPOSE.
+
+        is followed by a list of names without comma separators,
+        whereas USE ARG is followed by a list of names WITH comma separators.
+
+        If 'USE LOCAL' with no name makes all the variables exposed (except RC, RESULT, SIGL, SELF, and SUPER)
+        then 'EXPOSE' with no name should make all the variables local.
+        But this is not supported: Error 20.902:  Symbol expected after EXPOSE keyword
+        Anyway, this is not needed because all the variables are local when no EXPOSE and no USE LOCAL...
+
+        Doesn't support a name enclosed by parentheses.
+        I can't find a use case where that would be useful, so probably ok to not support that.
 
 
 ===============================================================================
@@ -271,6 +448,22 @@ RexxList *RexxList::classOf(
      size_t       named_argCount)
 TODO
 The named arguments could be added to the returned array (splitting the key:value).
+
+
+===============================================================================
+2021 July 03
+
+Impact on performance of the support of global override when no override.
+Distinction between ooRexxShell (106 global routines) and script (1 global routine).
+ooRexx5 is not impacted.
+                                    --        Executor                  ooRexx5
+                                    -- ooRexxShell  script       ooRexxShell script
+    do 100000; call time; end       -- 5s           4.95s        1.26s       1.27s
+    do 1000000; call userid; end    -- 2.47s        2.29s        2.42s       2.25s
+    do 10000000; call sign 0; end   -- 0.87s        0.86s        0.77s       0.73s
+Conclusion:
+- Except for 'time', the difference between Executor and ooRexx5 is low.
+- The difference between 106 global routines and 1 global routine is low.
 
 
 ===============================================================================
