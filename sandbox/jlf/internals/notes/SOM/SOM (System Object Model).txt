@@ -4,3 +4,10 @@ http://www.rexxla.org/events/2000/rony/orx_wps.pdf	"Extending the Workplace Shel
 http://www.warpspeed.com.au/cgi-bin/inf2html.cmd?../html/book/Toolkt40/SOMGUIDE.INF
 http://cyberkinetica.homeunix.net/os2tk45/somguide/ 		(with pictures)
 http://www.edm2.com/index.php/SOM_and_Object_REXX
+
+A portable clean-room implementation of IBM's SOM.
+https://sourceforge.net/projects/somfree/
+
+NOM the Netlabs Object Model
+https://trac.netlabs.org/v_nom
+https://trac.netlabs.org/v_nom/browser/trunk/nom
