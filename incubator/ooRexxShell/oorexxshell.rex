@@ -1087,7 +1087,7 @@ Helpers
     self~traceFilter = .false
     self~traceback = .array~new
     self~trapLostdigits = .true
-    self~trapNoMethod = .true
+    self~trapNoMethod = .false
     self~trapNoString = .false
     self~trapNoValue = .true
     self~trapSyntax = .true
