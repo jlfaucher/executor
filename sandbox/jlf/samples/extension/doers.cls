@@ -344,8 +344,6 @@ Ex :
     f = self -- to be closer to the notation (would be passed by parameter to lambda_f when implemented by a function instead of a method)
     YnamedArgs = .context~namedArgs
 
-    lambda_a = {use arg a ; return a~(a)}
-
     lambda_x = {
         expose f verbose YnamedArgs
         if verbose then trace i
@@ -359,7 +357,7 @@ Ex :
                 }
         return f ~ doWith(.array~of(lambda_v), n:YnamedArgs)
     }
-    return lambda_a ~ (lambda_x)
+    return lambda_x ~ (lambda_x)
 
 
 -- Y combinator with memoization
@@ -371,8 +369,6 @@ Ex :
     f = self -- to be closer to the notation (would be passed by parameter to lambda_f when implemented by a function instead of a method)
     YnamedArgs = .context~namedArgs
     table = .Table~new
-
-    lambda_a = {use arg a ; return a~(a)}
 
     lambda_x = {
         expose f verbose YnamedArgs table
@@ -392,8 +388,34 @@ Ex :
                 }
         return f ~ doWith(.array~of(lambda_v), n:YnamedArgs)
     }
-    return lambda_a ~ (lambda_x)
+    return lambda_x ~ (lambda_x)
 
+
+/*
+    For illustration, a routine implemented like this Python implementation
+    (copied from https://qntm.org/variadic)
+
+    def Y(func):
+        def Y2(x):
+            def Y3(*args, **kwargs):
+                return x(x)(*args, **kwargs)
+            return func(Y3)
+        return Y2(Y2)
+*/
+::routine Y public
+    use strict arg func
+    Y2 = {
+        expose func
+        use strict arg x
+        Y3 = {
+                     expose x
+                     args = arg(1, "a")
+                     kwargs = .context~namedArgs
+                     return x~(x)~doWith(args, n:kwargs)
+                }
+        return func~(Y3)
+    }
+    return Y2~(Y2)
 
 -----------------------------------------------------------------------------
 -- Mixin.
