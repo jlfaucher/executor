@@ -9,9 +9,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
 .MutableBuffer~define("appendLegacy", .MutableBuffer~method("append"))
 .MutableBuffer~define("append", "do i=1 to arg(); self~appendLegacy(arg(i)); end")
 
--- Copied from rgf_util2, needed for routine escape3
-.local~rgf.non.printable=xrange("00"x,"1F"x)||"FF"x
-
 /*
 Initialization of the Unicode characters.
 Not possible to use a method 'activate' or 'init'
@@ -1093,6 +1090,9 @@ https://www.ietf.org/rfc/rfc2781.txt
     return .false
 
 
+::method codepointMaxBytes class abstract -- used for buffer allocation
+
+
 ::method analyze class abstract
 
 
@@ -1195,6 +1195,10 @@ https://www.ietf.org/rfc/rfc2781.txt
     return .true
 
 
+::method codepointMaxBytes class
+    return 1
+
+
 ::method analyze class
     use strict arg string
     sizeB = string~length -- size in bytes
@@ -1227,7 +1231,7 @@ https://www.ietf.org/rfc/rfc2781.txt
                       else return .RexxText~new(codepoint~d2c, self)
 
 
-::method mappingToUnicode class
+::method tableTranscodingToUnicode class
     return .nil
 
 
@@ -1247,50 +1251,46 @@ https://www.ietf.org/rfc/rfc2781.txt
     return .RexxText~new(self~string~subchar(indexG), self~class)
 
 
+::method convertToUnicode private
+    use strict arg targetEncoding, strict=.true
+    tableTranscodingToUnicode = self~class~tableTranscodingToUnicode
+    if tableTranscodingToUnicode <> .nil then do
+        sizeC = self~codepointIndexesSize -- size in codepoints
+        buffer = .MutableBuffer~new(, sizeC * targetEncoding~codepointMaxBytes)
+        do i=1 to sizeC
+            charcode = self~codepoint(i)
+            codepoint = tableTranscodingToUnicode[charcode+1] -- bof bof... 1-based array
+            -- An empty string means no mapping
+            -- A negative codepoint means unused character with fallback mapping
+            if codepoint == "" | (codepoint < 0 & strict) then raise syntax 93.900 array("Encoding: cannot convert" self~description(short:.true) "character" charcode~d2x "to" targetEncoding~name)
+            targetEncoding~encode(abs(codepoint), buffer)
+        end
+        return .RexxText~new(buffer~string, targetEncoding)
+    end
+    raise syntax 93.900 array("Encoding: cannot convert" self~description(short:.true) "to" targetEncoding~name)
+
 ::method utf8
+    use strict arg strict=.true
     -- yes, always a new string. The original string is still associated to the Byte_Encoding.
     -- Don't use string~copy, because the reference to the associated text is in the copy,
     -- and that forbids to assign a new RexxText.
     if self~string~isASCII then return .RexxText~new(.String~new(self~string), .UTF8_Encoding)
-    if self~class~mappingToUnicode <> .nil then do
-        sizeC = self~codepointIndexesSize -- size in codepoints
-        buffer = .MutableBuffer~new(, 4 * sizeC) -- In UTF-8, a codepoint can be from 1 to 4 bytes
-        utf8 = .UTF8_Encoding
-        do i=1 to sizeC
-            charcode = self~codepoint(i)
-            codepoint = self~class~mappingToUnicode(charcode)
-            if codepoint == -1 then raise syntax 93.900 array("Encoding: cannot convert" self~description(short:.true) "character" charcode~d2x "to UTF-8")
-            utf8~encode(codepoint, buffer)
-        end
-        return .RexxText~new(buffer~string, utf8)
-    end
-    raise syntax 93.900 array("Encoding: cannot convert" self~description(short:.true) "to UTF-8")
+    return self~convertToUnicode(.UTF8_Encoding, strict)
 
 
 ::method utf16
+    use strict arg strict=.true
     if self~string~isASCII then do
         string = self~string
         sizeB = string~length -- size in bytes
-        buffer = .MutableBuffer~new(, 2 * sizeB)
+        buffer = .MutableBuffer~new(, sizeB * 2) -- yes, always 2, no need to use codepointMaxBytes
         do i=1 to sizeB
             buffer~append("0"x)
             buffer~append(string~subchar(i))
         end
         return .RexxText~new(buffer~string, .UTF16BE_Encoding)
     end
-    if self~class~mappingToUnicode <> .nil then do
-        sizeC = self~codepointIndexesSize -- size in codepoints
-        buffer = .MutableBuffer~new(, 4 * sizeC) -- In UTF-16, a codepoint can be 2 or 4 bytes
-        utf16 = .UTF16BE_Encoding
-        do i=1 to sizeC
-            charcode = self~codepoint(i)
-            codepoint = self~class~mappingToUnicode(charcode)
-            if codepoint == -1 then raise syntax 93.900 array("Encoding: cannot convert" self~description(short:.true) "character" charcode~d2x "to UTF-8")
-            utf16~encode(codepoint, buffer)
-        end
-        return .RexxText~new(buffer~string, utf16)
-    end
-    raise syntax 93.900 array("Encoding: cannot convert" self~description(short:.true) "to UTF-16")
+    return self~convertToUnicode(.UTF16BE_Encoding, strict)
 
 
 /******************************************************************************/
@@ -1301,60 +1301,20 @@ https://www.ietf.org/rfc/rfc2781.txt
     return "CP1252"
 
 
-::method mappingToUnicode class
-    expose mappingToUnicode
-    use strict arg charcode=(-1)
-    if \var("mappingToUnicode") then mappingToUnicode = CP1252_to_Unicode()
-    if charcode == -1 then return mappingToUnicode
-                      else return mappingToUnicode[charcode+1] -- bof bof... 1-based array
+::attribute tableTranscodingToUnicode class get
 
 
-::routine CP1252_to_Unicode
+::method activate class
     -- https://en.wikipedia.org/wiki/Windows-1252#Code_page_layout
-    specific =,
-        128, "20AC",,
-        129, -1,,        -- invalid
-        130, "201A",,
-        131, "0192",,
-        132, "201E",,
-        133, "2026",,
-        134, "2020",,
-        135, "2021",,
-        136, "02C6",,
-        137, "2030",,
-        138, "0160",,
-        139, "2039",,
-        140, "0152",,
-        141, -1,,        -- invalid
-        142, "017D",,
-        143, -1,,        -- invalid
-        144, -1,,        -- invalid
-        145, "2018",,
-        146, "2019",,
-        147, "201C",,
-        148, "201D",,
-        149, "2022",,
-        150, "2013",,
-        151, "2014",,
-        152, "02DC",,
-        153, "2122",,
-        154, "0161",,
-        155, "203A",,
-        156, "0153",,
-        157, -1,,        -- invalid
-        158, "017E",,
-        159, "0178"
-    mapping = .array~new(255)
-    do i = 0 to 255
-        mapping[i+1] = i -- bof bof... 1-based
-    end
-    do i=1 to specific~items by 2
-        charcode = specific[i]
-        codepoint = specific[i+1]
-        if codepoint <> -1 then codepoint = codepoint~x2d
-        mapping[charcode+1] = codepoint -- bof bof... 1-based array
-    end
-    return mapping
+    -- According to the information on Microsoft's and the Unicode Consortium's websites,
+    -- positions 81, 8D, 8F, 90, and 9D are unused;
+    -- however, the Windows API MultiByteToWideChar maps these to the corresponding C1 control codes.
+    expose tableTranscodingToUnicode
+    specificTranscoding =,
+        , --       00      01      02      03      04      05      06      07      08      09      0A      0B      0C      0D      0E      0F
+        "80:",  "20AC",  "-81", "201A", "0192", "201E", "2026", "2020", "2021", "02C6", "2030", "0160", "2039", "0152",  "-8D", "017D",  "-8F",,
+        "90:",   "-90", "2018", "2019", "201C", "201D", "2022", "2013", "2014", "02DC", "2122", "0161", "203A", "0153",  "-9D", "017E", "0178"
+    tableTranscodingToUnicode = createCharacterTranscodingTable(256, specificTranscoding)
 
 
 /******************************************************************************/
@@ -1370,6 +1330,10 @@ https://www.ietf.org/rfc/rfc2781.txt
 
 ::method isUTF8 class
     return .true
+
+
+::method codepointMaxBytes class
+    return 4 -- In UTF-8, a codepoint can be from 1 to 4 bytes
 
 
 ::method analyze class
@@ -1424,7 +1388,7 @@ https://www.ietf.org/rfc/rfc2781.txt
     -- otherwise return the encoded codepoint as a RexxText
     use strict arg codepoint, buffer=.nil
     returnBuffer = buffer <> .nil
-    if buffer == .nil then buffer = .MutableBuffer~new(, 4)
+    if buffer == .nil then buffer = .MutableBuffer~new(, self~codepointMaxBytes)
     if codepoint < 0 then do                                        -- if (uc < 0x00) {
         signal error                                                -- return 0;
     end
@@ -1435,8 +1399,11 @@ https://www.ietf.org/rfc/rfc2781.txt
         buffer~append((192 + codepoint % 64)~d2c)                   -- dst[0] = (utf8proc_uint8_t)(0xC0 + (uc >> 6))
         buffer~append((128 + codepoint // 64)~d2c)                  -- dst[1] = (utf8proc_uint8_t)(0x80 + (uc & 0x3F));
     end                                                             -- return 2;
-    -- Note: we allow encoding 0xd800-0xdfff here,
+    -- Note: utf8proc allows encoding 0xd800-0xdfff here,
     -- however, these are actually invalid in UTF-8.
+    else if codepoint >= 55296 & codepoint < 57344 then do          -- U+D800 to U+DFFF high and low surrogates
+        signal error
+    end
     else if codepoint < 65536 then do
         buffer~append((224 + codepoint % 4096)~d2c)                 -- dst[0] = (utf8proc_uint8_t)(0xE0 + (uc >> 12));
         buffer~append((128 + (codepoint % 64) // 64)~d2c)           -- dst[1] = (utf8proc_uint8_t)(0x80 + ((uc >> 6) & 0x3F));
@@ -1486,9 +1453,9 @@ https://www.ietf.org/rfc/rfc2781.txt
 
 
 ::method utf16
-    sizeC = self~codepointIndexesSize -- size in codepoints
-    buffer = .MutableBuffer~new(, 4 * sizeC) -- In UTF-16, a codepoint can be 2 or 4 bytes
     utf16 = .UTF16BE_Encoding
+    sizeC = self~codepointIndexesSize -- size in codepoints
+    buffer = .MutableBuffer~new(, sizeC * utf16~codepointMaxBytes)
     do i=1 to sizeC
         codepoint = self~codepoint(i)
         utf16~encode(codepoint, buffer)
@@ -1509,6 +1476,10 @@ https://www.ietf.org/rfc/rfc2781.txt
 
 ::method isUTF16 class
     return .true
+
+
+::method codepointMaxBytes class
+    return 4  -- In UTF-16, a codepoint can be 2 or 4 bytes
 
 
 ::method analyze class
@@ -1562,7 +1533,7 @@ https://www.ietf.org/rfc/rfc2781.txt
     -- otherwise return the encoded codepoint as a RexxText
     use strict arg codepoint, buffer=.nil
     returnBuffer = buffer <> .nil
-    if buffer == .nil then buffer = .MutableBuffer~new(, 4)
+    if buffer == .nil then buffer = .MutableBuffer~new(, self~codepointMaxBytes)
     if codepoint < 0 then do
         signal error
     end
@@ -1608,9 +1579,9 @@ https://www.ietf.org/rfc/rfc2781.txt
 
 
 ::method utf8
-    sizeC = self~codepointIndexesSize -- size in codepoints
-    buffer = .MutableBuffer~new(, 4 * sizeC) -- In UTF-8, a codepoint can be from 1 to 4 bytes
     utf8 = .UTF8_Encoding
+    sizeC = self~codepointIndexesSize -- size in codepoints
+    buffer = .MutableBuffer~new(, sizeC * utf8~codepointMaxBytes)
     do i=1 to sizeC
         codepoint = self~codepoint(i)
         utf8~encode(codepoint, buffer)
@@ -1706,18 +1677,47 @@ https://www.ietf.org/rfc/rfc2781.txt
 
 
 /******************************************************************************/
+-- Helper to create a table of transcoded characters, from index 0 to size.
+-- By default, a transcoded character is equal to itself.
+-- The specific mapping table lets define specific values for some characters.
+::routine createCharacterTranscodingTable private
+    use strict arg size, specificTranscoding
+    tableTranscodingToUnicode = .array~new(size)
+    do i = 0 to size-1
+        tableTranscodingToUnicode[i+1] = i -- bof bof... 1-based
+    end
+    nextSpecificIndex = 0
+    do i=1 to specificTranscoding~items
+        item = specificTranscoding[i]
+        if item~right(1) == ":" then do -- Ends with colon, this is an index. For example: "80:"
+            nextSpecificIndex = item~left(item~length - 1)~x2d
+        end
+        else do
+            if item == "" then codepoint = "" -- no mapping
+            else if item~left(1) == "-" then codepoint = -(item~substr(2)~x2d) -- unused character with fallback mapping. For example: "-81" --> -129
+            else codepoint = item~x2d
+            tableTranscodingToUnicode[nextSpecificIndex+1] = codepoint -- bof bof... 1-based array
+            nextSpecificIndex += 1
+        end
+    end
+    return tableTranscodingToUnicode
+
+
+/******************************************************************************/
 -- Copied from rgf_util2
 -- Escape non-printable chars by printing them between square brackets [].
 ::routine escape3 public
   parse arg a1
 
+  --non_printable=xrange("00"x,"1F"x)||"FF"x
+  non_printable="00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F FF"x
   res=""
 
   do while a1\==""
-     pos1=verify(a1, .rgf.non.printable, "M")
+     pos1=verify(a1, non_printable, "M")
      if pos1>0 then
      do
-        pos2=verify(a1, .rgf.non.printable, "N" , pos1)
+        pos2=verify(a1, non_printable, "N" , pos1)
 
         if pos2=0 then
            pos2=length(a1)+1
