@@ -3,3 +3,40 @@ https://github.com/perlpilot/perl6-docs/blob/master/intro/p6-regex-intro.pod
 
 Regular Expression Flavor Comparison
 http://www.regular-expressions.info/refflavors.html
+
+
+https://news.ycombinator.com/item?id=27774584
+    to your point (and how to fix it in a way that seemingly nobody does) - you
+    can make complicated regular expressions pretty simple by using named groups,
+    and ignoring pattern whitespace because they allow you to logically separate
+    different components and specify intent.
+    Some rare people can figure out:
+    \d{1,2}[-/]\d{1,2}[-/](\d{4}|\d{2})
+    but a dummy can figure out this:
+    (?<month> \d{1,2} ) [-/] (?<day> \d{1,2} ) [-/] (?<year> \d{4} | \d{2} )
+
+    Sub-expression or capture group: (foo)
+    Named capture group: (?<name>foo)
+    Non-capturing group: (?:foo)
+    Lookahead: (?=foo)
+    For negative lookahead, change = to !: (?!foo)
+    For lookbehind, add <: (?<=foo)
+    For negative lookbehind, change = to !: (?<!foo)
+
+
+https://github.com/qntm/greenery
+FSM/regex conversion library
+Tools for parsing and manipulating regular expressions (greenery.lego),
+for producing finite-state machines (greenery.fsm),
+and for freely converting between the two. Python 3 only.
+---
+This project was undertaken because I wanted to be able to compute the
+intersection between two regular expressions. The "intersection" is the set of
+strings which both regexes will accept, represented as a third regular expression.
+---
+greenery works by converting both regexes to finite state machines, computing
+the intersection of the two FSMs as a third FSM, and converting the third FSM back to a regex.
+
+
+https://qntm.org/re
+Learn regular expressions in about 55 minutes
