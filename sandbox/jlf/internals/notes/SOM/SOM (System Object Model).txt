@@ -1,8 +1,19 @@
 http://en.wikipedia.org/wiki/IBM_System_Object_Model
+
+dead link
 http://blogs.cio.com/esther_schindler/a_little_som_thing
+
+downloaded
 http://www.rexxla.org/events/2000/rony/orx_wps.pdf	"Extending the Workplace Shell with Object REXX"
+
+dead link
 http://www.warpspeed.com.au/cgi-bin/inf2html.cmd?../html/book/Toolkt40/SOMGUIDE.INF
+
+dead link
 http://cyberkinetica.homeunix.net/os2tk45/somguide/ 		(with pictures)
+
+SOM and Object REXX
+by Dr. Willis Boughton
 http://www.edm2.com/index.php/SOM_and_Object_REXX
 
 A portable clean-room implementation of IBM's SOM.
@@ -11,3 +22,10 @@ https://sourceforge.net/projects/somfree/
 NOM the Netlabs Object Model
 https://trac.netlabs.org/v_nom
 https://trac.netlabs.org/v_nom/browser/trunk/nom
+
+Where did SOM support go in 4.0.0?
+https://sourceforge.net/p/oorexx/discussion/408479/thread/1f93f87f/
+
+EDM/2
+Category:SOM Articles
+http://www.edm2.com/index.php/Category:SOM_Articles

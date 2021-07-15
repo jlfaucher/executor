@@ -93,6 +93,9 @@ Thoughts about lazy evaluation of arguments:
                                                 -- If an argument is a LazyRexxExpression whose expression is a subclass of RexxVariableBase supporting assignment
                                                 -- (RexxStemVariable, RexxCompoundVariable, RexxParseVariable, but not RexxDotVariable)
                                                 -- then create an alias variable.
+                                                -- [2021 Jul 7] Better to declare explictly that a special retriever must be used.
+                                                --              The syntax would be the same as variable reference, but on callee side only.
+                                                --              use strict arg >x, >y
                 tmp = x                         -- First evaluation of x, the value 1 is cached on theLazyRexxExpression1
                 x = y                           -- First evaluation of y, the value 2 is cached on theLazyRexxExpression2
                                                 -- The assignment 'x =' is delegated to theRexxParseVariable1
@@ -258,6 +261,22 @@ Needed retrofits for trunk/extensions/json.testGroup (Rony's version)
     2) ::options novalue error
 
 
+Stems to investigate:
+This functionality is not working with stems:
+    "When a variable has no value, the interpreter sends the message "NOVALUE" to the
+    object .local["NOVALUE"]."
+constants.infinity = "very big"
+constants.=
+    a Stem (1 items)
+    'INFINITY' : 'very big'     -- should be 'The positive infinity'
+x = infinity
+constants.x = "very big"
+constants.=
+    a Stem (2 items)
+    'INFINITY'              : 'very big'
+    'The positive infinity' : 'very big'
+
+
 ===============================================================================
 Things I don't like in ooRexx5:
 
@@ -297,7 +316,7 @@ Things I don't like in ooRexx5:
                   A VariableReference holds one attribute:  RexxVariable *variable; // the referenced variable object.
                   A VariableReference can be used independently of use arg.
                 - The reference operator on callee side is needed to indicate that a special retriever must be used.
-                  UseVariable::handleArgument tests if this is a retriver for reference argument (>x on callee side):
+                  UseVariable::handleArgument tests if this is a retriever for reference argument (>x on callee side):
                       isOfClass(UseArgVariableRef, variable)
                   and then UseVariable::handleReferenceArgument ensures that the argument passed by the caller is a VariableReference (>x on caller side):
                       isVariableReference(argument)

@@ -2,6 +2,9 @@
 Accumulation of URLs about Unicode
 ==================================
 
+https://www.unicode.org/Public/
+https://www.unicode.org/Public/MAPPINGS
+
 
 13/08/2013
 We don’t need a string type
@@ -216,6 +219,11 @@ https://unicode.org/reports/tr29/#Table_Combining_Char_Sequences_and_Grapheme_Cl
 
 
 30/05/2021
+https://datatracker.ietf.org/doc/html/rfc8259
+The JavaScript Object Notation (JSON) Data Interchange Format
+See this section about strings and encoding:
+https://datatracker.ietf.org/doc/html/rfc8259#section-7
+
 https://www.perl.com/article/json-unicode-and-perl-oh-my-/
 Its \uXXXX escapes support only characters within Unicode’s BMP;
 to store emoji or other non-BMP characters you either have to encode to UTF-8 directly.
@@ -242,7 +250,7 @@ and never as the bytes 0x5c6e (the characters "\" and "n")
 nor as 0x5c7530303061 (the characters "\", "u", "0", "0", "0", and "a").
 
 
-31/06/2021
+31/05/2021
 https://stackoverflow.com/questions/49662585/how-do-i-compare-a-unicode-string-that-has-different-bytes-but-the-same-value
 A pair NFC considers different but a user might consider the same is 'µ' (MICRO SIGN) and 'μ' (GREEK SMALL LETTER MU).
 NFKC will collapse these two.
@@ -260,10 +268,22 @@ For the complex data set, this was 0.56 of utf8proc time.
 
 
 01/06/2021
+Zach Laine
+https://www.youtube.com/watch?v=944GjKxwMBo
 https://tzlaine.github.io/text/doc/html/boost_text__proposed_/the_text_layer.html
 The Text Layer
 https://tzlaine.github.io/text/doc/html/
 Chapter 1. Boost.Text (Proposed) - 2018
+https://github.com/tzlaine/text
+    last commit :
+        master                          26/09/2020
+        boost_serialization             24/10/2019
+        coroutines                      25/08/2020
+        experimental                    13/11/2019
+        gh-pages                        04/09/2020
+        optimization                    27/10/2019
+        rope_free_fn_reimplementation   26/07/2020
+No longer working on this project ?
 
 
 01/06/2021
@@ -277,3 +297,662 @@ UWordBoundIndices	External iterator for word boundaries and byte offsets.
 UWordBounds	External iterator for a string's word boundaries.
 UnicodeSentences	An iterator over the substrings of a string which, after splitting the string on sentence boundaries, contain any characters with the Alphabetic property, or with General_Category=Number.
 UnicodeWords	An iterator over the substrings of a string which, after splitting the string on word boundaries, contain any characters with the Alphabetic property, or with General_Category=Number.
+
+
+01/06/2021
+https://github.com/jgm/unicode-collation
+https://hackage.haskell.org/package/unicode-collation
+Haskell implementation of the Unicode Collation Algorithm
+
+https://icu4c-demos.unicode.org/icu-bin/collation.html
+ICU Collation Demo
+
+https://www.enterprisedb.com/docs/epas/latest/epas_guide/03_database_administration/06_unicode_collation_algorithm/
+Unicode Collation Algorithm
+
+https://www.minaret.info/test/collate.msp
+This page provides a means to convert a string of Unicode characters into a binary collation key using
+the Java language version ("icu4j") of the IBM International Components for Unicode (ICU) library.
+A collation key is the basis for sorting and comparing strings in a language-sensitive Unicode environment.
+A collation key is built using a "locale" (a designation for a particular laguage or a variant) and a comparison level.
+The levels supported here (Primary, Secondary, Tertiary, Quaternary and Identical) correspond to levels
+"L1" through "Ln" as described in Unicode Technical Standard #10 - Unicode Collation Algorithm.
+When comparing collation keys for two different strings, both keys must have been created using the same locale
+and comparison level in order to be meaningful. The two keys are compared from left to right, byte for byte
+until one of the bytes is not equal to the other. Whichever byte is numerically less than the other causes
+the source string for that collation key to sort before the other string.
+
+https://www.minaret.info/test/menu.msp
+Minaret Unicode Tests
+    Case Folding
+    Character Type
+    Collation
+    Normalization
+    Sorting
+    Transliteration
+
+https://lemire.me/blog/2018/12/17/sorting-strings-properly-is-stupidly-hard/
+It's the comments section which is interesting.
+
+https://discourse.julialang.org/t/sorting-strings-by-unicode-collation-order/11195
+Not supported
+
+https://en.wikipedia.org/wiki/Natural_sort_order
+Natural sort order is an ordering of strings in alphabetical order,
+except that multi-digit numbers are ordered as a single character.
+Natural sort order has been promoted as being more human-friendly ("natural")
+than the machine-oriented pure alphabetical order.
+For example, in alphabetical sorting "z11" would be sorted before "z2"
+because "1" is sorted as smaller than "2",
+while in natural sorting "z2" is sorted before "z11" because "2" is sorted as smaller than "11".
+Alphabetical sorting:
+    z11
+    z2
+Natural sorting:
+    z2
+    z11
+Functionality to sort by natural sort order is built into many programming languages and libraries.
+
+https://github.com/knighton/unicode
+Minimalist Unicode normalization/segmentation library. Python and C++.
+Abandonned, last commit 21/05/2015
+
+https://github.com/blackwinter/unicode
+Unicode normalization library. (Mirror of Yoshida-san's code base to maintain the RubyGem.)
+Abandonned, last commit 07/07/2016
+
+https://github.com/sjorek/unicode-normalization
+An enhanced facade to existing unicode-normalization implementations
+Last commit 25/03/2018
+
+https://docs.microsoft.com/en-us/windows/win32/intl/using-unicode-normalization-to-represent-strings
+Using Unicode Normalization to Represent Strings
+
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/normalize
+String.prototype.normalize()
+The normalize() method returns the Unicode Normalization Form of the string.
+
+https://forums.swift.org/t/string-case-folding-and-normalization-apis/14663/3
+For the comments
+
+https://unicode.org/notes/tn5/
+Unicode Technical Note #5
+CANONICAL EQUIVALENCE IN APPLICATIONS
+
+https://opensource.apple.com/source/subversion/subversion-52/subversion/notes/unicode-composition-for-filenames.auto.html
+2 problems follow:
+ 1) We can't generally depend on the OS to give us back the
+     exact filename we gave it
+ 2) The same filename may be encoded in different codepoints
+
+https://www.gosecure.net/blog/2020/08/04/unicode-for-security-professionals/
+Unicode for Security Professionals
+by Philippe Arteau | Aug 4, 2020
+
+https://en.wikipedia.org/wiki/Unicode_equivalence
+Unicode equivalence is the specification by the Unicode character encoding standard that some sequences
+of code points represent essentially the same character. This feature was introduced in the standard
+to allow compatibility with preexisting standard character sets, which often included similar or identical characters.
+
+
+02/06/2021
+https://gitlab.pyicu.org/main/pyicu
+Python extension wrapping the ICU C++ libraries.
+
+
+02/06/2021
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1238r1.html
+    SG16 initial Unicode direction and guidance for C++20 and beyond.
+https://github.com/sg16-unicode/sg16
+    SG16 is an ISO/IEC JTC1/SC22/WG21 C++ study group tasked with improving Unicode and text processing support within the C++ standard.
+
+
+02/06/2021
+https://docs.microsoft.com/en-us/windows/win32/intl/international-components-for-unicode--icu-
+In Windows 10 Creators Update, ICU was integrated into Windows, making the C APIs and data publicly accessible.
+The version of ICU in Windows only exposes the C APIs.
+It is impossible to ever expose the C++ APIs due to the lack of a stable ABI in C++.
+Getting started
+1) Your application needs to target Windows 10 Version 1703 (Creators Update) or higher.
+2) Add in the header:
+    #include <icu.h>
+3) Link to:
+    icu.lib
+Example:
+    void FormatDateTimeICU()
+    {
+        UErrorCode status = U_ZERO_ERROR;
+
+        // Create a ICU date formatter, using only the 'short date' style format.
+        UDateFormat* dateFormatter = udat_open(UDAT_NONE, UDAT_SHORT, nullptr, nullptr, -1, nullptr, 0, &status);
+
+        if (U_FAILURE(status))
+        {
+            ErrorMessage(L"Failed to create date formatter.");
+            return;
+        }
+
+        // Get the current date and time.
+        UDate currentDateTime = ucal_getNow();
+
+        int32_t stringSize = 0;
+
+        // Determine how large the formatted string from ICU would be.
+        stringSize = udat_format(dateFormatter, currentDateTime, nullptr, 0, nullptr, &status);
+
+        if (status == U_BUFFER_OVERFLOW_ERROR)
+        {
+            status = U_ZERO_ERROR;
+            // Allocate space for the formatted string.
+            auto dateString = std::make_unique<UChar[]>(stringSize + 1);
+
+            // Format the date time into the string.
+            udat_format(dateFormatter, currentDateTime, dateString.get(), stringSize + 1, nullptr, &status);
+
+            if (U_FAILURE(status))
+            {
+                ErrorMessage(L"Failed to format the date time.");
+                return;
+            }
+
+            // Output the formatted date time.
+            OutputMessage(dateString.get());
+        }
+        else
+        {
+            ErrorMessage(L"An error occured while trying to determine the size of the formatted date time.");
+            return;
+        }
+
+        // We need to close the ICU date formatter.
+        udat_close(dateFormatter);
+    }
+
+
+02/06/2021
+https://www.postgresql.org/message-id/flat/BA6132ED-1F6B-4A0B-AC22-81278F5AB81E%40tripadvisor.com
+The dangers of streaming across versions of glibc: A cautionary tale
+
+
+02/06/2021
+https://www.php.net/manual/fr/function.setlocale.php
+Warning
+The locale information is maintained per process, not per thread.
+If you are running PHP on a multithreaded server API , you may experience sudden changes
+in locale settings while a script is running, though the script itself never called setlocale().
+This happens due to other scripts running in different threads of the same process at the same time,
+changing the process-wide locale using setlocale().
+On Windows, locale information is maintained per thread as of PHP 7.0.5.
+On Windows, setlocale(LC_ALL, '') sets the locale names from the system's regional/language settings (accessible via Control Panel).
+
+
+07/06/2021
+https://news.ycombinator.com/item?id=20914184
+String lengths in Unicode
+    Claude Roux
+    We went through a lot of pain to get this right in Tamgu (https://github.com/naver/tamgu). In particular, emojis can be encoded across 5 or 6 Unicode characters. A "black thumb up" is encoded with 2 Unicode characters: the thumb glyph and its color.
+    This comes at a cost. Every time you extract a sub-string from a string, you have to scan it first for its codepoints, then convert character positions into byte positions. One way to speed up stuff a bit, is to check if the string is in ASCII (see https://lemire.me/blog/2018/05/16/validating-utf-8-strings-u...) and apply regular operator then.
+    We implemented many techniques based on "intrinsics" instructions to speed up conversions and search in order to avoid scanning for codepoints.
+    See https://github.com/naver/tamgu/blob/master/src/conversion.cx... for more information.
+    https://github.com/naver/tamgu/wiki/4.-Speed-up-UTF8-string-processing-with-Intel's-%22intrinsics%22-instructions-(en)
+jlf: they have specific support for Korean... Probably because the NAVER company is from Republic of Korea ?
+
+
+08/06/2021
+https://twitter.com/hashtag/tamgu?src=hashtag_click
+https://twitter.com/hashtag/TAL?src=hashtag_click
+#tamgu le #langage_de_programmation pour le Traitement Automatique des Langues (#TAL).
+
+
+08/06/2021
+https://lemire.me/blog/2018/05/16/validating-utf-8-strings-using-as-little-as-0-7-cycles-per-byte/
+
+
+08/06/2021
+https://github.com/simdjson/simdjson
+simdjson : Parsing gigabytes of JSON per second
+The simdjson library uses commonly available SIMD instructions and microparallel algorithms
+to parse JSON 4x faster than RapidJSON and 25x faster than JSON for Modern C++.
+Minify JSON at 6 GB/s, validate UTF-8 at 13 GB/s, NDJSON at 3.5 GB/s
+
+
+https://arxiv.org/abs/2010.03090
+Validating UTF-8 In Less Than One Instruction Per Byte
+John Keiser, Daniel Lemire
+The majority of text is stored in UTF-8, which must be validated on ingestion.
+We present the lookup algorithm, which outperforms UTF-8 validation routines used
+in many libraries and languages by more than 10 times using commonly available SIMD instructions.
+To ensure reproducibility, our work is freely available as open source software.
+
+
+https://r-libre.teluq.ca/2178/
+    Recherche et analyse de solutions performantes pour le traitement de fichiers JSON dans un langage de haut niveau [r-libre/2178]
+Referenced from
+    https://lemire.me/blog/
+    Daniel Lemire's blog – Daniel Lemire is a computer science professor at the University of Quebec (TELUQ) in Montreal.
+    His research is focused on software performance and data engineering. He is a techno-optimist.
+
+
+08/06/2021
+https://unicode.org/reports/tr10/
+UNICODE COLLATION ALGORITHM
+The Unicode Collation Algorithm takes an input Unicode string and a Collation Element Table,
+containing mapping data for characters. It produces a sort key, which is an array of
+unsigned 16-bit integers. Two or more sort keys so produced can then be binary-compared
+to give the correct comparison between the strings for which they were generated.
+
+
+08/06/2021
+Default Unicode Collation Element Table (DUCET)
+For the latest version, see:
+http://www.unicode.org/Public/UCA/latest/allkeys.txt
+---
+UTS10-D1. Collation Weight: A non-negative integer used in the UCA to establish a means for systematic comparison of constructed sort keys.
+UTS10-D2. Collation Element: An ordered list of collation weights.
+UTS10-D3. Collation Level: The position of a collation weight in a collation element.
+
+
+08/06/2021
+https://fr.wikipedia.org/wiki/Normalisation_Unicode
+NFD     Les caractères sont décomposés par équivalence canonique et réordonnés
+        canonical decomposition
+NFC     Les caractères sont décomposés par équivalence canonique, réordonnés, et composés par équivalence canonique
+        canonical decomposition followed by canonical composition
+NFKD    Les caractères sont décomposés par équivalence canonique et de compatibilité, et sont réordonnés
+        compatibility decomposition
+NFKC    Les caractères sont décomposés par équivalence canonique et de compatibilité, sont réordonnés et sont composés par équivalence canonique
+        compatibility decomposition followed by canonical composition
+FCD     "Fast C or D" form; cf. UTN #5
+FCC     "Fast C Contiguous"; cf. UTN #5
+
+
+09/06/2021
+Rust
+https://docs.rs/unicode-normalization
+    Decompositions  External iterator for a string decomposition’s characters.
+    Recompositions  External iterator for a string recomposition’s characters.
+    Replacements    External iterator for replacements for a string’s characters.
+    StreamSafe      UAX15-D4: This iterator keeps track of how many non-starters
+                    there have been since the last starter in NFKD and will emit
+                    a Combining Grapheme Joiner (U+034F) if the count exceeds 30.
+
+    is_nfc                      Authoritatively check if a string is in NFC.
+    is_nfc_quick                Quickly check if a string is in NFC, potentially returning IsNormalized::Maybe if further checks are necessary. In this case a check like s.chars().nfc().eq(s.chars()) should suffice.
+    is_nfc_stream_safe          Authoritatively check if a string is Stream-Safe NFC.
+    is_nfc_stream_safe_quick    Quickly check if a string is Stream-Safe NFC.
+    is_nfd                      Authoritatively check if a string is in NFD.
+    is_nfd_quick                Quickly check if a string is in NFD.
+    is_nfd_stream_safe          Authoritatively check if a string is Stream-Safe NFD.
+    is_nfd_stream_safe_quick    Quickly check if a string is Stream-Safe NFD.
+    is_nfkc                     Authoritatively check if a string is in NFKC.
+    is_nfkc_quick               Quickly check if a string is in NFKC.
+    is_nfkd                     Authoritatively check if a string is in NFKD.
+    is_nfkd_quick               Quickly check if a string is in NFKD.
+
+    Enums
+    IsNormalized	The QuickCheck algorithm can quickly determine if a text is or isn’t normalized without any allocations in many cases, but it has to be able to return Maybe when a full decomposition and recomposition is necessary.
+
+
+08/06/2021
+Pharo
+https://medium.com/concerning-pharo/an-implementation-of-unicode-normalization-7c6719068f43
+
+
+13/06/2021
+https://github.com/apple/swift-evolution/blob/master/proposals/0211-unicode-scalar-properties.md
+Add Unicode Properties to Unicode.Scalar
+    Issues Linking with ICU
+    The Swift standard library uses the system's ICU libraries to implement its Unicode support.
+    A third-party developer may expect that they could also link their application directly to the system ICU
+    to access the functionality that they need, but this proves problematic on both Apple and Linux platforms.
+    Apple
+        On Apple operating systems, libicucore.dylib is built with function renaming disabled
+        (function names lack the _NN version number suffix). This makes it fairly straightforward to import the C APIs
+        and call them from Swift without worrying about which version the operating system is using.
+        Unfortunately, libicucore.dylib is considered to be private API for submissions to the App Store,
+        so applications doing this will be rejected. Instead, users must built their own copy of ICU from source
+        and link that into their applications. This is significant overhead.
+    Linux
+        On Linux, system ICU libraries are built with function renaming enabled (the default),
+        so function names have the _NN version number suffix. Function renaming makes it more difficult
+        to use these APIs from Swift; even though the C header files contain #defines that map function names
+        like u_foo_59 to u_foo, these #defines are not imported into Swift—only the suffixed function names are available.
+        This means that Swift bindings would be fixed to a specific version of the library without some other intermediary layer.
+        Again, this is significant overhead.
+    extension Unicode.Scalar.Properties {
+      public var isAlphabetic: Bool { get }    // Alphabetic
+      public var isASCIIHexDigit: Bool { get }    // ASCII_Hex_Digit
+      public var isBidiControl: Bool { get }    // Bidi_Control
+      public var isBidiMirrored: Bool { get }    // Bidi_Mirrored
+      public var isDash: Bool { get }    // Dash
+      public var isDefaultIgnorableCodePoint: Bool { get }    // Default_Ignorable_Code_Point
+      public var isDeprecated: Bool { get }    // Deprecated
+      public var isDiacritic: Bool { get }    // Diacritic
+      public var isExtender: Bool { get }    // Extender
+      public var isFullCompositionExclusion: Bool { get }    // Full_Composition_Exclusion
+      public var isGraphemeBase: Bool { get }    // Grapheme_Base
+      public var isGraphemeExtend: Bool { get }    // Grapheme_Extend
+      public var isHexDigit: Bool { get }    // Hex_Digit
+      public var isIDContinue: Bool { get }    // ID_Continue
+      public var isIDStart: Bool { get }    // ID_Start
+      public var isIdeographic: Bool { get }    // Ideographic
+      public var isIDSBinaryOperator: Bool { get }    // IDS_Binary_Operator
+      public var isIDSTrinaryOperator: Bool { get }    // IDS_Trinary_Operator
+      public var isJoinControl: Bool { get }    // Join_Control
+      public var isLogicalOrderException: Bool { get }    // Logical_Order_Exception
+      public var isLowercase: Bool { get }    // Lowercase
+      public var isMath: Bool { get }    // Math
+      public var isNoncharacterCodePoint: Bool { get }    // Noncharacter_Code_Point
+      public var isQuotationMark: Bool { get }    // Quotation_Mark
+      public var isRadical: Bool { get }    // Radical
+      public var isSoftDotted: Bool { get }    // Soft_Dotted
+      public var isTerminalPunctuation: Bool { get }    // Terminal_Punctuation
+      public var isUnifiedIdeograph: Bool { get }    // Unified_Ideograph
+      public var isUppercase: Bool { get }    // Uppercase
+      public var isWhitespace: Bool { get }    // Whitespace
+      public var isXIDContinue: Bool { get }    // XID_Continue
+      public var isXIDStart: Bool { get }    // XID_Start
+      public var isCaseSensitive: Bool { get }    // Case_Sensitive
+      public var isSentenceTerminal: Bool { get }    // Sentence_Terminal (S_Term)
+      public var isVariationSelector: Bool { get }    // Variation_Selector
+      public var isNFDInert: Bool { get }    // NFD_Inert
+      public var isNFKDInert: Bool { get }    // NFKD_Inert
+      public var isNFCInert: Bool { get }    // NFC_Inert
+      public var isNFKCInert: Bool { get }    // NFKC_Inert
+      public var isSegmentStarter: Bool { get }    // Segment_Starter
+      public var isPatternSyntax: Bool { get }    // Pattern_Syntax
+      public var isPatternWhitespace: Bool { get }    // Pattern_White_Space
+      public var isCased: Bool { get }    // Cased
+      public var isCaseIgnorable: Bool { get }    // Case_Ignorable
+      public var changesWhenLowercased: Bool { get }    // Changes_When_Lowercased
+      public var changesWhenUppercased: Bool { get }    // Changes_When_Uppercased
+      public var changesWhenTitlecased: Bool { get }    // Changes_When_Titlecased
+      public var changesWhenCaseFolded: Bool { get }    // Changes_When_Casefolded
+      public var changesWhenCaseMapped: Bool { get }    // Changes_When_Casemapped
+      public var changesWhenNFKCCaseFolded: Bool { get }    // Changes_When_NFKC_Casefolded
+      public var isEmoji: Bool { get }    // Emoji
+      public var isEmojiPresentation: Bool { get }    // Emoji_Presentation
+      public var isEmojiModifier: Bool { get }    // Emoji_Modifier
+      public var isEmojiModifierBase: Bool { get }    // Emoji_Modifier_Base
+    }
+    extension Unicode.Scalar.Properties {
+
+      // Implemented in terms of ICU's `u_isdefined`.
+      public var isDefined: Bool { get }
+    }
+    Case Mappings
+    The properties below provide full case mappings for scalars. Since a handful of mappings result in multiple scalars (e.g., "ß" uppercases to "SS"), these properties are String-valued, not Unicode.Scalar.
+    extension Unicode.Scalar.Properties {
+
+      public var lowercaseMapping: String { get }  // u_strToLower
+      public var titlecaseMapping: String { get }  // u_strToTitle
+      public var uppercaseMapping: String { get }  // u_strToUpper
+    }
+Identification and Classification
+    extension Unicode.Scalar.Properties {
+
+      /// Corresponds to the `Age` Unicode property, when a code point was first
+      /// defined.
+      public var age: Unicode.Version? { get }
+
+      /// Corresponds to the `Name` Unicode property.
+      public var name: String? { get }
+
+      /// Corresponds to the `Name_Alias` Unicode property.
+      public var nameAlias: String? { get }
+
+      /// Corresponds to the `General_Category` Unicode property.
+      public var generalCategory: Unicode.GeneralCategory { get }
+
+      /// Corresponds to the `Canonical_Combining_Class` Unicode property.
+      public var canonicalCombiningClass: Unicode.CanonicalCombiningClass { get }
+    }
+
+    extension Unicode {
+
+      /// Represents the version of Unicode in which a scalar was introduced.
+      public typealias Version = (major: Int, minor: Int)
+
+      /// General categories returned by
+      /// `Unicode.Scalar.Properties.generalCategory`. Listed along with their
+      /// two-letter code.
+      public enum GeneralCategory {
+        case uppercaseLetter  // Lu
+        case lowercaseLetter  // Ll
+        case titlecaseLetter  // Lt
+        case modifierLetter  // Lm
+        case otherLetter  // Lo
+
+        case nonspacingMark  // Mn
+        case spacingMark  // Mc
+        case enclosingMark  // Me
+
+        case decimalNumber  // Nd
+        case letterlikeNumber  // Nl
+        case otherNumber  // No
+
+        case connectorPunctuation  //Pc
+        case dashPunctuation  // Pd
+        case openPunctuation  // Ps
+        case closePunctuation  // Pe
+        case initialPunctuation  // Pi
+        case finalPunctuation  // Pf
+        case otherPunctuation  // Po
+
+        case mathSymbol  // Sm
+        case currencySymbol  // Sc
+        case modifierSymbol  // Sk
+        case otherSymbol  // So
+
+        case spaceSeparator  // Zs
+        case lineSeparator  // Zl
+        case paragraphSeparator  // Zp
+
+        case control  // Cc
+        case format  // Cf
+        case surrogate  // Cs
+        case privateUse  // Co
+        case unassigned  // Cn
+      }
+
+      public struct CanonicalCombiningClass:
+        Comparable, Hashable, RawRepresentable
+      {
+        public static let notReordered = CanonicalCombiningClass(rawValue: 0)
+        public static let overlay = CanonicalCombiningClass(rawValue: 1)
+        public static let nukta = CanonicalCombiningClass(rawValue: 7)
+        public static let kanaVoicing = CanonicalCombiningClass(rawValue: 8)
+        public static let virama = CanonicalCombiningClass(rawValue: 9)
+        public static let attachedBelowLeft = CanonicalCombiningClass(rawValue: 200)
+        public static let attachedBelow = CanonicalCombiningClass(rawValue: 202)
+        public static let attachedAbove = CanonicalCombiningClass(rawValue: 214)
+        public static let attachedAboveRight = CanonicalCombiningClass(rawValue: 216)
+        public static let belowLeft = CanonicalCombiningClass(rawValue: 218)
+        public static let below = CanonicalCombiningClass(rawValue: 220)
+        public static let belowRight = CanonicalCombiningClass(rawValue: 222)
+        public static let left = CanonicalCombiningClass(rawValue: 224)
+        public static let right = CanonicalCombiningClass(rawValue: 226)
+        public static let aboveLeft = CanonicalCombiningClass(rawValue: 228)
+        public static let above = CanonicalCombiningClass(rawValue: 230)
+        public static let aboveRight = CanonicalCombiningClass(rawValue: 232)
+        public static let doubleBelow = CanonicalCombiningClass(rawValue: 233)
+        public static let doubleAbove = CanonicalCombiningClass(rawValue: 234)
+        public static let iotaSubscript = CanonicalCombiningClass(rawValue: 240)
+
+        public let rawValue: UInt8
+
+        public init(rawValue: UInt8)
+      }
+    }
+    Numerics
+    Many Unicode scalars have associated numeric values.
+    These are not only the common digits zero through nine, but also vulgar fractions
+    and various other linguistic characters and ideographs that have an innate numeric value.
+    These properties are exposed below. They can be useful for determining whether segments
+    of text contain numbers or non-numeric data, and can also help in the design of algorithms
+    to determine the values of such numbers.
+    extension Unicode.Scalar.Properties {
+
+      /// Corresponds to the `Numeric_Type` Unicode property.
+      public var numericType: Unicode.NumericType?
+
+      /// Corresponds to the `Numeric_Value` Unicode property.
+      public var numericValue: Double?
+    }
+
+    extension Unicode {
+
+      public enum NumericType {
+        case decimal
+        case digit
+        case numeric
+      }
+    }
+
+
+14/06/2021
+https://lists.isocpp.org/sg16/2018/08/0113.php
+Feedback from swift team
+
+https://lists.isocpp.org/sg16/2018/08/0121.php
+Swift strings now sort with NFC (currently UTF-16 code unit order, but likely changed to Unicode scalar value order).
+We didn't find FCC significantly more compelling in practice. Since NFC is far more frequent in the wild
+(why waste space if you don't have to), strings are likely to already be in NFC.
+We have fast-paths to detect on-the-fly normal sections of strings (e.g. all ASCII, all < U+0300, NFC_QC=yes, etc.).
+We lazily normalize portions of string during comparison when needed.
+Q: Swift strings support comparison via normalization. Has use of canonical string equality been a performance issue?
+   Or been a source of surprise to programmers?
+A: This was a big performance issue on Linux, where we used to do UCA+DUCET based comparisons.
+   We switch to lexicographical order of NFC-normalized UTF-16 code units (future: scalar values),
+   and saw a very significant speed up there. The remaining performance work revolves around checking
+   and tracking whether a string is known to already be in a normal form, so we can just memcmp.
+Q: I'm curious why this was a larger performance issue for Linux than for (presumably) macOS and/or iOS.
+A: There were two main factors.
+   The first is that on Darwin platforms, CFString had an implementation that we used instead of UCA+DUCET which was faster.
+   The second is that Darwin platforms are typically up-to-date and have very recent versions of ICU.
+   On Linux, we still support Ubuntu LTS 14.04 which has a version of ICU which predates Swift and didn't have any fast-paths for ASCII or mostly-ASCII text.
+   Switching to our own implementation based on NFC gave us many X improvement over CFString, which in turn was many X faster than UCA+DUCET (especially on older versions of ICU).
+Q: How firmly is the Swift string implementation tied to ICU?
+   If the C++ standard library were to add suitable Unicode support, what would motivate reimplementing Swift strings on top of it?
+A: Swift's tie to ICU is less firm than it used to be
+   If the C++ standard library provided these operations, sufficiently up-to-date with Unicode version and comparable or better to ICU in performance,
+   we would be willing to switch. A big pain in interacting with ICU is their limited support for UTF-8.
+   Some users who would like to use a lighter-weight Swift and are unhappy at having to link against ICU, as it's fairly large, and it can complicate security audits.
+
+
+14/06/2021
+https://hsivonen.fi/non-unicode-in-cpp/
+Same contents in sg16 mailing list + feedbacks
+https://lists.isocpp.org/sg16/2019/04/0309.php
+
+
+19/06/2021
+https://github.com/twitter/twitter-cldr-rb
+Ruby implementation of the ICU (International Components for Unicode) that uses
+the Common Locale Data Repository to format dates, plurals, and more.
+
+https://github.com/twitter/twitter-cldr-js
+JavaScript implementation of the ICU (International Components for Unicode) that uses
+the Common Locale Data Repository to format dates, plurals, and more. Based on twitter-cldr-rb.
+
+https://github.com/twitter/twitter-text
+Twitter Text Libraries. This code is used at Twitter to tokenize and parse text
+to meet the expectations for what can be used on the platform.
+
+https://swiftpack.co/package/nysander/twitter-text
+This is the Swift implementation of the twitter-text parsing library.
+The library has methods to parse Tweets and calculate length, validity, parse @mentions, #hashtags, URLs, and more.
+
+
+03/07/2021
+https://news.ycombinator.com/item?id=27695412
+Any Encoding, Ever – ztd.text and Unicode for C++
+
+https://news.ycombinator.com/item?id=9611710
+The WTF-8 encoding (simonsapin.github.io)
+https://news.ycombinator.com/item?id=9613971
+https://simonsapin.github.io/wtf-8/#acknowledgments
+Thanks to Coralie Mercier for coining the name WTF-8.
+---
+The name is unserious but the project is very serious, its writer has responded
+to a few comments and linked to a presentation of his on the subject[0].
+It's an extension of UTF-8 used to bridge UTF-8 and UCS2-plus-surrogates:
+while UTF8 is the modern encoding you have to interact with legacy systems,
+for UNIX's bags of bytes you may be able to assume UTF8 (possibly ill-formed)
+but a number of other legacy systems used UCS2 and added visible surrogates
+(rather than proper UTF-16) afterwards.
+Windows and NTFS, Java, UEFI, Javascript all work with UCS2-plus-surrogates.
+Having to interact with those systems from a UTF8-encoded world is an issue
+because they don't guarantee well-formed UTF-16, they might contain unpaired
+surrogates which can't be decoded to a codepoint allowed in UTF-8 or UTF-32
+(neither allows unpaired surrogates, for obvious reasons).
+WTF8 extends UTF8 with unpaired surrogates (and unpaired surrogates only,
+paired surrogates from valid UTF16 are decoded and re-encoded to a proper
+UTF8-valid codepoint) which allows interaction with legacy UCS2 systems.
+WTF8 exists solely as an internal encoding (in-memory representation),
+but it's very useful there.
+[0] http://exyr.org/2015/!!Con_WTF-8/slides.pdf
+
+https://twitter.com/koalie/status/506821684687413248
+Coralie Mercier
+@koalie
+I have a hunch we use "wtf-8" encoding.
+Appreciate the irony of:
+"ÃƒÆ’Ã‚Æ’ÃƒÂ¢Ã‚â‚¬Ã‚Å¡ÃƒÆ’Ã‚â€šÃƒâ€šÃ‚Â the future of publishing at W3C"
+
+https://github.com/LuminosoInsight/python-ftfy
+ftfy can fix mojibake (encoding mix-ups), by detecting patterns of characters
+that were clearly meant to be UTF-8 but were decoded as something else
+
+
+03/07/2021
+Notebook in python-ftfy:
+Services such as Slack and Discord don't use Unicode for their emoji.
+They use ASCII strings like :green-heart: and turn them into images.
+These won't help you test anything.
+I recommend getting emoji for your test cases by copy-pasting them from emojipedia.org.
+https://emojipedia.org/
+
+
+04/07/2021
+https://github.com/jecolon/ziglyph
+Unicode text processing for the Zig programming language.
+
+
+10/07/2021
+https://qntm.org/unicodings
+Efficiently encoding binary data in Unicode
+in UTF-8, use Base64 or Base85
+in UTF-16, use Base32768
+in UTF-32, use Base65536
+
+https://qntm.org/safe
+What makes a Unicode code point safe?
+
+https://github.com/qntm/safe-code-point
+Ascertains whether a Unicode code point is 'safe' for the purposes of encoding binary data
+
+https://github.com/qntm/base2048
+Binary encoding optimised for Twitter
+Originally, Twitter allowed Tweets to be at most 140 characters.
+On 26 September 2017, Twitter allowed 280 characters.
+Maximum Tweet length is indeed 280 Unicode code points.
+Twitter divides Unicode into 4,352 "light" code points (U+0000 to U+10FF inclusive)
+and 1,109,760 "heavy" code points (U+1100 to U+10FFFF inclusive).
+Base2048 solely uses light characters, which means a new "long" Tweet can contain
+at most 280 characters of Base2048. Base2048 is an 11-bit encoding, so those 280
+characters encode 3080 bits i.e. 385 octets of data, significantly better than Base65536.
+
+https://github.com/qntm/base65536
+Unicode's answer to Base64
+Base2048 renders Base65536 obsolete for its original intended purpose of sending
+binary data through Twitter.
+However, Base65536 remains the state of the art for sending binary data through
+text-based systems which naively count Unicode code points, particularly those
+using the fixed-width UTF-32 encoding.
+
+
+14/07/2021
+https://hsivonen.fi/non-unicode-in-cpp/
+It’s Time to Stop Adding New Features for Non-Unicode Execution Encodings in C++
+The Microsoft Code Page 932 Issue

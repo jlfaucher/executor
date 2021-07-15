@@ -97,3 +97,109 @@ Add this line to /etc/syslog.conf to get the debug messages in /var/log/debug.lo
 *.debug   /var/log/debug.log
 then restart the syslogd daemon as explained above.
 
+================================================================================
+14/07/2021 (copied from ~/Dropbox/software/oorexx/doc/ooRexx.txt
+================================================================================
+
+data breakpoint:
+memory breakpoint:
+
+lldb) p this->named_argumentCount
+(uint16_t) $1 = 1
+(lldb) p &(this->named_argumentCount)
+(uint16_t *) $2 = 0x000000010241ce74
+(lldb) p sizeof(this->named_argumentCount)
+(unsigned long) $3 = 2
+(lldb) w s e -s 2 -- 0x000000010241ce74
+Watchpoint created: Watchpoint 1: addr = 0x10241ce74 size = 2 state = enabled type = w
+    new value: 14275852816613377
+
+
+print variable:
+p RexxBehaviour::primitiveBehaviours[0]
+
+
+--------------------------------------------------------------------------------
+Exception when debugging oodialog.wchar
+I see several ASM instructions that are new to me...
+cpuid
+xgetbv
+vmovd       xmm0,ecx
+vpshufd     xmm0,xmm0,0
+vinsertf128 ymm0,ymm0,xmm0,1
+vmovdqu     ymm7,ymm0
+vmovdqu     ymm8,ymm0
+vmovdqu     ymm15,ymm0
+
+
+--------------------------------------------------------------------------------
+debug crash stack overflow
+
+RexxActivity.cpp
+put breakpoint in
+RexxActivity::raisePropagate
+on line
+    activation->trap(condition, conditionObj);
+with hit count 1000000
+
+See at which count the crash occurs
+and then analyze precisely at this count.
+
+
+Exemple of code to force the crash :
+{say arg(1); .context~executable~(1+arg(1))}~(0)
+
+
+--------------------------------------------------------------------------------
+Remember (debug stack overflow)
+
+RexxActivity.cpp
+RexxActivity::checkStackSpace
+
+replace #if 0 by #if 1
+to activate the debug output
+
+
+This file has been adapted to debug a stack overflow :
+Dropbox\software\do\do_rexx\stack_overflow
+
+
+--------------------------------------------------------------------------------
+To debug rexximage
+
+With ooRexx 4.2:
+    cdbuild
+    cp .libs/*.dylib ../delivery/lib/
+
+    because it's the libraries under delivery that are used.
+    If you want to see that by yourself :
+    otool -L .libs/rexximage
+
+    cd .libs
+    cp $builder_src_dir/interpreter/RexxClasses/*.orx .
+    cp $builder_src_dir/interpreter/platform/unix/*.orx .
+
+
+With ooRexx 5 and Executor:
+    nothing to copy, ready to debug in place.
+
+
+--------------------------------------------------------------------------------
+
+/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/debug/64/build/.libs$ lldb ./rexximage
+(lldb) target create "./rexximage"
+Current executable set to './rexximage' (x86_64).
+(lldb) run
+Process 9291 launched: './rexximage' (x86_64)
+Process 9291 stopped
+* thread #1: tid = 0xe38e7, 0x000000010000b818 librexx.4.dylib`rxStringSize<unsigned long, 1>::rxStringSize(this=0x00007fff5f400038, t=128043) + 24 at rexx.h:273, queue = 'com.apple.main-thread', stop reason = EXC_BAD_ACCESS (code=2, address=0x7fff5f3ffff8)
+    frame #0: 0x000000010000b818 librexx.4.dylib`rxStringSize<unsigned long, 1>::rxStringSize(this=0x00007fff5f400038, t=128043) + 24 at rexx.h:273
+   270 	    static rxStringSize value(T s) { return rxStringSize<T, D>(s); }
+   271 	public:
+   272 	    rxStringSize() /* : size(0) */ {} // Must NOT assign 0 because some constructors are sometimes called directly, and this assignement overrides some values already assigned... Strange practice, but...
+-> 273 	    rxStringSize(T t) : size(t) {}
+   274 	    rxStringSize(int t) : size(t) {}
+   275 	    rxStringSize(const rxStringSize<T, D> &s) : size(s.size) {}
+   276 	    T value() const { return size; }
+(lldb) bt
+

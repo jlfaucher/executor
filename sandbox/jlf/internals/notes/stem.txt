@@ -1,0 +1,17 @@
+-- Testing if a compound symbol has been assigned a value
+drop stem.
+stem.=                          -- a Stem (0 items)
+stem..=                         -- error NO VALUE if this condition is trapped
+symbol("STEM..")=               -- 'LIT' ok to not raise an error NOVALUE:
+                                -- returns LIT, indicating that it is
+                                -- either a constant symbol
+                                -- or a symbol that has not yet been assigned a value
+
+
+-- Dropping a stem is not removing it from .context~variables
+drop stem                       -- the variable stem no longer exists
+drop stem.                      -- the variable stem. now exists, even if it did not exist before. So drop stem. CREATES stem ?
+                                -- yes... This is written in the documentation:
+                                -- Specifying a stem (that is, a symbol that contains only one period as the last character)
+                                -- assigns the stem variable to a new, empty stem object.
+
