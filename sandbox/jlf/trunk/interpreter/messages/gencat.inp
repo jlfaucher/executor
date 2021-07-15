@@ -1287,7 +1287,7 @@ $ Error_Incorrect_method_nil_not_orderable
 527 ORDERABLE comparison method "&1" argument cannot be .nil.
 
 $ Error_Incorrect_method_no_method
-528 Method &1 argument &2 must have a string value or an array value.
+528 Method &1 argument &2 must be a string or array object.
 
 $ Error_Interpretation_initialization
 529 Interpretation error: unexpected failure initializing the interpreter.
@@ -1683,22 +1683,22 @@ $ Error_Invalid_argument_string
 680 &1 argument &2 must have a string value.
 
 $ Error_Invalid_argument_pad
-681 &1 argument &2 is an incorrect pad or character argument; found "&3".
+681 &1 argument &2 is an invalid pad or character argument; found "&3".
 
 $ Error_Invalid_argument_length
-682 &1 argument &2 is an incorrect length argument; found "&3".
+682 &1 argument &2 is an invalid length value; found "&3".
 
 $ Error_Invalid_argument_position
-683 &1 argument &2 is an incorrect position argument; found "&3".
+683 &1 argument &2 is an invalid position value; found "&3".
 
 $ Error_Invalid_argument_noarray
-684 &1 argument &2 must have a single-dimensional array value; found "&3".
+684 &1 argument &2 must be a single-dimensional array value; found "&3".
 
 $ Error_Invalid_argument_noclass
-685 &1 argument &2 must be of the &3 class.
+685 &1 argument &2 must be an instance of the &3 class.
 
 $ Error_Invalid_argument_argType
-686 &1 argument &2 could not be converted to type &3.
+686 &1 argument &2 could not be converted to a &3 type.
 
 $ Error_Invalid_argument_list
 687 &1 argument &2 must be one of &3; found "&4".
@@ -1755,7 +1755,7 @@ $ Error_Invalid_argument_pointer
 704 &1 argument &2 is not in valid pointer format; found "&3".
 
 $ Error_Invalid_argument_nostem
-705 &1 argument &2 must have a stem object or stem name value; found "&3".
+705 &1 argument &2 must be a stem object or stem name value; found "&3".
 
 $ Error_Invalid_argument_double
 706 &1 argument &2 must be a valid double value; found "&3".
