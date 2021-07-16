@@ -404,7 +404,7 @@ dispatchCommand:
         .ooRexxShell~sayError("RC=" RC)
     end
     if RC <> 0 | .ooRexxShell~error then do
-        .ooRexxShell~sayInfo(.ooRexxShell~command)
+        if \.ooRexxShell~demo then .ooRexxShell~sayInfo(.ooRexxShell~command)
     end
     if .ooRexxShell~showInfos | .ooRexxShell~showInfosNext then do
         .ooRexxShell~sayInfo("Duration:" time('e')) -- elapsed duration
@@ -1218,6 +1218,7 @@ Helpers
 
 
 ::method sayStackFrames class
+    if .ooRexxShell~demo then return
     use strict arg stream=.output -- you can pass .error if you want to separate normal output and error output
     supplier = .ooRexxShell~stackFrames~supplier
     do while supplier~available
