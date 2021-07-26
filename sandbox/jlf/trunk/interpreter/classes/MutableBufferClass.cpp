@@ -1207,11 +1207,11 @@ RexxMutableBuffer *RexxMutableBuffer::translate(RexxString *tableo, RexxString *
         return this->upper(_start, _range);
     }
                                             /* validate the tables               */
-    tableo = optionalStringArgument(tableo, OREF_positional, OREF_NULLSTRING, ARG_ONE);
+    tableo = optionalStringArgument(tableo, OREF_NULLSTRING, OREF_positional, ARG_ONE);
     ProtectedObject p1(tableo);
     sizeB_t outTableLength = tableo->getBLength();      /* get the table length              */
     /* input table too                   */
-    tablei = optionalStringArgument(tablei, OREF_positional, OREF_NULLSTRING, ARG_TWO);
+    tablei = optionalStringArgument(tablei, OREF_NULLSTRING, OREF_positional, ARG_TWO);
     ProtectedObject p2(tablei);
     sizeB_t inTableLength = tablei->getBLength();       /* get the table length              */
     const char *inTable = tablei->getStringData();    /* point at the input table          */
