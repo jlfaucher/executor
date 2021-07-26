@@ -5,6 +5,18 @@ Accumulation of URLs about Unicode
 https://www.unicode.org/Public/
 https://www.unicode.org/Public/MAPPINGS
 
+https://unicode.org/reports/tr10/#S2.1.1
+UNICODE COLLATION ALGORITHM
+
+https://unicode.org/reports/tr15/#Detecting_Normalization_Forms
+UNICODE NORMALIZATION FORMS
+
+
+http://xahlee.info/comp/unicode_index.html
+
+https://www.fontspace.com/unicode/analyzer
+
+
 
 13/08/2013
 We don’t need a string type
@@ -76,6 +88,26 @@ Unicode  emoji
 
 22/05/2021
 https://eev.ee/blog/2015/09/12/dark-corners-of-unicode/
+A section about wcwidth.
+A section about spaces:
+    There are actually two definitions of whitespace in Unicode.
+    Unicode assigns every codepoint a category, and has three categories for
+    what sounds like whitespace:
+        “Separator, space”;
+        “Separator, line”;
+        “Separator, paragraph”.
+    CR, LF, tab, and even vertical tab are all categorized as “Other, control”
+    and not as separators.
+    The only character in the “Separator, line” category is U+2028 LINE SEPARATOR,
+    and the only character in “Separator, paragraph” is U+2029 PARAGRAPH SEPARATOR.
+    Thankfully, all of these have the WSpace property.
+
+    As an added wrinkle, the lone oddball character “⠀” renders like a space in most fonts.
+    jlf: 2 cols x 3 lines of debossed dots.
+    But it’s not whitespace, it’s not categorized as a separator, and it doesn’t have WSpace.
+    It’s actually U+2800 BRAILLE PATTERN BLANK, the Braille character with none of the dots raised.
+    (I say “most fonts” because I’ve occasionally seen it rendered as a 2×4 grid of open circles.)
+
 
 
 22/05/2021
@@ -956,3 +988,162 @@ using the fixed-width UTF-32 encoding.
 https://hsivonen.fi/non-unicode-in-cpp/
 It’s Time to Stop Adding New Features for Non-Unicode Execution Encodings in C++
 The Microsoft Code Page 932 Issue
+
+
+15/07/2021
+review
+https://docs.python.org/3/howto/unicode.html
+
+    Escape sequences in string literals
+        "\N{GREEK CAPITAL LETTER DELTA}"        # Using the character name  '\u0394'
+        "\u0394"                                # Using a 16-bit hex value  '\u0394'
+        "\U00000394"                            # Using a 32-bit hex value  '\u0394'
+
+    One can create a string using the decode() method of bytes.
+    This method takes an encoding argument, such as UTF-8, and optionally an errors argument.
+    The errors argument specifies the response when the input string can’t be converted
+    according to the encoding’s rules. Legal values for this argument are
+        'strict'            (raise a UnicodeDecodeError exception),
+        'replace'           (use U+FFFD, REPLACEMENT CHARACTER),
+        'ignore'            (just leave the character out of the Unicode result),
+        'backslashreplace'  (inserts a \xNN escape sequence).
+    Examples:
+        b'\x80abc'.decode("utf-8", "strict")                # UnicodeDecodeError: 'utf-8' codec can't decode byte 0x80 in position 0
+        b'\x80abc'.decode("utf-8", "replace")               # '\ufffdabc'
+        b'\x80abc'.decode("utf-8", "backslashreplace")      # '\\x80abc'
+        b'\x80abc'.decode("utf-8", "ignore")                # 'abc'
+
+    Encodings are specified as strings containing the encoding’s name.
+    Python comes with roughly 100 different encodings:
+        https://docs.python.org/3/library/codecs.html#standard-encodings
+
+    One-character Unicode strings can also be created with the chr() built-in function,
+    which takes integers and returns a Unicode string of length 1 that contains the corresponding code point:
+        chr(57344)      # '\ue000'
+    The reverse operation is the built-in ord() function that takes a one-character Unicode string and returns the code point value:
+        ord('\ue000')   # 57344
+
+    The opposite method of bytes.decode() is str.encode(), which returns a bytes representation of the Unicode string, encoded in the requested encoding.
+    The errors parameter is the same as the parameter of the decode() method but supports a few more possible handlers.
+        'strict'            (raise a UnicodeDecodeError exception),
+        'replace'           inserts a question mark instead of the unencodable character,
+        'ignore'            (just leave the character out of the Unicode result),
+        'backslashreplace'  (inserts a \uNNNN escape sequence)
+        'xmlcharrefreplace' (inserts an XML character reference),
+        'namereplace'       (inserts a \N{...} escape sequence).
+
+
+15/07/2021
+https://docs.python.org/3/library/codecs.html
+Codec registry and base classes
+Most standard codecs are text encodings, which encode text to bytes, but there
+are also codecs provided that encode text to text, and bytes to bytes.
+errors string argument:
+    strict
+    ignore
+    replace
+    xmlcharrefreplace
+    backslashreplace
+    namereplace
+    surrogateescape
+    surrogatepass
+
+
+15/07/2021
+https://discourse.julialang.org/t/a-python-rant-about-types/43294/22
+A Python rant about types
+jlf: the main discussion is about invalid string data.
+Stefan Karpinski describes the Julia strings:
+    1. You can read and write any data, valid or not.
+    2. It is interpreted as UTF-8 where possible and as invalid characters otherwise.
+    3. You can simply check if strings or chars are valid UTF-8 or not.
+    4. You can work with individual characters easily, even invalid ones.
+    5. You can losslessly read and write any string data, valid or not, as strings or chars.
+    6. You only get an error when you try to ask for the code point of an invalid char.
+    Most Julia code that works with strings is automatically robust with respect to
+    invalid UTF-8 data. Only code that needs to look at the code points of individual
+    characters will fail on invalid data; in order to do that robustly, you simply
+    need to check if the character is valid before taking its code point and handle
+    that appropriately.
+jlf: I think that all the Julia methods working at character level will raise an error,
+not just when looking at the code point.
+jlf: Stefan Karpinski explains why Python design is problematic.
+Python 3 has to be able to represent any input string in terms of code points.
+Needing to turn every string into a fixed-width sequence of code points puts them
+in a tough position with respect to invalid strings where there is simply no
+corresponding sequence of code points.
+
+
+16/07/2021
+Windows allows unpaired surrogates in filenames
+
+https://github.com/golang/go/issues/32334
+syscall: Windows filenames with unpaired surrogates are not handled correctly #32334
+
+https://github.com/rust-lang/rust/issues/12056
+path: Windows paths may contain non-utf8-representable sequences #12056
+I don't know the precise details, but there exist portions of Windows in which
+paths are UCS2 rather than UTF-16. I ignored it because I thought it wasn't going
+to be an issue but at some point someone (and I wish I could remember who) showed
+me some output that showed that they were actually getting a UCS2 path from some
+Windows call and Path was unable to parse it.
+---
+JLF: this is the birth of WTF-8 in 2014.
+The result is:
+https://simonsapin.github.io/wtf-8/#16-bit-code-unit
+
+
+17/07/2021
+https://groups.google.com/g/python-ideas/c/wStIS1_NVJQ
+Fix default encodings on Windows
+jlf: did not read in details, too long, too many feedbacks.
+Maybe some comments are interesting, so I save this URL.
+
+
+17/07/2021
+https://www.generacodice.com/en/articolo/120763/Unicode+Support+in+Various+Programming+Languages
+jlf: I learned something: OsStr/OsString
+    Rust's strings (std::String and &str) are always valid UTF-8, and do not use null
+    terminators, and as a result can not be indexed as an array, like they can be in C/C++, etc.
+    They can be sliced somewhat like Go using .get since 1.20, with the caveat that
+    it will fail if you try slicing the middle of a code point.
+
+    Rust also has OsStr/OsString for interacting with the Host OS.
+    It's byte array on Unix (containing any sequence of bytes).
+    On windows it's WTF-8 (A super-set of UTF-8 that handles the improperly
+    formed Unicode strings that are allowed in Windows and Javascript),
+    &str and String can be freely converted to OsStr or OsString, but require
+    checks to covert the other way. Either by Failing on invalid unicode, or
+    replacing with the Unicode replacement char. (There is also Path/PathBuf,
+    which are just wrappers around OsStr/OsString).
+
+    There is also the CStr and CString types, which represent Null terminated C
+    strings, like OsStr on Unix they can contain arbitrary bytes.
+
+    Rust doesn't directly support UTF-16. But can convert OsStr to UCS-2 on windows.
+
+
+18/07/2021
+https://manishearth.github.io/blog/2017/01/15/breaking-our-latin-1-assumptions/
+Breaking Our Latin-1 Assumptions
+
+
+22/07/2021
+https://lib.rs/crates/
+STFU-8: Sorta Text Format in UTF-8
+STFU-8 is a hacky text encoding/decoding protocol for data that might be not
+quite UTF-8 but is still mostly UTF-8.
+Its primary purpose is to be able to allow a human to visualize and edit "data"
+that is mostly (or fully) visible UTF-8 text. It encodes all non visible or non
+UTF-8 compliant bytes as longform text (i.e. ESC becomes the full string r"\x1B").
+It can also encode/decode ill-formed UTF-16.
+
+
+22/07/2021
+https://stackoverflow.com/questions/52131881/does-the-winapi-ever-validate-utf-16
+Does the WinApi ever validate UTF-16?
+Windows wide characters are arbitrary 16-bit numbers (formerly called "UCS-2",
+before the Unicode Standard Consortium purged that notation). So you cannot
+assume that it will be a valid UTF-16 sequence. (MultiByteToWideChar is a
+notable exception that does return only UTF-16)
+
