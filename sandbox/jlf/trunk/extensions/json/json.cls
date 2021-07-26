@@ -304,7 +304,8 @@ P @return oldClass the class previously used to encode JSON object data
   expose json_dirClass
   use strict arg newDirlikeClass
   json_dirClass=newDirlikeClass                    -- save class in package local
- .context~package~local~json.DirClass=newDirlikeClass  -- save in package local to speed up lookup
+  -- .context~package~local~json.DirClass=newDirlikeClass  -- save in package local to speed up lookup
+                     .local~json.DirClass=newDirlikeClass
 
 /** StringTable with unescape JSON strings. */
 ::attribute uJS        private class
