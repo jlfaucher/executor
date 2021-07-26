@@ -1,4 +1,4 @@
-executorDemos = array classic_rexx extensions text
+executorDemos = array classic_rexx extensions text text-internal_checks
 ooRexxShellDemos = helpers interpreters queries
 
 help:

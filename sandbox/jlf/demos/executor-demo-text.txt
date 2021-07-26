@@ -10,24 +10,13 @@ demo on
 Start working on a prototype for encoded strings.
 
 Main ideas explored with this prototype :
-- No automatic conversion to Unicode by the interpreter.
-- The strings crossing the I/O barriers are kept unchanged.
-- Supported encodings : byte, UTF-8, UTF-16BE.
-- When no encoding has been explicitely specified, a default encoding is used.
-- Initially, the default encoding is "UTF8". It can be changed at anytime.
-*/
-sleep no prompt
-
-/*
-- ABANDONNED: A string is made of slices, where each slice has its own encoding.
-- ABANDONNED: Strings with different encodings can be concatenated, there is no need of conversion.
-- NEW: Strings with different encodings can be concatenated if their encodings are compatible.
-       Example: a byte-encoded string containing only ASCII characters is compatible with UTF-8.
-       If not compatible then an error is raised.
 - The existing String class is kept unchanged, but its semantic becomes : "byte-oriented".
 - The prototype adds a layer of services working at grapheme level, provided by the RexxText class.
 - The RexxText class works on the bytes managed by the String class.
 - String instances are immutable, the same for RexxText instances.
+- No automatic conversion to Unicode by the interpreter.
+- The strings crossing the I/O barriers are kept unchanged.
+- Supported encodings : byte, UTF-8, UTF-16BE.
 */
 sleep no prompt
 
@@ -55,21 +44,22 @@ sleep no prompt
 /*
 My goal :
 s1~text~length=                     -- 1 grapheme
-s1~text~codepoints~size=            -- 1 codepoint
+s1~text~codepoints~count=           -- 1 codepoint
 s1~text~string~length=              -- 2 bytes
+
 s2~text~length=                     -- 1 grapheme
-s2~text~codepoints~size=            -- 2 codepoints
+s2~text~codepoints~count=           -- 2 codepoints
 s2~text~string~length=              -- 3 bytes
 */
-sleep no prompt
-
+sleep
 
 .encoding~defaultEncoding = "utf8"
 s1~text~length=                     -- 1 grapheme
-s1~text~codepoints~size=            -- 1 codepoint
+s1~text~codepoints~count=           -- 1 codepoint
 s1~text~string~length=              -- 2 bytes
+
 s2~text~length=                     -- 1 grapheme
-s2~text~codepoints~size=            -- 2 codepoints
+s2~text~codepoints~count=           -- 2 codepoints
 s2~text~string~length=              -- 3 bytes
 sleep no prompt
 
@@ -93,8 +83,6 @@ myText = "où as tu e" || .Unicode~character("combining acute accent")~utf8 || "
 myText=                         -- T'où as tu été ?'
 myString = myText~string
 myString=                       -- 'où as tu été ?'
-myString~text~identityHash == myText~identityHash=        -- true, always return the same counterpart
-myText~string~identityHash == myString~identityHash=      -- true, always return the same counterpart
 myString~length=                -- 18
 myText~length=                  -- 14
 sleep no prompt
@@ -105,7 +93,7 @@ myString                        -- 6F C3 B9 20 61 73 20 74 75 20 65 CC 81 74 C3 
                                 -- o. ù....  . a. s.  . t. u.  . e. acute t. é....  . ?.
 */
 sleep
-myString~eachC{item~c2x}=
+myString~eachC("c2x")=
 sleep no prompt
 
 /*
@@ -114,7 +102,7 @@ myText                          -- 6F C3B9  20 61 73 20 74 75 20 65 CC81  74 C3A
                                 -- o. ù...   . a. s.  . t. u.  . e. acut  t. é...   . ?.
 */
 sleep
-myText~graphemes~each{item~c2x}=
+myText~graphemes~each("c2x")=
 sleep no prompt
 
 /*
@@ -130,12 +118,12 @@ sleep no prompt
 More examples of encoded string
 */
 sleep
-"¯\_(ツ)_/¯"~text~description=
-"¯\_(ツ)_/¯"~text~graphemes~each{item~c2x}=
 "( ͡° ͜ʖ﻿ ͡°)"~text~description=
-"( ͡° ͜ʖ﻿ ͡°)"~text~graphemes~each{item~c2x}=
+"( ͡° ͜ʖ﻿ ͡°)"~text~graphemes~each("c2x")=
+"( ͡° ͜ʖ﻿ ͡°)"~text~codepoints~each{"U+"item~d2x}=
 "(ノಠ益ಠ)ノ彡"~text~description=
-"(ノಠ益ಠ)ノ彡"~text~graphemes~each{item~c2x}=
+"(ノಠ益ಠ)ノ彡"~text~graphemes~each("c2x")=
+"(ノಠ益ಠ)ノ彡"~text~codepoints~each{"U+"item~d2x}=
 sleep no prompt
 
 /*
@@ -154,35 +142,28 @@ In theory ❤ and ❄ (and many other emoji) should display as text style by def
 without VS16, but many applications ignore that.
 */
 sleep
-emoji_array = ('❤', '❤️', '❄', '❄︎', '❄️', '⚪', '⚪️', '⚫', '⚫️')
-emoji_array~reduce(initial:.table~new){accu[item~text] = item~text~graphemes~each{arg(1)~c2x}}==
+emoji_bag = .bag~of('❤', '❤️', '❄', '❄︎', '❄️', '⚪', '⚪️', '⚫', '⚫️')
+emoji_table = emoji_bag~table~map("text")
+emoji_table~map("c2x")==
+emoji_table~map("c2u")==
 /*
-The table above is not well aligned
+The tables above are not well aligned
 because the alignement is based on the length of the indexes,
 which is (for the moment) a count of bytes, not a count of graphemes...
 */
 sleep 9 no prompt
 
 /*
-🤦🏼‍♂️
-is one grapheme, made up of 5 codepoints.
-*/
-"🤦🏼‍♂️"~text~description=                                         -- 1 grapheme, 5 codepoints, 17 bytes
-"🤦🏼‍♂️"~text~graphemes~each{item~c2x}=                            -- F09FA4A6F09F8FBCE2808DE29982EFB88F
-"🤦🏼‍♂️"~text~codepoints~each{.UTF8_Encoding~encode(item)~c2x}=    -- F09FA4A6 F09F8FBC E2808D E29982 EFB88F
-"🤦🏼‍♂️"~text~codepoints~each{"U+"item~d2x}=                       -- U+1F926 U+1F3FC U+200D U+2642 U+FE0F
-sleep no prompt
-
-/*
 https://www.reddit.com/r/cpp/comments/aqzu7i
 👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦
-is one grapheme, made up of 13 codepoints (jlf: typo? I get 15 codepoints)
+is one grapheme, made up of 15 codepoints
 */
 sleep
-"👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦"~text~description=                              -- 1 grapheme, 15 codepoints, 53 bytes
-"👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦"~text~graphemes~each{item~c2x}=
-"👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦"~text~codepoints~each{.UTF8_Encoding~encode(item)~c2x}=
-"👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦"~text~codepoints~each{"U+"item~d2x}=
+family = "👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦"
+family=
+family~text~description=                              -- 1 grapheme, 15 codepoints, 53 bytes
+family~text~c2x=
+family~text~c2u=
 sleep no prompt
 
 /*
@@ -192,10 +173,11 @@ Uses Unicode combining characters to create symbol noise.
 h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞
 */
 sleep
-"h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞"~text~description=                                -- 5 graphemes, 54 codepoints, 111 bytes
-"h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞"~text~graphemes~each{item~c2x}=
-"h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞"~text~codepoints~each{.UTF8_Encoding~encode(item)~c2x}=
-"h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞"~text~codepoints~each{"U+"item~d2x}=
+helloZalgo = "h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞"
+helloZalgo =
+helloZalgo~text~description=                          -- 5 graphemes, 54 codepoints, 111 bytes
+helloZalgo~text~c2x=
+helloZalgo~text~c2u=
 sleep no prompt
 
 /*
@@ -220,14 +202,34 @@ Example: CP1252 to UTF-8
 */
 sleep
 str_cp1252 = "Un " || "9C"x || "uf de chez MaPoule" || "99"x || " co" || "FB"x || "te " || "B1"x || "0.40" || "80"x
-str_cp1252=
 txt_cp1252 = str_cp1252~text("cp1252")
 txt_cp1252~description=
-txt_cp1252~graphemes~each{item~c2x}=
+txt_cp1252~c2x=
 txt_utf8 = txt_cp1252~utf8
 txt_utf8=
 txt_utf8~description=
-txt_utf8~graphemes~each{item~c2x}=
+txt_utf8~c2x=
+sleep no prompt
+
+/*
+Comparing the size of UTF-8 encoding vs UTF-16 encoding for various strings.
+These strings are UTF-8 encoded.
+The first step is to get a wrapper RexxText (default encoding is UTF-8).
+The second step is to convert to UTF-16.
+*/
+sleep
+howMuchOfStorage = "how much of storage?"
+howMuchOfStorage~text~description=              -- 'UTF-8 ASCII (20 graphemes, 20 codepoints, 20 bytes)'
+howMuchOfStorage~text~utf16~description=        -- 'UTF-16BE ASCII (20 graphemes, 20 codepoints, 40 bytes)
+rexCharacters = "'rex' in their name: ꎅ ꎜ ꏑ 🦖"
+rexCharacters~text~description=                 -- 'UTF-8 not-ASCII (28 graphemes, 28 codepoints, 37 bytes)'
+rexCharacters~text~utf16~description=           -- 'UTF-16BE not-ASCII (28 graphemes, 28 codepoints, 58 bytes)'
+family = "👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦"
+family~text~description=                        -- 'UTF-8 not-ASCII (1 grapheme, 15 codepoints, 53 bytes)'
+family~text~utf16~description=                  -- 'UTF-16BE not-ASCII (1 grapheme, 15 codepoints, 46 bytes)
+helloZalgo = "h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞"
+helloZalgo~text~description=                    -- 'UTF-8 not-ASCII (5 graphemes, 54 codepoints, 111 bytes)
+helloZalgo~text~utf16~description=              -- 'UTF-16BE not-ASCII (5 graphemes, 54 codepoints, 108 bytes)
 sleep no prompt
 
 goto end
