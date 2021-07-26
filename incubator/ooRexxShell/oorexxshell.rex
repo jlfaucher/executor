@@ -236,7 +236,7 @@ main: procedure
         if .ooRexxShell~debug then trace i ; else trace off
         call on halt name haltHandler
 
-        -- Will be used by charoutSlowly to test if the previous command was an end of multline commment.
+        -- Will be used by .ooRexxShell~sleep to test if the previous command was an end of multline commment.
         -- The duration of the pause will be proportional to the number of characters in the multiline comment.
         -- Also used by readline to decide if the history file must be updated (a repeated input is stored only once).
         .ooRexxShell~inputrxPrevious = .ooRexxShell~inputrx
@@ -1061,7 +1061,7 @@ Helpers
     self~countCommentChars = 0
     self~countCommentLines = 0
     self~debug = .false
-    self~defaultSleepDelay = 3
+    self~defaultSleepDelay = 2
     self~demo = .false
     self~demoFast = .false -- by default, the demo is slow (SysSleep is executed)
     self~dump2 = .nil
@@ -1179,11 +1179,18 @@ Helpers
 ::method sayComment class
     use strict arg text=""
     .color~select(.ooRexxShell~commentColor, .output)
-    .ooRexxShell~charoutSlowly(text, 0)
-    .output~say
+    say text
     .color~select(.ooRexxShell~defaultColor, .output)
     .ooRexxShell~countCommentLines += 1
     .ooRexxShell~countCommentChars += text~length
+
+
+::method charoutComment class
+    -- no newline, no count
+    use strict arg text=""
+    .color~select(.ooRexxShell~commentColor, .output)
+    call charout , text
+    .color~select(.ooRexxShell~defaultColor, .output)
 
 
 ::method sayTrace class
@@ -1264,15 +1271,22 @@ Helpers
 
 
 ::method charoutSlowly class
-    use strict arg text, delay=0.03, spaceRatio=1
+    use strict arg text, delay=0.02
+    -- Naive comment detection (could be inside a quoted string), but good enough.
+    commentPos = text~pos("--")
     previousChar = ""
     do i=1 while char \== ""
-        char = text~subchar(i)
-        call charout , char
-        sleep = delay
-        if char == " " then sleep *= spaceRatio
-        if previousChar <> " " then .ooRexxShell~SysSleep(sleep) -- in case od several spaces, be slow only for the first space.
-        previousChar = char
+        if i == commentPos then do
+            .ooRexxShell~charoutComment(text~substr(i))
+            leave
+        end
+        else do
+            char = text~subchar(i)
+            call charout , char
+            sleep = delay
+            if previousChar <> " " then .ooRexxShell~SysSleep(sleep) -- in case od several spaces, be slow only for the first space.
+            previousChar = char
+        end
     end
 
 
@@ -1734,7 +1748,7 @@ Helpers
             -- Add a delay for each comment line, from the second line.
             delay += max(0, (.ooRexxShell~countCommentLines - 1) * 2)
             */
-            delay = .ooRexxShell~countCommentChars / 20 -- sleep 1 second for 20 characters
+            delay = .ooRexxShell~countCommentChars / 30 -- sleep 1 second for 30 characters
         end
     end
 
