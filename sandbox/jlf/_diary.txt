@@ -368,6 +368,13 @@ Things I don't like in ooRexx5:
         I can't find a use case where that would be useful, so probably ok to not support that.
 
 
+    The method .string~"[]"
+    This methods takes a position and a length.
+    This method is not consistent with the indexation of an array where [n1,n2] is applicable only to a 2-dimensional array.
+    "my string"[2,3] is equivalent to .array~section(2,3)
+    .string~"[]" should behave like .string~subchar which takes only one argument: the character's position.
+
+
 ===============================================================================
 (next)
 
@@ -467,6 +474,47 @@ RexxList *RexxList::classOf(
      size_t       named_argCount)
 TODO
 The named arguments could be added to the returned array (splitting the key:value).
+
+
+===============================================================================
+2021 July 16
+
+Encoded strings: add WTF-8 and WTF-16
+These encodings let support ill-formed UTF-16 coming from systems such as
+Windows or JavaScript that use UTF-16 internally but don’t enforce the
+well-formedness invariant that surrogates must be paired.
+See https://simonsapin.github.io/wtf-8/#16-bit-code-unit
+
+
+Encoded strings: rework the management of errors.
+Before, an error was raised only for the first invalid character in a string.
+Now, all the errors are reported but not raised. They are stored on the RexxText
+and available with RexxText~errors. For the byte sequences which are invalid,
+the replacement character is returned when asking the codepoint. Internally,
+there is no loss of bytes.
+
+
+Encoded strings: rework the encoding conversion to Unicode.
+createCharacterTranscodingTable
+Helper to create a table of transcoded characters, from index 0 to size-1.
+By default, a transcoded character is equal to itself.
+The specific transcoding table lets define specific values for some characters.
+Example: Transcoding from CP1252 to Unicode
+    specificTranscoding =,
+        , --       00      01      02      03      04      05      06      07      08      09      0A      0B      0C      0D      0E      0F
+        "80:",  "20AC",  "-81", "201A", "0192", "201E", "2026", "2020", "2021", "02C6", "2030", "0160", "2039", "0152",  "-8D", "017D",  "-8F",,
+        "90:",   "-90", "2018", "2019", "201C", "201D", "2022", "2013", "2014", "02DC", "2122", "0161", "203A", "0153",  "-9D", "017E", "0178"
+    tableTranscodingToUnicode = createCharacterTranscodingTable(256, specificTranscoding)
+"80:" ends with colon, this is an index.
+""    means no transcoding for this character. It's always an error.
+"-81" means unused character with fallback transcoding. It's an error only in strict mode.
+
+
+ooRexxShell:
+- In demo mode, don't display stack frames nor command line when error during
+  interpretation. The error is expected, the display must remain compact.
+- Change the default value of trapNoMethod to false, because the error message
+  is better when this trap is not activated.
 
 
 ===============================================================================
@@ -3266,10 +3314,10 @@ s2~c2x=                             -- 65 CC 81
 
 My goal :
 s1~text~length=                     -- 1 grapheme
-s1~text~codepoints~size=            -- 1 codepoint
+s1~text~codepoints~count=           -- 1 codepoint
 s1~text~string~length=              -- 2 bytes
 s2~text~length=                     -- 1 grapheme
-s2~text~codepoints~size=            -- 2 codepoints
+s2~text~codepoints~count=           -- 2 codepoints
 s2~text~string~length=              -- 3 bytes
 
 For a more complex example of combining characters, see
