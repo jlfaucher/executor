@@ -1147,3 +1147,8 @@ before the Unicode Standard Consortium purged that notation). So you cannot
 assume that it will be a valid UTF-16 sequence. (MultiByteToWideChar is a
 notable exception that does return only UTF-16)
 
+
+28/07/2021
+https://invisible-island.net/xterm/bad-utf8/
+https://gist.github.com/GrabYourPitchforks/901684d0aa1d2440eb378d847cfc8607
+

@@ -477,6 +477,30 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 July 21
+
+Encoded strings:
+.rexxText~c2x   returns a string of encoded codepoints (each word is a codepoint in hexadecimal)
+.rexxText~c2u   returns a string of decoded codepoints (each word is a codepoint in notation U+XXXX)
+.rexxText~c2g   returns a string of encoded graphemes (each word is a grapheme in hexadecimal)
+
+Encoded strings:
+The method .CodePointSupplier~item can now return the byte sequence of the current codepoint.
+This is managed with the parameter 'decode' (default .true: returns the decoded value, false: returns the byte sequence).
+
+Encoded strings:
+New utility to check the encoding of one or several files.
+Usage: rexx unicode/scripts/check_encoding <encoding> <file 1>...<file n>
+
+Encoded strings to rework:
+- During analysis, should no longer use raise/signal to catch the encoding errors.
+- The routine skipInvalidByteSequence should become a local procedure of nextCodepointIndex.
+- nextCodepointIndex should return a negative index in case of error.
+- The value replacementCharacter should be returned by ~decode instead of ~codepoint
+- Remove the array of codepoints indexes. There is no need of direct access to codepoints.
+
+
+===============================================================================
 2021 July 16
 
 Encoded strings: add WTF-8 and WTF-16

@@ -557,6 +557,10 @@ No message sent, so no way to return something.
     forward to (self~indexer)
 
 
+::method c2g
+    forward to (self~indexer)
+
+
 ::method isASCII
     use strict arg -- none
     return (self~isByte | self~isUTF8) & self~string~isASCII
@@ -996,11 +1000,11 @@ No message sent, so no way to return something.
     end
 
     syntax:
+        codepointIndexes~append(-indexB) -- negative value to indicate a serious error
+        graphemeIndexes~append(-indexB) -- idem
         if errors = .nil then errors = .array~new
         condition = condition("O")
         errors~append(condition["MESSAGE"])
-        codepointIndexes~append(-indexB) -- negative value to indicate error
-        graphemeIndexes~append(-indexB) -- idem
         previousCodepoint = .Unicode~replacementCharacter~codepoint
         graphemeBreakArgs[3] = 0 -- reset the extended grapheme state
         indexB = encoding~skipInvalidByteSequence(string, indexB)
@@ -1289,14 +1293,15 @@ https://www.ietf.org/rfc/rfc2781.txt
 
 ::method c2x
     use strict arg -- none
-    graphemes = self~graphemes
+    codepoints = self~codepoints
     buffer = .MutableBuffer~new
     first = .true
-    do while graphemes~available
+    do while codepoints~available
         if \first then buffer~append(" ")
         first = .false
-        buffer~append(graphemes~item~string~c2x)
-        graphemes~next
+        codepoint = codepoints~item(.false) -- false: don't decode
+        buffer~append(codepoint~c2x)
+        codepoints~next
     end
     return buffer~string
 
@@ -1315,6 +1320,20 @@ https://www.ietf.org/rfc/rfc2781.txt
                              else size = 8
         buffer~append(codepoint~d2x(size))
         codepoints~next
+    end
+    return buffer~string
+
+
+::method c2g
+    use strict arg -- none
+    graphemes = self~graphemes
+    buffer = .MutableBuffer~new
+    first = .true
+    do while graphemes~available
+        if \first then buffer~append(" ")
+        first = .false
+        buffer~append(graphemes~item~string~c2x)
+        graphemes~next
     end
     return buffer~string
 
@@ -1397,7 +1416,7 @@ https://www.ietf.org/rfc/rfc2781.txt
     end
     if sizeB == 0 then return -1
     if sizeB == 1 then return string~subchar(startB)~c2d
-    raise syntax 93.900 array (self~name "encoding:" sizeB "is an invalid codepoint size")
+    raise syntax 93.900 array (self~name "encoding:" sizeB "is an invalid size of byte sequence")
 
 
 ::method nextCodepointIndex class
@@ -1434,9 +1453,10 @@ https://www.ietf.org/rfc/rfc2781.txt
 /********************/
 
 ::method codepoint
-    use strict arg indexC
+    use strict arg indexC, decode=.true
     if indexC < 1 | indexC > self~codepointCount then raise syntax 93.900 array (self~description "invalid codepoint index:" indexC)
-    return self~string~subchar(indexC)~c2d
+    if decode then return self~string~subchar(indexC)~c2d
+              else return self~string~subchar(indexC)
 
 
 ::method grapheme
@@ -1586,7 +1606,7 @@ https://www.ietf.org/rfc/rfc2781.txt
     if sizeB == 2 then return decodeByte(0, "1F"x)  *     64 + decodeByte(1, "3F"x)
     if sizeB == 3 then return decodeByte(0, "0F"x)  *   4096 + decodeByte(1, "3F"x) *   64 +  + decodeByte(2, "3F"x)
     if sizeB == 4 then return decodeByte(0, "07"x)  * 216144 + decodeByte(1, "3F"x) * 4096 +  + decodeByte(2, "3F"x) * 64 + decodeByte(3, "3F"x)
-    raise syntax 93.900 array (self~name "encoding:" sizeB "is an invalid codepoint size")
+    raise syntax 93.900 array (self~name "encoding:" sizeB "is an invalid size of byte sequence")
 
     decodeByte: procedure expose string startB
         use strict arg offset, mask
@@ -1615,7 +1635,6 @@ https://www.ietf.org/rfc/rfc2781.txt
     invalid_start_byte:         raise syntax 93.900 array ("UTF-8 sequence at byte-position" startB "has an invalid start byte" startByte~c2d "("ppHexNumber(startByte~c2d)")")
     invalid_continuation_byte:  raise syntax 93.900 array ("UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB)
     truncated:                  raise syntax 93.900 array ("UTF-8 sequence at byte-position" startB "is truncated, expected" byteCount "bytes")
-    surrogate:                  raise syntax 93.900 array ("UTF-8 sequence at byte-position" startB "is a surrogate codepoint")
 
 
 ::method skipInvalidByteSequence class
@@ -1670,14 +1689,21 @@ https://www.ietf.org/rfc/rfc2781.txt
 
 ::method codepoint
     -- to reimplement using a byte index because codepointIndexes will be removed
-    use strict arg indexC
+    use strict arg indexC, decode=.true
     if indexC < 1 | indexC > self~codepointCount then raise syntax 93.900 array (self~description "invalid codepoint index:" indexC)
-    if self~codepointIndexes == .nil then return self~string~subchar(indexC)~c2d
+    if self~codepointIndexes == .nil then do
+        if decode then return self~string~subchar(indexC)~c2d
+                  else return self~string~subchar(indexC)
+    end
     startB = self~codepointIndexes[indexC]
     nextB = self~codepointIndexes[indexC+1]
-    if startB < 0 then return .Unicode~replacementCharacter~codepoint -- the current byte sequence is invalid
-    nextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
-    return self~class~decode(self~string, startB, nextB-startB)
+    absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
+    absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
+    if decode then do
+        if startB < 0 then return .Unicode~replacementCharacter~codepoint -- the current byte sequence is invalid
+        return self~class~decode(self~string, absStartB, absNextB - absStartB)
+    end
+    return self~string~substr(absStartB, absNextB - absStartB)
 
 
 ::method grapheme
@@ -1686,9 +1712,9 @@ https://www.ietf.org/rfc/rfc2781.txt
     if self~graphemeIndexes == .nil then return .RexxText~new(self~string~subchar(indexG), self~class)
     startB = self~graphemeIndexes[indexG]
     nextB = self~graphemeIndexes[indexG+1]
-    startB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
-    nextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
-    return .RexxText~new(self~string~substr(startB, nextB-startB), self~class)
+    absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
+    absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
+    return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~class)
 
 
 ::method UTF8
@@ -1856,7 +1882,7 @@ the concatenation back to WTF-8.
         l = low_surrogate - 56320 -- Take the low surrogate and subtract 0xDC00
         return h + l + 65536 -- Add these two results together, and finally add 0x10000
     end
-    raise syntax 93.900 array (self~name "encoding:" sizeB "is an invalid codepoint size")
+    raise syntax 93.900 array (self~name "encoding:" sizeB "is an invalid size of byte sequence")
 
 
 ::method nextCodepointIndex class
@@ -1865,7 +1891,7 @@ the concatenation back to WTF-8.
     indexB = startB
     lengthB = string~length
     if indexB > lengthB then return indexB -- end of string
-    if lengthB - indexB < 1 then signal truncated
+    if lengthB - indexB < 1 then signal truncated2
     codeUnit = string~substr(indexB, 2)
     indexB += 2
     if codeUnit >= "D800"x & codeUnit <= "DBFF"x then do
@@ -1876,7 +1902,7 @@ the concatenation back to WTF-8.
             if wobbly then return indexB
                       else signal unpaired_high_surrogate
         end
-        if lengthB - indexB < 1 then signal truncated
+        if lengthB - indexB < 1 then signal truncated4
         codeUnit = string~substr(indexB, 2)
         if codeUnit >= "DC00"x & codeUnit <= "DFFF"x then indexB += 2 -- this is a valid low surrogate
         else do
@@ -1892,7 +1918,8 @@ the concatenation back to WTF-8.
     unpaired_high_surrogate: raise syntax 93.900 array (self~name "encoding: unpaired high surrogate" codeUnit~c2d "("ppHexNumber(codeUnit~c2d)") at byte-position" startB)
     unpaired_low_surrogate:  raise syntax 93.900 array (self~name "encoding: unpaired low surrogate" codeUnit~c2d "("ppHexNumber(codeUnit~c2d)") at byte-position" startB)
     invalid_low_surrogate:   raise syntax 93.900 array (self~name "encoding: invalid low surrogate" codeUnit~c2d "("ppHexNumber(codeUnit~c2d)") at byte-position" indexB)
-    truncated:               raise syntax 93.900 array (self~name "encoding: character is truncated at byte-position" indexB", expected 2 bytes")
+    truncated2:              raise syntax 93.900 array (self~name "encoding: byte sequence at byte-position" startB "is truncated, expected 2 bytes")
+    truncated4:              raise syntax 93.900 array (self~name "encoding: byte sequence at byte-position" startB "is truncated, expected 4 bytes")
 
 
 ::method skipInvalidByteSequence class
@@ -1933,13 +1960,17 @@ the concatenation back to WTF-8.
 
 ::method codepoint
     -- to reimplement using a byte index because codepointIndexes will be removed
-    use strict arg indexC
+    use strict arg indexC, decode=.true
     if indexC < 1 | indexC > self~codepointCount then raise syntax 93.900 array (self~description "invalid codepoint index:" indexC)
     startB = self~codepointIndexes[indexC]
     nextB = self~codepointIndexes[indexC+1]
-    if startB < 0 then return .Unicode~replacementCharacter~codepoint -- the current byte sequence is invalid
-    nextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
-    return self~class~decode(self~string, startB, nextB-startB)
+    absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
+    absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
+    if decode then do
+        if startB < 0 then return .Unicode~replacementCharacter~codepoint -- the current byte sequence is invalid
+        return self~class~decode(self~string, absStartB, absNextB - absStartB)
+    end
+    return self~string~substr(absStartB, absNextB - absStartB)
 
 
 ::method grapheme
@@ -1947,9 +1978,9 @@ the concatenation back to WTF-8.
     if indexG < 1 | indexG > self~graphemeCount then raise syntax 93.900 array (self~description "invalid grapheme index:" indexG)
     startB = self~graphemeIndexes[indexG]
     nextB = self~graphemeIndexes[indexG+1]
-    startB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
-    nextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
-    return .RexxText~new(self~string~substr(startB, nextB-startB), self~class)
+    absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
+    absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
+    return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~class)
 
 
 ::method UTF8
@@ -2041,8 +2072,8 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 
 ::method item
     expose indexer indexC
-    use strict arg -- none
-    if self~available then return indexer~codepoint(indexC)
+    use strict arg decode=.true
+    if self~available then return indexer~codepoint(indexC, decode)
 
 
 ::method next
