@@ -1,3 +1,26 @@
+loadPackage OK for extension/extensions.cls
+loadLibrary OK for rxunixsys
+loadPackage OK for ncurses.cls
+loadPackage OK for csvStream.cls
+loadLibrary OK for hostemu
+loadPackage OK for json.cls
+loadPackage OK for mime.cls
+loadPackage OK for rxftp.cls
+loadLibrary OK for rxmath
+loadPackage OK for rxregexp.cls
+loadPackage OK for regex/regex.cls
+loadPackage OK for smtp.cls
+loadPackage OK for socket.cls
+loadPackage OK for streamsocket.cls
+loadPackage OK for pipeline/pipe.rex
+loadPackage OK for rgf_util2/rgf_util2.rex
+loadPackage OK for BSF.CLS
+loadPackage OK for oorexxshell_queries.cls
+loadPackage OK for pipeline/pipe_extension.cls
+loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
+
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
+Input queue name: S23a9Q7fd4484183f0
 
 --------------
 -- ooRexxShell
@@ -9,10 +32,12 @@ If no variable is specified then the value of the system variable PATH is displa
 
 ooRexx[bash]> ?path
 PATH '/Users/jlfaucher/Dropbox/software/oorexx'
-PATH '/local/icu/icu4c-50_1_2-MacOSX64_GCC/usr/local/sbin'
-PATH '/local/icu/icu4c-50_1_2-MacOSX64_GCC/usr/local/bin'
-PATH '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20201217-beta/bsf4oorexx'
+PATH '/local/Unicode/ICU/icu-release-69-1/delivery/sbin'
+PATH '/local/Unicode/ICU/icu-release-69-1/delivery/bin'
+PATH '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210724-beta/bsf4oorexx'
+PATH '/local/java/jdk/bellsoft/jdk-16.0.1-full.jdk/bin'
 PATH '/local/rexx/oorexx/executor/sandbox/jlf/samples'
+PATH '/local/rexx/oorexx/executor/sandbox/jlf'
 PATH '/local/rexx/oorexx/executor/incubator/ooRexxShell'
 PATH '/local/rexx/oorexx/executor/incubator/docmusings'
 PATH '/local/rexx/oorexx/executor/incubator'
@@ -41,16 +66,17 @@ PATH '/usr/local/go/bin'
 PATH '/opt/X11/bin'
 PATH '/usr/local/git/bin'
 PATH '/Applications/DjView.app/Contents/bin'
-PATH length: 1038
-[Info] 34 lines displayed
+PATH length: 1123
+[Info] 36 lines displayed
 
 Filter the system PATH to see only the folders in relation with rexx.
 ?path = rexx
 
 ooRexx[bash]> ?path = rexx
 PATH '/Users/jlfaucher/Dropbox/software/oorexx'
-PATH '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20201217-beta/bsf4oorexx'
+PATH '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210724-beta/bsf4oorexx'
 PATH '/local/rexx/oorexx/executor/sandbox/jlf/samples'
+PATH '/local/rexx/oorexx/executor/sandbox/jlf'
 PATH '/local/rexx/oorexx/executor/incubator/ooRexxShell'
 PATH '/local/rexx/oorexx/executor/incubator/docmusings'
 PATH '/local/rexx/oorexx/executor/incubator'
@@ -59,35 +85,37 @@ PATH '/local/rexx/oorexx/official/test/trunk'
 PATH '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin'
 PATH '/local/rexx/oorexx/scripts'
 PATH '/local/rexx/builder/scripts'
-[Info] 11 lines displayed
+[Info] 12 lines displayed
 
 Display the LIBRARY_PATH (Linux)
 ?path LIBRARY_PATH
 
 ooRexx[bash]> ?path LIBRARY_PATH
-LIBRARY_PATH '/local/icu/icu4c-50_1_2-MacOSX64_GCC/usr/local/lib'
+LIBRARY_PATH '/local/cpp/boost/delivery/lib'
+LIBRARY_PATH '/local/Unicode/ICU/icu-release-69-1/delivery/lib'
 LIBRARY_PATH '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/lib'
-LIBRARY_PATH length: 146
-[Info] 3 lines displayed
+LIBRARY_PATH length: 174
+[Info] 4 lines displayed
 
 Display the DYLD_LIBRARY_PATH (MacOs)
 ?path DYLD_LIBRARY_PATH
 
 ooRexx[bash]> ?path DYLD_LIBRARY_PATH
-DYLD_LIBRARY_PATH '/local/icu/icu4c-50_1_2-MacOSX64_GCC/usr/local/lib'
+DYLD_LIBRARY_PATH '/local/cpp/boost/delivery/lib'
+DYLD_LIBRARY_PATH '/local/Unicode/ICU/icu-release-69-1/delivery/lib'
 DYLD_LIBRARY_PATH '/Local/rexx/GCI/gci-source.1.1/build/macos/clang/release/64'
-DYLD_LIBRARY_PATH '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20201217-beta/bsf4oorexx/install/64'
-DYLD_LIBRARY_PATH '/Library/Java/JavaVirtualMachines/jdk1.8.0_131.jdk/Contents/Home/jre/lib/server'
+DYLD_LIBRARY_PATH '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210724-beta/bsf4oorexx/install/64'
 DYLD_LIBRARY_PATH '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/lib'
-DYLD_LIBRARY_PATH length: 369
+DYLD_LIBRARY_PATH length: 317
 [Info] 6 lines displayed
 
 Display the CLASSPATH
 ?path CLASSPATH
 
 ooRexx[bash]> ?path CLASSPATH
-CLASSPATH '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20201217-beta/bsf4oorexx/bsf4ooRexx-v641-20201217-bin.jar'
+CLASSPATH '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210724-beta/bsf4oorexx/bsf4ooRexx-v641-20210724-bin.jar'
 CLASSPATH length: 105
 [Info] 2 lines displayed
 
 End of demonstration.
+

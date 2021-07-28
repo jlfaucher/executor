@@ -8,7 +8,8 @@
 </head>
 <body>
 <pre>
-<span style="font-weight:bold;color:green;">loadLibrary OK for rxunixsys
+<span style="font-weight:bold;color:green;">loadPackage OK for extension/extensions.cls
+</span><span style="font-weight:bold;color:green;">loadLibrary OK for rxunixsys
 </span><span style="font-weight:bold;color:green;">loadPackage OK for ncurses.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for csvStream.cls
 </span><span style="font-weight:bold;color:green;">loadLibrary OK for hostemu
@@ -24,13 +25,12 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe.rex
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2.rex
 </span><span style="font-weight:bold;color:green;">loadPackage OK for BSF.CLS
-</span><span style="font-weight:bold;color:green;">loadPackage OK for extension/extensions.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for oorexxshell_queries.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 28 May 2021
-</span><span style="font-weight:bold;color:green;">Input queue name: Sed79Q7fcc76520820
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
+</span><span style="font-weight:bold;color:green;">Input queue name: S23b9Q7fd44851b920
 </span>
 <span style="color:blue;">--------------
 </span><span style="color:blue;">-- ooRexxShell
@@ -57,25 +57,47 @@ hello
 <span style="color:blue;">A shell command can be used in ooRexx mode, surrounded with quotes.
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; 'ls -lap'
-total 296
-drwxr-xr-x  18 jlfaucher  admin    576 May 30 11:48 ./
-drwxr-xr-x  66 jlfaucher  admin   2112 Apr 18 00:32 ../
--rw-r--r--@  1 jlfaucher  admin   8196 May 19 15:22 .DS_Store
--rw-r--r--@  1 jlfaucher  admin   5850 May 15 17:45 RexxClasses-executor.txt
--rw-r--r--@  1 jlfaucher  admin   2718 May 14 20:47 RexxClasses-official.txt
-drwxr-xr-x  13 jlfaucher  admin    416 Mar 25  2018 _private/
-drwxr-xr-x   6 jlfaucher  admin    192 May 23 11:12 build/
-drwxr-xr-x   8 jlfaucher  admin    256 Mar 24  2018 cvs/
-lrwxr-xr-x   1 jlfaucher  admin     44 Dec 19  2015 doc -&gt; /Users/jlfaucher/Dropbox/software/oorexx/doc
--rw-r--r--@  1 jlfaucher  admin   1076 Apr 14 09:23 doxygen-executor-index.html alias
--rw-r--r--@  1 jlfaucher  admin   1028 May  3 19:13 doxygen-offical-index.html alias
-drwxr-xr-x@ 15 jlfaucher  admin    480 May 21 13:15 executor/
-drwxr-xr-x   6 jlfaucher  admin    192 Jul 24  2016 executor5/
-drwxr-xr-x   4 jlfaucher  admin    128 Mar 24  2018 icons/
-drwxr-xr-x@ 21 jlfaucher  admin    672 Mar 14 10:23 official/
--rw-r--r--   1 jlfaucher  admin  57622 Apr 22 22:53 say_hello-macos.txt
--rw-------@  1 jlfaucher  admin  54347 Apr 22 09:05 say_hello-windows.txt
-drwxr-xr-x  17 jlfaucher  admin    544 May 30 20:23 scripts/
+total 6208
+drwxr-xr-x  40 jlfaucher  admin    1280 Jul 27 14:45 ./
+drwxr-xr-x  14 jlfaucher  admin     448 Jul 14 14:50 ../
+-rw-r--r--@  1 jlfaucher  admin    6148 Jun  5 23:47 .DS_Store
+-rw-r--r--@  1 jlfaucher  admin    1820 Jul 16 17:18 Makefile
+-rw-r--r--@  1 jlfaucher  admin    1083 Jun  6 02:51 _readme-demos.txt
+drwxr-xr-x   7 jlfaucher  admin     224 May 31 22:54 arch/
+-rwxr-xr-x@  1 jlfaucher  admin     425 Jun  1 04:12 demo
+-rw-r--r--@  1 jlfaucher  admin   16755 Jun  6 02:27 executor-demo-array-output.html
+-rw-r--r--   1 jlfaucher  admin    7764 Jun  1 04:14 executor-demo-array-output.txt
+-rw-r--r--   1 jlfaucher  admin   42464 Jul 27 14:25 executor-demo-array.cast
+-rw-r--r--@  1 jlfaucher  admin    5783 Jul 27 11:29 executor-demo-array.txt
+-rw-r--r--@  1 jlfaucher  admin  322774 Jun  6 02:27 executor-demo-classic_rexx-output.html
+-rw-r--r--   1 jlfaucher  admin  310045 Jun  1 02:59 executor-demo-classic_rexx-output.txt
+-rw-r--r--   1 jlfaucher  admin  384245 Jul 27 14:28 executor-demo-classic_rexx.cast
+-rw-r--r--@  1 jlfaucher  admin    1541 Jul 27 11:29 executor-demo-classic_rexx.txt
+-rw-r--r--@  1 jlfaucher  admin   14023 Jun 28 20:23 executor-demo-extensions-output.html
+-rw-r--r--   1 jlfaucher  admin    8630 Jun 28 20:23 executor-demo-extensions-output.txt
+-rw-r--r--   1 jlfaucher  admin   31425 Jul 27 14:32 executor-demo-extensions.cast
+-rw-r--r--@  1 jlfaucher  admin    2863 Jul 27 11:30 executor-demo-extensions.txt
+-rw-r--r--@  1 jlfaucher  admin   26889 Jul 26 05:59 executor-demo-text-internal_checks-output.html
+-rw-r--r--@  1 jlfaucher  admin   12871 Jul 26 05:59 executor-demo-text-internal_checks-output.txt
+-rw-r--r--   1 jlfaucher  admin  135610 Jul 27 14:45 executor-demo-text-internal_checks.cast
+-rw-r--r--@  1 jlfaucher  admin    8924 Jul 27 14:18 executor-demo-text-internal_checks.txt
+-rw-r--r--@  1 jlfaucher  admin   22963 Jul 26 05:59 executor-demo-text-output.html
+-rw-r--r--@  1 jlfaucher  admin   12456 Jul 26 05:59 executor-demo-text-output.txt
+-rw-r--r--   1 jlfaucher  admin   76272 Jul 27 14:38 executor-demo-text.cast
+-rw-r--r--@  1 jlfaucher  admin   11611 Jul 27 13:21 executor-demo-text.txt
+-rw-r--r--@  1 jlfaucher  admin    7048 Jun  6 02:27 ooRexxShell-demo-helpers-output.html
+-rw-r--r--   1 jlfaucher  admin    3529 Jun  1 04:14 ooRexxShell-demo-helpers-output.txt
+-rw-r--r--   1 jlfaucher  admin    9677 Jul 27 14:45 ooRexxShell-demo-helpers.cast
+-rw-r--r--@  1 jlfaucher  admin     807 Jul 27 11:30 ooRexxShell-demo-helpers.txt
+-rw-r--r--@  1 jlfaucher  admin   16344 Jun  6 02:27 ooRexxShell-demo-interpreters-output.html
+-rw-r--r--   1 jlfaucher  admin    9914 Jun  1 04:20 ooRexxShell-demo-interpreters-output.txt
+-rw-r--r--   1 jlfaucher  admin    5282 Jul 27 14:46 ooRexxShell-demo-interpreters.cast
+-rw-r--r--@  1 jlfaucher  admin    3659 Jul 27 11:31 ooRexxShell-demo-interpreters.txt
+-rw-r--r--@  1 jlfaucher  admin  408823 Jun  6 02:27 ooRexxShell-demo-queries-output.html
+-rw-r--r--@  1 jlfaucher  admin  396041 Jun  1 03:40 ooRexxShell-demo-queries-output.txt
+-rw-r--r--   1 jlfaucher  admin  546449 May 31 23:15 ooRexxShell-demo-queries.cast
+-rw-r--r--@  1 jlfaucher  admin    3841 Jul 27 11:31 ooRexxShell-demo-queries.txt
+-rw-r--r--@  1 jlfaucher  admin   12449 Jul 26 05:32 out.txt
 
 <span style="color:blue;">When not in ooRexx mode, you enter raw commands that are passed directly to the external environment.
 </span><span style="color:blue;">You switch from an interpreter to an other one by entering its name alone.
@@ -108,25 +130,47 @@ Interpreters:
 </span><span style="color:blue;">No need to surround the commands with quotes.
 </span><span style="font-weight:bold;color:olive;">
 </span>sh[ooRexx]&gt; ls -lap
-total 296
-drwxr-xr-x  18 jlfaucher  admin    576 May 30 11:48 ./
-drwxr-xr-x  66 jlfaucher  admin   2112 Apr 18 00:32 ../
--rw-r--r--@  1 jlfaucher  admin   8196 May 19 15:22 .DS_Store
--rw-r--r--@  1 jlfaucher  admin   5850 May 15 17:45 RexxClasses-executor.txt
--rw-r--r--@  1 jlfaucher  admin   2718 May 14 20:47 RexxClasses-official.txt
-drwxr-xr-x  13 jlfaucher  admin    416 Mar 25  2018 _private/
-drwxr-xr-x   6 jlfaucher  admin    192 May 23 11:12 build/
-drwxr-xr-x   8 jlfaucher  admin    256 Mar 24  2018 cvs/
-lrwxr-xr-x   1 jlfaucher  admin     44 Dec 19  2015 doc -&gt; /Users/jlfaucher/Dropbox/software/oorexx/doc
--rw-r--r--@  1 jlfaucher  admin   1076 Apr 14 09:23 doxygen-executor-index.html alias
--rw-r--r--@  1 jlfaucher  admin   1028 May  3 19:13 doxygen-offical-index.html alias
-drwxr-xr-x@ 15 jlfaucher  admin    480 May 21 13:15 executor/
-drwxr-xr-x   6 jlfaucher  admin    192 Jul 24  2016 executor5/
-drwxr-xr-x   4 jlfaucher  admin    128 Mar 24  2018 icons/
-drwxr-xr-x@ 21 jlfaucher  admin    672 Mar 14 10:23 official/
--rw-r--r--   1 jlfaucher  admin  57622 Apr 22 22:53 say_hello-macos.txt
--rw-------@  1 jlfaucher  admin  54347 Apr 22 09:05 say_hello-windows.txt
-drwxr-xr-x  17 jlfaucher  admin    544 May 30 20:23 scripts/
+total 6216
+drwxr-xr-x  40 jlfaucher  admin    1280 Jul 27 14:45 ./
+drwxr-xr-x  14 jlfaucher  admin     448 Jul 14 14:50 ../
+-rw-r--r--@  1 jlfaucher  admin    6148 Jun  5 23:47 .DS_Store
+-rw-r--r--@  1 jlfaucher  admin    1820 Jul 16 17:18 Makefile
+-rw-r--r--@  1 jlfaucher  admin    1083 Jun  6 02:51 _readme-demos.txt
+drwxr-xr-x   7 jlfaucher  admin     224 May 31 22:54 arch/
+-rwxr-xr-x@  1 jlfaucher  admin     425 Jun  1 04:12 demo
+-rw-r--r--@  1 jlfaucher  admin   16755 Jun  6 02:27 executor-demo-array-output.html
+-rw-r--r--   1 jlfaucher  admin    7764 Jun  1 04:14 executor-demo-array-output.txt
+-rw-r--r--   1 jlfaucher  admin   42464 Jul 27 14:25 executor-demo-array.cast
+-rw-r--r--@  1 jlfaucher  admin    5783 Jul 27 11:29 executor-demo-array.txt
+-rw-r--r--@  1 jlfaucher  admin  322774 Jun  6 02:27 executor-demo-classic_rexx-output.html
+-rw-r--r--   1 jlfaucher  admin  310045 Jun  1 02:59 executor-demo-classic_rexx-output.txt
+-rw-r--r--   1 jlfaucher  admin  384245 Jul 27 14:28 executor-demo-classic_rexx.cast
+-rw-r--r--@  1 jlfaucher  admin    1541 Jul 27 11:29 executor-demo-classic_rexx.txt
+-rw-r--r--@  1 jlfaucher  admin   14023 Jun 28 20:23 executor-demo-extensions-output.html
+-rw-r--r--   1 jlfaucher  admin    8630 Jun 28 20:23 executor-demo-extensions-output.txt
+-rw-r--r--   1 jlfaucher  admin   31425 Jul 27 14:32 executor-demo-extensions.cast
+-rw-r--r--@  1 jlfaucher  admin    2863 Jul 27 11:30 executor-demo-extensions.txt
+-rw-r--r--@  1 jlfaucher  admin   26889 Jul 26 05:59 executor-demo-text-internal_checks-output.html
+-rw-r--r--@  1 jlfaucher  admin   12871 Jul 26 05:59 executor-demo-text-internal_checks-output.txt
+-rw-r--r--   1 jlfaucher  admin  135610 Jul 27 14:45 executor-demo-text-internal_checks.cast
+-rw-r--r--@  1 jlfaucher  admin    8924 Jul 27 14:18 executor-demo-text-internal_checks.txt
+-rw-r--r--@  1 jlfaucher  admin   22963 Jul 26 05:59 executor-demo-text-output.html
+-rw-r--r--@  1 jlfaucher  admin   12456 Jul 26 05:59 executor-demo-text-output.txt
+-rw-r--r--   1 jlfaucher  admin   76272 Jul 27 14:38 executor-demo-text.cast
+-rw-r--r--@  1 jlfaucher  admin   11611 Jul 27 13:21 executor-demo-text.txt
+-rw-r--r--@  1 jlfaucher  admin    7048 Jun  6 02:27 ooRexxShell-demo-helpers-output.html
+-rw-r--r--   1 jlfaucher  admin    3529 Jun  1 04:14 ooRexxShell-demo-helpers-output.txt
+-rw-r--r--   1 jlfaucher  admin    9677 Jul 27 14:45 ooRexxShell-demo-helpers.cast
+-rw-r--r--@  1 jlfaucher  admin     807 Jul 27 11:30 ooRexxShell-demo-helpers.txt
+-rw-r--r--@  1 jlfaucher  admin   16344 Jun  6 02:27 ooRexxShell-demo-interpreters-output.html
+-rw-r--r--   1 jlfaucher  admin    9914 Jun  1 04:20 ooRexxShell-demo-interpreters-output.txt
+-rw-r--r--   1 jlfaucher  admin   11653 Jul 27 14:46 ooRexxShell-demo-interpreters.cast
+-rw-r--r--@  1 jlfaucher  admin    3659 Jul 27 11:31 ooRexxShell-demo-interpreters.txt
+-rw-r--r--@  1 jlfaucher  admin  408823 Jun  6 02:27 ooRexxShell-demo-queries-output.html
+-rw-r--r--@  1 jlfaucher  admin  396041 Jun  1 03:40 ooRexxShell-demo-queries-output.txt
+-rw-r--r--   1 jlfaucher  admin  546449 May 31 23:15 ooRexxShell-demo-queries.cast
+-rw-r--r--@  1 jlfaucher  admin    3841 Jul 27 11:31 ooRexxShell-demo-queries.txt
+-rw-r--r--@  1 jlfaucher  admin   12449 Jul 26 05:32 out.txt
 
 <span style="color:blue;">HostEmu is a subcommand environment that partially emulates a TSO/CMS environment.
 </span><span style="font-weight:bold;color:olive;">
@@ -140,30 +184,19 @@ drwxr-xr-x  17 jlfaucher  admin    544 May 30 20:23 scripts/
 </span><span style="color:blue;">They are stored in the stem named &quot;lines.&quot;.
 </span><span style="font-weight:bold;color:olive;">
 </span>HostEmu[ooRexx]&gt; execio 10 diskr &quot;../builder/scripts/setenv&quot; (finis stem lines.
-
+<span style="font-weight:bold;color:red;">RC= 24
+</span>
 <span style="color:blue;">When in HostEmu mode, the ooRexx expressions are not recognized
 </span><span style="font-weight:bold;color:olive;">
 </span>HostEmu[ooRexx]&gt; lines.=
 hostemu: bad PLIST, token &quot;syntax error&quot;
 <span style="font-weight:bold;color:red;">RC= 24
-</span><span style="font-weight:bold;color:green;">lines.=
 </span>
 <span style="color:blue;">You can switch temporarily to ooRexx to display the result.
 </span><span style="color:blue;">For that, start your command line with &quot;oorexx&quot;.
 </span><span style="font-weight:bold;color:olive;">
 </span>HostEmu[ooRexx]&gt; oorexx lines.=
-a Stem (11 items)
- 0  :  10
- 1  : '#!/bin/bash'
- 2  : ''
- 3  : 'if [ &quot;$0&quot; = &quot;$BASH_SOURCE&quot; ] ; then echo &quot;Usage : source ${BASH_SOURCE[0]}&quot; ; exit 1 ; fi'
- 4  : ''
- 5  : '# Path to this script'
- 6  : 'FILE=&quot;${BASH_SOURCE[0]}&quot;'
- 7  : 'export builder_scripts_dir=&quot;$( cd -P &quot;$(dirname &quot;$FILE&quot;)&quot; &amp;&amp; pwd )&quot;'
- 8  : ''
- 9  : '# load the helpers'
- 10 : '. $builder_scripts_dir/shellscriptlib'
+a Stem (0 items)
 
 <span style="color:blue;">Switch to PowerShell core.
 </span><span style="color:blue;">pwsh
@@ -177,28 +210,28 @@ a Stem (11 items)
 </span><span style="font-weight:bold;color:olive;">
 </span>pwsh[ooRexx]&gt; get-command *rexx* | select -property name, source
 
-Name                             Source
-----                             ------
-bsf4ooRexx-v641-20201217-bin.jar /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20201217-beta/bsf4oorexx/bsf4ooRexx-v641-2020121…
-callrexx1                        /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/…
-callrexx2                        /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/…
-oorexxshell                      /local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell
-oorexx_collect_docfiles          /local/rexx/builder/scripts/oorexx_collect_docfiles
-oorexx_vars                      /local/rexx/builder/scripts/oorexx_vars
-refcardBSF4ooRexx.pdf            /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20201217-beta/bsf4oorexx/refcardBSF4ooRexx.pdf
-rexx                             /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/…
-rexx.cat                         /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/…
-rexx.img                         /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/…
-rexxc                            /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/…
-rexxcUtil.rex                    /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20201217-beta/bsf4oorexx/rexxcUtil.rex
-rexxj2-32.sh                     /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20201217-beta/bsf4oorexx/rexxj2-32.sh
-rexxj2-64.sh                     /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20201217-beta/bsf4oorexx/rexxj2-64.sh
-rexxj2.cmd                       /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20201217-beta/bsf4oorexx/rexxj2.cmd
-rexxj2.sh                        /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20201217-beta/bsf4oorexx/rexxj2.sh
-rexxscriptlib.rex                /local/rexx/builder/scripts/rexxscriptlib.rex
-rexxtry.rex                      /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/…
-setenv-oorexx                    /local/rexx/builder/scripts/setenv-oorexx
-testOORexx.rex                   /local/rexx/oorexx/official/test/trunk/testOORexx.rex
+Name                    Source
+----                    ------
+callrexx1               /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/callrexx1
+callrexx2               /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/callrexx2
+libBSF4ooRexx.dylib     /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210724-beta/bsf4oorexx/libBSF4ooRexx.dylib
+oorexxshell             /local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell
+oorexx_collect_docfiles /local/rexx/builder/scripts/oorexx_collect_docfiles
+oorexx_vars             /local/rexx/builder/scripts/oorexx_vars
+rexx                    /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx
+rexx.cat                /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.cat
+rexx.img                /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.img
+rexxc                   /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexxc
+rexxcUtil.rex           /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210724-beta/bsf4oorexx/rexxcUtil.rex
+rexxj.sh                /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210724-beta/bsf4oorexx/rexxj.sh
+rexxj2-32.sh            /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210724-beta/bsf4oorexx/rexxj2-32.sh
+rexxj2-64.sh            /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210724-beta/bsf4oorexx/rexxj2-64.sh
+rexxj2.cmd              /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210724-beta/bsf4oorexx/rexxj2.cmd
+rexxj2.sh               /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210724-beta/bsf4oorexx/rexxj2.sh
+rexxscriptlib.rex       /local/rexx/builder/scripts/rexxscriptlib.rex
+rexxtry.rex             /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexxtry.r…
+setenv-oorexx           /local/rexx/builder/scripts/setenv-oorexx
+testOORexx.rex          /local/rexx/oorexx/official/test/trunk/testOORexx.rex
 
 
 <span style="color:blue;">Same command, send the output to the rexx queue without the table headers.
@@ -210,26 +243,26 @@ testOORexx.rex                   /local/rexx/oorexx/official/test/trunk/testOORe
 </span><span style="font-weight:bold;color:olive;">
 </span>pwsh[ooRexx]&gt; oorexx .rexxqueue~new~makearray~select{item &lt;&gt; &quot;&quot;}~reduce(.directory~new){parse value item~space with name source; accu[name]=source}=
 a Directory (20 items)
-'bsf4ooRexx-v641-20201217-bin.jar' : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20201217-beta/bsf4oorexx/bsf4ooRexx-v641-20201217…'
-'callrexx1'                        : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/c…'
-'callrexx2'                        : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/c…'
-'oorexxshell'                      : '/local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell'
-'oorexx_collect_docfiles'          : '/local/rexx/builder/scripts/oorexx_collect_docfiles'
-'oorexx_vars'                      : '/local/rexx/builder/scripts/oorexx_vars'
-'refcardBSF4ooRexx.pdf'            : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20201217-beta/bsf4oorexx/refcardBSF4ooRexx.pdf'
-'rexx'                             : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/r…'
-'rexx.cat'                         : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/r…'
-'rexx.img'                         : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/r…'
-'rexxc'                            : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/r…'
-'rexxcUtil.rex'                    : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20201217-beta/bsf4oorexx/rexxcUtil.rex'
-'rexxj2-32.sh'                     : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20201217-beta/bsf4oorexx/rexxj2-32.sh'
-'rexxj2-64.sh'                     : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20201217-beta/bsf4oorexx/rexxj2-64.sh'
-'rexxj2.cmd'                       : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20201217-beta/bsf4oorexx/rexxj2.cmd'
-'rexxj2.sh'                        : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20201217-beta/bsf4oorexx/rexxj2.sh'
-'rexxscriptlib.rex'                : '/local/rexx/builder/scripts/rexxscriptlib.rex'
-'rexxtry.rex'                      : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/r…'
-'setenv-oorexx'                    : '/local/rexx/builder/scripts/setenv-oorexx'
-'testOORexx.rex'                   : '/local/rexx/oorexx/official/test/trunk/testOORexx.rex'
+'callrexx1'               : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/callrexx1'
+'callrexx2'               : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/callrexx2'
+'libBSF4ooRexx.dylib'     : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210724-beta/bsf4oorexx/libBSF4ooRexx.dylib'
+'oorexxshell'             : '/local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell'
+'oorexx_collect_docfiles' : '/local/rexx/builder/scripts/oorexx_collect_docfiles'
+'oorexx_vars'             : '/local/rexx/builder/scripts/oorexx_vars'
+'rexx'                    : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx'
+'rexx.cat'                : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.cat'
+'rexx.img'                : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.img'
+'rexxc'                   : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexxc'
+'rexxcUtil.rex'           : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210724-beta/bsf4oorexx/rexxcUtil.rex'
+'rexxj.sh'                : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210724-beta/bsf4oorexx/rexxj.sh'
+'rexxj2-32.sh'            : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210724-beta/bsf4oorexx/rexxj2-32.sh'
+'rexxj2-64.sh'            : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210724-beta/bsf4oorexx/rexxj2-64.sh'
+'rexxj2.cmd'              : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210724-beta/bsf4oorexx/rexxj2.cmd'
+'rexxj2.sh'               : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210724-beta/bsf4oorexx/rexxj2.sh'
+'rexxscriptlib.rex'       : '/local/rexx/builder/scripts/rexxscriptlib.rex'
+'rexxtry.rex'             : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexxtry.rex'
+'setenv-oorexx'           : '/local/rexx/builder/scripts/setenv-oorexx'
+'testOORexx.rex'          : '/local/rexx/oorexx/official/test/trunk/testOORexx.rex'
 
 <span style="color:blue;">Back to the ooRexx interpreter, by entering &quot;oorexx&quot; alone.
 </span><span style="font-weight:bold;color:olive;">

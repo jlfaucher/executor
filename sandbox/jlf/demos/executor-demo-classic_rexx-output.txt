@@ -1,4 +1,26 @@
-loadPackage KO for BSF.CLS
+loadPackage OK for extension/extensions.cls
+loadLibrary OK for rxunixsys
+loadPackage OK for ncurses.cls
+loadPackage OK for csvStream.cls
+loadLibrary OK for hostemu
+loadPackage OK for json.cls
+loadPackage OK for mime.cls
+loadPackage OK for rxftp.cls
+loadLibrary OK for rxmath
+loadPackage OK for rxregexp.cls
+loadPackage OK for regex/regex.cls
+loadPackage OK for smtp.cls
+loadPackage OK for socket.cls
+loadPackage OK for streamsocket.cls
+loadPackage OK for pipeline/pipe.rex
+loadPackage OK for rgf_util2/rgf_util2.rex
+loadPackage OK for BSF.CLS
+loadPackage OK for oorexxshell_queries.cls
+loadPackage OK for pipeline/pipe_extension.cls
+loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
+
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
+Input queue name: S2177Q7fd44851b370
 
 ---------------
 -- Classic Rexx
@@ -13,644 +35,329 @@ Illustration by running the Rosetta Code solutions for REXX.
 The solutions are installed locally from https://github.com/acmeism/RosettaCodeData
 The script RunRosettaCode must be executed from the directory which contains the directory Lang.
 
-/local/rexx/oorexx
+/local/rexx/oorexx/executor/sandbox/jlf/demos
 ooRexx[bash]> system
 
-/local/rexx/oorexx
+/local/rexx/oorexx/executor/sandbox/jlf/demos
 sh[ooRexx]> cd /local/RosettaCodeData/git
 
 /local/RosettaCodeData/git
 sh[ooRexx]> ls Lang/Rexx
-./
-../
-.DS_Store
-00DESCRIPTION
-100-doors@
-24-game@
-24-game-Solve@
-9-billion-names-of-God-the-integer@
-99-Bottles-of-Beer@
-A+B@
-ABC-Problem@
-AKS-test-for-primes@
-Abundant,-deficient-and-perfect-number-classifications@
-Accumulator-factory@
-Ackermann-function@
-Active-Directory-Search-for-a-user@
-Address-of-a-variable@
-Align-columns@
-Aliquot-sequence-classifications@
-Almost-prime@
-Amb@
-Amicable-pairs@
-Anagrams@
-Anagrams-Deranged-anagrams@
-Anonymous-recursion@
-Append-a-record-to-the-end-of-a-text-file@
-Apply-a-callback-to-an-array@
-Arbitrary-precision-integers--included-@
-Arena-storage-pool@
-Arithmetic-Complex@
-Arithmetic-Integer@
-Arithmetic-Rational@
-Arithmetic-evaluation@
-Arithmetic-geometric-mean@
-Arithmetic-geometric-mean-Calculate-Pi@
-Array-concatenation@
-Arrays@
-Assertions@
-Associative-array-Creation@
-Associative-array-Iteration@
-Average-loop-length@
-Averages-Arithmetic-mean@
-Averages-Mean-angle@
-Averages-Mean-time-of-day@
-Averages-Median@
-Averages-Mode@
-Averages-Pythagorean-means@
-Averages-Root-mean-square@
-Averages-Simple-moving-average@
-Balanced-brackets@
-Balanced-ternary@
-Benfords-law@
-Bernoulli-numbers@
-Best-shuffle@
-Binary-digits@
-Binary-search@
-Binary-strings@
-Bitmap@
-Bitmap-Bresenhams-line-algorithm@
-Bitmap-Flood-fill@
-Bitmap-Midpoint-circle-algorithm@
-Bitmap-Read-a-PPM-file@
-Bitmap-Write-a-PPM-file@
-Bitwise-IO@
-Bitwise-operations@
-Boolean-values@
-Box-the-compass@
-Brownian-tree@
-Bulls-and-cows@
-Bulls-and-cows-Player@
-CRC-32@
-CSV-data-manipulation@
-CSV-to-HTML-translation@
-Caesar-cipher@
-Calendar@
-Calendar---for-REAL-programmers@
-Call-a-foreign-language-function@
-Call-a-function@
-Call-a-function-in-a-shared-library@
-Carmichael-3-strong-pseudoprimes@
-Case-sensitivity-of-identifiers@
-Casting-out-nines@
-Catalan-numbers@
-Catalan-numbers-Pascals-triangle@
-Catamorphism@
-Character-codes@
-Check-Machin-like-formulas@
-Check-that-file-exists@
-Chinese-remainder-theorem@
-Cholesky-decomposition@
-Circles-of-given-radius-through-two-points@
-Closest-pair-problem@
-Closures-Value-capture@
-Collections@
-Color-of-a-screen-pixel@
-Colour-bars-Display@
-Combinations@
-Combinations-and-permutations@
-Combinations-with-repetitions@
-Comma-quibbling@
-Command-line-arguments@
-Comments@
-Compile-time-calculation@
-Compound-data-type@
-Conditional-structures@
-Conjugate-transpose@
-Constrained-random-points-on-a-circle@
-Continued-fraction@
-Continued-fraction-Arithmetic-Construct-from-rational-number@
-Convert-decimal-number-to-rational@
-Conways-Game-of-Life@
-Copy-a-string@
-Count-in-factors@
-Count-in-octal@
-Count-occurrences-of-a-substring@
-Count-the-coins@
-Create-a-file@
-Create-a-file-on-magnetic-tape@
-Create-a-two-dimensional-array-at-runtime@
-Create-an-HTML-table@
-Currying@
-Cut-a-rectangle@
-DNS-query@
-Date-format@
-Date-manipulation@
-Day-of-the-week@
-Deal-cards-for-FreeCell@
-Death-Star@
-Deconvolution-1D@
-Delete-a-file@
-Detect-division-by-zero@
-Determine-if-a-string-is-numeric@
-Determine-if-only-one-instance-is-running@
-Digital-root@
-Digital-root-Multiplicative-digital-root@
-Dinesmans-multiple-dwelling-problem@
-Dining-philosophers@
-Discordian-date@
-Documentation@
-Dot-product@
-Doubly-linked-list-Definition@
-Doubly-linked-list-Element-definition@
-Doubly-linked-list-Element-insertion@
-Doubly-linked-list-Traversal@
-Dragon-curve@
-Draw-a-clock@
-Draw-a-cuboid@
-Draw-a-sphere@
-Dutch-national-flag-problem@
-Dynamic-variable-names@
-Element-wise-operations@
-Empty-directory@
-Empty-program@
-Empty-string@
-Enforced-immutability@
-Entropy@
-Enumerations@
-Environment-variables@
-Equilibrium-index@
-Ethiopian-multiplication@
-Euler-method@
-Evaluate-binomial-coefficients@
-Even-or-odd@
-Events@
-Evolutionary-algorithm@
-Exceptions@
-Exceptions-Catch-an-exception-thrown-in-a-nested-call@
-Executable-library@
-Execute-Brain----@
-Execute-HQ9+@
-Execute-a-Markov-algorithm@
-Execute-a-system-command@
-Exponentiation-operator@
-Extend-your-language@
-Extensible-prime-generator@
-Extreme-floating-point-values@
-Factorial@
-Factors-of-a-Mersenne-number@
-Factors-of-an-integer@
-Fast-Fourier-transform@
-Fibonacci-n-step-number-sequences@
-Fibonacci-sequence@
-Fibonacci-word@
-Fibonacci-word-fractal@
-File-input-output@
-File-modification-time@
-File-size@
-Filter@
-Find-common-directory-path@
-Find-limit-of-recursion@
-Find-the-last-Sunday-of-each-month@
-Find-the-missing-permutation@
-First-class-environments@
-First-class-functions@
-Five-weekends@
-FizzBuzz@
-Flatten-a-list@
-Flipping-bits-game@
-Flow-control-structures@
-Floyds-triangle@
-Forest-fire@
-Fork@
-Formatted-numeric-output@
-Forward-difference@
-Four-bit-adder@
-Fractran@
-Function-composition@
-Function-definition@
-Function-frequency@
-Gamma-function@
-Gaussian-elimination@
-Generate-Chess960-starting-position@
-Generate-lower-case-ASCII-alphabet@
-Generator-Exponential@
-Generic-swap@
-Globally-replace-text-in-several-files@
-Gray-code@
-Grayscale-image@
-Greatest-common-divisor@
-Greatest-element-of-a-list@
-Greatest-subsequential-sum@
-Guess-the-number@
-Guess-the-number-With-feedback@
-Guess-the-number-With-feedback--player-@
-HTTP@
-Hailstone-sequence@
-Hamming-numbers@
-Handle-a-signal@
-Happy-numbers@
-Harshad-or-Niven-series@
-Hash-from-two-arrays@
-Hash-join@
-Haversine-formula@
-Hello-world-Graphical@
-Hello-world-Line-printer@
-Hello-world-Newbie@
-Hello-world-Newline-omission@
-Hello-world-Standard-error@
-Hello-world-Text@
-Hello-world-Web-server@
-Here-document@
-Heronian-triangles@
-Hickerson-series-of-almost-integers@
-Higher-order-functions@
-History-variables@
-Hofstadter-Conway-$10,000-sequence@
-Hofstadter-Figure-Figure-sequences@
-Hofstadter-Q-sequence@
-Holidays-related-to-Easter@
-Horizontal-sundial-calculations@
-Horners-rule-for-polynomial-evaluation@
-Host-introspection@
-Hostname@
-Huffman-coding@
-I-before-E-except-after-C@
-IBAN@
-Identity-matrix@
-Image-noise@
-Include-a-file@
-Increment-a-numerical-string@
-Input-loop@
-Integer-comparison@
-Integer-overflow@
-Integer-sequence@
-Interactive-programming@
-Introspection@
-Inverted-index@
-Inverted-syntax@
-Iterated-digits-squaring@
-Jensens-Device@
-Josephus-problem@
-Jump-anywhere@
-Kaprekar-numbers@
-Keyboard-input-Flush-the-keyboard-buffer@
-Keyboard-input-Keypress-check@
-Keyboard-input-Obtain-a-Y-or-N-response@
-Keyboard-macros@
-Knapsack-problem-0-1@
-Knapsack-problem-Bounded@
-Knapsack-problem-Continuous@
-Knapsack-problem-Unbounded@
-Knights-tour@
-Knuth-shuffle@
-Knuths-algorithm-S@
-LU-decomposition@
-LZW-compression@
-Langtons-ant@
-Largest-int-from-concatenated-ints@
-Last-Friday-of-each-month@
-Last-letter-first-letter@
-Leap-year@
-Least-common-multiple@
-Left-factorials@
-Letter-frequency@
-Levenshtein-distance@
-Linear-congruential-generator@
-List-comprehensions@
-Literals-Floating-point@
-Literals-Integer@
-Literals-String@
-Logical-operations@
-Long-multiplication@
-Longest-common-subsequence@
-Longest-string-challenge@
-Look-and-say-sequence@
-Loop-over-multiple-arrays-simultaneously@
-Loops-Break@
-Loops-Continue@
-Loops-Do-while@
-Loops-Downward-for@
-Loops-For@
-Loops-For-with-a-specified-step@
-Loops-Foreach@
-Loops-Infinite@
-Loops-N-plus-one-half@
-Loops-Nested@
-Loops-While@
-Lucas-Lehmer-test@
-Ludic-numbers@
-Luhn-test-of-credit-card-numbers@
-MD5@
-MD5-Implementation@
-Mad-Libs@
-Magic-squares-of-odd-order@
-Main-step-of-GOST-28147-89@
-Make-directory-path@
-Man-or-boy-test@
-Mandelbrot-set@
-Map-range@
-Matrix-arithmetic@
-Matrix-multiplication@
-Matrix-transposition@
-Maximum-triangle-path-sum@
-Maze-generation@
-Memory-allocation@
-Memory-layout-of-a-data-structure@
-Menu@
-Metaprogramming@
-Metronome@
-Middle-three-digits@
-Modular-exponentiation@
-Modular-inverse@
-Monte-Carlo-methods@
-Monty-Hall-problem@
-Move-to-front-algorithm@
-Multifactorial@
-Multiplication-tables@
-Multiplicative-order@
-Multisplit@
-Munching-squares@
-Mutual-recursion@
-N-queens-problem@
-Named-parameters@
-Narcissist@
-Narcissistic-decimal-number@
-Nautical-bell@
-Non-continuous-subsequences@
-Non-decimal-radices-Convert@
-Non-decimal-radices-Input@
-Non-decimal-radices-Output@
-Nth@
-Nth-root@
-Null-object@
-Number-reversal-game@
-Numeric-error-propagation@
-Numerical-integration@
-Numerical-integration-Gauss-Legendre-Quadrature@
-Odd-word-problem@
-Old-lady-swallowed-a-fly@
-One-dimensional-cellular-automata@
-One-of-n-lines-in-a-file@
-Optional-parameters@
-Order-disjoint-list-items@
-Order-two-numerical-lists@
-Ordered-Partitions@
-Ordered-words@
-Palindrome-detection@
-Pangram-checker@
-Paraffins@
-Parametric-polymorphism@
-Parse-an-IP-Address@
-Parsing-RPN-calculator-algorithm@
-Parsing-RPN-to-infix-conversion@
-Parsing-Shunting-yard-algorithm@
-Partial-function-application@
-Pascals-triangle@
-Pascals-triangle-Puzzle@
-Pattern-matching@
-Penneys-game@
-Perfect-numbers@
-Permutation-test@
-Permutations@
-Permutations-Derangements@
-Permutations-Rank-of-a-permutation@
-Permutations-by-swapping@
-Pernicious-numbers@
-Phrase-reversals@
-Pi@
-Pick-random-element@
-Pig-the-dice-game@
-Pig-the-dice-game-Player@
-Playing-cards@
-Plot-coordinate-pairs@
-Polynomial-long-division@
-Polynomial-regression@
-Power-set@
-Price-fraction@
-Primality-by-trial-division@
-Prime-decomposition@
-Priority-queue@
-Probabilistic-choice@
-Problem-of-Apollonius@
-Program-name@
-Program-termination@
-Pythagorean-triples@
-Quaternion-type@
-Queue-Definition@
-Queue-Usage@
-Quickselect-algorithm@
-Quine@
-README
-Random-number-generator--device-@
-Random-number-generator--included-@
-Random-numbers@
-Range-expansion@
-Range-extraction@
-Ranking-methods@
-Rate-counter@
-Ray-casting-algorithm@
-Read-a-configuration-file@
-Read-a-file-line-by-line@
-Read-a-specific-line-from-a-file@
-Read-entire-file@
-Real-constants-and-functions@
-Reduced-row-echelon-form@
-Regular-expressions@
-Remove-duplicate-elements@
-Remove-lines-from-a-file@
-Rename-a-file@
-Rep-string@
-Repeat-a-string@
-Resistor-mesh@
-Return-multiple-values@
-Reverse-a-string@
-Reverse-words-in-a-string@
-Rock-paper-scissors@
-Roman-numerals-Decode@
-Roman-numerals-Encode@
-Roots-of-a-function@
-Roots-of-a-quadratic-function@
-Roots-of-unity@
-Rot-13@
-Run-length-encoding@
-Runge-Kutta-method@
-Runtime-evaluation@
-Runtime-evaluation-In-an-environment@
-S-Expressions@
-SEDOLs@
-Safe-addition@
-Same-Fringe@
-Scope-Function-names-and-labels@
-Scope-modifiers@
-Search-a-list@
-Self-describing-numbers@
-Self-referential-sequence@
-Semiprime@
-Semordnilap@
-Sequence-of-non-squares@
-Sequence-of-primes-by-Trial-Division@
-Set@
-Set-consolidation@
-Set-of-real-numbers@
-Set-puzzle@
-Seven-sided-dice-from-five-sided-dice@
-Shell-one-liner@
-Short-circuit-evaluation@
-Show-the-epoch@
-Sierpinski-carpet@
-Sierpinski-triangle@
-Sieve-of-Eratosthenes@
-Simple-database@
-Simulate-input-Keyboard@
-Singly-linked-list-Element-definition@
-Singly-linked-list-Element-insertion@
-Singly-linked-list-Traversal@
-Sleep@
-Solve-a-Hidato-puzzle@
-Solve-a-Holy-Knights-tour@
-Solve-a-Hopido-puzzle@
-Solve-a-Numbrix-puzzle@
-Solve-the-no-connection-puzzle@
-Sort-an-array-of-composite-structures@
-Sort-an-integer-array@
-Sort-disjoint-sublist@
-Sort-stability@
-Sort-using-a-custom-comparator@
-Sorting-algorithms-Bead-sort@
-Sorting-algorithms-Bogosort@
-Sorting-algorithms-Bubble-sort@
-Sorting-algorithms-Cocktail-sort@
-Sorting-algorithms-Comb-sort@
-Sorting-algorithms-Counting-sort@
-Sorting-algorithms-Gnome-sort@
-Sorting-algorithms-Heapsort@
-Sorting-algorithms-Insertion-sort@
-Sorting-algorithms-Merge-sort@
-Sorting-algorithms-Pancake-sort@
-Sorting-algorithms-Permutation-sort@
-Sorting-algorithms-Quicksort@
-Sorting-algorithms-Radix-sort@
-Sorting-algorithms-Selection-sort@
-Sorting-algorithms-Shell-sort@
-Sorting-algorithms-Sleep-sort@
-Sorting-algorithms-Stooge-sort@
-Sorting-algorithms-Strand-sort@
-Soundex@
-Sparkline-in-unicode@
-Special-characters@
-Special-variables@
-Speech-synthesis@
-Spiral-matrix@
-Stable-marriage-problem@
-Stack@
-Stack-traces@
-Stair-climbing-puzzle@
-Start-from-a-main-routine@
-State-name-puzzle@
-Statistics-Basic@
-Stem-and-leaf-plot@
-Stern-Brocot-sequence@
-String-append@
-String-case@
-String-comparison@
-String-concatenation@
-String-interpolation--included-@
-String-length@
-String-matching@
-String-prepend@
-Strip-a-set-of-characters-from-a-string@
-Strip-block-comments@
-Strip-comments-from-a-string@
-Strip-control-codes-and-extended-characters-from-a-string@
-Strip-whitespace-from-a-string-Top-and-tail@
-Substring@
-Substring-Top-and-tail@
-Subtractive-generator@
-Sum-and-product-of-an-array@
-Sum-digits-of-an-integer@
-Sum-multiples-of-3-and-5@
-Sum-of-a-series@
-Sum-of-squares@
-Symmetric-difference@
-System-time@
-Table-creation-Postal-addresses@
-Take-notes-on-the-command-line@
-Temperature-conversion@
-Terminal-control-Clear-the-screen@
-Terminal-control-Coloured-text@
-Terminal-control-Cursor-movement@
-Terminal-control-Cursor-positioning@
-Terminal-control-Dimensions@
-Terminal-control-Display-an-extended-character@
-Terminal-control-Hiding-the-cursor@
-Terminal-control-Inverse-video@
-Terminal-control-Positional-read@
-Terminal-control-Preserve-screen@
-Terminal-control-Ringing-the-terminal-bell@
-Ternary-logic@
-Test-a-function@
-Text-processing-1@
-Text-processing-2@
-Text-processing-Max-licenses-in-use@
-Textonyms@
-The-ISAAC-Cipher@
-The-Twelve-Days-of-Christmas@
-Tic-tac-toe@
-Time-a-function@
-Tokenize-a-string@
-Top-rank-per-group@
-Topic-variable@
-Topological-sort@
-Topswops@
-Total-circles-area@
-Towers-of-Hanoi@
-Trabb-Pardo-Knuth-algorithm@
-Tree-traversal@
-Trigonometric-functions@
-Truncatable-primes@
-Truncate-a-file@
-Twelve-statements@
-URL-decoding@
-URL-encoding@
-Ulam-spiral--for-primes-@
-Unbias-a-random-generator@
-Undefined-values@
-Unicode-variable-names@
-Universal-Turing-machine@
-Unix-ls@
-Update-a-configuration-file@
-User-input-Text@
-Vampire-number@
-Van-der-Corput-sequence@
-Variable-length-quantity@
-Variable-size-Get@
-Variable-size-Set@
-Variables@
-Variadic-function@
-Vector-products@
-Verify-distribution-uniformity-Naive@
-Video-display-modes@
-Vigen-re-cipher@
-Visualize-a-tree@
-Walk-a-directory-Non-recursively@
-Walk-a-directory-Recursively@
-Wireworld@
-Word-wrap@
-Write-float-arrays-to-a-text-file@
-Write-language-name-in-3D-ASCII@
-Write-to-Windows-event-log@
-XML-Input@
-XML-Output@
-XML-XPath@
-Xiaolin-Wus-line-algorithm@
-Y-combinator@
-Yin-and-yang@
-Zebra-puzzle@
-Zeckendorf-number-representation@
-Zero-to-the-zero-power@
-Zhang-Suen-thinning-algorithm@
-Zig-zag-matrix@
+./								Loops-Nested@
+../								Loops-While@
+.DS_Store							Lucas-Lehmer-test@
+00DESCRIPTION							Ludic-numbers@
+100-doors@							Luhn-test-of-credit-card-numbers@
+24-game@							MD5@
+24-game-Solve@							MD5-Implementation@
+9-billion-names-of-God-the-integer@				Mad-Libs@
+99-Bottles-of-Beer@						Magic-squares-of-odd-order@
+A+B@								Main-step-of-GOST-28147-89@
+ABC-Problem@							Make-directory-path@
+AKS-test-for-primes@						Man-or-boy-test@
+Abundant,-deficient-and-perfect-number-classifications@		Mandelbrot-set@
+Accumulator-factory@						Map-range@
+Ackermann-function@						Matrix-arithmetic@
+Active-Directory-Search-for-a-user@				Matrix-multiplication@
+Address-of-a-variable@						Matrix-transposition@
+Align-columns@							Maximum-triangle-path-sum@
+Aliquot-sequence-classifications@				Maze-generation@
+Almost-prime@							Memory-allocation@
+Amb@								Memory-layout-of-a-data-structure@
+Amicable-pairs@							Menu@
+Anagrams@							Metaprogramming@
+Anagrams-Deranged-anagrams@					Metronome@
+Anonymous-recursion@						Middle-three-digits@
+Append-a-record-to-the-end-of-a-text-file@			Modular-exponentiation@
+Apply-a-callback-to-an-array@					Modular-inverse@
+Arbitrary-precision-integers--included-@			Monte-Carlo-methods@
+Arena-storage-pool@						Monty-Hall-problem@
+Arithmetic-Complex@						Move-to-front-algorithm@
+Arithmetic-Integer@						Multifactorial@
+Arithmetic-Rational@						Multiplication-tables@
+Arithmetic-evaluation@						Multiplicative-order@
+Arithmetic-geometric-mean@					Multisplit@
+Arithmetic-geometric-mean-Calculate-Pi@				Munching-squares@
+Array-concatenation@						Mutual-recursion@
+Arrays@								N-queens-problem@
+Assertions@							Named-parameters@
+Associative-array-Creation@					Narcissist@
+Associative-array-Iteration@					Narcissistic-decimal-number@
+Average-loop-length@						Nautical-bell@
+Averages-Arithmetic-mean@					Non-continuous-subsequences@
+Averages-Mean-angle@						Non-decimal-radices-Convert@
+Averages-Mean-time-of-day@					Non-decimal-radices-Input@
+Averages-Median@						Non-decimal-radices-Output@
+Averages-Mode@							Nth@
+Averages-Pythagorean-means@					Nth-root@
+Averages-Root-mean-square@					Null-object@
+Averages-Simple-moving-average@					Number-reversal-game@
+Balanced-brackets@						Numeric-error-propagation@
+Balanced-ternary@						Numerical-integration@
+Benfords-law@							Numerical-integration-Gauss-Legendre-Quadrature@
+Bernoulli-numbers@						Odd-word-problem@
+Best-shuffle@							Old-lady-swallowed-a-fly@
+Binary-digits@							One-dimensional-cellular-automata@
+Binary-search@							One-of-n-lines-in-a-file@
+Binary-strings@							Optional-parameters@
+Bitmap@								Order-disjoint-list-items@
+Bitmap-Bresenhams-line-algorithm@				Order-two-numerical-lists@
+Bitmap-Flood-fill@						Ordered-Partitions@
+Bitmap-Midpoint-circle-algorithm@				Ordered-words@
+Bitmap-Read-a-PPM-file@						Palindrome-detection@
+Bitmap-Write-a-PPM-file@					Pangram-checker@
+Bitwise-IO@							Paraffins@
+Bitwise-operations@						Parametric-polymorphism@
+Boolean-values@							Parse-an-IP-Address@
+Box-the-compass@						Parsing-RPN-calculator-algorithm@
+Brownian-tree@							Parsing-RPN-to-infix-conversion@
+Bulls-and-cows@							Parsing-Shunting-yard-algorithm@
+Bulls-and-cows-Player@						Partial-function-application@
+CRC-32@								Pascals-triangle@
+CSV-data-manipulation@						Pascals-triangle-Puzzle@
+CSV-to-HTML-translation@					Pattern-matching@
+Caesar-cipher@							Penneys-game@
+Calendar@							Perfect-numbers@
+Calendar---for-REAL-programmers@				Permutation-test@
+Call-a-foreign-language-function@				Permutations@
+Call-a-function@						Permutations-Derangements@
+Call-a-function-in-a-shared-library@				Permutations-Rank-of-a-permutation@
+Carmichael-3-strong-pseudoprimes@				Permutations-by-swapping@
+Case-sensitivity-of-identifiers@				Pernicious-numbers@
+Casting-out-nines@						Phrase-reversals@
+Catalan-numbers@						Pi@
+Catalan-numbers-Pascals-triangle@				Pick-random-element@
+Catamorphism@							Pig-the-dice-game@
+Character-codes@						Pig-the-dice-game-Player@
+Check-Machin-like-formulas@					Playing-cards@
+Check-that-file-exists@						Plot-coordinate-pairs@
+Chinese-remainder-theorem@					Polynomial-long-division@
+Cholesky-decomposition@						Polynomial-regression@
+Circles-of-given-radius-through-two-points@			Power-set@
+Closest-pair-problem@						Price-fraction@
+Closures-Value-capture@						Primality-by-trial-division@
+Collections@							Prime-decomposition@
+Color-of-a-screen-pixel@					Priority-queue@
+Colour-bars-Display@						Probabilistic-choice@
+Combinations@							Problem-of-Apollonius@
+Combinations-and-permutations@					Program-name@
+Combinations-with-repetitions@					Program-termination@
+Comma-quibbling@						Pythagorean-triples@
+Command-line-arguments@						Quaternion-type@
+Comments@							Queue-Definition@
+Compile-time-calculation@					Queue-Usage@
+Compound-data-type@						Quickselect-algorithm@
+Conditional-structures@						Quine@
+Conjugate-transpose@						README
+Constrained-random-points-on-a-circle@				Random-number-generator--device-@
+Continued-fraction@						Random-number-generator--included-@
+Continued-fraction-Arithmetic-Construct-from-rational-number@	Random-numbers@
+Convert-decimal-number-to-rational@				Range-expansion@
+Conways-Game-of-Life@						Range-extraction@
+Copy-a-string@							Ranking-methods@
+Count-in-factors@						Rate-counter@
+Count-in-octal@							Ray-casting-algorithm@
+Count-occurrences-of-a-substring@				Read-a-configuration-file@
+Count-the-coins@						Read-a-file-line-by-line@
+Create-a-file@							Read-a-specific-line-from-a-file@
+Create-a-file-on-magnetic-tape@					Read-entire-file@
+Create-a-two-dimensional-array-at-runtime@			Real-constants-and-functions@
+Create-an-HTML-table@						Reduced-row-echelon-form@
+Currying@							Regular-expressions@
+Cut-a-rectangle@						Remove-duplicate-elements@
+DNS-query@							Remove-lines-from-a-file@
+Date-format@							Rename-a-file@
+Date-manipulation@						Rep-string@
+Day-of-the-week@						Repeat-a-string@
+Deal-cards-for-FreeCell@					Resistor-mesh@
+Death-Star@							Return-multiple-values@
+Deconvolution-1D@						Reverse-a-string@
+Delete-a-file@							Reverse-words-in-a-string@
+Detect-division-by-zero@					Rock-paper-scissors@
+Determine-if-a-string-is-numeric@				Roman-numerals-Decode@
+Determine-if-only-one-instance-is-running@			Roman-numerals-Encode@
+Digital-root@							Roots-of-a-function@
+Digital-root-Multiplicative-digital-root@			Roots-of-a-quadratic-function@
+Dinesmans-multiple-dwelling-problem@				Roots-of-unity@
+Dining-philosophers@						Rot-13@
+Discordian-date@						Run-length-encoding@
+Documentation@							Runge-Kutta-method@
+Dot-product@							Runtime-evaluation@
+Doubly-linked-list-Definition@					Runtime-evaluation-In-an-environment@
+Doubly-linked-list-Element-definition@				S-Expressions@
+Doubly-linked-list-Element-insertion@				SEDOLs@
+Doubly-linked-list-Traversal@					Safe-addition@
+Dragon-curve@							Same-Fringe@
+Draw-a-clock@							Scope-Function-names-and-labels@
+Draw-a-cuboid@							Scope-modifiers@
+Draw-a-sphere@							Search-a-list@
+Dutch-national-flag-problem@					Self-describing-numbers@
+Dynamic-variable-names@						Self-referential-sequence@
+Element-wise-operations@					Semiprime@
+Empty-directory@						Semordnilap@
+Empty-program@							Sequence-of-non-squares@
+Empty-string@							Sequence-of-primes-by-Trial-Division@
+Enforced-immutability@						Set@
+Entropy@							Set-consolidation@
+Enumerations@							Set-of-real-numbers@
+Environment-variables@						Set-puzzle@
+Equilibrium-index@						Seven-sided-dice-from-five-sided-dice@
+Ethiopian-multiplication@					Shell-one-liner@
+Euler-method@							Short-circuit-evaluation@
+Evaluate-binomial-coefficients@					Show-the-epoch@
+Even-or-odd@							Sierpinski-carpet@
+Events@								Sierpinski-triangle@
+Evolutionary-algorithm@						Sieve-of-Eratosthenes@
+Exceptions@							Simple-database@
+Exceptions-Catch-an-exception-thrown-in-a-nested-call@		Simulate-input-Keyboard@
+Executable-library@						Singly-linked-list-Element-definition@
+Execute-Brain----@						Singly-linked-list-Element-insertion@
+Execute-HQ9+@							Singly-linked-list-Traversal@
+Execute-a-Markov-algorithm@					Sleep@
+Execute-a-system-command@					Solve-a-Hidato-puzzle@
+Exponentiation-operator@					Solve-a-Holy-Knights-tour@
+Extend-your-language@						Solve-a-Hopido-puzzle@
+Extensible-prime-generator@					Solve-a-Numbrix-puzzle@
+Extreme-floating-point-values@					Solve-the-no-connection-puzzle@
+Factorial@							Sort-an-array-of-composite-structures@
+Factors-of-a-Mersenne-number@					Sort-an-integer-array@
+Factors-of-an-integer@						Sort-disjoint-sublist@
+Fast-Fourier-transform@						Sort-stability@
+Fibonacci-n-step-number-sequences@				Sort-using-a-custom-comparator@
+Fibonacci-sequence@						Sorting-algorithms-Bead-sort@
+Fibonacci-word@							Sorting-algorithms-Bogosort@
+Fibonacci-word-fractal@						Sorting-algorithms-Bubble-sort@
+File-input-output@						Sorting-algorithms-Cocktail-sort@
+File-modification-time@						Sorting-algorithms-Comb-sort@
+File-size@							Sorting-algorithms-Counting-sort@
+Filter@								Sorting-algorithms-Gnome-sort@
+Find-common-directory-path@					Sorting-algorithms-Heapsort@
+Find-limit-of-recursion@					Sorting-algorithms-Insertion-sort@
+Find-the-last-Sunday-of-each-month@				Sorting-algorithms-Merge-sort@
+Find-the-missing-permutation@					Sorting-algorithms-Pancake-sort@
+First-class-environments@					Sorting-algorithms-Permutation-sort@
+First-class-functions@						Sorting-algorithms-Quicksort@
+Five-weekends@							Sorting-algorithms-Radix-sort@
+FizzBuzz@							Sorting-algorithms-Selection-sort@
+Flatten-a-list@							Sorting-algorithms-Shell-sort@
+Flipping-bits-game@						Sorting-algorithms-Sleep-sort@
+Flow-control-structures@					Sorting-algorithms-Stooge-sort@
+Floyds-triangle@						Sorting-algorithms-Strand-sort@
+Forest-fire@							Soundex@
+Fork@								Sparkline-in-unicode@
+Formatted-numeric-output@					Special-characters@
+Forward-difference@						Special-variables@
+Four-bit-adder@							Speech-synthesis@
+Fractran@							Spiral-matrix@
+Function-composition@						Stable-marriage-problem@
+Function-definition@						Stack@
+Function-frequency@						Stack-traces@
+Gamma-function@							Stair-climbing-puzzle@
+Gaussian-elimination@						Start-from-a-main-routine@
+Generate-Chess960-starting-position@				State-name-puzzle@
+Generate-lower-case-ASCII-alphabet@				Statistics-Basic@
+Generator-Exponential@						Stem-and-leaf-plot@
+Generic-swap@							Stern-Brocot-sequence@
+Globally-replace-text-in-several-files@				String-append@
+Gray-code@							String-case@
+Grayscale-image@						String-comparison@
+Greatest-common-divisor@					String-concatenation@
+Greatest-element-of-a-list@					String-interpolation--included-@
+Greatest-subsequential-sum@					String-length@
+Guess-the-number@						String-matching@
+Guess-the-number-With-feedback@					String-prepend@
+Guess-the-number-With-feedback--player-@			Strip-a-set-of-characters-from-a-string@
+HTTP@								Strip-block-comments@
+Hailstone-sequence@						Strip-comments-from-a-string@
+Hamming-numbers@						Strip-control-codes-and-extended-characters-from-a-string@
+Handle-a-signal@						Strip-whitespace-from-a-string-Top-and-tail@
+Happy-numbers@							Substring@
+Harshad-or-Niven-series@					Substring-Top-and-tail@
+Hash-from-two-arrays@						Subtractive-generator@
+Hash-join@							Sum-and-product-of-an-array@
+Haversine-formula@						Sum-digits-of-an-integer@
+Hello-world-Graphical@						Sum-multiples-of-3-and-5@
+Hello-world-Line-printer@					Sum-of-a-series@
+Hello-world-Newbie@						Sum-of-squares@
+Hello-world-Newline-omission@					Symmetric-difference@
+Hello-world-Standard-error@					System-time@
+Hello-world-Text@						Table-creation-Postal-addresses@
+Hello-world-Web-server@						Take-notes-on-the-command-line@
+Here-document@							Temperature-conversion@
+Heronian-triangles@						Terminal-control-Clear-the-screen@
+Hickerson-series-of-almost-integers@				Terminal-control-Coloured-text@
+Higher-order-functions@						Terminal-control-Cursor-movement@
+History-variables@						Terminal-control-Cursor-positioning@
+Hofstadter-Conway-$10,000-sequence@				Terminal-control-Dimensions@
+Hofstadter-Figure-Figure-sequences@				Terminal-control-Display-an-extended-character@
+Hofstadter-Q-sequence@						Terminal-control-Hiding-the-cursor@
+Holidays-related-to-Easter@					Terminal-control-Inverse-video@
+Horizontal-sundial-calculations@				Terminal-control-Positional-read@
+Horners-rule-for-polynomial-evaluation@				Terminal-control-Preserve-screen@
+Host-introspection@						Terminal-control-Ringing-the-terminal-bell@
+Hostname@							Ternary-logic@
+Huffman-coding@							Test-a-function@
+I-before-E-except-after-C@					Text-processing-1@
+IBAN@								Text-processing-2@
+Identity-matrix@						Text-processing-Max-licenses-in-use@
+Image-noise@							Textonyms@
+Include-a-file@							The-ISAAC-Cipher@
+Increment-a-numerical-string@					The-Twelve-Days-of-Christmas@
+Input-loop@							Tic-tac-toe@
+Integer-comparison@						Time-a-function@
+Integer-overflow@						Tokenize-a-string@
+Integer-sequence@						Top-rank-per-group@
+Interactive-programming@					Topic-variable@
+Introspection@							Topological-sort@
+Inverted-index@							Topswops@
+Inverted-syntax@						Total-circles-area@
+Iterated-digits-squaring@					Towers-of-Hanoi@
+Jensens-Device@							Trabb-Pardo-Knuth-algorithm@
+Josephus-problem@						Tree-traversal@
+Jump-anywhere@							Trigonometric-functions@
+Kaprekar-numbers@						Truncatable-primes@
+Keyboard-input-Flush-the-keyboard-buffer@			Truncate-a-file@
+Keyboard-input-Keypress-check@					Twelve-statements@
+Keyboard-input-Obtain-a-Y-or-N-response@			URL-decoding@
+Keyboard-macros@						URL-encoding@
+Knapsack-problem-0-1@						Ulam-spiral--for-primes-@
+Knapsack-problem-Bounded@					Unbias-a-random-generator@
+Knapsack-problem-Continuous@					Undefined-values@
+Knapsack-problem-Unbounded@					Unicode-variable-names@
+Knights-tour@							Universal-Turing-machine@
+Knuth-shuffle@							Unix-ls@
+Knuths-algorithm-S@						Update-a-configuration-file@
+LU-decomposition@						User-input-Text@
+LZW-compression@						Vampire-number@
+Langtons-ant@							Van-der-Corput-sequence@
+Largest-int-from-concatenated-ints@				Variable-length-quantity@
+Last-Friday-of-each-month@					Variable-size-Get@
+Last-letter-first-letter@					Variable-size-Set@
+Leap-year@							Variables@
+Least-common-multiple@						Variadic-function@
+Left-factorials@						Vector-products@
+Letter-frequency@						Verify-distribution-uniformity-Naive@
+Levenshtein-distance@						Video-display-modes@
+Linear-congruential-generator@					Vigen-re-cipher@
+List-comprehensions@						Visualize-a-tree@
+Literals-Floating-point@					Walk-a-directory-Non-recursively@
+Literals-Integer@						Walk-a-directory-Recursively@
+Literals-String@						Wireworld@
+Logical-operations@						Word-wrap@
+Long-multiplication@						Write-float-arrays-to-a-text-file@
+Longest-common-subsequence@					Write-language-name-in-3D-ASCII@
+Longest-string-challenge@					Write-to-Windows-event-log@
+Look-and-say-sequence@						XML-Input@
+Loop-over-multiple-arrays-simultaneously@			XML-Output@
+Loops-Break@							XML-XPath@
+Loops-Continue@							Xiaolin-Wus-line-algorithm@
+Loops-Do-while@							Y-combinator@
+Loops-Downward-for@						Yin-and-yang@
+Loops-For@							Zebra-puzzle@
+Loops-For-with-a-specified-step@				Zeckendorf-number-representation@
+Loops-Foreach@							Zero-to-the-zero-power@
+Loops-Infinite@							Zhang-Suen-thinning-algorithm@
+Loops-N-plus-one-half@						Zig-zag-matrix@
 
 /local/RosettaCodeData/git
 sh[ooRexx]> ls Lang/Rexx | wc
@@ -663,7 +370,7 @@ The solutions can be filtered by number or by name.
 
 /local/RosettaCodeData/git
 sh[ooRexx]> rexx runRosettaCode
-Your REXX interpreter is REXX-ooRexx_4.3.0(MT)_64-bit 6.04 28 May 2021
+Your REXX interpreter is REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
 Your system is DARWIN
 
 Usage:
@@ -685,7 +392,7 @@ or execute a system command which may be dangerous.
 
 /local/RosettaCodeData/git
 sh[ooRexx]> rexx runRosettaCode -list
-Your REXX interpreter is REXX-ooRexx_4.3.0(MT)_64-bit 6.04 28 May 2021
+Your REXX interpreter is REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
 Your system is DARWIN
 
 ================================================================================
@@ -919,7 +626,7 @@ Summary counters
 Will run=197
 Skip=16
 Ko=0
-duration=0.001741
+duration=0.001878
 
 
 Start the execution of all the REXX solutions.
@@ -927,7 +634,7 @@ Some solution takes time to calculate, hence the scrolling pauses.
 
 /local/RosettaCodeData/git
 sh[ooRexx]> rexx runRosettaCode -run
-Your REXX interpreter is REXX-ooRexx_4.3.0(MT)_64-bit 6.04 28 May 2021
+Your REXX interpreter is REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
 Your system is DARWIN
 ================================================================================
 [1] 100-doors/100-doors-1.rexx
@@ -969,7 +676,7 @@ RC=0
 [3] 24-game/24-game-1.rexx
 ================================================================================
 
-───────── Using the digits  8879,  enter an expression that equals   24    (or QUIT):
+───────── Using the digits  5361,  enter an expression that equals   24    (or QUIT):
 
 RC=0
 
@@ -1586,8 +1293,8 @@ RC=0
 [13] Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-1.rexx
 ================================================================================
      4 *-* say center('integers from '   low   " to "   high,  45,  "═")        /*display a header.*/
-REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-1.rexx line 4:  Incorrect call to routine
-REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═"
+REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-1.rexx line 4:  Incorrect call to routine.
+REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═".
 
 RC=216
 
@@ -1595,8 +1302,8 @@ RC=216
 [14] Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-2.rexx
 ================================================================================
      4 *-* say center('integers from '   low    " to "    high,  45,  "═")      /*display a header.*/
-REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-2.rexx line 4:  Incorrect call to routine
-REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═"
+REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-2.rexx line 4:  Incorrect call to routine.
+REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═".
 
 RC=216
 
@@ -1685,55 +1392,7 @@ Ackermann(3,  3)=                      61              calls=                   
 Ackermann(3,  4)=                     125              calls=                   10307
 Ackermann(3,  5)=                     253              calls=                   42438
 Ackermann(3,  6)=                     509              calls=                  172233
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
-    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    24 *-*                                         return ackermann(m-1, 1)
     25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
     25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
     25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
@@ -2592,8 +2251,8 @@ Ackermann(3,  6)=                     509              calls=                  1
     25 *-*         return ackermann(m-1, ackermann(m, n-1) )
     17 *-*       say 'Ackermann('mm", "#')='right(ackermann(mm, nn), high),                                      left('', 12)     'calls='right(calls, high)
     10 *-*     call tell_Ack  j, k
-REX0011E: Error 11 running /local/RosettaCodeData/git/Lang/REXX/Ackermann-function/ackermann-function-1.rexx line 25:  Control stack full
-REX0218E: Error 11.1:  Insufficient control stack space; cannot continue execution
+REX0011E: Error 11 running /local/RosettaCodeData/git/Lang/REXX/Ackermann-function/ackermann-function-1.rexx line 24:  Control stack full.
+REX0218E: Error 11.1:  Insufficient control stack space; cannot continue execution.
 
 RC=245
 
@@ -2841,8 +2500,8 @@ RC=0
 
 
     23 *-*   say center(word('left right center', j)  "aligned", size+cols-1, "═")     /*show title*/
-REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Align-columns/align-columns-2.rexx line 23:  Incorrect call to routine
-REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═"
+REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Align-columns/align-columns-2.rexx line 23:  Incorrect call to routine.
+REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═".
 
 RC=216
 
@@ -2852,8 +2511,8 @@ RC=216
 
 
     23 *-*   say center(word('left right center', j)  "aligned", size+cols+1, "═")     /*show title*/
-REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Align-columns/align-columns-3.rexx line 23:  Incorrect call to routine
-REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═"
+REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Align-columns/align-columns-3.rexx line 23:  Incorrect call to routine.
+REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═".
 
 RC=216
 
@@ -2861,8 +2520,8 @@ RC=216
 [27] Aliquot-sequence-classifications/aliquot-sequence-classifications.rexx
 ================================================================================
      9 *-* say center('numbers from '      low      " to "      high, 79, "═")
-REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Aliquot-sequence-classifications/aliquot-sequence-classifications.rexx line 9:  Incorrect call to routine
-REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═"
+REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Aliquot-sequence-classifications/aliquot-sequence-classifications.rexx line 9:  Incorrect call to routine.
+REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═".
 
 RC=216
 
@@ -3017,7 +2676,7 @@ RC=0
 There are 1 set(s) of anagrams with 0 elements each:
  
     
-0.000970
+0.001084
 
 RC=0
 
@@ -3031,7 +2690,7 @@ RC=0
 There are 1 set(s) of anagrams with 0 elements each:
  
     
-0.001038
+0.001447
 
 RC=0
 
@@ -3324,7 +2983,7 @@ expected: 42
 Look around
        +++ "DARWIN COMMAND /local/RosettaCodeData/git/Lang/REXX/Assertions/assertions.rexx"
     20 *-*           Nop
-+++ Interactive trace. "Trace Off" to end debug, ENTER to Continue. +++
++++ Interactive trace. "Trace Off" to end debug, ENTER to continue. +++
     21 *-*           Signal Syntax
     24 *-* Syntax:
     24 *-* Say 'program terminated'
@@ -3543,32 +3202,32 @@ OK [[[[[[[]]]]]]]
 OK [][]
                                             not OK []][[]
                                             not OK ]]][[[[]
-                                            not OK ][[]][[]
-                                            not OK ][][][][][][][][][][][][
-                                            not OK []][[]][
-                                            not OK ][][][][][][][][][][][][][][][][][][
-OK [][][][][][][][][][][][][][]
-                                            not OK ][[]][[]][[]
-                                            not OK ][][][][][][][][][][][][][][][][][][][][
-OK [][][][][][][][][][]
-                                            not OK ][][][][][][][][][][][][][][][][
-OK [][][][][][][][][][][][][][][][]
-                                            not OK ][[]
-                                            not OK ][[]][[]][[]][[]][[]][[]
                                             not OK ][][][][][][][][][][][][][][
+                                            not OK ][[]][[]][[]][[]
+                                            not OK ][][][][][][][][][][][][
+                                            not OK []][[]][[]][[]][[]][[]][[]][[]][
+                                            not OK ][[]][[]][[]][[]][[]][[]][[]
+OK [][][][][][][][][][]
+                                            not OK ][][][][][][][][][][
+                                            not OK []][[]][[]][[]][[]][[]][[]][[]][[]][[]][
+                                            not OK []][[]][[]][[]][[]][[]][
+                                            not OK ][[]][[]][[]][[]][[]][[]][[]][[]][[]
+                                            not OK ][][][][][][
+                                            not OK ][[]][[]][[]][[]][[]][[]][[]][[]
+                                            not OK ][][][][][][][][][][][][][][][][
+                                            not OK []][
+                                            not OK ][[]][[]][[]][[]][[]][[]][[]][[]][[]][[]
                                             not OK ][][][][][][][][
+                                            not OK ][][][][][][][][][][][][][][][][][][
+                                            not OK []][[]][[]][[]][[]][[]][[]][
+OK [][][][][][][][][][][][][][][][][][]
+OK [][][][][][][][][][][][][][]
+                                            not OK ][][][][][][][][][][][][][][][][][][][][
+                                            not OK ][[]][[]][[]][[]][[]][[]
+                                            not OK []][[]][[]][
 OK [][][][][][]
                                             not OK []][[]][[]][[]][[]][[]][[]][[]][[]][
-                                            not OK ][[]][[]][[]][[]
-                                            not OK []][[]][[]][[]][[]][[]][[]][[]][[]][[]][
-                                            not OK []][
-                                            not OK ][][][][][][
-                                            not OK []][[]][[]][[]][[]][[]][
-OK [][][][][][][][][][][][]
-                                            not OK ][[]][[]][[]][[]][[]
-OK [][][][][][][][]
-                                            not OK ][][][][][][][][][][
-                                            not OK ][[]][[]][[]][[]][[]][[]][[]][[]][[]][[]
+                                            not OK ][[]][[]
 
 RC=0
 
@@ -3633,8 +3292,8 @@ RC=0
      digit       observed       expected 
     31 *-*   say pad  '───────'  pad   center("",w1,'─')  pad  center("",w2,'─')   pad  arg(1)
     13 *-* call show "Benford's law applied to"      N      'Fibonacci numbers'
-REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Benfords-law/benfords-law.rexx line 31:  Incorrect call to routine
-REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "─"
+REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Benfords-law/benfords-law.rexx line 31:  Incorrect call to routine.
+REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "─".
 
 RC=216
 
@@ -3978,9 +3637,9 @@ RC=0
 ================================================================================
 [115] Boolean-values/boolean-values-5.rexx
 ================================================================================
-     1 *-* false = �
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Boolean-values/boolean-values-5.rexx line 1:  Invalid character in program
-REX0219E: Error 13.1:  Incorrect character in program "�" ('C2'X)
+     1 *-* false = �
+REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Boolean-values/boolean-values-5.rexx line 1:  Invalid character in program.
+REX0219E: Error 13.1:  Incorrect character in program "�" ('C2'X).
 
 RC=243
 
@@ -3993,41 +3652,41 @@ RC=0
 ================================================================================
 [117] Box-the-compass/box-the-compass.rexx
 ================================================================================
-                      �heading   compass heading   
+                      �heading   compass heading   
       ════════ ════════════════════
-                        0.00�   north
-                       16.87�   north by east
-                       16.88�   north-northeast
-                       33.75�   northeast by north
-                       50.62�   northeast
-                       50.63�   northeast by east
-                       67.50�   east-northeast
-                       84.37�   east by north
-                       84.38�   east
-                      101.25�   east by south
-                      118.12�   east-southeast
-                      118.13�   southeast by east
-                      135.00�   southeast
-                      151.87�   southeast by south
-                      151.88�   south-southeast
-                      168.75�   south by east
-                      185.62�   south
-                      185.63�   south by west
-                      202.50�   south-southwest
-                      219.37�   southwest by south
-                      219.38�   southwest
-                      236.25�   southwest by west
-                      253.12�   west-southwest
-                      253.13�   west by south
-                      270.00�   west
-                      286.87�   west by north
-                      286.88�   west-northwest
-                      303.75�   northwest by west
-                      320.62�   northwest
-                      320.63�   northwest by north
-                      337.50�   north-northwest
-                      354.37�   north by west
-                      354.38�   north
+                        0.00�   north
+                       16.87�   north by east
+                       16.88�   north-northeast
+                       33.75�   northeast by north
+                       50.62�   northeast
+                       50.63�   northeast by east
+                       67.50�   east-northeast
+                       84.37�   east by north
+                       84.38�   east
+                      101.25�   east by south
+                      118.12�   east-southeast
+                      118.13�   southeast by east
+                      135.00�   southeast
+                      151.87�   southeast by south
+                      151.88�   south-southeast
+                      168.75�   south by east
+                      185.62�   south
+                      185.63�   south by west
+                      202.50�   south-southwest
+                      219.37�   southwest by south
+                      219.38�   southwest
+                      236.25�   southwest by west
+                      253.12�   west-southwest
+                      253.13�   west by south
+                      270.00�   west
+                      286.87�   west by north
+                      286.88�   west-northwest
+                      303.75�   northwest by west
+                      320.62�   northwest
+                      320.63�   northwest by north
+                      337.50�   north-northwest
+                      354.37�   north by west
+                      354.38�   north
 
 RC=0
 
@@ -4035,7 +3694,7 @@ RC=0
 [118] Brownian-tree/brownian-tree.rexx
 ================================================================================
     22 *-*     _=scrsize()         /*Note: not all REXXes have SCRSIZE BIF*/
-REX0043E: Error 43 running /local/RosettaCodeData/git/Lang/REXX/Brownian-tree/brownian-tree.rexx line 22:  Routine not found
+REX0043E: Error 43 running /local/RosettaCodeData/git/Lang/REXX/Brownian-tree/brownian-tree.rexx line 22:  Routine not found.
 REX0417E: Error 43.1:  Could not find routine "SCRSIZE"
 
 RC=213
@@ -4046,7 +3705,7 @@ RC=213
 
 ──────── [Bulls & Cows]   Please enter a 4-digit guess (with no zeroes)   [or Quit]:
 
-──────── [Bulls & Cows]   You got 0 bulls and 1 cow.
+──────── [Bulls & Cows]   You got 1 bull and 2 cows.
 
 ──────── [Bulls & Cows]   Please enter a 4-digit guess (with no zeroes)   [or Quit]:
 
@@ -4056,7 +3715,7 @@ RC=0
 [120] Bulls-and-cows/bulls-and-cows-2.rexx
 ================================================================================
 <Bulls & Cows game>   Please enter a four-digit guess  (or QUIT):
-You got 0 bulls and 3 cows.
+You got 0 bulls and 1 cow.
 <Bulls & Cows game>   Please enter a four-digit guess  (or QUIT):
 
 RC=0
@@ -4065,9 +3724,9 @@ RC=0
 [121] Bulls-and-cows-Player/bulls-and-cows-player.rexx
 ================================================================================
 
-───── How many bulls and cows were guessed with  3642  ?            [─── or QUIT]
+───── How many bulls and cows were guessed with  6498  ?            [─── or QUIT]
 
-───── How many bulls and cows were guessed with  9634  ?            [─── or QUIT]
+───── How many bulls and cows were guessed with  9768  ?            [─── or QUIT]
 
 RC=0
 
@@ -4129,54 +3788,54 @@ RC=0
 ================================================================================
 [125] Calendar/calendar.rexx
 ================================================================================
- �──────�     �──────�     �──────�     �──────�     �──────�
- �   January   1969   �     �  February   1969   �     �    March   1969    �     �    April   1969    �     �     May   1969     �
- �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�
- �─┬──┬─┤     �─┬──┬─┤     �─┬──┬─┤     �─┬──┬─┤     �─┬──┬─┤
- �  │  │ 1│ 2│�     �  │  │  │  │�     �  │  │  │  │�     �  │ 1│ 2│ 3│�     �  │  │  │ 1│�
- �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
- � 6│ 7│ 8│ 9│�     � 3│ 4│ 5│ 6│�     � 3│ 4│ 5│ 6│�     � 7│ 8│ 9│10│�     � 5│ 6│ 7│ 8│�
- �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
- �13│14│15│16│�     �10│11│12│13│�     �10│11│12│13│�     �14│15│16│17│�     �12│13│14│15│�
- �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
- �20│21│22│23│�     �17│18│19│20│�     �17│18│19│20│�     �21│22│23│24│�     �19│20│21│22│�
- �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
- �27│28│29│30│�     �24│25│26│27│�     �24│25│26│27│�     �28│29│30│  │�     �26│27│28│29│�
- �─┴──┴─┘     �─┴──┴─┘     �─┼──┼─┤     �─┴──┴─┘     �─┴──┴─┘
-                                                       �31│  │  │  │�
-                                                       �─┴──┴─┘
- �──────�     �──────�     �──────�     �──────�     �──────�
- �    June   1969     �     �    July   1969     �     �   August   1969    �     �  September   1969  �     �   October   1969   �
- �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�
- �─┬──┬─┤     �─┬──┬─┤     �─┬──┬─┤     �─┬──┬─┤     �─┬──┬─┤
- � 2│ 3│ 4│ 5│�     �  │ 1│ 2│ 3│�     �  │  │  │  │�     � 1│ 2│ 3│ 4│�     �  │  │ 1│ 2│�
- �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
- � 9│10│11│12│�     � 7│ 8│ 9│10│�     � 4│ 5│ 6│ 7│�     � 8│ 9│10│11│�     � 6│ 7│ 8│ 9│�
- �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
- �16│17│18│19│�     �14│15│16│17│�     �11│12│13│14│�     �15│16│17│18│�     �13│14│15│16│�
- �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
- �23│24│25│26│�     �21│22│23│24│�     �18│19│20│21│�     �22│23│24│25│�     �20│21│22│23│�
- �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
- �30│  │  │  │�     �28│29│30│31│�     �25│26│27│28│�     �29│30│  │  │�     �27│28│29│30│�
- �─┴──┴─┘     �─┴──┴─┘     �─┼──┼─┤     �─┴──┴─┘     �─┴──┴─┘
-                                                       �  │  │  │  │�
-                                                       �─┴──┴─┘
- �──────�     �──────�
- �  November   1969   �     �  December   1969   �
- �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�
- �─┬──┬─┤     �─┬──┬─┤
- �  │  │  │  │�     � 1│ 2│ 3│ 4│�
- �─┼──┼─┤     �─┼──┼─┤
- � 3│ 4│ 5│ 6│�     � 8│ 9│10│11│�
- �─┼──┼─┤     �─┼──┼─┤
- �10│11│12│13│�     �15│16│17│18│�
- �─┼──┼─┤     �─┼──┼─┤
- �17│18│19│20│�     �22│23│24│25│�
- �─┼──┼─┤     �─┼──┼─┤
- �24│25│26│27│�     �29│30│31│  │�
- �─┼──┼─┤     �─┴──┴─┘
- �  │  │  │  │�
- �─┴──┴─┘
+ �──────�     �──────�     �──────�     �──────�     �──────�
+ �   January   1969   �     �  February   1969   �     �    March   1969    �     �    April   1969    �     �     May   1969     �
+ �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�
+ �─┬──┬─┤     �─┬──┬─┤     �─┬──┬─┤     �─┬──┬─┤     �─┬──┬─┤
+ �  │  │ 1│ 2│�     �  │  │  │  │�     �  │  │  │  │�     �  │ 1│ 2│ 3│�     �  │  │  │ 1│�
+ �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
+ � 6│ 7│ 8│ 9│�     � 3│ 4│ 5│ 6│�     � 3│ 4│ 5│ 6│�     � 7│ 8│ 9│10│�     � 5│ 6│ 7│ 8│�
+ �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
+ �13│14│15│16│�     �10│11│12│13│�     �10│11│12│13│�     �14│15│16│17│�     �12│13│14│15│�
+ �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
+ �20│21│22│23│�     �17│18│19│20│�     �17│18│19│20│�     �21│22│23│24│�     �19│20│21│22│�
+ �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
+ �27│28│29│30│�     �24│25│26│27│�     �24│25│26│27│�     �28│29│30│  │�     �26│27│28│29│�
+ �─┴──┴─┘     �─┴──┴─┘     �─┼──┼─┤     �─┴──┴─┘     �─┴──┴─┘
+                                                       �31│  │  │  │�
+                                                       �─┴──┴─┘
+ �──────�     �──────�     �──────�     �──────�     �──────�
+ �    June   1969     �     �    July   1969     �     �   August   1969    �     �  September   1969  �     �   October   1969   �
+ �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�
+ �─┬──┬─┤     �─┬──┬─┤     �─┬──┬─┤     �─┬──┬─┤     �─┬──┬─┤
+ � 2│ 3│ 4│ 5│�     �  │ 1│ 2│ 3│�     �  │  │  │  │�     � 1│ 2│ 3│ 4│�     �  │  │ 1│ 2│�
+ �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
+ � 9│10│11│12│�     � 7│ 8│ 9│10│�     � 4│ 5│ 6│ 7│�     � 8│ 9│10│11│�     � 6│ 7│ 8│ 9│�
+ �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
+ �16│17│18│19│�     �14│15│16│17│�     �11│12│13│14│�     �15│16│17│18│�     �13│14│15│16│�
+ �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
+ �23│24│25│26│�     �21│22│23│24│�     �18│19│20│21│�     �22│23│24│25│�     �20│21│22│23│�
+ �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
+ �30│  │  │  │�     �28│29│30│31│�     �25│26│27│28│�     �29│30│  │  │�     �27│28│29│30│�
+ �─┴──┴─┘     �─┴──┴─┘     �─┼──┼─┤     �─┴──┴─┘     �─┴──┴─┘
+                                                       �  │  │  │  │�
+                                                       �─┴──┴─┘
+ �──────�     �──────�
+ �  November   1969   �     �  December   1969   �
+ �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�
+ �─┬──┬─┤     �─┬──┬─┤
+ �  │  │  │  │�     � 1│ 2│ 3│ 4│�
+ �─┼──┼─┤     �─┼──┼─┤
+ � 3│ 4│ 5│ 6│�     � 8│ 9│10│11│�
+ �─┼──┼─┤     �─┼──┼─┤
+ �10│11│12│13│�     �15│16│17│18│�
+ �─┼──┼─┤     �─┼──┼─┤
+ �17│18│19│20│�     �22│23│24│25│�
+ �─┼──┼─┤     �─┼──┼─┤
+ �24│25│26│27│�     �29│30│31│  │�
+ �─┼──┼─┤     �─┴──┴─┘
+ �  │  │  │  │�
+ �─┴──┴─┘
 
 RC=0
 
@@ -4301,7 +3960,7 @@ f8 returns arg(1)+arg(2)
 f8 returns arg(1)+arg(2)
 3 = 3
 date is my date function
-20210601 06/01/2021
+20210727 07/27/2021
 fa returns arg(1)+arg(2)
 fa returns arg(1)+arg(2)
 33 = 3
@@ -4309,7 +3968,7 @@ fb: 1,2
 fb: 1,2
 Syntax raised in line 39
 x=fb(1,2)
-rc=44 (Function or message did not return data)
+rc=44 (Function or message did not return data.)
 fb cannot be invoked as function (it does not return a value
 
 RC=0
@@ -4318,7 +3977,7 @@ RC=0
 [130] Call-a-function-in-a-shared-library/call-a-function-in-a-shared-library.rexx
 ================================================================================
     11 *-* y=systextscreensize()                  /*Y now contains 2 numbers:  rows cols */
-REX0043E: Error 43 running /local/RosettaCodeData/git/Lang/REXX/Call-a-function-in-a-shared-library/call-a-function-in-a-shared-library.rexx line 11:  Routine not found
+REX0043E: Error 43 running /local/RosettaCodeData/git/Lang/REXX/Call-a-function-in-a-shared-library/call-a-function-in-a-shared-library.rexx line 11:  Routine not found.
 REX0417E: Error 43.1:  Could not find routine "SYSTEXTSCREENSIZE"
 
 RC=213
@@ -4399,8 +4058,8 @@ RC=0
 [134] Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-1.rexx
 ================================================================================
     10 *-* say center('using simple variables', 35, "─")     /*title.*/
-REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-1.rexx line 10:  Incorrect call to routine
-REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "─"
+REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-1.rexx line 10:  Incorrect call to routine.
+REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "─".
 
 RC=216
 
@@ -4408,8 +4067,8 @@ RC=216
 [135] Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-2.rexx
 ================================================================================
     11 *-* say center('using compound variables', 35, "═")   /*title.*/
-REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-2.rexx line 11:  Incorrect call to routine
-REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═"
+REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-2.rexx line 11:  Incorrect call to routine.
+REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═".
 
 RC=216
 
@@ -4433,8 +4092,8 @@ RC=0
 
     18 *-*   say center('Catalan numbers, method' arg(1),79,'─');
      7 *-* call hdr 1A;
-REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Catalan-numbers/catalan-numbers-1.rexx line 18:  Incorrect call to routine
-REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "─"
+REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Catalan-numbers/catalan-numbers-1.rexx line 18:  Incorrect call to routine.
+REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "─".
 
 RC=216
 
@@ -4585,7 +4244,7 @@ RC=0
 ================================================================================
 [145] Character-codes/character-codes-2.rexx
 ================================================================================
-�
+�
 81
 129
 10000001
@@ -4621,7 +4280,7 @@ RC=0
 
 file  input.txt  doesn't exist in the current directory
     10 *-*   if dosisdir(dn)  
-REX0043E: Error 43 running /local/RosettaCodeData/git/Lang/REXX/Check-that-file-exists/check-that-file-exists-1.rexx line 10:  Routine not found
+REX0043E: Error 43 running /local/RosettaCodeData/git/Lang/REXX/Check-that-file-exists/check-that-file-exists-1.rexx line 10:  Routine not found.
 REX0417E: Error 43.1:  Could not find routine "DOSISDIR"
 
 RC=213
@@ -4630,8 +4289,8 @@ RC=213
 [148] Check-that-file-exists/check-that-file-exists-2.rexx
 ================================================================================
      3 *-* IF ~Openfile(filename) THEN CALL Openfile(':'filename)
-REX0035E: Error 35 running /local/RosettaCodeData/git/Lang/REXX/Check-that-file-exists/check-that-file-exists-2.rexx line 3:  Invalid expression
-REX0340E: Error 35.1:  Incorrect expression detected at "~"
+REX0035E: Error 35 running /local/RosettaCodeData/git/Lang/REXX/Check-that-file-exists/check-that-file-exists-2.rexx line 3:  Invalid expression.
+REX0340E: Error 35.1:  Incorrect expression detected at "~".
 
 RC=221
 
@@ -4664,8 +4323,8 @@ RC=0
     34 *-*   say center(hdr, ((width + 1) * w) % ord,  sep)
     13 *-*   call tell 'input array',mat
      5 *-* call Cholesky niner
-REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Cholesky-decomposition/cholesky-decomposition.rexx line 34:  Incorrect call to routine
-REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═"
+REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Cholesky-decomposition/cholesky-decomposition.rexx line 34:  Incorrect call to routine.
+REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═".
 
 RC=216
 
@@ -4673,8 +4332,8 @@ RC=216
 [152] Circles-of-given-radius-through-two-points/circles-of-given-radius-through-two-points.rexx
 ================================================================================
     14 *-* 2circ: procedure;
-REX0035E: Error 35 running /local/RosettaCodeData/git/Lang/REXX/Circles-of-given-radius-through-two-points/circles-of-given-radius-through-two-points.rexx line 14:  Invalid expression
-REX0340E: Error 35.1:  Incorrect expression detected at ":"
+REX0035E: Error 35 running /local/RosettaCodeData/git/Lang/REXX/Circles-of-given-radius-through-two-points/circles-of-given-radius-through-two-points.rexx line 14:  Invalid expression.
+REX0340E: Error 35.1:  Incorrect expression detected at ":".
 
 RC=221
 
@@ -4682,8 +4341,8 @@ RC=221
 [153] Closest-pair-problem/closest-pair-problem.rexx
 ================================================================================
     22 *-* say $ center("x", w, '═')" "      center('y', w, "═")      '  is: '     sqrt(abs(minDD))/1
-REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Closest-pair-problem/closest-pair-problem.rexx line 22:  Incorrect call to routine
-REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═"
+REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Closest-pair-problem/closest-pair-problem.rexx line 22:  Incorrect call to routine.
+REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═".
 
 RC=216
 
@@ -4731,7 +4390,7 @@ RC=0
 [160] Color-of-a-screen-pixel/color-of-a-screen-pixel.rexx
 ================================================================================
      2 *-* parse value  cursor()  with  r  c  .             /*get cursor's location in DOS screen. */
-REX0043E: Error 43 running /local/RosettaCodeData/git/Lang/REXX/Color-of-a-screen-pixel/color-of-a-screen-pixel.rexx line 2:  Routine not found
+REX0043E: Error 43 running /local/RosettaCodeData/git/Lang/REXX/Color-of-a-screen-pixel/color-of-a-screen-pixel.rexx line 2:  Routine not found.
 REX0417E: Error 43.1:  Could not find routine "CURSOR"
 
 RC=213
@@ -4740,7 +4399,7 @@ RC=213
 [161] Colour-bars-Display/colour-bars-display.rexx
 ================================================================================
      2 *-* parse  value  scrsize()  with sd sw .                 /*the screen depth and width.     */
-REX0043E: Error 43 running /local/RosettaCodeData/git/Lang/REXX/Colour-bars-Display/colour-bars-display.rexx line 2:  Routine not found
+REX0043E: Error 43 running /local/RosettaCodeData/git/Lang/REXX/Colour-bars-Display/colour-bars-display.rexx line 2:  Routine not found.
 REX0417E: Error 43.1:  Could not find routine "SCRSIZE"
 
 RC=213
@@ -4855,7 +4514,7 @@ RC=0
  list output suppressed
 ------------ 48620 combinations.
 
-0.390343 seconds
+0.328331 seconds
 
 RC=0
 
@@ -4876,7 +4535,7 @@ RC=0
 ------------ 10 doughnut selection taken 9 at a time:
  list output suppressed
 48620
-0.251625 seconds
+0.576036 seconds
 
 RC=0
 
@@ -4934,8 +4593,8 @@ RC=0
 [172] Comments/comments-1.rexx
 ================================================================================
      3 *-* say 44 / (7-y)      /* divide by some strange thingy.*/
-REX0042E: Error 42 running /local/RosettaCodeData/git/Lang/REXX/Comments/comments-1.rexx line 3:  Arithmetic overflow/underflow
-REX0413E: Error 42.3:  Arithmetic overflow; divisor must not be zero
+REX0042E: Error 42 running /local/RosettaCodeData/git/Lang/REXX/Comments/comments-1.rexx line 3:  Arithmetic overflow/underflow.
+REX0413E: Error 42.3:  Arithmetic overflow; divisor must not be zero.
 
 RC=214
 
@@ -4977,78 +4636,78 @@ RC=0
 
     73 *-*   say center('matrix' matX, 79, '─');
      6 *-* call showCmat 'M'        ,N                      /*display a nicely formatted matrix.   */
-REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Conjugate-transpose/conjugate-transpose.rexx line 73:  Incorrect call to routine
-REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "─"
+REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Conjugate-transpose/conjugate-transpose.rexx line 73:  Incorrect call to routine.
+REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "─".
 
 RC=216
 
 ================================================================================
 [182] Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-1.rexx
 ================================================================================
-          Θ     Θ
-        Θ    ΘΘ
-        Θ  Θ     Θ
-     Θ�Θ       Θ     Θ
-        Θ        ΘΘ Θ Θ
-                       Θ Θ
-     ΘΘ               Θ
-  Θ                   Θ
+          Θ�   Θ
+            �Θ
+      Θ  Θ       ΘΘ
                         Θ
-  Θ                       ΘΘ
+             Θ     Θ Θ
+   Θ     Θ
+   �Θ�              Θ
+    Θ                     Θ
+   Θ                   ΘΘ
                          Θ
-     Θ                      Θ
-  Θ                        Θ�
- Θ
-     Θ                  �ΘΘΘ
-    Θ
-                            Θ�
- Θ                        �Θ
- ΘΘ
-                          ΘΘ
-     ΘΘ               Θ  Θ
-       Θ               Θ �Θ
-    ΘΘ              Θ��Θ
-   Θ   Θ           ΘΘ Θ
-    Θ  Θ  Θ           Θ
-         Θ�  Θ   �Θ   Θ
-                      Θ
-              �ΘΘ Θ�
-            �Θ�
+                         Θ
+                           ΘΘ
+  Θ Θ
+     Θ                  Θ
+    Θ�                  Θ   Θ
+                           Θ
+                         ΘΘ
+ Θ�Θ                       Θ
+                          Θ
+    Θ�
+                         �Θ
+   Θ�                 ΘΘ
+       Θ             Θ �Θ
+    Θ                 Θ Θ
+    Θ    �ΘΘ�     Θ
+     Θ  Θ    ��Θ Θ�Θ�
+       ΘΘΘΘ   Θ
+               Θ
+             ΘΘ  Θ�
 
 RC=0
 
 ================================================================================
 [183] Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-2.rexx
 ================================================================================
-                          Θ  Θ  Θ    Θ
-                                Θ
-                Θ      Θ  Θ        Θ        Θ
-              Θ  Θ                      Θ  Θ
-        Θ        Θ  Θ    Θ    Θ
-                    Θ
+                            Θ  Θ
+                Θ            Θ    Θ  ΘΘ
+              ΘΘ                Θ          Θ
+                    ΘΘ      Θ    Θ
+            Θ          Θ  ΘΘ    Θ        Θ
+      ΘΘ        ΘΘ                        Θ      Θ
+        Θ        Θ                          Θ
       Θ
-          Θ                                          Θ
+    Θ  Θ    Θ                                      Θ
+  Θ      Θ                                      Θ      Θ
     Θ
-        Θ                                        Θ  Θ  Θ
-          Θ                                          ΘΘ
-  Θ                                                Θ  ΘΘ
-      ΘΘ                                        ΘΘΘ  Θ
+  Θ                                              Θ      Θ
+          Θ                                      ΘΘ
+      Θ
+
+  Θ                                                Θ
+      ΘΘ                                              ΘΘ
+
+    Θ
+                                                    ΘΘΘ
                                                       Θ
-Θ  Θ    Θ
-        ΘΘ                                          ΘΘΘ
-  Θ                                                    ΘΘ
-        Θ
-          Θ                                      Θ
-      Θ                                          Θ    ΘΘ
-        ΘΘ
-                                              Θ
-        ΘΘ  Θ                            Θ        Θ
-        Θ        ΘΘ
-                Θ
-              Θ            Θ              Θ
-              Θ        Θ      Θ          Θ
-                  Θ                  Θ
-                                  Θ
+    Θ      Θ                                  Θ
+                                                      Θ
+      Θ                                  Θ      Θ  Θ
+                                                  ΘΘ
+                ΘΘ    Θ      Θ
+            Θ  Θ          Θ  Θ      Θ  Θ
+                    Θ  Θ    Θ        Θ
+                    Θ  Θ      Θ
                               Θ
 
 RC=0
@@ -5057,35 +4716,35 @@ RC=0
 [184] Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-3.rexx
 ================================================================================
 
-                                  O O
-                O O         O       O O     O
-                  O O O     O         O   O
-          O O       O                 O   O     O O
-        O O                 O O         O       O
-          O                             O O       O O
-                                                O   O
-      O     O                                 O
-            O O                                 O   O
-  O                                                       O
-  O O                                                   O
-          O
-          O                                             O
-  O   O                                                   O
-    O     O
-                                                    O
-      O                                             O
-                                                    O     O
-      O O                                               O
-          O O                                       O     O
-            O                                   O O
-        O   O O                                 O       O
-      O         O                                   O
-                O                       O     O
-                        O   O           O O
-          O           O           O   O         O
-                            O   O       O   O O O
-                            O         O     O
-                        O             O
+                                  O
+                                O
+                O     O       O     O   O     O O
+              O   O O   O O     O O O     O O
+        O       O O               O       O
+            O                           O       O     O
+              O O                         O
+      O
+        O
+            O                                           O
+          O                                       O   O O O
+      O
+  O   O O O                                         O   O O
+        O                                         O     O
+    O
+  O                                                     O O
+                                                  O   O
+                                                          O
+      O                                             O     O
+            O                                       O     O
+      O O     O                               O   O     O
+    O O
+                                          O   O       O
+        O   O   O                       O
+            O                 O O           O   O O
+                        O   O             O       O
+            O     O       O   O               O
+                  O O         O O
+                          O           O
 
 
 RC=0
@@ -5094,35 +4753,35 @@ RC=0
 [185] Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-4.rexx
 ================================================================================
                               +
-                      +     + + +
-                                          + +
-                  +   + +         +         +
-          +   + +       + +
-            +
-              +                                   +   +
-      +                                     + +
-    +       + +                               + +
-          +
-                                                      +
-  +     + +                                       + + +   +
-      + +                                             + + +
-  +       +                                               +
 
-        +                                               + +
-    +   +                                         +   +
-  + + +   +                                       +     +
-          +                                             +
-
-                                                + +     + +
-      + + +   +                                   + + + +
-            +
-        + + +     +
-      + +                                 + +       +
-        +       + +             +       +     +
-                                          +
-                    +                       +
-                              +             +
-                        + +       + + +
+                +             + +       +   +
+                        +       +             + +
+            +                     +     +     + +
+                          +   +           +     +
+              +                                 +     +
+      +
+      +                                           + +
+                                                    +
+  +   + + +                                           + +
+  +   +   +                                       + +
+    +                                               + +
+      +
+  +     +                                         +
+                                                      +   +
+  + + + +                                           +     +
+      +   +
+  + +     +                                       +   +
+      +                                                   +
+    +   +                                           + +   +
+    + +   +   +                                   +
+        +     +                               + +   +
+                                            +
+            +                             +     +     +
+                                              +   + +
+                                  +         + +
+                            + +
+                          + + + +           +
+                    +   +   +         +
                               +
 100 points filled
 
@@ -5283,8 +4942,8 @@ RC=0
 ================================================================================
     45 *-*       _=d2c(_);
      8 *-* life! = pickChar(life!            '☼')     /*the gylph kinda looks like an amoeba.*/
-REX0093E: Error 93 running /local/RosettaCodeData/git/Lang/REXX/Conways-Game-of-Life/conways-game-of-life-1.rexx line 45:  Incorrect call to method
-REX0457E: Error 93.929:  D2C value must be a valid whole number; found "☼"
+REX0093E: Error 93 running /local/RosettaCodeData/git/Lang/REXX/Conways-Game-of-Life/conways-game-of-life-1.rexx line 45:  Incorrect call to method.
+REX0457E: Error 93.929:  D2C value must be a valid whole number; found "☼".
 
 RC=163
 
@@ -5296,8 +4955,8 @@ bash: erase: command not found
        >>>   "erase bipole.txt"
        +++   "RC(127)"
     92 *-*   st=st||'-'right(s,2,'-')||copies('-',xmax-xmin)'+'
-REX0093E: Error 93 running /local/RosettaCodeData/git/Lang/REXX/Conways-Game-of-Life/conways-game-of-life-2.rexx line 92:  Incorrect call to method
-REX0436E: Error 93.906:  Method positional argument 1 must be zero or a positive whole number; found "-999"
+REX0093E: Error 93 running /local/RosettaCodeData/git/Lang/REXX/Conways-Game-of-Life/conways-game-of-life-2.rexx line 92:  Incorrect call to method.
+REX0436E: Error 93.906:  Method positional argument 1 must be zero or a positive whole number; found "-999".
 
 RC=163
 
@@ -5447,8 +5106,8 @@ RC=0
            haystack                needle      count
     23 *-*         say left('', w, "═")      left('', w%2, "═")    left('', 5, "═")
      3 *-* call showResult
-REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Count-occurrences-of-a-substring/count-occurrences-of-a-substring.rexx line 23:  Incorrect call to routine
-REX0385E: Error 40.23:  LEFT positional argument 3 must be a single character; found "═"
+REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Count-occurrences-of-a-substring/count-occurrences-of-a-substring.rexx line 23:  Incorrect call to routine.
+REX0385E: Error 40.23:  LEFT positional argument 3 must be a single character; found "═".
 
 RC=216
 
@@ -5483,8 +5142,8 @@ RC=0
 
     29 *-*   say center(' input string [length of' length(Xstring) "bytes] ", 79, '═')
      3 *-* call show  'The quick brown fox jumps over the lazy dog'               /*the 1st string.*/
-REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/CRC-32/crc-32.rexx line 29:  Incorrect call to routine
-REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═"
+REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/CRC-32/crc-32.rexx line 29:  Incorrect call to routine.
+REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═".
 
 RC=216
 
@@ -5515,11 +5174,11 @@ RC=0
 ================================================================================
 
 Enter two positive integers (a 2-dimensional array will be created).
+  1~1  ·   ·   ·   · 
   ·   ·   ·   ·   · 
-  2~1  ·   2~3  ·   2~5
+  ·   3~2  ·   3~4  · 
+  ·   ·   4~3  ·   · 
   ·   ·   ·   ·   · 
-  ·   ·   ·   4~4  · 
-  ·   5~2  ·   ·   · 
 
 RC=0
 
@@ -5535,25 +5194,25 @@ RC=0
 ══► <th> Y </th>
 ══► <th> Z </th>
 ══► <tr><th> 1 </th>
-══► <td align=right>  -371 </td>
-══► <td align=right> -3159 </td>
-══► <td align=right> -5466 </td>
+══► <td align=right>   172 </td>
+══► <td align=right>  7337 </td>
+══► <td align=right> -4157 </td>
 ══► <tr><th> 2 </th>
-══► <td align=right> -2414 </td>
-══► <td align=right> -4601 </td>
-══► <td align=right> -7687 </td>
+══► <td align=right> -2955 </td>
+══► <td align=right>  1370 </td>
+══► <td align=right>  3759 </td>
 ══► <tr><th> 3 </th>
-══► <td align=right>  4347 </td>
-══► <td align=right>  5359 </td>
-══► <td align=right> -3169 </td>
+══► <td align=right> -8687 </td>
+══► <td align=right>  5107 </td>
+══► <td align=right>  2533 </td>
 ══► <tr><th> 4 </th>
-══► <td align=right>  2271 </td>
-══► <td align=right>  3355 </td>
-══► <td align=right>  5749 </td>
+══► <td align=right>  1978 </td>
+══► <td align=right>  3012 </td>
+══► <td align=right>   360 </td>
 ══► <tr><th> 5 </th>
-══► <td align=right>  7703 </td>
-══► <td align=right>  -996 </td>
-══► <td align=right> -9650 </td>
+══► <td align=right>  2194 </td>
+══► <td align=right> -7195 </td>
+══► <td align=right>  9778 </td>
 ══► </table>
 ══► </body>
 ══► </html>
@@ -5676,177 +5335,177 @@ RC=0
 ================================================================================
 Summary Ok
 ================================================================================
-Ok:    1 ; 0.036217 ; 0 ; 100-doors/100-doors-1.rexx
-Ok:    2 ; 0.031047 ; 0 ; 100-doors/100-doors-2.rexx
-Ok:    3 ; 0.042879 ; 0 ; 24-game/24-game-1.rexx
-Ok:    4 ; 0.366589 ; 0 ; 24-game-Solve/24-game-solve.rexx
-Ok:    5 ; 0.062104 ; 0 ; 9-billion-names-of-God-the-integer/9-billion-names-of-god-the-integer.rexx
-Ok:    6 ; 0.050736 ; 0 ; 99-Bottles-of-Beer/99-bottles-of-beer.rexx
-Ok:    7 ; 0.041556 ; 0 ; A+B/a+b-1.rexx
-Ok:    8 ; 0.036364 ; 0 ; A+B/a+b-2.rexx
-Ok:    9 ; 0.035109 ; 0 ; A+B/a+b-3.rexx
-Ok:   10 ; 0.036210 ; 0 ; A+B/a+b-4.rexx
-Ok:   11 ; 0.037199 ; 0 ; ABC-Problem/abc-problem-1.rexx
-Ok:   12 ; 0.041008 ; 0 ; ABC-Problem/abc-problem-2.rexx
-Ok:   16 ; 0.031114 ; 0 ; Accumulator-factory/accumulator-factory.rexx
-Ok:   18 ; 0.040942 ; 0 ; Ackermann-function/ackermann-function-2.rexx
-Ok:   19 ; 0.048367 ; 0 ; Ackermann-function/ackermann-function-3.rexx
-Ok:   20 ; 0.279840 ; 0 ; Active-Directory-Search-for-a-user/active-directory-search-for-a-user.rexx
-Ok:   22 ; 1.945424 ; 0 ; AKS-test-for-primes/aks-test-for-primes-1.rexx
-Ok:   23 ; 0.149340 ; 0 ; AKS-test-for-primes/aks-test-for-primes-2.rexx
-Ok:   24 ; 0.032126 ; 0 ; Align-columns/align-columns-1.rexx
-Ok:   28 ; 0.036868 ; 0 ; Almost-prime/almost-prime-1.rexx
-Ok:   29 ; 0.034658 ; 0 ; Almost-prime/almost-prime-2.rexx
-Ok:   30 ; 0.032653 ; 0 ; Amb/amb-1.rexx
-Ok:   31 ; 0.033435 ; 0 ; Amb/amb-2.rexx
-Ok:   33 ; 3.738097 ; 0 ; Amicable-pairs/amicable-pairs-2.rexx
-Ok:   34 ; 1.397012 ; 0 ; Amicable-pairs/amicable-pairs-3.rexx
-Ok:   35 ; 1.122314 ; 0 ; Amicable-pairs/amicable-pairs-4.rexx
-Ok:   36 ; 0.342385 ; 0 ; Amicable-pairs/amicable-pairs-5.rexx
-Ok:   37 ; 0.029969 ; 0 ; Anagrams/anagrams-1.rexx
-Ok:   38 ; 0.030872 ; 0 ; Anagrams/anagrams-2.rexx
-Ok:   39 ; 0.032399 ; 0 ; Anagrams/anagrams-3.rexx
-Ok:   40 ; 0.032100 ; 0 ; Anagrams/anagrams-4.rexx
-Ok:   41 ; 0.033185 ; 0 ; Anagrams/anagrams-5.rexx
-Ok:   42 ; 0.032546 ; 0 ; Anagrams/anagrams-6.rexx
-Ok:   43 ; 0.034100 ; 0 ; Anagrams-Deranged-anagrams/anagrams-deranged-anagrams.rexx
-Ok:   44 ; 2.419583 ; 0 ; Anonymous-recursion/anonymous-recursion-1.rexx
-Ok:   45 ; 0.127949 ; 0 ; Anonymous-recursion/anonymous-recursion-2.rexx
-Ok:   46 ; 0.031161 ; 0 ; Append-a-record-to-the-end-of-a-text-file/append-a-record-to-the-end-of-a-text-file.rexx
-Ok:   47 ; 0.032473 ; 0 ; Apply-a-callback-to-an-array/apply-a-callback-to-an-array.rexx
-Ok:   50 ; 0.030916 ; 0 ; Arena-storage-pool/arena-storage-pool.rexx
-Ok:   51 ; 0.031009 ; 0 ; Arithmetic-Complex/arithmetic-complex.rexx
-Ok:   52 ; 0.031549 ; 0 ; Arithmetic-evaluation/arithmetic-evaluation.rexx
-Ok:   53 ; 0.036958 ; 0 ; Arithmetic-geometric-mean/arithmetic-geometric-mean.rexx
-Ok:   54 ; 0.080405 ; 0 ; Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-1.rexx
-Ok:   55 ; 0.086122 ; 0 ; Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-2.rexx
-Ok:   56 ; 12.323095 ; 0 ; Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-3.rexx
-Ok:   57 ; 0.035773 ; 0 ; Arithmetic-Integer/arithmetic-integer.rexx
-Ok:   59 ; 0.029277 ; 0 ; Array-concatenation/array-concatenation-1.rexx
-Ok:   60 ; 0.030926 ; 0 ; Array-concatenation/array-concatenation-2.rexx
-Ok:   61 ; 0.033247 ; 0 ; Array-concatenation/array-concatenation-3.rexx
-Ok:   62 ; 0.030139 ; 0 ; Arrays/arrays-1.rexx
-Ok:   63 ; 0.031685 ; 0 ; Arrays/arrays-2.rexx
-Ok:   64 ; 0.031058 ; 0 ; Arrays/arrays-3.rexx
-Ok:   65 ; 0.050696 ; 0 ; Arrays/arrays-4.rexx
-Ok:   66 ; 0.032435 ; 0 ; Arrays/arrays-5.rexx
-Ok:   67 ; 0.030115 ; 0 ; Arrays/arrays-6.rexx
-Ok:   68 ; 0.035268 ; 0 ; Assertions/assertions.rexx
-Ok:   69 ; 0.031120 ; 0 ; Associative-array-Creation/associative-array-creation-1.rexx
-Ok:   70 ; 0.031070 ; 0 ; Associative-array-Creation/associative-array-creation-2.rexx
-Ok:   71 ; 0.036970 ; 0 ; Associative-array-Iteration/associative-array-iteration.rexx
-Ok:   73 ; 0.031048 ; 0 ; Averages-Arithmetic-mean/averages-arithmetic-mean.rexx
-Ok:   74 ; 0.077636 ; 0 ; Averages-Mean-angle/averages-mean-angle.rexx
-Ok:   75 ; 0.032865 ; 0 ; Averages-Mean-time-of-day/averages-mean-time-of-day.rexx
-Ok:   76 ; 0.030626 ; 0 ; Averages-Median/averages-median.rexx
-Ok:   77 ; 0.031382 ; 0 ; Averages-Mode/averages-mode-1.rexx
-Ok:   78 ; 0.035922 ; 0 ; Averages-Mode/averages-mode-2.rexx
-Ok:   79 ; 0.056187 ; 0 ; Averages-Pythagorean-means/averages-pythagorean-means.rexx
-Ok:   80 ; 0.031469 ; 0 ; Averages-Root-mean-square/averages-root-mean-square.rexx
-Ok:   81 ; 0.034437 ; 0 ; Averages-Simple-moving-average/averages-simple-moving-average.rexx
-Ok:   82 ; 0.039516 ; 0 ; Balanced-brackets/balanced-brackets-1.rexx
-Ok:   83 ; 0.037779 ; 0 ; Balanced-brackets/balanced-brackets-2.rexx
-Ok:   84 ; 12.812741 ; 0 ; Balanced-brackets/balanced-brackets-3.rexx
-Ok:   85 ; 0.208499 ; 0 ; Balanced-ternary/balanced-ternary.rexx
-Ok:   87 ; 0.229331 ; 0 ; Bernoulli-numbers/bernoulli-numbers.rexx
-Ok:   88 ; 0.029630 ; 0 ; Best-shuffle/best-shuffle-1.rexx
-Ok:   92 ; 0.032255 ; 0 ; Best-shuffle/best-shuffle.rexx
-Ok:   93 ; 0.032045 ; 0 ; Binary-digits/binary-digits-1.rexx
-Ok:   94 ; 0.031912 ; 0 ; Binary-digits/binary-digits-2.rexx
-Ok:   95 ; 0.031966 ; 0 ; Binary-digits/binary-digits-3.rexx
-Ok:   96 ; 0.031242 ; 0 ; Binary-digits/binary-digits-4.rexx
-Ok:   97 ; 0.032219 ; 0 ; Binary-search/binary-search-1.rexx
-Ok:   98 ; 0.031196 ; 0 ; Binary-search/binary-search-2.rexx
-Ok:   99 ; 0.029648 ; 0 ; Binary-strings/binary-strings.rexx
-Ok:  100 ; 6.947310 ; 0 ; Bitmap/bitmap-1.rexx
-Ok:  101 ; 0.161662 ; 0 ; Bitmap/bitmap-2.rexx
-Ok:  102 ; 0.034217 ; 0 ; Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-1.rexx
-Ok:  103 ; 0.032126 ; 0 ; Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-2.rexx
-Ok:  104 ; 0.033315 ; 0 ; Bitmap-Flood-fill/bitmap-flood-fill.rexx
-Ok:  105 ; 0.042291 ; 0 ; Bitmap-Midpoint-circle-algorithm/bitmap-midpoint-circle-algorithm.rexx
-Ok:  106 ; 5.788912 ; 0 ; Bitmap-Read-a-PPM-file/bitmap-read-a-ppm-file.rexx
-Ok:  107 ; 0.037549 ; 0 ; Bitmap-Write-a-PPM-file/bitmap-write-a-ppm-file.rexx
-Ok:  108 ; 0.035996 ; 0 ; Bitwise-IO/bitwise-io-1.rexx
-Ok:  109 ; 0.032226 ; 0 ; Bitwise-IO/bitwise-io-2.rexx
-Ok:  110 ; 0.032302 ; 0 ; Bitwise-operations/bitwise-operations.rexx
-Ok:  111 ; 0.031568 ; 0 ; Boolean-values/boolean-values-1.rexx
-Ok:  112 ; 0.031464 ; 0 ; Boolean-values/boolean-values-2.rexx
-Ok:  113 ; 0.032611 ; 0 ; Boolean-values/boolean-values-3.rexx
-Ok:  114 ; 0.030323 ; 0 ; Boolean-values/boolean-values-4.rexx
-Ok:  116 ; 0.032603 ; 0 ; Boolean-values/boolean-values-6.rexx
-Ok:  117 ; 0.035962 ; 0 ; Box-the-compass/box-the-compass.rexx
-Ok:  119 ; 0.053821 ; 0 ; Bulls-and-cows/bulls-and-cows-1.rexx
-Ok:  120 ; 0.039446 ; 0 ; Bulls-and-cows/bulls-and-cows-2.rexx
-Ok:  121 ; 0.123906 ; 0 ; Bulls-and-cows-Player/bulls-and-cows-player.rexx
-Ok:  122 ; 0.034253 ; 0 ; Caesar-cipher/caesar-cipher-1.rexx
-Ok:  123 ; 0.028715 ; 0 ; Caesar-cipher/caesar-cipher-2.rexx
-Ok:  124 ; 0.042988 ; 0 ; Calendar/calendar.rexx
-Ok:  125 ; 0.039802 ; 0 ; Calendar/calendar.rexx
-Ok:  126 ; 0.046531 ; 0 ; Calendar---for-REAL-programmers/calendar---for-real-programmers.rexx
-Ok:  128 ; 0.029843 ; 0 ; Call-a-function/call-a-function-1.rexx
-Ok:  129 ; 0.043223 ; 0 ; Call-a-function/call-a-function-2.rexx
-Ok:  131 ; 0.099686 ; 0 ; Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-1.rexx
-Ok:  132 ; 0.118515 ; 0 ; Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-2.rexx
-Ok:  133 ; 0.106904 ; 0 ; Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes.rexx
-Ok:  136 ; 0.044501 ; 0 ; Casting-out-nines/casting-out-nines.rexx
-Ok:  138 ; 0.045072 ; 0 ; Catalan-numbers/catalan-numbers-2.rexx
-Ok:  139 ; 0.030526 ; 0 ; Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-1.rexx
-Ok:  140 ; 0.031201 ; 0 ; Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-2.rexx
-Ok:  141 ; 0.031182 ; 0 ; Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-3.rexx
-Ok:  142 ; 0.030836 ; 0 ; Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-4.rexx
-Ok:  143 ; 0.033492 ; 0 ; Catamorphism/catamorphism.rexx
-Ok:  144 ; 0.031434 ; 0 ; Character-codes/character-codes-1.rexx
-Ok:  145 ; 0.031280 ; 0 ; Character-codes/character-codes-2.rexx
-Ok:  146 ; 0.045931 ; 0 ; Check-Machin-like-formulas/check-machin-like-formulas.rexx
-Ok:  149 ; 0.031501 ; 0 ; Chinese-remainder-theorem/chinese-remainder-theorem-1.rexx
-Ok:  150 ; 0.032843 ; 0 ; Chinese-remainder-theorem/chinese-remainder-theorem-2.rexx
-Ok:  154 ; 0.033058 ; 0 ; Closures-Value-capture/closures-value-capture.rexx
-Ok:  155 ; 0.034344 ; 0 ; Collections/collections-1.rexx
-Ok:  156 ; 0.033091 ; 0 ; Collections/collections-2.rexx
-Ok:  158 ; 0.036184 ; 0 ; Collections/collections-4.rexx
-Ok:  162 ; 0.034032 ; 0 ; Combinations/combinations.rexx
-Ok:  163 ; 0.212690 ; 0 ; Combinations-and-permutations/combinations-and-permutations.rexx
-Ok:  164 ; 0.037679 ; 0 ; Combinations-with-repetitions/combinations-with-repetitions-1.rexx
-Ok:  165 ; 0.434327 ; 0 ; Combinations-with-repetitions/combinations-with-repetitions-2.rexx
-Ok:  166 ; 0.291154 ; 0 ; Combinations-with-repetitions/combinations-with-repetitions-3.rexx
-Ok:  167 ; 0.036882 ; 0 ; Comma-quibbling/comma-quibbling-1.rexx
-Ok:  168 ; 0.032032 ; 0 ; Comma-quibbling/comma-quibbling-2.rexx
-Ok:  169 ; 0.037634 ; 0 ; Comma-quibbling/comma-quibbling-3.rexx
-Ok:  170 ; 0.031275 ; 0 ; Command-line-arguments/command-line-arguments-1.rexx
-Ok:  171 ; 0.030520 ; 0 ; Command-line-arguments/command-line-arguments-2.rexx
-Ok:  173 ; 0.032244 ; 0 ; Comments/comments-2.rexx
-Ok:  174 ; 0.028713 ; 0 ; Comments/comments-3.rexx
-Ok:  175 ; 0.030625 ; 0 ; Compile-time-calculation/compile-time-calculation.rexx
-Ok:  176 ; 0.030447 ; 0 ; Compound-data-type/compound-data-type-1.rexx
-Ok:  177 ; 0.029837 ; 0 ; Compound-data-type/compound-data-type-2.rexx
-Ok:  182 ; 0.037088 ; 0 ; Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-1.rexx
-Ok:  183 ; 0.035345 ; 0 ; Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-2.rexx
-Ok:  184 ; 0.032644 ; 0 ; Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-3.rexx
-Ok:  185 ; 0.042092 ; 0 ; Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-4.rexx
-Ok:  186 ; 18.334074 ; 0 ; Continued-fraction/continued-fraction-1.rexx
-Ok:  187 ; 0.050256 ; 0 ; Continued-fraction/continued-fraction-2.rexx
-Ok:  188 ; 2.061037 ; 0 ; Continued-fraction/continued-fraction-3.rexx
-Ok:  189 ; 0.356846 ; 0 ; Continued-fraction-Arithmetic-Construct-from-rational-number/continued-fraction-arithmetic-construct-from-rational-number.rexx
-Ok:  190 ; 0.028549 ; 0 ; Convert-decimal-number-to-rational/convert-decimal-number-to-rational-1.rexx
-Ok:  191 ; 0.030639 ; 0 ; Convert-decimal-number-to-rational/convert-decimal-number-to-rational-2.rexx
-Ok:  192 ; 0.037203 ; 0 ; Convert-decimal-number-to-rational/convert-decimal-number-to-rational-3.rexx
-Ok:  195 ; 0.036315 ; 0 ; Copy-a-string/copy-a-string.rexx
-Ok:  196 ; 0.042311 ; 0 ; Count-in-factors/count-in-factors-1.rexx
-Ok:  197 ; 0.038656 ; 0 ; Count-in-factors/count-in-factors-2.rexx
-Ok:  198 ; 0.169606 ; 0 ; Count-in-octal/count-in-octal.rexx
-Ok:  200 ; 0.043412 ; 0 ; Count-the-coins/count-the-coins-1.rexx
-Ok:  201 ; 0.042695 ; 0 ; Count-the-coins/count-the-coins-2.rexx
-Ok:  202 ; 0.039466 ; 0 ; Count-the-coins/count-the-coins-3.rexx
-Ok:  204 ; 0.187640 ; 0 ; Create-a-file/create-a-file.rexx
-Ok:  205 ; 0.046750 ; 0 ; Create-a-file-on-magnetic-tape/create-a-file-on-magnetic-tape.rexx
-Ok:  206 ; 0.051689 ; 0 ; Create-a-two-dimensional-array-at-runtime/create-a-two-dimensional-array-at-runtime.rexx
-Ok:  207 ; 0.114761 ; 0 ; Create-an-HTML-table/create-an-html-table.rexx
-Ok:  208 ; 0.069744 ; 0 ; CSV-data-manipulation/csv-data-manipulation.rexx
-Ok:  209 ; 0.038775 ; 0 ; CSV-to-HTML-translation/csv-to-html-translation.rexx
-Ok:  210 ; 0.116401 ; 0 ; Currying/currying-1.rexx
-Ok:  211 ; 0.067687 ; 0 ; Currying/currying-2.rexx
-Ok:  212 ; 4.270763 ; 0 ; Cut-a-rectangle/cut-a-rectangle-1.rexx
-Ok:  213 ; 2.538835 ; 0 ; Cut-a-rectangle/cut-a-rectangle-2.rexx
+Ok:    1 ; 0.043090 ; 0 ; 100-doors/100-doors-1.rexx
+Ok:    2 ; 0.037222 ; 0 ; 100-doors/100-doors-2.rexx
+Ok:    3 ; 0.050953 ; 0 ; 24-game/24-game-1.rexx
+Ok:    4 ; 0.292098 ; 0 ; 24-game-Solve/24-game-solve.rexx
+Ok:    5 ; 0.063416 ; 0 ; 9-billion-names-of-God-the-integer/9-billion-names-of-god-the-integer.rexx
+Ok:    6 ; 0.103065 ; 0 ; 99-Bottles-of-Beer/99-bottles-of-beer.rexx
+Ok:    7 ; 0.035960 ; 0 ; A+B/a+b-1.rexx
+Ok:    8 ; 0.035589 ; 0 ; A+B/a+b-2.rexx
+Ok:    9 ; 0.035932 ; 0 ; A+B/a+b-3.rexx
+Ok:   10 ; 0.037331 ; 0 ; A+B/a+b-4.rexx
+Ok:   11 ; 0.034199 ; 0 ; ABC-Problem/abc-problem-1.rexx
+Ok:   12 ; 0.041214 ; 0 ; ABC-Problem/abc-problem-2.rexx
+Ok:   16 ; 0.035269 ; 0 ; Accumulator-factory/accumulator-factory.rexx
+Ok:   18 ; 0.054328 ; 0 ; Ackermann-function/ackermann-function-2.rexx
+Ok:   19 ; 0.040806 ; 0 ; Ackermann-function/ackermann-function-3.rexx
+Ok:   20 ; 0.298342 ; 0 ; Active-Directory-Search-for-a-user/active-directory-search-for-a-user.rexx
+Ok:   22 ; 1.818543 ; 0 ; AKS-test-for-primes/aks-test-for-primes-1.rexx
+Ok:   23 ; 0.153259 ; 0 ; AKS-test-for-primes/aks-test-for-primes-2.rexx
+Ok:   24 ; 0.034600 ; 0 ; Align-columns/align-columns-1.rexx
+Ok:   28 ; 0.044618 ; 0 ; Almost-prime/almost-prime-1.rexx
+Ok:   29 ; 0.037517 ; 0 ; Almost-prime/almost-prime-2.rexx
+Ok:   30 ; 0.035022 ; 0 ; Amb/amb-1.rexx
+Ok:   31 ; 0.037490 ; 0 ; Amb/amb-2.rexx
+Ok:   33 ; 4.139033 ; 0 ; Amicable-pairs/amicable-pairs-2.rexx
+Ok:   34 ; 1.878111 ; 0 ; Amicable-pairs/amicable-pairs-3.rexx
+Ok:   35 ; 1.680971 ; 0 ; Amicable-pairs/amicable-pairs-4.rexx
+Ok:   36 ; 0.388923 ; 0 ; Amicable-pairs/amicable-pairs-5.rexx
+Ok:   37 ; 0.040848 ; 0 ; Anagrams/anagrams-1.rexx
+Ok:   38 ; 0.046191 ; 0 ; Anagrams/anagrams-2.rexx
+Ok:   39 ; 0.049925 ; 0 ; Anagrams/anagrams-3.rexx
+Ok:   40 ; 0.064462 ; 0 ; Anagrams/anagrams-4.rexx
+Ok:   41 ; 0.036506 ; 0 ; Anagrams/anagrams-5.rexx
+Ok:   42 ; 0.036288 ; 0 ; Anagrams/anagrams-6.rexx
+Ok:   43 ; 0.034949 ; 0 ; Anagrams-Deranged-anagrams/anagrams-deranged-anagrams.rexx
+Ok:   44 ; 6.674595 ; 0 ; Anonymous-recursion/anonymous-recursion-1.rexx
+Ok:   45 ; 0.183556 ; 0 ; Anonymous-recursion/anonymous-recursion-2.rexx
+Ok:   46 ; 0.051479 ; 0 ; Append-a-record-to-the-end-of-a-text-file/append-a-record-to-the-end-of-a-text-file.rexx
+Ok:   47 ; 0.044963 ; 0 ; Apply-a-callback-to-an-array/apply-a-callback-to-an-array.rexx
+Ok:   50 ; 0.048504 ; 0 ; Arena-storage-pool/arena-storage-pool.rexx
+Ok:   51 ; 0.054200 ; 0 ; Arithmetic-Complex/arithmetic-complex.rexx
+Ok:   52 ; 0.050831 ; 0 ; Arithmetic-evaluation/arithmetic-evaluation.rexx
+Ok:   53 ; 0.080831 ; 0 ; Arithmetic-geometric-mean/arithmetic-geometric-mean.rexx
+Ok:   54 ; 0.118658 ; 0 ; Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-1.rexx
+Ok:   55 ; 0.109167 ; 0 ; Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-2.rexx
+Ok:   56 ; 18.304565 ; 0 ; Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-3.rexx
+Ok:   57 ; 0.097407 ; 0 ; Arithmetic-Integer/arithmetic-integer.rexx
+Ok:   59 ; 0.117764 ; 0 ; Array-concatenation/array-concatenation-1.rexx
+Ok:   60 ; 0.054922 ; 0 ; Array-concatenation/array-concatenation-2.rexx
+Ok:   61 ; 0.057500 ; 0 ; Array-concatenation/array-concatenation-3.rexx
+Ok:   62 ; 0.044836 ; 0 ; Arrays/arrays-1.rexx
+Ok:   63 ; 0.050679 ; 0 ; Arrays/arrays-2.rexx
+Ok:   64 ; 0.037701 ; 0 ; Arrays/arrays-3.rexx
+Ok:   65 ; 0.056371 ; 0 ; Arrays/arrays-4.rexx
+Ok:   66 ; 0.060811 ; 0 ; Arrays/arrays-5.rexx
+Ok:   67 ; 0.044695 ; 0 ; Arrays/arrays-6.rexx
+Ok:   68 ; 0.042022 ; 0 ; Assertions/assertions.rexx
+Ok:   69 ; 0.066547 ; 0 ; Associative-array-Creation/associative-array-creation-1.rexx
+Ok:   70 ; 0.046494 ; 0 ; Associative-array-Creation/associative-array-creation-2.rexx
+Ok:   71 ; 0.050607 ; 0 ; Associative-array-Iteration/associative-array-iteration.rexx
+Ok:   73 ; 0.051022 ; 0 ; Averages-Arithmetic-mean/averages-arithmetic-mean.rexx
+Ok:   74 ; 0.100004 ; 0 ; Averages-Mean-angle/averages-mean-angle.rexx
+Ok:   75 ; 0.054581 ; 0 ; Averages-Mean-time-of-day/averages-mean-time-of-day.rexx
+Ok:   76 ; 0.103386 ; 0 ; Averages-Median/averages-median.rexx
+Ok:   77 ; 0.055599 ; 0 ; Averages-Mode/averages-mode-1.rexx
+Ok:   78 ; 0.063222 ; 0 ; Averages-Mode/averages-mode-2.rexx
+Ok:   79 ; 0.149608 ; 0 ; Averages-Pythagorean-means/averages-pythagorean-means.rexx
+Ok:   80 ; 0.070555 ; 0 ; Averages-Root-mean-square/averages-root-mean-square.rexx
+Ok:   81 ; 0.036338 ; 0 ; Averages-Simple-moving-average/averages-simple-moving-average.rexx
+Ok:   82 ; 0.034684 ; 0 ; Balanced-brackets/balanced-brackets-1.rexx
+Ok:   83 ; 0.058704 ; 0 ; Balanced-brackets/balanced-brackets-2.rexx
+Ok:   84 ; 14.853192 ; 0 ; Balanced-brackets/balanced-brackets-3.rexx
+Ok:   85 ; 0.152703 ; 0 ; Balanced-ternary/balanced-ternary.rexx
+Ok:   87 ; 0.237671 ; 0 ; Bernoulli-numbers/bernoulli-numbers.rexx
+Ok:   88 ; 0.028489 ; 0 ; Best-shuffle/best-shuffle-1.rexx
+Ok:   92 ; 0.029411 ; 0 ; Best-shuffle/best-shuffle.rexx
+Ok:   93 ; 0.029224 ; 0 ; Binary-digits/binary-digits-1.rexx
+Ok:   94 ; 0.029439 ; 0 ; Binary-digits/binary-digits-2.rexx
+Ok:   95 ; 0.031212 ; 0 ; Binary-digits/binary-digits-3.rexx
+Ok:   96 ; 0.029163 ; 0 ; Binary-digits/binary-digits-4.rexx
+Ok:   97 ; 0.028424 ; 0 ; Binary-search/binary-search-1.rexx
+Ok:   98 ; 0.029523 ; 0 ; Binary-search/binary-search-2.rexx
+Ok:   99 ; 0.029508 ; 0 ; Binary-strings/binary-strings.rexx
+Ok:  100 ; 7.882074 ; 0 ; Bitmap/bitmap-1.rexx
+Ok:  101 ; 0.236936 ; 0 ; Bitmap/bitmap-2.rexx
+Ok:  102 ; 0.038345 ; 0 ; Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-1.rexx
+Ok:  103 ; 0.037501 ; 0 ; Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-2.rexx
+Ok:  104 ; 0.032653 ; 0 ; Bitmap-Flood-fill/bitmap-flood-fill.rexx
+Ok:  105 ; 0.037492 ; 0 ; Bitmap-Midpoint-circle-algorithm/bitmap-midpoint-circle-algorithm.rexx
+Ok:  106 ; 14.579990 ; 0 ; Bitmap-Read-a-PPM-file/bitmap-read-a-ppm-file.rexx
+Ok:  107 ; 0.045200 ; 0 ; Bitmap-Write-a-PPM-file/bitmap-write-a-ppm-file.rexx
+Ok:  108 ; 0.034435 ; 0 ; Bitwise-IO/bitwise-io-1.rexx
+Ok:  109 ; 0.031303 ; 0 ; Bitwise-IO/bitwise-io-2.rexx
+Ok:  110 ; 0.032111 ; 0 ; Bitwise-operations/bitwise-operations.rexx
+Ok:  111 ; 0.029494 ; 0 ; Boolean-values/boolean-values-1.rexx
+Ok:  112 ; 0.030483 ; 0 ; Boolean-values/boolean-values-2.rexx
+Ok:  113 ; 0.032360 ; 0 ; Boolean-values/boolean-values-3.rexx
+Ok:  114 ; 0.030515 ; 0 ; Boolean-values/boolean-values-4.rexx
+Ok:  116 ; 0.045141 ; 0 ; Boolean-values/boolean-values-6.rexx
+Ok:  117 ; 0.039586 ; 0 ; Box-the-compass/box-the-compass.rexx
+Ok:  119 ; 0.040908 ; 0 ; Bulls-and-cows/bulls-and-cows-1.rexx
+Ok:  120 ; 0.039554 ; 0 ; Bulls-and-cows/bulls-and-cows-2.rexx
+Ok:  121 ; 0.145977 ; 0 ; Bulls-and-cows-Player/bulls-and-cows-player.rexx
+Ok:  122 ; 0.034416 ; 0 ; Caesar-cipher/caesar-cipher-1.rexx
+Ok:  123 ; 0.030970 ; 0 ; Caesar-cipher/caesar-cipher-2.rexx
+Ok:  124 ; 0.086678 ; 0 ; Calendar/calendar.rexx
+Ok:  125 ; 0.115819 ; 0 ; Calendar/calendar.rexx
+Ok:  126 ; 0.061186 ; 0 ; Calendar---for-REAL-programmers/calendar---for-real-programmers.rexx
+Ok:  128 ; 0.033567 ; 0 ; Call-a-function/call-a-function-1.rexx
+Ok:  129 ; 0.043189 ; 0 ; Call-a-function/call-a-function-2.rexx
+Ok:  131 ; 0.106721 ; 0 ; Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-1.rexx
+Ok:  132 ; 0.119922 ; 0 ; Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-2.rexx
+Ok:  133 ; 0.104090 ; 0 ; Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes.rexx
+Ok:  136 ; 0.046302 ; 0 ; Casting-out-nines/casting-out-nines.rexx
+Ok:  138 ; 0.045384 ; 0 ; Catalan-numbers/catalan-numbers-2.rexx
+Ok:  139 ; 0.033379 ; 0 ; Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-1.rexx
+Ok:  140 ; 0.035695 ; 0 ; Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-2.rexx
+Ok:  141 ; 0.033759 ; 0 ; Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-3.rexx
+Ok:  142 ; 0.041664 ; 0 ; Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-4.rexx
+Ok:  143 ; 0.035219 ; 0 ; Catamorphism/catamorphism.rexx
+Ok:  144 ; 0.032094 ; 0 ; Character-codes/character-codes-1.rexx
+Ok:  145 ; 0.030702 ; 0 ; Character-codes/character-codes-2.rexx
+Ok:  146 ; 0.044687 ; 0 ; Check-Machin-like-formulas/check-machin-like-formulas.rexx
+Ok:  149 ; 0.033514 ; 0 ; Chinese-remainder-theorem/chinese-remainder-theorem-1.rexx
+Ok:  150 ; 0.032154 ; 0 ; Chinese-remainder-theorem/chinese-remainder-theorem-2.rexx
+Ok:  154 ; 0.032954 ; 0 ; Closures-Value-capture/closures-value-capture.rexx
+Ok:  155 ; 0.035718 ; 0 ; Collections/collections-1.rexx
+Ok:  156 ; 0.037784 ; 0 ; Collections/collections-2.rexx
+Ok:  158 ; 0.039394 ; 0 ; Collections/collections-4.rexx
+Ok:  162 ; 0.036714 ; 0 ; Combinations/combinations.rexx
+Ok:  163 ; 0.256808 ; 0 ; Combinations-and-permutations/combinations-and-permutations.rexx
+Ok:  164 ; 0.085187 ; 0 ; Combinations-with-repetitions/combinations-with-repetitions-1.rexx
+Ok:  165 ; 0.378489 ; 0 ; Combinations-with-repetitions/combinations-with-repetitions-2.rexx
+Ok:  166 ; 0.616969 ; 0 ; Combinations-with-repetitions/combinations-with-repetitions-3.rexx
+Ok:  167 ; 0.033200 ; 0 ; Comma-quibbling/comma-quibbling-1.rexx
+Ok:  168 ; 0.032337 ; 0 ; Comma-quibbling/comma-quibbling-2.rexx
+Ok:  169 ; 0.032487 ; 0 ; Comma-quibbling/comma-quibbling-3.rexx
+Ok:  170 ; 0.031564 ; 0 ; Command-line-arguments/command-line-arguments-1.rexx
+Ok:  171 ; 0.051491 ; 0 ; Command-line-arguments/command-line-arguments-2.rexx
+Ok:  173 ; 0.030259 ; 0 ; Comments/comments-2.rexx
+Ok:  174 ; 0.032157 ; 0 ; Comments/comments-3.rexx
+Ok:  175 ; 0.030414 ; 0 ; Compile-time-calculation/compile-time-calculation.rexx
+Ok:  176 ; 0.030552 ; 0 ; Compound-data-type/compound-data-type-1.rexx
+Ok:  177 ; 0.030160 ; 0 ; Compound-data-type/compound-data-type-2.rexx
+Ok:  182 ; 0.054778 ; 0 ; Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-1.rexx
+Ok:  183 ; 0.063716 ; 0 ; Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-2.rexx
+Ok:  184 ; 0.083699 ; 0 ; Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-3.rexx
+Ok:  185 ; 0.110497 ; 0 ; Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-4.rexx
+Ok:  186 ; 14.948290 ; 0 ; Continued-fraction/continued-fraction-1.rexx
+Ok:  187 ; 0.039701 ; 0 ; Continued-fraction/continued-fraction-2.rexx
+Ok:  188 ; 1.836612 ; 0 ; Continued-fraction/continued-fraction-3.rexx
+Ok:  189 ; 0.369802 ; 0 ; Continued-fraction-Arithmetic-Construct-from-rational-number/continued-fraction-arithmetic-construct-from-rational-number.rexx
+Ok:  190 ; 0.028193 ; 0 ; Convert-decimal-number-to-rational/convert-decimal-number-to-rational-1.rexx
+Ok:  191 ; 0.040631 ; 0 ; Convert-decimal-number-to-rational/convert-decimal-number-to-rational-2.rexx
+Ok:  192 ; 0.029074 ; 0 ; Convert-decimal-number-to-rational/convert-decimal-number-to-rational-3.rexx
+Ok:  195 ; 0.030890 ; 0 ; Copy-a-string/copy-a-string.rexx
+Ok:  196 ; 0.034802 ; 0 ; Count-in-factors/count-in-factors-1.rexx
+Ok:  197 ; 0.033634 ; 0 ; Count-in-factors/count-in-factors-2.rexx
+Ok:  198 ; 0.085731 ; 0 ; Count-in-octal/count-in-octal.rexx
+Ok:  200 ; 0.028371 ; 0 ; Count-the-coins/count-the-coins-1.rexx
+Ok:  201 ; 0.029824 ; 0 ; Count-the-coins/count-the-coins-2.rexx
+Ok:  202 ; 0.031131 ; 0 ; Count-the-coins/count-the-coins-3.rexx
+Ok:  204 ; 0.117062 ; 0 ; Create-a-file/create-a-file.rexx
+Ok:  205 ; 0.035677 ; 0 ; Create-a-file-on-magnetic-tape/create-a-file-on-magnetic-tape.rexx
+Ok:  206 ; 0.034999 ; 0 ; Create-a-two-dimensional-array-at-runtime/create-a-two-dimensional-array-at-runtime.rexx
+Ok:  207 ; 0.031578 ; 0 ; Create-an-HTML-table/create-an-html-table.rexx
+Ok:  208 ; 0.036359 ; 0 ; CSV-data-manipulation/csv-data-manipulation.rexx
+Ok:  209 ; 0.030435 ; 0 ; CSV-to-HTML-translation/csv-to-html-translation.rexx
+Ok:  210 ; 0.027374 ; 0 ; Currying/currying-1.rexx
+Ok:  211 ; 0.029187 ; 0 ; Currying/currying-2.rexx
+Ok:  212 ; 2.411535 ; 0 ; Cut-a-rectangle/cut-a-rectangle-1.rexx
+Ok:  213 ; 2.301519 ; 0 ; Cut-a-rectangle/cut-a-rectangle-2.rexx
 
 ================================================================================
 Summary Skip
@@ -5871,32 +5530,32 @@ Skip:  180 ; 0 ; 0 ; Conditional-structures/conditional-structures-3.rexx
 ================================================================================
 Summary Ko
 ================================================================================
-Ko:   13 ; 0.032423 ; 216 ; Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-1.rexx
-Ko:   14 ; 0.033111 ; 216 ; Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-2.rexx
-Ko:   17 ; 1.894026 ; 245 ; Ackermann-function/ackermann-function-1.rexx
-Ko:   25 ; 0.032509 ; 216 ; Align-columns/align-columns-2.rexx
-Ko:   26 ; 0.033293 ; 216 ; Align-columns/align-columns-3.rexx
-Ko:   27 ; 0.031759 ; 216 ; Aliquot-sequence-classifications/aliquot-sequence-classifications.rexx
-Ko:   86 ; 0.082052 ; 216 ; Benfords-law/benfords-law.rexx
-Ko:  115 ; 0.031794 ; 243 ; Boolean-values/boolean-values-5.rexx
-Ko:  118 ; 0.039335 ; 213 ; Brownian-tree/brownian-tree.rexx
-Ko:  130 ; 0.034280 ; 213 ; Call-a-function-in-a-shared-library/call-a-function-in-a-shared-library.rexx
-Ko:  134 ; 0.034500 ; 216 ; Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-1.rexx
-Ko:  135 ; 0.030221 ; 216 ; Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-2.rexx
-Ko:  137 ; 0.030658 ; 216 ; Catalan-numbers/catalan-numbers-1.rexx
-Ko:  147 ; 0.033760 ; 213 ; Check-that-file-exists/check-that-file-exists-1.rexx
-Ko:  148 ; 0.030431 ; 221 ; Check-that-file-exists/check-that-file-exists-2.rexx
-Ko:  151 ; 0.040937 ; 216 ; Cholesky-decomposition/cholesky-decomposition.rexx
-Ko:  152 ; 0.039207 ; 221 ; Circles-of-given-radius-through-two-points/circles-of-given-radius-through-two-points.rexx
-Ko:  153 ; 0.059581 ; 216 ; Closest-pair-problem/closest-pair-problem.rexx
-Ko:  160 ; 0.040914 ; 213 ; Color-of-a-screen-pixel/color-of-a-screen-pixel.rexx
-Ko:  161 ; 0.037152 ; 213 ; Colour-bars-Display/colour-bars-display.rexx
-Ko:  172 ; 0.031729 ; 214 ; Comments/comments-1.rexx
-Ko:  181 ; 0.031556 ; 216 ; Conjugate-transpose/conjugate-transpose.rexx
-Ko:  193 ; 0.038474 ; 163 ; Conways-Game-of-Life/conways-game-of-life-1.rexx
-Ko:  194 ; 0.160108 ; 163 ; Conways-Game-of-Life/conways-game-of-life-2.rexx
-Ko:  199 ; 0.035641 ; 216 ; Count-occurrences-of-a-substring/count-occurrences-of-a-substring.rexx
-Ko:  203 ; 0.049651 ; 216 ; CRC-32/crc-32.rexx
+Ko:   13 ; 0.036107 ; 216 ; Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-1.rexx
+Ko:   14 ; 0.035067 ; 216 ; Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-2.rexx
+Ko:   17 ; 1.444572 ; 245 ; Ackermann-function/ackermann-function-1.rexx
+Ko:   25 ; 0.044481 ; 216 ; Align-columns/align-columns-2.rexx
+Ko:   26 ; 0.037587 ; 216 ; Align-columns/align-columns-3.rexx
+Ko:   27 ; 0.040436 ; 216 ; Aliquot-sequence-classifications/aliquot-sequence-classifications.rexx
+Ko:   86 ; 0.081099 ; 216 ; Benfords-law/benfords-law.rexx
+Ko:  115 ; 0.037134 ; 243 ; Boolean-values/boolean-values-5.rexx
+Ko:  118 ; 0.047337 ; 213 ; Brownian-tree/brownian-tree.rexx
+Ko:  130 ; 0.039798 ; 213 ; Call-a-function-in-a-shared-library/call-a-function-in-a-shared-library.rexx
+Ko:  134 ; 0.033315 ; 216 ; Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-1.rexx
+Ko:  135 ; 0.032269 ; 216 ; Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-2.rexx
+Ko:  137 ; 0.032906 ; 216 ; Catalan-numbers/catalan-numbers-1.rexx
+Ko:  147 ; 0.042359 ; 213 ; Check-that-file-exists/check-that-file-exists-1.rexx
+Ko:  148 ; 0.042014 ; 221 ; Check-that-file-exists/check-that-file-exists-2.rexx
+Ko:  151 ; 0.033609 ; 216 ; Cholesky-decomposition/cholesky-decomposition.rexx
+Ko:  152 ; 0.033015 ; 221 ; Circles-of-given-radius-through-two-points/circles-of-given-radius-through-two-points.rexx
+Ko:  153 ; 0.062287 ; 216 ; Closest-pair-problem/closest-pair-problem.rexx
+Ko:  160 ; 0.049103 ; 213 ; Color-of-a-screen-pixel/color-of-a-screen-pixel.rexx
+Ko:  161 ; 0.041765 ; 213 ; Colour-bars-Display/colour-bars-display.rexx
+Ko:  172 ; 0.033484 ; 214 ; Comments/comments-1.rexx
+Ko:  181 ; 0.034874 ; 216 ; Conjugate-transpose/conjugate-transpose.rexx
+Ko:  193 ; 0.030203 ; 163 ; Conways-Game-of-Life/conways-game-of-life-1.rexx
+Ko:  194 ; 0.043057 ; 163 ; Conways-Game-of-Life/conways-game-of-life-2.rexx
+Ko:  199 ; 0.029950 ; 216 ; Count-occurrences-of-a-substring/count-occurrences-of-a-substring.rexx
+Ko:  203 ; 0.042741 ; 216 ; CRC-32/crc-32.rexx
 
 ================================================================================
 Summary counters
@@ -5904,7 +5563,7 @@ Summary counters
 Ok=171
 Skip=16
 Ko=26
-duration=88.510613
+duration=107.240105
 
 
 Results for Regina:         Results for ooRexx5:
@@ -5914,3 +5573,4 @@ Ko=23                       Ko=122
 duration=253.671976         duration=23.638713
 
 End of demonstration.
+

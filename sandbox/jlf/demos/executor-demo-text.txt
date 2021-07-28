@@ -1,4 +1,3 @@
-system cdoorexx
 prompt directory off
 demo on
 
@@ -18,7 +17,7 @@ Main ideas explored with this prototype :
 - The strings crossing the I/O barriers are kept unchanged.
 - Supported encodings : byte, UTF-8, UTF-16BE.
 */
-sleep no prompt
+sleep 10 no prompt
 
 /*
 On my Mac, where locale returns :
@@ -164,6 +163,7 @@ family=
 family~text~description=                              -- 1 grapheme, 15 codepoints, 53 bytes
 family~text~c2x=
 family~text~c2u=
+family~text~c2g=
 sleep no prompt
 
 /*
@@ -178,6 +178,7 @@ helloZalgo =
 helloZalgo~text~description=                          -- 5 graphemes, 54 codepoints, 111 bytes
 helloZalgo~text~c2x=
 helloZalgo~text~c2u=
+helloZalgo~text~c2g=
 sleep no prompt
 
 /*
@@ -219,17 +220,17 @@ The second step is to convert to UTF-16.
 */
 sleep
 howMuchOfStorage = "how much of storage?"
-howMuchOfStorage~text~description=              -- 'UTF-8 ASCII (20 graphemes, 20 codepoints, 20 bytes)'
-howMuchOfStorage~text~utf16~description=        -- 'UTF-16BE ASCII (20 graphemes, 20 codepoints, 40 bytes)
+howMuchOfStorage~text~description=              -- UTF-8:  20 graphemes, 20 codepoints, 20 bytes
+howMuchOfStorage~text~utf16~description=        -- UTF-16: 20 graphemes, 20 codepoints, 40 bytes
 rexCharacters = "'rex' in their name: ꎅ ꎜ ꏑ 🦖"
-rexCharacters~text~description=                 -- 'UTF-8 not-ASCII (28 graphemes, 28 codepoints, 37 bytes)'
-rexCharacters~text~utf16~description=           -- 'UTF-16BE not-ASCII (28 graphemes, 28 codepoints, 58 bytes)'
+rexCharacters~text~description=                 -- UTF-8:  28 graphemes, 28 codepoints, 37 bytes
+rexCharacters~text~utf16~description=           -- UTF-16: 28 graphemes, 28 codepoints, 58 bytes
 family = "👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦"
-family~text~description=                        -- 'UTF-8 not-ASCII (1 grapheme, 15 codepoints, 53 bytes)'
-family~text~utf16~description=                  -- 'UTF-16BE not-ASCII (1 grapheme, 15 codepoints, 46 bytes)
+family~text~description=                        -- UTF-8:  1 grapheme, 15 codepoints, 53 bytes
+family~text~utf16~description=                  -- UTF-16: 1 grapheme, 15 codepoints, 46 bytes
 helloZalgo = "h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞"
-helloZalgo~text~description=                    -- 'UTF-8 not-ASCII (5 graphemes, 54 codepoints, 111 bytes)
-helloZalgo~text~utf16~description=              -- 'UTF-16BE not-ASCII (5 graphemes, 54 codepoints, 108 bytes)
+helloZalgo~text~description=                    -- UTF-8:  5 graphemes, 54 codepoints, 111 bytes
+helloZalgo~text~utf16~description=              -- UTF-16: 5 graphemes, 54 codepoints, 108 bytes
 sleep no prompt
 
 goto end

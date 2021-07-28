@@ -1,3 +1,26 @@
+loadPackage OK for extension/extensions.cls
+loadLibrary OK for rxunixsys
+loadPackage OK for ncurses.cls
+loadPackage OK for csvStream.cls
+loadLibrary OK for hostemu
+loadPackage OK for json.cls
+loadPackage OK for mime.cls
+loadPackage OK for rxftp.cls
+loadLibrary OK for rxmath
+loadPackage OK for rxregexp.cls
+loadPackage OK for regex/regex.cls
+loadPackage OK for smtp.cls
+loadPackage OK for socket.cls
+loadPackage OK for streamsocket.cls
+loadPackage OK for pipeline/pipe.rex
+loadPackage OK for rgf_util2/rgf_util2.rex
+loadPackage OK for BSF.CLS
+loadPackage OK for oorexxshell_queries.cls
+loadPackage OK for pipeline/pipe_extension.cls
+loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
+
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
+Input queue name: S3114Q7fd4484192a0
 
 ----------------------
 -- Executor extensions
@@ -108,40 +131,38 @@ PM P...    'YM' : 'RoutineDoer' (doers.cls)
  > 0006     YnamedArgs = .context~namedArgs
  > 0007     table = .Table~new
  > 0008 
- > 0009     lambda_a = {use arg a ; return a~(a)}
- > 0010 
- > 0011     lambda_x = {
- > 0012         expose f verbose YnamedArgs table
- > 0013         if verbose then trace i
- > 0014         use strict arg x
- > 0015         lambda_v = {
- > 0016                      expose x verbose table
- > 0017                      if verbose then trace i
- > 0018                      --use strict arg v
- > 0019                      v = arg(1, "a")
- > 0020                      v_index = v~tostring
- > 0021                      r = table[v_index]
- > 0022                      if r <> .nil then return r
- > 0023                      r = x~(x)~doWith(v, n:.context~namedArgs)
- > 0024                      table[v_index] = r
- > 0025                      return r
- > 0026                 }
- > 0027         return f ~ doWith(.array~of(lambda_v), n:YnamedArgs)
- > 0028     }
- > 0029     return lambda_a ~ (lambda_x)
-[Info] 30 lines displayed
+ > 0009     lambda_x = {
+ > 0010         expose f verbose YnamedArgs table
+ > 0011         if verbose then trace i
+ > 0012         use strict arg x
+ > 0013         lambda_v = {
+ > 0014                      expose x verbose table
+ > 0015                      if verbose then trace i
+ > 0016                      --use strict arg v
+ > 0017                      v = arg(1, "a")
+ > 0018                      v_index = v~tostring
+ > 0019                      r = table[v_index]
+ > 0020                      if r <> .nil then return r
+ > 0021                      r = x~(x)~doWith(v, n:.context~namedArgs)
+ > 0022                      table[v_index] = r
+ > 0023                      return r
+ > 0024                 }
+ > 0025         return f ~ doWith(.array~of(lambda_v), n:YnamedArgs)
+ > 0026     }
+ > 0027     return lambda_x ~ (lambda_x)
+[Info] 28 lines displayed
 
 Application to Fibonacci:
 
 ooRexx[bash]> almost_fib = { use arg fib; {expose fib ; use arg n; if n==0 then return 0; if n==1 then return 1; if n<0 then return fib~(n+2) - fib~(n+1); return fib~(n-2) + fib~(n-1)}}
 
-The not-memoizing version needs almost 15 sec.
+The not-memoizing version needs around 15 sec.
 
 ooRexx[bash]> fib_Y = almost_fib~Y
 
 ooRexx[bash]> fib_Y~(23)=
  28657
-Duration: 15.909369
+Duration: 13.962028
 
 The memoizing version calculates almost instantly.
 
@@ -149,7 +170,7 @@ ooRexx[bash]> fib_YM = almost_fib~YM
 
 ooRexx[bash]> fib_YM~(23)=
  28657
-Duration: 0.003898
+Duration: 0.004004
 
 fib_Y and fib_YM are closures.
 
@@ -217,6 +238,7 @@ fib_YM~(17500)=8.594475392487880685715609318313958956965186135981014406583281854
 fib_YM~(20000)=2.531162323732361242240155003520607291766356485802485278951929841991312781760541315230153423463759229E+4179
 fib_YM~(22500)=7.454536101973301545514060322899628474921968473702388044321015228379740189148914655473430519859925903E+4701
 fib_YM~(25000)=2.195438355517303012780791914841720922849015222302155773145178112730662303998294388326731046697794993E+5224
-Duration: 8.099044
+Duration: 7.655114
 
 End of demonstration.
+

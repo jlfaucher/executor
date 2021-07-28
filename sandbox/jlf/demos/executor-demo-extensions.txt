@@ -1,4 +1,3 @@
-system cdoorexx
 prompt directory off
 demo on
 
@@ -90,7 +89,7 @@ almost_fib = { use arg fib; {expose fib ; use arg n; if n==0 then return 0; if n
 sleep no prompt
 
 /*
-The not-memoizing version needs almost 15 sec.
+The not-memoizing version needs around 15 sec.
 */
 sleep
 fib_Y = almost_fib~Y

@@ -31,10 +31,18 @@ txt::
 	asciinema rec -c "bash -i -c 'cat $? | oorexxshell --showInitialization'" --overwrite $@
 
 %-output.html : %.cast
-	bash -i -c 'asciinema cat $? | aha > $@'
+	asciinema cat $? | aha > $@
 
-%-output.txt : %.txt
-	bash -i -c 'cat $? | oorexxshell demo fast > $@ 2>&1'
+# 1) Remember! $ has special meaning in makefiles. If you want to use it in a shell command, you have to double it.
+# 2) asciinema replaces the invalid UTF-8 characters by the REPLACEMENT CHARACTER.
+#    That's why I no longer find encoding errors in the output files.
+%-output.txt : %.cast
+	asciinema cat $? | sed -e $$'s/\x1b\[[0-9;]*m//g' > $@
+
+# No longer used because it's a re-execution instead of a simple cat
+# %-output.txt : %.txt
+# 	bash -i -c 'cat $? | oorexxshell demo fast > $@ 2>&1'
+
 
 # bash -i -c 'command" is a trick to bypass the SIP hell:
 # The variable DYLD_LIBRARY_PATH is unset because of System Integrity Protection.

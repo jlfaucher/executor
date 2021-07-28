@@ -8,7 +8,8 @@
 </head>
 <body>
 <pre>
-<span style="font-weight:bold;color:green;">loadLibrary OK for rxunixsys
+<span style="font-weight:bold;color:green;">loadPackage OK for extension/extensions.cls
+</span><span style="font-weight:bold;color:green;">loadLibrary OK for rxunixsys
 </span><span style="font-weight:bold;color:green;">loadPackage OK for ncurses.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for csvStream.cls
 </span><span style="font-weight:bold;color:green;">loadLibrary OK for hostemu
@@ -24,13 +25,12 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe.rex
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2.rex
 </span><span style="font-weight:bold;color:green;">loadPackage OK for BSF.CLS
-</span><span style="font-weight:bold;color:green;">loadPackage OK for extension/extensions.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for oorexxshell_queries.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 28 May 2021
-</span><span style="font-weight:bold;color:green;">Input queue name: S100e6Q7fcc764246e0
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
+</span><span style="font-weight:bold;color:green;">Input queue name: S2fadQ7fd448419120
 </span>
 <span style="color:blue;">--------------------
 </span><span style="color:blue;">-- Array programming
@@ -113,10 +113,10 @@ an Array (shape [], 0 items)
 <span style="color:blue;">-- you can't use any index with such array
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; nodim[1]=
-<span style="font-weight:bold;color:red;">Too many subscripts for array; 0 expected
+<span style="font-weight:bold;color:red;">Too many subscripts for array; 0 expected.
 </span><span style="font-weight:bold;color:red;">Error code= 93.926
-</span><span style="font-weight:bold;color:green;">options &quot;NOCOMMANDS&quot;; nodim[1] ; if var(&quot;result&quot;) then call dumpResult result, 1 ; else call dumpResult , 1 ;options &quot;COMMANDS&quot;
-</span><span style="color:blue;">-- but no index is ok
+</span>
+<span style="color:blue;">-- but no index is ok
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; nodim[]=
 (The NIL object)
@@ -184,12 +184,12 @@ an Array (shape [2,3], 6 items)
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; a(2,3)~of(.environment)=
 an Array (shape [2,3], 6 items)
-[ 1, 1] : '[0A]'
-[ 1, 2] : (The Set class)
-[ 1, 3] : (java.lang.Class@6b95977)
-[ 2, 1] : (The InvertingComparator class)
-[ 2, 2] :  0
-[ 2, 3] : (The server class)
+[ 1, 1] : (The MutableBufferFilter class)
+[ 1, 2] : (The LogicalExtension class)
+[ 1, 3] : (The StringIndexer class)
+[ 2, 1] : (The Alarm class)
+[ 2, 2] : (The JLF class)
+[ 2, 3] : (The StringHelpers class)
 
 <span style="color:blue;">If there is only one argument, and this argument is a doer, then the doer is called for each cell to initialize.
 </span><span style="color:blue;">The value returned by the doer is the item for the current cell.

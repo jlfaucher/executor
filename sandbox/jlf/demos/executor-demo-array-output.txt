@@ -1,3 +1,26 @@
+loadPackage OK for extension/extensions.cls
+loadLibrary OK for rxunixsys
+loadPackage OK for ncurses.cls
+loadPackage OK for csvStream.cls
+loadLibrary OK for hostemu
+loadPackage OK for json.cls
+loadPackage OK for mime.cls
+loadPackage OK for rxftp.cls
+loadLibrary OK for rxmath
+loadPackage OK for rxregexp.cls
+loadPackage OK for regex/regex.cls
+loadPackage OK for smtp.cls
+loadPackage OK for socket.cls
+loadPackage OK for streamsocket.cls
+loadPackage OK for pipeline/pipe.rex
+loadPackage OK for rgf_util2/rgf_util2.rex
+loadPackage OK for BSF.CLS
+loadPackage OK for oorexxshell_queries.cls
+loadPackage OK for pipeline/pipe_extension.cls
+loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
+
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
+Input queue name: S2fadQ7fd448419120
 
 --------------------
 -- Array programming
@@ -80,9 +103,9 @@ ooRexx[bash]> nodim~rank=
 -- you can't use any index with such array
 
 ooRexx[bash]> nodim[1]=
-Too many subscripts for array; 0 expected
+Too many subscripts for array; 0 expected.
 Error code= 93.926
-options "NOCOMMANDS"; nodim[1] ; if var("result") then call dumpResult result, 1 ; else call dumpResult , 1 ;options "COMMANDS"
+
 -- but no index is ok
 
 ooRexx[bash]> nodim[]=
@@ -151,12 +174,12 @@ If there is only one argument, and this argument has the method ~supplier then e
 
 ooRexx[bash]> a(2,3)~of(.environment)=
 an Array (shape [2,3], 6 items)
-[ 1, 1] : '[0A]'
-[ 1, 2] : (The Set class)
-[ 1, 3] : (java.lang.Class@6b95977)
-[ 2, 1] : (The InvertingComparator class)
-[ 2, 2] :  0
-[ 2, 3] : (The server class)
+[ 1, 1] : (The MutableBufferFilter class)
+[ 1, 2] : (The LogicalExtension class)
+[ 1, 3] : (The StringIndexer class)
+[ 2, 1] : (The Alarm class)
+[ 2, 2] : (The JLF class)
+[ 2, 3] : (The StringHelpers class)
 
 If there is only one argument, and this argument is a doer, then the doer is called for each cell to initialize.
 The value returned by the doer is the item for the current cell.
@@ -348,3 +371,4 @@ an Array (shape [3,5], 15 items)
 [ 3, 5] :  30
 
 End of demonstration.
+

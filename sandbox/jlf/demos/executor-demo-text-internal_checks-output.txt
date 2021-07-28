@@ -1,3 +1,26 @@
+loadPackage OK for extension/extensions.cls
+loadLibrary OK for rxunixsys
+loadPackage OK for ncurses.cls
+loadPackage OK for csvStream.cls
+loadLibrary OK for hostemu
+loadPackage OK for json.cls
+loadPackage OK for mime.cls
+loadPackage OK for rxftp.cls
+loadLibrary OK for rxmath
+loadPackage OK for rxregexp.cls
+loadPackage OK for regex/regex.cls
+loadPackage OK for smtp.cls
+loadPackage OK for socket.cls
+loadPackage OK for streamsocket.cls
+loadPackage OK for pipeline/pipe.rex
+loadPackage OK for rgf_util2/rgf_util2.rex
+loadPackage OK for BSF.CLS
+loadPackage OK for oorexxshell_queries.cls
+loadPackage OK for pipeline/pipe_extension.cls
+loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
+
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
+Input queue name: S4a5bQ7fd44851de90
 
 ----------------------------------
 -- Text encoding - Internal checks
@@ -27,6 +50,8 @@ The last encoding selection wins, the result is UTF-8.
 
 Byte encoding
 
+ooRexx[bash]> 
+
 ooRexx[bash]> s = "63 C3 B4 74 65 CC 81 F0 9F 91 8D"x  -- An UTF-8 string. The Byte encoding works at byte level, as the String class
 
 ooRexx[bash]> s=                                       -- 'cÃ´teÌðŸ‘'
@@ -42,7 +67,7 @@ ooRexx[bash]> .byte_encoding~decode(s, 12)=            -- -1 (end of string)
 -1
 
 ooRexx[bash]> .byte_encoding~decode(s, 1, 2)=          -- 2 is an invalid codepoint size
-Byte encoding: 2 is an invalid codepoint size.
+Byte encoding: 2 is an invalid size of byte sequence.
 Error code= 93.900
 
 ooRexx[bash]> .byte_encoding~encode(65)=               -- T'A'
@@ -69,24 +94,6 @@ ooRexx[bash]> .utf8_encoding~decode(s, 2)=             -- 244
 
 ooRexx[bash]> .utf8_encoding~nextCodepointIndex(s, 2)= -- 4
  4
-
-ooRexx[bash]> .utf8_encoding~decode(s, 4)=             -- 116
- 116
-
-ooRexx[bash]> .utf8_encoding~nextCodepointIndex(s, 4)= -- 5
- 5
-
-ooRexx[bash]> .utf8_encoding~decode(s, 5)=             -- 101
- 101
-
-ooRexx[bash]> .utf8_encoding~nextCodepointIndex(s, 5)= -- 6
- 6
-
-ooRexx[bash]> .utf8_encoding~decode(s, 6)=             -- 769
- 769
-
-ooRexx[bash]> .utf8_encoding~nextCodepointIndex(s, 6)= -- 8
- 8
 
 ooRexx[bash]> .utf8_encoding~decode(s, 8)=             -- 128077
  128077
@@ -126,7 +133,7 @@ ooRexx[bash]> .utf8_encoding~decode(s, 2, 4)=          -- 864789  invalid size, 
  864789
 
 ooRexx[bash]> .utf8_encoding~decode(s, 2, 5)=          -- UTF-8 encoding: 5 is an invalid codepoint size
-UTF-8 encoding: 5 is an invalid codepoint size.
+UTF-8 encoding: 5 is an invalid size of byte sequence.
 Error code= 93.900
 
 -- Encoding
@@ -158,23 +165,24 @@ ooRexx[bash]> .utf8_encoding~encode(56320)~errors=     -- 56320 is an invalid co
 
 UTF-16 encoding
 
+ooRexx[bash]> 
 
 ooRexx[bash]> s = "63 C3 B4 74 65 CC 81 F0 9F 91 8D"x         -- An UTF-8 string: 'cÃ´teÌðŸ‘'
 
 ooRexx[bash]> t16 = s~text("utf8")~utf16                      -- interpret the bytes as UTF-8 and convert them to UTF-16
 
-ooRexx[bash]> t16=                                            -- Each codepoint is 2 bytes
-T'[00]c[00]ô[00]t[00]e[0301]Ø=ÜM'
+ooRexx[bash]> s16 = t16~string                                -- internal UTF-16 bytes
 
-ooRexx[bash]> s16 = t16~string                                -- internal bytes
+ooRexx[bash]> t16~string~c2x=                                 -- view raw internal bytes
+'006300F4007400650301D83DDC4D'
 
-ooRexx[bash]> s16=
-'[00]c[00]ô[00]t[00]e[0301]Ø=ÜM'
+ooRexx[bash]> t16~c2x=                                        -- view encoded codepoints
+'0063 00F4 0074 0065 0301 D83DDC4D'
 
-ooRexx[bash]> t16~c2u=                                        -- [ 99, 244, 116, 101, 769, 128077]
+ooRexx[bash]> t16~c2u=                                        -- view decoded codepoints
 'U+0063 U+00F4 U+0074 U+0065 U+0301 U+0001F44D'
 
-ooRexx[bash]> t16~c2x=                                        -- [ 0063,'00F4', 0074, 00650301,'D83DDC4D']
+ooRexx[bash]> t16~c2g=                                        -- view encoded graphemes
 '0063 00F4 0074 00650301 D83DDC4D'
 
 -- If you don't pass a size to ~decode then the method calculates it, while checking the validity of the encoding
@@ -190,24 +198,6 @@ ooRexx[bash]> .utf16be_encoding~decode(s16, 3)=               -- 244
 
 ooRexx[bash]> .utf16be_encoding~nextCodepointIndex(s16, 3)=   -- 5
  5
-
-ooRexx[bash]> .utf16be_encoding~decode(s16, 5)=               -- 116
- 116
-
-ooRexx[bash]> .utf16be_encoding~nextCodepointIndex(s16, 5)=   -- 7
- 7
-
-ooRexx[bash]> .utf16be_encoding~decode(s16, 7)=               -- 101
- 101
-
-ooRexx[bash]> .utf16be_encoding~nextCodepointIndex(s16, 7)=   -- 9
- 9
-
-ooRexx[bash]> .utf16be_encoding~decode(s16, 9)=               -- 769
- 769
-
-ooRexx[bash]> .utf16be_encoding~nextCodepointIndex(s16, 9)=   -- 11
- 11
 
 ooRexx[bash]> .utf16be_encoding~decode(s16, 11)=              -- 128077
  128077
@@ -226,7 +216,7 @@ T'ð€€ð'
 ooRexx[bash]>      "DC00 D801 DC01"x~text("utf16")~errors=        -- Unpaired low surrogate
 ['UTF-16BE encoding: unpaired low surrogate 56320 (DC00x) at byte-position 1.']
 
-ooRexx[bash]>      "DC00 D801 DC01"x~text("wtf16")~errors=        -- acceptable when WTF
+ooRexx[bash]>      "DC00 D801 DC01"x~text("wtf16")~errors=        -- acceptable when WTF-16
 (The NIL object)
 
 ooRexx[bash]>      "DC00 D801 DC01"x~text("wtf16")~utf8~errors=   -- but cannot be converted to UTF-8: invalid codepoint DC00x
@@ -235,81 +225,86 @@ ooRexx[bash]>      "DC00 D801 DC01"x~text("wtf16")~utf8~errors=   -- but cannot 
 ooRexx[bash]> "D800 1000 D801 DC01"x~text("utf16")~errors=        -- Invalid low surrogate
 ['UTF-16BE encoding: invalid low surrogate 4096 (1000x) at byte-position 3.']
 
-ooRexx[bash]> "D800 1000 D801 DC01"x~text("wtf16")~errors=        -- acceptable when WTF
+ooRexx[bash]> "D800 1000 D801 DC01"x~text("wtf16")~errors=        -- acceptable when WTF-16
 (The NIL object)
 
-ooRexx[bash]> "D800 DC00 D801 DC"x~text("utf16")~errors=          -- character is truncated
-['UTF-16BE encoding: character is truncated at byte-position 7, expected 2 bytes.','UTF-16BE encoding: character is truncated at byte-position 7, expected 2 bytes.']
+ooRexx[bash]> "D800 DC00 D801 DC"x~text("utf16")~errors==         -- character is truncated. 2 errors reported because try with 4 bytes and then 2 bytes
+an Array (shape [2], 2 items)
+ 1 : 'UTF-16BE encoding: byte sequence at byte-position 5 is truncated, expected 4 bytes.'
+ 2 : 'UTF-16BE encoding: byte sequence at byte-position 7 is truncated, expected 2 bytes.'
 
-ooRexx[bash]> "D800 DC00 D801 DC"x~text("wtf16")~errors=          -- not acceptable, even when WTF-16
-['WTF-16BE encoding: character is truncated at byte-position 7, expected 2 bytes.','WTF-16BE encoding: character is truncated at byte-position 7, expected 2 bytes.']
+ooRexx[bash]> "D800 DC00 D801 DC"x~text("wtf16")~errors=          -- this is also an error when WTF-16
+['WTF-16BE encoding: byte sequence at byte-position 5 is truncated, expected 4 bytes.','WTF-16BE encoding: byte sequence at byte-position 7 is truncated, expected 2 bytes.']
 
 -- If you pass a size to ~decode, the method assumes you know what you do, there is no check
 
 ooRexx[bash]> .utf16be_encoding~decode(s16, 3, 1)=            -- 1 is an invalid codepoint size
-UTF-16BE encoding: 1 is an invalid codepoint size.
+UTF-16BE encoding: 1 is an invalid size of byte sequence.
 Error code= 93.900
 
 ooRexx[bash]> .utf16be_encoding~decode(s16, 3, 2)=            -- 244         correct
  244
 
 ooRexx[bash]> .utf16be_encoding~decode(s16, 3, 3)=            -- 3 is an invalid codepoint size
-UTF-16BE encoding: 3 is an invalid codepoint size.
+UTF-16BE encoding: 3 is an invalid size of byte sequence.
 Error code= 93.900
 
 ooRexx[bash]> .utf16be_encoding~decode(s16, 3, 4)=            -- invalid size, the result is wrong
 -56363916
 
 ooRexx[bash]> .utf16be_encoding~decode(s16, 3, 5)=            -- 5 is an invalid codepoint size
-UTF-16BE encoding: 5 is an invalid codepoint size.
+UTF-16BE encoding: 5 is an invalid size of byte sequence.
 Error code= 93.900
 
 -- Encoding
 
-ooRexx[bash]> .utf16be_encoding~encode(65)=                   -- T'[00]A'
-T'[00]A'
+ooRexx[bash]> .utf16be_encoding~encode(65)~c2x=               -- 0041
+ 0041
 
-ooRexx[bash]>  .utf16be_encoding~encode(650)=                 -- T'[02]?'
-T'[02]Š'
+ooRexx[bash]> .utf16be_encoding~encode(650)~c2x=              -- 028A
+'028A'
 
-ooRexx[bash]> .utf16be_encoding~encode(6500)=                 -- T'[19]d'
-T'[19]d'
+ooRexx[bash]> .utf16be_encoding~encode(6500)~c2x=             -- 1964
+ 1964
 
-ooRexx[bash]>  .utf16be_encoding~encode(65000)=               -- T'??'
-T'ýè'
+ooRexx[bash]> .utf16be_encoding~encode(65000)~c2x=            -- FDE8
+'FDE8'
 
-ooRexx[bash]> .utf16be_encoding~encode(650000)=               -- T'?:?[10]'
-T'Ú:ß[10]'
+ooRexx[bash]> .utf16be_encoding~encode(650000)~c2x=           -- DA3ADF10
+'DA3ADF10'
 
-ooRexx[bash]> .utf16be_encoding~encode(6500000)=              -- 6500000 is an invalid codepoint
+ooRexx[bash]> .utf16be_encoding~encode(6500000)~c2x=          -- 6500000 is an invalid codepoint
 UTF-16BE encoding: invalid codepoint 6500000 (00632EA0x). Allowed range is 0..1114111.
 Error code= 93.900
 
 ooRexx[bash]> .utf16be_encoding~encode(55296)~errors=         -- 55296 is an invalid codepoint (high surrogate)
 ['UTF-16BE encoding: unpaired high surrogate 55296 (D800x) at byte-position 1.']
 
-ooRexx[bash]> .wtf16be_encoding~encode(55296)~errors=         -- acceptable when WTF
+ooRexx[bash]> .wtf16be_encoding~encode(55296)~errors=         -- acceptable when WTF-16
 (The NIL object)
 
 ooRexx[bash]> .utf16be_encoding~encode(56320)~errors=         -- 56320 is an invalid codepoint (low surrogate)
 ['UTF-16BE encoding: unpaired low surrogate 56320 (DC00x) at byte-position 1.']
 
-ooRexx[bash]> .wtf16be_encoding~encode(56320)~errors=         -- acceptable when WTF
+ooRexx[bash]> .wtf16be_encoding~encode(56320)~errors=         -- acceptable when WTF-16
 (The NIL object)
 
 To concatenate two WTF-8 strings: if the earlier one ends with a lead surrogate
-and the latter one starts with a trail surrogate, both surrogate need to be
-removed and replaced with a 4-byte sequence
+and the latter one starts with a trail surrogate, both surrogates need to be
+removed and replaced with a 4-byte sequence.
 
 ooRexx[bash]> "D800 DC01"x~text("utf16")~utf8~string~c2x=     -- UTF-8 encoding of character U+10001 from its UTF-16 encoding
 'F0908081'
 
-ooRexx[bash]> t1 = "D800"x~text("wtf16")                      -- An invalid UTF16 encoding, but a valid WTF8 encoding (high surrogate)
+ooRexx[bash]> t1 = "D800"x~text("wtf16")                      -- An invalid UTF16 encoding, but a valid WTF-16 encoding (high surrogate)
 
-ooRexx[bash]> t2 = "DC01"x~text("wtf16")                      -- An invalid UTF16 encoding, but a valid WTF8 encoding (low surrogate)
+ooRexx[bash]> t2 = "DC01"x~text("wtf16")                      -- An invalid UTF16 encoding, but a valid WTF-16 encoding (low surrogate)
 
-ooRexx[bash]> (t1 || t2)~utf16~string~c2x=                    -- The concatenation is valid UTF16
+ooRexx[bash]> (t1 || t2)~utf16~c2x=                           -- The concatenation is valid UTF16...
 'D800DC01'
+
+ooRexx[bash]> (t1 || t2)~utf16~c2u=                           -- ... whose codepoint is U+00010001
+'U+00010001'
 
 ooRexx[bash]> t1~wtf8~string~c2x=                             -- WTF-8 encoding of U+D800 (high surrogate)
 'EDA080'
@@ -320,8 +315,35 @@ ooRexx[bash]> t2~wtf8~string~c2x=                             -- WTF-8 encoding 
 ooRexx[bash]> (t1~wtf8~string || t2~wtf8~string)~c2x=         -- The concatenation of both WTF8 can't be this (2 codepoints)
 'EDA080EDB081'
 
-ooRexx[bash]> (t1~wtf8 || t2~wtf8)~c2x=                       -- The correct concatenation is this (1 codepoint)
+ooRexx[bash]> (t1~wtf8 || t2~wtf8)~c2x=                       -- The correct concatenation is 1 codepoint...
 'F0908081'
+
+ooRexx[bash]> (t1~wtf8 || t2~wtf8)~c2u=                       -- ... equal to U+00010001
+'U+00010001'
+
+-- WTF-8 view of this invalid concatenation
+
+ooRexx[bash]> (t1~wtf8~string || t2~wtf8~string)~text("wtf8")~errors=     -- a high surrogate 55296 (D800x) followed by a low surrogate 56321 (DC01x) is not allowed
+['WTF-8 encoding: a high surrogate 55296 (D800x) followed by a low surrogate 56321 (DC01x) is not allowed.']
+
+ooRexx[bash]> (t1~wtf8~string || t2~wtf8~string)~text("wtf8")~c2x=        -- EDA080 EDB081
+'EDA080 EDB081'
+
+ooRexx[bash]> (t1~wtf8~string || t2~wtf8~string)~text("wtf8")~c2u=        -- U+D800 U+FFFD    to rework
+'U+D800 U+FFFD'
+
+-- UTF-8 view of this invalid concatenation
+
+ooRexx[bash]> (t1~wtf8~string || t2~wtf8~string)~text("utf8")~errors==    -- 2 errors: High surrogate is not allowed, Low surrogate is not allowed
+an Array (shape [2], 2 items)
+ 1 : 'UTF-8 encoding: invalid codepoint 55296 (D800x). High surrogate is not allowed.'
+ 2 : 'UTF-8 encoding: invalid codepoint 56321 (DC01x). Low surrogate is not allowed.'
+
+ooRexx[bash]> (t1~wtf8~string || t2~wtf8~string)~text("utf8")~c2x=        -- EDA080 EDB081
+'EDA080 EDB081'
+
+ooRexx[bash]> (t1~wtf8~string || t2~wtf8~string)~text("utf8")~c2u=        -- U+FFFD U+FFFD
+'U+FFFD U+FFFD'
 
 Noncharaters are supported without error.
 http://www.unicode.org/faq/private_use.html#noncharacters
@@ -345,9 +367,98 @@ Unicode has exactly 66 noncharacters.
 ooRexx[bash]> .utf16be_encoding~encode("FDD0"~x2d)~c2x=       -- FDD0
 'FDD0'
 
-ooRexx[bash]> .utf8_encoding~encode("FDD0"~x2d)~c2x=          -- EF B7 90
+ooRexx[bash]> .utf8_encoding~encode("FDD0"~x2d)~c2x=          -- EFB790
 'EFB790'
 
+Create the file ill_formed_utf8.txt and check its encoding.
 
+ooRexx[bash]> file = .stream~new("ill_formed_utf8.txt")
+
+ooRexx[bash]> file~open("write replace")
+
+ooRexx[bash]> file~say("This file contains ill-formed UTF-8 characters.")
+
+ooRexx[bash]> file~say(      "B4 74 65 CC 81 F0 9F 91 8D"x~text("utf8")~string    "Invalid start byte")
+
+ooRexx[bash]> file~say("63 C3    74 65 CC 81 F0 9F 91 8D"x~text("utf8")~string    "Invalid continuation byte")
+
+ooRexx[bash]> file~say("Next line, UTF-8 character is truncated")
+
+ooRexx[bash]> file~say("63 C3 B4 74 65 CC 81 F0 9F 91"x~text("utf8")~string)    -- Don't add text, the purpose is to raise a 'truncated' error
+
+ooRexx[bash]> t1 = "D800"x~text("wtf16")                                        -- An invalid UTF16 encoding, but a valid WTF-16 encoding (high surrogate)
+
+ooRexx[bash]> t2 = "DC01"x~text("wtf16")                                        -- An invalid UTF16 encoding, but a valid WTF-16 encoding (low surrogate)
+
+ooRexx[bash]> file~say(t1~wtf8~string                                             "invalid UTF-8 but valid WTF8 (high surrogate)")
+
+ooRexx[bash]> file~say(t2~wtf8~string                                             "invalid UTF-8 but valid WTF8 (low surrogate)")
+
+ooRexx[bash]> file~say( (t1~wtf8~string || t2~wtf8~string)~string                 "The concatenation of both WTF8 can't be this (2 codepoints)")
+
+ooRexx[bash]> file~say( (t1~wtf8 || t2~wtf8)~string                               "The correct concatenation is 1 codepoint")
+
+ooRexx[bash]> file~close
+
+ooRexx[bash]> system rexx unicode/scripts/check_encoding utf8 ill_formed_utf8.txt
+Checking file "ill_formed_utf8.txt"
+  line 2: UTF-8 sequence at byte-position 1 has an invalid start byte 180 (B4x).
+  line 3: UTF-8 sequence at byte-position 2 has an invalid continuation byte 116 (74x) at byte-position 3.
+  line 5: UTF-8 sequence at byte-position 8 is truncated, expected 4 bytes.
+  line 6: UTF-8 encoding: invalid codepoint 55296 (D800x). High surrogate is not allowed.
+  line 7: UTF-8 encoding: invalid codepoint 56321 (DC01x). Low surrogate is not allowed.
+  line 8: UTF-8 encoding: invalid codepoint 55296 (D800x). High surrogate is not allowed.
+  line 8: UTF-8 encoding: invalid codepoint 56321 (DC01x). Low surrogate is not allowed.
+  7 errors
+Total: 7 errors
+RC= 1
+
+ooRexx[bash]> system rexx unicode/scripts/check_encoding wtf8 ill_formed_utf8.txt
+Checking file "ill_formed_utf8.txt"
+  line 2: UTF-8 sequence at byte-position 1 has an invalid start byte 180 (B4x).
+  line 3: UTF-8 sequence at byte-position 2 has an invalid continuation byte 116 (74x) at byte-position 3.
+  line 5: UTF-8 sequence at byte-position 8 is truncated, expected 4 bytes.
+  line 8: WTF-8 encoding: a high surrogate 55296 (D800x) followed by a low surrogate 56321 (DC01x) is not allowed.
+  4 errors
+Total: 4 errors
+RC= 1
+
+
+ooRexx[bash]> file = .stream~new("ill_formed_utf16.txt")
+
+ooRexx[bash]> file~open("write replace")
+
+ooRexx[bash]> file~say("This file contains ill-formed UTF-16 characters.")
+
+ooRexx[bash]> file~say(     "DC00 D801 DC01"x~text("utf16")~string        "Unpaired low surrogate (acceptable when WTF-16)")
+
+ooRexx[bash]> file~say("D800 1000 D801 DC01"x~text("utf16")~string        "Invalid low surrogate (acceptable when WTF-16)")
+
+ooRexx[bash]> file~say("Next line, character is truncated. 2 errors reported because try with 4 bytes and then 2 bytes (this is also an error when WTF-16)")
+
+ooRexx[bash]> file~say("D800 DC00 D801 DC"x~text("utf16")~string)       -- Don't add text, the purpose is to raise a 'truncated' error
+
+ooRexx[bash]> file~close
+
+ooRexx[bash]> system rexx unicode/scripts/check_encoding utf16 ill_formed_utf16.txt
+Checking file "ill_formed_utf16.txt"
+  line 2: UTF-16BE encoding: unpaired low surrogate 56320 (DC00x) at byte-position 1.
+  line 3: UTF-16BE encoding: invalid low surrogate 4096 (1000x) at byte-position 3.
+  line 3: UTF-16BE encoding: byte sequence at byte-position 55 is truncated, expected 2 bytes.
+  line 5: UTF-16BE encoding: byte sequence at byte-position 5 is truncated, expected 4 bytes.
+  line 5: UTF-16BE encoding: byte sequence at byte-position 7 is truncated, expected 2 bytes.
+  5 errors
+Total: 5 errors
+RC= 1
+
+ooRexx[bash]> system rexx unicode/scripts/check_encoding wtf16 ill_formed_utf16.txt
+Checking file "ill_formed_utf16.txt"
+  line 3: WTF-16BE encoding: byte sequence at byte-position 55 is truncated, expected 2 bytes.
+  line 5: WTF-16BE encoding: byte sequence at byte-position 5 is truncated, expected 4 bytes.
+  line 5: WTF-16BE encoding: byte sequence at byte-position 7 is truncated, expected 2 bytes.
+  3 errors
+Total: 3 errors
+RC= 1
 
 End of demonstration.
+

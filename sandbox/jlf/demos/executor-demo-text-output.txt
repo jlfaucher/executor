@@ -1,3 +1,26 @@
+loadPackage OK for extension/extensions.cls
+loadLibrary OK for rxunixsys
+loadPackage OK for ncurses.cls
+loadPackage OK for csvStream.cls
+loadLibrary OK for hostemu
+loadPackage OK for json.cls
+loadPackage OK for mime.cls
+loadPackage OK for rxftp.cls
+loadLibrary OK for rxmath
+loadPackage OK for rxregexp.cls
+loadPackage OK for regex/regex.cls
+loadPackage OK for smtp.cls
+loadPackage OK for socket.cls
+loadPackage OK for streamsocket.cls
+loadPackage OK for pipeline/pipe.rex
+loadPackage OK for rgf_util2/rgf_util2.rex
+loadPackage OK for BSF.CLS
+loadPackage OK for oorexxshell_queries.cls
+loadPackage OK for pipeline/pipe_extension.cls
+loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
+
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
+Input queue name: S22fdQ7fd44851b440
 
 ----------------
 -- Text encoding
@@ -126,7 +149,7 @@ myText                          -- 6F C3B9  20 61 73 20 74 75 20 65 CC81  74 C3A
                                 -- o. ù...   . a. s.  . t. u.  . e. acut  t. é...   . ?.
 
 ooRexx[bash]> myText~graphemes~each("c2x")=
-['6F','C3B9', 20, 61, 73, 20, 74, 75, 20,'65CC81', 74,'C3A9', 20,'3F']
+['6F','C3B9', 20, 61, 73, 20, 74, 75, 20,'65 CC81', 74,'C3A9', 20,'3F']
 
 CR+LF is a grapheme made of 2 codepoints.
 LF+CR are 2 graphemes.
@@ -143,7 +166,7 @@ ooRexx[bash]> "( ͡° ͜ʖ﻿ ͡°)"~text~description=
 'UTF-8 not-ASCII (9 graphemes, 12 codepoints, 20 bytes, 0 error)'
 
 ooRexx[bash]> "( ͡° ͜ʖ﻿ ͡°)"~text~graphemes~each("c2x")=
-[ 28,'20CDA1','C2B0','20CD9C','CA96','EFBBBF','20CDA1','C2B0', 29]
+[ 28,'20 CDA1','C2B0','20 CD9C','CA96','EFBBBF','20 CDA1','C2B0', 29]
 
 ooRexx[bash]> "( ͡° ͜ʖ﻿ ͡°)"~text~codepoints~each{"U+"item~d2x}=
 ['U+28','U+20','U+361','U+B0','U+20','U+35C','U+296','U+FEFF','U+20','U+361','U+B0','U+29']
@@ -178,14 +201,14 @@ ooRexx[bash]> emoji_table = emoji_bag~table~map("text")
 ooRexx[bash]> emoji_table~map("c2x")==
 a Table (9 items)
 '⚪'    : 'E29AAA'
-'⚪️' : 'E29AAAEFB88F'
+'⚪️' : 'E29AAA EFB88F'
 '⚫'    : 'E29AAB'
-'⚫️' : 'E29AABEFB88F'
+'⚫️' : 'E29AAB EFB88F'
 '❄'    : 'E29D84'
-'❄︎' : 'E29D84EFB88E'
-'❄️' : 'E29D84EFB88F'
+'❄︎' : 'E29D84 EFB88E'
+'❄️' : 'E29D84 EFB88F'
 '❤'    : 'E29DA4'
-'❤️' : 'E29DA4EFB88F'
+'❤️' : 'E29DA4 EFB88F'
 
 ooRexx[bash]> emoji_table~map("c2u")==
 a Table (9 items)
@@ -215,10 +238,13 @@ ooRexx[bash]> family~text~description=                              -- 1 graphem
 'UTF-8 not-ASCII (1 grapheme, 15 codepoints, 53 bytes, 0 error)'
 
 ooRexx[bash]> family~text~c2x=
-'F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7E2808DF09F91A6E2808DF09F91A7E2808DF09F91A7E2808DF09F91A6'
+'F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7 E2808D F09F91A6 E2808D F09F91A7 E2808D F09F91A7 E2808D F09F91A6'
 
 ooRexx[bash]> family~text~c2u=
 'U+0001F469 U+200D U+0001F468 U+200D U+0001F469 U+200D U+0001F467 U+200D U+0001F466 U+200D U+0001F467 U+200D U+0001F467 U+200D U+0001F466'
+
+ooRexx[bash]> family~text~c2g=
+'F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7E2808DF09F91A6E2808DF09F91A7E2808DF09F91A7E2808DF09F91A6'
 
 https://onlineunicodetools.com/generate-zalgo-unicode
 Uses Unicode combining characters to create symbol noise.
@@ -234,10 +260,13 @@ ooRexx[bash]> helloZalgo~text~description=                          -- 5 graphem
 'UTF-8 not-ASCII (5 graphemes, 54 codepoints, 111 bytes, 0 error)'
 
 ooRexx[bash]> helloZalgo~text~c2x=
-'68CD86CCB5E1B78ACC9FCD89CD94CC9FCCB2 65CCBECCB7CD87CCBCCD89CCB2 6CEFB8A3EFB8A0CDA6CCB8CD93CCADCC97E1B7BFCCA8 6CCC91CC88CDAECD8CEFB8A1CC95CCB6CCAFCCBB 6FE1B783CDAACC86CC81E1B788CD81CD9ECCB5CC9DCD9CCCACCCAFE1B78ACDA2CCADCCAFCCA6'
+'68 CD86 CCB5 E1B78A CC9F CD89 CD94 CC9F CCB2 65 CCBE CCB7 CD87 CCBC CD89 CCB2 6C EFB8A3 EFB8A0 CDA6 CCB8 CD93 CCAD CC97 E1B7BF CCA8 6C CC91 CC88 CDAE CD8C EFB8A1 CC95 CCB6 CCAF CCBB 6F E1B783 CDAA CC86 CC81 E1B788 CD81 CD9E CCB5 CC9D CD9C CCAC CCAF E1B78A CDA2 CCAD CCAF CCA6'
 
 ooRexx[bash]> helloZalgo~text~c2u=
 'U+0068 U+0346 U+0335 U+1DCA U+031F U+0349 U+0354 U+031F U+0332 U+0065 U+033E U+0337 U+0347 U+033C U+0349 U+0332 U+006C U+FE23 U+FE20 U+0366 U+0338 U+0353 U+032D U+0317 U+1DFF U+0328 U+006C U+0311 U+0308 U+036E U+034C U+FE21 U+0315 U+0336 U+032F U+033B U+006F U+1DC3 U+036A U+0306 U+0301 U+1DC8 U+0341 U+035E U+0335 U+031D U+035C U+032C U+032F U+1DCA U+0362 U+032D U+032F U+0326'
+
+ooRexx[bash]> helloZalgo~text~c2g=
+'68CD86CCB5E1B78ACC9FCD89CD94CC9FCCB2 65CCBECCB7CD87CCBCCD89CCB2 6CEFB8A3EFB8A0CDA6CCB8CD93CCADCC97E1B7BFCCA8 6CCC91CC88CDAECD8CEFB8A1CC95CCB6CCAFCCBB 6FE1B783CDAACC86CC81E1B788CD81CD9ECCB5CC9DCD9CCCACCCAFE1B78ACDA2CCADCCAFCCA6'
 
 Supported encoding conversions:
 Byte to UTF-8
@@ -291,34 +320,35 @@ The second step is to convert to UTF-16.
 
 ooRexx[bash]> howMuchOfStorage = "how much of storage?"
 
-ooRexx[bash]> howMuchOfStorage~text~description=              -- 'UTF-8 ASCII (20 graphemes, 20 codepoints, 20 bytes)'
+ooRexx[bash]> howMuchOfStorage~text~description=              -- UTF-8:  20 graphemes, 20 codepoints, 20 bytes
 'UTF-8 ASCII (20 graphemes, 20 codepoints, 20 bytes, 0 error)'
 
-ooRexx[bash]> howMuchOfStorage~text~utf16~description=        -- 'UTF-16BE ASCII (20 graphemes, 20 codepoints, 40 bytes)
+ooRexx[bash]> howMuchOfStorage~text~utf16~description=        -- UTF-16: 20 graphemes, 20 codepoints, 40 bytes
 'UTF-16BE ASCII (20 graphemes, 20 codepoints, 40 bytes, 0 error)'
 
 ooRexx[bash]> rexCharacters = "'rex' in their name: ꎅ ꎜ ꏑ 🦖"
 
-ooRexx[bash]> rexCharacters~text~description=                 -- 'UTF-8 not-ASCII (28 graphemes, 28 codepoints, 37 bytes)'
+ooRexx[bash]> rexCharacters~text~description=                 -- UTF-8:  28 graphemes, 28 codepoints, 37 bytes
 'UTF-8 not-ASCII (28 graphemes, 28 codepoints, 37 bytes, 0 error)'
 
-ooRexx[bash]> rexCharacters~text~utf16~description=           -- 'UTF-16BE not-ASCII (28 graphemes, 28 codepoints, 58 bytes)'
+ooRexx[bash]> rexCharacters~text~utf16~description=           -- UTF-16: 28 graphemes, 28 codepoints, 58 bytes
 'UTF-16BE not-ASCII (28 graphemes, 28 codepoints, 58 bytes, 0 error)'
 
 ooRexx[bash]> family = "👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦"
 
-ooRexx[bash]> family~text~description=                        -- 'UTF-8 not-ASCII (1 grapheme, 15 codepoints, 53 bytes)'
+ooRexx[bash]> family~text~description=                        -- UTF-8:  1 grapheme, 15 codepoints, 53 bytes
 'UTF-8 not-ASCII (1 grapheme, 15 codepoints, 53 bytes, 0 error)'
 
-ooRexx[bash]> family~text~utf16~description=                  -- 'UTF-16BE not-ASCII (1 grapheme, 15 codepoints, 46 bytes)
+ooRexx[bash]> family~text~utf16~description=                  -- UTF-16: 1 grapheme, 15 codepoints, 46 bytes
 'UTF-16BE not-ASCII (1 grapheme, 15 codepoints, 46 bytes, 0 error)'
 
 ooRexx[bash]> helloZalgo = "h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞"
 
-ooRexx[bash]> helloZalgo~text~description=                    -- 'UTF-8 not-ASCII (5 graphemes, 54 codepoints, 111 bytes)
+ooRexx[bash]> helloZalgo~text~description=                    -- UTF-8:  5 graphemes, 54 codepoints, 111 bytes
 'UTF-8 not-ASCII (5 graphemes, 54 codepoints, 111 bytes, 0 error)'
 
-ooRexx[bash]> helloZalgo~text~utf16~description=              -- 'UTF-16BE not-ASCII (5 graphemes, 54 codepoints, 108 bytes)
+ooRexx[bash]> helloZalgo~text~utf16~description=              -- UTF-16: 5 graphemes, 54 codepoints, 108 bytes
 'UTF-16BE not-ASCII (5 graphemes, 54 codepoints, 108 bytes, 0 error)'
 
 End of demonstration.
+
