@@ -612,7 +612,7 @@ Helpers
                     call promptDirectory
                     call charout , prompt
                 end
-                .ooRexxShell~charoutSlowly(inputrx, 0.1)
+                .ooRexxShell~charoutSlowly(inputrx)
                 .ooRexxShell~SysSleep(2) -- Give time to read before "pressing enter"
                 say -- "press enter"
             end
@@ -1271,7 +1271,7 @@ Helpers
 
 
 ::method charoutSlowly class
-    use strict arg text, delay=0.02
+    use strict arg text, delay=0.05
     -- Naive comment detection (could be inside a quoted string), but good enough.
     commentPos = text~pos("--")
     previousChar = ""
