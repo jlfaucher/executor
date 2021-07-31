@@ -27,10 +27,7 @@ num=0; (num==0)~~ifTrue{say "zero"}~ifFalse{say "not zero"}
 
 -- Compatibility with ooRexx 5
 ::method "?"
-    use strict arg whenTrue, whenFalse
-    .Validate~logical("Logical value", self)
-    if self then return whenTrue
-            else return whenFalse
+    forward message "ifTrue"
 
 ::method "ifTrue" unguarded
     use arg whenTrue, whenFalse
