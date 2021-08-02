@@ -230,6 +230,22 @@ ooRexx5 optimization retrofit todo:
 optimized implementation of .array~items (the value is stored)
 
 
+ooRexx optimization to investigate:
+c = .array~new(3); do 1000000; c[1]=.false; c[2]=1; c[3]="error description"; end
+    Executor = 0.93s
+    ooRexx5  = 0.62s
+c = .array~new(3); do 1000000; c~append(.false); c~append(1); c~append("error description"); end
+    Executor = 1.87ss
+    ooRexx5  = 1.70s
+::class "DecodeContext" public
+    ::attribute isError
+    ::attribute indexB
+    ::attribute errorMessage
+c = .DecodeContext~new; do 1000000; c~iserror=.false; c~indexB=1; c~errorMessage="error description"; end
+    Executor = 1.05s
+    ooRexx5  = 0.75s
+
+
 ooRexx5 optimization for unknown processing to review:
 See comment of
     StringHashCollection::processUnknown
@@ -474,6 +490,17 @@ RexxList *RexxList::classOf(
      size_t       named_argCount)
 TODO
 The named arguments could be added to the returned array (splitting the key:value).
+
+
+===============================================================================
+2021 August 01
+
+Encoded strings:
+- Added UTF-16LE, WTF-16LE, UTF-32BE, UTF-32LE.
+- The "UTF16", "WTF16"  "UTF32" encodings check if a BOM is present
+  (BOM not removed for the moment).
+- Implemented the recommandations of W3C for the replacement characters
+  (not yet activated).
 
 
 ===============================================================================

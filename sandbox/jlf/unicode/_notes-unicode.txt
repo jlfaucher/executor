@@ -11,6 +11,9 @@ UNICODE COLLATION ALGORITHM
 https://unicode.org/reports/tr15/#Detecting_Normalization_Forms
 UNICODE NORMALIZATION FORMS
 
+https://en.wikipedia.org/wiki/UTF-8
+https://en.wikipedia.org/wiki/UTF-16
+https://en.wikipedia.org/wiki/UTF-32
 
 http://xahlee.info/comp/unicode_index.html
 
@@ -1032,6 +1035,90 @@ https://docs.python.org/3/howto/unicode.html
         'xmlcharrefreplace' (inserts an XML character reference),
         'namereplace'       (inserts a \N{...} escape sequence).
 
+    Unicode code points can be written using the \u escape sequence, which is
+    followed by four hex digits giving the code point. The \U escape sequence
+    is similar, but expects eight hex digits, not four
+        >>> s = "a\xac\u1234\u20ac\U00008000"
+        ... #     ^^^^ two-digit hex escape
+        ... #         ^^^^^^ four-digit Unicode escape
+        ... #                     ^^^^^^^^^^ eight-digit Unicode escape
+        >>> [ord(c) for c in s]
+        [97, 172, 4660, 8364, 32768]
+
+    Python supports writing source code in UTF-8 by default, but you can use almost any encoding if you declare the encoding being used. This is done by including a special comment as either the first or second line of the source file:
+        #!/usr/bin/env python
+        # -*- coding: latin-1 -*-
+        u = 'abcdé'
+    https://www.python.org/dev/peps/pep-0263/
+    PEP 263 -- Defining Python Source Code Encodings
+
+    Comparing Strings
+    The casefold() string method converts a string to a case-insensitive
+    form following an algorithm described by the Unicode Standard. This
+    algorithm has special handling for characters such as the German letter ‘ß’
+    (code point U+00DF), which becomes the pair of lowercase letters ‘ss’.
+        >>> street = 'Gürzenichstraße'
+        >>> street.casefold()
+        'gürzenichstrasse'
+    The unicodedata module’s normalize() function converts strings to one of
+    several normal forms: ‘NFC’, ‘NFKC’, ‘NFD’, and ‘NFKD’.
+        def compare_strs(s1, s2):
+            def NFD(s):
+                return unicodedata.normalize('NFD', s)
+            return NFD(s1) == NFD(s2)
+    The Unicode Standard also specifies how to do caseless comparisons:
+        def compare_caseless(s1, s2):
+            def NFD(s):
+                return unicodedata.normalize('NFD', s)
+            return NFD(NFD(s1).casefold()) == NFD(NFD(s2).casefold())
+    Why is NFD() invoked twice? Because there are a few characters that make
+    casefold() return a non-normalized string, so the result needs to be
+    normalized again. See section 3.13 of the Unicode Standard
+
+    https://docs.python.org/3/library/unicodedata.html
+        unicodedata.lookup(name)
+            Look up character by name.
+            If a character with the given name is found, return the corresponding character.
+            If not found, KeyError is raised.
+            Changed in version 3.3: Support for name aliases 1 and named sequences 2 has been added.
+        unicodedata.name(chr[, default])
+            Returns the name assigned to the character chr as a string.
+        unicodedata.decimal(chr[, default])
+            Returns the decimal value assigned to the character chr as integer.
+        unicodedata.digit(chr[, default])
+            Returns the digit value assigned to the character chr as integer.
+        unicodedata.numeric(chr[, default])
+            Returns the numeric value assigned to the character chr as float.
+        unicodedata.category(chr)
+            Returns the general category assigned to the character chr as string.
+        unicodedata.bidirectional(chr)
+            Returns the bidirectional class assigned to the character chr as string.
+        unicodedata.combining(chr)
+            Returns the canonical combining class assigned to the character chr as integer.
+            Returns 0 if no combining class is defined.
+        unicodedata.east_asian_width(chr)
+            Returns the east asian width assigned to the character chr as string.
+        unicodedata.mirrored(chr)
+            Returns the mirrored property assigned to the character chr as integer.
+            Returns 1 if the character has been identified as a “mirrored” character in bidirectional text, 0 otherwise.
+        unicodedata.decomposition(chr)
+            Returns the character decomposition mapping assigned to the character chr as string.
+            An empty string is returned in case no such mapping is defined.
+        unicodedata.normalize(form, unistr)
+            Return the normal form form for the Unicode string unistr.
+            Valid values for form are ‘NFC’, ‘NFKC’, ‘NFD’, and ‘NFKD’.
+        unicodedata.is_normalized(form, unistr)
+            Return whether the Unicode string unistr is in the normal form form.
+            Valid values for form are ‘NFC’, ‘NFKC’, ‘NFD’, and ‘NFKD’.
+        unicodedata.unidata_version
+            The version of the Unicode database used in this module.
+        unicodedata.ucd_3_2_0
+            This is an object that has the same methods as the entire module,
+            but uses the Unicode database version 3.2 instead
+
+    https://www.python.org/dev/peps/pep-0393/
+    PEP 393 -- Flexible String Representation
+
 
 15/07/2021
 https://docs.python.org/3/library/codecs.html
@@ -1150,5 +1237,80 @@ notable exception that does return only UTF-16)
 
 28/07/2021
 https://invisible-island.net/xterm/bad-utf8/
-https://gist.github.com/GrabYourPitchforks/901684d0aa1d2440eb378d847cfc8607
+Unicode replacement character in the Linux console.
+This test text examines, how UTF-8 decoders handle various types of
+corrupted or otherwise interesting UTF-8 sequences.
+jlf : difficult to understand what is the conclusion...
+What I notice in this review is :
+Unicode 10.0.0's chapter 3 (June 2017): each of the ill-formed code units is separately replaced by U+FFFD.
+That recommendation first appeared in Unicode 6's chapter 3 on conformance (February 2011).
+However the comments about “best practice” were removed in Unicode 11.0.0 (June 2018).
+The W3C WHATWG page entitled Encoding Standard started in January 2013.
+    The constraints in the utf-8 decoder above match “Best Practices for Using
+    U+FFFD” from the Unicode standard. No other behavior is permitted per the
+    Encoding Standard (other algorithms that achieve the same result are
+    obviously fine, even encouraged).
+Although Unicode withdrew the recommendation more than two years ago, to date (August 2020) that is not yet corrected in the WHATWG page.
+
+
+28/07/2021
+https://github.com/dotnet/corefxlab/issues/2368
+Scenarios and Design Philosophy - UTF-8 string support
+
+    https://gist.github.com/GrabYourPitchforks/901684d0aa1d2440eb378d847cfc8607 (jlf: replaced by the following URL)
+    https://github.com/dotnet/corefx/issues/34094 (go directly to next URL)
+    https://github.com/dotnet/runtime/issues/28204
+    Motivations and driving principles behind the Utf8Char proposal
+
+    https://github.com/dotnet/runtime/issues/933
+    The NuGet package generally follows the proposal in dotnet/corefxlab#2350, which
+    is where most of the discussion has taken place. It's a bit aggravating that the
+    discussion is split across so many different forums, I know. :(
+
+        ceztko
+        I noticed dotnet/corefxlab#2350 just got closed. Did the discussion moved
+        somewhere else about more UTF8 first citizen support efforts?
+
+        @ceztko The corefxlab repo was archived, so open issues were closed to
+        support that effort. That thread also got so large that it was difficult
+        to follow. @krwq is working on restructuring the conversation so that we
+        can continue the discussion in a better forum.
+
+        jlf
+        Not clear where the discussion is continued...
+        This URL just show some tags, one of them is "Future".
+        https://github.com/orgs/dotnet/projects/7#card-33368432
+
+
+    https://github.com/dotnet/corefxlab/issues/2350
+    Utf8String design discussion - last edited 14-Sep-19
+    Tons of comments, with this conclusion:
+    The discussion in this issue is too long and github has troubles rendering it.
+    I think we should close this issue and start a new one in dotnet/runtime.
+
+
+28/07/2021
+https://fasterthanli.me/articles/working-with-strings-in-rust
+
+
+30/07/2021
+https://hsivonen.fi/broken-utf-8/
+---
+The Unicode Technical Committee retracted the change in its meeting on August 3
+2017, so the concern expressed below is now moot.
+---
+Not all byte sequences are valid UTF-8. When decoding potentially invalid UTF-8
+input into a valid Unicode representation, something has to be done about invalid input.
+The naïve answer is to ignore invalid input until finding valid input again (i.e.
+finding the next byte that has a lead-byte value), but this is dangerous and
+should never be done. The danger is that silently dropping bogus bytes might
+make a string that didn’t look dangerous with the bogus bytes present become
+valid active content. Most simply, <scr�ipt> (� standing in for a bogus byte)
+could become <script> if the error is ignored. So it’s non-controversial that
+every sequence of bogus bytes should result in at least one REPLACEMENT CHARACTER
+and that the next lead-valued byte is the first byte that’s no longer part of
+the invalid sequence.
+But how many REPLACEMENT CHARACTERs should be generated for a sequence of
+multiple bogus bytes?
+jlf: the answer is not clear to me...
 
