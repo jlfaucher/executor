@@ -1530,6 +1530,9 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     return .false
 
 
+::method codeUnitBytes class abstract -- 1 2 or 4
+
+
 ::method codepointMaxBytes class abstract -- used for buffer allocation
 
 
@@ -1543,9 +1546,6 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 
 ::method nextCodepointIndex class
-
-
-::method skipInvalidByteSequence class
 
 
 ::method encode class abstract
@@ -1728,6 +1728,11 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     return .true
 
 
+::method codeUnitBytes class
+    use strict arg -- none
+    return 1
+
+
 ::method codepointMaxBytes class
     use strict arg -- none
     return 1
@@ -1743,11 +1748,20 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method checkCodepoint class
     use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
-    use strict named arg checkOnlyRange -- no impact here
+    use strict named arg checkOnlyRange /*no impact here*/, decodeStatus=.nil
     if codepoint < 0 | codepoint > 255 then signal error_range
     return .true
     -- Don't use ppCodepoint here, it's not Unicode.
-    error_range: raise syntax 93.900 array (self~name "encoding: invalid codepoint" codepoint "("ppHexNumber(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..255")
+    error_range: return error(1, self~name "encoding: invalid codepoint" codepoint "("ppHexNumber(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..255")
+
+    error:
+        use strict arg replacementCount, errorMessage
+        if decodeStatus <> .nil then do
+            decodeStatus[1] = errorMessage"."
+            decodeStatus[2] = replacementCount
+            return .false
+        end
+        raise syntax 93.900 array (errorMessage)
 
 
 ::method decode class
@@ -1767,13 +1781,6 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     use strict arg string /* or buffer */, indexB
     c = string~subchar(indexB)
     if c == "" then return indexB
-    return indexB + 1
-
-
-::method skipInvalidByteSequence class
-    -- The sequence starting at indexB is invalid.
-    -- Here, a byte sequence is always one byte.
-    use strict arg string /* or buffer */, indexB
     return indexB + 1
 
 
@@ -1938,11 +1945,19 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     graphemeBreakArgs = (-1, -1, 0) -- codepoint1, codepoint2, state. Will use the same array at each iteration.
 
     encoding = self
+    decodeStatus = .array~new(2)
+    /*
+        decodeStatus[1] = errorMessage
+        decodeStatus[2] = replacementCount: 1 or "N". If negative (-1 or "-N") then the last stored index invalid.
+    */
     forever:
-        signal on syntax -- catch any encoding error
-        nextB = encoding~nextCodepointIndex(string, indexB)
-        codepoint = encoding~decode(string, indexB, nextB - indexB) -- can be -1 if nextB == indexB
-        if codepoint <> -1 then encoding~checkCodepoint(codepoint, indexB, previousCodepoint, previousCodepointIndexB)
+        nextB = encoding~nextCodepointIndex(string, indexB, decodeStatus: decodeStatus)
+        if nextB < 0 then signal error
+        codepoint = encoding~decode(string, indexB, nextB - indexB) -- codepoint can be -1 if nextB == indexB
+        if codepoint <> -1 then do
+            checkOK = encoding~checkCodepoint(codepoint, indexB, previousCodepoint, previousCodepointIndexB, decodeStatus: decodeStatus)
+            if \checkOK then signal error
+        end
 
         -- From here, we know that the current codepoint is valid
         codepointIndexes~append(indexB) -- will be removed
@@ -1979,20 +1994,53 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         return encoding~new(string, codepointIndexes, codepointIndexes~size-1, graphemeIndexes, graphemeIndexes~size-1, errors)
     end
 
-    syntax:
-        codepointIndexes~append(-indexB) -- negative value to indicate a serious error
-        graphemeIndexes~append(-indexB) -- idem
+    error:
+        errorMessage = decodeStatus[1]
         if errors = .nil then errors = .array~new
-        condition = condition("O")
-        errors~append(condition["MESSAGE"])
+        errors~append(errorMessage)
+        replacementCount = decodeStatus[2]
+        if replacementCount~subchar(1) == "-" then do       -- "-1" or "-N"
+            -- undo the last index
+            -- currently, that can happen only for WTF-8 in case of high-surrogate followed by a low-surrogate
+            codepointIndexes~remove(codepointIndexes~last)
+            graphemeIndexes~remove(graphemeIndexes~last)
+            indexB = previousCodepointIndexB
+            replacementCount = replacementCount~subchar(2)  -- "1" or "N"
+        end
+        -- follow the recommendation of W3C : U+FFFD Substitution of Maximal Subparts
+        nextB = abs(nextB)
+        do while indexB < nextB
+            -- each negative index is the index of an invalid byte sequence that will be represented by a replacement character
+            codepointIndexes~append(-indexB)
+            graphemeIndexes~append(-indexB)
+            previousCodepointIndexB = indexB
+            if replacementCount == 1 then leave
+            indexB += self~codeUnitBytes -- add 1 or 2 or 4
+        end
         previousCodepoint = .Unicode~replacementCharacter~codepoint
-        previousCodepointIndexB = indexB
         graphemeBreakArgs[3] = 0 -- reset the extended grapheme state
-        indexB = encoding~skipInvalidByteSequence(string, indexB)
+        indexB = nextB -- resume at the next initially valid byte-sequence
         signal forever
 
 
 ::method convertUnicodeToUnicode
+    /*
+    D93 Encoding form conversion:
+    A conversion defined directly between the code unit sequences of one Unicode
+    encoding form and the code unit sequences of another Unicode encoding form.
+    - In implementations of the Unicode Standard, a typical API will logically
+      convert the input code unit sequence into Unicode scalar values (code points)
+      and then convert those Unicode scalar values into the output code unit sequence.
+      Proper analysis of the encoding forms makes it possible to convert the code units
+      directly, thereby obtaining the same results but with a more efficient process.
+    - A conformant encoding form conversion will treat any ill-formed code unit
+      sequence as an error condition. (See conformance clause C10.) This guarantees
+      that it will neither interpret nor emit an ill-formed code unit sequence.
+      Any implementation of encoding form conversion must take this requirement
+      into account, because an encoding form conversion implicitly involves a
+      verification that the Unicode strings being converted do, in fact, contain
+      well-formed code unit sequences.
+    */
     use strict arg targetEncoding
     sizeC = self~codepointCount -- size in codepoints
     buffer = .MutableBuffer~new(, sizeC * targetEncoding~codepointMaxBytes)
@@ -2058,6 +2106,11 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 /******************************************************************************/
 ::class "XTF8_CommonServices" mixinclass Object private
 -- where X stands for U or W
+
+::method codeUnitBytes class
+    use strict arg -- none
+    return 1
+
 
 ::method codepointMaxBytes class
     use strict arg -- none
@@ -2126,61 +2179,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         As a consequence of the well-formedness conditions specified in Table 3-7,
         the following byte values are disallowed in UTF-8:
         C0–C1, F5–FF.
-    */
-    use strict arg string /* or buffer */, startB
-    use strict named arg decodeStatus=.nil
-    indexB = startB
-    startByte = string~subchar(indexB)
-    if startByte == "" then return indexB
-    if startByte < "80"x then byteCount = 1                     -- 1-byte sequence 0xxxxxxx
-    else if startByte < "C2"x | startByte > "F4"x then signal start_non_shortest_form
-    else if startByte~bitand("E0"x) == "C0"x then byteCount = 2 -- 2-byte sequence 110xxxxx (C0..DF but only C2..DF is valid)
-    else if startByte~bitand("F0"x) == "E0"x then byteCount = 3 -- 3-byte sequence 1110xxxx
-    else if startByte~bitand("F8"x) == "F0"x then byteCount = 4 -- 4-byte sequence 11110xxx
-    else signal invalid_start_byte
-    indexB += 1
-    do i=2 to byteCount
-        continuationByte = string~subchar(indexB)
-        if continuationByte == "" then signal truncated
-        if i == 2 then do
-            if startByte == "E0"x, continuationByte < "A0"x then signal non_shortest_form
-            if \self~isWTF8, startByte == "ED"x then do
-                -- high/low surrogates are not an error if WTF-8 (wobbly)
-                if continuationByte >= "A0"x, continuationByte <= "AF"x then signal high_surrogate
-                if continuationByte >= "B0"x, continuationByte <= "BF"x then signal low_surrogate
-            end
-            if startByte == "F0"x, continuationByte < "90"x then signal non_shortest_form
-            if startByte == "F4"x, continuationByte >= "90"x then signal error_range
-        end
-        if continuationByte~bitand("C0"x) <> "80"x then signal invalid_continuation_byte -- Must be 10xxxxxx
-        indexB += 1
-    end
-    return indexB
 
-    invalid_start_byte:        return error(1, startB + 1, "UTF-8 sequence at byte-position" startB "has an invalid start byte" startByte~c2d "("ppHexNumber(startByte~c2d)")")
-    start_non_shortest_form:   return error(1, startB + 1, "UTF-8 sequence at byte-position" startB "has an invalid start byte" startByte~c2d "("ppHexNumber(startByte~c2d)") (non-shortest form)")
-    invalid_continuation_byte: return error(1, indexB + 1, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB)
-    non_shortest_form:         return error(indexB - startB + 1, indexB + 1, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB "(non-shortest form)")
-    high_surrogate:            return error(indexB - startB + 1, indexB + 1, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB "(high surrogate)")
-    low_surrogate:             return error(indexB - startB + 1, indexB + 1, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB "(low surrogate)")
-    error_range:               return error(indexB - startB + 1, indexB + 1, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB "(codepoint > U+10FFFF)")
-    truncated:                 return error(1, indexB, "UTF-8 sequence at byte-position" startB "is truncated, expected" byteCount "bytes")
-
-    error:
-        use strict arg replacementCount, nextCodepointIndex, errorMessage
-        if decodeStatus <> .nil then do
-            decodeStatus[1] = errorMessage
-            decodeStatus[2] = replacementCount
-            return -nextCodepointIndex  -- negative value means error
-        end
-        raise syntax 93.900 array (errorMessage)
-
-
-::method skipInvalidByteSequence class
-    -- The sequence starting at indexB is invalid.
-    -- Go to the next start byte.
-    -- This implementation is conform with:
-    /*
         If the converter encounters an ill-formed UTF-8 code unit sequence which
         starts with a valid first byte, but which does not continue with valid
         successor bytes (see Table 3-7), it must not consume the successor bytes
@@ -2205,10 +2204,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         as a single error, or <U+FFFD, U+FFFD, U+FFFD, U+0041>, handling each
         byte of <F0 80 80> as a separate error, or could take other approaches
         to signalling <F0 80 80> as an ill-formed code unit subsequence.
-    */
 
-    -- This implementation ("Implem") is not conform with:
-    /*
         U+FFFD Substitution of Maximal Subparts
 
         An increasing number of implementations are adopting the handling of
@@ -2245,7 +2241,6 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
             Table 3-8. U+FFFD for Non-Shortest Form Sequences
             Bytes  C0   AF   E0   80   BF   F0   81   82   41
             Output FFFD FFFD FFFD FFFD FFFD FFFD FFFD FFFD 0041
-            Implem U+002F U+003F U+FFFD U+0041
 
         Also, every byte of a sequence that would correspond to a surrogate code
         point,or of a truncated version thereof, is replaced with one U+FFFD, as
@@ -2254,7 +2249,6 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
             Table 3-9. U+FFFD for Ill-Formed Sequences for Surrogates
             Bytes  ED   A0   80   ED   BF   BF   ED   AF   41
             Output FFFD FFFD FFFD FFFD FFFD FFFD FFFD FFFD 0041
-            Implem U+FFFD U+FFFD U+FFFD U+0041
 
         Finally, every byte of a sequence that would correspond to a code point
         beyond U+10FFFF, and any other byte that does not contribute to a valid
@@ -2262,29 +2256,61 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
             Table 3-10. U+FFFD for Other Ill-Formed Sequences
             Bytes  F4   91   92   93   FF   41   80   BF   42
             Output FFFD FFFD FFFD FFFD FFFD 0041 FFFD FFFD 0042
-            Implem U+000E45D3 U+FFFD U+0041 U+FFFD U+0042
-    */
 
-    -- This implementation ("Implem") is conform with:
-    /*
         Only when a sequence of two or three bytes is a truncated version of a
         sequence which is otherwise well-formed to that point, is more than one
         byte replaced with a single U+FFFD, as shown in Table 3-11.
             Table 3-11. U+FFFD for Truncated Sequences
             Bytes  E1   80   E2   F0   91 92 F1 BF 41
             Output FFFD      FFFD FFFD       FFFD  0041
-            Implem U+FFFD U+FFFD U+FFFD U+FFFD U+0041
     */
-    use strict arg string /* or buffer */, indexB
-    do forever
+    use strict arg string /* or buffer */, startB
+    use strict named arg decodeStatus=.nil
+    indexB = startB
+    startByte = string~subchar(indexB)
+    if startByte == "" then return indexB
+    if startByte < "80"x then byteCount = 1                     -- 1-byte sequence 0xxxxxxx
+    else if startByte < "C2"x | startByte > "F4"x then signal start_non_shortest_form
+    else if startByte~bitand("E0"x) == "C0"x then byteCount = 2 -- 2-byte sequence 110xxxxx (C0..DF but only C2..DF is valid)
+    else if startByte~bitand("F0"x) == "E0"x then byteCount = 3 -- 3-byte sequence 1110xxxx
+    else if startByte~bitand("F8"x) == "F0"x then byteCount = 4 -- 4-byte sequence 11110xxx
+    else signal invalid_start_byte
+    indexB += 1
+    do i=2 to byteCount
+        continuationByte = string~subchar(indexB)
+        if continuationByte == "" then signal truncated
+        if i == 2 then do
+            if startByte == "E0"x, continuationByte < "A0"x then signal non_shortest_form
+            if \self~isWTF8, startByte == "ED"x then do
+                -- high/low surrogates are not an error if WTF-8 (wobbly)
+                if continuationByte >= "A0"x, continuationByte <= "AF"x then signal high_surrogate
+                if continuationByte >= "B0"x, continuationByte <= "BF"x then signal low_surrogate
+            end
+            if startByte == "F0"x, continuationByte < "90"x then signal non_shortest_form
+            if startByte == "F4"x, continuationByte >= "90"x then signal error_range
+        end
+        if continuationByte~bitand("C0"x) <> "80"x then signal invalid_continuation_byte -- Must be 10xxxxxx
         indexB += 1
-        byte = string~subchar(indexB)
-        if byte == "" then return indexB
-        if byte < "80"x then return indexB                     -- 1-byte sequence 0xxxxxxx
-        else if byte~bitand("E0"x) == "C0"x then return indexB -- 2-byte sequence 110xxxxx
-        else if byte~bitand("F0"x) == "E0"x then return indexB -- 3-byte sequence 1110xxxx
-        else if byte~bitand("F8"x) == "F0"x then return indexB -- 4-byte sequence 11110xxx
     end
+    return indexB
+
+    invalid_start_byte:        return error("N", startB + 1, "UTF-8 sequence at byte-position" startB "has an invalid start byte" startByte~c2d "("ppHexNumber(startByte~c2d)")")
+    start_non_shortest_form:   return error("N", startB + 1, "UTF-8 sequence at byte-position" startB "has an invalid start byte" startByte~c2d "("ppHexNumber(startByte~c2d)") (non-shortest form)")
+    invalid_continuation_byte: return error(1, indexB, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB)
+    non_shortest_form:         return error("N", indexB, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB "(non-shortest form)")
+    high_surrogate:            return error("N", indexB, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB "(high surrogate)")
+    low_surrogate:             return error("N", indexB, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB "(low surrogate)")
+    error_range:               return error("N", indexB, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB "(codepoint > U+10FFFF)")
+    truncated:                 return error(1, indexB, "UTF-8 sequence at byte-position" startB "is truncated, expected" byteCount "bytes")
+
+    error:
+        use strict arg replacementCount, nextCodepointIndex, errorMessage
+        if decodeStatus <> .nil then do
+            decodeStatus[1] = errorMessage"."
+            decodeStatus[2] = replacementCount
+            return -nextCodepointIndex  -- negative value means error
+        end
+        raise syntax 93.900 array (errorMessage)
 
 
 -- utf8proc_ssize_t utf8proc_encode_char(utf8proc_int32_t codepoint, utf8proc_uint8_t *dst);
@@ -2396,16 +2422,16 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     if codepoint >= 56320 & codepoint < 57344 then signal error_low_surrogate  -- U+DC00 to U+DFFF low surrogates
     return .true
 
-    error_range:          return error(4, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
-    error_high_surrogate: return error(3, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". High surrogate is not allowed")
-    error_low_surrogate:  return error(3, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Low surrogate is not allowed")
+    error_range:          return error("N", self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
+    error_high_surrogate: return error("N", self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". High surrogate is not allowed")
+    error_low_surrogate:  return error("N", self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Low surrogate is not allowed")
 
     error:
         use strict arg replacementCount, errorMessage
         if decodeStatus <> .nil then do
-            decodeStatus[1] = errorMessage
+            decodeStatus[1] = errorMessage"."
             decodeStatus[2] = replacementCount
-            return false
+            return .false
         end
         raise syntax 93.900 array (errorMessage)
 
@@ -2452,15 +2478,15 @@ Concatenating WTF-8 strings requires extra care to preserve well-formedness.
     then signal error_high_low_surrogate
     return .true
 
-    error_range:              return error(4, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
-    error_high_low_surrogate: return error(6, self~name "encoding: a high surrogate" previousCodepoint "("ppCodepoint(previousCodepoint)")" || atBytePosition(previousCodepointIndexB) || " followed by a low surrogate" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || " is not allowed")
+    error_range:              return error("N", self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
+    error_high_low_surrogate: return error("-N", self~name "encoding: a high surrogate" previousCodepoint "("ppCodepoint(previousCodepoint)")" || atBytePosition(previousCodepointIndexB) || " followed by a low surrogate" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || " is not allowed")
 
     error:
         use strict arg replacementCount, errorMessage
         if decodeStatus <> .nil then do
-            decodeStatus[1] = errorMessage
+            decodeStatus[1] = errorMessage"."
             decodeStatus[2] = replacementCount
-            return false
+            return .false
         end
         raise syntax 93.900 array (errorMessage)
 
@@ -2511,6 +2537,11 @@ the concatenation back to WTF-8.
 ::class "XTF16_CommonServices" mixinclass Object private
 -- where X stands for U or W
 
+::method codeUnitBytes class
+    use strict arg -- none
+    return 2
+
+
 ::method codepointMaxBytes class
     use strict arg -- none
     return 4  -- In UTF-16, a codepoint can be 2 or 4 bytes
@@ -2525,19 +2556,24 @@ the concatenation back to WTF-8.
 
 
 ::method checkCodepoint class
+    /*
+    Because surrogate code points are not Unicode scalar values, isolated UTF-16
+    code units in the range D80016..DFFF16 are ill-formed.
+    --> this is checked in nextCodepointIndex, only when not wobbly.
+    */
     use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
     use strict named arg checkOnlyRange=.false /*no impact here*/, decodeStatus=.nil
     if codepoint < 0 | codepoint > 1114111 then signal error_range
     return .true
 
-    error_range: return error(2, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
+    error_range: return error("N", self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
 
     error:
         use strict arg replacementCount, errorMessage
         if decodeStatus <> .nil then do
-            decodeStatus[1] = errorMessage
+            decodeStatus[1] = errorMessage"."
             decodeStatus[2] = replacementCount
-            return false
+            return .false
         end
         raise syntax 93.900 array (errorMessage)
 
@@ -2597,26 +2633,16 @@ the concatenation back to WTF-8.
     unpaired_low_surrogate:  return error(1, indexB, self~name "encoding: unpaired low surrogate" codeUnit~c2d "("ppCodepoint(codeUnit~c2d)") at byte-position" startB)
     invalid_low_surrogate:   return error(1, indexB, self~name "encoding: invalid low surrogate" codeUnit~c2d "("ppCodepoint(codeUnit~c2d)") at byte-position" indexB)
     truncated2:              return error(1, indexB + 2, self~name "encoding: byte sequence at byte-position" startB "is truncated, expected 2 bytes")
-    truncated4:              return error(2, indexB + 2, self~name "encoding: byte sequence at byte-position" startB "is truncated, expected 4 bytes")
+    truncated4:              return error("N", indexB, self~name "encoding: byte sequence at byte-position" startB "is truncated, expected 4 bytes")
 
     error:
         use strict arg replacementCount, nextCodepointIndex, errorMessage
         if decodeStatus <> .nil then do
-            decodeStatus[1] = errorMessage
+            decodeStatus[1] = errorMessage"."
             decodeStatus[2] = replacementCount
             return -nextCodepointIndex  -- negative value means error
         end
         raise syntax 93.900 array (errorMessage)
-
-
-::method skipInvalidByteSequence class
-    -- The sequence starting at indexB is invalid.
-    -- Go to the next code unit.
-    use strict arg string /* or buffer */, indexB
-    lengthB = string~length
-    indexB += 2
-    if indexB > lengthB then return lengthB + 1 -- end of string
-    return indexB
 
 
 ::method encode class
@@ -2889,6 +2915,11 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 /******************************************************************************/
 ::class "UTF32_CommonServices" mixinclass Object private
 
+::method codeUnitBytes class
+    use strict arg -- none
+    return 4
+
+
 ::method codepointMaxBytes class
     use strict arg -- none
     return 4  -- In UTF-32, a codepoint is 4 bytes
@@ -2903,19 +2934,29 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 
 
 ::method checkCodepoint class
+    /*
+    - Because surrogate code points are not included in the set of Unicode scalar values,
+      UTF-32 code units in the range 0000D80016..0000DFFF16 are ill-formed.
+    - Any UTF-32 code unit greater than 0010FFFF is ill-formed.
+    */
     use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
-    use strict named arg checkOnlyRange=.false /*no impact here*/, decodeStatus=.nil
+    use strict named arg checkOnlyRange=.false, decodeStatus=.nil
     if codepoint < 0 | codepoint > 1114111 then signal error_range
+    if checkOnlyRange then return .true
+    if codepoint >= 55296 & codepoint < 56320 then signal error_high_surrogate -- U+D800 to U+DBFF high surrogates
+    if codepoint >= 56320 & codepoint < 57344 then signal error_low_surrogate  -- U+DC00 to U+DFFF low surrogates
     return .true
 
-    error_range: return error(1, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
+    error_range:          return error(1, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
+    error_high_surrogate: return error(1, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". High surrogate is not allowed")
+    error_low_surrogate:  return error(1, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Low surrogate is not allowed")
 
     error:
         use strict arg replacementCount, errorMessage
         if decodeStatus <> .nil then do
-            decodeStatus[1] = errorMessage
+            decodeStatus[1] = errorMessage"."
             decodeStatus[2] = replacementCount
-            return false
+            return .false
         end
         raise syntax 93.900 array (errorMessage)
 
@@ -2958,21 +2999,11 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
     error:
         use strict arg replacementCount, nextCodepointIndex, errorMessage
         if decodeStatus <> .nil then do
-            decodeStatus[1] = errorMessage
+            decodeStatus[1] = errorMessage"."
             decodeStatus[2] = replacementCount
             return -nextCodepointIndex  -- negative value means error
         end
         raise syntax 93.900 array (errorMessage)
-
-
-::method skipInvalidByteSequence class
-    -- The sequence starting at indexB is invalid.
-    -- Go to the next code unit.
-    use strict arg string /* or buffer */, indexB
-    lengthB = string~length
-    indexB += 4
-    if indexB > lengthB then return lengthB + 1 -- end of string
-    return indexB
 
 
 ::method encode class

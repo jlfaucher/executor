@@ -231,6 +231,8 @@ optimized implementation of .array~items (the value is stored)
 
 
 ooRexx optimization to investigate:
+[later] It's probably related to the optimization of .true .false.
+        When replacing .false by 0, I get almost the same durations as ooRexx5.
 c = .array~new(3); do 1000000; c[1]=.false; c[2]=1; c[3]="error description"; end
     Executor = 0.93s
     ooRexx5  = 0.62s
@@ -490,6 +492,14 @@ RexxList *RexxList::classOf(
      size_t       named_argCount)
 TODO
 The named arguments could be added to the returned array (splitting the key:value).
+
+
+===============================================================================
+2021 August 03
+
+Encoded strings:
+- Implemented the recommandations of W3C for the replacement characters
+  (now activated).
 
 
 ===============================================================================
