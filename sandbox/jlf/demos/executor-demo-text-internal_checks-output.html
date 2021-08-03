@@ -30,7 +30,7 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
-</span><span style="font-weight:bold;color:green;">Input queue name: S4a5bQ7fd44851de90
+</span><span style="font-weight:bold;color:green;">Input queue name: S140d5Q7fd448420a50
 </span>
 <span style="color:blue;">----------------------------------
 </span><span style="color:blue;">-- Text encoding - Internal checks
@@ -120,7 +120,7 @@ T'A'
 T'côté👍'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt;       &quot;B4 74 65 CC 81 F0 9F 91 8D&quot;x~text(&quot;utf8&quot;)~errors=    <span style="color:blue;">-- Invalid start byte</span>
-['UTF-8 sequence at byte-position 1 has an invalid start byte 180 (B4x).']
+['UTF-8 sequence at byte-position 1 has an invalid start byte 180 (B4x) (non-shortest form).']
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; &quot;63 C3    74 65 CC 81 F0 9F 91 8D&quot;x~text(&quot;utf8&quot;)~errors=    <span style="color:blue;">-- Invalid continuation byte</span>
 ['UTF-8 sequence at byte-position 2 has an invalid continuation byte 116 (74x) at byte-position 3.']
@@ -139,8 +139,8 @@ T'côté👍'
 </span>ooRexx[bash]&gt; .utf8_encoding~decode(s, 2, 3)=          <span style="color:blue;">-- 15668   invalid size, the result is wrong</span>
  15668
 <span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .utf8_encoding~decode(s, 2, 4)=          <span style="color:blue;">-- 864789  invalid size, the result is wrong</span>
- 864789
+</span>ooRexx[bash]&gt; .utf8_encoding~decode(s, 2, 4)=          <span style="color:blue;">-- 1002789  invalid size, the result is wrong</span>
+ 1002789
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; .utf8_encoding~decode(s, 2, 5)=          <span style="color:blue;">-- UTF-8 encoding: 5 is an invalid codepoint size</span>
 <span style="font-weight:bold;color:red;">UTF-8 encoding: 5 is an invalid size of byte sequence.
@@ -164,14 +164,20 @@ T'﷨'
 T'򞬐'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; .utf8_encoding~encode(6500000)=          <span style="color:blue;">-- 6500000 is an invalid codepoint (range 0..1114111)</span>
-<span style="font-weight:bold;color:red;">UTF-8 encoding: invalid codepoint 6500000 (00632EA0x). Allowed range is 0..1114111.
+<span style="font-weight:bold;color:red;">UTF-8 encoding: invalid codepoint 6500000 (U+632EA0). Allowed range is 0..1114111.
 </span><span style="font-weight:bold;color:red;">Error code= 93.900
 </span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .utf8_encoding~encode(55296)~errors=     <span style="color:blue;">-- 55296 is an invalid codepoint (high surrogate)</span>
-['UTF-8 encoding: invalid codepoint 55296 (D800x). High surrogate is not allowed.']
+</span>ooRexx[bash]&gt; .utf8_encoding~encode(55296)~errors==    <span style="color:blue;">-- 55296 is an invalid codepoint (high surrogate)</span>
+an Array (shape [3], 3 items)
+ 1 : 'UTF-8 sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).'
+ 2 : 'UTF-8 sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).'
+ 3 : 'UTF-8 sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
 <span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .utf8_encoding~encode(56320)~errors=     <span style="color:blue;">-- 56320 is an invalid codepoint (low surrogate)</span>
-['UTF-8 encoding: invalid codepoint 56320 (DC00x). Low surrogate is not allowed.']
+</span>ooRexx[bash]&gt; .utf8_encoding~encode(56320)~errors==    <span style="color:blue;">-- 56320 is an invalid codepoint (low surrogate)</span>
+an Array (shape [3], 3 items)
+ 1 : 'UTF-8 sequence at byte-position 1 has an invalid continuation byte 176 (B0x) at byte-position 2 (low surrogate).'
+ 2 : 'UTF-8 sequence at byte-position 2 has an invalid start byte 176 (B0x) (non-shortest form).'
+ 3 : 'UTF-8 sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
 
 <span style="color:blue;">UTF-16 encoding
 </span><span style="font-weight:bold;color:olive;">
@@ -190,7 +196,7 @@ T'򞬐'
 '0063 00F4 0074 0065 0301 D83DDC4D'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; t16~c2u=                                        <span style="color:blue;">-- view decoded codepoints</span>
-'U+0063 U+00F4 U+0074 U+0065 U+0301 U+0001F44D'
+'U+0063 U+00F4 U+0074 U+0065 U+0301 U+1F44D'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; t16~c2g=                                        <span style="color:blue;">-- view encoded graphemes</span>
 '0063 00F4 0074 00650301 D83DDC4D'
@@ -224,16 +230,19 @@ T'򞬐'
 T'𐀀𐐁'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt;      &quot;DC00 D801 DC01&quot;x~text(&quot;utf16&quot;)~errors=        <span style="color:blue;">-- Unpaired low surrogate</span>
-['UTF-16BE encoding: unpaired low surrogate 56320 (DC00x) at byte-position 1.']
+['UTF-16BE encoding: unpaired low surrogate 56320 (U+DC00) at byte-position 1.']
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt;      &quot;DC00 D801 DC01&quot;x~text(&quot;wtf16&quot;)~errors=        <span style="color:blue;">-- acceptable when WTF-16</span>
 (The NIL object)
 <span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt;      &quot;DC00 D801 DC01&quot;x~text(&quot;wtf16&quot;)~utf8~errors=   <span style="color:blue;">-- but cannot be converted to UTF-8: invalid codepoint DC00x</span>
-['UTF-8 encoding: invalid codepoint 56320 (DC00x). Low surrogate is not allowed.']
+</span>ooRexx[bash]&gt;      &quot;DC00 D801 DC01&quot;x~text(&quot;wtf16&quot;)~utf8~errors==  <span style="color:blue;">-- but cannot be converted to UTF-8: invalid codepoint DC00x</span>
+an Array (shape [3], 3 items)
+ 1 : 'UTF-8 sequence at byte-position 1 has an invalid continuation byte 176 (B0x) at byte-position 2 (low surrogate).'
+ 2 : 'UTF-8 sequence at byte-position 2 has an invalid start byte 176 (B0x) (non-shortest form).'
+ 3 : 'UTF-8 sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; &quot;D800 1000 D801 DC01&quot;x~text(&quot;utf16&quot;)~errors=        <span style="color:blue;">-- Invalid low surrogate</span>
-['UTF-16BE encoding: invalid low surrogate 4096 (1000x) at byte-position 3.']
+['UTF-16BE encoding: invalid low surrogate 4096 (U+1000) at byte-position 3.']
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; &quot;D800 1000 D801 DC01&quot;x~text(&quot;wtf16&quot;)~errors=        <span style="color:blue;">-- acceptable when WTF-16</span>
 (The NIL object)
@@ -243,8 +252,10 @@ an Array (shape [2], 2 items)
  1 : 'UTF-16BE encoding: byte sequence at byte-position 5 is truncated, expected 4 bytes.'
  2 : 'UTF-16BE encoding: byte sequence at byte-position 7 is truncated, expected 2 bytes.'
 <span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;D800 DC00 D801 DC&quot;x~text(&quot;wtf16&quot;)~errors=          <span style="color:blue;">-- this is also an error when WTF-16</span>
-['WTF-16BE encoding: byte sequence at byte-position 5 is truncated, expected 4 bytes.','WTF-16BE encoding: byte sequence at byte-position 7 is truncated, expected 2 bytes.']
+</span>ooRexx[bash]&gt; &quot;D800 DC00 D801 DC&quot;x~text(&quot;wtf16&quot;)~errors==         <span style="color:blue;">-- this is also an error when WTF-16</span>
+an Array (shape [2], 2 items)
+ 1 : 'WTF-16BE encoding: byte sequence at byte-position 5 is truncated, expected 4 bytes.'
+ 2 : 'WTF-16BE encoding: byte sequence at byte-position 7 is truncated, expected 2 bytes.'
 
 <span style="color:blue;">-- If you pass a size to ~decode, the method assumes you know what you do, there is no check
 </span><span style="font-weight:bold;color:olive;">
@@ -284,17 +295,17 @@ an Array (shape [2], 2 items)
 'DA3ADF10'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; .utf16be_encoding~encode(6500000)~c2x=          <span style="color:blue;">-- 6500000 is an invalid codepoint</span>
-<span style="font-weight:bold;color:red;">UTF-16BE encoding: invalid codepoint 6500000 (00632EA0x). Allowed range is 0..1114111.
+<span style="font-weight:bold;color:red;">UTF-16BE encoding: invalid codepoint 6500000 (U+632EA0). Allowed range is 0..1114111.
 </span><span style="font-weight:bold;color:red;">Error code= 93.900
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; .utf16be_encoding~encode(55296)~errors=         <span style="color:blue;">-- 55296 is an invalid codepoint (high surrogate)</span>
-['UTF-16BE encoding: unpaired high surrogate 55296 (D800x) at byte-position 1.']
+['UTF-16BE encoding: unpaired high surrogate 55296 (U+D800) at byte-position 1.']
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; .wtf16be_encoding~encode(55296)~errors=         <span style="color:blue;">-- acceptable when WTF-16</span>
 (The NIL object)
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; .utf16be_encoding~encode(56320)~errors=         <span style="color:blue;">-- 56320 is an invalid codepoint (low surrogate)</span>
-['UTF-16BE encoding: unpaired low surrogate 56320 (DC00x) at byte-position 1.']
+['UTF-16BE encoding: unpaired low surrogate 56320 (U+DC00) at byte-position 1.']
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; .wtf16be_encoding~encode(56320)~errors=         <span style="color:blue;">-- acceptable when WTF-16</span>
 (The NIL object)
@@ -313,8 +324,8 @@ an Array (shape [2], 2 items)
 </span>ooRexx[bash]&gt; (t1 || t2)~utf16~c2x=                           <span style="color:blue;">-- The concatenation is valid UTF16...</span>
 'D800DC01'
 <span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; (t1 || t2)~utf16~c2u=                           <span style="color:blue;">-- ... whose codepoint is U+00010001</span>
-'U+00010001'
+</span>ooRexx[bash]&gt; (t1 || t2)~utf16~c2u=                           <span style="color:blue;">-- ... whose codepoint is U+10001</span>
+'U+10001'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; t1~wtf8~string~c2x=                             <span style="color:blue;">-- WTF-8 encoding of U+D800 (high surrogate)</span>
 'EDA080'
@@ -328,32 +339,36 @@ an Array (shape [2], 2 items)
 </span>ooRexx[bash]&gt; (t1~wtf8 || t2~wtf8)~c2x=                       <span style="color:blue;">-- The correct concatenation is 1 codepoint...</span>
 'F0908081'
 <span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; (t1~wtf8 || t2~wtf8)~c2u=                       <span style="color:blue;">-- ... equal to U+00010001</span>
-'U+00010001'
+</span>ooRexx[bash]&gt; (t1~wtf8 || t2~wtf8)~c2u=                       <span style="color:blue;">-- ... equal to U+10001</span>
+'U+10001'
 
 <span style="color:blue;">-- WTF-8 view of this invalid concatenation
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; (t1~wtf8~string || t2~wtf8~string)~text(&quot;wtf8&quot;)~errors=     <span style="color:blue;">-- a high surrogate 55296 (D800x) followed by a low surrogate 56321 (DC01x) is not allowed</span>
-['WTF-8 encoding: a high surrogate 55296 (D800x) followed by a low surrogate 56321 (DC01x) is not allowed.']
+['WTF-8 encoding: a high surrogate 55296 (U+D800) at byte-position 1 followed by a low surrogate 56321 (U+DC01) at byte-position 4 is not allowed.']
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; (t1~wtf8~string || t2~wtf8~string)~text(&quot;wtf8&quot;)~c2x=        <span style="color:blue;">-- EDA080 EDB081</span>
-'EDA080 EDB081'
+'ED A0 80 ED B0 81'
 <span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; (t1~wtf8~string || t2~wtf8~string)~text(&quot;wtf8&quot;)~c2u=        <span style="color:blue;">-- U+D800 U+FFFD    to rework</span>
-'U+D800 U+FFFD'
+</span>ooRexx[bash]&gt; (t1~wtf8~string || t2~wtf8~string)~text(&quot;wtf8&quot;)~c2u=        <span style="color:blue;">-- U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD</span>
+'U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD'
 
 <span style="color:blue;">-- UTF-8 view of this invalid concatenation
 </span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; (t1~wtf8~string || t2~wtf8~string)~text(&quot;utf8&quot;)~errors==    <span style="color:blue;">-- 2 errors: High surrogate is not allowed, Low surrogate is not allowed</span>
-an Array (shape [2], 2 items)
- 1 : 'UTF-8 encoding: invalid codepoint 55296 (D800x). High surrogate is not allowed.'
- 2 : 'UTF-8 encoding: invalid codepoint 56321 (DC01x). Low surrogate is not allowed.'
+</span>ooRexx[bash]&gt; (t1~wtf8~string || t2~wtf8~string)~text(&quot;utf8&quot;)~errors==    <span style="color:blue;">-- High surrogate is not allowed, Low surrogate is not allowed</span>
+an Array (shape [6], 6 items)
+ 1 : 'UTF-8 sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).'
+ 2 : 'UTF-8 sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).'
+ 3 : 'UTF-8 sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
+ 4 : 'UTF-8 sequence at byte-position 4 has an invalid continuation byte 176 (B0x) at byte-position 5 (low surrogate).'
+ 5 : 'UTF-8 sequence at byte-position 5 has an invalid start byte 176 (B0x) (non-shortest form).'
+ 6 : 'UTF-8 sequence at byte-position 6 has an invalid start byte 129 (81x) (non-shortest form).'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; (t1~wtf8~string || t2~wtf8~string)~text(&quot;utf8&quot;)~c2x=        <span style="color:blue;">-- EDA080 EDB081</span>
-'EDA080 EDB081'
+'ED A0 80 ED B0 81'
 <span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; (t1~wtf8~string || t2~wtf8~string)~text(&quot;utf8&quot;)~c2u=        <span style="color:blue;">-- U+FFFD U+FFFD</span>
-'U+FFFD U+FFFD'
+</span>ooRexx[bash]&gt; (t1~wtf8~string || t2~wtf8~string)~text(&quot;utf8&quot;)~c2u=        <span style="color:blue;">-- U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD</span>
+'U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD'
 
 <span style="color:blue;">Noncharaters are supported without error.
 </span><span style="color:blue;">http://www.unicode.org/faq/private_use.html#noncharacters
@@ -412,23 +427,31 @@ an Array (shape [2], 2 items)
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; system rexx unicode/scripts/check_encoding utf8 ill_formed_utf8.txt
 Checking file &quot;ill_formed_utf8.txt&quot;
-  line 2: UTF-8 sequence at byte-position 1 has an invalid start byte 180 (B4x).
+  line 2: UTF-8 sequence at byte-position 1 has an invalid start byte 180 (B4x) (non-shortest form).
   line 3: UTF-8 sequence at byte-position 2 has an invalid continuation byte 116 (74x) at byte-position 3.
   line 5: UTF-8 sequence at byte-position 8 is truncated, expected 4 bytes.
-  line 6: UTF-8 encoding: invalid codepoint 55296 (D800x). High surrogate is not allowed.
-  line 7: UTF-8 encoding: invalid codepoint 56321 (DC01x). Low surrogate is not allowed.
-  line 8: UTF-8 encoding: invalid codepoint 55296 (D800x). High surrogate is not allowed.
-  line 8: UTF-8 encoding: invalid codepoint 56321 (DC01x). Low surrogate is not allowed.
-  7 errors
-Total: 7 errors
+  line 6: UTF-8 sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).
+  line 6: UTF-8 sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).
+  line 6: UTF-8 sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).
+  line 7: UTF-8 sequence at byte-position 1 has an invalid continuation byte 176 (B0x) at byte-position 2 (low surrogate).
+  line 7: UTF-8 sequence at byte-position 2 has an invalid start byte 176 (B0x) (non-shortest form).
+  line 7: UTF-8 sequence at byte-position 3 has an invalid start byte 129 (81x) (non-shortest form).
+  line 8: UTF-8 sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).
+  line 8: UTF-8 sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).
+  line 8: UTF-8 sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).
+  line 8: UTF-8 sequence at byte-position 4 has an invalid continuation byte 176 (B0x) at byte-position 5 (low surrogate).
+  line 8: UTF-8 sequence at byte-position 5 has an invalid start byte 176 (B0x) (non-shortest form).
+  line 8: UTF-8 sequence at byte-position 6 has an invalid start byte 129 (81x) (non-shortest form).
+  15 errors
+Total: 15 errors
 <span style="font-weight:bold;color:red;">RC= 1
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; system rexx unicode/scripts/check_encoding wtf8 ill_formed_utf8.txt
 Checking file &quot;ill_formed_utf8.txt&quot;
-  line 2: UTF-8 sequence at byte-position 1 has an invalid start byte 180 (B4x).
+  line 2: UTF-8 sequence at byte-position 1 has an invalid start byte 180 (B4x) (non-shortest form).
   line 3: UTF-8 sequence at byte-position 2 has an invalid continuation byte 116 (74x) at byte-position 3.
   line 5: UTF-8 sequence at byte-position 8 is truncated, expected 4 bytes.
-  line 8: WTF-8 encoding: a high surrogate 55296 (D800x) followed by a low surrogate 56321 (DC01x) is not allowed.
+  line 8: WTF-8 encoding: a high surrogate 55296 (U+D800) at byte-position 1 followed by a low surrogate 56321 (U+DC01) at byte-position 4 is not allowed.
   4 errors
 Total: 4 errors
 <span style="font-weight:bold;color:red;">RC= 1
@@ -452,8 +475,8 @@ Total: 4 errors
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; system rexx unicode/scripts/check_encoding utf16 ill_formed_utf16.txt
 Checking file &quot;ill_formed_utf16.txt&quot;
-  line 2: UTF-16BE encoding: unpaired low surrogate 56320 (DC00x) at byte-position 1.
-  line 3: UTF-16BE encoding: invalid low surrogate 4096 (1000x) at byte-position 3.
+  line 2: UTF-16BE encoding: unpaired low surrogate 56320 (U+DC00) at byte-position 1.
+  line 3: UTF-16BE encoding: invalid low surrogate 4096 (U+1000) at byte-position 3.
   line 3: UTF-16BE encoding: byte sequence at byte-position 55 is truncated, expected 2 bytes.
   line 5: UTF-16BE encoding: byte sequence at byte-position 5 is truncated, expected 4 bytes.
   line 5: UTF-16BE encoding: byte sequence at byte-position 7 is truncated, expected 2 bytes.

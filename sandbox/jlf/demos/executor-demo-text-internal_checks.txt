@@ -64,7 +64,7 @@ sleep no prompt
 .utf8_encoding~decode(s, 2, 1)=          -- 67      invalid size, the result is wrong
 .utf8_encoding~decode(s, 2, 2)=          -- 244     correct
 .utf8_encoding~decode(s, 2, 3)=          -- 15668   invalid size, the result is wrong
-.utf8_encoding~decode(s, 2, 4)=          -- 864789  invalid size, the result is wrong
+.utf8_encoding~decode(s, 2, 4)=          -- 1002789  invalid size, the result is wrong
 .utf8_encoding~decode(s, 2, 5)=          -- UTF-8 encoding: 5 is an invalid codepoint size
 sleep no prompt
 
@@ -75,8 +75,8 @@ sleep no prompt
 .utf8_encoding~encode(65000)=            -- T'﷨'
 .utf8_encoding~encode(650000)=           -- T'򞬐'
 .utf8_encoding~encode(6500000)=          -- 6500000 is an invalid codepoint (range 0..1114111)
-.utf8_encoding~encode(55296)~errors=     -- 55296 is an invalid codepoint (high surrogate)
-.utf8_encoding~encode(56320)~errors=     -- 56320 is an invalid codepoint (low surrogate)
+.utf8_encoding~encode(55296)~errors==    -- 55296 is an invalid codepoint (high surrogate)
+.utf8_encoding~encode(56320)~errors==    -- 56320 is an invalid codepoint (low surrogate)
 
 /*
 UTF-16 encoding
@@ -106,11 +106,11 @@ sleep no prompt
 "D800 DC00 D801 DC01"x~text("utf16")~utf8=          -- T'𐀀𐐁'
      "DC00 D801 DC01"x~text("utf16")~errors=        -- Unpaired low surrogate
      "DC00 D801 DC01"x~text("wtf16")~errors=        -- acceptable when WTF-16
-     "DC00 D801 DC01"x~text("wtf16")~utf8~errors=   -- but cannot be converted to UTF-8: invalid codepoint DC00x
+     "DC00 D801 DC01"x~text("wtf16")~utf8~errors==  -- but cannot be converted to UTF-8: invalid codepoint DC00x
 "D800 1000 D801 DC01"x~text("utf16")~errors=        -- Invalid low surrogate
 "D800 1000 D801 DC01"x~text("wtf16")~errors=        -- acceptable when WTF-16
 "D800 DC00 D801 DC"x~text("utf16")~errors==         -- character is truncated. 2 errors reported because try with 4 bytes and then 2 bytes
-"D800 DC00 D801 DC"x~text("wtf16")~errors=          -- this is also an error when WTF-16
+"D800 DC00 D801 DC"x~text("wtf16")~errors==         -- this is also an error when WTF-16
 sleep no prompt
 
 -- If you pass a size to ~decode, the method assumes you know what you do, there is no check
@@ -144,23 +144,23 @@ sleep
 t1 = "D800"x~text("wtf16")                      -- An invalid UTF16 encoding, but a valid WTF-16 encoding (high surrogate)
 t2 = "DC01"x~text("wtf16")                      -- An invalid UTF16 encoding, but a valid WTF-16 encoding (low surrogate)
 (t1 || t2)~utf16~c2x=                           -- The concatenation is valid UTF16...
-(t1 || t2)~utf16~c2u=                           -- ... whose codepoint is U+00010001
+(t1 || t2)~utf16~c2u=                           -- ... whose codepoint is U+10001
 t1~wtf8~string~c2x=                             -- WTF-8 encoding of U+D800 (high surrogate)
 t2~wtf8~string~c2x=                             -- WTF-8 encoding of U+DC01 (low surrogate)
 (t1~wtf8~string || t2~wtf8~string)~c2x=         -- The concatenation of both WTF8 can't be this (2 codepoints)
 (t1~wtf8 || t2~wtf8)~c2x=                       -- The correct concatenation is 1 codepoint...
-(t1~wtf8 || t2~wtf8)~c2u=                       -- ... equal to U+00010001
+(t1~wtf8 || t2~wtf8)~c2u=                       -- ... equal to U+10001
 sleep no prompt
 
 -- WTF-8 view of this invalid concatenation
 (t1~wtf8~string || t2~wtf8~string)~text("wtf8")~errors=     -- a high surrogate 55296 (D800x) followed by a low surrogate 56321 (DC01x) is not allowed
 (t1~wtf8~string || t2~wtf8~string)~text("wtf8")~c2x=        -- EDA080 EDB081
-(t1~wtf8~string || t2~wtf8~string)~text("wtf8")~c2u=        -- U+D800 U+FFFD    to rework
+(t1~wtf8~string || t2~wtf8~string)~text("wtf8")~c2u=        -- U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD
 
 -- UTF-8 view of this invalid concatenation
-(t1~wtf8~string || t2~wtf8~string)~text("utf8")~errors==    -- 2 errors: High surrogate is not allowed, Low surrogate is not allowed
+(t1~wtf8~string || t2~wtf8~string)~text("utf8")~errors==    -- High surrogate is not allowed, Low surrogate is not allowed
 (t1~wtf8~string || t2~wtf8~string)~text("utf8")~c2x=        -- EDA080 EDB081
-(t1~wtf8~string || t2~wtf8~string)~text("utf8")~c2u=        -- U+FFFD U+FFFD
+(t1~wtf8~string || t2~wtf8~string)~text("utf8")~c2u=        -- U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD
 
 /*
 Noncharaters are supported without error.

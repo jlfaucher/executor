@@ -30,7 +30,7 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
-</span><span style="font-weight:bold;color:green;">Input queue name: S22fdQ7fd44851b440
+</span><span style="font-weight:bold;color:green;">Input queue name: S12db9Q7fd448420450
 </span>
 <span style="color:blue;">----------------
 </span><span style="color:blue;">-- Text encoding
@@ -251,7 +251,7 @@ a Table (9 items)
 'F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7 E2808D F09F91A6 E2808D F09F91A7 E2808D F09F91A7 E2808D F09F91A6'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; family~text~c2u=
-'U+0001F469 U+200D U+0001F468 U+200D U+0001F469 U+200D U+0001F467 U+200D U+0001F466 U+200D U+0001F467 U+200D U+0001F467 U+200D U+0001F466'
+'U+1F469 U+200D U+1F468 U+200D U+1F469 U+200D U+1F467 U+200D U+1F466 U+200D U+1F467 U+200D U+1F467 U+200D U+1F466'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; family~text~c2g=
 'F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7E2808DF09F91A6E2808DF09F91A7E2808DF09F91A7E2808DF09F91A6'
@@ -287,16 +287,29 @@ a Table (9 items)
 <span style="color:blue;">The Byte_Encoding can be specialized to add support for specific encoding conversions.
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; .Encoding~supported~table==
-a Table (10 items)
+a Table (23 items)
 'BYTE'        : (The Byte_Encoding class)
 'BYTES'       : (The Byte_Encoding class)
 'CP1252'      : (The CP1252_Encoding class)
+'CP65001'     : (The UTF8_Encoding class)
+'U16'         : (The UTF16BE_Encoding class)
+'U32'         : (The UTF32BE_Encoding class)
+'U8'          : (The UTF8_Encoding class)
+'UTF'         : (The UTF8_Encoding class)
 'UTF16'       : (The UTF16BE_Encoding class)
 'UTF16BE'     : (The UTF16BE_Encoding class)
+'UTF16LE'     : (The UTF16LE_Encoding class)
+'UTF32'       : (The UTF32BE_Encoding class)
+'UTF32BE'     : (The UTF32BE_Encoding class)
+'UTF32LE'     : (The UTF32LE_Encoding class)
 'UTF8'        : (The UTF8_Encoding class)
+'W16'         : (The WTF16BE_Encoding class)
+'W8'          : (The WTF8_Encoding class)
 'WINDOWS1252' : (The CP1252_Encoding class)
+'WTF'         : (The WTF8_Encoding class)
 'WTF16'       : (The WTF16BE_Encoding class)
 'WTF16BE'     : (The WTF16BE_Encoding class)
+'WTF16LE'     : (The WTF16LE_Encoding class)
 'WTF8'        : (The WTF8_Encoding class)
 
 <span style="color:blue;">Example: CP1252 to UTF-8
