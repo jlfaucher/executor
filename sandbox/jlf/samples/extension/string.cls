@@ -316,7 +316,7 @@ Similar to ~makeArray(separator), with these differences:
 
 
 /******************************************************************************/
-::class "EncodedString" mixinclass Object public
+::class "EncodedString" mixinclass Object private
 
 /*
     aString
@@ -379,7 +379,7 @@ Similar to ~makeArray(separator), with these differences:
 
 
 /******************************************************************************/
-::class "RexxTextInitializer" mixinclass Object public
+::class "RexxTextInitializer" mixinclass Object private
 
 ::method init
     expose indexer -- The RexxText is not referencing directly the String, it's the indexer
@@ -399,11 +399,16 @@ In fact, this method is NEVER called, even if activated.
 It's because RexxText is a base class, so the C++ method primitiveMakeString is
 called by the interpreter. This method returns .nil.
 No message sent, so no way to return something.
-
-::method makestring
-    expose string
-    return string
+[later]
+For experimentation,
+I added the C++ methods primitiveMakeString and makeString to RexxText which
+always send the message request("string"), ignoring the fact that RexxText is a
+base class...
 */
+::method makestring
+    expose indexer
+    if self~isCompatibleWithString then return indexer~string
+    raise syntax 93.900 array("The" self~description(short:.true) "text cannot be converted to a String instance")
 
 
 ::attribute string get
@@ -433,7 +438,7 @@ No message sent, so no way to return something.
 
 
 -- Must use an attribute to return the indexer, because the indexer is not visible from the other mixinclasses
-::attribute indexer private
+::attribute indexer --private todo
 
 
 ::method copy
@@ -447,7 +452,7 @@ No message sent, so no way to return something.
 
 
 /******************************************************************************/
-::class "RexxTextPrettyPrinter" mixinclass Object public
+::class "RexxTextPrettyPrinter" mixinclass Object private
 
 ::method ppString
     -- Should honor surroundByQuotes
@@ -461,7 +466,7 @@ No message sent, so no way to return something.
 
 
 /******************************************************************************/
-::class "RexxTextContents" mixinclass Object public
+::class "RexxTextContents" mixinclass Object private
 
 -- Remember: don't use expose indexer, because it's not visible. Must use self~indexer.
 
@@ -534,11 +539,6 @@ No message sent, so no way to return something.
 ::method codepoint
     forward to (self~indexer)
 */
-
-
-::method length -- number of graphemes
-    use strict arg -- none
-    return self~indexer~graphemeCount
 
 
 ::method graphemes
@@ -643,6 +643,12 @@ No message sent, so no way to return something.
     return (self~isByte | self~isUTF8 | self~isWTF8) & self~string~isASCII
 
 
+::method isCompatibleWithString
+    -- true if the String methods are applicable
+    if self~isByte then return .true
+    return (self~isUTF8 | self~isWTF8) & self~string~isASCII
+
+
 ::method checkNumericValueCompatibility
     -- The purpose is not to check that the text is a numeric value (will be checked by the String class)
     -- The purpose is to ensure that the text encoding is compatible with the String class,
@@ -658,7 +664,7 @@ No message sent, so no way to return something.
 
 
 /******************************************************************************/
-::class "RexxTextStringInterface" mixinclass Object public
+::class "RexxTextStringInterface" mixinclass Object private
 
 ::method caselessCompareTo
     use strict arg text, n=1, length=(self~length)
@@ -666,8 +672,61 @@ No message sent, so no way to return something.
     return self~string~caselessCompareTo(text~string)
 
 
+::method contains
+    -- regex.cls uses the method .String~contains which is available only from ooRexx v5.
+    if self~isCompatibleWithString then do
+        forward message "pos" to (self~string) continue
+        return result <> 0
+    end
+    raise syntax 93.900 array("Method 'contains' not yet implemented for Unicode")
+
+
+::method length -- number of graphemes
+    use strict arg -- none
+    return self~indexer~graphemeCount
+
+
+::method match
+    use strict arg start, other, n=1, length=(self~length)
+    if self~isCompatibleWithString then forward to (self~string)
+    raise syntax 93.900 array("Method 'match' not yet implemented for Unicode")
+
+
+::method matchChar
+    use strict arg n, chars
+    if self~isCompatibleWithString then forward to (self~string)
+    raise syntax 93.900 array("Method 'matchChar' not yet implemented for Unicode")
+
+
+::method pos
+    if self~isCompatibleWithString then forward to (self~string)
+    use strict arg needle, start=1, length=(self~length)
+    raise syntax 93.900 array("Method 'pos' not yet implemented for Unicode")
+
+
+::method subchar
+    forward message "grapheme"
+
+
+::method substr
+    if self~isCompatibleWithString then forward to (self~string)
+    forward to (self~indexer)
+
+
 /******************************************************************************/
-::class "RexxTextOperators" mixinclass Object public
+::class "IndexerStringInterface" mixinclass Object private
+
+::method length -- number of graphemes
+    use strict arg -- none
+    return self~graphemeCount
+
+
+::method substr
+    use strict arg n, length=(self~length), pad
+
+
+/******************************************************************************/
+::class "RexxTextOperators" mixinclass Object private
 
 /**************/
 /* Arithmetic */
@@ -745,6 +804,18 @@ No message sent, so no way to return something.
 
 ::method compareSelfRight
     use strict arg right, message
+    /*
+    ooRexx doc about string comparison methods:
+    Both must be string objects. If argument is not a string object, it is
+    converted to its string representation for the comparison. The one exception
+    is when argument is .nil for the ==, \==, =, \=, ><, and <> operators.
+    A string object will never compare equal to .nil, even when the string
+    matches the string value of .nil ("The NIL object").
+    As a result, == will always return .false when compared to .nil and \== will
+    always return .true. All of the relational comparisons (for example, <, >,
+    <=, etc.) will always return .false when compared to .nil.
+    */
+    if .nil == right then forward message (message) to (self~string) array(right)
     right = right~request("RexxText")
     if .nil == right then return
     if .Encoding~comparisonMode(self, right) == "b" then do
@@ -758,7 +829,7 @@ No message sent, so no way to return something.
     use strict arg left, message
     left = left~request("RexxText")
     if .nil == left then return
-    if .Encoding~comparisonMode(left, self) == "u" then do
+    if .Encoding~comparisonMode(left, self) == "b" then do
         forward message (message) to (left~string) array (self~string)
     end
     -- Unicode comparison
@@ -1530,7 +1601,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     return .false
 
 
-::method codeUnitBytes class abstract -- 1 2 or 4
+::method codeUnitSizeInBytes class abstract -- 1 2 or 4
 
 
 ::method codepointMaxBytes class abstract -- used for buffer allocation
@@ -1577,11 +1648,12 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 /* Instance methods */
 /********************/
 
+-- todo: private
 ::attribute string get
 ::attribute string set private
-::attribute codepointIndexes get private -- will be removed, no need of direct access to a codepoint
+::attribute codepointIndexes get --private -- will be removed, no need of direct access to a codepoint
 ::attribute codepointCount get
-::attribute graphemeIndexes get private
+::attribute graphemeIndexes get --private
 ::attribute graphemeCount get
 ::attribute errors get
 
@@ -1716,7 +1788,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 
 /******************************************************************************/
-::class "Byte_Encoding" public inherit StringIndexer
+::class "Byte_Encoding" public inherit IndexerStringInterface StringIndexer
 
 ::method name class
     use strict arg -- none
@@ -1728,7 +1800,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     return .true
 
 
-::method codeUnitBytes class
+::method codeUnitSizeInBytes class
     use strict arg -- none
     return 1
 
@@ -1747,19 +1819,23 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 
 ::method checkCodepoint class
+    -- Remember : previousCodepoint can be .nil (first codepoint) or <0 (error recovery)
+    --            when <0 abs(previousCodepoint) is the invalid value
     use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
-    use strict named arg checkOnlyRange /*no impact here*/, decodeStatus=.nil
-    if codepoint < 0 | codepoint > 255 then signal error_range
-    return .true
+    use strict named arg checkOnlyRange /*no impact here*/, errorInfo=.nil
+    if codepoint <> .nil then do
+        if codepoint < 0 | codepoint > 255 then signal error_range
+    end
+    return 1 -- a positive value means "no error"
+
     -- Don't use ppCodepoint here, it's not Unicode.
-    error_range: return error(1, self~name "encoding: invalid codepoint" codepoint "("ppHexNumber(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..255")
+    error_range: return error(0, self~name "encoding: invalid codepoint" codepoint "("ppHexNumber(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..255")
 
     error:
-        use strict arg replacementCount, errorMessage
-        if decodeStatus <> .nil then do
-            decodeStatus[1] = errorMessage"."
-            decodeStatus[2] = replacementCount
-            return .false
+        use strict arg whichCodepoint, errorMessage
+        if errorInfo <> .nil then do
+            errorInfo[1] = errorMessage"."
+            return whichCodepoint -- -1 (previousCodepoint) or 0 (codepoint). A negative or null value means "error".
         end
         raise syntax 93.900 array (errorMessage)
 
@@ -1772,7 +1848,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         nextB = self~nextCodepointIndex(string, startB)
         sizeB = nextB - startB
     end
-    if sizeB == 0 then return -1
+    if sizeB == 0 then return .nil
     if sizeB == 1 then return string~subchar(startB)~c2d
     raise syntax 93.900 array (self~name "encoding:" sizeB "is an invalid size of byte sequence")
 
@@ -1803,17 +1879,31 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 /* Instance methods */
 /********************/
 
+::method codepointIndex
+    use strict arg indexC
+    if indexC < 1 then raise syntax 93.900 array (self~description "invalid codepoint index:" indexC)
+    if indexC > self~codepointCount then indexC = self~codepointCount + 1
+    return indexC
+
+
 ::method codepoint
     use strict arg indexC, decode=.true
-    if indexC < 1 | indexC > self~codepointCount then raise syntax 93.900 array (self~description "invalid codepoint index:" indexC)
-    if decode then return self~string~subchar(indexC)~c2d
-              else return self~string~subchar(indexC)
+    startB = self~codepointIndex(indexC)
+    if decode then return self~string~subchar(startB)~c2d
+              else return self~string~subchar(startB)
+
+
+::method graphemeIndex
+    use strict arg indexG
+    if indexG < 1 then raise syntax 93.900 array (self~description "invalid grapheme index:" indexG)
+    if indexG > self~graphemeCount then indexG = self~graphemeCount + 1
+    return indexG
 
 
 ::method grapheme
     use strict arg indexG
-    if indexG < 1 | indexG > self~graphemeCount then raise syntax 93.900 array (self~description "invalid grapheme index:" indexG)
-    return .RexxText~new(self~string~subchar(indexG), self~class)
+    startB = self~graphemeIndex(indexG)
+    return .RexxText~new(self~string~subchar(startB), self~class)
 
 
 ::method convertByteToUnicode private
@@ -1937,45 +2027,56 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 
 ::method createIndexer class
-    use strict arg string, codepointIndexes, graphemeIndexes
+    use strict arg string
+    codepointIndexes = .array~new -- sparse array: only the string indexes different from the array index are stored
+    graphemeIndexes = .array~new -- idem
+    codepointCount = 0
+    graphemeCount = 0
     errors = .nil
     indexB = 1
     previousCodepoint = .nil
     previousCodepointIndexB = .nil
-    graphemeBreakArgs = (-1, -1, 0) -- codepoint1, codepoint2, state. Will use the same array at each iteration.
+    graphemeBreakArgs = (.nil, .nil, 0) -- codepoint1, codepoint2, state. Will use the same array at each iteration.
 
     encoding = self
-    decodeStatus = .array~new(2)
-    /*
-        decodeStatus[1] = errorMessage
-        decodeStatus[2] = replacementCount: 1 or "N". If negative (-1 or "-N") then the last stored index invalid.
-    */
+    errorInfo = .array~new(1) -- simulate a variable reference: errorInfo[1] = errorMessage
     forever:
-        nextB = encoding~nextCodepointIndex(string, indexB, decodeStatus: decodeStatus)
+        codepoint = .nil
+        nextB = encoding~nextCodepointIndex(string, indexB, errorInfo: errorInfo)
         if nextB < 0 then signal error
-        codepoint = encoding~decode(string, indexB, nextB - indexB) -- codepoint can be -1 if nextB == indexB
-        if codepoint <> -1 then do
-            checkOK = encoding~checkCodepoint(codepoint, indexB, previousCodepoint, previousCodepointIndexB, decodeStatus: decodeStatus)
-            if \checkOK then signal error
+        codepoint = encoding~decode(string, indexB, nextB - indexB) -- codepoint can be .nil if nextB == indexB
+
+        -- Remember : previousCodepoint can be .nil (first codepoint) or <0 (error recovery)
+        checkResult = encoding~checkCodepoint(codepoint, indexB, previousCodepoint, previousCodepointIndexB, errorInfo: errorInfo)
+        if checkResult == -1 then do
+            -- The byte-sequence starting at previousCodepointIndexB is invalid,
+            -- undo the last index
+            -- currently, that can happen only for WTF-8 in case of high-surrogate followed by a low-surrogate
+            codepointCount -= 1
+            graphemeCount -= 1
+            indexB = previousCodepointIndexB
+            nextB = indexB + self~codeUnitSizeInBytes -- add 1 or 2 or 4
+            signal error
+        end
+        else if checkResult == 0 then do
+            -- The byte-sequence starting at indexB is invalid,
+            nextB = indexB + self~codeUnitSizeInBytes -- add 1 or 2 or 4
+            signal error
         end
 
         -- From here, we know that the current codepoint is valid
-        codepointIndexes~append(indexB) -- will be removed
-        if codepoint == -1 then do
+        call indexCodepoint
+        if codepoint == .nil then do
             -- End of string
-            graphemeIndexes~append(indexB)
+            call indexGrapheme
             signal leave
         end
-        if previousCodepoint == .nil then do
-            -- First codepoint
-            graphemeIndexes~append(indexB)
-        end
+        if previousCodepoint == .nil then call indexGrapheme -- First codepoint
+        else if previousCodepoint < 0 then call indexGrapheme -- Error recovery
         else do
             graphemeBreakArgs[1] = previousCodepoint
             graphemeBreakArgs[2] = codepoint
-            if .Unicode~GraphemeBreak(graphemeBreakArgs) then do
-                graphemeIndexes~append(indexB)
-            end
+            if .Unicode~GraphemeBreak(graphemeBreakArgs) then call indexGrapheme
         end
         previousCodepoint = codepoint
         previousCodepointIndexB = indexB
@@ -1983,45 +2084,54 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     signal forever
     leave:
 
-    -- Return compacted arrays (their size can be lesser than string's length)
-    codepointIndexes = codepointIndexes~makeArray -- will be removed
-    graphemeIndexes = graphemeIndexes~makeArray
-    if errors == .nil, graphemeIndexes~size-1 == string~length then do
-        -- Optimization: no need of indexes, direct access is possible
-        return encoding~new(string, .nil, string~length, .nil, string~length, errors)
-    end
-    else do
-        return encoding~new(string, codepointIndexes, codepointIndexes~size-1, graphemeIndexes, graphemeIndexes~size-1, errors)
-    end
+    -- Optimization if no need of indexes (when direct access is possible)
+    if codepointIndexes~size == 0 then codepointIndexes = .nil
+    if graphemeIndexes~size == 0 then graphemeIndexes = .nil
+    return encoding~new(string, codepointIndexes, codepointCount-1, graphemeIndexes, graphemeCount-1, errors)
+
+    /*
+        No need to store the string indexes which can be calculated from the array index.
+        All the string indexes below can be calculated:
+        index   UTF-8   UTF-16  UTF-32
+          1       1       1       1
+          2       2       3       5
+          3       3       5       9
+          ...
+    */
+    indexCodepoint:
+        codepointCount += 1
+        if self~codeUnitSizeInBytes * (codepointCount -1) + 1 <> indexB then do
+            codepointIndexes[codepointCount] = indexB
+        end
+        return
+
+    indexGrapheme:
+        graphemeCount += 1
+        if self~codeUnitSizeInBytes * (graphemeCount -1) + 1 <> indexB then do
+            graphemeIndexes[graphemeCount] = indexB
+        end
+        return
 
     error:
-        errorMessage = decodeStatus[1]
         if errors = .nil then errors = .array~new
-        errors~append(errorMessage)
-        replacementCount = decodeStatus[2]
-        if replacementCount~subchar(1) == "-" then do       -- "-1" or "-N"
-            -- undo the last index
-            -- currently, that can happen only for WTF-8 in case of high-surrogate followed by a low-surrogate
-            codepointIndexes~remove(codepointIndexes~last)
-            graphemeIndexes~remove(graphemeIndexes~last)
-            indexB = previousCodepointIndexB
-            replacementCount = replacementCount~subchar(2)  -- "1" or "N"
-        end
+        errors~append(errorInfo[1])
         -- follow the recommendation of W3C : U+FFFD Substitution of Maximal Subparts
         nextB = abs(nextB)
-        do while indexB < nextB
-            -- each negative index is the index of an invalid byte sequence that will be represented by a replacement character
-            codepointIndexes~append(-indexB)
-            graphemeIndexes~append(-indexB)
-            previousCodepointIndexB = indexB
-            if replacementCount == 1 then leave
-            indexB += self~codeUnitBytes -- add 1 or 2 or 4
-        end
-        previousCodepoint = .Unicode~replacementCharacter~codepoint
+        codepointCount += 1
+        codepointIndexes[codepointCount] = -indexB -- a negative index means "error", a replacement character will be returned
+        graphemeCount += 1
+        graphemeIndexes[graphemeCount] = -indexB -- idem
         graphemeBreakArgs[3] = 0 -- reset the extended grapheme state
-        indexB = nextB -- resume at the next initially valid byte-sequence
+        previousCodepoint = codepoint
+        if codepoint <> .nil then previousCodepoint = -codepoint -- Negative codepoint allows to get the original value, if needed, while knowing it's invalid
+        previousCodepointIndexB = indexB
+        indexB = nextB -- resume at the next valid code unit
         signal forever
 
+
+/********************/
+/* Instance methods */
+/********************/
 
 ::method convertUnicodeToUnicode
     /*
@@ -2107,7 +2217,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 ::class "XTF8_CommonServices" mixinclass Object private
 -- where X stands for U or W
 
-::method codeUnitBytes class
+::method codeUnitSizeInBytes class
     use strict arg -- none
     return 1
 
@@ -2122,9 +2232,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     sizeB = string~length -- size in bytes
     -- Bad idea! Must always analyze because CR+LF is a grapheme.
     -- if string~isASCII then return self~new(string, .nil, sizeB, .nil, sizeB) -- no indexation needed
-    codepointIndexes = .array~new(sizeB) -- will be removed
-    graphemeIndexes = .array~new(sizeB)
-    return self~createIndexer(string, codepointIndexes, graphemeIndexes)
+    return self~createIndexer(string)
 
 
 ::method decode class
@@ -2135,7 +2243,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         nextB = self~nextCodepointIndex(string, startB)
         sizeB = nextB - startB
     end
-    if sizeB == 0 then return -1 -- end of string
+    if sizeB == 0 then return .nil -- end of string
     if sizeB == 1 then return decodeByte(0, "7F"x)
     if sizeB == 2 then return decodeByte(0, "1F"x)  *     64 + decodeByte(1, "3F"x)
     if sizeB == 3 then return decodeByte(0, "0F"x)  *   4096 + decodeByte(1, "3F"x) *   64 +  + decodeByte(2, "3F"x)
@@ -2265,12 +2373,13 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
             Output FFFD      FFFD FFFD       FFFD  0041
     */
     use strict arg string /* or buffer */, startB
-    use strict named arg decodeStatus=.nil
+    use strict named arg errorInfo=.nil
     indexB = startB
     startByte = string~subchar(indexB)
     if startByte == "" then return indexB
     if startByte < "80"x then byteCount = 1                     -- 1-byte sequence 0xxxxxxx
-    else if startByte < "C2"x | startByte > "F4"x then signal start_non_shortest_form
+    else if startByte < "C2"x then signal start_non_shortest_form
+    else if startByte > "F4"x then signal start_error_range
     else if startByte~bitand("E0"x) == "C0"x then byteCount = 2 -- 2-byte sequence 110xxxxx (C0..DF but only C2..DF is valid)
     else if startByte~bitand("F0"x) == "E0"x then byteCount = 3 -- 3-byte sequence 1110xxxx
     else if startByte~bitand("F8"x) == "F0"x then byteCount = 4 -- 4-byte sequence 11110xxx
@@ -2294,20 +2403,20 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     end
     return indexB
 
-    invalid_start_byte:        return error("N", startB + 1, "UTF-8 sequence at byte-position" startB "has an invalid start byte" startByte~c2d "("ppHexNumber(startByte~c2d)")")
-    start_non_shortest_form:   return error("N", startB + 1, "UTF-8 sequence at byte-position" startB "has an invalid start byte" startByte~c2d "("ppHexNumber(startByte~c2d)") (non-shortest form)")
-    invalid_continuation_byte: return error(1, indexB, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB)
-    non_shortest_form:         return error("N", indexB, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB "(non-shortest form)")
-    high_surrogate:            return error("N", indexB, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB "(high surrogate)")
-    low_surrogate:             return error("N", indexB, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB "(low surrogate)")
-    error_range:               return error("N", indexB, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB "(codepoint > U+10FFFF)")
-    truncated:                 return error(1, indexB, "UTF-8 sequence at byte-position" startB "is truncated, expected" byteCount "bytes")
+    invalid_start_byte:        return error(startB + 1, "UTF-8 sequence at byte-position" startB "has an invalid start byte" startByte~c2d "("ppHexNumber(startByte~c2d)")")
+    start_non_shortest_form:   return error(startB + 1, "UTF-8 sequence at byte-position" startB "has an invalid start byte" startByte~c2d "("ppHexNumber(startByte~c2d)") (non-shortest form)")
+    start_error_range:         return error(startB + 1, "UTF-8 sequence at byte-position" startB "has an invalid start byte" startByte~c2d "("ppHexNumber(startByte~c2d)") (codepoint > U+10FFFF)")
+    invalid_continuation_byte: return error(indexB, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB)
+    non_shortest_form:         return error(indexB, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB "(non-shortest form)")
+    high_surrogate:            return error(indexB, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB "(high surrogate)")
+    low_surrogate:             return error(indexB, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB "(low surrogate)")
+    error_range:               return error(indexB, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB "(codepoint > U+10FFFF)")
+    truncated:                 return error(indexB, "UTF-8 sequence at byte-position" startB "is truncated, expected" byteCount "bytes")
 
     error:
-        use strict arg replacementCount, nextCodepointIndex, errorMessage
-        if decodeStatus <> .nil then do
-            decodeStatus[1] = errorMessage"."
-            decodeStatus[2] = replacementCount
+        use strict arg nextCodepointIndex, errorMessage
+        if errorInfo <> .nil then do
+            errorInfo[1] = errorMessage"."
             return -nextCodepointIndex  -- negative value means error
         end
         raise syntax 93.900 array (errorMessage)
@@ -2348,34 +2457,52 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 /* Instance methods */
 /********************/
 
+::method codepointIndex
+    use strict arg indexC
+    if indexC < 1 then raise syntax 93.900 array (self~description "invalid codepoint index:" indexC)
+    if indexC > self~codepointCount then indexC = self~codepointCount + 1
+    if self~codepointIndexes == .nil then return indexC
+    indexB = self~codepointIndexes[indexC]
+    if indexB <> .nil then return indexB
+    return indexC -- sparse array: the value is equal to the index
+
+
 ::method codepoint
     -- to reimplement using a byte index because codepointIndexes will be removed
     use strict arg indexC, decode=.true
-    if indexC < 1 | indexC > self~codepointCount then raise syntax 93.900 array (self~description "invalid codepoint index:" indexC)
+    startB = self~codepointIndex(indexC)
     if self~codepointIndexes == .nil then do
-        if decode then return self~string~subchar(indexC)~c2d
-                  else return self~string~subchar(indexC)
+        if decode then return self~string~subchar(startB)~c2d
+                  else return self~string~subchar(startB)
     end
-    startB = self~codepointIndexes[indexC]
-    nextB = self~codepointIndexes[indexC+1]
+    nextB = self~codepointIndex(indexC+1)
     absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
     absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
     if decode then do
         if startB < 0 then return .Unicode~replacementCharacter~codepoint -- the current byte sequence is invalid
         return self~class~decode(self~string, absStartB, absNextB - absStartB)
     end
-    return self~string~substr(absStartB, absNextB - absStartB)
+    return self~string~substr(absStartB, absNextB - absStartB) -- yes, always the current byte sequence, even if invalid
+
+
+::method graphemeIndex
+    use strict arg indexG
+    if indexG < 1 then raise syntax 93.900 array (self~description "invalid grapheme index:" indexG)
+    if indexG > self~graphemeCount then indexG = self~graphemeCount + 1
+    if self~graphemeIndexes == .nil then return indexG
+    indexB = self~graphemeIndexes[indexG]
+    if indexB <> .nil then return indexB
+    return indexG -- sparse array: the value is equal to the index
 
 
 ::method grapheme
     use strict arg indexG
-    if indexG < 1 | indexG > self~graphemeCount then raise syntax 93.900 array (self~description "invalid grapheme index:" indexG)
+    startB = self~graphemeIndex(indexG)
     if self~graphemeIndexes == .nil then return .RexxText~new(self~string~subchar(indexG), self~class)
-    startB = self~graphemeIndexes[indexG]
-    nextB = self~graphemeIndexes[indexG+1]
+    nextB = self~graphemeIndex(indexG+1)
     absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
     absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
-    return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~class)
+    return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~class) -- yes, always the current byte sequence, even if invalid
 
 
 ::method UTF8
@@ -2397,7 +2524,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 
 /******************************************************************************/
-::class "UTF8_Encoding" public inherit XTF8_CommonServices Unicode_CommonServices StringIndexer
+::class "UTF8_Encoding" public inherit XTF8_CommonServices Unicode_CommonServices IndexerStringInterface StringIndexer
 
 ::method name class
     use strict arg -- none
@@ -2414,30 +2541,36 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 
 ::method checkCodepoint class
+    -- Remember : previousCodepoint can be .nil (first codepoint) or <0 (error recovery)
+    --            when <0 abs(previousCodepoint) is the invalid value
     use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
-    use strict named arg checkOnlyRange=.false, decodeStatus=.nil
-    if codepoint < 0 | codepoint > 1114111 then signal error_range
-    if checkOnlyRange then return .true
-    if codepoint >= 55296 & codepoint < 56320 then signal error_high_surrogate -- U+D800 to U+DBFF high surrogates
-    if codepoint >= 56320 & codepoint < 57344 then signal error_low_surrogate  -- U+DC00 to U+DFFF low surrogates
-    return .true
+    use strict named arg checkOnlyRange=.false, errorInfo=.nil
+    if codepoint <> .nil then do
+        if codepoint < 0 | codepoint > 1114111 then signal error_range
+        if checkOnlyRange then return 1 -- a positive value means "no error"
+        if codepoint >= 55296 & codepoint < 56320 then signal error_high_surrogate -- U+D800 to U+DBFF high surrogates
+        if codepoint >= 56320 & codepoint < 57344 then signal error_low_surrogate  -- U+DC00 to U+DFFF low surrogates
+    end
+    return 1 -- a positive value means "no error"
 
-    error_range:          return error("N", self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
-    error_high_surrogate: return error("N", self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". High surrogate is not allowed")
-    error_low_surrogate:  return error("N", self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Low surrogate is not allowed")
+    -- Every byte of the byte-sequence must be considered as invalid,
+    -- and must not be consumed, except the first byte.
+    -- The 2nd byte will be a new start byte.
+    error_range:          return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
+    error_high_surrogate: return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". High surrogate is not allowed")
+    error_low_surrogate:  return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Low surrogate is not allowed")
 
     error:
-        use strict arg replacementCount, errorMessage
-        if decodeStatus <> .nil then do
-            decodeStatus[1] = errorMessage"."
-            decodeStatus[2] = replacementCount
-            return .false
+        use strict arg whichCodepoint, errorMessage
+        if errorInfo <> .nil then do
+            errorInfo[1] = errorMessage"."
+            return whichCodepoint -- -1 (previousCodepoint) or 0 (codepoint). A negative or null value means "error".
         end
         raise syntax 93.900 array (errorMessage)
 
 
 /******************************************************************************/
-::class "WTF8_Encoding" public inherit XTF8_CommonServices Unicode_CommonServices StringIndexer
+::class "WTF8_Encoding" public inherit XTF8_CommonServices Unicode_CommonServices IndexerStringInterface StringIndexer
 /*
 https://simonsapin.github.io/wtf-8/#16-bit-code-unit
 WTF-8 (Wobbly Transformation Format − 8-bit) is a superset of UTF-8 that encodes
@@ -2445,6 +2578,17 @@ surrogate code points if they are not in a pair.
 It represents, in a way compatible with UTF-8, text from systems such as
 JavaScript and Windows that use UTF-16 internally but don’t enforce the
 well-formedness invariant that surrogates must be paired.
+
+To convert lossily from WTF-8 to UTF-8, replace any surrogate byte sequence with
+the sequence of three bytes <0xEF, 0xBF, 0xBD>, the UTF-8 encoding of the
+replacement character.
+Note: Since surrogate byte sequences are also three bytes long, this conversion
+can be done in place.
+Note: This conversion never fails but is lossy.
+
+To convert strictly from WTF-8 to UTF-8, run these steps:
+If the input contains a surrogate byte sequence, return failure.
+Otherwise, return the input unchanged.
 
 Concatenating WTF-8 strings requires extra care to preserve well-formedness.
 */
@@ -2468,25 +2612,44 @@ Concatenating WTF-8 strings requires extra care to preserve well-formedness.
 
 
 ::method checkCodepoint class
+    /*
+    http://simonsapin.github.io/wtf-8/
+    If the input contains a surrogate code point pair, the conversion will be
+    incorrect and the resulting sequence will not represent the original code points.
+    This situation should be considered an error, but this specification does not
+    define how to handle it. Possibilities include aborting the conversion, or
+    replacing one of the surrogate code points of the pair with a replacement character.
+    */
+    -- Remember : previousCodepoint can be .nil (first codepoint) or <0 (error recovery)
+    --            when <0 abs(previousCodepoint) is the invalid value
     use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
-    use strict named arg checkOnlyRange=.false, decodeStatus=.nil
-    if codepoint < 0 | codepoint > 1114111 then signal error_range
-    if checkOnlyRange then return .true
-    if previousCodepoint <> .nil,,
-       previousCodepoint >= 55296 & previousCodepoint < 56320,, -- U+D800 to U+DBFF high surrogates
-       codepoint >= 56320 & codepoint < 57344,                  -- U+DC00 to U+DFFF low surrogates
-    then signal error_high_low_surrogate
-    return .true
+    use strict named arg checkOnlyRange=.false, errorInfo=.nil
+    -- say "WTF-8 checkCodepoint: codepoint="codepoint", previousCodepoint="previousCodepoint -- todo: remove
+    if codepoint <> .nil then do
+        if codepoint < 0 | codepoint > 1114111 then signal error_range
+        if checkOnlyRange then return 1 -- a positive value means "no error"
+        if previousCodepoint <> .nil then do
+            previousCodePointIsInvalid = (previousCodepoint < 0)
+            previousCodepoint = abs(previousCodepoint)
+            previousCodepointIsHighSurrogate = (previousCodepoint >= 55296 & previousCodepoint < 56320) -- U+D800 to U+DBFF high surrogates
+            codepointIsLowSurrogate = (codepoint >= 56320 & codepoint < 57344)                          -- U+DC00 to U+DFFF low surrogates
+            if previousCodepointIsHighSurrogate & codepointIsLowSurrogate then do
+                if previousCodePointIsInvalid then signal error_low_surrogate_preceded_by_high_surrogate
+                                              else signal error_high_surrogate_followed_by_low_surrogate
+            end
+        end
+    end
+    return 1 -- a positive value means "no error"
 
-    error_range:              return error("N", self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
-    error_high_low_surrogate: return error("-N", self~name "encoding: a high surrogate" previousCodepoint "("ppCodepoint(previousCodepoint)")" || atBytePosition(previousCodepointIndexB) || " followed by a low surrogate" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || " is not allowed")
+    error_range:                                    return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
+    error_high_surrogate_followed_by_low_surrogate: return error(-1, self~name "encoding: high surrogate" previousCodepoint "("ppCodepoint(previousCodepoint)")" || atBytePosition(previousCodepointIndexB) || " followed by low surrogate" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || " is not allowed")
+    error_low_surrogate_preceded_by_high_surrogate: return error(0, self~name "encoding: low surrogate" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || " preceded by high surrogate" previousCodepoint "("ppCodepoint(previousCodepoint)")" || atBytePosition(previousCodepointIndexB) || " is not allowed")
 
     error:
-        use strict arg replacementCount, errorMessage
-        if decodeStatus <> .nil then do
-            decodeStatus[1] = errorMessage"."
-            decodeStatus[2] = replacementCount
-            return .false
+        use strict arg whichCodepoint, errorMessage
+        if errorInfo <> .nil then do
+            errorInfo[1] = errorMessage"."
+            return whichCodepoint -- -1 (previousCodepoint) or 0 (codepoint). A negative or null value means "error".
         end
         raise syntax 93.900 array (errorMessage)
 
@@ -2537,7 +2700,7 @@ the concatenation back to WTF-8.
 ::class "XTF16_CommonServices" mixinclass Object private
 -- where X stands for U or W
 
-::method codeUnitBytes class
+::method codeUnitSizeInBytes class
     use strict arg -- none
     return 2
 
@@ -2549,44 +2712,18 @@ the concatenation back to WTF-8.
 
 ::method analyze class
     use strict arg string
-    size = 1 + string~length % 2 -- The final size will be <=
-    codepointIndexes = .array~new(size) -- will be removed
-    graphemeIndexes = .array~new(size)
-    return self~createIndexer(string, codepointIndexes, graphemeIndexes)
-
-
-::method checkCodepoint class
-    /*
-    Because surrogate code points are not Unicode scalar values, isolated UTF-16
-    code units in the range D80016..DFFF16 are ill-formed.
-    --> this is checked in nextCodepointIndex, only when not wobbly.
-    */
-    use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
-    use strict named arg checkOnlyRange=.false /*no impact here*/, decodeStatus=.nil
-    if codepoint < 0 | codepoint > 1114111 then signal error_range
-    return .true
-
-    error_range: return error("N", self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
-
-    error:
-        use strict arg replacementCount, errorMessage
-        if decodeStatus <> .nil then do
-            decodeStatus[1] = errorMessage"."
-            decodeStatus[2] = replacementCount
-            return .false
-        end
-        raise syntax 93.900 array (errorMessage)
+    return self~createIndexer(string)
 
 
 ::method decode class
     -- sizeB == -1 ==> this method will check the validity of the encoding
     -- sizeB <> -1 ==> this method assumes that the encoding has been checked and is valid
-    use strict arg string /* or buffer */, startB, sizeB=(-1)
+    use strict arg string /* or buffer */, startB=1, sizeB=(-1)
     if sizeB == -1 then do
         nextB = self~nextCodepointIndex(string, startB)
         sizeB = nextB - startB
     end
-    if sizeB == 0 then return -1
+    if sizeB == 0 then return .nil
     if sizeB == 2 then return self~decodeCodepoint(string~substr(startB, 2))
     if sizeB == 4 then do
         high_surrogate = self~decodeCodepoint(string~substr(startB, 2))
@@ -2600,13 +2737,13 @@ the concatenation back to WTF-8.
 
 ::method nextCodepointIndex class
     use strict arg string /* or buffer */, startB
-    use strict named arg decodeStatus=.nil
+    use strict named arg errorInfo=.nil
     wobbly = self~isWTF16
     indexB = startB
     lengthB = string~length
     if indexB > lengthB then return indexB -- end of string
     if lengthB - indexB < 1 then signal truncated2
-    codeUnit = self~codeUnit(string~substr(indexB, 2))
+    codeUnit = self~codeUnitBE(string~substr(indexB, 2))
     indexB += 2
     if codeUnit >= "D800"x & codeUnit <= "DBFF"x then do
         -- got high surrogate, get low surrogate
@@ -2617,7 +2754,7 @@ the concatenation back to WTF-8.
                       else signal unpaired_high_surrogate
         end
         if lengthB - indexB < 1 then signal truncated4
-        codeUnit = self~codeUnit(string~substr(indexB, 2))
+        codeUnit = self~codeUnitBE(string~substr(indexB, 2))
         if codeUnit >= "DC00"x & codeUnit <= "DFFF"x then indexB += 2 -- this is a valid low surrogate
         else do
             -- no valid low surrogate but it's acceptable to consider the high
@@ -2629,17 +2766,16 @@ the concatenation back to WTF-8.
     else if \wobbly, codeUnit >= "DC00"x & codeUnit <= "DFFF"x then signal unpaired_low_surrogate
     return indexB
 
-    unpaired_high_surrogate: return error(1, indexB, self~name "encoding: unpaired high surrogate" codeUnit~c2d "("ppCodepoint(codeUnit~c2d)") at byte-position" startB)
-    unpaired_low_surrogate:  return error(1, indexB, self~name "encoding: unpaired low surrogate" codeUnit~c2d "("ppCodepoint(codeUnit~c2d)") at byte-position" startB)
-    invalid_low_surrogate:   return error(1, indexB, self~name "encoding: invalid low surrogate" codeUnit~c2d "("ppCodepoint(codeUnit~c2d)") at byte-position" indexB)
-    truncated2:              return error(1, indexB + 2, self~name "encoding: byte sequence at byte-position" startB "is truncated, expected 2 bytes")
-    truncated4:              return error("N", indexB, self~name "encoding: byte sequence at byte-position" startB "is truncated, expected 4 bytes")
+    unpaired_high_surrogate: return error(indexB, self~name "encoding: unpaired high surrogate" codeUnit~c2d "("ppCodepoint(codeUnit~c2d)") at byte-position" startB)
+    unpaired_low_surrogate:  return error(indexB, self~name "encoding: unpaired low surrogate" codeUnit~c2d "("ppCodepoint(codeUnit~c2d)") at byte-position" startB)
+    invalid_low_surrogate:   return error(indexB, self~name "encoding: invalid low surrogate" codeUnit~c2d "("ppCodepoint(codeUnit~c2d)") at byte-position" indexB)
+    truncated2:              return error(indexB + 2, self~name "encoding: byte sequence at byte-position" startB "is truncated, expected 2 bytes")
+    truncated4:              return error(indexB, self~name "encoding: byte sequence at byte-position" startB "is truncated, expected 4 bytes")
 
     error:
-        use strict arg replacementCount, nextCodepointIndex, errorMessage
-        if decodeStatus <> .nil then do
-            decodeStatus[1] = errorMessage"."
-            decodeStatus[2] = replacementCount
+        use strict arg nextCodepointIndex, errorMessage
+        if errorInfo <> .nil then do
+            errorInfo[1] = errorMessage"."
             return -nextCodepointIndex  -- negative value means error
         end
         raise syntax 93.900 array (errorMessage)
@@ -2671,37 +2807,60 @@ the concatenation back to WTF-8.
 /* Instance methods */
 /********************/
 
+::method codepointIndex
+    use strict arg indexC
+    if indexC < 1 then raise syntax 93.900 array (self~description "invalid codepoint index:" indexC)
+    if indexC > self~codepointCount then indexC = self~codepointCount + 1
+    if self~codepointIndexes == .nil then return 2 * (indexC - 1) + 1
+    indexB = self~codepointIndexes[indexC]
+    if indexB <> .nil then return indexB
+    return 2 * (indexC - 1) + 1 -- sparse array: the value can be derived from the index
+
+
 ::method codepoint
     -- to reimplement using a byte index because codepointIndexes will be removed
     use strict arg indexC, decode=.true
-    if indexC < 1 | indexC > self~codepointCount then raise syntax 93.900 array (self~description "invalid codepoint index:" indexC)
-    startB = self~codepointIndexes[indexC]
-    nextB = self~codepointIndexes[indexC+1]
+    startB = self~codepointIndex(indexC)
+    if self~codepointIndexes == .nil then do
+        if decode then return self~class~decode(self~string, startB, 2)
+                  else return self~string~substr(startB, 2)
+    end
+    nextB = self~codepointIndex(indexC+1)
     absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
     absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
     if decode then do
         if startB < 0 then return .Unicode~replacementCharacter~codepoint -- the current byte sequence is invalid
         return self~class~decode(self~string, absStartB, absNextB - absStartB)
     end
-    return self~string~substr(absStartB, absNextB - absStartB)
+    return self~string~substr(absStartB, absNextB - absStartB) -- yes, always the current byte sequence, even if invalid
+
+
+::method graphemeIndex
+    use strict arg indexG
+    if indexG < 1 then raise syntax 93.900 array (self~description "invalid grapheme index:" indexG)
+    if indexG > self~graphemeCount then indexG= self~graphemeCount + 1
+    if self~graphemeIndexes == .nil then return 2 * (indexG - 1) + 1
+    indexB = self~graphemeIndexes[indexG]
+    if indexB <> .nil then return indexB
+    return 2 * (indexG - 1) + 1 -- sparse array: the value can be derived from the index
 
 
 ::method grapheme
     use strict arg indexG
-    if indexG < 1 | indexG > self~graphemeCount then raise syntax 93.900 array (self~description "invalid grapheme index:" indexG)
-    startB = self~graphemeIndexes[indexG]
-    nextB = self~graphemeIndexes[indexG+1]
+    startB = self~graphemeIndex(indexG)
+    if self~graphemeIndexes == .nil then return .RexxText~new(self~string~substr(startB, 2), self~class)
+    nextB = self~graphemeIndex(indexG+1)
     absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
     absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
-    return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~class)
+    return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~class) -- yes, always the current byte sequence, even if invalid
 
 
 /******************************************************************************/
 ::class "XTF16BE_CommonServices" mixinclass Object private
 -- where X stands for U or W
 
-::method codeUnit class
-    -- Ex : B0FE --> B0FE
+::method codeUnitBE class
+    -- Ex : "B0FE"x --> "B0FE"x
     use strict arg codeUnit
     return codeUnit
 
@@ -2749,8 +2908,8 @@ the concatenation back to WTF-8.
 ::class "XTF16LE_CommonServices" mixinclass Object private
 -- where X stands for U or W
 
-::method codeUnit class
-    -- Ex : FEB0 --> B0FE
+::method codeUnitBE class
+    -- Ex : "FEB0"x --> "B0FE"x
     use strict arg codeUnit
     return codeUnit~reverse
 
@@ -2795,7 +2954,54 @@ the concatenation back to WTF-8.
 
 
 /******************************************************************************/
-::class "UTF16BE_Encoding" public inherit XTF16BE_CommonServices XTF16_CommonServices Unicode_CommonServices StringIndexer
+::class "UTF16_CommonServices" mixinclass Object private
+
+::method checkCodepoint class
+    /*
+    Because surrogate code points are not Unicode scalar values, isolated UTF-16
+    code units in the range D80016..DFFF16 are ill-formed.
+    (this is also checked in nextCodepointIndex, only when not wobbly)
+    */
+    -- Remember : previousCodepoint can be .nil (first codepoint) or <0 (error recovery)
+    --            when <0 abs(previousCodepoint) is the invalid value
+    use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
+    use strict named arg checkOnlyRange=.false, errorInfo=.nil
+    if codepoint <> .nil then do
+        if codepoint < 0 | codepoint > 1114111 then signal error_range
+        if checkOnlyRange then return 1 -- a positive value means "no error"
+        if previousCodepoint <> .nil then do
+               previousCodepointIsHighSurrogate = (previousCodepoint >= 55296 & previousCodepoint < 56320) -- U+D800 to U+DBFF high surrogates
+               codepointIsLowSurrogate = (codepoint >= 56320 & codepoint < 57344)                          -- U+DC00 to U+DFFF low surrogates
+               if previousCodepointIsHighSurrogate, \codepointIsLowSurrogate then signal unpaired_high_surrogate
+               if \previousCodepointIsHighSurrogate, codepointIsLowSurrogate then signal unpaired_low_surrogate
+        end
+    end
+    else do
+        -- End of string
+        if previousCodepoint <> .nil,,
+           previousCodepoint >= 55296 & previousCodepoint < 56320,  -- U+D800 to U+DBFF high surrogates
+        then signal unpaired_high_surrogate
+    end
+    return 1 -- a positive value means "no error"
+
+    -- Every code unit of the byte-sequence must be considered as invalid,
+    -- and must not be consumed, except the first code unit.
+    -- The 2nd code unit will be the next code unit to analyze.
+    error_range: return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
+    unpaired_high_surrogate: return error(-1, self~name "encoding: unpaired high surrogate" previousCodepoint "("ppCodepoint(previousCodepoint)") at byte-position" previousCodepointIndexB)
+    unpaired_low_surrogate:  return error(0, self~name "encoding: unpaired low surrogate" codepoint "("ppCodepoint(codepoint)") at byte-position" codepointIndexB)
+
+    error:
+        use strict arg whichCodepoint, errorMessage
+        if errorInfo <> .nil then do
+            errorInfo[1] = errorMessage"."
+            return whichCodepoint -- -1 (previousCodepoint) or 0 (codepoint). A negative or null value means "error".
+        end
+        raise syntax 93.900 array (errorMessage)
+
+
+/******************************************************************************/
+::class "UTF16BE_Encoding" public inherit UTF16_CommonServices XTF16BE_CommonServices XTF16_CommonServices Unicode_CommonServices IndexerStringInterface StringIndexer
 
 ::method name class
     use strict arg -- none
@@ -2817,7 +3023,7 @@ the concatenation back to WTF-8.
 
 
 /******************************************************************************/
-::class "UTF16LE_Encoding" public inherit XTF16LE_CommonServices XTF16_CommonServices Unicode_CommonServices StringIndexer
+::class "UTF16LE_Encoding" public inherit UTF16_CommonServices XTF16LE_CommonServices XTF16_CommonServices Unicode_CommonServices IndexerStringInterface StringIndexer
 
 ::method name class
     use strict arg -- none
@@ -2839,7 +3045,35 @@ the concatenation back to WTF-8.
 
 
 /******************************************************************************/
-::class "WTF16BE_Encoding" public inherit XTF16BE_CommonServices XTF16_CommonServices Unicode_CommonServices StringIndexer
+::class "WTF16_CommonServices" mixinclass Object private
+
+::method checkCodepoint class
+    -- Isolated surrogates are ok, nothing to check regarding the surrogates
+    -- Remember : previousCodepoint can be .nil (first codepoint) or <0 (error recovery)
+    --            when <0 abs(previousCodepoint) is the invalid value
+    use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
+    use strict named arg checkOnlyRange=.false /*no impact here*/, errorInfo=.nil
+    if codepoint <> .nil then do
+        if codepoint < 0 | codepoint > 1114111 then signal error_range
+    end
+    return 1 -- a positive value means "no error"
+
+    -- Every code unit of the byte-sequence must be considered as invalid,
+    -- and must not be consumed, except the first code unit.
+    -- The 2nd code unit will be the next code unit to analyze.
+    error_range: return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
+
+    error:
+        use strict arg whichCodepoint, errorMessage
+        if errorInfo <> .nil then do
+            errorInfo[1] = errorMessage"."
+            return whichCodepoint -- -1 (previousCodepoint) or 0 (codepoint). A negative or null value means "error".
+        end
+        raise syntax 93.900 array (errorMessage)
+
+
+/******************************************************************************/
+::class "WTF16BE_Encoding" public inherit WTF16_CommonServices XTF16BE_CommonServices XTF16_CommonServices Unicode_CommonServices IndexerStringInterface StringIndexer
 /*
 https://simonsapin.github.io/wtf-8/#16-bit-code-unit
 WTF-16 is sometimes used as a shorter name for potentially ill-formed UTF-16,
@@ -2883,7 +3117,7 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 
 
 /******************************************************************************/
-::class "WTF16LE_Encoding" public inherit XTF16LE_CommonServices XTF16_CommonServices Unicode_CommonServices StringIndexer
+::class "WTF16LE_Encoding" public inherit WTF16_CommonServices XTF16LE_CommonServices XTF16_CommonServices Unicode_CommonServices IndexerStringInterface StringIndexer
 
 ::method name class
     use strict arg -- none
@@ -2915,7 +3149,7 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 /******************************************************************************/
 ::class "UTF32_CommonServices" mixinclass Object private
 
-::method codeUnitBytes class
+::method codeUnitSizeInBytes class
     use strict arg -- none
     return 4
 
@@ -2927,10 +3161,7 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 
 ::method analyze class
     use strict arg string
-    size = 1 + string~length % 4 -- The final size will be <=
-    codepointIndexes = .array~new(size) -- will be removed
-    graphemeIndexes = .array~new(size)
-    return self~createIndexer(string, codepointIndexes, graphemeIndexes)
+    return self~createIndexer(string)
 
 
 ::method checkCodepoint class
@@ -2939,24 +3170,27 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
       UTF-32 code units in the range 0000D80016..0000DFFF16 are ill-formed.
     - Any UTF-32 code unit greater than 0010FFFF is ill-formed.
     */
+    -- Remember : previousCodepoint can be .nil (first codepoint) or <0 (error recovery)
+    --            when <0 abs(previousCodepoint) is the invalid value
     use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
-    use strict named arg checkOnlyRange=.false, decodeStatus=.nil
-    if codepoint < 0 | codepoint > 1114111 then signal error_range
-    if checkOnlyRange then return .true
-    if codepoint >= 55296 & codepoint < 56320 then signal error_high_surrogate -- U+D800 to U+DBFF high surrogates
-    if codepoint >= 56320 & codepoint < 57344 then signal error_low_surrogate  -- U+DC00 to U+DFFF low surrogates
-    return .true
+    use strict named arg checkOnlyRange=.false, errorInfo=.nil
+    if codepoint <> .nil then do
+        if codepoint < 0 | codepoint > 1114111 then signal error_range
+        if checkOnlyRange then return 1 -- a positive value means "no error"
+        if codepoint >= 55296 & codepoint < 56320 then signal error_high_surrogate -- U+D800 to U+DBFF high surrogates
+        if codepoint >= 56320 & codepoint < 57344 then signal error_low_surrogate  -- U+DC00 to U+DFFF low surrogates
+    end
+    return 1 -- a positive value means "no error"
 
-    error_range:          return error(1, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
-    error_high_surrogate: return error(1, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". High surrogate is not allowed")
-    error_low_surrogate:  return error(1, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Low surrogate is not allowed")
+    error_range:          return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
+    error_high_surrogate: return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". High surrogate is not allowed")
+    error_low_surrogate:  return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Low surrogate is not allowed")
 
     error:
-        use strict arg replacementCount, errorMessage
-        if decodeStatus <> .nil then do
-            decodeStatus[1] = errorMessage"."
-            decodeStatus[2] = replacementCount
-            return .false
+        use strict arg whichCodepoint, errorMessage
+        if errorInfo <> .nil then do
+            errorInfo[1] = errorMessage"."
+            return whichCodepoint -- -1 (previousCodepoint) or 0 (codepoint). A negative or null value means "error".
         end
         raise syntax 93.900 array (errorMessage)
 
@@ -2964,7 +3198,7 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 ::method decode class
     -- sizeB == -1 ==> this method will check the validity of the encoding
     -- sizeB <> -1 ==> this method assumes that the encoding has been checked and is valid
-    use strict arg string /* or buffer */, startB, sizeB=(-1)
+    use strict arg string /* or buffer */, startB=1, sizeB=(-1)
     /*
         "07 FF FF FF"x~c2d=     134217727
         "80 FF FF FF"x~c2d=     C2D result is not a valid whole number with NUMERIC DIGITS 9
@@ -2978,29 +3212,27 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
         nextB = self~nextCodepointIndex(string, startB)
         sizeB = nextB - startB
     end
-    if sizeB == 0 then return -1
+    if sizeB == 0 then return .nil
     if sizeB == 4 then return self~decodeCodepoint(string~substr(startB, 4))
     raise syntax 93.900 array (self~name "encoding:" sizeB "is an invalid size of byte sequence")
 
 
 ::method nextCodepointIndex class
     use strict arg string /* or buffer */, startB
-    use named arg decodeStatus=.nil
+    use named arg errorInfo=.nil
     indexB = startB
     lengthB = string~length
     if indexB > lengthB then return indexB -- end of string
     if lengthB - indexB < 3 then signal truncated
-    codeUnit = string~substr(indexB, 4)
     indexB += 4
     return indexB
 
-    truncated: return error(1, indexB + 4, self~name "encoding: byte sequence at byte-position" startB "is truncated, expected 4 bytes")
+    truncated: return error(indexB + 4, self~name "encoding: byte sequence at byte-position" startB "is truncated, expected 4 bytes")
 
     error:
-        use strict arg replacementCount, nextCodepointIndex, errorMessage
-        if decodeStatus <> .nil then do
-            decodeStatus[1] = errorMessage"."
-            decodeStatus[2] = replacementCount
+        use strict arg nextCodepointIndex, errorMessage
+        if errorInfo <> .nil then do
+            errorInfo[1] = errorMessage"."
             return -nextCodepointIndex  -- negative value means error
         end
         raise syntax 93.900 array (errorMessage)
@@ -3023,33 +3255,57 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 /* Instance methods */
 /********************/
 
+::method codepointIndex
+    use strict arg indexC
+    if indexC < 1 then raise syntax 93.900 array (self~description "invalid codepoint index:" indexC)
+    if indexC > self~codepointCount then indexC = self~codepointCount + 1
+    if self~codepointIndexes == .nil then return 4 * (indexC - 1) + 1
+    indexB = self~codepointIndexes[indexC]
+    if indexB <> .nil then return indexB
+    return 4 * (indexC - 1) + 1 -- sparse array: the value can be derived from the index
+
+
 ::method codepoint
     -- to reimplement using a byte index because codepointIndexes will be removed
     use strict arg indexC, decode=.true
-    if indexC < 1 | indexC > self~codepointCount then raise syntax 93.900 array (self~description "invalid codepoint index:" indexC)
-    startB = self~codepointIndexes[indexC]
-    nextB = self~codepointIndexes[indexC+1]
+    numeric digits 10
+    startB = self~codepointIndex(indexC)
+    if self~codepointIndexes == .nil then do
+        if decode then return self~class~decode(self~string, startB, 4)
+                  else return self~string~substr(startB, 4)
+    end
+    nextB = self~codepointIndex(indexC+1)
     absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
     absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
     if decode then do
         if startB < 0 then return .Unicode~replacementCharacter~codepoint -- the current byte sequence is invalid
         return self~class~decode(self~string, absStartB, absNextB - absStartB)
     end
-    return self~string~substr(absStartB, absNextB - absStartB)
+    return self~string~substr(absStartB, absNextB - absStartB) -- yes, always the current byte sequence, even if invalid
+
+
+::method graphemeIndex
+    use strict arg indexG
+    if indexG < 1 then raise syntax 93.900 array (self~description "invalid grapheme index:" indexG)
+    if indexG > self~graphemeCount then indexG= self~graphemeCount + 1
+    if self~graphemeIndexes == .nil then return 4 * (indexG - 1) + 1
+    indexB = self~graphemeIndexes[indexG]
+    if indexB <> .nil then return indexB
+    return 4 * (indexG - 1) + 1 -- sparse array: the value can be derived from the index
 
 
 ::method grapheme
     use strict arg indexG
-    if indexG < 1 | indexG > self~graphemeCount then raise syntax 93.900 array (self~description "invalid grapheme index:" indexG)
-    startB = self~graphemeIndexes[indexG]
-    nextB = self~graphemeIndexes[indexG+1]
+    startB = self~graphemeIndex(indexG)
+    if self~graphemeIndexes == .nil then return .RexxText~new(self~string~substr(startB, 4), self~class)
+    nextB = self~graphemeIndex(indexG+1)
     absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
     absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
-    return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~class)
+    return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~class) -- yes, always the current byte sequence, even if invalid
 
 
 /******************************************************************************/
-::class "UTF32BE_Encoding" public inherit UTF32_CommonServices Unicode_CommonServices StringIndexer
+::class "UTF32BE_Encoding" public inherit UTF32_CommonServices Unicode_CommonServices IndexerStringInterface StringIndexer
 
 ::method name class
     use strict arg -- none
@@ -3101,7 +3357,7 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 
 
 /******************************************************************************/
-::class "UTF32LE_Encoding" public inherit UTF32_CommonServices Unicode_CommonServices StringIndexer
+::class "UTF32LE_Encoding" public inherit UTF32_CommonServices Unicode_CommonServices IndexerStringInterface StringIndexer
 
 ::method name class
     use strict arg -- none

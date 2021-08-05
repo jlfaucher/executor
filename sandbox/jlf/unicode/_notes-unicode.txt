@@ -18,7 +18,7 @@ https://en.wikipedia.org/wiki/UTF-32
 http://xahlee.info/comp/unicode_index.html
 
 https://www.fontspace.com/unicode/analyzer
-
+https://www.compart.com/en/unicode/
 
 
 13/08/2013
@@ -1313,4 +1313,10 @@ the invalid sequence.
 But how many REPLACEMENT CHARACTERs should be generated for a sequence of
 multiple bogus bytes?
 jlf: the answer is not clear to me...
+
+
+03/08/2021
+https://swiftdoc.org/v5.1/type/string/
+Auto-generated documentation for Swift.
+A Unicode string value that is a collection of characters.
 

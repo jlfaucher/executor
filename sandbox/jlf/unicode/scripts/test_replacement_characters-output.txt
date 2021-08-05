@@ -1,0 +1,139 @@
+1)
+ÄÄA
+Codepoints: F0 80 80 41
+Executor:   U+FFFD U+FFFD U+FFFD U+0041
+Expected:   U+FFFD U+FFFD U+FFFD U+0041
+Ok
+UTF-8 sequence at byte-position 1 has an invalid continuation byte 128 (80x) at byte-position 2 (non-shortest form).
+UTF-8 sequence at byte-position 2 has an invalid start byte 128 (80x) (non-shortest form).
+UTF-8 sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).
+
+2)
+Non-Shortest Form Sequences
+¿Ø‡ÄøÅÇA
+Codepoints: C0 AF E0 80 BF F0 81 82 41
+Executor:   U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+0041
+Expected:   U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+0041
+Ok
+UTF-8 sequence at byte-position 1 has an invalid start byte 192 (C0x) (non-shortest form).
+UTF-8 sequence at byte-position 2 has an invalid start byte 175 (AFx) (non-shortest form).
+UTF-8 sequence at byte-position 3 has an invalid continuation byte 128 (80x) at byte-position 4 (non-shortest form).
+UTF-8 sequence at byte-position 4 has an invalid start byte 128 (80x) (non-shortest form).
+UTF-8 sequence at byte-position 5 has an invalid start byte 191 (BFx) (non-shortest form).
+UTF-8 sequence at byte-position 6 has an invalid continuation byte 129 (81x) at byte-position 7 (non-shortest form).
+UTF-8 sequence at byte-position 7 has an invalid start byte 129 (81x) (non-shortest form).
+UTF-8 sequence at byte-position 8 has an invalid start byte 130 (82x) (non-shortest form).
+
+3)
+Ill-Formed Sequences for Surrogates
+Ì†ÄÌøøÌØA
+Codepoints: ED A0 80 ED BF BF ED AF 41
+Executor:   U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+0041
+Expected:   U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+0041
+Ok
+UTF-8 sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).
+UTF-8 sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).
+UTF-8 sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).
+UTF-8 sequence at byte-position 4 has an invalid continuation byte 191 (BFx) at byte-position 5 (low surrogate).
+UTF-8 sequence at byte-position 5 has an invalid start byte 191 (BFx) (non-shortest form).
+UTF-8 sequence at byte-position 6 has an invalid start byte 191 (BFx) (non-shortest form).
+UTF-8 sequence at byte-position 7 has an invalid continuation byte 175 (AFx) at byte-position 8 (high surrogate).
+UTF-8 sequence at byte-position 8 has an invalid start byte 175 (AFx) (non-shortest form).
+
+4)
+Other Ill-Formed Sequences
+ÙëíìˇAÄøB
+Codepoints: F4 91 92 93 FF 41 80 BF 42
+Executor:   U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+0041 U+FFFD U+FFFD U+0042
+Expected:   U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+0041 U+FFFD U+FFFD U+0042
+Ok
+UTF-8 sequence at byte-position 1 has an invalid continuation byte 145 (91x) at byte-position 2 (codepoint > U+10FFFF).
+UTF-8 sequence at byte-position 2 has an invalid start byte 145 (91x) (non-shortest form).
+UTF-8 sequence at byte-position 3 has an invalid start byte 146 (92x) (non-shortest form).
+UTF-8 sequence at byte-position 4 has an invalid start byte 147 (93x) (non-shortest form).
+UTF-8 sequence at byte-position 5 has an invalid start byte 255 (FFx) (codepoint > U+10FFFF).
+UTF-8 sequence at byte-position 7 has an invalid start byte 128 (80x) (non-shortest form).
+UTF-8 sequence at byte-position 8 has an invalid start byte 191 (BFx) (non-shortest form).
+
+5)
+Truncated Sequences
+·Ä‚ëíÒøA
+Codepoints: E180 E2 F09192 F1BF 41
+Executor:   U+FFFD U+FFFD U+FFFD U+FFFD U+0041
+Expected:   U+FFFD U+FFFD U+FFFD U+FFFD U+0041
+Ok
+UTF-8 sequence at byte-position 1 has an invalid continuation byte 226 (E2x) at byte-position 3.
+UTF-8 sequence at byte-position 3 has an invalid continuation byte 240 (F0x) at byte-position 4.
+UTF-8 sequence at byte-position 4 has an invalid continuation byte 241 (F1x) at byte-position 7.
+UTF-8 sequence at byte-position 7 has an invalid continuation byte 65 (41x) at byte-position 9.
+
+6)
+All valid except it's out of range ==> all invalid
+Ùèø¿
+Codepoints: F48FBF C0
+Executor:   U+FFFD U+FFFD
+Expected:   U+FFFD U+FFFD
+Ok
+UTF-8 sequence at byte-position 1 has an invalid continuation byte 192 (C0x) at byte-position 4.
+UTF-8 sequence at byte-position 4 has an invalid start byte 192 (C0x) (non-shortest form).
+
+7)
+80..C1 are not valid start-byte
+Ä
+Codepoints: 80
+Executor:   U+FFFD
+Expected:   U+FFFD
+Ok
+UTF-8 sequence at byte-position 1 has an invalid start byte 128 (80x) (non-shortest form).
+
+¡Ä
+Codepoints: C1 80
+Executor:   U+FFFD U+FFFD
+Expected:   U+FFFD U+FFFD
+Ok
+UTF-8 sequence at byte-position 1 has an invalid start byte 193 (C1x) (non-shortest form).
+UTF-8 sequence at byte-position 2 has an invalid start byte 128 (80x) (non-shortest form).
+
+8)
+80..9F are not allowed after E0
+‡Ä
+Codepoints: E0 80
+Executor:   U+FFFD U+FFFD
+Expected:   U+FFFD U+FFFD
+Ok
+UTF-8 sequence at byte-position 1 has an invalid continuation byte 128 (80x) at byte-position 2 (non-shortest form).
+UTF-8 sequence at byte-position 2 has an invalid start byte 128 (80x) (non-shortest form).
+
+‡ü
+Codepoints: E0 9F
+Executor:   U+FFFD U+FFFD
+Expected:   U+FFFD U+FFFD
+Ok
+UTF-8 sequence at byte-position 1 has an invalid continuation byte 159 (9Fx) at byte-position 2 (non-shortest form).
+UTF-8 sequence at byte-position 2 has an invalid start byte 159 (9Fx) (non-shortest form).
+
+9)
+A pair of surrogates in UTF-8
+Ì†ÄÌ∞Ä
+Codepoints: ED A0 80 ED B0 80
+Executor:   U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD
+Expected:   U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD
+Ok
+UTF-8 sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).
+UTF-8 sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).
+UTF-8 sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).
+UTF-8 sequence at byte-position 4 has an invalid continuation byte 176 (B0x) at byte-position 5 (low surrogate).
+UTF-8 sequence at byte-position 5 has an invalid start byte 176 (B0x) (non-shortest form).
+UTF-8 sequence at byte-position 6 has an invalid start byte 128 (80x) (non-shortest form).
+
+10)
+A pair of surrogates in WTF-8
+Ì†ÄÌ∞Ä
+Codepoints: ED A0 80 EDB080
+Executor:   U+FFFD U+FFFD U+FFFD U+DC00
+Expected:   U+FFFD U+FFFD U+FFFD U+DC00
+Ok
+WTF-8 encoding: high surrogate 55296 (U+D800) at byte-position 1 followed by low surrogate 56320 (U+DC00) at byte-position 4 is not allowed.
+UTF-8 sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).
+UTF-8 sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).
+

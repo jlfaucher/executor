@@ -30,7 +30,7 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
-</span><span style="font-weight:bold;color:green;">Input queue name: S140d5Q7fd448420a50
+</span><span style="font-weight:bold;color:green;">Input queue name: S17092Q7fd448424070
 </span>
 <span style="color:blue;">----------------------------------
 </span><span style="color:blue;">-- Text encoding - Internal checks
@@ -73,8 +73,8 @@ T'éé'
 </span>ooRexx[bash]&gt; .byte_encoding~decode(s, 2)=             <span style="color:blue;">-- 195 (C3)</span>
  195
 <span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .byte_encoding~decode(s, 12)=            <span style="color:blue;">-- -1 (end of string)</span>
--1
+</span>ooRexx[bash]&gt; .byte_encoding~decode(s, 12)=            <span style="color:blue;">-- .nil (end of string)</span>
+(The NIL object)
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; .byte_encoding~decode(s, 1, 2)=          <span style="color:blue;">-- 2 is an invalid codepoint size</span>
 <span style="font-weight:bold;color:red;">Byte encoding: 2 is an invalid size of byte sequence.
@@ -111,8 +111,8 @@ T'A'
 </span>ooRexx[bash]&gt; .utf8_encoding~nextCodepointIndex(s, 8)= <span style="color:blue;">-- 12</span>
  12
 <span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .utf8_encoding~decode(s, 12)=            <span style="color:blue;">-- -1 (end of string)</span>
--1
+</span>ooRexx[bash]&gt; .utf8_encoding~decode(s, 12)=            <span style="color:blue;">-- .nil (end of string)</span>
+(The NIL object)
 
 <span style="color:blue;">-- Example of check
 </span><span style="font-weight:bold;color:olive;">
@@ -221,8 +221,8 @@ an Array (shape [3], 3 items)
 </span>ooRexx[bash]&gt; .utf16be_encoding~nextCodepointIndex(s16, 11)=  <span style="color:blue;">-- 15</span>
  15
 <span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .utf16be_encoding~decode(s16, 15)=              <span style="color:blue;">-- -1 (end of string)</span>
--1
+</span>ooRexx[bash]&gt; .utf16be_encoding~decode(s16, 15)=              <span style="color:blue;">-- .nil (end of string)</span>
+(The NIL object)
 
 <span style="color:blue;">-- Example of checks
 </span><span style="font-weight:bold;color:olive;">
@@ -344,14 +344,17 @@ an Array (shape [2], 2 items)
 
 <span style="color:blue;">-- WTF-8 view of this invalid concatenation
 </span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; (t1~wtf8~string || t2~wtf8~string)~text(&quot;wtf8&quot;)~errors=     <span style="color:blue;">-- a high surrogate 55296 (D800x) followed by a low surrogate 56321 (DC01x) is not allowed</span>
-['WTF-8 encoding: a high surrogate 55296 (U+D800) at byte-position 1 followed by a low surrogate 56321 (U+DC01) at byte-position 4 is not allowed.']
+</span>ooRexx[bash]&gt; (t1~wtf8~string || t2~wtf8~string)~text(&quot;wtf8&quot;)~errors==    <span style="color:blue;">-- High surrogate 55296 (D800x) followed by low surrogate 56321 (DC01x) is not allowed</span>
+an Array (shape [3], 3 items)
+ 1 : 'WTF-8 encoding: high surrogate 55296 (U+D800) at byte-position 1 followed by low surrogate 56321 (U+DC01) at byte-position 4 is not allowed.'
+ 2 : 'UTF-8 sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).'
+ 3 : 'UTF-8 sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; (t1~wtf8~string || t2~wtf8~string)~text(&quot;wtf8&quot;)~c2x=        <span style="color:blue;">-- EDA080 EDB081</span>
-'ED A0 80 ED B0 81'
+'ED A0 80 EDB081'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; (t1~wtf8~string || t2~wtf8~string)~text(&quot;wtf8&quot;)~c2u=        <span style="color:blue;">-- U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD</span>
-'U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD'
+'U+FFFD U+FFFD U+FFFD U+DC01'
 
 <span style="color:blue;">-- UTF-8 view of this invalid concatenation
 </span><span style="font-weight:bold;color:olive;">
@@ -451,9 +454,11 @@ Checking file &quot;ill_formed_utf8.txt&quot;
   line 2: UTF-8 sequence at byte-position 1 has an invalid start byte 180 (B4x) (non-shortest form).
   line 3: UTF-8 sequence at byte-position 2 has an invalid continuation byte 116 (74x) at byte-position 3.
   line 5: UTF-8 sequence at byte-position 8 is truncated, expected 4 bytes.
-  line 8: WTF-8 encoding: a high surrogate 55296 (U+D800) at byte-position 1 followed by a low surrogate 56321 (U+DC01) at byte-position 4 is not allowed.
-  4 errors
-Total: 4 errors
+  line 8: WTF-8 encoding: high surrogate 55296 (U+D800) at byte-position 1 followed by low surrogate 56321 (U+DC01) at byte-position 4 is not allowed.
+  line 8: UTF-8 sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).
+  line 8: UTF-8 sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).
+  6 errors
+Total: 6 errors
 <span style="font-weight:bold;color:red;">RC= 1
 </span>
 <span style="font-weight:bold;color:olive;">

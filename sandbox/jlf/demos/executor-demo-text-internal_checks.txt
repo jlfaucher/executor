@@ -31,7 +31,7 @@ s = "63 C3 B4 74 65 CC 81 F0 9F 91 8D"x  -- An UTF-8 string. The Byte encoding w
 s=                                       -- 'côté👍'
 .byte_encoding~decode(s, 1)=             -- 99 (63)
 .byte_encoding~decode(s, 2)=             -- 195 (C3)
-.byte_encoding~decode(s, 12)=            -- -1 (end of string)
+.byte_encoding~decode(s, 12)=            -- .nil (end of string)
 .byte_encoding~decode(s, 1, 2)=          -- 2 is an invalid codepoint size
 .byte_encoding~encode(65)=               -- T'A'
 .byte_encoding~encode(256)=              -- 256 is an invalid codepoint (range 0..255)
@@ -50,7 +50,7 @@ s = "63 C3 B4 74 65 CC 81 F0 9F 91 8D"x  -- An UTF-8 string: 'côté👍'
 .utf8_encoding~nextCodepointIndex(s, 2)= -- 4
 .utf8_encoding~decode(s, 8)=             -- 128077
 .utf8_encoding~nextCodepointIndex(s, 8)= -- 12
-.utf8_encoding~decode(s, 12)=            -- -1 (end of string)
+.utf8_encoding~decode(s, 12)=            -- .nil (end of string)
 sleep no prompt
 
 -- Example of check
@@ -99,7 +99,7 @@ sleep no prompt
 .utf16be_encoding~nextCodepointIndex(s16, 3)=   -- 5
 .utf16be_encoding~decode(s16, 11)=              -- 128077
 .utf16be_encoding~nextCodepointIndex(s16, 11)=  -- 15
-.utf16be_encoding~decode(s16, 15)=              -- -1 (end of string)
+.utf16be_encoding~decode(s16, 15)=              -- .nil (end of string)
 sleep no prompt
 
 -- Example of checks
@@ -153,7 +153,7 @@ t2~wtf8~string~c2x=                             -- WTF-8 encoding of U+DC01 (low
 sleep no prompt
 
 -- WTF-8 view of this invalid concatenation
-(t1~wtf8~string || t2~wtf8~string)~text("wtf8")~errors=     -- a high surrogate 55296 (D800x) followed by a low surrogate 56321 (DC01x) is not allowed
+(t1~wtf8~string || t2~wtf8~string)~text("wtf8")~errors==    -- High surrogate 55296 (D800x) followed by low surrogate 56321 (DC01x) is not allowed
 (t1~wtf8~string || t2~wtf8~string)~text("wtf8")~c2x=        -- EDA080 EDB081
 (t1~wtf8~string || t2~wtf8~string)~text("wtf8")~c2u=        -- U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD
 

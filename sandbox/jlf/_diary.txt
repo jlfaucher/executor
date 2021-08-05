@@ -495,6 +495,45 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 August 04
+
+Encoded strings:
+- Reworked the implementation of the replacement characters.
+- New script unicode/scripts/test_replacement_characters.rex
+- Reworked the creation of the indexes: now sparse arrays. This is a good
+  optimization for UTF-32, where the table of codepoint indexes is always empty.
+
+I still see some differences between what Executor does in UTF-8, and the
+display by MacOs and Java. These differences are for the surrogate codepoints.
+- Executor:    3 replacement characters per surrogate
+- MacOs, Java: 1 replacement character per surrogate
+According the Unicode standard, it must be 3 when applying the "Substitution of
+Maximal Subparts" (section 3.9 Unicode Encoding Forms, table 3-9).
+
+
+Added
+    RexxString *primitiveMakeString(); // needed to convert "b"~text to string when calling left("b"~text, 1)
+    RexxString *makeString();          // needed to convert "b"~text to string when calling "abc"~pos("b"~text)
+to the C++ class RexxText.
+Not sure yet if these automatic conversions will interfere with the triggering of the OP:RIGHT operators.
+These methods send the message request("string") to the RexxText instance.
+If the RexxText instance is not compatible with the String class then an error is raised.
+
+
+First tests with incubator/regex.cls
+I pass a RexxText instance and see what happens...
+In theory, a RexxText instance should be substituable to a String instance.
+I started to add the missing methods on RexxTextStringInterface.
+For the moment, these methods works only with RexxText instances being compatible
+with the String class (Byte, ASCII UTF-8, ASCII WTF-8).
+    p = .Pattern~compile("a.c"~text)
+    p~matches("abc"~text)=              -- 1
+    p~matches("aôc"~text)=              -- error: Method 'match' not yet implemented for Unicode
+
+    p = .Pattern~compile("à.c"~text)    -- error: Unicode comparison not yet implemented
+
+
+===============================================================================
 2021 August 03
 
 Encoded strings:

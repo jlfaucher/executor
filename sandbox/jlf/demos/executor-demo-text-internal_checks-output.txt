@@ -20,7 +20,7 @@ loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
 REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
-Input queue name: S140d5Q7fd448420a50
+Input queue name: S17092Q7fd448424070
 
 ----------------------------------
 -- Text encoding - Internal checks
@@ -63,8 +63,8 @@ ooRexx[bash]> .byte_encoding~decode(s, 1)=             -- 99 (63)
 ooRexx[bash]> .byte_encoding~decode(s, 2)=             -- 195 (C3)
  195
 
-ooRexx[bash]> .byte_encoding~decode(s, 12)=            -- -1 (end of string)
--1
+ooRexx[bash]> .byte_encoding~decode(s, 12)=            -- .nil (end of string)
+(The NIL object)
 
 ooRexx[bash]> .byte_encoding~decode(s, 1, 2)=          -- 2 is an invalid codepoint size
 Byte encoding: 2 is an invalid size of byte sequence.
@@ -101,8 +101,8 @@ ooRexx[bash]> .utf8_encoding~decode(s, 8)=             -- 128077
 ooRexx[bash]> .utf8_encoding~nextCodepointIndex(s, 8)= -- 12
  12
 
-ooRexx[bash]> .utf8_encoding~decode(s, 12)=            -- -1 (end of string)
--1
+ooRexx[bash]> .utf8_encoding~decode(s, 12)=            -- .nil (end of string)
+(The NIL object)
 
 -- Example of check
 
@@ -211,8 +211,8 @@ ooRexx[bash]> .utf16be_encoding~decode(s16, 11)=              -- 128077
 ooRexx[bash]> .utf16be_encoding~nextCodepointIndex(s16, 11)=  -- 15
  15
 
-ooRexx[bash]> .utf16be_encoding~decode(s16, 15)=              -- -1 (end of string)
--1
+ooRexx[bash]> .utf16be_encoding~decode(s16, 15)=              -- .nil (end of string)
+(The NIL object)
 
 -- Example of checks
 
@@ -334,14 +334,17 @@ ooRexx[bash]> (t1~wtf8 || t2~wtf8)~c2u=                       -- ... equal to U+
 
 -- WTF-8 view of this invalid concatenation
 
-ooRexx[bash]> (t1~wtf8~string || t2~wtf8~string)~text("wtf8")~errors=     -- a high surrogate 55296 (D800x) followed by a low surrogate 56321 (DC01x) is not allowed
-['WTF-8 encoding: a high surrogate 55296 (U+D800) at byte-position 1 followed by a low surrogate 56321 (U+DC01) at byte-position 4 is not allowed.']
+ooRexx[bash]> (t1~wtf8~string || t2~wtf8~string)~text("wtf8")~errors==    -- High surrogate 55296 (D800x) followed by low surrogate 56321 (DC01x) is not allowed
+an Array (shape [3], 3 items)
+ 1 : 'WTF-8 encoding: high surrogate 55296 (U+D800) at byte-position 1 followed by low surrogate 56321 (U+DC01) at byte-position 4 is not allowed.'
+ 2 : 'UTF-8 sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).'
+ 3 : 'UTF-8 sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
 
 ooRexx[bash]> (t1~wtf8~string || t2~wtf8~string)~text("wtf8")~c2x=        -- EDA080 EDB081
-'ED A0 80 ED B0 81'
+'ED A0 80 EDB081'
 
 ooRexx[bash]> (t1~wtf8~string || t2~wtf8~string)~text("wtf8")~c2u=        -- U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD
-'U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD'
+'U+FFFD U+FFFD U+FFFD U+DC01'
 
 -- UTF-8 view of this invalid concatenation
 
@@ -441,9 +444,11 @@ Checking file "ill_formed_utf8.txt"
   line 2: UTF-8 sequence at byte-position 1 has an invalid start byte 180 (B4x) (non-shortest form).
   line 3: UTF-8 sequence at byte-position 2 has an invalid continuation byte 116 (74x) at byte-position 3.
   line 5: UTF-8 sequence at byte-position 8 is truncated, expected 4 bytes.
-  line 8: WTF-8 encoding: a high surrogate 55296 (U+D800) at byte-position 1 followed by a low surrogate 56321 (U+DC01) at byte-position 4 is not allowed.
-  4 errors
-Total: 4 errors
+  line 8: WTF-8 encoding: high surrogate 55296 (U+D800) at byte-position 1 followed by low surrogate 56321 (U+DC01) at byte-position 4 is not allowed.
+  line 8: UTF-8 sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).
+  line 8: UTF-8 sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).
+  6 errors
+Total: 6 errors
 RC= 1
 
 
