@@ -93,6 +93,17 @@ void RexxText::flatten(RexxEnvelope *envelope)
     cleanUpFlatten
 }
 
+RexxString *RexxText::primitiveMakeString()
+{
+    return (RexxString *)this->sendMessage(OREF_REQUEST, OREF_STRINGSYM);
+}
+
+
+RexxString *RexxText::makeString()
+{
+    return (RexxString *)this->sendMessage(OREF_REQUEST, OREF_STRINGSYM);
+}
+
 
 /******************************************************************************/
 /* REXX Kernel                                                                */
