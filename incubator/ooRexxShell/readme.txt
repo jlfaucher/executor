@@ -336,6 +336,20 @@ History of changes
 ==================
 
 -----------------------------------------------
+2021 aug 07
+
+When a value is a supplier, it's possible to see it as a table when ending the
+line with "==".
+No data is consumed because the display is made using a copy of the supplier.
+In case of supplier for a coactivity, you must explicitely convert it to a table
+because even a copy will consume the datas of the coactivity.
+.object~methods=                        -- display "(a Supplier)"
+.object~methods==                       -- display the indexes/items as a table
+1~generate.upto(10)~supplier==          -- display "(a CoactivitySupplierForGeneration)"
+1~generate.upto(10)~supplier~table==    -- display the indexes/items as a table
+
+
+-----------------------------------------------
 2021 may 30
 
 rlwrap is the default input mode, if available,

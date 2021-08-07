@@ -797,6 +797,8 @@ Helpers
     else if .ooRexxShell~isExtended, value~isA(.enclosedArray), dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
     else if .ooRexxShell~isExtended, value~isA(.array), value~dimension == 1, dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
     else if value~isA(.Collection)/*, dumpLevel == 2*/  then .ooRexxShell~sayCollection(value, /*title*/, .NumberComparator~new, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
+    -- if "==" (dumpLevel 2) then a supplier is displayed as a table. A copy is made to not consume the datas.
+    else if value~isA(.Supplier), dumpLevel == 2 then .ooRexxShell~sayCollection(value~copy~table, /*title*/, .NumberComparator~new, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
     else .ooRexxShell~sayPrettyString(value)
 
     return value -- To get this value in the variable RESULT
