@@ -495,6 +495,54 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 August 08
+
+[extension.cls]
+
+Reorganized the way I declare the extensions by inheritance.
+Before, they were declared using one extension directive per class.
+Now the extensions of a given class are splitted by functionality, and the same
+class can appear several times.
+
+
+[Collection]
+
+The methods putAll now return the updated collection (retrofit from ooRexx5).
+
+Removed the method .collection~table, I don't see any usage for it.
+
+Modified the implementation of .supplier~table: no longer make a copy.
+It"s up to the caller to decide if a copy is needed.
+ooRexxshell has been modified to make a copy before displaying a supplier as a table.
+
+Retrofit the method MapCollection~of from ooRexx5:
+    aMapCollection~of( (key1, value1), (key2, value2), ...)
+while keeping my own implementation that was available for .Directory:
+    aMapCollection~of(key1, value1, key2, value2, ..., n1:v1, n2:v2, ...)
+The key-value where the key is compatible with a named  argument can be passed as named argument.
+The key-value where the key is not compatible with a named argument can be passed as a pair of positional arguments.
+ooRexx5 wants each key-value to be an array (key, value).
+I prefer to pass each key-value as 2 positional arguments, or as one named argument.
+I make my implementation compatible with ooRexx5:
+If the first argument is an array then assume it's the ooRexx5 way, otherwise it's mine.
+
+Examples:
+
+    .stem~of("un", 1, "deux", 2, trois:3, quatre:4)=
+        a Stem (4 items)
+        'deux'   :  2
+        'QUATRE' :  4
+        'TROIS'  :  3
+        'un'     :  1
+
+    .relation~of("UN", 10, "DEUX", 20, un:100, deux:200, quatre:400)=
+        a Relation (5 items)
+        'DEUX'   : [ 20, 200]
+        'QUATRE' :  400
+        'UN'     : [ 10, 100]
+
+
+===============================================================================
 2021 August 07
 
 [pipes]

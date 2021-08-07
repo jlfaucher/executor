@@ -57,18 +57,55 @@ See output of concurrency/generator-test.rex
 
 /******************************************************************************/
 
--- Directory initializer
---     .directory~of("key 1", "value 1", "key 2", 2, a1:1, a2:2)
+-- MapCollection initializer
+--     aMapCollection~of(key1, value1, key2, value2, ..., n1:v1, n2:v2, ...)
+--     aMapCollection~of( (key1, value1), (key2, value2), ..., n1:v1, n2:v2, ...)
 -- The key-value where the key is compatible with a named  argument can be passed as named argument.
 -- The key-value where the key is not compatible with a named argument can be passed as a pair of positional arguments.
-::extension Directory
+-- Careful: ooRexx5 added .MapCollection~of where each key-value must be an array (key, value).
+-- I make this implementation compatible with ooRexx5.
+-- If the first argument is an array then assume it's the ooRexx5 way.
+
+::class "MapCollectionInitializer" mixinclass Object public
+
 ::method of class
-    use arg key, value, ...
-    directory = .context~namedArgs
-    do i = 1 to arg() by 2
-        directory[arg(i)] = arg(i+1)
+    collection = .context~namedArgs -- a directory
+    if collection <> self then collection = self~new~putall(collection) -- convert the directory of named arguments to the target collection
+    if arg(1)~isA(.array) then do
+        -- Assume it's the ooRexx5 way...
+          args = arg(1, 'a')
+          -- get the arguments as an array
+
+          -- create an instance of this class
+          collection = self~new
+
+          -- process each of the arguments.  Omitted arguments
+          -- are not permitted and each argument must be an
+          -- array of exactly two items
+          loop i = 1 to args~last
+             -- no omitted
+             if \args~hasIndex(i) then
+                raise syntax 93.903 array(i)
+             arg = args[i]
+             -- get the argument value.
+             if \arg~isA(.array) then
+                raise syntax 88.923 array(.context~name, i, arg)
+             if \arg~dimension == 1 then
+                raise syntax 88.923 array(.context~name, i, arg)
+             -- this must have just two items
+             if arg~items \= 2 | arg~last \= 2 then
+                raise syntax 88.924 array(.context~name, i, 2)
+
+             -- the index is first, the value is second, the reverse of PUT
+             collection~put(arg[2], arg[1])
+          end
     end
-    return directory
+    else do
+        loop i = 1 to arg() by 2
+            collection~put(arg(i+1), arg(i))
+        end
+    end
+    return collection
 
 
 -- helper routine d() to create a directory
@@ -107,18 +144,8 @@ comparing numbers in the 2**128 range
 
 /******************************************************************************/
 
--- Helper to get a table representation of any collection
--- Careful: If you have a directory with a key "TABLE", and you retrieve the
--- related item with the method ~TABLE then you will NOT get this item. You
--- will get the whole directory as a table.
--- You should retrieve the item like that: directory["TABLE"].
-::extension Collection
-::method table
-    return self~supplier~reduce(initial:.Table~new){accu[index] = item}
-
-
 -- Helper to get a table representation of a supplier
--- A copy is made to not consume the supplier
+-- Note: the supplier is consumed, so pass a copy of the supplier if needed
 ::extension Supplier
 ::method table
-    return self~copy~reduce(initial:.Table~new){accu[index] = item}
+    return .table~new~putAll(self)

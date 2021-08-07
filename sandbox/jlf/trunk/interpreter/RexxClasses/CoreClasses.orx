@@ -1098,7 +1098,7 @@ nomethod:
     self~put(supplier~item, supplier~index)   -- putting the item using the same index
     supplier~next
   end
-  return
+  return self
 
 nomethod:
       -- an unknown method is an argument problem.  report it as such.
@@ -1442,7 +1442,7 @@ nomethod:                              -- unknown method sent
       self~put(values[i])
   end
 
-  return                                 -- no return value
+  return self
 
   nomethod:                              -- unknown method sent
     raise syntax 93.948 array(1, "Collection")
@@ -1637,7 +1637,7 @@ nomethod:
       self~put(values[i])
   end
 
-  return                                 -- no return value
+  return self
 
   nomethod:                              -- unknown method sent
     raise syntax 93.948 array(1, "Collection")

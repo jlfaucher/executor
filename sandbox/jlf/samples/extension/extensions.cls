@@ -17,19 +17,75 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::requires "extension/rexxinfo.cls"
 
 
+-- Doer
 ::extension Routine                         inherit RoutineDoer
 ::extension Method                          inherit MethodDoer
 ::extension RexxBlock                       inherit RexxBlockDoer
+::extension Coactivity                      inherit CoactivityDoer
+::extension String                          inherit StringDoer
 
-::extension Coactivity                      inherit CoactivityDoer CoactivityFilter                      CoactivityIterator                      CoactivityReducer    CoactivityGenerator
-::extension String                          inherit StringDoer     StringFilter                          StringIterator                          StringReducer        StringGenerator        StringMapper        StringPrettyPrinter        StringCompatibilityWithOORexx5        StringHelpers RepeaterCollector RepeaterGenerator LogicalExtension ComplexString
-::extension MutableBuffer                   inherit                MutableBufferFilter                   MutableBufferIterator                   MutableBufferReducer MutableBufferGenerator MutableBufferMapper MutableBufferPrettyPrinter MutableBufferCompatibilityWithOORexx5
-::extension Collection                      inherit                CollectionFilter                      CollectionIterator                      CollectionReducer    CollectionGenerator    CollectionMapper    CollectionPrettyPrinter
-::extension OrderedCollection               inherit                OrderedCollectionFilter
-::extension Supplier                        inherit                SupplierFilter                        SupplierIterator                        SupplierReducer      SupplierGenerator
-::extension CoactivitySupplierForGeneration inherit                CoactivitySupplierForGenerationFilter CoactivitySupplierForGenerationIterator
+-- Initializer
+::extension MapCollection                   inherit MapCollectionInitializer
+::extension Array                           inherit ArrayInitializer
 
-::extension Array                           inherit ArrayInitializer    ArrayPrettyPrinter    ArrayOperators     APLArray
+-- Pretty printe
+::extension Array                           inherit ArrayPrettyPrinter
+::extension Collection                      inherit CollectionPrettyPrinter
+::extension String                          inherit StringPrettyPrinter
+::extension MutableBuffer                   inherit MutableBufferPrettyPrinter
+
+-- Filter
+::extension Collection                      inherit CollectionFilter
+::extension OrderedCollection               inherit OrderedCollectionFilter
+::extension Coactivity                      inherit CoactivityFilter
+::extension Supplier                        inherit SupplierFilter
+::extension CoactivitySupplierForGeneration inherit CoactivitySupplierForGenerationFilter
+::extension String                          inherit StringFilter
+::extension MutableBuffer                   inherit MutableBufferFilter
+
+-- Iterator
+::extension Collection                      inherit CollectionIterator
+::extension Coactivity                      inherit CoactivityIterator
+::extension Supplier                        inherit SupplierIterator
+::extension CoactivitySupplierForGeneration inherit CoactivitySupplierForGenerationIterator
+::extension String                          inherit StringIterator
+::extension MutableBuffer                   inherit MutableBufferIterator
+
+-- Reducer
+::extension Collection                      inherit CollectionReducer
+::extension Coactivity                      inherit CoactivityReducer
+::extension Supplier                        inherit SupplierReducer
+::extension String                          inherit StringReducer
+::extension MutableBuffer                   inherit MutableBufferReducer
+
+-- Generator
+::extension Collection                      inherit CollectionGenerator
+::extension Coactivity                      inherit CoactivityGenerator
+::extension Supplier                        inherit SupplierGenerator
+::extension String                          inherit StringGenerator
+::extension MutableBuffer                   inherit MutableBufferGenerator
+
+-- Mapper
+::extension Collection                      inherit CollectionMapper
+::extension String                          inherit StringMapper
+::extension MutableBuffer                   inherit MutableBufferMapper
+
+-- Compatibility
+::extension String                          inherit StringCompatibilityWithOORexx5
+::extension MutableBuffer                   inherit MutableBufferCompatibilityWithOORexx5
+
+-- String specific
+::extension String                          inherit StringHelpers     -
+                                                    RepeaterCollector -
+                                                    RepeaterGenerator -
+                                                    LogicalExtension  -
+                                                    ComplexString
+
+-- Array specific
+::extension Array                           inherit ArrayOperators -
+                                                    APLArray
+
+-- File specific
 ::extension File                            inherit FileExtension
 
 
