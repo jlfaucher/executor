@@ -495,6 +495,20 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 August 07
+
+Changed the order of the argument checks for the boolean operators.
+In case of wrong value on both sides, the error about the right side was raised first.
+It's more clear to report an error about the left side when both sides are wrong,
+otherwise you have the wrong impression that only the right side is wrong
+(the evaluation is from left to right).
+Before:
+    "not a boolean value" | .console    -- Logical value must be exactly "0" or "1"; found "The console class"
+Now:
+    "not a boolean value" | .console    -- Logical value must be exactly "0" or "1"; found "not a boolean value"
+
+
+===============================================================================
 2021 August 04
 
 Encoded strings:

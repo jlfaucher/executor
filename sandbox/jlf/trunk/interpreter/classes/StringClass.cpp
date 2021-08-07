@@ -2121,9 +2121,12 @@ RexxObject *RexxString::andOp(RexxObject *other)
     }
 
                                          /* validate the boolean              */
+    // jlf: check first the left side, it's more clear to report an error about the left side when both sides are wrong
+    // otherwise you have the wrong impression that only the right side is wrong (the evaluation is from left to right)
+    bool thisTruthValue = this->truthValue(Error_Logical_value_method);
     otherTruth = other->truthValue(Error_Logical_value_method) ? TheTrueObject : TheFalseObject;
     /* perform the operation             */
-    return(!this->truthValue(Error_Logical_value_method)) ? TheFalseObject : otherTruth;
+    return(!thisTruthValue) ? TheFalseObject : otherTruth;
 }
 
 // in behaviour
@@ -2149,9 +2152,12 @@ RexxObject *RexxString::orOp(RexxObject *other)
     }
 
                                          /* validate the boolean              */
+    // jlf: check first the left side, it's more clear to report an error about the left side when both sides are wrong
+    // otherwise you have the wrong impression that only the right side is wrong (the evaluation is from left to right)
+    bool thisTruthValue = this->truthValue(Error_Logical_value_method);
     otherTruth = other->truthValue(Error_Logical_value_method) ? TheTrueObject : TheFalseObject;
     /* perform the operation             */
-    return(this->truthValue(Error_Logical_value_method)) ? TheTrueObject : otherTruth;
+    return(thisTruthValue) ? TheTrueObject : otherTruth;
 }
 
 // in behaviour
@@ -2175,9 +2181,12 @@ RexxObject *RexxString::xorOp(RexxObject *other)
     }
 
                                          /* get as a boolean                  */
+    // jlf: check first the left side, it's more clear to report an error about the left side when both sides are wrong
+    // otherwise you have the wrong impression that only the right side is wrong (the evaluation is from left to right)
+    bool thisTruthValue = this->truthValue(Error_Logical_value_method);
     bool truth = other->truthValue(Error_Logical_value_method);
     /* first one false?                  */
-    if (!this->truthValue(Error_Logical_value_method))
+    if (!thisTruthValue)
     {
         /* value is always the second        */
         return truth ? TheTrueObject : TheFalseObject;
