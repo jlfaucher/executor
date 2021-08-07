@@ -1500,120 +1500,120 @@ Expected: Ok, no error because the trailing comma is a continuation character fo
 
 
 call myprocedure , , 3, , a5:5,;
-    [trapped] Named argument: expected symbol followed by colon
+    [trapped] Named argument: expected symbol followed by colon.
     [trapped] Code= 35.900
 Expected: Should raise an error because of the trailing comma (TODO)
 
 
 call myroutine , , 3, , a5:5,;
-    [trapped] Named argument: expected symbol followed by colon
+    [trapped] Named argument: expected symbol followed by colon.
     [trapped] Code= 35.900
 Expected: Should raise an error because of the trailing comma (TODO)
 
 
 call myprocedure .envSymbol:1
-    [trapped] Incorrect expression detected at ":"
+    [trapped] Incorrect expression detected at ":".
     [trapped] Code= 35.1
 Expected: Error 31.003 Variable symbol must not start with a '.'; found '.envSymbol'
 
 
 call myprocedure 3:1
-    [trapped] Incorrect expression detected at ":"
+    [trapped] Incorrect expression detected at ":".
     [trapped] Code= 35.1
 Expected: Error 35.1:  Incorrect expression detected at ":"
 
 
 call myprocedure 1, a2:2, 3
-    [trapped] Variable symbol must not start with a number; found "3"
+    [trapped] Variable symbol must not start with a number; found "3".
     [trapped] Code= 31.2
 Expected: Error 31.2:  Variable symbol must not start with a number; found "3
 
 
 call myprocedure 1.2:1
-    [trapped] Incorrect expression detected at ":"
+    [trapped] Incorrect expression detected at ":".
     [trapped] Code= 35.1
 Expected: Error 35.1: Incorrect expression detected at ":"
 
 
 call myprocedure 1.2.3:1
-    [trapped] Incorrect expression detected at ":"
+    [trapped] Incorrect expression detected at ":".
     [trapped] Code= 35.1
 Expected: Error 35.1: Incorrect expression detected at ":"
 
 
 call myprocedure 1, a2:2, a3:
-    [trapped] Named argument: expected expression after colon
+    [trapped] Named argument: expected expression after colon.
     [trapped] Code= 35.900
 Expected: Error 35.900:  Named argument: expected expression after colon
 
 
 call myprocedure a1:1, a1:2 Error 35.900:  Named argument: the name "A1" is passed more than once
-    [trapped] Named argument: The name "A1" is passed more than once
+    [trapped] Named argument: The name "A1" is passed more than once.
     [trapped] Code= 35.900
 
 
 call myprocedure a1:1, , a3:3
-    [trapped] Named argument: expected symbol followed by colon
+    [trapped] Named argument: expected symbol followed by colon.
     [trapped] Code= 35.900
 Expected: Error 35.900: Named argument: expected symbol followed by colon
 
 
 call myprocedure instance~method:1
-    [trapped] Symbol expected after superclass colon (:)
+    [trapped] Symbol expected after superclass colon (:).
     [trapped] Code= 20.917
 Expected: Error 20.917: Symbol expected after superclass colon (:)
 
 
 r = .myclass~sendWith("mymethod")
-    [trapped] Missing positional argument in method; argument 2 is required
+    [trapped] Missing positional argument in method; argument 2 is required.
     [trapped] Code= 93.903
 Expected: Error 93.903: Missing argument in method; argument 2 is required
 
 
 r = .myclass~sendWith("mymethod", .object /* not an array */, namedArguments:.directory~of(a3:3))
-    [trapped] positional argument 2 must have a single-dimensional array value; found "The Object class"
+    [trapped] positional argument 2 must be a single-dimensional array value; found "The Object class".
     [trapped] Code= 88.913
 Expected: Error 88.913: positional argument 2 must have a single-dimensional array value; found "The Object class"
 
 
 r = .myclass~sendWith("mymethod", (1, 2), namedArguments: "not a directory")
-    [trapped] SENDWITH namedArguments must be a directory or NIL
+    [trapped] SENDWITH namedArguments must be a directory or NIL.
     [trapped] Code= 98.900
 Expected: Error 98.900: sendWith: The value of NAMEDARGUMENTS must be a directory or NIL
 
 
 {}~rawExecutable~callwith(.array~of(), n:.directory~of(""))
-    [trapped] Expected a symbol for the named argument name; found ""
+    [trapped] Expected a symbol for the named argument name; found "".
     [trapped] Code= 20.900
 Expected: Error 20.900: Expected a symbol for the named argument name; found ""
 
 
 {}~rawExecutable~callwith(.array~of(), n:.directory~of("1"))
-    [trapped] Expected a symbol for the named argument name; found "1"
+    [trapped] Expected a symbol for the named argument name; found "1".
     [trapped] Code= 20.900
 Expected: Error 20.900: Expected a symbol for the named argument name; found "1"
 
 
 {}~rawExecutable~callwith(.array~of(), n:.directory~of("a 1"))
-    [trapped] Expected a symbol for the named argument name; found "a 1"
+    [trapped] Expected a symbol for the named argument name; found "a 1".
     [trapped] Code= 20.900
 Expected: Error 20.900: Expected a symbol for the named argument name; found "a 1"
 
 
 {}~rawExecutable~callwith(.array~of(), n:.directory~of(".a"))
-    [trapped] Expected a symbol for the named argument name; found ".a"
+    [trapped] Expected a symbol for the named argument name; found ".a".
     [trapped] Code= 20.900
 Expected: Error 20.900: Expected a symbol for the named argument name; found ".a"
 
 
 m = .method~new("", 'forward message "mymethod" namedArguments continue')
-    [trapped] Incorrect expression detected at "CONTINUE"
+    [trapped] Incorrect expression detected at "CONTINUE".
     [trapped] Code= 35.1
 Expected: Error 35.1:    Incorrect expression detected at "CONTINUE"
 
 
 m = .method~new("", 'forward message "mymethod" namedArguments')
-    [trapped] Missing expression following NAMEDARGUMENTS keyword of a FORWARD instruction
+    [trapped] Missing expression following NAMEDARGUMENTS keyword of a FORWARD instruction.
     [trapped] Code= 35.900
 Expected: Error 35.900:  Missing expression following NAMEDARGUMENTS keyword of a FORWARD instruction
 
@@ -1626,32 +1626,32 @@ Expected: Error 25.918: Duplicate [NAMED]ARGUMENTS or ARRAY keyword found
 
 r = .myclass~forwardNamedArgumentsNotDirectory
     forward message "mymethod" namedArguments ("not a directory") continue
-    [trapped] FORWARD namedArguments must be a directory or NIL
+    [trapped] FORWARD namedArguments must be a directory or NIL.
     [trapped] Code= 98.900
 Expected: Error 98.900: FORWARD: The value of 'NAMEDARGUMENTS' must be a directory or NIL
 
 
 r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", (1, 2, 3)){}
-    [trapped] Too many positional arguments in invocation of method; 3 expected
+    [trapped] Too many positional arguments in invocation of method; 3 expected.
     [trapped] Code= 93.902
 Expected: Error 93.902: Too many positional arguments in invocation of method; 3 expected
 
 
 r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", (1, 2), namedArguments:.directory~of(a3:3)){}
-    [trapped] Too many positional arguments in invocation of method; 3 expected
+    [trapped] Too many positional arguments in invocation of method; 3 expected.
     [trapped] Code= 93.902
 Expected: Error 93.902: Too many positional arguments in invocation of method; 3 expected
 
 
 r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", .array~of(1), namedArguments:.directory~of(a2:2, a3:3)){}
-    [trapped] Too many positional arguments in invocation of method; 3 expected
+    [trapped] Too many positional arguments in invocation of method; 3 expected.
     [trapped] Code= 93.902
 Expected: Error 93.902: Too many positional arguments in invocation of method; 3 expected
 
 
 call useNamed_EnvironmentSymbolNotAllowed
     use named arg .envSymbol
-    [trapped] Variable symbol must not start with a "."; found ".ENVSYMBOL"
+    [trapped] Variable symbol must not start with a "."; found ".ENVSYMBOL".
     [trapped] Code= 31.3
 Expected: Error 31.3: Variable symbol must not start with a "."; found ".ENVSYMBOL"
 
@@ -1675,7 +1675,7 @@ call useStrictZeroNamed a1:1
     named count=1
         A1 : 1
     use strict named arg
-    [trapped] Too many named arguments in invocation of USESTRICTZERONAMED; maximum expected is 0
+    [trapped] Too many named arguments in invocation of USESTRICTZERONAMED; maximum expected is 0.
     [trapped] Code= 40.4
 Expected: Error 40.4: Too many named arguments in invocation of USESTRICTZERONAMED; maximum expected is 0
 
@@ -1684,7 +1684,7 @@ call useStrictOneNamed_NoDefault
     positional count=0 size=0
     named count=0
     use strict named arg a1
-    [trapped] Not enough named arguments in invocation of USESTRICTONENAMED_NODEFAULT; minimum expected is 1
+    [trapped] Not enough named arguments in invocation of USESTRICTONENAMED_NODEFAULT; minimum expected is 1.
     [trapped] Code= 40.3
 Expected: Error 40.3: Not enough named arguments in invocation of USESTRICTONENAMED_NODEFAULT; minimum expected is 1
 
@@ -1694,25 +1694,25 @@ call useStrictOneNamed_NoDefault b1:1
     named count=1
         B1 : 1
     use strict named arg a1
-    [trapped] named argument B1 is not an expected argument name
+    [trapped] named argument B1 is not an expected argument name.
     [trapped] Code= 88.917
 Expected: Error 88.917: named argument B1 is not an expected argument name
 
 
 {use strict named arg n1,n2,n3}~rawExecutable~call()
-    [trapped] Not enough named arguments in invocation of <anonymous>; minimum expected is 3
+    [trapped] Not enough named arguments in invocation of <anonymous>; minimum expected is 3.
     [trapped] Code= 40.3
 Expected: Error 40.3: Not enough named arguments in invocation of ; minimum expected is 3
 
 
 {use strict named arg n1=1,n2,n3}~rawExecutable~call()
-    [trapped] Not enough named arguments in invocation of <anonymous>; minimum expected is 2
+    [trapped] Not enough named arguments in invocation of <anonymous>; minimum expected is 2.
     [trapped] Code= 40.3
 Expected: Error 40.3: Not enough named arguments in invocation of ; minimum expected is 2
 
 
 {use strict named arg n1=1,n2,n3=3}~rawExecutable~call()
-    [trapped] Not enough named arguments in invocation of <anonymous>; minimum expected is 1
+    [trapped] Not enough named arguments in invocation of <anonymous>; minimum expected is 1.
     [trapped] Code= 40.3
 Expected: Error 40.3: Not enough named arguments in invocation of ; minimum expected is 1
 
@@ -1723,7 +1723,7 @@ call useStrictOneNamed_NoDefault b1:1, b2:2
         B1 : 1
         B2 : 2
     use strict named arg a1
-    [trapped] Too many named arguments in invocation of USESTRICTONENAMED_NODEFAULT; maximum expected is 1
+    [trapped] Too many named arguments in invocation of USESTRICTONENAMED_NODEFAULT; maximum expected is 1.
     [trapped] Code= 40.4
 Expected: Error 40.4: Too many named arguments in invocation of USESTRICTONENAMED_NODEFAULT; maximum expected is 1
 
@@ -1733,7 +1733,7 @@ call useStrictOneNamed_WithDefault b2:2
     named count=1
         B2 : 2
     use strict named arg a1=1
-    [trapped] named argument B2 is not an expected argument name
+    [trapped] named argument B2 is not an expected argument name.
     [trapped] Code= 88.917
 Expected: Error 88.917: named argument B2 is not an expected argument name
 
@@ -1743,91 +1743,91 @@ call useStrictOneNamed_WithDefaultExpression b2:2
     named count=1
         B2 : 2
     use strict named arg a1=(1+0)
-    [trapped] named argument B2 is not an expected argument name
+    [trapped] named argument B2 is not an expected argument name.
     [trapped] Code= 88.917
 Expected: Error 88.917: named argument B2 is not an expected argument name
 
 
 call useStrictAutoNamed_WithoutEllipse
-    [trapped] STRICT AUTO requires the "..." argument marker at the end of the argument list
+    [trapped] STRICT AUTO requires the "..." argument marker at the end of the argument list.
     [trapped] Code= 99.900
 Expected: Error 99.900: STRICT AUTO requires the "..." argument marker at the end of the argument list
 
 
 {use named arg n()}
-    [trapped] Named argument minimum length must be a positive whole number
+    [trapped] Named argument minimum length must be a positive whole number.
     [trapped] Code= 26.900
 Expected: Error 26.900: Named argument minimum length must be a positive whole number
 
 
 {use named arg n(0)}
-    [trapped] Named argument minimum length must be a positive whole number
+    [trapped] Named argument minimum length must be a positive whole number.
     [trapped] Code= 26.900
 Expected: Error 26.900: Named argument minimum length must be a positive whole number
 
 
 {use named arg command, commands(7)}
-    [trapped] The named argument names are not unique, or their abbreviation is not distinctive enough
+    [trapped] The named argument names are not unique, or their abbreviation is not distinctive enough.
     [trapped] Code= 99.900
 Expected: Error 99.900: The named argument names are not unique, or their abbreviation is not distinctive enough
 
 
 {use named arg command(1), commands(7)}
-    [trapped] The named argument names are not unique, or their abbreviation is not distinctive enough
+    [trapped] The named argument names are not unique, or their abbreviation is not distinctive enough.
     [trapped] Code= 99.900
 Expected: Error 99.900: The named argument names are not unique, or their abbreviation is not distinctive enough
 
 
 {use named arg n, n}
-    [trapped] The named argument names are not unique, or their abbreviation is not distinctive enough
+    [trapped] The named argument names are not unique, or their abbreviation is not distinctive enough.
     [trapped] Code= 99.900
 Expected: Error 99.900: The named argument names are not unique, or their abbreviation is not distinctive enough
 
 
 {use named arg item(1), index(1)}
-    [trapped] The named argument names are not unique, or their abbreviation is not distinctive enough
+    [trapped] The named argument names are not unique, or their abbreviation is not distinctive enough.
     [trapped] Code= 99.900
 Expected: Error 99.900: The named argument names are not unique, or their abbreviation is not distinctive enough
 
 
 .context~setArgs
-    [trapped] Missing positional argument in method; argument 1 is required
+    [trapped] Missing positional argument in method; argument 1 is required.
     [trapped] Code= 93.903
 Expected: Error 93.903: Missing positional argument in method; argument 1 is required
 
 
 .context~setArgs(.nil)
-    [trapped] positional argument 1 must have a single-dimensional array value; found "The NIL object"
+    [trapped] positional argument 1 must be a single-dimensional array value; found "The NIL object".
     [trapped] Code= 88.913
 Expected: Error 88.913: positional argument 1 must have a single-dimensional array value; found "The NIL object"
 
 
 .context~setArgs(,)
-    [trapped] Too many positional arguments in invocation of method; 1 expected
+    [trapped] Too many positional arguments in invocation of method; 1 expected.
     [trapped] Code= 93.902
 Expected: Error 93.902: Too many positional arguments in invocation of method; 1 expected
 
 
 .context~setArgs(,,)
-    [trapped] Too many positional arguments in invocation of method; 1 expected
+    [trapped] Too many positional arguments in invocation of method; 1 expected.
     [trapped] Code= 93.902
 Expected: Error 93.902: Too many positional arguments in invocation of method; 1 expected
 
 
 .context~setArgs(.array~of(1), .directory~of(n1:1))
-    [trapped] Too many positional arguments in invocation of method; 1 expected
+    [trapped] Too many positional arguments in invocation of method; 1 expected.
     [trapped] Code= 93.902
 Expected: Error 93.902: Too many positional arguments in invocation of method; 1 expected
 
 
 .context~setArgs(.array~of(1), namedArguments:"not a directory")
-    [trapped] SETARGS namedArguments must be a directory or NIL
+    [trapped] SETARGS namedArguments must be a directory or NIL.
     [trapped] Code= 98.900
 Expected: Error 98.900: SETARGS namedArguments must be a directory or NIL
 
 
 .context~setArgs(.array~of(1), NOT_namedArguments:.directory~of(n1:1))
-    [trapped] named argument NOT_NAMEDARGUMENTS is not an expected argument name
+    [trapped] named argument NOT_NAMEDARGUMENTS is not an expected argument name.
     [trapped] Code= 88.917
 Expected: Error 88.917: named argument NOT_NAMEDARGUMENTS is not an expected argument name
 
