@@ -1,3 +1,12 @@
+-- Display informations about the system, because I have huge differences
+-- between my old MacBookPro 2010 and my Lenovo laptop at work (Lenovo 3 times
+-- faster). Better to know on which system the script was executed.
+parse version v; say v
+parse source system .; say system
+if system == "DARWIN" then "sysctl -n machdep.cpu.brand_string"
+if left(system, 3) = "WIN" then "wmic cpu get caption, deviceid, name, numberofcores, maxclockspeed"
+say
+
 call evaluate "demonstration"
 say
 say "Ended coactivities:" .Coactivity~endAll

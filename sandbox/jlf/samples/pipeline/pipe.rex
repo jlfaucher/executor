@@ -136,7 +136,11 @@ me = self~new                               -- create a new pipeStage instance
 return me>>follower                         -- perform the hook up
 
 
--- .myStep arg1 arg2
+/*
+.myStep arg1 arg2
+arg1 is managed by this class method which creates a new instance of myStep.
+arg2 is managed by the new instance of myStep (see the instance method " ")
+*/
 ::method " " class                          -- another way to pass arguments (one by one)
 use strict arg arg
 me = self~new                               -- no arg for init
@@ -188,6 +192,86 @@ follower = follower~new                     -- make sure this is an instance
 return self~appendSecondary(follower)       -- do the chain append logic
 
 
+/*
+Ok, it's a little bit tricky...
+It's about this kind of expression: recursive.3.depthFirst.cycles.memorize
+that can be used as-is as ONE option for the steps .inject, .fileTree, etc...
+    .fileTree recursive.3.depthFirst.cycles.memorize | .console
+
+When the trap NOVALUE is not activated, the value is RECURSIVE.3.DEPTHFIRST.CYCLES.MEMORIZE.
+All good.
+
+But when the trap NOVALUE is activated, this expression raises NOVALUE.
+It's easy to avoid the error : put all between quotes. "recursive.3.depthFirst.cycles.memorize"
+    .fileTree "recursive.3.depthFirst.cycles.memorize" | .console
+
+If I want to use a variable depth=3 instead of the hardcoded value 3, it should be
+    .fileTree "recursive."depth".depthFirst.cycles.memorize" | .console
+But that doesn't work:
+    Logical value must be exactly "0" or "1"; found "The console class"
+
+Not easy to understand why that happens...
+It's because only the operator " " is defined for PipeStage.
+The evaluation is
+    ((.fileTree "recursive."depth)".depthFirst.cycles.memorize")
+which is the string 'a fileTree3.depthFirst.cycles.memorize, instead of an instance of .fileTree.
+
+What is unfortunate is the message of the raised error: it complains first about the right part,
+even if the left part is itself a wrong value...
+    "not a boolean value" | .console    -- Logical value must be exactly "0" or "1"; found "The console class"
+    "not a boolean value" | .true       -- Logical value must be exactly "0" or "1"; found "not a boolean value"
+--> I changed the order of the checks in Executor.
+
+It's easy to avoid the error: put the whole expression in brackets.
+    .fileTree ("recursive."depth".depthFirst.cycles.memorize") | .console
+
+But since I overloaded the operator " " for PipeStage, I decided to override also the operators "" and "||".
+Both concatenate their right argument to the last option of the PipeStage instance on the left.
+Will see on usage if that's a good idea or not.
+*/
+
+/*
+.myStep "arg1".arg2
+    arg1 is managed by the class method " " which creates a new instance of myStep.
+    .arg2 is managed by the new instance of myStep (with the current instance method "")
+    Here .arg2 is an environment symbol. If it has no value then its default string value is used (not subject to NOVALUE)
+    "arg1" is the last option, the value of .arg2 is concatenated to this last option
+.myStep "arg1"arg2
+    arg1 is managed by the class method " " which creates a new instance of myStep.
+    .arg2 is managed by the new instance of myStep (with the current instance method "")
+    Here arg2 is a variable, subject to NOVALUE.
+    "arg1" is the last option, the value of arg2 is concatenated to this last option
+*/
+::method ""                                 -- the options are passed one by one
+expose options
+use strict arg arg
+lastOptionIndex = options~last
+lastOption = options[lastOptionIndex]
+options[lastOptionIndex] = lastOption || arg
+return self                                 -- by returning self, let chain the blank operators
+
+
+/*
+.myStep arg1 || "." || arg2
+arg1 is managed by the class method " " which creates a new instance of myStep.
+.arg2 is managed by the new instance of myStep (with the current instance method "||")
+The value of arg1 is the last option, the value of arg2 is concatenated to this last option.
+*/
+::method "||"                               -- the options are passed one by one
+expose options
+use strict arg arg
+lastOptionIndex = options~last
+lastOption = options[lastOptionIndex]
+options[lastOptionIndex] = lastOption || arg
+return self                                 -- by returning self, let chain the blank operators
+
+
+/*
+.myStep arg1 arg2
+arg1 is managed by the class method " " which creates a new instance of myStep.
+arg2 is managed by the new instance of myStep (with the current instance method " ")
+arg1 was the last option, arg2 becomes the new last option.
+*/
 ::method " "                                -- the options are passed one by one
 expose options
 use strict arg arg
