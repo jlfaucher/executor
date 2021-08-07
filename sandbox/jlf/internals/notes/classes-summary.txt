@@ -1,18 +1,22 @@
--------------------------------------------
-From Rony 
+https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/4E3FE87A.5020303%40wu-wien.ac.at/#msg27916367
+object, class, metaclass... Big picture ?
 
-In dynamic languages the class definitions (the name, the methods) are represented in objects as well. 
-The class used for creating objects that keep the definition of a class in ooRexx (and many other languages) is called "Class". 
-As instances of this class describe the structure and behaviour of individual classes the term "metaclass" is used for it. 
-So the ooRexx class "Class" is the metaclass of ooRexx. 
-Of course, if one subclasses "Class" it inherits all abilities of "Class" and as such keeps on being able to maintain the definition of classes. 
+
+-------------------------------------------
+From Rony
+
+In dynamic languages the class definitions (the name, the methods) are represented in objects as well.
+The class used for creating objects that keep the definition of a class in ooRexx (and many other languages) is called "Class".
+As instances of this class describe the structure and behaviour of individual classes the term "metaclass" is used for it.
+So the ooRexx class "Class" is the metaclass of ooRexx.
+Of course, if one subclasses "Class" it inherits all abilities of "Class" and as such keeps on being able to maintain the definition of classes.
 An instance of "Class" or one of its subclasses (hence of any metaclass) is called "class object".
 
 The instance methods of metaclasses (i.e. "class objects") are called "class methods", indicating that these methods belong to the class object.
 
-Finally ad methods of a class object: 
-all methods of a class object are "instance methods", sometimes dubbed "class methods", because they are the instance methods of a metclass/class object. 
-A class object is just a normal ooRexx object 
+Finally ad methods of a class object:
+all methods of a class object are "instance methods", sometimes dubbed "class methods", because they are the instance methods of a metclass/class object.
+A class object is just a normal ooRexx object
 
 
 ------------------------------------------
@@ -68,12 +72,12 @@ rexxref 5.1.2.14 (.Class~new) :
 JLF : This description of the ~new method is for a class object, not for a metaclass object.>>
       The doc should say that the ~new method takes one argument : the name of the class to create.
 ----
-4.2.1 : 
+4.2.1 :
 <<When you create a new class, it is always a subclass of an existing class. You can create new classes with
   the ::CLASS directive or by sending the SUBCLASS or MIXINCLASS message to an existing class.>>
 
 
-A metaclass is a class that you can use to create a class, that is, a class whose instances are classes. 
+A metaclass is a class that you can use to create a class, that is, a class whose instances are classes.
 The Class class and its subclasses are metaclasses.
 
 
@@ -110,7 +114,7 @@ RexxArray *RexxClass::getSuperClasses() --> (RexxArray *)this->instanceSuperClas
 RexxClass *RexxClass::getBaseClass() --> this->baseClass
 
 ~metaclass
-RexxClass *RexxClass::getMetaClass() --> 
+RexxClass *RexxClass::getMetaClass() -->
     if (this->isPrimitiveClass()) return TheClassClass; //this is always .class
     else return(RexxClass *)this->metaClass->get(1); // first member of list
 
