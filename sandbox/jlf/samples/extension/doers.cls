@@ -243,7 +243,7 @@ Ex :
         if var("result") then r = result
         if r == .nil then return .nil -- stop now
         doer = doers~pull
-        -- The following doers take only one positional argument : the result returned by the previous doer
+        -- The following doers take only one positional argument: the result returned by the previous doer
         do while doer <> .nil
             doer~do(r, item:r)
             -- use the current result if any, otherwise use the previous result (that allow to use a doer to display intermediate value, for example)
@@ -327,13 +327,13 @@ Ex :
           (lambda (x) (f (lambda (v) ((x x) v)))))))
 
     The Y combinator allows recursion to be defined as a set of rewrite rules.
-    It takes a single argument, which is a function that isn't recursive (JLF : here, no argument, use self which is a Doer).
+    It takes a single argument, which is a function that isn't recursive (JLF: here, no argument, use self which is a Doer).
     It returns a version of the function which is recursive.
 
     Example :
         say {use arg f; return {expose f; use arg n; if n==0 then return 1; else return n * f~(n-1) } }~Y~(10)
 
-    Remember : ooRexx supports anonymous recursion, no need of the Y combinator in the real life...
+    Remember: ooRexx supports anonymous recursion, no need of the Y combinator in the real life...
         say { use arg n; if n==0 then return 1; else return n * .context~executable~(n-1)}~(10)
 */
 ::method Y unguarded
@@ -409,7 +409,7 @@ Ex :
         use strict arg x
         Y3 = {
                      expose x
-                     args = arg(1, "a")
+                     args = .context~args
                      kwargs = .context~namedArgs
                      return x~(x)~doWith(args, n:kwargs)
                 }
@@ -423,7 +423,7 @@ Ex :
 /*
     Remember :
     The method 'run' is a private method. So can be called only from another method of object...
-    "hello"~run(aMethod) --> Error : Object "hello" does not understand message "RUN" (ok, 'run' is private)
+    "hello"~run(aMethod) --> Error: Object "hello" does not understand message "RUN" (ok, 'run' is private)
     aMethod~do("hello") --> No error, display "hello" (so the private method is visible ?)
     --> It's because the ~run method is called from the ~do method which has been added by extension.
 */
@@ -489,10 +489,10 @@ Ex :
 
     a RexxSourceLiteral is an internal rexx object, created by the parser, not accessible from ooRexx scripts.
     a RexxSourceLiteral holds the following properties, shared by all the RexxBlock instances created from it :
-    - source : the text between the curly brackets {...} as an array of lines, including the tag ::xxx if any.
-    - package : the package which contain the source literal.
-    - kind : kind of source, derived from the source's tag.
-    - rawExecutable : routine or method created at parse-time (immediate parsing) after transformation of the source.
+    - source: the text between the curly brackets {...} as an array of lines, including the tag ::xxx if any.
+    - package: the package which contain the source literal.
+    - kind: kind of source, derived from the source's tag.
+    - rawExecutable: routine or method created at parse-time (immediate parsing) after transformation of the source.
     The source is transformed to accept auto named arguments, and to return implicitely the result of the last evaluated expression.
     Source before transformation: ...
     Source after transformation: use auto name arg ; option "NOCOMMANDS";...;if var("result") then return result
@@ -500,10 +500,10 @@ Ex :
     a RexxBlock is created each time the RexxSourceLiteral is evaluated, and is accessible from ooRexx scripts.
     a RexxBlock contains informations that depends on the evaluation context.
     In particular, when a RexxBlock is a closure's source, it will hold a snapshot of the context's variables.
-    ~source : source of the RexxSourceLiteral before transformation.
-    ~variables : snapshot of the context's variables (a directory), created only if the source starts with "expose".
-    ~rawExecutable : the raw executable of the RexxSourceLiteral, created at parse-time (routine or method).
-    ~executable : cached executable, managed by doers.cls.
+    ~source: source of the RexxSourceLiteral before transformation.
+    ~variables: snapshot of the context's variables (a directory), created only if the source starts with "expose".
+    ~rawExecutable: the raw executable of the RexxSourceLiteral, created at parse-time (routine or method).
+    ~executable: cached executable, managed by doers.cls.
 
     Example:
         blocks=.array~new
@@ -652,7 +652,7 @@ Ex :
 
 
 -----------------------------------------------------------------------------
--- Closure by value : not yet a real closure but useful anyway
+-- Closure by value: not yet a real closure but useful anyway
 -- (assuming that only closures by reference are real closures...)
 -- good point, no risk of race conditions...
 

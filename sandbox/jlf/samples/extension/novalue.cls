@@ -2,9 +2,10 @@
 
 --::options trace i
 
--- When a variable has no value, the interpreter sends the message "NOVALUE" to this class
--- (because this class is registered in .LOCAL under the name "NOVALUE").
--- This class is used to manage global variables like i, infinity, indeterminate.
+-- When a variable has no value, the interpreter sends the message "NOVALUE" to
+-- the object registered in .LOCAL under the name "NOVALUE" (un-documented feature,
+-- see RexxActivation::novalueHandler)..
+-- The class GlobalVariables is used to manage global variables like i, infinity, indeterminate.
 
 ::class "GlobalVariables" public
 
