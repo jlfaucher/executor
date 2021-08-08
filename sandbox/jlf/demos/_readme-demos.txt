@@ -8,6 +8,8 @@ Current demos:
 executor-demo-array.txt
 executor-demo-classic_rexx.txt
 executor-demo-extensions.txt
+executor-demo-text-compatibility.txt
+executor-demo-text-internal_checks.txt
 executor-demo-text.txt
 ooRexxShell-demo-helpers.txt
 ooRexxShell-demo-interpreters.txt

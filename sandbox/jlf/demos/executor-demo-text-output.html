@@ -30,7 +30,7 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
-</span><span style="font-weight:bold;color:green;">Input queue name: S12db9Q7fd448420450
+</span><span style="font-weight:bold;color:green;">Input queue name: S10c8Q7fd448427150
 </span>
 <span style="color:blue;">----------------
 </span><span style="color:blue;">-- Text encoding
@@ -279,10 +279,10 @@ a Table (9 items)
 '68CD86CCB5E1B78ACC9FCD89CD94CC9FCCB2 65CCBECCB7CD87CCBCCD89CCB2 6CEFB8A3EFB8A0CDA6CCB8CD93CCADCC97E1B7BFCCA8 6CCC91CC88CDAECD8CEFB8A1CC95CCB6CCAFCCBB 6FE1B783CDAACC86CC81E1B788CD81CD9ECCB5CC9DCD9CCCACCCAFE1B78ACDA2CCADCCAFCCA6'
 
 <span style="color:blue;">Supported encoding conversions:
-</span><span style="color:blue;">Byte to UTF-8
-</span><span style="color:blue;">Byte to UTF-16
-</span><span style="color:blue;">UTF-8 to UTF-16
-</span><span style="color:blue;">UTF-16 to UTF-8
+</span><span style="color:blue;">Byte to UTF-8, UTF-16, UTF-32
+</span><span style="color:blue;">UTF-8 to UTF-16, UTF-32
+</span><span style="color:blue;">UTF-16 to UTF-8, UTF-32
+</span><span style="color:blue;">UTF-32 to UTF-8, UTF-16
 </span>
 <span style="color:blue;">The Byte_Encoding can be specialized to add support for specific encoding conversions.
 </span><span style="font-weight:bold;color:olive;">
@@ -336,42 +336,55 @@ T'Un œuf de chez MaPoule™ coûte ±0.40€'
 </span>ooRexx[bash]&gt; txt_utf8~c2x=
 '55 6E 20 C593 75 66 20 64 65 20 63 68 65 7A 20 4D 61 50 6F 75 6C 65 E284A2 20 63 6F C3BB 74 65 20 C2B1 30 2E 34 30 E282AC'
 
-<span style="color:blue;">Comparing the size of UTF-8 encoding vs UTF-16 encoding for various strings.
-</span><span style="color:blue;">These strings are UTF-8 encoded.
+<span style="color:blue;">Comparing the size of UTF-8 vs UTF-16 vs UTF-32 for various strings.
+</span><span style="color:blue;">These strings are initially UTF-8 encoded.
 </span><span style="color:blue;">The first step is to get a wrapper RexxText (default encoding is UTF-8).
-</span><span style="color:blue;">The second step is to convert to UTF-16.
+</span><span style="color:blue;">The second step is to convert to UTF-16 or UTF-32.
+</span><span style="color:blue;">The description includes technical informations (t:1) about the internal tables for indexation.
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; howMuchOfStorage = &quot;how much of storage?&quot;
 <span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; howMuchOfStorage~text~description=              <span style="color:blue;">-- UTF-8:  20 graphemes, 20 codepoints, 20 bytes</span>
-'UTF-8 ASCII (20 graphemes, 20 codepoints, 20 bytes, 0 error)'
+</span>ooRexx[bash]&gt; howMuchOfStorage~text~description(t:1)=         <span style="color:blue;">-- UTF-8:  20 graphemes, 20 codepoints, 20 bytes</span>
+'UTF-8 ASCII (20 graphemes (0 index), 20 codepoints (0 index), 20 bytes, 0 error)'
 <span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; howMuchOfStorage~text~utf16~description=        <span style="color:blue;">-- UTF-16: 20 graphemes, 20 codepoints, 40 bytes</span>
-'UTF-16BE ASCII (20 graphemes, 20 codepoints, 40 bytes, 0 error)'
+</span>ooRexx[bash]&gt; howMuchOfStorage~text~utf16~description(t:1)=   <span style="color:blue;">-- UTF-16: 20 graphemes, 20 codepoints, 40 bytes</span>
+'UTF-16BE ASCII (20 graphemes (0 index), 20 codepoints (0 index), 40 bytes, 0 error)'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; howMuchOfStorage~text~utf32~description(t:1)=
+'UTF-32BE ASCII (20 graphemes (0 index), 20 codepoints (0 index), 80 bytes, 0 error)'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; rexCharacters = &quot;'rex' in their name: ꎅ ꎜ ꏑ 🦖&quot;
 <span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; rexCharacters~text~description=                 <span style="color:blue;">-- UTF-8:  28 graphemes, 28 codepoints, 37 bytes</span>
-'UTF-8 not-ASCII (28 graphemes, 28 codepoints, 37 bytes, 0 error)'
+</span>ooRexx[bash]&gt; rexCharacters~text~description(t:1)=            <span style="color:blue;">-- UTF-8:  28 graphemes, 28 codepoints, 37 bytes</span>
+'UTF-8 not-ASCII (28 graphemes (6 indexes from index 23), 28 codepoints (6 indexes from index 23), 37 bytes, 0 error)'
 <span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; rexCharacters~text~utf16~description=           <span style="color:blue;">-- UTF-16: 28 graphemes, 28 codepoints, 58 bytes</span>
-'UTF-16BE not-ASCII (28 graphemes, 28 codepoints, 58 bytes, 0 error)'
+</span>ooRexx[bash]&gt; rexCharacters~text~utf16~description(t:1)=      <span style="color:blue;">-- UTF-16: 28 graphemes, 28 codepoints, 58 bytes</span>
+'UTF-16BE not-ASCII (28 graphemes (0 index), 28 codepoints (0 index), 58 bytes, 0 error)'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; rexCharacters~text~utf32~description(t:1)=
+'UTF-32BE not-ASCII (28 graphemes (0 index), 28 codepoints (0 index), 112 bytes, 0 error)'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; family = &quot;👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦&quot;
 <span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; family~text~description=                        <span style="color:blue;">-- UTF-8:  1 grapheme, 15 codepoints, 53 bytes</span>
-'UTF-8 not-ASCII (1 grapheme, 15 codepoints, 53 bytes, 0 error)'
+</span>ooRexx[bash]&gt; family~text~description(t:1)=                   <span style="color:blue;">-- UTF-8:  1 grapheme, 15 codepoints, 53 bytes</span>
+'UTF-8 not-ASCII (1 grapheme (0 index), 15 codepoints (14 indexes from index 2), 53 bytes, 0 error)'
 <span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; family~text~utf16~description=                  <span style="color:blue;">-- UTF-16: 1 grapheme, 15 codepoints, 46 bytes</span>
-'UTF-16BE not-ASCII (1 grapheme, 15 codepoints, 46 bytes, 0 error)'
+</span>ooRexx[bash]&gt; family~text~utf16~description(t:1)=             <span style="color:blue;">-- UTF-16: 1 grapheme, 15 codepoints, 46 bytes</span>
+'UTF-16BE not-ASCII (1 grapheme (0 index), 15 codepoints (14 indexes from index 2), 46 bytes, 0 error)'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; family~text~utf32~description(t:1)=
+'UTF-32BE not-ASCII (1 grapheme (0 index), 15 codepoints (0 index), 60 bytes, 0 error)'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; helloZalgo = &quot;h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞&quot;
 <span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; helloZalgo~text~description=                    <span style="color:blue;">-- UTF-8:  5 graphemes, 54 codepoints, 111 bytes</span>
-'UTF-8 not-ASCII (5 graphemes, 54 codepoints, 111 bytes, 0 error)'
+</span>ooRexx[bash]&gt; helloZalgo~text~description(t:1)=               <span style="color:blue;">-- UTF-8:  5 graphemes, 54 codepoints, 111 bytes</span>
+'UTF-8 not-ASCII (5 graphemes (4 indexes from index 2), 54 codepoints (52 indexes from index 3), 111 bytes, 0 error)'
 <span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; helloZalgo~text~utf16~description=              <span style="color:blue;">-- UTF-16: 5 graphemes, 54 codepoints, 108 bytes</span>
-'UTF-16BE not-ASCII (5 graphemes, 54 codepoints, 108 bytes, 0 error)'
+</span>ooRexx[bash]&gt; helloZalgo~text~utf16~description(t:1)=         <span style="color:blue;">-- UTF-16: 5 graphemes, 54 codepoints, 108 bytes</span>
+'UTF-16BE not-ASCII (5 graphemes (4 indexes from index 2), 54 codepoints (0 index), 108 bytes, 0 error)'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; helloZalgo~text~utf32~description(t:1)=
+'UTF-32BE not-ASCII (5 graphemes (4 indexes from index 2), 54 codepoints (0 index), 216 bytes, 0 error)'
 
 <span style="color:blue;">End of demonstration.
 </span></pre>

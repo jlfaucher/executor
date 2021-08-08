@@ -1,4 +1,4 @@
-executorDemos = array classic_rexx extensions text text-internal_checks
+executorDemos = array classic_rexx extensions text text-internal_checks text-compatibility
 ooRexxShellDemos = helpers interpreters queries
 
 help:
@@ -28,7 +28,7 @@ txt::
 	@for d in $(ooRexxShellDemos); do (make ooRexxShell-demo-$$d-output.txt); done
 
 %.cast : %.txt
-	asciinema rec -c "bash -i -c 'cat $? | oorexxshell --showInitialization'" --overwrite $@
+	-asciinema rec -c "bash -i -c 'cat $? | oorexxshell --showInitialization'" --overwrite $@
 
 %-output.html : %.cast
 	asciinema cat $? | aha > $@

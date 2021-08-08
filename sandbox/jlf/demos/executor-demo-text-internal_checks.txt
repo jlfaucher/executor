@@ -227,4 +227,3 @@ End of demonstration.
 */
 prompt directory on
 demo off
-RC = 0 -- the syntax errors raised during this demo impact RC. Must clear it otherwise the Makefile stops.

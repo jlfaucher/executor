@@ -364,6 +364,11 @@ Similar to ~makeArray(separator), with these differences:
     end
 
 
+::method hasText
+    expose text
+    return var("text")
+
+
 ::method makeRexxText
     use strict arg -- none
     return self~text
@@ -385,6 +390,11 @@ Similar to ~makeArray(separator), with these differences:
     expose indexer -- The RexxText is not referencing directly the String, it's the indexer
     use strict arg string, encoding="default"
     .validate~classtype("1", string, .string)
+    -- Some strings are interned by the interpreter, and the same instance can be returned
+    -- at different occasions.This is the case for the empty string (null string singleton
+    -- OREF_NULLSTRING. If the string is already linked to a RexxText then a new instance
+    -- must be created (don't make a copy, that would copy the link to the RexxText).
+    if string~hasText then string = .String~new(string)
     encoding = .Encoding~factory(encoding, string)
     indexer = encoding~analyze(string)
     -- if we reach this point, it means the analyze is ok, otherwise an error was raised.
@@ -471,6 +481,10 @@ base class...
 -- Remember: don't use expose indexer, because it's not visible. Must use self~indexer.
 
 ::method description
+    forward to (self~indexer)
+
+
+::method descriptionForError
     forward to (self~indexer)
 
 
@@ -626,10 +640,6 @@ base class...
     forward to (self~indexer) -- always new String and new RexxText
 
 
-::method c2x
-    forward to (self~indexer)
-
-
 ::method c2u
     forward to (self~indexer)
 
@@ -649,9 +659,18 @@ base class...
     return (self~isUTF8 | self~isWTF8) & self~string~isASCII
 
 
+::method checkHexadecimalValueCompatibility
+    -- The purpose is not to check that the text is an hexadecimal value (will be checked by the String class)
+    -- The purpose is to ensure that the text encoding is compatible with the String class,
+    -- and to provide an accurate error.
+    use strict arg -- none
+    if \self~isASCII then raise syntax 93.900 array("The" self~description(short:.true) "text is not compatible with a Rexx hexadecimal value")
+
+
 ::method checkNumericValueCompatibility
     -- The purpose is not to check that the text is a numeric value (will be checked by the String class)
     -- The purpose is to ensure that the text encoding is compatible with the String class,
+    -- and to provide an accurate error.
     use strict arg -- none
     if \self~isASCII then raise syntax 93.900 array("The" self~description(short:.true) "text is not compatible with a Rexx numeric value")
 
@@ -659,12 +678,147 @@ base class...
 ::method checkLogicalValueCompatibility
     -- The purpose is not to check that the text is a logical value (will be checked by the String class)
     -- The purpose is to ensure that the text encoding is compatible with the String class,
+    -- and to provide an accurate error.
     use strict arg -- none
     if \self~isASCII then raise syntax 93.900 array("The" self~description(short:.true) "text is not compatible with a Rexx logical value")
 
 
 /******************************************************************************/
 ::class "RexxTextStringInterface" mixinclass Object private
+
+/*
+Class methods
+=============
+alnum                           (new 5)
+alpha                           (new 5)
+blank                           (new 5)
+cntrl                           (new 5)
+cr                              (new 5)
+digit                           (new 5)
+graph                           (new 5)
+lower                           (new 5)
+nl                              (new 5)
+null                            (new 5)
+print                           (new 5)
+punct                           (new 5)
+space                           (new 5)
+tab                             (new 5)
+upper                           (new 5)
+xdigit                          (new 5)
+
+Instance methods
+================
+[]                              (new 5) full
+?                               (new 5) full
+abbrev
+abs
+append                          (new 5) full
+b2x
+bitAnd
+bitOr
+bitXor
+c2d                             full
+c2x                             full
+caselessAbbrev
+caselessChangeStr
+caselessCompare
+caselessCompareTo               temporary wrong fallback
+caselessContains                (new 5)
+caselessContainsWord            (new 5)
+caselessCountStr
+caselessEndsWith                (new 5)
+caselessEquals
+caselessLastPos
+caselessMatch
+caselessMatchChar
+caselessPos
+caselessStartsWith              (new 5)
+caselessWordPos
+center
+centre
+changeStr
+contains                        (new 5) partial
+containsWord                    (new 5)
+compare
+compareTo
+copies                          full
+countStr
+d2c
+d2x
+dataType
+decodeBase64
+delStr
+delWord
+encodeBase64
+endsWith                        (new 5)
+equals
+format
+hashCode                        full
+insert
+lastPos
+left
+length                          full
+lower
+makeArray
+makeString                      full (raise an error if not compatible with String)
+match                           partial
+matchChar                       partial
+max
+min
+modulo                          (new 5)
+overlay
+pos                             partial
+replaceAt
+reverse
+right
+round
+sign
+space
+startsWith                      (new 5)
+strip
+subChar
+substr
+subWord
+subWords
+translate
+trunc
+upper
+verify
+word
+wordIndex
+wordLength
+wordPos
+words
+x2b                             full (raise an error if not compatible with String)
+x2c                             full (raise an error if not compatible with String)
+x2d
+*/
+
+::method "[]"
+    -- ooRexx v5
+    use strict arg n, length=1
+    maxLength = self~length - n + 1 -- don't care about n<=0, will be caught by substr
+    if maxLength <= 0 then return self~encoding~emptyString
+    return self~substr(n, min(length, maxLength))
+
+
+::method ?
+    -- ooRexx v5
+    self~checkLogicalValueCompatibility
+    forward to (self~string)
+
+
+::method append
+    forward to (self~indexer)
+
+
+::method c2d
+    forward to (self~string)
+
+
+::method c2x
+    forward to (self~indexer)
+
 
 ::method caselessCompareTo
     use strict arg text, n=1, length=(self~length)
@@ -674,11 +828,23 @@ base class...
 
 ::method contains
     -- regex.cls uses the method .String~contains which is available only from ooRexx v5.
-    if self~isCompatibleWithString then do
+    use arg other -- not strict, just need to check this one
+    otherIsCompatibleWithString = .true
+    if other~isA(.RexxText), \other~isCompatibleWithString then otherIsCompatibleWithString = .false
+    if self~isCompatibleWithString, otherIsCompatibleWithString then do
         forward message "pos" to (self~string) continue
         return result <> 0
     end
     raise syntax 93.900 array("Method 'contains' not yet implemented for Unicode")
+
+
+::method copies
+    forward to (self~string) continue
+    return .RexxText~new(result, self~encoding)
+
+
+::method hashCode
+    forward to (self~string)
 
 
 ::method length -- number of graphemes
@@ -687,19 +853,26 @@ base class...
 
 
 ::method match
-    use strict arg start, other, n=1, length=(self~length)
-    if self~isCompatibleWithString then forward to (self~string)
+    use arg start, other, ... -- not strict, just need to check 'other'
+    otherIsCompatibleWithString = .true
+    if other~isA(.RexxText), \other~isCompatibleWithString then otherIsCompatibleWithString = .false
+    if self~isCompatibleWithString, otherIsCompatibleWithString then forward to (self~string)
     raise syntax 93.900 array("Method 'match' not yet implemented for Unicode")
 
 
 ::method matchChar
-    use strict arg n, chars
-    if self~isCompatibleWithString then forward to (self~string)
+    use arg n, chars -- not strict, just need to check 'other'
+    charsIsCompatibleWithString = .true
+    if chars~isA(.RexxText), \chars~isCompatibleWithString then charsIsCompatibleWithString = .false
+    if self~isCompatibleWithString, charsIsCompatibleWithString then forward to (self~string)
     raise syntax 93.900 array("Method 'matchChar' not yet implemented for Unicode")
 
 
 ::method pos
-    if self~isCompatibleWithString then forward to (self~string)
+    use arg needle, ... -- not strict, just need to check 'needle'
+    needleIsCompatibleWithString = .true
+    if needle~isA(.RexxText), \needle~isCompatibleWithString then needleIsCompatibleWithString = .false
+    if self~isCompatibleWithString, needleIsCompatibleWithString then forward to (self~string)
     use strict arg needle, start=1, length=(self~length)
     raise syntax 93.900 array("Method 'pos' not yet implemented for Unicode")
 
@@ -709,12 +882,42 @@ base class...
 
 
 ::method substr
-    if self~isCompatibleWithString then forward to (self~string)
+    use arg _startB, _length, pad -- not strict, just need to check 'pad'
+    padIsCompatibleWithString = .true
+    if arg(3, "e") then do
+        if pad~isA(.RexxText), \pad~isCompatibleWithString then padIsCompatibleWithString = .false
+        else if pad~length > 1 then padIsCompatibleWithString = .false -- maybe its length will be 1 when converted to default encoding
+    end
+    if self~isCompatibleWithString, padIsCompatibleWithString then do
+        forward to (self~string) continue
+        return .RexxText~new(result, self~encoding)
+    end
     forward to (self~indexer)
+
+
+::method x2b
+    self~checkHexadecimalValueCompatibility
+    forward to (self~string)
+
+
+::method x2c
+    self~checkHexadecimalValueCompatibility
+    forward to (self~string) continue
+    return .RexxText~new(result, self~encoding)
 
 
 /******************************************************************************/
 ::class "IndexerStringInterface" mixinclass Object private
+
+::method append
+    use strict arg text
+    text = text~request("RexxText")
+    if text == .nil then signal must_have_a_string_value
+    encoding = .Encoding~forConcatenation(self~string~text, text) -- raise an error if not compatible
+    return encoding~concatenate(self~string~text, text)
+
+    must_have_a_string_value:   raise syntax 93.938 array(3)
+
 
 ::method length -- number of graphemes
     use strict arg -- none
@@ -722,7 +925,35 @@ base class...
 
 
 ::method substr
-    use strict arg n, length=(self~length), pad
+    use strict arg startC, length=(max(0, self~length - startC + 1)), pad=(self~class~spaceCharacter)
+
+    if datatype(startC, "w"), startC > 0 then nop
+    else signal incorrect_position
+
+    if datatype(length, "w"), length >= 0 then nop
+    else signal invalid_length
+
+    pad = pad~request("RexxText")
+    if pad == .nil then signal must_have_a_string_value
+    if pad~length <> 1 then incorrect_pad
+
+    encoding = .Encoding~forConcatenation(self~string~text, pad) -- raise an error if not compatible
+
+    if startC > self~length then return pad~copies(length)
+    remainingLength = self~length - startC + 1 -- always >= 0
+    lengthPad = length - remainingLength -- can be <= 0
+    endC = min(startC + length - 1, self~length)
+
+    startB = self~graphemeIndex(startC)
+    endB = self~graphemeIndex(endC+1)
+    subtxt = .RexxText~new(self~string~substr(startB, endB - startB), self~class)
+    if lengthPad <= 0 then return subtxt
+    return encoding~concatenate(subtxt, pad~copies(lengthPad))
+
+    incorrect_pad:              raise syntax 93.922 array(pad~descriptionForError)
+    invalid_length:             raise syntax 93.923 array(length)
+    incorrect_position:         raise syntax 93.924 array(startC)
+    must_have_a_string_value:   raise syntax 93.938 array(3)
 
 
 /******************************************************************************/
@@ -1482,37 +1713,37 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 
 ::method forConcatenation class
-    use strict arg left, right
-    leftEncoding = left~encoding
-    rightEncoding = right~encoding
+    use strict arg leftText, rightText
+    leftEncoding = leftText~encoding
+    rightEncoding = rightText~encoding
 
     if leftEncoding == rightEncoding then return leftEncoding
 
     if leftEncoding~isUTF8, rightEncoding~isWTF8 then return .WTF8_Encoding
     if leftEncoding~isWTF8, rightEncoding~isUTF8 then return .WTF8_Encoding
     -- Keep the following tests after the previous tests, to keep the priority for WTF8
-    if left~isASCII, (rightEncoding~isUTF8 | rightEncoding~isWTF8) then return rightEncoding
-    if (leftEncoding~isUTF8 | leftEncoding~isWTF8), right~isASCII then return leftEncoding
+    if leftText~isASCII, (rightEncoding~isUTF8 | rightEncoding~isWTF8) then return rightEncoding
+    if (leftEncoding~isUTF8 | leftEncoding~isWTF8), rightText~isASCII then return leftEncoding
 
     if leftEncoding~isUTF16BE, rightEncoding~isWTF16BE then return .WTF16BE_Encoding
     if leftEncoding~isWTF16BE, rightEncoding~isUTF16BE then return .WTF16BE_Encoding
     if leftEncoding~isUTF16LE, rightEncoding~isWTF16LE then return .WTF16LE_Encoding
     if leftEncoding~isWTF16LE, rightEncoding~isUTF16LE then return .WTF16LE_Encoding
 
-    raise syntax 93.900 array("Encoding: cannot concatenate" left~description(short:.true) "text with" right~description(short:.true) "text")
+    raise syntax 93.900 array("Encoding: cannot concatenate" leftText~description(short:.true) "text with" rightText~description(short:.true) "text")
 
 
 ::method comparisonMode class
     -- if a byte comparison is possible then return "b"
     -- if a unicode comparision is possible then return "u"
     -- otherwise raise an error
-    use strict arg left, right
-    if left~isByte, right~isByte, left~encoding == right~encoding then return "b"
-    if left~isASCII, right~isASCII then return "b"
-    if left~isASCII, (right~isUTF8 | right~isWTF8) then return "u"
-    if (left~isUTF8 | left~isWTF8), right~isASCII then return "u"
-    if left~isUnicode & right~isUnicode then return "u"
-    raise syntax 93.900 array("Encoding: cannot compare" left~description(short:.true) "text with" right~description(short:.true) "text")
+    use strict arg leftText, rightText
+    if leftText~isByte, rightText~isByte, leftText~encoding == rightText~encoding then return "b"
+    if leftText~isASCII, rigrightTextht~isASCII then return "b"
+    if leftText~isASCII, (rightText~isUTF8 | rightText~isWTF8) then return "u"
+    if (leftText~isUTF8 | leftText~isWTF8), rightText~isASCII then return "u"
+    if leftText~isUnicode & rightText~isUnicode then return "u"
+    raise syntax 93.900 array("Encoding: cannot compare" leftText~description(short:.true) "text with" rightText~description(short:.true) "text")
 
 
 /******************************************************************************/
@@ -1632,9 +1863,24 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     end
     buffer = .mutableBuffer~new(, bufferSize)
     do i = 1 to arg()
-        arg(i)~encoding~appendToBuffer(buffer, arg(i)~string)
+        -- Only WTF-8 has a specific implementation of appendToBuffer.
+        -- When concatenating WTF-8 with UTF-8 or ASCII, the target encoding is WTF-8.
+        -- So self is WTF-8.
+        -- [later]
+        -- Finally, it appears that the initial implementation was correct.
+        -- The special concatenation rules for WTF-8 must be applied only if arg(i) is WTF-8.
+        -- So arg(i)~encoding~appendToBuffer is better than self~appendToBuffer.
+        arg(i)~encoding~appendToBuffer(buffer, arg(i)~string) -- "old" implementation is the good one
+        -- self~appendToBuffer(buffer, arg(i)~string) -- "new" implementation is a bad idea.
     end
     return .RexxText~new(buffer~string, self)
+
+
+::method emptyString class
+    expose emptyString
+    use strict arg -- none
+    if \var("emptyString") then emptyString = .RexxText~new("", self)
+    return emptyString
 
 
 ::method spaceCharacter class
@@ -1673,20 +1919,45 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 
 ::method description
+    /*
+    "noël👩‍👨‍👩‍👧🎅"~text~description(s:1)          -- 'UTF-8 not-ASCII'
+    "noël👩‍👨‍👩‍👧🎅"~text~description               -- 'UTF-8 not-ASCII (6 graphemes, 12 codepoints, 34 bytes, 0 error)'
+    "noël👩‍👨‍👩‍👧🎅"~text~description(t:1)          -- 'UTF-8 not-ASCII (6 graphemes (3 indexes from index 4), 12 codepoints (9 indexes from index 4), 34 bytes, 0 error)'
+    "noël👩‍👨‍👩‍👧🎅"~text~utf16~description(t:1)    -- 'UTF-16BE not-ASCII (6 graphemes (1 index from index 6), 12 codepoints (7 indexes from index 6), 34 bytes, 0 error)'
+    "noël👩‍👨‍👩‍👧🎅"~text~utf32~description(t:1)    -- 'UTF-32BE not-ASCII (6 graphemes (1 index from index 6), 12 codepoints (0 index), 48 bytes, 0 error)'
+    */
     use strict arg -- none
-    use strict named arg short=.false
+    use strict named arg short(1)=.false, technical(1)=.false
     if self~string~isASCII then asciiness = "ASCII"
                            else asciiness = "not-ASCII"
     if self~errors == .nil then errorCount = 0
                            else errorCount = self~errors~size
+    techInfoCodepoints = ""
+    techInfoGraphemes = ""
+    if technical then do
+        if self~codepointIndexes == .nil,
+            then techInfoCodepoints = " (0 index)"
+            else techInfoCodepoints = " ("self~codepointIndexes~items~singularPluralCount("index", "indexes")" from index "self~codepointIndexes~first")"
+        if self~graphemeIndexes == .nil,
+            then techInfoGraphemes = " (0 index)"
+            else techInfoGraphemes = " ("self~graphemeIndexes~items~singularPluralCount("index", "indexes")" from index "self~graphemeIndexes~first")"
+    end
     sizesDescription = ""
     if \short then sizesDescription = "(" ||,
-                                      self~graphemes~count~singularPluralCount("grapheme", "graphemes")",",
-                                      self~codepoints~count~singularPluralCount("codepoint", "codepoints")",",
+                                      self~graphemes~count~singularPluralCount("grapheme", "graphemes")techInfoGraphemes",",
+                                      self~codepoints~count~singularPluralCount("codepoint", "codepoints")techInfoCodepoints",",
                                       self~string~length~singularPluralCount("byte", "bytes")",",
                                       errorCount~singularPluralCount("error", "errors"),
                                       || ")"
     return " "~concatenateSeparated(self~class~name, asciiness, sizesDescription)
+
+
+::method DescriptionForError
+    -- Display the <length> first characters
+    use strict arg length=10
+    string = self~string
+    if string~length > length then string = string~left(length)"..."
+    return self~description(s:1) quoted(self~string~left(10))
 
 
 ::method c2x
@@ -2065,12 +2336,8 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         end
 
         -- From here, we know that the current codepoint is valid
+        if codepoint == .nil then signal leave -- End of string
         call indexCodepoint
-        if codepoint == .nil then do
-            -- End of string
-            call indexGrapheme
-            signal leave
-        end
         if previousCodepoint == .nil then call indexGrapheme -- First codepoint
         else if previousCodepoint < 0 then call indexGrapheme -- Error recovery
         else do
@@ -2087,7 +2354,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     -- Optimization if no need of indexes (when direct access is possible)
     if codepointIndexes~size == 0 then codepointIndexes = .nil
     if graphemeIndexes~size == 0 then graphemeIndexes = .nil
-    return encoding~new(string, codepointIndexes, codepointCount-1, graphemeIndexes, graphemeCount-1, errors)
+    return encoding~new(string, codepointIndexes, codepointCount, graphemeIndexes, graphemeCount, errors)
 
     /*
         No need to store the string indexes which can be calculated from the array index.
@@ -2100,14 +2367,14 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     */
     indexCodepoint:
         codepointCount += 1
-        if self~codeUnitSizeInBytes * (codepointCount -1) + 1 <> indexB then do
+        if indexB <> self~codeUnitSizeInBytes * (codepointCount -1) + 1 then do
             codepointIndexes[codepointCount] = indexB
         end
         return
 
     indexGrapheme:
         graphemeCount += 1
-        if self~codeUnitSizeInBytes * (graphemeCount -1) + 1 <> indexB then do
+        if indexB <> self~codeUnitSizeInBytes * (graphemeCount -1) + 1 then do
             graphemeIndexes[graphemeCount] = indexB
         end
         return
@@ -2243,6 +2510,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         nextB = self~nextCodepointIndex(string, startB)
         sizeB = nextB - startB
     end
+    -- numeric digits 10 -- not needed, the greatest possible value is .utf8_encoding~decode("FF FF FF FF"x, 1, 4) = 2 097 151 (7 digits)
     if sizeB == 0 then return .nil -- end of string
     if sizeB == 1 then return decodeByte(0, "7F"x)
     if sizeB == 2 then return decodeByte(0, "1F"x)  *     64 + decodeByte(1, "3F"x)
@@ -2460,7 +2728,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 ::method codepointIndex
     use strict arg indexC
     if indexC < 1 then raise syntax 93.900 array (self~description "invalid codepoint index:" indexC)
-    if indexC > self~codepointCount then indexC = self~codepointCount + 1
+    if indexC > self~codepointCount then return self~string~length + 1
     if self~codepointIndexes == .nil then return indexC
     indexB = self~codepointIndexes[indexC]
     if indexB <> .nil then return indexB
@@ -2471,7 +2739,8 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     -- to reimplement using a byte index because codepointIndexes will be removed
     use strict arg indexC, decode=.true
     startB = self~codepointIndex(indexC)
-    if self~codepointIndexes == .nil then do
+    if self~codepointIndexes == .nil, self~codepointCount == self~string~length then do
+        -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last codepoint can be more than one byte.
         if decode then return self~string~subchar(startB)~c2d
                   else return self~string~subchar(startB)
     end
@@ -2488,7 +2757,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 ::method graphemeIndex
     use strict arg indexG
     if indexG < 1 then raise syntax 93.900 array (self~description "invalid grapheme index:" indexG)
-    if indexG > self~graphemeCount then indexG = self~graphemeCount + 1
+    if indexG > self~graphemeCount then return self~string~length + 1
     if self~graphemeIndexes == .nil then return indexG
     indexB = self~graphemeIndexes[indexG]
     if indexB <> .nil then return indexB
@@ -2498,7 +2767,10 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 ::method grapheme
     use strict arg indexG
     startB = self~graphemeIndex(indexG)
-    if self~graphemeIndexes == .nil then return .RexxText~new(self~string~subchar(indexG), self~class)
+    if self~graphemeIndexes == .nil, self~graphemeCount == self~string~length then do
+        -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last grapheme can be more than one codepoint.
+        return .RexxText~new(self~string~subchar(indexG), self~class)
+    end
     nextB = self~graphemeIndex(indexG+1)
     absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
     absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
@@ -2723,6 +2995,7 @@ the concatenation back to WTF-8.
         nextB = self~nextCodepointIndex(string, startB)
         sizeB = nextB - startB
     end
+    -- numeric digits 10 not needed, the greatest possible value is .utf16be_encoding~decode("FF FF FF FF"x, 1, 4) = 10 559 487 (8 digits)
     if sizeB == 0 then return .nil
     if sizeB == 2 then return self~decodeCodepoint(string~substr(startB, 2))
     if sizeB == 4 then do
@@ -2764,6 +3037,7 @@ the concatenation back to WTF-8.
         end
     end
     else if \wobbly, codeUnit >= "DC00"x & codeUnit <= "DFFF"x then signal unpaired_low_surrogate
+    -- todo: add more checks ? could test the range (currently checked later by checkCodepoint)
     return indexB
 
     unpaired_high_surrogate: return error(indexB, self~name "encoding: unpaired high surrogate" codeUnit~c2d "("ppCodepoint(codeUnit~c2d)") at byte-position" startB)
@@ -2810,7 +3084,7 @@ the concatenation back to WTF-8.
 ::method codepointIndex
     use strict arg indexC
     if indexC < 1 then raise syntax 93.900 array (self~description "invalid codepoint index:" indexC)
-    if indexC > self~codepointCount then indexC = self~codepointCount + 1
+    if indexC > self~codepointCount then return self~string~length + 1
     if self~codepointIndexes == .nil then return 2 * (indexC - 1) + 1
     indexB = self~codepointIndexes[indexC]
     if indexB <> .nil then return indexB
@@ -2821,7 +3095,8 @@ the concatenation back to WTF-8.
     -- to reimplement using a byte index because codepointIndexes will be removed
     use strict arg indexC, decode=.true
     startB = self~codepointIndex(indexC)
-    if self~codepointIndexes == .nil then do
+    if self~codepointIndexes == .nil, self~codepointCount == self~string~length then do
+        -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last codepoint can be 4 bytes.
         if decode then return self~class~decode(self~string, startB, 2)
                   else return self~string~substr(startB, 2)
     end
@@ -2838,7 +3113,7 @@ the concatenation back to WTF-8.
 ::method graphemeIndex
     use strict arg indexG
     if indexG < 1 then raise syntax 93.900 array (self~description "invalid grapheme index:" indexG)
-    if indexG > self~graphemeCount then indexG= self~graphemeCount + 1
+    if indexG > self~graphemeCount then return self~string~length + 1
     if self~graphemeIndexes == .nil then return 2 * (indexG - 1) + 1
     indexB = self~graphemeIndexes[indexG]
     if indexB <> .nil then return indexB
@@ -2848,7 +3123,10 @@ the concatenation back to WTF-8.
 ::method grapheme
     use strict arg indexG
     startB = self~graphemeIndex(indexG)
-    if self~graphemeIndexes == .nil then return .RexxText~new(self~string~substr(startB, 2), self~class)
+    if self~graphemeIndexes == .nil, self~graphemeCount == self~string~length then do
+        -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last grapheme can be more than one codepoint
+        return .RexxText~new(self~string~substr(startB, 2), self~class)
+    end
     nextB = self~graphemeIndex(indexG+1)
     absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
     absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
@@ -2865,9 +3143,10 @@ the concatenation back to WTF-8.
     return codeUnit
 
 
-::method decodeCodepoint class
-    use strict arg codepoint
-    return codepoint~c2d
+::method decodeCodepoint class private
+    use strict arg stringBytes
+    -- numeric digits 10 -- not needed, the code unit is 2 bytes, never 4 bytes
+    return stringBytes~c2d
 
 
 ::method encodeCodepoint class
@@ -2914,9 +3193,10 @@ the concatenation back to WTF-8.
     return codeUnit~reverse
 
 
-::method decodeCodepoint class
-    use strict arg codepoint
-    return codepoint~reverse~c2d
+::method decodeCodepoint class private
+    use strict arg stringBytes
+    -- numeric digits 10 -- not needed, the code unit is 2 bytes, never 4 bytes
+    return stringBytes~reverse~c2d
 
 
 ::method encodeCodepoint class
@@ -3199,19 +3479,11 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
     -- sizeB == -1 ==> this method will check the validity of the encoding
     -- sizeB <> -1 ==> this method assumes that the encoding has been checked and is valid
     use strict arg string /* or buffer */, startB=1, sizeB=(-1)
-    /*
-        "07 FF FF FF"x~c2d=     134217727
-        "80 FF FF FF"x~c2d=     C2D result is not a valid whole number with NUMERIC DIGITS 9
-    */
-    numeric digits 10
-    /*
-        "80 FF FF FF"x~c2d=     2164260863
-        "FF FF FF FF"x~c2d=     4294967295
-    */
     if sizeB == -1 then do
         nextB = self~nextCodepointIndex(string, startB)
         sizeB = nextB - startB
     end
+    -- numeric digits 10 -- not needed here, managed by decodeCodepoint
     if sizeB == 0 then return .nil
     if sizeB == 4 then return self~decodeCodepoint(string~substr(startB, 4))
     raise syntax 93.900 array (self~name "encoding:" sizeB "is an invalid size of byte sequence")
@@ -3224,6 +3496,7 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
     lengthB = string~length
     if indexB > lengthB then return indexB -- end of string
     if lengthB - indexB < 3 then signal truncated
+    -- todo: add more checks ? could test the surrogates and the range (currently checked later by checkCodepoint)
     indexB += 4
     return indexB
 
@@ -3258,7 +3531,7 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 ::method codepointIndex
     use strict arg indexC
     if indexC < 1 then raise syntax 93.900 array (self~description "invalid codepoint index:" indexC)
-    if indexC > self~codepointCount then indexC = self~codepointCount + 1
+    if indexC > self~codepointCount then return self~string~length + 1
     if self~codepointIndexes == .nil then return 4 * (indexC - 1) + 1
     indexB = self~codepointIndexes[indexC]
     if indexB <> .nil then return indexB
@@ -3268,9 +3541,9 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 ::method codepoint
     -- to reimplement using a byte index because codepointIndexes will be removed
     use strict arg indexC, decode=.true
-    numeric digits 10
     startB = self~codepointIndex(indexC)
     if self~codepointIndexes == .nil then do
+        -- This optimization is possible despite I no longer store the last index+1: the last codepoint is always 4 bytes.
         if decode then return self~class~decode(self~string, startB, 4)
                   else return self~string~substr(startB, 4)
     end
@@ -3287,7 +3560,7 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 ::method graphemeIndex
     use strict arg indexG
     if indexG < 1 then raise syntax 93.900 array (self~description "invalid grapheme index:" indexG)
-    if indexG > self~graphemeCount then indexG= self~graphemeCount + 1
+    if indexG > self~graphemeCount then return self~string~length + 1
     if self~graphemeIndexes == .nil then return 4 * (indexG - 1) + 1
     indexB = self~graphemeIndexes[indexG]
     if indexB <> .nil then return indexB
@@ -3297,7 +3570,10 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 ::method grapheme
     use strict arg indexG
     startB = self~graphemeIndex(indexG)
-    if self~graphemeIndexes == .nil then return .RexxText~new(self~string~substr(startB, 4), self~class)
+    if self~graphemeIndexes == .nil, self~graphemeCount == self~string~length then do
+        -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last grapheme can be more than one codepoint
+        return .RexxText~new(self~string~substr(startB, 4), self~class)
+    end
     nextB = self~graphemeIndex(indexG+1)
     absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
     absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
@@ -3326,9 +3602,13 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
     return "00 00 FE FF"x
 
 
-::method decodeCodepoint class
-    use strict arg codepoint
-    return codepoint~c2d
+::method decodeCodepoint class private
+    use strict arg stringBytes
+    -- needed, the code unit is 4 bytes.
+    -- "3B9A C9FF"x~c2d = 999 999 999. The next value raises an error when 9 digits.
+    -- The maximum value is "FFFF FFFF"x~c2d = 4 294 967 295 (10 digits)
+    numeric digits 10
+    return stringBytes~c2d
 
 
 ::method encodeCodepoint class
@@ -3378,9 +3658,13 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
     return "FF FE 00 00"x
 
 
-::method decodeCodepoint class
-    use strict arg codepoint
-    return codepoint~reverse~c2d
+::method decodeCodepoint class private
+    use strict arg stringBytes
+    -- needed, the code unit is 4 bytes.
+    -- "3B9A C9FF"x~c2d = 999 999 999. The next value raises an error when 9 digits.
+    -- The maximum value is "FFFF FFFF"x~c2d = 4 294 967 295 (10 digits)
+    numeric digits 10
+    return stringBytes~reverse~c2d
 
 
 ::method encodeCodepoint class

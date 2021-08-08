@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- This file was created with the aha Ansi HTML Adapter. https://github.com/theZiz/aha -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xml+xhtml; charset=UTF-8"/>
+<title>stdin</title>
+</head>
+<body>
+<pre>
+<span style="font-weight:bold;color:green;">loadPackage OK for extension/extensions.cls
+</span><span style="font-weight:bold;color:green;">loadLibrary OK for rxunixsys
+</span><span style="font-weight:bold;color:green;">loadPackage OK for ncurses.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for csvStream.cls
+</span><span style="font-weight:bold;color:green;">loadLibrary OK for hostemu
+</span><span style="font-weight:bold;color:green;">loadPackage OK for json.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for mime.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for rxftp.cls
+</span><span style="font-weight:bold;color:green;">loadLibrary OK for rxmath
+</span><span style="font-weight:bold;color:green;">loadPackage OK for rxregexp.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for regex/regex.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for smtp.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for socket.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for streamsocket.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe.rex
+</span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2.rex
+</span><span style="font-weight:bold;color:green;">loadPackage OK for BSF.CLS
+</span><span style="font-weight:bold;color:green;">loadPackage OK for oorexxshell_queries.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
+</span><span style="font-weight:bold;color:green;">
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
+</span><span style="font-weight:bold;color:green;">Input queue name: S92fdQ7fd448430590
+</span>
+<span style="color:blue;">--------------------------------------------
+</span><span style="color:blue;">-- Text encoding - Compatibility with String
+</span><span style="color:blue;">--------------------------------------------
+</span>
+<span style="color:blue;">Compatibility with the class String.
+</span><span style="color:blue;">This is a work in progress, many methods not yet supported,
+</span><span style="color:blue;">Unicode implementation still missing for many methods.
+</span>
+<span style="color:blue;">This string is used in several places:
+</span><span style="color:blue;">&quot;noël👩‍👨‍👩‍👧🎅&quot;
+</span><span style="color:blue;">Depending on your editor/browser, you may see 5 emojis, or 3 emojis.
+</span><span style="color:blue;">With Unicode 13, the display is 3 emojis (woman + family + father christmas).
+</span><span style="color:blue;">👩	U+1F469	WOMAN
+</span><span style="color:blue;">‍	U+200D	ZERO WIDTH JOINER
+</span><span style="color:blue;">👨	U+1F468	MAN
+</span><span style="color:blue;">‍	U+200D	ZERO WIDTH JOINER
+</span><span style="color:blue;">👩	U+1F469	WOMAN
+</span><span style="color:blue;">‍	U+200D	ZERO WIDTH JOINER
+</span><span style="color:blue;">👧	U+1F467	GIRL
+</span><span style="color:blue;">🎅	U+1F385	FATHER CHRISTMAS
+</span><span style="color:blue;">
+</span><span style="color:blue;">Notice that 👩‍👨‍👩‍👧 constitute only 1 grapheme thanks to the ZERO WIDTH JOINER.
+</span>
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~description=
+'UTF-8 not-ASCII (6 graphemes, 12 codepoints, 34 bytes, 0 error)'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~c2u=
+'U+006E U+006F U+00EB U+006C U+1F469 U+200D U+1F468 U+200D U+1F469 U+200D U+1F467 U+1F385'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~c2x=
+'6E 6F C3AB 6C F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7 F09F8E85'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~c2g=
+'6E 6F C3AB 6C F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7 F09F8E85'
+
+<span style="color:blue;">-- []
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text[3]=
+T'ë'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text[3]~description=
+'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 2 bytes, 0 error)'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text[3,3]=
+T'ël👩‍👨‍👩‍👧'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text[3,3]~description=
+'UTF-8 not-ASCII (3 graphemes, 9 codepoints, 28 bytes, 0 error)'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text[3,6]=
+T'ël👩‍👨‍👩‍👧🎅'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text[3,6]~description=
+'UTF-8 not-ASCII (4 graphemes, 10 codepoints, 32 bytes, 0 error)'
+
+<span style="color:blue;">-- ?
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;0&quot;~text~?(&quot;true&quot;~text, &quot;false&quot;~text)=
+T'false'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;1&quot;~text~?(&quot;true&quot;~text, &quot;false&quot;~text)=
+T'true'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;not a boolean value&quot;~text~?(&quot;true&quot;~text, &quot;false&quot;~text)=
+<span style="font-weight:bold;color:red;">Logical value must be exactly &quot;0&quot; or &quot;1&quot;; found &quot;not a boolean value&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 34.901
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;not a boolean value 🤔&quot;~text~?(&quot;true&quot;~text, &quot;false&quot;~text)=
+<span style="font-weight:bold;color:red;">The UTF-8 not-ASCII text is not compatible with a Rexx logical value.
+</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;0&quot;~text~?(&quot;true 🤔&quot;~text, &quot;false 🤔&quot;~text)=
+T'false 🤔'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;1&quot;~text~?(&quot;true 🤔&quot;~text, &quot;false 🤔&quot;~text)=
+T'true 🤔'
+
+<span style="color:blue;">-- append
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;hello&quot;~text~append(&quot; &quot;)~append(&quot;john&quot;~text)=
+T'hello john'
+
+<span style="color:blue;">-- c2d
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;e&quot;~text~c2d=
+ 101
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;é&quot;~text~c2d=
+ 50089
+
+<span style="color:blue;">-- c2x
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~c2x=
+'6E 6F C3AB 6C F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7 F09F8E85'
+
+<span style="color:blue;">-- contains
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noel&quot;~text~contains(&quot;oe&quot;~text)=            <span style="color:blue;">-- forward to String</span>
+ 1
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noel&quot;~text~contains(&quot;oë&quot;~text)=
+<span style="font-weight:bold;color:red;">Method 'contains' not yet implemented for Unicode.
+</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël&quot;~text~contains(&quot;oe&quot;~text)=
+<span style="font-weight:bold;color:red;">Method 'contains' not yet implemented for Unicode.
+</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span>
+<span style="color:blue;">-- copies
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~copies(4)=
+T'noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~copies(4)~description=
+'UTF-8 not-ASCII (24 graphemes, 48 codepoints, 136 bytes, 0 error)'
+
+<span style="color:blue;">-- hashCode
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~hashCode~class=
+(The String class)
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~hashCode~c2x=
+'8FA5DCDA35AE1A58'
+
+<span style="color:blue;">-- length
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~length=
+ 6
+
+<span style="color:blue;">-- match
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noel&quot;~text~match(2, &quot;oe&quot;~text)=            <span style="color:blue;">-- forward to String</span>
+ 1
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noel&quot;~text~match(2, &quot;oë&quot;~text)=
+<span style="font-weight:bold;color:red;">Method 'match' not yet implemented for Unicode.
+</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël&quot;~text~match(2, &quot;oe&quot;~text)=
+<span style="font-weight:bold;color:red;">Method 'match' not yet implemented for Unicode.
+</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span>
+<span style="color:blue;">-- matchChar
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noel&quot;~text~matchChar(2, &quot;oe&quot;~text)=        <span style="color:blue;">-- forward to String</span>
+ 1
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noel&quot;~text~matchChar(2, &quot;oë&quot;~text)=
+<span style="font-weight:bold;color:red;">Method 'matchChar' not yet implemented for Unicode.
+</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël&quot;~text~matchChar(2, &quot;oe&quot;~text)=
+<span style="font-weight:bold;color:red;">Method 'matchChar' not yet implemented for Unicode.
+</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span>
+<span style="color:blue;">-- pos
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noel&quot;~text~pos(&quot;oe&quot;~text)=                 <span style="color:blue;">-- forward to String</span>
+ 2
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noel&quot;~text~pos(&quot;oë&quot;~text)=
+<span style="font-weight:bold;color:red;">Method 'pos' not yet implemented for Unicode.
+</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël&quot;~text~pos(&quot;oe&quot;~text)=
+<span style="font-weight:bold;color:red;">Method 'pos' not yet implemented for Unicode.
+</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span>
+<span style="color:blue;">-- subchar
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~subchar(3)=
+T'ë'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~subchar(3)~description=
+'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 2 bytes, 0 error)'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~subchar(4)=
+T'l'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~subchar(4)~description=
+'UTF-8 ASCII (1 grapheme, 1 codepoint, 1 byte, 0 error)'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~subchar(5)=
+T'👩‍👨‍👩‍👧'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~subchar(5)~description=
+'UTF-8 not-ASCII (1 grapheme, 7 codepoints, 25 bytes, 0 error)'
+
+<span style="color:blue;">-- substr
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noel&quot;~text~substr(3, 3, &quot;x&quot;)=    <span style="color:blue;">-- forward to String</span>
+T'elx'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noel&quot;~substr(3, 3, &quot;▷&quot;)=        <span style="color:blue;">-- forward to String: error because the pad character is 3 bytes</span>
+<span style="font-weight:bold;color:red;">Incorrect pad or character argument specified; found &quot;▷&quot;
+</span><span style="font-weight:bold;color:red;">Error code= 93.922
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noel&quot;~substr(3, 3, &quot;▷&quot;~text)=   <span style="color:blue;">-- forward to String: error because the pad character is not compatible with String</span>
+<span style="font-weight:bold;color:red;">The UTF-8 not-ASCII text cannot be converted to a String instance.
+</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noel&quot;~text~substr(3, 3, &quot;▷&quot;)=   <span style="color:blue;">-- no error because self is a RexxText and the pad character is one grapheme when converted to the default encoding</span>
+T'el▷'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~substr(3, 3, &quot;▷&quot;)=
+T'ël👩‍👨‍👩‍👧'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~substr(3, 3, &quot;▷&quot;)~description=
+'UTF-8 not-ASCII (3 graphemes, 9 codepoints, 28 bytes, 0 error)'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~substr(3, 6, &quot;▷&quot;)=
+T'ël👩‍👨‍👩‍👧🎅▷▷'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~substr(3, 6, &quot;▷&quot;)~description=
+'UTF-8 not-ASCII (6 graphemes, 12 codepoints, 38 bytes, 0 error)'
+
+<span style="color:blue;">-- x2c
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;F09F9180&quot;~text~x2c=
+T'👀'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;not an hexadecimal value&quot;~text~x2c
+<span style="font-weight:bold;color:red;">Only 0-9, a-f, A-F, and whitespace characters are valid in a hexadecimal string; character found &quot;n&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 93.933
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; &quot;not an hexadecimal value 🤔&quot;~text~x2c
+<span style="font-weight:bold;color:red;">The UTF-8 not-ASCII text is not compatible with a Rexx hexadecimal value.
+</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span>
+<span style="color:blue;">A way to test the compatibility of RexxText with String is to pass instances of
+</span><span style="color:blue;">RexxText to the regular expression engine regex.cls, and see what happens...
+</span>
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; p = .Pattern~compile(&quot;a.c&quot;~text)
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; p~matches(&quot;abc&quot;~text)=
+ 1
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; p~matches(&quot;aôc&quot;~text)=
+<span style="font-weight:bold;color:red;">Method 'match' not yet implemented for Unicode.
+</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span>
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; p = .Pattern~compile(&quot;à.c&quot;~text)
+<span style="font-weight:bold;color:red;">Unicode comparison not yet implemented.
+</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span>
+<span style="color:blue;">End of demonstration.
+</span></pre>
+</body>
+</html>

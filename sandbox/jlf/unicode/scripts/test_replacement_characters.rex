@@ -135,6 +135,14 @@ call title "A pair of surrogates in WTF-8"
 call infos "EDA080 EDB080"x~text("wtf8"),,
            "U+FFFD U+FFFD U+FFFD U+DC00"
 
+
+/*
+UTF32 invalid codepoints
+*/
+call title "UTF32 invalid codepoints"
+call infos ("XXXhXXéXXXlXXXlö"~text("utf32") .utf32BE_encoding~encode("D800"~x2d)),,
+           "U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD"
+
 return
 
 title: procedure expose counter

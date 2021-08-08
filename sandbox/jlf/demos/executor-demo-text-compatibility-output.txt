@@ -1,0 +1,274 @@
+loadPackage OK for extension/extensions.cls
+loadLibrary OK for rxunixsys
+loadPackage OK for ncurses.cls
+loadPackage OK for csvStream.cls
+loadLibrary OK for hostemu
+loadPackage OK for json.cls
+loadPackage OK for mime.cls
+loadPackage OK for rxftp.cls
+loadLibrary OK for rxmath
+loadPackage OK for rxregexp.cls
+loadPackage OK for regex/regex.cls
+loadPackage OK for smtp.cls
+loadPackage OK for socket.cls
+loadPackage OK for streamsocket.cls
+loadPackage OK for pipeline/pipe.rex
+loadPackage OK for rgf_util2/rgf_util2.rex
+loadPackage OK for BSF.CLS
+loadPackage OK for oorexxshell_queries.cls
+loadPackage OK for pipeline/pipe_extension.cls
+loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
+
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
+Input queue name: S92fdQ7fd448430590
+
+--------------------------------------------
+-- Text encoding - Compatibility with String
+--------------------------------------------
+
+Compatibility with the class String.
+This is a work in progress, many methods not yet supported,
+Unicode implementation still missing for many methods.
+
+This string is used in several places:
+"noël👩‍👨‍👩‍👧🎅"
+Depending on your editor/browser, you may see 5 emojis, or 3 emojis.
+With Unicode 13, the display is 3 emojis (woman + family + father christmas).
+👩	U+1F469	WOMAN
+‍	U+200D	ZERO WIDTH JOINER
+👨	U+1F468	MAN
+‍	U+200D	ZERO WIDTH JOINER
+👩	U+1F469	WOMAN
+‍	U+200D	ZERO WIDTH JOINER
+👧	U+1F467	GIRL
+🎅	U+1F385	FATHER CHRISTMAS
+
+Notice that 👩‍👨‍👩‍👧 constitute only 1 grapheme thanks to the ZERO WIDTH JOINER.
+
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~description=
+'UTF-8 not-ASCII (6 graphemes, 12 codepoints, 34 bytes, 0 error)'
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~c2u=
+'U+006E U+006F U+00EB U+006C U+1F469 U+200D U+1F468 U+200D U+1F469 U+200D U+1F467 U+1F385'
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~c2x=
+'6E 6F C3AB 6C F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7 F09F8E85'
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~c2g=
+'6E 6F C3AB 6C F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7 F09F8E85'
+
+-- []
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text[3]=
+T'ë'
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text[3]~description=
+'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 2 bytes, 0 error)'
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text[3,3]=
+T'ël👩‍👨‍👩‍👧'
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text[3,3]~description=
+'UTF-8 not-ASCII (3 graphemes, 9 codepoints, 28 bytes, 0 error)'
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text[3,6]=
+T'ël👩‍👨‍👩‍👧🎅'
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text[3,6]~description=
+'UTF-8 not-ASCII (4 graphemes, 10 codepoints, 32 bytes, 0 error)'
+
+-- ?
+
+ooRexx[bash]> "0"~text~?("true"~text, "false"~text)=
+T'false'
+
+ooRexx[bash]> "1"~text~?("true"~text, "false"~text)=
+T'true'
+
+ooRexx[bash]> "not a boolean value"~text~?("true"~text, "false"~text)=
+Logical value must be exactly "0" or "1"; found "not a boolean value".
+Error code= 34.901
+
+ooRexx[bash]> "not a boolean value 🤔"~text~?("true"~text, "false"~text)=
+The UTF-8 not-ASCII text is not compatible with a Rexx logical value.
+Error code= 93.900
+
+ooRexx[bash]> "0"~text~?("true 🤔"~text, "false 🤔"~text)=
+T'false 🤔'
+
+ooRexx[bash]> "1"~text~?("true 🤔"~text, "false 🤔"~text)=
+T'true 🤔'
+
+-- append
+
+ooRexx[bash]> "hello"~text~append(" ")~append("john"~text)=
+T'hello john'
+
+-- c2d
+
+ooRexx[bash]> "e"~text~c2d=
+ 101
+
+ooRexx[bash]> "é"~text~c2d=
+ 50089
+
+-- c2x
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~c2x=
+'6E 6F C3AB 6C F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7 F09F8E85'
+
+-- contains
+
+ooRexx[bash]> "noel"~text~contains("oe"~text)=            -- forward to String
+ 1
+
+ooRexx[bash]> "noel"~text~contains("oë"~text)=
+Method 'contains' not yet implemented for Unicode.
+Error code= 93.900
+
+ooRexx[bash]> "noël"~text~contains("oe"~text)=
+Method 'contains' not yet implemented for Unicode.
+Error code= 93.900
+
+-- copies
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~copies(4)=
+T'noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅'
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~copies(4)~description=
+'UTF-8 not-ASCII (24 graphemes, 48 codepoints, 136 bytes, 0 error)'
+
+-- hashCode
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~hashCode~class=
+(The String class)
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~hashCode~c2x=
+'8FA5DCDA35AE1A58'
+
+-- length
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~length=
+ 6
+
+-- match
+
+ooRexx[bash]> "noel"~text~match(2, "oe"~text)=            -- forward to String
+ 1
+
+ooRexx[bash]> "noel"~text~match(2, "oë"~text)=
+Method 'match' not yet implemented for Unicode.
+Error code= 93.900
+
+ooRexx[bash]> "noël"~text~match(2, "oe"~text)=
+Method 'match' not yet implemented for Unicode.
+Error code= 93.900
+
+-- matchChar
+
+ooRexx[bash]> "noel"~text~matchChar(2, "oe"~text)=        -- forward to String
+ 1
+
+ooRexx[bash]> "noel"~text~matchChar(2, "oë"~text)=
+Method 'matchChar' not yet implemented for Unicode.
+Error code= 93.900
+
+ooRexx[bash]> "noël"~text~matchChar(2, "oe"~text)=
+Method 'matchChar' not yet implemented for Unicode.
+Error code= 93.900
+
+-- pos
+
+ooRexx[bash]> "noel"~text~pos("oe"~text)=                 -- forward to String
+ 2
+
+ooRexx[bash]> "noel"~text~pos("oë"~text)=
+Method 'pos' not yet implemented for Unicode.
+Error code= 93.900
+
+ooRexx[bash]> "noël"~text~pos("oe"~text)=
+Method 'pos' not yet implemented for Unicode.
+Error code= 93.900
+
+-- subchar
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(3)=
+T'ë'
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(3)~description=
+'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 2 bytes, 0 error)'
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(4)=
+T'l'
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(4)~description=
+'UTF-8 ASCII (1 grapheme, 1 codepoint, 1 byte, 0 error)'
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(5)=
+T'👩‍👨‍👩‍👧'
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(5)~description=
+'UTF-8 not-ASCII (1 grapheme, 7 codepoints, 25 bytes, 0 error)'
+
+-- substr
+
+ooRexx[bash]> "noel"~text~substr(3, 3, "x")=    -- forward to String
+T'elx'
+
+ooRexx[bash]> "noel"~substr(3, 3, "▷")=        -- forward to String: error because the pad character is 3 bytes
+Incorrect pad or character argument specified; found "▷"
+Error code= 93.922
+
+ooRexx[bash]> "noel"~substr(3, 3, "▷"~text)=   -- forward to String: error because the pad character is not compatible with String
+The UTF-8 not-ASCII text cannot be converted to a String instance.
+Error code= 93.900
+
+ooRexx[bash]> "noel"~text~substr(3, 3, "▷")=   -- no error because self is a RexxText and the pad character is one grapheme when converted to the default encoding
+T'el▷'
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~substr(3, 3, "▷")=
+T'ël👩‍👨‍👩‍👧'
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~substr(3, 3, "▷")~description=
+'UTF-8 not-ASCII (3 graphemes, 9 codepoints, 28 bytes, 0 error)'
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~substr(3, 6, "▷")=
+T'ël👩‍👨‍👩‍👧🎅▷▷'
+
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~substr(3, 6, "▷")~description=
+'UTF-8 not-ASCII (6 graphemes, 12 codepoints, 38 bytes, 0 error)'
+
+-- x2c
+
+ooRexx[bash]> "F09F9180"~text~x2c=
+T'👀'
+
+ooRexx[bash]> "not an hexadecimal value"~text~x2c
+Only 0-9, a-f, A-F, and whitespace characters are valid in a hexadecimal string; character found "n".
+Error code= 93.933
+
+ooRexx[bash]> "not an hexadecimal value 🤔"~text~x2c
+The UTF-8 not-ASCII text is not compatible with a Rexx hexadecimal value.
+Error code= 93.900
+
+A way to test the compatibility of RexxText with String is to pass instances of
+RexxText to the regular expression engine regex.cls, and see what happens...
+
+
+ooRexx[bash]> p = .Pattern~compile("a.c"~text)
+
+ooRexx[bash]> p~matches("abc"~text)=
+ 1
+
+ooRexx[bash]> p~matches("aôc"~text)=
+Method 'match' not yet implemented for Unicode.
+Error code= 93.900
+
+
+ooRexx[bash]> p = .Pattern~compile("à.c"~text)
+Unicode comparison not yet implemented.
+Error code= 93.900
+
+End of demonstration.
+

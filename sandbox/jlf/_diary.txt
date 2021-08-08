@@ -497,6 +497,22 @@ The named arguments could be added to the returned array (splitting the key:valu
 ===============================================================================
 2021 August 08
 
+[Encoded strings]
+
+- Optimization of the indexes: no longer store the last index+1, because it's
+  always equal to self~string~length + 1.
+  Consequence: an index table equal to .nil doesn't imply that all the codepoints
+  or graphemes have the same size. The last codepoint or last grapheme can be of
+  any size.
+- New demo file executor-demo-text-compatibility.txt
+  This file demonstrates the compatibility of RexxText with String.
+  Work in progress, many methods not yet supported,
+  Unicode implementation still missing for many methods.
+
+
+===============================================================================
+2021 August 08
+
 [extension.cls]
 
 Reorganized the way I declare the extensions by inheritance.

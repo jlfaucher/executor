@@ -20,7 +20,7 @@ loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
 REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
-Input queue name: S17092Q7fd448424070
+Input queue name: S2b6aQ7fd448428990
 
 ----------------------------------
 -- Text encoding - Internal checks
