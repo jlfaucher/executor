@@ -3,7 +3,7 @@
 
 Experimental ooRexx
 ===================
-Forked from http://sourceforge.net/projects/oorexx/
+Forked from [https://sourceforge.net/p/oorexx/code-0/HEAD/tree][sourceforge]
 
 - incubator/DocMusings
 - incubator/ooRexxShell
@@ -255,9 +255,9 @@ One-liner for a multi-dimensional identity array of any shape with rank >= 1:
     identityND = {.array~new(.array~new(arg(1))~of(arg(1)))~of{.set~new~~putall(index)~items==1}}
 
 
-### Symetric implementations of binary operators
+### Symmetric implementations of binary operators
 
-Thanks to the support of alternative messages for binary operators, it's now possible to provide symetric implementations of binary operators.  
+Thanks to the support of alternative messages for binary operators, it's now possible to provide symmetric implementations of binary operators.  
 
     arg1 ~ "+"( arg2 )
 
@@ -654,6 +654,7 @@ Same example with kestrels, to log intermediate results:
 Several demos are available [here][demos_with_asciinema].
 
 
+[sourceforge]: https://sourceforge.net/p/oorexx/code-0/HEAD/tree "SourceForge"
 [build_executor]: https://github.com/jlfaucher/builder/blob/master/build-executor.txt
 [sandbox_diary]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/_diary.txt "Sandbox diary"
 [doc_musings_diary]: https://github.com/jlfaucher/executor/blob/master/incubator/DocMusings/_diary.txt "DocMusings diary"
