@@ -144,6 +144,16 @@ comparing numbers in the 2**128 range
 
 /******************************************************************************/
 
+-- Helper to get a table representation of any collection
+-- Careful: If you have a directory with a key "TABLE", and you retrieve the
+-- related item with the method ~TABLE then you will NOT get this item. You
+-- will get the whole directory as a table.
+-- You should retrieve the item like that: directory["TABLE"].
+::extension Collection
+::method table
+    return .table~new~putAll(self)
+
+
 -- Helper to get a table representation of a supplier
 -- Note: the supplier is consumed, so pass a copy of the supplier if needed
 ::extension Supplier
