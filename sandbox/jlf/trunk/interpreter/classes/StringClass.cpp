@@ -1187,7 +1187,7 @@ RexxInteger *RexxString::strictEqual(RexxObject *other)
 {
     // Before doing a string comparison, try the alternative operator, if any.
     // Do that only if 'other' is not a string and not a number and not an integer (no performance degradation)
-    if (!isPolymorphicString(other))
+    if (other != OREF_NULL && !isPolymorphicString(other))
     {
         if (other == TheNilObject)        // strings never compare equal to the NIL object
         {
