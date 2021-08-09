@@ -20,7 +20,7 @@ loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
 REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
-Input queue name: S2b6aQ7fd448428990
+Input queue name: S10db5Q100604770
 
 ----------------------------------
 -- Text encoding - Internal checks
@@ -34,13 +34,13 @@ ooRexx[bash]> s = "hello"
 
 ooRexx[bash]> s~text = .RexxText~new("hello")          -- The counterpart must be a RexxText linked to this String
 EncodedString: the counterpart must be a RexxText linked to this String.
-Error code= 93.900
+Error code= 23.900
 
 ooRexx[bash]> s~text = .RexxText~new(s)                -- ok, the RexxText is linked to s, now can be assigned to s~text
 
 ooRexx[bash]> "é"~text("byte") || "è"~text("utf8")=    -- Cannot concatenate Byte with UTF-8
 Encoding: cannot concatenate Byte not-ASCII text with UTF-8 not-ASCII text.
-Error code= 93.900
+Error code= 23.900
 
 ooRexx[bash]> "é"~text("byte") || "é"~text("utf8")=    -- T'éé' encoded UTF-8
 T'éé'
@@ -68,14 +68,14 @@ ooRexx[bash]> .byte_encoding~decode(s, 12)=            -- .nil (end of string)
 
 ooRexx[bash]> .byte_encoding~decode(s, 1, 2)=          -- 2 is an invalid codepoint size
 Byte encoding: 2 is an invalid size of byte sequence.
-Error code= 93.900
+Error code= 23.900
 
 ooRexx[bash]> .byte_encoding~encode(65)=               -- T'A'
 T'A'
 
 ooRexx[bash]> .byte_encoding~encode(256)=              -- 256 is an invalid codepoint (range 0..255)
 Byte encoding: invalid codepoint 256 (0100x). Allowed range is 0..255.
-Error code= 93.900
+Error code= 23.900
 
 UTF-8 encoding
 
@@ -134,7 +134,7 @@ ooRexx[bash]> .utf8_encoding~decode(s, 2, 4)=          -- 1002789  invalid size,
 
 ooRexx[bash]> .utf8_encoding~decode(s, 2, 5)=          -- UTF-8 encoding: 5 is an invalid codepoint size
 UTF-8 encoding: 5 is an invalid size of byte sequence.
-Error code= 93.900
+Error code= 23.900
 
 -- Encoding
 
@@ -155,7 +155,7 @@ T'򞬐'
 
 ooRexx[bash]> .utf8_encoding~encode(6500000)=          -- 6500000 is an invalid codepoint (range 0..1114111)
 UTF-8 encoding: invalid codepoint 6500000 (U+632EA0). Allowed range is 0..1114111.
-Error code= 93.900
+Error code= 23.900
 
 ooRexx[bash]> .utf8_encoding~encode(55296)~errors==    -- 55296 is an invalid codepoint (high surrogate)
 an Array (shape [3], 3 items)
@@ -251,21 +251,21 @@ an Array (shape [2], 2 items)
 
 ooRexx[bash]> .utf16be_encoding~decode(s16, 3, 1)=            -- 1 is an invalid codepoint size
 UTF-16BE encoding: 1 is an invalid size of byte sequence.
-Error code= 93.900
+Error code= 23.900
 
 ooRexx[bash]> .utf16be_encoding~decode(s16, 3, 2)=            -- 244         correct
  244
 
 ooRexx[bash]> .utf16be_encoding~decode(s16, 3, 3)=            -- 3 is an invalid codepoint size
 UTF-16BE encoding: 3 is an invalid size of byte sequence.
-Error code= 93.900
+Error code= 23.900
 
 ooRexx[bash]> .utf16be_encoding~decode(s16, 3, 4)=            -- invalid size, the result is wrong
 -56363916
 
 ooRexx[bash]> .utf16be_encoding~decode(s16, 3, 5)=            -- 5 is an invalid codepoint size
 UTF-16BE encoding: 5 is an invalid size of byte sequence.
-Error code= 93.900
+Error code= 23.900
 
 -- Encoding
 
@@ -286,7 +286,7 @@ ooRexx[bash]> .utf16be_encoding~encode(650000)~c2x=           -- DA3ADF10
 
 ooRexx[bash]> .utf16be_encoding~encode(6500000)~c2x=          -- 6500000 is an invalid codepoint
 UTF-16BE encoding: invalid codepoint 6500000 (U+632EA0). Allowed range is 0..1114111.
-Error code= 93.900
+Error code= 23.900
 
 ooRexx[bash]> .utf16be_encoding~encode(55296)~errors=         -- 55296 is an invalid codepoint (high surrogate)
 ['UTF-16BE encoding: unpaired high surrogate 55296 (U+D800) at byte-position 1.']
@@ -343,7 +343,7 @@ an Array (shape [3], 3 items)
 ooRexx[bash]> (t1~wtf8~string || t2~wtf8~string)~text("wtf8")~c2x=        -- EDA080 EDB081
 'ED A0 80 EDB081'
 
-ooRexx[bash]> (t1~wtf8~string || t2~wtf8~string)~text("wtf8")~c2u=        -- U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD
+ooRexx[bash]> (t1~wtf8~string || t2~wtf8~string)~text("wtf8")~c2u=        -- U+FFFD U+FFFD U+FFFD U+DC01 (yes... not 6 replacement chars because the low surrogate alone is valid)
 'U+FFFD U+FFFD U+FFFD U+DC01'
 
 -- UTF-8 view of this invalid concatenation

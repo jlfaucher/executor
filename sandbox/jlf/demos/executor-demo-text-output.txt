@@ -20,7 +20,7 @@ loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
 REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
-Input queue name: S10c8Q7fd448427150
+Input queue name: S10d5dQ100503c70
 
 ----------------
 -- Text encoding
@@ -35,7 +35,7 @@ Main ideas explored with this prototype :
 - String instances are immutable, the same for RexxText instances.
 - No automatic conversion to Unicode by the interpreter.
 - The strings crossing the I/O barriers are kept unchanged.
-- Supported encodings : byte, UTF-8, UTF-16BE.
+- Supported encodings : byte, UTF-8, UTF-16, UTF-32.
 
 On my Mac, where locale returns :
 

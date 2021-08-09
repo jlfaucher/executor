@@ -230,8 +230,8 @@ system RXTRACE_CONCURRENCY=ON rexx concurrency_trace.rex 2>&1 | rexx trace/trace
 sleep 10 no prompt
 
 /*
-Symetric implementation of operator
-Official ooRexx doesn't allow to define symetric overriding of operators.
+Symmetric implementation of operator
+Official ooRexx doesn't allow to define symmetric overriding of operators.
 You can define a user operator on .array which supports .array~of(1,2) + 10.
 But you can't define a user operator which supports 10 + .array~of(1,2).
 
