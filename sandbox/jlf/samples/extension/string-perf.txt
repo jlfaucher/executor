@@ -1,0 +1,384 @@
+
+1	before optim
+2	optim with method everywhere
+3	optim with method for text and expose for all others
+4	optim with method for text and nothing else
+
+
+Unitary tests that use only one string/text instance are very fast when using
+a method added at runtime. See s~text case 1 vs cases 2,3,4 : 10 times faster.
+BUT
+Adding these methods during the init has a cost! This is visible with the tests
+t~substr where I see NO gain of performance  (or very weak)
+Moreover, in the case of String instances, that has an unfortunate impact
+    -- Remember! Adding an instance method on the string instance changes its behaviour object.
+    -- Because of that, it's no longer considered as a primitive object.
+    -- And the message "==" is sent to the String instance with NO argument (see RexxString::hash below)
+    -- An error is raised by RexxString::primitiveIsEqual because the argument 'other' is required.
+    self~setMethod("text", self~instanceMethod("myText"), "Object")
+
+So I abandonned the optimizations based on methods added at runtime, and kept the
+management of a cached value for the various isXXX methods.
+
+
+--------------------------------------------------------------------------------
+DARWIN
+Intel(R) Core(TM)2 Duo CPU     P8600  @ 2.40GHz
+--------------------------------------------------------------------------------
+
+
+
+s="*"~copies(1000)
+t=s~text
+n=10; sum=0; do n; call time("r"); do 100000; s~text; end; e=time("e"); sum+=e; say e; end; say sum/n "(mean)"
+0.457115
+0.270240
+0.277461
+0.265851
+0.257052
+0.272319
+0.267496
+0.293368
+0.257081
+0.279396
+0.2897379 (mean)	1
+----------
+0.040737
+0.032599
+0.032546
+0.058864
+0.025830
+0.025764
+0.039259
+0.023874
+0.025511
+0.025125
+0.0330109 (mean)	2
+----------
+0.075299
+0.051591
+0.034356
+0.056884
+0.052202
+0.023284
+0.027136
+0.031541
+0.024290
+0.023756
+0.0400339 (mean)	3
+----------
+0.025482
+0.021395
+0.024004
+0.023433
+0.023512
+0.023411
+0.021843
+0.024399
+0.025715
+0.026579
+0.0239773 (mean)	4
+
+
+s="*"~copies(1000)
+t=s~text
+n=10; sum=0; do n; call time("r"); do 100000; t~isByte; end; e=time("e"); sum+=e; say e; end; say sum/n "(mean)"
+1.032112
+1.110248
+0.731171
+0.728224
+0.710312
+0.670455
+0.707709
+0.702448
+0.728504
+0.673300
+0.7794483 (mean)	1
+----------
+0.028468
+0.039072
+0.041231
+0.028533
+0.143076
+0.022848
+0.041213
+0.028091
+0.044286
+0.021875
+0.0438693 (mean)	2
+----------
+0.256048
+0.402979
+0.236193
+0.264749
+0.277418
+0.237918
+0.276977
+0.232889
+0.251812
+0.228021
+0.2665004 (mean)	3
+----------
+0.910131
+0.758219
+0.744042
+0.781796
+0.756685
+0.972631
+0.801993
+0.747036
+0.786793
+0.752348
+0.8011674 (mean)	4
+
+
+s="*"~copies(1000)
+t=s~text
+n=10; sum=0; do n; call time("r"); do 100000; t~isUnicode; end; e=time("e"); sum+=e; say e; end; say sum/n "(mean)"
+0.912048
+0.700020
+0.665274
+0.707773
+0.710057
+0.712237
+0.729384
+0.710707
+0.748105
+0.702930
+0.7298535 (mean)	1
+----------
+0.022265
+0.022655
+0.020233
+0.087139
+0.021649
+0.024266
+0.026627
+0.022146
+0.021001
+0.024845
+0.0292826 (mean)	2
+----------
+0.291800
+0.239501
+0.252557
+0.291636
+0.281629
+0.250715
+0.251089
+0.260051
+0.237763
+0.244065
+0.2600806 (mean)	3
+----------
+0.874143
+0.970732
+0.784834
+0.755362
+0.731314
+0.970993
+0.733466
+0.738749
+0.729322
+0.716083
+0.8004998 (mean)	4
+
+
+
+s="*"~copies(1000)
+t=s~text
+n=10; sum=0; do n; call time("r"); do 1000; t~substr(1,1); end; e=time("e"); sum+=e; say e; end; say sum/n "(mean)"
+0.157598
+0.188460
+0.133827
+0.109417
+0.107087
+0.141720
+0.099920
+0.104962
+0.102363
+0.100540
+0.1245894 (mean)	1
+----------
+0.134776
+0.126423
+0.088932
+0.220262
+0.168850
+0.092723
+0.101515
+0.085791
+0.225079
+0.148823
+0.1393174 (mean)	2
+----------
+0.063084
+0.091261
+0.094442
+0.100646
+0.089418
+0.090249
+0.088920
+0.090444
+0.092352
+0.101954
+0.090277 (mean)	3
+----------
+0.186878
+0.142192
+0.117004
+0.101022
+0.129210
+0.096600
+0.122797
+0.101175
+0.116168
+0.102382
+0.1215428 (mean)	4
+
+
+s="*"~copies(1000)
+t=s~text
+n=10; sum=0; do n; call time("r"); do 1000; t~substr(1000,1); end; e=time("e"); sum+=e; say e; end; say sum/n "(mean)"
+0.213972
+0.162136
+0.113576
+0.102217
+0.145756
+0.153370
+0.184993
+0.100354
+0.098383
+0.114677
+0.1389434 (mean)	1
+----------
+0.100392
+0.150670
+0.147876
+0.163051
+0.117226
+0.089273
+0.101648
+0.090711
+0.093068
+0.091936
+0.1145851 (mean)	2
+----------
+0.145612
+0.096502
+0.114484
+0.088504
+0.087994
+0.090531
+0.063234
+0.088298
+0.115370
+0.088177
+0.0978706 (mean)	3
+----------
+0.195667
+0.127393
+0.118277
+0.094322
+0.125324
+0.092675
+0.145654
+0.095156
+0.120995
+0.100578
+0.1216041 (mean)	4
+
+================================================================================
+For the records, the abandonned optimizations:
+================================================================================
+
+-------------------------------------------------------------------------------
+::class "EncodedString" mixinclass Object private
+-- No longer use a mixinclass because of a bug with setMethod
+-- (setMethod: When setting a method inherited from a mixin class, the scope must
+-- be the mixin class to have access to the mixin's pool. Currently the scope is
+-- forced to String, ignoring the scope stored on the method)
+-- Put directly the methods on String with ::extension
+
+::extension String
+
+
+::attribute myText get
+
+
+::attribute text get
+    expose myText -- attribute added on the String instance
+    use strict arg encoding="default"
+    myText = .RexxText~new(self, encoding) -- store the RexxText counterpart created from itself with specified encoding
+    self~setMethod("text", self~instanceMethod("myText"), "Object")
+    return myText
+
+
+::attribute text set -- private
+    -- Can't declare this method private, because it's used by RexxText
+    -- But the assignment is secured:
+    -- If not yet linked to a RexxText then only a RexxText linked to this string can be assigned
+    -- If already linked to a RexxText then only this RexxText is accepted
+    expose myText -- attribute added on the String instance
+    use strict arg aText
+    if \var("myText") then do -- no stored counterpart
+        if aText~isA(.RexxText), aText~string~identityHash == self~identityHash then do
+            myText = aText -- store the RexxText counterpart passed by argument
+        end
+        else raise syntax 23.900 array("EncodedString: the counterpart must be a RexxText linked to this String")
+    end
+    else do
+        -- A RexxText counterpart is already assigned.
+        -- Raise an error if different from the current one
+        if aText~identityHash <> myText~identityHash then do
+            -- Must test identityHash because operator "<>" overloaded to test the Unicode characters
+            raise syntax 23.900 array("EncodedString: a RexxText counterpart is already assigned")
+        end
+    end
+
+
+--------------------------------------------------------------------------------
+::class "RexxTextInitializer" mixinclass Object private
+
+::constant false 0
+::constant true 1
+
+
+-- Used for optimization : when a method always return the same result in function
+-- of a boolean value which is constant then replace this method by a method which
+-- returns directly this result.
+::method replaceMethod private
+    if condition then do
+        self~setMethod(methodName, self~instanceMethod(methodNameIfTrue), "Object")
+    end
+    else do
+        self~setMethod(methodName, self~instanceMethod(methodNameIfFalse), "Object")
+    end
+    return condition
+
+
+::method makestring
+    expose indexer
+    --self~replaceMethod("makestring", self~isCompatibleWithString, "string", "notCompatibleWithString")
+    if self~isCompatibleWithString then return indexer~string
+    raise syntax 23.900 array("The" self~description(short:.true) "text cannot be converted to a String instance")
+
+
+::method notCompatibleWithString
+    raise syntax 23.900 array("The" self~description(short:.true) "text cannot be converted to a String instance")
+
+
+--------------------------------------------------------------------------------
+::class "RexxTextContents" mixinclass Object private
+
+::method isByte
+    forward to (self~indexer~class) continue
+    return self~replaceMethod("isByte", result, "true", "false")
+
+
+::method isUnicode
+    forward to (self~indexer~class) continue
+    return self~replaceMethod("isUnicode", result, "true", "false")
+
+
+etc... for all the isXXX methods

@@ -317,6 +317,10 @@ Similar to ~makeArray(separator), with these differences:
 
 /******************************************************************************/
 ::class "EncodedString" mixinclass Object private
+-- No longer use a mixinclass because of a bug with setMethod
+-- Put directly the methods on String with ::extension
+
+::extension String
 
 /*
     aString
@@ -326,6 +330,66 @@ Similar to ~makeArray(separator), with these differences:
      │                          graphemes  (direct access)
      +-----------------------⮷- string
 */
+
+
+/*
+::attribute myText get
+
+
+::attribute text get
+    expose myText -- attribute added on the String instance
+    use strict arg encoding="default"
+    myText = .RexxText~new(self, encoding) -- store the RexxText counterpart created from itself with specified encoding
+    -- Remember! Adding an instance method on the string instance changes its behaviour object.
+    -- Because of that, it's no longer considered as a primitive object.
+    -- And the message "==" is sent to the String instance with NO argument (see RexxString::hash below)
+    -- An error is raised by RexxString::primitiveIsEqual because the argument 'other' is required.
+    self~setMethod("text", self~instanceMethod("myText"), "Object")
+    return myText
+    /*
+    HashCode RexxString::hash()
+    {
+        if (!isString(this))  //  a nonprimitive object?    <-- jlf: the condition is false
+        {
+            // see if == overridden.
+            RexxObject *result = this->sendMessage(OREF_STRICT_EQUAL);
+            if (result == OREF_NULL)
+            {
+                reportException(Error_No_result_object_message, OREF_STRICT_EQUAL);
+            }
+            return result->requestString()->getStringHash();
+        }
+        else
+        {
+            return this->getHashValue(); // return the string hash
+        }
+    }
+    */
+
+
+::attribute text set -- private
+    -- Can't declare this method private, because it's used by RexxText
+    -- But the assignment is secured:
+    -- If not yet linked to a RexxText then only a RexxText linked to this string can be assigned
+    -- If already linked to a RexxText then only this RexxText is accepted
+    expose myText -- attribute added on the String instance
+    use strict arg aText
+    if \var("myText") then do -- no stored counterpart
+        if aText~isA(.RexxText), aText~string~identityHash == self~identityHash then do
+            myText = aText -- store the RexxText counterpart passed by argument
+        end
+        else raise syntax 23.900 array("EncodedString: the counterpart must be a RexxText linked to this String")
+    end
+    else do
+        -- A RexxText counterpart is already assigned.
+        -- Raise an error if different from the current one
+        if aText~identityHash <> myText~identityHash then do
+            -- Must test identityHash because operator "<>" overloaded to test the Unicode characters
+            raise syntax 23.900 array("EncodedString: a RexxText counterpart is already assigned")
+        end
+    end
+*/
+
 
 ::attribute text get
     expose text -- attribute added on the String instance
@@ -352,21 +416,21 @@ Similar to ~makeArray(separator), with these differences:
         if aText~isA(.RexxText), aText~string~identityHash == self~identityHash then do
             text = aText -- store the RexxText counterpart passed by argument
         end
-        else raise syntax 93.900 array("EncodedString: the counterpart must be a RexxText linked to this String")
+        else raise syntax 23.900 array("EncodedString: the counterpart must be a RexxText linked to this String")
     end
     else do
         -- A RexxText counterpart is already assigned.
         -- Raise an error if different from the current one
         if aText~identityHash <> text~identityHash then do
             -- Must test identityHash because operator "<>" overloaded to test the Unicode characters
-            raise syntax 93.900 array("EncodedString: a RexxText counterpart is already assigned")
+            raise syntax 23.900 array("EncodedString: a RexxText counterpart is already assigned")
         end
     end
 
 
 ::method hasText
-    expose text
-    return var("text")
+    expose myText
+    return var("myText")
 
 
 ::method makeRexxText
@@ -376,9 +440,9 @@ Similar to ~makeArray(separator), with these differences:
 
 ::method copy
     -- If the string is linked to a RexxText then the RexxText must also be cloned.
-    expose text
+    expose myText
     use strict arg -- none
-    if \var("text") then return self~copy:super
+    if \var("myText") then return self~copy:super
     textCopy = text~copy
     return textCopy~string
 
@@ -387,7 +451,8 @@ Similar to ~makeArray(separator), with these differences:
 ::class "RexxTextInitializer" mixinclass Object private
 
 ::method init
-    expose indexer -- The RexxText is not referencing directly the String, it's the indexer
+    -- expose indexer -- The RexxText is not referencing directly the String, it's the indexer
+    expose indexer /* rest is optim */ string text encoding
     use strict arg string, encoding="default"
     .validate~classtype("1", string, .string)
     -- Some strings are interned by the interpreter, and the same instance can be returned
@@ -399,6 +464,11 @@ Similar to ~makeArray(separator), with these differences:
     indexer = encoding~analyze(string)
     -- if we reach this point, it means the analyze is ok, otherwise an error was raised.
     string~text = self -- store itself as counterpart of string
+
+    -- Optimization by redundance (pure attributes are 3 to 4 times faster than methods just exposing and returning the value)
+    string = indexer~string
+    text = self
+    encoding = indexer~class
 
 
 /*
@@ -418,25 +488,34 @@ base class...
 ::method makestring
     expose indexer
     if self~isCompatibleWithString then return indexer~string
-    raise syntax 93.900 array("The" self~description(short:.true) "text cannot be converted to a String instance")
+    raise syntax 23.900 array("The" self~description(short:.true) "text cannot be converted to a String instance")
 
 
+::method notCompatibleWithString
+    raise syntax 23.900 array("The" self~description(short:.true) "text cannot be converted to a String instance")
+
+
+::attribute string get
+/*
 ::attribute string get
     expose indexer
     use strict arg -- none
     return indexer~string
+*/
 
 
 ::attribute text get
+/*
     use strict arg -- none
     return self
-
+*/
 
 ::attribute encoding get
+/*
     expose indexer
     use strict arg -- none
     return indexer~class
-
+*/
 
 ::attribute encoding set
     expose indexer
@@ -448,7 +527,7 @@ base class...
 
 
 -- Must use an attribute to return the indexer, because the indexer is not visible from the other mixinclasses
-::attribute indexer --private todo
+::attribute indexer get private
 
 
 ::method copy
@@ -493,55 +572,125 @@ base class...
 
 
 ::method isByte
-    forward to (self~indexer~class)
+    expose isByte
+    if var("isByte") then return isByte
+    forward to (self~indexer~class) continue
+    isByte = result
+    return result
 
 
 ::method isUnicode
-    forward to (self~indexer~class)
+    expose isUnicode
+    if var("isUnicode") then return isUnicode
+    forward to (self~indexer~class) continue
+    isUnicode = result
+    return result
 
 
 ::method isUTF8
-    forward to (self~indexer~class)
+    expose isUTF8
+    if var("isUTF8") then return isUTF8
+    forward to (self~indexer~class) continue
+    isUTF8 = result
+    return result
 
 
 ::method isWTF8
-    forward to (self~indexer~class)
+    expose isWTF8
+    if var("isWTF8") then return isWTF8
+    forward to (self~indexer~class) continue
+    isWTF8 = result
+    return result
 
 
 ::method isUTF16 -- true if UTF-16BE or UTF-16LE
-    forward to (self~indexer~class)
+    expose isUTF16
+    if var("isUTF16") then return isUTF16
+    forward to (self~indexer~class) continue
+    isUTF16 = result
+    return result
 
 
 ::method isUTF16BE
-    forward to (self~indexer~class)
+    expose isUTF16BE
+    if var("isUTF16BE") then return isUTF16BE
+    forward to (self~indexer~class) continue
+    isUTF16BE = result
+    return result
 
 
 ::method isUTF16LE
-    forward to (self~indexer~class)
+    expose isUTF16LE
+    if var("isUTF16LE") then return isUTF16LE
+    forward to (self~indexer~class) continue
+    isUTF16LE = result
+    return result
 
 
 ::method isWTF16 -- true is WTF-16BE or WTF-16LE
-    forward to (self~indexer~class)
+    expose isWTF16
+    if var("isWTF16") then return isWTF16
+    forward to (self~indexer~class) continue
+    isWTF16 = result
+    return result
 
 
 ::method isWTF16BE
-    forward to (self~indexer~class)
+    expose isWTF16BE
+    if var("isWTF16BE") then return isWTF16BE
+    forward to (self~indexer~class) continue
+    isWTF16BE = result
+    return result
 
 
 ::method isWTF16LE
-    forward to (self~indexer~class)
+    expose isWTF16LE
+    if var("isWTF16LE") then return isWTF16LE
+    forward to (self~indexer~class) continue
+    isWTF16LE = result
+    return result
 
 
 ::method isUTF32
-    forward to (self~indexer~class)
+    expose isUTF32
+    if var("isUTF32") then return isUTF32
+    forward to (self~indexer~class) continue
+    isUTF32 = result
+    return result
 
 
 ::method isUTF32BE
-    forward to (self~indexer~class)
+    expose isUTF32BE
+    if var("isUTF32BE") then return isUTF32BE
+    forward to (self~indexer~class) continue
+    isUTF32BE = result
+    return result
 
 
 ::method isUTF32LE
-    forward to (self~indexer~class)
+    expose isUTF32LE
+    if var("isUTF32LE") then return isUTF32LE
+    forward to (self~indexer~class) continue
+    isUTF32LE = result
+    return result
+
+
+::method isASCII
+    expose isASCII
+    if var("isASCII") then return isASCII
+    result = (self~isByte | self~isUTF8 | self~isWTF8) & self~string~isASCII
+    isASCII = result
+    return result
+
+
+::method isCompatibleWithString
+    expose isCompatibleWithString
+    -- true if the String methods are applicable
+    if var("isCompatibleWithString") then return isCompatibleWithString
+    if self~isByte then result = .true
+    else result = (self~isUTF8 | self~isWTF8) & self~string~isASCII
+    isCompatibleWithString = result
+    return result
 
 
 ::method codepoints
@@ -648,23 +797,12 @@ base class...
     forward to (self~indexer)
 
 
-::method isASCII
-    use strict arg -- none
-    return (self~isByte | self~isUTF8 | self~isWTF8) & self~string~isASCII
-
-
-::method isCompatibleWithString
-    -- true if the String methods are applicable
-    if self~isByte then return .true
-    return (self~isUTF8 | self~isWTF8) & self~string~isASCII
-
-
 ::method checkHexadecimalValueCompatibility
     -- The purpose is not to check that the text is an hexadecimal value (will be checked by the String class)
     -- The purpose is to ensure that the text encoding is compatible with the String class,
     -- and to provide an accurate error.
     use strict arg -- none
-    if \self~isASCII then raise syntax 93.900 array("The" self~description(short:.true) "text is not compatible with a Rexx hexadecimal value")
+    if \self~isASCII then raise syntax 23.900 array("The" self~description(short:.true) "text is not compatible with a Rexx hexadecimal value")
 
 
 ::method checkNumericValueCompatibility
@@ -672,7 +810,7 @@ base class...
     -- The purpose is to ensure that the text encoding is compatible with the String class,
     -- and to provide an accurate error.
     use strict arg -- none
-    if \self~isASCII then raise syntax 93.900 array("The" self~description(short:.true) "text is not compatible with a Rexx numeric value")
+    if \self~isASCII then raise syntax 23.900 array("The" self~description(short:.true) "text is not compatible with a Rexx numeric value")
 
 
 ::method checkLogicalValueCompatibility
@@ -680,7 +818,7 @@ base class...
     -- The purpose is to ensure that the text encoding is compatible with the String class,
     -- and to provide an accurate error.
     use strict arg -- none
-    if \self~isASCII then raise syntax 93.900 array("The" self~description(short:.true) "text is not compatible with a Rexx logical value")
+    if \self~isASCII then raise syntax 23.900 array("The" self~description(short:.true) "text is not compatible with a Rexx logical value")
 
 
 /******************************************************************************/
@@ -835,7 +973,7 @@ x2d
         forward message "pos" to (self~string) continue
         return result <> 0
     end
-    raise syntax 93.900 array("Method 'contains' not yet implemented for Unicode")
+    raise syntax 23.900 array("Method 'contains' not yet implemented for Unicode")
 
 
 ::method copies
@@ -857,7 +995,7 @@ x2d
     otherIsCompatibleWithString = .true
     if other~isA(.RexxText), \other~isCompatibleWithString then otherIsCompatibleWithString = .false
     if self~isCompatibleWithString, otherIsCompatibleWithString then forward to (self~string)
-    raise syntax 93.900 array("Method 'match' not yet implemented for Unicode")
+    raise syntax 23.900 array("Method 'match' not yet implemented for Unicode")
 
 
 ::method matchChar
@@ -865,7 +1003,7 @@ x2d
     charsIsCompatibleWithString = .true
     if chars~isA(.RexxText), \chars~isCompatibleWithString then charsIsCompatibleWithString = .false
     if self~isCompatibleWithString, charsIsCompatibleWithString then forward to (self~string)
-    raise syntax 93.900 array("Method 'matchChar' not yet implemented for Unicode")
+    raise syntax 23.900 array("Method 'matchChar' not yet implemented for Unicode")
 
 
 ::method pos
@@ -874,7 +1012,7 @@ x2d
     if needle~isA(.RexxText), \needle~isCompatibleWithString then needleIsCompatibleWithString = .false
     if self~isCompatibleWithString, needleIsCompatibleWithString then forward to (self~string)
     use strict arg needle, start=1, length=(self~length)
-    raise syntax 93.900 array("Method 'pos' not yet implemented for Unicode")
+    raise syntax 23.900 array("Method 'pos' not yet implemented for Unicode")
 
 
 ::method subchar
@@ -1053,7 +1191,7 @@ x2d
         forward message (message) to (self~string) array (right~string)
     end
     -- Unicode comparison
-    raise syntax 93.900 array("Unicode comparison not yet implemented")
+    raise syntax 23.900 array("Unicode comparison not yet implemented")
 
 
 ::method compareLeftSelf
@@ -1064,7 +1202,7 @@ x2d
         forward message (message) to (left~string) array (self~string)
     end
     -- Unicode comparison
-    raise syntax 93.900 array("Unicode comparison not yet implemented")
+    raise syntax 23.900 array("Unicode comparison not yet implemented")
 
 
 ::method '<'
@@ -1709,7 +1847,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         return .UTF32BE_Encoding -- The Unicode norm specifies that the default UTF-32 is big endian
     end
     if encodings~hasEntry(encodingName) then return encodings[encodingName]
-    raise syntax 93.900 array("Encoding: '"encoding"' is not supported")
+    raise syntax 23.900 array("Encoding: '"encoding"' is not supported")
 
 
 ::method forConcatenation class
@@ -1730,7 +1868,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     if leftEncoding~isUTF16LE, rightEncoding~isWTF16LE then return .WTF16LE_Encoding
     if leftEncoding~isWTF16LE, rightEncoding~isUTF16LE then return .WTF16LE_Encoding
 
-    raise syntax 93.900 array("Encoding: cannot concatenate" leftText~description(short:.true) "text with" rightText~description(short:.true) "text")
+    raise syntax 23.900 array("Encoding: cannot concatenate" leftText~description(short:.true) "text with" rightText~description(short:.true) "text")
 
 
 ::method comparisonMode class
@@ -1743,7 +1881,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     if leftText~isASCII, (rightText~isUTF8 | rightText~isWTF8) then return "u"
     if (leftText~isUTF8 | leftText~isWTF8), rightText~isASCII then return "u"
     if leftText~isUnicode & rightText~isUnicode then return "u"
-    raise syntax 93.900 array("Encoding: cannot compare" leftText~description(short:.true) "text with" rightText~description(short:.true) "text")
+    raise syntax 23.900 array("Encoding: cannot compare" leftText~description(short:.true) "text with" rightText~description(short:.true) "text")
 
 
 /******************************************************************************/
@@ -1894,12 +2032,11 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 /* Instance methods */
 /********************/
 
--- todo: private
 ::attribute string get
 ::attribute string set private
-::attribute codepointIndexes get --private -- will be removed, no need of direct access to a codepoint
+::attribute codepointIndexes get private -- will be removed, no need of direct access to a codepoint
 ::attribute codepointCount get
-::attribute graphemeIndexes get --private
+::attribute graphemeIndexes get private
 ::attribute graphemeCount get
 ::attribute errors get
 
@@ -2108,7 +2245,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
             errorInfo[1] = errorMessage"."
             return whichCodepoint -- -1 (previousCodepoint) or 0 (codepoint). A negative or null value means "error".
         end
-        raise syntax 93.900 array (errorMessage)
+        raise syntax 23.900 array (errorMessage)
 
 
 ::method decode class
@@ -2121,7 +2258,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     end
     if sizeB == 0 then return .nil
     if sizeB == 1 then return string~subchar(startB)~c2d
-    raise syntax 93.900 array (self~name "encoding:" sizeB "is an invalid size of byte sequence")
+    raise syntax 23.900 array (self~name "encoding:" sizeB "is an invalid size of byte sequence")
 
 
 ::method nextCodepointIndex class
@@ -2152,7 +2289,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method codepointIndex
     use strict arg indexC
-    if indexC < 1 then raise syntax 93.900 array (self~description "invalid codepoint index:" indexC)
+    if indexC < 1 then raise syntax 23.900 array (self~description "invalid codepoint index:" indexC)
     if indexC > self~codepointCount then indexC = self~codepointCount + 1
     return indexC
 
@@ -2166,7 +2303,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method graphemeIndex
     use strict arg indexG
-    if indexG < 1 then raise syntax 93.900 array (self~description "invalid grapheme index:" indexG)
+    if indexG < 1 then raise syntax 23.900 array (self~description "invalid grapheme index:" indexG)
     if indexG > self~graphemeCount then indexG = self~graphemeCount + 1
     return indexG
 
@@ -2189,12 +2326,12 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
             codepoint = tableTranscodingToUnicode[charcode+1] -- bof bof... 1-based array
             -- An empty string means no mapping
             -- A negative codepoint means unused character with fallback mapping
-            if codepoint == "" | (codepoint < 0 & strict) then raise syntax 93.900 array(self~name "encoding: cannot convert" self~description(short:.true) "character" charcode "("charcode~d2x") at byte-position" i "to" targetEncoding~name)
+            if codepoint == "" | (codepoint < 0 & strict) then raise syntax 23.900 array(self~name "encoding: cannot convert" self~description(short:.true) "character" charcode "("charcode~d2x") at byte-position" i "to" targetEncoding~name)
             targetEncoding~encode(abs(codepoint), buffer)
         end
         return .RexxText~new(buffer~string, targetEncoding)
     end
-    raise syntax 93.900 array(self~class~name "encoding: cannot convert" self~description(short:.true) "to" targetEncoding~name)
+    raise syntax 23.900 array(self~class~name "encoding: cannot convert" self~description(short:.true) "to" targetEncoding~name)
 
 
 ::method UTF8
@@ -2496,8 +2633,8 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method analyze class
     use strict arg string
-    sizeB = string~length -- size in bytes
     -- Bad idea! Must always analyze because CR+LF is a grapheme.
+    -- sizeB = string~length -- size in bytes
     -- if string~isASCII then return self~new(string, .nil, sizeB, .nil, sizeB) -- no indexation needed
     return self~createIndexer(string)
 
@@ -2516,7 +2653,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     if sizeB == 2 then return decodeByte(0, "1F"x)  *     64 + decodeByte(1, "3F"x)
     if sizeB == 3 then return decodeByte(0, "0F"x)  *   4096 + decodeByte(1, "3F"x) *   64 +  + decodeByte(2, "3F"x)
     if sizeB == 4 then return decodeByte(0, "07"x)  * 262144 + decodeByte(1, "3F"x) * 4096 +  + decodeByte(2, "3F"x) * 64 + decodeByte(3, "3F"x)
-    raise syntax 93.900 array (self~name "encoding:" sizeB "is an invalid size of byte sequence")
+    raise syntax 23.900 array (self~name "encoding:" sizeB "is an invalid size of byte sequence")
 
     decodeByte: procedure expose string startB
         use strict arg offset, mask
@@ -2687,7 +2824,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
             errorInfo[1] = errorMessage"."
             return -nextCodepointIndex  -- negative value means error
         end
-        raise syntax 93.900 array (errorMessage)
+        raise syntax 23.900 array (errorMessage)
 
 
 -- utf8proc_ssize_t utf8proc_encode_char(utf8proc_int32_t codepoint, utf8proc_uint8_t *dst);
@@ -2727,7 +2864,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method codepointIndex
     use strict arg indexC
-    if indexC < 1 then raise syntax 93.900 array (self~description "invalid codepoint index:" indexC)
+    if indexC < 1 then raise syntax 23.900 array (self~description "invalid codepoint index:" indexC)
     if indexC > self~codepointCount then return self~string~length + 1
     if self~codepointIndexes == .nil then return indexC
     indexB = self~codepointIndexes[indexC]
@@ -2756,7 +2893,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method graphemeIndex
     use strict arg indexG
-    if indexG < 1 then raise syntax 93.900 array (self~description "invalid grapheme index:" indexG)
+    if indexG < 1 then raise syntax 23.900 array (self~description "invalid grapheme index:" indexG)
     if indexG > self~graphemeCount then return self~string~length + 1
     if self~graphemeIndexes == .nil then return indexG
     indexB = self~graphemeIndexes[indexG]
@@ -2838,7 +2975,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
             errorInfo[1] = errorMessage"."
             return whichCodepoint -- -1 (previousCodepoint) or 0 (codepoint). A negative or null value means "error".
         end
-        raise syntax 93.900 array (errorMessage)
+        raise syntax 23.900 array (errorMessage)
 
 
 /******************************************************************************/
@@ -2923,7 +3060,7 @@ Concatenating WTF-8 strings requires extra care to preserve well-formedness.
             errorInfo[1] = errorMessage"."
             return whichCodepoint -- -1 (previousCodepoint) or 0 (codepoint). A negative or null value means "error".
         end
-        raise syntax 93.900 array (errorMessage)
+        raise syntax 23.900 array (errorMessage)
 
 
 /*
@@ -3005,7 +3142,7 @@ the concatenation back to WTF-8.
         l = low_surrogate - 56320 -- Take the low surrogate and subtract 0xDC00
         return h + l + 65536 -- Add these two results together, and finally add 0x10000
     end
-    raise syntax 93.900 array (self~name "encoding:" sizeB "is an invalid size of byte sequence")
+    raise syntax 23.900 array (self~name "encoding:" sizeB "is an invalid size of byte sequence")
 
 
 ::method nextCodepointIndex class
@@ -3052,7 +3189,7 @@ the concatenation back to WTF-8.
             errorInfo[1] = errorMessage"."
             return -nextCodepointIndex  -- negative value means error
         end
-        raise syntax 93.900 array (errorMessage)
+        raise syntax 23.900 array (errorMessage)
 
 
 ::method encode class
@@ -3083,7 +3220,7 @@ the concatenation back to WTF-8.
 
 ::method codepointIndex
     use strict arg indexC
-    if indexC < 1 then raise syntax 93.900 array (self~description "invalid codepoint index:" indexC)
+    if indexC < 1 then raise syntax 23.900 array (self~description "invalid codepoint index:" indexC)
     if indexC > self~codepointCount then return self~string~length + 1
     if self~codepointIndexes == .nil then return 2 * (indexC - 1) + 1
     indexB = self~codepointIndexes[indexC]
@@ -3112,7 +3249,7 @@ the concatenation back to WTF-8.
 
 ::method graphemeIndex
     use strict arg indexG
-    if indexG < 1 then raise syntax 93.900 array (self~description "invalid grapheme index:" indexG)
+    if indexG < 1 then raise syntax 23.900 array (self~description "invalid grapheme index:" indexG)
     if indexG > self~graphemeCount then return self~string~length + 1
     if self~graphemeIndexes == .nil then return 2 * (indexG - 1) + 1
     indexB = self~graphemeIndexes[indexG]
@@ -3277,7 +3414,7 @@ the concatenation back to WTF-8.
             errorInfo[1] = errorMessage"."
             return whichCodepoint -- -1 (previousCodepoint) or 0 (codepoint). A negative or null value means "error".
         end
-        raise syntax 93.900 array (errorMessage)
+        raise syntax 23.900 array (errorMessage)
 
 
 /******************************************************************************/
@@ -3349,7 +3486,7 @@ the concatenation back to WTF-8.
             errorInfo[1] = errorMessage"."
             return whichCodepoint -- -1 (previousCodepoint) or 0 (codepoint). A negative or null value means "error".
         end
-        raise syntax 93.900 array (errorMessage)
+        raise syntax 23.900 array (errorMessage)
 
 
 /******************************************************************************/
@@ -3472,7 +3609,7 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
             errorInfo[1] = errorMessage"."
             return whichCodepoint -- -1 (previousCodepoint) or 0 (codepoint). A negative or null value means "error".
         end
-        raise syntax 93.900 array (errorMessage)
+        raise syntax 23.900 array (errorMessage)
 
 
 ::method decode class
@@ -3486,7 +3623,7 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
     -- numeric digits 10 -- not needed here, managed by decodeCodepoint
     if sizeB == 0 then return .nil
     if sizeB == 4 then return self~decodeCodepoint(string~substr(startB, 4))
-    raise syntax 93.900 array (self~name "encoding:" sizeB "is an invalid size of byte sequence")
+    raise syntax 23.900 array (self~name "encoding:" sizeB "is an invalid size of byte sequence")
 
 
 ::method nextCodepointIndex class
@@ -3508,7 +3645,7 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
             errorInfo[1] = errorMessage"."
             return -nextCodepointIndex  -- negative value means error
         end
-        raise syntax 93.900 array (errorMessage)
+        raise syntax 23.900 array (errorMessage)
 
 
 ::method encode class
@@ -3530,7 +3667,7 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 
 ::method codepointIndex
     use strict arg indexC
-    if indexC < 1 then raise syntax 93.900 array (self~description "invalid codepoint index:" indexC)
+    if indexC < 1 then raise syntax 23.900 array (self~description "invalid codepoint index:" indexC)
     if indexC > self~codepointCount then return self~string~length + 1
     if self~codepointIndexes == .nil then return 4 * (indexC - 1) + 1
     indexB = self~codepointIndexes[indexC]
@@ -3559,7 +3696,7 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 
 ::method graphemeIndex
     use strict arg indexG
-    if indexG < 1 then raise syntax 93.900 array (self~description "invalid grapheme index:" indexG)
+    if indexG < 1 then raise syntax 23.900 array (self~description "invalid grapheme index:" indexG)
     if indexG > self~graphemeCount then return self~string~length + 1
     if self~graphemeIndexes == .nil then return 4 * (indexG - 1) + 1
     indexB = self~graphemeIndexes[indexG]
