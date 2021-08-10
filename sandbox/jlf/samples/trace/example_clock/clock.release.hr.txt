@@ -1,0 +1,82 @@
+T1   A1                     1 *-* myclock1 = .clock~new ;
+T1   A1                       >E>   .CLOCK => "The CLOCK class"
+T1   A1                       >M>   "NEW" => "a CLOCK"
+T1   A1                       >>>   "a CLOCK"
+T1   A1                       >=>   MYCLOCK1 <= "a CLOCK"
+T1   A1                     1 *-* myclock1~go
+T1   A1                       >V>   MYCLOCK1 => "a CLOCK"
+T1   A2     V1                >I> Method GO with scope "CLOCK" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/trace/clock.rex
+T1   A2     V1      1*      8 *-* reply
+T2   A2     V1      1*        >I> Method GO with scope "CLOCK" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/trace/clock.rex
+T1   A1                     2 *-* myclock2 = .clock~new ;
+T2   A2     V1      1*      9 *-* do 2
+T1   A1                       >E>   .CLOCK => "The CLOCK class"
+T2   A2     V1      1*        >L>     "2"
+T1   A1                       >M>   "NEW" => "a CLOCK"
+T2   A2     V1      1*        >>>     "2"
+T1   A1                       >>>   "a CLOCK"
+T2   A2     V1      1*     10 *-*   say left(time(),8)
+T1   A1                       >=>   MYCLOCK2 <= "a CLOCK"
+T2   A2     V1      1*        >F>     TIME => "13:42:03"
+T1   A1                     2 *-* myclock2~go
+T2   A2     V1      1*        >A>     "13:42:03"
+T1   A1                       >V>   MYCLOCK2 => "a CLOCK"
+T2   A2     V1      1*        >L>     "8"
+T1   A3     V2                >I> Method GO with scope "CLOCK" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/trace/clock.rex
+T2   A2     V1      1*        >A>     "8"
+T1   A3     V2      1*      8 *-* reply
+T2   A2     V1      1*        >F>     LEFT => "13:42:03"
+T3   A3     V2      1*        >I> Method GO with scope "CLOCK" in package /local/rexx/oorexx/executor/sandbox/jlf/samples/trace/clock.rex
+T2   A2     V1      1*        >>>     "13:42:03"
+13:42:03
+T3   A3     V2      1*      9 *-* do 2
+T2   A2     V1      1*     11 *-*   call syssleep(1)
+T3   A3     V2      1*        >L>     "2"
+T2   A2     V1      1*        >L>     "1"
+T3   A3     V2      1*        >>>     "2"
+T2   A2     V1      1*        >A>     "1"
+T3   A3     V2      1*     10 *-*   say left(time(),8)
+T3   A3     V2      1*        >F>     TIME => "13:42:03"
+T3   A3     V2      1*        >A>     "13:42:03"
+T3   A3     V2      1*        >L>     "8"
+T3   A3     V2      1*        >A>     "8"
+T3   A3     V2      1*        >F>     LEFT => "13:42:03"
+T3   A3     V2      1*        >>>     "13:42:03"
+13:42:03
+T3   A3     V2      1*     11 *-*   call syssleep(1)
+T3   A3     V2      1*        >L>     "1"
+T3   A3     V2      1*        >A>     "1"
+T2   A2     V1      1*        >>>     "0"
+T3   A3     V2      1*        >>>     "0"
+T2   A2     V1      1*     12 *-* end
+T3   A3     V2      1*     12 *-* end
+T2   A2     V1      1*      9 *-* do 2
+T3   A3     V2      1*      9 *-* do 2
+T2   A2     V1      1*     10 *-*   say left(time(),8)
+T3   A3     V2      1*     10 *-*   say left(time(),8)
+T2   A2     V1      1*        >F>     TIME => "13:42:04"
+T3   A3     V2      1*        >F>     TIME => "13:42:04"
+T2   A2     V1      1*        >A>     "13:42:04"
+T3   A3     V2      1*        >A>     "13:42:04"
+T2   A2     V1      1*        >L>     "8"
+T3   A3     V2      1*        >L>     "8"
+T2   A2     V1      1*        >A>     "8"
+T3   A3     V2      1*        >A>     "8"
+T2   A2     V1      1*        >F>     LEFT => "13:42:04"
+T3   A3     V2      1*        >F>     LEFT => "13:42:04"
+T2   A2     V1      1*        >>>     "13:42:04"
+T3   A3     V2      1*        >>>     "13:42:04"
+13:42:04
+13:42:04
+T2   A2     V1      1*     11 *-*   call syssleep(1)
+T3   A3     V2      1*     11 *-*   call syssleep(1)
+T2   A2     V1      1*        >L>     "1"
+T3   A3     V2      1*        >L>     "1"
+T2   A2     V1      1*        >A>     "1"
+T3   A3     V2      1*        >A>     "1"
+T2   A2     V1      1*        >>>     "0"
+T2   A2     V1      1*     12 *-* end
+T2   A2     V1      1*      9 *-* do 2
+T3   A3     V2      1*        >>>     "0"
+T3   A3     V2      1*     12 *-* end
+T3   A3     V2      1*      9 *-* do 2
