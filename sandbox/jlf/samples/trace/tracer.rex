@@ -52,12 +52,11 @@ Examples :
     (Remember : you MUST redirect stderr to stdout with 2>&1)
 
     Windows:
-    set RXTRACE=i:3
     set RXTRACE_CONCURRENCY=on
     rexx my_traced_script.rex 2>&1 | rexx tracer -csv > out.csv
 
     Linux, MacOs:
-    RXTRACE=i:3 RXTRACE_CONCURRENCY=on rexx my_traced_script.rex 2>&1 | rexx tracer -csv > out.csv
+    RXTRACE_CONCURRENCY=on rexx my_traced_script.rex 2>&1 | rexx tracer -csv > out.csv
 
     rexx tracer -csv my_trace_file.txt
 ****/
