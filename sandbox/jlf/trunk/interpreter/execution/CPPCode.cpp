@@ -1099,6 +1099,7 @@ CPPM(RexxText::newRexx),
 
 CPPM(Unicode::newRexx),
 CPPM(Unicode::copyRexx),
+CPPM(Unicode::SystemIsLittleEndian),
 CPPM(Unicode::GraphemeBreak),
 
 

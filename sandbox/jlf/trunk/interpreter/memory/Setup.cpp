@@ -1443,6 +1443,7 @@ void RexxMemory::createImage(const char *imageTarget)
 
   defineKernelMethod(CHAR_NEW, TheUnicodeClassBehaviour, CPPM(Unicode::newRexx), A_COUNT);
   defineKernelMethod(CHAR_COPY, TheUnicodeClassBehaviour, CPPM(Unicode::copyRexx), 0);
+  defineKernelMethod("SYSTEMISLITTLEENDIAN" , TheUnicodeClassBehaviour, CPPM(Unicode::SystemIsLittleEndian), 0);
   defineKernelMethod("GRAPHEMEBREAK" , TheUnicodeClassBehaviour, CPPM(Unicode::GraphemeBreak), 1);
                                        /* set the scope of the methods to   */
                                        /* this classes oref                 */

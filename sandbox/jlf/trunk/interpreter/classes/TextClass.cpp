@@ -172,6 +172,20 @@ size_t nonNegativeInteger(RexxObject *obj, const char *errorMessage)
     return 0; // To avoid warning, must return something (should never reach this line)
 }
 
+
+bool isLittleEndian()
+{
+    int64_t v64 = 1;
+    return *((int8_t*)&v64) == 1;
+}
+
+
+RexxInteger *Unicode::SystemIsLittleEndian()
+{
+    int64_t v64 = 1;
+    return isLittleEndian() ? TheTrueObject : TheFalseObject;
+}
+
 /**
  * Given a pair of consecutive codepoints, return whether a grapheme break is
  * permitted between them.

@@ -101,6 +101,7 @@ public:
     static void createInstance();
     static RexxClass *classInstance; // RexxCore.h #define TheUnicodeClass Unicode::classInstance
 
+    RexxInteger *SystemIsLittleEndian();
     RexxObject *GraphemeBreak(RexxArray *);
 };
 
