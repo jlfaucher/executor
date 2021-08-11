@@ -495,6 +495,45 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 August 11
+
+[Encoded strings]
+
+Added support for strings of codepoints encoded as native integers.
+3 representations:
+    Unicode8_Encoding
+    Unicode16_Encoding
+    Unicode32_Encoding.
+The method ~unicode returns one of these encodings, depending on the character
+with the largest Unicode codepoint (1, 2, or 4 bytes) in the source string.
+Unlike the flexible representation of Python, the 3 representions are first-class.
+No BOM, the endiannes is the CPU one. This is for internal use only.
+Unicode32_Encoding can be used with utf8proc for the functions taking a buffer of 3-bit integers.
+
+
+"côté"~text("unicode8")=    -- T'côté Just an interpretative layer put above the string
+"côté"~text("unicode8")~pipe{item~description(s:1) ":" item~c2x}=
+    'Unicode8 not-ASCII : 63 C3 B4 74 C3 A9
+
+"côté"~text~unicode=        -- T'c?t?' UTF-8 converted to Unicode8
+"côté"~text~unicode~pipe{item~description(s:1) ":" item~c2x}=
+    'Unicode8 not-ASCII : 63 F4 74 E9
+
+"noël‍👨‍👩‍👧"~text~maximumCodepoint~pipe{"U+"item~d2x}=   -- U+1F469 is the maximum codepoint
+"noël‍👨‍👩‍👧"~text~unicode~description(t:1)=              -- For this maximum codepoint, we need Unicode32
+    'Unicode32 not-ASCII (5 graphemes (1 index from index 5), 10 codepoints (0 index), 40 bytes, 0 error)'
+
+-- The endianness of the UnicodeXX_Encoding is the one of the machine.
+-- With an Intel CPU, it's little-endian.
+"noël‍👨‍👩‍👧"~text~unicode~c2x=
+    '6E000000 6F000000 EB000000 6C000000 0D200000 68F40100 0D200000 69F40100 0D200000 67F40100'
+
+-- The default endianness for UTF32 is big-endian.
+"noël‍👨‍👩‍👧"~text~utf32~c2x=
+    '0000006E 0000006F 000000EB 0000006C 0000200D 0001F468 0000200D 0001F469 0000200D 0001F467'
+
+
+===============================================================================
 2021 August 08
 
 [Encoded strings]
