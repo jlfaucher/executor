@@ -1,0 +1,16 @@
+================================================================================
+09/08/2020
+Mail Enrico
+
+Re: [Oorexx-devel] ooRexx Performance
+To squeeze a bit of performance REXX should be built with the   Interprocedural optimization (IPO)  activated
+
+My tests showed an increase in performance between 5 and 8 %
+
+Use the make module CheckIPOSupported
+And if supported define the property  for the relevant <modules>
+set_property( TARGET ……….  PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE )
+
+( the Rexx executable, the rexx library , the rexxapi library , the rxapi  executable the rexxc executable  )
+
+ pretty easy

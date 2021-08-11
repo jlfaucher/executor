@@ -430,6 +430,24 @@ of code points represent essentially the same character. This feature was introd
 to allow compatibility with preexisting standard character sets, which often included similar or identical characters.
 
 
+On Wed, Oct 28, 2020 at 9:54 AM Mark Davis ☕️ <mark@macchiato.com> wrote:
+Re: [icu-support] Options for Immutable Collation?
+
+        I think your search for 'middle ground' is fruitless.
+            An NFKD ordering is not correct for any human language, and changes with each new Unicode version.
+            And even the default Unicode collation ordering is wrong for many languages, because there is no order that simultaneously satisfies all (eg German ordering and Swedish ordering are incompatible).
+        Your 'middle ground' would be correct for nobody, and yet be unstable across Unicode versions; or worse yet, fail for new characters.
+
+        IMO, the best practice for a file system (or like systems) is to store in codepoint order. When called upon to present a sorted list of files to a user, the displaying program should sort that list according to the user's language preferences.
+
+    You are right: for a deterministic/reproducible list sorting for a cross-platform filesystem API, anything more complex would be an implementation hazard.
+
+    However, after reviewing both developer discussions and implementation of Unicode handling in 6+ filesystems, IDNA200X, PRECIS and getting roped into work on an IETF i18n filesystem best-practices RFC ... I've got some thoughts.  Thoughts that I will put into a new thread after I do some experimenting : ).
+
+    Thank you all so much!!!
+    -Zach Lym
+
+
 02/06/2021
 https://gitlab.pyicu.org/main/pyicu
 Python extension wrapping the ICU C++ libraries.
@@ -1118,6 +1136,28 @@ https://docs.python.org/3/howto/unicode.html
 
     https://www.python.org/dev/peps/pep-0393/
     PEP 393 -- Flexible String Representation
+        When creating new strings, it was common in Python to start of with a
+        heuristical buffer size, and then grow or shrink if the heuristics failed.
+        With this PEP, this is now less practical, as you need not only a heuristics
+        for the length of the string, but also for the maximum character.
+
+        In order to avoid heuristics, you need to make two passes over the input:
+        once to determine the output length, and the maximum character; then
+        allocate the target string with PyUnicode_New and iterate over the input
+        a second time to produce the final output. While this may sound expensive,
+        it could actually be cheaper than having to copy the result again as in
+        the following approach.
+
+        If you take the heuristical route, avoid allocating a string meant to be
+        resized, as resizing strings won't work for their canonical representation.
+        Instead, allocate a separate buffer to collect the characters, and then
+        construct a unicode object from that using PyUnicode_FromKindAndData.
+        One option is to use Py_UCS4 as the buffer element, assuming for the worst
+        case in character ordinals. This will allow for pointer arithmetics, but
+         may require a lot of memory. Alternatively, start with a 1-byte buffer,
+         and increase the element size as you encounter larger characters.
+         In any case, PyUnicode_FromKindAndData will scan over the buffer to
+         verify the maximum character.
 
 
 15/07/2021
@@ -1320,3 +1360,183 @@ https://swiftdoc.org/v5.1/type/string/
 Auto-generated documentation for Swift.
 A Unicode string value that is a collection of characters.
 
+
+10/08/2021
+List of Python PEPS related to string.
+https://www.python.org/dev/peps/
+    Other Informational PEPs
+        I	257	Docstring Conventions	Goodger, GvR
+        I	287	reStructuredText Docstring Format	Goodger
+
+    Accepted PEPs (accepted; may not be implemented yet)
+        SA	597	Add optional EncodingWarning	Naoki
+        SA	616	String methods to remove prefixes and suffixes	Sweeney
+        SA	623	Remove wstr from Unicode	Naoki
+
+    Open PEPs (under consideration)
+        S	558	Defined semantics for locals()	Coghlan
+
+    Finished PEPs (done, with a stable interface)
+        SF	100	Python Unicode Integration	Lemburg
+        SF	260	Simplify xrange()	GvR
+        SF	261	Support for "wide" Unicode characters	Prescod
+        SF	263	Defining Python Source Code Encodings	Lemburg, von Löwis
+        SF	277	Unicode file name support for Windows NT	Hodgson
+        SF	278	Universal Newline Support	Jansen
+        SF	292	Simpler String Substitutions	Warsaw
+        SF	331	Locale-Independent Float/String Conversions	Reis
+        SF	393	Flexible String Representation	v. Löwis
+        SF	414	Explicit Unicode Literal for Python 3.3	Ronacher, Coghlan
+        SF	498	Literal String Interpolation	Smith
+        SF	515	Underscores in Numeric Literals	Brandl, Storchaka
+        SF	528	Change Windows console encoding to UTF-8	Dower
+        SF	529	Change Windows filesystem encoding to UTF-8	Dower
+        SF	538	Coercing the legacy C locale to a UTF-8 based locale	Coghlan
+        SF	540	Add a new UTF-8 Mode	Stinner
+        SF	624	Remove Py_UNICODE encoder APIs	Naoki
+        SF	3101	Advanced String Formatting	Talin
+        SF	3112	Bytes literals in Python 3000	Orendorff
+        SF	3120	Using UTF-8 as the default source encoding	von Löwis
+        SF	3127	Integer Literal Support and Syntax	Maupin
+        SF	3131	Supporting Non-ASCII Identifiers	von Löwis
+        SF	3137	Immutable Bytes and Mutable Buffer	GvR
+        SF	3138	String representation in Python 3000	Ishimoto
+
+    Deferred PEPs (postponed pending further research or updates)
+        SD	501	General purpose string interpolation	Coghlan
+        SD	536	Final Grammar for Literal String Interpolation	Angerer
+
+    Abandoned, Withdrawn, and Rejected PEPs
+        SS	215	String Interpolation	Yee
+        IR	216	Docstring Format	Zadka
+        SR	224	Attribute Docstrings	Lemburg
+        SR	256	Docstring Processing System Framework	Goodger
+        SR	295	Interpretation of multiline string constants	Koltsov
+        SR	332	Byte vectors and String/Unicode Unification	Montanaro
+        SR	349	Allow str() to return unicode strings	Schemenauer
+        IR	502	String Interpolation - Extended Discussion	Miller
+        SR	3126	Remove Implicit String Concatenation	Jewett, Hettinger
+
+
+11/08/2021
+http://nokix.sourceforge.net/help/learn_rexx/funcs5.htm#VALUEIN
+Reads in a numeric value from a binary (ie, non-text) file.
+value = VALUEIN(stream, position, length, options)
+    Args
+        stream is the name of the stream.
+        It can include the full path to the stream (ie, any drive and directory names).
+        If omitted, the default is to read from STDIN.
+
+        position specifies at what character position (within the stream) to start
+        reading from, where 1 means to start reading at the very first character
+        in the stream. If omitted, the default is to resume reading at where a
+        previous call to CHARIN() or VALUEIN() left off (ie, where you current
+        read character position is).
+
+        length is a 1 to read in the next binary byte (ie, 8-bit value), a 2 to
+        read in the next binary short (ie, 16-bit value), or a 4 to read in the
+        next binary long (ie, 32-bit value). If length is omitted, VALUEIN() defaults to reading a byte.
+
+        options can be any of the following:
+            M	The value is stored (in the stream) in Motorola (big endian) byte order,
+                rather than Intel (little endian) byte order.
+                The effects only long and short values.
+            H	Read in the value as hexadecimal (rather than the default of base 10,
+                or decimal, which is the base that REXX uses to express numbers).
+                The value can later be converted with X2D().
+            B	Read in the value as binary (base 2).
+            -	The value is signed (as opposed to unsigned).
+            V	stream is the actual data string from which to extract a value.
+                You can now replace calls to SUBSTR and C2D with a single, faster call to VALUEIN.
+            If omitted, options defaults to none of the above.
+    Returns
+        The value, if successful.
+        If an error, an empty string is returned (unless the NOTREADY condition
+        is trapped via CALL method. Then, a '0' is returned).
+
+http://nokix.sourceforge.net/help/learn_rexx/funcs5.htm#VALUEOUT
+Write out numeric values to a binary (ie, non-text) file (ie, in non-text format).
+result = VALUEOUT(stream, values, position, size, options)
+    Args
+        stream is the name of the stream.
+        It can include the full path to the stream (ie, any drive and directory names).
+        If omitted, the default is to write to STDOUT (typically, display the data in the console window).
+
+        position specifies at what character position (within the stream) to start writing the data,
+        where 1 means to start writing at the very first character in the stream.
+        If omitted, the default is to resume writing at where a previous call to
+        CHAROUT() or VALUEOUT() left off (or where the "write character pointer" was set via STREAM's SEEK).
+
+        values are the numeric values (ie, data) to write out.
+        Each value is separated by one space.
+
+        size is a 1 if each value is to be written as a byte (ie, 8-bit value),
+        2 if each value is to be written as a short (16-bit value),
+        or 4 if each value is to be written as a long (32-bit value). If omitted, size defaults to 1.
+
+        options can be any of the following:
+            M	Write out the values in Motorola (big endian) byte order,
+                rather than Intel (little endian) byte order. The effects only long and short values.
+            H	The values you supplied are specified in hexadecimal.
+            B	The values you supplied are specified in binary (base 2).
+            V	stream is the name of a variable, and the data will be overlaid
+                onto that variable's value. You can now replace calls to D2C and
+                OVERLAY with a single, faster call to VALUEOUT, especially when
+                a variable has a large amount of non-text data.
+            If omitted, options defaults to none of the above.
+    Returns
+        0 if the string was written out successfully.
+        If an error, VALUEOUT() returns non-zero.
+
+
+http://www.dg77.net/tekno/manuel/rexxendian.htm
+Test de l’endianité
+    /* Verifie l'endianité / check endiannity          */
+    /* Pour traitement d'information encodees en UTF-8 */
+    /* Adapter si on utilise un autre encodage         */
+    CALL CONV8_16 ' '
+    IF c2x(sortie) = '2000' THEN DO
+        endian = 'LE' /* little endian  */
+        blanx = '2000'
+        END
+    ELSE DO
+        endian = 'BE' /* big endian  */
+        blanx = '0020'
+        END
+    return endian blanx
+    /* ********************************************************************** */
+    /*           Conversion UTF-8 -> UNICODE                                  */
+    CONV8_16:
+    parse arg entree
+    sortie = ''
+    ZONESORTIE.='NUL'; ZONESORTIE.0=0
+    err = systounicode(entree, 'UTF8', , ZONESORTIE.)
+    if err == 0 then sortie = ZONESORTIE.!TEXT
+      else say 'probleme car., code ' err
+    return
+
+
+http://www.dg77.net/tekno/xhtml/codage.htm
+Le codage des caractères
+To read, some infos about the code pages could be useful.
+
+
+Regina doc
+    EXPORT(address, [string], [length] [,pad]) - (AREXX)
+        Copies data from the (optional) string into a previously-allocated memory area, which must be
+        specified as a 4-byte address. The length parameter specifies the maximum number of characters to
+        be copied; the default is the length of the string. If the specified length is longer than the string, the
+        remaining area is filled with the pad character or nulls('00'x). The returned value is the number
+        of characters copied.
+        Caution is advised in using this function. Any area of memory can be overwritten,possibly
+        causing a system crash.
+        See also STORAGE() and IMPORT().
+        Note that the address specified is subject to a machine's endianess.
+        EXPORT('0004 0000'x,'The answer') '10'
+
+    IMPORT(address [,length]) - (AREXX)
+        Creates a string by copying data from the specified 4-byte address. If the length parameter is not
+        supplied,the copy terminates when a null byte is found.
+        See also EXPORT()
+        Note that the address specified is subject to a machine's endianess.
+        IMPORT('0004 0000'x,10) 'The answer' /* maybe */
