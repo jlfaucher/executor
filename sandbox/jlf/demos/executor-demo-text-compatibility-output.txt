@@ -20,7 +20,7 @@ loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
 REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
-Input queue name: S92fdQ7fd448430590
+Input queue name: S15a5dQ100505700
 
 --------------------------------------------
 -- Text encoding - Compatibility with String
@@ -92,7 +92,7 @@ Error code= 34.901
 
 ooRexx[bash]> "not a boolean value 🤔"~text~?("true"~text, "false"~text)=
 The UTF-8 not-ASCII text is not compatible with a Rexx logical value.
-Error code= 93.900
+Error code= 23.900
 
 ooRexx[bash]> "0"~text~?("true 🤔"~text, "false 🤔"~text)=
 T'false 🤔'
@@ -125,11 +125,11 @@ ooRexx[bash]> "noel"~text~contains("oe"~text)=            -- forward to String
 
 ooRexx[bash]> "noel"~text~contains("oë"~text)=
 Method 'contains' not yet implemented for Unicode.
-Error code= 93.900
+Error code= 23.900
 
 ooRexx[bash]> "noël"~text~contains("oe"~text)=
 Method 'contains' not yet implemented for Unicode.
-Error code= 93.900
+Error code= 23.900
 
 -- copies
 
@@ -159,11 +159,11 @@ ooRexx[bash]> "noel"~text~match(2, "oe"~text)=            -- forward to String
 
 ooRexx[bash]> "noel"~text~match(2, "oë"~text)=
 Method 'match' not yet implemented for Unicode.
-Error code= 93.900
+Error code= 23.900
 
 ooRexx[bash]> "noël"~text~match(2, "oe"~text)=
 Method 'match' not yet implemented for Unicode.
-Error code= 93.900
+Error code= 23.900
 
 -- matchChar
 
@@ -172,11 +172,11 @@ ooRexx[bash]> "noel"~text~matchChar(2, "oe"~text)=        -- forward to String
 
 ooRexx[bash]> "noel"~text~matchChar(2, "oë"~text)=
 Method 'matchChar' not yet implemented for Unicode.
-Error code= 93.900
+Error code= 23.900
 
 ooRexx[bash]> "noël"~text~matchChar(2, "oe"~text)=
 Method 'matchChar' not yet implemented for Unicode.
-Error code= 93.900
+Error code= 23.900
 
 -- pos
 
@@ -185,11 +185,11 @@ ooRexx[bash]> "noel"~text~pos("oe"~text)=                 -- forward to String
 
 ooRexx[bash]> "noel"~text~pos("oë"~text)=
 Method 'pos' not yet implemented for Unicode.
-Error code= 93.900
+Error code= 23.900
 
 ooRexx[bash]> "noël"~text~pos("oe"~text)=
 Method 'pos' not yet implemented for Unicode.
-Error code= 93.900
+Error code= 23.900
 
 -- subchar
 
@@ -222,7 +222,7 @@ Error code= 93.922
 
 ooRexx[bash]> "noel"~substr(3, 3, "▷"~text)=   -- forward to String: error because the pad character is not compatible with String
 The UTF-8 not-ASCII text cannot be converted to a String instance.
-Error code= 93.900
+Error code= 23.900
 
 ooRexx[bash]> "noel"~text~substr(3, 3, "▷")=   -- no error because self is a RexxText and the pad character is one grapheme when converted to the default encoding
 T'el▷'
@@ -250,7 +250,7 @@ Error code= 93.933
 
 ooRexx[bash]> "not an hexadecimal value 🤔"~text~x2c
 The UTF-8 not-ASCII text is not compatible with a Rexx hexadecimal value.
-Error code= 93.900
+Error code= 23.900
 
 A way to test the compatibility of RexxText with String is to pass instances of
 RexxText to the regular expression engine regex.cls, and see what happens...
@@ -263,12 +263,12 @@ ooRexx[bash]> p~matches("abc"~text)=
 
 ooRexx[bash]> p~matches("aôc"~text)=
 Method 'match' not yet implemented for Unicode.
-Error code= 93.900
+Error code= 23.900
 
 
 ooRexx[bash]> p = .Pattern~compile("à.c"~text)
 Unicode comparison not yet implemented.
-Error code= 93.900
+Error code= 23.900
 
 End of demonstration.
 

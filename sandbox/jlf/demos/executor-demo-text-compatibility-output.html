@@ -30,7 +30,7 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
-</span><span style="font-weight:bold;color:green;">Input queue name: S92fdQ7fd448430590
+</span><span style="font-weight:bold;color:green;">Input queue name: S15a5dQ100505700
 </span>
 <span style="color:blue;">--------------------------------------------
 </span><span style="color:blue;">-- Text encoding - Compatibility with String
@@ -102,7 +102,7 @@ T'true'
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; &quot;not a boolean value 🤔&quot;~text~?(&quot;true&quot;~text, &quot;false&quot;~text)=
 <span style="font-weight:bold;color:red;">The UTF-8 not-ASCII text is not compatible with a Rexx logical value.
-</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; &quot;0&quot;~text~?(&quot;true 🤔&quot;~text, &quot;false 🤔&quot;~text)=
 T'false 🤔'
@@ -135,11 +135,11 @@ T'hello john'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; &quot;noel&quot;~text~contains(&quot;oë&quot;~text)=
 <span style="font-weight:bold;color:red;">Method 'contains' not yet implemented for Unicode.
-</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; &quot;noël&quot;~text~contains(&quot;oe&quot;~text)=
 <span style="font-weight:bold;color:red;">Method 'contains' not yet implemented for Unicode.
-</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span>
 <span style="color:blue;">-- copies
 </span><span style="font-weight:bold;color:olive;">
@@ -169,11 +169,11 @@ T'noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅noël👩�
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; &quot;noel&quot;~text~match(2, &quot;oë&quot;~text)=
 <span style="font-weight:bold;color:red;">Method 'match' not yet implemented for Unicode.
-</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; &quot;noël&quot;~text~match(2, &quot;oe&quot;~text)=
 <span style="font-weight:bold;color:red;">Method 'match' not yet implemented for Unicode.
-</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span>
 <span style="color:blue;">-- matchChar
 </span><span style="font-weight:bold;color:olive;">
@@ -182,11 +182,11 @@ T'noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅noël👩�
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; &quot;noel&quot;~text~matchChar(2, &quot;oë&quot;~text)=
 <span style="font-weight:bold;color:red;">Method 'matchChar' not yet implemented for Unicode.
-</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; &quot;noël&quot;~text~matchChar(2, &quot;oe&quot;~text)=
 <span style="font-weight:bold;color:red;">Method 'matchChar' not yet implemented for Unicode.
-</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span>
 <span style="color:blue;">-- pos
 </span><span style="font-weight:bold;color:olive;">
@@ -195,11 +195,11 @@ T'noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅noël👩�
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; &quot;noel&quot;~text~pos(&quot;oë&quot;~text)=
 <span style="font-weight:bold;color:red;">Method 'pos' not yet implemented for Unicode.
-</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; &quot;noël&quot;~text~pos(&quot;oe&quot;~text)=
 <span style="font-weight:bold;color:red;">Method 'pos' not yet implemented for Unicode.
-</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span>
 <span style="color:blue;">-- subchar
 </span><span style="font-weight:bold;color:olive;">
@@ -232,7 +232,7 @@ T'elx'
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; &quot;noel&quot;~substr(3, 3, &quot;▷&quot;~text)=   <span style="color:blue;">-- forward to String: error because the pad character is not compatible with String</span>
 <span style="font-weight:bold;color:red;">The UTF-8 not-ASCII text cannot be converted to a String instance.
-</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; &quot;noel&quot;~text~substr(3, 3, &quot;▷&quot;)=   <span style="color:blue;">-- no error because self is a RexxText and the pad character is one grapheme when converted to the default encoding</span>
 T'el▷'
@@ -260,7 +260,7 @@ T'👀'
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; &quot;not an hexadecimal value 🤔&quot;~text~x2c
 <span style="font-weight:bold;color:red;">The UTF-8 not-ASCII text is not compatible with a Rexx hexadecimal value.
-</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span>
 <span style="color:blue;">A way to test the compatibility of RexxText with String is to pass instances of
 </span><span style="color:blue;">RexxText to the regular expression engine regex.cls, and see what happens...
@@ -273,12 +273,12 @@ T'👀'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; p~matches(&quot;aôc&quot;~text)=
 <span style="font-weight:bold;color:red;">Method 'match' not yet implemented for Unicode.
-</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span>
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; p = .Pattern~compile(&quot;à.c&quot;~text)
 <span style="font-weight:bold;color:red;">Unicode comparison not yet implemented.
-</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span>
 <span style="color:blue;">End of demonstration.
 </span></pre>
