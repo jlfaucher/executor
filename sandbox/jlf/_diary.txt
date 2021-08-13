@@ -508,7 +508,7 @@ The method ~unicode returns one of these encodings, depending on the character
 with the largest Unicode codepoint (1, 2, or 4 bytes) in the source string.
 Unlike the flexible representation of Python, the 3 representions are first-class.
 No BOM, the endiannes is the CPU one. This is for internal use only.
-Unicode32_Encoding can be used with utf8proc for the functions taking a buffer of 3-bit integers.
+Unicode32_Encoding can be used with utf8proc for the functions taking a buffer of 32-bit integers.
 
 
 "côté"~text("unicode8")=    -- T'côté Just an interpretative layer put above the string

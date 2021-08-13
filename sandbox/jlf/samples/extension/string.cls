@@ -40,8 +40,27 @@ Otherwise same error as above.
 /******************************************************************************/
 /*
 TODOs
-Replace all the methods isXXX by a constant.
+
 Unicode8 16 32 : should I create common methods in Unicode_Encoding?
+
+Test if the cache optimization of the methods isXXX is useful
+Testing 'if var("XXX")' has a cost.
+
+Remove the index for codepoints (codepointIndexes).
+There is no need of direct access to a codepoint.
+
+Grapheme indexes : see if it's possible to replace .Array by a class being really a sparse array.
+This class should be ultra specialized for the management of string indexes.
+For example, could manage a flexible storage in function of the size of the index.
+Maybe a multi-stage table ?
+Interface:
+    indexTable~new(stringSizeInBytes)
+    indexTable~size
+    indexTable~items
+    indexTable~[integer]
+    indexTable~[integer]=bytePosition
+    indexTable~first     --  index of the first item in the table
+
 */
 /******************************************************************************/
 -- Functions compatibility with ooRexx5
@@ -476,10 +495,6 @@ base class...
     raise syntax 23.900 array("The" self~description(short:.true) "text cannot be converted to a String instance")
 
 
-::method notCompatibleWithString
-    raise syntax 23.900 array("The" self~description(short:.true) "text cannot be converted to a String instance")
-
-
 ::attribute string get
 /*
 ::attribute string get
@@ -836,6 +851,7 @@ base class...
     -- The purpose is not to check that the text is an hexadecimal value (will be checked by the String class)
     -- The purpose is to ensure that the text encoding is compatible with the String class,
     -- and to provide an accurate error.
+    -- Could test ~isCompatibleWithString, but ~isASCII is faster and sufficient here
     use strict arg -- none
     if \self~isASCII then raise syntax 23.900 array("The" self~description(short:.true) "text is not compatible with a Rexx hexadecimal value")
 
@@ -844,6 +860,7 @@ base class...
     -- The purpose is not to check that the text is a numeric value (will be checked by the String class)
     -- The purpose is to ensure that the text encoding is compatible with the String class,
     -- and to provide an accurate error.
+    -- Could test ~isCompatibleWithString, but ~isASCII is faster and sufficient here
     use strict arg -- none
     if \self~isASCII then raise syntax 23.900 array("The" self~description(short:.true) "text is not compatible with a Rexx numeric value")
 
@@ -852,6 +869,7 @@ base class...
     -- The purpose is not to check that the text is a logical value (will be checked by the String class)
     -- The purpose is to ensure that the text encoding is compatible with the String class,
     -- and to provide an accurate error.
+    -- Could test ~isCompatibleWithString, but ~isASCII is faster and sufficient here
     use strict arg -- none
     if \self~isASCII then raise syntax 23.900 array("The" self~description(short:.true) "text is not compatible with a Rexx logical value")
 
@@ -1946,104 +1964,26 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 ::method name class abstract
 
 
-::method isByte class
-    use strict arg -- none
-    return .false
-
-
-::method isUnicode class
-    use strict arg -- none
-    return .false
-
-
-::method isUTF8 class
-    use strict arg -- none
-    return .false
-
-
-::method isWTF8 class
-    use strict arg -- none
-    return .false
-
-
-::method isUTF16 class
-    use strict arg -- none
-    return .false
-
-
-::method isUTF16BE class
-    use strict arg -- none
-    return .false
-
-
-::method isUTF16LE class
-    use strict arg -- none
-    return .false
-
-
-::method isWTF16 class
-    use strict arg -- none
-    return .false
-
-
-::method isWTF16BE class
-    use strict arg -- none
-    return .false
-
-
-::method isWTF16LE class
-    use strict arg -- none
-    return .false
-
-
-::method isUTF32 class
-    use strict arg -- none
-    return .false
-
-
-::method isUTF32BE class
-    use strict arg -- none
-    return .false
-
-
-::method isUTF32LE class
-    use strict arg -- none
-    return .false
-
-
-::method isWTF32 class
-    use strict arg -- none
-    return .false
-
-
-::method isWTF32BE class
-    use strict arg -- none
-    return .false
-
-
-::method isWTF32LE class
-    use strict arg -- none
-    return .false
-
-
-::method isUnicodeX class
-    use strict arg -- none
-    return .false
-
-
-::method isUnicode8 class
-    use strict arg -- none
-    return .false
-
-
-::method isUnicode16 class
-    use strict arg -- none
-    return .false
-
-
-::method isUnicode32 class
-    use strict arg -- none
-    return .false
+::constant isByte 0
+::constant isUnicode 0
+::constant isUTF8 0
+::constant isWTF8 0
+::constant isUTF16 0
+::constant isUTF16BE 0
+::constant isUTF16LE 0
+::constant isWTF16 0
+::constant isWTF16BE 0
+::constant isWTF16LE 0
+::constant isUTF32 0
+::constant isUTF32BE 0
+::constant isUTF32LE 0
+::constant isWTF32 0
+::constant isWTF32BE 0
+::constant isWTF32LE 0
+::constant isUnicodeX 0
+::constant isUnicode8 0
+::constant isUnicode16 0
+::constant isUnicode32 0
 
 
 ::method codeUnitSizeInBytes class abstract -- 1 2 or 4
@@ -2128,7 +2068,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     -- all the indexes are still applicable, just change the string referenced by the indexer.
     use strict arg -- none
     clone = self~copy:super
-    clone~string = "copy of" .string~new(clone~string) -- don't use ~copy (stack overflow)
+    clone~string = .string~new(clone~string) -- don't use ~copy (stack overflow)
     return clone
 
 
@@ -2287,24 +2227,10 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 /******************************************************************************/
 ::class "Byte_Encoding" public inherit IndexerStringInterface StringIndexer
 
-::method name class
-    use strict arg -- none
-    return "Byte"
-
-
-::method isByte class
-    use strict arg -- none
-    return .true
-
-
-::method codeUnitSizeInBytes class
-    use strict arg -- none
-    return 1
-
-
-::method codepointMaxBytes class
-    use strict arg -- none
-    return 1
+::constant name "Byte"
+::constant isByte 1
+::constant codeUnitSizeInBytes 1
+::constant codepointMaxBytes 1
 
 
 ::method analyze class
@@ -2560,9 +2486,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 ::class "CP1252_Encoding" subclass Byte_Encoding public
 -- alias Window-1252
 
-::method name class
-    use strict arg -- none
-    return "CP1252"
+::constant name "CP1252"
 
 
 ::attribute tableTranscodingToUnicode class get
@@ -2585,9 +2509,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 /******************************************************************************/
 ::class "Unicode_CommonServices" mixinclass Object private
 
-::method isUnicode class
-    use strict arg -- none
-    return .true
+::constant isUnicode 1
 
 
 ::method analyze class
@@ -2808,14 +2730,8 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 ::class "XTF8_CommonServices" mixinclass Object private
 -- where X stands for U or W
 
-::method codeUnitSizeInBytes class
-    use strict arg -- none
-    return 1
-
-
-::method codepointMaxBytes class
-    use strict arg -- none
-    return 4 -- In UTF-8, a codepoint can be from 1 to 4 bytes
+::constant codeUnitSizeInBytes 1
+::constant codepointMaxBytes 4 -- In UTF-8, a codepoint can be from 1 to 4 bytes
 
 
 /*
@@ -3136,18 +3052,9 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 /******************************************************************************/
 ::class "UTF8_Encoding" public inherit XTF8_CommonServices Unicode_CommonServices IndexerStringInterface StringIndexer
 
-::method name class
-    use strict arg -- none
-    return "UTF-8"
-
-
-::method isUTF8 class
-    use strict arg -- none
-    return .true
-
-
-::method BOM class
-    return "EF BB BF"x
+::constant name "UTF-8"
+::constant isUTF8 1
+::constant BOM "EF BB BF"x
 
 
 ::method checkCodepoint class
@@ -3203,22 +3110,10 @@ Otherwise, return the input unchanged.
 Concatenating WTF-8 strings requires extra care to preserve well-formedness.
 */
 
-::method name class
-    use strict arg -- none
-    return "WTF-8" --
-
-
---::method isUTF8 class
--- WTF8 is not UTF8
-
-
-::method isWTF8 class
-    use strict arg -- none
-    return .true
-
-
-::method BOM class
-    return "EF BB BF"x
+::constant name "WTF-8"
+--::constant isUTF8 1 -- WTF8 is not UTF8
+::constant isWTF8 1
+::constant BOM "EF BB BF"x
 
 
 ::method checkCodepoint class
@@ -3310,14 +3205,8 @@ the concatenation back to WTF-8.
 ::class "XTF16_CommonServices" mixinclass Object private
 -- where X stands for U or W
 
-::method codeUnitSizeInBytes class
-    use strict arg -- none
-    return 2
-
-
-::method codepointMaxBytes class
-    use strict arg -- none
-    return 4  -- In UTF-16, a codepoint can be 2 or 4 bytes
+::constant codeUnitSizeInBytes 2
+::constant codepointMaxBytes 4  -- In UTF-16, a codepoint can be 2 or 4 bytes
 
 
 ::method decode class
@@ -3349,7 +3238,7 @@ the concatenation back to WTF-8.
     lengthB = string~length
     if indexB > lengthB then return indexB -- end of string
     if lengthB - indexB < 1 then signal truncated2
-    codeUnit = self~codeUnitBE(string~substr(indexB, 2))
+    codeUnit = self~codeUnitBE(string~substr(indexB, 2)) -- Remember: don't optimize too much, I display this codepoint in case of error
     indexB += 2
     if codeUnit >= "D800"x & codeUnit <= "DBFF"x then do
         -- got high surrogate, get low surrogate
@@ -3628,45 +3517,19 @@ the concatenation back to WTF-8.
 /******************************************************************************/
 ::class "UTF16BE_Encoding" public inherit UTF16_CommonServices XTF16BE_CommonServices XTF16_CommonServices Unicode_CommonServices IndexerStringInterface StringIndexer
 
-::method name class
-    use strict arg -- none
-    return "UTF-16BE"
-
-
-::method isUTF16 class
-    use strict arg -- none
-    return .true
-
-
-::method isUTF16BE class
-    use strict arg -- none
-    return .true
-
-
-::method BOM class
-    return "FE FF"x
+::constant name "UTF-16BE"
+::constant isUTF16 1
+::constant isUTF16BE 1
+::constant BOM "FE FF"x
 
 
 /******************************************************************************/
 ::class "UTF16LE_Encoding" public inherit UTF16_CommonServices XTF16LE_CommonServices XTF16_CommonServices Unicode_CommonServices IndexerStringInterface StringIndexer
 
-::method name class
-    use strict arg -- none
-    return "UTF-16LE"
-
-
-::method isUTF16 class
-    use strict arg -- none
-    return .true
-
-
-::method isUTF16LE class
-    use strict arg -- none
-    return .true
-
-
-::method BOM class
-    return "FF FE"x
+::constant name "UTF-16LE"
+::constant isUTF16 1
+::constant isUTF16LE 1
+::constant BOM "FF FE"x
 
 
 /******************************************************************************/
@@ -3714,74 +3577,30 @@ surrogate code point pair.
 Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 */
 
-::method name class
-    use strict arg -- none
-    return "WTF-16BE"
-
-
---::method isUTF16 class
--- WTF-16 is not UTF-16
-
-
---::method isUTF16BE class
--- WTF16-BE is not UTF-16BE
-
-
-::method isWTF16 class
-    use strict arg -- none
-    return .true
-
-
-::method isWTF16BE class
-    use strict arg -- none
-    return .true
-
-
-::method BOM class
-    return "FE FF"x
+::constant name "WTF-16BE"
+--::constant isUTF16 1 -- WTF-16 is not UTF-16
+--::constant isUTF16BE 1 -- WTF16-BE is not UTF-16BE
+::constant isWTF16 1
+::constant isWTF16BE 1
+::constant BOM "FE FF"x
 
 
 /******************************************************************************/
 ::class "WTF16LE_Encoding" public inherit WTF16_CommonServices XTF16LE_CommonServices XTF16_CommonServices Unicode_CommonServices IndexerStringInterface StringIndexer
 
-::method name class
-    use strict arg -- none
-    return "WTF-16LE"
-
-
---::method isUTF16 class
--- WTF16 is not UTF16
-
-
---::method isUTF16LE class
--- WTF-16LE is not UTF-16LE
-
-
-::method isWTF16 class
-    use strict arg -- none
-    return .true
-
-
-::method isWTF16LE class
-    use strict arg -- none
-    return .true
-
-
-::method BOM class
-    return "FF FE"x
+::constant name "WTF-16LE"
+--::constant isUTF16 1 -- WTF16 is not UTF16
+--::constant isUTF16LE 1 -- WTF-16LE is not UTF-16LE
+::constant isWTF16 1
+::constant isWTF16LE 1
+::constant BOM "FF FE"x
 
 
 /******************************************************************************/
 ::class "UTF32_CommonServices" mixinclass Object private
 
-::method codeUnitSizeInBytes class
-    use strict arg -- none
-    return 4
-
-
-::method codepointMaxBytes class
-    use strict arg -- none
-    return 4  -- In UTF-32, a codepoint is 4 bytes
+::constant codeUnitSizeInBytes 4
+::constant codepointMaxBytes 4 -- In UTF-32, a codepoint is 4 bytes
 
 
 ::method checkCodepoint class
@@ -3923,23 +3742,10 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 /******************************************************************************/
 ::class "UTF32BE_Encoding" public inherit UTF32_CommonServices Unicode_CommonServices IndexerStringInterface StringIndexer
 
-::method name class
-    use strict arg -- none
-    return "UTF-32BE"
-
-
-::method isUTF32 class
-    use strict arg -- none
-    return .true
-
-
-::method isUTF32BE class
-    use strict arg -- none
-    return .true
-
-
-::method BOM class
-    return "00 00 FE FF"x
+::constant name "UTF-32BE"
+::constant isUTF32 1
+::constant isUTF32BE 1
+::constant BOM "00 00 FE FF"x
 
 
 ::method decodeCodepoint class private
@@ -3981,23 +3787,10 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 /******************************************************************************/
 ::class "UTF32LE_Encoding" public inherit UTF32_CommonServices Unicode_CommonServices IndexerStringInterface StringIndexer
 
-::method name class
-    use strict arg -- none
-    return "UTF-32LE"
-
-
-::method isUTF32 class
-    use strict arg -- none
-    return .true
-
-
-::method isUTF32LE class
-    use strict arg -- none
-    return .true
-
-
-::method BOM class
-    return "FF FE 00 00"x
+::constant name "UTF-32LE"
+::constant isUTF32 1
+::constant isUTF32LE 1
+::constant BOM "FF FE 00 00"x
 
 
 ::method decodeCodepoint class private
@@ -4089,20 +3882,48 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 
 ::method decodeCodepoint class private
     expose isLittleEndian
+    -- Will reach this method only once.
+    -- After the first call, the message "decodeCodepoint" will be sent directly to the method specialized for this endianness
+    if isLittleEndian then self~setMethod("decodeCodepoint", self~instanceMethod("decodeCodepointLE"), "Object")
+                      else self~setMethod("decodeCodepoint", self~instanceMethod("decodeCodepointBE"), "Object")
+    forward message "decodeCodepoint"
+
+
+::method decodeCodepointBE class private
     use strict arg stringBytes
     -- needed, the code unit is from 1 to 4 bytes.
     -- "3B9A C9FF"x~c2d = 999 999 999. The next value raises an error when 9 digits.
     -- The maximum value is "FFFF FFFF"x~c2d = 4 294 967 295 (10 digits)
     numeric digits 10
-    if isLittleEndian then return stringBytes~reverse~c2d
-                      else return stringBytes~c2d
+    return stringBytes~c2d
+
+
+::method decodeCodepointLE class private
+    use strict arg stringBytes
+    -- needed, the code unit is from 1 to 4 bytes.
+    -- "3B9A C9FF"x~c2d = 999 999 999. The next value raises an error when 9 digits.
+    -- The maximum value is "FFFF FFFF"x~c2d = 4 294 967 295 (10 digits)
+    numeric digits 10
+    return stringBytes~reverse~c2d
 
 
 ::method encodeCodepoint class private
     expose isLittleEndian
+    -- Will reach this method only once.
+    -- After the first call, the message "encodeCodepoint" will be sent directly to the method specialized for this endianness
+    if isLittleEndian then self~setMethod("encodeCodepoint", self~instanceMethod("encodeCodepointLE"), "Object")
+                      else self~setMethod("encodeCodepoint", self~instanceMethod("encodeCodepointBE"), "Object")
+    forward message "encodeCodepoint"
+
+
+::method encodeCodepointBE class private
     use strict arg codepoint
-    if isLittleEndian then return codepoint~d2c(self~codeUnitSizeInBytes)~reverse
-                      else return codepoint~d2c(self~codeUnitSizeInBytes)
+    return codepoint~d2c(self~codeUnitSizeInBytes)
+
+
+::method encodeCodepointLE class private
+    use strict arg codepoint
+    return codepoint~d2c(self~codeUnitSizeInBytes)~reverse
 
 
 /********************/
@@ -4117,24 +3938,10 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 /******************************************************************************/
 ::class "Unicode8_Encoding" public inherit Unicode_Encoding Unicode_CommonServices IndexerStringInterface StringIndexer
 
-::method name class
-    use strict arg -- none
-    return "Unicode8"
-
-
-::method isUnicode8 class
-    use strict arg -- none
-    return .true
-
-
-::method codeUnitSizeInBytes class
-    use strict arg -- none
-    return 1
-
-
-::method codepointMaxBytes class
-    use strict arg -- none
-    return 1
+::constant name "Unicode8"
+::constant isUnicode8 1
+::constant codeUnitSizeInBytes 1
+::constant codepointMaxBytes 1
 
 
 ::method checkCodepoint class
@@ -4238,24 +4045,10 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 /******************************************************************************/
 ::class "Unicode16_Encoding" public inherit Unicode_Encoding Unicode_CommonServices IndexerStringInterface StringIndexer
 
-::method name class
-    use strict arg -- none
-    return "Unicode16"
-
-
-::method isUnicode16 class
-    use strict arg -- none
-    return .true
-
-
-::method codeUnitSizeInBytes class
-    use strict arg -- none
-    return 2
-
-
-::method codepointMaxBytes class
-    use strict arg -- none
-    return 2
+::constant name "Unicode16"
+::constant isUnicode16 1
+::constant codeUnitSizeInBytes 2
+::constant codepointMaxBytes 2
 
 
 ::method checkCodepoint class
@@ -4405,24 +4198,10 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 /******************************************************************************/
 ::class "Unicode32_Encoding" public inherit Unicode_Encoding Unicode_CommonServices IndexerStringInterface StringIndexer
 
-::method name class
-    use strict arg -- none
-    return "Unicode32"
-
-
-::method isUnicode32 class
-    use strict arg -- none
-    return .true
-
-
-::method codeUnitSizeInBytes class
-    use strict arg -- none
-    return 4
-
-
-::method codepointMaxBytes class
-    use strict arg -- none
-    return 4
+::constant name "Unicode32"
+::constant isUnicode32 1
+::constant codeUnitSizeInBytes 4
+::constant codepointMaxBytes 4
 
 
 ::method checkCodepoint class
