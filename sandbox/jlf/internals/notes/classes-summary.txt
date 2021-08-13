@@ -200,3 +200,22 @@ ClassClass.hpp
     RexxArray         *instanceSuperClasses; // The superclass and any inherited mixins for instance behaviour      ~superclass, ~superclasses
     ---------
     RexxList          *subClasses;         // our list of weak referenced subclasses
+
+
+================================================================================
+
+[bugs:#1778] mixin's variable dictionnary at class level is not found
+https://sourceforge.net/p/oorexx/bugs/1778/
+
+This is not a bug with the variable dictionaries, but rather a misconception of
+how the classes are constructed and the init methods are invoked at the class level.
+At the time the init method is called on the .mixin class, it is just that class,
+not part of a hierarchy. So, only a class variable is set on the mixin class, which
+does not get pulled in when the class is constructed by the inherit.
+
+When the class is constructed using mixins, the class init method from the mixins
+is not called, so the variables are never initialized in that scope in the final class.
+You can verify this by adding a say "statement" to your init method in the mixin class.
+It is only called when mixin class is initially created, and not when the c class
+is instantiated. If you add a setter for the V attribute to your mixin and use it
+to assign a value, the value will stick.

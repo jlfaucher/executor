@@ -1,0 +1,224 @@
+I use
+if var("result")
+systematically in the blocks, after transformation of source.
+
+What about this optim:
+- modify the implementation of var(name) to support a number which is the index
+  of a special variable like "result"
+- at parse time, modify the call var("result") to replace it by var(3)
+
+
+var("result")
+Optimize this call: if the parameter is the name of a predefined variable then
+replace the name by the corresponding identifier, and modify the BIF VAR to
+support an index.
+RexxLocalVariables.hpp
+    #define VARIABLE_SELF    1             /* variable lookaside indices        */
+    #define VARIABLE_SUPER   2
+    #define VARIABLE_RESULT  3
+    #define VARIABLE_RC      4
+    #define VARIABLE_SIGL    5
+    #define FIRST_VARIABLE_INDEX 5         /* variable index list first slot    */
+RexxExpressionFunction      functionName=="var" builtinIndex==61
+    BUILTIN(VAR)
+        return(RexxVariableBase *)new RexxSimpleVariable(variable, 0);  <-- here 0 would be 3 when "RESULT"
+        return booleanObject(retriever->exists(context));
+            return context->localVariableExists(variableName, index)
+                 RexxVariable *variable = settings.localVariables.find(name, index);
+                    RexxVariable *variable = get(index);
+                        return locals[index];   -- index 0 ==> NULL
+                    variable = findVariable(name, index);
+                 return variable != OREF_NULL && variable->getVariableValue() != OREF_NULL;
+say result
+    RexxSimpleVariable::evaluate    variableName=="RESULT"  index==3
+        RexxVariable *variable = context->getLocalVariable(variableName, index);
+            RexxVariable *target = settings.localVariables.get(index);
+                return locals[index];
+
+
+
+The results are disapointing...
+
+Thinking now to another optim:
+    if result? then return result
+where result? is a special variable
+Would be around 8x faster (tested with sigl which should give a good idea of the duration)
+Problem: result? is a valid variable name, so should use another character...
+
+
+I would like also an optim for this kind of test:
+::method isByte
+    expose isByte
+    if var("isByte") then return isByte         <--
+    forward to (self~indexer~class) continue
+    isByte = result
+    return result
+
+
+
+
+Tested under MacOs
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
+DARWIN
+Intel(R) Core(TM)2 Duo CPU     P8600  @ 2.40GHz
+
+-- before optim
+    ooRexx[bash]> do 1000000; x=var("result");end
+    Duration: 0.653265
+
+    -- testing with oorexx5
+    ooRexx[sh]> do 1000000; x=var("result");end
+    Duration: 0.761699
+
+    -- testing with a number
+    ooRexx[bash]> do 1000000; x=var(3);end
+    Duration: 0.209902
+
+    -- testing with a number with oorexx5
+    ooRexx[sh]> do 1000000; x=var(3);end
+    Duration: 0.161340
+
+
+-- after optim : disapointing...
+    ooRexx[bash]> drop result; do 1000000; x=var("result"); end
+    Duration: 0.343544
+
+    ooRexx[bash]> result=1; do 1000000; x=var("result"); end
+    Duration: 0.343749
+
+    ooRexx[bash]> do 1000000; x=var(3);end
+    Duration: 0.302574
+
+
+-- next optim ?
+    -- normal variable
+    ooRexx[bash]> result?=1; do 1000000; x=result?; end
+    Duration: 0.139799
+
+    -- special variable
+    ooRexx[bash]> do 1000000; x=sigl; end
+    Duration: 0.081370
+
+
+================================================================================
+execution/RexxLocalVariables.hpp
+================================================================================
+
+added after
+#define FIRST_VARIABLE_INDEX 5
+
+// if name != OREF_NULL then return the index, otherwise return the name
+inline bool SpecialVariable(RexxString* &name, size_t &index)
+{
+    static RexxString *names[5] =
+    {
+        OREF_SELF,
+        OREF_SUPER,
+        OREF_RESULT,
+        OREF_RC,
+        OREF_SIGL
+    };
+    if (name != OREF_NULL) // Get index by name
+    {
+        for (index=1; index<=5; index++)
+        {
+            if (names[index-1]->primitiveCaselessIsEqual(name)) return true;
+        }
+    }
+    else // Get name by index
+    {
+        if (index >= 1 && index <= 5)
+        {
+            name = names[index-1];
+            return true;
+        }
+    }
+    return false;
+};
+
+
+================================================================================
+execution/RexxVariableDictionary.hpp
+================================================================================
+
+  static RexxVariableBase *getVariableRetriever(RexxString  *variable);
+  static RexxVariableBase *getVariableRetriever(size_t variableIndex);      <-- added
+
+
+
+================================================================================
+execution/RexxVariableDictionary.cpp
+================================================================================
+
+added after the method
+RexxVariableBase  *RexxVariableDictionary::getVariableRetriever(
+     RexxString  *variable )           /* name of the variable              */
+
+
+RexxVariableBase  *RexxVariableDictionary::getVariableRetriever(size_t variableIndex)
+{
+    RexxString *variableName = OREF_NULL; // will be set by SpecialVariable
+    SpecialVariable(variableName, variableIndex);
+    if (variableName != OREF_NULL) return (RexxVariableBase *)new RexxParseVariable(variableName, variableIndex);
+    return OREF_NULL;
+}
+
+
+================================================================================
+expression/BuiltinFunctions.cpp
+================================================================================
+
+BUILTIN(VAR)
+{
+    fix_args(VAR);                       /* expand arguments to full value    */
+
+-------- begin addition
+    // Fast check for indexes of special variables
+    RexxInteger *index = arguments[0]->requestInteger(Numerics::DEFAULT_DIGITS);
+    if (index != TheNilObject)
+    {
+        wholenumber_t indexValue = index->getValue();
+        RexxVariableBase *retriever = RexxVariableDictionary::getVariableRetriever(indexValue);
+        // if indexValue is not an index of special variable then retriever == OREF_NULL
+        if (retriever != OREF_NULL) return retriever->exists(context) ? TheTrueObject : TheFalseObject;
+    }
+-------- end addition
+
+                                         /* get the variable name             */
+    RexxString *variable = required_string(VAR, name);
+
+    /* get a variable retriever          */
+
+
+================================================================================
+expression/ExpressionFunction.cpp
+================================================================================
+
+RexxExpressionFunction::RexxExpressionFunction(
+
+    /* set the builtin index for later   */
+    /* resolution step                   */
+    this->builtin_index = (uint16_t)builtinIndex;
+
+-------- begin addition
+    // VAR(name)
+    // If the name is a special variable then replace it by the index of the special variable
+    if (builtinIndex == BUILTIN_VAR &&
+        this->argument_count >= 1 &&
+        this->arguments[0] != OREF_NULL)
+    {
+        RexxString *name = this->arguments[0]->requestStringNoNOSTRING();
+        if (name != TheNilObject)
+        {
+            size_t index = 0; // will be set by SpecialVariable
+            if (SpecialVariable(name, index)) this->arguments[0] = new_integer(index);
+        }
+    }
+-------- end addition
+
+    if (string)                          /* have a string lookup?             */
+    {
+        this->flags |= function_nointernal;/* do not check for internal routines*/
+    }
+}
+
