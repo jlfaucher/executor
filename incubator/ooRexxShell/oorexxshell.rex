@@ -2056,9 +2056,9 @@ Helpers
 
 ::method init class
     self~isInstalled = .false
-    if RxFuncadd(RxFuncDefine, "gci", "RxFuncDefine") <> 0 then return
-    if RxFuncadd(GciFuncDrop, "gci", "GciFuncDrop") <> 0 then return
-    if RxFuncadd(GciPrefixChar, "gci", "GciPrefixChar") <> 0 then return
+    if RxFuncadd("RxFuncDefine", "gci", "RxFuncDefine") <> 0 then return
+    if RxFuncadd("GciFuncDrop", "gci", "GciFuncDrop") <> 0 then return
+    if RxFuncadd("GciPrefixChar", "gci", "GciPrefixChar") <> 0 then return
     self~isInstalled = .true
 
 
@@ -2066,7 +2066,7 @@ Helpers
 Windows:
 If you want the colors in the console then you must put gci.dll in your PATH.
 You can get gci 32-bit here: http://rexx-gci.sourceforge.net
-For 64-bit support and new type aliases, see https://github.com/jlfaucher/builder/tree/master/adaptations
+For 64-bit support and new type aliases, see https://github.com/jlfaucher/rexx-gci
 
 Linux, MacOs : gci not needed.
 The colors are managed with escape characters.
