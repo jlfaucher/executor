@@ -1,4 +1,4 @@
-::requires "pipeline/pipe.rex"
+::requires "pipeline/pipe.cls"
 ::requires "extension/extensions.cls"
 --::options trace i
 

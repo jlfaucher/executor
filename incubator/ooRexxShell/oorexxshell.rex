@@ -837,7 +837,7 @@ Helpers
     call loadPackage("smtp.cls")
     call loadPackage("socket.cls")
     call loadPackage("streamsocket.cls")
-    call loadPackage("pipeline/pipe.rex")
+    call loadPackage("pipeline/pipe.cls")
     --call loadPackage("ooSQLite.cls")
     .ooRexxShell~hasRgfUtil2Extended = .false
     if loadPackage("rgf_util2/rgf_util2.rex"),, -- derived from the offical rgf_util2.rex (in BSF4ooRexx)
