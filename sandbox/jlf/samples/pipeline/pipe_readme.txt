@@ -99,6 +99,10 @@ pipeStages
 .system : I1 --- O1
     ["<command>"|<command-doer>]
 
+
+The followings pipeStages need an extended interpreter
+------------------------------------------------------
+
 .append : I1 --- O1
     <producer-doerFactory>
 

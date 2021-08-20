@@ -945,7 +945,7 @@ Helpers
 
     -- Official ooRexx doesn't support .globalRoutines
     -- Make it work for the collision detection, will have no effect on global visibility
-    if .environment["GLOBALROUTINES"]~isNil then .environment["GLOBALROUTINES"] = .directory~new
+    if .nil == .environment["GLOBALROUTINES"] then .environment["GLOBALROUTINES"] = .directory~new
 
     visitedPackages[package] = package
     packageStack~push(package~name) -- will be used for a better diagnostic if collision
