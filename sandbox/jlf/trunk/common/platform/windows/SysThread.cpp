@@ -103,16 +103,6 @@ void SysThread::setPriority(ThreadPriority priority)
 }
 
 
-char *SysThread::getStackBase()
-/******************************************************************************/
-/* Function:  Return a pointer to the current stack base                      */
-/******************************************************************************/
-{
-   int32_t temp;
-   return ((char *)(&temp)) - THREAD_STACK_SIZE;
-}
-
-
 void SysThread::terminate()
 /******************************************************************************/
 /* Function:  Do any platform specific thread termination                     */

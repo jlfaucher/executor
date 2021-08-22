@@ -257,17 +257,6 @@ void pointer2string(PRXSTRING result, void *pointer)
 }
 
 
-BOOL IsRunningNT()
-{
-    OSVERSIONINFO version_info={0};
-
-    version_info.dwOSVersionInfoSize = sizeof(version_info);
-    GetVersionEx(&version_info);
-    if (version_info.dwPlatformId == VER_PLATFORM_WIN32_NT) return TRUE; // Windows NT
-    else return FALSE;                                              // Windows 95
-}
-
-
 // TODO START The following functions come from from oodCommon.cpp, need to put
 // all this stuff all together in a common object.
 
@@ -1463,24 +1452,12 @@ BOOL GetAllUserDesktopLocation ( LPBYTE szDesktopDir, LPDWORD  lpcbData )
    szDesktopDir[0] ='\0';         //initialize return
 
    // Test, if 95/98/Millenium or NT/Win2000
-   if ( IsRunningNT() )
-   {
-     rc = RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                       IDS_REGISTRY_KEY_ALL_NT_SHELLFOLDER,
-                       0,
-                       KEY_QUERY_VALUE,
-                       &hKey) ;
-     lpValueName = IDS_ALL_NT_DESKTOP ;
-   }
-   else
-   {
-     rc = RegOpenKeyEx(HKEY_USERS,
-                       IDS_REGISTRY_KEY_ALL_9x_SHELLFOLDER,
-                       0,
-                       KEY_QUERY_VALUE,
-                       &hKey) ;
-     lpValueName = IDS_ALL_9x_DESKTOP ;
-   }
+   rc = RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+                   IDS_REGISTRY_KEY_ALL_NT_SHELLFOLDER,
+                   0,
+                   KEY_QUERY_VALUE,
+                   &hKey) ;
+   lpValueName = IDS_ALL_NT_DESKTOP ;
    if ( rc == ERROR_SUCCESS )
    {
       if ( (rc = RegQueryValueEx(hKey,                      // handle of key to query

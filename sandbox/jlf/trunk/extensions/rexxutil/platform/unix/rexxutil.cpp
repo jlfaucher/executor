@@ -3156,7 +3156,7 @@ bool formatFile(RexxCallContext *c, RXTREEDATA *treeData, uint32_t options, stru
                       timestamp->tm_hour,
                       timestamp->tm_min,
                       timestamp->tm_sec,
-                      finfo->st_size);
+                      (unsigned long)finfo->st_size);
         }
         else
         {
@@ -3168,7 +3168,7 @@ bool formatFile(RexxCallContext *c, RXTREEDATA *treeData, uint32_t options, stru
                           timestamp->tm_mday,
                           timestamp->tm_hour,
                           timestamp->tm_min,
-                          finfo->st_size);
+                          (unsigned long)finfo->st_size);
             }
             else
             {
@@ -3179,7 +3179,7 @@ bool formatFile(RexxCallContext *c, RXTREEDATA *treeData, uint32_t options, stru
                           timestamp->tm_hour < 13 ? timestamp->tm_hour : timestamp->tm_hour - 12,
                           timestamp->tm_min,
                           (timestamp->tm_hour < 12 || timestamp->tm_hour == 24) ? 'a' : 'p',
-                          finfo->st_size);
+                          (unsigned long)finfo->st_size);
             }
         }
         tp = typeOfEntry(finfo->st_mode);

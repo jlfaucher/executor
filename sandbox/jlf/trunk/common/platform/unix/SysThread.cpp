@@ -78,13 +78,6 @@ void SysThread::dispatch()
 }
 
 
-char *SysThread::getStackBase()
-{
-   int32_t temp;
-   return ((char *)(&temp)) - THREAD_STACK_SIZE;
-}
-
-
 void SysThread::terminate()
 {
     if (!attached && _threadID != 0)

@@ -70,13 +70,13 @@ bool rxA2W(const rxcharA *pszA, rxcharW **ppszW)
 
     size_t lengthA = strlen(pszA) + 1;
     // Determine number of wide characters to be allocated for the Unicode string.
-    size_t lengthW =  MultiByteToWideChar(rxgetCodePage(), 0, pszA, lengthA, NULL, 0);
+    size_t lengthW =  MultiByteToWideChar(rxgetCodePage(), 0, pszA, (int)lengthA, NULL, 0);
 
     *ppszW = (rxcharW *) RXTMALLOC(lengthW + 1);
     if (NULL == *ppszW) return false; // E_OUTOFMEMORY;
 
     // Convert to Unicode.
-    if (0 == MultiByteToWideChar(rxgetCodePage(), 0, pszA, lengthA, *ppszW, lengthW))
+    if (0 == MultiByteToWideChar(rxgetCodePage(), 0, pszA, (int)lengthA, *ppszW, (int)lengthW))
     {
         DWORD dwError = GetLastError();
         free(*ppszW);
@@ -100,13 +100,13 @@ bool rxW2A(const rxcharW *pszW, rxcharA **ppszA)
 
     size_t lengthW = wcslen(pszW) + 1;
     // Determine number of bytes to be allocated for ANSI string.
-    size_t lengthA = WideCharToMultiByte(rxgetCodePage(), 0, pszW, lengthW, NULL, 0, NULL, NULL);
+    size_t lengthA = WideCharToMultiByte(rxgetCodePage(), 0, pszW, (int)lengthW, NULL, 0, NULL, NULL);
 
     *ppszA = (rxcharA *) malloc(lengthA + 1);
     if (NULL == *ppszA) return false; // E_OUTOFMEMORY;
 
     // Convert to ANSI.
-    if (0 == WideCharToMultiByte(rxgetCodePage(), 0, pszW, lengthW, *ppszA, lengthA, NULL, NULL))
+    if (0 == WideCharToMultiByte(rxgetCodePage(), 0, pszW, (int)lengthW, *ppszA, (int)lengthA, NULL, NULL))
     {
         DWORD dwError = GetLastError();
         free(*ppszA);
@@ -130,7 +130,7 @@ const rxcharA *rxConverter<rxcharA, rxcharA>::target()
 const rxcharW *rxConverter<rxcharA, rxcharW>::target()
 {
     done = true;
-    if (t != NULL) return t; 
+    if (t != NULL) return t;
     done = rxA2W(s, &t);
     return t;
 }

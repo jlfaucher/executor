@@ -98,14 +98,14 @@ RexxString *RexxString::center(RexxInteger *_length,
                                              /* allocate space                    */
             Retval = (RexxString *)raw_string(Space);
             /* set left pad characters           */
-            memset(Retval->getWritableData(), PadChar, LeftPad);
+            memset(Retval->getWritableData(), (int)PadChar, LeftPad); // toto m17n (int)PadChar
             if (Len != 0)                         /* something to copy?                */
             {
                 /* copy the string                   */
                 memcpy(Retval->getWritableData() + LeftPad, this->getStringData(), Len);
             }
             /* now the trailing pad chars        */
-            memset(Retval->getWritableData() + LeftPad + Len, PadChar, RightPad);
+            memset(Retval->getWritableData() + LeftPad + Len, (int)PadChar, RightPad); // toto m17n (int)PadChar
         }
         else
         {                             /* requested smaller than            */
@@ -258,7 +258,7 @@ RexxString *RexxString::insert(RexxString  *newStrObj,
     if (ReqLeadPad != 0)
     {                    /* if required leading pads          */
                          /* add the pads now                  */
-        memset(Current, PadChar, size_v(ReqLeadPad)); // todo m17n : PadChar is a codepoint, ReqLeadPad is a char length
+        memset(Current, (int)PadChar, size_v(ReqLeadPad)); // todo m17n : PadChar is a codepoint, ReqLeadPad is a char length
         Current += size_v(ReqLeadPad);             /* step the output pointer           */ // todo m17n
     }
 
@@ -272,7 +272,7 @@ RexxString *RexxString::insert(RexxString  *newStrObj,
     if (ReqPadChar != 0)
     {                    /* if required trailing pads         */
                          /* add the pads now                  */
-        memset(Current, PadChar, size_v(ReqPadChar)); // todo m17n
+        memset(Current, (int)PadChar, size_v(ReqPadChar)); // todo m17n
         Current += size_v(ReqPadChar);             /* step the output pointer           */ // todo m17n
     }
 
@@ -327,7 +327,7 @@ RexxString *RexxString::left(RexxInteger *_length,
         if (Size > Length)                 /* need to pad?                      */
         {
             /* pad the string                    */
-            memset(Current, PadChar, Size - Length);
+            memset(Current, (int)PadChar, Size - Length); // toto m17n (int)PadChar
         }
     }
     return Retval;                       /* return string piece               */
@@ -411,7 +411,7 @@ RexxString *RexxString::overlay(
 
     if (FrontPad != 0)
     {                      /* padded in front?                  */
-        memset(Current, PadChar, size_v(FrontPad));/* set the pad characters            */ // todo m17n
+        memset(Current, (int)PadChar, size_v(FrontPad));/* set the pad characters            */ // todo m17n
         Current += size_v(FrontPad);               /* step the pointer                  */ // todo m17n
     }
 
@@ -425,7 +425,7 @@ RexxString *RexxString::overlay(
     if (BackPad != 0)
     {                       /* padded in back?                   */
                             /* set the pad characters            */
-        memset(Current, PadChar, size_v(BackPad)); // todo m17n
+        memset(Current, (int)PadChar, size_v(BackPad)); // todo m17n
         Current += size_v(BackPad);                /* step the pointer                  */ // todo m17n
     }
 
@@ -503,7 +503,7 @@ RexxString *RexxString::replaceAt(RexxString  *newStrObj, RexxInteger *position,
     // padding only happens if we've copy the entire front portion
     if (padding > 0)
     {
-        memset(current, padChar, size_v(padding)); // todo m17n
+        memset(current, (int)padChar, size_v(padding)); // todo m17n
         current += size_v(padding); // todo m17n
     }
     // replace with a non-null string?  copy into the current position
@@ -596,7 +596,7 @@ RexxString *RexxString::right(RexxInteger *_length,
         if (Size > Length)
         {               /* need to pad?                      */
                         /* pad the string                    */
-            memset(Current, PadChar, Size - Length);
+            memset(Current, (int)PadChar, Size - Length); // toto m17n (int)PadChar
             Current += Size - Length;        /* bump the pointer                  */
         }
         if (CopyLength != 0)                    /* have real data?                   */

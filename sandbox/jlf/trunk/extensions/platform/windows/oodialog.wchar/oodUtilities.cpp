@@ -598,7 +598,7 @@ RexxMethod2(RexxObjectPtr, dlgutil_screenSize_cls, OPTIONAL_CSTRING, _flag, OPTI
                 goto done_out;
             }
 
-            POINT point = {pixelX, pixelY};
+            POINT point = {(LONG)pixelX, (LONG)pixelY};
             mapPixelToDu(context, dlgObj, &point, 1);
             duX = point.x;
             duY = point.y;

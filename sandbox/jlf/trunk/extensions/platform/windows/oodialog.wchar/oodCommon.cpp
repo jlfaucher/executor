@@ -227,7 +227,7 @@ RexxObjectPtr invalidCategoryPageException(RexxMethodContext *c, int pageNum, in
 RexxObjectPtr noSuchPageException(RexxMethodContext *c, RexxObjectPtr page, size_t pos)
 {
     char buf[256];
-    _snprintf(buf, RXITEMCOUNT(buf), "Argument %d (%s) is not a page in this property sheet", pos, c->ObjectToStringValue(page));
+    _snprintf(buf, RXITEMCOUNT(buf), "Argument %zd (%s) is not a page in this property sheet", pos, c->ObjectToStringValue(page));
     c->RaiseException1(Rexx_Error_Incorrect_method_user_defined, c->String(buf));
     return NULLOBJECT;
 }
@@ -251,7 +251,7 @@ RexxObjectPtr noSuchPageException(RexxMethodContext *c, RexxObjectPtr page, size
 RexxObjectPtr noWindowsPageException(RexxMethodContext *c, size_t pageID, size_t pos)
 {
     char buf[256];
-    _snprintf(buf, RXITEMCOUNT(buf), "The Windows property sheet page, (argument %d, page %d,) has not been created", pos, pageID);
+    _snprintf(buf, RXITEMCOUNT(buf), "The Windows property sheet page, (argument %zd, page %zd,) has not been created", pos, pageID);
     c->RaiseException1(Rexx_Error_Incorrect_method_user_defined, c->String(buf));
     return NULLOBJECT;
 }
@@ -274,7 +274,7 @@ RexxObjectPtr noWindowsPageException(RexxMethodContext *c, size_t pageID, size_t
 void *noWindowsPageDlgException(RexxMethodContext *c, size_t pageID)
 {
     char buf[256];
-    _snprintf(buf, RXITEMCOUNT(buf), "The dialog template for the Windows property sheet page (page %d) could not be created", pageID);
+    _snprintf(buf, RXITEMCOUNT(buf), "The dialog template for the Windows property sheet page (page %zd) could not be created", pageID);
     return executionErrorException(c->threadContext, buf);
 }
 
@@ -1756,7 +1756,7 @@ int putUnicodeText(LPWORD dest, const rxcharW *text)
         return 1;
     }
     wcscpy((LPWSTR)dest, text);
-    return wcslen(text) + 1;
+    return (int)wcslen(text) + 1;
 }
 
 

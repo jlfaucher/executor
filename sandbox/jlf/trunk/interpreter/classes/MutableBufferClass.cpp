@@ -1254,7 +1254,7 @@ RexxMutableBuffer *RexxMutableBuffer::translate(RexxString *tableo, RexxString *
             }
             else
             {
-                *scanPtr = padChar;             /* else use the pad character        */
+                *scanPtr = (char)padChar;   // todo m17n          /* else use the pad character        */
             }
         }
         scanPtr++;                          /* step the pointer                  */
@@ -1465,7 +1465,7 @@ RexxInteger *RexxMutableBuffer::caselessMatchChar(RexxInteger *position_, RexxSt
 
     stringsizeB_t _setLength = matchSet->getBLength();
     codepoint_t         _matchChar = getCharB(position - 1);
-    _matchChar = toupper(_matchChar);
+    _matchChar = toupper((int)_matchChar); // todo m17n (int)
 
     // iterate through the match set looking for a match, using a
     // caseless compare
@@ -1697,7 +1697,7 @@ RexxMutableBuffer *RexxMutableBuffer::space(RexxInteger *space_count, RexxString
                                            /* get the spacing count           */
     const size_t padLength = optionalLengthArgument(space_count, 1, ARG_ONE);
     /* get the pad character           */
-    const char   padChar   = optionalPadArgument(pad, ' ', ARG_TWO);
+    const char   padChar   = (char)optionalPadArgument(pad, ' ', ARG_TWO); // todo m17n (char)
 
     // an inplace update has complications, depending on whether the new string
     // is shorter or longer than the original.

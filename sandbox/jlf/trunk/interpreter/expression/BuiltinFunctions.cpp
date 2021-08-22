@@ -1261,7 +1261,7 @@ BUILTIN(DATE)
         else                                 /* need to process an option         */
         {
             /* option is first character         */
-            style = toupper(option->getCharC(0));
+            style = toupper((int)option->getCharC(0)); // todo m17n (int)
         }
     }
 
@@ -1282,7 +1282,7 @@ BUILTIN(DATE)
         else                                 /* need to process an option         */
         {
             /* option is first character         */
-            style2 = toupper(option2->getCharC(0));
+            style2 = toupper((int)option2->getCharC(0)); // todo m17n (int)
         }
     }
 
@@ -1296,7 +1296,7 @@ BUILTIN(DATE)
         {
             reportException(Error_Incorrect_call_format_incomp_sep, CHAR_DATE, OREF_positional, IntegerOne, new_string((char)style), IntegerFour);
         }
-        if (osep->getBLength() > 1 || (osep->getBLength() == 1 && strchr(ALPHANUM, osep->getCharC(0)) != NULL))
+        if (osep->getBLength() > 1 || (osep->getBLength() == 1 && strchr(ALPHANUM, (int)osep->getCharC(0)) != NULL)) // todo m17n (int)
         {
             reportException(Error_Incorrect_call_parm_wrong_sep, CHAR_DATE, OREF_positional, IntegerFour, osep);
         }
@@ -1319,7 +1319,7 @@ BUILTIN(DATE)
                 reportException(Error_Incorrect_call_format_incomp_sep, CHAR_DATE, OREF_positional, IntegerThree, new_string((char *)&style2, 1), IntegerFive);
             }
             // explicitly specified delimiter, we need to validate this first
-            if (isep->getBLength() > 1 || (isep->getBLength() == 1 && strchr(ALPHANUM, isep->getCharC(0)) != NULL))
+            if (isep->getBLength() > 1 || (isep->getBLength() == 1 && strchr(ALPHANUM, (int)isep->getCharC(0)) != NULL)) // todo m17n (int)
             {
                 // the field delimiter must be a single character and NOT
                 // alphanumeric, or a null character
@@ -1460,7 +1460,7 @@ BUILTIN(DATE)
                 /* get the month name                */
                 RexxString *month_name = SystemInterpreter::getMessageText(Message_Translations_January + month - 1);
                 /* format as a date                  */
-                sprintf(work, "%ld %s %4.4ld", day, month_name->getStringData(), year);
+                sprintf(work, "%ld %s %4.4ld", long(day), month_name->getStringData(), long(year));
                 break;
 
             }
@@ -1529,7 +1529,7 @@ BUILTIN(TIME)
             reportException(Error_Incorrect_call_list, CHAR_TIME, OREF_positional, IntegerOne, "CEFHLMNORST", option);
         }
         // we only use the first character
-        style = toupper(option->getCharC(0));
+        style = toupper((int)option->getCharC(0)); // todo m17n (int)
     }
 
     // now repeat with the second style
@@ -1548,7 +1548,7 @@ BUILTIN(TIME)
         {
             reportException(Error_Incorrect_call_list, CHAR_TIME, OREF_positional, IntegerThree, "CFHLMNOST", option2);
         }
-        style2 = toupper(option2->getCharC(0));
+        style2 = toupper((int)option2->getCharC(0)); // todo m17n (int)
     }
 
 
@@ -1793,7 +1793,7 @@ BUILTIN(XRANGE)
     RexxString *result = raw_string(length);         /* get a result string               */
     for (size_t i = 0; i < length; i++)         /* loop through result length        */
     {
-        result->putCharB(i, startchar++);   /* inserting each character          */ // todo m17n : no putCharC yet... probably not needed here, unless the end range is > 255
+        result->putCharB(i, (char)startchar++);   /* inserting each character          */ // todo m17n : no putCharC yet... probably not needed here, unless the end range is > 255
     }
     return result;                       /* finished                          */
 }
@@ -2362,7 +2362,7 @@ BUILTIN(LINES)
     }
     /* for compatibility this needs      */
     /* to only return 0 or 1             */
-    if (toupper(option->getCharC(0)) == 'N')
+    if (toupper((int)option->getCharC(0)) == 'N') // todo m17n (int)
     {
         wholenumber_t count = 0;
         if (result->numberValue(count))
@@ -2432,7 +2432,7 @@ BUILTIN(STREAM)
             reportException(Error_Incorrect_call_list, CHAR_STREAM, OREF_positional, IntegerTwo, "SDC", action);
         }
         /* get the option character          */
-        action_char = toupper(action->getCharC(0));
+        action_char = toupper((int)action->getCharC(0)); // todo m17n (int)
     }
 
     switch (action_char)
@@ -2569,7 +2569,7 @@ BUILTIN(CONDITION)
         }
 
         /* option is first character         */
-        style = toupper(option->getCharC(0));
+        style = toupper((int)option->getCharC(0)); // todo m17n (int)
     }
     /* get current trapped condition     */
     RexxDirectory *conditionobj = context->getConditionObj();

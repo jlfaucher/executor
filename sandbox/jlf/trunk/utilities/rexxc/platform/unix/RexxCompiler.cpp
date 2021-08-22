@@ -147,7 +147,7 @@ int main (int argc, char **argv)
     if (!silent)                       /* display version and copyright     */
     {
         ptr = RexxGetVersionInformation();
-        printf(ptr);
+        printf("%s", ptr);
         printf("\n");
         RexxFreeMemory(ptr);
     }

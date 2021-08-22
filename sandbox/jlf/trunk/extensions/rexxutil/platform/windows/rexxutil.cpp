@@ -3531,7 +3531,6 @@ size_t RexxEntry SysGetErrortext(const char *name, size_t numargs, CONSTRXSTRING
 size_t RexxEntry SysWinEncryptFile(const char *name, size_t numargs, CONSTRXSTRING args[], const char *queuename, PRXSTRING retstr)
 {
     ULONG  rc;                           /* Ret code of func           */
-    OSVERSIONINFO vi;
 
     if (numargs != 1)
     {
@@ -3540,21 +3539,7 @@ size_t RexxEntry SysWinEncryptFile(const char *name, size_t numargs, CONSTRXSTRI
         return INVALID_ROUTINE;
     }
 
-    vi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-
-    if (rc = GetVersionEx(&vi))
-    {
-        /* allow this only on W2K or newer */
-        if (vi.dwPlatformId == VER_PLATFORM_WIN32_NT && vi.dwMajorVersion > 4)
-        {
-            rc = EncryptFile(args[0].strptr);
-        }
-        else
-        {
-            rc = 0;
-            SetLastError(ERROR_CANNOT_MAKE);
-        }
-    }
+    rc = EncryptFile(args[0].strptr);
     if (rc)
     {
         sprintf(retstr->strptr, "%d", 0);
@@ -3582,24 +3567,13 @@ size_t RexxEntry SysWinDecryptFile(const char *name, size_t numargs, CONSTRXSTRI
 {
 
   ULONG  rc;                           /* Ret code of func           */
-  OSVERSIONINFO vi;
 
   if (numargs != 1)
                                        /* If no args, then its an    */
                                        /* incorrect call             */
     return INVALID_ROUTINE;
 
-    vi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-
-  if (rc = GetVersionEx(&vi)) {
-    /* allow this only on W2K or newer */
-    if (vi.dwPlatformId == VER_PLATFORM_WIN32_NT && vi.dwMajorVersion > 4)
-      rc = DecryptFile(args[0].strptr,0);
-    else {
-      rc = 0;
-      SetLastError(ERROR_CANNOT_MAKE);
-    }
-  }
+  rc = DecryptFile(args[0].strptr,0);
 
   if (rc)
     sprintf(retstr->strptr, "%d", 0);
@@ -3620,28 +3594,44 @@ size_t RexxEntry SysWinDecryptFile(const char *name, size_t numargs, CONSTRXSTRI
 
 size_t RexxEntry SysWinVer(const char *name, size_t numargs, CONSTRXSTRING args[], const char *queuename, PRXSTRING retstr)
 {
-
-  OSVERSIONINFO vi;                    /* Return RXSTRING            */
-    char chVerBuf[12];
-
-  vi.dwOSVersionInfoSize = sizeof(vi); /* if not set --> violation error */
-
   if (numargs != 0)                    /* validate arg count         */
     return INVALID_ROUTINE;
 
-  GetVersionEx(&vi);                /* get version with extended api */
-  if (vi.dwPlatformId == VER_PLATFORM_WIN32s)
-    strcpy(chVerBuf, "Windows");       /* Windows 3.1                */
-  else
-    if (vi.dwPlatformId == VER_PLATFORM_WIN32_NT)
-      strcpy(chVerBuf, "WindowsNT");   /* Windows NT               */
-  else strcpy(chVerBuf, "Windows95");  /* Windows 95               */
+    // MS has deprecated GetVersionEx().  Also, since 10.0.18363, querying
+    // the version information from one of the system DLLs won't give the
+    // correct version number any longer.  The only remaining option seems
+    // to be this:
+    // https://stackoverflow.com/questions/36543301/detecting-windows-10-version
 
-                                       /* format into the buffer     */
-  wsprintf(retstr->strptr,"%s %lu.%02lu",
-             chVerBuf,
-             vi.dwMajorVersion,
-             vi.dwMinorVersion);
+    #define STATUS_SUCCESS (0x00000000)
+    typedef LONG NTSTATUS;
+    typedef NTSTATUS (WINAPI* RtlGetVersionPtr)(PRTL_OSVERSIONINFOW);
+
+    HMODULE hMod = ::GetModuleHandleW(L"ntdll.dll");
+    if (hMod != NULL)
+    {
+        RtlGetVersionPtr fxPtr = (RtlGetVersionPtr)::GetProcAddress(hMod, "RtlGetVersion");
+        if (fxPtr != NULL)
+        {
+            RTL_OSVERSIONINFOW rovi;
+            rovi.dwOSVersionInfoSize = sizeof(rovi);
+            if (fxPtr(&rovi) == STATUS_SUCCESS)
+            {
+                // char retstr[256];
+
+                // snprintf(retstr, sizeof(retstr), "Windows %d.%d.%d",
+                wsprintf(retstr->strptr, "Windows %d.%d.%d",
+                 rovi.dwMajorVersion, rovi.dwMinorVersion, rovi.dwBuildNumber);
+                //return context->String(retstr);
+            }
+        }
+    }
+    else
+    {
+        // just return the nullstring if we fail
+        //return context->NullString();
+        wsprintf(retstr->strptr, "");
+    }
 
   retstr->strlength = strlen(retstr->strptr);
   return VALID_ROUTINE;

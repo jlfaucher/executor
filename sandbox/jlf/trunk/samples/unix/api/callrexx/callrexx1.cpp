@@ -124,7 +124,7 @@ int main()
             &rexxretval );        /* Rexx program output   */
 
     printf("CALLREXX1 - Back from REXXSTART:  Return Code: %d\n", rc);
-    printf("CALLREXX1 - RESULT-LENGTH:           %d\n", rexxretval.strlength);
+    printf("CALLREXX1 - RESULT-LENGTH:           %d\n", int(rexxretval.strlength));
     printf("CALLREXX1 - RESULT-Value:            %s\n", rexxretval.strptr);
 
     RexxFreeMemory(rexxretval.strptr);
@@ -156,7 +156,7 @@ int main()
             &rexxretval );        /* Rexx program output   */
 
     printf("CALLREXX1 - Back from REXXSTART:  Return Code: %d\n", rc);
-    printf("CALLREXX1 - RESULT-LENGTH:           %d\n", rexxretval.strlength);
+    printf("CALLREXX1 - RESULT-LENGTH:           %d\n", int(rexxretval.strlength));
     printf("CALLREXX1 - RESULT-Value:            %s\n", rexxretval.strptr);
 
     RexxFreeMemory(rexxretval.strptr);
@@ -179,7 +179,7 @@ int main()
     pszTemp = rexxretval.strptr;
     rexxretval.strlength = 2;
 
-    printf("The Length of the Resultstring is %d\n", rexxretval.strlength);
+    printf("The Length of the Resultstring is %d\n", int(rexxretval.strlength));
 
     rc=RexxStart(
             0,                    /* number of arguments   */
@@ -193,7 +193,7 @@ int main()
             &rexxretval );        /* Rexx program output   */
 
     printf("CALLREXX1 - Back from REXXSTART:  Return Code: %d\n", rc);
-    printf("CALLREXX1 - RESULT-LENGTH:           %d\n", rexxretval.strlength);
+    printf("CALLREXX1 - RESULT-LENGTH:           %d\n", int(rexxretval.strlength));
     printf("CALLREXX1 - RESULT-Value:            %s\n", rexxretval.strptr);
 
     RexxFreeMemory(rexxretval.strptr);
@@ -230,7 +230,7 @@ int main()
             &rexxretval );        /* Rexx program output   */
 
     printf("CALLREXX1 - Back from REXXSTART:  Return Code: %d\n", rc);
-    printf("CALLREXX1 - RESULT-LENGTH:           %d\n", rexxretval.strlength);
+    printf("CALLREXX1 - RESULT-LENGTH:           %d\n", int(rexxretval.strlength));
     printf("CALLREXX1 - RESULT-Value:            %s\n", rexxretval.strptr);
 
     RexxFreeMemory(rexxretval.strptr);
@@ -262,7 +262,7 @@ int main()
             &rexxretval );        /* Rexx program output   */
 
     printf("CALLREXX1 - Back from REXXSTART:  Return Code: %d\n", rc);
-    printf("CALLREXX1 - RESULT-LENGTH:           %d\n", rexxretval.strlength);
+    printf("CALLREXX1 - RESULT-LENGTH:           %d\n", int(rexxretval.strlength));
     printf("CALLREXX1 - RESULT-Value:            %s\n", rexxretval.strptr);
 
     RexxFreeMemory(rexxretval.strptr);
@@ -295,7 +295,7 @@ int main()
             &rexxretval );        /* Rexx program output   */
 
     printf("CALLREXX1 - Back from REXXSTART:  Return Code: %d\n", rc);
-    printf("CALLREXX1 - RESULT-LENGTH:           %d\n", rexxretval.strlength);
+    printf("CALLREXX1 - RESULT-LENGTH:           %d\n", int(rexxretval.strlength));
     printf("CALLREXX1 - RESULT-Value:            %s\n", rexxretval.strptr);
 
     RexxFreeMemory(rexxretval.strptr);
@@ -329,7 +329,7 @@ int main()
              &rexxretval );        /* Rexx program output   */
 
     printf("CALLREXX1 - Back from REXXSTART:  Return Code: %d\n", rc);
-    printf("CALLREXX1 - RESULT-LENGTH:           %d\n", rexxretval.strlength);
+    printf("CALLREXX1 - RESULT-LENGTH:           %d\n", int(rexxretval.strlength));
     printf("CALLREXX1 - RESULT-Value:            %s\n", rexxretval.strptr);
 
     RexxFreeMemory(rexxretval.strptr);
@@ -360,7 +360,7 @@ int main()
              &rexxretval );        /* Rexx program output   */
 
     printf("CALLREXX1 - Back from REXXSTART:  Return Code: %d\n", rc);
-    printf("CALLREXX1 - RESULT-LENGTH:           %d\n", rexxretval.strlength);
+    printf("CALLREXX1 - RESULT-LENGTH:           %d\n", int(rexxretval.strlength));
     printf("CALLREXX1 - RESULT-Value:            %s\n", rexxretval.strptr);
 
     RexxFreeMemory(rexxretval.strptr);
@@ -394,7 +394,7 @@ int main()
              &rexxretval );        /* Rexx program output   */
 
     printf("CALLREXX1 - Back from REXXSTART:  Return Code: %d\n", rc);
-    printf("CALLREXX1 - RESULT-LENGTH:           %d\n", rexxretval.strlength);
+    printf("CALLREXX1 - RESULT-LENGTH:           %d\n", int(rexxretval.strlength));
     printf("CALLREXX1 - RESULT-Value:            %s\n", rexxretval.strptr);
 
     RexxFreeMemory(rexxretval.strptr);
@@ -433,7 +433,7 @@ int main()
              &rexxretval );        /* Rexx program output   */
 
     printf("CALLREXX1 - Back from REXXSTART:  Return Code: %d\n", rc);
-    printf("CALLREXX1 - RESULT-LENGTH:           %d\n", rexxretval.strlength);
+    printf("CALLREXX1 - RESULT-LENGTH:           %d\n", int(rexxretval.strlength));
     printf("CALLREXX1 - RESULT-Value:            %s\n", rexxretval.strptr);
 
     RexxFreeMemory(rexxretval.strptr);
@@ -461,7 +461,7 @@ int main()
              &rexxretval );        /* Rexx program output   */
 
     printf("CALLREXX1 - Back from REXXSTART:  Return Code: %d\n", rc);
-    printf("CALLREXX1 - RESULT-LENGTH:           %d\n", rexxretval.strlength);
+    printf("CALLREXX1 - RESULT-LENGTH:           %d\n", int(rexxretval.strlength));
     printf("CALLREXX1 - RESULT-Value:            %s\n", rexxretval.strptr);
 
     RexxFreeMemory(rexxretval.strptr);

@@ -131,7 +131,7 @@ class RexxMutableBufferClass : public RexxClass {
    inline void openGap(sizeB_t offset, sizeB_t _size, sizeB_t tailSize) { data->openGap(offset, _size, tailSize); }
    inline void closeGap(sizeB_t offset, sizeB_t _size, sizeB_t tailSize) { data->closeGap(offset, _size, tailSize); }
    inline void adjustGap(sizeB_t offset, sizeB_t _size, sizeB_t _newSize) { data->adjustGap(offset, _size, _newSize); }
-   inline void setData(sizeB_t offset, char character, sizeB_t l) { data->setData(offset, character, l); }
+   inline void setData(sizeB_t offset, codepoint_t character, sizeB_t l) { data->setData(offset, (char)character, l); } // M17N WRONG! character can be a graphme made of several codepoints
    inline char getCharB(sizeB_t offset) { return getData()[size_v(offset)]; }
    sizeB_t setDataLength(sizeB_t l);
    inline sizeB_t getCapacity() { return bufferLength; }

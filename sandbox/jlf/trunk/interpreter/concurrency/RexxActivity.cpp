@@ -85,8 +85,10 @@ const size_t ACT_STACK_SIZE = 20;
 void RexxActivity::runThread()
 {
     bool firstDispatch = true;           // some things only occur on subsequent requests
+
+    int32_t base;
                                          /* establish the stack base pointer  */
-    this->stackBase = currentThread.getStackBase(TOTAL_STACK_SIZE);
+    this->stackBase = currentThread.getStackBase(&base, TOTAL_STACK_SIZE);
 
     for (;;)
     {
@@ -237,6 +239,8 @@ RexxActivity::RexxActivity(bool createThread)
     // active activity, which we can't guarantee at this point.
     GlobalProtectedObject p(this);
 
+    int32_t base;         // used for determining the stack base
+
     this->clearObject();               /* globally clear the object         */
 
     // clearObject overwrites the pointer to variable name of the semaphores...
@@ -277,7 +281,7 @@ RexxActivity::RexxActivity(bool createThread)
         // run on the current thread
         currentThread.useCurrentThread();
                                          /* establish the stack base pointer  */
-        this->stackBase = currentThread.getStackBase(TOTAL_STACK_SIZE);
+        this->stackBase = currentThread.getStackBase(&base, TOTAL_STACK_SIZE);
     }
 }
 
@@ -1123,7 +1127,7 @@ RexxDirectory *RexxActivity::createExceptionObject(wholenumber_t  errcode,
     char work[32];
                                          /* format the number (string) into   */
                                          /*  work buffer.                     */
-    sprintf(work,"%ld.%1ld", errcode/1000, errcode - primary);
+    sprintf(work,"%ld.%1ld", long(errcode/1000), long(errcode - primary));
     RexxString *code = new_string(work); /* get the formatted code            */
     exobj->put(code, OREF_CODE);
 
@@ -1347,9 +1351,9 @@ RexxString *RexxActivity::messageSubstitution(
         {
             selector -= '0';                 /* convert to a number               */ // todo m17n : DecimalDigitNumber (careful : 'U+0BEF TAMIL DIGIT NINE \u0BEF 9)
             // still in range?
-            if (selector <= substitutions)    /* out of our range?                 */
+            if ((size_t)selector <= substitutions)    /* out of our range?                 */
             {
-                RexxObject *value = additional->get(selector);
+                RexxObject *value = additional->get((size_t)selector);
                 if (value != OREF_NULL)      /* have a value?                     */
                 {
                     /* set the reentry flag              */
@@ -1421,10 +1425,10 @@ void RexxActivity::reraiseException(RexxDirectory *exobj)
     wholenumber_t primary = (errornumber / 1000) * 1000;
     if (errornumber != primary)
     {        /* have an actual secondary message? */
-        char            work[10];            /* temp buffer for formatting        */
+        char            work[30];            /* temp buffer for formatting        */
              /* format the number (string) into   */
              /*  work buffer.                     */
-        sprintf(work,"%1ld%3.3ld", errornumber/1000, errornumber - primary);
+        sprintf(work,"%1ld%3.3ld", long(errornumber/1000), long(errornumber - primary));
         errornumber = atol(work);          /* convert to a long value           */
                                            /* retrieve the secondary message    */
         RexxString *message = SystemInterpreter::getMessageText(errornumber);
@@ -3386,9 +3390,10 @@ void  RexxActivity::terminatePoolActivity()
 void RexxActivity::run(ActivityDispatcher &target)
 {
     size_t  startDepth;                  /* starting depth of activation stack*/
+    int32_t base;         // used for determining the stack base
 
                                          /* make sure we have the stack base  */
-    this->stackBase = currentThread.getStackBase(TOTAL_STACK_SIZE);
+    this->stackBase = currentThread.getStackBase(&base, TOTAL_STACK_SIZE);
     this->generateRandomNumberSeed();    /* get a fresh random seed           */
     startDepth = stackFrameDepth;        /* Remember activation stack depth   */
                                          /* Push marker onto stack so we know */

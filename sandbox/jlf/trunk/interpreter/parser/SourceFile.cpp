@@ -230,7 +230,7 @@ void RexxSource::initBuffered(
         while (scan != OREF_NULL && *scan == '\0') // JLF : never enter the loop ? if scan is not null then *scan is necessarily \r or \n, but never \0
         {
             /* scan for a linend                 */
-            scan = Utilities::locateCharacter(scan + 1, line_delimiters, length - (scan - _current - 1));
+            scan = Utilities::locateCharacter(scan + 1, line_delimiters, size_v(length) - (scan - _current - 1)); // todo m17n (int)sizeB_v(...
         }
         if (scan == NULL)
         {                /* not found, go to the end          */
@@ -1052,7 +1052,7 @@ RexxString *RexxSource::traceBack(RexxActivation *activation, SourceLocation &lo
     char         linenumber[11];         /* formatted line number             */
 
                                            /* format the value                  */
-    sprintf(linenumber,"%lu", location.getLineNumber());
+    sprintf(linenumber,"%zu", location.getLineNumber());
 
     line = this->extract(location);      /* extract the source string         */
                                          /* doesn't exist and this isn't a    */

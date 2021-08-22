@@ -53,71 +53,14 @@
 #include "Interpreter.hpp"
 #include "SystemInterpreter.hpp"
 
-RexxString *SystemInterpreter::getInternalSystemName()
-{
-    return getSystemName();     // this is the same
-}
-
-
-static OSVERSIONINFO version_info={0}; /* for optimization so that GetVersionEx */
-									   /* don't have to be called each time */
-
-int which_system_is_running()
-{
-	if (!version_info.dwOSVersionInfoSize)
-	{
-	   /* GetVersionEx called for the first time */
-       version_info.dwOSVersionInfoSize = sizeof(version_info);  // if not set --> violation error
-       GetVersionEx(&version_info);
-	}
-    if (version_info.dwPlatformId == VER_PLATFORM_WIN32s) return 0;     // Windows 3.1
-	else
-	  if (version_info.dwPlatformId == VER_PLATFORM_WIN32_NT) return 1; // Windows NT
-	else return 2;											  // Windows 95
-}
-
 RexxString *SystemInterpreter::getSystemName()
 /******************************************************************************/
 /* Function: Get System Name                                                  */
 /******************************************************************************/
 {
     char chVerBuf[26];                   // buffer for version
-    int isys;
-
-    isys = which_system_is_running();
-
-    if (isys == 0)
-    {
-      strcpy(chVerBuf, "Windows");     // Windows 3.1
-    }
-    else if (isys == 1)
-    {
-      strcpy(chVerBuf, "WindowsNT"); // Windows NT
-    }
-    else
-    {
-      strcpy(chVerBuf, "Windows95");                                              // Windows 95
-    }
+    strcpy(chVerBuf, "WindowsNT"); // Windows NT
     return new_string(chVerBuf);                     /* return as a string                */
-}
-
-
-RexxString *SystemInterpreter::getSystemVersion()
-/******************************************************************************/
-/* Function:   Return the system specific version identifier that is stored   */
-/*             in the image.                                                  */
-/******************************************************************************/
-{
-    char chVerBuf[8];                   // buffer for version
-    OSVERSIONINFO vi;
-    // dont forget to change sysmeths.cmd
-
-    vi.dwOSVersionInfoSize = sizeof(vi);  // if not set --> violation error
-
-    GetVersionEx(&vi);              // get version with extended api
-    /* format into the buffer            */
-    wsprintf(chVerBuf,"%i.%02i",(int)vi.dwMajorVersion,(int)vi.dwMinorVersion);
-    return new_string(chVerBuf);     /* return as a string                */
 }
 
 

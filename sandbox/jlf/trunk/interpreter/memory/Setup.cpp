@@ -1516,11 +1516,13 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* set Oryx version                  */
   kernel_public(CHAR_VERSION, Interpreter::getVersionNumber(), TheKernel);
                                        /* set the system name               */
+#if 0 // jlf deactivate because GetVersionEx API deprecated on Windows
   kernel_public(CHAR_NAME, SystemInterpreter::getSystemName(), TheSystem);
                                        /* set the internal system name      */
   kernel_public(CHAR_INTERNALNAME, SystemInterpreter::getInternalSystemName(), TheSystem);
                                        /* and the system version info       */
   kernel_public(CHAR_VERSION, SystemInterpreter::getSystemVersion(), TheSystem);
+#endif
   // initialize our thread vector for external calls.
   RexxActivity::initializeThreadContext();
 
@@ -1535,7 +1537,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                            /* create a kernel methods directory */
       RexxDirectory *kernel_methods = new_directory();
       ProtectedObject p1(kernel_methods);   // protect from GC
-      kernel_methods->put(new RexxMethod(getGlobalName(CHAR_LOCAL), CPPCode::resolveExportedMethod(CHAR_LOCAL, CPPM(RexxLocal::local), 0, -1)), getGlobalName(CHAR_LOCAL));
+      kernel_methods->put(new RexxMethod(getGlobalName(CHAR_LOCAL), CPPCode::resolveExportedMethod(CHAR_LOCAL, CPPM(RexxLocal::local), 0, false)), getGlobalName(CHAR_LOCAL));
 
                                            /* create the BaseClasses method and run it*/
       RexxString *symb = getGlobalName(BASEIMAGELOAD);   /* get a name version of the string  */

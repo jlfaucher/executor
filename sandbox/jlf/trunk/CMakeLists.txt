@@ -716,8 +716,8 @@ set (classes_support_sources
 endif()
 
 if (WIN32)
-    # To avoid error: definition of dllimport function not allowed
-    SET_SOURCE_FILES_PROPERTIES( ${build_classes_support_dir}/m17n/utf8proc/utf8proc.c PROPERTIES COMPILE_FLAGS /DUTF8PROC_EXPORTS )
+    # To avoid warning LNK4217
+    SET_SOURCE_FILES_PROPERTIES( ${build_classes_support_dir}/m17n/utf8proc/utf8proc.c PROPERTIES COMPILE_FLAGS /DUTF8PROC_STATIC )
 endif ()
 
 set (classes_sources ${build_classes_dir}/ArrayClass.cpp

@@ -81,7 +81,6 @@ public:
     virtual void attachThread();
     void setPriority(int priority);
     virtual void dispatch();
-    char *getStackBase();
     void terminate();
     void startup();
     void shutdown();

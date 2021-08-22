@@ -78,7 +78,7 @@ public:
     void create(RexxActivity *activity, size_t stackSize);
     void close();
     void useCurrentThread();
-    char *getStackBase(size_t stackSize);
+    char *getStackBase(int32_t *base, size_t stackSize);
     void setPriority(int p);
     bool validateThread();
     inline thread_id_t getThreadID() { return (thread_id_t)threadId; }

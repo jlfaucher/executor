@@ -1520,7 +1520,7 @@ LRESULT CALLBACK PropSheetCBTProc(int nCode, WPARAM wParam, LPARAM lParam)
         else
         {
             printf("PropSheetCBTProc() DID NOT MATCH !! hwnd=%p className=%s name=%s style=0x%08x exStyle=0x%08x\n",
-                    wParam, cs->lpszClass, cs->lpszName, cs->style, cs->dwExStyle);
+                    (void *)wParam, cs->lpszClass, cs->lpszName, cs->style, cs->dwExStyle);
         }
     }
 
@@ -3961,7 +3961,7 @@ RexxMethod2(RexxObjectPtr, psp_getPageTitle, NAME, name, CSELF, pCSelf)
                 return pcpsp->headerTitle == NULL ? TheNilObj : context->String(headerTitleA);
             }
     }
-    const rxcharT *headerSubTitle;
+    const rxcharT *headerSubTitle="";
     RXCT2A(headerSubTitle);
     return pcpsp->headerSubTitle == NULL ? TheNilObj : context->String(headerSubTitleA);
 }

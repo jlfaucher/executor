@@ -258,7 +258,7 @@ END_EXTERN_C()
 // the argument is a "special" virtual argument derived from context
 #define SPECIAL_ARGUMENT  0x02
 
-typedef struct
+typedef struct _ValueDescriptor
 {
 // union containing argument values for each of the passable/returnable
 // types from a method/function call.  The arguments are pass/retrieved

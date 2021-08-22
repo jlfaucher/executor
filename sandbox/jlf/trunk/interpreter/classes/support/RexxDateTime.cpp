@@ -1139,7 +1139,7 @@ bool RexxDateTime::getNumber(const char *input, wholenumber_t length, int *targe
 void RexxDateTime::formatBaseDate(char *buffer)
 {
     // format this into the buffer as a number
-    sprintf(buffer, "%ld", getBaseDate());
+    sprintf(buffer, "%zd", getBaseDate());
 }
 
 

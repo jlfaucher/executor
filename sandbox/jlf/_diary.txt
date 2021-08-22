@@ -495,6 +495,59 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 August 22
+
+Fix most of the warnings.
+Still to do:
+
+Windows
+-------
+trunk\rexxapi\common\platform\windows\SysCSStream.cpp(337): warning C4996: 'gethostbyname': Use getaddrinfo() or GetAddrInfoW() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+trunk\rexxapi\common\platform\windows\SysCSStream.cpp(344): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+trunk\rexxapi\common\platform\windows\SysCSStream.cpp(518): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+trunk\rexxapi\common\platform\windows\SysCSStream.cpp(626): warning C4996: 'inet_ntoa': Use inet_ntop() or InetNtop() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+trunk\rexxapi\server\platform\windows\APIService.cpp(121): warning C4996: 'GetVersionExA': was declared deprecated
+
+[ 83%] Building CXX object CMakeFiles/hostemu.dir/extensions/hostemu/cmdparse.cpp.obj
+cmdparse.cpp
+..\..\cmdparse.cpp(1152): warning C4065: switch statement contains 'default' but no 'case' labels
+
+
+MacOs
+-----
+trunk/common/platform/unix/SysFile.cpp:993:13: warning: 'fstat64' is deprecated: first
+trunk/common/platform/unix/SysFile.cpp:1022:9: warning: 'stat64' is deprecated: first
+trunk/common/platform/unix/SysFile.cpp:1055:13: warning: 'fstat64' is deprecated: first
+trunk/common/platform/unix/SysFile.cpp:1080:9: warning: 'stat64' is deprecated: first
+trunk/common/platform/unix/SysFile.cpp:1112:9: warning: 'fstat64' is deprecated: first
+
+
+trunk/extensions/rexxutil/platform/unix/rexxutil.cpp:1852:14: warning: 'sem_init' is deprecated [-Wdeprecated-declarations]
+trunk/extensions/rexxutil/platform/unix/rexxutil.cpp:1913:5: warning: 'sem_init' is deprecated [-Wdeprecated-declarations]
+trunk/extensions/rexxutil/platform/unix/rexxutil.cpp:1957:13: warning: 'sem_destroy' is deprecated [-Wdeprecated-declarations]
+trunk/extensions/rexxutil/platform/unix/rexxutil.cpp:2054:14: warning: 'sem_init' is deprecated [-Wdeprecated-declarations]
+trunk/extensions/rexxutil/platform/unix/rexxutil.cpp:2162:10: warning: 'sem_getvalue' is deprecated [-Wdeprecated-declarations]
+trunk/extensions/rexxutil/platform/unix/rexxutil.cpp:2198:13: warning: 'sem_destroy' is deprecated [-Wdeprecated-declarations]
+trunk/extensions/rexxutil/platform/unix/rexxutil.cpp:3693:15: warning: 'tempnam' is deprecated: This function is provided for compatibility reasons only. Due to security concerns inherent in the design of tempnam(3), it is highly recommended that you use mkstemp(3) instead. [-Wdeprecated-declarations]
+trunk/extensions/rexxutil/platform/unix/rexxutil.cpp:3697:15: warning: 'tempnam' is deprecated: This function is provided for compatibility reasons only. Due to security concerns inherent in the design of tempnam(3), it is highly recommended that you use mkstemp(3) instead. [-Wdeprecated-declarations]
+trunk/extensions/rexxutil/platform/unix/rexxutil.cpp:3701:15: warning: 'tempnam' is deprecated: This function is provided for compatibility reasons only. Due to security concerns inherent in the design of tempnam(3), it is highly recommended that you use mkstemp(3) instead. [-Wdeprecated-declarations]
+trunk/extensions/rexxutil/platform/unix/rexxutil.cpp:3708:13: warning: 'tempnam' is deprecated: This function is provided for compatibility reasons only. Due to security concerns inherent in the design of tempnam(3), it is highly recommended that you use mkstemp(3) instead. [-Wdeprecated-declarations]
+trunk/extensions/rexxutil/platform/unix/rexxutil.cpp:5468:33: warning: 'tempnam' is deprecated: This function is provided for compatibility reasons only. Due to security concerns inherent in the design of tempnam(3), it is highly recommended that you use mkstemp(3) instead. [-Wdeprecated-declarations]
+
+trunk/interpreter/platform/unix/SysFileSystem.cpp:173:12: warning: 'tmpnam' is deprecated:
+trunk/interpreter/platform/unix/SysFileSystem.cpp:226:10: warning: 'stat64' is deprecated:
+trunk/interpreter/platform/unix/SysFileSystem.cpp:495:9: warning: 'stat64' is deprecated:
+trunk/interpreter/platform/unix/SysFileSystem.cpp:548:17: warning: 'stat64' is deprecated:
+trunk/interpreter/platform/unix/SysFileSystem.cpp:797:14: warning: 'stat64' is deprecated:
+trunk/interpreter/platform/unix/SysFileSystem.cpp:842:14: warning: 'stat64' is deprecated:
+trunk/interpreter/platform/unix/SysFileSystem.cpp:858:14: warning: 'stat64' is deprecated:
+trunk/interpreter/platform/unix/SysFileSystem.cpp:876:9: warning: 'stat64' is deprecated:
+trunk/interpreter/platform/unix/SysFileSystem.cpp:894:9: warning: 'stat64' is deprecated:
+trunk/interpreter/platform/unix/SysFileSystem.cpp:969:9: warning: 'stat64' is deprecated:
+trunk/interpreter/platform/unix/SysFileSystem.cpp:991:9: warning: 'stat64' is deprecated:
+
+
+===============================================================================
 2021 August 11
 
 [Encoded strings]

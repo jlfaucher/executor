@@ -154,8 +154,8 @@ void printInterpreterVersion(RexxInstance *interpreter)
 {
     wholenumber_t ver = interpreter->InterpreterVersion();
     wholenumber_t lang = interpreter->LanguageLevel();
-    printf("Created interpreter instance version=%d.%d.%d language level=%d.%02d\n\n",
-           (ver & 0xff0000) >> 16, (ver & 0x00ff00) >> 8, ver & 0x0000ff, (lang & 0xff00) >> 8, lang & 0x00ff);
+    printf("Created interpreter instance version=%ld.%ld.%ld language level=%ld.%02ld\n\n",
+           long((ver & 0xff0000) >> 16), long((ver & 0x00ff00) >> 8), long(ver & 0x0000ff), long((lang & 0xff00) >> 8), long(lang & 0x00ff));
 }
 
 
@@ -203,10 +203,10 @@ void standardConditionMsg(RexxThreadContext *c, RexxDirectoryObject condObj, Rex
             }
         }
     }
-    printf("Error %d running %s line %d: %s\n", condition->rc, c->CString(condition->program),
-           condition->position, c->CString(condition->errortext));
+    printf("Error %ld running %s line %ld: %s\n", long(condition->rc), c->CString(condition->program),
+           long(condition->position), c->CString(condition->errortext));
 
-    printf("Error %d.%03d:  %s\n", condition->rc, conditionSubCode(condition), c->CString(condition->message));
+    printf("Error %ld.%03ld:  %s\n", long(condition->rc), long(conditionSubCode(condition)), c->CString(condition->message));
 }
 
 

@@ -314,7 +314,7 @@ bool SysClientStream::open(const char *name)
  *
  * @return True on an error, otherwise false.
  */
-bool SysClientStream::open(const char *host, int port)
+bool SysClientStream::open(const char *host, int port) // renamed SysInetSocketConnection::connect
 {
     struct sockaddr_in addr; // address structure
     struct hostent *phe; // pointer to a host entry

@@ -204,7 +204,7 @@ RexxString *RexxString::space(RexxInteger *space_count,
             if (Spaces != 0)
             {                    /* if have gaps...                   */
                                  /* fill in the pad chars             */
-                memset(Current, PadChar, size_v(Spaces)); // todo m17n
+                memset(Current, (int)PadChar, size_v(Spaces)); // todo m17n
                 Current += size_v(Spaces);             /* step over the pad chars           */ // todo m17n
             }
             Word = NextSite;                 /* copy the start pointer            */

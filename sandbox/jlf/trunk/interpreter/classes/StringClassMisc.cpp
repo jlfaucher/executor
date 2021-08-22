@@ -343,7 +343,7 @@ RexxInteger *RexxString::caselessCompare(RexxString *other, RexxString *pad)
     other = stringArgument(other, OREF_positional, ARG_ONE);
     stringsizeB_t length2 = other->getBLength();       /* get the length also               */
     // we uppercase the pad character now since this is caseless
-    char padChar = toupper(optionalPadArgument(pad, ' ', ARG_TWO));
+    char padChar = toupper((int)optionalPadArgument(pad, ' ', ARG_TWO)); // TODO M17N WRONG!
 
     const char *string1;
     const char *string2;
@@ -841,7 +841,7 @@ RexxString *RexxString::translate(
             }
             else
             {
-                *ScanPtr = PadChar;             /* else use the pad character        */ // todo m17n : warning, assign a codepoint into a byte
+                *ScanPtr = (char)PadChar;             /* else use the pad character        */ // todo m17n : warning, assign a codepoint into a byte
             }
         }
         ScanPtr++;                          /* step the pointer                  */
@@ -1066,13 +1066,13 @@ RexxInteger *RexxString::caselessMatchChar(RexxInteger *position_, RexxString *m
 
     stringsizeC_t _setLength = matchSet->getCLength();
     codepoint_t         _matchChar = getCharC(position - 1);
-    _matchChar = toupper(_matchChar); // todo m17n
+    _matchChar = toupper((int)_matchChar); // todo m17n
 
     // iterate through the match set looking for a match, using a
     // caseless compare
     for (stringsize_t i = 0; i < _setLength; i++) // todo m17n : char iterator
     {
-        if (_matchChar == toupper(matchSet->getCharC(i))) // todo m17n
+        if (_matchChar == toupper((int)matchSet->getCharC(i))) // todo m17n
         {
             return TheTrueObject;
         }

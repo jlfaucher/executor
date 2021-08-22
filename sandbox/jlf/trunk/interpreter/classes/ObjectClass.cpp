@@ -2092,7 +2092,7 @@ RexxObject  *RexxObject::run(
         RexxString *optionString = (RexxString *)arguments[1];
         /* this is now required              */
         optionString = stringArgument(optionString, OREF_positional, ARG_TWO);
-        option = toupper(optionString->getCharC(0));
+        option = toupper((int)optionString->getCharC(0));
         /* process the different options     */
         switch (option)
         {

@@ -110,7 +110,7 @@ RexxString *StringUtil::substr(const char *string, sizeB_t stringLength, RexxInt
     // add any needed padding characters
     if (padCount != 0)
     {
-        retval->set(substrLength, padChar, padCount);
+        retval->set(substrLength, (int)padChar, padCount); // todo m17n (int)
     }
     // and return the final result
     return retval;

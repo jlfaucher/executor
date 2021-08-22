@@ -1612,7 +1612,7 @@ void RexxMemory::orphanCheckMark(RexxObject *markObject, RexxObject **pMarkObjec
                     objectClassName = className->getStringData();
                 if (firstnode)
                 {             /* is this the first node??          */
-                    printf("-->Parent node was marking offset '%ld'x \n", (char *)pMarkObject - (char *)markObject);
+                    printf("-->Parent node was marking offset '%ld'x \n", long((char *)pMarkObject - (char *)markObject));
                     dumpObject(markObject, outfile);
                     firstnode = false;
                     logMemoryCheck(outfile, "Parent node is at %p, of type %s(%d) \n",
@@ -1790,7 +1790,7 @@ void RexxMemory::saveImage(const char *imageTarget)
 
     printf("Object stats for this image save are \n");
     _imageStats.printSavedImageStats();
-    printf("\n\n Total bytes for this image %lu bytes \n", image_offset);
+    printf("\n\n Total bytes for this image %lu bytes \n", (unsigned long)image_offset);
 }
 
 
@@ -1822,7 +1822,7 @@ RexxObject *RexxMemory::dump(void)
         keyfile = fopen("orexdump.key","w");
         fprintf(keyfile, "/* Object REXX dump key file */\n");
         fprintf(keyfile, "memoryaddr = %p\n", this);
-        fprintf(keyfile, "marker = %d\n", markWord);
+        fprintf(keyfile, "marker = %d\n", (int)markWord);
         /* dump the oldspace segments */
         oldSpaceSegments.dumpSegments(keyfile, dumpfile);
         /* followed by the newer allocations */
@@ -1834,7 +1834,7 @@ RexxObject *RexxMemory::dump(void)
         {
             i++;
             fprintf(keyfile, "Pool addr.%d = %p\n", i, currentPool);
-            fprintf(keyfile, "Pool size.%d = %d\n", i, currentPool->reserved);
+            fprintf(keyfile, "Pool size.%d = %d\n", i, (int)(currentPool->reserved));
             currentPool = currentPool->nextPool();
         }
 
@@ -1909,7 +1909,7 @@ RexxObject *RexxMemory::gutCheck(void)
         {
             /* nope, extra stuff in orig.        */
             printf("object:  %p,  type:  %lu, is extra in old2new.\n\n",
-                   index, index->behaviour->getClassType());
+                   index, (unsigned long)index->behaviour->getClassType());
         }
         else
         {
@@ -1920,8 +1920,8 @@ RexxObject *RexxMemory::gutCheck(void)
             if (count != testcount)
             {
                 printf("object:  %p,  type:  %lu, has an incorrect refcount.\n",
-                       index, index->behaviour->getClassType());
-                printf("Refcount for object is %ld, should be %ld.\n\n", count, testcount);
+                       index, (unsigned long)index->behaviour->getClassType());
+                printf("Refcount for object is %ld, should be %ld.\n\n", (long)count, (long)testcount);
             }
             /* now remove object from new table  */
             tempold2new->remove(index);
@@ -1936,7 +1936,7 @@ RexxObject *RexxMemory::gutCheck(void)
         j = tempold2new->next(j))
     {
         printf("object:  %p,  type:  %lu, is missing from old2new.\n\n",
-               index,index->behaviour->getClassType());
+               index, (unsigned long)index->behaviour->getClassType());
     }
 
     /* now take a dump so that we can    */
@@ -2057,7 +2057,7 @@ RexxObject *RexxMemory::setOref(void *oldValue, RexxObject *value)
                 printf("******** error in memory_setoref, unable to decrement refcount\n");
                 printf("Naughty object reference is from:  %p\n", oldValueLoc);
                 printf("Naughty object reference is at:  %p\n", index);
-                printf("Naughty object reference type is:  %lu\n", (index)->behaviour->getClassType());
+                printf("Naughty object reference type is:  %lu\n", (unsigned long)(index)->behaviour->getClassType());
             }
         }
         if (value != OREF_NULL && value->isNewSpace())

@@ -158,11 +158,11 @@ static bool morph2daemon(void)
     unlink(OOREXX_PIDFILE);
     int pfile = open(OOREXX_PIDFILE, O_WRONLY | O_CREAT, 0640);
     snprintf(pid_buf, sizeof(pid_buf), "%d\n", (int)getpid());
-    write(pfile, pid_buf, strlen(pid_buf));
+    ssize_t writeResult = write(pfile, pid_buf, strlen(pid_buf));
     close(pfile);
 
     // housekeeping
-	chdir("/");
+	int chdirResult = chdir("/");
 	umask(0);
 	for(int i = 0; i < 1024; i++) {
 		close(i);
@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
             return -1;
     }
     snprintf(pid_buf, sizeof(pid_buf), "%d\n", (int)getpid());
-    write(pfile, pid_buf, strlen(pid_buf));
+    ssize_t r = write(pfile, pid_buf, strlen(pid_buf));
     close(pfile);
 
     // make ourselves a daemon

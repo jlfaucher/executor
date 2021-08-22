@@ -80,7 +80,7 @@ RexxString *RexxString::bitAnd(RexxString *string2,
     String2Len = string2->getBLength();        /* get the string length             */
     String2 = string2->getStringData();       /* get the string data pointer       */
     /* get the pad character             */
-    PadChar = optionalPadArgument(pad, (char)0xff, ARG_TWO);
+    PadChar = (char)optionalPadArgument(pad, (char)0xff, ARG_TWO); // TODO M17N WRONG!
 
     String1 = this->getStringData();     /* point to the first string         */
     String1Len = this->getBLength();      /* get the length                    */
@@ -151,7 +151,7 @@ RexxString *RexxString::bitOr(RexxString *string2,
     String2Len = string2->getBLength();   /* get the string length             */
     String2 = string2->getStringData();  /* get the string data pointer       */
                                          /* get the pad character             */
-    PadChar = optionalPadArgument(pad, 0x00, ARG_TWO);
+    PadChar = (char)optionalPadArgument(pad, 0x00, ARG_TWO); // TODO M17N WRONG!
 
     String1 = this->getStringData();     /* point to the first string         */
     String1Len = this->getBLength();      /* get the length                    */
@@ -222,7 +222,7 @@ RexxString *RexxString::bitXor(RexxString *string2,
     String2Len = string2->getBLength();   /* get the string length             */
     String2 = string2->getStringData();  /* get the string data pointer       */
                                          /* get the pad character             */
-    PadChar = optionalPadArgument(pad, 0x00, ARG_TWO);
+    PadChar = (char)optionalPadArgument(pad, 0x00, ARG_TWO); // TODO M17N WRONG!
 
     String1 = this->getStringData();     /* point to the first string         */
     String1Len = this->getBLength();      /* get the length                    */

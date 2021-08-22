@@ -88,41 +88,6 @@
 
 #define LOADED_OBJECTS 100
 
-RexxString *SystemInterpreter::getInternalSystemName()
-{
-    return getSystemName();     // this is the same
-}
-
-RexxString *SystemInterpreter::getSystemName()
-/******************************************************************************/
-/* Function: Get System Name                                                  */
-/******************************************************************************/
-{
-#if defined(AIX)
-    return new_string("AIX");
-#elif defined(OPSYS_SUN)
-    return new_string("SUNOS");
-#else
-    return new_string("LINUX");
-#endif
-
-}
-
-
-RexxString *SystemInterpreter::getSystemVersion()
-/******************************************************************************/
-/* Function:   Return the system specific version identifier that is stored   */
-/*             in the image.                                                  */
-/******************************************************************************/
-{
-    struct utsname info;                 /* info structur              */
-
-    uname(&info);                        /* get the info               */
-
-    return new_string(info.release);    /* return as a string                */
-}
-
-
 #define MAX_ADDRESS_NAME_LENGTH  250   /* maximum command environment name  */
 
 

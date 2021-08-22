@@ -1651,7 +1651,7 @@ RexxMethod3(RexxStringObject, e_getLine, int32_t, lineNumber, OPTIONAL_RexxObjec
         }
 
         (*(WORD *)buf) = count;
-        count = SendMessage(hwnd, EM_GETLINE, lineNumber, (LPARAM)buf);
+        count = (WORD)SendMessage(hwnd, EM_GETLINE, lineNumber, (LPARAM)buf);
         if (count != 0)
         {
             buf[count] = 0;
