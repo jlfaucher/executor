@@ -1,0 +1,176 @@
+ Executor classes               Official classes (when different)
+ ----------------------------------------------------------------
+ RexxActivation
+ RexxActivationBase             ActivationBase
+ RexxActivationFrame
+ RexxActivationFrameBuffer      ActivationFrameBuffer
+ RexxActivationStack            ActivationStack
+ RexxActivity                   Activity
+ RexxArray                      ArrayClass
+ RexxBehaviour
+ RexxBinaryOperator
+ RexxBlock                      -
+ RexxBlockInstruction
+ RexxBuffer                     BufferClass
+ RexxBufferBase                 BufferClassBase
+ RexxCallContext_
+ RexxClass
+ RexxClause
+ RexxClosure                    -
+ RexxCode
+ RexxCompoundElement            CompoundTableElement
+ RexxCompoundTable              CompoundVariableTable
+ RexxCompoundTail               CompoundVariableTail
+ RexxCompoundVariable
+ RexxCondition
+ RexxContext
+ RexxContextEnvironment
+ RexxDateTime
+ RexxDirective
+ RexxDirectory                  DirectoryClass
+ RexxDoBlock                    DoBlock
+ RexxDotVariable
+ RexxEnvelope                   Envelope
+ RexxExitContext_
+ RexxExpressionFunction
+ RexxExpressionList
+ RexxExpressionLogical
+ RexxExpressionMessage
+ RexxExpressionOperator
+ RexxExpressionStack            ExpressionStack
+ RexxHashTable                  HashContents (with 4 new subclasses)
+                                    EqualityHashContents
+                                        MultiValueContents
+                                        StringHashContents
+                                    IdentityHashContents
+ RexxHashTableCollection        HashCollection (with 4 new subclasses)
+                                    EqualityHashCollection (new)
+                                        IndexOnlyHashCollection (new)
+                                            BagClass
+                                            SetClass
+                                        RelationClass
+                                        TableClass
+                                    IdentityHashCollection (new)
+                                        IdentityTable
+                                    StringHashCollection (new)
+                                        DirectoryClass
+                                        MethodDictionary
+                                        StringTable
+ RexxIdentityTable              IdentityTable
+ RexxInstance_
+ RexxInstanceInterface
+ RexxInstruction
+ RexxInstructionAddress
+ RexxInstructionAssignment
+ RexxInstructionCall
+ RexxInstructionCallBase
+ RexxInstructionCommand
+ RexxInstructionDo              replaced by these classes:
+                                    RexxInstructionControlledDo
+                                    RexxInstructionControlledDoUntil
+                                    RexxInstructionControlledDoWhile
+                                    RexxInstructionDoCount
+                                    RexxInstructionDoCountUntil
+                                    RexxInstructionDoCountWhile
+                                    RexxInstructionDoForever
+                                    RexxInstructionDoOver
+                                    RexxInstructionDoOverFor
+                                    RexxInstructionDoOverForUntil
+                                    RexxInstructionDoOverForWhile
+                                    RexxInstructionDoOverUntil
+                                    RexxInstructionDoOverWhile
+                                    RexxInstructionDoUntil
+                                    RexxInstructionDoWhile
+                                    RexxInstructionDoWith
+                                    RexxInstructionDoWithFor
+                                    RexxInstructionDoWithForUntil
+                                    RexxInstructionDoWithForWhile
+                                    RexxInstructionDoWithUntil
+                                    RexxInstructionDoWithWhile
+ RexxInstructionDrop
+ RexxInstructionElse
+ RexxInstructionEnd
+ RexxInstructionEndIf
+ RexxInstructionExit
+ RexxInstructionExpose
+ RexxInstructionExpression
+ RexxInstructionForward
+ RexxInstructionGuard
+ RexxInstructionIf
+ RexxInstructionInterpret
+ RexxInstructionLabel
+ RexxInstructionLeave
+ RexxInstructionMessage
+ RexxInstructionNop
+ RexxInstructionNumeric
+ RexxInstructionOptions
+ RexxInstructionOtherwise
+ RexxInstructionParse
+ RexxInstructionProcedure
+ RexxInstructionQueue
+ RexxInstructionRaise
+ RexxInstructionReply
+ RexxInstructionReturn
+ RexxInstructionSay
+ RexxInstructionSelect
+ RexxInstructionSet
+ RexxInstructionSignal
+ RexxInstructionThen
+ RexxInstructionTrace
+ RexxInstructionUpper           -
+ RexxInstructionUseStrict       RexxInstructionUse
+                                RexxInstructionUseLocal
+ RexxInteger
+ RexxIntegerClass
+ RexxInternalObject
+ RexxInternalStack              InternalStack
+ RexxLibraryPackage
+ RexxList                       ListClass
+ RexxListTable                  ListContents (RexxListTable was used by RexxList and RexxQueue, ListContents is used only by ListClass)
+ RexxLocal                      the .local environment methods
+ RexxLocalVariables
+ RexxMemory
+ RexxMessage
+ RexxMethod
+ RexxMethodContext_
+ RexxMutableBuffer
+ RexxMutableBufferClass
+ RexxNativeActivation
+ RexxNativeCode
+ RexxNativeMethod
+ RexxNativeRoutine
+ RexxNilObject
+ RexxNumberString
+ RexxNumberStringBase
+ RexxObject
+ RexxOption
+ RexxParseVariable
+ RexxPointer
+ RexxQueue
+ RexxRegisteredEnvironment
+ RexxRelation
+ RexxRoutine
+ RexxSaveStack
+ RexxSmartBuffer
+ RexxSource
+ RexxSourceLiteral
+ RexxStack
+ RexxStartDispatcher
+ RexxStem
+ RexxStemVariable
+ RexxString
+ RexxSupplier
+ RexxSupplierClass
+ RexxTable
+ RexxTarget
+ RexxText
+ RexxThreadContext_
+ RexxThreadInterface
+ RexxToken
+ RexxTrigger
+ RexxUnaryOperator
+ RexxVariable
+ RexxVariableBase
+ RexxVariableDictionary
+ RexxVariableReference
+ RexxVirtualBase
