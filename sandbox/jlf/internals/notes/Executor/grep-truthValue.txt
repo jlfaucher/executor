@@ -1,0 +1,44 @@
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ClassClass.cpp:197         return((RexxObject *)r)->truthValue(Error_Logical_value_method); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/IntegerClass.cpp:348 bool RexxInteger::truthValue( 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/IntegerClass.cpp:652       return result->truthValue(Error_Logical_value_method); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/IntegerClass.cpp:886   return this->truthValue(Error_Logical_value_method) ? TheFalseObject : TheTrueObject; 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/IntegerClass.cpp:896   return this->truthValue(Error_Logical_value_method) ? TheFalseObject : TheTrueObject; 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/IntegerClass.cpp:909   otherTruth = other->truthValue(Error_Logical_value_method) ? TheTrueObject : TheFalseObject; 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/IntegerClass.cpp:911   return (!this->truthValue(Error_Logical_value_method)) ? TheFalseObject : otherTruth; 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/IntegerClass.cpp:924   otherTruth = other->truthValue(Error_Logical_value_method) ? TheTrueObject : TheFalseObject; 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/IntegerClass.cpp:926   return (this->truthValue(Error_Logical_value_method)) ? TheTrueObject : otherTruth; 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/IntegerClass.cpp:937   bool truth = other->truthValue(Error_Logical_value_method); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/IntegerClass.cpp:939   if (!this->truthValue(Error_Logical_value_method)) 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/IntegerClass.hpp:79   bool         truthValue(int); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/MethodClass.cpp:636         isBlock = option->truthValue(Error_Logical_value_logical_list); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/NumberStringClass.cpp:1090 bool  RexxNumberString::truthValue( 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/NumberStringClass.cpp:2739         return result->truthValue(Error_Logical_value_method); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/NumberStringClass.hpp:121     bool         truthValue(int); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:151         return ((RexxObject *)result)->truthValue(Error_Logical_value_method); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:462 bool RexxInternalObject::truthValue( 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:473 bool RexxObject::truthValue( 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:480    return REQUEST_STRING(this)->truthValue(errorCode); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.hpp:280      virtual bool         truthValue(int); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.hpp:383      bool         truthValue(int); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/RoutineClass.cpp:602         isBlock = option->truthValue(Error_Logical_value_logical_list); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:505         return result->truthValue(Error_Logical_value_method); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:1488 bool RexxString::truthValue(int errorCode) 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:1957     otherTruth = other->truthValue(Error_Logical_value_method) ? TheTrueObject : TheFalseObject; 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:1959     return(!this->truthValue(Error_Logical_value_method)) ? TheFalseObject : otherTruth; 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:1972     otherTruth = other->truthValue(Error_Logical_value_method) ? TheTrueObject : TheFalseObject; 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:1974     return(this->truthValue(Error_Logical_value_method)) ? TheTrueObject : otherTruth; 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:1985     bool truth = other->truthValue(Error_Logical_value_method); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:1987     if (!this->truthValue(Error_Logical_value_method)) 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:2014   return this->truthValue(Error_Logical_value_method) ? (RexxObject *)TheFalseObject : (RexxObject *)TheTrueObject; 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:2022   return this->truthValue(Error_Logical_value_method) ? (RexxObject *)TheFalseObject : (RexxObject *)TheTrueObject; 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StringClass.hpp:168    bool         truthValue(int); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/execution/RexxNativeActivation.cpp:421                             descriptors[outputIndex].value.value_logical_t = argument->truthValue(Error_Logical_value_method); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/execution/SecurityManager.cpp:148     return resultObj->truthValue(Error_Logical_value_authorization); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/ExpressionLogical.cpp:159             if (!value->truthValue(Error_Logical_value_logical_list)) 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/instructions/DoInstruction.cpp:783     return result->truthValue(Error_Logical_value_until); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/instructions/DoInstruction.cpp:810     return result->truthValue(Error_Logical_value_while); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/instructions/GuardInstruction.cpp:142         if (!result->truthValue(Error_Logical_value_guard)) 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/instructions/GuardInstruction.cpp:152             } while (!result->truthValue(Error_Logical_value_guard)); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/instructions/IfInstruction.cpp:137         if (!result->truthValue(Error_Logical_value_if)) 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/memory/RexxMemory.cpp:1848         dumpEnable = selection->truthValue(Error_Logical_value_method); 
+(The NIL object) : 43

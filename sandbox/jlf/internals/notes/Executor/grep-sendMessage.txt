@@ -1,0 +1,160 @@
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/api/ThreadContextStubs.cpp:157         return context.ret(((RexxObject *)o)->sendMessage(new_upper_string(m), (RexxArray *)a)); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/api/ThreadContextStubs.cpp:171         return context.ret(((RexxObject *)o)->sendMessage(new_upper_string(m))); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/api/ThreadContextStubs.cpp:185         return context.ret(((RexxObject *)o)->sendMessage(new_upper_string(m), (RexxObject *)a1)); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/api/ThreadContextStubs.cpp:198         return context.ret(((RexxObject *)o)->sendMessage(new_upper_string(m), (RexxObject *)a1, (RexxObject *)a2)); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ArrayClass.cpp:1151         this->behaviour->getOwningClass()->sendMessage(OREF_NEW, IntegerZero, result); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ArrayClass.cpp:1164             this->behaviour->getOwningClass()->sendMessage(OREF_NEW, IntegerZero, result); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ArrayClass.cpp:1171             this->behaviour->getOwningClass()->sendMessage(OREF_NEW, new_integer(_end), result); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ArrayClass.cpp:1176                 newArray->sendMessage(OREF_PUT, this->get(_start + i - 1), new_integer(i)); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ArrayClass.cpp:2230         temp->sendMessage(OREF_INIT);      /* call any rexx init's              */ 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ArrayClass.cpp:2263         temp->sendMessage(OREF_INIT);      /* call any rexx init's              */ 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ArrayClass.cpp:2300     temp->sendMessage(OREF_INIT);        /* call any rexx init's              */ 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ArrayClass.cpp:2698         this->sendMessage(OREF_NEW, new_integer(argCount), result); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ArrayClass.cpp:2708                 newArray->sendMessage(OREF_PUT, item, new_integer(i+1)); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ArrayClass.cpp:2740     comparator->sendMessage(OREF_COMPARE, first, second, result); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/BlockClass.cpp:114     RexxObject *clauser = clauserClass->sendMessage(OREF_NEW, (RexxObject *)sourceArray); // must cast sourceArray, otherwise taken as array of arguments 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/BlockClass.cpp:117     this->kind = (RexxString *)sourceLiteralParserClass->sendMessage(OREF_KIND, clauser); // transient, no need of OrefSet 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/BlockClass.cpp:118     this->rawExecutable =sourceLiteralParserClass->sendMessage(OREF_RAWEXECUTABLE, this->kind, sourceArray, this->package); // transient, no need of OrefSet 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/BlockClass.cpp:186 	// hence the sendMessage OREF_INIT. 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/BlockClass.cpp:197     this->sendMessage(OREF_INIT); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ClassClass.cpp:192         this->sendMessage(OREF_STRICT_EQUAL, other, r); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ClassClass.cpp:852         class_object->sendMessage(OREF_METHODS, TheNilObject, r); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ClassClass.cpp:1106     sourceCollection->sendMessage(OREF_SUPPLIERSYM, p2); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ClassClass.cpp:1344     dummy_subclass->sendMessage(OREF_NEW, args + 1, argCount - 1, r); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ClassClass.cpp:1403     meta_class->sendMessage(OREF_NEW, class_id, p); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ClassClass.cpp:1471     new_class->sendMessage(OREF_INIT);   /* now drive any user INIT methods   */ 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ClassClass.cpp:1699     new_class->sendMessage(OREF_INIT, args + 1, argCount - 1); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/DirectoryClass.cpp:211         return (RexxArray *)this->sendMessage(OREF_REQUEST, OREF_ARRAYSYM); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/DirectoryClass.cpp:800     newDirectory->sendMessage(OREF_INIT, init_args, argCount); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ExceptionClass.cpp:111     newObj->sendMessage(OREF_INIT, args, argc); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/IdentityTableClass.cpp:83     newObj->sendMessage(OREF_INIT, args, argCount); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/IntegerClass.cpp:408   return this->stringValue()->sendMessage(msgname, arguments); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/IntegerClass.cpp:647       RexxObject *result = this->sendMessage(OREF_STRICT_EQUAL, other); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ListClass.cpp:362     this->behaviour->getOwningClass()->sendMessage(OREF_NEW, r); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ListClass.cpp:369         newList->sendMessage(OREF_INSERT, element->value); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ListClass.cpp:867         return(RexxArray *)this->sendMessage( OREF_REQUEST, OREF_ARRAYSYM); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ListClass.cpp:1236     newList->sendMessage(OREF_INIT, init_args, argCount); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ListClass.cpp:1271         this->sendMessage(OREF_NEW, p); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ListClass.cpp:1282             newList->sendMessage(OREF_INSERT, item); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/MessageClass.cpp:601         newMessage->sendMessage(OREF_INIT);/* call any rexx inits               */ 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/MethodClass.cpp:649     newMethod->sendMessage(OREF_INIT, init_args, initCount); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/MethodClass.cpp:672     newMethod->sendMessage(OREF_INIT); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/MutableBufferClass.cpp:122     newBuffer->sendMessage(OREF_INIT, args, argc > 2 ? argc - 2 : 0); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/NumberStringClass.cpp:2642     return this->stringValue()->sendMessage(msgname, arguments); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/NumberStringClass.cpp:2734         RexxObject *result = this->sendMessage(OREF_STRICT_EQUAL, other); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:146         this->sendMessage(OREF_STRICT_EQUAL, other, result); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:194     sendMessage(OREF_COMPARETO, other, result); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:388         this->sendMessage(OREF_HASHCODE, result); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:612 RexxObject *RexxObject::sendMessage(RexxString *message, RexxArray *args) 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:615     this->sendMessage(message, args, r); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:619 RexxObject *RexxObject::sendMessage(RexxString *message) 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:622     this->sendMessage(message, r); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:626 RexxObject *RexxObject::sendMessage(RexxString *message, RexxObject **args, size_t argCount) 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:629     this->sendMessage(message, args, argCount, r); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:633 RexxObject *RexxObject::sendMessage(RexxString *message, RexxObject *argument1) 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:636     this->sendMessage(message, argument1, r); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:641 RexxObject *RexxObject::sendMessage(RexxString *message, RexxObject *argument1, RexxObject *argument2) 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:644     this->sendMessage(message, argument1, argument2, r); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:649 RexxObject *RexxObject::sendMessage(RexxString *message, RexxObject *argument1, RexxObject *argument2, RexxObject *argument3) 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:652     this->sendMessage(message, argument1, argument2, argument3, r); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:657 RexxObject *RexxObject::sendMessage(RexxString *message, RexxObject *argument1, RexxObject *argument2, RexxObject *argument3, RexxObject *argument4) 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:660     this->sendMessage(message, argument1, argument2, argument3, argument4, r); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:665 RexxObject *RexxObject::sendMessage(RexxString *message, RexxObject *argument1, RexxObject *argument2, RexxObject *argument3, RexxObject *argument4, RexxObject *argument5) 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:668     this->sendMessage(message, argument1, argument2, argument3, argument4, argument5, r); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:673 void RexxObject::sendMessage( 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:684 void RexxObject::sendMessage( 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:701 void RexxObject::sendMessage( 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:720 void RexxObject::sendMessage( 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:741 void RexxObject::sendMessage( 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:1053     return (RexxString *)this->sendMessage(OREF_OBJECTNAME); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:1090       return (RexxString *)this->sendMessage(OREF_REQUEST, OREF_STRINGSYM); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:1132       return (RexxArray *)this->sendMessage(OREF_REQUEST, OREF_ARRAYSYM); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:1162         this->sendMessage(OREF_REQUEST, OREF_STRINGSYM, string_value); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:1169             this->sendMessage(OREF_STRINGSYM, string_value); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:1221         this->sendMessage(OREF_REQUEST, OREF_STRINGSYM, string_value); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:1225             this->sendMessage(OREF_STRINGSYM, string_value); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:1247         string_value = this->sendMessage(OREF_REQUEST, OREF_STRINGSYM); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:1274         string_value = this->sendMessage(OREF_REQUEST, OREF_STRINGSYM); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:1302         return (RexxString *)this->sendMessage(OREF_REQUEST, OREF_STRINGSYM); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:1487       return (RexxArray *)this->sendMessage(OREF_REQUEST, OREF_ARRAYSYM); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:1510             this->sendMessage(OREF_DEFAULTNAME, string_value); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:1670         return this->sendMessage(make_method); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:2311       this->sendMessage(OREF_UNINIT); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:2458     ((RexxObject *)newObject)->sendMessage(OREF_INIT, args, argCount); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.hpp:439      void         sendMessage(RexxString *, RexxArray *, ProtectedObject &); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.hpp:440      inline void  sendMessage(RexxString *message, ProtectedObject &result) { this->messageSend(message, OREF_NULL, 0, result); }; 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.hpp:441      inline void  sendMessage(RexxString *message, RexxObject **args, size_t argCount, ProtectedObject &result) { this->messageSend(message, args, argCount, result); }; 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.hpp:442      inline void  sendMessage(RexxString *message, RexxObject *argument1, ProtectedObject &result) 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.hpp:444      void         sendMessage(RexxString *, RexxObject *, RexxObject *, ProtectedObject &); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.hpp:445      void         sendMessage(RexxString *, RexxObject *, RexxObject *, RexxObject *, ProtectedObject &); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.hpp:446      void         sendMessage(RexxString *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, ProtectedObject &); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.hpp:447      void         sendMessage(RexxString *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, ProtectedObject&); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.hpp:449      RexxObject  *sendMessage(RexxString *, RexxArray *); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.hpp:450      RexxObject  *sendMessage(RexxString *message); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.hpp:451      RexxObject  *sendMessage(RexxString *message, RexxObject **args, size_t argCount); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.hpp:452      RexxObject  *sendMessage(RexxString *message, RexxObject *argument1); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.hpp:453      RexxObject  *sendMessage(RexxString *, RexxObject *, RexxObject *); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.hpp:454      RexxObject  *sendMessage(RexxString *, RexxObject *, RexxObject *, RexxObject *); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.hpp:455      RexxObject  *sendMessage(RexxString *, RexxObject *, RexxObject *, RexxObject *, RexxObject *); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.hpp:456      RexxObject  *sendMessage(RexxString *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/PackageClass.cpp:586     package->sendMessage(OREF_INIT, init_args, initCount); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/QueueClass.cpp:567     this->behaviour->getOwningClass()->sendMessage(OREF_NEW, r); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/QueueClass.cpp:574         newQueue->sendMessage(OREF_INSERT, element->value); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/QueueClass.cpp:600     newObj->sendMessage(OREF_INIT, init_args, argCount); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/QueueClass.cpp:639         this->sendMessage(OREF_NEW, result); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/QueueClass.cpp:650             newQueue->sendMessage(OREF_QUEUENAME, item); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/RelationClass.cpp:242     newObj->sendMessage(OREF_INIT, init_args, argCount); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/RoutineClass.cpp:614     newRoutine->sendMessage(OREF_INIT, init_args, initCount); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/RoutineClass.cpp:638   newMethod->sendMessage(OREF_INIT); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StemClass.cpp:203     return this->value->sendMessage(msgname, arguments); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StemClass.cpp:497             this->sendMessage(OREF_MAKEARRAY, result); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StemClass.cpp:502     this->value->sendMessage(OREF_REQUEST, makeclass, result); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StemClass.cpp:527     newObj->sendMessage(OREF_INIT, init_args, argCount); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:82         RexxObject *result = this->sendMessage(OREF_STRICT_EQUAL); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:500         RexxObject *result = this->sendMessage(OREF_STRICT_EQUAL, otherObj); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:2395     string->sendMessage(OREF_INIT, init_args, argCount); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/SupplierClass.cpp:260     newObj->sendMessage(OREF_INIT, init_args, argCount); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/TableClass.cpp:143         return(RexxArray *)this->sendMessage(OREF_REQUEST, OREF_ARRAYSYM); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/TableClass.cpp:203     newObj->sendMessage(OREF_INIT, args, argCount); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/WeakReferenceClass.cpp:210   newObj->sendMessage(OREF_INIT, init_args, argCount); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/concurrency/MessageDispatcher.cpp:53     message->sendMessage(OREF_SEND); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/concurrency/RexxActivity.cpp:2916             stream->sendMessage(OREF_LINEOUT, (RexxString*)p_line); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/concurrency/RexxActivity.cpp:2941             stream->sendMessage(OREF_SAY, line); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/concurrency/RexxActivity.cpp:2966             value = (RexxString *)stream->sendMessage(OREF_LINEIN); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/concurrency/RexxActivity.cpp:2998             value = (RexxString *)stream->sendMessage(OREF_PULL); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/concurrency/RexxActivity.cpp:3041             value = (RexxString *)stream->sendMessage(OREF_LINEIN); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/concurrency/RexxActivity.cpp:3076                 targetQueue->sendMessage(OREF_PUSH, (RexxObject *)line); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/concurrency/RexxActivity.cpp:3082                 targetQueue->sendMessage(OREF_QUEUENAME, (RexxObject *)line); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/execution/RexxActivation.cpp:1781             stream = streamClass->sendMessage(OREF_NEW, name); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/execution/RexxActivation.cpp:4209                 streams->at(index)->sendMessage(OREF_CLOSE); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/execution/RexxActivation.cpp:4227         return novalue_handler->sendMessage(OREF_NOVALUE, name); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/execution/SecurityManager.cpp:142     RexxObject *resultObj = manager->sendMessage(methodName, arguments); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:1904             return stream->sendMessage(OREF_LINEIN); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:1917                 return stream->sendMessage(OREF_LINEIN); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:1920                 return stream->sendMessage(OREF_LINEIN, line); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:1923                 return stream->sendMessage(OREF_LINEIN, line, count); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:1958             return stream->sendMessage(OREF_CHARIN); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:1961             return stream->sendMessage(OREF_CHARIN, position); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:1964             return stream->sendMessage(OREF_CHARIN, position, count); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:1995                 return stream->sendMessage(OREF_QUEUENAME, string); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:2014                 return stream->sendMessage(OREF_LINEOUT); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:2017                 return stream->sendMessage(OREF_LINEOUT, string); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:2020                 return stream->sendMessage(OREF_LINEOUT, string, line); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:2055             return stream->sendMessage(OREF_CHAROUT); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:2058             return stream->sendMessage(OREF_CHAROUT, string); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:2061             return stream->sendMessage(OREF_CHAROUT, string, position); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:2106         result = stream->sendMessage(OREF_QUEUED); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:2115         result = stream->sendMessage(OREF_LINES, option); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:2151     return stream->sendMessage(OREF_CHARS); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:2203                 return stream->sendMessage(OREF_STATE); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:2216                 return stream->sendMessage(OREF_DESCRIPTION); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:2242                     RexxString *result = (RexxString *)stream->sendMessage(OREF_COMMAND, command); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:2255                     RexxString *result = (RexxString *)stream->sendMessage(OREF_COMMAND, command); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:2267                     RexxString *result = (RexxString *)stream->sendMessage(OREF_COMMAND, command); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:2273                     return stream->sendMessage(OREF_COMMAND, command); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:2299         return queue->sendMessage(OREF_QUEUED); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/instructions/ClassDirective.cpp:211             classObject->sendMessage(OREF_INHERIT, mixin); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/instructions/ExtensionDirective.cpp:169             classObject->sendMessage(OREF_INHERIT, mixin); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/parser/SourceFile.cpp:1903             clz->sendMessage(OREF_ACTIVATE); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/runtime/Interpreter.cpp:555     return(RexxString *)queue->sendMessage(OREF_GET); 
+(The NIL object) : 159

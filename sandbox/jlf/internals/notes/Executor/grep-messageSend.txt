@@ -1,0 +1,50 @@
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/MessageClass.cpp:290         this->receiver->messageSend(this->message, (RexxObject **)this->args->data(), this->args->size(), this->startscope, p); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/MessageClass.cpp:294         this->receiver->messageSend(this->message, (RexxObject **)this->args->data(), this->args->size(), p); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/NumberStringClass.cpp:3078             bool alternativeResult = right->messageSend(OREF_PLUS_RIGHT, &self, 1, result, false); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/NumberStringClass.cpp:3119             bool alternativeResult = right->messageSend(OREF_SUBTRACT_RIGHT, &self, 1, result, false); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/NumberStringClass.cpp:3151         bool alternativeResult = right->messageSend(OREF_MULTIPLY_RIGHT, &self, 1, result, false); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/NumberStringClass.cpp:3174         bool alternativeResult = right->messageSend(OREF_DIVIDE_RIGHT, &self, 1, result, false); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/NumberStringClass.cpp:3197         bool alternativeResult = right->messageSend(OREF_INTDIV_RIGHT, &self, 1, result, false); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/NumberStringClass.cpp:3221         bool alternativeResult = right->messageSend(OREF_REMAINDER_RIGHT, &self, 1, result, false); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/NumberStringMath2.cpp:705         bool alternativeResult = PowerObj->messageSend(OREF_POWER_RIGHT, &self, 1, result, false); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:681     this->messageSend(message, arguments->data(), arguments->size(), result); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:698   this->messageSend(message, arguments, 2, result); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:717   this->messageSend(message, arguments, 3, result); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:738   this->messageSend(message, arguments, 4, result); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:761   this->messageSend(message, arguments, 5, result); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:764 bool RexxObject::messageSend( 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:808 bool RexxObject::messageSend( 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:1702         this->messageSend(messageName, arguments->data(), arguments->size(), r); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:1706         this->messageSend(messageName, arguments->data(), arguments->size(), startScope, r); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:1740         this->messageSend(messageName, arguments + 1, argCount - 1, r); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:1744         this->messageSend(messageName, arguments + 1, argCount - 1, startScope, r); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:2362     this->messageSend(OREF_##message, &operand, 1, result);                      \ 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:2366         bool alternativeResult = operand->messageSend(OREF_##message##_RIGHT, &self, 1, result, false); \ 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:2380     this->messageSend(OREF_##message, &operand, operand == OREF_NULL ? 0 : 1, result); \ 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:2386             bool alternativeResult = operand->messageSend(OREF_##message##_RIGHT, &self, 1, result, false); \ 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.hpp:434      bool         messageSend(RexxString *, RexxObject **, size_t, ProtectedObject &, bool processUnknown=true); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.hpp:435      bool         messageSend(RexxString *, RexxObject **, size_t, RexxObject *, ProtectedObject &, bool processUnknown=true); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.hpp:440      inline void  sendMessage(RexxString *message, ProtectedObject &result) { this->messageSend(message, OREF_NULL, 0, result); }; 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.hpp:441      inline void  sendMessage(RexxString *message, RexxObject **args, size_t argCount, ProtectedObject &result) { this->messageSend(message, args, argCount, result); }; 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.hpp:443          { this->messageSend(message, &argument1, 1, result); } 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:768         bool alternativeResult = right_term->messageSend(OREF_PLUS_RIGHT, &self, 1, result, false); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:790         bool alternativeResult = right_term->messageSend(OREF_SUBTRACT_RIGHT, &self, 1, result, false); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:812         bool alternativeResult = right_term->messageSend(OREF_MULTIPLY_RIGHT, &self, 1, result, false); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:834         bool alternativeResult = right_term->messageSend(OREF_DIVIDE_RIGHT, &self, 1, result, false); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:856         bool alternativeResult = right_term->messageSend(OREF_INTDIV_RIGHT, &self, 1, result, false); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:878         bool alternativeResult = right_term->messageSend(OREF_REMAINDER_RIGHT, &self, 1, result, false); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:900         bool alternativeResult = right_term->messageSend(OREF_POWER_RIGHT, &self, 1, result, false); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:1311         bool alternativeResult = otherObj->messageSend(OREF_CONCATENATE_RIGHT, &self, 1, result, false); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:1450         bool alternativeResult = otherObj->messageSend(OREF_BLANK_RIGHT, &self, 1, result, false); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/concurrency/ActivityManager.hpp:262 /* Function:  Return name of last message sent via messageSend()              */ 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/execution/RexxActivation.cpp:1298             target->messageSend(message, _arguments, _argcount, r); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/execution/RexxActivation.cpp:1303             target->messageSend(message, _arguments, _argcount, superClass, r); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/execution/RexxActivation.cpp:1328             target->messageSend(message, _arguments, _argcount, r); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/execution/RexxActivation.cpp:1333             target->messageSend(message, _arguments, _argcount, superClass, r); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/execution/RexxNativeActivation.cpp:3269         to->messageSend(msg, args->data(), args->size(), _result); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/execution/RexxNativeActivation.cpp:3273         to->messageSend(msg, args->data(), args->size(), super, _result); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/ExpressionStack.hpp:72                  (*(this->top - count))->messageSend(message, (RexxObject **)(this->top - count + 1), count, scope, result); }; 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/expression/ExpressionStack.hpp:74                  (*(this->top - count))->messageSend(message, (RexxObject **)(this->top -count + 1), count, result); }; 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/runtime/Interpreter.cpp:155                 server_class->messageSend(OREF_NEW, OREF_NULL, 0, result); 
+/Local/rexx/oorexx/git-executor/sandbox/jlf/trunk/interpreter/runtime/Interpreter.cpp:175         localServer->messageSend(OREF_INITINSTANCE, OREF_NULL, 0, result); 
+(The NIL object) : 49
