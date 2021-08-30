@@ -1,3 +1,433 @@
+
+
+
+
+
+
+
+                    ******************************************
+                    * START OF NOTES ABOUT CONCURRENCY TRACE *
+                    ******************************************
+
+
+
+
+
+
+
+
+
+
+
+===============================================================================
+2021 aug 28
+
+Current implementation:
+    static std::atomic<uint32_t> atomic_counter(0);
+
+    uint32_t InterpreterInstance::getIdntfr()
+    {
+        if (idntfr == 0) idntfr = ++atomic_counter;
+        return idntfr;
+    }
+
+
+https://www.cplusplus.com/reference/atomic/atomic/operatorplusplus/
+No data races (atomic operation). The operation uses sequential consistency (memory_order_seq_cst).
+
+
+https://stackoverflow.com/questions/41206861/atomic-increment-and-return-counter
+Doing return ++id works, but is equivalent to return id.fetch_add(1) + 1; which
+uses the slow default sequentially-consistent memory order. This is not required
+here, in fact you can do with a relaxed memory order.
+If you really mean to use a global variable for the atomic, the correct (and fastest)
+code that does what your first code block attempts is:
+    int create_id() {
+        static std::atomic<int> id{0};
+        return id.fetch_add(1, std::memory_order_relaxed) + 1;
+    }
+
+
+Wondering if the atomic counters have an impact on the concurrency trace.
+Added temporarilly support for "on" and "on+" (not committed)
+- When "on", use non atomic counters
+- When "on+", use atomic counters
+Code review (MacOs) to understand how std::atomic works.
+
+
+Remember!
+https://hackmd.io/@paolieri/x86_64
+When we operate on just a portion of the register, the rest doesn’t change
+(e.g., movw %ax, %bx moves data only into the least significant 2 bytes of %rbx).
+An important exception is that of instructions that end with the l suffix:
+they operate on the least significant 4 bytes but also set the most significant
+4 bytes to 0. For example, movl %eax, %ebx moves the least significant 4 bytes
+of %rax into the least significant 4 bytes of %rbx but also sets the rest of %rbx to 0.
+
+
+void GetConcurrencyInfos(Activity *activity, RexxActivation *activation, ConcurrencyInfos &infos)
+{
+    InterpreterInstance *interpreter = (activity ? activity->getInstance() : NULL);
+    VariableDictionary *variableDictionary = (activation ? activation->getVariableDictionary() : NULL);
+
+    bool atomic = interpreter ? interpreter->concurrencyTraceAtomicCounters() : false;
+    /* R */ infos.interpreter = interpreter ? interpreter->getIdntfr(atomic) : 0;
+    /* T */ infos.activity = activity ? activity->getIdntfr(atomic) : 0;
+    /* A */ infos.activation = activation ? activation->getIdntfr(atomic) : 0;
+    /* V */ infos.variableDictionary = variableDictionary ? variableDictionary->getIdntfr(atomic) : 0;
+    /* n */ infos.reserveCount = activation ? activation-> getReserveCount() : 0;
+    /* * */ infos.lock = (activation && activation->isObjectScopeLocked()) ? '*' : ' ';
+}
+
+librexx.4.dylib`GetConcurrencyInfos:
+        0x1003e8560 <+0>:   pushq  %rbp
+        0x1003e8561 <+1>:   movq   %rsp, %rbp
+
+        0x1003e8564 <+4>:   subq   $0x60, %rsp
+        0x1003e8568 <+8>:   movq   %rdi, -0x8(%rbp)     rdi --> activity
+        0x1003e856c <+12>:  movq   %rsi, -0x10(%rbp)    rsi --> activation
+        0x1003e8570 <+16>:  movq   %rdx, -0x18(%rbp)    rdx --> &infos
+
+    InterpreterInstance *interpreter = (activity ? activity->getInstance() : NULL);
+
+        0x1003e8574 <+20>:  cmpq   $0x0, -0x8(%rbp)     0 == activity
+        0x1003e8579 <+25>:  je     0x1003e8591               ; <+49> at Activity.cpp
+        ---
+        0x1003e857f <+31>:  movq   -0x8(%rbp), %rdi     activity --> rdi
+        0x1003e8583 <+35>:  callq  0x10046a2d4               ; symbol stub for: Activity::getInstance()
+        0x1003e8588 <+40>:  movq   %rax, -0x38(%rbp)    rax --> interpreter (tmp)
+        0x1003e858c <+44>:  jmp    0x1003e859e               ; <+62> at Activity.cpp:3076
+        ---
+        0x1003e8591 <+49>:  xorl   %eax, %eax           eax <-- 0
+        0x1003e8593 <+51>:  movl   %eax, %ecx
+        0x1003e8595 <+53>:  movq   %rcx, -0x38(%rbp)    rcx --> interpreter (tmp)
+        0x1003e8599 <+57>:  jmp    0x1003e859e               ; <+62> at Activity.cpp:3076
+        ---
+        0x1003e859e <+62>:  movq   -0x38(%rbp), %rax    interpreter (tmp) --> rax
+        0x1003e85a2 <+66>:  movq   %rax, -0x20(%rbp)    rax --> interpreter
+
+    VariableDictionary *variableDictionary = (activation ? activation->getVariableDictionary() : NULL);
+
+        0x1003e85a6 <+70>:  cmpq   $0x0, -0x10(%rbp)    0 == activation
+        0x1003e85ab <+75>:  je     0x1003e85c3               ; <+99> at Activity.cpp
+        ---
+        0x1003e85b1 <+81>:  movq   -0x10(%rbp), %rdi    activation --> rdi
+        0x1003e85b5 <+85>:  callq  0x10046936e               ; symbol stub for: RexxActivation::getVariableDictionary()
+        0x1003e85ba <+90>:  movq   %rax, -0x40(%rbp)    rax --> variableDictionnary (tmp)
+        0x1003e85be <+94>:  jmp    0x1003e85d0               ; <+112> at Activity.cpp:3077
+        ---
+        0x1003e85c3 <+99>:  xorl   %eax, %eax           eax <-- 0
+        0x1003e85c5 <+101>: movl   %eax, %ecx
+        0x1003e85c7 <+103>: movq   %rcx, -0x40(%rbp)    rcx --> variableDictionnary (tmp)
+        0x1003e85cb <+107>: jmp    0x1003e85d0               ; <+112> at Activity.cpp:3077
+        ---
+        0x1003e85d0 <+112>: movq   -0x40(%rbp), %rax    variableDictionnary (tmp) --> rax
+        0x1003e85d4 <+116>: movq   %rax, -0x28(%rbp)    rax --> variableDictionnary
+
+    bool atomic = interpreter ? interpreter->concurrencyTraceAtomicCounters() : false;
+
+        0x1003e85d8 <+120>: cmpq   $0x0, -0x20(%rbp)    0 == interpreter
+        0x1003e85dd <+125>: je     0x1003e85f4               ; <+148> at Activity.cpp
+        ---
+        0x1003e85e3 <+131>: movq   -0x20(%rbp), %rdi    interpreter --> rdi
+        0x1003e85e7 <+135>: callq  0x100469e36               ; symbol stub for: InterpreterInstance::concurrencyTraceAtomicCounters()
+        0x1003e85ec <+140>: movb   %al, -0x41(%rbp)     al --> atomic (tmp)
+        0x1003e85ef <+143>: jmp    0x1003e8600               ; <+160> at Activity.cpp:3079
+        ---
+        0x1003e85f4 <+148>: xorl   %eax, %eax           eax <-- 0
+        0x1003e85f6 <+150>: movb   %al, %cl
+        0x1003e85f8 <+152>: movb   %cl, -0x41(%rbp)     cl --> atomic (tmp)
+        0x1003e85fb <+155>: jmp    0x1003e8600               ; <+160> at Activity.cpp:3079
+        ---
+        0x1003e8600 <+160>: movb   -0x41(%rbp), %al     atomic (tmp) --> al
+        0x1003e8603 <+163>: andb   $0x1, %al
+        0x1003e8605 <+165>: movb   %al, -0x29(%rbp)     al --> atomic
+
+    /* R */ infos.interpreter = interpreter ? interpreter->getIdntfr(atomic) : 0;
+
+        0x1003e8608 <+168>: cmpq   $0x0, -0x20(%rbp)    0 == interpreter
+        0x1003e860d <+173>: je     0x1003e862c               ; <+204> at Activity.cpp
+        ---
+        0x1003e8613 <+179>: movq   -0x20(%rbp), %rdi    interpreter --> rdi
+        0x1003e8617 <+183>: movb   -0x29(%rbp), %al     atomic --> al
+        0x1003e861a <+186>: andb   $0x1, %al            keep only 1st bit
+        0x1003e861c <+188>: movzbl %al, %esi            atomic's 1st bit --> esi
+        0x1003e861f <+191>: callq  0x1004521c0               ; InterpreterInstance::getIdntfr at InterpreterInstance.cpp:62
+        0x1003e8624 <+196>: movl   %eax, -0x48(%rbp)    eax --> interpreter's idntfr (tmp)
+        0x1003e8627 <+199>: jmp    0x1003e8636               ; <+214> at Activity.cpp:3080
+        ---
+        0x1003e862c <+204>: xorl   %eax, %eax           eax <-- 0
+        0x1003e862e <+206>: movl   %eax, -0x48(%rbp)    eax --> interpreter's idntfr (tmp)
+        0x1003e8631 <+209>: jmp    0x1003e8636               ; <+214> at Activity.cpp:3080
+        ---
+        0x1003e8636 <+214>: movl   -0x48(%rbp), %eax    interpreter's idntfr (tmp) --> eax
+        0x1003e8639 <+217>: movq   -0x18(%rbp), %rcx    &infos --> rcx
+        0x1003e863d <+221>: movl   %eax, (%rcx)         eax --> infos.interpreter
+
+    /* T */ infos.activity = activity ? activity->getIdntfr(atomic) : 0;
+
+        0x1003e863f <+223>: cmpq   $0x0, -0x8(%rbp)     0 == activity
+        0x1003e8644 <+228>: je     0x1003e8663               ; <+259> at Activity.cpp
+        ---
+        0x1003e864a <+234>: movq   -0x8(%rbp), %rdi     activity --> rdi
+        0x1003e864e <+238>: movb   -0x29(%rbp), %al     atomic --> al
+        0x1003e8651 <+241>: andb   $0x1, %al            keep only 1st bit
+        0x1003e8653 <+243>: movzbl %al, %esi            atomic's 1st bit --> esi
+        0x1003e8656 <+246>: callq  0x1003e1750               ; Activity::getIdntfr at Activity.cpp:96
+        0x1003e865b <+251>: movl   %eax, -0x4c(%rbp)    eax --> activity's idntfr (tmp)
+        0x1003e865e <+254>: jmp    0x1003e866d               ; <+269> at Activity.cpp:3081
+        ---
+        0x1003e8663 <+259>: xorl   %eax, %eax           eax <-- 0
+        0x1003e8665 <+261>: movl   %eax, -0x4c(%rbp)    eax --> activity's idntfr (tmp)
+        0x1003e8668 <+264>: jmp    0x1003e866d               ; <+269> at Activity.cpp:3081
+        0x1003e866d <+269>: movl   -0x4c(%rbp), %eax    activity's idntfr (tmp) --> eax
+        0x1003e8670 <+272>: movq   -0x18(%rbp), %rcx    &infos --> rcx
+        0x1003e8674 <+276>: movl   %eax, 0x4(%rcx)      eax --> infos.activity
+
+    /* A */ infos.activation = activation ? activation->getIdntfr(atomic) : 0;
+
+        0x1003e8677 <+279>: cmpq   $0x0, -0x10(%rbp)    0 == activation
+        0x1003e867c <+284>: je     0x1003e869b               ; <+315> at Activity.cpp
+        ---
+        0x1003e8682 <+290>: movq   -0x10(%rbp), %rdi    activation --> rdi
+        0x1003e8686 <+294>: movb   -0x29(%rbp), %al     atomic --> al
+        0x1003e8689 <+297>: andb   $0x1, %al            keep only 1st bit
+        0x1003e868b <+299>: movzbl %al, %esi            atomic's 1st bit --> esi
+        0x1003e868e <+302>: callq  0x1003909b0               ; RexxActivation::getIdntfr at RexxActivation.cpp:93
+        0x1003e8693 <+307>: movl   %eax, -0x50(%rbp)    eax --> activation's idntfr (tmp)
+        0x1003e8696 <+310>: jmp    0x1003e86a5               ; <+325> at Activity.cpp:3082
+        ---
+        0x1003e869b <+315>: xorl   %eax, %eax           eax <-- 0
+        0x1003e869d <+317>: movl   %eax, -0x50(%rbp)    eax --> activation's idntfr (tmp)
+        0x1003e86a0 <+320>: jmp    0x1003e86a5               ; <+325> at Activity.cpp:3082
+        ---
+        0x1003e86a5 <+325>: movl   -0x50(%rbp), %eax    activation's idntfr (tmp) --> eax
+        0x1003e86a8 <+328>: movq   -0x18(%rbp), %rcx    &infos --> rcx
+        0x1003e86ac <+332>: movl   %eax, 0x8(%rcx)      eax --> infos.activation
+
+    /* V */ infos.variableDictionary = variableDictionary ? variableDictionary->getIdntfr(atomic) : 0;
+
+        0x1003e86af <+335>: cmpq   $0x0, -0x28(%rbp)
+        0x1003e86b4 <+340>: je     0x1003e86d3               ; <+371> at Activity.cpp
+        0x1003e86ba <+346>: movq   -0x28(%rbp), %rdi
+        0x1003e86be <+350>: movb   -0x29(%rbp), %al
+        0x1003e86c1 <+353>: andb   $0x1, %al
+        0x1003e86c3 <+355>: movzbl %al, %esi
+        0x1003e86c6 <+358>: callq  0x1003ab380               ; VariableDictionary::getIdntfr at VariableDictionary.cpp:73
+        0x1003e86cb <+363>: movl   %eax, -0x54(%rbp)
+        0x1003e86ce <+366>: jmp    0x1003e86dd               ; <+381> at Activity.cpp:3083
+        0x1003e86d3 <+371>: xorl   %eax, %eax
+        0x1003e86d5 <+373>: movl   %eax, -0x54(%rbp)
+        0x1003e86d8 <+376>: jmp    0x1003e86dd               ; <+381> at Activity.cpp:3083
+        0x1003e86dd <+381>: movl   -0x54(%rbp), %eax
+        0x1003e86e0 <+384>: movq   -0x18(%rbp), %rcx
+        0x1003e86e4 <+388>: movl   %eax, 0xc(%rcx)
+
+    /* n */ infos.reserveCount = activation ? activation-> getReserveCount() : 0;
+
+        0x1003e86e7 <+391>: cmpq   $0x0, -0x10(%rbp)
+        0x1003e86ec <+396>: je     0x1003e8706               ; <+422> at Activity.cpp
+        0x1003e86f2 <+402>: movq   -0x10(%rbp), %rdi
+        0x1003e86f6 <+406>: callq  0x10046923c               ; symbol stub for: RexxActivation::getReserveCount()
+        0x1003e86fb <+411>: movzwl %ax, %ecx
+        0x1003e86fe <+414>: movl   %ecx, -0x58(%rbp)
+        0x1003e8701 <+417>: jmp    0x1003e8710               ; <+432> at Activity.cpp:3084
+        0x1003e8706 <+422>: xorl   %eax, %eax
+        0x1003e8708 <+424>: movl   %eax, -0x58(%rbp)
+        0x1003e870b <+427>: jmp    0x1003e8710               ; <+432> at Activity.cpp:3084
+        0x1003e8710 <+432>: movl   -0x58(%rbp), %eax
+        0x1003e8713 <+435>: xorl   %ecx, %ecx
+        0x1003e8715 <+437>: movb   %cl, %dl
+        0x1003e8717 <+439>: movw   %ax, %si
+        0x1003e871a <+442>: movq   -0x18(%rbp), %rdi
+        0x1003e871e <+446>: movw   %si, 0x10(%rdi)
+
+    /* * */ infos.lock = (activation && activation->isObjectScopeLocked()) ? '*' : ' ';
+
+        0x1003e8722 <+450>: cmpq   $0x0, -0x10(%rbp)
+        0x1003e8727 <+455>: movb   %dl, -0x59(%rbp)
+        0x1003e872a <+458>: je     0x1003e873c               ; <+476> at Activity.cpp
+        0x1003e8730 <+464>: movq   -0x10(%rbp), %rdi
+        0x1003e8734 <+468>: callq  0x1004692f0               ; symbol stub for: RexxActivation::isObjectScopeLocked()
+        0x1003e8739 <+473>: movb   %al, -0x59(%rbp)
+        0x1003e873c <+476>: movb   -0x59(%rbp), %al
+        0x1003e873f <+479>: movb   $0x2a, %cl           '*' --> cl
+        0x1003e8741 <+481>: movb   $0x20, %dl           ' ' --> dl
+        0x1003e8743 <+483>: testb  $0x1, %al
+        0x1003e8745 <+485>: movb   %dl, -0x5a(%rbp)     ' ' --> tmp1
+        0x1003e8748 <+488>: movb   %cl, -0x5b(%rbp)     '*' --> tmp2
+        0x1003e874b <+491>: jne    0x1003e8757          if isObjectScopeLocked returned true then store '*'
+        ---
+        0x1003e8751 <+497>: movb   -0x5a(%rbp), %al     ' ' --> al
+        0x1003e8754 <+500>: movb   %al, -0x5b(%rbp)     ' ' --> tmp2
+        ---
+        0x1003e8757 <+503>: movb   -0x5b(%rbp), %al     '*' or ' ' --> al
+        0x1003e875a <+506>: movq   -0x18(%rbp), %rcx    &infos --> rcx
+        0x1003e875e <+510>: movb   %al, 0x12(%rcx)      al --> infos.lock
+
+        0x1003e8761 <+513>: addq   $0x60, %rsp
+        0x1003e8765 <+517>: popq   %rbp
+        0x1003e8766 <+518>: retq
+
+
+// to generate idntfr for concurrency trace
+static std::atomic<uint32_t> atomic_counter(0);
+static uint32_t counter = 0;
+
+uint32_t InterpreterInstance::getIdntfr(bool atomic)
+{
+    if (idntfr == 0) idntfr = atomic ? ++atomic_counter : ++counter;
+    return idntfr;
+}
+
+librexx.4.dylib`InterpreterInstance::getIdntfr:
+        0x1004521c0 <+0>:   pushq  %rbp
+        0x1004521c1 <+1>:   movq   %rsp, %rbp
+
+-0x8(%rbp)  q   &atomic_counter
+-0xc(%rbp)  l   tmp1
+-0x10(%rbp) l   tmp2
+-0x14(%rbp) l   tmp3
+-0x18(%rbp) l   tmp4
+-0x20(%rbp) q   tmp5
+-0x28(%rbp) q   this (implicit arg)
+-0x29(%rbp) b   atomic's 1st bit (tmp)
+nothing beetween ?
+-0x38(%rbp) q   this
+-0x40(%rbp) q   tmp6
+-0x48(%rbp) q   tmp7
+-0x4c(%rbp) l   tmp8
+-0x50(%rbp) l   tmp9
+
+        0x1004521c4 <+4>:   movb   %sil, %al            atomic (arg)
+        0x1004521c7 <+7>:   movq   %rdi, -0x28(%rbp)    rdi --> this (implicit arg)
+
+        0x1004521cb <+11>:  andb   $0x1, %al            keep 1st bit only
+        0x1004521cd <+13>:  movb   %al, -0x29(%rbp)     al --> atomic's 1st bit (tmp)
+        0x1004521d0 <+16>:  movq   -0x28(%rbp), %rdi    this (implicit arg) -> rdi
+        0x1004521d4 <+20>:  cmpl   $0x0, 0x80(%rdi)     0 == this->idntfr
+        0x1004521db <+27>:  movq   %rdi, -0x38(%rbp)    rdi --> this
+        0x1004521df <+31>:  jne    0x1004522d0          if 0 <> this->idntfr
+        ---
+        0x1004521e5 <+37>:  testb  $0x1, -0x29(%rbp)    true == atomic
+        0x1004521e9 <+41>:  je     0x1004522b1          if true <> atomic
+        -----------
+        case atomic
+        -----------
+        0x1004521ef <+47>:  leaq   0x6c16e(%rip), %rax       ; atomic_counter
+        0x1004521f6 <+54>:  movq   %rax, -0x20(%rbp)    rax --> tmp5
+        0x1004521fa <+58>:  movq   -0x20(%rbp), %rax    tmp5 --> rax
+        0x1004521fe <+62>:  movq   %rax, -0x8(%rbp)     rax --> &atomic_counter
+        0x100452202 <+66>:  movl   $0x1, -0xc(%rbp)     1 --> tmp1
+        0x100452209 <+73>:  movl   $0x5, -0x10(%rbp)    5 --> tmp2
+        0x100452210 <+80>:  movq   -0x8(%rbp), %rax     &atomic_counter --> rax
+        0x100452214 <+84>:  movl   -0x10(%rbp), %ecx    5 --> ecx
+        0x100452217 <+87>:  movl   -0xc(%rbp), %edx     1 --> edx
+        0x10045221a <+90>:  movl   %edx, -0x14(%rbp)    1 --> tmp3
+        0x10045221d <+93>:  decl   %ecx                 ecx <-- 4
+        0x10045221f <+95>:  movl   %ecx, %esi           esi <-- 4 (and so rsi <-- 4)
+        0x100452221 <+97>:  subl   $0x4, %ecx           ecx <-- 4-4 = 0
+        0x100452224 <+100>: movq   %rax, -0x40(%rbp)    &atomic_counter --> tmp6
+        0x100452228 <+104>: movq   %rsi, -0x48(%rbp)    tmp7 <-- 4
+        0x10045222c <+108>: movl   %ecx, -0x4c(%rbp)    tmp8 <-- 0
+        0x10045222f <+111>: ja     0x100452249          jmp if CF = 0 and ZF = 0
+        ---
+        THIS SECTION IS INCOMPREHENSIBLE
+        0x100452235 <+117>: leaq   0xa0(%rip), %rax     ??? rax <-- address of an array of 4-byte items ???
+        0x10045223c <+124>: movq   -0x48(%rbp), %rcx    rcx <-- 4
+        0x100452240 <+128>: movslq (%rax,%rcx,4), %rdx  move and sign-extend the value from the 32-bit memory address (%rax + 4 * %rcx) to the 64-bit destination %rdx.
+        0x100452244 <+132>: addq   %rax, %rdx
+        0x100452247 <+135>: jmpq   *%rdx
+        ---
+        0x100452249 <+137>: movl   -0x14(%rbp), %eax    eax <-- 1
+        0x10045224c <+140>: movq   -0x40(%rbp), %rcx    rcx <-- &atomic_counter
+        0x100452250 <+144>: lock
+        0x100452251 <+145>: xaddl  %eax, (%rcx)         eax <-- atomic_counter, atomic_counter += 1
+        0x100452254 <+148>: movl   %eax, -0x18(%rbp)    tmp4 <-- atomic_counter before += 1
+        0x100452257 <+151>: jmp    0x1004522a3               ; <+227> [inlined] std::__1::__atomic_base<unsigned int, true>::fetch_add(unsigned int, std::__1::memory_order) + 143 at atomic:1057
+        ---
+        0x10045225c <+156>: movl   -0x14(%rbp), %eax
+        0x10045225f <+159>: movq   -0x40(%rbp), %rcx
+        0x100452263 <+163>: lock
+        0x100452264 <+164>: xaddl  %eax, (%rcx)
+        0x100452267 <+167>: movl   %eax, -0x18(%rbp)
+        0x10045226a <+170>: jmp    0x1004522a3               ; <+227> [inlined] std::__1::__atomic_base<unsigned int, true>::fetch_add(unsigned int, std::__1::memory_order) + 143 at atomic:1057
+        ---
+        0x10045226f <+175>: movl   -0x14(%rbp), %eax
+        0x100452272 <+178>: movq   -0x40(%rbp), %rcx
+        0x100452276 <+182>: lock
+        0x100452277 <+183>: xaddl  %eax, (%rcx)
+        0x10045227a <+186>: movl   %eax, -0x18(%rbp)
+        0x10045227d <+189>: jmp    0x1004522a3               ; <+227> [inlined] std::__1::__atomic_base<unsigned int, true>::fetch_add(unsigned int, std::__1::memory_order) + 143 at atomic:1057
+        ---
+        0x100452282 <+194>: movl   -0x14(%rbp), %eax
+        0x100452285 <+197>: movq   -0x40(%rbp), %rcx
+        0x100452289 <+201>: lock
+        0x10045228a <+202>: xaddl  %eax, (%rcx)
+        0x10045228d <+205>: movl   %eax, -0x18(%rbp)
+        0x100452290 <+208>: jmp    0x1004522a3               ; <+227> [inlined] std::__1::__atomic_base<unsigned int, true>::fetch_add(unsigned int, std::__1::memory_order) + 143 at atomic:1057
+        --
+        0x100452295 <+213>: movl   -0x14(%rbp), %eax
+        0x100452298 <+216>: movq   -0x40(%rbp), %rcx
+        0x10045229c <+220>: lock
+        0x10045229d <+221>: xaddl  %eax, (%rcx)
+        0x1004522a0 <+224>: movl   %eax, -0x18(%rbp)
+        ---
+        0x1004522a3 <+227>: movl   -0x18(%rbp), %eax    eax <-- atomic_counter before += 1
+        0x1004522a6 <+230>: addl   $0x1, %eax           eax += 1 (now equal to atomic_counter)
+        0x1004522a9 <+233>: movl   %eax, -0x50(%rbp)    tmp9 <-- atomic_counter
+        0x1004522ac <+236>: jmp    0x1004522c3               ; <+259> at InterpreterInstance.cpp:63
+        -----------------
+        % case not atomic
+        -----------------
+        0x1004522b1 <+241>: movl   0x6c0a9(%rip), %eax       ; counter
+        0x1004522b7 <+247>: addl   $0x1, %eax           ++eax
+        0x1004522ba <+250>: movl   %eax, 0x6c0a0(%rip)       ; counter  note jlf: relative to RIP which changes at each instruction
+        0x1004522c0 <+256>: movl   %eax, -0x50(%rbp)
+        ----------------
+        ; here eax contains the updated counter (atomic or not)
+        ----------------
+        0x1004522c3 <+259>: movl   -0x50(%rbp), %eax    atomic_counter --> eax
+        0x1004522c6 <+262>: movq   -0x38(%rbp), %rcx    this --> rcx
+        0x1004522ca <+266>: movl   %eax, 0x80(%rcx)     eax --> this->idntfr
+
+    return idntfr;
+
+        0x1004522d0 <+272>: movq   -0x38(%rbp), %rax    this --> rax
+        0x1004522d4 <+276>: movl   0x80(%rax), %eax     this->idntfr --> eax (result)
+
+        0x1004522da <+282>: popq   %rbp
+        0x1004522db <+283>: retq
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    ****************************************
+                    * END OF NOTES ABOUT CONCURRENCY TRACE *
+                    ****************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 --------------------------------------------------------------------------------------------------------------
 
 RXTRACE
