@@ -17,6 +17,8 @@
 
 
 
+https://stackoverflow.com/questions/1759794/how-to-print-pthread-t
+https://whiteboardtalks.com/maximum-number-of-threads-linux-macos-outofmemory-unable-to-create-new-native-thread/
 
 
 ===============================================================================
