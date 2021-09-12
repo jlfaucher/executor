@@ -116,6 +116,9 @@ if condition <> .nil then do
 end
 signal finalize
 
+
+::requires "extension/stringChunk.cls"
+
 -------------------------------------------------------------------------------
 -- ::options trace i
 
@@ -1337,7 +1340,7 @@ Helpers
 
     signal on syntax name helpError -- trap the exceptions that could be raised by the query manager
 
-    queryManager = .QueryManager~new(queryFilter, .routines~entry("string2args"))
+    queryManager = .QueryManager~new(queryFilter, .context~package~findRoutine("stringChunks"))
     if debugQueryFilter then do
         queryManager~dump(self)
         return
@@ -1377,7 +1380,7 @@ Helpers
 
 ::method helpNoQueries class
     use strict arg interpreterContext, queryFilter, debugQueryFilter=.false -- queryFilter is the string after '?'
-    queryFilterArgs = string2args(queryFilter, .true) -- true: array of Argument
+    queryFilterArgs = stringChunks(queryFilter, .true) -- true: array of StringChunk
     if debugQueryFilter then do
         self~displayCollection(queryFilterArgs)
         return
@@ -1674,7 +1677,7 @@ Helpers
         self~securityManager~traceCommand = trace
         self~securityManager~verbose = .false
     end
-    do arg over string2args(rest)
+    do arg over stringChunks(rest)
         parse var arg word1 "." rest
         if "dispatchcommand"~caselessAbbrev(arg) then self~traceDispatchCommand = trace
         else if "filter"~caselessAbbrev(arg) then self~traceFilter = trace
@@ -1706,7 +1709,7 @@ Helpers
         self~trapNoValue = trap
         self~trapSyntax = trap
     end
-    do arg over string2args(rest)
+    do arg over stringChunks(rest)
         if "lostdigits"~caselessAbbrev(arg, 1) then self~trapLostdigits= trap
         else if "nomethod"~caselessAbbrev(arg, 3) then self~trapNoMethod = trap
         else if "nostring"~caselessAbbrev(arg, 3) then self~trapNoString = trap
@@ -1907,7 +1910,7 @@ Helpers
         if command~caselessPos("cd ") == 1 then return .array~of(address, command) -- change directory
         --if .RegularExpression~new("[:ALPHA:]:")~~match(command)~position == 2 & command~length == 2 then return .array~of(address, command) -- change drive
         if isDriveLetter(command) then return .array~of(address, command) -- change drive
-        args = string2args(command)
+        args = stringChunks(command)
         if .nil == args[1] then return .array~of(address, command)
         if args[1]~caselessEquals("cmd") then return .array~of(address, command) -- already prefixed by "cmd ..."
         if args[1]~caselessEquals("start") then return .array~of(address, command) -- already prefixed by "start ..."
@@ -2427,158 +2430,6 @@ The colors are managed with escape characters.
     expose direction
     use strict arg left, right
     return direction * sign(left~length - right~length)
-
-
--------------------------------------------------------------------------------
-::class Argument public
--------------------------------------------------------------------------------
-
-::attribute container           -- the string container from which the string value has been extracted
-::attribute containerEnd        -- index of last character in container
-::attribute containerStart      -- index of first character in container
-::attribute quotedFlags         -- string of booleans : "1" when the corresponding character in string is part of a chunk surrounded by quotes
-::attribute string              -- the string value of the argument (the quotes are removed)
-
-
-::method init
-    expose container containerEnd containerStart quotedFlags string
-    use strict arg string, quotedFlags="", container="", containerStart=0, containerEnd=0
-
-
-::method left
-    -- Extract a left substring while keeping the contextual informations
-    copy = self~copy
-    forward to(self~string) continue
-    copy~string = result
-    forward to(self~quotedFlags) continue
-    copy~quotedFlags = result
-    return copy
-
-
-::method right
-    -- Extract a right substring while keeping the contextual informations
-    copy = self~copy
-    forward to(self~string) continue
-    copy~string = result
-    forward to(self~quotedFlags) continue
-    copy~quotedFlags = result
-    return copy
-
-
-::method substr
-    -- Extract a substring while keeping the contextual informations
-    copy = self~copy
-    forward to(self~string) continue
-    copy~string = result
-    forward to(self~quotedFlags) continue
-    copy~quotedFlags = result
-    return copy
-
-
-::routine string2args public
-    -- Converts a string to an array of arguments.
-    -- Arguments are separated by whitespaces (anything <= 32) and can be quoted.
-    -- An argument can be made of several quoted chunks. Ex : aa"bb"cc"dd"ee
-    -- An unquoted chunk can be splitted in several parts, if it contains a break token.
-    -- If withInfos == .false then the result is an array of String.
-    -- If withInfos == .true then the result is an array of Argument.
-
-    -- Ex:
-    -- 11111111111111111111111111 222222222222222 333333333333333333333
-    -- "hello "John" how are you" good" bye "John "my name is ""BOND"""
-    -- 0000000001111111111222222222233333333334444444444555555555566666
-    -- 1234567890123456789012345678901234567890123456789012345678901234
-    -- arg1 = |hello John how are you|      containerStart = 01      containerEnd = 26      quotedFlags = 1111110000111111111111
-    -- arg2 = |good bye John|               containerStart = 28      containerEnd = 42      quotedFlags = 0000111110000
-    -- arg3 = |my name is "BOND"|           containerStart = 44      containerEnd = 64      quotedFlags = 11111111111111111
-
-    use strict arg string, withInfos=.false, breakTokens=""
-
-    breakTokens = breakTokens~subwords~sortWith(.LengthComparator~new("d")) -- sort descending, from longer to shorter
-    args = .Array~new
-    i = 1
-
-    loop label arguments
-        -- Skip whitespaces
-        loop
-            if i > string~length then return args
-            if string~subchar(i) > " " then leave
-            i += 1
-        end
-
-        current = .MutableBuffer~new
-        quotedFlags = .MutableBuffer~new
-        firstCharPosition = i
-        breakTokenLength = 0 -- will receive the length of the break token, if a break token starts at current position i.
-        loop label current_argument
-            c = string~subchar(i)
-            quote = ""
-            if c == '"' | c == "'" then quote = c
-            if quote <> "" then do
-                -- Chunk surrounded by quotes: whitespaces are kept, double occurrence of quotes are replaced by a single embedded quote, break tokens are ignored
-                loop label quoted_chunk
-                    i += 1
-                    if i > string~length then return args~~append(result())
-                    select
-                        when string~subchar(i) == quote & string~subchar(i+1) == quote then do
-                            current~append(quote)
-                            quotedFlags~append("1")
-                            i += 1
-                        end
-                        when string~subchar(i) == quote then do
-                            i += 1
-                            leave quoted_chunk
-                        end
-                        otherwise do
-                            current~append(string~subchar(i))
-                            quotedFlags~append("1")
-                        end
-                    end
-                end quoted_chunk
-            end
-            if breakTokenLength == 0 then breakTokenLength = breakTokenLength() -- check if we have a break token at current position i
-            if breakTokenLength <> 0 then do
-                if current~length <> 0 then args~append(result())
-                -- Now creates an Argument for the break token
-                current = string~substr(i, breakTokenLength)
-                quotedFlags = 0~copies(breakTokenLength) -- The break tokens are detected only in unquoted chunks
-                firstCharPosition = i
-                i += breakTokenLength
-                args~append(result())
-                leave current_argument
-            end
-            if string~subchar(i) <= " " then do
-                args~append(result())
-                leave current_argument
-            end
-            -- Chunk not surrounded by quotes: ends when a whitespace or quote or break token is reached
-            loop label unquoted_chunk
-                if i > string~length then return args~~append(result())
-                c = string~subchar(i)
-                breakTokenLength = breakTokenLength()
-                if c <= " " | c == '"' | c == "'" | breakTokenLength <> 0 then leave unquoted_chunk
-                current~append(c)
-                quotedFlags~append("0")
-                i += 1
-            end unquoted_chunk
-        end current_argument
-    end arguments
-    return args
-
-    breakTokenLength:
-        -- Assumption : the collection breakTokens is an ordered collection sorted from longest to shortest token
-        do breakToken over breakTokens
-            if string~substr(i, breakToken~length) == breakToken then return breakToken~length
-        end
-        return 0
-
-    result:
-        if withInfos then return .Argument~new(/*string*/         current~string,,
-                                               /*quotedFlags*/    quotedFlags~string,,
-                                               /*container*/      string,,
-                                               /*containerStart*/ firstCharPosition,,
-                                               /*containerEnd*/   i-1)
-        else return current~string
 
 
 -------------------------------------------------------------------------------

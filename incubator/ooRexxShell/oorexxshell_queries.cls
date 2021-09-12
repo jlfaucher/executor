@@ -12,6 +12,8 @@ loadPackage:
 
 ::requires "pipeline/pipe_extension.cls"
 ::requires "extension/extensions.cls" -- first need: ~quoted
+::requires "extension/stringChunk.cls"
+::requires "extension/stringChunkExtended.cls"
 --::options trace i
 
 -------------------------------------------------------------------------------
@@ -234,11 +236,11 @@ attribute traceFilter
 
 ::method displayClasses class
     -- All or specified classes (public & private) that are visible from current context, with their package
-    -- classnames is an array of Argument
+    -- classnames is an array of StringChunk
     use strict arg classnames, displayer, context
     matchers = .array~new
     do classname over classnames
-        matcher = pattern2matcher(classname, /*wholestring*/ .true, /*caseless*/ .true, displayer, "[object filter]")
+        matcher = classname~matcher(wholestring: .true, caseless: .true, trace: displayer~traceFilter, displayer: displayer, prefix: "[object filter]")
         matchers~append(matcher)
     end
     classInfos = .classInfo~collect(context, matchers)
@@ -257,11 +259,11 @@ attribute traceFilter
 
 ::method displayClassMethods class
     -- Display the methods of each specified class
-    -- classnames is an array of Argument
+    -- classnames is an array of StringChunk
     use strict arg classnames, inherited, displaySource, displayer, context, filteringStream
     matchers = .array~new
     do classname over classnames
-        matcher = pattern2matcher(classname, /*wholestring*/ .true, /*caseless*/ .true, displayer, "[object filter]")
+        matcher = classname~matcher(wholestring: .true, caseless: .true, trace: displayer~traceFilter, displayer: displayer, prefix: "[object filter]")
         matchers~append(matcher)
     end
     classInfos = .classInfo~collect(context) -- don't filter with matchers here, must have ALL the classes, to get the right package of inherited methods.
@@ -342,7 +344,7 @@ attribute traceFilter
 
 
 ::method displayHelp class
-    -- classnames is an array of Argument
+    -- classnames is an array of StringChunk
     use strict arg classnames, inherited, displayer, context
     if classnames~isEmpty then do
         if inherited then do
@@ -366,7 +368,7 @@ attribute traceFilter
     -- For each specified class, display the comment stored in the source of the method _description_, if any.
     matchers = .array~new
     do classname over classnames
-        matcher = pattern2matcher(classname, /*wholestring*/ .true, /*caseless*/ .true, displayer, "[object filter]")
+        matcher = classname~matcher(wholestring: .true, caseless: .true, trace: displayer~traceFilter, displayer: displayer, prefix: "[object filter]")
         matchers~append(matcher)
     end
     classInfos = .classInfo~collect(context, matchers)
@@ -416,11 +418,11 @@ attribute traceFilter
 
 ::method displayMethods class
     -- Display the defining classes of each specified method
-    -- methodnames is an array of Argument
+    -- methodnames is an array of StringChunk
     use strict arg methodnames, displaySource, displayer, context
     matchers = .array~new
     do methodname over methodnames
-        matcher = pattern2matcher(methodname, /*wholestring*/ .true, /*caseless*/ .true, displayer, "[object filter]")
+        matcher = methodname~matcher(wholestring: .true, caseless: .true, trace: displayer~traceFilter, displayer: displayer, prefix:"[object filter]")
         matchers~append(matcher)
     end
 
@@ -472,7 +474,7 @@ attribute traceFilter
     use strict arg packagenames, displaySource, displayer, context
     matchers = .array~new
     do packagename over packagenames
-        matcher = pattern2matcher(packagename, /*wholestring*/ .true, /*caseless*/ .true, displayer, "[object filter]")
+        matcher = packagename~matcher(wholestring: .true, caseless: .true, trace: displayer~traceFilter, displayer: displayer, prefix: "[object filter]")
         matchers~append(matcher)
     end
     context~package~pipe(,
@@ -496,11 +498,11 @@ attribute traceFilter
 
 ::method displayRoutines class
     -- All or specified routines (public & private) that are visible from current context, with their package
-    -- routinenames is an array of Argument
+    -- routinenames is an array of StringChunk
     use strict arg routinenames, displaySource, displayer, context
     matchers = .array~new
     do routinename over routinenames
-        matcher = pattern2matcher(routinename, /*wholestring*/ .true, /*caseless*/ .true, displayer, "[object filter]")
+        matcher = routinename~matcher(wholestring: .true, caseless: .true, trace: displayer~traceFilter, displayer: displayer, prefix: "[object filter]")
         matchers~append(matcher)
     end
     routineInfos = .routineInfo~collect(context, matchers)
@@ -555,20 +557,23 @@ attribute traceFilter
         say variablename "length:" variablevalue~length
     end
 
+-- Remember: to use | in a regular expression, you must surround it by quotes
+-- /"aaaa|bbbbb", /aaaa"|"bbbb
+-- BUT NOT "/aaaa|bbbb" because / is not recognized a prefix of regular expression
 ::constant separators ": ~ @ |"
 
 
-::attribute classRoutineFilters     -- array of Argument
-::attribute defaultEntityFilters    -- array of Argument
-::attribute methodFilters           -- array of Argument
-::attribute packageFilters          -- array of Argument
+::attribute classRoutineFilters     -- array of StringChunk
+::attribute defaultEntityFilters    -- array of StringChunk
+::attribute methodFilters           -- array of StringChunk
+::attribute packageFilters          -- array of StringChunk
 ::attribute query                   -- string : the first token of the whole string. For example : "classes", "methods", "packages" etc... see dispatchHelp
-::attribute queryFilterArgs         -- array of Argument : the whole string splitted in Arguments
-::attribute streamFilters           -- array of Argument
+::attribute queryFilterArgs         -- array of StringChunk : the whole string splitted in StringChunks
+::attribute streamFilters           -- array of StringChunk
 
 
 ::method init
-    use strict arg queryFilter, string2args
+    use strict arg queryFilter, routine_stringChunks
     /*
     queryFilter is a string like "QueryWord PackageFilters : ClassRoutineFilters ~ MethodFilters | StreamFilter"
     where :
@@ -600,7 +605,7 @@ attribute traceFilter
 
     separatorsAlreadySeen = .set~new
 
-    self~queryFilterArgs = string2args~call(queryFilter, /*withInfos*/ .true, /*breakTokens*/ .Filter~operators .QueryManager~separators)
+    self~queryFilterArgs = routine_stringChunks~call(queryFilter, /*withInfos*/ .true, /*breakTokens*/ .Filter~operators .QueryManager~separators)
     do arg over self~queryFilterArgs
         if self~query == .nil then self~query = arg -- the first arg is the query
         else do
@@ -705,7 +710,7 @@ attribute traceFilter
 ::method parse class
     -- "=something"     not recognized as filter operator, because is quoted
     -- =something       recognized as filter operator
-    -- arg is an Argument
+    -- arg is an StringChunk
     use strict arg arg
     if operator("\==", self~StrictDifferent) then return filter
     if operator("==", self~StrictEqual) then return filter
@@ -736,7 +741,7 @@ attribute traceFilter
 -------------------------------------------------------------------------------
 
 ::method firstFilterIndex class
-    -- args is an array of Argument
+    -- args is an array of StringChunk
     use strict arg args
     index = 0
     do arg over args
@@ -762,7 +767,7 @@ attribute traceFilter
     -- "<> value1 value2 = value3 value4" -- (<> value1 AND <> value2) AND (= value3 OR = value4)
     -- A value can be a string surrounded by quotes
 
-    -- filters is an array of Argument
+    -- filters is an array of StringChunk
     use strict arg filters
     self~strictExclude = .array~new
     self~strictInclude = .array~new
@@ -773,8 +778,10 @@ attribute traceFilter
         filter = .Filter~parse(filter)
         if filter~operator <> 0 then currentOperator = filter~operator
         if filter~argument~string <> "" then do
-            matcherCaselessInclude = pattern2matcher(filter~argument, /*wholestring*/ .false, /*caseless*/ .true)
-            matcherStrictInclude = pattern2matcher(filter~argument, /*wholestring*/ .false, /*caseless*/ .false)
+            -- Remember: don't pass trace: from here, it's too early
+            -- The trace will be done by .Filtering~traceFilter
+            matcherCaselessInclude = filter~argument~matcher(wholestring: .false, caseless: .true)
+            matcherStrictInclude = filter~argument~matcher(wholestring: .false, caseless: .false)
 
             if currentOperator == .filter~StrictDifferent then self~strictExclude~append(matcherStrictInclude) -- will negate the result
             else if currentOperator == .filter~StrictEqual then self~strictInclude~append(matcherStrictInclude)
@@ -851,7 +858,7 @@ attribute traceFilter
 
 
 ::method init
-    -- filters is an array of Argument
+    -- filters is an array of StringChunk
     use strict arg destination, filters
     self~init:super(filters)
     self~interceptedDestination = destination
@@ -916,132 +923,3 @@ attribute traceFilter
         forward to (self~interceptedDestination)
     end
     return 0
-
-
---------------------------------------------------------------------------------
--- Helpers
---------------------------------------------------------------------------------
-
-::routine pattern2matcher public
-    -- Pattern matching by equality (whole) or by inclusion (not whole), caseless or not.
-    -- If the package regex.cls is loaded, then the pattern can be a regular expression prefixed by "/".
-    -- When whole, and the pattern is not a regular expression, then the charecter "*" is recognized as a generic character when first or last character.
-    -- When not whole, and the pattern is not a regular expression, then the character "^" is recognized as the metacharacter 'begining of string' when first character.
-    -- When not whole, and the pattern is not a regular expression, then the character "$" is recognized as the metacharacter 'end of string' when last character.
-    -- The returned result is a block (matcher) which implements the pattern matching, or .nil if error.
-    -- The pattern matching is tested when the block is evaluated with a string passed as argument.
-    -- Examples:
-
-    --   matcher = pattern2matcher("object") -- caseless equality
-    --   matcher~("ObjeCt") -- true
-    --   matcher~("my ObjeCt") -- false
-
-    --   matcher = pattern2matcher("*object") -- caseless equality with generic character
-    --   matcher~("ObjeCt") -- true
-    --   matcher~("my ObjeCt") -- true
-
-    --   matcher = pattern2matcher("object", false) -- caseless inclusion
-    --   matcher~("ObjeCt") -- true
-    --   matcher~("my ObjeCt") -- true
-
-    --   matcher = pattern2matcher("/^object|object$", false) -- caseless inclusion, regular expression: "object" at the begining or at the end.
-    --   matcher~("ObjeCt") -- true
-    --   matcher~("my ObjeCt") -- true
-    --   matcher~("my ObjeCts") -- false
-
-    -- stringPattern is an Argument
-    use strict arg stringPattern, wholeString=.true, caseless=.true, displayer=.nil, prefix=""
-    matcher = .nil
-
-    firstCharIsQuoted = stringPattern~quotedFlags~subchar(1) == "1"
-    lastCharIsQuoted = stringPattern~quotedFlags~subchar(stringPattern~string~length) == "1"
-    stringPattern = stringPattern~string
-
-    -- Build a description of the matcher, will be displayed when tracing the filters
-    description = "stringPattern="stringPattern~quoted "wholeString="wholeString "caseless="caseless
-
-    regularExpression = \firstCharIsQuoted & stringPattern~subchar(1) == "/"
-    if regularExpression then do
-        if .Pattern~isa(.class), .Pattern~hasMethod("compile") then do
-            -- Good, the package regex.cls is loaded
-            stringPattern = stringPattern~substr(2) -- remove the "/"
-        end
-        else raise syntax 93.900 array("Regular expression" stringPattern~quoted "not supported: The package regex.cls is not loaded")
-    end
-
-    if regularExpression then do
-        signal on syntax name patternCompileError
-        if caseless then pattern = .Pattern~compile(stringPattern, .RegexCompiler~new(.RegexCompiler~caseless))
-        else             pattern = .Pattern~compile(stringPattern)
-
-        if wholeString then matcher = {expose pattern; use strict arg string; return pattern~matches(string)}
-        else                matcher = {expose pattern; use strict arg string; return pattern~find(string)~matched}
-    end
-    else do
-        -- the pattern remains a string
-        leftStar = \firstCharIsQuoted & stringPattern~left(1) == "*"
-        rightStar = \lastCharIsQuoted & stringPattern~right(1) == "*"
-        leftCaret = \firstCharIsQuoted & stringPattern~left(1) == "^"
-        rightDollar = \lastCharIsQuoted & stringPattern~right(1) == "$"
-        if (leftStar & rightStar) | (leftCaret & rightDollar) then do
-            if stringPattern~length <= 2 then stringPattern = "" -- "*" or "**" or "^" or "$" or "^$"--> ""
-            else stringPattern = stringPattern~substr(2, stringPattern~length - 2) -- "*...*" or "^...$" --> "..."
-        end
-        else if leftStar | leftCaret then stringPattern = stringPattern~substr(2)
-        else if rightStar | rightDollar then stringPattern = stringPattern~left(stringPattern~length - 1)
-
-        if stringPattern == "" then return {expose description; return .true}
-        else if wholeString then do
-            -- leftCaret and rightDollar have no impact
-            if \leftStar & \rightStar then do
-                if caseless then matcher = {expose description stringPattern; use strict arg string; return string~caselessEquals(stringPattern)}
-                else             matcher = {expose description stringPattern; use strict arg string; return string~equals(stringPattern)}
-            end
-            else if \leftStar & rightStar then do
-                if caseless then matcher = {expose description stringPattern; use strict arg string; return string~left(stringPattern~length)~caselessEquals(stringPattern)}
-                else             matcher = {expose description stringPattern; use strict arg string; return string~left(stringPattern~length)~equals(stringPattern)}
-            end
-            else if leftStar & \rightStar then do
-                if caseless then matcher = {expose description stringPattern; use strict arg string; return string~right(stringPattern~length)~caselessEquals(stringPattern)}
-                else             matcher = {expose description stringPattern; use strict arg string; return string~right(stringPattern~length)~equals(stringPattern)}
-            end
-            else do -- leftStar & rightStar
-                if caseless then matcher = {expose description stringPattern; use strict arg string; return string~caselessPos(stringPattern) <> 0}
-                else             matcher = {expose description stringPattern; use strict arg string; return string~pos(stringPattern) <> 0}
-            end
-        end
-        else do -- \wholeString
-            -- leftStar and rightStar have no impact
-            if \leftCaret & \rightDollar then do
-                if caseless then matcher = {expose description stringPattern; use strict arg string; return string~caselessPos(stringPattern) <> 0}
-                else             matcher = {expose description stringPattern; use strict arg string; return string~pos(stringPattern) <> 0}
-            end
-            else if \leftCaret & rightDollar then do
-                if caseless then matcher = {expose description stringPattern; use strict arg string; return string~right(stringPattern~length)~caselessEquals(stringPattern)}
-                else             matcher = {expose description stringPattern; use strict arg string; return string~right(stringPattern~length)~equals(stringPattern)}
-            end
-            else if leftCaret & \rightDollar then do
-                if caseless then matcher = {expose description stringPattern; use strict arg string; return string~left(stringPattern~length)~caselessEquals(stringPattern)}
-                else             matcher = {expose description stringPattern; use strict arg string; return string~left(stringPattern~length)~equals(stringPattern)}
-            end
-            else do -- leftCarret & rightDollar
-                if caseless then matcher = {expose description stringPattern; use strict arg string; return string~caselessEquals(stringPattern)}
-                else             matcher = {expose description stringPattern; use strict arg string; return string~equals(stringPattern)}
-            end
-        end
-    end
-    if displayer <> .nil, displayer~traceFilter then call traceMatcher matcher, displayer, prefix
-    return matcher
-
-    patternCompileError:
-        raise syntax 93.900 array("Regular expression" stringPattern~quoted ":" condition("O")~message)
-
-
-::routine traceMatcher
-    use strict arg matcher, displayer, prefix
-    -- matcher is a closure created by pattern2matcher.
-    -- The variables of pattern2matcher have been captured, and can be retrieved, in particular the description.
-    displayer~sayTrace(prefix matcher~variables~description)
-    do line over matcher~source
-        displayer~sayTrace(prefix line)
-    end

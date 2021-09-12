@@ -37,6 +37,10 @@ Otherwise same error as above.
 
 --::options trace i
 
+::requires "extension/stringChunk.cls"
+::requires "extension/stringChunkExtended.cls"
+
+
 /******************************************************************************/
 /*
 TODOs
@@ -62,34 +66,6 @@ Interface:
     indexTable~first     --  index of the first item in the table
 
 */
-/******************************************************************************/
--- Functions compatibility with ooRexx5
-
--- A global routine with the same name as a builtin function overrides this function.
-::routine xrange public
-    if arg() == 0 then return "XRANGE"()
-    buffer = .mutableBuffer~new
-    i = 1
-    do while i <= arg()
-        if arg(i, "e") then arg1 = arg(i)
-                       else arg1 = "00"x
-        if arg1~length == 1 then do
-            i += 1
-            if arg(i, "e") then arg2 = arg(i)
-                           else arg2 = "FF"x
-            if arg2~length <> 1 then raise syntax 40.23 array("XRANGE", "Positional", i, arg2)
-            buffer~append("XRANGE"(arg1, arg2))
-        end
-        else do
-            characterSequence = arg1~posixClassCharacters
-            if characterSequence \== "" then buffer~append(characterSequence) -- Don't test with <> because the sequence for "blank" is considered empty!
-            else raise syntax 40.28 array("XRANGE", "Positional", i, arg1)
-        end
-        i += 1
-    end
-    return buffer~string
-
-
 /******************************************************************************/
 -- Should find a better name...
 ::class "StringHelpers" mixinclass Object public
@@ -148,6 +124,21 @@ Similar to ~makeArray(separator), with these differences:
     return self~split(separator, .true)
 
 
+::method chunk
+    use strict arg -- none
+    return stringChunks(self, /*withInfos*/ .true, /*breakTokens*/ "", /*splitLevel*/ 0)[1] -- always 1 item because splitLevel == 0
+
+
+::method chunks
+    use strict arg -- none
+    use strict named arg withInfos(1)=.true, breakTokens(1)="", splitLevel(1)=1, escapeCharacters(1)=""
+    return stringChunks(self, withInfos, breakTokens, splitLevel, escapeCharacters)
+
+
+::method matcher
+    forward to (self~chunk)
+
+
 ::method concatenateSeparated
     -- Arguments : zero to N strings.
     -- self is the separator
@@ -186,6 +177,34 @@ Similar to ~makeArray(separator), with these differences:
     characterClassNames = "alnum alpha blank cntrl digit graph lower print punct space upper xdigit"
     if self~words == 1, characterClassNames~wordpos(self~lower) <> 0 then return .string~send(self)
     return ""
+
+
+/******************************************************************************/
+-- Functions compatibility with ooRexx5
+
+-- A global routine with the same name as a builtin function overrides this function.
+::routine xrange public
+    if arg() == 0 then return "XRANGE"()
+    buffer = .mutableBuffer~new
+    i = 1
+    do while i <= arg()
+        if arg(i, "e") then arg1 = arg(i)
+                       else arg1 = "00"x
+        if arg1~length == 1 then do
+            i += 1
+            if arg(i, "e") then arg2 = arg(i)
+                           else arg2 = "FF"x
+            if arg2~length <> 1 then raise syntax 40.23 array("XRANGE", "Positional", i, arg2)
+            buffer~append("XRANGE"(arg1, arg2))
+        end
+        else do
+            characterSequence = arg1~posixClassCharacters
+            if characterSequence \== "" then buffer~append(characterSequence) -- Don't test with <> because the sequence for "blank" is considered empty!
+            else raise syntax 40.28 array("XRANGE", "Positional", i, arg1)
+        end
+        i += 1
+    end
+    return buffer~string
 
 
 /******************************************************************************/

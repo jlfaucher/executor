@@ -495,6 +495,303 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 September 12
+
+[String chunks]
+
+The functionality of splitting text by quoted/unquoted chunks is moved from
+ooRexxShell to a dedicated package:
+extension/stringChunk.cls               (compatible with official ooRexx)
+
+The initial need was to parse a command line and split it the same way as a cmd
+or bash shell. Also used to parse the queries in ooRexxShell.
+The quotes are removed, but each character is associated to a 'quote flag' to
+remember if the character was inside a quoted section.
+These flags are typically used by the matchers of type string pattern, to decide
+if a character can be special or not.
+
+Description:
+    routine stringChunks
+    use strict arg string, withInfos=.false, breakTokens="", splitLevel=1
+
+    Converts a string to an array of String or to an array of stringChunk.
+    The type of result is indicated by the argument withInfos:
+    - If withInfos == .false (default) then the result is an array of String.
+    - If withInfos == .true then the result is an array of StringChunk.
+
+    A StringChunk is a substring which references the start and end character
+    in its container. It's associated to a string of booleans (quotedFlags)
+    which indicate for each character if it was inside a quoted section.
+
+    A quote is either " or '.
+
+    An escape character is any character passed in the argument escapeCharacters.
+    An escape character sets the quote flag of the next character to 1.
+    Escape characters are removed, even if they are not followed by another
+    character (truncated string).
+    Example with 'a' declared escape character:
+    - "a" --> ""
+    - "aa" --> "a"
+    - "aaa" --> "a"
+    - "aaaa" --> "aa"
+
+    If a quote is declared escape character, there is no impact: a quote is
+    already an escape mechanism.
+
+    If a space is declared escape character, there is an impact when splitLevel=0:
+    the quote flag of a character following an unquoted space is set to 1, the
+    unquoted spaces are removed
+    Example:
+        'one two "three four" five six' --> onetwothree fourfivesix
+                                            00010011111111111000100
+
+    An unquoted section is splitted in StringChunks delimited by whitespaces
+    (anything <= 32) and break tokens.
+
+    Break tokens are passed in the argument breakTokens.
+    A break token cannot contains spaces.
+    The break tokens can be case sensitive (default) or case insensitive.
+    Each break token can be prefixed by:
+    - cs:  case sensitive
+    - ci:  case insensitive
+    - cl:  caseless (synonym of case insensitive)
+    Any other prefix is not an error. It's just not a case prefix.
+
+    If a quote is declared break token then it's no longer recognized as a quote.
+    If an escape character is declared break token then it's no longer recognized
+    as an escape character.
+
+    A quoted section is not splitted:
+    - Whitespaces are kept,
+    - single occurences of quotes are removed,
+    - double occurrence of quotes are replaced by a single embedded quote,
+    - break tokens and escape characters are ignored.
+
+    The split process is controlled by the argument splitLevel:
+    - If splitLevel == 0 then the string is not splitted but the quotes and
+      escape characters are managed, quotedFlags is set.
+        'xx aa"b b"cc"d d"ee yy' is 1 StringChunk.
+    - If splitLevel == 1 (default) then adjacent quoted/unquoted sections are kept glued.
+        'xx aa"b b"cc"d d"ee yy' is 3 StringChunk: xx "aab bccd dee" yy
+    - If splitLevel == 2 then adjacent quoted/unquoted sections are separated.
+        'xx aa"b b"cc"d d"ee yy' is splitted in 7 StringChunk: xx aa "b b" cc "d d" ee yy
+
+    Illustration with splitLevel=1:
+     11111111111111111111111111 222222222222222 333333333333333333333
+    '"hello "John" how are you" good" bye "John "my name is ""BOND"""'
+     0000000001111111111222222222233333333334444444444555555555566666
+     1234567890123456789012345678901234567890123456789012345678901234
+    arg1 = |hello John how are you|      containerStart = 01      containerEnd = 26      quotedFlags = 1111110000111111111111
+    arg2 = |good bye John|               containerStart = 28      containerEnd = 42      quotedFlags = 0000111110000
+    arg3 = |my name is "BOND"|           containerStart = 44      containerEnd = 64      quotedFlags = 11111111111111111
+
+Extensions available in Executor only:
+    .String~chunk           withInfos is true, splitLevel is 0 --> always returns ONE StringChunk
+    .String~chunks          withInfos is true by default, splitLevel is 1 by default
+
+Examples:
+    -- splitLevel = 0: no split
+    'aa"b\ b"cc"d\ d"ee\* ff'~chunks(splitLevel:0)~each{item~sayDescription(25, index, 2)}
+        1  'aab\ bccd\ dee\* ff'     01 23 'aa"b\ b"cc"d\ d"ee\* ff'
+        1  '0011110011110000000'
+
+    -- splitLevel = 1: Adjacent quoted/unquoted sections are kept glued
+    'aa"b\ b"cc"d\ d"ee\* ff'~chunks(splitLevel:1)~each{item~sayDescription(25, index, 2)}
+        1  'aab\ bccd\ dee\*'        01 20 'aa"b\ b"cc"d\ d"ee\*'
+        1  '0011110011110000'
+        2  'ff'                      22 23 'ff'
+        2  '00'
+
+    -- splitLevel = 2: Adjacent quoted/unquoted sections are separated
+    'aa"b\ b"cc"d\ d"ee\* ff'~chunks(splitLevel:2)~each{item~sayDescription(25, index, 2)}
+        1  'aa'                      01 02 'aa'
+        1  '00'
+        2  'b\ b'                    03 08 '"b\ b"'
+        2  '1111'
+        3  'cc'                      09 10 'cc'
+        3  '00'
+        4  'd\ d'                    11 16 '"d\ d"'
+        4  '1111'
+        5  'ee\*'                    17 20 'ee\*'
+        5  '0000'
+        6  'ff'                      22 23 'ff'
+        6  '00'
+
+    -- Default splitLevel (1)
+    -- The quote is declared break token, there is no more quoted sections, and the quote itself is returned
+    'aa"b\ b"cc"d\ d"ee\* ff'~chunks(breakTokens: '"')~each{item~sayDescription(25, index, 2)}
+        1  'aa'                      01 02 'aa'
+        1  '00'
+        2  '"'                       03 03 '"'
+        2  '0'
+        3  'b\'                      04 05 'b\'
+        3  '00'
+        4  'b'                       07 07 'b'
+        4  '0'
+        5  '"'                       08 08 '"'
+        5  '0'
+        6  'cc'                      09 10 'cc'
+        6  '00'
+        7  '"'                       11 11 '"'
+        7  '0'
+        8  'd\'                      12 13 'd\'
+        8  '00'
+        9  'd'                       15 15 'd'
+        9  '0'
+        10 '"'                       16 16 '"'
+        10 '0'
+        11 'ee\*'                    17 20 'ee\*'
+        11 '0000'
+        12 'ff'                      22 23 'ff'
+        12 '00'
+
+    -- Same as previous, plus \ which is declared escape character
+    'aa"b\ b"cc"d\ d"ee\* ff'~chunks(breakTokens: '"', escapeCharacters:"\")~each{item~sayDescription(25, index, 2)}
+        1  'aa'                      01 02 'aa'
+        1  '00'
+        2  '"'                       03 03 '"'
+        2  '0'
+        3  'b b'                     04 07 'b\ b'
+        3  '010'
+        4  '"'                       08 08 '"'
+        4  '0'
+        5  'cc'                      09 10 'cc'
+        5  '00'
+        6  '"'                       11 11 '"'
+        6  '0'
+        7  'd d'                     12 15 'd\ d'
+        7  '010'
+        8  '"'                       16 16 '"'
+        8  '0'
+        9  'ee*'                     17 20 'ee\*'
+        9  '001'
+        10 'ff'                      22 23 'ff'
+        10 '00'
+
+    -- A break token can be made of several characters, and can contain a quote
+    'aa"b\ b"cc"d\ d"ee\* ff'~chunks(breakTokens: ' a"b ')~each{item~sayDescription(25, index, 2)}
+        1  'a'                       01 01 'a'
+        1  '0'
+        2  'a"b'                     02 04 'a"b'
+        2  '000'
+        3  '\'                       05 05 '\'
+        3  '0'
+        4  'bccd\'                   07 13 'b"cc"d\'
+        4  '01100'
+        5  'dee\* ff'                15 23 'd"ee\* ff'
+        5  '01111111'
+
+    -- If an escape character is also declared break token then it's no longer an escape character
+    'aa"b\ b"cc"d\ d"ee\* ff'~chunks(breakTokens:"\", escapeCharacter:"\")~each{item~sayDescription(25, index, 2)}==
+        1  'aab\ bccd\ dee'          01 18 'aa"b\ b"cc"d\ d"ee'
+        1  '00111100111100'
+        2  '\'                       19 19 '\'
+        2  '0'
+        3  '*'                       20 20 '*'
+        3  '0'
+        4  'ff'                      22 23 'ff'
+        4  '00'
+
+    -- A break token can contain characters that are declared escape character
+    'aa"b\ b"cc"d\ d"ee\* ff'~chunks(breakTokens:"e\*", escapeCharacters:"\*")~each{item~sayDescription(25, index, 2)}==
+        1  'aab\ bccd\ de'           01 17 'aa"b\ b"cc"d\ d"e'
+        1  '0011110011110'
+        2  'e\*'                     18 20 'e\*'
+        2  '000'
+        3  'ff'                      22 23 'ff'
+        3  '00'
+
+    -- A break token can be case insensitive (prefix ci: or cl:)
+    '1Plus2'~chunks(breakTokens:"ci:plus")~each{item~sayDescription(25, index, 2)}==
+        1  '1'                       1 1 '1'
+        1  '0'
+        2  'Plus'                    2 5 'Plus'
+        2  '0000'
+        3  '2'                       6 6 '2'
+        3  '0'
+
+
+[String patterns]
+
+The functionality of selecting text using patterns is moved from ooRexxShell
+to a dedicated package:
+extension/stringChunkExtended.cls       (not compatible with official ooRexx)
+
+Description
+    .StringChunk~matcher
+    use strict named arg wholeString(1)=.true, caseless(1)=.true,-
+                         trace(1)=.false, displayer(1)=.traceOutput, prefix(1)=""
+
+    Pattern matching by equality (whole) or by inclusion (not whole), caseless or not.
+
+    If the package regex.cls is loaded, then the pattern (a StringChunk) can be
+    a regular expression prefixed by "/".
+
+    When whole, and the pattern is not a regular expression, then the charecter
+    "*" is recognized as a generic character when first or last character.
+
+    When not whole, and the pattern is not a regular expression, then the character
+    "^" is recognized as the metacharacter 'begining of string' when first character.
+
+    When not whole, and the pattern is not a regular expression, then the character
+    "$" is recognized as the metacharacter 'end of string' when last character.
+
+    The returned result is a closure (matcher) which implements the pattern matching,
+    or .nil if error.
+
+    The pattern matching is tested when the closure is evaluated with a string passed
+    as argument.
+
+    Examples:
+
+        '*' or '**'      : matches everything
+        '"*"' or '"**"'  : matches exactly "*" or "**", see case stringPattern
+        '***'            : matches all names containing "*", see case *stringPattern*
+        '*"*"*'          : matches all names containing "*", see case *stringPattern*
+        '*"**"*'         : matches all names containing "**", see case *stringPattern*
+        '*stringPattern' : string~right(stringPattern~length)~caselessEquals(stringPattern)
+        'stringPattern*' : string~left(stringPattern~length)~caselessEquals(stringPattern)
+        '*stringPattern*': string~caselessPos(stringPattern) <> 0
+        'stringPattern'  : string~caselessEquals(stringPattern)
+
+        -- caseless equality
+        matcher = "object"~matcher
+        say matcher~("ObjeCt") -- true
+        say matcher~("my ObjeCt") -- false
+
+        -- caseless equality with generic character
+        matcher = "*object"~matcher
+        say matcher~("ObjeCt") -- true
+        say matcher~("my ObjeCt") -- true
+
+        -- caseless inclusion
+        matcher = "object"~matcher(wholeString:.false)
+        say matcher~("ObjeCt") -- true
+        say matcher~("my ObjeCt") -- true
+
+        -- caseless inclusion, regular expression: "object" at the begining or at the end.
+        matcher = "/^object|object$"~matcher(wholeString:.false)
+        say matcher~("ObjeCt") -- true
+        say matcher~("my ObjeCt") -- true
+        say matcher~("my ObjeCts") -- false
+
+        -- trace
+        "*stringPattern"~matcher(trace:.true)
+        output:
+            description: stringChunkPattern="*stringPattern" wholeString=1 caseless=1
+            stringPattern="stringPattern"
+            matcher: expose description stringPattern; use strict arg string; return string~right(stringPattern~length)~caselessEquals(stringPattern)
+
+        -- trace when regular expression
+        "/.*stringPattern"~matcher(trace:.true)
+        output:
+            description: stringChunkPattern="/.*stringPattern" wholeString=1 caseless=1
+            stringPattern=".*stringPattern"
+            pattern = .Pattern~compile(stringPattern, .RegexCompiler~new(.RegexCompiler~caseless))
+            matcher: expose description pattern; use strict arg string; return pattern~matches(string)
+
+
+===============================================================================
 2021 August 22
 
 Fix most of the warnings.
