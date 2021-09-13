@@ -31,8 +31,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Pretty printe
 ::extension Array                           inherit ArrayPrettyPrinter
 ::extension Collection                      inherit CollectionPrettyPrinter
-::extension String                          inherit StringPrettyPrinter
-::extension MutableBuffer                   inherit MutableBufferPrettyPrinter
 
 -- Filter
 ::extension Collection                      inherit CollectionFilter
@@ -70,13 +68,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::extension String                          inherit StringMapper
 ::extension MutableBuffer                   inherit MutableBufferMapper
 
--- Compatibility
-::extension String                          inherit StringCompatibilityWithOORexx5
-::extension MutableBuffer                   inherit MutableBufferCompatibilityWithOORexx5
-
 -- String specific
-::extension String                          inherit StringHelpers     -
-                                                    RepeaterCollector -
+::extension String                          inherit RepeaterCollector -
                                                     RepeaterGenerator -
                                                     LogicalExtension  -
                                                     ComplexString

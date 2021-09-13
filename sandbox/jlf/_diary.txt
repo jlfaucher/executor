@@ -495,6 +495,127 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 September 13
+
+[Encoded strings]
+
+Add character informations.
+
+The loading of the character names is optional.
+By default, they are not loaded.
+From ooRexxShell, execute: call loadUnicodeCharacters
+The other character properties are always loaded (provided by utf8proc)
+
+.Unicode
+    lastCodepoint                       --> 1114111
+    codepointBidiClass(codepoint)       --> enum 1, 2, 3, ...
+    codepointBidiClassName(codepoint)   --> enum 'L', 'LRE', 'LRO', ...
+    codepointBoundClass(codepoint)      --> enum 0, 1, 2, ...
+    codepointBoundClassName(codepoint)  --> enum 'START', 'OTHER', 'CR', ...
+    codepointCategory(codepoint)        --> enum 0, 1, 2, ...
+    codepointCategoryName(codepoint)    --> enum 'Cn', 'Lu', 'Ll', ...
+    codepointCharWidth(codepoint)       --> integer
+    codepointCombiningClass(codepoint)  --> integer
+    codepointControlBoundary(codepoint) --> boolean
+    codepointDecompType(codepoint)      --> enum 0, 1, 2, ...
+    codepointDecompTypeName(codepoint)  --> enum '<none>', '<font>', '<nobreak>, ...
+    codepointIgnorable(codepoint)       --> boolean
+
+    characters          --> array of UnicodeCharacter
+    character(index)    --> UnicodeCharacter (index can be a loose matching name (UAX44-LM2) or a codepoint)
+
+.UnicodeCharacter
+    codepoint       --> integer -1..1114111
+    name            --> string
+
+    bidiClass       --> enum 1, 2, 3, ...
+    bidiClassName   --> enum 'L', 'LRE', 'LRO', ...
+    boundClass      --> enum 0, 1, 2, ...
+    boundClassName  --> enum 'START', 'OTHER', 'CR', ...
+    category        --> enum 0, 1, 2, ...
+    categoryName    --> enum 'Cn', 'Lu', 'Ll', ...
+    charWidth       --> integer
+    combiningClass  --> integer
+    controlBoundary --> boolean
+    decompType      --> enum 0, 1, 2, ...
+    decompTypeName  --> enum '<none>', '<font>', '<nobreak>, ...
+    ignorable       --> boolean
+
+
+Examples:
+
+-- All the Unicode characters (sparse array).
+-- The indexes on the left are equal to 2+codepoint
+-- because an array is 1-based
+-- and because the special codepoint -1 is stored (not part of Unicode standard).
+-- You are not supposed to read directly this array, use .Unicode~character(codepoint).
+.unicode~characters==
+        an Array (shape [918001], 143860 items)
+         1    : (-1 Cn "<UNKNOWN CHARACTER>")
+         34   : (U+0020 Zs "SPACE")
+         35   : (U+0021 Po "EXCLAMATION MARK")
+         36   : (U+0022 Po "QUOTATION MARK")
+         37   : (U+0023 Po "NUMBER SIGN")
+        ...
+
+-- The last 10 characters
+.unicode~characters~pipe(.take "last" 10 | .console)
+        917992 : (U+E01E6 Mn "VARIATION SELECTOR-247")
+        917993 : (U+E01E7 Mn "VARIATION SELECTOR-248")
+        917994 : (U+E01E8 Mn "VARIATION SELECTOR-249")
+        917995 : (U+E01E9 Mn "VARIATION SELECTOR-250")
+        917996 : (U+E01EA Mn "VARIATION SELECTOR-251")
+        917997 : (U+E01EB Mn "VARIATION SELECTOR-252")
+        917998 : (U+E01EC Mn "VARIATION SELECTOR-253")
+        917999 : (U+E01ED Mn "VARIATION SELECTOR-254")
+        918000 : (U+E01EE Mn "VARIATION SELECTOR-255")
+        918001 : (U+E01EF Mn "VARIATION SELECTOR-256")
+
+-- get a character by codepoint
+.unicode~character(8203)=                   -- (U+200B Cf "ZERO WIDTH SPACE")
+.unicode~character("200B")=                 -- (U+200B Cf "ZERO WIDTH SPACE")
+.unicode~character("U+200B")=               -- (U+200B Cf "ZERO WIDTH SPACE")
+.unicode~character("u+200b")=               -- (U+200B Cf "ZERO WIDTH SPACE")
+
+-- get a character by name.
+-- loose matching name. See https://unicode.org/reports/tr44/#UAX44-LM2
+.unicode~character("ZERO WIDTH SPACE")=     -- (U+200B Cf "ZERO WIDTH SPACE")
+.unicode~character("ZERO_WIDTH-SPACE")=     -- (U+200B Cf "ZERO WIDTH SPACE")
+.unicode~character("ZEROWIDTHSPACE")=       -- (U+200B Cf "ZERO WIDTH SPACE")
+.unicode~character("zerowidthspace")=       -- (U+200B Cf "ZERO WIDTH SPACE")
+
+-- select characters using a matcher
+-- remember: it's better to initialize the matcher outside the iteration.
+matcher = "*chris*"~matcher; .unicode~characters~select{expose matcher; matcher~(item~name)}==
+    an Array (shape [3], 3 items)
+     1 : (U+1F384 So "CHRISTMAS TREE")
+     2 : (U+1F385 So "FATHER CHRISTMAS")
+     3 : (U+1F936 So "MOTHER CHRISTMAS")
+
+-- string character names
+"noël👩‍👨‍👩‍👧🎅"~text~codepoints~each{uchar = .unicode~character(item); uchar~charWidth uchar~categoryName uchar~name}==
+    an Array (shape [12], 12 items)
+     1  : '1 Ll LATIN SMALL LETTER N'
+     2  : '1 Ll LATIN SMALL LETTER O'
+     3  : '1 Ll LATIN SMALL LETTER E WITH DIAERESIS'
+     4  : '1 Ll LATIN SMALL LETTER L'
+     5  : '2 So WOMAN'
+     6  : '0 Cf ZERO WIDTH JOINER'
+     7  : '2 So MAN'
+     8  : '0 Cf ZERO WIDTH JOINER'
+     9  : '2 So WOMAN'
+     10 : '0 Cf ZERO WIDTH JOINER'
+     11 : '2 So GIRL'
+     12 : '2 So FATHER CHRISTMAS'
+
+-- shortest name:
+.unicode~character("U+1F402")~name=         -- 'OX'
+
+-- longest name:
+.unicode~character("U+FBF9")~name=          -- 'ARABIC LIGATURE UIGHUR KIRGHIZ YEH WITH HAMZA ABOVE WITH ALEF MAKSURA ISOLATED FORM'
+
+
+===============================================================================
 2021 September 12
 
 [String chunks]

@@ -101,8 +101,18 @@ public:
     static void createInstance();
     static RexxClass *classInstance; // RexxCore.h #define TheUnicodeClass Unicode::classInstance
 
-    RexxInteger *SystemIsLittleEndian();
-    RexxObject *GraphemeBreak(RexxArray *);
+    RexxString *version();
+    RexxInteger *systemIsLittleEndian();
+    RexxInteger *graphemeBreak(RexxArray *);
+
+    RexxInteger *codepointCategory(RexxObject *rexxCodepoint);
+    RexxInteger *codepointCombiningClass(RexxObject *rexxCodepoint);
+    RexxInteger *codepointBidiClass(RexxObject *rexxCodepoint);
+    RexxInteger *codepointDecompType(RexxObject *rexxCodepoint);
+    RexxInteger *codepointIgnorable(RexxObject *rexxCodepoint);
+    RexxInteger *codepointControlBoundary(RexxObject *rexxCodepoint);
+    RexxInteger *codepointCharWidth(RexxObject *rexxCodepoint);
+    RexxInteger *codepointBoundClass(RexxObject *rexxCodepoint);
 };
 
 #endif

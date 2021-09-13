@@ -1443,8 +1443,17 @@ void RexxMemory::createImage(const char *imageTarget)
 
   defineKernelMethod(CHAR_NEW, TheUnicodeClassBehaviour, CPPM(Unicode::newRexx), A_COUNT);
   defineKernelMethod(CHAR_COPY, TheUnicodeClassBehaviour, CPPM(Unicode::copyRexx), 0);
-  defineKernelMethod("SYSTEMISLITTLEENDIAN" , TheUnicodeClassBehaviour, CPPM(Unicode::SystemIsLittleEndian), 0);
-  defineKernelMethod("GRAPHEMEBREAK" , TheUnicodeClassBehaviour, CPPM(Unicode::GraphemeBreak), 1);
+  defineKernelMethod("VERSION" , TheUnicodeClassBehaviour, CPPM(Unicode::version), 0);
+  defineKernelMethod("SYSTEMISLITTLEENDIAN" , TheUnicodeClassBehaviour, CPPM(Unicode::systemIsLittleEndian), 0);
+  defineKernelMethod("GRAPHEMEBREAK" , TheUnicodeClassBehaviour, CPPM(Unicode::graphemeBreak), 1);
+  defineKernelMethod("CODEPOINTCATEGORY" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointCategory), 1);
+  defineKernelMethod("CODEPOINTCOMBININGCLASS" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointCombiningClass), 1);
+  defineKernelMethod("CODEPOINTBIDICLASS" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointBidiClass), 1);
+  defineKernelMethod("CODEPOINTDECOMPTYPE" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointDecompType), 1);
+  defineKernelMethod("CODEPOINTIGNORABLE" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointIgnorable), 1);
+  defineKernelMethod("CODEPOINTCONTROLBOUNDARY" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointControlBoundary), 1);
+  defineKernelMethod("CODEPOINTCHARWIDTH" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointCharWidth), 1);
+  defineKernelMethod("CODEPOINTBOUNDCLASS" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointBoundClass), 1);
                                        /* set the scope of the methods to   */
                                        /* this classes oref                 */
   TheUnicodeClassBehaviour->setMethodDictionaryScope(TheUnicodeClass);

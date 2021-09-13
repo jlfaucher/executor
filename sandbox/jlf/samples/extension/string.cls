@@ -9,31 +9,22 @@ This script needs a modified ooRexx interpreter which support extension of prede
 .MutableBuffer~define("appendLegacy", .MutableBuffer~method("append"))
 .MutableBuffer~define("append", "do i=1 to arg(); self~appendLegacy(arg(i)); end")
 
-/*
-Initialization of the Unicode characters.
-Not possible to use a method 'activate' or 'init'
-
-       *-* Compiled method INIT with scope "Object"
-       *-* Compiled method NEW with scope "RexxText"
-   955 *-* return .RexxText~new(buffer~string, self)
-   658 *-* utf8 = .UTF8_Encoding~encode(codepoint)
-       *-* Compiled method NEW with scope "Object"
-   631 *-* character = .UnicodeCharacter~new(codepoint, name)
-   624 *-* self~declareCharacter("0301", "combining acute accent")
-  1117 *-* ::class "GraphemeSupplier" public subclass Supplier
-REX0093E: Error 93 running /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/string.cls line 955:  Incorrect call to method
-REX0432E: Error 93.902:  Too many positional arguments in invocation of method; 0 expected
-
-*/
 .Unicode~initialize
 
 
-/*
-These declarations must be in this source file, not in extensions.cls.
-Otherwise same error as above.
-*/
+::extension String                          inherit StringPrettyPrinter
+::extension String                          inherit StringCompatibilityWithOORexx5
+::extension String                          inherit StringHelpers
 ::extension String                          inherit EncodedString
-::extension RexxText                        inherit RexxTextInitializer RexxTextPrettyPrinter RexxTextContents RexxTextOperators RexxTextStringInterface
+
+::extension RexxText                        inherit RexxTextInitializer
+::extension RexxText                        inherit RexxTextPrettyPrinter
+::extension RexxText                        inherit RexxTextContents
+::extension RexxText                        inherit RexxTextOperators
+::extension RexxText                        inherit RexxTextStringInterface
+
+::extension MutableBuffer                   inherit MutableBufferPrettyPrinter
+::extension MutableBuffer                   inherit MutableBufferCompatibilityWithOORexx5
 
 --::options trace i
 
@@ -711,11 +702,11 @@ base class...
     return result
 
 
-::method isUnicodeX
-    expose isUnicodeX
-    if var("isUnicodeX") then return isUnicodeX
+::method isUnicodeN
+    expose isUnicodeN
+    if var("isUnicodeN") then return isUnicodeN
     forward to (self~indexer~class) continue
-    isUnicodeX = result
+    isUnicodeN = result
     return result
 
 
@@ -853,7 +844,7 @@ base class...
     forward to (self~indexer)
 
 
--- Unicode representation limited to codepoints < 1114111 (U+10FFFF)
+-- Unicode representation limited to codepoints <= .Unicode~lastCodepoint
 ::method Unicode32
     forward to (self~indexer)
 
@@ -1506,39 +1497,456 @@ x2d
 /******************************************************************************/
 ::extension "Unicode"
 
+::constant lastCodepoint 1114111
+
+::attribute dataDirectory get class
+::attribute totalLoadedCharacters get class
+::attribute codepointCategoryNames get class
+::attribute codepointBidiClassNames get class
+::attribute codepointDecompTypeNames get class
+::attribute codepointBoundClassNames get class
+
+
 ::method initialize class
-    expose characters
+    expose dataDirectory characters characterNames totalLoadedCharacters
     use strict arg -- none
-    characters = .directory~new
-    self~declareCharacter(  "20"~x2d, "space")
-    self~declareCharacter("0301"~x2d, "combining acute accent")
-    self~declareCharacter("FFFD"~x2d, "replacement character")
+    packageDirectory = .file~new(.context~package~name)~parent
+    dataDirectory = .file~new("Unicode-".Unicode~version, packageDirectory)
+    self~declareConstantNames
+    characters = .array~new
+    characterNames = .directory~new
+    totalLoadedCharacters = 0
+    self~declareCharacters
+
+
+::method checkCodepoint class
+    use strict arg codepoint, name=.nil
+    if codepoint < -1 | codepoint > .Unicode~lastCodepoint then signal error_range
+    return .true
+
+    error_range:
+    if .nil <> name then raise syntax 23.900 array ("Character '"name"': invalid codepoint" codepoint "("ppCodepoint(codepoint)"). Allowed range is -1..".Unicode~lastCodepoint)
+                    else raise syntax 23.900 array ("Invalid codepoint" codepoint "("ppCodepoint(codepoint)"). Allowed range is -1..".Unicode~lastCodepoint)
+
+::method declareConstantNames class
+    expose codepointCategoryNames codepointBidiClassNames codepointDecompTypeNames codepointBoundClassNames
+    codepointCategoryNames = .array~new
+    codepointBidiClassNames = .array~new
+    codepointDecompTypeNames = .array~new
+    codepointBoundClassNames = .array~new
+    methods = self~methods
+    do while methods~available
+        methodName = methods~index
+        if methodName~startsWith("CATEGORY_") then codepointCategoryNames[1 + self~send(methodName)] = methodName~substr("CATEGORY_"~length + 1)~lower(2)
+        if methodName~startsWith("BIDI_CLASS_") then codepointBidiClassNames[self~send(methodName)] = methodName~substr("BIDI_CLASS_"~length + 1)
+        if methodName~startsWith("DECOMP_TYPE_") then codepointDecompTypeNames[1 + self~send(methodName)] = "<" || methodName~substr("DECOMP_TYPE_"~length + 1)~lower || ">" -- todo: "noBreak" instead of "nobreak"
+        if methodName~startsWith("BOUNDCLASS_") then codepointBoundClassNames[1 + self~send(methodName)] = methodName~substr("BOUNDCLASS_"~length + 1)
+        methods~next
+    end
+
+
+::method declareCharacters class
+    -- Declare explictely the characters used internally or in demos.
+    -- They are available even if the Unicode datas can't be loaded
+    self~declareCharacter(  "20"~x2d, "SPACE")
+    self~declareCharacter("0301"~x2d, "COMBINING ACUTE ACCENT")
+    self~declareCharacter("FFFD"~x2d, "REPLACEMENT CHARACTER")
+    self~declareCharacter(-1, "<UNKNOWN CHARACTER>") -- this is not part of the Unicode standard
+
+    /*
+    Unicode_1_Name (Obsolete as of 6.2.0)
+    (10) Old name as published in Unicode 1.0 or ISO 6429 names for control functions.
+    This field is empty unless it is significantly different from the current name
+    for the character. No longer used in code chart production. See Name_Alias.
+    */
+    self~declareCharacter("0000"~x2d, "NULL")
+    self~declareCharacter("0001"~x2d, "START OF HEADING")
+    self~declareCharacter("0002"~x2d, "START OF TEXT")
+    self~declareCharacter("0003"~x2d, "END OF TEXT")
+    self~declareCharacter("0004"~x2d, "END OF TRANSMISSION")
+    self~declareCharacter("0005"~x2d, "ENQUIRY")
+    self~declareCharacter("0006"~x2d, "ACKNOWLEDGE")
+    self~declareCharacter("0007"~x2d, "BELL")
+    self~declareCharacter("0008"~x2d, "BACKSPACE")
+    self~declareCharacter("0009"~x2d, "CHARACTER TABULATION")
+    self~declareCharacter("000A"~x2d, "LINE FEED (LF)")
+    self~declareCharacter("000B"~x2d, "LINE TABULATION")
+    self~declareCharacter("000C"~x2d, "FORM FEED (FF)")
+    self~declareCharacter("000D"~x2d, "CARRIAGE RETURN (CR)")
+    self~declareCharacter("000E"~x2d, "SHIFT OUT")
+    self~declareCharacter("000F"~x2d, "SHIFT IN")
+    self~declareCharacter("0010"~x2d, "DATA LINK ESCAPE")
+    self~declareCharacter("0011"~x2d, "DEVICE CONTROL ONE")
+    self~declareCharacter("0012"~x2d, "DEVICE CONTROL TWO")
+    self~declareCharacter("0013"~x2d, "DEVICE CONTROL THREE")
+    self~declareCharacter("0014"~x2d, "DEVICE CONTROL FOUR")
+    self~declareCharacter("0015"~x2d, "NEGATIVE ACKNOWLEDGE")
+    self~declareCharacter("0016"~x2d, "SYNCHRONOUS IDLE")
+    self~declareCharacter("0017"~x2d, "END OF TRANSMISSION BLOCK")
+    self~declareCharacter("0018"~x2d, "CANCEL")
+    self~declareCharacter("0019"~x2d, "END OF MEDIUM")
+    self~declareCharacter("0019"~x2d, "SUBSTITUTE")
+    self~declareCharacter("001A"~x2d, "ESCAPE")
+    self~declareCharacter("001B"~x2d, "INFORMATION SEPARATOR FOUR")
+    self~declareCharacter("001C"~x2d, "INFORMATION SEPARATOR THREE")
+    self~declareCharacter("001D"~x2d, "INFORMATION SEPARATOR TWO")
+    self~declareCharacter("001E"~x2d, "INFORMATION SEPARATOR ONE")
+    self~declareCharacter("001F"~x2d, "DELETE")
+    -----
+    self~declareCharacter("0080"~x2d, "<CONTROL-0080>")
+    self~declareCharacter("0081"~x2d, "<CONTROL-0081>")
+    self~declareCharacter("0082"~x2d, "BREAK PERMITTED HERE")
+    self~declareCharacter("0083"~x2d, "NO BREAK HERE")
+    self~declareCharacter("0084"~x2d, "<CONTROL-0084>")
+    self~declareCharacter("0085"~x2d, "NEXT LINE (NEL)")
+    self~declareCharacter("0086"~x2d, "START OF SELECTED AREA")
+    self~declareCharacter("0087"~x2d, "END OF SELECTED AREA")
+    self~declareCharacter("0088"~x2d, "CHARACTER TABULATION SET")
+    self~declareCharacter("0089"~x2d, "CHARACTER TABULATION WITH JUSTIFICATION")
+    self~declareCharacter("008A"~x2d, "LINE TABULATION SET")
+    self~declareCharacter("008B"~x2d, "PARTIAL LINE FORWARD")
+    self~declareCharacter("008C"~x2d, "PARTIAL LINE BACKWARD")
+    self~declareCharacter("008D"~x2d, "REVERSE LINE FEED")
+    self~declareCharacter("008E"~x2d, "SINGLE SHIFT TWO")
+    self~declareCharacter("008F"~x2d, "SINGLE SHIFT THREE")
+    self~declareCharacter("0090"~x2d, "DEVICE CONTROL STRING")
+    self~declareCharacter("0091"~x2d, "PRIVATE USE ONE")
+    self~declareCharacter("0092"~x2d, "PRIVATE USE TWO")
+    self~declareCharacter("0093"~x2d, "SET TRANSMIT STATE")
+    self~declareCharacter("0094"~x2d, "CANCEL CHARACTER")
+    self~declareCharacter("0095"~x2d, "MESSAGE WAITING")
+    self~declareCharacter("0096"~x2d, "START OF GUARDED AREA")
+    self~declareCharacter("0097"~x2d, "END OF GUARDED AREA")
+    self~declareCharacter("0098"~x2d, "START OF STRING")
+    self~declareCharacter("0099"~x2d, "<CONTROL-0099>")
+    self~declareCharacter("009A"~x2d, "SINGLE CHARACTER INTRODUCER")
+    self~declareCharacter("009B"~x2d, "CONTROL SEQUENCE INTRODUCER")
+    self~declareCharacter("009C"~x2d, "STRING TERMINATOR")
+    self~declareCharacter("009D"~x2d, "OPERATING SYSTEM COMMAND")
+    self~declareCharacter("009E"~x2d, "PRIVACY MESSAGE")
+    self~declareCharacter("009F"~x2d, "APPLICATION PROGRAM COMMAND")
+
 
 ::method declareCharacter class
-    expose characters
+    expose characters characterNames
     use strict arg codepoint, name
+    self~checkCodepoint(codepoint, name)
     character = .UnicodeCharacter~new(codepoint, name)
-    characters~setEntry(name, character)
+    characters[2 + codepoint] = character -- +2 because -1 and 0 must be supported
+    looseMatchingIndex = UAX44_LM2(name)
+    characterNames~setEntry(looseMatchingIndex, codepoint)
+    return character
+
+
+::method characters class
+    expose characters
+    return characters -- ~supplier
 
 
 ::method character class
-    expose characters
+    expose characters characterNames
     use strict arg name
-    return characters~entry(name)
+    looseMatchingIndex = UAX44_LM2(name)
+    codepoint = characterNames~entry(looseMatchingIndex)
+    if .nil <> codepoint then return characters[2 + codepoint] -- +2 because -1 and 0 must be supported
+    if datatype(name, "W") then return characterByCodepoint(name)
+    if datatype(name, "X") then return characterByCodepoint(name~x2d)
+    if name~caselessStartsWith("U+") then do
+        name = name~substr(3)
+        if datatype(name, "X") then return characterByCodepoint(name~x2d)
+    end
+    return self~unknownCharacter
+
+    characterByCodepoint: procedure expose self characters
+    use strict arg codepoint
+    self~checkCodepoint(codepoint)
+    character = characters[2 + codepoint] -- +2 because -1 and 0 must be supported
+    if character == .nil then do
+        character = .UnicodeCharacter~new(codepoint, "<MISSING NAME>")
+        characters[2 + codepoint] = character
+    end
+    return character
 
 
 ::method spaceCharacter class
     expose spaceCharacter
     use strict arg -- none
-    if \var("spaceCharacter") then spaceCharacter = self~character("space")
+    if \var("spaceCharacter") then spaceCharacter = self~character("SPACE")
     return spaceCharacter
 
 
 ::method replacementCharacter class
     expose replacementCharacter
     use strict arg -- none
-    if \var("replacementCharacter") then replacementCharacter = self~character("replacement character")
+    if \var("replacementCharacter") then replacementCharacter = self~character("REPLACEMENT CHARACTER")
     return replacementCharacter
+
+
+::method unknownCharacter class
+    expose unknownCharacter
+    use strict arg -- none
+    if \var("unknownCharacter") then unknownCharacter = self~character("<UNKNOWN CHARACTER>")
+    return unknownCharacter
+
+
+::method loadCharacters class
+    -- Optional: load all the Unicode character names
+    -- action : "check", "getFile", "partial", "full"
+    -- Process memory under MacOs:
+    --     76 MB when not loading the characters
+    --    179 MB when declaring only the characters with individual codepoints (action == "partial")
+    --    411 MB when declaring all the characters (action == "full")
+    expose totalLoadedCharacters
+    use strict arg action="check", showProgress=.false -- by default, checks if the Unicode data file exists
+    derivedNameFile = .file~new("DerivedName.txt", self~dataDirectory)
+    if action~caselessAbbrev("getFile", 1) then return derivedNameFile~string
+    streamIn = .stream~new(derivedNameFile)
+    status = streamIn~open("READ")
+    if status <> "READY:" then do
+        parse var status "ERROR:" error
+        return SysGetErrorText(error)
+    end
+    if action~caselessAbbrev("check", 1) then return "" -- means 'no error'
+    if totalLoadedCharacters == 0 then do
+        full = action~caselessAbbrev("full", 1)
+        do while streamIn~state="READY"
+            line=streamIn~linein
+            if streamIn~state="NOTREADY", line == "" then leave
+            /*
+            # comment
+            1FBF9         ; SEGMENTED DIGIT NINE
+            20000..2A6DD  ; CJK UNIFIED IDEOGRAPH-*
+            */
+            if line~length == 0 then iterate
+            if line~startsWith("#") then iterate -- ignore the comments
+            parse var line codepoint . name
+            if codepoint~contains("..") then do
+                if full then do
+                    -- Remember: when expanding the ranges, that makes 100869 codepoints in Unicode 13
+                    parse var codepoint codepointFrom ".." codepointTo
+                    parse var name name "*" -- remove the final *
+                    loop codepoint = codepointFrom~x2d to codepointTo~x2d
+                        self~declareCharacter(codepoint, name || codepoint)
+                        totalLoadedCharacters += 1
+                        if showProgress, totalLoadedCharacters // 10000 == 0 then call charout , "."
+                    end
+                end
+            end
+            else do
+                self~declareCharacter(codepoint~x2d, name)
+                totalLoadedCharacters += 1
+                if showProgress, totalLoadedCharacters // 10000 == 0 then call charout , "."
+            end
+        end
+        if showProgress then say
+    end
+    streamIn~close
+    return "Total loaded characters:" totalLoadedCharacters
+
+
+/* Native methods
+RexxString *version();
+RexxInteger *systemIsLittleEndian();
+RexxInteger *graphemeBreak(RexxArray *);
+RexxInteger *codepointCategory(RexxObject *rexxCodepoint);
+RexxInteger *codepointCombiningClass(RexxObject *rexxCodepoint); // https://unicode.org/reports/tr15/#Detecting_Normalization_Forms
+RexxInteger *codepointBidiClass(RexxObject *rexxCodepoint);
+RexxInteger *codepointDecompType(RexxObject *rexxCodepoint);
+RexxInteger *codepointIgnorable(RexxObject *rexxCodepoint);
+RexxInteger *codepointControlBoundary(RexxObject *rexxCodepoint);
+RexxInteger *codepointCharWidth(RexxObject *rexxCodepoint);
+RexxInteger *codepointBoundClass(RexxObject *rexxCodepoint);
+*/
+
+
+::method codepointCategoryName class
+    expose codepointCategoryNames
+    use strict arg codepoint
+    category = self~codepointCategory(codepoint)
+    return codepointCategoryNames[1+category]
+
+
+-- Values returned by .Unicode~codepointCategory(codepoint)
+-- Unicode Standard 4.5 General Category
+-- Table 4-4. General Category
+-- Also:
+-- https://unicode.org/reports/tr44/#GC_Values_Table
+::constant CATEGORY_CN  0 /**< Other, not assigned */
+::constant CATEGORY_LU  1 /**< Letter, uppercase */
+::constant CATEGORY_LL  2 /**< Letter, lowercase */
+::constant CATEGORY_LT  3 /**< Letter, titlecase */
+::constant CATEGORY_LM  4 /**< Letter, modifier */
+::constant CATEGORY_LO  5 /**< Letter, other */
+::constant CATEGORY_MN  6 /**< Mark, nonspacing */
+::constant CATEGORY_MC  7 /**< Mark, spacing combining */
+::constant CATEGORY_ME  8 /**< Mark, enclosing */
+::constant CATEGORY_ND  9 /**< Number, decimal digit */
+::constant CATEGORY_NL 10 /**< Number, letter */
+::constant CATEGORY_NO 11 /**< Number, other */
+::constant CATEGORY_PC 12 /**< Punctuation, connector */
+::constant CATEGORY_PD 13 /**< Punctuation, dash */
+::constant CATEGORY_PS 14 /**< Punctuation, open */
+::constant CATEGORY_PE 15 /**< Punctuation, close */
+::constant CATEGORY_PI 16 /**< Punctuation, initial quote */
+::constant CATEGORY_PF 17 /**< Punctuation, final quote */
+::constant CATEGORY_PO 18 /**< Punctuation, other */
+::constant CATEGORY_SM 19 /**< Symbol, math */
+::constant CATEGORY_SC 20 /**< Symbol, currency */
+::constant CATEGORY_SK 21 /**< Symbol, modifier */
+::constant CATEGORY_SO 22 /**< Symbol, other */
+::constant CATEGORY_ZS 23 /**< Separator, space */
+::constant CATEGORY_ZL 24 /**< Separator, line */
+::constant CATEGORY_ZP 25 /**< Separator, paragraph */
+::constant CATEGORY_CC 26 /**< Other, control */
+::constant CATEGORY_CF 27 /**< Other, format */
+::constant CATEGORY_CS 28 /**< Other, surrogate */
+::constant CATEGORY_CO 29 /**< Other, private use */
+
+
+::method codepointBidiClassName class
+    expose codepointBidiClassNames
+    use strict arg codepoint
+    bidiClass = self~codepointBidiClass(codepoint)
+    return codepointBidiClassNames[1+bidiClass]
+
+
+-- Values returned by .Unicode~codepointBidiClass(codepoint)
+-- http://unicode.org/reports/tr9/tr9-11.html
+-- Table 3-7. Bidirectional Character Types
+::constant BIDI_CLASS_L     1 /**< Left-to-Right */
+::constant BIDI_CLASS_LRE   2 /**< Left-to-Right Embedding */
+::constant BIDI_CLASS_LRO   3 /**< Left-to-Right Override */
+::constant BIDI_CLASS_R     4 /**< Right-to-Left */
+::constant BIDI_CLASS_AL    5 /**< Right-to-Left Arabic */
+::constant BIDI_CLASS_RLE   6 /**< Right-to-Left Embedding */
+::constant BIDI_CLASS_RLO   7 /**< Right-to-Left Override */
+::constant BIDI_CLASS_PDF   8 /**< Pop Directional Format */
+::constant BIDI_CLASS_EN    9 /**< European Number */
+::constant BIDI_CLASS_ES   10 /**< European Separator */
+::constant BIDI_CLASS_ET   11 /**< European Number Terminator */
+::constant BIDI_CLASS_AN   12 /**< Arabic Number */
+::constant BIDI_CLASS_CS   13 /**< Common Number Separator */
+::constant BIDI_CLASS_NSM  14 /**< Nonspacing Mark */
+::constant BIDI_CLASS_BN   15 /**< Boundary Neutral */
+::constant BIDI_CLASS_B    16 /**< Paragraph Separator */
+::constant BIDI_CLASS_S    17 /**< Segment Separator */
+::constant BIDI_CLASS_WS   18 /**< Whitespace */
+::constant BIDI_CLASS_ON   19 /**< Other Neutrals */
+::constant BIDI_CLASS_LRI  20 /**< Left-to-Right Isolate */
+::constant BIDI_CLASS_RLI  21 /**< Right-to-Left Isolate */
+::constant BIDI_CLASS_FSI  22 /**< First Strong Isolate */
+::constant BIDI_CLASS_PDI  23 /**< Pop Directional Isolate */
+
+
+::method codepointDecompTypeName class
+    expose codepointDecompTypeNames
+    use strict arg codepoint
+    decompType = self~codepointDecompType(codepoint)
+    return codepointDecompTypeNames[1 + decompType]
+
+
+-- Values returned by .Unicode~codepointDecompType(codepoint)
+-- https://unicode.org/reports/tr44/#Formatting_Tags_Table
+-- Table 14. Compatibility Formatting Tags
+::constant DECOMP_TYPE_NONE      0 -- not in utf8proc, added because can be zero
+::constant DECOMP_TYPE_FONT      1 /**< Font */
+::constant DECOMP_TYPE_NOBREAK   2 /**< Nobreak */
+::constant DECOMP_TYPE_INITIAL   3 /**< Initial */
+::constant DECOMP_TYPE_MEDIAL    4 /**< Medial */
+::constant DECOMP_TYPE_FINAL     5 /**< Final */
+::constant DECOMP_TYPE_ISOLATED  6 /**< Isolated */
+::constant DECOMP_TYPE_CIRCLE    7 /**< Circle */
+::constant DECOMP_TYPE_SUPER     8 /**< Super */
+::constant DECOMP_TYPE_SUB       9 /**< Sub */
+::constant DECOMP_TYPE_VERTICAL 10 /**< Vertical */
+::constant DECOMP_TYPE_WIDE     11 /**< Wide */
+::constant DECOMP_TYPE_NARROW   12 /**< Narrow */
+::constant DECOMP_TYPE_SMALL    13 /**< Small */
+::constant DECOMP_TYPE_SQUARE   14 /**< Square */
+::constant DECOMP_TYPE_FRACTION 15 /**< Fraction */
+::constant DECOMP_TYPE_COMPAT   16 /**< Compat */
+
+
+::method codepointBoundClassName class
+    expose codepointBoundClassNames
+    use strict arg codepoint
+    boundClass = self~codepointBoundClass(codepoint)
+    return codepointBoundClassName[1+boundClass]
+
+
+-- Values returned by .Unicode~codepointBoundClass(codepoint)
+::constant BOUNDCLASS_START               0 /**< Start */
+::constant BOUNDCLASS_OTHER               1 /**< Other */
+::constant BOUNDCLASS_CR                  2 /**< Cr */
+::constant BOUNDCLASS_LF                  3 /**< Lf */
+::constant BOUNDCLASS_CONTROL             4 /**< Control */
+::constant BOUNDCLASS_EXTEND              5 /**< Extend */
+::constant BOUNDCLASS_L                   6 /**< L */
+::constant BOUNDCLASS_V                   7 /**< V */
+::constant BOUNDCLASS_T                   8 /**< T */
+::constant BOUNDCLASS_LV                  9 /**< Lv */
+::constant BOUNDCLASS_LVT                10 /**< Lvt */
+::constant BOUNDCLASS_REGIONAL_INDICATOR 11 /**< Regional indicator */
+::constant BOUNDCLASS_SPACINGMARK        12 /**< Spacingmark */
+::constant BOUNDCLASS_PREPEND            13 /**< Prepend */
+::constant BOUNDCLASS_ZWJ                14 /**< Zero Width Joiner */
+
+/* the following are no longer used in Unicode 11 */
+::constant BOUNDCLASS_E_BASE             15 /**< Emoji Base */
+::constant BOUNDCLASS_E_MODIFIER         16 /**< Emoji Modifier */
+::constant BOUNDCLASS_GLUE_AFTER_ZWJ     17 /**< Glue_After_ZWJ */
+::constant BOUNDCLASS_E_BASE_GAZ         18 /**< E_BASE + GLUE_AFTER_ZJW */
+
+/* the Extended_Pictographic property is used in the Unicode 11
+   grapheme-boundary rules, so we store it in the boundclass field */
+::constant BOUNDCLASS_EXTENDED_PICTOGRAPHIC 19
+::constant BOUNDCLASS_E_ZWG 20 /* BOUNDCLASS_EXTENDED_PICTOGRAPHIC + ZWJ */
+
+
+/*
+UAX44-LM2.
+https://unicode.org/reports/tr44/#UAX44-LM2
+*/
+::routine UAX44_LM2 public -- private
+    use strict arg string
+    buffer = .MutableBuffer~new(string)
+    buffer~space
+    /*
+    1. remove all medial hyphens (except the medial hyphen in the name for U+1180
+    HANGUL JUNGSEONG O-E).
+    In this rule "medial hyphen" is to be construed as a hyphen occurring immediately
+    between two letters in the normative Unicode character name, as published in
+    the Unicode names list, and not to any hyphen that may transiently occur medially
+    as a result of removing whitespace before removing hyphens in a particular
+    implementation of matching.
+    Thus the hyphen in the name U+10089 LINEAR B IDEOGRAM B107M HE-GOAT is medial,
+    and should be ignored in loose matching,
+    but the hyphen in the name U+0F39 TIBETAN MARK TSA -PHRU is not medial, and
+    should not be ignored in loose matching.
+    */
+    pos = 2 -- yes, 2, not 1
+    do forever
+        pos = buffer~verify("-", "M", pos)
+        if pos == 0 then leave
+        if buffer~subchar(pos-1)~verify(.string~alpha) == 0, buffer~subchar(pos+1)~verify(.string~alpha) == 0 then do
+            if buffer~subchar(pos+2) == "", buffer~string~caselessEquals("HANGUL JUNGSEONG O-E") then leave
+            buffer~replaceAt(" ", pos, 1)
+        end
+        else pos += 1 -- keep the hypeh. Ex: "TIBETAN MARK GTER YIG MGO -UM RNAM BCAD MA"
+    end
+
+    /*
+    2. remove all whitespace and underscore characters
+    */
+    buffer~translate(" ", "_")
+    buffer~space(0)
+
+    /*
+    3.apply toLowercase() to both strings
+    */
+    buffer~lower
+
+    return buffer~string
 
 
 /******************************************************************************/
@@ -1551,10 +1959,17 @@ x2d
     expose codepoint name
     use strict arg codepoint, name
 
+
+::method string
+    expose codepoint name
+    return ppCodepoint(codepoint) self~categoryName '"'name'"'
+
+
 ::method UTF8
     expose codepoint
     use strict arg -- none
     return .UTF8_Encoding~encode(codepoint)
+
 
 ::method UTF16
     forward message "UTF16BE"
@@ -1611,6 +2026,66 @@ x2d
     expose codepoint
     use strict arg -- none
     return .Unicode32_Encoding~encode(codepoint)
+
+
+::method category
+    expose codepoint
+    return .Unicode~codepointCategory(codepoint)
+
+
+::method categoryName
+    expose codepoint
+    return .Unicode~codepointCategoryName(codepoint)
+
+
+::method combiningClass
+    expose codepoint
+    return .Unicode~codepointCombiningClass(codepoint)
+
+
+::method bidiClass
+    expose codepoint
+    return .Unicode~codepointBidiClass(codepoint)
+
+
+::method bidiClassName
+    expose codepoint
+    return .Unicode~codepointBidiClassName(codepoint)
+
+
+::method decompType
+    expose codepoint
+    return .Unicode~codepointDecompType(codepoint)
+
+
+::method decompTypeName
+    expose codepoint
+    return .Unicode~codepointDecompTypeName(codepoint)
+
+
+::method ignorable
+    expose codepoint
+    return .Unicode~codepointIgnorable(codepoint)
+
+
+::method controlBoundary
+    expose codepoint
+    return .Unicode~codepointControlBoundary(codepoint)
+
+
+::method charWidth
+    expose codepoint
+    return .Unicode~codepointCharWidth(codepoint)
+
+
+::method boundClass
+    expose codepoint
+    return .Unicode~codepointBoundClass(codepoint)
+
+
+::method boundClassName
+    expose codepoint
+    return .Unicode~codepointBoundClassName(codepoint)
 
 
 /******************************************************************************/
@@ -1970,7 +2445,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     -- otherwise raise an error
     use strict arg leftText, rightText
     if leftText~isByte, rightText~isByte, leftText~encoding == rightText~encoding then return "b"
-    if leftText~isASCII, rigrightTextht~isASCII then return "b"
+    if leftText~isASCII, rightText~isASCII then return "b"
     if leftText~isASCII, (rightText~isUTF8 | rightText~isWTF8) then return "u"
     if (leftText~isUTF8 | leftText~isWTF8), rightText~isASCII then return "u"
     if leftText~isUnicode & rightText~isUnicode then return "u"
@@ -1999,7 +2474,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 ::constant isWTF32 0
 ::constant isWTF32BE 0
 ::constant isWTF32LE 0
-::constant isUnicodeX 0
+::constant isUnicodeN 0
 ::constant isUnicode8 0
 ::constant isUnicode16 0
 ::constant isUnicode32 0
@@ -2582,7 +3057,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         else do
             graphemeBreakArgs[1] = previousCodepoint
             graphemeBreakArgs[2] = codepoint
-            if .Unicode~GraphemeBreak(graphemeBreakArgs) then call indexGrapheme
+            if .Unicode~graphemeBreak(graphemeBreakArgs) then call indexGrapheme
         end
         previousCodepoint = codepoint
         previousCodepointIndexB = indexB
@@ -2934,12 +3409,12 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
     invalid_start_byte:        return error(startB + 1, "UTF-8 sequence at byte-position" startB "has an invalid start byte" startByte~c2d "("ppHexNumber(startByte~c2d)")")
     start_non_shortest_form:   return error(startB + 1, "UTF-8 sequence at byte-position" startB "has an invalid start byte" startByte~c2d "("ppHexNumber(startByte~c2d)") (non-shortest form)")
-    start_error_range:         return error(startB + 1, "UTF-8 sequence at byte-position" startB "has an invalid start byte" startByte~c2d "("ppHexNumber(startByte~c2d)") (codepoint > U+10FFFF)")
+    start_error_range:         return error(startB + 1, "UTF-8 sequence at byte-position" startB "has an invalid start byte" startByte~c2d "("ppHexNumber(startByte~c2d)") (codepoint > U+".Unicode~lastCodepoint~d2x")")
     invalid_continuation_byte: return error(indexB, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB)
     non_shortest_form:         return error(indexB, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB "(non-shortest form)")
     high_surrogate:            return error(indexB, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB "(high surrogate)")
     low_surrogate:             return error(indexB, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB "(low surrogate)")
-    error_range:               return error(indexB, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB "(codepoint > U+10FFFF)")
+    error_range:               return error(indexB, "UTF-8 sequence at byte-position" startB "has an invalid continuation byte" continuationByte~c2d "("ppHexNumber(continuationByte~c2d)") at byte-position" indexB "(codepoint > U+".Unicode~lastCodepoint~d2x")")
     truncated:                 return error(indexB, "UTF-8 sequence at byte-position" startB "is truncated, expected" byteCount "bytes")
 
     error:
@@ -2972,7 +3447,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         buffer~append((128 + (codepoint % 64) // 64)~d2c)           -- dst[1] = (utf8proc_uint8_t)(0x80 + ((uc >> 6) & 0x3F));
         buffer~append((128 + codepoint // 64)~d2c)                  -- dst[2] = (utf8proc_uint8_t)(0x80 + (uc & 0x3F));
     end                                                             -- return 3;
-    else if codepoint <= 1114111 then do                            -- } else if (uc < 0x110000) {
+    else if codepoint <= .Unicode~lastCodepoint then do             -- } else if (uc < 0x110000) {
         buffer~append((240 + codepoint % 262144)~d2c)               -- dst[0] = (utf8proc_uint8_t)(0xF0 + (uc >> 18));
         buffer~append((128 + (codepoint % 4096) // 64)~d2c)         -- dst[1] = (utf8proc_uint8_t)(0x80 + ((uc >> 12) & 0x3F));
         buffer~append((128 + (codepoint % 64) // 64)~d2c)           -- dst[2] = (utf8proc_uint8_t)(0x80 + ((uc >> 6) & 0x3F));
@@ -3058,7 +3533,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method Unicode
     use strict arg -- none
-    if self~class~isUnicodeX then return self~string~text
+    if self~class~isUnicodeN then return self~string~text
     if self~string~isASCII then do
         -- yes, always a new string. The original string is still associated to the Byte_Encoding.
         -- Don't use string~copy, because the reference to the associated text is in the copy,
@@ -3082,7 +3557,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
     use strict named arg checkOnlyRange=.false, errorInfo=.nil
     if codepoint <> .nil then do
-        if codepoint < 0 | codepoint > 1114111 then signal error_range
+        if codepoint < 0 | codepoint > .Unicode~lastCodepoint then signal error_range
         if checkOnlyRange then return 1 -- a positive value means "no error"
         if codepoint >= 55296 & codepoint < 56320 then signal error_high_surrogate -- U+D800 to U+DBFF high surrogates
         if codepoint >= 56320 & codepoint < 57344 then signal error_low_surrogate  -- U+DC00 to U+DFFF low surrogates
@@ -3092,7 +3567,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     -- Every byte of the byte-sequence must be considered as invalid,
     -- and must not be consumed, except the first byte.
     -- The 2nd byte will be a new start byte.
-    error_range:          return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
+    error_range:          return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..".Unicode~lastCodepoint)
     error_high_surrogate: return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". High surrogate is not allowed")
     error_low_surrogate:  return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Low surrogate is not allowed")
 
@@ -3150,7 +3625,7 @@ Concatenating WTF-8 strings requires extra care to preserve well-formedness.
     use strict named arg checkOnlyRange=.false, errorInfo=.nil
     -- say "WTF-8 checkCodepoint: codepoint="codepoint", previousCodepoint="previousCodepoint -- todo: remove
     if codepoint <> .nil then do
-        if codepoint < 0 | codepoint > 1114111 then signal error_range
+        if codepoint < 0 | codepoint > .Unicode~lastCodepoint then signal error_range
         if checkOnlyRange then return 1 -- a positive value means "no error"
         if previousCodepoint <> .nil then do
             previousCodePointIsInvalid = (previousCodepoint < 0)
@@ -3165,7 +3640,7 @@ Concatenating WTF-8 strings requires extra care to preserve well-formedness.
     end
     return 1 -- a positive value means "no error"
 
-    error_range:                                    return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
+    error_range:                                    return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..".Unicode~lastCodepoint)
     error_high_surrogate_followed_by_low_surrogate: return error(-1, self~name "encoding: high surrogate" previousCodepoint "("ppCodepoint(previousCodepoint)")" || atBytePosition(previousCodepointIndexB) || " followed by low surrogate" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || " is not allowed")
     error_low_surrogate_preceded_by_high_surrogate: return error(0, self~name "encoding: low surrogate" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || " preceded by high surrogate" previousCodepoint "("ppCodepoint(previousCodepoint)")" || atBytePosition(previousCodepointIndexB) || " is not allowed")
 
@@ -3310,7 +3785,7 @@ the concatenation back to WTF-8.
     else if codepoint < 65536 then do -- U+E000 to U+FFFF
         buffer~append(self~encodeCodepoint(codepoint))
     end
-    else if codepoint <= 1114111 then do -- U+010000 to U+10FFFF
+    else if codepoint <= .Unicode~lastCodepoint then do -- U+010000 to U+10FFFF
         buffer~append(self~encodeCodepoint(55296 + (codepoint - 65536) % 1024))     -- high surrogate: Subtract 0x10000, shift right by 10 (divide by 0x400), then add 0xD800
         buffer~append(self~encodeCodepoint(56320 + (codepoint - 65536) // 1024))    -- low surrogate: Subtract 0x10000, take the low 10 bits (remainder of dividing by 0x400), then add 0xDC0
     end
@@ -3500,7 +3975,7 @@ the concatenation back to WTF-8.
     use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
     use strict named arg checkOnlyRange=.false, errorInfo=.nil
     if codepoint <> .nil then do
-        if codepoint < 0 | codepoint > 1114111 then signal error_range
+        if codepoint < 0 | codepoint > .Unicode~lastCodepoint then signal error_range
         if checkOnlyRange then return 1 -- a positive value means "no error"
         if previousCodepoint <> .nil then do
                previousCodepointIsHighSurrogate = (previousCodepoint >= 55296 & previousCodepoint < 56320) -- U+D800 to U+DBFF high surrogates
@@ -3520,7 +3995,7 @@ the concatenation back to WTF-8.
     -- Every code unit of the byte-sequence must be considered as invalid,
     -- and must not be consumed, except the first code unit.
     -- The 2nd code unit will be the next code unit to analyze.
-    error_range: return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
+    error_range: return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..".Unicode~lastCodepoint)
     unpaired_high_surrogate: return error(-1, self~name "encoding: unpaired high surrogate" previousCodepoint "("ppCodepoint(previousCodepoint)") at byte-position" previousCodepointIndexB)
     unpaired_low_surrogate:  return error(0, self~name "encoding: unpaired low surrogate" codepoint "("ppCodepoint(codepoint)") at byte-position" codepointIndexB)
 
@@ -3561,14 +4036,14 @@ the concatenation back to WTF-8.
     use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
     use strict named arg checkOnlyRange=.false /*no impact here*/, errorInfo=.nil
     if codepoint <> .nil then do
-        if codepoint < 0 | codepoint > 1114111 then signal error_range
+        if codepoint < 0 | codepoint > .Unicode~lastCodepoint then signal error_range
     end
     return 1 -- a positive value means "no error"
 
     -- Every code unit of the byte-sequence must be considered as invalid,
     -- and must not be consumed, except the first code unit.
     -- The 2nd code unit will be the next code unit to analyze.
-    error_range: return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
+    error_range: return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..".Unicode~lastCodepoint)
 
     error:
         use strict arg whichCodepoint, errorMessage
@@ -3633,14 +4108,14 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
     use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
     use strict named arg checkOnlyRange=.false, errorInfo=.nil
     if codepoint <> .nil then do
-        if codepoint < 0 | codepoint > 1114111 then signal error_range
+        if codepoint < 0 | codepoint > .Unicode~lastCodepoint then signal error_range
         if checkOnlyRange then return 1 -- a positive value means "no error"
         if codepoint >= 55296 & codepoint < 56320 then signal error_high_surrogate -- U+D800 to U+DBFF high surrogates
         if codepoint >= 56320 & codepoint < 57344 then signal error_low_surrogate  -- U+DC00 to U+DFFF low surrogates
     end
     return 1 -- a positive value means "no error"
 
-    error_range:          return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
+    error_range:          return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..".Unicode~lastCodepoint)
     error_high_surrogate: return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". High surrogate is not allowed")
     error_low_surrogate:  return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Low surrogate is not allowed")
 
@@ -3884,10 +4359,10 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 
 ::method activate class
     expose isLittleEndian
-    isLittleEndian = .Unicode~SystemIsLittleEndian -- cache the value for faster access
+    isLittleEndian = .Unicode~systemIsLittleEndian -- cache the value for faster access
 
 
-::method isUnicodeX class
+::method isUnicodeN class
     use strict arg -- none
     return .true
 
@@ -4230,12 +4705,12 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
     use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
     use strict named arg checkOnlyRange=.false, errorInfo=.nil, checkingMaximumCodepoint=.false
     if codepoint <> .nil then do
-        if codepoint < 0 | codepoint > 1114111 then signal error_range
+        if codepoint < 0 | codepoint > .Unicode~lastCodepoint then signal error_range
     end
     return 1 -- a positive value means "no error"
 
-    error_range: if checkingMaximumCodepoint then return error(0, self~name "encoding: invalid maximum codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
-                                             else return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..1114111")
+    error_range: if checkingMaximumCodepoint then return error(0, self~name "encoding: invalid maximum codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..".Unicode~lastCodepoint)
+                                             else return error(0, self~name "encoding: invalid codepoint" codepoint "("ppCodepoint(codepoint)")" || atBytePosition(codepointIndexB) || ". Allowed range is 0..".Unicode~lastCodepoint)
 
     error:
         use strict arg whichCodepoint, errorMessage
@@ -4506,7 +4981,7 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
     */
     use strict arg codepoint, buffer=.nil
     if \datatype(codepoint, "W") then return "??"
-    if codepoint < 0 then return "??"
+    if codepoint < 0 then return codepoint
     if buffer == .nil then do
         if codepoint < 65536 then return "U+" || codepoint~d2x(4)
         return "U+" || codepoint~d2x

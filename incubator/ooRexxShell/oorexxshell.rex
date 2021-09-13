@@ -857,11 +857,26 @@ Helpers
         .ooRexxShell~hasQueries = loadPackage("oorexxshell_queries.cls")
         call loadPackage("pipeline/pipe_extension.cls")
         call loadPackage("rgf_util2/rgf_util2_wrappers.rex")
+        .ooRexxShell~sayComment("Unicode characters not loaded, execute: call loadUnicodeCharacters")
     end
 
     call declareAllPublicClasses
     call declareAllPublicRoutines
     return
+
+
+-------------------------------------------------------------------------------
+::routine loadUnicodeCharacters
+        status = .Unicode~loadCharacters("check") -- check if the Unicode data file exists
+        if status <> "" then do
+            .ooRexxShell~sayError("Can't load the Unicode characters:" status)
+            .ooRexxShell~sayError(.Unicode~loadCharacters("getFile"))
+        end
+        else do
+            .ooRexxShell~sayInfo("Load the Unicode characters" .Unicode~version "")
+            status = .Unicode~loadCharacters(/*action*/ "full", /*showProgress*/ .true) -- load all the Unicode characters
+            .ooRexxShell~sayInfo(status)
+        end
 
 
 -------------------------------------------------------------------------------
@@ -1178,6 +1193,13 @@ Helpers
     use strict arg text=""
     .color~select(.ooRexxShell~infoColor, .output)
     .output~say(text)
+    .color~select(.ooRexxShell~defaultColor, .output)
+
+
+::method charoutInfo class
+    use strict arg text=""
+    .color~select(.ooRexxShell~infoColor, .output)
+    .output~charout(text)
     .color~select(.ooRexxShell~defaultColor, .output)
 
 

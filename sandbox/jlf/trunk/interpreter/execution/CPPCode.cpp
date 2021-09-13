@@ -1099,8 +1099,17 @@ CPPM(RexxText::newRexx),
 
 CPPM(Unicode::newRexx),
 CPPM(Unicode::copyRexx),
-CPPM(Unicode::SystemIsLittleEndian),
-CPPM(Unicode::GraphemeBreak),
+CPPM(Unicode::version),
+CPPM(Unicode::systemIsLittleEndian),
+CPPM(Unicode::graphemeBreak),
+CPPM(Unicode::codepointCategory),
+CPPM(Unicode::codepointCombiningClass),
+CPPM(Unicode::codepointBidiClass),
+CPPM(Unicode::codepointDecompType),
+CPPM(Unicode::codepointIgnorable),
+CPPM(Unicode::codepointControlBoundary),
+CPPM(Unicode::codepointCharWidth),
+CPPM(Unicode::codepointBoundClass),
 
 
 NULL                                   /* final terminating method          */
