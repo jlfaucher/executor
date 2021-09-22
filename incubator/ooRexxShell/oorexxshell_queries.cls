@@ -311,7 +311,7 @@ attribute traceFilter
         -- Bug: With ooRexx < 5.0, the package of a method created with ::ATTRIBUTE is .nil.
         -- Bypass this bug by using the package of the class.
         injectClass = .inject {item~klass} "mem.class"
-        if inherited then injectClass |= .superclasses "recursive" "once" "after" "mem.class"
+        if inherited then injectClass |= .superclasses "recursive" "once" "after"
         classInfo~pipe(,
             injectClass,
           | .splitter[.inject {item~instanceMethods(item)} "iterateAfter" "mem.classMethod",,

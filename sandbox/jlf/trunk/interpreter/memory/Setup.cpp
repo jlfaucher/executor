@@ -1449,7 +1449,8 @@ void RexxMemory::createImage(const char *imageTarget)
   defineKernelMethod("CODEPOINTCATEGORY" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointCategory), 1);
   defineKernelMethod("CODEPOINTCOMBININGCLASS" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointCombiningClass), 1);
   defineKernelMethod("CODEPOINTBIDICLASS" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointBidiClass), 1);
-  defineKernelMethod("CODEPOINTDECOMPTYPE" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointDecompType), 1);
+  defineKernelMethod("CODEPOINTBIDIMIRRORED" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointBidiMirrored), 1);
+  defineKernelMethod("CODEPOINTDECOMPOSITIONTYPE" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointDecompositionType), 1);
   defineKernelMethod("CODEPOINTIGNORABLE" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointIgnorable), 1);
   defineKernelMethod("CODEPOINTCONTROLBOUNDARY" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointControlBoundary), 1);
   defineKernelMethod("CODEPOINTCHARWIDTH" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointCharWidth), 1);

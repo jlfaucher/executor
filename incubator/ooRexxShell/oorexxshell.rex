@@ -800,8 +800,8 @@ Helpers
     else if .ooRexxShell~isExtended, value~isA(.enclosedArray), dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
     else if .ooRexxShell~isExtended, value~isA(.array), value~dimension == 1, dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
     else if value~isA(.Collection)/*, dumpLevel == 2*/  then .ooRexxShell~sayCollection(value, /*title*/, .NumberComparator~new, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
-    -- if "==" (dumpLevel 2) then a supplier is displayed as a table. A copy is made to not consume the datas.
-    else if value~isA(.Supplier), dumpLevel == 2 then .ooRexxShell~sayCollection(value~copy~table, /*title*/, .NumberComparator~new, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
+    -- if "==" (dumpLevel 2) then a supplier is displayed as a collection. A copy is made to not consume the datas.
+    else if value~isA(.Supplier), dumpLevel == 2 then .ooRexxShell~sayCollection(value~copy, /*title*/, .NumberComparator~new, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
     else .ooRexxShell~sayPrettyString(value)
 
     return value -- To get this value in the variable RESULT
@@ -857,7 +857,7 @@ Helpers
         .ooRexxShell~hasQueries = loadPackage("oorexxshell_queries.cls")
         call loadPackage("pipeline/pipe_extension.cls")
         call loadPackage("rgf_util2/rgf_util2_wrappers.rex")
-        .ooRexxShell~sayComment("Unicode characters not loaded, execute: call loadUnicodeCharacters")
+        .ooRexxShell~sayComment("Unicode character names not loaded, execute: call loadUnicodeCharacterNames")
     end
 
     call declareAllPublicClasses
@@ -866,17 +866,39 @@ Helpers
 
 
 -------------------------------------------------------------------------------
-::routine loadUnicodeCharacters
-        status = .Unicode~loadCharacters("check") -- check if the Unicode data file exists
-        if status <> "" then do
-            .ooRexxShell~sayError("Can't load the Unicode characters:" status)
-            .ooRexxShell~sayError(.Unicode~loadCharacters("getFile"))
-        end
-        else do
-            .ooRexxShell~sayInfo("Load the Unicode characters" .Unicode~version "")
-            status = .Unicode~loadCharacters(/*action*/ "full", /*showProgress*/ .true) -- load all the Unicode characters
-            .ooRexxShell~sayInfo(status)
-        end
+::routine loadUnicodeCharacterNames
+    status = .Unicode~loadDerivedName("check") -- check if the Unicode data file exists
+    if status <> "" then do
+        .ooRexxShell~sayError("Can't load the Unicode character names:" status)
+        .ooRexxShell~sayError(.Unicode~loadDerivedName("getFile"))
+        return .false
+    end
+    .ooRexxShell~sayInfo("Load the Unicode character names" .Unicode~version "")
+    status = .Unicode~loadDerivedName(/*action*/ "load", /*showProgress*/ .true) -- load all the Unicode characters
+    .ooRexxShell~sayInfo
+    .ooRexxShell~sayInfo(status)
+
+    status = .Unicode~loadNameAliases("check") -- check if the Unicode data file exists
+    if status <> "" then do
+        .ooRexxShell~sayError("Can't load the Unicode character name aliases:" status)
+        .ooRexxShell~sayError(.Unicode~loadNameAliases("getFile"))
+        return .false
+    end
+    -- Small file, no need of progress
+    status = .Unicode~loadNameAliases(/*action*/ "load", /*showProgress*/ .false) -- load the name aliases
+    .ooRexxShell~sayInfo(status)
+
+    .ooRexxShell~sayComment("Unicode character intervals not expanded, execute: call expandUnicodeCharacterIntervals")
+
+    return .true
+
+
+::routine expandUnicodeCharacterIntervals
+    status = .Unicode~expandCharacterIntervals(.true)
+    if status <> "" then do
+        .ooRexxShell~sayInfo
+        .ooRexxShell~sayInfo(status)
+    end
 
 
 -------------------------------------------------------------------------------
@@ -1136,7 +1158,7 @@ Helpers
     drop lastResult
 
 
-::method variables class
+::method informations class
     -- Remember: keep it compatible with ooRexx 4.2, don't use a literal array.
     messages = ,
     "commandInterpreter",
@@ -1173,16 +1195,16 @@ Helpers
     "trapNoString",
     "trapNoValue",
     "trapSyntax"
-    variables = .directory~new
+    informations = .directory~new
     do message over messages~subwords
         value = .ooRexxshell~send(message)
-        variables~put(value, message)
+        informations~put(value, message)
     end
-    variables~put(.ooRexxShell~securityManager~isEnabledByUser, "securityManager~isEnabledByUser")
-    variables~put(.ooRexxShell~securityManager~traceCommand, "securityManager~traceCommand")
-    variables~put(.ooRexxShell~securityManager~verbose, "securityManager~verbose")
+    informations~put(.ooRexxShell~securityManager~isEnabledByUser, "securityManager~isEnabledByUser")
+    informations~put(.ooRexxShell~securityManager~traceCommand, "securityManager~traceCommand")
+    informations~put(.ooRexxShell~securityManager~verbose, "securityManager~verbose")
 
-    return variables
+    return informations
 
 
 ---------------
@@ -1519,7 +1541,7 @@ Helpers
     -- For convenience... rs is shorter than r.s
     else if "rs"~caselessEquals(word1) then .ooRexxShell~helpRoutines(rest, .true)
 
-    else if "settings"~caselessAbbrev(word1, 1) & rest~isEmpty then .ooRexxShell~sayCollection(.ooRexxShell~variables)
+    else if "settings"~caselessAbbrev(word1, 1) & rest~isEmpty then .ooRexxShell~sayCollection(.ooRexxShell~informations)
 
     else if "sf"~caselessEquals(word1) & rest~isEmpty then .oorexxShell~sayStackFrames
 

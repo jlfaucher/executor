@@ -495,7 +495,76 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
-2021 September 13
+2021 September 22
+
+[Encoded strings]
+
+New native methods:
+.Unicode
+    codepointBidiMirrored
+    codepointDecompositionType
+
+
+Add character aliases.
+.unicode~characters returns now a supplier, instead of the internal array of characters.
+The indexes of the characters supplier are the codepoints, not the indexes of the
+internal array which are codepoint+2.
+
+.unicode~characters==
+    an UnicodeCharacterSupplier
+    -1    : (-1 Cn "<UNKNOWN CHARACTER>")
+     0    : (U+0000 Cc "", "NULL", "NUL")
+     1    : (U+0001 Cc "", "START OF HEADING", "SOH")
+     2    : (U+0002 Cc "", "START OF TEXT", "STX")
+     3    : (U+0003 Cc "", "END OF TEXT", "ETX")
+     4    : (U+0004 Cc "", "END OF TRANSMISSION", "EOT")
+     5    : (U+0005 Cc "", "ENQUIRY", "ENQ")
+     ...
+
+
+Add character intervals.
+.UnicodeCharacterInterval
+    codepointFrom
+    codepointTo
+    name
+    isExpanded
+
+.unicode~characterIntervals==
+    an UnicodeCharacterIntervalSupplier
+     1  : (U+3400..U+4DBF "CJK UNIFIED IDEOGRAPH-*" 6591 characters)
+     2  : (U+4E00..U+9FFC "CJK UNIFIED IDEOGRAPH-*" 20988 characters)
+     3  : (U+F900..U+FA6D "CJK COMPATIBILITY IDEOGRAPH-*" 365 characters)
+     4  : (U+FA70..U+FAD9 "CJK COMPATIBILITY IDEOGRAPH-*" 105 characters)
+     5  : (U+17000..U+187F7 "TANGUT IDEOGRAPH-*" 6135 characters)
+     6  : (U+18B00..U+18CD5 "KHITAN SMALL SCRIPT CHARACTER-*" 469 characters)
+     7  : (U+18D00..U+18D08 "TANGUT IDEOGRAPH-*" 8 characters)
+     8  : (U+1B170..U+1B2FB "NUSHU CHARACTER-*" 395 characters)
+     9  : (U+20000..U+2A6DD "CJK UNIFIED IDEOGRAPH-*" 42717 characters)
+     10 : (U+2A700..U+2B734 "CJK UNIFIED IDEOGRAPH-*" 4148 characters)
+     11 : (U+2B740..U+2B81D "CJK UNIFIED IDEOGRAPH-*" 221 characters)
+     12 : (U+2B820..U+2CEA1 "CJK UNIFIED IDEOGRAPH-*" 5761 characters)
+     13 : (U+2CEB0..U+2EBE0 "CJK UNIFIED IDEOGRAPH-*" 7472 characters)
+     14 : (U+2F800..U+2FA1D "CJK COMPATIBILITY IDEOGRAPH-*" 541 characters)
+     15 : (U+30000..U+3134A "CJK UNIFIED IDEOGRAPH-*" 4938 characters)
+
+
+Informations about Unicode:
+.Unicode~informations=
+    a Directory (10 items)
+    'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=15 notExpanded:0 interval, 0 character)
+    'characters'                         : (an UnicodeCharacterSupplier count=143925 size=918001)
+    'dataDirectory'                      : (/local/rexx/oorexx/executor/sandbox/jlf/samples/extension/Unicode-13.0.0)
+    'maxCodepoint'                       :  1114111
+    'systemIsLittleEndian'               :  1
+    'totalCharacterNameAliases'          :  468
+    'totalCharactersLoaded'              :  143859
+    'totalIntervalCharacters'            :  100869
+    'totalIntervalCharactersNotExpanded' :  0
+    'version'                            : '13.0.0'
+
+
+===============================================================================
+2021 September 13, updated September 22
 
 [Encoded strings]
 
@@ -503,30 +572,21 @@ Add character informations.
 
 The loading of the character names is optional.
 By default, they are not loaded.
-From ooRexxShell, execute: call loadUnicodeCharacters
+From ooRexxShell, execute: call loadUnicodeCharacterNames
+By default, the character intervals are not expanded.
+From ooRexxShell, execute: call expandUnicodeCharacterIntervals
+
 The other character properties are always loaded (provided by utf8proc)
 
 .Unicode
-    lastCodepoint                       --> 1114111
-    codepointBidiClass(codepoint)       --> enum 1, 2, 3, ...
-    codepointBidiClassName(codepoint)   --> enum 'L', 'LRE', 'LRO', ...
-    codepointBoundClass(codepoint)      --> enum 0, 1, 2, ...
-    codepointBoundClassName(codepoint)  --> enum 'START', 'OTHER', 'CR', ...
-    codepointCategory(codepoint)        --> enum 0, 1, 2, ...
-    codepointCategoryName(codepoint)    --> enum 'Cn', 'Lu', 'Ll', ...
-    codepointCharWidth(codepoint)       --> integer
-    codepointCombiningClass(codepoint)  --> integer
-    codepointControlBoundary(codepoint) --> boolean
-    codepointDecompType(codepoint)      --> enum 0, 1, 2, ...
-    codepointDecompTypeName(codepoint)  --> enum '<none>', '<font>', '<nobreak>, ...
-    codepointIgnorable(codepoint)       --> boolean
-
-    characters          --> array of UnicodeCharacter
+    characters          --> supplier of UnicodeCharacter
     character(index)    --> UnicodeCharacter (index can be a loose matching name (UAX44-LM2) or a codepoint)
+    characterIntervals  --> supplier of UnicodeCharacterInterval
 
 .UnicodeCharacter
     codepoint       --> integer -1..1114111
     name            --> string
+    aliases         --> array of .UnicodeAlias
 
     bidiClass       --> enum 1, 2, 3, ...
     bidiClassName   --> enum 'L', 'LRE', 'LRO', ...
@@ -541,35 +601,34 @@ The other character properties are always loaded (provided by utf8proc)
     decompTypeName  --> enum '<none>', '<font>', '<nobreak>, ...
     ignorable       --> boolean
 
-
 Examples:
 
 -- All the Unicode characters (sparse array).
--- The indexes on the left are equal to 2+codepoint
--- because an array is 1-based
--- and because the special codepoint -1 is stored (not part of Unicode standard).
--- You are not supposed to read directly this array, use .Unicode~character(codepoint).
 .unicode~characters==
-        an Array (shape [918001], 143860 items)
-         1    : (-1 Cn "<UNKNOWN CHARACTER>")
-         34   : (U+0020 Zs "SPACE")
-         35   : (U+0021 Po "EXCLAMATION MARK")
-         36   : (U+0022 Po "QUOTATION MARK")
-         37   : (U+0023 Po "NUMBER SIGN")
-        ...
+an UnicodeCharacterSupplier
+    -1    : (-1 Cn "<UNKNOWN CHARACTER>")
+     0    : (U+0000 Cc "", "NULL", "NUL")
+     1    : (U+0001 Cc "", "START OF HEADING", "SOH")
+     2    : (U+0002 Cc "", "START OF TEXT", "STX")
+     3    : (U+0003 Cc "", "END OF TEXT", "ETX")
+    ...
+     32   : (U+0020 Zs "SPACE", "SP")
+     33   : (U+0021 Po "EXCLAMATION MARK")
+     34   : (U+0022 Po "QUOTATION MARK")
+    ...
 
 -- The last 10 characters
 .unicode~characters~pipe(.take "last" 10 | .console)
-        917992 : (U+E01E6 Mn "VARIATION SELECTOR-247")
-        917993 : (U+E01E7 Mn "VARIATION SELECTOR-248")
-        917994 : (U+E01E8 Mn "VARIATION SELECTOR-249")
-        917995 : (U+E01E9 Mn "VARIATION SELECTOR-250")
-        917996 : (U+E01EA Mn "VARIATION SELECTOR-251")
-        917997 : (U+E01EB Mn "VARIATION SELECTOR-252")
-        917998 : (U+E01EC Mn "VARIATION SELECTOR-253")
-        917999 : (U+E01ED Mn "VARIATION SELECTOR-254")
-        918000 : (U+E01EE Mn "VARIATION SELECTOR-255")
-        918001 : (U+E01EF Mn "VARIATION SELECTOR-256")
+    917990 : (U+E01E6 Mn "VARIATION SELECTOR-247", "VS247")
+    917991 : (U+E01E7 Mn "VARIATION SELECTOR-248", "VS248")
+    917992 : (U+E01E8 Mn "VARIATION SELECTOR-249", "VS249")
+    917993 : (U+E01E9 Mn "VARIATION SELECTOR-250", "VS250")
+    917994 : (U+E01EA Mn "VARIATION SELECTOR-251", "VS251")
+    917995 : (U+E01EB Mn "VARIATION SELECTOR-252", "VS252")
+    917996 : (U+E01EC Mn "VARIATION SELECTOR-253", "VS253")
+    917997 : (U+E01ED Mn "VARIATION SELECTOR-254", "VS254")
+    917998 : (U+E01EE Mn "VARIATION SELECTOR-255", "VS255")
+    917999 : (U+E01EF Mn "VARIATION SELECTOR-256", "VS256")
 
 -- get a character by codepoint
 .unicode~character(8203)=                   -- (U+200B Cf "ZERO WIDTH SPACE")
@@ -609,10 +668,12 @@ matcher = "*chris*"~matcher; .unicode~characters~select{expose matcher; matcher~
      12 : '2 So FATHER CHRISTMAS'
 
 -- shortest name:
-.unicode~character("U+1F402")~name=         -- 'OX'
+.unicode~characters~reduce(initial:.nil){if accu <> .nil, accu~name~length > item~name~length, item~name~length <> 0 then item }=
+    (U+1F402 So "OX")
 
 -- longest name:
-.unicode~character("U+FBF9")~name=          -- 'ARABIC LIGATURE UIGHUR KIRGHIZ YEH WITH HAMZA ABOVE WITH ALEF MAKSURA ISOLATED FORM'
+.unicode~characters~reduce(initial:.nil){if accu <> .nil, accu~name~length < item~name~length then item }=
+    (U+1FBA8 So "BOX DRAWINGS LIGHT DIAGONAL UPPER CENTRE TO MIDDLE LEFT AND MIDDLE RIGHT TO LOWER CENTRE")
 
 
 ===============================================================================

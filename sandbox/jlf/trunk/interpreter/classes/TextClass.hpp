@@ -108,7 +108,8 @@ public:
     RexxInteger *codepointCategory(RexxObject *rexxCodepoint);
     RexxInteger *codepointCombiningClass(RexxObject *rexxCodepoint);
     RexxInteger *codepointBidiClass(RexxObject *rexxCodepoint);
-    RexxInteger *codepointDecompType(RexxObject *rexxCodepoint);
+    RexxInteger *codepointBidiMirrored(RexxObject *rexxCodepoint);
+    RexxInteger *codepointDecompositionType(RexxObject *rexxCodepoint);
     RexxInteger *codepointIgnorable(RexxObject *rexxCodepoint);
     RexxInteger *codepointControlBoundary(RexxObject *rexxCodepoint);
     RexxInteger *codepointCharWidth(RexxObject *rexxCodepoint);

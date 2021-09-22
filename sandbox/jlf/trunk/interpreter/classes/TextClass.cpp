@@ -272,7 +272,7 @@ typedef enum {
 
 RexxInteger *Unicode::codepointCombiningClass(RexxObject *rexxCodepoint)
 {
-    utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointCategory: codepoint must be an integer");
+    utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointCombiningClass: codepoint must be an integer");
     const utf8proc_property_t *property = utf8proc_get_property(codepoint);
     return new_integer(property->combining_class); // see utf8proc_category_t
 }
@@ -280,7 +280,7 @@ RexxInteger *Unicode::codepointCombiningClass(RexxObject *rexxCodepoint)
 
 RexxInteger *Unicode::codepointBidiClass(RexxObject *rexxCodepoint)
 {
-    utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointCategory: codepoint must be an integer");
+    utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointBidiClass: codepoint must be an integer");
     const utf8proc_property_t *property = utf8proc_get_property(codepoint);
     return new_integer(property->bidi_class); // see utf8proc_bidi_class_t
 }
@@ -314,9 +314,17 @@ typedef enum {
 #endif
 
 
-RexxInteger *Unicode::codepointDecompType(RexxObject *rexxCodepoint)
+RexxInteger *Unicode::codepointBidiMirrored(RexxObject *rexxCodepoint)
 {
-    utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointCategory: codepoint must be an integer");
+    utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointBidiMirrored: codepoint must be an integer");
+    const utf8proc_property_t *property = utf8proc_get_property(codepoint);
+    return property->bidi_mirrored ? TheTrueObject : TheFalseObject;
+}
+
+
+RexxInteger *Unicode::codepointDecompositionType(RexxObject *rexxCodepoint)
+{
+    utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointDecompositionType: codepoint must be an integer");
     const utf8proc_property_t *property = utf8proc_get_property(codepoint);
     return new_integer(property->decomp_type); // see utf8proc_decomp_type_t
 
@@ -356,7 +364,7 @@ typedef enum {
 
 RexxInteger *Unicode::codepointIgnorable(RexxObject *rexxCodepoint)
 {
-    utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointCategory: codepoint must be an integer");
+    utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointIgnorable: codepoint must be an integer");
     const utf8proc_property_t *property = utf8proc_get_property(codepoint);
     return property->ignorable ? TheTrueObject : TheFalseObject;
 }
@@ -364,7 +372,7 @@ RexxInteger *Unicode::codepointIgnorable(RexxObject *rexxCodepoint)
 
 RexxInteger *Unicode::codepointControlBoundary(RexxObject *rexxCodepoint)
 {
-    utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointCategory: codepoint must be an integer");
+    utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointControlBoundary: codepoint must be an integer");
     const utf8proc_property_t *property = utf8proc_get_property(codepoint);
     return property->control_boundary ? TheTrueObject : TheFalseObject;
 }
@@ -372,7 +380,7 @@ RexxInteger *Unicode::codepointControlBoundary(RexxObject *rexxCodepoint)
 
 RexxInteger *Unicode::codepointCharWidth(RexxObject *rexxCodepoint)
 {
-    utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointCategory: codepoint must be an integer");
+    utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointCharWidth: codepoint must be an integer");
     const utf8proc_property_t *property = utf8proc_get_property(codepoint);
     return new_integer(property->charwidth);
 
@@ -384,7 +392,7 @@ RexxInteger *Unicode::codepointCharWidth(RexxObject *rexxCodepoint)
 
 RexxInteger *Unicode::codepointBoundClass(RexxObject *rexxCodepoint)
 {
-    utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointCategory: codepoint must be an integer");
+    utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointBoundClass: codepoint must be an integer");
     const utf8proc_property_t *property = utf8proc_get_property(codepoint);
     return new_integer(property->boundclass); // see utf8proc_boundclass_t
 }
