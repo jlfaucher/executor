@@ -497,6 +497,13 @@ The named arguments could be added to the returned array (splitting the key:valu
 ===============================================================================
 2021 September 22
 
+Reorganize the cls files: moved under the 'packages' directory.
+Builder updated to add the packages in PATH and to declare corresponding aliases.
+
+
+===============================================================================
+2021 September 22
+
 [Encoded strings]
 
 New native methods:

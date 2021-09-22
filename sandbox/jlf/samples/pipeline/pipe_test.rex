@@ -139,5 +139,5 @@ do while index <> .nil
 end
 
 
-::REQUIRES 'pipe.cls'
+::REQUIRES 'pipeline/pipe.cls'
 
