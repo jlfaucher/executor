@@ -97,6 +97,14 @@ Keep it compatible with official ooRexx
 
     A quote is either " or '.
 
+    An unquoted section is splitted in StringChunks delimited by whitespaces (anything <= 32) and break tokens.
+
+    A quoted section is not splitted:
+    - Whitespaces are kept,
+    - single occurences of quotes are removed,
+    - double occurrence of quotes are replaced by a single embedded quote,
+    - break tokens and escape characters are ignored.
+
     An escape character is any character passed in the argument escapeCharacters.
     An escape character sets the quote flag of the next character to 1.
     Escape characters are removed, even if they are not followed by another character (truncated string).
@@ -114,8 +122,6 @@ Keep it compatible with official ooRexx
         'one two "three four" five six' --> onetwothree fourfivesix
                                             00010011111111111000100
 
-    An unquoted section is splitted in StringChunks delimited by whitespaces (anything <= 32) and break tokens.
-
     Break tokens are passed in the argument breakTokens.
     A break token cannot contains spaces.
     The break tokens can be case sensitive (default) or case insensitive.
@@ -127,12 +133,6 @@ Keep it compatible with official ooRexx
 
     If a quote is declared break token then it's no longer recognized as a quote.
     If an escape character is declared break token then it's no longer recognized as an escape character.
-
-    A quoted section is not splitted:
-    - Whitespaces are kept,
-    - single occurences of quotes are removed,
-    - double occurrence of quotes are replaced by a single embedded quote,
-    - break tokens and escape characters are ignored.
 
     The split process is controlled by the argument splitLevel:
     - If splitLevel == 0 then the string is not splitted but the quotes and escape characters are managed, quotedFlags is set.
