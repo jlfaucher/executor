@@ -2,28 +2,252 @@
 Accumulation of URLs about Unicode
 ==================================
 
+26/09/2021  reorganize the notes by subject.
+
+
+Contents:
+    Unicode standard
+    Unicode general informations
+    U+ notation
+    Segmentation, Grapheme
+    Normalization, equivalence
+    Locale
+    CLDR Common Locale Data Repository
+    Collation, sorting
+    Emoji
+    Countries, flags
+    Evidence of partial or wrong support of Unicode
+    Optimization, SIMD
+    Variation sequence
+    Whitespaces, separators
+    Korean
+    Fuzzy String Matching
+    Levenshtein distance and string similarity
+    Encodings
+    TOML serialization format
+    CBOR Concise Binary Representation
+    Binary encoding in Unicode
+    String comparison
+    Invalid format
+    Mojibake
+    Filenames
+    WTF8
+    Rope
+    ICU bindings
+    Twitter text parsing
+    C++, Boost
+    DotNet, CoreFx
+    Factor
+    Lisp
+    MOAR-VM
+    PHP
+    Python
+    Rexx
+    Rust
+    Swift
+    Zig, Ziglyph
+
+
+================================================================================
+Unicode standard
+================================================================================
+
 https://www.unicode.org/Public/
 https://www.unicode.org/Public/MAPPINGS
 
-https://unicode.org/reports/tr10/#S2.1.1
+
 UNICODE COLLATION ALGORITHM
+Unicode has an official string collation algorithm called UCA
+http://unicode.org/reports/tr10/
+https://unicode.org/reports/tr10/#S2.1.1
+The Unicode Collation Algorithm takes an input Unicode string and a Collation Element Table,
+containing mapping data for characters. It produces a sort key, which is an array of
+unsigned 16-bit integers. Two or more sort keys so produced can then be binary-compared
+to give the correct comparison between the strings for which they were generated.
+
+
+08/06/2021
+Default Unicode Collation Element Table (DUCET)
+For the latest version, see:
+http://www.unicode.org/Public/UCA/latest/allkeys.txt
+---
+UTS10-D1. Collation Weight: A non-negative integer used in the UCA to establish a means for systematic comparison of constructed sort keys.
+UTS10-D2. Collation Element: An ordered list of collation weights.
+UTS10-D3. Collation Level: The position of a collation weight in a collation element.
+
 
 https://unicode.org/reports/tr15/#Detecting_Normalization_Forms
 UNICODE NORMALIZATION FORMS
+
+
+https://www.unicode.org/reports/tr51/
+Unicode  emoji
+
+
+23/05/2021
+https://www.unicode.org/notes/tn28/
+UNICODEMATH, A NEARLY PLAIN-TEXT ENCODING OF MATHEMATIC
+    𝑎𝑏𝑐
+    𝑑
+
+    𝑎 + 𝑐
+    𝑑
+
+    (𝑎 + 𝑏)𝑛 = ∑ (𝑛 𝑘) 𝑎𝑘𝑏𝑛−𝑘
+
+
+https://unicode.org/notes/tn5/
+Unicode Technical Note #5
+CANONICAL EQUIVALENCE IN APPLICATIONS
+
+
+================================================================================
+Unicode general informations
+================================================================================
 
 https://en.wikipedia.org/wiki/UTF-8
 https://en.wikipedia.org/wiki/UTF-16
 https://en.wikipedia.org/wiki/UTF-32
 
+
 http://xahlee.info/comp/unicode_index.html
+
 
 https://www.fontspace.com/unicode/analyzer
 https://www.compart.com/en/unicode/
 
 
-13/08/2013
-We don’t need a string type
-https://mortoray.com/2013/08/13/we-dont-need-a-string-type/
+22/05/2021
+https://onlineunicodetools.com/
+Online Unicode tools is a collection of useful browser-based utilities for manipulating Unicode text.
+
+
+28/05/2021
+https://unicode.scarfboy.com/
+Search tool
+Provides plenty of information about Unicode characters
+but no encoding UTF16
+
+https://unicode-table.com/en/
+Provides the encoding UTF16
+
+
+https://www.minaret.info/test/menu.msp
+Minaret Unicode Tests
+    Case Folding
+    Character Type
+    Collation
+    Normalization
+    Sorting
+    Transliteration
+
+
+https://www.gosecure.net/blog/2020/08/04/unicode-for-security-professionals/
+Unicode for Security Professionals
+by Philippe Arteau | Aug 4, 2020
+jlf : this article covers many of the Unicode characteristics
+
+
+https://github.com/bits/UTF-8-Unicode-Test-Documents
+Every Unicode character / codepoint in files and a file generator
+
+
+http://www.ltg.ed.ac.uk/~richard/utf-8.html
+let convert utf8 to codepoint + symbolic name
+
+http://blog.lunatech.com/2009/02/03/what-every-web-developer-must-know-about-url-encoding
+
+
+https://mothereff.in/utf-8
+UTF-8 encoder/decoder
+
+
+================================================================================
+U+ notation
+================================================================================
+
+29/05/2021
+https://stackoverflow.com/questions/1273693/why-is-u-used-to-designate-a-unicode-code-point/8891355
+The Python language defines the following string literals:
+    u'xyz' to indicate a Unicode string, a sequence of Unicode characters
+    '\uxxxx' to indicate a string with a unicode character denoted by four hex digits
+    '\Uxxxxxxxx' to indicate a string with a unicode character denoted by eight hex digits
+    \N{name}    Character named name in the Unicode database
+    \uxxxx      Character with 16-bit hex value xxxx. Exactly four hex digits are required.
+    \Uxxxxxxxx  Character with 32-bit hex value xxxxxxxx. Exactly eight hex digits are required.
+
+
+https://www.perl.com/article/json-unicode-and-perl-oh-my-/
+Its \uXXXX escapes support only characters within Unicode’s BMP;
+to store emoji or other non-BMP characters you either have to encode to UTF-8 directly.
+or indicate a UTF-16 surrogate pair in \uXXXX escapes.
+
+
+================================================================================
+Segmentation, Grapheme
+================================================================================
+
+29/05/2021
+https://github.com/alvinlindstam/grapheme
+https://pypi.org/project/grapheme/
+Here too, he says that CR+LF is a grapheme...
+
+Same here:
+https://www.reddit.com/r/programming/comments/m274cg/til_rn_crlf_is_a_single_grapheme_cluster/
+https://unicode.org/reports/tr29/#Table_Combining_Char_Sequences_and_Grapheme_Clusters
+
+
+01/06/2021
+https://halt.software/optimizing-unicodes-grapheme-cluster-break-algorithm/
+They claim this improvement:
+For the simple data set, this was 0.38 of utf8proc time.
+For the complex data set, this was 0.56 of utf8proc time.
+
+
+01/06/2021
+https://docs.rs/unicode-segmentation/1.7.1/unicode_segmentation/
+GraphemeCursor	Cursor-based segmenter for grapheme clusters.
+GraphemeIndices	External iterator for grapheme clusters and byte offsets.
+Graphemes	External iterator for a string's grapheme clusters.
+USentenceBoundIndices	External iterator for sentence boundaries and byte offsets.
+USentenceBounds	External iterator for a string's sentence boundaries.
+UWordBoundIndices	External iterator for word boundaries and byte offsets.
+UWordBounds	External iterator for a string's word boundaries.
+UnicodeSentences	An iterator over the substrings of a string which, after splitting the string on sentence boundaries, contain any characters with the Alphabetic property, or with General_Category=Number.
+UnicodeWords	An iterator over the substrings of a string which, after splitting the string on word boundaries, contain any characters with the Alphabetic property, or with General_Category=Number.
+
+
+https://github.com/knighton/unicode
+Minimalist Unicode normalization/segmentation library. Python and C++.
+Abandonned, last commit 21/05/2015
+
+
+07/06/2021
+https://news.ycombinator.com/item?id=20914184
+String lengths in Unicode
+    Claude Roux
+    We went through a lot of pain to get this right in Tamgu (https://github.com/naver/tamgu).
+    In particular, emojis can be encoded across 5 or 6 Unicode characters.
+    A "black thumb up" is encoded with 2 Unicode characters: the thumb glyph and its color.
+    This comes at a cost. Every time you extract a sub-string from a string,
+    you have to scan it first for its codepoints, then convert character positions
+    into byte positions. One way to speed up stuff a bit, is to check if the string
+    is in ASCII (see https://lemire.me/blog/2018/05/16/validating-utf-8-strings-u...)
+    and apply regular operator then.
+    We implemented many techniques based on "intrinsics" instructions to speed up
+    conversions and search in order to avoid scanning for codepoints.
+    See https://github.com/naver/tamgu/blob/master/src/conversion.cx... for more information.
+    https://github.com/naver/tamgu/wiki/4.-Speed-up-UTF8-string-processing-with-Intel's-%22intrinsics%22-instructions-(en)
+jlf: they have specific support for Korean... Probably because the NAVER company is from Republic of Korea ?
+08/06/2021
+https://twitter.com/hashtag/tamgu?src=hashtag_click
+https://twitter.com/hashtag/TAL?src=hashtag_click
+#tamgu le #langage_de_programmation pour le Traitement Automatique des Langues (#TAL).
+
+
+================================================================================
+Normalization, equivalence
+================================================================================
 
 26/11/2013
 Text normalization in Go
@@ -58,371 +282,28 @@ Note :
     I don't copy-paste here, too long.
 
 
-01/12/2013
-Strings in Ruby are UTF-8 now… right?
-http://andre.arko.net/2013/12/01/strings-in-ruby-are-utf-8-now/
-
-
-15/07/2017
-String Processing For Swift 4
-https://github.com/apple/swift/blob/master/docs/StringManifesto.md
-
-
-14/07/2017
-Testing Ruby's Unicode Support
-http://blog.honeybadger.io/ruby-s-unicode-support/
-
-
-22/05/2021
-List of all code points that can display differently via a variation sequence
-http://randomguy32.de/unicode/charts/standardized-variants/#emoji
-Safari is better to display the characters.
-Google Chrome and Opera have the same limitations: some characters are not supported (ex: section Phags-Pa).
-
-
-22/05/2021
-Emoji.length == 2
-https://news.ycombinator.com/item?id=13830177
-Lot of comments, did not read all, to continue
-
-https://www.unicode.org/reports/tr51/
-Unicode  emoji
-
-
-22/05/2021
-https://eev.ee/blog/2015/09/12/dark-corners-of-unicode/
-A section about wcwidth.
-A section about spaces:
-    There are actually two definitions of whitespace in Unicode.
-    Unicode assigns every codepoint a category, and has three categories for
-    what sounds like whitespace:
-        “Separator, space”;
-        “Separator, line”;
-        “Separator, paragraph”.
-    CR, LF, tab, and even vertical tab are all categorized as “Other, control”
-    and not as separators.
-    The only character in the “Separator, line” category is U+2028 LINE SEPARATOR,
-    and the only character in “Separator, paragraph” is U+2029 PARAGRAPH SEPARATOR.
-    Thankfully, all of these have the WSpace property.
-
-    As an added wrinkle, the lone oddball character “⠀” renders like a space in most fonts.
-    jlf: 2 cols x 3 lines of debossed dots.
-    But it’s not whitespace, it’s not categorized as a separator, and it doesn’t have WSpace.
-    It’s actually U+2800 BRAILLE PATTERN BLANK, the Braille character with none of the dots raised.
-    (I say “most fonts” because I’ve occasionally seen it rendered as a 2×4 grid of open circles.)
-
-
-
-22/05/2021
-http://gernot-katzers-spice-pages.com/var/korean_hangul_unicode.html
-The Korean Writing System
-
-
-22/05/2021
-https://en.wikipedia.org/wiki/Regional_indicator_symbol
-Regional indicator symbol
-
-https://en.wikipedia.org/wiki/ISO_3166-1
-ISO 3166-1 (Codes for the representation of names of countries and their subdivisions)
-
-
-22/05/2021
-https://manishearth.github.io/blog/2017/01/14/stop-ascribing-meaning-to-unicode-code-points/
-Let's Stop Ascribing Meaning to Code Points
-
-
-22/05/2021
-https://onlineunicodetools.com/
-Online Unicode tools is a collection of useful browser-based utilities for manipulating Unicode text.
-
-
-23/05/2021
-https://www.unicode.org/notes/tn28/
-UNICODEMATH, A NEARLY PLAIN-TEXT ENCODING OF MATHEMATIC
-    𝑎𝑏𝑐
-    𝑑
-
-    𝑎 + 𝑐
-    𝑑
-
-    (𝑎 + 𝑏)𝑛 = ∑ (𝑛 𝑘) 𝑎𝑘𝑏𝑛−𝑘
-
-
-28/05/2021
-https://unicode.scarfboy.com/
-Search tool
-Provides plenty of information about Unicode characters
-but no encoding UTF16
-
-https://unicode-table.com/en/
-Provides the encoding UTF16
-
-
-29/05/2021
-https://stackoverflow.com/questions/1273693/why-is-u-used-to-designate-a-unicode-code-point/8891355
-The Python language defines the following string literals:
-    u'xyz' to indicate a Unicode string, a sequence of Unicode characters
-    '\uxxxx' to indicate a string with a unicode character denoted by four hex digits
-    '\Uxxxxxxxx' to indicate a string with a unicode character denoted by eight hex digits
-    \N{name}    Character named name in the Unicode database
-    \uxxxx      Character with 16-bit hex value xxxx. Exactly four hex digits are required.
-    \Uxxxxxxxx  Character with 32-bit hex value xxxxxxxx. Exactly eight hex digits are required.
-
-
-29/05/2021
-http://moarvm.com/releases.html
-    2017.07
-        Greatly reduce the cases when string concatenation needs renormalization
-        Use normalize_should_break to decide if concat needs normalization
-        Rename should_break to MVM_unicode_normalize_should_break
-        Fix memory leak in MVM_nfg_is_concat_stable
-        If both last_a and first_b during concat are non-0 CCC, re-NFG
-    --> maybe to review : the last sentence seems to be an optimization of concatenation.
-    2017.02
-        Implement support for synthetic graphemes in MVM_unicode_string_compare
-        Implement configurable collation_mode for MVM_unicode_string_compare
-    2017.01
-        Add a new unicmp_s op, which compares using the Unicode Collation Algorithm
-        Add support for Grapheme_Cluster_Break=Prepend from Unicode 9.0
-        Add a script to download the latest version of all of the Unicode data
-    --> should review this script
-    2015.11
-        NFG now uses Unicode Grapheme Cluster algorithm; "\r\n" is now one grapheme
-    --> ??? [later] ah, I had a bug! Was not analyzing an UTF-8 ASCII string... Now fixed:
-        "0A0D"x~text~description= -- UTF-8 ASCII ( 2 graphemes, 2 codepoints, 2 bytes )
-        "0D0A"x~text~description= -- UTF-8 ASCII ( 1 grapheme, 2 codepoints, 2 bytes )
-
-
-29/05/2021
-https://news.ycombinator.com/item?id=26591373
-String length functions for single emoji characters evaluate to greater than 1
---> to check : MOAR VM really concatenate a 8bit string with a 32bit string using a string concatenation object ?
-
-    You could do it the way Raku does. It's implementation defined. (Rakudo on MoarVM)
-    The way MoarVM does it is that it does NFG, which is sort of like NFC except that it stores grapheme clusters as if they were negative codepoints.
-
-    If a string is ASCII it uses an 8bit storage format, otherwise it uses a 32bit one.
-    It also creates a tree of immutable string objects.
-    If you do a substring operation it creates a substring object that points at an existing string object.
-    If you combine two strings it creates a string concatenation object. Which is useful for combining an 8bit string with a 32bit one.
-    All of that is completely opaque at the Raku level of course.
-
-        my $str = "\c[FACE PALM, EMOJI MODIFIER FITZPATRICK TYPE-3, ZWJ, MALE SIGN, VARIATION SELECTOR-16]";
-
-        say $str.chars;        # 1
-        say $str.codes;        # 5
-        say $str.encode('utf16').elems; # 7
-        say $str.encode('utf16').bytes; # 14
-        say $str.encode.elems; # 17
-        say $str.encode.bytes; # 17
-        say $str.codes * 4;    # 20
-        #(utf32 encode/decode isn't implemented in MoarVM yet)
-
-        say for $str.uninames;
-        # FACE PALM
-        # EMOJI MODIFIER FITZPATRICK TYPE-3
-        # ZERO WIDTH JOINER
-        # MALE SIGN
-        # VARIATION SELECTOR-16
-    The reason we have utf8-c8 encode/decode is because filenames, usernames, and passwords are not actually Unicode.
-    (I have 4 files all named rèsumè in the same folder on my computer.)
-    utf8-c8 uses the same synthetic codepoint system as grapheme clusters.
-
-
-29/05/2021
-https://github.com/logannc/fuzzywuzzy-rs
-Rust port of the Python fuzzywuzzy
-https://github.com/seatgeek/fuzzywuzzy
-
-https://github.com/ztane/python-Levenshtein/
-The Levenshtein Python C extension module contains functions for fast computation of Levenshtein distance and string similarity
-
-
-29/05/2021
-https://tonsky.me/blog/emoji/
-https://observablehq.com/@jobleonard/which-unicode-flags-are-reversible
-
-
-29/05/2021
-https://github.com/alvinlindstam/grapheme
-https://pypi.org/project/grapheme/
-Here too, he says that CR+LF is a grapheme...
-
-Same here:
-https://www.reddit.com/r/programming/comments/m274cg/til_rn_crlf_is_a_single_grapheme_cluster/
-https://unicode.org/reports/tr29/#Table_Combining_Char_Sequences_and_Grapheme_Clusters
-
-
-30/05/2021
-https://datatracker.ietf.org/doc/html/rfc8259
-The JavaScript Object Notation (JSON) Data Interchange Format
-See this section about strings and encoding:
-https://datatracker.ietf.org/doc/html/rfc8259#section-7
-
-https://www.perl.com/article/json-unicode-and-perl-oh-my-/
-Its \uXXXX escapes support only characters within Unicode’s BMP;
-to store emoji or other non-BMP characters you either have to encode to UTF-8 directly.
-or indicate a UTF-16 surrogate pair in \uXXXX escapes.
-
-https://github.com/toml-lang/toml
-Tom's Obvious, Minimal Language
-TOML is a nice serialization format for human-maintained data structures.
-It’s line-delimited and—of course!—allows comments, and any Unicode code point can be expressed in simple hexadecimal.
-TOML is fairly new, and its specification is still in flux;
-
-https://cbor.io/
-RFC 8949 Concise Binary Object Representation
-CBOR improves upon JSON’s efficiency and also allows for storage of binary strings.
-Whereas JSON encoders must stringify numbers and escape all strings,
-CBOR stores numbers “literally” and prefixes strings with their length,
-which obviates the need to escape those strings.
-
-https://www.rfc-editor.org/rfc/rfc8949.html
-RFC 8949 Concise Binary Object Representation (CBOR)
-In contrast to formats such as JSON, the Unicode characters in this type are never escaped.
-Thus, a newline character (U+000A) is always represented in a string as the byte 0x0a,
-and never as the bytes 0x5c6e (the characters "\" and "n")
-nor as 0x5c7530303061 (the characters "\", "u", "0", "0", "0", and "a").
-
-
-31/05/2021
-https://stackoverflow.com/questions/49662585/how-do-i-compare-a-unicode-string-that-has-different-bytes-but-the-same-value
-A pair NFC considers different but a user might consider the same is 'µ' (MICRO SIGN) and 'μ' (GREEK SMALL LETTER MU).
-NFKC will collapse these two.
-
-UNICODE COLLATION ALGORITHM
-Unicode has an official string collation algorithm called UCA
-http://unicode.org/reports/tr10/
-
-
-01/06/2021
-https://halt.software/optimizing-unicodes-grapheme-cluster-break-algorithm/
-They claim this improvement:
-For the simple data set, this was 0.38 of utf8proc time.
-For the complex data set, this was 0.56 of utf8proc time.
-
-
-01/06/2021
-Zach Laine
-https://www.youtube.com/watch?v=944GjKxwMBo
-https://tzlaine.github.io/text/doc/html/boost_text__proposed_/the_text_layer.html
-The Text Layer
-https://tzlaine.github.io/text/doc/html/
-Chapter 1. Boost.Text (Proposed) - 2018
-https://github.com/tzlaine/text
-    last commit :
-        master                          26/09/2020
-        boost_serialization             24/10/2019
-        coroutines                      25/08/2020
-        experimental                    13/11/2019
-        gh-pages                        04/09/2020
-        optimization                    27/10/2019
-        rope_free_fn_reimplementation   26/07/2020
-No longer working on this project ?
-
-
-01/06/2021
-https://docs.rs/unicode-segmentation/1.7.1/unicode_segmentation/
-GraphemeCursor	Cursor-based segmenter for grapheme clusters.
-GraphemeIndices	External iterator for grapheme clusters and byte offsets.
-Graphemes	External iterator for a string's grapheme clusters.
-USentenceBoundIndices	External iterator for sentence boundaries and byte offsets.
-USentenceBounds	External iterator for a string's sentence boundaries.
-UWordBoundIndices	External iterator for word boundaries and byte offsets.
-UWordBounds	External iterator for a string's word boundaries.
-UnicodeSentences	An iterator over the substrings of a string which, after splitting the string on sentence boundaries, contain any characters with the Alphabetic property, or with General_Category=Number.
-UnicodeWords	An iterator over the substrings of a string which, after splitting the string on word boundaries, contain any characters with the Alphabetic property, or with General_Category=Number.
-
-
-01/06/2021
-https://github.com/jgm/unicode-collation
-https://hackage.haskell.org/package/unicode-collation
-Haskell implementation of the Unicode Collation Algorithm
-
-https://icu4c-demos.unicode.org/icu-bin/collation.html
-ICU Collation Demo
-
-https://www.enterprisedb.com/docs/epas/latest/epas_guide/03_database_administration/06_unicode_collation_algorithm/
-Unicode Collation Algorithm
-
-https://www.minaret.info/test/collate.msp
-This page provides a means to convert a string of Unicode characters into a binary collation key using
-the Java language version ("icu4j") of the IBM International Components for Unicode (ICU) library.
-A collation key is the basis for sorting and comparing strings in a language-sensitive Unicode environment.
-A collation key is built using a "locale" (a designation for a particular laguage or a variant) and a comparison level.
-The levels supported here (Primary, Secondary, Tertiary, Quaternary and Identical) correspond to levels
-"L1" through "Ln" as described in Unicode Technical Standard #10 - Unicode Collation Algorithm.
-When comparing collation keys for two different strings, both keys must have been created using the same locale
-and comparison level in order to be meaningful. The two keys are compared from left to right, byte for byte
-until one of the bytes is not equal to the other. Whichever byte is numerically less than the other causes
-the source string for that collation key to sort before the other string.
-
-https://www.minaret.info/test/menu.msp
-Minaret Unicode Tests
-    Case Folding
-    Character Type
-    Collation
-    Normalization
-    Sorting
-    Transliteration
-
-https://lemire.me/blog/2018/12/17/sorting-strings-properly-is-stupidly-hard/
-It's the comments section which is interesting.
-
-https://discourse.julialang.org/t/sorting-strings-by-unicode-collation-order/11195
-Not supported
-
-https://en.wikipedia.org/wiki/Natural_sort_order
-Natural sort order is an ordering of strings in alphabetical order,
-except that multi-digit numbers are ordered as a single character.
-Natural sort order has been promoted as being more human-friendly ("natural")
-than the machine-oriented pure alphabetical order.
-For example, in alphabetical sorting "z11" would be sorted before "z2"
-because "1" is sorted as smaller than "2",
-while in natural sorting "z2" is sorted before "z11" because "2" is sorted as smaller than "11".
-Alphabetical sorting:
-    z11
-    z2
-Natural sorting:
-    z2
-    z11
-Functionality to sort by natural sort order is built into many programming languages and libraries.
-
-https://github.com/knighton/unicode
-Minimalist Unicode normalization/segmentation library. Python and C++.
-Abandonned, last commit 21/05/2015
-
 https://github.com/blackwinter/unicode
 Unicode normalization library. (Mirror of Yoshida-san's code base to maintain the RubyGem.)
 Abandonned, last commit 07/07/2016
+
 
 https://github.com/sjorek/unicode-normalization
 An enhanced facade to existing unicode-normalization implementations
 Last commit 25/03/2018
 
+
 https://docs.microsoft.com/en-us/windows/win32/intl/using-unicode-normalization-to-represent-strings
 Using Unicode Normalization to Represent Strings
+
 
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/normalize
 String.prototype.normalize()
 The normalize() method returns the Unicode Normalization Form of the string.
 
+
 https://forums.swift.org/t/string-case-folding-and-normalization-apis/14663/3
 For the comments
 
-https://unicode.org/notes/tn5/
-Unicode Technical Note #5
-CANONICAL EQUIVALENCE IN APPLICATIONS
-
-https://opensource.apple.com/source/subversion/subversion-52/subversion/notes/unicode-composition-for-filenames.auto.html
-2 problems follow:
- 1) We can't generally depend on the OS to give us back the
-     exact filename we gave it
- 2) The same filename may be encoded in different codepoints
-
-https://www.gosecure.net/blog/2020/08/04/unicode-for-security-professionals/
-Unicode for Security Professionals
-by Philippe Arteau | Aug 4, 2020
 
 https://en.wikipedia.org/wiki/Unicode_equivalence
 Unicode equivalence is the specification by the Unicode character encoding standard that some sequences
@@ -448,16 +329,841 @@ Re: [icu-support] Options for Immutable Collation?
     -Zach Lym
 
 
+08/06/2021
+https://fr.wikipedia.org/wiki/Normalisation_Unicode
+NFD     Les caractères sont décomposés par équivalence canonique et réordonnés
+        canonical decomposition
+NFC     Les caractères sont décomposés par équivalence canonique, réordonnés, et composés par équivalence canonique
+        canonical decomposition followed by canonical composition
+NFKD    Les caractères sont décomposés par équivalence canonique et de compatibilité, et sont réordonnés
+        compatibility decomposition
+NFKC    Les caractères sont décomposés par équivalence canonique et de compatibilité, sont réordonnés et sont composés par équivalence canonique
+        compatibility decomposition followed by canonical composition
+FCD     "Fast C or D" form; cf. UTN #5
+FCC     "Fast C Contiguous"; cf. UTN #5
+
+
+09/06/2021
+Rust
+https://docs.rs/unicode-normalization
+    Decompositions  External iterator for a string decomposition’s characters.
+    Recompositions  External iterator for a string recomposition’s characters.
+    Replacements    External iterator for replacements for a string’s characters.
+    StreamSafe      UAX15-D4: This iterator keeps track of how many non-starters
+                    there have been since the last starter in NFKD and will emit
+                    a Combining Grapheme Joiner (U+034F) if the count exceeds 30.
+
+    is_nfc                      Authoritatively check if a string is in NFC.
+    is_nfc_quick                Quickly check if a string is in NFC, potentially returning IsNormalized::Maybe if further checks are necessary. In this case a check like s.chars().nfc().eq(s.chars()) should suffice.
+    is_nfc_stream_safe          Authoritatively check if a string is Stream-Safe NFC.
+    is_nfc_stream_safe_quick    Quickly check if a string is Stream-Safe NFC.
+    is_nfd                      Authoritatively check if a string is in NFD.
+    is_nfd_quick                Quickly check if a string is in NFD.
+    is_nfd_stream_safe          Authoritatively check if a string is Stream-Safe NFD.
+    is_nfd_stream_safe_quick    Quickly check if a string is Stream-Safe NFD.
+    is_nfkc                     Authoritatively check if a string is in NFKC.
+    is_nfkc_quick               Quickly check if a string is in NFKC.
+    is_nfkd                     Authoritatively check if a string is in NFKD.
+    is_nfkd_quick               Quickly check if a string is in NFKD.
+
+    Enums
+    IsNormalized	The QuickCheck algorithm can quickly determine if a text is or isn’t normalized without any allocations in many cases, but it has to be able to return Maybe when a full decomposition and recomposition is necessary.
+
+
+08/06/2021
+Pharo
+https://medium.com/concerning-pharo/an-implementation-of-unicode-normalization-7c6719068f43
+
+
+https://github.com/duerst/eprun
+Efficient Pure Ruby Unicode Normalization (eprun)
+According to julia/utf8proc, the interesting part is the tests.
+
+
+================================================================================
+Locale
+================================================================================
+
+02/06/2021
+https://www.php.net/manual/fr/function.setlocale.php
+Warning
+The locale information is maintained per process, not per thread.
+If you are running PHP on a multithreaded server API , you may experience sudden changes
+in locale settings while a script is running, though the script itself never called setlocale().
+This happens due to other scripts running in different threads of the same process at the same time,
+changing the process-wide locale using setlocale().
+On Windows, locale information is maintained per thread as of PHP 7.0.5.
+On Windows, setlocale(LC_ALL, '') sets the locale names from the system's regional/language settings (accessible via Control Panel).
+
+
+================================================================================
+CLDR Common Locale Data Repository
+================================================================================
+
+19/06/2021
+https://github.com/twitter/twitter-cldr-rb
+Ruby implementation of the ICU (International Components for Unicode) that uses
+the Common Locale Data Repository to format dates, plurals, and more.
+
+
+https://github.com/twitter/twitter-cldr-js
+JavaScript implementation of the ICU (International Components for Unicode) that uses
+the Common Locale Data Repository to format dates, plurals, and more. Based on twitter-cldr-rb.
+
+
+================================================================================
+Collation, sorting
+================================================================================
+
+01/06/2021
+https://github.com/jgm/unicode-collation
+https://hackage.haskell.org/package/unicode-collation
+Haskell implementation of the Unicode Collation Algorithm
+
+
+https://icu4c-demos.unicode.org/icu-bin/collation.html
+ICU Collation Demo
+
+
+https://www.enterprisedb.com/docs/epas/latest/epas_guide/03_database_administration/06_unicode_collation_algorithm/
+Unicode Collation Algorithm
+
+
+https://www.minaret.info/test/collate.msp
+This page provides a means to convert a string of Unicode characters into a binary collation key using
+the Java language version ("icu4j") of the IBM International Components for Unicode (ICU) library.
+A collation key is the basis for sorting and comparing strings in a language-sensitive Unicode environment.
+A collation key is built using a "locale" (a designation for a particular laguage or a variant) and a comparison level.
+The levels supported here (Primary, Secondary, Tertiary, Quaternary and Identical) correspond to levels
+"L1" through "Ln" as described in Unicode Technical Standard #10 - Unicode Collation Algorithm.
+When comparing collation keys for two different strings, both keys must have been created using the same locale
+and comparison level in order to be meaningful. The two keys are compared from left to right, byte for byte
+until one of the bytes is not equal to the other. Whichever byte is numerically less than the other causes
+the source string for that collation key to sort before the other string.
+
+
+https://lemire.me/blog/2018/12/17/sorting-strings-properly-is-stupidly-hard/
+It's the comments section which is interesting.
+
+
+https://discourse.julialang.org/t/sorting-strings-by-unicode-collation-order/11195
+Not supported
+
+
+https://en.wikipedia.org/wiki/Natural_sort_order
+Natural sort order is an ordering of strings in alphabetical order,
+except that multi-digit numbers are ordered as a single character.
+Natural sort order has been promoted as being more human-friendly ("natural")
+than the machine-oriented pure alphabetical order.
+For example, in alphabetical sorting "z11" would be sorted before "z2"
+because "1" is sorted as smaller than "2",
+while in natural sorting "z2" is sorted before "z11" because "2" is sorted as smaller than "11".
+Alphabetical sorting:
+    z11
+    z2
+Natural sorting:
+    z2
+    z11
+Functionality to sort by natural sort order is built into many programming languages and libraries.
+
+
+02/06/2021
+https://www.postgresql.org/message-id/flat/BA6132ED-1F6B-4A0B-AC22-81278F5AB81E%40tripadvisor.com
+The dangers of streaming across versions of glibc: A cautionary tale
+SELECT 'Ｍ' > 'ஐ';
+'FULLWIDTH LATIN CAPITAL LETTER M' (U+FF2D)
+'TAMIL LETTER AI' (U+0B90)
+Across different machines, running the same version of postgres, and in databases
+with identical character encodings and collations ('en_US.UTF-8') that select will
+return different results if the version of glibc is different.
+master:src/backend/utils/adt/varlena.c:1494,1497  These are the lines where postgres
+calls strcoll_l and strcoll, in order to sort strings in a locale aware manner.
+The reality is that there are different versions of glibc out there in the wild,
+and they do not sort consistently across versions/environments.
+
+
+================================================================================
+Emoji
+================================================================================
+
+http://xahlee.info/comp/unicode_emoticons.html
+
+
+29/05/2021
+https://tonsky.me/blog/emoji/
+
+
+================================================================================
+Countries, flags
+================================================================================
+
+22/05/2021
+https://en.wikipedia.org/wiki/Regional_indicator_symbol
+Regional indicator symbol
+
+
+https://en.wikipedia.org/wiki/ISO_3166-1
+ISO 3166-1 (Codes for the representation of names of countries and their subdivisions)
+
+
+https://observablehq.com/@jobleonard/which-unicode-flags-are-reversible
+
+
+================================================================================
+Evidence of partial or wrong support of Unicode
+================================================================================
+
+13/08/2013
+We don’t need a string type
+https://mortoray.com/2013/08/13/we-dont-need-a-string-type/
+
+
+01/12/2013
+Strings in Ruby are UTF-8 now… right?
+http://andre.arko.net/2013/12/01/strings-in-ruby-are-utf-8-now/
+
+
+14/07/2017
+Testing Ruby's Unicode Support
+http://blog.honeybadger.io/ruby-s-unicode-support/
+
+
+22/05/2021
+Emoji.length == 2
+https://news.ycombinator.com/item?id=13830177
+Lot of comments, did not read all, to continue
+
+
+22/05/2021
+https://manishearth.github.io/blog/2017/01/14/stop-ascribing-meaning-to-unicode-code-points/
+Let's Stop Ascribing Meaning to Code Points
+
+
+18/07/2021
+https://manishearth.github.io/blog/2017/01/15/breaking-our-latin-1-assumptions/
+Breaking Our Latin-1 Assumptions
+
+
+================================================================================
+Optimization, SIMD
+================================================================================
+
+08/06/2021
+https://lemire.me/blog/2018/05/16/validating-utf-8-strings-using-as-little-as-0-7-cycles-per-byte/
+
+
+https://github.com/lemire/fastvalidate-utf-8
+header-only library to validate utf-8 strings at high speeds (using SIMD instructions)
+
+
+08/06/2021
+https://github.com/simdjson/simdjson
+simdjson : Parsing gigabytes of JSON per second
+The simdjson library uses commonly available SIMD instructions and microparallel algorithms
+to parse JSON 4x faster than RapidJSON and 25x faster than JSON for Modern C++.
+Minify JSON at 6 GB/s, validate UTF-8 at 13 GB/s, NDJSON at 3.5 GB/s
+
+
+https://arxiv.org/abs/2010.03090
+Validating UTF-8 In Less Than One Instruction Per Byte
+John Keiser, Daniel Lemire
+The majority of text is stored in UTF-8, which must be validated on ingestion.
+We present the lookup algorithm, which outperforms UTF-8 validation routines used
+in many libraries and languages by more than 10 times using commonly available SIMD instructions.
+To ensure reproducibility, our work is freely available as open source software.
+
+
+https://r-libre.teluq.ca/2178/
+    Recherche et analyse de solutions performantes pour le traitement de fichiers JSON dans un langage de haut niveau [r-libre/2178]
+Referenced from
+    https://lemire.me/blog/
+    Daniel Lemire's blog – Daniel Lemire is a computer science professor at the University of Quebec (TELUQ) in Montreal.
+    His research is focused on software performance and data engineering. He is a techno-optimist.
+
+
+================================================================================
+Variation sequence
+================================================================================
+
+22/05/2021
+List of all code points that can display differently via a variation sequence
+http://randomguy32.de/unicode/charts/standardized-variants/#emoji
+Safari is better to display the characters.
+Google Chrome and Opera have the same limitations: some characters are not supported (ex: section Phags-Pa).
+
+
+================================================================================
+Whitespaces, separators
+================================================================================
+
+22/05/2021
+https://eev.ee/blog/2015/09/12/dark-corners-of-unicode/
+A section about wcwidth.
+A section about spaces:
+    There are actually two definitions of whitespace in Unicode.
+    Unicode assigns every codepoint a category, and has three categories for
+    what sounds like whitespace:
+        “Separator, space”;
+        “Separator, line”;
+        “Separator, paragraph”.
+    CR, LF, tab, and even vertical tab are all categorized as “Other, control”
+    and not as separators.
+    The only character in the “Separator, line” category is U+2028 LINE SEPARATOR,
+    and the only character in “Separator, paragraph” is U+2029 PARAGRAPH SEPARATOR.
+    Thankfully, all of these have the WSpace property.
+
+    As an added wrinkle, the lone oddball character “⠀” renders like a space in most fonts.
+    jlf: 2 cols x 3 lines of debossed dots.
+    But it’s not whitespace, it’s not categorized as a separator, and it doesn’t have WSpace.
+    It’s actually U+2800 BRAILLE PATTERN BLANK, the Braille character with none of the dots raised.
+    (I say “most fonts” because I’ve occasionally seen it rendered as a 2×4 grid of open circles.)
+
+
+================================================================================
+Korean
+================================================================================
+
+22/05/2021
+http://gernot-katzers-spice-pages.com/var/korean_hangul_unicode.html
+The Korean Writing System
+
+
+================================================================================
+Fuzzy String Matching
+================================================================================
+
+29/05/2021
+https://github.com/logannc/fuzzywuzzy-rs
+Rust port of the Python fuzzywuzzy
+https://github.com/seatgeek/fuzzywuzzy --> moved to https://github.com/seatgeek/thefuzz
+
+
+================================================================================
+Levenshtein distance and string similarity
+================================================================================
+
+https://github.com/ztane/python-Levenshtein/
+The Levenshtein Python C extension module contains functions for fast computation of Levenshtein distance and string similarity
+
+
+================================================================================
+Encodings
+================================================================================
+
+30/05/2021
+https://datatracker.ietf.org/doc/html/rfc8259
+The JavaScript Object Notation (JSON) Data Interchange Format
+See this section about strings and encoding:
+https://datatracker.ietf.org/doc/html/rfc8259#section-7
+
+
+================================================================================
+TOML serialization format
+================================================================================
+
+https://github.com/toml-lang/toml
+Tom's Obvious, Minimal Language
+TOML is a nice serialization format for human-maintained data structures.
+It’s line-delimited and—of course!—allows comments, and any Unicode code point can be expressed in simple hexadecimal.
+TOML is fairly new, and its specification is still in flux;
+
+
+================================================================================
+CBOR Concise Binary Representation
+================================================================================
+
+https://cbor.io/
+RFC 8949 Concise Binary Object Representation
+CBOR improves upon JSON’s efficiency and also allows for storage of binary strings.
+Whereas JSON encoders must stringify numbers and escape all strings,
+CBOR stores numbers “literally” and prefixes strings with their length,
+which obviates the need to escape those strings.
+
+
+https://www.rfc-editor.org/rfc/rfc8949.html
+RFC 8949 Concise Binary Object Representation (CBOR)
+In contrast to formats such as JSON, the Unicode characters in this type are never escaped.
+Thus, a newline character (U+000A) is always represented in a string as the byte 0x0a,
+and never as the bytes 0x5c6e (the characters "\" and "n")
+nor as 0x5c7530303061 (the characters "\", "u", "0", "0", "0", and "a").
+
+
+================================================================================
+Binary encoding in Unicode
+================================================================================
+
+10/07/2021
+https://qntm.org/unicodings
+Efficiently encoding binary data in Unicode
+in UTF-8, use Base64 or Base85
+in UTF-16, use Base32768
+in UTF-32, use Base65536
+
+
+https://qntm.org/safe
+What makes a Unicode code point safe?
+
+
+https://github.com/qntm/safe-code-point
+Ascertains whether a Unicode code point is 'safe' for the purposes of encoding binary data
+
+
+https://github.com/qntm/base2048
+Binary encoding optimised for Twitter
+Originally, Twitter allowed Tweets to be at most 140 characters.
+On 26 September 2017, Twitter allowed 280 characters.
+Maximum Tweet length is indeed 280 Unicode code points.
+Twitter divides Unicode into 4,352 "light" code points (U+0000 to U+10FF inclusive)
+and 1,109,760 "heavy" code points (U+1100 to U+10FFFF inclusive).
+Base2048 solely uses light characters, which means a new "long" Tweet can contain
+at most 280 characters of Base2048. Base2048 is an 11-bit encoding, so those 280
+characters encode 3080 bits i.e. 385 octets of data, significantly better than Base65536.
+
+
+https://github.com/qntm/base65536
+Unicode's answer to Base64
+Base2048 renders Base65536 obsolete for its original intended purpose of sending
+binary data through Twitter.
+However, Base65536 remains the state of the art for sending binary data through
+text-based systems which naively count Unicode code points, particularly those
+using the fixed-width UTF-32 encoding.
+
+
+================================================================================
+String comparison
+================================================================================
+
+31/05/2021
+https://stackoverflow.com/questions/49662585/how-do-i-compare-a-unicode-string-that-has-different-bytes-but-the-same-value
+A pair NFC considers different but a user might consider the same is 'µ' (MICRO SIGN) and 'μ' (GREEK SMALL LETTER MU).
+NFKC will collapse these two.
+
+
+http://www.unicode.org/reports/tr10/
+Unicode® Technical Standard #10
+UNICODE COLLATION ALGORITHM
+Collation is the general term for the process and function of determining the sorting order of strings of characters.
+Collation varies according to language and culture: Germans, French and Swedes sort the same characters differently.
+It may also vary by specific application: even within the same language, dictionaries may sort differently than phonebooks or book indices.
+For non-alphabetic scripts such as East Asian ideographs, collation can be either phonetic or based on the appearance of the character.
+Collation can also be customized according to user preference, such as ignoring punctuation or not, putting uppercase before lowercase (or vice versa), and so on.
+
+
+https://en.wikipedia.org/wiki/Unicode_equivalence
+Short definition of NFD, NFC, NFKD, NFKC
+
+    In this article, a short paragraph which confirms that it's important to keep
+    the original string unchanges !
+    Errors due to normalization differences[edit]
+    When two applications share Unicode data, but normalize them differently, errors and data loss can result.
+    In one specific instance, OS X normalized Unicode filenames sent from the Samba file- and printer-sharing software.
+    Samba did not recognise the altered filenames as equivalent to the original, leading to data loss.[4][5]
+    Resolving such an issue is non-trivial, as normalization is not losslessly invertible.
+    http://sourceforge.net/p/netatalk/bugs/348/
+    #348 volcharset:UTF8 doesn't work from Mac
+
+
+http://unicode.org/faq/normalization.html
+Mode detailled description of normalization
+
+
+PHP
+    http://php.net/manual/en/collator.compare.php
+    Collator::compare -- collator_compare — Compare two Unicode strings
+    Object oriented style
+        public int Collator::compare ( string $str1 , string $str2 )
+    Procedural style
+        int collator_compare ( Collator $coll , string $str1 , string $str2 )
+
+
+    http://php.net/manual/en/class.collator.php
+    Provides string comparison capability with support for appropriate locale-sensitive sort orderings.
+
+
+Swift
+    https://developer.apple.com/library/prerelease/watchos/documentation/Swift/Conceptual/Swift_Programming_Language/StringsAndCharacters.html
+        Two String values (or two Character values) are considered equal if their extended grapheme clusters are canonically equivalent.
+        Extended grapheme clusters are canonically equivalent if they have the same linguistic meaning and appearance,
+        even if they are composed from different Unicode scalars behind the scenes.
+
+        .characters.count
+        for character in dogString.characters
+        for codeUnit in dogString.utf8
+        for codeUnit in dogString.utf16
+        for scalar in dogString.unicodeScalars
+
+        Nothing about ordered comparison in Swift doc ?
+
+    http://oleb.net/blog/2014/07/swift-strings/
+
+        Ordering strings with the < and > operators uses the default Unicode collation algorithm.
+        In the example below, "é" is smaller than i because the collation algorithm specifies
+        that characters with combining marks follow right after their base character.
+            "résumé" < "risotto" // -> true
+        The String type does not (yet?) come with a method to specify the language to use for collation.
+        You should continue to use
+            -[NSString compare:options:range:locale:]
+        or
+            -[NSString localizedCompare:]
+        if you need to sort strings that are shown to the user.
+
+        In this example, specifying a locale that uses the German phonebook collation yields a different result than the default string ordering:
+            let muffe = "Muffe"
+            let müller = "Müller"
+            muffe < müller // -> true
+
+            // Comparison using an US English locale yields the same result
+            let muffeRange = muffe.startIndex..<muffe.endIndex
+            let en_US = NSLocale(localeIdentifier: "en_US")
+            muffe.compare(müller, options: nil, range: muffeRange, locale: en_US) // -> .OrderedAscending
+
+            // Germany phonebook ordering treats "ü" as "ue".
+            // Thus, "Müller" < "Muffe"
+            let de_DE_phonebook = NSLocale(localeIdentifier: "de_DE@collation=phonebook")
+            muffe.compare(müller, options: nil, range: muffeRange, locale: de_DE_phonebook) // -> .OrderedDescending
+
+
+Java
+    https://jcdav.is/2016/09/01/How-the-JVM-compares-your-strings/
+    How the JVM compares your strings using the craziest x86 instruction you've never heard of.
+    ---
+    A comment about this article:
+    PCMPxSTRx is no longer faster than equivalent "simple" vector instruction sequences for straightforward comparisons
+    (this had already been the case for a few years when that article was written, which is curious).
+    It can be used productively (with some care) for some other operations like substring matching,
+    but that's not as much of a heavy-hitter.
+    There's a bunch of string stuff that will benefit from general vectorization, and which is absolutely on our roadmap to tackle,
+    but using the PCMPxSTRx instructions specifically isn't a source of wins on the most important operations
+
+
+================================================================================
+Invalid format
+================================================================================
+
+22/07/2021
+https://stackoverflow.com/questions/52131881/does-the-winapi-ever-validate-utf-16
+Does the WinApi ever validate UTF-16?
+Windows wide characters are arbitrary 16-bit numbers (formerly called "UCS-2",
+before the Unicode Standard Consortium purged that notation). So you cannot
+assume that it will be a valid UTF-16 sequence. (MultiByteToWideChar is a
+notable exception that does return only UTF-16)
+
+
+28/07/2021
+https://invisible-island.net/xterm/bad-utf8/
+Unicode replacement character in the Linux console.
+This test text examines, how UTF-8 decoders handle various types of
+corrupted or otherwise interesting UTF-8 sequences.
+jlf : difficult to understand what is the conclusion...
+What I notice in this review is :
+Unicode 10.0.0's chapter 3 (June 2017): each of the ill-formed code units is separately replaced by U+FFFD.
+That recommendation first appeared in Unicode 6's chapter 3 on conformance (February 2011).
+However the comments about “best practice” were removed in Unicode 11.0.0 (June 2018).
+The W3C WHATWG page entitled Encoding Standard started in January 2013.
+    The constraints in the utf-8 decoder above match “Best Practices for Using
+    U+FFFD” from the Unicode standard. No other behavior is permitted per the
+    Encoding Standard (other algorithms that achieve the same result are
+    obviously fine, even encouraged).
+Although Unicode withdrew the recommendation more than two years ago, to date (August 2020) that is not yet corrected in the WHATWG page.
+
+
+30/07/2021
+https://hsivonen.fi/broken-utf-8/
+---
+The Unicode Technical Committee retracted the change in its meeting on August 3
+2017, so the concern expressed below is now moot.
+---
+Not all byte sequences are valid UTF-8. When decoding potentially invalid UTF-8
+input into a valid Unicode representation, something has to be done about invalid input.
+The naïve answer is to ignore invalid input until finding valid input again (i.e.
+finding the next byte that has a lead-byte value), but this is dangerous and
+should never be done. The danger is that silently dropping bogus bytes might
+make a string that didn’t look dangerous with the bogus bytes present become
+valid active content. Most simply, <scr�ipt> (� standing in for a bogus byte)
+could become <script> if the error is ignored. So it’s non-controversial that
+every sequence of bogus bytes should result in at least one REPLACEMENT CHARACTER
+and that the next lead-valued byte is the first byte that’s no longer part of
+the invalid sequence.
+But how many REPLACEMENT CHARACTERs should be generated for a sequence of
+multiple bogus bytes?
+jlf: the answer is not clear to me...
+
+
+================================================================================
+Mojibake
+================================================================================
+
+https://github.com/LuminosoInsight/python-ftfy
+ftfy can fix mojibake (encoding mix-ups), by detecting patterns of characters
+that were clearly meant to be UTF-8 but were decoded as something else
+
+
+03/07/2021
+Notebook in python-ftfy:
+Services such as Slack and Discord don't use Unicode for their emoji.
+They use ASCII strings like :green-heart: and turn them into images.
+These won't help you test anything.
+I recommend getting emoji for your test cases by copy-pasting them from emojipedia.org.
+https://emojipedia.org/
+
+
+================================================================================
+Filenames
+================================================================================
+
+https://opensource.apple.com/source/subversion/subversion-52/subversion/notes/unicode-composition-for-filenames.auto.html
+2 problems follow:
+ 1) We can't generally depend on the OS to give us back the
+     exact filename we gave it
+ 2) The same filename may be encoded in different codepoints
+
+
+================================================================================
+WTF8
+================================================================================
+
+https://news.ycombinator.com/item?id=9611710
+The WTF-8 encoding (simonsapin.github.io)
+https://news.ycombinator.com/item?id=9613971
+https://simonsapin.github.io/wtf-8/#acknowledgments
+Thanks to Coralie Mercier for coining the name WTF-8.
+---
+The name is unserious but the project is very serious, its writer has responded
+to a few comments and linked to a presentation of his on the subject[0].
+It's an extension of UTF-8 used to bridge UTF-8 and UCS2-plus-surrogates:
+while UTF8 is the modern encoding you have to interact with legacy systems,
+for UNIX's bags of bytes you may be able to assume UTF8 (possibly ill-formed)
+but a number of other legacy systems used UCS2 and added visible surrogates
+(rather than proper UTF-16) afterwards.
+Windows and NTFS, Java, UEFI, Javascript all work with UCS2-plus-surrogates.
+Having to interact with those systems from a UTF8-encoded world is an issue
+because they don't guarantee well-formed UTF-16, they might contain unpaired
+surrogates which can't be decoded to a codepoint allowed in UTF-8 or UTF-32
+(neither allows unpaired surrogates, for obvious reasons).
+WTF8 extends UTF8 with unpaired surrogates (and unpaired surrogates only,
+paired surrogates from valid UTF16 are decoded and re-encoded to a proper
+UTF8-valid codepoint) which allows interaction with legacy UCS2 systems.
+WTF8 exists solely as an internal encoding (in-memory representation),
+but it's very useful there.
+[0] http://exyr.org/2015/!!Con_WTF-8/slides.pdf
+
+https://twitter.com/koalie/status/506821684687413248
+Coralie Mercier
+@koalie
+I have a hunch we use "wtf-8" encoding.
+Appreciate the irony of:
+"ÃƒÆ’Ã‚Æ’ÃƒÂ¢Ã‚â‚¬Ã‚Å¡ÃƒÆ’Ã‚â€šÃƒâ€šÃ‚Â the future of publishing at W3C"
+
+
+16/07/2021
+Windows allows unpaired surrogates in filenames
+
+
+https://github.com/golang/go/issues/32334
+syscall: Windows filenames with unpaired surrogates are not handled correctly #32334
+
+
+https://github.com/rust-lang/rust/issues/12056
+path: Windows paths may contain non-utf8-representable sequences #12056
+I don't know the precise details, but there exist portions of Windows in which
+paths are UCS2 rather than UTF-16. I ignored it because I thought it wasn't going
+to be an issue but at some point someone (and I wish I could remember who) showed
+me some output that showed that they were actually getting a UCS2 path from some
+Windows call and Path was unable to parse it.
+---
+JLF: this is the birth of WTF-8 in 2014.
+The result is:
+https://simonsapin.github.io/wtf-8/#16-bit-code-unit
+
+
+====================================================================================
+Indexation of UTF-8 strings
+====================================================================================
+
+https://nullprogram.com/blog/2019/05/29/
+
+
+
+
+FF                  255
+FFFF                65 535
+FFFFFF              16 777 215                      16 millions
+FFFFFFFF            4 294 967 295                   4 milliards
+----
+FFFFFFFFFF          1 099 511 627 775               mille milliards
+FFFFFFFFFFFF        281 474 976 710 655             281 mille milliards
+FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+
+
+The character length is not stored in the indexes. It's given by the utf8 encoding.
+Only the indexes starting a new sequence of character length are stored.
+I don't remember what is 'next'... Is it the first index of the next table ?
+
+One table per size of index & offset
+1 byte      FF                  0..255                              #items next = 1 + 1 = 2 bytes
+2 bytes     FFFF                0..65,535                           #items next = 2 + 2 = 4 bytes
+3 bytes     FFFFFF              0..16,777,215                       #items next = 3 + 3 = 6 bytes
+4 bytes     FFFFFFFF            0..4,294,967,295                    #items next = 4 + 4 = 8 bytes
+5 bytes     FFFFFFFFFF          0..1,099,511,627,775                #items next = 5 + 5 = 10 bytes
+6 bytes     FFFFFFFFFFFF        0..281,474,976,710,655              #items next = 6 + 6 = 12 bytes
+7 bytes     FFFFFFFFFFFFFF      0..72,057,594,037,927,900           #items next = 7 + 7 = 14 bytes
+8 bytes     FFFFFFFFFFFFFFFF    0..18,446,744,073,709,600,000       #items next = 8 + 8 = 16 bytes
+                                                                    total       = 72 bytes
+Better to not systematically allocate all the sizes of indexes...
+
+
+Examples of indexes
+--------------------------
+
+7 char, 17 bytes
+char length 2 3 2 3 2  3  2
+char offset 0 2 5 7 10 12 15
+char index  0 1 2 3 4  5  6
+indexes 1 byte :
+    #items: 3
+    next: 0
+    2 --> 5
+    4 --> 10
+    6 --> 15
+size indexes = 1 + 1 + 3*(1+1) = 8 bytes (47%)
+
+
+8 char, 16 bytes
+char length 1 3 1 3 1 3 1  3
+char offset 0 1 4 5 8 9 12 13
+char index  0 1 2 3 4 5 6  7
+indexes 1 byte :
+    #items: 3
+    next: 0
+    2 --> 4
+    4 --> 8
+    6 --> 12
+size indexes = 1 + 1 + 3*(1+1) = 8 bytes (50%)
+
+
+9 char, 18 bytes
+char length 1 2 3 1 2 3 1  2  3
+char offset 0 1 3 6 7 9 12 13 15
+char index  0 1 2 3 4 5 6  7  8
+indexes 1 byte :
+    #items: 4
+    next: 0
+    2 --> 3
+    4 --> 7
+    6 --> 12
+    8 --> 15
+size indexes = 1 + 1 + 4*(1+1) = 10 bytes (56%)
+
+
+11 char, 16 bytes
+char length 1 2 1 2 1 2 1 2  1  2  1
+char offset 0 1 3 4 6 7 9 10 12 13 15
+char index  0 1 2 3 4 5 6 7  8  9  10
+indexes 1 byte :
+    #items: 5
+    next: 0
+    2 --> 3
+    4 --> 6
+    6 --> 9
+    8 --> 12
+    10 --> 15
+size indexes = 1 + 1 + 5*(1+1) = 12 bytes (75%)
+
+
+16 char, 18 bytes
+char length 1 1 1 1 1 1 1 1 1 1 1  1  1  1  1  3
+char offset 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+char index  0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+indexes 1 byte :
+    #items: 0
+    next: 0
+size indexes = 1 + 1 = 2 bytes (11%)
+
+
+72 char, 88 bytes
+char           V  o  i  c  i     l  a     l  i  s  t  e     d  e  s     a  c  c  e  n  t  s     e  n     f  r  a  n  ç     a  i  s     :     à        ä        â        é        è        ë        ê        ï        î        ö        ô        ù        ü        û        ÿ     .
+char code   20 56 6F 69 63 69 20 6C 61 20 6C 69 73 74 65 20 64 65 73 20 61 63 63 65 6E 74 73 20 65 6E 20 66 72 61 6E C3 A7 61 69 73 20 3A 20 C3 A0 20 C3 A4 20 C3 A2 20 C3 A9 20 C3 A8 20 C3 AB 20 C3 AA 20 C3 AF 20 C3 AE 20 C3 B6 20 C3 B4 20 C3 B9 20 C3 BC 20 C3 BB 20 C3 BF 2E
+char length 1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  2     1  1  1  1  1  1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1
+char offset 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43    45 46    48 49    51 52    54 55    57 58    60 61    63 64    66 67    69 70    72 73    75 76    78 79    81 82    84 85    87
+char index  0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43    44 45    46 47    48 49    50 51    52 53    54 55    56 57    58 59    60 61    62 63    64 65    66 67    68 69    70 71    72
+indexes 1 byte :
+    #items: 15
+    next: 0
+    44 --> 45
+    46 --> 48
+    48 --> 49
+    50 --> 54
+    52 --> 57
+    54 --> 60
+    56 --> 63
+    58 --> 66
+    60 --> 69
+    62 --> 72
+    64 --> 75
+    66 --> 78
+    68 --> 81
+    70 --> 84
+    72 --> 87
+size indexes = 1 + 1 + 15*(1+1) = 32 bytes (36%)
+
+
+================================================================================
+Rope
+================================================================================
+
+https://github.com/josephg/librope
+Little C library for heavyweight utf-8 strings (rope).
+
+
+https://news.ycombinator.com/item?id=8065608
+Discussion about ropes, ideal of strings...
+
+
+https://github.com/xi-editor/xi-editor/blob/e8065a3993b80af0aadbca0e50602125d60e4e38/doc/rope_science/rope_science_03.md
+
+
+================================================================================
+ICU
+================================================================================
+
+http://stackoverflow.com/questions/8253033/what-open-source-c-or-c-libraries-can-convert-arbitrary-utf-32-to-nfc
+What open source C or C++ libraries can convert arbitrary UTF-32 to NFC?
+
+std::string normalize(const std::string &unnormalized_utf8) {
+    // FIXME: until ICU supports doing normalization over a UText
+    // interface directly on our UTF-8, we'll use the insanely less
+    // efficient approach of converting to UTF-16, normalizing, and
+    // converting back to UTF-8.
+
+    // Convert to UTF-16 string
+    auto unnormalized_utf16 = icu::UnicodeString::fromUTF8(unnormalized_utf8);
+
+    // Get a pointer to the global NFC normalizer
+    UErrorCode icu_error = U_ZERO_ERROR;
+    const auto *normalizer = icu::Normalizer2::getInstance(nullptr, "nfc", UNORM2_COMPOSE, icu_error);
+    assert(U_SUCCESS(icu_error));
+
+    // Normalize our string
+    icu::UnicodeString normalized_utf16;
+    normalizer->normalize(unnormalized_utf16, normalized_utf16, icu_error);
+    assert(U_SUCCESS(icu_error));
+
+    // Convert back to UTF-8
+    std::string normalized_utf8;
+    normalized_utf16.toUTF8String(normalized_utf8);
+
+    return normalized_utf8;
+}
+
+
+================================================================================
+ICU bindings
+================================================================================
+
 02/06/2021
 https://gitlab.pyicu.org/main/pyicu
 Python extension wrapping the ICU C++ libraries.
-
-
-02/06/2021
-http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1238r1.html
-    SG16 initial Unicode direction and guidance for C++20 and beyond.
-https://github.com/sg16-unicode/sg16
-    SG16 is an ISO/IEC JTC1/SC22/WG21 C++ study group tasked with improving Unicode and text processing support within the C++ standard.
 
 
 02/06/2021
@@ -522,133 +1228,782 @@ Example:
     }
 
 
+http://www.boost.org/doc/libs/1_58_0/libs/locale/doc/html/index.html
+Boost.Locale creates the natural glue between the C++ locales framework, iostreams, and the powerful ICU library
+
+
+http://blog.lukhnos.org/post/6441462604/using-os-xs-built-in-icu-library-in-your-own
+Using OS X’s Built-in ICU Library in Your Own Project
+
+
+================================================================================
+Twitter text parsing
+================================================================================
+
+https://github.com/twitter/twitter-text
+Twitter Text Libraries. This code is used at Twitter to tokenize and parse text
+to meet the expectations for what can be used on the platform.
+
+https://swiftpack.co/package/nysander/twitter-text
+This is the Swift implementation of the twitter-text parsing library.
+The library has methods to parse Tweets and calculate length, validity, parse @mentions, #hashtags, URLs, and more.
+
+
+================================================================================
+C++, Boost
+================================================================================
+
 02/06/2021
-https://www.postgresql.org/message-id/flat/BA6132ED-1F6B-4A0B-AC22-81278F5AB81E%40tripadvisor.com
-The dangers of streaming across versions of glibc: A cautionary tale
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1238r1.html
+    SG16 initial Unicode direction and guidance for C++20 and beyond.
+https://github.com/sg16-unicode/sg16
+    SG16 is an ISO/IEC JTC1/SC22/WG21 C++ study group tasked with improving Unicode and text processing support within the C++ standard.
 
 
-02/06/2021
-https://www.php.net/manual/fr/function.setlocale.php
-Warning
-The locale information is maintained per process, not per thread.
-If you are running PHP on a multithreaded server API , you may experience sudden changes
-in locale settings while a script is running, though the script itself never called setlocale().
-This happens due to other scripts running in different threads of the same process at the same time,
-changing the process-wide locale using setlocale().
-On Windows, locale information is maintained per thread as of PHP 7.0.5.
-On Windows, setlocale(LC_ALL, '') sets the locale names from the system's regional/language settings (accessible via Control Panel).
+01/06/2021
+Zach Laine
+https://www.youtube.com/watch?v=944GjKxwMBo
+https://tzlaine.github.io/text/doc/html/boost_text__proposed_/the_text_layer.html
+The Text Layer
+https://tzlaine.github.io/text/doc/html/
+Chapter 1. Boost.Text (Proposed) - 2018
+https://github.com/tzlaine/text
+    last commit :
+        master                          26/09/2020
+        boost_serialization             24/10/2019
+        coroutines                      25/08/2020
+        experimental                    13/11/2019
+        gh-pages                        04/09/2020
+        optimization                    27/10/2019
+        rope_free_fn_reimplementation   26/07/2020
+No longer working on this project ?
 
 
-07/06/2021
-https://news.ycombinator.com/item?id=20914184
-String lengths in Unicode
-    Claude Roux
-    We went through a lot of pain to get this right in Tamgu (https://github.com/naver/tamgu). In particular, emojis can be encoded across 5 or 6 Unicode characters. A "black thumb up" is encoded with 2 Unicode characters: the thumb glyph and its color.
-    This comes at a cost. Every time you extract a sub-string from a string, you have to scan it first for its codepoints, then convert character positions into byte positions. One way to speed up stuff a bit, is to check if the string is in ASCII (see https://lemire.me/blog/2018/05/16/validating-utf-8-strings-u...) and apply regular operator then.
-    We implemented many techniques based on "intrinsics" instructions to speed up conversions and search in order to avoid scanning for codepoints.
-    See https://github.com/naver/tamgu/blob/master/src/conversion.cx... for more information.
-    https://github.com/naver/tamgu/wiki/4.-Speed-up-UTF8-string-processing-with-Intel's-%22intrinsics%22-instructions-(en)
-jlf: they have specific support for Korean... Probably because the NAVER company is from Republic of Korea ?
+14/06/2021
+https://hsivonen.fi/non-unicode-in-cpp/
+Same contents in sg16 mailing list + feedbacks
+https://lists.isocpp.org/sg16/2019/04/0309.php
 
 
-08/06/2021
-https://twitter.com/hashtag/tamgu?src=hashtag_click
-https://twitter.com/hashtag/TAL?src=hashtag_click
-#tamgu le #langage_de_programmation pour le Traitement Automatique des Langues (#TAL).
+03/07/2021
+https://news.ycombinator.com/item?id=27695412
+Any Encoding, Ever – ztd.text and Unicode for C++
 
 
-08/06/2021
-https://lemire.me/blog/2018/05/16/validating-utf-8-strings-using-as-little-as-0-7-cycles-per-byte/
+14/07/2021
+https://hsivonen.fi/non-unicode-in-cpp/
+It’s Time to Stop Adding New Features for Non-Unicode Execution Encodings in C++
+The Microsoft Code Page 932 Issue
 
 
-08/06/2021
-https://github.com/simdjson/simdjson
-simdjson : Parsing gigabytes of JSON per second
-The simdjson library uses commonly available SIMD instructions and microparallel algorithms
-to parse JSON 4x faster than RapidJSON and 25x faster than JSON for Modern C++.
-Minify JSON at 6 GB/s, validate UTF-8 at 13 GB/s, NDJSON at 3.5 GB/s
+================================================================================
+DotNet, CoreFx
+================================================================================
+
+28/07/2021
+https://github.com/dotnet/corefxlab/issues/2368
+Scenarios and Design Philosophy - UTF-8 string support
+
+    https://gist.github.com/GrabYourPitchforks/901684d0aa1d2440eb378d847cfc8607 (jlf: replaced by the following URL)
+    https://github.com/dotnet/corefx/issues/34094 (go directly to next URL)
+    https://github.com/dotnet/runtime/issues/28204
+    Motivations and driving principles behind the Utf8Char proposal
+
+    https://github.com/dotnet/runtime/issues/933
+    The NuGet package generally follows the proposal in dotnet/corefxlab#2350, which
+    is where most of the discussion has taken place. It's a bit aggravating that the
+    discussion is split across so many different forums, I know. :(
+
+        ceztko
+        I noticed dotnet/corefxlab#2350 just got closed. Did the discussion moved
+        somewhere else about more UTF8 first citizen support efforts?
+
+        @ceztko The corefxlab repo was archived, so open issues were closed to
+        support that effort. That thread also got so large that it was difficult
+        to follow. @krwq is working on restructuring the conversation so that we
+        can continue the discussion in a better forum.
+
+        jlf
+        Not clear where the discussion is continued...
+        This URL just show some tags, one of them is "Future".
+        https://github.com/orgs/dotnet/projects/7#card-33368432
 
 
-https://arxiv.org/abs/2010.03090
-Validating UTF-8 In Less Than One Instruction Per Byte
-John Keiser, Daniel Lemire
-The majority of text is stored in UTF-8, which must be validated on ingestion.
-We present the lookup algorithm, which outperforms UTF-8 validation routines used
-in many libraries and languages by more than 10 times using commonly available SIMD instructions.
-To ensure reproducibility, our work is freely available as open source software.
+    https://github.com/dotnet/corefxlab/issues/2350
+    Utf8String design discussion - last edited 14-Sep-19
+    Tons of comments, with this conclusion:
+    The discussion in this issue is too long and github has troubles rendering it.
+    I think we should close this issue and start a new one in dotnet/runtime.
 
 
-https://r-libre.teluq.ca/2178/
-    Recherche et analyse de solutions performantes pour le traitement de fichiers JSON dans un langage de haut niveau [r-libre/2178]
-Referenced from
-    https://lemire.me/blog/
-    Daniel Lemire's blog – Daniel Lemire is a computer science professor at the University of Quebec (TELUQ) in Montreal.
-    His research is focused on software performance and data engineering. He is a techno-optimist.
+================================================================================
+Factor
+================================================================================
+
+http://docs.factorcode.org/content/article-unicode.html
+
+http://useless-factor.blogspot.fr/2007/02/doing-unicode-right-part-1.html
+JLF : bof...
+
+http://useless-factor.blogspot.fr/2007/02/doing-unicode-right-part-2.html
+
+http://useless-factor.blogspot.fr/2007/08/unicode-implementers-guide-part-3.html
+
+http://useless-factor.blogspot.fr/2007/08/unicode-implementers-guide-part-4.html
+grapheme breaking
+
+http://useless-factor.blogspot.fr/2007/08/r-597-rs-unicode-library-is-broken.html
 
 
-08/06/2021
-https://unicode.org/reports/tr10/
-UNICODE COLLATION ALGORITHM
-The Unicode Collation Algorithm takes an input Unicode string and a Collation Element Table,
-containing mapping data for characters. It produces a sort key, which is an array of
-unsigned 16-bit integers. Two or more sort keys so produced can then be binary-compared
-to give the correct comparison between the strings for which they were generated.
+http://useless-factor.blogspot.fr/2007/02/more-string-parsing.html
+UTF-8/16 encoder/decoder
+
+    I used a design pattern known as a sentinel, which helps me cross-cut pointcutting concerns
+    by instantiating objects which encapsulate the state of the parser. I never mutate these,
+    and the program is purely functional except for the use of make (which could trivially be
+    changed into a less efficient map [ ] subset, sacrificing efficiency and some terseness
+    but making it functional).
+
+    TUPLE: new ;
+    TUPLE: double val ;
+    TUPLE: quad2 val ;
+    TUPLE: quad3 val ;
+
+    : bad-char CHAR: ? ;
+
+    GENERIC: (utf16le) ( char state -- state )
+    M: new (utf16le)
+        drop <double> ;
+    M: double (utf16le)
+        over -3 shift BIN: 11011 = [
+            over BIN: 100 bitand 0 =
+            [ double-val swap BIN: 11 bitand 8 shift bitor <quad2> ]
+            [ 2drop bad-char , <new> ] if
+        ] [ double-val swap 8 shift bitor , <new> ] if ;
+    M: quad2 (utf16le)
+        quad2-val 10 shift bitor <quad3> ;
+    M: quad3 (utf16le)
+        over -2 shift BIN: 110111 = [
+            swap BIN: 11 bitand 8 shift
+            swap quad3-val bitor HEX: 10000 + , <new>
+        ] [ 2drop bad-char , <new> ] if ;
+
+    : utf16le ( state string -- state string )
+        [ [ swap (utf16le) ] each ] { } make ;
 
 
-08/06/2021
-Default Unicode Collation Element Table (DUCET)
-For the latest version, see:
-http://www.unicode.org/Public/UCA/latest/allkeys.txt
----
-UTS10-D1. Collation Weight: A non-negative integer used in the UCA to establish a means for systematic comparison of constructed sort keys.
-UTS10-D2. Collation Element: An ordered list of collation weights.
-UTS10-D3. Collation Level: The position of a collation weight in a collation element.
+================================================================================
+Lisp
+================================================================================
+
+14/09/2021
+https://www.gnu.org/software/emacs/manual/html_node/elisp/Character-Properties.html
+    name
+    Corresponds to the Name Unicode property. The value is a string consisting of upper-case Latin letters A to Z, digits, spaces, and hyphen ‘-’ characters. For unassigned codepoints, the value is nil.
+
+    general-category
+    Corresponds to the General_Category Unicode property. The value is a symbol whose name is a 2-letter abbreviation of the character’s classification. For unassigned codepoints, the value is Cn.
+
+    canonical-combining-class
+    Corresponds to the Canonical_Combining_Class Unicode property. The value is an integer. For unassigned codepoints, the value is zero.
+
+    bidi-class
+    Corresponds to the Unicode Bidi_Class property. The value is a symbol whose name is the Unicode directional type of the character. Emacs uses this property when it reorders bidirectional text for display (see Bidirectional Display). For unassigned codepoints, the value depends on the code blocks to which the codepoint belongs: most unassigned codepoints get the value of L (strong L), but some get values of AL (Arabic letter) or R (strong R).
+
+    decomposition
+    Corresponds to the Unicode properties Decomposition_Type and Decomposition_Value. The value is a list, whose first element may be a symbol representing a compatibility formatting tag, such as small18; the other elements are characters that give the compatibility decomposition sequence of this character. For characters that don’t have decomposition sequences, and for unassigned codepoints, the value is a list with a single member, the character itself.
+
+    decimal-digit-value
+    Corresponds to the Unicode Numeric_Value property for characters whose Numeric_Type is ‘Decimal’. The value is an integer, or nil if the character has no decimal digit value. For unassigned codepoints, the value is nil, which means NaN, or “not a number”.
+
+    digit-value
+    Corresponds to the Unicode Numeric_Value property for characters whose Numeric_Type is ‘Digit’. The value is an integer. Examples of such characters include compatibility subscript and superscript digits, for which the value is the corresponding number. For characters that don’t have any numeric value, and for unassigned codepoints, the value is nil, which means NaN.
+
+    numeric-value
+    Corresponds to the Unicode Numeric_Value property for characters whose Numeric_Type is ‘Numeric’. The value of this property is a number. Examples of characters that have this property include fractions, subscripts, superscripts, Roman numerals, currency numerators, and encircled numbers. For example, the value of this property for the character U+2155 VULGAR FRACTION ONE FIFTH is 0.2. For characters that don’t have any numeric value, and for unassigned codepoints, the value is nil, which means NaN.
+
+    mirrored
+    Corresponds to the Unicode Bidi_Mirrored property. The value of this property is a symbol, either Y or N. For unassigned codepoints, the value is N.
+
+    mirroring
+    Corresponds to the Unicode Bidi_Mirroring_Glyph property. The value of this property is a character whose glyph represents the mirror image of the character’s glyph, or nil if there’s no defined mirroring glyph. All the characters whose mirrored property is N have nil as their mirroring property; however, some characters whose mirrored property is Y also have nil for mirroring, because no appropriate characters exist with mirrored glyphs. Emacs uses this property to display mirror images of characters when appropriate (see Bidirectional Display). For unassigned codepoints, the value is nil.
+
+    paired-bracket
+    Corresponds to the Unicode Bidi_Paired_Bracket property. The value of this property is the codepoint of a character’s paired bracket, or nil if the character is not a bracket character. This establishes a mapping between characters that are treated as bracket pairs by the Unicode Bidirectional Algorithm; Emacs uses this property when it decides how to reorder for display parentheses, braces, and other similar characters (see Bidirectional Display).
+
+    bracket-type
+    Corresponds to the Unicode Bidi_Paired_Bracket_Type property. For characters whose paired-bracket property is non-nil, the value of this property is a symbol, either o (for opening bracket characters) or c (for closing bracket characters). For characters whose paired-bracket property is nil, the value is the symbol n (None). Like paired-bracket, this property is used for bidirectional display.
+
+    old-name
+    Corresponds to the Unicode Unicode_1_Name property. The value is a string. For unassigned codepoints, and characters that have no value for this property, the value is nil.
+
+    iso-10646-comment
+    Corresponds to the Unicode ISO_Comment property. The value is either a string or nil. For unassigned codepoints, the value is nil.
+
+    uppercase
+    Corresponds to the Unicode Simple_Uppercase_Mapping property. The value of this property is a single character. For unassigned codepoints, the value is nil, which means the character itself.
+
+    lowercase
+    Corresponds to the Unicode Simple_Lowercase_Mapping property. The value of this property is a single character. For unassigned codepoints, the value is nil, which means the character itself.
+
+    titlecase
+    Corresponds to the Unicode Simple_Titlecase_Mapping property. Title case is a special form of a character used when the first character of a word needs to be capitalized. The value of this property is a single character. For unassigned codepoints, the value is nil, which means the character itself.
+
+    special-uppercase
+    Corresponds to Unicode language- and context-independent special upper-casing rules. The value of this property is a string (which may be empty). For example mapping for U+00DF LATIN SMALL LETTER SHARP S is "SS". For characters with no special mapping, the value is nil which means uppercase property needs to be consulted instead.
+
+    special-lowercase
+    Corresponds to Unicode language- and context-independent special lower-casing rules. The value of this property is a string (which may be empty). For example mapping for U+0130 LATIN CAPITAL LETTER I WITH DOT ABOVE the value is "i\u0307" (i.e. 2-character string consisting of LATIN SMALL LETTER I followed by U+0307 COMBINING DOT ABOVE). For characters with no special mapping, the value is nil which means lowercase property needs to be consulted instead.
+
+    special-titlecase
+    Corresponds to Unicode unconditional special title-casing rules. The value of this property is a string (which may be empty). For example mapping for U+FB01 LATIN SMALL LIGATURE FI the value is "Fi". For characters with no special mapping, the value is nil which means titlecase property needs to be consulted instead.
 
 
-08/06/2021
-https://fr.wikipedia.org/wiki/Normalisation_Unicode
-NFD     Les caractères sont décomposés par équivalence canonique et réordonnés
-        canonical decomposition
-NFC     Les caractères sont décomposés par équivalence canonique, réordonnés, et composés par équivalence canonique
-        canonical decomposition followed by canonical composition
-NFKD    Les caractères sont décomposés par équivalence canonique et de compatibilité, et sont réordonnés
-        compatibility decomposition
-NFKC    Les caractères sont décomposés par équivalence canonique et de compatibilité, sont réordonnés et sont composés par équivalence canonique
-        compatibility decomposition followed by canonical composition
-FCD     "Fast C or D" form; cf. UTN #5
-FCC     "Fast C Contiguous"; cf. UTN #5
+================================================================================
+MOAR-VM
+================================================================================
+
+29/05/2021
+http://moarvm.com/releases.html
+    2017.07
+        Greatly reduce the cases when string concatenation needs renormalization
+        Use normalize_should_break to decide if concat needs normalization
+        Rename should_break to MVM_unicode_normalize_should_break
+        Fix memory leak in MVM_nfg_is_concat_stable
+        If both last_a and first_b during concat are non-0 CCC, re-NFG
+    --> maybe to review : the last sentence seems to be an optimization of concatenation.
+    2017.02
+        Implement support for synthetic graphemes in MVM_unicode_string_compare
+        Implement configurable collation_mode for MVM_unicode_string_compare
+    2017.01
+        Add a new unicmp_s op, which compares using the Unicode Collation Algorithm
+        Add support for Grapheme_Cluster_Break=Prepend from Unicode 9.0
+        Add a script to download the latest version of all of the Unicode data
+    --> should review this script
+    2015.11
+        NFG now uses Unicode Grapheme Cluster algorithm; "\r\n" is now one grapheme
+    --> ??? [later] ah, I had a bug! Was not analyzing an UTF-8 ASCII string... Now fixed:
+        "0A0D"x~text~description= -- UTF-8 ASCII ( 2 graphemes, 2 codepoints, 2 bytes )
+        "0D0A"x~text~description= -- UTF-8 ASCII ( 1 grapheme, 2 codepoints, 2 bytes )
 
 
-09/06/2021
+29/05/2021
+https://news.ycombinator.com/item?id=26591373
+String length functions for single emoji characters evaluate to greater than 1
+--> to check : MOAR VM really concatenate a 8bit string with a 32bit string using a string concatenation object ?
+
+    You could do it the way Raku does. It's implementation defined. (Rakudo on MoarVM)
+    The way MoarVM does it is that it does NFG, which is sort of like NFC except that it stores grapheme clusters as if they were negative codepoints.
+
+    If a string is ASCII it uses an 8bit storage format, otherwise it uses a 32bit one.
+    It also creates a tree of immutable string objects.
+    If you do a substring operation it creates a substring object that points at an existing string object.
+    If you combine two strings it creates a string concatenation object. Which is useful for combining an 8bit string with a 32bit one.
+    All of that is completely opaque at the Raku level of course.
+
+        my $str = "\c[FACE PALM, EMOJI MODIFIER FITZPATRICK TYPE-3, ZWJ, MALE SIGN, VARIATION SELECTOR-16]";
+
+        say $str.chars;        # 1
+        say $str.codes;        # 5
+        say $str.encode('utf16').elems; # 7
+        say $str.encode('utf16').bytes; # 14
+        say $str.encode.elems; # 17
+        say $str.encode.bytes; # 17
+        say $str.codes * 4;    # 20
+        #(utf32 encode/decode isn't implemented in MoarVM yet)
+
+        say for $str.uninames;
+        # FACE PALM
+        # EMOJI MODIFIER FITZPATRICK TYPE-3
+        # ZERO WIDTH JOINER
+        # MALE SIGN
+        # VARIATION SELECTOR-16
+    The reason we have utf8-c8 encode/decode is because filenames, usernames, and passwords are not actually Unicode.
+    (I have 4 files all named rèsumè in the same folder on my computer.)
+    utf8-c8 uses the same synthetic codepoint system as grapheme clusters.
+
+
+================================================================================
+PHP
+================================================================================
+
+https://github.com/nicolas-grekas/Patchwork-UTF8
+Extensive, portable and performant handling of UTF-8 and grapheme clusters for PHP
+
+
+================================================================================
+Python
+================================================================================
+
+10/08/2021
+List of Python PEPS related to string.
+https://www.python.org/dev/peps/
+    Other Informational PEPs
+        I	257	Docstring Conventions	Goodger, GvR
+        I	287	reStructuredText Docstring Format	Goodger
+
+    Accepted PEPs (accepted; may not be implemented yet)
+        SA	597	Add optional EncodingWarning	Naoki
+        SA	616	String methods to remove prefixes and suffixes	Sweeney
+        SA	623	Remove wstr from Unicode	Naoki
+
+    Open PEPs (under consideration)
+        S	558	Defined semantics for locals()	Coghlan
+
+    Finished PEPs (done, with a stable interface)
+        SF	100	Python Unicode Integration	Lemburg
+        SF	260	Simplify xrange()	GvR
+        SF	261	Support for "wide" Unicode characters	Prescod
+        SF	263	Defining Python Source Code Encodings	Lemburg, von Löwis
+        SF	277	Unicode file name support for Windows NT	Hodgson
+        SF	278	Universal Newline Support	Jansen
+        SF	292	Simpler String Substitutions	Warsaw
+        SF	331	Locale-Independent Float/String Conversions	Reis
+        SF	393	Flexible String Representation	v. Löwis
+        SF	414	Explicit Unicode Literal for Python 3.3	Ronacher, Coghlan
+        SF	498	Literal String Interpolation	Smith
+        SF	515	Underscores in Numeric Literals	Brandl, Storchaka
+        SF	528	Change Windows console encoding to UTF-8	Dower
+        SF	529	Change Windows filesystem encoding to UTF-8	Dower
+        SF	538	Coercing the legacy C locale to a UTF-8 based locale	Coghlan
+        SF	540	Add a new UTF-8 Mode	Stinner
+        SF	624	Remove Py_UNICODE encoder APIs	Naoki
+        SF	3101	Advanced String Formatting	Talin
+        SF	3112	Bytes literals in Python 3000	Orendorff
+        SF	3120	Using UTF-8 as the default source encoding	von Löwis
+        SF	3127	Integer Literal Support and Syntax	Maupin
+        SF	3131	Supporting Non-ASCII Identifiers	von Löwis
+        SF	3137	Immutable Bytes and Mutable Buffer	GvR
+        SF	3138	String representation in Python 3000	Ishimoto
+
+    Deferred PEPs (postponed pending further research or updates)
+        SD	501	General purpose string interpolation	Coghlan
+        SD	536	Final Grammar for Literal String Interpolation	Angerer
+
+    Abandoned, Withdrawn, and Rejected PEPs
+        SS	215	String Interpolation	Yee
+        IR	216	Docstring Format	Zadka
+        SR	224	Attribute Docstrings	Lemburg
+        SR	256	Docstring Processing System Framework	Goodger
+        SR	295	Interpretation of multiline string constants	Koltsov
+        SR	332	Byte vectors and String/Unicode Unification	Montanaro
+        SR	349	Allow str() to return unicode strings	Schemenauer
+        IR	502	String Interpolation - Extended Discussion	Miller
+        SR	3126	Remove Implicit String Concatenation	Jewett, Hettinger
+
+
+15/07/2021
+review
+https://docs.python.org/3/howto/unicode.html
+
+    Escape sequences in string literals
+        "\N{GREEK CAPITAL LETTER DELTA}"        # Using the character name  '\u0394'
+        "\u0394"                                # Using a 16-bit hex value  '\u0394'
+        "\U00000394"                            # Using a 32-bit hex value  '\u0394'
+
+    One can create a string using the decode() method of bytes.
+    This method takes an encoding argument, such as UTF-8, and optionally an errors argument.
+    The errors argument specifies the response when the input string can’t be converted
+    according to the encoding’s rules. Legal values for this argument are
+        'strict'            (raise a UnicodeDecodeError exception),
+        'replace'           (use U+FFFD, REPLACEMENT CHARACTER),
+        'ignore'            (just leave the character out of the Unicode result),
+        'backslashreplace'  (inserts a \xNN escape sequence).
+    Examples:
+        b'\x80abc'.decode("utf-8", "strict")                # UnicodeDecodeError: 'utf-8' codec can't decode byte 0x80 in position 0
+        b'\x80abc'.decode("utf-8", "replace")               # '\ufffdabc'
+        b'\x80abc'.decode("utf-8", "backslashreplace")      # '\\x80abc'
+        b'\x80abc'.decode("utf-8", "ignore")                # 'abc'
+
+    Encodings are specified as strings containing the encoding’s name.
+    Python comes with roughly 100 different encodings:
+        https://docs.python.org/3/library/codecs.html#standard-encodings
+
+    One-character Unicode strings can also be created with the chr() built-in function,
+    which takes integers and returns a Unicode string of length 1 that contains the corresponding code point:
+        chr(57344)      # '\ue000'
+    The reverse operation is the built-in ord() function that takes a one-character Unicode string and returns the code point value:
+        ord('\ue000')   # 57344
+
+    The opposite method of bytes.decode() is str.encode(), which returns a bytes representation of the Unicode string, encoded in the requested encoding.
+    The errors parameter is the same as the parameter of the decode() method but supports a few more possible handlers.
+        'strict'            (raise a UnicodeDecodeError exception),
+        'replace'           inserts a question mark instead of the unencodable character,
+        'ignore'            (just leave the character out of the Unicode result),
+        'backslashreplace'  (inserts a \uNNNN escape sequence)
+        'xmlcharrefreplace' (inserts an XML character reference),
+        'namereplace'       (inserts a \N{...} escape sequence).
+
+    Unicode code points can be written using the \u escape sequence, which is
+    followed by four hex digits giving the code point. The \U escape sequence
+    is similar, but expects eight hex digits, not four
+        >>> s = "a\xac\u1234\u20ac\U00008000"
+        ... #     ^^^^ two-digit hex escape
+        ... #         ^^^^^^ four-digit Unicode escape
+        ... #                     ^^^^^^^^^^ eight-digit Unicode escape
+        >>> [ord(c) for c in s]
+        [97, 172, 4660, 8364, 32768]
+
+    Python supports writing source code in UTF-8 by default, but you can use almost any encoding if you declare the encoding being used. This is done by including a special comment as either the first or second line of the source file:
+        #!/usr/bin/env python
+        # -*- coding: latin-1 -*-
+        u = 'abcdé'
+    https://www.python.org/dev/peps/pep-0263/
+    PEP 263 -- Defining Python Source Code Encodings
+
+    Comparing Strings
+    The casefold() string method converts a string to a case-insensitive
+    form following an algorithm described by the Unicode Standard. This
+    algorithm has special handling for characters such as the German letter ‘ß’
+    (code point U+00DF), which becomes the pair of lowercase letters ‘ss’.
+        >>> street = 'Gürzenichstraße'
+        >>> street.casefold()
+        'gürzenichstrasse'
+    The unicodedata module’s normalize() function converts strings to one of
+    several normal forms: ‘NFC’, ‘NFKC’, ‘NFD’, and ‘NFKD’.
+        def compare_strs(s1, s2):
+            def NFD(s):
+                return unicodedata.normalize('NFD', s)
+            return NFD(s1) == NFD(s2)
+    The Unicode Standard also specifies how to do caseless comparisons:
+        def compare_caseless(s1, s2):
+            def NFD(s):
+                return unicodedata.normalize('NFD', s)
+            return NFD(NFD(s1).casefold()) == NFD(NFD(s2).casefold())
+    Why is NFD() invoked twice? Because there are a few characters that make
+    casefold() return a non-normalized string, so the result needs to be
+    normalized again. See section 3.13 of the Unicode Standard
+
+    https://docs.python.org/3/library/unicodedata.html
+        unicodedata.lookup(name)
+            Look up character by name.
+            If a character with the given name is found, return the corresponding character.
+            If not found, KeyError is raised.
+            Changed in version 3.3: Support for name aliases 1 and named sequences 2 has been added.
+        unicodedata.name(chr[, default])
+            Returns the name assigned to the character chr as a string.
+        unicodedata.decimal(chr[, default])
+            Returns the decimal value assigned to the character chr as integer.
+        unicodedata.digit(chr[, default])
+            Returns the digit value assigned to the character chr as integer.
+        unicodedata.numeric(chr[, default])
+            Returns the numeric value assigned to the character chr as float.
+        unicodedata.category(chr)
+            Returns the general category assigned to the character chr as string.
+        unicodedata.bidirectional(chr)
+            Returns the bidirectional class assigned to the character chr as string.
+        unicodedata.combining(chr)
+            Returns the canonical combining class assigned to the character chr as integer.
+            Returns 0 if no combining class is defined.
+        unicodedata.east_asian_width(chr)
+            Returns the east asian width assigned to the character chr as string.
+        unicodedata.mirrored(chr)
+            Returns the mirrored property assigned to the character chr as integer.
+            Returns 1 if the character has been identified as a “mirrored” character in bidirectional text, 0 otherwise.
+        unicodedata.decomposition(chr)
+            Returns the character decomposition mapping assigned to the character chr as string.
+            An empty string is returned in case no such mapping is defined.
+        unicodedata.normalize(form, unistr)
+            Return the normal form form for the Unicode string unistr.
+            Valid values for form are ‘NFC’, ‘NFKC’, ‘NFD’, and ‘NFKD’.
+        unicodedata.is_normalized(form, unistr)
+            Return whether the Unicode string unistr is in the normal form form.
+            Valid values for form are ‘NFC’, ‘NFKC’, ‘NFD’, and ‘NFKD’.
+        unicodedata.unidata_version
+            The version of the Unicode database used in this module.
+        unicodedata.ucd_3_2_0
+            This is an object that has the same methods as the entire module,
+            but uses the Unicode database version 3.2 instead
+
+    https://www.python.org/dev/peps/pep-0393/
+    PEP 393 -- Flexible String Representation
+        When creating new strings, it was common in Python to start of with a
+        heuristical buffer size, and then grow or shrink if the heuristics failed.
+        With this PEP, this is now less practical, as you need not only a heuristics
+        for the length of the string, but also for the maximum character.
+
+        In order to avoid heuristics, you need to make two passes over the input:
+        once to determine the output length, and the maximum character; then
+        allocate the target string with PyUnicode_New and iterate over the input
+        a second time to produce the final output. While this may sound expensive,
+        it could actually be cheaper than having to copy the result again as in
+        the following approach.
+
+        If you take the heuristical route, avoid allocating a string meant to be
+        resized, as resizing strings won't work for their canonical representation.
+        Instead, allocate a separate buffer to collect the characters, and then
+        construct a unicode object from that using PyUnicode_FromKindAndData.
+        One option is to use Py_UCS4 as the buffer element, assuming for the worst
+        case in character ordinals. This will allow for pointer arithmetics, but
+         may require a lot of memory. Alternatively, start with a 1-byte buffer,
+         and increase the element size as you encounter larger characters.
+         In any case, PyUnicode_FromKindAndData will scan over the buffer to
+         verify the maximum character.
+
+
+15/07/2021
+https://docs.python.org/3/library/codecs.html
+Codec registry and base classes
+Most standard codecs are text encodings, which encode text to bytes, but there
+are also codecs provided that encode text to text, and bytes to bytes.
+errors string argument:
+    strict
+    ignore
+    replace
+    xmlcharrefreplace
+    backslashreplace
+    namereplace
+    surrogateescape
+    surrogatepass
+
+
+15/07/2021
+https://discourse.julialang.org/t/a-python-rant-about-types/43294/22
+A Python rant about types
+jlf: the main discussion is about invalid string data.
+Stefan Karpinski describes the Julia strings:
+    1. You can read and write any data, valid or not.
+    2. It is interpreted as UTF-8 where possible and as invalid characters otherwise.
+    3. You can simply check if strings or chars are valid UTF-8 or not.
+    4. You can work with individual characters easily, even invalid ones.
+    5. You can losslessly read and write any string data, valid or not, as strings or chars.
+    6. You only get an error when you try to ask for the code point of an invalid char.
+    Most Julia code that works with strings is automatically robust with respect to
+    invalid UTF-8 data. Only code that needs to look at the code points of individual
+    characters will fail on invalid data; in order to do that robustly, you simply
+    need to check if the character is valid before taking its code point and handle
+    that appropriately.
+jlf: I think that all the Julia methods working at character level will raise an error,
+not just when looking at the code point.
+jlf: Stefan Karpinski explains why Python design is problematic.
+Python 3 has to be able to represent any input string in terms of code points.
+Needing to turn every string into a fixed-width sequence of code points puts them
+in a tough position with respect to invalid strings where there is simply no
+corresponding sequence of code points.
+
+
+17/07/2021
+https://groups.google.com/g/python-ideas/c/wStIS1_NVJQ
+Fix default encodings on Windows
+jlf: did not read in details, too long, too many feedbacks.
+Maybe some comments are interesting, so I save this URL.
+
+
+================================================================================
+Rexx
+================================================================================
+
+11/08/2021
+http://nokix.sourceforge.net/help/learn_rexx/funcs5.htm#VALUEIN
+Reads in a numeric value from a binary (ie, non-text) file.
+value = VALUEIN(stream, position, length, options)
+    Args
+        stream is the name of the stream.
+        It can include the full path to the stream (ie, any drive and directory names).
+        If omitted, the default is to read from STDIN.
+
+        position specifies at what character position (within the stream) to start
+        reading from, where 1 means to start reading at the very first character
+        in the stream. If omitted, the default is to resume reading at where a
+        previous call to CHARIN() or VALUEIN() left off (ie, where you current
+        read character position is).
+
+        length is a 1 to read in the next binary byte (ie, 8-bit value), a 2 to
+        read in the next binary short (ie, 16-bit value), or a 4 to read in the
+        next binary long (ie, 32-bit value). If length is omitted, VALUEIN() defaults to reading a byte.
+
+        options can be any of the following:
+            M	The value is stored (in the stream) in Motorola (big endian) byte order,
+                rather than Intel (little endian) byte order.
+                The effects only long and short values.
+            H	Read in the value as hexadecimal (rather than the default of base 10,
+                or decimal, which is the base that REXX uses to express numbers).
+                The value can later be converted with X2D().
+            B	Read in the value as binary (base 2).
+            -	The value is signed (as opposed to unsigned).
+            V	stream is the actual data string from which to extract a value.
+                You can now replace calls to SUBSTR and C2D with a single, faster call to VALUEIN.
+            If omitted, options defaults to none of the above.
+    Returns
+        The value, if successful.
+        If an error, an empty string is returned (unless the NOTREADY condition
+        is trapped via CALL method. Then, a '0' is returned).
+
+http://nokix.sourceforge.net/help/learn_rexx/funcs5.htm#VALUEOUT
+Write out numeric values to a binary (ie, non-text) file (ie, in non-text format).
+result = VALUEOUT(stream, values, position, size, options)
+    Args
+        stream is the name of the stream.
+        It can include the full path to the stream (ie, any drive and directory names).
+        If omitted, the default is to write to STDOUT (typically, display the data in the console window).
+
+        position specifies at what character position (within the stream) to start writing the data,
+        where 1 means to start writing at the very first character in the stream.
+        If omitted, the default is to resume writing at where a previous call to
+        CHAROUT() or VALUEOUT() left off (or where the "write character pointer" was set via STREAM's SEEK).
+
+        values are the numeric values (ie, data) to write out.
+        Each value is separated by one space.
+
+        size is a 1 if each value is to be written as a byte (ie, 8-bit value),
+        2 if each value is to be written as a short (16-bit value),
+        or 4 if each value is to be written as a long (32-bit value). If omitted, size defaults to 1.
+
+        options can be any of the following:
+            M	Write out the values in Motorola (big endian) byte order,
+                rather than Intel (little endian) byte order. The effects only long and short values.
+            H	The values you supplied are specified in hexadecimal.
+            B	The values you supplied are specified in binary (base 2).
+            V	stream is the name of a variable, and the data will be overlaid
+                onto that variable's value. You can now replace calls to D2C and
+                OVERLAY with a single, faster call to VALUEOUT, especially when
+                a variable has a large amount of non-text data.
+            If omitted, options defaults to none of the above.
+    Returns
+        0 if the string was written out successfully.
+        If an error, VALUEOUT() returns non-zero.
+
+
+http://www.dg77.net/tekno/manuel/rexxendian.htm
+Test de l’endianité
+    /* Verifie l'endianité / check endiannity          */
+    /* Pour traitement d'information encodees en UTF-8 */
+    /* Adapter si on utilise un autre encodage         */
+    CALL CONV8_16 ' '
+    IF c2x(sortie) = '2000' THEN DO
+        endian = 'LE' /* little endian  */
+        blanx = '2000'
+        END
+    ELSE DO
+        endian = 'BE' /* big endian  */
+        blanx = '0020'
+        END
+    return endian blanx
+    /* ********************************************************************** */
+    /*           Conversion UTF-8 -> UNICODE                                  */
+    CONV8_16:
+    parse arg entree
+    sortie = ''
+    ZONESORTIE.='NUL'; ZONESORTIE.0=0
+    err = systounicode(entree, 'UTF8', , ZONESORTIE.)
+    if err == 0 then sortie = ZONESORTIE.!TEXT
+      else say 'probleme car., code ' err
+    return
+
+
+http://www.dg77.net/tekno/xhtml/codage.htm
+Le codage des caractères
+To read, some infos about the code pages could be useful.
+
+
+Regina doc
+    EXPORT(address, [string], [length] [,pad]) - (AREXX)
+        Copies data from the (optional) string into a previously-allocated memory area, which must be
+        specified as a 4-byte address. The length parameter specifies the maximum number of characters to
+        be copied; the default is the length of the string. If the specified length is longer than the string, the
+        remaining area is filled with the pad character or nulls('00'x). The returned value is the number
+        of characters copied.
+        Caution is advised in using this function. Any area of memory can be overwritten,possibly
+        causing a system crash.
+        See also STORAGE() and IMPORT().
+        Note that the address specified is subject to a machine's endianess.
+        EXPORT('0004 0000'x,'The answer') '10'
+
+    IMPORT(address [,length]) - (AREXX)
+        Creates a string by copying data from the specified 4-byte address. If the length parameter is not
+        supplied,the copy terminates when a null byte is found.
+        See also EXPORT()
+        Note that the address specified is subject to a machine's endianess.
+        IMPORT('0004 0000'x,10) 'The answer' /* maybe */
+
+
+================================================================================
 Rust
-https://docs.rs/unicode-normalization
-    Decompositions  External iterator for a string decomposition’s characters.
-    Recompositions  External iterator for a string recomposition’s characters.
-    Replacements    External iterator for replacements for a string’s characters.
-    StreamSafe      UAX15-D4: This iterator keeps track of how many non-starters
-                    there have been since the last starter in NFKD and will emit
-                    a Combining Grapheme Joiner (U+034F) if the count exceeds 30.
+================================================================================
 
-    is_nfc                      Authoritatively check if a string is in NFC.
-    is_nfc_quick                Quickly check if a string is in NFC, potentially returning IsNormalized::Maybe if further checks are necessary. In this case a check like s.chars().nfc().eq(s.chars()) should suffice.
-    is_nfc_stream_safe          Authoritatively check if a string is Stream-Safe NFC.
-    is_nfc_stream_safe_quick    Quickly check if a string is Stream-Safe NFC.
-    is_nfd                      Authoritatively check if a string is in NFD.
-    is_nfd_quick                Quickly check if a string is in NFD.
-    is_nfd_stream_safe          Authoritatively check if a string is Stream-Safe NFD.
-    is_nfd_stream_safe_quick    Quickly check if a string is Stream-Safe NFD.
-    is_nfkc                     Authoritatively check if a string is in NFKC.
-    is_nfkc_quick               Quickly check if a string is in NFKC.
-    is_nfkd                     Authoritatively check if a string is in NFKD.
-    is_nfkd_quick               Quickly check if a string is in NFKD.
+Seen in a comment here :  https://bugs.swift.org/browse/SR-7602
 
-    Enums
-    IsNormalized	The QuickCheck algorithm can quickly determine if a text is or isn’t normalized without any allocations in many cases, but it has to be able to return Maybe when a full decomposition and recomposition is necessary.
+    For reference, I think [Rust's model](https://doc.rust-lang.org/std/string/struct.String.html) is pretty good:
+
+    `from_utf8` produces an error explaining why the code units were invalid
+    `from_utf8_lossy` replaces encoding errors with U+FFFD
+    `from_utf8_unchecked` which takes the bytes, but if there's an encoding error, then memory safety has been violated
+
+    I'm not entirely sure if accepting invalid bytes requires voiding memory safety (assuming bounds checking always happens), but it is totally a security hazard if used improperly.
+    We may want to be very cautious about if/how we expose it.
+
+    I think that trying to do read-time validation is dubious for UTF-16, and totally bananas for UTF-8.
 
 
-08/06/2021
-Pharo
-https://medium.com/concerning-pharo/an-implementation-of-unicode-normalization-7c6719068f43
+17/07/2021
+https://www.generacodice.com/en/articolo/120763/Unicode+Support+in+Various+Programming+Languages
+jlf: I learned something: OsStr/OsString
+    Rust's strings (std::String and &str) are always valid UTF-8, and do not use null
+    terminators, and as a result can not be indexed as an array, like they can be in C/C++, etc.
+    They can be sliced somewhat like Go using .get since 1.20, with the caveat that
+    it will fail if you try slicing the middle of a code point.
+
+    Rust also has OsStr/OsString for interacting with the Host OS.
+    It's byte array on Unix (containing any sequence of bytes).
+    On windows it's WTF-8 (A super-set of UTF-8 that handles the improperly
+    formed Unicode strings that are allowed in Windows and Javascript),
+    &str and String can be freely converted to OsStr or OsString, but require
+    checks to covert the other way. Either by Failing on invalid unicode, or
+    replacing with the Unicode replacement char. (There is also Path/PathBuf,
+    which are just wrappers around OsStr/OsString).
+
+    There is also the CStr and CString types, which represent Null terminated C
+    strings, like OsStr on Unix they can contain arbitrary bytes.
+
+    Rust doesn't directly support UTF-16. But can convert OsStr to UCS-2 on windows.
+
+
+22/07/2021
+https://lib.rs/crates/
+STFU-8: Sorta Text Format in UTF-8
+STFU-8 is a hacky text encoding/decoding protocol for data that might be not
+quite UTF-8 but is still mostly UTF-8.
+Its primary purpose is to be able to allow a human to visualize and edit "data"
+that is mostly (or fully) visible UTF-8 text. It encodes all non visible or non
+UTF-8 compliant bytes as longform text (i.e. ESC becomes the full string r"\x1B").
+It can also encode/decode ill-formed UTF-16.
+
+
+28/07/2021
+https://fasterthanli.me/articles/working-with-strings-in-rust
+
+
+================================================================================
+Swift
+================================================================================
+
+03/08/2021
+https://swiftdoc.org/v5.1/type/string/
+Auto-generated documentation for Swift.
+A Unicode string value that is a collection of characters.
+
+
+15/07/2017
+String Processing For Swift 4
+https://github.com/apple/swift/blob/master/docs/StringManifesto.md
+
+
+https://swift.org/blog/utf8-string/
+Swift 5 switches the preferred encoding of strings from UTF-16 to UTF-8 while preserving efficient Objective-C-interoperability.
+
+
+https://bugs.swift.org/browse/SR-7602
+UTF8 should be (one of) the fastest String encoding(s)
+
+
+https://github.com/apple/swift/blob/7e68e8f4a3cb1173e909dc22a3490c05e43fa592/stdlib/public/core/StringObject.swift
+swift/stdlib/public/core/StringObject.swift
+
+
+milseman Michael Ilseman added a comment - 5 Nov 2018 3:44 PM
+    It's now the fastest encoding.
+    https://forums.swift.org/t/string-s-abi-and-utf-8/17676/1
+    https://github.com/apple/swift/pull/20315
 
 
 13/06/2021
@@ -867,739 +2222,36 @@ Identification and Classification
 https://lists.isocpp.org/sg16/2018/08/0113.php
 Feedback from swift team
 
-https://lists.isocpp.org/sg16/2018/08/0121.php
-Swift strings now sort with NFC (currently UTF-16 code unit order, but likely changed to Unicode scalar value order).
-We didn't find FCC significantly more compelling in practice. Since NFC is far more frequent in the wild
-(why waste space if you don't have to), strings are likely to already be in NFC.
-We have fast-paths to detect on-the-fly normal sections of strings (e.g. all ASCII, all < U+0300, NFC_QC=yes, etc.).
-We lazily normalize portions of string during comparison when needed.
-Q: Swift strings support comparison via normalization. Has use of canonical string equality been a performance issue?
-   Or been a source of surprise to programmers?
-A: This was a big performance issue on Linux, where we used to do UCA+DUCET based comparisons.
-   We switch to lexicographical order of NFC-normalized UTF-16 code units (future: scalar values),
-   and saw a very significant speed up there. The remaining performance work revolves around checking
-   and tracking whether a string is known to already be in a normal form, so we can just memcmp.
-Q: I'm curious why this was a larger performance issue for Linux than for (presumably) macOS and/or iOS.
-A: There were two main factors.
-   The first is that on Darwin platforms, CFString had an implementation that we used instead of UCA+DUCET which was faster.
-   The second is that Darwin platforms are typically up-to-date and have very recent versions of ICU.
-   On Linux, we still support Ubuntu LTS 14.04 which has a version of ICU which predates Swift and didn't have any fast-paths for ASCII or mostly-ASCII text.
-   Switching to our own implementation based on NFC gave us many X improvement over CFString, which in turn was many X faster than UCA+DUCET (especially on older versions of ICU).
-Q: How firmly is the Swift string implementation tied to ICU?
-   If the C++ standard library were to add suitable Unicode support, what would motivate reimplementing Swift strings on top of it?
-A: Swift's tie to ICU is less firm than it used to be
-   If the C++ standard library provided these operations, sufficiently up-to-date with Unicode version and comparable or better to ICU in performance,
-   we would be willing to switch. A big pain in interacting with ICU is their limited support for UTF-8.
-   Some users who would like to use a lighter-weight Swift and are unhappy at having to link against ICU, as it's fairly large, and it can complicate security audits.
+    https://lists.isocpp.org/sg16/2018/08/0121.php
+    Swift strings now sort with NFC (currently UTF-16 code unit order, but likely changed to Unicode scalar value order).
+    We didn't find FCC significantly more compelling in practice. Since NFC is far more frequent in the wild
+    (why waste space if you don't have to), strings are likely to already be in NFC.
+    We have fast-paths to detect on-the-fly normal sections of strings (e.g. all ASCII, all < U+0300, NFC_QC=yes, etc.).
+    We lazily normalize portions of string during comparison when needed.
+    Q: Swift strings support comparison via normalization. Has use of canonical string equality been a performance issue?
+       Or been a source of surprise to programmers?
+    A: This was a big performance issue on Linux, where we used to do UCA+DUCET based comparisons.
+       We switch to lexicographical order of NFC-normalized UTF-16 code units (future: scalar values),
+       and saw a very significant speed up there. The remaining performance work revolves around checking
+       and tracking whether a string is known to already be in a normal form, so we can just memcmp.
+    Q: I'm curious why this was a larger performance issue for Linux than for (presumably) macOS and/or iOS.
+    A: There were two main factors.
+       The first is that on Darwin platforms, CFString had an implementation that we used instead of UCA+DUCET which was faster.
+       The second is that Darwin platforms are typically up-to-date and have very recent versions of ICU.
+       On Linux, we still support Ubuntu LTS 14.04 which has a version of ICU which predates Swift and didn't have any fast-paths for ASCII or mostly-ASCII text.
+       Switching to our own implementation based on NFC gave us many X improvement over CFString, which in turn was many X faster than UCA+DUCET (especially on older versions of ICU).
+    Q: How firmly is the Swift string implementation tied to ICU?
+       If the C++ standard library were to add suitable Unicode support, what would motivate reimplementing Swift strings on top of it?
+    A: Swift's tie to ICU is less firm than it used to be
+       If the C++ standard library provided these operations, sufficiently up-to-date with Unicode version and comparable or better to ICU in performance,
+       we would be willing to switch. A big pain in interacting with ICU is their limited support for UTF-8.
+       Some users who would like to use a lighter-weight Swift and are unhappy at having to link against ICU, as it's fairly large, and it can complicate security audits.
 
 
-14/06/2021
-https://hsivonen.fi/non-unicode-in-cpp/
-Same contents in sg16 mailing list + feedbacks
-https://lists.isocpp.org/sg16/2019/04/0309.php
-
-
-19/06/2021
-https://github.com/twitter/twitter-cldr-rb
-Ruby implementation of the ICU (International Components for Unicode) that uses
-the Common Locale Data Repository to format dates, plurals, and more.
-
-https://github.com/twitter/twitter-cldr-js
-JavaScript implementation of the ICU (International Components for Unicode) that uses
-the Common Locale Data Repository to format dates, plurals, and more. Based on twitter-cldr-rb.
-
-https://github.com/twitter/twitter-text
-Twitter Text Libraries. This code is used at Twitter to tokenize and parse text
-to meet the expectations for what can be used on the platform.
-
-https://swiftpack.co/package/nysander/twitter-text
-This is the Swift implementation of the twitter-text parsing library.
-The library has methods to parse Tweets and calculate length, validity, parse @mentions, #hashtags, URLs, and more.
-
-
-03/07/2021
-https://news.ycombinator.com/item?id=27695412
-Any Encoding, Ever – ztd.text and Unicode for C++
-
-https://news.ycombinator.com/item?id=9611710
-The WTF-8 encoding (simonsapin.github.io)
-https://news.ycombinator.com/item?id=9613971
-https://simonsapin.github.io/wtf-8/#acknowledgments
-Thanks to Coralie Mercier for coining the name WTF-8.
----
-The name is unserious but the project is very serious, its writer has responded
-to a few comments and linked to a presentation of his on the subject[0].
-It's an extension of UTF-8 used to bridge UTF-8 and UCS2-plus-surrogates:
-while UTF8 is the modern encoding you have to interact with legacy systems,
-for UNIX's bags of bytes you may be able to assume UTF8 (possibly ill-formed)
-but a number of other legacy systems used UCS2 and added visible surrogates
-(rather than proper UTF-16) afterwards.
-Windows and NTFS, Java, UEFI, Javascript all work with UCS2-plus-surrogates.
-Having to interact with those systems from a UTF8-encoded world is an issue
-because they don't guarantee well-formed UTF-16, they might contain unpaired
-surrogates which can't be decoded to a codepoint allowed in UTF-8 or UTF-32
-(neither allows unpaired surrogates, for obvious reasons).
-WTF8 extends UTF8 with unpaired surrogates (and unpaired surrogates only,
-paired surrogates from valid UTF16 are decoded and re-encoded to a proper
-UTF8-valid codepoint) which allows interaction with legacy UCS2 systems.
-WTF8 exists solely as an internal encoding (in-memory representation),
-but it's very useful there.
-[0] http://exyr.org/2015/!!Con_WTF-8/slides.pdf
-
-https://twitter.com/koalie/status/506821684687413248
-Coralie Mercier
-@koalie
-I have a hunch we use "wtf-8" encoding.
-Appreciate the irony of:
-"ÃƒÆ’Ã‚Æ’ÃƒÂ¢Ã‚â‚¬Ã‚Å¡ÃƒÆ’Ã‚â€šÃƒâ€šÃ‚Â the future of publishing at W3C"
-
-https://github.com/LuminosoInsight/python-ftfy
-ftfy can fix mojibake (encoding mix-ups), by detecting patterns of characters
-that were clearly meant to be UTF-8 but were decoded as something else
-
-
-03/07/2021
-Notebook in python-ftfy:
-Services such as Slack and Discord don't use Unicode for their emoji.
-They use ASCII strings like :green-heart: and turn them into images.
-These won't help you test anything.
-I recommend getting emoji for your test cases by copy-pasting them from emojipedia.org.
-https://emojipedia.org/
-
+================================================================================
+Zig, Ziglyph
+================================================================================
 
 04/07/2021
 https://github.com/jecolon/ziglyph
 Unicode text processing for the Zig programming language.
-
-
-10/07/2021
-https://qntm.org/unicodings
-Efficiently encoding binary data in Unicode
-in UTF-8, use Base64 or Base85
-in UTF-16, use Base32768
-in UTF-32, use Base65536
-
-https://qntm.org/safe
-What makes a Unicode code point safe?
-
-https://github.com/qntm/safe-code-point
-Ascertains whether a Unicode code point is 'safe' for the purposes of encoding binary data
-
-https://github.com/qntm/base2048
-Binary encoding optimised for Twitter
-Originally, Twitter allowed Tweets to be at most 140 characters.
-On 26 September 2017, Twitter allowed 280 characters.
-Maximum Tweet length is indeed 280 Unicode code points.
-Twitter divides Unicode into 4,352 "light" code points (U+0000 to U+10FF inclusive)
-and 1,109,760 "heavy" code points (U+1100 to U+10FFFF inclusive).
-Base2048 solely uses light characters, which means a new "long" Tweet can contain
-at most 280 characters of Base2048. Base2048 is an 11-bit encoding, so those 280
-characters encode 3080 bits i.e. 385 octets of data, significantly better than Base65536.
-
-https://github.com/qntm/base65536
-Unicode's answer to Base64
-Base2048 renders Base65536 obsolete for its original intended purpose of sending
-binary data through Twitter.
-However, Base65536 remains the state of the art for sending binary data through
-text-based systems which naively count Unicode code points, particularly those
-using the fixed-width UTF-32 encoding.
-
-
-14/07/2021
-https://hsivonen.fi/non-unicode-in-cpp/
-It’s Time to Stop Adding New Features for Non-Unicode Execution Encodings in C++
-The Microsoft Code Page 932 Issue
-
-
-15/07/2021
-review
-https://docs.python.org/3/howto/unicode.html
-
-    Escape sequences in string literals
-        "\N{GREEK CAPITAL LETTER DELTA}"        # Using the character name  '\u0394'
-        "\u0394"                                # Using a 16-bit hex value  '\u0394'
-        "\U00000394"                            # Using a 32-bit hex value  '\u0394'
-
-    One can create a string using the decode() method of bytes.
-    This method takes an encoding argument, such as UTF-8, and optionally an errors argument.
-    The errors argument specifies the response when the input string can’t be converted
-    according to the encoding’s rules. Legal values for this argument are
-        'strict'            (raise a UnicodeDecodeError exception),
-        'replace'           (use U+FFFD, REPLACEMENT CHARACTER),
-        'ignore'            (just leave the character out of the Unicode result),
-        'backslashreplace'  (inserts a \xNN escape sequence).
-    Examples:
-        b'\x80abc'.decode("utf-8", "strict")                # UnicodeDecodeError: 'utf-8' codec can't decode byte 0x80 in position 0
-        b'\x80abc'.decode("utf-8", "replace")               # '\ufffdabc'
-        b'\x80abc'.decode("utf-8", "backslashreplace")      # '\\x80abc'
-        b'\x80abc'.decode("utf-8", "ignore")                # 'abc'
-
-    Encodings are specified as strings containing the encoding’s name.
-    Python comes with roughly 100 different encodings:
-        https://docs.python.org/3/library/codecs.html#standard-encodings
-
-    One-character Unicode strings can also be created with the chr() built-in function,
-    which takes integers and returns a Unicode string of length 1 that contains the corresponding code point:
-        chr(57344)      # '\ue000'
-    The reverse operation is the built-in ord() function that takes a one-character Unicode string and returns the code point value:
-        ord('\ue000')   # 57344
-
-    The opposite method of bytes.decode() is str.encode(), which returns a bytes representation of the Unicode string, encoded in the requested encoding.
-    The errors parameter is the same as the parameter of the decode() method but supports a few more possible handlers.
-        'strict'            (raise a UnicodeDecodeError exception),
-        'replace'           inserts a question mark instead of the unencodable character,
-        'ignore'            (just leave the character out of the Unicode result),
-        'backslashreplace'  (inserts a \uNNNN escape sequence)
-        'xmlcharrefreplace' (inserts an XML character reference),
-        'namereplace'       (inserts a \N{...} escape sequence).
-
-    Unicode code points can be written using the \u escape sequence, which is
-    followed by four hex digits giving the code point. The \U escape sequence
-    is similar, but expects eight hex digits, not four
-        >>> s = "a\xac\u1234\u20ac\U00008000"
-        ... #     ^^^^ two-digit hex escape
-        ... #         ^^^^^^ four-digit Unicode escape
-        ... #                     ^^^^^^^^^^ eight-digit Unicode escape
-        >>> [ord(c) for c in s]
-        [97, 172, 4660, 8364, 32768]
-
-    Python supports writing source code in UTF-8 by default, but you can use almost any encoding if you declare the encoding being used. This is done by including a special comment as either the first or second line of the source file:
-        #!/usr/bin/env python
-        # -*- coding: latin-1 -*-
-        u = 'abcdé'
-    https://www.python.org/dev/peps/pep-0263/
-    PEP 263 -- Defining Python Source Code Encodings
-
-    Comparing Strings
-    The casefold() string method converts a string to a case-insensitive
-    form following an algorithm described by the Unicode Standard. This
-    algorithm has special handling for characters such as the German letter ‘ß’
-    (code point U+00DF), which becomes the pair of lowercase letters ‘ss’.
-        >>> street = 'Gürzenichstraße'
-        >>> street.casefold()
-        'gürzenichstrasse'
-    The unicodedata module’s normalize() function converts strings to one of
-    several normal forms: ‘NFC’, ‘NFKC’, ‘NFD’, and ‘NFKD’.
-        def compare_strs(s1, s2):
-            def NFD(s):
-                return unicodedata.normalize('NFD', s)
-            return NFD(s1) == NFD(s2)
-    The Unicode Standard also specifies how to do caseless comparisons:
-        def compare_caseless(s1, s2):
-            def NFD(s):
-                return unicodedata.normalize('NFD', s)
-            return NFD(NFD(s1).casefold()) == NFD(NFD(s2).casefold())
-    Why is NFD() invoked twice? Because there are a few characters that make
-    casefold() return a non-normalized string, so the result needs to be
-    normalized again. See section 3.13 of the Unicode Standard
-
-    https://docs.python.org/3/library/unicodedata.html
-        unicodedata.lookup(name)
-            Look up character by name.
-            If a character with the given name is found, return the corresponding character.
-            If not found, KeyError is raised.
-            Changed in version 3.3: Support for name aliases 1 and named sequences 2 has been added.
-        unicodedata.name(chr[, default])
-            Returns the name assigned to the character chr as a string.
-        unicodedata.decimal(chr[, default])
-            Returns the decimal value assigned to the character chr as integer.
-        unicodedata.digit(chr[, default])
-            Returns the digit value assigned to the character chr as integer.
-        unicodedata.numeric(chr[, default])
-            Returns the numeric value assigned to the character chr as float.
-        unicodedata.category(chr)
-            Returns the general category assigned to the character chr as string.
-        unicodedata.bidirectional(chr)
-            Returns the bidirectional class assigned to the character chr as string.
-        unicodedata.combining(chr)
-            Returns the canonical combining class assigned to the character chr as integer.
-            Returns 0 if no combining class is defined.
-        unicodedata.east_asian_width(chr)
-            Returns the east asian width assigned to the character chr as string.
-        unicodedata.mirrored(chr)
-            Returns the mirrored property assigned to the character chr as integer.
-            Returns 1 if the character has been identified as a “mirrored” character in bidirectional text, 0 otherwise.
-        unicodedata.decomposition(chr)
-            Returns the character decomposition mapping assigned to the character chr as string.
-            An empty string is returned in case no such mapping is defined.
-        unicodedata.normalize(form, unistr)
-            Return the normal form form for the Unicode string unistr.
-            Valid values for form are ‘NFC’, ‘NFKC’, ‘NFD’, and ‘NFKD’.
-        unicodedata.is_normalized(form, unistr)
-            Return whether the Unicode string unistr is in the normal form form.
-            Valid values for form are ‘NFC’, ‘NFKC’, ‘NFD’, and ‘NFKD’.
-        unicodedata.unidata_version
-            The version of the Unicode database used in this module.
-        unicodedata.ucd_3_2_0
-            This is an object that has the same methods as the entire module,
-            but uses the Unicode database version 3.2 instead
-
-    https://www.python.org/dev/peps/pep-0393/
-    PEP 393 -- Flexible String Representation
-        When creating new strings, it was common in Python to start of with a
-        heuristical buffer size, and then grow or shrink if the heuristics failed.
-        With this PEP, this is now less practical, as you need not only a heuristics
-        for the length of the string, but also for the maximum character.
-
-        In order to avoid heuristics, you need to make two passes over the input:
-        once to determine the output length, and the maximum character; then
-        allocate the target string with PyUnicode_New and iterate over the input
-        a second time to produce the final output. While this may sound expensive,
-        it could actually be cheaper than having to copy the result again as in
-        the following approach.
-
-        If you take the heuristical route, avoid allocating a string meant to be
-        resized, as resizing strings won't work for their canonical representation.
-        Instead, allocate a separate buffer to collect the characters, and then
-        construct a unicode object from that using PyUnicode_FromKindAndData.
-        One option is to use Py_UCS4 as the buffer element, assuming for the worst
-        case in character ordinals. This will allow for pointer arithmetics, but
-         may require a lot of memory. Alternatively, start with a 1-byte buffer,
-         and increase the element size as you encounter larger characters.
-         In any case, PyUnicode_FromKindAndData will scan over the buffer to
-         verify the maximum character.
-
-
-15/07/2021
-https://docs.python.org/3/library/codecs.html
-Codec registry and base classes
-Most standard codecs are text encodings, which encode text to bytes, but there
-are also codecs provided that encode text to text, and bytes to bytes.
-errors string argument:
-    strict
-    ignore
-    replace
-    xmlcharrefreplace
-    backslashreplace
-    namereplace
-    surrogateescape
-    surrogatepass
-
-
-15/07/2021
-https://discourse.julialang.org/t/a-python-rant-about-types/43294/22
-A Python rant about types
-jlf: the main discussion is about invalid string data.
-Stefan Karpinski describes the Julia strings:
-    1. You can read and write any data, valid or not.
-    2. It is interpreted as UTF-8 where possible and as invalid characters otherwise.
-    3. You can simply check if strings or chars are valid UTF-8 or not.
-    4. You can work with individual characters easily, even invalid ones.
-    5. You can losslessly read and write any string data, valid or not, as strings or chars.
-    6. You only get an error when you try to ask for the code point of an invalid char.
-    Most Julia code that works with strings is automatically robust with respect to
-    invalid UTF-8 data. Only code that needs to look at the code points of individual
-    characters will fail on invalid data; in order to do that robustly, you simply
-    need to check if the character is valid before taking its code point and handle
-    that appropriately.
-jlf: I think that all the Julia methods working at character level will raise an error,
-not just when looking at the code point.
-jlf: Stefan Karpinski explains why Python design is problematic.
-Python 3 has to be able to represent any input string in terms of code points.
-Needing to turn every string into a fixed-width sequence of code points puts them
-in a tough position with respect to invalid strings where there is simply no
-corresponding sequence of code points.
-
-
-16/07/2021
-Windows allows unpaired surrogates in filenames
-
-https://github.com/golang/go/issues/32334
-syscall: Windows filenames with unpaired surrogates are not handled correctly #32334
-
-https://github.com/rust-lang/rust/issues/12056
-path: Windows paths may contain non-utf8-representable sequences #12056
-I don't know the precise details, but there exist portions of Windows in which
-paths are UCS2 rather than UTF-16. I ignored it because I thought it wasn't going
-to be an issue but at some point someone (and I wish I could remember who) showed
-me some output that showed that they were actually getting a UCS2 path from some
-Windows call and Path was unable to parse it.
----
-JLF: this is the birth of WTF-8 in 2014.
-The result is:
-https://simonsapin.github.io/wtf-8/#16-bit-code-unit
-
-
-17/07/2021
-https://groups.google.com/g/python-ideas/c/wStIS1_NVJQ
-Fix default encodings on Windows
-jlf: did not read in details, too long, too many feedbacks.
-Maybe some comments are interesting, so I save this URL.
-
-
-17/07/2021
-https://www.generacodice.com/en/articolo/120763/Unicode+Support+in+Various+Programming+Languages
-jlf: I learned something: OsStr/OsString
-    Rust's strings (std::String and &str) are always valid UTF-8, and do not use null
-    terminators, and as a result can not be indexed as an array, like they can be in C/C++, etc.
-    They can be sliced somewhat like Go using .get since 1.20, with the caveat that
-    it will fail if you try slicing the middle of a code point.
-
-    Rust also has OsStr/OsString for interacting with the Host OS.
-    It's byte array on Unix (containing any sequence of bytes).
-    On windows it's WTF-8 (A super-set of UTF-8 that handles the improperly
-    formed Unicode strings that are allowed in Windows and Javascript),
-    &str and String can be freely converted to OsStr or OsString, but require
-    checks to covert the other way. Either by Failing on invalid unicode, or
-    replacing with the Unicode replacement char. (There is also Path/PathBuf,
-    which are just wrappers around OsStr/OsString).
-
-    There is also the CStr and CString types, which represent Null terminated C
-    strings, like OsStr on Unix they can contain arbitrary bytes.
-
-    Rust doesn't directly support UTF-16. But can convert OsStr to UCS-2 on windows.
-
-
-18/07/2021
-https://manishearth.github.io/blog/2017/01/15/breaking-our-latin-1-assumptions/
-Breaking Our Latin-1 Assumptions
-
-
-22/07/2021
-https://lib.rs/crates/
-STFU-8: Sorta Text Format in UTF-8
-STFU-8 is a hacky text encoding/decoding protocol for data that might be not
-quite UTF-8 but is still mostly UTF-8.
-Its primary purpose is to be able to allow a human to visualize and edit "data"
-that is mostly (or fully) visible UTF-8 text. It encodes all non visible or non
-UTF-8 compliant bytes as longform text (i.e. ESC becomes the full string r"\x1B").
-It can also encode/decode ill-formed UTF-16.
-
-
-22/07/2021
-https://stackoverflow.com/questions/52131881/does-the-winapi-ever-validate-utf-16
-Does the WinApi ever validate UTF-16?
-Windows wide characters are arbitrary 16-bit numbers (formerly called "UCS-2",
-before the Unicode Standard Consortium purged that notation). So you cannot
-assume that it will be a valid UTF-16 sequence. (MultiByteToWideChar is a
-notable exception that does return only UTF-16)
-
-
-28/07/2021
-https://invisible-island.net/xterm/bad-utf8/
-Unicode replacement character in the Linux console.
-This test text examines, how UTF-8 decoders handle various types of
-corrupted or otherwise interesting UTF-8 sequences.
-jlf : difficult to understand what is the conclusion...
-What I notice in this review is :
-Unicode 10.0.0's chapter 3 (June 2017): each of the ill-formed code units is separately replaced by U+FFFD.
-That recommendation first appeared in Unicode 6's chapter 3 on conformance (February 2011).
-However the comments about “best practice” were removed in Unicode 11.0.0 (June 2018).
-The W3C WHATWG page entitled Encoding Standard started in January 2013.
-    The constraints in the utf-8 decoder above match “Best Practices for Using
-    U+FFFD” from the Unicode standard. No other behavior is permitted per the
-    Encoding Standard (other algorithms that achieve the same result are
-    obviously fine, even encouraged).
-Although Unicode withdrew the recommendation more than two years ago, to date (August 2020) that is not yet corrected in the WHATWG page.
-
-
-28/07/2021
-https://github.com/dotnet/corefxlab/issues/2368
-Scenarios and Design Philosophy - UTF-8 string support
-
-    https://gist.github.com/GrabYourPitchforks/901684d0aa1d2440eb378d847cfc8607 (jlf: replaced by the following URL)
-    https://github.com/dotnet/corefx/issues/34094 (go directly to next URL)
-    https://github.com/dotnet/runtime/issues/28204
-    Motivations and driving principles behind the Utf8Char proposal
-
-    https://github.com/dotnet/runtime/issues/933
-    The NuGet package generally follows the proposal in dotnet/corefxlab#2350, which
-    is where most of the discussion has taken place. It's a bit aggravating that the
-    discussion is split across so many different forums, I know. :(
-
-        ceztko
-        I noticed dotnet/corefxlab#2350 just got closed. Did the discussion moved
-        somewhere else about more UTF8 first citizen support efforts?
-
-        @ceztko The corefxlab repo was archived, so open issues were closed to
-        support that effort. That thread also got so large that it was difficult
-        to follow. @krwq is working on restructuring the conversation so that we
-        can continue the discussion in a better forum.
-
-        jlf
-        Not clear where the discussion is continued...
-        This URL just show some tags, one of them is "Future".
-        https://github.com/orgs/dotnet/projects/7#card-33368432
-
-
-    https://github.com/dotnet/corefxlab/issues/2350
-    Utf8String design discussion - last edited 14-Sep-19
-    Tons of comments, with this conclusion:
-    The discussion in this issue is too long and github has troubles rendering it.
-    I think we should close this issue and start a new one in dotnet/runtime.
-
-
-28/07/2021
-https://fasterthanli.me/articles/working-with-strings-in-rust
-
-
-30/07/2021
-https://hsivonen.fi/broken-utf-8/
----
-The Unicode Technical Committee retracted the change in its meeting on August 3
-2017, so the concern expressed below is now moot.
----
-Not all byte sequences are valid UTF-8. When decoding potentially invalid UTF-8
-input into a valid Unicode representation, something has to be done about invalid input.
-The naïve answer is to ignore invalid input until finding valid input again (i.e.
-finding the next byte that has a lead-byte value), but this is dangerous and
-should never be done. The danger is that silently dropping bogus bytes might
-make a string that didn’t look dangerous with the bogus bytes present become
-valid active content. Most simply, <scr�ipt> (� standing in for a bogus byte)
-could become <script> if the error is ignored. So it’s non-controversial that
-every sequence of bogus bytes should result in at least one REPLACEMENT CHARACTER
-and that the next lead-valued byte is the first byte that’s no longer part of
-the invalid sequence.
-But how many REPLACEMENT CHARACTERs should be generated for a sequence of
-multiple bogus bytes?
-jlf: the answer is not clear to me...
-
-
-03/08/2021
-https://swiftdoc.org/v5.1/type/string/
-Auto-generated documentation for Swift.
-A Unicode string value that is a collection of characters.
-
-
-10/08/2021
-List of Python PEPS related to string.
-https://www.python.org/dev/peps/
-    Other Informational PEPs
-        I	257	Docstring Conventions	Goodger, GvR
-        I	287	reStructuredText Docstring Format	Goodger
-
-    Accepted PEPs (accepted; may not be implemented yet)
-        SA	597	Add optional EncodingWarning	Naoki
-        SA	616	String methods to remove prefixes and suffixes	Sweeney
-        SA	623	Remove wstr from Unicode	Naoki
-
-    Open PEPs (under consideration)
-        S	558	Defined semantics for locals()	Coghlan
-
-    Finished PEPs (done, with a stable interface)
-        SF	100	Python Unicode Integration	Lemburg
-        SF	260	Simplify xrange()	GvR
-        SF	261	Support for "wide" Unicode characters	Prescod
-        SF	263	Defining Python Source Code Encodings	Lemburg, von Löwis
-        SF	277	Unicode file name support for Windows NT	Hodgson
-        SF	278	Universal Newline Support	Jansen
-        SF	292	Simpler String Substitutions	Warsaw
-        SF	331	Locale-Independent Float/String Conversions	Reis
-        SF	393	Flexible String Representation	v. Löwis
-        SF	414	Explicit Unicode Literal for Python 3.3	Ronacher, Coghlan
-        SF	498	Literal String Interpolation	Smith
-        SF	515	Underscores in Numeric Literals	Brandl, Storchaka
-        SF	528	Change Windows console encoding to UTF-8	Dower
-        SF	529	Change Windows filesystem encoding to UTF-8	Dower
-        SF	538	Coercing the legacy C locale to a UTF-8 based locale	Coghlan
-        SF	540	Add a new UTF-8 Mode	Stinner
-        SF	624	Remove Py_UNICODE encoder APIs	Naoki
-        SF	3101	Advanced String Formatting	Talin
-        SF	3112	Bytes literals in Python 3000	Orendorff
-        SF	3120	Using UTF-8 as the default source encoding	von Löwis
-        SF	3127	Integer Literal Support and Syntax	Maupin
-        SF	3131	Supporting Non-ASCII Identifiers	von Löwis
-        SF	3137	Immutable Bytes and Mutable Buffer	GvR
-        SF	3138	String representation in Python 3000	Ishimoto
-
-    Deferred PEPs (postponed pending further research or updates)
-        SD	501	General purpose string interpolation	Coghlan
-        SD	536	Final Grammar for Literal String Interpolation	Angerer
-
-    Abandoned, Withdrawn, and Rejected PEPs
-        SS	215	String Interpolation	Yee
-        IR	216	Docstring Format	Zadka
-        SR	224	Attribute Docstrings	Lemburg
-        SR	256	Docstring Processing System Framework	Goodger
-        SR	295	Interpretation of multiline string constants	Koltsov
-        SR	332	Byte vectors and String/Unicode Unification	Montanaro
-        SR	349	Allow str() to return unicode strings	Schemenauer
-        IR	502	String Interpolation - Extended Discussion	Miller
-        SR	3126	Remove Implicit String Concatenation	Jewett, Hettinger
-
-
-11/08/2021
-http://nokix.sourceforge.net/help/learn_rexx/funcs5.htm#VALUEIN
-Reads in a numeric value from a binary (ie, non-text) file.
-value = VALUEIN(stream, position, length, options)
-    Args
-        stream is the name of the stream.
-        It can include the full path to the stream (ie, any drive and directory names).
-        If omitted, the default is to read from STDIN.
-
-        position specifies at what character position (within the stream) to start
-        reading from, where 1 means to start reading at the very first character
-        in the stream. If omitted, the default is to resume reading at where a
-        previous call to CHARIN() or VALUEIN() left off (ie, where you current
-        read character position is).
-
-        length is a 1 to read in the next binary byte (ie, 8-bit value), a 2 to
-        read in the next binary short (ie, 16-bit value), or a 4 to read in the
-        next binary long (ie, 32-bit value). If length is omitted, VALUEIN() defaults to reading a byte.
-
-        options can be any of the following:
-            M	The value is stored (in the stream) in Motorola (big endian) byte order,
-                rather than Intel (little endian) byte order.
-                The effects only long and short values.
-            H	Read in the value as hexadecimal (rather than the default of base 10,
-                or decimal, which is the base that REXX uses to express numbers).
-                The value can later be converted with X2D().
-            B	Read in the value as binary (base 2).
-            -	The value is signed (as opposed to unsigned).
-            V	stream is the actual data string from which to extract a value.
-                You can now replace calls to SUBSTR and C2D with a single, faster call to VALUEIN.
-            If omitted, options defaults to none of the above.
-    Returns
-        The value, if successful.
-        If an error, an empty string is returned (unless the NOTREADY condition
-        is trapped via CALL method. Then, a '0' is returned).
-
-http://nokix.sourceforge.net/help/learn_rexx/funcs5.htm#VALUEOUT
-Write out numeric values to a binary (ie, non-text) file (ie, in non-text format).
-result = VALUEOUT(stream, values, position, size, options)
-    Args
-        stream is the name of the stream.
-        It can include the full path to the stream (ie, any drive and directory names).
-        If omitted, the default is to write to STDOUT (typically, display the data in the console window).
-
-        position specifies at what character position (within the stream) to start writing the data,
-        where 1 means to start writing at the very first character in the stream.
-        If omitted, the default is to resume writing at where a previous call to
-        CHAROUT() or VALUEOUT() left off (or where the "write character pointer" was set via STREAM's SEEK).
-
-        values are the numeric values (ie, data) to write out.
-        Each value is separated by one space.
-
-        size is a 1 if each value is to be written as a byte (ie, 8-bit value),
-        2 if each value is to be written as a short (16-bit value),
-        or 4 if each value is to be written as a long (32-bit value). If omitted, size defaults to 1.
-
-        options can be any of the following:
-            M	Write out the values in Motorola (big endian) byte order,
-                rather than Intel (little endian) byte order. The effects only long and short values.
-            H	The values you supplied are specified in hexadecimal.
-            B	The values you supplied are specified in binary (base 2).
-            V	stream is the name of a variable, and the data will be overlaid
-                onto that variable's value. You can now replace calls to D2C and
-                OVERLAY with a single, faster call to VALUEOUT, especially when
-                a variable has a large amount of non-text data.
-            If omitted, options defaults to none of the above.
-    Returns
-        0 if the string was written out successfully.
-        If an error, VALUEOUT() returns non-zero.
-
-
-http://www.dg77.net/tekno/manuel/rexxendian.htm
-Test de l’endianité
-    /* Verifie l'endianité / check endiannity          */
-    /* Pour traitement d'information encodees en UTF-8 */
-    /* Adapter si on utilise un autre encodage         */
-    CALL CONV8_16 ' '
-    IF c2x(sortie) = '2000' THEN DO
-        endian = 'LE' /* little endian  */
-        blanx = '2000'
-        END
-    ELSE DO
-        endian = 'BE' /* big endian  */
-        blanx = '0020'
-        END
-    return endian blanx
-    /* ********************************************************************** */
-    /*           Conversion UTF-8 -> UNICODE                                  */
-    CONV8_16:
-    parse arg entree
-    sortie = ''
-    ZONESORTIE.='NUL'; ZONESORTIE.0=0
-    err = systounicode(entree, 'UTF8', , ZONESORTIE.)
-    if err == 0 then sortie = ZONESORTIE.!TEXT
-      else say 'probleme car., code ' err
-    return
-
-
-http://www.dg77.net/tekno/xhtml/codage.htm
-Le codage des caractères
-To read, some infos about the code pages could be useful.
-
-
-Regina doc
-    EXPORT(address, [string], [length] [,pad]) - (AREXX)
-        Copies data from the (optional) string into a previously-allocated memory area, which must be
-        specified as a 4-byte address. The length parameter specifies the maximum number of characters to
-        be copied; the default is the length of the string. If the specified length is longer than the string, the
-        remaining area is filled with the pad character or nulls('00'x). The returned value is the number
-        of characters copied.
-        Caution is advised in using this function. Any area of memory can be overwritten,possibly
-        causing a system crash.
-        See also STORAGE() and IMPORT().
-        Note that the address specified is subject to a machine's endianess.
-        EXPORT('0004 0000'x,'The answer') '10'
-
-    IMPORT(address [,length]) - (AREXX)
-        Creates a string by copying data from the specified 4-byte address. If the length parameter is not
-        supplied,the copy terminates when a null byte is found.
-        See also EXPORT()
-        Note that the address specified is subject to a machine's endianess.
-        IMPORT('0004 0000'x,10) 'The answer' /* maybe */
-
-
-14/09/2021
-https://www.gnu.org/software/emacs/manual/html_node/elisp/Character-Properties.html
-    name
-    Corresponds to the Name Unicode property. The value is a string consisting of upper-case Latin letters A to Z, digits, spaces, and hyphen ‘-’ characters. For unassigned codepoints, the value is nil.
-
-    general-category
-    Corresponds to the General_Category Unicode property. The value is a symbol whose name is a 2-letter abbreviation of the character’s classification. For unassigned codepoints, the value is Cn.
-
-    canonical-combining-class
-    Corresponds to the Canonical_Combining_Class Unicode property. The value is an integer. For unassigned codepoints, the value is zero.
-
-    bidi-class
-    Corresponds to the Unicode Bidi_Class property. The value is a symbol whose name is the Unicode directional type of the character. Emacs uses this property when it reorders bidirectional text for display (see Bidirectional Display). For unassigned codepoints, the value depends on the code blocks to which the codepoint belongs: most unassigned codepoints get the value of L (strong L), but some get values of AL (Arabic letter) or R (strong R).
-
-    decomposition
-    Corresponds to the Unicode properties Decomposition_Type and Decomposition_Value. The value is a list, whose first element may be a symbol representing a compatibility formatting tag, such as small18; the other elements are characters that give the compatibility decomposition sequence of this character. For characters that don’t have decomposition sequences, and for unassigned codepoints, the value is a list with a single member, the character itself.
-
-    decimal-digit-value
-    Corresponds to the Unicode Numeric_Value property for characters whose Numeric_Type is ‘Decimal’. The value is an integer, or nil if the character has no decimal digit value. For unassigned codepoints, the value is nil, which means NaN, or “not a number”.
-
-    digit-value
-    Corresponds to the Unicode Numeric_Value property for characters whose Numeric_Type is ‘Digit’. The value is an integer. Examples of such characters include compatibility subscript and superscript digits, for which the value is the corresponding number. For characters that don’t have any numeric value, and for unassigned codepoints, the value is nil, which means NaN.
-
-    numeric-value
-    Corresponds to the Unicode Numeric_Value property for characters whose Numeric_Type is ‘Numeric’. The value of this property is a number. Examples of characters that have this property include fractions, subscripts, superscripts, Roman numerals, currency numerators, and encircled numbers. For example, the value of this property for the character U+2155 VULGAR FRACTION ONE FIFTH is 0.2. For characters that don’t have any numeric value, and for unassigned codepoints, the value is nil, which means NaN.
-
-    mirrored
-    Corresponds to the Unicode Bidi_Mirrored property. The value of this property is a symbol, either Y or N. For unassigned codepoints, the value is N.
-
-    mirroring
-    Corresponds to the Unicode Bidi_Mirroring_Glyph property. The value of this property is a character whose glyph represents the mirror image of the character’s glyph, or nil if there’s no defined mirroring glyph. All the characters whose mirrored property is N have nil as their mirroring property; however, some characters whose mirrored property is Y also have nil for mirroring, because no appropriate characters exist with mirrored glyphs. Emacs uses this property to display mirror images of characters when appropriate (see Bidirectional Display). For unassigned codepoints, the value is nil.
-
-    paired-bracket
-    Corresponds to the Unicode Bidi_Paired_Bracket property. The value of this property is the codepoint of a character’s paired bracket, or nil if the character is not a bracket character. This establishes a mapping between characters that are treated as bracket pairs by the Unicode Bidirectional Algorithm; Emacs uses this property when it decides how to reorder for display parentheses, braces, and other similar characters (see Bidirectional Display).
-
-    bracket-type
-    Corresponds to the Unicode Bidi_Paired_Bracket_Type property. For characters whose paired-bracket property is non-nil, the value of this property is a symbol, either o (for opening bracket characters) or c (for closing bracket characters). For characters whose paired-bracket property is nil, the value is the symbol n (None). Like paired-bracket, this property is used for bidirectional display.
-
-    old-name
-    Corresponds to the Unicode Unicode_1_Name property. The value is a string. For unassigned codepoints, and characters that have no value for this property, the value is nil.
-
-    iso-10646-comment
-    Corresponds to the Unicode ISO_Comment property. The value is either a string or nil. For unassigned codepoints, the value is nil.
-
-    uppercase
-    Corresponds to the Unicode Simple_Uppercase_Mapping property. The value of this property is a single character. For unassigned codepoints, the value is nil, which means the character itself.
-
-    lowercase
-    Corresponds to the Unicode Simple_Lowercase_Mapping property. The value of this property is a single character. For unassigned codepoints, the value is nil, which means the character itself.
-
-    titlecase
-    Corresponds to the Unicode Simple_Titlecase_Mapping property. Title case is a special form of a character used when the first character of a word needs to be capitalized. The value of this property is a single character. For unassigned codepoints, the value is nil, which means the character itself.
-
-    special-uppercase
-    Corresponds to Unicode language- and context-independent special upper-casing rules. The value of this property is a string (which may be empty). For example mapping for U+00DF LATIN SMALL LETTER SHARP S is "SS". For characters with no special mapping, the value is nil which means uppercase property needs to be consulted instead.
-
-    special-lowercase
-    Corresponds to Unicode language- and context-independent special lower-casing rules. The value of this property is a string (which may be empty). For example mapping for U+0130 LATIN CAPITAL LETTER I WITH DOT ABOVE the value is "i\u0307" (i.e. 2-character string consisting of LATIN SMALL LETTER I followed by U+0307 COMBINING DOT ABOVE). For characters with no special mapping, the value is nil which means lowercase property needs to be consulted instead.
-
-    special-titlecase
-    Corresponds to Unicode unconditional special title-casing rules. The value of this property is a string (which may be empty). For example mapping for U+FB01 LATIN SMALL LIGATURE FI the value is "Fi". For characters with no special mapping, the value is nil which means titlecase property needs to be consulted instead.
