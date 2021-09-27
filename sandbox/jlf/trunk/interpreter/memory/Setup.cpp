@@ -1455,6 +1455,11 @@ void RexxMemory::createImage(const char *imageTarget)
   defineKernelMethod("CODEPOINTCONTROLBOUNDARY" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointControlBoundary), 1);
   defineKernelMethod("CODEPOINTCHARWIDTH" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointCharWidth), 1);
   defineKernelMethod("CODEPOINTBOUNDCLASS" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointBoundClass), 1);
+  defineKernelMethod("CODEPOINTTOLOWER" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointToLower), 1);
+  defineKernelMethod("CODEPOINTTOUPPER" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointToUpper), 1);
+  defineKernelMethod("CODEPOINTTOTITLE" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointToTitle), 1);
+  defineKernelMethod("CODEPOINTISLOWER" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointIsLower), 1);
+  defineKernelMethod("CODEPOINTISUPPER" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointIsUpper), 1);
                                        /* set the scope of the methods to   */
                                        /* this classes oref                 */
   TheUnicodeClassBehaviour->setMethodDictionaryScope(TheUnicodeClass);

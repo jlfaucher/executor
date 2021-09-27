@@ -114,6 +114,11 @@ public:
     RexxInteger *codepointControlBoundary(RexxObject *rexxCodepoint);
     RexxInteger *codepointCharWidth(RexxObject *rexxCodepoint);
     RexxInteger *codepointBoundClass(RexxObject *rexxCodepoint);
+    RexxInteger *codepointToLower(RexxObject *rexxCodepoint);
+    RexxInteger *codepointToUpper(RexxObject *rexxCodepoint);
+    RexxInteger *codepointToTitle(RexxObject *rexxCodepoint);
+    RexxInteger *codepointIsLower(RexxObject *rexxCodepoint);
+    RexxInteger *codepointIsUpper(RexxObject *rexxCodepoint);
 };
 
 #endif

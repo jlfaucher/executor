@@ -1111,7 +1111,11 @@ CPPM(Unicode::codepointIgnorable),
 CPPM(Unicode::codepointControlBoundary),
 CPPM(Unicode::codepointCharWidth),
 CPPM(Unicode::codepointBoundClass),
-
+CPPM(Unicode::codepointToLower),
+CPPM(Unicode::codepointToUpper),
+CPPM(Unicode::codepointToTitle),
+CPPM(Unicode::codepointIsLower),
+CPPM(Unicode::codepointIsUpper),
 
 NULL                                   /* final terminating method          */
 };

@@ -428,3 +428,40 @@ typedef enum {
   UTF8PROC_BOUNDCLASS_E_ZWG = 20, /* UTF8PROC_BOUNDCLASS_EXTENDED_PICTOGRAPHIC + ZWJ */
 } utf8proc_boundclass_t;
 #endif
+
+
+RexxInteger *Unicode::codepointToLower(RexxObject *rexxCodepoint)
+{
+    utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointToLower: codepoint must be an integer");
+    return new_integer(utf8proc_tolower(codepoint));
+}
+
+
+RexxInteger *Unicode::codepointToUpper(RexxObject *rexxCodepoint)
+{
+    utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointToUpper: codepoint must be an integer");
+    return new_integer(utf8proc_toupper(codepoint));
+}
+
+
+RexxInteger *Unicode::codepointToTitle(RexxObject *rexxCodepoint)
+{
+    utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointToTitle: codepoint must be an integer");
+    return new_integer(utf8proc_totitle(codepoint));
+}
+
+
+RexxInteger *Unicode::codepointIsLower(RexxObject *rexxCodepoint)
+{
+    utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointIsLower: codepoint must be an integer");
+    return utf8proc_islower(codepoint) ? TheTrueObject : TheFalseObject;
+
+}
+
+
+RexxInteger *Unicode::codepointIsUpper(RexxObject *rexxCodepoint)
+{
+    utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointIsUpper: codepoint must be an integer");
+    return utf8proc_isupper(codepoint) ? TheTrueObject : TheFalseObject;
+
+}

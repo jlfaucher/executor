@@ -428,7 +428,6 @@ void RexxNativeActivation::callNativeRoutine(RoutineClass *_routine, RexxNativeR
     RexxObject **list, size_t count, size_t named_count, ProtectedObject &resultObj)
 
 
-
 Maybe to rework
 ---------------
 
@@ -492,6 +491,101 @@ RexxList *RexxList::classOf(
      size_t       named_argCount)
 TODO
 The named arguments could be added to the returned array (splitting the key:value).
+
+
+===============================================================================
+2021 September 27
+
+[Encoded strings]
+
+New native methods:
+.Unicode
+    codepointToLower
+    codepointToUpper
+    codepointToTitle
+    codepointIsLower
+    codepointIsUpper
+
+New methods:
+.RexxText
+    lower
+    upper
+    isLower
+    isUpper
+    characters
+
+Examples:
+
+"aàâäeéèêëiîïoôöuûü"~text~isUpper=              -- .false
+"aàâäeéèêëiîïoôöuûü"~text~isLower=              -- .true
+"AÀÂÄEÉÈÊËIÎÏOÔÖUÛÜ"~text~isUpper=              -- .true
+"AÀÂÄEÉÈÊËIÎÏOÔÖUÛÜ"~text~isLower=              -- .false
+"Le père Noël est fatigué..."~text~upper=       -- T'LE PÈRE NOËL EST FATIGUÉ...'
+"LE PÈRE NOËL EST FATIGUÉ..."~text~lower=       -- T'le père noël est fatigué...'
+
+utf8proc supports only the basic cases (those in UnicodeData.txt).
+The cases described in SpecialCasing.txt are not supported by utf8proc.
+Examples:
+
+-- # The German es-zed is special--the normal mapping is to SS.
+-- # Note: the titlecase should never occur in practice. It is equal to titlecase(uppercase(<es-zed>))
+-- # <code>; <lower>; <title>; <upper>; (<condition_list>;)? # <comment>
+-- 00DF; 00DF; 0053 0073; 0053 0053; # LATIN SMALL LETTER SHARP S
+.unicode~character("LATIN SMALL LETTER SHARP S")~utf8=          -- T'ß'
+.unicode~character("LATIN SMALL LETTER SHARP S")~toUpper        -- (U+1E9E Lu "LATIN CAPITAL LETTER SHARP S")
+.unicode~character("LATIN SMALL LETTER SHARP S")~toUpper~utf8=  -- T'ẞ'
+-- T'ß' to uppercase should be T'SS':
+"0053 0053"x~text("utf16")~characters==
+    an Array (shape [2], 2 items)
+     1 : (U+0053 Lu "LATIN CAPITAL LETTER S")
+     2 : (U+0053 Lu "LATIN CAPITAL LETTER S")
+
+-- # Preserve canonical equivalence for I with dot. Turkic is handled below.
+-- 0130; 0069 0307; 0130; 0130; # LATIN CAPITAL LETTER I WITH DOT ABOVE
+.unicode~character("LATIN CAPITAL LETTER I WITH DOT ABOVE")~utf8=           -- T'İ'
+.unicode~character("LATIN CAPITAL LETTER I WITH DOT ABOVE")~toLower=        -- (U+0069 Ll "LATIN SMALL LETTER I")
+.unicode~character("LATIN CAPITAL LETTER I WITH DOT ABOVE")~toLower~utf8=   -- T'i'
+-- T'İ' to lowercase should be T'i̇':
+"0069 0307"x~text("utf16")~characters==
+    an Array (shape [2], 2 items)
+     1 : (U+0069 Ll "LATIN SMALL LETTER I")
+     2 : (U+0307 Mn "COMBINING DOT ABOVE")
+
+-- # Turkish and Azeri
+-- # I and i-dotless; I-dot and i are case pairs in Turkish and Azeri
+-- # The following rules handle those cases.
+-- 0130; 0069; 0130; 0130; tr; # LATIN CAPITAL LETTER I WITH DOT ABOVE
+-- 0130; 0069; 0130; 0130; az; # LATIN CAPITAL LETTER I WITH DOT ABOVE
+
+-- # Note: the following case is already in the UnicodeData.txt file.
+-- # 0131; 0131; 0049; 0049; tr; # LATIN SMALL LETTER DOTLESS I
+.unicode~character("LATIN SMALL LETTER DOTLESS I")~utf8=            -- T'ı'
+.unicode~character("LATIN SMALL LETTER DOTLESS I")~toUpper=         -- (U+0049 Lu "LATIN CAPITAL LETTER I")
+.unicode~character("LATIN SMALL LETTER DOTLESS I")~toUpper~utf8=    -- T'I'
+
+
+-- Which characters have their title character different from their upper character?
+.unicode~characters~select{item~toTitle <> item~toUpper}~each{item~toTitle~utf8 item~ToUpper~utf8 item~utf8 item~string}==
+    an Array (shape [58], 58 items)
+     1  : T'ǅ Ǆ Ǆ U+01C4 Lu "LATIN CAPITAL LETTER DZ WITH CARON"'
+     2  : T'ǅ Ǆ ǅ U+01C5 Lt "LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON"'
+     3  : T'ǅ Ǆ ǆ U+01C6 Ll "LATIN SMALL LETTER DZ WITH CARON"'
+     4  : T'ǈ Ǉ Ǉ U+01C7 Lu "LATIN CAPITAL LETTER LJ"'
+     5  : T'ǈ Ǉ ǈ U+01C8 Lt "LATIN CAPITAL LETTER L WITH SMALL LETTER J"'
+     6  : T'ǈ Ǉ ǉ U+01C9 Ll "LATIN SMALL LETTER LJ"'
+     7  : T'ǋ Ǌ Ǌ U+01CA Lu "LATIN CAPITAL LETTER NJ"'
+     8  : T'ǋ Ǌ ǋ U+01CB Lt "LATIN CAPITAL LETTER N WITH SMALL LETTER J"'
+     9  : T'ǋ Ǌ ǌ U+01CC Ll "LATIN SMALL LETTER NJ"'
+     10 : T'ǲ Ǳ Ǳ U+01F1 Lu "LATIN CAPITAL LETTER DZ"'
+     11 : T'ǲ Ǳ ǲ U+01F2 Lt "LATIN CAPITAL LETTER D WITH SMALL LETTER Z"'
+     12 : T'ǲ Ǳ ǳ U+01F3 Ll "LATIN SMALL LETTER DZ"'
+     13 : T'ა Ა ა U+10D0 Ll "GEORGIAN LETTER AN"'
+     14 : T'ბ Ბ ბ U+10D1 Ll "GEORGIAN LETTER BAN"'
+     15 : T'გ Გ გ U+10D2 Ll "GEORGIAN LETTER GAN"'
+     ...
+     56 : T'ჽ Ჽ ჽ U+10FD Ll "GEORGIAN LETTER AEN"'
+     57 : T'ჾ Ჾ ჾ U+10FE Ll "GEORGIAN LETTER HARD SIGN"'
+     58 : T'ჿ Ჿ ჿ U+10FF Ll "GEORGIAN LETTER LABIAL SIGN"'
 
 
 ===============================================================================
@@ -639,7 +733,6 @@ an UnicodeCharacterSupplier
 
 -- get a character by codepoint
 .unicode~character(8203)=                   -- (U+200B Cf "ZERO WIDTH SPACE")
-.unicode~character("200B")=                 -- (U+200B Cf "ZERO WIDTH SPACE")
 .unicode~character("U+200B")=               -- (U+200B Cf "ZERO WIDTH SPACE")
 .unicode~character("u+200b")=               -- (U+200B Cf "ZERO WIDTH SPACE")
 
