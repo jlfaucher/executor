@@ -1006,7 +1006,7 @@ modulo                          (new 5)
 overlay
 pos                             partial
 replaceAt
-reverse
+reverse                         full
 right
 round
 sign
@@ -1122,6 +1122,14 @@ x2d
     raise syntax 23.900 array("Method 'pos' not yet implemented for Unicode")
 
 
+::method reverse
+    if self~isCompatibleWithString then do
+        forward to (self~string) continue
+        return .RexxText~new(result, self~encoding)
+    end
+    forward to (self~indexer)
+
+
 ::method subchar
     forward message "grapheme"
 
@@ -1212,6 +1220,15 @@ x2d
 
     invalid_length:             raise syntax 93.923 array(length)
     incorrect_position:         raise syntax 93.924 array(startC)
+
+
+::method reverse
+    use strict arg -- none
+    buffer = .MutableBuffer~new
+    do indexG = self~graphemeCount to 1 by -1
+        self~grapheme(indexG, buffer)
+    end
+    return .RexxText~new(buffer~string, self~class)
 
 
 ::method substr
@@ -3222,9 +3239,13 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 
 ::method grapheme
-    use strict arg indexG
+    -- 2 modes:
+    -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
+    -- otherwise return the encoded codepoint as a RexxText
+    use strict arg indexG, buffer=.nil
     startB = self~graphemeIndex(indexG)
-    return .RexxText~new(self~string~subchar(startB), self~class)
+    if .nil <> buffer then return buffer~~append(self~string~subchar(startB))
+                      else return .RexxText~new(self~string~subchar(startB), self~class)
 
 
 ::method maximumUnicodeCodepoint private
@@ -3969,16 +3990,21 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 
 ::method grapheme
-    use strict arg indexG
-    startB = self~graphemeIndex(indexG)
+    -- 2 modes:
+    -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
+    -- otherwise return the encoded codepoint as a RexxText
+    use strict arg indexG, buffer=.nil
     if .nil == self~graphemeIndexes, self~graphemeCount == self~string~length then do
         -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last grapheme can be more than one codepoint.
-        return .RexxText~new(self~string~subchar(indexG), self~class)
+        if .nil <> buffer then return buffer~~append(self~string~subchar(indexG))
+                          else return .RexxText~new(self~string~subchar(indexG), self~class)
     end
+    startB = self~graphemeIndex(indexG)
     nextB = self~graphemeIndex(indexG+1)
     absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
     absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
-    return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~class) -- yes, always the current byte sequence, even if invalid
+    if .nil <> buffer then return buffer~~append(self~string~substr(absStartB, absNextB - absStartB))
+                      else return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~class) -- yes, always the current byte sequence, even if invalid
 
 
 ::method UTF8
@@ -4362,16 +4388,21 @@ the concatenation back to WTF-8.
 
 
 ::method grapheme
-    use strict arg indexG
+    -- 2 modes:
+    -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
+    -- otherwise return the encoded codepoint as a RexxText
+    use strict arg indexG, buffer=.nil
     startB = self~graphemeIndex(indexG)
     if .nil == self~graphemeIndexes, self~graphemeCount == self~string~length then do
         -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last grapheme can be more than one codepoint
-        return .RexxText~new(self~string~substr(startB, 2), self~class)
+        if .nil <> buffer then return buffer~~append(self~string~substr(startB, 2))
+                          else return .RexxText~new(self~string~substr(startB, 2), self~class)
     end
     nextB = self~graphemeIndex(indexG+1)
     absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
     absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
-    return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~class) -- yes, always the current byte sequence, even if invalid
+    if .nil <> buffer then return buffer~~append(self~string~substr(absStartB, absNextB - absStartB))
+                      else return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~class) -- yes, always the current byte sequence, even if invalid
 
 
 /******************************************************************************/
@@ -4765,16 +4796,21 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 
 
 ::method grapheme
-    use strict arg indexG
+    -- 2 modes:
+    -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
+    -- otherwise return the encoded codepoint as a RexxText
+    use strict arg indexG, buffer=.nil
     startB = self~graphemeIndex(indexG)
     if .nil == self~graphemeIndexes, self~graphemeCount == self~string~length then do
         -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last grapheme can be more than one codepoint
-        return .RexxText~new(self~string~substr(startB, 4), self~class)
+        if .nil <> buffer then return buffer~~append(self~string~substr(startB, 4))
+                          else return .RexxText~new(self~string~substr(startB, 4), self~class)
     end
     nextB = self~graphemeIndex(indexG+1)
     absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
     absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
-    return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~class) -- yes, always the current byte sequence, even if invalid
+    if .nil <> buffer then return buffer~~append(self~string~substr(absStartB, absNextB - absStartB))
+                      else return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~class) -- yes, always the current byte sequence, even if invalid
 
 
 /******************************************************************************/
@@ -5083,16 +5119,21 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 
 
 ::method grapheme
-    use strict arg indexG
+    -- 2 modes:
+    -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
+    -- otherwise return the encoded codepoint as a RexxText
+    use strict arg indexG, buffer=.nil
     startB = self~graphemeIndex(indexG)
     if .nil == self~graphemeIndexes, self~graphemeCount == self~string~length then do
         -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last grapheme can be more than one codepoint.
-        return .RexxText~new(self~string~subchar(indexG), self~class)
+        if .nil <> buffer then return buffer~~append(self~string~subchar(indexG))
+                          else return .RexxText~new(self~string~subchar(indexG), self~class)
     end
     nextB = self~graphemeIndex(indexG+1)
     absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
     absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
-    return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~class) -- yes, always the current byte sequence, even if invalid
+    if .nil <> buffer then return buffer~~append(self~string~substr(absStartB, absNextB - absStartB))
+                      else return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~class) -- yes, always the current byte sequence, even if invalid
 
 
 /******************************************************************************/
@@ -5255,16 +5296,21 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 
 
 ::method grapheme
-    use strict arg indexG
+    -- 2 modes:
+    -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
+    -- otherwise return the encoded codepoint as a RexxText
+    use strict arg indexG, buffer=.nil
     startB = self~graphemeIndex(indexG)
     if .nil == self~graphemeIndexes, self~graphemeCount == self~string~length then do
         -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last grapheme can be more than one codepoint
-        return .RexxText~new(self~string~substr(startB, 2), self~class)
+        if .nil <> buffer then return buffer~~append(self~string~substr(startB, 2))
+                          else return .RexxText~new(self~string~substr(startB, 2), self~class)
     end
     nextB = self~graphemeIndex(indexG+1)
     absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
     absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
-    return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~class) -- yes, always the current byte sequence, even if invalid
+    if .nil <> buffer then return buffer~~append(self~string~substr(absStartB, absNextB - absStartB))
+                      else return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~class) -- yes, always the current byte sequence, even if invalid
 
 
 /******************************************************************************/
@@ -5428,16 +5474,21 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 
 
 ::method grapheme
-    use strict arg indexG
+    -- 2 modes:
+    -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
+    -- otherwise return the encoded codepoint as a RexxText
+    use strict arg indexG, buffer=.nil
     startB = self~graphemeIndex(indexG)
     if .nil == self~graphemeIndexes, self~graphemeCount == self~string~length then do
         -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last grapheme can be more than one codepoint
-        return .RexxText~new(self~string~substr(startB, 4), self~class)
+        if .nil <> buffer then return buffer~~append(self~string~substr(startB, 4))
+                          else return .RexxText~new(self~string~substr(startB, 4), self~class)
     end
     nextB = self~graphemeIndex(indexG+1)
     absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
     absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
-    return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~class) -- yes, always the current byte sequence, even if invalid
+    if .nil <> buffer then return buffer~~append(self~string~substr(absStartB, absNextB - absStartB))
+                      else return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~class) -- yes, always the current byte sequence, even if invalid
 
 
 /******************************************************************************/
