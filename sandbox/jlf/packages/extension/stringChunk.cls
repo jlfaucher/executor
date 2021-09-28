@@ -21,17 +21,17 @@ Keep it compatible with official ooRexx
 ::method description
     -- Helper to get the string and its quoted flags.
     -- An optional width can be passed, to align the strings of quoted flags when displaying an array of StringChunk
-    use strict arg stringWidth=(self~string~length), index="", indexWidth=(index~length), descriptionKind="all", quote = "'"
+    use strict arg stringWidth=(self~string~length), index="", indexWidth=(index~length), descriptionKind="all", leftQuote = "|", rightQuote=(leftQuote)
     index = index~left(indexWidth)
-    string = quote || self~string || quote
-    string = string~left(stringWidth)
+    string = leftQuote || self~string || rightQuote
+    string = string~left(stringWidth+2)
     start = self~containerStart~right(self~container~length~length,"0")
     end = self~containerEnd~right(self~container~length~length, "0")
     containerSection = self~container~substr(self~containerStart, self~containerEnd - self~containerStart + 1)
-    containerSection = quote || containerSection || quote
-    containerSection = containerSection~left(stringWidth)
-    quotedFlags = quote || self~quotedFlags || quote
-    quotedFlags = quotedFlags~left(stringWidth)
+    containerSection = leftQuote || containerSection || rightQuote
+    containerSection = containerSection~left(stringWidth+2)
+    quotedFlags = leftQuote || self~quotedFlags || rightQuote
+    quotedFlags = quotedFlags~left(stringWidth+2)
     if descriptionKind == 1 then do -- line 1 for sayDescription
         if index <> "" then return index string start end containerSection
                        else return       string start end containerSection
