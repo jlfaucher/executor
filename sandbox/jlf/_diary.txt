@@ -494,6 +494,59 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 September 29
+
+Illustration of the very poor performances of the prototype:
+MacBook Pro mid-2010 Intel(R) Core(TM)2 Duo CPU     P8600  @ 2.40GHz
+
+Concatenate all the characters loaded with 'call loadUnicodeCharacterNames'.
+    call loadUnicodeCharacterNames
+    .unicode~characters=        -- (an UnicodeCharacterSupplier count=43056 size=918001)
+Must exclude the first character (-1 Cn "<UNKNOWN CHARACTER>") because -1 is an invalid codepoint.
+Each time a character is concatenated, the whole string is analyzed.
+For 43055 characters, that makes 1+2+3+...+43055 = 43055 * (43055 + 1) / 2 = 926 888 040 characters to analyze.
+    s = .unicode~characters~drop(1)~take(200)~reduce(initial:""){accu || item~utf8}     -- Duration: 1.594796 sec
+    s = .unicode~characters~drop(1)~take(400)~reduce(initial:""){accu || item~utf8}     -- Duration: 4.127699 sec
+    s = .unicode~characters~drop(1)~take(600)~reduce(initial:""){accu || item~utf8}     -- Duration: 8.247686 sec
+    s = .unicode~characters~drop(1)~take(800)~reduce(initial:""){accu || item~utf8}     -- Duration: 14.516004 sec
+    s = .unicode~characters~drop(1)~take(1000)~reduce(initial:""){accu || item~utf8}    -- Duration: 24.784061 sec
+    s = .unicode~characters~drop(1)~take(1200)~reduce(initial:""){accu || item~utf8}    -- Duration: 34.575463 sec
+    s = .unicode~characters~drop(1)~take(1400)~reduce(initial:""){accu || item~utf8}    -- Duration: 45.256977 sec
+    s = .unicode~characters~drop(1)~take(1600)~reduce(initial:""){accu || item~utf8}    -- Duration: 57.467253 sec
+    s = .unicode~characters~drop(1)~take(1800)~reduce(initial:""){accu || item~utf8}    -- Duration: 75.098176 sec
+    s = .unicode~characters~drop(1)~take(2000)~reduce(initial:""){accu || item~utf8}    -- Duration: 90.681681 sec
+    ...
+    s = .unicode~characters~drop(1)~take(3000)~reduce(initial:""){accu || item~utf8}    -- Duration: 222.078949 sec
+The duration is exponential.
+Better adjustment with Mathematica:
+    f = Fit[{1.594796, 4.127699, 8.247686, 14.516004, 24.784061, 34.575463, 45.256977, 57.467253, 75.098176, 90.681681}, {1, x, x^2}, x]
+        -0.11805 + 0.411648 x + 0.869843 x^2
+    f /. x-> 43055/200
+        40399.9 sec
+        11.22 hours (probably longer than that...)
+
+More efficient calculation:
+    buffer = .MutableBuffer~new; .unicode~characters~drop(1)~reduce(initial: buffer){accu~append(item~utf8~string)}     -- Duration: 10.910638 sec
+    buffer~length=              -- 142652
+    s = buffer~string~text      -- Duration: 2.004553 sec
+    s~description               -- 'UTF-8 not-ASCII (40300 graphemes, 43055 codepoints, 142652 bytes, 0 error)'
+
+Reverse of this string of 43 055 codepoints, 142 652 bytes:
+    s~reverse                   -- Duration: 4.937060 sec
+    s~string~reverse            -- Duration: 0.000619 sec
+
+Still more stress with all the intervals expanded:
+    call expandUnicodeCharacterIntervals
+    .unicode~characters=        -- (an UnicodeCharacterSupplier count=143925 size=918001)
+    buffer = .MutableBuffer~new; .unicode~characters~drop(1)~reduce(initial: buffer){accu~append(item~utf8~string)}  -- Duration: 1927.544056 sec... That was unexpected!! 32 min ???
+    buffer~length=              -- 518075
+    s = buffer~string~text      -- Duration: 13.808336 sec
+    s~description=              -- 'UTF-8 not-ASCII (141169 graphemes, 143924 codepoints, 518075 bytes, 0 error)'
+    s~reverse                   -- Duration: 191.105303 sec (!), and then 113 sec, and then 58.28 sec, and then 51.88 sec...
+    s~string~reverse            -- Duration: 0.001525 sec
+
+
+===============================================================================
 2021 September 28
 
 [Encoded strings]
