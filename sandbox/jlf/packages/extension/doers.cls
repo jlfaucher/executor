@@ -441,7 +441,7 @@ Ex :
 
 ::method do unguarded
     use strict arg object, ...
-    forward to (object) message "run" array (self, "a", arg(2,"a"), n:.context~namedArgs)
+    forward to (object) message "run" array (self, "a", arg(2,"a"), n:.context~namedArgs~~remove("ITEM"))
 
 
 ::method doWith unguarded
@@ -466,7 +466,7 @@ Ex :
 
 ::method do unguarded
     use strict arg object, ...
-    forward to (object) message "sendWith" array (self, arg(2,"a"), n:.context~namedArgs)
+    forward to (object) message "sendWith" array (self, arg(2,"a"), n:.context~namedArgs~~remove("ITEM"))
 
 
 ::method doWith unguarded
