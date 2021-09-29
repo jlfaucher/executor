@@ -494,6 +494,28 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 September 30
+
+[Encoded strings]
+
+Performance improvement:
+Add support for an optional buffer everywhere it makes sense.
+That allows to accumulate characters, without creating intermediate RexxText objects,
+thus eliminating the validity checks of the intermdiate values. The validity is checked
+at the end, when the buffer's string is converted to a RexxText.
+
+Illustration:
+    -- Concatenate all the characters loaded with 'call loadUnicodeCharacterNames': 2.8 times faster
+    call loadUnicodeCharacterNames
+    buffer = .MutableBuffer~new; .unicode~characters~drop(1)~reduce(initial: buffer){item~utf8(b: accu)}  -- Duration:  3.887519 sec (was 10.910638 sec)
+    s = buffer~string~text
+    -- Same with all the intervals expanded: 27 times faster
+    call expandUnicodeCharacterIntervals
+    buffer = .MutableBuffer~new; .unicode~characters~drop(1)~reduce(initial: buffer){item~utf8(b: accu)}  -- Duration: 69.157462 sec (was 1927.544056 sec)
+    s = buffer~string~text
+
+
+===============================================================================
 2021 September 29
 
 Illustration of the very poor performances of the prototype:
@@ -532,7 +554,7 @@ More efficient calculation:
     s~description               -- 'UTF-8 not-ASCII (40300 graphemes, 43055 codepoints, 142652 bytes, 0 error)'
 
 Reverse of this string of 43 055 codepoints, 142 652 bytes:
-    s~reverse                   -- Duration: 4.937060 sec
+    s~reverse                   -- Duration: 7.902785 sec
     s~string~reverse            -- Duration: 0.000619 sec
 
 Still more stress with all the intervals expanded:

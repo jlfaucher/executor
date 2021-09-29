@@ -134,9 +134,16 @@ Similar to ~makeArray(separator), with these differences:
 ::method concatenateSeparated
     -- Arguments : zero to N strings or arrays of strings (recursively).
     -- self is the separator
-    buffer = .mutableBuffer~new
-    buffer~concatenateSeparated(self, arg(1, "a"))
-    return buffer~string
+    use strict named arg buffer(1)=.nil
+    if .nil == buffer then do
+        buffer = .mutableBuffer~new
+        buffer~concatenateSeparated(self, arg(1, "a"))
+        return buffer~string
+    end
+    else do
+        buffer~concatenateSeparated(self, arg(1, "a"))
+        return buffer
+    end
 
 
 ::method singularPlural
@@ -1076,8 +1083,10 @@ x2d
 
 
 ::method copies
+    use strict named arg buffer(1)=.nil
     forward to (self~string) continue
-    return .RexxText~new(result, self~encoding)
+    if .nil <> buffer then return buffer~~append(result)
+                      else return .RexxText~new(result, self~encoding)
 
 
 ::method hashCode
@@ -1090,9 +1099,11 @@ x2d
 
 
 ::method lower
+    use strict named arg buffer(1)=.nil
     if self~isCompatibleWithString then do
         forward to (self~string) continue
-        return .RexxText~new(result, self~encoding)
+        if .nil <> buffer then return buffer~~append(result)
+                          else return .RexxText~new(result, self~encoding)
     end
     forward to (self~indexer)
 
@@ -1123,9 +1134,11 @@ x2d
 
 
 ::method reverse
+    use strict named arg buffer(1)=.nil
     if self~isCompatibleWithString then do
         forward to (self~string) continue
-        return .RexxText~new(result, self~encoding)
+        if .nil <> buffer then return buffer~~append(result)
+                          else return .RexxText~new(result, self~encoding)
     end
     forward to (self~indexer)
 
@@ -1136,6 +1149,7 @@ x2d
 
 ::method substr
     use arg _startB, _length, pad -- not strict, just need to check 'pad'
+    use strict named arg buffer(1)=.nil
     padIsCompatibleWithString = .true
     if arg(3, "e") then do
         if pad~isA(.RexxText), \pad~isCompatibleWithString then padIsCompatibleWithString = .false
@@ -1143,15 +1157,18 @@ x2d
     end
     if self~isCompatibleWithString, padIsCompatibleWithString then do
         forward to (self~string) continue
-        return .RexxText~new(result, self~encoding)
+        if .nil <> buffer then return buffer~~append(result)
+                          else return .RexxText~new(result, self~encoding)
     end
     forward to (self~indexer)
 
 
 ::method upper
+    use strict named arg buffer(1)=.nil
     if self~isCompatibleWithString then do
         forward to (self~string) continue
-        return .RexxText~new(result, self~encoding)
+        if .nil <> buffer then return buffer~~append(result)
+                          else return .RexxText~new(result, self~encoding)
     end
     forward to (self~indexer)
 
@@ -1162,9 +1179,11 @@ x2d
 
 
 ::method x2c
+    use strict named arg buffer(1)=.nil
     self~checkHexadecimalValueCompatibility
     forward to (self~string) continue
-    return .RexxText~new(result, self~encoding)
+    if .nil <> buffer then return buffer~~append(result)
+                      else return .RexxText~new(result, self~encoding)
 
 
 /******************************************************************************/
@@ -1172,12 +1191,13 @@ x2d
 
 ::method append
     use strict arg text
+    use strict named arg buffer(1)=.nil
     text = text~request("RexxText")
-    if .nil == text then signal must_have_a_string_value
+    if .nil == text then signal must_have_a_text_or_string_value
     encoding = .Encoding~forConcatenation(self~string~text, text) -- raise an error if not compatible
-    return encoding~concatenate(self~string~text, text)
+    return encoding~concatenate(self~string~text, text, b: buffer)
 
-    must_have_a_string_value:   raise syntax 93.938 array(3)
+    must_have_a_text_or_string_value: raise syntax 93.900 array("Method argument 1 must have a text or string value") -- 93.938 array(1)
 
 
 ::method length -- number of graphemes
@@ -1187,6 +1207,7 @@ x2d
 
 ::method lower
     use strict arg startC=1, length=(max(0, self~length - startC + 1))
+    use strict named arg buffer(1)=.nil
 
     if datatype(startC, "w"), startC > 0 then nop
     else signal incorrect_position
@@ -1194,8 +1215,8 @@ x2d
     if datatype(length, "w"), length >= 0 then nop
     else signal invalid_length
 
-    if startC > self~length then return self
-    if length == 0 then return self
+    if startC > self~length then return self~string~text
+    if length == 0 then return self~string~text
 
     endC = min(startC + length - 1, self~length)
     startB = self~graphemeIndex(startC)
@@ -1203,7 +1224,8 @@ x2d
 
     string = self~string
     encoding = self~class
-    buffer = .MutableBuffer~new(string~left(startB - 1))
+    returnBuffer = .nil <> buffer
+    if .nil == buffer then buffer = .MutableBuffer~new(string~left(startB - 1))
     codepointIndexB = startB
     do while codepointIndexB < endB
         nextCodepointIndexB = encoding~nextCodepointIndex(string, codepointIndexB, raiseError: .false)
@@ -1211,12 +1233,13 @@ x2d
             codepointSizeB = nextCodepointIndexB - codepointIndexB
             codepoint = encoding~decode(string, codepointIndexB, codepointSizeB)
             codepoint = encoding~codepointToLower(codepoint)
-            encoding~encode(codepoint, buffer)
+            encoding~encode(codepoint, b: buffer)
         end
         codepointIndexB = abs(nextCodepointIndexB)
     end
     buffer~append(string~right(string~length - endB + 1))
-    return .RexxText~new(buffer~string, encoding)
+    if returnBuffer then return buffer
+                    else return .RexxText~new(buffer~string, encoding)
 
     invalid_length:             raise syntax 93.923 array(length)
     incorrect_position:         raise syntax 93.924 array(startC)
@@ -1224,15 +1247,19 @@ x2d
 
 ::method reverse
     use strict arg -- none
-    buffer = .MutableBuffer~new
+    use strict named arg buffer(1)=.nil
+    returnBuffer = .nil <> buffer
+    if .nil == buffer then buffer = .MutableBuffer~new
     do indexG = self~graphemeCount to 1 by -1
-        self~grapheme(indexG, buffer)
+        self~grapheme(indexG, b: buffer)
     end
-    return .RexxText~new(buffer~string, self~class)
+    if returnBuffer then return buffer
+                    else return .RexxText~new(buffer~string, self~class)
 
 
 ::method substr
     use strict arg startC, length=(max(0, self~length - startC + 1)), pad=(self~class~spaceCharacter)
+    use strict named arg buffer(1)=.nil
 
     if datatype(startC, "w"), startC > 0 then nop
     else signal incorrect_position
@@ -1241,30 +1268,41 @@ x2d
     else signal invalid_length
 
     pad = pad~request("RexxText")
-    if .nil == pad then signal must_have_a_string_value
+    if .nil == pad then signal must_have_a_text_or_string_value
     if pad~length <> 1 then incorrect_pad
 
     encoding = .Encoding~forConcatenation(self~string~text, pad) -- raise an error if not compatible
 
-    if startC > self~length then return pad~copies(length)
+    if startC > self~length then return pad~copies(length, b: buffer)
     remainingLength = self~length - startC + 1 -- always >= 0
     lengthPad = length - remainingLength -- can be <= 0
     endC = min(startC + length - 1, self~length)
 
     startB = self~graphemeIndex(startC)
     endB = self~graphemeIndex(endC+1)
-    subtxt = .RexxText~new(self~string~substr(startB, endB - startB), self~class)
-    if lengthPad <= 0 then return subtxt
-    return encoding~concatenate(subtxt, pad~copies(lengthPad))
+    substr = self~string~substr(startB, endB - startB)
+    if lengthPad <= 0 then do
+        if .nil <> buffer then return buffer~~append(subtxt)
+                          else return .RexxText~new(substr, self~class)
+    end
+    if .nil <> buffer then do
+        encoding~concatenate(substr)
+        -- can't use encoding~concatenate because pad~copies appends directly to the buffer
+        -- consequence: will not detect WTF8 special concatenation, if any.
+        pad~copies(lengthPad, b: buffer)
+        return buffer
+    end
+    return encoding~concatenate(substr, pad~copies(lengthPad))
 
-    incorrect_pad:              raise syntax 93.922 array(pad~descriptionForError)
-    invalid_length:             raise syntax 93.923 array(length)
-    incorrect_position:         raise syntax 93.924 array(startC)
-    must_have_a_string_value:   raise syntax 93.938 array(3)
+    incorrect_pad:                    raise syntax 93.922 array(pad~descriptionForError)
+    invalid_length:                   raise syntax 93.923 array(length)
+    incorrect_position:               raise syntax 93.924 array(startC)
+    must_have_a_text_or_string_value: raise syntax 93.900 array("Method argument 3 must have a text or string value") -- 93.938 array(3)
 
 
 ::method upper
     use strict arg startC=1, length=(max(0, self~length - startC + 1))
+    use strict named arg buffer(1)=.nil
 
     if datatype(startC, "w"), startC > 0 then nop
     else signal incorrect_position
@@ -1272,8 +1310,8 @@ x2d
     if datatype(length, "w"), length >= 0 then nop
     else signal invalid_length
 
-    if startC > self~length then return self
-    if length == 0 then return self
+    if startC > self~length then return self~string~text
+    if length == 0 then return self~string~text
 
     endC = min(startC + length - 1, self~length)
     startB = self~graphemeIndex(startC)
@@ -1281,7 +1319,8 @@ x2d
 
     string = self~string
     encoding = self~class
-    buffer = .MutableBuffer~new(string~left(startB - 1))
+    returnBuffer = .nil <> buffer
+    if .nil <> buffer then buffer = .MutableBuffer~new(string~left(startB - 1))
     codepointIndexB = startB
     do while codepointIndexB < endB
         nextCodepointIndexB = encoding~nextCodepointIndex(string, codepointIndexB, raiseError: .false)
@@ -1289,12 +1328,13 @@ x2d
             codepointSizeB = nextCodepointIndexB - codepointIndexB
             codepoint = encoding~decode(string, codepointIndexB, codepointSizeB)
             codepoint = encoding~codepointToUpper(codepoint)
-            encoding~encode(codepoint, buffer)
+            encoding~encode(codepoint, b: buffer)
         end
         codepointIndexB = abs(nextCodepointIndexB)
     end
     buffer~append(string~right(string~length - endB + 1))
-    return .RexxText~new(buffer~string, encoding)
+    if returnBuffer then return buffer
+                    else return .RexxText~new(buffer~string, encoding)
 
     invalid_length:             raise syntax 93.923 array(length)
     incorrect_position:         raise syntax 93.924 array(startC)
@@ -2206,7 +2246,8 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 ::method UTF8
     expose codepoint
     use strict arg -- none
-    return .UTF8_Encoding~encode(codepoint)
+    use strict named arg buffer(1)=.nil
+    return .UTF8_Encoding~encode(codepoint, b: buffer)
 
 
 ::method UTF16
@@ -2216,13 +2257,15 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 ::method UTF16BE
     expose codepoint
     use strict arg -- none
-    return .UTF16BE_Encoding~encode(codepoint)
+    use strict named arg buffer(1)=.nil
+    return .UTF16BE_Encoding~encode(codepoint, b:buffer)
 
 
 ::method UTF16LE
     expose codepoint
     use strict arg -- none
-    return .UTF16LE_Encoding~encode(codepoint)
+    use strict named arg buffer(1)=.nil
+    return .UTF16LE_Encoding~encode(codepoint, b: buffer)
 
 
 ::method UTF32
@@ -2232,38 +2275,44 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 ::method UTF32BE
     expose codepoint
     use strict arg -- none
-    return .UTF32BE_Encoding~encode(codepoint)
+    use strict named arg buffer(1)=.nil
+    return .UTF32BE_Encoding~encode(codepoint, b: buffer)
 
 
 ::method UTF32LE
     expose codepoint
     use strict arg -- none
-    return .UTF32LE_Encoding~encode(codepoint)
+    use strict named arg buffer(1)=.nil
+    return .UTF32LE_Encoding~encode(codepoint, b: buffer)
 
 
 ::method Unicode
     expose codepoint
     use strict arg -- none
+    use strict named arg buffer(1)=.nil
     targetEncoding = .Unicode_Encoding~toSupport(codepoint)
-    return targetEncoding~encode(codepoint)
+    return targetEncoding~encode(codepoint, b: buffer)
 
 
 ::method Unicode8
     expose codepoint
     use strict arg -- none
-    return .Unicode8_Encoding~encode(codepoint)
+    use strict named arg buffer(1)=.nil
+    return .Unicode8_Encoding~encode(codepoint, b: buffer)
 
 
 ::method Unicode16
     expose codepoint
     use strict arg -- none
-    return .Unicode16_Encoding~encode(codepoint)
+    use strict named arg buffer(1)=.nil
+    return .Unicode16_Encoding~encode(codepoint, b: buffer)
 
 
 ::method Unicode32
     expose codepoint
     use strict arg -- none
-    return .Unicode32_Encoding~encode(codepoint)
+    use strict named arg buffer(1)=.nil
+    return .Unicode32_Encoding~encode(codepoint, b: buffer)
 
 
 ::method category
@@ -2876,14 +2925,18 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 
 ::method concatenate class
-    -- Arguments : zero to N text.
+    -- Arguments : zero to N text or string.
     -- This method must be called from a subclass of StringIndexer
     -- Precondition: the encodings are compatible with self (you have checked that with .Encoding~forConcatenation)
-    bufferSize = 0
-    do i = 1 to arg()
-        bufferSize += arg(i)~string~length
+    use strict named arg buffer(1)=.nil
+    returnBuffer = .nil <> buffer
+    if .nil == buffer then do
+        bufferSize = 0
+        do i = 1 to arg()
+            bufferSize += arg(i)~string~length
+        end
+        buffer = .mutableBuffer~new(, bufferSize)
     end
-    buffer = .mutableBuffer~new(, bufferSize)
     do i = 1 to arg()
         -- Only WTF-8 has a specific implementation of appendToBuffer.
         -- When concatenating WTF-8 with UTF-8 or ASCII, the target encoding is WTF-8.
@@ -2892,10 +2945,12 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         -- Finally, it appears that the initial implementation was correct.
         -- The special concatenation rules for WTF-8 must be applied only if arg(i) is WTF-8.
         -- So arg(i)~encoding~appendToBuffer is better than self~appendToBuffer.
-        arg(i)~encoding~appendToBuffer(buffer, arg(i)~string) -- "old" implementation is the good one
-        -- self~appendToBuffer(buffer, arg(i)~string) -- "new" implementation is a bad idea.
+        if arg(i)~isA(.String) then self~appendToBuffer(arg(i), b:buffer) -- no encoding, use self
+        else arg(i)~encoding~appendToBuffer(arg(i)~string, b: buffer) -- "old" implementation is the good one
+        -- self~appendToBuffer(arg(i)~string, b:buffer) -- "new" implementation is a bad idea.
     end
-    return .RexxText~new(buffer~string, self)
+    if returnBuffer then return buffer
+                    else return .RexxText~new(buffer~string, self)
 
 
 ::method emptyString class
@@ -3000,22 +3055,27 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method c2u
     use strict arg -- none
+    use strict named arg buffer(1)=.nil
     codepoints = self~codepoints
-    buffer = .MutableBuffer~new
+    returnBuffer = .nil <> buffer
+    if .nil == buffer then buffer = .MutableBuffer~new
     first = .true
     do while codepoints~available
         if \first then buffer~append(" ")
         first = .false
-        call ppCodepoint codepoints~item, buffer
+        call ppCodepoint codepoints~item, b: buffer
         codepoints~next
     end
-    return buffer~string
+    if returnBuffer then return buffer
+                    else return buffer~string
 
 
 ::method c2g
     use strict arg -- none
+    use strict named arg buffer(1)=.nil
     graphemes = self~graphemes
-    buffer = .MutableBuffer~new
+    returnBuffer = .nil <> buffer
+    if .nil == buffer then buffer = .MutableBuffer~new
     first = .true
     do while graphemes~available
         if \first then buffer~append(" ")
@@ -3023,7 +3083,8 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         buffer~append(graphemes~item~string~c2x)
         graphemes~next
     end
-    return buffer~string
+    if returnBuffer then return buffer
+                    else return buffer~string
 
 
 ::method codepoints
@@ -3104,7 +3165,8 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method appendToBuffer class
     -- WTF-8 overrides this method
-    use strict arg buffer, string
+    use strict arg string
+    use strict named arg buffer(1)
     buffer~append(string)
 
 
@@ -3184,7 +3246,8 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     -- 2 modes:
     -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
     -- otherwise return the encoded codepoint as a RexxText
-    use strict arg codepoint, buffer=.nil
+    use strict arg codepoint
+    use strict named arg buffer(1)=.nil
     self~checkCodepoint(codepoint, checkOnlyRange:.true) -- check only range, the other errors will be detected during analysis
     if .nil <> buffer then return buffer~~append(codepoint~d2c)
                       else return .RexxText~new(codepoint~d2c, self)
@@ -3242,7 +3305,8 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     -- 2 modes:
     -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
     -- otherwise return the encoded codepoint as a RexxText
-    use strict arg indexG, buffer=.nil
+    use strict arg indexG
+    use strict named arg buffer(1)=.nil
     startB = self~graphemeIndex(indexG)
     if .nil <> buffer then return buffer~~append(self~string~subchar(startB))
                       else return .RexxText~new(self~string~subchar(startB), self~class)
@@ -3271,47 +3335,51 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method convertByteToUnicode private
     use strict arg targetEncoding
-    use strict named arg strict=.true
+    use strict named arg strict=.true, buffer(1)=.nil
     tableTranscodingToUnicode = self~class~tableTranscodingToUnicode
     if .nil <> tableTranscodingToUnicode then do
         sizeC = self~codepointCount -- size in codepoints
-        buffer = .MutableBuffer~new(, sizeC * targetEncoding~codepointMaxBytes)
+        returnBuffer = .nil <> buffer
+        if .nil == buffer then buffer = .MutableBuffer~new(, sizeC * targetEncoding~codepointMaxBytes)
         do i=1 to sizeC
             charcode = self~codepoint(i)
             codepoint = tableTranscodingToUnicode[charcode+1] -- bof bof... 1-based array
             -- An empty string means no mapping
             -- A negative codepoint means unused character with fallback mapping
             if codepoint == "" | (codepoint < 0 & strict) then raise syntax 23.900 array(self~name "encoding: cannot convert" self~description(short:.true) "character" charcode "("charcode~d2x") at byte-position" i "to" targetEncoding~name)
-            targetEncoding~encode(abs(codepoint), buffer)
+            targetEncoding~encode(abs(codepoint), b: buffer)
         end
-        return .RexxText~new(buffer~string, targetEncoding)
+        if returnBuffer then return buffer
+                        else return .RexxText~new(buffer~string, targetEncoding)
     end
     raise syntax 23.900 array(self~class~name "encoding: cannot convert" self~description(short:.true) "to" targetEncoding~name)
 
 
 ::method UTF8
-    use strict named arg strict=.true
+    use strict named arg strict=.true, buffer(1)=.nil
     if self~string~isASCII then do
+        if .nil <> buffer then return buffer~~append(self~string)
         -- yes, always a new string. The original string is still associated to the Byte_Encoding.
         -- Don't use string~copy, because the reference to the associated text is in the copy,
         -- and that forbids to assign a new RexxText.
         return .RexxText~new(.String~new(self~string), .UTF8_Encoding)
     end
     else do
-        return self~convertByteToUnicode(.UTF8_Encoding, strict: strict)
+        return self~convertByteToUnicode(.UTF8_Encoding, strict: strict, b: buffer)
     end
 
 
 ::method WTF8
-    use strict named arg strict=.true
+    use strict named arg strict=.true, buffer(1)=.nil
     if self~string~isASCII then do
+        if .nil <> buffer then return buffer~~append(self~string)
         -- yes, always a new string. The original string is still associated to the Byte_Encoding.
         -- Don't use string~copy, because the reference to the associated text is in the copy,
         -- and that forbids to assign a new RexxText.
         return .RexxText~new(.String~new(self~string), .WTF8_Encoding)
     end
     else do
-        return self~convertByteToUnicode(.WTF8_Encoding, strict: strict)
+        return self~convertByteToUnicode(.WTF8_Encoding, strict: strict, b: buffer)
     end
 
 
@@ -3320,15 +3388,15 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 
 ::method UTF16BE
-    use strict named arg strict=.true
-    if self~string~isASCII then return .UTF16BE_Encoding~encodeASCIIstring(self~string)
-                           else return self~convertByteToUnicode(.UTF16BE_Encoding, strict: strict)
+    use strict named arg strict=.true, buffer(1)=.nil
+    if self~string~isASCII then return .UTF16BE_Encoding~encodeASCIIstring(self~string, b: buffer)
+                           else return self~convertByteToUnicode(.UTF16BE_Encoding, strict: strict, b: buffer)
 
 
 ::method UTF16LE
-    use strict named arg strict=.true
-    if self~string~isASCII then return .UTF16LE_Encoding~encodeASCIIstring(self~string)
-                           else return self~convertByteToUnicode(.UTF16LE_Encoding, strict: strict)
+    use strict named arg strict=.true, buffer(1)=.nil
+    if self~string~isASCII then return .UTF16LE_Encoding~encodeASCIIstring(self~string, b: buffer)
+                           else return self~convertByteToUnicode(.UTF16LE_Encoding, strict: strict, b: buffer)
 
 
 ::method WTF16
@@ -3336,15 +3404,15 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 
 ::method WTF16BE
-    use strict named arg strict=.true
-    if self~string~isASCII then return .WTF16BE_Encoding~encodeASCIIstring(self~string)
-                           else return self~convertByteToUnicode(.WTF16BE_Encoding, strict: strict)
+    use strict named arg strict=.true, buffer(1)=.nil
+    if self~string~isASCII then return .WTF16BE_Encoding~encodeASCIIstring(self~string, b: buffer)
+                           else return self~convertByteToUnicode(.WTF16BE_Encoding, strict: strict, b: buffer)
 
 
 ::method WTF16LE
-    use strict named arg strict=.true
-    if self~string~isASCII then return .WTF16LE_Encoding~encodeASCIIstring(self~string)
-                           else return self~convertByteToUnicode(.WTF16LE_Encoding, strict: strict)
+    use strict named arg strict=.true, buffer(1)=.nil
+    if self~string~isASCII then return .WTF16LE_Encoding~encodeASCIIstring(self~string, b:buffer)
+                           else return self~convertByteToUnicode(.WTF16LE_Encoding, strict: strict, b: buffer)
 
 
 ::method UTF32
@@ -3352,20 +3420,21 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 
 ::method UTF32BE
-    use strict named arg strict=.true
-    if self~string~isASCII then return .UTF32BE_Encoding~encodeASCIIstring(self~string)
-                           else return self~convertByteToUnicode(.UTF32BE_Encoding, strict: strict)
+    use strict named arg strict=.true, buffer(1)=.nil
+    if self~string~isASCII then return .UTF32BE_Encoding~encodeASCIIstring(self~string, b: buffer)
+                           else return self~convertByteToUnicode(.UTF32BE_Encoding, strict: strict, b: buffer)
 
 
 ::method UTF32LE
-    use strict named arg strict=.true
-    if self~string~isASCII then return .UTF32LE_Encoding~encodeASCIIstring(self~string)
-                           else return self~convertByteToUnicode(.UTF32LE_Encoding, strict: strict)
+    use strict named arg strict=.true, buffer(1)=.nil
+    if self~string~isASCII then return .UTF32LE_Encoding~encodeASCIIstring(self~string, b: buffer)
+                           else return self~convertByteToUnicode(.UTF32LE_Encoding, strict: strict, b: buffer)
 
 
 ::method Unicode
-    use strict named arg strict=.true
+    use strict named arg strict=.true, buffer(1)=.nil
     if self~string~isASCII then do
+        if .nil <> buffer then return buffer~~append(self~string)
         -- yes, always a new string. The original string is still associated to the Byte_Encoding.
         -- Don't use string~copy, because the reference to the associated text is in the copy,
         -- and that forbids to assign a new RexxText.
@@ -3373,31 +3442,32 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     end
     else do
         targetEncoding = .Unicode_Encoding~toSupport(self~maximumUnicodeCodepoint)
-        return self~convertByteToUnicode(targetEncoding, strict: strict)
+        return self~convertByteToUnicode(targetEncoding, strict: strict, b: buffer)
     end
 
 
 ::method Unicode8
-    use strict named arg strict=.true
+    use strict named arg strict=.true, buffer(1)=.nil
     if self~string~isASCII then do
+        if .nil <> buffer then return buffer~~append(self~string)
         -- yes, always a new string. The original string is still associated to the Byte_Encoding.
         -- Don't use string~copy, because the reference to the associated text is in the copy,
         -- and that forbids to assign a new RexxText.
         return .RexxText~new(.String~new(self~string), .Unicode8_Encoding)
     end
-    else return self~convertByteToUnicode(.Unicode8_Encoding, strict: strict)
+    else return self~convertByteToUnicode(.Unicode8_Encoding, strict: strict, b: buffer)
 
 
 ::method Unicode16
-    use strict named arg strict=.true
-    if self~string~isASCII then return .Unicode16_Encoding~encodeASCIIstring(self~string)
-                           else return self~convertByteToUnicode(.Unicode16_Encoding, strict: strict)
+    use strict named arg strict=.true, buffer(1)=.nil
+    if self~string~isASCII then return .Unicode16_Encoding~encodeASCIIstring(self~string, b: buffer)
+                           else return self~convertByteToUnicode(.Unicode16_Encoding, strict: strict, b: buffer)
 
 
 ::method Unicode32
-    use strict named arg strict=.true
-    if self~string~isASCII then return .Unicode32_Encoding~encodeASCIIstring(self~string)
-                           else return self~convertByteToUnicode(.Unicode32_Encoding, strict: strict)
+    use strict named arg strict=.true, buffer(1)=.nil
+    if self~string~isASCII then return .Unicode32_Encoding~encodeASCIIstring(self~string, b: buffer)
+                           else return self~convertByteToUnicode(.Unicode32_Encoding, strict: strict, b: buffer)
 
 
 /******************************************************************************/
@@ -3583,24 +3653,32 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
       well-formed code unit sequences.
     */
     use strict arg targetEncoding
-    if self~class == targetEncoding then return self~string~text
+    use strict named arg buffer(1)=.nil
+    if self~class == targetEncoding then do
+        if .nil <> buffer then return buffer~~append(self~string)
+                          else return self~string~text
+    end
     sizeC = self~codepointCount -- size in codepoints
-    buffer = .MutableBuffer~new(, sizeC * targetEncoding~codepointMaxBytes)
+    returnBuffer = .nil <> buffer
+    if .nil == buffer then buffer = .MutableBuffer~new(, sizeC * targetEncoding~codepointMaxBytes)
     do i=1 to sizeC
         codepoint = self~codepoint(i)
-        targetEncoding~encode(codepoint, buffer)
+        targetEncoding~encode(codepoint, b: buffer)
     end
-    return .RexxText~new(buffer~string, targetEncoding)
+    if returnBuffer then return buffer
+                      else return .RexxText~new(buffer~string, targetEncoding)
 
 
 ::method UTF8
     use strict arg -- none
-    return self~convertUnicodeToUnicode(.UTF8_Encoding)
+    use strict named arg buffer(1)=.nil
+    return self~convertUnicodeToUnicode(.UTF8_Encoding, b: buffer)
 
 
 ::method WTF8
     use strict arg -- none
-    return self~convertUnicodeToUnicode(.WTF8_Encoding)
+    use strict named arg buffer(1)=.nil
+    return self~convertUnicodeToUnicode(.WTF8_Encoding, b: buffer)
 
 
 ::method UTF16
@@ -3609,12 +3687,14 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method UTF16BE
     use strict arg -- none
-    return self~convertUnicodeToUnicode(.UTF16BE_Encoding)
+    use strict named arg buffer(1)=.nil
+    return self~convertUnicodeToUnicode(.UTF16BE_Encoding, b: buffer)
 
 
 ::method UTF16LE
     use strict arg -- none
-    return self~convertUnicodeToUnicode(.UTF16LE_Encoding)
+    use strict named arg buffer(1)=.nil
+    return self~convertUnicodeToUnicode(.UTF16LE_Encoding, b: buffer)
 
 
 ::method WTF16
@@ -3623,12 +3703,14 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method WTF16BE
     use strict arg -- none
-    return self~convertUnicodeToUnicode(.WTF16BE_Encoding)
+    use strict named arg buffer(1)=.nil
+    return self~convertUnicodeToUnicode(.WTF16BE_Encoding, b: buffer)
 
 
 ::method WTF16LE
     use strict arg -- none
-    return self~convertUnicodeToUnicode(.WTF16LE_Encoding)
+    use strict named arg buffer(1)=.nil
+    return self~convertUnicodeToUnicode(.WTF16LE_Encoding, b: buffer)
 
 
 ::method UTF32
@@ -3637,35 +3719,42 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method UTF32BE
     use strict arg -- none
-    return self~convertUnicodeToUnicode(.UTF32BE_Encoding)
+    use strict named arg buffer(1)=.nil
+    return self~convertUnicodeToUnicode(.UTF32BE_Encoding, b: buffer)
 
 
 ::method UTF32LE
     use strict arg -- none
-    return self~convertUnicodeToUnicode(.UTF32LE_Encoding)
+    use strict named arg buffer(1)=.nil
+    return self~convertUnicodeToUnicode(.UTF32LE_Encoding, b: buffer)
 
 
 ::method Unicode
+    use strict arg -- none
+    use strict named arg buffer(1)=.nil
     targetEncoding = .Unicode_Encoding~toSupport(self~maximumCodepoint)
-    return self~convertUnicodeToUnicode(targetEncoding)
+    return self~convertUnicodeToUnicode(targetEncoding, b: buffer)
 
 
 ::method Unicode8
     use strict arg -- none
+    use strict named arg buffer(1)=.nil
     .Unicode8_Encoding~checkCodepoint(self~maximumCodepoint, checkingMaximumCodepoint:.true)
-    return self~convertUnicodeToUnicode(.Unicode8_Encoding)
+    return self~convertUnicodeToUnicode(.Unicode8_Encoding, b: buffer)
 
 
 ::method Unicode16
     use strict arg -- none
+    use strict named arg buffer(1)=.nil
     .Unicode16_Encoding~checkCodepoint(self~maximumCodepoint, checkingMaximumCodepoint:.true)
-    return self~convertUnicodeToUnicode(.Unicode16_Encoding)
+    return self~convertUnicodeToUnicode(.Unicode16_Encoding, b: buffer)
 
 
 ::method Unicode32
     use strict arg -- none
+    use strict named arg buffer(1)=.nil
     .Unicode32_Encoding~checkCodepoint(self~maximumCodepoint, checkingMaximumCodepoint:.true)
-    return self~convertUnicodeToUnicode(.Unicode32_Encoding)
+    return self~convertUnicodeToUnicode(.Unicode32_Encoding, b: buffer)
 
 
 /******************************************************************************/
@@ -3911,7 +4000,8 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     -- 2 modes:
     -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
     -- otherwise return the encoded codepoint as a RexxText
-    use strict arg codepoint, buffer=.nil
+    use strict arg codepoint
+    use strict named arg buffer(1)=.nil
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new(, self~codepointMaxBytes)
     self~checkCodepoint(codepoint, checkOnlyRange:.true)            -- check only range, the other errors will be detected during analysis
@@ -3993,7 +4083,8 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     -- 2 modes:
     -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
     -- otherwise return the encoded codepoint as a RexxText
-    use strict arg indexG, buffer=.nil
+    use strict arg indexG
+    use strict named arg buffer(1)=.nil
     if .nil == self~graphemeIndexes, self~graphemeCount == self~string~length then do
         -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last grapheme can be more than one codepoint.
         if .nil <> buffer then return buffer~~append(self~string~subchar(indexG))
@@ -4009,26 +4100,41 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method UTF8
     use strict arg -- none
-    if self~class~isUTF8 then return self~string~text
+    use strict named arg buffer(1)=.nil
+    if self~class~isUTF8 then do
+        if .nil <> buffer then return buffer~~append(self~string)
+                          else return self~string~text
+    end
     -- yes, always a new string.
     -- Don't use string~copy, because the reference to the associated text is in the copy,
     -- and that forbids to assign a new RexxText.
-    return .RexxText~new(.String~new(self~string), .UTF8_Encoding)
+    if .nil <> buffer then return buffer~~append(self~string) -- TODO is it correct? there is no check here. WTF8 converted to UTF8 could raise errors.
+                      else return .RexxText~new(.String~new(self~string), .UTF8_Encoding)
 
 
 ::method WTF8
     use strict arg -- none
-    if self~class~isWTF8 then return self~string~text
+    use strict named arg buffer(1)=.nil
+    if self~class~isWTF8 then do
+        if .nil <> buffer then return buffer~~append(self~string)
+                          else return self~string~text
+    end
     -- yes, always a new string.
     -- Don't use string~copy, because the reference to the associated text is in the copy,
     -- and that forbids to assign a new RexxText.
-    return .RexxText~new(.String~new(self~string), .WTF8_Encoding)
+    if .nil <> buffer then return buffer~~append(self~string) -- TODO is it correct?
+                      else return .RexxText~new(.String~new(self~string), .WTF8_Encoding)
 
 
 ::method Unicode
     use strict arg -- none
-    if self~class~isUnicodeN then return self~string~text
+    use strict named arg buffer(1)=.nil
+    if self~class~isUnicodeN then do
+        if .nil <> buffer then return buffer~~append(self~string)
+                          else return self~string~text
+    end
     if self~string~isASCII then do
+        if .nil <> buffer then return buffer~~append(self~string)
         -- yes, always a new string. The original string is still associated to the Byte_Encoding.
         -- Don't use string~copy, because the reference to the associated text is in the copy,
         -- and that forbids to assign a new RexxText.
@@ -4165,7 +4271,8 @@ UTF-16, concatenating the resulting 16-bit code unit sequences, then converting
 the concatenation back to WTF-8.
 */
 ::method appendToBuffer class
-    use strict arg buffer, string
+    use strict arg string
+    use strict named arg buffer(1)
     if buffer~length >= 3, string~length >= 3 then do
         bufferIndexB = buffer~length - 2
         if buffer~subchar(bufferIndexB)~bitand("F0"x) == "E0"x,, -- 3-byte sequence on left
@@ -4181,7 +4288,7 @@ the concatenation back to WTF-8.
                 l = cp2 - 56320 -- Take the low surrogate and subtract 0xDC00
                 surrogate = h + l + 65536 -- Add these two results together, and finally add 0x10000
                 buffer~delete(bufferIndexB)
-                self~encode(surrogate, buffer)
+                self~encode(surrogate, b: buffer)
                 return
             end
         end
@@ -4319,7 +4426,8 @@ the concatenation back to WTF-8.
     -- 2 modes:
     -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
     -- otherwise return the encoded codepoint as a RexxText
-    use strict arg codepoint, buffer=.nil
+    use strict arg codepoint
+    use strict named arg buffer(1)=.nil
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new(, self~codepointMaxBytes)
     self~checkCodepoint(codepoint, checkOnlyRange:.true) -- check only range, the other errors will be detected during analysis
@@ -4391,7 +4499,8 @@ the concatenation back to WTF-8.
     -- 2 modes:
     -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
     -- otherwise return the encoded codepoint as a RexxText
-    use strict arg indexG, buffer=.nil
+    use strict arg indexG
+    use strict named arg buffer(1)=.nil
     startB = self~graphemeIndex(indexG)
     if .nil == self~graphemeIndexes, self~graphemeCount == self~string~length then do
         -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last grapheme can be more than one codepoint
@@ -4428,31 +4537,44 @@ the concatenation back to WTF-8.
 
 ::method encodeASCIIstring class
     use strict arg string
+    use strict named arg buffer(1)=.nil
     sizeB = string~length -- size in bytes
-    buffer = .MutableBuffer~new(, sizeB * 2) -- yes, always 2, no need to use codepointMaxBytes
+    returnBuffer = .nil <> buffer
+    if .nil == buffer then buffer = .MutableBuffer~new(, sizeB * 2) -- yes, always 2, no need to use codepointMaxBytes
     do i=1 to sizeB
         buffer~append("00"x) -- big endian
         buffer~append(string~subchar(i))
     end
-    return .RexxText~new(buffer~string, self)
+    if returnBuffer then return buffer
+                    else return .RexxText~new(buffer~string, self)
 
 
 ::method UTF16BE
     use strict arg -- none
-    if self~class~isUTF16BE then return self~string~text
+    use strict named arg buffer(1)=.nil
+    if self~class~isUTF16BE then do
+        if .nil <> buffer then return buffer~~append(self~string)
+        return self~string~text
+    end
     -- yes, always a new string.
     -- Don't use string~copy, because the reference to the associated text is in the copy,
     -- and that forbids to assign a new RexxText.
-    return .RexxText~new(.String~new(self~string), .UTF16BE_Encoding)
+    if .nil <> buffer then return buffer~~append(self~string)
+                      else return .RexxText~new(.String~new(self~string), .UTF16BE_Encoding)
 
 
 ::method WTF16BE
     use strict arg -- none
-    if self~class~isWTF16BE then return self~string~text
+    use strict named arg buffer(1)=.nil
+    if self~class~isWTF16BE then do
+        if .nil <> buffer then return buffer~~append(self~string)
+        return self~string~text
+    end
     -- yes, always a new string.
     -- Don't use string~copy, because the reference to the associated text is in the copy,
     -- and that forbids to assign a new RexxText.
-    return .RexxText~new(.String~new(self~string), .WTF16BE_Encoding)
+    if .nil <> buffer then return buffer~~append(self~string)
+                      else return .RexxText~new(.String~new(self~string), .WTF16BE_Encoding)
 
 
 /*
@@ -4484,31 +4606,44 @@ the concatenation back to WTF-8.
 
 ::method encodeASCIIstring class
     use strict arg string
+    use strict named arg buffer(1)=.nil
     sizeB = string~length -- size in bytes
-    buffer = .MutableBuffer~new(, sizeB * 2) -- yes, always 2, no need to use codepointMaxBytes
+    returnBuffer = .nil <> buffer
+    if .nil == buffer then buffer = .MutableBuffer~new(, sizeB * 2) -- yes, always 2, no need to use codepointMaxBytes
     do i=1 to sizeB
         buffer~append(string~subchar(i))
         buffer~append("00"x) -- little endian
     end
-    return .RexxText~new(buffer~string, self)
+    if returnBuffer then return buffer
+                    else return .RexxText~new(buffer~string, self)
 
 
 ::method UTF16LE
     use strict arg -- none
-    if self~class~isUTF16LE then return self~string~text
+    use strict named arg buffer(1)=.nil
+    if self~class~isUTF16LE then do
+        if .nil <> buffer then return buffer~~append(self~string)
+                          else return self~string~text
+    end
     -- yes, always a new string.
     -- Don't use string~copy, because the reference to the associated text is in the copy,
     -- and that forbids to assign a new RexxText.
-    return .RexxText~new(.String~new(self~string), .UTF16LE_Encoding)
+    if .nil <> buffer then return buffer~~append(self~string)
+                      else return .RexxText~new(.String~new(self~string), .UTF16LE_Encoding)
 
 
 ::method WTF16LE
     use strict arg -- none
-    if self~class~isWTF16LE then return self~string~text
+    use strict named arg buffer(1)=.nil
+    if self~class~isWTF16LE then do
+        if .nil <> buffer then return buffer~~append(self~string)
+                          else return self~string~text
+    end
     -- yes, always a new string.
     -- Don't use string~copy, because the reference to the associated text is in the copy,
     -- and that forbids to assign a new RexxText.
-    return .RexxText~new(.String~new(self~string), .WTF16LE_Encoding)
+    if .nil <> buffer then return buffer~~append(self~string)
+                      else return .RexxText~new(.String~new(self~string), .WTF16LE_Encoding)
 
 
 /*
@@ -4737,7 +4872,8 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
     -- 2 modes:
     -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
     -- otherwise return the encoded codepoint as a RexxText
-    use strict arg codepoint, buffer=.nil
+    use strict arg codepoint
+    use strict named arg buffer(1)=.nil
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new(, 4) -- yes, always 4, no need to use codepointMaxBytes
     self~checkCodepoint(codepoint, checkOnlyRange:.true) -- check only range, the other errors will be detected during analysis
@@ -4799,7 +4935,8 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
     -- 2 modes:
     -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
     -- otherwise return the encoded codepoint as a RexxText
-    use strict arg indexG, buffer=.nil
+    use strict arg indexG
+    use strict named arg buffer(1)=.nil
     startB = self~graphemeIndex(indexG)
     if .nil == self~graphemeIndexes, self~graphemeCount == self~string~length then do
         -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last grapheme can be more than one codepoint
@@ -4838,18 +4975,23 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 
 ::method encodeASCIIstring class
     use strict arg string
+    use strict named arg buffer(1)=.nil
     sizeB = string~length -- size in bytes
-    buffer = .MutableBuffer~new(, sizeB * 4) -- yes, always 4, no need to use codepointMaxBytes
+    returnBuffer = .nil <> buffer
+    if .nil == buffer then buffer = .MutableBuffer~new(, sizeB * 4) -- yes, always 4, no need to use codepointMaxBytes
     do i=1 to sizeB
         buffer~append("000000"x) -- big endian
         buffer~append(string~subchar(i))
     end
-    return .RexxText~new(buffer~string, self)
+    if returnBuffer then return buffer
+                    else return .RexxText~new(buffer~string, self)
 
 
 ::method UTF32BE
     use strict arg -- none
-    return self~string~text
+    use strict named arg buffer(1)=.nil
+    if .nil <> buffer then return buffer~~append(self~string)
+                      else return self~string~text
 
 
 /*
@@ -4883,18 +5025,23 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 
 ::method encodeASCIIstring class
     use strict arg string
+    use strict named arg buffer(1)=.nil
     sizeB = string~length -- size in bytes
-    buffer = .MutableBuffer~new(, sizeB * 4) -- yes, always 4, no need to use codepointMaxBytes
+    returnBuffer = .nil <> buffer
+    if .nil == buffer then buffer = .MutableBuffer~new(, sizeB * 4) -- yes, always 4, no need to use codepointMaxBytes
     do i=1 to sizeB
         buffer~append(string~subchar(i))
         buffer~append("000000"x) -- little endian
     end
-    return .RexxText~new(buffer~string, self)
+    if returnBuffer then return buffer
+                    else return .RexxText~new(buffer~string, self)
 
 
 ::method UTF32LE
     use strict arg -- none
-    return self~string~text
+    use strict named arg buffer(1)=.nil
+    if .nil <> buffer then return buffer~~append(self~string)
+                      else return self~string~text
 
 
 /*
@@ -5006,7 +5153,9 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 
 ::method Unicode
     use strict arg -- none
-    return self~string~text
+    use strict named arg buffer(1)=.nil
+    if .nil <> buffer then return buffer~~append(self~string)
+                      else return self~string~text
 
 
 /******************************************************************************/
@@ -5078,7 +5227,8 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
     -- 2 modes:
     -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
     -- otherwise return the encoded codepoint as a RexxText
-    use strict arg codepoint, buffer=.nil
+    use strict arg codepoint
+    use strict named arg buffer(1)=.nil
     self~checkCodepoint(codepoint, checkOnlyRange:.true) -- check only range, the other errors will be detected during analysis
     if .nil <> buffer then return buffer~~append(codepoint~d2c)
                       else return .RexxText~new(codepoint~d2c, self)
@@ -5122,7 +5272,8 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
     -- 2 modes:
     -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
     -- otherwise return the encoded codepoint as a RexxText
-    use strict arg indexG, buffer=.nil
+    use strict arg indexG
+    use strict named arg buffer(1)=.nil
     startB = self~graphemeIndex(indexG)
     if .nil == self~graphemeIndexes, self~graphemeCount == self~string~length then do
         -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last grapheme can be more than one codepoint.
@@ -5220,7 +5371,8 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
     -- 2 modes:
     -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
     -- otherwise return the encoded codepoint as a RexxText
-    use strict arg codepoint, buffer=.nil
+    use strict arg codepoint
+    use strict named arg buffer(1)=.nil
     self~checkCodepoint(codepoint, checkOnlyRange:.true) -- check only range, the other errors will be detected during analysis
     if .nil <> buffer then return buffer~~append(self~encodeCodepoint(codepoint))
                       else return .RexxText~new(self~encodeCodepoint(codepoint), self)
@@ -5235,8 +5387,10 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 ::method encodeASCIIstring class
     expose isLittleEndian
     use strict arg string
+    use strict named arg buffer(1)=.nil
     sizeB = string~length -- size in bytes
-    buffer = .MutableBuffer~new(, sizeB * 2)
+    returnBuffer = .nil <> buffer
+    if .nil == buffer then buffer = .MutableBuffer~new(, sizeB * 2)
     if isLittleEndian then do
         loop i=1 to sizeB
             buffer~append(string~subchar(i))
@@ -5249,7 +5403,8 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
             buffer~append(string~subchar(i))
         end
     end
-    return .RexxText~new(buffer~string, self)
+    if returnBuffer then return buffer
+                    else return .RexxText~new(buffer~string, self)
 
 
 /********************/
@@ -5299,7 +5454,8 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
     -- 2 modes:
     -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
     -- otherwise return the encoded codepoint as a RexxText
-    use strict arg indexG, buffer=.nil
+    use strict arg indexG
+    use strict named arg buffer(1)=.nil
     startB = self~graphemeIndex(indexG)
     if .nil == self~graphemeIndexes, self~graphemeCount == self~string~length then do
         -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last grapheme can be more than one codepoint
@@ -5398,7 +5554,8 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
     -- 2 modes:
     -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
     -- otherwise return the encoded codepoint as a RexxText
-    use strict arg codepoint, buffer=.nil
+    use strict arg codepoint
+    use strict named arg buffer(1)=.nil
     self~checkCodepoint(codepoint, checkOnlyRange:.true) -- check only range, the other errors will be detected during analysis
     if .nil <> buffer then return buffer~~append(self~encodeCodepoint(codepoint))
                       else return .RexxText~new(self~encodeCodepoint(codepoint), self)
@@ -5413,8 +5570,10 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 ::method encodeASCIIstring class
     expose isLittleEndian
     use strict arg string
+    use strict named arg buffer(1)=.nil
     sizeB = string~length -- size in bytes
-    buffer = .MutableBuffer~new(, sizeB * 4)
+    returnBuffer = .nil <> buffer
+    if .nil == buffer then buffer = .MutableBuffer~new(, sizeB * 4)
     if isLittleEndian then do
         loop i=1 to sizeB
             buffer~append(string~subchar(i))
@@ -5427,7 +5586,8 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
             buffer~append(string~subchar(i))
         end
     end
-    return .RexxText~new(buffer~string, self)
+    if returnBuffer then return buffer
+                    else return .RexxText~new(buffer~string, self)
 
 
 /********************/
@@ -5477,7 +5637,8 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
     -- 2 modes:
     -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
     -- otherwise return the encoded codepoint as a RexxText
-    use strict arg indexG, buffer=.nil
+    use strict arg indexG
+    use strict named arg buffer(1)=.nil
     startB = self~graphemeIndex(indexG)
     if .nil == self~graphemeIndexes, self~graphemeCount == self~string~length then do
         -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last grapheme can be more than one codepoint
@@ -5700,7 +5861,8 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
     respectively). Leading zeros are omitted, unless the code point would have fewer than four
     hexadecimal digits—for example, U+0001, U+0012, U+0123, U+1234, U+12345, U+102345
     */
-    use strict arg codepoint, buffer=.nil
+    use strict arg codepoint
+    use strict named arg buffer(1)=.nil
     if \datatype(codepoint, "W") then return "??"
     if codepoint < 0 then return codepoint
     if .nil == buffer then do
