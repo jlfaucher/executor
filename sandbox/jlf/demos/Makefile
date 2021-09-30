@@ -27,7 +27,7 @@ txt::
 txt::
 	@for d in $(ooRexxShellDemos); do (make ooRexxShell-demo-$$d-output.txt); done
 
-%.cast : %.txt
+%.cast : %.rex
 	-asciinema rec -c "bash -i -c 'cat $? | oorexxshell --showInitialization'" --overwrite $@
 
 %-output.html : %.cast
@@ -40,7 +40,7 @@ txt::
 	asciinema cat $? | sed -e $$'s/\x1b\[[0-9;]*m//g' > $@
 
 # No longer used because it's a re-execution instead of a simple cat
-# %-output.txt : %.txt
+# %-output.txt : %.rex
 # 	bash -i -c 'cat $? | oorexxshell demo fast > $@ 2>&1'
 
 

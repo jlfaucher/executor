@@ -5,15 +5,15 @@ https://asciinema.org/              asciinema   Terminal session recorder
 https://github.com/theZiz/aha       aha         Ansi HTML Adapter.
 
 Current demos:
-executor-demo-array.txt
-executor-demo-classic_rexx.txt
-executor-demo-extensions.txt
-executor-demo-text-compatibility.txt
-executor-demo-text-internal_checks.txt
-executor-demo-text.txt
-ooRexxShell-demo-helpers.txt
-ooRexxShell-demo-interpreters.txt
-ooRexxShell-demo-queries.txt
+executor-demo-array.rex
+executor-demo-classic_rexx.rex
+executor-demo-extensions.rex
+executor-demo-text-compatibility.rex
+executor-demo-text-internal_checks.rex
+executor-demo-text.rex
+ooRexxShell-demo-helpers.rex
+ooRexxShell-demo-interpreters.rex
+ooRexxShell-demo-queries.rex
 
 To create an asciinema cast:
 cd demos
@@ -29,8 +29,8 @@ etc...
 
 To capture the output of a demo in text format:
 cd demos
-cat executor-demo-array.txt | oorexxshell demo fast > executor-demo-array-output.txt 2>&1
-cat executor-demo-classic_rexx.txt | oorexxshell demo fast > executor-demo-classic_rexx-output.txt 2>&1
+cat executor-demo-array.rex | oorexxshell demo fast > executor-demo-array-output.txt 2>&1
+cat executor-demo-classic_rexx.rex | oorexxshell demo fast > executor-demo-classic_rexx-output.txt 2>&1
 
 This is automated with a Makefile:
 make all
