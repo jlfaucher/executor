@@ -1934,10 +1934,14 @@ RexxInteger *codepointIsUpper(RexxObject *rexxCodepoint);
     streamIn = .stream~new(derivedNameFile)
     status = streamIn~open("READ")
     if status <> "READY:" then do
+        streamIn~close
         parse var status "ERROR:" error
         return SysGetErrorText(error)
     end
-    if "check"~caselessAbbrev(action, 1) then return "" -- means 'no error'
+    if "check"~caselessAbbrev(action, 1) then do
+        streamIn~close -- mandatory under Windows, otherwise the next call of loadDerivedName will raise "error 13 invalid data" because the file is locked by another process (!?)
+        return "" -- means 'no error'
+    end
     if totalCharactersLoaded == 0 then do -- if not yet loaded
         do while streamIn~state="READY"
             line=streamIn~linein
@@ -1983,10 +1987,14 @@ RexxInteger *codepointIsUpper(RexxObject *rexxCodepoint);
     streamIn = .stream~new(nameAliasesFile)
     status = streamIn~open("READ")
     if status <> "READY:" then do
+        streamIn~close
         parse var status "ERROR:" error
         return SysGetErrorText(error)
     end
-    if "check"~caselessAbbrev(action, 1) then return "" -- means 'no error'
+    if "check"~caselessAbbrev(action, 1) then do
+        streamIn~close -- mandatory under Windows, otherwise the next call of loadDerivedName will raise "error 13 invalid data" because the file is locked by another process (!?)
+        return "" -- means 'no error'
+    end
     if totalCharacterNameAliases == 0 then do -- if not yet loaded
         do while streamIn~state="READY"
             line=streamIn~linein
