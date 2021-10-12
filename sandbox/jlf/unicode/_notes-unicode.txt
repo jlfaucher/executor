@@ -128,7 +128,7 @@ Search tool
 Provides plenty of information about Unicode characters
 but no encoding UTF16
 
-https://unicode-table.com/en/
+https://unicode-table.com/en/                   search by name
 Provides the encoding UTF16
 
 
@@ -243,6 +243,18 @@ jlf: they have specific support for Korean... Probably because the NAVER company
 https://twitter.com/hashtag/tamgu?src=hashtag_click
 https://twitter.com/hashtag/TAL?src=hashtag_click
 #tamgu le #langage_de_programmation pour le Traitement Automatique des Langues (#TAL).
+
+
+jlf 30/09/2021
+I have a doubt about that:
+Is 👩‍👨‍👩‍👧' really a grapheme?
+When moving the cursor in BBEdit, I see a boundary between each character.
+[later]
+Ok, when moving the cursor in Visual Studio Code, it's really a unique grapheme, no way to put the cursor "inside".
+And the display is aligned with what I see in Google Chrome : one WOMAN followed by a family, and no way to put the cursor between the WOMAN and the family.
+---
+https://www.unicode.org/review/pr-27.html       (old, talk about Unicode 4)
+https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundaries   (todo: review occurences of ZWJ)
 
 
 ================================================================================
@@ -1390,6 +1402,49 @@ UTF-8/16 encoder/decoder
 
     : utf16le ( state string -- state string )
         [ [ swap (utf16le) ] each ] { } make ;
+
+
+================================================================================
+Julia
+================================================================================
+
+https://docs.julialang.org/en/v1/manual/strings/
+    You can input any Unicode character in single quotes using \u followed by up to
+    four hexadecimal digits or \U followed by up to eight hexadecimal digits
+    (the longest valid value only requires six):
+
+    julia> '\u0'
+    '\0': ASCII/Unicode U+0000 (category Cc: Other, control)
+
+    julia> '\u78'
+    'x': ASCII/Unicode U+0078 (category Ll: Letter, lowercase)
+
+    julia> '\u2200'
+    '∀': Unicode U+2200 (category Sm: Symbol, math)
+
+    julia> '\U10ffff'
+    '\U10ffff': Unicode U+10FFFF (category Cn: Other, not assigned)
+
+    julia> s = "\u2200 x \u2203 y"
+    "∀ x ∃ y"
+
+
+https://juliapackages.com/p/strs
+    This uses Swift-style \ escape sequences, such as \u{xxxx} for Unicode constants,
+    instead of \uXXXX and \UXXXXXXXX, which have the advantage of not having to worry
+    about some digit or letter A-F or a-f occurring after the last hex digit of the Unicode constant.
+
+    It also means that $, a very common character for LaTeX strings or output of currencies,
+     does not need to be in a string quoted as '$'
+
+    It uses \(expr) for interpolation like Swift, instead of $name or $(expr), which
+    also has the advantage of not having to worry about the next character in the
+    string someday being allowed in a name.
+
+    It allows for embedding Unicode characters using a variety of easy to remember
+    names, instead of hex codes: \:emojiname: \<latexname> \N{unicodename} \&htmlname;
+    Examples of this are:
+    f"\<dagger> \&yen; \N{ACCOUNT OF} \:snake:", which returns the string: "† ¥ ℀ 🐍 "
 
 
 ================================================================================
