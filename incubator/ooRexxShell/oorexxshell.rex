@@ -857,7 +857,7 @@ Helpers
         .ooRexxShell~hasQueries = loadPackage("oorexxshell_queries.cls")
         call loadPackage("pipeline/pipe_extension.cls")
         call loadPackage("rgf_util2/rgf_util2_wrappers.rex")
-        .ooRexxShell~sayComment("Unicode character names not loaded, execute: call loadUnicodeCharacterNames")
+        if .ooRexxShell~isInteractive then .ooRexxShell~sayComment("Unicode character names not loaded, execute: call loadUnicodeCharacterNames")
     end
 
     call declareAllPublicClasses
@@ -873,10 +873,15 @@ Helpers
         .ooRexxShell~sayError(.Unicode~loadDerivedName("getFile"))
         return .false
     end
-    .ooRexxShell~sayInfo("Load the Unicode character names" .Unicode~version "")
-    status = .Unicode~loadDerivedName(/*action*/ "load", /*showProgress*/ .true) -- load all the Unicode characters
-    .ooRexxShell~sayInfo
-    .ooRexxShell~sayInfo(status)
+    if .ooRexxShell~isInteractive then do
+        .ooRexxShell~sayInfo("Load the Unicode character names" .Unicode~version "")
+        status = .Unicode~loadDerivedName(/*action*/ "load", /*showProgress*/ .true) -- load all the Unicode characters
+        .ooRexxShell~sayInfo
+        .ooRexxShell~sayInfo(status)
+    end
+    else do
+        status = .Unicode~loadDerivedName(/*action*/ "load", /*showProgress*/ .false) -- load all the Unicode characters
+    end
 
     status = .Unicode~loadNameAliases("check") -- check if the Unicode data file exists
     if status <> "" then do
@@ -886,16 +891,18 @@ Helpers
     end
     -- Small file, no need of progress
     status = .Unicode~loadNameAliases(/*action*/ "load", /*showProgress*/ .false) -- load the name aliases
-    .ooRexxShell~sayInfo(status)
+    if .ooRexxShell~isInteractive then .ooRexxShell~sayInfo(status)
 
-    .ooRexxShell~sayComment("Unicode character intervals not expanded, execute: call expandUnicodeCharacterIntervals")
+    if .ooRexxShell~isInteractive then do
+        .ooRexxShell~sayComment("Unicode character intervals not expanded, execute: call expandUnicodeCharacterIntervals")
+    end
 
     return .true
 
 
 ::routine expandUnicodeCharacterIntervals
     status = .Unicode~expandCharacterIntervals(.true)
-    if status <> "" then do
+    if .ooRexxShell~isInteractive, status <> "" then do
         .ooRexxShell~sayInfo
         .ooRexxShell~sayInfo(status)
     end
