@@ -250,7 +250,7 @@ attribute traceFilter
     do while s~available
         classInfo = s~item
         classFlags = classInfos(classInfo~klass, classInfo~visibility)
-        classes[classFlags~left(10) classInfo~klass~id~quoted(x2c(27))] = "("packageInfos(classInfo~package)")"
+        classes[classFlags~left(10) classInfo~klass~id~quoted("'")] = "("packageInfos(classInfo~package)")"
         s~next
     end
     -- Sort by class name, ignoring the 10 first characters which are class flags.
@@ -282,11 +282,11 @@ attribute traceFilter
     count = 1
     do classInfo over classInfosSorted
         --say
-        --displayer~sayInfo("[Info]" "["count"]" "Class" classInfo~klass~id~quoted(x2c(27)) classInfos(classInfo~klass, classInfo~visibility) "("packageInfos(classInfo~package)")")
+        --displayer~sayInfo("[Info]" "["count"]" "Class" classInfo~klass~id~quoted("'") classInfos(classInfo~klass, classInfo~visibility) "("packageInfos(classInfo~package)")")
         filteringStream~doBeforeNextLine = {
             expose displayer count classInfo
             say
-            displayer~sayInfo("[Info]" "["count"]" "Class" classInfo~klass~id~quoted(x2c(27)) classInfos(classInfo~klass, classInfo~visibility) "("packageInfos(classInfo~package)")")
+            displayer~sayInfo("[Info]" "["count"]" "Class" classInfo~klass~id~quoted("'") classInfos(classInfo~klass, classInfo~visibility) "("packageInfos(classInfo~package)")")
         } -- This action will be executed before the first line of methods is displayed, if any (will depend on the filtering)
         methods = .relation~new
         call collectMethods
@@ -311,7 +311,7 @@ attribute traceFilter
         -- Bug: With ooRexx < 5.0, the package of a method created with ::ATTRIBUTE is .nil.
         -- Bypass this bug by using the package of the class.
         injectClass = .inject {item~klass} "mem.class"
-        if inherited then injectClass |= .superclasses "recursive" "once" "after"
+        if inherited then injectClass |= .superclasses "recursive" "once" "after" "mem.superclass"
         classInfo~pipe(,
             injectClass,
           | .splitter[.inject {item~instanceMethods(item)} "iterateAfter" "mem.classMethod",,
@@ -319,7 +319,16 @@ attribute traceFilter
           | .do { expose classInfos methods
                   package = .nil
                   if item <> .nil then package = item~package -- if method not hidden
+                  superclass = dataflow["superclass"] -- will be .nil if not getting inherited methods
+                  if superclass == .nil then superclassId = ""
+                  else do
+                      superclass = superclass~item
+                      superclassId = superclass~id~quoted("'")
+                      superclassInfo = classInfos[superclass]
+                      if package == .nil then package = superclassInfo~package
+                  end
                   class = dataflow["class"]~item
+                  classId = class~id~quoted("'")
                   classInfo = classInfos[class]
                   if package == .nil then package = classInfo~package
                   instanceLevel = dataflow["instanceMethod"] <> .nil
@@ -328,10 +337,10 @@ attribute traceFilter
                   classFlags = classInfos(classInfo~klass, classInfo~visibility)
                   methodFlags = methodInfos(item, instanceLevel)
                   flags = classFlags methodFlags
-                  methodDescription = flags~left(10) index~quoted(x2c(27))
+                  methodDescription = flags~left(10) index~quoted("'")
                   -- remember: the same key (methodDescription) can be used several times
                   -- so don't store the method instance on the key ! Store it on the value (classDescription).
-                  classDescription = class~id~quoted(x2c(27)) "("packageInfos(package)")"
+                  classDescription = " "~join(classId, superclassId, "("packageInfos(package)")")
                   classDescription~setUserData(item) -- to let retrieve the method (yes!)
                   methods[methodDescription] = classDescription
                 },
@@ -387,7 +396,7 @@ attribute traceFilter
     count = 1
     do classInfo over classInfosSorted
         say
-        displayer~sayInfo("[Info]" "["count"]" "Class" classInfo~klass~id~quoted(x2c(27)) classInfos(classInfo~klass, classInfo~visibility) "("packageInfos(classInfo~package)")")
+        displayer~sayInfo("[Info]" "["count"]" "Class" classInfo~klass~id~quoted("'") classInfos(classInfo~klass, classInfo~visibility) "("packageInfos(classInfo~package)")")
         call displayClassHelp classInfo~klass
         count += 1
     end
@@ -452,10 +461,10 @@ attribute traceFilter
               classFlags = classInfos(classInfo~klass, classInfo~visibility)
               methodFlags = methodInfos(item, instanceLevel)
               flags = classFlags methodFlags
-              methodDescription = flags~left(10) index~quoted(x2c(27))
+              methodDescription = flags~left(10) index~quoted("'")
               -- remember: the same key (methodDescription) can be used several times
               -- so don't store the method instance on the key ! Store it on the value (classDescription).
-              classDescription = class~id~quoted(x2c(27)) "("packageInfos(package)")"
+              classDescription = class~id~quoted("'") "("packageInfos(package)")"
               classDescription~setUserData(item) -- to let retrieve the method (yes!)
               methods[methodDescription] = classDescription
             },
@@ -512,7 +521,7 @@ attribute traceFilter
     do while s~available
         routineInfo = s~item
         routineFlags = routineInfos(routineInfo~routine, routineInfo~visibility)
-        routineDescription = routineFlags~left(10) routineInfo~name~quoted(x2c(27))
+        routineDescription = routineFlags~left(10) routineInfo~name~quoted("'")
         -- remember: the same key (routineDescription) can be used several times
         -- so don't store the routine instance on the key ! Store it on the value (packageDescription).
         packageDescription = "("packageInfos(routineInfo~package)")"
@@ -552,7 +561,7 @@ attribute traceFilter
     do variablename over variablenames
         variablevalue = value(variablename,, "environment")
         do path over variablevalue~makeArray(.File~pathSeparator)
-            say variablename path~quoted(x2c(27))
+            say variablename path~quoted("'")
         end
         say variablename "length:" variablevalue~length
     end

@@ -336,17 +336,35 @@ History of changes
 ==================
 
 -----------------------------------------------
+2021 oct 15
+?cmi now display the superclass from which a method is inherited.
+
+?cmi string
+P. P.G.    '?'                    : 'String' 'LogicalExtension' (logical.cls)
+P. P.G.    'ABBREV'               : 'String' 'String' (REXX)
+P. P.G.    'ABBREV2'              : 'String' 'String' (rgf_util2_wrappers.rex)
+P. P.G.    'ABS'                  : 'String' 'String' (REXX)
+P. PCG.    'ALNUM'                : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
+P. PCG.    'ALPHA'                : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
+P. P.G.    'APPEND'               : 'String' 'String' (REXX)
+P. P...    'ARITY'                : 'String' 'Doer' (doers.cls)
+
+
+-----------------------------------------------
 2021 aug 07
 
 When a value is a supplier, it's possible to see it as a table when ending the
 line with "==".
 No data is consumed because the display is made using a copy of the supplier.
+There is no sort, the order is the suppier's order.
+To get a sorted output, you can convert the supplier to a table (the datas of the supplier are consumed).
 In case of supplier for a coactivity, you must explicitely convert it to a table
 because even a copy will consume the datas of the coactivity.
 .object~methods=                        -- display "(a Supplier)"
-.object~methods==                       -- display the indexes/items as a table
+.object~methods==                       -- display the indexes/items as an unsorted table (no data consumed)
+.object~methods~table==                 -- display the indexes/items as a sorted table (the datas are consumed)
 1~generate.upto(10)~supplier==          -- display "(a CoactivitySupplierForGeneration)"
-1~generate.upto(10)~supplier~table==    -- display the indexes/items as a table
+1~generate.upto(10)~supplier~table==    -- display the indexes/items as a table (the datas are consumed)
 
 
 -----------------------------------------------
