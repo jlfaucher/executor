@@ -498,6 +498,99 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 [Encoded strings]
 
+New methods:
+.String
+    join (was concatenateSeparated)
+
+.MutableBuffer
+    join (was concatenateSeparated)
+
+.Unicode
+    []  (equivalent to .Unicode~character)
+
+.UnicodeCharacter
+    makeRexxText
+    text
+    wtf8
+    wtf16
+    wtf16be
+    wtf16le
+
+.RexxText
+    join
+    left
+    right
+    x2d
+
+Examples:
+
+-- https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundaries
+-- no break before ZWJ (GB9), but break after if not emoji modifier sequence or emoji zwj sequence (GB11)
+.unicode["zwj"]~text~join("ab", "cd", .unicode["woman"], .unicode["father christmas"])~c2g=  -- '61 62E2808D 63 64E2808D F09F91A9E2808DF09F8E85'
+.unicode["zwj"]~text~join("ab", "cd", .unicode["woman"], .unicode["father christmas"])~graphemes==
+a GraphemeSupplier
+ 1 : T'a'
+ 2 : T'b‍'
+ 3 : T'c'
+ 4 : T'd‍'
+ 5 : T'👩‍🎅'
+
+"noël👩‍👨‍👩‍👧🎅"~text~characters==
+    an Array (shape [12], 12 items)
+     1  : ( "n"   U+006E Ll 1 "LATIN SMALL LETTER N" )
+     2  : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
+     3  : ( "ë"   U+00EB Ll 1 "LATIN SMALL LETTER E WITH DIAERESIS" )
+     4  : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
+     5  : ( "👩"  U+1F469 So 2 "WOMAN" )
+     6  : ( "‍"    U+200D Cf 0 "ZERO WIDTH JOINER", "ZWJ" )
+     7  : ( "👨"  U+1F468 So 2 "MAN" )
+     8  : ( "‍"    U+200D Cf 0 "ZERO WIDTH JOINER", "ZWJ" )
+     9  : ( "👩"  U+1F469 So 2 "WOMAN" )
+     10 : ( "‍"    U+200D Cf 0 "ZERO WIDTH JOINER", "ZWJ" )
+     11 : ( "👧"  U+1F467 So 2 "GIRL" )
+     12 : ( "🎅"  U+1F385 So 2 "FATHER CHRISTMAS" )
+
+-- https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundaries
+-- Do not break within emoji modifier sequences or emoji zwj sequences (GB11).
+"noël👩‍👨‍👩‍👧🎅"~text~graphemes==
+    a GraphemeSupplier
+     1 : T'n'
+     2 : T'o'
+     3 : T'ë'
+     4 : T'l'
+     5 : T'👩‍👨‍👩‍👧'
+     6 : T'🎅'
+
+do i=0 to 9; "left("i") = " || "noël👩‍👨‍👩‍👧🎅"~text~left(i)=; end
+    T'left(0) = '
+    T'left(1) = n'
+    T'left(2) = no'
+    T'left(3) = noë'
+    T'left(4) = noël'
+    T'left(5) = noël👩‍👨‍👩‍👧'
+    T'left(6) = noël👩‍👨‍👩‍👧🎅'
+    T'left(7) = noël👩‍👨‍👩‍👧🎅 '
+    T'left(8) = noël👩‍👨‍👩‍👧🎅  '
+    T'left(9) = noël👩‍👨‍👩‍👧🎅   '
+
+do i=0 to 9; "right("i") = " || "noël👩‍👨‍👩‍👧🎅"~text~right(i)=; end
+    T'right(0) = '
+    T'right(1) = 🎅'
+    T'right(2) = 👩‍👨‍👩‍👧🎅'
+    T'right(3) = l👩‍👨‍👩‍👧🎅'
+    T'right(4) = ël👩‍👨‍👩‍👧🎅'
+    T'right(5) = oël👩‍👨‍👩‍👧🎅'
+    T'right(6) = noël👩‍👨‍👩‍👧🎅'
+    T'right(7) =  noël👩‍👨‍👩‍👧🎅'
+    T'right(8) =   noël👩‍👨‍👩‍👧🎅'
+    T'right(9) =    noël👩‍👨‍👩‍👧🎅'
+
+
+===============================================================================
+2021 September 30
+
+[Encoded strings]
+
 Performance improvement:
 Add support for an optional buffer everywhere it makes sense.
 That allows to accumulate characters, without creating intermediate RexxText objects,

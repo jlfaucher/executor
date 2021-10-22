@@ -670,6 +670,16 @@ https://datatracker.ietf.org/doc/html/rfc8259#section-7
 
 
 ================================================================================
+JSON
+================================================================================
+
+https://www.reddit.com/r/programming/comments/q5vmxc/parsing_json_is_a_minefield_2018/
+https://seriot.ch/projects/parsing_json.html
+Parsing JSON is a Minefield
+Search for "unicode"
+
+
+================================================================================
 TOML serialization format
 ================================================================================
 

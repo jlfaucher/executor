@@ -131,19 +131,17 @@ Similar to ~makeArray(separator), with these differences:
     forward to (self~chunk)
 
 
-::method concatenateSeparated
-    -- Arguments : zero to N strings or arrays of strings (recursively).
-    -- self is the separator
-    use strict named arg buffer(1)=.nil
-    if .nil == buffer then do
-        buffer = .mutableBuffer~new
-        buffer~concatenateSeparated(self, arg(1, "a"))
-        return buffer~string
-    end
-    else do
-        buffer~concatenateSeparated(self, arg(1, "a"))
-        return buffer
-    end
+::method join
+    -- Positional arguments : zero to N objects or arrays of objects (recursively).
+    -- If appender is nil then the string value (~string) of each object is joined, with self used as separator.
+    -- If appender is not nil then the appender appends what he wants for each object, with self used as a separator.
+    -- The appender can raise an error if the object is not supported.
+    use strict named arg buffer(1)=.nil, appender(1)=.nil
+    returnBuffer = .nil <> buffer
+    if .nil == buffer then buffer = .MutableBuffer~new
+    buffer~join(arg(1, "a"), separator: self, a: appender)
+    if returnBuffer then return buffer
+                    else return buffer~string
 
 
 ::method singularPlural
@@ -169,28 +167,37 @@ Similar to ~makeArray(separator), with these differences:
 
 
 /******************************************************************************/
-::class MutableBufferHelpers  mixinclass Object public
+::class "MutableBufferHelpers"  mixinclass Object public
 
-::method concatenateSeparated
-    -- Arguments : separator, zero to N strings or arrays of strings (recursively).
-    use strict arg separator, ...
-    i = 1 -- first string: no separator
-    call appendArrayOfStrings arg(2, "a")
+::method join
+    use strict arg ... -- zero to N objects or arrays of objects (recursively).
+    use strict named arg separator(1)="", appender(1)=.nil
+    -- If appender is nil then the string value (~string) of each object is joined, with self used as separator.
+    -- If appender is not nil then the appender appends what he wants for each object, with self used as a separator.
+    -- The appender can raise an error if the object is not supported.
+    i = 1 -- first object: no separator
+    call appendArray arg(1, "a")
     return self
 
-    appendArrayOfStrings: procedure expose self separator i
+    appendArray: procedure expose self separator appender i
         use strict arg array
         do item over array
-            if item~isA(.array) then call appendArrayOfStrings item
-            else call appendString item
+            if item~isA(.array) then call appendArray item
+            else call appendObject item -- pass item as-is, don't convert it to string (too early)
         end
         return
 
-    appendString: procedure expose self separator i
-        use strict arg string
-        if i > 1 & string~length > 0 then self~append(separator)
-        self~append(string)
-        i += 1 -- no longer the 1st string
+    appendObject: procedure expose self separator appender i
+        use strict arg object
+        if i > 1 & object~string~length > 0 then call append separator
+        call append object
+        i += 1 -- no longer the 1st object
+        return
+
+    append: procedure expose self appender
+        use strict arg object
+        if .nil == appender then self~append(object~string)
+                            else appender~append(object, buffer: self)
         return
 
 
@@ -200,7 +207,7 @@ Similar to ~makeArray(separator), with these differences:
 -- A global routine with the same name as a builtin function overrides this function.
 ::routine xrange public
     if arg() == 0 then return "XRANGE"()
-    buffer = .mutableBuffer~new
+    buffer = .MutableBuffer~new
     i = 1
     do while i <= arg()
         if arg(i, "e") then arg1 = arg(i)
@@ -526,7 +533,7 @@ base class...
 ::method makestring
     expose indexer
     if self~isCompatibleWithString then return indexer~string
-    raise syntax 23.900 array("The" self~description(short:.true) "text cannot be converted to a String instance")
+    raise syntax 23.900 array("The" self~descriptionForError "cannot be converted to a String instance")
 
 
 ::attribute string get
@@ -906,7 +913,7 @@ base class...
     -- and to provide an accurate error.
     -- Could test ~isCompatibleWithString, but ~isASCII is faster and sufficient here
     use strict arg -- none
-    if \self~isASCII then raise syntax 23.900 array("The" self~description(short:.true) "text is not compatible with a Rexx hexadecimal value")
+    if \self~isASCII then raise syntax 23.900 array(self~descriptionForError "is not compatible with a Rexx hexadecimal value")
 
 
 ::method checkNumericValueCompatibility
@@ -915,7 +922,7 @@ base class...
     -- and to provide an accurate error.
     -- Could test ~isCompatibleWithString, but ~isASCII is faster and sufficient here
     use strict arg -- none
-    if \self~isASCII then raise syntax 23.900 array("The" self~description(short:.true) "text is not compatible with a Rexx numeric value")
+    if \self~isASCII then raise syntax 23.900 array(self~descriptionForError "is not compatible with a Rexx numeric value")
 
 
 ::method checkLogicalValueCompatibility
@@ -924,7 +931,11 @@ base class...
     -- and to provide an accurate error.
     -- Could test ~isCompatibleWithString, but ~isASCII is faster and sufficient here
     use strict arg -- none
-    if \self~isASCII then raise syntax 23.900 array("The" self~description(short:.true) "text is not compatible with a Rexx logical value")
+    if \self~isASCII then raise syntax 23.900 array(self~descriptionForError "is not compatible with a Rexx logical value")
+
+
+::method unescape
+    forward to (self~indexer)
 
 
 /******************************************************************************/
@@ -999,8 +1010,9 @@ equals
 format
 hashCode                        full
 insert
+join                            (extension) full
 lastPos
-left
+left                            full
 length                          full
 lower                           full except cases in SpecialCasing.txt
 makeArray
@@ -1014,7 +1026,7 @@ overlay
 pos                             partial
 replaceAt
 reverse                         full
-right
+right                           full
 round
 sign
 space
@@ -1035,7 +1047,7 @@ wordPos
 words
 x2b                             full (raise an error if not compatible with String)
 x2c                             full (raise an error if not compatible with String)
-x2d
+x2d                             full (raise an error if not compatible with String
 */
 
 ::method "[]"
@@ -1093,6 +1105,24 @@ x2d
     forward to (self~string)
 
 
+::method join
+    -- Positional arguments : zero to N text/string or arrays of text/string (recursively).
+    -- The text value of each argument is joined, with self used as separator
+    -- If the encoding of an argument is not compatible for concatenation with self then an error is raised
+    use strict named arg buffer(1)=.nil, appender(1)=(self~encoding)
+    returnBuffer = .nil <> buffer
+    if .nil == buffer then buffer = .MutableBuffer~new
+    buffer~join(arg(1, "a"), separator: self, a: appender)
+    if returnBuffer then return buffer
+                    else return .RexxText~new(buffer~string, self~encoding)
+
+
+::method left
+    use strict arg _length
+    -- equivalent to substr(1, length, pad)
+    forward message "substr" arguments (arg(1, "a")~prepend(1))
+
+
 ::method length -- number of graphemes
     use strict arg -- none
     return self~indexer~graphemeCount
@@ -1143,6 +1173,23 @@ x2d
     forward to (self~indexer)
 
 
+::method right
+    -- can't delegate to substr because here the padding is on the left
+    use arg _length, pad -- not strict, just need to check 'pad'
+    use strict named arg buffer(1)=.nil
+    padIsCompatibleWithString = .true
+    if arg(2, "e") then do
+        if pad~isA(.RexxText), \pad~isCompatibleWithString then padIsCompatibleWithString = .false
+        else if pad~length > 1 then padIsCompatibleWithString = .false -- maybe its length will be 1 when converted to default encoding
+    end
+    if self~isCompatibleWithString, padIsCompatibleWithString then do
+        forward to (self~string) continue
+        if .nil <> buffer then return buffer~~append(result)
+                          else return .RexxText~new(result, self~encoding)
+    end
+    forward to (self~indexer)
+
+
 ::method subchar
     forward message "grapheme"
 
@@ -1186,11 +1233,38 @@ x2d
                       else return .RexxText~new(result, self~encoding)
 
 
+::method x2d
+    self~checkHexadecimalValueCompatibility
+    forward to (self~string)
+
+
 /******************************************************************************/
 ::class "IndexerStringInterface" mixinclass Object private
 
+::method append class
+    -- Positional arguments : zero to N text or string.
+    use strict named arg buffer(1)=.nil
+    returnBuffer = .nil <> buffer
+    if .nil == buffer then buffer = .MutableBuffer~new
+    previousText = .nil
+    do i=1 to arg()
+        text = arg(i)~request("RexxText")
+        if .nil == text then signal must_have_a_text_or_string_value
+        if .nil == previousText then encoding = .Encoding~forConcatenation(self, text) -- could raise an unjustified error because buffer's asciiness is not provided
+                                else encoding = .Encoding~forConcatenation(previousText, text) -- raise an error if not compatible
+        if encoding <> self then signal incompatible_encoding -- for example when the buffer is utf8 and the appended text is wtf8
+        encoding~concatenate(text, b: buffer)
+        previousText = text
+    end
+    if returnBuffer then return buffer
+    else return .RexxText~new(buffer~string, self)
+
+    must_have_a_text_or_string_value: raise syntax 93.900 array("Method argument "i" must have a text or string value") -- 93.938 array(i)
+    incompatible_encoding:            raise syntax 23.900 array("Encoding: cannot append" text~descriptionForError "to" self~description "text")
+
+
 ::method append
-    use strict arg text
+    use strict arg text -- text or string
     use strict named arg buffer(1)=.nil
     text = text~request("RexxText")
     if .nil == text then signal must_have_a_text_or_string_value
@@ -1226,6 +1300,7 @@ x2d
     encoding = self~class
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new(string~left(startB - 1))
+                      else buffer~append(string~left(startB - 1))
     codepointIndexB = startB
     do while codepointIndexB < endB
         nextCodepointIndexB = encoding~nextCodepointIndex(string, codepointIndexB, raiseError: .false)
@@ -1257,6 +1332,45 @@ x2d
                     else return .RexxText~new(buffer~string, self~class)
 
 
+::method right
+    use strict arg length, pad=(self~class~spaceCharacter)
+    use strict named arg buffer(1)=.nil
+
+    if datatype(length, "w"), length >= 0 then nop
+    else signal invalid_length
+
+    pad = pad~request("RexxText")
+    if .nil == pad then signal must_have_a_text_or_string_value
+    if pad~length <> 1 then signal incorrect_pad
+
+    encoding = .Encoding~forConcatenation(self~string~text, pad) -- raise an error if not compatible
+
+    lengthPad = max(0, length - self~length)
+    length = length - lengthPad
+
+    endC = self~length + 1
+    endB = self~graphemeIndex(endC)
+    startC = endC - length
+    startB = self~graphemeIndex(startC)
+    right = self~string~right(endB - startB)
+    if lengthPad == 0 then do
+        if .nil <> buffer then return buffer~~append(right)
+                          else return .RexxText~new(right, self~class)
+    end
+    if .nil <> buffer then do
+        -- can't use encoding~concatenate for pad because pad~copies appends directly to the buffer
+        -- consequence: will not detect WTF8 special concatenation, if any.
+        pad~copies(lengthPad, b: buffer)
+        encoding~concatenate(right, b: buffer)
+        return buffer
+    end
+    return encoding~concatenate(pad~copies(lengthPad), right, b: buffer)
+
+    incorrect_pad:                    raise syntax 93.922 array(pad~descriptionForError)
+    invalid_length:                   raise syntax 93.923 array(length)
+    must_have_a_text_or_string_value: raise syntax 93.900 array("Method argument 3 must have a text or string value") -- 93.938 array(3)
+
+
 ::method substr
     use strict arg startC, length=(max(0, self~length - startC + 1)), pad=(self~class~spaceCharacter)
     use strict named arg buffer(1)=.nil
@@ -1269,30 +1383,30 @@ x2d
 
     pad = pad~request("RexxText")
     if .nil == pad then signal must_have_a_text_or_string_value
-    if pad~length <> 1 then incorrect_pad
+    if pad~length <> 1 then signal incorrect_pad
 
     encoding = .Encoding~forConcatenation(self~string~text, pad) -- raise an error if not compatible
 
     if startC > self~length then return pad~copies(length, b: buffer)
     remainingLength = self~length - startC + 1 -- always >= 0
-    lengthPad = length - remainingLength -- can be <= 0
+    lengthPad = max(0, length - remainingLength)
     endC = min(startC + length - 1, self~length)
 
     startB = self~graphemeIndex(startC)
     endB = self~graphemeIndex(endC+1)
     substr = self~string~substr(startB, endB - startB)
-    if lengthPad <= 0 then do
-        if .nil <> buffer then return buffer~~append(subtxt)
+    if lengthPad == 0 then do
+        if .nil <> buffer then return buffer~~append(substr)
                           else return .RexxText~new(substr, self~class)
     end
     if .nil <> buffer then do
-        encoding~concatenate(substr)
-        -- can't use encoding~concatenate because pad~copies appends directly to the buffer
+        encoding~concatenate(substr, b: buffer)
+        -- can't use encoding~concatenate for pad because pad~copies appends directly to the buffer
         -- consequence: will not detect WTF8 special concatenation, if any.
         pad~copies(lengthPad, b: buffer)
         return buffer
     end
-    return encoding~concatenate(substr, pad~copies(lengthPad))
+    return encoding~concatenate(substr, pad~copies(lengthPad), b: buffer)
 
     incorrect_pad:                    raise syntax 93.922 array(pad~descriptionForError)
     invalid_length:                   raise syntax 93.923 array(length)
@@ -1320,7 +1434,8 @@ x2d
     string = self~string
     encoding = self~class
     returnBuffer = .nil <> buffer
-    if .nil <> buffer then buffer = .MutableBuffer~new(string~left(startB - 1))
+    if .nil == buffer then buffer = .MutableBuffer~new(string~left(startB - 1))
+                      else buffer~append(string~left(startB - 1))
     codepointIndexB = startB
     do while codepointIndexB < endB
         nextCodepointIndexB = encoding~nextCodepointIndex(string, codepointIndexB, raiseError: .false)
@@ -1437,6 +1552,7 @@ x2d
         forward message (message) to (self~string) array (right~string)
     end
     -- Unicode comparison
+    forward message (message) to (self~string) array (right~string) -- fallback
     raise syntax 23.900 array("Unicode comparison not yet implemented")
 
 
@@ -1448,6 +1564,7 @@ x2d
         forward message (message) to (left~string) array (self~string)
     end
     -- Unicode comparison
+    forward message (message) to (left~string) array (self~string) -- fallback
     raise syntax 23.900 array("Unicode comparison not yet implemented")
 
 
@@ -1872,6 +1989,10 @@ RexxInteger *codepointIsUpper(RexxObject *rexxCodepoint);
     return .UnicodeCharacterSupplier~new(characters) -- This supplier returns index-2
 
 
+::method "[]" class
+    forward message "character"
+
+
 ::method character class
     expose characters characterNames
     use strict arg name
@@ -1888,6 +2009,7 @@ RexxInteger *codepointIsUpper(RexxObject *rexxCodepoint);
     codepoint = characterNames[looseMatchingIndex]
     if .nil <> codepoint then return characters[2 + codepoint] -- +2 because -1 and 0 must be supported
 
+    raise syntax 93.900 array("Name '"name"' not found")
     return self~unknownCharacter
 
 
@@ -2242,8 +2364,25 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 
 ::method string
     expose codepoint name aliases
-    string = ppCodepoint(codepoint) self~categoryName name~quoted
-    return ", "~concatenateSeparated(string, aliases~each{item~string~quoted})
+    use strict arg encoding=(.Encoding~defaultOutputEncoding)
+    if codepoint < 32 then string = ""
+                      else string = encoding~encode(codepoint)~string
+    string = '"'string'"' " "~copies(3 - self~charWidth)
+    string ||= ppCodepoint(codepoint) self~categoryName self~charWidth name~quoted
+    string = ", "~join(string, aliases~each{item~string~quoted})
+    return " "string" "
+
+
+::method text
+    expose codepoint
+    use strict arg -- none
+    use strict named arg buffer(1)=.nil
+    return .Encoding~defaultEncoding~encode(codepoint, b: buffer)
+
+
+::method makeRexxText
+    use strict arg -- none
+    return self~text
 
 
 ::method setName -- should be scope package
@@ -2256,6 +2395,13 @@ https://unicode.org/reports/tr44/#UAX44-LM3
     use strict arg -- none
     use strict named arg buffer(1)=.nil
     return .UTF8_Encoding~encode(codepoint, b: buffer)
+
+
+::method WTF8
+    expose codepoint
+    use strict arg -- none
+    use strict named arg buffer(1)=.nil
+    return .WTF8_Encoding~encode(codepoint, b: buffer)
 
 
 ::method UTF16
@@ -2274,6 +2420,24 @@ https://unicode.org/reports/tr44/#UAX44-LM3
     use strict arg -- none
     use strict named arg buffer(1)=.nil
     return .UTF16LE_Encoding~encode(codepoint, b: buffer)
+
+
+::method WTF16
+    forward message "WTF16BE"
+
+
+::method WTF16BE
+    expose codepoint
+    use strict arg -- none
+    use strict named arg buffer(1)=.nil
+    return .WTF16BE_Encoding~encode(codepoint, b: buffer)
+
+
+::method WTF16LE
+    expose codepoint
+    use strict arg -- none
+    use strict named arg buffer(1)=.nil
+    return .WTF16LE_Encoding~encode(codepoint, b: buffer)
 
 
 ::method UTF32
@@ -2838,24 +3002,36 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 
 ::method forConcatenation class
-    use strict arg leftText, rightText
-    leftEncoding = leftText~encoding
-    rightEncoding = rightText~encoding
+    use strict arg left, right -- encoding (no asciiness) or text
+
+    leftEncoding = left
+    leftIsAscii = .false
+    if left~isA(.RexxText) then do
+        leftEncoding = left~encoding
+        leftIsASCII = left~isASCII
+    end
+
+    rightEncoding = right
+    rightIsASCII = .false
+    if right~isA(.RexxText) then do
+        rightEncoding = right~encoding
+        rightIsASCII = right~isASCII
+    end
 
     if leftEncoding == rightEncoding then return leftEncoding
 
     if leftEncoding~isUTF8, rightEncoding~isWTF8 then return .WTF8_Encoding
     if leftEncoding~isWTF8, rightEncoding~isUTF8 then return .WTF8_Encoding
     -- Keep the following tests after the previous tests, to keep the priority for WTF8
-    if leftText~isASCII, (rightEncoding~isUTF8 | rightEncoding~isWTF8) then return rightEncoding
-    if (leftEncoding~isUTF8 | leftEncoding~isWTF8), rightText~isASCII then return leftEncoding
+    if leftIsASCII, (rightEncoding~isUTF8 | rightEncoding~isWTF8) then return rightEncoding
+    if (leftEncoding~isUTF8 | leftEncoding~isWTF8), rightIsASCII then return leftEncoding
 
     if leftEncoding~isUTF16BE, rightEncoding~isWTF16BE then return .WTF16BE_Encoding
     if leftEncoding~isWTF16BE, rightEncoding~isUTF16BE then return .WTF16BE_Encoding
     if leftEncoding~isUTF16LE, rightEncoding~isWTF16LE then return .WTF16LE_Encoding
     if leftEncoding~isWTF16LE, rightEncoding~isUTF16LE then return .WTF16LE_Encoding
 
-    raise syntax 23.900 array("Encoding: cannot concatenate" leftText~description(short:.true) "text with" rightText~description(short:.true) "text")
+    raise syntax 23.900 array("Encoding: cannot concatenate" left~descriptionForError "with" right~descriptionForError)
 
 
 ::method comparisonMode class
@@ -2868,7 +3044,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     if leftText~isASCII, (rightText~isUTF8 | rightText~isWTF8) then return "u"
     if (leftText~isUTF8 | leftText~isWTF8), rightText~isASCII then return "u"
     if leftText~isUnicode & rightText~isUnicode then return "u"
-    raise syntax 23.900 array("Encoding: cannot compare" leftText~description(short:.true) "text with" rightText~description(short:.true) "text")
+    raise syntax 23.900 array("Encoding: cannot compare" leftText~descriptionForError "with" rightText~descriptionForError)
 
 
 /******************************************************************************/
@@ -2932,19 +3108,28 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 ::method codepointToUpper class abstract
 
 
+::method description class
+    -- 'UTF-8 not-ASCII'
+    use arg isASCII -- optional
+    use strict named arg short(1)=.false, technical(1)=.false -- same as the instance method, not used (for the moment)
+    if arg(1, "o") then return self~name
+    if self~codeUnitSizeInBytes > 1 then return self~name -- doesn't make sense to include asciiness
+    if isASCII then asciiness = "ASCII"
+               else asciiness = "not-ASCII"
+    return self~name asciiness
+
+
+::method descriptionForError class
+    forward message "description"
+
+
 ::method concatenate class
-    -- Arguments : zero to N text or string.
+    -- Positional arguments : zero to N text or string.
     -- This method must be called from a subclass of StringIndexer
     -- Precondition: the encodings are compatible with self (you have checked that with .Encoding~forConcatenation)
     use strict named arg buffer(1)=.nil
     returnBuffer = .nil <> buffer
-    if .nil == buffer then do
-        bufferSize = 0
-        do i = 1 to arg()
-            bufferSize += arg(i)~string~length
-        end
-        buffer = .mutableBuffer~new(, bufferSize)
-    end
+    if .nil == buffer then buffer = .MutableBuffer~new
     do i = 1 to arg()
         -- Only WTF-8 has a specific implementation of appendToBuffer.
         -- When concatenating WTF-8 with UTF-8 or ASCII, the target encoding is WTF-8.
@@ -2953,7 +3138,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         -- Finally, it appears that the initial implementation was correct.
         -- The special concatenation rules for WTF-8 must be applied only if arg(i) is WTF-8.
         -- So arg(i)~encoding~appendToBuffer is better than self~appendToBuffer.
-        if arg(i)~isA(.String) then self~appendToBuffer(arg(i), b:buffer) -- no encoding, use self
+        if arg(i)~isA(.String) then .Encoding~defaultEncoding~appendToBuffer(arg(i), b:buffer) -- no encoding, use default encoding
         else arg(i)~encoding~appendToBuffer(arg(i)~string, b: buffer) -- "old" implementation is the good one
         -- self~appendToBuffer(arg(i)~string, b:buffer) -- "new" implementation is a bad idea.
     end
@@ -2973,6 +3158,13 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     use strict arg -- none
     if \var("spaceCharacter") then spaceCharacter = self~encode(.Unicode~spaceCharacter~codepoint)
     return spaceCharacter
+
+
+::method appendToBuffer class
+    -- WTF-8 overrides this method
+    use strict arg string
+    use strict named arg buffer(1)
+    buffer~append(string)
 
 
 /********************/
@@ -3014,8 +3206,6 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     */
     use strict arg -- none
     use strict named arg short(1)=.false, technical(1)=.false
-    if self~string~isASCII then asciiness = "ASCII"
-                           else asciiness = "not-ASCII"
     if .nil == self~errors then errorCount = 0
                            else errorCount = self~errors~size
     techInfoCodepoints = ""
@@ -3035,15 +3225,15 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
                                       self~string~length~singularPluralCount("byte", "bytes")",",
                                       errorCount~singularPluralCount("error", "errors"),
                                       || ")"
-    return " "~concatenateSeparated(self~class~name, asciiness, sizesDescription)
+    return " "~join(self~class~description(self~string~isASCII), sizesDescription)
 
 
 ::method DescriptionForError
     -- Display the <length> first characters
     use strict arg length=10
-    string = self~string
-    if string~length > length then string = string~left(length)"..."
-    return self~description(s:1) quoted(self~string~left(10))
+    text = self~string~text
+    if text~length > length then text = text~left(length - 3)"..."
+    return self~description(s:1) "'"text~string"'"
 
 
 ::method c2x
@@ -3171,11 +3361,24 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 ::method Unicode32 abstract
 
 
-::method appendToBuffer class
-    -- WTF-8 overrides this method
-    use strict arg string
-    use strict named arg buffer(1)
-    buffer~append(string)
+::method unescape
+    /*
+    \N{unicode name}    Character name in the Unicode database (Python, Julia)
+    \u{unicode name}
+    \U{unicode name}
+    \u{n}               unicode character denoted by a 1–8 hex digits (Swift)
+    \uXXXX              unicode character denoted by four hex digits (Python, Julia, Netrexx)
+    \UXXXXXXXX          unicode character denoted by eight hex digits (Python, Julia)
+    */
+    use strict arg -- none
+    use strict named arg buffer(1)=.nil
+    returnBuffer = .nil <> buffer
+    if .nil == buffer then buffer = .MutableBuffer~new
+    string = self~string
+    backslash = string~pos("\") -- hum... should support all the encodings?
+    -- ... todo ...
+    if returnBuffer then return buffer
+                    else return buffer~string
 
 
 /******************************************************************************/
@@ -5309,7 +5512,7 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
     -- Remember : previousCodepoint can be .nil (first codepoint) or <0 (error recovery)
     --            when <0 abs(previousCodepoint) is the invalid value
     use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
-    use strict named arg checkOnlyRange=.false /*no impact here*/, errorInfo=.nil, checkingMaximumCodepoint=.nil
+    use strict named arg checkOnlyRange=.false /*no impact here*/, errorInfo=.nil, checkingMaximumCodepoint=.false
     if .nil <> codepoint then do
         if codepoint < 0 | codepoint > 65535 then signal error_range
     end
