@@ -15,6 +15,14 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::class "StringReducer" mixinclass Object public
 ------------------------------------------------
 
+-- Facade with named argument 'by' to indicate by which criteria the split for reduction is done
+::method reduce unguarded
+    use /*strict*/ named arg by="word" -- not strict because other named arguments can be passed that will handled later
+    if "characters"~caselessAbbrev(by, 1) then forward message "reduce" to (self~makeArray(""))
+    if "chunks"~caselessAbbrev(by, 3)     then forward message "reduce" to (self~chunks) -- for more complex cases, use "string"~chunks(...your args...)~reduce(...)
+    if "words"~caselessAbbrev(by, 1)      then forward message "reduce" to (self~subwords)
+    raise syntax 93.900 array ("Unsupported reduce by:"by)
+
 -- Iterate over the characters of the string and combine them into one value by applying the given action to (current_value, current_char)
 -- 123~reduceC("+") -- initial value is the first char (default), reduce by char, returns 6
 -- 123~reduceC(100, "+") -- initial value is 100, reduce by char, returns 106
@@ -97,7 +105,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     action = "action not specified"
     if arg() >= 2 then use strict arg initial, action
     else if arg() == 1 then use strict arg action
-    use strict named arg action=(action), initial=(initial)
+    use /*strict*/ named arg action=(action), initial=(initial) -- not strict because additionnal named arguments can be forwarded, that are ignored here
     return self~reduceImpl(action, initial)
 
 ::method reduceImpl private unguarded

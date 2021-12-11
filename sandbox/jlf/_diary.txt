@@ -494,6 +494,49 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 December 11
+
+String reduce was implemented by 2 methods: reduceC for characters, reduceW for words, but no 'reduce'.
+Added a 'reduce' method which supports a named argument 'by' to indicate how the split is done.
+3 kinds of split are supported: by:"characters", by:"chunks", by:"words".
+Examples:
+    'he said "bye bye" and left.'~reduce(by:"characters", initial:.set~new, action:"put")=
+        a Set (15 items)
+        ' ' : ' '
+        '"' : '"'
+        '.' : '.'
+        'a' : 'a'
+        'b' : 'b'
+        'd' : 'd'
+        'e' : 'e'
+        'f' : 'f'
+        'h' : 'h'
+        'i' : 'i'
+        'l' : 'l'
+        'n' : 'n'
+        's' : 's'
+        't' : 't'
+        'y' : 'y'
+
+    'he said "bye bye" and left.'~reduce(by:"chunks", initial:.set~new, action:"put")=
+        a Set (5 items)
+        (and)     : (and)
+        (bye bye) : (bye bye)       -- chunk surrounded by quotes
+        (he)      : (he)
+        (left.)   : (left.)
+        (said)    : (said)
+
+    'he said "bye bye" and left.'~reduce(by:"words", initial:.set~new, action:"put")=
+        a Set (6 items)
+        '"bye'  : '"bye'
+        'and'   : 'and'
+        'bye"'  : 'bye"'
+        'he'    : 'he'
+        'left.' : 'left.'
+        'said'  : 'said'
+
+
+===============================================================================
 2021 November 01
 
 New Unicode script to dump the characters of an encoded file.

@@ -84,6 +84,18 @@ Keep it compatible with official ooRexx
     return copy
 
 
+::method compareTo
+    -- Added because I added caselessCompareto
+    use strict arg other
+    return self~string~compareto(other~string)
+
+
+::method caselessCompareto
+    -- Added because needed from ooRexxshell when displaying a set of StringChunk
+    use strict arg other
+    return self~string~caselessCompareto(other~string)
+
+
 ::routine stringChunks public
     /*
     Converts a string to an array of String or to an array of stringChunk.
