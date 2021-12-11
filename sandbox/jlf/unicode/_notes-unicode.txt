@@ -8,7 +8,7 @@ Accumulation of URLs about Unicode
 Contents:
     Unicode standard
     Unicode general informations
-    U+ notation
+    U+ notation, Unicode escape sequence
     Segmentation, Grapheme
     Normalization, equivalence
     Locale
@@ -37,9 +37,11 @@ Contents:
     Twitter text parsing
     C++, Boost
     DotNet, CoreFx
+    Dafny
     Factor
     Lisp
-    MOAR-VM
+    MOAR-VM RAKU
+    Perl
     PHP
     Python
     Rexx
@@ -76,8 +78,19 @@ UTS10-D2. Collation Element: An ordered list of collation weights.
 UTS10-D3. Collation Level: The position of a collation weight in a collation element.
 
 
+https://www.unicode.org/reports/tr14/
+UNICODE LINE BREAKING ALGORITHM
+
+
 https://unicode.org/reports/tr15/#Detecting_Normalization_Forms
 UNICODE NORMALIZATION FORMS
+
+
+http://www.unicode.org/reports/tr31/#Alternative_Identifier_Syntax
+
+
+https://unicode.org/reports/tr36/#visual_spoofing
+UNICODE SECURITY CONSIDERATIONS
 
 
 https://www.unicode.org/reports/tr51/
@@ -162,8 +175,48 @@ https://mothereff.in/utf-8
 UTF-8 encoder/decoder
 
 
+https://corp.unicode.org/pipermail/unicode/
+The Unicode Archives
+January 2, 2014 - current
+
+https://www.unicode.org/mail-arch/unicode-ml/
+March 21, 2001 - April 2, 2020
+
+https://www.unicode.org/mail-arch/unicode-ml/Archives-Old/
+October 11, 1994 - March 19, 2001
+
+https://www.unicode.org/search/
+Search Unicode.org
+
+
+https://www.w3.org/TR/charmod/
+Character Model for the World Wide Web 1.0: Fundamentals
+
+
+https://emojipedia.org/
+
+
+https://www.codesections.com/blog/raku-unicode/
+A deep dive into Raku's Unicode support
+Grepping for "Unicode Character Database" brings us to unicode_db.c.
+https://github.com/MoarVM/MoarVM/blob/master/src/strings/unicode_db.c
+
+
+https://www.johndcook.com/blog/2021/11/01/number-sets-html/
+Number sets in HTML and Unicode
+    ℕ U+2115 &Nopf; &naturals;
+    ℤ U+2124 &Zopf; &integers;
+    ℚ U+211A &Qopf; &rationals;
+    ℝ U+211D &Ropf; &reals;
+    ℂ U+2102 &Copf; &complexes;
+    ℍ U+210D &Hopf; &quaternions;
+
+
+https://gregtatum.com/writing/2021/encoding-text-utf-32-utf-16-unicode/
+https://gregtatum.com/writing/2021/encoding-text-utf-8-unicode/
+
 ================================================================================
-U+ notation
+U+ notation, Unicode escape sequence
 ================================================================================
 
 29/05/2021
@@ -181,6 +234,17 @@ https://www.perl.com/article/json-unicode-and-perl-oh-my-/
 Its \uXXXX escapes support only characters within Unicode’s BMP;
 to store emoji or other non-BMP characters you either have to encode to UTF-8 directly.
 or indicate a UTF-16 surrogate pair in \uXXXX escapes.
+
+
+https://corp.unicode.org/pipermail/unicode/2021-April/009410.html
+Need reference to good ABNF for \uXXXX syntax
+
+
+================================================================================
+Security
+================================================================================
+
+https://www.trojansource.codes/
 
 
 ================================================================================
@@ -255,6 +319,11 @@ And the display is aligned with what I see in Google Chrome : one WOMAN followed
 ---
 https://www.unicode.org/review/pr-27.html       (old, talk about Unicode 4)
 https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundaries   (todo: review occurences of ZWJ)
+
+
+29/10/2021
+https://h3manth.com/posts/unicode-segmentation-in-javascript/
+https://github.com/tc39/proposal-intl-segmenter
 
 
 ================================================================================
@@ -390,6 +459,17 @@ https://medium.com/concerning-pharo/an-implementation-of-unicode-normalization-7
 https://github.com/duerst/eprun
 Efficient Pure Ruby Unicode Normalization (eprun)
 According to julia/utf8proc, the interesting part is the tests.
+
+
+https://corp.unicode.org/pipermail/unicode/2020-December/009150.html
+Normalization Generics (NFx, NFKx, NFxy)
+
+
+https://6guts.wordpress.com/2015/04/12/this-week-unicode-normalization-many-rts/
+
+
+https://gregtatum.com/writing/2021/diacritical-marks/
+DIACRITICAL MARKS IN UNICODE
 
 
 ================================================================================
@@ -999,136 +1079,217 @@ https://simonsapin.github.io/wtf-8/#16-bit-code-unit
 
 
 ====================================================================================
-Indexation of UTF-8 strings
+Indexation of UTF-8 strings (applicable other UTF encodings)
 ====================================================================================
 
 https://nullprogram.com/blog/2019/05/29/
 
 
+ObjectIcon
+    http://objecticon.sourceforge.net/Unicode.html
+    ucs (standing for Unicode character string) is a new builtin type, whose behaviour closely mirrors
+    that of the conventional Icon string. It operates by providing a wrapper around a conventional
+    conventional Icon string, which must be in utf-8 format. This has several advantages, and only one
+    serious disadvantage, namely that a utf-8 string is not randomly accessible, in the sense that one
+    cannot say where the representation for unicode character i begins. To alleviate this disadvantage,
+    the ucs type maintains an index of offsets into the utf-8 string to make random access faster. The
+    size of the index is only a few percent of the total allocation for the ucs object.
+Jlf: I made a code review, but could not understand how they do that :-(
 
 
-FF                  255
-FFFF                65 535
-FFFFFF              16 777 215                      16 millions
-FFFFFFFF            4 294 967 295                   4 milliards
-----
-FFFFFFFFFF          1 099 511 627 775               mille milliards
-FFFFFFFFFFFF        281 474 976 710 655             281 mille milliards
-FFFFFFFFFFFFFF
-FFFFFFFFFFFFFFFF
+Executor
+jlf: thinking about grapheme indexes (draft)
+
+    Grapheme indexes : see if it's possible to replace .Array by a class being really a sparse array.
+    This class should be ultra specialized for the management of string indexes.
+    For example, could manage a flexible storage in function of the size of the index.
+    Maybe a multi-stage table ? For example https://www.strchr.com/multi-stage_tables
+    Maybe a direct indexation of the 255 first and last bytes ?
+        Where each index has an associated byte position.
+        Not like a pseudo sparse ooRexx array where an index can be associated to a NULL value, meaning pos == index.
+    For the rest of the bytes, maybe several (many) chunks of indexes
+    Each chunk of indexes would have a base index, the stored indexes would be relative to this base index.
+        1-byte encoding: index = base_index + relative_index
+        2-byte encoding: index = 2*base_index + 2*relative_index
+        4-byte encoding: index = 4*base_index + 4*relative_index
+
+    Example:
+        first256
+            startC = 0 (always)
+
+        last256
+            startC = 45632135789 (for example)
+
+        middle: array of 2, 4 or 8 bytes
+            2 bytes: 0..FF chunks of 1 byte
+            3 bytes: 0..FF chunks of 2 bytes
+            4 bytes: 0..FFFF chunks of 2 bytes
+            5 bytes: 0..FF chuncks of 4 bytes
+            6 bytes: 0..FFFF chunks of 4 bytes
+            7 bytes: 0..FF chunks of 6 bytes
+            8 bytes: 0..FFFF chunks of 6 bytes
+
+        size of indexes:
+            1 byte:  string length <= FF: 0..FF bytes (direct mapping. 0 byte if all the indexes = pos)
+            2 bytes: string length <= FFFF:
+                0..FF bytes for first (direct mapping)
+                0..FD * (2 bytes for start + FF bytes)
+                (2 bytes for start + FF bytes) for last (direct mapping)
+            3 bytes: string length <= FFFFFF: 65536 * 256
+
+    Interface:
+        indexTable~new(stringSizeInBytes)   -- determine the number of stages
+        indexTable~size                     -- redundant with indexer~string~length
+        indexTable~items                    -- redundant with indexer~graphemeCount
+        indexTable[integer]
+        indexTable[integer] = bytePosition
+        indexTable~first                    --  index of the first item in the table
+
+    The character length is not stored in the indexes. It's given by the utf8 encoding.
+    Only the indexes starting a new sequence of character length are stored.
+    I don't remember what is 'next'... Is it the first index in the current table ?
+
+    One table per size of index & offset
+    1 byte      FF                  0..255                              #items next = 1 + 1 = 2 bytes
+    2 bytes     FFFF                0..65,535                           #items next = 2 + 2 = 4 bytes
+    3 bytes     FFFFFF              0..16,777,215                       #items next = 3 + 3 = 6 bytes
+    4 bytes     FFFFFFFF            0..4,294,967,295                    #items next = 4 + 4 = 8 bytes
+    5 bytes     FFFFFFFFFF          0..1,099,511,627,775                #items next = 5 + 5 = 10 bytes
+    6 bytes     FFFFFFFFFFFF        0..281,474,976,710,655              #items next = 6 + 6 = 12 bytes
+    7 bytes     FFFFFFFFFFFFFF      0..72,057,594,037,927,900           #items next = 7 + 7 = 14 bytes
+    8 bytes     FFFFFFFFFFFFFFFF    0..18,446,744,073,709,600,000       #items next = 8 + 8 = 16 bytes
+                                                                        total       = 72 bytes
+    Better to not systematically allocate all the sizes of indexes...
 
 
-The character length is not stored in the indexes. It's given by the utf8 encoding.
-Only the indexes starting a new sequence of character length are stored.
-I don't remember what is 'next'... Is it the first index of the next table ?
+    Examples of indexes
+    --------------------------
 
-One table per size of index & offset
-1 byte      FF                  0..255                              #items next = 1 + 1 = 2 bytes
-2 bytes     FFFF                0..65,535                           #items next = 2 + 2 = 4 bytes
-3 bytes     FFFFFF              0..16,777,215                       #items next = 3 + 3 = 6 bytes
-4 bytes     FFFFFFFF            0..4,294,967,295                    #items next = 4 + 4 = 8 bytes
-5 bytes     FFFFFFFFFF          0..1,099,511,627,775                #items next = 5 + 5 = 10 bytes
-6 bytes     FFFFFFFFFFFF        0..281,474,976,710,655              #items next = 6 + 6 = 12 bytes
-7 bytes     FFFFFFFFFFFFFF      0..72,057,594,037,927,900           #items next = 7 + 7 = 14 bytes
-8 bytes     FFFFFFFFFFFFFFFF    0..18,446,744,073,709,600,000       #items next = 8 + 8 = 16 bytes
-                                                                    total       = 72 bytes
-Better to not systematically allocate all the sizes of indexes...
+    129 char, 256 bytes
+    char length 1 1 2 2 2 2 ... 2   2   1   1
+    char offset 0 1 2 4 6 8 ... 250 252 254 255
+    char index  0 1 2 3 4 5 ... 126 127 128 129
+    indexes:
+        last:  129
+        3 : +1
 
-
-Examples of indexes
---------------------------
-
-7 char, 17 bytes
-char length 2 3 2 3 2  3  2
-char offset 0 2 5 7 10 12 15
-char index  0 1 2 3 4  5  6
-indexes 1 byte :
-    #items: 3
-    next: 0
-    2 --> 5
-    4 --> 10
-    6 --> 15
-size indexes = 1 + 1 + 3*(1+1) = 8 bytes (47%)
+    7 char, 17 bytes
+    char length 2 3 2 3 2  3  2
+    char offset 0 2 5 7 10 12 15
+    char index  0 1 2 3 4  5  6
+    indexes 1 byte :
+        #items: 3
+        next: 0
+        2 --> 5
+        4 --> 10
+        6 --> 15
+    size indexes = 1 + 1 + 3*(1+1) = 8 bytes (47%)
 
 
-8 char, 16 bytes
-char length 1 3 1 3 1 3 1  3
-char offset 0 1 4 5 8 9 12 13
-char index  0 1 2 3 4 5 6  7
-indexes 1 byte :
-    #items: 3
-    next: 0
-    2 --> 4
-    4 --> 8
-    6 --> 12
-size indexes = 1 + 1 + 3*(1+1) = 8 bytes (50%)
+    8 char, 16 bytes
+    char length 1 3 1 3 1 3 1  3
+    char offset 0 1 4 5 8 9 12 13
+    char index  0 1 2 3 4 5 6  7
+    indexes 1 byte :
+        #items: 3
+        next: 0
+        2 --> 4
+        4 --> 8
+        6 --> 12
+    size indexes = 1 + 1 + 3*(1+1) = 8 bytes (50%)
 
 
-9 char, 18 bytes
-char length 1 2 3 1 2 3 1  2  3
-char offset 0 1 3 6 7 9 12 13 15
-char index  0 1 2 3 4 5 6  7  8
-indexes 1 byte :
-    #items: 4
-    next: 0
-    2 --> 3
-    4 --> 7
-    6 --> 12
-    8 --> 15
-size indexes = 1 + 1 + 4*(1+1) = 10 bytes (56%)
+    9 char, 18 bytes
+    char length 1 2 3 1 2 3 1  2  3
+    char offset 0 1 3 6 7 9 12 13 15
+    char index  0 1 2 3 4 5 6  7  8
+    indexes 1 byte :
+        #items: 4
+        next: 0
+        2 --> 3
+        4 --> 7
+        6 --> 12
+        8 --> 15
+    size indexes = 1 + 1 + 4*(1+1) = 10 bytes (56%)
 
 
-11 char, 16 bytes
-char length 1 2 1 2 1 2 1 2  1  2  1
-char offset 0 1 3 4 6 7 9 10 12 13 15
-char index  0 1 2 3 4 5 6 7  8  9  10
-indexes 1 byte :
-    #items: 5
-    next: 0
-    2 --> 3
-    4 --> 6
-    6 --> 9
-    8 --> 12
-    10 --> 15
-size indexes = 1 + 1 + 5*(1+1) = 12 bytes (75%)
+    11 char, 16 bytes
+    char length 1 2 1 2 1 2 1 2  1  2  1
+    char offset 0 1 3 4 6 7 9 10 12 13 15
+    char index  0 1 2 3 4 5 6 7  8  9  10
+    indexes 1 byte :
+        #items: 5
+        next: 0
+        2 --> 3
+        4 --> 6
+        6 --> 9
+        8 --> 12
+        10 --> 15
+    size indexes = 1 + 1 + 5*(1+1) = 12 bytes (75%)
 
 
-16 char, 18 bytes
-char length 1 1 1 1 1 1 1 1 1 1 1  1  1  1  1  3
-char offset 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
-char index  0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
-indexes 1 byte :
-    #items: 0
-    next: 0
-size indexes = 1 + 1 = 2 bytes (11%)
+    16 char, 18 bytes
+    char length 1 1 1 1 1 1 1 1 1 1 1  1  1  1  1  3
+    char offset 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+    char index  0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+    indexes 1 byte :
+        #items: 0
+        next: 0
+    size indexes = 1 + 1 = 2 bytes (11%)
 
 
-72 char, 88 bytes
-char           V  o  i  c  i     l  a     l  i  s  t  e     d  e  s     a  c  c  e  n  t  s     e  n     f  r  a  n  ç     a  i  s     :     à        ä        â        é        è        ë        ê        ï        î        ö        ô        ù        ü        û        ÿ     .
-char code   20 56 6F 69 63 69 20 6C 61 20 6C 69 73 74 65 20 64 65 73 20 61 63 63 65 6E 74 73 20 65 6E 20 66 72 61 6E C3 A7 61 69 73 20 3A 20 C3 A0 20 C3 A4 20 C3 A2 20 C3 A9 20 C3 A8 20 C3 AB 20 C3 AA 20 C3 AF 20 C3 AE 20 C3 B6 20 C3 B4 20 C3 B9 20 C3 BC 20 C3 BB 20 C3 BF 2E
-char length 1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  2     1  1  1  1  1  1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1
-char offset 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43    45 46    48 49    51 52    54 55    57 58    60 61    63 64    66 67    69 70    72 73    75 76    78 79    81 82    84 85    87
-char index  0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43    44 45    46 47    48 49    50 51    52 53    54 55    56 57    58 59    60 61    62 63    64 65    66 67    68 69    70 71    72
-indexes 1 byte :
-    #items: 15
-    next: 0
-    44 --> 45
-    46 --> 48
-    48 --> 49
-    50 --> 54
-    52 --> 57
-    54 --> 60
-    56 --> 63
-    58 --> 66
-    60 --> 69
-    62 --> 72
-    64 --> 75
-    66 --> 78
-    68 --> 81
-    70 --> 84
-    72 --> 87
-size indexes = 1 + 1 + 15*(1+1) = 32 bytes (36%)
+    72 char, 88 bytes
+    char           V  o  i  c  i     l  a     l  i  s  t  e     d  e  s     a  c  c  e  n  t  s     e  n     f  r  a  n  ç     a  i  s     :     à        ä        â        é        è        ë        ê        ï        î        ö        ô        ù        ü        û        ÿ     .
+    char code   20 56 6F 69 63 69 20 6C 61 20 6C 69 73 74 65 20 64 65 73 20 61 63 63 65 6E 74 73 20 65 6E 20 66 72 61 6E C3 A7 61 69 73 20 3A 20 C3 A0 20 C3 A4 20 C3 A2 20 C3 A9 20 C3 A8 20 C3 AB 20 C3 AA 20 C3 AF 20 C3 AE 20 C3 B6 20 C3 B4 20 C3 B9 20 C3 BC 20 C3 BB 20 C3 BF 2E
+    char length 1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  2     1  1  1  1  1  1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1
+    char offset 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43    45 46    48 49    51 52    54 55    57 58    60 61    63 64    66 67    69 70    72 73    75 76    78 79    81 82    84 85    87
+    char index  0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35    36 37 38 39 40 41 42    43 44    45 46    47 48    49 50    51 52    53 54    55 56    57 58    59 60    61 62    63 64    65 66    67 68    69 70    71
+    indexes 1 byte :
+        #items: 15
+        next: 0
+        36 --> 37
+        44 --> 46
+        46 --> 49
+        48 --> 52
+        50 --> 55
+        52 --> 58
+        54 --> 61
+        56 --> 64
+        58 --> 67
+        60 --> 70
+        62 --> 73
+        64 --> 76
+        66 --> 79
+        68 --> 82
+        70 --> 85
+        72 --> 88
+    size indexes = 1 + 1 + 15*(1+1) = 32 bytes (36%)
 
+        0  : 0 + 1n
+        35 : 35 + 2n
+        36 : 37 + 1n
+        42 : 43 + 2n
+        43 : 45 + 1n
+        44 : 46 + 2n
+        45 : 48 + 1n
+
+
+        36 : +1
+        43 : +2
+        45 : +3
+        47 : +4
+        49 : +5
+        51 : +6
+        53 : +7
+        55 : +8
+        57 : +9
+        59: + 10
+        61 : +11
+        63 : +12
+        65 : +13
+        67 : +14
+        69 : +15
+        71 : +16
 
 ================================================================================
 Rope
@@ -1259,6 +1420,15 @@ Using OS X’s Built-in ICU Library in Your Own Project
 
 
 ================================================================================
+utfcpp
+================================================================================
+
+https://github.com/nemtrif/utfcpp/
+referenced from https://corp.unicode.org/pipermail/unicode/2020-April/008582.html
+Basic Unicode character/string support absent even in modern C++
+
+
+================================================================================
 Twitter text parsing
 ================================================================================
 
@@ -1269,6 +1439,14 @@ to meet the expectations for what can be used on the platform.
 https://swiftpack.co/package/nysander/twitter-text
 This is the Swift implementation of the twitter-text parsing library.
 The library has methods to parse Tweets and calculate length, validity, parse @mentions, #hashtags, URLs, and more.
+
+
+================================================================================
+Japanese
+================================================================================
+
+https://heistak.github.io/your-code-displays-japanese-wrong/
+https://news.ycombinator.com/item?id=29022906
 
 
 ================================================================================
@@ -1318,6 +1496,13 @@ It’s Time to Stop Adding New Features for Non-Unicode Execution Encodings in C
 The Microsoft Code Page 932 Issue
 
 
+https://stackoverflow.com/questions/58878651/what-is-the-printf-formatting-character-for-char8-t/58895428#58895428.
+What is the printf() formatting character for char8_t *?
+jlf: todo read it? not sure yet if it's useful to read.
+Referenced from https://corp.unicode.org/pipermail/unicode/2020-April/008579.html
+Basic Unicode character/string support absent even in modern C++
+
+
 ================================================================================
 DotNet, CoreFx
 ================================================================================
@@ -1356,6 +1541,17 @@ Scenarios and Design Philosophy - UTF-8 string support
     Tons of comments, with this conclusion:
     The discussion in this issue is too long and github has troubles rendering it.
     I think we should close this issue and start a new one in dotnet/runtime.
+
+
+================================================================================
+Dafny
+================================================================================
+
+https://corp.unicode.org/pipermail/unicode/2021-May/009434.html
+Dafny natively supports expressing statements about sets
+and contract programming and a toy implementation turned out to be a fairly
+rote translation of the Unicode spec.  Dafny is also transpilation focused,
+so the primary interface must be highly functional and encoding neutral.
 
 
 ================================================================================
@@ -1412,6 +1608,14 @@ UTF-8/16 encoder/decoder
 
     : utf16le ( state string -- state string )
         [ [ swap (utf16le) ] each ] { } make ;
+
+
+================================================================================
+JavaScript
+================================================================================
+
+https://certitude.consulting/blog/en/invisible-backdoor/
+THE INVISIBLE JAVASCRIPT BACKDOOR
 
 
 ================================================================================
@@ -1525,7 +1729,7 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Character-Properties.h
 
 
 ================================================================================
-MOAR-VM
+MOAR-VM RAKU
 ================================================================================
 
 29/05/2021
@@ -1586,6 +1790,38 @@ String length functions for single emoji characters evaluate to greater than 1
     The reason we have utf8-c8 encode/decode is because filenames, usernames, and passwords are not actually Unicode.
     (I have 4 files all named rèsumè in the same folder on my computer.)
     utf8-c8 uses the same synthetic codepoint system as grapheme clusters.
+
+
+https://andrewshitov.com/2018/10/31/unicode-in-perl-6/
+Unicode in Raku
+
+================================================================================
+Perl (Perl 6 has been renamed to Raku)
+================================================================================
+
+https://swigunicode.wordpress.com/2021/10/18/example-post-3/
+    SWIG and Perl: Unicode C Library
+    Part 1. Small Intro to SWIG
+
+    https://swigunicode.wordpress.com/2021/10/22/part-2-c-header-file/
+    Part 2. C Header File
+
+    https://swigunicode.wordpress.com/2021/10/24/part-3-c-source-file/
+    Part 3. C Source File
+
+    https://swigunicode.wordpress.com/2021/10/25/part-4-perl-source-file/
+    Part 4. Perl Source File
+
+    https://swigunicode.wordpress.com/2021/10/26/part-5-build-and-run-scripts/
+    Part 5. Build and Run Scripts
+
+    https://swigunicode.wordpress.com/2021/10/27/part-6-swig-interface-file/
+    Part 6. SWIG Interface File
+
+
+https://lwn.net/Articles/667684/
+An article about NFG.
+Unless one specifies otherwise, Perl 6 normalizes a text string to NFC when it's not NFG.
 
 
 ================================================================================
@@ -2037,6 +2273,10 @@ It can also encode/decode ill-formed UTF-16.
 28/07/2021
 https://fasterthanli.me/articles/working-with-strings-in-rust
 
+
+07/11/2021
+https://blog.rust-lang.org/2021/11/01/cve-2021-42574.html
+security concern affecting source code containing "bidirectional override" Unicode codepoints
 
 ================================================================================
 Swift
