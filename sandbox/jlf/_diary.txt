@@ -496,6 +496,94 @@ The named arguments could be added to the returned array (splitting the key:valu
 ===============================================================================
 2021 November 01
 
+New Unicode script to dump the characters of an encoded file.
+unicode/scripts/dump_encoded.rex
+
+TODO:
+.stream~linein is not working correctly with UTF-16, UTF-32
+The detection of EOL is not good, should test the bytes listed below, in function of the encoding.
+("U+0A", "U+0D")~pipe(.inject { .unicode[item] } | .inject { ("utf8", "utf16be", "utf16le", "utf32be", "utf32le")~each{ expose item; arg(1)~(item)~c2x } } | .console)
+    1 : ['0A','000A','0A00','0000000A','0A000000']
+    2 : ['0D','000D','0D00','0000000D','0D000000']
+Additional constraint: respect the character boundaries.
+
+Dump files generated in the folder unicode/bbedit-save_as for the following cases supported by the editor BBEdit under MacOs:
+    UTF-8
+    UTF-8 with BOM
+    UTF-16
+    UTF-16 no BOM
+    UTF-16LE
+    UTF-16LE no BOM
+
+Files showing the problem with .stream~linein:
+    utf16_crlf-dump.txt:         end of string is 000D 00 (remaining of 000D 000A where only 0A was recognized)
+    utf16_lf-dump.txt:           end of string is 00 (remaining of 000A where only 0A was recognized)
+    utf16_nobom_crlf-dump.txt:   same as utf16_crlf-dump.txt
+    utf16_nobom_lf-dump.txt:     same as utf16_lf-dump.txt
+    utf16le_crlf-dump.txt:       end of first string is 0D00. Then all the following strings are wrongly extracted (not aligned on 16-bit boundary)
+    utf16le_lf-dump.txt:         end of first string is correct. But then all the following strings are wrongly extracted (not aligned on 16-bit boundary)
+    utf16le_nobom_crlf-dump.txt: same as utf16le_crlf-dump.txt
+    utf16le_nobom_lf-dump.txt:   same as utf16le_lf-dump.txt
+
+Occurences of \r
+----------------
+
+common/platform/unix/SysFile.cpp
+common/platform/windows/SysFile.cpp
+SysFile::gets
+This is here that the EOL is managed. To modify to support encoded files
+The current implementation is testing "\n".
+If found then if previous character is "\r" then replace "\r\n" by "\n".
+
+common/platform/unix/SysFile.hpp
+#define LINE_TERMINATOR "\n"
+Must be adapted
+
+common/platform/windows/SysFile.hpp
+#define LINE_TERMINATOR "\r\n"
+Must be adapted
+
+common/platform/unix/SysFile.cpp
+common/platform/windows/SysFile.cpp
+SysFile::putLine
+Write a line to the stream, adding the platform specific line terminator.
+Must be adapted
+
+interpreter/classes/support/StringUtil.cpp
+StringUtil::makearray
+A specific separator can be passed, but this deactivate the management of \r.
+If no specific separator, then search for \n and checks if \r\n
+
+interpreter/platform/windows/PlatformDefinitions.h
+#define line_end "\r\n"
+Used in RexxArray::toString (interpreter/classes/ArrayClass.cpp)
+
+interpreter/streamLibrary/StreamNative.hpp
+#define cr     '\r'
+
+
+Occurences of \n
+----------------
+
+interpreter/classes/RoutineClass.cpp
+RoutineClass::restore
+Related to image, no need to support encoded files
+
+interpreter/platform/unix/PlatformDefinitions.h
+#define line_end "\n"
+Used in RexxArray::toString (interpreter/classes/ArrayClass.cpp)
+
+interpreter/streamLibrary/StreamNative.cpp
+StreamInfo::readVariableLine
+This is here that the EOL is managed. To modify to support encoded files
+
+interpreter/streamLibrary/StreamNative.hpp
+#define nl     '\n'
+
+
+===============================================================================
+2021 November 01
+
 [Encoded strings]
 
 New methods:
