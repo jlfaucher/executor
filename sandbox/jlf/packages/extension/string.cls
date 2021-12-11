@@ -26,6 +26,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::extension MutableBuffer                   inherit MutableBufferPrettyPrinter
 ::extension MutableBuffer                   inherit MutableBufferCompatibilityWithOORexx5
 ::extension MutableBuffer                   inherit MutableBufferHelpers
+::extension MutableBuffer                   inherit EncodedMutableBuffer
 
 --::options trace i
 
@@ -56,6 +57,21 @@ Interface:
     indexTable~[integer]
     indexTable~[integer]=bytePosition
     indexTable~first     --  index of the first item in the table
+
+*/
+/******************************************************************************/
+/*
+WON'T DOs
+
+Will not support arithmetic with digits encoded in UTF-16 or UTF-32
+"41"~text~utf16~c2u=    -- 'U+0034 U+0031'
+"41"~text~utf16 + 0=    -- error UTF-16BE '[00]4[00]1' is not compatible with a Rexx numeric value.
+
+Will not support x2b, x2c, x2d with hexadecimal digits encoded in UTF-16 or UTF-32
+"41"~text~utf16~x2b=    -- error UTF-16BE '[00]4[00]1' is not compatible with a Rexx hexadecimal value.
+
+b2x, c2x, d2x will always return a String, not a RexxText.
+So "41"~text~utf16~c2x will not return an UTF-16 representation of the hexadecimal digits.
 
 */
 /******************************************************************************/
@@ -491,6 +507,32 @@ Similar to ~makeArray(separator), with these differences:
 
 
 /******************************************************************************/
+::class "EncodedMutableBuffer" mixinclass Object private
+
+/*
+    Nothing sophisticated here...
+    Just manage the attribute 'encoding', to know what is the current encoding of the MutableBuffer.
+    By "current", I mean that this encoding may change during the life of the MutableBuffer,
+    especially when doing concatenations. For example, an UTF-8 buffer will become a WTF-8 buffer
+    when appending a WTF-8 string.
+    There is no analysis of contents, no indexer.
+    The analysis is done when a RexxText instance is created from the buffer's string.
+*/
+
+::attribute encoding get
+    expose encoding
+    if var("encoding") then return encoding
+    encoding = .Encoding~defaultEncoding
+    return encoding
+
+
+::attribute encoding set
+    expose encoding
+    use strict arg newEncoding
+    encoding = .Encoding~factory(newEncoding, self~string)
+
+
+/******************************************************************************/
 ::class "RexxTextInitializer" mixinclass Object private
 
 ::method init
@@ -533,7 +575,7 @@ base class...
 ::method makestring
     expose indexer
     if self~isCompatibleWithString then return indexer~string
-    raise syntax 23.900 array("The" self~descriptionForError "cannot be converted to a String instance")
+    raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
 
 
 ::attribute string get
@@ -733,6 +775,9 @@ base class...
     return result
 
 
+-- The corresponding encoding name is "Unicode" but I can't name this method "isUnicode"
+-- because collision with isUnicode already defined, which returns .true for a RexxText with Unicode encoding.
+-- I could rename the other method "isUnicodeEncoding" but I prefer to stay like that.
 ::method isUnicodeN
     expose isUnicodeN
     if var("isUnicodeN") then return isUnicodeN
@@ -1118,7 +1163,7 @@ x2d                             full (raise an error if not compatible with Stri
 
 
 ::method left
-    use strict arg _length
+    use strict arg _length, _pad="" -- not used, it's just to check that we get at least the length, and that we don't get more than 2 arguments
     -- equivalent to substr(1, length, pad)
     forward message "substr" arguments (arg(1, "a")~prepend(1))
 
@@ -1139,7 +1184,7 @@ x2d                             full (raise an error if not compatible with Stri
 
 
 ::method match
-    use arg start, other, ... -- not strict, just need to check 'other'
+    use arg _start, other, ... -- not strict, just need to check 'other'
     otherIsCompatibleWithString = .true
     if other~isA(.RexxText), \other~isCompatibleWithString then otherIsCompatibleWithString = .false
     if self~isCompatibleWithString, otherIsCompatibleWithString then forward to (self~string)
@@ -1252,6 +1297,10 @@ x2d                             full (raise an error if not compatible with Stri
         if .nil == text then signal must_have_a_text_or_string_value
         if .nil == previousText then encoding = .Encoding~forConcatenation(self, text) -- could raise an unjustified error because buffer's asciiness is not provided
                                 else encoding = .Encoding~forConcatenation(previousText, text) -- raise an error if not compatible
+        -- [To rework, next comment is no longer true, I added ~encoding on MutableBuffer]
+        -- Remember: I test next equality because, unlike RexxText concatenation, I can't return either left encoding or right encoding.
+        -- In the end, I return the buffer's string  whose encoding is self.
+        -- So yes, appending to a buffer is more restrictive than appending to a RexxText
         if encoding <> self then signal incompatible_encoding -- for example when the buffer is utf8 and the appended text is wtf8
         encoding~concatenate(text, b: buffer)
         previousText = text
@@ -2375,9 +2424,10 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 
 ::method text
     expose codepoint
-    use strict arg -- none
+    use strict arg encoding="default"
     use strict named arg buffer(1)=.nil
-    return .Encoding~defaultEncoding~encode(codepoint, b: buffer)
+    encoding = .Encoding~factory(encoding)
+    return encoding~encode(codepoint, b: buffer)
 
 
 ::method makeRexxText
@@ -2837,6 +2887,10 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     encodings["UTF32BE"] = .UTF32BE_Encoding
     encodings["UTF32LE"] = .UTF32LE_Encoding
 
+    -- "UNICODE" can't be used to create a RexxText.
+    -- But can be used in conversion, to get the shortest possible representation
+    -- encodings["UNICODE"] = .Unicode_Encoding
+
     encodings["UNICODE8"] = .Unicode8_Encoding
     encodings["UNICODE16"] = .Unicode16_Encoding
     encodings["UNICODE32"] = .Unicode32_Encoding
@@ -3233,7 +3287,10 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     use strict arg length=10
     text = self~string~text
     if text~length > length then text = text~left(length - 3)"..."
-    return self~description(s:1) "'"text~string"'"
+    -- escape3 is needed to have a proper display for this:
+    -- say "41"~text~utf16~string  -- 41
+    -- say escape3("41"~text~utf16~string)  -- [00]4[00]1
+    return self~description(s:1) "'"escape3(text~string)"'"
 
 
 ::method c2x

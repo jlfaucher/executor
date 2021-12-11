@@ -494,6 +494,27 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 November 01
+
+[Encoded strings]
+
+New methods:
+.MutableBuffer
+    encoding
+    encoding=
+
+.UnicodeCharacter~text
+An optional encoding can be passed (was limited to "default").
+This is a little optim to avoid an intermediate RexxText in default encoding.
+.unicode["father christmas"]~text("utf16")  -- direct creation of UTF16 RexxText
+.unicode["father christmas"]~text~utf16     -- UTF8 (default) RexxText, then UTF16 RexxText
+
+Started to work on .RexxText~unescape to support "...\u{character name}..." in any encoding, but not finished.
+today:   "Father christmas"~text~utf16 .unicode["father christmas"]~text("utf16")
+target:  "Father christmas \u{father christmas}"~text~utf16~unescape
+
+
+===============================================================================
 2021 September 30
 
 [Encoded strings]
