@@ -1,6 +1,6 @@
 /* -*- mode: c; c-basic-offset: 2; tab-width: 2; indent-tabs-mode: nil -*- */
 /*
- *  Copyright (c) 2014-2019 Steven G. Johnson, Jiahao Chen, Peter Colberg, Tony Kelman, Scott P. Jones, and other contributors.
+ *  Copyright (c) 2014-2021 Steven G. Johnson, Jiahao Chen, Peter Colberg, Tony Kelman, Scott P. Jones, and other contributors.
  *  Copyright (c) 2009 Public Software Group e. V., Berlin, Germany
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a
@@ -101,7 +101,7 @@ UTF8PROC_DLLEXPORT const char *utf8proc_version(void) {
 }
 
 UTF8PROC_DLLEXPORT const char *utf8proc_unicode_version(void) {
-  return "13.0.0";
+  return "14.0.0";
 }
 
 UTF8PROC_DLLEXPORT const char *utf8proc_errmsg(utf8proc_ssize_t errcode) {
@@ -356,9 +356,9 @@ static utf8proc_int32_t seqindex_decode_index(const utf8proc_uint32_t seqindex)
 
 static utf8proc_ssize_t seqindex_write_char_decomposed(utf8proc_uint16_t seqindex, utf8proc_int32_t *dst, utf8proc_ssize_t bufsize, utf8proc_option_t options, int *last_boundclass) {
   utf8proc_ssize_t written = 0;
-  const utf8proc_uint16_t *entry = &utf8proc_sequences[seqindex & 0x1FFF];
-  int len = seqindex >> 13;
-  if (len >= 7) {
+  const utf8proc_uint16_t *entry = &utf8proc_sequences[seqindex & 0x3FFF];
+  int len = seqindex >> 14;
+  if (len >= 3) {
     len = *entry;
     entry++;
   }
@@ -410,7 +410,7 @@ UTF8PROC_DLLEXPORT int utf8proc_charwidth(utf8proc_int32_t c) {
 }
 
 UTF8PROC_DLLEXPORT utf8proc_category_t utf8proc_category(utf8proc_int32_t c) {
-  return utf8proc_get_property(c)->category;
+  return (utf8proc_category_t) utf8proc_get_property(c)->category;
 }
 
 UTF8PROC_DLLEXPORT const char *utf8proc_category_string(utf8proc_int32_t c) {

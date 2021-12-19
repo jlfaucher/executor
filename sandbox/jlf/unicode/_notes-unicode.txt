@@ -40,6 +40,7 @@ Contents:
     Dafny
     Factor
     Lisp
+    Mathematica
     MOAR-VM RAKU
     Perl
     PHP
@@ -1726,6 +1727,15 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Character-Properties.h
 
     special-titlecase
     Corresponds to Unicode unconditional special title-casing rules. The value of this property is a string (which may be empty). For example mapping for U+FB01 LATIN SMALL LIGATURE FI the value is "Fi". For characters with no special mapping, the value is nil which means titlecase property needs to be consulted instead.
+
+
+================================================================================
+Mathematica
+================================================================================
+
+https://www.youtube.com/watch?v=yiwLBvirm7A
+Live CEOing Ep 426: Language Design in Wolfram Language [Unicode Characters & WFR Suggestions]
+At the begining, there are a few minutes about character properties.
 
 
 ================================================================================

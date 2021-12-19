@@ -494,6 +494,36 @@ The named arguments could be added to the returned array (splitting the key:valu
 
 
 ===============================================================================
+2021 December 19
+
+Unicode 14 support using utf8proc 2.7.0
+Unicode 14.0 adds 838 characters, for a total of 144,697 characters.
+These additions include 5 new scripts, for a total of 159 scripts, as well as 37 new emoji characters.
+    .unicode~version=               -- 14.0.0
+    call loadUnicodeCharacterNames
+    .unicode~characters=            -- (an UnicodeCharacterSupplier count=43885 size=918001)
+                                    -- (an UnicodeCharacterSupplier count=43056 size=918001) with Unicode 13
+    call expandUnicodeCharacterIntervals
+    .unicode~characters=            -- (an UnicodeCharacterSupplier count=144763 size=918001)
+                                    -- (an UnicodeCharacterSupplier count=143925 size=918001) with Unicode 13
+
+Note:
+144697 is the number of character names in the file DerivedName.txt.
+I get 144763 characters instead of 144697 (+66) because I include the control characters (they have only an alias, not a name)
+    -1       1 character (not part of Unicode)
+    00..1F	32 control characters
+    7F..9F	33 control characters
+
+.unicode~characters~select{item~categoryName=="Cc"}==
+    an Array (shape [65], 65 items)
+     1  : ( ""    U+0000 Cc 0 "", "NULL", "NUL" )
+     2  : ( ""    U+0001 Cc 0 "", "START OF HEADING", "SOH" )
+     3  : ( ""    U+0002 Cc 0 "", "START OF TEXT", "STX" )
+     4  : ( ""    U+0003 Cc 0 "", "END OF TEXT", "ETX" )
+    ...
+
+
+===============================================================================
 2021 December 11
 
 String reduce was implemented by 2 methods: reduceC for characters, reduceW for words, but no 'reduce'.
