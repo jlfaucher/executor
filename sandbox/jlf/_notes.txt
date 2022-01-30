@@ -1,0 +1,567 @@
+Sandbox for experimental work, unsorted notes.
+
+
+Try to understand the internal locks.
+--> added some dbgprintf (Windows and Linux), now must analyze...
+
+
+Allow extension of the predefined ooRexx classes to get something similar to C# extension methods (but more powerful).
+done.
+--> unlock the define method : see samples/functional for an example of use.
+    unlock the inherit method
+    added ::extension directive
+    >>-::EXTENSION--classname----+-------------------+-----------------><
+                                 +-INHERIT--iclasses-+
+
+
+Add the "in" keyword to the DO repetitor : Similar to "over" but calls the method "supplier" instead of "makearray".
+[2015 Jul 12] : no longer needed to work on that, ooRexx5 supports DO WITH index ITEM item OVER supplier.
+todo: retrofit in executor.
+
+
+See if a thread could return more than one result and become a generator when synchronized with : do i in generator ...
+--> done with .Coactivity
+
+
+Export the classes instantiated by the parser and make expression instances available from an ooRexx script.
+Inspired by C# LINQ and the expression tree API.
+See if that can be used to write macros (i.e. transform expression tree), user directives, DSL...
+todo...
+
+
+Named parameters (by opposition to positional parameters).
+--> done.
+
+
+Deferred evaluation of parameters.
+Let the routine/method decide which parameters must be evaluated, ex : iif(cond, iftrue, iffalse)
+todo
+
+
+Investigate the Activation stack (reify ? closure ? continuation ?)
+--> closure by value : done
+
+
+Unicode ?
+--> added support for wide-chars in oodialog. [now deprecated]
+--> frozen : m17n (this is not the way proposed by Rick)
+--> investigate a new approach: Encoded strings (RexxText layer above String)
+
+
+Extension of the message term : keyword and multiple dispatch.
+http://atomo-lang.org/
+http://slatelanguage.org/
+https://julialang.org/
+todo...
+
+
+Pipes todo :
+.inject in breadthFirst mode is not limited by the ooRexx callstack size.
+Do the same for depthFirst mode.
+1~pipe(.inject {2*item} rec.506 | .take last | .console) is ok, but if you do one more recursion,
+you get the error "Insufficient control stack space; cannot continue execution"
+No such problem in breadthFirst mode :
+1~pipe(.inject {2*item} rec.b.100000 | .take last | .console) --> last result is 1.99800307E+30103
+
+
+Pipes todo :
+Add partition support to .stemCollector, .arrayCollector
+For .arrayCollector, the collected values will be arrays.
+For .stemCollector, I don't know.
+Is .stemCollector really needed ? I don't see the added value, compared to .arrayCollector
+
+
+Extension todo :
+Forbids to replace a predefined method. The goal is to extend, not to alter the behavior.
+Maybe not so easy to do for 'inherit'.
+
+
+Extension todo :
+Add the parameters "unlock=.false, propagate=.false" to the methods .class~define and .class~inherit.
+
+
+Profiler todo :
+Error "does not understand message XXX_UNPROTECTED" when the method XXX is private.
+
+
+Clauser todo :
+Keep the multi-line source literals as-is (multi-line), for better error report.
+That makes the transformation of clauses more difficult, since a clause can be
+multi-line.
+Remember : a multi-line source literal is flattened only if a transformation is
+made on the clause which contains it.
+
+
+Error reporting todo :
+A block line number is relative to the block, should be relative to its package,
+except when interpreted (in ooRexxShell, I want the line number relative to the block).
+
+
+Tail recursion todo:
+See if it's possible to modify the implementation of FORWARD to reduce the
+comsumption of stack frames.
+
+
+Stems to investigate:
+This functionality is not working with stems:
+    "When a variable has no value, the interpreter sends the message "NOVALUE" to the
+    object .local["NOVALUE"]."
+constants.infinity = "very big"
+constants.=
+    a Stem (1 items)
+    'INFINITY' : 'very big'     -- should be 'The positive infinity'
+x = infinity
+constants.x = "very big"
+constants.=
+    a Stem (2 items)
+    'INFINITY'              : 'very big'
+    'The positive infinity' : 'very big'
+
+
+================================================================================
+Tail recursion (todo)
+================================================================================
+
+See if it's possible to modify the implementation of FORWARD to reduce the
+comsumption of stack frames.
+Should be possible when the option CONTINUE is not used.
+Could be used to emulate tail recursion.
+Under MacOs, last value before stack overflow when calculating the factorial:
+Executor: 1056      ooRexx5: 17441 (yes! and then segmentation fault)
+    use arg n
+    say factorial(n)
+    return
+    factorial:
+    use arg n
+    if n==0 then return 1
+    else return n * factorial(n-1)
+Executor: 736       ooRexx5: 793
+    use arg n
+    say factorial(n)
+    return
+    ::routine factorial
+    use arg n
+    if n==0 then return 1
+    else return n * factorial(n-1)
+Executor: 487       ooRexx5: 511
+    use arg n
+    say factorial(n)
+    return
+    ::routine factorial
+    use arg n
+    if n==0 then return 1
+    else return n * .context~executable~call(n-1)
+484
+    {use arg n; if n==0 then return 1; else return n * .context~executable~call(n-1) }~call(484)=
+197
+    {use arg n; if n==0 then return 1; else return n * .context~executable~(n-1) }~(197)=
+I would like to support the same limit 484 when using the doer method ~().
+    ::class "Doer" mixinclass Object public inherit DoerFactory
+    ::method "~()" unguarded
+        forward message "do"
+    ::class "RoutineDoer" mixinclass Object public inherit Doer
+    ::method do unguarded
+        forward message "call"
+
+
+================================================================================
+Deferred evaluation of parameters (todo)
+================================================================================
+
+Let the routine/method decide which parameters must be evaluated, ex : iif(cond, iftrue, iffalse)
+todo
+
+--> See routine if(aLogical, whenTrue, whenFalse).
+    It's up to the caller to freeze the evaluation, by passing explicitely a doer.
+    So the goal is not reached... I want the callee to have full control of the evaluation.
+
+According to
+http://www.nhplace.com/kent/Papers/Special-Forms.html
+fexpr must be avoided. Macros are better.
+
+[2021, July 4]
+Thoughts about lazy evaluation of arguments:
+        Some articles:
+            https://dlang.org/articles/lazy-evaluation.html
+            https://colinfay.me/lazyeval/
+        Goal:
+            x=5; say (x<>0)~?(1/x, "infinity")      -- 0.2
+            x=0; say (x<>0)~?(1/x, "infinity")      -- "infinity", instead of the error "divisor must not be zero"
+            a=1; b=2; call swap a, b; say a b       -- 2 1
+
+        When calling a routine, the target is evaluated and found.
+        The target indicates if the arguments must be evaluated or not. This is independant from any instruction 'use arg' on the target side.
+        If the arguments must be evaluated then it's the current implementation: pass an array of evaluated expressions
+        otherwise pass an array of not-evaluated expressions. Probably an array of LazyRexxExpression which is a wrapper holding the expression and the context for the evaluation (a RexxActivation).
+
+        Signature for evaluation:
+            virtual RexxObject  *evaluate(RexxActivation *, RexxExpressionStack *)
+        Concrete implementations (Executor):
+            RexxNumberString::evaluate          stack->push(this); return this;
+            RexxInteger::evaluate               stack->push(this); return this;
+            RexxUnaryOperator::evaluate         stack->prefixResult(result); return result;
+            RexxBinaryOperator::evaluate        stack->operatorResult(result); return result;
+            RexxExpressionMessage::evaluate     loop { this->arguments[i+1]->evaluate(context, stack); } stack->send(this->messageName, argcount, namedArgcount, result); return result;
+            RexxStemVariable::evaluate          value = context->getLocalStem(this->stem, this->index); stack->push(value); return value;
+            RexxCompoundVariable::evaluate      value = context->evaluateLocalCompoundVariable(stemName, index, &tails[0], tailCount);stack->push(value); return value;
+            RexxParseVariable::evaluate         variable = context->getLocalVariable(variableName, index); value = variable->getVariableValue(); stack->push(value); return value;
+            RexxString::evaluate                stack->push(this); return this;
+            RexxInternalObject::evaluate        return OREF_NULL
+            RexxSourceLiteral::evaluate         value = new RexxBlock(this, rexxContext); stack->push(value); return value;
+            RexxExpressionList::evaluate        result = new_array(expressionCount); loop { expr = expressions[i]; value = expr->evaluate(context, stack); result->put(value, i + 1); } stack->push(result); return result;
+            RexxExpressionFunction::evaluate    loop { this->arguments[i]->evaluate(context, stack); call internal or builtin or external...; stack->push(result); return result;
+            RexxDotVariable::evaluate           result = context->rexxVariable(this->variableName); stack->push(result); return result;
+            RexxExpressionLogical::evaluate     loop { value = expressions[i]->evaluate(context, stack); return true or false }
+
+        Example of lazy evaluation:
+            -- context = theRexxActivation1
+            a=1                 -- theRexxParseVariable1(variableName="A", index=6)
+                                --     when evaluated in the context theRexxActivation1, it's theRexxVariable1(variable_name="A", variableValue=1, creator=theRexxActivation1)
+            b=2                 -- theRexxParseVariable2(variableName="B", index=7)
+                                --     when evaluated in the context theRexxActivation1, it's theRexxVariable2(variable_name="B", variableValue=2, creator=theRexxActivation1)
+            call swap a, -      -- pass LazyRexxExpression~new(theRexxActivation1, theRexxParseVariable1)
+                      b         -- pass LazyRexxExpression~new(theRexxActivation1, theRexxParseVariable2)
+            say a               -- 2
+            say b               -- 1
+            ::routine swap lazyargs             -- The LAZYARGS option indicates that the arguments must not be evaluated on call
+                -- context = RexxActivation2    -- The callee's context is different from the caller's context
+                use strict arg x, y             -- x = theLazyRexxExpression1(theRexxActivation1, theRexxParseVariable1)
+                                                -- y = theLazyRexxExpression2(theRexxActivation1, theRexxParseVariable2)
+                                                -- If an argument is a LazyRexxExpression whose expression is a subclass of RexxVariableBase supporting assignment
+                                                -- (RexxStemVariable, RexxCompoundVariable, RexxParseVariable, but not RexxDotVariable)
+                                                -- then create an alias variable.
+                                                -- [2021 Jul 7] Better to declare explictly that a special retriever must be used.
+                                                --              The syntax would be the same as variable reference, but on callee side only.
+                                                --              use strict arg >x, >y
+                tmp = x                         -- First evaluation of x, the value 1 is cached on theLazyRexxExpression1
+                x = y                           -- First evaluation of y, the value 2 is cached on theLazyRexxExpression2
+                                                -- The assignment 'x =' is delegated to theRexxParseVariable1
+                y = x                           -- Retrieve the cached value 2 stored on theLazyRexxExpression1
+                                                -- The assignment 'y =' is delegated to theRexxParseVariable1
+        To investigate:
+            1) expose var
+               use arg >var -- Will it work with LazyRexxExpression ? ooRexx5 raises Error 98.995:  Unable to reference variable "VAR"; it must be an uninitialized local variable.
+            2) use arg >var
+               drop var     -- Will it work with LazyRexxExpression ? ooRexx5 drops the value of the referenced variable.
+            3) The reference operator supports stems but doesn't support compound symbols.
+               Will compound symbols be supported with LazyRexxExpression ?
+
+
+================================================================================
+Named arguments (done)
+================================================================================
+
+Remainging todo for implementation of named arguments
+-----------------------------------------------------
+
+Message~new
+add support for named arguments: option "Directory"
+
+Message~namedArguments
+to implement
+
+Changes in ooRexx5 that I don't need to support until retrofitting:
+Message~send allows to pass arguments
+Message~sendWith: new method
+Message~start allows to pass arguments
+Message~startWith: new method
+
+StackFrame~namedArguments
+to implement
+
+Security manager CALL
+Add NAMEDARGUMENTS: a directory of the function named arguments
+to the information directory.
+
+Security manager METHOD
+Add NAMEDARGUMENTS: a directory of the method named arguments
+to the information directory.
+
+RexxNativeActivation::callNativeRoutine(RoutineClass *_routine, RexxNativeRoutine *_code, RexxString *functionName,
+The named arguments are not passed to the native routine.
+void RexxNativeActivation::callNativeRoutine(RoutineClass *_routine, RexxNativeRoutine *_code, RexxString *functionName,
+    RexxObject **list, size_t count, size_t named_count, ProtectedObject &resultObj)
+
+
+Maybe to rework
+---------------
+
+forward : use a single array for positional & named
+instead of 2 as currently
+  RexxArray  * array;                  /* argument array specification      */
+  RexxArray  * namedArgumentsArray;    /* name, value, name, value, etc...  */
+Reason :
+1) there is only one keyword ARRAY(...), so both positional & named must be managed as a whole
+2) Message~new and Object~run supports the option "I" which is followed by a list of positional & named arguments
+   managed as a whole, not as 2 distincts subsets
+
+
+Option "Directory" for Message~new and Object~run :
+should I specify a named argument Directory:argument
+instead of 2 positional arguments "Directory", argument ?
+Probably yes, I should not impact the positional arguments.
+[later]
+Probably no. There is no impact for the ooRexx user, and the option "Directory"
+is a natural extension.
+
+
+To investigate
+--------------
+
+RexxDirectory::unknown
+see if named arguments must be supported
+
+
+RexxNativeActivation::run
+see if named arguments must be supported here:
+    // retrieve the argument signatures and process them
+    uint16_t *types = (*methp)((RexxMethodContext *)&context, NULL);
+    processArguments(argcount, arglist, types, arguments, MAX_NATIVE_ARGUMENTS);
+
+
+RexxClass::enhanced
+RexxObject::newRexx
+RexxClass::newRexx
+RexxDirectory::newRexx
+RexxList::newRexx
+RexxMethod::newRexx
+RexxMutableBufferClass::newRexx
+PackageClass::newRexx
+RexxQueue::newRexx
+RexxRelation::newRexx
+
+
+RexxObject  *RexxArray::of(RexxObject **args, size_t argCount, size_t named_argCount)
+TODO
+The named arguments could be added to the returned array (splitting the key:value).
+    .array~of(1,2,n3:3,n4:4) --> [1,2,n3,3,n4,4]
+That would be the opposite of what I do with .Directory~of (grouping in key:value)
+    .directory~of(1,2,n3:3,n4:4) --> [1:2,n3:3,n4:4]
+
+
+.List~of(v1,v2,...,vn)
+RexxList *RexxList::classOf(
+     RexxObject **args,                /* array of list items               */
+     size_t       argCount,            /* size of the argument array        */
+     size_t       named_argCount)
+TODO
+The named arguments could be added to the returned array (splitting the key:value).
+
+
+================================================================================
+ooRexx5 optimizations
+================================================================================
+
+ooRexx5 optimization retrofit todo:
+When an external routine has been resolved, cache the executable in the field
+externalTarget of the CallInstruction or ExpressionFunction. The next call will
+be a fast call, by avoiding to search again the executable.
+This optimization is not applicable to dynamic calls.
+
+
+ooRexx5 optimization retrofit todo:
+RexxDotVariable cachedValue
+
+
+ooRexx5 optimization retrofit todo:
+SpecialDotVariable for .nil, .true, .false
+
+
+ooRexx5 optimization retrofit todo:
+optimized implementation of .array~items (the value is stored)
+
+
+ooRexx optimization to investigate:
+[later] It's probably related to the optimization of .true .false.
+        When replacing .false by 0, I get almost the same durations as ooRexx5.
+c = .array~new(3); do 1000000; c[1]=.false; c[2]=1; c[3]="error description"; end
+    Executor = 0.93s
+    ooRexx5  = 0.62s
+c = .array~new(3); do 1000000; c~append(.false); c~append(1); c~append("error description"); end
+    Executor = 1.87ss
+    ooRexx5  = 1.70s
+::class "DecodeContext" public
+    ::attribute isError
+    ::attribute indexB
+    ::attribute errorMessage
+c = .DecodeContext~new; do 1000000; c~iserror=.false; c~indexB=1; c~errorMessage="error description"; end
+    Executor = 1.05s
+    ooRexx5  = 0.75s
+
+
+ooRexx5 optimization for unknown processing to review:
+See comment of
+    StringHashCollection::processUnknown
+    RexxInteger::processUnknown
+    NumberString::processUnknown
+    StemClass::processUnknown
+    VariableReference::processUnknown
+
+
+ooRexx5 optimization for NativeActivation to review
+    RexxInternalObject *firstSavedObject;// first saved object...an optimization
+
+
+================================================================================
+ooRexx5 to retrofit, maybe
+================================================================================
+
+Needed retrofits for trunk/extensions/dateparser:
+    1)  ::CONSTANT DefaultDayNames ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+    2)  use local
+    3)  select  case (type)
+            when 'd', 'D' then do
+    4)  ::OPTIONS novalue error
+
+
+Needed retrofits for trunk/extensions/json.cls (Rony's version)
+    1) .Package~local (including the search of dot variables)
+    2) Extended xrange implementation: done
+
+
+Needed retrofits for trunk/extensions/json.testGroup (Rony's version)
+    1) .Class~package
+    2) ::options novalue error
+
+
+================================================================================
+Things I don't like in ooRexx4
+================================================================================
+
+The lack of consistency to pass arguments:
+
+    Instruction forward
+    -------------------
+
+    Inconsistency with Message~new and Object~run.
+    Here, ARRAY is followed by a list of arguments.
+    There, "Array" is followed by a mandatory array. "Individual" is followed by a list of arguments.
+
+    exprn is a directory of named arguments.
+
+    >>-FORWARD--+------------+--+---+--------------------+--+-------------------------+---+--+------------------+--+----------------+--+-------------+----><
+                +--CONTINUE--+  |   +--ARGUMENTS--expra--+  +--NAMEDARGUMENTS--exprd--+   |  +--MESSAGE--exprm--+  +--CLASS--exprs--+  +--TO--exprt--+
+                                +--------------ARRAY----(--| Arguments |--)---------------+
+
+    .Message~new
+    ------------
+
+    Inconsistency with the instruction FORWARD.
+    Here, "Array" is followed by a mandatory array.
+    There, ARRAY is followed by a list of arguments. ARGUMENTS is followed by a mandatory array.
+
+    >>-new(-target-,-messagename-+-------------------------------------------------------+-)--><
+                                 +-,-"Individual"--| Arguments |-------------------------+
+                                 +--+-------------------+--+--------------------------+--+
+                                    +-,-"Array"-,-expra-+  +-,-NAMEDARGUMENTS-:-exprd-+
+
+    .Object~run
+    -----------
+
+    Inconsistency with the instruction FORWARD.
+    Here, "Array" is followed by a mandatory array.
+    There, ARRAY is followed by a list of arguments. ARGUMENTS is followed by a mandatory array.
+
+    >>-run(-method-+-------------------------------------------------------+-)--><
+                   +-,-"Individual"---| Arguments |------------------------+
+                   +--+-------------------+--+--------------------------+--+
+                      +-,-"Array"-,-expra-+  +-,-NAMEDARGUMENTS-:-exprd-+
+
+
+================================================================================
+Things I don't like in ooRexx5
+================================================================================
+
+The lack of consistency in ::OPTIONS:
+    The numeric options should start with "NUMERIC" (too late...).
+        ::OPTIONS NUMERIC DIGITS <digits>
+        ::OPTIONS NUMERIC FORM <form>
+        ::OPTIONS NUMERIC FUZZ <fuzz>
+
+    The error options should start with TRAP, to not have so many orphan keywords.
+    ("ALL" how do you know it's about trap errors ???).
+    The keywords SYNTAX and CONDITION in ::options should be respectively ON and OFF,
+    to be consistent with the instruction SIGNAL.
+        ::OPTIONS TRAP ERROR ON|OFF
+        ::OPTIONS TRAP ON|OFF ERROR
+
+    Why no option for NOMETHOD ? Maybe because it makes no sense to deactivate this trap ?
+
+
+The syntax of the namespaces:
+    namespace:name collides with the usual syntax for named arguments.
+    This is not blocking, you can surround by parentheses when passing a qualified symbol as positional argument.
+        call myRoutine myNamedArgument:object
+        call myRoutine (myNamespace:object)
+        call myRoutine myNamedArgument:myNamespace:object
+
+
+The syntax of the variable reference terms:
+    Why 2 reference operators '>' and '<' ?
+    Why impacting both the caller and the callee ?
+
+    The rest of this section is a code review and tests, not a list of things I don't like...
+    In fact, I learned to like these features during the review...
+    {
+        My understanding of why impacting both the caller and the callee:
+            - The reference operator on caller side is needed because the expression must be evaluated as a VariableReference instance.
+              A VariableReference holds one attribute:  RexxVariable *variable; // the referenced variable object.
+              A VariableReference can be used independently of use arg.
+            - The reference operator on callee side is needed to indicate that a special retriever must be used.
+              UseVariable::handleArgument tests if this is a retriever for reference argument (>x on callee side):
+                  isOfClass(UseArgVariableRef, variable)
+              and then UseVariable::handleReferenceArgument ensures that the argument passed by the caller is a VariableReference (>x on caller side):
+                  isVariableReference(argument)
+
+        Error management:
+        - There is an error raised when passing a normal variable to a routine which takes a variable reference.
+        - There is no error raised when passing a variable reference to a routine which takes a normal variable.
+              A VariableReference can be used independently of use arg.
+              A VariableReference can be passed to the routine R1 not expecting a variable reference, which pass it to the routine R2 expecting a variable reference.
+
+        It's possible to create an infinite loop:
+            x = >y; y = >z; z = >x; say x   -- The interpreter hangs
+        but ~value= is ok with such circularity:
+            x = >y; y = >z; z = >x; y~value = 20; say x~class"=" x; say y~class"=" y; say z~class"=" z
+                The VariableReference class= 20
+                The VariableReference class= 20
+                The String class= 20
+         Note the difference when assigning directly to y:
+            x = >y; y = >z; z = >x; y = 20; say x~class"=" x; say y~class"=" y; say z~class"=" z
+                The VariableReference class= 20
+                The String class= 20
+                The VariableReference class= 20
+
+        It's possible to get a reference to a variable no longer existing, by returning this reference from a routine.
+        That's ok because the variable stay alive thanks to the reference.
+            ::routine danglingReference
+                v = "no longer existing"
+                return >v
+
+        It's possible to return a reference to an object variable.
+            ::method secretObjectVariableAlias
+                expose secretObjectVariable
+                return >secretObjectVariable
+    }
+
+
+The instruction USE LOCAL:
+    sounds like not related to EXPOSE.
+
+    is followed by a list of names without comma separators,
+    whereas USE ARG is followed by a list of names WITH comma separators.
+
+    If 'USE LOCAL' with no name makes all the variables exposed (except RC, RESULT, SIGL, SELF, and SUPER)
+    then 'EXPOSE' with no name should make all the variables local.
+    But this is not supported: Error 20.902:  Symbol expected after EXPOSE keyword
+    Anyway, this is not needed because all the variables are local when no EXPOSE and no USE LOCAL...
+
+    Doesn't support a name enclosed by parentheses.
+    I can't find a use case where that would be useful, so probably ok to not support that.
+
+
+The method .string~"[]"
+    This methods takes a position and a length.
+    This method is not consistent with the indexation of an array where [n1,n2] is applicable only to a 2-dimensional array.
+    "my string"[2,3] is equivalent to .array~section(2,3)
+    .string~"[]" should behave like .string~subchar which takes only one argument: the character's position.

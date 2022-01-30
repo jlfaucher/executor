@@ -4,6 +4,7 @@ Experimental ooRexx
 Miscellaneous notes:
 
 - [Sandbox diary][sandbox_diary]
+- [Sandbox notes][sandbox_notes]
 - [Instructions to build Executor][build_executor]
 
 Internal documentation:
@@ -341,6 +342,7 @@ Several demos are available [here][demos_with_asciinema].
 [sourceforge_sandbox_jlf]: https://sourceforge.net/p/oorexx/code-0/HEAD/tree/sandbox/jlf "SourceForge sandbox/jlf"
 [build_executor]: https://github.com/jlfaucher/builder/blob/master/build-executor.txt
 [sandbox_diary]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/_diary.txt "Sandbox diary"
+[sandbox_notes]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/_notes.txt "Sandbox notes"
 [named_arguments_spec]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/docs/NamedArguments/NamedArguments-Spec.md "Specification of named arguments"
 [named_arguments_test_cases_script]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/samples/extension/named_arguments-test.rex "Test cases of named arguments (script)"
 [named_arguments_test_cases_output]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/samples/extension/named_arguments-test.output.txt "Test cases of named arguments (output)"
