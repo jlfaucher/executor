@@ -372,7 +372,7 @@ Status transitions :
 ::method currentIndexItem
     expose yieldIndex yieldItem
     if self~isAlive then do
-        if var("yieldItem") then return .array~of(yieldItem, yieldIndex)
+        if var("yieldItem") then return .array~of(yieldIndex, yieldItem)
     end
 
 
@@ -558,8 +558,8 @@ And that's enough to have the most recent index/item when your code is like that
         -- In this case, don't use resume otherwise the current item would be skipped.
         coactivity~currentIndexItem
         if var("result") then do
-            currentItem = result[1]
-            currentIndex = result[2]
+            currentIndex = result[1]
+            currentItem = result[2]
             isAvailable = .true
             return
         end
@@ -590,8 +590,8 @@ And that's enough to have the most recent index/item when your code is like that
     isAvailable = .false
     coactivity~currentIndexItem
     if var("result") then do
-        currentItem = result[1]
-        currentIndex = result[2]
+        currentIndex = result[1]
+        currentItem = result[2]
         isAvailable = .true
         return
     end
@@ -629,6 +629,21 @@ And that's enough to have the most recent index/item when your code is like that
         currentIndex = .nil -- By testing index==.nil, you know that the coactivity yielded no item
         isAvailable = .true
     end
+
+
+-- Helper for generators: called before entering the generation loop
+-- Manages the case when the coactivity is still at first step: don't consume, to return the first item.
+/*
+g1 = {::coactivity loop i=0; call yield i; end}; g2 = g1~each:.CoactivityIterator -- bypass .object~each which returns an array
+g2~()   -- 0    -- don't consume
+g1~()   -- 1
+g1 = {::coactivity loop i=0; call yield i; end}; g2 = g1~each:.CoactivityIterator -- bypass .object~each which returns an array
+g1~()   -- 0
+g2~()   -- 1    -- consume (without firstOrNext, would return 0)
+*/
+::method firstOrNext
+    expose coactivity
+    if coactivity~isStarted then self~next
 
 
 -- Two public subclasses : one for generation, one for iteration
@@ -675,7 +690,7 @@ Behind the scene, a supplier is used...
 A new supplier is created at each invocation of ~take.
 g={::co loop i=1; .yield[i]; end}
 g~take(10)~iterator~each=       -- [1,2,3,4,5,6,7,8,9,10]
-g~currentIndexItem=             -- [11,11]
+g~currentIndexItem=             -- [10,10]
 g~take(10)~iterator~each=       -- [11,12,13,14,15,16,17,18,19,20]
 g~take(10)~iterator~each=       -- [21,22,23,24,25,26,27,28,29,30]
 

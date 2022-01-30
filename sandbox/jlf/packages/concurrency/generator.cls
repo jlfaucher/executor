@@ -73,6 +73,7 @@
             use strict arg -- none
             doer = action~doer
             arity = doer~arity
+            self~firstOrNext
             do while self~available
                 item = self~item
                 index = self~index
@@ -370,6 +371,7 @@
     return {::coactivity
             expose count returnIndex self
             use strict arg -- none
+            self~firstOrNext
             do while count > 0, self~available
                 count -= 1
                 self~next
@@ -392,6 +394,7 @@
             expose count returnIndex self
             use strict arg -- none
             buffer = .circularQueue~new(count)
+            self~firstOrNext
             do while self~available
                 item = self~item
                 index = self~index
@@ -414,6 +417,7 @@
             expose doer returnIndex self
             use strict arg -- none
             arity = doer~arity
+            self~firstOrNext
             do while self~available
                 item = self~item
                 index = self~index
@@ -443,6 +447,7 @@
             expose doer returnIndex self
             use strict arg -- none
             arity = doer~arity
+            self~firstOrNext
             do while self~available
                 item = self~item
                 index = self~index
@@ -472,6 +477,7 @@
             use strict arg -- none
             doer = predicate~doer
             arity = doer~arity
+            self~firstOrNext
             do while self~available
                 item = self~item
                 index = self~index
@@ -500,6 +506,7 @@
             use strict arg -- none
             doer = predicate~doer
             arity = doer~arity
+            self~firstOrNext
             do while self~available
                 item = self~item
                 index = self~index
@@ -526,15 +533,16 @@
     return {::coactivity
             expose count returnIndex self
             use strict arg -- none
+            self~firstOrNext
             do while count > 0, self~available
                 item = self~item
                 index = self~index
-                self~next
                 if returnIndex then newItem = .array~of(item, index)
                                else newItem = item
                 .yield[newItem]
                 use strict arg -- none
                 count -= 1
+                if count > 0 then self~next
             end
            }~doer
 
@@ -545,6 +553,7 @@
             expose count returnIndex self
             use strict arg -- none
             buffer = .circularQueue~new(count)
+            self~firstOrNext
             do while self~available
                 item = self~item
                 index = self~index
@@ -569,10 +578,10 @@
             expose doer returnIndex self
             use strict arg -- none
             arity = doer~arity
+            self~firstOrNext
             do while self~available
                 item = self~item
                 index = self~index
-                self~next
                 if returnIndex then newItem = .array~of(item, index)
                                else newItem = item
                 .yield[newItem]
@@ -582,6 +591,7 @@
                               else logicalValue = doer~do(      item,-
                                                           item: item)
                 if logicalValue then leave
+                self~next
             end
            }~doer
 
@@ -593,6 +603,7 @@
             expose doer returnIndex self
             use strict arg -- none
             arity = doer~arity
+            self~firstOrNext
             do while self~available
                 item = self~item
                 index = self~index
