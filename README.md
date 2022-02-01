@@ -150,6 +150,18 @@ Examples:
         say a[i]~()
     end
 
+display:
+
+    1
+    4
+    9
+    16
+    25
+    36
+    49
+    64
+    81
+
 A more compact code... item is an implicit parameter.
 
     1~10{ {expose item; return item * item} } ~ take(9) ~ each{ say item~() }
@@ -170,7 +182,7 @@ A more compact code... item is an implicit parameter.
 
     x = accumulator~(1) -- an accumulator (closure), sum initialized to 1
     x~(5)               -- add 5 to sum
-    accumulator~(3)     -- another accumulator (closure), no effect on x
+    y = accumulator~(3) -- another accumulator (closure), no effect on x
     say x~(2.3)         -- add 2.3 to sum and print the current sum : 8.3
 
 
