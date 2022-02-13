@@ -473,6 +473,11 @@ https://gregtatum.com/writing/2021/diacritical-marks/
 DIACRITICAL MARKS IN UNICODE
 
 
+https://news.ycombinator.com/item?id=29751641
+Unicode Normalization Forms: When ö ≠ ö
+https://blog.opencore.ch/posts/unicode-normalization-forms/
+
+
 ================================================================================
 Locale
 ================================================================================
@@ -1448,6 +1453,15 @@ Japanese
 
 https://heistak.github.io/your-code-displays-japanese-wrong/
 https://news.ycombinator.com/item?id=29022906
+
+
+================================================================================
+Ada
+================================================================================
+
+https://docs.adacore.com/live/wave/xmlada/html/xmlada_ug/unicode.html
+
+http://www.dmitry-kazakov.de/ada/strings_edit.htm
 
 
 ================================================================================

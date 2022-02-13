@@ -1077,7 +1077,7 @@ sign
 space
 startsWith                      (new 5)
 strip
-subChar
+subChar                         full
 substr
 subWord
 subWords
@@ -1929,8 +1929,9 @@ RexxInteger *codepointIsUpper(RexxObject *rexxCodepoint);
     return .true
 
     error_range:
-    if .nil <> name then raise syntax 23.900 array ("Character '"name"': invalid codepoint" codepoint "("ppCodepoint(codepoint)"). Allowed range is -1..".Unicode~maxCodepoint)
-                    else raise syntax 23.900 array ("Invalid codepoint" codepoint "("ppCodepoint(codepoint)"). Allowed range is -1..".Unicode~maxCodepoint)
+    -- To be consistent with other checks, say the the lower limit is 0, even if -1 is a valid value
+    if .nil <> name then raise syntax 23.900 array ("Character '"name"': invalid codepoint" codepoint "("ppCodepoint(codepoint)"). Allowed range is 0..".Unicode~maxCodepoint)
+                    else raise syntax 23.900 array ("Invalid codepoint" codepoint "("ppCodepoint(codepoint)"). Allowed range is 0..".Unicode~maxCodepoint)
 
 ::method declareConstantNames class
     expose codepointCategoryNames codepointBidiClassNames codepointDecompositionTypeNames codepointBoundClassNames
@@ -2414,7 +2415,8 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 ::method string
     expose codepoint name aliases
     use strict arg encoding=(.Encoding~defaultOutputEncoding)
-    if codepoint < 32 then string = ""
+    encoding = .Encoding~factory(encoding)
+    if codepoint < 32 then string = "" -- the control characters are not displayed
                       else string = encoding~encode(codepoint)~string
     string = '"'string'"' " "~copies(3 - self~charWidth)
     string ||= ppCodepoint(codepoint) self~categoryName self~charWidth name~quoted
@@ -3418,28 +3420,112 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 ::method Unicode32 abstract
 
 
-::method unescape
+::method unescape abstract
     /*
-    \N{unicode name}    Character name in the Unicode database (Python, Julia)
-    \u{unicode name}
-    \U{unicode name}
-    \u{n}               unicode character denoted by a 1–8 hex digits (Swift)
-    \uXXXX              unicode character denoted by four hex digits (Python, Julia, Netrexx)
-    \UXXXXXXXX          unicode character denoted by eight hex digits (Python, Julia)
+    Executor supports
+        \u{Unicode name}    Character name in the Unicode database
+        \u{N..N}            Unicode character denoted by a wholenumber of 1-n decimal digits
+        \u{U+X..X}          Unicode character denoted by 1-n hex digits
+
+    How other languages are supporting escape characters for Unicode:
+        \N{Unicode name}    Character name in the Unicode database (Python, Julia)
+        \u{Unicode name}
+        \U{Unicode name}
+        \u{X..X}            Unicode character denoted by a 1–8 hex digits (Swift)
+        \u{XXXXXX}          hexadecimal Unicode code point UTF-8 encoded (1 or more digits) (zig)
+        \uXXXX              Unicode character denoted by four hex digits (Python, Julia, Netrexx, Java)
+        \UXXXXXXXX          Unicode character denoted by eight hex digits (Python, Julia)
+
+        https://javajee.com/unicode-escapes-in-java
+        The compiler translates Unicode escapes into the characters they represent
+        before it parses a program into tokens. It also does so before discarding
+        comments and white space.
+        System.out.println("a\u0022.length() + \u0022b".length()); // print 2
+        is same as
+        System.out.println("a".length() + "b".length());
     */
-    use strict arg -- none
-    use strict named arg buffer(1)=.nil
-    returnBuffer = .nil <> buffer
-    if .nil == buffer then buffer = .MutableBuffer~new
-    string = self~string
-    backslash = string~pos("\") -- hum... should support all the encodings?
-    -- ... todo ...
-    if returnBuffer then return buffer
-                    else return buffer~string
 
 
 /******************************************************************************/
-::class "Byte_Encoding" public inherit IndexerStringInterface StringIndexer
+::class "Byte_CommonServices" mixinclass Object private
+-- Services for byte-oriented strings (byte, utf-8, wtf-8)
+
+::method unescape
+    -- The escape characters are used in literal strings, they should be managed
+    -- at parse-time. Here, this method is used at run-time.
+    -- This method could work for utf-16, wtf-16, utf-32 if it was rewritten
+    -- to use RexxText API instead of String API. But would be way slower...
+    -- Would it make sense ? Nobody is editing literal strings encoded in 16-bit
+    -- or 32-bit.
+    use strict named arg buffer(1)=.nil
+    string = self~string
+    pos = string~pos("\")
+    if pos == 0 then do
+        -- optim: don't create intermediate buffer if nothing to unescape
+        if .nil == buffer then return self~string~text
+        return buffer~~append(string)
+    end
+    returnBuffer = .nil <> buffer
+    if .nil == buffer then buffer = .MutableBuffer~new(, string~length)
+    from = 1
+    do until pos == 0
+        buffer~append(string~substr(from, pos - from))
+        pos += 1
+        character = string~subchar(pos)
+        select
+            when character == "b" then buffer~append("08"x) -- backspace (BS)
+            when character == "t" then buffer~append("09"x) -- horizontal tab (HT)
+            when character == "n" then buffer~append("0A"x) -- linefeed (LF)
+            when character == "f" then buffer~append("0C"x) -- form feed (FF)
+            when character == "r" then buffer~append("0D"x) -- carriage return (CR)
+            when character == "u" then do
+                if self~isUnicode then do
+                    -- \u{Unicode name}    Character name in the Unicode database
+                    -- \u{N..N}            Unicode character denoted by a wholenumber of 1-n decimal digits
+                    -- \u{U+X..X}          Unicode character denoted by U+ followed by 1-n hex digits
+                    pos += 1
+                    if string~subchar(pos) \== "{" then signal expecting_name_or_sequence_of_hexadecimal_digits
+                    first = pos + 1
+                    pos = string~pos("}", pos)
+                    if pos == 0 then signal expecting_name_or_sequence_of_hexadecimal_digits
+                    length = pos - first
+                    if length == 0 then signal expecting_name_or_sequence_of_hexadecimal_digits
+                    idntfr = string~substr(first, length)
+                    character = .Unicode~character(idntfr)
+                    character~text(self~class, b:buffer)
+                end
+                else signal unicode_character_not_supported
+            end
+            when character == "x" then do
+                -- \x{X..X} sequence of 1..n hexadecimal digits
+                pos += 1
+                if string~subchar(pos) \== "{" then signal expecting_sequence_of_hexadecimal_digits
+                first = pos + 1
+                pos = string~pos("}", pos)
+                if pos == 0 then signal expecting_sequence_of_hexadecimal_digits
+                length = pos - first
+                if length == 0 then signal expecting_sequence_of_hexadecimal_digits
+                hexadecimalDigits = string~substr(first, length)
+                characters = hexadecimalDigits~x2c -- 1..n bytes
+                buffer~append(characters)
+            end
+            otherwise buffer~append(character)
+        end
+        from = pos + 1
+        pos = string~pos("\", from)
+    end
+    buffer~append(string~substr(from))
+
+    if returnBuffer then return buffer
+                    else return .RexxText~new(buffer~string, self~class)
+
+    unicode_character_not_supported:                  raise syntax 23.900 array(self~class~name "encoding: \u not supported")
+    expecting_sequence_of_hexadecimal_digits:         raise syntax 23.900 array(self~class~name "encoding: expecting 1..n hexadecimal digits {X..X} after \x")
+    expecting_name_or_sequence_of_hexadecimal_digits: raise syntax 23.900 array(self~class~name "encoding: expecting a character name {name} or 1..n decimal digits {N..N} or 1..n hexadecimal digits {U+X..X} after \u")
+
+
+/******************************************************************************/
+::class "Byte_Encoding" public inherit Byte_CommonServices IndexerStringInterface StringIndexer
 
 ::constant name "Byte"
 ::constant isByte 1
@@ -4412,7 +4498,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 
 /******************************************************************************/
-::class "UTF8_Encoding" public inherit XTF8_CommonServices Unicode_CommonServices IndexerStringInterface StringIndexer
+::class "UTF8_Encoding" public inherit Byte_CommonServices XTF8_CommonServices Unicode_CommonServices IndexerStringInterface StringIndexer
 
 ::constant name "UTF-8"
 ::constant isUTF8 1
@@ -4449,7 +4535,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 
 /******************************************************************************/
-::class "WTF8_Encoding" public inherit XTF8_CommonServices Unicode_CommonServices IndexerStringInterface StringIndexer
+::class "WTF8_Encoding" public inherit Byte_CommonServices XTF8_CommonServices Unicode_CommonServices IndexerStringInterface StringIndexer
 /*
 https://simonsapin.github.io/wtf-8/#16-bit-code-unit
 WTF-8 (Wobbly Transformation Format − 8-bit) is a superset of UTF-8 that encodes

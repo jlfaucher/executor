@@ -2,6 +2,34 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2022 February 13
+
+[Encoded strings]
+
+New method unescape, available only for Byte, UTF-8 and WTF-8.
+    \b                  backspace (BS)
+    \t                  horizontal tab (HT)
+    \n                  linefeed (LF)
+    \f                  form feed (FF)
+    \r                  carriage return (CR)
+    \u{Unicode name}    Character name in the Unicode database
+    \u{N..N}            Unicode character denoted by a wholenumber of 1-n decimal digits
+    \u{U+X..X}          Unicode character denoted by 1-n hex digits
+    \x{X..X}            sequence of 1..n hexadecimal digits
+Examples:
+    "hello\u{space}John\n"~text~unescape=           -- T'hello John[0A]'
+    "hello\u{32}John\n"~text~unescape=
+    "hello\u{U+20}John\n"~text~unescape=
+
+    -- \u is not supported for Byte encoding, you can use \x
+    "hello\u{U+20}John\n"~text("byte")~unescape=    -- Byte encoding: \u not supported.
+    "hello\x{20}John\n"~text("byte")~unescape       -- T'hello John[0A]'
+
+    -- No implementation for UTF-16, WTF-16, UTF-32.
+    "hello\u{U+20}John\n"~text~utf16~unescape=      -- Method UNESCAPE is ABSTRACT and cannot be directly invoked.
+
+
+===============================================================================
 2021 December 19
 
 Unicode 14 support using utf8proc 2.7.0
