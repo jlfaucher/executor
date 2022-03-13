@@ -1,6 +1,6 @@
 /*
 Usage:
-rexx list_invalid_utf8.rex > list_invalid_utf8-output.rex
+rexx list_invalid_utf8.rex > list_invalid_utf8-output.txt
 (the output file size is 10.8 MB)
 
 
@@ -24,7 +24,7 @@ the following byte values are disallowed in UTF-8:
 C0–C1, F5–FF.
 */
 
-counter = { n=0; { expose n; use strict named arg add=0; n += add; n } }~()
+counter = 0
 
 say "----------"
 say "non-shortest form byte sequences: from (C080 ; U+0000 ; 00) to (C1BF ; U+007F ; 7F)"
@@ -33,7 +33,7 @@ say "----------"
 do b1 = "C0"~x2d to "C1"~x2d
     do b2 = "80"~x2d to "BF"~x2d
         t = (b1~d2c || b2~d2c)~text
-        call display t, counter
+        call display t
     end
 end
 
@@ -46,7 +46,7 @@ say "----------"
     do b2 = "80"~x2d to "9F"~x2d
         do b3 = "80"~x2d to "BF"~x2d
             t = ("E0"x || b2~d2c || b3~d2c)~text
-            call display t, counter
+            call display t
         end
     end
 
@@ -59,7 +59,7 @@ say "----------"
     do b2 = "A0"~x2d to "BF"~x2d
         do b3 = "80"~x2d to "BF"~x2d
             t = ("ED"x || b2~d2c || b3~d2c)~text
-            call display t, counter
+            call display t
         end
     end
 
@@ -73,7 +73,7 @@ say "----------"
         do b3 = "80"~x2d to "BF"~x2d
             do b4 = "80"~x2d to "BF"~x2d
                 t = ("F0"x || b2~d2c || b3~d2c || b4~d2c)~text
-                call display t, counter
+                call display t
             end
         end
     end
@@ -89,7 +89,7 @@ say "----------"
         do b3 = "80"~x2d to "BF"~x2d
             do b4 = "80"~x2d to "BF"~x2d
                 t = ("F4"x || b2~d2c || b3~d2c || b4~d2c)~text
-                call display t, counter
+                call display t
                 if t~string == "F4BCBABF"x then leave b2 -- beyond, all the characters are invalid
             end
         end
@@ -98,19 +98,20 @@ say "----------"
 
 say
 say "----------"
-say counter~() "ill-formed UTF-8 byte sequences"
+say counter "ill-formed UTF-8 byte sequences"
 say "----------"
+return
 
-
-::routine display
-    use strict arg text, counter
+display: procedure expose counter
+    use strict arg text
     size = .UTF8_Encoding~byteSequenceSize(text~string, 1)
     rawCodepoint = .UTF8_Encoding~decode(text~string, 1, size) -- never the replacement character
     shortest = .UTF8_Encoding~encode(rawCodepoint)
     error = ""
     if text~errors <> .nil then error = " ; error:" text~errors~size text~errors[1]
     say text~c2x ";" text~c2u ";" shortest~c2x || error
-    counter~(add:1)
+    counter += 1
+    return
 
 
 ::requires "extension/extensions.cls"
