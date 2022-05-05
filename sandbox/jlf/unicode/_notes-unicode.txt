@@ -35,6 +35,7 @@ Contents:
     Rope
     ICU bindings
     Twitter text parsing
+    Ada
     C++, Boost
     DotNet, CoreFx
     Dafny
@@ -1463,6 +1464,9 @@ https://docs.adacore.com/live/wave/xmlada/html/xmlada_ug/unicode.html
 
 http://www.dmitry-kazakov.de/ada/strings_edit.htm
 
+UXStrings Ada Unicode Extended Strings
+https://www.reddit.com/r/ada/comments/t4hpip/ann_uxstrings_package_available_uxs_20220226/
+https://github.com/Blady-Com/UXStrings
 
 ================================================================================
 C++, Boost
@@ -2301,6 +2305,12 @@ https://fasterthanli.me/articles/working-with-strings-in-rust
 07/11/2021
 https://blog.rust-lang.org/2021/11/01/cve-2021-42574.html
 security concern affecting source code containing "bidirectional override" Unicode codepoints
+
+
+10/03/2022
+https://rust-lang.github.io/rfcs/2457-non-ascii-idents.html
+Allow non-ASCII letters (such as accented characters, Cyrillic, Greek, Kanji, etc.) in Rust identifiers.
+
 
 ================================================================================
 Swift
