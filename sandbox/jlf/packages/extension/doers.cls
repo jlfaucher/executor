@@ -64,7 +64,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- I use it in rgf_util2.rex and pipe.rex to keep then compatible with ooRexx 4.2
 -- Note that offical ooRexx5 supports the dedicated syntax, but only because it's
 -- the syntax for namespaces. So nothing to see with named arguments!
-::method doPassNamedArguments unguarded
+::method doWithNamedArguments unguarded
     use arg key, value, ...
     array = .array~new
     directory = .directory~new
@@ -723,8 +723,10 @@ Examples :
     end
 
 
+/*
 ::method setMethod public unguarded -- override the private setMethod inherited from Object to make it public
     forward class (super)
+*/
 
 
 ::method doer unguarded
