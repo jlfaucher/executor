@@ -534,6 +534,7 @@ self~init:super
     do a over arg(1, "a")
         if a~isA(.String) then nop
         else do
+            if .nil <> doer then raise syntax 93.900 array(self~class~id ": Only one filter is supported")
             doer = a~doer
             iterate
         end
