@@ -12,15 +12,15 @@ loadPackage OK for regex/regex.cls
 loadPackage OK for smtp.cls
 loadPackage OK for socket.cls
 loadPackage OK for streamsocket.cls
-loadPackage OK for pipeline/pipe.rex
+loadPackage OK for pipeline/pipe.cls
 loadPackage OK for rgf_util2/rgf_util2.rex
 loadPackage OK for BSF.CLS
 loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 13 Aug 2021
-Input queue name: S7553Q100509210
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 19 Dec 2021
+Input queue name: S13d8cQ7fe648c030b0
 
 ----------------
 -- Text encoding
@@ -345,8 +345,8 @@ ooRexx[bash]> "noël‍👨‍👩‍👧"~text~maximumCodepoint~pipe{"U+"item~d
 'U+1F469'
 
 ooRexx[bash]> "noël‍👨‍👩‍👧"~text~unicode~description(t:1)=              -- For this maximum codepoint, we need Unicode32
-'Unicode32 not-ASCII (5 graphemes (1 index from index 5), 10 codepoints (0 index), 40 bytes, 0 error)'
--- The endianness of the UnicodeXX_Encoding is the one of the machine.
+'Unicode32 (5 graphemes (1 index from index 5), 10 codepoints (0 index), 40 bytes, 0 error)'
+-- The endianness of the UnicodeN_Encoding is the one of the machine.
 -- With an Intel CPU, it's little-endian.
 
 ooRexx[bash]> "noël‍👨‍👩‍👧"~text~unicode~c2x=
@@ -368,10 +368,10 @@ ooRexx[bash]> howMuchOfStorage~text~description(t:1)=         -- UTF-8:     20 g
 'UTF-8 ASCII (20 graphemes (0 index), 20 codepoints (0 index), 20 bytes, 0 error)'
 
 ooRexx[bash]> howMuchOfStorage~text~utf16~description(t:1)=   -- UTF-16:    20 graphemes, 20 codepoints,  40 bytes
-'UTF-16BE ASCII (20 graphemes (0 index), 20 codepoints (0 index), 40 bytes, 0 error)'
+'UTF-16BE (20 graphemes (0 index), 20 codepoints (0 index), 40 bytes, 0 error)'
 
 ooRexx[bash]> howMuchOfStorage~text~utf32~description(t:1)=   -- UTF-32:    20 graphemes, 20 codepoints,  80 bytes
-'UTF-32BE ASCII (20 graphemes (0 index), 20 codepoints (0 index), 80 bytes, 0 error)'
+'UTF-32BE (20 graphemes (0 index), 20 codepoints (0 index), 80 bytes, 0 error)'
 
 ooRexx[bash]> howMuchOfStorage~text~unicode~description(t:1)= -- Unicode8:  20 graphemes, 20 codepoints,  20 bytes
 'Unicode8 ASCII (20 graphemes (0 index), 20 codepoints (0 index), 20 bytes, 0 error)'
@@ -382,13 +382,13 @@ ooRexx[bash]> rexCharacters~text~description(t:1)=            -- UTF-8:     28 g
 'UTF-8 not-ASCII (28 graphemes (6 indexes from index 23), 28 codepoints (6 indexes from index 23), 37 bytes, 0 error)'
 
 ooRexx[bash]> rexCharacters~text~utf16~description(t:1)=      -- UTF-16:    28 graphemes, 28 codepoints,  58 bytes
-'UTF-16BE not-ASCII (28 graphemes (0 index), 28 codepoints (0 index), 58 bytes, 0 error)'
+'UTF-16BE (28 graphemes (0 index), 28 codepoints (0 index), 58 bytes, 0 error)'
 
 ooRexx[bash]> rexCharacters~text~utf32~description(t:1)=      -- UTF-32:    28 graphemes, 28 codepoints, 112 bytes
-'UTF-32BE not-ASCII (28 graphemes (0 index), 28 codepoints (0 index), 112 bytes, 0 error)'
+'UTF-32BE (28 graphemes (0 index), 28 codepoints (0 index), 112 bytes, 0 error)'
 
 ooRexx[bash]> rexCharacters~text~unicode~description(t:1)=    -- Unicode32: 28 graphemes, 28 codepoints, 112 bytes
-'Unicode32 not-ASCII (28 graphemes (0 index), 28 codepoints (0 index), 112 bytes, 0 error)'
+'Unicode32 (28 graphemes (0 index), 28 codepoints (0 index), 112 bytes, 0 error)'
 
 ooRexx[bash]> family = "👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦"
 
@@ -396,13 +396,13 @@ ooRexx[bash]> family~text~description(t:1)=                   -- UTF-8:      1 g
 'UTF-8 not-ASCII (1 grapheme (0 index), 15 codepoints (14 indexes from index 2), 53 bytes, 0 error)'
 
 ooRexx[bash]> family~text~utf16~description(t:1)=             -- UTF-16:     1 grapheme,  15 codepoints,  46 bytes
-'UTF-16BE not-ASCII (1 grapheme (0 index), 15 codepoints (14 indexes from index 2), 46 bytes, 0 error)'
+'UTF-16BE (1 grapheme (0 index), 15 codepoints (14 indexes from index 2), 46 bytes, 0 error)'
 
 ooRexx[bash]> family~text~utf32~description(t:1)=             -- UTF-32:     1 grapheme,  15 codepoints,  60 bytes
-'UTF-32BE not-ASCII (1 grapheme (0 index), 15 codepoints (0 index), 60 bytes, 0 error)'
+'UTF-32BE (1 grapheme (0 index), 15 codepoints (0 index), 60 bytes, 0 error)'
 
 ooRexx[bash]> family~text~unicode~description(t:1)=           -- Unicode32:  1 grapheme,  15 codepoints,  60 byte
-'Unicode32 not-ASCII (1 grapheme (0 index), 15 codepoints (0 index), 60 bytes, 0 error)'
+'Unicode32 (1 grapheme (0 index), 15 codepoints (0 index), 60 bytes, 0 error)'
 
 ooRexx[bash]> helloZalgo = "h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞"
 
@@ -410,13 +410,13 @@ ooRexx[bash]> helloZalgo~text~description(t:1)=               -- UTF-8:      5 g
 'UTF-8 not-ASCII (5 graphemes (4 indexes from index 2), 54 codepoints (52 indexes from index 3), 111 bytes, 0 error)'
 
 ooRexx[bash]> helloZalgo~text~utf16~description(t:1)=         -- UTF-16:     5 graphemes, 54 codepoints, 108 bytes
-'UTF-16BE not-ASCII (5 graphemes (4 indexes from index 2), 54 codepoints (0 index), 108 bytes, 0 error)'
+'UTF-16BE (5 graphemes (4 indexes from index 2), 54 codepoints (0 index), 108 bytes, 0 error)'
 
 ooRexx[bash]> helloZalgo~text~utf32~description(t:1)=         -- UTF-32:     5 graphemes, 54 codepoints, 216 bytes
-'UTF-32BE not-ASCII (5 graphemes (4 indexes from index 2), 54 codepoints (0 index), 216 bytes, 0 error)'
+'UTF-32BE (5 graphemes (4 indexes from index 2), 54 codepoints (0 index), 216 bytes, 0 error)'
 
 ooRexx[bash]> helloZalgo~text~unicode~description(t:1)=       -- Unicode16:  5 graphemes, 54 codepoints, 108 bytes
-'Unicode16 not-ASCII (5 graphemes (4 indexes from index 2), 54 codepoints (0 index), 108 bytes, 0 error)'
+'Unicode16 (5 graphemes (4 indexes from index 2), 54 codepoints (0 index), 108 bytes, 0 error)'
 
 End of demonstration.
 

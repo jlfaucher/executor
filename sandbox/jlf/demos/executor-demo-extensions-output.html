@@ -22,15 +22,15 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for smtp.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for socket.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for streamsocket.cls
-</span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe.rex
+</span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2.rex
 </span><span style="font-weight:bold;color:green;">loadPackage OK for BSF.CLS
 </span><span style="font-weight:bold;color:green;">loadPackage OK for oorexxshell_queries.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
-</span><span style="font-weight:bold;color:green;">Input queue name: S117feQ100604770
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 19 Dec 2021
+</span><span style="font-weight:bold;color:green;">Input queue name: S13d10Q7fe648c030b0
 </span>
 <span style="color:blue;">----------------------
 </span><span style="color:blue;">-- Executor extensions
@@ -55,194 +55,199 @@
 </span>ooRexx[bash]&gt; ?cmi string &lt;&gt; (rexx)
 
 <span style="font-weight:bold;color:green;">[Info] [1] Class 'String' P. (REXX)
-</span>PM P.G.    '?'                    : 'LogicalExtension' (logical.cls)
-P. P.G.    'ABBREV2'              : 'String' (rgf_util2_wrappers.rex)
-PM PCG.    'ALNUM'                : 'StringCompatibilityWithOORexx5' (string.cls)
-PM PCG.    'ALPHA'                : 'StringCompatibilityWithOORexx5' (string.cls)
-PM P...    'ARITY'                : 'Doer' (doers.cls)
-PM PCG.    'BLANK'                : 'StringCompatibilityWithOORexx5' (string.cls)
-P. P.G.    'CALL'                 : 'String' (rgf_util2_wrappers.rex)
-PM P.G.    'CASELESSCONTAINS'     : 'StringCompatibilityWithOORexx5' (string.cls)
-PM P.G.    'CASELESSENDSWITH'     : 'StringCompatibilityWithOORexx5' (string.cls)
-PM P.G.    'CASELESSSPLIT'        : 'StringHelpers' (string.cls)
-PM P.G.    'CASELESSSTARTSWITH'   : 'StringCompatibilityWithOORexx5' (string.cls)
-P. P.G.    'CHANGESTR2'           : 'String' (rgf_util2_wrappers.rex)
-PM PCG.    'CNTRL'                : 'StringCompatibilityWithOORexx5' (string.cls)
-P. P.G.    'COMPARE2'             : 'String' (rgf_util2_wrappers.rex)
-PM PCG.    'COMPOSE'              : 'Doer' (doers.cls)
-PM P.G.    'CONCATENATESEPARATED' : 'StringHelpers' (string.cls)
-PM P.G.    'CONTAINS'             : 'StringCompatibilityWithOORexx5' (string.cls)
-P. P...    'COPIPE'               : 'Object' (pipe_extension.cls)
-P. PC..    'COPIPE'               : 'Object' (pipe_extension.cls)
-P. P...    'COPIPEPROFILE'        : 'Object' (pipe_extension.cls)
-P. P.G.    'COPY'                 : 'String' (string.cls)
-P. P.G.    'COUNTSTR2'            : 'String' (rgf_util2_wrappers.rex)
-P. PCG.    'CR'                   : 'String' (CoreClasses.orx)
-P. P.G.    'DELSTR2'              : 'String' (rgf_util2_wrappers.rex)
-P. P.G.    'DELWORD2'             : 'String' (rgf_util2_wrappers.rex)
-P. P.G.    'DEPTH'                : 'Object' (array.cls)
-PM PCG.    'DIGIT'                : 'StringCompatibilityWithOORexx5' (string.cls)
-P. P.G.    'DISCLOSE'             : 'Object' (array.cls)
-PM P...    'DO'                   : 'StringDoer' (doers.cls)
-PM P.G.    'DO'                   : 'Doer' (doers.cls)
-PM P...    'DOER'                 : 'StringDoer' (doers.cls)
-PM P.G.    'DOER'                 : 'DoerFactory' (doers.cls)
-PM P...    'DOPASSNAMEDARGUMENTS' : 'Doer' (doers.cls)
-PM P...    'DOWITH'               : 'StringDoer' (doers.cls)
-PM P.G.    'DOWITH'               : 'Doer' (doers.cls)
-PM P...    'DOWNTO'               : 'RepeaterCollector' (functionals.cls)
-PM P...    'DROPC'                : 'StringFilter' (functionals.cls)
-PM P...    'DROPCI'               : 'StringFilter' (functionals.cls)
-PM P...    'DROPFIRSTC'           : 'StringFilter' (functionals.cls)
-PM P...    'DROPFIRSTCI'          : 'StringFilter' (functionals.cls)
-PM P...    'DROPFIRSTW'           : 'StringFilter' (functionals.cls)
-PM P...    'DROPFIRSTWI'          : 'StringFilter' (functionals.cls)
-PM P...    'DROPLASTC'            : 'StringFilter' (functionals.cls)
-PM P...    'DROPLASTCI'           : 'StringFilter' (functionals.cls)
-PM P...    'DROPLASTW'            : 'StringFilter' (functionals.cls)
-PM P...    'DROPLASTWI'           : 'StringFilter' (functionals.cls)
-PM P...    'DROPUNTILC'           : 'StringFilter' (functionals.cls)
-PM P...    'DROPUNTILCI'          : 'StringFilter' (functionals.cls)
-PM P...    'DROPUNTILW'           : 'StringFilter' (functionals.cls)
-PM P...    'DROPUNTILWI'          : 'StringFilter' (functionals.cls)
-PM P...    'DROPW'                : 'StringFilter' (functionals.cls)
-PM P...    'DROPWHILEC'           : 'StringFilter' (functionals.cls)
-PM P...    'DROPWHILECI'          : 'StringFilter' (functionals.cls)
-PM P...    'DROPWHILEW'           : 'StringFilter' (functionals.cls)
-PM P...    'DROPWHILEWI'          : 'StringFilter' (functionals.cls)
-PM P...    'DROPWI'               : 'StringFilter' (functionals.cls)
-P. P.G.    'DUMP2'                : 'Object' (rgf_util2_wrappers.rex)
-P. P.G.    'EACH'                 : 'Object' (array.cls)
-PM P...    'EACHC'                : 'StringIterator' (functionals.cls)
-PM P...    'EACHCI'               : 'StringIterator' (functionals.cls)
-PM P...    'EACHW'                : 'StringIterator' (functionals.cls)
-PM P...    'EACHWI'               : 'StringIterator' (functionals.cls)
-P. P.G.    'ENCLOSE'              : 'Object' (array.cls)
-PM P.G.    'ENDSWITH'             : 'StringCompatibilityWithOORexx5' (string.cls)
-P. P.G.    'ENQUOTE2'             : 'String' (rgf_util2_wrappers.rex)
-P. P.G.    'ESCAPE2'              : 'String' (rgf_util2_wrappers.rex)
-P. P.G.    'GENERATE'             : 'Object' (generator.cls)
-P. PCG.    'GENERATE'             : 'Object' (generator.cls)
-PM P...    'GENERATE.DOWNTO'      : 'RepeaterGenerator' (generator.cls)
-PM P...    'GENERATE.UPTO'        : 'RepeaterGenerator' (generator.cls)
-PM P...    'GENERATEC'            : 'StringGenerator' (generator.cls)
-PM P...    'GENERATECI'           : 'StringGenerator' (generator.cls)
-P. PCG.    'GENERATEI'            : 'Object' (generator.cls)
-P. P.G.    'GENERATEI'            : 'Object' (generator.cls)
-PM P...    'GENERATEW'            : 'StringGenerator' (generator.cls)
-PM P...    'GENERATEWI'           : 'StringGenerator' (generator.cls)
-P. P.G.    'GETUSERDATA'          : 'Object' (extensions.cls)
-PM P...    'GO'                   : 'Doer' (doers.cls)
-PM P...    'GOWITH'               : 'Doer' (doers.cls)
-PM PCG.    'GRAPH'                : 'StringCompatibilityWithOORexx5' (string.cls)
-P. P.G.    'HASTEXT'              : 'String' (string.cls)
-PM P...    'IFFALSE'              : 'LogicalExtension' (logical.cls)
-PM P...    'IFTRUE'               : 'LogicalExtension' (logical.cls)
-P. P.G.    'ISNIL'                : 'Object' (extensions.cls)
-P. P.G.    'LASTPOS2'             : 'String' (rgf_util2_wrappers.rex)
-P. P.G.    'LEFT2'                : 'String' (rgf_util2_wrappers.rex)
-PM PCG.    'LOWER'                : 'StringCompatibilityWithOORexx5' (string.cls)
-P. P.G.    'LOWER2'               : 'String' (rgf_util2_wrappers.rex)
-PM P.G.    'MAKECOMPLEX'          : 'ComplexString' (complex.cls)
-P. P.G.    'MAKEREXXTEXT'         : 'String' (string.cls)
-PM P...    'MAPC'                 : 'StringMapper' (functionals.cls)
-PM P...    'MAPW'                 : 'StringMapper' (functionals.cls)
-PM P...    'NEEDSOBJECT'          : 'StringDoer' (doers.cls)
-PM P.G.    'NEEDSOBJECT'          : 'Doer' (doers.cls)
-P. PCG.    'NL'                   : 'String' (CoreClasses.orx)
-P. PCG.    'NULL'                 : 'String' (CoreClasses.orx)
-P. P.G.    'OVERLAY2'             : 'String' (rgf_util2_wrappers.rex)
-P. P.G.    'PARSEWORDS2'          : 'String' (rgf_util2_wrappers.rex)
-PM P...    'PARTIAL'              : 'Doer' (doers.cls)
-P. PC..    'PIPE'                 : 'Object' (pipe_extension.cls)
-P. P...    'PIPE'                 : 'Object' (pipe_extension.cls)
-P. P...    'PIPEPROFILE'          : 'Object' (pipe_extension.cls)
-P. P.G.    'POS2'                 : 'String' (rgf_util2_wrappers.rex)
-PM P.G.    'POSIXCLASSCHARACTERS' : 'StringHelpers' (string.cls)
-P. P.G.    'PP2'                  : 'Object' (rgf_util2_wrappers.rex)
-P. P.G.    'PPINDEX2'             : 'Object' (rgf_util2_wrappers.rex)
-PM P.G.    'PPSTRING'             : 'StringPrettyPrinter' (string.cls)
-P. PCG.    'PPSTRING'             : 'Object' (extensions.cls)
-P. P.G.    'PPSTRING'             : 'Object' (extensions.cls)
-PM PCG.    'PRINT'                : 'StringCompatibilityWithOORexx5' (string.cls)
-PM PCG.    'PUNCT'                : 'StringCompatibilityWithOORexx5' (string.cls)
-PM P.G.    'QUOTED'               : 'StringHelpers' (string.cls)
-P. P.G.    'RANK'                 : 'Object' (array.cls)
-PM P...    'REDUCEC'              : 'StringReducer' (functionals.cls)
-PM P...    'REDUCEW'              : 'StringReducer' (functionals.cls)
-PM P...    'REJECTC'              : 'StringFilter' (functionals.cls)
-PM P...    'REJECTCI'             : 'StringFilter' (functionals.cls)
-PM P...    'REJECTW'              : 'StringFilter' (functionals.cls)
-PM P...    'REJECTWI'             : 'StringFilter' (functionals.cls)
-P. P.G.    'RESHAPE'              : 'Object' (array.cls)
-P. P.G.    'RIGHT2'               : 'String' (rgf_util2_wrappers.rex)
-PM P...    'SELECTC'              : 'StringFilter' (functionals.cls)
-PM P...    'SELECTCI'             : 'StringFilter' (functionals.cls)
-PM P...    'SELECTW'              : 'StringFilter' (functionals.cls)
-PM P...    'SELECTWI'             : 'StringFilter' (functionals.cls)
-P. P.G.    'SETMETHOD1'           : 'Object' (SETMETHOD1)
-P. P.G.    'SETUSERDATA'          : 'Object' (extensions.cls)
-P. P.G.    'SHAPE'                : 'Object' (array.cls)
-P. P.G.    'SHAPETOSTRING'        : 'Object' (array.cls)
-PM P.G.    'SINGULARPLURAL'       : 'StringHelpers' (string.cls)
-PM P.G.    'SINGULARPLURALCOUNT'  : 'StringHelpers' (string.cls)
-PM P.G.    'SOURCE'               : 'Doer' (doers.cls)
-PM P...    'SOURCE'               : 'StringDoer' (doers.cls)
-PM PCG.    'SPACE'                : 'StringCompatibilityWithOORexx5' (string.cls)
-PM P.G.    'SPLIT'                : 'StringHelpers' (string.cls)
-PM P.G.    'STARTSWITH'           : 'StringCompatibilityWithOORexx5' (string.cls)
-P. P.G.    'SUBCHAR2'             : 'String' (rgf_util2_wrappers.rex)
-P. P.G.    'SUBSTR2'              : 'String' (rgf_util2_wrappers.rex)
-P. P.G.    'SUBWORD2'             : 'String' (rgf_util2_wrappers.rex)
-P. PCG.    'TAB'                  : 'String' (CoreClasses.orx)
-PM P...    'TAKEC'                : 'StringFilter' (functionals.cls)
-PM P...    'TAKECI'               : 'StringFilter' (functionals.cls)
-PM P...    'TAKEFIRSTC'           : 'StringFilter' (functionals.cls)
-PM P...    'TAKEFIRSTCI'          : 'StringFilter' (functionals.cls)
-PM P...    'TAKEFIRSTW'           : 'StringFilter' (functionals.cls)
-PM P...    'TAKEFIRSTWI'          : 'StringFilter' (functionals.cls)
-PM P...    'TAKELASTC'            : 'StringFilter' (functionals.cls)
-PM P...    'TAKELASTCI'           : 'StringFilter' (functionals.cls)
-PM P...    'TAKELASTW'            : 'StringFilter' (functionals.cls)
-PM P...    'TAKELASTWI'           : 'StringFilter' (functionals.cls)
-PM P...    'TAKEUNTILC'           : 'StringFilter' (functionals.cls)
-PM P...    'TAKEUNTILCI'          : 'StringFilter' (functionals.cls)
-PM P...    'TAKEUNTILW'           : 'StringFilter' (functionals.cls)
-PM P...    'TAKEUNTILWI'          : 'StringFilter' (functionals.cls)
-PM P...    'TAKEW'                : 'StringFilter' (functionals.cls)
-PM P...    'TAKEWHILEC'           : 'StringFilter' (functionals.cls)
-PM P...    'TAKEWHILECI'          : 'StringFilter' (functionals.cls)
-PM P...    'TAKEWHILEW'           : 'StringFilter' (functionals.cls)
-PM P...    'TAKEWHILEWI'          : 'StringFilter' (functionals.cls)
-PM P...    'TAKEWI'               : 'StringFilter' (functionals.cls)
-P. P.G.    'TEXT'                 : 'String' (string.cls)
-P. P.G.    'TEXT='                : 'String' (string.cls)
-PM P...    'TIMES'                : 'RepeaterCollector' (functionals.cls)
-PM P...    'TIMES.GENERATE'       : 'RepeaterGenerator' (generator.cls)
-PM P...    'TRAMPOLINE'           : 'Doer' (doers.cls)
-P. P...    'UNKNOWN'              : 'Object' (extensions.cls)
-PM P...    'UNKNOWN'              : 'RepeaterCollector' (functionals.cls)
-PM P.G.    'UNQUOTED'             : 'StringHelpers' (string.cls)
-PM P...    'UNTILC'               : 'StringFilter' (functionals.cls)
-PM P...    'UNTILCI'              : 'StringFilter' (functionals.cls)
-PM P...    'UNTILW'               : 'StringFilter' (functionals.cls)
-PM P...    'UNTILWI'              : 'StringFilter' (functionals.cls)
-PM PCG.    'UPPER'                : 'StringCompatibilityWithOORexx5' (string.cls)
-P. P.G.    'UPPER2'               : 'String' (rgf_util2_wrappers.rex)
-PM P...    'UPTO'                 : 'RepeaterCollector' (functionals.cls)
-PM P...    'WHILEC'               : 'StringFilter' (functionals.cls)
-PM P...    'WHILECI'              : 'StringFilter' (functionals.cls)
-PM P...    'WHILEW'               : 'StringFilter' (functionals.cls)
-PM P...    'WHILEWI'              : 'StringFilter' (functionals.cls)
-P. P.G.    'WORD2'                : 'String' (rgf_util2_wrappers.rex)
-P. P.G.    'WORDINDEX2'           : 'String' (rgf_util2_wrappers.rex)
-P. P.G.    'WORDLENGTH2'          : 'String' (rgf_util2_wrappers.rex)
-P. P.G.    'WORDPOS2'             : 'String' (rgf_util2_wrappers.rex)
-PM PCG.    'XDIGIT'               : 'StringCompatibilityWithOORexx5' (string.cls)
-PM P.G.    '[]'                   : 'StringCompatibilityWithOORexx5' (string.cls)
-PM P...    '~()'                  : 'Doer' (doers.cls)
-<span style="font-weight:bold;color:green;">[Info] [1] Class 'String' has 358 methods
-</span><span style="font-weight:bold;color:green;">[Info] 189 lines displayed
+</span>P. P.G.    '?'                    : 'String' 'LogicalExtension' (logical.cls)
+P. P.G.    'ABBREV2'              : 'String' 'String' (rgf_util2_wrappers.rex)
+P. PCG.    'ALNUM'                : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
+P. PCG.    'ALPHA'                : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
+P. P...    'ARITY'                : 'String' 'Doer' (doers.cls)
+P. PCG.    'BLANK'                : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
+P. P.G.    'CALL'                 : 'String' 'String' (rgf_util2_wrappers.rex)
+P. P.G.    'CASELESSCONTAINS'     : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
+P. P.G.    'CASELESSENDSWITH'     : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
+P. P.G.    'CASELESSSPLIT'        : 'String' 'StringHelpers' (string.cls)
+P. P.G.    'CASELESSSTARTSWITH'   : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
+P. P.G.    'CHANGESTR2'           : 'String' 'String' (rgf_util2_wrappers.rex)
+P. P.G.    'CHUNK'                : 'String' 'StringHelpers' (string.cls)
+P. P.G.    'CHUNKS'               : 'String' 'StringHelpers' (string.cls)
+P. PCG.    'CNTRL'                : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
+P. P.G.    'COMPARE2'             : 'String' 'String' (rgf_util2_wrappers.rex)
+P. PCG.    'COMPOSE'              : 'String' 'Doer' (doers.cls)
+P. P.G.    'CONTAINS'             : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
+P. PC..    'COPIPE'               : 'String' 'Object' (pipe_extension.cls)
+P. P...    'COPIPE'               : 'String' 'Object' (pipe_extension.cls)
+P. P...    'COPIPEPROFILE'        : 'String' 'Object' (pipe_extension.cls)
+P. P.G.    'COPY'                 : 'String' 'EncodedString' (string.cls)
+P. P.G.    'COUNTSTR2'            : 'String' 'String' (rgf_util2_wrappers.rex)
+P. PCG.    'CR'                   : 'String' 'String' (CoreClasses.orx)
+P. P.G.    'DELSTR2'              : 'String' 'String' (rgf_util2_wrappers.rex)
+P. P.G.    'DELWORD2'             : 'String' 'String' (rgf_util2_wrappers.rex)
+P. P.G.    'DEPTH'                : 'String' 'Object' (array.cls)
+P. PCG.    'DIGIT'                : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
+P. P.G.    'DISCLOSE'             : 'String' 'Object' (array.cls)
+P. P...    'DO'                   : 'String' 'StringDoer' (doers.cls)
+P. P.G.    'DO'                   : 'String' 'Doer' (doers.cls)
+P. P...    'DOER'                 : 'String' 'StringDoer' (doers.cls)
+P. P.G.    'DOER'                 : 'String' 'DoerFactory' (doers.cls)
+P. P...    'DOWITH'               : 'String' 'StringDoer' (doers.cls)
+P. P.G.    'DOWITH'               : 'String' 'Doer' (doers.cls)
+P. P...    'DOWITHNAMEDARGUMENTS' : 'String' 'Doer' (doers.cls)
+P. P...    'DOWNTO'               : 'String' 'RepeaterCollector' (functionals.cls)
+P. P...    'DROPC'                : 'String' 'StringFilter' (functionals.cls)
+P. P...    'DROPCI'               : 'String' 'StringFilter' (functionals.cls)
+P. P...    'DROPFIRSTC'           : 'String' 'StringFilter' (functionals.cls)
+P. P...    'DROPFIRSTCI'          : 'String' 'StringFilter' (functionals.cls)
+P. P...    'DROPFIRSTW'           : 'String' 'StringFilter' (functionals.cls)
+P. P...    'DROPFIRSTWI'          : 'String' 'StringFilter' (functionals.cls)
+P. P...    'DROPLASTC'            : 'String' 'StringFilter' (functionals.cls)
+P. P...    'DROPLASTCI'           : 'String' 'StringFilter' (functionals.cls)
+P. P...    'DROPLASTW'            : 'String' 'StringFilter' (functionals.cls)
+P. P...    'DROPLASTWI'           : 'String' 'StringFilter' (functionals.cls)
+P. P...    'DROPUNTILC'           : 'String' 'StringFilter' (functionals.cls)
+P. P...    'DROPUNTILCI'          : 'String' 'StringFilter' (functionals.cls)
+P. P...    'DROPUNTILW'           : 'String' 'StringFilter' (functionals.cls)
+P. P...    'DROPUNTILWI'          : 'String' 'StringFilter' (functionals.cls)
+P. P...    'DROPW'                : 'String' 'StringFilter' (functionals.cls)
+P. P...    'DROPWHILEC'           : 'String' 'StringFilter' (functionals.cls)
+P. P...    'DROPWHILECI'          : 'String' 'StringFilter' (functionals.cls)
+P. P...    'DROPWHILEW'           : 'String' 'StringFilter' (functionals.cls)
+P. P...    'DROPWHILEWI'          : 'String' 'StringFilter' (functionals.cls)
+P. P...    'DROPWI'               : 'String' 'StringFilter' (functionals.cls)
+P. P.G.    'DUMP2'                : 'String' 'Object' (rgf_util2_wrappers.rex)
+P. P.G.    'EACH'                 : 'String' 'Object' (array.cls)
+P. P...    'EACHC'                : 'String' 'StringIterator' (functionals.cls)
+P. P...    'EACHCI'               : 'String' 'StringIterator' (functionals.cls)
+P. P...    'EACHW'                : 'String' 'StringIterator' (functionals.cls)
+P. P...    'EACHWI'               : 'String' 'StringIterator' (functionals.cls)
+P. P.G.    'ENCLOSE'              : 'String' 'Object' (array.cls)
+P. P.G.    'ENDSWITH'             : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
+P. P.G.    'ENQUOTE2'             : 'String' 'String' (rgf_util2_wrappers.rex)
+P. P.G.    'ESCAPE2'              : 'String' 'String' (rgf_util2_wrappers.rex)
+P. PCG.    'GENERATE'             : 'String' 'Object' (generator.cls)
+P. P.G.    'GENERATE'             : 'String' 'Object' (generator.cls)
+P. P...    'GENERATE.DOWNTO'      : 'String' 'RepeaterGenerator' (generator.cls)
+P. P...    'GENERATE.UPTO'        : 'String' 'RepeaterGenerator' (generator.cls)
+P. P...    'GENERATEC'            : 'String' 'StringGenerator' (generator.cls)
+P. P...    'GENERATECI'           : 'String' 'StringGenerator' (generator.cls)
+P. PCG.    'GENERATEI'            : 'String' 'Object' (generator.cls)
+P. P.G.    'GENERATEI'            : 'String' 'Object' (generator.cls)
+P. P...    'GENERATEW'            : 'String' 'StringGenerator' (generator.cls)
+P. P...    'GENERATEWI'           : 'String' 'StringGenerator' (generator.cls)
+P. P.G.    'GETUSERDATA'          : 'String' 'Object' (extensions.cls)
+P. P...    'GO'                   : 'String' 'Doer' (doers.cls)
+P. P...    'GOWITH'               : 'String' 'Doer' (doers.cls)
+P. PCG.    'GRAPH'                : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
+P. P.G.    'HASTEXT'              : 'String' 'EncodedString' (string.cls)
+P. P...    'IFFALSE'              : 'String' 'LogicalExtension' (logical.cls)
+P. P...    'IFTRUE'               : 'String' 'LogicalExtension' (logical.cls)
+P. P.G.    'ISNIL'                : 'String' 'Object' (extensions.cls)
+P. P.G.    'JOIN'                 : 'String' 'StringHelpers' (string.cls)
+P. P.G.    'LASTPOS2'             : 'String' 'String' (rgf_util2_wrappers.rex)
+P. P.G.    'LEFT2'                : 'String' 'String' (rgf_util2_wrappers.rex)
+P. PCG.    'LOWER'                : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
+P. P.G.    'LOWER2'               : 'String' 'String' (rgf_util2_wrappers.rex)
+P. P.G.    'MAKECOMPLEX'          : 'String' 'ComplexString' (complex.cls)
+P. P.G.    'MAKEREXXTEXT'         : 'String' 'EncodedString' (string.cls)
+P. P...    'MAP'                  : 'String' 'StringMapper' (functionals.cls)
+P. P...    'MAPC'                 : 'String' 'StringMapper' (functionals.cls)
+P. P...    'MAPW'                 : 'String' 'StringMapper' (functionals.cls)
+P. P.G.    'MATCHER'              : 'String' 'StringHelpers' (string.cls)
+P. P.G.    'NEEDSOBJECT'          : 'String' 'Doer' (doers.cls)
+P. P...    'NEEDSOBJECT'          : 'String' 'StringDoer' (doers.cls)
+P. PCG.    'NL'                   : 'String' 'String' (CoreClasses.orx)
+P. PCG.    'NULL'                 : 'String' 'String' (CoreClasses.orx)
+P. P.G.    'OVERLAY2'             : 'String' 'String' (rgf_util2_wrappers.rex)
+P. P.G.    'PARSEWORDS2'          : 'String' 'String' (rgf_util2_wrappers.rex)
+P. P...    'PARTIAL'              : 'String' 'Doer' (doers.cls)
+P. P...    'PIPE'                 : 'String' 'Object' (pipe_extension.cls)
+P. PC..    'PIPE'                 : 'String' 'Object' (pipe_extension.cls)
+P. P...    'PIPEPROFILE'          : 'String' 'Object' (pipe_extension.cls)
+P. P.G.    'POS2'                 : 'String' 'String' (rgf_util2_wrappers.rex)
+P. P.G.    'POSIXCLASSCHARACTERS' : 'String' 'StringHelpers' (string.cls)
+P. P.G.    'PP2'                  : 'String' 'Object' (rgf_util2_wrappers.rex)
+P. P.G.    'PPINDEX2'             : 'String' 'Object' (rgf_util2_wrappers.rex)
+P. PCG.    'PPSTRING'             : 'String' 'Object' (extensions.cls)
+P. P.G.    'PPSTRING'             : 'String' 'Object' (extensions.cls)
+P. P.G.    'PPSTRING'             : 'String' 'StringPrettyPrinter' (string.cls)
+P. PCG.    'PRINT'                : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
+P. PCG.    'PUNCT'                : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
+P. P.G.    'QUOTED'               : 'String' 'StringHelpers' (string.cls)
+P. P.G.    'RANK'                 : 'String' 'Object' (array.cls)
+P. P...    'REDUCE'               : 'String' 'StringReducer' (functionals.cls)
+P. P...    'REDUCEC'              : 'String' 'StringReducer' (functionals.cls)
+P. P...    'REDUCEW'              : 'String' 'StringReducer' (functionals.cls)
+P. P...    'REJECTC'              : 'String' 'StringFilter' (functionals.cls)
+P. P...    'REJECTCI'             : 'String' 'StringFilter' (functionals.cls)
+P. P...    'REJECTW'              : 'String' 'StringFilter' (functionals.cls)
+P. P...    'REJECTWI'             : 'String' 'StringFilter' (functionals.cls)
+P. P.G.    'RESHAPE'              : 'String' 'Object' (array.cls)
+P. P.G.    'RIGHT2'               : 'String' 'String' (rgf_util2_wrappers.rex)
+P. P...    'SELECTC'              : 'String' 'StringFilter' (functionals.cls)
+P. P...    'SELECTCI'             : 'String' 'StringFilter' (functionals.cls)
+P. P...    'SELECTW'              : 'String' 'StringFilter' (functionals.cls)
+P. P...    'SELECTWI'             : 'String' 'StringFilter' (functionals.cls)
+P. P.G.    'SETMETHOD1'           : 'String' 'Object' (SETMETHOD1)
+P. P.G.    'SETUSERDATA'          : 'String' 'Object' (extensions.cls)
+P. P.G.    'SHAPE'                : 'String' 'Object' (array.cls)
+P. P.G.    'SHAPETOSTRING'        : 'String' 'Object' (array.cls)
+P. P.G.    'SINGULARPLURAL'       : 'String' 'StringHelpers' (string.cls)
+P. P.G.    'SINGULARPLURALCOUNT'  : 'String' 'StringHelpers' (string.cls)
+P. P...    'SOURCE'               : 'String' 'StringDoer' (doers.cls)
+P. P.G.    'SOURCE'               : 'String' 'Doer' (doers.cls)
+P. PCG.    'SPACE'                : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
+P. P.G.    'SPLIT'                : 'String' 'StringHelpers' (string.cls)
+P. P.G.    'STARTSWITH'           : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
+P. P.G.    'SUBCHAR2'             : 'String' 'String' (rgf_util2_wrappers.rex)
+P. P.G.    'SUBSTR2'              : 'String' 'String' (rgf_util2_wrappers.rex)
+P. P.G.    'SUBWORD2'             : 'String' 'String' (rgf_util2_wrappers.rex)
+P. PCG.    'TAB'                  : 'String' 'String' (CoreClasses.orx)
+P. P...    'TAKEC'                : 'String' 'StringFilter' (functionals.cls)
+P. P...    'TAKECI'               : 'String' 'StringFilter' (functionals.cls)
+P. P...    'TAKEFIRSTC'           : 'String' 'StringFilter' (functionals.cls)
+P. P...    'TAKEFIRSTCI'          : 'String' 'StringFilter' (functionals.cls)
+P. P...    'TAKEFIRSTW'           : 'String' 'StringFilter' (functionals.cls)
+P. P...    'TAKEFIRSTWI'          : 'String' 'StringFilter' (functionals.cls)
+P. P...    'TAKELASTC'            : 'String' 'StringFilter' (functionals.cls)
+P. P...    'TAKELASTCI'           : 'String' 'StringFilter' (functionals.cls)
+P. P...    'TAKELASTW'            : 'String' 'StringFilter' (functionals.cls)
+P. P...    'TAKELASTWI'           : 'String' 'StringFilter' (functionals.cls)
+P. P...    'TAKEUNTILC'           : 'String' 'StringFilter' (functionals.cls)
+P. P...    'TAKEUNTILCI'          : 'String' 'StringFilter' (functionals.cls)
+P. P...    'TAKEUNTILW'           : 'String' 'StringFilter' (functionals.cls)
+P. P...    'TAKEUNTILWI'          : 'String' 'StringFilter' (functionals.cls)
+P. P...    'TAKEW'                : 'String' 'StringFilter' (functionals.cls)
+P. P...    'TAKEWHILEC'           : 'String' 'StringFilter' (functionals.cls)
+P. P...    'TAKEWHILECI'          : 'String' 'StringFilter' (functionals.cls)
+P. P...    'TAKEWHILEW'           : 'String' 'StringFilter' (functionals.cls)
+P. P...    'TAKEWHILEWI'          : 'String' 'StringFilter' (functionals.cls)
+P. P...    'TAKEWI'               : 'String' 'StringFilter' (functionals.cls)
+P. P.G.    'TEXT'                 : 'String' 'EncodedString' (string.cls)
+P. P.G.    'TEXT='                : 'String' 'EncodedString' (string.cls)
+P. P...    'TIMES'                : 'String' 'RepeaterCollector' (functionals.cls)
+P. P...    'TIMES.GENERATE'       : 'String' 'RepeaterGenerator' (generator.cls)
+P. P...    'TRAMPOLINE'           : 'String' 'Doer' (doers.cls)
+P. P...    'UNKNOWN'              : 'String' 'Object' (extensions.cls)
+P. P...    'UNKNOWN'              : 'String' 'RepeaterCollector' (functionals.cls)
+P. P.G.    'UNQUOTED'             : 'String' 'StringHelpers' (string.cls)
+P. P...    'UNTILC'               : 'String' 'StringFilter' (functionals.cls)
+P. P...    'UNTILCI'              : 'String' 'StringFilter' (functionals.cls)
+P. P...    'UNTILW'               : 'String' 'StringFilter' (functionals.cls)
+P. P...    'UNTILWI'              : 'String' 'StringFilter' (functionals.cls)
+P. PCG.    'UPPER'                : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
+P. P.G.    'UPPER2'               : 'String' 'String' (rgf_util2_wrappers.rex)
+P. P...    'UPTO'                 : 'String' 'RepeaterCollector' (functionals.cls)
+P. P...    'WHILEC'               : 'String' 'StringFilter' (functionals.cls)
+P. P...    'WHILECI'              : 'String' 'StringFilter' (functionals.cls)
+P. P...    'WHILEW'               : 'String' 'StringFilter' (functionals.cls)
+P. P...    'WHILEWI'              : 'String' 'StringFilter' (functionals.cls)
+P. P.G.    'WORD2'                : 'String' 'String' (rgf_util2_wrappers.rex)
+P. P.G.    'WORDINDEX2'           : 'String' 'String' (rgf_util2_wrappers.rex)
+P. P.G.    'WORDLENGTH2'          : 'String' 'String' (rgf_util2_wrappers.rex)
+P. P.G.    'WORDPOS2'             : 'String' 'String' (rgf_util2_wrappers.rex)
+P. PCG.    'XDIGIT'               : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
+P. P.G.    '[]'                   : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
+P. P...    '~()'                  : 'String' 'Doer' (doers.cls)
+<span style="font-weight:bold;color:green;">[Info] [1] Class 'String' has 363 methods
+</span><span style="font-weight:bold;color:green;">[Info] 194 lines displayed
 </span>
 <span style="color:blue;">Blocks
 </span><span style="color:blue;">A RexxBlock is a piece of source code surrounded by curly brackets.
@@ -469,82 +474,82 @@ an Array (shape [2], 2 items)
 </span>ooRexx[bash]&gt; <span style="color:blue;">-- Raw output, not easy to read
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; system RXTRACE_CONCURRENCY=ON rexx concurrency_trace.rex
-0000000092c58380 000000000ef20cd0 0000000000000000 00000       1 *-* .demo~new~exec(1)
-0000000092c58380 000000000ef20cd0 0000000000000000 00000         &gt;E&gt;   .DEMO =&gt; &quot;The DEMO class&quot;
-0000000092c58380 000000000ef20cd0 0000000000000000 00000         &gt;M&gt;   &quot;NEW&quot; =&gt; &quot;a DEMO&quot;
-0000000092c58380 000000000ef20cd0 0000000000000000 00000         &gt;L&gt;   &quot;1&quot;
-0000000092c58380 000000000ef20cd0 0000000000000000 00000         &gt;A&gt;   &quot;1&quot;
-0000000092c58380 000000000ef29fd0 000000000ef2a240 00000         &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
-0000000092c58380 000000000ef29fd0 000000000ef2a240 00001*      8 *-* use arg id
-0000000092c58380 000000000ef29fd0 000000000ef2a240 00001*        &gt;&gt;&gt;   &quot;1&quot;
-0000000092c58380 000000000ef29fd0 000000000ef2a240 00001*        &gt;=&gt;   ID &lt;= &quot;1&quot;
-0000000092c58380 000000000ef29fd0 000000000ef2a240 00001*      9 *-* reply
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*        &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
-0000000092c58380 000000000ef20cd0 0000000000000000 00000       2 *-* .demo~new~exec(2)
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*     10 *-* do 2
-0000000092c58380 000000000ef20cd0 0000000000000000 00000         &gt;E&gt;   .DEMO =&gt; &quot;The DEMO class&quot;
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*        &gt;L&gt;     &quot;2&quot;
-0000000092c58380 000000000ef20cd0 0000000000000000 00000         &gt;M&gt;   &quot;NEW&quot; =&gt; &quot;a DEMO&quot;
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*        &gt;&gt;&gt;     &quot;2&quot;
-0000000092c58380 000000000ef20cd0 0000000000000000 00000         &gt;L&gt;   &quot;2&quot;
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*     11 *-*   say &quot;TASK&quot; id
-0000000092c58380 000000000ef20cd0 0000000000000000 00000         &gt;A&gt;   &quot;2&quot;
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*        &gt;L&gt;     &quot;TASK&quot;
-0000000092c58380 000000000ef37b60 000000000ef37dd0 00000         &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*        &gt;V&gt;     ID =&gt; &quot;1&quot;
-0000000092c58380 000000000ef37b60 000000000ef37dd0 00001*      8 *-* use arg id
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 1&quot;
-0000000092c58380 000000000ef37b60 000000000ef37dd0 00001*        &gt;&gt;&gt;   &quot;2&quot;
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*        &gt;&gt;&gt;     &quot;TASK 1&quot;
-0000000092c58380 000000000ef37b60 000000000ef37dd0 00001*        &gt;=&gt;   ID &lt;= &quot;2&quot;
+00000000a295b380 0000000009db0cd0 0000000000000000 00000       1 *-* .demo~new~exec(1)
+00000000a295b380 0000000009db0cd0 0000000000000000 00000         &gt;E&gt;   .DEMO =&gt; &quot;The DEMO class&quot;
+00000000a295b380 0000000009db0cd0 0000000000000000 00000         &gt;M&gt;   &quot;NEW&quot; =&gt; &quot;a DEMO&quot;
+00000000a295b380 0000000009db0cd0 0000000000000000 00000         &gt;L&gt;   &quot;1&quot;
+00000000a295b380 0000000009db0cd0 0000000000000000 00000         &gt;A&gt;   &quot;1&quot;
+00000000a295b380 0000000009db9fd0 0000000009dba240 00000         &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
+00000000a295b380 0000000009db9fd0 0000000009dba240 00001*      8 *-* use arg id
+00000000a295b380 0000000009db9fd0 0000000009dba240 00001*        &gt;&gt;&gt;   &quot;1&quot;
+00000000a295b380 0000000009db9fd0 0000000009dba240 00001*        &gt;=&gt;   ID &lt;= &quot;1&quot;
+00000000a295b380 0000000009db9fd0 0000000009dba240 00001*      9 *-* reply
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*        &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
+00000000a295b380 0000000009db0cd0 0000000000000000 00000       2 *-* .demo~new~exec(2)
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*     10 *-* do 2
+00000000a295b380 0000000009db0cd0 0000000000000000 00000         &gt;E&gt;   .DEMO =&gt; &quot;The DEMO class&quot;
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*        &gt;L&gt;     &quot;2&quot;
+00000000a295b380 0000000009db0cd0 0000000000000000 00000         &gt;M&gt;   &quot;NEW&quot; =&gt; &quot;a DEMO&quot;
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*        &gt;&gt;&gt;     &quot;2&quot;
+00000000a295b380 0000000009db0cd0 0000000000000000 00000         &gt;L&gt;   &quot;2&quot;
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*     11 *-*   say &quot;TASK&quot; id
+00000000a295b380 0000000009db0cd0 0000000000000000 00000         &gt;A&gt;   &quot;2&quot;
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*        &gt;L&gt;     &quot;TASK&quot;
+00000000a295b380 0000000009dc7b60 0000000009dc7dd0 00000         &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*        &gt;V&gt;     ID =&gt; &quot;1&quot;
+00000000a295b380 0000000009dc7b60 0000000009dc7dd0 00001*      8 *-* use arg id
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 1&quot;
+00000000a295b380 0000000009dc7b60 0000000009dc7dd0 00001*        &gt;&gt;&gt;   &quot;2&quot;
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*        &gt;&gt;&gt;     &quot;TASK 1&quot;
+00000000a295b380 0000000009dc7b60 0000000009dc7dd0 00001*        &gt;=&gt;   ID &lt;= &quot;2&quot;
 TASK 1
-0000000092c58380 000000000ef37b60 000000000ef37dd0 00001*      9 *-* reply
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*     12 *-*   call syssleep 1
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*        &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*        &gt;L&gt;     &quot;1&quot;
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*     10 *-* do 2
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*        &gt;A&gt;     &quot;1&quot;
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*        &gt;L&gt;     &quot;2&quot;
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*        &gt;&gt;&gt;     &quot;2&quot;
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*     11 *-*   say &quot;TASK&quot; id
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*        &gt;L&gt;     &quot;TASK&quot;
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*        &gt;V&gt;     ID =&gt; &quot;2&quot;
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 2&quot;
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*        &gt;&gt;&gt;     &quot;TASK 2&quot;
+00000000a295b380 0000000009dc7b60 0000000009dc7dd0 00001*      9 *-* reply
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*     12 *-*   call syssleep 1
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*        &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*        &gt;L&gt;     &quot;1&quot;
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*     10 *-* do 2
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*        &gt;A&gt;     &quot;1&quot;
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*        &gt;L&gt;     &quot;2&quot;
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*        &gt;&gt;&gt;     &quot;2&quot;
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*     11 *-*   say &quot;TASK&quot; id
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*        &gt;L&gt;     &quot;TASK&quot;
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*        &gt;V&gt;     ID =&gt; &quot;2&quot;
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 2&quot;
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*        &gt;&gt;&gt;     &quot;TASK 2&quot;
 TASK 2
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*     12 *-*   call syssleep 1
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*        &gt;L&gt;     &quot;1&quot;
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*        &gt;A&gt;     &quot;1&quot;
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*        &gt;&gt;&gt;     &quot;0&quot;
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*        &gt;&gt;&gt;     &quot;0&quot;
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*     13 *-* end
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*     13 *-* end
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*     10 *-* do 2
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*     10 *-* do 2
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*     11 *-*   say &quot;TASK&quot; id
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*     11 *-*   say &quot;TASK&quot; id
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*        &gt;L&gt;     &quot;TASK&quot;
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*        &gt;L&gt;     &quot;TASK&quot;
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*        &gt;V&gt;     ID =&gt; &quot;1&quot;
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*        &gt;V&gt;     ID =&gt; &quot;2&quot;
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 1&quot;
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 2&quot;
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*        &gt;&gt;&gt;     &quot;TASK 1&quot;
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*        &gt;&gt;&gt;     &quot;TASK 2&quot;
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*     12 *-*   call syssleep 1
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*        &gt;L&gt;     &quot;1&quot;
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*        &gt;A&gt;     &quot;1&quot;
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*        &gt;&gt;&gt;     &quot;0&quot;
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*     13 *-* end
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*     10 *-* do 2
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*     11 *-*   say &quot;TASK&quot; id
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*        &gt;L&gt;     &quot;TASK&quot;
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*        &gt;V&gt;     ID =&gt; &quot;1&quot;
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 1&quot;
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*        &gt;&gt;&gt;     &quot;TASK 1&quot;
 TASK 1
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*     12 *-*   call syssleep 1
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*        &gt;L&gt;     &quot;1&quot;
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*        &gt;A&gt;     &quot;1&quot;
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*        &gt;&gt;&gt;     &quot;0&quot;
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*     13 *-* end
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*     10 *-* do 2
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*     11 *-*   say &quot;TASK&quot; id
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*        &gt;L&gt;     &quot;TASK&quot;
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*        &gt;V&gt;     ID =&gt; &quot;2&quot;
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 2&quot;
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*        &gt;&gt;&gt;     &quot;TASK 2&quot;
 TASK 2
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*     12 *-*   call syssleep 1
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*     12 *-*   call syssleep 1
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*        &gt;L&gt;     &quot;1&quot;
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*        &gt;L&gt;     &quot;1&quot;
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*        &gt;A&gt;     &quot;1&quot;
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*        &gt;A&gt;     &quot;1&quot;
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*        &gt;&gt;&gt;     &quot;0&quot;
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*     13 *-* end
-00000000004b6000 000000000ef29fd0 000000000ef2a240 00001*     10 *-* do 2
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*        &gt;&gt;&gt;     &quot;0&quot;
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*     13 *-* end
-0000000000539000 000000000ef37b60 000000000ef37dd0 00001*     10 *-* do 2
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*     12 *-*   call syssleep 1
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*        &gt;L&gt;     &quot;1&quot;
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*        &gt;A&gt;     &quot;1&quot;
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*        &gt;&gt;&gt;     &quot;0&quot;
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*     13 *-* end
+0000000003f82000 0000000009db9fd0 0000000009dba240 00001*     10 *-* do 2
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*        &gt;&gt;&gt;     &quot;0&quot;
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*     13 *-* end
+0000000004005000 0000000009dc7b60 0000000009dc7dd0 00001*     10 *-* do 2
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; <span style="color:blue;">-- Human-readable output, generated by piping the output through tracer.rex
 </span><span style="font-weight:bold;color:olive;">
@@ -800,7 +805,7 @@ PM P...    'YM' : 'RoutineDoer' (doers.cls)
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; fib_Y~(23)=
  28657
-<span style="font-weight:bold;color:green;">Duration: 21.796469
+<span style="font-weight:bold;color:green;">Duration: 21.649249
 </span><span style="font-weight:bold;color:green;">#Coactivities: 1
 </span>
 <span style="color:blue;">The memoizing version calculates almost instantly.
@@ -809,7 +814,7 @@ PM P...    'YM' : 'RoutineDoer' (doers.cls)
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; fib_YM~(23)=
  28657
-<span style="font-weight:bold;color:green;">Duration: 0.004603
+<span style="font-weight:bold;color:green;">Duration: 0.003552
 </span><span style="font-weight:bold;color:green;">#Coactivities: 1
 </span>
 <span style="color:blue;">fib_Y and fib_YM are closures.
@@ -878,7 +883,7 @@ fib_YM~(17500)=8.594475392487880685715609318313958956965186135981014406583281854
 fib_YM~(20000)=2.531162323732361242240155003520607291766356485802485278951929841991312781760541315230153423463759229E+4179
 fib_YM~(22500)=7.454536101973301545514060322899628474921968473702388044321015228379740189148914655473430519859925903E+4701
 fib_YM~(25000)=2.195438355517303012780791914841720922849015222302155773145178112730662303998294388326731046697794993E+5224
-<span style="font-weight:bold;color:green;">Duration: 7.594506
+<span style="font-weight:bold;color:green;">Duration: 8.554053
 </span><span style="font-weight:bold;color:green;">#Coactivities: 1
 </span>
 <span style="color:blue;">End of demonstration.

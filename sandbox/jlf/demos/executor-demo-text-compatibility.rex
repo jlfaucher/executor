@@ -40,18 +40,12 @@ sleep
 sleep no prompt
 
 -- []
-"noël👩‍👨‍👩‍👧🎅"~text[3]=
+"noël👩‍👨‍👩‍👧🎅"~text[3]=; result~description=
 sleep
-"noël👩‍👨‍👩‍👧🎅"~text[3]~description=
+"noël👩‍👨‍👩‍👧🎅"~text[3,3]=; result~description=
 sleep
-"noël👩‍👨‍👩‍👧🎅"~text[3,3]=
+"noël👩‍👨‍👩‍👧🎅"~text[3,6]=; result~description=
 sleep
-"noël👩‍👨‍👩‍👧🎅"~text[3,3]~description=
-sleep
-"noël👩‍👨‍👩‍👧🎅"~text[3,6]=
-sleep
-"noël👩‍👨‍👩‍👧🎅"~text[3,6]~description=
-sleep no prompt
 
 -- ?
 "0"~text~?("true"~text, "false"~text)=
@@ -87,8 +81,7 @@ sleep no prompt
 sleep no prompt
 
 -- copies
-"noël👩‍👨‍👩‍👧🎅"~text~copies(4)=
-"noël👩‍👨‍👩‍👧🎅"~text~copies(4)~description=
+"noël👩‍👨‍👩‍👧🎅"~text~copies(4)=; result~description=
 sleep no prompt
 
 -- hashCode
@@ -119,12 +112,9 @@ sleep no prompt
 sleep no prompt
 
 -- subchar
-"noël👩‍👨‍👩‍👧🎅"~text~subchar(3)=
-"noël👩‍👨‍👩‍👧🎅"~text~subchar(3)~description=
-"noël👩‍👨‍👩‍👧🎅"~text~subchar(4)=
-"noël👩‍👨‍👩‍👧🎅"~text~subchar(4)~description=
-"noël👩‍👨‍👩‍👧🎅"~text~subchar(5)=
-"noël👩‍👨‍👩‍👧🎅"~text~subchar(5)~description=
+"noël👩‍👨‍👩‍👧🎅"~text~subchar(3)=; result~description=
+"noël👩‍👨‍👩‍👧🎅"~text~subchar(4)=; result~description=
+"noël👩‍👨‍👩‍👧🎅"~text~subchar(5)=; result~description=
 sleep no prompt
 
 -- substr
@@ -136,14 +126,10 @@ sleep
 sleep
 "noel"~text~substr(3, 3, "▷")=   -- no error because self is a RexxText and the pad character is one grapheme when converted to the default encoding
 sleep
-"noël👩‍👨‍👩‍👧🎅"~text~substr(3, 3, "▷")=
+"noël👩‍👨‍👩‍👧🎅"~text~substr(3, 3, "▷")=; result~description=
 sleep
-"noël👩‍👨‍👩‍👧🎅"~text~substr(3, 3, "▷")~description=
+"noël👩‍👨‍👩‍👧🎅"~text~substr(3, 6, "▷")=; result~description=
 sleep
-"noël👩‍👨‍👩‍👧🎅"~text~substr(3, 6, "▷")=
-sleep
-"noël👩‍👨‍👩‍👧🎅"~text~substr(3, 6, "▷")~description=
-sleep no prompt
 
 -- x2c
 "F09F9180"~text~x2c=

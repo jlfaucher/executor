@@ -22,15 +22,15 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for smtp.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for socket.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for streamsocket.cls
-</span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe.rex
+</span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2.rex
 </span><span style="font-weight:bold;color:green;">loadPackage OK for BSF.CLS
 </span><span style="font-weight:bold;color:green;">loadPackage OK for oorexxshell_queries.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 13 Aug 2021
-</span><span style="font-weight:bold;color:green;">Input queue name: S7553Q100509210
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 19 Dec 2021
+</span><span style="font-weight:bold;color:green;">Input queue name: S13d8cQ7fe648c030b0
 </span>
 <span style="color:blue;">----------------
 </span><span style="color:blue;">-- Text encoding
@@ -355,8 +355,8 @@ T'Un œuf de chez MaPoule™ coûte ±0.40€'
 'U+1F469'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; &quot;noël‍👨‍👩‍👧&quot;~text~unicode~description(t:1)=              <span style="color:blue;">-- For this maximum codepoint, we need Unicode32</span>
-'Unicode32 not-ASCII (5 graphemes (1 index from index 5), 10 codepoints (0 index), 40 bytes, 0 error)'
-<span style="color:blue;">-- The endianness of the UnicodeXX_Encoding is the one of the machine.
+'Unicode32 (5 graphemes (1 index from index 5), 10 codepoints (0 index), 40 bytes, 0 error)'
+<span style="color:blue;">-- The endianness of the UnicodeN_Encoding is the one of the machine.
 </span><span style="color:blue;">-- With an Intel CPU, it's little-endian.
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; &quot;noël‍👨‍👩‍👧&quot;~text~unicode~c2x=
@@ -378,10 +378,10 @@ T'Un œuf de chez MaPoule™ coûte ±0.40€'
 'UTF-8 ASCII (20 graphemes (0 index), 20 codepoints (0 index), 20 bytes, 0 error)'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; howMuchOfStorage~text~utf16~description(t:1)=   <span style="color:blue;">-- UTF-16:    20 graphemes, 20 codepoints,  40 bytes</span>
-'UTF-16BE ASCII (20 graphemes (0 index), 20 codepoints (0 index), 40 bytes, 0 error)'
+'UTF-16BE (20 graphemes (0 index), 20 codepoints (0 index), 40 bytes, 0 error)'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; howMuchOfStorage~text~utf32~description(t:1)=   <span style="color:blue;">-- UTF-32:    20 graphemes, 20 codepoints,  80 bytes</span>
-'UTF-32BE ASCII (20 graphemes (0 index), 20 codepoints (0 index), 80 bytes, 0 error)'
+'UTF-32BE (20 graphemes (0 index), 20 codepoints (0 index), 80 bytes, 0 error)'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; howMuchOfStorage~text~unicode~description(t:1)= <span style="color:blue;">-- Unicode8:  20 graphemes, 20 codepoints,  20 bytes</span>
 'Unicode8 ASCII (20 graphemes (0 index), 20 codepoints (0 index), 20 bytes, 0 error)'
@@ -392,13 +392,13 @@ T'Un œuf de chez MaPoule™ coûte ±0.40€'
 'UTF-8 not-ASCII (28 graphemes (6 indexes from index 23), 28 codepoints (6 indexes from index 23), 37 bytes, 0 error)'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; rexCharacters~text~utf16~description(t:1)=      <span style="color:blue;">-- UTF-16:    28 graphemes, 28 codepoints,  58 bytes</span>
-'UTF-16BE not-ASCII (28 graphemes (0 index), 28 codepoints (0 index), 58 bytes, 0 error)'
+'UTF-16BE (28 graphemes (0 index), 28 codepoints (0 index), 58 bytes, 0 error)'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; rexCharacters~text~utf32~description(t:1)=      <span style="color:blue;">-- UTF-32:    28 graphemes, 28 codepoints, 112 bytes</span>
-'UTF-32BE not-ASCII (28 graphemes (0 index), 28 codepoints (0 index), 112 bytes, 0 error)'
+'UTF-32BE (28 graphemes (0 index), 28 codepoints (0 index), 112 bytes, 0 error)'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; rexCharacters~text~unicode~description(t:1)=    <span style="color:blue;">-- Unicode32: 28 graphemes, 28 codepoints, 112 bytes</span>
-'Unicode32 not-ASCII (28 graphemes (0 index), 28 codepoints (0 index), 112 bytes, 0 error)'
+'Unicode32 (28 graphemes (0 index), 28 codepoints (0 index), 112 bytes, 0 error)'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; family = &quot;👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦&quot;
 <span style="font-weight:bold;color:olive;">
@@ -406,13 +406,13 @@ T'Un œuf de chez MaPoule™ coûte ±0.40€'
 'UTF-8 not-ASCII (1 grapheme (0 index), 15 codepoints (14 indexes from index 2), 53 bytes, 0 error)'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; family~text~utf16~description(t:1)=             <span style="color:blue;">-- UTF-16:     1 grapheme,  15 codepoints,  46 bytes</span>
-'UTF-16BE not-ASCII (1 grapheme (0 index), 15 codepoints (14 indexes from index 2), 46 bytes, 0 error)'
+'UTF-16BE (1 grapheme (0 index), 15 codepoints (14 indexes from index 2), 46 bytes, 0 error)'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; family~text~utf32~description(t:1)=             <span style="color:blue;">-- UTF-32:     1 grapheme,  15 codepoints,  60 bytes</span>
-'UTF-32BE not-ASCII (1 grapheme (0 index), 15 codepoints (0 index), 60 bytes, 0 error)'
+'UTF-32BE (1 grapheme (0 index), 15 codepoints (0 index), 60 bytes, 0 error)'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; family~text~unicode~description(t:1)=           <span style="color:blue;">-- Unicode32:  1 grapheme,  15 codepoints,  60 byte</span>
-'Unicode32 not-ASCII (1 grapheme (0 index), 15 codepoints (0 index), 60 bytes, 0 error)'
+'Unicode32 (1 grapheme (0 index), 15 codepoints (0 index), 60 bytes, 0 error)'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; helloZalgo = &quot;h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞&quot;
 <span style="font-weight:bold;color:olive;">
@@ -420,13 +420,13 @@ T'Un œuf de chez MaPoule™ coûte ±0.40€'
 'UTF-8 not-ASCII (5 graphemes (4 indexes from index 2), 54 codepoints (52 indexes from index 3), 111 bytes, 0 error)'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; helloZalgo~text~utf16~description(t:1)=         <span style="color:blue;">-- UTF-16:     5 graphemes, 54 codepoints, 108 bytes</span>
-'UTF-16BE not-ASCII (5 graphemes (4 indexes from index 2), 54 codepoints (0 index), 108 bytes, 0 error)'
+'UTF-16BE (5 graphemes (4 indexes from index 2), 54 codepoints (0 index), 108 bytes, 0 error)'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; helloZalgo~text~utf32~description(t:1)=         <span style="color:blue;">-- UTF-32:     5 graphemes, 54 codepoints, 216 bytes</span>
-'UTF-32BE not-ASCII (5 graphemes (4 indexes from index 2), 54 codepoints (0 index), 216 bytes, 0 error)'
+'UTF-32BE (5 graphemes (4 indexes from index 2), 54 codepoints (0 index), 216 bytes, 0 error)'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; helloZalgo~text~unicode~description(t:1)=       <span style="color:blue;">-- Unicode16:  5 graphemes, 54 codepoints, 108 bytes</span>
-'Unicode16 not-ASCII (5 graphemes (4 indexes from index 2), 54 codepoints (0 index), 108 bytes, 0 error)'
+'Unicode16 (5 graphemes (4 indexes from index 2), 54 codepoints (0 index), 108 bytes, 0 error)'
 
 <span style="color:blue;">End of demonstration.
 </span></pre>

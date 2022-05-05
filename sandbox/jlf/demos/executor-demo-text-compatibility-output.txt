@@ -12,15 +12,15 @@ loadPackage OK for regex/regex.cls
 loadPackage OK for smtp.cls
 loadPackage OK for socket.cls
 loadPackage OK for streamsocket.cls
-loadPackage OK for pipeline/pipe.rex
+loadPackage OK for pipeline/pipe.cls
 loadPackage OK for rgf_util2/rgf_util2.rex
 loadPackage OK for BSF.CLS
 loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
-Input queue name: S15a5dQ100505700
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 19 Dec 2021
+Input queue name: S12b7dQ7fc7d7c03810
 
 --------------------------------------------
 -- Text encoding - Compatibility with String
@@ -60,24 +60,19 @@ ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~c2g=
 
 -- []
 
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text[3]=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text[3]=; result~description=
 T'ë'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text[3]~description=
 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 2 bytes, 0 error)'
 
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text[3,3]=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text[3,3]=; result~description=
 T'ël👩‍👨‍👩‍👧'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text[3,3]~description=
 'UTF-8 not-ASCII (3 graphemes, 9 codepoints, 28 bytes, 0 error)'
 
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text[3,6]=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text[3,6]=; result~description=
 T'ël👩‍👨‍👩‍👧🎅'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text[3,6]~description=
 'UTF-8 not-ASCII (4 graphemes, 10 codepoints, 32 bytes, 0 error)'
 
+ooRexx[bash]> 
 -- ?
 
 ooRexx[bash]> "0"~text~?("true"~text, "false"~text)=
@@ -91,7 +86,7 @@ Logical value must be exactly "0" or "1"; found "not a boolean value".
 Error code= 34.901
 
 ooRexx[bash]> "not a boolean value 🤔"~text~?("true"~text, "false"~text)=
-The UTF-8 not-ASCII text is not compatible with a Rexx logical value.
+UTF-8 not-ASCII 'not a b...' is not compatible with a Rexx logical value.
 Error code= 23.900
 
 ooRexx[bash]> "0"~text~?("true 🤔"~text, "false 🤔"~text)=
@@ -133,10 +128,8 @@ Error code= 23.900
 
 -- copies
 
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~copies(4)=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~copies(4)=; result~description=
 T'noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~copies(4)~description=
 'UTF-8 not-ASCII (24 graphemes, 48 codepoints, 136 bytes, 0 error)'
 
 -- hashCode
@@ -193,22 +186,16 @@ Error code= 23.900
 
 -- subchar
 
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(3)=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(3)=; result~description=
 T'ë'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(3)~description=
 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 2 bytes, 0 error)'
 
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(4)=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(4)=; result~description=
 T'l'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(4)~description=
 'UTF-8 ASCII (1 grapheme, 1 codepoint, 1 byte, 0 error)'
 
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(5)=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(5)=; result~description=
 T'👩‍👨‍👩‍👧'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(5)~description=
 'UTF-8 not-ASCII (1 grapheme, 7 codepoints, 25 bytes, 0 error)'
 
 -- substr
@@ -221,24 +208,21 @@ Incorrect pad or character argument specified; found "▷"
 Error code= 93.922
 
 ooRexx[bash]> "noel"~substr(3, 3, "▷"~text)=   -- forward to String: error because the pad character is not compatible with String
-The UTF-8 not-ASCII text cannot be converted to a String instance.
+UTF-8 not-ASCII '▷' cannot be converted to a String instance.
 Error code= 23.900
 
 ooRexx[bash]> "noel"~text~substr(3, 3, "▷")=   -- no error because self is a RexxText and the pad character is one grapheme when converted to the default encoding
 T'el▷'
 
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~substr(3, 3, "▷")=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~substr(3, 3, "▷")=; result~description=
 T'ël👩‍👨‍👩‍👧'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~substr(3, 3, "▷")~description=
 'UTF-8 not-ASCII (3 graphemes, 9 codepoints, 28 bytes, 0 error)'
 
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~substr(3, 6, "▷")=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~substr(3, 6, "▷")=; result~description=
 T'ël👩‍👨‍👩‍👧🎅▷▷'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~substr(3, 6, "▷")~description=
 'UTF-8 not-ASCII (6 graphemes, 12 codepoints, 38 bytes, 0 error)'
 
+ooRexx[bash]> 
 -- x2c
 
 ooRexx[bash]> "F09F9180"~text~x2c=
@@ -249,7 +233,7 @@ Only 0-9, a-f, A-F, and whitespace characters are valid in a hexadecimal string;
 Error code= 93.933
 
 ooRexx[bash]> "not an hexadecimal value 🤔"~text~x2c
-The UTF-8 not-ASCII text is not compatible with a Rexx hexadecimal value.
+UTF-8 not-ASCII 'not an ...' is not compatible with a Rexx hexadecimal value.
 Error code= 23.900
 
 A way to test the compatibility of RexxText with String is to pass instances of
@@ -267,7 +251,7 @@ Error code= 23.900
 
 
 ooRexx[bash]> p = .Pattern~compile("à.c"~text)
-Unicode comparison not yet implemented.
+UTF-8 not-ASCII 'à' cannot be converted to a String instance.
 Error code= 23.900
 
 End of demonstration.

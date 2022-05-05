@@ -99,6 +99,7 @@ sleep
 -- An auto named argument never overwrites a variable already assigned
 -- Here, n1 is not overwritten with 1
 {n1=10; use auto named arg; say n1 n2 n3; .context~namedArgs}~(n1:1, n2:2, n3:3)=
+sleep no prompt
 
 /*
 At parse-time, the source is transformed to accept auto named arguments, and to
@@ -110,6 +111,7 @@ sleep
 block~source=
 sleep
 block~rawExecutable~source==
+sleep no prompt
 
 /*
 By convention, the higher-order functions are passing the named parameters

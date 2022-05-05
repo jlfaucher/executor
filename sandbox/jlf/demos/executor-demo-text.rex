@@ -232,7 +232,7 @@ sleep no prompt
 "côté"~text~unicode~pipe{item~description(s:1) ":" item~c2x}=
 "noël‍👨‍👩‍👧"~text~maximumCodepoint~pipe{"U+"item~d2x}=   -- U+1F469 is the maximum codepoint
 "noël‍👨‍👩‍👧"~text~unicode~description(t:1)=              -- For this maximum codepoint, we need Unicode32
--- The endianness of the UnicodeXX_Encoding is the one of the machine.
+-- The endianness of the UnicodeN_Encoding is the one of the machine.
 -- With an Intel CPU, it's little-endian.
 "noël‍👨‍👩‍👧"~text~unicode~c2x=
 -- The default endianness for UTF32 is big-endian.
