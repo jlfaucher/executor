@@ -258,6 +258,7 @@ v()               | []                            | 1         | [0]             
             if index > self~dimension(1) then return .nil
             subshape = self~shape~section(2) -- Ex : for a matrix whose shape is [6,3], the result is a vector of shape [3]
             myIndex = index
+            -- Next comment is no longer true since 05 dec 2020 commit 6a03cfdb6e9bc7ba5bd438a23d86b2cbe6e6af12
             -- REMEMBER ! If index is exposed in the closure, then it's overwritten by the implicit argument index.
             subindexes = self~allindexes~select{expose myIndex; item[1] == myIndex}
             subindexes = subindexes~reshape(subshape)
