@@ -185,6 +185,21 @@ Similar to ~makeArray(separator), with these differences:
 /******************************************************************************/
 ::class "MutableBufferHelpers"  mixinclass Object public
 
+::method chunk
+    use strict arg -- none
+    return stringChunks(self~string, /*withInfos*/ .true, /*breakTokens*/ "", /*splitLevel*/ 0)[1] -- always 1 item because splitLevel == 0
+
+
+::method chunks
+    use strict arg -- none
+    use strict named arg withInfos(1)=.true, breakTokens(1)="", splitLevel(1)=1, escapeCharacters(1)=""
+    return stringChunks(self~string, withInfos, breakTokens, splitLevel, escapeCharacters)
+
+
+::method matcher
+    forward to (self~chunk)
+
+
 ::method join
     use strict arg ... -- zero to N objects or arrays of objects (recursively).
     use strict named arg separator(1)="", appender(1)=.nil
@@ -536,7 +551,7 @@ Similar to ~makeArray(separator), with these differences:
 ::class "RexxTextInitializer" mixinclass Object private
 
 ::method init
-    -- expose indexer -- The RexxText is not referencing directly the String, it's the indexer
+    -- The RexxText is not referencing directly the String, it's the indexer
     expose indexer /* rest is optim */ string text encoding
     use strict arg argString, argEncoding="default"
     .validate~classtype("1", argString, .string)
@@ -3473,11 +3488,14 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         pos += 1
         character = string~subchar(pos)
         select
+            when character == "a" then buffer~append("07"x) -- audible bell (BEL)
             when character == "b" then buffer~append("08"x) -- backspace (BS)
-            when character == "t" then buffer~append("09"x) -- horizontal tab (HT)
-            when character == "n" then buffer~append("0A"x) -- linefeed (LF)
             when character == "f" then buffer~append("0C"x) -- form feed (FF)
+            when character == "n" then buffer~append("0A"x) -- linefeed (LF)
             when character == "r" then buffer~append("0D"x) -- carriage return (CR)
+            when character == "t" then buffer~append("09"x) -- horizontal tab (HT)
+            when character == "v" then buffer~append("0B"x) -- vertical tab (VT)
+
             when character == "u" then do
                 if self~isUnicode then do
                     -- \u{Unicode name}    Character name in the Unicode database
@@ -3496,6 +3514,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
                 end
                 else signal unicode_character_not_supported
             end
+
             when character == "x" then do
                 -- \x{X..X} sequence of 1..n hexadecimal digits
                 pos += 1
@@ -3509,6 +3528,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
                 characters = hexadecimalDigits~x2c -- 1..n bytes
                 buffer~append(characters)
             end
+
             otherwise buffer~append(character)
         end
         from = pos + 1
