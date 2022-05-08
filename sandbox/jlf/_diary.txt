@@ -2,6 +2,48 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2022 May 08
+
+[functional]
+
+String map was implemented by 2 methods: mapC for characters, mapW for words, but no 'map'.
+Added a 'map' method which supports a named argument 'by' to indicate how the split is done.
+3 kinds of split are supported: by:"characters", by:"chunks", by:"words".
+Examples:
+    'he said "bye bye" and left.'~map(by:"characters", sep:" "){index":<"item">"}=   -- '1:<h> 2:<e> 3:< > 4:<s> 5:<a> 6:<i> 7:<d> 8:< > 9:<"> 10:<b> 11:<y> 12:<e> 13:< > 14:<b> 15:<y> 16:<e> 17:<"> 18:< > 19:<a> 20:<n> 21:<d> 22:< > 23:<l> 24:<e> 25:<f> 26:<t> 27:<.>'
+    'he said "bye bye" and left.'~map(by:"chunks", sep:" "){index":<"item">"}=       -- '1:<he> 2:<said> 3:<bye bye> 4:<and> 5:<left.>'
+    'he said "bye bye" and left.'~map(by:"words", sep:" "){index":<"item">"}=        -- '1:<he> 2:<said> 3:<"bye> 4:<bye"> 5:<and> 6:<left.>'
+
+Add the named parameter separator(3)="" used when concatenating the mappings
+    String~map
+    String~mapC
+    String~mapW
+    MutableBuffer~mapC
+    MutableBuffer~mapCR
+    MutableBuffer~mapW
+    MutableBuffer~mapWR
+
+String ~upto ~downto
+    Default value for arguments by, for, action.
+    The numeric settings are propagated.
+    digits() no longer passed as argument.
+    index is a new argument passed to the action.
+Example:
+    1~upto(100,by:3e-100, for:-5){say digits() index item}
+    display:
+        103 1 99.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999988
+        103 2 99.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999991
+        103 3 99.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999994
+        103 4 99.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999997
+        103 5 100.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+New facade methods:
+    MutableBuffer~reduce
+    MutableBuffer~map
+    MutableBuffer~mapR
+
+
+===============================================================================
 2022 February 13
 
 [Encoded strings]
@@ -3903,21 +3945,22 @@ Ex:
 1~20000000000(0.000000127, 3)=     -- [1,1.000000127,1.000000254]
 1~20000000000(0.000000127, -3)=    -- [19999999999.999999681,19999999999.999999808,19999999999.999999935]
 
-The value of digits() is passed as argument digits to the doer.
-That allows to declare the same setting in the context of the doer, if needed.
-Reminder: by default, the setting of numeric digits is 9 inside the doer (standard ooRexx setting).
+[update 2022 May 08] No longer pass the argument digit, because now propagating the setting
+[deprecated] The value of digits() is passed as argument digits to the doer.
+[deprecated] That allows to declare the same setting in the context of the doer, if needed.
+[deprecated] Reminder: by default, the setting of numeric digits is 9 inside the doer (standard ooRexx setting).
 Ex:
-do i=10 to 100 by 10; n="1e"i; n~upto(n,,1){say "digits="digits "item+0="item+0 "item="item}; end
-digits=13 item+0=1E+10 item=10000000000
-digits=28 item+0=1E+20 item=100000000000000000000
-digits=42 item+0=1E+30 item=1000000000000000000000000000000
-digits=42 item+0=1E+40 item=10000000000000000000000000000000000000000
-digits=63 item+0=1E+50 item=100000000000000000000000000000000000000000000000000
-digits=63 item+0=1E+60 item=1000000000000000000000000000000000000000000000000000000000000
-digits=94 item+0=1E+70 item=10000000000000000000000000000000000000000000000000000000000000000000000
-digits=94 item+0=1E+80 item=100000000000000000000000000000000000000000000000000000000000000000000000000000000
-digits=94 item+0=1E+90 item=1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-digits=141 item+0=1E+100 item=10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+do i=10 to 100 by 10; n="1e"i; n~upto(n,,1){say "digits="digits() "item="item~format(,,3,0) "item="item}; end
+digits=11 item=1E+010 item=10000000000
+digits=21 item=1E+020 item=100000000000000000000
+digits=31 item=1E+030 item=1000000000000000000000000000000
+digits=41 item=1E+040 item=10000000000000000000000000000000000000000
+digits=51 item=1E+050 item=100000000000000000000000000000000000000000000000000
+digits=61 item=1E+060 item=1000000000000000000000000000000000000000000000000000000000000
+digits=71 item=1E+070 item=10000000000000000000000000000000000000000000000000000000000000000000000
+digits=81 item=1E+080 item=100000000000000000000000000000000000000000000000000000000000000000000000000000000
+digits=91 item=1E+090 item=1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+digits=101 item=1E+100 item=10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
 
 ===============================================================================

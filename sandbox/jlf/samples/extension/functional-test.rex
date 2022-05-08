@@ -375,7 +375,7 @@ identityTable~dump -- collection after mapping (impacted by mapping
 "abcdefghijklmnopqrstuvwxyz"~mapC("c2x")~dump
 
 
-"The quick brown fox jumps over the lazy dog"~mapW("length")~dump
+"The quick brown fox jumps over the lazy dog"~mapW("length", sep:" ")~dump
 
 
 -- --------------------------------------------------------------
@@ -392,7 +392,7 @@ buffer~dump -- mutable buffer after mapping
 --  Not-in-place mapping (map the words)
 buffer = .MutableBuffer~new("The quick brown fox jumps over the lazy dog")
 buffer~dump -- mutable buffer before mapping
-buffer~mapW("length")~dump
+buffer~mapW("length", sep:" ")~dump
 buffer~dump -- mutable buffer after mapping
 
 
@@ -406,7 +406,7 @@ buffer~dump -- mutable buffer after mapping
 -- In place mapping (Replace the words)
 buffer = .MutableBuffer~new("The quick brown fox jumps over the lazy dog")
 buffer~dump -- mutable buffer before mapping
-buffer~mapWR("length")~dump
+buffer~mapWR("length", sep:" ")~dump
 buffer~dump -- mutable buffer after mapping
 
 
@@ -613,11 +613,11 @@ buffer~dump -- mutable buffer after mapping
 "abcdefghijklmnopqrstuvwxyz"~mapC{if item~verify('aeiouy') then item}~dump
 
 
-"one two three"~mapW{if item~length == 3 then item}~dump
+"one two three"~mapW(sep:" "){if item~length == 3 then item}~dump
 
 
 -- Reminder : index passed as 2nd argument
-"one two three"~mapW{index":"item}~dump
+"one two three"~mapW(sep:" "){index":"item}~dump
 
 
 -- --------------------------------------------------------------
@@ -633,8 +633,8 @@ buffer~dump -- mutable buffer after mapping
 
 translation = .Directory~of("quick", "slow", "lazy", "nervous", "brown", "yellow", "dog", "cat")
 translation~setMethod("UNKNOWN", "return arg(1)")
-"The quick brown fox jumps over the lazy dog"~mapW{expose translation ; translation[arg(1)]}~dump
-.MutableBuffer~new("The quick brown fox jumps over the lazy dog")~mapW{expose translation ; translation[arg(1)]}~dump
+"The quick brown fox jumps over the lazy dog"~mapW(sep:" "){expose translation ; translation[arg(1)]}~dump
+.MutableBuffer~new("The quick brown fox jumps over the lazy dog")~mapW(sep:" "){expose translation ; translation[arg(1)]}~dump
 
 
 -- --------------------------------------------------------------

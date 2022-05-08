@@ -17,7 +17,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 -- Facade with named argument 'by' to indicate by which criteria the split for reduction is done
 ::method reduce unguarded
-    use /*strict*/ named arg by="word" -- not strict because other named arguments can be passed that will handled later
+    use /*strict*/ named arg by="words" -- not strict because other named arguments can be passed that will be handled later
     if "characters"~caselessAbbrev(by, 1) then forward message "reduce" to (self~makeArray(""))
     if "chunks"~caselessAbbrev(by, 3)     then forward message "reduce" to (self~chunks) -- for more complex cases, use "string"~chunks(...your args...)~reduce(...)
     if "words"~caselessAbbrev(by, 1)      then forward message "reduce" to (self~subwords)
@@ -45,6 +45,15 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -------------------------------------------------------
 ::class "MutableBufferReducer" mixinclass Object public
 -------------------------------------------------------
+
+-- Facade with named argument 'by' to indicate by which criteria the split for reduction is done
+::method reduce unguarded
+    use /*strict*/ named arg by="words" -- not strict because other named arguments can be passed that will be handled later
+    if "characters"~caselessAbbrev(by, 1) then forward message "reduce" to (self~makeArray(""))
+    if "chunks"~caselessAbbrev(by, 3)     then forward message "reduce" to (self~chunks) -- for more complex cases, use "string"~chunks(...your args...)~reduce(...)
+    if "words"~caselessAbbrev(by, 1)      then forward message "reduce" to (self~subwords)
+    raise syntax 93.900 array ("Unsupported reduce by:"by)
+
 
 -- Iterate over the characters of the mutable buffer and combine them into one value by applying the given action to (current_value, current_char)
 -- .MutableBuffer~new(123)~reduceC("+") -- initial value is the first char (default), reduce by char, returns 6
@@ -141,13 +150,24 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::class "StringMapper" mixinclass Object public
 -----------------------------------------------
 
+-- Facade with named argument 'by' to indicate by which criteria the split for reduction is done
+::method map unguarded
+    use strict arg action={arg(1)}
+    use /*strict*/ named arg by="words", action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    if "characters"~caselessAbbrev(by, 1) then return .MutableBuffer~new~mapCImpl(self, action, separator)~string
+    if "chunks"~caselessAbbrev(by, 3)     then return .MutableBuffer~new~mapChunksImpl(self, action, separator)~string
+    if "words"~caselessAbbrev(by, 1)      then return .MutableBuffer~new~mapWImpl(self, action, separator)~string
+    raise syntax 93.900 array ("Unsupported map by:"by)
+
+
 -- Iterate over the characters of the string and apply the given action to (current_char)
 -- "abcdefghijklmnopqrstuvwxyz"~mapC{arg(1)~verify('aeiouy')} -- returns "01110111011111011111011101"
 -- Iterate over the characters of the string and apply the given action to (current_char, current_char_pos)
--- "abcdefghijk"~mapC{arg(2)":"arg(1)" "} -- returns "1:a 2:b 3:c 4:d 5:e 6:f 7:g 8:h 9:i 10:j 11:k "
+-- "abcdefghijk"~mapC(sep:" "){arg(2)":"arg(1)} -- returns "1:a 2:b 3:c 4:d 5:e 6:f 7:g 8:h 9:i 10:j 11:k"
 ::method mapC unguarded
     use strict arg action={arg(1)}
-    return .MutableBuffer~new~mapCImpl(self, action)~string
+    use /*strict*/ named arg action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    return .MutableBuffer~new~mapCImpl(self, action, separator)~string
 
 -- Not applicable to a string
 --::method mapCR
@@ -155,10 +175,11 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the words of the string and apply the given action to (current_word)
 -- "one two three"~mapW{if arg(1)~length > 3 then arg(1)} -- returns "three"
 -- Iterate over the words of the string and apply the given action to (current_word, current_word_index)
--- "one two three"~mapW{arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
+-- "one two three"~mapW(sep:" "){arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
 ::method mapW unguarded
     use strict arg action={arg(1)}
-    return .MutableBuffer~new~mapWImpl(self, action)~string
+    use /*strict*/ named arg action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    return .MutableBuffer~new~mapWImpl(self, action, separator)~string
 
 -- Not applicable to a string
 --::method mapWR
@@ -168,56 +189,108 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::class "MutableBufferMapper" mixinclass Object public
 ------------------------------------------------------
 
+-- Facade with named argument 'by' to indicate by which criteria the split for mapping is done
+::method map unguarded
+    use strict arg action={arg(1)}
+    use /*strict*/ named arg by="words", action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    if "characters"~caselessAbbrev(by, 1) then return .MutableBuffer~new~mapCImpl(self, action, separator)
+    if "chunks"~caselessAbbrev(by, 3)     then return .MutableBuffer~new~mapChunksImpl(self, action, separator)
+    if "words"~caselessAbbrev(by, 1)      then return .MutableBuffer~new~mapWImpl(self, action, separator)
+    raise syntax 93.900 array ("Unsupported map by:"by)
+
+
+-- Apply the mapping in-place
+::method mapR unguarded
+    use strict arg action={arg(1)}
+    use /*strict*/ named arg by="words", action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    if "characters"~caselessAbbrev(by, 1) then return self~mapCImpl(self, action, separator)
+    if "chunks"~caselessAbbrev(by, 3)     then return self~mapChunksImpl(self, action, separator)
+    if "words"~caselessAbbrev(by, 1)      then return self~mapWImpl(self, action, separator)
+    raise syntax 93.900 array ("Unsupported map by:"by)
+
+
 -- Iterate over the characters of the mutable buffer and apply the given action to (current_char)
 -- .MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapC{arg(1)~verify('aeiouy')} -- returns "01110111011111011111011101"
 -- Iterate over the characters of the mutable buffer and apply the given action to (current_char, current_char_pos)
--- .MutableBuffer~new("abcdefghijk")~mapC{arg(2)":"arg(1)" "} -- returns "1:a 2:b 3:c 4:d 5:e 6:f 7:g 8:h 9:i 10:j 11:k "
+-- .MutableBuffer~new("abcdefghijk")~mapC(sep:" "){arg(2)":"arg(1)} -- returns "1:a 2:b 3:c 4:d 5:e 6:f 7:g 8:h 9:i 10:j 11:k"
 ::method mapC unguarded
     use strict arg action={arg(1)}
-    return .MutableBuffer~new~mapCImpl(self, action)
+    use /*strict*/ named arg action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    return .MutableBuffer~new~mapCImpl(self, action, separator)
 
 -- Iterate over the characters of the mutable buffer and apply the given action to (current_char) in-place
 -- .MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapCR{arg(1)~verify('aeiouy')} -- returns "01110111011111011111011101"
 -- Iterate over the characters of the mutable buffer and apply the given action to (current_char, current_char_pos) in-place
--- .MutableBuffer~new("abcdefghijk")~mapCR{arg(2)":"arg(1)" "} -- returns "1:a 2:b 3:c 4:d 5:e 6:f 7:g 8:h 9:i 10:j 11:k "
+-- .MutableBuffer~new("abcdefghijk")~mapCR(sep:" "){arg(2)":"arg(1)" "} -- returns "1:a 2:b 3:c 4:d 5:e 6:f 7:g 8:h 9:i 10:j 11:k"
 ::method mapCR
     use strict arg action={arg(1)}
-    return self~mapCImpl(self~string, action)
+    use /*strict*/ named arg action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    return self~mapCImpl(self~string, action, separator) -- self~string because self will be emptied
 
 -- Iterate over the words of the mutable buffer and apply the given action to (current_char)
 -- .MutableBuffer~new("one two three")~mapW{if arg(1)~length > 3 then arg(1)} -- returns "three"
 -- Iterate over the words of the mutable buffer and apply the given action to (current_char, current_char_pos)
--- .MutableBuffer~new("one two three")~mapW{arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
+-- .MutableBuffer~new("one two three")~mapW(sep:" "){arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
 ::method mapW unguarded
     use strict arg action={arg(1)}
-    return .MutableBuffer~new~mapWImpl(self, action)
+    use /*strict*/ named arg action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    return .MutableBuffer~new~mapWImpl(self, action, separator)
 
 -- Iterate over the words of the mutable buffer and apply the given action to (current_char) in-place
 -- .MutableBuffer~new("one two three")~mapWR{if arg(1)~length > 3 then arg(1)} -- returns "three"
 -- Iterate over the words of the mutable buffer and apply the given action to (current_char, current_char_pos) in-place
--- .MutableBuffer~new("one two three")~mapWR{arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
+-- .MutableBuffer~new("one two three")~mapWR(sep:" "){arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
 ::method mapWR
     use strict arg action={arg(1)}
-    return self~mapWImpl(self~string, action)
+    use /*strict*/ named arg action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    return self~mapWImpl(self~string, action, separator) -- self~string because self will be emptied
 
 ::method mapCImpl -- not private because called by String~map
-    use strict arg source, action
+    use strict arg source, action, separator
     doer = action~doer
     arity = doer~arity
     self~delete(1)
     supplier = source~makearray("")~supplier -- really not optimized but...
+    first = .true
     do while supplier~available
         if arity >= 2 then doer~do(      supplier~item,        supplier~index,-
                                    item: supplier~item, index: supplier~index) -- Most of the time, we need only the item, that's why it's the first arg.
                       else doer~do(      supplier~item,-
                                    item: supplier~item)
-        if var("result") then self~append(result)
+        if var("result") then do
+            doResult = result
+            if \first then self~append(separator)
+            self~append(doResult~string)
+            first = .false
+        end
+        supplier~next
+    end
+    return self
+
+::method mapChunksImpl -- not private because called by String~map
+    use strict arg source, action, separator
+    doer = action~doer
+    arity = doer~arity
+    self~delete(1)
+    supplier = source~chunks~supplier -- really not optimized but...
+    first = .true
+    do while supplier~available
+        if arity >= 2 then doer~do(      supplier~item,        supplier~index,-
+                                   item: supplier~item, index: supplier~index) -- Most of the time, we need only the item, that's why it's the first arg.
+                      else doer~do(      supplier~item,-
+                                   item: supplier~item)
+        if var("result") then do
+            doResult = result
+            if \first then self~append(separator)
+            self~append(doResult~string)
+            first = .false
+        end
         supplier~next
     end
     return self
 
 ::method mapWImpl -- not private because called by String~map
-    use strict arg source, action
+    use strict arg source, action, separator
     doer = action~doer
     arity = doer~arity
     self~delete(1)
@@ -230,8 +303,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
                                    item: supplier~item)
         if var("result") then do
             doResult = result
-            if \first then self~append(" ")
-            self~append(doResult)
+            if \first then self~append(separator)
+            self~append(doResult~string)
             first = .false
         end
         supplier~next
@@ -1229,14 +1302,14 @@ This script needs a modified ooRexx interpreter which support extension of prede
     action = {item} -- action default: return the current item (see controlledLoop)
     if arg() <= 1 then use strict arg limit
     else if arg() == 2 then do
-        if arg(2)~isA(.String), arg(2)~dataType("N") then use arg limit, by
-        else use arg limit, action
+        if arg(2)~isA(.String), arg(2)~dataType("N") then use arg limit, by=(by)
+        else use arg limit, action=(action)
     end
     else if arg() == 3 then do
-        if arg(3)~isA(.String), arg(3)~dataType("N") then use arg limit, by, for
-        else use arg limit, by, action
+        if arg(3)~isA(.String), arg(3)~dataType("N") then use arg limit, by=(by), for=(for)
+        else use arg limit, by=(by), action=(action)
     end
-    else use strict arg limit, by, for, action
+    else use strict arg limit, by=(by), for=(for), action=(action)
     use strict named arg by=(by), for=(for), action=(action)
     return controlledLoop(self, limit, by, for, action)
 
@@ -1252,14 +1325,14 @@ This script needs a modified ooRexx interpreter which support extension of prede
     action = {item} -- action default: return the current item (see controlledLoop)
     if arg() <= 1 then use strict arg limit
     else if arg() == 2 then do
-        if arg(2)~isA(.String), arg(2)~dataType("N") then use arg limit, by
-        else use arg limit, action
+        if arg(2)~isA(.String), arg(2)~dataType("N") then use arg limit, by=(by)
+        else use arg limit, action=(action)
     end
     else if arg() == 3 then do
-        if arg(3)~isA(.String), arg(3)~dataType("N") then use arg limit, by, for
-        else use arg limit, by, action
+        if arg(3)~isA(.String), arg(3)~dataType("N") then use arg limit, by=(by), for=(for)
+        else use arg limit, by=(by), action=(action)
     end
-    else use strict arg limit, by, for, action
+    else use strict arg limit, by=(by), for=(for), action=(action)
     use strict named arg by=(by), for=(for), action=(action)
     return controlledLoop(self, limit, by, for, action)
 
@@ -1288,7 +1361,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     expMax = max(expFrom, expLimit, expStep)
     if expMin < 0, expMax >= 0 then precision = abs(expMin) + expMax + 1
     else precision = max(abs(expMin), abs(expMax)) + 1
-    numeric digits max(digits(), precision)
+    numeric digits propagate max(digits(), precision)
 
     -- Checks that the precision is good
     if (from - step - from) = -step,,
@@ -1299,14 +1372,16 @@ This script needs a modified ooRexx interpreter which support extension of prede
     doer = action~doer
     arity = doer~arity
     collectedItems = .array~new
+    index = 1
     if count == .nil then do
         -- no FOR
-        do i = from TO limit BY step
-            if arity >= 2 then doer~do(      i,         digits(),-
-                                       item: i, digits: digits())
-                          else doer~do(      i,-
-                                       item: i)
+        do item = from TO limit BY step
+            if arity >= 2 then doer~do(      item, index,-
+                                       item: item, index: index)
+                          else doer~do(      item,-
+                                       item: item)
             if var("result") then collectedItems~append(result)
+            index += 1
         end
     end
     else do
@@ -1318,12 +1393,13 @@ This script needs a modified ooRexx interpreter which support extension of prede
             if count > N then count = N
             from = L - (count-1)*step
         end
-        do i = from TO limit BY step FOR count
-            if arity >= 2 then doer~do(      i,         digits(),-
-                                       item: i, digits: digits())
-                          else doer~do(      i,-
-                                       item: i)
+        do item = from TO limit BY step FOR count
+            if arity >= 2 then doer~do(      item, index,-
+                                       item: item, index: index)
+                          else doer~do(      item,-
+                                       item: item)
             if var("result") then collectedItems~append(result)
+            index += 1
         end
     end
     return collectedItems
