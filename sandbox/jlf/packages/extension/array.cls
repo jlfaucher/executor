@@ -795,7 +795,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
     if trace then .traceOutput~say("       >I> Method .ArrayPrettyPrinter~ppRepresentation")
     if trace then trace i
     -- Remember : this code has been duplicated in pipe.rex, routine dataflow_representation.
-    if referencesTable == .nil then referencesTable = self~collectReferences(maxItems) -- do it before pretty printing, to display the reference identifiers only when needed
+    if .nil == referencesTable then referencesTable = self~collectReferences(maxItems) -- do it before pretty printing, to display the reference identifiers only when needed
     if val~isA(.enclosedArray) then do
         -- Remember : would be better to have a method ppRepresentation on class EnclosedArray, but I prefer to remain close to dataflow_representation.
         reference = referencesTable[val]
@@ -967,7 +967,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
     use strict arg action={item}, rightArg=.nil, stack=(.identityTable~new)
     use strict named arg depth(1)=(.infinity~positive), expansion(1)=0, transform(1)={item}
     counterpart = stack[self]
-    if counterpart <> .nil then do
+    if .nil <> counterpart then do
         if expansion <= 0 then do
             -- stop infinite recursion
             transform~(counterpart, depth, item:counterpart, depth:depth)
@@ -1136,7 +1136,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
     use strict arg action, leftArg, stack=(.identityTable~new)
     use strict named arg depth(1)=(.infinity~positive), expansion(1)=0, transform(1)={item}
     counterpart = stack[self]
-    if counterpart <> .nil then do
+    if .nil <> counterpart then do
         if expansion <= 0 then do
             -- stop infinite recursion
             transform~(counterpart, depth, item:counterpart, depth:depth)
@@ -1267,74 +1267,74 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
 ::method elementEquals
     if arg() == 1 then return self~leftElementWise("=", arg(1))
 
-/* Not activated
+/* activated
+*/
 ::method "="
     if arg() == 1 then return self~leftElementWise("=", arg(1))
-*/
 
-/* Not activated
+/* activated
+*/
 ::method "=op:right"
     if arg() == 1 then return self~rightElementWise("=", arg(1))
-*/
 
 ::method elementNotEquals
     if arg() == 1 then return self~leftElementWise("\=", arg(1))
 
-/* Not activated
+/* activated
+*/
 ::method "\="
     if arg() == 1 then return self~leftElementWise("\=", arg(1))
-*/
 
-/* Not activated
+/* activated
+*/
 ::method "\=op:right"
     if arg() == 1 then return self~rightElementWise("\=", arg(1))
-*/
 
-/* Not activated
+/* activated
+*/
 ::method "<>"
     if arg() == 1 then return self~leftElementWise("<>", arg(1))
-*/
 
-/* Not activated
+/* activated
+*/
 ::method "<>op:right"
     if arg() == 1 then return self~rightElementWise("<>", arg(1))
-*/
 
 ::method elementStrictEquals
     if arg() == 1 then return self~leftElementWise("==", arg(1))
 
-/* Not activated
+/* activated
+*/
 ::method "=="
     if arg() == 1 then return self~leftElementWise("==", arg(1))
-*/
 
-/* Not activated
+/* activated
+*/
 ::method "==op:right"
     if arg() == 1 then return self~rightElementWise("==", arg(1))
-*/
 
 ::method elementStrictNotEquals
     if arg() == 1 then return self~leftElementWise("\==", arg(1))
 
-/* Not activated
+/* activated
+*/
 ::method "\=="
     if arg() == 1 then return self~leftElementWise("\==", arg(1))
-*/
 
-/* Not activated
+/* activated
+*/
 ::method "\==op:right"
     if arg() == 1 then return self~rightElementWise("\==", arg(1))
-*/
 
-/* Not activated
+/* activated
+*/
 ::method "><"
     if arg() == 1 then return self~leftElementWise("><", arg(1))
-*/
 
-/* Not activated
+/* activated
+*/
 ::method "><op:right"
     if arg() == 1 then return self~rightElementWise("><", arg(1))
-*/
 
 ::method "\"
     use strict arg -- none, no binary version

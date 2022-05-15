@@ -91,7 +91,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ------------------------------
 
 ::method isNil
-    return self == .nil
+    return .nil == self
 
 
 ------------

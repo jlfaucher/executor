@@ -1373,7 +1373,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     arity = doer~arity
     collectedItems = .array~new
     index = 1
-    if count == .nil then do
+    if .nil == count then do
         -- no FOR
         do item = from TO limit BY step
             if arity >= 2 then doer~do(      item, index,-

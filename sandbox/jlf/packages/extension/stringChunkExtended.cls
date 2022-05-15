@@ -128,7 +128,7 @@
             end
         end
     end
-    if trace, displayer <> .nil then call traceMatcher matcher, displayer, prefix
+    if trace, .nil <> displayer then call traceMatcher matcher, displayer, prefix
     return matcher
 
     patternCompileError:

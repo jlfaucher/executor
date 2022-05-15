@@ -2588,7 +2588,7 @@ end
 
 ::method append                             -- override for the single append version
 expose stages
-if self~next == .nil then do                -- if first append
+if .nil == self~next then do                -- if first append
     use strict arg follower
     do stage over stages                    -- append the follower to each of the filter chains
         stage~append(follower)

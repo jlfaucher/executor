@@ -153,7 +153,7 @@ each other explicitly and deterministically.
                     invocation : .Coactivity~yield()
     */
     coactivityObj = .Activity~local~coactivityObj
-    if coactivityObj == .nil then raise syntax 93.900 array ("yield can be used only from a coactivity")
+    if .nil == coactivityObj then raise syntax 93.900 array ("yield can be used only from a coactivity")
     forward to (coactivityObj)
 
 
@@ -292,7 +292,7 @@ Status transitions :
     if self~hasMethod("onTerminate") then self~onTerminate
     .Coactivity~unregister(self)
     .Activity~local~empty
-    if self~isKilled & condition("o") <> .nil then raise propagate
+    if self~isKilled & .nil <> condition("o") then raise propagate
 
 
 ::method yield --private

@@ -241,14 +241,14 @@ Ex :
         else doer~doWith(arg1a, n:namedArgs)
         r = arg1
         if var("result") then r = result
-        if r == .nil then return .nil -- stop now
+        if .nil == r then return .nil -- stop now
         doer = doers~pull
         -- The following doers take only one positional argument: the result returned by the previous doer
-        do while doer <> .nil
+        do while .nil <> doer
             doer~do(r, item:r)
             -- use the current result if any, otherwise use the previous result (that allow to use a doer to display intermediate value, for example)
             if var("result") then r = result
-            if r == .nil then return .nil -- stop now
+            if .nil == r then return .nil -- stop now
             doer = doers~pull
         end
         return r
@@ -381,7 +381,7 @@ Ex :
                      v = arg(1, "a")
                      v_index = v~tostring
                      r = table[v_index]
-                     if r <> .nil then return r
+                     if .nil <> r then return r
                      r = x~(x)~doWith(v, n:.context~namedArgs)
                      table[v_index] = r
                      return r

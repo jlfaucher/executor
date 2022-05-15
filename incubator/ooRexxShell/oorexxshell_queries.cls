@@ -155,7 +155,7 @@ loadPackage:
 ::method init
     expose klass package visibility
     use strict arg klass, package, visibility
-    if package == .nil, self~class~isPredefinedClass(klass~id) then package = self~class~REXXPackage
+    if .nil == package, self~class~isPredefinedClass(klass~id) then package = self~class~REXXPackage
 
 
 -------------------------------------------------------------------------------
@@ -318,20 +318,20 @@ attribute traceFilter
                       .inject {item~methods(item)} "iterateAfter" "mem.instanceMethod"],
           | .do { expose classInfos methods
                   package = .nil
-                  if item <> .nil then package = item~package -- if method not hidden
+                  if .nil <> item then package = item~package -- if method not hidden
                   superclass = dataflow["superclass"] -- will be .nil if not getting inherited methods
-                  if superclass == .nil then superclassId = ""
+                  if .nil == superclass then superclassId = ""
                   else do
                       superclass = superclass~item
                       superclassId = superclass~id~quoted("'")
                       superclassInfo = classInfos[superclass]
-                      if package == .nil then package = superclassInfo~package
+                      if .nil == package then package = superclassInfo~package
                   end
                   class = dataflow["class"]~item
                   classId = class~id~quoted("'")
                   classInfo = classInfos[class]
-                  if package == .nil then package = classInfo~package
-                  instanceLevel = dataflow["instanceMethod"] <> .nil
+                  if .nil == package then package = classInfo~package
+                  instanceLevel = .nil <> dataflow["instanceMethod"]
                   -- Insert class flags at the begining to have the same format than displayClasses.
                   -- That allows to reuse a filter applicable to classes.
                   classFlags = classInfos(classInfo~klass, classInfo~visibility)
@@ -358,7 +358,7 @@ attribute traceFilter
     if classnames~isEmpty then do
         if inherited then do
             -- Classes having the "_description" class method (can be inherited)
-            selectClass = .select { item~instanceMethod("_DESCRIPTION_") <> .nil }
+            selectClass = .select { .nil <> item~instanceMethod("_DESCRIPTION_") }
         end
         else do
             -- Classes having their own "_description_" class method (not an inherited one).
@@ -405,7 +405,7 @@ attribute traceFilter
     displayClassHelp: procedure expose displayer
         use strict arg class
         description = class~instanceMethod("_description_")
-        if description <> .nil then do
+        if .nil <> description then do
             source = description~source -- an array
             items = source~items
             if items > 4 then do
@@ -453,11 +453,11 @@ attribute traceFilter
                 },
       | .do { expose classInfos methods
               package = .nil
-              if item <> .nil then package = item~package -- if method not hidden
+              if .nil <> item then package = item~package -- if method not hidden
               class = dataflow["class"]~item
               classInfo = classInfos[class]
-              if package == .nil then package = classInfo~package
-              instanceLevel = dataflow["instanceMethod"] <> .nil
+              if .nil == package then package = classInfo~package
+              instanceLevel = .nil <> dataflow["instanceMethod"]
               classFlags = classInfos(classInfo~klass, classInfo~visibility)
               methodFlags = methodInfos(item, instanceLevel)
               flags = classFlags methodFlags
@@ -616,7 +616,7 @@ attribute traceFilter
 
     self~queryFilterArgs = routine_stringChunks~call(queryFilter, /*withInfos*/ .true, /*breakTokens*/ .Filter~operators .QueryManager~separators)
     do arg over self~queryFilterArgs
-        if self~query == .nil then self~query = arg -- the first arg is the query
+        if .nil == self~query then self~query = arg -- the first arg is the query
         else do
             entity = entityLeft[arg~string]
             if .nil <> entity then do
@@ -664,7 +664,7 @@ attribute traceFilter
 
 ::routine methodInfos public
     use strict arg method, instanceLevel
-    if method == .nil then return "----" -- Hidden method, see documentation of .class~methods
+    if .nil == method then return "----" -- Hidden method, see documentation of .class~methods
     if instanceLevel then level = "."; else level = "C" -- Remember: "I" not displayed because of "PIG"
     if method~isGuarded then guarded = "G"; else guarded = "."
     if method~isPrivate then visibility = "."; else visibility = "P" -- Remember: "p" vs "P" not readable
@@ -676,7 +676,7 @@ attribute traceFilter
     -- Not used because
     -- Bug: With ooRexx < 5.0, the package of a method created with ::ATTRIBUTE is .nil.
     use strict arg method
-    if method == .nil then return "UNDEFINED"
+    if .nil == method then return "UNDEFINED"
     return packageInfos(method~package)
 
 
@@ -687,7 +687,7 @@ attribute traceFilter
     -- With ooRexx >= 5.0
     -- The package of a class created dynamically is still .nil.
     use strict arg package
-    if package == .nil then return ""
+    if .nil == package then return ""
     packageName = package~name
     if packageName == "" then return "" -- .file~new does not support an empty string, and the error message is cryptic: Incorrect position argument specified; found "0"
     return .file~new(packageName)~name  -- return the filename only, not the full path
@@ -892,7 +892,7 @@ attribute traceFilter
     stringbuffer~delete(1)
     if self~select(line) then do
         self~lineCount += 1
-        if self~doBeforeNextLine <> .nil then do
+        if .nil <> self~doBeforeNextLine then do
             action = self~doBeforeNextLine
             self~doBeforeNextLine = .nil -- reset before call to avoid infinite recursion
             action~()
@@ -911,7 +911,7 @@ attribute traceFilter
     stringbuffer~delete(1)
     if self~select(line) then do
         self~lineCount += 1
-        if self~doBeforeNextLine <> .nil then do
+        if .nil <> self~doBeforeNextLine then do
             action = self~doBeforeNextLine
             self~doBeforeNextLine = .nil -- reset before call to avoid infinite recursion
             action~()

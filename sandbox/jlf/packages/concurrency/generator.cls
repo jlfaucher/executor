@@ -929,9 +929,9 @@
         if detectCycles, stack~hasItem(item) then return -- Recurse only if not already processed
         self~yieldResult(item, index, depth, stack)
         if once then previousItems~append(item)
-        if stack <> .nil then stack~push(item)
+        if .nil <> stack then stack~push(item)
         self~processDepthFirst.1(item, index, previousItems, stack, depth+1)
-        if stack <> .nil then stack~pull
+        if .nil <> stack then stack~pull
     end
     else do
         self~yieldResult(item, index, depth, stack)
@@ -1021,7 +1021,7 @@
         if once then previousItems~append(item)
         toprocess~queue(item)
         toprocess~queue(index)
-        if stack <> .nil then do
+        if .nil <> stack then do
             stack~push(item)
             toprocess~queue(stack~copy)
             stack~pull
@@ -1107,7 +1107,7 @@
         if toprocess~isEmpty then leave
         item = toprocess~pull
         index = toprocess~pull
-        if stack <> .nil then stack = toprocess~pull
+        if .nil <> stack then stack = toprocess~pull
         depth = toprocess~pull
     end
 
@@ -1117,7 +1117,7 @@
     if trace then .traceOutput~say("       >I> Method .Generator~action2doer")
     if trace then trace i
     use strict arg action
-    if action == .nil then action = {arg(1)}
+    if .nil == action then action = {arg(1)}
     return action~doer
 
 
@@ -1190,7 +1190,7 @@ Temporary, for trying to understand why the GC is not working
     if trace then .traceOutput~say("       >I> Method .jlf~action2doer")
     if trace then trace i
     use strict arg action
-    if action == .nil then action = {arg(1)}
+    if .nil == action then action = {arg(1)}
     return action~doer
 
 

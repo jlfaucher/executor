@@ -1806,7 +1806,7 @@ syntax:              -- propagate condition
      len=5  -- define an arbitrary high width
      availability = "" --JLF
      if \s~available then availability = "(nothing available)" -- JLF
-     if title <> .nil then say title availability -- JLF .nil
+     if .nil <> title then say title availability -- JLF .nil
   end
   else if \coll~isA(.Collection) then   -- make sure we have a Collection else
   do
@@ -1823,7 +1823,7 @@ syntax:              -- propagate condition
   do
      shape = shape(coll, ", ") -- JLF
      items = coll~items -- calculate once, can be long for big array
-     if title <> .nil then say title" ("shape || items "items)" -- JLF .nil shape
+     if .nil <> title then say title" ("shape || items "items)" -- JLF .nil shape
      len=length(items)
   end
 
