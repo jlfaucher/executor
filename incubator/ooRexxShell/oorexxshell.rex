@@ -1309,6 +1309,7 @@ Helpers
 
 
 ::method sayCollection class
+    numeric digits -- stop any propagated settings, to have the default value for digits()
     use strict arg coll, title=(coll~defaultName), comparator=.nil, iterateOverItem=.false, surroundItemByQuotes=.true, surroundIndexByQuotes=.true, maxCount=(9~copies(digits())) /*no limit*/, action=.nil
     -- The package rgfutil2 is optional, use it if loaded.
     if .ooRexxShell~dump2 <> .nil then .ooRexxShell~dump2~call(coll, title, comparator, iterateOverItem, surroundItemByQuotes, surroundIndexByQuotes, maxCount, action)
@@ -1316,6 +1317,7 @@ Helpers
 
 
 ::method sayPPrepresentation class
+    numeric digits -- stop any propagated settings, to have the default value for digits()
     use strict arg value /*enclosedArray or array*/, maxItems=(9~copies(digits())) /*no limit*/
     if .ooRexxShell~isExtended then say value~ppRepresentation(maxItems) -- condensed output, limited to maxItems
     else say value

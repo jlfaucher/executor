@@ -1786,6 +1786,7 @@ syntax:              -- propagate condition
   -- JLF: I prefer a notation closer to the standard notation "a String" or "an Array"
   -- JLF: add surroundItemByQuotes, surroundIndexByQuotes
   -- JLF: add action, to let do something for each item
+  numeric digits -- stop any propagated settings, to have the default value for digits()
   use arg coll, title=(/*"type: The" coll~class~id "class"*/ coll~defaultName), comparator=.nil, iterateOverItem=.false, surroundItemByQuotes=.true, surroundIndexByQuotes=.true, maxCount=(9~copies(digits())) /*no limit*/, action=.nil
 
   if .nil=comparator, title~isA(.comparator) then
@@ -1883,6 +1884,7 @@ syntax:              -- propagate condition
 
 /* Sort a collection considering its type and return a sorted supplier object. */
 makeSortedSupplier: procedure
+  numeric digits -- stop any propagated settings, to have the default value for digits()
   use arg coll, comparator=.nil, maxCount=(9~copies(digits()))
 
   if coll~isA(.OrderedCollection) then do  -- don't sort, just return the supplier
