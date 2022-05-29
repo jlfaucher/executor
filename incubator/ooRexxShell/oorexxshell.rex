@@ -146,7 +146,7 @@ if .ooRexxShell~showInitialization then do
     .ooRexxShell~showColor = .true
 end
 
--- Deactivate the realine mode when Windows, because the history is not managed correctly.
+-- Deactivate the readline mode when Windows, because the history is not managed correctly.
 -- We lose the doskey macros and the filename autocompletion. Too bad...
 if .platform~is("windows") then .ooRexxShell~readline = .false
 

@@ -23,6 +23,10 @@ rxapi >/dev/null & # Workaround to avoid crash at first execution
 # ooRexxShell is interactive if stdin, stdout and stderr are associated with a terminal.
 [ -t 0 -a -t 1 -a -t 2 ] || export OOREXXSHELL_RLWRAP=
 
+# Remember
+# Under MacOs High Sierra, rlwrap 0.45 completion is not working with names like gci-try
+# Apparently, the "-" brings troubles.
+
 while true
 do
     $OOREXXSHELL_RLWRAP rexx oorexxshell.rex "$*"
