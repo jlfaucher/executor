@@ -2,6 +2,19 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2022 June 01
+
+[rgf_util NumberComparator]
+
+Modify NumberComparator ~compareWithNonNumbers and ~compareWithNonNumbersDescending to convert the arguments to strings.
+That fixes this error raised when displaying a relation which contains classes:
+a Relation (194 items)
+Object "The MutableBufferIterator class" does not understand message "CASELESSCOMPARETO".
+
+Note: I use this comparator because it works both for numbers and not numbers.
+
+
+===============================================================================
 2022 May 08
 
 [functional]

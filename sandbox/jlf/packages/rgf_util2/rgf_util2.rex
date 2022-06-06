@@ -2387,7 +2387,7 @@ syntax:     -- propagate syntax exception, if any
      return (left-right)~sign    -- returns -1 (left<right), +1 (left>right), 0 (left=right)
   end
 
-  return stringComparator~compare(left,right) -- rgf, 20090520
+  return stringComparator~compare(left~string,right~string) -- rgf, 20090520
 
 
 ::method compareWithNonNumbersDescending  -- used by StringComparator as well !
@@ -2403,7 +2403,7 @@ syntax:     -- propagate syntax exception, if any
      return -((left-right)~sign) -- returns -1 (left<right), +1 (left>right), 0 (left=right)
   end
 
-  return stringComparator~compare(left,right) -- rgf, 20090520
+  return stringComparator~compare(left~string,right~string) -- rgf, 20090520
 
 
 
