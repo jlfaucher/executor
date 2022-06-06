@@ -3,7 +3,7 @@ Keep it compatible with official ooRexx
 */
 
 -------------------------------------------------------------------------------
-::class StringChunk public
+::class "StringChunk" public
 -------------------------------------------------------------------------------
 
 ::attribute container           -- the string container from which the string value has been extracted
