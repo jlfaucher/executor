@@ -1,4 +1,4 @@
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 14 May 2022
 DARWIN
 Intel(R) Core(TM)2 Duo CPU     P8600  @ 2.40GHz
 
@@ -6,43 +6,44 @@ Intel(R) Core(TM)2 Duo CPU     P8600  @ 2.40GHz
 -- ----------------------------------------------------------------------------
 -- Overview of dataflows
 -- ----------------------------------------------------------------------------
---   1          2     3       4
--- +----------+-----+-------+------+
--- | previous | tag | index | item |
--- +----------+-----+-------+------+
+--
+--   1          2     3            4       5
+-- +----------+-----+------------+-------+------+
+-- | previous | tag | annotation | index | item |
+-- +----------+-----+------------+-------+------+
 --    ^
---    |  +----------+-----+-------+------+
---    +--| previous | tag | index | item |
---       +----------+-----+-------+------+
+--    |  +----------+-----+------------+-------+------+
+--    +--| previous | tag | annotation | index | item |
+--       +----------+-----+------------+-------+------+
 --          ^
 --          |
 --          +-- etc...
 
 
--- A dataflow is created from a tag, a pair of (item, index), and a previous dataflow (which can be .nil).
+-- A dataflow is created from a tag, an annotation, a pair of (item, index), and a previous dataflow (which can be .nil).
 -- Representation : the strings (except the strings numbers) are surrounded by quotes.
-   df1 = .dataflow~create(.nil, "tag1", "item1", "index1")
+   df1 = .dataflow~create(.nil, "tag1", "annotation1", "item1", "index1")
    say df1 -- by default, all the fields are included in the representation string.
-tag1:'index1','item1'
+tag1[annotation1]:'index1','item1'
    say df1~makeString(2) -- show tag
 tag1:
-   say df1~makeString(23) -- show tag, index
+   say df1~makeString(24) -- show tag, index
 tag1:'index1'
-   say df1~makeString(234) -- show tag, index, item
+   say df1~makeString(245) -- show tag, index, item
 tag1:'index1','item1'
 
 
 -- A dataflow can be linked to a previous dataflow.
 -- Representation : the dataflows are separated by |
-   df2 = .dataflow~create(df1, "tag2", "item2", "index2")
+   df2 = .dataflow~create(df1, "tag2", "annotation2", "item2", "index2")
    say df2
-tag1:'index1','item1' | tag2:'index2','item2'
+tag1[annotation1]:'index1','item1' | tag2[annotation2]:'index2','item2'
 
 
 -- Representation : the objects other than strings are surrounded by round brackets.
-   df3 = .dataflow~create(df2, "tag3", .mutableBuffer~new(22222), .file~new("my file"))
+   df3 = .dataflow~create(df2, "tag3", "annotation3", .mutableBuffer~new(22222), .file~new("my file"))
    say df3
-tag1:'index1','item1' | tag2:'index2','item2' | tag3:(my file),(22222)
+tag1[annotation1]:'index1','item1' | tag2[annotation2]:'index2','item2' | tag3[annotation3]:(my file),(22222)
 
 
 -- showPool=.true : when an item (other than a number) appears several times then it is replaced by a reference to the first occurence of the item.
@@ -51,11 +52,11 @@ tag1:'index1','item1' | tag2:'index2','item2' | tag3:(my file),(22222)
 -- Example :
 -- "a" and .file~new("my file" are entered in the pool, because there is more than one occurence of them.
 -- .mutableBuffer~new(22222) is not entered in the pool, because two distincts instances are never equal, even if their string representation is the same.
-   df4 = .dataflow~create(df3, "tag4", .file~new("my file"), "a")
-   df5 = .dataflow~create(df4, "tag5", .mutableBuffer~new(22222), "a")
+   df4 = .dataflow~create(df3, "tag4", "annotation4", .file~new("my file"), "a")
+   df5 = .dataflow~create(df4, "tag5", "annotation5", .mutableBuffer~new(22222), "a")
    say df5 ; say df5~makeString(1234, .true)
-tag1:'index1','item1' | tag2:'index2','item2' | tag3:(my file),(22222) | tag4:'a',(my file) | tag5:'a',(22222)
-tag1:'index1','item1' | tag2:'index2','item2' | tag3:v1=(my file),(22222) | tag4:v2='a',*v1 | tag5:*v2,(22222)
+tag1[annotation1]:'index1','item1' | tag2[annotation2]:'index2','item2' | tag3[annotation3]:(my file),(22222) | tag4[annotation4]:'a',(my file) | tag5[annotation5]:'a',(22222)
+tag1[annotation1]:'index1' | tag2[annotation2]:'index2' | tag3[annotation3]:(my file) | tag4[annotation4]:v1='a' | tag5[annotation5]:*v1
 
 
 -- ----------------------------------------------------------------------------
@@ -323,10 +324,10 @@ source:8,v1='d' | dropNull:8,*v1
        .drop last memorize >> .console "secondary of drop last :" dataflow |,
        .console "primary:" dataflow) -- Remove header and footer
 secondary of drop first : source:1,v1='header' | drop:1,*v1 
-primary: source:2,1 | drop:2,1 | drop:2,1 
-primary: source:3,2 | drop:3,2 | drop:3,2 
-primary: source:4,3 | drop:4,3 | drop:4,3 
-secondary of drop last : source:5,v1='footer' | drop:5,*v1 | drop:5,*v1 
+primary: source:2,1 | drop:2,1 | drop[eof]:2,1 
+primary: source:3,2 | drop:3,2 | drop[eof]:3,2 
+primary: source:4,3 | drop:4,3 | drop[eof]:4,3 
+secondary of drop last : source:5,v1='footer' | drop:5,*v1 | drop[eof]:5,*v1 
 
 
 -- ----------------------------------------------------------------------------
@@ -355,11 +356,11 @@ item=3 dataflow=source:5,3
 
 -- Inject a value for each item (the returned value is injected after the input item).
    .array~of(1, , 2, , 3)~pipe(.inject after {item*10} memorize | .console dataflow)
-source:1,1 | inject:1,1 
+source:1,1 | inject[->-]:1,1 
 source:1,1 | inject:1,10 
-source:3,2 | inject:1,2 
+source:3,2 | inject[->-]:3,2 
 source:3,2 | inject:3,20 
-source:5,3 | inject:1,3 
+source:5,3 | inject[->-]:5,3 
 source:5,3 | inject:5,30 
 
 
@@ -367,13 +368,13 @@ source:5,3 | inject:5,30
 -- Note the "iterateAfter" option : using this option, when the result of .inject is an object which
 -- understands "supplier" then each pair (item, index) returned by the supplier is injected in the pipe.
    .array~of(1, , 2, , 3)~pipe(.inject after {.array~of(item*10, item*20)} iterateAfter memorize | .console dataflow)
-source:1,1 | inject:1,1 
+source:1,1 | inject[->-]:1,1 
 source:1,1 | inject:1,10 
 source:1,1 | inject:2,20 
-source:3,2 | inject:1,2 
+source:3,2 | inject[->-]:3,2 
 source:3,2 | inject:1,20 
 source:3,2 | inject:2,40 
-source:5,3 | inject:1,3 
+source:5,3 | inject[->-]:5,3 
 source:5,3 | inject:1,30 
 source:5,3 | inject:2,60 
 
@@ -530,11 +531,11 @@ source:19,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clan
 source:10,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/csvStream.cls) length=24960 
 source:12,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/socket.cls) length=31409 
 source:9,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/ncurses.cls) length=31791 
-source:3,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.cat) length=47057 
+source:3,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.cat) length=46683 
 source:2,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/json.cls) length=47686 
 source:20,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxftp.cls) length=65447 
-source:1,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxapi) length=76492 
-source:16,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.img) length=1724616 
+source:1,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxapi) length=76420 
+source:16,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.img) length=1728200 
 
 
 -- Same as above, but simpler... You can sort directly by length, no need of MessageComparator
@@ -560,11 +561,11 @@ source:19,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clan
 source:10,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/csvStream.cls) length=24960 
 source:12,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/socket.cls) length=31409 
 source:9,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/ncurses.cls) length=31791 
-source:3,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.cat) length=47057 
+source:3,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.cat) length=46683 
 source:2,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/json.cls) length=47686 
 source:20,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxftp.cls) length=65447 
-source:1,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxapi) length=76492 
-source:16,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.img) length=1724616 
+source:1,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxapi) length=76420 
+source:16,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.img) length=1728200 
 
 
 -- Sort by file size, then by file extension (with only one .sort pipestage)
@@ -579,8 +580,8 @@ source:18,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clan
 source:17,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/callrexx1) length=17100 
 source:4,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/callrexx2) length=17272 
 source:6,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxqueue) length=17812 
-source:1,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxapi) length=76492 
-source:3,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.cat) length=47057 
+source:1,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxapi) length=76420 
+source:3,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.cat) length=46683 
 source:7,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rxregexp.cls) length=3525 
 source:15,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/mime.cls) length=11444 
 source:22,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/streamsocket.cls) length=17681 
@@ -593,7 +594,7 @@ source:20,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clan
 source:11,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/libwpipe2.dylib) length=12928 
 source:5,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/libwpipe1.dylib) length=13284 
 source:8,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/libwpipe3.dylib) length=13628 
-source:16,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.img) length=1724616 
+source:16,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.img) length=1728200 
 source:21,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexxtry.rex) length=14946 
 
 
@@ -699,7 +700,7 @@ source:21,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clan
 source:3,(The Method class) | inject:'!DEFINE_CLASS_METHOD',(a Method) 
 source:3,(The Method class) | inject:'!DEFINE_METHODS',(a Method) 
 source:3,(The Method class) | inject:'!REXXDEFINED',(a Method) 
-source:3,v1=(The Method class) | inject:1,*v1 
+source:3,v1=(The Method class) | inject[->-]:3,*v1 
 source:3,(The Method class) | inject:'<>',(a Method) 
 source:3,(The Method class) | inject:'=',(a Method) 
 source:3,(The Method class) | inject:'==',(a Method) 
@@ -726,7 +727,7 @@ source:3,(The Method class) | inject:'SUPERCLASSES',(a Method)
 source:3,(The Method class) | inject:'UNINHERIT',(a Method) 
 source:3,(The Method class) | inject:'\=',(a Method) 
 source:3,(The Method class) | inject:'\==',(a Method) 
-source:2,v1=(The Package class) | inject:1,*v1 
+source:2,v1=(The Package class) | inject[->-]:2,*v1 
 source:2,(The Package class) | inject:'<>',(a Method) 
 source:2,(The Package class) | inject:'=',(a Method) 
 source:2,(The Package class) | inject:'==',(a Method) 
@@ -753,7 +754,7 @@ source:2,(The Package class) | inject:'SUPERCLASSES',(a Method)
 source:2,(The Package class) | inject:'UNINHERIT',(a Method) 
 source:2,(The Package class) | inject:'\=',(a Method) 
 source:2,(The Package class) | inject:'\==',(a Method) 
-source:1,v1=(The RexxContext class) | inject:1,*v1 
+source:1,v1=(The RexxContext class) | inject[->-]:1,*v1 
 source:1,(The RexxContext class) | inject:'<>',(a Method) 
 source:1,(The RexxContext class) | inject:'=',(a Method) 
 source:1,(The RexxContext class) | inject:'==',(a Method) 
@@ -790,7 +791,6 @@ source:1,(The RexxContext class) | inject:'\==',(a Method)
        .sort byIndex {dataflow["source"]~item} |,
        .console dataflow,
        )
-source:'RELATION',v1=(The Relation class) | inject:1,*v1 
 source:'RELATION',(The Relation class) | inject:'ALLAT',(a Method) 
 source:'RELATION',(The Relation class) | inject:'ALLINDEX',(a Method) 
 source:'RELATION',(The Relation class) | inject:'ALLINDEXES',(a Method) 
@@ -807,6 +807,7 @@ source:'RELATION',(The Relation class) | inject:'ITEMS',(a Method)
 source:'RELATION',(The Relation class) | inject:'MAKEARRAY',(a Method) 
 source:'RELATION',(The Relation class) | inject:'PUT',(a Method) 
 source:'RELATION',(The Relation class) | inject:'READOBJECT',(a Method) 
+source:v1='RELATION',v2=(The Relation class) | inject[->-]:*v1,*v2 
 source:'RELATION',(The Relation class) | inject:'REMOVE',(a Method) 
 source:'RELATION',(The Relation class) | inject:'REMOVEALL',(a Method) 
 source:'RELATION',(The Relation class) | inject:'REMOVEITEM',(a Method) 
@@ -818,14 +819,13 @@ source:'RELATION',(The Relation class) | inject:'WRITEOBJECT',(a Method)
 source:'RELATION',(The Relation class) | inject:'XOR',(a Method) 
 source:'RELATION',(The Relation class) | inject:'[]',(a Method) 
 source:'RELATION',(The Relation class) | inject:'[]=',(a Method) 
-source:'REXXBLOCK',v1=(The RexxBlock class) | inject:1,*v1 
 source:'REXXBLOCK',(The RexxBlock class) | inject:'COPY',(a Method) 
 source:'REXXBLOCK',(The RexxBlock class) | inject:'KIND',(a Method) 
 source:'REXXBLOCK',(The RexxBlock class) | inject:'PACKAGE',(a Method) 
 source:'REXXBLOCK',(The RexxBlock class) | inject:'RAWEXECUTABLE',(a Method) 
+source:v1='REXXBLOCK',v2=(The RexxBlock class) | inject[->-]:*v1,*v2 
 source:'REXXBLOCK',(The RexxBlock class) | inject:'SOURCE',(a Method) 
 source:'REXXBLOCK',(The RexxBlock class) | inject:'VARIABLES',(a Method) 
-source:'REXXCONTEXT',v1=(The RexxContext class) | inject:1,*v1 
 source:'REXXCONTEXT',(The RexxContext class) | inject:'ARGS',(a Method) 
 source:'REXXCONTEXT',(The RexxContext class) | inject:'CONDITION',(a Method) 
 source:'REXXCONTEXT',(The RexxContext class) | inject:'COPY',(a Method) 
@@ -839,11 +839,11 @@ source:'REXXCONTEXT',(The RexxContext class) | inject:'NAME',(a Method)
 source:'REXXCONTEXT',(The RexxContext class) | inject:'NAMEDARGS',(a Method) 
 source:'REXXCONTEXT',(The RexxContext class) | inject:'PACKAGE',(a Method) 
 source:'REXXCONTEXT',(The RexxContext class) | inject:'PARENTCONTEXT',(a Method) 
+source:v1='REXXCONTEXT',v2=(The RexxContext class) | inject[->-]:*v1,*v2 
 source:'REXXCONTEXT',(The RexxContext class) | inject:'RS',(a Method) 
 source:'REXXCONTEXT',(The RexxContext class) | inject:'SETARGS',(a Method) 
 source:'REXXCONTEXT',(The RexxContext class) | inject:'STACKFRAMES',(a Method) 
 source:'REXXCONTEXT',(The RexxContext class) | inject:'VARIABLES',(a Method) 
-source:'REXXQUEUE',v1=(The RexxQueue class) | inject:1,*v1 
 source:'REXXQUEUE',(The RexxQueue class) | inject:'DELETE',(a Method) 
 source:'REXXQUEUE',(The RexxQueue class) | inject:'EMPTY',(a Method) 
 source:'REXXQUEUE',(The RexxQueue class) | inject:'GET',(a Method) 
@@ -855,13 +855,14 @@ source:'REXXQUEUE',(The RexxQueue class) | inject:'PULL',(a Method)
 source:'REXXQUEUE',(The RexxQueue class) | inject:'PUSH',(a Method) 
 source:'REXXQUEUE',(The RexxQueue class) | inject:'QUEUE',(a Method) 
 source:'REXXQUEUE',(The RexxQueue class) | inject:'QUEUED',(a Method) 
+source:v1='REXXQUEUE',v2=(The RexxQueue class) | inject[->-]:*v1,*v2 
 source:'REXXQUEUE',(The RexxQueue class) | inject:'SAY',(a Method) 
 source:'REXXQUEUE',(The RexxQueue class) | inject:'SET',(a Method) 
-source:'REXXTEXT',v1=(The RexxText class) | inject:1,*v1 
-source:'ROUTINE',v1=(The Routine class) | inject:1,*v1 
+source:v1='REXXTEXT',v2=(The RexxText class) | inject[->-]:*v1,*v2 
 source:'ROUTINE',(The Routine class) | inject:'CALL',(a Method) 
 source:'ROUTINE',(The Routine class) | inject:'CALLWITH',(a Method) 
 source:'ROUTINE',(The Routine class) | inject:'PACKAGE',(a Method) 
+source:v1='ROUTINE',v2=(The Routine class) | inject[->-]:*v1,*v2 
 source:'ROUTINE',(The Routine class) | inject:'SETSECURITYMANAGER',(a Method) 
 source:'ROUTINE',(The Routine class) | inject:'SOURCE',(a Method) 
 
@@ -873,7 +874,7 @@ source:'ROUTINE',(The Routine class) | inject:'SOURCE',(a Method)
        )
      pipe_extension_test.rex 
      pipe_extension.cls 
-       pipe.rex 
+       pipe.cls 
          profiling.cls 
        extensions.cls 
          coactivity.cls 
@@ -906,6 +907,9 @@ source:'ROUTINE',(The Routine class) | inject:'SOURCE',(a Method)
              novalue.cls 
            novalue.cls 
          string.cls 
+           stringChunk.cls 
+           stringChunkExtended.cls 
+             stringChunk.cls 
          functionals.cls 
            doers.cls 
              coactivity.cls 
@@ -925,7 +929,7 @@ source:'ROUTINE',(The Routine class) | inject:'SOURCE',(a Method)
      pipe_extension_test.rex 
      pipe_extension.cls 
      rgf_util2_wrappers.rex 
-       pipe.rex 
+       pipe.cls 
        extensions.cls 
        rgf_util2.rex 
          profiling.cls 
@@ -952,6 +956,8 @@ source:'ROUTINE',(The Routine class) | inject:'SOURCE',(a Method)
            novalue.cls 
            indeterminate.cls 
            novalue.cls 
+           stringChunk.cls 
+           stringChunkExtended.cls 
            doers.cls 
            doers.cls 
              doers.cls 
@@ -959,6 +965,7 @@ source:'ROUTINE',(The Routine class) | inject:'SOURCE',(a Method)
              novalue.cls 
              infinity.cls 
              novalue.cls 
+             stringChunk.cls 
              coactivity.cls 
              coactivity.cls 
                coactivity.cls 
@@ -1208,8 +1215,8 @@ source:'ROUTINE',(The Routine class) | inject:'SOURCE',(a Method)
    fanout2 = .right[3] memorize | .upper memorize | .inject after {"my_"item}
    .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout memorize >> fanout2 > fanout1 | .console dataflow item)
 source:1,v1='aaaBBB' | fanout:1,*v1 | left:1,v2='aaa' | lower:1,*v2 'aaa' 
-source:2,v1='CCCddd' | fanout:2,*v1 | left:1,'CCC' | lower:1,'ccc' 'ccc' 
-source:3,v1='eEeFfF' | fanout:3,*v1 | left:1,'eEe' | lower:1,'eee' 'eee' 
+source:2,v1='CCCddd' | fanout:2,*v1 | left:2,'CCC' | lower:2,'ccc' 'ccc' 
+source:3,v1='eEeFfF' | fanout:3,*v1 | left:3,'eEe' | lower:3,'eee' 'eee' 
 
 
 -- Here, each branch of the fanout remains separated. Each branch has its own console.
@@ -1219,12 +1226,12 @@ source:3,v1='eEeFfF' | fanout:3,*v1 | left:1,'eEe' | lower:1,'eee' 'eee'
 source:1,v1='aaaBBB' | fanout:1,*v1 | left:1,v2='aaa' | lower:1,*v2 'aaa' 
 source:1,v1='aaaBBB' | fanout:1,*v1 | right:1,v2='BBB' | upper:1,*v2 'BBB' 
 source:1,v1='aaaBBB' | fanout:1,*v1 | right:1,v2='BBB' | upper:1,*v2 'my_BBB' 
-source:2,v1='CCCddd' | fanout:2,*v1 | left:1,'CCC' | lower:1,'ccc' 'ccc' 
-source:2,v1='CCCddd' | fanout:2,*v1 | right:1,'ddd' | upper:1,'DDD' 'DDD' 
-source:2,v1='CCCddd' | fanout:2,*v1 | right:1,'ddd' | upper:1,'DDD' 'my_DDD' 
-source:3,v1='eEeFfF' | fanout:3,*v1 | left:1,'eEe' | lower:1,'eee' 'eee' 
-source:3,v1='eEeFfF' | fanout:3,*v1 | right:1,'FfF' | upper:1,'FFF' 'FFF' 
-source:3,v1='eEeFfF' | fanout:3,*v1 | right:1,'FfF' | upper:1,'FFF' 'my_FFF' 
+source:2,v1='CCCddd' | fanout:2,*v1 | left:2,'CCC' | lower:2,'ccc' 'ccc' 
+source:2,v1='CCCddd' | fanout:2,*v1 | right:2,'ddd' | upper:2,'DDD' 'DDD' 
+source:2,v1='CCCddd' | fanout:2,*v1 | right:2,'ddd' | upper:2,'DDD' 'my_DDD' 
+source:3,v1='eEeFfF' | fanout:3,*v1 | left:3,'eEe' | lower:3,'eee' 'eee' 
+source:3,v1='eEeFfF' | fanout:3,*v1 | right:3,'FfF' | upper:3,'FFF' 'FFF' 
+source:3,v1='eEeFfF' | fanout:3,*v1 | right:3,'FfF' | upper:3,'FFF' 'my_FFF' 
 
 
 -- Here, a fanin is used to serialize the branches of the fanout.
@@ -1233,15 +1240,15 @@ source:3,v1='eEeFfF' | fanout:3,*v1 | right:1,'FfF' | upper:1,'FFF' 'my_FFF'
    fanout1 = .left[3]  memorize | .lower memorize | fanin  -- not bufferized
    fanout2 = .right[3] memorize | .upper memorize | .inject after {"my_"item} | .secondaryConnector | fanin -- bufferized until fanout1 is eof
    .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout memorize >> fanout2 > fanout1)
-source:1,v1='aaaBBB' | fanout:1,*v1 | left:1,v2='aaa' | lower:1,*v2 | fanin:1,*v2 'aaa' 
-source:2,v1='CCCddd' | fanout:2,*v1 | left:1,'CCC' | lower:1,v2='ccc' | fanin:1,*v2 'ccc' 
-source:3,v1='eEeFfF' | fanout:3,*v1 | left:1,'eEe' | lower:1,v2='eee' | fanin:1,*v2 'eee' 
-source:1,v1='aaaBBB' | fanout:1,*v1 | right:1,v2='BBB' | upper:1,*v2 | fanin:1,*v2 'BBB' 
-source:1,v1='aaaBBB' | fanout:1,*v1 | right:1,v2='BBB' | upper:1,*v2 | fanin:1,'my_BBB' 'my_BBB' 
-source:2,v1='CCCddd' | fanout:2,*v1 | right:1,'ddd' | upper:1,v2='DDD' | fanin:1,*v2 'DDD' 
-source:2,v1='CCCddd' | fanout:2,*v1 | right:1,'ddd' | upper:1,'DDD' | fanin:1,'my_DDD' 'my_DDD' 
-source:3,v1='eEeFfF' | fanout:3,*v1 | right:1,'FfF' | upper:1,v2='FFF' | fanin:1,*v2 'FFF' 
-source:3,v1='eEeFfF' | fanout:3,*v1 | right:1,'FfF' | upper:1,'FFF' | fanin:1,'my_FFF' 'my_FFF' 
+source:1,v1='aaaBBB' | fanout:1,*v1 | left:1,v2='aaa' | lower:1,*v2 | fanin[->-]:1,*v2 'aaa' 
+source:2,v1='CCCddd' | fanout:2,*v1 | left:2,'CCC' | lower:2,v2='ccc' | fanin[->-]:2,*v2 'ccc' 
+source:3,v1='eEeFfF' | fanout:3,*v1 | left:3,'eEe' | lower:3,v2='eee' | fanin[->-]:3,*v2 'eee' 
+source:1,v1='aaaBBB' | fanout:1,*v1 | right:1,v2='BBB' | upper:1,*v2 | fanin[eof]:1,*v2 'BBB' 
+source:1,v1='aaaBBB' | fanout:1,*v1 | right:1,v2='BBB' | upper:1,*v2 | fanin[eof]:1,'my_BBB' 'my_BBB' 
+source:2,v1='CCCddd' | fanout:2,*v1 | right:2,'ddd' | upper:2,v2='DDD' | fanin[eof]:2,*v2 'DDD' 
+source:2,v1='CCCddd' | fanout:2,*v1 | right:2,'ddd' | upper:2,'DDD' | fanin[eof]:2,'my_DDD' 'my_DDD' 
+source:3,v1='eEeFfF' | fanout:3,*v1 | right:3,'FfF' | upper:3,v2='FFF' | fanin[eof]:3,*v2 'FFF' 
+source:3,v1='eEeFfF' | fanout:3,*v1 | right:3,'FfF' | upper:3,'FFF' | fanin[eof]:3,'my_FFF' 'my_FFF' 
 
 -- Here, a merge is used to serialize the branches of the fanout.
 -- There is no specific order (no delay).
@@ -1249,15 +1256,15 @@ source:3,v1='eEeFfF' | fanout:3,*v1 | right:1,'FfF' | upper:1,'FFF' | fanin:1,'m
    fanout1 = .left[3]  memorize | .lower memorize | merge  -- not bufferized
    fanout2 = .right[3] memorize | .upper memorize | .inject after {"my_"item} | .secondaryConnector | merge -- not bufferized
    .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout memorize >> fanout2 > fanout1)
-source:1,v1='aaaBBB' | fanout:1,*v1 | left:1,v2='aaa' | lower:1,*v2 | merge:1,*v2 'aaa' 
-source:1,v1='aaaBBB' | fanout:1,*v1 | right:1,v2='BBB' | upper:1,*v2 | merge:1,*v2 'BBB' 
-source:1,v1='aaaBBB' | fanout:1,*v1 | right:1,v2='BBB' | upper:1,*v2 | merge:1,'my_BBB' 'my_BBB' 
-source:2,v1='CCCddd' | fanout:2,*v1 | left:1,'CCC' | lower:1,v2='ccc' | merge:1,*v2 'ccc' 
-source:2,v1='CCCddd' | fanout:2,*v1 | right:1,'ddd' | upper:1,v2='DDD' | merge:1,*v2 'DDD' 
-source:2,v1='CCCddd' | fanout:2,*v1 | right:1,'ddd' | upper:1,'DDD' | merge:1,'my_DDD' 'my_DDD' 
-source:3,v1='eEeFfF' | fanout:3,*v1 | left:1,'eEe' | lower:1,v2='eee' | merge:1,*v2 'eee' 
-source:3,v1='eEeFfF' | fanout:3,*v1 | right:1,'FfF' | upper:1,v2='FFF' | merge:1,*v2 'FFF' 
-source:3,v1='eEeFfF' | fanout:3,*v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'my_FFF' 'my_FFF' 
+source:1,v1='aaaBBB' | fanout:1,*v1 | left:1,v2='aaa' | lower:1,*v2 | merge[->-]:1,*v2 'aaa' 
+source:1,v1='aaaBBB' | fanout:1,*v1 | right:1,v2='BBB' | upper:1,*v2 | merge[->-]:1,*v2 'BBB' 
+source:1,v1='aaaBBB' | fanout:1,*v1 | right:1,v2='BBB' | upper:1,*v2 | merge[->-]:1,'my_BBB' 'my_BBB' 
+source:2,v1='CCCddd' | fanout:2,*v1 | left:2,'CCC' | lower:2,v2='ccc' | merge[->-]:2,*v2 'ccc' 
+source:2,v1='CCCddd' | fanout:2,*v1 | right:2,'ddd' | upper:2,v2='DDD' | merge[->-]:2,*v2 'DDD' 
+source:2,v1='CCCddd' | fanout:2,*v1 | right:2,'ddd' | upper:2,'DDD' | merge[->-]:2,'my_DDD' 'my_DDD' 
+source:3,v1='eEeFfF' | fanout:3,*v1 | left:3,'eEe' | lower:3,v2='eee' | merge[->-]:3,*v2 'eee' 
+source:3,v1='eEeFfF' | fanout:3,*v1 | right:3,'FfF' | upper:3,v2='FFF' | merge[->-]:3,*v2 'FFF' 
+source:3,v1='eEeFfF' | fanout:3,*v1 | right:3,'FfF' | upper:3,'FFF' | merge[->-]:3,'my_FFF' 'my_FFF' 
 
 
 -- ----------------------------------------------------------------------------
@@ -1392,7 +1399,7 @@ source:1,'/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang
 source:1,'/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/' | FILE:2,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/json.cls) | fileLines:66,'*   <li>an OrderdCollection maps to a JSON array (comma separated list of values, enquoted in sqaure brackets),' | words:3,'OrderdCollection' 'OrderdCollection' 
 source:1,'/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/' | FILE:10,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/csvStream.cls) | fileLines:63,'::Attribute originalRawHeaders    private -- for comparison' | words:2,'originalRawHeaders' 'originalRawHeaders' 
    say "duration="time('e') -- elapsed duration
-duration=1.569919
+duration=1.447755
 
 
 -- From here, some methods of the pipeline classes are instrumented to let profiling.
@@ -1416,40 +1423,40 @@ source:1,'/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang
 source:1,'/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/' | FILE:10,(/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/csvStream.cls) | fileLines:63,'::Attribute originalRawHeaders    private -- for comparison' | words:2,'originalRawHeaders' 'originalRawHeaders' 
 ----------------------------------------
 .fileTree~go
-  .fileTree~PROCESS count=1 duration=20.134807
-    .endsWith~ISEOP count=44 duration=0.002354
-    .endsWith~PROCESS count=22 duration=20.118750
-      .fileLines~ISEOP count=31 duration=0.001550
-      .fileLines~PROCESS count=9 duration=20.112488
-        .words~ISEOP count=12514 duration=0.666338
-        .words~PROCESS count=6248 duration=17.640265
-          .select~ISEOP count=58330 duration=3.176052
-          .select~PROCESS count=26041 duration=6.524633
-            .take~ISEOP count=26069 duration=1.387643
-            .take~PROCESS count=28 duration=0.011869
-              .sort~ISEOP count=34 duration=0.001758
-              .sort~PROCESS count=6 duration=0.000358
-  .fileTree~START count=1 duration=0.002028
-    .endsWith~START count=1 duration=0.001654
-      .fileLines~START count=1 duration=0.001456
-        .words~START count=1 duration=0.001252
-          .select~START count=1 duration=0.001053
-            .take~START count=1 duration=0.000847
-              .sort~START count=1 duration=0.000544
-                .console~START count=1 duration=0.000264
-  .endsWith~EOF count=1 duration=0.026301
-    .fileLines~EOF count=1 duration=0.026174
-      .words~EOF count=1 duration=0.026044
-        .select~EOF count=1 duration=0.025916
-          .take~EOF count=1 duration=0.025787
-            .sort~EOF count=1 duration=0.025649
-              .console~EOF count=1 duration=0.000060
-              .console~ISEOP count=12 duration=0.000629
-              .console~PROCESS count=6 duration=0.023203
-duration=20.163136
+  .fileTree~PROCESS count=1 duration=19.921617
+    .endsWith~ISEOP count=44 duration=0.002522
+    .endsWith~PROCESS count=22 duration=19.905367
+      .fileLines~ISEOP count=31 duration=0.001881
+      .fileLines~PROCESS count=9 duration=19.898429
+        .words~ISEOP count=12514 duration=0.674138
+        .words~PROCESS count=6248 duration=17.303519
+          .select~ISEOP count=58330 duration=3.263120
+          .select~PROCESS count=26041 duration=6.182397
+            .take~ISEOP count=26069 duration=1.393497
+            .take~PROCESS count=28 duration=0.011747
+              .sort~ISEOP count=34 duration=0.001902
+              .sort~PROCESS count=6 duration=0.000368
+  .fileTree~START count=1 duration=0.002117
+    .endsWith~START count=1 duration=0.001760
+      .fileLines~START count=1 duration=0.001572
+        .words~START count=1 duration=0.001280
+          .select~START count=1 duration=0.001041
+            .take~START count=1 duration=0.000797
+              .sort~START count=1 duration=0.000445
+                .console~START count=1 duration=0.000170
+  .endsWith~EOF count=1 duration=0.030526
+    .fileLines~EOF count=1 duration=0.030396
+      .words~EOF count=1 duration=0.030268
+        .select~EOF count=1 duration=0.030130
+          .take~EOF count=1 duration=0.030003
+            .sort~EOF count=1 duration=0.029869
+              .console~EOF count=1 duration=0.000059
+              .console~ISEOP count=12 duration=0.000756
+              .console~PROCESS count=6 duration=0.027167
+duration=19.954260
 ----------------------------------------
    say "duration="time('e') -- elapsed duration
-duration=20.197724
+duration=19.989664
 
 
    say installdir() ; say

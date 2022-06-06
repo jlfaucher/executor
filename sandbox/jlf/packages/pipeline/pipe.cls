@@ -53,6 +53,15 @@
 ::requires "profiling/profiling.cls"
 
 
+::class "pipeContext"
+::attribute source      -- the source object of the pipe
+::attribute profile     -- true if profiling activated
+::attribute memorize    -- global setting for the whole execution: if .true then behave as if the "memorize" option was used on each pipestage
+::method init
+    expose source profile memorize
+    use strict arg source, profile, memorize
+
+
 ::class "pipeStage" mixinclass Object public                  -- base pipeStage class
 
 ::method _description_ class
@@ -64,10 +73,10 @@ By default, a pipeStage has two inputs I1 & I2, and two ouputs O1 & O2.
 process : I1
 processSecondary : I2
 write : O1 (linked by default to follower's I1)
-writeSecondary : 02 (linked by default to follower's I1)
+writeSecondary : O2 (linked by default to follower's I1)
 
 Connectors
-'|'  connect leftPipeStage's O1 with rightPipeStage's I1 (primary follower) : 01 --> I1
+'|'  connect leftPipeStage's O1 with rightPipeStage's I1 (primary follower) : O1 --> I1
 '>'  same as '|', but careful, the '>' operator has a higher precedence than '|'
 '>>' connect leftPipeStage's O2 with rightPipeStage's I1 (secondary follower) : O2 --> I1
 
@@ -164,6 +173,7 @@ return self                                 -- just return ourself
 
 ::method init
 expose I1Counter I2Counter isEOP memorize next options secondary tag var varName
+-- (bad idea, the subclasses are forwarding their arguments) use strict arg -- none
 I1Counter = 0
 I2Counter = 0
 isEOP = .false                              -- indicator of End Of Process
@@ -369,7 +379,8 @@ self~I2Counter -= 1
 
 
 ::method go                                 -- execute using a provided object
-use strict arg source, profile=.false
+use strict arg source, profile=.false, memorize=.false
+pipeContext = .pipeContext~new(source, profile, memorize)
 if profile then do
     profiler = .pipeProfiler~new
     profiler~push(self, "go")               -- the root message of the call stack
@@ -377,8 +388,8 @@ if profile then do
 end
 anyErrorTrapped = .false
 signal on any name anyError                 -- In case of error, must ensure that the pipe is reset and the security manager is detached
-self~begin(source)                          -- now go feed the pipeline
-self~eof                                    -- signal that processing is finished
+self~begin(pipeContext)                     -- now go feed the pipeline
+self~eof(pipeContext)                       -- signal that processing is finished
 finalize:
     self~reset
     if profile then do
@@ -393,20 +404,21 @@ anyError:
 
 
 ::method begin                              -- start pumping the pipeline
-use strict arg source
-self~start                                  -- signal that processing is starting
+use strict arg pipeContext
+source = pipeContext~source
+self~start(pipeContext)                     -- signal that processing is starting
 if \source~hasMethod("supplier") then do
   -- Remember : similar test in .append, .inject
   -- Initial dataflow, each following pipeStage will create an enclosing dataflow, when requested.
-  dataflow = .dataflow~create(.nil, "source", source, 1)
-  self~process(source, 1, dataflow)         -- pump this down the pipe
+  dataflow = .dataflow~create(.nil, "source", "", source, 1)
+  self~process(pipeContext, source, 1, dataflow)   -- pump this down the pipe
 end
 else do
     supplier = source~supplier              -- get a data supplier
     do while \self~isEOP, supplier~available-- while more data
       -- Initial dataflow, each following pipeStage will create an enclosing dataflow, when requested.
-      dataflow = .dataflow~create(.nil, "source", supplier~item, supplier~index)
-      self~process(supplier~item, supplier~index, dataflow) -- pump this down the pipe
+      dataflow = .dataflow~create(.nil, "source", "", supplier~item, supplier~index)
+      self~process(pipeContext, supplier~item, supplier~index, dataflow) -- pump this down the pipe
       -- Matter of choice : should I stay on current item or get the next item before leaving ?
       -- Current choice works good for coactivities : no lost item when piping directly the coactivity
       -- to several pipes. But if you pass the same supplier to several pipes then you have to call
@@ -421,12 +433,13 @@ end
 
 ::method start                              -- process "start-of-pipe" condition
 expose next options secondary
+use strict arg pipeContext
 forward continue arguments (options) message "initOptions" -- now we have all the options, lets process them
 if .nil <> next then do
-    next~start                              -- only forward if we have a successor
+    next~start(pipeContext)                 -- only forward if we have a successor
 end
 if .nil <> secondary then do
-    secondary~start                         -- only forward if we have a successor
+    secondary~start(pipeContext)            -- only forward if we have a successor
 end
 
 
@@ -472,25 +485,25 @@ if allNIL then return
 self~isEOP = .true
 
 
-::method process                            -- default data processing
-use strict arg item, index, dataflow        -- get the data item
-self~write(item, index, dataflow)           -- send this down the line
+::method process                                                      -- default data processing
+use strict arg pipeContext, item, index, dataflow, annotation="->-"   -- get the data item. The default annotation "->-" means "forward the data"
+self~write(pipeContext, item, index, dataflow, annotation)            -- send this down the line.
 self~checkEOP(self~next)
 
 
 ::method newDataflow
 -- Can be redefined by subclasses (ex : .inject)
-use strict arg previousDataflow, item, index
-return .dataflow~create(previousDataflow, self, item, index)
+use strict arg pipeContext, previousDataflow, item, index, annotation=""
+return .dataflow~create(previousDataflow, self, annotation, item, index)
 
 
 ::method write                              -- handle the result from a process method
 expose next
-use strict arg item, index, dataflow
+use strict arg pipeContext, item, index, dataflow, annotation=""
 if .nil <> next, \next~isEOP then do
     newDataflow = dataflow
-    if self~memorize then newDataflow = self~newDataflow(dataflow, item, index)
-    next~process(item, index, newDataflow)  -- only forward if we have an active successor
+    if self~memorize | pipeContext~memorize then newDataflow = self~newDataflow(pipeContext, dataflow, item, index, annotation)
+    next~process(pipeContext, item, index, newDataflow)  -- only forward if we have an active successor
     return newDataflow
 end
 return .nil
@@ -498,11 +511,11 @@ return .nil
 
 ::method writeSecondary                     -- handle a secondary output result from a process method
 expose secondary
-use strict arg item, index, dataflow
+use strict arg pipeContext, item, index, dataflow, annotation=""
 if .nil <> secondary, \secondary~isEOP then do
     newDataflow = dataflow
-    if self~memorize then newDataflow = self~newDataflow(dataflow, item, index)
-    secondary~process(item, index, newDataflow)-- only forward if we have an active successor
+    if self~memorize | pipeContext~memorize then newDataflow = self~newDataflow(pipeContext, dataflow, item, index, annotation)
+    secondary~process(pipeContext, item, index, newDataflow)-- only forward if we have an active successor
     return newDataflow
 end
 return .nil
@@ -514,21 +527,23 @@ forward message('PROCESS')                  -- this by default is a merge operat
 
 ::method eof                                -- process "end-of-pipe" condition
 expose next secondary
+use strict arg pipeContext
 if .nil <> next then do
-    next~eof                                -- only forward if we have a successor
+    next~eof(pipeContext)                   -- only forward if we have a successor
 end
 if .nil <> secondary then do
-    secondary~eof                           -- only forward if we have a successor
+    secondary~eof(pipeContext)              -- only forward if we have a successor
 end
 
 
 ::method secondaryEof                       -- process "end-of-pipe" condition
 expose next secondary
+use strict arg pipeContext
 if .nil <> next then do
-    next~secondaryEof                       -- only forward if we have a successor
+    next~secondaryEof(pipeContext)          -- only forward if we have a successor
 end
 if .nil <> secondary then do
-    secondary~secondaryEof                  -- only forward if we have a successor
+    secondary~secondaryEof(pipeContext)     -- only forward if we have a successor
 end
 
 
@@ -599,6 +614,7 @@ forward to(self~next) message('processSecondary')
 
 
 ::method eof                                -- processing operations connect with nextPipeStage secondaries
+use strict arg pipeContext
 forward to(self~next) message('secondaryEof')
 
 
@@ -717,17 +733,18 @@ nop
 A dataflow is an array :
   array[1] : link to previous dataflow (received from previous pipeStage).
   array[2] : tag (generally the id of the pipeStage class, or "source" for the initial dataflow).
-  array[3] : index of produced item.
-  array[4] : produced item.
+  array[3] : annotation (to help recognize the default process, the eof process)
+  array[4] : index of produced item.
+  array[5] : produced item.
 
-  1          2     3       4
-+----------+-----+-------+------+
-| previous | tag | index | item |
-+----------+-----+-------+------+
+  1          2     3            4       5
++----------+-----+------------+-------+------+
+| previous | tag | annotation | index | item |
++----------+-----+------------+-------+------+
    ^
-   |  +----------+-----+-------+------+
-   +--| previous | tag | index | item |
-      +----------+-----+-------+------+
+   |  +----------+-----+------------+-------+------+
+   +--| previous | tag | annotation | index | item |
+      +----------+-----+------------+-------+------+
          ^
          |
          +-- etc...
@@ -762,27 +779,31 @@ dataflow~tag
     Returns the dataflow's tag.
 dataflow~item
     Returns the produced item.
+dataflow~annotation
+    Returns the dataflow's annotation
 */
 nop
 
 ::constant arrayPrintMaxSize 100 -- single-dimension arrays whose number of items is <= to this number will be printed item by item
 
-::constant firstIndexPoolManaged 3 -- The items from this index up to the end of the dataflow's array are impacted by showPool.
+::constant firstIndexPoolManaged 4 -- The items from this index up to the end of the dataflow's array are impacted by showPool.
+
 
 ::method create class
-use strict arg previous, tag, item, index -- follow the order convention used everywhere : item first, then index
-dataflow = self~new(4)
+use strict arg previous, tag, annotation, item, index -- follow the order convention used everywhere : item first, then index
+dataflow = self~new(5)
 if tag~isA(.pipeStage) then do
     pipeStage = tag
     if pipeStage~tag <> "" then tag = pipeStage~tag
-    else tag = pipeStage~class~id
+                           else tag = pipeStage~class~id
 end
-else if \tag~isA(.String) then raise syntax 93.900 array(self~id"~create: 'tag' must be a pipeStage or a string")
+else if \tag~isA(.String) then raise syntax 93.900 array(self~id"~create: 'tag' must be a pipeStage or a string. Got" tag)
 dataflow~tag = tag
-if .nil <> previous, \ previous~isA(.dataflow) then raise syntax 93.900 array(self~id"~create: 'previous' must be either a dataflow or .nil")
+if .nil <> previous, \ previous~isA(.dataflow) then raise syntax 93.900 array(self~id"~create: 'previous' must be either a dataflow or .nil. Got" previous)
 dataflow~previous = previous
 dataflow~index = index
 dataflow~item = item
+dataflow~annotation = annotation
 return dataflow
 
 
@@ -804,22 +825,31 @@ self[2] = tag
 return self[2]
 
 
+::method "annotation="
+use strict arg annotation
+self[3] = annotation
+
+
+::method annotation
+return self[3]
+
+
 ::method "index="
 use strict arg index
-self[3] = index
+self[4] = index
 
 
 ::method index
-return self[3]
+return self[4]
 
 
 ::method "item="
 use strict arg item
-self[4] = item
+self[5] = item
 
 
 ::method item
-return self[4]
+return self[5]
 
 
 ::method length
@@ -839,8 +869,9 @@ use strict arg tag, nth=1
 if tag~isA(.String), tag~dataType("W"), tag < 0 then do
     -- tag is a negative whole number : search for relative dataflows. Here nth is not used.
     use strict arg count
+    current = self
     do until .nil == current
-        current = self~previous
+        current = current~previous
         count += 1
         if count == 0 then return current
     end
@@ -862,8 +893,11 @@ return .nil -- not found
 
 ::method compareTo
 use strict arg other, caseless=.false, strict=.false
--- compare the tags
+-- compare the tag
 compare = compareStrings(self~tag, other~tag, caseless, strict)
+if compare <> 0 then return compare
+-- compare the annotation
+compare = compareObjects(self~annotation, other~annotation, caseless, strict)
 if compare <> 0 then return compare
 -- compare the index
 compare = compareObjects(self~index, other~index, caseless, strict)
@@ -892,7 +926,7 @@ Ex :
 with showPool == .false : "my string",(a Method)|"my string",(a Method)
 with showPool == .true  : v1="my string",v2=(a Method)|*v1,*v2
 */
-use strict arg mask="1 2 3 4", showPool=.false, pool=(.dataflowPool~new)
+use strict arg mask="1 2 3 4 5", showPool=.false, pool=(.dataflowPool~new)
 /*****************************************
 * Pass 1: count the occurences of values *
 *****************************************/
@@ -911,7 +945,12 @@ end
 previous = self~previous
 string = ""
 if mask~pos(1) <> 0, previous~isA(.Dataflow) then string = previous~makeString(mask, showPool, pool)" | "
-if mask~pos(2) <> 0 then string ||= self~tag":"
+if mask~pos(2) <> 0 then do
+    string ||= self~tag
+    annotation = self~annotation~string
+    if mask~pos(3) <> 0, self~annotation <> "" then string ||= "["self~annotation"]"
+    string ||= ":"
+end
 -- Now we print the index, item and additional values (if any) of the current dataflow
 separator = ""
 do index = self~firstIndexPoolManaged to self~dimension(1)
@@ -1208,12 +1247,13 @@ if quickSort then items~sortWith(comparator)
 
 ::method process                            -- process sorter piped data item
 expose items                                -- access internal state data
-use strict arg item, index, dataflow        -- access the passed item
+use strict arg pipeContext, item, index, dataflow  -- access the passed item
 items~append(.indexedItem~new(item, index, dataflow))
 
 
 ::method eof                                -- process the "end-of-pipe"
 expose criteria items
+use strict arg pipeContext
 message = ""
 do criterion over criteria                  -- apply each criterion
     message = criterion[1]
@@ -1224,7 +1264,7 @@ end
 if message <> "sortBy" then self~sortBy("item")
 do i = 1 to items~items while .nil <> self~next, \self~next~isEOP -- copy all sorted items to the primary stream
    indexedItem = items[i]
-   self~write(indexedItem~item, indexedItem~index, indexedItem~dataflow)
+   self~write(pipeContext, indexedItem~item, indexedItem~index, indexedItem~dataflow, "eof")
 end
 forward class(super)                        -- make sure we propagate the done message
 
@@ -1262,17 +1302,18 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 
 ::method process                            -- process sorter piped data item
 expose items                                -- access internal state data
-use strict arg item, index, dataflow        -- access the passed item
+use strict arg pipeContext, item, index, dataflow     -- access the passed item
 items~append(.indexedItem~new(item, index, dataflow)) -- append the item to the accumulator array
 
 
 ::method eof                                -- process the "end-of-pipe"
 expose comparator items quickSort
+use strict arg pipeContext
 if quickSort then items~sortWith(comparator)
              else items~stableSortWith(comparator)
 do i = 1 to items~items while .nil <> self~next, \self~next~isEOP -- copy all sorted items to the primary stream
    indexedItem = items[i]
-   self~write(indexedItem~item, indexedItem~index, indexedItem~dataflow)
+   self~write(pipeContext, indexedItem~item, indexedItem~index, indexedItem~dataflow, "eof")
 end
 forward class(super)                        -- make sure we propagate the done message
 
@@ -1288,10 +1329,10 @@ forward class (super)
 ::class "itemToIndexItem" public subclass pipeStage -- Extract the index & item from an item=(index, item)
 
 ::method process                            -- pipeStage processing item
-use strict arg item, index, dataflow        -- get the data item
+use strict arg pipeContext, item, index, dataflow        -- get the data item
 newIndex = item[1]
 newItem = item[2]
-self~write(newItem, newIndex, dataflow)     -- send the new index & item
+self~write(pipeContext, newItem, newIndex, dataflow)     -- send the new index & item
 self~checkEOP(self~next)
 
 
@@ -1299,9 +1340,9 @@ self~checkEOP(self~next)
 ::class "reverse" public subclass pipeStage -- a string reversal pipeStage
 
 ::method process                            -- pipeStage processing item
-use strict arg item, index, dataflow        -- get the data item
+use strict arg pipeContext, item, index, dataflow  -- get the data item
 newItem = item~string~reverse
-self~write(newItem, 1, dataflow)            -- send it along in reversed form
+self~write(pipeContext, newItem, index, dataflow) -- send it along in reversed form
 self~checkEOP(self~next)
 
 
@@ -1309,9 +1350,9 @@ self~checkEOP(self~next)
 ::class "upper" public subclass pipeStage   -- a uppercasing pipeStage
 
 ::method process                            -- pipeStage processing item
-use strict arg item, index, dataflow        -- get the data item
+use strict arg pipeContext, item, index, dataflow -- get the data item
 newItem = item~string~upper
-self~write(newItem, 1, dataflow)            -- send it along in upper form
+self~write(pipeContext, newItem, index, dataflow) -- send it along in upper form
 self~checkEOP(self~next)
 
 
@@ -1319,9 +1360,9 @@ self~checkEOP(self~next)
 ::class "lower" public subclass pipeStage   -- a lowercasing pipeStage
 
 ::method process                            -- pipeStage processing item
-use strict arg item, index, dataflow        -- get the data item
+use strict arg pipeContext, item, index, dataflow -- get the data item
 newItem = item~string~lower
-self~write(newItem, 1, dataflow)            -- send it along in lower form
+self~write(pipeContext, newItem, index, dataflow) -- send it along in lower form
 self~checkEOP(self~next)
 
 
@@ -1336,9 +1377,9 @@ forward class (super)                       -- forward the initialization
 
 ::method process                            -- pipeStage processing item
 expose count new old
-use strict arg item, index, dataflow        -- get the data item
+use strict arg pipeContext, item, index, dataflow -- get the data item
 newItem = item~string~changestr(old, new, count)
-self~write(newItem, 1, dataflow)            -- send it along in altered form
+self~write(pipeContext, newItem, index, dataflow) -- send it along in altered form
 self~checkEOP(self~next)
 
 
@@ -1353,9 +1394,9 @@ forward class (super)                       -- forward the initialization
 
 ::method process                            -- pipeStage processing item
 expose length offset
-use strict arg item, index, dataflow        -- get the data item
+use strict arg pipeContext, item, index, dataflow -- get the data item
 newItem = item~string~delstr(offset, length)
-self~write(newItem, 1, dataflow)            -- send it along in altered form
+self~write(pipeContext, newItem, index, dataflow) -- send it along in altered form
 self~checkEOP(self~next)
 
 
@@ -1368,13 +1409,13 @@ use strict arg length                       -- the length is the left part
 forward class (super)                       -- forward the initialization
 
 
-::method process                            -- pipeStage processing item
+::method process                                             -- pipeStage processing item
 expose length
-use strict arg item, index, dataflow        -- get the data item
+use strict arg pipeContext, item, index, dataflow            -- get the data item
 newItem1 = item~string~left(length)
 newItem2 = item~string~substr(length + 1)
-self~write(newItem1, 1, dataflow)           -- send the left portion along the primary stream
-self~writeSecondary(newItem2, 1, dataflow)  -- the secondary gets the remainder portion
+self~write(pipeContext, newItem1, index, dataflow)           -- send the left portion along the primary stream
+self~writeSecondary(pipeContext, newItem2, index, dataflow)  -- the secondary gets the remainder portion
 self~checkEOP(self~next, self~secondary)
 
 
@@ -1387,16 +1428,16 @@ use strict arg length                       -- the length is the right part
 forward class (super)                       -- forward the initialization
 
 
-::method process                            -- pipeStage processing item
+::method process                                             -- pipeStage processing item
 expose length offset
-use strict arg item, index, dataflow        -- get the data item
+use strict arg pipeContext, item, index, dataflow            -- get the data item
 newItem1 = item~string~right(length)
 remainderLength = item~string~length - length
 remainder = ""
 if remainderLength > 0 then remainder = item~string~left(remainderLength)
 newItem2 = remainder
-self~write(newItem1, 1, dataflow)             -- send the right portion along the primary stream
-self~writeSecondary(newItem2, 1, dataflow)    -- the secondary gets the remainder portion
+self~write(pipeContext, newItem1, index, dataflow)           -- send the right portion along the primary stream
+self~writeSecondary(pipeContext, newItem2, index, dataflow)  -- the secondary gets the remainder portion
 self~checkEOP(self~next, self~secondary)
 
 
@@ -1409,11 +1450,11 @@ use strict arg insert, offset               -- we need an offset and an insertio
 forward class (super)                       -- forward the initialization
 
 
-::method process                            -- pipeStage processing item
+::method process                                  -- pipeStage processing item
 expose insert offset
-use strict arg item, index, dataflow        -- get the data item
+use strict arg pipeContext, item, index, dataflow -- get the data item
 newItem = item~string~insert(insert, offset)
-self~write(newItem, 1, dataflow)            -- send the left portion along the primary stream
+self~write(pipeContext, newItem, index, dataflow) -- send the left portion along the primary stream
 self~checkEOP(self~next)
 
 
@@ -1428,19 +1469,19 @@ forward class (super)                       -- forward the initialization
 
 ::method process                            -- pipeStage processing item
 expose offset overlay
-use strict arg item, index, dataflow        -- get the data item
+use strict arg pipeContext, item, index, dataflow -- get the data item
 newItem = item~string~overlay(overlay, offset)
-self~write(newItem, 1, dataflow)            -- send the left portion along the primary stream
+self~write(pipeContext, newItem, index, dataflow) -- send the left portion along the primary stream
 self~checkEOP(self~next)
 
 
 /******************************************************************************/
 ::class "dropNull" public subclass pipeStage-- drop null records
 
-::method process                            -- pipeStage processing item
-use strict arg item, index, dataflow        -- get the data item
-if item~string \== '' then do               -- forward along non-null records
-    self~write(item, index, dataflow)
+::method process                                   -- pipeStage processing item
+use strict arg pipeContext, item, index, dataflow  -- get the data item
+if item~string \== '' then do                      -- forward along non-null records
+    self~write(pipeContext, item, index, dataflow)
     self~checkEOP(self~next)
 end
 
@@ -1504,7 +1545,7 @@ forward class (super) arguments (unknown)    -- forward the initialization to su
 
 ::method processFirst
 expose count counter partitionCount partitionFunction previousPartitionItem
-use strict arg item, index, dataflow
+use strict arg pipeContext, item, index, dataflow
 if .nil <> partitionFunction then do
     if partitionFunction~hasMethod("doWithNamedArguments") then partitionItem = partitionFunction~doWithNamedArguments("item", item, "index", index, "dataflow", dataflow)
                                                            else partitionItem = partitionFunction~call(item, index, dataflow) -- only routine is supported
@@ -1520,10 +1561,10 @@ if .nil <> partitionFunction then do
 end
 counter += 1                                -- if we've dropped our quota, start forwarding
 if counter > count then do
-    self~write(item, index, dataflow)
+    self~write(pipeContext, item, index, dataflow)
 end
 else do
-    self~writeSecondary(item, index, dataflow) -- non-selected records go down the secondary stream
+    self~writeSecondary(pipeContext, item, index, dataflow) -- non-selected records go down the secondary stream
 end
 self~checkEOP(self~next, self~secondary)
 if counter >= count & .nil == self~next & .nil == partitionFunction then self~isEOP = .true
@@ -1531,27 +1572,28 @@ if counter >= count & .nil == self~next & .nil == partitionFunction then self~is
 
 ::method endOfPartition
 expose array count
+use strict arg pipeContext, annotation=""
 if array~items < count then do              -- didn't even receive that many items?
     loop indexedItem over array while .nil <> self~secondary, \self~secondary~isEOP
-        self~writeSecondary(indexedItem~item, indexedItem~index, indexedItem~dataflow) -- send everything down the secondary pipe
+        self~writeSecondary(pipeContext, indexedItem~item, indexedItem~index, indexedItem~dataflow, annotation) -- send everything down the secondary pipe
     end
 end
 else do
     first = array~items - count             -- this is the count of selected items
     loop i = 1 to first while .nil <> self~next, \self~next~isEOP
         indexedItem = array[i]
-        self~write(indexedItem~item, indexedItem~index, indexedItem~dataflow)-- the selected go to the main pipe
+        self~write(pipeContext, indexedItem~item, indexedItem~index, indexedItem~dataflow, annotation)-- the selected go to the main pipe
     end
     loop i = first + 1 to array~items while .nil <> self~secondary, \self~secondary~isEOP
         indexedItem = array[i]
-        self~writeSecondary(indexedItem~item, indexedItem~index, indexedItem~dataflow) -- the discarded go down the secondary pipe
+        self~writeSecondary(pipeContext, indexedItem~item, indexedItem~index, indexedItem~dataflow, annotation) -- the discarded go down the secondary pipe
     end
 end
 
 
 ::method processLast
 expose array partitionCount partitionFunction previousPartitionItem
-use strict arg item, index, dataflow
+use strict arg pipeContext, item, index, dataflow
 if .nil <> partitionFunction then do
     if partitionFunction~hasMethod("doWithNamedArguments") then partitionItem = partitionFunction~doWithNamedArguments("item", item, "index", index,"dataflow", dataflow)
                                                            else partitionItem = partitionFunction~call(item, index, dataflow) -- only routine is supported
@@ -1560,7 +1602,7 @@ if .nil <> partitionFunction then do
         previousPartitionItem = partitionItem
     end
     if previousPartitionItem <> partitionItem then do
-        self~endOfPartition
+        self~endOfPartition(pipeContext)
         array~empty
         partitionCount += 1
     end
@@ -1571,14 +1613,15 @@ array~append(.indexedItem~new(item, index, dataflow)) -- just add to the accumul
 
 ::method process
 expose first
-use strict arg item, index, dataflow
-if first then self~processFirst(item, index, dataflow)
-         else self~processLast(item, index, dataflow)
+use strict arg pipeContext, item, index, dataflow
+if first then self~processFirst(pipeContext, item, index, dataflow)
+         else self~processLast(pipeContext, item, index, dataflow)
 
 
 ::method eof
 expose first
-if \first then self~endOfPartition
+use strict arg pipeContext
+if \first then self~endOfPartition(pipeContext, "eof")
 forward class(super)                        -- make sure we propagate the done message
 
 
@@ -1649,7 +1692,7 @@ forward class (super) arguments (unknown)    -- forward the initialization to su
 
 ::method processFirst
 expose count counter partitionCount partitionFunction previousPartitionItem
-use strict arg item, index, dataflow
+use strict arg pipeContext, item, index, dataflow
 if .nil <> partitionFunction then do
     if partitionFunction~hasMethod("doWithNamedArguments") then partitionItem = partitionFunction~doWithNamedArguments("item", item, "index", index, "dataFlow", dataflow)
                                                            else partitionItem = partitionFunction~call(item, index, dataflow) -- only routine is supported
@@ -1665,10 +1708,10 @@ if .nil <> partitionFunction then do
 end
 counter += 1                                -- if we've dropped our quota, stop forwarding
 if counter > count then do
-    self~writeSecondary(item, index, dataflow)
+    self~writeSecondary(pipeContext, item, index, dataflow)
 end
 else do
-    self~write(item, index, dataflow)       -- still in the first bunch, send to main pipe
+    self~write(pipeContext, item, index, dataflow) -- still in the first bunch, send to main pipe
 end
 self~checkEOP(self~next, self~secondary)
 if counter >= count & .nil == self~secondary & .nil == partitionFunction then self~isEOP = .true
@@ -1676,27 +1719,28 @@ if counter >= count & .nil == self~secondary & .nil == partitionFunction then se
 
 :: method endOfPartition
 expose array count
+use strict arg pipeContext, annotation=""
 if array~items < count then do          -- didn't even receive that many items?
     loop indexedItem over array while .nil <> self~next, \self~next~isEOP
-        self~write(indexedItem~item, indexedItem~index, indexedItem~dataflow) -- send everything down the main pipe
+        self~write(pipeContext, indexedItem~item, indexedItem~index, indexedItem~dataflow, annotation) -- send everything down the main pipe
     end
 end
 else do
     first = array~items - count         -- this is the count of discarded items
     loop i = 1 to first while .nil <> self~secondary, \self~secondary~isEOP
         indexedItem = array[i]
-        self~writeSecondary(indexedItem~item, indexedItem~index, indexedItem~dataflow) -- the discarded go down the secondary pipe
+        self~writeSecondary(pipeContext, indexedItem~item, indexedItem~index, indexedItem~dataflow, annotation) -- the discarded go down the secondary pipe
     end
     loop i = first + 1 to array~items while .nil <> self~next, \self~next~isEOP
         indexedItem = array[i]
-        self~write(indexedItem~item, indexedItem~index, indexedItem~dataflow) -- the selected go to the main pipe
+        self~write(pipeContext, indexedItem~item, indexedItem~index, indexedItem~dataflow, annotation) -- the selected go to the main pipe
     end
 end
 
 
 ::method processLast
 expose array partitionCount partitionFunction previousPartitionItem
-use strict arg item, index, dataflow
+use strict arg pipeContext, item, index, dataflow
 if .nil <> partitionFunction then do
     if partitionFunction~hasMethod("doWithNamedArguments") then partitionItem = partitionFunction~doWithNamedArguments("item", item, "index", index, "dataFlow", dataflow)
                                                            else partitionItem = partitionFunction~call(item, index, dataflow) -- only routine is supported
@@ -1705,7 +1749,7 @@ if .nil <> partitionFunction then do
         previousPartitionItem = partitionItem
     end
     if previousPartitionItem <> partitionItem then do
-        self~endOfPartition
+        self~endOfPartition(pipeContext)
         array~empty
         partitionCount += 1
     end
@@ -1716,14 +1760,15 @@ array~append(.indexedItem~new(item, index, dataflow))-- just add to the accumula
 
 ::method process
 expose first
-use strict arg item, index, dataflow
-if first then self~processFirst(item, index, dataflow)
-         else self~processLast(item, index, dataflow)
+use strict arg pipeContext, item, index, dataflow
+if first then self~processFirst(pipeContext, item, index, dataflow)
+         else self~processLast(pipeContext, item, index, dataflow)
 
 
 ::method eof
 expose first
-if \first then self~endOfPartition
+use strict arg pipeContext
+if \first then self~endOfPartition(pipeContext, "eof")
 forward class(super)                        -- make sure we propagate the done message
 
 
@@ -1739,9 +1784,9 @@ forward class (super)
 ::class "x2c" public subclass pipeStage     -- translate records to hex characters
 
 ::method process                            -- pipeStage processing item
-use strict arg item, index, dataflow        -- get the data item
+use strict arg pipeContext, item, index, dataflow        -- get the data item
 newItem = item~string~x2c
-self~write(newItem, 1, dataflow)
+self~write(pipeContext, newItem, index, dataflow)
 self~checkEOP(self~next)
 
 
@@ -1756,9 +1801,9 @@ nop                                         -- do nothing with the data
 ::class "fanout" public subclass pipeStage  -- write records to both output streams
 
 ::method process                            -- pipeStage processing item
-use strict arg item, index, dataflow        -- get the data item
-self~write(item, index, dataflow)
-self~writeSecondary(item, index, dataflow)
+use strict arg pipeContext, item, index, dataflow        -- get the data item
+self~write(pipeContext, item, index, dataflow)
+self~writeSecondary(pipeContext, item, index, dataflow)
 self~checkEOP(self~next, self~secondary)
 
 
@@ -1772,10 +1817,21 @@ Merge the results from primary and secondary streams.
 Example :
     -- A merge is used to serialize the branches of the fanout.
     -- There is no specific order (no delay).
-    merge = .merge mem | .console
-    fanout1 = .left[3]  mem | .lower mem | merge  -- not bufferized
-    fanout2 = .right[3] mem | .upper mem | .inject {"my_"item} after | .secondaryConnector | merge -- not bufferized
-    .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1)
+    merge = .merge "mem" | .console "dataflow.110" "index" ":" "item"
+    fanout1 = .left[3]  "mem" | .lower "mem" | merge  -- not bufferized
+    fanout2 = .right[3] "mem" | .upper "mem" | .inject {"my_"item} "after" "mem" | .secondaryConnector | merge -- not bufferized
+    .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout "mem" >> fanout2 > fanout1)
+
+Output:
+    source:1,v1='aaaBBB' | fanout:1,*v1 | left:1,v2='aaa' | lower:1,*v2 | merge[->-]:1,*v2                         1 : 'aaa'
+    source:1,v1='aaaBBB' | fanout:1,*v1 | right:1,v2='BBB' | upper:1,*v2 | inject[->]:1,*v2 | merge[->-]:1,*v2     1 : 'BBB'
+    source:1,v1='aaaBBB' | fanout:1,*v1 | right:1,v2='BBB' | upper:1,*v2 | inject:1,v3='my_BBB' | merge[->-]:1,*v3 1 : 'my_BBB'
+    source:2,v1='CCCddd' | fanout:2,*v1 | left:2,'CCC' | lower:2,v2='ccc' | merge[->-]:2,*v2                       2 : 'ccc'
+    source:2,v1='CCCddd' | fanout:2,*v1 | right:2,'ddd' | upper:2,v2='DDD' | inject[->]:2,*v2 | merge[->-]:2,*v2   2 : 'DDD'
+    source:2,v1='CCCddd' | fanout:2,*v1 | right:2,'ddd' | upper:2,'DDD' | inject:1,v2='my_DDD' | merge[->-]:1,*v2  1 : 'my_DDD'
+    source:3,v1='eEeFfF' | fanout:3,*v1 | left:3,'eEe' | lower:3,v2='eee' | merge[->-]:3,*v2                       3 : 'eee'
+    source:3,v1='eEeFfF' | fanout:3,*v1 | right:3,'FfF' | upper:3,v2='FFF' | inject[->]:3,*v2 | merge[->-]:3,*v2   3 : 'FFF'
+    source:3,v1='eEeFfF' | fanout:3,*v1 | right:3,'FfF' | upper:3,'FFF' | inject:1,v2='my_FFF' | merge[->-]:1,*v2  1 : 'my_FFF'
 */
 nop
 
@@ -1792,10 +1848,21 @@ nop
 Example :
     -- A fanin is used to serialize the branches of the fanout.
     -- The output from fanout1 is sent to console, then the output from fanout2 (delayed)
-    fanin = .fanin mem | .console
-    fanout1 = .left[3]  mem | .lower mem | fanin  -- not bufferized
-    fanout2 = .right[3] mem | .upper mem | .inject {"my_"item} after | .secondaryConnector | fanin -- bufferized until fanout1 is eof
-    .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1)
+    fanin = .fanin "mem" | .console "dataflow.110" "index" ":" "item"
+    fanout1 = .left[3]  "mem" | .lower "mem" | fanin  -- not bufferized
+    fanout2 = .right[3] "mem" | .upper "mem" | .inject {"my_"item} "after" "mem" | .secondaryConnector | fanin -- bufferized until fanout1 is eof
+    .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout "mem" >> fanout2 > fanout1)
+
+Output:
+    source:1,v1='aaaBBB' | fanout:1,*v1 | left:1,v2='aaa' | lower:1,*v2 | fanin[->-]:1,*v2                         1 : 'aaa'
+    source:2,v1='CCCddd' | fanout:2,*v1 | left:2,'CCC' | lower:2,v2='ccc' | fanin[->-]:2,*v2                       2 : 'ccc'
+    source:3,v1='eEeFfF' | fanout:3,*v1 | left:3,'eEe' | lower:3,v2='eee' | fanin[->-]:3,*v2                       3 : 'eee'
+    source:1,v1='aaaBBB' | fanout:1,*v1 | right:1,v2='BBB' | upper:1,*v2 | inject[->]:1,*v2 | fanin[eof]:1,*v2     1 : 'BBB'
+    source:1,v1='aaaBBB' | fanout:1,*v1 | right:1,v2='BBB' | upper:1,*v2 | inject:1,v3='my_BBB' | fanin[eof]:1,*v3 1 : 'my_BBB'
+    source:2,v1='CCCddd' | fanout:2,*v1 | right:2,'ddd' | upper:2,v2='DDD' | inject[->]:2,*v2 | fanin[eof]:2,*v2   2 : 'DDD'
+    source:2,v1='CCCddd' | fanout:2,*v1 | right:2,'ddd' | upper:2,'DDD' | inject:1,v2='my_DDD' | fanin[eof]:1,*v2  1 : 'my_DDD'
+    source:3,v1='eEeFfF' | fanout:3,*v1 | right:3,'FfF' | upper:3,v2='FFF' | inject[->]:3,*v2 | fanin[eof]:3,*v2   3 : 'FFF'
+    source:3,v1='eEeFfF' | fanout:3,*v1 | right:3,'FfF' | upper:3,'FFF' | inject:1,v2='my_FFF' | fanin[eof]:1,*v2  1 : 'my_FFF'
 */
 nop
 
@@ -1811,18 +1878,19 @@ forward class (super)                       -- forward the initialization
 
 ::method processSecondary                   -- handle the secondary input
 expose array
-use strict arg item, index, dataflow
+use strict arg pipeContext, item, index, dataflow
 array~append(.indexedItem~new(item, index, dataflow)) -- just append to the end of the array
 
 
 ::method finalize
 expose primaryEof secondaryEof array
+use strict arg pipeContext
 if self~I1Counter == 0 then primaryEof = .true
 if self~I2Counter == 0 then secondaryEof = .true
 if primaryEof & secondaryEof then do
     loop i = 1 to array~items while .nil <> self~next, \self~next~isEOP -- need to write out the deferred items
         indexedItem = array[i]
-        self~write(indexedItem~item, indexedItem~index, indexedItem~dataflow)
+        self~write(pipeContext, indexedItem~item, indexedItem~index, indexedItem~dataflow, "eof")
     end
     forward class (super) message('eof') continue
     forward class (super) message('secondaryEof') continue
@@ -1832,13 +1900,15 @@ end
 ::method eof
 expose primaryEof
 primaryEof = .true                          -- mark this branch as finished.
-self~finalize                               -- will finalize if the other input hit EOF already
+use strict arg pipeContext
+self~finalize(pipeContext)                  -- will finalize if the other input hit EOF already
 
 
 ::method secondaryEof                       -- eof on the secondary input
 expose secondaryEof
 secondaryEof = .true                        -- mark ourselves finished
-self~finalize                               -- will finalize if both branches finished
+use strict arg pipeContext
+self~finalize(pipeContext)                  -- will finalize if both branches finished
 
 
 ::method reset
@@ -1866,9 +1936,9 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 
 ::method process                            -- pipeStage processing item
 expose copies
-use strict arg item, index, dataflow        -- get the data item
+use strict arg pipeContext, item, index, dataflow        -- get the data item
 loop n=1 to copies + 1 while .nil <> self~next, \self~next~isEOP -- write this out with the duplicate count
-    self~write(item, n, dataflow)
+    self~write(pipeContext, item, n, dataflow)
 end
 self~checkEOP(self~next)
 
@@ -1943,8 +2013,9 @@ expose showPool showTags
 if showTags then mask="1 2 3 4 5 6 7"
 else mask = "1 2 4 5 6 7"
 use strict arg width, item, index, dataflow
-if width == -1 then .output~charout(dataflow~makeString(mask, showPool))
-               else .output~charout(dataflow~makeString(mask, showPool)~left(width))
+if .nil == dataflow then .output~charout("<no dataflow>")
+else if width == -1 then .output~charout(dataflow~makeString(mask, showPool))
+                    else .output~charout(dataflow~makeString(mask, showPool)~left(width))
 .output~charout(" ")
 
 
@@ -1979,7 +2050,7 @@ if expression~hasMethod("doWithNamedArguments") then val = expression~doWithName
 
 ::method process                            -- process a data item
 expose actions isEmptyString showPool
-use strict arg item, index, dataflow        -- get the data item
+use strict arg pipeContext, item, index, dataflow        -- get the data item
 if actions~items == 0 then do
     -- default display
     indexStr = self~representation(index)
@@ -2022,15 +2093,15 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 
 ::method process                            -- process a selection pipeStage
 expose caseless patterns                    -- expose the pattern list
-use strict arg item, index, dataflow        -- access the data item
+use strict arg pipeContext, item, index, dataflow -- access the data item
 selected = .false
 do i = 1 to patterns~size while \selected   -- loop through all the patterns
                                             -- this pattern in the data?
     if caseless then selected = (item~string~caselessPos(patterns[i]) <> 0)
                 else selected = (item~string~pos(patterns[i]) <> 0)
 end
-if selected then self~write(item, index, dataflow) -- send it along
-            else self~writeSecondary(item, index, dataflow) -- send all mismatches down the other branch, if there
+if selected then self~write(pipeContext, item, index, dataflow) -- send it along
+            else self~writeSecondary(pipeContext, item, index, dataflow) -- send all mismatches down the other branch, if there
 self~checkEOP(self~next, self~secondary)
 
 
@@ -2058,15 +2129,15 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 
 ::method process                            -- process a selection pipeStage
 expose caseless patterns                    -- expose the pattern list
-use strict arg item, index, dataflow        -- access the data item
+use strict arg pipeContext, item, index, dataflow        -- access the data item
 selected = .false
 do i = 1 to patterns~size while \selected   -- loop through all the patterns
                                             -- this pattern in the data?
     if caseless then selected = (item~string~caselessPos(patterns[i]) <> 0)
                 else selected = (item~string~pos(patterns[i]) <> 0)
-    if selected then self~writeSecondary(item, index, dataflow) -- send it along the secondary...don't want this one
+    if selected then self~writeSecondary(pipeContext, item, index, dataflow) -- send it along the secondary...don't want this one
 end
-if \selected then self~write(item, index, dataflow)  -- send all mismatches down the main branch
+if \selected then self~write(pipeContext, item, index, dataflow)  -- send all mismatches down the main branch
 self~checkEOP(self~next, self~secondary)
 
 
@@ -2094,15 +2165,15 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 
 ::method process                            -- process a selection pipeStage
 expose caseless patterns                    -- expose the pattern list
-use strict arg item, index, dataflow        -- access the data item
+use strict arg pipeContext, item, index, dataflow        -- access the data item
 selected = .false
 do i = 1 to patterns~size while \selected   -- loop through all the patterns
                                             -- this pattern in the data?
     if caseless then selected = (item~string~caselessPos(patterns[i]) == 1)
                 else selected = (item~string~pos(patterns[i]) == 1)
 end
-if selected then self~write(item, index, dataflow) -- send it along
-            else self~writeSecondary(item, index, dataflow) -- send all mismatches down the other branch, if there
+if selected then self~write(pipeContext, item, index, dataflow) -- send it along
+            else self~writeSecondary(pipeContext, item, index, dataflow) -- send all mismatches down the other branch, if there
 self~checkEOP(self~next, self~secondary)
 
 
@@ -2130,7 +2201,7 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 
 ::method process                            -- process a selection pipeStage
 expose caseless patterns                    -- expose the pattern list
-use strict arg item, index, dataflow        -- access the data item
+use strict arg pipeContext, item, index, dataflow        -- access the data item
 selected = .false
 do i = 1 to patterns~size while \selected   -- loop through all the patterns
                                             -- this pattern in the data?
@@ -2144,8 +2215,8 @@ do i = 1 to patterns~size while \selected   -- loop through all the patterns
                     else selected = (right == pattern)
     end
 end
-if selected then self~write(item, index, dataflow) -- send it along
-            else self~writeSecondary(item, index, dataflow) -- send all mismatches down the other branch, if there
+if selected then self~write(pipeContext, item, index, dataflow) -- send it along
+            else self~writeSecondary(pipeContext, item, index, dataflow) -- send all mismatches down the other branch, if there
 self~checkEOP(self~next, self~secondary)
 
 
@@ -2163,7 +2234,7 @@ forward class (super)                       -- forward the initialization
 
 ::method process                            -- process a stem pipeStage item
 expose stem.                                -- expose the stem
-use strict arg item, index, dataflow        -- get the data item
+use strict arg pipeContext, item, index, dataflow -- get the data item
 stem.0 = stem.0 + 1                         -- stem the item count
 stem.[stem.0, 'VALUE'] = item               -- save the item
 stem.[stem.0, 'INDEX'] = index              -- save the index
@@ -2190,7 +2261,7 @@ forward class (super)                       -- forward the initialization
 
 ::method process                            -- process a stem pipeStage item
 expose dataflowArray idx indexArray itemArray -- expose the array
-use strict arg item, index, dataflow        -- get the data item
+use strict arg pipeContext, item, index, dataflow  -- get the data item
 itemArray~append(item)                      -- save the item
 if .nil <> indexArray then indexArray~append(index) -- save the index
 if .nil <> dataflowArray then dataflowArray~append(dataflow) -- save the dataflow
@@ -2214,7 +2285,7 @@ forward class (super)                       -- forward the initialization
 
 ::method process                            -- process a stem pipeStage item
 expose directory
-use strict arg item, index, dataflow        -- get the data item
+use strict arg pipeContext, item, index, dataflow -- get the data item
 directory~put(item, index~makestring)       -- save the item
 forward class(super)                        -- allow superclass to send down pipe
 
@@ -2249,20 +2320,20 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 
 ::method process
 expose endString finished started startString
-use strict arg item, index, dataflow
+use strict arg pipeContext, item, index, dataflow
 if \started then do                         -- not turned on yet?  see if we've hit the trigger
     if caseless then started = (item~string~caselessPos(startString) > 0)
                 else started = (item~string~pos(startString) > 0)
-    if started then self~write(item, index, dataflow) -- pass along
-               else self~writeSecondary(item, index, dataflow) -- non-selected lines go to the secondary bucket
+    if started then self~write(pipeContext, item, index, dataflow) -- pass along
+               else self~writeSecondary(pipeContext, item, index, dataflow) -- non-selected lines go to the secondary bucket
 end
 else if \finished then do                   -- still processing?
     if caseless then finished = (item~string~caselessPos(endString) > 0)
                 else finished = (item~string~pos(endString) > 0)
-    self~write(item, index, dataflow)    -- pass along
+    self~write(pipeContext, item, index, dataflow)    -- pass along
 end
 else do
-    self~writeSecondary(item, index, dataflow) -- non-selected lines go to the secondary bucket
+    self~writeSecondary(pipeContext, item, index, dataflow) -- non-selected lines go to the secondary bucket
 end
 self~checkEOP(self~next, self~secondary)
 
@@ -2299,13 +2370,13 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 
 ::method process
 expose caseless endString started startString
-use strict arg item, index, dataflow
+use strict arg pipeContext, item, index, dataflow
 if \started then do                         -- not turned on yet?  see if we've hit the trigger
     if caseless then started = (item~string~caselessPos(startString) > 0)
                 else started = (item~string~pos(startString) > 0)
-    if \started then self~writeSecondary(item, index, dataflow) -- pass along the secondary stream
+    if \started then self~writeSecondary(pipeContext, item, index, dataflow) -- pass along the secondary stream
 end
-else self~write(item, index, dataflow)      -- pass along
+else self~write(pipeContext, item, index, dataflow)      -- pass along
 self~checkEOP(self~next, self~secondary)
 
 
@@ -2340,15 +2411,15 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 
 ::method process
 expose caseless endString finished
-use strict arg item, index, dataflow
+use strict arg pipeContext, item, index, dataflow
 if \finished then do                        -- still processing?
     if caseless
         then finished = (item~string~caselessPos(endString) > 0)
         else finished = (item~string~pos(endString) > 0)
-    self~write(item, index, dataflow)   -- pass along
+    self~write(pipeContext, item, index, dataflow)   -- pass along
 end
 else do
-    self~writeSecondary(item, index, dataflow) -- non-selected lines go to the secondary bucket
+    self~writeSecondary(pipeContext, item, index, dataflow) -- non-selected lines go to the secondary bucket
 end
 self~checkEOP(self~next, self~secondary)
 
@@ -2392,20 +2463,21 @@ forward class (super) arguments (unknown)    -- forward the initialization to su
 
 ::method endOfPartition
 expose buffer count delimiter partitionCount
+use strict arg pipeContext, annotation=""
 loop i = 1 to count while .nil <> self~next, \self~next~isEOP -- now write copies of the set to the stream
      if partitionCount > 1 | i > 1 then do
-         self~write(delimiter, 1, .nil) -- put a delimiter between the sets
+         self~write(pipeContext, delimiter, 1, .nil, annotation) -- put a delimiter between the sets
      end
      loop j = 1 to buffer~items while .nil <> self~next, \self~next~isEOP -- and send along the buffered lines
          indexedItem = buffer[j]
-         self~write(indexedItem~item, indexedItem~index, indexedItem~dataflow)
+         self~write(pipeContext, indexedItem~item, indexedItem~index, indexedItem~dataflow, annotation)
      end
 end
 
 
 ::method process
 expose buffer partitionCount partitionFunction previousPartitionItem
-use strict arg item, index, dataflow
+use strict arg pipeContext, item, index, dataflow
 if .nil <> partitionFunction then do
     if partitionFunction~hasMethod("doWithNamedArguments") then partitionItem = partitionFunction~doWithNamedArguments("item", item, "index", index, "dataFlow", dataflow)
                                                            else partitionItem = partitionFunction~call(item, index, dataflow) -- only routine is supported
@@ -2414,7 +2486,7 @@ if .nil <> partitionFunction then do
         previousPartitionItem = partitionItem
     end
     if previousPartitionItem <> partitionItem then do
-        self~endOfPartition
+        self~endOfPartition(pipeContext)
         buffer~empty
         partitionCount += 1
     end
@@ -2424,7 +2496,8 @@ buffer~append(.indexedItem~new(item, index, dataflow)) -- just accumulate the it
 
 
 ::method eof
-self~endOfPartition
+use strict arg pipeContext
+self~endOfPartition(pipeContext, "eof")
 forward class(super)                        -- and send the done message along
 
 
@@ -2469,7 +2542,8 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 
 ::method endOfPartition
 expose counter partitionCount previousPartitionItem
-self~write(counter, previousPartitionItem, .nil); -- write out the counter message
+use strict arg pipeContext
+self~write(pipeContext, counter, previousPartitionItem, .nil); -- write out the counter message
 
 
 ::method count abstract
@@ -2477,7 +2551,7 @@ self~write(counter, previousPartitionItem, .nil); -- write out the counter messa
 
 ::method process
 expose counter partitionCount partitionFunction previousPartitionItem
-use strict arg item, index, dataflow
+use strict arg pipeContext, item, index, dataflow
 if .nil <> partitionFunction then do
     if partitionFunction~hasMethod("doWithNamedArguments") then partitionItem = partitionFunction~doWithNamedArguments("item", item, "index", index, "dataflow", dataflow)
                                                            else partitionItem = partitionFunction~call(item, index, dataflow) -- only routine is supported
@@ -2486,7 +2560,7 @@ if .nil <> partitionFunction then do
         previousPartitionItem = partitionItem
     end
     if previousPartitionItem <> partitionItem then do
-        self~endOfPartition
+        self~endOfPartition(pipeContext)
         counter = 0
         partitionCount += 1
     end
@@ -2496,7 +2570,8 @@ counter += self~count(item, index, dataflow)
 
 
 ::method eof
-self~endOfPartition
+use strict arg pipeContext
+self~endOfPartition(pipeContext)
 forward class(super)                        -- and send the done message along
 
 
@@ -2551,12 +2626,12 @@ use strict arg pivotItem, self~next, self~secondary
 
 ::method process                            -- process the split
 expose pivotItem
-use strict arg item, index, dataflow
+use strict arg pipeContext, item, index, dataflow
 if item~string < pivotItem then do         -- simple split test
-    self~write(item, index, dataflow)
+    self~write(pipeContext, item, index, dataflow)
 end
 else do
-    self~writeSecondary(item, index, dataflow)
+    self~writeSecondary(pipeContext, item, index, dataflow)
 end
 self~checkEOP(self~next, self~secondary)
 
@@ -2581,6 +2656,7 @@ forward class (super)                       -- forward the initialization
 
 ::method start                              -- process "start-of-pipe" condition
 expose stages
+use strict arg pipeContext
 do stage over stages
     forward continue to (stage)
 end
@@ -2603,24 +2679,25 @@ raise syntax 93.963                         -- Can't do this, so raise an unsupp
 
 ::method write                              -- broadcast a result to a particular filter
 expose stages
-use strict arg which, item, index, dataflow -- which is the fiter index, item is the result
+use strict arg which, pipeContext, item, index, dataflow -- which is the fiter index, item is the result
 stage = stages[which]
-if \stage~isEOP then stage~process(item, index, dataflow); -- have the filter handle this
+if \stage~isEOP then stage~process(pipeContext, item, index, dataflow); -- have the filter handle this
 
 
 ::method eof                                -- broadcast a done message down all of the branches
 expose stages
+use strict arg pipeContext
 do stage over stages
-    stage~eof
+    stage~eof(pipeContext)
 end
 -- needed ? forward class(super)                        -- make sure we propagate the done message
 
 
 ::method process                            -- process the stage stream
 expose stages
-use strict arg item, index, dataflow
+use strict arg pipeContext, item, index, dataflow
 do stage over stages                        -- send this down all of the branches
-    stage~process(item, index, dataflow)
+    stage~process(pipeContext, item, index, dataflow)
 end
 forward message ("checkEOP") arguments (stages)
 
@@ -2630,26 +2707,79 @@ forward message ("checkEOP") arguments (stages)
 
 
 /******************************************************************************/
--- A 'fileLines' pipeStage to get the contents of a text file line by line.
--- The input item can be a string (used as a path) or a .File instance.
--- In CMS pipelines, this stage is named "getFiles", but I prefer "fileLines"...
-::class "fileLines" public subclass pipeStage
+/*
+A 'linesIn' pipeStage to get the contents of a stream line by line.
+The input item or the argument can be a string (used as a filepath) or a .File instance
+or any object understanding the message "lineIn".
+In CMS pipelines, this stage is named "<".
+Usage :
+    .linesIn ["<file>"|<expression-doer>]
+    if no argument specified then use the current item as input.
+Example :
+    "my_script"~pipe(.linesIn {item".rex"} | .console)
+    .array~of("f1.txt", "f2.txt", "f3.txt")~pipe(.linesIn | .console)
+*/
+::class "linesIn" public subclass pipeStage
+
+::method initOptions
+expose input doer
+input = .nil
+doer = .nil
+unknown = .array~new
+do a over arg(1, "a")
+    if a~isA(.String) then do
+        if \ "memorize"~caselessAbbrev(a, 3) then do -- MUST detect this option here, otherwise would be taken as an input
+            if .nil <> input then raise syntax 93.900 array(self~class~id ": Only one input is supported")
+            input = a
+            iterate
+        end
+    end
+    else do
+        -- The doer is supposed to return the input from which to read.
+        if a~hasMethod("doer") then do
+            if .nil <> input then raise syntax 93.900 array(self~class~id ": Only one input is supported")
+            input = a
+            doer = a~doer
+            iterate
+        end
+    end
+    unknown~append(a)
+end
+forward class (super) arguments (unknown) -- forward the initialization to super to process the unknown options
 
 ::method process
-use strict arg item, index, dataflow
-if \item~isA(.File) then item = .File~new(item~string)
-stream = .Stream~new(item~absolutePath)
+expose input doer
+use strict arg pipeContext, item, index, dataflow
+stream = input
+if .nil <> doer then do
+    if doer~hasMethod("doWithNamedArguments") then stream = doer~doWithNamedArguments("item", item, "index", index, "dataFlow", dataflow)
+                                              else stream = doer~call(item, index, dataflow) -- only routine is supported
+end
+if .nil == stream then stream = item
+
+-- bypass error 'Invalid position argument specified; found "0"' triggered by normalizePathSyntax in StreamClasses.orx
+-- This error is not raised with ooRexx5 but no time to retrofit normalizePathSyntax from ooRexx5 now.
+if stream == "" then return
+
+if \stream~hasMethod("lineIn") then do
+    file = stream
+    if \file~isA(.File) then file = .File~new(stream~string)
+    stream = .Stream~new(file~absolutePath)
+end
 signal on notready
-stream~open("read")
+stream~open("read") -- not sure if I need that
 linepos = 1
 do while .nil <> self~next, \self~next~isEOP
     linetext = stream~linein
-    self~write(linetext, linepos, dataflow)
+    self~write(pipeContext, linetext, linepos, dataflow)
     linepos += 1
 end
 notready:
 self~checkEOP(self~next)
-stream~close
+stream~close -- not sure if I need that
+
+
+::class "fileLines" public subclass linesIn -- for compatibility
 
 
 /******************************************************************************/
@@ -2657,10 +2787,10 @@ stream~close
 ::class "words" public subclass pipeStage
 
 ::method process
-use strict arg item, index, dataflow
+use strict arg pipeContext, item, index, dataflow
 wordpos = 1
 do word over item~string~space~makearray(" ") while .nil <> self~next, \self~next~isEOP
-    self~write(word, wordpos, dataflow)
+    self~write(pipeContext, word, wordpos, dataflow)
     wordpos += 1
 end
 self~checkEOP(self~next)
@@ -2671,10 +2801,10 @@ self~checkEOP(self~next)
 ::class "characters" public subclass pipeStage
 
 ::method process
-use strict arg item, index, dataflow
+use strict arg pipeContext, item, index, dataflow
 charpos = 1
 do char over item~string~makearray("") while .nil <> self~next, \self~next~isEOP
-    self~write(char, charpos, dataflow)
+    self~write(pipeContext, char, charpos, dataflow)
     charpos += 1
 end
 self~checkEOP(self~next)
@@ -2724,7 +2854,6 @@ do a over arg(1, "a")
     end
     unknown~append(a)
 end
-if .nil == command then doer = .routines~UseItemAsCommand -- {use arg item; return item}~doer -- raise syntax 93.900 array(self~class~id ": No command specified")
 forward class (super) arguments (unknown) -- forward the initialization to super to process the unknown options
 
 ::method process protected
@@ -2732,28 +2861,25 @@ expose command doer trace
 -- not a block do...end, to not see the 'end' in the trace output
 if trace then .traceOutput~say("       >I> Method .system~process")
 if trace then trace i
-use strict arg item, index, dataflow
+use strict arg pipeContext, item, index, dataflow
+commandToExecute = command
 if .nil <> doer then do
-    if doer~hasMethod("doWithNamedArguments") then command = doer~doWithNamedArguments("item", item, "index", index, "dataFlow", dataflow)
-                                              else command = doer~call(item, index, dataflow) -- only routine is supported
+    if doer~hasMethod("doWithNamedArguments") then commandToExecute = doer~doWithNamedArguments("item", item, "index", index, "dataFlow", dataflow)
+                                              else commandToExecute = doer~call(item, index, dataflow) -- only routine is supported
 end
+if .nil == commandToExecute then commandToExecute = item
+if commandToExecute == "" then return
 queue = .RexxQueue~new(.RexxQueue~create)
-command '| rxqueue "'queue~get'"'
+commandToExecute '| rxqueue "'queue~get'"'
 error = (RC <> 0) -- doesn't work ! RC is the return code of rxqueue, not the return code of command
 linepos = 1
 do while queue~queued() <> 0, .nil <> self~next, \self~next~isEOP
     line = queue~linein
-    newIndex = .array~of(command, linepos)
-    if error then self~writeSecondary(line, newIndex, dataflow)
-    else self~write(line, newIndex, dataflow)
+    -- newIndex = .array~of(commandToExecute, linepos)
+    newIndex = linepos -- keep the index simple. If you want to know which is the command then use the dataflow
+    if error then self~writeSecondary(pipeContext, line, newIndex, dataflow)
+    else self~write(pipeContext, line, newIndex, dataflow)
     linepos += 1
 end
 queue~delete
 self~checkEOP(self~next)
-
--- This routine is needed to keep current file compatible with standard ooRexx.
--- It replaces this block : {use arg item; return item}~doer
-::routine UseItemAsCommand
-    use arg item
-    return item
-

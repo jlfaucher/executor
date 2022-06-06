@@ -13,7 +13,12 @@ Connectors
 pipeStages
 ----------
 
-.ItemToIndexItem : I1 -- 01 -- Assuming item is an array [index, item], write index & item
+All the pipe stages support the common option "memorize[.tag]".
+
+For the pipe stages supporting the option "recursive", an option "recursive.memorize" is available.
+The common option "memorize[.tag]" is still needed to assign a tag.
+
+.ItemToIndexItem : I1 -- O1 -- Assuming item is an array [index, item], write index & item
 
 .SecondaryConnector : I1 --> I2 -- adapter which forwards to its follower's secondary input
 
@@ -92,7 +97,10 @@ pipeStages
 .pivot[pivotItem, next, secondary] : I1 --- O1, O2 -- If item < pivotItem then route to O1 else route to O2
 .splitter[stages...] : I1 --- O1, O2, ... -- split the processing stream into two or more pipeStages
 
-.fileLines : I1 --- O1
+.linesIn : I1 --- O1    -- Equivalent to the < CMS pipe stage, except the argument can be taken from I1
+    ["<file>"|<expression-doer>]
+(was .fileLines)
+
 .words : I1 --- O1
 .characters : I1 --- O1
 

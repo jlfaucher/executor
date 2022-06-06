@@ -315,7 +315,7 @@ Count the number of files in the directory passed as argument, and in each subdi
 The recursivity is limited to 1 level, [breadth-first search][wikipedia_breadth_first_search].  
 The count per directory is done by partitioning the instances of .File flowing through the pipeline by their parent.  
 
-    "d:\"~pipe(.fileTree recursive.1.breadthFirst | .lineCount {item~parent} | .console {item~right(6)} index)
+    "d:\"~pipe(.fileTree "recursive.1.breadthFirst" | .lineCount {item~parent} | .console {item~right(6)} "index")
 
 output:
 
@@ -330,10 +330,10 @@ Example:
 Public classes by package.
 
     .context~package~pipe(,
-        .importedPackages recursive once after mem.package |,
-        .inject {item~publicClasses} iterateAfter |,
+        .importedPackages "recursive" "once" "after" "mem.package" |,
+        .inject {item~publicClasses} "iterateAfter" |,
         .sort {item~id} {dataflow["package"]~item~name} |,
-        .console {.file~new(dataflow["package"]~item~name)~name} ":" item,
+        .console {.file~new(dataflow["package"]~item~name)~name} ":" "item",
         )
 
 output, when run from ooRexxShell:

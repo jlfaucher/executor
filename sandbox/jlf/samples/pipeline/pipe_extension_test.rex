@@ -20,36 +20,37 @@ nop
 -- ----------------------------------------------------------------------------
 -- Overview of dataflows
 -- ----------------------------------------------------------------------------
---   1          2     3       4
--- +----------+-----+-------+------+
--- | previous | tag | index | item |
--- +----------+-----+-------+------+
+--
+--   1          2     3            4       5
+-- +----------+-----+------------+-------+------+
+-- | previous | tag | annotation | index | item |
+-- +----------+-----+------------+-------+------+
 --    ^
---    |  +----------+-----+-------+------+
---    +--| previous | tag | index | item |
---       +----------+-----+-------+------+
+--    |  +----------+-----+------------+-------+------+
+--    +--| previous | tag | annotation | index | item |
+--       +----------+-----+------------+-------+------+
 --          ^
 --          |
 --          +-- etc...
 
 
--- A dataflow is created from a tag, a pair of (item, index), and a previous dataflow (which can be .nil).
+-- A dataflow is created from a tag, an annotation, a pair of (item, index), and a previous dataflow (which can be .nil).
 -- Representation : the strings (except the strings numbers) are surrounded by quotes.
-df1 = .dataflow~create(.nil, "tag1", "item1", "index1")
+df1 = .dataflow~create(.nil, "tag1", "annotation1", "item1", "index1")
 say df1 -- by default, all the fields are included in the representation string.
 say df1~makeString(2) -- show tag
-say df1~makeString(23) -- show tag, index
-say df1~makeString(234) -- show tag, index, item
+say df1~makeString(24) -- show tag, index
+say df1~makeString(245) -- show tag, index, item
 
 
 -- A dataflow can be linked to a previous dataflow.
 -- Representation : the dataflows are separated by |
-df2 = .dataflow~create(df1, "tag2", "item2", "index2")
+df2 = .dataflow~create(df1, "tag2", "annotation2", "item2", "index2")
 say df2
 
 
 -- Representation : the objects other than strings are surrounded by round brackets.
-df3 = .dataflow~create(df2, "tag3", .mutableBuffer~new(22222), .file~new("my file"))
+df3 = .dataflow~create(df2, "tag3", "annotation3", .mutableBuffer~new(22222), .file~new("my file"))
 say df3
 
 
@@ -59,8 +60,8 @@ say df3
 -- Example :
 -- "a" and .file~new("my file" are entered in the pool, because there is more than one occurence of them.
 -- .mutableBuffer~new(22222) is not entered in the pool, because two distincts instances are never equal, even if their string representation is the same.
-df4 = .dataflow~create(df3, "tag4", .file~new("my file"), "a")
-df5 = .dataflow~create(df4, "tag5", .mutableBuffer~new(22222), "a")
+df4 = .dataflow~create(df3, "tag4", "annotation4", .file~new("my file"), "a")
+df5 = .dataflow~create(df4, "tag5", "annotation5", .mutableBuffer~new(22222), "a")
 say df5 ; say df5~makeString(1234, .true)
 
 

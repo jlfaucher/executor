@@ -2,6 +2,110 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2022 June 06
+
+[pipes]
+
+Solution to the quiz of Ruurd
+https://groups.io/g/netrexx/topic/exploring_netrexx_pipelines/91542970
+"~/Downloads/coords.txt"~pipe(.linesIn | .inject { parse var item X"="V1 Y"="V2; (X="lat")~?(V1 V2, V2 V1) } | .console)
+Input:
+    lon=4.8177 lat=52.25365
+    lon=4.81744 lat=52.25364
+    lon=4.81732 lat=52.25362
+    ...
+    lon=4.62636 lat=52.26284
+    lon=4.62606 lat=52.26303
+    lon=4.62558 lat=52.26329
+Output:
+    1 : '52.25365 4.8177'
+    2 : '52.25364 4.81744'
+    3 : '52.25362 4.81732'
+    ...
+    1690 : '52.26284 4.62636'
+    1691 : '52.26303 4.62606'
+    1692 : '52.26329 4.62558'
+
+
+[pipes]
+
+~pipe
+~copipe
+New named parameter 'memorize' to activate the option 'memorize' on all the pipeStages.
+The positional parameter 'profile' becomes a named parameter.
+
+The pipestage "fileLines" has been renamed "linesIn", and extended to support as input
+a filename or a .File instance or any object understanding the message "lineIn".
+The input is either the current item or an argument. The argument can be a doer returning the input.
+Example:
+    -- Here the input is a filename calculated by concatenating the item with the suffix ".rex"
+    "my_script"~pipe(.linesIn {item".rex"} | .console)
+    -- Here the item is used as input. List the 5 first lines of each file *.rex in current directory.
+    "."~pipe(.fileTree "mem" | .endsWith[".rex"] | .linesIn | .take 5 {dataflow["fileTree"]~item} | .console)
+
+The index forwarded for the new item calculated by the following pipeStages is no longer hardcoded 1.
+Now it's the index received from the previous pipeStage.
+    reverse
+    upper
+    lower
+    changeStr
+    delStr
+    left
+    right
+    insert
+    overlay
+    x2c
+
+.inject:
+The index injected for the item received from the previous pipeStage is no longer hardcoded 1.
+Now it's the index received from the previous pipeStage.
+Example:
+    .array~of(1, , 2, , 3)~pipe(.inject "after" {.array~of(item*10, item*20)} "iterateAfter" "memorize" | .console "dataflow")
+        source:1,1 | inject[->]:1,1
+        source:1,1 | inject:1,10
+        source:1,1 | inject:2,20
+        source:3,2 | inject[->]:3,2     now the index injected is the index received: here 3 instead of 1
+        source:3,2 | inject:1,20
+        source:3,2 | inject:2,40
+        source:5,3 | inject[->]:5,3     now the index injected is the index received: here 5 instead of 1
+        source:5,3 | inject:1,30
+        source:5,3 | inject:2,60
+
+.inject:
+The index of the injected value, when not iterated, is 1 instead of the index received from the previous pipeStage.
+
+The datapackets are annotated to provide context.
+    [->-] The pipeStage is just forwarding. See for example 'append'.
+    [eof] The pipeStage is running on EOF event. See for example 'sort' and 'append'.
+Example:
+    -- The argument mem:1 activates the memorization on all the pipe stages: full dataflow
+    5~1~pipe(.append {(7,6)} "iterate" | .inject {10*item} "after" "before" | .sort | .append {(0,-1)} "iterate" | .console "mem" "dataflow", mem:1)
+        source:5,1 | append[->-]:5,1 | inject[->]:5,1 | sort[eof]:5,1 | append[->-]:5,1
+        source:5,1 | append[->-]:5,1 | inject[->-]:5,1 | sort[eof]:5,1 | append[->-]:5,1
+        source:4,2 | append[->-]:4,2 | inject[->]:4,2 | sort[eof]:4,2 | append[->-]:4,2
+        source:4,2 | append[->-]:4,2 | inject[->-]:4,2 | sort[eof]:4,2 | append[->-]:4,2
+        source:3,3 | append[->-]:3,3 | inject[->]:3,3 | sort[eof]:3,3 | append[->-]:3,3
+        source:3,3 | append[->-]:3,3 | inject[->-]:3,3 | sort[eof]:3,3 | append[->-]:3,3
+        source:2,4 | append[->-]:2,4 | inject[->]:2,4 | sort[eof]:2,4 | append[->-]:2,4
+        source:2,4 | append[->-]:2,4 | inject[->-]:2,4 | sort[eof]:2,4 | append[->-]:2,4
+        source:1,5 | append[->-]:1,5 | inject[->]:1,5 | sort[eof]:1,5 | append[->-]:1,5
+        source:1,5 | append[->-]:1,5 | inject[->-]:1,5 | sort[eof]:1,5 | append[->-]:1,5
+        append[eof]:2,6 | inject[->]:2,6 | sort[eof]:2,6 | append[->-]:2,6
+        append[eof]:2,6 | inject[->-]:2,6 | sort[eof]:2,6 | append[->-]:2,6
+        append[eof]:1,7 | inject[->]:1,7 | sort[eof]:1,7 | append[->-]:1,7
+        append[eof]:1,7 | inject[->-]:1,7 | sort[eof]:1,7 | append[->-]:1,7
+        source:5,1 | append[->-]:5,1 | inject:5,10 | sort[eof]:5,10 | append[->-]:5,10
+        source:4,2 | append[->-]:4,2 | inject:4,20 | sort[eof]:4,20 | append[->-]:4,20
+        source:3,3 | append[->-]:3,3 | inject:3,30 | sort[eof]:3,30 | append[->-]:3,30
+        source:2,4 | append[->-]:2,4 | inject:2,40 | sort[eof]:2,40 | append[->-]:2,40
+        source:1,5 | append[->-]:1,5 | inject:1,50 | sort[eof]:1,50 | append[->-]:1,50
+        append[eof]:2,6 | inject:2,60 | sort[eof]:2,60 | append[->-]:2,60
+        append[eof]:1,7 | inject:1,70 | sort[eof]:1,70 | append[->-]:1,70
+        append[eof]:1,0
+        append[eof]:2,-1
+
+
+===============================================================================
 2022 June 01
 
 [rgf_util NumberComparator]
