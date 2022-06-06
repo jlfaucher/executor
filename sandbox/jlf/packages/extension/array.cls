@@ -1267,74 +1267,74 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
 ::method elementEquals
     if arg() == 1 then return self~leftElementWise("=", arg(1))
 
-/* activated
-*/
+/* Not activated
 ::method "="
     if arg() == 1 then return self~leftElementWise("=", arg(1))
-
-/* activated
 */
+
+/* Not activated
 ::method "=op:right"
     if arg() == 1 then return self~rightElementWise("=", arg(1))
+*/
 
 ::method elementNotEquals
     if arg() == 1 then return self~leftElementWise("\=", arg(1))
 
-/* activated
-*/
+/* Not activated
 ::method "\="
     if arg() == 1 then return self~leftElementWise("\=", arg(1))
-
-/* activated
 */
+
+/* Not activated
 ::method "\=op:right"
     if arg() == 1 then return self~rightElementWise("\=", arg(1))
-
-/* activated
 */
+
+/* Not activated
 ::method "<>"
     if arg() == 1 then return self~leftElementWise("<>", arg(1))
-
-/* activated
 */
+
+/* Not activated
 ::method "<>op:right"
     if arg() == 1 then return self~rightElementWise("<>", arg(1))
+*/
 
 ::method elementStrictEquals
     if arg() == 1 then return self~leftElementWise("==", arg(1))
 
-/* activated
-*/
+/* Not activated
 ::method "=="
     if arg() == 1 then return self~leftElementWise("==", arg(1))
-
-/* activated
 */
+
+/* Not activated
 ::method "==op:right"
     if arg() == 1 then return self~rightElementWise("==", arg(1))
+*/
 
 ::method elementStrictNotEquals
     if arg() == 1 then return self~leftElementWise("\==", arg(1))
 
-/* activated
-*/
+/* Not activated
 ::method "\=="
     if arg() == 1 then return self~leftElementWise("\==", arg(1))
-
-/* activated
 */
+
+/* Not activated
 ::method "\==op:right"
     if arg() == 1 then return self~rightElementWise("\==", arg(1))
-
-/* activated
 */
+
+/* Not activated
 ::method "><"
     if arg() == 1 then return self~leftElementWise("><", arg(1))
-
-/* activated
 */
+
+/* Not activated
 ::method "><op:right"
     if arg() == 1 then return self~rightElementWise("><", arg(1))
+*/
 
 ::method "\"
     use strict arg -- none, no binary version
