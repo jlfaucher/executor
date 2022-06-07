@@ -492,7 +492,7 @@ self~checkEOP(self~next)
 
 
 ::method newDataflow
--- Can be redefined by subclasses (ex : .inject)
+-- Can be redefined by subclasses
 use strict arg pipeContext, previousDataflow, item, index, annotation=""
 return .dataflow~create(previousDataflow, self, annotation, item, index)
 
@@ -756,12 +756,16 @@ dataFlow is created, with the structure described above.
 
 dataflow[tag, nth=1]
     Returns dataflow~get(tag, nth).
+dataflow~annotation
+    Returns the dataflow's annotation
 dataflow~get(tag, nth=1)
     Retrieves a dataflow by tag, from most recent to oldest. If several dataflows
     have the same tag, then the argument 'nth' lets specify which one to return.
     tag can be a negative number. In this case, a relative dataflow is returned.
 dataflow~index
     Returns the index of the produced item.
+dataflow~item
+    Returns the produced item.
 dataflow~length
     Returns the number of linked dataflows, including the current one ( >= 1 ).
 dataflow~makeString(mask="1 2 3 4", showPool=.false)
@@ -777,10 +781,6 @@ dataflow~previous
     Returns the previous dataflow.
 dataflow~tag
     Returns the dataflow's tag.
-dataflow~item
-    Returns the produced item.
-dataflow~annotation
-    Returns the dataflow's annotation
 */
 nop
 

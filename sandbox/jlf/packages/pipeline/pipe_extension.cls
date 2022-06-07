@@ -276,25 +276,8 @@ self~init:super
     forward class (super) arguments (unknown) -- forward the initialization to super to process the unknown options
 
 
-::method newDataflow
-    -- Overload default method, called by ~write and ~writeSecondary
-    expose recursiveMemorize trace
-    -- not a block do...end, to not see the 'end' in the trace output
-    if trace then .traceOutput~say("       >I> Method .inject~newDataflow")
-    if trace then trace i
-    use strict arg pipeContext, previousDataflow, item, index, annotation=""
-    if recursiveMemorize | pipeContext~memorize then do
-        newDataflow = .dataflow~create(previousDataflow, self, annotation, item, index)
-    end
-    else do
-        newDataflow = previousDataflow
-        if self~memorize then newDataflow = .dataflow~create(previousDataflow, self, annotation, item, index)
-    end
-    return newDataflow
-
-
 ::method processDepthFirst.3 private
-    expose detectCycles limit once recursive trace
+    expose detectCycles limit once recursive recursiveMemorize trace
     -- not a block do...end, to not see the 'end' in the trace output
     if trace then .traceOutput~say("       >I> Method .inject~processDepthFirst.3")
     if trace then trace i
@@ -302,7 +285,7 @@ self~init:super
     if once, previousItems~hasItem(item) then do -- don't send twice an item
         -- Send it to secondary output, which receives the abandonned items
         self~writeSecondary(pipeContext, item, index, dataflow)
-        if .nil <> result then dataflow = result
+        if .nil <> result & recursiveMemorize then dataflow = result
         self~checkEOP(self~next, self~secondary)
         return
     end
@@ -310,7 +293,7 @@ self~init:super
         if detectCycles then do
             if \ stack~hasItem(item) then do -- Recurse only if not already processed
                 self~write(pipeContext, item, index, dataflow)
-                if .nil <> result then dataflow = result
+                if .nil <> result & recursiveMemorize then dataflow = result
                 self~checkEOP(self~next, self~secondary)
                 if once then previousItems~append(item)
                 stack~push(item)
@@ -321,14 +304,14 @@ self~init:super
                 -- Send it to secondary output, which receives the abandonned items
                 -- Here, no management of "once".
                 self~writeSecondary(pipeContext, item, index, dataflow)
-                if .nil <> result then dataflow = result
+                if .nil <> result & recursiveMemorize then dataflow = result
                 self~checkEOP(self~next, self~secondary)
                 return
             end
         end
         else do
             self~write(pipeContext, item, index, dataflow)
-            if .nil <> result then dataflow = result
+            if .nil <> result & recursiveMemorize then dataflow = result
             self~checkEOP(self~next, self~secondary)
             if once then previousItems~append(item)
             self~processDepthFirst.1(pipeContext, item, index, dataflow, previousItems, stack, depth+1)
@@ -336,7 +319,7 @@ self~init:super
     end
     else do
         self~write(pipeContext, item, index, dataflow)
-        if .nil <> result then dataflow = result
+        if .nil <> result & recursiveMemorize then dataflow = result
         self~checkEOP(self~next, self~secondary)
         if once then previousItems~append(item)
     end
@@ -387,7 +370,7 @@ self~init:super
 
 
 ::method processBreadthFirst.3 private
-    expose detectCycles limit once recursive trace
+    expose detectCycles limit once recursive recursiveMemorize trace
     -- not a block do...end, to not see the 'end' in the trace output
     if trace then .traceOutput~say("       >I> Method .inject~processBreadthFirst.3")
     if trace then trace i
@@ -395,7 +378,7 @@ self~init:super
     if once, previousItems~hasItem(item) then do -- don't send twice an item
         -- Send it to secondary output, which receives the abandonned items
         self~writeSecondary(pipeContext, item, index, dataflow)
-        if .nil <> result then dataflow = result
+        if .nil <> result & recursiveMemorize then dataflow = result
         self~checkEOP(self~next, self~secondary)
         return
     end
@@ -403,7 +386,7 @@ self~init:super
         if detectCycles then do
             if \ stack~hasItem(item) then do -- Recurse only if not already processed
                 self~write(pipeContext, item, index, dataflow)
-                if .nil <> result then dataflow = result
+                if .nil <> result & recursiveMemorize then dataflow = result
                 self~checkEOP(self~next, self~secondary)
                 if once then previousItems~append(item)
                 stack~push(item)
@@ -417,13 +400,13 @@ self~init:super
                 -- Send it to secondary output, which receives the abandonned items
                 -- Here, no management of "once".
                 self~writeSecondary(pipeContext, item, index, dataflow)
-                if .nil <> result then dataflow = result
+                if .nil <> result & recursiveMemorize then dataflow = result
                 self~checkEOP(self~next, self~secondary)
             end
         end
         else do
             self~write(pipeContext, item, index, dataflow)
-            if .nil <> result then dataflow = result
+            if .nil <> result & recursiveMemorize then dataflow = result
             self~checkEOP(self~next, self~secondary)
             if once then previousItems~append(item)
             toprocess~queue(item)
@@ -434,7 +417,7 @@ self~init:super
     end
     else do
         self~write(pipeContext, item, index, dataflow)
-        if .nil <> result then dataflow = result
+        if .nil <> result & recursiveMemorize then dataflow = result
         self~checkEOP(self~next, self~secondary)
         if once then previousItems~append(item)
     end

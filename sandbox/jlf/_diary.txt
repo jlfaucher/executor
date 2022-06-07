@@ -2,6 +2,29 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2022 June 07
+
+[pipes]
+
+.inject:
+Fixed the creation of dataflow in case of recursion.
+-- Memorize only the last datapacket
+1~pipe(.inject {item+1} "rec.1" "mem" | .console "index" ":" "item" "dataflow")
+    1 : 2 source:1,1 | inject:1,2
+    1 : 3 source:1,1 | inject:1,3
+-- Memorize the intermediate datapackets
+1~pipe(.inject {item+1} "rec.1.mem" "mem" | .console "index" ":" "item" "dataflow")
+    1 : 2 source:1,1 | inject:1,2
+    1 : 3 source:1,1 | inject:1,2 | inject:1,3
+
+
+To rework:
+Infinite loop despite the .take pipestage.
+It's because of the partition.
+1~5~pipe(.inject {{::co expose item; loop i=item; call yield i; end}} "iterateAfter" | .take 5 {dataflow["source"]~item} | .console "dataflow", mem:1)
+
+
+===============================================================================
 2022 June 06
 
 [pipes]
@@ -61,18 +84,15 @@ The index injected for the item received from the previous pipeStage is no longe
 Now it's the index received from the previous pipeStage.
 Example:
     .array~of(1, , 2, , 3)~pipe(.inject "after" {.array~of(item*10, item*20)} "iterateAfter" "memorize" | .console "dataflow")
-        source:1,1 | inject[->]:1,1
+        source:1,1 | inject[->-]:1,1
         source:1,1 | inject:1,10
         source:1,1 | inject:2,20
-        source:3,2 | inject[->]:3,2     now the index injected is the index received: here 3 instead of 1
+        source:3,2 | inject[->-]:3,2    now the index injected is the index received: here 3 instead of 1
         source:3,2 | inject:1,20
         source:3,2 | inject:2,40
-        source:5,3 | inject[->]:5,3     now the index injected is the index received: here 5 instead of 1
+        source:5,3 | inject[->-]:5,3    now the index injected is the index received: here 5 instead of 1
         source:5,3 | inject:1,30
         source:5,3 | inject:2,60
-
-.inject:
-The index of the injected value, when not iterated, is 1 instead of the index received from the previous pipeStage.
 
 The datapackets are annotated to provide context.
     [->-] The pipeStage is just forwarding. See for example 'append'.
