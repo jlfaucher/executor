@@ -165,7 +165,7 @@ Inconsistency with `Message~new` and `Object~run`.
 Here, `ARRAY` is followed by a list of arguments.  
 There, `"Array"` is followed by a mandatory array. `"Individual"` is followed by a list of arguments.
 
-`exprn` is a directory of named arguments.
+`exprd` is a directory of named arguments.
 
     >>-FORWARD--+------------+--+---+--------------------+--+-------------------------+---+--+------------------+--+----------------+--+-------------+----><
                 +--CONTINUE--+  |   +--ARGUMENTS--expra--+  +--NAMEDARGUMENTS--exprd--+   |  +--MESSAGE--exprm--+  +--CLASS--exprs--+  +--TO--exprt--+
