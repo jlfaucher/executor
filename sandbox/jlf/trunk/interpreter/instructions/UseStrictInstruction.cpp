@@ -586,7 +586,7 @@ bool NamedArguments::check(const char *name, RexxObject *value, bool strict, ssi
                 }
 
                 if (nameMinimumLength > 0) nameMinimumLength--; // Will stay -1 when no abbreviation on caller side, or 0 when all mandatory characters have been checked
-                if (expectedNameMinimumLength > 0) expectedNameMinimumLength--; // Will stay 1 when no abbreviation on called side, or 0 when all mandatory characters have been checked
+                if (expectedNameMinimumLength > 0) expectedNameMinimumLength--; // Will stay -1 when no abbreviation on called side, or 0 when all mandatory characters have been checked
             }
             else // if (expectedNameMinimumLength == 0)
             {
