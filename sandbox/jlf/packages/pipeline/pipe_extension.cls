@@ -16,7 +16,7 @@ So I added the 'pipe' method which injects the object in the pipe :
 */
 
 ::routine pipe private
-    use strict arg object, pipe /* .pipeStage|.doer */, profile /* .true|.false*/, memorize /* .true|.false */
+    use strict arg object, pipe /* .pipeStage|.doer */
 
     -- case 1 : permuting combinator, to reverse the normal order of evaluation.
     -- the expression read consistently from left to right.
@@ -30,16 +30,18 @@ So I added the 'pipe' method which injects the object in the pipe :
     end
 
     -- case 2 : normal pipe.
+    use strict named arg profile=.false, memorize(3)=.false
     if pipe~isa(.class) then pipe = pipe~new
     pipe~go(object, profile, memorize)
     return pipe
 
 
 ::routine copipe private
-    use strict arg object, pipe /* .pipeStage|.doer */, profile /* .true|.false*/, memorize /* .true|.false */
+    use strict arg object, pipe /* .pipeStage|.doer */
+    use strict named arg profile=.false, memorize(3)=.false
     return {::coactivity
             expose object pipe profile memorize
-            object~pipe(pipe, profile, memorize)
+            object~pipe(pipe, profile: profile, memorize: memorize)
             -- remember : don't return something here. The only way to "return" something is by using yield.
             drop result
            }~doer
@@ -50,35 +52,35 @@ So I added the 'pipe' method which injects the object in the pipe :
 ::method pipe class unguarded
     use strict arg pipe
     use strict named arg profile=.false, memorize(3)=.false -- mem allowed to be consistent with the option "memorize" that can be abbreviated to 3 characters
-    return pipe(self, pipe, profile, memorize)
+    return pipe(self, pipe, profile: profile, memorize: memorize)
 
 
 ::method copipe class unguarded
     use strict arg pipe
     use strict named arg profile=.false, memorize(3)=.false -- mem allowed to be consistent with the option "memorize" that can be abbreviated to 3 characters
-    return copipe(self, pipe, profile, memorize)
+    return copipe(self, pipe, profile: profile, memorize: memorize)
 
 
 ::method pipe unguarded
     use strict arg pipe
     use strict named arg profile=.false, memorize(3)=.false -- mem allowed to be consistent with the option "memorize" that can be abbreviated to 3 characters
-    return pipe(self, pipe, profile, memorize)
+    return pipe(self, pipe, profile: profile, memorize: memorize)
 
 
 ::method copipe unguarded
     use strict arg pipe
     use strict named arg profile=.false, memorize(3)=.false -- mem allowed to be consistent with the option "memorize" that can be abbreviated to 3 characters
-    return copipe(self, pipe, profile, memorize)
+    return copipe(self, pipe, profile: profile, memorize: memorize)
 
 
 ::method pipeProfile unguarded
     use strict arg pipe
-    return self~pipe(pipe, profile:.true, memorize:.false)
+    return self~pipe(pipe, profile:.true)
 
 
 ::method copipeProfile unguarded
     use strict arg pipe
-    return copipe(self, pipe, profile:.true, memorize:.false)
+    return self~copipe(pipe, profile:.true)
 
 
 /******************************************************************************/
