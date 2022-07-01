@@ -29,7 +29,7 @@ See output of concurrency/generator-test.rex
 ::class "CollectionPrettyPrinter" mixinclass Object public
 
 ::method ppString
-    use named arg ppOptions. = (.Stem~new), ppOptions.expandCollection = .false
+    use named arg ppOptions. = (.Stem~new), ppOptions.expandCollection = (.PrettyPrinter~expandCollection)
 
     /*
        Workaround, the method ~ppString defined in array.cls is not called
@@ -44,9 +44,11 @@ See output of concurrency/generator-test.rex
     -- For the moment, I don't activate by default the display of items for the
     -- other collections because that gives long lists when displaying .environment
     -- from ooRexxShell.
-    if ppOptions.expandCollection == .false then return self~objectName
+    if ppOptions.expandCollection == 0 then return self~objectName
+    if self~items > ppOptions.expandCollection then return self~objectName
 
     -- todo ? add a parameter maxItems to ~allItems
+    -- same logic in array~ppRepresentation
     if self~isA(.OrderedCollection) then do
         return self~class~id || self~allItems~ppRepresentation(ppOptions. : ppOptions.)
     end

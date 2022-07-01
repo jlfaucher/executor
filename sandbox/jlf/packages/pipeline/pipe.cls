@@ -1013,13 +1013,13 @@ if showPool | val~class~id == "EnclosedArray" | val~isA(.array) then do
 end
 -- if val~isA(.enclosedArray) then do -- Can't use this test because .enclosedArray is not a class here. I don't want to require "extension/array.cls"
 if val~class~id == "EnclosedArray" then do
-    if showPool, poolValue~printed then return "*e"poolValue~index
+    if /*showPool,*/ poolValue~printed then return "*e"poolValue~index
     -- Here, first printing
     poolValue~printed = .true -- set it now, will be tested to avoid infinite recursion with self-referencing enclosed arrays
     poolValue~index = pool~nextEnclosedArrayIndex
     pool~nextEnclosedArrayIndex += 1
     valstr = "<"dataflow_representation(val~disclose, showPool, pool)">"
-    if \showPool then return valstr
+    --if \showPool then return valstr
     if poolValue~count == 1 then return valstr -- no need of eN= in front
     return "e" || poolValue~index || "=" || valstr
 end
@@ -1032,7 +1032,7 @@ else if val~isA(.array), val~dimension == 1, val~items <= .dataflow~arrayPrintMa
     Other difference : no maxItems. Most of the time, the arrays passing through the pipe are not printed as a whole, they are iterated over.
     Other difference : no management of sparse array. Most of the time, an array is iterated over using a supplier, which skips the holes.
     */
-    if showPool, poolValue~printed then return "*a"poolValue~index
+    if /*showPool,*/ poolValue~printed then return "*a"poolValue~index
     -- Here, first printing
     -- each item of the array is inserted.
     poolValue~printed = .true -- set it now, will be tested to avoid infinite recursion with self-referencing arrays
@@ -1045,7 +1045,7 @@ else if val~isA(.array), val~dimension == 1, val~items <= .dataflow~arrayPrintMa
         separator = ","
     end
     valstr ||= "]"
-    if \showPool then return valstr
+    --if \showPool then return valstr
     if poolValue~count == 1 then return valstr -- no need of aN= in front
     return "a" || poolValue~index || "=" || valstr
 end

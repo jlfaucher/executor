@@ -791,11 +791,11 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
         source:4,a1=['string1',v1='string2',[*v1,*a1],*a1] | inject:4,*a1
     */
     use strict arg maxItems=(-1), sparse="..", ellipsis="...", separator=",", val=(self), referencesTable=.nil, counter=({n=0; {expose n; n+=1; n}}~())
-    use named arg trace=.false, ppOptions. = (.Stem~new), ppOptions.expandCollection=.false
+    use named arg trace=.false, ppOptions. = (.Stem~new), ppOptions.expandCollection=(.PrettyPrinter~expandCollection)
     if trace then .traceOutput~say("       >I> Method .ArrayPrettyPrinter~ppRepresentation")
     if trace then trace i
-    -- Remember : this code has been duplicated in pipe.rex, routine dataflow_representation.
-    if .nil == referencesTable then referencesTable = self~collectReferences(maxItems) -- do it before pretty printing, to display the reference identifiers only when needed
+    -- Remember : this code has been duplicated in pipe.cls, routine dataflow_representation.
+    if .nil == referencesTable then referencesTable = val~collectReferences(maxItems) -- do it before pretty printing, to display the reference identifiers only when needed
     if val~isA(.enclosedArray) then do
         -- Remember : would be better to have a method ppRepresentation on class EnclosedArray, but I prefer to remain close to dataflow_representation.
         reference = referencesTable[val]
@@ -855,22 +855,28 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
         valstr = val~string
         return "("valstr shape(val, ", ") || val~items "items)"
     end
+    /*
+    -- same logic in CollectionPrettyPrinter~ppstring, but here pass more parameters
     else if val~isA(.OrderedCollection) then do
-        if ppOptions.expandCollection then do
-            return self~class~id || self~allItems~ppRepresentation(maxItems, sparse, ellipsis, separator, item, referencesTable, counter, trace: trace, ppOptions. : ppOptions.)
+        if ppOptions.expandCollection > 0, val~items <= ppOptions.expandCollection then do
+            valAsArray = val~allItems
+            return val~class~id || valAsArray~ppRepresentation(maxItems, sparse, ellipsis, separator, valAsArray, referencesTable, counter, trace: trace, ppOptions. : ppOptions.)
         end
         else do
             return val~string
         end
     end
+    -- same logic in CollectionPrettyPrinter~ppstring, but here pass more parameters
     else if val~isA(.Collection) then do
-        if ppOptions.expandCollection then do
-            return self~class~id || self~allItems~sortWith(.StringNumericComparator~new)~ppRepresentation(maxItems, sparse, ellipsis, separator, item, referencesTable, counter, trace: trace, ppOptions. : ppOptions.)
+        if ppOptions.expandCollection > 0, val~items <= ppOptions.expandCollection then do
+            valAsArray = val~allItems~sortWith(.StringNumericComparator~new)
+            return val~class~id || valAsArray~ppRepresentation(maxItems, sparse, ellipsis, separator, valAsArray, referencesTable, counter, trace: trace, ppOptions. : ppOptions.)
         end
         else do
             return val~string
         end
     end
+    */
     else return val~ppString(ppOptions. : ppOptions.)
 
 

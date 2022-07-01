@@ -2,6 +2,19 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2022 June 12
+
+[Pretty-print]
+
+ppOptions.expandCollection is now an integer (was a boolan).
+When the collection ~items is <= ppOptions.expandCollection then the collection
+is displayed as a condensed array.
+todo: add support for self-referencing collections.
+
+Still work in progress...
+
+
+===============================================================================
 2022 June 07
 
 [pipes]

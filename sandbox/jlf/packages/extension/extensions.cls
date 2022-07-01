@@ -28,7 +28,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::extension MapCollection                   inherit MapCollectionInitializer
 ::extension Array                           inherit ArrayInitializer
 
--- Pretty printe
+-- Pretty printer
 ::extension Array                           inherit ArrayPrettyPrinter
 ::extension Collection                      inherit CollectionPrettyPrinter
 
@@ -80,6 +80,11 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 -- File specific
 ::extension File                            inherit FileExtension
+
+
+-------------------------------------------------------------------------------
+::class "PrettyPrinter" public
+::constant expandCollection 10 -- expand collections (other than array) having ~items <= this constant
 
 
 -------------------------------------------------------------------------------
