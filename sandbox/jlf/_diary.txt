@@ -2,6 +2,53 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2022 July 01
+
+[pipes]
+
+Allow to pass parameters when starting/resuming a copipe.
+Loosely inspired by PIPE Command Programming Interface
+http://www.casita.net/vmworkshop/vm.marist.edu/~pipeline/
+Part 4. Copipes
+Fitting stage
+    A pipeline set that runs as a copipe contains one or more fitting stages, each of which
+    defines a point at which the application can send data into the pipeline or receive data
+    from the pipeline depending upon the position of the fitting stage in the pipeline.
+
+    A fitting stage can either read data from the pipeline or write data into the pipeline, but it
+    cannot do both. A fitting that writes data from the application into the pipeline is a first
+    stage; it has the behaviour typical of an input device driver. A fitting that reads data from
+    the pipeline into the application is not a first stage; it has the behaviour typical of an
+    output device driver.
+
+A .yield stage is equivalent to a fitting stage, that allows to both read from and write into the pipeline.
+The arguments passed on resume are available in
+    pipeContext~args        -- array (can be empty)
+    pipeContext~namedArgs   -- directory (can be empty)
+
+Example
+    /*
+      pipeContext~args is an array of one item (because one positional argument of type string is passed).
+      The current item is concatenated with this array, the result is an array of one item.
+      Notice that pipeContext~args has a different value before and after the stage .yield:
+        before .yield, it's the initial argument
+        after .yield, it's one of the resume arguments.
+    */
+    p = 1~3~copipe(.inject {item pipeContext~args} | .yield | .inject {item pipeContext~args} | .console)
+    p~statusText=       -- not started
+    p~("initial")=      -- nothing displayed                        return ['1 initial']
+    p~statusText=       -- suspended
+    p~("resume1")=      -- display 1 : ['1 initial resume1']        return ['2 initial']
+    p~statusText=       -- suspended
+    p~("resume2")=      -- display 2 : ['2 initial resume2']        return ['3 initial']
+    p~statusText=       -- suspended
+    p~("resume3")=      -- display 3 : ['3 initial resume3']        no result
+    p~statusText=       -- ended
+    p~("resume4")=      -- nothing displayed                        no result
+    p~statusText=       -- ended
+
+
+===============================================================================
 2022 June 12
 
 [Pretty-print]

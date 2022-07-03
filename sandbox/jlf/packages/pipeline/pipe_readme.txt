@@ -18,9 +18,11 @@ All the pipe stages support the common option "memorize[.tag]".
 For the pipe stages supporting the option "recursive", an option "recursive.memorize" is available.
 The common option "memorize[.tag]" is still needed to assign a tag.
 
-.ItemToIndexItem : I1 -- O1 -- Assuming item is an array [index, item], write index & item
+.ItemToIndexItem :    I1 -- O1              -- convert an item of type array [newIndex, newItem] to an indexed item:
+                                            -- the input index is replaced by newIndex
+                                            -- the input item is replaced by newItem
 
-.SecondaryConnector : I1 --> I2 -- adapter which forwards to its follower's secondary input
+.SecondaryConnector : I1 --> I2             -- adapter which forwards to its follower's secondary input
 
 .sort : I1 --- O1 (delayed)
     ['ascending'|'descending']              -- default : 'ascending'
@@ -55,9 +57,9 @@ The common option "memorize[.tag]" is still needed to assign a tag.
 
 .bitbucket : I1 --- (no ouput)
 
-.fanout : I1 --- O1, O2 -- Write records to both outputs streams.
-.merge : I1, I2 --- O1 -- Merge the results from primary and secondary streams (no specific order : no delay).
-.fanin : I1, I2 (accumulator) --- O1 -- Process main stream, then secondary stream.
+.fanout : I1 --- O1, O2                     -- Write records to both outputs streams.
+.merge : I1, I2 --- O1                      -- Merge the results from primary and secondary streams (no specific order : no delay).
+.fanin : I1, I2 (accumulator) --- O1        -- Process main stream, then secondary stream.
 
 .duplicate : I1 --- O1
     [copies = 1]
@@ -94,10 +96,10 @@ The common option "memorize[.tag]" is still needed to assign a tag.
 .wordCount : I1 --- O1 (delayed)
     [<partition-doer>]
 
-.pivot[pivotItem, next, secondary] : I1 --- O1, O2 -- If item < pivotItem then route to O1 else route to O2
-.splitter[stages...] : I1 --- O1, O2, ... -- split the processing stream into two or more pipeStages
+.pivot[pivotItem, next, secondary] : I1 --- O1, O2      -- If item < pivotItem then route to O1 else route to O2
+.splitter[stages...] : I1 --- O1, O2, ...               -- split the processing stream into two or more pipeStages
 
-.linesIn : I1 --- O1    -- Equivalent to the < CMS pipe stage, except the argument can be taken from I1
+.linesIn : I1 --- O1                        -- Equivalent to the < CMS pipe stage, except the argument can be taken from I1
     ["<file>"|<expression-doer>]
 (was .fileLines)
 
@@ -181,5 +183,15 @@ The followings pipeStages need an extended interpreter
 .select : I1 --- O1 (selected), O2 (not selected)
     <filter-doer>
 
-.yield : I1 -- O1
+
+The followings pipeStages can be used only in a copipe
+------------------------------------------------------
+
+.yield : I1 --- O1
     (['index'] ['item'] [<expression-doer>])*
+
+A .yield stage is equivalent to a fitting stage, that allows to both read from
+and write into the pipeline.
+The arguments passed on resume are available in
+    pipeContext~args        -- array (can be empty)
+    pipeContext~namedArgs   -- directory (can be empty)

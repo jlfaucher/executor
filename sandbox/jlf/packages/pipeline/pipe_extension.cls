@@ -30,9 +30,9 @@ So I added the 'pipe' method which injects the object in the pipe :
     end
 
     -- case 2 : normal pipe.
-    use strict named arg profile=.false, memorize(3)=.false
+    use strict named arg profile=.false, memorize(3)=.false, args=(.array~new(0)), namedArgs(1)=(.directory~new)
     if pipe~isa(.class) then pipe = pipe~new
-    pipe~go(object, profile, memorize)
+    pipe~go(object, profile, memorize, args, namedArgs)
     return pipe
 
 
@@ -41,7 +41,8 @@ So I added the 'pipe' method which injects the object in the pipe :
     use strict named arg profile=.false, memorize(3)=.false
     return {::coactivity
             expose object pipe profile memorize
-            object~pipe(pipe, profile: profile, memorize: memorize)
+            --object~pipe(pipe, profile: profile, memorize: memorize)
+            pipe(object, pipe, profile: profile, memorize: memorize, args:.context~args, namedArgs:.context~namedArgs)
             -- remember : don't return something here. The only way to "return" something is by using yield.
             drop result
            }~doer
@@ -124,27 +125,28 @@ So I added the 'pipe' method which injects the object in the pipe :
 
 ::method process
     expose actions
-    use strict arg pipeContext, item, index, dataflow
+    use strict arg item, index, dataflow, pipeContext
     args = arg(1, "a") -- save the current arguments array because .yield will overwrite it
     if actions~items == 0 then do
         .yield[item] -- default action
-        use strict arg -- none
     end
     else do action over actions
         if action == "yieldIndex" then .yield[index]
         else if action == "yieldItem" then .yield[item]
         else do
-            action~do(      item,        index,           dataflow,-
-                      item: item, index: index, dataflow: dataflow)
+            action~do(      item,        index,           dataflow,              pipeContext,-
+                      item: item, index: index, dataflow: dataflow, pipeContext: pipeContext)
             if \var("result") then do
                 -- No result returned, nothing to yield, but the yield must be done, synchronisation is important !
                 .yield[]
             end
             else .yield[result]
         end
-        use strict arg -- none
     end
-    forward class (super) arguments (args)
+    newPipeContext = pipeContext~newPipeContext
+    newPipeContext~args = .context~args
+    newPipeContext~namedArgs = .context~namedArgs
+    self~process:super(item, index, dataflow, newPipeContext)
 
 
 /******************************************************************************/
@@ -192,14 +194,15 @@ The option iterate (no need of 'After') is automatically activated when the prod
     use strict arg pipeContext
     if producer~isA(.coactivity) then iterate = .true
     else if producer~hasMethod("do") then do
-            producer~do
+            producer~do(             pipeContext,-
+                        pipeContext: pipeContext)
             if var("result") then producer = result
         end
     -- Similar to .pipeStage~begin :
     if iterate, producer~hasMethod("supplier") then do
         supplier = producer~supplier
         do while \self~isEOP, supplier~available
-            self~process(pipeContext, supplier~item, supplier~index, .nil, "eof")
+            self~process(supplier~item, supplier~index, .nil, pipeContext, "eof")
             -- Similar to .pipeStage~begin :
             -- Matter of choice : should I stay on current item or get the next item before leaving ?
             -- Current choice works good for coactivities : no lost item when piping directly the coactivity
@@ -209,7 +212,7 @@ The option iterate (no need of 'After') is automatically activated when the prod
         end
     end
     else do
-        self~process(pipeContext, producer, 1, .nil, "eof")
+        self~process(producer, 1, .nil, pipeContext, "eof")
     end
     forward class(super) -- make sure we propagate the done message
 
@@ -283,10 +286,10 @@ self~init:super
     -- not a block do...end, to not see the 'end' in the trace output
     if trace then .traceOutput~say("       >I> Method .inject~processDepthFirst.3")
     if trace then trace i
-    use strict arg pipeContext, item, index, dataflow, previousItems, stack, depth
+    use strict arg item, index, dataflow, pipeContext, previousItems, stack, depth
     if once, previousItems~hasItem(item) then do -- don't send twice an item
         -- Send it to secondary output, which receives the abandonned items
-        self~writeSecondary(pipeContext, item, index, dataflow)
+        self~writeSecondary(item, index, dataflow, pipeContext)
         if .nil <> result & recursiveMemorize then dataflow = result
         self~checkEOP(self~next, self~secondary)
         return
@@ -294,33 +297,33 @@ self~init:super
     if recursive & depth <> limit then do
         if detectCycles then do
             if \ stack~hasItem(item) then do -- Recurse only if not already processed
-                self~write(pipeContext, item, index, dataflow)
+                self~write(item, index, dataflow, pipeContext)
                 if .nil <> result & recursiveMemorize then dataflow = result
                 self~checkEOP(self~next, self~secondary)
                 if once then previousItems~append(item)
                 stack~push(item)
-                self~processDepthFirst.1(pipeContext, item, index, dataflow, previousItems, stack, depth+1)
+                self~processDepthFirst.1(item, index, dataflow, pipeContext, previousItems, stack, depth+1)
                 stack~pull
             end
             else do
                 -- Send it to secondary output, which receives the abandonned items
                 -- Here, no management of "once".
-                self~writeSecondary(pipeContext, item, index, dataflow)
+                self~writeSecondary(item, index, dataflow, pipeContext)
                 if .nil <> result & recursiveMemorize then dataflow = result
                 self~checkEOP(self~next, self~secondary)
                 return
             end
         end
         else do
-            self~write(pipeContext, item, index, dataflow)
+            self~write(item, index, dataflow, pipeContext)
             if .nil <> result & recursiveMemorize then dataflow = result
             self~checkEOP(self~next, self~secondary)
             if once then previousItems~append(item)
-            self~processDepthFirst.1(pipeContext, item, index, dataflow, previousItems, stack, depth+1)
+            self~processDepthFirst.1(item, index, dataflow, pipeContext, previousItems, stack, depth+1)
         end
     end
     else do
-        self~write(pipeContext, item, index, dataflow)
+        self~write(item, index, dataflow, pipeContext)
         if .nil <> result & recursiveMemorize then dataflow = result
         self~checkEOP(self~next, self~secondary)
         if once then previousItems~append(item)
@@ -333,22 +336,22 @@ self~init:super
     if trace then .traceOutput~say("       >I> Method .inject~processDepthFirst.2")
     if trace then trace i
     if self~isEOP then return
-    use strict arg pipeContext, item, index, dataflow, previousItems, stack, depth
-    doer~do(      item,        index,           dataflow,-
-            item: item, index: index, dataflow: dataflow)
+    use strict arg item, index, dataflow, pipeContext, previousItems, stack, depth
+    doer~do(      item,        index,           dataflow,              pipeContext,-
+            item: item, index: index, dataflow: dataflow, pipeContext: pipeContext)
     if \ var("result") then return -- no result returned, nothing to inject
     doResult = result
     -- Similar to .pipeStage~begin :
     if iterateAfter, doResult~hasMethod("supplier") then do
         supplier = doResult~supplier
         do while \self~isEOP, supplier~available
-            self~processDepthFirst.3(pipeContext, supplier~item, supplier~index, dataflow, previousItems, stack, depth)
+            self~processDepthFirst.3(supplier~item, supplier~index, dataflow, pipeContext, previousItems, stack, depth)
             if \self~isEOP then supplier~next -- when the supplier is a coactivity supplier, it's important to not read the next item
         end
     end
     else do
         -- Bad idea to replace index by 1, that breaks the oorexxShell queries. Was: index is 1 to be consistent with iterateAfter where the index is NOT the previous index
-        self~processDepthFirst.3(pipeContext, doResult, index, dataflow, previousItems, stack, depth)
+        self~processDepthFirst.3(doResult, index, dataflow, pipeContext, previousItems, stack, depth)
     end
 
 
@@ -357,17 +360,17 @@ self~init:super
     -- not a block do...end, to not see the 'end' in the trace output
     if trace then .traceOutput~say("       >I> Method .inject~processDepthFirst.1")
     if trace then trace i
-    use strict arg pipeContext, item, index, dataflow, previousItems, stack, depth=0
+    use strict arg item, index, dataflow, pipeContext, previousItems, stack, depth=0
     if iterateBefore, item~hasMethod("supplier") then do
         supplier = item~supplier
         do while \self~isEOP, supplier~available
-            self~processDepthFirst.2(pipeContext, supplier~item, supplier~index, dataflow, previousItems, stack, depth)
+            self~processDepthFirst.2(supplier~item, supplier~index, dataflow, pipeContext, previousItems, stack, depth)
             if \self~isEOP then supplier~next -- when the supplier is a coactivity supplier, it's important to not read the next item
         end
     end
     else do
         -- Bad idea to replace index by 1, that breaks the oorexxShell queries. Was: index is 1 to be consistent with iterateBefore where the index is NOT the previous index
-        self~processDepthFirst.2(pipeContext, item, index, dataflow, previousItems, stack, depth)
+        self~processDepthFirst.2(item, index, dataflow, pipeContext, previousItems, stack, depth)
     end
 
 
@@ -376,10 +379,10 @@ self~init:super
     -- not a block do...end, to not see the 'end' in the trace output
     if trace then .traceOutput~say("       >I> Method .inject~processBreadthFirst.3")
     if trace then trace i
-    use strict arg pipeContext, item, index, dataflow, toprocess, previousItems, stack, depth
+    use strict arg item, index, dataflow, pipeContext, toprocess, previousItems, stack, depth
     if once, previousItems~hasItem(item) then do -- don't send twice an item
         -- Send it to secondary output, which receives the abandonned items
-        self~writeSecondary(pipeContext, item, index, dataflow)
+        self~writeSecondary(item, index, dataflow, pipeContext)
         if .nil <> result & recursiveMemorize then dataflow = result
         self~checkEOP(self~next, self~secondary)
         return
@@ -387,7 +390,7 @@ self~init:super
     if recursive & depth <> limit then do
         if detectCycles then do
             if \ stack~hasItem(item) then do -- Recurse only if not already processed
-                self~write(pipeContext, item, index, dataflow)
+                self~write(item, index, dataflow, pipeContext)
                 if .nil <> result & recursiveMemorize then dataflow = result
                 self~checkEOP(self~next, self~secondary)
                 if once then previousItems~append(item)
@@ -401,13 +404,13 @@ self~init:super
             else do
                 -- Send it to secondary output, which receives the abandonned items
                 -- Here, no management of "once".
-                self~writeSecondary(pipeContext, item, index, dataflow)
+                self~writeSecondary(item, index, dataflow, pipeContext)
                 if .nil <> result & recursiveMemorize then dataflow = result
                 self~checkEOP(self~next, self~secondary)
             end
         end
         else do
-            self~write(pipeContext, item, index, dataflow)
+            self~write(item, index, dataflow, pipeContext)
             if .nil <> result & recursiveMemorize then dataflow = result
             self~checkEOP(self~next, self~secondary)
             if once then previousItems~append(item)
@@ -418,7 +421,7 @@ self~init:super
         end
     end
     else do
-        self~write(pipeContext, item, index, dataflow)
+        self~write(item, index, dataflow, pipeContext)
         if .nil <> result & recursiveMemorize then dataflow = result
         self~checkEOP(self~next, self~secondary)
         if once then previousItems~append(item)
@@ -430,22 +433,22 @@ self~init:super
     -- not a block do...end, to not see the 'end' in the trace output
     if trace then .traceOutput~say("       >I> Method .inject~processBreadthFirst.2")
     if trace then trace i
-    use strict arg pipeContext, item, index, dataflow, toprocess, previousItems, stack, depth
-    doer~do(      item,        index,           dataflow,-
-            item: item, index: index, dataflow: dataflow)
+    use strict arg item, index, dataflow, pipeContext, toprocess, previousItems, stack, depth
+    doer~do(      item,        index,           dataflow,              pipeContext,-
+            item: item, index: index, dataflow: dataflow, pipeContext: pipeContext)
     if \ var("result") then return -- no result returned, nothing to inject
     doResult = result
     -- Similar to .pipeStage~begin :
     if iterateAfter, doResult~hasMethod("supplier") then do
         supplier = doResult~supplier
         do while \self~isEOP, supplier~available
-            self~processBreadthFirst.3(pipeContext, supplier~item, supplier~index, dataflow, toprocess, previousItems, stack, depth)
+            self~processBreadthFirst.3(supplier~item, supplier~index, dataflow, pipeContext, toprocess, previousItems, stack, depth)
             if \self~isEOP then supplier~next -- when the supplier is a coactivity supplier, it's important to not read the next item
         end
     end
     else do
         -- Bad idea to replace index by 1, that breaks the oorexxShell queries. Was: index is 1 to be consistent with iterateAfter where the index is NOT the previous index
-        self~processBreadthFirst.3(pipeContext, doResult, index, dataflow, toprocess, previousItems, stack, depth)
+        self~processBreadthFirst.3(doResult, index, dataflow, pipeContext, toprocess, previousItems, stack, depth)
     end
 
 
@@ -454,20 +457,20 @@ self~init:super
     -- not a block do...end, to not see the 'end' in the trace output
     if trace then .traceOutput~say("       >I> Method .inject~processBreadthFirst.1")
     if trace then trace i
-    use strict arg pipeContext, item, index, dataflow, previousItems, stack
+    use strict arg item, index, dataflow, pipeContext, previousItems, stack
     toprocess = .queue~new
     depth = 0
     do while \self~isEOP
         if iterateBefore, item~hasMethod("supplier") then do
             supplier = item~supplier
             do while \self~isEOP, supplier~available
-                self~processBreadthFirst.2(pipeContext, supplier~item, supplier~index, dataflow, toprocess, previousItems, stack, depth)
+                self~processBreadthFirst.2(supplier~item, supplier~index, dataflow, pipeContext, toprocess, previousItems, stack, depth)
                 if \self~isEOP then supplier~next -- when the supplier is a coactivity supplier, it's important to not read the next item
             end
         end
         else do
             -- Bad idea to replace index by 1, that breaks the oorexxShell queries. Was: index is 1 to be consistent with iterateBefore where the index is NOT the previous index
-            self~processBreadthFirst.2(pipeContext, item, index, dataflow, toprocess, previousItems, stack, depth)
+            self~processBreadthFirst.2(item, index, dataflow, pipeContext, toprocess, previousItems, stack, depth)
         end
         if self~isEOP then leave
         if toprocess~isEmpty then leave
@@ -492,9 +495,9 @@ self~init:super
         .traceOutput~say("-"~copies(20))
     end
     if trace then trace i
-    use strict arg pipeContext, item, index, dataflow
+    use strict arg item, index, dataflow, pipeContext
     if after then do
-        self~write(pipeContext, item, index, dataflow, "->-") -- was hardcoded 1, now use index
+        self~write(item, index, dataflow, pipeContext, "->-") -- was hardcoded 1, now use index
         self~checkEOP(self~next, self~secondary)
     end
     if self~isEOP then return
@@ -502,11 +505,11 @@ self~init:super
     if once then previousItems = .array~new
     stack = .nil
     if detectCycles then stack = .queue~new
-    if depthFirst then self~processDepthFirst.1(pipeContext, item, index, dataflow, previousItems, stack)
-                  else self~processBreadthFirst.1(pipeContext, item, index, dataflow, previousItems, stack)
+    if depthFirst then self~processDepthFirst.1(item, index, dataflow, pipeContext, previousItems, stack)
+                  else self~processBreadthFirst.1(item, index, dataflow, pipeContext, previousItems, stack)
     if self~isEOP then return
     if before then do
-        self~write(pipeContext, item, index, dataflow, "->-") -- was hardcoded 1, now use index
+        self~write(item, index, dataflow, pipeContext, "->-") -- was hardcoded 1, now use index
         self~checkEOP(self~next, self~secondary)
     end
 
@@ -546,13 +549,13 @@ self~init:super
 
 ::method process
     expose doer
-    use strict arg pipeContext, item, index, dataflow
-    if doer~do(      item,        index,           dataflow,-
-               item: item, index: index, dataflow: dataflow) then do   -- apply the filter to the data item
-        self~write(pipeContext, item, index, dataflow)       -- the selected items are sent
+    use strict arg item, index, dataflow, pipeContext
+    if doer~do(      item,        index,           dataflow,              pipeContext,-
+               item: item, index: index, dataflow: dataflow, pipeContext: pipeContext) then do   -- apply the filter to the data item
+        self~write(item, index, dataflow, pipeContext)       -- the selected items are sent
     end
     else do
-        self~writeSecondary(pipeContext, item, index, dataflow) -- send all not selected items down the other branch, if there
+        self~writeSecondary(item, index, dataflow, pipeContext) -- send all not selected items down the other branch, if there
     end
     self~checkEOP(self~next, self~secondary)
 
