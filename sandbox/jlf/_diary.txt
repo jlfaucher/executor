@@ -28,8 +28,9 @@ The arguments passed on resume are available in
 
 Example
     /*
+      Example of copipe with 1 fitting stage.
       pipeContext~args is an array of one item (because one positional argument of type string is passed).
-      The current item is concatenated with this array, the result is an array of one item.
+      The current pipe item is concatenated with this array, the result is an array of one item.
       Notice that pipeContext~args has a different value before and after the stage .yield:
         before .yield, it's the initial argument
         after .yield, it's one of the resume arguments.
@@ -46,6 +47,59 @@ Example
     p~statusText=       -- ended
     p~("resume4")=      -- nothing displayed                        no result
     p~statusText=       -- ended
+
+Example
+    /*
+      Example of copipe with 2 fitting stages.
+      Same pipeline, add a second .yield stage at the end of the pipe.
+      The first .yield is used to pass the data that will be written into the pipeline.
+      The returned value is an intermediate value.
+      The second .yield is used to read the final data from the pipeline.
+      The passed value is not used, could pass nothing.
+      "resume2", "resume4" and "resume6" is neither displayed nor returned.
+
+                            1~3~copipe(.inject {item pipeContext~args} | .yield | .inject {item pipeContext~args} | .console | .yield)
+                            not started
+      "initial"     write   1                                             X read suspended
+      "resume1"             1                                             X write                                               X read suspended
+      "resume2"             1                                                                                                   X write
+                            2                                             X read suspended
+      "resume3"             2                                             X write                                               X read suspended
+      "resume4"             2                                                                                                   X write
+                            3                                             X read suspended
+      "resume5"             3                                             X write                                               X read suspended
+      "resume6"             ended
+    */
+    p = 1~3~copipe(.inject {item pipeContext~args} | .yield | .inject {item pipeContext~args} | .console | .yield)
+    p~statusText=       -- not started
+    p~("initial")=      -- nothing displayed                        return ['1 initial']
+    p~statusText=       -- suspended
+    p~("resume1")=      -- display 1 : ['1 initial resume1']        return ['1 initial resume1']
+    p~statusText=       -- suspended
+    p~("resume2")=      -- nothing displayed                        return ['2 initial']
+    p~statusText=       -- suspended
+    p~("resume3")=      -- display 2 : ['2 initial resume3']        return ['2 initial resume3']
+    p~statusText=       -- suspended
+    p~("resume4")=      -- nothing displayed                        return ['3 initial']
+    p~statusText=       -- suspended
+    p~("resume5")=      -- display 3 : ['3 initial resume5']        return ['3 initial resume5']
+    p~statusText=       -- suspended
+    p~("resume6")=      -- nothing displayed                        no result
+    p~statusText=       -- ended
+
+Example
+    /*
+      Example of copipe with 2 fitting stages.
+      The pipe is applied to a folder path.
+      The first .yield is used to pass the text that the file's path must contain.
+      The second .yield is used to return the current file.
+      The files are collected in an array built outside the pipe.
+    */
+    p = (.yield | .fileTree | .select {item~path~contains(pipeContext~args[1]~string)} | .yield)
+    co = "~"~copipe(p); co~(); co~("rexx"); co~iterator~each==
+        an Array (shape [2], 2 items)
+         1 : (/Users/jlfaucher/.oorexxshell.ini)
+         2 : (/Users/jlfaucher/.oorexxshell_history)
 
 
 ===============================================================================
