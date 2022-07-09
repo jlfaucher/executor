@@ -337,3 +337,23 @@ Keep it compatible with official ooRexx
         breakTokens[i] = breakToken
     end
     return breakTokens~sortWith(.LengthComparator~new("d")) -- sort descending, from longer to shorter
+
+
+-------------------------------------------------------------------------------
+::class "LengthComparator" mixinclass object private
+-------------------------------------------------------------------------------
+
+::method init
+    expose direction
+    use strict arg criteria="ascending"
+    select
+        when "ascending"~caselessAbbrev(criteria, 1) then direction = 1
+        when "descending"~caselessAbbrev(criteria, 1) then direction = -1
+        otherwise raise syntax 93.900 array("LengthComparator: invalid criteria" criteria)
+    end
+
+
+::method compare
+    expose direction
+    use strict arg left, right
+    return direction * sign(left~length - right~length)
