@@ -336,6 +336,63 @@ History of changes
 ==================
 
 -----------------------------------------------
+2022 jul 09
+
+Make oorexxshell.rex a self contained script
+by reducing the dependency on other packages:
+- no longer requires "stringChunks.cls".
+  A basic 'subwords' is used if this package can't be loaded.
+- raw display of the collections if rgf_util2 can't be loaded.
+  no sort, no alignment.
+and by reducing the need to set environment variables:
+- change the current directory AFTER loading the optional components,
+  to increase the chance to load these components even if the PATH is not set.
+  Typical test case : you execute
+       ./rexx <path to>/oorexxshell.rex
+   from the directory containing the rexx executable
+
+Depending on the optional packages that can be loaded, more or less
+functionalities are supported. The script should remain operational
+even if no package at all can be loaded.
+
+Tested by opening a fresh new console, going into the folder containing the rexx
+executable, and launching
+    /.rexx <path to>/oorexxshell.rex
+This test is done without setting PATH or any other environment variable.
+The script is successfully executed, with several packages not loaded because
+they are not in this folder.
+The readline is failing because the rxqueue executable is not found after changing
+the current folder to the last folder used by oorexxshell.
+
+    loadPackage KO for extension/stringChunk.cls
+    loadPackage KO for extension/std/extensions-std.cls
+    loadLibrary OK for rxunixsys
+    loadPackage OK for ncurses.cls
+    loadPackage OK for csvStream.cls
+    loadLibrary OK for hostemu
+    loadPackage OK for json.cls
+    loadPackage OK for mime.cls
+    loadPackage OK for rxftp.cls
+    loadLibrary OK for rxmath
+    loadPackage OK for rxregexp.cls
+    loadPackage KO for regex/regex.cls
+    loadPackage OK for smtp.cls
+    loadPackage OK for socket.cls
+    loadPackage OK for streamsocket.cls
+    loadPackage KO for pipeline/pipe.cls
+    loadPackage KO for rgf_util2/rgf_util2.rex
+    loadPackage KO for BSF.CLS
+    /bin/bash: rxqueue: command not found
+       509 *-*       "echo $BASH_VERSION | rxqueue "quoted(.ooRexxShell~queueName)" /lifo"
+           >>>         "echo $BASH_VERSION | rxqueue "S15a2Q7fcce8501390" /lifo"
+           +++         "RC(127)"
+    [readline] ooRexx bug detected, fallback to raw input (no more history, no more globbing)
+
+Despite the KO and the failed readline, the script is operational.
+Of course, the normal situation is to have the PATH correctly set.
+
+
+-----------------------------------------------
 2021 oct 15
 ?cmi now display the superclass from which a method is inherited.
 

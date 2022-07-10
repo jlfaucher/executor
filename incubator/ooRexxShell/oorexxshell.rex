@@ -83,13 +83,6 @@ signal on any name error
 -- Typical usage: when non-interactive demo, we want to show the initialization
 .ooRexxShell~showInitialization = .ooRexxShell~isInteractive | arg(1)~caselessEquals("--showInitialization")
 
-if .ooRexxShell~isInteractive then do
-    -- Use a property file to remember the current directory
-    settings = .Properties~load(.ooRexxShell~settingsFile)
-    previousDirectory = settings["OOREXXSHELL_DIRECTORY"]
-    if previousDirectory <> .nil then call directory previousDirectory
-end
-
 -- Bypass defect 2933583 (fixed in release 4.0.1):
 -- Must pass the current address (default) because will be reset to system address when entering in SHELL routine
 shell~call(arg(1), address())
@@ -116,8 +109,6 @@ if condition <> .nil then do
 end
 signal finalize
 
-
-::requires "extension/stringChunk.cls"
 
 -------------------------------------------------------------------------------
 -- ::options trace i
@@ -198,6 +189,18 @@ oorexxshell.rex: expands the aliases (run in interactive mode)
 */
 
 call loadOptionalComponents
+
+-- Change the current directory AFTER loading the optional components,
+-- to increase the chance to load these components even if the PATH is not set.
+-- Typical test case : you execute
+--     ./rexx <path to>/oorexxshell.rex
+-- from the directory containing the rexx executable
+if .ooRexxShell~isInteractive then do
+    -- Use a property file to remember the current directory
+    settings = .Properties~load(.ooRexxShell~settingsFile)
+    previousDirectory = settings["OOREXXSHELL_DIRECTORY"]
+    if previousDirectory <> .nil then call directory previousDirectory
+end
 
 -- "a command"~pipe(.system) not caught by the security manager attached to SHELL, because .System is implemented in a different package.
 Class_System = .context~package~findclass("system")
@@ -796,12 +799,15 @@ Helpers
         return
     end
 
+    comparator = .nil
+    if .nil <> .ooRexxShell~comparatorClass then comparator = .ooRexxShell~comparatorClass~new
+
     if .CoactivitySupplier~isA(.Class), value~isA(.CoactivitySupplier) then .ooRexxShell~sayPrettyString(value) -- must not consume the datas
     else if .ooRexxShell~isExtended, value~isA(.enclosedArray), dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
     else if .ooRexxShell~isExtended, value~isA(.array), value~dimension == 1, dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
-    else if value~isA(.Collection)/*, dumpLevel == 2*/  then .ooRexxShell~sayCollection(value, /*title*/, .NumberComparator~new, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
+    else if value~isA(.Collection)/*, dumpLevel == 2*/  then .ooRexxShell~sayCollection(value, /*title*/, comparator, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
     -- if "==" (dumpLevel 2) then a supplier is displayed as a collection. A copy is made to not consume the datas.
-    else if value~isA(.Supplier), dumpLevel == 2 then .ooRexxShell~sayCollection(value~copy, /*title*/, .NumberComparator~new, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
+    else if value~isA(.Supplier), dumpLevel == 2 then .ooRexxShell~sayCollection(value~copy, /*title*/, .comparator, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
     else .ooRexxShell~sayPrettyString(value)
 
     return value -- To get this value in the variable RESULT
@@ -810,6 +816,11 @@ Helpers
 -------------------------------------------------------------------------------
 -- Load optional packages/libraries
 ::routine loadOptionalComponents
+    -- The routine stringChunks is used internally by ooRexxShell
+    -- Try to load the stand-alone package (don't ::requires it, to avoid an error if not found)
+    call loadPackage("extension/stringChunk.cls")
+   .ooRexxShell~routine_stringChunks = .context~package~findroutine("stringChunks")
+
     -- Load the extensions now, because some packages may depend on extensions
     -- for compatibility with ooRexx5 (ex: json, regex)
     .ooRexxShell~isExtended = .true
@@ -846,8 +857,9 @@ Helpers
     if loadPackage("rgf_util2/rgf_util2.rex"),, -- derived from the offical rgf_util2.rex (in BSF4ooRexx)
        .nil <> .context~package~findroutine("rgf_util_extended") then do
             .ooRexxShell~hasRgfUtil2Extended = .true
-            .ooRexxShell~dump2 = .context~package~findroutine("dump2")
-            .ooRexxShell~pp2 = .context~package~findroutine("pp2")
+            .ooRexxShell~routine_dump2 = .context~package~findroutine("dump2")
+            .ooRexxShell~routine_pp2 = .context~package~findroutine("pp2")
+            .ooRexxShell~comparatorClass = .NumberComparator
     end
 
     .ooRexxShell~hasBsf = loadPackage("BSF.CLS")
@@ -1103,17 +1115,22 @@ Helpers
 ::attribute trapNoValue class -- default true
 ::attribute trapSyntax class -- default true: the condition SYNTAX is trapped when interpreting the command
 
-::attribute dump2 class -- The routine dump2 of extended rgf_util, or .nil
-::attribute pp2 class -- The routine pp2 of extended rgf_util, or .nil
+::attribute comparatorClass class -- The comparator class used to sort the collections for display, or .nil
+::attribute routine_dump2 class -- The routine dump2 of extended rgf_util, or .nil
+::attribute routine_pp2 class -- The routine pp2 of extended rgf_util, or .nil
+::attribute routine_stringChunks class -- The routine stringChunks, or .nil
 
 ::method init class
+    self~comparatorClass = .nil
     self~countCommentChars = 0
     self~countCommentLines = 0
     self~debug = .false
     self~defaultSleepDelay = 2
     self~demo = .false
     self~demoFast = .false -- by default, the demo is slow (SysSleep is executed)
-    self~dump2 = .nil
+    self~routine_dump2 = .nil
+    self~routine_pp2 = .nil
+    self~routine_stringChunks = .nil
     self~error = .false
     self~gotoLabel = ""
     self~hasBsf = .false
@@ -1124,7 +1141,6 @@ Helpers
     self~isInteractive = .false
     self~maxItemsDisplayed = 1000
     self~maybeCommand = .false
-    self~pp2 = .nil
     self~promptDirectory = .true
     self~readline = .false
     self~showColor = .false
@@ -1312,8 +1328,17 @@ Helpers
     numeric digits -- stop any propagated settings, to have the default value for digits()
     use strict arg coll, title=(coll~defaultName), comparator=.nil, iterateOverItem=.false, surroundItemByQuotes=.true, surroundIndexByQuotes=.true, maxCount=(9~copies(digits())) /*no limit*/, action=.nil
     -- The package rgfutil2 is optional, use it if loaded.
-    if .ooRexxShell~dump2 <> .nil then .ooRexxShell~dump2~call(coll, title, comparator, iterateOverItem, surroundItemByQuotes, surroundIndexByQuotes, maxCount, action)
-    else say coll
+    if .ooRexxShell~routine_dump2 <> .nil then .ooRexxShell~routine_dump2~call(coll, title, comparator, iterateOverItem, surroundItemByQuotes, surroundIndexByQuotes, maxCount, action)
+    else do
+        say coll
+        -- no sort, no alignment, no nothing
+        -- if you want that then set your environment correctly to let load the extended rgf_util2
+        supplier = coll~supplier
+        do while supplier~available
+            say supplier~index":" supplier~item
+            supplier~next
+        end
+    end
 
 
 ::method sayPPrepresentation class
@@ -1351,7 +1376,7 @@ Helpers
 ::method prettyString class
     use strict arg value, surroundByQuotes=.true
     -- The package rgfutil2 is optional, use it if loaded.
-    if .ooRexxShell~pp2 <> .nil then return .ooRexxShell~pp2~call(value, surroundByQuotes)
+    if .ooRexxShell~routine_pp2 <> .nil then return .ooRexxShell~routine_pp2~call(value, surroundByQuotes)
     -- JLF to rework: surroundByQuotes is supported only by String~ppString
     -- Can't pass a named argument because I want to keep ooRexxShell compatible with official ooRexx.
     if value~hasMethod("ppString") then return value~ppString(surroundByQuotes)
@@ -1393,7 +1418,7 @@ Helpers
 
     signal on syntax name helpError -- trap the exceptions that could be raised by the query manager
 
-    queryManager = .QueryManager~new(queryFilter, .context~package~findRoutine("stringChunks"))
+    queryManager = .QueryManager~new(queryFilter, .ooRexxShell~routine_stringChunks)
     if debugQueryFilter then do
         queryManager~dump(self)
         return
@@ -1433,9 +1458,9 @@ Helpers
 
 ::method helpNoQueries class
     use strict arg interpreterContext, queryFilter, debugQueryFilter=.false -- queryFilter is the string after '?'
-    queryFilterArgs = stringChunks(queryFilter, .true) -- true: array of StringChunk
+    queryFilterArgs = .ooRexxShell~stringChunks(queryFilter, .true) -- true: array of StringChunk
     if debugQueryFilter then do
-        self~displayCollection(queryFilterArgs)
+        self~sayCollection(queryFilterArgs)
         return
     end
     .ooRexxShell~dispatchHelp(interpreterContext, queryFilter, queryFilterArgs)
@@ -1730,7 +1755,7 @@ Helpers
         self~securityManager~traceCommand = trace
         self~securityManager~verbose = .false
     end
-    do arg over stringChunks(rest)
+    do arg over .ooRexxShell~stringChunks(rest)
         parse var arg word1 "." rest
         if "dispatchcommand"~caselessAbbrev(arg) then self~traceDispatchCommand = trace
         else if "filter"~caselessAbbrev(arg) then self~traceFilter = trace
@@ -1762,7 +1787,7 @@ Helpers
         self~trapNoValue = trap
         self~trapSyntax = trap
     end
-    do arg over stringChunks(rest)
+    do arg over .ooRexxShell~stringChunks(rest)
         if "lostdigits"~caselessAbbrev(arg, 1) then self~trapLostdigits= trap
         else if "nomethod"~caselessAbbrev(arg, 3) then self~trapNoMethod = trap
         else if "nostring"~caselessAbbrev(arg, 3) then self~trapNoString = trap
@@ -1834,6 +1859,20 @@ Helpers
         return
     end
     .ooRexxShell~gotoLabel = word2
+
+
+::method stringChunks class
+    if .nil <> .ooRexxShell~routine_stringChunks then return .ooRexxShell~routine_stringChunks~callWith(arg(1, "a"))
+    -- Poor man's implementation:
+    --   quotes are not correctly supported
+    --   parameter 'withInfos' not supported, you will never get a list of StringChunk, you will always get a list of strings
+    use strict arg string, withInfos=.false
+    words = .array~new
+    do word over string~subwords
+        words~append(unquoted(word))
+    end
+    -- ignore withInfos, always return an array of strings
+    return words
 
 
 -------------------------------------------------------------------------------
@@ -1963,7 +2002,7 @@ Helpers
         if command~caselessPos("cd ") == 1 then return .array~of(address, command) -- change directory
         --if .RegularExpression~new("[:ALPHA:]:")~~match(command)~position == 2 & command~length == 2 then return .array~of(address, command) -- change drive
         if isDriveLetter(command) then return .array~of(address, command) -- change drive
-        args = stringChunks(command)
+        args = .ooRexxShell~stringChunks(command)
         if .nil == args[1] then return .array~of(address, command)
         if args[1]~caselessEquals("cmd") then return .array~of(address, command) -- already prefixed by "cmd ..."
         if args[1]~caselessEquals("start") then return .array~of(address, command) -- already prefixed by "start ..."
@@ -2463,26 +2502,6 @@ The colors are managed with escape characters.
     return result <> 0 -- return .true if no error
     syntax:
     return .false
-
-
--------------------------------------------------------------------------------
-::CLASS 'LengthComparator' MIXINCLASS Object public
--------------------------------------------------------------------------------
-
-::method init
-    expose direction
-    use strict arg criteria="ascending"
-    select
-        when "ascending"~caselessAbbrev(criteria, 1) then direction = 1
-        when "descending"~caselessAbbrev(criteria, 1) then direction = -1
-        otherwise raise syntax 93.900 array("LengthComparator: invalid criteria" criteria)
-    end
-
-
-::method compare
-    expose direction
-    use strict arg left, right
-    return direction * sign(left~length - right~length)
 
 
 -------------------------------------------------------------------------------
