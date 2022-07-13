@@ -100,3 +100,5 @@ Resuming a coroutine and yielding from a coroutine automatically switches C stac
 
 
 http://aldrin.co/coroutine-pipeline.html
+
+https://clang.llvm.org/docs/DebuggingCoroutines.html
