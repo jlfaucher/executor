@@ -2,6 +2,26 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2022 July 13
+
+[Unicode]
+
+Rework ~unescape to be closer to other languages:
+\u{...} and \U{...} are equivalent
+\u{X..X} is now hexadecimal, no more decimal codepoint. The first character must be 0..9.
+\uXXXX is now supported
+\UXXXXXXXX is now supported
+
+Ex:
+"\u{bed} is different from \u{0bed}"~text~unescape=                         -- T'🛏 is different from ௭'
+.unicode~character("bed")=                                                  -- ( "🛏"   U+1F6CF So 1 "BED" )
+.unicode~character("bed", hexadecimal:.true)=                               -- ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
+.unicode~character("U+0bed")=                                               -- ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
+"The \u{t-rex} shows his \u{flexed biceps}!"~text~unescape=                 -- T'The 🦖 shows his 💪!'
+"\u0031 + \u0032\u0033 = \u0032\u0034"~text~unescape=                       -- T'1 + 23 = 24'
+"\U00000031 + \U00000032\U00000033 = \U00000032\U00000034"~text~unescape=   -- T'1 + 23 = 24'
+
+===============================================================================
 2022 July 01
 
 [pipes]

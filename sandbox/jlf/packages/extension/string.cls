@@ -2061,21 +2061,51 @@ RexxInteger *codepointIsUpper(RexxObject *rexxCodepoint);
 ::method character class
     expose characters characterNames
     use strict arg name
+    use named arg hexadecimal(1)=.false -- can't be guessed: 100 in hexadecimal is different from 100 in decimal
 
-    -- is name a codepoint ?
-    if datatype(name, "W") then return self~characterByCodepoint(name)
+    -- is name an hexadecimal codepoint ?
+    if hexadecimal then do
+        call remove_leading_zeros
+        if name~length <= 8, datatype(name, "X") then do
+            numeric digits 10 -- to support FFFFFFFF, even if way too big for a codepoint (will be checked by characterByCodepoint)
+            return self~characterByCodepoint(name~x2d)
+        end
+        signal invalid_hexadecimal_codepoint
+    end
+
+    -- is name a decimal codepoint ?
+    if datatype(name, "W") then do
+        call remove_leading_zeros
+        if name~length <= 7 then return self~characterByCodepoint(name)
+        signal invalid_decimal_codepoint
+    end
+
+    -- is name a U+ codepoint ?
     if name~caselessStartsWith("U+") then do
+        prefix = name~left(2)
         name = name~substr(3)
-        if datatype(name, "X") then return self~characterByCodepoint(name~x2d)
+        if name~length >= 4, name~length <= 6, datatype(name, "X") then do
+            return self~characterByCodepoint(name~x2d)
+        end
+        signal invalid_u_plus
     end
 
     -- is name a character name?
     looseMatchingIndex = UAX44_LM2(name)
     codepoint = characterNames[looseMatchingIndex]
     if .nil <> codepoint then return characters[2 + codepoint] -- +2 because -1 and 0 must be supported
+    signal name_not_found
 
-    raise syntax 93.900 array("Name '"name"' not found")
-    return self~unknownCharacter
+    remove_leading_zeros:
+        firstNonZero = name~verify("0")
+        if firstNonZero == 0 then name = "0" -- 0[..0] replaced by 0
+        else if firstNonZero > 1 then name = name~substr(firstNonZero) -- remove all the leading zeros
+        return
+
+    invalid_hexadecimal_codepoint: raise syntax 93.900 array("an hexadecimal codepoint is 1..8 hex digits, got '"name"'")
+    invalid_decimal_codepoint:     raise syntax 93.900 array("a decimal codepoint is 1..7 digits, got '"name"'")
+    invalid_u_plus:                raise syntax 93.900 array(prefix "is followed by 4..6 hex digits, got '"name"'")
+    name_not_found:                raise syntax 93.900 array("Name '"name"' not found")
 
 
 ::method characterByCodepoint class
@@ -3439,8 +3469,11 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     /*
     Executor supports
         \u{Unicode name}    Character name in the Unicode database
-        \u{N..N}            Unicode character denoted by a wholenumber of 1-n decimal digits
-        \u{U+X..X}          Unicode character denoted by 1-n hex digits
+        \U{Unicode name}
+        \u{X..X}            Unicode character denoted by 1-8 hex digits. The first character must be a digit 0..9.
+        \U{X..X}
+        \uXXXX              Unicode character denoted by 4 hex digits ('u' lowercase)
+        \UXXXXXXXX          Unicode character denoted by 8 hex digits ('U' uppercase)
 
     How other languages are supporting escape characters for Unicode:
         \N{Unicode name}    Character name in the Unicode database (Python, Julia)
@@ -3448,7 +3481,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         \U{Unicode name}
         \u{X..X}            Unicode character denoted by a 1–8 hex digits (Swift)
         \u{XXXXXX}          hexadecimal Unicode code point UTF-8 encoded (1 or more digits) (zig)
-        \uXXXX              Unicode character denoted by four hex digits (Python, Julia, Netrexx, Java)
+        \uXXXX              Unicode character denoted by four hex digits (Python, Julia, Netrexx, Java, JSON)
         \UXXXXXXXX          Unicode character denoted by eight hex digits (Python, Julia)
 
         https://javajee.com/unicode-escapes-in-java
@@ -3487,7 +3520,9 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         buffer~append(string~substr(from, pos - from))
         pos += 1
         character = string~subchar(pos)
+        pos += 1
         select
+            when character == "\" then buffer~append("\")   -- escaped \
             when character == "a" then buffer~append("07"x) -- audible bell (BEL)
             when character == "b" then buffer~append("08"x) -- backspace (BS)
             when character == "f" then buffer~append("0C"x) -- form feed (FF)
@@ -3496,42 +3531,67 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
             when character == "t" then buffer~append("09"x) -- horizontal tab (HT)
             when character == "v" then buffer~append("0B"x) -- vertical tab (VT)
 
-            when character == "u" then do
-                if self~isUnicode then do
-                    -- \u{Unicode name}    Character name in the Unicode database
-                    -- \u{N..N}            Unicode character denoted by a wholenumber of 1-n decimal digits
-                    -- \u{U+X..X}          Unicode character denoted by U+ followed by 1-n hex digits
-                    pos += 1
-                    if string~subchar(pos) \== "{" then signal expecting_name_or_sequence_of_hexadecimal_digits
-                    first = pos + 1
+            when character == "u" | character == "U" then do
+                if \self~isUnicode then signal unicode_character_not_supported
+
+                -- \u{Unicode name}    Character name in the Unicode database
+                -- \u{X..X}            Unicode character denoted by 1-8 hex digits
+                if string~subchar(pos) == "{" then do
+                    pos += 1 -- skip {
+                    first = pos
                     pos = string~pos("}", pos)
                     if pos == 0 then signal expecting_name_or_sequence_of_hexadecimal_digits
                     length = pos - first
                     if length == 0 then signal expecting_name_or_sequence_of_hexadecimal_digits
+                    pos += 1 -- skip }
                     idntfr = string~substr(first, length)
-                    character = .Unicode~character(idntfr)
+                    startWithDigit = idntfr~left(1)~datatype("9")
+                    character = .Unicode~character(idntfr, hexadecimal: startWithDigit)
                     character~text(self~class, b:buffer)
                 end
-                else signal unicode_character_not_supported
+
+                else if character == "u" then do
+                    -- \uXXXX
+                    length = min(4, string~length - pos + 1)
+                    codepoint = string~substr(pos, length)
+                    if codepoint~length < 4 then signal expecting_4_hexadecimal_digits
+                    if \codepoint~datatype("X") then signal expecting_4_hexadecimal_digits
+                    character = .Unicode~character(codepoint, hexadecimal: .true)
+                    character~text(self~class, b:buffer)
+                    pos += 4
+                end
+
+                else if character == "U" then do
+                    -- \uXXXXXXXX
+                    length = min(8, string~length - pos + 1)
+                    codepoint = string~substr(pos, length)
+                    if codepoint~length < 8 then signal expecting_8_hexadecimal_digits
+                    if \codepoint~datatype("X") then signal expecting_8_hexadecimal_digits
+                    character = .Unicode~character(codepoint, hexadecimal: .true)
+                    character~text(self~class, b:buffer)
+                    pos += 8
+                end
+
             end
 
             when character == "x" then do
                 -- \x{X..X} sequence of 1..n hexadecimal digits
-                pos += 1
                 if string~subchar(pos) \== "{" then signal expecting_sequence_of_hexadecimal_digits
-                first = pos + 1
+                pos += 1 -- skip {
+                first = pos
                 pos = string~pos("}", pos)
                 if pos == 0 then signal expecting_sequence_of_hexadecimal_digits
                 length = pos - first
                 if length == 0 then signal expecting_sequence_of_hexadecimal_digits
+                pos += 1 -- skip }
                 hexadecimalDigits = string~substr(first, length)
                 characters = hexadecimalDigits~x2c -- 1..n bytes
                 buffer~append(characters)
             end
 
-            otherwise buffer~append(character)
+            otherwise signal unsupported_escape_character
         end
-        from = pos + 1
+        from = pos
         pos = string~pos("\", from)
     end
     buffer~append(string~substr(from))
@@ -3539,9 +3599,12 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     if returnBuffer then return buffer
                     else return .RexxText~new(buffer~string, self~class)
 
-    unicode_character_not_supported:                  raise syntax 23.900 array(self~class~name "encoding: \u not supported")
+    unicode_character_not_supported:                  raise syntax 23.900 array(self~class~name "encoding: \"character" not supported")
+    expecting_name_or_sequence_of_hexadecimal_digits: raise syntax 23.900 array(self~class~name "encoding: expecting a character name {name} or 1..8 hexadecimal digits {X..X} after \u")
+    expecting_4_hexadecimal_digits:                   raise syntax 23.900 array(self~class~name "encoding: expecting 4 hexadecimal digits after \u, got '"codepoint"'")
+    expecting_8_hexadecimal_digits:                   raise syntax 23.900 array(self~class~name "encoding: expecting 8 hexadecimal digits after \U, got '"codepoint"'")
     expecting_sequence_of_hexadecimal_digits:         raise syntax 23.900 array(self~class~name "encoding: expecting 1..n hexadecimal digits {X..X} after \x")
-    expecting_name_or_sequence_of_hexadecimal_digits: raise syntax 23.900 array(self~class~name "encoding: expecting a character name {name} or 1..n decimal digits {N..N} or 1..n hexadecimal digits {U+X..X} after \u")
+    unsupported_escape_character:                     raise syntax 23.900 array(self~class~name "encoding: escape character '"character"' not supported")
 
 
 /******************************************************************************/
@@ -5335,6 +5398,7 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 
 ::method decodeCodepoint class private
     use strict arg stringBytes
+    -- precondition: stringBytes~length <= 4
     -- needed, the code unit is 4 bytes.
     -- "3B9A C9FF"x~c2d = 999 999 999. The next value raises an error when 9 digits.
     -- The maximum value is "FFFF FFFF"x~c2d = 4 294 967 295 (10 digits)
@@ -5385,6 +5449,7 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 
 ::method decodeCodepoint class private
     use strict arg stringBytes
+    -- precondition: stringBytes~length <= 4
     -- needed, the code unit is 4 bytes.
     -- "3B9A C9FF"x~c2d = 999 999 999. The next value raises an error when 9 digits.
     -- The maximum value is "FFFF FFFF"x~c2d = 4 294 967 295 (10 digits)
@@ -5486,6 +5551,7 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 
 ::method decodeCodepointBE class private
     use strict arg stringBytes
+    -- precondition: stringBytes~length <= 4
     -- needed, the code unit is from 1 to 4 bytes.
     -- "3B9A C9FF"x~c2d = 999 999 999. The next value raises an error when 9 digits.
     -- The maximum value is "FFFF FFFF"x~c2d = 4 294 967 295 (10 digits)
@@ -5495,6 +5561,7 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 
 ::method decodeCodepointLE class private
     use strict arg stringBytes
+    -- precondition: stringBytes~length <= 4
     -- needed, the code unit is from 1 to 4 bytes.
     -- "3B9A C9FF"x~c2d = 999 999 999. The next value raises an error when 9 digits.
     -- The maximum value is "FFFF FFFF"x~c2d = 4 294 967 295 (10 digits)
@@ -5885,7 +5952,7 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
         nextB = self~nextCodepointIndex(string, startB)
         sizeB = nextB - startB
     end
-    numeric digits 10
+    -- numeric digits 10 -- not needed, managed by decodeCodepoint
     if sizeB == 0 then return .nil
     if sizeB == 4 then return self~decodeCodepoint(string~substr(startB, 4))
     raise syntax 23.900 array (self~name "encoding:" sizeB "is an invalid size of byte sequence")
@@ -6215,7 +6282,7 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
     -- Helper to display an hexadecimal value: 0 --> 00x, 255 --> FFx
     -- The value can be negative: -1 --> -01x
     use strict arg number
-    if \datatype(number, "W") then return "??"
+    if \datatype(number, "W") then return "not a whole number"
     sign = ""
     if sign(number) < 0 then sign = "-"
     number = abs(number)
@@ -6237,7 +6304,7 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
     */
     use strict arg codepoint
     use strict named arg buffer(1)=.nil
-    if \datatype(codepoint, "W") then return "??"
+    if \datatype(codepoint, "W") then return "not a whole number"
     if codepoint < 0 then return codepoint
     if .nil == buffer then do
         if codepoint < 65536 then return "U+" || codepoint~d2x(4)
