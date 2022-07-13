@@ -95,6 +95,11 @@ https://unicode.org/reports/tr36/#visual_spoofing
 UNICODE SECURITY CONSIDERATIONS
 
 
+http://www.unicode.org/reports/tr39
+UNICODE SECURITY MECHANISMS
+http://www.unicode.org/Public/security/latest/confusables.txt
+
+
 https://www.unicode.org/reports/tr51/
 Unicode  emoji
 
@@ -247,6 +252,8 @@ Security
 ================================================================================
 
 https://www.trojansource.codes/
+
+https://api.mtr.pub/vhf/confusable_homoglyphs
 
 
 ================================================================================
@@ -1454,6 +1461,14 @@ Japanese
 
 https://heistak.github.io/your-code-displays-japanese-wrong/
 https://news.ycombinator.com/item?id=29022906
+
+
+================================================================================
+Language comparison
+================================================================================
+
+https://blog.kdheepak.com/my-unicode-cheat-sheet
+Vim, Python, Julia and Rust.
 
 
 ================================================================================
