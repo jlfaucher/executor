@@ -129,7 +129,7 @@
         end
     end
     if trace, .nil <> displayer then call traceMatcher matcher, displayer, prefix
-    return matcher
+    return matcher~doer
 
     patternCompileError:
         raise syntax 93.900 array("Regular expression" stringPattern~quoted ":" condition("O")~message)
