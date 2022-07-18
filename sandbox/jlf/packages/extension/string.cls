@@ -2050,7 +2050,11 @@ RexxInteger *codepointIsUpper(RexxObject *rexxCodepoint);
 
 ::method characters class
     expose characters
-    use strict arg -- none
+    use strict arg filter=.nil
+    if .nil <> filter then do
+        matcher = filter~matcher
+        return characters~select{expose matcher; matcher~(item~name)}
+    end
     return .UnicodeCharacterSupplier~new(characters) -- This supplier returns index-2
 
 
@@ -6140,6 +6144,7 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 
 ::method last
     expose characters
+    use strict arg -- none
     last = characters~last
     if .nil == last then return .nil
     return characters[last]

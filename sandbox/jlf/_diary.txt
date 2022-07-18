@@ -2,9 +2,49 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
-2022 July 13
+2022 July 17
 
 [Unicode]
+
+For convenience, add an optional parameter 'filter' to the method .unicode~characters
+    .unicode~characters("*rex*")==
+is equivalent to
+    matcher = "*rex*"~matcher; .unicode~characters~select{expose matcher; matcher~(item~name)}==
+
+Regular expressions are supported:
+    .unicode~characters("/^math.*psi$")==
+returns all the characters whose name starts with "math" and ends with "psi"
+     1  : ( "𝚿"   U+1D6BF Lu 1 "MATHEMATICAL BOLD CAPITAL PSI" )
+     2  : ( "𝛙"   U+1D6D9 Ll 1 "MATHEMATICAL BOLD SMALL PSI" )
+     3  : ( "𝛹"   U+1D6F9 Lu 1 "MATHEMATICAL ITALIC CAPITAL PSI" )
+     4  : ( "𝜓"   U+1D713 Ll 1 "MATHEMATICAL ITALIC SMALL PSI" )
+     5  : ( "𝜳"   U+1D733 Lu 1 "MATHEMATICAL BOLD ITALIC CAPITAL PSI" )
+     6  : ( "𝝍"   U+1D74D Ll 1 "MATHEMATICAL BOLD ITALIC SMALL PSI" )
+     7  : ( "𝝭"   U+1D76D Lu 1 "MATHEMATICAL SANS-SERIF BOLD CAPITAL PSI" )
+     8  : ( "𝞇"   U+1D787 Ll 1 "MATHEMATICAL SANS-SERIF BOLD SMALL PSI" )
+     9  : ( "𝞧"   U+1D7A7 Lu 1 "MATHEMATICAL SANS-SERIF BOLD ITALIC CAPITAL PSI" )
+     10 : ( "𝟁"   U+1D7C1 Ll 1 "MATHEMATICAL SANS-SERIF BOLD ITALIC SMALL PSI" )
+
+The regular expressions are implemented with 100% ooRexx code, and as such
+can be particularly inefficient...
+When applied to a collection of 43885 Unicode characters, we have:
+    .unicode~characters("/.*father.*")    -- 30.5 sec
+The same filter without regular expression:
+    .unicode~characters("*father*")       -- 0.9 sec
+
+Something to clarify:
+Why such a difference of duration for the following pieces of code?
+In the end, it's the same code in both cases:
+matcher = "/.*father.*"~matcher; supplier = .unicode~characters; collectedItems = .Array~new; do while supplier~available; item = supplier~item; if matcher~(item~name) then collectedItems~append(item); supplier~next; end; collectedItems==
+64 sec
+matcher = "/.*father.*"~matcher; .unicode~characters~select{expose matcher; matcher~(item~name)}==
+31 sec
+
+
+===============================================================================
+2022 July 13
+
+[Encoded strings]
 
 Rework ~unescape to be closer to other languages:
 \u{...} and \U{...} are equivalent
