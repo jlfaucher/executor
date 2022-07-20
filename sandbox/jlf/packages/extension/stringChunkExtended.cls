@@ -145,8 +145,8 @@
     -- matcher is a closure created by .StringChunk~matcher.
     -- The variables of .StringChunk~matcher have been captured, and can be retrieved, in particular the description.
     do line over matcher~variables["DESCRIPTION"]
-        displayer~send(display, prefix line)
+        displayer~send(display, prefix || line)
     end
     do line over matcher~source
-        displayer~send(display, prefix "matcher:" line)
+        displayer~send(display, prefix || "matcher:" line)
     end
