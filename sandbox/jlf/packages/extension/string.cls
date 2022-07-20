@@ -2052,7 +2052,11 @@ RexxInteger *codepointIsUpper(RexxObject *rexxCodepoint);
     expose characters
     use strict arg filter=.nil
     if .nil <> filter then do
-        matcher = filter~matcher
+        -- questionable: what's the best way to pass options to ~matcher?
+        -- here, I pass ALL the named arguments
+        -- I must explicitly pass NO positional argument.
+        forward message "matcher" arguments (.array~new(0)) to (filter) continue
+        matcher = result
         return characters~select{expose matcher; matcher~(item~name)}
     end
     return .UnicodeCharacterSupplier~new(characters) -- This supplier returns index-2

@@ -2,6 +2,33 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2022 July 20
+
+[Unicode]
+
+I realize that I can pass options when filtering the unicode characters.
+Same options as when sending the message "matcher" to a string.
+
+-- Options: not wholestring, trace with prefix "> "
+.unicode~characters("father", w:0, t:1, p:">")
+> description: stringChunkPattern="father" wholeString=0 caseless=1
+> stringPattern="father"
+> matcher: expose description stringPattern; use strict arg string; return string~caselessPos(stringPattern) <> 0
+0.9 sec
+
+-- Same options with a regular expression.
+-- "/father" is faster than "/.*father.*" but still very slow compared to "father"
+.unicode~characters("/father", w:0, t:1, p:"> ")
+> description: stringChunkPattern="/father" wholeString=0 caseless=1
+> stringPattern="father"
+> pattern = .Pattern~compile(stringPattern, .RegexCompiler~new(.RegexCompiler~caseless))
+> matcher: expose description pattern; use strict arg string; return pattern~find(string)~matched
+17 sec
+
+Note that "/.*father.*" in mode not wholestring is just unusable: 419 sec
+
+
+===============================================================================
 2022 July 17
 
 [Unicode]
