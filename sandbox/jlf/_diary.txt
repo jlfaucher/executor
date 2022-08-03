@@ -2,6 +2,102 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+(next)
+
+[Encoded strings]
+
+Create a new folder packages/encoding.
+The Unicode data files are moved in this folder.
+
+Split the (now big) file extension/string.cls into several files:
+    encoding/stringEncoding.cls     encoding & indexer
+    encoding/unicode.cls            Unicode properties & services
+    extension/string.cls            all except encoding
+    extension/text.cls              RexxText
+
+
+[Encoded strings]
+
+https://discourse.julialang.org/t/stupid-question-on-unicode/27674/10
+    Should I support this when unescaping?
+    (High surrogate followed by low surrogate)
+    Surrogate pairs are a UTF-16-specific construct.
+    However, string escapes aren’t byte sequences of a particular encoding.
+    They are somewhat arbitrary substitutions / macros.
+
+        "\uD83D\uDE3F"~text~unescape~errors==
+        an Array (shape [6], 6 items)
+         1 : 'UTF-8 sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).'
+         2 : 'UTF-8 sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).'
+         3 : 'UTF-8 sequence at byte-position 3 has an invalid start byte 189 (BDx) (non-shortest form).'
+         4 : 'UTF-8 sequence at byte-position 4 has an invalid continuation byte 184 (B8x) at byte-position 5 (low surrogate).'
+         5 : 'UTF-8 sequence at byte-position 5 has an invalid start byte 184 (B8x) (non-shortest form).'
+         6 : 'UTF-8 sequence at byte-position 6 has an invalid start byte 191 (BFx) (non-shortest form).'
+
+        "\uD83D\uDE3F"~text~wtf8~unescape~errors==
+        an Array (shape [3], 3 items)
+         1 : 'WTF-8 encoding: high surrogate 55357 (U+D83D) at byte-position 1 followed by low surrogate 56895 (U+DE3F) at byte-position 4 is not allowed.'
+         2 : 'UTF-8 sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).'
+         3 : 'UTF-8 sequence at byte-position 3 has an invalid start byte 189 (BDx) (non-shortest form).'
+
+    Yes, I should support it when the encoding is WTF-8, because the concatenation manages correctly this case:
+        ("\uD83D"~text~wtf8~unescape || "\uDE3F"~text~wtf8~unescape)~characters==
+        an Array (shape [1], 1 items)
+         1 : ( "😿"  U+1F63F So 2 "CRYING CAT FACE" )
+
+        ("\uD83D"~text~wtf8~unescape || "\uDE3F"~text~wtf8~unescape)~description=
+        'WTF-8 not-ASCII (1 grapheme, 1 codepoint, 4 bytes, 0 error)'
+
+    Done, now "\uD83D\uDE3F"~text~wtf8~unescape~characters==    -- "😿"
+
+
+[Encoded strings]
+
+https://discourse.julialang.org/t/indexing-strings-by-unicode-code-point-instead-of-code-unit/55248
+    Discussion about the non-need to index by grapheme.
+    They say there is no real application where you need that.
+    But the parse instruction with positional patterns is a good example of real application.
+    With the indexation by grapheme, it will support transparently NFC or NFD.
+
+    (not yet implemented, just an illustration)
+    parse value "äöü  100"~text with key 6 value     -- key="äöü  ", value=100
+
+    -- NFC
+    "äöü  100"~text~characters==
+        an Array (shape [8], 8 items)
+         1 : ( "ä"   U+00E4 Ll 1 "LATIN SMALL LETTER A WITH DIAERESIS" )
+         2 : ( "ö"   U+00F6 Ll 1 "LATIN SMALL LETTER O WITH DIAERESIS" )
+         3 : ( "ü"   U+00FC Ll 1 "LATIN SMALL LETTER U WITH DIAERESIS" )
+         4 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+         5 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+         6 : ( "1"   U+0031 Nd 1 "DIGIT ONE" )
+         7 : ( "0"   U+0030 Nd 1 "DIGIT ZERO" )
+         8 : ( "0"   U+0030 Nd 1 "DIGIT ZERO" )
+
+    -- NFD
+    "äöü  100"~text~characters==
+        an Array (shape [11], 11 items)
+         1  : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
+         2  : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
+         3  : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
+         4  : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
+         5  : ( "u"   U+0075 Ll 1 "LATIN SMALL LETTER U" )
+         6  : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
+         7  : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+         8  : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+         9  : ( "1"   U+0031 Nd 1 "DIGIT ONE" )
+         10 : ( "0"   U+0030 Nd 1 "DIGIT ZERO" )
+         11 : ( "0"   U+0030 Nd 1 "DIGIT ZERO" )
+
+    -- the string "x̂" contains only one grapheme (one “user-visible” character)
+    -- but is two characters (two Unicode codepoints) in any normalization.
+    "x̂"~text~characters==
+        an Array (shape [2], 2 items)
+         1 : ( "x"   U+0078 Ll 1 "LATIN SMALL LETTER X" )
+         2 : ( "̂"    U+0302 Mn 0 "COMBINING CIRCUMFLEX ACCENT" )
+
+
+===============================================================================
 2022 July 20
 
 [Unicode]
@@ -1992,11 +2088,11 @@ The ooRexx programmer has the choice:
 - the same instance of String is used in both cases.
 
     aString
-     ▲  text --------⮸ aRexxText
+     ▲  text --------> aRexxText
      │                     indexer (anEncoding)
      │                          codepoints (sequential access)
      │                          graphemes  (direct access)
-     +-----------------------⮷- string
+     +-----------------------<- string
 
 First binding of utf8proc, for the detection of grapheme cluster break.
 "( ͡° ͜ʖ﻿ ͡°)"~text~description=                    -- 'UTF-8 not-ASCII ( 9 graphemes, 12 codepoints, 20 bytes )'

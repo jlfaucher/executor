@@ -121,6 +121,11 @@ Unicode Technical Note #5
 CANONICAL EQUIVALENCE IN APPLICATIONS
 
 
+03/08/2022
+https://discourse.julialang.org/t/unicode-15-0-beta-and-sorting-collation/83090
+https://unicode.org/emoji/charts-15.0/emoji-ordering.html
+
+
 ================================================================================
 Unicode general informations
 ================================================================================
@@ -1693,6 +1698,10 @@ https://juliapackages.com/p/strs
     names, instead of hex codes: \:emojiname: \<latexname> \N{unicodename} \&htmlname;
     Examples of this are:
     f"\<dagger> \&yen; \N{ACCOUNT OF} \:snake:", which returns the string: "† ¥ ℀ 🐍 "
+
+
+https://discourse.julialang.org/t/stupid-question-on-unicode/27674/7
+    Discussion about escape sequence
 
 
 ================================================================================
