@@ -1460,6 +1460,10 @@ void RexxMemory::createImage(const char *imageTarget)
   defineKernelMethod("CODEPOINTTOTITLE" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointToTitle), 1);
   defineKernelMethod("CODEPOINTISLOWER" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointIsLower), 1);
   defineKernelMethod("CODEPOINTISUPPER" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointIsUpper), 1);
+  defineKernelMethod("NFD" , TheUnicodeClassBehaviour, CPPM(Unicode::NFD), 1);
+  defineKernelMethod("NFC" , TheUnicodeClassBehaviour, CPPM(Unicode::NFC), 1);
+  defineKernelMethod("NFKD" , TheUnicodeClassBehaviour, CPPM(Unicode::NFKD), 1);
+  defineKernelMethod("NFKC" , TheUnicodeClassBehaviour, CPPM(Unicode::NFKC), 1);
                                        /* set the scope of the methods to   */
                                        /* this classes oref                 */
   TheUnicodeClassBehaviour->setMethodDictionaryScope(TheUnicodeClass);

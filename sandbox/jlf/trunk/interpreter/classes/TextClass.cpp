@@ -43,9 +43,8 @@
 
 
 /******************************************************************************/
-/* REXX Kernel                                                                */
 /*                                                                            */
-/* Primitive RexxText Class                                                   */
+/* RexxText Class                                                             */
 /*                                                                            */
 /******************************************************************************/
 
@@ -106,55 +105,68 @@ RexxString *RexxText::makeString()
 
 
 /******************************************************************************/
-/* REXX Kernel                                                                */
 /*                                                                            */
-/* Primitive Unicode Class                                                    */
+/* Helpers                                                                    */
 /*                                                                            */
 /******************************************************************************/
 
-// singleton class instance
-RexxClass *Unicode::classInstance = OREF_NULL;
+/* All possible oorexx user-defined errors:
+    Error_Program_unreadable_user_defined
+    Error_Program_interrupted_user_defined
+    Error_System_resources_user_defined
+    Error_Unmatched_quote_user_defined
+    Error_Control_stack_user_defined
+    Error_Invalid_character_user_defined
+    Error_Symbol_or_string_user_defined
+    Error_Symbol_expected_user_defined
+    Error_Invalid_data_user_defined
+    Error_Invalid_character_string_user_defined
+    Error_Invalid_data_string_user_defined
+    Error_Invalid_subkeyword_string_user_defined
+    Error_Invalid_whole_number_user_defined
+    Error_Name_too_long_user_defined
+    Error_Invalid_variable_user_defined
+    Error_Expression_user_defined
+    Error_Logical_value_user_defined
+    Error_Invalid_expression_user_defined
+    Error_Unmatched_parenthesis_user_defined
+    Error_Unexpected_comma_user_defined
+    Error_Invalid_template_user_defined
+    Error_Incorrect_call_user_defined
+    Error_Conversion_user_defined
+    Error_Overflow_user_defined
+    Error_Routine_not_found_user_defined
+    Error_Function_no_data_user_defined
+    Error_Variable_reference_user_defined
+    Error_System_service_user_defined
+    Error_Interpretation_user_defined
+    Error_Invalid_argument_user_defined
+    Error_External_name_not_found_user_defined
+    Error_No_result_object_user_defined
+    Error_OLE_Error_user_defined
+    Error_Incorrect_method_user_defined
+    Error_No_method_user_defined
+    Error_Execution_user_defined
+    Error_Translation_user_defined
+*/
 
 
-void Unicode::createInstance()
+void raiseError(utf8proc_ssize_t errcode)
 {
-    CLASS_CREATE(Unicode, "Unicode", RexxClass);
-}
-
-RexxObject  *Unicode::newRexx(RexxObject **init_args, size_t argCount, size_t named_argCount)
-{
-    // This class has no instance...
-    reportException(Error_Unsupported_new_method, ((RexxClass *)this)->getId());
-    return TheNilObject;
-}
-
-RexxObject *Unicode::copyRexx()
-{
-    // This class cannot be copied because it holds tons of informations about the Unicode characters...
-    reportException(Error_Unsupported_copy_method, this);
-    return TheNilObject;
-}
-
-void *Unicode::operator new(size_t size)
-{
-    return new_object(size, T_Unicode);
-}
-
-void Unicode::live(size_t liveMark)
-{
-    memory_mark(this->objectVariables);
-}
-
-void Unicode::liveGeneral(int reason)
-{
-    memory_mark_general(this->objectVariables);
-}
-
-void Unicode::flatten(RexxEnvelope *envelope)
-{
-    setUpFlatten(Unicode)
-    flatten_reference(newThis->objectVariables, envelope);
-    cleanUpFlatten
+    const char *errmsg = utf8proc_errmsg(errcode);
+    switch (errcode)
+    {
+        case UTF8PROC_ERROR_NOMEM:
+        case UTF8PROC_ERROR_OVERFLOW:
+            reportException(Error_System_resources_user_defined, errmsg);
+        case UTF8PROC_ERROR_INVALIDUTF8:
+        case UTF8PROC_ERROR_NOTASSIGNED:
+            reportException(Error_Invalid_character_string_user_defined, errmsg);
+        case UTF8PROC_ERROR_INVALIDOPTS:
+            reportException(Error_Invalid_argument_user_defined, errmsg);
+        default:
+            reportException(Error_System_service_user_defined, errmsg);
+    }
 }
 
 size_t nonNegativeInteger(RexxObject *obj, const char *errorMessage)
@@ -191,6 +203,74 @@ bool isLittleEndian()
     return *((int8_t*)&v64) == 1;
 }
 
+
+RexxString *normalize(RexxString *string, utf8proc_option_t options)
+{
+    utf8proc_uint8_t *retval;
+    const utf8proc_uint8_t *str = (utf8proc_uint8_t *)string->getStringData();
+    utf8proc_ssize_t strlength = (utf8proc_ssize_t)size_v(string->getBLength());
+    utf8proc_ssize_t reslength = utf8proc_map(str, strlength, &retval, options);
+    if (reslength < 0) raiseError(reslength); // here, reslength is an error code
+    // Not so easy to optimize memory allocation...
+    // utf8proc_map allocates a buffer of 32-bit codepoints
+    // and then reuse this same buffer to convert to utf-8
+    // In the end, the buffer is reallocated to shrink it.
+    RexxString *result = new_string((const char *)retval, sizeB_v(reslength));
+    free(retval);
+    return result;
+}
+
+
+/******************************************************************************/
+/*                                                                            */
+/* Unicode Class                                                              */
+/*                                                                            */
+/******************************************************************************/
+
+// singleton class instance
+RexxClass *Unicode::classInstance = OREF_NULL;
+
+
+void Unicode::createInstance()
+{
+    CLASS_CREATE(Unicode, "Unicode", RexxClass);
+}
+
+RexxObject *Unicode::newRexx(RexxObject **init_args, size_t argCount, size_t named_argCount)
+{
+    // This class has no instance...
+    reportException(Error_Unsupported_new_method, ((RexxClass *)this)->getId());
+    return TheNilObject;
+}
+
+RexxObject *Unicode::copyRexx()
+{
+    // This class cannot be copied because it holds tons of informations about the Unicode characters...
+    reportException(Error_Unsupported_copy_method, this);
+    return TheNilObject;
+}
+
+void *Unicode::operator new(size_t size)
+{
+    return new_object(size, T_Unicode);
+}
+
+void Unicode::live(size_t liveMark)
+{
+    memory_mark(this->objectVariables);
+}
+
+void Unicode::liveGeneral(int reason)
+{
+    memory_mark_general(this->objectVariables);
+}
+
+void Unicode::flatten(RexxEnvelope *envelope)
+{
+    setUpFlatten(Unicode)
+    flatten_reference(newThis->objectVariables, envelope);
+    cleanUpFlatten
+}
 
 RexxString *Unicode::version()
 {
@@ -464,4 +544,27 @@ RexxInteger *Unicode::codepointIsUpper(RexxObject *rexxCodepoint)
     utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointIsUpper: codepoint must be an integer");
     return utf8proc_isupper(codepoint) ? TheTrueObject : TheFalseObject;
 
+}
+
+
+RexxString *Unicode::NFD(RexxString *str)
+{
+    return normalize(str, utf8proc_option_t(UTF8PROC_STABLE | UTF8PROC_DECOMPOSE));
+}
+
+RexxString *Unicode::NFC(RexxString *str)
+{
+    return normalize(str, utf8proc_option_t(UTF8PROC_STABLE | UTF8PROC_COMPOSE));
+}
+
+
+RexxString *Unicode::NFKD(RexxString *str)
+{
+    return normalize(str, utf8proc_option_t(UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT));
+}
+
+
+RexxString *Unicode::NFKC(RexxString *str)
+{
+    return normalize(str, utf8proc_option_t(UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT));
 }

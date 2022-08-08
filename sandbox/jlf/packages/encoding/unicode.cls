@@ -22,6 +22,10 @@ RexxInteger *codepointToUpper(RexxObject *rexxCodepoint);
 RexxInteger *codepointToTitle(RexxObject *rexxCodepoint);
 RexxInteger *codepointIsLower(RexxObject *rexxCodepoint);
 RexxInteger *codepointIsUpper(RexxObject *rexxCodepoint);
+RexxString *NFD(RexxString *str);
+RexxString *NFC(RexxString *str);
+RexxString *NFKD(RexxString *str);
+RexxString *NFKC(RexxString *str);
 */
 
 

@@ -2,7 +2,271 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
-(next)
+07/08/2022
+
+[Encoded strings]
+
+Added normalization NFC, NFD, NFKC, NFKD.
+http://unicode.org/faq/normalization.html
+Implemented with utf8proc.
+
+Methods on RexxText:
+    ~NFC    ~isNFC
+    ~NFD    ~isNFD
+    ~NFKC   ~isNFKC
+    ~NFKD   ~isNFKD
+
+Possible values for isNFxx:
+    -1  unknown
+     0  no
+     1  yes
+A same text can be in several normalization forms.
+Text exclusively containing ASCII characters (U+0000..U+007F) is left unaffected
+by all of the Normalization Forms: The 4 indicators isNFxx are 1.
+
+The methods NFxx sets the corresponding indicator isNFxx
+- on the source text : 0 or 1 (test if both strings are equal)
+- on the result text : 1
+
+The normalized text can be memorized on the original text:
+    text = "père Noël"~text
+    textNFD = text~nfd(memorize:.true)      -- abbreviation mem:.true
+From now, the returned NFD is always the memorized text:
+    text~nfd == textNFD                     -- .true
+Each normalized form can be memorized, so up to 4 values on a same RexxText.
+
+
+/*
+    Some remarks about the string used in this demo:
+    - the first "äöü" is NFC, the second "äöü" is NFD
+    -"x̂" is two codepoints in any normalization.
+    - "ϔ" normalization forms are all different.
+    - "ﷺ" is one of the worst cases regarding the expansion factor in NFKS/NFKS: 18x
+    - "baﬄe"~text~subchar(3)=     -- T'ﬄ'
+      "baﬄe"~text~upper=          -- T'BAﬄE', not BAFFLE
+      The ligature disappears in NFK[CD] but not in NF[CD]
+*/
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~characters==
+    an Array (shape [22~], 22 items)
+     1  : ( "ä"   U+00E4 Ll 1 "LATIN SMALL LETTER A WITH DIAERESIS" )
+     2  : ( "ö"   U+00F6 Ll 1 "LATIN SMALL LETTER O WITH DIAERESIS" )
+     3  : ( "ü"   U+00FC Ll 1 "LATIN SMALL LETTER U WITH DIAERESIS" )
+     4  : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     5  : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
+     6  : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
+     7  : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
+     8  : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
+     9  : ( "u"   U+0075 Ll 1 "LATIN SMALL LETTER U" )
+     10 : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
+     11 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     12 : ( "x"   U+0078 Ll 1 "LATIN SMALL LETTER X" )
+     13 : ( "̂"    U+0302 Mn 0 "COMBINING CIRCUMFLEX ACCENT" )
+     14 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     15 : ( "ϔ"   U+03D4 Lu 1 "GREEK UPSILON WITH DIAERESIS AND HOOK SYMBOL" )
+     16 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     17 : ( "ﷺ"   U+FDFA Lo 1 "ARABIC LIGATURE SALLALLAHOU ALAYHE WASALLAM" )
+     18 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     19 : ( "b"   U+0062 Ll 1 "LATIN SMALL LETTER B" )
+     20 : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
+     21 : ( "ﬄ"   U+FB04 Ll 1 "LATIN SMALL LIGATURE FFL" )
+     22 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
+
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~description=      -- 'UTF-8 not-ASCII (18 graphemes, 22 codepoints, 34 bytes, 0 error)'
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~upper=            -- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE
+
+/*
+    NFD
+    Normalization Form D
+    Canonical Decomposition
+    Characters are decomposed by canonical equivalence, and multiple combining characters are arranged in a specific order.
+*/
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~characters==
+    an Array (shape [26], 26 items)
+     1  : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
+     2  : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
+     3  : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
+     4  : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
+     5  : ( "u"   U+0075 Ll 1 "LATIN SMALL LETTER U" )
+     6  : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
+     7  : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     8  : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
+     9  : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
+     10 : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
+     11 : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
+     12 : ( "u"   U+0075 Ll 1 "LATIN SMALL LETTER U" )
+     13 : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
+     14 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     15 : ( "x"   U+0078 Ll 1 "LATIN SMALL LETTER X" )
+     16 : ( "̂"    U+0302 Mn 0 "COMBINING CIRCUMFLEX ACCENT" )
+     17 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     18 : ( "ϒ"   U+03D2 Lu 1 "GREEK UPSILON WITH HOOK SYMBOL" )
+     19 : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
+     20 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     21 : ( "ﷺ"   U+FDFA Lo 1 "ARABIC LIGATURE SALLALLAHOU ALAYHE WASALLAM" )
+     22 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     23 : ( "b"   U+0062 Ll 1 "LATIN SMALL LETTER B" )
+     24 : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
+     25 : ( "ﬄ"   U+FB04 Ll 1 "LATIN SMALL LIGATURE FFL" )
+     26 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
+
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~description=  -- 'UTF-8 not-ASCII (18 graphemes, 26 codepoints, 39 bytes, 0 error)'
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~upper=        -- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
+
+/*
+    NFC
+    Normalization Form C
+    Canonical Decomposition, followed by Canonical Composition
+    Characters are decomposed and then recomposed by canonical equivalence.
+*/
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~characters==
+    an Array (shape [19], 19 items)
+     1  : ( "ä"   U+00E4 Ll 1 "LATIN SMALL LETTER A WITH DIAERESIS" )
+     2  : ( "ö"   U+00F6 Ll 1 "LATIN SMALL LETTER O WITH DIAERESIS" )
+     3  : ( "ü"   U+00FC Ll 1 "LATIN SMALL LETTER U WITH DIAERESIS" )
+     4  : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     5  : ( "ä"   U+00E4 Ll 1 "LATIN SMALL LETTER A WITH DIAERESIS" )
+     6  : ( "ö"   U+00F6 Ll 1 "LATIN SMALL LETTER O WITH DIAERESIS" )
+     7  : ( "ü"   U+00FC Ll 1 "LATIN SMALL LETTER U WITH DIAERESIS" )
+     8  : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     9  : ( "x"   U+0078 Ll 1 "LATIN SMALL LETTER X" )
+     10 : ( "̂"    U+0302 Mn 0 "COMBINING CIRCUMFLEX ACCENT" )
+     11 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     12 : ( "ϔ"   U+03D4 Lu 1 "GREEK UPSILON WITH DIAERESIS AND HOOK SYMBOL" )
+     13 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     14 : ( "ﷺ"   U+FDFA Lo 1 "ARABIC LIGATURE SALLALLAHOU ALAYHE WASALLAM" )
+     15 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     16 : ( "b"   U+0062 Ll 1 "LATIN SMALL LETTER B" )
+     17 : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
+     18 : ( "ﬄ"   U+FB04 Ll 1 "LATIN SMALL LIGATURE FFL" )
+     19 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
+
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~description=  -- 'UTF-8 not-ASCII (18 graphemes, 19 codepoints, 31 bytes, 0 error)'
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~upper=        -- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
+
+/*
+    NFKD
+    Normalization Form KD
+    Compatibility Decomposition (K is used to stand for compatibility to avoid confusion with the C standing for composition)
+    Characters are decomposed by compatibility, and multiple combining characters are arranged in a specific order.
+*/
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~characters==
+    an Array (shape [45], 45 items)
+     1  : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
+     2  : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
+     3  : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
+     4  : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
+     5  : ( "u"   U+0075 Ll 1 "LATIN SMALL LETTER U" )
+     6  : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
+     7  : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     8  : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
+     9  : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
+     10 : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
+     11 : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
+     12 : ( "u"   U+0075 Ll 1 "LATIN SMALL LETTER U" )
+     13 : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
+     14 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     15 : ( "x"   U+0078 Ll 1 "LATIN SMALL LETTER X" )
+     16 : ( "̂"    U+0302 Mn 0 "COMBINING CIRCUMFLEX ACCENT" )
+     17 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     18 : ( "Υ"   U+03A5 Lu 1 "GREEK CAPITAL LETTER UPSILON" )
+     19 : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
+     20 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     21 : ( "ص"   U+0635 Lo 1 "ARABIC LETTER SAD" )
+     22 : ( "ل"   U+0644 Lo 1 "ARABIC LETTER LAM" )
+     23 : ( "ى"   U+0649 Lo 1 "ARABIC LETTER ALEF MAKSURA" )
+     24 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     25 : ( "ا"   U+0627 Lo 1 "ARABIC LETTER ALEF" )
+     26 : ( "ل"   U+0644 Lo 1 "ARABIC LETTER LAM" )
+     27 : ( "ل"   U+0644 Lo 1 "ARABIC LETTER LAM" )
+     28 : ( "ه"   U+0647 Lo 1 "ARABIC LETTER HEH" )
+     29 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     30 : ( "ع"   U+0639 Lo 1 "ARABIC LETTER AIN" )
+     31 : ( "ل"   U+0644 Lo 1 "ARABIC LETTER LAM" )
+     32 : ( "ي"   U+064A Lo 1 "ARABIC LETTER YEH" )
+     33 : ( "ه"   U+0647 Lo 1 "ARABIC LETTER HEH" )
+     34 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     35 : ( "و"   U+0648 Lo 1 "ARABIC LETTER WAW" )
+     36 : ( "س"   U+0633 Lo 1 "ARABIC LETTER SEEN" )
+     37 : ( "ل"   U+0644 Lo 1 "ARABIC LETTER LAM" )
+     38 : ( "م"   U+0645 Lo 1 "ARABIC LETTER MEEM" )
+     39 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     40 : ( "b"   U+0062 Ll 1 "LATIN SMALL LETTER B" )
+     41 : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
+     42 : ( "f"   U+0066 Ll 1 "LATIN SMALL LETTER F" )
+     43 : ( "f"   U+0066 Ll 1 "LATIN SMALL LETTER F" )
+     44 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
+     45 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
+
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~description= -- 'UTF-8 not-ASCII (37 graphemes, 45 codepoints, 69 bytes, 0 error)'
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~upper=       -- T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE
+
+/*
+    NFKC
+    Normalization Form KC
+    Compatibility Decomposition, followed by Canonical Composition
+    Characters are decomposed by compatibility, then recomposed by canonical equivalence.
+*/
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~characters==
+    an Array (shape [38], 38 items)
+     1  : ( "ä"   U+00E4 Ll 1 "LATIN SMALL LETTER A WITH DIAERESIS" )
+     2  : ( "ö"   U+00F6 Ll 1 "LATIN SMALL LETTER O WITH DIAERESIS" )
+     3  : ( "ü"   U+00FC Ll 1 "LATIN SMALL LETTER U WITH DIAERESIS" )
+     4  : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     5  : ( "ä"   U+00E4 Ll 1 "LATIN SMALL LETTER A WITH DIAERESIS" )
+     6  : ( "ö"   U+00F6 Ll 1 "LATIN SMALL LETTER O WITH DIAERESIS" )
+     7  : ( "ü"   U+00FC Ll 1 "LATIN SMALL LETTER U WITH DIAERESIS" )
+     8  : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     9  : ( "x"   U+0078 Ll 1 "LATIN SMALL LETTER X" )
+     10 : ( "̂"    U+0302 Mn 0 "COMBINING CIRCUMFLEX ACCENT" )
+     11 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     12 : ( "Ϋ"   U+03AB Lu 1 "GREEK CAPITAL LETTER UPSILON WITH DIALYTIKA" )
+     13 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     14 : ( "ص"   U+0635 Lo 1 "ARABIC LETTER SAD" )
+     15 : ( "ل"   U+0644 Lo 1 "ARABIC LETTER LAM" )
+     16 : ( "ى"   U+0649 Lo 1 "ARABIC LETTER ALEF MAKSURA" )
+     17 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     18 : ( "ا"   U+0627 Lo 1 "ARABIC LETTER ALEF" )
+     19 : ( "ل"   U+0644 Lo 1 "ARABIC LETTER LAM" )
+     20 : ( "ل"   U+0644 Lo 1 "ARABIC LETTER LAM" )
+     21 : ( "ه"   U+0647 Lo 1 "ARABIC LETTER HEH" )
+     22 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     23 : ( "ع"   U+0639 Lo 1 "ARABIC LETTER AIN" )
+     24 : ( "ل"   U+0644 Lo 1 "ARABIC LETTER LAM" )
+     25 : ( "ي"   U+064A Lo 1 "ARABIC LETTER YEH" )
+     26 : ( "ه"   U+0647 Lo 1 "ARABIC LETTER HEH" )
+     27 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     28 : ( "و"   U+0648 Lo 1 "ARABIC LETTER WAW" )
+     29 : ( "س"   U+0633 Lo 1 "ARABIC LETTER SEEN" )
+     30 : ( "ل"   U+0644 Lo 1 "ARABIC LETTER LAM" )
+     31 : ( "م"   U+0645 Lo 1 "ARABIC LETTER MEEM" )
+     32 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     33 : ( "b"   U+0062 Ll 1 "LATIN SMALL LETTER B" )
+     34 : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
+     35 : ( "f"   U+0066 Ll 1 "LATIN SMALL LETTER F" )
+     36 : ( "f"   U+0066 Ll 1 "LATIN SMALL LETTER F" )
+     37 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
+     38 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
+
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~description= -- 'UTF-8 not-ASCII (37 graphemes, 38 codepoints, 61 bytes, 0 error)'
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~upper=       -- T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE'
+
+
+-- The normalization forms are implemented only for UTF-8 and WTF-8.
+"D800 DC01"x~text("utf16")~nfd~characters==         -- Method NFD is ABSTRACT and cannot be directly invoked.
+"D800 DC01"x~text("utf16")~utf8~nfd~characters==
+    an Array (shape [1], 1 items)
+     1 : ( "𐀁"   U+10001 Lo 1 "LINEAR B SYLLABLE B038 E" )
+"\uD800\uDC01"~text("wtf8")~unescape~nfd~characters==
+    an Array (shape [1], 1 items)
+     1 : ( "𐀁"   U+10001 Lo 1 "LINEAR B SYLLABLE B038 E" )
+
+-- If the WTF-8 string is not a valid UTF-8 string then an error is raised by utf8proc
+"D800"x     ~text("wtf16")~wtf8~nfd~characters==    -- Invalid UTF-8 string
+"\uD800"~text("wtf8")~unescape~nfd~characters==     -- Invalid UTF-8 string
+
+
+===============================================================================
+2022 August 03
 
 [Encoded strings]
 
@@ -48,7 +312,7 @@ https://discourse.julialang.org/t/stupid-question-on-unicode/27674/10
         ("\uD83D"~text~wtf8~unescape || "\uDE3F"~text~wtf8~unescape)~description=
         'WTF-8 not-ASCII (1 grapheme, 1 codepoint, 4 bytes, 0 error)'
 
-    Done, now "\uD83D\uDE3F"~text~wtf8~unescape~characters==    -- "😿"
+    Done, now "\uD83D\uDE3F"~text~wtf8~unescape=    -- "😿"
 
 
 [Encoded strings]
@@ -88,13 +352,6 @@ https://discourse.julialang.org/t/indexing-strings-by-unicode-code-point-instead
          9  : ( "1"   U+0031 Nd 1 "DIGIT ONE" )
          10 : ( "0"   U+0030 Nd 1 "DIGIT ZERO" )
          11 : ( "0"   U+0030 Nd 1 "DIGIT ZERO" )
-
-    -- the string "x̂" contains only one grapheme (one “user-visible” character)
-    -- but is two characters (two Unicode codepoints) in any normalization.
-    "x̂"~text~characters==
-        an Array (shape [2], 2 items)
-         1 : ( "x"   U+0078 Ll 1 "LATIN SMALL LETTER X" )
-         2 : ( "̂"    U+0302 Mn 0 "COMBINING CIRCUMFLEX ACCENT" )
 
 
 ===============================================================================

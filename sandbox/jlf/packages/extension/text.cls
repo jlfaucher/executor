@@ -1,11 +1,11 @@
-::extension RexxText                        inherit RexxTextInitializer
-::extension RexxText                        inherit RexxTextPrettyPrinter
-::extension RexxText                        inherit RexxTextContents
-::extension RexxText                        inherit RexxTextOperators
-::extension RexxText                        inherit RexxTextStringInterface
+::extension RexxText        inherit RexxTextInitializer
+::extension RexxText        inherit RexxTextPrettyPrinter
+::extension RexxText        inherit RexxTextContents
+::extension RexxText        inherit RexxTextOperators
+::extension RexxText        inherit RexxTextStringInterface
 
-::extension String                          inherit EncodedString
-::extension MutableBuffer                   inherit EncodedMutableBuffer
+::extension String          inherit EncodedString
+::extension MutableBuffer   inherit EncodedMutableBuffer
 
 ::requires "extension/string.cls"
 ::requires "encoding/stringEncoding.cls"
@@ -588,6 +588,38 @@ base class...
 
 
 ::method unescape
+    forward to (self~indexer)
+
+
+::method isNFC
+    forward to (self~indexer)
+
+
+::method NFC
+    forward to (self~indexer)
+
+
+::method isNFD
+    forward to (self~indexer)
+
+
+::method NFD
+    forward to (self~indexer)
+
+
+::method isNFKC
+    forward to (self~indexer)
+
+
+::method NFKC
+    forward to (self~indexer)
+
+
+::method isNFKD
+    forward to (self~indexer)
+
+
+::method NFKD
     forward to (self~indexer)
 
 

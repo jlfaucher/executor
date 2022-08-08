@@ -1116,6 +1116,10 @@ CPPM(Unicode::codepointToUpper),
 CPPM(Unicode::codepointToTitle),
 CPPM(Unicode::codepointIsLower),
 CPPM(Unicode::codepointIsUpper),
+CPPM(Unicode::NFD),
+CPPM(Unicode::NFC),
+CPPM(Unicode::NFKD),
+CPPM(Unicode::NFKC),
 
 NULL                                   /* final terminating method          */
 };

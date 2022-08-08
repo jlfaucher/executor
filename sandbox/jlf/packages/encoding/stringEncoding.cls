@@ -1,3 +1,5 @@
+::extension RexxText inherit RexxTextInternalFacade
+
 ::requires "extension/string.cls"   -- for escape3
 
 -- no need to requires text.cls because RexxText is a predefined class.
@@ -641,6 +643,14 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 
 /******************************************************************************/
+::class "RexxTextInternalFacade" mixinclass Object private
+
+-- Give access to the indexer of a RexxText
+::method internalIndexer -- should be package
+    return self~indexer
+
+
+/******************************************************************************/
 ::class "StringIndexer" mixinclass Object private -- abstract
 
 ::method name class abstract
@@ -984,6 +994,72 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         is same as
         System.out.println("a".length() + "b".length());
     */
+
+
+::attribute isNFC get
+    expose isNFC
+    if var("isNFC") then return isNFC
+    -- http://www.unicode.org/reports/tr15/#Implementation_Notes
+    -- Text exclusively containing ASCII characters (U+0000..U+007F) is left unaffected by all of the Normalization Forms
+    if self~string~isASCII then return .true
+    return -1   -- unknown
+    /*
+    I don't know how to implement this optimization:
+    http://www.unicode.org/reports/tr15/#Implementation_Notes
+    Text exclusively containing Latin-1 characters (U+0000..U+00FF) is left unaffected by NFC.
+    This is effectively the same as saying that all Latin-1 text is already normalized to NFC
+    */
+
+
+::attribute isNFC set private
+
+
+::method NFC abstract
+
+
+::attribute isNFD get
+    expose isNFD
+    if var("isNFD") then return isNFD
+    -- http://www.unicode.org/reports/tr15/#Implementation_Notes
+    -- Text exclusively containing ASCII characters (U+0000..U+007F) is left unaffected by all of the Normalization Forms
+    if self~string~isASCII then return 1
+    return -1   -- unknown
+
+
+::attribute isNFD set private
+
+
+::method NFD abstract
+
+
+::attribute isNFKC get
+    expose isNFKC
+    if var("isNFKC") then return isNFKC
+    -- http://www.unicode.org/reports/tr15/#Implementation_Notes
+    -- Text exclusively containing ASCII characters (U+0000..U+007F) is left unaffected by all of the Normalization Forms
+    if self~string~isASCII then return 1
+    return -1   -- unknown
+
+
+::attribute isNFKC set private
+
+
+::method NFKC abstract
+
+
+::attribute isNFKD get
+    expose isNFKD
+    if var("isNFKD") then return isNFKD
+    -- http://www.unicode.org/reports/tr15/#Implementation_Notes
+    -- Text exclusively containing ASCII characters (U+0000..U+007F) is left unaffected by all of the Normalization Forms
+    if self~string~isASCII then return 1
+    return -1   -- unknown
+
+
+::attribute isNFKD set private
+
+
+::method NFKD abstract
 
 
 /******************************************************************************/
@@ -2080,6 +2156,70 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         return .RexxText~new(.String~new(self~string), .Unicode8_Encoding)
     end
     forward class (super)
+
+
+::method NFD
+    expose nfd
+    use strict arg -- none
+    use strict named arg memorize(3)=.false
+    if var("nfd") then return nfd -- already memorized
+    if self~isNFD == 1 then textNFD = self~string~text -- already in normalized form D
+    else do
+        stringNFD = .Unicode~NFD(self~string)
+        self~isNFD = (stringNFD == self~string)
+        textNFD = .RexxText~new(stringNFD, self~class)
+        textNFD~internalIndexer~isNFD = .true
+    end
+    if memorize then nfd = textNFD
+    return textNFD
+
+
+::method NFC
+    expose nfc
+    use strict arg -- none
+    use strict named arg memorize(3)=.false
+    if var("nfc") then return nfc -- already memorized
+    if self~isNFC == 1 then textNFC = self~string~text -- already in normalized form C
+    else do
+        stringNFC = .Unicode~NFC(self~string)
+        self~isNFC = (stringNFC == self~string)
+        textNFC = .RexxText~new(stringNFC, self~class)
+        textNFC~internalIndexer~isNFC = .true
+    end
+    if memorize then nfc = textNFC
+    return textNFC
+
+
+::method NFKD
+    expose nfkd
+    use strict arg -- none
+    use strict named arg memorize(3)=.false
+    if var("nfkd") then return nfkd -- already memorized
+    if self~isNFKD == 1 then textNFKD = self~string~text -- already in normalized form KD
+    else do
+        stringNFKD = .Unicode~NFKD(self~string)
+        self~isNFKD = (stringNFKD == self~string)
+        textNFKD = .RexxText~new(stringNFKD, self~class)
+        textNFKD~internalIndexer~isNFKD = .true
+    end
+    if memorize then nfkd = textNFKD
+    return textNFKD
+
+
+::method NFKC
+    expose nfkc
+    use strict arg -- none
+    use strict named arg memorize(3)=.false
+    if var("nfkc") then return nfkc -- already memorized
+    if self~isNFKC == 1 then textNFKC = self~string~text -- already in normalized form KC
+    else do
+        stringNFKC = .Unicode~NFKC(self~string)
+        self~isNFKC = (stringNFKC == self~string)
+        textNFKC = .RexxText~new(stringNFKC, self~class)
+        textNFKC~internalIndexer~isNFKC = .true
+    end
+    if memorize then nfkc = textNFKC
+    return textNFKC
 
 
 /******************************************************************************/
