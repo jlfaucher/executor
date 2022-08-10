@@ -14,6 +14,52 @@ The imported routines and classes are merged in a RexxDirectory : merged_public_
 My understanding : that avoids to walk through all the imported packages to find the routine/class.
 See RexxSource::mergeRequired(RexxSource *source)
 
+
+oorexx5
+PackageClass.hpp
+    inline StringTable *getInstalledClasses() { install(); return installedClasses; }
+    inline StringTable *getInstalledPublicClasses() { install(); return installedPublicClasses; }
+    inline StringTable *getImportedClasses() { install(); return mergedPublicClasses; }
+    inline StringTable *getInstalledRoutines() { install(); return routines; }
+    inline StringTable *getInstalledPublicRoutines() { install(); return publicRoutines; }
+    inline StringTable *getImportedRoutines() { install(); return mergedPublicRoutines; }
+    inline StringTable *getDefinedMethods() { install(); return unattachedMethods; }
+    inline ArrayClass  *getPackages() { install(); return loadedPackages; }
+    inline StringTable *getResources() { install(); return resources; }
+    inline StringTable *getNamespaces() { install(); return namespaces; }
+
+PackageClass::mergeRequired
+    PackageClass::addPackage
+        PackageClass::loadRequires (2 methods)
+            RequiresDirective::install
+                PackageClass::processInstall
+                    PackageClass::install (inline in PackageClass.hpp
+                        RexxCode::install (inline)
+                            RexxActivation::run
+                                RexxCode::call
+                                    RoutineClass::call
+                                        PackageClass::runProlog
+                                            InterpreterInstance::loadRequires
+                                                PackageClass::loadRequires
+                                                    RequiresDirective::install
+        PackageClass::addPackageRexx
+        LibraryPackage::loadRoutines
+
+10/08/2022
+https://sourceforge.net/p/oorexx/bugs/1837/
+https://sourceforge.net/p/oorexx/code-0/12499/
+Rick applied a fix to raise an error in case of cicular ::requires
+For
+p0 --> p1 --> p2 --+       from p1, C1 and C2 are visble
+       ^           |       from p2, C1 is not visble, C2 is visible
+       +-----------+
+we have now
+    10 *-* ::requires "p1.cls"
+    10 *-* ::requires "p2.cls"
+    23 *-* ::requires "p1.cls"
+Error 98 running /local/rexx/oorexx/scripts/visibilty/p2.cls line 10:  Execution error.
+Error 98.952:  Circular ::REQUIRES references detected with /local/rexx/oorexx/scripts/visibilty/p1.cls.
+
 ----------
 
 void RequiresDirective::install(RexxActivation *context)
