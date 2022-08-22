@@ -2,6 +2,33 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+18/08/2022
+
+[Encoded strings]
+
+Added Unicode case-folding.
+See https://www.w3.org/TR/charmod-norm/
+Case folding is the process of making two texts which differ only in case identical for comparison purposes.
+Implemented with utf8proc, which applies an NFKC normalization on the case-folded string.
+
+Methods on RexxText:
+    ~Casefold   ~isCasefold
+
+"ß"~text~casefold=              -- T'ss'
+"㎒"~text~casefold=              -- T'mhz'
+
+
+-- utf8proc doesn't support language-sensitive case-folding.
+-- Example:
+-- The name of the second largest city in Turkey is "Diyarbakır", which contains both the dotted and dotless letters i.
+"Diyarbakır"~text~upper=        -- T'DIYARBAKIR'   should be DİYARBAKIR
+"DİYARBAKIR"~text~casefold=     -- T'di̇yarbakir'   should be diyarbakır
+
+The Julia developers, who uses utf8proc, have decided to remain locale-independent.
+See https://github.com/JuliaLang/julia/issues/7848
+
+
+===============================================================================
 07/08/2022
 
 [Encoded strings]
@@ -39,7 +66,7 @@ Each normalized form can be memorized, so up to 4 values on a same RexxText.
 /*
     Some remarks about the string used in this demo:
     - the first "äöü" is NFC, the second "äöü" is NFD
-    -"x̂" is two codepoints in any normalization.
+    - "x̂" is two codepoints in any normalization.
     - "ϔ" normalization forms are all different.
     - "ﷺ" is one of the worst cases regarding the expansion factor in NFKS/NFKS: 18x
     - "baﬄe"~text~subchar(3)=     -- T'ﬄ'

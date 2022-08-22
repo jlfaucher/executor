@@ -1120,6 +1120,7 @@ CPPM(Unicode::NFD),
 CPPM(Unicode::NFC),
 CPPM(Unicode::NFKD),
 CPPM(Unicode::NFKC),
+CPPM(Unicode::NFKC_Casefold),
 
 NULL                                   /* final terminating method          */
 };

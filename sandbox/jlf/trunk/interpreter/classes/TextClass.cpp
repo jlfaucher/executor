@@ -568,3 +568,9 @@ RexxString *Unicode::NFKC(RexxString *str)
 {
     return normalize(str, utf8proc_option_t(UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT));
 }
+
+
+RexxString *Unicode::NFKC_Casefold(RexxString *str)
+{
+    return normalize(str, utf8proc_option_t(UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD | UTF8PROC_IGNORE));
+}

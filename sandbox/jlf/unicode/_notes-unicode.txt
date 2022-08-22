@@ -227,6 +227,7 @@ Number sets in HTML and Unicode
 https://gregtatum.com/writing/2021/encoding-text-utf-32-utf-16-unicode/
 https://gregtatum.com/writing/2021/encoding-text-utf-8-unicode/
 
+
 ================================================================================
 U+ notation, Unicode escape sequence
 ================================================================================
@@ -740,6 +741,18 @@ The Korean Writing System
 
 
 ================================================================================
+String Matching
+================================================================================
+
+https://www.w3.org/TR/charmod-norm/
+String matching
+
+Case folding is the process of making two texts which differ only in case identical for comparison purposes, that is, it is meant for the purpose of string matching.
+This is distinct from case mapping, which is primarily meant for display purposes.
+As with the default case mappings, Unicode defines default case fold mappings ("case folding") for each Unicode code point.
+
+
+================================================================================
 Fuzzy String Matching
 ================================================================================
 
@@ -874,8 +887,8 @@ https://en.wikipedia.org/wiki/Unicode_equivalence
 Short definition of NFD, NFC, NFKD, NFKC
 
     In this article, a short paragraph which confirms that it's important to keep
-    the original string unchanges !
-    Errors due to normalization differences[edit]
+    the original string unchanged !
+    Errors due to normalization differences
     When two applications share Unicode data, but normalize them differently, errors and data loss can result.
     In one specific instance, OS X normalized Unicode filenames sent from the Samba file- and printer-sharing software.
     Samba did not recognise the altered filenames as equivalent to the original, leading to data loss.[4][5]
@@ -1469,6 +1482,14 @@ https://news.ycombinator.com/item?id=29022906
 
 
 ================================================================================
+terminal / console
+================================================================================
+
+https://www.reddit.com/r/bash/comments/wfbf3w/determine_if_the_termconsole_supports_utf8/
+Determine if the term/console supports UTF8?
+
+
+================================================================================
 Language comparison
 ================================================================================
 
@@ -1477,7 +1498,7 @@ Vim, Python, Julia and Rust.
 
 
 ================================================================================
-Ada
+Ada lang
 ================================================================================
 
 https://docs.adacore.com/live/wave/xmlada/html/xmlada_ug/unicode.html
@@ -1489,7 +1510,7 @@ https://www.reddit.com/r/ada/comments/t4hpip/ann_uxstrings_package_available_uxs
 https://github.com/Blady-Com/UXStrings
 
 ================================================================================
-C++, Boost
+C++ lang, Boost
 ================================================================================
 
 02/06/2021
@@ -1583,7 +1604,7 @@ Scenarios and Design Philosophy - UTF-8 string support
 
 
 ================================================================================
-Dafny
+Dafny lang
 ================================================================================
 
 https://corp.unicode.org/pipermail/unicode/2021-May/009434.html
@@ -1594,7 +1615,7 @@ so the primary interface must be highly functional and encoding neutral.
 
 
 ================================================================================
-Factor
+Factor lang
 ================================================================================
 
 http://docs.factorcode.org/content/article-unicode.html
@@ -1650,7 +1671,7 @@ UTF-8/16 encoder/decoder
 
 
 ================================================================================
-JavaScript
+JavaScript lang
 ================================================================================
 
 https://certitude.consulting/blog/en/invisible-backdoor/
@@ -1658,8 +1679,11 @@ THE INVISIBLE JAVASCRIPT BACKDOOR
 
 
 ================================================================================
-Julia
+Julia lang
 ================================================================================
+
+Remember: search in issues with "utf8proc in:title,body"
+
 
 https://docs.julialang.org/en/v1/manual/strings/
     You can input any Unicode character in single quotes using \u followed by up to
@@ -1704,8 +1728,38 @@ https://discourse.julialang.org/t/stupid-question-on-unicode/27674/7
     Discussion about escape sequence
 
 
+https://docs.julialang.org/en/v1/stdlib/Unicode/
+Unicode.julia_chartransform(c::Union{Char,Integer})
+Unicode.isassigned(c) -> Bool
+isequal_normalized(s1::AbstractString, s2::AbstractString; casefold=false, stripmark=false, chartransform=identity)
+Unicode.normalize(s::AbstractString; keywords...)
+    boolean keywords options (which all default to false except for compose)
+        - compose=false: do not perform canonical composition
+        - decompose=true: do canonical decomposition instead of canonical composition (compose=true is ignored if present)
+        - compat=true: compatibility equivalents are canonicalized
+        - casefold=true: perform Unicode case folding, e.g. for case-insensitive string comparison
+        - newline2lf=true, newline2ls=true, or newline2ps=true: convert various newline sequences (LF, CRLF, CR, NEL) into a linefeed (LF), line-separation (LS), or paragraph-separation (PS) character, respectively
+        - stripmark=true: strip diacritical marks (e.g. accents)
+        - stripignore=true: strip Unicode's "default ignorable" characters (e.g. the soft hyphen or the left-to-right marker)
+        - stripcc=true: strip control characters; horizontal tabs and form feeds are converted to spaces; newlines are also converted to spaces unless a newline-conversion flag was specified
+        - rejectna=true: throw an error if unassigned code points are found
+        - stable=true: enforce Unicode versioning stability (never introduce characters missing from earlier Unicode versions)
+Unicode.normalize(s::AbstractString, normalform::Symbol)
+    normalform can be :NFC, :NFD, :NFKC, or :NFKD.
+
+
+utf8proc doesn't support language-sensitive case-folding
+Julia, which uses utf8proc, has decided to remain locale-independent.
+See https://github.com/JuliaLang/julia/issues/7848
+
+
+https://github.com/JuliaLang/julia/pull/42493
+This PR adds a function isequal_normalized to the Unicode stdlib to check whether
+two strings are canonically equivalent (optionally casefolding and/or stripping combining marks).
+
+
 ================================================================================
-Lisp
+Lisp lang
 ================================================================================
 
 14/09/2021
@@ -1772,7 +1826,7 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Character-Properties.h
 
 
 ================================================================================
-Mathematica
+Mathematica lang
 ================================================================================
 
 https://www.youtube.com/watch?v=yiwLBvirm7A
@@ -1781,7 +1835,7 @@ At the begining, there are a few minutes about character properties.
 
 
 ================================================================================
-MOAR-VM RAKU
+MOAR-VM RAKU lang
 ================================================================================
 
 29/05/2021
@@ -1848,7 +1902,7 @@ https://andrewshitov.com/2018/10/31/unicode-in-perl-6/
 Unicode in Raku
 
 ================================================================================
-Perl (Perl 6 has been renamed to Raku)
+Perl lang (Perl 6 has been renamed to Raku)
 ================================================================================
 
 https://swigunicode.wordpress.com/2021/10/18/example-post-3/
@@ -1877,7 +1931,7 @@ Unless one specifies otherwise, Perl 6 normalizes a text string to NFC when it's
 
 
 ================================================================================
-PHP
+PHP lang
 ================================================================================
 
 https://github.com/nicolas-grekas/Patchwork-UTF8
@@ -1885,7 +1939,7 @@ Extensive, portable and performant handling of UTF-8 and grapheme clusters for P
 
 
 ================================================================================
-Python
+Python lang
 ================================================================================
 
 10/08/2021
@@ -2142,8 +2196,12 @@ jlf: did not read in details, too long, too many feedbacks.
 Maybe some comments are interesting, so I save this URL.
 
 
+https://djangocas.dev/blog/python-unicode-string-lowercase-casefold-caseless-match/
+Interesting infos about caseless matching
+
+
 ================================================================================
-Rexx
+Rexx lang
 ================================================================================
 
 11/08/2021
@@ -2271,7 +2329,7 @@ Regina doc
 
 
 ================================================================================
-Rust
+Rust lang
 ================================================================================
 
 Seen in a comment here :  https://bugs.swift.org/browse/SR-7602
@@ -2337,7 +2395,7 @@ Allow non-ASCII letters (such as accented characters, Cyrillic, Greek, Kanji, et
 
 
 ================================================================================
-Swift
+Swift lang
 ================================================================================
 
 03/08/2021
@@ -2612,7 +2670,7 @@ Feedback from swift team
 
 
 ================================================================================
-Zig, Ziglyph
+Zig lang, Ziglyph
 ================================================================================
 
 04/07/2021

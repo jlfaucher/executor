@@ -623,6 +623,14 @@ base class...
     forward to (self~indexer)
 
 
+::method isCasefold
+    forward to (self~indexer)
+
+
+::method Casefold -- the utf8proc name is NFKC_Casefold
+    forward to (self~indexer)
+
+
 /******************************************************************************/
 ::class "RexxTextStringInterface" mixinclass Object private
 

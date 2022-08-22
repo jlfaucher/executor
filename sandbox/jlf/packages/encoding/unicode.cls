@@ -26,6 +26,7 @@ RexxString *NFD(RexxString *str);
 RexxString *NFC(RexxString *str);
 RexxString *NFKD(RexxString *str);
 RexxString *NFKC(RexxString *str);
+RexxString *NFKC_Casefold(RexxString *str);
 */
 
 

@@ -1464,6 +1464,7 @@ void RexxMemory::createImage(const char *imageTarget)
   defineKernelMethod("NFC" , TheUnicodeClassBehaviour, CPPM(Unicode::NFC), 1);
   defineKernelMethod("NFKD" , TheUnicodeClassBehaviour, CPPM(Unicode::NFKD), 1);
   defineKernelMethod("NFKC" , TheUnicodeClassBehaviour, CPPM(Unicode::NFKC), 1);
+  defineKernelMethod("NFKC_CASEFOLD" , TheUnicodeClassBehaviour, CPPM(Unicode::NFKC_Casefold), 1);
                                        /* set the scope of the methods to   */
                                        /* this classes oref                 */
   TheUnicodeClassBehaviour->setMethodDictionaryScope(TheUnicodeClass);

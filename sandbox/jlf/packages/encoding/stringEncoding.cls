@@ -1062,6 +1062,18 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 ::method NFKD abstract
 
 
+::attribute isCasefold get
+    expose isCasefold
+    if var("isCasefold") then return isCasefold
+    return -1   -- unknown
+
+
+::attribute isCasefold set private
+
+
+::method Casefold abstract
+
+
 /******************************************************************************/
 ::class "Byte_CommonServices" mixinclass Object private
 -- Services for byte-oriented strings (byte, utf-8, wtf-8)
@@ -2220,6 +2232,24 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     end
     if memorize then nfkc = textNFKC
     return textNFKC
+
+
+::method Casefold -- the utf8proc name is NFKC_Casefold
+    expose casefold
+    use strict arg -- none
+    use strict named arg memorize(3)=.false
+    if var("casefold") then return casefold -- already memorized
+    if self~isCasefold == 1 then textCasefold = self~string~text -- already in normalized form KC casefold
+    else do
+        stringCasefold = .Unicode~NFKC_Casefold(self~string)
+        self~isCasefold = (stringCasefold == self~string)
+        if self~isCasefold then self~isNFKC = .true -- utf8proc applies an NFKC normalization, so it's also NFKC
+        textCasefold = .RexxText~new(stringCasefold, self~class)
+        textCasefold~internalIndexer~isCasefold = .true
+        textCasefold~internalIndexer~isNFKC = .true -- utf8proc applies an NFKC normalization, so it's also NFKC
+    end
+    if memorize then casefold = textCasefold
+    return textCasefold
 
 
 /******************************************************************************/
