@@ -2,6 +2,30 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+31/08/2022
+
+[Unicode]
+
+Integration of Ziglyph.
+Ziglyph is an alternative to utf8proc, with more functionalities.
+https://github.com/jecolon/ziglyph
+https://zig.news/dude_the_builder/ziglyph-unicode-wrangling-llj
+
+Prerequisite: install zig and set PATH.
+https://ziglang.org/
+
+
+To demonstrate the integration, added title-casing using Ziglyph implementation.
+"hello john"~text~title=            -- T'Hello John'
+
+Available only for for UTF-8 and WTF-8.
+"hello"~text~utf16~title=           -- Method TITLE is ABSTRACT and cannot be directly invoked.
+
+If the UTF-8 string is ill-formed then an error is raised by Ziglyph.
+"DC00 D801 DC01"x~text~title=       -- StringToTitle raised an error.
+
+
+===============================================================================
 18/08/2022
 
 [Encoded strings]

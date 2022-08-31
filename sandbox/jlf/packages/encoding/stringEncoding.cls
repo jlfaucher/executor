@@ -996,6 +996,9 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     */
 
 
+::method title abstract
+
+
 ::attribute isNFC get
     expose isNFC
     if var("isNFC") then return isNFC
@@ -1320,8 +1323,8 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method grapheme
     -- 2 modes:
-    -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
-    -- otherwise return the encoded codepoint as a RexxText
+    -- if the buffer is passed as argument then append the grapheme to the buffer, and return the buffer
+    -- otherwise return the grapheme as a RexxText
     use strict arg indexG
     use strict named arg buffer(1)=.nil
     startB = self~graphemeIndex(indexG)
@@ -2108,8 +2111,8 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method grapheme
     -- 2 modes:
-    -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
-    -- otherwise return the encoded codepoint as a RexxText
+    -- if the buffer is passed as argument then append the grapheme to the buffer, and return the buffer
+    -- otherwise return the grapheme as a RexxText
     use strict arg indexG
     use strict named arg buffer(1)=.nil
     if .nil == self~graphemeIndexes, self~graphemeCount == self~string~length then do
@@ -2168,6 +2171,12 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         return .RexxText~new(.String~new(self~string), .Unicode8_Encoding)
     end
     forward class (super)
+
+
+::method title
+    use strict arg -- none
+    stringTitle = .Unicode~stringToTitle(self~string)
+    return .RexxText~new(stringTitle, self~class)
 
 
 ::method NFD
@@ -2605,8 +2614,8 @@ the concatenation back to WTF-8.
 
 ::method grapheme
     -- 2 modes:
-    -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
-    -- otherwise return the encoded codepoint as a RexxText
+    -- if the buffer is passed as argument then append the grapheme to the buffer, and return the buffer
+    -- otherwise return the grapheme as a RexxText
     use strict arg indexG
     use strict named arg buffer(1)=.nil
     startB = self~graphemeIndex(indexG)
@@ -3041,8 +3050,8 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 
 ::method grapheme
     -- 2 modes:
-    -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
-    -- otherwise return the encoded codepoint as a RexxText
+    -- if the buffer is passed as argument then append the grapheme to the buffer, and return the buffer
+    -- otherwise return the grapheme as a RexxText
     use strict arg indexG
     use strict named arg buffer(1)=.nil
     startB = self~graphemeIndex(indexG)
@@ -3382,8 +3391,8 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 
 ::method grapheme
     -- 2 modes:
-    -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
-    -- otherwise return the encoded codepoint as a RexxText
+    -- if the buffer is passed as argument then append the grapheme to the buffer, and return the buffer
+    -- otherwise return the grapheme as a RexxText
     use strict arg indexG
     use strict named arg buffer(1)=.nil
     startB = self~graphemeIndex(indexG)
@@ -3564,8 +3573,8 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 
 ::method grapheme
     -- 2 modes:
-    -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
-    -- otherwise return the encoded codepoint as a RexxText
+    -- if the buffer is passed as argument then append the grapheme to the buffer, and return the buffer
+    -- otherwise return the grapheme as a RexxText
     use strict arg indexG
     use strict named arg buffer(1)=.nil
     startB = self~graphemeIndex(indexG)
@@ -3747,8 +3756,8 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 
 ::method grapheme
     -- 2 modes:
-    -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
-    -- otherwise return the encoded codepoint as a RexxText
+    -- if the buffer is passed as argument then append the grapheme to the buffer, and return the buffer
+    -- otherwise return the grapheme as a RexxText
     use strict arg indexG
     use strict named arg buffer(1)=.nil
     startB = self~graphemeIndex(indexG)

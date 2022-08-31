@@ -40,6 +40,7 @@
 #include "ProtectedObject.hpp"
 #include "TextClass.hpp"
 #include "m17n/utf8proc/utf8proc.h"
+#include "m17n/cziglyph/src/cziglyph.h"
 
 
 /******************************************************************************/
@@ -207,7 +208,7 @@ bool isLittleEndian()
 RexxString *normalize(RexxString *string, utf8proc_option_t options)
 {
     utf8proc_uint8_t *retval;
-    const utf8proc_uint8_t *str = (utf8proc_uint8_t *)string->getStringData();
+    const utf8proc_uint8_t *str = (const utf8proc_uint8_t *)string->getStringData();
     utf8proc_ssize_t strlength = (utf8proc_ssize_t)size_v(string->getBLength());
     utf8proc_ssize_t reslength = utf8proc_map(str, strlength, &retval, options);
     if (reslength < 0) raiseError(reslength); // here, reslength is an error code
@@ -544,6 +545,20 @@ RexxInteger *Unicode::codepointIsUpper(RexxObject *rexxCodepoint)
     utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointIsUpper: codepoint must be an integer");
     return utf8proc_isupper(codepoint) ? TheTrueObject : TheFalseObject;
 
+}
+
+
+RexxString *Unicode::stringToTitle(RexxString *string)
+{
+    const uint8_t *str = (const uint8_t *)string->getStringData();
+    uintptr_t strlength = (uintptr_t)size_v(string->getBLength());
+    const uint8_t * out_utf8str;
+    uintptr_t out_length;
+    ziglyph_toTitleStr(str, strlength, &out_utf8str, &out_length);
+    if (out_utf8str == NULL) reportException(Error_System_service_user_defined, "StringToTitle raised an error");
+    RexxString *result = new_string((const char *)out_utf8str, sizeB_v(out_length));
+    free((void *)out_utf8str);
+    return result;
 }
 
 

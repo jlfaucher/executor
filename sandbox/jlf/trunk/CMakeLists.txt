@@ -984,6 +984,13 @@ add_library(rexx SHARED
             ${common_interpreter_sources}
             ${platform_interpreter_sources})
 
+set (cziglyph_build_zig ${CMAKE_CURRENT_SOURCE_DIR}/${build_classes_support_dir}/m17n/cziglyph/build.zig)
+set (cziglyph_cache ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/cziglyph/zig-cache)
+add_library(cziglyph STATIC
+            ${cziglyph_build_zig})
+set(CMAKE_ZIG_CREATE_STATIC_LIBRARY "zig build --build-file ${cziglyph_build_zig} --prefix ${CMAKE_CURRENT_BINARY_DIR} --cache-dir ${cziglyph_cache}")
+SET_TARGET_PROPERTIES(cziglyph PROPERTIES LINKER_LANGUAGE ZIG)
+
 set (core_platform_classes ${build_interpreter_platform_dir}/PlatformObjects.orx)
 # Include file definition
 target_include_directories(rexx PUBLIC
@@ -1010,7 +1017,7 @@ target_include_directories(rexx PUBLIC
             ${build_interpreter_platform_dir})
 
 # Extra link library definitions
-target_link_libraries(rexx rexxapi ${platform_interpreter_libs} ${CMAKE_REQUIRED_LIBRARIES})
+target_link_libraries(rexx rexxapi cziglyph ${platform_interpreter_libs} ${CMAKE_REQUIRED_LIBRARIES})
 install(TARGETS rexx RUNTIME DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core
                      LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core
                      ARCHIVE DESTINATION ${INSTALL_INCLUDE_DIR} COMPONENT DevLib)

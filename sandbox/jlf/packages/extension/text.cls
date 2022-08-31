@@ -591,6 +591,10 @@ base class...
     forward to (self~indexer)
 
 
+::method title
+    forward to (self~indexer)
+
+
 ::method isNFC
     forward to (self~indexer)
 
