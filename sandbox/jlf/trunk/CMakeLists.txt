@@ -984,12 +984,48 @@ add_library(rexx SHARED
             ${common_interpreter_sources}
             ${platform_interpreter_sources})
 
-set (cziglyph_build_zig ${CMAKE_CURRENT_SOURCE_DIR}/${build_classes_support_dir}/m17n/cziglyph/build.zig)
+if (WIN32)
+    set (cziglyph_target -Dtarget=x86_64-windows-msvc)
+else ()
+    # empty: use default target
+    set (cziglyph_target)
+endif ()
+
+# Bad practice but I don't know how to do differently
+# In multi-config generators, the CMAKE_CONFIGURATION_TYPES variable will be populated
+# For single-config generators, the configuration is specified with the CMAKE_BUILD_TYPE variable
+# We are in the case single-config (Makefile)
+string(TOLOWER ${CMAKE_BUILD_TYPE} build_type)
+if (build_type STREQUAL release)
+    set (cziglyph_build_mode -Drelease-fast)
+elseif (build_type STREQUAL relwithdebinfo)
+    # not equivalent, but I don't have better
+    set (cziglyph_build_mode -Drelease-safe)
+elseif (build_type STREQUAL minsizerel)
+    set (cziglyph_build_mode -Drelease-small)
+else ()
+    # empty: default mode is debug
+    set (cziglyph_build_mode)
+endif()
+
+set (cziglyph_dir ${CMAKE_CURRENT_SOURCE_DIR}/${build_classes_support_dir}/m17n/cziglyph)
+set (cziglyph_build_zig ${cziglyph_dir}/build.zig)
 set (cziglyph_cache ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/cziglyph/zig-cache)
+set (zig_build_cziglyph "zig build --verbose ${cziglyph_target} ${cziglyph_build_mode} --build-file ${cziglyph_build_zig} --prefix ${CMAKE_CURRENT_BINARY_DIR} --cache-dir ${cziglyph_cache}")
 add_library(cziglyph STATIC
             ${cziglyph_build_zig})
-set(CMAKE_ZIG_CREATE_STATIC_LIBRARY "zig build --build-file ${cziglyph_build_zig} --prefix ${CMAKE_CURRENT_BINARY_DIR} --cache-dir ${cziglyph_cache}")
+set(CMAKE_ZIG_CREATE_STATIC_LIBRARY "${zig_build_cziglyph}")
 SET_TARGET_PROPERTIES(cziglyph PROPERTIES LINKER_LANGUAGE ZIG)
+
+add_custom_target(build_cziglyph
+    # next line is not working, must repeat the full command :-(
+    # ${zig_build_cziglyph}
+    zig build --verbose ${cziglyph_target} ${cziglyph_build_mode} --build-file ${cziglyph_build_zig} --prefix ${CMAKE_CURRENT_BINARY_DIR} --cache-dir ${cziglyph_cache}
+    COMMENT "Building cziglyph...")
+add_dependencies(cziglyph build_cziglyph)
+
+message(STATUS "CMAKE_ZIG_CREATE_STATIC_LIBRARY is ${CMAKE_ZIG_CREATE_STATIC_LIBRARY}")
+
 
 set (core_platform_classes ${build_interpreter_platform_dir}/PlatformObjects.orx)
 # Include file definition
