@@ -43,8 +43,8 @@
     use strict named arg wholeString(1)=.true, caseless(1)=.true, trace(1)=.false, displayer(1)=.traceOutput, prefix(1)=""
     matcher = .nil
 
-    firstCharIsQuoted = stringChunkPattern~quotedFlags~subchar(1) == "1"
-    lastCharIsQuoted = stringChunkPattern~quotedFlags~subchar(stringPattern~length) == "1"
+    firstCharIsQuoted = stringChunkPattern~quotedFlags~left(1) == "1"
+    lastCharIsQuoted = stringChunkPattern~quotedFlags~right(1) == "1"
 
     -- Build a description of the matcher, will be displayed when tracing the filters.
     -- Remember: ALWAYS build this description, even if trace==.false.
@@ -52,7 +52,7 @@
     description = .array~new
     description~append("description:" "stringChunkPattern="stringPattern~quoted "wholeString="wholeString "caseless="caseless)
 
-    regularExpression = \firstCharIsQuoted & stringPattern~subchar(1) == "/"
+    regularExpression = \firstCharIsQuoted & stringPattern~left(1) == "/"
     if regularExpression then do
         if .Pattern~isa(.class), .Pattern~hasMethod("compile") then do
             -- Good, the package regex.cls is loaded
