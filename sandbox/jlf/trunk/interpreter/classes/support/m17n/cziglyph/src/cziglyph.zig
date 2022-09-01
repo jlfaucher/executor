@@ -59,6 +59,10 @@ export fn _availability_version_check(_: u32, _: [*c]const dyld_build_version_t)
 //------------------------------------------------------------------------------
 // Wrappers
 
+export fn ziglyph_free(memory: [*]const u8, length: usize) void {
+    std.heap.c_allocator.free(memory[0..length]);
+}
+
 // Caller must free out_utf8str
 export fn ziglyph_toTitleStr(utf8str: [*]const u8, length: usize, out_utf8str: *?[*]const u8, out_length: *usize) void {
     out_utf8str.* = null;

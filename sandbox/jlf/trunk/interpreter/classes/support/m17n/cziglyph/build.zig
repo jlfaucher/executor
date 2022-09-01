@@ -12,6 +12,7 @@ pub fn build(b: *std.build.Builder) void {
     const target = b.standardTargetOptions(.{});
     lib.setTarget(target);
     lib.linkLibC();
+    lib.linkLibCpp();
 
     //--------------------------------------------------------------------------
     // Workaround for:

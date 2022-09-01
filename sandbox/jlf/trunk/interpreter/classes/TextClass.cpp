@@ -557,7 +557,7 @@ RexxString *Unicode::stringToTitle(RexxString *string)
     ziglyph_toTitleStr(str, strlength, &out_utf8str, &out_length);
     if (out_utf8str == NULL) reportException(Error_System_service_user_defined, "StringToTitle raised an error");
     RexxString *result = new_string((const char *)out_utf8str, sizeB_v(out_length));
-    free((void *)out_utf8str);
+    ziglyph_free(out_utf8str, out_length);
     return result;
 }
 

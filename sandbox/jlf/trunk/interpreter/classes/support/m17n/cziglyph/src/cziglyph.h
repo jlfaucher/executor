@@ -7,6 +7,7 @@
 extern "C" {
 #endif
 
+void ziglyph_free(const uint8_t * memory, uintptr_t length);
 void ziglyph_toTitleStr(const uint8_t * utf8str, uintptr_t length, const uint8_t * * out_utf8str, uintptr_t * out_length);
 
 #ifdef __cplusplus
