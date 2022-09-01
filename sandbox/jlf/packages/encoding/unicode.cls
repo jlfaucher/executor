@@ -93,7 +93,7 @@ RexxString *NFKC_Casefold(RexxString *str);
     return .true
 
     error_range:
-    -- To be consistent with other checks, say the the lower limit is 0, even if -1 is a valid value
+    -- To be consistent with other checks, say the lower limit is 0, even if -1 is a valid value
     if .nil <> name then raise syntax 23.900 array ("Character '"name"': invalid codepoint" codepoint "("ppCodepoint(codepoint)"). Allowed range is 0..".Unicode~maxCodepoint)
                     else raise syntax 23.900 array ("Invalid codepoint" codepoint "("ppCodepoint(codepoint)"). Allowed range is 0..".Unicode~maxCodepoint)
 
@@ -198,15 +198,15 @@ RexxString *NFKC_Casefold(RexxString *str);
 
 
 ::method characters class
-    expose characters
+    expose characters characterNames
     use strict arg filter=.nil
     if .nil <> filter then do
         -- questionable: what's the best way to pass options to ~matcher?
         -- here, I pass ALL the named arguments
         -- I must explicitly pass NO positional argument.
-        forward message "matcher" arguments (.array~new(0)) to (filter) continue
-        matcher = result
-        return characters~select{expose matcher; matcher~(item~name)}
+        forward message "matcher" arguments (.array~new(0)) to (UAX44_LM2(filter)) continue
+        looseMatcher = result
+        return characterNames~each{ expose looseMatcher; if looseMatcher~(index) then .Unicode~character(item) }
     end
     return .UnicodeCharacterSupplier~new(characters) -- This supplier returns index-2
 
