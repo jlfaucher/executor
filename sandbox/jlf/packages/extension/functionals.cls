@@ -2,6 +2,33 @@
 This script needs a modified ooRexx interpreter which support extension of predefined ooRexx classes.
 */
 
+-- Filter
+::extension Collection          inherit CollectionFilter
+::extension OrderedCollection   inherit OrderedCollectionFilter
+::extension Supplier            inherit SupplierFilter
+::extension String              inherit StringFilter
+::extension MutableBuffer       inherit MutableBufferFilter
+
+-- Iterator
+::extension Collection          inherit CollectionIterator
+::extension Supplier            inherit SupplierIterator
+::extension String              inherit StringIterator
+::extension MutableBuffer       inherit MutableBufferIterator
+
+-- Reducer
+::extension Collection          inherit CollectionReducer
+::extension Supplier            inherit SupplierReducer
+::extension String              inherit StringReducer
+::extension MutableBuffer       inherit MutableBufferReducer
+
+-- Mapper
+::extension Collection          inherit CollectionMapper
+::extension String              inherit StringMapper
+::extension MutableBuffer       inherit MutableBufferMapper
+
+-- Repeater
+::extension String              inherit RepeaterCollector
+
 --::options trace i
 ::options NOMACROSPACE
 ::requires "extension/doers.cls"

@@ -1,8 +1,10 @@
 -- Compatibility with ooRexx5
 if \ .stringtable~isa(.class) then .environment["STRINGTABLE"] = .directory
 
+::extension MapCollection inherit MapCollectionInitializer
+::extension Collection    inherit CollectionPrettyPrinter
+
 --::options trace i
-::requires "extension/array.cls"
 
 /******************************************************************************/
 
@@ -28,8 +30,10 @@ See output of concurrency/generator-test.rex
 
 ::class "CollectionPrettyPrinter" mixinclass Object public
 
+::constant expandCollection 10 -- expand collections (other than array) having ~items <= this constant
+
 ::method ppString
-    use named arg ppOptions. = (.Stem~new), ppOptions.expandCollection = (.PrettyPrinter~expandCollection)
+    use named arg ppOptions. = (.Stem~new), ppOptions.expandCollection = (.CollectionPrettyPrinter~expandCollection)
 
     /*
        Workaround, the method ~ppString defined in array.cls is not called

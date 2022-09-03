@@ -50,6 +50,11 @@ a33~each=
 
 */
 
+::extension Array inherit ArrayInitializer
+::extension Array inherit ArrayPrettyPrinter
+::extension Array inherit ArrayOperators
+::extension Array inherit APLArray
+
 --::options trace i
 ::requires "extension/infinity.cls"
 ::requires "extension/collection.cls"
@@ -791,7 +796,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
         source:4,a1=['string1',v1='string2',[*v1,*a1],*a1] | inject:4,*a1
     */
     use strict arg maxItems=(-1), sparse="..", ellipsis="...", separator=",", val=(self), referencesTable=.nil, counter=({n=0; {expose n; n+=1; n}}~())
-    use named arg trace=.false, ppOptions. = (.Stem~new), ppOptions.expandCollection=(.PrettyPrinter~expandCollection)
+    use named arg trace=.false, ppOptions. = (.Stem~new), ppOptions.expandCollection=(.CollectionPrettyPrinter~expandCollection)
     if trace then .traceOutput~say("       >I> Method .ArrayPrettyPrinter~ppRepresentation")
     if trace then trace i
     -- Remember : this code has been duplicated in pipe.cls, routine dataflow_representation.

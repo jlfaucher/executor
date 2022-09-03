@@ -1,3 +1,24 @@
+-- Filter
+::extension Coactivity                      inherit CoactivityFilter
+::extension CoactivitySupplierForGeneration inherit CoactivitySupplierForGenerationFilter
+
+-- Iterator
+::extension Coactivity                      inherit CoactivityIterator
+::extension CoactivitySupplierForGeneration inherit CoactivitySupplierForGenerationIterator
+
+-- Reducer
+::extension Coactivity                      inherit CoactivityReducer
+
+-- Generator
+::extension Collection                      inherit CollectionGenerator
+::extension Coactivity                      inherit CoactivityGenerator
+::extension Supplier                        inherit SupplierGenerator
+::extension String                          inherit StringGenerator
+::extension MutableBuffer                   inherit MutableBufferGenerator
+
+-- Repeater
+::extension String                          inherit RepeaterGenerator
+
 --::options trace i
 ::options NOMACROSPACE
 ::requires "concurrency/coactivity.cls"

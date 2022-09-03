@@ -49,6 +49,8 @@
 
 .complex~initialize
 
+::extension String inherit ComplexString
+
 --::options trace i
 ::requires "rxmath" library
 ::requires "extension/novalue.cls"

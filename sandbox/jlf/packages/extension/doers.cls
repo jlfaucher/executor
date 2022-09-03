@@ -2,6 +2,12 @@
 This script needs a modified ooRexx interpreter which support extension of predefined ooRexx classes.
 */
 
+::extension Routine     inherit RoutineDoer
+::extension Method      inherit MethodDoer
+::extension RexxBlock   inherit RexxBlockDoer
+::extension Coactivity  inherit CoactivityDoer
+::extension String      inherit StringDoer
+
 --::options trace i
 ::options NOMACROSPACE
 ::requires "concurrency/coactivity.cls"

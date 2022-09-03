@@ -1,3 +1,5 @@
+::extension String inherit LogicalExtension
+
 --::options trace i
 ::requires "extension/doers.cls"
 
