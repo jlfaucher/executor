@@ -4,7 +4,7 @@
 # ./demo array
 # ./demo array force
 
-if [ -f ooRexxShell-demo-$1.txt ]
+if [ -f ooRexxShell-demo-$1.rex ]
 then
     [ "$2" = "force" ] && touch ooRexxShell-demo-$1.rex
     make ooRexxShell-demo-$1.cast

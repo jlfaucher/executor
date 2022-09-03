@@ -1,3 +1,4 @@
+loadPackage OK for extension/stringChunk.cls
 loadPackage OK for extension/extensions.cls
 loadLibrary OK for rxunixsys
 loadPackage OK for ncurses.cls
@@ -19,8 +20,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 19 Dec 2021
-Input queue name: S13d8cQ7fe648c030b0
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 12 Aug 2022
+Input queue name: S1056bQ7fc99fc03db0
 
 ----------------
 -- Text encoding
@@ -110,11 +111,11 @@ ooRexx[bash]> s2~text~string~length=              -- 3 bytes
 A String is linked to a RexxText, which itself is linked to this String:
 
     a String
-     ▲  text --------⮸ a RexxText
+     ▲  text --------> a RexxText
      │                     indexer (anEncoding)
      │                          codepoints (sequential access)
      │                          graphemes  (direct access)
-     +-----------------------⮷- string
+     +-<---------------------<- string
 
 The ooRexx programmer has the choice :
 - working with String at byte level
@@ -329,13 +330,14 @@ Strings of codepoints encoded as native integers.
 The method ~unicode returns one of these encodings, depending on the character
 with the largest Unicode codepoint (1, 2, or 4 bytes) in the source string.
 Unlike the flexible representation of Python, the 3 representions are first-class.
-No BOM, the endiannes is the CPU one. This is for internal use only.
+No BOM, the endiannes is the CPU one.
 Unicode32_Encoding can be used with utf8proc for the functions taking a buffer of 32-bit integers.
 
 -- Just an interpretative layer put above the string
 
 ooRexx[bash]> "côté"~text("unicode8")~pipe{item~description(s:1) ":" item~c2x}=
 'Unicode8 not-ASCII : 63 C3 B4 74 C3 A9'
+
 -- UTF-8 converted to Unicode8
 
 ooRexx[bash]> "côté"~text~unicode~pipe{item~description(s:1) ":" item~c2x}=
@@ -346,11 +348,13 @@ ooRexx[bash]> "noël‍👨‍👩‍👧"~text~maximumCodepoint~pipe{"U+"item~d
 
 ooRexx[bash]> "noël‍👨‍👩‍👧"~text~unicode~description(t:1)=              -- For this maximum codepoint, we need Unicode32
 'Unicode32 (5 graphemes (1 index from index 5), 10 codepoints (0 index), 40 bytes, 0 error)'
+
 -- The endianness of the UnicodeN_Encoding is the one of the machine.
 -- With an Intel CPU, it's little-endian.
 
 ooRexx[bash]> "noël‍👨‍👩‍👧"~text~unicode~c2x=
 '6E000000 6F000000 EB000000 6C000000 0D200000 68F40100 0D200000 69F40100 0D200000 67F40100'
+
 -- The default endianness for UTF32 is big-endian.
 
 ooRexx[bash]> "noël‍👨‍👩‍👧"~text~utf32~c2x=

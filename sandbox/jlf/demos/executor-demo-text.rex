@@ -17,7 +17,7 @@ Main ideas explored with this prototype :
 - The strings crossing the I/O barriers are kept unchanged.
 - Supported encodings : byte, UTF-8, UTF-16, UTF-32.
 */
-sleep 10 no prompt
+sleep 15 no prompt
 
 /*
 On my Mac, where locale returns :
@@ -66,11 +66,11 @@ sleep no prompt
 A String is linked to a RexxText, which itself is linked to this String:
 
     a String
-     ▲  text --------⮸ a RexxText
+     ▲  text --------> a RexxText
      │                     indexer (anEncoding)
      │                          codepoints (sequential access)
      │                          graphemes  (direct access)
-     +-----------------------⮷- string
+     +-<---------------------<- string
 
 The ooRexx programmer has the choice :
 - working with String at byte level
@@ -84,7 +84,7 @@ myString = myText~string
 myString=                       -- 'où as tu été ?'
 myString~length=                -- 18
 myText~length=                  -- 14
-sleep no prompt
+sleep 2 no prompt
 
 /*
                                 -- 1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18
@@ -93,7 +93,7 @@ myString                        -- 6F C3 B9 20 61 73 20 74 75 20 65 CC 81 74 C3 
 */
 sleep
 myString~eachC("c2x")=
-sleep no prompt
+sleep 5 no prompt
 
 /*
                                 -- 1  2     3  4  5  6  7  8  9  10       11 12    13 14
@@ -102,7 +102,7 @@ myText                          -- 6F C3B9  20 61 73 20 74 75 20 65 CC81  74 C3A
 */
 sleep
 myText~graphemes~each("c2x")=
-sleep no prompt
+sleep 5 no prompt
 
 /*
 CR+LF is a grapheme made of 2 codepoints.
@@ -110,20 +110,26 @@ LF+CR are 2 graphemes.
 */
 sleep
 "0D0A"x~text~description=
+sleep
 "0A0D"x~text~description=
-sleep no prompt
+sleep 2 no prompt
 
 /*
 More examples of encoded string
 */
 sleep
 "( ͡° ͜ʖ﻿ ͡°)"~text~description=
+sleep
 "( ͡° ͜ʖ﻿ ͡°)"~text~graphemes~each("c2x")=
+sleep
 "( ͡° ͜ʖ﻿ ͡°)"~text~codepoints~each{"U+"item~d2x}=
+sleep
 "(ノಠ益ಠ)ノ彡"~text~description=
+sleep
 "(ノಠ益ಠ)ノ彡"~text~graphemes~each("c2x")=
+sleep
 "(ノಠ益ಠ)ノ彡"~text~codepoints~each{"U+"item~d2x}=
-sleep no prompt
+sleep 5 no prompt
 
 /*
 U+FE0E VARIATION SELECTOR-15 (UTF-8: EF B8 8E)
@@ -144,7 +150,9 @@ sleep
 emoji_bag = .bag~of('❤', '❤️', '❄', '❄︎', '❄️', '⚪', '⚪️', '⚫', '⚫️')
 emoji_table = emoji_bag~table~map("text")
 emoji_table~map("c2x")==
+sleep
 emoji_table~map("c2u")==
+sleep no prompt
 /*
 The tables above are not well aligned
 because the alignement is based on the length of the indexes,
@@ -161,10 +169,13 @@ sleep
 family = "👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦"
 family=
 family~text~description=                              -- 1 grapheme, 15 codepoints, 53 bytes
+sleep
 family~text~c2x=
+sleep
 family~text~c2u=
+sleep
 family~text~c2g=
-sleep no prompt
+sleep 5 no prompt
 
 /*
 https://onlineunicodetools.com/generate-zalgo-unicode
@@ -176,10 +187,13 @@ sleep
 helloZalgo = "h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞"
 helloZalgo =
 helloZalgo~text~description=                          -- 5 graphemes, 54 codepoints, 111 bytes
+sleep
 helloZalgo~text~c2x=
+sleep
 helloZalgo~text~c2u=
+sleep
 helloZalgo~text~c2g=
-sleep no prompt
+sleep 5 no prompt
 
 /*
 Supported encoding conversions:
@@ -195,7 +209,7 @@ The Byte_Encoding can be specialized to add support for specific encoding conver
 */
 sleep
 .Encoding~supported~table==
-sleep no prompt
+sleep 10 no prompt
 
 /*
 Example: CP1252 to UTF-8
@@ -205,12 +219,15 @@ sleep
 str_cp1252 = "Un " || "9C"x || "uf de chez MaPoule" || "99"x || " co" || "FB"x || "te " || "B1"x || "0.40" || "80"x
 txt_cp1252 = str_cp1252~text("cp1252")
 txt_cp1252~description=
+sleep
 txt_cp1252~c2x=
+sleep
 txt_utf8 = txt_cp1252~utf8
 txt_utf8=
 txt_utf8~description=
+sleep
 txt_utf8~c2x=
-sleep no prompt
+sleep 5 no prompt
 
 /*
 Strings of codepoints encoded as native integers.
@@ -221,20 +238,27 @@ Strings of codepoints encoded as native integers.
 The method ~unicode returns one of these encodings, depending on the character
 with the largest Unicode codepoint (1, 2, or 4 bytes) in the source string.
 Unlike the flexible representation of Python, the 3 representions are first-class.
-No BOM, the endiannes is the CPU one. This is for internal use only.
+No BOM, the endiannes is the CPU one.
 Unicode32_Encoding can be used with utf8proc for the functions taking a buffer of 32-bit integers.
 */
 sleep no prompt
 
 -- Just an interpretative layer put above the string
 "côté"~text("unicode8")~pipe{item~description(s:1) ":" item~c2x}=
+sleep no prompt
+
 -- UTF-8 converted to Unicode8
 "côté"~text~unicode~pipe{item~description(s:1) ":" item~c2x}=
+sleep
 "noël‍👨‍👩‍👧"~text~maximumCodepoint~pipe{"U+"item~d2x}=   -- U+1F469 is the maximum codepoint
 "noël‍👨‍👩‍👧"~text~unicode~description(t:1)=              -- For this maximum codepoint, we need Unicode32
+sleep no prompt
+
 -- The endianness of the UnicodeN_Encoding is the one of the machine.
 -- With an Intel CPU, it's little-endian.
 "noël‍👨‍👩‍👧"~text~unicode~c2x=
+sleep no prompt
+
 -- The default endianness for UTF32 is big-endian.
 "noël‍👨‍👩‍👧"~text~utf32~c2x=
 sleep no prompt
@@ -249,23 +273,38 @@ The description includes technical informations (t:1) about the internal tables 
 sleep
 howMuchOfStorage = "how much of storage?"
 howMuchOfStorage~text~description(t:1)=         -- UTF-8:     20 graphemes, 20 codepoints,  20 bytes
+sleep
 howMuchOfStorage~text~utf16~description(t:1)=   -- UTF-16:    20 graphemes, 20 codepoints,  40 bytes
+sleep
 howMuchOfStorage~text~utf32~description(t:1)=   -- UTF-32:    20 graphemes, 20 codepoints,  80 bytes
+sleep
 howMuchOfStorage~text~unicode~description(t:1)= -- Unicode8:  20 graphemes, 20 codepoints,  20 bytes
+sleep
 rexCharacters = "'rex' in their name: ꎅ ꎜ ꏑ 🦖"
 rexCharacters~text~description(t:1)=            -- UTF-8:     28 graphemes, 28 codepoints,  37 bytes
+sleep
 rexCharacters~text~utf16~description(t:1)=      -- UTF-16:    28 graphemes, 28 codepoints,  58 bytes
+sleep
 rexCharacters~text~utf32~description(t:1)=      -- UTF-32:    28 graphemes, 28 codepoints, 112 bytes
+sleep
 rexCharacters~text~unicode~description(t:1)=    -- Unicode32: 28 graphemes, 28 codepoints, 112 bytes
+sleep
 family = "👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦"
 family~text~description(t:1)=                   -- UTF-8:      1 grapheme,  15 codepoints,  53 bytes
+sleep
 family~text~utf16~description(t:1)=             -- UTF-16:     1 grapheme,  15 codepoints,  46 bytes
+sleep
 family~text~utf32~description(t:1)=             -- UTF-32:     1 grapheme,  15 codepoints,  60 bytes
+sleep
 family~text~unicode~description(t:1)=           -- Unicode32:  1 grapheme,  15 codepoints,  60 byte
+sleep
 helloZalgo = "h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞"
 helloZalgo~text~description(t:1)=               -- UTF-8:      5 graphemes, 54 codepoints, 111 bytes
+sleep
 helloZalgo~text~utf16~description(t:1)=         -- UTF-16:     5 graphemes, 54 codepoints, 108 bytes
+sleep
 helloZalgo~text~utf32~description(t:1)=         -- UTF-32:     5 graphemes, 54 codepoints, 216 bytes
+sleep
 helloZalgo~text~unicode~description(t:1)=       -- Unicode16:  5 graphemes, 54 codepoints, 108 bytes
 sleep no prompt
 

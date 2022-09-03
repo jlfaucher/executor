@@ -8,7 +8,8 @@
 </head>
 <body>
 <pre>
-<span style="font-weight:bold;color:green;">loadPackage OK for extension/extensions.cls
+<span style="font-weight:bold;color:green;">loadPackage OK for extension/stringChunk.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for extension/extensions.cls
 </span><span style="font-weight:bold;color:green;">loadLibrary OK for rxunixsys
 </span><span style="font-weight:bold;color:green;">loadPackage OK for ncurses.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for csvStream.cls
@@ -29,8 +30,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 19 Dec 2021
-</span><span style="font-weight:bold;color:green;">Input queue name: S13d8cQ7fe648c030b0
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 12 Aug 2022
+</span><span style="font-weight:bold;color:green;">Input queue name: S1056bQ7fc99fc03db0
 </span>
 <span style="color:blue;">----------------
 </span><span style="color:blue;">-- Text encoding
@@ -120,11 +121,11 @@ LC_ALL=&quot;en_US.UTF-8&quot;
 <span style="color:blue;">A String is linked to a RexxText, which itself is linked to this String:
 </span><span style="color:blue;">
 </span><span style="color:blue;">    a String
-</span><span style="color:blue;">     ▲  text --------⮸ a RexxText
+</span><span style="color:blue;">     ▲  text --------&gt; a RexxText
 </span><span style="color:blue;">     │                     indexer (anEncoding)
 </span><span style="color:blue;">     │                          codepoints (sequential access)
 </span><span style="color:blue;">     │                          graphemes  (direct access)
-</span><span style="color:blue;">     +-----------------------⮷- string
+</span><span style="color:blue;">     +-&lt;---------------------&lt;- string
 </span><span style="color:blue;">
 </span><span style="color:blue;">The ooRexx programmer has the choice :
 </span><span style="color:blue;">- working with String at byte level
@@ -339,13 +340,14 @@ T'Un œuf de chez MaPoule™ coûte ±0.40€'
 </span><span style="color:blue;">The method ~unicode returns one of these encodings, depending on the character
 </span><span style="color:blue;">with the largest Unicode codepoint (1, 2, or 4 bytes) in the source string.
 </span><span style="color:blue;">Unlike the flexible representation of Python, the 3 representions are first-class.
-</span><span style="color:blue;">No BOM, the endiannes is the CPU one. This is for internal use only.
+</span><span style="color:blue;">No BOM, the endiannes is the CPU one.
 </span><span style="color:blue;">Unicode32_Encoding can be used with utf8proc for the functions taking a buffer of 32-bit integers.
 </span>
 <span style="color:blue;">-- Just an interpretative layer put above the string
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; &quot;côté&quot;~text(&quot;unicode8&quot;)~pipe{item~description(s:1) &quot;:&quot; item~c2x}=
 'Unicode8 not-ASCII : 63 C3 B4 74 C3 A9'
+
 <span style="color:blue;">-- UTF-8 converted to Unicode8
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; &quot;côté&quot;~text~unicode~pipe{item~description(s:1) &quot;:&quot; item~c2x}=
@@ -356,11 +358,13 @@ T'Un œuf de chez MaPoule™ coûte ±0.40€'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; &quot;noël‍👨‍👩‍👧&quot;~text~unicode~description(t:1)=              <span style="color:blue;">-- For this maximum codepoint, we need Unicode32</span>
 'Unicode32 (5 graphemes (1 index from index 5), 10 codepoints (0 index), 40 bytes, 0 error)'
+
 <span style="color:blue;">-- The endianness of the UnicodeN_Encoding is the one of the machine.
 </span><span style="color:blue;">-- With an Intel CPU, it's little-endian.
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; &quot;noël‍👨‍👩‍👧&quot;~text~unicode~c2x=
 '6E000000 6F000000 EB000000 6C000000 0D200000 68F40100 0D200000 69F40100 0D200000 67F40100'
+
 <span style="color:blue;">-- The default endianness for UTF32 is big-endian.
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; &quot;noël‍👨‍👩‍👧&quot;~text~utf32~c2x=
