@@ -20,14 +20,16 @@ Contents:
     Optimization, SIMD
     Variation sequence
     Whitespaces, separators
+    Indic languages
     Korean
+    Japanese
     Fuzzy String Matching
     Levenshtein distance and string similarity
+    String comparison
     Encodings
     TOML serialization format
     CBOR Concise Binary Representation
     Binary encoding in Unicode
-    String comparison
     Invalid format
     Mojibake
     Filenames
@@ -35,6 +37,7 @@ Contents:
     Rope
     ICU bindings
     Twitter text parsing
+    Regular expressions
     Ada
     C++, Boost
     DotNet, CoreFx
@@ -228,6 +231,20 @@ https://gregtatum.com/writing/2021/encoding-text-utf-32-utf-16-unicode/
 https://gregtatum.com/writing/2021/encoding-text-utf-8-unicode/
 
 
+https://lwn.net/Articles/667669/
+Is the current Unicode design impractical?
+
+
+https://www.sciencedirect.com/science/article/pii/S1742287613000595
+Unicode search of dirty data.
+This paper discusses problems arising in digital forensics with regard to Unicode,
+character encodings, and search. It describes how multipattern search can handle
+the different text encodings encountered in digital forensics and a number of issues
+pertaining to proper handling of Unicode in search patterns. Finally, we demonstrate
+the feasibility of the approach and discuss the integration of our developed search
+engine, lightgrep, with the popular bulk_extractor tool.
+
+
 ================================================================================
 U+ notation, Unicode escape sequence
 ================================================================================
@@ -251,6 +268,10 @@ or indicate a UTF-16 surrogate pair in \uXXXX escapes.
 
 https://corp.unicode.org/pipermail/unicode/2021-April/009410.html
 Need reference to good ABNF for \uXXXX syntax
+
+
+https://bit.ly/UnicodeEscapeSequences
+Unicode Escape Sequences Across Various Languages and Platforms
 
 
 ================================================================================
@@ -339,6 +360,15 @@ https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundaries   (todo: revie
 29/10/2021
 https://h3manth.com/posts/unicode-segmentation-in-javascript/
 https://github.com/tc39/proposal-intl-segmenter
+
+
+https://news.ycombinator.com/item?id=21690326
+Tailored grapheme clusters
+Grapheme clusters are locale-dependent, much like string collation is locale-dependent.
+What Unicode gives you by default, the (extended) grapheme cluster, is as useful as
+the DUCET (Default Unicode Collation Element Table); while you can live with them,
+you would be unsatisfied. In fact there are tons of Unicode bugs that can't be corrected
+due to the compatibility reason, and can only be fixed via tailored locale-dependent schemes.
 
 
 ================================================================================
@@ -594,6 +624,10 @@ The reality is that there are different versions of glibc out there in the wild,
 and they do not sort consistently across versions/environments.
 
 
+https://collations.info/concepts/
+a site devoted to working with Collations, Unicode, Encodings, Code Pages, etc in Microsoft SQL Server.
+
+
 ================================================================================
 Emoji
 ================================================================================
@@ -732,12 +766,150 @@ A section about spaces:
 
 
 ================================================================================
+Indic languages
+================================================================================
+
+This section illustrates that Unicode’s concepts like “extended grapheme cluster”
+are meant to provide some low-level, general segmentation, and are not going
+to be enough for ideal experience for end users.
+
+https://stackoverflow.com/questions/6805311/combining-devanagari-characters
+Combining Devanagari characters
+"बिक्रम मेरो नाम हो"~text~graphemes==
+    a GraphemeSupplier
+     1  : T'बि'
+     2  : T'क्'     <-- According the comments, these 2 graphemes should be only one: क्र
+     3  : T'र'      <-- even ICU doesn't support that... it's a tailored grapheme cluster
+     4  : T'म'
+     5  : T' '
+     6  : T'मे'
+     7  : T'रो'
+     8  : T' '
+     9  : T'ना'
+     10 : T'म'
+     11 : T' '
+     12 : T'हो'
+"बिक्रम मेरो नाम हो"~text~characters==
+    an Array (shape [18], 18 items)
+     1  : ( "ब"   U+092C Lo 1 "DEVANAGARI LETTER BA" )
+     2  : ( "ि"    U+093F Mc 0 "DEVANAGARI VOWEL SIGN I" )
+     3  : ( "क"   U+0915 Lo 1 "DEVANAGARI LETTER KA" )
+     4  : ( "्"    U+094D Mn 0 "DEVANAGARI SIGN VIRAMA" )           <-- influence segmentation
+     5  : ( "र"   U+0930 Lo 1 "DEVANAGARI LETTER RA" )
+     6  : ( "म"   U+092E Lo 1 "DEVANAGARI LETTER MA" )
+     7  : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     8  : ( "म"   U+092E Lo 1 "DEVANAGARI LETTER MA" )
+     9  : ( "े"    U+0947 Mn 0 "DEVANAGARI VOWEL SIGN E" )
+     10 : ( "र"   U+0930 Lo 1 "DEVANAGARI LETTER RA" )
+     11 : ( "ो"    U+094B Mc 0 "DEVANAGARI VOWEL SIGN O" )
+     12 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     13 : ( "न"   U+0928 Lo 1 "DEVANAGARI LETTER NA" )
+     14 : ( "ा"    U+093E Mc 0 "DEVANAGARI VOWEL SIGN AA" )
+     15 : ( "म"   U+092E Lo 1 "DEVANAGARI LETTER MA" )
+     16 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+     17 : ( "ह"   U+0939 Lo 1 "DEVANAGARI LETTER HA" )
+     18 : ( "ो"    U+094B Mc 0 "DEVANAGARI VOWEL SIGN O" )
+In Devanagari, each grapheme cluster consists of an initial letter, optional
+pairs of virama (vowel killer) and letter, and an optional vowel sign.
+    virama = u'\N{DEVANAGARI SIGN VIRAMA}'
+    cluster = u''
+    last = None
+    for c in s:
+        cat = unicodedata.category(c)[0]
+        if cat == 'M' or cat == 'L' and last == virama:
+            cluster += c
+        else:
+            if cluster:
+                yield cluster
+            cluster = c
+        last = c
+    if cluster:
+        yield cluster
+---
+Let's cover the grammar very quickly: The Devanagari Block.
+As a developer, there are two character classes you'll want to concern yourself with:
+Sign:
+    This is a character that affects a previously-occurring character.
+    Example, this character: ्. The light-colored circle indicates the location
+    of the center of the character it is to be placed upon.
+Letter / Vowel / Other:
+    This is a character that may be affected by signs.
+    Example, this character: क.
+Combination result of ् and क: क्. But combinations can extend, so क् and षति will
+actually become क्षति (in this case, we right-rotate the first character by 90 degrees,
+modify some of the stylish elements, and attach it at the left side of the second character).
+
+
+https://github.com/anoopkunchukuttan/indic_nlp_library
+The goal of the Indic NLP Library is to build Python based libraries for common
+text processing and Natural Language Processing in Indian languages.
+The library provides the following functionalities:
+    Text Normalization
+    Script Information
+    Word Tokenization and Detokenization
+    Sentence Splitting
+    Word Segmentation
+    Syllabification
+    Script Conversion
+    Romanization
+    Indicization
+    Transliteration
+    Translation
+
+
+https://news.ycombinator.com/item?id=20056966
+jlf: Devnagari seems to be an example where grapheme is not the right segmentation
+"इंडेक्स" का क्या अर्थ है?
+Including the quote marks, spaces, and question mark, that's 18 characters.
+as a native speaker, shouldn't they be considered 15 characters?
+क्स, क्या and र्थ each form individual conjunct consonants.
+Counting them as two would then beget the question as to why डे is not considered
+two characters too, seeing as it is formed by combining ड and ए, much like क्स
+is formed by combining क् and स.
+...
+Devnagari allows simple characters to form compound characters.
+Regarding क्स and डे, the difference between them is that the former is a combination
+of two consonants (pronounced "ks") while the latter is formed by a consonant and
+a vowel ("de"). However, looking at the visual representation is wrong, since डा
+(consonant+vowel) would also look like two characters.
+
+
+https://slidetodoc.com/indic-text-segmentation-presented-by-swaran-lata-senior/
+INDIC TEXT SEGMENTATION
+
+
+https://github.com/w3c/iip/issues/34
+the final rendered state of the text is what influences the segmentation,
+rather than the sequence of code points used.
+
+
+https://docs.microsoft.com/en-us/typography/
+
+https://docs.microsoft.com/en-us/typography/script-development/tamil
+Developing OpenType Fonts for Tamil Script
+The first step is to analyze the input text and break it into syllable clusters.
+Then apply font features and computes ligatures and combine marks.
+
+
+https://docs.microsoft.com/en-us/typography/script-development/devanagari
+Developing OpenType Fonts for Devanagari Script
+
+
+================================================================================
 Korean
 ================================================================================
 
 22/05/2021
 http://gernot-katzers-spice-pages.com/var/korean_hangul_unicode.html
 The Korean Writing System
+
+
+================================================================================
+Japanese
+================================================================================
+
+https://heistak.github.io/your-code-displays-japanese-wrong/
+https://news.ycombinator.com/item?id=29022906
 
 
 ================================================================================
@@ -768,99 +940,6 @@ Levenshtein distance and string similarity
 
 https://github.com/ztane/python-Levenshtein/
 The Levenshtein Python C extension module contains functions for fast computation of Levenshtein distance and string similarity
-
-
-================================================================================
-Encodings
-================================================================================
-
-30/05/2021
-https://datatracker.ietf.org/doc/html/rfc8259
-The JavaScript Object Notation (JSON) Data Interchange Format
-See this section about strings and encoding:
-https://datatracker.ietf.org/doc/html/rfc8259#section-7
-
-
-================================================================================
-JSON
-================================================================================
-
-https://www.reddit.com/r/programming/comments/q5vmxc/parsing_json_is_a_minefield_2018/
-https://seriot.ch/projects/parsing_json.html
-Parsing JSON is a Minefield
-Search for "unicode"
-
-
-================================================================================
-TOML serialization format
-================================================================================
-
-https://github.com/toml-lang/toml
-Tom's Obvious, Minimal Language
-TOML is a nice serialization format for human-maintained data structures.
-It’s line-delimited and—of course!—allows comments, and any Unicode code point can be expressed in simple hexadecimal.
-TOML is fairly new, and its specification is still in flux;
-
-
-================================================================================
-CBOR Concise Binary Representation
-================================================================================
-
-https://cbor.io/
-RFC 8949 Concise Binary Object Representation
-CBOR improves upon JSON’s efficiency and also allows for storage of binary strings.
-Whereas JSON encoders must stringify numbers and escape all strings,
-CBOR stores numbers “literally” and prefixes strings with their length,
-which obviates the need to escape those strings.
-
-
-https://www.rfc-editor.org/rfc/rfc8949.html
-RFC 8949 Concise Binary Object Representation (CBOR)
-In contrast to formats such as JSON, the Unicode characters in this type are never escaped.
-Thus, a newline character (U+000A) is always represented in a string as the byte 0x0a,
-and never as the bytes 0x5c6e (the characters "\" and "n")
-nor as 0x5c7530303061 (the characters "\", "u", "0", "0", "0", and "a").
-
-
-================================================================================
-Binary encoding in Unicode
-================================================================================
-
-10/07/2021
-https://qntm.org/unicodings
-Efficiently encoding binary data in Unicode
-in UTF-8, use Base64 or Base85
-in UTF-16, use Base32768
-in UTF-32, use Base65536
-
-
-https://qntm.org/safe
-What makes a Unicode code point safe?
-
-
-https://github.com/qntm/safe-code-point
-Ascertains whether a Unicode code point is 'safe' for the purposes of encoding binary data
-
-
-https://github.com/qntm/base2048
-Binary encoding optimised for Twitter
-Originally, Twitter allowed Tweets to be at most 140 characters.
-On 26 September 2017, Twitter allowed 280 characters.
-Maximum Tweet length is indeed 280 Unicode code points.
-Twitter divides Unicode into 4,352 "light" code points (U+0000 to U+10FF inclusive)
-and 1,109,760 "heavy" code points (U+1100 to U+10FFFF inclusive).
-Base2048 solely uses light characters, which means a new "long" Tweet can contain
-at most 280 characters of Base2048. Base2048 is an 11-bit encoding, so those 280
-characters encode 3080 bits i.e. 385 octets of data, significantly better than Base65536.
-
-
-https://github.com/qntm/base65536
-Unicode's answer to Base64
-Base2048 renders Base65536 obsolete for its original intended purpose of sending
-binary data through Twitter.
-However, Base65536 remains the state of the art for sending binary data through
-text-based systems which naively count Unicode code points, particularly those
-using the fixed-width UTF-32 encoding.
 
 
 ================================================================================
@@ -968,6 +1047,104 @@ Java
     but that's not as much of a heavy-hitter.
     There's a bunch of string stuff that will benefit from general vectorization, and which is absolutely on our roadmap to tackle,
     but using the PCMPxSTRx instructions specifically isn't a source of wins on the most important operations
+
+
+C#
+    https://docs.microsoft.com/en-us/dotnet/standard/base-types/comparing
+    https://docs.microsoft.com/en-us/dotnet/core/extensions/performing-culture-insensitive-string-comparisons
+
+
+================================================================================
+Encodings
+================================================================================
+
+30/05/2021
+https://datatracker.ietf.org/doc/html/rfc8259
+The JavaScript Object Notation (JSON) Data Interchange Format
+See this section about strings and encoding:
+https://datatracker.ietf.org/doc/html/rfc8259#section-7
+
+
+================================================================================
+JSON
+================================================================================
+
+https://www.reddit.com/r/programming/comments/q5vmxc/parsing_json_is_a_minefield_2018/
+https://seriot.ch/projects/parsing_json.html
+Parsing JSON is a Minefield
+Search for "unicode"
+
+
+================================================================================
+TOML serialization format
+================================================================================
+
+https://github.com/toml-lang/toml
+Tom's Obvious, Minimal Language
+TOML is a nice serialization format for human-maintained data structures.
+It’s line-delimited and—of course!—allows comments, and any Unicode code point can be expressed in simple hexadecimal.
+TOML is fairly new, and its specification is still in flux;
+
+
+================================================================================
+CBOR Concise Binary Representation
+================================================================================
+
+https://cbor.io/
+RFC 8949 Concise Binary Object Representation
+CBOR improves upon JSON’s efficiency and also allows for storage of binary strings.
+Whereas JSON encoders must stringify numbers and escape all strings,
+CBOR stores numbers “literally” and prefixes strings with their length,
+which obviates the need to escape those strings.
+
+
+https://www.rfc-editor.org/rfc/rfc8949.html
+RFC 8949 Concise Binary Object Representation (CBOR)
+In contrast to formats such as JSON, the Unicode characters in this type are never escaped.
+Thus, a newline character (U+000A) is always represented in a string as the byte 0x0a,
+and never as the bytes 0x5c6e (the characters "\" and "n")
+nor as 0x5c7530303061 (the characters "\", "u", "0", "0", "0", and "a").
+
+
+================================================================================
+Binary encoding in Unicode
+================================================================================
+
+10/07/2021
+https://qntm.org/unicodings
+Efficiently encoding binary data in Unicode
+in UTF-8, use Base64 or Base85
+in UTF-16, use Base32768
+in UTF-32, use Base65536
+
+
+https://qntm.org/safe
+What makes a Unicode code point safe?
+
+
+https://github.com/qntm/safe-code-point
+Ascertains whether a Unicode code point is 'safe' for the purposes of encoding binary data
+
+
+https://github.com/qntm/base2048
+Binary encoding optimised for Twitter
+Originally, Twitter allowed Tweets to be at most 140 characters.
+On 26 September 2017, Twitter allowed 280 characters.
+Maximum Tweet length is indeed 280 Unicode code points.
+Twitter divides Unicode into 4,352 "light" code points (U+0000 to U+10FF inclusive)
+and 1,109,760 "heavy" code points (U+1100 to U+10FFFF inclusive).
+Base2048 solely uses light characters, which means a new "long" Tweet can contain
+at most 280 characters of Base2048. Base2048 is an 11-bit encoding, so those 280
+characters encode 3080 bits i.e. 385 octets of data, significantly better than Base65536.
+
+
+https://github.com/qntm/base65536
+Unicode's answer to Base64
+Base2048 renders Base65536 obsolete for its original intended purpose of sending
+binary data through Twitter.
+However, Base65536 remains the state of the art for sending binary data through
+text-based systems which naively count Unicode code points, particularly those
+using the fixed-width UTF-32 encoding.
 
 
 ================================================================================
@@ -1129,200 +1306,6 @@ ObjectIcon
 Jlf: I made a code review, but could not understand how they do that :-(
 
 
-Executor
-jlf: thinking about grapheme indexes (draft)
-
-    Grapheme indexes : see if it's possible to replace .Array by a class being really a sparse array.
-    This class should be ultra specialized for the management of string indexes.
-    For example, could manage a flexible storage in function of the size of the index.
-    Maybe a multi-stage table ? For example https://www.strchr.com/multi-stage_tables
-    Maybe a direct indexation of the 255 first and last bytes ?
-        Where each index has an associated byte position.
-        Not like a pseudo sparse ooRexx array where an index can be associated to a NULL value, meaning pos == index.
-    For the rest of the bytes, maybe several (many) chunks of indexes
-    Each chunk of indexes would have a base index, the stored indexes would be relative to this base index.
-        1-byte encoding: index = base_index + relative_index
-        2-byte encoding: index = 2*base_index + 2*relative_index
-        4-byte encoding: index = 4*base_index + 4*relative_index
-
-    Example:
-        first256
-            startC = 0 (always)
-
-        last256
-            startC = 45632135789 (for example)
-
-        middle: array of 2, 4 or 8 bytes
-            2 bytes: 0..FF chunks of 1 byte
-            3 bytes: 0..FF chunks of 2 bytes
-            4 bytes: 0..FFFF chunks of 2 bytes
-            5 bytes: 0..FF chuncks of 4 bytes
-            6 bytes: 0..FFFF chunks of 4 bytes
-            7 bytes: 0..FF chunks of 6 bytes
-            8 bytes: 0..FFFF chunks of 6 bytes
-
-        size of indexes:
-            1 byte:  string length <= FF: 0..FF bytes (direct mapping. 0 byte if all the indexes = pos)
-            2 bytes: string length <= FFFF:
-                0..FF bytes for first (direct mapping)
-                0..FD * (2 bytes for start + FF bytes)
-                (2 bytes for start + FF bytes) for last (direct mapping)
-            3 bytes: string length <= FFFFFF: 65536 * 256
-
-    Interface:
-        indexTable~new(stringSizeInBytes)   -- determine the number of stages
-        indexTable~size                     -- redundant with indexer~string~length
-        indexTable~items                    -- redundant with indexer~graphemeCount
-        indexTable[integer]
-        indexTable[integer] = bytePosition
-        indexTable~first                    --  index of the first item in the table
-
-    The character length is not stored in the indexes. It's given by the utf8 encoding.
-    Only the indexes starting a new sequence of character length are stored.
-    I don't remember what is 'next'... Is it the first index in the current table ?
-
-    One table per size of index & offset
-    1 byte      FF                  0..255                              #items next = 1 + 1 = 2 bytes
-    2 bytes     FFFF                0..65,535                           #items next = 2 + 2 = 4 bytes
-    3 bytes     FFFFFF              0..16,777,215                       #items next = 3 + 3 = 6 bytes
-    4 bytes     FFFFFFFF            0..4,294,967,295                    #items next = 4 + 4 = 8 bytes
-    5 bytes     FFFFFFFFFF          0..1,099,511,627,775                #items next = 5 + 5 = 10 bytes
-    6 bytes     FFFFFFFFFFFF        0..281,474,976,710,655              #items next = 6 + 6 = 12 bytes
-    7 bytes     FFFFFFFFFFFFFF      0..72,057,594,037,927,900           #items next = 7 + 7 = 14 bytes
-    8 bytes     FFFFFFFFFFFFFFFF    0..18,446,744,073,709,600,000       #items next = 8 + 8 = 16 bytes
-                                                                        total       = 72 bytes
-    Better to not systematically allocate all the sizes of indexes...
-
-
-    Examples of indexes
-    --------------------------
-
-    129 char, 256 bytes
-    char length 1 1 2 2 2 2 ... 2   2   1   1
-    char offset 0 1 2 4 6 8 ... 250 252 254 255
-    char index  0 1 2 3 4 5 ... 126 127 128 129
-    indexes:
-        last:  129
-        3 : +1
-
-    7 char, 17 bytes
-    char length 2 3 2 3 2  3  2
-    char offset 0 2 5 7 10 12 15
-    char index  0 1 2 3 4  5  6
-    indexes 1 byte :
-        #items: 3
-        next: 0
-        2 --> 5
-        4 --> 10
-        6 --> 15
-    size indexes = 1 + 1 + 3*(1+1) = 8 bytes (47%)
-
-
-    8 char, 16 bytes
-    char length 1 3 1 3 1 3 1  3
-    char offset 0 1 4 5 8 9 12 13
-    char index  0 1 2 3 4 5 6  7
-    indexes 1 byte :
-        #items: 3
-        next: 0
-        2 --> 4
-        4 --> 8
-        6 --> 12
-    size indexes = 1 + 1 + 3*(1+1) = 8 bytes (50%)
-
-
-    9 char, 18 bytes
-    char length 1 2 3 1 2 3 1  2  3
-    char offset 0 1 3 6 7 9 12 13 15
-    char index  0 1 2 3 4 5 6  7  8
-    indexes 1 byte :
-        #items: 4
-        next: 0
-        2 --> 3
-        4 --> 7
-        6 --> 12
-        8 --> 15
-    size indexes = 1 + 1 + 4*(1+1) = 10 bytes (56%)
-
-
-    11 char, 16 bytes
-    char length 1 2 1 2 1 2 1 2  1  2  1
-    char offset 0 1 3 4 6 7 9 10 12 13 15
-    char index  0 1 2 3 4 5 6 7  8  9  10
-    indexes 1 byte :
-        #items: 5
-        next: 0
-        2 --> 3
-        4 --> 6
-        6 --> 9
-        8 --> 12
-        10 --> 15
-    size indexes = 1 + 1 + 5*(1+1) = 12 bytes (75%)
-
-
-    16 char, 18 bytes
-    char length 1 1 1 1 1 1 1 1 1 1 1  1  1  1  1  3
-    char offset 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
-    char index  0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
-    indexes 1 byte :
-        #items: 0
-        next: 0
-    size indexes = 1 + 1 = 2 bytes (11%)
-
-
-    72 char, 88 bytes
-    char           V  o  i  c  i     l  a     l  i  s  t  e     d  e  s     a  c  c  e  n  t  s     e  n     f  r  a  n  ç     a  i  s     :     à        ä        â        é        è        ë        ê        ï        î        ö        ô        ù        ü        û        ÿ     .
-    char code   20 56 6F 69 63 69 20 6C 61 20 6C 69 73 74 65 20 64 65 73 20 61 63 63 65 6E 74 73 20 65 6E 20 66 72 61 6E C3 A7 61 69 73 20 3A 20 C3 A0 20 C3 A4 20 C3 A2 20 C3 A9 20 C3 A8 20 C3 AB 20 C3 AA 20 C3 AF 20 C3 AE 20 C3 B6 20 C3 B4 20 C3 B9 20 C3 BC 20 C3 BB 20 C3 BF 2E
-    char length 1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  2     1  1  1  1  1  1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1  2     1
-    char offset 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43    45 46    48 49    51 52    54 55    57 58    60 61    63 64    66 67    69 70    72 73    75 76    78 79    81 82    84 85    87
-    char index  0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35    36 37 38 39 40 41 42    43 44    45 46    47 48    49 50    51 52    53 54    55 56    57 58    59 60    61 62    63 64    65 66    67 68    69 70    71
-    indexes 1 byte :
-        #items: 15
-        next: 0
-        36 --> 37
-        44 --> 46
-        46 --> 49
-        48 --> 52
-        50 --> 55
-        52 --> 58
-        54 --> 61
-        56 --> 64
-        58 --> 67
-        60 --> 70
-        62 --> 73
-        64 --> 76
-        66 --> 79
-        68 --> 82
-        70 --> 85
-        72 --> 88
-    size indexes = 1 + 1 + 15*(1+1) = 32 bytes (36%)
-
-        0  : 0 + 1n
-        35 : 35 + 2n
-        36 : 37 + 1n
-        42 : 43 + 2n
-        43 : 45 + 1n
-        44 : 46 + 2n
-        45 : 48 + 1n
-
-
-        36 : +1
-        43 : +2
-        45 : +3
-        47 : +4
-        49 : +5
-        51 : +6
-        53 : +7
-        55 : +8
-        57 : +9
-        59: + 10
-        61 : +11
-        63 : +12
-        65 : +13
-        67 : +14
-        69 : +15
-        71 : +16
-
 ================================================================================
 Rope
 ================================================================================
@@ -1474,14 +1457,6 @@ The library has methods to parse Tweets and calculate length, validity, parse @m
 
 
 ================================================================================
-Japanese
-================================================================================
-
-https://heistak.github.io/your-code-displays-japanese-wrong/
-https://news.ycombinator.com/item?id=29022906
-
-
-================================================================================
 terminal / console
 ================================================================================
 
@@ -1495,6 +1470,25 @@ Language comparison
 
 https://blog.kdheepak.com/my-unicode-cheat-sheet
 Vim, Python, Julia and Rust.
+
+
+================================================================================
+Regular expressions
+================================================================================
+
+https://www.regular-expressions.info/unicode.html
+\X matches a grapheme
+
+
+https://pypi.org/project/regex/
+>>> a = "बिक्रम मेरो नाम हो"
+>>> regex.findall(r'\X', a)
+['बि', 'क्', 'र', 'म', ' ', 'मे', 'रो', ' ', 'ना', 'म', ' ', 'हो']
+---
+https://regex101.com/r/eD0eZ9/1
+---
+jlf: the results above are correct extended grapheme clusters, but tailored
+grapheme clusters will group 'क्' 'र' in one cluster क्र
 
 
 ================================================================================
@@ -2676,3 +2670,9 @@ Zig lang, Ziglyph
 04/07/2021
 https://github.com/jecolon/ziglyph
 Unicode text processing for the Zig programming language.
+
+https://devlog.hexops.com/2021/unicode-data-file-compression/
+achieving 40-70% reduction over gzip alone
+
+https://github.com/jecolon/ziglyph/issues/3
+More size-optimal grapheme cluster sorting

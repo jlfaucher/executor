@@ -917,61 +917,6 @@ Files showing the problem with .stream~linein:
     utf16le_nobom_crlf-dump.txt: same as utf16le_crlf-dump.txt
     utf16le_nobom_lf-dump.txt:   same as utf16le_lf-dump.txt
 
-Occurences of \r
-----------------
-
-common/platform/unix/SysFile.cpp
-common/platform/windows/SysFile.cpp
-SysFile::gets
-This is here that the EOL is managed. To modify to support encoded files
-The current implementation is testing "\n".
-If found then if previous character is "\r" then replace "\r\n" by "\n".
-
-common/platform/unix/SysFile.hpp
-#define LINE_TERMINATOR "\n"
-Must be adapted
-
-common/platform/windows/SysFile.hpp
-#define LINE_TERMINATOR "\r\n"
-Must be adapted
-
-common/platform/unix/SysFile.cpp
-common/platform/windows/SysFile.cpp
-SysFile::putLine
-Write a line to the stream, adding the platform specific line terminator.
-Must be adapted
-
-interpreter/classes/support/StringUtil.cpp
-StringUtil::makearray
-A specific separator can be passed, but this deactivate the management of \r.
-If no specific separator, then search for \n and checks if \r\n
-
-interpreter/platform/windows/PlatformDefinitions.h
-#define line_end "\r\n"
-Used in RexxArray::toString (interpreter/classes/ArrayClass.cpp)
-
-interpreter/streamLibrary/StreamNative.hpp
-#define cr     '\r'
-
-
-Occurences of \n
-----------------
-
-interpreter/classes/RoutineClass.cpp
-RoutineClass::restore
-Related to image, no need to support encoded files
-
-interpreter/platform/unix/PlatformDefinitions.h
-#define line_end "\n"
-Used in RexxArray::toString (interpreter/classes/ArrayClass.cpp)
-
-interpreter/streamLibrary/StreamNative.cpp
-StreamInfo::readVariableLine
-This is here that the EOL is managed. To modify to support encoded files
-
-interpreter/streamLibrary/StreamNative.hpp
-#define nl     '\n'
-
 
 ===============================================================================
 2021 November 01
