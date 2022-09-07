@@ -7,7 +7,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 -- Compatibility with ooRexx5
 .MutableBuffer~define("appendLegacy", .MutableBuffer~method("append"))
-.MutableBuffer~define("append", "do i=1 to arg(); self~appendLegacy(arg(i)); end")
+.MutableBuffer~define("append", "do i=1 to arg(); self~appendLegacy(arg(i)); end; return self")
 
 ::extension String                          inherit StringPrettyPrinter
 ::extension String                          inherit StringCompatibilityWithOORexx5
