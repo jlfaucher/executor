@@ -2,6 +2,38 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+07/09/2022
+
+[Compatibility with classic rexx]
+
+The Roseta Code script "Check-that-file-exists/check-that-file-exists-2.rexx"
+uses ~ as a negator character.
+Regina supports the following characters as negators:
+    \ Backslash (ANSI Standard)
+    ^ Caret
+    ~ Tilde
+    ¬ Logical Not
+Add support for ^ and ¬
+Not possible to use ~ as a negator character
+
+^0=     -- 1
+^1=     -- 0
+¬0=     -- 1
+¬1=     -- 0
+^¬^0=   -- 1
+^¬^¬0=  -- 0
+
+The operators /= and /== are supported in TSO/E REXX as alternatives to \= and \==, respectively.
+The Roseta Code script "Determine-if-a-string-is-numeric/determine-if-a-string-is-numeric.rexx"
+uses /==
+Add support for /= and /==
+
+"a" /= " a " =      -- 0
+"a" /== " a " =     -- 1
+"a" /== "a" =       -- 0
+
+
+===============================================================================
 31/08/2022
 
 [Unicode]
@@ -41,6 +73,11 @@ Methods on RexxText:
 "ß"~text~casefold=              -- T'ss'
 "㎒"~text~casefold=              -- T'mhz'
 
+("sTrasse", "straße", "STRASSE")~each{item~text~casefold}==
+    an Array (shape [3], 3 items)
+     1 : T'strasse'
+     2 : T'strasse'
+     3 : T'strasse'
 
 -- utf8proc doesn't support language-sensitive case-folding.
 -- Example:

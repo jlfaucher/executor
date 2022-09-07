@@ -220,7 +220,8 @@ void RexxSource::endLocation(
 
 bool RexxSource::nextSpecial(
   unsigned int  target,                /* desired target character          */
-  SourceLocation &location )           /* token location information        */
+  SourceLocation &location,            /* token location information        */
+  bool advance)
 /****************************************************************************/
 /* Function:  Find the next special character and verify against a target   */
 /****************************************************************************/
@@ -231,8 +232,11 @@ bool RexxSource::nextSpecial(
     {
         if (GETCHAR() == target)
         {         /* is the next character a match?    */
-            this->line_offset++;             /* step over the next                */
-            this->endLocation(location);     /* update the end location part      */
+            if (advance)
+            {
+                this->line_offset++;             /* step over the next                */
+                this->endLocation(location);     /* update the end location part      */
+            }
             return true;                     /* got what we need!                 */
         }
     }
@@ -1174,6 +1178,13 @@ RexxToken *RexxSource::sourceNextToken(
             {                           /* other special character           */
                 this->line_offset++;            /* step past it                      */
 
+                // Negation '¬' in UTF-8 (C2AC)
+                if (inch == (unsigned char)0xC2 && this->nextSpecial((unsigned char)0xAC, location, false))
+                {
+                    this->nextSpecial((unsigned char)0xAC, location); // skip AC
+                    inch = '\\';
+                }
+
                 switch (inch)
                 {                 /* process operators and punctuation */
 
@@ -1267,6 +1278,13 @@ RexxToken *RexxSource::sourceNextToken(
                             token = OPERATOR(REMAINDER);
                             CHECK_ASSIGNMENT(REMAINDER, token);  // this is allowed as an assignment shortcut
                         }
+                        // The operators /= and /== are supported in TSO/E REXX as alternatives to \= and \==, respectively.
+                        else if (this->nextSpecial('=', location))
+                        {
+                            if (this->nextSpecial('=', location)) token = OPERATOR(STRICT_BACKSLASH_EQUAL); // /== is equvalent to \==
+                            else token = OPERATOR(BACKSLASH_EQUAL); // /= is equvalent to \=
+                        }
+
                         /* this is an operator class         */
                         else
                         {
@@ -1405,6 +1423,14 @@ RexxToken *RexxSource::sourceNextToken(
                         break;
 
                     case '\\':                    /* backslash                         */
+
+                    // we accept either of these as alternatives
+                    case (unsigned char)0xAA:      /* logical not  (need unsigned cast) */
+                    case (unsigned char)0xAC:      /* logical not  (need unsigned cast) */
+
+                    // extension (supported by Regina)
+                    case '^':
+
                         /* next one an equal sign?           */
                         if (this->nextSpecial('=', location))
                         {
@@ -1448,57 +1474,6 @@ RexxToken *RexxSource::sourceNextToken(
                             }
                         }
                         else                        /* this is just the NOT operator     */
-                        {
-                            token = OPERATOR(BACKSLASH);
-                        }
-                        break;
-
-                    // we accept either of these as alternatives
-                    case (unsigned char)0xAA:      /* logical not  (need unsigned cast) */
-                    case (unsigned char)0xAC:      /* logical not  (need unsigned cast) */
-                        /* next one an equal sign?           */
-                        if (this->nextSpecial('=', location))
-                        {
-                            /* have an equal sign after that?    */
-                            if (this->nextSpecial('=', location))
-                            {
-                                /* this is the \== operator          */
-                                token = OPERATOR(STRICT_BACKSLASH_EQUAL);
-                            }
-                            else                      /* this is the \= operator           */
-                            {
-                                token = OPERATOR(BACKSLASH_EQUAL);
-                            }
-                        }
-                        /* next one a greater than sign?     */
-                        else if (this->nextSpecial('>', location))
-                        {
-                            /* have another greater than next?   */
-                            if (this->nextSpecial('>', location))
-                            {
-                                /* this is the \>> operator          */
-                                token = OPERATOR(STRICT_BACKSLASH_GREATERTHAN);
-                            }
-                            else                      /* this is the \> operator           */
-                            {
-                                token = OPERATOR(BACKSLASH_GREATERTHAN);
-                            }
-                        }
-                        /* next one a less than sign?        */
-                        else if (this->nextSpecial('<', location))
-                        {
-                            /* have another less than next?      */
-                            if (this->nextSpecial('<', location))
-                            {
-                                /* this is the \<< operator          */
-                                token = OPERATOR(STRICT_BACKSLASH_LESSTHAN);
-                            }
-                            else                      /* this is the \< operator           */
-                            {
-                                token = OPERATOR(BACKSLASH_LESSTHAN);
-                            }
-                        }                           /* this is just the BACKSLASH operator     */
-                        else
                         {
                             token = OPERATOR(BACKSLASH);
                         }

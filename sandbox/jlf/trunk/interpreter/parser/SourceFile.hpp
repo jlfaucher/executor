@@ -181,7 +181,7 @@ class RexxSource : public RexxInternalObject {
     RexxArray  *extractSource();
     void        startLocation(SourceLocation &);
     void        endLocation(SourceLocation &);
-    bool        nextSpecial(unsigned int, SourceLocation &);
+    bool        nextSpecial(unsigned int, SourceLocation &, bool advance=true);
     unsigned int locateToken(RexxToken *);
     void        globalSetup();
     RexxString *packLiteral(sizeB_t, sizeB_t, int);
