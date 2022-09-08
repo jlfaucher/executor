@@ -4,6 +4,52 @@ Sandbox for experimental work, what's done so far.
 ===============================================================================
 07/09/2022
 
+[Encoded strings]
+
+Add method MutableBuffer~isASCII
+Implementation more complex than for String, because mutable.
+Try to avoid to rescan the whole buffer, when possible.
+The native methods that modify the buffer are never scanning the buffer, they
+are just setting the boolean indicators is_ASCII_checked and is_ASCII.
+It's only the Rexx method ~isASCII which scans the whole buffer, if needed.
+Impacted methods:
+    append
+    caselessChangeStr
+    changeStr
+    delete
+    delWord
+    insert
+    overlay
+    replaceAt
+    setBufferSize
+    space
+    translate
+
+b = .MutableBuffer~new("pere")
+b~isASCII =                             -- 1
+b~insert("noël", 5)=                    -- M'pere noël'
+b~isASCII =                             -- 0
+b~setBufferSize(7)=                     -- M'pere no'
+b~isASCII=                              -- 1
+b~append("ë", "l")=                     -- M'pere noël'
+b~isASCII=                              -- 0
+b~replaceAt("e", 8, 2)=                 -- M'pere noel'
+b~isASCII=                              -- 1
+b~changeStr("noel", "noël")=            -- M'pere noël'
+b~isASCII=                              -- 0
+b~delete(8,2)=                          -- M'pere nol'
+b~isASCII=                              -- 1
+b~overlay("ël", 8)=                     -- M'pere noël'
+b~isASCII=                              -- 0
+b~delWord(2)=                           -- M'pere '
+b~isASCII=                              -- 1
+b~translate("è" || "91"x, "er ")=       -- M'pèÑ'    ("è" is "C3A8"x so "e"-->"C3"x, "r"-->A8"x and " "-->"91"x
+b~isASCII=                              -- 0
+
+
+===============================================================================
+07/09/2022
+
 [Compatibility with classic rexx]
 
 The Roseta Code script "Check-that-file-exists/check-that-file-exists-2.rexx"

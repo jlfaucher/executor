@@ -293,6 +293,12 @@ sizeB_t RexxMutableBuffer::setDataLength(sizeB_t newLength)
     {
         this->setData(oldLength, '\0', newLength - oldLength);
     }
+    else
+    {
+        // The buffer has been truncated
+        // If the buffer before truncation was not ASCII, maybe the shorter buffer is ASCII
+        if (!this->isASCII()) this->setIsASCIIChecked(false); // check again
+    }
 
     return newLength;
 }
@@ -329,6 +335,22 @@ RexxObject *RexxMutableBuffer::lengthRexx()
 }
 
 
+bool RexxMutableBuffer::checkIsASCII()
+{
+    if (this->isASCIIChecked()) return this->isASCII();
+    bool isASCII = StringUtil::checkIsASCII(this->getStringData(), this->getBLength());
+    this->setIsASCII(isASCII);
+    this->setIsASCIIChecked(true);
+    return isASCII;
+}
+
+// In behaviour
+RexxInteger *RexxMutableBuffer::isASCIIRexx()
+{
+    return this->checkIsASCII() ? TheTrueObject : TheFalseObject;
+}
+
+
 // in behaviour
 RexxMutableBuffer *RexxMutableBuffer::append(RexxObject *obj)
 /******************************************************************************/
@@ -342,6 +364,11 @@ RexxMutableBuffer *RexxMutableBuffer::append(RexxObject *obj)
 
     copyData(dataBLength, string->getStringData(), string->getBLength());
     this->setBLength(this->dataBLength + string->getBLength());
+
+    if (this->isASCII())
+    {
+        if (!string->checkIsASCII()) this->setIsASCII(false); // no need to check again, we are sure it's not ASCII
+    }
     return this;
 }
 
@@ -356,6 +383,12 @@ RexxMutableBuffer *RexxMutableBuffer::appendCstring(const char *_data, sizeB_t b
 
     this->data->copyData(dataBLength, _data, blength);
     this->setBLength(this->dataBLength + blength);
+
+    if (this->isASCII())
+    {
+        bool _dataIsASCII = StringUtil::checkIsASCII(_data, blength);
+        if (!_dataIsASCII) this->setIsASCII(false); // no need to check again, we are sure it's not ASCII
+    }
     return this;
 }
 
@@ -375,6 +408,8 @@ RexxMutableBuffer *RexxMutableBuffer::insert(RexxObject *str, RexxObject *pos, R
     sizeB_t insertLength = optionalLengthArgument(len, string->getBLength(), ARG_THREE);
 
     codepoint_t padChar = optionalPadArgument(pad, ' ', ARG_FOUR);
+    bool padInserted = false;
+    bool padIsASCII = ((padChar & 0x80) == 0);
 
     sizeB_t copyLength = Numerics::minVal(insertLength, string->getBLength());
     sizeB_t padLength = insertLength - copyLength;
@@ -396,7 +431,6 @@ RexxMutableBuffer *RexxMutableBuffer::insert(RexxObject *str, RexxObject *pos, R
         ensureCapacity(insertLength + (begin - dataBLength));
     }
 
-
     /* create space in the buffer   */
     if (begin < dataBLength)
     {
@@ -406,6 +440,7 @@ RexxMutableBuffer *RexxMutableBuffer::insert(RexxObject *str, RexxObject *pos, R
     {
         /* pad before insertion         */
         setData(dataBLength, padChar, begin - dataBLength);
+        padInserted = true;
     }
     /* insert string contents       */
     copyData(begin, string->getStringData(), copyLength);
@@ -413,6 +448,7 @@ RexxMutableBuffer *RexxMutableBuffer::insert(RexxObject *str, RexxObject *pos, R
     if (padLength > 0)
     {
         setData(begin + string->getBLength(), padChar, padLength);
+        padInserted = true;
     }
     // inserting after the end? the resulting length is measured from the insertion point
     if (begin > this->dataBLength)
@@ -424,6 +460,21 @@ RexxMutableBuffer *RexxMutableBuffer::insert(RexxObject *str, RexxObject *pos, R
         // just add in the inserted length
         this->setBLength(this->dataBLength + insertLength);
     }
+
+    if (this->isASCII())
+    {
+        if (padInserted)
+        {
+            if (!padIsASCII) this->setIsASCII(false); // no need to check again, we are sure it's not ASCII
+        }
+    }
+
+    if (this->isASCII())
+    {
+        bool stringIsASCII = string->checkIsASCII();
+        if (!stringIsASCII) this->setIsASCII(false); // no need to check again, we are sure it's not ASCII
+    }
+
     return this;
 }
 
@@ -440,6 +491,8 @@ RexxMutableBuffer *RexxMutableBuffer::overlay(RexxObject *str, RexxObject *pos, 
     sizeB_t replaceLength = optionalLengthArgument(len, string->getBLength(), ARG_THREE);
 
     codepoint_t padChar = optionalPadArgument(pad, ' ', ARG_FOUR);
+    bool padInserted = false;
+    bool padIsASCII = ((padChar & 0x80) == 0);
 
     // make sure we have room for this
     ensureCapacity(begin + replaceLength);
@@ -449,6 +502,7 @@ RexxMutableBuffer *RexxMutableBuffer::overlay(RexxObject *str, RexxObject *pos, 
     {
         // add padding to the gap
         setData(dataBLength, padChar, begin - dataBLength);
+        padInserted = true;
     }
 
     // now overlay the string data
@@ -458,6 +512,7 @@ RexxMutableBuffer *RexxMutableBuffer::overlay(RexxObject *str, RexxObject *pos, 
     {
         // pad the section after the overlay
         setData(begin + string->getBLength(), padChar, replaceLength - string->getBLength());
+        padInserted = true;
     }
 
     // did this add to the size?
@@ -466,6 +521,21 @@ RexxMutableBuffer *RexxMutableBuffer::overlay(RexxObject *str, RexxObject *pos, 
         //adjust upward
         this->setBLength(begin + replaceLength);
     }
+
+    if (this->isASCII())
+    {
+        if (padInserted)
+        {
+            if (!padIsASCII) this->setIsASCII(false); // no need to check again, we are sure it's not ASCII
+        }
+    }
+
+    if (this->isASCII())
+    {
+        bool stringIsASCII = string->checkIsASCII();
+        if (!stringIsASCII) this->setIsASCII(false); // no need to check again, we are sure it's not ASCII
+    }
+
     return this;
 }
 
@@ -498,6 +568,8 @@ RexxMutableBuffer *RexxMutableBuffer::replaceAt(RexxObject *str, RexxObject *pos
     sizeB_t replaceLength = optionalLengthArgument(len, newLength, ARG_THREE);
 
     codepoint_t padChar = optionalPadArgument(pad, ' ', ARG_FOUR);
+    bool padInserted = false;
+    bool padIsASCII = ((padChar & 0x80) == 0);
     sizeB_t finalLength;
 
     // if replaceLength extends beyond the end of the string
@@ -536,6 +608,7 @@ RexxMutableBuffer *RexxMutableBuffer::replaceAt(RexxObject *str, RexxObject *pos
     {
         // add padding to the gap
         setData(dataBLength, padChar, begin - dataBLength);
+        padInserted = true;
         // now overlay the string data
         copyData(begin, string->getStringData(), newLength);
     }
@@ -555,6 +628,21 @@ RexxMutableBuffer *RexxMutableBuffer::replaceAt(RexxObject *str, RexxObject *pos
     // and finally adjust the length
     this->setBLength(finalLength);
     // our return value is always the target mutable buffer
+
+    if (this->isASCII())
+    {
+        if (padInserted)
+        {
+            if (!padIsASCII) this->setIsASCII(false); // no need to check again, we are sure it's not ASCII
+        }
+    }
+
+    if (this->isASCII())
+    {
+        bool stringIsASCII = string->checkIsASCII();
+        if (!stringIsASCII) this->setIsASCII(false); // no need to check again, we are sure it's not ASCII
+    }
+
     return this;
 }
 
@@ -584,6 +672,11 @@ RexxMutableBuffer *RexxMutableBuffer::mydelete(RexxObject *_start, RexxObject *l
             this->setBLength(begin);
         }
     }
+
+    // The buffer has been truncated
+    // If the buffer before truncation was not ASCII, maybe the shorter buffer is ASCII
+    if (!this->isASCII()) this->setIsASCIIChecked(false); // check again
+
     return this;
 }
 
@@ -593,6 +686,7 @@ RexxObject *RexxMutableBuffer::setBufferLength(sizeB_t newsize)
 /* Function:  set the size of the buffer                                      */
 /******************************************************************************/
 {
+    bool truncated = (newsize < dataBLength);
     // has a reset to zero been requested?
     if (newsize == 0)
     {
@@ -618,6 +712,11 @@ RexxObject *RexxMutableBuffer::setBufferLength(sizeB_t newsize)
         OrefSet(this, this->data, newBuffer);
         // and update the size....
         bufferLength = newsize;
+    }
+    if (truncated)
+    {
+        // If the buffer before truncation was not ASCII, maybe the shorter buffer is ASCII
+        if (!this->isASCII()) this->setIsASCIIChecked(false); // check again
     }
     return this;
 }
@@ -960,6 +1059,17 @@ RexxMutableBuffer *RexxMutableBuffer::changeStr(RexxString *needle, RexxString *
     }
     // update the result length, and return
     this->setBLength(resultLength);
+
+    bool newNeedleIsASCII = newNeedle->checkIsASCII();
+    if (this->isASCII())
+    {
+        if (!newNeedleIsASCII) this->setIsASCII(false); // no need to check, we are sure it's not ASCII
+    }
+    else
+    {
+        if (newNeedleIsASCII) this->setIsASCIIChecked(false); // check again, maybe the ASCII newNeedle has replaced all the non-ASCII characters
+    }
+
     return this;
 }
 
@@ -1101,6 +1211,17 @@ RexxMutableBuffer *RexxMutableBuffer::caselessChangeStr(RexxString *needle, Rexx
     }
     // update the result length, and return
     this->setBLength(resultLength);
+
+    bool newNeedleIsASCII = newNeedle->checkIsASCII();
+    if (this->isASCII())
+    {
+        if (!newNeedleIsASCII) this->setIsASCII(false); // no need to check, we are sure it's not ASCII
+    }
+    else
+    {
+        if (newNeedleIsASCII) this->setIsASCIIChecked(false); // check again, maybe the ASCII newNeedle has replaced all the non-ASCII characters
+    }
+
     return this;
 }
 
@@ -1218,6 +1339,7 @@ RexxMutableBuffer *RexxMutableBuffer::translate(RexxString *tableo, RexxString *
     const char *outTable = tableo->getStringData();   /* and the output table              */
                                           /* get the pad character             */
     codepoint_t padChar = optionalPadArgument(pad, ' ', ARG_THREE);
+    bool padInserted = false;
     sizeB_t startPos = optionalPositionArgument(_start, 1, ARG_FOUR);
     sizeB_t range = optionalLengthArgument(_range, getBLength() - startPos + 1, ARG_FOUR);
 
@@ -1231,6 +1353,7 @@ RexxMutableBuffer *RexxMutableBuffer::translate(RexxString *tableo, RexxString *
     char *scanPtr = getData() + startPos - 1;   /* point to data                     */
     sizeB_t scanLength = range;                  /* get the length too                */
 
+    bool translateIsASCII = true;
     while (scanLength-- != 0)
     {                /* spin thru input                   */
         char ch = *scanPtr;                      /* get a character                   */
@@ -1251,14 +1374,23 @@ RexxMutableBuffer *RexxMutableBuffer::translate(RexxString *tableo, RexxString *
             {
                 /* convert the character             */
                 *scanPtr = *(outTable + position);
+                if (*scanPtr & 0x80) translateIsASCII = false;
             }
             else
             {
                 *scanPtr = (char)padChar;   // todo m17n          /* else use the pad character        */
+                padInserted = true;
             }
         }
         scanPtr++;                          /* step the pointer                  */
     }
+
+    if (!translateIsASCII) this->setIsASCII(false); // no need to check again, we are sure it's not ASCII
+    else if (padInserted && !pad->checkIsASCII()) this->setIsASCII(false); // no need to check again, we are sure it's not ASCII
+    // here we know that the new characters are all ASCII
+    // if the buffer was not ASCII before the translation, maybe it is now, to check again
+    else if (!this->isASCII()) this->setIsASCIIChecked(false); // check again
+
     return this;
 }
 
@@ -1677,6 +1809,11 @@ RexxMutableBuffer *RexxMutableBuffer::delWord(RexxInteger *position, RexxInteger
     closeGap(deletePosition, gapSize, length);
     // adjust for the deleted data
     this->setBLength(dataBLength - gapSize);
+
+    // The buffer has been truncated
+    // If the buffer before truncation was not ASCII, maybe the shorter buffer is ASCII
+    if (!this->isASCII()) this->setIsASCIIChecked(false); // check again
+
     return this;
 }
 
@@ -1698,6 +1835,8 @@ RexxMutableBuffer *RexxMutableBuffer::space(RexxInteger *space_count, RexxString
     const size_t padLength = optionalLengthArgument(space_count, 1, ARG_ONE);
     /* get the pad character           */
     const char   padChar   = (char)optionalPadArgument(pad, ' ', ARG_TWO); // todo m17n (char)
+    bool padInserted = false;
+    bool padIsASCII = ((padChar & 0x80) == 0);
 
     // an inplace update has complications, depending on whether the new string
     // is shorter or longer than the original.
@@ -1745,6 +1884,7 @@ RexxMutableBuffer *RexxMutableBuffer::space(RexxInteger *space_count, RexxString
             case 1:                             /* more frequent case goes first  */
                 setData(writePos, padChar, padLength); /* write pad character     */
                 writePos += padLength;         /* move write position one byte    */
+                padInserted = true;
                 break;
             case 0:
                 break;                         /* don't write pad character       */
@@ -1794,8 +1934,15 @@ RexxMutableBuffer *RexxMutableBuffer::space(RexxInteger *space_count, RexxString
             {
                 setData(writePos, padChar, padLength); /* write padChar chars */
                 writePos += padLength;     /* update writePos for next word   */
+                padInserted = true;
             }
         }
     }
+
+    if (padInserted)
+    {
+        if (!padIsASCII) this->setIsASCII(false); // no need to check again, we are sure it's not ASCII
+    }
+
     return this;                           /* return the mutable buffer       */
 }

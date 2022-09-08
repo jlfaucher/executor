@@ -368,10 +368,25 @@ inline char IntToHexDigit(int n)
    inline void  setHasLower() { this->Attributes |= STRING_HASLOWER;};
    inline bool  nonNumeric() {return (this->Attributes&STRING_NONNUMERIC) != 0;};
    inline void  setNonNumeric() { this->Attributes |= STRING_NONNUMERIC;};
+
    inline bool  isASCIIChecked() {return (this->Attributes & STRING_ISASCII_CHECKED) != 0;};
-   inline void  setIsASCIIChecked() {this->Attributes |= STRING_ISASCII_CHECKED;};
+   inline void  setIsASCIIChecked(bool value=true)
+   {
+       if (value) this->Attributes |= STRING_ISASCII_CHECKED;
+       else
+       {
+           this->Attributes &= ~STRING_ISASCII_CHECKED;
+           this->setIsASCII(false); // isASCII() can be true only when isASCIIChecked() is true
+       }
+   }
+   // if isASCII() is true then it's really ASCII
+   // if isASCII() is false then it's really not ASCII only when isASCIIChecked() is true, otherwise can't tell
    inline bool  isASCII() {return (this->Attributes & STRING_ISASCII) != 0;};
-   inline void  setIsASCII() {this->Attributes |= STRING_ISASCII;};
+   inline void  setIsASCII(bool value=true)
+   {
+       if (value) this->Attributes |= STRING_ISASCII;
+       else this->Attributes &= ~STRING_ISASCII;
+   }
 
    inline bool  strCompare(const char * s) {return this->memCompare((s), strlen(s));};
    inline bool  strCaselessCompare(const char * s) { return this->blength == strlen(s) && Utilities::strCaselessCompare(s, this->stringData) == 0;}

@@ -1944,3 +1944,33 @@ RexxInteger *StringUtil::caselessWordPos(const char *data, sizeB_t length, RexxS
 
     return IntegerZero;                // not found
 }
+
+
+/**
+ * Checks if the buffer of data contains only ASCII characters.
+ *
+ * @param data   the source data buffer.
+ * @param length the length of the buffer
+ *
+ * @return true if the buffer of data contains only ASCII characters
+ */
+bool StringUtil::checkIsASCII(const char *s, sizeB_t length)
+{
+    if (length != 0)
+    {
+        // Check from start ascending, from middle descending, from middle ascending, from end descending.
+        // That will divide by 4 the number of iterations, while increasing the chance to find a not-ASCII character faster..
+        const char *i1 = s;
+        const char *i2 = s + (length - 1) / 2;
+        const char *i3 = i2;
+        const char *i4 = s + length - 1;
+
+        do
+        {
+            if ( (*i1++ | *i2-- | *i3++ | *i4--) & 0x80 ) return false;
+        }
+        while (i1 <= i2 || i3 <= i4);
+    }
+
+    return true;
+}

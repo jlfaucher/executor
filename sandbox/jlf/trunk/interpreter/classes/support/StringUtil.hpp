@@ -91,6 +91,7 @@ public:
     static RexxInteger *caselessWordPos(const char *data, sizeB_t length, RexxString  *phrase, RexxInteger *pstart);
     static RexxArray   *words(const char *data, sizeB_t length);
     static const char  *locateSeparator(const char *start, const char *end, const char *sepData, sizeB_t sepLength);
+    static bool checkIsASCII(const char *s, sizeB_t length);
 
     static inline bool matchCharacter(char ch, const char *charSet, sizeB_t len)
     {

@@ -1005,6 +1005,7 @@ CPPM(RexxMutableBuffer::words),
 CPPM(RexxMutableBuffer::wordPos),
 CPPM(RexxMutableBuffer::caselessWordPos),
 CPPM(RexxMutableBuffer::delWord),
+CPPM(RexxMutableBuffer::isASCIIRexx),
 
 CPPM(RexxSupplier::available),         /* Supplier methods                  */
 CPPM(RexxSupplier::next),

@@ -1030,6 +1030,7 @@ void RexxMemory::createImage(const char *imageTarget)
   defineKernelMethod(CHAR_WORDPOS                      ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::wordPos), 2);
   defineKernelMethod(CHAR_CASELESSWORDPOS              ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::caselessWordPos), 2);
   defineKernelMethod(CHAR_DELWORD                      ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::delWord), 2);
+  defineKernelMethod(CHAR_ISASCII                      ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::isASCIIRexx), 0);
 
                                        /* set the scope of the methods to   */
                                        /* this classes oref                 */

@@ -137,7 +137,26 @@ class RexxMutableBufferClass : public RexxClass {
    inline sizeB_t getCapacity() { return bufferLength; }
    char *setCapacity(sizeB_t newLength);
 
-
+   bool         checkIsASCII();
+   RexxInteger *isASCIIRexx();
+   inline bool  isASCIIChecked() {return (this->Attributes & STRING_ISASCII_CHECKED) != 0;};
+   inline void  setIsASCIIChecked(bool value=true)
+   {
+       if (value) this->Attributes |= STRING_ISASCII_CHECKED;
+       else
+       {
+           this->Attributes &= ~STRING_ISASCII_CHECKED;
+           this->setIsASCII(false); // isASCII() can be true only when isASCIIChecked() is true
+       }
+   }
+   // if isASCII() is true then it's really ASCII
+   // if isASCII() is false then it's really not ASCII only when isASCIIChecked() is true, otherwise can't tell
+   inline bool  isASCII() {return (this->Attributes & STRING_ISASCII) != 0;};
+   inline void  setIsASCII(bool value=true)
+   {
+       if (value) this->Attributes |= STRING_ISASCII;
+       else this->Attributes &= ~STRING_ISASCII;
+   }
 
    static void createInstance();
    static RexxClass *classInstance;
@@ -146,6 +165,7 @@ class RexxMutableBufferClass : public RexxClass {
    sizeB_t            bufferLength;    /* buffer length in bytes          */
    sizeB_t            defaultSize;     /* default size when emptied       */
    sizeB_t            dataBLength;     // current length of data in bytes
+   size_t             Attributes;      /* buffer attributes               */
    RexxBuffer        *data;            /* buffer used for the data        */
  };
 
