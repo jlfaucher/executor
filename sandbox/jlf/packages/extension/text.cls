@@ -59,16 +59,19 @@ So "41"~text~utf16~c2x will not return an UTF-16 representation of the hexadecim
 
 
 ::attribute text get
-    expose myText -- attribute added on the String instance
-    use strict arg encoding="default"
+    expose encoding myText -- attribute added on the String instance
+    -- Don't use the exposed encoding as default value because can be unassigned.
+    -- Use the attribute encoding which returns the default encoding if unassigned.
+    use strict arg textEncoding=(self~encoding)
     if \var("myText") then do -- no stored counterpart
-        myText = .RexxText~new(self, encoding) -- store the RexxText counterpart created from itself with specified encoding
+        myText = .RexxText~new(self, textEncoding) -- store the RexxText counterpart created from itself with specified encoding
     end
     else if arg(1, "e") then do
         -- If the encoding was explicitely specified then change the encoding
-        encoding = .Encoding~factory(encoding, self)
-        if myText~encoding <> encoding then myText~encoding = encoding
+        textEncoding = .Encoding~factory(textEncoding, self)
+        if myText~encoding <> textEncoding then myText~encoding = textEncoding
     end
+    drop encoding -- now given by myText
     return myText
 
 
@@ -77,7 +80,7 @@ So "41"~text~utf16~c2x will not return an UTF-16 representation of the hexadecim
     -- But the assignment is secured:
     -- If not yet linked to a RexxText then only a RexxText linked to this string can be assigned
     -- If already linked to a RexxText then only this RexxText is accepted
-    expose myText -- attribute added on the String instance
+    expose encoding myText -- attribute added on the String instance
     use strict arg aText
     if \var("myText") then do -- no stored counterpart
         if aText~isA(.RexxText), aText~string~identityHash == self~identityHash then do
@@ -93,7 +96,22 @@ So "41"~text~utf16~c2x will not return an UTF-16 representation of the hexadecim
             raise syntax 23.900 array("EncodedString: a RexxText counterpart is already assigned")
         end
     end
+    drop encoding -- now given by myText
 
+
+::attribute encoding get
+    expose encoding myText
+    if var("myText") then return myText~encoding
+    if var("encoding") then return encoding
+    return .Encoding~defaultEncoding
+
+
+::attribute encoding set
+    expose encoding myText
+    use strict arg newEncoding
+    newEncoding = .Encoding~factory(newEncoding, self)
+    if var("myText") then myText~encoding = newEncoding
+                     else encoding = newEncoding
 
 ::method hasText
     expose myText
@@ -130,8 +148,7 @@ So "41"~text~utf16~c2x will not return an UTF-16 representation of the hexadecim
 ::attribute encoding get
     expose encoding
     if var("encoding") then return encoding
-    encoding = .Encoding~defaultEncoding
-    return encoding
+    return .Encoding~defaultEncoding
 
 
 ::attribute encoding set
@@ -146,7 +163,7 @@ So "41"~text~utf16~c2x will not return an UTF-16 representation of the hexadecim
 ::method init
     -- The RexxText is not referencing directly the String, it's the indexer
     expose indexer /* rest is optim */ string text encoding
-    use strict arg argString, argEncoding="default"
+    use strict arg argString, argEncoding=(self~encoding)
     .validate~classtype("1", argString, .string)
     -- Some strings are interned by the interpreter, and the same instance can be returned
     -- at different occasions.This is the case for the empty string (null string singleton
