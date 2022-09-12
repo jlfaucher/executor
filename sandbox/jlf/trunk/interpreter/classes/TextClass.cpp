@@ -548,6 +548,34 @@ RexxInteger *Unicode::codepointIsUpper(RexxObject *rexxCodepoint)
 }
 
 
+RexxString *Unicode::stringToCaseFold(RexxString *string)
+{
+    const uint8_t *str = (const uint8_t *)string->getStringData();
+    uintptr_t strlength = (uintptr_t)size_v(string->getBLength());
+    const uint8_t * out_utf8str;
+    uintptr_t out_length;
+    ziglyph_toCaseFoldStr(str, strlength, &out_utf8str, &out_length);
+    if (out_utf8str == NULL) reportException(Error_System_service_user_defined, "StringToCaseFold raised an error");
+    RexxString *result = new_string((const char *)out_utf8str, sizeB_v(out_length));
+    ziglyph_free(out_utf8str, out_length);
+    return result;
+}
+
+
+RexxString *Unicode::stringToLower(RexxString *string)
+{
+    const uint8_t *str = (const uint8_t *)string->getStringData();
+    uintptr_t strlength = (uintptr_t)size_v(string->getBLength());
+    const uint8_t * out_utf8str;
+    uintptr_t out_length;
+    ziglyph_toLowerStr(str, strlength, &out_utf8str, &out_length);
+    if (out_utf8str == NULL) reportException(Error_System_service_user_defined, "StringToLower raised an error");
+    RexxString *result = new_string((const char *)out_utf8str, sizeB_v(out_length));
+    ziglyph_free(out_utf8str, out_length);
+    return result;
+}
+
+
 RexxString *Unicode::stringToTitle(RexxString *string)
 {
     const uint8_t *str = (const uint8_t *)string->getStringData();
@@ -556,6 +584,20 @@ RexxString *Unicode::stringToTitle(RexxString *string)
     uintptr_t out_length;
     ziglyph_toTitleStr(str, strlength, &out_utf8str, &out_length);
     if (out_utf8str == NULL) reportException(Error_System_service_user_defined, "StringToTitle raised an error");
+    RexxString *result = new_string((const char *)out_utf8str, sizeB_v(out_length));
+    ziglyph_free(out_utf8str, out_length);
+    return result;
+}
+
+
+RexxString *Unicode::stringToUpper(RexxString *string)
+{
+    const uint8_t *str = (const uint8_t *)string->getStringData();
+    uintptr_t strlength = (uintptr_t)size_v(string->getBLength());
+    const uint8_t * out_utf8str;
+    uintptr_t out_length;
+    ziglyph_toUpperStr(str, strlength, &out_utf8str, &out_length);
+    if (out_utf8str == NULL) reportException(Error_System_service_user_defined, "StringToUpper raised an error");
     RexxString *result = new_string((const char *)out_utf8str, sizeB_v(out_length));
     ziglyph_free(out_utf8str, out_length);
     return result;

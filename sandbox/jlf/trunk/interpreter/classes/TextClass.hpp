@@ -120,7 +120,10 @@ public:
     RexxInteger *codepointIsLower(RexxObject *rexxCodepoint);
     RexxInteger *codepointIsUpper(RexxObject *rexxCodepoint);
 
+    RexxString *stringToCaseFold(RexxString *string);
+    RexxString *stringToLower(RexxString *string);
     RexxString *stringToTitle(RexxString *string);
+    RexxString *stringToUpper(RexxString *string);
 
     RexxString *NFD(RexxString *str);
     RexxString *NFC(RexxString *str);

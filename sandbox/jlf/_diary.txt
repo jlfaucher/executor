@@ -2,7 +2,62 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
-08/09/2022
+2022 September 09
+
+[Encoded strings]
+
+text~title is now implemented with utf8proc for all the Unicode encodings
+(before, was implemented with ziglyph for UTF-8 only)
+
+
+Add these methods, implemented with ziglyph:
+.Unicode~ToCaseFold
+.Unicode~ToLower
+.Unicode~ToUpper
+
+
+For one character, utf8proc and ziglyph provide different results for upper/title
+    .Unicode~characters~drop(1)~select{utf8proc = item~utf8~upper; ziglyph= .Unicode~stringToUpper(item~utf8~string); utf8proc \== ziglyph}==
+        an Array (shape [1], 1 items)
+         1 : ( "ß"   U+00DF Ll 1 "LATIN SMALL LETTER SHARP S" )
+    utf8proc returns ( "ẞ"   U+1E9E Lu 1 "LATIN CAPITAL LETTER SHARP S" )
+    ziglyph  returns ( "ß"   U+00DF Ll 1 "LATIN SMALL LETTER SHARP S" )
+Both are wrong, should be "SS"
+Unicode standard 14 section 5.18 Case Mappings:
+    Default casing                                         Tailored casing
+    (small sharp) ß <--- ß (capital sharp)                 (small sharp) ß <--> ẞ (capital sharp)
+    (small sharp) ß ---> SS
+                 ss <--> SS                                             ss <--> SS
+When using the default Unicode casing operations, capital sharp s will lowercase
+to small sharp s, but not vice versa: small sharp s uppercases to “SS”.
+A tailored casing operation is needed in circumstances requiring small sharp s
+to uppercase to capital sharp s.
+
+For some characters, utf8proc and ziglyph provide the same wrong results for upper/lower
+"Diyarbakır"~text~upper=                    -- T'DIYARBAKIR'   should be DİYARBAKIR
+.Unicode~stringToUpper("Diyarbakır")=       --  'DIYARBAKIR'
+"DİYARBAKIR"~text~casefold=                 -- T'di̇yarbakir'   should be diyarbakır
+.Unicode~stringToCaseFold("DİYARBAKIR")=    --  'di̇yarbakir'
+"DİYARBAKIR"~text~lower=                    -- T'diyarbakir'
+.Unicode~stringToLower("DİYARBAKIR")=       --  'diyarbakir'
+
+
+Start working on encoding~previousCodepointIndex:
+    "🎅noël"~text~c2x=  -- 'F09F8E85 6E 6F C3AB 6C'
+    .utf8_encoding~previousCodepointIndex("🎅noël", 0)=   -- 0
+    .utf8_encoding~previousCodepointIndex("🎅noël", 1)=   -- 1
+    .utf8_encoding~previousCodepointIndex("🎅noël", 2)=   -- 1
+    .utf8_encoding~previousCodepointIndex("🎅noël", 3)=   -- 1
+    .utf8_encoding~previousCodepointIndex("🎅noël", 4)=   -- 1
+    .utf8_encoding~previousCodepointIndex("🎅noël", 5)=   -- 1
+    .utf8_encoding~previousCodepointIndex("🎅noël", 6)=   -- 5
+    .utf8_encoding~previousCodepointIndex("🎅noël", 7)=   -- 6
+Cuurently, only Byte_encoding and UTF8_encoding supports this new method.
+Still lot of work to detect the same errors as nextCodepointIndex.
+
+
+===============================================================================
+2022 September 08
 
 [Encoded strings]
 
@@ -15,8 +70,8 @@ s~encoding = .UTF16BE_Encoding    -- tag the string: encoded UTF16BE
 s~encoding =                      -- (The UTF16BE_Encoding class)
 s~hasText =                       -- still no associated RexxText: 0
 t = s~text                        -- associates a RexxText to the string
-t~encoding =                      -- the encoding of the text is the one of the string: (The UTF16BE_Encoding class)
 s~hasText =                       -- the string has an associated text: 1
+t~encoding =                      -- the encoding of the text is the one of the string: (The UTF16BE_Encoding class)
 t~utf8 =                          -- T'湯湳敮獥'      Soup
 -- Setting/getting the encoding of the string will set/get the encoding of the associated RexxText
 s~encoding = .UTF16LE_Encoding
@@ -25,7 +80,7 @@ t~utf8 =                          -- T'潮獮湥敳'      tide
 
 
 ===============================================================================
-07/09/2022
+2022 September 07
 
 [Encoded strings]
 
@@ -71,7 +126,7 @@ b~isASCII=                              -- 0
 
 
 ===============================================================================
-07/09/2022
+2022 September 07
 
 [Compatibility with classic rexx]
 
@@ -103,7 +158,7 @@ Add support for /= and /==
 
 
 ===============================================================================
-31/08/2022
+2022 August 31
 
 [Unicode]
 
@@ -116,10 +171,12 @@ Prerequisite: install zig and set PATH.
 https://ziglang.org/
 
 
+[update 09/09/2022: text~title is now implemented with utf8proc for all the Unicode encodings]
+
 To demonstrate the integration, added title-casing using Ziglyph implementation.
 "hello john"~text~title=            -- T'Hello John'
 
-Available only for for UTF-8 and WTF-8.
+Available only for UTF-8 and WTF-8.
 "hello"~text~utf16~title=           -- Method TITLE is ABSTRACT and cannot be directly invoked.
 
 If the UTF-8 string is ill-formed then an error is raised by Ziglyph.
@@ -127,7 +184,7 @@ If the UTF-8 string is ill-formed then an error is raised by Ziglyph.
 
 
 ===============================================================================
-18/08/2022
+2022 August 18
 
 [Encoded strings]
 
@@ -159,7 +216,7 @@ See https://github.com/JuliaLang/julia/issues/7848
 
 
 ===============================================================================
-07/08/2022
+2022 August 07
 
 [Encoded strings]
 

@@ -1461,7 +1461,10 @@ void RexxMemory::createImage(const char *imageTarget)
   defineKernelMethod("CODEPOINTTOTITLE" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointToTitle), 1);
   defineKernelMethod("CODEPOINTISLOWER" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointIsLower), 1);
   defineKernelMethod("CODEPOINTISUPPER" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointIsUpper), 1);
+  defineKernelMethod("STRINGTOCASEFOLD", TheUnicodeClassBehaviour, CPPM(Unicode::stringToCaseFold), 1);
+  defineKernelMethod("STRINGTOLOWER", TheUnicodeClassBehaviour, CPPM(Unicode::stringToLower), 1);
   defineKernelMethod("STRINGTOTITLE", TheUnicodeClassBehaviour, CPPM(Unicode::stringToTitle), 1);
+  defineKernelMethod("STRINGTOUPPER", TheUnicodeClassBehaviour, CPPM(Unicode::stringToUpper), 1);
   defineKernelMethod("NFD" , TheUnicodeClassBehaviour, CPPM(Unicode::NFD), 1);
   defineKernelMethod("NFC" , TheUnicodeClassBehaviour, CPPM(Unicode::NFC), 1);
   defineKernelMethod("NFKD" , TheUnicodeClassBehaviour, CPPM(Unicode::NFKD), 1);

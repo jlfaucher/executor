@@ -22,7 +22,10 @@ RexxInteger *codepointToUpper(RexxObject *rexxCodepoint);
 RexxInteger *codepointToTitle(RexxObject *rexxCodepoint);
 RexxInteger *codepointIsLower(RexxObject *rexxCodepoint);
 RexxInteger *codepointIsUpper(RexxObject *rexxCodepoint);
-RexxString *stringToTitle(RexxString *string);
+RexxString *stringToCaseFold(RexxString *string);                   // ziglyph
+RexxString *stringToLower(RexxString *string);                      // ziglyph
+RexxString *stringToTitle(RexxString *string);                      // ziglyph
+RexxString *stringToUpper(RexxString *string);                      // ziglyph
 RexxString *NFD(RexxString *str);
 RexxString *NFC(RexxString *str);
 RexxString *NFKD(RexxString *str);

@@ -163,7 +163,7 @@ So "41"~text~utf16~c2x will not return an UTF-16 representation of the hexadecim
 ::method init
     -- The RexxText is not referencing directly the String, it's the indexer
     expose indexer /* rest is optim */ string text encoding
-    use strict arg argString, argEncoding=(self~encoding)
+    use strict arg argString, argEncoding=(argString~encoding)
     .validate~classtype("1", argString, .string)
     -- Some strings are interned by the interpreter, and the same instance can be returned
     -- at different occasions.This is the case for the empty string (null string singleton
