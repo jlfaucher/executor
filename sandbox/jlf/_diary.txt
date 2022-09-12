@@ -4,6 +4,16 @@ Sandbox for experimental work, what's done so far.
 ===============================================================================
 2022 September 09
 
+[Unicode]
+
+Remove .Unicode~unknownCharacter
+Not needed so far, and moreover brings trouble when iterating over the characters
+because must exclude it using ~drop(1).
+
+
+===============================================================================
+2022 September 09
+
 [Encoded strings]
 
 text~title is now implemented with utf8proc for all the Unicode encodings
@@ -11,13 +21,15 @@ text~title is now implemented with utf8proc for all the Unicode encodings
 
 
 Add these methods, implemented with ziglyph:
-.Unicode~ToCaseFold
-.Unicode~ToLower
-.Unicode~ToUpper
+    .Unicode~ToCaseFold
+    .Unicode~ToLower
+    .Unicode~ToUpper
+For the moment, they are not accessible from a RexxText.
+From a RexxText, the implementation is based on utf8proc.
 
 
 For one character, utf8proc and ziglyph provide different results for upper/title
-    .Unicode~characters~drop(1)~select{utf8proc = item~utf8~upper; ziglyph= .Unicode~stringToUpper(item~utf8~string); utf8proc \== ziglyph}==
+    .Unicode~characters~select{utf8proc = item~utf8~upper; ziglyph= .Unicode~stringToUpper(item~utf8~string); utf8proc \== ziglyph}==
         an Array (shape [1], 1 items)
          1 : ( "ß"   U+00DF Ll 1 "LATIN SMALL LETTER SHARP S" )
     utf8proc returns ( "ẞ"   U+1E9E Lu 1 "LATIN CAPITAL LETTER SHARP S" )
@@ -1209,11 +1221,11 @@ at the end, when the buffer's string is converted to a RexxText.
 Illustration:
     -- Concatenate all the characters loaded with 'call loadUnicodeCharacterNames': 2.8 times faster
     call loadUnicodeCharacterNames
-    buffer = .MutableBuffer~new; .unicode~characters~drop(1)~reduce(initial: buffer){item~utf8(b: accu)}  -- Duration:  3.887519 sec (was 10.910638 sec)
+    buffer = .MutableBuffer~new; .unicode~characters~reduce(initial: buffer){item~utf8(b: accu)}  -- Duration:  3.887519 sec (was 10.910638 sec)
     s = buffer~string~text
     -- Same with all the intervals expanded: 27 times faster
     call expandUnicodeCharacterIntervals
-    buffer = .MutableBuffer~new; .unicode~characters~drop(1)~reduce(initial: buffer){item~utf8(b: accu)}  -- Duration: 69.157462 sec (was 1927.544056 sec)
+    buffer = .MutableBuffer~new; .unicode~characters~reduce(initial: buffer){item~utf8(b: accu)}  -- Duration: 69.157462 sec (was 1927.544056 sec)
     s = buffer~string~text
 
 
@@ -1229,18 +1241,18 @@ Concatenate all the characters loaded with 'call loadUnicodeCharacterNames'.
 Must exclude the first character (-1 Cn "<UNKNOWN CHARACTER>") because -1 is an invalid codepoint.
 Each time a character is concatenated, the whole string is analyzed.
 For 43055 characters, that makes 1+2+3+...+43055 = 43055 * (43055 + 1) / 2 = 926 888 040 characters to analyze.
-    s = .unicode~characters~drop(1)~take(200)~reduce(initial:""){accu || item~utf8}     -- Duration: 1.594796 sec
-    s = .unicode~characters~drop(1)~take(400)~reduce(initial:""){accu || item~utf8}     -- Duration: 4.127699 sec
-    s = .unicode~characters~drop(1)~take(600)~reduce(initial:""){accu || item~utf8}     -- Duration: 8.247686 sec
-    s = .unicode~characters~drop(1)~take(800)~reduce(initial:""){accu || item~utf8}     -- Duration: 14.516004 sec
-    s = .unicode~characters~drop(1)~take(1000)~reduce(initial:""){accu || item~utf8}    -- Duration: 24.784061 sec
-    s = .unicode~characters~drop(1)~take(1200)~reduce(initial:""){accu || item~utf8}    -- Duration: 34.575463 sec
-    s = .unicode~characters~drop(1)~take(1400)~reduce(initial:""){accu || item~utf8}    -- Duration: 45.256977 sec
-    s = .unicode~characters~drop(1)~take(1600)~reduce(initial:""){accu || item~utf8}    -- Duration: 57.467253 sec
-    s = .unicode~characters~drop(1)~take(1800)~reduce(initial:""){accu || item~utf8}    -- Duration: 75.098176 sec
-    s = .unicode~characters~drop(1)~take(2000)~reduce(initial:""){accu || item~utf8}    -- Duration: 90.681681 sec
+    s = .unicode~characters~take(200)~reduce(initial:""){accu || item~utf8}     -- Duration: 1.594796 sec
+    s = .unicode~characters~take(400)~reduce(initial:""){accu || item~utf8}     -- Duration: 4.127699 sec
+    s = .unicode~characters~take(600)~reduce(initial:""){accu || item~utf8}     -- Duration: 8.247686 sec
+    s = .unicode~characters~take(800)~reduce(initial:""){accu || item~utf8}     -- Duration: 14.516004 sec
+    s = .unicode~characters~take(1000)~reduce(initial:""){accu || item~utf8}    -- Duration: 24.784061 sec
+    s = .unicode~characters~take(1200)~reduce(initial:""){accu || item~utf8}    -- Duration: 34.575463 sec
+    s = .unicode~characters~take(1400)~reduce(initial:""){accu || item~utf8}    -- Duration: 45.256977 sec
+    s = .unicode~characters~take(1600)~reduce(initial:""){accu || item~utf8}    -- Duration: 57.467253 sec
+    s = .unicode~characters~take(1800)~reduce(initial:""){accu || item~utf8}    -- Duration: 75.098176 sec
+    s = .unicode~characters~take(2000)~reduce(initial:""){accu || item~utf8}    -- Duration: 90.681681 sec
     ...
-    s = .unicode~characters~drop(1)~take(3000)~reduce(initial:""){accu || item~utf8}    -- Duration: 222.078949 sec
+    s = .unicode~characters~take(3000)~reduce(initial:""){accu || item~utf8}    -- Duration: 222.078949 sec
 The duration is exponential.
 Better adjustment with Mathematica:
     f = Fit[{1.594796, 4.127699, 8.247686, 14.516004, 24.784061, 34.575463, 45.256977, 57.467253, 75.098176, 90.681681}, {1, x, x^2}, x]
@@ -1250,7 +1262,7 @@ Better adjustment with Mathematica:
         11.22 hours (probably longer than that...)
 
 More efficient calculation:
-    buffer = .MutableBuffer~new; .unicode~characters~drop(1)~reduce(initial: buffer){accu~append(item~utf8~string)}     -- Duration: 10.910638 sec
+    buffer = .MutableBuffer~new; .unicode~characters~reduce(initial: buffer){accu~append(item~utf8~string)}     -- Duration: 10.910638 sec
     buffer~length=              -- 142652
     s = buffer~string~text      -- Duration: 2.004553 sec
     s~description               -- 'UTF-8 not-ASCII (40300 graphemes, 43055 codepoints, 142652 bytes, 0 error)'
@@ -1262,7 +1274,7 @@ Reverse of this string of 43 055 codepoints, 142 652 bytes:
 Still more stress with all the intervals expanded:
     call expandUnicodeCharacterIntervals
     .unicode~characters=        -- (an UnicodeCharacterSupplier count=143925 size=918001)
-    buffer = .MutableBuffer~new; .unicode~characters~drop(1)~reduce(initial: buffer){accu~append(item~utf8~string)}  -- Duration: 1927.544056 sec... That was unexpected!! 32 min ???
+    buffer = .MutableBuffer~new; .unicode~characters~reduce(initial: buffer){accu~append(item~utf8~string)}  -- Duration: 1927.544056 sec... That was unexpected!! 32 min ???
     buffer~length=              -- 518075
     s = buffer~string~text      -- Duration: 13.808336 sec
     s~description=              -- 'UTF-8 not-ASCII (141169 graphemes, 143924 codepoints, 518075 bytes, 0 error)'

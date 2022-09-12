@@ -123,7 +123,6 @@ RexxString *NFKC_Casefold(RexxString *str);
     self~declareCharacter(  "20"~x2d, "SPACE")
     self~declareCharacter("0301"~x2d, "COMBINING ACUTE ACCENT")
     self~declareCharacter("FFFD"~x2d, "REPLACEMENT CHARACTER")
-    self~declareCharacter(-1, "<UNKNOWN CHARACTER>") -- this is not part of the Unicode standard
 
 
 ::method declareCharacterInterval class
@@ -211,7 +210,7 @@ RexxString *NFKC_Casefold(RexxString *str);
         looseMatcher = result
         return characterNames~each{ expose looseMatcher; if looseMatcher~(index) then .Unicode~character(item) }
     end
-    return .UnicodeCharacterSupplier~new(characters) -- This supplier returns index-2
+    return .UnicodeCharacterSupplier~new(characters) -- This supplier returns index-1
 
 
 ::method "[]" class
@@ -253,7 +252,7 @@ RexxString *NFKC_Casefold(RexxString *str);
     -- is name a character name?
     looseMatchingIndex = UAX44_LM2(name)
     codepoint = characterNames[looseMatchingIndex]
-    if .nil <> codepoint then return characters[2 + codepoint] -- +2 because -1 and 0 must be supported
+    if .nil <> codepoint then return characters[1 + codepoint] -- +1 because 0 must be supported
     signal name_not_found
 
     remove_leading_zeros:
@@ -272,10 +271,10 @@ RexxString *NFKC_Casefold(RexxString *str);
     expose characters
     use strict arg codepoint
     self~checkCodepoint(codepoint)
-    character = characters[2 + codepoint] -- +2 because -1 and 0 must be supported
+    character = characters[1 + codepoint] -- +1 because 0 must be supported
     if .nil == character  then do
         character = .UnicodeCharacter~new(codepoint)
-        characters[2 + codepoint] = character
+        characters[1 + codepoint] = character -- +1 because 0 must be supported
     end
     return character
 
@@ -292,13 +291,6 @@ RexxString *NFKC_Casefold(RexxString *str);
     use strict arg -- none
     if \var("replacementCharacter") then replacementCharacter = self~character("REPLACEMENT CHARACTER")
     return replacementCharacter
-
-
-::method unknownCharacter class
-    expose unknownCharacter
-    use strict arg -- none
-    if \var("unknownCharacter") then unknownCharacter = self~character("<UNKNOWN CHARACTER>")
-    return unknownCharacter
 
 
 ::method loadDerivedName class
@@ -958,7 +950,7 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 ::method index
     expose index
     use strict arg -- none
-    if self~available then return index - 2 -- yes, to support -1 and 0, all the indexes are +2
+    if self~available then return index - 1 -- yes, to support 0, all the indexes are +1
 
 
 ::method item
