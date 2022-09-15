@@ -385,21 +385,17 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 
 ::method forConcatenation class
-    use strict arg left, right -- encoding (no asciiness) or text
+    use strict arg left, right -- text or string or buffer
 
-    leftEncoding = left
-    leftIsAscii = .false
-    if left~isA(.RexxText) then do
-        leftEncoding = left~encoding
-        leftIsASCII = left~isASCII
-    end
+    left = left~requestTextOrString
+    if .nil == left then signal left_must_have_a_text_or_string_value
+    leftEncoding = left~encoding
+    leftIsASCII = left~isASCII
 
-    rightEncoding = right
-    rightIsASCII = .false
-    if right~isA(.RexxText) then do
-        rightEncoding = right~encoding
-        rightIsASCII = right~isASCII
-    end
+    right = right~requestTextOrString
+    if .nil == right then signal right_must_have_a_text_or_string_value
+    rightEncoding = right~encoding
+    rightIsASCII = right~isASCII
 
     if leftEncoding == rightEncoding then return leftEncoding
 
@@ -416,18 +412,21 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
     raise syntax 23.900 array("Encoding: cannot concatenate" left~descriptionForError "with" right~descriptionForError)
 
+    left_must_have_a_text_or_string_value: raise syntax 93.900 array("Method positional argument 'left' must have a text or string value")
+    right_must_have_a_text_or_string_value: raise syntax 93.900 array("Method positional argument 'right' must have a text or string value")
+
 
 ::method comparisonMode class
     -- if a byte comparison is possible then return "b"
     -- if a unicode comparision is possible then return "u"
     -- otherwise raise an error
-    use strict arg leftText, rightText
-    if leftText~isByte, rightText~isByte, leftText~encoding == rightText~encoding then return "b"
-    if leftText~isASCII, rightText~isASCII then return "b"
-    if leftText~isASCII, (rightText~isUTF8 | rightText~isWTF8) then return "u"
-    if (leftText~isUTF8 | leftText~isWTF8), rightText~isASCII then return "u"
-    if leftText~isUnicode & rightText~isUnicode then return "u"
-    raise syntax 23.900 array("Encoding: cannot compare" leftText~descriptionForError "with" rightText~descriptionForError)
+    use strict arg left, right -- text or string or buffer
+    if left~encoding~isByte, right~encoding~isByte, left~encoding == right~encoding then return "b"
+    if left~isASCII, right~isASCII then return "b"
+    if left~isASCII, (right~encoding~isUTF8 | right~encoding~isWTF8) then return "u"
+    if (left~encoding~isUTF8 | left~encoding~isWTF8), right~isASCII then return "u"
+    if left~encoding~isUnicode & right~encoding~isUnicode then return "u"
+    raise syntax 23.900 array("Encoding: cannot compare" left~descriptionForError "with" right~descriptionForError)
 
 
 /******************************************************************************/
@@ -438,25 +437,20 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     use strict named arg buffer(1)=.nil
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new
-    previousText = .nil
+    if \buffer~hasEncoding then buffer~encoding = self
+    else if buffer~encoding \== self then signal buffer_invalid_encoding
     do i=1 to arg()
-        text = arg(i)~request("RexxText")
+        text = arg(i)~requestTextOrString
         if .nil == text then signal must_have_a_text_or_string_value
-        if .nil == previousText then encoding = .Encoding~forConcatenation(self, text) -- could raise an unjustified error because buffer's asciiness is not provided
-                                else encoding = .Encoding~forConcatenation(previousText, text) -- raise an error if not compatible
-        -- [To rework, next comment is no longer true, I added ~encoding on MutableBuffer]
-        -- Remember: I test next equality because, unlike RexxText concatenation, I can't return either left encoding or right encoding.
-        -- In the end, I return the buffer's string  whose encoding is self.
-        -- So yes, appending to a buffer is more restrictive than appending to a RexxText
-        if encoding <> self then signal incompatible_encoding -- for example when the buffer is utf8 and the appended text is wtf8
+        encoding = .Encoding~forConcatenation(buffer, text) -- raise an error if not compatible
+        buffer~encoding = encoding
         encoding~concatenate(text, b: buffer)
-        previousText = text
     end
     if returnBuffer then return buffer
-    else return .RexxText~new(buffer~string, self)
+    else return .RexxText~new(buffer~string, buffer~encoding)
 
-    must_have_a_text_or_string_value: raise syntax 93.900 array("Method argument "i" must have a text or string value") -- 93.938 array(i)
-    incompatible_encoding:            raise syntax 23.900 array("Encoding: cannot append" text~descriptionForError "to" self~description "text")
+    buffer_invalid_encoding:          raise syntax 93.900 array("The named argument 'buffer' must have encoding =" self~description", got" buffer~encoding~description)
+    must_have_a_text_or_string_value: raise syntax 93.900 array("Method positional argument "i" must have a text or string value")
 
 
 ::method lower_upper_title private
@@ -473,8 +467,8 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     if length == 0 then return self~string~text
 
     endC = min(startC + length - 1, self~length)
-    startB = self~graphemeIndex(startC)
-    endB = self~graphemeIndex(endC+1)
+    startB = abs(self~graphemeIndex(startC))
+    endB = abs(self~graphemeIndex(endC+1))
 
     string = self~string
     encoding = self~class
@@ -537,12 +531,63 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 ::method append
     use strict arg text -- text or string
     use strict named arg buffer(1)=.nil
-    text = text~request("RexxText")
+    text = text~requestTextOrString
     if .nil == text then signal must_have_a_text_or_string_value
-    encoding = .Encoding~forConcatenation(self~string~text, text) -- raise an error if not compatible
-    return encoding~concatenate(self~string~text, text, b: buffer)
+    encoding = .Encoding~forConcatenation(self~string, text) -- raise an error if not compatible
+    return encoding~concatenate(self~string, text, b: buffer)
 
-    must_have_a_text_or_string_value: raise syntax 93.900 array("Method argument 1 must have a text or string value") -- 93.938 array(1)
+    must_have_a_text_or_string_value: raise syntax 93.900 array("Method positional argument 1 must have a text or string value")
+
+
+::method center
+    use strict arg length, pad=(self~class~spaceCharacter)
+    use strict named arg buffer(1)=.nil
+
+    if datatype(length, "w"), length >= 0 then nop
+    else signal invalid_length
+
+    pad = pad~request("RexxText") -- not requestTextOrString because we really need the pad's length in graphemes
+    if .nil == pad then signal must_have_a_text_or_string_value
+    if pad~length <> 1 then signal incorrect_pad
+
+    width = length
+    len = self~string~length
+
+    if witdh == len then do
+        if .nil <> buffer then return buffer~~append(self~string)
+                          else return .RexxText~new(self~string, self~class)
+    end
+
+    if width == 0 then do
+        if .nil <> buffer then return buffer -- unchanged because result of center is ""
+                          else return self~class~emptyString
+    end
+
+    encoding = .Encoding~forConcatenation(self~string, pad) -- raise an error if not compatible
+
+    if width > len then do
+        leftPad = (width - len) % 2
+        rightPad = (width - len) - leftPad
+        space = rightPad + leftPad + len
+        retval =
+        if .nil <> buffer then do
+            -- can't use encoding~concatenate for pad because pad~copies appends directly to the buffer
+            -- consequence: will not detect WTF8 special concatenation, if any.
+            pad~copies(leftPad, b: buffer)
+            encoding~concatenate(self~string, b: buffer)
+            pad~copies(rightPad, b: buffer)
+            return buffer
+        end
+        return encoding~concatenate(pad~copies(leftPad), self~string, pad~copies(rightPad))
+    end
+    else do
+        leftPad = (len - width) % 2
+        return self~substr(leftPad, width)
+    end
+
+    incorrect_pad:                    raise syntax 93.922 array(pad~descriptionForError)
+    invalid_length:                   raise syntax 93.923 array(length)
+    must_have_a_text_or_string_value: raise syntax 93.900 array("Method positional argument 3 must have a text or string value")
 
 
 ::method length -- number of graphemes
@@ -575,19 +620,19 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     if datatype(length, "w"), length >= 0 then nop
     else signal invalid_length
 
-    pad = pad~request("RexxText")
+    pad = pad~request("RexxText") -- not requestTextOrString because we really need the pad's length in graphemes
     if .nil == pad then signal must_have_a_text_or_string_value
     if pad~length <> 1 then signal incorrect_pad
 
-    encoding = .Encoding~forConcatenation(self~string~text, pad) -- raise an error if not compatible
+    encoding = .Encoding~forConcatenation(self~string, pad) -- raise an error if not compatible
 
     lengthPad = max(0, length - self~length)
     length = length - lengthPad
 
     endC = self~length + 1
-    endB = self~graphemeIndex(endC)
+    endB = abs(self~graphemeIndex(endC))
     startC = endC - length
-    startB = self~graphemeIndex(startC)
+    startB = abs(self~graphemeIndex(startC))
     right = self~string~right(endB - startB)
     if lengthPad == 0 then do
         if .nil <> buffer then return buffer~~append(right)
@@ -600,11 +645,11 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         encoding~concatenate(right, b: buffer)
         return buffer
     end
-    return encoding~concatenate(pad~copies(lengthPad), right, b: buffer)
+    return encoding~concatenate(pad~copies(lengthPad), right)
 
     incorrect_pad:                    raise syntax 93.922 array(pad~descriptionForError)
     invalid_length:                   raise syntax 93.923 array(length)
-    must_have_a_text_or_string_value: raise syntax 93.900 array("Method argument 3 must have a text or string value") -- 93.938 array(3)
+    must_have_a_text_or_string_value: raise syntax 93.900 array("Method positional argument 3 must have a text or string value")
 
 
 ::method substr
@@ -617,19 +662,19 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     if datatype(length, "w"), length >= 0 then nop
     else signal invalid_length
 
-    pad = pad~request("RexxText")
+    pad = pad~request("RexxText") -- not requestTextOrString because we really need the pad's length in graphemes
     if .nil == pad then signal must_have_a_text_or_string_value
     if pad~length <> 1 then signal incorrect_pad
 
-    encoding = .Encoding~forConcatenation(self~string~text, pad) -- raise an error if not compatible
+    encoding = .Encoding~forConcatenation(self~string, pad) -- raise an error if not compatible
 
     if startC > self~length then return pad~copies(length, b: buffer)
     remainingLength = self~length - startC + 1 -- always >= 0
     lengthPad = max(0, length - remainingLength)
     endC = min(startC + length - 1, self~length)
 
-    startB = self~graphemeIndex(startC)
-    endB = self~graphemeIndex(endC+1)
+    startB = abs(self~graphemeIndex(startC))
+    endB = abs(self~graphemeIndex(endC+1))
     substr = self~string~substr(startB, endB - startB)
     if lengthPad == 0 then do
         if .nil <> buffer then return buffer~~append(substr)
@@ -642,12 +687,12 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         pad~copies(lengthPad, b: buffer)
         return buffer
     end
-    return encoding~concatenate(substr, pad~copies(lengthPad), b: buffer)
+    return encoding~concatenate(substr, pad~copies(lengthPad))
 
     incorrect_pad:                    raise syntax 93.922 array(pad~descriptionForError)
     invalid_length:                   raise syntax 93.923 array(length)
     incorrect_position:               raise syntax 93.924 array(startC)
-    must_have_a_text_or_string_value: raise syntax 93.900 array("Method argument 3 must have a text or string value") -- 93.938 array(3)
+    must_have_a_text_or_string_value: raise syntax 93.900 array("Method positional argument 3 must have a text or string value")
 
 
 -- not a String method but maybe in the future...
@@ -655,6 +700,15 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     use strict arg startC=1, length=(max(0, self~length - startC + 1))
     use strict named arg buffer(1)=.nil
     return self~lower_upper_title("t", startC, length, b:buffer)
+
+
+/*
+-- Other possible implementation: using ziglyph (limited to UTF-8)
+::method title
+    use strict arg -- none
+    stringTitle = .Unicode~stringToTitle(self~string)
+    return .RexxText~new(stringTitle, self~class)
+*/
 
 
 ::method upper
@@ -822,17 +876,11 @@ For example, if startB==6 then previousCodepointIndex==3
     use strict named arg buffer(1)=.nil
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new
+    if \buffer~hasEncoding then buffer~encoding = self
     do i = 1 to arg()
         -- Only WTF-8 has a specific implementation of appendToBuffer.
-        -- When concatenating WTF-8 with UTF-8 or ASCII, the target encoding is WTF-8.
-        -- So self is WTF-8.
-        -- [later]
-        -- Finally, it appears that the initial implementation was correct.
-        -- The special concatenation rules for WTF-8 must be applied only if arg(i) is WTF-8.
-        -- So arg(i)~encoding~appendToBuffer is better than self~appendToBuffer.
-        if arg(i)~isA(.String) then .Encoding~defaultEncoding~appendToBuffer(arg(i), b:buffer) -- no encoding, use default encoding
-        else arg(i)~encoding~appendToBuffer(arg(i)~string, b: buffer) -- "old" implementation is the good one
-        -- self~appendToBuffer(arg(i)~string, b:buffer) -- "new" implementation is a bad idea.
+        -- When concatenating WTF-8 with UTF-8 or ASCII, the target encoding (self) is WTF-8.
+        arg(i)~encoding~appendToBuffer(arg(i)~string, b: buffer)
     end
     if returnBuffer then return buffer
                     else return .RexxText~new(buffer~string, self)
@@ -920,7 +968,7 @@ For example, if startB==6 then previousCodepointIndex==3
     return " "~join(self~class~description(self~string~isASCII), sizesDescription)
 
 
-::method DescriptionForError
+::method descriptionForError
     -- Display the <length> first characters
     use strict arg length=10
     text = self~string~text
@@ -1434,7 +1482,7 @@ How other languages are supporting escape characters for Unicode:
     -- otherwise return the grapheme as a RexxText
     use strict arg indexG
     use strict named arg buffer(1)=.nil
-    startB = self~graphemeIndex(indexG)
+    startB = abs(self~graphemeIndex(indexG))
     if .nil <> buffer then return buffer~~append(self~string~subchar(startB))
                       else return .RexxText~new(self~string~subchar(startB), self~class)
 

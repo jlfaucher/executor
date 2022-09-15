@@ -35,6 +35,7 @@ RexxString *NFKC_Casefold(RexxString *str);
 
 
 ::constant maxCodepoint 1114111
+::constant characterIndexOffset 1 -- +1 because index 0 must be supported.
 
 ::attribute dataDirectory get class
 ::attribute totalCharactersLoaded get class
@@ -252,7 +253,7 @@ RexxString *NFKC_Casefold(RexxString *str);
     -- is name a character name?
     looseMatchingIndex = UAX44_LM2(name)
     codepoint = characterNames[looseMatchingIndex]
-    if .nil <> codepoint then return characters[1 + codepoint] -- +1 because 0 must be supported
+    if .nil <> codepoint then return characters[self~characterIndexOffset + codepoint]
     signal name_not_found
 
     remove_leading_zeros:
@@ -271,10 +272,10 @@ RexxString *NFKC_Casefold(RexxString *str);
     expose characters
     use strict arg codepoint
     self~checkCodepoint(codepoint)
-    character = characters[1 + codepoint] -- +1 because 0 must be supported
+    character = characters[self~characterIndexOffset + codepoint]
     if .nil == character  then do
         character = .UnicodeCharacter~new(codepoint)
-        characters[1 + codepoint] = character -- +1 because 0 must be supported
+        characters[self~characterIndexOffset + codepoint] = character
     end
     return character
 
@@ -950,7 +951,8 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 ::method index
     expose index
     use strict arg -- none
-    if self~available then return index - 1 -- yes, to support 0, all the indexes are +1
+    -- The goal is to have index == codepoint
+    if self~available then return index - .Unicode~characterIndexOffset -- yes, to support 0, all the indexes are +1.
 
 
 ::method item

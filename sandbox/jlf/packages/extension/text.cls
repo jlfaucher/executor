@@ -46,6 +46,17 @@ So "41"~text~utf16~c2x will not return an UTF-16 representation of the hexadecim
 
 
 /******************************************************************************/
+::extension Object
+
+/*
+By default, an object cannot be converted to a RexxText or String.
+See this same method on RexxText and String.
+*/
+::method requestTextOrString
+    return .nil
+
+
+/******************************************************************************/
 ::class "EncodedString" mixinclass Object private
 
 /*
@@ -113,6 +124,11 @@ So "41"~text~utf16~c2x will not return an UTF-16 representation of the hexadecim
     if var("myText") then myText~encoding = newEncoding
                      else encoding = newEncoding
 
+::method hasEncoding
+    expose encoding
+    return var("encoding")
+
+
 ::method hasText
     expose myText
     return var("myText")
@@ -121,6 +137,17 @@ So "41"~text~utf16~c2x will not return an UTF-16 representation of the hexadecim
 ::method makeRexxText
     use strict arg -- none
     return self~text
+
+
+/*
+Allows to use a String or a RexxText indistinctly.
+Return a text only if already created.
+Otherwise return the string.
+*/
+::method requestTextOrString
+    expose myText
+    if var("myText") then return myText
+    return self
 
 
 ::method copy
@@ -132,6 +159,31 @@ So "41"~text~utf16~c2x will not return an UTF-16 representation of the hexadecim
     return textCopy~string
 
 
+::method description
+    /*
+    "noël👩‍👨‍👩‍👧🎅"~description(s:1)          -- 'UTF-8 not-ASCII'
+    "noël👩‍👨‍👩‍👧🎅"~description               -- 'UTF-8 not-ASCII (34 bytes)'
+    */
+    if self~hasText then forward to (self~text)
+    use strict arg -- none
+    use strict named arg short(1)=.false, technical(1)=.false /* not used */
+    sizesDescription = ""
+    if \short then sizesDescription = "(" ||,
+                                      self~length~singularPluralCount("byte", "bytes"),
+                                      || ")"
+    return " "~join(self~encoding~description(self~isASCII), sizesDescription)
+
+
+::method descriptionForError
+    if self~hasText then forward to (self~text)
+    -- Display the <length> first characters
+    use strict arg length=10
+    string = self
+    if string~length > length then string = string~left(length - 3)"..."
+    -- escape3 is needed to have a proper display like this: [00]4[00]1
+    return self~description(s:1) "'"escape3(string)"'"
+
+
 /******************************************************************************/
 ::class "EncodedMutableBuffer" mixinclass Object private
 
@@ -141,7 +193,7 @@ So "41"~text~utf16~c2x will not return an UTF-16 representation of the hexadecim
     By "current", I mean that this encoding may change during the life of the MutableBuffer,
     especially when doing concatenations. For example, an UTF-8 buffer will become a WTF-8 buffer
     when appending a WTF-8 string.
-    There is no analysis of contents, no indexer.
+    There is no analysis of contents, no indexer, no associated text.
     The analysis is done when a RexxText instance is created from the buffer's string.
 */
 
@@ -155,6 +207,34 @@ So "41"~text~utf16~c2x will not return an UTF-16 representation of the hexadecim
     expose encoding
     use strict arg newEncoding
     encoding = .Encoding~factory(newEncoding, self~string)
+
+
+::method hasEncoding
+    expose encoding
+    return var("encoding")
+
+
+::method description
+    /*
+    .MutableBuffer~new("noël👩‍👨‍👩‍👧🎅")~description(s:1)          -- 'UTF-8 not-ASCII'
+    .MutableBuffer~new("noël👩‍👨‍👩‍👧🎅")~description               -- 'UTF-8 not-ASCII (34 bytes)'
+    */
+    use strict arg -- none
+    use strict named arg short(1)=.false, technical(1)=.false /* not used */
+    sizesDescription = ""
+    if \short then sizesDescription = "(" ||,
+                                      self~length~singularPluralCount("byte", "bytes"),
+                                      || ")"
+    return " "~join(self~encoding~description(self~isASCII), sizesDescription)
+
+
+::method descriptionForError
+    -- Display the <length> first characters
+    use strict arg length=10
+    string = self
+    if string~length > length then string = string~left(length - 3)"..."
+    -- escape3 is needed to have a proper display like this: [00]4[00]1
+    return self~description(s:1) "'"escape3(string)"'"
 
 
 /******************************************************************************/
@@ -223,6 +303,13 @@ base class...
 
 
 ::attribute text set private
+
+
+/*
+Allows to use a String or a RexxText indistinctly
+*/
+::method requestTextOrString
+    return self
 
 
 ::attribute encoding get
@@ -296,149 +383,10 @@ base class...
     forward to (self~indexer)
 
 
-::method isByte
-    expose isByte
-    if var("isByte") then return isByte
-    forward to (self~indexer~class) continue
-    isByte = result
-    return result
-
-
-::method isUnicode
-    expose isUnicode
-    if var("isUnicode") then return isUnicode
-    forward to (self~indexer~class) continue
-    isUnicode = result
-    return result
-
-
-::method isUTF8
-    expose isUTF8
-    if var("isUTF8") then return isUTF8
-    forward to (self~indexer~class) continue
-    isUTF8 = result
-    return result
-
-
-::method isWTF8
-    expose isWTF8
-    if var("isWTF8") then return isWTF8
-    forward to (self~indexer~class) continue
-    isWTF8 = result
-    return result
-
-
-::method isUTF16 -- true if UTF-16BE or UTF-16LE
-    expose isUTF16
-    if var("isUTF16") then return isUTF16
-    forward to (self~indexer~class) continue
-    isUTF16 = result
-    return result
-
-
-::method isUTF16BE
-    expose isUTF16BE
-    if var("isUTF16BE") then return isUTF16BE
-    forward to (self~indexer~class) continue
-    isUTF16BE = result
-    return result
-
-
-::method isUTF16LE
-    expose isUTF16LE
-    if var("isUTF16LE") then return isUTF16LE
-    forward to (self~indexer~class) continue
-    isUTF16LE = result
-    return result
-
-
-::method isWTF16 -- true is WTF-16BE or WTF-16LE
-    expose isWTF16
-    if var("isWTF16") then return isWTF16
-    forward to (self~indexer~class) continue
-    isWTF16 = result
-    return result
-
-
-::method isWTF16BE
-    expose isWTF16BE
-    if var("isWTF16BE") then return isWTF16BE
-    forward to (self~indexer~class) continue
-    isWTF16BE = result
-    return result
-
-
-::method isWTF16LE
-    expose isWTF16LE
-    if var("isWTF16LE") then return isWTF16LE
-    forward to (self~indexer~class) continue
-    isWTF16LE = result
-    return result
-
-
-::method isUTF32
-    expose isUTF32
-    if var("isUTF32") then return isUTF32
-    forward to (self~indexer~class) continue
-    isUTF32 = result
-    return result
-
-
-::method isUTF32BE
-    expose isUTF32BE
-    if var("isUTF32BE") then return isUTF32BE
-    forward to (self~indexer~class) continue
-    isUTF32BE = result
-    return result
-
-
-::method isUTF32LE
-    expose isUTF32LE
-    if var("isUTF32LE") then return isUTF32LE
-    forward to (self~indexer~class) continue
-    isUTF32LE = result
-    return result
-
-
--- The corresponding encoding name is "Unicode" but I can't name this method "isUnicode"
--- because collision with isUnicode already defined, which returns .true for a RexxText with Unicode encoding.
--- I could rename the other method "isUnicodeEncoding" but I prefer to stay like that.
-::method isUnicodeN
-    expose isUnicodeN
-    if var("isUnicodeN") then return isUnicodeN
-    forward to (self~indexer~class) continue
-    isUnicodeN = result
-    return result
-
-
-::method isUnicode8
-    expose isUnicode8
-    if var("isUnicode8") then return isUnicode8
-    forward to (self~indexer~class) continue
-    isUnicode8 = result
-    return result
-
-
-::method isUnicode16
-    expose isUnicode16
-    if var("isUnicode16") then return isUnicode16
-    forward to (self~indexer~class) continue
-    isUnicode16 = result
-    return result
-
-
-::method isUnicode32
-    expose isUnicode32
-    if var("isUnicode32") then return isUnicode32
-    forward to (self~indexer~class) continue
-    isUnicode32 = result
-    return result
-
-
 ::method isASCII
     expose isASCII
     if var("isASCII") then return isASCII
-    isASCII = (self~isByte | self~isUTF8 | self~isWTF8) & self~string~isASCII
+    isASCII = (self~encoding~isByte | self~encoding~isUTF8 | self~encoding~isWTF8) & self~string~isASCII
     return isASCII
 
 
@@ -462,8 +410,8 @@ base class...
     expose isCompatibleWithString
     -- true if the String methods are applicable
     if var("isCompatibleWithString") then return isCompatibleWithString
-    if self~isByte then result = .true
-    else result = (self~isUTF8 | self~isWTF8) & self~string~isASCII
+    if self~encoding~isByte then result = .true
+    else result = (self~encoding~isUTF8 | self~encoding~isWTF8) & self~string~isASCII
     isCompatibleWithString = result
     return result
 
@@ -703,8 +651,8 @@ caselessMatchChar
 caselessPos
 caselessStartsWith              (new 5)
 caselessWordPos
-center
-centre
+center                          full
+centre                          full
 changeStr
 contains                        (new 5) partial
 containsWord                    (new 5)
@@ -796,6 +744,26 @@ x2d                             full (raise an error if not compatible with Stri
     return self~string~caselessCompareTo(text~string, n, length)
 
 
+::method center
+    use arg _length, pad -- not strict, just need to check 'pad'
+    use strict named arg buffer(1)=.nil
+    padIsCompatibleWithString = .true
+    if arg(2, "e") then do
+        if pad~isA(.RexxText), \pad~isCompatibleWithString then padIsCompatibleWithString = .false
+        else if pad~length > 1 then padIsCompatibleWithString = .false -- maybe its length will be 1 when converted to text
+    end
+    if self~isCompatibleWithString, padIsCompatibleWithString then do
+        forward to (self~string) continue
+        if .nil <> buffer then return buffer~~append(result)
+                          else return .RexxText~new(result, self~encoding)
+    end
+    forward to (self~indexer)
+
+
+::method centre
+    forward message "center"
+
+
 ::method contains
     -- regex.cls uses the method .String~contains which is available only from ooRexx v5.
     use arg other -- not strict, just need to check this one
@@ -819,13 +787,14 @@ x2d                             full (raise an error if not compatible with Stri
     forward to (self~string)
 
 
-::method join
+::method join -- extension
     -- Positional arguments : zero to N text/string or arrays of text/string (recursively).
     -- The text value of each argument is joined, with self used as separator
     -- If the encoding of an argument is not compatible for concatenation with self then an error is raised
     use strict named arg buffer(1)=.nil, appender(1)=(self~encoding)
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new
+    if \buffer~hasEncoding then buffer~encoding = self~encoding
     buffer~join(arg(1, "a"), separator: self, a: appender)
     if returnBuffer then return buffer
                     else return .RexxText~new(buffer~string, self~encoding)
@@ -1043,7 +1012,7 @@ x2d                             full (raise an error if not compatible with Stri
     <=, etc.) will always return .false when compared to .nil.
     */
     if .nil == right then forward message (message) to (self~string) array(right)
-    right = right~request("RexxText")
+    right = right~requestTextOrString
     if .nil == right then return
     if .Encoding~comparisonMode(self, right) == "b" then do
         forward message (message) to (self~string) array (right~string)
@@ -1055,7 +1024,7 @@ x2d                             full (raise an error if not compatible with Stri
 
 ::method compareLeftSelf
     use strict arg left, message
-    left = left~request("RexxText")
+    left = left~requestTextOrString
     if .nil == left then return
     if .Encoding~comparisonMode(left, self) == "b" then do
         forward message (message) to (left~string) array (self~string)
@@ -1245,7 +1214,7 @@ x2d                             full (raise an error if not compatible with Stri
 
 ::method " "
     use strict arg right
-    right = right~request("RexxText")
+    right = right~requestTextOrString
     if .nil == right then return -- no result: try the alternative message
     encoding = .Encoding~ForConcatenation(self, right)
     return encoding~concatenate(self, encoding~spaceCharacter, right)
@@ -1253,7 +1222,7 @@ x2d                             full (raise an error if not compatible with Stri
 
 ::method " op:right"
     use strict arg left
-    left = left~request("RexxText")
+    left = left~requestTextOrString
     if .nil == left then return -- no result: try the alternative message
     encoding = .Encoding~ForConcatenation(left, self)
     return encoding~concatenate(left, encoding~spaceCharacter, self)
@@ -1261,7 +1230,7 @@ x2d                             full (raise an error if not compatible with Stri
 
 ::method "||"
     use strict arg right
-    right = right~request("RexxText")
+    right = right~requestTextOrString
     if .nil == right then return -- no result: try the alternative message
     encoding = .Encoding~ForConcatenation(self, right)
     return encoding~concatenate(self, right)
@@ -1269,7 +1238,7 @@ x2d                             full (raise an error if not compatible with Stri
 
 ::method "||op:right"
     use strict arg left
-    left = left~request("RexxText")
+    left = left~requestTextOrString
     if .nil == left then return -- no result: try the alternative message
     encoding = .Encoding~ForConcatenation(left, self)
     return encoding~concatenate(left, self)
@@ -1277,7 +1246,7 @@ x2d                             full (raise an error if not compatible with Stri
 
 ::method "" -- abuttal
     use strict arg right
-    right = right~request("RexxText")
+    right = right~requestTextOrString
     if .nil == right then return -- no result: try the alternative message
     encoding = .Encoding~ForConcatenation(self, right)
     return encoding~concatenate(self, right)
@@ -1285,7 +1254,7 @@ x2d                             full (raise an error if not compatible with Stri
 
 ::method "op:right" -- abuttal
     use strict arg left
-    left = left~request("RexxText")
+    left = left~requestTextOrString
     if .nil == left then return -- no result: try the alternative message
     encoding = .Encoding~ForConcatenation(left, self)
     return encoding~concatenate(left, self)

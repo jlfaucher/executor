@@ -2,6 +2,25 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2022 September 14
+
+[Encoded strings]
+
+Now that an encoding can be set/get on a string without requesting a RexxText,
+it's possible to avoid the creation of intermediary RexxText.
+
+New method ~requestTextOrString which doesn't force the creation of a text from
+a string. If a text is associated to the string, then this text is returned,
+otherwise the string is returned.
+Careful! Sometimes you really need to have a text... For example when checking
+the length of a pad character.
+
+New methods on RexxText
+    center
+    centre
+
+
+===============================================================================
 2022 September 09
 
 [Unicode]
@@ -64,7 +83,7 @@ Start working on encoding~previousCodepointIndex:
     .utf8_encoding~previousCodepointIndex("🎅noël", 5)=   -- 1
     .utf8_encoding~previousCodepointIndex("🎅noël", 6)=   -- 5
     .utf8_encoding~previousCodepointIndex("🎅noël", 7)=   -- 6
-Cuurently, only Byte_encoding and UTF8_encoding supports this new method.
+Currently, only Byte_encoding and UTF8_encoding supports this new method.
 Still lot of work to detect the same errors as nextCodepointIndex.
 
 
@@ -1238,7 +1257,6 @@ MacBook Pro mid-2010 Intel(R) Core(TM)2 Duo CPU     P8600  @ 2.40GHz
 Concatenate all the characters loaded with 'call loadUnicodeCharacterNames'.
     call loadUnicodeCharacterNames
     .unicode~characters=        -- (an UnicodeCharacterSupplier count=43056 size=918001)
-Must exclude the first character (-1 Cn "<UNKNOWN CHARACTER>") because -1 is an invalid codepoint.
 Each time a character is concatenated, the whole string is analyzed.
 For 43055 characters, that makes 1+2+3+...+43055 = 43055 * (43055 + 1) / 2 = 926 888 040 characters to analyze.
     s = .unicode~characters~take(200)~reduce(initial:""){accu || item~utf8}     -- Duration: 1.594796 sec
