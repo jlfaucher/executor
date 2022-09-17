@@ -126,7 +126,7 @@ public:
     }
 
 
-    static void logicError (const char *desc);
+    static void logicError (const char *desc, const char *info1=NULL, size_t info2=0);
     static wholenumber_t messageNumber(RexxString *);
     static inline void setTimeSliceElapsed() { timeSliceElapsed = true; }
     static inline void clearTimeSliceElapsed() { timeSliceElapsed = false; }

@@ -1538,7 +1538,11 @@ void RexxMemory::saveImageMark(RexxObject *markObject, RexxObject **pMarkObject)
         {
             if (behaviour->isTransientClass())
             {
-                Interpreter::logicError("Transient class included in image buffer");
+                RexxClass  *owningClass = behaviour->getOwningClass();
+                RexxString  *owningClassId = owningClass ? owningClass->getId() : OREF_NULL;
+                const char *owningClassIdCstr = owningClassId ? owningClassId->getStringData() : "NULL";
+                size_t classType = behaviour->getClassType();
+                Interpreter::logicError("Transient class included in image buffer", owningClassIdCstr, classType);
             }
             /* clear this out, as this is overloaded with the oldspace */
             /* flag. */

@@ -553,12 +553,13 @@ RexxString *Interpreter::getCurrentQueue()
 }
 
 
-void Interpreter::logicError (const char *desc)
+void Interpreter::logicError (const char *desc, const char *info1, size_t info2)
 /******************************************************************************/
 /* Function:  Raise a fatal logic error                                       */
 /******************************************************************************/
 {
-    printf("Logic error: %s\n",desc);
+    if (info1) printf("Logic error: %s (%s %i)\n",desc, info1, info2);
+    else      printf("Logic error: %s\n",desc);
     exit(RC_LOGIC_ERROR);
 }
 
