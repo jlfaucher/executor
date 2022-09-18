@@ -59,8 +59,11 @@
 // we need a little more space on 64-bit platforms, so add some padding based on
 // the size of a pointer
 #define MIN_C_STACK 1024*(32 + sizeof(void *))
-#define TOTAL_STACK_SIZE 1024*512
-#define C_STACK_SIZE 60000
+// official settings are not enough to execute RosetaCode ackermann-function-1.rexx
+// multiply by 2: not enough!
+// multiply by 4
+#define TOTAL_STACK_SIZE 1024*512*4
+#define C_STACK_SIZE TOTAL_STACK_SIZE
 
 #define SysCall _cdecl
 

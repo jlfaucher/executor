@@ -2,6 +2,21 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2022 September 19
+
+[RosettaCode executor]
+
+Executor stack overflow for Ackermann-function/ackermann-function-1.rex
+regina can execute it, oorexx5 can execute it after replacing variable #
+Modify the C stack size:
+- old: #define TOTAL_STACK_SIZE 1024*512
+- new: #define TOTAL_STACK_SIZE 1024*512*4
+Multiplying by 2 was not enough...
+Why do I need THAT?
+Ok under MacOs, crash under Windows.
+
+
+===============================================================================
 2022 September 15
 
 [Encoded strings]

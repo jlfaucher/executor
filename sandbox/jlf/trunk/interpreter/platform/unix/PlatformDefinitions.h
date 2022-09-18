@@ -55,8 +55,11 @@
 /* REQUIRED:  The implemenation must decide on the C_STACK_SIZE defining      */
 /* constants that are compiler/linker dependent.                              */
 /******************************************************************************/
-#define MIN_C_STACK 1024*16
-#define TOTAL_STACK_SIZE 1024*512
+#define MIN_C_STACK 1024*(32 + sizeof(void *))
+// official settings are not enough to execute RosetaCode ackermann-function-1.rexx
+// multiply by 2: not enough!
+// multiply by 4
+#define TOTAL_STACK_SIZE 1024*512*4
 #define C_STACK_SIZE TOTAL_STACK_SIZE
 
 // No definition needed on Linux systems.
