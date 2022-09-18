@@ -882,3 +882,25 @@ The method .string~"[]"
     This method is not consistent with the indexation of an array where [n1,n2] is applicable only to a 2-dimensional array.
     "my string"[2,3] is equivalent to .array~section(2,3)
     .string~"[]" should behave like .string~subchar which takes only one argument: the character's position.
+
+
+================================================================================
+Error messages to fix
+================================================================================
+
+   939 *-* ::extension "Byte_Encoding" public inherit Byte_CommonServices StringIndexer
+    11 *-* ::requires "encoding/stringEncoding.cls"
+    15 *-* ::requires "extension/text.cls"
+    97 *-* ::requires "extension/extensions.cls"
+REX0025E: Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/stringEncoding.cls line 939:  Invalid subkeyword found.
+REX0289E: Error 25.901:  Unknown keyword on ::CLASS directive; found "PUBLIC".
+--> should be            Unknown keyword on ::EXTENSION directive; found "PUBLIC"
+
+
+  1260 *-* ::extension "CP1252_Encoding" subclass Byte_Encoding /*public*/
+    11 *-* ::requires "encoding/stringEncoding.cls"
+    15 *-* ::requires "extension/text.cls"
+    97 *-* ::requires "extension/extensions.cls"
+REX0025E: Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/stringEncoding.cls line 1260:  Invalid subkeyword found.
+REX0289E: Error 25.901:  Unknown keyword on ::CLASS directive; found "SUBCLASS".
+--> should be            Unknown keyword on ::EXTENSION directive; found "SUBCLASS".
