@@ -606,21 +606,21 @@ Allows to use a String or a RexxText indistinctly
 /*
 Class methods
 =============
-alnum                           (new 5)
-alpha                           (new 5)
-blank                           (new 5)
-cntrl                           (new 5)
+alnum                           (new 5) alpha + digit
+alpha                           (new 5) Lowercase + Uppercase + Lt + Lm + Lo + Nl + Other_Alphabetic
+blank                           (new 5) "horizontal" whitespace: space separators plus U+0009 tab.
+cntrl                           (new 5) Cc
 cr                              (new 5)
-digit                           (new 5)
+digit                           (new 5) Nd
 graph                           (new 5)
-lower                           (new 5)
+lower                           (new 5) Ll + Other_Lowercase
 nl                              (new 5)
 null                            (new 5)
 print                           (new 5)
 punct                           (new 5)
 space                           (new 5)
 tab                             (new 5)
-upper                           (new 5)
+upper                           (new 5) Lu + Other_Uppercase
 xdigit                          (new 5)
 
 Instance methods
@@ -803,7 +803,7 @@ x2d                             full (raise an error if not compatible with Stri
 ::method left
     use strict arg _length, _pad="" -- not used, it's just to check that we get at least the length, and that we don't get more than 2 arguments
     -- equivalent to substr(1, length, pad)
-    forward message "substr" arguments (arg(1, "a")~prepend(1))
+    forward message "substr" arguments (arg(1, "a")~~insert(1, .nil))
 
 
 ::method length -- number of graphemes
