@@ -2,6 +2,27 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2022 September 15
+
+[Encoded strings]
+
+When using the script Unicode/scripts/dump_encoded.rex, I discovered a problem
+of circular dependency that was not visible from ooRexxShell:
+    unicode.cls <--> stringEncoding.cls
+Because of the circular dependency, the encoding classes were not visible from
+unicode.cls, and an error was raised:
+    REX0476E: Error 97.1:  Object ".ENCODING" does not understand message "DEFAULTOUTPUTENCODING".
+Fixed by moving the routine ppCodepoint in encodeString.cls and removing the requires
+of unicode.cls. Now the dependency graph is:
+    unicode.cls --> stringEncoding.cls
+Remember:
+In ooRexxShell, the routines 'declareAllPublicClasses' and 'declareAllPublicRoutines'
+make visible all the public classes and routines required directly (normal ooRexx behavior),
+and also recursively (this is why the visibility problem related to the circular dependency
+was not visible from ooRexxShell).
+
+
+===============================================================================
 2022 September 14
 
 [Encoded strings]
@@ -15,9 +36,19 @@ otherwise the string is returned.
 Careful! Sometimes you really need to have a text... For example when checking
 the length of a pad character.
 
+
 New methods on RexxText
     center
     centre
+Examples:
+    "noël👩‍👨‍👩‍👧🎅"~text~description=                  -- 'UTF-8 not-ASCII (6 graphemes, 12 codepoints, 34 bytes, 0 error)'
+    "noël👩‍👨‍👩‍👧🎅"~text~center(10)=                   -- T'  noël👩‍👨‍👩‍👧🎅  '
+    "noël👩‍👨‍👩‍👧🎅"~text~center(10)~description=       -- 'UTF-8 not-ASCII (10 graphemes, 16 codepoints, 38 bytes, 0 error)'
+    pad = "═"
+    pad~description=                                    -- 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'
+    pad~c2x=                                            -- 'E29590'
+    "noël👩‍👨‍👩‍👧🎅"~text~center(10, pad)=              -- T'══noël👩‍👨‍👩‍👧🎅══'
+    "noël👩‍👨‍👩‍👧🎅"~text~center(10, pad)~description=  -- 'UTF-8 not-ASCII (10 graphemes, 16 codepoints, 46 bytes, 0 error)'
 
 
 ===============================================================================

@@ -1,10 +1,14 @@
 ::extension RexxText inherit RexxTextInternalFacade
 
 ::requires "extension/string.cls"   -- for escape3
-::requires "encoding/unicode.cls"   -- for ppCodepoint
 
+-- Circular dependency
 -- no need to requires text.cls because RexxText is a predefined class.
 -- ::requires "extension/text.cls"
+
+-- Circular dependency
+-- no need to requires unicode.cls because Unicode is a predefined class.
+-- ::requires "extension/unicode.cls"
 
 
 /******************************************************************************/
@@ -551,7 +555,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     if pad~length <> 1 then signal incorrect_pad
 
     width = length
-    len = self~string~length
+    len = self~length
 
     if witdh == len then do
         if .nil <> buffer then return buffer~~append(self~string)
@@ -4098,6 +4102,31 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
         end
     end
     return tableTranscodingToUnicode
+
+
+/******************************************************************************/
+::routine ppCodepoint public
+    /*
+    Appendix A - Notational conventions
+    In running text, an individual Unicode code point is expressed as U+n, where n is four to
+    six hexadecimal digits, using the digits 0–9 and uppercase letters A–F (for 10 through 15,
+    respectively). Leading zeros are omitted, unless the code point would have fewer than four
+    hexadecimal digits—for example, U+0001, U+0012, U+0123, U+1234, U+12345, U+102345
+    */
+    use strict arg codepoint
+    use strict named arg buffer(1)=.nil
+    if \datatype(codepoint, "W") then return "not a whole number"
+    if codepoint < 0 then return "-" || ppCodepoint(-codepoint)
+    if .nil == buffer then do
+        if codepoint < 65536 then return "U+" || codepoint~d2x(4)
+        return "U+" || codepoint~d2x
+    end
+    else do
+        buffer~append("U+")
+        if codepoint < 65536 then buffer~append(codepoint~d2x(4))
+        else buffer~append(codepoint~d2x)
+        return buffer
+    end
 
 
 /******************************************************************************/

@@ -1,5 +1,7 @@
 .Unicode~initialize
 
+::requires "encoding/stringEncoding.cls"
+
 
 /******************************************************************************/
 ::extension "Unicode"
@@ -994,28 +996,3 @@ https://unicode.org/reports/tr44/#UAX44-LM3
     expose characterIntervals
     use strict arg -- none
     return characterIntervals~items
-
-
-/******************************************************************************/
-::routine ppCodepoint public
-    /*
-    Appendix A - Notational conventions
-    In running text, an individual Unicode code point is expressed as U+n, where n is four to
-    six hexadecimal digits, using the digits 0–9 and uppercase letters A–F (for 10 through 15,
-    respectively). Leading zeros are omitted, unless the code point would have fewer than four
-    hexadecimal digits—for example, U+0001, U+0012, U+0123, U+1234, U+12345, U+102345
-    */
-    use strict arg codepoint
-    use strict named arg buffer(1)=.nil
-    if \datatype(codepoint, "W") then return "not a whole number"
-    if codepoint < 0 then return codepoint
-    if .nil == buffer then do
-        if codepoint < 65536 then return "U+" || codepoint~d2x(4)
-        return "U+" || codepoint~d2x
-    end
-    else do
-        buffer~append("U+")
-        if codepoint < 65536 then buffer~append(codepoint~d2x(4))
-        else buffer~append(codepoint~d2x)
-        return buffer
-    end
