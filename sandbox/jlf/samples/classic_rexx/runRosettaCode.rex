@@ -215,7 +215,25 @@ if pass = 1 then do
 end
 indexSolution += 1
 
-parse arg solution, args
+/*
+Supported arguments:
+call run ["utf8",] solution
+call run ["utf8",] solution, "arg1 arg2 ... argN"
+call run ["utf8",] solution, "stdin", "line1", "line2", ..., "lineN"
+*/
+
+parse arg arg1
+if arg1 == "utf8" then do
+    parse arg utf8, solution, args
+    if extended() then executor = "executor.rex"
+                  else executor = ""
+    line1 = 4 -- arg(4)
+end
+else do
+    parse arg solution, args
+    executor = ""
+    line1 = 3 -- arg(3)
+end
 
 if \filter(filter, indexSolution, countSolutions, solution) then return
 
@@ -248,20 +266,20 @@ if args == "stdin" then do
     file = SysTempFileName("solution_input????.txt")    /* return "" if not possible to create a unique filename */
     if file == "" then file = "solution_input.txt"      /* Default */
     call stream file, "c", "open write replace"
-    do i=3 to arg()
+    do i=line1 to arg()
         call lineout file, arg(i)
     end
     call stream file, "c", "close"
 
     call time "reset"
-    display file "|" rexxExecutable path || solution
+    display file "|" rexxExecutable executor path || solution
     solution_RC = RC
     duration = time("elapsed")
     delete file
 end
 else do
     call time "reset"
-    rexxExecutable path || solution escape(args)
+    rexxExecutable executor path || solution escape(args)
     solution_RC = RC
     duration = time("elapsed")
 end
@@ -286,6 +304,19 @@ end
 return
 
 /*----------------------------------------------------------------------------*/
+extended: procedure
+
+/*
+In Executor
+    The tokenizer has been modified to split a symbol of the form <number><after number> in two distinct tokens.
+    0a is the number 0 followed by the symbol a. If a=0 then 0a is (0 "" 0) = "00"
+In Official ooRexx, 0a is parsed as "0A" and is not impacted by the value of the variable a.
+*/
+
+a = 0
+return 0a == "00"
+
+/*----------------------------------------------------------------------------*/
 runall:
 
 /*
@@ -298,12 +329,14 @@ call run "100-doors/100-doors-1.rexx"
 
 call run "100-doors/100-doors-2.rexx"   /* hard-way */
 
+/* RC=13 */
+/* is it really an error? no error message displayed */
+call run "24-game-Solve/24-game-solve.rexx", "1111-1129"
+
 /* interactive */
 call run "24-game/24-game-1.rexx", "stdin", "quit"
 
 /* 24-game/24-game-2.rexx: just a routine, nothing to execute */
-
-call run "24-game-Solve/24-game-solve.rexx", "1111-1129"
 
 call run "9-billion-names-of-God-the-integer/9-billion-names-of-god-the-integer.rexx"
 
@@ -317,17 +350,19 @@ call run "A+B/a+b-3.rexx", "stdin", "10 20"
 
 call run "A+B/a+b-4.rexx", "stdin", "10 20 30 40 50"
 
+call run "A+B/a+b-5.rexx", "stdin", "10 20 30 40 50"
+
 call run "ABC-Problem/abc-problem-1.rexx"
 
 call run "ABC-Problem/abc-problem-2.rexx"
 
 /* [KO] Error 40.23: CENTER argument 3 must be a single character; found "═" */
 /* same error with Regina */
-call run "Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-1.rexx"
+call run "utf8", "Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-1.rexx"
 
 /* [KO] Error 40.23: CENTER argument 3 must be a single character; found "═" */
 /* same error with regina */
-call run "Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-2.rexx"
+call run "utf8", "Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-2.rexx"
 
 /* not activated : needs 44 sec */
 call skip "Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-3.rexx"
@@ -338,6 +373,11 @@ call run "Accumulator-factory/accumulator-factory.rexx"
 /* oorexx-4.2 64bits (after replacing variable #) : stack overflow */
 /* oorexx-5 (after replacing variable #) : ok */
 /* regina: ok */
+/*
+executor : increase the C stack size (4 times bigger!)
+ok under Macos
+crash under Windows.
+*/
 call run "Ackermann-function/ackermann-function-1.rexx"
 
 call run "Ackermann-function/ackermann-function-2.rexx"
@@ -350,20 +390,81 @@ call run "Active-Directory-Search-for-a-user/active-directory-search-for-a-user.
 /* Could not find routine "STORAGE" */
 call skip "Address-of-a-variable/address-of-a-variable.rexx"
 
-call run "AKS-test-for-primes/aks-test-for-primes-1.rexx"
-
-call run "AKS-test-for-primes/aks-test-for-primes-2.rexx"
-
 call run "Align-columns/align-columns-1.rexx"
 
 /* [KO] oorexx & regina: Error 40.23:  CENTER argument 3 must be a single character; found "═" */
-call run "Align-columns/align-columns-2.rexx"
+call run "utf8", "Align-columns/align-columns-2.rexx"
 
 /* [KO] oorexx & regina: Error 40.23:  CENTER argument 3 must be a single character; found "═" */
-call run "Align-columns/align-columns-3.rexx"
+/*
+Rosettacode display (web site, correctly aligned in a browser)
+═══════════════════════════════════════════════left aligned═══════════════════════════════════════════════
+┌──────────┬──────────┬──────────┬──────┬──────┬─────────┬──────────┬────────┬───────┬───────┬──────┬────┐
+│Given     │a         │text      │file  │of    │many     │lines,    │where   │fields │within │a     │line│
+│are       │delineated│by        │a     │single│'dollar' │character,│write   │a      │program│      │    │
+│that      │aligns    │each      │column│of    │fields   │by        │ensuring│that   │words  │in    │each│
+│column    │are       │separated │by    │at    │least    │one       │space.  │       │       │      │    │
+│Further,  │allow     │for       │each  │word  │in       │a         │column  │to     │be     │either│left│
+│justified,│right     │justified,│or    │center│justified│within    │its     │column.│       │      │    │
+└──────────┴──────────┴──────────┴──────┴──────┴─────────┴──────────┴────────┴───────┴───────┴──────┴────┘
+
+  2    ┌──────────┬──────────┬──────────┬──────┬──────┬─────────┬──────────┬────────┬───────┬───────┬──────┬────┐
+  2    UTF-8 not-ASCII (106 graphemes, 106 codepoints, 318 bytes, 0 error)
+  2    E2948C E29480 E29480 E29480 E29480 E29480 E29480 E29480 E29480 E29480 E29480 E294AC E29480 E29480 E29480 E29480 E29480 E29480 E29480 E29480 E29480 E29480 E294AC E29480 E29480 E29480 E29480 E29480 E29480 E29480 E29480 E29480 E29480 E294AC E29480 E29480 E29480 E29480 E29480 E29480 E294AC E29480 E29480 E29480 E29480 E29480 E29480 E294AC E29480 E29480 E29480 E29480 E29480 E29480 E29480 E29480 E29480 E294AC E29480 E29480 E29480 E29480 E29480 E29480 E29480 E29480 E29480 E29480 E294AC E29480 E29480 E29480 E29480 E29480 E29480 E29480 E29480 E294AC E29480 E29480 E29480 E29480 E29480 E29480 E29480 E294AC E29480 E29480 E29480 E29480 E29480 E29480 E29480 E294AC E29480 E29480 E29480 E29480 E29480 E29480 E294AC E29480 E29480 E29480 E29480 E29490
+
+
+Local display from the console (the invalid characters are displayed in <hex>)
+═══════════════════════════════════════════════left aligned═══════════════════════════════════════════════
+┌<94><AC>───<E2>┬───<E2>┬───<E2>┬──┬──┬───┬───<E2>┬──<E2><94>┬──<E2>┬──<E2>┬──┬─<E2>┐
+│Given     │a         │text      │file  │of    │many     │lines,    │where   │fields │within │a     │line│
+│are       │delineated│by        │a     │single│'dollar' │character,│write   │a      │program│      │    │
+│that      │aligns    │each      │column│of    │fields   │by        │ensuring│that   │words  │in    │each│
+│column    │are       │separated │by    │at    │least    │one       │space.  │       │       │      │    │
+│Further,  │allow     │for       │each  │word  │in       │a         │column  │to     │be     │either│left│
+│justified,│right     │justified,│or    │center│justified│within    │its     │column.│       │      │    │
+└<94><8C><94><B4>───<E2>┴───<E2>┴───<E2>┴──┴──┴───┴───<E2>┴──<E2><94>┴──<E2>┴──<E2>┴──┴─<E2><E2><94>┘
+
+  9    ┌<94><AC>───<E2>┬───<E2>┬───<E2>┬──┬──┬───┬───<E2>┬──<E2><94>┬──<E2>┬──<E2>┬──┬─<E2>┐
+  9    UTF-8 not-ASCII (51 graphemes, 51 codepoints, 134 bytes, 10 errors)
+  9    E2948C 94 AC E29480 E29480 E29480 E2 E294AC E29480 E29480 E29480 E2 E294AC E29480 E29480 E29480 E2 E294AC E29480 E29480 E294AC E29480 E29480 E294AC E29480 E29480 E29480 E294AC E29480 E29480 E29480 E2 E294AC E29480 E29480 E294 E294AC E29480 E29480 E2 E294AC E29480 E29480 E2 E294AC E29480 E29480 E294AC E29480 E2 E29490
+
+  16   └<94><8C><94><B4>───<E2>┴───<E2>┴───<E2>┴──┴──┴───┴───<E2>┴──<E2><94>┴──<E2>┴──<E2>┴──┴─<E2><E2><94>┘
+  16   UTF-8 not-ASCII (54 graphemes, 54 codepoints, 138 bytes, 13 errors)
+  16   E29494 94 8C 94 B4 E29480 E29480 E29480 E2 E294B4 E29480 E29480 E29480 E2 E294B4 E29480 E29480 E29480 E2 E294B4 E29480 E29480 E294B4 E29480 E29480 E294B4 E29480 E29480 E29480 E294B4 E29480 E29480 E29480 E2 E294B4 E29480 E29480 E294 E294B4 E29480 E29480 E2 E294B4 E29480 E29480 E2 E294B4 E29480 E29480 E294B4 E29480 E2 E294 E29498
+
+
+Local display (the � are replacement character inserted by the BBEdit text editor)
+═══════════════════════════════════════════════left aligned═══════════════════════════════════════════════
+┌��───�┬───�┬───�┬──┬──┬───┬───�┬──�┬──�┬──�┬──┬─�┐
+│Given     │a         │text      │file  │of    │many     │lines,    │where   │fields │within │a     │line│
+│are       │delineated│by        │a     │single│'dollar' │character,│write   │a      │program│      │    │
+│that      │aligns    │each      │column│of    │fields   │by        │ensuring│that   │words  │in    │each│
+│column    │are       │separated │by    │at    │least    │one       │space.  │       │       │      │    │
+│Further,  │allow     │for       │each  │word  │in       │a         │column  │to     │be     │either│left│
+│justified,│right     │justified,│or    │center│justified│within    │its     │column.│       │      │    │
+└����───�┴───�┴───�┴──┴──┴───┴───�┴──�┴──�┴──�┴──┴─��┘
+
+
+1st problem: substr
+┌<94><AC>───<E2>┬
+┌��───�┬
+                 if r==0  then do;    _= '┌'substr(_, 2, length(_) -1)"┐"
+                                    bot= '└'substr(_, 2, length(_) -2)"┘"
+
+
+2nd problem: translate.
+Each character is made of 3 bytes
+  38     say translate(bot, '┴', "┬")
+  38   UTF-8 not-ASCII (30 graphemes, 30 codepoints, 34 bytes, 0 error)
+  38   20 20 73 61 79 20 74 72 61 6E 73 6C 61 74 65 28 62 6F 74 2C 20 27 E294B4 27 2C 20 22 E294AC 22 29
+
+'┴'     E294B4
+"┬"     E294AC
+*/
+call run "utf8", "Align-columns/align-columns-3.rexx"
 
 /* [KO] oorexx & regina: Error 40.23:  CENTER argument 3 must be a single character; found "═" */
-call run "Aliquot-sequence-classifications/aliquot-sequence-classifications.rexx"
+call run "utf8", "Aliquot-sequence-classifications/aliquot-sequence-classifications.rexx"
 
 call run "Almost-prime/almost-prime-1.rexx"
 call run "Almost-prime/almost-prime-2.rexx"
@@ -379,6 +480,8 @@ call run "Amicable-pairs/amicable-pairs-3.rexx", 20000
 call run "Amicable-pairs/amicable-pairs-4.rexx", 20000
 call run "Amicable-pairs/amicable-pairs-5.rexx", 20000
 
+call run "Anagrams-Deranged-anagrams/anagrams-deranged-anagrams.rexx"
+
 call run "Anagrams/anagrams-1.rexx"
 call run "Anagrams/anagrams-2.rexx"
 call run "Anagrams/anagrams-3.rexx"
@@ -386,7 +489,8 @@ call run "Anagrams/anagrams-4.rexx"
 call run "Anagrams/anagrams-5.rexx"
 call run "Anagrams/anagrams-6.rexx"
 
-call run "Anagrams-Deranged-anagrams/anagrams-deranged-anagrams.rexx"
+/* ***error***  This REXX program requires REXX/PERSONAL or REXX/PC. */
+call skip "Animation/animation.rexx"
 
 call run "Anonymous-recursion/anonymous-recursion-1.rexx"
 call run "Anonymous-recursion/anonymous-recursion-2.rexx"
@@ -405,20 +509,20 @@ call run "Arena-storage-pool/arena-storage-pool.rexx"
 
 call run "Arithmetic-Complex/arithmetic-complex.rexx"
 
+call run "Arithmetic-Integer/arithmetic-integer.rexx", "stdin", "100 200"
+
+/* not activated: too long */
+call skip "Arithmetic-Rational/arithmetic-rational.rexx"
+
 /* Remember : don't pass an expression whose result is a wholenumber
    If the result is wholenumber then it's returned and taken as an error code. */
 call run "Arithmetic-evaluation/arithmetic-evaluation.rexx", "1/3"
-
-call run "Arithmetic-geometric-mean/arithmetic-geometric-mean.rexx"
 
 call run "Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-1.rexx"
 call run "Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-2.rexx"
 call run "Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-3.rexx"
 
-call run "Arithmetic-Integer/arithmetic-integer.rexx", "stdin", "100 200"
-
-/* not activated: too long */
-call skip "Arithmetic-Rational/arithmetic-rational.rexx"
+call run "Arithmetic-geometric-mean/arithmetic-geometric-mean.rexx"
 
 call run "Array-concatenation/array-concatenation-1.rexx"
 call run "Array-concatenation/array-concatenation-2.rexx"
@@ -432,8 +536,12 @@ call run "Arrays/arrays-5.rexx"
 call run "Arrays/arrays-6.rexx"
 
 /* To investigate : why is Regina blocked */
-if isRegina then call skip "Assertions/assertions.rexx", "stdin", "", "", "Trace Off"
-else call run "Assertions/assertions.rexx", "stdin", "", "", "Trace Off"
+if isRegina then call skip "Assertions/assertions-1.rexx", "stdin", "", "", "Trace Off"
+/* interactive
+   +++ Interactive trace. "Trace Off" to end debug, ENTER to continue. +++ */
+else call run "Assertions/assertions-1.rexx", "stdin", "", "", "Trace Off"
+
+call run "Assertions/assertions-2.rexx"
 
 call run "Associative-array-Creation/associative-array-creation-1.rexx"
 call run "Associative-array-Creation/associative-array-creation-2.rexx"
@@ -467,7 +575,7 @@ call run "Balanced-brackets/balanced-brackets-3.rexx"
 call run "Balanced-ternary/balanced-ternary.rexx"
 
 /* [KO] REX0385E: Error 40.23:  CENTER argument 3 must be a single character; found "─" */
-call run "Benfords-law/benfords-law.rexx"
+call run "utf8", "Benfords-law/benfords-law.rexx"
 
 call run "Bernoulli-numbers/bernoulli-numbers.rexx"
 
@@ -493,11 +601,6 @@ call run "Binary-search/binary-search-2.rexx", 823
 
 call run "Binary-strings/binary-strings.rexx"
 
-call run "Bitmap/bitmap-1.rexx"
-
-/* [Warning] bash: erase: command not found */
-call run "Bitmap/bitmap-2.rexx"
-
 call run "Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-1.rexx"
 call run "Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-2.rexx"
 
@@ -512,9 +615,14 @@ call run "Bitmap-Midpoint-circle-algorithm/bitmap-midpoint-circle-algorithm.rexx
    The output file is NOT a valid ppm, can't be opened with MacOs preview.
    The output file is not truncated, you should delete it before testing.
 */
-call run "Bitmap-Read-a-PPM-file/bitmap-read-a-ppm-file.rexx", "pbmlib"
+call run "Bitmap-Read-a-PPM-file/bitmap-read-a-ppm-file.rexx", "pbmlib", "pbmlib"
 
 call run "Bitmap-Write-a-PPM-file/bitmap-write-a-ppm-file.rexx"
+
+call run "Bitmap/bitmap-1.rexx"
+
+/* [Warning] bash: erase: command not found */
+call run "Bitmap/bitmap-2.rexx"
 
 call run "Bitwise-IO/bitwise-io-1.rexx"
 call run "Bitwise-IO/bitwise-io-2.rexx"
@@ -526,8 +634,13 @@ call run "Boolean-values/boolean-values-2.rexx"
 call run "Boolean-values/boolean-values-3.rexx"
 call run "Boolean-values/boolean-values-4.rexx"
 
-/* [KO] false = ¬true */
-call run "Boolean-values/boolean-values-5.rexx"
+/* Skipped because invalid rexx:
+     false = ¬true
+   Executor supports the negator character ¬ encoded in UTF-8, but 'true' is not a boolean value
+     REX0338E: Error 34.901:  Logical value must be exactly "0" or "1"; found "TRUE".
+   Regina doesn't support the negator character ¬ encoded in UTF-8
+     Error 13.1: Invalid character in program "('c2'X)" */
+call skip "Boolean-values/boolean-values-5.rexx"
 
 call run "Boolean-values/boolean-values-6.rexx"
 call run "Box-the-compass/box-the-compass.rexx"
@@ -535,47 +648,83 @@ call run "Box-the-compass/box-the-compass.rexx"
 /* [KO] SCRSIZE BIF not available */
 call run "Brownian-tree/brownian-tree.rexx"
 
+call run "Bulls-and-cows-Player/bulls-and-cows-player.rexx", "stdin", "1 2", "quit"
 call run "Bulls-and-cows/bulls-and-cows-1.rexx", "stdin", "1234", "quit"
 call run "Bulls-and-cows/bulls-and-cows-2.rexx", "stdin", "1234", "quit"
-call run "Bulls-and-cows-Player/bulls-and-cows-player.rexx", "stdin", "1 2", "quit"
+
+/* [KO] Error 40.23:  CENTER argument 3 must be a single character; found "═" */
+call run "utf8", "CRC-32/crc-32.rexx"
+
+/* bash: erase: command not found */
+/* 'erase' csv */
+call run "CSV-data-manipulation/csv-data-manipulation-1.rexx"
+
+/* error because doesn't support an empty CSV file
+   REX0306E: Error 26.3:  Value of FOR expression in DO or LOOP instruction must be zero or a positive whole number; found "-1".
+*/
+call run "CSV-data-manipulation/csv-data-manipulation-2.rexx"
+
+call run "CSV-to-HTML-translation/csv-to-html-translation.rexx"
 
 call run "Caesar-cipher/caesar-cipher-1.rexx", "22 The definition of a trivial program is one that has no bugs"
 call run "Caesar-cipher/caesar-cipher-2.rexx", "31 Batman's hood is called a "quote"cowl"quote" (old meaning)."
+
+/*
+Output is garbled.
+ �──────�     �──────�     �──────�     �──────�     �──────�
+ �   January   1969   �     �  February   1969   �     �    March   1969    �     �    April   1969    �     �     May   1969     �
+ �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�
+ �─┬──┬─┤     �─┬──┬─┤     �─┬──┬─┤     �─┬──┬─┤     �─┬──┬─┤
+
+*/
 call run "Calendar/calendar.rexx", "1/1/1969 (noGrid smallest narrowest)"
+
+/* REX0417E: Error 43.1:  Could not find routine "SCRSIZE" */
+call run "Calendar---for-REAL-programmers/calendar---for-real-programmers.rexx", "1/1/1969 (noGrid shortest narrowest)"
+
 /* To investigate: why parse error if no space after 5 */
 /* The output is not correctly aligned. Font problem ? */
 call run "Calendar/calendar.rexx", "1/1/1969 (smallest narrowest width 156 calSpaces 5 )"
 
-call run "Calendar---for-REAL-programmers/calendar---for-real-programmers.rexx", "1/1/1969 (noGrid shortest narrowest)"
-
-/* Better to skip, because executes a systel command. */
+/* Better to skip, because executes a system command. */
 call skip "Call-a-foreign-language-function/call-a-foreign-language-function.rexx"
-
-call run "Call-a-function/call-a-function-1.rexx"
-call run "Call-a-function/call-a-function-2.rexx"
 
 /* MacOs: [KO] Error 43.1:  Could not find routine "SYSTEXTSCREENSIZE" */
 /* Windows: no error */
 call run "Call-a-function-in-a-shared-library/call-a-function-in-a-shared-library.rexx"
 
+call run "Call-a-function/call-a-function-1.rexx"
+call run "Call-a-function/call-a-function-2.rexx"
+
 call run "Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-1.rexx"
 call run "Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-2.rexx"
 call run "Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes.rexx"
-call run "Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-1.rexx"
-call run "Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-2.rexx"
+
+/* [KO] REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "─". */
+call run "utf8", "Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-1.rexx"
+
+/* [KO] REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═". */
+call run "utf8", "Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-2.rexx"
+
 call run "Casting-out-nines/casting-out-nines.rexx"
-call run "Catalan-numbers/catalan-numbers-1.rexx"
-call run "Catalan-numbers/catalan-numbers-2.rexx"
 call run "Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-1.rexx"
 call run "Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-2.rexx"
 call run "Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-3.rexx"
 call run "Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-4.rexx"
+
+/* [KO] REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "─". */
+call run "utf8", "Catalan-numbers/catalan-numbers-1.rexx"
+
+call run "Catalan-numbers/catalan-numbers-2.rexx"
 call run "Catamorphism/catamorphism.rexx"
 call run "Character-codes/character-codes-1.rexx"
 call run "Character-codes/character-codes-2.rexx"
-call run "Check-Machin-like-formulas/check-machin-like-formulas.rexx"
+
+/* [KO] REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═". */
+call run "utf8", "Check-Machin-like-formulas/check-machin-like-formulas.rexx"
 
 /* [KO] Error 43.1:  Could not find routine "DOSISDIR */
+/* REX0417E: Error 43.1:  Could not find routine "DOSCHDIR" */
 call run "Check-that-file-exists/check-that-file-exists-1.rexx"
 
 /* [KO] Error 35.1:  Incorrect expression detected at "~" */
@@ -592,27 +741,28 @@ call run "Check-that-file-exists/check-that-file-exists-2.rexx"
 
 call run "Chinese-remainder-theorem/chinese-remainder-theorem-1.rexx"
 call run "Chinese-remainder-theorem/chinese-remainder-theorem-2.rexx"
-call run "Cholesky-decomposition/cholesky-decomposition.rexx"
+
+/* [KO] REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═". */
+call run "utf8", "Cholesky-decomposition/cholesky-decomposition.rexx"
 
 /* [KO] Error 35.1:  Incorrect expression detected at ":" */
-/* This error is because of then change I made to the parser: */
+/* This error is because of the change I made to the parser: */
 /* a symbol starting with a number is parsed as a whole number followed by a symbol */
 /* Here, the label 2circ: is parsed as 2 followed by circ */
 call run "Circles-of-given-radius-through-two-points/circles-of-given-radius-through-two-points.rexx"
 
-call run "Closest-pair-problem/closest-pair-problem.rexx"
+/* [KO] Error 40.23:  CENTER positional argument 3 must be a single character; found "═" */
+call run "utf8", "Closest-pair-problem/closest-pair-problem.rexx"
+
 call run "Closures-Value-capture/closures-value-capture.rexx"
 call run "Collections/collections-1.rexx"
 call run "Collections/collections-2.rexx"
 
-/* skipt because infinite loop */
+/* skip because infinite loop */
 call skip "Collections/collections-3.rexx"
 
 call run "Collections/collections-4.rexx"
-
-/* [KO] Error 41.1:  Nonnumeric value ("PS") used in arithmetic operation */
-/* Skipped because this error is a programming error */
-call skip "Collections/collections-5.rexx"
+call run "Collections/collections-5.rexx"
 
 /* [KO] Error 43.1:  Could not find routine "CURSOR" */
 call run "Color-of-a-screen-pixel/color-of-a-screen-pixel.rexx"
@@ -620,11 +770,11 @@ call run "Color-of-a-screen-pixel/color-of-a-screen-pixel.rexx"
 /* [KO] Error 43.1:  Could not find routine "SCRSIZE" */
 call run "Colour-bars-Display/colour-bars-display.rexx"
 
-call run "Combinations/combinations.rexx"
 call run "Combinations-and-permutations/combinations-and-permutations.rexx"
 call run "Combinations-with-repetitions/combinations-with-repetitions-1.rexx"
 call run "Combinations-with-repetitions/combinations-with-repetitions-2.rexx"
 call run "Combinations-with-repetitions/combinations-with-repetitions-3.rexx"
+call run "Combinations/combinations.rexx"
 call run "Comma-quibbling/comma-quibbling-1.rexx"
 call run "Comma-quibbling/comma-quibbling-2.rexx"
 call run "Comma-quibbling/comma-quibbling-3.rexx"
@@ -650,16 +800,16 @@ call skip "Conditional-structures/conditional-structures-2.rexx"
 call skip "Conditional-structures/conditional-structures-3.rexx"
 
 /* [KO] Error 40.23:  CENTER argument 3 must be a single character; found "─" */
-call run "Conjugate-transpose/conjugate-transpose.rexx"
+call run "utf8", "Conjugate-transpose/conjugate-transpose.rexx"
 
 call run "Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-1.rexx"
 call run "Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-2.rexx"
 call run "Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-3.rexx"
 call run "Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-4.rexx"
+call run "Continued-fraction-Arithmetic-Construct-from-rational-number/continued-fraction-arithmetic-construct-from-rational-number.rexx"
 call run "Continued-fraction/continued-fraction-1.rexx"
 call run "Continued-fraction/continued-fraction-2.rexx"
 call run "Continued-fraction/continued-fraction-3.rexx"
-call run "Continued-fraction-Arithmetic-Construct-from-rational-number/continued-fraction-arithmetic-construct-from-rational-number.rexx"
 call run "Convert-decimal-number-to-rational/convert-decimal-number-to-rational-1.rexx", 0.9054054054
 call run "Convert-decimal-number-to-rational/convert-decimal-number-to-rational-2.rexx"
 call run "Convert-decimal-number-to-rational/convert-decimal-number-to-rational-3.rexx"
@@ -681,61 +831,90 @@ call run "Count-in-factors/count-in-factors-2.rexx"
 call run "Count-in-octal/count-in-octal.rexx"
 
 /* [KO] Error 40.23:  LEFT argument 3 must be a single character; found "═" */
-call run "Count-occurrences-of-a-substring/count-occurrences-of-a-substring.rexx"
+call run "utf8", "Count-occurrences-of-a-substring/count-occurrences-of-a-substring.rexx"
 
 call run "Count-the-coins/count-the-coins-1.rexx"
 call run "Count-the-coins/count-the-coins-2.rexx"
 call run "Count-the-coins/count-the-coins-3.rexx"
 
-/* [KO] Error 40.23:  CENTER argument 3 must be a single character; found "═" */
-call run "CRC-32/crc-32.rexx"
+call run "Create-a-file-on-magnetic-tape/create-a-file-on-magnetic-tape.rexx"
 
 /* [KO] bash: COPY: command not found */
 /* [KO] MKDIR: DOCS: File exists */
 call run "Create-a-file/create-a-file.rexx"
 
-call run "Create-a-file-on-magnetic-tape/create-a-file-on-magnetic-tape.rexx"
 call run "Create-a-two-dimensional-array-at-runtime/create-a-two-dimensional-array-at-runtime.rexx", "stdin", 5 5
 call run "Create-an-HTML-table/create-an-html-table.rexx"
 
-/* bash: erase: command not found */
-/* 'erase' csv */
-call run "CSV-data-manipulation/csv-data-manipulation.rexx"
-
-call run "CSV-to-HTML-translation/csv-to-html-translation.rexx"
 call run "Currying/currying-1.rexx"
 call run "Currying/currying-2.rexx"
+
 /* Too long for the default 10*/
 call run "Cut-a-rectangle/cut-a-rectangle-1.rexx", 8
 call run "Cut-a-rectangle/cut-a-rectangle-2.rexx", 8
-/*
+
+/* warning: bash: ERASE: command not found */
+call run "DNS-query/dns-query-1.rexx"
+
+/* skip because not rexx */
+call skip "DNS-query/dns-query-2.rexx"
+
 call run "Date-format/date-format-1.rexx"
 call run "Date-format/date-format-2.rexx"
+
+/* todo: add support for I in executor
+   Error 40.904:  DATE positional argument 1 must be one of BDEFLMNOSTUW; found "I".
+   because supported by oorexx5, Regina */
 call run "Date-format/date-format-3.rexx"
+
 call run "Date-manipulation/date-manipulation.rexx"
 call run "Day-of-the-week/day-of-the-week-1.rexx"
 call run "Day-of-the-week/day-of-the-week-2.rexx"
+
+/* Error 40.904:  DATE positional argument 1 must be one of BDEFLMNOSTUW; found "I". */
 call run "Day-of-the-week/day-of-the-week-3.rexx"
+
 call run "Day-of-the-week/day-of-the-week-4.rexx"
-call run "Deal-cards-for-FreeCell/deal-cards-for-freecell.rexx"
+
+/* Error 40.23:  CENTER positional argument 3 must be a single character; found "─". */
+call run "utf8", "Deal-cards-for-FreeCell/deal-cards-for-freecell.rexx"
+
 call run "Death-Star/death-star.rexx"
 call run "Deconvolution-1D/deconvolution-1d.rexx"
-call run "Delete-a-file/delete-a-file.rexx"
-call run "Detect-division-by-zero/detect-division-by-zero.rexx"
+
+/* skip because ERASE, RMDIR */
+call skip "Delete-a-file/delete-a-file.rexx"
+
+/* Error 40.23:  CENTER positional argument 3 must be a single character; found "═". */
+call run "utf8", "Detect-division-by-zero/detect-division-by-zero.rexx"
+
+/* The operators /= and /== are supported in TSO/E REXX as alternatives to \= and \==, respectively.
+   Added support of these operators in Executor */
 call run "Determine-if-a-string-is-numeric/determine-if-a-string-is-numeric.rexx"
-call run "Determine-if-only-one-instance-is-running/determine-if-only-one-instance-is-running.rexx"
-call run "Digital-root/digital-root-1.rexx"
-call run "Digital-root/digital-root-2.rexx"
-call run "Digital-root/digital-root-3.rexx"
+
+/* skip because it's an ARexx program not compatible with rexx
+   uses the tilde ~as a negator character */
+call skip "Determine-if-only-one-instance-is-running/determine-if-only-one-instance-is-running.rexx"
+
 call run "Digital-root-Multiplicative-digital-root/digital-root-multiplicative-digital-root-1.rexx"
 call run "Digital-root-Multiplicative-digital-root/digital-root-multiplicative-digital-root-2.rexx"
+call run "Digital-root/digital-root-1.rexx"
+
+/* Error 40.23:  LEFT positional argument 3 must be a single character; found "═". */
+call run "utf8", "Digital-root/digital-root-2.rexx"
+
+/* Error 13.1:  Incorrect character in program "?" ('E2'X)
+   skip because the 3 first lines are garbage */
+call skip "Digital-root/digital-root-3.rexx"
+
 call run "Dinesmans-multiple-dwelling-problem/dinesmans-multiple-dwelling-problem.rexx"
-call run "Dining-philosophers/dining-philosophers.rexx"
+
+/* skip because looping forever */
+call skip "Dining-philosophers/dining-philosophers.rexx"
+
 call run "Discordian-date/discordian-date.rexx"
-call run "DNS-query/dns-query-1.rexx"
-call run "DNS-query/dns-query-2.rexx"
-call run "Documentation/documentation-1.rexx"
-call run "Documentation/documentation-2.rexx"
+call run "Documentation/documentation-1.rexx", "?"
+call run "Documentation/documentation-2.rexx", "?"
 call run "Dot-product/dot-product-1.rexx"
 call run "Dot-product/dot-product-2.rexx"
 call run "Doubly-linked-list-Definition/doubly-linked-list-definition.rexx"
@@ -743,12 +922,23 @@ call run "Doubly-linked-list-Element-definition/doubly-linked-list-element-defin
 call run "Doubly-linked-list-Element-insertion/doubly-linked-list-element-insertion.rexx"
 call run "Doubly-linked-list-Traversal/doubly-linked-list-traversal.rexx"
 call run "Dragon-curve/dragon-curve.rexx"
-call run "Draw-a-clock/draw-a-clock.rexx"
+
+/* skip because
+   Error 43.1:  Could not find routine "$ERR" */
+call skip "Draw-a-clock/draw-a-clock.rexx"
+
 call run "Draw-a-cuboid/draw-a-cuboid.rexx"
 call run "Draw-a-sphere/draw-a-sphere.rexx"
-call run "Dutch-national-flag-problem/dutch-national-flag-problem-1.rexx"
-call run "Dutch-national-flag-problem/dutch-national-flag-problem-2.rexx"
-call run "Dynamic-variable-names/dynamic-variable-names.rexx"
+
+/* Error 40.23:  CENTER positional argument 3 must be a single character; found "─". */
+call run "utf8", "Dutch-national-flag-problem/dutch-national-flag-problem-1.rexx"
+
+/* Error 40.23:  CENTER positional argument 3 must be a single character; found "─". */
+call run "utf8", "Dutch-national-flag-problem/dutch-national-flag-problem-2.rexx"
+
+call run "Dynamic-variable-names/dynamic-variable-names.rexx", "myvar", "myvalue"
+
+/*
 call run "Element-wise-operations/element-wise-operations-1.rexx"
 call run "Element-wise-operations/element-wise-operations-2.rexx"
 call run "Empty-directory/empty-directory.rexx"
@@ -775,15 +965,15 @@ call run "Even-or-odd/even-or-odd.rexx"
 call run "Events/events.rexx"
 call run "Evolutionary-algorithm/evolutionary-algorithm-1.rexx"
 call run "Evolutionary-algorithm/evolutionary-algorithm-2.rexx"
-call run "Exceptions/exceptions.rexx"
 call run "Exceptions-Catch-an-exception-thrown-in-a-nested-call/exceptions-catch-an-exception-thrown-in-a-nested-call.rexx"
+call run "Exceptions/exceptions.rexx"
 call run "Executable-library/executable-library-1.rexx"
 call run "Executable-library/executable-library-2.rexx"
 call run "Executable-library/executable-library-3.rexx"
-call run "Execute-a-Markov-algorithm/execute-a-markov-algorithm.rexx"
-call run "Execute-a-system-command/execute-a-system-command.rexx"
 call run "Execute-Brain----/execute-brain----.rexx"
 call run "Execute-HQ9+/execute-hq9+.rexx"
+call run "Execute-a-Markov-algorithm/execute-a-markov-algorithm.rexx"
+call run "Execute-a-system-command/execute-a-system-command.rexx"
 call run "Exponentiation-operator/exponentiation-operator.rexx"
 call run "Extend-your-language/extend-your-language-1.rexx"
 call run "Extend-your-language/extend-your-language-2.rexx"
@@ -798,8 +988,8 @@ call run "Factors-of-an-integer/factors-of-an-integer-2.rexx"
 call run "Fast-Fourier-transform/fast-fourier-transform.rexx"
 call run "Fibonacci-n-step-number-sequences/fibonacci-n-step-number-sequences.rexx"
 call run "Fibonacci-sequence/fibonacci-sequence.rexx"
-call run "Fibonacci-word/fibonacci-word.rexx"
 call run "Fibonacci-word-fractal/fibonacci-word-fractal.rexx"
+call run "Fibonacci-word/fibonacci-word.rexx"
 call run "File-input-output/file-input-output-1.rexx"
 call run "File-input-output/file-input-output-2.rexx"
 call run "File-modification-time/file-modification-time.rexx"
@@ -817,6 +1007,7 @@ call run "Find-limit-of-recursion/find-limit-of-recursion-2.rexx"
 call run "Find-the-last-Sunday-of-each-month/find-the-last-sunday-of-each-month.rexx"
 call run "Find-the-missing-permutation/find-the-missing-permutation.rexx"
 call run "First-class-environments/first-class-environments.rexx"
+call run "First-class-functions-Use-numbers-analogously/first-class-functions-use-numbers-analogously.rexx"
 call run "First-class-functions/first-class-functions.rexx"
 call run "Five-weekends/five-weekends-1.rexx"
 call run "Five-weekends/five-weekends-2.rexx"
@@ -829,6 +1020,7 @@ call run "FizzBuzz/fizzbuzz-3.rexx"
 call run "FizzBuzz/fizzbuzz-4.rexx"
 call run "Flatten-a-list/flatten-a-list-1.rexx"
 call run "Flatten-a-list/flatten-a-list-2.rexx"
+call run "Flatten-a-list/flatten-a-list.rexx"
 call run "Flipping-bits-game/flipping-bits-game.rexx"
 call run "Flow-control-structures/flow-control-structures-1.rexx"
 call run "Flow-control-structures/flow-control-structures-10.rexx"
@@ -860,7 +1052,9 @@ call run "Function-definition/function-definition-1.rexx"
 call run "Function-definition/function-definition-2.rexx"
 call run "Function-frequency/function-frequency-1.rexx"
 call run "Function-frequency/function-frequency-2.rexx"
-call run "Gamma-function/gamma-function.rexx"
+call run "Galton-box-animation/galton-box-animation.rexx"
+call run "Gamma-function/gamma-function-1.rexx"
+call run "Gamma-function/gamma-function-2.rexx"
 call run "Gaussian-elimination/gaussian-elimination-1.rexx"
 call run "Gaussian-elimination/gaussian-elimination-2.rexx"
 call run "Gaussian-elimination/gaussian-elimination-3.rexx"
@@ -889,11 +1083,14 @@ call run "Greatest-element-of-a-list/greatest-element-of-a-list-5.rexx"
 call run "Greatest-subsequential-sum/greatest-subsequential-sum-1.rexx"
 call run "Greatest-subsequential-sum/greatest-subsequential-sum-2.rexx"
 call run "Greatest-subsequential-sum/greatest-subsequential-sum-3.rexx"
-call run "Guess-the-number/guess-the-number-1.rexx"
-call run "Guess-the-number/guess-the-number-2.rexx"
-call run "Guess-the-number-With-feedback/guess-the-number-with-feedback.rexx"
 call run "Guess-the-number-With-feedback--player-/guess-the-number-with-feedback--player--1.rexx"
 call run "Guess-the-number-With-feedback--player-/guess-the-number-with-feedback--player--2.rexx"
+call run "Guess-the-number-With-feedback/guess-the-number-with-feedback.rexx"
+call run "Guess-the-number/guess-the-number-1.rexx"
+call run "Guess-the-number/guess-the-number-2.rexx"
+call run "HTTP/http-1.rexx"
+call run "HTTP/http-2.rexx"
+call run "HTTP/http-3.rexx"
 call run "Hailstone-sequence/hailstone-sequence-1.rexx"
 call run "Hailstone-sequence/hailstone-sequence-2.rexx"
 call run "Hamming-numbers/hamming-numbers-1.rexx"
@@ -946,9 +1143,6 @@ call run "Hostname/hostname-2.rexx"
 call run "Hostname/hostname-3.rexx"
 call run "Hostname/hostname-4.rexx"
 call run "Hostname/hostname-5.rexx"
-call run "HTTP/http-1.rexx"
-call run "HTTP/http-2.rexx"
-call run "HTTP/http-3.rexx"
 call run "Huffman-coding/huffman-coding.rexx"
 call run "I-before-E-except-after-C/i-before-e-except-after-c-1.rexx"
 call run "I-before-E-except-after-C/i-before-e-except-after-c-2.rexx"
@@ -1012,6 +1206,9 @@ call run "Knuth-shuffle/knuth-shuffle-1.rexx"
 call run "Knuth-shuffle/knuth-shuffle-2.rexx"
 call run "Knuth-shuffle/knuth-shuffle-3.rexx"
 call run "Knuths-algorithm-S/knuths-algorithm-s.rexx"
+call run "LU-decomposition/lu-decomposition.rexx"
+call run "LZW-compression/lzw-compression-1.rexx"
+call run "LZW-compression/lzw-compression-2.rexx"
 call run "Langtons-ant/langtons-ant-1.rexx"
 call run "Langtons-ant/langtons-ant-2.rexx"
 call run "Langtons-ant/langtons-ant-3.rexx"
@@ -1051,6 +1248,7 @@ call run "Logical-operations/logical-operations-2.rexx"
 call run "Long-multiplication/long-multiplication-1.rexx"
 call run "Long-multiplication/long-multiplication-2.rexx"
 call run "Longest-common-subsequence/longest-common-subsequence.rexx"
+call run "Longest-increasing-subsequence/longest-increasing-subsequence.rexx"
 call run "Longest-string-challenge/longest-string-challenge-1.rexx"
 call run "Longest-string-challenge/longest-string-challenge-2.rexx"
 call run "Longest-string-challenge/longest-string-challenge-3.rexx"
@@ -1069,11 +1267,11 @@ call run "Loops-Downward-for/loops-downward-for-1.rexx"
 call run "Loops-Downward-for/loops-downward-for-2.rexx"
 call run "Loops-Downward-for/loops-downward-for-3.rexx"
 call run "Loops-Downward-for/loops-downward-for-4.rexx"
-call run "Loops-For/loops-for-1.rexx"
-call run "Loops-For/loops-for-2.rexx"
 call run "Loops-For-with-a-specified-step/loops-for-with-a-specified-step-1.rexx"
 call run "Loops-For-with-a-specified-step/loops-for-with-a-specified-step-2.rexx"
 call run "Loops-For-with-a-specified-step/loops-for-with-a-specified-step-3.rexx"
+call run "Loops-For/loops-for-1.rexx"
+call run "Loops-For/loops-for-2.rexx"
 call run "Loops-Foreach/loops-foreach.rexx"
 call run "Loops-Infinite/loops-infinite-1.rexx"
 call run "Loops-Infinite/loops-infinite-2.rexx"
@@ -1087,13 +1285,12 @@ call run "Loops-While/loops-while-1.rexx"
 call run "Loops-While/loops-while-2.rexx"
 call run "Loops-While/loops-while-3.rexx"
 call run "Loops-While/loops-while-4.rexx"
-call run "LU-decomposition/lu-decomposition.rexx"
 call run "Lucas-Lehmer-test/lucas-lehmer-test.rexx"
 call run "Ludic-numbers/ludic-numbers.rexx"
 call run "Luhn-test-of-credit-card-numbers/luhn-test-of-credit-card-numbers-1.rexx"
 call run "Luhn-test-of-credit-card-numbers/luhn-test-of-credit-card-numbers-2.rexx"
-call run "LZW-compression/lzw-compression-1.rexx"
-call run "LZW-compression/lzw-compression-2.rexx"
+call run "MD5-Implementation/md5-implementation.rexx"
+call run "MD5/md5.rexx"
 call run "Mad-Libs/mad-libs.rexx"
 call run "Magic-squares-of-odd-order/magic-squares-of-odd-order.rexx"
 call run "Main-step-of-GOST-28147-89/main-step-of-gost-28147-89.rexx"
@@ -1117,8 +1314,6 @@ call run "Maximum-triangle-path-sum/maximum-triangle-path-sum.rexx"
 call run "Maze-generation/maze-generation-1.rexx"
 call run "Maze-generation/maze-generation-2.rexx"
 call run "Maze-generation/maze-generation-3.rexx"
-call run "MD5/md5.rexx"
-call run "MD5-Implementation/md5-implementation.rexx"
 call run "Memory-allocation/memory-allocation-1.rexx"
 call run "Memory-allocation/memory-allocation-2.rexx"
 call run "Memory-layout-of-a-data-structure/memory-layout-of-a-data-structure-1.rexx"
@@ -1161,14 +1356,15 @@ call run "Non-decimal-radices-Convert/non-decimal-radices-convert.rexx"
 call run "Non-decimal-radices-Input/non-decimal-radices-input.rexx"
 call run "Non-decimal-radices-Output/non-decimal-radices-output-1.rexx"
 call run "Non-decimal-radices-Output/non-decimal-radices-output-2.rexx"
-call run "Nth/nth.rexx"
 call run "Nth-root/nth-root.rexx"
+call run "Nth/nth.rexx"
 call run "Null-object/null-object.rexx"
 call run "Number-reversal-game/number-reversal-game.rexx"
 call run "Numeric-error-propagation/numeric-error-propagation.rexx"
-call run "Numerical-integration/numerical-integration.rexx"
 call run "Numerical-integration-Gauss-Legendre-Quadrature/numerical-integration-gauss-legendre-quadrature-1.rexx"
 call run "Numerical-integration-Gauss-Legendre-Quadrature/numerical-integration-gauss-legendre-quadrature-2.rexx"
+call run "Numerical-integration-Gauss-Legendre-Quadrature/numerical-integration-gauss-legendre-quadrature-3.rexx"
+call run "Numerical-integration/numerical-integration.rexx"
 call run "Odd-word-problem/odd-word-problem.rexx"
 call run "Old-lady-swallowed-a-fly/old-lady-swallowed-a-fly.rexx"
 call run "One-dimensional-cellular-automata/one-dimensional-cellular-automata.rexx"
@@ -1193,8 +1389,8 @@ call run "Parsing-RPN-to-infix-conversion/parsing-rpn-to-infix-conversion.rexx"
 call run "Parsing-Shunting-yard-algorithm/parsing-shunting-yard-algorithm-1.rexx"
 call run "Parsing-Shunting-yard-algorithm/parsing-shunting-yard-algorithm-2.rexx"
 call run "Partial-function-application/partial-function-application.rexx"
-call run "Pascals-triangle/pascals-triangle.rexx"
 call run "Pascals-triangle-Puzzle/pascals-triangle-puzzle.rexx"
+call run "Pascals-triangle/pascals-triangle.rexx"
 call run "Pattern-matching/pattern-matching.rexx"
 call run "Penneys-game/penneys-game.rexx"
 call run "Perfect-numbers/perfect-numbers-1.rexx"
@@ -1205,11 +1401,11 @@ call run "Perfect-numbers/perfect-numbers-5.rexx"
 call run "Perfect-numbers/perfect-numbers-6.rexx"
 call run "Perfect-numbers/perfect-numbers-7.rexx"
 call run "Permutation-test/permutation-test.rexx"
-call run "Permutations/permutations-1.rexx"
-call run "Permutations/permutations-2.rexx"
-call run "Permutations-by-swapping/permutations-by-swapping.rexx"
 call run "Permutations-Derangements/permutations-derangements.rexx"
 call run "Permutations-Rank-of-a-permutation/permutations-rank-of-a-permutation.rexx"
+call run "Permutations-by-swapping/permutations-by-swapping.rexx"
+call run "Permutations/permutations-1.rexx"
+call run "Permutations/permutations-2.rexx"
 call run "Pernicious-numbers/pernicious-numbers.rexx"
 call run "Phrase-reversals/phrase-reversals-1.rexx"
 call run "Phrase-reversals/phrase-reversals-2.rexx"
@@ -1217,12 +1413,13 @@ call run "Pi/pi-1.rexx"
 call run "Pi/pi-2.rexx"
 call run "Pick-random-element/pick-random-element-1.rexx"
 call run "Pick-random-element/pick-random-element-2.rexx"
-call run "Pig-the-dice-game/pig-the-dice-game.rexx"
 call run "Pig-the-dice-game-Player/pig-the-dice-game-player.rexx"
+call run "Pig-the-dice-game/pig-the-dice-game.rexx"
 call run "Playing-cards/playing-cards-1.rexx"
 call run "Playing-cards/playing-cards-2.rexx"
 call run "Plot-coordinate-pairs/plot-coordinate-pairs-1.rexx"
 call run "Plot-coordinate-pairs/plot-coordinate-pairs-2.rexx"
+call run "Polymorphic-copy/polymorphic-copy.rexx"
 call run "Polynomial-long-division/polynomial-long-division.rexx"
 call run "Polynomial-regression/polynomial-regression.rexx"
 call run "Power-set/power-set.rexx"
@@ -1254,6 +1451,7 @@ call run "Quickselect-algorithm/quickselect-algorithm-2.rexx"
 call run "Quine/quine-1.rexx"
 call run "Quine/quine-2.rexx"
 call run "Quine/quine-3.rexx"
+call run "README
 call run "Random-number-generator--device-/random-number-generator--device--1.rexx"
 call run "Random-number-generator--device-/random-number-generator--device--2.rexx"
 call run "Random-number-generator--included-/random-number-generator--included--1.rexx"
@@ -1277,7 +1475,6 @@ call run "Read-a-specific-line-from-a-file/read-a-specific-line-from-a-file-1.re
 call run "Read-a-specific-line-from-a-file/read-a-specific-line-from-a-file-2.rexx"
 call run "Read-entire-file/read-entire-file-1.rexx"
 call run "Read-entire-file/read-entire-file-2.rexx"
-call run "README"
 call run "Real-constants-and-functions/real-constants-and-functions-1.rexx"
 call run "Real-constants-and-functions/real-constants-and-functions-2.rexx"
 call run "Real-constants-and-functions/real-constants-and-functions-3.rexx"
@@ -1327,9 +1524,10 @@ call run "Run-length-encoding/run-length-encoding-2.rexx"
 call run "Run-length-encoding/run-length-encoding-3.rexx"
 call run "Run-length-encoding/run-length-encoding-4.rexx"
 call run "Runge-Kutta-method/runge-kutta-method.rexx"
-call run "Runtime-evaluation/runtime-evaluation.rexx"
 call run "Runtime-evaluation-In-an-environment/runtime-evaluation-in-an-environment.rexx"
+call run "Runtime-evaluation/runtime-evaluation.rexx"
 call run "S-Expressions/s-expressions.rexx"
+call run "SEDOLs/sedols.rexx"
 call run "Safe-addition/safe-addition.rexx"
 call run "Same-Fringe/same-fringe-1.rexx"
 call run "Same-Fringe/same-fringe-2.rexx"
@@ -1341,7 +1539,6 @@ call run "Search-a-list/search-a-list-1.rexx"
 call run "Search-a-list/search-a-list-2.rexx"
 call run "Search-a-list/search-a-list-3.rexx"
 call run "Search-a-list/search-a-list-4.rexx"
-call run "SEDOLs/sedols.rexx"
 call run "Self-describing-numbers/self-describing-numbers-1.rexx"
 call run "Self-describing-numbers/self-describing-numbers-2.rexx"
 call run "Self-describing-numbers/self-describing-numbers-3.rexx"
@@ -1354,11 +1551,11 @@ call run "Semordnilap/semordnilap-2.rexx"
 call run "Sequence-of-non-squares/sequence-of-non-squares.rexx"
 call run "Sequence-of-primes-by-Trial-Division/sequence-of-primes-by-trial-division-1.rexx"
 call run "Sequence-of-primes-by-Trial-Division/sequence-of-primes-by-trial-division-2.rexx"
-call run "Set/set.rexx"
 call run "Set-consolidation/set-consolidation.rexx"
 call run "Set-of-real-numbers/set-of-real-numbers-1.rexx"
 call run "Set-of-real-numbers/set-of-real-numbers-2.rexx"
 call run "Set-puzzle/set-puzzle.rexx"
+call run "Set/set.rexx"
 call run "Seven-sided-dice-from-five-sided-dice/seven-sided-dice-from-five-sided-dice.rexx"
 call run "Shell-one-liner/shell-one-liner.rexx"
 call run "Short-circuit-evaluation/short-circuit-evaluation.rexx"
@@ -1394,6 +1591,7 @@ call run "Sorting-algorithms-Bogosort/sorting-algorithms-bogosort-2.rexx"
 call run "Sorting-algorithms-Bubble-sort/sorting-algorithms-bubble-sort-1.rexx"
 call run "Sorting-algorithms-Bubble-sort/sorting-algorithms-bubble-sort-2.rexx"
 call run "Sorting-algorithms-Bubble-sort/sorting-algorithms-bubble-sort-3.rexx"
+call run "Sorting-algorithms-Bubble-sort/sorting-algorithms-bubble-sort-4.rexx"
 call run "Sorting-algorithms-Cocktail-sort/sorting-algorithms-cocktail-sort-1.rexx"
 call run "Sorting-algorithms-Cocktail-sort/sorting-algorithms-cocktail-sort-2.rexx"
 call run "Sorting-algorithms-Comb-sort/sorting-algorithms-comb-sort.rexx"
@@ -1445,10 +1643,10 @@ call run "Speech-synthesis/speech-synthesis.rexx"
 call run "Spiral-matrix/spiral-matrix-1.rexx"
 call run "Spiral-matrix/spiral-matrix-2.rexx"
 call run "Stable-marriage-problem/stable-marriage-problem.rexx"
-call run "Stack/stack-1.rexx"
-call run "Stack/stack-2.rexx"
 call run "Stack-traces/stack-traces-1.rexx"
 call run "Stack-traces/stack-traces-2.rexx"
+call run "Stack/stack-1.rexx"
+call run "Stack/stack-2.rexx"
 call run "Stair-climbing-puzzle/stair-climbing-puzzle.rexx"
 call run "Start-from-a-main-routine/start-from-a-main-routine.rexx"
 call run "State-name-puzzle/state-name-puzzle.rexx"
@@ -1484,10 +1682,10 @@ call run "Strip-control-codes-and-extended-characters-from-a-string/strip-contro
 call run "Strip-control-codes-and-extended-characters-from-a-string/strip-control-codes-and-extended-characters-from-a-string-2.rexx"
 call run "Strip-whitespace-from-a-string-Top-and-tail/strip-whitespace-from-a-string-top-and-tail-1.rexx"
 call run "Strip-whitespace-from-a-string-Top-and-tail/strip-whitespace-from-a-string-top-and-tail-2.rexx"
-call run "Substring/substring.rexx"
 call run "Substring-Top-and-tail/substring-top-and-tail-1.rexx"
 call run "Substring-Top-and-tail/substring-top-and-tail-2.rexx"
 call run "Substring-Top-and-tail/substring-top-and-tail-3.rexx"
+call run "Substring/substring.rexx"
 call run "Subtractive-generator/subtractive-generator.rexx"
 call run "Sum-and-product-of-an-array/sum-and-product-of-an-array.rexx"
 call run "Sum-digits-of-an-integer/sum-digits-of-an-integer-1.rexx"
@@ -1549,16 +1747,21 @@ call run "Towers-of-Hanoi/towers-of-hanoi-1.rexx"
 call run "Towers-of-Hanoi/towers-of-hanoi-2.rexx"
 call run "Trabb-Pardo-Knuth-algorithm/trabb-pardo-knuth-algorithm.rexx"
 call run "Tree-traversal/tree-traversal.rexx"
-call run "Trigonometric-functions/trigonometric-functions.rexx"
 call run "Trigonometric-functions/trigonometric-functions-1.rexx"
 call run "Trigonometric-functions/trigonometric-functions-2.rexx"
 call run "Trigonometric-functions/trigonometric-functions-3.rexx"
+call run "Trigonometric-functions/trigonometric-functions.rexx"
 call run "Truncatable-primes/truncatable-primes.rexx"
 call run "Truncate-a-file/truncate-a-file-1.rexx"
 call run "Truncate-a-file/truncate-a-file-2.rexx"
 call run "Twelve-statements/twelve-statements-1.rexx"
 call run "Twelve-statements/twelve-statements-2.rexx"
 call run "Twelve-statements/twelve-statements-3.rexx"
+call run "URL-decoding/url-decoding-1.rexx"
+call run "URL-decoding/url-decoding-2.rexx"
+call run "URL-decoding/url-decoding-3.rexx"
+call run "URL-encoding/url-encoding-1.rexx"
+call run "URL-encoding/url-encoding-2.rexx"
 call run "Ulam-spiral--for-primes-/ulam-spiral--for-primes--1.rexx"
 call run "Ulam-spiral--for-primes-/ulam-spiral--for-primes--2.rexx"
 call run "Unbias-a-random-generator/unbias-a-random-generator.rexx"
@@ -1571,11 +1774,7 @@ call run "Universal-Turing-machine/universal-turing-machine-4.rexx"
 call run "Unix-ls/unix-ls.rexx"
 call run "Update-a-configuration-file/update-a-configuration-file-1.rexx"
 call run "Update-a-configuration-file/update-a-configuration-file-2.rexx"
-call run "URL-decoding/url-decoding-1.rexx"
-call run "URL-decoding/url-decoding-2.rexx"
-call run "URL-decoding/url-decoding-3.rexx"
-call run "URL-encoding/url-encoding-1.rexx"
-call run "URL-encoding/url-encoding-2.rexx"
+call run "User-input-Graphical/user-input-graphical.rexx"
 call run "User-input-Text/user-input-text.rexx"
 call run "Vampire-number/vampire-number.rexx"
 call run "Van-der-Corput-sequence/van-der-corput-sequence-1.rexx"
@@ -1595,6 +1794,7 @@ call run "Variadic-function/variadic-function-1.rexx"
 call run "Variadic-function/variadic-function-2.rexx"
 call run "Variadic-function/variadic-function-3.rexx"
 call run "Vector-products/vector-products.rexx"
+call run "Verify-distribution-uniformity-Chi-squared-test/verify-distribution-uniformity-chi-squared-test.rexx"
 call run "Verify-distribution-uniformity-Naive/verify-distribution-uniformity-naive.rexx"
 call run "Video-display-modes/video-display-modes-1.rexx"
 call run "Video-display-modes/video-display-modes-2.rexx"
@@ -1608,18 +1808,20 @@ call run "Wireworld/wireworld.rexx"
 call run "Word-wrap/word-wrap-1.rexx"
 call run "Word-wrap/word-wrap-2.rexx"
 call run "Word-wrap/word-wrap-3.rexx"
+call run "World-Cup-group-stage/world-cup-group-stage-1.rexx"
+call run "World-Cup-group-stage/world-cup-group-stage-2.rexx"
 call run "Write-float-arrays-to-a-text-file/write-float-arrays-to-a-text-file.rexx"
 call run "Write-language-name-in-3D-ASCII/write-language-name-in-3d-ascii-1.rexx"
 call run "Write-language-name-in-3D-ASCII/write-language-name-in-3d-ascii-2.rexx"
 call run "Write-language-name-in-3D-ASCII/write-language-name-in-3d-ascii-3.rexx"
 call run "Write-to-Windows-event-log/write-to-windows-event-log-1.rexx"
 call run "Write-to-Windows-event-log/write-to-windows-event-log-2.rexx"
-call run "Xiaolin-Wus-line-algorithm/xiaolin-wus-line-algorithm.rexx"
 call run "XML-Input/xml-input-1.rexx"
 call run "XML-Input/xml-input-2.rexx"
 call run "XML-Output/xml-output.rexx"
 call run "XML-XPath/xml-xpath-1.rexx"
 call run "XML-XPath/xml-xpath-2.rexx"
+call run "Xiaolin-Wus-line-algorithm/xiaolin-wus-line-algorithm.rexx"
 call run "Y-combinator/y-combinator.rexx"
 call run "Yin-and-yang/yin-and-yang.rexx"
 call run "Zebra-puzzle/zebra-puzzle.rexx"

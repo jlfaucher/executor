@@ -4,6 +4,46 @@ Sandbox for experimental work, what's done so far.
 ===============================================================================
 2022 September 19
 
+[RosettaCode executor]
+
+Align with RosettaCodeData commit of February 18 2020 (Family day update)
+https://github.com/acmeism/RosettaCodeData
+
+Activate the solutions whose name begins with "D".
+
+This query gives the number of RosettaCodeData solutions provided per langage, sorted ascending.
+Rexx is in good position... Go is the winner.
+"/local/RosettaCodeData/git/Lang"~pipe(.fileTree "recursive.1.breadthFirst" | .select {item~isDirectory} | .lineCount {item~parent} | .sort | .console {item~right(6)} "index")
+   ...
+   601 '/local/RosettaCodeData/git/Lang/Sidef'
+   612 '/local/RosettaCodeData/git/Lang/Ada'
+   630 '/local/RosettaCodeData/git/Lang/Zkl'
+   632 '/local/RosettaCodeData/git/Lang/Scala'
+   634 '/local/RosettaCodeData/git/Lang/REXX'
+   638 '/local/RosettaCodeData/git/Lang/Mathematica'
+   654 '/local/RosettaCodeData/git/Lang/PicoLisp'
+   661 '/local/RosettaCodeData/git/Lang/Java'
+   663 '/local/RosettaCodeData/git/Lang/J'
+   667 '/local/RosettaCodeData/git/Lang/Haskell'
+   671 '/local/RosettaCodeData/git/Lang/D'
+   676 '/local/RosettaCodeData/git/Lang/Ruby'
+   677 '/local/RosettaCodeData/git/Lang'
+   696 '/local/RosettaCodeData/git/Lang/C'
+   708 '/local/RosettaCodeData/git/Lang/Phix'
+   709 '/local/RosettaCodeData/git/Lang/Perl'
+   726 '/local/RosettaCodeData/git/Lang/Kotlin'
+   727 '/local/RosettaCodeData/git/Lang/Python'
+   730 '/local/RosettaCodeData/git/Lang/Racket'
+   730 '/local/RosettaCodeData/git/Lang/Julia'
+   731 '/local/RosettaCodeData/git/Lang/Tcl'
+   741 '/local/RosettaCodeData/git/Lang/Perl-6'
+   745 '/local/RosettaCodeData/git/Lang/Go'
+   <end>
+
+
+===============================================================================
+2022 September 19
+
 [Encoded strings]
 
 Several solutions in RosettaCode are in error because the pad character used
