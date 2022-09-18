@@ -4,7 +4,36 @@ Sandbox for experimental work, what's done so far.
 ===============================================================================
 2022 September 19
 
+[Encoded strings]
+
+Several solutions in RosettaCode are in error because the pad character used
+with the function 'center' is a UTF-8 string made of several bytes.
+The function center now supports utf-8 pad made of 1 grapheme.
+When the pad is not a 1 byte character then the interpreter converts the string
+to a RexxText and sends it the message "center".
+The returned value is the String associated to the RexxText.
+The invariants of the method 'center' are true for the RexxText, but not true for
+the String (which is normal).
+    pad = "═"
+    pad~description=                                    -- 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'
+    pad~c2x=                                            -- 'E29590'
+    center("hello", 20, pad)=                           -- '═══════hello════════'
+    center("hello", 20, pad)~text~description=          -- 'UTF-8 not-ASCII (20 graphemes, 20 codepoints, 50 bytes, 0 error)'
+
+Idem for the function 'left'
+    pad = "═"
+    left("hello", 20, pad)=                             -- 'hello═══════════════'
+    left("hello", 20, pad)~text~description=            -- 'UTF-8 not-ASCII (20 graphemes, 20 codepoints, 50 bytes, 0 error)'
+
+todo:
+apply this change to all the functions and methods that take a pad argument.
+
+
+===============================================================================
+2022 September 19
+
 [Extended interpreter]
+
 New scripts executor, executor.bat, executor.rexx
 Allow to execute a rexx script which depends on extensions, without modifying it.
 This is similar to what ooRexxShell allows, but with less loaded packages.

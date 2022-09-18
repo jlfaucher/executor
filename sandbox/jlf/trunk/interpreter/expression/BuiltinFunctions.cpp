@@ -60,6 +60,7 @@
 #include "PackageManager.hpp"
 #include "SystemInterpreter.hpp"
 #include "SysFileSystem.hpp"
+#include "TextClass.hpp"
 
 
 /**
@@ -329,6 +330,20 @@ BUILTIN(CENTER)
     /* this is a required length         */
     RexxInteger *length = required_integer(CENTER, length);
     RexxString *pad = optional_string(CENTER, pad);  /* the pad character must be one too */
+    if (pad != OREF_NULL && pad->getBLength() > 1)
+    {
+        // could be a UTF-8 string made of 1 grapheme
+        // delegate to RexxText if possible
+        ProtectedObject result;
+        bool textOk = string->messageSend(OREF_TEXT, OREF_NULL, 0, 0, result, false);
+        if (textOk && (RexxObject *)result != OREF_NULL)
+        {
+            RexxText *text = (RexxText *)(RexxObject *)result;
+            RexxText *centeredText = (RexxText *)text->sendMessage(OREF_CENTER, length, pad);
+            result = centeredText;
+            return centeredText->sendMessage(OREF_STRINGSYM); // yes, must return the associated String because request("String") would fail
+        }
+    }
     checkPadArgument(CHAR_CENTER, IntegerThree, pad);
     return string->center(length, pad);  /* do the center function            */
 }
@@ -423,6 +438,20 @@ BUILTIN(LEFT)
     /* length is optional                */
     RexxInteger *length = optional_integer(LEFT, length);
     RexxString *pad = optional_string(LEFT, pad);    /* pad must be a string also         */
+    if (pad != OREF_NULL && pad->getBLength() > 1)
+    {
+        // could be a UTF-8 string made of 1 grapheme
+        // delegate to RexxText if possible
+        ProtectedObject result;
+        bool textOk = string->messageSend(OREF_TEXT, OREF_NULL, 0, 0, result, false);
+        if (textOk && (RexxObject *)result != OREF_NULL)
+        {
+            RexxText *text = (RexxText *)(RexxObject *)result;
+            RexxText *leftText = (RexxText *)text->sendMessage(OREF_LEFT, length, pad);
+            result = leftText;
+            return leftText->sendMessage(OREF_STRINGSYM); // yes, must return the associated String because request("String") would fail
+        }
+    }
     checkPadArgument(CHAR_LEFT, IntegerThree, pad);
     return string->left(length, pad);    /* do the substr function            */
 }
