@@ -4,6 +4,19 @@ Sandbox for experimental work, what's done so far.
 ===============================================================================
 2022 September 19
 
+[Extended interpreter]
+New scripts executor, executor.bat, executor.rexx
+Allow to execute a rexx script which depends on extensions, without modifying it.
+This is similar to what ooRexxShell allows, but with less loaded packages.
+The warm-up duration is still too long: around  1.8 sec on my old MacBook Pro mid-2010
+Intel Core2 Duo CPU P8600 @ 2.40GHz.
+Usage:
+    executor <my script> <arg1> <arg2> ...
+
+
+===============================================================================
+2022 September 19
+
 [RosettaCode executor]
 
 Executor stack overflow for Ackermann-function/ackermann-function-1.rex
