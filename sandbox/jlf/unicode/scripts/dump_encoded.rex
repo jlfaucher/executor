@@ -1,6 +1,8 @@
 /*
 Dumps the contents of the specified encoded file.
 The file encoding is not guessed, it must be passed explicitely.
+The lines of the file are dumped as-is, in their native encoding. The non-printable characters are written in [hex].
+The rest of the output is in byte encoding (description, hexadecimal characters, errors).
 */
 
 cmdargs = .local~syscargs
@@ -72,7 +74,7 @@ return errorCount <> 0
         -- lineText = stream~linein -- an EncodeStream returns directly a RexxText
         lineString = stream~linein
         lineText = lineString~text(encoding)
-        say spaces || lineNumber~left(4) lineText~utf8~string
+        say spaces || lineNumber~left(4) lineText~ppString -- raw output of lineText, in binary format, whatever its encoding
         say spaces || lineNumber~left(4) lineText~description
         say spaces || lineNumber~left(4) lineText~c2x
         lineText~characters~each{
