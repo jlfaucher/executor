@@ -904,3 +904,36 @@ REX0289E: Error 25.901:  Unknown keyword on ::CLASS directive; found "PUBLIC".
 REX0025E: Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/stringEncoding.cls line 1260:  Invalid subkeyword found.
 REX0289E: Error 25.901:  Unknown keyword on ::CLASS directive; found "SUBCLASS".
 --> should be            Unknown keyword on ::EXTENSION directive; found "SUBCLASS".
+
+
+================================================================================
+rexx.img
+================================================================================
+
+Tried to put all the extensions in rexx.img, by adding this line in CoreClasses.orx
+call "extension/extensions.cls"
+error because transient class SecurityManager included.
+
+This error is due to the use of ::requires
+Code review to see where SecurityManager could be referenced and retrieved when generating rexx.img
+
+    interpreter
+    method
+    package
+    RexxSource
+    RoutineClass (code)
+    RexxActivation
+    RexxActivity (InterpreterInstance *instance)
+    RexxCode (RexxSource      * source)
+    RexxNativeActivation (SecurityManager *securityManager)
+    RexxNativeCode (RexxSource *source)
+    RoutineClass (code)
+    RexxSource (SecurityManager *securityManager)
+
+Did not investigate further, even not sure that if will be possible to support ::requires
+Maybe I should review what was done in official oorexx to clean the rexx.img
+    12158	[#1712] rexx.img varies from ASLR	bigrixx	02/11/2021 09:27 PM
+    12157	[#1712] rexx.img varies from ASLR	bigrixx	02/10/2021 09:55 PM
+    12155	[#1712] rexx.img varies from ASLR	bigrixx	02/10/2021 12:36 AM
+    12153	[#1712] rexx.img varies from ASLR	bigrixx	02/09/2021 10:07 PM
+https://sourceforge.net/p/oorexx/bugs/1712/
