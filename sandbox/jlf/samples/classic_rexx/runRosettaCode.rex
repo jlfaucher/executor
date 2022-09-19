@@ -397,6 +397,7 @@ call run "utf8", "Align-columns/align-columns-2.rexx"
 
 /* [KO] oorexx & regina: Error 40.23:  CENTER argument 3 must be a single character; found "═" */
 /*
+Output is garbled.
 Rosettacode display (web site, correctly aligned in a browser)
 ═══════════════════════════════════════════════left aligned═══════════════════════════════════════════════
 ┌──────────┬──────────┬──────────┬──────┬──────┬─────────┬──────────┬────────┬───────┬───────┬──────┬────┐
@@ -643,6 +644,19 @@ call run "Boolean-values/boolean-values-4.rexx"
 call skip "Boolean-values/boolean-values-5.rexx"
 
 call run "Boolean-values/boolean-values-6.rexx"
+
+/* Output is garbled */
+/*
+From the console:
+                      <A7>heading   compass heading
+      ════════ ════════════════════
+                        0.00<A7>   north
+
+From the BBEdit editor:
+                      �heading   compass heading
+      ════════ ════════════════════
+                        0.00�   north
+*/
 call run "Box-the-compass/box-the-compass.rexx"
 
 /* [KO] SCRSIZE BIF not available */
@@ -671,6 +685,15 @@ call run "Caesar-cipher/caesar-cipher-2.rexx", "31 Batman's hood is called a "qu
 
 /*
 Output is garbled.
+
+From the console:
+ <E2><80>──────<E2><90>     <E2><80>──────<E2><90>     <E2><80>──────<E2><90>     <E2><80>──────<E2><90>     <E2><80>──────<E2>
+<90>
+ <E2>   January   1969   <82>     <E2>  February   1969   <82>     <E2>    March   1969    <82>     <E2>    April   1969    <82>     <E2>     May   1969     <82>
+ <E2>Su Mo Tu We Th Fr Sa<82>     <E2>Su Mo Tu We Th Fr Sa<82>     <E2>Su Mo Tu We Th Fr Sa<82>     <E2>Su Mo Tu We Th Fr Sa<82>     <E2>Su Mo Tu We Th Fr Sa<82>
+ <E2>─┬──┬─┤     <E2>─┬──┬─┤     <E2>─┬──┬─┤     <E2>─┬──┬─┤     <E2>─┬──┬─┤
+
+From the BBEdit editor:
  �──────�     �──────�     �──────�     �──────�     �──────�
  �   January   1969   �     �  February   1969   �     �    March   1969    �     �    April   1969    �     �     May   1969     �
  �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�
@@ -718,6 +741,21 @@ call run "utf8", "Catalan-numbers/catalan-numbers-1.rexx"
 call run "Catalan-numbers/catalan-numbers-2.rexx"
 call run "Catamorphism/catamorphism.rexx"
 call run "Character-codes/character-codes-1.rexx"
+
+/* Output is garbled.
+
+From the console:
+<81>
+81
+129
+10000001
+
+From the BBEdit editor:
+�
+81
+129
+10000001
+*/
 call run "Character-codes/character-codes-2.rexx"
 
 /* [KO] REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═". */
@@ -877,9 +915,34 @@ call run "Day-of-the-week/day-of-the-week-3.rexx"
 call run "Day-of-the-week/day-of-the-week-4.rexx"
 
 /* Error 40.23:  CENTER positional argument 3 must be a single character; found "─". */
+/* Output is garbled:
+
+From the console:
+───────────tableau for FreeCell game 1────────────
+
+              4<A6> A<A6> 3<99> 4<99> 2<A6> 3<A3> 3<E2> 2<E2>
+
+From the BBEdit editor:
+───────────tableau for FreeCell game 1────────────
+
+              4� A� 3� 4� 2� 3� 3� 2�
+*/
 call run "utf8", "Deal-cards-for-FreeCell/deal-cards-for-freecell.rexx"
 
+/* Output is garbled:
+
+From the console:
+                                    <E2><E2><E2><E2><E2>!!!:::!
+                                <E2><E2><E2><E2><E2><E2><E2><E2>ⷷ<B7><C2><C2><C2><C2><C2><C2><C2><C2><C2>·
+                             @@<E2><E2><E2><E2><E2><E2><E2><E2><E2><E2><C2><C2><C2><C2><C2><C2><C2><C2><C2><C2><C2><C2><C2><C2>
+
+From the BBEdit editor:
+                                    �����!!!:::!
+                                ��������ⷷ����������·
+                             @@����������������������������
+*/
 call run "Death-Star/death-star.rexx"
+
 call run "Deconvolution-1D/deconvolution-1d.rexx"
 
 /* skip because ERASE, RMDIR */
@@ -928,6 +991,19 @@ call run "Dragon-curve/dragon-curve.rexx"
 call skip "Draw-a-clock/draw-a-clock.rexx"
 
 call run "Draw-a-cuboid/draw-a-cuboid.rexx"
+
+/* Output is garbled.
+
+From the console:
+                             <91><96><96><96><96><96><96><96><91><91><91><91><E2><E2><E2><E2><96>
+                       <E2><E2>@@eeeeee@@@@<E2><E2>▖<96><91><91><91><E2><E2><E2>▖
+                   @eoo<B0><B0><B0><B0><B0><B0><B0><B0><B0><B0>oooeee@@<E2><E2>▖<91><91><91><E2><E2><E2>▖<96>
+
+From the BBEdit editor:
+                                    �����!!!:::!
+                                ��������ⷷ����������·
+                             @@����������������������������
+*/
 call run "Draw-a-sphere/draw-a-sphere.rexx"
 
 /* Error 40.23:  CENTER positional argument 3 must be a single character; found "─". */

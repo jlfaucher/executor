@@ -31,7 +31,7 @@ sleep 3 no prompt
 
 /*
 There are more than 600 REXX solutions.
-For the moment, the script covers 235 solutions.
+For the moment, the script covers 255 solutions.
 The script lets list or execute all the covered solutions.
 The solutions can be filtered by number or by name.
 */
