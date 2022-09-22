@@ -294,7 +294,7 @@ attribute traceFilter
         displayer~sayCollection(methods, /*title*/.nil, .ColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false, /*maxCount*/){
             expose displaySource
             if displaySource then do
-                method = item~getUserData
+                method = item~getUserData("method")
                 if .nil <> method then method~source~each{say " >" index~right(4,0) item}
             end
         }
@@ -341,7 +341,7 @@ attribute traceFilter
                   -- remember: the same key (methodDescription) can be used several times
                   -- so don't store the method instance on the key ! Store it on the value (classDescription).
                   classDescription = " "~join(classId, superclassId, "("packageInfos(package)")")
-                  classDescription~setUserData(item) -- to let retrieve the method (yes!)
+                  classDescription~setUserData("method", item) -- to let retrieve the method (yes!)
                   methods[methodDescription] = classDescription
                 },
         )
@@ -465,14 +465,14 @@ attribute traceFilter
               -- remember: the same key (methodDescription) can be used several times
               -- so don't store the method instance on the key ! Store it on the value (classDescription).
               classDescription = class~id~quoted("'") "("packageInfos(package)")"
-              classDescription~setUserData(item) -- to let retrieve the method (yes!)
+              classDescription~setUserData("method", item) -- to let retrieve the method (yes!)
               methods[methodDescription] = classDescription
             },
     )
     displayer~sayCollection( methods, /*title*/.nil, .ColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false, /*maxCount*/){
         expose displaySource
         if displaySource then do
-            method = item~getUserData
+            method = item~getUserData("method")
             if .nil <> method then method~source~each{say " >" index~right(4,0) item}
         end
     }
@@ -525,7 +525,7 @@ attribute traceFilter
         -- remember: the same key (routineDescription) can be used several times
         -- so don't store the routine instance on the key ! Store it on the value (packageDescription).
         packageDescription = "("packageInfos(routineInfo~package)")"
-        packageDescription~setUserData(routineInfo~routine) -- to let retrieve the routine (yes!)
+        packageDescription~setUserData("routine", routineInfo~routine) -- to let retrieve the routine (yes!)
         routines[routineDescription] = packageDescription
         s~next
     end
@@ -533,7 +533,7 @@ attribute traceFilter
     displayer~sayCollection(routines, /*title*/.nil, /*comparator*/.ColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false, /*maxCount*/){
         expose displaySource
         if displaySource then do
-            routine = item~getUserData
+            routine = item~getUserData("routine")
             routine~source~each{say " >" index~right(4,0) item}
         end
     }
