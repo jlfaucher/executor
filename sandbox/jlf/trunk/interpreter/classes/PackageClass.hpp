@@ -81,6 +81,7 @@ public:
     RexxClass     *findClassRexx(RexxString *name);
     RoutineClass  *findRoutine(RexxString *name);
     RoutineClass  *findRoutineRexx(RexxString *name);
+    RexxObject    *findProgramRexx(RexxObject *name);
     RexxObject    *addRoutine(RexxString *name, RoutineClass *routine);
     RexxObject    *addPublicRoutine(RexxString *name, RoutineClass *routine);
     RexxObject    *addClass(RexxString *name, RexxClass *clazz);

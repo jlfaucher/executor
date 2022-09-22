@@ -639,6 +639,7 @@ void RexxMemory::createImage(const char *imageTarget)
   defineKernelMethod(CHAR_ADDPACKAGE          ,ThePackageBehaviour, CPPM(PackageClass::addPackage), 1);
   defineKernelMethod(CHAR_FINDCLASS           ,ThePackageBehaviour, CPPM(PackageClass::findClassRexx), 1);
   defineKernelMethod(CHAR_FINDROUTINE         ,ThePackageBehaviour, CPPM(PackageClass::findRoutineRexx), 1);
+  defineKernelMethod("FINDPROGRAM"            ,ThePackageBehaviour, CPPM(PackageClass::findProgramRexx), 1);
   defineKernelMethod(CHAR_ADDROUTINE          ,ThePackageBehaviour, CPPM(PackageClass::addRoutine), 2);
   defineKernelMethod(CHAR_ADDPUBLICROUTINE    ,ThePackageBehaviour, CPPM(PackageClass::addPublicRoutine), 2);
   defineKernelMethod(CHAR_ADDCLASS            ,ThePackageBehaviour, CPPM(PackageClass::addClass), 2);

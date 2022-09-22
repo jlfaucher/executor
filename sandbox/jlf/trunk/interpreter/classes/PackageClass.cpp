@@ -529,6 +529,25 @@ RoutineClass *PackageClass::findRoutineRexx(RexxString *name)
 
 
 /**
+ * Locate a program using the target package context.
+ *
+ * @param name   The target name.
+ *
+ * @return The fully resolved filename, or .nil if no file was found.
+ */
+RexxObject *PackageClass::findProgramRexx(RexxObject *name)
+{
+    RexxString *target = stringArgument(name, OREF_positional, "name");
+    ProtectedObject p(target);
+
+    RexxActivity *activity = ActivityManager::currentActivity;
+    RexxString *program = activity->resolveProgramName(target, OREF_NULL, OREF_NULL);
+    if (program == OREF_NULL) return TheNilObject; //not found
+    return program;
+}
+
+
+/**
  * Set a security manager on a package.
  *
  * @param manager The security manager object.
