@@ -376,7 +376,10 @@ call run "Accumulator-factory/accumulator-factory.rexx"
 /*
 executor : increase the C stack size (4 times bigger!)
 ok under Macos
-crash under Windows.
+still ko under Windows:
+    silently stop before the end under Windows (no error, no visible crash, just stop).
+    last displayed line: Ackermann(3,  6)=                     509              calls=                  172233
+    undo to have again the error Stack Overflow.
 */
 call run "Ackermann-function/ackermann-function-1.rexx"
 

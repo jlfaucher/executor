@@ -60,9 +60,11 @@
 // the size of a pointer
 #define MIN_C_STACK 1024*(32 + sizeof(void *))
 // official settings are not enough to execute RosetaCode ackermann-function-1.rexx
-// multiply by 2: not enough!
-// multiply by 4
-#define TOTAL_STACK_SIZE 1024*512*4
+// multiply by 2: silently stop before the end when stack overflow
+// multiply by 4: silently stop before the end when stack overflow
+// multiply by 8: silently stop before the end when stack overflow
+// back to the initial setting
+#define TOTAL_STACK_SIZE 1024*512
 #define C_STACK_SIZE TOTAL_STACK_SIZE
 
 #define SysCall _cdecl
