@@ -2,6 +2,60 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2022 September 20
+
+Extensions of the class Object:
+Need to be more modular, to allow loading these extensions only.
+Moved from extensions.cls to a new file object.cls
+
+Compatibility with ooRexx5:
+Retrofit .Package~findProgram
+
+
+[Extended interpreter]
+
+The script 'executor' now supports the options -e and -v, like rexx,
+and also options to load a library or a package:
+    executor (-l libray | -p package)* [-f] filename [arguments]
+    executor (-l libray | -p package)*  -e  string   [arguments]
+    executor -v
+
+Differences, compared to rexx -e:
+- .syscargs has a value
+- The directives :: are not supported. Use the options -l or -p.
+- If no RESULT value then returns the RC value (rexx doesn't return the RC value)
+
+Examples:
+
+executor -e "call dump2 .syscargs" he said "good bye" and left.
+    an Array (shape [5], 5 items)
+     1 : 'he'
+     2 : 'said'
+     3 : 'good bye'
+     4 : 'and'
+     5 : 'left.'
+
+executor -l rxunixsys -e "say SysUname("version")"
+    Darwin Kernel Version 17.7.0: Fri Oct 30 13:34:27 PDT 2020; root:xnu-4570.71.82.8~1/RELEASE_X86_64
+
+executor -p regex/regex.cls -e "say .Pattern~compile('^\m{email}$')~matches(arg(1))" postmaster@oorexx.org
+    1
+
+-- The option -f is optional, except when the filename starts with "-"
+executor -f factorial.rex 10
+    3628800
+
+executor factorial.rex 10
+    3628800
+
+-- RC value is returned when no RESULT
+executor -e "true"                  -- RC == 0
+executor -e "false"                 -- RC == 1      rexx returns 0
+executor -e "true; return 10"       -- RC == 10
+executor -e "false; return 10"      -- RC == 10
+
+
+===============================================================================
 2022 September 19
 
 [RosettaCode executor]
