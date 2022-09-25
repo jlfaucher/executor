@@ -1,7 +1,7 @@
 /*
 Run the Rosetta Code solutions for REXX.
 The solutions are installed locally from https://github.com/acmeism/RosettaCodeData
-This script has been written for the commit of August 17 2018.
+This script has been written for the commit of February 18 2020 (Family day update).
 
 This script must be executed from the directory which contains the directory Lang.
 You can create a symbolic link to the script, if needed:
@@ -9,7 +9,16 @@ Windows: mklink runRosettaCode.rex <path to>\runRosettaCode.rex
 Linux, MacOs : ln -s <path to>/runRosettaCode .
 
 KEEP THIS SCRIPT COMPATIBLE WITH REGINA.
-REMEMBER : With Regina, use the executable 'regina', not 'rexx'. Only 'regina' has the function SysTempFileName.
+REMEMBER : With Regina, I should use the executable 'regina', not 'rexx'.
+           Only 'regina' has the function SysTempFileName.
+           But see next line...
+REMEMBER : Under MacOs, I did not find how to execute regina from rexx or regina
+           (not installed in a system directory, depends on DYLD_LIBRARY_PATH)
+               dyld: Library not loaded: libregina.dylib
+               Reason: image not found
+           Decision:
+           I don't use the function SysTempFileName.
+           So no need to use the executable 'regina'.
 */
 
 path="Lang/REXX/"
@@ -22,7 +31,8 @@ isRegina = (ipret == "Regina")
 isooRexx = (ipret == "ooRexx")
 
 rexxExecutable = "rexx"
-if isRegina then do
+UseSysTempFileName = 0 /* can't get it work with regina under MacOs, so definitively not used */
+if isRegina & UseSysTempFileName then do
     /*
     Needed for SysTempFileName
     but...
@@ -34,7 +44,7 @@ if isRegina then do
         Pfff... under MacOs, dyld: Library not loaded: libregina.dylib
         No time to try to fix that (SIP hell)
     */
-    /* rexxExecutable = "regina" */
+    rexxExecutable = "regina"
     call rxfuncadd 'sysloadfuncs', 'regutil', 'sysloadfuncs'
     call sysloadfuncs
 end
@@ -217,23 +227,32 @@ indexSolution += 1
 
 /*
 Supported arguments:
-call run ["utf8",] solution
-call run ["utf8",] solution, "arg1 arg2 ... argN"
-call run ["utf8",] solution, "stdin", "line1", "line2", ..., "lineN"
+call run ["n1 n2 ... nN",] ["utf8",] "solution"
+call run ["n1 n2 ... nN",] ["utf8",] "solution", "arg1 arg2 ... argN"
+call run ["n1 n2 ... nN",] ["utf8",] "solution", "stdin", "line1", "line2", ..., "lineN"
+
+"n1 n2 ... nN"                              if RC == n1 or n2 or ... or nN after execution then it's not an error (0 is never an error, no need to declare it)
+"utf8"                                      if specified then if the interpreter is Executor then Executor will support pad encoded in utf-8
+"solution"                                  relative path of the solution
+"arg1 arg2 ... argN"                        arguments string passed to the solution
+"stdin", "line1", "line2", ..., "lineN"     if the arguments string is "stdin" then each line will be sent to stdin
 */
 
-parse arg arg1
-if arg1 == "utf8" then do
-    parse arg utf8, solution, args
-    if extended() then executor = "executor.rex"
-                  else executor = ""
-    line1 = 4 -- arg(4)
+argIndex = 1
+codesRC = ""
+utf8option = ""
+arg = arg(argIndex)
+if isListOfIntegers(arg) then do
+    codesRC = arg
+    argIndex = argIndex + 1
 end
-else do
-    parse arg solution, args
-    executor = ""
-    line1 = 3 -- arg(3)
+arg = arg(argIndex)
+if arg == "utf8" then do
+    if isExecutor() then utf8option = "executor.rex"
+    argIndex = argIndex + 1
 end
+solution = arg(argIndex); argIndex = argIndex + 1
+args = arg(argIndex); argIndex = argIndex + 1
 
 if \filter(filter, indexSolution, countSolutions, solution) then return
 
@@ -263,35 +282,35 @@ end
 
 if args == "stdin" then do
     file = ""                                           /* In case SysTempFileName not loaded */
-    file = SysTempFileName("solution_input????.txt")    /* return "" if not possible to create a unique filename */
-    if file == "" then file = "solution_input.txt"      /* Default */
+    if UseSysTempFileName then file = SysTempFileName("solution_input????.txt")    /* return "" if not possible to create a unique filename */
+    if file == "" then file = "solution_input.txt"      /* Fallback */
     call stream file, "c", "open write replace"
-    do i=line1 to arg()
+    do i=argIndex to arg()
         call lineout file, arg(i)
     end
     call stream file, "c", "close"
 
     call time "reset"
-    display file "|" rexxExecutable executor path || solution
+    display file "|" rexxExecutable utf8option path || solution
     solution_RC = RC
     duration = time("elapsed")
     delete file
 end
 else do
     call time "reset"
-    rexxExecutable executor path || solution escape(args)
+    rexxExecutable utf8option path || solution escape(args)
     solution_RC = RC
     duration = time("elapsed")
 end
 
-
 say
 say "RC="solution_RC
+if wordpos(solution_RC, codesRC) <> 0 then say "(not an error)"
 -- Don't say the duration, to reduce the number of differences when comparing with older output
 -- say "duration="duration
 say
 
-if solution_RC = 0 then do
+if solution_RC = 0 | wordpos(solution_RC, codesRC) <> 0 then do
     runOk.0 += 1
     index = runOk.0
     runOk.index = right(indexSolution, 4) ";" duration ";" solution_RC ";" solution
@@ -304,7 +323,17 @@ end
 return
 
 /*----------------------------------------------------------------------------*/
-extended: procedure
+isListOfIntegers: procedure
+parse arg string
+wordCount = words(string)
+res = wordCount <> 0
+do i=1 to wordCount while res
+    res = datatype(word(string, i), "W")
+end
+return res
+
+/*----------------------------------------------------------------------------*/
+isExecutor: procedure
 
 /*
 In Executor
@@ -329,9 +358,11 @@ call run "100-doors/100-doors-1.rexx"
 
 call run "100-doors/100-doors-2.rexx"   /* hard-way */
 
-/* RC=13 */
-/* is it really an error? no error message displayed */
-call run "24-game-Solve/24-game-solve.rexx", "1111-1129"
+/* RC=13
+   is it really an error? no error message displayed.
+   indeed, it's not an error, it's returned explicitely with exit 13
+*/
+call run 13, "24-game-Solve/24-game-solve.rexx", "1111-1129"
 
 /* interactive */
 call run "24-game/24-game-1.rexx", "stdin", "quit"
@@ -390,7 +421,8 @@ call run "Ackermann-function/ackermann-function-3.rexx"
 /* RC=0 but command fails (both oorexx & regina) */
 call run "Active-Directory-Search-for-a-user/active-directory-search-for-a-user.rexx"
 
-/* Could not find routine "STORAGE" */
+/* skip because it's an AREXX program */
+/* Error: Could not find routine "STORAGE" */
 call skip "Address-of-a-variable/address-of-a-variable.rexx"
 
 call run "Align-columns/align-columns-1.rexx"
@@ -578,7 +610,7 @@ call run "Balanced-brackets/balanced-brackets-3.rexx"
 
 call run "Balanced-ternary/balanced-ternary.rexx"
 
-/* [KO] REX0385E: Error 40.23:  CENTER argument 3 must be a single character; found "─" */
+/* [KO] Error 40.23:  CENTER argument 3 must be a single character; found "─" */
 call run "utf8", "Benfords-law/benfords-law.rexx"
 
 call run "Bernoulli-numbers/bernoulli-numbers.rexx"
@@ -641,7 +673,7 @@ call run "Boolean-values/boolean-values-4.rexx"
 /* Skipped because invalid rexx:
      false = ¬true
    Executor supports the negator character ¬ encoded in UTF-8, but 'true' is not a boolean value
-     REX0338E: Error 34.901:  Logical value must be exactly "0" or "1"; found "TRUE".
+     Error 34.901:  Logical value must be exactly "0" or "1"; found "TRUE".
    Regina doesn't support the negator character ¬ encoded in UTF-8
      Error 13.1: Invalid character in program "('c2'X)" */
 call skip "Boolean-values/boolean-values-5.rexx"
@@ -677,7 +709,7 @@ call run "utf8", "CRC-32/crc-32.rexx"
 call run "CSV-data-manipulation/csv-data-manipulation-1.rexx"
 
 /* error because doesn't support an empty CSV file
-   REX0306E: Error 26.3:  Value of FOR expression in DO or LOOP instruction must be zero or a positive whole number; found "-1".
+   Error 26.3:  Value of FOR expression in DO or LOOP instruction must be zero or a positive whole number; found "-1".
 */
 call run "CSV-data-manipulation/csv-data-manipulation-2.rexx"
 
@@ -705,7 +737,7 @@ From the BBEdit editor:
 */
 call run "Calendar/calendar.rexx", "1/1/1969 (noGrid smallest narrowest)"
 
-/* REX0417E: Error 43.1:  Could not find routine "SCRSIZE" */
+/* Error 43.1:  Could not find routine "SCRSIZE" */
 call run "Calendar---for-REAL-programmers/calendar---for-real-programmers.rexx", "1/1/1969 (noGrid shortest narrowest)"
 
 /* To investigate: why parse error if no space after 5 */
@@ -726,10 +758,10 @@ call run "Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-1.re
 call run "Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-2.rexx"
 call run "Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes.rexx"
 
-/* [KO] REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "─". */
+/* [KO] Error 40.23:  CENTER positional argument 3 must be a single character; found "─". */
 call run "utf8", "Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-1.rexx"
 
-/* [KO] REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═". */
+/* [KO] Error 40.23:  CENTER positional argument 3 must be a single character; found "═". */
 call run "utf8", "Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-2.rexx"
 
 call run "Casting-out-nines/casting-out-nines.rexx"
@@ -738,7 +770,7 @@ call run "Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-2.re
 call run "Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-3.rexx"
 call run "Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-4.rexx"
 
-/* [KO] REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "─". */
+/* [KO] Error 40.23:  CENTER positional argument 3 must be a single character; found "─". */
 call run "utf8", "Catalan-numbers/catalan-numbers-1.rexx"
 
 call run "Catalan-numbers/catalan-numbers-2.rexx"
@@ -761,11 +793,11 @@ From the BBEdit editor:
 */
 call run "Character-codes/character-codes-2.rexx"
 
-/* [KO] REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═". */
+/* [KO] Error 40.23:  CENTER positional argument 3 must be a single character; found "═". */
 call run "utf8", "Check-Machin-like-formulas/check-machin-like-formulas.rexx"
 
 /* [KO] Error 43.1:  Could not find routine "DOSISDIR */
-/* REX0417E: Error 43.1:  Could not find routine "DOSCHDIR" */
+/* Error 43.1:  Could not find routine "DOSCHDIR" */
 call run "Check-that-file-exists/check-that-file-exists-1.rexx"
 
 /* [KO] Error 35.1:  Incorrect expression detected at "~" */
@@ -783,11 +815,12 @@ call run "Check-that-file-exists/check-that-file-exists-2.rexx"
 call run "Chinese-remainder-theorem/chinese-remainder-theorem-1.rexx"
 call run "Chinese-remainder-theorem/chinese-remainder-theorem-2.rexx"
 
-/* [KO] REX0385E: Error 40.23:  CENTER positional argument 3 must be a single character; found "═". */
+/* [KO] Error 40.23:  CENTER positional argument 3 must be a single character; found "═". */
 call run "utf8", "Cholesky-decomposition/cholesky-decomposition.rexx"
 
 /* [KO] Error 35.1:  Incorrect expression detected at ":" */
-/* This error is because of the change I made to the parser: */
+/* Error only with Executor, Regina is OK */
+/* This error is because of the change I made to the parser of Executor: */
 /* a symbol starting with a number is parsed as a whole number followed by a symbol */
 /* Here, the label 2circ: is parsed as 2 followed by circ */
 call run "Circles-of-given-radius-through-two-points/circles-of-given-radius-through-two-points.rexx"
@@ -820,10 +853,13 @@ call run "Comma-quibbling/comma-quibbling-1.rexx"
 call run "Comma-quibbling/comma-quibbling-2.rexx"
 call run "Comma-quibbling/comma-quibbling-3.rexx"
 call run "Command-line-arguments/command-line-arguments-1.rexx"
-call run "Command-line-arguments/command-line-arguments-2.rexx", arg1 arg2 arg3
+call run "Command-line-arguments/command-line-arguments-2.rexx", "arg1 arg2 -option1 arg3 -option2 -option3"
 
 /* [KO as expected] Error 42.3:  Arithmetic overflow; divisor must not be zero */
-call run "Comments/comments-1.rexx"
+/* Under MacOs: Executor, ooRexx5 and Regina return RC=214 to the OS, which is 256-42 where 42 is the error code */
+/* Under Windows: Executor and ooRexx5 return RC=-42 to the OS */
+/*                Regina returns -1073741782 which is not a whole number when digits=9. Will not test it. So Regina is in error here. */
+call run "-42 214", "Comments/comments-1.rexx"
 
 call run "Comments/comments-2.rexx"
 call run "Comments/comments-3.rexx"
@@ -904,15 +940,17 @@ call run "Date-format/date-format-1.rexx"
 call run "Date-format/date-format-2.rexx"
 
 /* todo: add support for I in executor
-   Error 40.904:  DATE positional argument 1 must be one of BDEFLMNOSTUW; found "I".
-   because supported by oorexx5, Regina */
+       Error 40.904:  DATE positional argument 1 must be one of BDEFLMNOSTUW; found "I".
+       because supported by oorexx5, Regina
+   Regina is ok. */
 call run "Date-format/date-format-3.rexx"
 
 call run "Date-manipulation/date-manipulation.rexx"
 call run "Day-of-the-week/day-of-the-week-1.rexx"
 call run "Day-of-the-week/day-of-the-week-2.rexx"
 
-/* Error 40.904:  DATE positional argument 1 must be one of BDEFLMNOSTUW; found "I". */
+/* Executor: Error 40.904:  DATE positional argument 1 must be one of BDEFLMNOSTUW; found "I". */
+/* Regina: ok */
 call run "Day-of-the-week/day-of-the-week-3.rexx"
 
 call run "Day-of-the-week/day-of-the-week-4.rexx"
@@ -952,14 +990,18 @@ call run "Deconvolution-1D/deconvolution-1d.rexx"
 call skip "Delete-a-file/delete-a-file.rexx"
 
 /* Error 40.23:  CENTER positional argument 3 must be a single character; found "═". */
-call run "utf8", "Detect-division-by-zero/detect-division-by-zero.rexx"
+/* Fixed by specifying the option "utf8".
+   Next problem: return explicitely RC=42 with exit 42, this is not an error: ignore RC=42 */
+call run 42, "utf8", "Detect-division-by-zero/detect-division-by-zero.rexx"
 
 /* The operators /= and /== are supported in TSO/E REXX as alternatives to \= and \==, respectively.
    Added support of these operators in Executor */
 call run "Determine-if-a-string-is-numeric/determine-if-a-string-is-numeric.rexx"
 
 /* skip because it's an ARexx program not compatible with rexx
-   uses the tilde ~as a negator character */
+   Error because call is followed by (...)
+   There is no parenthesis after call
+   Remember: uses the tilde ~as a negator character (this is supported by Regina) */
 call skip "Determine-if-only-one-instance-is-running/determine-if-only-one-instance-is-running.rexx"
 
 call run "Digital-root-Multiplicative-digital-root/digital-root-multiplicative-digital-root-1.rexx"

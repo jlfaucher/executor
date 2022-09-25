@@ -1,0 +1,8 @@
+            Executor    Executor    ooRexx5     ooRexx5     Regina      Regina
+               MacOs     Windows      MacOs     Windows      MacOs     Windows
+ok               220         219         91          91        203         202
+skip              23          16         23          23         24          24
+ko                12          13        141         141         28          29
+duration         232         484         27         120        297         383
+
+Duration under Windows is very long compared to MacOs because it's a VM running under MacOs
