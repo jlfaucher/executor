@@ -12,12 +12,6 @@ Differences, compared to rexx -e:
          4 : 'and'
          5 : 'left.'
 - The directives :: are not supported. Use the options -l or -p.
-- If no RESULT value then returns the RC value (rexx doesn't return the RC value)
-    executor -e "true"                  -- RC == 0
-    executor -e "false"                 -- RC == 1      rexx returns 0
-    executor -e "true; return 10"       -- RC == 10
-    executor -e "false; return 10"      -- RC == 10
-
 */
 
 signal on syntax name trap_error
@@ -44,12 +38,14 @@ parse_options:
 
 unknown_option:
     .error~say("Unknown option" option)
+    signal usage
+
 usage:
     .error~say("Usage:")
     .error~say("    executor (-l libray | -p package)* [-f] filename [arguments]")
     .error~say("    executor (-l libray | -p package)*  -e  string   [arguments]")
     .error~say("    executor -v")
-    return 1 -- rexx returns 256 - 1 = 255
+    return -1
 
 
 load_library:
@@ -98,22 +94,14 @@ run_string:
     args = remaining_c_args() -- as a string
     return execute_actions{
         expose string args
-        if args == "" then call interpret_string      -- arg() == 0
-                      else call interpret_string args -- arg() == 1, whatever the number of C arguments
+        interpreter = .Interpreter~new(string)
+        if args == "" then interpreter~interpret       -- arg() == 0
+                      else interpreter~interpret(args) -- arg() == 1, whatever the number of C arguments
         -- return result and RC, if any
         res = .array~new(2)
         if var("result") then res[1] = result
         if var("RC") then res[2] = RC
         return res
-
-        interpret_string:
-            .context~package~setUserData("name", "running INSTORE")
-            .context~package~setUserData("displayStackFrame", "stop before")
-            options COMMANDS
-            interpret string
-            -- Note: if the string contains a return, then you don't reach this line
-            if var("result") then return result
-            return
     }
 
 
@@ -153,6 +141,8 @@ execute_actions: procedure expose actions
     -- Load all the extensions packages
     call loadPackage "extension/extensions.cls"
     call loadPackage "pipeline/pipe_extension.cls"
+
+    -- Load this package for pretty-printing of collections
     call loadPackage "rgf_util2/rgf_util2.rex"
 
     -- Run the intermediate actions (load the libraries/packages specified on the command line)
@@ -160,8 +150,8 @@ execute_actions: procedure expose actions
     ok = results~reduce("&", initial:.true) -- each action returns either a boolean result or no result
     if \ok then do
         -- at least one action has returned a .false value, stop now
-        if var("RC") then return RC(RC) -- assume it's an error code, so apply the transformation
-        return RC(1) -- arbitrary value of error code (no equivalent with rexx)
+        if var("RC") then return -RC -- assume it's an error code: negative
+        return -1 -- arbitrary value of error code (no equivalent with rexx)
     end
 
     call declareAllPublicClasses
@@ -175,12 +165,19 @@ execute_actions: procedure expose actions
 
     return:
     if var("action_result") then return action_result
-    if var("action_RC") then return action_RC -- here, it's not an error code, so return as-is
+    if var("action_RC"), action_RC < 0 then return action_RC -- align with Rexx, return RC only in case of error (negative)
     return 0
 
     action_error:
+    /*
+        executor and rexx return the same values:
+                                MacOs/Linux     Windows
+        rexx -e "1/0"           RC = 214          RC = -42
+        rexx -e "return 10"     RC = 10           RC = 10
+        rexx -e "exit 10"       RC = 10           RC = 10
+    */
     if var("result") then action_result = result
-    if var("RC") then action_RC = RC(RC) -- here, it's an error code, so apply the transformation
+    if var("RC") then action_RC = -RC -- here, it's an error code: negative
     call sayCondition condition("O")
     signal return
 
@@ -189,35 +186,8 @@ execute_actions: procedure expose actions
 -- 1st need: catch 3.901 raised when findProgram returns .nil
 trap_error:
     call sayCondition condition("O")
-    if var("RC") then return RC(RC) -- here, it's an error code, so apply the transformation
+    if var("RC") then return -RC -- here, it's an error code: negative
     return
-
-
--------------------------------------------------------------------------------
-
--- To be aligned with rexx, apply this transformation when returning the RC value to the OS.
--- Not clear why the negative value gives 255-value on OS side, because the returned value is an int, not an uint8...
--- Maybe it's the OS which convert the returned value to an uint8 ?
-/*
-int main (int argc, char **argv) {
-    ...
-        rc = pgmThrdInst->DisplayCondition();
-        if (rc != 0) {
-            pgmInst->Terminate();
-            return -rc;   // well, the negation of the error number is the return code
-        }
-        if (result != NULL) {
-            pgmThrdInst->ObjectToInt32(result, &rc);
-        }
-
-        pgmInst->Terminate();
-
-        return rc;
-    ...
-*/
-::routine RC
-    use strict arg value
-    return 255 - value
 
 
 -------------------------------------------------------------------------------
@@ -308,6 +278,8 @@ int main (int argc, char **argv) {
         return
 
 -------------------------------------------------------------------------------
+-- Don't display the frames of Executor itself.
+-- Display the user-defined name (if any) of the caller's package (goal: display "INSTORE" when applicable)
 
 ::routine sayCondition
     use strict arg condition
@@ -393,6 +365,24 @@ int main (int argc, char **argv) {
 
 
 -------------------------------------------------------------------------------
+::class "Interpreter"
+
+::method init
+    expose string
+    use strict arg string
+
+::method interpret
+    expose string
+    .context~package~setUserData("name", "running INSTORE")
+    .context~package~setUserData("displayStackFrame", "stop before")
+    options COMMANDS
+    interpret string
+    -- Note: if the string contains a return or an exit, then you don't reach this line
+    if var("result") then return result
+    return
+
+
+-------------------------------------------------------------------------------
 ::class "NullOutput"
 
 ::method say class
@@ -417,3 +407,25 @@ Without this requires, the blocks used in this script were not initialized corre
 
 -- For setUserData, getUserData
 ::requires "extension/object.cls"
+
+-------------------------------------------------------------------------------
+
+/*
+    Under MacOs and Linux, exit codes are a number between 0 and 255.
+    Other numbers can be used, but these are treated modulo 256,
+    so exit -10 is equivalent to exit 246, and exit 257 is equivalent to exit 1.
+
+    Windows uses 32-bit unsigned integers as exit codes, although the command
+    interpreter treats them as signed.
+*/
+
+/*
+    rexxref.pdf for EXIT instruction:
+    1. If the program was called through a command interface, an attempt is made to convert the
+    returned value to a return code acceptable by the underlying operating system. The returned string
+    must be a whole number in the range -32768 to 32767. If the conversion fails, no error is raised,
+    and a return code of 0 is returned.
+    2. If you do not specify EXIT, EXIT is implied at the end of the program, but no result value is
+    returned.
+    3. On Unix/Linux systems the returned value is limited to a numerical value between 0 and 255.
+*/
