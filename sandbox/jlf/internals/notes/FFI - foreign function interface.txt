@@ -1,5 +1,11 @@
 FFI = Foreign Function Interface
 
+https://dyncall.org
+The dyncall library encapsulates architecture-, OS- and compiler-specific function call semantics
+in a virtual bind argument parameters from left to right and then call interface allowing programmers
+to call C functions in a completely dynamic manner
+
+
 Bash
 https://github.com/taviso/ctypes.sh/wiki
 https://github.com/taviso/ctypes.sh
