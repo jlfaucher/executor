@@ -182,10 +182,15 @@ if \.platform~is("windows") then do
 end
 
 /*
-builder/scripts/setenv-oorexx : declare the variable $rexx_environment, dump all the aliases in the file $rexx_environment
-~/.bashrc : declares the variable $BASH_ENV and $ENV = ~/.bash_env
-.bash_env : defines some aliases, calls $rexx_environment (id defined) which is a file defining more aliases (see builder/scripts/setenv-oorexx)
-oorexxshell.rex: expands the aliases (run in interactive mode)
+builder/scripts/setenv-oorexx :
+    declare the variable $REXX_ENVIRONMENT
+    dump all the aliases in the file $REXX_ENVIRONMENT
+    save the value of $LD_LIBRARY_PATH in the file $REXX_ENVIRONMENT
+    save the value of $DYLD_LIBRARY_PATH in the file $REXX_ENVIRONMENT
+~/.profile : defines $ENV = . ~/.bash_env (see man sh)
+~/.bashrc : execute ~/.bash_env (no need to define $BASH_ENV)
+~/.bash_env : defines some aliases, calls $REXX_ENVIRONMENT
+oorexxshell.rex: executes bash and sh in interactive mode (which expand the aliases and redefine $[DY]LD_LIBRARY_PATH)
 */
 
 call loadOptionalComponents
@@ -2030,7 +2035,7 @@ Helpers
         if command~word(1)~caselessEquals("bash") then return .array~of(address, command) -- already prefixed by "bash ..."
         -- Expands the aliases, assuming you have defined them...
         -- One way to define them is to do:
-        -- export BASH_ENV=~/bash_env
+        -- export BASH_ENV=~/.bash_env
         -- and declare the aliases in this file.
         -- This file is executed when bash is not interactive.
         -- This file is also executed when bash is interactive because ~/.bashrc calls it.
@@ -2049,7 +2054,7 @@ Helpers
         if command~word(1)~caselessEquals("sh") then return .array~of(address, command) -- already prefixed by "sh ..."
         -- Expands the aliases, assuming you have defined them...
         -- One way to define them is to do:
-        -- export ENV=~/bash_env
+        -- export ENV=~/.bash_env
         -- and declare the aliases in this file.
         -- This file is executed when sh is interactive (yes! the opposite of bash...).
         -- The trap command is used to save the current directory of the child process
