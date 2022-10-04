@@ -115,7 +115,7 @@ codepoint_t padArgument(
         reportException(Error_Incorrect_method_pad, argument);
     }
     /* yes, return the character.        */
-    return parameter->getCharC(0); // todo m17n
+    return parameter->getCharC(0);
 }
 
 /******************************************************************************/
@@ -130,5 +130,5 @@ char optionArgument(
     /* force option to string            */
     RexxString *parameter = (RexxString *)stringArgument(argument, OREF_positional, position);
     /* return the first character        */
-    return toupper(parameter->getCharB(0)); // todo m17n
+    return toupper(parameter->getCharB(0));
 }

@@ -1023,7 +1023,7 @@ size_t RexxEntry StringGet(RexxThreadContext *c, RexxStringObject s, size_t o, P
     try
     {
         RexxString *temp = (RexxString *)s;
-        return size_v(temp->copyData(o - 1, (char *)r, l)); // todo m17n : propagate strong type ?
+        return temp->copyData(o - 1, (char *)r, l);
     }
     catch (RexxNativeActivation *)
     {
@@ -1037,7 +1037,7 @@ size_t RexxEntry StringLength(RexxThreadContext *c, RexxStringObject s)
     try
     {
         RexxString *temp = (RexxString *)s;
-        return size_v(temp->getBLength()); // todo m17n : replace StringLength by StringBLength and StringCLength
+        return temp->getBLength();
     }
     catch (RexxNativeActivation *)
     {
@@ -1145,7 +1145,7 @@ size_t  RexxEntry BufferStringLength(RexxThreadContext *c, RexxBufferStringObjec
     try
     {
         RexxString *temp = (RexxString *)s;
-        return size_v(temp->getBLength()); // todo m17n : replace BufferStringLength by BufferStringBLength and BufferStringCLength
+        return temp->getBLength();
     }
     catch (RexxNativeActivation *)
     {
@@ -1468,7 +1468,7 @@ size_t RexxEntry BufferLength(RexxThreadContext *c, RexxBufferObject b)
     ApiContext context(c);
     try
     {
-        return size_v(((RexxBuffer *)b)->getDataLength());
+        return ((RexxBuffer *)b)->getDataLength();
     }
     catch (RexxNativeActivation *)
     {
@@ -1922,7 +1922,7 @@ size_t RexxEntry MutableBufferLength(RexxThreadContext *c, RexxMutableBufferObje
     ApiContext context(c);
     try
     {
-        return size_v(((RexxMutableBuffer *)b)->getBLength()); // todo m17n : replace MutableBufferLength by MutableBufferBLength and MutableBufferCLength
+        return ((RexxMutableBuffer *)b)->getBLength();
     }
     catch (RexxNativeActivation *)
     {
@@ -1935,7 +1935,7 @@ size_t RexxEntry SetMutableBufferLength(RexxThreadContext *c, RexxMutableBufferO
     ApiContext context(c);
     try
     {
-        return size_v(((RexxMutableBuffer *)b)->setDataLength(length)); // todo m17n
+        return ((RexxMutableBuffer *)b)->setDataLength(length);
     }
     catch (RexxNativeActivation *)
     {
@@ -1948,7 +1948,7 @@ size_t RexxEntry MutableBufferCapacity(RexxThreadContext *c, RexxMutableBufferOb
     ApiContext context(c);
     try
     {
-        return size_v(((RexxMutableBuffer *)b)->getCapacity()); // todo m17n
+        return ((RexxMutableBuffer *)b)->getCapacity();
     }
     catch (RexxNativeActivation *)
     {

@@ -96,7 +96,7 @@
 
 typedef struct _LINE_DESCRIPTOR {
   size_t position;                     /* position within the buffer        */
-  sizeB_t length;                       /* length of the line                */
+  size_t length;                       /* length of the line                */
 } LINE_DESCRIPTOR;                     /* line within a source buffer       */
 
 #define line_delimiters "\r\n"         /* stream file line end characters   */
@@ -189,7 +189,7 @@ void RexxSource::initBuffered(
     const char *scan;                    /* line scanning pointer             */
     const char *_current;                /* current scan location             */
     char *start;                   /* start of the buffer               */
-    sizeB_t length;                       /* length of the buffer              */
+    size_t length;                       /* length of the buffer              */
 
     extractNameInformation();            // make sure we have name information to work with
                                          /* set the source buffer             */
@@ -230,7 +230,7 @@ void RexxSource::initBuffered(
         while (scan != OREF_NULL && *scan == '\0') // JLF : never enter the loop ? if scan is not null then *scan is necessarily \r or \n, but never \0
         {
             /* scan for a linend                 */
-            scan = Utilities::locateCharacter(scan + 1, line_delimiters, size_v(length) - (scan - _current - 1)); // todo m17n (int)sizeB_v(...
+            scan = Utilities::locateCharacter(scan + 1, line_delimiters, length - (scan - _current - 1));
         }
         if (scan == NULL)
         {                /* not found, go to the end          */
@@ -517,7 +517,7 @@ void RexxSource::nextLine()
 
 void RexxSource::position(
     size_t line,                       /* target line number                */
-    sizeB_t offset)                     /* target line offset                */
+    size_t offset)                     /* target line offset                */
 /******************************************************************************/
 /* Function:  Move the current scan position to a new spot                    */
 /******************************************************************************/
@@ -915,7 +915,7 @@ void dumpTokensImpl(const char *from, RexxSource *source, RexxClause *clause)
                         "classId=%s subclass=%s numeric=%i "
                         "token=\"%s\"\n",
                         concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock,
-                        token->tokenLocation.getLineNumber(), size_v(token->tokenLocation.getOffset()), token->tokenLocation.getEndLine(), size_v(token->tokenLocation.getEndOffset()),
+                        token->tokenLocation.getLineNumber(), token->tokenLocation.getOffset(), token->tokenLocation.getEndLine(), token->tokenLocation.getEndOffset(),
                         RexxToken::codeText(token->classId), RexxToken::codeText(token->subclass), token->numeric,
                         token->value == NULL ? "NULL" : token->value->getStringData());
         }
@@ -925,7 +925,7 @@ void dumpTokensImpl(const char *from, RexxSource *source, RexxClause *clause)
             dbgprintf(  "(Parsing)startLine=%i startCol=%i endLine=%i endCol=%i "
                         "classId=%s subclass=%s numeric=%i "
                         "token=\"%s\"\n",
-                        token->tokenLocation.getLineNumber(), size_v(token->tokenLocation.getOffset()), token->tokenLocation.getEndLine(), size_v(token->tokenLocation.getEndOffset()),
+                        token->tokenLocation.getLineNumber(), token->tokenLocation.getOffset(), token->tokenLocation.getEndLine(), token->tokenLocation.getEndOffset(),
                         RexxToken::codeText(token->classId), RexxToken::codeText(token->subclass), token->numeric,
                         token->value == NULL ? "NULL" : token->value->getStringData());
         }
@@ -4629,7 +4629,7 @@ RexxCompoundVariable *RexxSource::addCompound(
     RexxString           *stemName;      /* stem part of compound variable    */
     RexxString           *tail;          /* tail section string value         */
     const char *          start;         /* starting scan position            */
-    sizeB_t                length;        /* length of tail section            */
+    size_t                length;        /* length of tail section            */
     const char *          _position;     /* current position                  */
     const char *          end;           // the end scanning position
     size_t                tailCount;     /* count of tails in compound        */
@@ -4646,7 +4646,7 @@ RexxCompoundVariable *RexxSource::addCompound(
         _position++;                       /* step to the next character        */
     }
     /* get the stem string               */
-    stemName = new_string(start, sizeB_v(_position - start + 1));
+    stemName = new_string(start, _position - start + 1);
     stemRetriever = this->addStem(stemName); /* get a retriever item for this     */
 
     tailCount = 0;                       /* no tails yet                      */
@@ -4668,7 +4668,7 @@ RexxCompoundVariable *RexxSource::addCompound(
             _position++;                   // continue looking
         }
         /* extract the tail piece            */
-        tail = new_string(start, sizeB_v(_position - start));
+        tail = new_string(start, _position - start);
         /* have a null tail piece or         */
         /* section begin with a digit?       */
         if (!(tail->getBLength() == 0 || (*start >= '0' && *start <= '9')))
@@ -4915,7 +4915,7 @@ void RexxSource::addClause(
                         "instruction={%s}\n",
                         concurrencyInfos.threadId, concurrencyInfos.activation, concurrencyInfos.variableDictionary, concurrencyInfos.reserveCount, concurrencyInfos.lock,
                         RexxToken::keywordText(_instruction->instructionType), _instruction->instructionFlags,
-                        _instruction->instructionLocation.getLineNumber(), size_v(_instruction->instructionLocation.getOffset()), _instruction->instructionLocation.getEndLine(), size_v(_instruction->instructionLocation.getEndOffset()),
+                        _instruction->instructionLocation.getLineNumber(), _instruction->instructionLocation.getOffset(), _instruction->instructionLocation.getEndLine(), _instruction->instructionLocation.getEndOffset(),
                         instructionSource->getStringData());
         }
         else
@@ -4925,7 +4925,7 @@ void RexxSource::addClause(
                         "startLine=%i startCol=%i endLine=%i endCol=%i "
                         "instruction={%s}\n",
                         RexxToken::keywordText(_instruction->instructionType), _instruction->instructionFlags,
-                        _instruction->instructionLocation.getLineNumber(), size_v(_instruction->instructionLocation.getOffset()), _instruction->instructionLocation.getEndLine(), size_v(_instruction->instructionLocation.getEndOffset()),
+                        _instruction->instructionLocation.getLineNumber(), _instruction->instructionLocation.getOffset(), _instruction->instructionLocation.getEndLine(), _instruction->instructionLocation.getEndOffset(),
                         instructionSource->getStringData());
         }
     }
@@ -6328,7 +6328,7 @@ void RexxSource::errorToken(
     {                                        /* multi-line value, display only the first line*/
         const char *string = value->getStringData();
         const char *newline = strchr(string, '\n');
-        if (newline) value = new_string(string, sizeB_v(newline - string));
+        if (newline) value = new_string(string, newline - string);
         this->clauseLocation.setLimitedTrace(true);
     }
     this->errorCleanup();                /* release any saved objects         */
@@ -6456,7 +6456,7 @@ bool RexxSource::parseTraceSetting(RexxString *value, size_t &newSetting, size_t
     size_t setting = TRACE_IGNORE;       /* don't change trace setting yet    */
     size_t debug = DEBUG_IGNORE;         /* and the default debug change      */
 
-    sizeB_t length = value->getBLength();  /* get the string length             */
+    size_t length = value->getBLength();  /* get the string length             */
     /* null string?                      */
     if (length == 0)
     {

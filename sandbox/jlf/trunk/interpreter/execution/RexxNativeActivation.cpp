@@ -3235,7 +3235,7 @@ RexxReturnCode RexxNativeActivation::copyValue(RexxObject * value, CONSTRXSTRING
 RexxReturnCode RexxNativeActivation::copyValue(RexxObject * value, RXSTRING *rxstring, size_t *length)
 {
     RexxString * stringVal;             /* converted object value            */
-    stringsizeB_t string_length;         /* length of the string              */
+    size_t string_length;         /* length of the string              */
     uint32_t     rc;                    /* return code                       */
 
     rc = 0;                             /* default to success                */
@@ -3245,12 +3245,12 @@ RexxReturnCode RexxNativeActivation::copyValue(RexxObject * value, RXSTRING *rxs
     // caller allowing use to allocate this?
     if (rxstring->strptr == NULL)
     {
-        rxstring->strptr = (char *)SystemInterpreter::allocateResultMemory(size_v(string_length) + 1);
+        rxstring->strptr = (char *)SystemInterpreter::allocateResultMemory(string_length + 1);
         if (rxstring->strptr == NULL)
         {
             return RXSHV_MEMFL;                  /* couldn't allocate, return flag */
         }
-        rxstring->strlength = size_v(string_length) + 1;
+        rxstring->strlength = string_length + 1;
     }
     /* buffer too short?              */
     if (string_length > rxstring->strlength)
@@ -3267,11 +3267,11 @@ RexxReturnCode RexxNativeActivation::copyValue(RexxObject * value, RXSTRING *rxs
         if (rxstring->strlength > string_length)
         {
             /* yes, add one                   */
-            rxstring->strptr[size_v(string_length)] = '\0'; // todo m17n : \0\0 if utf16
+            rxstring->strptr[string_length] = '\0';
         }
-        rxstring->strlength = size_v(string_length);   /* string length doesn't include terminating 0 */
+        rxstring->strlength = string_length;   /* string length doesn't include terminating 0 */
     }
-    *length = size_v(string_length);                 /* return actual string length    */
+    *length = string_length;                 /* return actual string length    */
     return rc;                               /* give back the return code      */
 }
 
@@ -3281,8 +3281,8 @@ int RexxNativeActivation::stemSort(const char *stemname, int order, int type, si
 /*             this returns zero, otherwise an appropriate error value.       */
 /******************************************************************************/
 {
-    sizeC_t  position;                    /* scan position within compound name */
-    sizeC_t  length;                      /* length of tail section            */
+    size_t  position;                    /* scan position within compound name */
+    size_t  length;                      /* length of tail section            */
 
                                          /* if access is enabled              */
     // NB:  The braces here are to ensure the ProtectedObjects get released before the
@@ -3311,7 +3311,7 @@ int RexxNativeActivation::stemSort(const char *stemname, int order, int type, si
             /* scan to the first period          */
             while (variable->getCharC(position) != '.')
             {
-                position++;                        /* step to the next character        */	// todo m17n
+                position++;                        /* step to the next character        */
                 length--;                          /* reduce the length also            */
             }
             position++;                          /* step past previous period         */

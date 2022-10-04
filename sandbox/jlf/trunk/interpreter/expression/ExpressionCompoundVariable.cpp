@@ -88,9 +88,9 @@ RexxObject * build(
     RexxString *   tail;                 /* tail section string value         */
     RexxQueue  *   tails;                /* tail elements                     */
     RexxObject *   tailPart;             /* tail element retriever            */
-    sizeB_t  position;                    /* scan position within compound name*/
-    sizeB_t  start;                       /* starting scan position            */
-    sizeB_t  length;                      /* length of tail section            */
+    size_t  position;                    /* scan position within compound name*/
+    size_t  start;                       /* starting scan position            */
+    size_t  length;                      /* length of tail section            */
 
     length = variable_name->getBLength(); /* get the string length             */
     position = 0;                        /* start scanning at first character */

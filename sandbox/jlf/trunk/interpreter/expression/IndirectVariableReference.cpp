@@ -110,7 +110,7 @@ RexxList *RexxVariableReference::list(
     while (variable_name->getBLength() != 0)
     {
         /* get the first character           */
-        int character = (int)variable_name->getCharC(0); // todo m17n (int)
+        int character = (int)variable_name->getCharC(0);
         if (character == '.')              /* start with a period?              */
         {
                                            /* report that error                 */

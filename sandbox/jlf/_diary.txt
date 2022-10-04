@@ -2,6 +2,46 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2022 October 4
+
+[Encoded strings]
+
+Undo m17n strong types.
+I abandoned since several years the idea of modifying the String class to support graphemes.
+The String class is, and will remain, byte-oriented.
+
+The new path I would like to explore is the support of graphemes by the BIF...
+I have already a tiny support for center() and left(), only for the pad argument,
+and only triggered in case of pad character made of several bytes.
+
+The generalization would be to route the BIF either towards String or towards RexxText,
+in function of the compatibility of the arguments with String:
+BIF(str1, str2, ..., strN)
+    --> forward to String (byte-oriented) if str's encoding is Byte or UTF-8 (with ASCII characters only)
+    --> forward to RexxText otherwise
+
+My goal:
+Assuming default encoding is UTF-8
+    length("Noel")=     -- 4 because "Noel"~length = 4
+    length("Noël")=     -- 4 because "Noël"~text~length = 4
+    "Noël"~length=      -- 5 because String remains byte-oriented, not impacted by the default encoding
+
+    s = "0041004200430044"x
+    length(s)=                        -- 8
+    s~encoding = "UTF16"
+    s~length                          -- 8
+    length(s)=                        -- 4
+    s~text~utf8=                      -- ABCD
+
+    s = "0000004100000042"x
+    s~length=                         -- 8
+    s~encoding = "UTF32"
+    s~length                          -- 8
+    length(s)=                        -- 2
+    s~text~utf8=                      -- AB
+
+
+===============================================================================
 2022 September 20
 
 Extensions of the class Object:
@@ -24,6 +64,7 @@ Differences, compared to rexx -e:
 - .syscargs has a value
 - The directives :: are not supported. Use the options -l or -p.
 - If no RESULT value then returns the RC value (rexx doesn't return the RC value)
+  (Oct 03, 2022: Align with rexx, return the RC value only in case of error)
 
 Examples:
 
@@ -50,7 +91,7 @@ executor factorial.rex 10
 
 -- RC value is returned when no RESULT
 executor -e "true"                  -- RC == 0
-executor -e "false"                 -- RC == 1      rexx returns 0
+executor -e "false"                 -- RC == 1      rexx returns 0 (Oct 03, 2022: Align with rexx, now Executor returns 0)
 executor -e "true; return 10"       -- RC == 10
 executor -e "false; return 10"      -- RC == 10
 

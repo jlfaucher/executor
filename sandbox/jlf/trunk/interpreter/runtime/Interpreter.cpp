@@ -572,7 +572,7 @@ wholenumber_t Interpreter::messageNumber(
     const char *decimalPoint;            /* location of decimalPoint in errorcode*/
     wholenumber_t  primary = 0;          /* Primary part of error code, major */
     wholenumber_t  secondary = 0;        /* Secondary protion (minor code)    */
-    sizeB_t  count;
+    size_t  count;
 
     /* make sure we get errorcode as str */
     errorcode = (RexxString *)errorcode->stringValue();

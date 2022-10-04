@@ -166,7 +166,7 @@ class RexxSource : public RexxInternalObject {
     static int  subDirective(RexxToken *);
     static int  precedence(RexxToken *);
     void        nextLine();
-    void        position(size_t, sizeB_t);
+    void        position(size_t, size_t);
     void        live(size_t);
     void        liveGeneral(int reason);
     void        flatten(RexxEnvelope *);
@@ -184,7 +184,7 @@ class RexxSource : public RexxInternalObject {
     bool        nextSpecial(unsigned int, SourceLocation &, bool advance=true);
     unsigned int locateToken(RexxToken *);
     void        globalSetup();
-    RexxString *packLiteral(sizeB_t, sizeB_t, int);
+    RexxString *packLiteral(size_t, size_t, int);
     RexxCode   *generateCode(bool isMethod);
     RexxCode   *interpretMethod(RexxDirectory *, RexxActivation *);
     RexxCode   *interpret(RexxString *, RexxDirectory *, size_t, RexxActivation *);
@@ -462,10 +462,10 @@ protected:
     SourceLocation clauseLocation;       // current clause location for errors
     RexxBuffer *sourceBuffer;            /* contiguous buffered source        */
     RexxBuffer *sourceIndices;           /* line locations within buffer      */
-    sizeB_t current_length;              /* length of current line            */
+    size_t current_length;              /* length of current line            */
     size_t line_count;                   /* size of source array              */
     size_t line_number;                  /* current line position             */
-    sizeB_t line_offset;                 /* current offset with in the line   */
+    size_t line_offset;                 /* current offset with in the line   */
     size_t line_adjust;                  /* INTERPRET/sourceLiteral adjustment*/
     RexxActivation *interpret_activation;
 

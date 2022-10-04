@@ -3457,7 +3457,7 @@ void RexxActivation::traceEntry()
     p = message;
 
     /* get a string large enough to      */
-    sizeB_t outBlength = message->getBLength() + INSTRUCTION_OVERHEAD;
+    size_t outBlength = message->getBLength() + INSTRUCTION_OVERHEAD;
     RexxString *buffer = raw_string(outBlength);      /* get an output string              */
     /* insert the leading blanks         */
     buffer->set(0, ' ', INSTRUCTION_OVERHEAD);
@@ -3491,7 +3491,7 @@ void RexxActivation::traceValue(       /* trace an intermediate value       */
                                            /* get the string version            */
     RexxString *stringvalue = value->stringValue();
                                            /* get a string large enough to      */
-    sizeB_t outlength = stringvalue->getBLength() + TRACE_OVERHEAD + this->settings.traceindent * INDENT_SPACING;
+    size_t outlength = stringvalue->getBLength() + TRACE_OVERHEAD + this->settings.traceindent * INDENT_SPACING;
     RexxString *buffer = raw_string(outlength);      /* get an output string              */
     ProtectedObject p(buffer);
     /* insert the leading blanks         */
@@ -3534,7 +3534,7 @@ void RexxActivation::traceTaggedValue(int prefix, const char *tagPrefix, bool qu
     RexxString *stringVal = value->stringValue();
 
     // now calculate the length of the traced string
-    stringsizeB_t outLength = tag->getBLength() + stringVal->getBLength();
+    stringsize_t outLength = tag->getBLength() + stringVal->getBLength();
     // these are fixed overheads
     outLength += TRACE_OVERHEAD + strlen(marker);
     // now the indent spacing
@@ -3551,7 +3551,7 @@ void RexxActivation::traceTaggedValue(int prefix, const char *tagPrefix, bool qu
     ProtectedObject p(buffer);
 
     // get a cursor for filling in the formatted data
-    stringsizeB_t dataOffset = TRACE_OVERHEAD + this->settings.traceindent * INDENT_SPACING - 2;
+    stringsize_t dataOffset = TRACE_OVERHEAD + this->settings.traceindent * INDENT_SPACING - 2;
                                        /* insert the leading blanks         */
     buffer->set(0, ' ', TRACE_OVERHEAD + this->settings.traceindent * INDENT_SPACING);
                                        /* add the trace prefix              */
@@ -3632,7 +3632,7 @@ void RexxActivation::traceOperatorValue(int prefix, const char *tag, RexxObject 
     RexxString *stringVal = value->stringValue();
 
     // now calculate the length of the traced string
-    stringsizeB_t outLength = strlen(tag) + stringVal->getBLength();
+    stringsize_t outLength = strlen(tag) + stringVal->getBLength();
     // these are fixed overheads
     outLength += TRACE_OVERHEAD + strlen(VALUE_MARKER);
     // now the indent spacing
@@ -3645,7 +3645,7 @@ void RexxActivation::traceOperatorValue(int prefix, const char *tag, RexxObject 
     ProtectedObject p(buffer);
 
     // get a cursor for filling in the formatted data
-    stringsizeB_t dataOffset = TRACE_OVERHEAD + this->settings.traceindent * INDENT_SPACING - 2;
+    stringsize_t dataOffset = TRACE_OVERHEAD + this->settings.traceindent * INDENT_SPACING - 2;
                                        /* insert the leading blanks         */
     buffer->set(0, ' ', TRACE_OVERHEAD + this->settings.traceindent * INDENT_SPACING);
                                        /* add the trace prefix              */
@@ -3725,7 +3725,7 @@ void RexxActivation::traceCompoundValue(int prefix, RexxString *stemName, RexxOb
 	RexxString *stringVal = value->stringValue();
 
 	// now calculate the length of the traced string
-	stringsizeB_t outLength = stemName->getBLength() + stringVal->getBLength();
+	stringsize_t outLength = stemName->getBLength() + stringVal->getBLength();
 
 	// build an unresolved tail name
 	RexxCompoundTail tail(tails, tailCount, false);
@@ -3747,7 +3747,7 @@ void RexxActivation::traceCompoundValue(int prefix, RexxString *stemName, RexxOb
 	ProtectedObject p(buffer);
 
 	// get a cursor for filling in the formatted data
-	stringsizeB_t dataOffset = TRACE_OVERHEAD + this->settings.traceindent * INDENT_SPACING - 2;
+	stringsize_t dataOffset = TRACE_OVERHEAD + this->settings.traceindent * INDENT_SPACING - 2;
 	/* insert the leading blanks         */
 	buffer->set(0, ' ', TRACE_OVERHEAD + this->settings.traceindent * INDENT_SPACING);
 	/* add the trace prefix              */
@@ -3802,7 +3802,7 @@ void RexxActivation::traceSourceString()
     /* get the string version            */
     RexxString *string = this->sourceString();       /* get the source string             */
     /* get a string large enough to      */
-    sizeB_t outlength = string->getBLength() + INSTRUCTION_OVERHEAD + 2;
+    size_t outlength = string->getBLength() + INSTRUCTION_OVERHEAD + 2;
     RexxString *buffer = raw_string(outlength);      /* get an output string              */
     /* insert the leading blanks         */
     buffer->set(0, ' ', INSTRUCTION_OVERHEAD);
@@ -3929,7 +3929,7 @@ void RexxActivation::enableExternalTrace(const char *option)
 
     // The trace option can be followed by an optional  "colon <depth>".
     const char *colon = strchr(option, ':');
-    RexxString *s = (colon == NULL) ? new_string(option) : new_string(option, stringsizeB_v(colon - option));
+    RexxString *s = (colon == NULL) ? new_string(option) : new_string(option, colon - option);
     if (s->strCaselessCompare("ON"))
     {
         // ignore the depth

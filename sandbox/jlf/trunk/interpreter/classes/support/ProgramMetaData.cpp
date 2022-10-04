@@ -84,7 +84,7 @@ ProgramMetaData::ProgramMetaData(RexxBuffer *image)
     strncpy(rexxVersion, versionNumber->getStringData(), sizeof(rexxVersion));
 
     // copy in the image information
-    imageSize = size_v(image->getDataLength());
+    imageSize = image->getDataLength();
     memcpy(imageData, image->getData(), imageSize);
 }
 
@@ -212,7 +212,7 @@ void ProgramMetaData::write(FILE *handle, RexxBuffer *program)
 {
     fwrite(this, 1, getHeaderSize(), handle);
     /* and finally the flattened method  */
-    fwrite(program->getData(), 1, size_v(program->getDataLength()), handle);
+    fwrite(program->getData(), 1, program->getDataLength(), handle);
 }
 
 

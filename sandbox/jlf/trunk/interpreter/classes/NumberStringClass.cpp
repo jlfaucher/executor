@@ -230,7 +230,7 @@ RexxString *RexxNumberString::stringValue()
     size_t MaxNumSize, LenValue;
     wholenumber_t numindex;
     wholenumber_t temp, ExpValue, ExpFactor;
-    sizeB_t charpos;
+    size_t charpos;
     RexxString *StringObj;
 
     if (this->stringObject != OREF_NULL) /* already converted?                */
@@ -429,7 +429,7 @@ RexxString *RexxNumberString::stringValue()
                 {
                     charpos  -= temp;               /* yes, point to starting pos to fill*/
                                                     /* now fill in the leading Zeros.    */
-                    StringObj->set(charpos, ch_ZERO, sizeB_v(temp)); // todo m17n
+                    StringObj->set(charpos, ch_ZERO, temp);
                 }
                 StringObj->putCharB(--charpos, ch_PERIOD);
                 if (carry)                       /* now put in the leading 1. is carry*/
@@ -451,7 +451,7 @@ RexxString *RexxNumberString::stringValue()
                 temp -= LenValue;                 /* see how many zeros we need to add.*/
                 charpos  -= temp;                 /* point to starting pos to fill     */
                                                   /* now fill in the leading Zeros.    */
-                StringObj->set(charpos, ch_ZERO, sizeB_v(temp)); // todo m17n
+                StringObj->set(charpos, ch_ZERO, temp);
                 /* done w/ trailing zeros start      */
                 /* adding digits (from back)         */
 

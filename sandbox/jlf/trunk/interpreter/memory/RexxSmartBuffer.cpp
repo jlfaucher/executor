@@ -115,7 +115,7 @@ void   *RexxSmartBuffer::operator new(size_t size)
     return new_object(size, T_SmartBuffer);        /* get storage for a new object      */
 }
 
-sizeB_t RexxSmartBuffer::space()
+size_t RexxSmartBuffer::space()
 /******************************************************************************/
 /* Function:  Return the space remaining in the buffer                        */
 /******************************************************************************/

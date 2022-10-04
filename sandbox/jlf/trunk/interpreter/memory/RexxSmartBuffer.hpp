@@ -62,7 +62,7 @@
   inline size_t getDataLength() { return this->current; }
   inline RexxBuffer *getBuffer() {return this->buffer;}
   inline void setBuffer(RexxBuffer *b) {this->buffer = b;}
-  sizeB_t space();
+  size_t space();
 
  protected:
   size_t current;                     /* current offset for copies         */

@@ -62,8 +62,8 @@ class RexxClause : public RexxInternalObject {
   void        live(size_t);
   void        liveGeneral(int reason);
   void        flatten(RexxEnvelope *);
-  void        setStart(size_t, sizeB_t);
-  void        setEnd(size_t, sizeB_t);
+  void        setStart(size_t, size_t);
+  void        setEnd(size_t, size_t);
   void        trim();
   void        newClause();
   RexxToken  *newToken(int, int, RexxString *, SourceLocation &);

@@ -69,13 +69,13 @@ RexxString *RexxString::encodeBase64()
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 
-    sizeB_t inputLength = this->getBLength();     /* get length of string              */
+    size_t inputLength = this->getBLength();     /* get length of string              */
     if (inputLength == 0)               /* null string?                      */
     {
         return OREF_NULLSTRING;
     }
     /* figure out the output string length */
-    sizeB_t outputLength = (inputLength / 3) * 4;
+    size_t outputLength = (inputLength / 3) * 4;
     if (inputLength % 3 > 0)
     {
         outputLength += 4;
@@ -132,7 +132,7 @@ RexxString *RexxString::decodeBase64()
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 
-    sizeB_t inputLength = this->getBLength();     /* get length of string              */
+    size_t inputLength = this->getBLength();     /* get length of string              */
     if (inputLength == 0)                    /* null string?                      */
     {
         return OREF_NULLSTRING;          // this encodes as a null string
@@ -143,7 +143,7 @@ RexxString *RexxString::decodeBase64()
     }
     const char *source = this->getStringData();
     /* figure out the output string length */
-    sizeB_t outputLength = (inputLength / 4) * 3;
+    size_t outputLength = (inputLength / 4) * 3;
     if (*(source + inputLength - 1) == '=')
     {
         outputLength--;
@@ -215,7 +215,7 @@ RexxString *RexxString::c2x()
 /* Function:  Process the string C2X method/function                          */
 /******************************************************************************/
 {
-    sizeB_t      InputLength;             /* length of converted string        */
+    size_t      InputLength;             /* length of converted string        */
     RexxString *Retval;                  /* return value                      */
     const char *Source;                  /* input string pointer              */
     char *      Destination;             /* output string pointer             */
@@ -292,7 +292,7 @@ RexxString *RexxString::x2c()
 /* Function:  Process the string X2C method/function                          */
 /******************************************************************************/
 {
-    sizeB_t InputLength = this->getBLength();          /* get length of string       */
+    size_t InputLength = this->getBLength();          /* get length of string       */
     if (InputLength== 0)                    /* null string?               */
     {
         return OREF_NULLSTRING;          /* converts to a null string         */
@@ -321,18 +321,18 @@ RexxString *RexxString::x2dC2d(RexxInteger *_length,
 /* Function:  Common X2D/X2C processing routine                               */
 /******************************************************************************/
 {
-    sizeB_t     ResultSize;               /* size of result string             */
-    sizeB_t     TempSize;                 /* temporary size value              */
+    size_t     ResultSize;               /* size of result string             */
+    size_t     TempSize;                 /* temporary size value              */
     int        ch;                       /* addition character                */
-    sizeB_t     StringLength;             /* input string length               */
+    size_t     StringLength;             /* input string length               */
     char       *Scan;                    /* scan pointer                      */
     char       *HighDigit;               /* high digit position               */
     char *     Accumulator;              /* accumulator pointer               */
     bool       Negative;                 /* have a negative number            */
     RexxString *String;                  /* converted string                  */
     char       *StringPtr;               /* string value pointer              */
-    sizeB_t     BytePosition;             /* position of high byte             */
-    sizeB_t     NibblePosition;           /* position of high nibble           */
+    size_t     BytePosition;             /* position of high byte             */
+    size_t     NibblePosition;           /* position of high nibble           */
     size_t     DecLength;                /* length of accumulator             */
     size_t     TempLength;               /* length of accumulator             */
     RexxString *Retval;                  /* function return value             */
@@ -558,8 +558,8 @@ RexxString *RexxString::b2x()
     char    *Destination;                /* destination pointer               */
     size_t   Excess;                     /* section boundary                  */
     char     Nibble[4];                  /* current nibble string             */
-    sizeB_t   Jump;                       /* string movement offset            */
-    sizeB_t   Length;                     /* total string length               */
+    size_t   Jump;                       /* string movement offset            */
+    size_t   Length;                     /* total string length               */
 
     if (this->getBLength() == 0)               /* null input, i.e. zerolength       */
     {

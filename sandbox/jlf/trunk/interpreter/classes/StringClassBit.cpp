@@ -64,11 +64,11 @@ RexxString *RexxString::bitAnd(RexxString *string2,
     const char *String1;                 /* string 1 pointer                  */
     const char *PadString;               /* padded string part                */
     const char *String2;                 /* string 2 pointer                  */
-    sizeB_t      String1Len;              /* string 1 length                   */
-    sizeB_t      String2Len;              /* string 2 length                   */
-    sizeB_t      MinLength;               /* length of shorter string          */
-    sizeB_t      PadLength;               /* length to pad                     */
-    sizeB_t      MaxLength;               /* longest length                    */
+    size_t      String1Len;              /* string 1 length                   */
+    size_t      String2Len;              /* string 2 length                   */
+    size_t      MinLength;               /* length of shorter string          */
+    size_t      PadLength;               /* length to pad                     */
+    size_t      MaxLength;               /* longest length                    */
     RexxString *Retval;                  /* return value                      */
     const char *Source;                  /* source string pointer             */
     char       *Target;                  /* target string pointer             */
@@ -80,7 +80,7 @@ RexxString *RexxString::bitAnd(RexxString *string2,
     String2Len = string2->getBLength();        /* get the string length             */
     String2 = string2->getStringData();       /* get the string data pointer       */
     /* get the pad character             */
-    PadChar = (char)optionalPadArgument(pad, (char)0xff, ARG_TWO); // TODO M17N WRONG!
+    PadChar = (char)optionalPadArgument(pad, (char)0xff, ARG_TWO);
 
     String1 = this->getStringData();     /* point to the first string         */
     String1Len = this->getBLength();      /* get the length                    */
@@ -135,11 +135,11 @@ RexxString *RexxString::bitOr(RexxString *string2,
     const char *String1;                  /* string 1 pointer                  */
     const char *PadString;                /* padded string part                */
     const char *String2;                  /* string 2 pointer                  */
-    sizeB_t      String1Len;               /* string 1 length                   */
-    sizeB_t      String2Len;               /* string 2 length                   */
-    sizeB_t      MinLength;                /* length of shorter string          */
-    sizeB_t      PadLength;                /* length to pad                     */
-    sizeB_t      MaxLength;                /* longest length                    */
+    size_t      String1Len;               /* string 1 length                   */
+    size_t      String2Len;               /* string 2 length                   */
+    size_t      MinLength;                /* length of shorter string          */
+    size_t      PadLength;                /* length to pad                     */
+    size_t      MaxLength;                /* longest length                    */
     RexxString *Retval;                   /* return value                      */
     const char *Source;                   /* source string pointer             */
     char       *Target;                   /* tArget string pointer             */
@@ -151,7 +151,7 @@ RexxString *RexxString::bitOr(RexxString *string2,
     String2Len = string2->getBLength();   /* get the string length             */
     String2 = string2->getStringData();  /* get the string data pointer       */
                                          /* get the pad character             */
-    PadChar = (char)optionalPadArgument(pad, 0x00, ARG_TWO); // TODO M17N WRONG!
+    PadChar = (char)optionalPadArgument(pad, 0x00, ARG_TWO);
 
     String1 = this->getStringData();     /* point to the first string         */
     String1Len = this->getBLength();      /* get the length                    */
@@ -206,11 +206,11 @@ RexxString *RexxString::bitXor(RexxString *string2,
     const char *String1;                  /* string 1 pointer                  */
     const char *PadString;                /* padded string part                */
     const char *String2;                  /* string 2 pointer                  */
-    sizeB_t      String1Len;               /* string 1 length                   */
-    sizeB_t      String2Len;               /* string 2 length                   */
-    sizeB_t      MinLength;                /* length of shorter string          */
-    sizeB_t      PadLength;                /* length to pad                     */
-    sizeB_t      MaxLength;                /* longest length                    */
+    size_t      String1Len;               /* string 1 length                   */
+    size_t      String2Len;               /* string 2 length                   */
+    size_t      MinLength;                /* length of shorter string          */
+    size_t      PadLength;                /* length to pad                     */
+    size_t      MaxLength;                /* longest length                    */
     RexxString *Retval;                   /* return value                      */
     const char *Source;                   /* source string pointer             */
     char       *Target;                   /* tArget string pointer             */
@@ -222,7 +222,7 @@ RexxString *RexxString::bitXor(RexxString *string2,
     String2Len = string2->getBLength();   /* get the string length             */
     String2 = string2->getStringData();  /* get the string data pointer       */
                                          /* get the pad character             */
-    PadChar = (char)optionalPadArgument(pad, 0x00, ARG_TWO); // TODO M17N WRONG!
+    PadChar = (char)optionalPadArgument(pad, 0x00, ARG_TWO);
 
     String1 = this->getStringData();     /* point to the first string         */
     String1Len = this->getBLength();      /* get the length                    */

@@ -468,7 +468,7 @@ RexxObject *RexxDirectory::unknown(
     RexxString *message_value = stringArgument(msgname, OREF_positional, ARG_ONE);
     requiredArgument(arguments, OREF_positional, ARG_TWO);        /* need an argument array            */
                                          /* get the length                    */
-    stringsizeC_t message_length = message_value->getCLength();
+    stringsize_t message_length = message_value->getCLength();
     /* assignment form of access?        */
     if (message_length > 0 && message_value->getCharC(message_length - 1) == '=')
     {

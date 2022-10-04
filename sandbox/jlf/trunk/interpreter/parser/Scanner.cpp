@@ -193,7 +193,7 @@ int RexxSource::characterTable[]={
                                        /* scanning operations...mostly to   */
                                        /* save some keystrokes and make     */
                                        /* things a little more readable     */
-#define GETCHAR()  ((unsigned char)(this->current[size_v(this->line_offset)]))
+#define GETCHAR()  ((unsigned char)(this->current[this->line_offset]))
 #define MORELINE() (this->line_offset < this->current_length)
 #define OPERATOR(op) (this->clause->newToken(TOKEN_OPERATOR, OPERATOR_##op, (RexxString *)OREF_##op, location))
 #define CHECK_ASSIGNMENT(op, token) (token->checkAssignment(this, (RexxString *)OREF_ASSIGNMENT_##op))
@@ -296,7 +296,7 @@ unsigned int RexxSource::locateToken(
 /****************************************************************************/
 {
     size_t          startline;            /* backward reset line number        */
-    sizeB_t          startoffset;          /* backward reset offset             */
+    size_t          startoffset;          /* backward reset offset             */
 
     bool            blanks = false;       /* are blanks significant?           */
 
@@ -347,7 +347,7 @@ unsigned int RexxSource::locateToken(
             {
                 /* line comment?                     */
                 if (inch == '-' && this->line_offset + 1 < this->current_length &&
-                    this->current[size_v(this->line_offset + 1)] == '-')
+                    this->current[this->line_offset + 1] == '-')
                 {
                     this->line_offset = this->current_length;
                     break;
@@ -365,14 +365,14 @@ unsigned int RexxSource::locateToken(
                     unsigned int inch2 = GETCHAR();            /* pick up the next character        */
                                                   /* comment level start?              */
                     if (inch2 == '/' && (this->line_offset + 1 < this->current_length) &&
-                        this->current[size_v(this->line_offset + 1)] == '*')
+                        this->current[this->line_offset + 1] == '*')
                     {
                         this->comment();            /* go skip over the comment          */
                         continue;                   /* and continue scanning             */
                     }
                     /* line comment?                     */
                     if (inch2 == '-' && (this->line_offset + 1 < this->current_length) &&
-                        this->current[size_v(this->line_offset + 1)] == '-')
+                        this->current[this->line_offset + 1] == '-')
                     {
                         /* go skip overto the end of line    */
                         this->line_offset = this->current_length;
@@ -408,7 +408,7 @@ unsigned int RexxSource::locateToken(
             }
             /* comment level start?              */
             else if (inch == '/' && (this->line_offset + 1 < this->current_length) &&
-                     this->current[size_v(this->line_offset + 1)] == '*')
+                     this->current[this->line_offset + 1] == '*')
             {
                 this->comment();                /* go skip over the comment          */
             }
@@ -427,8 +427,8 @@ unsigned int RexxSource::locateToken(
 }
 
 RexxString *RexxSource::packLiteral(
-  sizeB_t     start,                    /* start of the literal in line      */
-  sizeB_t     length,                   /* length of the literal to reduce   */
+  size_t     start,                    /* start of the literal in line      */
+  size_t     length,                   /* length of the literal to reduce   */
   int        type )                    /* type of literal to process        */
 /****************************************************************************/
 /* Function:  Convert and check a hex or binary constant, packing it down   */
@@ -438,17 +438,17 @@ RexxString *RexxSource::packLiteral(
     int    _first;                       /* switch to mark first group        */
     int    blanks;                       /* switch to say if scanning blanks  */
     int    count;                        /* count for group                   */
-    sizeB_t i;                            /* loop counter                      */
+    size_t i;                            /* loop counter                      */
     size_t j;                            /* loop counter                      */
-    sizeB_t k;                            /* loop counter                      */
-    sizeB_t m;                            /* temporary integer                 */
+    size_t k;                            /* loop counter                      */
+    size_t m;                            /* temporary integer                 */
     int    byte;                         /* individual byte of literal        */
     int    nibble;                       /* individual nibble of literal      */
-    sizeB_t oddhex;                       /* odd number of characters in first */
-    sizeB_t inpointer;                    /* current input position            */
+    size_t oddhex;                       /* odd number of characters in first */
+    size_t inpointer;                    /* current input position            */
     int    outpointer;                   /* current output pointer            */
     RexxString *value;                   /* reduced value                     */
-    sizeB_t real_length;                  /* real number of digits in string   */
+    size_t real_length;                  /* real number of digits in string   */
     char   error_output[2];              /* used for formatting error         */
 
     _first = true;                        /* initialize group flags and        */
@@ -471,7 +471,7 @@ RexxString *RexxSource::packLiteral(
         for (i = 0; i < length; i++)
         {       /* loop through entire string        */
                 /* got a blank?                      */
-            if (this->current[size_v(inpointer)] == ' ' || this->current[size_v(inpointer)] == '\t')
+            if (this->current[inpointer] == ' ' || this->current[inpointer] == '\t')
             {
                 blanks = true;                    /* remember scanning blanks          */
                 /* don't like initial blanks or groups after the first                  */
@@ -550,12 +550,12 @@ RexxString *RexxSource::packLiteral(
                 for (k = oddhex; k < 2; k++)
                 {   /* loop either 1 or 2 times          */
                     /* get the next nibble               */
-                    nibble = this->current[size_v(inpointer)];
+                    nibble = this->current[inpointer];
                     inpointer++;                   /* step to the next character        */
                     while (nibble == ' ' || nibble == '\t')
                     {   /* step over any inter-nibble blanks */
                         /* get the next nibble               */
-                        nibble = this->current[size_v(inpointer)];
+                        nibble = this->current[inpointer];
                         inpointer++;                 /* step to the next character        */
                     }
                     /* real digit?                       */
@@ -606,12 +606,12 @@ RexxString *RexxSource::packLiteral(
                 for (k = oddhex; k < 8; k++)
                 {   /* loop through each byte segment    */
                     /* get the next bit                  */
-                    nibble = this->current[size_v(inpointer)];
+                    nibble = this->current[inpointer];
                     inpointer++;                   /* step to the next character        */
                     while (nibble == ' ' || nibble == '\t')
                     {  /* step over any inter-nibble blanks */
                         /* get the next nibble               */
-                        nibble = this->current[size_v(inpointer)];
+                        nibble = this->current[inpointer];
                         inpointer++;                 /* step to the next character        */
                     }
                     byte <<= 1;                    /* shift the accumulator             */
@@ -640,10 +640,10 @@ RexxString *RexxSource::packLiteral(
 
 RexxToken *RexxSource::sourceLiteral(size_t clause_free, SourceLocation location)
 {
-    sizeB_t start = this->line_offset;           /* save the starting point           */
+    size_t start = this->line_offset;           /* save the starting point           */
     size_t startline = this->line_number;        /* remember the starting position    */
-    sizeB_t sourceLiteralEnd;                    /* end of source literal             */
-    sizeB_t length;                              /* length of extracted token         */
+    size_t sourceLiteralEnd;                    /* end of source literal             */
+    size_t length;                              /* length of extracted token         */
     RexxToken *previous = OREF_NULL;
     for (;;)
     {                                            /* spin through the source literal   */
@@ -684,16 +684,16 @@ RexxToken *RexxSource::sourceNextToken(
     RexxToken  *token = OREF_NULL;        /* working token                     */
     RexxString *value;                    /* associate string value            */
     unsigned int inch;                    /* working input character           */
-    sizeB_t eoffset;                       /* location of exponential           */
+    size_t eoffset;                       /* location of exponential           */
     int    state;                         /* state of symbol scanning          */
-    sizeB_t start;                         /* scan start location               */
-    sizeB_t litend;                        /* end of literal data               */
-    sizeB_t length;                        /* length of extracted token         */
+    size_t start;                         /* scan start location               */
+    size_t litend;                        /* end of literal data               */
+    size_t length;                        /* length of extracted token         */
     int    dot_count;                     /* count of periods in symbol        */
     unsigned int literal_delimiter;       /* literal string delimiter          */
     int    type;                          /* type of literal token             */
-    sizeB_t i;                             /* loop counter                      */
-    sizeB_t j;                             /* loop counter                      */
+    size_t i;                             /* loop counter                      */
+    size_t j;                             /* loop counter                      */
     int    subclass;                      /* sub type of the token             */
     int    numeric;                       /* numeric type flag                 */
     SourceLocation location;              /* token location information        */
@@ -980,7 +980,7 @@ RexxToken *RexxSource::sourceNextToken(
                   /* copy over the symbol value        */
                   /* (translating to uppercase         */
                   /* get the next character            */
-                    inch = this->current[size_v(start + i)]; // todo m17n
+                    inch = this->current[start + i];
                     if (isSymbolCharacter(inch))       /* normal symbol character (not +/-) */
                     {
                         inch = translateChar(inch);      /* translate to uppercase            */
@@ -999,7 +999,7 @@ RexxToken *RexxSource::sourceNextToken(
                     /* report the error                  */
                     syntaxError(Error_Name_too_long_name, value);
                 }
-                inch = this->current[size_v(start)];   /* get the first character           */
+                inch = this->current[start];   /* get the first character           */
                 if (length == 1 && inch == '.')/* have a solo period?               */
                 {
                     subclass = SYMBOL_DUMMY;     /* this is the place holder          */
@@ -1159,7 +1159,7 @@ RexxToken *RexxSource::sourceNextToken(
                     for (i = 0, j = 0; j < length; i++, j++)
                     {
                         /* get the next character            */
-                        inch = this->current[size_v(start + j)];
+                        inch = this->current[start + j];
                         /* same as our delimiter?            */
                         if (inch == literal_delimiter)
                         {

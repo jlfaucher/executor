@@ -95,7 +95,7 @@ void RexxClause::flatten(RexxEnvelope *envelope)
 
 void RexxClause::setStart(
     size_t  line,                      /* starting line number              */
-    sizeB_t  offset)                    /* starting line offset              */
+    size_t  offset)                    /* starting line offset              */
 /******************************************************************************/
 /* Function:  Set a clause's starting position as a line/offset pair          */
 /******************************************************************************/
@@ -105,7 +105,7 @@ void RexxClause::setStart(
 
 void RexxClause::setEnd(
     size_t  line,                      /* ending line number                */
-    sizeB_t  offset)                    /* ending line offset                */
+    size_t  offset)                    /* ending line offset                */
 /******************************************************************************/
 /* Function:  Set a clause's ending position as a line/offset pair            */
 /******************************************************************************/

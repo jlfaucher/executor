@@ -59,9 +59,9 @@
 /*                                                                   */
 /*********************************************************************/
 void * SystemInterpreter::allocateResultMemory(
-   sizeB_t   Size )                     /* size to allocate                  */
+   size_t   Size )                     /* size to allocate                  */
 {
-  return malloc(size_v(Size));
+  return malloc(Size);
 }
 
 /*********************************************************************/

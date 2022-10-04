@@ -72,7 +72,7 @@ void Utilities::GetConcurrencyInfos(struct ConcurrencyInfos &concurrencyInfos)
 const char *Utilities::locateCharacter(
   const char *string,                  /* search string                     */
   const char *set,                     /* reference set                     */
-  sizeB_t      length )                 /* size of string                    */
+  size_t      length )                 /* size of string                    */
 /*********************************************************************/
 /*  Function:  Find first occurence of set member in memory          */
 /*********************************************************************/
@@ -189,7 +189,7 @@ void Utilities::strlower(char *str)
  *
  * @return The pointer to the located character, or NULL if it isn't found.
  */
-const char *Utilities::strnchr(const char *data, sizeB_t n, char ch)
+const char *Utilities::strnchr(const char *data, size_t n, char ch)
 {
     const char *endPtr = data + n;
     while (data < endPtr && *data != '\0')

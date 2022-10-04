@@ -632,7 +632,7 @@ bool InterpreterInstance::processOptions(RexxOption *options)
                     delim = extEnd;
                 }
                 // make this into a string value and append
-                RexxString *ext = new_string(extStart, sizeB_v(delim - extStart));
+                RexxString *ext = new_string(extStart, delim - extStart);
                 searchExtensions->append(ext);
 
                 // step past the delimiter and loop

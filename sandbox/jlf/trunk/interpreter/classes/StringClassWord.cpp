@@ -65,11 +65,11 @@ RexxString *RexxString::delWord(RexxInteger *position,
     char       *Current;                 /* current pointer position          */
     const char *Word;                    /* current word pointer              */
     const char *NextSite;                /* next word                         */
-    sizeB_t      WordPos;                 /* needed word position              */
+    size_t      WordPos;                 /* needed word position              */
     size_t      Count;                   /* count of words                    */
-    sizeB_t      Length;                  /* remaining length                  */
-    sizeB_t      WordLength;              /* word size                         */
-    sizeB_t      FrontLength;             /* front substring                   */
+    size_t      Length;                  /* remaining length                  */
+    size_t      WordLength;              /* word size                         */
+    size_t      FrontLength;             /* front substring                   */
     RexxString *Retval;                  /* return value                      */
 
                                          /* convert position to binary        */
@@ -147,15 +147,15 @@ RexxString *RexxString::delWord(RexxInteger *position,
 RexxString *RexxString::space(RexxInteger *space_count,
                               RexxString  *pad)
 {
-    sizeC_t      Spaces;                  /* requested spacing                 */
+    size_t      Spaces;                  /* requested spacing                 */
     codepoint_t        PadChar;                 /* pad character                     */
     char       *Current;                 /* current pointer position          */
     const char *Word;                    /* current word pointer              */
     const char *NextSite;                /* next word                         */
-    sizeB_t      Count;                   /* count of words                    */
-    sizeB_t      WordSize;                /* size of words                     */
-    sizeB_t      Length;                  /* remaining length                  */
-    sizeB_t      WordLength;              /* word size                         */
+    size_t      Count;                   /* count of words                    */
+    size_t      WordSize;                /* size of words                     */
+    size_t      Length;                  /* remaining length                  */
+    size_t      WordLength;              /* word size                         */
     RexxString *Retval;                  /* return value                      */
 
                                          /* get the spacing count             */
@@ -187,7 +187,7 @@ RexxString *RexxString::space(RexxInteger *space_count,
     {                               /* real words                        */
         Count--;                           /* step back one                     */
                                            /* get space for output              */
-        Retval = raw_string(WordSize + Count * size_v(Spaces)); // todo m17n : Spaces is a char count
+        Retval = raw_string(WordSize + Count * Spaces);
         /* point to output area              */
         Current = Retval->getWritableData();
 
@@ -204,8 +204,8 @@ RexxString *RexxString::space(RexxInteger *space_count,
             if (Spaces != 0)
             {                    /* if have gaps...                   */
                                  /* fill in the pad chars             */
-                memset(Current, (int)PadChar, size_v(Spaces)); // todo m17n
-                Current += size_v(Spaces);             /* step over the pad chars           */ // todo m17n
+                memset(Current, (int)PadChar, Spaces);
+                Current += Spaces;             /* step over the pad chars           */
             }
             Word = NextSite;                 /* copy the start pointer            */
                                              /* get the next word                 */

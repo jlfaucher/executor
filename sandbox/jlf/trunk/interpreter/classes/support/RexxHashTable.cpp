@@ -974,7 +974,7 @@ RexxArray *RexxHashTable::stringGetAll(
 /******************************************************************************/
 {
     const char *data = _index->getStringData();      /* get the string data               */
-    sizeB_t length = _index->getBLength();        /* and the length also               */
+    size_t length = _index->getBLength();        /* and the length also               */
     size_t count = 0;                           /* no items found yet                */
     HashLink position = hashStringIndex(_index);   /* calculate the hash slot           */
     /* have an entry at this slot        */
@@ -985,7 +985,7 @@ RexxArray *RexxHashTable::stringGetAll(
                                         /* get the entry                     */
             RexxString *entry = (RexxString *)this->entries[position].index;
             /* if got a match                    */
-            if (_index == entry || entry->memCompare(data, length)) // todo m17n
+            if (_index == entry || entry->memCompare(data, length))
             {
                 count++;                       /* bump our counter                  */
             }
@@ -1006,7 +1006,7 @@ RexxArray *RexxHashTable::stringGetAll(
                                       /* get the entry                     */
         RexxString *entry = (RexxString *)this->entries[position].index;
         /* if got a match                    */
-        if (_index == entry || entry->memCompare(data, length)) // todo m17n
+        if (_index == entry || entry->memCompare(data, length))
         {
             /* copy the value into our array     */
             result->put(this->entries[position].value,i++);
@@ -1275,7 +1275,7 @@ RexxObject *RexxHashTable::stringGet(
 /******************************************************************************/
 {
     const char *data = _index->getStringData();            /* get the string data               */
-    sizeB_t length = _index->getBLength();              /* and the length also               */
+    size_t length = _index->getBLength();              /* and the length also               */
 
     HashLink position = hashStringIndex(_index);  /* calculate the hash slot           */
     /* have an entry at this slot        */
@@ -1286,7 +1286,7 @@ RexxObject *RexxHashTable::stringGet(
                                         /* get the entry                     */
             RexxString *entry = (RexxString *)this->entries[position].index;
             /* if got a match                    */
-            if (_index == entry || entry->memCompare(data, size_v(length))) // todo m17n
+            if (_index == entry || entry->memCompare(data, length))
             {
                 /* return this item's value          */
                 return this->entries[position].value;
@@ -1306,7 +1306,7 @@ RexxHashTable *RexxHashTable::stringPut(
 /******************************************************************************/
 {
     const char *data = _index->getStringData();            /* get the string data               */
-    sizeB_t length = _index->getBLength();              /* and the length also               */
+    size_t length = _index->getBLength();              /* and the length also               */
 
     HashLink position = hashStringIndex(_index);   /* calculate the hash slot           */
     /* have an entry at this slot        */
@@ -1318,7 +1318,7 @@ RexxHashTable *RexxHashTable::stringPut(
                                         /* get the entry                     */
             RexxString *entry = (RexxString *)this->entries[position].index;
             /* if got a match                    */
-            if (_index == entry || entry->memCompare(data, size_v(length))) // todo m17n
+            if (_index == entry || entry->memCompare(data, length))
             {
                 /* set a new value                   */
                 OrefSet(this, this->entries[position].value, _value);

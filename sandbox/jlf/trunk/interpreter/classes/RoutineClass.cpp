@@ -422,7 +422,7 @@ void RoutineClass::save(const char *filename)
     ProtectedObject p2(buffer);
 
     // create an image header
-    ProgramMetaData metaData(size_v(buffer->getDataLength()));
+    ProgramMetaData metaData(buffer->getDataLength());
     {
         UnsafeBlock releaser;
 

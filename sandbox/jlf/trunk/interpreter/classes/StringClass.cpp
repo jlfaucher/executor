@@ -234,7 +234,7 @@ void RexxString::copyIntoTail(RexxCompoundTail *tail)
 /******************************************************************************/
 {
                                        /* copy this directly into the tail */
-    tail->append(this->getStringData(), size_v(this->getBLength())); // todo m17n : to restrict to fixed-8:ascii ?
+    tail->append(this->getStringData(), this->getBLength());
 }
 
 
@@ -390,7 +390,7 @@ RexxNumberString *RexxString::numberString()
     {          /* not truly a string type?          */
         newSelf = this->requestString();   /* do the conversion                 */
                                            /* get a new numberstring Obj        */
-        OrefSet(this, this->NumberString, (RexxNumberString *)new_numberstring(newSelf->getStringData(), size_v(newSelf->getCLength()))); // todo m17n : numberstring supports only ascii
+        OrefSet(this, this->NumberString, (RexxNumberString *)new_numberstring(newSelf->getStringData(), newSelf->getCLength()));
         if (this->NumberString != OREF_NULL)     /* Did number convert OK?            */
         {
             this->setHasReferences();     /* Make sure we are sent Live...     */
@@ -399,7 +399,7 @@ RexxNumberString *RexxString::numberString()
     else
     {                               /* real primitive string             */
                                     /* get a new numberstring Obj        */
-        OrefSet(this, this->NumberString, (RexxNumberString *)new_numberstring(this->getStringData(), size_v(this->getCLength())));
+        OrefSet(this, this->NumberString, (RexxNumberString *)new_numberstring(this->getStringData(), this->getCLength()));
         if (this->NumberString == OREF_NULL)     /* Did number convert OK?            */
         {
             this->setNonNumeric();           /* mark as a nonnumeric              */
@@ -425,7 +425,7 @@ RexxNumberString *RexxString::createNumberString()
     {          /* not truly a string type?          */
         newSelf = this->requestString();   /* do the conversion                 */
                                            /* get a new numberstring Obj        */
-        OrefSet(newSelf, newSelf->NumberString, (RexxNumberString *)new_numberstring(newSelf->getStringData(), size_v(newSelf->getCLength())));
+        OrefSet(newSelf, newSelf->NumberString, (RexxNumberString *)new_numberstring(newSelf->getStringData(), newSelf->getCLength()));
         /* save the number string            */
         if (newSelf->NumberString != OREF_NULL)     /* Did number convert OK?            */
         {
@@ -436,7 +436,7 @@ RexxNumberString *RexxString::createNumberString()
     else
     {                               /* real primitive string             */
                                     /* get a new numberstring Obj        */
-        OrefSet(this, this->NumberString, (RexxNumberString *)new_numberstring(this->getStringData(), size_v(this->getCLength())));
+        OrefSet(this, this->NumberString, (RexxNumberString *)new_numberstring(this->getStringData(), this->getCLength()));
         if (this->NumberString == OREF_NULL)     /* Did number convert OK?            */
         {
             this->setNonNumeric();           /* mark as a nonnumeric              */
@@ -452,12 +452,12 @@ RexxNumberString *RexxString::createNumberString()
 }
 
 
-sizeB_t RexxString::copyData(sizeB_t startPos, char *buffer, sizeB_t bufl)
+size_t RexxString::copyData(size_t startPos, char *buffer, size_t bufl)
 /******************************************************************************/
 /* Function:  Get a section of a string and copy it into a buffer             */
 /******************************************************************************/
 {
-    sizeB_t copylen = 0;
+    size_t copylen = 0;
 
     if (startPos < this->getBLength())
     {
@@ -510,7 +510,7 @@ bool RexxString::isEqual(
     }
 
     RexxString *other = REQUEST_STRING(otherObj);    /* force into string form            */
-    sizeB_t otherLen = other->getBLength();     /* get length of second string.      */
+    size_t otherLen = other->getBLength();     /* get length of second string.      */
     if (otherLen != this->getBLength())        /* lengths different?                */
     {
         return false;                      /* also unequal                      */
@@ -533,7 +533,7 @@ bool RexxString::primitiveIsEqual(
     }
 
     RexxString *other = REQUEST_STRING(otherObj);    /* force into string form            */
-    sizeB_t otherLen = other->getBLength();            /* get length of second string.      */
+    size_t otherLen = other->getBLength();            /* get length of second string.      */
     if (otherLen != this->getBLength())        /* lengths different?                */
     {
         return false;                      /* also unequal                      */
@@ -559,7 +559,7 @@ bool RexxString::primitiveCaselessIsEqual(RexxObject *otherObj)
         return false;
     }
     RexxString *other = REQUEST_STRING(otherObj);
-    stringsizeB_t otherLen = other->getBLength();
+    stringsize_t otherLen = other->getBLength();
     // can't compare equal if different lengths
     if (otherLen != this->getBLength())
     {
@@ -606,8 +606,8 @@ wholenumber_t RexxString::comp(RexxObject *other, RexxString *alternativeOperato
     RexxNumberString *secondNum;         /* numberstring value of other       */
     const char *firstStart;              /* comparison start pointer          */
     const char *secondStart;             /* other start pointer               */
-    sizeB_t firstLen;                     /* this compare length               */
-    sizeB_t secondLen;                    /* other compare length              */
+    size_t firstLen;                     /* this compare length               */
+    size_t secondLen;                    /* other compare length              */
     wholenumber_t result;                /* compare result                    */
 
                                          /* We need to see if the objects can */
@@ -769,7 +769,7 @@ wholenumber_t RexxString::strictComp(RexxObject *otherObj, RexxString *alternati
     }
 
     RexxString *other = REQUEST_STRING(otherObj);    /* force into string form            */
-    sizeB_t otherLen = other->getBLength();       /* get length of second string.      */
+    size_t otherLen = other->getBLength();       /* get length of second string.      */
     const char *otherData = other->getStringData();  /* get pointer to start of data.     */
 
     if (this->getBLength() >= otherLen)
@@ -1408,12 +1408,10 @@ RexxString *RexxString::concat(RexxString *other)
 /* Function:  Concatenate two strings together                                */
 /******************************************************************************/
 {
-    // Todo : use m17n service for concatenation.
-    // Current implementation is safe only if both strings have same charset and same encoding.
-    sizeB_t blen1;                        /* length of first string            */
-    sizeC_t clen1;
-    sizeB_t blen2;                        /* length of second string           */
-    sizeC_t clen2;
+    size_t blen1;                        /* length of first string            */
+    size_t clen1;
+    size_t blen2;                        /* length of second string           */
+    size_t clen2;
     RexxString *result;                  /* result string                     */
     char *data;                          /* character pointer                 */
 
@@ -1450,12 +1448,10 @@ RexxString *RexxString::concatRexx(RexxObject *otherObj)
 /* Function:  Rexx level concatenate...requires conversion and checking       */
 /******************************************************************************/
 {
-    // Todo : use m17n service for concatenation.
-    // Current implementation is safe only if both strings have same charset and same encoding.
-    sizeB_t blen1;                        /* length of first string            */
-    sizeC_t clen1;
-    sizeB_t blen2;                        /* length of second string           */
-    sizeC_t clen2;
+    size_t blen1;                        /* length of first string            */
+    size_t clen1;
+    size_t blen2;                        /* length of second string           */
+    size_t clen2;
     RexxString *result;                  /* result string                     */
     RexxString *other;
     char *data;                          /* character pointer                 */
@@ -1512,18 +1508,16 @@ RexxString *RexxString::concatToCstring(const char *other)
 /* Function:  Concatenate a string object onto an ASCII-Z string              */
 /******************************************************************************/
 {
-    // Todo : use m17n service for concatenation.
-    // Current implementation is safe only if both strings have same charset and same encoding.
-    sizeB_t blen1;                        /* length of first string            */
-    sizeC_t clen1;
-    sizeB_t blen2;                        /* length of ASCII-Z string          */
-    sizeC_t clen2;
+    size_t blen1;                        /* length of first string            */
+    size_t clen1;
+    size_t blen2;                        /* length of ASCII-Z string          */
+    size_t clen2;
     RexxString *result;                  /* result string                     */
 
     blen1 = this->getBLength();          /* get this length                   */
     clen1 = this->getCLength();
     blen2 = strlen(other);               /* and the other length              */
-    clen2 = sizeC_v(size_v(blen2)); // todo m17n: calculate clen
+    clen2 = blen2;
                                          /* create a new string               */
     result = (RexxString *)raw_string(blen1+blen2, clen1+clen2);
     /* copy the front part               */
@@ -1538,20 +1532,18 @@ RexxString *RexxString::concatWithCstring(const char *other)
 /* Function:  Concatenate an ASCII-Z string onto a string object              */
 /******************************************************************************/
 {
-    // Todo : use m17n service for concatenation.
-    // Current implementation is safe only if both strings have same charset and same encoding.
-    sizeB_t blen1;                        /* length of first string            */
-    sizeC_t clen1;
-    sizeB_t blen2;                        /* length of ASCII-Z string          */
-    sizeC_t clen2;
+    size_t blen1;                        /* length of first string            */
+    size_t clen1;
+    size_t blen2;                        /* length of ASCII-Z string          */
+    size_t clen2;
     RexxString *result;                  /* result string                     */
 
     blen1 = this->getBLength();          /* get this length                   */
     clen1 = this->getCLength();
     blen2 = strlen(other);               /* and the other length              */
-    clen2 = sizeC_v(size_v(blen2)); // todo m17n: calculate clen
+    clen2 = blen2;
                                          /* create a new string               */
-    result = (RexxString *)raw_string(blen1+blen2, clen1+clen2); // todo m17n: clen to recalculate
+    result = (RexxString *)raw_string(blen1+blen2, clen1+clen2);
     /* copy the string object            */
     memcpy(result->getWritableData(), this->getStringData(), blen1);
     /* copy the ASCII-Z string           */
@@ -1565,13 +1557,10 @@ RexxString *RexxString::concatBlank(RexxObject *otherObj)
 /* Function:  Concatenate two strings with a blank in between                 */
 /******************************************************************************/
 {
-    // Todo : use m17n service for concatenation.
-    // Current implementation is safe only if both strings have same charset and same encoding.
-    // The hardcoded ' ' separator is compatible only with encoding_fixed_8 and encoding_utf8.
-    sizeB_t blen1;                        /* length of first string            */
-    sizeC_t clen1;
-    sizeB_t blen2;                        /* length of second string           */
-    sizeC_t clen2;
+    size_t blen1;                        /* length of first string            */
+    size_t clen1;
+    size_t blen2;                        /* length of second string           */
+    size_t clen2;
     RexxString *result;                  /* result string                     */
     RexxString *other;                   /* result string                     */
     char *data;                          /* character pointer                 */
@@ -1606,7 +1595,7 @@ RexxString *RexxString::concatBlank(RexxObject *otherObj)
     blen2 = other->getBLength();              /* and the other length              */
     clen2 = other->getCLength();
     /* create a new string               */
-    result = (RexxString *)raw_string(blen1+blen2+1, clen1+clen2+1); // todo m17n: recalculate clen
+    result = (RexxString *)raw_string(blen1+blen2+1, clen1+clen2+1);
     data = result->getWritableData();    /* point to the string data          */
     if (blen1 != 0)
     {                     /* have a first string?              */
@@ -1748,7 +1737,6 @@ RexxString *RexxString::upper()
                                          /* something to uppercase?           */
     if (!this->upperOnly() && (this->hasLower() || this->checkLower()))
     {
-        // m17n todo : current implementation works only for ascii:fixed_8 and iso-8859-1:fixed_8
         /* create a new string               */
         const char *data;                    /* current data pointer              */
         char * outdata;                      /* output data                       */
@@ -1780,7 +1768,7 @@ RexxString *RexxString::stringTrace()
     // we need to process this as unsigned characters to handle values
     // greater than 0x7f.
     const unsigned char *Current;        /* current string location           */
-    sizeB_t    i;                         /* string length                     */
+    size_t    i;                         /* string length                     */
     bool      NonDisplay;                /* have non-displayables             */
 
     i = this->getBLength();               /* get the length                    */
@@ -1826,7 +1814,6 @@ RexxString *RexxString::lower()
 /* Function:  Translate a string to lower case                                */
 /******************************************************************************/
 {
-    // Todo m17n : current implementation works only for ascii:fixed_8 and iso-8859-1:fixed_8
     RexxString *newstring;               /* newly created string              */
     const char *   data;                 /* current data pointer              */
     char *         outdata;              /* output data                       */
@@ -1881,8 +1868,8 @@ RexxString *RexxString::lower()
 // in behaviour
 RexxString *RexxString::lowerRexx(RexxInteger *_start, RexxInteger *_length)
 {
-    sizeC_t startPos = optionalPositionArgument(_start, 1, ARG_ONE) - 1;
-    sizeC_t rangeLength = optionalLengthArgument(_length, getCLength(), ARG_TWO);
+    size_t startPos = optionalPositionArgument(_start, 1, ARG_ONE) - 1;
+    size_t rangeLength = optionalLengthArgument(_length, getCLength(), ARG_TWO);
 
     // if we're starting beyond the end bounds, return unchanged
     if (startPos >= getCLength())
@@ -1915,8 +1902,8 @@ RexxString *RexxString::lowerRexx(RexxInteger *_start, RexxInteger *_length)
 // in behaviour
 RexxString *RexxString::upperRexx(RexxInteger *_start, RexxInteger *_length)
 {
-    sizeC_t startPos = optionalPositionArgument(_start, 1, ARG_ONE) - 1;
-    sizeC_t rangeLength = optionalLengthArgument(_length, getCLength(), ARG_TWO);
+    size_t startPos = optionalPositionArgument(_start, 1, ARG_ONE) - 1;
+    size_t rangeLength = optionalLengthArgument(_length, getCLength(), ARG_TWO);
 
     // if we're starting beyond the end bounds, return unchanged
     if (startPos >= getCLength())
@@ -1948,13 +1935,12 @@ RexxString *RexxString::upperRexx(RexxInteger *_start, RexxInteger *_length)
  *
  * @return A new string object with the case conversion applied.
  */
-RexxString *RexxString::lower(sizeC_t offset, sizeC_t _length)
+RexxString *RexxString::lower(size_t offset, size_t _length)
 {
-    // Todo m17n: current implementation works only for ascii:fixed_8 and iso-8859-1:fixed_8
     // get a copy of the string
     RexxString *newstring = extractB(0, getBLength());
 
-    char *data = newstring->getWritableData() + size_v(offset);
+    char *data = newstring->getWritableData() + offset;
     // now uppercase in place
     for (size_t i = 0; i < _length; i++)
     {
@@ -1978,13 +1964,12 @@ RexxString *RexxString::lower(sizeC_t offset, sizeC_t _length)
  *
  * @return A new string object with the case conversion applied.
  */
-RexxString *RexxString::upper(sizeC_t offset, sizeC_t _length)
+RexxString *RexxString::upper(size_t offset, size_t _length)
 {
-    // Todo m17n: current implementation works only for ascii:fixed_8 and iso-8859-1:fixed_8
     // get a copy of the string
     RexxString *newstring = extractB(0, getBLength());
 
-    char *data = newstring->getWritableData() + size_v(offset);
+    char *data = newstring->getWritableData() + offset;
     // now uppercase in place
     for (size_t i = 0; i < _length; i++)
     {
@@ -2049,13 +2034,10 @@ RexxString *RexxString::concatWith(RexxString *other,
 /* Function:  Concatenate two strings with a single character between         */
 /******************************************************************************/
 {
-    // Todo : use m17n service for concatenation.
-    // Current implementation is safe only if both strings have same charset and same encoding.
-    // The between separator is compatible only with encoding_fixed_8 and encoding_utf8.
-    sizeB_t blen1;                        /* length of first string            */
-    sizeC_t clen1;
-    sizeB_t blen2;                        /* length of second string           */
-    sizeC_t clen2;
+    size_t blen1;                        /* length of first string            */
+    size_t clen1;
+    size_t blen2;                        /* length of second string           */
+    size_t clen2;
     RexxString *result;                  /* result string                     */
     char *data;                          /* character pointer                 */
 
@@ -2213,7 +2195,7 @@ RexxObject *RexxString::isInteger()
 /******************************************************************************/
 {
     const char *digitPtr;
-    sizeB_t digitsLeft;
+    size_t digitsLeft;
 
     digitPtr = this->getStringData();
     digitsLeft = this->getBLength();
@@ -2290,15 +2272,15 @@ RexxObject *RexxString::evaluate(
  */
 void RexxString::copyToRxstring(RXSTRING &r)
 {
-    sizeB_t result_length = getBLength() + 1;
+    size_t result_length = getBLength() + 1;
     if (r.strptr == NULL || r.strlength < result_length)
     {
-        r.strptr = (char *)SystemInterpreter::allocateResultMemory(size_v(result_length));
+        r.strptr = (char *)SystemInterpreter::allocateResultMemory(result_length);
     }
     // copy all of the data + the terminating null
     memcpy(r.strptr, getStringData(), result_length);
     // fill in the length too
-    r.strlength = size_v(getBLength());
+    r.strlength = getBLength();
 }
 
 
@@ -2342,7 +2324,7 @@ RexxObject  *RexxString::getRealValue(
 }
 
 
-RexxString *RexxString::newString(const char *string, sizeB_t blength, sizeC_t clength)
+RexxString *RexxString::newString(const char *string, size_t blength, size_t clength)
 /******************************************************************************/
 /* Function:  Allocate (and initialize) a string object                       */
 /******************************************************************************/
@@ -2351,12 +2333,12 @@ RexxString *RexxString::newString(const char *string, sizeB_t blength, sizeC_t c
     /* STRINGOBJ - excess chars (3)      */
     /* + length. only sub 3 to allow     */
     /* for terminating NULL              */
-    sizeB_t size2 = sizeof(RexxString) - (sizeof(char) * 3) + blength;
+    size_t size2 = sizeof(RexxString) - (sizeof(char) * 3) + blength;
     /* allocate the new object           */
-    RexxString *newObj = (RexxString *)new_object(size_v(size2), T_String);
+    RexxString *newObj = (RexxString *)new_object(size2, T_String);
     /* clear the front part              */
     newObj->setBLength(blength);         /* save the length in bytes          */
-    newObj->setCLength(clength == -1 ? sizeC_v(size_v(blength)) : clength); // todo m17n: case -1
+    newObj->setCLength(clength == -1 ? blength : clength);
     newObj->hashValue = 0;               // make sure the hash value is zeroed
                                          /* Null terminate, allows faster     */
                                          /* conversion to ASCII-Z string      */
@@ -2372,7 +2354,7 @@ RexxString *RexxString::newString(const char *string, sizeB_t blength, sizeC_t c
     return newObj;                       /*having OREFs                       */
 }
 
-RexxString *RexxString::rawString(sizeB_t blength, sizeC_t clength)
+RexxString *RexxString::rawString(size_t blength, size_t clength)
 /******************************************************************************/
 /* Function:  Allocate (and initialize) an empty string object                */
 /******************************************************************************/
@@ -2381,11 +2363,11 @@ RexxString *RexxString::rawString(sizeB_t blength, sizeC_t clength)
                                        /* STRINGOBJ - excess chars (3)      */
                                        /* + length. only sub 3 to allow     */
                                        /* for terminating NULL              */
-  sizeB_t size2 = sizeof(RexxString) - (sizeof(char) * 3) + blength;
+  size_t size2 = sizeof(RexxString) - (sizeof(char) * 3) + blength;
                                        /* allocate the new object           */
-  RexxString *newObj = (RexxString *)new_object(size_v(size2), T_String);
+  RexxString *newObj = (RexxString *)new_object(size2, T_String);
   newObj->setBLength(blength);         /* save the length in bytes          */
-  newObj->setCLength(clength == -1 ? size_v(blength) : size_v(clength)); // length in characters. Here, unlike newString, we can't calculate the default value from the string, since there is no value.
+  newObj->setCLength(clength == -1 ? blength : clength); // length in characters. Here, unlike newString, we can't calculate the default value from the string, since there is no value.
   newObj->hashValue = 0;               // make sure the hash value is zeroed
                                        /* Null terminate, allows faster     */
                                        /* conversion to ASCII-Z string      */
@@ -2411,16 +2393,16 @@ RexxString *RexxString::rawString(sizeB_t blength, sizeC_t clength)
  *
  * @return A newly constructed string object.
  */
-RexxString *RexxString::newUpperString(const char * string, stringsizeB_t blength, stringsizeC_t clength)
+RexxString *RexxString::newUpperString(const char * string, stringsize_t blength, stringsize_t clength)
 {
     // Todo : current implementation works only for ascii:fixed_8 and iso-8859-1:fixed_8
     /* calculate the size                */
     /* STRINGOBJ - excess chars (3)      */
     /* + length. only sub 3 to allow     */
     /* for terminating NULL              */
-    sizeB_t size2 = sizeof(RexxString) - (sizeof(char) * 3) + blength;
+    size_t size2 = sizeof(RexxString) - (sizeof(char) * 3) + blength;
     /* allocate the new object           */
-    RexxString *newObj = (RexxString *)new_object(size_v(size2), T_String);
+    RexxString *newObj = (RexxString *)new_object(size2, T_String);
     newObj->setBLength(blength);         /* save the length in bytes          */
     newObj->hashValue = 0;               // make sure the hash value is zeroed
                                          /* create a new string               */
@@ -2442,7 +2424,7 @@ RexxString *RexxString::newUpperString(const char * string, stringsizeB_t blengt
     /* by  default, we don't need Live   */
     newObj->setHasNoReferences();        /*sent                               */
 
-    newObj->setCLength(clength == -1 ? sizeC_v(size_v(blength)) : clength); // Do that after the conversion, in case an uppercase character is shorter/longer than the original character. // todo m17n: case -1
+    newObj->setCLength(clength == -1 ? blength : clength); // Do that after the conversion, in case an uppercase character is shorter/longer than the original character.
 
                                          /* NOTE: That if we can set          */
                                          /*  this->NumebrString elsewhere     */
