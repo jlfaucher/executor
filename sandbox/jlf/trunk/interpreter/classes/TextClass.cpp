@@ -209,7 +209,7 @@ RexxString *normalize(RexxString *string, utf8proc_option_t options)
 {
     utf8proc_uint8_t *retval;
     const utf8proc_uint8_t *str = (const utf8proc_uint8_t *)string->getStringData();
-    utf8proc_ssize_t strlength = (utf8proc_ssize_t)string->getBLength();
+    utf8proc_ssize_t strlength = (utf8proc_ssize_t)string->getLength();
     utf8proc_ssize_t reslength = utf8proc_map(str, strlength, &retval, options);
     if (reslength < 0) raiseError(reslength); // here, reslength is an error code
     // Not so easy to optimize memory allocation...
@@ -551,7 +551,7 @@ RexxInteger *Unicode::codepointIsUpper(RexxObject *rexxCodepoint)
 RexxString *Unicode::stringToCaseFold(RexxString *string)
 {
     const uint8_t *str = (const uint8_t *)string->getStringData();
-    uintptr_t strlength = (uintptr_t)string->getBLength();
+    uintptr_t strlength = (uintptr_t)string->getLength();
     const uint8_t * out_utf8str;
     uintptr_t out_length;
     ziglyph_toCaseFoldStr(str, strlength, &out_utf8str, &out_length);
@@ -565,7 +565,7 @@ RexxString *Unicode::stringToCaseFold(RexxString *string)
 RexxString *Unicode::stringToLower(RexxString *string)
 {
     const uint8_t *str = (const uint8_t *)string->getStringData();
-    uintptr_t strlength = (uintptr_t)string->getBLength();
+    uintptr_t strlength = (uintptr_t)string->getLength();
     const uint8_t * out_utf8str;
     uintptr_t out_length;
     ziglyph_toLowerStr(str, strlength, &out_utf8str, &out_length);
@@ -579,7 +579,7 @@ RexxString *Unicode::stringToLower(RexxString *string)
 RexxString *Unicode::stringToTitle(RexxString *string)
 {
     const uint8_t *str = (const uint8_t *)string->getStringData();
-    uintptr_t strlength = (uintptr_t)string->getBLength();
+    uintptr_t strlength = (uintptr_t)string->getLength();
     const uint8_t * out_utf8str;
     uintptr_t out_length;
     ziglyph_toTitleStr(str, strlength, &out_utf8str, &out_length);
@@ -593,7 +593,7 @@ RexxString *Unicode::stringToTitle(RexxString *string)
 RexxString *Unicode::stringToUpper(RexxString *string)
 {
     const uint8_t *str = (const uint8_t *)string->getStringData();
-    uintptr_t strlength = (uintptr_t)string->getBLength();
+    uintptr_t strlength = (uintptr_t)string->getLength();
     const uint8_t * out_utf8str;
     uintptr_t out_length;
     ziglyph_toUpperStr(str, strlength, &out_utf8str, &out_length);

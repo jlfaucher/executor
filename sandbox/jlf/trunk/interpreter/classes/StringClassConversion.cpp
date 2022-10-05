@@ -69,7 +69,7 @@ RexxString *RexxString::encodeBase64()
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 
-    size_t inputLength = this->getBLength();     /* get length of string              */
+    size_t inputLength = this->getLength();     /* get length of string              */
     if (inputLength == 0)               /* null string?                      */
     {
         return OREF_NULLSTRING;
@@ -132,7 +132,7 @@ RexxString *RexxString::decodeBase64()
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 
-    size_t inputLength = this->getBLength();     /* get length of string              */
+    size_t inputLength = this->getLength();     /* get length of string              */
     if (inputLength == 0)                    /* null string?                      */
     {
         return OREF_NULLSTRING;          // this encodes as a null string
@@ -221,7 +221,7 @@ RexxString *RexxString::c2x()
     char *      Destination;             /* output string pointer             */
     char        ch;                      /* current character                 */
 
-    InputLength = this->getBLength();          /* get length of string              */
+    InputLength = this->getLength();          /* get length of string              */
     if (InputLength == 0)                    /* null string?                      */
     {
         Retval = OREF_NULLSTRING;          /* converts to a null string         */
@@ -292,7 +292,7 @@ RexxString *RexxString::x2c()
 /* Function:  Process the string X2C method/function                          */
 /******************************************************************************/
 {
-    size_t InputLength = this->getBLength();          /* get length of string       */
+    size_t InputLength = this->getLength();          /* get length of string       */
     if (InputLength== 0)                    /* null string?               */
     {
         return OREF_NULLSTRING;          /* converts to a null string         */
@@ -340,7 +340,7 @@ RexxString *RexxString::x2dC2d(RexxInteger *_length,
     size_t     CurrentDigits;            /* current digits setting            */
 
     CurrentDigits = number_digits();     /* get the current digits setting    */
-    StringLength = this->getBLength();         /* get Argument string length        */
+    StringLength = this->getLength();         /* get Argument string length        */
     /* get the target length             */
     ResultSize = optionalLengthArgument(_length, -1, ARG_ONE);
     if (ResultSize == 0)                     /* zero requested                    */
@@ -377,7 +377,7 @@ RexxString *RexxString::x2dC2d(RexxInteger *_length,
                                                  /* copy the string                   */
                     String = (RexxString *)this->copy();
                     /* point to the string               */
-                    StringPtr = String->getWritableData() + this->getBLength() - ResultSize;
+                    StringPtr = String->getWritableData() + this->getLength() - ResultSize;
                 }
                 else                           /* still a positive number           */
                 {
@@ -391,7 +391,7 @@ RexxString *RexxString::x2dC2d(RexxInteger *_length,
                                     /* pack the string                   */
         String = (RexxString *)StringUtil::packHex(StringPtr, StringLength);
         /* get the packed length             */
-        StringLength = String->getBLength();
+        StringLength = String->getLength();
         /* point to the packed data          */
         StringPtr = String->getWritableData();
         if (_length == OREF_NULL)
@@ -561,20 +561,20 @@ RexxString *RexxString::b2x()
     size_t   Jump;                       /* string movement offset            */
     size_t   Length;                     /* total string length               */
 
-    if (this->getBLength() == 0)               /* null input, i.e. zerolength       */
+    if (this->getLength() == 0)               /* null input, i.e. zerolength       */
     {
         Retval = OREF_NULLSTRING;          /* return null                       */
     }
     else
     {                               /* need to do conversion             */
                                     /* validate the string               */
-        Bits = StringUtil::validateSet(this->getStringData(), this->getBLength(), "01", 4, false);
+        Bits = StringUtil::validateSet(this->getStringData(), this->getLength(), "01", 4, false);
         /* allocate space for result         */
         Retval = raw_string((Bits + 3) / 4);
         /* point to the data                 */
         Destination = Retval->getWritableData();
         Source = this->getStringData();    /* point to the source               */
-        Length = this->getBLength();        /* get the string length             */
+        Length = this->getLength();        /* get the string length             */
 
         while (Bits > 0)
         {                 /* process the string                */
@@ -622,14 +622,14 @@ RexxString *RexxString::x2b()
     char     ch;                         /* current string character          */
     int      Val;                        /* converted nible                   */
 
-    if (this->getBLength() == 0)               /* null input, i.e. zerolength       */
+    if (this->getLength() == 0)               /* null input, i.e. zerolength       */
     {
         /* string                            */
         Retval = OREF_NULLSTRING;          /* return null                       */
     }
     else
     {                               /* have real data to pack            */
-        Nibbles = StringUtil::validateSet(this->getStringData(), this->getBLength(), "0123456789ABCDEFabcdef", 2, true);
+        Nibbles = StringUtil::validateSet(this->getStringData(), this->getLength(), "0123456789ABCDEFabcdef", 2, true);
         Retval = raw_string(Nibbles * 4);  /* allocate result string            */
                                            /* point to the data                 */
         Destination = Retval->getWritableData();

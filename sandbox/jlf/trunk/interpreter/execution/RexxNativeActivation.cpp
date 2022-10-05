@@ -2592,7 +2592,7 @@ RexxObject *RexxNativeActivation::getContextStem(RexxString *name)
 /******************************************************************************/
 {
     // if this is not a stem name, add it now
-    if (name->getCharC(name->getCLength() - 1) != '.')
+    if (name->getChar(name->getLength() - 1) != '.')
     {
         name = name->concatWithCstring(".");
     }
@@ -3241,7 +3241,7 @@ RexxReturnCode RexxNativeActivation::copyValue(RexxObject * value, RXSTRING *rxs
     rc = 0;                             /* default to success                */
                                         /* get the string value              */
     stringVal = value->stringValue();
-    string_length = stringVal->getBLength();/* get the string length             */
+    string_length = stringVal->getLength();/* get the string length             */
     // caller allowing use to allocate this?
     if (rxstring->strptr == NULL)
     {
@@ -3306,17 +3306,17 @@ int RexxNativeActivation::stemSort(const char *stemname, int order, int type, si
 
         if (isOfClass(CompoundVariableTerm, retriever))
         {
-            length = variable->getCLength();      /* get the string length             */
+            length = variable->getLength();      /* get the string length             */
             position = 0;                        /* start scanning at first character */
             /* scan to the first period          */
-            while (variable->getCharC(position) != '.')
+            while (variable->getChar(position) != '.')
             {
                 position++;                        /* step to the next character        */
                 length--;                          /* reduce the length also            */
             }
             position++;                          /* step past previous period         */
             length--;                            /* adjust the length                 */
-            tail = variable->extractC(position, length);
+            tail = variable->extract(position, length);
             tail = tail->upper();
             p2 = tail; // JLF here, it's useful
         }

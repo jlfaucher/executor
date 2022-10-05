@@ -122,8 +122,8 @@ class RexxMutableBufferClass : public RexxClass {
    RexxMutableBuffer *space(RexxInteger *space_count, RexxString  *pad);
 
    inline const char *getStringData() { return data->getData(); }
-   inline size_t     getBLength()    { return dataBLength; }
-   inline void        setBLength(size_t l) { dataBLength = l; data->setDataLength(l);};
+   inline size_t     getLength()    { return dataLength; }
+   inline void        setLength(size_t l) { dataLength = l; data->setDataLength(l);};
    inline size_t     getBufferLength() { return bufferLength; }
    RexxObject        *setBufferLength(size_t);
    inline char *      getData()       { return data->getData(); }
@@ -164,7 +164,7 @@ class RexxMutableBufferClass : public RexxClass {
  protected:
    size_t            bufferLength;    /* buffer length in bytes          */
    size_t            defaultSize;     /* default size when emptied       */
-   size_t            dataBLength;     // current length of data in bytes
+   size_t            dataLength;      // current length of data in bytes
    size_t             Attributes;      /* buffer attributes               */
    RexxBuffer        *data;            /* buffer used for the data        */
  };

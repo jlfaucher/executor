@@ -7,12 +7,13 @@ Sandbox for experimental work, what's done so far.
 [Encoded strings]
 
 Undo m17n strong types.
+Undo String B[yte]/C[har] API.
 I abandoned since several years the idea of modifying the String class to support graphemes.
 The String class is, and will remain, byte-oriented.
 
 The new path I would like to explore is the support of graphemes by the BIF...
-I have already a tiny support for center() and left(), only for the pad argument,
-and only triggered in case of pad character made of several bytes.
+I have already a tiny support for center() and left(), only triggered in case of
+pad character made of several bytes.
 
 The generalization would be to route the BIF either towards String or towards RexxText,
 in function of the compatibility of the arguments with String:

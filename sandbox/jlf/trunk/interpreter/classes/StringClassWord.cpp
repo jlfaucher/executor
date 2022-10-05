@@ -78,7 +78,7 @@ RexxString *RexxString::delWord(RexxInteger *position,
     /* default is "a very large number"  */
     Count = optionalLengthArgument(plength, Numerics::MAX_WHOLENUMBER, ARG_TWO);
 
-    Length = this->getBLength();               /* get string length                 */
+    Length = this->getLength();               /* get string length                 */
     if (Length == 0)                         /* null string?                      */
     {
         Retval = OREF_NULLSTRING;          /* result is null also               */
@@ -164,7 +164,7 @@ RexxString *RexxString::space(RexxInteger *space_count,
     /* get the pad character             */
     PadChar = optionalPadArgument(pad, ' ', ARG_TWO);
 
-    Length = this->getBLength();               /* get the string length             */
+    Length = this->getLength();               /* get the string length             */
     Count = 0;                           /* no words yet                      */
     WordSize = 0;                        /* no characters either              */
     Word = this->getStringData();        /* point to the string               */
@@ -191,7 +191,7 @@ RexxString *RexxString::space(RexxInteger *space_count,
         /* point to output area              */
         Current = Retval->getWritableData();
 
-        Length = this->getBLength();             /* recover the length                */
+        Length = this->getLength();             /* recover the length                */
         Word = this->getStringData();      /* point to the string               */
                                            /* get the first word                */
         WordLength = StringUtil::nextWord(&Word, &Length, &NextSite);
@@ -228,7 +228,7 @@ RexxString *RexxString::space(RexxInteger *space_count,
 // in behaviour
 RexxString *RexxString::subWord(RexxInteger *position, RexxInteger *plength)
 {
-    return StringUtil::subWord(getStringData(), getBLength(), position, plength);
+    return StringUtil::subWord(getStringData(), getLength(), position, plength);
 }
 
 
@@ -248,7 +248,7 @@ RexxString *RexxString::subWord(RexxInteger *position, RexxInteger *plength)
  */
 RexxArray *RexxString::subWords(RexxInteger *position, RexxInteger *plength)
 {
-    return StringUtil::subWords(getStringData(), getBLength(), position, plength);
+    return StringUtil::subWords(getStringData(), getLength(), position, plength);
 }
 
 
@@ -261,7 +261,7 @@ RexxArray *RexxString::subWords(RexxInteger *position, RexxInteger *plength)
 // in behaviour
 RexxString *RexxString::word(RexxInteger *position)
 {
-    return StringUtil::word(getStringData(), getBLength(), position);
+    return StringUtil::word(getStringData(), getLength(), position);
 }
 
 /* the WORDINDEX function */
@@ -273,7 +273,7 @@ RexxString *RexxString::word(RexxInteger *position)
 // in behaviour
 RexxInteger *RexxString::wordIndex(RexxInteger *position)
 {
-    return StringUtil::wordIndex(getStringData(), getBLength(), position);
+    return StringUtil::wordIndex(getStringData(), getLength(), position);
 }
 
 /* the WORDLENGTH function */
@@ -285,7 +285,7 @@ RexxInteger *RexxString::wordIndex(RexxInteger *position)
 // in behaviour
 RexxInteger *RexxString::wordLength(RexxInteger *position)
 {
-    return StringUtil::wordLength(getStringData(), getBLength(), position);
+    return StringUtil::wordLength(getStringData(), getLength(), position);
 }
 
 
@@ -300,7 +300,7 @@ RexxInteger *RexxString::wordLength(RexxInteger *position)
 // in behaviour
 RexxInteger *RexxString::wordPos(RexxString  *phrase, RexxInteger *pstart)
 {
-    return StringUtil::wordPos(getStringData(), getBLength(), phrase, pstart);
+    return StringUtil::wordPos(getStringData(), getLength(), phrase, pstart);
 }
 
 
@@ -315,7 +315,7 @@ RexxInteger *RexxString::wordPos(RexxString  *phrase, RexxInteger *pstart)
 // in behaviour
 RexxInteger *RexxString::caselessWordPos(RexxString  *phrase, RexxInteger *pstart)
 {
-    return StringUtil::caselessWordPos(getStringData(), getBLength(), phrase, pstart);
+    return StringUtil::caselessWordPos(getStringData(), getLength(), phrase, pstart);
 }
 
 /* the WORDS function */
@@ -327,7 +327,7 @@ RexxInteger *RexxString::caselessWordPos(RexxString  *phrase, RexxInteger *pstar
 // in behaviour
 RexxInteger *RexxString::words()
 {
-    size_t tempCount = StringUtil::wordCount(this->getStringData(), this->getBLength());
+    size_t tempCount = StringUtil::wordCount(this->getStringData(), this->getLength());
     return new_integer(tempCount);
 }
 

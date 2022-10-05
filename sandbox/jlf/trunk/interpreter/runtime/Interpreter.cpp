@@ -558,7 +558,7 @@ void Interpreter::logicError (const char *desc, const char *info1, size_t info2)
 /* Function:  Raise a fatal logic error                                       */
 /******************************************************************************/
 {
-    if (info1) printf("Logic error: %s (%s %i)\n",desc, info1, info2);
+    if (info1) printf("Logic error: %s (%s %zi)\n",desc, info1, info2);
     else      printf("Logic error: %s\n",desc);
     exit(RC_LOGIC_ERROR);
 }
@@ -594,7 +594,7 @@ wholenumber_t Interpreter::messageNumber(
     if (*decimalPoint)
     {                 /* Was there a decimal point specified?*/
                       /* is the subcode invalid or too big?*/
-        if (!new_string(decimalPoint + 1, (errorcode->getBLength() - count -1))->numberValue(secondary) || secondary < 0  || secondary >= 1000)
+        if (!new_string(decimalPoint + 1, (errorcode->getLength() - count -1))->numberValue(secondary) || secondary < 0  || secondary >= 1000)
         {
             /* Yes, raise an error.              */
             reportException(Error_Expression_result_raise);

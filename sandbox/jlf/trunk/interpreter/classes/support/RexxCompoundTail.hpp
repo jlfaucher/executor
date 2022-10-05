@@ -153,7 +153,7 @@ class RexxBuffer;
    inline void addDot() { append('.'); }
    inline int compare(RexxString *name)
    {
-       size_t rc = length - name->getBLength();
+       size_t rc = length - name->getLength();
        if (rc == 0)
        {
            rc = memcmp(tail, name->getStringData(), length);

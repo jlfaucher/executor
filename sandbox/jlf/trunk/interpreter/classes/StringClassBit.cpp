@@ -77,13 +77,13 @@ RexxString *RexxString::bitAnd(RexxString *string2,
                                          /* stuff to...                       */
     string2 = optionalStringArgument(string2, OREF_NULLSTRING, OREF_positional, ARG_ONE);
     ProtectedObject p(string2);
-    String2Len = string2->getBLength();        /* get the string length             */
+    String2Len = string2->getLength();        /* get the string length             */
     String2 = string2->getStringData();       /* get the string data pointer       */
     /* get the pad character             */
     PadChar = (char)optionalPadArgument(pad, (char)0xff, ARG_TWO);
 
     String1 = this->getStringData();     /* point to the first string         */
-    String1Len = this->getBLength();      /* get the length                    */
+    String1Len = this->getLength();      /* get the length                    */
     if (String1Len <= String2Len)
     {      /* string 1 shorter or equal?        */
         MinLength = String1Len;            /* string 1 is the shorter           */
@@ -148,13 +148,13 @@ RexxString *RexxString::bitOr(RexxString *string2,
     /* stuff to...                       */
     string2 = optionalStringArgument(string2, OREF_NULLSTRING, OREF_positional, ARG_ONE);
     ProtectedObject p(string2);
-    String2Len = string2->getBLength();   /* get the string length             */
+    String2Len = string2->getLength();   /* get the string length             */
     String2 = string2->getStringData();  /* get the string data pointer       */
                                          /* get the pad character             */
     PadChar = (char)optionalPadArgument(pad, 0x00, ARG_TWO);
 
     String1 = this->getStringData();     /* point to the first string         */
-    String1Len = this->getBLength();      /* get the length                    */
+    String1Len = this->getLength();      /* get the length                    */
     if (String1Len <= String2Len)
     {      /* string 1 shorter or equal?        */
         MinLength = String1Len;            /* string 1 is the shorter           */
@@ -219,13 +219,13 @@ RexxString *RexxString::bitXor(RexxString *string2,
     /* stuff to...                       */
     string2 = optionalStringArgument(string2, OREF_NULLSTRING, OREF_positional, ARG_ONE);
     ProtectedObject p(string2);
-    String2Len = string2->getBLength();   /* get the string length             */
+    String2Len = string2->getLength();   /* get the string length             */
     String2 = string2->getStringData();  /* get the string data pointer       */
                                          /* get the pad character             */
     PadChar = (char)optionalPadArgument(pad, 0x00, ARG_TWO);
 
     String1 = this->getStringData();     /* point to the first string         */
-    String1Len = this->getBLength();      /* get the length                    */
+    String1Len = this->getLength();      /* get the length                    */
     if (String1Len <= String2Len)
     {      /* string 1 shorter or equal?        */
         MinLength = String1Len;            /* string 1 is the shorter           */

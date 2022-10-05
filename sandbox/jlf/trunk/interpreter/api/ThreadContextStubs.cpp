@@ -1037,7 +1037,7 @@ size_t RexxEntry StringLength(RexxThreadContext *c, RexxStringObject s)
     try
     {
         RexxString *temp = (RexxString *)s;
-        return temp->getBLength();
+        return temp->getLength();
     }
     catch (RexxNativeActivation *)
     {
@@ -1145,7 +1145,7 @@ size_t  RexxEntry BufferStringLength(RexxThreadContext *c, RexxBufferStringObjec
     try
     {
         RexxString *temp = (RexxString *)s;
-        return temp->getBLength();
+        return temp->getLength();
     }
     catch (RexxNativeActivation *)
     {
@@ -1922,7 +1922,7 @@ size_t RexxEntry MutableBufferLength(RexxThreadContext *c, RexxMutableBufferObje
     ApiContext context(c);
     try
     {
-        return ((RexxMutableBuffer *)b)->getBLength();
+        return ((RexxMutableBuffer *)b)->getLength();
     }
     catch (RexxNativeActivation *)
     {

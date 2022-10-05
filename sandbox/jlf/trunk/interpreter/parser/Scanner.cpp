@@ -584,7 +584,7 @@ RexxString *RexxSource::packLiteral(
                     byte += nibble;                /* add in the next nibble            */
                 }
                 oddhex = 0;                      /* remainder are full bytes          */
-                value->putCharB(outpointer, byte);/* store this in the output position */
+                value->putChar(outpointer, byte);/* store this in the output position */
                 outpointer++;                    /* step to the next position         */
             }
             value = this->commonString(value); /* now force to a common string      */
@@ -629,7 +629,7 @@ RexxString *RexxSource::packLiteral(
                     }
                 }
                 oddhex = 0;                      /* use 8 bits for the remaining group*/
-                value->putCharB(outpointer, byte);/* store this in the output position */
+                value->putChar(outpointer, byte);/* store this in the output position */
                 outpointer++;                    /* step to the next position         */
             }
             value = this->commonString(value); /* now force to a common string      */
@@ -985,7 +985,7 @@ RexxToken *RexxSource::sourceNextToken(
                     {
                         inch = translateChar(inch);      /* translate to uppercase            */
                     }
-                    value->putCharB(i, inch);
+                    value->putChar(i, inch);
                 }
                 value->setUpperOnly();         /* only contains uppercase           */
                                                /* now force to a common string      */
@@ -1031,7 +1031,7 @@ RexxToken *RexxSource::sourceNextToken(
                     if (dot_count > 0)
                     {         /* have a period in the name?        */
                               /* end in a dot?                     */
-                        if (dot_count == 1 && value->getCharB(length-1) == '.')
+                        if (dot_count == 1 && value->getChar(length-1) == '.')
                         {
                             /* this is a stem variable           */
                             subclass = SYMBOL_STEM;
@@ -1165,7 +1165,7 @@ RexxToken *RexxSource::sourceNextToken(
                         {
                             j++;                     /* step one extra                    */
                         }
-                        value->putCharB(i, inch);   /* copy over the literal data        */
+                        value->putChar(i, inch);   /* copy over the literal data        */
                     }
                     /* now force to a common string      */
                     value = this->commonString(value);

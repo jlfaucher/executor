@@ -271,14 +271,14 @@ RexxString *RexxNumberString::stringValue()
             if (this->sign < 0)
             {              /* If number is neagative            */
                            /*  add negative sign and bump index */
-                StringObj->putCharB(charpos++, ch_MINUS);
+                StringObj->putChar(charpos++, ch_MINUS);
             }
             /* For each number digits in number  */
             for (numindex=0; (size_t)numindex < LenValue; numindex++)
             {
                 /* place char rep in NumString       */
                 num = this->number[numindex] + ch_ZERO;
-                StringObj->putCharB(charpos++, num);
+                StringObj->putChar(charpos++, num);
             }                                  /* Done with Fast Path....           */
         }
         else
@@ -384,7 +384,7 @@ RexxString *RexxNumberString::stringValue()
             if (this->sign < 0)
             {              /* Is the number negative?           */
                            /* Yes, add in the negative sign.    */
-                StringObj->putCharB(charpos, ch_MINUS);
+                StringObj->putChar(charpos, ch_MINUS);
             }
             temp = ExpValue + (wholenumber_t)LenValue;   /* get the adjusted length.          */
 
@@ -421,7 +421,7 @@ RexxString *RexxNumberString::stringValue()
                     /* are we carry from round?          */
                     num = this->number[numindex];   /* working copy of this Digit.       */
                     num = num + ch_ZERO;            /* now put the number as a character */
-                    StringObj->putCharB(--charpos, num);
+                    StringObj->putChar(--charpos, num);
                 }
                 temp = -temp;                    /* make the number positive...       */
 
@@ -431,14 +431,14 @@ RexxString *RexxNumberString::stringValue()
                                                     /* now fill in the leading Zeros.    */
                     StringObj->set(charpos, ch_ZERO, temp);
                 }
-                StringObj->putCharB(--charpos, ch_PERIOD);
+                StringObj->putChar(--charpos, ch_PERIOD);
                 if (carry)                       /* now put in the leading 1. is carry*/
                 {
-                    StringObj->putCharB(--charpos, ch_ONE);
+                    StringObj->putChar(--charpos, ch_ONE);
                 }
                 else                             /* or 0. if no carry.                */
                 {
-                    StringObj->putCharB(--charpos, ch_ZERO);
+                    StringObj->putChar(--charpos, ch_ZERO);
                 }
             }
             /* do we need to add zeros at end?   */
@@ -461,7 +461,7 @@ RexxString *RexxNumberString::stringValue()
                 {
                     num = this->number[numindex];   /* working copy of this Digit.       */
                     num = num + ch_ZERO;            /* now put the number as a character */
-                    StringObj->putCharB(--charpos, num);
+                    StringObj->putChar(--charpos, num);
                 }
             }                                  /* done with this case....           */
 
@@ -474,10 +474,10 @@ RexxString *RexxNumberString::stringValue()
                     num = this->number[numindex];   /* working copy of this Digit.       */
                                                     /* now put the number as a character */
                     num += ch_ZERO;
-                    StringObj->putCharB(--charpos, num);
+                    StringObj->putChar(--charpos, num);
                 }
                 /* add in the decimal point.         */
-                StringObj->putCharB(--charpos, ch_PERIOD);
+                StringObj->putChar(--charpos, ch_PERIOD);
 
                 /* Start filling in digits           */
                 /* add numbers before decimal point  */
@@ -485,7 +485,7 @@ RexxString *RexxNumberString::stringValue()
                 {
                     num = this->number[numindex];   /* working copy of this Digit.       */
                     num += ch_ZERO;
-                    StringObj->putCharB(--charpos, num);
+                    StringObj->putChar(--charpos, num);
                 }
                 /* end of final case, conversion done*/
             }

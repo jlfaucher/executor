@@ -155,7 +155,7 @@ RexxInteger *StringUtil::posRexx(const char *stringData, size_t length, RexxStri
 size_t StringUtil::pos(const char *stringData, size_t haystack_length, RexxString *needle, size_t _start, size_t _range)
 {
     // get the two working lengths
-    size_t needle_length = needle->getBLength();
+    size_t needle_length = needle->getLength();
     // make sure the range is capped
     _range = Numerics::minVal(_range, haystack_length - _start);
 
@@ -205,7 +205,7 @@ size_t StringUtil::pos(const char *stringData, size_t haystack_length, RexxStrin
 size_t StringUtil::caselessPos(const char *stringData, size_t haystack_length, RexxString *needle, size_t _start, size_t _range)
 {
     // get the two working lengths
-    size_t needle_length = needle->getBLength();
+    size_t needle_length = needle->getLength();
     // make sure the range is capped
     _range = Numerics::minVal(_range, haystack_length - _start + 1);
 
@@ -277,7 +277,7 @@ RexxInteger *StringUtil::lastPosRexx(const char *stringData, size_t haystackLen,
  */
 size_t StringUtil::lastPos(const char *stringData, size_t haystackLen, RexxString  *needle, size_t _start, size_t range)
 {
-    size_t needleLen = needle->getBLength();          /* and get the length too            */
+    size_t needleLen = needle->getLength();          /* and get the length too            */
 
     // no match possible if either string is null
     if (needleLen == 0 || haystackLen == 0 || needleLen > range)
@@ -359,7 +359,7 @@ const char *StringUtil::lastPos(const char *needle, size_t needleLen, const char
  */
 size_t StringUtil::caselessLastPos(const char *stringData, size_t haystackLen, RexxString *needle, size_t _start, size_t range)
 {
-    size_t needleLen = needle->getBLength();          /* and get the length too            */
+    size_t needleLen = needle->getLength();          /* and get the length too            */
 
     // no match possible if either string is null
     if (needleLen == 0 || haystackLen == 0 || needleLen > range)
@@ -502,7 +502,7 @@ RexxArray *StringUtil::makearray(const char *start, size_t length, RexxString *s
         // make sure this is really a string value
         separator = stringArgument(separator, OREF_positional, ARG_ONE);
         sepData = separator->getStringData();
-        sepSize = separator->getBLength();
+        sepSize = separator->getLength();
         checkCR = false;                 // if explicitly given, only use the given one
     }
     ProtectedObject p(separator);
@@ -563,7 +563,7 @@ RexxArray *StringUtil::makearray(const char *start, size_t length, RexxString *s
 
 RexxArray *StringUtil::makearray(RexxString *str, RexxString *separator)
 {
-    return StringUtil::makearray(str->getStringData(), str->getBLength(), separator);
+    return StringUtil::makearray(str->getStringData(), str->getLength(), separator);
 }
 
 
@@ -1077,7 +1077,7 @@ RexxObject *StringUtil::dataType(RexxString *String, char Option )
     int         Type;                    /* validated symbol type             */
     RexxNumberString *TempNum;
 
-    Len = String->getBLength();           /* get validated string len          */
+    Len = String->getLength();           /* get validated string len          */
     Option = toupper(Option);            /* get the first character           */
 
                                          /* assume failure on checking        */
@@ -1353,7 +1353,7 @@ size_t StringUtil::countStr(const char *hayStack, size_t hayStackLength, RexxStr
     {
         count = count + 1;                 /* count this match                  */
         // step to the new position and search
-        matchPos = pos(hayStack, hayStackLength, needle, matchPos + needle->getBLength() - 1, hayStackLength);
+        matchPos = pos(hayStack, hayStackLength, needle, matchPos + needle->getLength() - 1, hayStackLength);
     }
     return count;                        /* return the match count            */
 }
@@ -1378,7 +1378,7 @@ size_t StringUtil::caselessCountStr(const char *hayStack, size_t hayStackLength,
     {
         count = count + 1;                 /* count this match                  */
         // step to the new position and search
-        matchPos = caselessPos(hayStack, hayStackLength, needle, matchPos + needle->getBLength() - 1, hayStackLength);
+        matchPos = caselessPos(hayStack, hayStackLength, needle, matchPos + needle->getLength() - 1, hayStackLength);
     }
     return count;                        /* return the match count            */
 }
@@ -1421,7 +1421,7 @@ RexxInteger *StringUtil::verify(const char *data, size_t stringLen, RexxString  
 {
     // get the reference string information
     ref = stringArgument(ref, OREF_positional, ARG_ONE);
-    size_t referenceLen = ref->getBLength();
+    size_t referenceLen = ref->getLength();
     const char *refSet = ref->getStringData();
                                          /* get the option, default 'Nomatch' */
     char opt = optionalOptionArgument(option, VERIFY_NOMATCH, ARG_TWO);
@@ -1747,7 +1747,7 @@ RexxInteger *StringUtil::wordLength(const char *data, size_t length, RexxInteger
 RexxInteger *StringUtil::wordPos(const char *data, size_t length, RexxString  *phrase, RexxInteger *pstart)
 {
     phrase = stringArgument(phrase, OREF_positional, ARG_ONE);/* get the phrase we are looking for */
-    stringsize_t needleLength = phrase->getBLength();       /* get the length also               */
+    stringsize_t needleLength = phrase->getLength();       /* get the length also               */
                                          /* get starting position, the default*/
                                          /* is the first word                 */
     stringsize_t count = optionalPositionArgument(pstart, 1, ARG_TWO);
@@ -1853,7 +1853,7 @@ RexxInteger *StringUtil::wordPos(const char *data, size_t length, RexxString  *p
 RexxInteger *StringUtil::caselessWordPos(const char *data, size_t length, RexxString  *phrase, RexxInteger *pstart)
 {
     phrase = stringArgument(phrase, OREF_positional, ARG_ONE);/* get the phrase we are looking for */
-    stringsize_t needleLength = phrase->getBLength();       /* get the length also               */
+    stringsize_t needleLength = phrase->getLength();       /* get the length also               */
                                          /* get starting position, the default*/
                                          /* is the first word                 */
     stringsize_t count = optionalPositionArgument(pstart, 1, ARG_TWO);

@@ -310,7 +310,7 @@ void checkPadArgument(const char *pFuncName, RexxObject *position, RexxString *p
     {
         return;
     }
-    if (pad->getBLength() != 1)
+    if (pad->getLength() != 1)
     {
         reportException(Error_Incorrect_call_pad, pFuncName, OREF_positional, position, pad);
     }
@@ -330,7 +330,7 @@ BUILTIN(CENTER)
     /* this is a required length         */
     RexxInteger *length = required_integer(CENTER, length);
     RexxString *pad = optional_string(CENTER, pad);  /* the pad character must be one too */
-    if (pad != OREF_NULL && pad->getBLength() > 1)
+    if (pad != OREF_NULL && pad->getLength() > 1)
     {
         // could be a UTF-8 string made of 1 grapheme
         // delegate to RexxText if possible
@@ -438,7 +438,7 @@ BUILTIN(LEFT)
     /* length is optional                */
     RexxInteger *length = optional_integer(LEFT, length);
     RexxString *pad = optional_string(LEFT, pad);    /* pad must be a string also         */
-    if (pad != OREF_NULL && pad->getBLength() > 1)
+    if (pad != OREF_NULL && pad->getLength() > 1)
     {
         // could be a UTF-8 string made of 1 grapheme
         // delegate to RexxText if possible
@@ -1165,7 +1165,7 @@ BUILTIN(ARG)
                                            /* must be a positive integer        */
         positive_integer(position, ARG, IntegerOne);
 
-        switch (option->getCharC(0))
+        switch (option->getChar(0))
         {      /* process the option character      */
 
             case 'A':                        /* return argument array             */
@@ -1282,7 +1282,7 @@ BUILTIN(DATE)
     // now process the various option specifiers
     if (option != OREF_NULL)             /* just using default format?        */
     {
-        if (option->getBLength() == 0)        /* have a null string?               */
+        if (option->getLength() == 0)        /* have a null string?               */
         {
             /* this is an error                  */
             reportException(Error_Incorrect_call_list, CHAR_DATE, OREF_positional, IntegerOne, "BDEFLMNOSTUW", option);
@@ -1290,7 +1290,7 @@ BUILTIN(DATE)
         else                                 /* need to process an option         */
         {
             /* option is first character         */
-            style = toupper((int)option->getCharC(0));
+            style = toupper((int)option->getChar(0));
         }
     }
 
@@ -1303,7 +1303,7 @@ BUILTIN(DATE)
 
     if (option2 != OREF_NULL)            /* just using default format?        */
     {
-        if (option2->getBLength() == 0)       /* have a null string?               */
+        if (option2->getLength() == 0)       /* have a null string?               */
         {
             /* this is an error                  */
             reportException(Error_Incorrect_call_list, CHAR_DATE, OREF_positional, IntegerThree, "BDEFNOSTU", option2);
@@ -1311,7 +1311,7 @@ BUILTIN(DATE)
         else                                 /* need to process an option         */
         {
             /* option is first character         */
-            style2 = toupper((int)option2->getCharC(0));
+            style2 = toupper((int)option2->getChar(0));
         }
     }
 
@@ -1325,7 +1325,7 @@ BUILTIN(DATE)
         {
             reportException(Error_Incorrect_call_format_incomp_sep, CHAR_DATE, OREF_positional, IntegerOne, new_string((char)style), IntegerFour);
         }
-        if (osep->getBLength() > 1 || (osep->getBLength() == 1 && strchr(ALPHANUM, (int)osep->getCharC(0)) != NULL))
+        if (osep->getLength() > 1 || (osep->getLength() == 1 && strchr(ALPHANUM, (int)osep->getChar(0)) != NULL))
         {
             reportException(Error_Incorrect_call_parm_wrong_sep, CHAR_DATE, OREF_positional, IntegerFour, osep);
         }
@@ -1348,7 +1348,7 @@ BUILTIN(DATE)
                 reportException(Error_Incorrect_call_format_incomp_sep, CHAR_DATE, OREF_positional, IntegerThree, new_string((char *)&style2, 1), IntegerFive);
             }
             // explicitly specified delimiter, we need to validate this first
-            if (isep->getBLength() > 1 || (isep->getBLength() == 1 && strchr(ALPHANUM, (int)isep->getCharC(0)) != NULL))
+            if (isep->getLength() > 1 || (isep->getLength() == 1 && strchr(ALPHANUM, (int)isep->getChar(0)) != NULL))
             {
                 // the field delimiter must be a single character and NOT
                 // alphanumeric, or a null character
@@ -1553,12 +1553,12 @@ BUILTIN(TIME)
     if (option != OREF_NULL)
     {
         // null strings not allowed as an option character
-        if (option->getBLength() == 0)
+        if (option->getLength() == 0)
         {
             reportException(Error_Incorrect_call_list, CHAR_TIME, OREF_positional, IntegerOne, "CEFHLMNORST", option);
         }
         // we only use the first character
-        style = toupper((int)option->getCharC(0));
+        style = toupper((int)option->getChar(0));
     }
 
     // now repeat with the second style
@@ -1573,11 +1573,11 @@ BUILTIN(TIME)
             reportException(Error_Incorrect_call_noarg, CHAR_TIME, OREF_positional, IntegerTwo);
         }
         // again, must be at least one character, of which we only use the first
-        if (option2->getBLength() == 0)
+        if (option2->getLength() == 0)
         {
             reportException(Error_Incorrect_call_list, CHAR_TIME, OREF_positional, IntegerThree, "CFHLMNOST", option2);
         }
-        style2 = toupper((int)option2->getCharC(0));
+        style2 = toupper((int)option2->getChar(0));
     }
 
 
@@ -1801,28 +1801,28 @@ BUILTIN(XRANGE)
 
     if (start != OREF_NULL)
     {            /* have a start position             */
-        if (start->getBLength() != 1)            /* not a single character?           */
+        if (start->getLength() != 1)            /* not a single character?           */
         {
             /* have an error                     */
             reportException(Error_Incorrect_call_pad, CHAR_XRANGE, OREF_positional, IntegerOne, start);
         }
-        startchar = start->getCharC(0);     /* get the new start position        */
+        startchar = start->getChar(0);     /* get the new start position        */
     }
     if (end != OREF_NULL)
     {              /* have an end position              */
-        if (end->getBLength() != 1)         /* not a single character?           */
+        if (end->getLength() != 1)         /* not a single character?           */
         {
                                            /* have an error                     */
             reportException(Error_Incorrect_call_pad, CHAR_XRANGE, OREF_positional, IntegerTwo, end);
         }
-        endchar = end->getCharC(0);         /* get the new end position          */
+        endchar = end->getChar(0);         /* get the new end position          */
     }
     /* calculate result size             */
     size_t length = ((endchar < startchar) ? (256 - startchar) + endchar : (endchar - startchar)) + 1;
     RexxString *result = raw_string(length);         /* get a result string               */
     for (size_t i = 0; i < length; i++)         /* loop through result length        */
     {
-        result->putCharB(i, (char)startchar++);   /* inserting each character          */
+        result->putChar(i, (char)startchar++);   /* inserting each character          */
     }
     return result;                       /* finished                          */
 }
@@ -1928,7 +1928,7 @@ BUILTIN(VALUE)
         }
         return result;                       /* return the indicator              */
     }
-    else if (selector->getBLength() == 0)   /* null string selector?             */
+    else if (selector->getLength() == 0)   /* null string selector?             */
     {
         /* get the existing value            */
         RexxObject *result = TheEnvironment->entry(variable);
@@ -2354,7 +2354,7 @@ BUILTIN(LINES)
 
     if (option != OREF_NULL)
     {
-        switch (option->getCharC(0))
+        switch (option->getChar(0))
         {      /* process the option character      */
             case 'C':
             case 'c':
@@ -2391,7 +2391,7 @@ BUILTIN(LINES)
     }
     /* for compatibility this needs      */
     /* to only return 0 or 1             */
-    if (toupper((int)option->getCharC(0)) == 'N')
+    if (toupper((int)option->getChar(0)) == 'N')
     {
         wholenumber_t count = 0;
         if (result->numberValue(count))
@@ -2442,7 +2442,7 @@ BUILTIN(STREAM)
     fix_args(STREAM);                    /* check required arguments          */
                                          /* get the string name               */
     RexxString *name = required_string(STREAM, name);
-    if (name->getBLength() == 0)          /* check name validity               */
+    if (name->getLength() == 0)          /* check name validity               */
     {
         /* raise an error                    */
         reportException(Error_Incorrect_call_stream_name, OREF_STREAM, name);
@@ -2455,13 +2455,13 @@ BUILTIN(STREAM)
     char action_char = STREAM_STATUS;       /* this is a status attempt          */
     if (action != OREF_NULL)
     {           /* no action given?                  */
-        if (action->getBLength() == 0)
+        if (action->getLength() == 0)
         {    /* get a null string?                */
              /* this is an error                  */
             reportException(Error_Incorrect_call_list, CHAR_STREAM, OREF_positional, IntegerTwo, "SDC", action);
         }
         /* get the option character          */
-        action_char = toupper((int)action->getCharC(0));
+        action_char = toupper((int)action->getChar(0));
     }
 
     switch (action_char)
@@ -2591,14 +2591,14 @@ BUILTIN(CONDITION)
     RexxString *option = optional_string(CONDITION, option);
     if (option != OREF_NULL)             /* just using default format?        */
     {
-        if (option->getBLength() == 0)   /* have a null string?               */
+        if (option->getLength() == 0)   /* have a null string?               */
         {
             /* this is an error                  */
             reportException(Error_Incorrect_call_list, CHAR_CONDITION, OREF_positional, IntegerOne, "ACDIOS", option);
         }
 
         /* option is first character         */
-        style = toupper((int)option->getCharC(0));
+        style = toupper((int)option->getChar(0));
     }
     /* get current trapped condition     */
     RexxDirectory *conditionobj = context->getConditionObj();

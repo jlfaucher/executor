@@ -124,7 +124,7 @@ void RexxTarget::next(
     this->pattern_end = 0;               /* no pattern done yet               */
     this->pattern_start = 0;             /* save the pattern start            */
                                          /* save the over all length          */
-    this->string_length = this->string->getCLength();
+    this->string_length = this->string->getLength();
     this->subcurrent = 0;                /* no sub piece to process yet       */
 }
 
@@ -291,7 +291,7 @@ void RexxTarget::search(
         this->end--;                       /* convert to origin zero            */
         this->pattern_start = this->end;   /* this is the starting point        */
                                            /* end is start + trigger length     */
-        this->pattern_end = this->pattern_start + needle->getCLength();
+        this->pattern_end = this->pattern_start + needle->getLength();
     }
     this->subcurrent = this->start;      /* set the subpiece pointer          */
 }
@@ -319,7 +319,7 @@ void RexxTarget::caselessSearch(
         this->end--;                       /* convert to origin zero            */
         this->pattern_start = this->end;   /* this is the starting point        */
                                            /* end is start + trigger length     */
-        this->pattern_end = this->pattern_start + needle->getCLength();
+        this->pattern_end = this->pattern_start + needle->getLength();
     }
     this->subcurrent = this->start;      /* set the subpiece pointer          */
 }
@@ -484,7 +484,7 @@ RexxString *RexxTarget::remainder()
         }
         else                               /* need to extract a piece           */
         {
-            word = this->string->extractC(this->subcurrent, length);
+            word = this->string->extract(this->subcurrent, length);
         }
         this->subcurrent = this->end;      /* eat the remainder piece           */
     }

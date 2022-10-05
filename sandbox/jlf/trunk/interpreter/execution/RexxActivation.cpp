@@ -1888,7 +1888,7 @@ RexxObject *RexxActivation::resolveStream(RexxString *name, bool input, RexxStri
         *fullName = name;                  /* initialize to name                */
     }
     /* if length of name is 0, then it's the same as omitted */
-    if (name == OREF_NULL || name->getBLength() == 0)   /* no name?                 */
+    if (name == OREF_NULL || name->getLength() == 0)   /* no name?                 */
     {
         if (input)                         /* input operation?                  */
         {
@@ -3457,14 +3457,14 @@ void RexxActivation::traceEntry()
     p = message;
 
     /* get a string large enough to      */
-    size_t outBlength = message->getBLength() + INSTRUCTION_OVERHEAD;
+    size_t outBlength = message->getLength() + INSTRUCTION_OVERHEAD;
     RexxString *buffer = raw_string(outBlength);      /* get an output string              */
     /* insert the leading blanks         */
     buffer->set(0, ' ', INSTRUCTION_OVERHEAD);
     /* add the trace prefix              */
     buffer->put(PREFIX_OFFSET, trace_prefix_table[TRACE_PREFIX_INVOCATION], PREFIX_LENGTH);
     /* copy the string value             */
-    buffer->put(INSTRUCTION_OVERHEAD, message->getStringData(), message->getBLength());
+    buffer->put(INSTRUCTION_OVERHEAD, message->getStringData(), message->getLength());
                                          /* write out the line                */
     activity->traceOutput(this, buffer);
 }
@@ -3491,7 +3491,7 @@ void RexxActivation::traceValue(       /* trace an intermediate value       */
                                            /* get the string version            */
     RexxString *stringvalue = value->stringValue();
                                            /* get a string large enough to      */
-    size_t outlength = stringvalue->getBLength() + TRACE_OVERHEAD + this->settings.traceindent * INDENT_SPACING;
+    size_t outlength = stringvalue->getLength() + TRACE_OVERHEAD + this->settings.traceindent * INDENT_SPACING;
     RexxString *buffer = raw_string(outlength);      /* get an output string              */
     ProtectedObject p(buffer);
     /* insert the leading blanks         */
@@ -3499,10 +3499,10 @@ void RexxActivation::traceValue(       /* trace an intermediate value       */
     /* add the trace prefix              */
     buffer->put(PREFIX_OFFSET, trace_prefix_table[prefix], PREFIX_LENGTH);
     /* add a quotation mark              */
-    buffer->putCharB(TRACE_OVERHEAD - 2 + this->settings.traceindent * INDENT_SPACING, '\"');
+    buffer->putChar(TRACE_OVERHEAD - 2 + this->settings.traceindent * INDENT_SPACING, '\"');
     /* copy the string value             */
-    buffer->put(TRACE_OVERHEAD - 1 + this->settings.traceindent * INDENT_SPACING, stringvalue->getStringData(), stringvalue->getBLength());
-    buffer->putCharB(outlength - 1, '\"');/* add the trailing quotation mark   */
+    buffer->put(TRACE_OVERHEAD - 1 + this->settings.traceindent * INDENT_SPACING, stringvalue->getStringData(), stringvalue->getLength());
+    buffer->putChar(outlength - 1, '\"');/* add the trailing quotation mark   */
                                          /* write out the line                */
     this->activity->traceOutput(this, buffer);
 }
@@ -3534,7 +3534,7 @@ void RexxActivation::traceTaggedValue(int prefix, const char *tagPrefix, bool qu
     RexxString *stringVal = value->stringValue();
 
     // now calculate the length of the traced string
-    stringsize_t outLength = tag->getBLength() + stringVal->getBLength();
+    stringsize_t outLength = tag->getLength() + stringVal->getLength();
     // these are fixed overheads
     outLength += TRACE_OVERHEAD + strlen(marker);
     // now the indent spacing
@@ -3560,7 +3560,7 @@ void RexxActivation::traceTaggedValue(int prefix, const char *tagPrefix, bool qu
     // if this is a quoted tag (operators do this), add quotes before coping the tag
     if (quoteTag)
     {
-        buffer->putCharB(dataOffset, '\"');
+        buffer->putChar(dataOffset, '\"');
         dataOffset++;
     }
     // is the tag prefixed?  Add this before the name
@@ -3573,12 +3573,12 @@ void RexxActivation::traceTaggedValue(int prefix, const char *tagPrefix, bool qu
 
     // add in the tag name
     buffer->put(dataOffset, tag);
-    dataOffset += tag->getBLength();
+    dataOffset += tag->getLength();
 
     // might need a closing quote.
     if (quoteTag)
     {
-        buffer->putCharB(dataOffset, '\"');
+        buffer->putChar(dataOffset, '\"');
         dataOffset++;
     }
 
@@ -3589,18 +3589,18 @@ void RexxActivation::traceTaggedValue(int prefix, const char *tagPrefix, bool qu
     // the leading quote around the value
 	if (quoteValue)
 	{
-        buffer->putCharB(dataOffset, '\"');
+        buffer->putChar(dataOffset, '\"');
         dataOffset++;
 	}
 
     // the traced value
     buffer->put(dataOffset, stringVal);
-    dataOffset += stringVal->getBLength();
+    dataOffset += stringVal->getLength();
 
     // and finally, the trailing quote
 	if (quoteValue)
 	{
-        buffer->putCharB(dataOffset, '\"');
+        buffer->putChar(dataOffset, '\"');
         dataOffset++;
 	}
                                        /* write out the line                */
@@ -3632,7 +3632,7 @@ void RexxActivation::traceOperatorValue(int prefix, const char *tag, RexxObject 
     RexxString *stringVal = value->stringValue();
 
     // now calculate the length of the traced string
-    stringsize_t outLength = strlen(tag) + stringVal->getBLength();
+    stringsize_t outLength = strlen(tag) + stringVal->getLength();
     // these are fixed overheads
     outLength += TRACE_OVERHEAD + strlen(VALUE_MARKER);
     // now the indent spacing
@@ -3652,7 +3652,7 @@ void RexxActivation::traceOperatorValue(int prefix, const char *tag, RexxObject 
     buffer->put(PREFIX_OFFSET, trace_prefix_table[prefix], PREFIX_LENGTH);
 
     // operators are quoted.
-    buffer->putCharB(dataOffset, '\"');
+    buffer->putChar(dataOffset, '\"');
     dataOffset++;
 
     // add in the tag name
@@ -3660,7 +3660,7 @@ void RexxActivation::traceOperatorValue(int prefix, const char *tag, RexxObject 
     dataOffset += strlen(tag);
 
     // need a closing quote.
-    buffer->putCharB(dataOffset, '\"');
+    buffer->putChar(dataOffset, '\"');
     dataOffset++;
 
     // now add the data marker
@@ -3668,15 +3668,15 @@ void RexxActivation::traceOperatorValue(int prefix, const char *tag, RexxObject 
     dataOffset += strlen(VALUE_MARKER);
 
     // the leading quote around the value
-    buffer->putCharB(dataOffset, '\"');
+    buffer->putChar(dataOffset, '\"');
     dataOffset++;
 
     // the traced value
     buffer->put(dataOffset, stringVal);
-    dataOffset += stringVal->getBLength();
+    dataOffset += stringVal->getLength();
 
     // and finally, the trailing quote
-    buffer->putCharB(dataOffset, '\"');
+    buffer->putChar(dataOffset, '\"');
     dataOffset++;
                                        /* write out the line                */
     this->activity->traceOutput(this, buffer);
@@ -3725,7 +3725,7 @@ void RexxActivation::traceCompoundValue(int prefix, RexxString *stemName, RexxOb
 	RexxString *stringVal = value->stringValue();
 
 	// now calculate the length of the traced string
-	stringsize_t outLength = stemName->getBLength() + stringVal->getBLength();
+	stringsize_t outLength = stemName->getLength() + stringVal->getLength();
 
 	// build an unresolved tail name
 	RexxCompoundTail tail(tails, tailCount, false);
@@ -3755,7 +3755,7 @@ void RexxActivation::traceCompoundValue(int prefix, RexxString *stemName, RexxOb
 
 	// add in the stem name
 	buffer->put(dataOffset, stemName);
-	dataOffset += stemName->getBLength();
+	dataOffset += stemName->getLength();
 
 	// copy the tail portion of the compound name
 	buffer->put(dataOffset, tail.getTail(), tail.getLength());
@@ -3768,18 +3768,18 @@ void RexxActivation::traceCompoundValue(int prefix, RexxString *stemName, RexxOb
     // the leading quote around the value
     if (quoteValue)
 	{
-        buffer->putCharB(dataOffset, '\"');
+        buffer->putChar(dataOffset, '\"');
         dataOffset++;
     }
 
     // the traced value
     buffer->put(dataOffset, stringVal);
-    dataOffset += stringVal->getBLength();
+    dataOffset += stringVal->getLength();
 
     // and finally, the trailing quote
     if (quoteValue)
 	{
-        buffer->putCharB(dataOffset, '\"');
+        buffer->putChar(dataOffset, '\"');
         dataOffset++;
 	}
                                        /* write out the line                */
@@ -3802,17 +3802,17 @@ void RexxActivation::traceSourceString()
     /* get the string version            */
     RexxString *string = this->sourceString();       /* get the source string             */
     /* get a string large enough to      */
-    size_t outlength = string->getBLength() + INSTRUCTION_OVERHEAD + 2;
+    size_t outlength = string->getLength() + INSTRUCTION_OVERHEAD + 2;
     RexxString *buffer = raw_string(outlength);      /* get an output string              */
     /* insert the leading blanks         */
     buffer->set(0, ' ', INSTRUCTION_OVERHEAD);
     /* add the trace prefix              */
     buffer->put(PREFIX_OFFSET, trace_prefix_table[TRACE_PREFIX_ERROR], PREFIX_LENGTH);
     /* add a quotation mark              */
-    buffer->putCharB(INSTRUCTION_OVERHEAD, '\"');
+    buffer->putChar(INSTRUCTION_OVERHEAD, '\"');
     /* copy the string value             */
-    buffer->put(INSTRUCTION_OVERHEAD + 1, string->getStringData(), string->getBLength());
-    buffer->putCharB(outlength - 1, '\"');/* add the trailing quotation mark   */
+    buffer->put(INSTRUCTION_OVERHEAD + 1, string->getStringData(), string->getLength());
+    buffer->putChar(outlength - 1, '\"');/* add the trailing quotation mark   */
                                          /* write out the line                */
     this->activity->traceOutput(this, buffer);
 }
@@ -4057,12 +4057,12 @@ bool RexxActivation::debugPause(RexxInstruction * instr)
             /* read a line from the screen       */
             response = this->activity->traceInput(this);
 
-            if (response->getBLength() == 0)       /* just a "null" line entered?       */
+            if (response->getLength() == 0)       /* just a "null" line entered?       */
             {
                 break;                         /* just end the pausing              */
             }
                                                /* a re-execute request?             */
-            else if (response->getBLength() == 1 && response->getCharB(0) == '=')
+            else if (response->getLength() == 1 && response->getChar(0) == '=')
             {
                 this->next = this->current;    /* reset the execution pointer       */
                 return true;                   /* finished (inform block instrs)    */

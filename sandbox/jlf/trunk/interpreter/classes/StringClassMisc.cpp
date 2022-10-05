@@ -69,13 +69,13 @@ int RexxString::isSymbol()
 
                                          /* name too long                     */
                                          /* or too short                      */
-    if (this->getBLength() > (size_t)MAX_SYMBOL_LENGTH || this->getBLength() == 0)
+    if (this->getLength() > (size_t)MAX_SYMBOL_LENGTH || this->getLength() == 0)
     {
         return STRING_BAD_VARIABLE;        /* set a bad type                    */
     }
 
                                            /* step to end                       */
-    Linend = this->getStringData() + this->getBLength();
+    Linend = this->getStringData() + this->getLength();
 
     Compound = 0;                        /* set compound name is no           */
     Scan = this->getStringData();        /* save start position               */
@@ -93,7 +93,7 @@ int RexxString::isSymbol()
     /* now check for exponent            */
     if (((Scan + 1) < Linend) &&
         (*Scan == '-' || *Scan == '+') &&
-        (isdigit(this->getCharB(0)) || *Scan == '.') &&
+        (isdigit(this->getChar(0)) || *Scan == '.') &&
         (toupper(*(Scan - 1)) == 'E'))
     {
         Scan++;                            /* step to next                      */
@@ -113,11 +113,11 @@ int RexxString::isSymbol()
     }
                                            /* now determine symbol type         */
                                            /* possible number?                  */
-    if (this->getCharB(0) == '.' || isdigit(this->getCharB(0)))
+    if (this->getChar(0) == '.' || isdigit(this->getChar(0)))
     {
 
         /* only a period?                    */
-        if (Compound == 1 && this->getBLength() == 1)
+        if (Compound == 1 && this->getLength() == 1)
         {
             Type = STRING_LITERAL_DOT;       /* yes, set the token type           */
         }
@@ -130,7 +130,7 @@ int RexxString::isSymbol()
             Type = STRING_NUMERIC;           /* assume numeric for now            */
             Scan = this->getStringData();    /* point to symbol                   */
                                              /* scan symbol, validating           */
-            for (i = this->getBLength() ; i != 0; i-- )
+            for (i = this->getLength() ; i != 0; i-- )
             {
                 if (!isdigit(*Scan) &&         /* if not a digit and                */
                     *Scan != '.')              /* and not a period...               */
@@ -196,11 +196,11 @@ RexxInteger *RexxString::abbrev(
     int      rc;                         /* compare result                    */
 
     info = stringArgument(info, OREF_positional, ARG_ONE);    /* process the information string    */
-    Len2 = info->getCLength();                 /* get the length also               */
+    Len2 = info->getLength();                 /* get the length also               */
     /* get the optional check length     */
     /* get the optional check length     */
     ChkLen = optionalLengthArgument(_length, Len2, ARG_TWO);
-    Len1 = this->getCLength();                 /* get this length                   */
+    Len1 = this->getLength();                 /* get this length                   */
 
     if (ChkLen == 0 && Len2 == 0)        /* if null string match              */
     {
@@ -228,11 +228,11 @@ RexxInteger *RexxString::caselessAbbrev(RexxString *info, RexxInteger *_length)
 {
     // the info must be a string value
     info = stringArgument(info, OREF_positional, ARG_ONE);
-    stringsize_t len2 = info->getCLength();
+    stringsize_t len2 = info->getLength();
     // the check length is optional, and defaults to the length of info.
     stringsize_t chkLen = optionalLengthArgument(_length, len2, ARG_TWO);
 
-    stringsize_t len1 = this->getCLength();
+    stringsize_t len1 = this->getLength();
 
     // if a null string match is allowed, this is true
     if (chkLen == 0 && len2 == 0)
@@ -271,10 +271,10 @@ RexxInteger *RexxString::compare(
     size_t   Length1;                    /* first string length               */
     size_t   Length2;                    /* second string length              */
 
-    Length1 = this->getBLength();              /* get this strings length           */
+    Length1 = this->getLength();              /* get this strings length           */
     /* validate the compare string       */
     string2 = stringArgument(string2, OREF_positional, ARG_ONE);
-    Length2 = string2->getBLength();           /* get the length also               */
+    Length2 = string2->getLength();           /* get the length also               */
     PadChar = optionalPadArgument(pad, ' ', ARG_TWO);/* get the pad character             */
     if (Length1 > Length2)
     {             /* first longer?                     */
@@ -338,10 +338,10 @@ RexxInteger *RexxString::compare(
 // in behaviour
 RexxInteger *RexxString::caselessCompare(RexxString *other, RexxString *pad)
 {
-    stringsize_t length1 = this->getBLength(); /* get this strings length           */
+    stringsize_t length1 = this->getLength(); /* get this strings length           */
                                          /* validate the compare string       */
     other = stringArgument(other, OREF_positional, ARG_ONE);
-    stringsize_t length2 = other->getBLength();       /* get the length also               */
+    stringsize_t length2 = other->getLength();       /* get the length also               */
     // we uppercase the pad character now since this is caseless
     char padChar = toupper((int)optionalPadArgument(pad, ' ', ARG_TWO));
 
@@ -404,7 +404,7 @@ RexxString *RexxString::copies(RexxInteger *_copies)
     requiredArgument(_copies, OREF_positional, ARG_ONE);           /* the count is required             */
     /* get the copies count              */
     Count = _copies->requiredNonNegative(OREF_positional, ARG_ONE);
-    Len = this->getBLength();                  /* get argument length               */
+    Len = this->getLength();                  /* get argument length               */
 
     if (Count == 0 ||                    /* no copies requested?              */
         Len == 0 )                       /* or copying a null string          */
@@ -420,7 +420,7 @@ RexxString *RexxString::copies(RexxInteger *_copies)
         if (Len == 1)
         {                    /* if only 1 char long               */
                              /* just do this with memset          */
-            memset(Retval->getWritableData(), this->getCharB(0), Count);
+            memset(Retval->getWritableData(), this->getChar(0), Count);
         }
         /* if any copies                     */
         else
@@ -471,7 +471,7 @@ RexxObject *RexxString::dataType(RexxString *pType)
 // in behaviour
 RexxInteger *RexxString::lastPosRexx(RexxString  *needle, RexxInteger *_start, RexxInteger *_range)
 {
-    return StringUtil::lastPosRexx(getStringData(), getBLength(), needle, _start, _range);
+    return StringUtil::lastPosRexx(getStringData(), getLength(), needle, _start, _range);
 }
 
 
@@ -489,10 +489,10 @@ RexxInteger *RexxString::caselessLastPosRexx(RexxString  *needle, RexxInteger *_
     // validate that this is a good string argument
     needle = stringArgument(needle, OREF_positional, ARG_ONE);
     // find out where to start the search. The default is at the very end.
-    size_t startPos = optionalPositionArgument(_start, getCLength(), ARG_TWO);
-    size_t range = optionalLengthArgument(_range, getCLength(), ARG_THREE);
+    size_t startPos = optionalPositionArgument(_start, getLength(), ARG_TWO);
+    size_t range = optionalLengthArgument(_range, getLength(), ARG_THREE);
     // now perform the actual search.
-    size_t result = StringUtil::caselessLastPos(getStringData(), getBLength(), needle, startPos, range);
+    size_t result = StringUtil::caselessLastPos(getStringData(), getLength(), needle, startPos, range);
 	return new_integer(result);
 }
 
@@ -510,7 +510,7 @@ RexxInteger *RexxString::caselessLastPosRexx(RexxString  *needle, RexxInteger *_
  */
 size_t RexxString::lastPos(RexxString  *needle, size_t _start)
 {
-    size_t result = StringUtil::lastPos(getStringData(), getBLength(), needle, _start, getBLength());
+    size_t result = StringUtil::lastPos(getStringData(), getLength(), needle, _start, getLength());
 	return result;
 }
 
@@ -528,7 +528,7 @@ size_t RexxString::lastPos(RexxString  *needle, size_t _start)
  */
 size_t RexxString::caselessLastPos(RexxString *needle, size_t _start)
 {
-    size_t result = StringUtil::caselessLastPos(getStringData(), getBLength(), needle, _start, getBLength());
+    size_t result = StringUtil::caselessLastPos(getStringData(), getLength(), needle, _start, getLength());
 	return result;
 }
 
@@ -541,7 +541,7 @@ RexxInteger *RexxString::countStrRexx(RexxString *needle)
     /* force needle to a string          */
     needle = stringArgument(needle, OREF_positional, ARG_ONE);
     // delegate the counting to the string util
-    return new_integer(StringUtil::countStr(getStringData(), getBLength(), needle));
+    return new_integer(StringUtil::countStr(getStringData(), getLength(), needle));
 }
 
 
@@ -554,7 +554,7 @@ RexxInteger *RexxString::caselessCountStrRexx(RexxString *needle)
     /* force needle to a string          */
     needle = stringArgument(needle, OREF_positional, ARG_ONE);
     // delegate the counting to the string util
-    return new_integer(StringUtil::caselessCountStr(getStringData(), getBLength(), needle));
+    return new_integer(StringUtil::caselessCountStr(getStringData(), getLength(), needle));
 }
 
 // in behaviour
@@ -584,15 +584,15 @@ RexxString *RexxString::changeStr(RexxString *needle, RexxString *newNeedle, Rex
 
     // we'll only change up to a specified count.  If not there, we do everything.
     size_t count = optionalPositive(countArg, Numerics::MAX_WHOLENUMBER, OREF_positional, ARG_THREE);
-    matches = StringUtil::countStr(getStringData(), getBLength(), needle);    /* find the number of replacements   */
+    matches = StringUtil::countStr(getStringData(), getLength(), needle);    /* find the number of replacements   */
     if (matches > count)                 // the matches are bounded by the count
     {
         matches = count;
     }
-    needleLength = needle->getCLength();  /* get the length of the needle      */
-    newLength = newNeedle->getCLength();  /* and the replacement length        */
+    needleLength = needle->getLength();  /* get the length of the needle      */
+    newLength = newNeedle->getLength();  /* and the replacement length        */
                                          /* get a proper sized string         */
-    result = (RexxString *)raw_string(this->getCLength() - (matches * needleLength) + (matches * newLength));
+    result = (RexxString *)raw_string(this->getLength() - (matches * needleLength) + (matches * newLength));
     copyPtr = result->getWritableData(); /* point to the copy location        */
     source = this->getStringData();      /* and out own data                  */
                                          /* and the string to replace         */
@@ -619,10 +619,10 @@ RexxString *RexxString::changeStr(RexxString *needle, RexxString *newNeedle, Rex
         }
         _start = matchPos + needleLength - 1;  /* step to the next position         */
     }
-    if (_start < this->getCLength())      /* some remainder left?              */
+    if (_start < this->getLength())      /* some remainder left?              */
     {
         /* add it on                         */
-        memcpy(copyPtr, source + _start, this->getCLength() - _start);
+        memcpy(copyPtr, source + _start, this->getLength() - _start);
     }
     return result;                       /* finished                          */
 }
@@ -654,15 +654,15 @@ RexxString *RexxString::caselessChangeStr(RexxString *needle, RexxString *newNee
     // we'll only change up to a specified count.  If not there, we do everything.
     size_t count = optionalPositive(countArg, Numerics::MAX_WHOLENUMBER, OREF_positional, ARG_THREE);
 
-    matches = StringUtil::caselessCountStr(getStringData(), getBLength(), needle);    /* find the number of replacements   */
+    matches = StringUtil::caselessCountStr(getStringData(), getLength(), needle);    /* find the number of replacements   */
     if (matches > count)                 // the matches are bounded by the count
     {
         matches = count;
     }
-    needleLength = needle->getCLength();       /* get the length of the needle      */
-    newLength = newNeedle->getCLength();       /* and the replacement length        */
+    needleLength = needle->getLength();       /* get the length of the needle      */
+    newLength = newNeedle->getLength();       /* and the replacement length        */
     /* get a proper sized string         */
-    result = (RexxString *)raw_string(this->getCLength() - (matches * needleLength) + (matches * newLength));
+    result = (RexxString *)raw_string(this->getLength() - (matches * needleLength) + (matches * newLength));
     copyPtr = result->getWritableData();    /* point to the copy location        */
     source = this->getStringData();      /* and out own data                  */
                                          /* and the string to replace         */
@@ -689,10 +689,10 @@ RexxString *RexxString::caselessChangeStr(RexxString *needle, RexxString *newNee
         }
         _start = matchPos + needleLength - 1;  /* step to the next position         */
     }
-    if (_start < this->getCLength())            /* some remainder left?              */
+    if (_start < this->getLength())            /* some remainder left?              */
     {
         /* add it on                         */
-        memcpy(copyPtr, source + _start, this->getCLength() - _start);
+        memcpy(copyPtr, source + _start, this->getLength() - _start);
     }
     return result;                       /* finished                          */
 }
@@ -704,7 +704,7 @@ RexxInteger *RexxString::posRexx(RexxString  *needle, RexxInteger *pstart, RexxI
 /* Function:  String class POS method/function                                */
 /******************************************************************************/
 {
-    return StringUtil::posRexx(getStringData(), getBLength(), needle, pstart, range);
+    return StringUtil::posRexx(getStringData(), getLength(), needle, pstart, range);
 }
 
 
@@ -724,10 +724,10 @@ RexxInteger *RexxString::caselessPosRexx(RexxString *needle, RexxInteger *pstart
     needle = stringArgument(needle, OREF_positional, ARG_ONE);
     /* get the starting position         */
     size_t _start = optionalPositionArgument(pstart, 1, ARG_TWO);
-    size_t _range = optionalLengthArgument(range, getCLength() - _start + 1, ARG_THREE);
+    size_t _range = optionalLengthArgument(range, getLength() - _start + 1, ARG_THREE);
     /* pass on to the primitive function */
     /* and return as an integer object   */
-    size_t result = StringUtil::caselessPos(getStringData(), getBLength(), needle , _start - 1, _range);
+    size_t result = StringUtil::caselessPos(getStringData(), getLength(), needle , _start - 1, _range);
 	return new_integer(result);
 }
 
@@ -742,7 +742,7 @@ RexxInteger *RexxString::caselessPosRexx(RexxString *needle, RexxInteger *pstart
  */
 size_t RexxString::pos(RexxString *needle, size_t _start)
 {
-    size_t result = StringUtil::pos(getStringData(), getBLength(), needle, _start, getBLength());
+    size_t result = StringUtil::pos(getStringData(), getLength(), needle, _start, getLength());
 	return result;
 }
 
@@ -757,7 +757,7 @@ size_t RexxString::pos(RexxString *needle, size_t _start)
  */
 size_t RexxString::caselessPos(RexxString *needle, size_t _start)
 {
-    size_t result = StringUtil::caselessPos(getStringData(), getBLength(), needle, _start, getBLength());
+    size_t result = StringUtil::caselessPos(getStringData(), getLength(), needle, _start, getLength());
 	return result;
 }
 
@@ -793,29 +793,29 @@ RexxString *RexxString::translate(
                                             /* validate the tables               */
     tableo = optionalStringArgument(tableo, OREF_NULLSTRING, OREF_positional, ARG_ONE);
     ProtectedObject p1(tableo);
-    OutTableLength = tableo->getBLength();      /* get the table length              */
+    OutTableLength = tableo->getLength();      /* get the table length              */
     /* input table too                   */
     tablei = optionalStringArgument(tablei, OREF_NULLSTRING, OREF_positional, ARG_TWO);
     ProtectedObject p2(tablei);
-    InTableLength = tablei->getBLength();       /* get the table length              */
+    InTableLength = tablei->getLength();       /* get the table length              */
     InTable = tablei->getStringData();    /* point at the input table          */
     OutTable = tableo->getStringData();   /* and the output table              */
                                           /* get the pad character             */
     PadChar = optionalPadArgument(pad, ' ', ARG_THREE);
     size_t startPos = optionalPositionArgument(_start, 1, ARG_FOUR);
-    size_t range = optionalLengthArgument(_range, getCLength() - startPos + 1, ARG_FOUR);
+    size_t range = optionalLengthArgument(_range, getLength() - startPos + 1, ARG_FOUR);
 
     // if nothing to translate, we can return now
-    if (startPos > getCLength() || range == 0)
+    if (startPos > getLength() || range == 0)
     {
         return this;
     }
     // cap the real range
-    range = Numerics::minVal(range, getCLength() - startPos + 1);
+    range = Numerics::minVal(range, getLength() - startPos + 1);
 
     /* allocate space for answer         */
     /* and copy the string               */
-    Retval = new_string(this->getStringData(), this->getBLength());
+    Retval = new_string(this->getStringData(), this->getLength());
     ScanPtr = Retval->getWritableData() + startPos - 1;  /* point to data                     */
     ScanLength = range;                        /* get the length too                */
 
@@ -860,7 +860,7 @@ RexxInteger *RexxString::verify(
 /*  Function:  String class VERIFY function                                   */
 /******************************************************************************/
 {
-    return StringUtil::verify(getStringData(), getBLength(), ref, option, _start, range);
+    return StringUtil::verify(getStringData(), getLength(), ref, option, _start, range);
 }
 
 
@@ -884,7 +884,7 @@ RexxInteger *RexxString::match(RexxInteger *start_, RexxString *other, RexxInteg
 {
     stringsize_t _start = positionArgument(start_, ARG_ONE);
     // the start position must be within the string bounds
-    if (_start > getCLength())
+    if (_start > getLength())
     {
         reportException(Error_Incorrect_method_position, start_);
     }
@@ -892,14 +892,14 @@ RexxInteger *RexxString::match(RexxInteger *start_, RexxString *other, RexxInteg
 
     stringsize_t offset = optionalPositionArgument(offset_, 1, ARG_THREE);
 
-    if (offset > other->getCLength())
+    if (offset > other->getLength())
     {
         reportException(Error_Incorrect_method_position, offset);
     }
 
-    stringsize_t len = optionalLengthArgument(len_, other->getCLength() - offset + 1, ARG_FOUR);
+    stringsize_t len = optionalLengthArgument(len_, other->getLength() - offset + 1, ARG_FOUR);
 
-    if ((offset + len - 1) > other->getCLength())
+    if ((offset + len - 1) > other->getLength())
     {
         reportException(Error_Incorrect_method_length, len);
     }
@@ -928,7 +928,7 @@ RexxInteger *RexxString::caselessMatch(RexxInteger *start_, RexxString *other, R
 {
     stringsize_t _start = positionArgument(start_, ARG_ONE);
     // the start position must be within the string bounds
-    if (_start > getCLength())
+    if (_start > getLength())
     {
         reportException(Error_Incorrect_method_position, start_);
     }
@@ -936,14 +936,14 @@ RexxInteger *RexxString::caselessMatch(RexxInteger *start_, RexxString *other, R
 
     stringsize_t offset = optionalPositionArgument(offset_, 1, ARG_THREE);
 
-    if (offset > other->getCLength())
+    if (offset > other->getLength())
     {
         reportException(Error_Incorrect_method_position, offset);
     }
 
-    stringsize_t len = optionalLengthArgument(len_, other->getCLength() - offset + 1, ARG_FOUR);
+    stringsize_t len = optionalLengthArgument(len_, other->getLength() - offset + 1, ARG_FOUR);
 
-    if ((offset + len - 1) > other->getCLength())
+    if ((offset + len - 1) > other->getLength())
     {
         reportException(Error_Incorrect_method_length, len);
     }
@@ -969,7 +969,7 @@ bool RexxString::primitiveMatch(stringsize_t _start, RexxString *other, stringsi
     offset--;
 
     // if the match is not possible in the target string, just return false now.
-    if ((_start + len) > getCLength())
+    if ((_start + len) > getLength())
     {
         return false;
     }
@@ -996,7 +996,7 @@ bool RexxString::primitiveCaselessMatch(stringsize_t _start, RexxString *other, 
     offset--;
 
     // if the match is not possible in the target string, just return false now.
-    if ((_start + len) > getCLength())
+    if ((_start + len) > getLength())
     {
         return false;
     }
@@ -1021,19 +1021,19 @@ RexxInteger *RexxString::matchChar(RexxInteger *position_, RexxString *matchSet)
 {
     stringsize_t position = positionArgument(position_, ARG_ONE);
     // the start position must be within the string bounds
-    if (position > getCLength())
+    if (position > getLength())
     {
         reportException(Error_Incorrect_method_position, position);
     }
     matchSet = stringArgument(matchSet, OREF_positional, ARG_TWO);
 
-    stringsize_t _setLength = matchSet->getCLength();
-    codepoint_t         _matchChar = getCharC(position - 1);
+    stringsize_t _setLength = matchSet->getLength();
+    codepoint_t         _matchChar = getChar(position - 1);
 
     // iterate through the match set looking for a match
     for (stringsize_t i = 0; i < _setLength; i++)
     {
-        if (_matchChar == matchSet->getCharC(i))
+        if (_matchChar == matchSet->getChar(i))
         {
             return TheTrueObject;
         }
@@ -1058,21 +1058,21 @@ RexxInteger *RexxString::caselessMatchChar(RexxInteger *position_, RexxString *m
 {
     stringsize_t position = positionArgument(position_, ARG_ONE);
     // the start position must be within the string bounds
-    if (position > getCLength())
+    if (position > getLength())
     {
         reportException(Error_Incorrect_method_position, position);
     }
     matchSet = stringArgument(matchSet, OREF_positional, ARG_TWO);
 
-    stringsize_t _setLength = matchSet->getCLength();
-    codepoint_t         _matchChar = getCharC(position - 1);
+    stringsize_t _setLength = matchSet->getLength();
+    codepoint_t         _matchChar = getChar(position - 1);
     _matchChar = toupper((int)_matchChar);
 
     // iterate through the match set looking for a match, using a
     // caseless compare
     for (stringsize_t i = 0; i < _setLength; i++)
     {
-        if (_matchChar == toupper((int)matchSet->getCharC(i)))
+        if (_matchChar == toupper((int)matchSet->getChar(i)))
         {
             return TheTrueObject;
         }
@@ -1096,7 +1096,7 @@ RexxInteger *RexxString::compareToRexx(RexxString *other, RexxInteger *start_, R
     other = stringArgument(other, OREF_positional, ARG_ONE);
 
     stringsize_t _start = optionalPositionArgument(start_, 1, ARG_TWO);
-    stringsize_t len = optionalLengthArgument(len_, Numerics::maxVal(getCLength(), other->getCLength()) - _start + 1, ARG_THREE);
+    stringsize_t len = optionalLengthArgument(len_, Numerics::maxVal(getLength(), other->getLength()) - _start + 1, ARG_THREE);
 
     return primitiveCompareTo(other, _start, len);
 }
@@ -1115,8 +1115,8 @@ RexxInteger *RexxString::compareToRexx(RexxString *other, RexxInteger *start_, R
  */
 RexxInteger *RexxString::primitiveCompareTo(RexxString *other, stringsize_t _start, stringsize_t len)
 {
-    stringsize_t myLength = getCLength();
-    stringsize_t otherLength = other->getCLength();
+    stringsize_t myLength = getLength();
+    stringsize_t otherLength = other->getLength();
 
     // if doing the compare outside of the string length, we're less than the other string
     // unless the start is
@@ -1183,7 +1183,7 @@ RexxInteger *RexxString::caselessCompareToRexx(RexxString *other, RexxInteger *s
     other = stringArgument(other, OREF_positional, ARG_ONE);
 
     stringsize_t _start = optionalPositionArgument(start_, 1, ARG_TWO);
-    stringsize_t len = optionalLengthArgument(len_, Numerics::maxVal(getCLength(), other->getCLength()) - _start + 1, ARG_THREE);
+    stringsize_t len = optionalLengthArgument(len_, Numerics::maxVal(getLength(), other->getLength()) - _start + 1, ARG_THREE);
 
     return primitiveCaselessCompareTo(other, _start, len);
 }
@@ -1204,8 +1204,8 @@ RexxInteger *RexxString::caselessCompareToRexx(RexxString *other, RexxInteger *s
  */
 RexxInteger *RexxString::primitiveCaselessCompareTo(RexxString *other, stringsize_t _start, stringsize_t len)
 {
-    stringsize_t myLength = getCLength();
-    stringsize_t otherLength = other->getCLength();
+    stringsize_t myLength = getLength();
+    stringsize_t otherLength = other->getLength();
 
     // if doing the compare outside of the string length, we're less than the other string
     // unless the start is

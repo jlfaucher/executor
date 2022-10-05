@@ -136,7 +136,7 @@ inline char IntToHexDigit(int n)
    {
        if (hashValue == 0)                // if we've never generated this, the code is zero
        {
-           stringsize_t len = this->getBLength();
+           stringsize_t len = this->getLength();
 
            HashCode h = 0;
            // the hash code is generated from all of the string characters.
@@ -231,14 +231,6 @@ inline char IntToHexDigit(int n)
    RexxObject *isInteger();
    RexxObject *logicalOperation(RexxObject *, RexxObject *, unsigned int);
    RexxString *extract(size_t offset, size_t sublength) { return newString(getStringData() + offset, sublength); }
-   RexxString *extractB(size_t offset, size_t sublength) // Extract bytes
-   {
-       return newString(getStringData() + offset, sublength);
-   }
-   RexxString *extractC(size_t offset, size_t sublength) // Extract characters
-   {
-       return newString(getStringData() + offset, sublength, sublength);
-   }
    RexxObject *evaluate(RexxActivation *, RexxExpressionStack *);
    RexxObject *getValue(RexxActivation *);
    RexxObject *getValue(RexxVariableDictionary *);
@@ -339,28 +331,16 @@ inline char IntToHexDigit(int n)
 
 /* Inline_functions */
 
-   inline size_t  getBLength() { return this->blength; };
-   inline size_t  getCLength() { return this->clength; };
-   inline void    setBLength(size_t l) { this->blength = l; };
-   inline void    setCLength(size_t l) { this->clength = l; };
-   inline void finish(stringsize_t bl, size_t cl=-1)
-   {
-       this->blength = bl;
-       this->clength =
-           cl == -1 ?
-               bl
-               :
-               cl;
-   }
+   inline size_t  getLength() { return this->length; };
+   inline void    setLength(size_t l) { this->length = l; };
+   inline void finish(stringsize_t l) { this->length = l; }
    inline const char *getStringData() { return this->stringData; };
    inline char *getWritableData() { return &this->stringData[0]; };
    inline void put(size_t s, const void *b, size_t l) { memcpy(getWritableData() + s, b, l); };
-   inline void put(size_t s, RexxString *o) { put(s, o->getStringData(), o->getBLength()); };
+   inline void put(size_t s, RexxString *o) { put(s, o->getStringData(), o->getLength()); };
    inline void set(size_t s,int c, size_t l) { memset((this->stringData + s), c, l); };
-   inline char getCharB(size_t p) { return *(this->stringData+p); };
-   inline codepoint_t getCharC(size_t p) { return *(this->stringData+p); };
-   inline char putCharB(size_t p,char c) { return *(this->stringData+p) = c; };
-   //inline char putCharC(size_t p,codepoint_t c) { return *(this->stringData+p) = c; };
+   inline char getChar(size_t p) { return *(this->stringData+p); };
+   inline char putChar(size_t p,char c) { return *(this->stringData+p) = c; };
 
    inline bool upperOnly() {return (this->Attributes&STRING_NOLOWER) != 0;};
    inline bool hasLower() {return (this->Attributes&STRING_HASLOWER) != 0;};
@@ -389,18 +369,18 @@ inline char IntToHexDigit(int n)
    }
 
    inline bool  strCompare(const char * s) {return this->memCompare((s), strlen(s));};
-   inline bool  strCaselessCompare(const char * s) { return this->blength == strlen(s) && Utilities::strCaselessCompare(s, this->stringData) == 0;}
-   inline bool  memCompare(const char * s, size_t l) { return l == this->blength && memcmp(s, this->stringData, l) == 0; }
+   inline bool  strCaselessCompare(const char * s) { return this->length == strlen(s) && Utilities::strCaselessCompare(s, this->stringData) == 0;}
+   inline bool  memCompare(const char * s, size_t l) { return l == this->length && memcmp(s, this->stringData, l) == 0; }
    inline bool  memCompare(RexxString *other)
    {
-       return other->blength == this->blength &&
-              memcmp(other->stringData, this->stringData, blength) == 0;
+       return other->length == this->length &&
+              memcmp(other->stringData, this->stringData, length) == 0;
    }
-   inline void  memCopy(char * s) { memcpy(s, stringData, blength); }
-   inline void  toRxstring(CONSTRXSTRING &r) { r.strptr = getStringData(); r.strlength =getBLength(); } // no encoding support, so better to use blength
-   inline void  toRxstring(RXSTRING &r) { r.strptr = getWritableData(); r.strlength = getBLength(); }
+   inline void  memCopy(char * s) { memcpy(s, stringData, length); }
+   inline void  toRxstring(CONSTRXSTRING &r) { r.strptr = getStringData(); r.strlength =getLength(); }
+   inline void  toRxstring(RXSTRING &r) { r.strptr = getWritableData(); r.strlength = getLength(); }
           void  copyToRxstring(RXSTRING &r);
-   inline bool  endsWith(codepoint_t c) { return getCLength() > 0 && this->getCharC(this->getCLength() - 1) == c; }
+   inline bool  endsWith(codepoint_t c) { return getLength() > 0 && this->getChar(this->getLength() - 1) == c; }
 
    RexxNumberString *createNumberString();
 
@@ -415,16 +395,16 @@ inline char IntToHexDigit(int n)
    }
 
    inline int sortCompare(RexxString *other) {
-       size_t compareLength = blength;
-       if (compareLength > other->blength) {
-           compareLength = other->blength;
+       size_t compareLength = length;
+       if (compareLength > other->length) {
+           compareLength = other->length;
        }
        int result = memcmp(stringData, other->stringData, compareLength);
        if (result == 0) {
-           if (blength > other->blength) {
+           if (length > other->length) {
                result = 1;
            }
-           else if (blength < other->blength) {
+           else if (length < other->length) {
                result = -1;
            }
        }
@@ -432,16 +412,16 @@ inline char IntToHexDigit(int n)
    }
 
    inline int sortCaselessCompare(RexxString *other) {
-       size_t compareLength = blength;
-       if (compareLength > other->blength) {
-           compareLength = other->blength;
+       size_t compareLength = length;
+       if (compareLength > other->length) {
+           compareLength = other->length;
        }
        int result = StringUtil::caselessCompare(stringData, other->stringData, compareLength);
        if (result == 0) {
-           if (blength > other->blength) {
+           if (length > other->length) {
                result = 1;
            }
-           else if (blength < other->blength) {
+           else if (length < other->length) {
                result = -1;
            }
        }
@@ -450,10 +430,10 @@ inline char IntToHexDigit(int n)
 
    inline int sortCompare(RexxString *other, size_t startCol, size_t colLength) {
        int result = 0;
-       if ((startCol < clength ) && (startCol < other->clength)) {
-           size_t stringLength = clength;
-           if (stringLength > other->clength) {
-               stringLength = other->clength;
+       if ((startCol < length ) && (startCol < other->length)) {
+           size_t stringLength = length;
+           if (stringLength > other->length) {
+               stringLength = other->length;
            }
            stringLength = stringLength - startCol + 1;
            size_t compareLength = colLength;
@@ -463,20 +443,20 @@ inline char IntToHexDigit(int n)
 
            result = memcmp(stringData + startCol, other->stringData + startCol, compareLength);
            if (result == 0 && stringLength < colLength) {
-               if (clength > other->clength) {
+               if (length > other->length) {
                    result = 1;
                }
-               else if (clength < other->clength) {
+               else if (length < other->length) {
                    result = -1;
                }
            }
        }
        else {
-           if (clength == other->clength) {
+           if (length == other->length) {
                result = 0;
            }
            else {
-               result = clength < other->clength ? -1 : 1;
+               result = length < other->length ? -1 : 1;
            }
        }
        return result;
@@ -484,10 +464,10 @@ inline char IntToHexDigit(int n)
 
    inline int sortCaselessCompare(RexxString *other, size_t startCol, size_t colLength) {
        int result = 0;
-       if ((startCol < clength ) && (startCol < other->clength)) {
-           size_t stringLength = clength;
-           if (stringLength > other->clength) {
-               stringLength = other->clength;
+       if ((startCol < length ) && (startCol < other->length)) {
+           size_t stringLength = length;
+           if (stringLength > other->length) {
+               stringLength = other->length;
            }
            stringLength = stringLength - startCol + 1;
            size_t compareLength = colLength;
@@ -497,29 +477,29 @@ inline char IntToHexDigit(int n)
 
            result = StringUtil::caselessCompare(stringData + startCol, other->stringData + startCol, compareLength);
            if (result == 0 && stringLength < colLength) {
-               if (clength > other->clength) {
+               if (length > other->length) {
                    result = 1;
                }
-               else if (clength < other->clength) {
+               else if (length < other->length) {
                    result = -1;
                }
            }
        }
        else {
-           if (clength == other->clength) {
+           if (length == other->length) {
                result = 0;
            }
            else {
-               result = clength < other->clength ? -1 : 1;
+               result = length < other->length ? -1 : 1;
            }
        }
        return result;
    }
 
 
-   static RexxString *newString(const char *, size_t bl, size_t cl=-1);
-   static RexxString *rawString(size_t bl, size_t cl=-1);
-   static RexxString *newUpperString(const char *, stringsize_t bl, stringsize_t cl=-1);
+   static RexxString *newString(const char *, size_t l);
+   static RexxString *rawString(size_t l);
+   static RexxString *newUpperString(const char *, stringsize_t l);
    static RexxString *newString(double d);
    static RexxString *newString(double d, size_t precision);
    static RexxString *newProxy(const char *);
@@ -533,8 +513,7 @@ inline char IntToHexDigit(int n)
  protected:
 
    HashCode hashValue;                 // stored has value
-   size_t clength;                    /* string length in characters     */
-   size_t blength;                    /* string length in bytes          */
+   size_t length;                      /* string length in bytes          */
    RexxNumberString *NumberString;     /* lookaside information           */
    size_t Attributes;                  /* string attributes               */
    char stringData[4];                 /* Start of the string data part   */
@@ -572,7 +551,7 @@ inline char IntToHexDigit(int n)
  {
      va_list args;
      va_start(args, format);
-     int n = Utilities::vsnprintf(s->getWritableData(), s->getBLength(), format, args);
+     int n = Utilities::vsnprintf(s->getWritableData(), s->getLength(), format, args);
      va_end(args);
      s->finish(n >= 0 ? n : 0);
      return n;
@@ -580,14 +559,14 @@ inline char IntToHexDigit(int n)
 
 // String creation inline functions
 
-inline RexxString *new_string(const char *s, stringsize_t bl, size_t cl=-1)
+inline RexxString *new_string(const char *s, stringsize_t l)
 {
-    return RexxString::newString(s, bl, cl);
+    return RexxString::newString(s, l);
 }
 
-inline RexxString *raw_string(stringsize_t bl, stringsize_t cl=-1)
+inline RexxString *raw_string(stringsize_t l)
 {
-    return RexxString::rawString(bl, cl);
+    return RexxString::rawString(l);
 }
 
 inline RexxString *new_string(double d)
@@ -603,22 +582,22 @@ inline RexxString *new_string(double d, size_t p)
 
 inline RexxString *new_string(const char *string)
 {
-    return new_string(string, strlen(string), -1);
+    return new_string(string, strlen(string));
 }
 
 inline RexxString *new_string(char cc)
 {
-    return new_string(&cc, 1, 1);
+    return new_string(&cc, 1);
 }
 
 inline RexxString *new_string(RXSTRING &r)
 {
-    return new_string(r.strptr, r.strlength, -1);
+    return new_string(r.strptr, r.strlength);
 }
 
 inline RexxString *new_string(CONSTRXSTRING &r)
 {
-    return new_string(r.strptr, r.strlength, -1);
+    return new_string(r.strptr, r.strlength);
 }
 
 inline RexxString *new_proxy(const char *name)
@@ -626,14 +605,14 @@ inline RexxString *new_proxy(const char *name)
     return RexxString::newProxy(name);
 }
 
-inline RexxString *new_upper_string(const char *s, stringsize_t bl, stringsize_t cl=-1)
+inline RexxString *new_upper_string(const char *s, stringsize_t l)
 {
-    return RexxString::newUpperString(s, bl, cl);
+    return RexxString::newUpperString(s, l);
 }
 
 inline RexxString *new_upper_string(const char *string)
 {
-    return new_upper_string(string, strlen(string), -1);
+    return new_upper_string(string, strlen(string));
 }
 
 #endif

@@ -116,14 +116,14 @@ HashCode RexxString::getObjectHashCode()
 
     // ok, we need to pick this string apart and turn this into a numeric code
     // a null string is simple.
-    if (getBLength() == 0)
+    if (getLength() == 0)
     {
         h = 1;
     }
 
     // if we have at least 4 characters, use them as binary, since that's
     // what is normally returned here.
-    else if (getBLength() >= sizeof(HashCode))
+    else if (getLength() >= sizeof(HashCode))
     {
         h = *((HashCode *)getStringData());
     }
@@ -197,7 +197,7 @@ RexxString *RexxString::stringValue()
     }
     else                                 /* need to build a new string        */
     {
-        return new_string(this->getStringData(), this->getBLength(), this->getCLength());
+        return new_string(this->getStringData(), this->getLength());
     }
 }
 
@@ -212,7 +212,7 @@ RexxString  *RexxString::makeString()
     }
     else                                 /* need to create a new string       */
     {
-        return new_string(this->getStringData(), this->getBLength(), this->getCLength());
+        return new_string(this->getStringData(), this->getLength());
     }
 }
 
@@ -234,7 +234,7 @@ void RexxString::copyIntoTail(RexxCompoundTail *tail)
 /******************************************************************************/
 {
                                        /* copy this directly into the tail */
-    tail->append(this->getStringData(), this->getBLength());
+    tail->append(this->getStringData(), this->getLength());
 }
 
 
@@ -390,7 +390,7 @@ RexxNumberString *RexxString::numberString()
     {          /* not truly a string type?          */
         newSelf = this->requestString();   /* do the conversion                 */
                                            /* get a new numberstring Obj        */
-        OrefSet(this, this->NumberString, (RexxNumberString *)new_numberstring(newSelf->getStringData(), newSelf->getCLength()));
+        OrefSet(this, this->NumberString, (RexxNumberString *)new_numberstring(newSelf->getStringData(), newSelf->getLength()));
         if (this->NumberString != OREF_NULL)     /* Did number convert OK?            */
         {
             this->setHasReferences();     /* Make sure we are sent Live...     */
@@ -399,7 +399,7 @@ RexxNumberString *RexxString::numberString()
     else
     {                               /* real primitive string             */
                                     /* get a new numberstring Obj        */
-        OrefSet(this, this->NumberString, (RexxNumberString *)new_numberstring(this->getStringData(), this->getCLength()));
+        OrefSet(this, this->NumberString, (RexxNumberString *)new_numberstring(this->getStringData(), this->getLength()));
         if (this->NumberString == OREF_NULL)     /* Did number convert OK?            */
         {
             this->setNonNumeric();           /* mark as a nonnumeric              */
@@ -425,7 +425,7 @@ RexxNumberString *RexxString::createNumberString()
     {          /* not truly a string type?          */
         newSelf = this->requestString();   /* do the conversion                 */
                                            /* get a new numberstring Obj        */
-        OrefSet(newSelf, newSelf->NumberString, (RexxNumberString *)new_numberstring(newSelf->getStringData(), newSelf->getCLength()));
+        OrefSet(newSelf, newSelf->NumberString, (RexxNumberString *)new_numberstring(newSelf->getStringData(), newSelf->getLength()));
         /* save the number string            */
         if (newSelf->NumberString != OREF_NULL)     /* Did number convert OK?            */
         {
@@ -436,7 +436,7 @@ RexxNumberString *RexxString::createNumberString()
     else
     {                               /* real primitive string             */
                                     /* get a new numberstring Obj        */
-        OrefSet(this, this->NumberString, (RexxNumberString *)new_numberstring(this->getStringData(), this->getCLength()));
+        OrefSet(this, this->NumberString, (RexxNumberString *)new_numberstring(this->getStringData(), this->getLength()));
         if (this->NumberString == OREF_NULL)     /* Did number convert OK?            */
         {
             this->setNonNumeric();           /* mark as a nonnumeric              */
@@ -459,15 +459,15 @@ size_t RexxString::copyData(size_t startPos, char *buffer, size_t bufl)
 {
     size_t copylen = 0;
 
-    if (startPos < this->getBLength())
+    if (startPos < this->getLength())
     {
-        if (bufl <= this->getBLength() - startPos)
+        if (bufl <= this->getLength() - startPos)
         {
             copylen = bufl;
         }
         else
         {
-            copylen = this->getBLength() - startPos;
+            copylen = this->getLength() - startPos;
         }
         memcpy(buffer, this->getStringData() + startPos, copylen);
     }
@@ -482,7 +482,7 @@ RexxObject *RexxString::lengthRexx()
 /******************************************************************************/
 {
                                        /* no longer return string byte length, now returns characters count         */
-    return new_integer(getCLength());
+    return new_integer(getLength());
 }
 
 bool RexxString::isEqual(
@@ -510,8 +510,8 @@ bool RexxString::isEqual(
     }
 
     RexxString *other = REQUEST_STRING(otherObj);    /* force into string form            */
-    size_t otherLen = other->getBLength();     /* get length of second string.      */
-    if (otherLen != this->getBLength())        /* lengths different?                */
+    size_t otherLen = other->getLength();     /* get length of second string.      */
+    if (otherLen != this->getLength())        /* lengths different?                */
     {
         return false;                      /* also unequal                      */
     }
@@ -533,8 +533,8 @@ bool RexxString::primitiveIsEqual(
     }
 
     RexxString *other = REQUEST_STRING(otherObj);    /* force into string form            */
-    size_t otherLen = other->getBLength();            /* get length of second string.      */
-    if (otherLen != this->getBLength())        /* lengths different?                */
+    size_t otherLen = other->getLength();            /* get length of second string.      */
+    if (otherLen != this->getLength())        /* lengths different?                */
     {
         return false;                      /* also unequal                      */
     }
@@ -559,9 +559,9 @@ bool RexxString::primitiveCaselessIsEqual(RexxObject *otherObj)
         return false;
     }
     RexxString *other = REQUEST_STRING(otherObj);
-    stringsize_t otherLen = other->getBLength();
+    stringsize_t otherLen = other->getLength();
     // can't compare equal if different lengths
-    if (otherLen != this->getBLength())
+    if (otherLen != this->getLength())
     {
         return false;
     }
@@ -665,10 +665,10 @@ wholenumber_t RexxString::comp(RexxObject *other, RexxString *alternativeOperato
                                          /* objects are converted.  now strip */
                                          /* any leading/trailing blanks.      */
 
-    firstLen = this->getBLength();             /* get the initial length            */
+    firstLen = this->getLength();             /* get the initial length            */
     firstStart = this->getStringData(); /* and starting position           */
 
-    secondLen = second->getBLength();          /* get length of second string.      */
+    secondLen = second->getLength();          /* get length of second string.      */
     secondStart = second->getStringData(); /* get pointer to start of data */
 
     /* while we have leading blanks.     */
@@ -769,10 +769,10 @@ wholenumber_t RexxString::strictComp(RexxObject *otherObj, RexxString *alternati
     }
 
     RexxString *other = REQUEST_STRING(otherObj);    /* force into string form            */
-    size_t otherLen = other->getBLength();       /* get length of second string.      */
+    size_t otherLen = other->getLength();       /* get length of second string.      */
     const char *otherData = other->getStringData();  /* get pointer to start of data.     */
 
-    if (this->getBLength() >= otherLen)
+    if (this->getLength() >= otherLen)
     {      /* determine the longer string.      */
         /* first string is larger,           */
         /* do a memory compare of strings,   */
@@ -780,7 +780,7 @@ wholenumber_t RexxString::strictComp(RexxObject *otherObj, RexxString *alternati
         result = memcmp(this->getStringData(), otherData, otherLen);
         /* if strings are equal, and         */
         /* are not equal, the self is greater*/
-        if ((result == 0) && (this->getBLength() > otherLen))
+        if ((result == 0) && (this->getLength() > otherLen))
         {
             result = 1;                      /* otherwise they are equal.         */
         }
@@ -789,7 +789,7 @@ wholenumber_t RexxString::strictComp(RexxObject *otherObj, RexxString *alternati
     {                               /* The length of second obj is longer*/
                                     /* do memory compare of strings, use */
                                     /*  length of smaller string.        */
-        result = memcmp(this->getStringData(), otherData, this->getBLength());
+        result = memcmp(this->getStringData(), otherData, this->getLength());
         if (result == 0)                  /* if stings compared equal,         */
         {
             result = -1;                  /*  then the other string is bigger. */
@@ -1409,16 +1409,12 @@ RexxString *RexxString::concat(RexxString *other)
 /******************************************************************************/
 {
     size_t blen1;                        /* length of first string            */
-    size_t clen1;
     size_t blen2;                        /* length of second string           */
-    size_t clen2;
     RexxString *result;                  /* result string                     */
     char *data;                          /* character pointer                 */
 
-    blen1 = this->getBLength();          /* get this length                   */
-    clen1 = this->getCLength();
-    blen2 = other->getBLength();         /* and the other length              */
-    clen2 = other->getCLength();
+    blen1 = this->getLength();          /* get this length                   */
+    blen2 = other->getLength();         /* and the other length              */
 
     if (blen2 == 0)                      // some people have taken to using a''b
     {
@@ -1430,7 +1426,7 @@ RexxString *RexxString::concat(RexxString *other)
         return other;
     }
     /* create a new string               */
-    result = (RexxString *)raw_string(blen1+blen2, clen1+clen2);
+    result = (RexxString *)raw_string(blen1+blen2);
     data = result->getWritableData();    /* point to the string data          */
 
     // both lengths are non-zero because of the test above, so we can
@@ -1449,9 +1445,7 @@ RexxString *RexxString::concatRexx(RexxObject *otherObj)
 /******************************************************************************/
 {
     size_t blen1;                        /* length of first string            */
-    size_t clen1;
     size_t blen2;                        /* length of second string           */
-    size_t clen2;
     RexxString *result;                  /* result string                     */
     RexxString *other;
     char *data;                          /* character pointer                 */
@@ -1482,12 +1476,10 @@ RexxString *RexxString::concatRexx(RexxObject *otherObj)
     /* in string_concat, but is repeated */
     /* here because this is a VERY high  */
     /* use function                      */
-    blen1 = this->getBLength();               /* get this length                   */
-    clen1 = this->getCLength();
-    blen2 = other->getBLength();              /* and the other length              */
-    clen2 = other->getCLength();
+    blen1 = this->getLength();               /* get this length                   */
+    blen2 = other->getLength();              /* and the other length              */
     /* create a new string               */
-    result = (RexxString *)raw_string(blen1+blen2, clen1+clen2);
+    result = (RexxString *)raw_string(blen1+blen2);
     data = result->getWritableData();    /* point to the string data          */
     if (blen1 != 0)
     {                     /* have real data?                   */
@@ -1509,17 +1501,13 @@ RexxString *RexxString::concatToCstring(const char *other)
 /******************************************************************************/
 {
     size_t blen1;                        /* length of first string            */
-    size_t clen1;
     size_t blen2;                        /* length of ASCII-Z string          */
-    size_t clen2;
     RexxString *result;                  /* result string                     */
 
-    blen1 = this->getBLength();          /* get this length                   */
-    clen1 = this->getCLength();
+    blen1 = this->getLength();          /* get this length                   */
     blen2 = strlen(other);               /* and the other length              */
-    clen2 = blen2;
                                          /* create a new string               */
-    result = (RexxString *)raw_string(blen1+blen2, clen1+clen2);
+    result = (RexxString *)raw_string(blen1+blen2);
     /* copy the front part               */
     memcpy(result->getWritableData(), other, blen2);
     /* and the second part               */
@@ -1533,17 +1521,13 @@ RexxString *RexxString::concatWithCstring(const char *other)
 /******************************************************************************/
 {
     size_t blen1;                        /* length of first string            */
-    size_t clen1;
     size_t blen2;                        /* length of ASCII-Z string          */
-    size_t clen2;
     RexxString *result;                  /* result string                     */
 
-    blen1 = this->getBLength();          /* get this length                   */
-    clen1 = this->getCLength();
+    blen1 = this->getLength();          /* get this length                   */
     blen2 = strlen(other);               /* and the other length              */
-    clen2 = blen2;
                                          /* create a new string               */
-    result = (RexxString *)raw_string(blen1+blen2, clen1+clen2);
+    result = (RexxString *)raw_string(blen1+blen2);
     /* copy the string object            */
     memcpy(result->getWritableData(), this->getStringData(), blen1);
     /* copy the ASCII-Z string           */
@@ -1558,9 +1542,7 @@ RexxString *RexxString::concatBlank(RexxObject *otherObj)
 /******************************************************************************/
 {
     size_t blen1;                        /* length of first string            */
-    size_t clen1;
     size_t blen2;                        /* length of second string           */
-    size_t clen2;
     RexxString *result;                  /* result string                     */
     RexxString *other;                   /* result string                     */
     char *data;                          /* character pointer                 */
@@ -1590,12 +1572,10 @@ RexxString *RexxString::concatBlank(RexxObject *otherObj)
     /* in string_concat_with, but is     */
     /* repeated here because this is a   */
     /* VERY high use function            */
-    blen1 = this->getBLength();               /* get this length                   */
-    clen1 = this->getCLength();
-    blen2 = other->getBLength();              /* and the other length              */
-    clen2 = other->getCLength();
+    blen1 = this->getLength();               /* get this length                   */
+    blen2 = other->getLength();              /* and the other length              */
     /* create a new string               */
-    result = (RexxString *)raw_string(blen1+blen2+1, clen1+clen2+1);
+    result = (RexxString *)raw_string(blen1+blen2+1);
     data = result->getWritableData();    /* point to the string data          */
     if (blen1 != 0)
     {                     /* have a first string?              */
@@ -1628,7 +1608,7 @@ bool RexxString::truthValue(int errorCode)
     {
         testString = this;                 /* just use the string directly      */
     }
-    if (testString->getBLength() != 1)    /* not exactly 1 character long?     */
+    if (testString->getLength() != 1)    /* not exactly 1 character long?     */
     {
         /* report the error                  */
         reportException(errorCode, testString);
@@ -1667,17 +1647,17 @@ bool RexxString::logicalValue(logical_t &result)
         testString = this;                 /* just use the string directly      */
     }
 
-    if (testString->getBLength() != 1)    /* not exactly 1 character long?     */
+    if (testString->getLength() != 1)    /* not exactly 1 character long?     */
     {
         return false;     // not a valid logical
     }
-    if (testString->getCharC(0) == '0')/* exactly '0'?                      */
+    if (testString->getChar(0) == '0')/* exactly '0'?                      */
     {
         result = false;                  // this is false and the conversion worked
         return true;
     }
                                          /* exactly '1'?                  */
-    else if (testString->getCharC(0) == '1')
+    else if (testString->getChar(0) == '1')
     {
         result = true;                   // this is true and the conversion worked
         return true;
@@ -1688,7 +1668,7 @@ bool RexxString::logicalValue(logical_t &result)
 bool RexxString::checkIsASCII()
 {
     if (this->isASCIIChecked()) return this->isASCII();
-    bool isASCII = StringUtil::checkIsASCII(this->getStringData(), this->getBLength());
+    bool isASCII = StringUtil::checkIsASCII(this->getStringData(), this->getLength());
     this->setIsASCII(isASCII);
     this->setIsASCIIChecked(true);
     return isASCII;
@@ -1711,7 +1691,7 @@ bool RexxString::checkLower()
     const char *endData;                 /* end location                      */
 
     data = this->getStringData();        /* point to the string               */
-    endData = data + this->getBLength();  /* set the end point                 */
+    endData = data + this->getLength();  /* set the end point                 */
 
     while (data < endData)
     {             /* loop through entire string        */
@@ -1741,11 +1721,11 @@ RexxString *RexxString::upper()
         const char *data;                    /* current data pointer              */
         char * outdata;                      /* output data                       */
         const char *endData;                 /* end of the data                   */
-        newstring = (RexxString *)raw_string(this->getBLength(), this->getCLength());
+        newstring = (RexxString *)raw_string(this->getLength());
         data = this->getStringData();      /* point to the data start           */
                                            /* point to output data              */
         outdata = newstring->getWritableData();
-        endData = data + this->getBLength();    /* set the loop terminator           */
+        endData = data + this->getLength();    /* set the loop terminator           */
         while (data < endData)
         {           /* loop through entire string        */
             *outdata = toupper(*data);       /* copy the uppercase character      */
@@ -1771,7 +1751,7 @@ RexxString *RexxString::stringTrace()
     size_t    i;                         /* string length                     */
     bool      NonDisplay;                /* have non-displayables             */
 
-    i = this->getBLength();               /* get the length                    */
+    i = this->getLength();               /* get the length                    */
                                          /* point to the start                */
     Current = (const unsigned char *)this->getStringData();
     NonDisplay = false;                  /* no non-displayable characters     */
@@ -1792,7 +1772,7 @@ RexxString *RexxString::stringTrace()
     }
                                            /* copy the string                   */
     newCopy = (RexxString *) this->copy();
-    i = newCopy->getBLength();                 /* get the length                    */
+    i = newCopy->getLength();                 /* get the length                    */
     /* point to the start                */
     char *outptr = newCopy->getWritableData();
 
@@ -1823,7 +1803,7 @@ RexxString *RexxString::lower()
     data = this->getStringData();        /* point to the string               */
     needTranslation = false;             /* no translation required           */
 
-    for (i = 0; i < this->getBLength(); i++)
+    for (i = 0; i < this->getLength(); i++)
     { /* loop through entire string        */
         if (*data != tolower(*data))
         {     /* have something to lowercase?      */
@@ -1835,12 +1815,12 @@ RexxString *RexxString::lower()
     if (needTranslation)
     {               /* something to uppercase?           */
                     /* create a new string               */
-        newstring = (RexxString *)raw_string(this->getBLength(), this->getCLength());
+        newstring = (RexxString *)raw_string(this->getLength());
         data = this->getStringData();      /* point to the data start           */
                                            /* point to output data              */
         outdata = newstring->getWritableData();
         /* loop through entire string        */
-        for (i = 0; i < this->getBLength(); i++)
+        for (i = 0; i < this->getLength(); i++)
         {
             *outdata = tolower(*data);       /* copy the lowercase character      */
             data++;                          /* step the position                 */
@@ -1869,15 +1849,15 @@ RexxString *RexxString::lower()
 RexxString *RexxString::lowerRexx(RexxInteger *_start, RexxInteger *_length)
 {
     size_t startPos = optionalPositionArgument(_start, 1, ARG_ONE) - 1;
-    size_t rangeLength = optionalLengthArgument(_length, getCLength(), ARG_TWO);
+    size_t rangeLength = optionalLengthArgument(_length, getLength(), ARG_TWO);
 
     // if we're starting beyond the end bounds, return unchanged
-    if (startPos >= getCLength())
+    if (startPos >= getLength())
     {
         return this;
     }
 
-    rangeLength = Numerics::minVal(rangeLength, getCLength() - startPos);
+    rangeLength = Numerics::minVal(rangeLength, getLength() - startPos);
 
     // a zero length value is also a non-change.
     if (rangeLength == 0)
@@ -1903,15 +1883,15 @@ RexxString *RexxString::lowerRexx(RexxInteger *_start, RexxInteger *_length)
 RexxString *RexxString::upperRexx(RexxInteger *_start, RexxInteger *_length)
 {
     size_t startPos = optionalPositionArgument(_start, 1, ARG_ONE) - 1;
-    size_t rangeLength = optionalLengthArgument(_length, getCLength(), ARG_TWO);
+    size_t rangeLength = optionalLengthArgument(_length, getLength(), ARG_TWO);
 
     // if we're starting beyond the end bounds, return unchanged
-    if (startPos >= getCLength())
+    if (startPos >= getLength())
     {
         return this;
     }
 
-    rangeLength = Numerics::minVal(rangeLength, getCLength() - startPos);
+    rangeLength = Numerics::minVal(rangeLength, getLength() - startPos);
 
     // a zero length value is also a non-change.
     if (rangeLength == 0)
@@ -1938,7 +1918,7 @@ RexxString *RexxString::upperRexx(RexxInteger *_start, RexxInteger *_length)
 RexxString *RexxString::lower(size_t offset, size_t _length)
 {
     // get a copy of the string
-    RexxString *newstring = extractB(0, getBLength());
+    RexxString *newstring = extract(0, getLength());
 
     char *data = newstring->getWritableData() + offset;
     // now uppercase in place
@@ -1967,7 +1947,7 @@ RexxString *RexxString::lower(size_t offset, size_t _length)
 RexxString *RexxString::upper(size_t offset, size_t _length)
 {
     // get a copy of the string
-    RexxString *newstring = extractB(0, getBLength());
+    RexxString *newstring = extract(0, getLength());
 
     char *data = newstring->getWritableData() + offset;
     // now uppercase in place
@@ -2035,18 +2015,14 @@ RexxString *RexxString::concatWith(RexxString *other,
 /******************************************************************************/
 {
     size_t blen1;                        /* length of first string            */
-    size_t clen1;
     size_t blen2;                        /* length of second string           */
-    size_t clen2;
     RexxString *result;                  /* result string                     */
     char *data;                          /* character pointer                 */
 
-    blen1 = this->getBLength();          /* get this length                   */
-    clen1 = this->getCLength();
-    blen2 = other->getBLength();         /* and the other length              */
-    clen2 = other->getCLength();
+    blen1 = this->getLength();          /* get this length                   */
+    blen2 = other->getLength();         /* and the other length              */
     /* create a new string               */
-    result = (RexxString *)raw_string(blen1+blen2+1, clen1+clen2+1);
+    result = (RexxString *)raw_string(blen1+blen2+1);
     data = result->getWritableData();         /* point to the string data          */
     if (blen1 != 0)
     {                     /* have a first string?              */
@@ -2198,7 +2174,7 @@ RexxObject *RexxString::isInteger()
     size_t digitsLeft;
 
     digitPtr = this->getStringData();
-    digitsLeft = this->getBLength();
+    digitsLeft = this->getLength();
 
     /* Skip all leading blanks           */
     for (; digitsLeft != 0 && (*digitPtr == ch_BLANK || *digitPtr == ch_TAB); ++digitPtr, --digitsLeft) ;
@@ -2272,7 +2248,7 @@ RexxObject *RexxString::evaluate(
  */
 void RexxString::copyToRxstring(RXSTRING &r)
 {
-    size_t result_length = getBLength() + 1;
+    size_t result_length = getLength() + 1;
     if (r.strptr == NULL || r.strlength < result_length)
     {
         r.strptr = (char *)SystemInterpreter::allocateResultMemory(result_length);
@@ -2280,7 +2256,7 @@ void RexxString::copyToRxstring(RXSTRING &r)
     // copy all of the data + the terminating null
     memcpy(r.strptr, getStringData(), result_length);
     // fill in the length too
-    r.strlength = getBLength();
+    r.strlength = getLength();
 }
 
 
@@ -2324,7 +2300,7 @@ RexxObject  *RexxString::getRealValue(
 }
 
 
-RexxString *RexxString::newString(const char *string, size_t blength, size_t clength)
+RexxString *RexxString::newString(const char *string, size_t blength)
 /******************************************************************************/
 /* Function:  Allocate (and initialize) a string object                       */
 /******************************************************************************/
@@ -2337,12 +2313,11 @@ RexxString *RexxString::newString(const char *string, size_t blength, size_t cle
     /* allocate the new object           */
     RexxString *newObj = (RexxString *)new_object(size2, T_String);
     /* clear the front part              */
-    newObj->setBLength(blength);         /* save the length in bytes          */
-    newObj->setCLength(clength == -1 ? blength : clength);
+    newObj->setLength(blength);         /* save the length in bytes          */
     newObj->hashValue = 0;               // make sure the hash value is zeroed
                                          /* Null terminate, allows faster     */
                                          /* conversion to ASCII-Z string      */
-    newObj->putCharB(blength, '\0');
+    newObj->putChar(blength, '\0');
     /* copy it over                      */
     newObj->put(0, string, blength);
     /* by  default, we don't need Live   */
@@ -2354,7 +2329,7 @@ RexxString *RexxString::newString(const char *string, size_t blength, size_t cle
     return newObj;                       /*having OREFs                       */
 }
 
-RexxString *RexxString::rawString(size_t blength, size_t clength)
+RexxString *RexxString::rawString(size_t blength)
 /******************************************************************************/
 /* Function:  Allocate (and initialize) an empty string object                */
 /******************************************************************************/
@@ -2366,12 +2341,11 @@ RexxString *RexxString::rawString(size_t blength, size_t clength)
   size_t size2 = sizeof(RexxString) - (sizeof(char) * 3) + blength;
                                        /* allocate the new object           */
   RexxString *newObj = (RexxString *)new_object(size2, T_String);
-  newObj->setBLength(blength);         /* save the length in bytes          */
-  newObj->setCLength(clength == -1 ? blength : clength); // length in characters. Here, unlike newString, we can't calculate the default value from the string, since there is no value.
+  newObj->setLength(blength);         /* save the length in bytes          */
   newObj->hashValue = 0;               // make sure the hash value is zeroed
                                        /* Null terminate, allows faster     */
                                        /* conversion to ASCII-Z string      */
-  newObj->putCharB(blength, '\0');
+  newObj->putChar(blength, '\0');
                                        /* by  default, we don't need Live   */
   newObj->setHasNoReferences();        /*sent                               */
 
@@ -2393,7 +2367,7 @@ RexxString *RexxString::rawString(size_t blength, size_t clength)
  *
  * @return A newly constructed string object.
  */
-RexxString *RexxString::newUpperString(const char * string, stringsize_t blength, stringsize_t clength)
+RexxString *RexxString::newUpperString(const char * string, stringsize_t blength)
 {
     // Todo : current implementation works only for ascii:fixed_8 and iso-8859-1:fixed_8
     /* calculate the size                */
@@ -2403,7 +2377,7 @@ RexxString *RexxString::newUpperString(const char * string, stringsize_t blength
     size_t size2 = sizeof(RexxString) - (sizeof(char) * 3) + blength;
     /* allocate the new object           */
     RexxString *newObj = (RexxString *)new_object(size2, T_String);
-    newObj->setBLength(blength);         /* save the length in bytes          */
+    newObj->setLength(blength);         /* save the length in bytes          */
     newObj->hashValue = 0;               // make sure the hash value is zeroed
                                          /* create a new string               */
                                          /* point to output data              */
@@ -2420,11 +2394,9 @@ RexxString *RexxString::newUpperString(const char * string, stringsize_t blength
     newObj->setUpperOnly();              /* flag the string as uppercased     */
                                          /* Null terminate, allows faster     */
                                          /* conversion to ASCII-Z string      */
-    newObj->putCharB(blength, '\0');
+    newObj->putChar(blength, '\0');
     /* by  default, we don't need Live   */
     newObj->setHasNoReferences();        /*sent                               */
-
-    newObj->setCLength(clength == -1 ? blength : clength); // Do that after the conversion, in case an uppercase character is shorter/longer than the original character.
 
                                          /* NOTE: That if we can set          */
                                          /*  this->NumebrString elsewhere     */
@@ -2506,7 +2478,7 @@ RexxString *RexxString::newRexx(RexxObject **init_args, size_t argCount, size_t 
     RexxString *string = (RexxString *)stringArgument(stringObj, OREF_positional, ARG_ONE);
     ProtectedObject p(string);
     /* create a new string object        */
-    string = new_string(string->getStringData(), string->getBLength(), string->getCLength());
+    string = new_string(string->getStringData(), string->getLength());
     p = string;
     string->setBehaviour(((RexxClass *)this)->getInstanceBehaviour());
     if (((RexxClass *)this)->hasUninitDefined())

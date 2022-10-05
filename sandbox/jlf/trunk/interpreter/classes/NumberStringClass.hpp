@@ -283,7 +283,7 @@ inline RexxNumberString *new_numberstringFromWholenumber(wholenumber_t n)
     return RexxNumberString::newInstanceFromWholenumber(n);
 }
 
-inline RexxNumberString *new_numberstringFromStringsize(stringsize_t n) // no need of distinction between 'size in byte' and 'size in char'
+inline RexxNumberString *new_numberstringFromStringsize(stringsize_t n)
 {
     return RexxNumberString::newInstanceFromStringsize(n);
 }

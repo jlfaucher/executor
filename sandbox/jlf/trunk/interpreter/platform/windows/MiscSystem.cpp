@@ -77,18 +77,18 @@ RexxString *SystemInterpreter::getSourceString(
     RexxString *rsSysName = getSystemName();    /* start with the system stuff       */
     chSysName= rsSysName->getStringData();
 
-    RexxString *source_string = raw_string(rsSysName->getBLength() + 2 + callType->getBLength() + programName->getBLength());
+    RexxString *source_string = raw_string(rsSysName->getLength() + 2 + callType->getLength() + programName->getLength());
 
     outPtr = source_string->getWritableData();  /* point to the result data          */
     strcpy(outPtr, chSysName);           /* copy the system name              */
-    outPtr +=rsSysName->getBLength();     /* step past the name                */
+    outPtr +=rsSysName->getLength();     /* step past the name                */
     *outPtr++ = ' ';                     /* put a blank between               */
                                          /* copy the call type                */
-    memcpy(outPtr, callType->getStringData(), callType->getBLength());
-    outPtr += callType->getBLength();     /* step over the call type           */
+    memcpy(outPtr, callType->getStringData(), callType->getLength());
+    outPtr += callType->getLength();     /* step over the call type           */
     *outPtr++ = ' ';                     /* put a blank between               */
                                          /* copy the system name              */
-    memcpy(outPtr, programName->getStringData(), programName->getBLength());
+    memcpy(outPtr, programName->getStringData(), programName->getLength());
     return source_string;                /* return the source string          */
 }
 
@@ -114,7 +114,7 @@ int WinExceptionFilter( int xCode )
 void SystemInterpreter::validateAddressName(RexxString *name )
 {
     /* name too long?                    */
-    if (name->getBLength() > MAX_ADDRESS_NAME_LENGTH)
+    if (name->getLength() > MAX_ADDRESS_NAME_LENGTH)
     {
         /* go report an error                */
         reportException(Error_Environment_name_name, MAX_ADDRESS_NAME_LENGTH, name);

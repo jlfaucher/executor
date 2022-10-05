@@ -108,14 +108,14 @@ codepoint_t padArgument(
 {
     RexxString *parameter = (RexxString *)stringArgument(argument, OREF_positional, position);
     /* is the string only 1 character?   */
-    if (parameter->getCLength() != 1)
+    if (parameter->getLength() != 1)
     {
         /* argument not good, so raise an    */
         /*error                              */
         reportException(Error_Incorrect_method_pad, argument);
     }
     /* yes, return the character.        */
-    return parameter->getCharC(0);
+    return parameter->getChar(0);
 }
 
 /******************************************************************************/
@@ -130,5 +130,5 @@ char optionArgument(
     /* force option to string            */
     RexxString *parameter = (RexxString *)stringArgument(argument, OREF_positional, position);
     /* return the first character        */
-    return toupper(parameter->getCharB(0));
+    return toupper(parameter->getChar(0));
 }

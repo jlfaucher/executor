@@ -943,7 +943,7 @@ RoutineClass *RoutineClass::loadExternalRoutine(RexxString *name, RexxString *de
     descriptor = stringArgument(descriptor, OREF_positional, "descriptor");
     ProtectedObject p2(descriptor);
     /* convert external into words       */
-    RexxArray *_words = StringUtil::words(descriptor->getStringData(), descriptor->getBLength());
+    RexxArray *_words = StringUtil::words(descriptor->getStringData(), descriptor->getLength());
     ProtectedObject p(_words);
     // "LIBRARY libbar [foo]"
     if (((RexxString *)(_words->get(1)))->strCompare(CHAR_LIBRARY))

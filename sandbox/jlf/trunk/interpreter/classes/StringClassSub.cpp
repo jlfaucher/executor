@@ -77,7 +77,7 @@ RexxString *RexxString::center(RexxInteger *_length,
     /* Get pad character (optional) blank*/
     /*  is used if omitted.              */
     PadChar = optionalPadArgument(pad, ' ', ARG_TWO);
-    Len = this->getBLength();                  /* get length of input to center     */
+    Len = this->getLength();                  /* get length of input to center     */
     if (Width == Len)                    /* if input length and               */
     {
         /* requested are  the same           */
@@ -135,7 +135,7 @@ RexxString *RexxString::delstr(RexxInteger *position,
     size_t   DeletePos;                  /* delete position                   */
     char    *Current;                    /* current copy position             */
 
-    StringLen = this->getCLength();            /* get string length                 */
+    StringLen = this->getLength();            /* get string length                 */
     /* get start string position         */
     DeletePos = positionArgument(position, ARG_ONE);
     /* get the length to delete          */
@@ -206,11 +206,11 @@ RexxString *RexxString::insert(RexxString  *newStrObj,
     size_t   NChar;                      /* Character position.               */
     char *   Current;                    /* current copy location             */
 
-    TCharLen = this->getCLength();             /* get the target string length      */
+    TCharLen = this->getLength();             /* get the target string length      */
     /* get the needle string (and length)*/
     newStr = stringArgument(newStrObj, OREF_positional, ARG_ONE);
     ProtectedObject p(newStr);
-    NCharLen = newStr->getCLength();
+    NCharLen = newStr->getLength();
     /* use optionalLengthArgument for starting  */
     /* position becase a value of 0 IS   */
     /* valid for INSERT                  */
@@ -306,7 +306,7 @@ RexxString *RexxString::left(RexxInteger *_length,
 
     /*  is used if omitted.              */
     PadChar = optionalPadArgument(pad, ' ', ARG_TWO);
-    Length = this->getBLength();               /* get input length                  */
+    Length = this->getLength();               /* get input length                  */
 
     if (Size == 0)                           /* requesting zero bytes?            */
     {
@@ -356,11 +356,11 @@ RexxString *RexxString::overlay(
     codepoint_t     PadChar;                    /* pad character                     */
     char    *Current;                    /* current copy location             */
 
-    TargetLen = this->getCLength();       /* get the haystack length           */
+    TargetLen = this->getLength();       /* get the haystack length           */
                                          /* get the overlay string value      */
     newStr = stringArgument(newStrObj, OREF_positional, ARG_ONE);
     ProtectedObject p(newStr);
-    NewLen = newStr->getCLength();
+    NewLen = newStr->getLength();
     /* get the overlay position          */
     OverlayPos = optionalPositionArgument(position, 1, ARG_TWO);
     /* get final overlay length          */
@@ -456,12 +456,12 @@ RexxString *RexxString::overlay(
 // in behaviour
 RexxString *RexxString::replaceAt(RexxString  *newStrObj, RexxInteger *position, RexxInteger *_length, RexxString  *pad)
 {
-    size_t targetLen = this->getCLength();   // get the length of the replacement target
+    size_t targetLen = this->getLength();   // get the length of the replacement target
     // the replacement value is required and must be a string
     RexxString *newStr = stringArgument(newStrObj, OREF_positional, ARG_ONE);
     ProtectedObject p(newStr);
     // the length of the replacement string is the default replacement length
-    size_t newLen = newStr->getCLength();
+    size_t newLen = newStr->getLength();
     // the overlay position is required
     size_t replacePos = positionArgument(position, ARG_TWO);
     // the replacement length is optional, and defaults to the length of the replacement string
@@ -535,7 +535,7 @@ RexxString *RexxString::reverse()
     char      *String;                   /* current location                */
     const char *End;                      /* string end position             */
 
-    Length = this->getBLength();               /* get first argument              */
+    Length = this->getLength();               /* get first argument              */
     if (Length != 0)
     {                        /* if really data                  */
         Retval = raw_string(Length);       /* get result storage              */
@@ -580,7 +580,7 @@ RexxString *RexxString::right(RexxInteger *_length,
 
     /*  is used if omitted.              */
     PadChar = optionalPadArgument(pad, ' ', ARG_TWO);
-    Length = this->getBLength();               /* get input length                  */
+    Length = this->getLength();               /* get input length                  */
 
     if (Size == 0)                           /* requesting zero bytes?            */
     {
@@ -634,10 +634,10 @@ RexxString *RexxString::strip(RexxString *optionString, RexxString *stripchar)
 
     // the default is to strip whitespace characters
     const char *chars = stripchar == OREF_NULL ? " \t" : stripchar->getStringData();
-    size_t charsLen = stripchar == OREF_NULL ? strlen(" \t") : stripchar->getBLength();
+    size_t charsLen = stripchar == OREF_NULL ? strlen(" \t") : stripchar->getLength();
 
     const char *front = this->getStringData();       /* point to string start             */
-    size_t length = this->getBLength();               /* get the length                    */
+    size_t length = this->getLength();               /* get the length                    */
 
                                          /* need to strip leading?            */
     if (option == STRIP_LEADING || option == STRIP_BOTH)
@@ -695,7 +695,7 @@ RexxString *RexxString::substr(RexxInteger *position,
                                RexxInteger *_length,
                                RexxString  *pad)
 {
-    return StringUtil::substr(getStringData(), getBLength(), position, _length, pad);
+    return StringUtil::substr(getStringData(), getLength(), position, _length, pad);
 }
 
 
@@ -715,6 +715,6 @@ RexxString *RexxString::substr(RexxInteger *position,
 // in behaviour
 RexxString *RexxString::subchar(RexxInteger *positionArg)
 {
-    return StringUtil::subchar(getStringData(), getBLength(), positionArg);
+    return StringUtil::subchar(getStringData(), getLength(), positionArg);
 }
 

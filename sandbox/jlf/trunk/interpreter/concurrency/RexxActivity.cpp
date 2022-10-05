@@ -1333,13 +1333,13 @@ RexxString *RexxActivity::messageSubstitution(
             break;                           /* get outta here...                 */
         }
                                              /* get the leading part              */
-        RexxString *front = message->extractC(0, subposition - 1);
+        RexxString *front = message->extract(0, subposition - 1);
         ProtectedObject p_front(front);
         /* pull off the remainder            */
-        RexxString *back = message->extractC(subposition + 1, message->getCLength() - (subposition + 1));
+        RexxString *back = message->extract(subposition + 1, message->getLength() - (subposition + 1));
         ProtectedObject p_back(back);
         /* get the descriptor position       */
-        codepoint_t selector = message->getCharC(subposition);
+        codepoint_t selector = message->getChar(subposition);
         /* not a good number?                */
         RexxString *stringVal = OREF_NULLSTRING;
         if (selector < '0' || selector > '9')
@@ -2558,7 +2558,7 @@ bool RexxActivity::callFunctionExit(
 
         exit_parm.rxfnc_flags.rxffsub = calltype == OREF_FUNCTIONNAME ? 0 : 1;
         /* fill in the name parameter        */
-        exit_parm.rxfnc_namel = (unsigned short)rname->getBLength();
+        exit_parm.rxfnc_namel = (unsigned short)rname->getLength();
         exit_parm.rxfnc_name = rname->getStringData();
 
         /* Get current active queue name     */
@@ -2566,7 +2566,7 @@ bool RexxActivity::callFunctionExit(
         /* fill in the name                  */
         exit_parm.rxfnc_que = stdqueue->getStringData();
         /* and the length                    */
-        exit_parm.rxfnc_quel = (unsigned short)stdqueue->getBLength();
+        exit_parm.rxfnc_quel = (unsigned short)stdqueue->getLength();
         /* Build arg array of RXSTRINGs      */
         /* get number of args                */
         exit_parm.rxfnc_argc = (unsigned short)argcount;
@@ -2803,7 +2803,7 @@ bool RexxActivity::callCommandExit(RexxActivation *activation, RexxString *addre
         exit_parm.rxcmd_flags.rxfcfail = 0;/* Initialize failure/error to zero  */
         exit_parm.rxcmd_flags.rxfcerr = 0;
         /* fill in the environment parm      */
-        exit_parm.rxcmd_addressl = (unsigned short)address->getBLength();
+        exit_parm.rxcmd_addressl = (unsigned short)address->getLength();
         exit_parm.rxcmd_address = address->getStringData();
         /* make cmdaname into RXSTRING form  */
         command->toRxstring(exit_parm.rxcmd_command);
@@ -2959,8 +2959,8 @@ bool  RexxActivity::callQueueNameExit(
         RXMSQNAM_PARM exit_parm;             /* exit parameters                   */
         char          retbuffer[DEFRXSTRING];/* Default result buffer             */
 
-        MAKERXSTRING(exit_parm.rxmsq_name, retbuffer, inputstring->getBLength());
-        memcpy(exit_parm.rxmsq_name.strptr, inputstring->getStringData(), inputstring->getBLength());
+        MAKERXSTRING(exit_parm.rxmsq_name, retbuffer, inputstring->getLength());
+        memcpy(exit_parm.rxmsq_name.strptr, inputstring->getStringData(), inputstring->getLength());
         /* call the handler                  */
         if (!callExit(activation, "RXMSQ", RXMSQ, RXMSQNAM, (void *)&exit_parm))
         {
@@ -3299,7 +3299,7 @@ RexxObject *RexxActivity::lineOut(
   size_t  length;                      /* length to write out               */
   const char *data;                    /* data pointer                      */
 
-  length = line->getBLength();         /* get the string length and the     */
+  length = line->getLength();         /* get the string length and the     */
   data = line->getStringData();        /* data pointer                      */
   printf("%.*s\n",(int)length, data);       /* print it                          */
   return (RexxObject *)IntegerZero;    /* return on residual count          */

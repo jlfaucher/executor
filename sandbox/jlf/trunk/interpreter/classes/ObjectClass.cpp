@@ -1594,7 +1594,7 @@ RexxString  *RexxObject::defaultName()
       /* return the 'enhanced' id          */
         return defaultname->concatToCstring("enhanced ");
     }
-    switch (defaultname->getCharC(0))
+    switch (defaultname->getChar(0))
     {   /* process based on first character*/
     case 'a':                          /* vowels                          */
     case 'A':
@@ -2092,7 +2092,7 @@ RexxObject  *RexxObject::run(
         RexxString *optionString = (RexxString *)arguments[1];
         /* this is now required              */
         optionString = stringArgument(optionString, OREF_positional, ARG_TWO);
-        option = toupper((int)optionString->getCharC(0));
+        option = toupper((int)optionString->getChar(0));
         /* process the different options     */
         switch (option)
         {

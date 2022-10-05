@@ -418,7 +418,7 @@ KeywordEntry RexxSource::subDirectives[] = {           /* language directive sub
 int RexxSource::resolveKeyword(RexxString *token, KeywordEntry *Table, int Table_Size)
 {
     const char *Name = token->getStringData();
-    stringsize_t Length = token->getBLength();
+    stringsize_t Length = token->getLength();
 
     int Lower = 0;                           /* set initial lower bound    */
     int Upper = Table_Size - 1;              /* set the upper bound        */

@@ -107,10 +107,10 @@ RexxList *RexxVariableReference::list(
                                          /* get the next variable             */
     RexxString *variable_name = (RexxString *)name_string->word(new_integer(i));
     i++;                                 /* step the index                    */
-    while (variable_name->getBLength() != 0)
+    while (variable_name->getLength() != 0)
     {
         /* get the first character           */
-        int character = (int)variable_name->getCharC(0);
+        int character = (int)variable_name->getChar(0);
         if (character == '.')              /* start with a period?              */
         {
                                            /* report that error                 */
