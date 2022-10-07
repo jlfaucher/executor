@@ -226,12 +226,12 @@ Grepping for "Unicode Character Database" brings us to unicode_db.c.
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.johndcook.com/blog/2021/11/01/number-sets-html/">https://www.johndcook.com/blog/2021/11/01/number-sets-html/</a>
 Number sets in HTML and Unicode
-    ℕ U+2115 &Nopf; &naturals;
-    ℤ U+2124 &Zopf; &integers;
-    ℚ U+211A &Qopf; &rationals;
-    ℝ U+211D &Ropf; &reals;
-    ℂ U+2102 &Copf; &complexes;
-    ℍ U+210D &Hopf; &quaternions;
+    ℕ U+2115 &amp;Nopf; &amp;naturals;
+    ℤ U+2124 &amp;Zopf; &amp;integers;
+    ℚ U+211A &amp;Qopf; &amp;rationals;
+    ℝ U+211D &amp;Ropf; &amp;reals;
+    ℂ U+2102 &amp;Copf; &amp;complexes;
+    ℍ U+210D &amp;Hopf; &amp;quaternions;
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://gregtatum.com/writing/2021/encoding-text-utf-32-utf-16-unicode/">https://gregtatum.com/writing/2021/encoding-text-utf-32-utf-16-unicode/</a>
@@ -457,7 +457,7 @@ of code points represent essentially the same character. This feature was introd
 to allow compatibility with preexisting standard character sets, which often included similar or identical characters.
 
 
-On Wed, Oct 28, 2020 at 9:54 AM Mark Davis ☕️ <mark@macchiato.com> wrote:
+On Wed, Oct 28, 2020 at 9:54 AM Mark Davis ☕️ &lt;mark@macchiato.com&gt; wrote:
 Re: [icu-support] Options for Immutable Collation?
 
         I think your search for 'middle ground' is fruitless.
@@ -671,7 +671,7 @@ Functionality to sort by natural sort order is built into many programming langu
 02/06/2021
 <a target="_blank" rel="noopener noreferrer" href="https://www.postgresql.org/message-id/flat/BA6132ED-1F6B-4A0B-AC22-81278F5AB81E%40tripadvisor.com">https://www.postgresql.org/message-id/flat/BA6132ED-1F6B-4A0B-AC22-81278F5AB81E%40tripadvisor.com</a>
 The dangers of streaming across versions of glibc: A cautionary tale
-SELECT 'Ｍ' > 'ஐ';
+SELECT 'Ｍ' &gt; 'ஐ';
 'FULLWIDTH LATIN CAPITAL LETTER M' (U+FF2D)
 'TAMIL LETTER AI' (U+0B90)
 Across different machines, running the same version of postgres, and in databases
@@ -843,8 +843,8 @@ Combining Devanagari characters
 "बिक्रम मेरो नाम हो"~text~graphemes==
     a GraphemeSupplier
      1  : T'बि'
-     2  : T'क्'     <-- According the comments, these 2 graphemes should be only one: क्र
-     3  : T'र'      <-- even ICU doesn't support that... it's a tailored grapheme cluster
+     2  : T'क्'     &lt;-- According the comments, these 2 graphemes should be only one: क्र
+     3  : T'र'      &lt;-- even ICU doesn't support that... it's a tailored grapheme cluster
      4  : T'म'
      5  : T' '
      6  : T'मे'
@@ -859,7 +859,7 @@ Combining Devanagari characters
      1  : ( "ब"   U+092C Lo 1 "DEVANAGARI LETTER BA" )
      2  : ( "ि"    U+093F Mc 0 "DEVANAGARI VOWEL SIGN I" )
      3  : ( "क"   U+0915 Lo 1 "DEVANAGARI LETTER KA" )
-     4  : ( "्"    U+094D Mn 0 "DEVANAGARI SIGN VIRAMA" )           <-- influence segmentation
+     4  : ( "्"    U+094D Mn 0 "DEVANAGARI SIGN VIRAMA" )           &lt;-- influence segmentation
      5  : ( "र"   U+0930 Lo 1 "DEVANAGARI LETTER RA" )
      6  : ( "म"   U+092E Lo 1 "DEVANAGARI LETTER MA" )
      7  : ( " "   U+0020 Zs 1 "SPACE", "SP" )
@@ -996,7 +996,7 @@ Fuzzy String Matching
 29/05/2021
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/logannc/fuzzywuzzy-rs">https://github.com/logannc/fuzzywuzzy-rs</a>
 Rust port of the Python fuzzywuzzy
-<a target="_blank" rel="noopener noreferrer" href="https://github.com/seatgeek/fuzzywuzzy">https://github.com/seatgeek/fuzzywuzzy</a> --> moved to <a target="_blank" rel="noopener noreferrer" href="https://github.com/seatgeek/thefuzz">https://github.com/seatgeek/thefuzz</a>
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/seatgeek/fuzzywuzzy">https://github.com/seatgeek/fuzzywuzzy</a> --&gt; moved to <a target="_blank" rel="noopener noreferrer" href="https://github.com/seatgeek/thefuzz">https://github.com/seatgeek/thefuzz</a>
 
 
 ================================================================================
@@ -1074,10 +1074,10 @@ Swift
 
     <a target="_blank" rel="noopener noreferrer" href="http://oleb.net/blog/2014/07/swift-strings/">http://oleb.net/blog/2014/07/swift-strings/</a>
 
-        Ordering strings with the < and > operators uses the default Unicode collation algorithm.
+        Ordering strings with the &lt; and &gt; operators uses the default Unicode collation algorithm.
         In the example below, "é" is smaller than i because the collation algorithm specifies
         that characters with combining marks follow right after their base character.
-            "résumé" < "risotto" // -> true
+            "résumé" &lt; "risotto" // -&gt; true
         The String type does not (yet?) come with a method to specify the language to use for collation.
         You should continue to use
             -[NSString compare:options:range:locale:]
@@ -1088,17 +1088,17 @@ Swift
         In this example, specifying a locale that uses the German phonebook collation yields a different result than the default string ordering:
             let muffe = "Muffe"
             let müller = "Müller"
-            muffe < müller // -> true
+            muffe &lt; müller // -&gt; true
 
             // Comparison using an US English locale yields the same result
-            let muffeRange = muffe.startIndex..<muffe.endIndex
+            let muffeRange = muffe.startIndex..&lt;muffe.endIndex
             let en_US = NSLocale(localeIdentifier: "en_US")
-            muffe.compare(müller, options: nil, range: muffeRange, locale: en_US) // -> .OrderedAscending
+            muffe.compare(müller, options: nil, range: muffeRange, locale: en_US) // -&gt; .OrderedAscending
 
             // Germany phonebook ordering treats "ü" as "ue".
-            // Thus, "Müller" < "Muffe"
+            // Thus, "Müller" &lt; "Muffe"
             let de_DE_phonebook = NSLocale(localeIdentifier: "de_DE@collation=phonebook")
-            muffe.compare(müller, options: nil, range: muffeRange, locale: de_DE_phonebook) // -> .OrderedDescending
+            muffe.compare(müller, options: nil, range: muffeRange, locale: de_DE_phonebook) // -&gt; .OrderedDescending
 
 
 Java
@@ -1255,8 +1255,8 @@ The naïve answer is to ignore invalid input until finding valid input again (i.
 finding the next byte that has a lead-byte value), but this is dangerous and
 should never be done. The danger is that silently dropping bogus bytes might
 make a string that didn’t look dangerous with the bogus bytes present become
-valid active content. Most simply, <scr�ipt> (� standing in for a bogus byte)
-could become <script> if the error is ignored. So it’s non-controversial that
+valid active content. Most simply, &lt;scr�ipt&gt; (� standing in for a bogus byte)
+could become &lt;script&gt; if the error is ignored. So it’s non-controversial that
 every sequence of bogus bytes should result in at least one REPLACEMENT CHARACTER
 and that the next lead-valued byte is the first byte that’s no longer part of
 the invalid sequence.
@@ -1393,7 +1393,7 @@ ICU
 <a target="_blank" rel="noopener noreferrer" href="http://stackoverflow.com/questions/8253033/what-open-source-c-or-c-libraries-can-convert-arbitrary-utf-32-to-nfc">http://stackoverflow.com/questions/8253033/what-open-source-c-or-c-libraries-can-convert-arbitrary-utf-32-to-nfc</a>
 What open source C or C++ libraries can convert arbitrary UTF-32 to NFC?
 
-std::string normalize(const std::string &unnormalized_utf8) {
+std::string normalize(const std::string &amp;unnormalized_utf8) {
     // FIXME: until ICU supports doing normalization over a UText
     // interface directly on our UTF-8, we'll use the insanely less
     // efficient approach of converting to UTF-16, normalizing, and
@@ -1409,7 +1409,7 @@ std::string normalize(const std::string &unnormalized_utf8) {
 
     // Normalize our string
     icu::UnicodeString normalized_utf16;
-    normalizer->normalize(unnormalized_utf16, normalized_utf16, icu_error);
+    normalizer-&gt;normalize(unnormalized_utf16, normalized_utf16, icu_error);
     assert(U_SUCCESS(icu_error));
 
     // Convert back to UTF-8
@@ -1437,7 +1437,7 @@ It is impossible to ever expose the C++ APIs due to the lack of a stable ABI in 
 Getting started
 1) Your application needs to target Windows 10 Version 1703 (Creators Update) or higher.
 2) Add in the header:
-    #include <icu.h>
+    #include &lt;icu.h&gt;
 3) Link to:
     icu.lib
 Example:
@@ -1446,7 +1446,7 @@ Example:
         UErrorCode status = U_ZERO_ERROR;
 
         // Create a ICU date formatter, using only the 'short date' style format.
-        UDateFormat* dateFormatter = udat_open(UDAT_NONE, UDAT_SHORT, nullptr, nullptr, -1, nullptr, 0, &status);
+        UDateFormat* dateFormatter = udat_open(UDAT_NONE, UDAT_SHORT, nullptr, nullptr, -1, nullptr, 0, &amp;status);
 
         if (U_FAILURE(status))
         {
@@ -1460,16 +1460,16 @@ Example:
         int32_t stringSize = 0;
 
         // Determine how large the formatted string from ICU would be.
-        stringSize = udat_format(dateFormatter, currentDateTime, nullptr, 0, nullptr, &status);
+        stringSize = udat_format(dateFormatter, currentDateTime, nullptr, 0, nullptr, &amp;status);
 
         if (status == U_BUFFER_OVERFLOW_ERROR)
         {
             status = U_ZERO_ERROR;
             // Allocate space for the formatted string.
-            auto dateString = std::make_unique<UChar[]>(stringSize + 1);
+            auto dateString = std::make_unique&lt;UChar[]&gt;(stringSize + 1);
 
             // Format the date time into the string.
-            udat_format(dateFormatter, currentDateTime, dateString.get(), stringSize + 1, nullptr, &status);
+            udat_format(dateFormatter, currentDateTime, dateString.get(), stringSize + 1, nullptr, &amp;status);
 
             if (U_FAILURE(status))
             {
@@ -1546,8 +1546,8 @@ Regular expressions
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://pypi.org/project/regex/">https://pypi.org/project/regex/</a>
->>> a = "बिक्रम मेरो नाम हो"
->>> regex.findall(r'\X', a)
+&gt;&gt;&gt; a = "बिक्रम मेरो नाम हो"
+&gt;&gt;&gt; regex.findall(r'\X', a)
 ['बि', 'क्', 'र', 'म', ' ', 'मे', 'रो', ' ', 'ना', 'म', ' ', 'हो']
 ---
 <a target="_blank" rel="noopener noreferrer" href="https://regex101.com/r/eD0eZ9/1">https://regex101.com/r/eD0eZ9/1</a>
@@ -1710,20 +1710,20 @@ UTF-8/16 encoder/decoder
 
     GENERIC: (utf16le) ( char state -- state )
     M: new (utf16le)
-        drop <double> ;
+        drop &lt;double&gt; ;
     M: double (utf16le)
         over -3 shift BIN: 11011 = [
             over BIN: 100 bitand 0 =
-            [ double-val swap BIN: 11 bitand 8 shift bitor <quad2> ]
-            [ 2drop bad-char , <new> ] if
-        ] [ double-val swap 8 shift bitor , <new> ] if ;
+            [ double-val swap BIN: 11 bitand 8 shift bitor &lt;quad2&gt; ]
+            [ 2drop bad-char , &lt;new&gt; ] if
+        ] [ double-val swap 8 shift bitor , &lt;new&gt; ] if ;
     M: quad2 (utf16le)
-        quad2-val 10 shift bitor <quad3> ;
+        quad2-val 10 shift bitor &lt;quad3&gt; ;
     M: quad3 (utf16le)
         over -2 shift BIN: 110111 = [
             swap BIN: 11 bitand 8 shift
-            swap quad3-val bitor HEX: 10000 + , <new>
-        ] [ 2drop bad-char , <new> ] if ;
+            swap quad3-val bitor HEX: 10000 + , &lt;new&gt;
+        ] [ 2drop bad-char , &lt;new&gt; ] if ;
 
     : utf16le ( state string -- state string )
         [ [ swap (utf16le) ] each ] { } make ;
@@ -1749,19 +1749,19 @@ Remember: search in issues with "utf8proc in:title,body"
     four hexadecimal digits or \U followed by up to eight hexadecimal digits
     (the longest valid value only requires six):
 
-    julia> '\u0'
+    julia&gt; '\u0'
     '\0': ASCII/Unicode U+0000 (category Cc: Other, control)
 
-    julia> '\u78'
+    julia&gt; '\u78'
     'x': ASCII/Unicode U+0078 (category Ll: Letter, lowercase)
 
-    julia> '\u2200'
+    julia&gt; '\u2200'
     '∀': Unicode U+2200 (category Sm: Symbol, math)
 
-    julia> '\U10ffff'
+    julia&gt; '\U10ffff'
     '\U10ffff': Unicode U+10FFFF (category Cn: Other, not assigned)
 
-    julia> s = "\u2200 x \u2203 y"
+    julia&gt; s = "\u2200 x \u2203 y"
     "∀ x ∃ y"
 
 
@@ -1778,9 +1778,9 @@ Remember: search in issues with "utf8proc in:title,body"
     string someday being allowed in a name.
 
     It allows for embedding Unicode characters using a variety of easy to remember
-    names, instead of hex codes: \:emojiname: \<latexname> \N{unicodename} \&htmlname;
+    names, instead of hex codes: \:emojiname: \&lt;latexname&gt; \N{unicodename} \&amp;htmlname;
     Examples of this are:
-    f"\<dagger> \&yen; \N{ACCOUNT OF} \:snake:", which returns the string: "† ¥ ℀ 🐍 "
+    f"\&lt;dagger&gt; \&amp;yen; \N{ACCOUNT OF} \:snake:", which returns the string: "† ¥ ℀ 🐍 "
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://discourse.julialang.org/t/stupid-question-on-unicode/27674/7">https://discourse.julialang.org/t/stupid-question-on-unicode/27674/7</a>
@@ -1789,7 +1789,7 @@ Remember: search in issues with "utf8proc in:title,body"
 
 <a target="_blank" rel="noopener noreferrer" href="https://docs.julialang.org/en/v1/stdlib/Unicode/">https://docs.julialang.org/en/v1/stdlib/Unicode/</a>
 Unicode.julia_chartransform(c::Union{Char,Integer})
-Unicode.isassigned(c) -> Bool
+Unicode.isassigned(c) -&gt; Bool
 isequal_normalized(s1::AbstractString, s2::AbstractString; casefold=false, stripmark=false, chartransform=identity)
 Unicode.normalize(s::AbstractString; keywords...)
     boolean keywords options (which all default to false except for compose)
@@ -1897,7 +1897,7 @@ Mathematica lang
 ================================================================================
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/watch?v=yiwLBvirm7A">https://www.youtube.com/watch?v=yiwLBvirm7A</a>
-Live CEOing Ep 426: Language Design in Wolfram Language [Unicode Characters & WFR Suggestions]
+Live CEOing Ep 426: Language Design in Wolfram Language [Unicode Characters &amp; WFR Suggestions]
 At the begining, there are a few minutes about character properties.
 
 
@@ -1913,7 +1913,7 @@ MOAR-VM RAKU lang
         Rename should_break to MVM_unicode_normalize_should_break
         Fix memory leak in MVM_nfg_is_concat_stable
         If both last_a and first_b during concat are non-0 CCC, re-NFG
-    --> maybe to review : the last sentence seems to be an optimization of concatenation.
+    --&gt; maybe to review : the last sentence seems to be an optimization of concatenation.
     2017.02
         Implement support for synthetic graphemes in MVM_unicode_string_compare
         Implement configurable collation_mode for MVM_unicode_string_compare
@@ -1921,10 +1921,10 @@ MOAR-VM RAKU lang
         Add a new unicmp_s op, which compares using the Unicode Collation Algorithm
         Add support for Grapheme_Cluster_Break=Prepend from Unicode 9.0
         Add a script to download the latest version of all of the Unicode data
-    --> should review this script
+    --&gt; should review this script
     2015.11
         NFG now uses Unicode Grapheme Cluster algorithm; "\r\n" is now one grapheme
-    --> ??? [later] ah, I had a bug! Was not analyzing an UTF-8 ASCII string... Now fixed:
+    --&gt; ??? [later] ah, I had a bug! Was not analyzing an UTF-8 ASCII string... Now fixed:
         "0A0D"x~text~description= -- UTF-8 ASCII ( 2 graphemes, 2 codepoints, 2 bytes )
         "0D0A"x~text~description= -- UTF-8 ASCII ( 1 grapheme, 2 codepoints, 2 bytes )
 
@@ -1932,7 +1932,7 @@ MOAR-VM RAKU lang
 29/05/2021
 <a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=26591373">https://news.ycombinator.com/item?id=26591373</a>
 String length functions for single emoji characters evaluate to greater than 1
---> to check : MOAR VM really concatenate a 8bit string with a 32bit string using a string concatenation object ?
+--&gt; to check : MOAR VM really concatenate a 8bit string with a 32bit string using a string concatenation object ?
 
     You could do it the way Raku does. It's implementation defined. (Rakudo on MoarVM)
     The way MoarVM does it is that it does NFG, which is sort of like NFC except that it stores grapheme clusters as if they were negative codepoints.
@@ -2125,11 +2125,11 @@ review
     Unicode code points can be written using the \u escape sequence, which is
     followed by four hex digits giving the code point. The \U escape sequence
     is similar, but expects eight hex digits, not four
-        >>> s = "a\xac\u1234\u20ac\U00008000"
+        &gt;&gt;&gt; s = "a\xac\u1234\u20ac\U00008000"
         ... #     ^^^^ two-digit hex escape
         ... #         ^^^^^^ four-digit Unicode escape
         ... #                     ^^^^^^^^^^ eight-digit Unicode escape
-        >>> [ord(c) for c in s]
+        &gt;&gt;&gt; [ord(c) for c in s]
         [97, 172, 4660, 8364, 32768]
 
     Python supports writing source code in UTF-8 by default, but you can use almost any encoding if you declare the encoding being used. This is done by including a special comment as either the first or second line of the source file:
@@ -2144,8 +2144,8 @@ review
     form following an algorithm described by the Unicode Standard. This
     algorithm has special handling for characters such as the German letter ‘ß’
     (code point U+00DF), which becomes the pair of lowercase letters ‘ss’.
-        >>> street = 'Gürzenichstraße'
-        >>> street.casefold()
+        &gt;&gt;&gt; street = 'Gürzenichstraße'
+        &gt;&gt;&gt; street.casefold()
         'gürzenichstrasse'
     The unicodedata module’s normalize() function converts strings to one of
     several normal forms: ‘NFC’, ‘NFKC’, ‘NFD’, and ‘NFKD’.
@@ -2372,7 +2372,7 @@ Test de l’endianité
         END
     return endian blanx
     /* ********************************************************************** */
-    /*           Conversion UTF-8 -> UNICODE                                  */
+    /*           Conversion UTF-8 -&gt; UNICODE                                  */
     CONV8_16:
     parse arg entree
     sortie = ''
@@ -2430,7 +2430,7 @@ Seen in a comment here :  <a target="_blank" rel="noopener noreferrer" href="htt
 17/07/2021
 <a target="_blank" rel="noopener noreferrer" href="https://www.generacodice.com/en/articolo/120763/Unicode+Support+in+Various+Programming+Languages">https://www.generacodice.com/en/articolo/120763/Unicode+Support+in+Various+Programming+Languages</a>
 jlf: I learned something: OsStr/OsString
-    Rust's strings (std::String and &str) are always valid UTF-8, and do not use null
+    Rust's strings (std::String and &amp;str) are always valid UTF-8, and do not use null
     terminators, and as a result can not be indexed as an array, like they can be in C/C++, etc.
     They can be sliced somewhat like Go using .get since 1.20, with the caveat that
     it will fail if you try slicing the middle of a code point.
@@ -2439,7 +2439,7 @@ jlf: I learned something: OsStr/OsString
     It's byte array on Unix (containing any sequence of bytes).
     On windows it's WTF-8 (A super-set of UTF-8 that handles the improperly
     formed Unicode strings that are allowed in Windows and Javascript),
-    &str and String can be freely converted to OsStr or OsString, but require
+    &amp;str and String can be freely converted to OsStr or OsString, but require
     checks to covert the other way. Either by Failing on invalid unicode, or
     replacing with the Unicode replacement char. (There is also Path/PathBuf,
     which are just wrappers around OsStr/OsString).
@@ -2728,7 +2728,7 @@ Feedback from swift team
     Swift strings now sort with NFC (currently UTF-16 code unit order, but likely changed to Unicode scalar value order).
     We didn't find FCC significantly more compelling in practice. Since NFC is far more frequent in the wild
     (why waste space if you don't have to), strings are likely to already be in NFC.
-    We have fast-paths to detect on-the-fly normal sections of strings (e.g. all ASCII, all < U+0300, NFC_QC=yes, etc.).
+    We have fast-paths to detect on-the-fly normal sections of strings (e.g. all ASCII, all &lt; U+0300, NFC_QC=yes, etc.).
     We lazily normalize portions of string during comparison when needed.
     Q: Swift strings support comparison via normalization. Has use of canonical string equality been a performance issue?
        Or been a source of surprise to programmers?

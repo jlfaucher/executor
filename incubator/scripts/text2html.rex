@@ -117,8 +117,14 @@ usage:
         startURL = line~caselessPos("http://", pos)
         if startURL == 0 then startURL = line~caselessPos("https://", pos)
         if startURL == 0 then leave
+
         -- We found an URL
-        buffer~append(line~substr(pos, startURL - pos)) -- copy text before the URL
+
+        -- copy text before the URL
+        before = line~substr(pos, startURL - pos)
+        before = escapeEntitiesHTML(before)
+        buffer~append(before)
+
         -- Search the end of the URL
         -- For the moment, just search fo a space or EOL.
         -- But in theory, should be more strict:
@@ -127,11 +133,15 @@ usage:
         -- Any other character needs to be encoded with the percent-encoding (%hh)
         pos = line~pos(" ", startURL)
         if pos == 0 then pos = line~length + 1
+
+        -- Make the URL clickable
         URL = line~substr(startURL, pos - startURL)
         call anchorHTML URL, buffer
     end
-    if pos == 1 then return line -- no transformation
-    return buffer~string || line~substr(pos)
+    if pos == 1 then rest = line -- no transformation
+                else rest = line~substr(pos)
+    rest = escapeEntitiesHTML(rest)
+    return buffer~string || rest
 
 
 ::routine openHTML
@@ -159,6 +169,13 @@ usage:
     -- https://stackoverflow.com/questions/15551779/open-link-in-new-tab-or-window
     buffer~append('<a target="_blank" rel="noopener noreferrer" href="'URL'">'URL'</a>')
 
+
+::routine escapeEntitiesHTML
+    use strict arg line
+    line = line~changeStr("&", "&amp;")
+    line = line~changeStr("<", "&lt;")
+    line = line~changeStr(">", "&gt;")
+    return line
 
 -------------------------------------------------------------------------------
 -- Helpers to manipulate the C arguments
