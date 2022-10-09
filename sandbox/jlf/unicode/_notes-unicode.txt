@@ -1,69 +1,22 @@
-==================================
 Accumulation of URLs about Unicode
-==================================
-
-26/09/2021  reorganize the notes by subject.
-
-
-Contents:
-    Unicode standard
-    Unicode general informations
-    U+ notation, Unicode escape sequence
-    Segmentation, Grapheme
-    Normalization, equivalence
-    Locale
-    CLDR Common Locale Data Repository
-    Case mappings
-    Collation, sorting
-    Emoji
-    Countries, flags
-    Evidence of partial or wrong support of Unicode
-    Optimization, SIMD
-    Variation sequence
-    Whitespaces, separators
-    Indic languages
-    Korean
-    Japanese
-    Fuzzy String Matching
-    Levenshtein distance and string similarity
-    String comparison
-    Encodings
-    TOML serialization format
-    CBOR Concise Binary Representation
-    Binary encoding in Unicode
-    Invalid format
-    Mojibake
-    Filenames
-    WTF8
-    Rope
-    ICU bindings
-    Twitter text parsing
-    Regular expressions
-    Ada
-    C++, Boost
-    DotNet, CoreFx
-    Dafny
-    Factor
-    Kotlin
-    Lisp
-    Mathematica
-    MOAR-VM RAKU
-    Perl
-    PHP
-    Powershell
-    Python
-    Rexx
-    Rust
-    Swift
-    Zig, Ziglyph
 
 
 ================================================================================
 Unicode standard
 ================================================================================
 
-https://www.unicode.org/Public/
-https://www.unicode.org/Public/MAPPINGS
+https://home.unicode.org/
+https://www.unicode.org/                                        (same as home.unicode.org)
+https://www.unicode.org/versions/
+https://www.unicode.org/versions/latest/                        (latest version)
+https://www.unicode.org/versions/enumeratedversions.html        (current and previous versions)
+
+https://www.unicode.org/Public/                                 (datas for current and previous versions)
+
+https://www.unicode.org/Public/MAPPINGS                         (ISO8859)
+    These tables are considered to be authoritative mappings
+    between the Unicode Standard and different parts of
+    the ISO/IEC 8859 standard.
 
 
 UNICODE COLLATION ALGORITHM
@@ -1345,7 +1298,7 @@ https://simonsapin.github.io/wtf-8/#16-bit-code-unit
 
 
 ====================================================================================
-Indexation of UTF-8 strings (applicable other UTF encodings)
+Indexation of UTF-8 strings
 ====================================================================================
 
 https://nullprogram.com/blog/2019/05/29/

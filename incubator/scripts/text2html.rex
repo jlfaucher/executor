@@ -1,7 +1,15 @@
 /*
 Convert a plain text file to HTML.
+The first line is a H1 title.
+An H2 title is a line preceded and followed by a line of equals signs (at least 10, same length).
+===...===
+title
+===...===
+A TOC is created from the H2 titles.
 The URLs are converted to hyperlinks.
 An URL starts with http:// or https://, ends at the first space or at the end of the line.
+
+KEEP THIS SCRIPT COMPATIBLE WITH OOREXX5
 */
 
 if arg() == 0 then signal help
@@ -97,15 +105,83 @@ usage:
 
 ::routine transform
     use strict arg inputname, inputobject, outputobject
-    call openHTML inputname, outputobject
+
+    toc = .list~new
+    contents = .list~new
+
+    lineNumber = 0
+    previousPreviousLine = ""
+    previousLine = ""
+    line = ""
+    titleState = 0 -- if a line L1 contains only "=" then the next line L2 is a title if the line L3 after contains only "=" and have same length as L1
+
     signal on notready
     do while inputobject~state == "READY"
+        lineNumber += 1
+        previousPreviousLine = previousLine
+        previousLine = line
         line = inputobject~linein
         line = transformLine(line)
-        outputobject~lineout(line)
+        if lineNumber == 1, isValidTitle(line) then do
+            -- the first line, when not empty, is the H1 title
+            title = titleHTML(line, 1) -- <h1>
+            toc~append(title)
+            toc~append("")
+            toc~append("Contents:")
+        end
+        else if titleState == 2 then do
+            titleState = 0
+            if isTitleSeparator(line, previousPreviousLine~length) then do
+                -- good, we have a well-formed title
+                titleLink = linkHTML(previousLine)
+                toc~append("    " || titleLink)
+                title = titleHTML(previousLine, 2) -- <h2>
+                contents~append(title)
+            end
+            else do
+                -- not a well-formed title
+                contents~append(previousPreviousLine)
+                contents~append(previousLine)
+                contents~append(line)
+            end
+        end
+        else if titleState == 1 then do
+            if isTitleSeparator(line) then do
+                -- not a well-formed title: this line should be the title, but it is a title separator
+                contents~append(previousLine)
+                -- stay in state 1, assume that the current line is a title start
+            end
+            else if isValidTitle(line) then do
+                -- good candidate line for a title
+                titleState = 2
+            end
+            else do
+                -- not a well-formed title
+                contents~append(previousLine)
+                contents~append(line)
+                titleState = 0
+            end
+        end
+        else if isTitleSeparator(line) then do
+            -- first title separator met
+            titleState = 1
+        end
+        else contents~append(line)
     end
     notready:
+
+    -- flush buffered lines for title, if any
+    if titleState == 1 then contents~append(previousLine)
+    else if titleState == 2 then do
+        contents~append(previousPreviousLine)
+        contents~append(previousLine)
+    end
+
+    call openHTML inputname, outputobject
+    call outputLinesHTML toc, outputobject
+    call outputLinesHTML contents, outputobject
     call closeHTML outputobject
+
     return
 
 
@@ -144,6 +220,33 @@ usage:
     return buffer~string || rest
 
 
+::routine linkHtml
+    use strict arg string
+    id = identifier(string)
+    return '<a href="#' || id || '">' || string || '</a>'
+
+
+::routine titleHTML
+    use strict arg string, level
+    id = identifier(string)
+    return '<hr><h' || level || ' id="' || id || '">' || string || '</h' || level || '><hr>'
+
+
+::routine anchorHTML
+    use strict arg URL, buffer
+    -- Force to open in new tab
+    -- https://stackoverflow.com/questions/15551779/open-link-in-new-tab-or-window
+    buffer~append('<a target="_blank" rel="noopener noreferrer" href="' || URL || '">' || URL || '</a>')
+
+
+::routine escapeEntitiesHTML
+    use strict arg line
+    line = line~changeStr("&", "&amp;")
+    line = line~changeStr("<", "&lt;")
+    line = line~changeStr(">", "&gt;")
+    return line
+
+
 ::routine openHTML
     use strict arg inputname, outputobject
     outputobject~lineout('<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"')
@@ -156,6 +259,17 @@ usage:
     outputobject~lineout('<pre>')
 
 
+::routine outputLinesHTML
+    use strict arg collection, outputobject
+    supplier = collection~supplier
+    do while supplier~available
+        line = supplier~item
+        outputobject~charout(line) -- no linefeed by default
+        if line~right(4) \== "<hr>" then outputobject~lineout("") -- linefeed except if ends with <hr>
+        supplier~next
+    end
+
+
 ::routine closeHTML
     use strict arg outputobject
     outputobject~lineout('</pre>')
@@ -163,19 +277,38 @@ usage:
     outputobject~lineout('</html>')
 
 
-::routine anchorHTML
-    use strict arg URL, buffer
-    -- Force to open in new tab
-    -- https://stackoverflow.com/questions/15551779/open-link-in-new-tab-or-window
-    buffer~append('<a target="_blank" rel="noopener noreferrer" href="'URL'">'URL'</a>')
+::routine identifier
+    use strict arg string
+    buffer = .mutableBuffer~new("", string~length)
+    subst = "_"
+    do i = 1 to string~length
+        c = string~subchar(i)
+        if c < "0"       then buffer~append(subst)
+        else if c <= "9" then buffer~append(c)
+        else if c < "A"  then buffer~append(subst)
+        else if c <= "Z" then buffer~append(c)
+        else if c < "a"  then buffer~append(subst)
+        else if c <= "z" then buffer~append(c)
+        else buffer~append(subst)
+    end
+    return buffer~string
 
 
-::routine escapeEntitiesHTML
+::routine isTitleSeparator
+    use strict arg line, length=(-1)
+    if line~length < 10 then return .false -- at least 10 "=" needed
+    if length \== -1 then do
+        -- 2nd title separator must have same length as 1st title separator
+        if line~length \== length then return .false
+    end
+    return line~verify("=") == 0 -- true if line contains only "="
+
+
+::routine isValidTitle
     use strict arg line
-    line = line~changeStr("&", "&amp;")
-    line = line~changeStr("<", "&lt;")
-    line = line~changeStr(">", "&gt;")
-    return line
+    -- valid if line contains at least a digit or a letter
+    return line~verify("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", "MATCH") \== 0
+
 
 -------------------------------------------------------------------------------
 -- Helpers to manipulate the C arguments
