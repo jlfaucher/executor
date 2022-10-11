@@ -97,11 +97,7 @@ RexxInstructionUseStrict::RexxInstructionUseStrict(size_t count, bool strict, bo
         }
     }
 
-    if (this->namedArg && this->checkNamedArguments() == false)
-    {
-        reportException(Error_Translation_user_defined, "The named argument names are not unique, or their abbreviation is not distinctive enough");
-
-    }
+    if (this->namedArg) this->checkNamedArguments();
 }
 
 
@@ -427,7 +423,7 @@ void RexxInstructionUseStrict::executeNamedArguments(RexxActivation *context, Re
 
 
 // Helper to check that the abbreviated argument names are distinct from each other.
-// This check is made at parse time, not at runtime.
+// This check is made at parse_time, not at run_time.
 bool RexxInstructionUseStrict::checkNamedArguments()
 {
     // Helper storage to detect the collisions of names
@@ -449,6 +445,7 @@ bool RexxInstructionUseStrict::checkNamedArguments()
     for (size_t i = 0; i < this->variableCount; i++)
     {
         bool match = expectedNamedArguments.check(expectedNamedArguments[i].name, OREF_NULL, false, expectedNamedArguments[i].minimumLength, i+1);
+        // will not reach here with match==true because an error is raised by the method check in case of match at parse_time.
         if (match) return false;
     }
     return true;
@@ -523,6 +520,20 @@ bool NamedArguments::check(RexxString *name, RexxObject *value, bool strict, ssi
     return this->check(name->getStringData(), value, strict, name_minimumLength, from);
 }
 
+void nameCollision(const char *name1, ssize_t minimumLength1, const char *name2, ssize_t minimumLength2)
+{
+    char buffer[256];
+
+    // A stem name is ignored because it's normal to have compound variables with the stem name as prefix
+    if ('.' == name1[strlen(name1) - 1]) return;
+
+    if (minimumLength1 == -1 && minimumLength2 == -1) Utilities::snprintf(buffer, sizeof buffer - 1,"Use named arg: The name '%s' collides with '%s'", name1, name2);
+    else if (minimumLength1 == -1)                    Utilities::snprintf(buffer, sizeof buffer - 1,"Use named arg: The name '%s' collides with '%s(%i)'", name1, name2, minimumLength2);
+    else if (minimumLength2 == -1)                    Utilities::snprintf(buffer, sizeof buffer - 1,"Use named arg: The name '%s(%i)' collides with '%s'", name1, minimumLength1, name2);
+    else                                              Utilities::snprintf(buffer, sizeof buffer - 1,"Use named arg: The name '%s(%i)' collides with '%s(%i)'", name1, minimumLength1, name2, minimumLength2);
+    reportException(Error_Translation_user_defined, buffer);
+}
+
 bool NamedArguments::check(const char *name, RexxObject *value, bool strict, ssize_t name_minimumLength, size_t from)
 {
     if (name == NULL) return false;
@@ -535,6 +546,7 @@ bool NamedArguments::check(const char *name, RexxObject *value, bool strict, ssi
 
     // There is no order for the named argument, so try all the expected names
     // At parse-time, 'from' will be different from 0 (index+1 of the current name being checked for collision).
+    bool parse_time = (from != 0);
     for (size_t i=from; i < this->count; i++)
     {
         if (this->namedArguments[i].assigned) continue; // Already matched (assumption: you will not call this helper with the same name twice)
@@ -542,8 +554,33 @@ bool NamedArguments::check(const char *name, RexxObject *value, bool strict, ssi
         const char *nameIterator = name;
         const char *expectedNameIterator = this->namedArguments[i].name;
 
-        ssize_t nameMinimumLength = name_minimumLength; // always -1 at run-time, can be -1 or >=1 at parse-time
+        ssize_t nameMinimumLength = name_minimumLength; // always -1 at run-time, can be -1 or >=1 at parse_time
         ssize_t expectedNameMinimumLength = this->namedArguments[i].minimumLength;
+        if (expectedNameMinimumLength == -1) expectedNameMinimumLength = strlen(this->namedArguments[i].name);
+
+        // Special check when parse_time
+        // Force the minimum length to be consistent
+        // Without this consistency check, the following code is accepted (I wanted that):
+        //     {use strict named arg normalization(1)=0, nfl(2)=0, casefold(1)=0}~(n:1, nf:2, normalization:3)
+        // but this error is raised at run_time:
+        //     named argument NORMALIZATION is not an expected argument name.
+        // This happens because the second argument normalization:3 is not matched with NORMALIZATION which has been already matched with the first argument n:1
+        // This is because of an optimazation to reduce the number of matching (skip a named argument if already assigned).
+        // To reinforce the checks, I must check the argument names on caller side, at parse_time:
+        //     No named parameter name must start with the name of another named parameter.
+        // For the implementation of this rule, see RexxSource::argList which calls checkNamedArgumentNames.
+        // With this rule, an error will be raised at parse_time for the code above, because "normalization" starts with "n".
+        // By declaring no:1, no more error...
+        // That's why the minimum length must be checked like that, to force the miminum length of "normalization" to be (2).
+        // Now the code above is no longer accepted at parse_time:
+        //     The named argument names are not unique, or their abbreviation is not distinctive enough
+        // The following code is accepted at parse_time:
+        //     {use strict named arg normalization(2)=0, nfl(2)=0, casefold(1)=0}~(n:1, nf:2, normalization:3)
+        if (parse_time)
+        {
+            if (nameMinimumLength == -1) nameMinimumLength = strlen(name);
+            if (expectedNameMinimumLength > nameMinimumLength) expectedNameMinimumLength = nameMinimumLength;
+        }
 
         while(1)
         {
@@ -562,12 +599,13 @@ bool NamedArguments::check(const char *name, RexxObject *value, bool strict, ssi
                         "namedArguments" dont match with "namedArgument".
                     */
 
-                    // We are at parse-time (because nameMinimumLength != -1), we check that the names are unique.
+                    // We are at parse_time (because nameMinimumLength != -1), we check that the names are unique.
                     // All the mandatory characters of 'name' have matched with 'expectedName'.
                     // We are in the optional characters of 'name' (because nameMinimumLength == 0).
                     // All the characters of 'expectedName' have been checked (because *expectedNameIterator == '\0').
-                    // We have a match even if 'name' has more characters (potential match detected at parse-time)
+                    // We have a match even if 'name' has more characters (potential match detected at parse_time)
 
+                    if (parse_time) nameCollision(name, name_minimumLength, this->namedArguments[i].name, this->namedArguments[i].minimumLength);
                     if (value != OREF_NULL) this->namedArguments[i].value = value;
                     this->namedArguments[i].assigned = true;
                     return true;
@@ -580,6 +618,7 @@ bool NamedArguments::check(const char *name, RexxObject *value, bool strict, ssi
                 if (*nameIterator == '\0')
                 {
                     // good, the name matches an expected argument name
+                    if (parse_time) nameCollision(name, name_minimumLength, this->namedArguments[i].name, this->namedArguments[i].minimumLength);
                     if (value != OREF_NULL) this->namedArguments[i].value = value;
                     this->namedArguments[i].assigned = true;
                     return true;
@@ -594,6 +633,7 @@ bool NamedArguments::check(const char *name, RexxObject *value, bool strict, ssi
                 if (*nameIterator == '\0')
                 {
                     // good, the name matches an expected argument name
+                    if (parse_time) nameCollision(name, name_minimumLength, this->namedArguments[i].name, this->namedArguments[i].minimumLength);
                     if (value != OREF_NULL) this->namedArguments[i].value = value;
                     this->namedArguments[i].assigned = true;
                     return true;
@@ -606,12 +646,13 @@ bool NamedArguments::check(const char *name, RexxObject *value, bool strict, ssi
                         USE NAMED ARG item(1), index(1)=
                     */
 
-                    // We are at parse-time (because nameMinimumLength != -1), we check that the names are unique.
+                    // We are at parse_time (because nameMinimumLength != -1), we check that the names are unique.
                     // All the mandatory characters of 'name' have matched with 'expectedName'.
                     // We are in the optional characters of 'name' (because nameMinimumLength == 0).
                     // We are in the optional characters of 'expectedName' (because expectedNameMinimumLength == 0)
-                    // We have a match even if 'name' and 'expectedName' have more characters (potential match detected at parse-time)
+                    // We have a match even if 'name' and 'expectedName' have more characters (potential match detected at parse_time)
 
+                    if (parse_time) nameCollision(name, name_minimumLength, this->namedArguments[i].name, this->namedArguments[i].minimumLength);
                     if (value != OREF_NULL) this->namedArguments[i].value = value;
                     this->namedArguments[i].assigned = true;
                     return true;
@@ -631,4 +672,3 @@ bool NamedArguments::check(const char *name, RexxObject *value, bool strict, ssi
     if (strict) reportException(Error_Invalid_argument_general, OREF_named, rexxname, "is not an expected argument name");
     return false;
 }
-

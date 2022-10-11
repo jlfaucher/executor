@@ -451,11 +451,11 @@ call interpret 'call myprocedure 1.2.3:1' -
 
 -- call with named arguments
 call interpret 'call myprocedure 1, a2:2, a3:' -
-             , 'Error 35.900:  Named argument: expected expression after colon'
+             , 'Error 99.900:  Named argument: expected expression after colon'
 call interpret 'call myprocedure a1:1, a1:2' -
-               'Error 35.900:  Named argument: the name "A1" is passed more than once'
+               'Error 99.900:  Named argument: ''A1:'' is passed more than once'
 call interpret 'call myprocedure a1:1, , a3:3' -
-             , 'Error 35.900: Named argument: expected symbol followed by colon'
+             , 'Error 99.900: Named argument: expected symbol followed by colon'
 call interpret 'call myprocedure instance~method:1' -
              , 'Error 20.917: Symbol expected after superclass colon (:)'
 
@@ -535,13 +535,13 @@ call interpret '{use named arg n()}' -
 call interpret '{use named arg n(0)}' -
              , 'Error 26.900: Named argument minimum length must be a positive whole number'
 call interpret '{use named arg command, commands(7)}' -
-             , 'Error 99.900: The named argument names are not unique, or their abbreviation is not distinctive enough'
+             , 'Error 99.900: Use named arg: The name ''COMMAND'' collides with ''COMMANDS(7)'''
 call interpret '{use named arg command(1), commands(7)}' -
-             , 'Error 99.900: The named argument names are not unique, or their abbreviation is not distinctive enough'
+             , 'Error 99.900: Use named arg: The name ''COMMAND(1)'' collides with ''COMMANDS(7)'''
 call interpret '{use named arg n, n}' -
-             , 'Error 99.900: The named argument names are not unique, or their abbreviation is not distinctive enough'
+             , 'Error 99.900: Use named arg: The name ''N'' collides with ''N'''
 call interpret '{use named arg item(1), index(1)}' -
-             , 'Error 99.900: The named argument names are not unique, or their abbreviation is not distinctive enough'
+             , 'Error 99.900: Use named arg: The name ''ITEM(1)'' collides with ''INDEX(1)'''
 
 -- Change arguments
 call interpret '.context~setArgs' -

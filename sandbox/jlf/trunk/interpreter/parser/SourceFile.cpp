@@ -5429,6 +5429,53 @@ RexxObject *RexxSource::subExpression(
     //return _argArray;                     /* return the argument array         */
 }
 
+void checkNamedArguments(RexxQueue *names)
+{
+    // No named parameter name must start with the name of another named parameter.
+    // See the comments in NamedArguments::check
+    // Exception: a stem name can be used as prefix in several compound names.
+
+    char buffer[256];
+    const char *errorMessage = "Named argument: '%s:' and '%s:' denote the same argument";
+
+    RexxObject *index1 = names->firstRexx();
+    while (index1 != TheNilObject)
+    {
+        RexxObject *current1 = names->at(index1);
+        index1 = names->next(index1);
+        if (current1 == TheNilObject) continue;
+        RexxString *current1string = (RexxString *)current1;
+        const char *current1cstring = current1string->getStringData();
+
+        // A stem name is ignored
+        if ('.' == current1cstring[current1string->getLength() - 1]) continue;
+
+        RexxObject *index2 = index1;
+        while (index2 != TheNilObject)
+        {
+            RexxObject *current2 = names->at(index2);
+            index2 = names->next(index2);
+            if (current2 == TheNilObject) continue;
+            RexxString *current2string = (RexxString *)current2;
+            const char *current2cstring = current2string->getStringData();
+
+            // A stem name is ignored
+            if ('.' == current2cstring[current2string->getLength() - 1]) continue;
+
+            if (1 == current1string->pos(current2string, 0))
+            {
+                Utilities::snprintf(buffer, sizeof buffer - 1, errorMessage, current2cstring, current1cstring);
+                reportException(Error_Translation_user_defined, buffer);
+            }
+            if (1 == current2string->pos(current1string, 0))
+            {
+                Utilities::snprintf(buffer, sizeof buffer - 1, errorMessage, current1cstring, current2cstring);
+                reportException(Error_Translation_user_defined, buffer);
+            }
+        }
+    }
+}
+
 void RexxSource::argList(
   RexxToken   *_first,                  /* token starting arglist            */
   int          terminators,             /* expression termination context    */
@@ -5502,7 +5549,7 @@ void RexxSource::argList(
             }
             resetPosition(position);
 
-            if (namedArgument && !namedArgumentAllowed) syntaxError(Error_Invalid_expression_user_defined,
+            if (namedArgument && !namedArgumentAllowed) syntaxError(Error_Translation_user_defined,
                                                                     new_string("Named argument not supported"));
         }
 
@@ -5524,22 +5571,27 @@ void RexxSource::argList(
         {
             // A named argument is a symbol followed by ":"
             token = nextReal();
-            if (token->classId != TOKEN_SYMBOL) syntaxError(Error_Invalid_expression_user_defined,
+            if (token->classId != TOKEN_SYMBOL) syntaxError(Error_Translation_user_defined,
                                                             new_string("Named argument: expected symbol followed by colon"));
             this->needVariable(token);
-            if (localNamedArglist->hasItem(token->value) == TheTrueObject) syntaxError(Error_Invalid_expression_user_defined,
-                                                                                   token->value->concatToCstring("Named argument: The name \"")->concatWithCstring("\" is passed more than once"));
+            // Next check is not working when the same named argument is passed with different abbreviated names
+            // Ex: assuming use named arg myNamedArgument(1)
+            //     myfunc(m:0, myNamed:0, mynamedArgument:0)
+            // No error raised here because the names are different.
+            // See RexxInstructionUseStrict::checkNamedArguments for a more general check.
+            if (localNamedArglist->hasItem(token->value) == TheTrueObject) syntaxError(Error_Translation_user_defined,
+                                                                                   token->value->concatToCstring("Named argument: '")->concatWithCstring(":' is passed more than once"));
             localNamedArglist->push(token->value); // Bypass the bug described above by using a queue local to this method.
             namedArglist->push(token->value);       /* add argument name to list */
             this->pushTerm(token->value); // For a proper stack size, must count also the named parameters
 
             token = nextReal();
-            if (token->classId != TOKEN_COLON) syntaxError(Error_Invalid_expression_user_defined,
+            if (token->classId != TOKEN_COLON) syntaxError(Error_Translation_user_defined,
                                                            new_string("Named argument: expected symbol followed by colon"));
 
             /* parse off named argument expression*/
             RexxObject *subexpr = this->subExpression(terminators | TERM_COMMA);
-            if (subexpr == OREF_NULL) syntaxError(Error_Invalid_expression_user_defined,
+            if (subexpr == OREF_NULL) syntaxError(Error_Translation_user_defined,
                                                   new_string("Named argument: expected expression after colon"));
             namedArglist->push(subexpr);       /* add next argument to list         */
             this->pushTerm(subexpr); // For a proper stack size, must count also the named parameters
@@ -5599,6 +5651,8 @@ void RexxSource::argList(
 
     positionalArgumentCount = total;
     namedArgumentCount = namedTotal;
+
+    checkNamedArguments(localNamedArglist);
 
     //return realcount;                    /* return the argument count         */
     //return total;
