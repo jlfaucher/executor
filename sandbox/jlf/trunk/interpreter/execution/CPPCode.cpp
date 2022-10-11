@@ -142,8 +142,16 @@ void CPPCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiv
         //                             passing arguments->data(), arguments->size()
         //                             where the named arguments are after the positional arguments.
 
+        // Get the start of the named arguments now, because argPtr may be assigned to the temporary list argument_list.
+        // For the moment, the named arguments are passed as a pointer + count
+        // Declaration on callee side:
+        // If one positional arg:  (RexxObject *positional1, RexxObject **named_arglist, size_t named_argcount)
+        // If two positional args: (RexxObject *positional1, RexxObject *positional2, RexxObject **named_arglist, size_t named_argcount)
+        // etc. up to 7 positional arguments.
+        RexxObject **named_argPtr = argPtr + count;
+
         // JLF: I don't understand why this temporary list is needed...
-        // ha, yes: it's to pass NULL for the omitted parameters at the end.
+        // ah, yes: it's to pass NULL for the omitted parameters at the end.
         // Not needed when count == argumentCount, because here no omitted paramaters.
 
         // This is the temporary list of positional arguments
@@ -199,7 +207,6 @@ void CPPCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiv
         }
         else
         {
-            RexxObject **named_argPtr = argPtr + count;
             switch (argumentCount)
             {
               case 0:                        /* zero                              */
