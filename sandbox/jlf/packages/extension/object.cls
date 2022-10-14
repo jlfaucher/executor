@@ -5,6 +5,10 @@
 -- Compatibility with ooRexx 5
 ------------------------------
 
+::method isNil class
+    return .nil == self
+
+
 ::method isNil
     return .nil == self
 
@@ -21,11 +25,23 @@
 -- Seems to be fixed in ooRexx 5.
 -- In the meantime, I use this extension (applicable to any object, not just strings).
 
+::method setUserData class
+    expose userData
+    use strict arg key, value
+    if \var("userData") then userData = .Directory~new
+    userData[key] = value
+
 ::method setUserData
     expose userData
     use strict arg key, value
     if \var("userData") then userData = .Directory~new
     userData[key] = value
+
+::method getUserData class
+    expose userData
+    use strict arg key
+    if var("userData") then return userData[key]
+    return .nil
 
 ::method getUserData
     expose userData

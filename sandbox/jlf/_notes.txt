@@ -74,10 +74,21 @@ Is .stemCollector really needed ? I don't see the added value, compared to .arra
 Extension todo :
 Forbids to replace a predefined method. The goal is to extend, not to alter the behavior.
 Maybe not so easy to do for 'inherit'.
+2022 Oct 15: no, must be able to replace a predefined method. Example:
+    -- Compatibility with ooRexx5
+    .MutableBuffer~define("appendLegacy", .MutableBuffer~method("append"))
+    .MutableBuffer~define("append", "do i=1 to arg(); self~appendLegacy(arg(i)); end; return self")
+
 
 
 Extension todo :
 Add the parameters "unlock=.false, propagate=.false" to the methods .class~define and .class~inherit.
+
+
+Extension todo:
+The instance methods added on Object by extension are not available from Class.
+For the moment, must duplicate the instance method at class level.
+It's a problem of propagation.
 
 
 Profiler todo :
