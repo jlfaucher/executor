@@ -130,6 +130,7 @@ public:
     RexxString *NFKD(RexxString *str);
     RexxString *NFKC(RexxString *str);
     RexxString *NFKC_Casefold(RexxString *str);
+    RexxObject *transform(RexxString *str, RexxObject **named_arglist, size_t named_argcount);
 };
 
 #endif

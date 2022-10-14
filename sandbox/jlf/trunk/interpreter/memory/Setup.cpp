@@ -1471,6 +1471,7 @@ void RexxMemory::createImage(const char *imageTarget)
   defineKernelMethod("NFKD" , TheUnicodeClassBehaviour, CPPM(Unicode::NFKD), 1);
   defineKernelMethod("NFKC" , TheUnicodeClassBehaviour, CPPM(Unicode::NFKC), 1);
   defineKernelMethod("NFKC_CASEFOLD" , TheUnicodeClassBehaviour, CPPM(Unicode::NFKC_Casefold), 1);
+  defineKernelMethod("TRANSFORM" , TheUnicodeClassBehaviour, CPPM(Unicode::transform), 1, true);  // pass named arguments
                                        /* set the scope of the methods to   */
                                        /* this classes oref                 */
   TheUnicodeClassBehaviour->setMethodDictionaryScope(TheUnicodeClass);

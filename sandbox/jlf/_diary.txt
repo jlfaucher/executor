@@ -2,7 +2,109 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
-2022 October 4
+2022 October 15
+
+New native method .Unicode~transform
+Mainly for internal use, will replace the current native methods NFC, NFD, NFKC, NFKD.
+The purpose of this method is to support additional transformations provided by utf8proc.
+Takes a byte string as input (UTF-8 encoded), returns a new transformed byte string as output (UTF-8).
+
+Examples:
+
+    string = "\u{BEL}Le\u{IDEOGRAPHIC SPACE}\u{OGHAM SPACE MARK}\u{ZERO-WIDTH-SPACE}Père\t\u{HYPHEN}\u{SOFT-HYPHEN}\u{EN DASH}\u{EM DASH}Noël\x{EFB790}\r\n"
+    text = string~text~unescape
+    text~characters==
+        an Array (shape [22], 22 items)
+         1  : ( ""    U+0007 Cc 0 "", "ALERT", "BEL" )
+         2  : ( "L"   U+004C Lu 1 "LATIN CAPITAL LETTER L" )
+         3  : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
+         4  : ( "　"  U+3000 Zs 2 "IDEOGRAPHIC SPACE" )
+         5  : ( " "   U+1680 Zs 1 "OGHAM SPACE MARK" )
+         6  : ( "​"    U+200B Cf 0 "ZERO WIDTH SPACE", "ZWSP" )
+         7  : ( "P"   U+0050 Lu 1 "LATIN CAPITAL LETTER P" )
+         8  : ( "è"   U+00E8 Ll 1 "LATIN SMALL LETTER E WITH GRAVE" )
+         9  : ( "r"   U+0072 Ll 1 "LATIN SMALL LETTER R" )
+         10 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
+         11 : ( ""    U+0009 Cc 0 "", "CHARACTER TABULATION", "HORIZONTAL TABULATION", "HT", "TAB" )
+         12 : ( "‐"   U+2010 Pd 1 "HYPHEN" )
+         13 : ( "­"   U+00AD Cf 1 "SOFT HYPHEN", "SHY" )
+         14 : ( "–"   U+2013 Pd 1 "EN DASH" )
+         15 : ( "—"   U+2014 Pd 1 "EM DASH" )
+         16 : ( "N"   U+004E Lu 1 "LATIN CAPITAL LETTER N" )
+         17 : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
+         18 : ( "ë"   U+00EB Ll 1 "LATIN SMALL LETTER E WITH DIAERESIS" )
+         19 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
+         20 : ( "﷐"   U+FDD0 Cn 1 "" )
+         21 : ( ""    U+000D Cc 0 "", "CARRIAGE RETURN", "CR" )
+         22 : ( ""    U+000A Cc 0 "", "LINE FEED", "NEW LINE", "END OF LINE", "LF", "NL", "EOL" )
+
+    text=                                                               -- T'[07]Le　 ​Père[09]‐­–—Noël﷐[0D0A]'
+
+    -- Performs unicode case folding, to be able to do a case-insensitive string comparison.
+    .Unicode~transform(text~string, casefold:.true)=                    --  '[07]le　 ​père[09]‐­–—noël﷐[0D0A]'
+
+    -- Strip "default ignorable characters" such as SOFT-HYPHEN or ZERO-WIDTH-SPACE
+    .Unicode~transform(text~string, ignore:.true)=                      --  '[07]Le　 Père[09]‐–—Noël﷐[0D0A]'
+
+    -- Lumps certain characters together. See lump.md for details:
+    -- https://github.com/JuliaStrings/utf8proc/blob/master/lump.md
+    -- E.g. HYPHEN U+2010 and MINUS U+2212 to ASCII "-"
+    -- jlf: I was expecting to have only one space and one "-" but that's not the case
+    -- Seems working as designed... All the concerned characters become the same character, but still remain distinct characters.
+    .Unicode~transform(text~string, lump:.true)=                        --  '[07]Le  ​Père[09]-­--Noël﷐[0D0A]'
+         4  : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+         5  : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+         6  : ( "​"    U+200B Cf 0 "ZERO WIDTH SPACE", "ZWSP" )
+         12 : ( "-"   U+002D Pd 1 "HYPHEN-MINUS" )
+         13 : ( "­"   U+00AD Cf 1 "SOFT HYPHEN", "SHY" )
+         14 : ( "-"   U+002D Pd 1 "HYPHEN-MINUS" )
+         15 : ( "-"   U+002D Pd 1 "HYPHEN-MINUS" )
+
+    -- NLF2LF: Convert LF, CRLF, CR and NEL into LF
+    .Unicode~transform(text~string, NLF:1)=                             --  '[07]Le　 ​Père[09]‐­–—Noël﷐[0A]'
+
+    -- NLF2LS: Convert LF, CRLF, CR and NEL into LS (U+2028 Zl 0 "LINE SEPARATOR")
+    .Unicode~transform(text~string, NLF:2)=                             --  '[07]Le　 ​Père[09]‐­–—Noël﷐
+'
+
+    -- NLF2PS: convert LF, CRLF, CR and NEL into PS (U+2029 Zp 0 "PARAGRAPH SEPARATOR")
+    .Unicode~transform(text~string, NLF:3)=                             --  '[07]Le　 ​Père[09]‐­–—Noël﷐ '
+
+    -- Strips and/or converts control characters.
+    .Unicode~transform(text~string, stripcc:.true)=                     --  'Le　 ​Père ‐­–—Noël﷐ '
+
+    -- Strips all character markings.
+    -- This includes non-spacing, spacing and enclosing (i.e. accents).
+    -- This option works only with normalization.
+    .Unicode~transform(text~string, stripmark:.true, normalization:1)=  --  '[07]Le　 ​Pere[09]‐­–—Noel﷐[0D0A]'
+
+    -- Strips unassigned codepoints.
+    .Unicode~transform(text~string, stripna:.true)=                     --  '[07]Le　 ​Père[09]‐­–—Noël[0D0A]'
+
+    -- Application of several options (abbreviated names)
+    .Unicode~transform(text~string, c:.true, i:.true, l:.true, no:1, stripc:.true, stripm:.true, stripn:.true)= --  'le  pere ---noel '
+        an Array (shape [17], 17 items)
+         1  : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
+         2  : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
+         3  : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+         4  : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+         5  : ( "p"   U+0070 Ll 1 "LATIN SMALL LETTER P" )
+         6  : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
+         7  : ( "r"   U+0072 Ll 1 "LATIN SMALL LETTER R" )
+         8  : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
+         9  : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+         10 : ( "-"   U+002D Pd 1 "HYPHEN-MINUS" )
+         11 : ( "-"   U+002D Pd 1 "HYPHEN-MINUS" )
+         12 : ( "-"   U+002D Pd 1 "HYPHEN-MINUS" )
+         13 : ( "n"   U+006E Ll 1 "LATIN SMALL LETTER N" )
+         14 : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
+         15 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
+         16 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
+         17 : ( " "   U+0020 Zs 1 "SPACE", "SP" )               <-- from where is coming this space?
+
+
+===============================================================================
+2022 October 04
 
 [Encoded strings]
 

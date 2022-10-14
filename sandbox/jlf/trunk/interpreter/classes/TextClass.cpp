@@ -170,23 +170,23 @@ void raiseError(utf8proc_ssize_t errcode)
     }
 }
 
-size_t nonNegativeInteger(RexxObject *obj, const char *errorMessage)
+ssize_t integerRange(RexxObject *obj, ssize_t min, ssize_t max, wholenumber_t error, const char *errorMessage)
 {
     if (obj != OREF_NULL)
     {
         RexxInteger *integer = (RexxInteger *)REQUEST_INTEGER(obj);
         if (integer != TheNilObject)
         {
-            size_t value = integer->getValue();
-            if (value >= 0) return value;
+            wholenumber_t value = integer->getValue();
+            if (value >= min && value <= max) return value;
         }
     }
-    reportException(Error_Invalid_argument_user_defined, errorMessage);
+    reportException(error, errorMessage);
     return 0; // To avoid warning, must return something (should never reach this line)
 }
 
 
-size_t integer(RexxObject *obj, const char *errorMessage)
+ssize_t integer(RexxObject *obj, const char *errorMessage)
 {
     if (obj != OREF_NULL)
     {
@@ -205,9 +205,11 @@ bool isLittleEndian()
 }
 
 
+// utf8proc helper
 RexxString *normalize(RexxString *string, utf8proc_option_t options)
 {
     utf8proc_uint8_t *retval;
+    string = stringArgument(string, OREF_positional, ARG_ONE);
     const utf8proc_uint8_t *str = (const utf8proc_uint8_t *)string->getStringData();
     utf8proc_ssize_t strlength = (utf8proc_ssize_t)string->getLength();
     utf8proc_ssize_t reslength = utf8proc_map(str, strlength, &retval, options);
@@ -300,9 +302,9 @@ RexxInteger *Unicode::graphemeBreak(RexxArray *array)
 {
     array = arrayArgument(array, OREF_positional, ARG_ONE);
     ProtectedObject p(array);
-    utf8proc_int32_t codepoint1 = (utf8proc_int32_t)nonNegativeInteger(array->get(1), "GraphemeBreak: The first codepoint must be a non negative integer");
-    utf8proc_int32_t codepoint2 = (utf8proc_int32_t)nonNegativeInteger(array->get(2), "GraphemeBreak: The second codepoint must be a non negative integer");
-    utf8proc_int32_t state = (utf8proc_int32_t)nonNegativeInteger(array->get(3), "GraphemeBreak:The state must be a non negative integer");
+    utf8proc_int32_t codepoint1 = (utf8proc_int32_t)integerRange(array->get(1), 0, SSIZE_MAX, Error_Invalid_argument_user_defined, "GraphemeBreak: The first codepoint must be a non negative integer");
+    utf8proc_int32_t codepoint2 = (utf8proc_int32_t)integerRange(array->get(2), 0, SSIZE_MAX, Error_Invalid_argument_user_defined, "GraphemeBreak: The second codepoint must be a non negative integer");
+    utf8proc_int32_t state =      (utf8proc_int32_t)integerRange(array->get(3), 0, SSIZE_MAX, Error_Invalid_argument_user_defined, "GraphemeBreak:The state must be a non negative integer");
     utf8proc_bool graphemeBreak = utf8proc_grapheme_break_stateful(codepoint1, codepoint2, &state);
     array->put(new_integer(state), 3); // Output argument
     return graphemeBreak ? TheTrueObject : TheFalseObject;
@@ -550,6 +552,7 @@ RexxInteger *Unicode::codepointIsUpper(RexxObject *rexxCodepoint)
 
 RexxString *Unicode::stringToCaseFold(RexxString *string)
 {
+    string = stringArgument(string, OREF_positional, ARG_ONE);
     const uint8_t *str = (const uint8_t *)string->getStringData();
     uintptr_t strlength = (uintptr_t)string->getLength();
     const uint8_t * out_utf8str;
@@ -564,6 +567,7 @@ RexxString *Unicode::stringToCaseFold(RexxString *string)
 
 RexxString *Unicode::stringToLower(RexxString *string)
 {
+    string = stringArgument(string, OREF_positional, ARG_ONE);
     const uint8_t *str = (const uint8_t *)string->getStringData();
     uintptr_t strlength = (uintptr_t)string->getLength();
     const uint8_t * out_utf8str;
@@ -578,6 +582,7 @@ RexxString *Unicode::stringToLower(RexxString *string)
 
 RexxString *Unicode::stringToTitle(RexxString *string)
 {
+    string = stringArgument(string, OREF_positional, ARG_ONE);
     const uint8_t *str = (const uint8_t *)string->getStringData();
     uintptr_t strlength = (uintptr_t)string->getLength();
     const uint8_t * out_utf8str;
@@ -592,6 +597,7 @@ RexxString *Unicode::stringToTitle(RexxString *string)
 
 RexxString *Unicode::stringToUpper(RexxString *string)
 {
+    string = stringArgument(string, OREF_positional, ARG_ONE);
     const uint8_t *str = (const uint8_t *)string->getStringData();
     uintptr_t strlength = (uintptr_t)string->getLength();
     const uint8_t * out_utf8str;
@@ -604,30 +610,137 @@ RexxString *Unicode::stringToUpper(RexxString *string)
 }
 
 
-RexxString *Unicode::NFD(RexxString *str)
+RexxString *Unicode::NFD(RexxString *string)
 {
-    return normalize(str, utf8proc_option_t(UTF8PROC_STABLE | UTF8PROC_DECOMPOSE));
+    return normalize(string, utf8proc_option_t(UTF8PROC_STABLE | UTF8PROC_DECOMPOSE));
 }
 
-RexxString *Unicode::NFC(RexxString *str)
+RexxString *Unicode::NFC(RexxString *string)
 {
-    return normalize(str, utf8proc_option_t(UTF8PROC_STABLE | UTF8PROC_COMPOSE));
-}
-
-
-RexxString *Unicode::NFKD(RexxString *str)
-{
-    return normalize(str, utf8proc_option_t(UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT));
+    return normalize(string, utf8proc_option_t(UTF8PROC_STABLE | UTF8PROC_COMPOSE));
 }
 
 
-RexxString *Unicode::NFKC(RexxString *str)
+RexxString *Unicode::NFKD(RexxString *string)
 {
-    return normalize(str, utf8proc_option_t(UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT));
+    return normalize(string, utf8proc_option_t(UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT));
 }
 
 
-RexxString *Unicode::NFKC_Casefold(RexxString *str)
+RexxString *Unicode::NFKC(RexxString *string)
 {
-    return normalize(str, utf8proc_option_t(UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD | UTF8PROC_IGNORE));
+    return normalize(string, utf8proc_option_t(UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT));
 }
+
+
+RexxString *Unicode::NFKC_Casefold(RexxString *string)
+{
+    return normalize(string, utf8proc_option_t(UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD | UTF8PROC_IGNORE));
+}
+
+
+RexxObject *Unicode::transform(RexxString *string, RexxObject **named_arglist, size_t named_argcount)
+{
+    string = stringArgument(string, OREF_positional, ARG_ONE);
+
+    // use strict named arg namedArguments=.NIL
+    NamedArguments expectedNamedArguments(8); // 8 named arguments
+    expectedNamedArguments[0] = NamedArgument("CASEFOLD",      1, TheFalseObject); // At least 1 character, default value = .false
+    expectedNamedArguments[1] = NamedArgument("IGNORE",        1, TheFalseObject); // At least 1 character, default value = .false
+    expectedNamedArguments[2] = NamedArgument("LUMP",          1, TheFalseObject); // At least 1 character, default value = .false
+    expectedNamedArguments[3] = NamedArgument("NLF",           2, IntegerZero);    // At least 2 characters, default value = 0 (0=none, 1=NLF2LF, 2=NLF2LS, 3=NLF2PS)
+    expectedNamedArguments[4] = NamedArgument("NORMALIZATION", 2, IntegerZero);    // At least 2 characters, default value = 0 (0=none, 1=NFC, 2=NFD, 3=NFKC, 4=NFKD)
+    expectedNamedArguments[5] = NamedArgument("STRIPCC",       6, TheFalseObject); // At least 6 characters, default value = .false
+    expectedNamedArguments[6] = NamedArgument("STRIPMARK",     6, TheFalseObject); // At least 6 characters, default value = .false
+    expectedNamedArguments[7] = NamedArgument("STRIPNA",       6, TheFalseObject); // At least 6 characters, default value = .false
+    expectedNamedArguments.check(named_arglist, named_argcount, /*strict*/ true, /*extraAllowed*/ false);
+    ssize_t casefold =      integerRange(expectedNamedArguments[0].value, 0, 1, Error_Logical_value_user_defined, "Transform: value of named argument \"casefold\" must be 0 or 1");
+    ssize_t ignore =        integerRange(expectedNamedArguments[1].value, 0, 1, Error_Logical_value_user_defined, "Transform: value of named argument \"ignore\" must be 0 or 1");
+    ssize_t lump =          integerRange(expectedNamedArguments[2].value, 0, 1, Error_Logical_value_user_defined, "Transform: value of named argument \"lump\" must be 0 or 1");
+    ssize_t nlf =           integerRange(expectedNamedArguments[3].value, 0, 3, Error_Invalid_argument_user_defined, "Transform: value of named argument \"nlf\" must be 0..3");
+    ssize_t normalization = integerRange(expectedNamedArguments[4].value, 0, 4, Error_Invalid_argument_user_defined, "Transform: value of named argument \"normalization\" must be 0..4");
+    ssize_t stripcc =       integerRange(expectedNamedArguments[5].value, 0, 1, Error_Logical_value_user_defined, "Transform: value of named argument \"stripcc\" must be 0 or 1");
+    ssize_t stripmark =     integerRange(expectedNamedArguments[6].value, 0, 1, Error_Logical_value_user_defined, "Transform: value of named argument \"stripmark\" must be 0 or 1");
+    ssize_t stripna =       integerRange(expectedNamedArguments[7].value, 0, 1, Error_Logical_value_user_defined, "Transform: value of named argument \"stripna\" must be 0 or 1");
+
+    int                     options = 0;
+    if (casefold)           options |= UTF8PROC_CASEFOLD;
+    if (ignore)             options |= UTF8PROC_IGNORE;
+    if (lump)               options |= UTF8PROC_LUMP;
+    if (nlf == 1)           options |= UTF8PROC_NLF2LF;
+    if (nlf == 2)           options |= UTF8PROC_NLF2LS;
+    if (nlf == 3)           options |= UTF8PROC_NLF2PS;
+    if (normalization == 1) options |= UTF8PROC_STABLE | UTF8PROC_COMPOSE;                      // NFC
+    if (normalization == 2) options |= UTF8PROC_STABLE | UTF8PROC_DECOMPOSE;                    // NFD
+    if (normalization == 3) options |= UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT;    // NFKC
+    if (normalization == 4) options |= UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT;  // NFKD
+    if (stripcc)            options |= UTF8PROC_STRIPCC;
+    if (stripmark)          options |= UTF8PROC_STRIPMARK;
+    if (stripna)            options |= UTF8PROC_STRIPNA;
+
+    return normalize(string, utf8proc_option_t(options));
+}
+
+#if 0 // options that can be passed from executor
+
+  /** Strip "default ignorable characters" such as SOFT-HYPHEN or ZERO-WIDTH-SPACE. */
+  UTF8PROC_IGNORE    = (1<<5),
+
+  /**
+   * Indicating that NLF-sequences (LF, CRLF, CR, NEL) are representing a
+   * line break, and should be converted to the codepoint for line
+   * separation (LS).
+   */
+   // convert LF, CRLF, CR and NEL into LS
+  UTF8PROC_NLF2LS    = (1<<7),
+
+  /**
+   * Indicating that NLF-sequences are representing a paragraph break, and
+   * should be converted to the codepoint for paragraph separation
+   * (PS).
+   */
+   // convert LF, CRLF, CR and NEL into PS
+  UTF8PROC_NLF2PS    = (1<<8),
+
+  /** Indicating that the meaning of NLF-sequences is unknown. */
+  // convert LF, CRLF, CR and NEL into LF
+  UTF8PROC_NLF2LF    = (UTF8PROC_NLF2LS | UTF8PROC_NLF2PS),
+
+  /** Strips and/or convers control characters.
+   *
+   * NLF-sequences are transformed into space, except if one of the
+   * NLF2LS/PS/LF options is given. HorizontalTab (HT) and FormFeed (FF)
+   * are treated as a NLF-sequence in this case.  All other control
+   * characters are simply removed.
+   */
+  UTF8PROC_STRIPCC   = (1<<9),
+
+  /**
+   * Performs unicode case folding, to be able to do a case-insensitive
+   * string comparison.
+   */
+  UTF8PROC_CASEFOLD  = (1<<10),
+
+  /** Lumps certain characters together.
+   *
+   * E.g. HYPHEN U+2010 and MINUS U+2212 to ASCII "-". See lump.md for details.
+   *
+   * If NLF2LF is set, this includes a transformation of paragraph and
+   * line separators to ASCII line-feed (LF).
+   */
+  UTF8PROC_LUMP      = (1<<12),
+
+  /** Strips all character markings.
+   *
+   * This includes non-spacing, spacing and enclosing (i.e. accents).
+   * @note This option works only with @ref UTF8PROC_COMPOSE or
+   *       @ref UTF8PROC_DECOMPOSE
+   */
+  UTF8PROC_STRIPMARK = (1<<13),
+
+  /**
+   * Strip unassigned codepoints.
+   */
+  UTF8PROC_STRIPNA    = (1<<14),
+
+#endif

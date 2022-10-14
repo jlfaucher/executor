@@ -1134,6 +1134,7 @@ CPPM(Unicode::NFC),
 CPPM(Unicode::NFKD),
 CPPM(Unicode::NFKC),
 CPPM(Unicode::NFKC_Casefold),
+CPPM(Unicode::transform),
 
 NULL                                   /* final terminating method          */
 };
