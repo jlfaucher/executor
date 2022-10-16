@@ -1,0 +1,8 @@
+100000 calls
+positional=           0.21
+optimal short names=  0.48
+worst short names=    0.60
+ratio short names=    1.25
+optimal long names=   0.47
+worst long names=     0.94
+ratio long names=     2.00

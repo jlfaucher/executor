@@ -202,7 +202,12 @@ The order of evaluation is the order of declaration in `USE NAMED ARG` (left-to-
 The automatic variables are already created and can be used during the evaluation of the default value.
 
 An optional minimum length can be specified after the name, allowing abbreviation.  
+The minimum length must be a whole number > 0 and <= name's length.
+The optional part of a named argument name cannot contain a period.
 For example: `namedArgument(1)` will allow to pass `n:`
+
+No named parameter name must start with the name of another named parameter
+Exception: a stem name can be used as prefix in several compound names.
 
 
 --------------

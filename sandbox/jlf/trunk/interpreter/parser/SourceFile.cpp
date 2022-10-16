@@ -5432,7 +5432,6 @@ RexxObject *RexxSource::subExpression(
 void checkNamedArguments(RexxQueue *names)
 {
     // No named parameter name must start with the name of another named parameter.
-    // See the comments in NamedArguments::check
     // Exception: a stem name can be used as prefix in several compound names.
 
     char buffer[256];

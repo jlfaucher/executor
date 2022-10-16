@@ -700,11 +700,10 @@ call useNamed_SimpleSymbol v1:1, v3:3, v5:5
 
 
 call useNamed_WithMinimumLength
-    use named arg n(1)
-    use named arg n(10)
-    use named arg n(100)
-    use named arg n(+1)
-    use named arg n(1) = 10
+    use named arg name(1)
+    use named arg name(3)
+    use named arg name(+1)
+    use named arg name(1) = 10
 
 
 call useAutoNamed_SimpleSymbol v1:1, v3:3, v5:5, index:"My index", item:"My item"
@@ -1501,13 +1500,13 @@ Expected: Ok, no error because the trailing comma is a continuation character fo
 
 call myprocedure , , 3, , a5:5,;
     [trapped] Named argument: expected symbol followed by colon.
-    [trapped] Code= 35.900
+    [trapped] Code= 99.900
 Expected: Should raise an error because of the trailing comma (TODO)
 
 
 call myroutine , , 3, , a5:5,;
     [trapped] Named argument: expected symbol followed by colon.
-    [trapped] Code= 35.900
+    [trapped] Code= 99.900
 Expected: Should raise an error because of the trailing comma (TODO)
 
 
@@ -1543,19 +1542,19 @@ Expected: Error 35.1: Incorrect expression detected at ":"
 
 call myprocedure 1, a2:2, a3:
     [trapped] Named argument: expected expression after colon.
-    [trapped] Code= 35.900
-Expected: Error 35.900:  Named argument: expected expression after colon
+    [trapped] Code= 99.900
+Expected: Error 99.900:  Named argument: expected expression after colon
 
 
-call myprocedure a1:1, a1:2 Error 35.900:  Named argument: the name "A1" is passed more than once
-    [trapped] Named argument: The name "A1" is passed more than once.
-    [trapped] Code= 35.900
+call myprocedure a1:1, a1:2 Error 99.900:  Named argument: 'A1:' is passed more than once
+    [trapped] Named argument: 'A1:' is passed more than once.
+    [trapped] Code= 99.900
 
 
 call myprocedure a1:1, , a3:3
     [trapped] Named argument: expected symbol followed by colon.
-    [trapped] Code= 35.900
-Expected: Error 35.900: Named argument: expected symbol followed by colon
+    [trapped] Code= 99.900
+Expected: Error 99.900: Named argument: expected symbol followed by colon
 
 
 call myprocedure instance~method:1
@@ -1754,40 +1753,100 @@ call useStrictAutoNamed_WithoutEllipse
 Expected: Error 99.900: STRICT AUTO requires the "..." argument marker at the end of the argument list
 
 
-{use named arg n()}
-    [trapped] Named argument minimum length must be a positive whole number.
+{use named arg name()}
+    [trapped] Use named arg: The minimum length of a named argument must be a whole number > 0 and <= name's length.
     [trapped] Code= 26.900
-Expected: Error 26.900: Named argument minimum length must be a positive whole number
+Expected: Error 26.900: Use named arg: The minimum length of a named argument must be a whole number > 0 and <= name's length
 
 
-{use named arg n(0)}
-    [trapped] Named argument minimum length must be a positive whole number.
+{use named arg name(0)}
+    [trapped] Use named arg: The minimum length of a named argument must be a whole number > 0 and <= name's length.
     [trapped] Code= 26.900
-Expected: Error 26.900: Named argument minimum length must be a positive whole number
+Expected: Error 26.900: Use named arg: The minimum length of a named argument must be a whole number > 0 and <= name's length
+
+
+{use named arg name(10)}
+    [trapped] Use named arg: The minimum length of a named argument must be a whole number > 0 and <= name's length.
+    [trapped] Code= 26.900
+Expected: Error 26.900: Use named arg: The minimum length of a named argument must be a whole number > 0 and <= name's length
+
+
+{use named arg command, commands}
+    [trapped] Use named arg: The name 'COMMAND' collides with 'COMMANDS'.
+    [trapped] Code= 99.900
+Expected: Error 99.900: Use named arg: The name 'COMMAND' collides with 'COMMANDS'
+
+
+{use named arg commands, command}
+    [trapped] Use named arg: The name 'COMMAND' collides with 'COMMANDS'.
+    [trapped] Code= 99.900
+Expected: Error 99.900: Use named arg: The name 'COMMANDS' collides with 'COMMAND'
 
 
 {use named arg command, commands(7)}
-    [trapped] The named argument names are not unique, or their abbreviation is not distinctive enough.
+    [trapped] Use named arg: The name 'COMMAND' collides with 'COMMANDS(7)'.
     [trapped] Code= 99.900
-Expected: Error 99.900: The named argument names are not unique, or their abbreviation is not distinctive enough
+Expected: Error 99.900: Use named arg: The name 'COMMAND' collides with 'COMMANDS(7)'
+
+
+{use named arg commands(7), command}
+    [trapped] Use named arg: The name 'COMMAND' collides with 'COMMANDS(7)'.
+    [trapped] Code= 99.900
+Expected: Error 99.900: Use named arg: The name 'COMMANDS(7)' collides with 'COMMAND'
 
 
 {use named arg command(1), commands(7)}
-    [trapped] The named argument names are not unique, or their abbreviation is not distinctive enough.
+    [trapped] Use named arg: The name 'COMMAND(1)' collides with 'COMMANDS(7)'.
     [trapped] Code= 99.900
-Expected: Error 99.900: The named argument names are not unique, or their abbreviation is not distinctive enough
+Expected: Error 99.900: Use named arg: The name 'COMMAND(1)' collides with 'COMMANDS(7)'
+
+
+{use named arg commands(7), command(1)}
+    [trapped] Use named arg: The name 'COMMAND(1)' collides with 'COMMANDS(7)'.
+    [trapped] Code= 99.900
+Expected: Error 99.900: Use named arg: The name 'COMMANDS(7)' collides with 'COMMAND(1)'
 
 
 {use named arg n, n}
-    [trapped] The named argument names are not unique, or their abbreviation is not distinctive enough.
+    [trapped] Use named arg: The name 'N' is declared more than once.
     [trapped] Code= 99.900
-Expected: Error 99.900: The named argument names are not unique, or their abbreviation is not distinctive enough
+Expected: Error 99.900: Use named arg: The name 'N' is declared more than once
 
 
 {use named arg item(1), index(1)}
-    [trapped] The named argument names are not unique, or their abbreviation is not distinctive enough.
+    [trapped] Use named arg: The name 'ITEM(1)' collides with 'INDEX(1)'.
     [trapped] Code= 99.900
-Expected: Error 99.900: The named argument names are not unique, or their abbreviation is not distinctive enough
+Expected: Error 99.900: Use named arg: The name 'ITEM(1)' collides with 'INDEX(1)'
+
+
+{use named arg stem., stem.key1(5), stem.key2(6)}
+    [trapped] Use named arg: The name 'STEM.KEY1(5)' collides with 'STEM.KEY2(6)'.
+    [trapped] Code= 99.900
+Expected: Error 99.900: Use named arg: The name 'STEM.KEY1(5)' collides with 'STEM.KEY2(6)'
+
+
+{use named arg stem., stem.key1(4)}
+    [trapped] Use named arg: The optional part of a named argument name cannot contain a period.
+    [trapped] Code= 26.900
+Expected: Error 26.900: Use named arg: The optional part of a named argument name cannot contain a period
+
+
+{use named arg stem., stem.key1, stem.key1}
+    [trapped] Use named arg: The name 'STEM.KEY1' is declared more than once.
+    [trapped] Code= 99.900
+Expected: Error 99.900: Use named arg: The name 'STEM.KEY1' is declared more than once
+
+
+{use named arg stem., stem.key1, stem.key1.key2}
+    [trapped] Use named arg: The name 'STEM.KEY1' collides with 'STEM.KEY1.KEY2'.
+    [trapped] Code= 99.900
+Expected: Error 99.900: Use named arg: The name 'STEM.KEY1' collides with 'STEM.KEY1.KEY2'
+
+
+{use named arg stem, stem.key1, stem.key2}
+    [trapped] Use named arg: The name 'STEM' collides with 'STEM.KEY1'.
+    [trapped] Code= 99.900
+Expected: Error 99.900: Use named arg: The name 'STEM' collides with 'STEM.KEY1'
 
 
 .context~setArgs

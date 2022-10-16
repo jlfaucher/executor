@@ -2614,10 +2614,13 @@ RexxInstruction *RexxSource::useNew()
                 syntaxError(Error_Variable_expected_USE, token);
             }
             // A message term assignment is not allowed for USE NAMED
-            if (namedArg && ((RexxVariableBase *)retriever)->isAllowedForUseNamed() == false)
+            RexxVariableBase *variable = (RexxVariableBase *)retriever;
+            if (namedArg && variable->isAllowedForUseNamed() == false)
             {
                 syntaxError(Error_Variable_symbol_expected_USE_NAMED);
             }
+            RexxString *variableName = variable->getName();
+            size_t variableNameLength = variableName ? variableName->getLength() : 0;
             variable_list->push(retriever);
             variableCount++;
             token = nextReal();
@@ -2639,7 +2642,8 @@ RexxInstruction *RexxSource::useNew()
                 if (token->subclass == SYMBOL_CONSTANT
                     && token->numeric == INTEGER_CONSTANT
                     && token_strvalue->requestUnsignedNumber(token_intvalue, number_digits())
-                    &&  token_intvalue > 0)
+                    &&  token_intvalue > 0
+                    && token_intvalue <= variableNameLength)
                 {
                     RexxInteger * minimumLength = new_integer(token_intvalue);
                     ProtectedObject p(minimumLength);
@@ -2647,7 +2651,13 @@ RexxInstruction *RexxSource::useNew()
                 }
                 else
                 {
-                    RexxString *message = new_string("Named argument minimum length must be a positive whole number");
+                    RexxString *message = new_string("Use named arg: The minimum length of a named argument must be a whole number > 0 and <= name's length");
+                    ProtectedObject p(message);
+                    syntaxError(Error_Invalid_whole_number_user_defined, message);
+                }
+                if (strchr(variableName->getStringData() + token_intvalue, '.') != NULL)
+                {
+                    RexxString *message = new_string("Use named arg: The optional part of a named argument name cannot contain a period");
                     ProtectedObject p(message);
                     syntaxError(Error_Invalid_whole_number_user_defined, message);
                 }

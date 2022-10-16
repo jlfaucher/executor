@@ -55,6 +55,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <limits.h>
+#include <stdexcept>
 
 /* REXX Library definitions */
 #define OREF_NULL NULL                 /* definition of a NULL REXX object  */
@@ -455,13 +456,13 @@ inline RexxInteger * REQUEST_INTEGER(RexxObject *obj) { return ((obj)->requestIn
 
 struct NamedArgument
 {
-    NamedArgument(const char *name=NULL, ssize_t minimumLength=-1, RexxObject *value=OREF_NULL, bool assigned=false)
-    : name(name), minimumLength(minimumLength), value(value), assigned(assigned) {};
+    NamedArgument(const char *name=NULL, ssize_t minimumLength=-1, RexxObject *value=OREF_NULL)
+    : name(name), minimumLength(minimumLength), value(value) { assigned = false; };
 
-    const char *name;       // name to search
+    const char *name;       // name of the named argument
     ssize_t minimumLength;  // abbreviation supported, pass -1 if no abbreviation
-    RexxObject *value;      // you can pass OREF_NULL or a default value
-    bool assigned;          // true if already assigned
+    RexxObject *value;      // default value or OREF_NULL
+    bool assigned;          // true if a value has been assigned
 };
 
 class NamedArguments
@@ -469,7 +470,9 @@ class NamedArguments
   public:
     NamedArguments(size_t count): count(count)
     {
+        // count=0 is accepted
         this->namedArguments = new NamedArgument[count];
+        if (this->namedArguments == NULL) throw std::invalid_argument( "NamedArguments: memory error" );
     }
 
     ~NamedArguments()
@@ -480,26 +483,31 @@ class NamedArguments
 
     NamedArgument &operator[](size_t index)
     {
+        if (this->namedArguments == NULL) throw std::invalid_argument( "NamedArguments: this instance has been deleted" );
+        if (index >= this->count) throw std::invalid_argument( "NamedArguments: invalid index" );
         return this->namedArguments[index];
     }
 
     // Resides in UseStrictInstruction.cpp.
-    void check(RexxObject **namedArglist, size_t namedArgCount, bool strict, bool extraAllowed, size_t minimumRequired=0);
+    // Match namedArglist (name1, value1, name2, value2, ...) with the declared namedArguments
+    void match(RexxObject **namedArglist, size_t namedArgCount, bool strict, bool extraAllowed, size_t minimumRequired=0);
 
     // name: name of the argument passed by the caller, to search in expectedNamedArguments. Can be null.
     // value: value of the argument passed by the caller, to store in expectedNamedArguments if name is found. Can be null.
     // strict: raise error if true and name not null and name not found.
-    // name_minimumLength: passed when checking at parsetime the unicity of the names in the USE instruction
-    //     @parsetime: check each name <N> declared in the USE instruction with all other names <ON> in this USE instruction.
-    //                 name_minimumLength is the minimumLength of the name <N>.
-    //     @runtime : check the name passed by the caller (no abbreviation on caller side, name_minimumLength is always -1).
-    bool check(RexxString *name, RexxObject *value, bool strict = true, ssize_t name_minimumLength = -1, size_t from=0);
-    bool check(const char *name, RexxObject *value, bool strict = true, ssize_t name_minimumLength = -1, size_t from=0);
+    // name_minimumLength: passed when checking at parse_time if some names collide in the USE instruction
+    //     @parse_time: check each name <N> declared in the USE instruction with all other names <ON> in this USE instruction.
+    //                  name_minimumLength is the minimumLength of the name <N>.
+    //     @run_time : match the name passed by the caller (no abbreviation on caller side, name_minimumLength is always -1).
+    bool match(RexxString *name, RexxObject *value, bool strict = true, ssize_t name_minimumLength = -1, size_t from = 0, bool parse_time = false);
+    bool match(const char *name, RexxObject *value, bool strict = true, ssize_t name_minimumLength = -1, size_t from = 0, bool parse_time = false);
 
     const size_t count;
 
   private:
-    NamedArgument *namedArguments;
+    bool checkNameMatching(const char *name, ssize_t name_minimumLength, size_t i, bool parse_time);
+
+    NamedArgument *namedArguments; // array
 };
 
 

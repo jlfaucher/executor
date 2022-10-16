@@ -69,7 +69,7 @@ public:
     void execute(RexxActivation *, RexxExpressionStack *);
     void executePositionalArguments(RexxActivation *, RexxExpressionStack *);
     void executeNamedArguments(RexxActivation *, RexxExpressionStack *);
-    bool checkNamedArguments(); // check unicity of names declared in USE NAMED ARG
+    void checkNamedArguments(); // check unicity of names declared in USE NAMED ARG
 
 protected:
     RexxObject *getArgument(RexxObject **arglist, size_t count, size_t target);

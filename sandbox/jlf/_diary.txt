@@ -4,6 +4,51 @@ Sandbox for experimental work, what's done so far.
 ===============================================================================
 2022 October 15
 
+[Named arguments]
+
+New constraint regarding the miminum length of a named argument:
+    must be <= name's length
+The complete rule is:
+    The minimum length of a named argument must be a whole number > 0 and <= name's length.
+Example:
+    {use named arg minimum(10)}                     -- error Use named arg: The minimum length of a named argument must be a whole number > 0 and <= name's length
+
+
+New rule regarding an abbreviated name:
+    The optional part of a named argument name cannot contain a period
+Example:
+    {use named arg stem.key1.key2(9)}               -- error Use named arg: The optional part of a named argument name cannot contain a period
+
+
+Better diagnosis when name collision/ambiguity.
+Rule:
+    No named parameter name must start with the name of another named parameter
+    Exception: a stem name (ends with a period) can be used as prefix in several compound names.
+Examples:
+    {use named arg normalization(1), nfl(2)}        -- error Use named arg: The name 'NORMALIZATION(1)' collides with 'NFL(2)'
+    {use named arg commands, command}               -- error Use named arg: The name 'COMMAND' collides with 'COMMANDS'
+    {use named arg commands(7), command}            -- error Use named arg: The name 'COMMANDS' collides with 'COMMANDS(7)'
+    {use named arg stem., stem.key1, stem.key2}     -- no error
+    {use named arg stem, stem.key1, stem.key2}      -- error Use named arg: The name 'STEM' collides with 'STEM.KEY1'
+
+    
+Reworked the method NamedArguments::checkNameMatching.
+The name matching is slightly slower for short names, but 4 times faster for long names.
+samples/benchmark/named_arguments-benchmark.rex
+before                              now
+100000 calls                        100000 calls
+positional=           0.19          positional=           0.21
+optimal short names=  0.35          optimal short names=  0.48
+worst short names=    0.40          worst short names=    0.60
+ratio short names=    1.14          ratio short names=    1.25
+optimal long names=   0.99          optimal long names=   0.47
+worst long names=     4.04          worst long names=     0.94
+ratio long names=     4.08          ratio long names=     2.00
+
+
+===============================================================================
+2022 October 15
+
 New native method .Unicode~transform
 Mainly for internal use, will replace the current native methods NFC, NFD, NFKC, NFKD.
 The purpose of this method is to support additional transformations provided by utf8proc.

@@ -359,6 +359,58 @@ TODO
 The named arguments could be added to the returned array (splitting the key:value).
 
 
+Remember
+--------
+
+(moved from UseStrictInstruction.cpp)
+
+    // Special check when parse_time.
+    //
+    // Background:
+    // Before this special check, the following code was accepted at parse_time
+    //     block = {use named arg normalization(1), nfl(2)}
+    //     block~(n:1, nf:2, normalization:3)
+    // I wanted to support such minimum lengths because there was no ambiguity:
+    //     'n'  matches with normalization(1), but not with nfl(2) because at least 2 characters needed
+    //     'no' matches with normalization(1), but not with nfl(2) because the second characters differ
+    //     'nf' matches with nfl(2), but not with normalization(1) because the second characters differ
+    //     etc...
+    // but this misleading error was raised at run_time:
+    //     named argument NORMALIZATION is not an expected argument name.
+    //
+    // That happened because the third argument normalization:3 was not matched with NORMALIZATION,
+    // which had been already matched (assigned==true) with the first argument n:1,
+    // and thus was not matched at all and reported as not expected.
+    // This is due to the optimization at the begining of the current method to reduce the number of matching
+    // (skip a named argument if already assigned). I want to keep this optimization...
+    //
+    // The parser has been modified to check this rule when parsing the argument names passed by the caller:
+    //     No named parameter name must start with the name of another named parameter.
+    // For the implementation of this rule, see RexxSource::argList which calls checkNamedArguments.
+    // Now this error is raised at parse_time:
+    //    Named argument: 'N:' and 'NORMALIZATION:' denote the same argument.
+    //
+    // Ok, then remove the redundant named parameter:
+    //     block~(n:1, nf:2)
+    // An error is still raised at parse_time:
+    //     Named argument: 'N:' and 'NF:' denote the same argument.
+    //
+    // This time, we have a problem because the instruction "use named arg normalization(1), nfl(2)" allows this call.
+    // At parse_time, it's impossible to know the minimum lengths when parsing a list of named arguments passed by the caller.
+    // So, to be consistent, the same rule must be enforced on callee side:
+    //     No named parameter name must start with the name of another named parameter.
+    // Consequence, the declaration on called side must be modified by the programmer to force at least 2 characters:
+    //     block = {use named arg normalization(2), nfl(2)}
+    // This is the purpose of the following lines to put in place the conditions to raise an error if the rule is not met.
+    // Now the code with minimum length (1) is no longer accepted at parse_time:
+    //     Use named arg: The name 'NORMALIZATION(1)' collides with 'NFL(2)'.
+
+    if (parse_time)
+    {
+        if (expectedNameMinimumLength > nameMinimumLength) expectedNameMinimumLength = nameMinimumLength;
+    }
+
+
 ================================================================================
 pad character todo: if length > 1 then forward to RexxText
 ================================================================================

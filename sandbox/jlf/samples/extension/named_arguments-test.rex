@@ -530,18 +530,40 @@ call interpret 'call useStrictAutoNamed_WithoutEllipse' -
              , 'Error 99.900: STRICT AUTO requires the "..." argument marker at the end of the argument list'
 
 -- Abbreviation
-call interpret '{use named arg n()}' -
-             , 'Error 26.900: Named argument minimum length must be a positive whole number'
-call interpret '{use named arg n(0)}' -
-             , 'Error 26.900: Named argument minimum length must be a positive whole number'
+call interpret '{use named arg name()}' -
+             , 'Error 26.900: Use named arg: The minimum length of a named argument must be a whole number > 0 and <= name''s length'
+call interpret '{use named arg name(0)}' -
+             , 'Error 26.900: Use named arg: The minimum length of a named argument must be a whole number > 0 and <= name''s length'
+call interpret '{use named arg name(10)}' -
+             , 'Error 26.900: Use named arg: The minimum length of a named argument must be a whole number > 0 and <= name''s length'
+call interpret '{use named arg command, commands}' -
+             , 'Error 99.900: Use named arg: The name ''COMMAND'' collides with ''COMMANDS'''
+call interpret '{use named arg commands, command}' -
+             , 'Error 99.900: Use named arg: The name ''COMMANDS'' collides with ''COMMAND'''
 call interpret '{use named arg command, commands(7)}' -
              , 'Error 99.900: Use named arg: The name ''COMMAND'' collides with ''COMMANDS(7)'''
+call interpret '{use named arg commands(7), command}' -
+             , 'Error 99.900: Use named arg: The name ''COMMANDS(7)'' collides with ''COMMAND'''
 call interpret '{use named arg command(1), commands(7)}' -
              , 'Error 99.900: Use named arg: The name ''COMMAND(1)'' collides with ''COMMANDS(7)'''
+call interpret '{use named arg commands(7), command(1)}' -
+             , 'Error 99.900: Use named arg: The name ''COMMANDS(7)'' collides with ''COMMAND(1)'''
 call interpret '{use named arg n, n}' -
-             , 'Error 99.900: Use named arg: The name ''N'' collides with ''N'''
+             , 'Error 99.900: Use named arg: The name ''N'' is declared more than once'
 call interpret '{use named arg item(1), index(1)}' -
              , 'Error 99.900: Use named arg: The name ''ITEM(1)'' collides with ''INDEX(1)'''
+
+-- Stem
+call interpret '{use named arg stem., stem.key1(5), stem.key2(6)}' -
+             , 'Error 99.900: Use named arg: The name ''STEM.KEY1(5)'' collides with ''STEM.KEY2(6)'''
+call interpret '{use named arg stem., stem.key1(4)}' -
+             , 'Error 26.900: Use named arg: The optional part of a named argument name cannot contain a period'
+call interpret '{use named arg stem., stem.key1, stem.key1}' -
+             , 'Error 99.900: Use named arg: The name ''STEM.KEY1'' is declared more than once'
+call interpret '{use named arg stem., stem.key1, stem.key1.key2}' -
+             , 'Error 99.900: Use named arg: The name ''STEM.KEY1'' collides with ''STEM.KEY1.KEY2'''
+call interpret '{use named arg stem, stem.key1, stem.key2}' -
+             , 'Error 99.900: Use named arg: The name ''STEM'' collides with ''STEM.KEY1'''
 
 -- Change arguments
 call interpret '.context~setArgs' -
@@ -668,24 +690,20 @@ interpret: procedure
     -- Specifying a minimum length
 
     call indent
-    say 'use named arg n(1)'
-         use named arg n(1)
+    say 'use named arg name(1)'
+         use named arg name(1)
 
     call indent
-    say 'use named arg n(10)'
-         use named arg n(10)
+    say 'use named arg name(3)'
+         use named arg name(3)
 
     call indent
-    say 'use named arg n(100)'
-         use named arg n(100)
+    say 'use named arg name(+1)'
+         use named arg name(+1)
 
     call indent
-    say 'use named arg n(+1)'
-         use named arg n(+1)
-
-    call indent
-    say 'use named arg n(1) = 10'
-         use named arg n(1) = 10
+    say 'use named arg name(1) = 10'
+         use named arg name(1) = 10
 
     return ""
 

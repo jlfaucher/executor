@@ -653,7 +653,7 @@ RexxObject *Unicode::transform(RexxString *string, RexxObject **named_arglist, s
     expectedNamedArguments[5] = NamedArgument("STRIPCC",       6, TheFalseObject); // At least 6 characters, default value = .false
     expectedNamedArguments[6] = NamedArgument("STRIPMARK",     6, TheFalseObject); // At least 6 characters, default value = .false
     expectedNamedArguments[7] = NamedArgument("STRIPNA",       6, TheFalseObject); // At least 6 characters, default value = .false
-    expectedNamedArguments.check(named_arglist, named_argcount, /*strict*/ true, /*extraAllowed*/ false);
+    expectedNamedArguments.match(named_arglist, named_argcount, /*strict*/ true, /*extraAllowed*/ false);
     ssize_t casefold =      integerRange(expectedNamedArguments[0].value, 0, 1, Error_Logical_value_user_defined, "Transform: value of named argument \"casefold\" must be 0 or 1");
     ssize_t ignore =        integerRange(expectedNamedArguments[1].value, 0, 1, Error_Logical_value_user_defined, "Transform: value of named argument \"ignore\" must be 0 or 1");
     ssize_t lump =          integerRange(expectedNamedArguments[2].value, 0, 1, Error_Logical_value_user_defined, "Transform: value of named argument \"lump\" must be 0 or 1");

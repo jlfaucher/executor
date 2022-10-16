@@ -296,7 +296,7 @@ RexxObject *RexxContext::setArgs(RexxObject *positionalArguments,
     // use strict named arg namedArguments=.NIL
     NamedArguments expectedNamedArguments(1); // At most, one named argument
     expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", 1, TheNilObject); // At least 1 characters, default value = .NIL
-    expectedNamedArguments.check(named_arglist, named_argcount, /*strict*/ true, /*extraAllowed*/ false);
+    expectedNamedArguments.match(named_arglist, named_argcount, /*strict*/ true, /*extraAllowed*/ false);
 
     ProtectedObject p2;
     RexxDirectory *namedArgumentsDirectory = (RexxDirectory *)expectedNamedArguments[0].value;
