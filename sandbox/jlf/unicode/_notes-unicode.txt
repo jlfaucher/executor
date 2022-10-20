@@ -54,11 +54,6 @@ https://unicode.org/reports/tr36/#visual_spoofing
 UNICODE SECURITY CONSIDERATIONS
 
 
-http://www.unicode.org/reports/tr39
-UNICODE SECURITY MECHANISMS
-http://www.unicode.org/Public/security/latest/confusables.txt
-
-
 https://www.unicode.org/reports/tr51/
 Unicode  emoji
 
@@ -80,9 +75,36 @@ Unicode Technical Note #5
 CANONICAL EQUIVALENCE IN APPLICATIONS
 
 
+https://icu.unicode.org/design/normalizing-to-shortest-form
+Canonically Equivalent Shortest Form (CESF)
+This is usually, but not always, the NFC form.
+
+
 03/08/2022
 https://discourse.julialang.org/t/unicode-15-0-beta-and-sorting-collation/83090
 https://unicode.org/emoji/charts-15.0/emoji-ordering.html
+
+
+https://www.unicode.org/notes/tn39/
+BIDI BRACKETS FOR DUMMIES
+    — So is the Arabic U+FD3E ﴾ ORNATE LEFT PARENTHESIS a bracket, too?
+    No.
+    — Why not?
+    Because I said so.
+    — How about quotation marks? They come in pairs and enclose stuff inside, separating it from all the stuff outside. Some of them, like that French thingie ‹ even look like brackets.
+    No, they aren't "brackets", either.
+    — Why not?
+    Because I said so.
+    — How about U+300C 「 LEFT CORNER BRACKET? Is that a "bracket"?
+    Yes, that is a bracket.
+    — But I thought that was a Japanese quotation mark. How come it is a bracket, but the other quotation marks aren't?
+    Because I said so. Oh, and U+230A ⌊ LEFT FLOOR is a "bracket", too.
+    — But that doesn't make any sense. What does "FLOOR" have to do with brackets?
+    It's probably something to do with maths, but it's a "bracket", anyway. Besides, if you were a decent carpenter, you would know what a floor bracket was.
+    — How about the left angle bracket "<"? Is that at least a "bracket"?
+    No.
+    — Why not?
+    Because it's a LESS-THAN SIGN. And enough with all these silly "Why?" and "Why not?" questions.
 
 
 ================================================================================
@@ -95,6 +117,12 @@ https://en.wikipedia.org/wiki/UTF-32
 
 
 http://xahlee.info/comp/unicode_index.html
+
+http://xahlee.info/comp/unicode_invert_text.html
+Inverted text: :ʇxǝʇ pǝʇɹǝʌuI
+
+http://xahlee.info/comp/unicode_animals.html
+T-REXX: 🦖
 
 
 https://www.fontspace.com/unicode/analyzer
@@ -210,6 +238,26 @@ For example the byte sequence which is “nonsense” in UTF-8 is 潮獮湥敳 i
 https://github.com/simsong/bulk_extractor
 
 
+http://t-a-w.blogspot.com/2008/12/funny-characters-in-unicode.html
+SKULL AND CROSSBONES
+SNOWMAN
+POSTAL MARK FACE
+APL FUNCTIONAL SYMBOL TILDE DIAERESIS
+ARABIC LIGATURE UIGHUR KIRGHIZ YEH WITH HAMZA ABOVE WITH ALEF MAKSURA ISOLATED FORM
+ARABIC LIGATURE SALLALLAHOU ALAYHE WASALLAM
+THAI CHARACTER KHOMUT
+GLAGOLITIC CAPITAL LETTER SPIDERY HA
+VERY MUCH GREATER-THAN
+NEITHER LESS-THAN NOR GREATER-THAN
+HEAVY BLACK HEART
+FLORAL HEART BULLET, REVERSED ROTATED
+INTERROBANG
+𝄞 (U+1D11E) MUSICAL SYMBOL G CLEF
+𝕥 (U+1D565) MATHEMATICAL DOUBLE-STRUCK SMALL T
+𝟶 (U+1D7F6) MATHEMATICAL MONOSPACE DIGIT ZERO
+𠂊 (U+2008A) Han Character
+
+
 ================================================================================
 U+ notation, Unicode escape sequence
 ================================================================================
@@ -243,7 +291,13 @@ Unicode Escape Sequences Across Various Languages and Platforms
 Security
 ================================================================================
 
+http://www.unicode.org/reports/tr39
+UNICODE SECURITY MECHANISMS
+http://www.unicode.org/Public/security/latest/confusables.txt
+
+
 https://www.trojansource.codes/
+
 
 https://api.mtr.pub/vhf/confusable_homoglyphs
 
@@ -434,6 +488,11 @@ FCD     "Fast C or D" form; cf. UTN #5
 FCC     "Fast C Contiguous"; cf. UTN #5
 
 
+https://www.macchiato.com/unicode-intl-sw/nfc-faq
+NFC FAQ
+jlf: MUST READ!
+
+
 09/06/2021
 Rust
 https://docs.rs/unicode-normalization
@@ -485,6 +544,94 @@ DIACRITICAL MARKS IN UNICODE
 https://news.ycombinator.com/item?id=29751641
 Unicode Normalization Forms: When ö ≠ ö
 https://blog.opencore.ch/posts/unicode-normalization-forms/
+
+
+https://unicode-org.github.io/icu/userguide/transforms/normalization/
+ICU Documentation
+Normalization
+Has a few comments about NFKC_Casefold
+- NFKC_Casefold: ICU 4.4 supports the combination of NFKC, case folding and
+  removing ignorable characters which was introduced with Unicode 5.2.
+- Data Generation Tool
+
+
+================================================================================
+String matching - Lower vs Casefold
+================================================================================
+
+https://stackoverflow.com/questions/45745661/lower-vs-casefold-in-string-matching-and-converting-to-lowercase
+
+
+https://www.w3.org/TR/charmod-norm/
+Character Model for the World Wide Web: String Matching
+MUST READ, PLENTY OF EXAMPLES FOR CORNER CASES
+
+https://www.w3.org/TR/charmod-norm/#definitionCaseFolding
+Very good explanation!
+    A few characters have a case folding that map one Unicode code point to two or more code points.
+    This set of case foldings are called the full case foldings.
+
+    character ß U+00DF LATIN SMALL LETTER SHARP S
+    - The full case folding and the lower case mapping of this character is to two ASCII letters 's'.
+    - The upper case mapping is to "SS".
+    Because some applications cannot allocate additional storage when performing a case fold operation,
+    Unicode provides a simple case folding that maps a code point that would normally fold to more or
+    fewer code points to use a single code point for comparison purposes instead.
+    Unlike the full folding, this folding invariably alters the content (and potentially the meaning) of the text.
+    Unicode simple is not appropriate for use on the Web.
+
+    character ᾛ [U+1F9B GREEK CAPITAL LETTER ETA WITH DASIA AND VARIA AND PROSGEGRAMMENI]
+    ᾛ	⇒	ἣι	full case fold: U+1F23 GREEK SMALL LETTER ETA WITH DASIA AND VARIA + U+03B9 GREEK SMALL LETTER IOTA
+    ᾛ	⇒	ᾓ	simple case fold: U+1F93 GREEK SMALL LETTER ETA WITH DASIA AND VARIA AND YPOGEGRAMMENI
+
+    Language Sensitivity
+    Another aspect of case mapping and case folding is that it can be language sensitive.
+    Unicode defines default case mappings and case foldings for each encoded character,
+    but these are only defaults and are not appropriate in all cases. Some languages need
+    case mapping to be tailored to meet specific linguistic needs. One example of this are
+    Turkic languages written in the Latin script:
+        Default Folding
+        I	⇒	i	Default folding of letter I
+        Turkic Language Folding
+        I	⇒	ı	Turkic language folding of dotless (ASCII) letter I
+        İ	⇒	i	Turkic language folding of dotted letter I
+
+https://www.w3.org/TR/charmod-norm/#matchingAlgorithm
+There are four choices for text normalization:
+- Default.
+  This normalization step has no effect on the text and, as a result, is sensitive
+  to form differences involving both case and Unicode normalization.
+- ASCII Case Fold.
+  Comparison of text with the characters case folded in the ASCII (Basic Latin, U+0000 to U+007F) range.
+- Unicode Canonical Case Fold.
+  Comparison of text that is both case folded and has Unicode canonical normalization applied.
+- Unicode Compatibility Case Fold.
+  Comparison of text that is both case folded and has Unicode compatibility normalization applied.
+  This normalization step is presented for completeness, but it is not generally appropriate for use on the Web.
+
+
+https://www.elastic.co/guide/en/elasticsearch/guide/current/languages.html
+Elasticsearch
+Dealing with Human Language
+
+
+https://stackoverflow.com/questions/319426/how-do-i-do-a-case-insensitive-string-comparison
+Related to Python, but the comments are very general and worth reading.
+---
+Unicode Standard section 3.13 has two other definitions for caseless comparisons:
+(D146, canonical) NFD(toCasefold(NFD(str))) on both sides and
+(D147, compatibility) NFKD(toCasefold(NFKD(toCasefold(NFD(X))))) on both sides.
+It states the inner NFD is solely to handle a certain Greek accent character.
+
+
+https://boyter.org/posts/unicode-support-what-does-that-actually-mean/
+https://news.ycombinator.com/item?id=23524400
+ſecret == secret == Secret
+ſatisfaction == satisfaction == ſatiſfaction == Satiſfaction == SatiSfaction === ſatiSfaction
+Another good example to consider is the character Æ.
+Under simple case folding rules the lower of Æ is ǣ.
+However with full case folding rules this also matches ae.
+Which one is correct? Well that depends on who you ask.
 
 
 ================================================================================
@@ -737,6 +884,11 @@ Referenced from
     His research is focused on software performance and data engineering. He is a techno-optimist.
 
 
+https://github.com/simdutf/simdutf
+https://news.ycombinator.com/item?id=32700315
+Unicode routines (UTF8, UTF16, UTF32): billions of characters per second using SSE2, AVX2, NEON, AVX-512.
+
+
 ================================================================================
 Variation sequence
 ================================================================================
@@ -850,6 +1002,26 @@ actually become क्षति (in this case, we right-rotate the first charact
 modify some of the stylish elements, and attach it at the left side of the second character).
 
 
+https://news.ycombinator.com/item?id=20058454
+If I type anything like किमपि (“kimapi”) and hit backspace, it turns into किमप (“kimapa”).
+That is, the following sequence of codepoints:
+    ‎0915 DEVANAGARI LETTER KA
+    ‎093F DEVANAGARI VOWEL SIGN I
+    ‎092E DEVANAGARI LETTER MA
+    ‎092A DEVANAGARI LETTER PA
+    ‎093F DEVANAGARI VOWEL SIGN I
+made of three grapheme clusters (containing 2, 1, and 2 codepoints respectively),
+turns after a single backspace into the following sequence:
+    ‎0915 DEVANAGARI LETTER KA
+    ‎093F DEVANAGARI VOWEL SIGN I
+    ‎092E DEVANAGARI LETTER MA
+    ‎092A DEVANAGARI LETTER PA
+This is what I expect/find intuitive, too, as a user.
+Similarly अन्यच्च is made of 3 grapheme clusters but you hit backspace 7 times to delete it
+(though there I'd slightly have preferred अन्यच्च→अन्यच्→अन्य→अन्→अ instead of
+अन्यच्च→अन्यच्→अन्यच→अन्य→अन्→अन→अ that's seen, but one can live with this).
+
+
 https://github.com/anoopkunchukuttan/indic_nlp_library
 The goal of the Indic NLP Library is to build Python based libraries for common
 text processing and Natural Language Processing in Indian languages.
@@ -869,7 +1041,7 @@ The library provides the following functionalities:
 
 https://news.ycombinator.com/item?id=20056966
 jlf: Devnagari seems to be an example where grapheme is not the right segmentation
-"इंडेक्स" का क्या अर्थ है?
+What does "index" mean? (hindi) "इंडेक्स" का क्या अर्थ है?
 Including the quote marks, spaces, and question mark, that's 18 characters.
 as a native speaker, shouldn't they be considered 15 characters?
 क्स, क्या and र्थ each form individual conjunct consonants.
@@ -920,6 +1092,9 @@ Japanese
 
 https://heistak.github.io/your-code-displays-japanese-wrong/
 https://news.ycombinator.com/item?id=29022906
+
+https://www.johndcook.com/blog/2022/09/25/katakana-hiragana-unicode/
+https://news.ycombinator.com/item?id=32987710
 
 
 ================================================================================
@@ -1332,7 +1507,7 @@ https://github.com/xi-editor/xi-editor/blob/e8065a3993b80af0aadbca0e50602125d60e
 
 
 ================================================================================
-ICU
+ICU title
 ================================================================================
 
 http://stackoverflow.com/questions/8253033/what-open-source-c-or-c-libraries-can-convert-arbitrary-utf-32-to-nfc
@@ -1364,6 +1539,14 @@ std::string normalize(const std::string &unnormalized_utf8) {
     return normalized_utf8;
 }
 
+
+https://icu4c-demos.unicode.org/icu-bin/icudemos
+todo: review
+
+
+https://icu4c-demos.unicode.org/icu-bin/scompare
+ICU Unicode String Comparison
+Interactive demo application
 
 ================================================================================
 ICU bindings
@@ -1501,6 +1684,18 @@ jlf: the results above are correct extended grapheme clusters, but tailored
 grapheme clusters will group 'क्' 'र' in one cluster क्र
 
 
+https://blog.burntsushi.net/ripgrep/
+ripgrep is faster than {grep, ag, git grep, ucg, pt, sift}
+search for "unicode" and read...
+
+
+================================================================================
+Test cases, test-cases, tests files
+================================================================================
+
+https://github.com/lemire/unicode_lipsum
+
+
 ================================================================================
 Ada lang
 ================================================================================
@@ -1512,6 +1707,16 @@ http://www.dmitry-kazakov.de/ada/strings_edit.htm
 UXStrings Ada Unicode Extended Strings
 https://www.reddit.com/r/ada/comments/t4hpip/ann_uxstrings_package_available_uxs_20220226/
 https://github.com/Blady-Com/UXStrings
+
+================================================================================
+Awk lang
+================================================================================
+
+Brian Kernighan adds Unicode support to Awk
+https://github.com/onetrueawk/awk/commit/9ebe940cf3c652b0e373634d2aa4a00b8395b636
+https://github.com/onetrueawk/awk/tree/unicode-support
+https://news.ycombinator.com/item?id=32534173
+
 
 ================================================================================
 C++ lang, Boost
@@ -1675,6 +1880,28 @@ UTF-8/16 encoder/decoder
 
 
 ================================================================================
+Java lang
+================================================================================
+
+https://www.baeldung.com/java-remove-accents-from-text
+Remove Accents and Diacritics From a String in Java
+- We will perform the compatibility decomposition represented as the Java enum NFKD.
+  because it decomposes more ligatures than the canonical method (for example, ligature “ﬁ”).
+- We will remove all characters matching the Unicode Mark category using the \p{M} regex expression.
+Test:
+    assertEquals("\\u0066 \\u0069", StringNormalizer.unicodeValueOfNormalizedString("ﬁ"));
+    assertEquals("\\u0061 \\u0304", StringNormalizer.unicodeValueOfNormalizedString("ā"));
+    assertEquals("\\u0069 \\u0308", StringNormalizer.unicodeValueOfNormalizedString("ï"));
+    assertEquals("\\u006e \\u0301", StringNormalizer.unicodeValueOfNormalizedString("ń"));
+Compare Strings Including Accents Using Collator.
+Java provides four strength values for a Collator:
+    PRIMARY: comparison omitting case and accents
+    SECONDARY: comparison omitting case but including accents and diacritics
+    TERTIARY: comparison including case and accents
+    IDENTICAL: all differences are significant
+
+
+================================================================================
 JavaScript lang
 ================================================================================
 
@@ -1760,6 +1987,20 @@ See https://github.com/JuliaLang/julia/issues/7848
 https://github.com/JuliaLang/julia/pull/42493
 This PR adds a function isequal_normalized to the Unicode stdlib to check whether
 two strings are canonically equivalent (optionally casefolding and/or stripping combining marks).
+
+
+https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/13
+    julia> '\ub5'
+    'µ': Unicode U+00b5 (category Ll: Letter, lowercase)
+
+    julia> '\uff'
+    'ÿ': Unicode U+00ff (category Ll: Letter, lowercase)
+
+    julia> Base.Unicode.uppercase("ÿ")[1]
+    'Ÿ': Unicode U+0178 (category Lu: Letter, uppercase)
+
+    julia> Base.Unicode.uppercase("µ")[1]
+    'Μ': Unicode U+039c (category Lu: Letter, uppercase)
 
 
 ================================================================================
@@ -1912,6 +2153,58 @@ String length functions for single emoji characters evaluate to greater than 1
 
 https://andrewshitov.com/2018/10/31/unicode-in-perl-6/
 Unicode in Raku
+
+
+https://docs.raku.org/language/unicode
+Raku applies normalization by default to all input and output except for file names,
+which are read and written as UTF8-C8
+UTF-8 Clean-8 is an encoder/decoder that primarily works as the UTF-8 one. However,
+upon encountering a byte sequence that will either not decode as valid UTF-8, or
+that would not round-trip due to normalization, it will use NFG synthetics to
+keep track of the original bytes involved. This means that encoding back to UTF-8 Clean-8
+will be able to recreate the bytes as they originally existed.
+
+
+https://github.com/MoarVM/MoarVM/blob/master/docs/strings.asciidoc
+Strings in MoarVM
+Strands
+    Strands are a type of MVMString which instead of being a flat string with contiguous data,
+    actually contains references to other strings. Strands are created during concatenation
+    or substring operations. When two flat strings are concatenated together, a Strand with
+    references to both string a and string b is created. If string a and string b were strands
+    themselves, the references of string a and references of string b are copied one after another
+    into the Strand.
+Synthetic’s
+    Synthetics are graphemes which contain multiple codepoints. In MoarVM these are stored
+    and accessed using a trie, while the actual data itself stores the base character seprately
+    and then the combiners are stored in an array.
+    Currently the maximum number of combiners in a synthetic is 1024.
+    MoarVM will throw an exception if you attempt to create a grapheme with more than 1024 codepoints in it.
+Normalization
+    MoarVM normalizes into NFG form all input text.
+NFG
+    Normalization Form Grapheme. Similar to NFC except graphemes which contain multiple codepoints
+    are stored in Synthetic graphemes.
+
+================================================================================
+Oracle
+================================================================================
+
+https://docs.oracle.com/database/121/NLSPG/ch5lingsort.htm#NLSPG288
+Database Globalization Support Guide
+5 Linguistic Sorting and Matching
+Complex! Did not read in details, maybe I should...
+
+
+https://docs.oracle.com/database/121/NLSPG/ch6unicode.htm#NLSPG323
+Database Globalization Support Guide
+6 Supporting Multilingual Databases with Unicode
+
+
+https://docs.oracle.com/database/121/NLSPG/ch7progrunicode.htm#NLSPG346
+Database Globalization Support Guide
+7 Programming with Unicode
+
 
 ================================================================================
 Perl lang (Perl 6 has been renamed to Raku)
@@ -2227,6 +2520,21 @@ Interesting infos about caseless matching
 
 
 ================================================================================
+R lang
+================================================================================
+
+https://stringi.gagolewski.com/index.html
+stringi: Fast and Portable Character String Processing in R
+stringi (pronounced “stringy”, IPA [strinɡi]) is THE R package for very fast, portable,
+correct, consistent, and convenient string/text processing in any locale or character encoding.
+Thanks to ICU, stringi fully supports a wide range of Unicode standards.
+Paper (PDF): https://www.jstatsoft.org/index.php/jss/article/view/v103i02/4324
+
+https://github.com/gagolews/stringi
+Fast and Portable Character String Processing in R (with the Unicode ICU)
+
+
+================================================================================
 Rexx lang
 ================================================================================
 
@@ -2418,6 +2726,25 @@ security concern affecting source code containing "bidirectional override" Unico
 10/03/2022
 https://rust-lang.github.io/rfcs/2457-non-ascii-idents.html
 Allow non-ASCII letters (such as accented characters, Cyrillic, Greek, Kanji, etc.) in Rust identifiers.
+
+
+10/09/2022
+https://blog.burntsushi.net/bstr/
+A byte string library for Rust
+Invalid UTF-8 doesn’t actually prevent one from applying Unicode-aware algorithms on the parts
+of the string that are valid UTF-8. The parts that are invalid UTF-8 are simply ignored.
+
+
+15/10/2022
+https://crates.io/crates/finl_unicode
+Library for handling Unicode functionality for finl (categories and grapheme segmentation)
+There are these comments in https://news.ycombinator.com/item?id=32700315
+    All with two-step tables instead of range- and binary search?
+    Yes. The two-step tables are really not that expensive and they enable features not possible with range and binary search, like identifying the category of a character cheaply.
+
+
+https://andre.arko.net/2013/12/01/strings-in-ruby-are-utf-8-now/
+"baﬄe".upcase == "BAFFLE"
 
 
 ================================================================================
@@ -2693,6 +3020,24 @@ Feedback from swift team
        If the C++ standard library provided these operations, sufficiently up-to-date with Unicode version and comparable or better to ICU in performance,
        we would be willing to switch. A big pain in interacting with ICU is their limited support for UTF-8.
        Some users who would like to use a lighter-weight Swift and are unhappy at having to link against ICU, as it's fairly large, and it can complicate security audits.
+
+
+https://forums.swift.org/t/pitch-unicode-for-string-processing/56907/6
+[Pitch] Unicode for String Processing
+
+
+https://github.com/apple/swift-evolution/blob/main/proposals/0350-regex-type-overview.md
+jlf: surprising intro!
+Swift strings provide an obsessively Unicode-forward model of programming with strings.
+String processing with Collection's algorithms is woefully inadequate for many day-to-day
+tasks compared to other popular programming and scripting languages.
+We propose addressing this basic shortcoming through an effort we are calling regex.
+
+
+https://github.com/apple/swift-experimental-string-processing/blob/main/Documentation/Evolution/ProposalOverview.md
+Regex Proposals
+todo: read String processing algorithms https://forums.swift.org/t/pitch-regex-powered-string-processing-algorithms/55969
+todo: read Unicode for String Processing https://github.com/apple/swift-experimental-string-processing/blob/main/Documentation/Evolution/UnicodeForStringProcessing.md
 
 
 ================================================================================

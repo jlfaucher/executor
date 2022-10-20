@@ -14,6 +14,7 @@ Contents:
     <a href="#Security">Security</a>
     <a href="#Segmentation__Grapheme">Segmentation, Grapheme</a>
     <a href="#Normalization__equivalence">Normalization, equivalence</a>
+    <a href="#String_matching___Lower_vs_Casefold">String matching - Lower vs Casefold</a>
     <a href="#Locale">Locale</a>
     <a href="#CLDR_Common_Locale_Data_Repository">CLDR Common Locale Data Repository</a>
     <a href="#Case_mappings">Case mappings</a>
@@ -42,28 +43,33 @@ Contents:
     <a href="#WTF8">WTF8</a>
     <a href="#Indexation_of_UTF_8_strings">Indexation of UTF-8 strings</a>
     <a href="#Rope">Rope</a>
-    <a href="#ICU">ICU</a>
+    <a href="#ICU_title">ICU title</a>
     <a href="#ICU_bindings">ICU bindings</a>
     <a href="#utfcpp">utfcpp</a>
     <a href="#Twitter_text_parsing">Twitter text parsing</a>
     <a href="#terminal___console">terminal / console</a>
     <a href="#Language_comparison">Language comparison</a>
     <a href="#Regular_expressions">Regular expressions</a>
+    <a href="#Test_cases__test_cases__tests_files">Test cases, test-cases, tests files</a>
     <a href="#Ada_lang">Ada lang</a>
+    <a href="#Awk_lang">Awk lang</a>
     <a href="#C___lang__Boost">C++ lang, Boost</a>
     <a href="#DotNet__CoreFx">DotNet, CoreFx</a>
     <a href="#Dafny_lang">Dafny lang</a>
     <a href="#Factor_lang">Factor lang</a>
+    <a href="#Java_lang">Java lang</a>
     <a href="#JavaScript_lang">JavaScript lang</a>
     <a href="#Julia_lang">Julia lang</a>
     <a href="#Kotlin_lang">Kotlin lang</a>
     <a href="#Lisp_lang">Lisp lang</a>
     <a href="#Mathematica_lang">Mathematica lang</a>
     <a href="#MOAR_VM_RAKU_lang">MOAR-VM RAKU lang</a>
+    <a href="#Oracle">Oracle</a>
     <a href="#Perl_lang__Perl_6_has_been_renamed_to_Raku_">Perl lang (Perl 6 has been renamed to Raku)</a>
     <a href="#PHP_lang">PHP lang</a>
     <a href="#Powershell_lang">Powershell lang</a>
     <a href="#Python_lang">Python lang</a>
+    <a href="#R_lang">R lang</a>
     <a href="#Rexx_lang">Rexx lang</a>
     <a href="#Rust_lang">Rust lang</a>
     <a href="#Swift_lang">Swift lang</a>
@@ -120,11 +126,6 @@ UNICODE NORMALIZATION FORMS
 UNICODE SECURITY CONSIDERATIONS
 
 
-<a target="_blank" rel="noopener noreferrer" href="http://www.unicode.org/reports/tr39">http://www.unicode.org/reports/tr39</a>
-UNICODE SECURITY MECHANISMS
-<a target="_blank" rel="noopener noreferrer" href="http://www.unicode.org/Public/security/latest/confusables.txt">http://www.unicode.org/Public/security/latest/confusables.txt</a>
-
-
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr51/">https://www.unicode.org/reports/tr51/</a>
 Unicode  emoji
 
@@ -146,9 +147,36 @@ Unicode Technical Note #5
 CANONICAL EQUIVALENCE IN APPLICATIONS
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://icu.unicode.org/design/normalizing-to-shortest-form">https://icu.unicode.org/design/normalizing-to-shortest-form</a>
+Canonically Equivalent Shortest Form (CESF)
+This is usually, but not always, the NFC form.
+
+
 03/08/2022
 <a target="_blank" rel="noopener noreferrer" href="https://discourse.julialang.org/t/unicode-15-0-beta-and-sorting-collation/83090">https://discourse.julialang.org/t/unicode-15-0-beta-and-sorting-collation/83090</a>
 <a target="_blank" rel="noopener noreferrer" href="https://unicode.org/emoji/charts-15.0/emoji-ordering.html">https://unicode.org/emoji/charts-15.0/emoji-ordering.html</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/notes/tn39/">https://www.unicode.org/notes/tn39/</a>
+BIDI BRACKETS FOR DUMMIES
+    — So is the Arabic U+FD3E ﴾ ORNATE LEFT PARENTHESIS a bracket, too?
+    No.
+    — Why not?
+    Because I said so.
+    — How about quotation marks? They come in pairs and enclose stuff inside, separating it from all the stuff outside. Some of them, like that French thingie ‹ even look like brackets.
+    No, they aren't "brackets", either.
+    — Why not?
+    Because I said so.
+    — How about U+300C 「 LEFT CORNER BRACKET? Is that a "bracket"?
+    Yes, that is a bracket.
+    — But I thought that was a Japanese quotation mark. How come it is a bracket, but the other quotation marks aren't?
+    Because I said so. Oh, and U+230A ⌊ LEFT FLOOR is a "bracket", too.
+    — But that doesn't make any sense. What does "FLOOR" have to do with brackets?
+    It's probably something to do with maths, but it's a "bracket", anyway. Besides, if you were a decent carpenter, you would know what a floor bracket was.
+    — How about the left angle bracket "&lt;"? Is that at least a "bracket"?
+    No.
+    — Why not?
+    Because it's a LESS-THAN SIGN. And enough with all these silly "Why?" and "Why not?" questions.
 
 
 <hr><h2 id="Unicode_general_informations">Unicode general informations</h2><hr>
@@ -158,6 +186,12 @@ CANONICAL EQUIVALENCE IN APPLICATIONS
 
 
 <a target="_blank" rel="noopener noreferrer" href="http://xahlee.info/comp/unicode_index.html">http://xahlee.info/comp/unicode_index.html</a>
+
+<a target="_blank" rel="noopener noreferrer" href="http://xahlee.info/comp/unicode_invert_text.html">http://xahlee.info/comp/unicode_invert_text.html</a>
+Inverted text: :ʇxǝʇ pǝʇɹǝʌuI
+
+<a target="_blank" rel="noopener noreferrer" href="http://xahlee.info/comp/unicode_animals.html">http://xahlee.info/comp/unicode_animals.html</a>
+T-REXX: 🦖
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.fontspace.com/unicode/analyzer">https://www.fontspace.com/unicode/analyzer</a>
@@ -273,6 +307,26 @@ For example the byte sequence which is “nonsense” in UTF-8 is 潮獮湥敳 i
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/simsong/bulk_extractor">https://github.com/simsong/bulk_extractor</a>
 
 
+<a target="_blank" rel="noopener noreferrer" href="http://t-a-w.blogspot.com/2008/12/funny-characters-in-unicode.html">http://t-a-w.blogspot.com/2008/12/funny-characters-in-unicode.html</a>
+SKULL AND CROSSBONES
+SNOWMAN
+POSTAL MARK FACE
+APL FUNCTIONAL SYMBOL TILDE DIAERESIS
+ARABIC LIGATURE UIGHUR KIRGHIZ YEH WITH HAMZA ABOVE WITH ALEF MAKSURA ISOLATED FORM
+ARABIC LIGATURE SALLALLAHOU ALAYHE WASALLAM
+THAI CHARACTER KHOMUT
+GLAGOLITIC CAPITAL LETTER SPIDERY HA
+VERY MUCH GREATER-THAN
+NEITHER LESS-THAN NOR GREATER-THAN
+HEAVY BLACK HEART
+FLORAL HEART BULLET, REVERSED ROTATED
+INTERROBANG
+𝄞 (U+1D11E) MUSICAL SYMBOL G CLEF
+𝕥 (U+1D565) MATHEMATICAL DOUBLE-STRUCK SMALL T
+𝟶 (U+1D7F6) MATHEMATICAL MONOSPACE DIGIT ZERO
+𠂊 (U+2008A) Han Character
+
+
 <hr><h2 id="U__notation__Unicode_escape_sequence">U+ notation, Unicode escape sequence</h2><hr>
 29/05/2021
 <a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/1273693/why-is-u-used-to-designate-a-unicode-code-point/8891355">https://stackoverflow.com/questions/1273693/why-is-u-used-to-designate-a-unicode-code-point/8891355</a>
@@ -300,7 +354,13 @@ Unicode Escape Sequences Across Various Languages and Platforms
 
 
 <hr><h2 id="Security">Security</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="http://www.unicode.org/reports/tr39">http://www.unicode.org/reports/tr39</a>
+UNICODE SECURITY MECHANISMS
+<a target="_blank" rel="noopener noreferrer" href="http://www.unicode.org/Public/security/latest/confusables.txt">http://www.unicode.org/Public/security/latest/confusables.txt</a>
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://www.trojansource.codes/">https://www.trojansource.codes/</a>
+
 
 <a target="_blank" rel="noopener noreferrer" href="https://api.mtr.pub/vhf/confusable_homoglyphs">https://api.mtr.pub/vhf/confusable_homoglyphs</a>
 
@@ -485,6 +545,11 @@ FCD     "Fast C or D" form; cf. UTN #5
 FCC     "Fast C Contiguous"; cf. UTN #5
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://www.macchiato.com/unicode-intl-sw/nfc-faq">https://www.macchiato.com/unicode-intl-sw/nfc-faq</a>
+NFC FAQ
+jlf: MUST READ!
+
+
 09/06/2021
 Rust
 <a target="_blank" rel="noopener noreferrer" href="https://docs.rs/unicode-normalization">https://docs.rs/unicode-normalization</a>
@@ -536,6 +601,91 @@ DIACRITICAL MARKS IN UNICODE
 <a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=29751641">https://news.ycombinator.com/item?id=29751641</a>
 Unicode Normalization Forms: When ö ≠ ö
 <a target="_blank" rel="noopener noreferrer" href="https://blog.opencore.ch/posts/unicode-normalization-forms/">https://blog.opencore.ch/posts/unicode-normalization-forms/</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://unicode-org.github.io/icu/userguide/transforms/normalization/">https://unicode-org.github.io/icu/userguide/transforms/normalization/</a>
+ICU Documentation
+Normalization
+Has a few comments about NFKC_Casefold
+- NFKC_Casefold: ICU 4.4 supports the combination of NFKC, case folding and
+  removing ignorable characters which was introduced with Unicode 5.2.
+- Data Generation Tool
+
+
+<hr><h2 id="String_matching___Lower_vs_Casefold">String matching - Lower vs Casefold</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/45745661/lower-vs-casefold-in-string-matching-and-converting-to-lowercase">https://stackoverflow.com/questions/45745661/lower-vs-casefold-in-string-matching-and-converting-to-lowercase</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.w3.org/TR/charmod-norm/">https://www.w3.org/TR/charmod-norm/</a>
+Character Model for the World Wide Web: String Matching
+MUST READ, PLENTY OF EXAMPLES FOR CORNER CASES
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.w3.org/TR/charmod-norm/#definitionCaseFolding">https://www.w3.org/TR/charmod-norm/#definitionCaseFolding</a>
+Very good explanation!
+    A few characters have a case folding that map one Unicode code point to two or more code points.
+    This set of case foldings are called the full case foldings.
+
+    character ß U+00DF LATIN SMALL LETTER SHARP S
+    - The full case folding and the lower case mapping of this character is to two ASCII letters 's'.
+    - The upper case mapping is to "SS".
+    Because some applications cannot allocate additional storage when performing a case fold operation,
+    Unicode provides a simple case folding that maps a code point that would normally fold to more or
+    fewer code points to use a single code point for comparison purposes instead.
+    Unlike the full folding, this folding invariably alters the content (and potentially the meaning) of the text.
+    Unicode simple is not appropriate for use on the Web.
+
+    character ᾛ [U+1F9B GREEK CAPITAL LETTER ETA WITH DASIA AND VARIA AND PROSGEGRAMMENI]
+    ᾛ	⇒	ἣι	full case fold: U+1F23 GREEK SMALL LETTER ETA WITH DASIA AND VARIA + U+03B9 GREEK SMALL LETTER IOTA
+    ᾛ	⇒	ᾓ	simple case fold: U+1F93 GREEK SMALL LETTER ETA WITH DASIA AND VARIA AND YPOGEGRAMMENI
+
+    Language Sensitivity
+    Another aspect of case mapping and case folding is that it can be language sensitive.
+    Unicode defines default case mappings and case foldings for each encoded character,
+    but these are only defaults and are not appropriate in all cases. Some languages need
+    case mapping to be tailored to meet specific linguistic needs. One example of this are
+    Turkic languages written in the Latin script:
+        Default Folding
+        I	⇒	i	Default folding of letter I
+        Turkic Language Folding
+        I	⇒	ı	Turkic language folding of dotless (ASCII) letter I
+        İ	⇒	i	Turkic language folding of dotted letter I
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.w3.org/TR/charmod-norm/#matchingAlgorithm">https://www.w3.org/TR/charmod-norm/#matchingAlgorithm</a>
+There are four choices for text normalization:
+- Default.
+  This normalization step has no effect on the text and, as a result, is sensitive
+  to form differences involving both case and Unicode normalization.
+- ASCII Case Fold.
+  Comparison of text with the characters case folded in the ASCII (Basic Latin, U+0000 to U+007F) range.
+- Unicode Canonical Case Fold.
+  Comparison of text that is both case folded and has Unicode canonical normalization applied.
+- Unicode Compatibility Case Fold.
+  Comparison of text that is both case folded and has Unicode compatibility normalization applied.
+  This normalization step is presented for completeness, but it is not generally appropriate for use on the Web.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.elastic.co/guide/en/elasticsearch/guide/current/languages.html">https://www.elastic.co/guide/en/elasticsearch/guide/current/languages.html</a>
+Elasticsearch
+Dealing with Human Language
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/319426/how-do-i-do-a-case-insensitive-string-comparison">https://stackoverflow.com/questions/319426/how-do-i-do-a-case-insensitive-string-comparison</a>
+Related to Python, but the comments are very general and worth reading.
+---
+Unicode Standard section 3.13 has two other definitions for caseless comparisons:
+(D146, canonical) NFD(toCasefold(NFD(str))) on both sides and
+(D147, compatibility) NFKD(toCasefold(NFKD(toCasefold(NFD(X))))) on both sides.
+It states the inner NFD is solely to handle a certain Greek accent character.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://boyter.org/posts/unicode-support-what-does-that-actually-mean/">https://boyter.org/posts/unicode-support-what-does-that-actually-mean/</a>
+<a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=23524400">https://news.ycombinator.com/item?id=23524400</a>
+ſecret == secret == Secret
+ſatisfaction == satisfaction == ſatiſfaction == Satiſfaction == SatiSfaction === ſatiSfaction
+Another good example to consider is the character Æ.
+Under simple case folding rules the lower of Æ is ǣ.
+However with full case folding rules this also matches ae.
+Which one is correct? Well that depends on who you ask.
 
 
 <hr><h2 id="Locale">Locale</h2><hr>
@@ -764,6 +914,11 @@ Referenced from
     His research is focused on software performance and data engineering. He is a techno-optimist.
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/simdutf/simdutf">https://github.com/simdutf/simdutf</a>
+<a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=32700315">https://news.ycombinator.com/item?id=32700315</a>
+Unicode routines (UTF8, UTF16, UTF32): billions of characters per second using SSE2, AVX2, NEON, AVX-512.
+
+
 <hr><h2 id="Variation_sequence">Variation sequence</h2><hr>
 22/05/2021
 List of all code points that can display differently via a variation sequence
@@ -868,6 +1023,26 @@ actually become क्षति (in this case, we right-rotate the first charact
 modify some of the stylish elements, and attach it at the left side of the second character).
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=20058454">https://news.ycombinator.com/item?id=20058454</a>
+If I type anything like किमपि (“kimapi”) and hit backspace, it turns into किमप (“kimapa”).
+That is, the following sequence of codepoints:
+    ‎0915 DEVANAGARI LETTER KA
+    ‎093F DEVANAGARI VOWEL SIGN I
+    ‎092E DEVANAGARI LETTER MA
+    ‎092A DEVANAGARI LETTER PA
+    ‎093F DEVANAGARI VOWEL SIGN I
+made of three grapheme clusters (containing 2, 1, and 2 codepoints respectively),
+turns after a single backspace into the following sequence:
+    ‎0915 DEVANAGARI LETTER KA
+    ‎093F DEVANAGARI VOWEL SIGN I
+    ‎092E DEVANAGARI LETTER MA
+    ‎092A DEVANAGARI LETTER PA
+This is what I expect/find intuitive, too, as a user.
+Similarly अन्यच्च is made of 3 grapheme clusters but you hit backspace 7 times to delete it
+(though there I'd slightly have preferred अन्यच्च→अन्यच्→अन्य→अन्→अ instead of
+अन्यच्च→अन्यच्→अन्यच→अन्य→अन्→अन→अ that's seen, but one can live with this).
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/anoopkunchukuttan/indic_nlp_library">https://github.com/anoopkunchukuttan/indic_nlp_library</a>
 The goal of the Indic NLP Library is to build Python based libraries for common
 text processing and Natural Language Processing in Indian languages.
@@ -887,7 +1062,7 @@ The library provides the following functionalities:
 
 <a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=20056966">https://news.ycombinator.com/item?id=20056966</a>
 jlf: Devnagari seems to be an example where grapheme is not the right segmentation
-"इंडेक्स" का क्या अर्थ है?
+What does "index" mean? (hindi) "इंडेक्स" का क्या अर्थ है?
 Including the quote marks, spaces, and question mark, that's 18 characters.
 as a native speaker, shouldn't they be considered 15 characters?
 क्स, क्या and र्थ each form individual conjunct consonants.
@@ -932,6 +1107,9 @@ The Korean Writing System
 <hr><h2 id="Japanese">Japanese</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://heistak.github.io/your-code-displays-japanese-wrong/">https://heistak.github.io/your-code-displays-japanese-wrong/</a>
 <a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=29022906">https://news.ycombinator.com/item?id=29022906</a>
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.johndcook.com/blog/2022/09/25/katakana-hiragana-unicode/">https://www.johndcook.com/blog/2022/09/25/katakana-hiragana-unicode/</a>
+<a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=32987710">https://news.ycombinator.com/item?id=32987710</a>
 
 
 <hr><h2 id="String_Matching">String Matching</h2><hr>
@@ -1298,7 +1476,7 @@ Discussion about ropes, ideal of strings...
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/xi-editor/xi-editor/blob/e8065a3993b80af0aadbca0e50602125d60e4e38/doc/rope_science/rope_science_03.md">https://github.com/xi-editor/xi-editor/blob/e8065a3993b80af0aadbca0e50602125d60e4e38/doc/rope_science/rope_science_03.md</a>
 
 
-<hr><h2 id="ICU">ICU</h2><hr>
+<hr><h2 id="ICU_title">ICU title</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="http://stackoverflow.com/questions/8253033/what-open-source-c-or-c-libraries-can-convert-arbitrary-utf-32-to-nfc">http://stackoverflow.com/questions/8253033/what-open-source-c-or-c-libraries-can-convert-arbitrary-utf-32-to-nfc</a>
 What open source C or C++ libraries can convert arbitrary UTF-32 to NFC?
 
@@ -1328,6 +1506,14 @@ std::string normalize(const std::string &amp;unnormalized_utf8) {
     return normalized_utf8;
 }
 
+
+<a target="_blank" rel="noopener noreferrer" href="https://icu4c-demos.unicode.org/icu-bin/icudemos">https://icu4c-demos.unicode.org/icu-bin/icudemos</a>
+todo: review
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://icu4c-demos.unicode.org/icu-bin/scompare">https://icu4c-demos.unicode.org/icu-bin/scompare</a>
+ICU Unicode String Comparison
+Interactive demo application
 
 <hr><h2 id="ICU_bindings">ICU bindings</h2><hr>
 02/06/2021
@@ -1447,6 +1633,15 @@ jlf: the results above are correct extended grapheme clusters, but tailored
 grapheme clusters will group 'क्' 'र' in one cluster क्र
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://blog.burntsushi.net/ripgrep/">https://blog.burntsushi.net/ripgrep/</a>
+ripgrep is faster than {grep, ag, git grep, ucg, pt, sift}
+search for "unicode" and read...
+
+
+<hr><h2 id="Test_cases__test_cases__tests_files">Test cases, test-cases, tests files</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/lemire/unicode_lipsum">https://github.com/lemire/unicode_lipsum</a>
+
+
 <hr><h2 id="Ada_lang">Ada lang</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://docs.adacore.com/live/wave/xmlada/html/xmlada_ug/unicode.html">https://docs.adacore.com/live/wave/xmlada/html/xmlada_ug/unicode.html</a>
 
@@ -1455,6 +1650,13 @@ grapheme clusters will group 'क्' 'र' in one cluster क्र
 UXStrings Ada Unicode Extended Strings
 <a target="_blank" rel="noopener noreferrer" href="https://www.reddit.com/r/ada/comments/t4hpip/ann_uxstrings_package_available_uxs_20220226/">https://www.reddit.com/r/ada/comments/t4hpip/ann_uxstrings_package_available_uxs_20220226/</a>
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/Blady-Com/UXStrings">https://github.com/Blady-Com/UXStrings</a>
+
+<hr><h2 id="Awk_lang">Awk lang</h2><hr>
+Brian Kernighan adds Unicode support to Awk
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/onetrueawk/awk/commit/9ebe940cf3c652b0e373634d2aa4a00b8395b636">https://github.com/onetrueawk/awk/commit/9ebe940cf3c652b0e373634d2aa4a00b8395b636</a>
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/onetrueawk/awk/tree/unicode-support">https://github.com/onetrueawk/awk/tree/unicode-support</a>
+<a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=32534173">https://news.ycombinator.com/item?id=32534173</a>
+
 
 <hr><h2 id="C___lang__Boost">C++ lang, Boost</h2><hr>
 02/06/2021
@@ -1605,6 +1807,25 @@ UTF-8/16 encoder/decoder
         [ [ swap (utf16le) ] each ] { } make ;
 
 
+<hr><h2 id="Java_lang">Java lang</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://www.baeldung.com/java-remove-accents-from-text">https://www.baeldung.com/java-remove-accents-from-text</a>
+Remove Accents and Diacritics From a String in Java
+- We will perform the compatibility decomposition represented as the Java enum NFKD.
+  because it decomposes more ligatures than the canonical method (for example, ligature “ﬁ”).
+- We will remove all characters matching the Unicode Mark category using the \p{M} regex expression.
+Test:
+    assertEquals("\\u0066 \\u0069", StringNormalizer.unicodeValueOfNormalizedString("ﬁ"));
+    assertEquals("\\u0061 \\u0304", StringNormalizer.unicodeValueOfNormalizedString("ā"));
+    assertEquals("\\u0069 \\u0308", StringNormalizer.unicodeValueOfNormalizedString("ï"));
+    assertEquals("\\u006e \\u0301", StringNormalizer.unicodeValueOfNormalizedString("ń"));
+Compare Strings Including Accents Using Collator.
+Java provides four strength values for a Collator:
+    PRIMARY: comparison omitting case and accents
+    SECONDARY: comparison omitting case but including accents and diacritics
+    TERTIARY: comparison including case and accents
+    IDENTICAL: all differences are significant
+
+
 <hr><h2 id="JavaScript_lang">JavaScript lang</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://certitude.consulting/blog/en/invisible-backdoor/">https://certitude.consulting/blog/en/invisible-backdoor/</a>
 THE INVISIBLE JAVASCRIPT BACKDOOR
@@ -1685,6 +1906,20 @@ See <a target="_blank" rel="noopener noreferrer" href="https://github.com/JuliaL
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/JuliaLang/julia/pull/42493">https://github.com/JuliaLang/julia/pull/42493</a>
 This PR adds a function isequal_normalized to the Unicode stdlib to check whether
 two strings are canonically equivalent (optionally casefolding and/or stripping combining marks).
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/13">https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/13</a>
+    julia&gt; '\ub5'
+    'µ': Unicode U+00b5 (category Ll: Letter, lowercase)
+
+    julia&gt; '\uff'
+    'ÿ': Unicode U+00ff (category Ll: Letter, lowercase)
+
+    julia&gt; Base.Unicode.uppercase("ÿ")[1]
+    'Ÿ': Unicode U+0178 (category Lu: Letter, uppercase)
+
+    julia&gt; Base.Unicode.uppercase("µ")[1]
+    'Μ': Unicode U+039c (category Lu: Letter, uppercase)
 
 
 <hr><h2 id="Kotlin_lang">Kotlin lang</h2><hr>
@@ -1825,6 +2060,55 @@ String length functions for single emoji characters evaluate to greater than 1
 
 <a target="_blank" rel="noopener noreferrer" href="https://andrewshitov.com/2018/10/31/unicode-in-perl-6/">https://andrewshitov.com/2018/10/31/unicode-in-perl-6/</a>
 Unicode in Raku
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://docs.raku.org/language/unicode">https://docs.raku.org/language/unicode</a>
+Raku applies normalization by default to all input and output except for file names,
+which are read and written as UTF8-C8
+UTF-8 Clean-8 is an encoder/decoder that primarily works as the UTF-8 one. However,
+upon encountering a byte sequence that will either not decode as valid UTF-8, or
+that would not round-trip due to normalization, it will use NFG synthetics to
+keep track of the original bytes involved. This means that encoding back to UTF-8 Clean-8
+will be able to recreate the bytes as they originally existed.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/MoarVM/MoarVM/blob/master/docs/strings.asciidoc">https://github.com/MoarVM/MoarVM/blob/master/docs/strings.asciidoc</a>
+Strings in MoarVM
+Strands
+    Strands are a type of MVMString which instead of being a flat string with contiguous data,
+    actually contains references to other strings. Strands are created during concatenation
+    or substring operations. When two flat strings are concatenated together, a Strand with
+    references to both string a and string b is created. If string a and string b were strands
+    themselves, the references of string a and references of string b are copied one after another
+    into the Strand.
+Synthetic’s
+    Synthetics are graphemes which contain multiple codepoints. In MoarVM these are stored
+    and accessed using a trie, while the actual data itself stores the base character seprately
+    and then the combiners are stored in an array.
+    Currently the maximum number of combiners in a synthetic is 1024.
+    MoarVM will throw an exception if you attempt to create a grapheme with more than 1024 codepoints in it.
+Normalization
+    MoarVM normalizes into NFG form all input text.
+NFG
+    Normalization Form Grapheme. Similar to NFC except graphemes which contain multiple codepoints
+    are stored in Synthetic graphemes.
+
+<hr><h2 id="Oracle">Oracle</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://docs.oracle.com/database/121/NLSPG/ch5lingsort.htm#NLSPG288">https://docs.oracle.com/database/121/NLSPG/ch5lingsort.htm#NLSPG288</a>
+Database Globalization Support Guide
+5 Linguistic Sorting and Matching
+Complex! Did not read in details, maybe I should...
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://docs.oracle.com/database/121/NLSPG/ch6unicode.htm#NLSPG323">https://docs.oracle.com/database/121/NLSPG/ch6unicode.htm#NLSPG323</a>
+Database Globalization Support Guide
+6 Supporting Multilingual Databases with Unicode
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://docs.oracle.com/database/121/NLSPG/ch7progrunicode.htm#NLSPG346">https://docs.oracle.com/database/121/NLSPG/ch7progrunicode.htm#NLSPG346</a>
+Database Globalization Support Guide
+7 Programming with Unicode
+
 
 <hr><h2 id="Perl_lang__Perl_6_has_been_renamed_to_Raku_">Perl lang (Perl 6 has been renamed to Raku)</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://swigunicode.wordpress.com/2021/10/18/example-post-3/">https://swigunicode.wordpress.com/2021/10/18/example-post-3/</a>
@@ -2127,6 +2411,18 @@ Maybe some comments are interesting, so I save this URL.
 Interesting infos about caseless matching
 
 
+<hr><h2 id="R_lang">R lang</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://stringi.gagolewski.com/index.html">https://stringi.gagolewski.com/index.html</a>
+stringi: Fast and Portable Character String Processing in R
+stringi (pronounced “stringy”, IPA [strinɡi]) is THE R package for very fast, portable,
+correct, consistent, and convenient string/text processing in any locale or character encoding.
+Thanks to ICU, stringi fully supports a wide range of Unicode standards.
+Paper (PDF): <a target="_blank" rel="noopener noreferrer" href="https://www.jstatsoft.org/index.php/jss/article/view/v103i02/4324">https://www.jstatsoft.org/index.php/jss/article/view/v103i02/4324</a>
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/gagolews/stringi">https://github.com/gagolews/stringi</a>
+Fast and Portable Character String Processing in R (with the Unicode ICU)
+
+
 <hr><h2 id="Rexx_lang">Rexx lang</h2><hr>
 11/08/2021
 <a target="_blank" rel="noopener noreferrer" href="http://nokix.sourceforge.net/help/learn_rexx/funcs5.htm#VALUEIN">http://nokix.sourceforge.net/help/learn_rexx/funcs5.htm#VALUEIN</a>
@@ -2313,6 +2609,25 @@ security concern affecting source code containing "bidirectional override" Unico
 10/03/2022
 <a target="_blank" rel="noopener noreferrer" href="https://rust-lang.github.io/rfcs/2457-non-ascii-idents.html">https://rust-lang.github.io/rfcs/2457-non-ascii-idents.html</a>
 Allow non-ASCII letters (such as accented characters, Cyrillic, Greek, Kanji, etc.) in Rust identifiers.
+
+
+10/09/2022
+<a target="_blank" rel="noopener noreferrer" href="https://blog.burntsushi.net/bstr/">https://blog.burntsushi.net/bstr/</a>
+A byte string library for Rust
+Invalid UTF-8 doesn’t actually prevent one from applying Unicode-aware algorithms on the parts
+of the string that are valid UTF-8. The parts that are invalid UTF-8 are simply ignored.
+
+
+15/10/2022
+<a target="_blank" rel="noopener noreferrer" href="https://crates.io/crates/finl_unicode">https://crates.io/crates/finl_unicode</a>
+Library for handling Unicode functionality for finl (categories and grapheme segmentation)
+There are these comments in <a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=32700315">https://news.ycombinator.com/item?id=32700315</a>
+    All with two-step tables instead of range- and binary search?
+    Yes. The two-step tables are really not that expensive and they enable features not possible with range and binary search, like identifying the category of a character cheaply.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://andre.arko.net/2013/12/01/strings-in-ruby-are-utf-8-now/">https://andre.arko.net/2013/12/01/strings-in-ruby-are-utf-8-now/</a>
+"baﬄe".upcase == "BAFFLE"
 
 
 <hr><h2 id="Swift_lang">Swift lang</h2><hr>
@@ -2585,6 +2900,24 @@ Feedback from swift team
        If the C++ standard library provided these operations, sufficiently up-to-date with Unicode version and comparable or better to ICU in performance,
        we would be willing to switch. A big pain in interacting with ICU is their limited support for UTF-8.
        Some users who would like to use a lighter-weight Swift and are unhappy at having to link against ICU, as it's fairly large, and it can complicate security audits.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://forums.swift.org/t/pitch-unicode-for-string-processing/56907/6">https://forums.swift.org/t/pitch-unicode-for-string-processing/56907/6</a>
+[Pitch] Unicode for String Processing
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/apple/swift-evolution/blob/main/proposals/0350-regex-type-overview.md">https://github.com/apple/swift-evolution/blob/main/proposals/0350-regex-type-overview.md</a>
+jlf: surprising intro!
+Swift strings provide an obsessively Unicode-forward model of programming with strings.
+String processing with Collection's algorithms is woefully inadequate for many day-to-day
+tasks compared to other popular programming and scripting languages.
+We propose addressing this basic shortcoming through an effort we are calling regex.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/apple/swift-experimental-string-processing/blob/main/Documentation/Evolution/ProposalOverview.md">https://github.com/apple/swift-experimental-string-processing/blob/main/Documentation/Evolution/ProposalOverview.md</a>
+Regex Proposals
+todo: read String processing algorithms <a target="_blank" rel="noopener noreferrer" href="https://forums.swift.org/t/pitch-regex-powered-string-processing-algorithms/55969">https://forums.swift.org/t/pitch-regex-powered-string-processing-algorithms/55969</a>
+todo: read Unicode for String Processing <a target="_blank" rel="noopener noreferrer" href="https://github.com/apple/swift-experimental-string-processing/blob/main/Documentation/Evolution/UnicodeForStringProcessing.md">https://github.com/apple/swift-experimental-string-processing/blob/main/Documentation/Evolution/UnicodeForStringProcessing.md</a>
 
 
 <hr><h2 id="Zig_lang__Ziglyph">Zig lang, Ziglyph</h2><hr>
