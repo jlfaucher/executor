@@ -1,4 +1,4 @@
-/* 
+/*
 Changed font-family to Times-New-Roman (was Sans-serif)
 Use monospace with reduced (-2) font size for oper because of "->" which looks not good with Times-New-Roman
 
@@ -8,28 +8,29 @@ Increased font-size of 2 (now 10pt)
 
 For HTML (media screen) :
 Increased font-size of 4 (now 12pt)
+jlf 20/10/2022: 10pt
 */
 
 @namespace "http://www.w3.org/2000/svg";
 
 svg[class="syntaxdiagram"] *.arrow {
   fill: none;
-  stroke: silver; /*black*/; 
+  stroke: silver; /*black*/;
 }
 
 svg[class="syntaxdiagram"] *.arrowhead {
-  stroke: silver; /*black*/; 
+  stroke: silver; /*black*/;
   fill: silver /*black*/;
 }
 
 svg[class="syntaxdiagram"] a[class~="boxed"] > rect {
     fill: none;
-  stroke: silver; /*black*/; 
+  stroke: silver; /*black*/;
 }
 
 svg[class="syntaxdiagram"] g[class~="boxed"] > rect {
     fill: none;
-  stroke: silver; /*black*/; 
+  stroke: silver; /*black*/;
 }
 
 svg[class="syntaxdiagram"] g[class~="kwd"] text {
@@ -51,7 +52,7 @@ svg[class="syntaxdiagram"] g[class~="kwd"] text {
 @media screen {
     svg[class="syntaxdiagram"] g[class~="kwd"] text {
         font-family: Times-New-Roman;
-        font-size: 12pt;
+        font-size: 10pt;
     }
 }
 
@@ -73,7 +74,7 @@ svg[class="syntaxdiagram"] g[class~="var"] text {
 @media screen {
     svg[class="syntaxdiagram"] g[class~="var"] text {
         font-family: Times-New-Roman;
-        font-size: 12pt;
+        font-size: 10pt;
     }
 }
 
@@ -96,7 +97,7 @@ svg[class="syntaxdiagram"] g[class~="delim"] text {
 @media screen {
     svg[class="syntaxdiagram"] g[class~="delim"] text {
         font-family: Times-New-Roman;
-        font-size: 12pt;
+        font-size: 10pt;
     }
 }
 
@@ -142,7 +143,7 @@ svg[class="syntaxdiagram"] g[class~="sep"] text {
 @media screen {
     svg[class="syntaxdiagram"] g[class~="sep"] text {
         font-family: Times-New-Roman;
-        font-size: 12pt;
+        font-size: 10pt;
     }
 }
 
@@ -165,7 +166,7 @@ svg[class="syntaxdiagram"] g[class~="repsep"] text {
 @media screen {
     svg[class="syntaxdiagram"] g[class~="repsep"] text {
         font-family: Times-New-Roman;
-        font-size: 12pt;
+        font-size: 10pt;
     }
 }
 
@@ -188,7 +189,7 @@ svg[class="syntaxdiagram"] a[class~="fragref"] text {
 @media screen {
     svg[class="syntaxdiagram"] g[class~="fragref"] text {
         font-family: Times-New-Roman;
-        font-size: 12pt;
+        font-size: 10pt;
     }
 }
 

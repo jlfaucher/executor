@@ -1,4 +1,33 @@
 ===============================================================================
+2022 oct 20
+
+Under MacOs
+[error] Batik's rasterizer failed when converting to PNG
+Exception in thread "main" java.lang.NoClassDefFoundError: org/mozilla/javascript/WrapFactory
+
+https://github.com/robander/svg-syntaxdiagrams
+https://github.com/robander/svg-syntaxdiagrams/issues/3
+Comments:
+- I fixed the problem by downloading a binary release of Rhino, and copying the rhino-1.7.9.jar file to the dita-ot-2.5.4\lib directory.
+- Not sure what caused this - I was only ever able to reproduce the error by deleting the Rhino code that was stored within the Batik library.
+
+Current version of batik installed is batik-1.13
+I install the latest version of Batik: batik-1.15
+Still exception
+
+I download latest version of Rhino
+https://github.com/mozilla/rhino/releases/tag/Rhino1_7_14_Release
+and put rhino-1.7.14.jar in the lib folder of Batik
+Still exception
+
+Was using jdk-17.0.4.1-full.jdk
+Try with system Java (current version 1.8.0_131)
+Still exception
+
+It works with an old version of Batik : batik-1.7
+
+
+===============================================================================
 2014 may 31
 
 Railroad diagram generator
