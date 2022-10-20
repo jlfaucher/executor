@@ -608,20 +608,18 @@ bool NamedArguments::checkNameMatching(const char *name, ssize_t name_minimumLen
     ssize_t nameLength = strlen(name);
     ssize_t nameMinimumLength = name_minimumLength; // always -1 at run-time, can be -1 or >=1 at parse_time
     if (nameMinimumLength == -1) nameMinimumLength = nameLength;
-    const char *nameIterator = name;
 
     const char *expectedName = this->namedArguments[i].name;
     ssize_t expectedNameLength = strlen(expectedName);
     ssize_t expectedNameMinimumLength = this->namedArguments[i].minimumLength; // can be -1 or >=1 at parse_time and run_time
     if (expectedNameMinimumLength == -1) expectedNameMinimumLength = expectedNameLength;
-    const char *expectedNameIterator = expectedName;
 
     if (parse_time) // name_minimumLength can be -1 or >=1, so must test nameMinimumLength
     {
         // A stem name is ignored because it's normal to have compound variables with the stem name as prefix
         // except when the same stem is specificed twice
-        if ('.' == name[nameLength - 1] && strcmp(name, expectedName) != 0) return false;
-        if ('.' == expectedName[expectedNameLength - 1] && strcmp(expectedName, name) != 0) return false;
+        if (isStem(name) && strcmp(name, expectedName) != 0) return false;
+        if (isStem(expectedName) && strcmp(expectedName, name) != 0) return false;
 
         // Matching index(1) with item(1) : true
         // Matching index(2) with item(1) : true
@@ -646,11 +644,11 @@ bool NamedArguments::checkNameMatching(const char *name, ssize_t name_minimumLen
     {
         // Matching name with 'use named arg normalization(4)'
         // - mandatory: name[1..4] == "norm"
-        // - if name[5..] then "alization" starts with name[5..]
+        // - optional:  if name[5..] then "alization" starts with name[5..]
         if (nameLength < expectedNameMinimumLength) return false; // too short
         if (nameLength > expectedNameLength) return false; // too long
         if (strncmp(name, expectedName, expectedNameMinimumLength) != 0) return false; // at least one mandatory character is different
-        if (strncmp(name + expectedNameMinimumLength, expectedName + expectedNameMinimumLength, nameLength - expectedNameMinimumLength) != 0) return false;
+        if (strncmp(name + expectedNameMinimumLength, expectedName + expectedNameMinimumLength, nameLength - expectedNameMinimumLength) != 0) return false; // at least one optional character is different
     }
 
     return true;

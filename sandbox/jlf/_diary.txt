@@ -2,28 +2,85 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2022 October 18
+
+[Named arguments]
+
+New rule regarding an abbreviatable name:
+    A compound name cannot be abbreviated to a stem name.
+The goal of this rule, combined with the other rules already defined, is to not decapitate the tail of a compound symbol.
+Only the last tail part can be abbreviated.
+
+stem.key1 cannot be abbreviated like that (because the optional part contains a period):
+    (1)     s
+    (2)     st
+    (3)     ste
+    (4)     stem
+stem.key1 cannot be abbreviated like that (because of the new rule: stem. is a stem name):
+    (5)     stem.
+stem.key1 can be abbreviated like that:
+    (6)     stem.k
+    (7)     stem.ke
+    (8)     stem.key
+    (9)     stem.key1
+
+stem.key1.key2 cannot be abbreviated like that (because the optional part contains a period):
+    (1)     s
+    (2)     st
+    (3)     ste
+    (4)     stem
+    (5)     stem.
+    (6)     stem.k
+    (7)     stem.ke
+    (8)     stem.key
+    (9)     stem.key1
+stem.key1.key2 can be abbreviated like that:
+    (10)    stem.key1.                              <-- the new rule is not applicable here
+    (11)    stem.key1.k
+    (12)    stem.key1.ke
+    (13)    stem.key1.key
+    (14)    stem.key1.key2
+
+
+Remember:
+Any block source is transformed at parse-time to make it start with
+    use auto named args
+So any abbreviated named argument passed by the caller will create a local variable
+of the same name. That's why the 'K' index exists in this example:
+{call dump2 stem.; say "-----"; use named arg stem.key1(6); call dump2 stem.}~(stem.k:1)
+    a Stem (1 items)
+    'K' :  1                <-- this entry has been created by 'use auto named arg' when processing stem.k:1
+    -----
+    a Stem (2 items)
+    'K'    :  1
+    'KEY1' :  1             <-- this entry has been created by 'use named arg stem.key1(6)' when processing stem.k:1
+I was surprised by this entry 'K', until I remember the source transformation...
+To improve? not sure... Works as designed.
+
+
+===============================================================================
 2022 October 15
 
 [Named arguments]
 
-New constraint regarding the miminum length of a named argument:
+New constraint regarding the miminum length of an abbreviatable name:
     must be <= name's length
 The complete rule is:
-    The minimum length of a named argument must be a whole number > 0 and <= name's length.
+    The minimum length of an abbreviatable name must be a whole number > 0 and <= name's length.
 Example:
-    {use named arg minimum(10)}                     -- error Use named arg: The minimum length of a named argument must be a whole number > 0 and <= name's length
+    {use named arg minimum(10)}                     -- error Use named arg: The minimum length of an abbreviatable name must be a whole number > 0 and <= name's length
 
 
-New rule regarding an abbreviated name:
-    The optional part of a named argument name cannot contain a period
+New rule regarding an abbreviatable name:
+    The optional part of an abbreviatable name cannot contain a period.
 Example:
-    {use named arg stem.key1.key2(9)}               -- error Use named arg: The optional part of a named argument name cannot contain a period
+    {use named arg stem.key1.key2(9)}               -- error Use named arg: The optional part of an abbreviatable name cannot contain a period
 
 
 Better diagnosis when name collision/ambiguity.
 Rule:
-    No named parameter name must start with the name of another named parameter
-    Exception: a stem name (ends with a period) can be used as prefix in several compound names.
+    No named parameter name must start with the name of another named parameter.
+    Exception: a stem name (single period as last character) can be used as prefix in several compound names.
 Examples:
     {use named arg normalization(1), nfl(2)}        -- error Use named arg: The name 'NORMALIZATION(1)' collides with 'NFL(2)'
     {use named arg commands, command}               -- error Use named arg: The name 'COMMAND' collides with 'COMMANDS'
@@ -31,7 +88,7 @@ Examples:
     {use named arg stem., stem.key1, stem.key2}     -- no error
     {use named arg stem, stem.key1, stem.key2}      -- error Use named arg: The name 'STEM' collides with 'STEM.KEY1'
 
-    
+
 Reworked the method NamedArguments::checkNameMatching.
 The name matching is slightly slower for short names, but 4 times faster for long names.
 samples/benchmark/named_arguments-benchmark.rex
@@ -60,28 +117,28 @@ Examples:
     text = string~text~unescape
     text~characters==
         an Array (shape [22], 22 items)
-         1  : ( ""    U+0007 Cc 0 "", "ALERT", "BEL" )
+         1  : ( ""    U+0007 Cc 0 "", "ALERT", "BEL" )                                                  <-- removable with STRIPCC:.true
          2  : ( "L"   U+004C Lu 1 "LATIN CAPITAL LETTER L" )
          3  : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
-         4  : ( "　"  U+3000 Zs 2 "IDEOGRAPHIC SPACE" )
-         5  : ( " "   U+1680 Zs 1 "OGHAM SPACE MARK" )
-         6  : ( "​"    U+200B Cf 0 "ZERO WIDTH SPACE", "ZWSP" )
+         4  : ( "　"  U+3000 Zs 2 "IDEOGRAPHIC SPACE" )                                                 <-- replaceable by " " with LUMP:.true
+         5  : ( " "   U+1680 Zs 1 "OGHAM SPACE MARK" )                                                  <-- replaceable by " " with LUMP:.true
+         6  : ( "​"    U+200B Cf 0 "ZERO WIDTH SPACE", "ZWSP" )                                          <-- removable by IGNORE:.TRUE
          7  : ( "P"   U+0050 Lu 1 "LATIN CAPITAL LETTER P" )
          8  : ( "è"   U+00E8 Ll 1 "LATIN SMALL LETTER E WITH GRAVE" )
          9  : ( "r"   U+0072 Ll 1 "LATIN SMALL LETTER R" )
          10 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
-         11 : ( ""    U+0009 Cc 0 "", "CHARACTER TABULATION", "HORIZONTAL TABULATION", "HT", "TAB" )
-         12 : ( "‐"   U+2010 Pd 1 "HYPHEN" )
-         13 : ( "­"   U+00AD Cf 1 "SOFT HYPHEN", "SHY" )
-         14 : ( "–"   U+2013 Pd 1 "EN DASH" )
-         15 : ( "—"   U+2014 Pd 1 "EM DASH" )
+         11 : ( ""    U+0009 Cc 0 "", "CHARACTER TABULATION", "HORIZONTAL TABULATION", "HT", "TAB" )    <-- replaceable by " " with STRIPCC:.true
+         12 : ( "‐"   U+2010 Pd 1 "HYPHEN" )                                                            <-- replaceable by "-" with LUMP:.true
+         13 : ( "­"   U+00AD Cf 1 "SOFT HYPHEN", "SHY" )                                                <-- removable by IGNORE:.true
+         14 : ( "–"   U+2013 Pd 1 "EN DASH" )                                                           <-- replaceable by "-" with LUMP:.true
+         15 : ( "—"   U+2014 Pd 1 "EM DASH" )                                                           <-- replaceable by "-" with LUMP:.true
          16 : ( "N"   U+004E Lu 1 "LATIN CAPITAL LETTER N" )
          17 : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
          18 : ( "ë"   U+00EB Ll 1 "LATIN SMALL LETTER E WITH DIAERESIS" )
          19 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
-         20 : ( "﷐"   U+FDD0 Cn 1 "" )
+         20 : ( "﷐"   U+FDD0 Cn 1 "" )                                                                 <-- removeable with STRIPNA:.true
          21 : ( ""    U+000D Cc 0 "", "CARRIAGE RETURN", "CR" )
-         22 : ( ""    U+000A Cc 0 "", "LINE FEED", "NEW LINE", "END OF LINE", "LF", "NL", "EOL" )
+         22 : ( ""    U+000A Cc 0 "", "LINE FEED", "NEW LINE", "END OF LINE", "LF", "NL", "EOL" )       <-- CR+LF replaceable by " " with STRIPCC:.true
 
     text=                                                               -- T'[07]Le　 ​Père[09]‐­–—Noël﷐[0D0A]'
 
@@ -131,21 +188,21 @@ Examples:
         an Array (shape [17], 17 items)
          1  : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
          2  : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
-         3  : ( " "   U+0020 Zs 1 "SPACE", "SP" )
-         4  : ( " "   U+0020 Zs 1 "SPACE", "SP" )
+         3  : ( " "   U+0020 Zs 1 "SPACE", "SP" )               <-- LUMP (was IDEOGRAPHIC SPACE)
+         4  : ( " "   U+0020 Zs 1 "SPACE", "SP" )               <-- LUMP (was OGHAM SPACE MARK)
          5  : ( "p"   U+0070 Ll 1 "LATIN SMALL LETTER P" )
          6  : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
          7  : ( "r"   U+0072 Ll 1 "LATIN SMALL LETTER R" )
          8  : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
-         9  : ( " "   U+0020 Zs 1 "SPACE", "SP" )
-         10 : ( "-"   U+002D Pd 1 "HYPHEN-MINUS" )
-         11 : ( "-"   U+002D Pd 1 "HYPHEN-MINUS" )
-         12 : ( "-"   U+002D Pd 1 "HYPHEN-MINUS" )
+         9  : ( " "   U+0020 Zs 1 "SPACE", "SP" )               <-- STRIPCC (was TAB)
+         10 : ( "-"   U+002D Pd 1 "HYPHEN-MINUS" )              <-- LUMP (was HYPHEN)
+         11 : ( "-"   U+002D Pd 1 "HYPHEN-MINUS" )              <-- LUMP (was EN DASH)
+         12 : ( "-"   U+002D Pd 1 "HYPHEN-MINUS" )              <-- LUMP (was EM DASH)
          13 : ( "n"   U+006E Ll 1 "LATIN SMALL LETTER N" )
          14 : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
          15 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
          16 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
-         17 : ( " "   U+0020 Zs 1 "SPACE", "SP" )               <-- from where is coming this space?
+         17 : ( " "   U+0020 Zs 1 "SPACE", "SP" )               <-- STRIPCC (was CR+LF)
 
 
 ===============================================================================
@@ -175,17 +232,17 @@ Assuming default encoding is UTF-8
     "Noël"~length=      -- 5 because String remains byte-oriented, not impacted by the default encoding
 
     s = "0041004200430044"x
-    length(s)=                        -- 8
+    length(s)=                        -- 8 because encoding UTF-8 ASCII is compatible with String
     s~encoding = "UTF16"
-    s~length                          -- 8
-    length(s)=                        -- 4
+    s~length                          -- 8 because String is always byte-oriented (ignores the encoding)
+    length(s)=                        -- 4 because forwards to Text (encoding UTF-16BE is not compatible with String)
     s~text~utf8=                      -- ABCD
 
     s = "0000004100000042"x
-    s~length=                         -- 8
+    length(s)                         -- 8 because encoding UTF-8 ASCII is compatible with String
     s~encoding = "UTF32"
-    s~length                          -- 8
-    length(s)=                        -- 2
+    s~length                          -- 8 because String is always byte-oriented (ignores the encoding)
+    length(s)=                        -- 2 because forwards to Text (encoding UTF-32 is not compatible with String)
     s~text~utf8=                      -- AB
 
 
@@ -2669,6 +2726,58 @@ ooRexx5 is not impacted.
 Conclusion:
 - Except for 'time', the difference between Executor and ooRexx5 is low.
 - The difference between 106 global routines and 1 global routine is low.
+
+Why are the following calls super fast when compared to 'time' ?
+                                    -- ooRexxShell
+    do 100000; call digits; end     -- 0.01
+    do 100000; call trace; end      -- 0.02
+
+It's because the implementation of 'time' is slow...
+See below, it's exactly the same kind of call in both cases.
+I confirmed by returning immediatly a dummy string from the BIF 'time'.
+In this case, the calls of BIF 'time' are as fast as the calls of BIF 'digits'.
+
+rexx -e "call time"     -- call_builtin
+                        -- Ignore the overridings if the flag call_nointernal is set:
+                        -- not set, instructionFlags == 6 (instructionFlags&call_nointernal)
+                        -- The table of global routines is queried.
+    #0	0x00000001003ddfe8 in builtin_function_TIME(RexxActivation*, RexxObject**, unsigned long, unsigned long, RexxExpressionStack*) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:1543
+    #1	0x00000001003ea1e8 in RexxInstructionCall::execute(RexxActivation*, RexxExpressionStack*) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/instructions/CallInstruction.cpp:314
+    #2	0x0000000100392fa5 in RexxActivation::run(RexxObject*, RexxString*, RexxArray*, RexxObject**, unsigned long, unsigned long, RexxInstruction*, ProtectedObject&) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/execution/RexxActivation.cpp:691
+    #3	0x000000010039ea72 in RexxCode::call(RexxActivity*, RoutineClass*, RexxString*, RexxObject**, unsigned long, unsigned long, RexxString*, RexxString*, int, ProtectedObject&) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/execution/RexxCode.cpp:116
+    #4	0x000000010034e7e6 in RoutineClass::runProgram(RexxActivity*, RexxString*, RexxString*, RexxObject**, unsigned long, unsigned long, ProtectedObject&) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/classes/RoutineClass.cpp:345
+    #5	0x00000001003d9045 in RexxStartDispatcher::run() at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/concurrency/RexxStartDispatcher.cpp:148
+    #6	0x00000001003a3c13 in RexxNativeActivation::run(ActivityDispatcher&) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/execution/RexxNativeActivation.cpp:1610
+    #7	0x00000001003d0cc3 in RexxActivity::run(ActivityDispatcher&) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/concurrency/RexxActivity.cpp:3412
+    #8	0x00000001003c86c8 in ActivityDispatcher::invoke(_RXSYSEXIT*, char const*) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/concurrency/ActivityDispatcher.cpp:121
+    #9	0x0000000100378602 in ::RexxStart(size_t, PCONSTRXSTRING, const char *, PRXSTRING, const char *, int, PRXSYSEXIT, short *, PRXSTRING) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/api/InterpreterAPI.cpp:164
+    #10	0x0000000100002932 in main at /local/rexx/oorexx/executor/sandbox/jlf/trunk/utilities/rexx/platform/unix/rexx.cpp:133
+
+rexx -e "call digits"   -- call_builtin
+                        -- instructionFlags == 6
+                        -- The table of global routines is queried.
+    #0	0x00000001003dc64e in builtin_function_DIGITS(RexxActivation*, RexxObject**, unsigned long, unsigned long, RexxExpressionStack*) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp:1061
+    #1	0x00000001003ea1e8 in RexxInstructionCall::execute(RexxActivation*, RexxExpressionStack*) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/instructions/CallInstruction.cpp:314
+    #2	0x0000000100392fa5 in RexxActivation::run(RexxObject*, RexxString*, RexxArray*, RexxObject**, unsigned long, unsigned long, RexxInstruction*, ProtectedObject&) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/execution/RexxActivation.cpp:691
+    #3	0x000000010039ea72 in RexxCode::call(RexxActivity*, RoutineClass*, RexxString*, RexxObject**, unsigned long, unsigned long, RexxString*, RexxString*, int, ProtectedObject&) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/execution/RexxCode.cpp:116
+    #4	0x000000010034e7e6 in RoutineClass::runProgram(RexxActivity*, RexxString*, RexxString*, RexxObject**, unsigned long, unsigned long, ProtectedObject&) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/classes/RoutineClass.cpp:345
+    #5	0x00000001003d9045 in RexxStartDispatcher::run() at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/concurrency/RexxStartDispatcher.cpp:148
+    #6	0x00000001003a3c13 in RexxNativeActivation::run(ActivityDispatcher&) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/execution/RexxNativeActivation.cpp:1610
+    #7	0x00000001003d0cc3 in RexxActivity::run(ActivityDispatcher&) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/concurrency/RexxActivity.cpp:3412
+    #8	0x00000001003c86c8 in ActivityDispatcher::invoke(_RXSYSEXIT*, char const*) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/concurrency/ActivityDispatcher.cpp:121
+    #9	0x0000000100378602 in ::RexxStart(size_t, PCONSTRXSTRING, const char *, PRXSTRING, const char *, int, PRXSYSEXIT, short *, PRXSTRING) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/api/InterpreterAPI.cpp:164
+    #10	0x0000000100002932 in main at /local/rexx/oorexx/executor/sandbox/jlf/trunk/utilities/rexx/platform/unix/rexx.cpp:133
+
+
+Strange behavior, not happening with ooRexx5:
+rexx -e "call 'time'"
+is trying to execute "/usr/bin/time" as a rexx script.
+Of couse, it doesn't work.
+    #10	0x0000000100350412 in RoutineClass::fromFile(RexxString*) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/classes/RoutineClass.cpp:927
+    #11	0x0000000100399407 in RexxActivation::callExternalRexx(RexxString*, RexxObject**, unsigned long, unsigned long, RexxString*, ProtectedObject&) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/execution/RexxActivation.cpp:2972
+    #12	0x00000001004215a6 in SystemInterpreter::invokeExternalFunction(RexxActivation*, RexxActivity*, RexxString*, RexxObject**, unsigned long, unsigned long, RexxString*, ProtectedObject&) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/platform/unix/ExternalFunctions.cpp:365
+    #13	0x00000001003992be in RexxActivation::externalCall(RexxString*, RexxObject**, unsigned long, unsigned long, RexxString*, ProtectedObject&) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/execution/RexxActivation.cpp:2922
+    #14	0x00000001003ea262 in RexxInstructionCall::execute(RexxActivation*, RexxExpressionStack*) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/instructions/CallInstruction.cpp:321
 
 
 ===============================================================================

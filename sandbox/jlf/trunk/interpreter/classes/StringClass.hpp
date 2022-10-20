@@ -615,4 +615,14 @@ inline RexxString *new_upper_string(const char *string)
     return new_upper_string(string, strlen(string));
 }
 
+inline bool isStem(const char *cstring)
+{
+    // More strict than RexxVariable::isStem which tests only if the last character is a period.
+    // Redundant with RexxString->isSymbol() == STRING_STEM, but isSymbol wants a RexxString*
+    // Here, I pass a const char *
+    // Returns true if cstrings ends with '.' and  contains only one '.'
+    const char *firstPeriod = strchr(cstring, '.');
+    return (firstPeriod != NULL && *(firstPeriod + 1) == '\0');
+}
+
 #endif

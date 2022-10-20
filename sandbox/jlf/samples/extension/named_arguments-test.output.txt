@@ -728,6 +728,21 @@ Then the declared named arguments are assigned with the passed values, in the or
 So it's possible to initialize a named argument with an automatic variable (here v2 is assigned the value of index).
 
 
+call useNamed_Stem_CompoundSymbol_0 stem.:0, stem.v1.:1, stem.v2.:2
+    positional count=0 size=0
+    named count=3
+        STEM. : 0
+        STEM.V1. : 1
+        STEM.V2. : 2
+    use strict named arg stem., stem.v1.key(8), stem.v2.key(8)
+    variables count=1
+        STEM. : 0
+    stem count=2
+        V1.KEY : 1
+        V2.KEY : 2
+Expected: It's possible to have several named arguments starting with the same stem name.
+
+
 call useNamed_Stem_CompoundSymbol_1 stem.v1:1, stem.:0, stem.v3:3, stem.v4:4, index:"My index", item:"My item"
     positional count=0 size=0
     named count=6
@@ -851,6 +866,54 @@ The automatic variables are created first (here stem.v4=4, index="My index" and 
 Then the declared named arguments are assigned with the passed values, in the order of declaration on called side (left to right).
 Then the assignments stem.v1=1, stem.v2="My index" (default) and stem.v3=3 are made.
 Note that the automatic variable stem.v4 is available, since the stem is not reset.
+
+
+call useAutoNamed_CompoundSymbol_Abbreviatable stem.v1.:1, stem.v3.:3, index:"My index", item:"My item"
+    positional count=0 size=0
+    named count=4
+        INDEX : My index
+        ITEM : My item
+        STEM.V1. : 1
+        STEM.V3. : 3
+    use auto named arg stem.(5), stem.v1.key(8), stem.v2.key(8)=(item), stem.v3.key(8)=(index)
+    variables count=3
+        INDEX : My index
+        ITEM : My item
+        STEM. : STEM.
+    stem count=3
+        V1.KEY : 1
+        V2.KEY : My item
+        V3.KEY : 3
+Expected:
+It's possible to have an abbreviated [compound] name ending with a period.
+Notice that the stem is reset at each call because of 'use named arg stem.'.
+If you pass a value then the stem is reset when this value is assigned as default value.
+If you don't pass a value then the stem is dropped before assigning the other values.
+
+
+call useAutoNamed_CompoundSymbol_Abbreviatable_in_a_block stem.v1.:1, stem.v3.:3, index:"My index", item:"My item"
+    positional count=0 size=0
+    named count=4
+        INDEX : My index
+        ITEM : My item
+        STEM.V1. : 1
+        STEM.V3. : 3
+    use auto named arg stem.v1.key(8), stem.v2.key(8)=(item), stem.v3.key(8)=(index)
+    variables count=3
+        INDEX : My index
+        ITEM : My item
+        STEM. : STEM.
+    stem count=5
+        V1. : 1
+        V1.KEY : 1
+        V2.KEY : My item
+        V3. : 3
+        V3.KEY : 3
+Expected:
+Same test case as previous, except that the code is embedded in a block, and the stem is not reset.
+Notice that the abbreviated argument names are used as-is by the implicit 'use auto named arg' instruction
+which is automatically inserted at parse time.
+That's why you have the indexes 'V1.' and 'V3.'.
 
 
 Testing the display of trace
@@ -1701,19 +1764,19 @@ Expected: Error 88.917: named argument B1 is not an expected argument name
 {use strict named arg n1,n2,n3}~rawExecutable~call()
     [trapped] Not enough named arguments in invocation of <anonymous>; minimum expected is 3.
     [trapped] Code= 40.3
-Expected: Error 40.3: Not enough named arguments in invocation of ; minimum expected is 3
+Expected: Error 40.3: Not enough named arguments in invocation of <anonymous>; minimum expected is 3
 
 
 {use strict named arg n1=1,n2,n3}~rawExecutable~call()
     [trapped] Not enough named arguments in invocation of <anonymous>; minimum expected is 2.
     [trapped] Code= 40.3
-Expected: Error 40.3: Not enough named arguments in invocation of ; minimum expected is 2
+Expected: Error 40.3: Not enough named arguments in invocation of <anonymous>; minimum expected is 2
 
 
 {use strict named arg n1=1,n2,n3=3}~rawExecutable~call()
     [trapped] Not enough named arguments in invocation of <anonymous>; minimum expected is 1.
     [trapped] Code= 40.3
-Expected: Error 40.3: Not enough named arguments in invocation of ; minimum expected is 1
+Expected: Error 40.3: Not enough named arguments in invocation of <anonymous>; minimum expected is 1
 
 
 call useStrictOneNamed_NoDefault b1:1, b2:2
@@ -1754,21 +1817,21 @@ Expected: Error 99.900: STRICT AUTO requires the "..." argument marker at the en
 
 
 {use named arg name()}
-    [trapped] Use named arg: The minimum length of a named argument must be a whole number > 0 and <= name's length.
+    [trapped] Use named arg: The minimum length of an abbreviatable name must be a whole number > 0 and <= name's length; found "NAME()".
     [trapped] Code= 26.900
-Expected: Error 26.900: Use named arg: The minimum length of a named argument must be a whole number > 0 and <= name's length
+Expected: Error 26.900: Use named arg: The minimum length of an abbreviatable name must be a whole number > 0 and <= name's length; found "NAME()
 
 
 {use named arg name(0)}
-    [trapped] Use named arg: The minimum length of a named argument must be a whole number > 0 and <= name's length.
+    [trapped] Use named arg: The minimum length of an abbreviatable name must be a whole number > 0 and <= name's length; found "NAME(0)".
     [trapped] Code= 26.900
-Expected: Error 26.900: Use named arg: The minimum length of a named argument must be a whole number > 0 and <= name's length
+Expected: Error 26.900: Use named arg: The minimum length of an abbreviatable name must be a whole number > 0 and <= name's length; found "NAME(0)
 
 
 {use named arg name(10)}
-    [trapped] Use named arg: The minimum length of a named argument must be a whole number > 0 and <= name's length.
+    [trapped] Use named arg: The minimum length of an abbreviatable name must be a whole number > 0 and <= name's length; found "NAME(10)".
     [trapped] Code= 26.900
-Expected: Error 26.900: Use named arg: The minimum length of a named argument must be a whole number > 0 and <= name's length
+Expected: Error 26.900: Use named arg: The minimum length of an abbreviatable name must be a whole number > 0 and <= name's length; found "NAME(10)
 
 
 {use named arg command, commands}
@@ -1819,16 +1882,22 @@ Expected: Error 99.900: Use named arg: The name 'N' is declared more than once
 Expected: Error 99.900: Use named arg: The name 'ITEM(1)' collides with 'INDEX(1)'
 
 
-{use named arg stem., stem.key1(5), stem.key2(6)}
-    [trapped] Use named arg: The name 'STEM.KEY1(5)' collides with 'STEM.KEY2(6)'.
-    [trapped] Code= 99.900
-Expected: Error 99.900: Use named arg: The name 'STEM.KEY1(5)' collides with 'STEM.KEY2(6)'
-
-
-{use named arg stem., stem.key1(4)}
-    [trapped] Use named arg: The optional part of a named argument name cannot contain a period.
+{use named arg stem.key1(5)}
+    [trapped] Use named arg: A compound name cannot be abbreviated to a stem name; found "STEM.KEY1(5)".
     [trapped] Code= 26.900
-Expected: Error 26.900: Use named arg: The optional part of a named argument name cannot contain a period
+Expected: Error 26.900: Use named arg: A compound name cannot be abbreviated to a stem name; found "STEM.KEY1(5)
+
+
+{use named arg stem.key1.key2(9)}
+    [trapped] Use named arg: The optional part of an abbreviatable name cannot contain a period; found "STEM.KEY1.KEY2(9)".
+    [trapped] Code= 26.900
+Expected: Error 26.900: Use named arg: The optional part of an abbreviatable name cannot contain a period; found "STEM.KEY1.KEY2(9)
+
+
+{use named arg stem., stem.key1(6), stem.key2(7)}
+    [trapped] Use named arg: The name 'STEM.KEY1(6)' collides with 'STEM.KEY2(7)'.
+    [trapped] Code= 99.900
+Expected: Error 99.900: Use named arg: The name 'STEM.KEY1(6)' collides with 'STEM.KEY2(7)'
 
 
 {use named arg stem., stem.key1, stem.key1}
@@ -1847,6 +1916,15 @@ Expected: Error 99.900: Use named arg: The name 'STEM.KEY1' collides with 'STEM.
     [trapped] Use named arg: The name 'STEM' collides with 'STEM.KEY1'.
     [trapped] Code= 99.900
 Expected: Error 99.900: Use named arg: The name 'STEM' collides with 'STEM.KEY1'
+
+
+{use strict named arg stem.v1., stem.v1.key1(8), stem.v1.key2(8)}
+    [trapped] Use named arg: The name 'STEM.V1.' collides with 'STEM.V1.KEY1(8)'.
+    [trapped] Code= 99.900
+Expected:
+Error 99.900: Use named arg: The name 'STEM.V1.' collides with 'STEM.V1.KEY1(8)'
+stem.v1. is NOT a stem name, because it contains 2 periods.
+so the exception 'a stem name can be used as prefix in several compound names' is not applicable here.
 
 
 .context~setArgs

@@ -202,13 +202,27 @@ The order of evaluation is the order of declaration in `USE NAMED ARG` (left-to-
 The automatic variables are already created and can be used during the evaluation of the default value.
 
 An optional minimum length can be specified after the name, allowing abbreviation.  
-The minimum length must be a whole number > 0 and <= name's length.
-The optional part of a named argument name cannot contain a period.
-For example: `namedArgument(1)` will allow to pass `n:`
+- rule 1: The minimum length of an abbreviatable name must be a whole number > 0 and <= name's length.
+- rule 2: The optional part of an abbreviatable name cannot contain a period.
+- rule 3: A compound name cannot be abbreviated to a stem name.
 
-No named parameter name must start with the name of another named parameter
+For example: 
+- `namedArgument(1)` will allow to pass `n:` or `na` or `nam` etc...
+- `namedArgument(0)` is not allowed (rule 1).
+- `namedArgument(100)` is not allowed (rule 1).
+- `stem.key1(4)` and shorter is not allowed (rule 2).
+- `stem.key1(5)` is not allowed (rule 3).
+- `stem.key1(6)` will allow to pass `stem.k` or `stem.ke` or `stem.key` or `stem.key1`.
+- `stem.key1.key2(9)` and shorter is not allowed (rule 2).
+- `stem.key1.key2(10)` will allow to pass `stem.key1.` or `stem.key1.k` or `stem.key1.ke` etc...
+
+No named parameter name must start with the name of another named parameter.  
 Exception: a stem name can be used as prefix in several compound names.
 
+For example:
+- `use named arg stem., stem.key1` is allowed because `stem.` is a stem name.
+- `use named arg stem, stem.key1` is not allowed because `stem` is not a stem name (no final period).
+- `use named arg stem.key1., stem.key1.key2` is not allowed because `stem.key1.`is not a stem name (several periods).
 
 --------------
 UNKNOWN method

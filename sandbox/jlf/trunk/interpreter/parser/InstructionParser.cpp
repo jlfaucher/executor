@@ -2641,24 +2641,62 @@ RexxInstruction *RexxSource::useNew()
                 size_t token_intvalue = 0;
                 if (token->subclass == SYMBOL_CONSTANT
                     && token->numeric == INTEGER_CONSTANT
-                    && token_strvalue->requestUnsignedNumber(token_intvalue, number_digits())
-                    &&  token_intvalue > 0
-                    && token_intvalue <= variableNameLength)
+                    && token_strvalue->requestUnsignedNumber(token_intvalue, number_digits()))
                 {
                     RexxInteger * minimumLength = new_integer(token_intvalue);
                     ProtectedObject p(minimumLength);
                     minimumLength_list->push(minimumLength);
                 }
-                else
+                if ( !(token_intvalue > 0 && token_intvalue <= variableNameLength) )
                 {
-                    RexxString *message = new_string("Use named arg: The minimum length of a named argument must be a whole number > 0 and <= name's length");
+                    RexxString *message = variableName->concatToCstring("Use named arg: The minimum length of an abbreviatable name must be a whole number > 0 and <= name's length; found \"");
                     ProtectedObject p(message);
+                    message = message->concatWithCstring("(");
+                    p = message;
+                    if (token_strvalue != NULL) message = message->concat(token_strvalue);
+                    p = message;
+                    message = message->concatWithCstring(")\"");
+                    p = message;
                     syntaxError(Error_Invalid_whole_number_user_defined, message);
                 }
                 if (strchr(variableName->getStringData() + token_intvalue, '.') != NULL)
                 {
-                    RexxString *message = new_string("Use named arg: The optional part of a named argument name cannot contain a period");
+                    RexxString *message = variableName->concatToCstring("Use named arg: The optional part of an abbreviatable name cannot contain a period; found \"");
                     ProtectedObject p(message);
+                    message = message->concatWithCstring("(");
+                    p = message;
+                    message = message->concat(token_strvalue);
+                    p = message;
+                    message = message->concatWithCstring(")\"");
+                    p = message;
+                    syntaxError(Error_Invalid_whole_number_user_defined, message);
+                }
+                // abc.def.ghi
+                //    4   8
+                // (7) and below is not ok: detected by the previous rule
+                // (8) and above is ok
+                //
+                // abc.def
+                //    4
+                // (3) and below is not ok: detected by the previous rule
+                // (4) is not ok because the compound name could be abbreviated to a stem name "abc."
+                // (5) and above is ok
+                ssize_t firstPeriodIndex = -1;
+                const char *firstPeriod = strchr(variableName->getStringData(), '.');
+                if (firstPeriod != NULL) firstPeriodIndex = firstPeriod - variableName->getStringData();
+                if (variableName->getStringData()[token_intvalue -1] == '.' &&  // The shortest possible abbreviation ends with a period
+                    variableName->getStringData()[token_intvalue] != '\0' &&    // and this period is not the last character
+                    firstPeriodIndex == token_intvalue -1                       // and this period is the first period
+                   )
+                {
+                    RexxString *message = variableName->concatToCstring("Use named arg: A compound name cannot be abbreviated to a stem name; found \"");
+                    ProtectedObject p(message);
+                    message = message->concatWithCstring("(");
+                    p = message;
+                    message = message->concat(token_strvalue);
+                    p = message;
+                    message = message->concatWithCstring(")\"");
+                    p = message;
                     syntaxError(Error_Invalid_whole_number_user_defined, message);
                 }
                 token = nextReal();
