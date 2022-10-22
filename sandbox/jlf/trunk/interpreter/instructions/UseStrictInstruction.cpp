@@ -330,8 +330,11 @@ void RexxInstructionUseStrict::executeNamedArguments(RexxActivation *context, Re
     // Collect their names.
     for (size_t i = 0; i < this->variableCount; i++)
     {
+        // Remember: code at risk! I don't use the constructor, and that could bring troubles
+        // as I had when I added nameLength and forgot to put a value here...
         RexxVariableBase *variable = this->variables[i].variable;
         expectedNamedArguments[i].name = variable->getName()->getStringData();
+        expectedNamedArguments[i].nameLength = variable->getName()->getLength();
         expectedNamedArguments[i].minimumLength = -1; // by default, no abbreviation
         RexxInteger *RexxMinimumLength = this->variables[i].minimumLength;
         if (RexxMinimumLength != OREF_NULL) RexxMinimumLength->numberValue(expectedNamedArguments[i].minimumLength);
@@ -435,8 +438,11 @@ void RexxInstructionUseStrict::checkNamedArguments()
     // Collect their names.
     for (size_t i = 0; i < this->variableCount; i++)
     {
+        // Remember: code at risk! I don't use the constructor, and that could bring troubles
+        // as I had when I added nameLength and forgot to put a value here...
         RexxVariableBase *variable = this->variables[i].variable;
         expectedNamedArguments[i].name = variable->getName()->getStringData();
+        expectedNamedArguments[i].nameLength = variable->getName()->getLength();
         expectedNamedArguments[i].minimumLength = -1; // by default, no abbreviation
         RexxInteger *RexxMinimumLength = this->variables[i].minimumLength;
         if (RexxMinimumLength != OREF_NULL) RexxMinimumLength->numberValue(expectedNamedArguments[i].minimumLength);
@@ -449,7 +455,7 @@ void RexxInstructionUseStrict::checkNamedArguments()
     // {use named arg nfl(2), normalization(1)}
     for (size_t i = 0; i < this->variableCount; i++)
     {
-        bool matched = expectedNamedArguments.match(expectedNamedArguments[i].name, OREF_NULL, false, expectedNamedArguments[i].minimumLength, i+1, /*parse_time*/ true);
+        bool matched = expectedNamedArguments.match(expectedNamedArguments[i].name, expectedNamedArguments[i].nameLength, OREF_NULL, false, expectedNamedArguments[i].minimumLength, i+1, /*parse_time*/ true);
         // if we reach here with match==true, it's a match that doesn't raise an error (typically a match with a stem name).
         if (matched) continue; // just to be explicit : here, a matched name is not an error
     }
@@ -513,15 +519,15 @@ Example:
     namedArguments[1] = NamedArgument("INDEX", 2, IntegerZero);     // At least 2 characters, default value = 0
     namedArguments[2] = NamedArgument("MAXDEPTH", 1, IntegerTen);   // At least 1 character, default value = 10
     // For each named argument passed by the caller
-    namedArguments.match(name1, value1);
-    namedArguments.match(name2, value2);
-    namedArguments.match(name3, value3);
+    namedArguments.match(name1, strlen(name1), value1);
+    namedArguments.match(name2, strlen(name2), value2);
+    namedArguments.match(name3, strlen(name3), value3);
 */
 
 bool NamedArguments::match(RexxString *name, RexxObject *value, bool strict, ssize_t name_minimumLength, size_t from, bool parse_time)
 {
     if (name == NULL) return false;
-    return this->match(name->getStringData(), value, strict, name_minimumLength, from, parse_time);
+    return this->match(name->getStringData(), name->getLength(), value, strict, name_minimumLength, from, parse_time);
 }
 
 void nameCollision(const char *name1, ssize_t minimumLength1, const char *name2, ssize_t minimumLength2)
@@ -558,7 +564,7 @@ void nameCollision(const char *name1, ssize_t minimumLength1, const char *name2,
     reportException(Error_Translation_user_defined, buffer);
 }
 
-bool NamedArguments::match(const char *name, RexxObject *value, bool strict, ssize_t name_minimumLength, size_t from, bool parse_time)
+bool NamedArguments::match(const char *name, size_t nameLength, RexxObject *value, bool strict, ssize_t name_minimumLength, size_t from, bool parse_time)
 {
     if (name == NULL) return false;
 
@@ -573,7 +579,7 @@ bool NamedArguments::match(const char *name, RexxObject *value, bool strict, ssi
     bool matched = false;
     for (i = from; i < this->count; i++)
     {
-        matched = NamedArguments::checkNameMatching(name, name_minimumLength, i, parse_time);
+        matched = NamedArguments::checkNameMatching(name, nameLength, name_minimumLength, i, parse_time);
         if (matched) break;
     }
 
@@ -599,18 +605,18 @@ bool NamedArguments::match(const char *name, RexxObject *value, bool strict, ssi
 }
 
 
-bool NamedArguments::checkNameMatching(const char *name, ssize_t name_minimumLength, size_t i, bool parse_time)
+bool NamedArguments::checkNameMatching(const char *name, size_t nameLen, ssize_t name_minimumLength, size_t i, bool parse_time)
 {
     if (this->namedArguments[i].assigned) return false; // Already matched (assumption: you will not call this helper with the same name twice)
 
     // Remember: the minimum length of a name can be -1, or 1..n where n <= name's length
 
-    ssize_t nameLength = strlen(name);
+    ssize_t nameLength = nameLen; // MUST be signed!
     ssize_t nameMinimumLength = name_minimumLength; // always -1 at run-time, can be -1 or >=1 at parse_time
     if (nameMinimumLength == -1) nameMinimumLength = nameLength;
 
     const char *expectedName = this->namedArguments[i].name;
-    ssize_t expectedNameLength = strlen(expectedName);
+    ssize_t expectedNameLength = this->namedArguments[i].nameLength; // MUST be signed!
     ssize_t expectedNameMinimumLength = this->namedArguments[i].minimumLength; // can be -1 or >=1 at parse_time and run_time
     if (expectedNameMinimumLength == -1) expectedNameMinimumLength = expectedNameLength;
 

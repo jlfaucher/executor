@@ -457,9 +457,16 @@ inline RexxInteger * REQUEST_INTEGER(RexxObject *obj) { return ((obj)->requestIn
 struct NamedArgument
 {
     NamedArgument(const char *name=NULL, ssize_t minimumLength=-1, RexxObject *value=OREF_NULL)
-    : name(name), minimumLength(minimumLength), value(value) { assigned = false; };
+    {
+        this->name = name;
+        this->nameLength = name ? strlen(name) : 0;
+        this->minimumLength = minimumLength;
+        this->value = value;
+        this->assigned = false;
+    }
 
     const char *name;       // name of the named argument
+    size_t nameLength;
     ssize_t minimumLength;  // abbreviation supported, pass -1 if no abbreviation
     RexxObject *value;      // default value or OREF_NULL
     bool assigned;          // true if a value has been assigned
@@ -500,12 +507,12 @@ class NamedArguments
     //                  name_minimumLength is the minimumLength of the name <N>.
     //     @run_time : match the name passed by the caller (no abbreviation on caller side, name_minimumLength is always -1).
     bool match(RexxString *name, RexxObject *value, bool strict = true, ssize_t name_minimumLength = -1, size_t from = 0, bool parse_time = false);
-    bool match(const char *name, RexxObject *value, bool strict = true, ssize_t name_minimumLength = -1, size_t from = 0, bool parse_time = false);
+    bool match(const char *name, size_t nameLength, RexxObject *value, bool strict = true, ssize_t name_minimumLength = -1, size_t from = 0, bool parse_time = false);
 
     const size_t count;
 
   private:
-    bool checkNameMatching(const char *name, ssize_t name_minimumLength, size_t i, bool parse_time);
+    bool checkNameMatching(const char *name, size_t nameLength, ssize_t name_minimumLength, size_t i, bool parse_time);
 
     NamedArgument *namedArguments; // array
 };

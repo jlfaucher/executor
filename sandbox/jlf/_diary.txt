@@ -2,6 +2,27 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2022 October 22
+
+[Named arguments]
+
+I was curious to see the impact of strlen in NamedArguments::checkNameMatching.
+If I avoid to call strlen when the length is known (typically when working with
+RexxString), I get better performances, especially for the case "worst long names".
+
+samples/benchmark/named_arguments-benchmark.rex
+before                              now
+100000 calls                        100000 calls
+positional=           0.15          positional=           0.15
+optimal short names=  0.42          optimal short names=  0.42
+worst short names=    0.57          worst short names=    0.47
+ratio short names=    1.36          ratio short names=    1.12
+optimal long names=   0.49          optimal long names=   0.44
+worst long names=     0.93          worst long names=     0.76
+ratio long names=     1.90          ratio long names=     1.73
+
+
+===============================================================================
 2022 October 18
 
 [Named arguments]
