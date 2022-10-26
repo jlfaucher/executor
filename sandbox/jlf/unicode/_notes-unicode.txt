@@ -556,6 +556,13 @@ Has a few comments about NFKC_Casefold
 
 
 ================================================================================
+Character set
+================================================================================
+
+https://www.gnu.org/software/libc/manual/html_mono/libc.html#Character-Set-Handling
+
+
+================================================================================
 String matching - Lower vs Casefold
 ================================================================================
 
@@ -648,6 +655,10 @@ This happens due to other scripts running in different threads of the same proce
 changing the process-wide locale using setlocale().
 On Windows, locale information is maintained per thread as of PHP 7.0.5.
 On Windows, setlocale(LC_ALL, '') sets the locale names from the system's regional/language settings (accessible via Control Panel).
+
+
+https://www.gnu.org/software/libc/manual/html_mono/libc.html#Locales
+Locales and Internationalization
 
 
 ================================================================================
@@ -789,7 +800,7 @@ https://www.unicode.org/Public/emoji/15.0/emoji-test.txt
 https://emojipedia.org/
 
 
-http://xahlee.info/comp/unicode_emoticons.html
+http://xahlee.info/comp/unicode_emoji.html
 
 
 29/05/2021
@@ -926,6 +937,23 @@ A section about spaces:
     It’s actually U+2800 BRAILLE PATTERN BLANK, the Braille character with none of the dots raised.
     (I say “most fonts” because I’ve occasionally seen it rendered as a 2×4 grid of open circles.)
 
+
+================================================================================
+Hyphenation
+================================================================================
+
+break words into syllables
+    I need to break words into syllables:astronomical --> as - tro - nom - ic - al
+    Is it possible to do this (in different languages) using ICU library?  (if no, may be you suggest other tools for it?)
+
+    Andreas Heigl:
+    While it looks like this is not something for ICU[1], there are libraries out there handling that - most of the time based on the thesis of Marc Liang.
+    I've built an implementation for PHP[2] but there are a lot of others out there[3].
+
+    [1] https://github.com/unicode-org/icu4x/issues/164#issuecomment-651410272
+    [2] https://github.com/heiglandreas/Org_Heigl_Hyphenator
+    [3] https://github.com/search?q=hyphenate&type=repositories
+    https://tug.org/docs/liang/liang-thesis.pdf
 
 ================================================================================
 Indic languages
@@ -1507,6 +1535,50 @@ https://github.com/xi-editor/xi-editor/blob/e8065a3993b80af0aadbca0e50602125d60e
 
 
 ================================================================================
+Encoding title
+================================================================================
+
+
+https://thephd.dev/the-c-c++-rust-string-text-encoding-api-landscape
+OCTOBER 12, 2022
+JeanHeyd Meneide
+Project Editor for ISO/IEC JTC1 SC22 WG14 - Programming Languages, C.
+The Wonderfully Terrible World of C and C++ Encoding APIs (with Some Rust)
+Is he criticizing the work of Zach Laine? ( https://github.com/tzlaine/text )
+"someone was doing something wrong on the internet and I couldn’t let that pass:"
+
+Same person:
+https://github.com/ThePhD
+https://github.com/soasis
+
+Any Encoding, Ever - ztd.text and Unicode for C++ - JUNE 30, 2021 : https://thephd.dev/any-encoding-ever-ztd-text-unicode-cpp
+
+Starting a Basis - Shepherd's Oasis and Text - MAY 01, 2020: https://thephd.dev/basis-shepherds-oasis-text-encoding
+
+https://ztdtext.readthedocs.io/en/latest/index.html
+ztd.text
+The premiere library for handling text in different encoding forms and reducing
+transcoding bugs in your C++ software.
+List of encodings: https://ztdtext.readthedocs.io/en/latest/encodings.html
+List of Unicode encodings: https://ztdtext.readthedocs.io/en/latest/known%20unicode%20encodings.html
+Design Goals and Philosophy: https://ztdtext.readthedocs.io/en/latest/design.html
+---
+jlf: don't know what to think about that...
+related to https://github.com/soasis
+
+
+https://github.com/soasis/text
+JeanHeyd Meneide
+This repository is an implementation of an up and coming proposal percolating
+through SG16, P1629 - Standard Text Encoding
+( https://thephd.dev/_vendor/future_cxx/papers/d1629.html )
+---
+https://github.com/soasis
+Shepherd's Oasis
+Software Services and Consulting.
+
+
+================================================================================
 ICU title
 ================================================================================
 
@@ -1628,6 +1700,89 @@ Using OS X’s Built-in ICU Library in Your Own Project
 
 
 ================================================================================
+ICU4X title
+================================================================================
+
+https://icu4x.unicode.org/
+
+https://github.com/unicode-org/icu4x
+
+http://blog.unicode.org/2022/09/announcing-icu4x-10.html
+    SEPTEMBER 29, 2022
+    Announcing ICU4X 1.0
+
+    This week, after 2½ years of work by Google, Mozilla, Amazon, and community partners,
+    the Unicode Consortium has published ICU4X 1.0, its first stable release.
+        Lightweight:
+        ICU4X is Unicode's first library to support static data slicing and dynamic data loading.
+        Portable:
+        ICU4X supports multiple programming languages out of the box. ICU4X can be used
+        in the Rust programming language natively, with official wrappers in C++ via the
+        foreign function interface (FFI) and JavaScript via WebAssembly.
+
+    ICU4X does not seek to replace ICU4C or ICU4J; rather, it seeks to replace the large number
+    of non-Unicode, often-unmaintained, often-incomplete i18n libraries that have been written
+    to bring i18n to new programming languages and resource-constrained environments
+
+    One of the most visible departures that ICU4X makes from ICU4C and ICU4J is an
+    explicit data provider argument on most constructor functions.
+    ICU4X team member Manish Goregaokar wrote a blog post series detailing how the zero-copy deserialization works under the covers.
+        https://manishearth.github.io/blog/2022/08/03/zero-copy-1-not-a-yoking-matter/
+        https://manishearth.github.io/blog/2022/08/03/zero-copy-2-zero-copy-all-the-things/
+        https://manishearth.github.io/blog/2022/08/03/zero-copy-3-so-zero-its-dot-dot-dot-negative/
+        (jlf: Related to ICU4X, but should I read that ? It's internal Rust stuff)
+
+
+https://github.com/unicode-org/icu4x/blob/main/docs/tutorials/cpp.md
+Using ICU4X from C++
+
+
+https://www.reddit.com/r/programming/comments/xrmine/the_unicode_consortium_announces_icu4x_10_its_new/
+    The C and C++ APIs are header-only, you use them by linking to the icu_capi crate (more on this here).
+    The C API is just not that idiomatic, so we don't advertise it as much.
+    It exists more as a crutch for other languages to be able to call in, and it's optimized for cross language interop.
+    That said, it has been pointed out to me that it's not that unidiomatic when you compare it with other large C libraries,
+    so perhaps that's okay. We do have some tests that use it directly and it's .... fine to work with.
+    Not an amazing experience, not terrible either.
+    ---
+    jlf: to investigate
+    The C wrapper is probably better to use from Executor, because there is no hidden magic for memory management.
+    The C++ wrapper is difficult to understand (at least to me, for the moment) because it's modern C++.
+
+
+https://www.reddit.com/r/rust/comments/xrh7h6/announcing_icu4x_10_new_internationalization/
+    icu_segmenter implements rule based segmentation, so you can actually customize
+    the segmentation rules based on your needs by writing some toml and feeding it to datagen.
+    The concept of a "character" or "word" has no single cross-linguistic meaning;
+    it is not uncommon to need to tailor these algorithms by use case or even just
+    the language being used. E.g. handling viramas in Indic scripts as a part of
+    grapheme segmentation is a thing people might need, but may also not need,
+    and UAX29 doesn't support that at the moment¹. CLDR contains a bunch of common
+    tailorings for specific locales here, but as I mentioned folks may tailor further based on use case.
+
+    Furthermore, icu_segmenter supports dictionary-based segmentation:
+    for languages like Japanese and Thai where spaces are not typically used,
+    you need a large dictionary to be able to segment them accurately
+    (and again, it's language-specific).
+    ICU4X's flexible data model means that you don't need to ship your application
+    with this data and instead fetch it when it's actually necessary.
+    We both support using dictionaries and an LSTM model depending on your code size/data size needs.
+
+
+https://docs.google.com/document/d/1ojrOdIchyIHYbg2G9APX8j2p0XtmVLj0f9jPIbFYVUE/edit#heading=h.xy9pq2mk1ypz
+ICU4X Segmenter Investigation
+
+
+https://github.com/unicode-org/icu4x/issues/1397
+Character names
+jlf: Not yet supported by ICU4X, too bad... I need that for Executor.
+
+
+https://github.com/unicode-org/icu4x/issues/545
+Reconsider UTF-32 support
+
+
+================================================================================
 utfcpp
 ================================================================================
 
@@ -1694,6 +1849,14 @@ Test cases, test-cases, tests files
 ================================================================================
 
 https://github.com/lemire/unicode_lipsum
+
+
+================================================================================
+youtube
+================================================================================
+
+https://www.youtube.com/playlist?list=PLMc927ywQmTNQrscw7yvaJbAbMJDIjeBh
+Videos from Unicode's Overview of Internationalization and Unicode Projects
 
 
 ================================================================================
@@ -2517,6 +2680,10 @@ Maybe some comments are interesting, so I save this URL.
 
 https://djangocas.dev/blog/python-unicode-string-lowercase-casefold-caseless-match/
 Interesting infos about caseless matching
+
+
+https://gist.github.com/dpk/8325992
+PyICU cheat sheet
 
 
 ================================================================================
