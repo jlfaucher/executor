@@ -653,8 +653,7 @@ bool NamedArguments::checkNameMatching(const char *name, size_t nameLen, ssize_t
         // - optional:  if name[5..] then "alization" starts with name[5..]
         if (nameLength < expectedNameMinimumLength) return false; // too short
         if (nameLength > expectedNameLength) return false; // too long
-        if (strncmp(name, expectedName, expectedNameMinimumLength) != 0) return false; // at least one mandatory character is different
-        if (strncmp(name + expectedNameMinimumLength, expectedName + expectedNameMinimumLength, nameLength - expectedNameMinimumLength) != 0) return false; // at least one optional character is different
+        if (strncmp(name, expectedName, nameLength) != 0) return false;
     }
 
     return true;
