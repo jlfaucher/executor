@@ -2,6 +2,34 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2022 October 28
+
+[Unicode]
+
+Integration of ICU4X
+http://blog.unicode.org/2022/09/announcing-icu4x-10.html
+https://github.com/unicode-org/icu4x
+
+Prerequisite:
+Compiler supporting C++20.
+Only the file that includes the ICU4X headers need to be compiled with C++20.
+The rest of the interpreter stay compiled with C++11.
+The sources of Executor/ooRexx can't be compiled with C++20 without modifications.
+
+For the moment, there is no delivery of binaries by the project ICU4X.
+To simplify the build of Executor, the dynamic library of ICU4X is delivered
+with the sources of Executor, ready to use without any installation.
+Only the release version of ICU4X is provided.
+Only the binaries for MacOs and Windows 64-bit are provided, I don't have Linux.
+    7 261 556   libicu_capi_cdylib.dylib
+    6 224 384   icu_capi_cdylib.dll
+
+Regarding the decision to use a dynamic linking instead of a static linking, see
+    https://github.com/unicode-org/icu4x/discussions/2791
+The attached file shows huge files sizes when using static linking.
+
+
+===============================================================================
 2022 October 22
 
 [Named arguments]

@@ -325,6 +325,8 @@ if (WIN32)
             /DNOMINMAX
 # suppress warning C4291: no matching operator delete found; memory will not be freed if initialization throws an exception
             /wd4291
+# suppress warning C4099: type name first seen using 'struct' now seen using 'class' (related to ICU4X)
+            /wd4099
 # give errors for missing override specifications or method hiding with warning level 3
 #           /w34263 /w34266
             /DWIN32 /D_WINDOWS /DHAVE_CONFIG_H)
@@ -683,6 +685,95 @@ install(TARGETS rexxapi RUNTIME DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core
 set_target_properties(rexxapi PROPERTIES SOVERSION ${ORX_API_LEVEL})
 create_install_symlink(rexxapi)
 
+##################### utf8proc ###########################
+
+if (WIN32)
+    # To avoid warning LNK4217
+    add_definitions(/DUTF8PROC_STATIC)
+endif ()
+
+
+##################### ziglyph ############################
+
+if (WIN32)
+    set (cziglyph_target -Dtarget=x86_64-windows-msvc)
+else ()
+    # empty: use default target
+    set (cziglyph_target)
+endif ()
+
+# Bad practice but I don't know how to do differently
+# In multi-config generators, the CMAKE_CONFIGURATION_TYPES variable will be populated
+# For single-config generators, the configuration is specified with the CMAKE_BUILD_TYPE variable
+# We are in the case single-config (Makefile)
+string(TOLOWER ${CMAKE_BUILD_TYPE} build_type)
+if (build_type STREQUAL release)
+    set (cziglyph_build_mode -Drelease-fast)
+elseif (build_type STREQUAL relwithdebinfo)
+    # not equivalent, but I don't have better
+    set (cziglyph_build_mode -Drelease-safe)
+elseif (build_type STREQUAL minsizerel)
+    set (cziglyph_build_mode -Drelease-small)
+else ()
+    # empty: default mode is debug
+    set (cziglyph_build_mode)
+endif()
+
+set (cziglyph_dir ${CMAKE_CURRENT_SOURCE_DIR}/${build_classes_support_dir}/m17n/cziglyph)
+set (cziglyph_build_zig ${cziglyph_dir}/build.zig)
+set (cziglyph_cache ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/cziglyph/zig-cache)
+set (zig_build_cziglyph "zig build --verbose ${cziglyph_target} ${cziglyph_build_mode} --build-file ${cziglyph_build_zig} --prefix ${CMAKE_CURRENT_BINARY_DIR} --cache-dir ${cziglyph_cache}")
+add_library(cziglyph STATIC
+            ${cziglyph_build_zig})
+set(CMAKE_ZIG_CREATE_STATIC_LIBRARY "${zig_build_cziglyph}")
+SET_TARGET_PROPERTIES(cziglyph PROPERTIES LINKER_LANGUAGE ZIG)
+
+add_custom_target(build_cziglyph
+    # next line is not working, must repeat the full command :-(
+    # ${zig_build_cziglyph}
+    zig build --verbose ${cziglyph_target} ${cziglyph_build_mode} --build-file ${cziglyph_build_zig} --prefix ${CMAKE_CURRENT_BINARY_DIR} --cache-dir ${cziglyph_cache}
+    COMMENT "Building cziglyph...")
+add_dependencies(cziglyph build_cziglyph)
+
+message(STATUS "CMAKE_ZIG_CREATE_STATIC_LIBRARY is ${CMAKE_ZIG_CREATE_STATIC_LIBRARY}")
+
+
+###################### ICU4X #############################
+
+# Relative path to ICU4X in the source tree
+set (icu4x_dir ${build_classes_support_dir}/m17n/icu4x)
+
+# The source tree contains the dynamic libraries of ICU4X, to simplify the build of Executor
+# For the moment, only the release version of ICU4X is provided. The debug versions are big...
+add_library(icu_capi_cdylib SHARED IMPORTED GLOBAL)
+
+if (WIN32)
+    message(STATUS "ICU4X for x86_64-pc-windows-msvc")
+    # Relative path to ICU4X dylib in the source tree
+    set (icu4x_dylib     ${icu4x_dir}/target/x86_64-pc-windows-msvc/release/icu_capi_cdylib.dll)
+    set (icu4x_dylib_lib ${icu4x_dir}/target/x86_64-pc-windows-msvc/release/icu_capi_cdylib.dll.lib)
+    # Full path to ICU4X dylib in the source tree
+    set_property(TARGET icu_capi_cdylib PROPERTY IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/${icu4x_dylib})
+    set_property(TARGET icu_capi_cdylib PROPERTY IMPORTED_IMPLIB ${CMAKE_CURRENT_SOURCE_DIR}/${icu4x_dylib_lib})
+    # Visual C++ wants c++20
+    set_source_files_properties(${build_classes_dir}/TextClass.cpp PROPERTIES COMPILE_OPTIONS "/std:c++20")
+elseif (APPLE)
+    message(STATUS "ICU4X for x86_64-apple-darwin")
+    # Relative path to ICU4X dylib in the source tree
+    set (icu4x_dylib ${icu4x_dir}/target/x86_64-apple-darwin/release/libicu_capi_cdylib.dylib)
+    # Full path to ICU4X dylib in the source tree
+    set_property(TARGET icu_capi_cdylib PROPERTY IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/${icu4x_dylib})
+    # I wanted to use std=c++20 to be aligned with Visual C++ (which wants c++20) but that doesn't work :-(
+    # It works if I use -std=c++17, don't ask me why
+    set_source_files_properties(${build_classes_dir}/TextClass.cpp PROPERTIES COMPILE_OPTIONS "-std=c++17")
+else ()
+    message(STATUS "ICU4X not yet supported by Executor for this platform")
+endif ()
+
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${icu4x_dylib} COMPONENT Core DESTINATION ${INSTALL_LIB_DIR})
+
+
+
 #################### librexx.so ##########################
 # Sources for librexx.so
 set (interpreter_api_sources ${build_interpreter_api_dir}/CallContextStubs.cpp
@@ -714,11 +805,6 @@ set (classes_support_sources
             ${build_classes_support_dir}/m17n/utf8proc/utf8proc.c
             )
 endif()
-
-if (WIN32)
-    # To avoid warning LNK4217
-    SET_SOURCE_FILES_PROPERTIES( ${build_classes_support_dir}/m17n/utf8proc/utf8proc.c PROPERTIES COMPILE_FLAGS /DUTF8PROC_STATIC )
-endif ()
 
 set (classes_sources ${build_classes_dir}/ArrayClass.cpp
             ${build_classes_dir}/BlockClass.cpp                                                     # executor
@@ -984,49 +1070,6 @@ add_library(rexx SHARED
             ${common_interpreter_sources}
             ${platform_interpreter_sources})
 
-if (WIN32)
-    set (cziglyph_target -Dtarget=x86_64-windows-msvc)
-else ()
-    # empty: use default target
-    set (cziglyph_target)
-endif ()
-
-# Bad practice but I don't know how to do differently
-# In multi-config generators, the CMAKE_CONFIGURATION_TYPES variable will be populated
-# For single-config generators, the configuration is specified with the CMAKE_BUILD_TYPE variable
-# We are in the case single-config (Makefile)
-string(TOLOWER ${CMAKE_BUILD_TYPE} build_type)
-if (build_type STREQUAL release)
-    set (cziglyph_build_mode -Drelease-fast)
-elseif (build_type STREQUAL relwithdebinfo)
-    # not equivalent, but I don't have better
-    set (cziglyph_build_mode -Drelease-safe)
-elseif (build_type STREQUAL minsizerel)
-    set (cziglyph_build_mode -Drelease-small)
-else ()
-    # empty: default mode is debug
-    set (cziglyph_build_mode)
-endif()
-
-set (cziglyph_dir ${CMAKE_CURRENT_SOURCE_DIR}/${build_classes_support_dir}/m17n/cziglyph)
-set (cziglyph_build_zig ${cziglyph_dir}/build.zig)
-set (cziglyph_cache ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/cziglyph/zig-cache)
-set (zig_build_cziglyph "zig build --verbose ${cziglyph_target} ${cziglyph_build_mode} --build-file ${cziglyph_build_zig} --prefix ${CMAKE_CURRENT_BINARY_DIR} --cache-dir ${cziglyph_cache}")
-add_library(cziglyph STATIC
-            ${cziglyph_build_zig})
-set(CMAKE_ZIG_CREATE_STATIC_LIBRARY "${zig_build_cziglyph}")
-SET_TARGET_PROPERTIES(cziglyph PROPERTIES LINKER_LANGUAGE ZIG)
-
-add_custom_target(build_cziglyph
-    # next line is not working, must repeat the full command :-(
-    # ${zig_build_cziglyph}
-    zig build --verbose ${cziglyph_target} ${cziglyph_build_mode} --build-file ${cziglyph_build_zig} --prefix ${CMAKE_CURRENT_BINARY_DIR} --cache-dir ${cziglyph_cache}
-    COMMENT "Building cziglyph...")
-add_dependencies(cziglyph build_cziglyph)
-
-message(STATUS "CMAKE_ZIG_CREATE_STATIC_LIBRARY is ${CMAKE_ZIG_CREATE_STATIC_LIBRARY}")
-
-
 set (core_platform_classes ${build_interpreter_platform_dir}/PlatformObjects.orx)
 # Include file definition
 target_include_directories(rexx PUBLIC
@@ -1053,7 +1096,7 @@ target_include_directories(rexx PUBLIC
             ${build_interpreter_platform_dir})
 
 # Extra link library definitions
-target_link_libraries(rexx rexxapi cziglyph ${platform_interpreter_libs} ${CMAKE_REQUIRED_LIBRARIES})
+target_link_libraries(rexx rexxapi cziglyph icu_capi_cdylib ${platform_interpreter_libs} ${CMAKE_REQUIRED_LIBRARIES})
 install(TARGETS rexx RUNTIME DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core
                      LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core
                      ARCHIVE DESTINATION ${INSTALL_INCLUDE_DIR} COMPONENT DevLib)
@@ -2102,6 +2145,8 @@ endif ()
    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/orexxole.pdb COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR}
        CONFIGURATIONS Debug RelWithDebInfo)
    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rexx.pdb COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR}
+       CONFIGURATIONS Debug RelWithDebInfo)
+   install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/icu_capi_cdylib.pdb COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR}
        CONFIGURATIONS Debug RelWithDebInfo)
    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rexxapi.pdb COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR}
        CONFIGURATIONS Debug RelWithDebInfo)
