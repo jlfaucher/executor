@@ -1,0 +1,75 @@
+-------
+windows
+-------
+
+echo return 10 | regina || echo %errorlevel%
+
+rexx -v			0
+regina -v		0
+executor -v		0
+
+rexx			-1
+regina			N/A (reads stdin)
+executor		-1
+
+rexx -e "return 10"			10
+echo return 10 | regina			10
+executor -e "return 10"			10
+
+rexx -e "return -10"			-10
+echo return -10 | regina		-10
+executor -e "return -10"		-10
+
+rexx -e "return 256"			256
+echo return 256 | regina		0
+executor -e "return 256"		256
+
+rexx -e "return -256"			-256
+echo return -256 | regina		0
+executor -e "return -256"		-256
+
+rexx -e "return 32767"			32767		32768=0
+echo return 32767 | regina		0
+executor -e "return 32767"		32767		32768=ok
+2147483648	2147483648	0
+2147483647=max
+2147483647	2147483647	2147483647	(possible with numeric digits 9 because returned as-is)
+2**32/2-1	2.14748365E+9	0		(but not possible if calculated)
++2147483647	2.14748365E+9	0
+...
++1000000001	1.00000000E+9	1000000000
++1000000000	1.00000000E+9	1000000000
++999999999	999999999	999999999
++999999998	999999998	999999998
+
+rexx -e "return -32768"			-32768		-32769=0
+echo return -32768 | regina		0
+executor -e "return -32768"		-32768		-32769=ok
+-2147483648=max (with numeric digits 10, otherwise truncated to 9 digits plus digit 0 on the right)
+-2147483648	-2.14748365E+9	0		rounded
+-2147483647	-2.14748365E+9	0		rounded
+-2147483646	-2.14748365E+9	0		rounded
+-2147483645	-2.14748365E+9	0		rounded
+-2147483644	-2.14748364E+9	-2147483640	rounded
+-2147483643	-2.14748364E+9	-2147483640	rounded
+...
+-2147483634	-2.14748363E+9	-2147483630	rounded
+...
+-2147483624	-2.14748362E+9	-2147483620	rounded
+...
+-1000000001	-1.00000000E+9	-1000000000	rounded
+-1000000000	-1.00000000E+9	-1000000000	rounded value is correct
+-999999999	-999999999	-999999999	exact
+-999999998	-999999998	-999999998	exact
+
+
+rexx -e "say 1/"			-35	Error 35.1:  Incorrect expression detected at "/".
+echo 1/ | regina			-64	Error 64.1: [Syntax error at line 1]
+executor -e "say 1/"			-35	Error 35.1:  Incorrect expression detected at "/".
+
+rexx -e "say 1/0"			-42	Error 42.3:  Arithmetic overflow; divisor must not be zero.
+echo 1/0 | regina			-42	Error 42.3: Arithmetic overflow; divisor must not be zero
+executor -e "say 1/0"			-42	Error 42.3:  Arithmetic overflow; divisor must not be zero.
+
+
+

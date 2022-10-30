@@ -1,0 +1,162 @@
+jlf 2022 Oct 29
+Got warnings when including ICU4X headers and building under Windows.
+The reason is the option /W3
+No such warnings under MacOs, and no equivalent option to get this warning.
+
+
+================================================================================
+Remember
+================================================================================
+
+# Under Windows, to see the full command line
+set MAKEFLAGS=U
+nmake install VERBOSE=1
+
+https://stackoverflow.com/questions/57358039/how-to-see-the-underlying-compiler-linker-command-line-with-cmake-nmake
+nmake has an option to display inline files / response files:
+    /U Dump inline files
+For recursive make you might want to set this in an environment variable like this:
+    set MAKEFLAGS=U
+This way, the content of all response files will appear on the console.
+
+
+================================================================================
+Microsoft cl options
+================================================================================
+
+/nologo
+/TP
+-DHAVE_CONFIG_H
+-DNOMINMAX
+-DOOREXX_COPY_YEAR=\"2005-2022\"
+-DORX_BLD=0
+-DORX_CATDIR=\"\"
+-DORX_MOD=0
+-DORX_REL=3
+-DORX_REXXPATH=\"\"
+-DORX_SHARED_LIBRARY_EXT=\".dll\"
+-DORX_SYS_STR=\"WINDOWS\"
+-DORX_VER=4
+-DORX_VER_STR=4.3.0
+-DWIN32
+-D_CRT_NONSTDC_NO_DEPRECATE
+-D_CRT_SECURE_NO_DEPRECATE
+-D_CRT_SECURE_NO_WARNINGS
+-D_WIN32_WINNT=0x0600
+-D_WINDOWS
+-Drexx_EXPORTS
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\api\platform\windows
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\api
+-IE:\Local\rexxlocal\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\build
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\lib
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\common
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\common\platform\windows
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\behaviour
+
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\execution
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\memory
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\package
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\concurrency
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\expression
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\instructions
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\classes
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\classes\support
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\runtime
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\parser
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\messages
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\streamLibrary
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\platform\common
+
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\platform\windows
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\rexxapi\client
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\rexxapi\client\platform\windows
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\rexxapi\common
+-IY:\local\rexx\oorexx\executor\sandbox\jlf\trunk\rexxapi\common\platform\windows
+/DSTRONG_TYPES
+
+
+/DWIN32
+/D_WINDOWS
+/W3
+/GR
+/EHsc-
+/MT
+/O2
+/Ob2
+/DNDEBUG
+/wd4291
+/std:c++20
+/showIncludes
+/FoCMakeFiles\rexx.dir\interpreter\classes\TextClass.cpp.obj
+/FdCMakeFiles\rexx.dir\
+/FS
+-c Y:\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\classes\TextClass.cpp
+
+
+================================================================================
+MacOs clang options
+================================================================================
+
+/local/llvm/clang+llvm-15.0.3-x86_64-apple-darwin/bin/clang++
+-DDARWIN
+-DHAVE_CONFIG_H
+-DOOREXX_COPY_YEAR=\"2005-2022\"
+-DOPSYS_DARWIN
+-DORX_BLD=0
+-DORX_CATDIR=\"/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin\"
+-DORX_MOD=0
+-DORX_REL=3
+-DORX_REXXPATH=\"\"
+-DORX_SHARED_LIBRARY_EXT=\".dylib\"
+-DORX_SYS_STR=\"DARWIN\"
+-DORX_VER=4
+-D_GNU_SOURCE
+-Drexx_EXPORTS
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/api/platform/unix
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/api
+-I/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/build
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/lib
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/common
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/common/platform/unix
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/behaviour
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/execution
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/memory
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/package
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/concurrency
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/expression
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/instructions
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/classes
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/classes/support
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/runtime
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/parser
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/messages
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/streamLibrary
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/platform/common
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/platform/unix
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/rexxapi/client
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/rexxapi/client/platform/unix
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/rexxapi/common
+-I/local/rexx/oorexx/executor/sandbox/jlf/trunk/rexxapi/common/platform/unix
+-DSTRONG_TYPES
+-stdlib=libc++
+-mmacosx-version-min=10.9
+-O3
+-arch
+x86_64
+-O3
+-DNDEBUG
+-isysroot
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk
+-mmacosx-version-min=10.9
+-fPIC
+-std=gnu++11
+-std=c++20
+-MD
+-MT
+CMakeFiles/rexx.dir/interpreter/classes/TextClass.cpp.o
+-MF CMakeFiles/rexx.dir/interpreter/classes/TextClass.cpp.o.d
+-o CMakeFiles/rexx.dir/interpreter/classes/TextClass.cpp.o
+-c /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/classes/TextClass.cpp
+

@@ -130,6 +130,44 @@ constants.=
 
 
 ================================================================================
+cmake, makefile
+================================================================================
+
+# Under Windows, to see the full command line
+set MAKEFLAGS=U
+nmake install VERBOSE=1
+
+https://stackoverflow.com/questions/57358039/how-to-see-the-underlying-compiler-linker-command-line-with-cmake-nmake
+nmake has an option to display inline files / response files:
+    /U Dump inline files
+For recursive make you might want to set this in an environment variable like this:
+    set MAKEFLAGS=U
+This way, the content of all response files will appear on the console.
+
+
+================================================================================
+Align CMakeLists.txt with official
+================================================================================
+
+-DORX_CATDIR="${catdir}"
+
+to remove ?
+set (build_extensions_rexxutil_dir ${build_extensions_dir}/rexxutil)
+set (build_extensions_rexxutil_platform_dir ${build_extensions_rexxutil_dir}/${ORX_PLATFORM_DIR})
+
+
+
+CMakeLists
+diff official vs executor
+---
+975-977
+
+
+Rechercher occurences BUILD_DEB OR BUILD_RPM
+devrait être supprimé
+
+
+================================================================================
 Tail recursion (todo)
 ================================================================================
 
@@ -259,7 +297,7 @@ Thoughts about lazy evaluation of arguments:
 
 
 ================================================================================
-Named arguments (done)
+Named arguments
 ================================================================================
 
 Remainging todo for implementation of named arguments

@@ -1,4 +1,4 @@
-==========================================================================================
+================================================================================
 
 http://jscheme.sourceforge.net/jscheme/main.html
 JScheme is a dialect of Scheme with a very simple interface to Java, called the Javadot notation .
@@ -6,3 +6,23 @@ This notation provides a transparent access to all Java classes, constructors, m
 http://jscheme.sourceforge.net/jscheme/doc/javadot.html
 
 
+================================================================================
+This Rexx program was invoked by Rexx, JVM loaded by Rexx!
+breakpoint hit count = 60
+2019-11-01 09:34:17.881104+0100 rexx[60888:9364551]        *-* Compiled routine BSF
+       *-* Compiled routine BSF
+2019-11-01 09:34:17.881362+0100 rexx[60888:9364551]        *-* Compiled method CALLWITH with scope "Routine"
+       *-* Compiled method CALLWITH with scope "Routine"
+2019-11-01 09:34:17.881643+0100 rexx[60888:9364551]   1762 *-* beanName=self~class~rBSF~callWith(arr)~substr(4)
+  1762 *-* beanName=self~class~rBSF~callWith(arr)~substr(4)
+2019-11-01 09:34:17.881742+0100 rexx[60888:9364551]     95 *-* self~init:super('java.awt.Frame', ARG(1, 'A'))
+    95 *-* self~init:super('java.awt.Frame', ARG(1, 'A'))
+2019-11-01 09:34:17.881918+0100 rexx[60888:9364551]        *-* Compiled method NEW with scope "Object"
+       *-* Compiled method NEW with scope "Object"
+2019-11-01 09:34:17.882009+0100 rexx[60888:9364551]     76 *-* tmpWin = .awtFrame~new('Hello World!')
+    76 *-* tmpWin = .awtFrame~new('Hello World!')
+2019-11-01 09:34:17.882634+0100 rexx[60888:9364551] REX0040E: Error 40 running /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20190830-beta/bsf4oorexx/samples/1-010_HelloWorld.rxj line 95:  Incorrect call to routine
+REX0040E: Error 40 running /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20190830-beta/bsf4oorexx/samples/1-010_HelloWorld.rxj line 95:  Incorrect call to routine
+2019-11-01 09:34:17.920639+0100 rexx[60888:9364551] REX0634E: Error 40.900:  BSF4ooRexx/routine/BSF(), error 3: Java exception occurred: [org.apache.bsf.BSFException: BSF4ooRexx subfunction "new": ?	bean:        [class java.awt.Frame] --> type: <java.awt.Frame>?	constructor not found!??	-> check name=[java.awt.Frame] -> Java class name=<java.awt.Frame> (caseless o.k., but correct spelling?)?	-> check supplied arguments (correct number, correct types?):?		arg # 1: Rexx argument=[Hello World!] --> Java value="Hello World!" type=<java.lang.String>?]
+REX0634E: Error 40.900:  BSF4ooRexx/routine/BSF(), error 3: Java exception occurred: [org.apache.bsf.BSFException: BSF4ooRexx subfunction "new": ?	bean:        [class java.awt.Frame] --> type: <java.awt.Frame>?	constructor not found!??	-> check name=[java.awt.Frame] -> Java class name=<java.awt.Frame> (caseless o.k., but correct spelling?)?	-> check supplied arguments (correct number, correct types?):?		arg # 1: Rexx argument=[Hello World!] --> Java value="Hello World!" type=<java.lang.String>?]
+(lldb)

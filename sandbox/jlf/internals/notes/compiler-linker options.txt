@@ -59,3 +59,26 @@ http://msdn.microsoft.com/en-us/library/k1ack8f1.aspx
         we recommend that you specify the /Oy- option
         after any other optimization compiler options.
 
+================================================================================
+http://stackoverflow.com/questions/42308/tool-to-track-include-dependencies
+
+here is GNUmake syntax to automatically 1) generate the dependency files, 2) keep them up to date, and 3) use them in your makefile:
+
+.dep:
+    mkdir $@
+.dep/%.dep: %.c .dep
+    (echo $@ \\; $(CC) $(IFLAGS) -MM $<) > $@ || (rm $@; false)
+.dep/%.dep: %.cpp .dep
+    (echo $@ \\; $(CXX) $(IFLAGS) -MM $<) > $@ || (rm $@; false)
+DEPEND := $(patsubst %.dep,.dep/%.dep,$(OBJ:.o=.dep))
+-include $(DEPEND)
+
+
+
+cl option
+/showIncludes
+
+
+http://www.conifersystems.com/2008/10/09/dependencies-from-showincludes/
+How to Get Dependencies from /showIncludes
+(Python)

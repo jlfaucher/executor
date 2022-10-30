@@ -1,0 +1,128 @@
+Override a builtin function by a routine.
+
+
+datatype("xrange", "F")		-- builtin Function
+
+
+BuiltinFunctions()
+BuiltinFunctions(Directory)
+
+
+RexxExpressionFunction::evaluate
+        case function_builtin:             /* builtin function call             */
+            /* call the function                 */
+            result = (RexxObject *) (*(RexxSource::builtinTable[this->builtin_index]))(context, _arguments, argcount, namedArgcount, stack);
+            break;
+
+
+void RexxInstructionCall::execute(
+    RexxActivation      *context,      /* current activation context        */
+    RexxExpressionStack *stack)        /* evaluation stack                  */
+            case call_builtin:               /* builtin function call             */
+                /* call the function                 */
+                result = (*(RexxSource::builtinTable[builtin_index]))(context, _arguments, argumentCount, namedArgumentCount, stack);
+                break;
+
+
+void RexxInstructionCall::trap(
+    RexxActivation *context,           /* current execution context         */
+    RexxDirectory  *conditionObj)      /* associated condition object       */
+        case call_builtin:                 /* builtin function call             */
+            /* call the function                 */
+            (*(RexxSource::builtinTable[builtinIndex]))(context, NULL, 0, 0, context->getStack());
+            break;
+
+
+RexxObject *RexxActivation::externalCall(RexxString *target, RexxObject **_arguments, size_t _argcount,
+    size_t _named_argcount, RexxString *calltype, ProtectedObject &resultObj)
+{
+    // Step 1:  Check the global functions directory
+    // this is actually considered part of the built-in functions, but these are
+    // written in ooRexx.  The names are also case sensitive
+    RoutineClass *routine = (RoutineClass *)TheFunctionsDirectory->get(target);
+    if (routine != OREF_NULL)        /* not found yet?                    */
+    {
+        // call and return the result
+        routine->call(this->activity, target, _arguments, _argcount, _named_argcount, calltype, OREF_NULL, EXTERNALCALL, resultObj);
+        return(RexxObject *)resultObj;
+    }
+
+
+
+void RoutineClass::call(
+    RexxActivity *activity,            /* activity running under            */
+    RexxString *msgname,               /* message to be run                 */
+    RexxObject**argPtr,                /* arguments to the method           */
+    size_t      argcount,              /* the count of arguments            */
+    size_t      named_argcount,
+    ProtectedObject &result)           // the method result
+
+
+================================================================================
+BuiltinFunctions.cpp
+
+// Table of routines overriding the builtin functions
+const size_t builtinTableSize = sizeof(RexxSource::builtinTable) / sizeof(pbuiltin);
+RoutineClass *RexxSource::builtinOverrideTable[builtinTableSize] = {NULL}; // no overrinding by default, all entries are NULL
+
+
+
+ExpressionFunction.cpp
+
+        case function_builtin:             /* builtin function call             */
+            {
+                RoutineClass *routine = RexxSource::builtinOverrideTable[this->builtin_index];
+                if (routine != OREF_NULL)
+                {
+                    routine->call(ActivityManager::currentActivity, this->functionName, _arguments, argcount, namedArgcount, OREF_SUBROUTINE, OREF_NULL, EXTERNALCALL, result);
+                }
+                else
+                {
+                    /* call the function                 */
+                    result = (RexxObject *) (*(RexxSource::builtinTable[this->builtin_index]))(context, _arguments, argcount, namedArgcount, stack);
+                }
+            }
+            break;
+
+
+
+CallInstruction.cpp
+
+            case call_builtin:               /* builtin function call             */
+                {
+                    RoutineClass *routine = RexxSource::builtinOverrideTable[builtin_index];
+                    if (routine != OREF_NULL)
+                    {
+                        routine->call(ActivityManager::currentActivity, _name, _arguments, argumentCount, namedArgumentCount, OREF_SUBROUTINE, OREF_NULL, EXTERNALCALL, result);
+                    }
+                    else
+                    {
+                        /* call the function                 */
+                        result = (*(RexxSource::builtinTable[builtin_index]))(context, _arguments, argumentCount, namedArgumentCount, stack);
+                    }
+                }
+                break;
+
+
+        case call_builtin:                 /* builtin function call             */
+            {
+                RoutineClass *routine = RexxSource::builtinOverrideTable[builtinIndex];
+                if (routine != OREF_NULL)
+                {
+                    routine->call(ActivityManager::currentActivity, (RexxString *)this->name, NULL, 0, 0, OREF_SUBROUTINE, OREF_NULL, EXTERNALCALL, result);
+                }
+                else
+                {
+                    /* call the function                 */
+                    (*(RexxSource::builtinTable[builtinIndex]))(context, NULL, 0, 0, context->getStack());
+                }
+            }
+            break;
+
+
+
+SourceFile.hpp
+
+    static RoutineClass *builtinOverrideTable[]; /* table of user-defined routines overriding builtin functions */
+
+

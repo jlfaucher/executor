@@ -1881,6 +1881,14 @@ https://github.com/onetrueawk/awk/tree/unicode-support
 https://news.ycombinator.com/item?id=32534173
 
 
+https://github.com/AdaForge/Thematics/wiki/Unicode-and-String-manipulations
+Unicode and String manipulations in UTF-8, UTF-16, ...
+
+
+https://stackoverflow.com/questions/48829940/utf-8-on-windows-with-ada
+UTF-8 on Windows with Ada
+
+
 ================================================================================
 C++ lang, Boost
 ================================================================================
@@ -2046,6 +2054,23 @@ UTF-8/16 encoder/decoder
 Java lang
 ================================================================================
 
+https://openjdk.org/jeps/400
+JEP 400: UTF-8 by Default
+A quick way to see the default charset of the current JDK is with the following command:
+    java -XshowSettings:properties -version 2>&1 | grep file.encoding
+As envisaged by the specification of Charset.defaultCharset(), the JDK will allow
+the default charset to be configured to something other than UTF-8.
+    java -Dfile.encoding=COMPAT
+        the default charset will be the charset chosen by the algorithm in JDK 17 and earlier,
+        based on the user's operating system, locale, and other factors.
+        The value of file.encoding will be set to the name of that charset.
+    java -Dfile.encoding=UTF-8
+        the default charset will be UTF-8.
+        This no-op value is defined in order to preserve the behavior of existing command lines.
+    The treatment of values other than "COMPAT" and "UTF-8" are not specified.
+    They are not supported, but if such a value worked in JDK 17 then it will likely continue to work in JDK 18.
+
+
 https://www.baeldung.com/java-remove-accents-from-text
 Remove Accents and Diacritics From a String in Java
 - We will perform the compatibility decomposition represented as the Java enum NFKD.
@@ -2062,6 +2087,19 @@ Java provides four strength values for a Collator:
     SECONDARY: comparison omitting case but including accents and diacritics
     TERTIARY: comparison including case and accents
     IDENTICAL: all differences are significant
+
+
+https://docs.oracle.com/en/java/javase/16/docs/api/java.base/java/io/DataInput.html#modified-utf-8
+Implementations of the DataInput and DataOutput interfaces represent Unicode strings in a format
+that is a slight modification of UTF-8.
+- Characters in the range '\u0001' to '\u007F' are represented by a single byte.
+- The null character '\u0000' and characters in the range '\u0080' to '\u07FF' are represented by a pair of bytes.
+- Characters in the range '\u0800' to '\uFFFF' are represented by three bytes.
+The differences between this format and the standard UTF-8 format are the following:
+- The null byte '\u0000' is encoded in 2-byte format rather than 1-byte,
+  so that the encoded strings never have embedded nulls.
+- Only the 1-byte, 2-byte, and 3-byte formats are used.
+- Supplementary characters are represented in the form of surrogate pairs.
 
 
 ================================================================================
