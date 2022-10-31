@@ -715,10 +715,18 @@ elseif (build_type STREQUAL relwithdebinfo)
 elseif (build_type STREQUAL minsizerel)
     set (cziglyph_build_mode -Drelease-small)
 else ()
-    # empty: default mode is debug
-    #set (cziglyph_build_mode)
-    # I have link errors when building in debug mode. Workaround: use the release mode.
-    set (cziglyph_build_mode -Drelease-fast)
+    if (WIN32)
+        # empty: default mode is debug
+        #set (cziglyph_build_mode)
+
+        # I have link errors when building in debug mode:
+        # cziglyph.lib(cziglyph.obj) : error LNK2019: unresolved external symbol NtClose referenced in function std.os.windows.CloseHandle
+        # Workaround: use the release mode.
+        set (cziglyph_build_mode -Drelease-fast)
+    else ()
+        # empty: default mode is debug
+        set (cziglyph_build_mode)
+    endif ()
 endif()
 
 set (cziglyph_dir ${CMAKE_CURRENT_SOURCE_DIR}/${build_classes_support_dir}/m17n/cziglyph)
@@ -727,8 +735,9 @@ set (cziglyph_cache ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/cziglyph/zig-cache)
 set (zig_build_cziglyph "zig build --verbose ${cziglyph_target} ${cziglyph_build_mode} --build-file ${cziglyph_build_zig} --prefix ${CMAKE_CURRENT_BINARY_DIR} --cache-dir ${cziglyph_cache}")
 add_library(cziglyph STATIC
             ${cziglyph_build_zig})
-set(CMAKE_ZIG_CREATE_STATIC_LIBRARY "${zig_build_cziglyph}")
-SET_TARGET_PROPERTIES(cziglyph PROPERTIES LINKER_LANGUAGE ZIG)
+
+# Next declaration to bypass "CMake can not determine linker language for target: cziglyph"
+SET_TARGET_PROPERTIES(cziglyph PROPERTIES LINKER_LANGUAGE CXX)
 
 add_custom_target(build_cziglyph
     # next line is not working, must repeat the full command :-(
@@ -736,8 +745,6 @@ add_custom_target(build_cziglyph
     zig build --verbose ${cziglyph_target} ${cziglyph_build_mode} --build-file ${cziglyph_build_zig} --prefix ${CMAKE_CURRENT_BINARY_DIR} --cache-dir ${cziglyph_cache}
     COMMENT "Building cziglyph...")
 add_dependencies(cziglyph build_cziglyph)
-
-message(STATUS "CMAKE_ZIG_CREATE_STATIC_LIBRARY is ${CMAKE_ZIG_CREATE_STATIC_LIBRARY}")
 
 
 ###################### ICU4X #############################

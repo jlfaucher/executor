@@ -11,8 +11,13 @@ pub fn build(b: *std.build.Builder) void {
 
     const target = b.standardTargetOptions(.{});
     lib.setTarget(target);
+
+    // If I use std.heap.c_allocator then I need lib.linkLibC()
+    // If I use std.heap.raw_c_allocator then I don't need libC under MacOs, but I need it under Windows
     lib.linkLibC();
-    lib.linkLibCpp();
+
+    // Not needed so far
+    // lib.linkLibCpp();
 
     //--------------------------------------------------------------------------
     // Workaround for:

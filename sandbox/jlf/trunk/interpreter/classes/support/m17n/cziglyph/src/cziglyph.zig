@@ -57,10 +57,28 @@ export fn _availability_version_check(_: u32, _: [*c]const dyld_build_version_t)
 
 
 //------------------------------------------------------------------------------
+// Allocator
+
+// do 100000; .Unicode~stringToCaseFold("HELLO");end    -- 9s
+// No need of lib.linkLibC()
+//var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+//const allocator = gpa.allocator();
+
+// do 100000; .Unicode~stringToCaseFold("HELLO");end    -- 0.6s
+// Under MacOs, no need of lib.linkLibC()
+// Under Windows, NEEDS lib.linkLibC()
+const allocator = std.heap.raw_c_allocator;
+
+// do 100000; .Unicode~stringToCaseFold("HELLO");end    -- 0.6s
+// Needs lib.linkLibC()
+//const allocator = std.heap.c_allocator;
+
+
+//------------------------------------------------------------------------------
 // Wrappers
 
 export fn ziglyph_free(memory: [*]const u8, length: usize) void {
-    std.heap.c_allocator.free(memory[0..length]);
+    allocator.free(memory[0..length]);
 }
 
 
@@ -69,7 +87,7 @@ export fn ziglyph_toCaseFoldStr(utf8str: [*]const u8, length: usize, out_utf8str
 
     out_utf8str.* = null;
     out_length.* = 0;
-    const optional_result: ?[]u8 = ziglyph.toCaseFoldStr(std.heap.c_allocator, utf8str[0..length]) catch null;
+    const optional_result: ?[]u8 = ziglyph.toCaseFoldStr(allocator, utf8str[0..length]) catch null;
     if (optional_result) |result| {
         out_utf8str.* = result.ptr;
         out_length.* = result.len;
@@ -81,7 +99,7 @@ export fn ziglyph_toCaseFoldStr(utf8str: [*]const u8, length: usize, out_utf8str
 export fn ziglyph_toLowerStr(utf8str: [*]const u8, length: usize, out_utf8str: *?[*]const u8, out_length: *usize) void {
     out_utf8str.* = null;
     out_length.* = 0;
-    const optional_result: ?[]u8 = ziglyph.toLowerStr(std.heap.c_allocator, utf8str[0..length]) catch null;
+    const optional_result: ?[]u8 = ziglyph.toLowerStr(allocator, utf8str[0..length]) catch null;
     if (optional_result) |result| {
         out_utf8str.* = result.ptr;
         out_length.* = result.len;
@@ -92,7 +110,7 @@ export fn ziglyph_toLowerStr(utf8str: [*]const u8, length: usize, out_utf8str: *
 export fn ziglyph_toTitleStr(utf8str: [*]const u8, length: usize, out_utf8str: *?[*]const u8, out_length: *usize) void {
     out_utf8str.* = null;
     out_length.* = 0;
-    const optional_result: ?[]u8 = ziglyph.toTitleStr(std.heap.c_allocator, utf8str[0..length]) catch null;
+    const optional_result: ?[]u8 = ziglyph.toTitleStr(allocator, utf8str[0..length]) catch null;
     if (optional_result) |result| {
         out_utf8str.* = result.ptr;
         out_length.* = result.len;
@@ -104,7 +122,7 @@ export fn ziglyph_toTitleStr(utf8str: [*]const u8, length: usize, out_utf8str: *
 export fn ziglyph_toUpperStr(utf8str: [*]const u8, length: usize, out_utf8str: *?[*]const u8, out_length: *usize) void {
     out_utf8str.* = null;
     out_length.* = 0;
-    const optional_result: ?[]u8 = ziglyph.toUpperStr(std.heap.c_allocator, utf8str[0..length]) catch null;
+    const optional_result: ?[]u8 = ziglyph.toUpperStr(allocator, utf8str[0..length]) catch null;
     if (optional_result) |result| {
         out_utf8str.* = result.ptr;
         out_length.* = result.len;
