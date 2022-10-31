@@ -753,7 +753,9 @@ if (WIN32)
     message(STATUS "ICU4X for x86_64-pc-windows-msvc")
     # Relative path to ICU4X dylib in the source tree
     set (icu4x_dylib     ${icu4x_dir}/target/x86_64-pc-windows-msvc/release/icu_capi_cdylib.dll)
+    set (icu4x_dylib_exp ${icu4x_dir}/target/x86_64-pc-windows-msvc/release/icu_capi_cdylib.dll.exp)
     set (icu4x_dylib_lib ${icu4x_dir}/target/x86_64-pc-windows-msvc/release/icu_capi_cdylib.dll.lib)
+    set (icu4x_dylib_pdb ${icu4x_dir}/target/x86_64-pc-windows-msvc/release/icu_capi_cdylib.dll.pdb)
     # Full path to ICU4X dylib in the source tree
     set_property(TARGET icu_capi_cdylib PROPERTY IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/${icu4x_dylib})
     set_property(TARGET icu_capi_cdylib PROPERTY IMPORTED_IMPLIB ${CMAKE_CURRENT_SOURCE_DIR}/${icu4x_dylib_lib})
@@ -2148,7 +2150,7 @@ endif ()
        CONFIGURATIONS Debug RelWithDebInfo)
    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rexx.pdb COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR}
        CONFIGURATIONS Debug RelWithDebInfo)
-   install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/icu_capi_cdylib.pdb COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR}
+   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${icu4x_dylib_lib} COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR}
        CONFIGURATIONS Debug RelWithDebInfo)
    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rexxapi.pdb COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR}
        CONFIGURATIONS Debug RelWithDebInfo)
