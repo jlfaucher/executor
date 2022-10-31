@@ -716,7 +716,9 @@ elseif (build_type STREQUAL minsizerel)
     set (cziglyph_build_mode -Drelease-small)
 else ()
     # empty: default mode is debug
-    set (cziglyph_build_mode)
+    #set (cziglyph_build_mode)
+    # I have link errors when building in debug mode. Workaround: use the release mode.
+    set (cziglyph_build_mode -Drelease-fast)
 endif()
 
 set (cziglyph_dir ${CMAKE_CURRENT_SOURCE_DIR}/${build_classes_support_dir}/m17n/cziglyph)

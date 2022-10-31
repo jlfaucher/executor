@@ -2,6 +2,43 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2022 October 30
+
+[Unicode]
+
+Link problem with Ziglyph under Windows in debug mode.
+Workaround: build Ziglyph in release mode, always.
+
+    [ 11%] Building cziglyph...
+    E:\Local\zig\zig-windows-x86_64-0.9.1\zig.EXE
+        build-lib
+        Y:\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\classes\support\m17n\cziglyph\src\cziglyph.zig
+        -lc
+        -lc++
+        --cache-dir E:\Local\rexxlocal\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\debug\64\build\lib\cziglyph\zig-cache
+        --global-cache-dir C:\Users\JL Faucher\AppData\Local\zig
+        --name cziglyph
+        -static
+        -fcompiler-rt
+        -target x86_64-windows-msvc
+        -mcpu x86_64
+        --pkg-begin ziglyph
+        Y:\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\classes\support\m17n\ziglyph\src\ziglyph.zig
+        --pkg-end
+        --enable-cache
+
+
+    [ 62%] Linking CXX shared library bin\rexx.dll
+       Creating library lib\rexx.lib and object lib\rexx.exp
+    cziglyph.lib(cziglyph.obj) : error LNK2019: unresolved external symbol NtClose referenced in function std.os.windows.CloseHandle
+    cziglyph.lib(cziglyph.obj) : error LNK2019: unresolved external symbol NtCreateFile referenced in function std.target.Arch.isWasm
+    cziglyph.lib(cziglyph.obj) : error LNK2019: unresolved external symbol NtLockFile referenced in function std.target.Arch.isWasm
+    cziglyph.lib(cziglyph.obj) : error LNK2019: unresolved external symbol NtWaitForKeyedEvent referenced in function std.meta.assumeSentinel.176
+    cziglyph.lib(cziglyph.obj) : error LNK2019: unresolved external symbol NtCreateKeyedEvent referenced in function std.fmt.formatValue.226
+    bin\rexx.dll : fatal error LNK1120: 5 unresolved externals
+
+
+===============================================================================
 2022 October 28
 
 [Unicode]
