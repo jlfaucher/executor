@@ -147,12 +147,17 @@ if value("OOREXXSHELL_RLWRAP", , "ENVIRONMENT") <> "" then .ooRexxShell~readline
 .ooRexxShell~defaultColor = "default"
 .ooRexxShell~errorColor = "bred"
 .ooRexxShell~infoColor = "bgreen"
-.ooRexxShell~commentColor = "blue"
+.ooRexxShell~commentColor = "bblue"
 .ooRexxShell~promptColor = "byellow"
 .ooRexxShell~traceColor = "bpurple"
-if .platform~is("windows") & .color~defaultBackground == 15 /*white*/ then do
-    .ooRexxShell~infoColor = "green"
-    .ooRexxShell~promptColor = "yellow"
+if .platform~is("windows") then do
+    if .color~defaultBackground == 0 /*black*/ then do
+        .ooRexxShell~commentColor = "bcyan" -- instead of blue which is less readable
+    end
+    if .color~defaultBackground == 15 /*white*/ then do
+        .ooRexxShell~infoColor = "green"
+        .ooRexxShell~promptColor = "yellow"
+    end
 end
 
 .ooRexxShell~readlineAddress = readlineAddress()
