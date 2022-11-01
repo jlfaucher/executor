@@ -277,16 +277,19 @@ Known problems under Windows
 
 - The doskey history is fragile. It's not rare to loose the history.
 
-- The default console code page is the OEMCP, which does not match the default ANSI
-  code page (ACP). That bring troubles when you execute a command which contains
-  letters with accent. This problem could be bypassed by converting OEMCP to ACP in the
-  securiy manager, but there is a more general workaround that can be used:
-  Change the default code page of the console to ACP. For example, european users could
-  enter this command: chcp 1252
-  You must also change the font of the console, because a raster font can't display letters
-  with accent. Try Lucida Console, for example.
+- The default console code page is the OEMCP, which does not match the default ANSI code page (ACP).
+  For example:
+      437 OEM United States
+      850 OEM Multilingual Latin 1; Western European (DOS).
+  That brings troubles when you execute a script created with a Window application (like Notepad)
+  which contains letters with accent.
+  Change the default code page of the console to ACP.
+  For example, european users could enter this command:
+    chcp 1252
+  which changes the default code page of the console to 1252 ANSI Latin 1; Western European (Windows).
+  You must also change the font of the console, because a raster font can't display letters with accent.
+  Try Lucida Console, for example.
   See:
-  http://blogs.msdn.com/michkap/archive/2005/02/08/369197.aspx
   http://archives.miloush.net/michkap/archive/2005/02/08/369197.html
   http://en.wikipedia.org/wiki/Windows-1252
 
