@@ -140,6 +140,26 @@ end
 -- Deactivate the readline mode when Windows, because the history is not managed correctly.
 -- We lose the doskey macros and the filename autocompletion. Too bad...
 if .platform~is("windows") then .ooRexxShell~readline = .false
+/*
+    jlf Nov 01, 2022:
+    That makes weeks that I try to understand why UTF-8 strings containing accents are corrupted
+    (any byte >= 128 is replaced by \0), whereas it worked flawlessly for years.
+    I suddenly realize that it's because I deactivated the readline mode on Dec 20, 2020.
+    This post explains why the input bug occurs when using chcp 65001:
+    https://stackoverflow.com/questions/39736901/chcp-65001-codepage-results-in-program-termination-without-any-error
+    When readline is on, ooRexxShell delegates to cmd to read a line:
+        set /p inputrx="My prompt> "
+    This input mode is not impacted by the UTF-8 input bug!
+    I did not reactivate the readline mode by default, but now, I know how to get valid UTF-8 strings with accents.
+
+    Demonstration:
+        Launch ooRexxshell, by default readline if off.
+        "père Noël"~c2x=    -- '70 00 72 65 20 4E 6F 00 6C'
+                            --  p  è  r  e  ␣  N  o  ë  l
+        readline on
+        "père Noël"~c2x=    -- '70 C3A8 72 65 20 4E 6F C3AB 6C'
+                            --  p  è    r  e  ␣  N  o  ë    l
+*/
 
 -- Deactivate the readline mode when the environment variable OOREXXSHELL_RLWRAP is defined.
 if value("OOREXXSHELL_RLWRAP", , "ENVIRONMENT") <> "" then .ooRexxShell~readline = .false
