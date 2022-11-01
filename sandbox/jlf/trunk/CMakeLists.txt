@@ -325,8 +325,6 @@ if (WIN32)
             /DNOMINMAX
 # suppress warning C4291: no matching operator delete found; memory will not be freed if initialization throws an exception
             /wd4291
-# suppress warning C4099: type name first seen using 'struct' now seen using 'class' (related to ICU4X)
-            /wd4099
 # give errors for missing override specifications or method hiding with warning level 3
 #           /w34263 /w34266
             /DWIN32 /D_WINDOWS /DHAVE_CONFIG_H)
@@ -757,19 +755,33 @@ set (icu4x_dir ${build_classes_support_dir}/m17n/icu4x)
 add_library(icu_capi_cdylib SHARED IMPORTED GLOBAL)
 
 if (WIN32)
+    add_definitions(
+    # suppress warning C4099: type name first seen using 'struct' now seen using 'class'
+                /wd4099
+    )
+endif ()
+
+if (WIN32)
     message(STATUS "ICU4X for x86_64-pc-windows-msvc")
+    add_definitions(/DHAVE_ICU4X)
+    # Library name to link with
+    set (icu4x_lib icu_capi_cdylib)
     # Relative path to ICU4X dylib in the source tree
     set (icu4x_dylib     ${icu4x_dir}/target/x86_64-pc-windows-msvc/release/icu_capi_cdylib.dll)
     set (icu4x_dylib_exp ${icu4x_dir}/target/x86_64-pc-windows-msvc/release/icu_capi_cdylib.dll.exp)
     set (icu4x_dylib_lib ${icu4x_dir}/target/x86_64-pc-windows-msvc/release/icu_capi_cdylib.dll.lib)
-    set (icu4x_dylib_pdb ${icu4x_dir}/target/x86_64-pc-windows-msvc/release/icu_capi_cdylib.dll.pdb)
+    set (icu4x_dylib_pdb ${icu4x_dir}/target/x86_64-pc-windows-msvc/release/icu_capi_cdylib.pdb)
     # Full path to ICU4X dylib in the source tree
     set_property(TARGET icu_capi_cdylib PROPERTY IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/${icu4x_dylib})
     set_property(TARGET icu_capi_cdylib PROPERTY IMPORTED_IMPLIB ${CMAKE_CURRENT_SOURCE_DIR}/${icu4x_dylib_lib})
     # Visual C++ wants c++20
     set_source_files_properties(${build_classes_dir}/TextClass.cpp PROPERTIES COMPILE_OPTIONS "/std:c++20")
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${icu4x_dylib} COMPONENT Core DESTINATION ${INSTALL_LIB_DIR})
 elseif (APPLE)
     message(STATUS "ICU4X for x86_64-apple-darwin")
+    add_definitions(/DHAVE_ICU4X)
+    # Library name to link with
+    set (icu4x_lib icu_capi_cdylib)
     # Relative path to ICU4X dylib in the source tree
     set (icu4x_dylib ${icu4x_dir}/target/x86_64-apple-darwin/release/libicu_capi_cdylib.dylib)
     # Full path to ICU4X dylib in the source tree
@@ -777,12 +789,10 @@ elseif (APPLE)
     # I wanted to use std=c++20 to be aligned with Visual C++ (which wants c++20) but that doesn't work :-(
     # It works if I use -std=c++17, don't ask me why
     set_source_files_properties(${build_classes_dir}/TextClass.cpp PROPERTIES COMPILE_OPTIONS "-std=c++17")
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${icu4x_dylib} COMPONENT Core DESTINATION ${INSTALL_LIB_DIR})
 else ()
     message(STATUS "ICU4X not yet supported by Executor for this platform")
 endif ()
-
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${icu4x_dylib} COMPONENT Core DESTINATION ${INSTALL_LIB_DIR})
-
 
 
 #################### librexx.so ##########################
@@ -1107,7 +1117,7 @@ target_include_directories(rexx PUBLIC
             ${build_interpreter_platform_dir})
 
 # Extra link library definitions
-target_link_libraries(rexx rexxapi cziglyph icu_capi_cdylib ${platform_interpreter_libs} ${CMAKE_REQUIRED_LIBRARIES})
+target_link_libraries(rexx rexxapi cziglyph ${icu4x_lib} ${platform_interpreter_libs} ${CMAKE_REQUIRED_LIBRARIES})
 install(TARGETS rexx RUNTIME DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core
                      LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core
                      ARCHIVE DESTINATION ${INSTALL_INCLUDE_DIR} COMPONENT DevLib)
@@ -2157,8 +2167,10 @@ endif ()
        CONFIGURATIONS Debug RelWithDebInfo)
    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rexx.pdb COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR}
        CONFIGURATIONS Debug RelWithDebInfo)
-   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${icu4x_dylib_lib} COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR}
+if ( DEFINED icu4x_dylib_pdb )
+   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${icu4x_dylib_pdb} COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR}
        CONFIGURATIONS Debug RelWithDebInfo)
+endif()
    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rexxapi.pdb COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR}
        CONFIGURATIONS Debug RelWithDebInfo)
    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rexxc.pdb COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR}

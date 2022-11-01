@@ -2,6 +2,28 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2022 November 01
+
+[ICU4X]
+
+Make ICU4X optional.
+#ifdef HAVE_ICU4X
+...
+#endif
+Should let build Executor under Linux, for which I did not build the ICU4X binaries.
+
+                            MacOs                   Windows
+                            librexx.4.dylib         rexx.dll
+release without ICU4X       2 224 776               1 907 712
+release with ICU4X          2 224 776               1 907 712
+debug   without ICU4X       4 040 104               4 615 680
+debug   with ICU4X          4 040 104               4 616 704
+
+Same size with/without ICU4X because I don't have yet some code which depends on ICU4X.
+The ICU4X headers contains source code that is compiled, the compiler/linker removes the unused code.
+
+
+===============================================================================
 2022 October 30
 
 [Unicode]
@@ -554,9 +576,9 @@ text~title is now implemented with utf8proc for all the Unicode encodings
 
 
 Add these methods, implemented with ziglyph:
-    .Unicode~ToCaseFold
-    .Unicode~ToLower
-    .Unicode~ToUpper
+    .Unicode~stringToCaseFold
+    .Unicode~stringToLower
+    .Unicode~stringToUpper
 For the moment, they are not accessible from a RexxText.
 From a RexxText, the implementation is based on utf8proc.
 

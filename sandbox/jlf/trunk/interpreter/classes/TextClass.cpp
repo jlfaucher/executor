@@ -42,6 +42,7 @@
 #include "m17n/utf8proc/utf8proc.h"
 #include "m17n/cziglyph/src/cziglyph.h"
 
+#ifdef HAVE_ICU4X
 // All the headers of ICU4X (to see the impact on the size of rexx dylib)
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XAnyCalendarKind.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XBidi.hpp"
@@ -141,6 +142,7 @@
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XWordBreakRule.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XWordBreakSegmenter.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XZonedDateTimeFormatter.hpp"
+#endif
 
 
 /******************************************************************************/
