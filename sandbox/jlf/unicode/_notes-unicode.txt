@@ -661,6 +661,60 @@ https://www.gnu.org/software/libc/manual/html_mono/libc.html#Locales
 Locales and Internationalization
 
 
+https://stackoverflow.com/questions/30479607/explain-the-effects-of-export-lang-lc-ctype-and-lc-all
+    The LANG, LC_CTYPE and LC_ALL are special environment variables which after
+    they got exported to the shell environment, are available and ready to be rea
+    by certain programs which supports a locale (natural language formatting for C).
+
+    Each variable sets the C library's notion of natural language formatting style
+    for particular sets of routines, for example:
+
+        - LC_ALL - Set the entire locale generically
+        - LC_CTYPE - Set a locale for the ctype and multibyte functions.
+          This controls recognition of upper and lower case, alphabetic or non-
+          alphabetic characters, and so on.
+
+    and other such as LC_COLLATE (for string collation routines),
+                      LC_MESSAGES (for message catalogs),
+                      LC_MONETARY (for formatting monetary values),
+                      LC_NUMERIC (for formatting numbers),
+                      LC_TIME (for formatting dates and times).
+
+    Regarding LANG, it is used as a substitute for any unset LC_* variable.
+    See: man setlocale (BSD), man locale
+
+    So when certain C functions are called (such as setlocale, ctype, multibyte, catopen, printf, etc.),
+    they read the locale settings from the configuration files and local environment in order to control
+    and format natural language formatting style as per C programming language standards.
+
+    see: setlocale                  http://www.unix.com/man-page/freebsd/3/setlocale/
+    see: ctype                      http://www.unix.com/man-page/freebsd/3/ctype/
+    see: multibyte                  http://www.unix.com/man-page/freebsd/3/multibyte/
+    see: catopen                    http://www.unix.com/man-page/freebsd/3/catopen/
+    see:printf                      http://www.unix.com/man-page/freebsd/3/printf/
+    see: ISO C99                    https://en.wikipedia.org/wiki/C99
+    see: C Library - <locale.h>     https://www.tutorialspoint.com/c_standard_library/locale_h.htm
+
+
+AIX documentation
+https://www.ibm.com/docs/en/aix/7.1?topic=globalization-locales
+- Understanding locale
+- Understanding locale categories
+- Understanding locale environment variables
+- Understanding the locale definition source file
+- Multibyte subroutines
+- Wide character subroutines
+- Bidirectionality and character shaping
+- Code set independence
+- File name matching
+- Radix character handling
+- Programming model
+
+
+https://bugzilla.mozilla.org/show_bug.cgi?id=1612379
+Narrow down the list of ICU locales we ship
+
+
 ================================================================================
 CLDR Common Locale Data Repository
 ================================================================================
@@ -1268,17 +1322,6 @@ C#
 
 
 ================================================================================
-Encodings
-================================================================================
-
-30/05/2021
-https://datatracker.ietf.org/doc/html/rfc8259
-The JavaScript Object Notation (JSON) Data Interchange Format
-See this section about strings and encoding:
-https://datatracker.ietf.org/doc/html/rfc8259#section-7
-
-
-================================================================================
 JSON
 ================================================================================
 
@@ -1286,6 +1329,13 @@ https://www.reddit.com/r/programming/comments/q5vmxc/parsing_json_is_a_minefield
 https://seriot.ch/projects/parsing_json.html
 Parsing JSON is a Minefield
 Search for "unicode"
+
+
+30/05/2021
+https://datatracker.ietf.org/doc/html/rfc8259
+The JavaScript Object Notation (JSON) Data Interchange Format
+See this section about strings and encoding:
+https://datatracker.ietf.org/doc/html/rfc8259#section-7
 
 
 ================================================================================
@@ -1497,7 +1547,7 @@ Windows call and Path was unable to parse it.
 ---
 JLF: this is the birth of WTF-8 in 2014.
 The result is:
-https://simonsapin.github.io/wtf-8/#16-bit-code-unit
+https://simonsapin.github.io/wtf-8
 
 
 ====================================================================================
@@ -1805,11 +1855,58 @@ The library has methods to parse Tweets and calculate length, validity, parse @m
 
 
 ================================================================================
-terminal / console
+terminal / console / cmd
 ================================================================================
 
 https://www.reddit.com/r/bash/comments/wfbf3w/determine_if_the_termconsole_supports_utf8/
 Determine if the term/console supports UTF8?
+
+
+https://stackoverflow.com/questions/388490/how-to-use-unicode-characters-in-windows-command-line
+jlf: with my current version of Windows (21H2 - 10.0.19044), I have the input bug describe below:
+
+    In general using codepage 65001 will only work without bugs in Windows 10 with the Creators update.
+    In Windows 7 it will have both output and input bugs.
+    In Windows 8 and older versions of Windows 10 it only has the input bug, which limits input to 7-bit ASCII.
+    Eryk Sun Sep 9, 2017 at 13:43
+
+jlf: the sentence above is not true, I have the input bug with my version of Windows which is AFTER Creators update.
+
+
+http://archives.miloush.net/michkap/archive/2006/03/13/550191.html
+Who broke the UTF-8 support?
+by Michael S. Kaplan, published on 2006/03/13 03:21 -05:00, original URI: http://blogs.msdn.com/b/michkap/archive/2006/03/13/550191.aspx
+---
+jlf : we are in 2022 and the UTF-8 support in cmd is still broken...
+
+
+https://stackoverflow.com/questions/39736901/chcp-65001-codepage-results-in-program-termination-without-any-error
+jlf : Thanks to this post, I suddenly understood why ooRexxShell no longer supports UTF-8 input.
+      It's because I deactivated readline on Dec 20, 2020.
+      When readline is on, ooRexxShell delegates to cmd to read a line:
+          set /p inputrx="My prompt> "
+      This input mode is not impacted by the UTF-8 input bug!
+
+
+https://stackoverflow.com/questions/10651975/unicode-utf-8-with-git-bash
+git-bash (Windows)
+
+
+https://stackoverflow.com/questions/57131654/using-utf-8-encoding-chcp-65001-in-command-prompt-windows-powershell-window
+Using UTF-8 Encoding (CHCP 65001) in Command Prompt / Windows Powershell (Windows 10)
+Describes how to set the system locale (language for non-Unicode programs) to UTF-8.
+Optional reading: Why the Windows PowerShell ISE is a poor choice
+---
+jlf: this is a clear description of the UTF-8 input bug.
+For ReadFile from the console, even in Windows 10, you'll be limited to 7-bit ASCII if the
+input codepage is set to UTF-8, due to buggy assumptions in the console host, conhost.exe.
+In Windows 10, it returns non-ASCII characters as null ("\0") in the buffer.
+In older versions, the read succeeds with 0 bytes read, which looks like EOF.
+Eryk Sun Jul 21, 2019 at 13:31
+
+
+https://stackoverflow.com/questions/49476326/displaying-unicode-in-powershell/49481797#49481797
+Displaying Unicode in Powershell
 
 
 ================================================================================
@@ -2442,20 +2539,6 @@ PHP lang
 
 https://github.com/nicolas-grekas/Patchwork-UTF8
 Extensive, portable and performant handling of UTF-8 and grapheme clusters for PHP
-
-
-================================================================================
-Powershell lang
-================================================================================
-
-https://stackoverflow.com/questions/57131654/using-utf-8-encoding-chcp-65001-in-command-prompt-windows-powershell-window
-Using UTF-8 Encoding (CHCP 65001) in Command Prompt / Windows Powershell (Windows 10)
-Describes how o set the system locale (language for non-Unicode programs) to UTF-8.
-Optional reading: Why the Windows PowerShell ISE is a poor choice
-
-
-https://stackoverflow.com/questions/49476326/displaying-unicode-in-powershell/49481797#49481797
-Displaying Unicode in Powershell
 
 
 ================================================================================
