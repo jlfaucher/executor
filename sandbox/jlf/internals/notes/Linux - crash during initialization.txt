@@ -1,0 +1,288 @@
+Crash under Linux during initialization
+02/11/2022 Not yet solved.
+
+
+======
+reldbg
+======
+
+Executor
+[100%] Building CXX object CMakeFiles/rexximage.dir/utilities/rexximage/rexximage.cpp.o
+/usr/bin/c++  -DHAVE_CONFIG_H -DLINUX -DOOREXX_COPY_YEAR=\"2005-2020\" -DOPSYS_LINUX -DORX_BLD=0 -DORX_CATDIR=\"/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/ubuntu/gcc/reldbg/64/delivery/bin\" -DORX_MOD=0 -DORX_REL=3 -DORX_REXXPATH=\"/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/ubuntu/gcc/reldbg/64/build/bin\" -DORX_SHARED_LIBRARY_EXT=\".so\" -DORX_SYS_STR=\"LINUX\" -DORX_VER=4 -D_GNU_SOURCE -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/api/platform/unix -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/api -I/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/ubuntu/gcc/reldbg/64/build -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/lib -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/common -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/common/platform/unix -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/behaviour -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/execution -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/memory -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/package -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/concurrency -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/expression -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/instructions -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/classes -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/classes/support -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/runtime -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/parser -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/messages -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/streamLibrary -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/platform/common -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/platform/unix -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/rexxapi/client -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/rexxapi/client/platform/unix -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/rexxapi/common -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/rexxapi/common/platform/unix  -g -O3 -m64 -O2 -g -DNDEBUG   -std=gnu++11 -o CMakeFiles/rexximage.dir/utilities/rexximage/rexximage.cpp.o -c /local/rexx/oorexx/executor/sandbox/jlf/trunk/utilities/rexximage/rexximage.cpp
+[100%] Linking CXX executable bin/rexximage
+/usr/bin/cmake -E cmake_link_script CMakeFiles/rexximage.dir/link.txt --verbose=1
+/usr/bin/c++  -g -O3 -m64 -O2 -g -DNDEBUG  -m64 -rdynamic CMakeFiles/rexximage.dir/utilities/rexximage/rexximage.cpp.o  -o bin/rexximage  -Wl,-rpath,/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/ubuntu/gcc/reldbg/64/build/lib lib/librexx.so.4 lib/librexxapi.so.4 -ldl -lpthread -ldl
+make[3]: Leaving directory '/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/ubuntu/gcc/reldbg/64/build'
+
+
+Official
+[ 98%] Building CXX object CMakeFiles/rexximage.dir/utilities/rexximage/rexximage.cpp.o
+/usr/bin/c++  -DHAVE_CONFIG_H -DLINUX -DOOREXX_COPY_YEAR=\"2005-2020\" -DOPSYS_LINUX -DORX_BLD=0 -DORX_MOD=0 -DORX_REL=0 -DORX_REXXPATH=\"/local/rexxlocal/oorexx/build/official/main/trunk/ubuntu/gcc/reldbg/64/build/bin\" -DORX_SHARED_LIBRARY_EXT=\".so\" -DORX_SYS_STR=\"LINUX\" -DORX_VER=5 -D_GNU_SOURCE -I/local/rexx/oorexx/official/main/trunk/api/platform/unix -I/local/rexx/oorexx/official/main/trunk/api -I/local/rexxlocal/oorexx/build/official/main/trunk/ubuntu/gcc/reldbg/64/build -I/local/rexx/oorexx/official/main/trunk/lib -I/local/rexx/oorexx/official/main/trunk/common -I/local/rexx/oorexx/official/main/trunk/common/platform/unix -I/local/rexx/oorexx/official/main/trunk/interpreter -I/local/rexx/oorexx/official/main/trunk/interpreter/behaviour -I/local/rexx/oorexx/official/main/trunk/interpreter/execution -I/local/rexx/oorexx/official/main/trunk/interpreter/memory -I/local/rexx/oorexx/official/main/trunk/interpreter/package -I/local/rexx/oorexx/official/main/trunk/interpreter/concurrency -I/local/rexx/oorexx/official/main/trunk/interpreter/expression -I/local/rexx/oorexx/official/main/trunk/interpreter/instructions -I/local/rexx/oorexx/official/main/trunk/interpreter/classes -I/local/rexx/oorexx/official/main/trunk/interpreter/classes/support -I/local/rexx/oorexx/official/main/trunk/interpreter/runtime -I/local/rexx/oorexx/official/main/trunk/interpreter/parser -I/local/rexx/oorexx/official/main/trunk/interpreter/messages -I/local/rexx/oorexx/official/main/trunk/interpreter/streamLibrary -I/local/rexx/oorexx/official/main/trunk/interpreter/platform/common -I/local/rexx/oorexx/official/main/trunk/interpreter/platform/unix -I/local/rexx/oorexx/official/main/trunk/rexxapi/client -I/local/rexx/oorexx/official/main/trunk/rexxapi/client/platform/unix -I/local/rexx/oorexx/official/main/trunk/rexxapi/common -I/local/rexx/oorexx/official/main/trunk/rexxapi/common/platform/unix  -g -O3 -m64 -O2 -g -DNDEBUG   -std=gnu++11 -o CMakeFiles/rexximage.dir/utilities/rexximage/rexximage.cpp.o -c /local/rexx/oorexx/official/main/trunk/utilities/rexximage/rexximage.cpp
+[100%] Linking CXX executable bin/rexximage
+/usr/bin/cmake -E cmake_link_script CMakeFiles/rexximage.dir/link.txt --verbose=1
+/usr/bin/c++  -g -O3 -m64 -O2 -g -DNDEBUG  -m64 -rdynamic CMakeFiles/rexximage.dir/utilities/rexximage/rexximage.cpp.o  -o bin/rexximage  -Wl,-rpath,/local/rexxlocal/oorexx/build/official/main/trunk/ubuntu/gcc/reldbg/64/build/lib lib/librexx.so.4 lib/librexxapi.so.4 -ldl -lpthread -ldl
+make[3]: Leaving directory '/local/rexxlocal/oorexx/build/official/main/trunk/ubuntu/gcc/reldbg/64/build'
+
+
+compile
+executor    /usr/bin/c++  -DHAVE_CONFIG_H -DLINUX -DOOREXX_COPY_YEAR=\"2005-2020\" -DOPSYS_LINUX -DORX_BLD=0 -DORX_CATDIR=\"/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/ubuntu/gcc/reldbg/64/delivery/bin\" -DORX_MOD=0 -DORX_REL=3 -DORX_REXXPATH=\"/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/ubuntu/gcc/reldbg/64/build/bin\" -DORX_SHARED_LIBRARY_EXT=\".so\" -DORX_SYS_STR=\"LINUX\" -DORX_VER=4 -D_GNU_SOURCE -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/api/platform/unix -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/api -I/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/ubuntu/gcc/reldbg/64/build -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/lib -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/common -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/common/platform/unix -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/behaviour -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/execution -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/memory -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/package -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/concurrency -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/expression -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/instructions -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/classes -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/classes/support -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/runtime -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/parser -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/messages -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/streamLibrary -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/platform/common -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/platform/unix -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/rexxapi/client -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/rexxapi/client/platform/unix -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/rexxapi/common -I/local/rexx/oorexx/executor/sandbox/jlf/trunk/rexxapi/common/platform/unix  -g -O3 -m64 -O2 -g -DNDEBUG   -std=gnu++11 -o CMakeFiles/rexximage.dir/utilities/rexximage/rexximage.cpp.o -c /local/rexx/oorexx/executor/sandbox/jlf/trunk/utilities/rexximage/rexximage.cpp
+official    /usr/bin/c++  -DHAVE_CONFIG_H -DLINUX -DOOREXX_COPY_YEAR=\"2005-2020\" -DOPSYS_LINUX -DORX_BLD=0                                                                                                                    -DORX_MOD=0 -DORX_REL=0 -DORX_REXXPATH=\"/local/rexxlocal/oorexx/build/official/main/trunk/ubuntu/gcc/reldbg/64/build/bin\"               -DORX_SHARED_LIBRARY_EXT=\".so\" -DORX_SYS_STR=\"LINUX\" -DORX_VER=5 -D_GNU_SOURCE -I/local/rexx/oorexx/official/main/trunk/api/platform/unix        -I/local/rexx/oorexx/official/main/trunk/api        -I/local/rexxlocal/oorexx/build/official/main/trunk/ubuntu/gcc/reldbg/64/build               -I/local/rexx/oorexx/official/main/trunk/lib        -I/local/rexx/oorexx/official/main/trunk/common        -I/local/rexx/oorexx/official/main/trunk/common/platform/unix        -I/local/rexx/oorexx/official/main/trunk/interpreter        -I/local/rexx/oorexx/official/main/trunk/interpreter/behaviour        -I/local/rexx/oorexx/official/main/trunk/interpreter/execution        -I/local/rexx/oorexx/official/main/trunk/interpreter/memory        -I/local/rexx/oorexx/official/main/trunk/interpreter/package        -I/local/rexx/oorexx/official/main/trunk/interpreter/concurrency        -I/local/rexx/oorexx/official/main/trunk/interpreter/expression        -I/local/rexx/oorexx/official/main/trunk/interpreter/instructions        -I/local/rexx/oorexx/official/main/trunk/interpreter/classes        -I/local/rexx/oorexx/official/main/trunk/interpreter/classes/support        -I/local/rexx/oorexx/official/main/trunk/interpreter/runtime        -I/local/rexx/oorexx/official/main/trunk/interpreter/parser        -I/local/rexx/oorexx/official/main/trunk/interpreter/messages        -I/local/rexx/oorexx/official/main/trunk/interpreter/streamLibrary        -I/local/rexx/oorexx/official/main/trunk/interpreter/platform/common        -I/local/rexx/oorexx/official/main/trunk/interpreter/platform/unix        -I/local/rexx/oorexx/official/main/trunk/rexxapi/client        -I/local/rexx/oorexx/official/main/trunk/rexxapi/client/platform/unix        -I/local/rexx/oorexx/official/main/trunk/rexxapi/common        -I/local/rexx/oorexx/official/main/trunk/rexxapi/common/platform/unix         -g -O3 -m64 -O2 -g -DNDEBUG   -std=gnu++11 -o CMakeFiles/rexximage.dir/utilities/rexximage/rexximage.cpp.o -c /local/rexx/oorexx/official/main/trunk/utilities/rexximage/rexximage.cpp
+
+link
+executor    /usr/bin/c++  -g -O3 -m64 -O2 -g -DNDEBUG  -m64 -rdynamic CMakeFiles/rexximage.dir/utilities/rexximage/rexximage.cpp.o  -o bin/rexximage  -Wl,-rpath,/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/ubuntu/gcc/reldbg/64/build/lib lib/librexx.so.4 lib/librexxapi.so.4 -ldl -lpthread -ldl
+official    /usr/bin/c++  -g -O3 -m64 -O2 -g -DNDEBUG  -m64 -rdynamic CMakeFiles/rexximage.dir/utilities/rexximage/rexximage.cpp.o  -o bin/rexximage  -Wl,-rpath,/local/rexxlocal/oorexx/build/official/main/trunk/ubuntu/gcc/reldbg/64/build/lib lib/librexx.so.4               lib/librexxapi.so.4 -ldl -lpthread -ldl
+
+
+Dump of assembler code for function RexxMemory::initialize(bool, char const*):
+=> 0x00007ffff7ed4a40 <+0>:	endbr64
+   0x00007ffff7ed4a44 <+4>:	push   %r15
+   0x00007ffff7ed4a46 <+6>:	push   %r14
+   0x00007ffff7ed4a48 <+8>:	push   %r13
+   0x00007ffff7ed4a4a <+10>:	push   %r12
+   0x00007ffff7ed4a4c <+12>:	mov    %rdx,%r12
+   0x00007ffff7ed4a4f <+15>:	push   %rbp
+   0x00007ffff7ed4a50 <+16>:	mov    %esi,%ebp
+   0x00007ffff7ed4a52 <+18>:	push   %rbx
+   0x00007ffff7ed4a53 <+19>:	mov    %rdi,%rbx
+   0x00007ffff7ed4a56 <+22>:	lea    0x98(%rbx),%r13
+   0x00007ffff7ed4a5d <+29>:	lea    0x150(%rbx),%r14
+   0x00007ffff7ed4a64 <+36>:	sub    $0x8,%rsp
+   0x00007ffff7ed4a68 <+40>:	callq  0x7ffff7e542a0 <_ZN17MemorySegmentPool10createPoolEv@plt>
+   0x00007ffff7ed4a6d <+45>:	mov    0xe12a4(%rip),%rax        # 0x7ffff7fb5d18
+   0x00007ffff7ed4a74 <+52>:	lea    0x93d20(%rip),%rdx        # 0x7ffff7f6879b
+   0x00007ffff7ed4a7b <+59>:	movq   $0x0,0xa0(%rbx)
+   0x00007ffff7ed4a86 <+70>:	movq   $0x0,0xc8(%rbx)
+   0x00007ffff7ed4a91 <+81>:	lea    0x838(%rbx),%rcx
+   0x00007ffff7ed4a98 <+88>:	add    $0x10,%rax
+   0x00007ffff7ed4a9c <+92>:	movl   $0x0,0x108(%rbx)
+   0x00007ffff7ed4aa6 <+102>:	mov    %rax,(%rbx)
+   0x00007ffff7ed4aa9 <+105>:	lea    0xa0(%rbx),%rax
+   0x00007ffff7ed4ab0 <+112>:	mov    %rax,0xb0(%rbx)
+   0x00007ffff7ed4ab7 <+119>:	mov    %rax,0xb8(%rbx)
+   0x00007ffff7ed4abe <+126>:	lea    0xc8(%rbx),%rax
+   0x00007ffff7ed4ac5 <+133>:	mov    %rax,0xd8(%rbx)
+   0x00007ffff7ed4acc <+140>:	mov    %rax,0xe0(%rbx)
+   0x00007ffff7ed4ad3 <+147>:	mov    0xe0eb6(%rip),%rax        # 0x7ffff7fb5990
+   0x00007ffff7ed4ada <+154>:	movq   $0x0,0xf0(%rbx)
+   0x00007ffff7ed4ae5 <+165>:	add    $0x10,%rax
+   0x00007ffff7ed4ae9 <+169>:	movq   $0x0,0x118(%rbx)
+   0x00007ffff7ed4af4 <+180>:	mov    %rax,0x98(%rbx)
+   0x00007ffff7ed4afb <+187>:	lea    0x120(%rbx),%rax
+   0x00007ffff7ed4b02 <+194>:	mov    %rax,0x138(%rbx)
+   0x00007ffff7ed4b09 <+201>:	mov    %rax,0x140(%rbx)
+   0x00007ffff7ed4b10 <+208>:	lea    0x158(%rbx),%rax
+   0x00007ffff7ed4b17 <+215>:	mov    %rax,0x168(%rbx)
+   0x00007ffff7ed4b1e <+222>:	mov    %rax,0x170(%rbx)
+   0x00007ffff7ed4b25 <+229>:	lea    0x180(%rbx),%rax
+   0x00007ffff7ed4b2c <+236>:	mov    %rax,0x190(%rbx)
+   0x00007ffff7ed4b33 <+243>:	mov    %rax,0x198(%rbx)
+   0x00007ffff7ed4b3a <+250>:	mov    0xe191f(%rip),%rax        # 0x7ffff7fb6460
+   0x00007ffff7ed4b41 <+257>:	movl   $0x44414548,0x120(%rbx)
+   0x00007ffff7ed4b4b <+267>:	add    $0x10,%rax
+   0x00007ffff7ed4b4f <+271>:	movq   $0x0,0x128(%rbx)
+   0x00007ffff7ed4b5a <+282>:	mov    %rax,0x150(%rbx)
+   0x00007ffff7ed4b61 <+289>:	lea    0x1d8(%rbx),%rax
+   0x00007ffff7ed4b68 <+296>:	mov    %rax,0x1f0(%rbx)
+   0x00007ffff7ed4b6f <+303>:	mov    %rdx,0x148(%rbx)
+   0x00007ffff7ed4b76 <+310>:	movq   $0x0,0x158(%rbx)
+   0x00007ffff7ed4b81 <+321>:	movq   $0x0,0x180(%rbx)
+   0x00007ffff7ed4b8c <+332>:	movl   $0x0,0x1c0(%rbx)
+   0x00007ffff7ed4b96 <+342>:	movq   $0x0,0x1a8(%rbx)
+   0x00007ffff7ed4ba1 <+353>:	movq   $0x0,0x1d0(%rbx)
+   0x00007ffff7ed4bac <+364>:	movl   $0x44414548,0x1d8(%rbx)
+   0x00007ffff7ed4bb6 <+374>:	movq   $0x0,0x1e0(%rbx)
+   0x00007ffff7ed4bc1 <+385>:	mov    %rax,0x1f8(%rbx)
+   0x00007ffff7ed4bc8 <+392>:	lea    0x208(%rbx),%rax
+   0x00007ffff7ed4bcf <+399>:	mov    %rdx,0x200(%rbx)
+   0x00007ffff7ed4bd6 <+406>:	nopw   %cs:0x0(%rax,%rax,1)
+   0x00007ffff7ed4be0 <+416>:	movl   $0x44414548,(%rax)
+   0x00007ffff7ed4be6 <+422>:	movq   $0x0,0x8(%rax)
+   0x00007ffff7ed4bee <+430>:	mov    %rax,0x18(%rax)
+   0x00007ffff7ed4bf2 <+434>:	mov    %rax,0x20(%rax)
+   0x00007ffff7ed4bf6 <+438>:	add    $0x30,%rax
+   0x00007ffff7ed4bfa <+442>:	mov    %rdx,-0x8(%rax)
+   0x00007ffff7ed4bfe <+446>:	cmp    %rcx,%rax
+   0x00007ffff7ed4c01 <+449>:	jne    0x7ffff7ed4be0 <RexxMemory::initialize(bool, char const*)+416>
+   0x00007ffff7ed4c03 <+451>:	mov    %rdx,0xa00(%rbx)
+   0x00007ffff7ed4c0a <+458>:	mov    %rbx,%rsi
+   0x00007ffff7ed4c0d <+461>:	lea    0x958(%rbx),%rax
+   0x00007ffff7ed4c14 <+468>:	mov    %r14,%rdi
+   0x00007ffff7ed4c17 <+471>:	mov    %rax,0x968(%rbx)
+   0x00007ffff7ed4c1e <+478>:	lea    0x950(%rbx),%r15
+   0x00007ffff7ed4c25 <+485>:	mov    %rax,0x970(%rbx)
+   0x00007ffff7ed4c2c <+492>:	lea    0x980(%rbx),%rax
+   0x00007ffff7ed4c33 <+499>:	mov    %rax,0x990(%rbx)
+   0x00007ffff7ed4c3a <+506>:	mov    %rax,0x998(%rbx)
+   0x00007ffff7ed4c41 <+513>:	mov    0xe0bc0(%rip),%rax        # 0x7ffff7fb5808
+   0x00007ffff7ed4c48 <+520>:	movq   $0x0,0x958(%rbx)
+   0x00007ffff7ed4c53 <+531>:	add    $0x10,%rax
+   0x00007ffff7ed4c57 <+535>:	movq   $0x0,0x980(%rbx)
+   0x00007ffff7ed4c62 <+546>:	mov    %rax,0x950(%rbx)
+   0x00007ffff7ed4c69 <+553>:	lea    0x9d8(%rbx),%rax
+   0x00007ffff7ed4c70 <+560>:	mov    %rax,0x9f0(%rbx)
+   0x00007ffff7ed4c77 <+567>:	mov    %rax,0x9f8(%rbx)
+   0x00007ffff7ed4c7e <+574>:	mov    0x88(%rbx),%rax
+   0x00007ffff7ed4c85 <+581>:	movl   $0x0,0x9c0(%rbx)
+   0x00007ffff7ed4c8f <+591>:	mov    %rax,0x90(%rbx)
+   0x00007ffff7ed4c96 <+598>:	movq   $0x0,0x9a8(%rbx)
+   0x00007ffff7ed4ca1 <+609>:	movq   $0x0,0x9d0(%rbx)
+   0x00007ffff7ed4cac <+620>:	movl   $0x44414548,0x9d8(%rbx)
+   0x00007ffff7ed4cb6 <+630>:	movq   $0x0,0x9e0(%rbx)
+   0x00007ffff7ed4cc1 <+641>:	movq   $0xa80,0x8(%rbx)
+   0x00007ffff7ed4cc9 <+649>:	movb   $0x0,0xa3c(%rbx)
+   0x00007ffff7ed4cd0 <+656>:	movq   $0x1,0x20(%rbx)
+   0x00007ffff7ed4cd8 <+664>:	movq   $0x0,0x50(%rbx)
+   0x00007ffff7ed4ce0 <+672>:	movq   $0x0,0x58(%rbx)
+   0x00007ffff7ed4ce8 <+680>:	movb   $0x0,0xa38(%rbx)
+   0x00007ffff7ed4cef <+687>:	movq   $0x0,0xa40(%rbx)
+   0x00007ffff7ed4cfa <+698>:	movq   $0x0,0xa48(%rbx)
+   0x00007ffff7ed4d05 <+709>:	movq   $0x0,0xa70(%rbx)
+   0x00007ffff7ed4d10 <+720>:	callq  0x7ffff7e53af0 <_ZN16NormalSegmentSetC1EP10RexxMemory@plt>
+   0x00007ffff7ed4d15 <+725>:	mov    %rbx,%rsi
+   0x00007ffff7ed4d18 <+728>:	mov    %r15,%rdi
+   0x00007ffff7ed4d1b <+731>:	callq  0x7ffff7e53720 <_ZN15LargeSegmentSetC1EP10RexxMemory@plt>
+   0x00007ffff7ed4d20 <+736>:	mov    %rbx,%rsi
+   0x00007ffff7ed4d23 <+739>:	mov    %r13,%rdi
+   0x00007ffff7ed4d26 <+742>:	callq  0x7ffff7e51040 <_ZN18OldSpaceSegmentSetC1EP10RexxMemory@plt>
+   0x00007ffff7ed4d2b <+747>:	movq   $0x0,0x30(%rbx)
+   0x00007ffff7ed4d33 <+755>:	mov    0xe2306(%rip),%rax        # 0x7ffff7fb7040
+   0x00007ffff7ed4d3a <+762>:	movq   $0x0,0xa68(%rbx)
+   0x00007ffff7ed4d45 <+773>:	movq   $0x0,0xa60(%rbx)
+   0x00007ffff7ed4d50 <+784>:	movq   $0x0,(%rax)
+   0x00007ffff7ed4d57 <+791>:	callq  0x7ffff7e57ec0 <_ZN10RexxMemory25buildVirtualFunctionTableEv@plt>
+   0x00007ffff7ed4d5c <+796>:	mov    $0x7ffe0,%esi
+   0x00007ffff7ed4d61 <+801>:	mov    %r13,%rdi
+   0x00007ffff7ed4d64 <+804>:	callq  0x7ffff7e57a60 <_ZN18OldSpaceSegmentSet14allocateObjectEm@plt>
+   0x00007ffff7ed4d69 <+809>:	mov    %rax,0x40(%rbx)
+   0x00007ffff7ed4d6d <+813>:	mov    %rax,0xa50(%rbx)
+   0x00007ffff7ed4d74 <+820>:	test   %bpl,%bpl
+   0x00007ffff7ed4d77 <+823>:	jne    0x7ffff7ed4dd0 <RexxMemory::initialize(bool, char const*)+912>
+   0x00007ffff7ed4d79 <+825>:	mov    0xe2400(%rip),%rdx        # 0x7ffff7fb7180
+   0x00007ffff7ed4d80 <+832>:	mov    0xe2531(%rip),%rax        # 0x7ffff7fb72b8
+   0x00007ffff7ed4d87 <+839>:	movq   $0x0,0x60(%rbx)
+   0x00007ffff7ed4d8f <+847>:	mov    %r14,%rdi
+   0x00007ffff7ed4d92 <+850>:	add    $0x26c0,%rdx
+   0x00007ffff7ed4d99 <+857>:	mov    %rdx,0x18(%rax)
+   0x00007ffff7ed4d9d <+861>:	callq  0x7ffff7e53250 <_ZN16NormalSegmentSet13getInitialSetEv@plt>
+   0x00007ffff7ed4da2 <+866>:	mov    $0x16,%edi
+   0x00007ffff7ed4da7 <+871>:	callq  0x7ffff7e529c0 <_ZN17RexxIdentityTable11newInstanceEm@plt>
+   0x00007ffff7ed4dac <+876>:	mov    %r12,%rdi
+   0x00007ffff7ed4daf <+879>:	mov    %rax,0x70(%rbx)
+   0x00007ffff7ed4db3 <+883>:	callq  0x7ffff7e54720 <_ZN10RexxMemory11createImageEPKc@plt>
+   0x00007ffff7ed4db8 <+888>:	add    $0x8,%rsp
+   0x00007ffff7ed4dbc <+892>:	pop    %rbx
+   0x00007ffff7ed4dbd <+893>:	pop    %rbp
+   0x00007ffff7ed4dbe <+894>:	pop    %r12
+   0x00007ffff7ed4dc0 <+896>:	pop    %r13
+   0x00007ffff7ed4dc2 <+898>:	pop    %r14
+   0x00007ffff7ed4dc4 <+900>:	pop    %r15
+   0x00007ffff7ed4dc6 <+902>:	jmpq   0x7ffff7e53c40 <_ZN10RexxMemory7restoreEv@plt>
+   0x00007ffff7ed4dcb <+907>:	nopl   0x0(%rax,%rax,1)
+   0x00007ffff7ed4dd0 <+912>:	mov    %rbx,%rdi
+   0x00007ffff7ed4dd3 <+915>:	callq  0x7ffff7e511f0 <_ZN10RexxMemory12restoreImageEv@plt>
+   0x00007ffff7ed4dd8 <+920>:	mov    0xe23a1(%rip),%rdx        # 0x7ffff7fb7180
+   0x00007ffff7ed4ddf <+927>:	mov    0xe24d2(%rip),%rax        # 0x7ffff7fb72b8
+   0x00007ffff7ed4de6 <+934>:	mov    %r14,%rdi
+   0x00007ffff7ed4de9 <+937>:	movq   $0x0,0x60(%rbx)
+   0x00007ffff7ed4df1 <+945>:	add    $0x26c0,%rdx
+   0x00007ffff7ed4df8 <+952>:	mov    %rdx,0x18(%rax)
+   0x00007ffff7ed4dfc <+956>:	callq  0x7ffff7e53250 <_ZN16NormalSegmentSet13getInitialSetEv@plt>
+   0x00007ffff7ed4e01 <+961>:	mov    $0x16,%edi
+   0x00007ffff7ed4e06 <+966>:	callq  0x7ffff7e529c0 <_ZN17RexxIdentityTable11newInstanceEm@plt>
+   0x00007ffff7ed4e0b <+971>:	mov    %rax,0x70(%rbx)
+   0x00007ffff7ed4e0f <+975>:	jmp    0x7ffff7ed4db8 <RexxMemory::initialize(bool, char const*)+888>
+End of assembler dump.
+
+
+Dump of assembler code for function MemorySegmentPool::createPool():
+=> 0x00007ffff7f0dba0 <+0>:	endbr64
+   0x00007ffff7f0dba4 <+4>:	push   %r12
+   0x00007ffff7f0dba6 <+6>:	mov    $0x1,%esi
+   0x00007ffff7f0dbab <+11>:	mov    $0x400000,%edi
+   0x00007ffff7f0dbb0 <+16>:	callq  0x7ffff7e53010 <calloc@plt>
+   0x00007ffff7f0dbb5 <+21>:	mov    %rax,%r12
+   0x00007ffff7f0dbb8 <+24>:	test   %rax,%rax
+   0x00007ffff7f0dbbb <+27>:	je     0x7ffff7f0dc01 <MemorySegmentPool::createPool()+97>
+   0x00007ffff7f0dbbd <+29>:	lea    0x30(%r12),%rax          newPool->spareSegment = new (((char *)newPool) + MemorySegmentPoolOverhead) MemorySegment (segmentSize - MemorySegmentPoolOverhead);
+   0x00007ffff7f0dbc2 <+34>:	mov    %r12,%rdi
+   0x00007ffff7f0dbc5 <+37>:	movq   $0x7ffb0,0x30(%r12)
+   0x00007ffff7f0dbce <+46>:	mov    %rax,0x8(%r12)
+   0x00007ffff7f0dbd3 <+51>:	lea    0x80000(%r12),%rax
+   0x00007ffff7f0dbdb <+59>:	mov    %rax,0x10(%r12)
+   0x00007ffff7f0dbe0 <+64>:	lea    0x400000(%r12),%rax
+   0x00007ffff7f0dbe8 <+72>:	mov    %rax,0x18(%r12)
+   0x00007ffff7f0dbed <+77>:	movq   $0x380000,0x20(%r12)
+   0x00007ffff7f0dbf6 <+86>:	callq  0x7ffff7e54120 <_ZN17MemorySegmentPoolC1Ev@plt>
+   0x00007ffff7f0dbfb <+91>:	mov    %r12,%rax
+   0x00007ffff7f0dbfe <+94>:	pop    %r12
+   0x00007ffff7f0dc00 <+96>:	retq
+   0x00007ffff7f0dc01 <+97>:	mov    0xa7b88(%rip),%rax        # 0x7ffff7fb5790
+   0x00007ffff7f0dc08 <+104>:	mov    $0x1388,%esi
+   0x00007ffff7f0dc0d <+109>:	mov    (%rax),%rdi
+   0x00007ffff7f0dc10 <+112>:	callq  0x7ffff7e525a0 <_ZN12RexxActivity17reportAnExceptionEl@plt>
+   0x00007ffff7f0dc15 <+117>:	jmp    0x7ffff7f0dbbd <MemorySegmentPool::createPool()+29>
+End of assembler dump.
+
+
+=====================================================================================
+
+
+
+#0  MemorySegmentPool::newSegment (this=<optimized out>, minSize=minSize@entry=524288)
+    at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/platform/unix/MemorySupport.cpp:218
+#1  0x00007ffff7ecfc1a in RexxMemory::newSegment (this=0x7ffff7fc3d80 <memoryObject>, requestedBytes=524288, requestedBytes@entry=262112, minBytes=minBytes@entry=262112)
+    at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/memory/RexxMemory.cpp:756
+#2  0x00007ffff7ec6738 in NormalSegmentSet::NormalSegmentSet (this=0x7ffff7fc3ed0 <memoryObject+336>, mem=<optimized out>)
+    at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/memory/MemorySegment.cpp:235
+#3  0x00007ffff7ed2d15 in RexxMemory::initialize (this=0x7ffff7fc3d80 <memoryObject>, restoringImage=restoringImage@entry=false, imageTarget=imageTarget@entry=0x0)
+    at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/memory/MemorySegment.hpp:252
+#4  0x00007ffff7f14c72 in Interpreter::startInterpreter (mode=Interpreter::SAVE_IMAGE_MODE, imageTarget=0x0)
+    at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/runtime/Interpreter.cpp:134
+#5  0x000055555555507c in main (argc=<optimized out>, argv=<optimized out>) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/utilities/rexximage/rexximage.cpp:44
+
+
+================================================================================
+
+RexxMemory.hpp
+    #define ObjectGrain 16
+
+MemorySegment.hpp
+    #define LengthToDeadPool(l) ((l)/ObjectGrain)
+    #define LargestSubpool 512
+    #define LastDeadPool LengthToDeadPool(LargestSubpool)   // 512/16=32
+    #define DeadPools LastDeadPool + 1
+
+    class NormalSegmentSet : public MemorySegmentSet
+    {
+        DeadObjectPool largeDead;             /* the set of large dead objects */
+        DeadObjectPool subpools[DeadPools];   /* our set of allocation subpools */
+        size_t lastUsedSubpool[DeadPools + 1];/* a look-aside index to tell us what pool to use for a given size */
+        MemorySegment *recoverSegment;        /* our last-ditch memory segment */
+
+
+RexxMemory.hpp
+    class RexxMemory : public RexxInternalObject
+    {
+      OldSpaceSegmentSet oldSpaceSegments;
+      NormalSegmentSet newSpaceNormalSegments;
+      LargeSegmentSet  newSpaceLargeSegments;
+
+
+#0  memcpy (__len=4, __src=<synthetic pointer>, __dest=0x7ffff7fc42e8 <memoryObject+1384>) at /usr/include/x86_64-linux-gnu/bits/string_fortified.h:34
+#1  DeadObject::addEyeCatcher (string=<synthetic pointer>, this=0x7ffff7fc42e8 <memoryObject+1384>)
+    at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/memory/DeadObject.hpp:66
+#2  DeadObject::DeadObject (this=0x7ffff7fc42e8 <memoryObject+1384>) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/memory/DeadObject.hpp:77
+#3  DeadObjectPool::DeadObjectPool (this=0x7ffff7fc42e8 <memoryObject+1384>) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/memory/DeadObject.hpp:134
+#4  NormalSegmentSet::NormalSegmentSet (this=0x7ffff7fc3ed0 <memoryObject+336>) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/memory/MemorySegment.hpp:384
+        jlf : initialize an array of DeadObjectPool, of size
+#5  RexxMemory::RexxMemory (this=0x7ffff7fc3d80 <memoryObject>) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/memory/RexxMemory.cpp:118
+        jlf : before entering in the constructor, initializing attributes
+#6  RexxMemory::initialize (this=0x7ffff7fc3d80 <memoryObject>, restoringImage=restoringImage@entry=false, imageTarget=imageTarget@entry=0x0)
+    at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/memory/RexxMemory.cpp:188
+#7  0x00007ffff7f14c72 in Interpreter::startInterpreter (mode=Interpreter::SAVE_IMAGE_MODE, imageTarget=0x0)
+    at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/runtime/Interpreter.cpp:134
+#8  0x000055555555507c in main (argc=<optimized out>, argv=<optimized out>) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/utilities/rexximage/rexximage.cpp:44
+(
+
+
+
