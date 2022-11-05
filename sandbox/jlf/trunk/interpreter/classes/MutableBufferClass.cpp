@@ -116,7 +116,20 @@ RexxMutableBuffer *RexxMutableBufferClass::newRexx(RexxObject **args, size_t arg
     newBuffer->copyData(0, string->getStringData(), string->getLength());
 
     ProtectedObject p_newBuffer(newBuffer);
+
+    // Next line is non-sense. What is this manipulation of argc without adjusting args?
     newBuffer->sendMessage(OREF_INIT, args, argc > 2 ? argc - 2 : 0, named_argc);
+
+    // Anyway I need to pass args[0] to init, so it's out of question to drop some args!
+    // If I fix it by passing argc unchanged, I get another problem:
+    // Object::initRexx takes ZERO arguments and will raise an error if argc > 0.
+    // So no choice: I must send a message that is currently not supported.
+    // I keep the previous sendMessage "INIT" to remain aligned with official ooRexx (yes, same bug).
+    // For sending the new message, I use the technique used for the alternative operators:
+    // Try to send the message and don't complain if not understood.
+    ProtectedObject result;
+    newBuffer->messageSend(OREF_INIT_EXTENDED, args, argc, named_argc, result, /*processUnknown*/ false);
+
     return newBuffer;
 }
 
