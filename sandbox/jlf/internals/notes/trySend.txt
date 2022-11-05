@@ -1,0 +1,59 @@
+2022 November 04
+Started to work on this extension, but I realized that returning .nil when the
+message is no understood is problematic. Abandonned.
+
+[Object extension]
+
+New methods:
+.Object~trySend
+.Object~trySendWith
+
+These methods allow to try sending a message without having an error "does not understand message".
+They return .nil if the message is not understood.
+    "hello"~left(2)=                            -- 'he'
+    "hello"~trySend("left", 2)=                 -- 'he'
+    "hello"~trySendWith("left", .array~of(2))   -- 'he'
+    "hello"~leftX(2)=                           -- error
+    "hello"~trySend("leftX", 2)=                -- .nil
+
+
+These method will be used by RexxText to try alternative operators before requesting a RexxText.
+Example:
+    ::class "RexxTextOperators" mixinclass Object private
+    ::method "||"
+        use strict arg right
+        -- Give chance to an alternative operator before requesting a text or buffer or string
+        -- Same logic as RexxString::concatRexx with isPolymorphicString
+        if \right~isTextOrBufferOrString then do
+            try = right~trySend("||op:right", self)
+            if .nil <> try then return try
+        end
+        right = right~requestTextOrBufferOrString
+        if .nil == right then return -- no result: try the alternative message
+        encoding = .Encoding~ForConcatenation(self, right)
+        return encoding~concatenate(self, right)
+
+C++ implementation for String:
+    RexxString *RexxString::concatRexx(RexxObject *otherObj)
+    {
+        ...
+        requiredArgument(otherObj, OREF_positional, ARG_ONE);
+
+        if (!isPolymorphicString(otherObj))
+        {
+            // Give a chance for an alternative operator before REQUEST_STRING
+            ProtectedObject result;
+            RexxObject *self = this;
+            RexxObject *args[1];
+            args[0] = self; // positional argument
+            // The last argument (false) deactivate the management of unknown:
+            // returns OREF_NULL if the message is not understood
+            bool alternativeResult = otherObj->messageSend(OREF_CONCATENATE_RIGHT, args, 1, 0, result, false);
+            if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxString *)(RexxObject *)result;
+        }
+
+        other = (RexxString *)REQUEST_STRING(otherObj);
+        ...
+    }
+
+
