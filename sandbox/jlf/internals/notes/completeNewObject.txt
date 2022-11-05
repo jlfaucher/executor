@@ -1,0 +1,232 @@
+Review calls of completeNewObject
+Array and Message don't pass any user argument to init
+MutableBuffer don't pass the first 2 user arguments to init
+
+
+
+*** array
+RexxObject* ArrayClass::newRexx(RexxObject **arguments, size_t argCount)
+    // creating an array of the default size?
+    if (argCount == 0)
+    {
+        Protected<ArrayClass> temp = new(0, DefaultArraySize) ArrayClass;
+        // finish setting this up.
+        classThis->completeNewObject(temp);
+        return temp;
+    }
+    // Special case for 1-dimensional.  This could be a single integer size or
+    // an array of sizes to create a multi-dimension array.
+    if (argCount == 1)
+    {
+        // finish the class initialization and init calls.
+        classThis->completeNewObject(temp);
+        return temp;
+RexxObject* ArrayClass::ofRexx(RexxObject **args, size_t argCount)
+{
+    // finish the class initialization and init calls.
+    classThis->completeNewObject(newArray);
+ArrayClass* ArrayClass::createMultidimensional(RexxObject **dims, size_t count, RexxClass *classThis)
+{
+    // finish the class initialization and init calls.
+    classThis->completeNewObject(temp);
+
+
+bag
+RexxObject *BagClass::newRexx(RexxObject **args, size_t argCount)
+{
+    // create the new identity table item (this version does not have a backing contents yet).
+    Protected<BagClass> temp = new BagClass(true);
+    // finish setting this up.
+    classThis->completeNewObject(temp, args, argCount);
+
+
+directory
+RexxObject *DirectoryClass::newRexx(RexxObject **init_args, size_t argCount)
+{
+    // create the new identity table item (this version does not have a backing contents yet).
+    Protected<DirectoryClass> temp = new DirectoryClass(true);
+    // finish setting this up.
+    classThis->completeNewObject(temp, init_args, argCount);
+
+
+eventSemaphore
+RexxObject* EventSemaphoreClass::newRexx(RexxObject **arguments, size_t argCount)
+{
+    Protected<RexxObject> newObj =  new EventSemaphoreClass;
+
+    // handle Rexx class completion
+    classThis->completeNewObject(newObj, arguments, argCount);
+
+
+identityTable
+RexxObject *IdentityTable::newRexx(RexxObject **args, size_t argCount)
+{
+    Protected<IdentityTable> temp = new IdentityTable(true);
+    // finish setting this up.
+    classThis->completeNewObject(temp, args, argCount);
+
+
+list
+ListClass *ListClass::newRexx(RexxObject **init_args, size_t  argCount)
+{
+    // this version does not create the contents
+    Protected<ListClass> newList = new ListClass(true);
+
+    // handle Rexx class completion
+    classThis->completeNewObject(newList, init_args, argCount);
+
+
+*** message
+RexxObject *MessageClass::newRexx(RexxObject **msgArgs, size_t argCount)
+{
+    // we're all ready to create this now
+    MessageClass *newMessage = new MessageClass(_target, msgName, _startScope, argPtr);
+    ProtectedObject p(newMessage);
+
+    // handle Rexx class completion
+    classThis->completeNewObject(newMessage);
+
+
+method
+MethodClass *MethodClass::newRexx(RexxObject **init_args, size_t argCount)
+{
+    ProtectedObject newMethod = LanguageParser::createMethod(programName, sourceArray, sourceContext);
+
+    // finish up the object creation.  Set the correct instance behavior (this could
+    // be a subclass), check for uninit methods, and finally, send an init message using any
+    // left over arguments.
+    classThis->completeNewObject(newMethod, init_args, argCount);
+MethodClass *MethodClass::newFileRexx(RexxString *filename, PackageClass *sourceContext)
+{
+    Protected<MethodClass> newMethod = LanguageParser::createMethod(filename, sourceContext);
+    classThis->completeNewObject(newMethod);
+
+
+*** mutableBuffer
+MutableBuffer *MutableBuffer::newRexx(RexxObject **args, size_t argc)
+{
+    newBuffer->copyData(0, string->getStringData(), string->getLength());
+
+    // handle Rexx class completion
+    classThis->completeNewObject(newBuffer, args, argc > 2 ? argc - 2 : 0);
+
+
+mutexSemaphore
+RexxObject *MutexSemaphoreClass::newRexx(RexxObject **arguments, size_t argCount)
+{
+RexxObject *MutexSemaphoreClass::newRexx(RexxObject **arguments, size_t argCount)
+{
+
+
+object
+RexxObject *RexxObject::newRexx(RexxObject **arguments, size_t argCount)
+{
+    RexxObject *newObj =  new RexxObject;
+    ProtectedObject p(newObj);
+
+    // handle Rexx class completion
+    classThis->completeNewObject(newObj, arguments, argCount);
+
+
+package
+PackageClass *PackageClass::newRexx(RexxObject **init_args, size_t argCount)
+{
+    // handle Rexx class completion
+    classThis->completeNewObject(package, init_args, initCount);
+
+
+queue
+RexxObject *QueueClass::newRexx(RexxObject **init_args, size_t argCount)
+{
+    Protected<QueueClass> newObj = new QueueClass;
+
+    // handle Rexx class completion
+    classThis->completeNewObject(newObj, init_args, argCount);
+
+
+relation
+RexxObject *RelationClass::newRexx(RexxObject **args, size_t argCount)
+{
+    Protected<RelationClass> temp = new RelationClass(true);
+    // finish setting this up.
+    classThis->completeNewObject(temp, args, argCount);
+
+
+routine
+RoutineClass *RoutineClass::newRexx(RexxObject **init_args, size_t argCount)
+{
+    Protected<RoutineClass> newRoutine = LanguageParser::createRoutine(programName, sourceArray, sourceContext);
+
+    // finish up the object creation.  Set the correct instance behavior (this could
+    // be a subclass), check for uninit methods, and finally, send an init message using any
+    // left over arguments.
+    classThis->completeNewObject(newRoutine, init_args, argCount);
+RoutineClass *RoutineClass::newFileRexx(RexxString *filename, PackageClass *sourceContext)
+{
+    Protected<RoutineClass> newRoutine = LanguageParser::createRoutine(filename, sourceContext);
+
+    // complete the initialization
+    classThis->completeNewObject(newRoutine);
+
+
+set
+RexxObject *SetClass::newRexx(RexxObject **args, size_t argCount)
+{
+    Protected<SetClass> temp = new SetClass(true);
+    // finish setting this up.
+    classThis->completeNewObject(temp, args, argCount);
+
+
+stem
+RexxObject *StemClass::newRexx(RexxObject **init_args, size_t       argCount)
+{
+    Protected<StemClass> newObj = new StemClass ((RexxString *)name);
+
+    // handle Rexx class completion
+    classThis->completeNewObject(newObj, init_args, argCount);
+
+
+string
+RexxString *RexxString::newRexx(RexxObject **init_args, size_t argCount)
+{
+    string = new_string(string->getStringData(), string->getLength());
+    ProtectedObject p(string);
+
+    // handle Rexx class completion
+    classThis->completeNewObject(string, init_args, argCount);
+
+
+stringTable
+RexxObject *StringTable::newRexx(RexxObject **args, size_t argCount)
+{
+    Protected<StringTable> temp = new StringTable(true);
+    // finish setting this up.
+    classThis->completeNewObject(temp, args, argCount);
+
+
+supplier
+RexxObject  *SupplierClass::newRexx(RexxObject **init_args, size_t argCount)
+{
+    RexxObject *newObj = new SupplierClass();
+    ProtectedObject p(newObj);
+
+    // handle Rexx class completion
+    classThis->completeNewObject(newObj, init_args, argCount);
+
+
+table
+RexxObject *TableClass::newRexx(RexxObject **args, size_t argCount)
+{
+    Protected<TableClass> temp = new TableClass(true);
+    // finish setting this up.
+    classThis->completeNewObject(temp, args, argCount);
+
+
+weakReference
+RexxObject *WeakReference::newRexx(RexxObject **init_args, size_t argCount)
+{
+    RexxObject *newObj = new WeakReference(refObj);
+    ProtectedObject p(newObj);
+
+    // handle Rexx class completion
+    classThis->completeNewObject(newObj, init_args, argCount);
