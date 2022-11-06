@@ -1,3 +1,14 @@
+https://github.com/apple/swift-experimental-string-processing/blob/main/Documentation/DeclarativeStringProcessing.md
+jlf: it's about regular expressions and declarative patterns.
+They use Unicode data tables for an example of parsing.
+Consider these two lines:
+    007F..009F    ; Control # Cc  [33] <control-007F>..<control-009F>
+    00AD          ; Control # Cf       SOFT HYPHEN
+We can match them and extract the data using the regular expression:
+    /([0-9A-F]+)(?:\.\.([0-9A-F]+))?\s*;\s(\w+).*/
+Pattern uses a more versatile syntax (just regular Swift code!) and supports matching more complex languages than Regex.
+
+
 https://github.com/lihaoyi/macropy#macropy
 implementation of Syntactic Macros in the Python Programming Language
 
