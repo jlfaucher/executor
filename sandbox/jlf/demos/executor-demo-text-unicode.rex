@@ -11,13 +11,13 @@ The prototype is currently using 3 libraries:
 - ziglyph     https://github.com/jecolon/ziglyph
 - icu4x       https://github.com/unicode-org/icu4x
 
-These 3 libraries have overlaping features.
+These 3 libraries have overlapping features.
 In the end, icu4x could be the only library used by Executor.
 
 Current usage:
-utf8proc is used for grapheme segmentation, characters properties, normalization, upper/lower/title.
-ziglyph is used for upper/lower/title. Will be used for word and sentence segmentation, collation (not locale-aware).
-icu4x will be used for locale-aware services (segmentation, collation, translation, formatting).
+- utf8proc is used for grapheme segmentation, characters properties, normalization, upper/lower/title.
+- ziglyph is used for upper/lower/title. Will be used for word and sentence segmentation, collation (not locale-aware).
+- icu4x will be used for locale-aware services (segmentation, collation, translation, formatting).
 */
 sleep no prompt
 
@@ -27,7 +27,7 @@ sleep no prompt
 ---------------------
 
 -- Unicode version
-.unicode~version=               -- 14.0.0
+.unicode~version=               -- 15.0.0
 
 -- Unicode character names are not loaded by default
 call loadUnicodeCharacterNames
@@ -66,9 +66,9 @@ sleep no prompt
 /*
 Escape characters can be used in literal strings, they are unescaped at run-time.
     \u{Unicode name}    Character name in the Unicode database
-    \U{Unicode name}
-    \u{X..X}            Unicode character denoted by 1-8 hex digits. The first character must be a digit 0..9 ('u' lowercase)
-    \U{X..X}            Unicode character denoted by 1-8 hex digits. The first character must be a digit 0..9 ('U' uppercase)
+    \U{Unicode name}    same as \u{Unicode name}
+    \u{X..X}            Unicode character denoted by 1-8 hex digits. The first character must be a digit 0..9
+    \U{X..X}            same as \u{X..X}
     \uXXXX              Unicode character denoted by 4 hex digits ('u' lowercase)
     \UXXXXXXXX          Unicode character denoted by 8 hex digits ('U' uppercase)
 */
@@ -126,13 +126,13 @@ sleep no prompt
 .unicode~codepointCategoryNames=
 sleep no prompt
 
--- First letter of each category
+-- First character of each category
 seen = .directory~new; .unicode~characters~each{expose seen; v = item~categoryName; if seen[v] == .nil then seen[v] = item}; seen=
 sleep no prompt
 
 -- Combining class
 -- http://www.unicode.org/reports/tr44/#Canonical_Combining_Class_Values
--- First letter of each combining class
+-- First character of each combining class
 seen = .directory~new; .unicode~characters~each{expose seen; v = item~combiningClass; if seen[cv] == .nil then seen[v] = item}; seen=
 sleep no prompt
 
@@ -141,13 +141,13 @@ sleep no prompt
 .unicode~codepointBidiClassNames=
 sleep no prompt
 
--- First letter of each bidirectionnal class
+-- First character of each bidirectionnal class
 seen = .directory~new; .unicode~characters~each{expose seen; v = item~bidiClassName; if seen[v] == .nil then seen[v] = item}; seen=
 sleep no prompt
 
 -- Bidi mirrored (boolean)
 -- https://unicode.org/reports/tr9/
--- First 10 letters such as bidiMirrored == .true
+-- First 10 characters such as bidiMirrored == .true
 .unicode~characters~pipe(.select {item~bidiMirrored} | .take 10 | .console)
 sleep no prompt
 
@@ -156,25 +156,25 @@ sleep no prompt
 .unicode~codepointDecompositionTypeNames=
 sleep no prompt
 
--- First letter of each decomposition type
+-- First character of each decomposition type
 seen = .directory~new; .unicode~characters~each{expose seen; v = item~decompositionTypeName; if seen[v] == .nil then seen[v] = item}; seen=
 sleep no prompt
 
 -- Ignorable (boolean)
 -- http://www.unicode.org/review/pr-5.html
 -- http://unicode.org/L2/L2002/02368-default-ignorable.html
--- First 10 letters such as bidiMirrored == .true
+-- First 10 characters such as bidiMirrored == .true
 .unicode~characters~pipe(.select {item~ignorable} | .take 10 | .console)
 sleep no prompt
 
 -- Boundary (boolean)
 -- http://unicode.org/reports/tr29/tr29-6.html
--- First 10 letters such as bidiMirrored == .true
+-- First 10 characters such as bidiMirrored == .true
 .unicode~characters~pipe(.select {item~controlBoundary} | .take 10 | .console)
 sleep no prompt
 
 -- Char width
--- First letter of each width value
+-- First character of each width value
 seen = .directory~new; .unicode~characters~each{expose seen; v = item~charWidth; if seen[v] == .nil then seen[v] = item}; seen=
 sleep no prompt
 
@@ -183,17 +183,17 @@ sleep no prompt
 .unicode~codepointBoundClassNames=
 sleep no prompt
 
--- First letter of each bound class
+-- First character of each bound class
 seen = .directory~new; .unicode~characters~each{expose seen; v = item~boundClassName; if seen[v] == .nil then seen[v] = item}; seen=
 sleep no prompt
 
 -- isLower
--- Forty-first to fifthieth letters such as isLower == .true
+-- Forty-first to fifthieth characters such as isLower == .true
 .unicode~characters~pipe(.select {item~isLower} | .take 50 | .take "last" 10 | .console)
 sleep no prompt
 
 -- isUpper
--- Forty-first to fifthieth letters such as isUpper == .true
+-- Forty-first to fifthieth characters such as isUpper == .true
 .unicode~characters~pipe(.select {item~isUpper} | .take 50 | .take "last" 10 | .console)
 sleep no prompt
 
@@ -238,7 +238,7 @@ sleep no prompt
 
 /*
 Both are wrong, should be "SS".
-Unicode standard 14 section 5.18 Case Mappings:
+Unicode standard 15 section 5.18 Case Mappings:
     Default casing                                         Tailored casing
     (small sharp) ß <--- ß (capital sharp)                 (small sharp) ß <--> ẞ (capital sharp)
     (small sharp) ß ---> SS
@@ -307,7 +307,7 @@ Possible transformations:
  21 : ( ""    U+000D Cc 0 "", "CARRIAGE RETURN", "CR" )
  22 : ( ""    U+000A Cc 0 "", "LINE FEED" )                         <-- CR+LF replaceable by " " with STRIPCC:.true
 */
-sleep no prompt
+sleep 10 no prompt
 
 text=                                                               -- T'[07]Le　 ​Père[09]‐­–—Noël﷐[0D0A]'
 sleep no prompt
@@ -380,7 +380,7 @@ Some comments about the transformations:
  16 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
  17 : ( " "   U+0020 Zs 1 "SPACE", "SP" )               <-- STRIPCC (was CR+LF)
 */
-sleep no prompt
+sleep 10 no prompt
 
 
 -------------------------
@@ -412,6 +412,23 @@ The methods NFxx sets the corresponding indicator isNFxx
 */
 sleep no prompt
 
+"only ASCII"~text~isNFC=                        -- 1
+"only ASCII"~text~isNFD=                        -- 1
+"only ASCII"~text~isNFKC=                       -- 1
+"only ASCII"~text~isNFKD=                       -- 1
+sleep
+text = "Noël"~text
+text~isNFC=                                     -- -1
+text~isNFD=                                     -- -1
+sleep
+textNFC = text~NFC
+textNFD = text~NFD
+text~isNFC=                                     -- 1
+text~isNFD=                                     -- 0
+textNFC~isNFC=                                  -- 1
+textNFD~isNFD=                                  -- 1
+sleep no prompt
+
 /*
 The normalized text can be memorized on the original text:
     text = "père Noël"~text
@@ -431,8 +448,19 @@ That makes 9 possible cached value and 5 indicators per indexer (so per string).
 */
 sleep no prompt
 
+text = xrange("0", "FF"x)~text("cp1252")~utf8(strict: .false)
+text=
+text~isNFD=
+sleep
+infos next
+do 500; textNFD = text~NFD; end
+sleep
+infos next
+do 500; textNFD = text~NFD(mem: .true); end
+sleep no prompt
+
 /*
-Some remarks about the string used in this demo:
+Some remarks about the string used in the next demo:
 - the first "äöü" is NFC, the second "äöü" is NFD
 - "x̂" is two codepoints in any normalization.
 - "ϔ" normalization forms are all different.

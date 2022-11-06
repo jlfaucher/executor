@@ -21,7 +21,7 @@ loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
 REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
-Input queue name: Sef6Q7fada1d2e5b0
+Input queue name: S3219Q7fada1c32650
 
 --------------------
 -- Unicode libraries
@@ -32,13 +32,13 @@ The prototype is currently using 3 libraries:
 - ziglyph     https://github.com/jecolon/ziglyph
 - icu4x       https://github.com/unicode-org/icu4x
 
-These 3 libraries have overlaping features.
+These 3 libraries have overlapping features.
 In the end, icu4x could be the only library used by Executor.
 
 Current usage:
-utf8proc is used for grapheme segmentation, characters properties, normalization, upper/lower/title.
-ziglyph is used for upper/lower/title. Will be used for word and sentence segmentation, collation (not locale-aware).
-icu4x will be used for locale-aware services (segmentation, collation, translation, formatting).
+- utf8proc is used for grapheme segmentation, characters properties, normalization, upper/lower/title.
+- ziglyph is used for upper/lower/title. Will be used for word and sentence segmentation, collation (not locale-aware).
+- icu4x will be used for locale-aware services (segmentation, collation, translation, formatting).
 
 
 ---------------------
@@ -47,32 +47,32 @@ icu4x will be used for locale-aware services (segmentation, collation, translati
 
 -- Unicode version
 
-ooRexx[bash]> .unicode~version=               -- 14.0.0
-'14.0.0'
+ooRexx[bash]> .unicode~version=               -- 15.0.0
+'15.0.0'
 
 -- Unicode character names are not loaded by default
 
 ooRexx[bash]> call loadUnicodeCharacterNames
 
 ooRexx[bash]> .unicode~characters=            -- (an UnicodeCharacterSupplier count=43884 size=918000)
-(an UnicodeCharacterSupplier count=43884 size=918000)
+(an UnicodeCharacterSupplier count=44180 size=918000)
 
 Unicode character names defined by interval are not loaded by default.
 The following method gives informations about these intervals.
 
 ooRexx[bash]> .unicode~informations=
 a Directory (11 items)
-'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=15 notExpanded:15 intervals, 100878 characters)
-'characters'                         : (an UnicodeCharacterSupplier count=43884 size=918000)
-'dataDirectory'                      : (/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/Unicode-14.0.0)
+'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=16 notExpanded:16 intervals, 105071 characters)
+'characters'                         : (an UnicodeCharacterSupplier count=44180 size=918000)
+'dataDirectory'                      : (/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/Unicode-15.0.0)
 'maxCodepoint'                       :  1114111
 'memorizeTransformations'            :  0
 'systemIsLittleEndian'               :  1
-'totalCharacterNameAliases'          :  470
-'totalCharactersLoaded'              :  144697
-'totalIntervalCharacters'            :  100878
-'totalIntervalCharactersNotExpanded' :  100878
-'version'                            : '14.0.0'
+'totalCharacterNameAliases'          :  473
+'totalCharactersLoaded'              :  149186
+'totalIntervalCharacters'            :  105071
+'totalIntervalCharactersNotExpanded' :  105071
+'version'                            : '15.0.0'
 
 -- Select the characters whose category is Cc (Control)
 
@@ -103,7 +103,7 @@ an Array (shape [65], 65 items)
  23 : ( ""    U+0016 Cc 0 "", "SYNCHRONOUS IDLE", "SYN" )
  24 : ( ""    U+0017 Cc 0 "", "END OF TRANSMISSION BLOCK", "ETB" )
  25 : ( ""    U+0018 Cc 0 "", "CANCEL", "CAN" )
- 26 : ( ""    U+0019 Cc 0 "", "END OF MEDIUM", "EOM" )
+ 26 : ( ""    U+0019 Cc 0 "", "END OF MEDIUM", "EOM", "EM" )
  27 : ( ""    U+001A Cc 0 "", "SUBSTITUTE", "SUB" )
  28 : ( ""    U+001B Cc 0 "", "ESCAPE", "ESC" )
  29 : ( ""    U+001C Cc 0 "", "INFORMATION SEPARATOR FOUR", "FILE SEPARATOR", "FS" )
@@ -193,9 +193,9 @@ ooRexx[bash]> result~name~length=
 
 Escape characters can be used in literal strings, they are unescaped at run-time.
     \u{Unicode name}    Character name in the Unicode database
-    \U{Unicode name}
-    \u{X..X}            Unicode character denoted by 1-8 hex digits. The first character must be a digit 0..9 ('u' lowercase)
-    \U{X..X}            Unicode character denoted by 1-8 hex digits. The first character must be a digit 0..9 ('U' uppercase)
+    \U{Unicode name}    same as \u{Unicode name}
+    \u{X..X}            Unicode character denoted by 1-8 hex digits. The first character must be a digit 0..9
+    \U{X..X}            same as \u{X..X}
     \uXXXX              Unicode character denoted by 4 hex digits ('u' lowercase)
     \UXXXXXXXX          Unicode character denoted by 8 hex digits ('U' uppercase)
 
@@ -269,7 +269,7 @@ Error code= 93.965
 ooRexx[bash]> .unicode~codepointCategoryNames=
 ['Cn','Lu','Ll','Lt','Lm','Lo','Mn','Mc','Me','Nd','Nl','No','Pc','Pd','Ps','Pe','Pi','Pf','Po','Sm','Sc','Sk','So','Zs','Zl','Zp','Cc','Cf','Cs','Co']
 
--- First letter of each category
+-- First character of each category
 
 ooRexx[bash]> seen = .directory~new; .unicode~characters~each{expose seen; v = item~categoryName; if seen[v] == .nil then seen[v] = item}; seen=
 a Directory (28 items)
@@ -304,7 +304,7 @@ a Directory (28 items)
 
 -- Combining class
 -- http://www.unicode.org/reports/tr44/#Canonical_Combining_Class_Values
--- First letter of each combining class
+-- First character of each combining class
 
 ooRexx[bash]> seen = .directory~new; .unicode~characters~each{expose seen; v = item~combiningClass; if seen[cv] == .nil then seen[v] = item}; seen=
 a Directory (56 items)
@@ -313,7 +313,7 @@ a Directory (56 items)
  6   : ( "𖿱"  U+16FF1 Mc 2 "VIETNAMESE ALTERNATE READING MARK NHAY" )
  7   : ( "𞥊"    U+1E94A Mn 0 "ADLAM NUKTA" )
  8   : ( "゚"    U+309A Mn 0 "COMBINING KATAKANA-HIRAGANA SEMI-VOICED SOUND MARK" )
- 9   : ( "𑶗"    U+11D97 Mn 0 "GUNJALA GONDI VIRAMA" )
+ 9   : ( "𑽂"    U+11F42 Mn 0 "KAWI CONJOINER" )
  10  : ( "ְ"    U+05B0 Mn 0 "HEBREW POINT SHEVA" )
  11  : ( "ֱ"    U+05B1 Mn 0 "HEBREW POINT HATAF SEGOL" )
  12  : ( "ֲ"    U+05B2 Mn 0 "HEBREW POINT HATAF PATAH" )
@@ -360,7 +360,7 @@ a Directory (56 items)
  226 : ( "𝅭"    U+1D16D Mc 0 "MUSICAL SYMBOL COMBINING AUGMENTATION DOT" )
  228 : ( "〫"    U+302B Mn 0 "IDEOGRAPHIC RISING TONE MARK" )
  230 : ( "𞥉"    U+1E949 Mn 0 "ADLAM GEMINATE CONSONANT MODIFIER" )
- 232 : ( "〬"    U+302C Mn 0 "IDEOGRAPHIC DEPARTING TONE MARK" )
+ 232 : ( "𞓭"    U+1E4ED Mn 0 "NAG MUNDARI SIGN TOYOR" )
  233 : ( "᷼"    U+1DFC Mn 0 "COMBINING DOUBLE INVERTED BREVE BELOW" )
  234 : ( "᷍"    U+1DCD Mn 0 "COMBINING DOUBLE CIRCUMFLEX ABOVE" )
  240 : ( "ͅ"    U+0345 Mn 0 "COMBINING GREEK YPOGEGRAMMENI" )
@@ -371,7 +371,7 @@ a Directory (56 items)
 ooRexx[bash]> .unicode~codepointBidiClassNames=
 ['L','LRE','LRO','R','AL','RLE','RLO','PDF','EN','ES','ET','AN','CS','NSM','BN','B','S','WS','ON','LRI','RLI','FSI','PDI']
 
--- First letter of each bidirectionnal class
+-- First character of each bidirectionnal class
 
 ooRexx[bash]> seen = .directory~new; .unicode~characters~each{expose seen; v = item~bidiClassName; if seen[v] == .nil then seen[v] = item}; seen=
 a Directory (23 items)
@@ -401,7 +401,7 @@ a Directory (23 items)
 
 -- Bidi mirrored (boolean)
 -- https://unicode.org/reports/tr9/
--- First 10 letters such as bidiMirrored == .true
+-- First 10 characters such as bidiMirrored == .true
 
 ooRexx[bash]> .unicode~characters~pipe(.select {item~bidiMirrored} | .take 10 | .console)
 40 : ( "("   U+0028 Ps 1 "LEFT PARENTHESIS" )
@@ -421,7 +421,7 @@ ooRexx[bash]> .unicode~characters~pipe(.select {item~bidiMirrored} | .take 10 | 
 ooRexx[bash]> .unicode~codepointDecompositionTypeNames=
 ['None','Font','Nobreak','Initial','Medial','Final','Isolated','Circle','Super','Sub','Vertical','Wide','Narrow','Small','Square','Fraction','Compat']
 
--- First letter of each decomposition type
+-- First character of each decomposition type
 
 ooRexx[bash]> seen = .directory~new; .unicode~characters~each{expose seen; v = item~decompositionTypeName; if seen[v] == .nil then seen[v] = item}; seen=
 a Directory (17 items)
@@ -446,7 +446,7 @@ a Directory (17 items)
 -- Ignorable (boolean)
 -- http://www.unicode.org/review/pr-5.html
 -- http://unicode.org/L2/L2002/02368-default-ignorable.html
--- First 10 letters such as bidiMirrored == .true
+-- First 10 characters such as bidiMirrored == .true
 
 ooRexx[bash]> .unicode~characters~pipe(.select {item~ignorable} | .take 10 | .console)
 173 : ( "­"   U+00AD Cf 1 "SOFT HYPHEN", "SHY" )
@@ -462,7 +462,7 @@ ooRexx[bash]> .unicode~characters~pipe(.select {item~ignorable} | .take 10 | .co
 
 -- Boundary (boolean)
 -- http://unicode.org/reports/tr29/tr29-6.html
--- First 10 letters such as bidiMirrored == .true
+-- First 10 characters such as bidiMirrored == .true
 
 ooRexx[bash]> .unicode~characters~pipe(.select {item~controlBoundary} | .take 10 | .console)
 0 : ( ""    U+0000 Cc 0 "", "NULL", "NUL" )
@@ -477,7 +477,7 @@ ooRexx[bash]> .unicode~characters~pipe(.select {item~controlBoundary} | .take 10
 9 : ( ""    U+0009 Cc 0 "", "CHARACTER TABULATION", "HORIZONTAL TABULATION", "HT", "TAB" )
 
 -- Char width
--- First letter of each width value
+-- First character of each width value
 
 ooRexx[bash]> seen = .directory~new; .unicode~characters~each{expose seen; v = item~charWidth; if seen[v] == .nil then seen[v] = item}; seen=
 a Directory (3 items)
@@ -491,7 +491,7 @@ a Directory (3 items)
 ooRexx[bash]> .unicode~codepointBoundClassNames=
 ['START','XX','CR','LF','CN','EX','L','V','T','LV','LVT','RI','SM','PP','ZWJ','EB','EM','GAZ','EBG','EXTENDED_PICTOGRAPHIC','E_ZWG']
 
--- First letter of each bound class
+-- First character of each bound class
 
 ooRexx[bash]> seen = .directory~new; .unicode~characters~each{expose seen; v = item~boundClassName; if seen[v] == .nil then seen[v] = item}; seen=
 a Directory (15 items)
@@ -512,7 +512,7 @@ a Directory (15 items)
 'ZWJ'                   : ( "‍"    U+200D Cf 0 "ZERO WIDTH JOINER", "ZWJ" )
 
 -- isLower
--- Forty-first to fifthieth letters such as isLower == .true
+-- Forty-first to fifthieth characters such as isLower == .true
 
 ooRexx[bash]> .unicode~characters~pipe(.select {item~isLower} | .take 50 | .take "last" 10 | .console)
 234 : ( "ê"   U+00EA Ll 1 "LATIN SMALL LETTER E WITH CIRCUMFLEX" )
@@ -527,7 +527,7 @@ ooRexx[bash]> .unicode~characters~pipe(.select {item~isLower} | .take 50 | .take
 243 : ( "ó"   U+00F3 Ll 1 "LATIN SMALL LETTER O WITH ACUTE" )
 
 -- isUpper
--- Forty-first to fifthieth letters such as isUpper == .true
+-- Forty-first to fifthieth characters such as isUpper == .true
 
 ooRexx[bash]> .unicode~characters~pipe(.select {item~isUpper} | .take 50 | .take "last" 10 | .console)
 206 : ( "Î"   U+00CE Lu 1 "LATIN CAPITAL LETTER I WITH CIRCUMFLEX" )
@@ -583,7 +583,7 @@ ooRexx[bash]> .Unicode~ziglyph_stringToUpper(smallSharpS~utf8~string)~text~chara
 [( "ß"   U+00DF Ll 1 "LATIN SMALL LETTER SHARP S" )]
 
 Both are wrong, should be "SS".
-Unicode standard 14 section 5.18 Case Mappings:
+Unicode standard 15 section 5.18 Case Mappings:
     Default casing                                         Tailored casing
     (small sharp) ß <--- ß (capital sharp)                 (small sharp) ß <--> ẞ (capital sharp)
     (small sharp) ß ---> SS
@@ -789,6 +789,43 @@ The methods NFxx sets the corresponding indicator isNFxx
 - on the source text : 0 or 1 (test if both strings are equal)
 - on the result text : 1
 
+
+ooRexx[bash]> "only ASCII"~text~isNFC=                        -- 1
+ 1
+
+ooRexx[bash]> "only ASCII"~text~isNFD=                        -- 1
+ 1
+
+ooRexx[bash]> "only ASCII"~text~isNFKC=                       -- 1
+ 1
+
+ooRexx[bash]> "only ASCII"~text~isNFKD=                       -- 1
+ 1
+
+ooRexx[bash]> text = "Noël"~text
+
+ooRexx[bash]> text~isNFC=                                     -- -1
+-1
+
+ooRexx[bash]> text~isNFD=                                     -- -1
+-1
+
+ooRexx[bash]> textNFC = text~NFC
+
+ooRexx[bash]> textNFD = text~NFD
+
+ooRexx[bash]> text~isNFC=                                     -- 1
+ 1
+
+ooRexx[bash]> text~isNFD=                                     -- 0
+ 0
+
+ooRexx[bash]> textNFC~isNFC=                                  -- 1
+ 1
+
+ooRexx[bash]> textNFD~isNFD=                                  -- 1
+ 1
+
 The normalized text can be memorized on the original text:
     text = "père Noël"~text
     textNFD = text~nfd(memorize:.true)      -- abbreviation mem:.true
@@ -805,7 +842,24 @@ That makes 9 possible cached value and 5 indicators per indexer (so per string).
     isNFKC      NFKCString      NFKCCasefoldString
     isNFKD      NFKDString      NFKDCasefoldString
 
-Some remarks about the string used in this demo:
+
+ooRexx[bash]> text = xrange("0", "FF"x)~text("cp1252")~utf8(strict: .false)
+
+ooRexx[bash]> text=
+T'0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ'
+
+ooRexx[bash]> text~isNFD=
+-1
+
+ooRexx[bash]> 
+ooRexx[bash]> do 500; textNFD = text~NFD; end
+Duration: 6.033802
+
+ooRexx[bash]> 
+ooRexx[bash]> do 500; textNFD = text~NFD(mem: .true); end
+Duration: 0.187243
+
+Some remarks about the string used in the next demo:
 - the first "äöü" is NFC, the second "äöü" is NFD
 - "x̂" is two codepoints in any normalization.
 - "ϔ" normalization forms are all different.
