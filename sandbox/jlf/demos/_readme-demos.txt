@@ -10,6 +10,7 @@ executor-demo-classic_rexx.rex
 executor-demo-extensions.rex
 executor-demo-text-compatibility.rex
 executor-demo-text-internal_checks.rex
+executor-demo-text-unicode.rex
 executor-demo-text.rex
 ooRexxShell-demo-helpers.rex
 ooRexxShell-demo-interpreters.rex

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="application/xml+xhtml; charset=UTF-8"/>
-<title>stdin</title>
+<title>executor-demo-text-output.html</title>
 </head>
 <body>
 <pre>
@@ -30,8 +30,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 30 Oct 2022
-</span><span style="font-weight:bold;color:green;">Input queue name: S2dc0Q7fada1c28d40
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Nov 2022
+</span><span style="font-weight:bold;color:green;">Input queue name: S10a54Q7fada1c2c620
 </span>
 <span style="font-weight:bold;color:blue;">----------------
 </span><span style="font-weight:bold;color:blue;">-- Text encoding
@@ -431,6 +431,64 @@ T'Un œuf de chez MaPoule™ coûte ±0.40€'
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; helloZalgo~text~unicode~description(t:1)=       <span style="font-weight:bold;color:blue;">-- Unicode16:  5 graphemes, 54 codepoints, 108 bytes</span>
 'Unicode16 (5 graphemes (4 indexes from index 2), 54 codepoints (0 index), 108 bytes, 0 error)'
+
+
+<span style="font-weight:bold;color:blue;">It's possible to set/get an encoding on a String or a MutableBuffer
+</span><span style="font-weight:bold;color:blue;">without having an associated RexxText.
+</span><span style="font-weight:bold;color:blue;">It's just an annotation, there is no indexing.
+</span>
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; s = &quot;nonsense&quot;
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; s~encoding =                    <span style="font-weight:bold;color:blue;">-- returns the default encoding: (The UTF8_Encoding class)</span>
+(The UTF8_Encoding class)
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; s~hasText =                     <span style="font-weight:bold;color:blue;">-- 0</span>
+ 0
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; s~encoding = .UTF16BE_Encoding  <span style="font-weight:bold;color:blue;">-- tag the string: encoded UTF-16BE</span>
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; s~encoding =                    <span style="font-weight:bold;color:blue;">-- (The UTF16BE_Encoding class)</span>
+(The UTF16BE_Encoding class)
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; s~hasText =                     <span style="font-weight:bold;color:blue;">-- still no associated RexxText: 0</span>
+ 0
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; t = s~text                      <span style="font-weight:bold;color:blue;">-- associates a RexxText to the string</span>
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; s~hasText =                     <span style="font-weight:bold;color:blue;">-- the string has an associated text: 1</span>
+ 1
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; t~encoding =                    <span style="font-weight:bold;color:blue;">-- the encoding of the text is the one of the string: (The UTF16BE_Encoding class)</span>
+(The UTF16BE_Encoding class)
+
+<span style="font-weight:bold;color:blue;">-- Changing the encoding of a String/RexxText has no impact on the byte sequence.
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; s=                              <span style="font-weight:bold;color:blue;">-- &quot;nonsense&quot;</span>
+'nonsense'
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; t~string=                       <span style="font-weight:bold;color:blue;">-- &quot;nonsense&quot;</span>
+'nonsense'
+
+<span style="font-weight:bold;color:blue;">-- The impact of the encoding annotation is on the decoding of the byte sequence.
+</span><span style="font-weight:bold;color:blue;">-- The english word &quot;nonsense&quot; in UTF-8 becomes the chinese word &quot;soup&quot; when interpreted as UTF-16BE and converted to UTF-8.
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; t~utf8 =                        <span style="font-weight:bold;color:blue;">-- T'湯湳敮獥'      soup</span>
+T'湯湳敮獥'
+
+<span style="font-weight:bold;color:blue;">-- Setting/getting the encoding of the string will set/get the encoding of the associated RexxText
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; s~encoding = .UTF16LE_Encoding
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; t~encoding =                    <span style="font-weight:bold;color:blue;">-- the encoding of the text has been changed: (The UTF16LE_Encoding class)</span>
+(The UTF16LE_Encoding class)
+<span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; 
+<span style="font-weight:bold;color:blue;">-- The english word &quot;nonsense&quot; in UTF-8 becomes the chinese word &quot;tide&quot; when interpreted as UTF-16LE and converted to UTF-8.
+</span><span style="font-weight:bold;color:olive;">
+</span>ooRexx[bash]&gt; t~utf8 =                        <span style="font-weight:bold;color:blue;">-- T'潮獮湥敳'      tide</span>
+T'潮獮湥敳'
+
 
 <span style="font-weight:bold;color:blue;">End of demonstration.
 </span></pre>

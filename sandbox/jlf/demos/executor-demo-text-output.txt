@@ -20,8 +20,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 30 Oct 2022
-Input queue name: S2dc0Q7fada1c28d40
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Nov 2022
+Input queue name: S10a54Q7fada1c2c620
 
 ----------------
 -- Text encoding
@@ -421,6 +421,64 @@ ooRexx[bash]> helloZalgo~text~utf32~description(t:1)=         -- UTF-32:     5 g
 
 ooRexx[bash]> helloZalgo~text~unicode~description(t:1)=       -- Unicode16:  5 graphemes, 54 codepoints, 108 bytes
 'Unicode16 (5 graphemes (4 indexes from index 2), 54 codepoints (0 index), 108 bytes, 0 error)'
+
+
+It's possible to set/get an encoding on a String or a MutableBuffer
+without having an associated RexxText.
+It's just an annotation, there is no indexing.
+
+
+ooRexx[bash]> s = "nonsense"
+
+ooRexx[bash]> s~encoding =                    -- returns the default encoding: (The UTF8_Encoding class)
+(The UTF8_Encoding class)
+
+ooRexx[bash]> s~hasText =                     -- 0
+ 0
+
+ooRexx[bash]> s~encoding = .UTF16BE_Encoding  -- tag the string: encoded UTF-16BE
+
+ooRexx[bash]> s~encoding =                    -- (The UTF16BE_Encoding class)
+(The UTF16BE_Encoding class)
+
+ooRexx[bash]> s~hasText =                     -- still no associated RexxText: 0
+ 0
+
+ooRexx[bash]> t = s~text                      -- associates a RexxText to the string
+
+ooRexx[bash]> s~hasText =                     -- the string has an associated text: 1
+ 1
+
+ooRexx[bash]> t~encoding =                    -- the encoding of the text is the one of the string: (The UTF16BE_Encoding class)
+(The UTF16BE_Encoding class)
+
+-- Changing the encoding of a String/RexxText has no impact on the byte sequence.
+
+ooRexx[bash]> s=                              -- "nonsense"
+'nonsense'
+
+ooRexx[bash]> t~string=                       -- "nonsense"
+'nonsense'
+
+-- The impact of the encoding annotation is on the decoding of the byte sequence.
+-- The english word "nonsense" in UTF-8 becomes the chinese word "soup" when interpreted as UTF-16BE and converted to UTF-8.
+
+ooRexx[bash]> t~utf8 =                        -- T'湯湳敮獥'      soup
+T'湯湳敮獥'
+
+-- Setting/getting the encoding of the string will set/get the encoding of the associated RexxText
+
+ooRexx[bash]> s~encoding = .UTF16LE_Encoding
+
+ooRexx[bash]> t~encoding =                    -- the encoding of the text has been changed: (The UTF16LE_Encoding class)
+(The UTF16LE_Encoding class)
+
+ooRexx[bash]> 
+-- The english word "nonsense" in UTF-8 becomes the chinese word "tide" when interpreted as UTF-16LE and converted to UTF-8.
+
+ooRexx[bash]> t~utf8 =                        -- T'潮獮湥敳'      tide
+T'潮獮湥敳'
+
 
 End of demonstration.
 

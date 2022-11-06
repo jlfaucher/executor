@@ -1,4 +1,4 @@
-executorDemos = array classic_rexx extensions text text-internal_checks text-compatibility
+executorDemos = array classic_rexx extensions text text-internal_checks text-unicode text-compatibility
 ooRexxShellDemos = helpers interpreters queries
 
 help:
@@ -31,7 +31,7 @@ txt::
 	-asciinema rec -c "bash -i -c 'cat $? | oorexxshell --showInitialization'" --overwrite $@
 
 %-output.html : %.cast
-	asciinema cat $? | aha > $@
+	asciinema cat $? | aha --title "$@" > $@
 
 # 1) Remember! $ has special meaning in makefiles. If you want to use it in a shell command, you have to double it.
 # 2) asciinema replaces the invalid UTF-8 characters by the REPLACEMENT CHARACTER.

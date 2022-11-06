@@ -31,12 +31,18 @@ I get that under ooRexxShell :
 */
 s1 = "é"
 s1=                                 -- 'é'
+sleep
 s1~length=                          -- 2
+sleep
 s1~c2x=                             -- C3 A9
+sleep
 combining_acute_accent = "cc81"x
 s2 = "e" || combining_acute_accent
+sleep
 s2=                                 -- 'é'
+sleep
 s2~length=                          -- 3
+sleep
 s2~c2x=                             -- 65 CC 81
 sleep no prompt
 
@@ -54,11 +60,15 @@ sleep
 
 .encoding~defaultEncoding = "utf8"
 s1~text~length=                     -- 1 grapheme
+sleep
 s1~text~codepoints~count=           -- 1 codepoint
+sleep
 s1~text~string~length=              -- 2 bytes
 
 s2~text~length=                     -- 1 grapheme
+sleep
 s2~text~codepoints~count=           -- 2 codepoints
+sleep
 s2~text~string~length=              -- 3 bytes
 sleep no prompt
 
@@ -80,9 +90,12 @@ The ooRexx programmer has the choice :
 sleep
 myText = "où as tu e" || .Unicode~character("combining acute accent")~utf8 || "té ?"
 myText=                         -- T'où as tu été ?'
+sleep
 myString = myText~string
 myString=                       -- 'où as tu été ?'
+sleep
 myString~length=                -- 18
+sleep
 myText~length=                  -- 14
 sleep 2 no prompt
 
@@ -307,6 +320,54 @@ helloZalgo~text~utf32~description(t:1)=         -- UTF-32:     5 graphemes, 54 c
 sleep
 helloZalgo~text~unicode~description(t:1)=       -- Unicode16:  5 graphemes, 54 codepoints, 108 bytes
 sleep no prompt
+
+
+/*
+It's possible to set/get an encoding on a String or a MutableBuffer
+without having an associated RexxText.
+It's just an annotation, there is no indexing.
+*/
+sleep no prompt
+
+s = "nonsense"
+s~encoding =                    -- returns the default encoding: (The UTF8_Encoding class)
+sleep
+s~hasText =                     -- 0
+sleep
+s~encoding = .UTF16BE_Encoding  -- tag the string: encoded UTF-16BE
+s~encoding =                    -- (The UTF16BE_Encoding class)
+sleep
+s~hasText =                     -- still no associated RexxText: 0
+sleep
+t = s~text                      -- associates a RexxText to the string
+s~hasText =                     -- the string has an associated text: 1
+sleep
+t~encoding =                    -- the encoding of the text is the one of the string: (The UTF16BE_Encoding class)
+sleep no prompt
+
+-- Changing the encoding of a String/RexxText has no impact on the byte sequence.
+s=                              -- "nonsense"
+sleep
+t~string=                       -- "nonsense"
+sleep no prompt
+
+-- The impact of the encoding annotation is on the decoding of the byte sequence.
+-- The english word "nonsense" in UTF-8 becomes the chinese word "soup" when interpreted as UTF-16BE and converted to UTF-8.
+sleep
+t~utf8 =                        -- T'湯湳敮獥'      soup
+sleep no prompt
+
+-- Setting/getting the encoding of the string will set/get the encoding of the associated RexxText
+sleep
+s~encoding = .UTF16LE_Encoding
+t~encoding =                    -- the encoding of the text has been changed: (The UTF16LE_Encoding class)
+sleep
+
+-- The english word "nonsense" in UTF-8 becomes the chinese word "tide" when interpreted as UTF-16LE and converted to UTF-8.
+sleep
+t~utf8 =                        -- T'潮獮湥敳'      tide
+sleep no prompt
+
 
 /*
 End of demonstration.

@@ -1,3 +1,4 @@
+loadPackage OK for extension/stringChunk.cls
 loadPackage OK for extension/extensions.cls
 loadLibrary OK for rxunixsys
 loadPackage OK for ncurses.cls
@@ -12,15 +13,15 @@ loadPackage OK for regex/regex.cls
 loadPackage OK for smtp.cls
 loadPackage OK for socket.cls
 loadPackage OK for streamsocket.cls
-loadPackage OK for pipeline/pipe.rex
+loadPackage OK for pipeline/pipe.cls
 loadPackage OK for rgf_util2/rgf_util2.rex
 loadPackage OK for BSF.CLS
 loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
-Input queue name: S10db5Q100604770
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Nov 2022
+Input queue name: S10b10Q7fada1d29a80
 
 ----------------------------------
 -- Text encoding - Internal checks
@@ -39,7 +40,7 @@ Error code= 23.900
 ooRexx[bash]> s~text = .RexxText~new(s)                -- ok, the RexxText is linked to s, now can be assigned to s~text
 
 ooRexx[bash]> "é"~text("byte") || "è"~text("utf8")=    -- Cannot concatenate Byte with UTF-8
-Encoding: cannot concatenate Byte not-ASCII text with UTF-8 not-ASCII text.
+Encoding: cannot concatenate Byte not-ASCII 'é' with UTF-8 not-ASCII 'è'.
 Error code= 23.900
 
 ooRexx[bash]> "é"~text("byte") || "é"~text("utf8")=    -- T'éé' encoded UTF-8
@@ -110,13 +111,13 @@ ooRexx[bash]> "63 C3 B4 74 65 CC 81 F0 9F 91 8D"x~text("utf8")=           -- T'c
 T'côté👍'
 
 ooRexx[bash]>       "B4 74 65 CC 81 F0 9F 91 8D"x~text("utf8")~errors=    -- Invalid start byte
-['UTF-8 sequence at byte-position 1 has an invalid start byte 180 (B4x) (non-shortest form).']
+['UTF-8 encoding: byte sequence at byte-position 1 has an invalid start byte 180 (B4x) (non-shortest form).']
 
 ooRexx[bash]> "63 C3    74 65 CC 81 F0 9F 91 8D"x~text("utf8")~errors=    -- Invalid continuation byte
-['UTF-8 sequence at byte-position 2 has an invalid continuation byte 116 (74x) at byte-position 3.']
+['UTF-8 encoding: byte sequence at byte-position 2 has an invalid continuation byte 116 (74x) at byte-position 3.']
 
 ooRexx[bash]> "63 C3 B4 74 65 CC 81 F0 9F 91"x~text("utf8")~errors=       -- UTF-8 character is truncated
-['UTF-8 sequence at byte-position 8 is truncated, expected 4 bytes.']
+['UTF-8 encoding: byte sequence at byte-position 8 is truncated, expected 4 bytes.']
 
 -- If you pass a size to ~decode, the method assumes you know what you do, there is no check
 
@@ -159,15 +160,15 @@ Error code= 23.900
 
 ooRexx[bash]> .utf8_encoding~encode(55296)~errors==    -- 55296 is an invalid codepoint (high surrogate)
 an Array (shape [3], 3 items)
- 1 : 'UTF-8 sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).'
- 2 : 'UTF-8 sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).'
- 3 : 'UTF-8 sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
+ 1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).'
+ 2 : 'UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).'
+ 3 : 'UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
 
 ooRexx[bash]> .utf8_encoding~encode(56320)~errors==    -- 56320 is an invalid codepoint (low surrogate)
 an Array (shape [3], 3 items)
- 1 : 'UTF-8 sequence at byte-position 1 has an invalid continuation byte 176 (B0x) at byte-position 2 (low surrogate).'
- 2 : 'UTF-8 sequence at byte-position 2 has an invalid start byte 176 (B0x) (non-shortest form).'
- 3 : 'UTF-8 sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
+ 1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 176 (B0x) at byte-position 2 (low surrogate).'
+ 2 : 'UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 176 (B0x) (non-shortest form).'
+ 3 : 'UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
 
 UTF-16 encoding
 
@@ -227,9 +228,9 @@ ooRexx[bash]>      "DC00 D801 DC01"x~text("wtf16")~errors=        -- acceptable 
 
 ooRexx[bash]>      "DC00 D801 DC01"x~text("wtf16")~utf8~errors==  -- but cannot be converted to UTF-8: invalid codepoint DC00x
 an Array (shape [3], 3 items)
- 1 : 'UTF-8 sequence at byte-position 1 has an invalid continuation byte 176 (B0x) at byte-position 2 (low surrogate).'
- 2 : 'UTF-8 sequence at byte-position 2 has an invalid start byte 176 (B0x) (non-shortest form).'
- 3 : 'UTF-8 sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
+ 1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 176 (B0x) at byte-position 2 (low surrogate).'
+ 2 : 'UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 176 (B0x) (non-shortest form).'
+ 3 : 'UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
 
 ooRexx[bash]> "D800 1000 D801 DC01"x~text("utf16")~errors=        -- Invalid low surrogate
 ['UTF-16BE encoding: invalid low surrogate 4096 (U+1000) at byte-position 3.']
@@ -337,8 +338,8 @@ ooRexx[bash]> (t1~wtf8 || t2~wtf8)~c2u=                       -- ... equal to U+
 ooRexx[bash]> (t1~wtf8~string || t2~wtf8~string)~text("wtf8")~errors==    -- High surrogate 55296 (D800x) followed by low surrogate 56321 (DC01x) is not allowed
 an Array (shape [3], 3 items)
  1 : 'WTF-8 encoding: high surrogate 55296 (U+D800) at byte-position 1 followed by low surrogate 56321 (U+DC01) at byte-position 4 is not allowed.'
- 2 : 'UTF-8 sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).'
- 3 : 'UTF-8 sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
+ 2 : 'WTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).'
+ 3 : 'WTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
 
 ooRexx[bash]> (t1~wtf8~string || t2~wtf8~string)~text("wtf8")~c2x=        -- EDA080 EDB081
 'ED A0 80 EDB081'
@@ -350,12 +351,12 @@ ooRexx[bash]> (t1~wtf8~string || t2~wtf8~string)~text("wtf8")~c2u=        -- U+F
 
 ooRexx[bash]> (t1~wtf8~string || t2~wtf8~string)~text("utf8")~errors==    -- High surrogate is not allowed, Low surrogate is not allowed
 an Array (shape [6], 6 items)
- 1 : 'UTF-8 sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).'
- 2 : 'UTF-8 sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).'
- 3 : 'UTF-8 sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
- 4 : 'UTF-8 sequence at byte-position 4 has an invalid continuation byte 176 (B0x) at byte-position 5 (low surrogate).'
- 5 : 'UTF-8 sequence at byte-position 5 has an invalid start byte 176 (B0x) (non-shortest form).'
- 6 : 'UTF-8 sequence at byte-position 6 has an invalid start byte 129 (81x) (non-shortest form).'
+ 1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).'
+ 2 : 'UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).'
+ 3 : 'UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
+ 4 : 'UTF-8 encoding: byte sequence at byte-position 4 has an invalid continuation byte 176 (B0x) at byte-position 5 (low surrogate).'
+ 5 : 'UTF-8 encoding: byte sequence at byte-position 5 has an invalid start byte 176 (B0x) (non-shortest form).'
+ 6 : 'UTF-8 encoding: byte sequence at byte-position 6 has an invalid start byte 129 (81x) (non-shortest form).'
 
 ooRexx[bash]> (t1~wtf8~string || t2~wtf8~string)~text("utf8")~c2x=        -- EDA080 EDB081
 'ED A0 80 ED B0 81'
@@ -420,33 +421,33 @@ ooRexx[bash]> file~close
 
 ooRexx[bash]> system rexx unicode/scripts/check_encoding utf8 ill_formed_utf8.txt
 Checking file "ill_formed_utf8.txt"
-  line 2: UTF-8 sequence at byte-position 1 has an invalid start byte 180 (B4x) (non-shortest form).
-  line 3: UTF-8 sequence at byte-position 2 has an invalid continuation byte 116 (74x) at byte-position 3.
-  line 5: UTF-8 sequence at byte-position 8 is truncated, expected 4 bytes.
-  line 6: UTF-8 sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).
-  line 6: UTF-8 sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).
-  line 6: UTF-8 sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).
-  line 7: UTF-8 sequence at byte-position 1 has an invalid continuation byte 176 (B0x) at byte-position 2 (low surrogate).
-  line 7: UTF-8 sequence at byte-position 2 has an invalid start byte 176 (B0x) (non-shortest form).
-  line 7: UTF-8 sequence at byte-position 3 has an invalid start byte 129 (81x) (non-shortest form).
-  line 8: UTF-8 sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).
-  line 8: UTF-8 sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).
-  line 8: UTF-8 sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).
-  line 8: UTF-8 sequence at byte-position 4 has an invalid continuation byte 176 (B0x) at byte-position 5 (low surrogate).
-  line 8: UTF-8 sequence at byte-position 5 has an invalid start byte 176 (B0x) (non-shortest form).
-  line 8: UTF-8 sequence at byte-position 6 has an invalid start byte 129 (81x) (non-shortest form).
+  line 2: UTF-8 encoding: byte sequence at byte-position 1 has an invalid start byte 180 (B4x) (non-shortest form).
+  line 3: UTF-8 encoding: byte sequence at byte-position 2 has an invalid continuation byte 116 (74x) at byte-position 3.
+  line 5: UTF-8 encoding: byte sequence at byte-position 8 is truncated, expected 4 bytes.
+  line 6: UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).
+  line 6: UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).
+  line 6: UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).
+  line 7: UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 176 (B0x) at byte-position 2 (low surrogate).
+  line 7: UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 176 (B0x) (non-shortest form).
+  line 7: UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 129 (81x) (non-shortest form).
+  line 8: UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).
+  line 8: UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).
+  line 8: UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).
+  line 8: UTF-8 encoding: byte sequence at byte-position 4 has an invalid continuation byte 176 (B0x) at byte-position 5 (low surrogate).
+  line 8: UTF-8 encoding: byte sequence at byte-position 5 has an invalid start byte 176 (B0x) (non-shortest form).
+  line 8: UTF-8 encoding: byte sequence at byte-position 6 has an invalid start byte 129 (81x) (non-shortest form).
   15 errors
 Total: 15 errors
 RC= 1
 
 ooRexx[bash]> system rexx unicode/scripts/check_encoding wtf8 ill_formed_utf8.txt
 Checking file "ill_formed_utf8.txt"
-  line 2: UTF-8 sequence at byte-position 1 has an invalid start byte 180 (B4x) (non-shortest form).
-  line 3: UTF-8 sequence at byte-position 2 has an invalid continuation byte 116 (74x) at byte-position 3.
-  line 5: UTF-8 sequence at byte-position 8 is truncated, expected 4 bytes.
+  line 2: WTF-8 encoding: byte sequence at byte-position 1 has an invalid start byte 180 (B4x) (non-shortest form).
+  line 3: WTF-8 encoding: byte sequence at byte-position 2 has an invalid continuation byte 116 (74x) at byte-position 3.
+  line 5: WTF-8 encoding: byte sequence at byte-position 8 is truncated, expected 4 bytes.
   line 8: WTF-8 encoding: high surrogate 55296 (U+D800) at byte-position 1 followed by low surrogate 56321 (U+DC01) at byte-position 4 is not allowed.
-  line 8: UTF-8 sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).
-  line 8: UTF-8 sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).
+  line 8: WTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).
+  line 8: WTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).
   6 errors
 Total: 6 errors
 RC= 1
