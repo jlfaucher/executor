@@ -8,6 +8,18 @@ Sandbox for experimental work, what's done so far.
 
 Upgrade to utf8proc version 2.8.0 with Unicode 15.0.0 support.
 
+Can't upgrade to ziglyph for zig 0.10.0 with Unicode 15.0.0 support.
+    Runtime error:
+        dyld: lazy symbol binding failed: Symbol not found: ___ulock_wait2
+          Referenced from: /local/zig/zig-macos-x86_64-0.10.0/zig (which was built for Mac OS X 11.7)
+          Expected in: /usr/lib/libSystem.B.dylib
+    My MacOs version is High Sierre 10.13.6
+    Zig maintainers said they will not fix that.
+    https://github.com/ziglang/zig/issues/13313
+
+    https://github.com/ziglang/zig/commit/2d03f389881fbbbd2aa197de523c96d2f7593b7d
+    darwin: bump minimum supported version to 11.7.1
+
 
 ===============================================================================
 2022 November 06
