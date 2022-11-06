@@ -4,6 +4,14 @@ Sandbox for experimental work, what's done so far.
 ===============================================================================
 2022 November 06
 
+[Unicode]
+
+Upgrade to utf8proc version 2.8.0 with Unicode 15.0.0 support.
+
+
+===============================================================================
+2022 November 06
+
 [Encoded string]
 
 Refactoring
