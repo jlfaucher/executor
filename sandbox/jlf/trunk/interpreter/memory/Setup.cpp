@@ -1443,35 +1443,30 @@ void RexxMemory::createImage(const char *imageTarget)
   /*           Unicode                                                       */
   /***************************************************************************/
 
-  defineKernelMethod(CHAR_NEW, TheUnicodeClassBehaviour, CPPM(Unicode::newRexx), A_COUNT);
-  defineKernelMethod(CHAR_COPY, TheUnicodeClassBehaviour, CPPM(Unicode::copyRexx), 0);
-  defineKernelMethod("VERSION" , TheUnicodeClassBehaviour, CPPM(Unicode::version), 0);
-  defineKernelMethod("SYSTEMISLITTLEENDIAN" , TheUnicodeClassBehaviour, CPPM(Unicode::systemIsLittleEndian), 0);
-  defineKernelMethod("GRAPHEMEBREAK" , TheUnicodeClassBehaviour, CPPM(Unicode::graphemeBreak), 1);
-  defineKernelMethod("CODEPOINTCATEGORY" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointCategory), 1);
-  defineKernelMethod("CODEPOINTCOMBININGCLASS" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointCombiningClass), 1);
-  defineKernelMethod("CODEPOINTBIDICLASS" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointBidiClass), 1);
-  defineKernelMethod("CODEPOINTBIDIMIRRORED" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointBidiMirrored), 1);
-  defineKernelMethod("CODEPOINTDECOMPOSITIONTYPE" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointDecompositionType), 1);
-  defineKernelMethod("CODEPOINTIGNORABLE" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointIgnorable), 1);
-  defineKernelMethod("CODEPOINTCONTROLBOUNDARY" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointControlBoundary), 1);
-  defineKernelMethod("CODEPOINTCHARWIDTH" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointCharWidth), 1);
-  defineKernelMethod("CODEPOINTBOUNDCLASS" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointBoundClass), 1);
-  defineKernelMethod("CODEPOINTTOLOWER" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointToLower), 1);
-  defineKernelMethod("CODEPOINTTOUPPER" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointToUpper), 1);
-  defineKernelMethod("CODEPOINTTOTITLE" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointToTitle), 1);
-  defineKernelMethod("CODEPOINTISLOWER" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointIsLower), 1);
-  defineKernelMethod("CODEPOINTISUPPER" , TheUnicodeClassBehaviour, CPPM(Unicode::codepointIsUpper), 1);
-  defineKernelMethod("STRINGTOCASEFOLD", TheUnicodeClassBehaviour, CPPM(Unicode::stringToCaseFold), 1);
-  defineKernelMethod("STRINGTOLOWER", TheUnicodeClassBehaviour, CPPM(Unicode::stringToLower), 1);
-  defineKernelMethod("STRINGTOTITLE", TheUnicodeClassBehaviour, CPPM(Unicode::stringToTitle), 1);
-  defineKernelMethod("STRINGTOUPPER", TheUnicodeClassBehaviour, CPPM(Unicode::stringToUpper), 1);
-  defineKernelMethod("NFD" , TheUnicodeClassBehaviour, CPPM(Unicode::NFD), 1);
-  defineKernelMethod("NFC" , TheUnicodeClassBehaviour, CPPM(Unicode::NFC), 1);
-  defineKernelMethod("NFKD" , TheUnicodeClassBehaviour, CPPM(Unicode::NFKD), 1);
-  defineKernelMethod("NFKC" , TheUnicodeClassBehaviour, CPPM(Unicode::NFKC), 1);
-  defineKernelMethod("NFKC_CASEFOLD" , TheUnicodeClassBehaviour, CPPM(Unicode::NFKC_Casefold), 1);
-  defineKernelMethod("TRANSFORM" , TheUnicodeClassBehaviour, CPPM(Unicode::transform), 1, true);  // pass named arguments
+  defineKernelMethod(CHAR_NEW                              , TheUnicodeClassBehaviour, CPPM(Unicode::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_COPY                             , TheUnicodeClassBehaviour, CPPM(Unicode::copyRexx), 0);
+  defineKernelMethod("SYSTEMISLITTLEENDIAN"                , TheUnicodeClassBehaviour, CPPM(Unicode::systemIsLittleEndian), 0);
+  defineKernelMethod("UTF8PROC_VERSION"                    , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_version), 0);
+  defineKernelMethod("UTF8PROC_GRAPHEMEBREAK"              , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_graphemeBreak), 1);
+  defineKernelMethod("UTF8PROC_CODEPOINTCATEGORY"          , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointCategory), 1);
+  defineKernelMethod("UTF8PROC_CODEPOINTCOMBININGCLASS"    , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointCombiningClass), 1);
+  defineKernelMethod("UTF8PROC_CODEPOINTBIDICLASS"         , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointBidiClass), 1);
+  defineKernelMethod("UTF8PROC_CODEPOINTBIDIMIRRORED"      , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointBidiMirrored), 1);
+  defineKernelMethod("UTF8PROC_CODEPOINTDECOMPOSITIONTYPE" , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointDecompositionType), 1);
+  defineKernelMethod("UTF8PROC_CODEPOINTIGNORABLE"         , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointIgnorable), 1);
+  defineKernelMethod("UTF8PROC_CODEPOINTCONTROLBOUNDARY"   , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointControlBoundary), 1);
+  defineKernelMethod("UTF8PROC_CODEPOINTCHARWIDTH"         , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointCharWidth), 1);
+  defineKernelMethod("UTF8PROC_CODEPOINTBOUNDCLASS"        , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointBoundClass), 1);
+  defineKernelMethod("UTF8PROC_CODEPOINTTOLOWER"           , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointToLower), 1);
+  defineKernelMethod("UTF8PROC_CODEPOINTTOUPPER"           , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointToUpper), 1);
+  defineKernelMethod("UTF8PROC_CODEPOINTTOTITLE"           , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointToTitle), 1);
+  defineKernelMethod("UTF8PROC_CODEPOINTISLOWER"           , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointIsLower), 1);
+  defineKernelMethod("UTF8PROC_CODEPOINTISUPPER"           , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointIsUpper), 1);
+  defineKernelMethod("UTF8PROC_TRANSFORM"                  , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_transform), 1, true);  // pass named arguments
+  defineKernelMethod("ZIGLYPH_STRINGTOCASEFOLD"            , TheUnicodeClassBehaviour, CPPM(Unicode::ziglyph_stringToCaseFold), 1);
+  defineKernelMethod("ZIGLYPH_STRINGTOLOWER"               , TheUnicodeClassBehaviour, CPPM(Unicode::ziglyph_stringToLower), 1);
+  defineKernelMethod("ZIGLYPH_STRINGTOTITLE"               , TheUnicodeClassBehaviour, CPPM(Unicode::ziglyph_stringToTitle), 1);
+  defineKernelMethod("ZIGLYPH_STRINGTOUPPER"               , TheUnicodeClassBehaviour, CPPM(Unicode::ziglyph_stringToUpper), 1);
                                        /* set the scope of the methods to   */
                                        /* this classes oref                 */
   TheUnicodeClassBehaviour->setMethodDictionaryScope(TheUnicodeClass);

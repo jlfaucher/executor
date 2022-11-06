@@ -39,7 +39,7 @@ Interface:
 ::class "RexxTextInternalFacade" mixinclass Object private
 
 -- Give access to the indexer of a RexxText
-::method internalIndexer -- should be package
+::method internalIndexer -- should be package-scope
     return self~indexer
 
 
@@ -157,8 +157,8 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::attribute defaultEncoding class set
     expose defaultEncoding
-    use strict arg encodingName
-    defaultEncoding = self~factory(encodingName)
+    use strict arg encoding
+    defaultEncoding = self~factory(encoding)
 
 
 ::attribute defaultInputEncoding class get
@@ -170,8 +170,8 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::attribute defaultInputEncoding class set
     expose defaultInputEncoding
-    use strict arg encodingName
-    defaultInputEncoding = self~factory(encodingName)
+    use strict arg encoding
+    defaultInputEncoding = self~factory(encoding)
 
 
 ::attribute defaultOutputEncoding class get
@@ -183,8 +183,8 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::attribute defaultOutputEncoding class set
     expose defaultOutputEncoding
-    use strict arg encodingName
-    defaultOutputEncoding = self~factory(encodingName)
+    use strict arg encoding
+    defaultOutputEncoding = self~factory(encoding)
 
 
 ::method activate class
@@ -389,15 +389,15 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 
 ::method forConcatenation class
-    use strict arg left, right -- text or string or buffer
+    use strict arg left, right -- text or buffer or string
 
-    left = left~requestTextOrString
-    if .nil == left then signal left_must_have_a_text_or_string_value
+    left = left~requestTextOrBufferOrString
+    if .nil == left then signal left_must_have_a_text_or_buffer_or_string_value
     leftEncoding = left~encoding
     leftIsASCII = left~isASCII
 
-    right = right~requestTextOrString
-    if .nil == right then signal right_must_have_a_text_or_string_value
+    right = right~requestTextOrBufferOrString
+    if .nil == right then signal right_must_have_a_text_or_buffer_or_string_value
     rightEncoding = right~encoding
     rightIsASCII = right~isASCII
 
@@ -416,8 +416,8 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
     raise syntax 23.900 array("Encoding: cannot concatenate" left~descriptionForError "with" right~descriptionForError)
 
-    left_must_have_a_text_or_string_value: raise syntax 93.900 array("Method positional argument 'left' must have a text or string value")
-    right_must_have_a_text_or_string_value: raise syntax 93.900 array("Method positional argument 'right' must have a text or string value")
+    left_must_have_a_text_or_buffer_or_string_value:  raise syntax 93.900 array("Method positional argument 'left' must have a text or buffer or string value")
+    right_must_have_a_text_or_buffer_or_string_value: raise syntax 93.900 array("Method positional argument 'right' must have a text or buffer or string value")
 
 
 ::method comparisonMode class
@@ -437,15 +437,15 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 ::class "IndexerHelpers" mixinclass Object private
 
 ::method append class
-    -- Positional arguments : zero to N text or string.
+    -- Positional arguments : zero to N text or buffer or string.
     use strict named arg buffer(1)=.nil
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new
     if \buffer~hasEncoding then buffer~encoding = self
     else if buffer~encoding \== self then signal buffer_invalid_encoding
     do i=1 to arg()
-        text = arg(i)~requestTextOrString
-        if .nil == text then signal must_have_a_text_or_string_value
+        text = arg(i)~requestTextOrBufferOrString
+        if .nil == text then signal must_have_a_text_or_buffer_or_string_value
         encoding = .Encoding~forConcatenation(buffer, text) -- raise an error if not compatible
         buffer~encoding = encoding
         encoding~concatenate(text, b: buffer)
@@ -453,19 +453,30 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     if returnBuffer then return buffer
     else return .RexxText~new(buffer~string, buffer~encoding)
 
-    buffer_invalid_encoding:          raise syntax 93.900 array("The named argument 'buffer' must have encoding =" self~description", got" buffer~encoding~description)
-    must_have_a_text_or_string_value: raise syntax 93.900 array("Method positional argument "i" must have a text or string value")
+    buffer_invalid_encoding:                    raise syntax 93.900 array("The named argument 'buffer' must have encoding =" self~description", got" buffer~encoding~description)
+    must_have_a_text_or_buffer_or_string_value: raise syntax 93.900 array("Method positional argument "i" must have a text or buffer or string value")
+
+
+::method endsWithText
+    use strict arg other
+    use strict named arg caseless
+    -- todo
+/*
+    start = self~length - substr~length + 1
+    if start < 1 then return .false
+    return self~pos(substr, start) == start
+*/
 
 
 ::method lower_upper_title private
     use strict arg action, startC, length
     use strict named arg buffer(1)=.nil
 
-    if datatype(startC, "w"), startC > 0 then nop
-    else signal incorrect_position
+    if \datatype(startC, "w") then signal invalid_position
+    if startC <= 0 then signal invalid_position
 
-    if datatype(length, "w"), length >= 0 then nop
-    else signal invalid_length
+    if \datatype(length, "w") then signal invalid_length
+    if length < 0 then signal invalid_length
 
     if startC > self~length then return self~string~text
     if length == 0 then return self~string~text
@@ -513,10 +524,14 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
             else if action == "u" then codepoint = encoding~codepointToUpper(codepoint)
             else if action == "t" then do
                 if beginOfWord then codepoint = encoding~codepointToTitle(codepoint)
+                               else codepoint = encoding~codepointToLower(codepoint)
                 beginOfWord = (string~substr(codepointIndexB, codepointSizeB) == encoding~spaceCharacter~string)
             end
-            encoding~encode(codepoint, b: buffer)
         end
+        else do
+            codepoint = .Unicode~replacementCharacter~codepoint
+        end
+        encoding~encode(codepoint, b: buffer)
         codepointIndexB = abs(nextCodepointIndexB)
     end
 
@@ -526,7 +541,74 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
                     else return .RexxText~new(buffer~string, encoding)
 
     invalid_length:             raise syntax 93.923 array(length)
-    incorrect_position:         raise syntax 93.924 array(startC)
+    invalid_position:           raise syntax 93.924 array(startC)
+
+
+::method matchCharText
+    use strict arg nC, chars
+    -- todo
+
+
+::method matchText private
+    use strict arg startC, other, nC, lengthC
+    use strict named arg caseless -- boolean
+
+    selfIndexer = self
+    call check_position startC, selfIndexer~length
+
+    otherText = other~request("RexxText") -- not requestTextOrBufferOrString because we really need a RexxText
+    if .nil == otherText then signal must_have_a_text_or_string_value
+
+    otherIndexer = otherText~internalIndexer
+    call check_position nC, otherIndexer~length
+
+    if .nil == lengthC then lengthC = otherIndexer~length - nC + 1
+    call check_length lengthC, otherIndexer~length, nC
+
+    selfText = selfIndexer~string~text
+    selfNormText = selfText~NFC(casefold: caseless)
+    selfNormIndexer = selfNormText~internalIndexer
+
+    otherNormText = otherText~NFC(casefold: caseless)
+    otherNormIndexer = otherNormText~internalIndexer
+
+    startB = abs(selfNormIndexer~graphemeIndex(startC))
+    nB = abs(otherNormIndexer~graphemeIndex(nC))
+    mC = nC + lengthC
+    mB = abs(otherNormIndexer~graphemeIndex(mC))
+    lengthB = mB - nB
+
+    selfNormString = selfNormIndexer~string
+    otherNormString = otherNormIndexer~string
+    return selfNormString~match(startB, otherNormString, nB, lengthB)
+
+    check_position: procedure
+        use strict arg position, max
+        if \datatype(position, "w") then signal invalid_position
+        if position <= 0 then signal invalid_position
+        if position > max then signal invalid_position
+        return
+
+        invalid_position: raise syntax 93.924 array(position)
+
+    check_length: procedure
+        use strict arg length, max, pos
+        if \datatype(length, "w") then signal invalid_length
+        if length < 0 then signal invalid_length -- 0 accepted
+        if length > max then signal invalid_length
+        -- rexxref.pdf: the combination of n and length must be a valid substring within the bounds of other.
+        if (pos + length - 1) > max then signal invalid_length
+        return
+
+        invalid_length: raise syntax 93.923 array(length)
+
+    must_have_a_text_or_string_value: raise syntax 93.900 /*93.938*/ array("Method positional argument 2 must have a text or string value")
+
+
+::method posText private
+    use strict arg needle, startC, lengthC
+    use strict named arg caseless -- boolean
+    -- todo
 
 
 /******************************************************************************/
@@ -535,22 +617,42 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 ::method append
     use strict arg text -- text or string
     use strict named arg buffer(1)=.nil
-    text = text~requestTextOrString
-    if .nil == text then signal must_have_a_text_or_string_value
+    text = text~requestTextOrBufferOrString
+    if .nil == text then signal must_have_a_text_or_buffer_or_string_value
     encoding = .Encoding~forConcatenation(self~string, text) -- raise an error if not compatible
     return encoding~concatenate(self~string, text, b: buffer)
 
-    must_have_a_text_or_string_value: raise syntax 93.900 array("Method positional argument 1 must have a text or string value")
+    must_have_a_text_or_buffer_or_string_value: raise syntax 93.900 array("Method positional argument 1 must have a text or buffer or string value")
+
+
+::method caselessEndsWith
+    use strict arg other
+    return self~endsWithText(other, caseless:.true)
+
+
+::method caselessMatch
+    use strict arg startC, other, nC=1, lengthC=.nil
+    return self~matchText(startC, other, nC, lengthC, caseless:.true)
+
+
+::method caselessMatchChar
+    use strict arg nC, chars
+    return self~matchCharText(nC, chars, caseless:.true)
+
+
+::method caselessPos
+    use strict arg needle, startC=1, lengthC=(self~length)
+    return self~posText(needle, startC, lengthC, caseless:.true)
 
 
 ::method center
     use strict arg length, pad=(self~class~spaceCharacter)
     use strict named arg buffer(1)=.nil
 
-    if datatype(length, "w"), length >= 0 then nop
-    else signal invalid_length
+    if \datatype(length, "w") then signal invalid_length
+    if length < 0 then signal invalid_length
 
-    pad = pad~request("RexxText") -- not requestTextOrString because we really need the pad's length in graphemes
+    pad = pad~request("RexxText") -- not requestTextOrBufferOrString because we really need the pad's length in graphemes
     if .nil == pad then signal must_have_a_text_or_string_value
     if pad~length <> 1 then signal incorrect_pad
 
@@ -567,9 +669,8 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
                           else return self~class~emptyString
     end
 
-    encoding = .Encoding~forConcatenation(self~string, pad) -- raise an error if not compatible
-
     if width > len then do
+        encoding = .Encoding~forConcatenation(self~string, pad) -- raise an error if not compatible
         leftPad = (width - len) % 2
         rightPad = (width - len) - leftPad
         space = rightPad + leftPad + len
@@ -585,13 +686,18 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         return encoding~concatenate(pad~copies(leftPad), self~string, pad~copies(rightPad))
     end
     else do
-        leftPad = (len - width) % 2
-        return self~substr(leftPad, width)
+        leftPad = (len - width) % 2 -- integer divide
+        return self~substr(leftPad + 1, width)
     end
 
     incorrect_pad:                    raise syntax 93.922 array(pad~descriptionForError)
     invalid_length:                   raise syntax 93.923 array(length)
     must_have_a_text_or_string_value: raise syntax 93.900 array("Method positional argument 3 must have a text or string value")
+
+
+::method endsWith
+    use strict arg other
+    return self~endsWithText(other, caseless:.false)
 
 
 ::method length -- number of graphemes
@@ -603,6 +709,21 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     use strict arg startC=1, length=(max(0, self~length - startC + 1))
     use strict named arg buffer(1)=.nil
     return self~lower_upper_title("l", startC, length, b:buffer)
+
+
+::method match
+    use strict arg startC, other, nC=1, lengthC=.nil
+    return self~matchText(startC, other, nC, lengthC, caseless:.false)
+
+
+::method matchChar
+    use strict arg nC, chars
+    return self~matchCharText(nC, chars, caseless:.false)
+
+
+::method pos
+    use strict arg needle, startC=1, lengthC=(self~length)
+    return self~posText(needle, startC, lengthC, caseless:.false)
 
 
 ::method reverse
@@ -621,10 +742,10 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     use strict arg length, pad=(self~class~spaceCharacter)
     use strict named arg buffer(1)=.nil
 
-    if datatype(length, "w"), length >= 0 then nop
-    else signal invalid_length
+    if \datatype(length, "w") then signal invalid_length
+    if length < 0 then signal invalid_length
 
-    pad = pad~request("RexxText") -- not requestTextOrString because we really need the pad's length in graphemes
+    pad = pad~request("RexxText") -- not requestTextOrBufferOrString because we really need the pad's length in graphemes
     if .nil == pad then signal must_have_a_text_or_string_value
     if pad~length <> 1 then signal incorrect_pad
 
@@ -660,13 +781,13 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     use strict arg startC, length=(max(0, self~length - startC + 1)), pad=(self~class~spaceCharacter)
     use strict named arg buffer(1)=.nil
 
-    if datatype(startC, "w"), startC > 0 then nop
-    else signal incorrect_position
+    if \datatype(startC, "w") then signal invalid_position
+    if startC <= 0 then signal invalid_position
 
-    if datatype(length, "w"), length >= 0 then nop
-    else signal invalid_length
+    if \datatype(length, "w") then signal invalid_length
+    if length < 0 then signal invalid_length
 
-    pad = pad~request("RexxText") -- not requestTextOrString because we really need the pad's length in graphemes
+    pad = pad~request("RexxText") -- not requestTextOrBufferOrString because we really need the pad's length in graphemes
     if .nil == pad then signal must_have_a_text_or_string_value
     if pad~length <> 1 then signal incorrect_pad
 
@@ -695,7 +816,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
     incorrect_pad:                    raise syntax 93.922 array(pad~descriptionForError)
     invalid_length:                   raise syntax 93.923 array(length)
-    incorrect_position:               raise syntax 93.924 array(startC)
+    invalid_position:                 raise syntax 93.924 array(startC)
     must_have_a_text_or_string_value: raise syntax 93.900 array("Method positional argument 3 must have a text or string value")
 
 
@@ -1112,8 +1233,8 @@ For example, if startB==6 then previousCodepointIndex==3
 Executor supports
     \u{Unicode name}    Character name in the Unicode database
     \U{Unicode name}
-    \u{X..X}            Unicode character denoted by 1-8 hex digits. The first character must be a digit 0..9.
-    \U{X..X}
+    \u{X..X}            Unicode character denoted by 1-8 hex digits. The first character must be a digit 0..9 ('u' lowercase)
+    \U{X..X}            Unicode character denoted by 1-8 hex digits. The first character must be a digit 0..9 ('U' uppercase)
     \uXXXX              Unicode character denoted by 4 hex digits ('u' lowercase)
     \UXXXXXXXX          Unicode character denoted by 8 hex digits ('U' uppercase)
 
@@ -1731,7 +1852,7 @@ How other languages are supporting escape characters for Unicode:
         else do
             graphemeBreakArgs[1] = previousCodepoint
             graphemeBreakArgs[2] = codepoint
-            if .Unicode~graphemeBreak(graphemeBreakArgs) then call indexGrapheme
+            if .Unicode~utf8proc_graphemeBreak(graphemeBreakArgs) then call indexGrapheme
         end
         call checkCase
         previousCodepoint = codepoint
@@ -1771,11 +1892,11 @@ How other languages are supporting escape characters for Unicode:
 
     checkCase:
         if case <> 0 then do
-            if case == 1, \.Unicode~codepointIsLower(codepoint) then case = 0
-            else if case == 2, \.Unicode~codepointIsUpper(codepoint) then case = 0
+            if case == 1, \.Unicode~utf8proc_codepointIsLower(codepoint) then case = 0
+            else if case == 2, \.Unicode~utf8proc_codepointIsUpper(codepoint) then case = 0
             else do -- case == 3
-                if .Unicode~codepointIsLower(codepoint) then case = 1 -- can no longer be upper
-                else if .Unicode~codepointIsUpper(codepoint) then case = 2 -- can no longer be lower
+                if .Unicode~utf8proc_codepointIsLower(codepoint) then case = 1 -- can no longer be upper
+                else if .Unicode~utf8proc_codepointIsUpper(codepoint) then case = 2 -- can no longer be lower
                 else case = 0 -- can no longer be lower or upper
             end
         end
@@ -1801,17 +1922,17 @@ How other languages are supporting escape characters for Unicode:
 
 ::method codepointToLower class
     use strict arg codepoint
-    return .Unicode~codepointToLower(codepoint)
+    return .Unicode~utf8proc_codepointToLower(codepoint)
 
 
 ::method codepointToUpper class
     use strict arg codepoint
-    return .Unicode~codepointToUpper(codepoint)
+    return .Unicode~utf8proc_codepointToUpper(codepoint)
 
 
 ::method codepointToTitle class
     use strict arg codepoint
-    return .Unicode~codepointToTitle(codepoint)
+    return .Unicode~utf8proc_codepointToTitle(codepoint)
 
 
 /********************/
@@ -2356,86 +2477,210 @@ How other languages are supporting escape characters for Unicode:
     forward class (super)
 
 
-::method NFD
-    expose nfd
-    use strict arg -- none
-    use strict named arg memorize(3)=.false
-    if var("nfd") then return nfd -- already memorized
-    if self~isNFD == 1 then textNFD = self~string~text -- already in normalized form D
-    else do
-        stringNFD = .Unicode~NFD(self~string)
-        self~isNFD = (stringNFD == self~string)
-        textNFD = .RexxText~new(stringNFD, self~class)
-        textNFD~internalIndexer~isNFD = .true
-    end
-    if memorize then nfd = textNFD
-    return textNFD
-
-
 ::method NFC
-    expose nfc
+    expose NFCString -
+           NFCCasefoldString
     use strict arg -- none
-    use strict named arg memorize(3)=.false
-    if var("nfc") then return nfc -- already memorized
-    if self~isNFC == 1 then textNFC = self~string~text -- already in normalized form C
-    else do
-        stringNFC = .Unicode~NFC(self~string)
-        self~isNFC = (stringNFC == self~string)
-        textNFC = .RexxText~new(stringNFC, self~class)
-        textNFC~internalIndexer~isNFC = .true
+    use strict named arg casefold(1) = .false, returnString = .false, memorize(3) = (.Unicode~memorizeTransformations)
+    if casefold then do
+        if var("NFCCasefoldString") then return NFCCasefoldString~makeRexxTextOrString(returnString) -- already memorized
+        if self~isNFC == 1, self~isCasefold == 1 then string = self~string -- already in normalized form KC casefold
+        else do
+            string = .Unicode~utf8proc_transform(self~string, normalization: 1, casefold: .true)
+            if (string == self~string) then do
+                self~isNFC = 1
+                self~isCasefold = 1
+            end
+            else nop -- CAREFUL! don't store 0 (keep -1) because maybe one of the indicators could be 1
+            if returnString then do
+                string~encoding = self~class
+            end
+            else do
+                text = .RexxText~new(string, self~class)
+                text~internalIndexer~isNFC = 1
+                text~internalIndexer~isCasefold = 1
+            end
+        end
+        if memorize then NFCCasefoldString = string
     end
-    if memorize then nfc = textNFC
-    return textNFC
+    else do
+        if var("NFCString") then return NFCString~makeRexxTextOrString(returnString) -- already memorized
+        if self~isNFC == 1 then string = self~string -- already in normalized form KC
+        else do
+            string = .Unicode~utf8proc_transform(self~string, normalization: 1)
+            self~isNFC = (string == self~string)
+            if returnString then do
+                -- It's a new string, without any encoding stored on it
+                string~encoding = self~class
+            end
+            else do
+                text = .RexxText~new(string, self~class)
+                text~internalIndexer~isNFC = 1
+            end
+        end
+        if memorize then NFCString = string
+    end
+    return string~makeRexxTextOrString(returnString)
 
 
-::method NFKD
-    expose nfkd
+::method NFD
+    expose NFDString -
+           NFDCasefoldString
     use strict arg -- none
-    use strict named arg memorize(3)=.false
-    if var("nfkd") then return nfkd -- already memorized
-    if self~isNFKD == 1 then textNFKD = self~string~text -- already in normalized form KD
-    else do
-        stringNFKD = .Unicode~NFKD(self~string)
-        self~isNFKD = (stringNFKD == self~string)
-        textNFKD = .RexxText~new(stringNFKD, self~class)
-        textNFKD~internalIndexer~isNFKD = .true
+    use strict named arg casefold(1) = .false, returnString = .false, memorize(3) = (.Unicode~memorizeTransformations)
+    if casefold then do
+        if var("NFDCasefoldString") then return NFDCasefoldString~makeRexxTextOrString(returnString) -- already memorized
+        if self~isNFD == 1, self~isCasefold == 1 then string = self~string -- already in normalized form KC casefold
+        else do
+            string = .Unicode~utf8proc_transform(self~string, normalization: 2, casefold: .true)
+            if (string == self~string) then do
+                self~isNFD = 1
+                self~isCasefold = 1
+            end
+            else nop -- CAREFUL! don't store 0 (keep -1) because maybe one of the indicators could be 1
+            if returnString then do
+                string~encoding = self~class
+            end
+            else do
+                text = .RexxText~new(string, self~class)
+                text~internalIndexer~isNFD = 1
+                text~internalIndexer~isCasefold = 1
+            end
+        end
+        if memorize then NFDCasefoldString = string
     end
-    if memorize then nfkd = textNFKD
-    return textNFKD
+    else do
+        if var("NFDString") then return NFDString~makeRexxTextOrString(returnString) -- already memorized
+        if self~isNFD == 1 then string = self~string -- already in normalized form KC
+        else do
+            string = .Unicode~utf8proc_transform(self~string, normalization: 2)
+            self~isNFD = (string == self~string)
+            if returnString then do
+                -- It's a new string, without any encoding stored on it
+                string~encoding = self~class
+            end
+            else do
+                text = .RexxText~new(string, self~class)
+                text~internalIndexer~isNFD = 1
+            end
+        end
+        if memorize then NFDString = string
+    end
+    return string~makeRexxTextOrString(returnString)
 
 
 ::method NFKC
-    expose nfkc
+    expose NFKCString -
+           NFKCCasefoldString
     use strict arg -- none
-    use strict named arg memorize(3)=.false
-    if var("nfkc") then return nfkc -- already memorized
-    if self~isNFKC == 1 then textNFKC = self~string~text -- already in normalized form KC
-    else do
-        stringNFKC = .Unicode~NFKC(self~string)
-        self~isNFKC = (stringNFKC == self~string)
-        textNFKC = .RexxText~new(stringNFKC, self~class)
-        textNFKC~internalIndexer~isNFKC = .true
+    use strict named arg casefold(1) = .false, returnString = .false, memorize(3) = (.Unicode~memorizeTransformations)
+    if casefold then do
+        if var("NFKCCasefoldString") then return NFKCCasefoldString~makeRexxTextOrString(returnString) -- already memorized
+        if self~isNFKC == 1, self~isCasefold == 1 then string = self~string -- already in normalized form KC casefold
+        else do
+            string = .Unicode~utf8proc_transform(self~string, normalization: 3, casefold: .true)
+            if (string == self~string) then do
+                self~isNFKC = 1
+                self~isCasefold = 1
+            end
+            else nop -- CAREFUL! don't store 0 (keep -1) because maybe one of the indicators could be 1
+            if returnString then do
+                string~encoding = self~class
+            end
+            else do
+                text = .RexxText~new(string, self~class)
+                text~internalIndexer~isNFKC = 1
+                text~internalIndexer~isCasefold = 1
+            end
+        end
+        if memorize then NFKCCasefoldString = string
     end
-    if memorize then nfkc = textNFKC
-    return textNFKC
+    else do
+        if var("NFKCString") then return NFKCString~makeRexxTextOrString(returnString) -- already memorized
+        if self~isNFKC == 1 then string = self~string -- already in normalized form KC
+        else do
+            string = .Unicode~utf8proc_transform(self~string, normalization: 3)
+            self~isNFKC = (string == self~string)
+            if returnString then do
+                -- It's a new string, without any encoding stored on it
+                string~encoding = self~class
+            end
+            else do
+                text = .RexxText~new(string, self~class)
+                text~internalIndexer~isNFKC = 1
+            end
+        end
+        if memorize then NFKCString = string
+    end
+    return string~makeRexxTextOrString(returnString)
 
 
-::method Casefold -- the utf8proc name is NFKC_Casefold
-    expose casefold
+::method NFKD
+    expose NFKDString -
+           NFKDCasefoldString
     use strict arg -- none
-    use strict named arg memorize(3)=.false
-    if var("casefold") then return casefold -- already memorized
-    if self~isCasefold == 1 then textCasefold = self~string~text -- already in normalized form KC casefold
-    else do
-        stringCasefold = .Unicode~NFKC_Casefold(self~string)
-        self~isCasefold = (stringCasefold == self~string)
-        if self~isCasefold then self~isNFKC = .true -- utf8proc applies an NFKC normalization, so it's also NFKC
-        textCasefold = .RexxText~new(stringCasefold, self~class)
-        textCasefold~internalIndexer~isCasefold = .true
-        textCasefold~internalIndexer~isNFKC = .true -- utf8proc applies an NFKC normalization, so it's also NFKC
+    use strict named arg casefold(1) = .false, returnString = .false, memorize(3) = (.Unicode~memorizeTransformations)
+    if casefold then do
+        if var("NFKDCasefoldString") then return NFKDCasefoldString~makeRexxTextOrString(returnString) -- already memorized
+        if self~isNFKD == 1, self~isCasefold == 1 then string = self~string -- already in normalized form KC casefold
+        else do
+            string = .Unicode~utf8proc_transform(self~string, normalization: 4, casefold: .true)
+            if (string == self~string) then do
+                self~isNFKD = 1
+                self~isCasefold = 1
+            end
+            else nop -- CAREFUL! don't store 0 (keep -1) because maybe one of the indicators could be 1
+            if returnString then do
+                string~encoding = self~class
+            end
+            else do
+                text = .RexxText~new(string, self~class)
+                text~internalIndexer~isNFKD = 1
+                text~internalIndexer~isCasefold = 1
+            end
+        end
+        if memorize then NFKDCasefoldString = string
     end
-    if memorize then casefold = textCasefold
-    return textCasefold
+    else do
+        if var("NFKDString") then return NFKDString~makeRexxTextOrString(returnString) -- already memorized
+        if self~isNFKD == 1 then string = self~string -- already in normalized form KC
+        else do
+            string = .Unicode~utf8proc_transform(self~string, normalization: 4)
+            self~isNFKD = (string == self~string)
+            if returnString then do
+                -- It's a new string, without any encoding stored on it
+                string~encoding = self~class
+            end
+            else do
+                text = .RexxText~new(string, self~class)
+                text~internalIndexer~isNFKD = 1
+            end
+        end
+        if memorize then NFKDString = string
+    end
+    return string~makeRexxTextOrString(returnString)
+
+
+::method Casefold
+    expose CasefoldString
+    use strict arg -- none
+    use strict named arg returnString = .false, memorize(3) = (.Unicode~memorizeTransformations)
+    if var("CasefoldString") then return CasefoldString~makeRexxTextOrString(returnString) -- already memorized
+    if self~isCasefold == 1 then string = self~string -- already case fold
+    else do
+        string = .Unicode~utf8proc_transform(self~string, casefold: .true)
+        self~isCasefold = (string == self~string)
+        if returnString then do
+            -- It's a new string, without any encoding stored on it
+            string~encoding = self~class
+        end
+        else do
+            text = .RexxText~new(string, self~class)
+            text~internalIndexer~isCasefold = 1
+        end
+    end
+    if memorize then CasefoldString = string
+    return string~makeRexxTextOrString(returnString)
 
 
 /******************************************************************************/

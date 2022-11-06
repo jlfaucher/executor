@@ -101,36 +101,30 @@ public:
     static void createInstance();
     static RexxClass *classInstance; // RexxCore.h #define TheUnicodeClass Unicode::classInstance
 
-    RexxString *version();
     RexxInteger *systemIsLittleEndian();
-    RexxInteger *graphemeBreak(RexxArray *);
 
-    RexxInteger *codepointCategory(RexxObject *rexxCodepoint);
-    RexxInteger *codepointCombiningClass(RexxObject *rexxCodepoint);
-    RexxInteger *codepointBidiClass(RexxObject *rexxCodepoint);
-    RexxInteger *codepointBidiMirrored(RexxObject *rexxCodepoint);
-    RexxInteger *codepointDecompositionType(RexxObject *rexxCodepoint);
-    RexxInteger *codepointIgnorable(RexxObject *rexxCodepoint);
-    RexxInteger *codepointControlBoundary(RexxObject *rexxCodepoint);
-    RexxInteger *codepointCharWidth(RexxObject *rexxCodepoint);
-    RexxInteger *codepointBoundClass(RexxObject *rexxCodepoint);
-    RexxInteger *codepointToLower(RexxObject *rexxCodepoint);
-    RexxInteger *codepointToUpper(RexxObject *rexxCodepoint);
-    RexxInteger *codepointToTitle(RexxObject *rexxCodepoint);
-    RexxInteger *codepointIsLower(RexxObject *rexxCodepoint);
-    RexxInteger *codepointIsUpper(RexxObject *rexxCodepoint);
+    RexxString *utf8proc_version();
+    RexxInteger *utf8proc_graphemeBreak(RexxArray *);
+    RexxInteger *utf8proc_codepointCategory(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointCombiningClass(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointBidiClass(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointBidiMirrored(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointDecompositionType(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointIgnorable(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointControlBoundary(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointCharWidth(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointBoundClass(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointToLower(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointToUpper(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointToTitle(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointIsLower(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointIsUpper(RexxObject *rexxCodepoint);
+    RexxObject *utf8proc_transform(RexxString *str, RexxObject **named_arglist, size_t named_argcount);
 
-    RexxString *stringToCaseFold(RexxString *string);
-    RexxString *stringToLower(RexxString *string);
-    RexxString *stringToTitle(RexxString *string);
-    RexxString *stringToUpper(RexxString *string);
-
-    RexxString *NFD(RexxString *str);
-    RexxString *NFC(RexxString *str);
-    RexxString *NFKD(RexxString *str);
-    RexxString *NFKC(RexxString *str);
-    RexxString *NFKC_Casefold(RexxString *str);
-    RexxObject *transform(RexxString *str, RexxObject **named_arglist, size_t named_argcount);
+    RexxString *ziglyph_stringToCaseFold(RexxString *string);
+    RexxString *ziglyph_stringToLower(RexxString *string);
+    RexxString *ziglyph_stringToTitle(RexxString *string);
+    RexxString *ziglyph_stringToUpper(RexxString *string);
 };
 
 #endif

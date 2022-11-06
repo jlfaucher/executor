@@ -11,6 +11,7 @@
 ::requires "encoding/stringEncoding.cls"
 ::requires "encoding/unicode.cls"   -- to make .Unicode available to the scripts that requires the current file
 
+--::options trace r
 
 /******************************************************************************/
 /*
@@ -49,11 +50,51 @@ So "41"~text~utf16~c2x will not return an UTF-16 representation of the hexadecim
 ::extension Object
 
 /*
-By default, an object cannot be converted to a RexxText or String.
-See this same method on RexxText and String.
+By default, an object is compatible with String (can be converted to a string).
+See also this same method on RexxText and String.
 */
-::method requestTextOrString
-    return .nil
+::method isCompatibleWithByteString class
+    return .true
+
+::method isCompatibleWithByteString
+    return .true
+
+
+/*
+Should find a better name (like requestEncodedStringable) but I find the current name crystal clear.
+At the moment of writing this comment, the result can be a RexxText or a MutableBuffer or a String.
+
+The purpose of this method is to avoid to create systematically a RexxText when
+needing an object supporting the Trait "EncodedStringable".
+::Trait "EncodedStringable"
+::method ~encoding
+::method ~isASCII
+
+A RexxText is returned as-is.
+A MutableBuffer is returned as-is (avoid to request a String from it)
+A String is returned as a RexxText if already associated to a RexxText, otherwise returned as-is.
+For any other object, a String is requested.
+
+Here, we are in the case any other object.
+See also this same method on RexxText and MutableBuffer and String.
+*/
+::method requestTextOrBufferOrString class
+    string = self~request("STRING")
+    if .nil <> string then return string
+    return self~string
+
+::method requestTextOrBufferOrString
+    string = self~request("STRING")
+    if .nil <> string then return string
+    return self~string
+
+
+-- Equivalent to isPolymorphicString in StringClass.cpp
+::method isTextOrBufferOrString class
+    return .false
+
+::method isTextOrBufferOrString
+    return .false
 
 
 /******************************************************************************/
@@ -82,7 +123,7 @@ See this same method on RexxText and String.
         textEncoding = .Encoding~factory(textEncoding, self)
         if myText~encoding <> textEncoding then myText~encoding = textEncoding
     end
-    drop encoding -- now given by myText
+    encoding = myText~encoding -- align string & text encoding.
     return myText
 
 
@@ -107,7 +148,7 @@ See this same method on RexxText and String.
             raise syntax 23.900 array("EncodedString: a RexxText counterpart is already assigned")
         end
     end
-    drop encoding -- now given by myText
+    encoding = myText~encoding -- align string & text encoding.
 
 
 ::attribute encoding get
@@ -118,11 +159,12 @@ See this same method on RexxText and String.
 
 
 ::attribute encoding set
-    expose encoding myText
+    expose encoding myText isCompatibleWithByteString
     use strict arg newEncoding
-    newEncoding = .Encoding~factory(newEncoding, self)
+    encoding = .Encoding~factory(newEncoding, self)
+    drop isCompatibleWithByteString -- to be reevaluated
     if var("myText") then myText~encoding = newEncoding
-                     else encoding = newEncoding
+
 
 ::method hasEncoding
     expose encoding
@@ -139,15 +181,39 @@ See this same method on RexxText and String.
     return self~text
 
 
+::method makeRexxTextOrString
+    use strict arg returnString=.false
+    if returnString then return self
+    return self~text
+
+
+/*
+Depending on its encoding, an encoded string may be not compatible with
+the String methods (byte-oriented).
+*/
+::method isCompatibleWithByteString
+    expose isCompatibleWithByteString
+    -- true if the String methods are applicable
+    if var("isCompatibleWithByteString") then return isCompatibleWithByteString
+    if self~encoding~isByte then isCompatibleWithByteString = .true
+    else isCompatibleWithByteString = (self~encoding~isUTF8 | self~encoding~isWTF8) & self~string~isASCII
+    return isCompatibleWithByteString
+
+
 /*
 Allows to use a String or a RexxText indistinctly.
 Return a text only if already created.
 Otherwise return the string.
 */
-::method requestTextOrString
+::method requestTextOrBufferOrString
     expose myText
     if var("myText") then return myText
     return self
+
+
+-- Equivalent to isPolymorphicString in StringClass.cpp
+::method isTextOrBufferOrString
+    return .true
 
 
 ::method copy
@@ -185,7 +251,7 @@ Otherwise return the string.
 
 
 /******************************************************************************/
-::class "EncodedMutableBuffer" mixinclass Object private
+::class "EncodedMutableBuffer" mixinclass Object public -- private
 
 /*
     Nothing sophisticated here...
@@ -209,9 +275,31 @@ Otherwise return the string.
     encoding = .Encoding~factory(newEncoding, self~string)
 
 
+-- TODO: make it native
+-- Remember: needed to fix RexxMutableBufferClass::newRexx to pass all the new's arguments to init
+::method init_extended
+    expose encoding
+    -- if the optional argument 'string' is provided then memorize its encoding
+    if arg(1, "e") then encoding = arg(1)~encoding
+    -- forward class (super) -- don't forward, that would raise an unknown method
+
+
 ::method hasEncoding
     expose encoding
     return var("encoding")
+
+
+/*
+Allows to use a MutableBuffer or a RexxText indistinctly,
+without requesting a string from the buffer
+*/
+::method requestTextOrBufferOrString
+    return self
+
+
+-- Equivalent to isPolymorphicString in StringClass.cpp
+::method isTextOrBufferOrString
+    return .true
 
 
 ::method description
@@ -279,7 +367,7 @@ base class...
 */
 ::method makestring
     expose indexer
-    if self~isCompatibleWithString then return indexer~string
+    if self~isCompatibleWithByteString then return indexer~string
     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
 
 
@@ -308,8 +396,13 @@ base class...
 /*
 Allows to use a String or a RexxText indistinctly
 */
-::method requestTextOrString
+::method requestTextOrBufferOrString
     return self
+
+
+-- Equivalent to isPolymorphicString in StringClass.cpp
+::method isTextOrBufferOrString
+    return .true
 
 
 ::attribute encoding get
@@ -355,13 +448,16 @@ Allows to use a String or a RexxText indistinctly
 /******************************************************************************/
 ::class "RexxTextPrettyPrinter" mixinclass Object private
 
+-- Should honor .Encoding~defaultOutputEncoding
 ::method ppString
-    -- Should honor surroundByQuotes
-    -- Should return a RexxText, but then how to display it ?
-
     use arg surroundByQuotes=.true -- keep it for the moment, still needed from rgf_util2
+    use named arg ppOptions. = (.Stem~new), ppOptions.surroundByQuotes = (surroundByQuotes)
+
+    pp = self~string
+    if ppOptions.surroundByQuotes then pp = pp~quoted("'")
+
     -- Texts are prefixed with "T"
-    pp = "T'"self~string"'"
+    pp = "T"pp
     -- Use 0xXX notation for escaped character
     return escape3(pp)
 
@@ -406,14 +502,13 @@ Allows to use a String or a RexxText indistinctly
     return result
 
 
-::method isCompatibleWithString
-    expose isCompatibleWithString
+::method isCompatibleWithByteString
+    expose isCompatibleWithByteString
     -- true if the String methods are applicable
-    if var("isCompatibleWithString") then return isCompatibleWithString
-    if self~encoding~isByte then result = .true
-    else result = (self~encoding~isUTF8 | self~encoding~isWTF8) & self~string~isASCII
-    isCompatibleWithString = result
-    return result
+    if var("isCompatibleWithByteString") then return isCompatibleWithByteString
+    if self~encoding~isByte then isCompatibleWithByteString = .true
+    else isCompatibleWithByteString = (self~encoding~isUTF8 | self~encoding~isWTF8) & self~string~isASCII
+    return isCompatibleWithByteString
 
 
 ::method codepoints
@@ -529,7 +624,7 @@ Allows to use a String or a RexxText indistinctly
     -- The purpose is not to check that the text is an hexadecimal value (will be checked by the String class)
     -- The purpose is to ensure that the text encoding is compatible with the String class,
     -- and to provide an accurate error.
-    -- Could test ~isCompatibleWithString, but ~isASCII is faster and sufficient here
+    -- Could test ~isCompatibleWithByteString, but ~isASCII is faster and sufficient here
     use strict arg -- none
     if \self~isASCII then raise syntax 23.900 array(self~descriptionForError "is not compatible with a Rexx hexadecimal value")
 
@@ -538,7 +633,7 @@ Allows to use a String or a RexxText indistinctly
     -- The purpose is not to check that the text is a numeric value (will be checked by the String class)
     -- The purpose is to ensure that the text encoding is compatible with the String class,
     -- and to provide an accurate error.
-    -- Could test ~isCompatibleWithString, but ~isASCII is faster and sufficient here
+    -- Could test ~isCompatibleWithByteString, but ~isASCII is faster and sufficient here
     use strict arg -- none
     if \self~isASCII then raise syntax 23.900 array(self~descriptionForError "is not compatible with a Rexx numeric value")
 
@@ -547,7 +642,7 @@ Allows to use a String or a RexxText indistinctly
     -- The purpose is not to check that the text is a logical value (will be checked by the String class)
     -- The purpose is to ensure that the text encoding is compatible with the String class,
     -- and to provide an accurate error.
-    -- Could test ~isCompatibleWithString, but ~isASCII is faster and sufficient here
+    -- Could test ~isCompatibleWithByteString, but ~isASCII is faster and sufficient here
     use strict arg -- none
     if \self~isASCII then raise syntax 23.900 array(self~descriptionForError "is not compatible with a Rexx logical value")
 
@@ -596,7 +691,7 @@ Allows to use a String or a RexxText indistinctly
     forward to (self~indexer)
 
 
-::method Casefold -- the utf8proc name is NFKC_Casefold
+::method Casefold
     forward to (self~indexer)
 
 
@@ -639,14 +734,14 @@ c2x                             full
 caselessAbbrev
 caselessChangeStr
 caselessCompare
-caselessCompareTo               temporary wrong fallback
+caselessCompareTo               full UTF-8 (expansion like "ß" --> "ss" will break the indexes)
 caselessContains                (new 5)
 caselessContainsWord            (new 5)
 caselessCountStr
 caselessEndsWith                (new 5)
 caselessEquals
 caselessLastPos
-caselessMatch
+caselessMatch                   full UTF-8
 caselessMatchChar
 caselessPos
 caselessStartsWith              (new 5)
@@ -654,10 +749,10 @@ caselessWordPos
 center                          full
 centre                          full
 changeStr
-contains                        (new 5) partial
+contains                        (new 5)
 containsWord                    (new 5)
 compare
-compareTo
+compareTo                       full UTF-8
 copies                          full
 countStr
 d2c
@@ -679,13 +774,13 @@ length                          full
 lower                           full except cases in SpecialCasing.txt
 makeArray
 makeString                      full (raise an error if not compatible with String)
-match                           partial
-matchChar                       partial
+match                           full UTF-8
+matchChar
 max
 min
 modulo                          (new 5)
 overlay
-pos                             partial
+pos
 replaceAt
 reverse                         full
 right                           full
@@ -695,7 +790,7 @@ space
 startsWith                      (new 5)
 strip
 subChar                         full
-substr
+substr                          full
 subWord
 subWords
 translate
@@ -739,20 +834,82 @@ x2d                             full (raise an error if not compatible with Stri
 
 
 ::method caselessCompareTo
-    use strict arg text, n=1, length=(self~length)
-    -- Wrong fallback implementation
-    return self~string~caselessCompareTo(text~string, n, length)
+    use strict arg text, n=1, length=.nil
+    use strict named arg caseless -- boolean
+    text = text~request("RexxText") -- not requestTextOrBufferOrString because we really need a RexxText
+    if .nil == length then do
+        selfLength = self~length
+        textLength = text~length
+    end
+    else do
+        if \datatype(length, "w") then signal invalid_length
+        if length < 0 then signal invalid_length -- 0 accepted
+        selfLength = min(length, self~length)
+        textLength = min(length, text~length)
+    end
+    selfNormalized = self~substr(1, selfLength)~NFC(casefold: caseless)
+    textNormalized = text~substr(1, textLength)~NFC(casefold: caseless)
+    return selfNormalized~string~CompareTo(textNormalized~string)
+
+    invalid_length: raise syntax 93.923 array(length)
+
+
+::method caselessContains
+    use arg other -- not strict, just need to check this one
+    if self~isCompatibleWithByteString, other~isCompatibleWithByteString then do
+        forward message "caselessPos" to (self~string) continue
+        return result <> 0
+    end
+    forward message "caselessPos" to (self~indexer) continue
+    return result <> 0
+
+
+::method caselessEndsWith
+    use arg other -- not strict, just need to check this one
+    if self~isCompatibleWithByteString, other~isCompatibleWithByteString then do
+        forward message "caselessEndsWith" to (self~string) continue
+        return result <> 0
+    end
+    forward message "caselessEndsWith" to (self~indexer)
+
+
+::method caselessMatch
+    use arg _start, other, ... -- not strict, just need to check 'other'
+    if self~isCompatibleWithByteString, other~isCompatibleWithByteString then forward to (self~string)
+    forward to (self~indexer)
+
+
+::method caselessMatchChar
+    use arg _n, chars -- not strict, just need to check 'chars'
+    if self~isCompatibleWithByteString, chars~isCompatibleWithByteString then forward to (self~string)
+    forward to (self~indexer)
+
+
+::method caselessPos
+    use arg needle, ... -- not strict, just need to check 'other'
+    if self~isCompatibleWithByteString, other~isCompatibleWithByteString then forward to (self~string)
+    forward to (self~indexer)
+
+
+::method caselessStartsWith
+    use arg other -- not strict, just need to check this one
+    if self~isCompatibleWithByteString, other~isCompatibleWithByteString then do
+        forward message "caselessPos" to (self~string) continue
+        return result == 1
+    end
+    forward message "caselessPos" to (self~indexer) continue
+    return result == 1
 
 
 ::method center
     use arg _length, pad -- not strict, just need to check 'pad'
     use strict named arg buffer(1)=.nil
-    padIsCompatibleWithString = .true
+    padIsCompatibleWithByteString = .true
     if arg(2, "e") then do
-        if pad~isA(.RexxText), \pad~isCompatibleWithString then padIsCompatibleWithString = .false
-        else if pad~length > 1 then padIsCompatibleWithString = .false -- maybe its length will be 1 when converted to text
+        if \pad~isCompatibleWithByteString then padIsCompatibleWithByteString = .false
+        else if pad~length > 1 then padIsCompatibleWithByteString = .false -- maybe its length will be 1 when converted to text
     end
-    if self~isCompatibleWithString, padIsCompatibleWithString then do
+    if self~isCompatibleWithByteString, padIsCompatibleWithByteString then do
         forward to (self~string) continue
         if .nil <> buffer then return buffer~~append(result)
                           else return .RexxText~new(result, self~encoding)
@@ -764,16 +921,20 @@ x2d                             full (raise an error if not compatible with Stri
     forward message "center"
 
 
+::method compareTo
+    use strict arg text, n=1, length=.nil
+    return self~caselessCompareTo(text, n, length, caseless: .false)
+
+
 ::method contains
     -- regex.cls uses the method .String~contains which is available only from ooRexx v5.
     use arg other -- not strict, just need to check this one
-    otherIsCompatibleWithString = .true
-    if other~isA(.RexxText), \other~isCompatibleWithString then otherIsCompatibleWithString = .false
-    if self~isCompatibleWithString, otherIsCompatibleWithString then do
+    if self~isCompatibleWithByteString, other~isCompatibleWithByteString then do
         forward message "pos" to (self~string) continue
-        return result <> 0
+        return result \== 0
     end
-    raise syntax 23.900 array("Method 'contains' not yet implemented for Unicode")
+    forward message "pos" to (self~indexer) continue
+    return result \== 0
 
 
 ::method copies
@@ -781,6 +942,15 @@ x2d                             full (raise an error if not compatible with Stri
     forward to (self~string) continue
     if .nil <> buffer then return buffer~~append(result)
                       else return .RexxText~new(result, self~encoding)
+
+
+::method endsWith
+    use arg other -- not strict, just need to check this one
+    if self~isCompatibleWithByteString, other~isCompatibleWithByteString then do
+        forward message "endsWith" to (self~string) continue
+        return result <> 0
+    end
+    forward message "endsWith" to (self~indexer)
 
 
 ::method hashCode
@@ -813,7 +983,7 @@ x2d                             full (raise an error if not compatible with Stri
 
 ::method lower
     use strict named arg buffer(1)=.nil
-    if self~isCompatibleWithString then do
+    if self~isCompatibleWithByteString then do
         forward to (self~string) continue
         if .nil <> buffer then return buffer~~append(result)
                           else return .RexxText~new(result, self~encoding)
@@ -823,32 +993,25 @@ x2d                             full (raise an error if not compatible with Stri
 
 ::method match
     use arg _start, other, ... -- not strict, just need to check 'other'
-    otherIsCompatibleWithString = .true
-    if other~isA(.RexxText), \other~isCompatibleWithString then otherIsCompatibleWithString = .false
-    if self~isCompatibleWithString, otherIsCompatibleWithString then forward to (self~string)
-    raise syntax 23.900 array("Method 'match' not yet implemented for Unicode")
+    if self~isCompatibleWithByteString, other~isCompatibleWithByteString then forward to (self~string)
+    forward to (self~indexer)
 
 
 ::method matchChar
-    use arg n, chars -- not strict, just need to check 'other'
-    charsIsCompatibleWithString = .true
-    if chars~isA(.RexxText), \chars~isCompatibleWithString then charsIsCompatibleWithString = .false
-    if self~isCompatibleWithString, charsIsCompatibleWithString then forward to (self~string)
-    raise syntax 23.900 array("Method 'matchChar' not yet implemented for Unicode")
+    use arg _n, chars -- not strict, just need to check 'chars'
+    if self~isCompatibleWithByteString, chars~isCompatibleWithByteString then forward to (self~string)
+    forward to (self~indexer)
 
 
 ::method pos
     use arg needle, ... -- not strict, just need to check 'needle'
-    needleIsCompatibleWithString = .true
-    if needle~isA(.RexxText), \needle~isCompatibleWithString then needleIsCompatibleWithString = .false
-    if self~isCompatibleWithString, needleIsCompatibleWithString then forward to (self~string)
-    use strict arg needle, start=1, length=(self~length)
-    raise syntax 23.900 array("Method 'pos' not yet implemented for Unicode")
+    if self~isCompatibleWithByteString, needle~isCompatibleWithByteString then forward to (self~string)
+    forward to (self~indexer)
 
 
 ::method reverse
     use strict named arg buffer(1)=.nil
-    if self~isCompatibleWithString then do
+    if self~isCompatibleWithByteString then do
         forward to (self~string) continue
         if .nil <> buffer then return buffer~~append(result)
                           else return .RexxText~new(result, self~encoding)
@@ -860,17 +1023,27 @@ x2d                             full (raise an error if not compatible with Stri
     -- can't delegate to substr because here the padding is on the left
     use arg _length, pad -- not strict, just need to check 'pad'
     use strict named arg buffer(1)=.nil
-    padIsCompatibleWithString = .true
+    padIsCompatibleWithByteString = .true
     if arg(2, "e") then do
-        if pad~isA(.RexxText), \pad~isCompatibleWithString then padIsCompatibleWithString = .false
-        else if pad~length > 1 then padIsCompatibleWithString = .false -- maybe its length will be 1 when converted to default encoding
+        if \pad~isCompatibleWithByteString then padIsCompatibleWithByteString = .false
+        else if pad~length > 1 then padIsCompatibleWithByteString = .false -- maybe its length will be 1 when converted to default encoding
     end
-    if self~isCompatibleWithString, padIsCompatibleWithString then do
+    if self~isCompatibleWithByteString, padIsCompatibleWithByteString then do
         forward to (self~string) continue
         if .nil <> buffer then return buffer~~append(result)
                           else return .RexxText~new(result, self~encoding)
     end
     forward to (self~indexer)
+
+
+::method startsWith
+    use arg other -- not strict, just need to check this one
+    if self~isCompatibleWithByteString, other~isCompatibleWithByteString then do
+        forward message "pos" to (self~string) continue
+        return result == 1
+    end
+    forward message "pos" to (self~indexer) continue
+    return result == 1
 
 
 ::method subchar
@@ -880,12 +1053,12 @@ x2d                             full (raise an error if not compatible with Stri
 ::method substr
     use arg _startB, _length, pad -- not strict, just need to check 'pad'
     use strict named arg buffer(1)=.nil
-    padIsCompatibleWithString = .true
+    padIsCompatibleWithByteString = .true
     if arg(3, "e") then do
-        if pad~isA(.RexxText), \pad~isCompatibleWithString then padIsCompatibleWithString = .false
-        else if pad~length > 1 then padIsCompatibleWithString = .false -- maybe its length will be 1 when converted to default encoding
+        if \pad~isCompatibleWithByteString then padIsCompatibleWithByteString = .false
+        else if pad~length > 1 then padIsCompatibleWithByteString = .false -- maybe its length will be 1 when converted to default encoding
     end
-    if self~isCompatibleWithString, padIsCompatibleWithString then do
+    if self~isCompatibleWithByteString, padIsCompatibleWithByteString then do
         forward to (self~string) continue
         if .nil <> buffer then return buffer~~append(result)
                           else return .RexxText~new(result, self~encoding)
@@ -895,7 +1068,7 @@ x2d                             full (raise an error if not compatible with Stri
 
 ::method upper
     use strict named arg buffer(1)=.nil
-    if self~isCompatibleWithString then do
+    if self~isCompatibleWithByteString then do
         forward to (self~string) continue
         if .nil <> buffer then return buffer~~append(result)
                           else return .RexxText~new(result, self~encoding)
@@ -1011,8 +1184,14 @@ x2d                             full (raise an error if not compatible with Stri
     always return .true. All of the relational comparisons (for example, <, >,
     <=, etc.) will always return .false when compared to .nil.
     */
-    if .nil == right then forward message (message) to (self~string) array(right)
-    right = right~requestTextOrString
+    if .nil == right then forward message (message) to (self~string) array(right) -- delegate to String for the management of .nil
+    -- Give chance to an alternative operator before requesting a text or buffer or string
+    messageOpRight = message"op:right"
+    if \right~isTextOrBufferOrString, right~hasMethod(messageOpRight) then do
+        right~send(messageOpRight, self)
+        if var("result") then return result
+    end
+    right = right~requestTextOrBufferOrString
     if .nil == right then return
     if .Encoding~comparisonMode(self, right) == "b" then do
         forward message (message) to (self~string) array (right~string)
@@ -1024,7 +1203,7 @@ x2d                             full (raise an error if not compatible with Stri
 
 ::method compareLeftSelf
     use strict arg left, message
-    left = left~requestTextOrString
+    left = left~requestTextOrBufferOrString
     if .nil == left then return
     if .Encoding~comparisonMode(left, self) == "b" then do
         forward message (message) to (left~string) array (self~string)
@@ -1214,23 +1393,33 @@ x2d                             full (raise an error if not compatible with Stri
 
 ::method " "
     use strict arg right
-    right = right~requestTextOrString
-    if .nil == right then return -- no result: try the alternative message
+    -- Give chance to an alternative operator before requesting a text or buffer or string
+    if \right~isTextOrBufferOrString, right~hasMethod(" op:right") then do
+        right~" op:right"(self)
+        if var("result") then return result
+    end
+    right = right~requestTextOrBufferOrString
+    if .nil == right then return
     encoding = .Encoding~ForConcatenation(self, right)
     return encoding~concatenate(self, encoding~spaceCharacter, right)
 
 
 ::method " op:right"
     use strict arg left
-    left = left~requestTextOrString
-    if .nil == left then return -- no result: try the alternative message
+    left = left~requestTextOrBufferOrString
+    if .nil == left then return
     encoding = .Encoding~ForConcatenation(left, self)
     return encoding~concatenate(left, encoding~spaceCharacter, self)
 
 
 ::method "||"
     use strict arg right
-    right = right~requestTextOrString
+    -- Give chance to an alternative operator before requesting a text or buffer or string
+    if \right~isTextOrBufferOrString, right~hasMethod("||op:right") then do
+        right~"||op:right"(self)
+        if var("result") then return result
+    end
+    right = right~requestTextOrBufferOrString
     if .nil == right then return -- no result: try the alternative message
     encoding = .Encoding~ForConcatenation(self, right)
     return encoding~concatenate(self, right)
@@ -1238,7 +1427,7 @@ x2d                             full (raise an error if not compatible with Stri
 
 ::method "||op:right"
     use strict arg left
-    left = left~requestTextOrString
+    left = left~requestTextOrBufferOrString
     if .nil == left then return -- no result: try the alternative message
     encoding = .Encoding~ForConcatenation(left, self)
     return encoding~concatenate(left, self)
@@ -1246,7 +1435,12 @@ x2d                             full (raise an error if not compatible with Stri
 
 ::method "" -- abuttal
     use strict arg right
-    right = right~requestTextOrString
+    -- Give chance to an alternative operator before requesting a text or buffer or string
+    if \right~isTextOrBufferOrString, right~hasMethod("op:right") then do
+        right~"op:right"(self)
+        if var("result") then return result
+    end
+    right = right~requestTextOrBufferOrString
     if .nil == right then return -- no result: try the alternative message
     encoding = .Encoding~ForConcatenation(self, right)
     return encoding~concatenate(self, right)
@@ -1254,7 +1448,7 @@ x2d                             full (raise an error if not compatible with Stri
 
 ::method "op:right" -- abuttal
     use strict arg left
-    left = left~requestTextOrString
+    left = left~requestTextOrBufferOrString
     if .nil == left then return -- no result: try the alternative message
     encoding = .Encoding~ForConcatenation(left, self)
     return encoding~concatenate(left, self)

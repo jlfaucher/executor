@@ -7,33 +7,28 @@
 ::extension "Unicode"
 
 /* Native methods
-RexxString *version();
-RexxInteger *systemIsLittleEndian();
-RexxInteger *graphemeBreak(RexxArray *);
-RexxInteger *codepointCategory(RexxObject *rexxCodepoint);
-RexxInteger *codepointCombiningClass(RexxObject *rexxCodepoint); // https://unicode.org/reports/tr15/#Detecting_Normalization_Forms
-RexxInteger *codepointBidiClass(RexxObject *rexxCodepoint);
-RexxInteger *codepointBidiMirrored(RexxObject *rexxCodepoint);
-RexxInteger *codepointDecompositionType(RexxObject *rexxCodepoint);
-RexxInteger *codepointIgnorable(RexxObject *rexxCodepoint);
-RexxInteger *codepointControlBoundary(RexxObject *rexxCodepoint);
-RexxInteger *codepointCharWidth(RexxObject *rexxCodepoint);
-RexxInteger *codepointBoundClass(RexxObject *rexxCodepoint);
-RexxInteger *codepointToLower(RexxObject *rexxCodepoint);
-RexxInteger *codepointToUpper(RexxObject *rexxCodepoint);
-RexxInteger *codepointToTitle(RexxObject *rexxCodepoint);
-RexxInteger *codepointIsLower(RexxObject *rexxCodepoint);
-RexxInteger *codepointIsUpper(RexxObject *rexxCodepoint);
-RexxString *stringToCaseFold(RexxString *string);                   // ziglyph
-RexxString *stringToLower(RexxString *string);                      // ziglyph
-RexxString *stringToTitle(RexxString *string);                      // ziglyph
-RexxString *stringToUpper(RexxString *string);                      // ziglyph
-RexxString *NFD(RexxString *str);
-RexxString *NFC(RexxString *str);
-RexxString *NFKD(RexxString *str);
-RexxString *NFKC(RexxString *str);
-RexxString *NFKC_Casefold(RexxString *str);
-RexxObject *transform(RexxString *str, RexxObject **named_arglist, size_t named_argcount);
+    RexxString *utf8proc_version();
+    RexxInteger *utf8proc_graphemeBreak(RexxArray *);
+    RexxInteger *utf8proc_codepointCategory(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointCombiningClass(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointBidiClass(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointBidiMirrored(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointDecompositionType(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointIgnorable(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointControlBoundary(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointCharWidth(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointBoundClass(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointToLower(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointToUpper(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointToTitle(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointIsLower(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointIsUpper(RexxObject *rexxCodepoint);
+    RexxObject *utf8proc_transform(RexxString *str, RexxObject **named_arglist, size_t named_argcount);
+
+    RexxString *ziglyph_stringToCaseFold(RexxString *string);
+    RexxString *ziglyph_stringToLower(RexxString *string);
+    RexxString *ziglyph_stringToTitle(RexxString *string);
+    RexxString *ziglyph_stringToUpper(RexxString *string);
 */
 
 
@@ -49,6 +44,7 @@ RexxObject *transform(RexxString *str, RexxObject **named_arglist, size_t named_
 ::attribute codepointBidiClassNames get class
 ::attribute codepointDecompositionTypeNames get class
 ::attribute codepointBoundClassNames get class
+::attribute memorizeTransformations class -- global flag to control if the NFC, NFD, ... transformtions are memorized on the string
 
 
 ::method initialize class
@@ -57,7 +53,8 @@ RexxObject *transform(RexxString *str, RexxObject **named_arglist, size_t named_
                          totalCharactersLoaded -
                          totalIntervalCharacters -
                          totalIntervalCharactersNotExpanded -
-                         totalCharacterNameAliases
+                         totalCharacterNameAliases -
+                         memorizeTransformations
     use strict arg -- none
     packageDirectory = .file~new(.context~package~name)~parent
     dataDirectory = .file~new("Unicode-".Unicode~version, packageDirectory)
@@ -71,6 +68,11 @@ RexxObject *transform(RexxString *str, RexxObject **named_arglist, size_t named_
     totalIntervalCharactersNotExpanded = -1
     totalCharacterNameAliases = 0
     self~declareCharacters
+    memorizeTransformations = .false
+
+
+::method version class
+    return .Unicode~utf8proc_version
 
 
 ::method informations class
@@ -79,6 +81,7 @@ RexxObject *transform(RexxString *str, RexxObject **named_arglist, size_t named_
     "characterIntervals",
     "dataDirectory",
     "maxCodepoint",
+    "memorizeTransformations",
     "systemIsLittleEndian",
     "totalCharactersLoaded",
     "totalCharacterNameAliases",
@@ -392,11 +395,11 @@ RexxObject *transform(RexxString *str, RexxObject **named_arglist, size_t named_
 ::method codepointCategoryName class
     expose codepointCategoryNames
     use strict arg codepoint
-    category = self~codepointCategory(codepoint)
+    category = self~utf8proc_codepointCategory(codepoint)
     return codepointCategoryNames[1+category]
 
 
--- Values returned by .Unicode~codepointCategory(codepoint)
+-- Values returned by .Unicode~utf8proc_codepointCategory(codepoint)
 -- Unicode Standard 4.5 General Category
 -- Table 4-4. General Category
 -- Also:
@@ -436,11 +439,11 @@ RexxObject *transform(RexxString *str, RexxObject **named_arglist, size_t named_
 ::method codepointBidiClassName class
     expose codepointBidiClassNames
     use strict arg codepoint
-    bidiClass = self~codepointBidiClass(codepoint)
+    bidiClass = self~utf8proc_codepointBidiClass(codepoint)
     return codepointBidiClassNames[bidiClass]
 
 
--- Values returned by .Unicode~codepointBidiClass(codepoint)
+-- Values returned by .Unicode~utf8proc_codepointBidiClass(codepoint)
 -- http://unicode.org/reports/tr9/tr9-11.html
 -- Table 3-7. Bidirectional Character Types
 ::constant BIDI_CLASS_L     1 /**< Left-to-Right */
@@ -468,14 +471,15 @@ RexxObject *transform(RexxString *str, RexxObject **named_arglist, size_t named_
 ::constant BIDI_CLASS_PDI  23 /**< Pop Directional Isolate */
 
 
+-- https://unicode.org/reports/tr15/
 ::method codepointDecompositionTypeName class
     expose codepointDecompositionTypeNames
     use strict arg codepoint
-    decompositionType = self~codepointDecompositionType(codepoint)
+    decompositionType = self~utf8proc_codepointDecompositionType(codepoint)
     return codepointDecompositionTypeNames[1 + decompositionType]
 
 
--- Values returned by .Unicode~codepointDecompositionType(codepoint)
+-- Values returned by .Unicode~utf8proc_codepointDecompositionType(codepoint)
 -- https://unicode.org/reports/tr44/#Formatting_Tags_Table
 -- Table 14. Compatibility Formatting Tags
 ::constant DECOMPOSITION_TYPE_NONE      0 -- not in utf8proc, added because can be zero
@@ -497,15 +501,16 @@ RexxObject *transform(RexxString *str, RexxObject **named_arglist, size_t named_
 ::constant DECOMPOSITION_TYPE_COMPAT   16 /**< Compat */
 
 
+-- https://unicode.org/reports/tr29/
 ::method codepointBoundClassName class
     expose codepointBoundClassNames
     use strict arg codepoint
-    boundClass = self~codepointBoundClass(codepoint)
+    boundClass = self~utf8proc_codepointBoundClass(codepoint)
     return codepointBoundClassNames[1+boundClass]
 
 
 -- Grapheme_Cluster_Break (GCB)
--- Values returned by .Unicode~codepointBoundClass(codepoint)
+-- Values returned by .Unicode~utf8proc_codepointBoundClass(codepoint)
 ::constant BOUNDCLASS_START               0 /**< Start */       -- not in standard
 ::constant BOUNDCLASS_XX                  1 /**< Other */
 ::constant BOUNDCLASS_CR                  2 /**< CR */
@@ -638,7 +643,7 @@ https://unicode.org/reports/tr44/#UAX44-LM3
     return self~text
 
 
-::method setName -- should be scope package
+::method setName -- should be package-scope
     expose name
     use strict arg name
 
@@ -740,78 +745,91 @@ https://unicode.org/reports/tr44/#UAX44-LM3
     return .Unicode32_Encoding~encode(codepoint, b: buffer)
 
 
+-- http://www.unicode.org/reports/tr44/#General_Category_Values
 ::method category
     expose codepoint
     use strict arg -- none
-    return .Unicode~codepointCategory(codepoint)
+    return .Unicode~utf8proc_codepointCategory(codepoint)
 
 
+-- http://www.unicode.org/reports/tr44/#General_Category_Values
 ::method categoryName
     expose codepoint
     use strict arg -- none
     return .Unicode~codepointCategoryName(codepoint)
 
 
+-- http://www.unicode.org/reports/tr44/#Canonical_Combining_Class_Values
 ::method combiningClass
     expose codepoint
     use strict arg -- none
-    return .Unicode~codepointCombiningClass(codepoint)
+    return .Unicode~utf8proc_codepointCombiningClass(codepoint)
 
 
+-- http://www.unicode.org/reports/tr44/#Bidi_Class_Values
 ::method bidiClass
     expose codepoint
     use strict arg -- none
-    return .Unicode~codepointBidiClass(codepoint)
+    return .Unicode~utf8proc_utf8proc_codepointBidiClass(codepoint)
 
 
+-- http://www.unicode.org/reports/tr44/#Bidi_Class_Values
 ::method bidiClassName
     expose codepoint
     use strict arg -- none
     return .Unicode~codepointBidiClassName(codepoint)
 
 
+-- https://unicode.org/reports/tr9/
 ::method bidiMirrored
     expose codepoint
     use strict arg -- none
-    return .Unicode~codepointBidiMirrored(codepoint)
+    return .Unicode~utf8proc_codepointBidiMirrored(codepoint)
 
 
+-- https://unicode.org/reports/tr15/
 ::method decompositionType
     expose codepoint
     use strict arg -- none
-    return .Unicode~codepointDecompositionType(codepoint)
+    return .Unicode~utf8proc_codepointDecompositionType(codepoint)
 
 
+-- https://unicode.org/reports/tr15/
 ::method decompositionTypeName
     expose codepoint
     use strict arg -- none
     return .Unicode~codepointDecompositionTypeName(codepoint)
 
 
+-- http://www.unicode.org/review/pr-5.html
+-- http://unicode.org/L2/L2002/02368-default-ignorable.html
 ::method ignorable
     expose codepoint
     use strict arg -- none
-    return .Unicode~codepointIgnorable(codepoint)
+    return .Unicode~utf8proc_codepointIgnorable(codepoint)
 
 
+-- http://unicode.org/reports/tr29/tr29-6.html
 ::method controlBoundary
     expose codepoint
     use strict arg -- none
-    return .Unicode~codepointControlBoundary(codepoint)
+    return .Unicode~utf8proc_codepointControlBoundary(codepoint)
 
 
 ::method charWidth
     expose codepoint
     use strict arg -- none
-    return .Unicode~codepointCharWidth(codepoint)
+    return .Unicode~utf8proc_codepointCharWidth(codepoint)
 
 
+-- https://unicode.org/reports/tr29/
 ::method boundClass
     expose codepoint
     use strict arg -- none
-    return .Unicode~codepointBoundClass(codepoint)
+    return .Unicode~utf8proc_codepointBoundClass(codepoint)
 
 
+-- https://unicode.org/reports/tr29/
 ::method boundClassName
     expose codepoint
     use strict arg -- none
@@ -821,31 +839,31 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 ::method toLower
     expose codepoint
     use strict arg -- none
-    return .Unicode~character(.Unicode~codepointToLower(codepoint))
+    return .Unicode~character(.Unicode~utf8proc_codepointToLower(codepoint))
 
 
 ::method toUpper
     expose codepoint
     use strict arg -- none
-    return .Unicode~character(.Unicode~codepointToUpper(codepoint))
+    return .Unicode~character(.Unicode~utf8proc_codepointToUpper(codepoint))
 
 
 ::method toTitle
     expose codepoint
     use strict arg -- none
-    return .Unicode~character(.Unicode~codepointToTitle(codepoint))
+    return .Unicode~character(.Unicode~utf8proc_codepointToTitle(codepoint))
 
 
 ::method isLower
     expose codepoint
     use strict arg -- none
-    return .Unicode~codepointIsLower(codepoint)
+    return .Unicode~utf8proc_codepointIsLower(codepoint)
 
 
 ::method isUpper
     expose codepoint
     use strict arg -- none
-    return .Unicode~codepointIsUpper(codepoint)
+    return .Unicode~utf8proc_codepointIsUpper(codepoint)
 
 
 /******************************************************************************/

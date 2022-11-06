@@ -39,110 +39,6 @@
 #include "RexxCore.h"
 #include "ProtectedObject.hpp"
 #include "TextClass.hpp"
-#include "m17n/utf8proc/utf8proc.h"
-#include "m17n/cziglyph/src/cziglyph.h"
-
-#ifdef HAVE_ICU4X
-// All the headers of ICU4X (to see the impact on the size of rexx dylib)
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XAnyCalendarKind.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XBidi.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XBidiDirection.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XBidiInfo.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XBidiParagraph.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCalendar.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCanonicalCombiningClassMap.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCanonicalComposition.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCanonicalDecomposition.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCodePointMapData16.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCodePointMapData8.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCodePointSetData.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCollator.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCollatorAlternateHandling.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCollatorBackwardSecondLevel.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCollatorCaseFirst.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCollatorCaseLevel.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCollatorMaxVariable.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCollatorNumeric.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCollatorOptionsV1.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCollatorStrength.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XComposingNormalizer.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCreateDataProviderResult.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCustomTimeZone.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XDataProvider.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XDataStruct.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XDate.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XDateFormatter.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XDateLength.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XDateTime.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XDateTimeFormatter.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XDecomposed.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XDecomposingNormalizer.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XError.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XFixedDecimal.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XFixedDecimalFormatter.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XFixedDecimalGroupingStrategy.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XFixedDecimalSign.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XFixedDecimalSignDisplay.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XGraphemeClusterBreakIteratorLatin1.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XGraphemeClusterBreakIteratorUtf16.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XGraphemeClusterBreakIteratorUtf8.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XGraphemeClusterBreakSegmenter.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XGregorianDateFormatter.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XGregorianDateTimeFormatter.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XGregorianZonedDateTimeFormatter.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XIsoDate.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XIsoDateTime.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XIsoTimeZoneFormat.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XIsoTimeZoneMinuteDisplay.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XIsoTimeZoneOptions.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XIsoTimeZoneSecondDisplay.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XIsoWeekday.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLineBreakIteratorLatin1.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLineBreakIteratorUtf16.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLineBreakIteratorUtf8.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLineBreakOptionsV1.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLineBreakRule.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLineBreakSegmenter.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XList.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XListFormatter.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XListLength.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocale.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocaleCanonicalizer.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocaleExpander.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocaleFallbackConfig.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocaleFallbackIterator.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocaleFallbackPriority.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocaleFallbacker.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocaleFallbackerWithConfig.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLogger.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XMetazoneCalculator.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XOrdering.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XPluralCategories.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XPluralCategory.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XPluralOperands.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XPluralRules.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XScriptExtensionsSet.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XScriptWithExtensions.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XScriptWithExtensionsBorrowed.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XSentenceBreakIteratorLatin1.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XSentenceBreakIteratorUtf16.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XSentenceBreakIteratorUtf8.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XSentenceBreakSegmenter.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XTime.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XTimeFormatter.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XTimeLength.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XTimeZoneFormatter.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XTransformResult.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XWeekCalculator.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XWeekOf.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XWeekRelativeUnit.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XWordBreakIteratorLatin1.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XWordBreakIteratorUtf16.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XWordBreakIteratorUtf8.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XWordBreakRule.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XWordBreakSegmenter.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XZonedDateTimeFormatter.hpp"
-#endif
 
 
 /******************************************************************************/
@@ -254,24 +150,6 @@ RexxString *RexxText::makeString()
 */
 
 
-void raiseError(utf8proc_ssize_t errcode)
-{
-    const char *errmsg = utf8proc_errmsg(errcode);
-    switch (errcode)
-    {
-        case UTF8PROC_ERROR_NOMEM:
-        case UTF8PROC_ERROR_OVERFLOW:
-            reportException(Error_System_resources_user_defined, errmsg);
-        case UTF8PROC_ERROR_INVALIDUTF8:
-        case UTF8PROC_ERROR_NOTASSIGNED:
-            reportException(Error_Invalid_character_string_user_defined, errmsg);
-        case UTF8PROC_ERROR_INVALIDOPTS:
-            reportException(Error_Invalid_argument_user_defined, errmsg);
-        default:
-            reportException(Error_System_service_user_defined, errmsg);
-    }
-}
-
 ssize_t integerRange(RexxObject *obj, ssize_t min, ssize_t max, wholenumber_t error, const char *errorMessage)
 {
     if (obj != OREF_NULL)
@@ -304,25 +182,6 @@ bool isLittleEndian()
 {
     int64_t v64 = 1;
     return *((int8_t*)&v64) == 1;
-}
-
-
-// utf8proc helper
-RexxString *normalize(RexxString *string, utf8proc_option_t options)
-{
-    utf8proc_uint8_t *retval;
-    string = stringArgument(string, OREF_positional, ARG_ONE);
-    const utf8proc_uint8_t *str = (const utf8proc_uint8_t *)string->getStringData();
-    utf8proc_ssize_t strlength = (utf8proc_ssize_t)string->getLength();
-    utf8proc_ssize_t reslength = utf8proc_map(str, strlength, &retval, options);
-    if (reslength < 0) raiseError(reslength); // here, reslength is an error code
-    // Not so easy to optimize memory allocation...
-    // utf8proc_map allocates a buffer of 32-bit codepoints
-    // and then reuse this same buffer to convert to utf-8
-    // In the end, the buffer is reallocated to shrink it.
-    RexxString *result = new_string((const char *)retval, reslength);
-    free(retval);
-    return result;
 }
 
 
@@ -377,17 +236,45 @@ void Unicode::flatten(RexxEnvelope *envelope)
     cleanUpFlatten
 }
 
-RexxString *Unicode::version()
-{
-    return new_string(utf8proc_unicode_version());
-}
-
-
 RexxInteger *Unicode::systemIsLittleEndian()
 {
     int64_t v64 = 1;
     return isLittleEndian() ? TheTrueObject : TheFalseObject;
 }
+
+/******************************************************************************/
+/*                                                                            */
+/* Unicode Class - utf8proc                                                   */
+/*                                                                            */
+/******************************************************************************/
+
+#include "m17n/utf8proc/utf8proc.h"
+
+
+void raiseError(utf8proc_ssize_t errcode)
+{
+    const char *errmsg = utf8proc_errmsg(errcode);
+    switch (errcode)
+    {
+        case UTF8PROC_ERROR_NOMEM:
+        case UTF8PROC_ERROR_OVERFLOW:
+            reportException(Error_System_resources_user_defined, errmsg);
+        case UTF8PROC_ERROR_INVALIDUTF8:
+        case UTF8PROC_ERROR_NOTASSIGNED:
+            reportException(Error_Invalid_character_string_user_defined, errmsg);
+        case UTF8PROC_ERROR_INVALIDOPTS:
+            reportException(Error_Invalid_argument_user_defined, errmsg);
+        default:
+            reportException(Error_System_service_user_defined, errmsg);
+    }
+}
+
+
+RexxString *Unicode::utf8proc_version()
+{
+    return new_string(utf8proc_unicode_version());
+}
+
 
 /**
  * Given a pair of consecutive codepoints, return whether a grapheme break is
@@ -400,7 +287,7 @@ RexxInteger *Unicode::systemIsLittleEndian()
  *
  * @return .true if a grapheme break is permitted, .false otherwise.
  */
-RexxInteger *Unicode::graphemeBreak(RexxArray *array)
+RexxInteger *Unicode::utf8proc_graphemeBreak(RexxArray *array)
 {
     array = arrayArgument(array, OREF_positional, ARG_ONE);
     ProtectedObject p(array);
@@ -412,7 +299,7 @@ RexxInteger *Unicode::graphemeBreak(RexxArray *array)
     return graphemeBreak ? TheTrueObject : TheFalseObject;
 }
 
-RexxInteger *Unicode::codepointCategory(RexxObject *rexxCodepoint)
+RexxInteger *Unicode::utf8proc_codepointCategory(RexxObject *rexxCodepoint)
 {
     utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointCategory: codepoint must be an integer");
     const utf8proc_property_t *property = utf8proc_get_property(codepoint);
@@ -455,7 +342,7 @@ typedef enum {
 #endif
 
 
-RexxInteger *Unicode::codepointCombiningClass(RexxObject *rexxCodepoint)
+RexxInteger *Unicode::utf8proc_codepointCombiningClass(RexxObject *rexxCodepoint)
 {
     utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointCombiningClass: codepoint must be an integer");
     const utf8proc_property_t *property = utf8proc_get_property(codepoint);
@@ -463,7 +350,7 @@ RexxInteger *Unicode::codepointCombiningClass(RexxObject *rexxCodepoint)
 }
 
 
-RexxInteger *Unicode::codepointBidiClass(RexxObject *rexxCodepoint)
+RexxInteger *Unicode::utf8proc_codepointBidiClass(RexxObject *rexxCodepoint)
 {
     utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointBidiClass: codepoint must be an integer");
     const utf8proc_property_t *property = utf8proc_get_property(codepoint);
@@ -499,7 +386,7 @@ typedef enum {
 #endif
 
 
-RexxInteger *Unicode::codepointBidiMirrored(RexxObject *rexxCodepoint)
+RexxInteger *Unicode::utf8proc_codepointBidiMirrored(RexxObject *rexxCodepoint)
 {
     utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointBidiMirrored: codepoint must be an integer");
     const utf8proc_property_t *property = utf8proc_get_property(codepoint);
@@ -507,7 +394,7 @@ RexxInteger *Unicode::codepointBidiMirrored(RexxObject *rexxCodepoint)
 }
 
 
-RexxInteger *Unicode::codepointDecompositionType(RexxObject *rexxCodepoint)
+RexxInteger *Unicode::utf8proc_codepointDecompositionType(RexxObject *rexxCodepoint)
 {
     utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointDecompositionType: codepoint must be an integer");
     const utf8proc_property_t *property = utf8proc_get_property(codepoint);
@@ -547,7 +434,7 @@ typedef enum {
 #endif
 
 
-RexxInteger *Unicode::codepointIgnorable(RexxObject *rexxCodepoint)
+RexxInteger *Unicode::utf8proc_codepointIgnorable(RexxObject *rexxCodepoint)
 {
     utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointIgnorable: codepoint must be an integer");
     const utf8proc_property_t *property = utf8proc_get_property(codepoint);
@@ -555,7 +442,7 @@ RexxInteger *Unicode::codepointIgnorable(RexxObject *rexxCodepoint)
 }
 
 
-RexxInteger *Unicode::codepointControlBoundary(RexxObject *rexxCodepoint)
+RexxInteger *Unicode::utf8proc_codepointControlBoundary(RexxObject *rexxCodepoint)
 {
     utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointControlBoundary: codepoint must be an integer");
     const utf8proc_property_t *property = utf8proc_get_property(codepoint);
@@ -563,7 +450,7 @@ RexxInteger *Unicode::codepointControlBoundary(RexxObject *rexxCodepoint)
 }
 
 
-RexxInteger *Unicode::codepointCharWidth(RexxObject *rexxCodepoint)
+RexxInteger *Unicode::utf8proc_codepointCharWidth(RexxObject *rexxCodepoint)
 {
     utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointCharWidth: codepoint must be an integer");
     const utf8proc_property_t *property = utf8proc_get_property(codepoint);
@@ -575,7 +462,7 @@ RexxInteger *Unicode::codepointCharWidth(RexxObject *rexxCodepoint)
 }
 
 
-RexxInteger *Unicode::codepointBoundClass(RexxObject *rexxCodepoint)
+RexxInteger *Unicode::utf8proc_codepointBoundClass(RexxObject *rexxCodepoint)
 {
     utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointBoundClass: codepoint must be an integer");
     const utf8proc_property_t *property = utf8proc_get_property(codepoint);
@@ -615,28 +502,28 @@ typedef enum {
 #endif
 
 
-RexxInteger *Unicode::codepointToLower(RexxObject *rexxCodepoint)
+RexxInteger *Unicode::utf8proc_codepointToLower(RexxObject *rexxCodepoint)
 {
     utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointToLower: codepoint must be an integer");
     return new_integer(utf8proc_tolower(codepoint));
 }
 
 
-RexxInteger *Unicode::codepointToUpper(RexxObject *rexxCodepoint)
+RexxInteger *Unicode::utf8proc_codepointToUpper(RexxObject *rexxCodepoint)
 {
     utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointToUpper: codepoint must be an integer");
     return new_integer(utf8proc_toupper(codepoint));
 }
 
 
-RexxInteger *Unicode::codepointToTitle(RexxObject *rexxCodepoint)
+RexxInteger *Unicode::utf8proc_codepointToTitle(RexxObject *rexxCodepoint)
 {
     utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointToTitle: codepoint must be an integer");
     return new_integer(utf8proc_totitle(codepoint));
 }
 
 
-RexxInteger *Unicode::codepointIsLower(RexxObject *rexxCodepoint)
+RexxInteger *Unicode::utf8proc_codepointIsLower(RexxObject *rexxCodepoint)
 {
     utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointIsLower: codepoint must be an integer");
     return utf8proc_islower(codepoint) ? TheTrueObject : TheFalseObject;
@@ -644,7 +531,7 @@ RexxInteger *Unicode::codepointIsLower(RexxObject *rexxCodepoint)
 }
 
 
-RexxInteger *Unicode::codepointIsUpper(RexxObject *rexxCodepoint)
+RexxInteger *Unicode::utf8proc_codepointIsUpper(RexxObject *rexxCodepoint)
 {
     utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointIsUpper: codepoint must be an integer");
     return utf8proc_isupper(codepoint) ? TheTrueObject : TheFalseObject;
@@ -652,96 +539,26 @@ RexxInteger *Unicode::codepointIsUpper(RexxObject *rexxCodepoint)
 }
 
 
-RexxString *Unicode::stringToCaseFold(RexxString *string)
+// utf8proc helper
+RexxString *normalize(RexxString *string, utf8proc_option_t options)
 {
+    utf8proc_uint8_t *retval;
     string = stringArgument(string, OREF_positional, ARG_ONE);
-    const uint8_t *str = (const uint8_t *)string->getStringData();
-    uintptr_t strlength = (uintptr_t)string->getLength();
-    const uint8_t * out_utf8str;
-    uintptr_t out_length;
-    ziglyph_toCaseFoldStr(str, strlength, &out_utf8str, &out_length);
-    if (out_utf8str == NULL) reportException(Error_System_service_user_defined, "StringToCaseFold raised an error");
-    RexxString *result = new_string((const char *)out_utf8str, out_length);
-    ziglyph_free(out_utf8str, out_length);
+    const utf8proc_uint8_t *str = (const utf8proc_uint8_t *)string->getStringData();
+    utf8proc_ssize_t strlength = (utf8proc_ssize_t)string->getLength();
+    utf8proc_ssize_t reslength = utf8proc_map(str, strlength, &retval, options);
+    if (reslength < 0) raiseError(reslength); // here, reslength is an error code
+    // Not so easy to optimize memory allocation...
+    // utf8proc_map allocates a buffer of 32-bit codepoints
+    // and then reuse this same buffer to convert to utf-8
+    // In the end, the buffer is reallocated to shrink it.
+    RexxString *result = new_string((const char *)retval, reslength);
+    free(retval);
     return result;
 }
 
 
-RexxString *Unicode::stringToLower(RexxString *string)
-{
-    string = stringArgument(string, OREF_positional, ARG_ONE);
-    const uint8_t *str = (const uint8_t *)string->getStringData();
-    uintptr_t strlength = (uintptr_t)string->getLength();
-    const uint8_t * out_utf8str;
-    uintptr_t out_length;
-    ziglyph_toLowerStr(str, strlength, &out_utf8str, &out_length);
-    if (out_utf8str == NULL) reportException(Error_System_service_user_defined, "StringToLower raised an error");
-    RexxString *result = new_string((const char *)out_utf8str, out_length);
-    ziglyph_free(out_utf8str, out_length);
-    return result;
-}
-
-
-RexxString *Unicode::stringToTitle(RexxString *string)
-{
-    string = stringArgument(string, OREF_positional, ARG_ONE);
-    const uint8_t *str = (const uint8_t *)string->getStringData();
-    uintptr_t strlength = (uintptr_t)string->getLength();
-    const uint8_t * out_utf8str;
-    uintptr_t out_length;
-    ziglyph_toTitleStr(str, strlength, &out_utf8str, &out_length);
-    if (out_utf8str == NULL) reportException(Error_System_service_user_defined, "StringToTitle raised an error");
-    RexxString *result = new_string((const char *)out_utf8str, out_length);
-    ziglyph_free(out_utf8str, out_length);
-    return result;
-}
-
-
-RexxString *Unicode::stringToUpper(RexxString *string)
-{
-    string = stringArgument(string, OREF_positional, ARG_ONE);
-    const uint8_t *str = (const uint8_t *)string->getStringData();
-    uintptr_t strlength = (uintptr_t)string->getLength();
-    const uint8_t * out_utf8str;
-    uintptr_t out_length;
-    ziglyph_toUpperStr(str, strlength, &out_utf8str, &out_length);
-    if (out_utf8str == NULL) reportException(Error_System_service_user_defined, "StringToUpper raised an error");
-    RexxString *result = new_string((const char *)out_utf8str, out_length);
-    ziglyph_free(out_utf8str, out_length);
-    return result;
-}
-
-
-RexxString *Unicode::NFD(RexxString *string)
-{
-    return normalize(string, utf8proc_option_t(UTF8PROC_STABLE | UTF8PROC_DECOMPOSE));
-}
-
-RexxString *Unicode::NFC(RexxString *string)
-{
-    return normalize(string, utf8proc_option_t(UTF8PROC_STABLE | UTF8PROC_COMPOSE));
-}
-
-
-RexxString *Unicode::NFKD(RexxString *string)
-{
-    return normalize(string, utf8proc_option_t(UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT));
-}
-
-
-RexxString *Unicode::NFKC(RexxString *string)
-{
-    return normalize(string, utf8proc_option_t(UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT));
-}
-
-
-RexxString *Unicode::NFKC_Casefold(RexxString *string)
-{
-    return normalize(string, utf8proc_option_t(UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD | UTF8PROC_IGNORE));
-}
-
-
-RexxObject *Unicode::transform(RexxString *string, RexxObject **named_arglist, size_t named_argcount)
+RexxObject *Unicode::utf8proc_transform(RexxString *string, RexxObject **named_arglist, size_t named_argcount)
 {
     string = stringArgument(string, OREF_positional, ARG_ONE);
 
@@ -845,4 +662,182 @@ RexxObject *Unicode::transform(RexxString *string, RexxObject **named_arglist, s
    */
   UTF8PROC_STRIPNA    = (1<<14),
 
+#endif
+
+
+/******************************************************************************/
+/*                                                                            */
+/* Unicode Class - ziglyph                                                    */
+/*                                                                            */
+/******************************************************************************/
+
+#include "m17n/cziglyph/src/cziglyph.h"
+
+
+RexxString *Unicode::ziglyph_stringToCaseFold(RexxString *string)
+{
+    string = stringArgument(string, OREF_positional, ARG_ONE);
+    const uint8_t *str = (const uint8_t *)string->getStringData();
+    uintptr_t strlength = (uintptr_t)string->getLength();
+    const uint8_t * out_utf8str;
+    uintptr_t out_length;
+    ziglyph_toCaseFoldStr(str, strlength, &out_utf8str, &out_length);
+    if (out_utf8str == NULL) reportException(Error_System_service_user_defined, "StringToCaseFold raised an error");
+    RexxString *result = new_string((const char *)out_utf8str, out_length);
+    ziglyph_free(out_utf8str, out_length);
+    return result;
+}
+
+
+RexxString *Unicode::ziglyph_stringToLower(RexxString *string)
+{
+    string = stringArgument(string, OREF_positional, ARG_ONE);
+    const uint8_t *str = (const uint8_t *)string->getStringData();
+    uintptr_t strlength = (uintptr_t)string->getLength();
+    const uint8_t * out_utf8str;
+    uintptr_t out_length;
+    ziglyph_toLowerStr(str, strlength, &out_utf8str, &out_length);
+    if (out_utf8str == NULL) reportException(Error_System_service_user_defined, "StringToLower raised an error");
+    RexxString *result = new_string((const char *)out_utf8str, out_length);
+    ziglyph_free(out_utf8str, out_length);
+    return result;
+}
+
+
+RexxString *Unicode::ziglyph_stringToTitle(RexxString *string)
+{
+    string = stringArgument(string, OREF_positional, ARG_ONE);
+    const uint8_t *str = (const uint8_t *)string->getStringData();
+    uintptr_t strlength = (uintptr_t)string->getLength();
+    const uint8_t * out_utf8str;
+    uintptr_t out_length;
+    ziglyph_toTitleStr(str, strlength, &out_utf8str, &out_length);
+    if (out_utf8str == NULL) reportException(Error_System_service_user_defined, "StringToTitle raised an error");
+    RexxString *result = new_string((const char *)out_utf8str, out_length);
+    ziglyph_free(out_utf8str, out_length);
+    return result;
+}
+
+
+RexxString *Unicode::ziglyph_stringToUpper(RexxString *string)
+{
+    string = stringArgument(string, OREF_positional, ARG_ONE);
+    const uint8_t *str = (const uint8_t *)string->getStringData();
+    uintptr_t strlength = (uintptr_t)string->getLength();
+    const uint8_t * out_utf8str;
+    uintptr_t out_length;
+    ziglyph_toUpperStr(str, strlength, &out_utf8str, &out_length);
+    if (out_utf8str == NULL) reportException(Error_System_service_user_defined, "StringToUpper raised an error");
+    RexxString *result = new_string((const char *)out_utf8str, out_length);
+    ziglyph_free(out_utf8str, out_length);
+    return result;
+}
+
+
+/******************************************************************************/
+/*                                                                            */
+/* Unicode Class - icu4x                                                      */
+/*                                                                            */
+/******************************************************************************/
+
+#ifdef HAVE_ICU4X
+// All the headers of ICU4X (to see the impact on the size of rexx dylib)
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XAnyCalendarKind.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XBidi.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XBidiDirection.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XBidiInfo.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XBidiParagraph.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCalendar.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCanonicalCombiningClassMap.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCanonicalComposition.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCanonicalDecomposition.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCodePointMapData16.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCodePointMapData8.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCodePointSetData.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCollator.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCollatorAlternateHandling.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCollatorBackwardSecondLevel.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCollatorCaseFirst.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCollatorCaseLevel.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCollatorMaxVariable.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCollatorNumeric.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCollatorOptionsV1.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCollatorStrength.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XComposingNormalizer.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCreateDataProviderResult.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCustomTimeZone.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XDataProvider.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XDataStruct.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XDate.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XDateFormatter.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XDateLength.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XDateTime.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XDateTimeFormatter.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XDecomposed.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XDecomposingNormalizer.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XError.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XFixedDecimal.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XFixedDecimalFormatter.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XFixedDecimalGroupingStrategy.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XFixedDecimalSign.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XFixedDecimalSignDisplay.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XGraphemeClusterBreakIteratorLatin1.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XGraphemeClusterBreakIteratorUtf16.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XGraphemeClusterBreakIteratorUtf8.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XGraphemeClusterBreakSegmenter.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XGregorianDateFormatter.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XGregorianDateTimeFormatter.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XGregorianZonedDateTimeFormatter.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XIsoDate.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XIsoDateTime.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XIsoTimeZoneFormat.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XIsoTimeZoneMinuteDisplay.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XIsoTimeZoneOptions.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XIsoTimeZoneSecondDisplay.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XIsoWeekday.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLineBreakIteratorLatin1.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLineBreakIteratorUtf16.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLineBreakIteratorUtf8.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLineBreakOptionsV1.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLineBreakRule.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLineBreakSegmenter.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XList.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XListFormatter.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XListLength.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocale.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocaleCanonicalizer.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocaleExpander.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocaleFallbackConfig.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocaleFallbackIterator.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocaleFallbackPriority.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocaleFallbacker.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocaleFallbackerWithConfig.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLogger.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XMetazoneCalculator.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XOrdering.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XPluralCategories.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XPluralCategory.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XPluralOperands.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XPluralRules.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XScriptExtensionsSet.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XScriptWithExtensions.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XScriptWithExtensionsBorrowed.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XSentenceBreakIteratorLatin1.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XSentenceBreakIteratorUtf16.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XSentenceBreakIteratorUtf8.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XSentenceBreakSegmenter.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XTime.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XTimeFormatter.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XTimeLength.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XTimeZoneFormatter.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XTransformResult.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XWeekCalculator.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XWeekOf.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XWeekRelativeUnit.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XWordBreakIteratorLatin1.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XWordBreakIteratorUtf16.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XWordBreakIteratorUtf8.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XWordBreakRule.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XWordBreakSegmenter.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XZonedDateTimeFormatter.hpp"
 #endif
