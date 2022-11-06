@@ -48,9 +48,9 @@ Contents:
     <a href="#ICU_title">ICU title</a>
     <a href="#ICU_bindings">ICU bindings</a>
     <a href="#ICU4X_title">ICU4X title</a>
-    <a href="#utfcpp">utfcpp</a>
     <a href="#Twitter_text_parsing">Twitter text parsing</a>
     <a href="#terminal___console___cmd">terminal / console / cmd</a>
+    <a href="#Z_OS">Z/OS</a>
     <a href="#Language_comparison">Language comparison</a>
     <a href="#Regular_expressions">Regular expressions</a>
     <a href="#Test_cases__test_cases__tests_files">Test cases, test-cases, tests files</a>
@@ -615,6 +615,16 @@ Has a few comments about NFKC_Casefold
 - Data Generation Tool
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/56995429/will-normalizing-a-string-give-the-same-result-as-normalizing-the-individual-gra">https://stackoverflow.com/questions/56995429/will-normalizing-a-string-give-the-same-result-as-normalizing-the-individual-gra</a>
+Will normalizing a string give the same result as normalizing the individual grapheme clusters?
+---
+No, that generally is not true. The Unicode Standard warns against the assumption that concatenating
+normalised strings produces another normalised string. From UAX #15:
+    In using normalization functions, it is important to realize that none of the Normalization Forms
+    are closed under string concatenation. That is, even if two strings X and Y are normalized,
+    their string concatenation X+Y is not guaranteed to be normalized.
+
+
 <hr><h2 id="Character_set">Character set</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://www.gnu.org/software/libc/manual/html_mono/libc.html#Character-Set-Handling">https://www.gnu.org/software/libc/manual/html_mono/libc.html#Character-Set-Handling</a>
 
@@ -710,6 +720,20 @@ On Windows, setlocale(LC_ALL, '') sets the locale names from the system's region
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.gnu.org/software/libc/manual/html_mono/libc.html#Locales">https://www.gnu.org/software/libc/manual/html_mono/libc.html#Locales</a>
 Locales and Internationalization
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://pubs.opengroup.org/onlinepubs/9699919799/">https://pubs.opengroup.org/onlinepubs/9699919799/</a>
+IEEE Std 1003.1-2017
+Locale
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://unix.stackexchange.com/questions/87745/what-does-lc-all-c-do/87763#87763">https://unix.stackexchange.com/questions/87745/what-does-lc-all-c-do/87763#87763</a>
+What does "LC_ALL=C" do?
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/mpv-player/mpv/commit/1e70e82baa9193f6f027338b0fab0f5078971fbe">https://github.com/mpv-player/mpv/commit/1e70e82baa9193f6f027338b0fab0f5078971fbe</a>
+stream_libarchive: workaround various types of locale braindeath
+(legendary C locales rant)
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/30479607/explain-the-effects-of-export-lang-lc-ctype-and-lc-all">https://stackoverflow.com/questions/30479607/explain-the-effects-of-export-lang-lc-ctype-and-lc-all</a>
@@ -1790,12 +1814,6 @@ jlf: Not yet supported by ICU4X, too bad... I need that for Executor.
 Reconsider UTF-32 support
 
 
-<hr><h2 id="utfcpp">utfcpp</h2><hr>
-<a target="_blank" rel="noopener noreferrer" href="https://github.com/nemtrif/utfcpp/">https://github.com/nemtrif/utfcpp/</a>
-referenced from <a target="_blank" rel="noopener noreferrer" href="https://corp.unicode.org/pipermail/unicode/2020-April/008582.html">https://corp.unicode.org/pipermail/unicode/2020-April/008582.html</a>
-Basic Unicode character/string support absent even in modern C++
-
-
 <hr><h2 id="Twitter_text_parsing">Twitter text parsing</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/twitter/twitter-text">https://github.com/twitter/twitter-text</a>
 Twitter Text Libraries. This code is used at Twitter to tokenize and parse text
@@ -1856,6 +1874,20 @@ Eryk Sun Jul 21, 2019 at 13:31
 
 <a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/49476326/displaying-unicode-in-powershell/49481797#49481797">https://stackoverflow.com/questions/49476326/displaying-unicode-in-powershell/49481797#49481797</a>
 Displaying Unicode in Powershell
+
+
+<hr><h2 id="Z_OS">Z/OS</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/zos/2.3.0?topic=mvs-zos-unicode-services-users-guide-reference">https://www.ibm.com/docs/en/zos/2.3.0?topic=mvs-zos-unicode-services-users-guide-reference</a>
+Unicode services
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/zos/2.3.0?topic=reference-application-programmer-information">https://www.ibm.com/docs/en/zos/2.3.0?topic=reference-application-programmer-information</a>
+Character conversion
+Case conversion
+Normalization
+Collation
+Bidi transformation
+Stringprep conversion
 
 
 <hr><h2 id="Language_comparison">Language comparison</h2><hr>
@@ -1965,6 +1997,11 @@ The Microsoft Code Page 932 Issue
 What is the printf() formatting character for char8_t *?
 jlf: todo read it? not sure yet if it's useful to read.
 Referenced from <a target="_blank" rel="noopener noreferrer" href="https://corp.unicode.org/pipermail/unicode/2020-April/008579.html">https://corp.unicode.org/pipermail/unicode/2020-April/008579.html</a>
+Basic Unicode character/string support absent even in modern C++
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/nemtrif/utfcpp/">https://github.com/nemtrif/utfcpp/</a>
+referenced from <a target="_blank" rel="noopener noreferrer" href="https://corp.unicode.org/pipermail/unicode/2020-April/008582.html">https://corp.unicode.org/pipermail/unicode/2020-April/008582.html</a>
 Basic Unicode character/string support absent even in modern C++
 
 

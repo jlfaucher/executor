@@ -555,6 +555,16 @@ Has a few comments about NFKC_Casefold
 - Data Generation Tool
 
 
+https://stackoverflow.com/questions/56995429/will-normalizing-a-string-give-the-same-result-as-normalizing-the-individual-gra
+Will normalizing a string give the same result as normalizing the individual grapheme clusters?
+---
+No, that generally is not true. The Unicode Standard warns against the assumption that concatenating
+normalised strings produces another normalised string. From UAX #15:
+    In using normalization functions, it is important to realize that none of the Normalization Forms
+    are closed under string concatenation. That is, even if two strings X and Y are normalized,
+    their string concatenation X+Y is not guaranteed to be normalized.
+
+
 ================================================================================
 Character set
 ================================================================================
@@ -659,6 +669,20 @@ On Windows, setlocale(LC_ALL, '') sets the locale names from the system's region
 
 https://www.gnu.org/software/libc/manual/html_mono/libc.html#Locales
 Locales and Internationalization
+
+
+https://pubs.opengroup.org/onlinepubs/9699919799/
+IEEE Std 1003.1-2017
+Locale
+
+
+https://unix.stackexchange.com/questions/87745/what-does-lc-all-c-do/87763#87763
+What does "LC_ALL=C" do?
+
+
+https://github.com/mpv-player/mpv/commit/1e70e82baa9193f6f027338b0fab0f5078971fbe
+stream_libarchive: workaround various types of locale braindeath
+(legendary C locales rant)
 
 
 https://stackoverflow.com/questions/30479607/explain-the-effects-of-export-lang-lc-ctype-and-lc-all
@@ -1833,15 +1857,6 @@ Reconsider UTF-32 support
 
 
 ================================================================================
-utfcpp
-================================================================================
-
-https://github.com/nemtrif/utfcpp/
-referenced from https://corp.unicode.org/pipermail/unicode/2020-April/008582.html
-Basic Unicode character/string support absent even in modern C++
-
-
-================================================================================
 Twitter text parsing
 ================================================================================
 
@@ -1907,6 +1922,23 @@ Eryk Sun Jul 21, 2019 at 13:31
 
 https://stackoverflow.com/questions/49476326/displaying-unicode-in-powershell/49481797#49481797
 Displaying Unicode in Powershell
+
+
+================================================================================
+Z/OS
+================================================================================
+
+https://www.ibm.com/docs/en/zos/2.3.0?topic=mvs-zos-unicode-services-users-guide-reference
+Unicode services
+
+
+https://www.ibm.com/docs/en/zos/2.3.0?topic=reference-application-programmer-information
+Character conversion
+Case conversion
+Normalization
+Collation
+Bidi transformation
+Stringprep conversion
 
 
 ================================================================================
@@ -2037,6 +2069,11 @@ https://stackoverflow.com/questions/58878651/what-is-the-printf-formatting-chara
 What is the printf() formatting character for char8_t *?
 jlf: todo read it? not sure yet if it's useful to read.
 Referenced from https://corp.unicode.org/pipermail/unicode/2020-April/008579.html
+Basic Unicode character/string support absent even in modern C++
+
+
+https://github.com/nemtrif/utfcpp/
+referenced from https://corp.unicode.org/pipermail/unicode/2020-April/008582.html
 Basic Unicode character/string support absent even in modern C++
 
 
