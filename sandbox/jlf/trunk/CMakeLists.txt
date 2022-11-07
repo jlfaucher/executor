@@ -1729,6 +1729,8 @@ endif ()    # ooshapes.dll
    # Override the compile definitions with ooDialog-exclusive defines
    set_property(TARGET oodialog
           PROPERTY COMPILE_DEFINITIONS
+          UNICODE=1
+          _UNICODE=1
           OOD_VER=${OOD_MAJOR}
           OOD_REL=${OOD_MINOR}
           OOD_MOD=${OOD_MOD_LVL}

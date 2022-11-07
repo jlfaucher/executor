@@ -3961,7 +3961,7 @@ RexxMethod2(RexxObjectPtr, psp_getPageTitle, NAME, name, CSELF, pCSelf)
                 return pcpsp->headerTitle == NULL ? TheNilObj : context->String(headerTitleA);
             }
     }
-    const rxcharT *headerSubTitle="";
+    const rxcharT *headerSubTitle=_T("");
     RXCT2A(headerSubTitle);
     return pcpsp->headerSubTitle == NULL ? TheNilObj : context->String(headerSubTitleA);
 }
