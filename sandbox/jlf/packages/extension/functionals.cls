@@ -1372,9 +1372,11 @@ This script needs a modified ooRexx interpreter which support extension of prede
         if msg >= self then return self~sendWith("upto", args~~insert(msg, .nil), n:namedArguments)
         else return self~sendWith("downto", args~~insert(msg, .nil), n:namedArguments)
     end
-    -- Remember: I can forward the message "unknown" because I added by extension the method "unknown" to the class .Object.
-    -- Without this extension, you get a stack overflow.
-    forward class (super)
+    -- Next line is not working... returns .true when NO method UNKNOWN on a superclass
+    -- if self~hasMethod:super("UNKNOWN") then forward class (super)
+    -- raise nomethod
+    raise syntax 97.001 array (self, msg)
+
 
 ::routine controlledLoop private
     use strict arg from, limit, step, count, action

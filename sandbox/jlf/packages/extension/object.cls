@@ -62,17 +62,3 @@
     -- Will be redefined by subclasses like array, string, etc...
     -- To make a distinction between a real string and other objects, surround by (...)
     return "("self~string")"
-
-
-----------
--- Unknown
-----------
-
--- This method is needed to avoid a stack overflow when forwarding the message "unknown".
--- Ex:
--- The class RepeaterCollector defines an "unknown" method to support the form number~number.
--- If not applicable, then it forwards the message "unknown" to the class (super): here RepeaterGenerator.
--- If RepeaterGenerator has no "unknown" method then the interpreter recalls RepeaterCollector~unknown.
-::method unknown unguarded
-    use arg msg, args
-    raise syntax 97.1 array(self, msg)
