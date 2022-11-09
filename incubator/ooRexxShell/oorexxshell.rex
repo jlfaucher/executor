@@ -96,17 +96,18 @@ if .ooRexxShell~isInteractive then do
     settings~save(.ooRexxShell~settingsFile)
 end
 
-if .ooRexxShell~RC == .ooRexxShell~reload then return .ooRexxShell~reload
-
--- 0 means ok (return 0), anything else means ko (return 1)
-return .ooRexxShell~RC <> 0
+-- reload under Macos not always working, and I don't know why
+RC = .ooRexxShell~RC
+if RC \== .ooRexxShell~reload then RC = (RC <> 0) -- 0 means ok (return 0), anything else means ko (return 1)
+exit RC
 
 error:
 condition = condition("O")
 if condition <> .nil then do
     .ooRexxShell~sayCondition(condition)
-    .ooRexxShell~sayError(condition~traceback~makearray~tostring)
+    if .nil \== condition~traceback then .ooRexxShell~sayError(condition~traceback~makearray~tostring)
 end
+else say "SHOULD NOT HAPPEN: trapped an error, but no condition object to display"
 signal finalize
 
 
@@ -915,7 +916,7 @@ Helpers
         .ooRexxShell~sayError(.Unicode~loadDerivedName("getFile"))
         return .false
     end
-    if .ooRexxShell~isInteractive then do
+    if .ooRexxShell~isInteractive | .ooRexxShell~demo then do
         .ooRexxShell~sayInfo("Load the Unicode character names" .Unicode~version "")
         status = .Unicode~loadDerivedName(/*action*/ "load", /*showProgress*/ .true) -- load all the Unicode characters
         .ooRexxShell~sayInfo
@@ -933,9 +934,8 @@ Helpers
     end
     -- Small file, no need of progress
     status = .Unicode~loadNameAliases(/*action*/ "load", /*showProgress*/ .false) -- load the name aliases
-    if .ooRexxShell~isInteractive then .ooRexxShell~sayInfo(status)
-
-    if .ooRexxShell~isInteractive then do
+    if .ooRexxShell~isInteractive | .ooRexxShell~demo then do
+        .ooRexxShell~sayInfo(status)
         .ooRexxShell~sayComment("Unicode character intervals not expanded, execute: call expandUnicodeCharacterIntervals")
     end
 
@@ -944,7 +944,7 @@ Helpers
 
 ::routine expandUnicodeCharacterIntervals
     status = .Unicode~expandCharacterIntervals(.true)
-    if .ooRexxShell~isInteractive, status <> "" then do
+    if .ooRexxShell~isInteractive | .ooRexxShell~demo, status <> "" then do
         .ooRexxShell~sayInfo
         .ooRexxShell~sayInfo(status)
     end
@@ -1329,6 +1329,7 @@ Helpers
 ::method sayStackFrames class
     if .ooRexxShell~demo then return
     use strict arg stream=.output -- you can pass .error if you want to separate normal output and error output
+    if .nil == .ooRexxShell~stackFrames then return
     supplier = .ooRexxShell~stackFrames~supplier
     do while supplier~available
         stackFrame = supplier~item
@@ -1347,6 +1348,7 @@ Helpers
 
 ::method sayTraceback class
     use strict arg stream=.output -- you can pass .error if you want to separate normal output and error output
+    if .nil == .ooRexxShell~traceback then return
     supplier = .ooRexxShell~traceback~supplier
     do while supplier~available
         stream~say(supplier~item)
