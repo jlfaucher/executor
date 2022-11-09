@@ -10,6 +10,7 @@
 -- no need to requires unicode.cls because Unicode is a predefined class.
 -- ::requires "extension/unicode.cls"
 
+-- ::options trace i
 
 /******************************************************************************/
 /*
@@ -258,20 +259,20 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     --  iso-ir-100, csISOLatin1, latin1, l1, IBM819. Code page 28591 a.k.a. Windows-28591 is used for it in Windows.[9] IBM calls it code page 819 or CP819 (CCSID 819).[10][11][12][13] Oracle calls it WE8ISO8859P1.[14]
     -- https://docs.python.org/3/library/codecs.html#standard-encodings
     --  iso-8859-1, iso8859-1, 8859, cp819, latin, latin1, L1
-    -- encodings["819"] = .ISO88591_Encoding
-    -- encodings["8859"] = .ISO88591_Encoding
-    -- encodings["28591"] = .ISO88591_Encoding
-    -- encodings["CP819"] = .ISO88591_Encoding
-    -- encodings["CSISOLATIN1"] = .ISO88591_Encoding
-    -- encodings["IBM819"] = .ISO88591_Encoding
-    -- encodings["ISO88591"] = .ISO88591_Encoding
-    -- encodings["ISOIR100"] = .ISO88591_Encoding
-    -- encodings["L1"] = .ISO88591_Encoding
-    -- encodings["LATIN"] = .ISO88591_Encoding
-    -- encodings["LATIN1"] = .ISO88591_Encoding
-    -- encodings["CP819"] = .ISO88591_Encoding
-    -- encodings["WE8ISO8859P1"] = .ISO88591_Encoding
-    -- encodings["WINDOWS28591"] = .ISO88591_Encoding
+    encodings["819"] = .ISO88591_Encoding
+    encodings["8859"] = .ISO88591_Encoding
+    encodings["28591"] = .ISO88591_Encoding
+    encodings["CP819"] = .ISO88591_Encoding
+    encodings["CSISOLATIN1"] = .ISO88591_Encoding
+    encodings["IBM819"] = .ISO88591_Encoding
+    encodings["ISO88591"] = .ISO88591_Encoding
+    encodings["ISOIR100"] = .ISO88591_Encoding
+    encodings["L1"] = .ISO88591_Encoding
+    encodings["LATIN"] = .ISO88591_Encoding
+    encodings["LATIN1"] = .ISO88591_Encoding
+    encodings["CP819"] = .ISO88591_Encoding
+    encodings["WE8ISO8859P1"] = .ISO88591_Encoding
+    encodings["WINDOWS28591"] = .ISO88591_Encoding
 
     -- ISO-8859-2 (Central and Eastern Europe)
     -- encodings["ISO88592"] = .ISO88592_Encoding
@@ -459,7 +460,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method endsWithText
     use strict arg other
-    use strict named arg caseless
+    use strict named arg casefold
     -- todo
 /*
     start = self~length - substr~length + 1
@@ -551,7 +552,8 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method matchText private
     use strict arg startC, other, nC, lengthC
-    use strict named arg caseless -- boolean
+    -- stay limited to NFC because of the position and length
+    use strict named arg casefold, lump, stripIgnorable, stripMark -- boolean
 
     selfIndexer = self
     call check_position startC, selfIndexer~length
@@ -566,10 +568,10 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     call check_length lengthC, otherIndexer~length, nC
 
     selfText = selfIndexer~string~text
-    selfNormText = selfText~NFC(casefold: caseless)
+    selfNormText = selfText~NFC(casefold: casefold, lump: lump, stripIgnorable: stripIgnorable, stripMark: stripMark)
     selfNormIndexer = selfNormText~internalIndexer
 
-    otherNormText = otherText~NFC(casefold: caseless)
+    otherNormText = otherText~NFC(casefold: casefold, lump: lump, stripIgnorable: stripIgnorable, stripMark: stripMark)
     otherNormIndexer = otherNormText~internalIndexer
 
     startB = abs(selfNormIndexer~graphemeIndex(startC))
@@ -607,7 +609,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method posText private
     use strict arg needle, startC, lengthC
-    use strict named arg caseless -- boolean
+    use strict named arg casefold -- boolean
     -- todo
 
 
@@ -627,22 +629,23 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method caselessEndsWith
     use strict arg other
-    return self~endsWithText(other, caseless:.true)
+    return self~endsWithText(other, casefold:.true)
 
 
 ::method caselessMatch
     use strict arg startC, other, nC=1, lengthC=.nil
-    return self~matchText(startC, other, nC, lengthC, caseless:.true)
+    use strict named arg lump= .false, stripIgnorable= .false, stripMark=.false
+    return self~matchText(startC, other, nC, lengthC, casefold:.true, lump: lump, stripIgnorable: stripIgnorable, stripMark: stripMark)
 
 
 ::method caselessMatchChar
     use strict arg nC, chars
-    return self~matchCharText(nC, chars, caseless:.true)
+    return self~matchCharText(nC, chars, casefold:.true)
 
 
 ::method caselessPos
     use strict arg needle, startC=1, lengthC=(self~length)
-    return self~posText(needle, startC, lengthC, caseless:.true)
+    return self~posText(needle, startC, lengthC, casefold:.true)
 
 
 ::method center
@@ -697,7 +700,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method endsWith
     use strict arg other
-    return self~endsWithText(other, caseless:.false)
+    return self~endsWithText(other, casefold:.false)
 
 
 ::method length -- number of graphemes
@@ -713,17 +716,18 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method match
     use strict arg startC, other, nC=1, lengthC=.nil
-    return self~matchText(startC, other, nC, lengthC, caseless:.false)
+    use strict named arg lump= .false, stripIgnorable= .false, stripMark=.false
+    return self~matchText(startC, other, nC, lengthC, casefold:.false, lump: lump, stripIgnorable: stripIgnorable, stripMark: stripMark)
 
 
 ::method matchChar
     use strict arg nC, chars
-    return self~matchCharText(nC, chars, caseless:.false)
+    return self~matchCharText(nC, chars, casefold:.false)
 
 
 ::method pos
     use strict arg needle, startC=1, lengthC=(self~length)
-    return self~posText(needle, startC, lengthC, caseless:.false)
+    return self~posText(needle, startC, lengthC, casefold:.false)
 
 
 ::method reverse
@@ -843,9 +847,135 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 
 /******************************************************************************/
+::class "BitKey" private
+
+
+::method init class
+    expose powerOfTwo keyCache
+    powerOfTwo = (1, 2, 4, 8, 16, 32, 64, 128, 256, 512)
+    keyCache = .array~new -- map an integer to an interned string which is usable as an index of an IdentityTable
+    self~init:super
+
+
+::method bitPosMask class
+    expose powerOfTwo keyCache
+    use strict arg bitPos -- range 0 to (array~size - 1)
+    dmask = powerOfTwo[bitpos + 1]
+    --return dmask~d2c
+    --/*
+    cmask = keyCache[dmask]
+    if .nil == cmask then do
+        cmask = dmask~d2c
+        keyCache[dmask] = cmask
+    end
+    return cmask
+    --*/
+
+
+::method bitFlagsMask class
+    -- pre-condition:  each argument is 0 or not 0 or omitted
+    -- post-condition: result = arg(1) + arg(2) * 2 + arg(3) * 4 + arg(4) * 8 ...
+    expose powerOfTwo keyCache
+    dmask = 0
+    do i=1 to arg()
+        if arg(i, "e") then dmask += (arg(i) \== 0) * powerOfTwo[i] -- (2 ** (i - 1))
+    end
+    --return dmask~d2c
+    --/*
+    cmask = keyCache[dmask]
+    if .nil == cmask then do
+        cmask = dmask~d2c
+        keyCache[dmask] = cmask
+    end
+    return cmask
+    --*/
+
+
+/******************************************************************************/
+::class "CachedStrings" mixinclass Object private
+
+/*
+A same text can be transformed in several strings, each described by a set of flags.
+This set of flags is used as a key to store the corresponding string in a cache.
+Example of set of flags:
+    Assuming that NFC is bit 0, casefold is bit 4, stripMark is bit 6:
+    NFC = 1                                     key = '[01]'    01x     00000001
+    NFC casefold = 1 + 16 = 17                  key = '[11]'    11x     00010001
+    NFC casefold stripMark = 1 + 16 + 32 = 49   key = '1'       31x     00110001
+    etc...
+
+    Cached strings:
+    stringsCache at '[01]' = NFC
+    stringsCache at '[11]' = NFC casefold
+    stringsCache at '1'    = NFC casefold stripMark
+*/
+
+::method init
+    expose stringsCache assignedBitFlags bitFlags
+
+    -- Usage: if the flag is set then val = flag else val = -1 (see bitFlag)
+    stringsCache = /*.Directory~new --*/ .IdentityTable~new
+    assignedBitFlags = 0~d2c
+    bitFlags = 0~d2c
+    self~init:super
+
+
+::method bitFlag private
+    -- If the bit is assigned then value = flag else value = -1
+
+    -- bitPos            ...   7   6   5   4   3   2   1   0
+    -- mask              ... 128  64  32  16   8   4   2   1
+    -- assignedBitFlags     .  1   0   0   0   1   1   0   0
+    -- bitFlags             .  1   0   0   0   0   1   0   0
+    -- value                .  1  -1  -1  -1   0   1  -1  -1
+
+    expose assignedBitFlags bitFlags
+    use strict arg bitPos
+    mask = .BitKey~bitPosMask(bitPos) -- interned (2 ** bitPos)~d2c
+    if assignedBitFlags~bitand(mask) == mask then return bitFlags~bitand(mask) == mask
+    return -1   -- unknown
+
+
+::method bitFlagsAllTrue private
+    -- This method return .true if all the bits selected by the mask have value 1
+    expose assignedBitFlags bitFlags
+    use strict arg mask -- byte encoded mask 1001...
+    if assignedBitFlags~bitand(mask) == mask then return bitFlags~bitand(mask) == mask
+    return .false
+
+
+::method setBitFlag private
+    expose assignedBitFlags bitFlags
+    use strict arg bitPos
+    mask = .BitKey~bitPosMask(bitPos) -- interned (2 ** bitPos)~d2c
+    assignedBitFlags = assignedBitFlags~bitor(mask) -- this bit is set
+    bitFlags = bitFlags~bitor(mask)                 -- this flag is 1
+
+
+::method setBitFlags private
+    expose assignedBitFlags bitFlags
+    use strict arg mask
+    assignedBitFlags = assignedBitFlags~bitor(mask) -- all these flags are set
+    bitFlags = bitFlags~bitor(mask)                 -- all these flags are 1
+
+
+::method getCachedString private
+    expose stringsCache
+    use strict arg mask
+    return stringsCache~at(mask) -- .nil if not found
+
+
+::method cacheString private
+    expose stringsCache
+    use strict arg mask, string
+    stringsCache~put(string, mask)
+
+
+/******************************************************************************/
 ::class "StringIndexer" mixinclass Object private - -- abstract
                         inherit IndexerStringInterface -
-                                IndexerHelpers
+                                IndexerHelpers -
+                                CachedStrings
 
 ::method name class abstract
 
@@ -1048,8 +1178,11 @@ For example, if startB==6 then previousCodepointIndex==3
 
 
 ::method init
-    expose string maximumCodepoint codepointIndexes codepointCount  graphemeIndexes graphemeCount case errors
+    expose string -
+           maximumCodepoint codepointIndexes codepointCount -
+           graphemeIndexes graphemeCount case errors
     use strict arg string, maximumCodepoint, codepointIndexes, codepointCount, graphemeIndexes, graphemeCount, case, errors
+    self~init:super
 
 
 ::method copy
@@ -1259,81 +1392,140 @@ How other languages are supporting escape characters for Unicode:
 
 
 ::attribute isNFC get
-    expose isNFC
-    if var("isNFC") then return isNFC
+    -- This comment is repeated in many places, update all of them!
+    -- bit      9       8       7              6         5     4        3    2    1   0
+    -- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
+    bitFlag = self~bitFlag(0)
+    if bitFlag \== -1 then return bitFlag
+
     -- http://www.unicode.org/reports/tr15/#Implementation_Notes
     -- Text exclusively containing ASCII characters (U+0000..U+007F) is left unaffected by all of the Normalization Forms
-    if self~string~isASCII then return .true
-    return -1   -- unknown
+    if self~string~isASCII then do
+        self~setBitFlag(0)
+        return .true
+    end
+
     /*
-    I don't know how to implement this optimization:
     http://www.unicode.org/reports/tr15/#Implementation_Notes
     Text exclusively containing Latin-1 characters (U+0000..U+00FF) is left unaffected by NFC.
     This is effectively the same as saying that all Latin-1 text is already normalized to NFC
+    ---
+    Careful! The sentence above is NOT talking about ISO-8859-1 (alias Latin-1 )
     */
+    if self~maximumCodepoint \== -1, self~maximumCodepoint <= 255 then do
+        self~setBitFlag(0)
+        return .true
+    end
 
-
-::attribute isNFC set private
+    return -1   -- unknown
 
 
 ::method NFC abstract
 
 
 ::attribute isNFD get
-    expose isNFD
-    if var("isNFD") then return isNFD
+    -- This comment is repeated in many places, update all of them!
+    -- bit      9       8       7              6         5     4        3    2    1   0
+    -- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
+    bitFlag = self~bitFlag(1)
+    if bitFlag \== -1 then return bitFlag
+
     -- http://www.unicode.org/reports/tr15/#Implementation_Notes
     -- Text exclusively containing ASCII characters (U+0000..U+007F) is left unaffected by all of the Normalization Forms
-    if self~string~isASCII then return 1
+    if self~string~isASCII then do
+        self~setBitFlag(1)
+        return .true
+    end
+
     return -1   -- unknown
-
-
-::attribute isNFD set private
 
 
 ::method NFD abstract
 
 
 ::attribute isNFKC get
-    expose isNFKC
-    if var("isNFKC") then return isNFKC
+    -- This comment is repeated in many places, update all of them!
+    -- bit      9       8       7              6         5     4        3    2    1   0
+    -- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
+    bitFlag = self~bitFlag(2)
+    if bitFlag \== -1 then return bitFlag
+
     -- http://www.unicode.org/reports/tr15/#Implementation_Notes
     -- Text exclusively containing ASCII characters (U+0000..U+007F) is left unaffected by all of the Normalization Forms
-    if self~string~isASCII then return 1
+    if self~string~isASCII then do
+        self~setBitFlag(2)
+        return .true
+    end
+
     return -1   -- unknown
-
-
-::attribute isNFKC set private
 
 
 ::method NFKC abstract
 
 
 ::attribute isNFKD get
-    expose isNFKD
-    if var("isNFKD") then return isNFKD
+    -- This comment is repeated in many places, update all of them!
+    -- bit      9       8       7              6         5     4        3    2    1   0
+    -- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
+    bitFlag = self~bitFlag(3)
+    if bitFlag \== -1 then return bitFlag
+
     -- http://www.unicode.org/reports/tr15/#Implementation_Notes
     -- Text exclusively containing ASCII characters (U+0000..U+007F) is left unaffected by all of the Normalization Forms
-    if self~string~isASCII then return 1
+    if self~string~isASCII then do
+        self~setBitFlag(3)
+        return .true
+    end
+
     return -1   -- unknown
-
-
-::attribute isNFKD set private
 
 
 ::method NFKD abstract
 
 
 ::attribute isCasefold get
-    expose isCasefold
-    if var("isCasefold") then return isCasefold
-    return -1   -- unknown
-
-
-::attribute isCasefold set private
+    -- This comment is repeated in many places, update all of them!
+    -- bit      9       8       7              6         5     4        3    2    1   0
+    -- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
+    return self~bitFlag(4)
 
 
 ::method Casefold abstract
+
+
+::attribute isLumped get
+    -- This comment is repeated in many places, update all of them!
+    -- bit      9       8       7              6         5     4        3    2    1   0
+    -- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
+    return self~bitFlag(5)
+
+
+::attribute isMarkStripped get
+    -- This comment is repeated in many places, update all of them!
+    -- bit      9       8       7              6         5     4        3    2    1   0
+    -- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
+    return self~bitFlag(6)
+
+
+::attribute isIgnorableStripped get
+    -- This comment is repeated in many places, update all of them!
+    -- bit      9       8       7              6         5     4        3    2    1   0
+    -- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
+    return self~bitFlag(7)
+
+
+::attribute isCCStripped get
+    -- This comment is repeated in many places, update all of them!
+    -- bit      9       8       7              6         5     4        3    2    1   0
+    -- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
+    return self~bitFlag(8)
+
+
+::attribute isNAStripped get
+    -- This comment is repeated in many places, update all of them!
+    -- bit      9       8       7              6         5     4        3    2    1   0
+    -- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
+    return self~bitFlag(9)
 
 
 /******************************************************************************/
@@ -1788,9 +1980,46 @@ How other languages are supporting escape characters for Unicode:
     expose tableTranscodingToUnicode
     use strict arg -- none
     specificTranscoding =,
-        , --       00      01      02      03      04      05      06      07      08      09      0A      0B      0C      0D      0E      0F
+        , --        00      01      02      03      04      05      06      07      08      09      0A      0B      0C      0D      0E      0F
         "80:",  "20AC",  "-81", "201A", "0192", "201E", "2026", "2020", "2021", "02C6", "2030", "0160", "2039", "0152",  "-8D", "017D",  "-8F",,
         "90:",   "-90", "2018", "2019", "201C", "201D", "2022", "2013", "2014", "02DC", "2122", "0161", "203A", "0153",  "-9D", "017E", "0178"
+    tableTranscodingToUnicode = createCharacterTranscodingTable(256, specificTranscoding)
+
+
+/******************************************************************************/
+::class "ISO88591_Encoding" subclass Byte_Encoding public
+-- many aliases
+
+::constant name "ISO-8859-1"
+
+
+::attribute tableTranscodingToUnicode class get
+
+
+::method activate class
+    -- https://en.wikipedia.org/wiki/ISO/IEC_8859-1#Code_page_layout
+    -- TODO: It's not clear to me if I should follow the rule below, i.e. returning the CP1252 characters 128 to 159.
+    /*
+        https://www.w3schools.com/charsets/
+            When a browser detects ISO-8859-1 it normally defaults to Windows-1252, because
+            Windows-1252 has 32 more international characters.
+        https://www.w3schools.com/charsets/ref_html_8859.asp
+            ISO-8859-1 is very similar to Windows-1252.
+            In ISO-8859-1, the characters from 128 to 159 are not defined.
+            In Windows-1252, the characters from 128 to 159 are used for some useful symbols.
+            Since many web sites declare ISO-8859-1 and use the values from 128 to 159 as if
+            they were using Windows-1252, most browsers will display these characters from
+            the Windows-1252 character set instead of nothing.
+    */
+    expose tableTranscodingToUnicode
+    use strict arg -- none
+    specificTranscoding =,
+        , --        00      01      02      03      04      05      06      07      08      09      0A      0B      0C      0D      0E      0F
+        "00:",      "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     "",,
+        "10:",      "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     "",,
+        "7F:",                                                                                                                              "",,
+        "80:",      "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     "",,
+        "90:",      "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     "",     ""
     tableTranscodingToUnicode = createCharacterTranscodingTable(256, specificTranscoding)
 
 
@@ -2477,210 +2706,73 @@ How other languages are supporting escape characters for Unicode:
     forward class (super)
 
 
-::method NFC
-    expose NFCString -
-           NFCCasefoldString
+::method transform
+    -- This comment is repeated in many places, update all of them!
+    -- bit      9       8       7              6         5     4        3    2    1   0
+    -- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
+
     use strict arg -- none
-    use strict named arg casefold(1) = .false, returnString = .false, memorize(3) = (.Unicode~memorizeTransformations)
-    if casefold then do
-        if var("NFCCasefoldString") then return NFCCasefoldString~makeRexxTextOrString(returnString) -- already memorized
-        if self~isNFC == 1, self~isCasefold == 1 then string = self~string -- already in normalized form KC casefold
-        else do
-            string = .Unicode~utf8proc_transform(self~string, normalization: 1, casefold: .true)
-            if (string == self~string) then do
-                self~isNFC = 1
-                self~isCasefold = 1
-            end
-            else nop -- CAREFUL! don't store 0 (keep -1) because maybe one of the indicators could be 1
-            if returnString then do
-                string~encoding = self~class
-            end
-            else do
-                text = .RexxText~new(string, self~class)
-                text~internalIndexer~isNFC = 1
-                text~internalIndexer~isCasefold = 1
-            end
-        end
-        if memorize then NFCCasefoldString = string
-    end
+    use strict named arg normalization(4) = 1, casefold(4) = .false, lump= .false, stripMark = .false, stripIgnorable= .false, stripCC = .false, stripNA = .false, returnString = .false, memorize(3) = (.Unicode~memorizeTransformations)
+
+    .validate~wholeNumberRange("normalization", normalization, 0, 4)
+    .validate~logical("casefold", casefold)
+    .validate~logical("lump", lump)
+    .validate~logical("stripMark", stripMark)
+    .validate~logical("stripIgnorable", stripIgnorable)
+    .validate~logical("stripCC", stripCC)
+    .validate~logical("stripNA", stripNA)
+    .validate~logical("returnString", returnString)
+    .validate~logical("memorize", memorize)
+
+    -- normalization: 1=NFC, 2=NFD, 3=NFKC, 4=NFKD
+
+    -- preset the bitFlags (these indicators have optimization rules)
+    if normalization == 1 then self~isNFC
+    else if normalization == 2 then self~isNFD
+    else if normalization == 3 then self~isNFKC
+    else if normalization == 4 then self~isNFKD
+
+    mask = .BitKey~bitFlagsMask(normalization == 1, normalization == 2, normalization == 3, normalization == 4, casefold, lump, stripMark, stripIgnorable, stripCC, stripNA)
+    string = self~getCachedString(mask)
+    if .nil \== string then return string~makeRexxTextOrString(returnString) -- already memorized
+    if self~bitFlagsAllTrue(mask) then string = self~string -- already in the requested form
     else do
-        if var("NFCString") then return NFCString~makeRexxTextOrString(returnString) -- already memorized
-        if self~isNFC == 1 then string = self~string -- already in normalized form KC
-        else do
-            string = .Unicode~utf8proc_transform(self~string, normalization: 1)
-            self~isNFC = (string == self~string)
-            if returnString then do
-                -- It's a new string, without any encoding stored on it
-                string~encoding = self~class
-            end
-            else do
-                text = .RexxText~new(string, self~class)
-                text~internalIndexer~isNFC = 1
-            end
+        string = .Unicode~utf8proc_transform(self~string, normalization: normalization, casefold: casefold, lump: lump, stripMark: stripMark, stripIgnorable: stripIgnorable, stripCC: stripCC, stripNA: stripNA)
+        if (string == self~string) then do
+            self~setBitFlags(mask) -- all these flags are set to true
         end
-        if memorize then NFCString = string
-    end
-    return string~makeRexxTextOrString(returnString)
-
-
-::method NFD
-    expose NFDString -
-           NFDCasefoldString
-    use strict arg -- none
-    use strict named arg casefold(1) = .false, returnString = .false, memorize(3) = (.Unicode~memorizeTransformations)
-    if casefold then do
-        if var("NFDCasefoldString") then return NFDCasefoldString~makeRexxTextOrString(returnString) -- already memorized
-        if self~isNFD == 1, self~isCasefold == 1 then string = self~string -- already in normalized form KC casefold
-        else do
-            string = .Unicode~utf8proc_transform(self~string, normalization: 2, casefold: .true)
-            if (string == self~string) then do
-                self~isNFD = 1
-                self~isCasefold = 1
-            end
-            else nop -- CAREFUL! don't store 0 (keep -1) because maybe one of the indicators could be 1
-            if returnString then do
-                string~encoding = self~class
-            end
-            else do
-                text = .RexxText~new(string, self~class)
-                text~internalIndexer~isNFD = 1
-                text~internalIndexer~isCasefold = 1
-            end
-        end
-        if memorize then NFDCasefoldString = string
-    end
-    else do
-        if var("NFDString") then return NFDString~makeRexxTextOrString(returnString) -- already memorized
-        if self~isNFD == 1 then string = self~string -- already in normalized form KC
-        else do
-            string = .Unicode~utf8proc_transform(self~string, normalization: 2)
-            self~isNFD = (string == self~string)
-            if returnString then do
-                -- It's a new string, without any encoding stored on it
-                string~encoding = self~class
-            end
-            else do
-                text = .RexxText~new(string, self~class)
-                text~internalIndexer~isNFD = 1
-            end
-        end
-        if memorize then NFDString = string
-    end
-    return string~makeRexxTextOrString(returnString)
-
-
-::method NFKC
-    expose NFKCString -
-           NFKCCasefoldString
-    use strict arg -- none
-    use strict named arg casefold(1) = .false, returnString = .false, memorize(3) = (.Unicode~memorizeTransformations)
-    if casefold then do
-        if var("NFKCCasefoldString") then return NFKCCasefoldString~makeRexxTextOrString(returnString) -- already memorized
-        if self~isNFKC == 1, self~isCasefold == 1 then string = self~string -- already in normalized form KC casefold
-        else do
-            string = .Unicode~utf8proc_transform(self~string, normalization: 3, casefold: .true)
-            if (string == self~string) then do
-                self~isNFKC = 1
-                self~isCasefold = 1
-            end
-            else nop -- CAREFUL! don't store 0 (keep -1) because maybe one of the indicators could be 1
-            if returnString then do
-                string~encoding = self~class
-            end
-            else do
-                text = .RexxText~new(string, self~class)
-                text~internalIndexer~isNFKC = 1
-                text~internalIndexer~isCasefold = 1
-            end
-        end
-        if memorize then NFKCCasefoldString = string
-    end
-    else do
-        if var("NFKCString") then return NFKCString~makeRexxTextOrString(returnString) -- already memorized
-        if self~isNFKC == 1 then string = self~string -- already in normalized form KC
-        else do
-            string = .Unicode~utf8proc_transform(self~string, normalization: 3)
-            self~isNFKC = (string == self~string)
-            if returnString then do
-                -- It's a new string, without any encoding stored on it
-                string~encoding = self~class
-            end
-            else do
-                text = .RexxText~new(string, self~class)
-                text~internalIndexer~isNFKC = 1
-            end
-        end
-        if memorize then NFKCString = string
-    end
-    return string~makeRexxTextOrString(returnString)
-
-
-::method NFKD
-    expose NFKDString -
-           NFKDCasefoldString
-    use strict arg -- none
-    use strict named arg casefold(1) = .false, returnString = .false, memorize(3) = (.Unicode~memorizeTransformations)
-    if casefold then do
-        if var("NFKDCasefoldString") then return NFKDCasefoldString~makeRexxTextOrString(returnString) -- already memorized
-        if self~isNFKD == 1, self~isCasefold == 1 then string = self~string -- already in normalized form KC casefold
-        else do
-            string = .Unicode~utf8proc_transform(self~string, normalization: 4, casefold: .true)
-            if (string == self~string) then do
-                self~isNFKD = 1
-                self~isCasefold = 1
-            end
-            else nop -- CAREFUL! don't store 0 (keep -1) because maybe one of the indicators could be 1
-            if returnString then do
-                string~encoding = self~class
-            end
-            else do
-                text = .RexxText~new(string, self~class)
-                text~internalIndexer~isNFKD = 1
-                text~internalIndexer~isCasefold = 1
-            end
-        end
-        if memorize then NFKDCasefoldString = string
-    end
-    else do
-        if var("NFKDString") then return NFKDString~makeRexxTextOrString(returnString) -- already memorized
-        if self~isNFKD == 1 then string = self~string -- already in normalized form KC
-        else do
-            string = .Unicode~utf8proc_transform(self~string, normalization: 4)
-            self~isNFKD = (string == self~string)
-            if returnString then do
-                -- It's a new string, without any encoding stored on it
-                string~encoding = self~class
-            end
-            else do
-                text = .RexxText~new(string, self~class)
-                text~internalIndexer~isNFKD = 1
-            end
-        end
-        if memorize then NFKDString = string
-    end
-    return string~makeRexxTextOrString(returnString)
-
-
-::method Casefold
-    expose CasefoldString
-    use strict arg -- none
-    use strict named arg returnString = .false, memorize(3) = (.Unicode~memorizeTransformations)
-    if var("CasefoldString") then return CasefoldString~makeRexxTextOrString(returnString) -- already memorized
-    if self~isCasefold == 1 then string = self~string -- already case fold
-    else do
-        string = .Unicode~utf8proc_transform(self~string, casefold: .true)
-        self~isCasefold = (string == self~string)
+        else nop -- CAREFUL! don't store 0 (keep -1) because maybe one of the indicators could be 1
         if returnString then do
             -- It's a new string, without any encoding stored on it
             string~encoding = self~class
         end
         else do
             text = .RexxText~new(string, self~class)
-            text~internalIndexer~isCasefold = 1
+            text~internalIndexer~setBitFlags(mask)
         end
     end
-    if memorize then CasefoldString = string
+    if memorize then self~cacheString(mask, string)
     return string~makeRexxTextOrString(returnString)
+
+
+::method NFC
+    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", 1))
+
+
+::method NFD
+    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", 2))
+
+
+::method NFKC
+    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", 3))
+
+
+::method NFKD
+    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", 4))
+
+
+::method Casefold
+    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", 0)~~setEntry("casefold", .true))
 
 
 /******************************************************************************/
@@ -4248,6 +4340,7 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
     self~init:super(empty, empty)
     indexC = 1
     -- will add a byte index
+    -- self~init:super -- Don't forward, would raise error "argument 1 is required"
 
 
 ::method count
@@ -4290,6 +4383,7 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
     empty = .array~new(0) -- No need to create a copy, the string is immutable
     self~init:super(empty, empty)
     indexG = 1
+    -- self~init:super -- Don't forward, would raise error "argument 1 is required"
 
 
 ::method count

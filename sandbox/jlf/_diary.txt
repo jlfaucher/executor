@@ -2,6 +2,168 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2022 November 08
+
+[Encoded strings]
+
+Additional arguments are supported by NFC, NFD, NFKC, NFKD, Casefold:
+    lump
+        Lumps certain different codepoints together.
+        All the concerned characters become the same character, but still remain distinct characters.
+        E.g. HYPHEN U+2010 and MINUS U+2212 to ASCII "-"
+             all space characters (general category Zs) to U+0020
+    stripIgnorable
+        Strips the characters whose property Default_Ignorable_Code_Point = true
+        such as SOFT-HYPHEN or ZERO-WIDTH-SPACE
+    stripCC
+        Strips and/or converts control characters:
+        characters 00-1F and 7F-9F, except 09 which is replaced by 20.
+    stripMark
+        Strips all character markings:
+        characters whose category is Mc Me Mn (i.e. accents)
+            Mc Spacing Mark
+            Me Enclosing Mark
+            Mn Nonspacing Mark
+        This option works only with normalization.
+    stripNA
+        Strips the characters whose category is Cn Unassigned
+        Note that the value gc=Cn does not actually occur in UnicodeData.txt,
+        because that data file does not list unassigned code points.
+
+Remark: the normalization NFKC_Casefold (short alias NFKC_CF) is done with
+    ~NFKC(Casefold: .true, stripIgnorable: .true)
+
+
+[Encoded strings]
+
+Two RexxText values are considered equal if their extended grapheme clusters are canonically equivalent.
+This is the definition of Swift.
+Q&A https://lists.isocpp.org/sg16/2018/08/0121.php
+TODO: confirm that it's NFC, and only that.
+The definition of canonical equivalence by the Unicode standard seems not limited to NFC.
+https://unicode.org/notes/tn5/
+
+The strict comparison operators now use the NFC normalization.
+After normalization, they delegate to the String's strict comparison operators.
+
+The non-strict comparison operators now use the NFC normalization plus
+    stripIgnorable:.true
+    lump:.true
+After normalization + transformations, they delegate to the String's non-strict comparison operators.
+Thanks to the lump transformation, all the Unicode spaces are supported.
+
+Examples:
+textNFC = "Noël"~text~NFC
+textNFC~characters==
+    an Array (shape [4], 4 items)
+     1 : ( "N"   U+004E Lu 1 "" )
+     2 : ( "o"   U+006F Ll 1 "" )
+     3 : ( "ë"   U+00EB Ll 1 "" )
+     4 : ( "l"   U+006C Ll 1 "" )
+textNFD="Noël"~text~NFD
+textNFD~characters==
+    an Array (shape [5], 5 items)
+     1 : ( "N"   U+004E Lu 1 "" )
+     2 : ( "o"   U+006F Ll 1 "" )
+     3 : ( "e"   U+0065 Ll 1 "" )
+     4 : ( "̈"    U+0308 Mn 0 "" )
+     5 : ( "l"   U+006C Ll 1 "" )
+(textNFC == textNFD)=                                               -- 1
+(textNFC = textNFD)=                                                -- 1
+(" "textNFC == textNFD" ")=                                         -- 0 because strict
+(" "textNFC = textNFD" ")=                                          -- 1
+(" "textNFC = (textNFD"\u{NBSP}")~unescape)=                        -- 1
+(" "textNFC = (textNFD"\u{ZWSP}")~unescape)=                        -- 1
+("-"textNFC = ("\u{OBLIQUE HYPHEN}"textNFD"\u{ZWSP}")~unescape)=    -- 1
+
+"pere noel"~text~caselessCompareTo("Père Noël")=                    -- -1 (lesser)
+"pere noel"~text~caselessCompareTo("Père Noël", stripMark:.true)=   --  0 (equal)
+
+
+[Encoded strings]
+
+Some transformations will make invalid the positions or lengths passed by the user.
+They must not be used under the hood.
+
+lump: ok, no impact on positions or lengths.
+
+stripIgnorable
+    "\u{SOFT-HYPHEN} or \u{ZERO-WIDTH-SPACE}"~text~unescape=                    -- T'­ or ​'
+    result~length=                                                              -- 6
+    "\u{SOFT-HYPHEN} or \u{ZERO-WIDTH-SPACE}"~text~unescape~NFC(stripIgnorable: .true)=  -- T' or '
+    result~length=                                                              -- 4
+
+casefold
+    "ß becomes ss"~text=                                                        -- T'ß becomes ss'
+    result~length=                                                              -- 12
+    "ß becomes ss"~text~NFC(casefold: .true)=                                   -- T'ss becomes ss'
+    result~length=                                                              -- 13
+
+
+The difficulty to manage string indexes with transformations
+
+    The caseless methods with character position or length
+        caselessAbbrev                  (info, length) --> boolean
+        caselessChangeStr               (needle, newneedle, count) --> string      no position, but the returned string can't be a transformed string
+                                                                                   "AbaBabAB"~changeStr("ab","xY")=          -- 'AbaBxYAB'
+                                                                                   "AbaBabAB"~caselessChangeStr("ab","xY")=  -- 'xYxYxYxY'
+        caselessCompare                 (string, pad) --> 0 if identical, otherwise position of the first character that does not match
+        caselessCompareTo               (string, n, length) --> -1, 0 or 1         full UTF-8
+        caselessContains                (other, start, length) --> boolean         (new 5)
+        caselessLastPos                 (needle, start, length) --> char position
+        caselessMatch                   (start, other, n, length) --> boolean      full UTF-8
+        caselessMatchChar               (n, chars) --> boolean
+        caselessPos                     (needle, start, length) --> char position
+
+    The caseless methods without position
+        caselessContainsWord            (phrase, start) --> boolean                (new 5) start is a word index, so not impacted by transformations
+        caselessCountStr                (needle) --> count
+        caselessEndsWith                (other) --> boolean                        (new 5)
+        caselessEquals                  (other) --> boolean                        QUESTIONABLE : STRICTLY equal, so not sure that we can say "ß" is strictly equal to "ss"
+        caselessStartsWith              (other) --> boolean                        (new 5)
+        caselessWordPos                 (phrase, start) --> word number or 0       start is a word index, so not impacted by transformations
+
+
+[Encoded strings]
+
+Add support for ISO-8859-1 encoding (alias Latin1).
+Example:
+    -- all the supported characters: ranges 20-7E and A0-FF
+    text = xrange("20"x, "7E"x, "A0"x, "FF"x)~text("ISO-8859-1")
+
+    -- The ? are just ISO-8859-1 encoded characters that can't be displayed as-is in a console UTF-8 (copy-paste of the console output)
+    -- After conversion to UTF-8, all is good.
+    text=       -- T' !"#$%&''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~???????????????????????????????????????????????????????????????????????????????????????????????[FF]'
+    text~utf8=  -- T' !"#$%&''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ'
+
+    -- ranges 00-1F and 7F-9F are undefined
+    -- an error is triggered even with the option strict: .false, because there is no fallback mapping
+    text = xrange("20"x, "FF"x)~text("ISO-8859-1")
+    text~utf8(strict: .false)=                      -- Error ISO-8859-1 encoding: cannot convert ISO-8859-1 not-ASCII character 127 (7F) at byte-position 96 to UTF-8.
+
+
+===============================================================================
+2022 November 07
+
+[Unicode]
+
+Reactivate oodialog.wchar.
+/DUNICODE was missing, now it's really the Unicode DLL which is built.
+This is an old version of ooDialog (around early 2010).
+
+Demo:
+cdunicode           (as-is, no space, it's an alias)
+cd oorexx
+rexx ooRexxTry.rex  (no need of wchar as in 2012)
+
+copy-paste in the code area:
+.unicode~loadDerivedName("load", .true)
+call dump2 "père Noël"~text~characters
+say "noël👩‍👨‍👩‍👧🎅"~text~description
+call dump2 "noël👩‍👨‍👩‍👧🎅" ~text~characters
+
+
+===============================================================================
 2022 November 06
 
 [Unicode]
@@ -64,7 +226,7 @@ Performance
 
 Examples
     -- Direct access to utf8proc, returns a string
-    s = "Père Noël ß ㎒"; do 10000; .Unicode~transform(s, norm:3, casefold:.true); end                   -- Duration:   0.05
+    s = "Père Noël ß ㎒"; do 10000; .Unicode~utf8proc_transform(s, norm:3, casefold:.true); end          -- Duration:   0.05
     ---
     t = "Père Noël ß ㎒"~text; do 10000; t~NFKC(casefold:.true); end                                     -- Duration:   7.70
     t = "Père Noël ß ㎒"~text; do 10000; t~NFKC(casefold:.true, returnString:.true); end                 -- Duration:   0.33
@@ -383,14 +545,14 @@ Examples:
          3  : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
          4  : ( "　"  U+3000 Zs 2 "IDEOGRAPHIC SPACE" )                                                 <-- replaceable by " " with LUMP:.true
          5  : ( " "   U+1680 Zs 1 "OGHAM SPACE MARK" )                                                  <-- replaceable by " " with LUMP:.true
-         6  : ( "​"    U+200B Cf 0 "ZERO WIDTH SPACE", "ZWSP" )                                          <-- removable by IGNORE:.TRUE
+         6  : ( "​"    U+200B Cf 0 "ZERO WIDTH SPACE", "ZWSP" )                                          <-- removable by STRIPIGNORABLE:.TRUE
          7  : ( "P"   U+0050 Lu 1 "LATIN CAPITAL LETTER P" )
          8  : ( "è"   U+00E8 Ll 1 "LATIN SMALL LETTER E WITH GRAVE" )
          9  : ( "r"   U+0072 Ll 1 "LATIN SMALL LETTER R" )
          10 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
          11 : ( ""    U+0009 Cc 0 "", "CHARACTER TABULATION", "HORIZONTAL TABULATION", "HT", "TAB" )    <-- replaceable by " " with STRIPCC:.true
          12 : ( "‐"   U+2010 Pd 1 "HYPHEN" )                                                            <-- replaceable by "-" with LUMP:.true
-         13 : ( "­"   U+00AD Cf 1 "SOFT HYPHEN", "SHY" )                                                <-- removable by IGNORE:.true
+         13 : ( "­"   U+00AD Cf 1 "SOFT HYPHEN", "SHY" )                                                <-- removable by STRIPIGNORABLE:.true
          14 : ( "–"   U+2013 Pd 1 "EN DASH" )                                                           <-- replaceable by "-" with LUMP:.true
          15 : ( "—"   U+2014 Pd 1 "EM DASH" )                                                           <-- replaceable by "-" with LUMP:.true
          16 : ( "N"   U+004E Lu 1 "LATIN CAPITAL LETTER N" )
@@ -404,17 +566,17 @@ Examples:
     text=                                                               -- T'[07]Le　 ​Père[09]‐­–—Noël﷐[0D0A]'
 
     -- Performs unicode case folding, to be able to do a case-insensitive string comparison.
-    .Unicode~transform(text~string, casefold:.true)=                    --  '[07]le　 ​père[09]‐­–—noël﷐[0D0A]'
+    .Unicode~utf8proc_transform(text~string, casefold:.true)=           --  '[07]le　 ​père[09]‐­–—noël﷐[0D0A]'
 
     -- Strip "default ignorable characters" such as SOFT-HYPHEN or ZERO-WIDTH-SPACE
-    .Unicode~transform(text~string, ignore:.true)=                      --  '[07]Le　 Père[09]‐–—Noël﷐[0D0A]'
+    .Unicode~utf8proc_transform(text~string, stripIgnorable:.true)=     --  '[07]Le　 Père[09]‐–—Noël﷐[0D0A]'
 
     -- Lumps certain characters together. See lump.md for details:
     -- https://github.com/JuliaStrings/utf8proc/blob/master/lump.md
     -- E.g. HYPHEN U+2010 and MINUS U+2212 to ASCII "-"
     -- jlf: I was expecting to have only one space and one "-" but that's not the case
     -- Seems working as designed... All the concerned characters become the same character, but still remain distinct characters.
-    .Unicode~transform(text~string, lump:.true)=                        --  '[07]Le  ​Père[09]-­--Noël﷐[0D0A]'
+    .Unicode~utf8proc_transform(text~string, lump:.true)=               --  '[07]Le  ​Père[09]-­--Noël﷐[0D0A]'
          4  : ( " "   U+0020 Zs 1 "SPACE", "SP" )
          5  : ( " "   U+0020 Zs 1 "SPACE", "SP" )
          6  : ( "​"    U+200B Cf 0 "ZERO WIDTH SPACE", "ZWSP" )
@@ -424,28 +586,28 @@ Examples:
          15 : ( "-"   U+002D Pd 1 "HYPHEN-MINUS" )
 
     -- NLF2LF: Convert LF, CRLF, CR and NEL into LF
-    .Unicode~transform(text~string, NLF:1)=                             --  '[07]Le　 ​Père[09]‐­–—Noël﷐[0A]'
+    .Unicode~utf8proc_transform(text~string, NLF:1)=                    --  '[07]Le　 ​Père[09]‐­–—Noël﷐[0A]'
 
     -- NLF2LS: Convert LF, CRLF, CR and NEL into LS (U+2028 Zl 0 "LINE SEPARATOR")
-    .Unicode~transform(text~string, NLF:2)=                             --  '[07]Le　 ​Père[09]‐­–—Noël﷐
+    .Unicode~utf8proc_transform(text~string, NLF:2)=                    --  '[07]Le　 ​Père[09]‐­–—Noël﷐
 '
 
     -- NLF2PS: convert LF, CRLF, CR and NEL into PS (U+2029 Zp 0 "PARAGRAPH SEPARATOR")
-    .Unicode~transform(text~string, NLF:3)=                             --  '[07]Le　 ​Père[09]‐­–—Noël﷐ '
+    .Unicode~utf8proc_transform(text~string, NLF:3)=                    --  '[07]Le　 ​Père[09]‐­–—Noël﷐ '
 
     -- Strips and/or converts control characters.
-    .Unicode~transform(text~string, stripcc:.true)=                     --  'Le　 ​Père ‐­–—Noël﷐ '
+    .Unicode~utf8proc_transform(text~string, stripCC:.true)=            --  'Le　 ​Père ‐­–—Noël﷐ '
 
     -- Strips all character markings.
     -- This includes non-spacing, spacing and enclosing (i.e. accents).
     -- This option works only with normalization.
-    .Unicode~transform(text~string, stripmark:.true, normalization:1)=  --  '[07]Le　 ​Pere[09]‐­–—Noel﷐[0D0A]'
+    .Unicode~utf8proc_transform(text~string, stripMark:.true, normalization:1)=  --  '[07]Le　 ​Pere[09]‐­–—Noel﷐[0D0A]'
 
     -- Strips unassigned codepoints.
-    .Unicode~transform(text~string, stripna:.true)=                     --  '[07]Le　 ​Père[09]‐­–—Noël[0D0A]'
+    .Unicode~utf8proc_transform(text~string, stripNA:.true)=            --  '[07]Le　 ​Père[09]‐­–—Noël[0D0A]'
 
     -- Application of several options (abbreviated names)
-    .Unicode~transform(text~string, c:.true, i:.true, l:.true, no:1, stripc:.true, stripm:.true, stripn:.true)= --  'le  pere ---noel '
+    .Unicode~utf8proc_transform(text~string, casef:.true, lump:.true, norm:1, stripi:.true, stripc:.true, stripm:.true, stripn:.true)= --  'le  pere ---noel '
         an Array (shape [17], 17 items)
          1  : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
          2  : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
@@ -737,7 +899,7 @@ From a RexxText, the implementation is based on utf8proc.
 
 
 For one character, utf8proc and ziglyph provide different results for upper/title
-    .Unicode~characters~select{utf8proc = item~utf8~upper; ziglyph= .Unicode~stringToUpper(item~utf8~string); utf8proc \== ziglyph}==
+    .Unicode~characters~select{utf8proc = item~utf8~upper; ziglyph= .Unicode~ziglyph_stringToUpper(item~utf8~string); utf8proc \== ziglyph}==
         an Array (shape [1], 1 items)
          1 : ( "ß"   U+00DF Ll 1 "LATIN SMALL LETTER SHARP S" )
     utf8proc returns ( "ẞ"   U+1E9E Lu 1 "LATIN CAPITAL LETTER SHARP S" )
@@ -917,7 +1079,7 @@ Methods on RexxText:
     ~Casefold   ~isCasefold
 
 "ß"~text~casefold=               -- T'ss'
-"㎒"~text~casefold=              -- T'mhz'
+"㎒"~text~casefold=              -- T'mhz'   (jlf Nov 8, 2022: now unchanged because no longer NFKC)
 
 ("sTrasse", "straße", "STRASSE")~each{item~text~casefold}==
     an Array (shape [3], 3 items)
@@ -967,7 +1129,6 @@ The normalized text can be memorized on the original text:
     textNFD = text~nfd(memorize:.true)      -- abbreviation mem:.true
 From now, the returned NFD is always the memorized text:
     text~nfd == textNFD                     -- .true
-Each normalized form can be memorized, so up to 4 values on a same RexxText.
 
 
 /*
@@ -2214,7 +2375,7 @@ The other character properties are always loaded (provided by utf8proc)
     category        --> enum 0, 1, 2, ...
     categoryName    --> enum 'Cn', 'Lu', 'Ll', ...
     charWidth       --> integer
-    combiningClass  --> integer
+    combiningClass  --> integer 0..254
     controlBoundary --> boolean
     decompType      --> enum 0, 1, 2, ...
     decompTypeName  --> enum '<none>', '<font>', '<nobreak>, ...

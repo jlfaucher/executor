@@ -251,7 +251,7 @@ Otherwise return the string.
 
 
 /******************************************************************************/
-::class "EncodedMutableBuffer" mixinclass Object public -- private
+::class "EncodedMutableBuffer" mixinclass Object private
 
 /*
     Nothing sophisticated here...
@@ -695,6 +695,26 @@ Allows to use a String or a RexxText indistinctly
     forward to (self~indexer)
 
 
+::method isMarkStripped
+    forward to (self~indexer)
+
+
+-- no standalone method Markless
+-- works only with normalization.
+
+
+::method isIgnorableStripped
+    forward to (self~indexer)
+
+
+::method isCCStripped
+    forward to (self~indexer)
+
+
+::method isNAStripped
+    forward to (self~indexer)
+
+
 /******************************************************************************/
 ::class "RexxTextStringInterface" mixinclass Object private
 
@@ -734,7 +754,7 @@ c2x                             full
 caselessAbbrev
 caselessChangeStr
 caselessCompare
-caselessCompareTo               full UTF-8 (expansion like "ß" --> "ss" will break the indexes)
+caselessCompareTo               full UTF-8 (expansion like "ß" --> "ss" will invalidate the user's positions)
 caselessContains                (new 5)
 caselessContainsWord            (new 5)
 caselessCountStr
@@ -835,7 +855,7 @@ x2d                             full (raise an error if not compatible with Stri
 
 ::method caselessCompareTo
     use strict arg text, n=1, length=.nil
-    use strict named arg caseless -- boolean
+    use strict named arg casefold=.true, lump= .false, stripIgnorable= .false, stripmark = .false
     text = text~request("RexxText") -- not requestTextOrBufferOrString because we really need a RexxText
     if .nil == length then do
         selfLength = self~length
@@ -847,8 +867,8 @@ x2d                             full (raise an error if not compatible with Stri
         selfLength = min(length, self~length)
         textLength = min(length, text~length)
     end
-    selfNormalized = self~substr(1, selfLength)~NFC(casefold: caseless)
-    textNormalized = text~substr(1, textLength)~NFC(casefold: caseless)
+    selfNormalized = self~substr(n, selfLength)~NFC(casefold: casefold, lump: lump, stripIgnorable: stripIgnorable, stripmark: stripmark)
+    textNormalized = text~substr(n, textLength)~NFC(casefold: casefold, lump: lump, stripIgnorable: stripIgnorable, stripmark: stripmark)
     return selfNormalized~string~CompareTo(textNormalized~string)
 
     invalid_length: raise syntax 93.923 array(length)
@@ -923,7 +943,8 @@ x2d                             full (raise an error if not compatible with Stri
 
 ::method compareTo
     use strict arg text, n=1, length=.nil
-    return self~caselessCompareTo(text, n, length, caseless: .false)
+    use strict named arg lump= .false, stripIgnorable= .false, stripmark=.false
+    return self~caselessCompareTo(text, n, length, casefold: .false, lump: lump, stripIgnorable: stripIgnorable, stripmark: stripmark)
 
 
 ::method contains
@@ -1173,6 +1194,7 @@ x2d                             full (raise an error if not compatible with Stri
 
 ::method compareSelfRight
     use strict arg right, message
+    use strict named arg strict
     /*
     ooRexx doc about string comparison methods:
     Both must be string objects. If argument is not a string object, it is
@@ -1197,157 +1219,164 @@ x2d                             full (raise an error if not compatible with Stri
         forward message (message) to (self~string) array (right~string)
     end
     -- Unicode comparison
-    forward message (message) to (self~string) array (right~string) -- fallback
-    raise syntax 23.900 array("Unicode comparison not yet implemented")
+    right = right~request("RexxText")
+    if .nil == right then return
+    selfNormalized = self~NFC(lump: \strict, stripIgnorable: \strict)
+    rightNormalized = right~NFC(lump: \strict, stripIgnorable: \strict)
+    forward message (message) to (selfNormalized~string) array (rightNormalized~string)
 
 
 ::method compareLeftSelf
     use strict arg left, message
+    use strict named arg strict
     left = left~requestTextOrBufferOrString
     if .nil == left then return
     if .Encoding~comparisonMode(left, self) == "b" then do
         forward message (message) to (left~string) array (self~string)
     end
     -- Unicode comparison
-    forward message (message) to (left~string) array (self~string) -- fallback
-    raise syntax 23.900 array("Unicode comparison not yet implemented")
+    left = left~request("RexxText")
+    if .nil == left then return
+    leftNormalized = left~NFC(lump: \strict, stripIgnorable: \strict)
+    selfNormalized = self~NFC(lump: \strict, stripIgnorable: \strict)
+    forward message (message) to (leftNormalized~string) array (selfNormalized~string)
 
 
 ::method '<'
     use strict arg right
-    forward to (self) message "compareSelfRight" array (right, '<')
+    forward to (self) message "compareSelfRight" array (right, '<', strict: .false)
 
 ::method '<op:right'
     use strict arg left
-    forward to (self) message "compareLeftSelf" array (left, '<')
+    forward to (self) message "compareLeftSelf" array (left, '<', strict: .false)
 
 ::method '<<'
     use strict arg right
-    forward to (self) message "compareSelfRight" array (right, '<<')
+    forward to (self) message "compareSelfRight" array (right, '<<', strict: .true)
 
 ::method '<<op:right'
     use strict arg left
-    forward to (self) message "compareLeftSelf" array (left, '<<')
+    forward to (self) message "compareLeftSelf" array (left, '<<', strict: .true)
 
 ::method '<<='
     use strict arg right
-    forward to (self) message "compareSelfRight" array (right, '<<=')
+    forward to (self) message "compareSelfRight" array (right, '<<=', strict: .true)
 
 ::method '<<=op:right'
     use strict arg left
-    forward to (self) message "compareLeftSelf" array (left, '<<')
+    forward to (self) message "compareLeftSelf" array (left, '<<', strict: .true)
 
 ::method '<='
     use strict arg right
-    forward to (self) message "compareSelfRight" array (right, '<=')
+    forward to (self) message "compareSelfRight" array (right, '<=', strict: .true)
 
 ::method '<=op:right'
     use strict arg left
-    forward to (self) message "compareLeftSelf" array (left, '<=')
+    forward to (self) message "compareLeftSelf" array (left, '<=', strict: .false)
 
 ::method '<>'
     use strict arg right
-    forward to (self) message "compareSelfRight" array (right, '<>')
+    forward to (self) message "compareSelfRight" array (right, '<>', strict: .false)
 
 ::method '<>op:right'
     use strict arg left
-    forward to (self) message "compareLeftSelf" array (left, '<>')
+    forward to (self) message "compareLeftSelf" array (left, '<>', strict: .false)
 
 ::method '='
     use strict arg right
-    forward to (self) message "compareSelfRight" array (right, '=')
+    forward to (self) message "compareSelfRight" array (right, '=', strict: .false)
 
 ::method '=op:right'
     use strict arg left
-    forward to (self) message "compareLeftSelf" array (left, '=')
+    forward to (self) message "compareLeftSelf" array (left, '=', strict: .false)
 
 ::method '=='
     use strict arg right
-    forward to (self) message "compareSelfRight" array (right, '==')
+    forward to (self) message "compareSelfRight" array (right, '==', strict: .true)
 
 ::method '==op:right'
     use strict arg left
-    forward to (self) message "compareLeftSelf" array (left, '==')
+    forward to (self) message "compareLeftSelf" array (left, '==', strict: .true)
 
 ::method '>'
     use strict arg right
-    forward to (self) message "compareSelfRight" array (right, '>')
+    forward to (self) message "compareSelfRight" array (right, '>', strict: .false)
 
 ::method '>op:right'
     use strict arg left
-    forward to (self) message "compareLeftSelf" array (left, '>')
+    forward to (self) message "compareLeftSelf" array (left, '>', strict: .false)
 
 ::method '><'
     use strict arg right
-    forward to (self) message "compareSelfRight" array (right, '><')
+    forward to (self) message "compareSelfRight" array (right, '><', strict: .false)
 
 ::method '><op:right'
     use strict arg left
-    forward to (self) message "compareLeftSelf" array (left, '><')
+    forward to (self) message "compareLeftSelf" array (left, '><', strict: .false)
 
 ::method '>='
     use strict arg right
-    forward to (self) message "compareSelfRight" array (right, '>=')
+    forward to (self) message "compareSelfRight" array (right, '>=', strict: .false)
 
 ::method '>=op:right'
     use strict arg left
-    forward to (self) message "compareLeftSelf" array (left, '>=')
+    forward to (self) message "compareLeftSelf" array (left, '>=', strict: .false)
 
 ::method '>>'
     use strict arg right
-    forward to (self) message "compareSelfRight" array (right, '>>')
+    forward to (self) message "compareSelfRight" array (right, '>>', strict: .true)
 
 ::method '>>op:right'
     use strict arg left
-    forward to (self) message "compareLeftSelf" array (left, '>>')
+    forward to (self) message "compareLeftSelf" array (left, '>>', strict: .true)
 
 ::method '>>='
     use strict arg right
-    forward to (self) message "compareSelfRight" array (right, '>>=')
+    forward to (self) message "compareSelfRight" array (right, '>>=', strict: .true)
 
 ::method '>>=op:right'
     use strict arg left
-    forward to (self) message "compareLeftSelf" array (left, '>>=')
+    forward to (self) message "compareLeftSelf" array (left, '>>=', strict: .true)
 
 ::method '\<'
     use strict arg right
-    forward to (self) message "compareSelfRight" array (right, '\<')
+    forward to (self) message "compareSelfRight" array (right, '\<', strict: .false)
 
 ::method '\<op:right'
     use strict arg left
-    forward to (self) message "compareLeftSelf" array (left, '\<')
+    forward to (self) message "compareLeftSelf" array (left, '\<', strict: .false)
 
 ::method '\='
     use strict arg right
-    forward to (self) message "compareSelfRight" array (right, '\=')
+    forward to (self) message "compareSelfRight" array (right, '\=', strict: .false)
 
 ::method '\=op:right'
     use strict arg left
-    forward to (self) message "compareLeftSelf" array (left, '\=')
+    forward to (self) message "compareLeftSelf" array (left, '\=', strict: .false)
 
 ::method '\=='
     use strict arg right
-    forward to (self) message "compareSelfRight" array (right, '\==')
+    forward to (self) message "compareSelfRight" array (right, '\==', strict: .true)
 
 ::method '\==op:right'
     use strict arg left
-    forward to (self) message "compareLeftSelf" array (left, '\==')
+    forward to (self) message "compareLeftSelf" array (left, '\==', strict: .true)
 
 ::method '\>'
     use strict arg right
-    forward to (self) message "compareSelfRight" array (right, '\>')
+    forward to (self) message "compareSelfRight" array (right, '\>', strict: .false)
 
 ::method '\>op:right'
     use strict arg left
-    forward to (self) message "compareLeftSelf" array (left, '>')
+    forward to (self) message "compareLeftSelf" array (left, '>', strict: .false)
 
 ::method '\>>'
     use strict arg right
-    forward to (self) message "compareSelfRight" array (right, '\>>')
+    forward to (self) message "compareSelfRight" array (right, '\>>', strict: .true)
 
 ::method '\>>op:right'
     use strict arg left
-    forward to (self) message "compareLeftSelf" array (left, '\>>')
+    forward to (self) message "compareLeftSelf" array (left, '\>>', strict: .true)
 
 
 /***********/

@@ -564,27 +564,26 @@ RexxObject *Unicode::utf8proc_transform(RexxString *string, RexxObject **named_a
 
     // use strict named arg namedArguments=.NIL
     NamedArguments expectedNamedArguments(8); // 8 named arguments
-    expectedNamedArguments[0] = NamedArgument("CASEFOLD",      1, TheFalseObject); // At least 1 character, default value = .false
-    expectedNamedArguments[1] = NamedArgument("IGNORE",        1, TheFalseObject); // At least 1 character, default value = .false
-    expectedNamedArguments[2] = NamedArgument("LUMP",          1, TheFalseObject); // At least 1 character, default value = .false
-    expectedNamedArguments[3] = NamedArgument("NLF",           2, IntegerZero);    // At least 2 characters, default value = 0 (0=none, 1=NLF2LF, 2=NLF2LS, 3=NLF2PS)
-    expectedNamedArguments[4] = NamedArgument("NORMALIZATION", 2, IntegerZero);    // At least 2 characters, default value = 0 (0=none, 1=NFC, 2=NFD, 3=NFKC, 4=NFKD)
-    expectedNamedArguments[5] = NamedArgument("STRIPCC",       6, TheFalseObject); // At least 6 characters, default value = .false
+    expectedNamedArguments[0] = NamedArgument("CASEFOLD",      5, TheFalseObject); // At least 5 character, default value = .false
+    expectedNamedArguments[1] = NamedArgument("LUMP",         -1, TheFalseObject); // All characters, default value = .false
+    expectedNamedArguments[2] = NamedArgument("NLF",          -1, IntegerZero);    // All characters, default value = 0 (0=none, 1=NLF2LF, 2=NLF2LS, 3=NLF2PS)
+    expectedNamedArguments[3] = NamedArgument("NORMALIZATION", 4, IntegerZero);    // At least 4 characters, default value = 0 (0=none, 1=NFC, 2=NFD, 3=NFKC, 4=NFKD)
+    expectedNamedArguments[4] = NamedArgument("STRIPCC",       6, TheFalseObject); // At least 6 characters, default value = .false
+    expectedNamedArguments[5] = NamedArgument("STRIPIGNORABLE",6, TheFalseObject); // At least 6 character, default value = .false
     expectedNamedArguments[6] = NamedArgument("STRIPMARK",     6, TheFalseObject); // At least 6 characters, default value = .false
     expectedNamedArguments[7] = NamedArgument("STRIPNA",       6, TheFalseObject); // At least 6 characters, default value = .false
     expectedNamedArguments.match(named_arglist, named_argcount, /*strict*/ true, /*extraAllowed*/ false);
     ssize_t casefold =      integerRange(expectedNamedArguments[0].value, 0, 1, Error_Logical_value_user_defined, "Transform: value of named argument \"casefold\" must be 0 or 1");
-    ssize_t ignore =        integerRange(expectedNamedArguments[1].value, 0, 1, Error_Logical_value_user_defined, "Transform: value of named argument \"ignore\" must be 0 or 1");
-    ssize_t lump =          integerRange(expectedNamedArguments[2].value, 0, 1, Error_Logical_value_user_defined, "Transform: value of named argument \"lump\" must be 0 or 1");
-    ssize_t nlf =           integerRange(expectedNamedArguments[3].value, 0, 3, Error_Invalid_argument_user_defined, "Transform: value of named argument \"nlf\" must be 0..3");
-    ssize_t normalization = integerRange(expectedNamedArguments[4].value, 0, 4, Error_Invalid_argument_user_defined, "Transform: value of named argument \"normalization\" must be 0..4");
-    ssize_t stripcc =       integerRange(expectedNamedArguments[5].value, 0, 1, Error_Logical_value_user_defined, "Transform: value of named argument \"stripcc\" must be 0 or 1");
-    ssize_t stripmark =     integerRange(expectedNamedArguments[6].value, 0, 1, Error_Logical_value_user_defined, "Transform: value of named argument \"stripmark\" must be 0 or 1");
-    ssize_t stripna =       integerRange(expectedNamedArguments[7].value, 0, 1, Error_Logical_value_user_defined, "Transform: value of named argument \"stripna\" must be 0 or 1");
+    ssize_t lump =          integerRange(expectedNamedArguments[1].value, 0, 1, Error_Logical_value_user_defined, "Transform: value of named argument \"lump\" must be 0 or 1");
+    ssize_t nlf =           integerRange(expectedNamedArguments[2].value, 0, 3, Error_Invalid_argument_user_defined, "Transform: value of named argument \"nlf\" must be 0..3");
+    ssize_t normalization = integerRange(expectedNamedArguments[3].value, 0, 4, Error_Invalid_argument_user_defined, "Transform: value of named argument \"normalization\" must be 0..4");
+    ssize_t stripCC =       integerRange(expectedNamedArguments[4].value, 0, 1, Error_Logical_value_user_defined, "Transform: value of named argument \"stripCC\" must be 0 or 1");
+    ssize_t stripIgnorable= integerRange(expectedNamedArguments[5].value, 0, 1, Error_Logical_value_user_defined, "Transform: value of named argument \"stripIgnorable\" must be 0 or 1");
+    ssize_t stripMark =     integerRange(expectedNamedArguments[6].value, 0, 1, Error_Logical_value_user_defined, "Transform: value of named argument \"stripMark\" must be 0 or 1");
+    ssize_t stripNA =       integerRange(expectedNamedArguments[7].value, 0, 1, Error_Logical_value_user_defined, "Transform: value of named argument \"stripNA\" must be 0 or 1");
 
     int                     options = 0;
     if (casefold)           options |= UTF8PROC_CASEFOLD;
-    if (ignore)             options |= UTF8PROC_IGNORE;
     if (lump)               options |= UTF8PROC_LUMP;
     if (nlf == 1)           options |= UTF8PROC_NLF2LF;
     if (nlf == 2)           options |= UTF8PROC_NLF2LS;
@@ -593,9 +592,10 @@ RexxObject *Unicode::utf8proc_transform(RexxString *string, RexxObject **named_a
     if (normalization == 2) options |= UTF8PROC_STABLE | UTF8PROC_DECOMPOSE;                    // NFD
     if (normalization == 3) options |= UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT;    // NFKC
     if (normalization == 4) options |= UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT;  // NFKD
-    if (stripcc)            options |= UTF8PROC_STRIPCC;
-    if (stripmark)          options |= UTF8PROC_STRIPMARK;
-    if (stripna)            options |= UTF8PROC_STRIPNA;
+    if (stripCC)            options |= UTF8PROC_STRIPCC;
+    if (stripIgnorable)     options |= UTF8PROC_IGNORE;
+    if (stripMark)          options |= UTF8PROC_STRIPMARK;
+    if (stripNA)            options |= UTF8PROC_STRIPNA;
 
     return normalize(string, utf8proc_option_t(options));
 }
