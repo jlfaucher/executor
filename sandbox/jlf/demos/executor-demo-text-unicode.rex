@@ -132,6 +132,8 @@ sleep no prompt
 
 -- Combining class
 -- http://www.unicode.org/reports/tr44/#Canonical_Combining_Class_Values
+-- Canonical combining classes are defined in the Unicode Standard as integers in the range 0...254.
+-- For convenience, the standard assigns symbolic names to a subset of these combining classes.
 -- First character of each combining class
 seen = .directory~new; .unicode~characters~each{expose seen; v = item~combiningClass; if seen[cv] == .nil then seen[v] = item}; seen=
 sleep no prompt
@@ -289,19 +291,19 @@ Possible transformations:
  3  : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
  4  : ( "　"  U+3000 Zs 2 "IDEOGRAPHIC SPACE" )                     <-- replaceable by " " with LUMP:.true
  5  : ( " "   U+1680 Zs 1 "OGHAM SPACE MARK" )                      <-- replaceable by " " with LUMP:.true
- 6  : ( "​"    U+200B Cf 0 "ZERO WIDTH SPACE", "ZWSP" )              <-- removable by IGNORE:.TRUE
+ 6  : ( "​"    U+200B Cf 0 "ZERO WIDTH SPACE", "ZWSP" )              <-- removable by STRIPIGNORABLE:.TRUE
  7  : ( "P"   U+0050 Lu 1 "LATIN CAPITAL LETTER P" )
- 8  : ( "è"   U+00E8 Ll 1 "LATIN SMALL LETTER E WITH GRAVE" )
+ 8  : ( "è"   U+00E8 Ll 1 "LATIN SMALL LETTER E WITH GRAVE" )       <-- replaceable by "e" with normalization + STRIPMARK:.true
  9  : ( "r"   U+0072 Ll 1 "LATIN SMALL LETTER R" )
  10 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
  11 : ( ""    U+0009 Cc 0 "", "CHARACTER TABULATION" )              <-- replaceable by " " with STRIPCC:.true
  12 : ( "‐"   U+2010 Pd 1 "HYPHEN" )                                <-- replaceable by "-" with LUMP:.true
- 13 : ( "­"   U+00AD Cf 1 "SOFT HYPHEN", "SHY" )                    <-- removable by IGNORE:.true
+ 13 : ( "­"   U+00AD Cf 1 "SOFT HYPHEN", "SHY" )                    <-- removable by STRIPIGNORABLE:.true
  14 : ( "–"   U+2013 Pd 1 "EN DASH" )                               <-- replaceable by "-" with LUMP:.true
  15 : ( "—"   U+2014 Pd 1 "EM DASH" )                               <-- replaceable by "-" with LUMP:.true
  16 : ( "N"   U+004E Lu 1 "LATIN CAPITAL LETTER N" )
  17 : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
- 18 : ( "ë"   U+00EB Ll 1 "LATIN SMALL LETTER E WITH DIAERESIS" )
+ 18 : ( "ë"   U+00EB Ll 1 "LATIN SMALL LETTER E WITH DIAERESIS" )   <-- replaceable by "e" with normalization + STRIPMARK:.true
  19 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
  20 : ( "﷐"   U+FDD0 Cn 1 "" )                                     <-- removeable with STRIPNA:.true
  21 : ( ""    U+000D Cc 0 "", "CARRIAGE RETURN", "CR" )
@@ -317,7 +319,7 @@ sleep no prompt
 sleep no prompt
 
 -- Strip "default ignorable characters" such as SOFT-HYPHEN or ZERO-WIDTH-SPACE
-.Unicode~utf8proc_transform(text~string, ignore:.true)=             --  '[07]Le　 Père[09]‐–—Noël﷐[0D0A]'
+.Unicode~utf8proc_transform(text~string, stripIgnorable:.true)=     --  '[07]Le　 Père[09]‐–—Noël﷐[0D0A]'
 sleep no prompt
 
 -- Lumps certain characters together. See lump.md for details:
@@ -342,21 +344,21 @@ sleep no prompt
 sleep no prompt
 
 -- Strips and/or converts control characters.
-.Unicode~utf8proc_transform(text~string, stripcc:.true)=            --  'Le　 ​Père ‐­–—Noël﷐ '
+.Unicode~utf8proc_transform(text~string, stripCC:.true)=            --  'Le　 ​Père ‐­–—Noël﷐ '
 sleep no prompt
 
 -- Strips all character markings.
 -- This includes non-spacing, spacing and enclosing (i.e. accents).
 -- This option works only with normalization.
-.Unicode~utf8proc_transform(text~string, stripmark:.true, normalization:1)=  --  '[07]Le　 ​Pere[09]‐­–—Noel﷐[0D0A]'
+.Unicode~utf8proc_transform(text~string, stripMark:.true, normalization:1)=  --  '[07]Le　 ​Pere[09]‐­–—Noel﷐[0D0A]'
 sleep no prompt
 
 -- Strips unassigned codepoints.
-.Unicode~utf8proc_transform(text~string, stripna:.true)=            --  '[07]Le　 ​Père[09]‐­–—Noël[0D0A]'
+.Unicode~utf8proc_transform(text~string, stripNA:.true)=            --  '[07]Le　 ​Père[09]‐­–—Noël[0D0A]'
 sleep no prompt
 
 -- Application of several options (abbreviated names)
-.Unicode~utf8proc_transform(text~string, c:.true, i:.true, l:.true, no:1, stripc:.true, stripm:.true, stripn:.true)= --  'le  pere ---noel '
+.Unicode~utf8proc_transform(text~string, casef:.true, lump:.true, norm:1, stripi:.true, stripc:.true, stripm:.true, stripn:.true)= --  'le  pere ---noel '
 sleep no prompt
 
 /*
@@ -435,16 +437,6 @@ The normalized text can be memorized on the original text:
     textNFD = text~nfd(memorize:.true)      -- abbreviation mem:.true
 From now, the returned NFD is always the memorized text:
     text~nfd == textNFD                     -- .true
-
-2 cached values are managed in case of memorization:
-- one for the main transformation,
-- one for the main transformation + case fold.
-That makes 9 possible cached value and 5 indicators per indexer (so per string).
-    isCasefold                  CasefoldString
-    isNFC       NFCString       NFCCasefoldString
-    isNFD       NFDString       NFDCasefoldString
-    isNFKC      NFKCString      NFKCCasefoldString
-    isNFKD      NFKDString      NFKDCasefoldString
 */
 sleep no prompt
 
@@ -458,6 +450,7 @@ sleep
 infos next
 do 500; textNFD = text~NFD(mem: .true); end
 sleep no prompt
+text~nfd~"==":.object( textNFD)=                -- 1 (this is really the same object)
 
 /*
 Some remarks about the string used in the next demo:

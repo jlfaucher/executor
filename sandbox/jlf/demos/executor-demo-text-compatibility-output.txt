@@ -20,8 +20,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Nov 2022
-Input queue name: S12a47Q7fada1c2cf60
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
+Input queue name: Sa0b7Q7fada1d34490
 
 --------------------------------------------
 -- Text encoding - Compatibility with String
@@ -577,7 +577,7 @@ ooRexx[bash]> length(s)=                                      -- 8 because encod
 ooRexx[bash]> s~encoding = "UTF16"
 
 ooRexx[bash]> s~isCompatibleWithByteString=                   -- 0
- 1
+ 0
 
 ooRexx[bash]> s~description=                                  -- 'UTF-16BE (8 bytes)'
 'UTF-16BE (8 bytes)'
@@ -610,7 +610,7 @@ ooRexx[bash]> length(s)=                                      -- 8 because encod
 ooRexx[bash]> s~encoding = "UTF32"
 
 ooRexx[bash]> s~isCompatibleWithByteString=                   -- 0
- 1
+ 0
 
 ooRexx[bash]> s~description=                                  -- 'UTF-32BE (8 bytes)'
 'UTF-32BE (8 bytes)'

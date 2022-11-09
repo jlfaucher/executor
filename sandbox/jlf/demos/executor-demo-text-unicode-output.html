@@ -31,7 +31,7 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
-</span><span style="font-weight:bold;color:green;">Input queue name: S3219Q7fada1c32650
+</span><span style="font-weight:bold;color:green;">Input queue name: Se779Q7fada1d38ad0
 </span>
 <span style="font-weight:bold;color:blue;">--------------------
 </span><span style="font-weight:bold;color:blue;">-- Unicode libraries
@@ -63,7 +63,12 @@
 <span style="font-weight:bold;color:blue;">-- Unicode character names are not loaded by default
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; call loadUnicodeCharacterNames
-<span style="font-weight:bold;color:olive;">
+<span style="font-weight:bold;color:green;">Load the Unicode character names 15.0.0 
+</span>.............................................<span style="font-weight:bold;color:green;">
+</span><span style="font-weight:bold;color:green;">Total loaded character names: 149186
+</span><span style="font-weight:bold;color:green;">Total character name aliases: 473
+</span><span style="font-weight:bold;color:blue;">Unicode character intervals not expanded, execute: call expandUnicodeCharacterIntervals
+</span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; .unicode~characters=            <span style="font-weight:bold;color:blue;">-- (an UnicodeCharacterSupplier count=43884 size=918000)</span>
 (an UnicodeCharacterSupplier count=44180 size=918000)
 
@@ -314,6 +319,8 @@ a Directory (28 items)
 
 <span style="font-weight:bold;color:blue;">-- Combining class
 </span><span style="font-weight:bold;color:blue;">-- http://www.unicode.org/reports/tr44/#Canonical_Combining_Class_Values
+</span><span style="font-weight:bold;color:blue;">-- Canonical combining classes are defined in the Unicode Standard as integers in the range 0...254.
+</span><span style="font-weight:bold;color:blue;">-- For convenience, the standard assigns symbolic names to a subset of these combining classes.
 </span><span style="font-weight:bold;color:blue;">-- First character of each combining class
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; seen = .directory~new; .unicode~characters~each{expose seen; v = item~combiningClass; if seen[cv] == .nil then seen[v] = item}; seen=
@@ -673,19 +680,19 @@ an Array (shape [22], 22 items)
 </span><span style="font-weight:bold;color:blue;"> 3  : ( &quot;e&quot;   U+0065 Ll 1 &quot;LATIN SMALL LETTER E&quot; )
 </span><span style="font-weight:bold;color:blue;"> 4  : ( &quot;　&quot;  U+3000 Zs 2 &quot;IDEOGRAPHIC SPACE&quot; )                     &lt;-- replaceable by &quot; &quot; with LUMP:.true
 </span><span style="font-weight:bold;color:blue;"> 5  : ( &quot; &quot;   U+1680 Zs 1 &quot;OGHAM SPACE MARK&quot; )                      &lt;-- replaceable by &quot; &quot; with LUMP:.true
-</span><span style="font-weight:bold;color:blue;"> 6  : ( &quot;​&quot;    U+200B Cf 0 &quot;ZERO WIDTH SPACE&quot;, &quot;ZWSP&quot; )              &lt;-- removable by IGNORE:.TRUE
+</span><span style="font-weight:bold;color:blue;"> 6  : ( &quot;​&quot;    U+200B Cf 0 &quot;ZERO WIDTH SPACE&quot;, &quot;ZWSP&quot; )              &lt;-- removable by STRIPIGNORABLE:.TRUE
 </span><span style="font-weight:bold;color:blue;"> 7  : ( &quot;P&quot;   U+0050 Lu 1 &quot;LATIN CAPITAL LETTER P&quot; )
-</span><span style="font-weight:bold;color:blue;"> 8  : ( &quot;è&quot;   U+00E8 Ll 1 &quot;LATIN SMALL LETTER E WITH GRAVE&quot; )
+</span><span style="font-weight:bold;color:blue;"> 8  : ( &quot;è&quot;   U+00E8 Ll 1 &quot;LATIN SMALL LETTER E WITH GRAVE&quot; )       &lt;-- replaceable by &quot;e&quot; with normalization + STRIPMARK:.true
 </span><span style="font-weight:bold;color:blue;"> 9  : ( &quot;r&quot;   U+0072 Ll 1 &quot;LATIN SMALL LETTER R&quot; )
 </span><span style="font-weight:bold;color:blue;"> 10 : ( &quot;e&quot;   U+0065 Ll 1 &quot;LATIN SMALL LETTER E&quot; )
 </span><span style="font-weight:bold;color:blue;"> 11 : ( &quot;&quot;    U+0009 Cc 0 &quot;&quot;, &quot;CHARACTER TABULATION&quot; )              &lt;-- replaceable by &quot; &quot; with STRIPCC:.true
 </span><span style="font-weight:bold;color:blue;"> 12 : ( &quot;‐&quot;   U+2010 Pd 1 &quot;HYPHEN&quot; )                                &lt;-- replaceable by &quot;-&quot; with LUMP:.true
-</span><span style="font-weight:bold;color:blue;"> 13 : ( &quot;­&quot;   U+00AD Cf 1 &quot;SOFT HYPHEN&quot;, &quot;SHY&quot; )                    &lt;-- removable by IGNORE:.true
+</span><span style="font-weight:bold;color:blue;"> 13 : ( &quot;­&quot;   U+00AD Cf 1 &quot;SOFT HYPHEN&quot;, &quot;SHY&quot; )                    &lt;-- removable by STRIPIGNORABLE:.true
 </span><span style="font-weight:bold;color:blue;"> 14 : ( &quot;–&quot;   U+2013 Pd 1 &quot;EN DASH&quot; )                               &lt;-- replaceable by &quot;-&quot; with LUMP:.true
 </span><span style="font-weight:bold;color:blue;"> 15 : ( &quot;—&quot;   U+2014 Pd 1 &quot;EM DASH&quot; )                               &lt;-- replaceable by &quot;-&quot; with LUMP:.true
 </span><span style="font-weight:bold;color:blue;"> 16 : ( &quot;N&quot;   U+004E Lu 1 &quot;LATIN CAPITAL LETTER N&quot; )
 </span><span style="font-weight:bold;color:blue;"> 17 : ( &quot;o&quot;   U+006F Ll 1 &quot;LATIN SMALL LETTER O&quot; )
-</span><span style="font-weight:bold;color:blue;"> 18 : ( &quot;ë&quot;   U+00EB Ll 1 &quot;LATIN SMALL LETTER E WITH DIAERESIS&quot; )
+</span><span style="font-weight:bold;color:blue;"> 18 : ( &quot;ë&quot;   U+00EB Ll 1 &quot;LATIN SMALL LETTER E WITH DIAERESIS&quot; )   &lt;-- replaceable by &quot;e&quot; with normalization + STRIPMARK:.true
 </span><span style="font-weight:bold;color:blue;"> 19 : ( &quot;l&quot;   U+006C Ll 1 &quot;LATIN SMALL LETTER L&quot; )
 </span><span style="font-weight:bold;color:blue;"> 20 : ( &quot;﷐&quot;   U+FDD0 Cn 1 &quot;&quot; )                                     &lt;-- removeable with STRIPNA:.true
 </span><span style="font-weight:bold;color:blue;"> 21 : ( &quot;&quot;    U+000D Cc 0 &quot;&quot;, &quot;CARRIAGE RETURN&quot;, &quot;CR&quot; )
@@ -702,7 +709,7 @@ T'[07]Le　 ​Père[09]‐­–—Noël﷐[0D0A]'
 
 <span style="font-weight:bold;color:blue;">-- Strip &quot;default ignorable characters&quot; such as SOFT-HYPHEN or ZERO-WIDTH-SPACE
 </span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .Unicode~utf8proc_transform(text~string, ignore:.true)=             <span style="font-weight:bold;color:blue;">--  '[07]Le　 Père[09]‐–—Noël﷐[0D0A]'</span>
+</span>ooRexx[bash]&gt; .Unicode~utf8proc_transform(text~string, stripIgnorable:.true)=     <span style="font-weight:bold;color:blue;">--  '[07]Le　 Père[09]‐–—Noël﷐[0D0A]'</span>
 '[07]Le　 Père[09]‐–—Noël﷐[0D0A]'
 
 <span style="font-weight:bold;color:blue;">-- Lumps certain characters together. See lump.md for details:
@@ -732,24 +739,24 @@ T'[07]Le　 ​Père[09]‐­–—Noël﷐[0D0A]'
 
 <span style="font-weight:bold;color:blue;">-- Strips and/or converts control characters.
 </span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .Unicode~utf8proc_transform(text~string, stripcc:.true)=            <span style="font-weight:bold;color:blue;">--  'Le　 ​Père ‐­–—Noël﷐ '</span>
+</span>ooRexx[bash]&gt; .Unicode~utf8proc_transform(text~string, stripCC:.true)=            <span style="font-weight:bold;color:blue;">--  'Le　 ​Père ‐­–—Noël﷐ '</span>
 'Le　 ​Père ‐­–—Noël﷐ '
 
 <span style="font-weight:bold;color:blue;">-- Strips all character markings.
 </span><span style="font-weight:bold;color:blue;">-- This includes non-spacing, spacing and enclosing (i.e. accents).
 </span><span style="font-weight:bold;color:blue;">-- This option works only with normalization.
 </span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .Unicode~utf8proc_transform(text~string, stripmark:.true, normalization:1)=  <span style="font-weight:bold;color:blue;">--  '[07]Le　 ​Pere[09]‐­–—Noel﷐[0D0A]'</span>
+</span>ooRexx[bash]&gt; .Unicode~utf8proc_transform(text~string, stripMark:.true, normalization:1)=  <span style="font-weight:bold;color:blue;">--  '[07]Le　 ​Pere[09]‐­–—Noel﷐[0D0A]'</span>
 '[07]Le　 ​Pere[09]‐­–—Noel﷐[0D0A]'
 
 <span style="font-weight:bold;color:blue;">-- Strips unassigned codepoints.
 </span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .Unicode~utf8proc_transform(text~string, stripna:.true)=            <span style="font-weight:bold;color:blue;">--  '[07]Le　 ​Père[09]‐­–—Noël[0D0A]'</span>
+</span>ooRexx[bash]&gt; .Unicode~utf8proc_transform(text~string, stripNA:.true)=            <span style="font-weight:bold;color:blue;">--  '[07]Le　 ​Père[09]‐­–—Noël[0D0A]'</span>
 '[07]Le　 ​Père[09]‐­–—Noël[0D0A]'
 
 <span style="font-weight:bold;color:blue;">-- Application of several options (abbreviated names)
 </span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .Unicode~utf8proc_transform(text~string, c:.true, i:.true, l:.true, no:1, stripc:.true, stripm:.true, stripn:.true)= <span style="font-weight:bold;color:blue;">--  'le  pere ---noel '</span>
+</span>ooRexx[bash]&gt; .Unicode~utf8proc_transform(text~string, casef:.true, lump:.true, norm:1, stripi:.true, stripc:.true, stripm:.true, stripn:.true)= <span style="font-weight:bold;color:blue;">--  'le  pere ---noel '</span>
 'le  pere ---noel '
 
 <span style="font-weight:bold;color:blue;">Some comments about the transformations:
@@ -815,7 +822,7 @@ T'[07]Le　 ​Père[09]‐­–—Noël﷐[0D0A]'
 </span>ooRexx[bash]&gt; text = &quot;Noël&quot;~text
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; text~isNFC=                                     <span style="font-weight:bold;color:blue;">-- -1</span>
--1
+ 1
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; text~isNFD=                                     <span style="font-weight:bold;color:blue;">-- -1</span>
 -1
@@ -828,7 +835,7 @@ T'[07]Le　 ​Père[09]‐­–—Noël﷐[0D0A]'
  1
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; text~isNFD=                                     <span style="font-weight:bold;color:blue;">-- 0</span>
- 0
+-1
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; textNFC~isNFC=                                  <span style="font-weight:bold;color:blue;">-- 1</span>
  1
@@ -841,16 +848,6 @@ T'[07]Le　 ​Père[09]‐­–—Noël﷐[0D0A]'
 </span><span style="font-weight:bold;color:blue;">    textNFD = text~nfd(memorize:.true)      -- abbreviation mem:.true
 </span><span style="font-weight:bold;color:blue;">From now, the returned NFD is always the memorized text:
 </span><span style="font-weight:bold;color:blue;">    text~nfd == textNFD                     -- .true
-</span><span style="font-weight:bold;color:blue;">
-</span><span style="font-weight:bold;color:blue;">2 cached values are managed in case of memorization:
-</span><span style="font-weight:bold;color:blue;">- one for the main transformation,
-</span><span style="font-weight:bold;color:blue;">- one for the main transformation + case fold.
-</span><span style="font-weight:bold;color:blue;">That makes 9 possible cached value and 5 indicators per indexer (so per string).
-</span><span style="font-weight:bold;color:blue;">    isCasefold                  CasefoldString
-</span><span style="font-weight:bold;color:blue;">    isNFC       NFCString       NFCCasefoldString
-</span><span style="font-weight:bold;color:blue;">    isNFD       NFDString       NFDCasefoldString
-</span><span style="font-weight:bold;color:blue;">    isNFKC      NFKCString      NFKCCasefoldString
-</span><span style="font-weight:bold;color:blue;">    isNFKD      NFKDString      NFKDCasefoldString
 </span>
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; text = xrange(&quot;0&quot;, &quot;FF&quot;x)~text(&quot;cp1252&quot;)~utf8(strict: .false)
@@ -863,12 +860,14 @@ T'0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvw
 <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; do 500; textNFD = text~NFD; end
-<span style="font-weight:bold;color:green;">Duration: 6.033802
+<span style="font-weight:bold;color:green;">Duration: 10.740318
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; <span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; do 500; textNFD = text~NFD(mem: .true); end
-<span style="font-weight:bold;color:green;">Duration: 0.187243
-</span>
+<span style="font-weight:bold;color:green;">Duration: 0.040262
+</span>text~nfd~&quot;==&quot;:.object( textNFD)=                <span style="font-weight:bold;color:blue;">-- 1 (this is really the same object)</span>
+ 1
+
 <span style="font-weight:bold;color:blue;">Some remarks about the string used in the next demo:
 </span><span style="font-weight:bold;color:blue;">- the first &quot;äöü&quot; is NFC, the second &quot;äöü&quot; is NFD
 </span><span style="font-weight:bold;color:blue;">- &quot;x̂&quot; is two codepoints in any normalization.

@@ -20,8 +20,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Nov 2022
-Input queue name: S10b10Q7fada1d29a80
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
+Input queue name: S9f8aQ7fada1d342e0
 
 ----------------------------------
 -- Text encoding - Internal checks

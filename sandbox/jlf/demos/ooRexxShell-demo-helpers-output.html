@@ -8,7 +8,8 @@
 </head>
 <body>
 <pre>
-<span style="font-weight:bold;color:green;">loadPackage OK for extension/extensions.cls
+<span style="font-weight:bold;color:green;">loadPackage OK for extension/stringChunk.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for extension/extensions.cls
 </span><span style="font-weight:bold;color:green;">loadLibrary OK for rxunixsys
 </span><span style="font-weight:bold;color:green;">loadPackage OK for ncurses.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for csvStream.cls
@@ -22,31 +23,33 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for smtp.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for socket.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for streamsocket.cls
-</span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe.rex
+</span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2.rex
 </span><span style="font-weight:bold;color:green;">loadPackage OK for BSF.CLS
 </span><span style="font-weight:bold;color:green;">loadPackage OK for oorexxshell_queries.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
-</span><span style="font-weight:bold;color:green;">Input queue name: S23a9Q7fd4484183f0
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
+</span><span style="font-weight:bold;color:green;">Input queue name: Sa2bfQ7fada1d34490
 </span>
-<span style="color:blue;">--------------
-</span><span style="color:blue;">-- ooRexxShell
-</span><span style="color:blue;">--------------
+<span style="font-weight:bold;color:blue;">--------------
+</span><span style="font-weight:bold;color:blue;">-- ooRexxShell
+</span><span style="font-weight:bold;color:blue;">--------------
 </span>
-<span style="color:blue;">Helper to display the system PATH:
-</span><span style="color:blue;">?path v1 v2 ... : display value of system variable, splitted by path separator.
-</span><span style="color:blue;">If no variable is specified then the value of the system variable PATH is displayed.
+<span style="font-weight:bold;color:blue;">Helper to display the system PATH:
+</span><span style="font-weight:bold;color:blue;">?path v1 v2 ... : display value of system variable, splitted by path separator.
+</span><span style="font-weight:bold;color:blue;">If no variable is specified then the value of the system variable PATH is displayed.
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; ?path
+PATH '/local/zig/zig-macos-x86_64-0.9.1'
 PATH '/Users/jlfaucher/Dropbox/software/oorexx'
 PATH '/local/Unicode/ICU/icu-release-69-1/delivery/sbin'
 PATH '/local/Unicode/ICU/icu-release-69-1/delivery/bin'
-PATH '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210724-beta/bsf4oorexx'
-PATH '/local/java/jdk/bellsoft/jdk-16.0.1-full.jdk/bin'
+PATH '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx'
+PATH '/local/java/jdk/bellsoft/jdk-17.0.4.1-full.jdk/bin'
 PATH '/local/rexx/oorexx/executor/sandbox/jlf/samples'
+PATH '/local/rexx/oorexx/executor/sandbox/jlf/packages'
 PATH '/local/rexx/oorexx/executor/sandbox/jlf'
 PATH '/local/rexx/oorexx/executor/incubator/ooRexxShell'
 PATH '/local/rexx/oorexx/executor/incubator/docmusings'
@@ -57,6 +60,8 @@ PATH '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/rel
 PATH '/local/rexx/oorexx/scripts'
 PATH '/local/rexx/builder/scripts'
 PATH '/Users/jlfaucher/bin'
+PATH '/local/llvm/clang+llvm-15.0.3-x86_64-apple-darwin/bin'
+PATH '/Applications/CMake.app/Contents/bin'
 PATH '/Users/jlfaucher/.cargo/bin'
 PATH '/opt/local/bin'
 PATH '/opt/local/sbin'
@@ -76,16 +81,17 @@ PATH '/usr/local/go/bin'
 PATH '/opt/X11/bin'
 PATH '/usr/local/git/bin'
 PATH '/Applications/DjView.app/Contents/bin'
-PATH length: 1123
-<span style="font-weight:bold;color:green;">[Info] 36 lines displayed
+PATH length: 1297
+<span style="font-weight:bold;color:green;">[Info] 40 lines displayed
 </span>
-<span style="color:blue;">Filter the system PATH to see only the folders in relation with rexx.
-</span><span style="color:blue;">?path = rexx
+<span style="font-weight:bold;color:blue;">Filter the system PATH to see only the folders in relation with rexx.
+</span><span style="font-weight:bold;color:blue;">?path = rexx
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; ?path = rexx
 PATH '/Users/jlfaucher/Dropbox/software/oorexx'
-PATH '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210724-beta/bsf4oorexx'
+PATH '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx'
 PATH '/local/rexx/oorexx/executor/sandbox/jlf/samples'
+PATH '/local/rexx/oorexx/executor/sandbox/jlf/packages'
 PATH '/local/rexx/oorexx/executor/sandbox/jlf'
 PATH '/local/rexx/oorexx/executor/incubator/ooRexxShell'
 PATH '/local/rexx/oorexx/executor/incubator/docmusings'
@@ -95,10 +101,10 @@ PATH '/local/rexx/oorexx/official/test/trunk'
 PATH '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin'
 PATH '/local/rexx/oorexx/scripts'
 PATH '/local/rexx/builder/scripts'
-<span style="font-weight:bold;color:green;">[Info] 12 lines displayed
+<span style="font-weight:bold;color:green;">[Info] 13 lines displayed
 </span>
-<span style="color:blue;">Display the LIBRARY_PATH (Linux)
-</span><span style="color:blue;">?path LIBRARY_PATH
+<span style="font-weight:bold;color:blue;">Display the LIBRARY_PATH (Linux)
+</span><span style="font-weight:bold;color:blue;">?path LIBRARY_PATH
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; ?path LIBRARY_PATH
 LIBRARY_PATH '/local/cpp/boost/delivery/lib'
@@ -107,27 +113,27 @@ LIBRARY_PATH '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/c
 LIBRARY_PATH length: 174
 <span style="font-weight:bold;color:green;">[Info] 4 lines displayed
 </span>
-<span style="color:blue;">Display the DYLD_LIBRARY_PATH (MacOs)
-</span><span style="color:blue;">?path DYLD_LIBRARY_PATH
+<span style="font-weight:bold;color:blue;">Display the DYLD_LIBRARY_PATH (MacOs)
+</span><span style="font-weight:bold;color:blue;">?path DYLD_LIBRARY_PATH
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; ?path DYLD_LIBRARY_PATH
 DYLD_LIBRARY_PATH '/local/cpp/boost/delivery/lib'
 DYLD_LIBRARY_PATH '/local/Unicode/ICU/icu-release-69-1/delivery/lib'
-DYLD_LIBRARY_PATH '/Local/rexx/GCI/gci-source.1.1/build/macos/clang/release/64'
-DYLD_LIBRARY_PATH '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210724-beta/bsf4oorexx/install/64'
+DYLD_LIBRARY_PATH '/local/rexx/rexx-gci/build/macos/clang/release/64'
+DYLD_LIBRARY_PATH '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/install/64'
 DYLD_LIBRARY_PATH '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/lib'
-DYLD_LIBRARY_PATH length: 317
+DYLD_LIBRARY_PATH length: 305
 <span style="font-weight:bold;color:green;">[Info] 6 lines displayed
 </span>
-<span style="color:blue;">Display the CLASSPATH
-</span><span style="color:blue;">?path CLASSPATH
+<span style="font-weight:bold;color:blue;">Display the CLASSPATH
+</span><span style="font-weight:bold;color:blue;">?path CLASSPATH
 </span><span style="font-weight:bold;color:olive;">
 </span>ooRexx[bash]&gt; ?path CLASSPATH
-CLASSPATH '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210724-beta/bsf4oorexx/bsf4ooRexx-v641-20210724-bin.jar'
-CLASSPATH length: 105
+CLASSPATH '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/bsf4ooRexx-v641-20220131-bin.jar'
+CLASSPATH length: 103
 <span style="font-weight:bold;color:green;">[Info] 2 lines displayed
 </span>
-<span style="color:blue;">End of demonstration.
+<span style="font-weight:bold;color:blue;">End of demonstration.
 </span></pre>
 </body>
 </html>
