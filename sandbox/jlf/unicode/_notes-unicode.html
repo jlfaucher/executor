@@ -123,6 +123,19 @@ UNICODE NORMALIZATION FORMS
 
 
 <a target="_blank" rel="noopener noreferrer" href="http://www.unicode.org/reports/tr31/#Alternative_Identifier_Syntax">http://www.unicode.org/reports/tr31/#Alternative_Identifier_Syntax</a>
+<a target="_blank" rel="noopener noreferrer" href="http://unicode.org/reports/tr31/">http://unicode.org/reports/tr31/</a>
+UNICODE IDENTIFIER AND PATTERN SYNTAX
+jlf: there is ONE (just ONE) occurence of NFKC_CF:
+    Comparison and matching should be done after converting to NFKC_CF format.
+    Thus #MötleyCrüe should match #MÖTLEYCRÜE and other variants.
+---
+In the UnicodeStandard PDF:
+- The mapping NFKC_Casefold (short alias NFKC_CF) is specified in the data
+  file DerivedNormalizationProps.txt in the Unicode Character Database.
+- The derived binary property Changes_When_NFKC_Casefolded is also listed
+  in the data file DerivedNormalizationProps.txt in the Unicode Character Database.Conformance 156 3.13 Default Case Algorithms
+For more information on the use of NFKC_Casefold and caseless matching for identifiers,
+see Unicode Standard Annex #31, “Unicode Identifier and Pattern Syntax
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://unicode.org/reports/tr36/#visual_spoofing">https://unicode.org/reports/tr36/#visual_spoofing</a>
@@ -2005,6 +2018,11 @@ referenced from <a target="_blank" rel="noopener noreferrer" href="https://corp.
 Basic Unicode character/string support absent even in modern C++
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://www.boost.org/doc/libs/1_80_0/libs/locale/doc/html/index.html">https://www.boost.org/doc/libs/1_80_0/libs/locale/doc/html/index.html</a>
+Boost.Locale
+Boost.Locale uses the-state-of-the-art Unicode and Localization library: ICU - International Components for Unicode.
+
+
 <hr><h2 id="DotNet__CoreFx">DotNet, CoreFx</h2><hr>
 28/07/2021
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/dotnet/corefxlab/issues/2368">https://github.com/dotnet/corefxlab/issues/2368</a>
@@ -2182,6 +2200,12 @@ Remember: search in issues with "utf8proc in:title,body"
     "∀ x ∃ y"
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://docs.julialang.org/en/v1/base/strings/">https://docs.julialang.org/en/v1/base/strings/</a>
+jlf: search for "ß" in this page with Chrome, you will see it matches with "ss"
+It doesn't match the β here: isless("β", "α")
+"β"~text~characters=    -- ( "β"   U+03B2 Ll 1 "GREEK SMALL LETTER BETA" )
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://juliapackages.com/p/strs">https://juliapackages.com/p/strs</a>
     This uses Swift-style \ escape sequences, such as \u{xxxx} for Unicode constants,
     instead of \uXXXX and \UXXXXXXXX, which have the advantage of not having to worry
@@ -2246,6 +2270,61 @@ two strings are canonically equivalent (optionally casefolding and/or stripping 
 
     julia&gt; Base.Unicode.uppercase("µ")[1]
     'Μ': Unicode U+039c (category Lu: Letter, uppercase)
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/JuliaLang/julia/pull/19469#issuecomment-264810748">https://github.com/JuliaLang/julia/pull/19469#issuecomment-264810748</a>
+AFAICT does the currently implemented lowercase also not follow the spec.
+I do not know anything about Turkish but the following behaviour in Greek
+    julia&gt; lowercase("OΔΥΣΣΕΥΣ")
+    "oδυσσευσ" # wrong
+    "oδυσσευς" # would be correct
+is wrong, i.e. the lowercase sigma at the end is the non-final form σ but should be the final form ς instead.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/JuliaStrings/utf8proc/issues/54">https://github.com/JuliaStrings/utf8proc/issues/54</a>
+Feature request: Full Case Folding #54
+opened in 2015, still opened in 2022
+jlf: related to utf8proc
+---
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/JuliaStrings/utf8proc/issues/54#issuecomment-141545196">https://github.com/JuliaStrings/utf8proc/issues/54#issuecomment-141545196</a>
+our case is to make a perfect search in MAPS.ME :)
+In general, we need to preprocess a lot of raw strings added by community of OpenStreetMap,
+and match these strings effectively on mobile device, for any language and any input.
+This includes stripping out all diacritics, full case folding, and even some special
+conversions which are not covered in Unicode standard but are important for users trying to find something.
+    I've already mentioned ß=&gt;ss conversion,
+    there are also non-standard Ł=&gt;L, й=&gt;и,
+    famous turkish İ and ı conversions,
+all very important if you don't have a Ł key on your keyboard, for example,
+and trying to enter it as L (and find some Polish street for example).
+Now we have our own highly-optimized implementation for NFKD and Case Folding.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/JuliaStrings/utf8proc/pull/102">https://github.com/JuliaStrings/utf8proc/pull/102</a>
+Fixes allowing for “Full” folding and NFKC_CaseFold compliance. #102
+---
+jlf: this is the creation of the function NFKC_Casefold in utf8proc
+---
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/JuliaStrings/utf8proc/pull/133">https://github.com/JuliaStrings/utf8proc/pull/133</a>
+Case folding fixes #133
+Updated version of #102:
+    Restores the original behavior of IGNORE so that this PR is non-breaking, adds new STRIPNA flag.
+    Renames the new function to utf8proc_NFKC_Casefold instead of utf8proc_NFKC_CF
+    Adds a minimal test.
+    Updates the utf8proc_data.c file.
+jlf: this explains why the the options in utf8proc are like that.
+jlf: "NFKC_CF" seems the name to search to get useful infos about utf8proc_NFKC_Casefold.
+    <a target="_blank" rel="noopener noreferrer" href="https://unicode-org.github.io/icu/userguide/transforms/normalization/">https://unicode-org.github.io/icu/userguide/transforms/normalization/</a>
+        NFKC_Casefold: ICU 4.4 supports the combination of NFKC, case folding
+        and removing ignorable characters which was introduced with Unicode 5.2.
+    <a target="_blank" rel="noopener noreferrer" href="https://docs.tibco.com/pub/enterprise-runtime-for-R/5.0.0/doc/html/Language_Reference/terrUtils/normalizeUnicode.html">https://docs.tibco.com/pub/enterprise-runtime-for-R/5.0.0/doc/html/Language_Reference/terrUtils/normalizeUnicode.html</a>
+        normalizeUnicode(x, form = "NCF")
+        form: a character string specifying the type of Unicode normalization to be used.
+              Should be one of the strings "NFC", "NFD", "NFKC", "NFKD", "NFKC_CF" or "NFKC_Casefold".
+        The forms "NFKC_CF" or "NFKC_Casefold" (which are equivalent) are described in <a target="_blank" rel="noopener noreferrer" href="http://unicode.org/reports/tr31/.">http://unicode.org/reports/tr31/.</a>
+    <a target="_blank" rel="noopener noreferrer" href="https://www.lanqiao.cn/library/elasticsearch-definitive-guide-cn/220_Token_normalization/40_Case_folding">https://www.lanqiao.cn/library/elasticsearch-definitive-guide-cn/220_Token_normalization/40_Case_folding</a>
+        Case folding is the act of converting words into a (usually lowercase) form that does not necessarily result in the correct spelling, but does allow case-insensitive comparisons.
+        jlf: they say "The default normalization form that the icu_normalizer token filter uses is nfkc_cf"
 
 
 <hr><h2 id="Kotlin_lang">Kotlin lang</h2><hr>
@@ -2950,10 +3029,30 @@ There are these comments in <a target="_blank" rel="noopener noreferrer" href="h
 
 
 <hr><h2 id="Swift_lang">Swift lang</h2><hr>
+
+<a target="_blank" rel="noopener noreferrer" href="https://docs.swift.org/swift-book/LanguageGuide/StringsAndCharacters.html">https://docs.swift.org/swift-book/LanguageGuide/StringsAndCharacters.html</a>
+Strings and Characters
+
+
 03/08/2021
 <a target="_blank" rel="noopener noreferrer" href="https://swiftdoc.org/v5.1/type/string/">https://swiftdoc.org/v5.1/type/string/</a>
 Auto-generated documentation for Swift.
 A Unicode string value that is a collection of characters.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://developer.apple.com/documentation/swift/unicode/canonicalcombiningclass">https://developer.apple.com/documentation/swift/unicode/canonicalcombiningclass</a>
+Unicode.CanonicalCombiningClass
+The classification of a scalar used in the Canonical Ordering Algorithm defined by the Unicode Standard.
+---
+Canonical combining classes are used by the ordering algorithm to determine if
+two sequences of combining marks should be considered canonically equivalent
+(that is, identical in interpretation). Two sequences are canonically equivalent
+if they are equal when sorting the scalars in ascending order by their combining class.
+---
+aboveBeforeBelow = "\u{0041}\u{0301}\u{0316}"~text~unescape
+belowBeforeAbove = "\u{0041}\u{0316}\u{0301}"~text~unescape
+aboveBeforeBelow~compareTo(belowBeforeAbove)=       -- 0 (good, means equal)
+aboveBeforeBelow == belowBeforeAbove=               -- .true
 
 
 15/07/2017
@@ -2971,6 +3070,25 @@ UTF8 should be (one of) the fastest String encoding(s)
 
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/apple/swift/blob/7e68e8f4a3cb1173e909dc22a3490c05e43fa592/stdlib/public/core/StringObject.swift">https://github.com/apple/swift/blob/7e68e8f4a3cb1173e909dc22a3490c05e43fa592/stdlib/public/core/StringObject.swift</a>
 swift/stdlib/public/core/StringObject.swift
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/55389444/whats-does-extended-grapheme-clusters-are-canonically-equivalent-means-in-term">https://stackoverflow.com/questions/55389444/whats-does-extended-grapheme-clusters-are-canonically-equivalent-means-in-term</a>
+Whats does “extended grapheme clusters are canonically equivalent” means in terms of Swift String?
+jlf:
+They don't answer to the question :-(
+no explanation about "canonically equivalent", just ONE poor example, no general definition.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://forums.swift.org/t/pitch-unicode-equivalence-for-swift-source/21576/6">https://forums.swift.org/t/pitch-unicode-equivalence-for-swift-source/21576/6</a>
+Pitch: Unicode Equivalence for Swift Source
+jlf: interersting
+Mar 13,2019
+In short, there is a thorough set of rules already laid out in UAX#31 on how to normalize identifiers in programming languages.
+Several of us have written several versions of a proposal to adopt it, but each time it has failed because of issues with emoji.
+Recent versions of Unicode now have more robust classifications for emoji, so the proposal can be resurrected with better luck now, probably.
+No need to start from scratch; feel free to build on the work that we’ve already done.
+All of this applies only to identifiers. Literals should never be messed with by the compiler.
+That are, after all, supposed to be literals.
 
 
 milseman Michael Ilseman added a comment - 5 Nov 2018 3:44 PM
@@ -3192,10 +3310,9 @@ Identification and Classification
 
 
 14/06/2021
-<a target="_blank" rel="noopener noreferrer" href="https://lists.isocpp.org/sg16/2018/08/0113.php">https://lists.isocpp.org/sg16/2018/08/0113.php</a>
+<a target="_blank" rel="noopener noreferrer" href="https://lists.isocpp.org/sg16/2018/08/0121.php">https://lists.isocpp.org/sg16/2018/08/0121.php</a>
 Feedback from swift team
 
-    <a target="_blank" rel="noopener noreferrer" href="https://lists.isocpp.org/sg16/2018/08/0121.php">https://lists.isocpp.org/sg16/2018/08/0121.php</a>
     Swift strings now sort with NFC (currently UTF-16 code unit order, but likely changed to Unicode scalar value order).
     We didn't find FCC significantly more compelling in practice. Since NFC is far more frequent in the wild
     (why waste space if you don't have to), strings are likely to already be in NFC.
@@ -3237,6 +3354,20 @@ We propose addressing this basic shortcoming through an effort we are calling re
 Regex Proposals
 todo: read String processing algorithms <a target="_blank" rel="noopener noreferrer" href="https://forums.swift.org/t/pitch-regex-powered-string-processing-algorithms/55969">https://forums.swift.org/t/pitch-regex-powered-string-processing-algorithms/55969</a>
 todo: read Unicode for String Processing <a target="_blank" rel="noopener noreferrer" href="https://github.com/apple/swift-experimental-string-processing/blob/main/Documentation/Evolution/UnicodeForStringProcessing.md">https://github.com/apple/swift-experimental-string-processing/blob/main/Documentation/Evolution/UnicodeForStringProcessing.md</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/41059974/german-character-%C3%9F-uppercased-in-ss">https://stackoverflow.com/questions/41059974/german-character-%C3%9F-uppercased-in-ss</a>
+"ß" is converted to "SS" when using uppercased().
+---
+Use caseInsensitiveCompare() instead of converting the strings to upper or lowercase:
+    let s1 = "gruß"
+    let s2 = "GRUß"
+    let eq = s1.caseInsensitiveCompare(s2) == .orderedSame
+    print(eq) // true
+This compares the strings in a case-insensitive way according to the Unicode standard.
+There is also localizedCaseInsensitiveCompare() which does a comparison according to the current locale, and
+    s1.compare(s2, options: .caseInsensitive, locale: ...)
+for a case-insensitive comparison according to an arbitrary given locale.
 
 
 <hr><h2 id="Zig_lang__Ziglyph">Zig lang, Ziglyph</h2><hr>
