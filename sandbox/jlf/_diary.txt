@@ -2,6 +2,91 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+
+[Positional & Named arguments]
+
+Thinking to a new shorthand syntax
+    name:       with no value, pass .true
+    :var        with no name, where var is a variable name, pass var:var
+    ...         forward the positional arguments
+    -n          after ... to remove the nth positional argument from ...
+    : ...       forward the named arguments
+    : - name    after : ... to remove name from : ...
+
+where notation ... is inspired by Ruby:
+https://blog.saeloun.com/2020/09/16/ruby-3.0-to-add-support-for-forwarding-arguments-along-with-lead-arguments.html
+
+Application to real code from Executor:
+
+        ::class "RexxTextStringInterface"
+        ::method caselessCompareTo
+            use strict arg text, n=1, length=.nil
+            use strict named arg casefold=.true, lump= .false, stripIgnorable= .false, stripmark = .false
+actual      selfNormalized = self~substr(n, selfLength)~NFC(casefold: casefold, lump: lump, stripIgnorable: stripIgnorable, stripmark: stripmark)
+            ----------
+new         selfNormalized = self~substr(n, selfLength)~NFC(:casefold, :lump, :stripIgnorable, :stripmark)
+new         selfNormalized = self~substr(n, selfLength)~NFC(: ...)
+
+
+        ::class "XTF8_CommonServices"
+        ::method transform
+            use strict arg -- none
+            use strict named arg normalization(4) = 1, casefold(4) = .false, lump= .false, stripMark = .false, stripIgnorable= .false, stripCC = .false, stripNA = .false, returnString = .false, memorize(3) = (.Unicode~memorizeTransformations)
+actual      string = .Unicode~utf8proc_transform(self~string, normalization: normalization, casefold: casefold, lump: lump, stripMark: stripMark, stripIgnorable: stripIgnorable, stripCC: stripCC, stripNA: stripNA)
+            ----------
+new         string = .Unicode~utf8proc_transform(self~string, :normalization, :casefold, :lump, :stripMark, :stripIgnorable, :stripCC, :stripNA)
+new         string = .Unicode~utf8proc_transform(self~string, : ..., : -returnString, : -memorize)
+
+
+        ::class "IndexerStringInterface"
+        ::method caselessMatch
+            use strict arg startC, other, nC=1, lengthC=.nil
+            use strict named arg lump= .false, stripIgnorable= .false, stripMark=.false
+actual      return self~matchText(startC, other, nC, lengthC, casefold:.true, lump: lump, stripIgnorable: stripIgnorable, stripMark: stripMark)
+            ----------
+new         return self~matchText(startC, other, nC, lengthC, casefold:, :lump, :stripIgnorable, :stripMark)
+new         return self~matchText(startC, other, nC, lengthC, casefold:, : ...)
+
+
+        ::class "XTF8_CommonServices"
+        ::method casefold
+actual      forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", 0)~~setEntry("casefold", .true))
+            ----------
+new         forward message "transform" array (normalization: 0, casefold:, : ...)
+new         self~transform(normalization: 0, casefold:, : ...)
+
+
+        ::class "Doer"
+        ::method go unguarded
+actual      forward message "startWith" array("do", .context~args, n:.context~namedArgs)
+            ----------
+new         self~start("do", ..., : ...)
+
+
+        ::class "MethodDoer"
+        ::method do unguarded
+            use strict arg object, ...
+actual      forward to (object) message "run" array (self, "a", arg(2,"a"), n:.context~namedArgs~~remove("ITEM"))
+            ----------
+new         object~run(self, "i", ..., -1, : ..., : -item)
+
+
+        ::class "StringDoer"
+        ::method do unguarded
+            use strict arg object, ...
+actual      forward to (object) message "sendWith" array (self, arg(2,"a"), n:.context~namedArgs~~remove("ITEM"))
+            ----------
+new         object~send(..., -1, : ..., : -item)
+
+
+        "helllo"~changeStr2("l", "L", -2) --> changeStr2("l", "helllo", "L", -2) --> "helLLo"
+        ::extension String
+actual  ::method changeStr2 ; return changeStr2~call(self, .context~args, 2) -- prepend self to arg(1, "a") then swap [1] and [2]
+        ----------
+new     ::method changeStr2 ; changeStr2(arg(1), self, ..., -1)
+
+
+===============================================================================
 2022 November 08
 
 [Encoded strings]
