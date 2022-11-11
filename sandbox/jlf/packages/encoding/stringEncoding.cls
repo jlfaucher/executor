@@ -449,7 +449,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         if .nil == text then signal must_have_a_text_or_buffer_or_string_value
         encoding = .Encoding~forConcatenation(buffer, text) -- raise an error if not compatible
         buffer~encoding = encoding
-        encoding~concatenate(text, b: buffer)
+        encoding~concatenate(text, :buffer)
     end
     if returnBuffer then return buffer
     else return .RexxText~new(buffer~string, buffer~encoding)
@@ -532,7 +532,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         else do
             codepoint = .Unicode~replacementCharacter~codepoint
         end
-        encoding~encode(codepoint, b: buffer)
+        encoding~encode(codepoint, :buffer)
         codepointIndexB = abs(nextCodepointIndexB)
     end
 
@@ -568,10 +568,10 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     call check_length lengthC, otherIndexer~length, nC
 
     selfText = selfIndexer~string~text
-    selfNormText = selfText~NFC(casefold: casefold, lump: lump, stripIgnorable: stripIgnorable, stripMark: stripMark)
+    selfNormText = selfText~NFC(:casefold, :lump, :stripIgnorable, :stripMark)
     selfNormIndexer = selfNormText~internalIndexer
 
-    otherNormText = otherText~NFC(casefold: casefold, lump: lump, stripIgnorable: stripIgnorable, stripMark: stripMark)
+    otherNormText = otherText~NFC(:casefold, :lump, :stripIgnorable, :stripMark)
     otherNormIndexer = otherNormText~internalIndexer
 
     startB = abs(selfNormIndexer~graphemeIndex(startC))
@@ -622,30 +622,30 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     text = text~requestTextOrBufferOrString
     if .nil == text then signal must_have_a_text_or_buffer_or_string_value
     encoding = .Encoding~forConcatenation(self~string, text) -- raise an error if not compatible
-    return encoding~concatenate(self~string, text, b: buffer)
+    return encoding~concatenate(self~string, text, :buffer)
 
     must_have_a_text_or_buffer_or_string_value: raise syntax 93.900 array("Method positional argument 1 must have a text or buffer or string value")
 
 
 ::method caselessEndsWith
     use strict arg other
-    return self~endsWithText(other, casefold:.true)
+    return self~endsWithText(other, casefold: .true)
 
 
 ::method caselessMatch
     use strict arg startC, other, nC=1, lengthC=.nil
     use strict named arg lump= .false, stripIgnorable= .false, stripMark=.false
-    return self~matchText(startC, other, nC, lengthC, casefold:.true, lump: lump, stripIgnorable: stripIgnorable, stripMark: stripMark)
+    return self~matchText(startC, other, nC, lengthC, casefold: .true, :lump, :stripIgnorable, :stripMark)
 
 
 ::method caselessMatchChar
     use strict arg nC, chars
-    return self~matchCharText(nC, chars, casefold:.true)
+    return self~matchCharText(nC, chars, casefold: .true)
 
 
 ::method caselessPos
     use strict arg needle, startC=1, lengthC=(self~length)
-    return self~posText(needle, startC, lengthC, casefold:.true)
+    return self~posText(needle, startC, lengthC, casefold: .true)
 
 
 ::method center
@@ -681,9 +681,9 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         if .nil <> buffer then do
             -- can't use encoding~concatenate for pad because pad~copies appends directly to the buffer
             -- consequence: will not detect WTF8 special concatenation, if any.
-            pad~copies(leftPad, b: buffer)
-            encoding~concatenate(self~string, b: buffer)
-            pad~copies(rightPad, b: buffer)
+            pad~copies(leftPad, :buffer)
+            encoding~concatenate(self~string, :buffer)
+            pad~copies(rightPad, :buffer)
             return buffer
         end
         return encoding~concatenate(pad~copies(leftPad), self~string, pad~copies(rightPad))
@@ -700,7 +700,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method endsWith
     use strict arg other
-    return self~endsWithText(other, casefold:.false)
+    return self~endsWithText(other, casefold: .false)
 
 
 ::method length -- number of graphemes
@@ -711,23 +711,23 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 ::method lower
     use strict arg startC=1, length=(max(0, self~length - startC + 1))
     use strict named arg buffer(1)=.nil
-    return self~lower_upper_title("l", startC, length, b:buffer)
+    return self~lower_upper_title("l", startC, length, :buffer)
 
 
 ::method match
     use strict arg startC, other, nC=1, lengthC=.nil
     use strict named arg lump= .false, stripIgnorable= .false, stripMark=.false
-    return self~matchText(startC, other, nC, lengthC, casefold:.false, lump: lump, stripIgnorable: stripIgnorable, stripMark: stripMark)
+    return self~matchText(startC, other, nC, lengthC, casefold: .false, :lump, :stripIgnorable, :stripMark)
 
 
 ::method matchChar
     use strict arg nC, chars
-    return self~matchCharText(nC, chars, casefold:.false)
+    return self~matchCharText(nC, chars, casefold: .false)
 
 
 ::method pos
     use strict arg needle, startC=1, lengthC=(self~length)
-    return self~posText(needle, startC, lengthC, casefold:.false)
+    return self~posText(needle, startC, lengthC, casefold: .false)
 
 
 ::method reverse
@@ -736,7 +736,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new
     do indexG = self~graphemeCount to 1 by -1
-        self~grapheme(indexG, b: buffer)
+        self~grapheme(indexG, :buffer)
     end
     if returnBuffer then return buffer
                     else return .RexxText~new(buffer~string, self~class)
@@ -770,8 +770,8 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     if .nil <> buffer then do
         -- can't use encoding~concatenate for pad because pad~copies appends directly to the buffer
         -- consequence: will not detect WTF8 special concatenation, if any.
-        pad~copies(lengthPad, b: buffer)
-        encoding~concatenate(right, b: buffer)
+        pad~copies(lengthPad, :buffer)
+        encoding~concatenate(right, :buffer)
         return buffer
     end
     return encoding~concatenate(pad~copies(lengthPad), right)
@@ -797,7 +797,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
     encoding = .Encoding~forConcatenation(self~string, pad) -- raise an error if not compatible
 
-    if startC > self~length then return pad~copies(length, b: buffer)
+    if startC > self~length then return pad~copies(length, :buffer)
     remainingLength = self~length - startC + 1 -- always >= 0
     lengthPad = max(0, length - remainingLength)
     endC = min(startC + length - 1, self~length)
@@ -810,10 +810,10 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
                           else return .RexxText~new(substr, self~class)
     end
     if .nil <> buffer then do
-        encoding~concatenate(substr, b: buffer)
+        encoding~concatenate(substr, :buffer)
         -- can't use encoding~concatenate for pad because pad~copies appends directly to the buffer
         -- consequence: will not detect WTF8 special concatenation, if any.
-        pad~copies(lengthPad, b: buffer)
+        pad~copies(lengthPad, :buffer)
         return buffer
     end
     return encoding~concatenate(substr, pad~copies(lengthPad))
@@ -828,7 +828,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 ::method title
     use strict arg startC=1, length=(max(0, self~length - startC + 1))
     use strict named arg buffer(1)=.nil
-    return self~lower_upper_title("t", startC, length, b:buffer)
+    return self~lower_upper_title("t", startC, length, :buffer)
 
 
 /*
@@ -843,7 +843,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 ::method upper
     use strict arg startC=1, length=(max(0, self~length - startC + 1))
     use strict named arg buffer(1)=.nil
-    return self~lower_upper_title("u", startC, length, b:buffer)
+    return self~lower_upper_title("u", startC, length, :buffer)
 
 
 /******************************************************************************/
@@ -1135,7 +1135,7 @@ For example, if startB==6 then previousCodepointIndex==3
     do i = 1 to arg()
         -- Only WTF-8 has a specific implementation of appendToBuffer.
         -- When concatenating WTF-8 with UTF-8 or ASCII, the target encoding (self) is WTF-8.
-        arg(i)~encoding~appendToBuffer(arg(i)~string, b: buffer)
+        arg(i)~encoding~appendToBuffer(arg(i)~string, :buffer)
     end
     if returnBuffer then return buffer
                     else return .RexxText~new(buffer~string, self)
@@ -1262,7 +1262,7 @@ For example, if startB==6 then previousCodepointIndex==3
     do while codepoints~available
         if \first then buffer~append(" ")
         first = .false
-        call ppCodepoint codepoints~item, b: buffer
+        call ppCodepoint codepoints~item, :buffer
         codepoints~next
     end
     if returnBuffer then return buffer
@@ -1490,7 +1490,7 @@ How other languages are supporting escape characters for Unicode:
     return self~bitFlag(4)
 
 
-::method Casefold abstract
+::method casefold abstract
 
 
 ::attribute isLumped get
@@ -1581,7 +1581,7 @@ How other languages are supporting escape characters for Unicode:
                     idntfr = string~substr(first, length)
                     startWithDigit = idntfr~left(1)~datatype("9")
                     character = .Unicode~character(idntfr, hexadecimal: startWithDigit)
-                    character~text(self~class, b:buffer)
+                    character~text(self~class, :buffer)
                 end
 
                 else if character == "u" then do
@@ -1591,7 +1591,7 @@ How other languages are supporting escape characters for Unicode:
                     if codepoint~length < 4 then signal expecting_4_hexadecimal_digits
                     if \codepoint~datatype("X") then signal expecting_4_hexadecimal_digits
                     character = .Unicode~character(codepoint, hexadecimal: .true)
-                    character~text(self~class, b:buffer)
+                    character~text(self~class, :buffer)
                     pos += 4
                 end
 
@@ -1602,7 +1602,7 @@ How other languages are supporting escape characters for Unicode:
                     if codepoint~length < 8 then signal expecting_8_hexadecimal_digits
                     if \codepoint~datatype("X") then signal expecting_8_hexadecimal_digits
                     character = .Unicode~character(codepoint, hexadecimal: .true)
-                    character~text(self~class, b:buffer)
+                    character~text(self~class, :buffer)
                     pos += 8
                 end
 
@@ -1734,14 +1734,14 @@ How other languages are supporting escape characters for Unicode:
     -- otherwise return the encoded codepoint as a RexxText
     use strict arg codepoint
     use strict named arg buffer(1)=.nil
-    self~checkCodepoint(codepoint, checkOnlyRange:.true) -- check only range, the other errors will be detected during analysis
+    self~checkCodepoint(codepoint, checkOnlyRange: .true) -- check only range, the other errors will be detected during analysis
     if .nil <> buffer then return buffer~~append(codepoint~d2c)
                       else return .RexxText~new(codepoint~d2c, self)
 
 
 ::method codepointSizeInBytes class
     use strict arg codepoint
-    self~checkCodepoint(codepoint, checkOnlyRange:.true)
+    self~checkCodepoint(codepoint, checkOnlyRange: .true)
     return 1
 
 
@@ -1838,13 +1838,13 @@ How other languages are supporting escape characters for Unicode:
             codepoint = tableTranscodingToUnicode[charcode+1] -- bof bof... 1-based array
             -- An empty string means no mapping
             -- A negative codepoint means unused character with fallback mapping
-            if codepoint == "" | (codepoint < 0 & strict) then raise syntax 23.900 array(self~name "encoding: cannot convert" self~description(short:.true) "character" charcode "("charcode~d2x") at byte-position" i "to" targetEncoding~name)
-            targetEncoding~encode(abs(codepoint), b: buffer)
+            if codepoint == "" | (codepoint < 0 & strict) then raise syntax 23.900 array(self~name "encoding: cannot convert" self~description(short: .true) "character" charcode "("charcode~d2x") at byte-position" i "to" targetEncoding~name)
+            targetEncoding~encode(abs(codepoint), :buffer)
         end
         if returnBuffer then return buffer
                         else return .RexxText~new(buffer~string, targetEncoding)
     end
-    raise syntax 23.900 array(self~class~name "encoding: cannot convert" self~description(short:.true) "to" targetEncoding~name)
+    raise syntax 23.900 array(self~class~name "encoding: cannot convert" self~description(short: .true) "to" targetEncoding~name)
 
 
 ::method UTF8
@@ -1857,7 +1857,7 @@ How other languages are supporting escape characters for Unicode:
         return .RexxText~new(.String~new(self~string), .UTF8_Encoding)
     end
     else do
-        return self~convertByteToUnicode(.UTF8_Encoding, strict: strict, b: buffer)
+        return self~convertByteToUnicode(.UTF8_Encoding, :strict, :buffer)
     end
 
 
@@ -1871,7 +1871,7 @@ How other languages are supporting escape characters for Unicode:
         return .RexxText~new(.String~new(self~string), .WTF8_Encoding)
     end
     else do
-        return self~convertByteToUnicode(.WTF8_Encoding, strict: strict, b: buffer)
+        return self~convertByteToUnicode(.WTF8_Encoding, :strict, :buffer)
     end
 
 
@@ -1881,14 +1881,14 @@ How other languages are supporting escape characters for Unicode:
 
 ::method UTF16BE
     use strict named arg strict=.true, buffer(1)=.nil
-    if self~string~isASCII then return .UTF16BE_Encoding~encodeASCIIstring(self~string, b: buffer)
-                           else return self~convertByteToUnicode(.UTF16BE_Encoding, strict: strict, b: buffer)
+    if self~string~isASCII then return .UTF16BE_Encoding~encodeASCIIstring(self~string, :buffer)
+                           else return self~convertByteToUnicode(.UTF16BE_Encoding, :strict, :buffer)
 
 
 ::method UTF16LE
     use strict named arg strict=.true, buffer(1)=.nil
-    if self~string~isASCII then return .UTF16LE_Encoding~encodeASCIIstring(self~string, b: buffer)
-                           else return self~convertByteToUnicode(.UTF16LE_Encoding, strict: strict, b: buffer)
+    if self~string~isASCII then return .UTF16LE_Encoding~encodeASCIIstring(self~string, :buffer)
+                           else return self~convertByteToUnicode(.UTF16LE_Encoding, :strict, :buffer)
 
 
 ::method WTF16
@@ -1897,14 +1897,14 @@ How other languages are supporting escape characters for Unicode:
 
 ::method WTF16BE
     use strict named arg strict=.true, buffer(1)=.nil
-    if self~string~isASCII then return .WTF16BE_Encoding~encodeASCIIstring(self~string, b: buffer)
-                           else return self~convertByteToUnicode(.WTF16BE_Encoding, strict: strict, b: buffer)
+    if self~string~isASCII then return .WTF16BE_Encoding~encodeASCIIstring(self~string, :buffer)
+                           else return self~convertByteToUnicode(.WTF16BE_Encoding, :strict, :buffer)
 
 
 ::method WTF16LE
     use strict named arg strict=.true, buffer(1)=.nil
-    if self~string~isASCII then return .WTF16LE_Encoding~encodeASCIIstring(self~string, b:buffer)
-                           else return self~convertByteToUnicode(.WTF16LE_Encoding, strict: strict, b: buffer)
+    if self~string~isASCII then return .WTF16LE_Encoding~encodeASCIIstring(self~string, :buffer)
+                           else return self~convertByteToUnicode(.WTF16LE_Encoding, :strict, :buffer)
 
 
 ::method UTF32
@@ -1913,14 +1913,14 @@ How other languages are supporting escape characters for Unicode:
 
 ::method UTF32BE
     use strict named arg strict=.true, buffer(1)=.nil
-    if self~string~isASCII then return .UTF32BE_Encoding~encodeASCIIstring(self~string, b: buffer)
-                           else return self~convertByteToUnicode(.UTF32BE_Encoding, strict: strict, b: buffer)
+    if self~string~isASCII then return .UTF32BE_Encoding~encodeASCIIstring(self~string, :buffer)
+                           else return self~convertByteToUnicode(.UTF32BE_Encoding, :strict, :buffer)
 
 
 ::method UTF32LE
     use strict named arg strict=.true, buffer(1)=.nil
-    if self~string~isASCII then return .UTF32LE_Encoding~encodeASCIIstring(self~string, b: buffer)
-                           else return self~convertByteToUnicode(.UTF32LE_Encoding, strict: strict, b: buffer)
+    if self~string~isASCII then return .UTF32LE_Encoding~encodeASCIIstring(self~string, :buffer)
+                           else return self~convertByteToUnicode(.UTF32LE_Encoding, :strict, :buffer)
 
 
 ::method Unicode
@@ -1934,7 +1934,7 @@ How other languages are supporting escape characters for Unicode:
     end
     else do
         targetEncoding = .Unicode_Encoding~toSupport(self~maximumUnicodeCodepoint)
-        return self~convertByteToUnicode(targetEncoding, strict: strict, b: buffer)
+        return self~convertByteToUnicode(targetEncoding, :strict, :buffer)
     end
 
 
@@ -1947,19 +1947,19 @@ How other languages are supporting escape characters for Unicode:
         -- and that forbids to assign a new RexxText.
         return .RexxText~new(.String~new(self~string), .Unicode8_Encoding)
     end
-    else return self~convertByteToUnicode(.Unicode8_Encoding, strict: strict, b: buffer)
+    else return self~convertByteToUnicode(.Unicode8_Encoding, :strict, :buffer)
 
 
 ::method Unicode16
     use strict named arg strict=.true, buffer(1)=.nil
-    if self~string~isASCII then return .Unicode16_Encoding~encodeASCIIstring(self~string, b: buffer)
-                           else return self~convertByteToUnicode(.Unicode16_Encoding, strict: strict, b: buffer)
+    if self~string~isASCII then return .Unicode16_Encoding~encodeASCIIstring(self~string, :buffer)
+                           else return self~convertByteToUnicode(.Unicode16_Encoding, :strict, :buffer)
 
 
 ::method Unicode32
     use strict named arg strict=.true, buffer(1)=.nil
-    if self~string~isASCII then return .Unicode32_Encoding~encodeASCIIstring(self~string, b: buffer)
-                           else return self~convertByteToUnicode(.Unicode32_Encoding, strict: strict, b: buffer)
+    if self~string~isASCII then return .Unicode32_Encoding~encodeASCIIstring(self~string, :buffer)
+                           else return self~convertByteToUnicode(.Unicode32_Encoding, :strict, :buffer)
 
 
 /******************************************************************************/
@@ -2051,12 +2051,12 @@ How other languages are supporting escape characters for Unicode:
     errorInfo = .array~new(1) -- simulate a variable reference: errorInfo[1] = errorMessage
     forever:
         codepoint = .nil
-        nextB = encoding~nextCodepointIndex(string, indexB, errorInfo: errorInfo)
+        nextB = encoding~nextCodepointIndex(string, indexB, :errorInfo)
         if nextB < 0 then signal error
         codepoint = encoding~decode(string, indexB, nextB - indexB) -- codepoint can be .nil if nextB == indexB
 
         -- Remember : previousCodepoint can be .nil (first codepoint) or <0 (error recovery)
-        checkResult = encoding~checkCodepoint(codepoint, indexB, previousCodepoint, previousCodepointIndexB, errorInfo: errorInfo)
+        checkResult = encoding~checkCodepoint(codepoint, indexB, previousCodepoint, previousCodepointIndexB, :errorInfo)
         if checkResult == -1 then do
             -- The byte-sequence starting at previousCodepointIndexB is invalid,
             -- undo the last index
@@ -2197,7 +2197,7 @@ How other languages are supporting escape characters for Unicode:
     if .nil == buffer then buffer = .MutableBuffer~new(, sizeC * targetEncoding~codepointMaxBytes)
     do i=1 to sizeC
         codepoint = self~codepoint(i)
-        targetEncoding~encode(codepoint, b: buffer)
+        targetEncoding~encode(codepoint, :buffer)
     end
     if returnBuffer then return buffer
                       else return .RexxText~new(buffer~string, targetEncoding)
@@ -2206,13 +2206,13 @@ How other languages are supporting escape characters for Unicode:
 ::method UTF8
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.UTF8_Encoding, b: buffer)
+    return self~convertUnicodeToUnicode(.UTF8_Encoding, :buffer)
 
 
 ::method WTF8
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.WTF8_Encoding, b: buffer)
+    return self~convertUnicodeToUnicode(.WTF8_Encoding, :buffer)
 
 
 ::method UTF16
@@ -2222,13 +2222,13 @@ How other languages are supporting escape characters for Unicode:
 ::method UTF16BE
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.UTF16BE_Encoding, b: buffer)
+    return self~convertUnicodeToUnicode(.UTF16BE_Encoding, :buffer)
 
 
 ::method UTF16LE
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.UTF16LE_Encoding, b: buffer)
+    return self~convertUnicodeToUnicode(.UTF16LE_Encoding, :buffer)
 
 
 ::method WTF16
@@ -2238,13 +2238,13 @@ How other languages are supporting escape characters for Unicode:
 ::method WTF16BE
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.WTF16BE_Encoding, b: buffer)
+    return self~convertUnicodeToUnicode(.WTF16BE_Encoding, :buffer)
 
 
 ::method WTF16LE
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.WTF16LE_Encoding, b: buffer)
+    return self~convertUnicodeToUnicode(.WTF16LE_Encoding, :buffer)
 
 
 ::method UTF32
@@ -2254,41 +2254,41 @@ How other languages are supporting escape characters for Unicode:
 ::method UTF32BE
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.UTF32BE_Encoding, b: buffer)
+    return self~convertUnicodeToUnicode(.UTF32BE_Encoding, :buffer)
 
 
 ::method UTF32LE
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.UTF32LE_Encoding, b: buffer)
+    return self~convertUnicodeToUnicode(.UTF32LE_Encoding, :buffer)
 
 
 ::method Unicode
     use strict arg -- none
     use strict named arg buffer(1)=.nil
     targetEncoding = .Unicode_Encoding~toSupport(self~maximumCodepoint)
-    return self~convertUnicodeToUnicode(targetEncoding, b: buffer)
+    return self~convertUnicodeToUnicode(targetEncoding, :buffer)
 
 
 ::method Unicode8
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    .Unicode8_Encoding~checkCodepoint(self~maximumCodepoint, checkingMaximumCodepoint:.true)
-    return self~convertUnicodeToUnicode(.Unicode8_Encoding, b: buffer)
+    .Unicode8_Encoding~checkCodepoint(self~maximumCodepoint, checkingMaximumCodepoint: .true)
+    return self~convertUnicodeToUnicode(.Unicode8_Encoding, :buffer)
 
 
 ::method Unicode16
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    .Unicode16_Encoding~checkCodepoint(self~maximumCodepoint, checkingMaximumCodepoint:.true)
-    return self~convertUnicodeToUnicode(.Unicode16_Encoding, b: buffer)
+    .Unicode16_Encoding~checkCodepoint(self~maximumCodepoint, checkingMaximumCodepoint: .true)
+    return self~convertUnicodeToUnicode(.Unicode16_Encoding, :buffer)
 
 
 ::method Unicode32
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    .Unicode32_Encoding~checkCodepoint(self~maximumCodepoint, checkingMaximumCodepoint:.true)
-    return self~convertUnicodeToUnicode(.Unicode32_Encoding, b: buffer)
+    .Unicode32_Encoding~checkCodepoint(self~maximumCodepoint, checkingMaximumCodepoint: .true)
+    return self~convertUnicodeToUnicode(.Unicode32_Encoding, :buffer)
 
 
 /******************************************************************************/
@@ -2557,7 +2557,7 @@ How other languages are supporting escape characters for Unicode:
     use strict named arg buffer(1)=.nil
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new(, self~codepointMaxBytes)
-    self~checkCodepoint(codepoint, checkOnlyRange:.true)            -- check only range, the other errors will be detected during analysis
+    self~checkCodepoint(codepoint, checkOnlyRange: .true)           -- check only range, the other errors will be detected during analysis
     if codepoint < 128 then do                                      -- if (uc < 0x80) {
         buffer~append(codepoint~d2c)                                -- dst[0] = (utf8proc_uint8_t) uc;
     end                                                             -- return 1;
@@ -2572,7 +2572,7 @@ How other languages are supporting escape characters for Unicode:
             buffer3~append((224 + codepoint % 4096)~d2c)            -- dst[0] = (utf8proc_uint8_t)(0xE0 + (uc >> 12));
             buffer3~append((128 + (codepoint % 64) // 64)~d2c)      -- dst[1] = (utf8proc_uint8_t)(0x80 + ((uc >> 6) & 0x3F));
             buffer3~append((128 + codepoint // 64)~d2c)             -- dst[2] = (utf8proc_uint8_t)(0x80 + (uc & 0x3F));
-            self~appendToBuffer(buffer3~string, b:buffer)
+            self~appendToBuffer(buffer3~string, :buffer)
         end
         else do
             buffer~append((224 + codepoint % 4096)~d2c)             -- dst[0] = (utf8proc_uint8_t)(0xE0 + (uc >> 12));
@@ -2592,7 +2592,7 @@ How other languages are supporting escape characters for Unicode:
 
 ::method codepointSizeInBytes class
     use strict arg codepoint
-    self~checkCodepoint(codepoint, checkOnlyRange:.true)
+    self~checkCodepoint(codepoint, checkOnlyRange: .true)
     if codepoint < 128 then return 1
     if codepoint < 2048 then return 2
     if codepoint < 65536 then return 3
@@ -2737,7 +2737,7 @@ How other languages are supporting escape characters for Unicode:
     if .nil \== string then return string~makeRexxTextOrString(returnString) -- already memorized
     if self~bitFlagsAllTrue(mask) then string = self~string -- already in the requested form
     else do
-        string = .Unicode~utf8proc_transform(self~string, normalization: normalization, casefold: casefold, lump: lump, stripMark: stripMark, stripIgnorable: stripIgnorable, stripCC: stripCC, stripNA: stripNA)
+        string = .Unicode~utf8proc_transform(self~string, :normalization, :casefold, :lump, :stripMark, :stripIgnorable, :stripCC, :stripNA)
         if (string == self~string) then do
             self~setBitFlags(mask) -- all these flags are set to true
         end
@@ -2771,7 +2771,7 @@ How other languages are supporting escape characters for Unicode:
     forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", 4))
 
 
-::method Casefold
+::method casefold
     forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", 0)~~setEntry("casefold", .true))
 
 
@@ -2919,7 +2919,7 @@ the concatenation back to WTF-8.
                 l = cp2 - 56320 -- Take the low surrogate and subtract 0xDC00
                 surrogate = h + l + 65536 -- Add these two results together, and finally add 0x10000
                 buffer~delete(bufferIndexB)
-                self~encode(surrogate, b: buffer)
+                self~encode(surrogate, :buffer)
                 return
             end
         end
@@ -3091,7 +3091,7 @@ the concatenation back to WTF-8.
     use strict named arg buffer(1)=.nil
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new(, self~codepointMaxBytes)
-    self~checkCodepoint(codepoint, checkOnlyRange:.true) -- check only range, the other errors will be detected during analysis
+    self~checkCodepoint(codepoint, checkOnlyRange: .true) -- check only range, the other errors will be detected during analysis
     if codepoint < 55296 then do -- U+0000 to U+D7FF
         buffer~append(self~encodeCodepoint(codepoint))
     end
@@ -3108,7 +3108,7 @@ the concatenation back to WTF-8.
 
 ::method codepointSizeInBytes class
     use strict arg codepoint
-    self~checkCodepoint(codepoint, checkOnlyRange:.true)
+    self~checkCodepoint(codepoint, checkOnlyRange: .true)
     if codepoint < 65536 then return 2
     return 4
 
@@ -3541,7 +3541,7 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
     use strict named arg buffer(1)=.nil
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new(, 4) -- yes, always 4, no need to use codepointMaxBytes
-    self~checkCodepoint(codepoint, checkOnlyRange:.true) -- check only range, the other errors will be detected during analysis
+    self~checkCodepoint(codepoint, checkOnlyRange: .true) -- check only range, the other errors will be detected during analysis
     buffer~append(self~encodeCodepoint(codepoint))
     if returnBuffer then return buffer
                     else return .RexxText~new(buffer~string, self)
@@ -3549,7 +3549,7 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 
 ::method codepointSizeInBytes class
     use strict arg codepoint
-    self~checkCodepoint(codepoint, checkOnlyRange:.true)
+    self~checkCodepoint(codepoint, checkOnlyRange: .true)
     return 4
 
 
@@ -3899,14 +3899,14 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
     -- otherwise return the encoded codepoint as a RexxText
     use strict arg codepoint
     use strict named arg buffer(1)=.nil
-    self~checkCodepoint(codepoint, checkOnlyRange:.true) -- check only range, the other errors will be detected during analysis
+    self~checkCodepoint(codepoint, checkOnlyRange: .true) -- check only range, the other errors will be detected during analysis
     if .nil <> buffer then return buffer~~append(codepoint~d2c)
                       else return .RexxText~new(codepoint~d2c, self)
 
 
 ::method codepointSizeInBytes class
     use strict arg codepoint
-    self~checkCodepoint(codepoint, checkOnlyRange:.true)
+    self~checkCodepoint(codepoint, checkOnlyRange: .true)
     return 1
 
 
@@ -4047,14 +4047,14 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
     -- otherwise return the encoded codepoint as a RexxText
     use strict arg codepoint
     use strict named arg buffer(1)=.nil
-    self~checkCodepoint(codepoint, checkOnlyRange:.true) -- check only range, the other errors will be detected during analysis
+    self~checkCodepoint(codepoint, checkOnlyRange: .true) -- check only range, the other errors will be detected during analysis
     if .nil <> buffer then return buffer~~append(self~encodeCodepoint(codepoint))
                       else return .RexxText~new(self~encodeCodepoint(codepoint), self)
 
 
 ::method codepointSizeInBytes class
     use strict arg codepoint
-    self~checkCodepoint(codepoint, checkOnlyRange:.true)
+    self~checkCodepoint(codepoint, checkOnlyRange: .true)
     return 2
 
 
@@ -4234,14 +4234,14 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
     -- otherwise return the encoded codepoint as a RexxText
     use strict arg codepoint
     use strict named arg buffer(1)=.nil
-    self~checkCodepoint(codepoint, checkOnlyRange:.true) -- check only range, the other errors will be detected during analysis
+    self~checkCodepoint(codepoint, checkOnlyRange: .true) -- check only range, the other errors will be detected during analysis
     if .nil <> buffer then return buffer~~append(self~encodeCodepoint(codepoint))
                       else return .RexxText~new(self~encodeCodepoint(codepoint), self)
 
 
 ::method codepointSizeInBytes class
     use strict arg codepoint
-    self~checkCodepoint(codepoint, checkOnlyRange:.true)
+    self~checkCodepoint(codepoint, checkOnlyRange: .true)
     return 4
 
 

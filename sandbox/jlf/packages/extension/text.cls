@@ -691,7 +691,7 @@ Allows to use a String or a RexxText indistinctly
     forward to (self~indexer)
 
 
-::method Casefold
+::method casefold
     forward to (self~indexer)
 
 
@@ -867,8 +867,8 @@ x2d                             full (raise an error if not compatible with Stri
         selfLength = min(length, self~length)
         textLength = min(length, text~length)
     end
-    selfNormalized = self~substr(n, selfLength)~NFC(casefold: casefold, lump: lump, stripIgnorable: stripIgnorable, stripmark: stripmark)
-    textNormalized = text~substr(n, textLength)~NFC(casefold: casefold, lump: lump, stripIgnorable: stripIgnorable, stripmark: stripmark)
+    selfNormalized = self~substr(n, selfLength)~NFC(:casefold, :lump, :stripIgnorable, :stripmark)
+    textNormalized = text~substr(n, textLength)~NFC(:casefold, :lump, :stripIgnorable, :stripmark)
     return selfNormalized~string~CompareTo(textNormalized~string)
 
     invalid_length: raise syntax 93.923 array(length)
@@ -944,7 +944,7 @@ x2d                             full (raise an error if not compatible with Stri
 ::method compareTo
     use strict arg text, n=1, length=.nil
     use strict named arg lump= .false, stripIgnorable= .false, stripmark=.false
-    return self~caselessCompareTo(text, n, length, casefold: .false, lump: lump, stripIgnorable: stripIgnorable, stripmark: stripmark)
+    return self~caselessCompareTo(text, n, length, casefold: .false, :lump, :stripIgnorable, :stripmark)
 
 
 ::method contains

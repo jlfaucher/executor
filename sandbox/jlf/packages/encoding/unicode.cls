@@ -635,7 +635,7 @@ https://unicode.org/reports/tr44/#UAX44-LM3
     use strict arg encoding="default"
     use strict named arg buffer(1)=.nil
     encoding = .Encoding~factory(encoding)
-    return encoding~encode(codepoint, b: buffer)
+    return encoding~encode(codepoint, :buffer)
 
 
 ::method makeRexxText
@@ -652,14 +652,14 @@ https://unicode.org/reports/tr44/#UAX44-LM3
     expose codepoint
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    return .UTF8_Encoding~encode(codepoint, b: buffer)
+    return .UTF8_Encoding~encode(codepoint, :buffer)
 
 
 ::method WTF8
     expose codepoint
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    return .WTF8_Encoding~encode(codepoint, b: buffer)
+    return .WTF8_Encoding~encode(codepoint, :buffer)
 
 
 ::method UTF16
@@ -670,14 +670,14 @@ https://unicode.org/reports/tr44/#UAX44-LM3
     expose codepoint
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    return .UTF16BE_Encoding~encode(codepoint, b:buffer)
+    return .UTF16BE_Encoding~encode(codepoint, :buffer)
 
 
 ::method UTF16LE
     expose codepoint
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    return .UTF16LE_Encoding~encode(codepoint, b: buffer)
+    return .UTF16LE_Encoding~encode(codepoint, :buffer)
 
 
 ::method WTF16
@@ -688,14 +688,14 @@ https://unicode.org/reports/tr44/#UAX44-LM3
     expose codepoint
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    return .WTF16BE_Encoding~encode(codepoint, b: buffer)
+    return .WTF16BE_Encoding~encode(codepoint, :buffer)
 
 
 ::method WTF16LE
     expose codepoint
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    return .WTF16LE_Encoding~encode(codepoint, b: buffer)
+    return .WTF16LE_Encoding~encode(codepoint, :buffer)
 
 
 ::method UTF32
@@ -706,14 +706,14 @@ https://unicode.org/reports/tr44/#UAX44-LM3
     expose codepoint
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    return .UTF32BE_Encoding~encode(codepoint, b: buffer)
+    return .UTF32BE_Encoding~encode(codepoint, :buffer)
 
 
 ::method UTF32LE
     expose codepoint
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    return .UTF32LE_Encoding~encode(codepoint, b: buffer)
+    return .UTF32LE_Encoding~encode(codepoint, :buffer)
 
 
 ::method Unicode
@@ -721,28 +721,28 @@ https://unicode.org/reports/tr44/#UAX44-LM3
     use strict arg -- none
     use strict named arg buffer(1)=.nil
     targetEncoding = .Unicode_Encoding~toSupport(codepoint)
-    return targetEncoding~encode(codepoint, b: buffer)
+    return targetEncoding~encode(codepoint, :buffer)
 
 
 ::method Unicode8
     expose codepoint
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    return .Unicode8_Encoding~encode(codepoint, b: buffer)
+    return .Unicode8_Encoding~encode(codepoint, :buffer)
 
 
 ::method Unicode16
     expose codepoint
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    return .Unicode16_Encoding~encode(codepoint, b: buffer)
+    return .Unicode16_Encoding~encode(codepoint, :buffer)
 
 
 ::method Unicode32
     expose codepoint
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    return .Unicode32_Encoding~encode(codepoint, b: buffer)
+    return .Unicode32_Encoding~encode(codepoint, :buffer)
 
 
 -- http://www.unicode.org/reports/tr44/#General_Category_Values
