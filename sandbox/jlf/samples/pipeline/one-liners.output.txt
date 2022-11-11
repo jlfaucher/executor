@@ -25,8 +25,10 @@ Object's methods
 "INSTANCEMETHOD"               
 "INSTANCEMETHODS"              
 "ISA"                          
+"ISCOMPATIBLEWITHBYTESTRING"   
 "ISINSTANCEOF"                 
 "ISNIL"                        
+"ISTEXTORBUFFERORSTRING"       
 "OBJECTNAME"                   
 "OBJECTNAME="                  
 "PIPE"                         
@@ -34,6 +36,7 @@ Object's methods
 "PPSTRING"                     
 "RANK"                         
 "REQUEST"                      
+"REQUESTTEXTORBUFFERORSTRING"  
 "RESHAPE"                      
 "RUN"                          
 "SEND"                         
@@ -46,12 +49,11 @@ Object's methods
 "START"                        
 "STARTWITH"                    
 "STRING"                       
-"UNKNOWN"                      
 "UNSETMETHOD"                  
 "\="                           
 "\=="                          
 "||"                           
-51 Object's methods 
+53 Object's methods 
 --------------------------------------------------------------------------------
 Object's instance methods
 " "                            
@@ -76,6 +78,7 @@ Object's instance methods
 "ENHANCED"                     
 "GENERATE"                     
 "GENERATEI"                    
+"GETUSERDATA"                  
 "HASHCODE"                     
 "HASHCODE"                     
 "HASMETHOD"                    
@@ -86,8 +89,11 @@ Object's instance methods
 "INSTANCEMETHOD"               
 "INSTANCEMETHODS"              
 "ISA"                          
+"ISCOMPATIBLEWITHBYTESTRING"   
 "ISINSTANCEOF"                 
+"ISNIL"                        
 "ISSUBCLASSOF"                 
+"ISTEXTORBUFFERORSTRING"       
 "METACLASS"                    
 "METHOD"                       
 "METHODS"                      
@@ -99,10 +105,12 @@ Object's instance methods
 "PPSTRING"                     
 "QUERYMIXINCLASS"              
 "REQUEST"                      
+"REQUESTTEXTORBUFFERORSTRING"  
 "RUN"                          
 "SEND"                         
 "SENDWITH"                     
 "SETMETHOD"                    
+"SETUSERDATA"                  
 "START"                        
 "STARTWITH"                    
 "STRING"                       
@@ -117,7 +125,7 @@ Object's instance methods
 "\=="                          
 "\=="                          
 "||"                           
-63 Object's instance methods 
+69 Object's instance methods 
 --------------------------------------------------------------------------------
 Class' methods
 " "                            
@@ -161,9 +169,11 @@ Class' methods
 "INSTANCEMETHOD"               
 "INSTANCEMETHODS"              
 "ISA"                          
+"ISCOMPATIBLEWITHBYTESTRING"   
 "ISINSTANCEOF"                 
 "ISNIL"                        
 "ISSUBCLASSOF"                 
+"ISTEXTORBUFFERORSTRING"       
 "METACLASS"                    
 "METHOD"                       
 "METHODS"                      
@@ -176,6 +186,7 @@ Class' methods
 "QUERYMIXINCLASS"              
 "RANK"                         
 "REQUEST"                      
+"REQUESTTEXTORBUFFERORSTRING"  
 "RESHAPE"                      
 "RUN"                          
 "SEND"                         
@@ -193,14 +204,13 @@ Class' methods
 "SUPERCLASS"                   
 "SUPERCLASSES"                 
 "UNINHERIT"                    
-"UNKNOWN"                      
 "UNSETMETHOD"                  
 "\="                           
 "\="                           
 "\=="                          
 "\=="                          
 "||"                           
-80 Class' methods 
+82 Class' methods 
 --------------------------------------------------------------------------------
 Class' instance methods
 " "                            
@@ -225,6 +235,7 @@ Class' instance methods
 "ENHANCED"                     
 "GENERATE"                     
 "GENERATEI"                    
+"GETUSERDATA"                  
 "HASHCODE"                     
 "HASHCODE"                     
 "HASMETHOD"                    
@@ -235,8 +246,11 @@ Class' instance methods
 "INSTANCEMETHOD"               
 "INSTANCEMETHODS"              
 "ISA"                          
+"ISCOMPATIBLEWITHBYTESTRING"   
 "ISINSTANCEOF"                 
+"ISNIL"                        
 "ISSUBCLASSOF"                 
+"ISTEXTORBUFFERORSTRING"       
 "METACLASS"                    
 "METHOD"                       
 "METHODS"                      
@@ -248,10 +262,12 @@ Class' instance methods
 "PPSTRING"                     
 "QUERYMIXINCLASS"              
 "REQUEST"                      
+"REQUESTTEXTORBUFFERORSTRING"  
 "RUN"                          
 "SEND"                         
 "SENDWITH"                     
 "SETMETHOD"                    
+"SETUSERDATA"                  
 "START"                        
 "STARTWITH"                    
 "STRING"                       
@@ -266,7 +282,7 @@ Class' instance methods
 "\=="                          
 "\=="                          
 "||"                           
-63 Class' instance methods 
+69 Class' instance methods 
 --------------------------------------------------------------------------------
 RexxBlock' methods, with their defining class
                                Object 
@@ -307,8 +323,10 @@ INIT                           RexxBlockDoer
 INSTANCEMETHOD                 Object 
 INSTANCEMETHODS                Object 
 ISA                            Object 
+ISCOMPATIBLEWITHBYTESTRING     Object 
 ISINSTANCEOF                   Object 
 ISNIL                          Object 
+ISTEXTORBUFFERORSTRING         Object 
 NEEDSOBJECT                    RexxBlockDoer 
 NEEDSOBJECT                    Doer 
 OBJECTNAME                     Object 
@@ -319,6 +337,7 @@ PIPEPROFILE                    Object
 PPSTRING                       Object 
 RANK                           Object 
 REQUEST                        Object 
+REQUESTTEXTORBUFFERORSTRING    Object 
 RESHAPE                        Object 
 RUN                            Object 
 SEND                           Object 
@@ -334,7 +353,6 @@ START                          Object
 STARTWITH                      Object 
 STRING                         Object 
 TRAMPOLINE                     Doer 
-UNKNOWN                        Object 
 UNKNOWN                        RexxBlockDoer 
 UNSETMETHOD                    Object 
 \=                             Object 
@@ -355,6 +373,8 @@ All classes having their own _description_ method.
 All packages that are visible from current context, including the current package (source of the pipeline).
 /local/rexx/oorexx/executor/sandbox/jlf/packages/concurrency/coactivity.cls 
 /local/rexx/oorexx/executor/sandbox/jlf/packages/concurrency/generator.cls 
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/stringEncoding.cls 
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode.cls 
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/array.cls 
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/collection.cls 
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls 
@@ -366,10 +386,12 @@ All packages that are visible from current context, including the current packag
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls 
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/logical.cls 
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/novalue.cls 
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/object.cls 
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/rexxinfo.cls 
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/string.cls 
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/stringChunk.cls 
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/stringChunkExtended.cls 
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls 
 /local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls 
 /local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe_extension.cls 
 /local/rexx/oorexx/executor/sandbox/jlf/packages/profiling/profiling.cls 
@@ -394,6 +416,28 @@ generator.cls : (The MutableBufferGenerator class)
 generator.cls : (The RepeaterGenerator class) 
 generator.cls : (The StringGenerator class) 
 generator.cls : (The SupplierGenerator class) 
+stringEncoding.cls : (The Byte_Encoding class) 
+stringEncoding.cls : (The CP1252_Encoding class) 
+stringEncoding.cls : (The CodePointSupplier class) 
+stringEncoding.cls : (The Encoding class) 
+stringEncoding.cls : (The GraphemeSupplier class) 
+stringEncoding.cls : (The ISO88591_Encoding class) 
+stringEncoding.cls : (The UTF16BE_Encoding class) 
+stringEncoding.cls : (The UTF16LE_Encoding class) 
+stringEncoding.cls : (The UTF32BE_Encoding class) 
+stringEncoding.cls : (The UTF32LE_Encoding class) 
+stringEncoding.cls : (The UTF8_Encoding class) 
+stringEncoding.cls : (The Unicode16_Encoding class) 
+stringEncoding.cls : (The Unicode32_Encoding class) 
+stringEncoding.cls : (The Unicode8_Encoding class) 
+stringEncoding.cls : (The WTF16BE_Encoding class) 
+stringEncoding.cls : (The WTF16LE_Encoding class) 
+stringEncoding.cls : (The WTF8_Encoding class) 
+unicode.cls : (The UnicodeCharacter class) 
+unicode.cls : (The UnicodeCharacterAlias class) 
+unicode.cls : (The UnicodeCharacterInterval class) 
+unicode.cls : (The UnicodeCharacterIntervalSupplier class) 
+unicode.cls : (The UnicodeCharacterSupplier class) 
 array.cls : (The APLArray class) 
 array.cls : (The ArrayInitializer class) 
 array.cls : (The ArrayOperators class) 
@@ -436,33 +480,12 @@ infinity.cls : (The infinity class)
 logical.cls : (The LogicalExtension class) 
 novalue.cls : (The GlobalVariables class) 
 rexxinfo.cls : (The REXXINFO class) 
-string.cls : (The Byte_Encoding class) 
-string.cls : (The CP1252_Encoding class) 
-string.cls : (The CodePointSupplier class) 
-string.cls : (The Encoding class) 
-string.cls : (The GraphemeSupplier class) 
 string.cls : (The MutableBufferCompatibilityWithOORexx5 class) 
 string.cls : (The MutableBufferHelpers class) 
 string.cls : (The MutableBufferPrettyPrinter class) 
 string.cls : (The StringCompatibilityWithOORexx5 class) 
 string.cls : (The StringHelpers class) 
 string.cls : (The StringPrettyPrinter class) 
-string.cls : (The UTF16BE_Encoding class) 
-string.cls : (The UTF16LE_Encoding class) 
-string.cls : (The UTF32BE_Encoding class) 
-string.cls : (The UTF32LE_Encoding class) 
-string.cls : (The UTF8_Encoding class) 
-string.cls : (The Unicode16_Encoding class) 
-string.cls : (The Unicode32_Encoding class) 
-string.cls : (The Unicode8_Encoding class) 
-string.cls : (The UnicodeCharacter class) 
-string.cls : (The UnicodeCharacterAlias class) 
-string.cls : (The UnicodeCharacterInterval class) 
-string.cls : (The UnicodeCharacterIntervalSupplier class) 
-string.cls : (The UnicodeCharacterSupplier class) 
-string.cls : (The WTF16BE_Encoding class) 
-string.cls : (The WTF16LE_Encoding class) 
-string.cls : (The WTF8_Encoding class) 
 stringChunk.cls : (The StringChunk class) 
 pipe.cls : (The after class) 
 pipe.cls : (The all class) 
@@ -698,4 +721,4 @@ files = { use named arg depth(1)=0, count(1)=5; return .fileTree "rec."depth "me
 
 --------------------------------------------------------------------------------
 Count the files and directories in the '..' directory and all its subdirectories
-186 
+188 

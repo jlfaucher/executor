@@ -134,8 +134,8 @@ So I added the 'pipe' method which injects the object in the pipe :
         if action == "yieldIndex" then .yield[index]
         else if action == "yieldItem" then .yield[item]
         else do
-            action~do(      item,        index,           dataflow,              pipeContext,-
-                      item: item, index: index, dataflow: dataflow, pipeContext: pipeContext)
+            action~do( item,  index,  dataflow,  pipeContext,-
+                      :item, :index, :dataflow, :pipeContext)
             if \var("result") then do
                 -- No result returned, nothing to yield, but the yield must be done, synchronisation is important !
                 .yield[]
@@ -194,8 +194,8 @@ The option iterate (no need of 'After') is automatically activated when the prod
     use strict arg pipeContext
     if producer~isA(.coactivity) then iterate = .true
     else if producer~hasMethod("do") then do
-            producer~do(             pipeContext,-
-                        pipeContext: pipeContext)
+            producer~do( pipeContext,-
+                        :pipeContext)
             if var("result") then producer = result
         end
     -- Similar to .pipeStage~begin :
@@ -337,8 +337,8 @@ self~init:super
     if trace then trace i
     if self~isEOP then return
     use strict arg item, index, dataflow, pipeContext, previousItems, stack, depth
-    doer~do(      item,        index,           dataflow,              pipeContext,-
-            item: item, index: index, dataflow: dataflow, pipeContext: pipeContext)
+    doer~do( item,  index,  dataflow,  pipeContext,-
+            :item, :index, :dataflow, :pipeContext)
     if \ var("result") then return -- no result returned, nothing to inject
     doResult = result
     -- Similar to .pipeStage~begin :
@@ -434,8 +434,8 @@ self~init:super
     if trace then .traceOutput~say("       >I> Method .inject~processBreadthFirst.2")
     if trace then trace i
     use strict arg item, index, dataflow, pipeContext, toprocess, previousItems, stack, depth
-    doer~do(      item,        index,           dataflow,              pipeContext,-
-            item: item, index: index, dataflow: dataflow, pipeContext: pipeContext)
+    doer~do( item,  index,  dataflow,  pipeContext,-
+            :item, :index, :dataflow, :pipeContext)
     if \ var("result") then return -- no result returned, nothing to inject
     doResult = result
     -- Similar to .pipeStage~begin :
@@ -550,8 +550,8 @@ self~init:super
 ::method process
     expose doer
     use strict arg item, index, dataflow, pipeContext
-    if doer~do(      item,        index,           dataflow,              pipeContext,-
-               item: item, index: index, dataflow: dataflow, pipeContext: pipeContext) then do   -- apply the filter to the data item
+    if doer~do( item,  index,  dataflow,  pipeContext,-
+               :item, :index, :dataflow, :pipeContext) then do   -- apply the filter to the data item
         self~write(item, index, dataflow, pipeContext)       -- the selected items are sent
     end
     else do

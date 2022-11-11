@@ -98,10 +98,10 @@
             do while self~available
                 item = self~item
                 index = self~index
-                if arity >= 2 then doer~do(      item,        index,-
-                                           item: item, index: index) -- Most of the time, we need only the item, that's why it's the first arg.
-                              else doer~do(      item,-
-                                           item: item)
+                if arity == 9999   then doer~do( item,  index,-
+                                                :item, :index) -- Most of the time, we need only the item, that's why it's the first arg.
+                else if arity >= 2 then doer~do( item,  index)
+                                   else doer~do( item)
                 if var("result") then do
                     doResult = result
                     if returnIndex then newItem = .array~of(doResult, index)
@@ -443,10 +443,10 @@
                 item = self~item
                 index = self~index
                 self~next -- do it before testing the predicate
-                if arity >= 2 then logicalValue = doer~do(      item,        index,-
-                                                          item: item, index: index)
-                              else logicalValue = doer~do(      item,-
-                                                          item: item)
+                if arity == 9999   then logicalValue = doer~do( item,  index,-
+                                                               :item, :index)
+                else if arity >= 2 then logicalValue = doer~do( item,  index)
+                                   else logicalValue = doer~do( item)
                 if logicalValue then leave
             end
             do while self~available
@@ -472,10 +472,10 @@
             do while self~available
                 item = self~item
                 index = self~index
-                if arity >= 2 then logicalValue = doer~do(      item,        index,-
-                                                          item: item, index: index)
-                              else logicalValue = doer~do(      item,-
-                                                          item: item)
+                if arity == 9999   then logicalValue = doer~do( item,  index,-
+                                                               :item, :index)
+                else if arity >= 2 then logicalValue = doer~do( item,  index)
+                                   else logicalValue = doer~do( item)
                 if \ logicalValue then leave
                 self~next
             end
@@ -502,10 +502,10 @@
             do while self~available
                 item = self~item
                 index = self~index
-                if arity >= 2 then doer~do(      item,        index,-
-                                           item: item, index: index) -- Most of the time, we need only the item, that's why it's the first arg.
-                              else doer~do(      item,-
-                                           item: item)
+                if arity == 9999   then doer~do( item,  index,-
+                                                :item, :index) -- Most of the time, we need only the item, that's why it's the first arg.
+                else if arity >= 2 then doer~do( item,  index)
+                                   else doer~do( item)
                 if var("result") then do
                     doResult = result
                     if \doResult then do
@@ -531,10 +531,10 @@
             do while self~available
                 item = self~item
                 index = self~index
-                if arity >= 2 then doer~do(      item,        index,-
-                                           item: item, index: index) -- Most of the time, we need only the item, that's why it's the first arg.
-                              else doer~do(      item,-
-                                           item: item)
+                if arity == 9999   then doer~do( item,  index,-
+                                                :item, :index) -- Most of the time, we need only the item, that's why it's the first arg.
+                else if arity >= 2 then doer~do( item,  index)
+                                   else doer~do( item)
                 if var("result") then do
                     doResult = result
                     if doResult then do
@@ -607,10 +607,10 @@
                                else newItem = item
                 .yield[newItem]
                 use strict arg -- none
-                if arity >= 2 then logicalValue = doer~do(      item,        index,-
-                                                          item: item, index: index)
-                              else logicalValue = doer~do(      item,-
-                                                          item: item)
+                if arity == 9999   then logicalValue = doer~do( item,  index,-
+                                                               :item, :index)
+                else if arity >= 2 then logicalValue = doer~do( item,  index)
+                                   else logicalValue = doer~do( item)
                 if logicalValue then leave
                 self~next
             end
@@ -628,10 +628,10 @@
             do while self~available
                 item = self~item
                 index = self~index
-                if arity >=2 then logicalValue = doer~do(      item,        index,-
-                                                         item: item, index: index)
-                             else logicalValue = doer~do(      item,-
-                                                         item: item)
+                if arity == 9999  then logicalValue = doer~do( item,  index,-
+                                                              :item, :index)
+                else if arity >=2 then logicalValue = doer~do( item,  index)
+                                  else logicalValue = doer~do( item)
                 if \ logicalValue then leave
                 if returnIndex then newItem = .array~of(item, index)
                                else newItem = item
@@ -973,14 +973,12 @@
         use strict arg -- none
     end
     arity = doer~arity
-    if arity >= 4 then doer~do(      item,        index,        depth,        stack,-
-                               item: item, index: index, depth: depth, stack: stack)
-    else if arity == 3 then doer~do(      item,        index,        depth,-
-                                    item: item, index: index, depth: depth)
-    else if arity == 2 then doer~do(      item,        index,-
-                                    item: item, index: index)
-    else doer~do(      item,-
-                 item: item)
+    if arity == 9999   then doer~do( item,  index,  depth,  stack,-
+                                    :item, :index, :depth, :stack)
+    else if arity >= 4 then doer~do( item,  index,  depth,  stack)
+    else if arity == 3 then doer~do( item,  index,  depth)
+    else if arity == 2 then doer~do( item,  index)
+                       else doer~do( item)
     if \ var("result") then do
         -- No result returned, nothing to yield, but the yield must be done, synchronisation is important !
         -- The next calculation will be done only on resume.
@@ -1068,14 +1066,12 @@
         use strict arg -- none
     end
     arity = doer~arity
-    if arity >= 4 then doer~do(      item,        index,        depth,        stack,-
-                               item: item, index: index, depth: depth, stack: stack)
-    else if arity == 3 then doer~do(      item,        index,        depth,-
-                                    item: item, index: index, depth: depth)
-    else if arity == 2 then doer~do(      item,        index,-
-                                    item: item, index: index)
-    else doer~do(      item,-
-                 item: item)
+    if arity == 9999   then doer~do( item,  index,  depth,  stack,-
+                                    :item, :index, :depth, :stack)
+    else if arity >= 4 then doer~do( item,  index,  depth,  stack)
+    else if arity == 3 then doer~do( item,  index,  depth)
+    else if arity == 2 then doer~do( item,  index)
+                       else doer~do( item)
     if \ var("result") then do
         -- No result returned, nothing to yield, but the yield must be done, synchronisation is important !
         -- The next calculation will be done only on resume.

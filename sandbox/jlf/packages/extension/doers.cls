@@ -55,6 +55,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     if arg() <> 0 then do
         guard on
         use strict arg arity -- store the arity
+        if arity < 0 then arity -= 1 -- to be different from -1 which means "never assigned". Other benefit: let know how many times the arity has been stored.
         return self -- for convenience, return the doer itself
     end
     else if \var("arity") then return -1 -- unknown arity
@@ -209,7 +210,7 @@ Ex :
             namedArgs = mergeDirectoriesInPlace(namedArgs1, namedArgs2)
             -- Must forward explicitely to (self) otherwise stack overflow because forwarded to the closure itself.
             forward message "do" arguments (args) namedArguments (namedArgs) to (self)
-           }~doer
+           }~~arity(self~arity)~doer -- by assigning the arity of self, we ensure that the higher-order methods will not pass too many arguments
 
 
 ::method compose class

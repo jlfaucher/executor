@@ -1855,11 +1855,8 @@ syntax:              -- propagate condition
             say ppIndex2(s~index, surroundIndexByQuotes)~left(maxWidth) ":" pp2(subitem, surroundItemByQuotes)
             -- JLF
             if .nil <> doer then do
-              if doer~hasMethod("doWithNamedArguments") then do
-                  if doer~arity >= 2 then doer~doWithNamedArguments("item", subitem, "index", s~index)
-                                     else doer~doWithNamedArguments("item", subitem)
-              end
-              else doer~call(subitem, s~index) -- only routine is supported, assume no strict use arg
+              if doer~hasMethod("doWithNamedArguments") then doer~doWithNamedArguments("item", subitem, "index", s~index)
+              else doer~call(subitem, s~index) -- only routine is supported
             end
          end
      end
@@ -1869,11 +1866,8 @@ syntax:              -- propagate condition
          say ppIndex2(s~index, surroundIndexByQuotes)~left(maxWidth) ":" pp2(s~item, surroundItemByQuotes)
          -- JLF
          if .nil <> doer then do
-           if doer~hasMethod("doWithNamedArguments") then do
-               if doer~arity >= 2 then doer~doWithNamedArguments("item", s~item, "index", s~index)
-                                  else doer~doWithNamedArguments("item", s~item)
-           end
-           else doer~call(s~item, s~index) -- only routine is supported, assume no strict use arg
+              if doer~hasMethod("doWithNamedArguments") then doer~doWithNamedArguments("item", subitem, "index", s~index)
+              else doer~call(subitem, s~index) -- only routine is supported
          end
      end
      s~next

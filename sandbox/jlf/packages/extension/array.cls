@@ -676,11 +676,11 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
             else if .nil <> doer then do
                 if self~dimension == 1 then index = selfArrayIndex
                                        else index = selfArrayIndex~copy -- to avoid any side effect from the doer
-                if arity >= 2 then doer~do(      selfIntegerIndex,        index,-
-                                           item: selfIntegerIndex, index: index)
-                else if arity == 1 then doer~do(      selfIntegerIndex,-
-                                                item: selfIntegerIndex)
-                else doer~do
+                if arity == 9999   then doer~do(      selfIntegerIndex,  index,-
+                                                item: selfIntegerIndex, :index)
+                else if arity >=2  then doer~do(      selfIntegerIndex,  index)
+                else if arity == 1 then doer~do(      selfIntegerIndex)
+                                   else doer~do
                 if var("result") then self~put(result, selfArrayIndex)
                 -- Needed to offer the same behaviour for
                 --     .array~new(2,3)~of(1~upto(5))
@@ -1021,10 +1021,10 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
                 r[index] = item
             end
             else do
-                if arity >= 3 then doer~do(      item,        index,        depth,-
-                                           item: item, index: index, depth: depth)
-                              else doer~do(      item,-
-                                           item: item)
+                if arity == 9999   then doer~do( item,  index,  depth,-
+                                                :item, :index, :depth)
+                else if arity >= 3 then doer~do( item,  index,  depth)
+                                   else doer~do( item)
                 if var("result") then r[index] = result
             end
             supplier~next
@@ -1078,10 +1078,10 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
                 r[index] = item
             end
             else do
-                if arity >= 5 then doer~do(          item,            rightArg[index],            index,             index,        depth,-
-                                           itemLeft: item, itemRight: rightArg[index], indexLeft: index, indexRight: index, depth: depth)
-                              else doer~do(          item,            rightArg[index],-
-                                           itemLeft: item, itemRight: rightArg[index])
+                if arity == 9999   then doer~do(          item,            rightArg[index],            index,             index,  depth,-
+                                                itemLeft: item, itemRight: rightArg[index], indexLeft: index, indexRight: index, :depth)
+                else if arity >= 5 then doer~do(          item,            rightArg[index],            index,             index,  depth)
+                                   else doer~do(          item,            rightArg[index])
                 if var("result") then r[index] = result
             end
             supplier~next
@@ -1120,10 +1120,10 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
                 r[index] = item
             end
             else do
-                if arity >= 5 then doer~do(          item,            rightArg,            index,             index,        depth,-
-                                           itemLeft: item, itemRight: rightArg, indexLeft: index, indexRight: index, depth: depth)
-                              else doer~do(          item,            rightArg,-
-                                           itemLeft: item, itemRight: rightArg)
+                if arity == 9999   then doer~do(          item,            rightArg,            index,             index,  depth,-
+                                                itemLeft: item, itemRight: rightArg, indexLeft: index, indexRight: index, :depth)
+                else if arity >= 5 then doer~do(          item,            rightArg,            index,             index,  depth)
+                                   else doer~do(          item,            rightArg)
                 if var("result") then r[index] = result
             end
             supplier~next
@@ -1202,11 +1202,11 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
             r[index] = item
         end
         else do
-            if arity >= 5 then doer~do(         leftArg,            item,            index,             index,        depth,-
-                                       itemLeft:leftArg, itemRight: item, indexleft: index, indexRight: index, depth: depth)
-                          else doer~do(          leftArg,            item,-
-                                       itemLeft: leftArg, itemRight: item)
-            if var("result") then r[index] = result
+            if arity == 9999   then doer~do(         leftArg,            item,            index,             index,  depth,-
+                                            itemLeft:leftArg, itemRight: item, indexleft: index, indexRight: index, :depth)
+            else if arity >= 5 then doer~do(         leftArg,            item,            index,             index,  depth)
+                               else doer~do(         leftArg,            item)
+            if var("result")   then r[index] = result
         end
         supplier~next
     end
