@@ -23,12 +23,14 @@ call myprocedure 1, 2, a3:3
         A3 : 3
 
 
-call myprocedure 1, a2:2, a3:3
+call myprocedure 1, a2:2, a3:3, a4:, :a5
     positional count=1 size=1
         1 : 1
-    named count=2
+    named count=4
         A2 : 2
         A3 : 3
+        A4 : 1
+        A5 : A5
 
 
 call myprocedure 1, a2:(2*5/4)**5, a3:.array~new(3,3)
@@ -188,12 +190,14 @@ r = myprocedure(1, 2, a3:3)
         A3 : 3
 
 
-r = myprocedure(1, a2:2, a3:3)
+r = myprocedure(1, a2:2, a3:3, a4:, :a5)
     positional count=1 size=1
         1 : 1
-    named count=2
+    named count=4
         A2 : 2
         A3 : 3
+        A4 : 1
+        A5 : A5
 
 
 r = myprocedure(1, a2:(2*5/4)**5, a3:.array~new(3,3))
@@ -353,12 +357,14 @@ call myroutine 1, 2, a3:3
         A3 : 3
 
 
-call myroutine 1, a2:2, a3:3
+call myroutine 1, a2:2, a3:3, a4:, :a5
     positional count=1 size=1
         1 : 1
-    named count=2
+    named count=4
         A2 : 2
         A3 : 3
+        A4 : 1
+        A5 : A5
 
 
 call myroutine 1, a2:(2*5/4)**5, a3:.array~new(3,3)
@@ -407,12 +413,14 @@ r = myroutine(1, 2, a3:3)
         A3 : 3
 
 
-r = myroutine(1, a2:2, a3:3)
+r = myroutine(1, a2:2, a3:3, a4:, :a5)
     positional count=1 size=1
         1 : 1
-    named count=2
+    named count=4
         A2 : 2
         A3 : 3
+        A4 : 1
+        A5 : A5
 
 
 r = myroutine(1, a2:(2*5/4)**5, a3:.array~new(3,3))
@@ -493,12 +501,14 @@ r = .myclass~mymethod(1, 2, a3:3)
         A3 : 3
 
 
-r = .myclass~mymethod(1, a2:2, a3:3)
+r = .myclass~mymethod(1, a2:2, a3:3, a4:, :a5)
     positional count=1 size=1
         1 : 1
-    named count=2
+    named count=4
         A2 : 2
         A3 : 3
+        A4 : 1
+        A5 : A5
 
 
 r = .myclass~mymethod(1, a2:(2*5/4)**5, a3:.array~new(3,3))
@@ -1042,7 +1052,7 @@ r = .myclass~foo(1, 2, a3:3)
             A3 : 3
 
 
-r = .myclass~foo(1, a2:2, a3:3)
+r = .myclass~foo(1, a2:2, a3:3, a4:, :a5)
     method 'unknown'
         positional count=2 size=2
             1 : FOO
@@ -1052,9 +1062,11 @@ r = .myclass~foo(1, a2:2, a3:3)
     method 'unknown' forward to (.myfooclass) message (name) arguments (arguments) namedArguments (namedArguments)
         positional count=1 size=1
             1 : 1
-        named count=2
+        named count=4
             A2 : 2
             A3 : 3
+            A4 : 1
+            A5 : A5
 
 
 r = .myclass~foo(1, a2:(2*5/4)**5, a3:.array~new(3,3))
@@ -1177,12 +1189,14 @@ r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I", 1, 2, a3:3)
         A3 : 3
 
 
-r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I", 1, a2:2, a3:3)
+r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I", 1, a2:2, a3:3, a4:, :a5)
     positional count=1 size=1
         1 : 1
-    named count=2
+    named count=4
         A2 : 2
         A3 : 3
+        A4 : 1
+        A5 : A5
 
 
 r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I", 1, a2:(2*5/4)**5, a3:.array~new(3,3))
@@ -1263,12 +1277,14 @@ r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", (1, 2), namedArguments:.di
         A3 : 3
 
 
-r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", .array~of(1), namedArguments:.directory~of(a2:2, a3:3))
+r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", .array~of(1), namedArguments:.directory~of(a2:2, a3:3, a4:, :a5))
     positional count=1 size=1
         1 : 1
-    named count=2
+    named count=4
         A2 : 2
         A3 : 3
+        A4 : 1
+        A5 : A5
 
 
 r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", .array~of(1), namedArguments:.directory~of(a2:(2*5/4)**5, a3:.array~new(3,3)))
@@ -1317,12 +1333,14 @@ r = .myclass~sendWith("mymethod", (1, 2), namedArguments:.directory~of(a3:3))
         A3 : 3
 
 
-r = .myclass~sendWith("mymethod", .array~of(1), namedArguments:.directory~of(a2:2, a3:3))
+r = .myclass~sendWith("mymethod", .array~of(1), namedArguments:.directory~of(a2:2, a3:3, a4:, :a5))
     positional count=1 size=1
         1 : 1
-    named count=2
+    named count=4
         A2 : 2
         A3 : 3
+        A4 : 1
+        A5 : A5
 
 
 r = .myclass~sendWith("mymethod", .array~of(1), namedArguments:.directory~of(a2:(2*5/4)**5, a3:.array~new(3,3)))
@@ -1485,12 +1503,14 @@ On entry in the thread (migrated arguments)
         A3 : 3
 
 
-{call sayArg .context}~rawExecutable~call(1, a2:2, a3:3)
+{call sayArg .context}~rawExecutable~call(1, a2:2, a3:3, a4:, :a5)
     positional count=1 size=1
         1 : 1
-    named count=2
+    named count=4
         A2 : 2
         A3 : 3
+        A4 : 1
+        A5 : A5
 
 
 {call sayArg .context}~rawExecutable~call(1, a2:(2*5/4)**5, a3:.array~new(3,3))
@@ -1562,27 +1582,27 @@ Expected: Ok, no error because the trailing comma is a continuation character fo
 
 
 call myprocedure , , 3, , a5:5,;
-    [trapped] Named argument: expected symbol followed by colon.
+    [trapped] Named argument: expected symbol followed by colon, or colon followed by symbol.
     [trapped] Code= 99.900
-Expected: Should raise an error because of the trailing comma (TODO)
+Expected: Error 99.900: Named argument: expected symbol followed by colon, or colon followed by symbol
 
 
 call myroutine , , 3, , a5:5,;
-    [trapped] Named argument: expected symbol followed by colon.
+    [trapped] Named argument: expected symbol followed by colon, or colon followed by symbol.
     [trapped] Code= 99.900
-Expected: Should raise an error because of the trailing comma (TODO)
+Expected: Error 99.900: Named argument: expected symbol followed by colon, or colon followed by symbol
 
 
 call myprocedure .envSymbol:1
-    [trapped] Incorrect expression detected at ":".
-    [trapped] Code= 35.1
-Expected: Error 31.003 Variable symbol must not start with a '.'; found '.envSymbol'
+    [trapped] Variable symbol must not start with a "."; found ".ENVSYMBOL".
+    [trapped] Code= 31.3
+Expected: Error 31.3: Variable symbol must not start with a '.'; found '.ENVSYMBOL'
 
 
 call myprocedure 3:1
-    [trapped] Incorrect expression detected at ":".
-    [trapped] Code= 35.1
-Expected: Error 35.1:  Incorrect expression detected at ":"
+    [trapped] Variable symbol must not start with a number; found "3".
+    [trapped] Code= 31.2
+Expected: Error 31.2:  Variable symbol must not start with a number; found "3"
 
 
 call myprocedure 1, a2:2, 3
@@ -1592,9 +1612,9 @@ Expected: Error 31.2:  Variable symbol must not start with a number; found "3
 
 
 call myprocedure 1.2:1
-    [trapped] Incorrect expression detected at ":".
-    [trapped] Code= 35.1
-Expected: Error 35.1: Incorrect expression detected at ":"
+    [trapped] Variable symbol must not start with a number; found "1.2".
+    [trapped] Code= 31.2
+Expected: Error 31.2: Variable symbol must not start with a number; found "1.2"
 
 
 call myprocedure 1.2.3:1
@@ -1603,10 +1623,37 @@ call myprocedure 1.2.3:1
 Expected: Error 35.1: Incorrect expression detected at ":"
 
 
-call myprocedure 1, a2:2, a3:
-    [trapped] Named argument: expected expression after colon.
+call myprocedure :
+    [trapped] Incorrect expression detected at ":".
+    [trapped] Code= 35.1
+Expected: Error 35.1: Incorrect expression detected at ":"
+
+
+call myprocedure :myvar+1
+    [trapped] Named argument: the expression after colon must be a variable only.
     [trapped] Code= 99.900
-Expected: Error 99.900:  Named argument: expected expression after colon
+Expected: Error 99.900: Named argument: the expression after colon must be a variable only
+
+
+call myprocedure :(myvar+1)
+    [trapped] Incorrect expression detected at ":".
+    [trapped] Code= 35.1
+Expected: Error 35.1: Incorrect expression detected at ":"
+
+
+call myprocedure :1+1
+    [trapped] Variable symbol must not start with a number; found "1".
+    [trapped] Code= 31.2
+Expected: Error 31.2: Variable symbol must not start with a number; found "1"
+
+
+call myprocedure 1, a2:2, a3:
+    positional count=1 size=1
+        1 : 1
+    named count=2
+        A2 : 2
+        A3 : 1
+Expected: Ok, no error because a3: is a shorthand syntax for a3:.true
 
 
 call myprocedure a1:1, a1:2 Error 99.900:  Named argument: 'A1:' is passed more than once
@@ -1615,9 +1662,9 @@ call myprocedure a1:1, a1:2 Error 99.900:  Named argument: 'A1:' is passed more 
 
 
 call myprocedure a1:1, , a3:3
-    [trapped] Named argument: expected symbol followed by colon.
+    [trapped] Named argument: expected symbol followed by colon, or colon followed by symbol.
     [trapped] Code= 99.900
-Expected: Error 99.900: Named argument: expected symbol followed by colon
+Expected: Error 99.900: Named argument: expected symbol followed by colon, or colon followed by symbol
 
 
 call myprocedure instance~method:1

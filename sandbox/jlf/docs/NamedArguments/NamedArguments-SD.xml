@@ -1,6 +1,17 @@
 <!--
+This file is updated manually:
+- copy the syntax diagrams from NamedArguments-Spec.md
+- paste them in this file, inside a block <programlisting>.
+
 The graphical syntax diagrams (.png) are generated using this command:
 rexx transformxml/transformfile -syntdiag NamedArguments-SD.xml
+
+The transformed XML is sent to stdout, no need to save it in a file.
+
+This command creates :
+- The file SyntaxDiagram.xml.
+- The directory SyntaxDiagram which contains the generated png files.
+  These png are referenced from the file NamedArguments-Spec.md
 -->
 
 
@@ -35,9 +46,13 @@ Positional arguments:
 <![CDATA[
 Named arguments:
 
-    +-,-----------------------+
-    V                         |
-|-----argName-:-argExpression-+----|
+    +-,------------------+
+    V                    |
+|-----+-name-:-expr----+-+----|
+      |                |
+      +-name-:---------+
+      |                |
+      +------:-varname-+
 
 ]]>
 </programlisting>
@@ -50,7 +65,7 @@ Message term:
 >>-receiver-+- ~ --+-messagename--+----------+--+---------------------+---><
             +- ~~ -+              +-:-symbol-+  +-(--| Arguments |--)-+
 
-Message term index:
+Message term brackets:
 
 >>-receiver[--| Arguments |--]----------------------------><
 
@@ -95,12 +110,12 @@ Instruction FORWARD:
 <![CDATA[
 Instruction USE:
 
-                                                           +-,----------------------------------+
-                                                           V                                    |
-    >>-USE--+----------+--+--------+-----NAMED-----ARG--+------name-+-------+---+----------+----+--+----------+----+--><
-            +--STRICT--+  +--AUTO--+                    |           +-(-n-)-+   +-=--expr--+       +--,--...--+    |
-                                                        +--+-------+-----------------------------------------------+
-                                                           +--...--+
+                                                       +-,----------------------------------+
+                                                       V                                    |
+>>-USE--+----------+--+--------+-----NAMED-----ARG--+------name-+-------+---+----------+----+--+----------+----+--><
+        +--STRICT--+  +--AUTO--+                    |           +-(-n-)-+   +-=--expr--+       +--,--...--+    |
+                                                    +--+-------+-----------------------------------------------+
+                                                       +--...--+
 
 ]]>
 </programlisting>

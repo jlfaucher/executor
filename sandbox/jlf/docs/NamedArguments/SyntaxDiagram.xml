@@ -67,15 +67,19 @@ _3
 =============================================================================-->
 
 <![CDATA[
-             1         2         3      
-    123456789012345678901234567890123456
-  1                                     
-  2 Named arguments:                    
-  3                                     
-  4     +-,-----------------------+     
-  5     V                         |     
-  6 |-----argName-:-argExpression-+----|
-  7                                     
+             1         2         3 
+    1234567890123456789012345678901
+  1                                
+  2 Named arguments:               
+  3                                
+  4     +-,------------------+     
+  5     V                    |     
+  6 |-----+-name-:-expr----+-+----|
+  7       |                |       
+  8       +-name-:---------+       
+  9       |                |       
+ 10       +------:-varname-+       
+ 11                                
 ]]>
 
 <syntaxdiagram>
@@ -83,11 +87,21 @@ _3
         <title>sd_Named_arguments</title>
         <groupseq>
             <repsep>,</repsep>
-            <groupseq>
-                <kwd>argName</kwd>
-                <sep>:</sep>
-                <var>argExpression</var>
-            </groupseq>
+            <groupchoice>
+                <groupseq>
+                    <kwd>name</kwd>
+                    <sep>:</sep>
+                    <var>expr</var>
+                </groupseq>
+                <groupseq>
+                    <var>name</var>
+                    <sep>:</sep>
+                </groupseq>
+                <groupseq>
+                    <sep>:</sep>
+                    <var>varname</var>
+                </groupseq>
+            </groupchoice>
         </groupseq>
     </fragment>
 </syntaxdiagram>
@@ -105,7 +119,7 @@ _4
   4 >>-receiver-+- ~ --+-messagename--+----------+--+---------------------+---><
   5             +- ~~ -+              +-:-symbol-+  +-(--| Arguments |--)-+     
   6                                                                             
-  7 Message term index:                                                         
+  7 Message term brackets:                                                      
   8                                                                             
   9 >>-receiver[--| Arguments |--]----------------------------><                
  10                                                                             
@@ -134,7 +148,7 @@ _4
     </groupseq>
 </syntaxdiagram>
 <syntaxdiagram>
-    <title>sd_Message_term_index</title>
+    <title>sd_Message_term_brackets</title>
     <groupcomp>
         <kwd>receiver</kwd>
         <delim>[</delim>
@@ -173,7 +187,9 @@ _5
             <delim>)</delim>
         </groupseq>
     </groupchoice>
-    <fragref>Arguments</fragref>
+    <groupseq>
+        <fragref>Arguments</fragref>
+    </groupseq>
 </syntaxdiagram>
 
 <!--============================================================================
@@ -261,18 +277,18 @@ _8
 =============================================================================-->
 
 <![CDATA[
-             1         2         3         4         5         6         7         8         9         0         1         2
-    123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
-  1                                                                                                                         
-  2 Instruction USE:                                                                                                        
-  3                                                                                                                         
-  4                                                            +-,----------------------------------+                       
-  5                                                            V                                    |                       
-  6     >>-USE--+----------+--+--------+-----NAMED-----ARG--+------name-+-------+---+----------+----+--+----------+----+--><
-  7             +--STRICT--+  +--AUTO--+                    |           +-(-n-)-+   +-=--expr--+       +--,--...--+    |    
-  8                                                         +--+-------+-----------------------------------------------+    
-  9                                                            +--...--+                                                    
- 10                                                                                                                         
+             1         2         3         4         5         6         7         8         9         0         1      
+    12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456
+  1                                                                                                                     
+  2 Instruction USE:                                                                                                    
+  3                                                                                                                     
+  4                                                        +-,----------------------------------+                       
+  5                                                        V                                    |                       
+  6 >>-USE--+----------+--+--------+-----NAMED-----ARG--+------name-+-------+---+----------+----+--+----------+----+--><
+  7         +--STRICT--+  +--AUTO--+                    |           +-(-n-)-+   +-=--expr--+       +--,--...--+    |    
+  8                                                     +--+-------+-----------------------------------------------+    
+  9                                                        +--...--+                                                    
+ 10                                                                                                                     
 ]]>
 
 <syntaxdiagram>

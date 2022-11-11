@@ -15,13 +15,15 @@ delay = 0.5 -- this delay is passed to SysSleep to avoid messing the output beca
 -- The class .Directory now supports the method ~of.
 -- The key-value where the key is compatible with a named  argument can be passed as named argument.
 -- The key-value where the key is not compatible with a named argument can be passed as a pair of positional arguments.
-call dump2 .directory~of("key 1", "value 1","key 2", 2, key3:"value 3", key4:4)
+call dump2 .directory~of("key 1", "value 1","key 2", 2, key3:"value 3", key4:4, key5:, :key6)
 /*
-    a Directory (4 items)
+    a Directory (6 items)
     'KEY3'  : 'value 3'
-    'KEY4'  : 4
+    'KEY4'  :  4
+    'KEY5'  :  1
+    'KEY6'  : 'KEY6'
     'key 1' : 'value 1'
-    'key 2' : 2
+    'key 2' :  2
 */
 
 -- Helper routine d() to create a directory
@@ -33,13 +35,15 @@ call dump2 d(a1:1, a2:2)
 */
 
 -- Helper routine d() to create a directory
-call dump2 d("key 1", "value 1","key 2", 2, key3:"value 3", key4:4)
+call dump2 d("key 1", "value 1","key 2", 2, key3:"value 3", key4:4, key5:, :key6)
 /*
-    a Directory (4 items)
+    a Directory (6 items)
     'KEY3'  : 'value 3'
-    'KEY4'  : 4
+    'KEY4'  :  4
+    'KEY5'  :  1
+    'KEY6'  : 'KEY6'
     'key 1' : 'value 1'
-    'key 2' : 2
+    'key 2' :  2
 */
 
 
@@ -49,66 +53,76 @@ call dump2 d("key 1", "value 1","key 2", 2, key3:"value 3", key4:4)
 
 -- The ~do method now supports named arguments
 -- Illustration with a doer of type routine
-{call dump2 .context~args; call dump2 .context~namedargs}~do(1, , 3, a1:1, a2:2)
+{call dump2 .context~args; call dump2 .context~namedargs}~do(1, , 3, a1:1, a2:2, a3:, :a4)
 /*
     an Array (shape [3], 2 items)
-    1 : 1
-    3 : 3
-    a Directory (2 items)
-    'A1' : 1
-    'A2' : 2
+     1 :  1
+     3 :  3
+    a Directory (4 items)
+    'A1' :  1
+    'A2' :  2
+    'A3' :  1
+    'A4' : 'A4'
 */
 
 -- The ~do method now supports named arguments
 -- Illustration with a doer of type method
 method = .MyClass~instancemethod("myMethod")
-method~do(.MyClass, 1, , 3, a1:1, a2:2)
+method~do(.MyClass, 1, , 3, a1:1, a2:2, a3:, :a4)
 /*
     an Array (shape [3], 2 items)
      1 :  1
      3 :  3
-    a Directory (2 items)
+    a Directory (4 items)
     'A1' :  1
     'A2' :  2
+    'A3' :  1
+    'A4' : 'A4'
 */
 
 
 -- The ~do method now supports named arguments
 -- Illustration with a doer of type message
-"myMethod"~do(.MyClass, 1, , 3, a1:1, a2:2)
+"myMethod"~do(.MyClass, 1, , 3, a1:1, a2:2, a3:, :a4)
 /*
     an Array (shape [3], 2 items)
      1 :  1
      3 :  3
-    a Directory (2 items)
+    a Directory (4 items)
     'A1' :  1
     'A2' :  2
+    'A3' :  1
+    'A4' : 'A4'
 */
 
 
 -- The ~do method now supports named arguments
 -- Illustration with a doer of type closure
-{expose dummy; call dump2 .context~args; call dump2 .context~namedargs}~do(1, , 3, a1:1, a2:2)
+{expose dummy; call dump2 .context~args; call dump2 .context~namedargs}~do(1, , 3, a1:1, a2:2, a3:, :a4)
 /*
     an Array (shape [3], 2 items)
-    1 : 1
-    3 : 3
-    a Directory (2 items)
-    'A1' : 1
-    'A2' : 2
+     1 :  1
+     3 :  3
+    a Directory (4 items)
+    'A1' :  1
+    'A2' :  2
+    'A3' :  1
+    'A4' : 'A4'
 */
 
 
 -- The ~do method now supports named arguments
 -- Illustration with a doer of type coactivity
-{::co call dump2 .context~args; call dump2 .context~namedargs}~do(1, , 3, a1:1, a2:2)
+{::co call dump2 .context~args; call dump2 .context~namedargs}~do(1, , 3, a1:1, a2:2, a3:, :a4)
 /*
     an Array (shape [3], 2 items)
-    1 : 1
-    3 : 3
-    a Directory (2 items)
-    'A1' : 1
-    'A2' : 2
+     1 :  1
+     3 :  3
+    a Directory (4 items)
+    'A1' :  1
+    'A2' :  2
+    'A3' :  1
+    'A4' : 'A4'
 */
 
 
@@ -119,67 +133,77 @@ method~do(.MyClass, 1, , 3, a1:1, a2:2)
 -- The ~doWith method now supports named arguments
 -- Illustration with a doer of type routine
 -- Here the abbreviation 'n' is supported because doWith forwards directly to callWith
-{call dump2 .context~args; call dump2 .context~namedargs}~doWith(v(1, , 3), n:d(a1:1, a2:2))
+{call dump2 .context~args; call dump2 .context~namedargs}~doWith(v(1, , 3), n:d(a1:1, a2:2, a3:, :a4))
 /*
     an Array (shape [3], 2 items)
-    1 : 1
-    3 : 3
-    a Directory (2 items)
-    'A1' : 1
-    'A2' : 2
+     1 :  1
+     3 :  3
+    a Directory (4 items)
+    'A1' :  1
+    'A2' :  2
+    'A3' :  1
+    'A4' : 'A4'
 */
 
 
 -- The ~doWith method now supports named arguments
 -- Illustration with a doer of type method
 method = .MyClass~instancemethod("myMethod")
-method~doWith(.MyClass, v(1, , 3), n:d(a1:1, a2:2))
+method~doWith(.MyClass, v(1, , 3), n:d(a1:1, a2:2, a3:, :a4))
 /*
     an Array (shape [3], 2 items)
      1 :  1
      3 :  3
-    a Directory (2 items)
+    a Directory (4 items)
     'A1' :  1
     'A2' :  2
+    'A3' :  1
+    'A4' : 'A4'
 */
 
 
 -- The ~doWith method now supports named arguments
 -- Illustration with a doer of type message
-"myMethod"~doWith(.MyClass, v(1, , 3), n:d(a1:1, a2:2))
+"myMethod"~doWith(.MyClass, v(1, , 3), n:d(a1:1, a2:2, a3:, :a4))
 /*
     an Array (shape [3], 2 items)
      1 :  1
      3 :  3
-    a Directory (2 items)
+    a Directory (4 items)
     'A1' :  1
     'A2' :  2
+    'A3' :  1
+    'A4' : 'A4'
 */
 
 
 -- The ~doWith method now supports named arguments
 -- Illustration with a doer of type closure
-{expose dummy; call dump2 .context~args; call dump2 .context~namedargs}~doWith(v(1, , 3), n:d(a1:1, a2:2))
+{expose dummy; call dump2 .context~args; call dump2 .context~namedargs}~doWith(v(1, , 3), n:d(a1:1, a2:2, a3:, :a4))
 /*
     an Array (shape [3], 2 items)
-    1 : 1
-    3 : 3
-    a Directory (2 items)
-    'A1' : 1
-    'A2' : 2
+     1 :  1
+     3 :  3
+    a Directory (4 items)
+    'A1' :  1
+    'A2' :  2
+    'A3' :  1
+    'A4' : 'A4'
 */
 
 
 -- The ~doWith method now supports named arguments
 -- Illustration with a doer of type coactivity
-{::co call dump2 .context~args; call dump2 .context~namedargs}~doWith(v(1, , 3), n:d(a1:1, a2:2))
+{::co call dump2 .context~args; call dump2 .context~namedargs}~doWith(v(1, , 3), n:d(a1:1, a2:2, a3:, :a4))
 /*
     an Array (shape [3], 2 items)
-    1 : 1
-    3 : 3
-    a Directory (2 items)
-    'A1' : 1
-    'A2' : 2
+     1 :  1
+     3 :  3
+    a Directory (4 items)
+    'A1' :  1
+    'A2' :  2
+    'A3' :  1
+    'A4' : 'A4'
 */
 
 
@@ -189,70 +213,80 @@ method~doWith(.MyClass, v(1, , 3), n:d(a1:1, a2:2))
 
 -- The ~go method now supports named arguments
 -- Illustration with a doer of type routine
-{call dump2 .context~args; call dump2 .context~namedargs}~go(1, , 3, a1:1, a2:2)
+{call dump2 .context~args; call dump2 .context~namedargs}~go(1, , 3, a1:1, a2:2, a3:, :a4)
 /*
     an Array (shape [3], 2 items)
-    1 : 1
-    3 : 3
-    a Directory (2 items)
-    'A1' : 1
-    'A2' : 2
+     1 :  1
+     3 :  3
+    a Directory (4 items)
+    'A1' :  1
+    'A2' :  2
+    'A3' :  1
+    'A4' : 'A4'
 */
 call syssleep delay -- to avoid messing the output because of the concurrent execution
 
 -- The ~go method now supports named arguments
 -- Illustration with a doer of type method
 method = .MyClass~instancemethod("myMethod")
-message = method~go(.MyClass, 1, , 3, a1:1, a2:2)
+message = method~go(.MyClass, 1, , 3, a1:1, a2:2, a3:, :a4)
 /*
     an Array (shape [3], 2 items)
      1 :  1
      3 :  3
-    a Directory (2 items)
+    a Directory (4 items)
     'A1' :  1
     'A2' :  2
+    'A3' :  1
+    'A4' : 'A4'
 */
 call syssleep delay -- to avoid messing the output because of the concurrent execution
 
 
 -- The ~go method now supports named arguments
 -- Illustration with a doer of type message
-message = "myMethod"~go(.MyClass, 1, , 3, a1:1, a2:2)
+message = "myMethod"~go(.MyClass, 1, , 3, a1:1, a2:2, a3:, :a4)
 /*
     an Array (shape [3], 2 items)
      1 :  1
      3 :  3
-    a Directory (2 items)
+    a Directory (4 items)
     'A1' :  1
     'A2' :  2
+    'A3' :  1
+    'A4' : 'A4'
 */
 call syssleep delay -- to avoid messing the output because of the concurrent execution
 
 
 -- The ~go method now supports named arguments
 -- Illustration with a doer of type closure
-{expose dummy; call dump2 .context~args; call dump2 .context~namedargs}~go(1, , 3, a1:1, a2:2)
+{expose dummy; call dump2 .context~args; call dump2 .context~namedargs}~go(1, , 3, a1:1, a2:2, a3:, :a4)
 /*
     an Array (shape [3], 2 items)
-    1 : 1
-    3 : 3
-    a Directory (2 items)
-    'A1' : 1
-    'A2' : 2
+     1 :  1
+     3 :  3
+    a Directory (4 items)
+    'A1' :  1
+    'A2' :  2
+    'A3' :  1
+    'A4' : 'A4'
 */
 call syssleep delay -- to avoid messing the output because of the concurrent execution
 
 
 -- The ~go method now supports named arguments
 -- Illustration with a doer of type coactivity
-{::co call dump2 .context~args; call dump2 .context~namedargs}~go(1, , 3, a1:1, a2:2)
+{::co call dump2 .context~args; call dump2 .context~namedargs}~go(1, , 3, a1:1, a2:2, a3:, :a4)
 /*
     an Array (shape [3], 2 items)
-    1 : 1
-    3 : 3
-    a Directory (2 items)
-    'A1' : 1
-    'A2' : 2
+     1 :  1
+     3 :  3
+    a Directory (4 items)
+    'A1' :  1
+    'A2' :  2
+    'A3' :  1
+    'A4' : 'A4'
 */
 call syssleep delay -- to avoid messing the output because of the concurrent execution
 
@@ -263,14 +297,16 @@ call syssleep delay -- to avoid messing the output because of the concurrent exe
 
 -- The ~goWith method now supports named arguments
 -- Illustration with a doer of type routine
-{call dump2 .context~args; call dump2 .context~namedargs}~goWith(v(1, , 3), n:d(a1:1, a2:2))
+{call dump2 .context~args; call dump2 .context~namedargs}~goWith(v(1, , 3), n:d(a1:1, a2:2, a3:, :a4))
 /*
     an Array (shape [3], 2 items)
-    1 : 1
-    3 : 3
-    a Directory (2 items)
-    'A1' : 1
-    'A2' : 2
+     1 :  1
+     3 :  3
+    a Directory (4 items)
+    'A1' :  1
+    'A2' :  2
+    'A3' :  1
+    'A4' : 'A4'
 */
 call syssleep delay -- to avoid messing the output because of the concurrent execution
 
@@ -278,56 +314,64 @@ call syssleep delay -- to avoid messing the output because of the concurrent exe
 -- The ~goWith method now supports named arguments
 -- Illustration with a doer of type method
 method = .MyClass~instancemethod("myMethod")
-message = method~goWith(.MyClass, v(1, , 3), n:d(a1:1, a2:2))
+message = method~goWith(.MyClass, v(1, , 3), n:d(a1:1, a2:2, a3:, :a4))
 /*
     an Array (shape [3], 2 items)
      1 :  1
      3 :  3
-    a Directory (2 items)
+    a Directory (4 items)
     'A1' :  1
     'A2' :  2
+    'A3' :  1
+    'A4' : 'A4'
 */
 call syssleep delay -- to avoid messing the output because of the concurrent execution
 
 
 -- The ~goWith method now supports named arguments
 -- Illustration with a doer of type message
-message = "myMethod"~goWith(.MyClass, v(1, , 3), n:d(a1:1, a2:2))
+message = "myMethod"~goWith(.MyClass, v(1, , 3), n:d(a1:1, a2:2, a3:, :a4))
 /*
     an Array (shape [3], 2 items)
      1 :  1
      3 :  3
-    a Directory (2 items)
+    a Directory (4 items)
     'A1' :  1
     'A2' :  2
+    'A3' :  1
+    'A4' : 'A4'
 */
 call syssleep delay -- to avoid messing the output because of the concurrent execution
 
 
 -- The ~goWith method now supports named arguments
 -- Illustration with a doer of type closure
-{expose dummy; call dump2 .context~args; call dump2 .context~namedargs}~goWith(v(1, , 3), n:d(a1:1, a2:2))
+{expose dummy; call dump2 .context~args; call dump2 .context~namedargs}~goWith(v(1, , 3), n:d(a1:1, a2:2, a3:, :a4))
 /*
     an Array (shape [3], 2 items)
-    1 : 1
-    3 : 3
-    a Directory (2 items)
-    'A1' : 1
-    'A2' : 2
+     1 :  1
+     3 :  3
+    a Directory (4 items)
+    'A1' :  1
+    'A2' :  2
+    'A3' :  1
+    'A4' : 'A4'
 */
 call syssleep delay -- to avoid messing the output because of the concurrent execution
 
 
 -- The ~goWith method now supports named arguments
 -- Illustration with a doer of type coactivity
-{::co call dump2 .context~args; call dump2 .context~namedargs}~goWith(v(1, , 3), n:d(a1:1, a2:2))
+{::co call dump2 .context~args; call dump2 .context~namedargs}~goWith(v(1, , 3), n:d(a1:1, a2:2, a3:, :a4))
 /*
     an Array (shape [3], 2 items)
-    1 : 1
-    3 : 3
-    a Directory (2 items)
-    'A1' : 1
-    'A2' : 2
+     1 :  1
+     3 :  3
+    a Directory (4 items)
+    'A1' :  1
+    'A2' :  2
+    'A3' :  1
+    'A4' : 'A4'
 */
 call syssleep delay -- to avoid messing the output because of the concurrent execution
 
@@ -338,29 +382,32 @@ call syssleep delay -- to avoid messing the output because of the concurrent exe
 
 -- The ~partial method now supports named arguments
 -- Illustration, part 1 : the partial arguments
-{call dump2 .context~args; call dump2 .context~namedargs}~partial(1, , 3, , a1:1, a2:2)~()
+{call dump2 .context~args; call dump2 .context~namedargs}~partial(1, , 3, , a1:1, a2:2, a3:, :a4)~()
 /*
-    an Array (shape [4], 2 items)
-    1 : 1
-    3 : 3
-    a Directory (2 items)
-    'A1' : 1
-    'A2' : 2
+    an Array (shape [3], 2 items)
+     1 :  1
+     3 :  3
+    a Directory (4 items)
+    'A1' :  1
+    'A2' :  2
+    'A3' :  1
+    'A4' : 'A4'
 */
 
 -- The ~partial method now supports named arguments
 -- Illustration, part 2: the final arguments
-{call dump2 .context~args; call dump2 .context~namedargs}~partial(1, , 3, , a1:1, a2:2)~(2, ,5 , a1:10, a3:3)
+{call dump2 .context~args; call dump2 .context~namedargs}~partial(1, , 3, , a1:1, a2:2, :a4)~(2, ,5 , a1:10, a3:)
 /*
     an Array (shape [4], 4 items)
     1 : 1                   -- Set with ~partial
     2 : 2                   -- Passed in final call (fill the first "hole")
     3 : 3                   -- Set with ~partial
     5 : 5                   -- Passed in final call (skip the second "hole" because of the omitted argument between 2 and 5)
-    a Directory (3 items)
+    a Directory (4 items)
     'A1' : 10               -- The value set with ~partial has been overriden
     'A2' : 2                -- Set with ~partial
-    'A3' : 3                -- Added in final call
+    'A3' : 1                -- Added in final call
+    'A4' : 'A4'             -- Set with ~partial
 */
 
 

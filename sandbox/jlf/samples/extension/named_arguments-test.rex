@@ -11,7 +11,7 @@ call title "Call an internal procedure"
 call interpret 'call myprocedure'
 call interpret 'call myprocedure 1, 2, 3'
 call interpret 'call myprocedure 1, 2, a3:3'
-call interpret 'call myprocedure 1, a2:2, a3:3'
+call interpret 'call myprocedure 1, a2:2, a3:3, a4:, :a5'
 call interpret 'call myprocedure 1, a2:(2*5/4)**5, a3:.array~new(3,3)'
 call interpret 'call myprocedure , , 3, ,'
 call interpret 'call myprocedure , , 3, , a5:5'
@@ -77,7 +77,7 @@ call title "Call an internal procedure as a function"
 call interpret 'r = myprocedure()'
 call interpret 'r = myprocedure(1, 2, 3)'
 call interpret 'r = myprocedure(1, 2, a3:3)'
-call interpret 'r = myprocedure(1, a2:2, a3:3)'
+call interpret 'r = myprocedure(1, a2:2, a3:3, a4:, :a5)'
 call interpret 'r = myprocedure(1, a2:(2*5/4)**5, a3:.array~new(3,3))'
 call interpret 'r = myprocedure( , , 3, ,)'
 call interpret 'r = myprocedure( , , 3, , a5:5)'
@@ -143,7 +143,7 @@ call title "Call a routine"
 call interpret 'call myroutine'
 call interpret 'call myroutine 1, 2, 3'
 call interpret 'call myroutine 1, 2, a3:3'
-call interpret 'call myroutine 1, a2:2, a3:3'
+call interpret 'call myroutine 1, a2:2, a3:3, a4:, :a5'
 call interpret 'call myroutine 1, a2:(2*5/4)**5, a3:.array~new(3,3)'
 call interpret 'call myroutine , , 3, ,'
 call interpret 'call myroutine , , 3, , a5:5'
@@ -155,7 +155,7 @@ call title "Call a routine as a function"
 call interpret 'r = myroutine()'
 call interpret 'r = myroutine(1, 2, 3)'
 call interpret 'r = myroutine(1, 2, a3:3)'
-call interpret 'r = myroutine(1, a2:2, a3:3)'
+call interpret 'r = myroutine(1, a2:2, a3:3, a4:, :a5)'
 call interpret 'r = myroutine(1, a2:(2*5/4)**5, a3:.array~new(3,3))'
 call interpret 'r = myroutine( , , 3, ,)'
 call interpret 'r = myroutine( , , 3, , a5:5)'
@@ -171,7 +171,7 @@ call interpret 'r = .myclass~mymethod'
 call interpret 'r = .myclass~mymethod()'
 call interpret 'r = .myclass~mymethod(1, 2, 3)'
 call interpret 'r = .myclass~mymethod(1, 2, a3:3)'
-call interpret 'r = .myclass~mymethod(1, a2:2, a3:3)'
+call interpret 'r = .myclass~mymethod(1, a2:2, a3:3, a4:, :a5)'
 call interpret 'r = .myclass~mymethod(1, a2:(2*5/4)**5, a3:.array~new(3,3))'
 call interpret 'r = .myclass~mymethod( , , 3, ,)'
 call interpret 'r = .myclass~mymethod( , , 3, , a5:5)'
@@ -291,7 +291,7 @@ call interpret 'r = .myclass~foo'
 call interpret 'r = .myclass~foo()'
 call interpret 'r = .myclass~foo(1, 2, 3)'
 call interpret 'r = .myclass~foo(1, 2, a3:3)'
-call interpret 'r = .myclass~foo(1, a2:2, a3:3)'
+call interpret 'r = .myclass~foo(1, a2:2, a3:3, a4:, :a5)'
 call interpret 'r = .myclass~foo(1, a2:(2*5/4)**5, a3:.array~new(3,3))'
 call interpret 'r = .myclass~foo( , , 3, ,)'
 call interpret 'r = .myclass~foo( , , 3, , a5:5)'
@@ -317,7 +317,7 @@ call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"])'
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I")'
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I", 1, 2, 3)'
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I", 1, 2, a3:3)'
-call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I", 1, a2:2, a3:3)'
+call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I", 1, a2:2, a3:3, a4:, :a5)'
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I", 1, a2:(2*5/4)**5, a3:.array~new(3,3))'
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I", , , 3, ,)'
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I", , , 3, , a5:5)'
@@ -331,7 +331,7 @@ call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I", 1, a2:2, a
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", .array~new)'
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", (1, 2, 3))'
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", (1, 2), namedArguments:.directory~of(a3:3))'
-call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", .array~of(1), namedArguments:.directory~of(a2:2, a3:3))'
+call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", .array~of(1), namedArguments:.directory~of(a2:2, a3:3, a4:, :a5))'
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", .array~of(1), namedArguments:.directory~of(a2:(2*5/4)**5, a3:.array~new(3,3)))'
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", ( , , 3, ,))'
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", ( , , 3, ,), namedArguments:.directory~of(a5:5))'
@@ -343,7 +343,7 @@ call title "Call a method using sendWith"
 call interpret 'r = .myclass~sendWith("mymethod", .array~new)'
 call interpret 'r = .myclass~sendWith("mymethod", (1, 2, 3))'
 call interpret 'r = .myclass~sendWith("mymethod", (1, 2), namedArguments:.directory~of(a3:3))'
-call interpret 'r = .myclass~sendWith("mymethod", .array~of(1), namedArguments:.directory~of(a2:2, a3:3))'
+call interpret 'r = .myclass~sendWith("mymethod", .array~of(1), namedArguments:.directory~of(a2:2, a3:3, a4:, :a5))'
 call interpret 'r = .myclass~sendWith("mymethod", .array~of(1), namedArguments:.directory~of(a2:(2*5/4)**5, a3:.array~new(3,3)))'
 call interpret 'r = .myclass~sendWith("mymethod", ( , , 3, ,))'
 call interpret 'r = .myclass~sendWith("mymethod", ( , , 3, ,), namedArguments:.directory~of(a5:5))'
@@ -424,7 +424,7 @@ call interpret '{call sayArg .context}~rawExecutable~call'
 call interpret '{call sayArg .context}~rawExecutable~call()'
 call interpret '{call sayArg .context}~rawExecutable~call(1, 2, 3)'
 call interpret '{call sayArg .context}~rawExecutable~call(1, 2, a3:3)'
-call interpret '{call sayArg .context}~rawExecutable~call(1, a2:2, a3:3)'
+call interpret '{call sayArg .context}~rawExecutable~call(1, a2:2, a3:3, a4:, :a5)'
 call interpret '{call sayArg .context}~rawExecutable~call(1, a2:(2*5/4)**5, a3:.array~new(3,3))'
 call interpret '{call sayArg .context}~rawExecutable~call( , , 3, ,)'
 call interpret '{call sayArg .context}~rawExecutable~call( , , 3, , a5:5)'
@@ -447,29 +447,39 @@ call interpret 'call myroutine , , 3, , a5:5,' -
 
 -- here the trailing comma is not a continuation character
 call interpret 'call myprocedure , , 3, , a5:5,;' -
-             , 'Should raise an error because of the trailing comma (TODO)'
+             , 'Error 99.900: Named argument: expected symbol followed by colon, or colon followed by symbol'
 call interpret 'call myroutine , , 3, , a5:5,;' -
-             , 'Should raise an error because of the trailing comma (TODO)'
+             , 'Error 99.900: Named argument: expected symbol followed by colon, or colon followed by symbol'
 
 -- only assignable variable symbols are allowed
 call interpret 'call myprocedure .envSymbol:1' -
-             , 'Error 31.003 Variable symbol must not start with a ''.''; found ''.envSymbol'''
+             , 'Error 31.3: Variable symbol must not start with a ''.''; found ''.ENVSYMBOL'''
 call interpret 'call myprocedure 3:1' -
-             , 'Error 35.1:  Incorrect expression detected at ":"'
+             , 'Error 31.2:  Variable symbol must not start with a number; found "3"'
 call interpret 'call myprocedure 1, a2:2, 3' -
              , 'Error 31.2:  Variable symbol must not start with a number; found "3'
 call interpret 'call myprocedure 1.2:1' -
-             , 'Error 35.1: Incorrect expression detected at ":"'
+             , 'Error 31.2: Variable symbol must not start with a number; found "1.2"'
 call interpret 'call myprocedure 1.2.3:1' -
              , 'Error 35.1: Incorrect expression detected at ":"'
 
+-- shorthand syntax for myvar:myvar
+call interpret 'call myprocedure :' -
+             , 'Error 35.1: Incorrect expression detected at ":"' -- no better error message because '(' is not a symbol, so not seen as a named argument
+call interpret 'call myprocedure :myvar+1' -
+             , 'Error 99.900: Named argument: the expression after colon must be a variable only'
+call interpret 'call myprocedure :(myvar+1)' -
+             , 'Error 35.1: Incorrect expression detected at ":"' -- no better error message because '(' is not a symbol, so not seen as a named argument
+call interpret 'call myprocedure :1+1' -
+             , 'Error 31.2: Variable symbol must not start with a number; found "1"'
+
 -- call with named arguments
 call interpret 'call myprocedure 1, a2:2, a3:' -
-             , 'Error 99.900:  Named argument: expected expression after colon'
+             , 'Ok, no error because a3: is a shorthand syntax for a3:.true'
 call interpret 'call myprocedure a1:1, a1:2' -
                'Error 99.900:  Named argument: ''A1:'' is passed more than once'
 call interpret 'call myprocedure a1:1, , a3:3' -
-             , 'Error 99.900: Named argument: expected symbol followed by colon'
+             , 'Error 99.900: Named argument: expected symbol followed by colon, or colon followed by symbol'
 call interpret 'call myprocedure instance~method:1' -
              , 'Error 20.917: Symbol expected after superclass colon (:)'
 

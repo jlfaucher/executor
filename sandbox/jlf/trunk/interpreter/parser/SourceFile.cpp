@@ -5544,10 +5544,16 @@ void RexxSource::argList(
             // A named argument is a variable symbol followed by ":"
             size_t position = markPosition();
             token = nextReal();
-            if (token->isVariable())
+            if (token->classId == TOKEN_SYMBOL) // don't test token->isVariable() here, to have a better error message
             {
                 token = nextReal();
                 if (token->classId == TOKEN_COLON) namedArgument = true;
+            }
+            // or ":" followed by a variable symbol
+            if (token->classId == TOKEN_COLON)
+            {
+                token = nextReal();
+                if (token->classId == TOKEN_SYMBOL) namedArgument = true; // don't test token->isVariable() here, to have a better error message
             }
             resetPosition(position);
 
@@ -5572,33 +5578,62 @@ void RexxSource::argList(
         else
         {
             // A named argument is a symbol followed by ":"
+            // or ":" followed by a variable symbol
             token = nextReal();
-            if (token->classId != TOKEN_SYMBOL) syntaxError(Error_Translation_user_defined,
-                                                            new_string("Named argument: expected symbol followed by colon"));
-            this->needVariable(token);
-            // Next check is good when the same name is passed more than once,
-            // but not working when the same named argument is passed with different abbreviated names
-            // Ex: assuming use named arg myNamedArgument(1)
-            //     myfunc(m:0, myNamed:0, mynamedArgument:0)
-            // No error raised here because the names are different.
-            // See checkNamedArguments for a more general check.
-            if (localNamedArglist->hasItem(token->value) == TheTrueObject) syntaxError(Error_Translation_user_defined,
-                                                                                   token->value->concatToCstring("Named argument: '")->concatWithCstring(":' is passed more than once"));
-            localNamedArglist->push(token->value); // Bypass the bug described above by using a queue local to this method.
-            namedArglist->push(token->value);       /* add argument name to list */
-            this->pushTerm(token->value); // For a proper stack size, must count also the named parameters
+            if (token->classId == TOKEN_COLON)
+            {
+                token = nextReal();
+                if (token->classId != TOKEN_SYMBOL) syntaxError(Error_Translation_user_defined,
+                                                                new_string("Named argument: expected symbol followed by colon, or colon followed by symbol"));
+                this->needVariable(token);
+                // Next check is good when the same name is passed more than once,
+                // but not working when the same named argument is passed with different abbreviated names
+                // Ex: assuming use named arg myNamedArgument(1)
+                //     myfunc(m:0, myNamed:0, mynamedArgument:0)
+                // No error raised here because the names are different.
+                // See checkNamedArguments for a more general check.
+                if (localNamedArglist->hasItem(token->value) == TheTrueObject) syntaxError(Error_Translation_user_defined,
+                                                                                       token->value->concatToCstring("Named argument: '")->concatWithCstring(":' is passed more than once"));
+                localNamedArglist->push(token->value); // Bypass the bug described above by using a queue local to this method.
+                namedArglist->push(token->value);       /* add argument name to list */
+                this->pushTerm(token->value); // For a proper stack size, must count also the named parameters
 
-            token = nextReal();
-            if (token->classId != TOKEN_COLON) syntaxError(Error_Translation_user_defined,
-                                                           new_string("Named argument: expected symbol followed by colon"));
+                // The named argument expression is the variable
+                subexpr = this->addText(token); // variable
+                namedArglist->push(subexpr);       /* add next argument to list         */
+                this->pushTerm(subexpr); // For a proper stack size, must count also the named parameters
+                if (!this->terminator(terminators | TERM_COMMA, nextToken()))
+                {
+                    syntaxError(Error_Translation_user_defined, new_string("Named argument: the expression after colon must be a variable only"));
+                }
+            }
+            else
+            {
+                if (token->classId != TOKEN_SYMBOL) syntaxError(Error_Translation_user_defined,
+                                                                new_string("Named argument: expected symbol followed by colon, or colon followed by symbol"));
+                this->needVariable(token);
+                // Next check is good when the same name is passed more than once,
+                // but not working when the same named argument is passed with different abbreviated names
+                // Ex: assuming use named arg myNamedArgument(1)
+                //     myfunc(m:0, myNamed:0, mynamedArgument:0)
+                // No error raised here because the names are different.
+                // See checkNamedArguments for a more general check.
+                if (localNamedArglist->hasItem(token->value) == TheTrueObject) syntaxError(Error_Translation_user_defined,
+                                                                                       token->value->concatToCstring("Named argument: '")->concatWithCstring(":' is passed more than once"));
+                localNamedArglist->push(token->value); // Bypass the bug described above by using a queue local to this method.
+                namedArglist->push(token->value);       /* add argument name to list */
+                this->pushTerm(token->value); // For a proper stack size, must count also the named parameters
 
-            /* parse off named argument expression*/
-            RexxObject *subexpr = this->subExpression(terminators | TERM_COMMA);
-            if (subexpr == OREF_NULL) syntaxError(Error_Translation_user_defined,
-                                                  new_string("Named argument: expected expression after colon"));
-            namedArglist->push(subexpr);       /* add next argument to list         */
-            this->pushTerm(subexpr); // For a proper stack size, must count also the named parameters
+                token = nextReal();
+                if (token->classId != TOKEN_COLON) syntaxError(Error_Translation_user_defined,
+                                                               new_string("Named argument: expected symbol followed by colon, or colon followed by symbol"));
 
+                /* parse off named argument expression*/
+                RexxObject *subexpr = this->subExpression(terminators | TERM_COMMA);
+                if (subexpr == OREF_NULL) subexpr = IntegerOne;
+                namedArglist->push(subexpr);       /* add next argument to list         */
+                this->pushTerm(subexpr); // For a proper stack size, must count also the named parameters
+            }
             namedTotal++;
         }
 

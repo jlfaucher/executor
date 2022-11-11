@@ -1,3 +1,10 @@
+<!-- 
+
+Remember: when you create/update a syntax diagram, you must copy it in the file
+NamedArguments-SD.xml
+
+-->
+
 Named arguments - Specification
 ===============================
 
@@ -55,11 +62,20 @@ Positional arguments:
 
 Named arguments:
 
-        +-,-----------------------+
-        V                         |
-    |-----argName-:-argExpression-+----|
+        +-,------------------+
+        V                    |
+    |-----+-name-:-expr----+-+----|
+          |                |
+          +-name-:---------+
+          |                |
+          +------:-varname-+
 
 ![Arguments](SyntaxDiagram/sd_Named_arguments.png)
+
+Shorthand syntax
+
+    name:           -- without expr, pass .true
+    :varname        -- without name, pass varname:varname
 
 
 Called side
@@ -117,7 +133,7 @@ Message term
 
     >>-receiver[--| Arguments |--]----------------------------><
 
-![USE NAMED ARG](SyntaxDiagram/sd_Message_term_index.png)
+![USE NAMED ARG](SyntaxDiagram/sd_Message_term_brackets.png)
 
 
 ---------------
@@ -191,7 +207,7 @@ When the option `NAMED` is specified:
 
 - name is a simple symbol, a stem or a compound symbol.
 - Message term are not supported.
-- Skipped names are not allowed.
+- Omitted names are not allowed.
 
 When the option 'AUTO' is specified then a variable is retrieved or created for each named argument passed by the caller and not explicitely declared by the callee.  
 If this variable has already a value then it's not overriden.  
