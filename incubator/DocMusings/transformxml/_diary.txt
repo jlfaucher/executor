@@ -1,4 +1,39 @@
 ===============================================================================
+2022 nov 11
+
+The fragment | Arguments | is not shown in the generated bitmap.
+Is it because <fragref>Arguments</fragref> is not in a <groupseq> ?
+Yes, fixed.
+
+<![CDATA[
+             1         2         3         4         5         6
+    12345678901234567890123456789012345678901234567890123456789012
+  1
+  2 Instruction CALL:
+  3
+  4 >>-CALL----+-name-----+----| Arguments |--------------------><
+  5            +-(-expr-)-+
+  6
+]]>
+
+<syntaxdiagram>
+    <title>sd_Instruction_CALL</title>
+    <groupseq>
+        <kwd>CALL</kwd>
+    </groupseq>
+    <groupchoice>
+        <var>name</var>
+        <groupseq>
+            <delim>(</delim>
+            <var>expr</var>
+            <delim>)</delim>
+        </groupseq>
+    </groupchoice>
+    <fragref>Arguments</fragref>        <-- now in a block <groupseq>
+</syntaxdiagram>
+
+
+===============================================================================
 2012 mar 05
 
 Renamed files :
@@ -15,10 +50,10 @@ Fix a bug in the XML parser : must not manage nested entities inside comments,
 and must detect properly the end of the comment.
 Symptom 1 : The parser raises "[error] Error line 41: EOF within an XML tag"
 while parsing the rev 7467 of oodguide/Chapter06.xml.
-Symptom 2 : After the fix for symptom 1, the parser raises 
+Symptom 2 : After the fix for symptom 1, the parser raises
 "[error] Error line 112 column 31: Invalid tag name"
 Extract :
-    line  41 : <!-- Chapter06 - List Views, Re-Sizing, and PopUps 
+    line  41 : <!-- Chapter06 - List Views, Re-Sizing, and PopUps
     line 112 :      6.6    Utility Dialogs - <- ??? <What's this??> ...
     line 121 : -->
 
@@ -72,7 +107,7 @@ The performance gain is about 30s on oodialog/dialogObject (3'55 instead of 4'30
 
 Added option -reportlinks <linksFile>
 
-In case of error, touch the transformed file with a low date & time, to force 
+In case of error, touch the transformed file with a low date & time, to force
 selection at next run.
 
 
@@ -80,7 +115,7 @@ selection at next run.
 2009 december 20
 
 transformdir iterates over all the files, not just *.sgml
-The files other than *.sgml are copied if needed (date comparison), 
+The files other than *.sgml are copied if needed (date comparison),
 except the .svn files.
 The file *.sgml are transformed if needed (date comparison).
 Added the option -doit
@@ -151,7 +186,7 @@ with -dsssl
 ===============================================================================
 2009 october 10
 
-Testing by hand the changes that must be done to let rxmath.sgml be edited with XXE. 
+Testing by hand the changes that must be done to let rxmath.sgml be edited with XXE.
 
 Must apply the changes listed in section 2009 july 11.
 
@@ -170,17 +205,17 @@ Must add that if needed :
 <!DOCTYPE root PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
 where root is the root element of the xincluded file (ex : section, bookinfo, ...)
 
-I have a problem with shared/legalstuff.sgml : 
-This file has several roots, so can't be xincluded as-is. 
+I have a problem with shared/legalstuff.sgml :
+This file has several roots, so can't be xincluded as-is.
 And no way to make it single-root.
-Except if I put bookinfo in this file, and remove it from rxmath.sgml. But then I 
-have another problem : the value of subtitle and titleabrev are different for each 
+Except if I put bookinfo in this file, and remove it from rxmath.sgml. But then I
+have another problem : the value of subtitle and titleabrev are different for each
 book. Will address that later...
 
 When using xinclude, the following files must be in the directory "shared" :
 docbook-1.png
 oorexx.jpg
-xinclude.mod : 
+xinclude.mod :
     Must be included to extend the DocBook schema, to support <xi:include>
     (needed by the validating XML editors)
 
@@ -196,10 +231,10 @@ generating PNG.
 Replaced xsltproc by saxon, because I plan to investigate the XSLT2 stylesheets
 of DocBook 5. Better to have a single XSLT processor right now...
 
-Oooops ! now 41 min to run : 
-transformdir -syntdiag trunk trunk.out 
+Oooops ! now 41 min to run :
+transformdir -syntdiag trunk trunk.out
 (36 min with xsltproc).
-There are 52 sd_*.xml files to process. 
+There are 52 sd_*.xml files to process.
 Which makes 3 x 52 = 156 additional invocations of the java VM.
 I revert to xsltproc. After all, the XSLT 2.0 stylesheets for DocBook are
 still in beta stage, so...
@@ -208,7 +243,7 @@ Remember, to create a zip file which contains the HTML documentation :
 find . -name "*.htm" -o -name "*.jpg" -o -name "*.png" | zip -@ myfile-html
 
 
-Todo : 
+Todo :
 Implement -dsssl, -xslt and -xinclude.
 
 
@@ -252,18 +287,18 @@ Remember :
 Finally, it's easy to support PDF format, just define %graphic-default-extension%
 in the customization layer, with the right value :
 pdf in oorexx.print.dsl
-    (define %graphic-default-extension% 
+    (define %graphic-default-extension%
       ;; Default extension for graphic FILEREFs
       "pdf")
     (define preferred-mediaobject-extensions
       (list "pdf" "eps" "ps" "jpg" "jpeg" "png"))
 png in oorexx.html.dsl
-    (define %graphic-default-extension% 
+    (define %graphic-default-extension%
       ;; Default extension for graphic FILEREFs
       "png")
 and don't include the file extension in fileref of imagedata.
 
-Todo : 
+Todo :
 Implement -dsssl, -xslt and -xinclude.
 
 
@@ -285,19 +320,19 @@ Run : transformdir -syntdiag trunk trunk.out (25 min on my laptop).
 Go to directory trunk.out and make the doc as usual.
 The syntax diagrams that can't be converted remain as text.
 
-Remember : 
+Remember :
 There are errors remaining in oodialog : userdialog.sgml and utilityclasses.
 The files windowBaseCommon.sgml and windowExtensionsCommon.sgml are not processed.
 [18 oct 2009] Now the files windowBaseCommon.sgml and windowExtensionsCommon.sgml are processed.
 
-Todo : 
+Todo :
 Improve the quality of the image, the PNG looks a little bit blurred.
 Two image formats are generated from SVG : PDF and PNG
 PDF images are very good, even if viewed at 400%.
-The transformed XML contains a reference to each format, but the references 
+The transformed XML contains a reference to each format, but the references
 to the PDF are not taken into account.
 
-Todo : 
+Todo :
 Implement -dsssl, -xslt and -xinclude.
 
 
@@ -307,8 +342,8 @@ Implement -dsssl, -xslt and -xinclude.
 Now process recursively the directories.
 
 Added option -syntdiag
-When the input <file>.sgml contains at least one syntax diagram, a file 
-sd_<file>.xml is created, which contains (for each syntax diagram) the text of 
+When the input <file>.sgml contains at least one syntax diagram, a file
+sd_<file>.xml is created, which contains (for each syntax diagram) the text of
 the syntax diagram, a diagnostic and (if valid) a DITA XML representation.
 
 To be recognized as a syntax diagram, the text must be in CDATA and must contain
@@ -350,15 +385,15 @@ oodialog\utilityclasses.sgml :
     line 315, near >>-.DlgUtil~comCtl32Version( : two "+" are missing
     line 2121, near aDlgAreaU~Init(Dialog : this sd looks strange, don't know how to fix that...
 rexxref\collclasses.sgml :
-    line 1314, near makeString(-+ : 
+    line 1314, near makeString(-+ :
         replace the second "+" by "-" and move the end of the choice (CHAR) to the same position as (LINE)
     line 1676, near toString(-+ :
         replace the second "+" by "-" and move the end of the choice (CHAR) to the same position as (LINE)
-rexxref\dire.sgml : 
+rexxref\dire.sgml :
     line 362, near >>-::CONSTANT : must be terminated by ><
 rexxref\funct.sgml :
     line 3431, near >>-RANDOM( : the final "+" of "+--min--+" must be shifted one character to the right
-    line 4937, near >>-TRANSLATE( : 
+    line 4937, near >>-TRANSLATE( :
         the closing parenthesis is not at the right place, must be after the last parameter
         the three lines of the last block "+-pos-+  +-,length-+" must be moved one line upper
         (to be similar to string~translate)
@@ -381,17 +416,17 @@ rexxref\instrc.sgml :
 rexxref\intro.sgml :
     line 1900, near >>-receiver-+ : replace "+" by "." (or "." by "+")
 rexxref\preface.sgml :
-    line 163, near |--expansion : this syntax diagram must be put in CDATA to be recognized.    
+    line 163, near |--expansion : this syntax diagram must be put in CDATA to be recognized.
 rexxref\rexutil.sgml :
-    line 2029, near >>-SysGetMessage( : 
+    line 2029, near >>-SysGetMessage( :
         not supported, the 2nd "+" has no counterpart (must have a -+-, not just a -+)
         solution : do a clean separation for each end of choice
     line 2035, near >>-SysGetMessage( : the 2nd "+" must be shifted one character left, to be aligned
-    line 2086, near >>-SysGetMessageX( : 
+    line 2086, near >>-SysGetMessageX( :
         not supported, the 2nd "+" has no counterpart (must have a -+-, not just a -+)
         solution : do a clean separation for each end of choice
     line 2212, near 2nd >>-SysIni( : the line must be shifted 10 characters to the left
-    line 3366, near >>-SysShutdownSystem( : 
+    line 3366, near >>-SysShutdownSystem( :
         replace "*" by "+"
         not supported, the 2nd "+" has no counterpart (must have a -+-, not just a -+)
         solution : do a clean separation for each end of choice
@@ -425,14 +460,14 @@ Todo : Implement -dsssl, -xslt and -xinclude.
 ===============================================================================
 2009 august 09
 
-Renamed makevalidxml to transformfile because the script is not limited to 
+Renamed makevalidxml to transformfile because the script is not limited to
 making a valid XML file.
 
 Added transformdir which lets process all the sgml files of a given directory.
 Transformation in place is not allowed, must pass an output directory different
 from input directory. Does not process recursively, so must process separately
 each directory under trunk.
-Ex : 
+Ex :
 rexx transformdir.rex trunk/rexxref trunk/rexxref.new
 
 A minimal conformity checking is done, and some errors are found :
@@ -453,7 +488,7 @@ oodialog\windowExtensionsCommon.sgml
     Lot of errors because railroad not in cdata
     For the moment, I skip this file when iterating over the sgml files
 readme\newinrelease.sgml
-    line 407 : Insert the missing </listitem></varlistentry> after </para> 
+    line 407 : Insert the missing </listitem></varlistentry> after </para>
                to close <varlistentry> at line 401 and <listitem> at line 402
 readme\windows.sgml
     line 107 : <para> has no closing </para>
@@ -530,18 +565,18 @@ Did not spent more time on profiling this day...
 ===============================================================================
 2009 july 13
 
-I made a test on one of my XML files : 
+I made a test on one of my XML files :
 3908 Kb, 98261 node(), 53510 text()
 Conclusion : it's *very* slow... About 15 min to process the file !
 
-I made already the same observation for the class csvStream : 
+I made already the same observation for the class csvStream :
 Reading a file which contains 243658 lignes made of 12 fields :
 - without csvStream (only line=stream~linein; parse var line...) : 00:00:04
 - with csvStream : 00:03:24, 50 times slower !!!
 - with csvStreamBufferized (a version where I use MutableBuffer) : 00:03:38 (!)
 
 Since I use MutableBuffer, the problem is not in the construction of strings by
-appending one character at a time... 
+appending one character at a time...
 It's not either in the fact I create an instance of MutableBuffer for each XML tag,
 because in csvStreamBufferized I create the buffer only once and reset it at each line.
 
@@ -582,7 +617,7 @@ must have a system identifier
 ===============================================================================
 2009 june 27
 
-First step : 
+First step :
 I want to see if I can read an sgml file with the XML parser, and dump it almost as-is
 (I want to keep the current layout in the files).
 I don't know if I can do that only by overriding the public methods, so I made a

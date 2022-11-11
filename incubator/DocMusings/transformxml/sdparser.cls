@@ -80,20 +80,20 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     self~nameGenerator = nameGenerator
     self~tokenizer = tokenizer
     self~objectName = self~class~id
-    
-    
+
+
 ::method addMessage
     use strict arg message
     self~messages~append(message)
-    
-    
+
+
 ::method addError
     use strict arg message
     self~addMessage(message)
     self~errorCount += 1
     -- raise syntax 4
-    
-    
+
+
 ::method dumpAbstractSyntaxTree
     use strict arg stream = (.IndentedStream~stdout)
     stream~lineout("Abstract syntax tree :")
@@ -109,7 +109,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     -- diagnostic
     if self~errorCount == 0 then stream~lineout("Parsing : OK")
     else stream~lineout("Parsing : KO")
-    do m over self~messages 
+    do m over self~messages
         stream~lineout(m)
     end
     stream~lineout("")
@@ -129,7 +129,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     stream~lineout("")
     self~dump(stream)
 
-    
+
 -------------------------------------------------------------------------------
 ::class "AbstractSyntaxElement"
 ::attribute childs
@@ -164,7 +164,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
         otherwise return self~importance
     end
 
-        
+
 ::method init
     use strict arg parent, parser
     self~childs = .List~new
@@ -174,7 +174,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     self~parser = parser
     self~text = ""
     self~importance = 0
-    
+
 
 ::method parse
     -- the simple case : the grammar element is made of one single token
@@ -184,8 +184,8 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     self~text = token~value
     token~setVisitMark
     return token~rightToken -- next token to parse
-    
-    
+
+
 ::method updateObjectName
     objectName = "The '"self~text"' "self~class~id
     if self~firstToken <> .nil then do
@@ -206,8 +206,8 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     end
     self~childs = newChilds
     return self
-    
-    
+
+
 ::method groupify
     -- syntaxdiagram and fragment can have only groups, fragref or fragment as childs.
     -- The simplification may move kwd, var or other similar elements to toplevel.
@@ -216,7 +216,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     newChilds = .List~new
     group = .nil
     do child over self~childs
-        if child~isA(.Kwd) | child~isA(.Var) | child~isA(.Characters) then do
+        if child~isA(.Kwd) | child~isA(.Var) | child~isA(.Characters) | child~isA(.Fragref) then do
             if group == .nil then do
                 group = .Group~new(.nil, self~parser)
                 group~kind = .Group~groupseq
@@ -235,7 +235,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     self~childs = newChilds
     return self
 
-    
+
 ::method inspect -- for debug
     use strict arg stream = (.IndentedStream~stdout)
     stream~lineout(self~string)
@@ -249,7 +249,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
         stream~dedent
     stream~dedent
 
-    
+
 ::method inspectProperties -- for debug
     use strict arg stream = (.IndentedStream~stdout)
     stream~lineout("firstToken = "self~firstToken)
@@ -257,10 +257,10 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     -- stream~lineout("parser = "self~parser)
     stream~lineout("text = '"self~text"'")
     stream~lineout("importance = "self~importanceString)
-    
+
 
 -------------------------------------------------------------------------------
-::class "SyntaxDiagram" subclass "AbstractSyntaxElement" 
+::class "SyntaxDiagram" subclass "AbstractSyntaxElement"
 ::attribute hasFirstIdentifier -- to make proper distinction between kwd and var
 ::attribute hrefbase -- the basename that will be used to build the complete image href
 ::attribute label
@@ -273,13 +273,13 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     self~hrefbase = ""
     self~label = ""
     self~title = ""
-    
+
 
 ::method text
     use strict arg -- none
     return self~title
-    
-    
+
+
 ::method parse
     -- ( ( title) (optional) then ( groupseq or groupchoice or groupcomp or fragref or fragment or synblk or synnote or synnoteref) (any number) )
     use strict arg beginingOfStatement
@@ -303,14 +303,14 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     end
     else self~parser~addError("[error] Expected an EndOfStatement, got : "token)
     return .nil -- no more tokens
-    
+
 
 ::method inspectProperties
     use strict arg stream = (.IndentedStream~stdout)
     self~inspectProperties:super(stream)
     stream~lineout("title = '"self~title"'")
-    
-    
+
+
 -------------------------------------------------------------------------------
 ::class "Fragment" subclass "AbstractSyntaxElement"
 ::attribute hasFirstIdentifier -- to make proper distinction between kwd and var
@@ -323,13 +323,13 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     self~hasFirstIdentifier = .false
     self~label = ""
     self~title = ""
-    
+
 
 ::method text
     use strict arg -- none
     return self~title
-    
-    
+
+
 ::method parse
     -- ( ( title) (optional) then ( groupseq or groupchoice or groupcomp or fragref or synnote or synnoteref) (any number) )
     use strict arg beginingOfFragment
@@ -354,13 +354,13 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     else self~parser~addError("[error] Expected an EndOfFragment, got : "token)
     return .nil -- no more tokens
 
-    
+
 ::method inspectProperties
     use strict arg stream = (.IndentedStream~stdout)
     self~inspectProperties:super(stream)
     stream~lineout("title = '"self~title"'")
-    
-    
+
+
 -------------------------------------------------------------------------------
 ::class "Group" subclass "AbstractSyntaxElement"
 ::constant groupseq 1
@@ -376,7 +376,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
         when self~kind == .Group~groupcomp then return "groupcomp"
         otherwise return self~kind
     end
-    
+
 ::attribute repsep
 
 ::attribute r2lDispatcher private -- used by ParseChoice, ParseRepeated
@@ -398,13 +398,13 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     if token <> .nil then self~lastToken = token~leftToken
     return token
 
-    
+
 ::method parseGroup private
     /*
     We test if the repeat arrow has been already visited because parseRepeated will call parseGroup
     recursively on the same token when the repeat is like that :
           +-,--------+
-          V          |                      
+          V          |
         --+----------+--
           +-,-string-+
     */
@@ -463,10 +463,10 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
             when token~isA(.sdtokenizer~BeginingOfFragmentReference) then token = .FragRef~new(self, self~parser)~parse(token)
             otherwise return token -- end of group
         end
-        
+
         -- Determine the kind of group (if first iteration) or test if the group is ended.
-        -- Got a problem with +-| repetitor |-+ (no separators here, tokens were "-| " and " |-") 
-        -- because the fragref was put in a groupcomp, and the generated SVG was not good (empty box). 
+        -- Got a problem with +-| repetitor |-+ (no separators here, tokens were "-| " and " |-")
+        -- because the fragref was put in a groupcomp, and the generated SVG was not good (empty box).
         -- To bypass that, I modified the tokenizer to recognize "| " and ' |".
         -- The problem will still occur with such (unlikely) string : before| repetitor |after.
         if token~isA(.sdtokenizer~l2rPath) then do
@@ -482,15 +482,15 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
             end
             if self~kind == 0 then self~kind = .Group~groupcomp -- we don't have a separator after the first element --> groupcomp
         end
-        
+
         -- skip dash separators
         do while token~isA(.sdtokenizer~l2rPath), \ token~upperToken~isA(.sdtokenizer~RepeatArrow)
             token~setVisitMark
             token = token~rightToken
         end
     end
-    
-    
+
+
 ::method parseChoice private
     if .t~istraced("parseChoice") then call trace .t~traceoption("parseChoice")
     use strict arg l2rDispatcher
@@ -513,7 +513,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
         self~parser~addError(  "[error] The choice "l2rDispatcher" does not end consistently")
     end
     if self~r2lDispatcher == .nil then return .nil
-    
+
     /*
     Next test needed to support that : the [+] is both the end of the enclosed group
     and the end of the repeat main path.
@@ -524,7 +524,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     */
     if self~r2lDispatcher~annotation == "EndOfRepeat" then return self~r2lDispatcher
     return self~r2lDispatcher~rightToken
-    
+
 
 ::method parseChoiceAboveMainPath private
     -- default choice (above main path, normally only one path, but support several paths above the main path)
@@ -614,8 +614,8 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
         token = token~lowerToken
     end
     return .true -- no token to return here, so...
-    
-    
+
+
 ::method parseRepeated private
     if .t~istraced("parseRepeated") then call trace .t~traceoption("parseRepeated")
     use strict arg tokenUnderArrow
@@ -659,7 +659,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
         previousToken = token
         token = token~upperToken
     end
-    
+
     -- parse the main path
     endtoken = self~parseDelimitedPath(tokenUnderArrow, .true, .sdtokenizer~l2rCrossroads)
     if self~r2lDispatcher == .nil then self~r2lDispatcher = endtoken
@@ -669,7 +669,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
         self~parser~addError(  "[error] The repeat at "tokenUnderArrow" does not end consistently")
     end
     return self~r2lDispatcher~rightToken
-    
+
 
 ::method parseDelimitedPath private
     if .t~istraced("parseDelimitedPath") then call trace .t~traceoption("parseDelimitedPath")
@@ -697,7 +697,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     token~setVisitMark
     self~lastToken = token
     return token -- the end delimiter (+ or .)
-    
+
 
 ::method getr2lDispatcher private
     -- walk through the closing vertical path of a choice or repeat, searching for the "+" on the main path (the r2lDispatcher)
@@ -771,8 +771,8 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
             self~repsep~inspect(stream)
         stream~dedent
     end
-    
-    
+
+
 -------------------------------------------------------------------------------
 ::class "RepSep" subclass "Group"
 
@@ -789,8 +789,8 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
         end
     end
     return self
-    
-    
+
+
 -------------------------------------------------------------------------------
 ::class "FragRef" subclass "AbstractSyntaxElement"
 
@@ -799,7 +799,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     forward class (super) continue
     self~text = ""
 
-    
+
 ::method parse
     use strict arg beginingOfFragmentReference
     self~firstToken = beginingOfFragmentReference
@@ -826,15 +826,15 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     end
     token~setVisitMark
     self~lastToken = token
-    
+
     -- semantic check
     if self~text == "" then do
         self~parser~addError("[error] The text attribute of "self" is empty")
     end
-    
+
     return token~rightToken
-    
-    
+
+
 -------------------------------------------------------------------------------
 ::class "Kwd" subclass "AbstractSyntaxElement"
 
@@ -865,7 +865,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     self~kind = 0
     self~text = ""
 
-    
+
 ::method parse
     use strict arg token
     self~firstToken = token
@@ -928,28 +928,28 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
         when self~text == "&=" then self~kind = .Characters~oper
         when self~text == "|=" then self~kind = .Characters~oper
         when self~text == "&&=" then self~kind = .Characters~oper
-        
+
         when self~text == "," then self~kind = .Characters~sep
         when self~text == ";" then self~kind = .Characters~sep
         when self~text == ":" then self~kind = .Characters~sep
-        
+
         when self~text == "(" then self~kind = .Characters~delim
         when self~text == ")" then self~kind = .Characters~delim
         when self~text == "[" then self~kind = .Characters~delim
         when self~text == "]" then self~kind = .Characters~delim
         when self~text == '"' then self~kind = .Characters~delim
-        
+
         otherwise self~kind = .Characters~sep
     end
     return token
 
-    
+
 ::method inspectProperties
     use strict arg stream = (.IndentedStream~stdout)
     self~inspectProperties:super(stream)
     stream~lineout("kind = "self~kindString)
 
-    
+
 -------------------------------------------------------------------------------
 ::class "Comment" subclass "AbstractSyntaxElement"
 

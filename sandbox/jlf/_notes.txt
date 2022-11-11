@@ -1038,37 +1038,3 @@ Maybe I should review what was done in official oorexx to clean the rexx.img
     12155	[#1712] rexx.img varies from ASLR	bigrixx	02/10/2021 12:36 AM
     12153	[#1712] rexx.img varies from ASLR	bigrixx	02/09/2021 10:07 PM
 https://sourceforge.net/p/oorexx/bugs/1712/
-
-================================================================================
-Syntax diagram
-================================================================================
-
-The fragment | Arguments | is not shown in the generated bitmap.
-Is it because <fragref>Arguments</fragref> is not in a <groupseq> ?
-
-<![CDATA[
-             1         2         3         4         5         6
-    12345678901234567890123456789012345678901234567890123456789012
-  1
-  2 Instruction CALL:
-  3
-  4 >>-CALL----+-name-----+----| Arguments |--------------------><
-  5            +-(-expr-)-+
-  6
-]]>
-
-<syntaxdiagram>
-    <title>sd_Instruction_CALL</title>
-    <groupseq>
-        <kwd>CALL</kwd>
-    </groupseq>
-    <groupchoice>
-        <var>name</var>
-        <groupseq>
-            <delim>(</delim>
-            <var>expr</var>
-            <delim>)</delim>
-        </groupseq>
-    </groupchoice>
-    <fragref>Arguments</fragref>
-</syntaxdiagram>
