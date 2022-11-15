@@ -1,0 +1,26 @@
+REXX-Regina_3.9.5 5.00 25 Jun 2022
+--------------------------------------------------------------
+Use of @#$¢ as or in symbols
+@=Klammeraffe
+#=Kanalgitter
+$=Dollar     
+--------------------------------------------------------------
+a= as a short form of a=""
+a=<
+--------------------------------------------------------------
+Multi-line strings (extending a string over line boundaries)
+s=S
+--------------------------------------------------------------
+the Upper instruction
+s=S
+--------------------------------------------------------------
+Bifs: externals, find, index, justify, linesize
+externals()         =
+find('abc d ef gh,'d  ef')  =2
+index('abcdef','c') =3
+justify('abc def',9)=abc   def
+center('abc def',9) = abc def 
+linesize()          =
+--------------------------------------------------------------
+/= and /== as alternatives to \= or \==
+x=13
