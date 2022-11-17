@@ -648,8 +648,7 @@ Helpers
         maybeCommand = inputrx~left(1, ".") <> " "
         input = inputrx~space
         select
-            when inputrx == "/*" then .ooRexxShell~sayComment(inputrx)
-            when inputrx == "*/" then .ooRexxShell~sayComment(inputrx)
+            when .ooRexxShell~gotoLabel <> "" then nop -- keep this line first
             when maybeCommand & input~caselessEquals("demo off") then nop
             when maybeCommand & input~caselessEquals("demo on") then nop
             when maybeCommand & input~word(1)~caselessEquals("goto") then nop
@@ -659,7 +658,6 @@ Helpers
             when maybeCommand & input~caselessEquals("prompt directory off") then nop
             when maybeCommand & input~caselessEquals("prompt directory on") then nop
             when maybeCommand & input~word(1)~right(1) == ":" & input~words == 1 & \isDriveLetter(input~word(1)) then nop -- label (when not drive letter)
-            when .ooRexxShell~gotoLabel <> "" then nop
             when maybeCommand & input~word(1)~caselessEquals("sleep") then do
                 if .ooRexxShell~maybeCommand & .ooRexxShell~input~word(1)~caseLessEquals("sleep") then nop -- prompt already displayed
                 else if input~caselessPos("no prompt") <> 0 then nop -- don't display the prompt
@@ -668,6 +666,8 @@ Helpers
                     call charout , prompt
                 end
             end
+            when inputrx == "/*" then .ooRexxShell~sayComment(inputrx)
+            when inputrx == "*/" then .ooRexxShell~sayComment(inputrx)
             when .ooRexxShell~showComment then .ooRexxShell~sayComment(inputrx)
             when inputrx~left(2) == "--" then .ooRexxShell~sayComment(inputrx)
             when input == "" then say
