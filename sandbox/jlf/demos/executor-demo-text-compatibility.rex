@@ -70,7 +70,7 @@ sleep no prompt
 sleep
 "\uD83D"~text("wtf8")~append("\uDE3F")~unescape=    -- High surrogate followed by low surrogate is valid WTF-8
 sleep
-"\uD83D"~text("utf8")~append("\uDE3F")~unescape=    -- High surrogate followed by low surrogate NOT is INVALID UTF-8
+"\uD83D"~text("utf8")~append("\uDE3F")~unescape=    -- High surrogate followed by low surrogate is INVALID UTF-8
 sleep no prompt
 
 

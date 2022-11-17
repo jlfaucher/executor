@@ -31,7 +31,7 @@ sleep no prompt
 
 -- Unicode character names are not loaded by default
 call loadUnicodeCharacterNames
-.unicode~characters=            -- (an UnicodeCharacterSupplier count=43884 size=918000)
+.unicode~characters=
 sleep no prompt
 
 /*
@@ -93,7 +93,7 @@ sleep no prompt
 sleep
 .unicode~character("bed")=                                      -- ( "🛏"   U+1F6CF So 1 "BED" )
 sleep
-.unicode~character("bed", hexadecimal:.true)=                   -- ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
+.unicode~character("bed", hexadecimal:)=                        -- ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
 sleep
 .unicode~character("U+0bed")=                                   -- ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
 sleep no prompt
@@ -171,7 +171,7 @@ sleep no prompt
 
 -- Boundary (boolean)
 -- http://unicode.org/reports/tr29/tr29-6.html
--- First 10 characters such as bidiMirrored == .true
+-- First 10 characters such as controlBoundary == .true
 .unicode~characters~pipe(.select {item~controlBoundary} | .take 10 | .console)
 sleep no prompt
 
@@ -286,28 +286,28 @@ sleep no prompt
 /*
 Possible transformations:
 
- 1  : ( ""    U+0007 Cc 0 "", "ALERT", "BEL" )                      <-- removable with STRIPCC:.true
+ 1  : ( ""    U+0007 Cc 0 "", "ALERT", "BEL" )                      <-- removable with STRIPCC:
  2  : ( "L"   U+004C Lu 1 "LATIN CAPITAL LETTER L" )
  3  : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
- 4  : ( "　"  U+3000 Zs 2 "IDEOGRAPHIC SPACE" )                     <-- replaceable by " " with LUMP:.true
- 5  : ( " "   U+1680 Zs 1 "OGHAM SPACE MARK" )                      <-- replaceable by " " with LUMP:.true
- 6  : ( "​"    U+200B Cf 0 "ZERO WIDTH SPACE", "ZWSP" )              <-- removable by STRIPIGNORABLE:.TRUE
+ 4  : ( "　"  U+3000 Zs 2 "IDEOGRAPHIC SPACE" )                     <-- replaceable by " " with LUMP:
+ 5  : ( " "   U+1680 Zs 1 "OGHAM SPACE MARK" )                      <-- replaceable by " " with LUMP:
+ 6  : ( "​"    U+200B Cf 0 "ZERO WIDTH SPACE", "ZWSP" )              <-- removable by STRIPIGNORABLE:
  7  : ( "P"   U+0050 Lu 1 "LATIN CAPITAL LETTER P" )
- 8  : ( "è"   U+00E8 Ll 1 "LATIN SMALL LETTER E WITH GRAVE" )       <-- replaceable by "e" with normalization + STRIPMARK:.true
+ 8  : ( "è"   U+00E8 Ll 1 "LATIN SMALL LETTER E WITH GRAVE" )       <-- replaceable by "e" with normalization + STRIPMARK:
  9  : ( "r"   U+0072 Ll 1 "LATIN SMALL LETTER R" )
  10 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
- 11 : ( ""    U+0009 Cc 0 "", "CHARACTER TABULATION" )              <-- replaceable by " " with STRIPCC:.true
- 12 : ( "‐"   U+2010 Pd 1 "HYPHEN" )                                <-- replaceable by "-" with LUMP:.true
- 13 : ( "­"   U+00AD Cf 1 "SOFT HYPHEN", "SHY" )                    <-- removable by STRIPIGNORABLE:.true
- 14 : ( "–"   U+2013 Pd 1 "EN DASH" )                               <-- replaceable by "-" with LUMP:.true
- 15 : ( "—"   U+2014 Pd 1 "EM DASH" )                               <-- replaceable by "-" with LUMP:.true
+ 11 : ( ""    U+0009 Cc 0 "", "CHARACTER TABULATION" )              <-- replaceable by " " with STRIPCC:
+ 12 : ( "‐"   U+2010 Pd 1 "HYPHEN" )                                <-- replaceable by "-" with LUMP:
+ 13 : ( "­"   U+00AD Cf 1 "SOFT HYPHEN", "SHY" )                    <-- removable by STRIPIGNORABLE:
+ 14 : ( "–"   U+2013 Pd 1 "EN DASH" )                               <-- replaceable by "-" with LUMP:
+ 15 : ( "—"   U+2014 Pd 1 "EM DASH" )                               <-- replaceable by "-" with LUMP:
  16 : ( "N"   U+004E Lu 1 "LATIN CAPITAL LETTER N" )
  17 : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
- 18 : ( "ë"   U+00EB Ll 1 "LATIN SMALL LETTER E WITH DIAERESIS" )   <-- replaceable by "e" with normalization + STRIPMARK:.true
+ 18 : ( "ë"   U+00EB Ll 1 "LATIN SMALL LETTER E WITH DIAERESIS" )   <-- replaceable by "e" with normalization + STRIPMARK:
  19 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
- 20 : ( "﷐"   U+FDD0 Cn 1 "" )                                     <-- removeable with STRIPNA:.true
+ 20 : ( "﷐"   U+FDD0 Cn 1 "" )                                     <-- removeable with STRIPNA:
  21 : ( ""    U+000D Cc 0 "", "CARRIAGE RETURN", "CR" )
- 22 : ( ""    U+000A Cc 0 "", "LINE FEED" )                         <-- CR+LF replaceable by " " with STRIPCC:.true
+ 22 : ( ""    U+000A Cc 0 "", "LINE FEED" )                         <-- CR+LF replaceable by " " with STRIPCC:
 */
 sleep 10 no prompt
 
@@ -315,11 +315,11 @@ text=                                                               -- T'[07]Le�
 sleep no prompt
 
 -- Performs unicode case folding, to be able to do a case-insensitive string comparison.
-.Unicode~utf8proc_transform(text~string, casefold:.true)=           --  '[07]le　 ​père[09]‐­–—noël﷐[0D0A]'
+.Unicode~utf8proc_transform(text~string, casefold:)=                --  '[07]le　 ​père[09]‐­–—noël﷐[0D0A]'
 sleep no prompt
 
 -- Strip "default ignorable characters" such as SOFT-HYPHEN or ZERO-WIDTH-SPACE
-.Unicode~utf8proc_transform(text~string, stripIgnorable:.true)=     --  '[07]Le　 Père[09]‐–—Noël﷐[0D0A]'
+.Unicode~utf8proc_transform(text~string, stripIgnorable:)=          --  '[07]Le　 Père[09]‐–—Noël﷐[0D0A]'
 sleep no prompt
 
 -- Lumps certain characters together. See lump.md for details:
@@ -328,7 +328,7 @@ sleep no prompt
 -- jlf: I was expecting to have only one space and one "-" but that's not the case
 -- Seems working as designed...
 -- All the concerned characters become the same character, but still remain distinct characters.
-.Unicode~utf8proc_transform(text~string, lump:.true)=               --  '[07]Le  ​Père[09]-­--Noël﷐[0D0A]'
+.Unicode~utf8proc_transform(text~string, lump:)=                    --  '[07]Le  ​Père[09]-­--Noël﷐[0D0A]'
 sleep no prompt
 
 -- NLF2LF: Convert LF, CRLF, CR and NEL into LF
@@ -344,21 +344,21 @@ sleep no prompt
 sleep no prompt
 
 -- Strips and/or converts control characters.
-.Unicode~utf8proc_transform(text~string, stripCC:.true)=            --  'Le　 ​Père ‐­–—Noël﷐ '
+.Unicode~utf8proc_transform(text~string, stripCC:)=                 --  'Le　 ​Père ‐­–—Noël﷐ '
 sleep no prompt
 
 -- Strips all character markings.
 -- This includes non-spacing, spacing and enclosing (i.e. accents).
 -- This option works only with normalization.
-.Unicode~utf8proc_transform(text~string, stripMark:.true, normalization:1)=  --  '[07]Le　 ​Pere[09]‐­–—Noel﷐[0D0A]'
+.Unicode~utf8proc_transform(text~string, stripMark:, normalization:1)=  --  '[07]Le　 ​Pere[09]‐­–—Noel﷐[0D0A]'
 sleep no prompt
 
 -- Strips unassigned codepoints.
-.Unicode~utf8proc_transform(text~string, stripNA:.true)=            --  '[07]Le　 ​Père[09]‐­–—Noël[0D0A]'
+.Unicode~utf8proc_transform(text~string, stripNA:)=                 --  '[07]Le　 ​Père[09]‐­–—Noël[0D0A]'
 sleep no prompt
 
 -- Application of several options (abbreviated names)
-.Unicode~utf8proc_transform(text~string, casef:.true, lump:.true, norm:1, stripi:.true, stripc:.true, stripm:.true, stripn:.true)= --  'le  pere ---noel '
+.Unicode~utf8proc_transform(text~string, casef:, lump:, norm:1, stripi:, stripc:, stripm:, stripn:)= --  'le  pere ---noel '
 sleep no prompt
 
 /*
@@ -434,13 +434,12 @@ sleep no prompt
 /*
 The normalized text can be memorized on the original text:
     text = "père Noël"~text
-    textNFD = text~nfd(memorize:.true)      -- abbreviation mem:.true
-From now, the returned NFD is always the memorized text:
-    text~nfd == textNFD                     -- .true
+    textNFD = text~nfd(memorize:)               -- abbreviation mem:.true
+From now, the returned NFD is always the memorized text.
 */
 sleep no prompt
 
-text = xrange("0", "FF"x)~text("cp1252")~utf8(strict: .false)
+text = xrange("0", "FF"x)~text("cp1252")~utf8
 text=
 text~isNFD=
 sleep
@@ -448,7 +447,7 @@ infos next
 do 500; textNFD = text~NFD; end
 sleep
 infos next
-do 500; textNFD = text~NFD(mem: .true); end
+do 500; textNFD = text~NFD(mem:); end
 sleep no prompt
 text~nfd~"==":.object( textNFD)=                -- 1 (this is really the same object)
 

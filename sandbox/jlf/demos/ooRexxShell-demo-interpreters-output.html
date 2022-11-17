@@ -8,7 +8,9 @@
 </head>
 <body>
 <pre>
-<span style="font-weight:bold;color:green;">loadPackage OK for extension/extensions.cls
+<span style="font-weight:bold;color:green;">loadPackage OK for extension/stringChunk.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for utilities/indentedStream.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for extension/extensions.cls
 </span><span style="font-weight:bold;color:green;">loadLibrary OK for rxunixsys
 </span><span style="font-weight:bold;color:green;">loadPackage OK for ncurses.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for csvStream.cls
@@ -22,144 +24,138 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for smtp.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for socket.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for streamsocket.cls
-</span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe.rex
+</span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2.rex
 </span><span style="font-weight:bold;color:green;">loadPackage OK for BSF.CLS
 </span><span style="font-weight:bold;color:green;">loadPackage OK for oorexxshell_queries.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
-</span><span style="font-weight:bold;color:green;">Input queue name: S5318Q7fd44852ff70
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
+</span><span style="font-weight:bold;color:green;">Input queue name: S1f0eQ7fada1c49be0
 </span>
-<span style="color:blue;">--------------
-</span><span style="color:blue;">-- ooRexxShell
-</span><span style="color:blue;">--------------
+<span style="font-weight:bold;color:blue;">--------------
+</span><span style="font-weight:bold;color:blue;">-- ooRexxShell
+</span><span style="font-weight:bold;color:blue;">--------------
 </span>
-<span style="color:blue;">ooRexxShell, derived from rexxtry.
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">ooRexxShell, derived from rexxtry.
+</span><span style="font-weight:bold;color:blue;">*/
 </span>
-<span style="color:blue;">This shell supports several interpreters:
-</span><span style="color:blue;">- ooRexx itself
-</span><span style="color:blue;">- the system address (cmd under Windows, sh or bash under Linux and MacOs)
-</span><span style="color:blue;">- PowerShell core (pwsh)
-</span><span style="color:blue;">- any other external environment (you need to modify ooRexxShell, search for hostemu for an example).
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">This shell supports several interpreters:
+</span><span style="font-weight:bold;color:blue;">- ooRexx itself
+</span><span style="font-weight:bold;color:blue;">- the system address (cmd under Windows, sh or bash under Linux and MacOs)
+</span><span style="font-weight:bold;color:blue;">- PowerShell core (pwsh)
+</span><span style="font-weight:bold;color:blue;">- any other external environment (you need to modify ooRexxShell, search for hostemu for an example).
+</span><span style="font-weight:bold;color:blue;">*/
 </span>
-<span style="color:blue;">The prompt indicates which interpreter is active.
-</span><span style="color:blue;">By default the shell is in ooRexx mode: ooRexx[bash]&gt;
-</span><span style="color:blue;">When the interpreter is ooRexx, the value of address() is displayed between [].
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; say &quot;hello&quot;
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">The prompt indicates which interpreter is active.
+</span><span style="font-weight:bold;color:blue;">By default the shell is in ooRexx mode: ooRexx[bash]&gt;
+</span><span style="font-weight:bold;color:blue;">When the interpreter is ooRexx, the value of address() is displayed between [].
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">say &quot;hello&quot;</span>
 hello
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; say 1+2
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">say 1+2</span>
 3
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; 
-<span style="color:blue;">If an ooRexx clause ends with &quot;=&quot; then the clause is transformed to display the result :
-</span><span style="color:blue;">'1+2=' becomes 'options &quot;NOCOMMANDS&quot;; 1+2 ; call dumpResult; options &quot;COMMANDS&quot;'
-</span><span style="color:blue;">'=' alone displays the current value of the variable RESULT.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; 1+2=
+ooRexx[sh]&gt; 
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">If an ooRexx clause ends with &quot;=&quot; then the clause is transformed to display the result :
+</span><span style="font-weight:bold;color:blue;">'1+2=' becomes 'options &quot;NOCOMMANDS&quot;; 1+2 ; call dumpResult; options &quot;COMMANDS&quot;'
+</span><span style="font-weight:bold;color:blue;">'=' alone displays the current value of the variable RESULT.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">1+2=</span>
  3
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; (1,2)=          <span style="color:blue;">-- When &quot;=&quot; then the arrays are displayed in condensed form</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(1,2)=          </span><span style="font-weight:bold;color:blue;">-- When &quot;=&quot; then the arrays are displayed in condensed form</span>
 [ 1, 2]
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; (1,2)==         <span style="color:blue;">-- When &quot;==&quot; then the arrays are displayed one item per line</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(1,2)==         </span><span style="font-weight:bold;color:blue;">-- When &quot;==&quot; then the arrays are displayed one item per line</span>
 an Array (shape [2], 2 items)
  1 :  1
  2 :  2
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; 
-<span style="color:blue;">You have access to Java.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; jsystem = bsf.loadClass('java.lang.System')
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; properties = jsystem~getProperties
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; enum = properties~propertyNames
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; do while enum~hasMoreElements; key=enum~nextElement; say &quot;key:&quot; left(&quot;[&quot;key&quot;]&quot;,30) &quot;value: [&quot;properties~getProperty(key)&quot;]&quot;; end
+ooRexx[sh]&gt; 
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">You have access to Java.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">jsystem = bsf.loadClass('java.lang.System')</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">properties = jsystem~getProperties</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">enum = properties~propertyNames</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">do while enum~hasMoreElements; key=enum~nextElement; say &quot;key:&quot; left(&quot;[&quot;key&quot;]&quot;,30) &quot;value: [&quot;properties~getProperty(key)&quot;]&quot;; end</span>
 key: [java.runtime.name]            value: [OpenJDK Runtime Environment]
-key: [java.vm.version]              value: [16.0.1+9]
-key: [sun.boot.library.path]        value: [/local/java/jdk/bellsoft/jdk-16.0.1-full.jdk/lib]
+key: [java.vm.version]              value: [17.0.4.1+1-LTS]
+key: [sun.boot.library.path]        value: [/local/java/jdk/bellsoft/jdk-17.0.4.1-full.jdk/lib]
 key: [java.vm.vendor]               value: [BellSoft]
 key: [java.vendor.url]              value: [https://bell-sw.com/]
 key: [path.separator]               value: [:]
 key: [java.vm.name]                 value: [OpenJDK 64-Bit Server VM]
 key: [user.country]                 value: [FR]
-key: [java.vm.compressedOopsMode]   value: [Zero based]
 key: [java.vm.specification.name]   value: [Java Virtual Machine Specification]
 key: [user.dir]                     value: [/local/rexx/oorexx/executor/sandbox/jlf/demos]
-key: [java.runtime.version]         value: [16.0.1+9]
+key: [java.vm.compressedOopsMode]   value: [Zero based]
+key: [java.runtime.version]         value: [17.0.4.1+1-LTS]
 key: [os.arch]                      value: [x86_64]
+key: [java.io.tmpdir]               value: [/var/folders/f6/ls9l793n1bg444403jmfh1_m0000gp/T/]
 key: [line.separator]               value: [
 ]
-key: [java.io.tmpdir]               value: [/var/folders/f6/ls9l793n1bg444403jmfh1_m0000gp/T/]
 key: [java.vm.specification.vendor] value: [Oracle Corporation]
 key: [os.name]                      value: [Mac OS X]
 key: [sun.jnu.encoding]             value: [UTF-8]
-key: [java.library.path]            value: [/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/lib:/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210728-beta/bsf4oorexx/install/64:]
+key: [java.library.path]            value: [/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/lib:/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/install/64:]
 key: [jdk.debug]                    value: [release]
-key: [java.class.version]           value: [60.0]
+key: [java.class.version]           value: [61.0]
 key: [java.specification.name]      value: [Java Platform API Specification]
 key: [sun.management.compiler]      value: [HotSpot 64-Bit Tiered Compilers]
 key: [os.version]                   value: [10.13.6]
 key: [http.nonProxyHosts]           value: [local|*.local|169.254/16|*.169.254/16]
 key: [user.home]                    value: [/Users/jlfaucher]
 key: [file.encoding]                value: [UTF-8]
-key: [java.specification.version]   value: [16]
+key: [java.specification.version]   value: [17]
 key: [user.name]                    value: [jlfaucher]
-key: [java.class.path]              value: [/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210728-beta/bsf4oorexx/bsf4ooRexx-v641-20210728-bin.jar:]
-key: [java.vm.specification.version value: [16]
+key: [java.class.path]              value: [/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/bsf4ooRexx-v641-20220131-bin.jar:]
+key: [java.vm.specification.version value: [17]
 key: [sun.arch.data.model]          value: [64]
-key: [java.home]                    value: [/local/java/jdk/bellsoft/jdk-16.0.1-full.jdk]
+key: [java.home]                    value: [/local/java/jdk/bellsoft/jdk-17.0.4.1-full.jdk]
 key: [user.language]                value: [en]
 key: [java.specification.vendor]    value: [Oracle Corporation]
 key: [java.vm.info]                 value: [mixed mode, sharing]
-key: [java.version]                 value: [16.0.1]
-key: [java.awt.headless]            value: [true]
+key: [java.version]                 value: [17.0.4.1]
+key: [native.encoding]              value: [UTF-8]
 key: [java.vendor]                  value: [BellSoft]
+key: [java.awt.headless]            value: [true]
+key: [sun.stderr.encoding]          value: [UTF-8]
 key: [file.separator]               value: [/]
-key: [java.version.date]            value: [2021-04-20]
+key: [java.version.date]            value: [2022-08-12]
 key: [java.vendor.url.bug]          value: [https://bell-sw.com/support]
 key: [sun.io.unicode.encoding]      value: [UnicodeBig]
 key: [sun.cpu.endian]               value: [little]
+key: [sun.stdout.encoding]          value: [UTF-8]
 key: [socksNonProxyHosts]           value: [local|*.local|169.254/16|*.169.254/16]
 key: [ftp.nonProxyHosts]            value: [local|*.local|169.254/16|*.169.254/16]
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; 
-<span style="color:blue;">A shell command can be used in ooRexx mode, surrounded with quotes.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; 'ls -lap *demo*.txt'
--rw-r--r--@ 1 jlfaucher  admin    1159 Aug  6 10:58 _readme-demos.txt
--rw-r--r--@ 1 jlfaucher  admin    8825 Jul 27 18:14 executor-demo-array-output.txt
--rw-r--r--@ 1 jlfaucher  admin    5784 Jul 27 18:05 executor-demo-array.txt
--rw-r--r--  1 jlfaucher  admin  314237 Jul 27 17:57 executor-demo-classic_rexx-output.txt
--rw-r--r--@ 1 jlfaucher  admin    1541 Jul 27 11:29 executor-demo-classic_rexx.txt
--rw-r--r--@ 1 jlfaucher  admin    9584 Jul 27 18:35 executor-demo-extensions-output.txt
--rw-r--r--@ 1 jlfaucher  admin   12175 Aug  7 01:19 executor-demo-extensions.txt
--rw-r--r--  1 jlfaucher  admin    7947 Aug  6 13:00 executor-demo-text-compatibility-output.txt
--rw-r--r--@ 1 jlfaucher  admin    4111 Aug  6 12:54 executor-demo-text-compatibility.txt
--rw-r--r--  1 jlfaucher  admin   22439 Aug  6 09:27 executor-demo-text-internal_checks-output.txt
--rw-r--r--@ 1 jlfaucher  admin   11839 Aug  5 23:44 executor-demo-text-internal_checks.txt
--rw-r--r--  1 jlfaucher  admin   15547 Aug  5 17:18 executor-demo-text-output.txt
--rw-r--r--@ 1 jlfaucher  admin   11925 Aug  5 17:09 executor-demo-text.txt
--rw-r--r--  1 jlfaucher  admin    4556 Jul 27 17:57 ooRexxShell-demo-helpers-output.txt
--rw-r--r--@ 1 jlfaucher  admin     807 Jul 27 11:30 ooRexxShell-demo-helpers.txt
--rw-r--r--  1 jlfaucher  admin   15557 Jul 27 17:57 ooRexxShell-demo-interpreters-output.txt
--rw-r--r--@ 1 jlfaucher  admin    4139 Aug  6 17:47 ooRexxShell-demo-interpreters.txt
--rw-r--r--@ 1 jlfaucher  admin  413605 Jul 27 17:57 ooRexxShell-demo-queries-output.txt
--rw-r--r--@ 1 jlfaucher  admin    3841 Jul 27 14:50 ooRexxShell-demo-queries.txt
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; 
-<span style="color:blue;">When not in ooRexx mode, you enter raw commands that are passed directly to the external environment.
-</span><span style="color:blue;">You switch from an interpreter to an other one by entering its name alone.
-</span><span style="color:blue;">To get the list of all interpreter names, enter this command:
-</span><span style="color:blue;">?i[nterpreters]
-</span><span style="color:blue;">Under Linux &amp; MacOs, this list includes the shells in /etc/shells.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; ?interpreters
+ooRexx[sh]&gt; 
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">A shell command can be used in ooRexx mode, surrounded with quotes.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">'ls -lap *demo*.txt'</span>
+-rw-r--r--@ 1 jlfaucher  admin    1190 Nov  5 22:06 _readme-demos.txt
+-rw-r--r--@ 1 jlfaucher  admin    8825 Jul 27  2021 executor-demo-array-output.txt
+-rw-r--r--@ 1 jlfaucher  admin  304977 Nov  1 07:40 executor-demo-classic_rexx-output.txt
+-rw-r--r--@ 1 jlfaucher  admin   46252 May  5  2022 executor-demo-extensions-output.txt
+-rw-r--r--@ 1 jlfaucher  admin   20593 Nov 17 15:00 executor-demo-text-compatibility-output.txt
+-rw-r--r--@ 1 jlfaucher  admin   23144 Nov  8 03:36 executor-demo-text-internal_checks-output.txt
+-rw-r--r--@ 1 jlfaucher  admin   20859 Nov  8 03:36 executor-demo-text-output.txt
+-rw-r--r--@ 1 jlfaucher  admin   54659 Nov 17 15:00 executor-demo-text-unicode-output.txt
+-rw-r--r--@ 1 jlfaucher  admin    4925 Nov 17 17:34 ooRexxShell-demo-helpers-output.txt
+-rw-r--r--@ 1 jlfaucher  admin   16015 Aug  7  2021 ooRexxShell-demo-interpreters-output.txt
+-rw-r--r--@ 1 jlfaucher  admin  413605 Jul 27  2021 ooRexxShell-demo-queries-output.txt
+ooRexx[sh]&gt; 
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">When not in ooRexx mode, you enter raw commands that are passed directly to the external environment.
+</span><span style="font-weight:bold;color:blue;">You switch from an interpreter to an other one by entering its name alone.
+</span><span style="font-weight:bold;color:blue;">To get the list of all interpreter names, enter this command:
+</span><span style="font-weight:bold;color:blue;">?i[nterpreters]
+</span><span style="font-weight:bold;color:blue;">Under Linux &amp; MacOs, this list includes the shells in /etc/shells.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">?interpreters</span>
 Interpreters:
     bash: to activate the bash interpreter.
     cmd: to activate the sh interpreter.
@@ -175,55 +171,57 @@ Interpreters:
     tcsh: to activate the tcsh interpreter.
     zsh: to activate the zsh interpreter.
 <span style="font-weight:bold;color:green;">[Info] 14 lines displayed
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; 
-<span style="color:blue;">'cmd' 'command' and &quot;system&quot; are aliases to select the system interpreter.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; system
-<span style="font-weight:bold;color:olive;">
-</span>sh[ooRexx]&gt; 
-<span style="color:blue;">Now the default interpreter is the system shell.
-</span><span style="color:blue;">No need to surround the commands with quotes.
-</span><span style="font-weight:bold;color:olive;">
-</span>sh[ooRexx]&gt; ls -lap *demo*.cast
--rw-r--r--  1 jlfaucher  admin   42806 Jul 27 18:14 executor-demo-array.cast
--rw-r--r--  1 jlfaucher  admin  384245 Jul 27 14:28 executor-demo-classic_rexx.cast
--rw-r--r--  1 jlfaucher  admin  110399 Aug  7 01:29 executor-demo-extensions.cast
--rw-r--r--  1 jlfaucher  admin   70658 Aug  6 13:00 executor-demo-text-compatibility.cast
--rw-r--r--  1 jlfaucher  admin  145860 Aug  6 09:23 executor-demo-text-internal_checks.cast
--rw-r--r--  1 jlfaucher  admin   82500 Aug  5 17:18 executor-demo-text.cast
--rw-r--r--  1 jlfaucher  admin    9677 Jul 27 14:45 ooRexxShell-demo-helpers.cast
--rw-r--r--  1 jlfaucher  admin   20778 Aug  7 01:31 ooRexxShell-demo-interpreters.cast
--rw-r--r--  1 jlfaucher  admin  501507 Jul 27 14:51 ooRexxShell-demo-queries.cast
-<span style="font-weight:bold;color:olive;">
-</span>sh[ooRexx]&gt; 
-<span style="color:blue;">HostEmu is a subcommand environment that partially emulates a TSO/CMS environment.
-</span><span style="font-weight:bold;color:olive;">
-</span>sh[ooRexx]&gt; hostemu
-<span style="font-weight:bold;color:olive;">
+</span>ooRexx[sh]&gt; 
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">'cmd' 'command' and &quot;system&quot; are aliases to select the system interpreter.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">system</span>
+sh[ooRexx]&gt; 
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Now the default interpreter is the system shell.
+</span><span style="font-weight:bold;color:blue;">No need to surround the commands with quotes.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>sh[ooRexx]&gt; <span style="font-weight:bold;color:purple;">ls -lap *demo*.cast</span>
+-rw-r--r--  1 jlfaucher  admin   43255 Nov 17 17:50 executor-demo-array.cast
+-rw-r--r--  1 jlfaucher  admin  388619 Nov 17 17:56 executor-demo-classic_rexx.cast
+-rw-r--r--  1 jlfaucher  admin  120053 Nov 17 18:05 executor-demo-extensions.cast
+-rw-r--r--  1 jlfaucher  admin  165209 Nov 17 18:54 executor-demo-text-compatibility.cast
+-rw-r--r--  1 jlfaucher  admin  151218 Nov 17 18:26 executor-demo-text-internal_checks.cast
+-rw-r--r--  1 jlfaucher  admin  201596 Nov 17 18:39 executor-demo-text-unicode.cast
+-rw-r--r--  1 jlfaucher  admin  113145 Nov 17 18:17 executor-demo-text.cast
+-rw-r--r--  1 jlfaucher  admin   11014 Nov 17 18:55 ooRexxShell-demo-helpers.cast
+-rw-r--r--  1 jlfaucher  admin   22262 Nov 17 18:57 ooRexxShell-demo-interpreters.cast
+-rw-r--r--  1 jlfaucher  admin  501507 Jul 27  2021 ooRexxShell-demo-queries.cast
+sh[ooRexx]&gt; 
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">HostEmu is a subcommand environment that partially emulates a TSO/CMS environment.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>sh[ooRexx]&gt; <span style="font-weight:bold;color:purple;">hostemu</span>
+HostEmu[ooRexx]&gt; 
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Now the default interpreteur is HostEmu.
+</span><span style="font-weight:bold;color:blue;">No need to surround the commands with quotes.
+</span><span style="font-weight:bold;color:blue;">*/
 </span>HostEmu[ooRexx]&gt; 
-<span style="color:blue;">Now the default interpreteur is HostEmu.
-</span><span style="color:blue;">No need to surround the commands with quotes.
-</span><span style="font-weight:bold;color:olive;">
-</span>HostEmu[ooRexx]&gt; 
-<span style="color:blue;">EXECIO is an I/O mechanism.
-</span><span style="color:blue;">The following command will read the 10 first lines from the file &quot;_readme-demos.txt&quot;.
-</span><span style="color:blue;">They are stored in the stem named &quot;lines.&quot;.
-</span><span style="font-weight:bold;color:olive;">
-</span>HostEmu[ooRexx]&gt; execio 10 diskr &quot;_readme-demos.txt&quot; (finis stem lines.
-<span style="font-weight:bold;color:olive;">
-</span>HostEmu[ooRexx]&gt; 
-<span style="color:blue;">When in HostEmu mode, the ooRexx expressions are not recognized
-</span><span style="font-weight:bold;color:olive;">
-</span>HostEmu[ooRexx]&gt; lines.=
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">EXECIO is an I/O mechanism.
+</span><span style="font-weight:bold;color:blue;">The following command will read the 10 first lines from the file &quot;_readme-demos.txt&quot;.
+</span><span style="font-weight:bold;color:blue;">They are stored in the stem named &quot;lines.&quot;.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>HostEmu[ooRexx]&gt; <span style="font-weight:bold;color:purple;">execio 10 diskr &quot;_readme-demos.txt&quot; (finis stem lines.</span>
+HostEmu[ooRexx]&gt; 
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">When in HostEmu mode, the ooRexx expressions are not recognized
+</span><span style="font-weight:bold;color:blue;">*/
+</span>HostEmu[ooRexx]&gt; <span style="font-weight:bold;color:purple;">lines.=</span>
 hostemu: bad PLIST, token &quot;syntax error&quot;
 <span style="font-weight:bold;color:red;">RC= 24
-</span><span style="font-weight:bold;color:olive;">
 </span>HostEmu[ooRexx]&gt; 
-<span style="color:blue;">You can switch temporarily to ooRexx to display the result.
-</span><span style="color:blue;">For that, start your command line with &quot;oorexx&quot;.
-</span><span style="font-weight:bold;color:olive;">
-</span>HostEmu[ooRexx]&gt; oorexx lines.=
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">You can switch temporarily to ooRexx to display the result.
+</span><span style="font-weight:bold;color:blue;">For that, start your command line with &quot;oorexx&quot;.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>HostEmu[ooRexx]&gt; <span style="font-weight:bold;color:purple;">oorexx lines.=</span>
 a Stem (11 items)
  0  :  10
  1  : 'Demonstration scripts.'
@@ -233,90 +231,96 @@ a Stem (11 items)
  5  : 'https://github.com/theZiz/aha       aha         Ansi HTML Adapter.'
  6  : ''
  7  : 'Current demos:'
- 8  : 'executor-demo-array.txt'
- 9  : 'executor-demo-classic_rexx.txt'
- 10 : 'executor-demo-extensions.txt'
-<span style="font-weight:bold;color:olive;">
-</span>HostEmu[ooRexx]&gt; 
-<span style="color:blue;">Switch to PowerShell core.
-</span><span style="color:blue;">pwsh
-</span><span style="font-weight:bold;color:olive;">
-</span>HostEmu[ooRexx]&gt; pwsh
-<span style="font-weight:bold;color:olive;">
-</span>pwsh[ooRexx]&gt; 
-<span style="color:blue;">Now the default interpreter is pwsh.
-</span><span style="color:blue;">No need to surround the commands with quotes.
+ 8  : 'executor-demo-array.rex'
+ 9  : 'executor-demo-classic_rexx.rex'
+ 10 : 'executor-demo-extensions.rex'
+HostEmu[ooRexx]&gt; 
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Switch to PowerShell core.
+</span><span style="font-weight:bold;color:blue;">pwsh
+</span><span style="font-weight:bold;color:blue;">*/
+</span>HostEmu[ooRexx]&gt; <span style="font-weight:bold;color:purple;">pwsh</span>
+pwsh[ooRexx]&gt; 
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Now the default interpreter is pwsh.
+</span><span style="font-weight:bold;color:blue;">No need to surround the commands with quotes.
+</span><span style="font-weight:bold;color:blue;">*/
 </span>
-<span style="color:blue;">Find the commands containing &quot;rexx&quot;:
-</span><span style="font-weight:bold;color:olive;">
-</span>pwsh[ooRexx]&gt; get-command *rexx* | select -property name, source
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">*/
+</span><span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">*/
+</span><span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Find the commands containing &quot;rexx&quot;:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>pwsh[ooRexx]&gt; <span style="font-weight:bold;color:purple;">get-command *rexx* | select -property name, source</span>
 
-Name                    Source
-----                    ------
-callrexx1               /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/callrexx1
-callrexx2               /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/callrexx2
-libBSF4ooRexx.dylib     /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210728-beta/bsf4oorexx/libBSF4ooRexx.dylib
-oorexxshell             /local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell
-oorexx_collect_docfiles /local/rexx/builder/scripts/oorexx_collect_docfiles
-oorexx_vars             /local/rexx/builder/scripts/oorexx_vars
-rexx                    /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx
-rexx.cat                /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.cat
-rexx.img                /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.img
-rexxc                   /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexxc
-rexxcUtil.rex           /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210728-beta/bsf4oorexx/rexxcUtil.rex
-rexxj.sh                /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210728-beta/bsf4oorexx/rexxj.sh
-rexxj2-32.sh            /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210728-beta/bsf4oorexx/rexxj2-32.sh
-rexxj2-64.sh            /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210728-beta/bsf4oorexx/rexxj2-64.sh
-rexxj2.cmd              /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210728-beta/bsf4oorexx/rexxj2.cmd
-rexxj2.sh               /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210728-beta/bsf4oorexx/rexxj2.sh
-rexxscriptlib.rex       /local/rexx/builder/scripts/rexxscriptlib.rex
-rexxtry.rex             /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexxtry.r…
-setenv-oorexx           /local/rexx/builder/scripts/setenv-oorexx
-testOORexx.rex          /local/rexx/oorexx/official/test/trunk/testOORexx.rex
+Name                             Source
+----                             ------
+bsf4ooRexx-v641-20220131-bin.jar /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/bsf4ooRexx-v641-20220131-…
+callrexx1                        /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/…
+callrexx2                        /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/…
+oorexxshell                      /local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell
+oorexx_collect_docfiles          /local/rexx/builder/scripts/oorexx_collect_docfiles
+oorexx_vars                      /local/rexx/builder/scripts/oorexx_vars
+refcardBSF4ooRexx.pdf            /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/refcardBSF4ooRexx.pdf
+rexx                             /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/…
+rexx.cat                         /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/…
+rexx.img                         /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/…
+rexxc                            /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/…
+rexxcUtil.rex                    /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/rexxcUtil.rex
+rexxj2-32.sh                     /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/rexxj2-32.sh
+rexxj2-64.sh                     /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/rexxj2-64.sh
+rexxj2.cmd                       /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/rexxj2.cmd
+rexxj2.sh                        /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/rexxj2.sh
+rexxscriptlib.rex                /local/rexx/builder/scripts/rexxscriptlib.rex
+rexxtry.rex                      /local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/…
+setenv-oorexx                    /local/rexx/builder/scripts/setenv-oorexx
+testOORexx.rex                   /local/rexx/oorexx/official/test/trunk/testOORexx.rex
 
-<span style="font-weight:bold;color:olive;">
-</span>pwsh[ooRexx]&gt; 
-<span style="color:blue;">Same command, send the output to the rexx queue without the table headers.
-</span><span style="color:blue;">The empty lines are still in the output, they will be filtered on ooRexx side.
-</span><span style="font-weight:bold;color:olive;">
-</span>pwsh[ooRexx]&gt; get-command *rexx* | select -property name, source | format-table -HideTableHeaders | rxqueue
-<span style="font-weight:bold;color:olive;">
-</span>pwsh[ooRexx]&gt; 
-<span style="color:blue;">Collect the lines of the rexx queue in an array, and then parse the lines to create an ooRexx directory.
-</span><span style="font-weight:bold;color:olive;">
-</span>pwsh[ooRexx]&gt; oorexx .rexxqueue~new~makearray~select{item &lt;&gt; &quot;&quot;}~reduce(.directory~new){parse value item~space with name source; accu[name]=source}=
+pwsh[ooRexx]&gt; 
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Same command, send the output to the rexx queue without the table headers.
+</span><span style="font-weight:bold;color:blue;">The empty lines are still in the output, they will be filtered on ooRexx side.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>pwsh[ooRexx]&gt; <span style="font-weight:bold;color:purple;">get-command *rexx* | select -property name, source | format-table -HideTableHeaders | rxqueue</span>
+pwsh[ooRexx]&gt; 
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Collect the lines of the rexx queue in an array, and then parse the lines to create an ooRexx directory.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>pwsh[ooRexx]&gt; <span style="font-weight:bold;color:purple;">oorexx .rexxqueue~new~makearray~select{item &lt;&gt; &quot;&quot;}~reduce(.directory~new){parse value item~space with name source; accu[name]=source}=</span>
 a Directory (20 items)
-'callrexx1'               : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/callrexx1'
-'callrexx2'               : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/callrexx2'
-'libBSF4ooRexx.dylib'     : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210728-beta/bsf4oorexx/libBSF4ooRexx.dylib'
-'oorexxshell'             : '/local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell'
-'oorexx_collect_docfiles' : '/local/rexx/builder/scripts/oorexx_collect_docfiles'
-'oorexx_vars'             : '/local/rexx/builder/scripts/oorexx_vars'
-'rexx'                    : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx'
-'rexx.cat'                : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.cat'
-'rexx.img'                : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexx.img'
-'rexxc'                   : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexxc'
-'rexxcUtil.rex'           : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210728-beta/bsf4oorexx/rexxcUtil.rex'
-'rexxj.sh'                : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210728-beta/bsf4oorexx/rexxj.sh'
-'rexxj2-32.sh'            : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210728-beta/bsf4oorexx/rexxj2-32.sh'
-'rexxj2-64.sh'            : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210728-beta/bsf4oorexx/rexxj2-64.sh'
-'rexxj2.cmd'              : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210728-beta/bsf4oorexx/rexxj2.cmd'
-'rexxj2.sh'               : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20210728-beta/bsf4oorexx/rexxj2.sh'
-'rexxscriptlib.rex'       : '/local/rexx/builder/scripts/rexxscriptlib.rex'
-'rexxtry.rex'             : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/rexxtry.rex'
-'setenv-oorexx'           : '/local/rexx/builder/scripts/setenv-oorexx'
-'testOORexx.rex'          : '/local/rexx/oorexx/official/test/trunk/testOORexx.rex'
-<span style="font-weight:bold;color:olive;">
-</span>pwsh[ooRexx]&gt; 
-<span style="color:blue;">Back to the ooRexx interpreter, by entering &quot;oorexx&quot; alone.
-</span><span style="font-weight:bold;color:olive;">
-</span>pwsh[ooRexx]&gt; oorexx
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; say &quot;The default interpreter is now ooRexx&quot;
+'bsf4ooRexx-v641-20220131-bin.jar' : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/bsf4ooRexx-v641-20220131-b…'
+'callrexx1'                        : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/c…'
+'callrexx2'                        : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/c…'
+'oorexxshell'                      : '/local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell'
+'oorexx_collect_docfiles'          : '/local/rexx/builder/scripts/oorexx_collect_docfiles'
+'oorexx_vars'                      : '/local/rexx/builder/scripts/oorexx_vars'
+'refcardBSF4ooRexx.pdf'            : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/refcardBSF4ooRexx.pdf'
+'rexx'                             : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/r…'
+'rexx.cat'                         : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/r…'
+'rexx.img'                         : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/r…'
+'rexxc'                            : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/r…'
+'rexxcUtil.rex'                    : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/rexxcUtil.rex'
+'rexxj2-32.sh'                     : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/rexxj2-32.sh'
+'rexxj2-64.sh'                     : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/rexxj2-64.sh'
+'rexxj2.cmd'                       : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/rexxj2.cmd'
+'rexxj2.sh'                        : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/rexxj2.sh'
+'rexxscriptlib.rex'                : '/local/rexx/builder/scripts/rexxscriptlib.rex'
+'rexxtry.rex'                      : '/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos/clang/release/64/delivery/bin/r…'
+'setenv-oorexx'                    : '/local/rexx/builder/scripts/setenv-oorexx'
+'testOORexx.rex'                   : '/local/rexx/oorexx/official/test/trunk/testOORexx.rex'
+pwsh[ooRexx]&gt; 
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Back to the ooRexx interpreter, by entering &quot;oorexx&quot; alone.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>pwsh[ooRexx]&gt; <span style="font-weight:bold;color:purple;">oorexx</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">say &quot;The default interpreter is now ooRexx&quot;</span>
 The default interpreter is now ooRexx
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; 
-<span style="color:blue;">End of demonstration.
+ooRexx[sh]&gt; 
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">End of demonstration.
+</span><span style="font-weight:bold;color:blue;">*/
 </span></pre>
 </body>
 </html>

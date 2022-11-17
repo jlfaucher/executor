@@ -1,4 +1,5 @@
 loadPackage OK for extension/stringChunk.cls
+loadPackage OK for utilities/indentedStream.cls
 loadPackage OK for extension/extensions.cls
 loadLibrary OK for rxunixsys
 loadPackage OK for ncurses.cls
@@ -21,16 +22,19 @@ loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
 REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
-Input queue name: Sa0b7Q7fada1d34490
+Input queue name: S1e5aQ7fada1c499a0
 
 --------------------------------------------
 -- Text encoding - Compatibility with String
 --------------------------------------------
 
+/*
 Compatibility with the class String.
 This is a work in progress, many methods not yet supported,
 Unicode implementation still missing for many methods.
+*/
 
+/*
 This string is used in several places:
 "noël👩‍👨‍👩‍👧🎅"
 Depending on your editor/browser, you may see 5 emojis, or 3 emojis.
@@ -45,419 +49,318 @@ With Unicode 13, the display is 3 emojis (woman + family + father christmas).
 🎅	U+1F385	FATHER CHRISTMAS
 
 Notice that 👩‍👨‍👩‍👧 constitute only 1 grapheme thanks to the ZERO WIDTH JOINER.
+*/
 
 
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~description=
 'UTF-8 not-ASCII (6 graphemes, 12 codepoints, 34 bytes, 0 error)'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~c2u=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~c2u=
 'U+006E U+006F U+00EB U+006C U+1F469 U+200D U+1F468 U+200D U+1F469 U+200D U+1F467 U+1F385'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~c2x=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~c2x=
 '6E 6F C3AB 6C F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7 F09F8E85'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~c2g=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~c2g=
 '6E 6F C3AB 6C F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7 F09F8E85'
 
 
 -- []
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text[3]=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text[3]=; result~description=
 T'ë'
 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 2 bytes, 0 error)'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text[3,3]=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text[3,3]=; result~description=
 T'ël👩‍👨‍👩‍👧'
 'UTF-8 not-ASCII (3 graphemes, 9 codepoints, 28 bytes, 0 error)'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text[3,6]=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text[3,6]=; result~description=
 T'ël👩‍👨‍👩‍👧🎅'
 'UTF-8 not-ASCII (4 graphemes, 10 codepoints, 32 bytes, 0 error)'
 
 
 -- ?
-
-ooRexx[bash]> "0"~text~?("true"~text, "false"~text)=
+ooRexx[sh]> "0"~text~?("true"~text, "false"~text)=
 T'false'
-
-ooRexx[bash]> "1"~text~?("true"~text, "false"~text)=
+ooRexx[sh]> "1"~text~?("true"~text, "false"~text)=
 T'true'
-
-ooRexx[bash]> "not a boolean value"~text~?("true"~text, "false"~text)=
+ooRexx[sh]> "not a boolean value"~text~?("true"~text, "false"~text)=
 Logical value must be exactly "0" or "1"; found "not a boolean value".
 Error code= 34.901
-
-ooRexx[bash]> "not a boolean value 🤔"~text~?("true"~text, "false"~text)=
+ooRexx[sh]> "not a boolean value 🤔"~text~?("true"~text, "false"~text)=
 UTF-8 not-ASCII 'not a b...' is not compatible with a Rexx logical value.
 Error code= 23.900
-
-ooRexx[bash]> "0"~text~?("true 🤔"~text, "false 🤔"~text)=
+ooRexx[sh]> "0"~text~?("true 🤔"~text, "false 🤔"~text)=
 T'false 🤔'
-
-ooRexx[bash]> "1"~text~?("true 🤔"~text, "false 🤔"~text)=
+ooRexx[sh]> "1"~text~?("true 🤔"~text, "false 🤔"~text)=
 T'true 🤔'
 
 
 -- append
-
-ooRexx[bash]> "hello"~text~append(" ")~append("john"~text)=
+ooRexx[sh]> "hello"~text~append(" ")~append("john"~text)=
 T'hello john'
-
-ooRexx[bash]> "\uD83D"~text("wtf8")~append("\uDE3F")~unescape=    -- High surrogate followed by low surrogate is valid WTF-8
+ooRexx[sh]> "\uD83D"~text("wtf8")~append("\uDE3F")~unescape=    -- High surrogate followed by low surrogate is valid WTF-8
 T'😿'
-
-ooRexx[bash]> "\uD83D"~text("utf8")~append("\uDE3F")~unescape=    -- High surrogate followed by low surrogate NOT is INVALID UTF-8
+ooRexx[sh]> "\uD83D"~text("utf8")~append("\uDE3F")~unescape=    -- High surrogate followed by low surrogate is INVALID UTF-8
 T'������'
 
 
 -- c2d
-
-ooRexx[bash]> "e"~text~c2d=
+ooRexx[sh]> "e"~text~c2d=
  101
-
-ooRexx[bash]> "é"~text~c2d=
+ooRexx[sh]> "é"~text~c2d=
  50089
 
 
 -- c2x
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~c2x=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~c2x=
 '6E 6F C3AB 6C F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7 F09F8E85'
 
 
 -- center
-
-ooRexx[bash]> "noelFC"~text~center(10)=; result~description=              -- forward to String
+ooRexx[sh]> "noelFC"~text~center(10)=; result~description=              -- forward to String
 T'  noelFC  '
 'UTF-8 ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~center(10)=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(10)=; result~description=
 T'  noël👩‍👨‍👩‍👧🎅  '
 'UTF-8 not-ASCII (10 graphemes, 16 codepoints, 38 bytes, 0 error)'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~center(9)=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(9)=; result~description=
 T' noël👩‍👨‍👩‍👧🎅  '
 'UTF-8 not-ASCII (9 graphemes, 15 codepoints, 37 bytes, 0 error)'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~center(8)=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(8)=; result~description=
 T' noël👩‍👨‍👩‍👧🎅 '
 'UTF-8 not-ASCII (8 graphemes, 14 codepoints, 36 bytes, 0 error)'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~center(7)=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(7)=; result~description=
 T'noël👩‍👨‍👩‍👧🎅 '
 'UTF-8 not-ASCII (7 graphemes, 13 codepoints, 35 bytes, 0 error)'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~center(6)=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(6)=; result~description=
 T'noël👩‍👨‍👩‍👧🎅'
 'UTF-8 not-ASCII (6 graphemes, 12 codepoints, 34 bytes, 0 error)'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~center(5)=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(5)=; result~description=
 T'noël👩‍👨‍👩‍👧'
 'UTF-8 not-ASCII (5 graphemes, 11 codepoints, 30 bytes, 0 error)'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~center(4)=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(4)=; result~description=
 T'oël👩‍👨‍👩‍👧'
 'UTF-8 not-ASCII (4 graphemes, 10 codepoints, 29 bytes, 0 error)'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~center(3)=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(3)=; result~description=
 T'oël'
 'UTF-8 not-ASCII (3 graphemes, 3 codepoints, 4 bytes, 0 error)'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~center(2)=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(2)=; result~description=
 T'ël'
 'UTF-8 not-ASCII (2 graphemes, 2 codepoints, 3 bytes, 0 error)'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~center(1)=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(1)=; result~description=
 T'ë'
 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 2 bytes, 0 error)'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~center(0)=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(0)=; result~description=
 T''
 'UTF-8 ASCII (0 grapheme, 0 codepoint, 0 byte, 0 error)'
 
 -- center with pad
-
-ooRexx[bash]> "="~description=                                            -- 'UTF-8 ASCII (1 byte)'
+ooRexx[sh]> "="~description=                                            -- 'UTF-8 ASCII (1 byte)'
 'UTF-8 ASCII (1 byte)'
-
-ooRexx[bash]> "="~c2x=                                                    -- '3D'
+ooRexx[sh]> "="~c2x=                                                    -- '3D'
 '3D'
-
-ooRexx[bash]> "noelFC"~text~center(10, "=")=; result~description=         -- forward to String
+ooRexx[sh]> "noelFC"~text~center(10, "=")=; result~description=         -- forward to String
 T'==noelFC=='
 'UTF-8 ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
-
-ooRexx[bash]> "═"~description=                                            -- 'UTF-8 not-ASCII (3 bytes)'
+ooRexx[sh]> "═"~description=                                            -- 'UTF-8 not-ASCII (3 bytes)'
 'UTF-8 not-ASCII (3 bytes)'
-
-ooRexx[bash]> "═"~text~description=                                       -- 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'
+ooRexx[sh]> "═"~text~description=                                       -- 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'
 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'
-
-ooRexx[bash]> "═"~c2x=                                                    -- 'E29590'
+ooRexx[sh]> "═"~c2x=                                                    -- 'E29590'
 'E29590'
-
-ooRexx[bash]> "noelFC"~text~center(10, "═")=; result~description=         -- don't forward to String because the pad is more than 1 byte
+ooRexx[sh]> "noelFC"~text~center(10, "═")=; result~description=         -- don't forward to String because the pad is more than 1 byte
 T'══noelFC══'
 'UTF-8 not-ASCII (10 graphemes, 10 codepoints, 18 bytes, 0 error)'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~center(10, "═")=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(10, "═")=; result~description=
 T'══noël👩‍👨‍👩‍👧🎅══'
 'UTF-8 not-ASCII (10 graphemes, 16 codepoints, 46 bytes, 0 error)'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~center(9, "═")=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(9, "═")=; result~description=
 T'═noël👩‍👨‍👩‍👧🎅══'
 'UTF-8 not-ASCII (9 graphemes, 15 codepoints, 43 bytes, 0 error)'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~center(8, "═")=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(8, "═")=; result~description=
 T'═noël👩‍👨‍👩‍👧🎅═'
 'UTF-8 not-ASCII (8 graphemes, 14 codepoints, 40 bytes, 0 error)'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~center(7, "═")=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(7, "═")=; result~description=
 T'noël👩‍👨‍👩‍👧🎅═'
 'UTF-8 not-ASCII (7 graphemes, 13 codepoints, 37 bytes, 0 error)'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~center(6, "═")=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(6, "═")=; result~description=
 T'noël👩‍👨‍👩‍👧🎅'
 'UTF-8 not-ASCII (6 graphemes, 12 codepoints, 34 bytes, 0 error)'
 
 
 -- contains
-
-ooRexx[bash]> "noel"~text~contains("oe")=                 -- forward to String
+ooRexx[sh]> "noel"~text~contains("oe")=                 -- forward to String
  1
-
-ooRexx[bash]> "noel"~text~contains("oe"~text)=            -- forward to String
+ooRexx[sh]> "noel"~text~contains("oe"~text)=            -- forward to String
  1
-
-ooRexx[bash]> "noel"~text~contains("oë")=
+ooRexx[sh]> "noel"~text~contains("oë")=
 Message "POSTEXT" did not return a result.
 Error code= 91.999
-
-ooRexx[bash]> "noel"~text~contains("oë"~text)=
+ooRexx[sh]> "noel"~text~contains("oë"~text)=
 Message "POSTEXT" did not return a result.
 Error code= 91.999
-
-ooRexx[bash]> "noël"~text~contains("oe")=
+ooRexx[sh]> "noël"~text~contains("oe")=
 Message "POSTEXT" did not return a result.
 Error code= 91.999
-
-ooRexx[bash]> "noël"~text~contains("oe"~text)=
+ooRexx[sh]> "noël"~text~contains("oe"~text)=
 Message "POSTEXT" did not return a result.
 Error code= 91.999
-
-ooRexx[bash]> "noël"~text~contains("oë")=
+ooRexx[sh]> "noël"~text~contains("oë")=
 Message "POSTEXT" did not return a result.
 Error code= 91.999
-
-ooRexx[bash]> "noël"~text~contains("oë"~text)=
+ooRexx[sh]> "noël"~text~contains("oë"~text)=
 Message "POSTEXT" did not return a result.
 Error code= 91.999
 
 
 -- copies
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~copies(4)=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~copies(4)=; result~description=
 T'noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅'
 'UTF-8 not-ASCII (24 graphemes, 48 codepoints, 136 bytes, 0 error)'
 
 
 -- hashCode
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~hashCode~class=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~hashCode~class=
 (The String class)
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~hashCode~c2x=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~hashCode~c2x=
 '8FA5DCDA35AE1A58'
 
 
 -- length
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~length=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~length=
  6
 
 
 -- match
-
-ooRexx[bash]> "noel"~text~match(2, "oe")=                 -- forward to String
+ooRexx[sh]> "noel"~text~match(2, "oe")=                 -- forward to String
  1
-
-ooRexx[bash]> "noel"~text~match(2, "oe"~text)=            -- forward to String
+ooRexx[sh]> "noel"~text~match(2, "oe"~text)=            -- forward to String
  1
-
-ooRexx[bash]> "noel"~text~match(2, "oë")=
+ooRexx[sh]> "noel"~text~match(2, "oë")=
  0
-
-ooRexx[bash]> "noel"~text~match(2, "oë"~text)=
+ooRexx[sh]> "noel"~text~match(2, "oë"~text)=
  0
-
-ooRexx[bash]> "noël"~text~match(2, "oe")=
+ooRexx[sh]> "noël"~text~match(2, "oe")=
  0
-
-ooRexx[bash]> "noël"~text~match(2, "oe"~text)=
+ooRexx[sh]> "noël"~text~match(2, "oe"~text)=
  0
-
-ooRexx[bash]> "noël"~text~match(2, "oë")=
+ooRexx[sh]> "noël"~text~match(2, "oë")=
  1
-
-ooRexx[bash]> "noël"~text~match(2, "oë"~text)=
+ooRexx[sh]> "noël"~text~match(2, "oë"~text)=
  1
-
-ooRexx[bash]> "noël"~text~match(2, "oël")=
+ooRexx[sh]> "noël"~text~match(2, "oël")=
  1
-
-ooRexx[bash]> "noël"~text~match(2, "oël"~text)=
+ooRexx[sh]> "noël"~text~match(2, "oël"~text)=
  1
-
-ooRexx[bash]> "noël"~text~match(3, "ë")=
+ooRexx[sh]> "noël"~text~match(3, "ë")=
  1
-
-ooRexx[bash]> "noël"~text~match(3, "ë"~text)=
+ooRexx[sh]> "noël"~text~match(3, "ë"~text)=
  1
-
-ooRexx[bash]> "noël"~text~match(3, "ël")=
+ooRexx[sh]> "noël"~text~match(3, "ël")=
  1
-
-ooRexx[bash]> "noël"~text~match(3, "ël"~text)=
+ooRexx[sh]> "noël"~text~match(3, "ël"~text)=
  1
-
-ooRexx[bash]> "noël"~text~match(4, "l")=
+ooRexx[sh]> "noël"~text~match(4, "l")=
  1
-
-ooRexx[bash]> "noël"~text~match(4, "l"~text)=
+ooRexx[sh]> "noël"~text~match(4, "l"~text)=
  1
 
 
 -- matchChar
-
-ooRexx[bash]> "noel"~text~matchChar(3, "Ee")=             -- forward to String
+ooRexx[sh]> "noel"~text~matchChar(3, "Ee")=             -- forward to String
  1
-
-ooRexx[bash]> "noel"~text~matchChar(3, "Ee"~text)=        -- forward to String
+ooRexx[sh]> "noel"~text~matchChar(3, "Ee"~text)=        -- forward to String
  1
-
-ooRexx[bash]> "noel"~text~matchChar(3, "EËeë")=
+ooRexx[sh]> "noel"~text~matchChar(3, "EËeë")=
 Message "MATCHCHARTEXT" did not return a result.
 Error code= 91.999
-
-ooRexx[bash]> "noel"~text~matchChar(3, "EËeë"~text)=
+ooRexx[sh]> "noel"~text~matchChar(3, "EËeë"~text)=
 Message "MATCHCHARTEXT" did not return a result.
 Error code= 91.999
-
-ooRexx[bash]> "noël"~text~matchChar(3, "EËeë")=
+ooRexx[sh]> "noël"~text~matchChar(3, "EËeë")=
 Message "MATCHCHARTEXT" did not return a result.
 Error code= 91.999
-
-ooRexx[bash]> "noël"~text~matchChar(3, "EËeë"~text)=
+ooRexx[sh]> "noël"~text~matchChar(3, "EËeë"~text)=
 Message "MATCHCHARTEXT" did not return a result.
 Error code= 91.999
-
-ooRexx[bash]> "noël"~text~matchChar(3, "EËeë")=
+ooRexx[sh]> "noël"~text~matchChar(3, "EËeë")=
 Message "MATCHCHARTEXT" did not return a result.
 Error code= 91.999
-
-ooRexx[bash]> "noël"~text~matchChar(4, "Ll"~text)=
+ooRexx[sh]> "noël"~text~matchChar(4, "Ll"~text)=
 Message "MATCHCHARTEXT" did not return a result.
 Error code= 91.999
-
-ooRexx[bash]> "noël"~text~matchChar(4, "Ll"~text)=
+ooRexx[sh]> "noël"~text~matchChar(4, "Ll"~text)=
 Message "MATCHCHARTEXT" did not return a result.
 Error code= 91.999
 
 
 -- pos
-
-ooRexx[bash]> "noel"~text~pos("oe")=                      -- forward to String
+ooRexx[sh]> "noel"~text~pos("oe")=                      -- forward to String
  2
-
-ooRexx[bash]> "noel"~text~pos("oe"~text)=                 -- forward to String
+ooRexx[sh]> "noel"~text~pos("oe"~text)=                 -- forward to String
  2
-
-ooRexx[bash]> "noel"~text~pos("oë")=
+ooRexx[sh]> "noel"~text~pos("oë")=
 Message "POSTEXT" did not return a result.
 Error code= 91.999
-
-ooRexx[bash]> "noel"~text~pos("oë"~text)=
+ooRexx[sh]> "noel"~text~pos("oë"~text)=
 Message "POSTEXT" did not return a result.
 Error code= 91.999
-
-ooRexx[bash]> "noël"~text~pos("oe")=
+ooRexx[sh]> "noël"~text~pos("oe")=
 Message "POSTEXT" did not return a result.
 Error code= 91.999
-
-ooRexx[bash]> "noël"~text~pos("oe"~text)=
+ooRexx[sh]> "noël"~text~pos("oe"~text)=
 Message "POSTEXT" did not return a result.
 Error code= 91.999
-
-ooRexx[bash]> "noël"~text~pos("oë")=
+ooRexx[sh]> "noël"~text~pos("oë")=
 Message "POSTEXT" did not return a result.
 Error code= 91.999
-
-ooRexx[bash]> "noël"~text~pos("oë"~text)=
+ooRexx[sh]> "noël"~text~pos("oë"~text)=
 Message "POSTEXT" did not return a result.
 Error code= 91.999
-
-ooRexx[bash]> "noël"~text~pos("l")=
+ooRexx[sh]> "noël"~text~pos("l")=
 Message "POSTEXT" did not return a result.
 Error code= 91.999
-
-ooRexx[bash]> "noël"~text~pos("l"~text)=
+ooRexx[sh]> "noël"~text~pos("l"~text)=
 Message "POSTEXT" did not return a result.
 Error code= 91.999
 
 
 -- subchar
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(3)=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(3)=; result~description=
 T'ë'
 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 2 bytes, 0 error)'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(4)=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(4)=; result~description=
 T'l'
 'UTF-8 ASCII (1 grapheme, 1 codepoint, 1 byte, 0 error)'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(5)=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(5)=; result~description=
 T'👩‍👨‍👩‍👧'
 'UTF-8 not-ASCII (1 grapheme, 7 codepoints, 25 bytes, 0 error)'
 
 
 -- substr
-
-ooRexx[bash]> "noel"~text~substr(3, 3, "x")=; result~description=    -- forward to String
+ooRexx[sh]> "noel"~text~substr(3, 3, "x")=; result~description=    -- forward to String
 T'elx'
 'UTF-8 ASCII (3 graphemes, 3 codepoints, 3 bytes, 0 error)'
-
-ooRexx[bash]> "noel"~substr(3, 3, "▷")=; result~description=        -- forward to String: error because the pad character is 3 bytes
+ooRexx[sh]> "noel"~substr(3, 3, "▷")=; result~description=        -- forward to String: error because the pad character is 3 bytes
 Incorrect pad or character argument specified; found "▷"
 Error code= 93.922
-
-ooRexx[bash]> "noel"~substr(3, 3, "▷"~text)=; result~description=   -- forward to String: error because the pad character is not compatible with String
+ooRexx[sh]> "noel"~substr(3, 3, "▷"~text)=; result~description=   -- forward to String: error because the pad character is not compatible with String
 UTF-8 not-ASCII '▷' cannot be converted to a String instance.
 Error code= 23.900
-
-ooRexx[bash]> "noel"~text~substr(3, 3, "▷")=; result~description=   -- no error because self is a RexxText and the pad character is one grapheme when converted to the default encoding
+ooRexx[sh]> "noel"~text~substr(3, 3, "▷")=; result~description=   -- no error because self is a RexxText and the pad character is one grapheme when converted to the default encoding
 T'el▷'
 'UTF-8 not-ASCII (3 graphemes, 3 codepoints, 5 bytes, 0 error)'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~substr(3, 3, "▷")=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~substr(3, 3, "▷")=; result~description=
 T'ël👩‍👨‍👩‍👧'
 'UTF-8 not-ASCII (3 graphemes, 9 codepoints, 28 bytes, 0 error)'
-
-ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~text~substr(3, 6, "▷")=; result~description=
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~substr(3, 6, "▷")=; result~description=
 T'ël👩‍👨‍👩‍👧🎅▷▷'
 'UTF-8 not-ASCII (6 graphemes, 12 codepoints, 38 bytes, 0 error)'
 
 
 -- x2c
-
-ooRexx[bash]> "F09F9180"~text~x2c=
+ooRexx[sh]> "F09F9180"~text~x2c=
 T'👀'
-
-ooRexx[bash]> "not an hexadecimal value"~text~x2c
+ooRexx[sh]> "not an hexadecimal value"~text~x2c
 Only 0-9, a-f, A-F, and whitespace characters are valid in a hexadecimal string; character found "n".
 Error code= 93.933
-
-ooRexx[bash]> "not an hexadecimal value 🤔"~text~x2c
+ooRexx[sh]> "not an hexadecimal value 🤔"~text~x2c
 UTF-8 not-ASCII 'not an ...' is not compatible with a Rexx hexadecimal value.
 Error code= 23.900
 
@@ -466,31 +369,31 @@ Error code= 23.900
 -- Text encoding - Compatibility with regular expressions
 ---------------------------------------------------------
 
+/*
 A way to test the compatibility of RexxText with String is to pass instances of
 RexxText to the regular expression engine regex.cls, and see what happens...
+*/
 
-
-ooRexx[bash]> p = .Pattern~compile("a.c"~text)
-
-ooRexx[bash]> p~matches("abc"~text)=
+ooRexx[sh]> p = .Pattern~compile("a.c"~text)
+ooRexx[sh]> p~matches("abc"~text)=
  1
-
-ooRexx[bash]> p~matches("aôc"~text)=
+ooRexx[sh]> p~matches("aôc"~text)=
 Message "MATCHCHARTEXT" did not return a result.
 Error code= 91.999
 
-
-ooRexx[bash]> p = .Pattern~compile("à.c"~text)
+ooRexx[sh]> p = .Pattern~compile("à.c"~text)
 UTF-8 not-ASCII 'à' cannot be converted to a String instance.
 Error code= 23.900
 
 
+/*
 
 
 -----------------------------------------
 -- Text encoding - Compatibility with BIF
 -----------------------------------------
 
+/*
 [Intermediate solution]
 
 Several solutions in RosettaCode are in error because the pad character used
@@ -502,32 +405,27 @@ The returned value is the String associated to the RexxText.
 
 The invariants of the method 'center' are true for the RexxText, but not true for
 the String (which is normal).
+*/
 
-
-ooRexx[bash]> "═"~description=                                -- 'UTF-8 not-ASCII (3 bytes)'
+ooRexx[sh]> "═"~description=                                -- 'UTF-8 not-ASCII (3 bytes)'
 'UTF-8 not-ASCII (3 bytes)'
-
-ooRexx[bash]> "═"~text~description=                           -- 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'
+ooRexx[sh]> "═"~text~description=                           -- 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'
 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'
-
-ooRexx[bash]> "═"~c2x=                                        -- 'E29590'
+ooRexx[sh]> "═"~c2x=                                        -- 'E29590'
 'E29590'
-
-ooRexx[bash]> center("hello", 20, "═")=                       -- '═══════hello════════'
+ooRexx[sh]> center("hello", 20, "═")=                       -- '═══════hello════════'
 '═══════hello════════'
-
-ooRexx[bash]> center("hello", 20, "═")~text~description=      -- 'UTF-8 not-ASCII (20 graphemes, 20 codepoints, 50 bytes, 0 error)'
+ooRexx[sh]> center("hello", 20, "═")~text~description=      -- 'UTF-8 not-ASCII (20 graphemes, 20 codepoints, 50 bytes, 0 error)'
 'UTF-8 not-ASCII (20 graphemes, 20 codepoints, 50 bytes, 0 error)'
 
 -- Idem for the function 'left'
-
-ooRexx[bash]> left("hello", 20, "═")=                         -- 'hello═══════════════'
+ooRexx[sh]> left("hello", 20, "═")=                         -- 'hello═══════════════'
 'hello═══════════════'
-
-ooRexx[bash]> left("hello", 20, "═")~text~description=        -- 'UTF-8 not-ASCII (20 graphemes, 20 codepoints, 50 bytes, 0 error)'
+ooRexx[sh]> left("hello", 20, "═")~text~description=        -- 'UTF-8 not-ASCII (20 graphemes, 20 codepoints, 50 bytes, 0 error)'
 'UTF-8 not-ASCII (20 graphemes, 20 codepoints, 50 bytes, 0 error)'
 
 
+/*
 [General solution]
 
 The new path I would like to explore is the support of graphemes by ALL the BIF...
@@ -539,91 +437,67 @@ in function of the compatibility of the arguments with String:
 BIF(str1, str2, ..., strN)
     --> forward to String (byte-oriented) if str's encoding is Byte or UTF-8 (with ASCII characters only)
     --> forward to RexxText otherwise
+*/
 
 -- UTF-8 encoding
 
-
-ooRexx[bash]> "Noel"~isCompatibleWithByteString=              -- 1
+ooRexx[sh]> "Noel"~isCompatibleWithByteString=              -- 1
  1
-
-ooRexx[bash]> length("Noel")=                                 -- 4 because "Noel"~length = 4
+ooRexx[sh]> length("Noel")=                                 -- 4 because "Noel"~length = 4
  4
-
-ooRexx[bash]> "Noël"~isCompatibleWithByteString=              -- 0
+ooRexx[sh]> "Noël"~isCompatibleWithByteString=              -- 0
  0
-
-ooRexx[bash]> length("Noël")=                                 -- TODO: 4 because "Noël"~text~length = 4
+ooRexx[sh]> length("Noël")=                                 -- TODO: 4 because "Noël"~text~length = 4
  5
-
-ooRexx[bash]> "Noël"~length=                                  -- 5 because String remains byte-oriented, not impacted by the default encoding
+ooRexx[sh]> "Noël"~length=                                  -- 5 because String remains byte-oriented, not impacted by the default encoding
  5
 
 -- UTF-16BE encoding
-
-ooRexx[bash]> s = "0041004200430044"x
-
-ooRexx[bash]> s=                                              -- '[00]A[00]B[00]C[00]D'
+ooRexx[sh]> s = "0041004200430044"x
+ooRexx[sh]> s=                                              -- '[00]A[00]B[00]C[00]D'
 '[00]A[00]B[00]C[00]D'
-
-ooRexx[bash]> s~isCompatibleWithByteString=                   -- 1
+ooRexx[sh]> s~isCompatibleWithByteString=                   -- 1
  1
-
-ooRexx[bash]> s~description=                                  -- 'UTF-8 ASCII (8 bytes)'
+ooRexx[sh]> s~description=                                  -- 'UTF-8 ASCII (8 bytes)'
 'UTF-8 ASCII (8 bytes)'
-
-ooRexx[bash]> length(s)=                                      -- 8 because encoding UTF-8 ASCII is compatible with String
+ooRexx[sh]> length(s)=                                      -- 8 because encoding UTF-8 ASCII is compatible with String
  8
-
-ooRexx[bash]> s~encoding = "UTF16"
-
-ooRexx[bash]> s~isCompatibleWithByteString=                   -- 0
+ooRexx[sh]> s~encoding = "UTF16"
+ooRexx[sh]> s~isCompatibleWithByteString=                   -- 0
  0
-
-ooRexx[bash]> s~description=                                  -- 'UTF-16BE (8 bytes)'
+ooRexx[sh]> s~description=                                  -- 'UTF-16BE (8 bytes)'
 'UTF-16BE (8 bytes)'
-
-ooRexx[bash]> s~length=                                       -- 8 because String is always byte-oriented (ignores the encoding)
+ooRexx[sh]> s~length=                                       -- 8 because String is always byte-oriented (ignores the encoding)
  8
-
-ooRexx[bash]> length(s)=                                      -- TODO: 4 because forwards to Text (encoding UTF-16BE is not compatible with String)
+ooRexx[sh]> length(s)=                                      -- TODO: 4 because forwards to Text (encoding UTF-16BE is not compatible with String)
  8
-
-ooRexx[bash]> s~text~utf8=                                    -- ABCD
+ooRexx[sh]> s~text~utf8=                                    -- ABCD
 T'ABCD'
 
 -- UTF-32 encoding
-
-ooRexx[bash]> s = "0000004100000042"x
-
-ooRexx[bash]> s=                                              -- '[000000]A[000000]B'
+ooRexx[sh]> s = "0000004100000042"x
+ooRexx[sh]> s=                                              -- '[000000]A[000000]B'
 '[000000]A[000000]B'
-
-ooRexx[bash]> s~isCompatibleWithByteString=                   -- 1
+ooRexx[sh]> s~isCompatibleWithByteString=                   -- 1
  1
-
-ooRexx[bash]> s~description=                                  -- 'UTF-8 ASCII (8 bytes)'
+ooRexx[sh]> s~description=                                  -- 'UTF-8 ASCII (8 bytes)'
 'UTF-8 ASCII (8 bytes)'
-
-ooRexx[bash]> length(s)=                                      -- 8 because encoding UTF-8 ASCII is compatible with String
+ooRexx[sh]> length(s)=                                      -- 8 because encoding UTF-8 ASCII is compatible with String
  8
-
-ooRexx[bash]> s~encoding = "UTF32"
-
-ooRexx[bash]> s~isCompatibleWithByteString=                   -- 0
+ooRexx[sh]> s~encoding = "UTF32"
+ooRexx[sh]> s~isCompatibleWithByteString=                   -- 0
  0
-
-ooRexx[bash]> s~description=                                  -- 'UTF-32BE (8 bytes)'
+ooRexx[sh]> s~description=                                  -- 'UTF-32BE (8 bytes)'
 'UTF-32BE (8 bytes)'
-
-ooRexx[bash]> s~length=                                       -- 8 because String is always byte-oriented (ignores the encoding)
+ooRexx[sh]> s~length=                                       -- 8 because String is always byte-oriented (ignores the encoding)
  8
-
-ooRexx[bash]> length(s)=                                      -- TODO: 2 because forwards to Text (encoding UTF-32 is not compatible with String)
+ooRexx[sh]> length(s)=                                      -- TODO: 2 because forwards to Text (encoding UTF-32 is not compatible with String)
  8
-
-ooRexx[bash]> s~text~utf8=                                    -- AB
+ooRexx[sh]> s~text~utf8=                                    -- AB
 T'AB'
 
 
+/*
 End of demonstration.
+*/
 

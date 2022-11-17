@@ -1,3 +1,5 @@
+loadPackage OK for extension/stringChunk.cls
+loadPackage OK for utilities/indentedStream.cls
 loadPackage OK for extension/extensions.cls
 loadLibrary OK for rxunixsys
 loadPackage OK for ncurses.cls
@@ -12,20 +14,21 @@ loadPackage OK for regex/regex.cls
 loadPackage OK for smtp.cls
 loadPackage OK for socket.cls
 loadPackage OK for streamsocket.cls
-loadPackage OK for pipeline/pipe.rex
+loadPackage OK for pipeline/pipe.cls
 loadPackage OK for rgf_util2/rgf_util2.rex
 loadPackage OK for BSF.CLS
 loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
-Input queue name: S2fadQ7fd448419120
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
+Input queue name: S1a5eQ7fada1c494f0
 
 --------------------
 -- Array programming
 --------------------
 
+/*
 rank
 
 APL R←⍴⍴Y
@@ -36,51 +39,51 @@ An array with 1 axis (rank 1) is called a vector.
 An array with 2 axes (rank 2) is called a matrix or table.
 An array with 3 axes (rank 3) is called a cube.
 An array with more than 2 axes is called a multi-dimensional array
+*/
 
+/*
 shape
 
 APL R←⍴Y (Rho)
 The shape of a scalar is an empty vector []
 The shape of an array is an array which gives the size of each dimension.
+*/
 
+/*
 Any object other than an array is a scalar.
 In particular, a string is a scalar, not an array as in APL.
 Special case which does not exist in APL : The rank of an array with no dimension yet assigned is -1.
+*/
 
 -- scalar
-
-ooRexx[bash]> "string"~shape=
+ooRexx[sh]> "string"~shape=
 []
-
-ooRexx[bash]> "string"~rank=
+ooRexx[sh]> "string"~rank=
  0
 
 -- array with no dimension
-
-ooRexx[bash]> .array~new~shape=
+ooRexx[sh]> .array~new~shape=
 an Array (shape [], 0 items)
-
-ooRexx[bash]> .array~new~rank=
+ooRexx[sh]> .array~new~rank=
 -1
 
+/*
 The helper v(...) creates a vector.
+*/
 
 -- empty vector
-
-ooRexx[bash]> v()=
+ooRexx[sh]> v()=
 []
-
-ooRexx[bash]> v()~rank=
+ooRexx[sh]> v()~rank=
  1
 
 -- vector of 3 items
-
-ooRexx[bash]> v(0,1,2)~shape=
+ooRexx[sh]> v(0,1,2)~shape=
 [ 3]
-
-ooRexx[bash]> v(0,1,2)~rank=
+ooRexx[sh]> v(0,1,2)~rank=
  1
 
+/*
 The helper a(...) creates an empty array of specified dimensions.
 It's almost similar to .array~new(...), except for a() which returns an array with 0 dimension (a scalar).
 Once the number of dimension(s) is fixed, it's no longer possible to change it.
@@ -89,67 +92,55 @@ The number of dimension(s) will be determined by the first access to the array:
 a = .array~new; say a[]        -- Not enough positional arguments for method; 1 expected
 a = .array~new; say a[1]       -- 1 dimension
 a = .array~new; say a[1,1]     -- 2 dimensions
+*/
 
 -- array with 0 dimension (scalar)
-
-ooRexx[bash]> nodim = a()
-
-ooRexx[bash]> nodim=
+ooRexx[sh]> nodim = a()
+ooRexx[sh]> nodim=
 an Array (shape [], 0 items)
-
-ooRexx[bash]> nodim~rank=
+ooRexx[sh]> nodim~rank=
  0
 
 -- you can't use any index with such array
-
-ooRexx[bash]> nodim[1]=
+ooRexx[sh]> nodim[1]=
 Too many subscripts for array; 0 expected.
 Error code= 93.926
 
 -- but no index is ok
-
-ooRexx[bash]> nodim[]=
+ooRexx[sh]> nodim[]=
 (The NIL object)
-
-ooRexx[bash]> nodim[] = "hello!"
-
-ooRexx[bash]> nodim[]=
+ooRexx[sh]> nodim[] = "hello!"
+ooRexx[sh]> nodim[]=
 'hello!'
 
 -- empty vector of shape 5
-
-ooRexx[bash]> a(5)~shape=
+ooRexx[sh]> a(5)~shape=
 [ 5]
-
-ooRexx[bash]> a(5)~rank=
+ooRexx[sh]> a(5)~rank=
  1
 
 -- empty matrix of shape 2,2
-
-ooRexx[bash]> a(2,2)~shape=
+ooRexx[sh]> a(2,2)~shape=
 [ 2, 2]
-
-ooRexx[bash]> a(2,2)~rank=
+ooRexx[sh]> a(2,2)~rank=
  2
 
 -- empty cube of shape 3,3,3
-
-ooRexx[bash]> a(3,3,3)~shape=
+ooRexx[sh]> a(3,3,3)~shape=
 [ 3, 3, 3]
-
-ooRexx[bash]> a(3,3,3)~rank=
+ooRexx[sh]> a(3,3,3)~rank=
  3
 
+/*
 The instance method array~of is an initializer which takes into account the dimensions (shape) of the array.
 
 Rules inspired by APL :
 If there are too many items, the extra items are ignored.
 If there are fewer items than implied by the dimensions, the list of items is reused as many times as necessary to fill the array.
-
-ooRexx[bash]> a(6)~of(1,2,3)=
+*/
+ooRexx[sh]> a(6)~of(1,2,3)=
 [ 1, 2, 3, 1, 2, 3]
-
-ooRexx[bash]> a(2,3)~of(1,2,3)=
+ooRexx[sh]> a(2,3)~of(1,2,3)=
 an Array (shape [2,3], 6 items)
 [ 1, 1] :  1
 [ 1, 2] :  2
@@ -157,11 +148,9 @@ an Array (shape [2,3], 6 items)
 [ 2, 1] :  1
 [ 2, 2] :  2
 [ 2, 3] :  3
-
-ooRexx[bash]> a(6)~of(1,2,3,4,5,6,7,8,9)=
+ooRexx[sh]> a(6)~of(1,2,3,4,5,6,7,8,9)=
 [ 1, 2, 3, 4, 5, 6]
-
-ooRexx[bash]> a(2,3)~of(1,2,3,4,5,6,7,8,9)=
+ooRexx[sh]> a(2,3)~of(1,2,3,4,5,6,7,8,9)=
 an Array (shape [2,3], 6 items)
 [ 1, 1] :  1
 [ 1, 2] :  2
@@ -170,22 +159,24 @@ an Array (shape [2,3], 6 items)
 [ 2, 2] :  5
 [ 2, 3] :  6
 
+/*
 If there is only one argument, and this argument has the method ~supplier then each item returned by the argument's supplier is an item.
-
-ooRexx[bash]> a(2,3)~of(.environment)=
+*/
+ooRexx[sh]> a(2,3)~of(.environment)=
 an Array (shape [2,3], 6 items)
 [ 1, 1] : (The MutableBufferFilter class)
 [ 1, 2] : (The LogicalExtension class)
-[ 1, 3] : (The StringIndexer class)
+[ 1, 3] : (The Unicode8_Encoding class)
 [ 2, 1] : (The Alarm class)
 [ 2, 2] : (The JLF class)
 [ 2, 3] : (The StringHelpers class)
 
+/*
 If there is only one argument, and this argument is a doer, then the doer is called for each cell to initialize.
 The value returned by the doer is the item for the current cell.
 If no value returned then the cell remains unassigned.
-
-ooRexx[bash]> a(2,3)~of{ if item//4 <> 0 then 10*item }=
+*/
+ooRexx[sh]> a(2,3)~of{ if item//4 <> 0 then 10*item }=
 an Array (shape [2,3], 5 items)
 [ 1, 1] :  10
 [ 1, 2] :  20
@@ -193,24 +184,25 @@ an Array (shape [2,3], 5 items)
 [ 2, 2] :  50
 [ 2, 3] :  60
 
+/*
 If there is more than one argument then each argument is an item as-is.
 If some arguments are omitted, then the corresponding item in the initialized array remains non-assigned.
-
-ooRexx[bash]> a(2,3)~of(1,,3,,5,)=
+*/
+ooRexx[sh]> a(2,3)~of(1,,3,,5,)=
 an Array (shape [2,3], 3 items)
 [ 1, 1] :  1
 [ 1, 3] :  3
 [ 2, 2] :  5
 
+/*
 reshape
 
 APL R←X⍴Y (Rho)
 args : new dimension(s)
-
-ooRexx[bash]> a(5)~of{ 2*item }=
+*/
+ooRexx[sh]> a(5)~of{ 2*item }=
 [ 2, 4, 6, 8, 10]
-
-ooRexx[bash]> a(5)~of{ 2*item }~reshape(3,3)=
+ooRexx[sh]> a(5)~of{ 2*item }~reshape(3,3)=
 an Array (shape [3,3], 9 items)
 [ 1, 1] :  2
 [ 1, 2] :  4
@@ -222,14 +214,15 @@ an Array (shape [3,3], 9 items)
 [ 3, 2] :  6
 [ 3, 3] :  8
 
+/*
 each
 
 APL R←,Y (Ravel)
 Y may be any array. R is a vector of the elements of Y taken in row-major order.
 inverse of reshape, which turns any data into a vector whose length is the product
 of the shape vector (the dimensions) of the operand array
-
-ooRexx[bash]> a(1,2,3)~of{index}=
+*/
+ooRexx[sh]> a(1,2,3)~of{index}=
 an Array (shape [1,2,3], 6 items)
 [ 1, 1, 1] : [ 1, 1, 1]
 [ 1, 1, 2] : [ 1, 1, 2]
@@ -237,10 +230,10 @@ an Array (shape [1,2,3], 6 items)
 [ 1, 2, 1] : [ 1, 2, 1]
 [ 1, 2, 2] : [ 1, 2, 2]
 [ 1, 2, 3] : [ 1, 2, 3]
-
-ooRexx[bash]> a(1,2,3)~of{index}~each=
+ooRexx[sh]> a(1,2,3)~of{index}~each=
 [[ 1, 1, 1],[ 1, 1, 2],[ 1, 1, 3],[ 1, 2, 1],[ 1, 2, 2],[ 1, 2, 3]]
 
+/*
 depth
 
 APL R←≡Y (Equal Underbar)
@@ -250,89 +243,74 @@ of structure to be penetrated in order to get to a simple scalar where simple me
 The depth of an array is 1 greater than that of its most deeply nested item.
 
 Returns "infinity" when the array is self-referencing.
-
-ooRexx[bash]> 1~depth=
+*/
+ooRexx[sh]> 1~depth=
  0
-
-ooRexx[bash]> v(1)~depth=
+ooRexx[sh]> v(1)~depth=
  1
-
-ooRexx[bash]> v(v(1))~depth=
+ooRexx[sh]> v(v(1))~depth=
  2
-
-ooRexx[bash]> v=v(1); v~append(v); v~depth=;
+ooRexx[sh]> v=v(1); v~append(v); v~depth=;
 (The positive infinity)
 
+/*
 enclose
 
 APL R←⊂Y (Left Shoe)
 If Y is a simple scalar, R is the simple scalar unchanged.
 Otherwise, R has a depth whose magnitude is one greater than the magnitude of the depth of Y.
-
-ooRexx[bash]> e=1~enclose
-
-ooRexx[bash]> e=
+*/
+ooRexx[sh]> e=1~enclose
+ooRexx[sh]> e=
  1
-
-ooRexx[bash]> e~depth=
+ooRexx[sh]> e~depth=
  0
-
-ooRexx[bash]> e=v(1)~enclose~enclose
-
-ooRexx[bash]> e=
+ooRexx[sh]> e=v(1)~enclose~enclose
+ooRexx[sh]> e=
 <<[ 1]>>
-
-ooRexx[bash]> e~depth=
+ooRexx[sh]> e~depth=
  3
 
+/*
 disclose
 
 APL R←⊃Y (Right Shoe)
 Disclose is the inverse of Enclose.
-
-ooRexx[bash]> e=v(1)~enclose~enclose
-
-ooRexx[bash]> e=
+*/
+ooRexx[sh]> e=v(1)~enclose~enclose
+ooRexx[sh]> e=
 <<[ 1]>>
-
-ooRexx[bash]> e=e~disclose
-
-ooRexx[bash]> e=
+ooRexx[sh]> e=e~disclose
+ooRexx[sh]> e=
 <[ 1]>
-
-ooRexx[bash]> e~depth=
+ooRexx[sh]> e~depth=
  2
-
-ooRexx[bash]> e=e~disclose
-
-ooRexx[bash]> e=
+ooRexx[sh]> e=e~disclose
+ooRexx[sh]> e=
 [ 1]
-
-ooRexx[bash]> e~depth=
+ooRexx[sh]> e~depth=
  1
 
+/*
 Indexing a vector
 It is possible to extract several items in a single operation, and in any order.
 An item can be selected more than once.
-
-ooRexx[bash]> vector = (10,20,30,40,50)
-
-ooRexx[bash]> vector~indexer(3)=
+*/
+ooRexx[sh]> vector = (10,20,30,40,50)
+ooRexx[sh]> vector~indexer(3)=
 [ 30]
-
-ooRexx[bash]> vector~indexer(3,3)=
+ooRexx[sh]> vector~indexer(3,3)=
 [ 30, 30]
-
-ooRexx[bash]> 'LE CHAT'~eachc~indexer(7,5,2,3,4,6,7)~tostring("c")=
+ooRexx[sh]> 'LE CHAT'~eachc~indexer(7,5,2,3,4,6,7)~tostring("c")=
 'THE CAT'
 
+/*
 The index may be an array of any shape: scalar, vector, matrix, or an array of higher rank.
 When a vector is indexed by an array, the result has exactly the same shape as the index
 array, as if each item of the index had been replaced by the item it designates:
-
-ooRexx[bash]> index = a(3,5)~of(5,5,4,4,3,3,2,2,1,1)
-
-ooRexx[bash]> index=
+*/
+ooRexx[sh]> index = a(3,5)~of(5,5,4,4,3,3,2,2,1,1)
+ooRexx[sh]> index=
 an Array (shape [3,5], 15 items)
 [ 1, 1] :  5
 [ 1, 2] :  5
@@ -349,10 +327,8 @@ an Array (shape [3,5], 15 items)
 [ 3, 3] :  4
 [ 3, 4] :  4
 [ 3, 5] :  3
-
-ooRexx[bash]> vector = (10,20,30,40,50)
-
-ooRexx[bash]> vector~indexer(index)=
+ooRexx[sh]> vector = (10,20,30,40,50)
+ooRexx[sh]> vector~indexer(index)=
 an Array (shape [3,5], 15 items)
 [ 1, 1] :  50
 [ 1, 2] :  50
@@ -370,5 +346,7 @@ an Array (shape [3,5], 15 items)
 [ 3, 4] :  40
 [ 3, 5] :  30
 
+/*
 End of demonstration.
+*/
 

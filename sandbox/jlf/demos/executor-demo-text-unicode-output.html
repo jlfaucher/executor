@@ -9,6 +9,7 @@
 <body>
 <pre>
 <span style="font-weight:bold;color:green;">loadPackage OK for extension/stringChunk.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for utilities/indentedStream.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for extension/extensions.cls
 </span><span style="font-weight:bold;color:green;">loadLibrary OK for rxunixsys
 </span><span style="font-weight:bold;color:green;">loadPackage OK for ncurses.cls
@@ -31,13 +32,14 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
-</span><span style="font-weight:bold;color:green;">Input queue name: Se779Q7fada1d38ad0
+</span><span style="font-weight:bold;color:green;">Input queue name: S1db5Q7fada1c498d0
 </span>
 <span style="font-weight:bold;color:blue;">--------------------
 </span><span style="font-weight:bold;color:blue;">-- Unicode libraries
 </span><span style="font-weight:bold;color:blue;">--------------------
 </span>
-<span style="font-weight:bold;color:blue;">The prototype is currently using 3 libraries:
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">The prototype is currently using 3 libraries:
 </span><span style="font-weight:bold;color:blue;">- utf8proc    https://github.com/JuliaStrings/utf8proc
 </span><span style="font-weight:bold;color:blue;">- ziglyph     https://github.com/jecolon/ziglyph
 </span><span style="font-weight:bold;color:blue;">- icu4x       https://github.com/unicode-org/icu4x
@@ -49,6 +51,7 @@
 </span><span style="font-weight:bold;color:blue;">- utf8proc is used for grapheme segmentation, characters properties, normalization, upper/lower/title.
 </span><span style="font-weight:bold;color:blue;">- ziglyph is used for upper/lower/title. Will be used for word and sentence segmentation, collation (not locale-aware).
 </span><span style="font-weight:bold;color:blue;">- icu4x will be used for locale-aware services (segmentation, collation, translation, formatting).
+</span><span style="font-weight:bold;color:blue;">*/
 </span>
 
 <span style="font-weight:bold;color:blue;">---------------------
@@ -56,31 +59,30 @@
 </span><span style="font-weight:bold;color:blue;">---------------------
 </span>
 <span style="font-weight:bold;color:blue;">-- Unicode version
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .unicode~version=               <span style="font-weight:bold;color:blue;">-- 15.0.0</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~version=               </span><span style="font-weight:bold;color:blue;">-- 15.0.0</span>
 '15.0.0'
 
 <span style="font-weight:bold;color:blue;">-- Unicode character names are not loaded by default
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; call loadUnicodeCharacterNames
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.0.0 
 </span>.............................................<span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">Total loaded character names: 149186
 </span><span style="font-weight:bold;color:green;">Total character name aliases: 473
 </span><span style="font-weight:bold;color:blue;">Unicode character intervals not expanded, execute: call expandUnicodeCharacterIntervals
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .unicode~characters=            <span style="font-weight:bold;color:blue;">-- (an UnicodeCharacterSupplier count=43884 size=918000)</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~characters=</span>
 (an UnicodeCharacterSupplier count=44180 size=918000)
 
-<span style="font-weight:bold;color:blue;">Unicode character names defined by interval are not loaded by default.
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Unicode character names defined by interval are not loaded by default.
 </span><span style="font-weight:bold;color:blue;">The following method gives informations about these intervals.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .unicode~informations=
-a Directory (11 items)
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~informations=</span>
+a Directory (12 items)
 'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=16 notExpanded:16 intervals, 105071 characters)
 'characters'                         : (an UnicodeCharacterSupplier count=44180 size=918000)
 'dataDirectory'                      : (/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/Unicode-15.0.0)
 'maxCodepoint'                       :  1114111
+'memorizeConversions'                :  0
 'memorizeTransformations'            :  0
 'systemIsLittleEndian'               :  1
 'totalCharacterNameAliases'          :  473
@@ -90,8 +92,7 @@ a Directory (11 items)
 'version'                            : '15.0.0'
 
 <span style="font-weight:bold;color:blue;">-- Select the characters whose category is Cc (Control)
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .unicode~characters~select{item~categoryName==&quot;Cc&quot;}==
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~characters~select{item~categoryName==&quot;Cc&quot;}==</span>
 an Array (shape [65], 65 items)
  1  : ( &quot;&quot;    U+0000 Cc 0 &quot;&quot;, &quot;NULL&quot;, &quot;NUL&quot; )
  2  : ( &quot;&quot;    U+0001 Cc 0 &quot;&quot;, &quot;START OF HEADING&quot;, &quot;SOH&quot; )
@@ -162,8 +163,7 @@ an Array (shape [65], 65 items)
 <span style="font-weight:bold;color:blue;">-- Select the characters whose name contains &quot;rex&quot;
 </span><span style="font-weight:bold;color:blue;">-- Loose matching rule UAX44-LM2, see https://unicode.org/reports/tr44/#Matching_Names
 </span><span style="font-weight:bold;color:blue;">-- Spaces are ignored (among others), that's why &quot;LETTER EXTRA&quot; is matching &quot;*rex*&quot;
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .unicode~characters(&quot;*rex*&quot;)==
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~characters(&quot;*rex*&quot;)==</span>
 an Array (shape [15], 15 items)
  1  : ( &quot;꜌&quot;   U+A70C Sk 1 &quot;MODIFIER LETTER EXTRA-LOW DOTTED TONE BAR&quot; )
  2  : ( &quot;˩&quot;   U+02E9 Sk 1 &quot;MODIFIER LETTER EXTRA-LOW TONE BAR&quot; )
@@ -181,11 +181,12 @@ an Array (shape [15], 15 items)
  14 : ( &quot;𝍊&quot;   U+1D34A So 1 &quot;TETRAGRAM FOR EXHAUSTION&quot; )
  15 : ( &quot;🦖&quot;  U+1F996 So 2 &quot;T-REX&quot; )
 
-<span style="font-weight:bold;color:blue;">Regular expressions are supported:
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Regular expressions are supported:
 </span><span style="font-weight:bold;color:blue;">    .unicode~characters(&quot;/^math.*psi$&quot;)==
 </span><span style="font-weight:bold;color:blue;">returns all the characters whose name starts with &quot;math&quot; and ends with &quot;psi&quot;.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .unicode~characters(&quot;/^math.*psi$&quot;)==
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~characters(&quot;/^math.*psi$&quot;)==</span>
 an Array (shape [10], 10 items)
  1  : ( &quot;𝚿&quot;   U+1D6BF Lu 1 &quot;MATHEMATICAL BOLD CAPITAL PSI&quot; )
  2  : ( &quot;𝛙&quot;   U+1D6D9 Ll 1 &quot;MATHEMATICAL BOLD SMALL PSI&quot; )
@@ -199,77 +200,63 @@ an Array (shape [10], 10 items)
  10 : ( &quot;𝟁&quot;   U+1D7C1 Ll 1 &quot;MATHEMATICAL SANS-SERIF BOLD ITALIC SMALL PSI&quot; )
 
 <span style="font-weight:bold;color:blue;">-- longest name
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .unicode~characters~reduce{if accu~name~length &lt; item~name~length then item }=
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~characters~reduce{if accu~name~length &lt; item~name~length then item }=</span>
 ( &quot;🮨&quot;   U+1FBA8 So 1 &quot;BOX DRAWINGS LIGHT DIAGONAL UPPER CENTRE TO MIDDLE LEFT AND MIDDLE RIGHT TO LOWER CENTRE&quot; )
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; result~name~length=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">result~name~length=</span>
  88
 
-<span style="font-weight:bold;color:blue;">Escape characters can be used in literal strings, they are unescaped at run-time.
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Escape characters can be used in literal strings, they are unescaped at run-time.
 </span><span style="font-weight:bold;color:blue;">    \u{Unicode name}    Character name in the Unicode database
 </span><span style="font-weight:bold;color:blue;">    \U{Unicode name}    same as \u{Unicode name}
 </span><span style="font-weight:bold;color:blue;">    \u{X..X}            Unicode character denoted by 1-8 hex digits. The first character must be a digit 0..9
 </span><span style="font-weight:bold;color:blue;">    \U{X..X}            same as \u{X..X}
 </span><span style="font-weight:bold;color:blue;">    \uXXXX              Unicode character denoted by 4 hex digits ('u' lowercase)
 </span><span style="font-weight:bold;color:blue;">    \UXXXXXXXX          Unicode character denoted by 8 hex digits ('U' uppercase)
+</span><span style="font-weight:bold;color:blue;">*/
 </span>
 <span style="font-weight:bold;color:blue;">-- Character by name
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;hello\u{space}John\n&quot;~text~unescape=                           <span style="font-weight:bold;color:blue;">-- T'hello John[0A]'</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello\u{space}John\n&quot;~text~unescape=                           </span><span style="font-weight:bold;color:blue;">-- T'hello John[0A]'</span>
 T'hello John[0A]'
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;The \u{t-rex} shows his \u{flexed biceps}!&quot;~text~unescape=     <span style="font-weight:bold;color:blue;">-- T'The 🦖 shows his 💪!'</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;The \u{t-rex} shows his \u{flexed biceps}!&quot;~text~unescape=     </span><span style="font-weight:bold;color:blue;">-- T'The 🦖 shows his 💪!'</span>
 T'The 🦖 shows his 💪!'
 
 <span style="font-weight:bold;color:blue;">-- Character by codepoint
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;hello\u{20}John\n&quot;~text~unescape=                              <span style="font-weight:bold;color:blue;">-- T'hello John[0A]'</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello\u{20}John\n&quot;~text~unescape=                              </span><span style="font-weight:bold;color:blue;">-- T'hello John[0A]'</span>
 T'hello John[0A]'
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;hello\u0020John\n&quot;~text~unescape=                              <span style="font-weight:bold;color:blue;">-- T'hello John[0A]'</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello\u0020John\n&quot;~text~unescape=                              </span><span style="font-weight:bold;color:blue;">-- T'hello John[0A]'</span>
 T'hello John[0A]'
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;hello\U00000020John\n&quot;~text~unescape=                          <span style="font-weight:bold;color:blue;">-- T'hello John[0A]'</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello\U00000020John\n&quot;~text~unescape=                          </span><span style="font-weight:bold;color:blue;">-- T'hello John[0A]'</span>
 T'hello John[0A]'
 
 <span style="font-weight:bold;color:blue;">-- Name versus codepoint
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;\u{bed} is different from \u{0bed}&quot;~text~unescape=             <span style="font-weight:bold;color:blue;">-- T'🛏 is different from ௭'</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;\u{bed} is different from \u{0bed}&quot;~text~unescape=             </span><span style="font-weight:bold;color:blue;">-- T'🛏 is different from ௭'</span>
 T'🛏 is different from ௭'
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .unicode~character(&quot;bed&quot;)=                                      <span style="font-weight:bold;color:blue;">-- ( &quot;🛏&quot;   U+1F6CF So 1 &quot;BED&quot; )</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~character(&quot;bed&quot;)=                                      </span><span style="font-weight:bold;color:blue;">-- ( &quot;🛏&quot;   U+1F6CF So 1 &quot;BED&quot; )</span>
 ( &quot;🛏&quot;   U+1F6CF So 1 &quot;BED&quot; )
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .unicode~character(&quot;bed&quot;, hexadecimal:.true)=                   <span style="font-weight:bold;color:blue;">-- ( &quot;௭&quot;   U+0BED Nd 1 &quot;TAMIL DIGIT SEVEN&quot; )</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~character(&quot;bed&quot;, hexadecimal:)=                        </span><span style="font-weight:bold;color:blue;">-- ( &quot;௭&quot;   U+0BED Nd 1 &quot;TAMIL DIGIT SEVEN&quot; )</span>
 ( &quot;௭&quot;   U+0BED Nd 1 &quot;TAMIL DIGIT SEVEN&quot; )
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .unicode~character(&quot;U+0bed&quot;)=                                   <span style="font-weight:bold;color:blue;">-- ( &quot;௭&quot;   U+0BED Nd 1 &quot;TAMIL DIGIT SEVEN&quot; )</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~character(&quot;U+0bed&quot;)=                                   </span><span style="font-weight:bold;color:blue;">-- ( &quot;௭&quot;   U+0BED Nd 1 &quot;TAMIL DIGIT SEVEN&quot; )</span>
 ( &quot;௭&quot;   U+0BED Nd 1 &quot;TAMIL DIGIT SEVEN&quot; )
 
 <span style="font-weight:bold;color:blue;">-- High surrogate followed by low surrogate is invalid UTF-8
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;\uD83D\uDE3F&quot;~text~unescape=                                   <span style="font-weight:bold;color:blue;">-- T'??????'</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;\uD83D\uDE3F&quot;~text~unescape=                                   </span><span style="font-weight:bold;color:blue;">-- T'??????'</span>
 T'������'
 
 <span style="font-weight:bold;color:blue;">-- High surrogate followed by low surrogate is valid WTF-8
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;\uD83D\uDE3F&quot;~text(&quot;wtf8&quot;)~unescape=                           <span style="font-weight:bold;color:blue;">-- T'😿'</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;\uD83D\uDE3F&quot;~text(&quot;wtf8&quot;)~unescape=                           </span><span style="font-weight:bold;color:blue;">-- T'😿'</span>
 T'😿'
 
 <span style="font-weight:bold;color:blue;">-- \u is not supported for Byte encoding, you can use \x{X..X}
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;hello\u{20}John\n&quot;~text(&quot;byte&quot;)~unescape=                      <span style="font-weight:bold;color:blue;">-- Byte encoding: \u not supported.</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello\u{20}John\n&quot;~text(&quot;byte&quot;)~unescape=                      </span><span style="font-weight:bold;color:blue;">-- Byte encoding: \u not supported.</span>
 <span style="font-weight:bold;color:red;">Byte encoding: \u not supported.
 </span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;hello\x{20}John\n&quot;~text(&quot;byte&quot;)~unescape=                      <span style="font-weight:bold;color:blue;">-- T'hello John[0A]'</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello\x{20}John\n&quot;~text(&quot;byte&quot;)~unescape=                      </span><span style="font-weight:bold;color:blue;">-- T'hello John[0A]'</span>
 T'hello John[0A]'
 
 <span style="font-weight:bold;color:blue;">-- The method unescape is available only for Byte, UTF-8 and WTF-8.
 </span><span style="font-weight:bold;color:blue;">-- No implementation for UTF-16, WTF-16, UTF-32.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;hello\u{U+20}John\n&quot;~text~utf16~unescape=                      <span style="font-weight:bold;color:blue;">-- Method UNESCAPE is ABSTRACT and cannot be directly invoked.</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello\u{U+20}John\n&quot;~text~utf16~unescape=                      </span><span style="font-weight:bold;color:blue;">-- Method UNESCAPE is ABSTRACT and cannot be directly invoked.</span>
 <span style="font-weight:bold;color:red;">Method UNESCAPE is ABSTRACT and cannot be directly invoked.
 </span><span style="font-weight:bold;color:red;">Error code= 93.965
 </span>
@@ -280,13 +267,11 @@ T'hello John[0A]'
 </span>
 <span style="font-weight:bold;color:blue;">-- Category
 </span><span style="font-weight:bold;color:blue;">-- http://www.unicode.org/reports/tr44/#General_Category_Values
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .unicode~codepointCategoryNames=
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~codepointCategoryNames=</span>
 ['Cn','Lu','Ll','Lt','Lm','Lo','Mn','Mc','Me','Nd','Nl','No','Pc','Pd','Ps','Pe','Pi','Pf','Po','Sm','Sc','Sk','So','Zs','Zl','Zp','Cc','Cf','Cs','Co']
 
 <span style="font-weight:bold;color:blue;">-- First character of each category
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; seen = .directory~new; .unicode~characters~each{expose seen; v = item~categoryName; if seen[v] == .nil then seen[v] = item}; seen=
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">seen = .directory~new; .unicode~characters~each{expose seen; v = item~categoryName; if seen[v] == .nil then seen[v] = item}; seen=</span>
 a Directory (28 items)
 'Cc' : ( &quot;&quot;    U+0000 Cc 0 &quot;&quot;, &quot;NULL&quot;, &quot;NUL&quot; )
 'Cf' : ( &quot;­&quot;   U+00AD Cf 1 &quot;SOFT HYPHEN&quot;, &quot;SHY&quot; )
@@ -322,8 +307,7 @@ a Directory (28 items)
 </span><span style="font-weight:bold;color:blue;">-- Canonical combining classes are defined in the Unicode Standard as integers in the range 0...254.
 </span><span style="font-weight:bold;color:blue;">-- For convenience, the standard assigns symbolic names to a subset of these combining classes.
 </span><span style="font-weight:bold;color:blue;">-- First character of each combining class
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; seen = .directory~new; .unicode~characters~each{expose seen; v = item~combiningClass; if seen[cv] == .nil then seen[v] = item}; seen=
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">seen = .directory~new; .unicode~characters~each{expose seen; v = item~combiningClass; if seen[cv] == .nil then seen[v] = item}; seen=</span>
 a Directory (56 items)
  0   : ( &quot;󠇯&quot;    U+E01EF Mn 0 &quot;VARIATION SELECTOR-256&quot;, &quot;VS256&quot; )
  1   : ( &quot;𝅩&quot;    U+1D169 Mn 0 &quot;MUSICAL SYMBOL COMBINING TREMOLO-3&quot; )
@@ -384,13 +368,11 @@ a Directory (56 items)
 
 <span style="font-weight:bold;color:blue;">-- Bidirectionnal class
 </span><span style="font-weight:bold;color:blue;">-- http://www.unicode.org/reports/tr44/#Bidi_Class_Values
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .unicode~codepointBidiClassNames=
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~codepointBidiClassNames=</span>
 ['L','LRE','LRO','R','AL','RLE','RLO','PDF','EN','ES','ET','AN','CS','NSM','BN','B','S','WS','ON','LRI','RLI','FSI','PDI']
 
 <span style="font-weight:bold;color:blue;">-- First character of each bidirectionnal class
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; seen = .directory~new; .unicode~characters~each{expose seen; v = item~bidiClassName; if seen[v] == .nil then seen[v] = item}; seen=
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">seen = .directory~new; .unicode~characters~each{expose seen; v = item~bidiClassName; if seen[v] == .nil then seen[v] = item}; seen=</span>
 a Directory (23 items)
 'AL'  : ( &quot;؈&quot;   U+0608 Sm 1 &quot;ARABIC RAY&quot; )
 'AN'  : ( &quot;؀&quot;    U+0600 Cf 0 &quot;ARABIC NUMBER SIGN&quot; )
@@ -419,8 +401,7 @@ a Directory (23 items)
 <span style="font-weight:bold;color:blue;">-- Bidi mirrored (boolean)
 </span><span style="font-weight:bold;color:blue;">-- https://unicode.org/reports/tr9/
 </span><span style="font-weight:bold;color:blue;">-- First 10 characters such as bidiMirrored == .true
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .unicode~characters~pipe(.select {item~bidiMirrored} | .take 10 | .console)
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~characters~pipe(.select {item~bidiMirrored} | .take 10 | .console)</span>
 40 : ( &quot;(&quot;   U+0028 Ps 1 &quot;LEFT PARENTHESIS&quot; )
 41 : ( &quot;)&quot;   U+0029 Pe 1 &quot;RIGHT PARENTHESIS&quot; )
 60 : ( &quot;&lt;&quot;   U+003C Sm 1 &quot;LESS-THAN SIGN&quot; )
@@ -434,13 +415,11 @@ a Directory (23 items)
 
 <span style="font-weight:bold;color:blue;">-- Decomposition type
 </span><span style="font-weight:bold;color:blue;">-- https://unicode.org/reports/tr15/
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .unicode~codepointDecompositionTypeNames=
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~codepointDecompositionTypeNames=</span>
 ['None','Font','Nobreak','Initial','Medial','Final','Isolated','Circle','Super','Sub','Vertical','Wide','Narrow','Small','Square','Fraction','Compat']
 
 <span style="font-weight:bold;color:blue;">-- First character of each decomposition type
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; seen = .directory~new; .unicode~characters~each{expose seen; v = item~decompositionTypeName; if seen[v] == .nil then seen[v] = item}; seen=
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">seen = .directory~new; .unicode~characters~each{expose seen; v = item~decompositionTypeName; if seen[v] == .nil then seen[v] = item}; seen=</span>
 a Directory (17 items)
 'Circle'   : ( &quot;①&quot;   U+2460 No 1 &quot;CIRCLED DIGIT ONE&quot; )
 'Compat'   : ( &quot;¨&quot;   U+00A8 Sk 1 &quot;DIAERESIS&quot; )
@@ -464,8 +443,7 @@ a Directory (17 items)
 </span><span style="font-weight:bold;color:blue;">-- http://www.unicode.org/review/pr-5.html
 </span><span style="font-weight:bold;color:blue;">-- http://unicode.org/L2/L2002/02368-default-ignorable.html
 </span><span style="font-weight:bold;color:blue;">-- First 10 characters such as bidiMirrored == .true
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .unicode~characters~pipe(.select {item~ignorable} | .take 10 | .console)
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~characters~pipe(.select {item~ignorable} | .take 10 | .console)</span>
 173 : ( &quot;­&quot;   U+00AD Cf 1 &quot;SOFT HYPHEN&quot;, &quot;SHY&quot; )
 847 : ( &quot;͏&quot;    U+034F Mn 0 &quot;COMBINING GRAPHEME JOINER&quot;, &quot;CGJ&quot; )
 1564 : ( &quot;؜&quot;    U+061C Cf 0 &quot;ARABIC LETTER MARK&quot;, &quot;ALM&quot; )
@@ -479,9 +457,8 @@ a Directory (17 items)
 
 <span style="font-weight:bold;color:blue;">-- Boundary (boolean)
 </span><span style="font-weight:bold;color:blue;">-- http://unicode.org/reports/tr29/tr29-6.html
-</span><span style="font-weight:bold;color:blue;">-- First 10 characters such as bidiMirrored == .true
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .unicode~characters~pipe(.select {item~controlBoundary} | .take 10 | .console)
+</span><span style="font-weight:bold;color:blue;">-- First 10 characters such as controlBoundary == .true
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~characters~pipe(.select {item~controlBoundary} | .take 10 | .console)</span>
 0 : ( &quot;&quot;    U+0000 Cc 0 &quot;&quot;, &quot;NULL&quot;, &quot;NUL&quot; )
 1 : ( &quot;&quot;    U+0001 Cc 0 &quot;&quot;, &quot;START OF HEADING&quot;, &quot;SOH&quot; )
 2 : ( &quot;&quot;    U+0002 Cc 0 &quot;&quot;, &quot;START OF TEXT&quot;, &quot;STX&quot; )
@@ -495,8 +472,7 @@ a Directory (17 items)
 
 <span style="font-weight:bold;color:blue;">-- Char width
 </span><span style="font-weight:bold;color:blue;">-- First character of each width value
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; seen = .directory~new; .unicode~characters~each{expose seen; v = item~charWidth; if seen[v] == .nil then seen[v] = item}; seen=
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">seen = .directory~new; .unicode~characters~each{expose seen; v = item~charWidth; if seen[v] == .nil then seen[v] = item}; seen=</span>
 a Directory (3 items)
  0 : ( &quot;&quot;    U+0000 Cc 0 &quot;&quot;, &quot;NULL&quot;, &quot;NUL&quot; )
  1 : ( &quot; &quot;   U+0020 Zs 1 &quot;SPACE&quot;, &quot;SP&quot; )
@@ -504,13 +480,11 @@ a Directory (3 items)
 
 <span style="font-weight:bold;color:blue;">-- Bound class
 </span><span style="font-weight:bold;color:blue;">-- https://unicode.org/reports/tr29/
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .unicode~codepointBoundClassNames=
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~codepointBoundClassNames=</span>
 ['START','XX','CR','LF','CN','EX','L','V','T','LV','LVT','RI','SM','PP','ZWJ','EB','EM','GAZ','EBG','EXTENDED_PICTOGRAPHIC','E_ZWG']
 
 <span style="font-weight:bold;color:blue;">-- First character of each bound class
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; seen = .directory~new; .unicode~characters~each{expose seen; v = item~boundClassName; if seen[v] == .nil then seen[v] = item}; seen=
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">seen = .directory~new; .unicode~characters~each{expose seen; v = item~boundClassName; if seen[v] == .nil then seen[v] = item}; seen=</span>
 a Directory (15 items)
 'CN'                    : ( &quot;&quot;    U+0000 Cc 0 &quot;&quot;, &quot;NULL&quot;, &quot;NUL&quot; )
 'CR'                    : ( &quot;&quot;    U+000D Cc 0 &quot;&quot;, &quot;CARRIAGE RETURN&quot;, &quot;CR&quot; )
@@ -530,8 +504,7 @@ a Directory (15 items)
 
 <span style="font-weight:bold;color:blue;">-- isLower
 </span><span style="font-weight:bold;color:blue;">-- Forty-first to fifthieth characters such as isLower == .true
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .unicode~characters~pipe(.select {item~isLower} | .take 50 | .take &quot;last&quot; 10 | .console)
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~characters~pipe(.select {item~isLower} | .take 50 | .take &quot;last&quot; 10 | .console)</span>
 234 : ( &quot;ê&quot;   U+00EA Ll 1 &quot;LATIN SMALL LETTER E WITH CIRCUMFLEX&quot; )
 235 : ( &quot;ë&quot;   U+00EB Ll 1 &quot;LATIN SMALL LETTER E WITH DIAERESIS&quot; )
 236 : ( &quot;ì&quot;   U+00EC Ll 1 &quot;LATIN SMALL LETTER I WITH GRAVE&quot; )
@@ -545,8 +518,7 @@ a Directory (15 items)
 
 <span style="font-weight:bold;color:blue;">-- isUpper
 </span><span style="font-weight:bold;color:blue;">-- Forty-first to fifthieth characters such as isUpper == .true
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .unicode~characters~pipe(.select {item~isUpper} | .take 50 | .take &quot;last&quot; 10 | .console)
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~characters~pipe(.select {item~isUpper} | .take 50 | .take &quot;last&quot; 10 | .console)</span>
 206 : ( &quot;Î&quot;   U+00CE Lu 1 &quot;LATIN CAPITAL LETTER I WITH CIRCUMFLEX&quot; )
 207 : ( &quot;Ï&quot;   U+00CF Lu 1 &quot;LATIN CAPITAL LETTER I WITH DIAERESIS&quot; )
 208 : ( &quot;Ð&quot;   U+00D0 Lu 1 &quot;LATIN CAPITAL LETTER ETH&quot; )
@@ -562,44 +534,44 @@ a Directory (15 items)
 </span><span style="font-weight:bold;color:blue;">-- Unicode case folding
 </span><span style="font-weight:bold;color:blue;">-----------------------
 </span>
-<span style="font-weight:bold;color:blue;">See https://www.w3.org/TR/charmod-norm/
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">See https://www.w3.org/TR/charmod-norm/
 </span><span style="font-weight:bold;color:blue;">Case folding is the process of making two texts which differ only in case identical for comparison purposes.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; 
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; (&quot;sTrasse&quot;, &quot;straße&quot;, &quot;STRASSE&quot;)~each{item~text~casefold}==
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx[sh]&gt; 
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(&quot;sTrasse&quot;, &quot;straße&quot;, &quot;STRASSE&quot;)~each{item~text~casefold}==</span>
 an Array (shape [3], 3 items)
  1 : T'strasse'
  2 : T'strasse'
  3 : T'strasse'
 
-<span style="font-weight:bold;color:blue;">utf8proc doesn't support language-sensitive case-folding.
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">utf8proc doesn't support language-sensitive case-folding.
 </span><span style="font-weight:bold;color:blue;">The Julia developers, who use utf8proc, have decided to remain locale-independent.
 </span><span style="font-weight:bold;color:blue;">See https://github.com/JuliaLang/julia/issues/7848
 </span><span style="font-weight:bold;color:blue;">
 </span><span style="font-weight:bold;color:blue;">The name of the second largest city in Turkey is &quot;Diyarbakır&quot;, which contains both the dotted and dotless letters i.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; 
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;DİYARBAKIR&quot;~text~casefold=     <span style="font-weight:bold;color:blue;">-- T'di̇yarbakir'   should be diyarbakır</span>
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx[sh]&gt; 
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;DİYARBAKIR&quot;~text~casefold=     </span><span style="font-weight:bold;color:blue;">-- T'di̇yarbakir'   should be diyarbakır</span>
 T'di̇yarbakir'
 
 <span style="font-weight:bold;color:blue;">----------------------
 </span><span style="font-weight:bold;color:blue;">-- Unicode upper lower
 </span><span style="font-weight:bold;color:blue;">----------------------
 </span>
-<span style="font-weight:bold;color:blue;">For one character, utf8proc and ziglyph provide different results for upper/title:
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">For one character, utf8proc and ziglyph provide different results for upper/title:
 </span><span style="font-weight:bold;color:blue;">( &quot;ß&quot;   U+00DF Ll 1 &quot;LATIN SMALL LETTER SHARP S&quot; )
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; smallSharpS = .unicode~character(&quot;LATIN SMALL LETTER SHARP S&quot;)                              <span style="font-weight:bold;color:blue;">--  ( &quot;ß&quot;   U+00DF Ll 1 &quot;LATIN SMALL LETTER SHARP S&quot; )</span>
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .unicode~utf8proc_codepointToUpper(smallSharpS~codepoint)~pipe{.unicode~character(item)}=   <span style="font-weight:bold;color:blue;">--  ( &quot;ẞ&quot;   U+1E9E Lu 1 &quot;LATIN CAPITAL LETTER SHARP S&quot; )</span>
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">smallSharpS = .unicode~character(&quot;LATIN SMALL LETTER SHARP S&quot;)                              </span><span style="font-weight:bold;color:blue;">--  ( &quot;ß&quot;   U+00DF Ll 1 &quot;LATIN SMALL LETTER SHARP S&quot; )</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~utf8proc_codepointToUpper(smallSharpS~codepoint)~pipe{.unicode~character(item)}=   </span><span style="font-weight:bold;color:blue;">--  ( &quot;ẞ&quot;   U+1E9E Lu 1 &quot;LATIN CAPITAL LETTER SHARP S&quot; )</span>
 ( &quot;ẞ&quot;   U+1E9E Lu 1 &quot;LATIN CAPITAL LETTER SHARP S&quot; )
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .Unicode~ziglyph_stringToUpper(smallSharpS~utf8~string)~text~characters=                    <span style="font-weight:bold;color:blue;">-- [( &quot;ß&quot;   U+00DF Ll 1 &quot;LATIN SMALL LETTER SHARP S&quot; )]</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~ziglyph_stringToUpper(smallSharpS~utf8~string)~text~characters=                    </span><span style="font-weight:bold;color:blue;">-- [( &quot;ß&quot;   U+00DF Ll 1 &quot;LATIN SMALL LETTER SHARP S&quot; )]</span>
 [( &quot;ß&quot;   U+00DF Ll 1 &quot;LATIN SMALL LETTER SHARP S&quot; )]
 
-<span style="font-weight:bold;color:blue;">Both are wrong, should be &quot;SS&quot;.
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Both are wrong, should be &quot;SS&quot;.
 </span><span style="font-weight:bold;color:blue;">Unicode standard 15 section 5.18 Case Mappings:
 </span><span style="font-weight:bold;color:blue;">    Default casing                                         Tailored casing
 </span><span style="font-weight:bold;color:blue;">    (small sharp) ß &lt;--- ß (capital sharp)                 (small sharp) ß &lt;--&gt; ẞ (capital sharp)
@@ -609,27 +581,24 @@ T'di̇yarbakir'
 </span><span style="font-weight:bold;color:blue;">to small sharp s, but not vice versa: small sharp s uppercases to “SS”.
 </span><span style="font-weight:bold;color:blue;">A tailored casing operation is needed in circumstances requiring small sharp s
 </span><span style="font-weight:bold;color:blue;">to uppercase to capital sharp s.
+</span><span style="font-weight:bold;color:blue;">*/
 </span>
-<span style="font-weight:bold;color:blue;">For some characters, utf8proc and ziglyph provide the same wrong results for upper/lower
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">For some characters, utf8proc and ziglyph provide the same wrong results for upper/lower
 </span><span style="font-weight:bold;color:blue;">TODO: plug ICU4X and see if the result is ok with Locale “Turkish (Turkey)” (tr_TR)
+</span><span style="font-weight:bold;color:blue;">*/
 </span>
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;Diyarbakır&quot;~text~upper=                            <span style="font-weight:bold;color:blue;">-- T'DIYARBAKIR'   should be DİYARBAKIR</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Diyarbakır&quot;~text~upper=                            </span><span style="font-weight:bold;color:blue;">-- T'DIYARBAKIR'   should be DİYARBAKIR</span>
 T'DIYARBAKIR'
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .Unicode~ziglyph_stringToUpper(&quot;Diyarbakır&quot;)=       <span style="font-weight:bold;color:blue;">--  'DIYARBAKIR'</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~ziglyph_stringToUpper(&quot;Diyarbakır&quot;)=       </span><span style="font-weight:bold;color:blue;">--  'DIYARBAKIR'</span>
 'DIYARBAKIR'
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;DİYARBAKIR&quot;~text~casefold=                         <span style="font-weight:bold;color:blue;">-- T'di̇yarbakir'   should be diyarbakır</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;DİYARBAKIR&quot;~text~casefold=                         </span><span style="font-weight:bold;color:blue;">-- T'di̇yarbakir'   should be diyarbakır</span>
 T'di̇yarbakir'
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .Unicode~ziglyph_stringToCaseFold(&quot;DİYARBAKIR&quot;)=    <span style="font-weight:bold;color:blue;">--  'di̇yarbakir'</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~ziglyph_stringToCaseFold(&quot;DİYARBAKIR&quot;)=    </span><span style="font-weight:bold;color:blue;">--  'di̇yarbakir'</span>
 'di̇yarbakir'
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;DİYARBAKIR&quot;~text~lower=                            <span style="font-weight:bold;color:blue;">-- T'diyarbakir'</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;DİYARBAKIR&quot;~text~lower=                            </span><span style="font-weight:bold;color:blue;">-- T'diyarbakir'</span>
 T'diyarbakir'
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .Unicode~ziglyph_stringToLower(&quot;DİYARBAKIR&quot;)=       <span style="font-weight:bold;color:blue;">--  'diyarbakir'</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~ziglyph_stringToLower(&quot;DİYARBAKIR&quot;)=       </span><span style="font-weight:bold;color:blue;">--  'diyarbakir'</span>
 'diyarbakir'
 
 
@@ -637,18 +606,17 @@ T'diyarbakir'
 </span><span style="font-weight:bold;color:blue;">-- Unicode transformations
 </span><span style="font-weight:bold;color:blue;">--------------------------
 </span>
-<span style="font-weight:bold;color:blue;">Method .Unicode~utf8proc_transform
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Method .Unicode~utf8proc_transform
 </span><span style="font-weight:bold;color:blue;">The purpose of this method is to support all the transformations provided by utf8proc.
 </span><span style="font-weight:bold;color:blue;">Takes a byte string as input (UTF-8 encoded), returns a new transformed byte string as output (UTF-8).
 </span><span style="font-weight:bold;color:blue;">
 </span><span style="font-weight:bold;color:blue;">TODO: Add support for UTF-16, UTF-32
+</span><span style="font-weight:bold;color:blue;">*/
 </span>
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; string = &quot;\u{BEL}Le\u{IDEOGRAPHIC SPACE}\u{OGHAM SPACE MARK}\u{ZERO-WIDTH-SPACE}Père\t\u{HYPHEN}\u{SOFT-HYPHEN}\u{EN DASH}\u{EM DASH}Noël\x{EFB790}\r\n&quot;
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; text = string~text~unescape
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; text~characters==
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string = &quot;\u{BEL}Le\u{IDEOGRAPHIC SPACE}\u{OGHAM SPACE MARK}\u{ZERO-WIDTH-SPACE}Père\t\u{HYPHEN}\u{SOFT-HYPHEN}\u{EN DASH}\u{EM DASH}Noël\x{EFB790}\r\n&quot;</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">text = string~text~unescape</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">text~characters==</span>
 an Array (shape [22], 22 items)
  1  : ( &quot;&quot;    U+0007 Cc 0 &quot;&quot;, &quot;ALERT&quot;, &quot;BEL&quot; )
  2  : ( &quot;L&quot;   U+004C Lu 1 &quot;LATIN CAPITAL LETTER L&quot; )
@@ -673,43 +641,42 @@ an Array (shape [22], 22 items)
  21 : ( &quot;&quot;    U+000D Cc 0 &quot;&quot;, &quot;CARRIAGE RETURN&quot;, &quot;CR&quot; )
  22 : ( &quot;&quot;    U+000A Cc 0 &quot;&quot;, &quot;LINE FEED&quot;, &quot;NEW LINE&quot;, &quot;END OF LINE&quot;, &quot;LF&quot;, &quot;NL&quot;, &quot;EOL&quot; )
 
-<span style="font-weight:bold;color:blue;">Possible transformations:
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Possible transformations:
 </span><span style="font-weight:bold;color:blue;">
-</span><span style="font-weight:bold;color:blue;"> 1  : ( &quot;&quot;    U+0007 Cc 0 &quot;&quot;, &quot;ALERT&quot;, &quot;BEL&quot; )                      &lt;-- removable with STRIPCC:.true
+</span><span style="font-weight:bold;color:blue;"> 1  : ( &quot;&quot;    U+0007 Cc 0 &quot;&quot;, &quot;ALERT&quot;, &quot;BEL&quot; )                      &lt;-- removable with STRIPCC:
 </span><span style="font-weight:bold;color:blue;"> 2  : ( &quot;L&quot;   U+004C Lu 1 &quot;LATIN CAPITAL LETTER L&quot; )
 </span><span style="font-weight:bold;color:blue;"> 3  : ( &quot;e&quot;   U+0065 Ll 1 &quot;LATIN SMALL LETTER E&quot; )
-</span><span style="font-weight:bold;color:blue;"> 4  : ( &quot;　&quot;  U+3000 Zs 2 &quot;IDEOGRAPHIC SPACE&quot; )                     &lt;-- replaceable by &quot; &quot; with LUMP:.true
-</span><span style="font-weight:bold;color:blue;"> 5  : ( &quot; &quot;   U+1680 Zs 1 &quot;OGHAM SPACE MARK&quot; )                      &lt;-- replaceable by &quot; &quot; with LUMP:.true
-</span><span style="font-weight:bold;color:blue;"> 6  : ( &quot;​&quot;    U+200B Cf 0 &quot;ZERO WIDTH SPACE&quot;, &quot;ZWSP&quot; )              &lt;-- removable by STRIPIGNORABLE:.TRUE
+</span><span style="font-weight:bold;color:blue;"> 4  : ( &quot;　&quot;  U+3000 Zs 2 &quot;IDEOGRAPHIC SPACE&quot; )                     &lt;-- replaceable by &quot; &quot; with LUMP:
+</span><span style="font-weight:bold;color:blue;"> 5  : ( &quot; &quot;   U+1680 Zs 1 &quot;OGHAM SPACE MARK&quot; )                      &lt;-- replaceable by &quot; &quot; with LUMP:
+</span><span style="font-weight:bold;color:blue;"> 6  : ( &quot;​&quot;    U+200B Cf 0 &quot;ZERO WIDTH SPACE&quot;, &quot;ZWSP&quot; )              &lt;-- removable by STRIPIGNORABLE:
 </span><span style="font-weight:bold;color:blue;"> 7  : ( &quot;P&quot;   U+0050 Lu 1 &quot;LATIN CAPITAL LETTER P&quot; )
-</span><span style="font-weight:bold;color:blue;"> 8  : ( &quot;è&quot;   U+00E8 Ll 1 &quot;LATIN SMALL LETTER E WITH GRAVE&quot; )       &lt;-- replaceable by &quot;e&quot; with normalization + STRIPMARK:.true
+</span><span style="font-weight:bold;color:blue;"> 8  : ( &quot;è&quot;   U+00E8 Ll 1 &quot;LATIN SMALL LETTER E WITH GRAVE&quot; )       &lt;-- replaceable by &quot;e&quot; with normalization + STRIPMARK:
 </span><span style="font-weight:bold;color:blue;"> 9  : ( &quot;r&quot;   U+0072 Ll 1 &quot;LATIN SMALL LETTER R&quot; )
 </span><span style="font-weight:bold;color:blue;"> 10 : ( &quot;e&quot;   U+0065 Ll 1 &quot;LATIN SMALL LETTER E&quot; )
-</span><span style="font-weight:bold;color:blue;"> 11 : ( &quot;&quot;    U+0009 Cc 0 &quot;&quot;, &quot;CHARACTER TABULATION&quot; )              &lt;-- replaceable by &quot; &quot; with STRIPCC:.true
-</span><span style="font-weight:bold;color:blue;"> 12 : ( &quot;‐&quot;   U+2010 Pd 1 &quot;HYPHEN&quot; )                                &lt;-- replaceable by &quot;-&quot; with LUMP:.true
-</span><span style="font-weight:bold;color:blue;"> 13 : ( &quot;­&quot;   U+00AD Cf 1 &quot;SOFT HYPHEN&quot;, &quot;SHY&quot; )                    &lt;-- removable by STRIPIGNORABLE:.true
-</span><span style="font-weight:bold;color:blue;"> 14 : ( &quot;–&quot;   U+2013 Pd 1 &quot;EN DASH&quot; )                               &lt;-- replaceable by &quot;-&quot; with LUMP:.true
-</span><span style="font-weight:bold;color:blue;"> 15 : ( &quot;—&quot;   U+2014 Pd 1 &quot;EM DASH&quot; )                               &lt;-- replaceable by &quot;-&quot; with LUMP:.true
+</span><span style="font-weight:bold;color:blue;"> 11 : ( &quot;&quot;    U+0009 Cc 0 &quot;&quot;, &quot;CHARACTER TABULATION&quot; )              &lt;-- replaceable by &quot; &quot; with STRIPCC:
+</span><span style="font-weight:bold;color:blue;"> 12 : ( &quot;‐&quot;   U+2010 Pd 1 &quot;HYPHEN&quot; )                                &lt;-- replaceable by &quot;-&quot; with LUMP:
+</span><span style="font-weight:bold;color:blue;"> 13 : ( &quot;­&quot;   U+00AD Cf 1 &quot;SOFT HYPHEN&quot;, &quot;SHY&quot; )                    &lt;-- removable by STRIPIGNORABLE:
+</span><span style="font-weight:bold;color:blue;"> 14 : ( &quot;–&quot;   U+2013 Pd 1 &quot;EN DASH&quot; )                               &lt;-- replaceable by &quot;-&quot; with LUMP:
+</span><span style="font-weight:bold;color:blue;"> 15 : ( &quot;—&quot;   U+2014 Pd 1 &quot;EM DASH&quot; )                               &lt;-- replaceable by &quot;-&quot; with LUMP:
 </span><span style="font-weight:bold;color:blue;"> 16 : ( &quot;N&quot;   U+004E Lu 1 &quot;LATIN CAPITAL LETTER N&quot; )
 </span><span style="font-weight:bold;color:blue;"> 17 : ( &quot;o&quot;   U+006F Ll 1 &quot;LATIN SMALL LETTER O&quot; )
-</span><span style="font-weight:bold;color:blue;"> 18 : ( &quot;ë&quot;   U+00EB Ll 1 &quot;LATIN SMALL LETTER E WITH DIAERESIS&quot; )   &lt;-- replaceable by &quot;e&quot; with normalization + STRIPMARK:.true
+</span><span style="font-weight:bold;color:blue;"> 18 : ( &quot;ë&quot;   U+00EB Ll 1 &quot;LATIN SMALL LETTER E WITH DIAERESIS&quot; )   &lt;-- replaceable by &quot;e&quot; with normalization + STRIPMARK:
 </span><span style="font-weight:bold;color:blue;"> 19 : ( &quot;l&quot;   U+006C Ll 1 &quot;LATIN SMALL LETTER L&quot; )
-</span><span style="font-weight:bold;color:blue;"> 20 : ( &quot;﷐&quot;   U+FDD0 Cn 1 &quot;&quot; )                                     &lt;-- removeable with STRIPNA:.true
+</span><span style="font-weight:bold;color:blue;"> 20 : ( &quot;﷐&quot;   U+FDD0 Cn 1 &quot;&quot; )                                     &lt;-- removeable with STRIPNA:
 </span><span style="font-weight:bold;color:blue;"> 21 : ( &quot;&quot;    U+000D Cc 0 &quot;&quot;, &quot;CARRIAGE RETURN&quot;, &quot;CR&quot; )
-</span><span style="font-weight:bold;color:blue;"> 22 : ( &quot;&quot;    U+000A Cc 0 &quot;&quot;, &quot;LINE FEED&quot; )                         &lt;-- CR+LF replaceable by &quot; &quot; with STRIPCC:.true
+</span><span style="font-weight:bold;color:blue;"> 22 : ( &quot;&quot;    U+000A Cc 0 &quot;&quot;, &quot;LINE FEED&quot; )                         &lt;-- CR+LF replaceable by &quot; &quot; with STRIPCC:
+</span><span style="font-weight:bold;color:blue;">*/
 </span>
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; text=                                                               <span style="font-weight:bold;color:blue;">-- T'[07]Le　 ​Père[09]‐­–—Noël﷐[0D0A]'</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">text=                                                               </span><span style="font-weight:bold;color:blue;">-- T'[07]Le　 ​Père[09]‐­–—Noël﷐[0D0A]'</span>
 T'[07]Le　 ​Père[09]‐­–—Noël﷐[0D0A]'
 
 <span style="font-weight:bold;color:blue;">-- Performs unicode case folding, to be able to do a case-insensitive string comparison.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .Unicode~utf8proc_transform(text~string, casefold:.true)=           <span style="font-weight:bold;color:blue;">--  '[07]le　 ​père[09]‐­–—noël﷐[0D0A]'</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~utf8proc_transform(text~string, casefold:)=                </span><span style="font-weight:bold;color:blue;">--  '[07]le　 ​père[09]‐­–—noël﷐[0D0A]'</span>
 '[07]le　 ​père[09]‐­–—noël﷐[0D0A]'
 
 <span style="font-weight:bold;color:blue;">-- Strip &quot;default ignorable characters&quot; such as SOFT-HYPHEN or ZERO-WIDTH-SPACE
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .Unicode~utf8proc_transform(text~string, stripIgnorable:.true)=     <span style="font-weight:bold;color:blue;">--  '[07]Le　 Père[09]‐–—Noël﷐[0D0A]'</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~utf8proc_transform(text~string, stripIgnorable:)=          </span><span style="font-weight:bold;color:blue;">--  '[07]Le　 Père[09]‐–—Noël﷐[0D0A]'</span>
 '[07]Le　 Père[09]‐–—Noël﷐[0D0A]'
 
 <span style="font-weight:bold;color:blue;">-- Lumps certain characters together. See lump.md for details:
@@ -718,48 +685,41 @@ T'[07]Le　 ​Père[09]‐­–—Noël﷐[0D0A]'
 </span><span style="font-weight:bold;color:blue;">-- jlf: I was expecting to have only one space and one &quot;-&quot; but that's not the case
 </span><span style="font-weight:bold;color:blue;">-- Seems working as designed...
 </span><span style="font-weight:bold;color:blue;">-- All the concerned characters become the same character, but still remain distinct characters.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .Unicode~utf8proc_transform(text~string, lump:.true)=               <span style="font-weight:bold;color:blue;">--  '[07]Le  ​Père[09]-­--Noël﷐[0D0A]'</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~utf8proc_transform(text~string, lump:)=                    </span><span style="font-weight:bold;color:blue;">--  '[07]Le  ​Père[09]-­--Noël﷐[0D0A]'</span>
 '[07]Le  ​Père[09]-­--Noël﷐[0D0A]'
 
 <span style="font-weight:bold;color:blue;">-- NLF2LF: Convert LF, CRLF, CR and NEL into LF
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .Unicode~utf8proc_transform(text~string, NLF:1)=                    <span style="font-weight:bold;color:blue;">--  '[07]Le　 ​Père[09]‐­–—Noël﷐[0A]'</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~utf8proc_transform(text~string, NLF:1)=                    </span><span style="font-weight:bold;color:blue;">--  '[07]Le　 ​Père[09]‐­–—Noël﷐[0A]'</span>
 '[07]Le　 ​Père[09]‐­–—Noël﷐[0A]'
 
 <span style="font-weight:bold;color:blue;">-- NLF2LS: Convert LF, CRLF, CR and NEL into LS (U+2028 Zl 0 &quot;LINE SEPARATOR&quot;)
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .Unicode~utf8proc_transform(text~string, NLF:2)=                    <span style="font-weight:bold;color:blue;">--  '[07]Le　 ​Père[09]‐­–—Noël﷐'</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~utf8proc_transform(text~string, NLF:2)=                    </span><span style="font-weight:bold;color:blue;">--  '[07]Le　 ​Père[09]‐­–—Noël﷐'</span>
 '[07]Le　 ​Père[09]‐­–—Noël﷐ '
 
 <span style="font-weight:bold;color:blue;">-- NLF2PS: convert LF, CRLF, CR and NEL into PS (U+2029 Zp 0 &quot;PARAGRAPH SEPARATOR&quot;)
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .Unicode~utf8proc_transform(text~string, NLF:3)=                    <span style="font-weight:bold;color:blue;">--  '[07]Le　 ​Père[09]‐­–—Noël﷐ '</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~utf8proc_transform(text~string, NLF:3)=                    </span><span style="font-weight:bold;color:blue;">--  '[07]Le　 ​Père[09]‐­–—Noël﷐ '</span>
 '[07]Le　 ​Père[09]‐­–—Noël﷐ '
 
 <span style="font-weight:bold;color:blue;">-- Strips and/or converts control characters.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .Unicode~utf8proc_transform(text~string, stripCC:.true)=            <span style="font-weight:bold;color:blue;">--  'Le　 ​Père ‐­–—Noël﷐ '</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~utf8proc_transform(text~string, stripCC:)=                 </span><span style="font-weight:bold;color:blue;">--  'Le　 ​Père ‐­–—Noël﷐ '</span>
 'Le　 ​Père ‐­–—Noël﷐ '
 
 <span style="font-weight:bold;color:blue;">-- Strips all character markings.
 </span><span style="font-weight:bold;color:blue;">-- This includes non-spacing, spacing and enclosing (i.e. accents).
 </span><span style="font-weight:bold;color:blue;">-- This option works only with normalization.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .Unicode~utf8proc_transform(text~string, stripMark:.true, normalization:1)=  <span style="font-weight:bold;color:blue;">--  '[07]Le　 ​Pere[09]‐­–—Noel﷐[0D0A]'</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~utf8proc_transform(text~string, stripMark:, normalization:1)=  </span><span style="font-weight:bold;color:blue;">--  '[07]Le　 ​Pere[09]‐­–—Noel﷐[0D0A]'</span>
 '[07]Le　 ​Pere[09]‐­–—Noel﷐[0D0A]'
 
 <span style="font-weight:bold;color:blue;">-- Strips unassigned codepoints.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .Unicode~utf8proc_transform(text~string, stripNA:.true)=            <span style="font-weight:bold;color:blue;">--  '[07]Le　 ​Père[09]‐­–—Noël[0D0A]'</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~utf8proc_transform(text~string, stripNA:)=                 </span><span style="font-weight:bold;color:blue;">--  '[07]Le　 ​Père[09]‐­–—Noël[0D0A]'</span>
 '[07]Le　 ​Père[09]‐­–—Noël[0D0A]'
 
 <span style="font-weight:bold;color:blue;">-- Application of several options (abbreviated names)
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .Unicode~utf8proc_transform(text~string, casef:.true, lump:.true, norm:1, stripi:.true, stripc:.true, stripm:.true, stripn:.true)= <span style="font-weight:bold;color:blue;">--  'le  pere ---noel '</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~utf8proc_transform(text~string, casef:, lump:, norm:1, stripi:, stripc:, stripm:, stripn:)= </span><span style="font-weight:bold;color:blue;">--  'le  pere ---noel '</span>
 'le  pere ---noel '
 
-<span style="font-weight:bold;color:blue;">Some comments about the transformations:
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Some comments about the transformations:
 </span><span style="font-weight:bold;color:blue;">
 </span><span style="font-weight:bold;color:blue;"> 1  : ( &quot;l&quot;   U+006C Ll 1 &quot;LATIN SMALL LETTER L&quot; )
 </span><span style="font-weight:bold;color:blue;"> 2  : ( &quot;e&quot;   U+0065 Ll 1 &quot;LATIN SMALL LETTER E&quot; )
@@ -778,13 +738,15 @@ T'[07]Le　 ​Père[09]‐­–—Noël﷐[0D0A]'
 </span><span style="font-weight:bold;color:blue;"> 15 : ( &quot;e&quot;   U+0065 Ll 1 &quot;LATIN SMALL LETTER E&quot; )
 </span><span style="font-weight:bold;color:blue;"> 16 : ( &quot;l&quot;   U+006C Ll 1 &quot;LATIN SMALL LETTER L&quot; )
 </span><span style="font-weight:bold;color:blue;"> 17 : ( &quot; &quot;   U+0020 Zs 1 &quot;SPACE&quot;, &quot;SP&quot; )               &lt;-- STRIPCC (was CR+LF)
+</span><span style="font-weight:bold;color:blue;">*/
 </span>
 
 <span style="font-weight:bold;color:blue;">-------------------------
 </span><span style="font-weight:bold;color:blue;">-- Unicode normalizations
 </span><span style="font-weight:bold;color:blue;">-------------------------
 </span>
-<span style="font-weight:bold;color:blue;">Normalization NFC, NFD, NFKC, NFKD.
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Normalization NFC, NFD, NFKC, NFKD.
 </span><span style="font-weight:bold;color:blue;">http://unicode.org/faq/normalization.html
 </span><span style="font-weight:bold;color:blue;">Implemented with utf8proc.
 </span><span style="font-weight:bold;color:blue;">
@@ -805,70 +767,53 @@ T'[07]Le　 ​Père[09]‐­–—Noël﷐[0D0A]'
 </span><span style="font-weight:bold;color:blue;">The methods NFxx sets the corresponding indicator isNFxx
 </span><span style="font-weight:bold;color:blue;">- on the source text : 0 or 1 (test if both strings are equal)
 </span><span style="font-weight:bold;color:blue;">- on the result text : 1
+</span><span style="font-weight:bold;color:blue;">*/
 </span>
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;only ASCII&quot;~text~isNFC=                        <span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;only ASCII&quot;~text~isNFC=                        </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;only ASCII&quot;~text~isNFD=                        <span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;only ASCII&quot;~text~isNFD=                        </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;only ASCII&quot;~text~isNFKC=                       <span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;only ASCII&quot;~text~isNFKC=                       </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;only ASCII&quot;~text~isNFKD=                       <span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;only ASCII&quot;~text~isNFKD=                       </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; text = &quot;Noël&quot;~text
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; text~isNFC=                                     <span style="font-weight:bold;color:blue;">-- -1</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">text = &quot;Noël&quot;~text</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">text~isNFC=                                     </span><span style="font-weight:bold;color:blue;">-- -1</span>
  1
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; text~isNFD=                                     <span style="font-weight:bold;color:blue;">-- -1</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">text~isNFD=                                     </span><span style="font-weight:bold;color:blue;">-- -1</span>
 -1
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; textNFC = text~NFC
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; textNFD = text~NFD
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; text~isNFC=                                     <span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">textNFC = text~NFC</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">textNFD = text~NFD</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">text~isNFC=                                     </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; text~isNFD=                                     <span style="font-weight:bold;color:blue;">-- 0</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">text~isNFD=                                     </span><span style="font-weight:bold;color:blue;">-- 0</span>
 -1
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; textNFC~isNFC=                                  <span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">textNFC~isNFC=                                  </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; textNFD~isNFD=                                  <span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">textNFD~isNFD=                                  </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
 
-<span style="font-weight:bold;color:blue;">The normalized text can be memorized on the original text:
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">The normalized text can be memorized on the original text:
 </span><span style="font-weight:bold;color:blue;">    text = &quot;père Noël&quot;~text
-</span><span style="font-weight:bold;color:blue;">    textNFD = text~nfd(memorize:.true)      -- abbreviation mem:.true
-</span><span style="font-weight:bold;color:blue;">From now, the returned NFD is always the memorized text:
-</span><span style="font-weight:bold;color:blue;">    text~nfd == textNFD                     -- .true
+</span><span style="font-weight:bold;color:blue;">    textNFD = text~nfd(memorize:)               -- abbreviation mem:.true
+</span><span style="font-weight:bold;color:blue;">From now, the returned NFD is always the memorized text.
+</span><span style="font-weight:bold;color:blue;">*/
 </span>
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; text = xrange(&quot;0&quot;, &quot;FF&quot;x)~text(&quot;cp1252&quot;)~utf8(strict: .false)
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; text=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">text = xrange(&quot;0&quot;, &quot;FF&quot;x)~text(&quot;cp1252&quot;)~utf8</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">text=</span>
 T'0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ'
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; text~isNFD=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">text~isNFD=</span>
 -1
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; do 500; textNFD = text~NFD; end
-<span style="font-weight:bold;color:green;">Duration: 10.740318
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; do 500; textNFD = text~NFD(mem: .true); end
-<span style="font-weight:bold;color:green;">Duration: 0.040262
-</span>text~nfd~&quot;==&quot;:.object( textNFD)=                <span style="font-weight:bold;color:blue;">-- 1 (this is really the same object)</span>
+ooRexx[sh]&gt; ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">do 500; textNFD = text~NFD; end</span>
+<span style="font-weight:bold;color:green;">Duration: 5.976571
+</span>ooRexx[sh]&gt; ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">do 500; textNFD = text~NFD(mem:); end</span>
+<span style="font-weight:bold;color:green;">Duration: 0.038046
+</span><span style="font-weight:bold;color:purple;">text~nfd~&quot;==&quot;:.object( textNFD)=                </span><span style="font-weight:bold;color:blue;">-- 1 (this is really the same object)</span>
  1
 
-<span style="font-weight:bold;color:blue;">Some remarks about the string used in the next demo:
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Some remarks about the string used in the next demo:
 </span><span style="font-weight:bold;color:blue;">- the first &quot;äöü&quot; is NFC, the second &quot;äöü&quot; is NFD
 </span><span style="font-weight:bold;color:blue;">- &quot;x̂&quot; is two codepoints in any normalization.
 </span><span style="font-weight:bold;color:blue;">- &quot;ϔ&quot; normalization forms are all different.
@@ -876,9 +821,9 @@ T'0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvw
 </span><span style="font-weight:bold;color:blue;">- &quot;baﬄe&quot;~text~subchar(3)=     -- T'ﬄ'
 </span><span style="font-weight:bold;color:blue;">  &quot;baﬄe&quot;~text~upper=          -- T'BAﬄE', not BAFFLE
 </span><span style="font-weight:bold;color:blue;">  The ligature disappears in NFK[CD] but not in NF[CD]
+</span><span style="font-weight:bold;color:blue;">*/
 </span>
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~characters==
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~characters==</span>
 an Array (shape [22], 22 items)
  1  : ( &quot;ä&quot;   U+00E4 Ll 1 &quot;LATIN SMALL LETTER A WITH DIAERESIS&quot; )
  2  : ( &quot;ö&quot;   U+00F6 Ll 1 &quot;LATIN SMALL LETTER O WITH DIAERESIS&quot; )
@@ -902,20 +847,19 @@ an Array (shape [22], 22 items)
  20 : ( &quot;a&quot;   U+0061 Ll 1 &quot;LATIN SMALL LETTER A&quot; )
  21 : ( &quot;ﬄ&quot;   U+FB04 Ll 1 &quot;LATIN SMALL LIGATURE FFL&quot; )
  22 : ( &quot;e&quot;   U+0065 Ll 1 &quot;LATIN SMALL LETTER E&quot; )
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~description=      <span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (18 graphemes, 22 codepoints, 34 bytes, 0 error)'</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~description=      </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (18 graphemes, 22 codepoints, 34 bytes, 0 error)'</span>
 'UTF-8 not-ASCII (18 graphemes, 22 codepoints, 34 bytes, 0 error)'
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~upper=            <span style="font-weight:bold;color:blue;">-- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~upper=            </span><span style="font-weight:bold;color:blue;">-- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE</span>
 T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
 
-<span style="font-weight:bold;color:blue;">NFD
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">NFD
 </span><span style="font-weight:bold;color:blue;">Normalization Form D
 </span><span style="font-weight:bold;color:blue;">Canonical Decomposition
 </span><span style="font-weight:bold;color:blue;">Characters are decomposed by canonical equivalence, and multiple combining characters are arranged in a specific order.
+</span><span style="font-weight:bold;color:blue;">*/
 </span>
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfd~characters==
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfd~characters==</span>
 an Array (shape [26], 26 items)
  1  : ( &quot;a&quot;   U+0061 Ll 1 &quot;LATIN SMALL LETTER A&quot; )
  2  : ( &quot;̈&quot;    U+0308 Mn 0 &quot;COMBINING DIAERESIS&quot; )
@@ -943,20 +887,19 @@ an Array (shape [26], 26 items)
  24 : ( &quot;a&quot;   U+0061 Ll 1 &quot;LATIN SMALL LETTER A&quot; )
  25 : ( &quot;ﬄ&quot;   U+FB04 Ll 1 &quot;LATIN SMALL LIGATURE FFL&quot; )
  26 : ( &quot;e&quot;   U+0065 Ll 1 &quot;LATIN SMALL LETTER E&quot; )
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfd~description=  <span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (18 graphemes, 26 codepoints, 39 bytes, 0 error)'</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfd~description=  </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (18 graphemes, 26 codepoints, 39 bytes, 0 error)'</span>
 'UTF-8 not-ASCII (18 graphemes, 26 codepoints, 39 bytes, 0 error)'
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfd~upper=        <span style="font-weight:bold;color:blue;">-- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfd~upper=        </span><span style="font-weight:bold;color:blue;">-- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'</span>
 T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
 
-<span style="font-weight:bold;color:blue;">NFC
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">NFC
 </span><span style="font-weight:bold;color:blue;">Normalization Form C
 </span><span style="font-weight:bold;color:blue;">Canonical Decomposition, followed by Canonical Composition
 </span><span style="font-weight:bold;color:blue;">Characters are decomposed and then recomposed by canonical equivalence.
+</span><span style="font-weight:bold;color:blue;">*/
 </span>
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfc~characters==
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfc~characters==</span>
 an Array (shape [19], 19 items)
  1  : ( &quot;ä&quot;   U+00E4 Ll 1 &quot;LATIN SMALL LETTER A WITH DIAERESIS&quot; )
  2  : ( &quot;ö&quot;   U+00F6 Ll 1 &quot;LATIN SMALL LETTER O WITH DIAERESIS&quot; )
@@ -977,20 +920,19 @@ an Array (shape [19], 19 items)
  17 : ( &quot;a&quot;   U+0061 Ll 1 &quot;LATIN SMALL LETTER A&quot; )
  18 : ( &quot;ﬄ&quot;   U+FB04 Ll 1 &quot;LATIN SMALL LIGATURE FFL&quot; )
  19 : ( &quot;e&quot;   U+0065 Ll 1 &quot;LATIN SMALL LETTER E&quot; )
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfc~description=  <span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (18 graphemes, 19 codepoints, 31 bytes, 0 error)'</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfc~description=  </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (18 graphemes, 19 codepoints, 31 bytes, 0 error)'</span>
 'UTF-8 not-ASCII (18 graphemes, 19 codepoints, 31 bytes, 0 error)'
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfc~upper=        <span style="font-weight:bold;color:blue;">-- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfc~upper=        </span><span style="font-weight:bold;color:blue;">-- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'</span>
 T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
 
-<span style="font-weight:bold;color:blue;">NFKD
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">NFKD
 </span><span style="font-weight:bold;color:blue;">Normalization Form KD
 </span><span style="font-weight:bold;color:blue;">Compatibility Decomposition (K is used to stand for compatibility to avoid confusion with the C standing for composition)
 </span><span style="font-weight:bold;color:blue;">Characters are decomposed by compatibility, and multiple combining characters are arranged in a specific order.
+</span><span style="font-weight:bold;color:blue;">*/
 </span>
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfkd~characters==
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfkd~characters==</span>
 an Array (shape [45], 45 items)
  1  : ( &quot;a&quot;   U+0061 Ll 1 &quot;LATIN SMALL LETTER A&quot; )
  2  : ( &quot;̈&quot;    U+0308 Mn 0 &quot;COMBINING DIAERESIS&quot; )
@@ -1037,20 +979,19 @@ an Array (shape [45], 45 items)
  43 : ( &quot;f&quot;   U+0066 Ll 1 &quot;LATIN SMALL LETTER F&quot; )
  44 : ( &quot;l&quot;   U+006C Ll 1 &quot;LATIN SMALL LETTER L&quot; )
  45 : ( &quot;e&quot;   U+0065 Ll 1 &quot;LATIN SMALL LETTER E&quot; )
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfkd~description= <span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (37 graphemes, 45 codepoints, 69 bytes, 0 error)'</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfkd~description= </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (37 graphemes, 45 codepoints, 69 bytes, 0 error)'</span>
 'UTF-8 not-ASCII (37 graphemes, 45 codepoints, 69 bytes, 0 error)'
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfkd~upper=       <span style="font-weight:bold;color:blue;">-- T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfkd~upper=       </span><span style="font-weight:bold;color:blue;">-- T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE</span>
 T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE'
 
-<span style="font-weight:bold;color:blue;">NFKC
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">NFKC
 </span><span style="font-weight:bold;color:blue;">Normalization Form KC
 </span><span style="font-weight:bold;color:blue;">Compatibility Decomposition, followed by Canonical Composition
 </span><span style="font-weight:bold;color:blue;">Characters are decomposed by compatibility, then recomposed by canonical equivalence.
+</span><span style="font-weight:bold;color:blue;">*/
 </span>
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfkc~characters==
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfkc~characters==</span>
 an Array (shape [38], 38 items)
  1  : ( &quot;ä&quot;   U+00E4 Ll 1 &quot;LATIN SMALL LETTER A WITH DIAERESIS&quot; )
  2  : ( &quot;ö&quot;   U+00F6 Ll 1 &quot;LATIN SMALL LETTER O WITH DIAERESIS&quot; )
@@ -1090,29 +1031,26 @@ an Array (shape [38], 38 items)
  36 : ( &quot;f&quot;   U+0066 Ll 1 &quot;LATIN SMALL LETTER F&quot; )
  37 : ( &quot;l&quot;   U+006C Ll 1 &quot;LATIN SMALL LETTER L&quot; )
  38 : ( &quot;e&quot;   U+0065 Ll 1 &quot;LATIN SMALL LETTER E&quot; )
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfkc~description= <span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (37 graphemes, 38 codepoints, 61 bytes, 0 error)'</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfkc~description= </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (37 graphemes, 38 codepoints, 61 bytes, 0 error)'</span>
 'UTF-8 not-ASCII (37 graphemes, 38 codepoints, 61 bytes, 0 error)'
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfkc~upper=       <span style="font-weight:bold;color:blue;">-- T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE'</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfkc~upper=       </span><span style="font-weight:bold;color:blue;">-- T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE'</span>
 T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE'
 
 <span style="font-weight:bold;color:blue;">-- The normalization forms are implemented only for UTF-8 and WTF-8.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;D800 DC01&quot;x~text(&quot;utf16&quot;)~nfd~characters==    <span style="font-weight:bold;color:blue;">-- Method NFD is ABSTRACT and cannot be directly invoked.</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 DC01&quot;x~text(&quot;utf16&quot;)~nfd~characters==    </span><span style="font-weight:bold;color:blue;">-- Method NFD is ABSTRACT and cannot be directly invoked.</span>
 <span style="font-weight:bold;color:red;">Method NFD is ABSTRACT and cannot be directly invoked.
 </span><span style="font-weight:bold;color:red;">Error code= 93.965
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;D800 DC01&quot;x~text(&quot;utf16&quot;)~utf8~nfd~characters==
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 DC01&quot;x~text(&quot;utf16&quot;)~utf8~nfd~characters==</span>
 an Array (shape [1], 1 items)
  1 : ( &quot;𐀁&quot;   U+10001 Lo 1 &quot;LINEAR B SYLLABLE B038 E&quot; )
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;\uD800\uDC01&quot;~text(&quot;wtf8&quot;)~unescape~nfd~characters==
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;\uD800\uDC01&quot;~text(&quot;wtf8&quot;)~unescape~nfd~characters==</span>
 an Array (shape [1], 1 items)
  1 : ( &quot;𐀁&quot;   U+10001 Lo 1 &quot;LINEAR B SYLLABLE B038 E&quot; )
 
 
-<span style="font-weight:bold;color:blue;">End of demonstration.
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">End of demonstration.
+</span><span style="font-weight:bold;color:blue;">*/
 </span></pre>
 </body>
 </html>

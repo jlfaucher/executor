@@ -27,6 +27,12 @@ txt::
 txt::
 	@for d in $(ooRexxShellDemos); do (make ooRexxShell-demo-$$d-output.txt); done
 
+force::
+	@for d in $(executorDemos); do (touch executor-demo-$$d.rex); done
+
+force::
+	@for d in $(ooRexxShellDemos); do (touch ooRexxShell-demo-$$d.rex); done
+
 %.cast : %.rex
 	-asciinema rec -c "bash -i -c 'cat $? | oorexxshell --showInitialization'" --overwrite $@
 

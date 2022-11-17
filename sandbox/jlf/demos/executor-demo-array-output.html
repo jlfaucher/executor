@@ -8,7 +8,9 @@
 </head>
 <body>
 <pre>
-<span style="font-weight:bold;color:green;">loadPackage OK for extension/extensions.cls
+<span style="font-weight:bold;color:green;">loadPackage OK for extension/stringChunk.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for utilities/indentedStream.cls
+</span><span style="font-weight:bold;color:green;">loadPackage OK for extension/extensions.cls
 </span><span style="font-weight:bold;color:green;">loadLibrary OK for rxunixsys
 </span><span style="font-weight:bold;color:green;">loadPackage OK for ncurses.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for csvStream.cls
@@ -22,144 +24,133 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for smtp.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for socket.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for streamsocket.cls
-</span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe.rex
+</span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2.rex
 </span><span style="font-weight:bold;color:green;">loadPackage OK for BSF.CLS
 </span><span style="font-weight:bold;color:green;">loadPackage OK for oorexxshell_queries.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 15 Jul 2021
-</span><span style="font-weight:bold;color:green;">Input queue name: S2fadQ7fd448419120
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
+</span><span style="font-weight:bold;color:green;">Input queue name: S1a5eQ7fada1c494f0
 </span>
-<span style="color:blue;">--------------------
-</span><span style="color:blue;">-- Array programming
-</span><span style="color:blue;">--------------------
+<span style="font-weight:bold;color:blue;">--------------------
+</span><span style="font-weight:bold;color:blue;">-- Array programming
+</span><span style="font-weight:bold;color:blue;">--------------------
 </span>
-<span style="color:blue;">rank
-</span><span style="color:blue;">
-</span><span style="color:blue;">APL R←⍴⍴Y
-</span><span style="color:blue;">An array may have 0 or more axes or dimensions.
-</span><span style="color:blue;">The number of axes of an array is known as its rank.
-</span><span style="color:blue;">An array with 0 axes (rank 0) is called a scalar
-</span><span style="color:blue;">An array with 1 axis (rank 1) is called a vector.
-</span><span style="color:blue;">An array with 2 axes (rank 2) is called a matrix or table.
-</span><span style="color:blue;">An array with 3 axes (rank 3) is called a cube.
-</span><span style="color:blue;">An array with more than 2 axes is called a multi-dimensional array
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">rank
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">APL R←⍴⍴Y
+</span><span style="font-weight:bold;color:blue;">An array may have 0 or more axes or dimensions.
+</span><span style="font-weight:bold;color:blue;">The number of axes of an array is known as its rank.
+</span><span style="font-weight:bold;color:blue;">An array with 0 axes (rank 0) is called a scalar
+</span><span style="font-weight:bold;color:blue;">An array with 1 axis (rank 1) is called a vector.
+</span><span style="font-weight:bold;color:blue;">An array with 2 axes (rank 2) is called a matrix or table.
+</span><span style="font-weight:bold;color:blue;">An array with 3 axes (rank 3) is called a cube.
+</span><span style="font-weight:bold;color:blue;">An array with more than 2 axes is called a multi-dimensional array
+</span><span style="font-weight:bold;color:blue;">*/
 </span>
-<span style="color:blue;">shape
-</span><span style="color:blue;">
-</span><span style="color:blue;">APL R←⍴Y (Rho)
-</span><span style="color:blue;">The shape of a scalar is an empty vector []
-</span><span style="color:blue;">The shape of an array is an array which gives the size of each dimension.
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">shape
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">APL R←⍴Y (Rho)
+</span><span style="font-weight:bold;color:blue;">The shape of a scalar is an empty vector []
+</span><span style="font-weight:bold;color:blue;">The shape of an array is an array which gives the size of each dimension.
+</span><span style="font-weight:bold;color:blue;">*/
 </span>
-<span style="color:blue;">Any object other than an array is a scalar.
-</span><span style="color:blue;">In particular, a string is a scalar, not an array as in APL.
-</span><span style="color:blue;">Special case which does not exist in APL : The rank of an array with no dimension yet assigned is -1.
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Any object other than an array is a scalar.
+</span><span style="font-weight:bold;color:blue;">In particular, a string is a scalar, not an array as in APL.
+</span><span style="font-weight:bold;color:blue;">Special case which does not exist in APL : The rank of an array with no dimension yet assigned is -1.
+</span><span style="font-weight:bold;color:blue;">*/
 </span>
-<span style="color:blue;">-- scalar
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;string&quot;~shape=
+<span style="font-weight:bold;color:blue;">-- scalar
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;string&quot;~shape=</span>
 []
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; &quot;string&quot;~rank=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;string&quot;~rank=</span>
  0
 
-<span style="color:blue;">-- array with no dimension
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .array~new~shape=
+<span style="font-weight:bold;color:blue;">-- array with no dimension
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.array~new~shape=</span>
 an Array (shape [], 0 items)
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; .array~new~rank=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.array~new~rank=</span>
 -1
 
-<span style="color:blue;">The helper v(...) creates a vector.
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">The helper v(...) creates a vector.
+</span><span style="font-weight:bold;color:blue;">*/
 </span>
-<span style="color:blue;">-- empty vector
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; v()=
+<span style="font-weight:bold;color:blue;">-- empty vector
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">v()=</span>
 []
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; v()~rank=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">v()~rank=</span>
  1
 
-<span style="color:blue;">-- vector of 3 items
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; v(0,1,2)~shape=
+<span style="font-weight:bold;color:blue;">-- vector of 3 items
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">v(0,1,2)~shape=</span>
 [ 3]
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; v(0,1,2)~rank=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">v(0,1,2)~rank=</span>
  1
 
-<span style="color:blue;">The helper a(...) creates an empty array of specified dimensions.
-</span><span style="color:blue;">It's almost similar to .array~new(...), except for a() which returns an array with 0 dimension (a scalar).
-</span><span style="color:blue;">Once the number of dimension(s) is fixed, it's no longer possible to change it.
-</span><span style="color:blue;">This is different from .array~new which returns an array without dimension.
-</span><span style="color:blue;">The number of dimension(s) will be determined by the first access to the array:
-</span><span style="color:blue;">a = .array~new; say a[]        -- Not enough positional arguments for method; 1 expected
-</span><span style="color:blue;">a = .array~new; say a[1]       -- 1 dimension
-</span><span style="color:blue;">a = .array~new; say a[1,1]     -- 2 dimensions
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">The helper a(...) creates an empty array of specified dimensions.
+</span><span style="font-weight:bold;color:blue;">It's almost similar to .array~new(...), except for a() which returns an array with 0 dimension (a scalar).
+</span><span style="font-weight:bold;color:blue;">Once the number of dimension(s) is fixed, it's no longer possible to change it.
+</span><span style="font-weight:bold;color:blue;">This is different from .array~new which returns an array without dimension.
+</span><span style="font-weight:bold;color:blue;">The number of dimension(s) will be determined by the first access to the array:
+</span><span style="font-weight:bold;color:blue;">a = .array~new; say a[]        -- Not enough positional arguments for method; 1 expected
+</span><span style="font-weight:bold;color:blue;">a = .array~new; say a[1]       -- 1 dimension
+</span><span style="font-weight:bold;color:blue;">a = .array~new; say a[1,1]     -- 2 dimensions
+</span><span style="font-weight:bold;color:blue;">*/
 </span>
-<span style="color:blue;">-- array with 0 dimension (scalar)
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; nodim = a()
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; nodim=
+<span style="font-weight:bold;color:blue;">-- array with 0 dimension (scalar)
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">nodim = a()</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">nodim=</span>
 an Array (shape [], 0 items)
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; nodim~rank=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">nodim~rank=</span>
  0
 
-<span style="color:blue;">-- you can't use any index with such array
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; nodim[1]=
+<span style="font-weight:bold;color:blue;">-- you can't use any index with such array
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">nodim[1]=</span>
 <span style="font-weight:bold;color:red;">Too many subscripts for array; 0 expected.
 </span><span style="font-weight:bold;color:red;">Error code= 93.926
 </span>
-<span style="color:blue;">-- but no index is ok
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; nodim[]=
+<span style="font-weight:bold;color:blue;">-- but no index is ok
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">nodim[]=</span>
 (The NIL object)
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; nodim[] = &quot;hello!&quot;
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; nodim[]=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">nodim[] = &quot;hello!&quot;</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">nodim[]=</span>
 'hello!'
 
-<span style="color:blue;">-- empty vector of shape 5
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; a(5)~shape=
+<span style="font-weight:bold;color:blue;">-- empty vector of shape 5
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">a(5)~shape=</span>
 [ 5]
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; a(5)~rank=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">a(5)~rank=</span>
  1
 
-<span style="color:blue;">-- empty matrix of shape 2,2
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; a(2,2)~shape=
+<span style="font-weight:bold;color:blue;">-- empty matrix of shape 2,2
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">a(2,2)~shape=</span>
 [ 2, 2]
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; a(2,2)~rank=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">a(2,2)~rank=</span>
  2
 
-<span style="color:blue;">-- empty cube of shape 3,3,3
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; a(3,3,3)~shape=
+<span style="font-weight:bold;color:blue;">-- empty cube of shape 3,3,3
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">a(3,3,3)~shape=</span>
 [ 3, 3, 3]
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; a(3,3,3)~rank=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">a(3,3,3)~rank=</span>
  3
 
-<span style="color:blue;">The instance method array~of is an initializer which takes into account the dimensions (shape) of the array.
-</span><span style="color:blue;">
-</span><span style="color:blue;">Rules inspired by APL :
-</span><span style="color:blue;">If there are too many items, the extra items are ignored.
-</span><span style="color:blue;">If there are fewer items than implied by the dimensions, the list of items is reused as many times as necessary to fill the array.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; a(6)~of(1,2,3)=
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">The instance method array~of is an initializer which takes into account the dimensions (shape) of the array.
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">Rules inspired by APL :
+</span><span style="font-weight:bold;color:blue;">If there are too many items, the extra items are ignored.
+</span><span style="font-weight:bold;color:blue;">If there are fewer items than implied by the dimensions, the list of items is reused as many times as necessary to fill the array.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">a(6)~of(1,2,3)=</span>
 [ 1, 2, 3, 1, 2, 3]
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; a(2,3)~of(1,2,3)=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">a(2,3)~of(1,2,3)=</span>
 an Array (shape [2,3], 6 items)
 [ 1, 1] :  1
 [ 1, 2] :  2
@@ -167,11 +158,9 @@ an Array (shape [2,3], 6 items)
 [ 2, 1] :  1
 [ 2, 2] :  2
 [ 2, 3] :  3
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; a(6)~of(1,2,3,4,5,6,7,8,9)=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">a(6)~of(1,2,3,4,5,6,7,8,9)=</span>
 [ 1, 2, 3, 4, 5, 6]
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; a(2,3)~of(1,2,3,4,5,6,7,8,9)=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">a(2,3)~of(1,2,3,4,5,6,7,8,9)=</span>
 an Array (shape [2,3], 6 items)
 [ 1, 1] :  1
 [ 1, 2] :  2
@@ -180,22 +169,24 @@ an Array (shape [2,3], 6 items)
 [ 2, 2] :  5
 [ 2, 3] :  6
 
-<span style="color:blue;">If there is only one argument, and this argument has the method ~supplier then each item returned by the argument's supplier is an item.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; a(2,3)~of(.environment)=
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">If there is only one argument, and this argument has the method ~supplier then each item returned by the argument's supplier is an item.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">a(2,3)~of(.environment)=</span>
 an Array (shape [2,3], 6 items)
 [ 1, 1] : (The MutableBufferFilter class)
 [ 1, 2] : (The LogicalExtension class)
-[ 1, 3] : (The StringIndexer class)
+[ 1, 3] : (The Unicode8_Encoding class)
 [ 2, 1] : (The Alarm class)
 [ 2, 2] : (The JLF class)
 [ 2, 3] : (The StringHelpers class)
 
-<span style="color:blue;">If there is only one argument, and this argument is a doer, then the doer is called for each cell to initialize.
-</span><span style="color:blue;">The value returned by the doer is the item for the current cell.
-</span><span style="color:blue;">If no value returned then the cell remains unassigned.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; a(2,3)~of{ if item//4 &lt;&gt; 0 then 10*item }=
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">If there is only one argument, and this argument is a doer, then the doer is called for each cell to initialize.
+</span><span style="font-weight:bold;color:blue;">The value returned by the doer is the item for the current cell.
+</span><span style="font-weight:bold;color:blue;">If no value returned then the cell remains unassigned.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">a(2,3)~of{ if item//4 &lt;&gt; 0 then 10*item }=</span>
 an Array (shape [2,3], 5 items)
 [ 1, 1] :  10
 [ 1, 2] :  20
@@ -203,24 +194,25 @@ an Array (shape [2,3], 5 items)
 [ 2, 2] :  50
 [ 2, 3] :  60
 
-<span style="color:blue;">If there is more than one argument then each argument is an item as-is.
-</span><span style="color:blue;">If some arguments are omitted, then the corresponding item in the initialized array remains non-assigned.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; a(2,3)~of(1,,3,,5,)=
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">If there is more than one argument then each argument is an item as-is.
+</span><span style="font-weight:bold;color:blue;">If some arguments are omitted, then the corresponding item in the initialized array remains non-assigned.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">a(2,3)~of(1,,3,,5,)=</span>
 an Array (shape [2,3], 3 items)
 [ 1, 1] :  1
 [ 1, 3] :  3
 [ 2, 2] :  5
 
-<span style="color:blue;">reshape
-</span><span style="color:blue;">
-</span><span style="color:blue;">APL R←X⍴Y (Rho)
-</span><span style="color:blue;">args : new dimension(s)
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; a(5)~of{ 2*item }=
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">reshape
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">APL R←X⍴Y (Rho)
+</span><span style="font-weight:bold;color:blue;">args : new dimension(s)
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">a(5)~of{ 2*item }=</span>
 [ 2, 4, 6, 8, 10]
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; a(5)~of{ 2*item }~reshape(3,3)=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">a(5)~of{ 2*item }~reshape(3,3)=</span>
 an Array (shape [3,3], 9 items)
 [ 1, 1] :  2
 [ 1, 2] :  4
@@ -232,14 +224,15 @@ an Array (shape [3,3], 9 items)
 [ 3, 2] :  6
 [ 3, 3] :  8
 
-<span style="color:blue;">each
-</span><span style="color:blue;">
-</span><span style="color:blue;">APL R←,Y (Ravel)
-</span><span style="color:blue;">Y may be any array. R is a vector of the elements of Y taken in row-major order.
-</span><span style="color:blue;">inverse of reshape, which turns any data into a vector whose length is the product
-</span><span style="color:blue;">of the shape vector (the dimensions) of the operand array
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; a(1,2,3)~of{index}=
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">each
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">APL R←,Y (Ravel)
+</span><span style="font-weight:bold;color:blue;">Y may be any array. R is a vector of the elements of Y taken in row-major order.
+</span><span style="font-weight:bold;color:blue;">inverse of reshape, which turns any data into a vector whose length is the product
+</span><span style="font-weight:bold;color:blue;">of the shape vector (the dimensions) of the operand array
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">a(1,2,3)~of{index}=</span>
 an Array (shape [1,2,3], 6 items)
 [ 1, 1, 1] : [ 1, 1, 1]
 [ 1, 1, 2] : [ 1, 1, 2]
@@ -247,102 +240,87 @@ an Array (shape [1,2,3], 6 items)
 [ 1, 2, 1] : [ 1, 2, 1]
 [ 1, 2, 2] : [ 1, 2, 2]
 [ 1, 2, 3] : [ 1, 2, 3]
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; a(1,2,3)~of{index}~each=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">a(1,2,3)~of{index}~each=</span>
 [[ 1, 1, 1],[ 1, 1, 2],[ 1, 1, 3],[ 1, 2, 1],[ 1, 2, 2],[ 1, 2, 3]]
 
-<span style="color:blue;">depth
-</span><span style="color:blue;">
-</span><span style="color:blue;">APL R←≡Y (Equal Underbar)
-</span><span style="color:blue;">Depth (≡) indicates the degree of nesting within an array.
-</span><span style="color:blue;">It returns a non-negative integer which defines the maximum number of levels
-</span><span style="color:blue;">of structure to be penetrated in order to get to a simple scalar where simple means non-nested.
-</span><span style="color:blue;">The depth of an array is 1 greater than that of its most deeply nested item.
-</span><span style="color:blue;">
-</span><span style="color:blue;">Returns &quot;infinity&quot; when the array is self-referencing.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; 1~depth=
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">depth
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">APL R←≡Y (Equal Underbar)
+</span><span style="font-weight:bold;color:blue;">Depth (≡) indicates the degree of nesting within an array.
+</span><span style="font-weight:bold;color:blue;">It returns a non-negative integer which defines the maximum number of levels
+</span><span style="font-weight:bold;color:blue;">of structure to be penetrated in order to get to a simple scalar where simple means non-nested.
+</span><span style="font-weight:bold;color:blue;">The depth of an array is 1 greater than that of its most deeply nested item.
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">Returns &quot;infinity&quot; when the array is self-referencing.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">1~depth=</span>
  0
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; v(1)~depth=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">v(1)~depth=</span>
  1
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; v(v(1))~depth=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">v(v(1))~depth=</span>
  2
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; v=v(1); v~append(v); v~depth=;
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">v=v(1); v~append(v); v~depth=;</span>
 (The positive infinity)
 
-<span style="color:blue;">enclose
-</span><span style="color:blue;">
-</span><span style="color:blue;">APL R←⊂Y (Left Shoe)
-</span><span style="color:blue;">If Y is a simple scalar, R is the simple scalar unchanged.
-</span><span style="color:blue;">Otherwise, R has a depth whose magnitude is one greater than the magnitude of the depth of Y.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; e=1~enclose
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; e=
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">enclose
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">APL R←⊂Y (Left Shoe)
+</span><span style="font-weight:bold;color:blue;">If Y is a simple scalar, R is the simple scalar unchanged.
+</span><span style="font-weight:bold;color:blue;">Otherwise, R has a depth whose magnitude is one greater than the magnitude of the depth of Y.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">e=1~enclose</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">e=</span>
  1
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; e~depth=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">e~depth=</span>
  0
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; e=v(1)~enclose~enclose
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; e=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">e=v(1)~enclose~enclose</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">e=</span>
 &lt;&lt;[ 1]&gt;&gt;
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; e~depth=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">e~depth=</span>
  3
 
-<span style="color:blue;">disclose
-</span><span style="color:blue;">
-</span><span style="color:blue;">APL R←⊃Y (Right Shoe)
-</span><span style="color:blue;">Disclose is the inverse of Enclose.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; e=v(1)~enclose~enclose
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; e=
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">disclose
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">APL R←⊃Y (Right Shoe)
+</span><span style="font-weight:bold;color:blue;">Disclose is the inverse of Enclose.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">e=v(1)~enclose~enclose</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">e=</span>
 &lt;&lt;[ 1]&gt;&gt;
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; e=e~disclose
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; e=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">e=e~disclose</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">e=</span>
 &lt;[ 1]&gt;
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; e~depth=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">e~depth=</span>
  2
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; e=e~disclose
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; e=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">e=e~disclose</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">e=</span>
 [ 1]
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; e~depth=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">e~depth=</span>
  1
 
-<span style="color:blue;">Indexing a vector
-</span><span style="color:blue;">It is possible to extract several items in a single operation, and in any order.
-</span><span style="color:blue;">An item can be selected more than once.
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; vector = (10,20,30,40,50)
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; vector~indexer(3)=
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Indexing a vector
+</span><span style="font-weight:bold;color:blue;">It is possible to extract several items in a single operation, and in any order.
+</span><span style="font-weight:bold;color:blue;">An item can be selected more than once.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">vector = (10,20,30,40,50)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">vector~indexer(3)=</span>
 [ 30]
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; vector~indexer(3,3)=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">vector~indexer(3,3)=</span>
 [ 30, 30]
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; 'LE CHAT'~eachc~indexer(7,5,2,3,4,6,7)~tostring(&quot;c&quot;)=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">'LE CHAT'~eachc~indexer(7,5,2,3,4,6,7)~tostring(&quot;c&quot;)=</span>
 'THE CAT'
 
-<span style="color:blue;">The index may be an array of any shape: scalar, vector, matrix, or an array of higher rank.
-</span><span style="color:blue;">When a vector is indexed by an array, the result has exactly the same shape as the index
-</span><span style="color:blue;">array, as if each item of the index had been replaced by the item it designates:
-</span><span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; index = a(3,5)~of(5,5,4,4,3,3,2,2,1,1)
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; index=
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">The index may be an array of any shape: scalar, vector, matrix, or an array of higher rank.
+</span><span style="font-weight:bold;color:blue;">When a vector is indexed by an array, the result has exactly the same shape as the index
+</span><span style="font-weight:bold;color:blue;">array, as if each item of the index had been replaced by the item it designates:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">index = a(3,5)~of(5,5,4,4,3,3,2,2,1,1)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">index=</span>
 an Array (shape [3,5], 15 items)
 [ 1, 1] :  5
 [ 1, 2] :  5
@@ -359,10 +337,8 @@ an Array (shape [3,5], 15 items)
 [ 3, 3] :  4
 [ 3, 4] :  4
 [ 3, 5] :  3
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; vector = (10,20,30,40,50)
-<span style="font-weight:bold;color:olive;">
-</span>ooRexx[bash]&gt; vector~indexer(index)=
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">vector = (10,20,30,40,50)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">vector~indexer(index)=</span>
 an Array (shape [3,5], 15 items)
 [ 1, 1] :  50
 [ 1, 2] :  50
@@ -380,7 +356,9 @@ an Array (shape [3,5], 15 items)
 [ 3, 4] :  40
 [ 3, 5] :  30
 
-<span style="color:blue;">End of demonstration.
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">End of demonstration.
+</span><span style="font-weight:bold;color:blue;">*/
 </span></pre>
 </body>
 </html>
