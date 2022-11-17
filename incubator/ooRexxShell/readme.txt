@@ -77,7 +77,7 @@ With as input a text file where each line is a file path: Count the number of fi
 CMD> oorexxshell '"/Volumes/testCpp1/files.txt"~pipe(.fileLines | .inject {suffix = item~substr(item~lastpos(".")); if suffix~pos(".") == 1 & suffix~pos("/") == 0 then suffix~lower} | .sort  | .lineCount {item} | .console)' > files_analysis.txt
 
 Example
-By design, parse pull reads first the queue and then the standard input.
+By design, parse pull reads first the input queue and then the standard input.
 In the next example, "say hello2" has been pushed to the input queue of ooRexxShell,
 and "say hello1" comes from the standard input.
 CMD> echo say hello1 | oorexxshell say hello2
@@ -98,15 +98,17 @@ To execute a Rexx script, use this command:
 CMD> oorexxshell call "my script path"
 
 To replay a set of commands from an interactive ooRexxShell:
-First, launch ooRexxShell.
-Copy its queue name (displayed before the first prompt, also available in .ooRexxShell~queueName).
-From another command prompt, execute:
-CMD>  type my_commands.txt | rxqueue <queuename>
-BASH> cat  my_commands.txt | rxqueue <queuename>
-Back in ooRexxShell.
-Press <enter>.
-If you typed a command in ooRexxShell, it will be executed first.
-Then each command read from the queue will be executed.
+Solution 1
+    < my_commands.txt
+Solution 2
+    Copy the input queue name (displayed before the first prompt, also available in .ooRexxShell~queueName).
+    From another command prompt, execute:
+    CMD>  type my_commands.txt | rxqueue <queuename>
+    BASH> cat  my_commands.txt | rxqueue <queuename>
+    Back in ooRexxShell.
+    Press <enter>.
+    If you typed a command in ooRexxShell, it will be executed first.
+    Then each command read from the input queue will be executed.
 
 
 Queries
@@ -249,19 +251,24 @@ Commands
 To be recognized, these commands must be the first word of the input line.
 If the input line starts with a space then these commands are not recognized.
 
+/* alone: Used in a demo to start a multiline comment. Ended by */ alone.
+< filename: read the file and put each line in the queue.
 color off|on: deactivate|activate the colors.
-demo off|on: deactivate|activate the demonstration mode.
 debug off|on: deactivate|activate the full trace of the internals of ooRexxShell.
+demo off|on: deactivate|activate the demonstration mode.
 exit: exit ooRexxShell.
-infos off|on: deactivate|activate the display of informations after each execution.
+goto <label>: used in a demo script to skip lines, until <label>: (note colon) is reached.
+indent+ | indent-: used by the command < to show the level of inclusion
+infos off|on|next: deactivate|activate the display of informations after each execution.
 prompt directory off|on: deactivate|activate the display of the directory before the prompt.
 readline off: use the raw parse pull for the input.
 readline on: delegate to the system readline (history, tab completion).
 reload: exit the current session and reload all the packages/libraries.
 security off: deactivate the security manager. No transformation of commands.
 security on : activate the security manager. Transformation of commands.
+sleep [n] [no prompt]: used in demo mode to pause during n seconds (default 2 sec).
 trace off|on [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity][.verbose]]: deactivate|activate the trace.
-trap off|on [l[ostdigits]] [s[yntax]]: deactivate|activate the conditions traps.
+trap off|on [l[ostdigits]] [nom[ethod]] [nos[tring]] [nov[alue]] [s[yntax]]: deactivate|activate the conditions traps.
 
 
 Known problems under Windows
@@ -269,7 +276,7 @@ Known problems under Windows
 
 - If you want the colors then you must put gci.dll in your PATH.
   You can get gci here: http://rexx-gci.sourceforge.net
-  For 64-bit support and new type aliases, see https://github.com/jlfaucher/builder/tree/master/adaptations
+  For 64-bit support and new type aliases, see https://github.com/jlfaucher/rexx-gci
 
 - If you launch ooRexxShell from a .bat file, then you need to prepend cmd /c to have the
   doskey history working correctly.
@@ -337,6 +344,26 @@ Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
 
 History of changes
 ==================
+
+-----------------------------------------------
+2022 nov 17
+
+New command "< filename" to include the file's lines in the input queue.
+The file is searched using the method ~findProgram:
+- searched in the same directory as the program invoking this command,
+- searched in the current system directory
+- searched in any REXX_PATH or PATH directory.
+If filename is without extension then .rex is tried.
+
+New commands "indent+" and "indent-" to indent the output in ooRexxShell.
+Used by the command "< filename" to show the level of inclusion.
+
+Modification of the prompt:
+- no line break before the prompt.
+- display systemAddress() instead of address()
+
+Use a specific color for the command line (visible in demo only).
+
 
 -----------------------------------------------
 2022 jul 09
@@ -439,7 +466,7 @@ when ooRexxShell is interactive.
 -----------------------------------------------
 2021 may 13
 
-New command "demo fast" to disable the sleep coomands.
+New command "demo fast" to disable the sleep commands.
 
 Typical usage:
 Execute a demo at full speed when recording the output in a text file.
@@ -543,6 +570,7 @@ In verbose mode, the trace is displayed each time the security manager is called
 
 The readline mode is deactivated for Windows because I never succeded to have a good history management.
 Now we have a robust history management, but we lose the doskey macros and the filename expansion with 'tab'.
+[2022 Nov 17] and we lose the support of UTF-8 when using chcp 65001: the characters >= 80x are replaced by 00x.
 
 The history filename is .oorexxshell_history (was .history_oorexxshell).
 Bypass a known problem with old versions of bash: the history file must not be empty.

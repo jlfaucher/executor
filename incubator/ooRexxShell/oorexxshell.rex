@@ -170,7 +170,8 @@ if value("OOREXXSHELL_RLWRAP", , "ENVIRONMENT") <> "" then .ooRexxShell~readline
 .ooRexxShell~infoColor = "bgreen"
 .ooRexxShell~commentColor = "bblue"
 .ooRexxShell~promptColor = "byellow"
-.ooRexxShell~traceColor = "bpurple"
+.ooRexxShell~traceColor = "purple"
+.ooRexxShell~commandColor = "bpurple"
 if .platform~is("windows") then do
     if .color~defaultBackground == 0 /*black*/ then do
         .ooRexxShell~commentColor = "bcyan" -- instead of blue which is less readable
@@ -246,7 +247,14 @@ address value .ooRexxShell~initialAddress
 .ooRexxShell~interpreter = .ooRexxShell~interpreters~entry("oorexx")
 
 .ooRexxShell~queueName = rxqueue("create") -- public input queue
-.ooRexxShell~queueInitialName = rxqueue("set", .ooRexxShell~queueName)
+.ooRexxShell~queueInitialName = rxqueue("set", .ooRexxShell~queueName) -- SESSION
+
+if .ooRexxShell~hasIndentedStream then do
+    .ooRexxShell~indentedOutputStream = .IndentedStream~new(.output~current)
+    .output~destination(.ooRexxShell~indentedOutputStream)
+    .ooRexxShell~indentedErrorStream = .IndentedStream~new(.error~current)
+    .error~destination(.ooRexxShell~indentedErrorStream)
+end
 
 call checkReadlineCapability
 
@@ -279,7 +287,7 @@ main: procedure
         .ooRexxShell~inputrxPrevious = .ooRexxShell~inputrx
         .ooRexxShell~maybeCommandPrevious = .ooRexxShell~maybeCommand
 
-        .ooRexxShell~prompt = prompt(address())
+        .ooRexxShell~prompt = prompt(systemAddress())
         .ooRexxShell~inputrx = readline(.ooRexxShell~prompt)
         .ooRexxShell~input = .ooRexxShell~inputrx~strip -- remember: don't apply ~space here!
 
@@ -315,6 +323,9 @@ main: procedure
             when .ooRexxShell~inputrx~left(1) == "?" then
                 .ooRexxShell~help(.context, .ooRexxShell~inputrx~substr(2))
 
+            when .ooRexxShell~maybeCommand & .ooRexxShell~input~word(1) == "<" then
+                .ooRexxShell~queueFileCommand(.ooRexxShell~input)
+
             when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("color off") then
                 .ooRexxShell~showColor = .false
             when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("color on") then
@@ -338,6 +349,19 @@ main: procedure
 
             when .ooRexxShell~maybeCommand & .ooRexxShell~input~word(1)~caselessEquals("goto") then
                 .ooRexxShell~goto(.ooRexxShell~input)
+
+            when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("indent+") then do
+                if .ooRexxShell~hasIndentedStream then do
+                    .ooRexxShell~indentedOutputStream~indent
+                    .ooRexxShell~indentedErrorStream~indent
+                end
+            end
+            when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("indent-") then do
+                if .ooRexxShell~hasIndentedStream then do
+                    .ooRexxShell~indentedOutputStream~dedent
+                    .ooRexxShell~indentedErrorStream~dedent
+                end
+            end
 
             when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("infos off") then
                 .ooRexxShell~showInfos = .false
@@ -423,7 +447,7 @@ dispatchCommand:
     call time('r') -- to see how long this takes
     RC = 0
     .ooRexxShell~error = .false
-    call rxqueue "set", .ooRexxShell~queueInitialName -- Reactivate the initial queue, for the command evaluation
+    call rxqueue "set", .ooRexxShell~queueInitialName -- Reactivate the initial SESSION queue, for the command evaluation
     if .ooRexxshell~securityManager~isEnabledByUser then .ooRexxShell~securityManager~isEnabled = .true
     if .ooRexxShell~commandInterpreter~caselessEquals("ooRexx") then
         signal interpretCommand -- don't call
@@ -516,10 +540,12 @@ Helpers
 -------------------------------------------------------------------------------
 ::routine promptDirectory
     use strict arg
-    .color~select(.ooRexxShell~promptColor)
-    say
-    if .ooRexxShell~promptDirectory then say directory()
-    .color~select(.ooRexxShell~defaultColor)
+    if .ooRexxShell~promptDirectory then do
+        .color~select(.ooRexxShell~promptColor)
+        --say
+        say directory()
+        .color~select(.ooRexxShell~defaultColor)
+    end
 
 ::routine prompt
     use strict arg currentAddress
@@ -622,11 +648,13 @@ Helpers
         maybeCommand = inputrx~left(1, ".") <> " "
         input = inputrx~space
         select
-            when inputrx == "/*" then nop
-            when inputrx == "*/" then nop
+            when inputrx == "/*" then .ooRexxShell~sayComment(inputrx)
+            when inputrx == "*/" then .ooRexxShell~sayComment(inputrx)
             when maybeCommand & input~caselessEquals("demo off") then nop
             when maybeCommand & input~caselessEquals("demo on") then nop
             when maybeCommand & input~word(1)~caselessEquals("goto") then nop
+            when maybeCommand & input~caselessEquals("indent+") then nop
+            when maybeCommand & input~caselessEquals("indent-") then nop
             when maybeCommand & input~caselessEquals("infos next") then nop
             when maybeCommand & input~caselessEquals("prompt directory off") then nop
             when maybeCommand & input~caselessEquals("prompt directory on") then nop
@@ -851,6 +879,9 @@ Helpers
     -- Try to load the stand-alone package (don't ::requires it, to avoid an error if not found)
     call loadPackage("extension/stringChunk.cls")
    .ooRexxShell~routine_stringChunks = .context~package~findroutine("stringChunks")
+
+    -- The class IndentedStream is optional. Used internally by the "<" command.
+    .ooRexxShell~hasIndentedStream = loadPackage("utilities/indentedStream.cls")
 
     -- Load the extensions now, because some packages may depend on extensions
     -- for compatibility with ooRexx5 (ex: json, regex)
@@ -1132,6 +1163,7 @@ Helpers
 ::attribute promptColor class
 ::attribute traceColor class
 ::attribute commentColor class
+::attribute commandColor class
 
 ::attribute traceDispatchCommand class
 ::attribute traceFilter class
@@ -1150,6 +1182,10 @@ Helpers
 ::attribute routine_pp2 class -- The routine pp2 of extended rgf_util, or .nil
 ::attribute routine_stringChunks class -- The routine stringChunks, or .nil
 
+::attribute hasIndentedStream class -- Will be true if indentedStream.cls has been loaded
+::attribute indentedOutputStream class -- Used by the command "<" to show the level of include
+::attribute indentedErrorStream class -- Used by the command "<" to show the level of include
+
 ::method init class
     self~comparatorClass = .nil
     self~countCommentChars = 0
@@ -1164,9 +1200,12 @@ Helpers
     self~error = .false
     self~gotoLabel = ""
     self~hasBsf = .false
+    self~hasIndentedStream = .false
     self~hasQueries = .false
     self~hasRegex = .false
     self~hasRgfUtil2Extended = .false
+    self~indentedErrorStream = .nil
+    self~indentedOutputStream = .nil
     self~isExtended = .false
     self~isInteractive = .false
     self~maxItemsDisplayed = 1000
@@ -1219,6 +1258,7 @@ Helpers
     "demo",
     "defaultSleepDelay",
     "hasBsf",
+    "hasIndentedStream",
     "hasQueries",
     "hasRegex",
     "hasRgfUtil2Extended",
@@ -1387,6 +1427,7 @@ Helpers
 
 ::method charoutSlowly class
     use strict arg text, delay=0.05
+    .color~select(.ooRexxShell~commandColor, .error)
     -- Naive comment detection (could be inside a quoted string), but good enough.
     commentPos = text~pos("--")
     previousChar = ""
@@ -1403,6 +1444,7 @@ Helpers
             previousChar = char
         end
     end
+    .color~select(.ooRexxShell~defaultColor, .error)
 
 
 ::method prettyString class
@@ -1669,11 +1711,13 @@ Helpers
     -- .ooRexxShell~helpInterpreters
     say "Commands:"
     say "    /* alone: Used in a demo to start a multiline comment. Ended by */ alone."
+    say "    < filename: read the file and put each line in the queue."
     say "    color off|on: deactivate|activate the colors."
     say "    debug off|on: deactivate|activate the full trace of the internals of ooRexxShell."
     say "    demo off|on: deactivate|activate the demonstration mode."
     say "    exit: exit ooRexxShell."
-    say "    goto <label>: Used in a demo script to skip lines, until <label>: (note colon) is reached."
+    say "    goto <label>: used in a demo script to skip lines, until <label>: (note colon) is reached."
+    say "    indent+ | indent-: used by the command < to show the level of inclusion."
     say "    infos off|on|next: deactivate|activate the display of informations after each execution."
     say "    prompt directory off|on: deactivate|activate the display of the directory before the prompt."
     say "    readline off: use the raw parse pull for the input."
@@ -1891,6 +1935,86 @@ Helpers
         return
     end
     .ooRexxShell~gotoLabel = word2
+
+
+::method queueFileCommand class
+    -- The command "< filename" allows to include the file's lines in the queue.
+    -- The file is searched using the method ~findProgram.
+    -- Returns .true if no error.
+
+    use strict arg input
+    parse var input . filename -- everything after the first word '<' is the filename, which can contain spaces.
+    filename = filename~strip -- remove only leading and trailing spaces
+    if filename == "" then do
+        .ooRexxShell~sayError("Usage: < filename")
+        return .false
+    end
+    if \.ooRexxShell~queueFile(filename, check:) then return .false
+    return .ooRexxShell~queueFile(filename)
+
+
+::method queueFile class
+    -- Remember: if you call this method from the prompt line then the updated
+    -- queue is not the ooRexxShell queue used for input, it's the SESSION queue
+    -- (search for "rxqueue" in this file to see how these 2 different queues
+    -- are managed).
+
+    use strict arg filename, visitedFiles=(.set~new)
+    use strict named arg check=.false, directory=""
+    program = .nil
+    if directory \== "" then program = .context~package~findProgram(directory || .file~separator || filename)
+    if .nil == program then program = .context~package~findProgram(filename)
+    if .nil == program then do
+        .ooRexxShell~sayError("File not found:" filename)
+        return .false
+    end
+    if visitedFiles[program] \== .nil then do
+        .ooRexxShell~sayError("Recursive inclusion:" filename)
+        return .false
+    end
+    visitedFiles[program] = program
+    directory = .file~new(program)~parent
+    error = .false
+    multiLineComments = .false
+    stream = .stream~new(program)
+    if \check then do
+        queue "indent+"
+        fileInfo = "-- Start of file" filename
+        box = "-"~copies(fileInfo~length)
+        queue ""
+        queue box
+        queue fileInfo
+        queue box
+        queue ""
+    end
+    signal on notready
+    do forever
+        rawline = stream~linein
+        maybeCommand = rawline~left(1, ".") \== " "
+        line = rawline~strip
+        if line == "*/" then multiLineComments = .false
+        else if line == "/*" then multiLineComments = .true
+        monoLineComment = line~left(2) == "--"
+        parse var line word1 rest
+        if \multiLineComments, \monoLineComment, maybeCommand, word1 == "<" then do
+            filename = rest~strip
+            .ooRexxShell~queueFile(filename, visitedFiles, :check, :directory)
+            if result == .false then error = .true
+        end
+        else if \check then queue rawline
+    end
+    notready:
+    if \check then do
+        fileInfo = "-- End of file" filename
+        box = "-"~copies(fileInfo~length)
+        queue ""
+        queue box
+        queue fileInfo
+        queue box
+        queue "indent-"
+        queue ""
+    end
+    return error == .false
 
 
 ::method stringChunks class
@@ -2113,7 +2237,7 @@ Helpers
 
 ::method select class
     if \ .ooRexxShell~showColor then return -- you don't want the colors
-    use strict arg color, stream=.stdout
+    use strict arg color, stream=.output
     select
         when .platform~is("windows") then do
             select
