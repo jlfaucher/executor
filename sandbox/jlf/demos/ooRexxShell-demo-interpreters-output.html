@@ -32,7 +32,7 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
-</span><span style="font-weight:bold;color:green;">Input queue name: S1f0eQ7fada1c49be0
+</span><span style="font-weight:bold;color:green;">Input queue name: S24abQ7fada1c49c10
 </span>
 <span style="font-weight:bold;color:blue;">--------------
 </span><span style="font-weight:bold;color:blue;">-- ooRexxShell
@@ -137,16 +137,16 @@ ooRexx[sh]&gt;
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">'ls -lap *demo*.txt'</span>
 -rw-r--r--@ 1 jlfaucher  admin    1190 Nov  5 22:06 _readme-demos.txt
--rw-r--r--@ 1 jlfaucher  admin    8825 Jul 27  2021 executor-demo-array-output.txt
--rw-r--r--@ 1 jlfaucher  admin  304977 Nov  1 07:40 executor-demo-classic_rexx-output.txt
--rw-r--r--@ 1 jlfaucher  admin   46252 May  5  2022 executor-demo-extensions-output.txt
--rw-r--r--@ 1 jlfaucher  admin   20593 Nov 17 15:00 executor-demo-text-compatibility-output.txt
--rw-r--r--@ 1 jlfaucher  admin   23144 Nov  8 03:36 executor-demo-text-internal_checks-output.txt
--rw-r--r--@ 1 jlfaucher  admin   20859 Nov  8 03:36 executor-demo-text-output.txt
--rw-r--r--@ 1 jlfaucher  admin   54659 Nov 17 15:00 executor-demo-text-unicode-output.txt
--rw-r--r--@ 1 jlfaucher  admin    4925 Nov 17 17:34 ooRexxShell-demo-helpers-output.txt
--rw-r--r--@ 1 jlfaucher  admin   16015 Aug  7  2021 ooRexxShell-demo-interpreters-output.txt
--rw-r--r--@ 1 jlfaucher  admin  413605 Jul 27  2021 ooRexxShell-demo-queries-output.txt
+-rw-r--r--@ 1 jlfaucher  admin    8827 Nov 17 19:02 executor-demo-array-output.txt
+-rw-r--r--@ 1 jlfaucher  admin  304924 Nov 17 19:02 executor-demo-classic_rexx-output.txt
+-rw-r--r--@ 1 jlfaucher  admin   47754 Nov 17 19:02 executor-demo-extensions-output.txt
+-rw-r--r--@ 1 jlfaucher  admin   20593 Nov 17 19:02 executor-demo-text-compatibility-output.txt
+-rw-r--r--@ 1 jlfaucher  admin   22785 Nov 17 19:02 executor-demo-text-internal_checks-output.txt
+-rw-r--r--@ 1 jlfaucher  admin   20664 Nov 17 19:02 executor-demo-text-output.txt
+-rw-r--r--@ 1 jlfaucher  admin   54659 Nov 17 19:02 executor-demo-text-unicode-output.txt
+-rw-r--r--@ 1 jlfaucher  admin    4925 Nov 17 19:02 ooRexxShell-demo-helpers-output.txt
+-rw-r--r--@ 1 jlfaucher  admin   16104 Nov 17 19:02 ooRexxShell-demo-interpreters-output.txt
+-rw-r--r--@ 1 jlfaucher  admin  520751 Nov 17 19:02 ooRexxShell-demo-queries-output.txt
 ooRexx[sh]&gt; 
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">When not in ooRexx mode, you enter raw commands that are passed directly to the external environment.
@@ -190,8 +190,8 @@ sh[ooRexx]&gt;
 -rw-r--r--  1 jlfaucher  admin  201596 Nov 17 18:39 executor-demo-text-unicode.cast
 -rw-r--r--  1 jlfaucher  admin  113145 Nov 17 18:17 executor-demo-text.cast
 -rw-r--r--  1 jlfaucher  admin   11014 Nov 17 18:55 ooRexxShell-demo-helpers.cast
--rw-r--r--  1 jlfaucher  admin   22262 Nov 17 18:57 ooRexxShell-demo-interpreters.cast
--rw-r--r--  1 jlfaucher  admin  501507 Jul 27  2021 ooRexxShell-demo-queries.cast
+-rw-r--r--  1 jlfaucher  admin   22792 Nov 17 20:53 ooRexxShell-demo-interpreters.cast
+-rw-r--r--  1 jlfaucher  admin  618081 Nov 17 19:02 ooRexxShell-demo-queries.cast
 sh[ooRexx]&gt; 
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">HostEmu is a subcommand environment that partially emulates a TSO/CMS environment.
@@ -247,10 +247,6 @@ pwsh[ooRexx]&gt;
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
 <span style="font-weight:bold;color:blue;">/*
-</span><span style="font-weight:bold;color:blue;">*/
-</span><span style="font-weight:bold;color:blue;">/*
-</span><span style="font-weight:bold;color:blue;">*/
-</span><span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">Find the commands containing &quot;rexx&quot;:
 </span><span style="font-weight:bold;color:blue;">*/
 </span>pwsh[ooRexx]&gt; <span style="font-weight:bold;color:purple;">get-command *rexx* | select -property name, source</span>
