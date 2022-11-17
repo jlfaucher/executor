@@ -19,68 +19,68 @@ Output :
 </book>
 */
 
-.IndentedStream~stdout = .IndentedStream~new(.stdout)
-.IndentedStream~stderr = .IndentedStream~new(.stderr)
-
-
 ::class "IndentedStream" public
 ::constant indentSize 4
-::attribute stdout class
-::attribute stderr class
-::attribute indentLevel
-::attribute mustIndent
-::attribute spaces
-::attribute stream
+::attribute indentLevel get
+::attribute stream get
 
 
 ::method init
+    expose stream indentLevel mustIndent spaces
     use strict arg stream, indentSize = (self~indentSize)
-    self~indentLevel = 0
-    self~mustIndent = .true
-    self~spaces = " "~copies(indentSize)
-    self~stream = stream
-    
-    
+    indentLevel = 0
+    mustIndent = .true
+    spaces = " "~copies(indentSize)
+
+
 ::method indent
+    expose indentLevel
     use strict arg -- none
-    self~indentLevel +=1
+    indentLevel +=1
     return self
 
-    
+
 ::method dedent
+    expose indentLevel
     use strict arg -- none
-    self~indentLevel -=1
+    if indentLevel == 0 then return
+    indentLevel -=1
     return self
 
-    
+
 ::method indentIfNeeded private
+    expose stream indentLevel mustIndent spaces
     use strict arg -- none
-    if self~mustIndent then do
-        loop self~indentLevel
-            self~stream~charout(self~spaces)
+    if mustIndent then do
+        loop indentLevel
+            stream~charout(spaces)
         end
-        self~mustIndent = .false
+        mustIndent = .false
     end
-    
-    
+
+
 ::method charout
+    expose stream
     self~indentIfNeeded
-    forward to (self~stream)
-    
-    
+    forward to (stream)
+
+
 ::method lineout
+    expose stream mustIndent
     self~indentIfNeeded
-    self~mustIndent = .true
-    forward to (self~stream)
-    
-    
+    mustIndent = .true
+    forward to (stream)
+
+
 ::method say
+    expose stream mustIndent
     self~indentIfNeeded
-    self~mustIndent = .true
-    forward to (self~stream)
-    
-    
+    mustIndent = .true
+    forward to (stream)
+
+
 ::method unknown
+    expose stream
     use strict arg msg, args
-    forward to (self~stream) message (msg) arguments (args)
+    forward to (stream) message (msg) arguments (args)
 
