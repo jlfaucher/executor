@@ -389,33 +389,43 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     raise syntax 23.900 array("Encoding: '"encoding"' is not supported")
 
 
+-- If you modify this method then see if asEncodingFor must be modified as well
 ::method forConcatenation class
     use strict arg left, right -- text or buffer or string
 
     left = left~requestTextOrBufferOrString
     if .nil == left then signal left_must_have_a_text_or_buffer_or_string_value
     leftEncoding = left~encoding
-    leftIsASCII = left~isASCII
+    leftIsCompatibleWithASCII = left~isCompatibleWithASCII
 
     right = right~requestTextOrBufferOrString
     if .nil == right then signal right_must_have_a_text_or_buffer_or_string_value
     rightEncoding = right~encoding
-    rightIsASCII = right~isASCII
+    rightIsCompatibleWithASCII = right~isCompatibleWithASCII
 
     if leftEncoding == rightEncoding then return leftEncoding
 
     if leftEncoding~isUTF8, rightEncoding~isWTF8 then return .WTF8_Encoding
     if leftEncoding~isWTF8, rightEncoding~isUTF8 then return .WTF8_Encoding
     -- Keep the following tests after the previous tests, to keep the priority for WTF8
-    if leftIsASCII, (rightEncoding~isUTF8 | rightEncoding~isWTF8) then return rightEncoding
-    if (leftEncoding~isUTF8 | leftEncoding~isWTF8), rightIsASCII then return leftEncoding
+    -- Give priority to unicode over byte-encoding
+    -- When unicode on both sides then give priority to the left encoding
+    if leftIsCompatibleWithASCII, (rightEncoding~isUTF8 | rightEncoding~isWTF8 | rightEncoding~isUnicode8) then do
+        if leftEncoding~isUnicode then return leftEncoding
+        return rightEncoding
+    end
+    if (leftEncoding~isUTF8 | leftEncoding~isWTF8 | leftEncoding~isUnicode8), rightIsCompatibleWithASCII then return leftEncoding
 
     if leftEncoding~isUTF16BE, rightEncoding~isWTF16BE then return .WTF16BE_Encoding
     if leftEncoding~isWTF16BE, rightEncoding~isUTF16BE then return .WTF16BE_Encoding
     if leftEncoding~isUTF16LE, rightEncoding~isWTF16LE then return .WTF16LE_Encoding
     if leftEncoding~isWTF16LE, rightEncoding~isUTF16LE then return .WTF16LE_Encoding
 
-    raise syntax 23.900 array("Encoding: cannot concatenate" left~descriptionForError "with" right~descriptionForError)
+    -- Consider that Unicode32 is never compatible with UTF-32BE or UTF-32LE
+    -- even if it can be compatible in function of the CPU endianness.
+    -- It's to ensure that if a program works on a little-endian CPU then it works on a big-endian CPU, and vice-versa.
+
+    raise syntax 23.900 array("Encoding: cannot append" right~descriptionForError "to" left~descriptionForError)
 
     left_must_have_a_text_or_buffer_or_string_value:  raise syntax 93.900 array("Method positional argument 'left' must have a text or buffer or string value")
     right_must_have_a_text_or_buffer_or_string_value: raise syntax 93.900 array("Method positional argument 'right' must have a text or buffer or string value")
@@ -427,9 +437,9 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     -- otherwise raise an error
     use strict arg left, right -- text or string or buffer
     if left~encoding~isByte, right~encoding~isByte, left~encoding == right~encoding then return "b"
-    if left~isASCII, right~isASCII then return "b"
-    if left~isASCII, (right~encoding~isUTF8 | right~encoding~isWTF8) then return "u"
-    if (left~encoding~isUTF8 | left~encoding~isWTF8), right~isASCII then return "u"
+    if left~isCompatibleWithASCII, right~isCompatibleWithASCII then return "b"
+    if left~isCompatibleWithASCII, (right~encoding~isUTF8 | right~encoding~isWTF8) then return "u"
+    if (left~encoding~isUTF8 | left~encoding~isWTF8), right~isCompatibleWithASCII then return "u"
     if left~encoding~isUnicode & right~encoding~isUnicode then return "u"
     raise syntax 23.900 array("Encoding: cannot compare" left~descriptionForError "with" right~descriptionForError)
 
@@ -439,11 +449,12 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
 
 ::method append class
     -- Positional arguments : zero to N text or buffer or string.
+    use arg ...
     use strict named arg buffer(1)=.nil
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new
-    if \buffer~hasEncoding then buffer~encoding = self
-    else if buffer~encoding \== self then signal buffer_invalid_encoding
+    buffer~encoding = self~asEncodingFor(buffer) -- raise an error if not compatible
+
     do i=1 to arg()
         text = arg(i)~requestTextOrBufferOrString
         if .nil == text then signal must_have_a_text_or_buffer_or_string_value
@@ -454,7 +465,6 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     if returnBuffer then return buffer
     else return .RexxText~new(buffer~string, buffer~encoding)
 
-    buffer_invalid_encoding:                    raise syntax 93.900 array("The named argument 'buffer' must have encoding =" self~description", got" buffer~encoding~description)
     must_have_a_text_or_buffer_or_string_value: raise syntax 93.900 array("Method positional argument "i" must have a text or buffer or string value")
 
 
@@ -622,7 +632,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     text = text~requestTextOrBufferOrString
     if .nil == text then signal must_have_a_text_or_buffer_or_string_value
     encoding = .Encoding~forConcatenation(self~string, text) -- raise an error if not compatible
-    return encoding~concatenate(self~string, text, :buffer)
+    return encoding~append(self~string, text, :buffer)
 
     must_have_a_text_or_buffer_or_string_value: raise syntax 93.900 array("Method positional argument 1 must have a text or buffer or string value")
 
@@ -679,8 +689,9 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
         space = rightPad + leftPad + len
         retval =
         if .nil <> buffer then do
+            -- TODO: rework
             -- can't use encoding~concatenate for pad because pad~copies appends directly to the buffer
-            -- consequence: will not detect WTF8 special concatenation, if any.
+            -- consequence: will not detect WTF8 special concatenation, if any/
             pad~copies(leftPad, :buffer)
             encoding~concatenate(self~string, :buffer)
             pad~copies(rightPad, :buffer)
@@ -811,6 +822,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     end
     if .nil <> buffer then do
         encoding~concatenate(substr, :buffer)
+        -- TODO: rework
         -- can't use encoding~concatenate for pad because pad~copies appends directly to the buffer
         -- consequence: will not detect WTF8 special concatenation, if any.
         pad~copies(lengthPad, :buffer)
@@ -909,6 +921,8 @@ Example of set of flags:
     stringsCache at '[11]' = NFC casefold
     stringsCache at '1'    = NFC casefold stripMark
 */
+
+::attribute stringsCache get -- for tuning/display only
 
 ::method init
     expose stringsCache assignedBitFlags bitFlags
@@ -1128,10 +1142,14 @@ For example, if startB==6 then previousCodepointIndex==3
     -- Positional arguments : zero to N text or string.
     -- This method must be called from a subclass of StringIndexer
     -- Precondition: the encodings are compatible with self (you have checked that with .Encoding~forConcatenation)
+    -- Remember: This method does not change the encoding of the buffer.
+    --           Use .StringIndexer~append (inherited from .IndexerHelpers) to have the buffer's encoding updated.
+    use arg ...
     use strict named arg buffer(1)=.nil
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new
-    if \buffer~hasEncoding then buffer~encoding = self
+    -- This method does not change the encoding of the buffer
+    -- if \buffer~hasEncoding then buffer~encoding = self
     do i = 1 to arg()
         -- Only WTF-8 has a specific implementation of appendToBuffer.
         -- When concatenating WTF-8 with UTF-8 or ASCII, the target encoding (self) is WTF-8.
@@ -1160,6 +1178,50 @@ For example, if startB==6 then previousCodepointIndex==3
     use strict arg string
     use strict named arg buffer(1)
     buffer~append(string)
+
+
+-- If you modify this method then see if forConcatenation must be modified as well
+::method asEncodingFor class
+    use strict arg buffer
+    targetEncoding = self
+    if \buffer~hasEncoding then return targetEncoding -- when no encoding then any encoding is compatible
+
+    bufferEncoding = buffer~encoding
+    bufferIsCompatibleWithASCII = buffer~isCompatibleWithASCII
+
+    if bufferEncoding == targetEncoding then return bufferEncoding
+
+    if bufferEncoding~isUTF8, targetEncoding~isWTF8 then return .WTF8_Encoding
+    if bufferEncoding~isWTF8, targetEncoding~isUTF8 then return .WTF8_Encoding
+    -- Keep the following tests after the previous tests, to keep the priority for WTF8
+    -- Give priority to unicode over byte-encoding
+    -- When unicode on both sides then give priority to the left encoding
+    if bufferIsCompatibleWithASCII, (targetEncoding~isUTF8 | targetEncoding~isWTF8 | targetEncoding~isUnicode8) then do
+        if bufferEncoding~isUnicode then return bufferEncoding
+        return targetEncoding
+    end
+    -- I'm not sure if the next test is good...
+    -- The good test is to test if the right part (here target) isCompatibleWithASCII
+    -- but we have only the target encoding, not a real string to test.
+    -- The implementation of isCompatibleWithASCII tests 2 things:
+    --   - the encoding: (self~encoding~isByte | self~encoding~isUTF8 | self~encoding~isWTF8 | self~encoding~isUnicode8)
+    --   - the asciiness of the string: self~string~isASCII
+    -- Here, I test only the encoding. The asciiness will be tested elsewhere (for example in StringIndexer~append)
+    if   (bufferEncoding~isUTF8 | bufferEncoding~isWTF8 | bufferEncoding~isUnicode8) -
+       , (targetEncoding~isUTF8 | targetEncoding~isWTF8 | targetEncoding~isUnicode8) -
+       -- , target~isASCII -
+    then return bufferEncoding
+
+    if bufferEncoding~isUTF16BE, targetEncoding~isWTF16BE then return .WTF16BE_Encoding
+    if bufferEncoding~isWTF16BE, targetEncoding~isUTF16BE then return .WTF16BE_Encoding
+    if bufferEncoding~isUTF16LE, targetEncoding~isWTF16LE then return .WTF16LE_Encoding
+    if bufferEncoding~isWTF16LE, targetEncoding~isUTF16LE then return .WTF16LE_Encoding
+
+    -- Consider that Unicode32 is never compatible with UTF-32BE or UTF-32LE
+    -- even if it can be compatible in function of the CPU endianness.
+    -- It's to ensure that if a program works on a little-endian CPU then it works on a big-endian CPU, and vice-versa.
+
+    raise syntax 23.900 array("Encoding: cannot append" targetEncoding~description "to" buffer~descriptionForError)
 
 
 /********************/
@@ -1199,8 +1261,8 @@ For example, if startB==6 then previousCodepointIndex==3
     "noël👩‍👨‍👩‍👧🎅"~text~description(s:1)          -- 'UTF-8 not-ASCII'
     "noël👩‍👨‍👩‍👧🎅"~text~description               -- 'UTF-8 not-ASCII (6 graphemes, 12 codepoints, 34 bytes, 0 error)'
     "noël👩‍👨‍👩‍👧🎅"~text~description(t:1)          -- 'UTF-8 not-ASCII (6 graphemes (3 indexes from index 4), 12 codepoints (9 indexes from index 4), 34 bytes, 0 error)'
-    "noël👩‍👨‍👩‍👧🎅"~text~utf16~description(t:1)    -- 'UTF-16BE not-ASCII (6 graphemes (1 index from index 6), 12 codepoints (7 indexes from index 6), 34 bytes, 0 error)'
-    "noël👩‍👨‍👩‍👧🎅"~text~utf32~description(t:1)    -- 'UTF-32BE not-ASCII (6 graphemes (1 index from index 6), 12 codepoints (0 index), 48 bytes, 0 error)'
+    "noël👩‍👨‍👩‍👧🎅"~text~utf16~description(t:1)    -- 'UTF-16BE (6 graphemes (1 index from index 6), 12 codepoints (7 indexes from index 6), 34 bytes, 0 error)'
+    "noël👩‍👨‍👩‍👧🎅"~text~utf32~description(t:1)    -- 'UTF-32BE (6 graphemes (1 index from index 6), 12 codepoints (0 index), 48 bytes, 0 error)'
     */
     use strict arg -- none
     use strict named arg short(1)=.false, technical(1)=.false
@@ -1398,13 +1460,6 @@ How other languages are supporting escape characters for Unicode:
     bitFlag = self~bitFlag(0)
     if bitFlag \== -1 then return bitFlag
 
-    -- http://www.unicode.org/reports/tr15/#Implementation_Notes
-    -- Text exclusively containing ASCII characters (U+0000..U+007F) is left unaffected by all of the Normalization Forms
-    if self~string~isASCII then do
-        self~setBitFlag(0)
-        return .true
-    end
-
     /*
     http://www.unicode.org/reports/tr15/#Implementation_Notes
     Text exclusively containing Latin-1 characters (U+0000..U+00FF) is left unaffected by NFC.
@@ -1432,7 +1487,7 @@ How other languages are supporting escape characters for Unicode:
 
     -- http://www.unicode.org/reports/tr15/#Implementation_Notes
     -- Text exclusively containing ASCII characters (U+0000..U+007F) is left unaffected by all of the Normalization Forms
-    if self~string~isASCII then do
+    if self~string~isCompatibleWithASCII then do
         self~setBitFlag(1)
         return .true
     end
@@ -1452,7 +1507,7 @@ How other languages are supporting escape characters for Unicode:
 
     -- http://www.unicode.org/reports/tr15/#Implementation_Notes
     -- Text exclusively containing ASCII characters (U+0000..U+007F) is left unaffected by all of the Normalization Forms
-    if self~string~isASCII then do
+    if self~string~isCompatibleWithASCII then do
         self~setBitFlag(2)
         return .true
     end
@@ -1472,7 +1527,7 @@ How other languages are supporting escape characters for Unicode:
 
     -- http://www.unicode.org/reports/tr15/#Implementation_Notes
     -- Text exclusively containing ASCII characters (U+0000..U+007F) is left unaffected by all of the Normalization Forms
-    if self~string~isASCII then do
+    if self~string~isCompatibleWithASCII then do
         self~setBitFlag(3)
         return .true
     end
@@ -1827,51 +1882,96 @@ How other languages are supporting escape characters for Unicode:
 
 ::method convertByteToUnicode private
     use strict arg targetEncoding
-    use strict named arg strict=.true, buffer(1)=.nil
+    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+
     tableTranscodingToUnicode = self~class~tableTranscodingToUnicode
-    if .nil <> tableTranscodingToUnicode then do
-        sizeC = self~codepointCount -- size in codepoints
-        returnBuffer = .nil <> buffer
-        if .nil == buffer then buffer = .MutableBuffer~new(, sizeC * targetEncoding~codepointMaxBytes)
-        do i=1 to sizeC
-            charcode = self~codepoint(i)
-            codepoint = tableTranscodingToUnicode[charcode+1] -- bof bof... 1-based array
-            -- An empty string means no mapping
-            -- A negative codepoint means unused character with fallback mapping
-            if codepoint == "" | (codepoint < 0 & strict) then raise syntax 23.900 array(self~name "encoding: cannot convert" self~description(short: .true) "character" charcode "("charcode~d2x") at byte-position" i "to" targetEncoding~name)
-            targetEncoding~encode(abs(codepoint), :buffer)
-        end
-        if returnBuffer then return buffer
-                        else return .RexxText~new(buffer~string, targetEncoding)
+    if .nil == tableTranscodingToUnicode then signal cannot_convert
+
+    string = self~getCachedString(targetEncoding)
+    if .nil \== string then do
+        if .nil <> buffer then return targetEncoding~append(string, buffer)
+                          else return string~text
     end
-    raise syntax 23.900 array(self~class~name "encoding: cannot convert" self~description(short: .true) "to" targetEncoding~name)
+
+    sizeC = self~codepointCount -- size in codepoints
+    returnBuffer = .nil <> buffer
+
+    if .nil == buffer then do
+        buffer = .MutableBuffer~new(, sizeC * targetEncoding~codepointMaxBytes)
+        buffer~encoding = targetEncoding
+    end
+    else do
+        buffer~encoding = targetEncoding~asEncodingFor(buffer) -- raise an error if not compatible
+    end
+
+    bufferStart = buffer~length + 1
+    do i=1 to sizeC
+        charcode = self~codepoint(i)
+        codepoint = tableTranscodingToUnicode[charcode+1] -- bof bof... 1-based array
+        -- An empty string means no mapping
+        -- A negative codepoint means unused character with fallback mapping
+        if codepoint == "" | (codepoint < 0 & strict) then raise syntax 23.900 array(self~name "encoding: cannot convert" self~description(short: .true) "character" charcode "("charcode~d2x") at byte-position" i "to" targetEncoding~name)
+        targetEncoding~encode(abs(codepoint), :buffer)
+    end
+
+    string = buffer~substr(bufferStart)
+    -- It's a new string, without any encoding stored on it
+    string~encoding = targetEncoding
+    if memorize then self~cacheString(targetEncoding, string)
+
+    if returnBuffer then return buffer
+    text = .RexxText~new(string, targetEncoding)
+    if memorize then text~internalIndexer~cacheString(self~class, self~string)
+    return text
+
+    cannot_convert:          raise syntax 23.900 array(self~class~name "encoding: cannot convert" self~description(short: .true) "to" targetEncoding~name)
 
 
 ::method UTF8
-    use strict named arg strict=.true, buffer(1)=.nil
+    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    targetEncoding = .UTF8_Encoding
     if self~string~isASCII then do
-        if .nil <> buffer then return buffer~~append(self~string)
+        if .nil <> buffer then return targetEncoding~append(self~string, :buffer)
+
+        string = self~getCachedString(targetEncoding)
+        if .nil \== string then return string~text
+
         -- yes, always a new string. The original string is still associated to the Byte_Encoding.
         -- Don't use string~copy, because the reference to the associated text is in the copy,
         -- and that forbids to assign a new RexxText.
-        return .RexxText~new(.String~new(self~string), .UTF8_Encoding)
+        text = .RexxText~new(.String~new(self~string), targetEncoding)
+        if memorize then do
+            self~cacheString(targetEncoding, text~string)
+            text~internalIndexer~cacheString(self~class, self~string)
+        end
+        return text
     end
     else do
-        return self~convertByteToUnicode(.UTF8_Encoding, :strict, :buffer)
+        return self~convertByteToUnicode(targetEncoding, :strict, :memorize, :buffer)
     end
 
 
 ::method WTF8
-    use strict named arg strict=.true, buffer(1)=.nil
+    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    targetEncoding = .WTF8_Encoding
     if self~string~isASCII then do
-        if .nil <> buffer then return buffer~~append(self~string)
+        if .nil <> buffer then return targetEncoding~append(self~string, :buffer)
+
+        string = self~getCachedString(targetEncoding)
+        if .nil \== string then return string~text
+
         -- yes, always a new string. The original string is still associated to the Byte_Encoding.
         -- Don't use string~copy, because the reference to the associated text is in the copy,
         -- and that forbids to assign a new RexxText.
-        return .RexxText~new(.String~new(self~string), .WTF8_Encoding)
+        text = .RexxText~new(.String~new(self~string), targetEncoding)
+        if memorize then do
+            self~cacheString(targetEncoding, text~string)
+            text~internalIndexer~cacheString(self~class, self~string)
+        end
+        return text
     end
     else do
-        return self~convertByteToUnicode(.WTF8_Encoding, :strict, :buffer)
+        return self~convertByteToUnicode(targetEncoding, :strict, :memorize, :buffer)
     end
 
 
@@ -1880,15 +1980,15 @@ How other languages are supporting escape characters for Unicode:
 
 
 ::method UTF16BE
-    use strict named arg strict=.true, buffer(1)=.nil
-    if self~string~isASCII then return .UTF16BE_Encoding~encodeASCIIstring(self~string, :buffer)
-                           else return self~convertByteToUnicode(.UTF16BE_Encoding, :strict, :buffer)
+    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    if self~string~isASCII then return .UTF16BE_Encoding~encodeASCIIstring(self~string, :memorize, :buffer)
+                           else return self~convertByteToUnicode(.UTF16BE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method UTF16LE
-    use strict named arg strict=.true, buffer(1)=.nil
-    if self~string~isASCII then return .UTF16LE_Encoding~encodeASCIIstring(self~string, :buffer)
-                           else return self~convertByteToUnicode(.UTF16LE_Encoding, :strict, :buffer)
+    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    if self~string~isASCII then return .UTF16LE_Encoding~encodeASCIIstring(self~string, :memorize, :buffer)
+                           else return self~convertByteToUnicode(.UTF16LE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method WTF16
@@ -1896,15 +1996,15 @@ How other languages are supporting escape characters for Unicode:
 
 
 ::method WTF16BE
-    use strict named arg strict=.true, buffer(1)=.nil
-    if self~string~isASCII then return .WTF16BE_Encoding~encodeASCIIstring(self~string, :buffer)
-                           else return self~convertByteToUnicode(.WTF16BE_Encoding, :strict, :buffer)
+    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    if self~string~isASCII then return .WTF16BE_Encoding~encodeASCIIstring(self~string, :memorize, :buffer)
+                           else return self~convertByteToUnicode(.WTF16BE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method WTF16LE
-    use strict named arg strict=.true, buffer(1)=.nil
-    if self~string~isASCII then return .WTF16LE_Encoding~encodeASCIIstring(self~string, :buffer)
-                           else return self~convertByteToUnicode(.WTF16LE_Encoding, :strict, :buffer)
+    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    if self~string~isASCII then return .WTF16LE_Encoding~encodeASCIIstring(self~string, :memorize, :buffer)
+                           else return self~convertByteToUnicode(.WTF16LE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method UTF32
@@ -1912,54 +2012,58 @@ How other languages are supporting escape characters for Unicode:
 
 
 ::method UTF32BE
-    use strict named arg strict=.true, buffer(1)=.nil
-    if self~string~isASCII then return .UTF32BE_Encoding~encodeASCIIstring(self~string, :buffer)
-                           else return self~convertByteToUnicode(.UTF32BE_Encoding, :strict, :buffer)
+    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    if self~string~isASCII then return .UTF32BE_Encoding~encodeASCIIstring(self~string, :memorize, :buffer)
+                           else return self~convertByteToUnicode(.UTF32BE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method UTF32LE
-    use strict named arg strict=.true, buffer(1)=.nil
-    if self~string~isASCII then return .UTF32LE_Encoding~encodeASCIIstring(self~string, :buffer)
-                           else return self~convertByteToUnicode(.UTF32LE_Encoding, :strict, :buffer)
+    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    if self~string~isASCII then return .UTF32LE_Encoding~encodeASCIIstring(self~string, :memorize, :buffer)
+                           else return self~convertByteToUnicode(.UTF32LE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method Unicode
-    use strict named arg strict=.true, buffer(1)=.nil
-    if self~string~isASCII then do
-        if .nil <> buffer then return buffer~~append(self~string)
-        -- yes, always a new string. The original string is still associated to the Byte_Encoding.
-        -- Don't use string~copy, because the reference to the associated text is in the copy,
-        -- and that forbids to assign a new RexxText.
-        return .RexxText~new(.String~new(self~string), .Unicode8_Encoding)
-    end
+    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    if self~string~isASCII then forward message "Unicode8"
     else do
         targetEncoding = .Unicode_Encoding~toSupport(self~maximumUnicodeCodepoint)
-        return self~convertByteToUnicode(targetEncoding, :strict, :buffer)
+        return self~convertByteToUnicode(targetEncoding, :strict, :memorize, :buffer)
     end
 
 
 ::method Unicode8
-    use strict named arg strict=.true, buffer(1)=.nil
+    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    targetEncoding = .Unicode8_Encoding
     if self~string~isASCII then do
-        if .nil <> buffer then return buffer~~append(self~string)
+        if .nil <> buffer then return targetEncoding~append(self~string, :buffer)
+
+        string = self~getCachedString(targetEncoding)
+        if .nil \== string then return string~text
+
         -- yes, always a new string. The original string is still associated to the Byte_Encoding.
         -- Don't use string~copy, because the reference to the associated text is in the copy,
         -- and that forbids to assign a new RexxText.
-        return .RexxText~new(.String~new(self~string), .Unicode8_Encoding)
+        text = .RexxText~new(.String~new(self~string), targetEncoding)
+        if memorize then do
+            self~cacheString(targetEncoding, text~string)
+            text~internalIndexer~cacheString(self~class, self~string)
+        end
+        return text
     end
-    else return self~convertByteToUnicode(.Unicode8_Encoding, :strict, :buffer)
+    else return self~convertByteToUnicode(targetEncoding, :strict, :memorize, :buffer)
 
 
 ::method Unicode16
-    use strict named arg strict=.true, buffer(1)=.nil
-    if self~string~isASCII then return .Unicode16_Encoding~encodeASCIIstring(self~string, :buffer)
-                           else return self~convertByteToUnicode(.Unicode16_Encoding, :strict, :buffer)
+    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    if self~string~isASCII then return .Unicode16_Encoding~encodeASCIIstring(self~string, :memorize, :buffer)
+                           else return self~convertByteToUnicode(.Unicode16_Encoding, :strict, :memorize, :buffer)
 
 
 ::method Unicode32
-    use strict named arg strict=.true, buffer(1)=.nil
-    if self~string~isASCII then return .Unicode32_Encoding~encodeASCIIstring(self~string, :buffer)
-                           else return self~convertByteToUnicode(.Unicode32_Encoding, :strict, :buffer)
+    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    if self~string~isASCII then return .Unicode32_Encoding~encodeASCIIstring(self~string, :memorize, :buffer)
+                           else return self~convertByteToUnicode(.Unicode32_Encoding, :strict, :memorize, :buffer)
 
 
 /******************************************************************************/
@@ -2187,32 +2291,53 @@ How other languages are supporting escape characters for Unicode:
       well-formed code unit sequences.
     */
     use strict arg targetEncoding
-    use strict named arg buffer(1)=.nil
+    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1) = .nil
+
+    string = .nil
+    if self~class == targetEncoding then string = self~string
+    else string = self~getCachedString(targetEncoding)
+    if .nil \== string then do
+        if .nil <> buffer then return targetEncoding~append(string, buffer) -- buffer~~append(string)
+                          else return string~text
+    end
+
+/*
     if self~class == targetEncoding then do
-        if .nil <> buffer then return buffer~~append(self~string)
+        if .nil <> buffer then return self~class~concatenate(self~string, buffer) -- buffer~~append(self~string)
                           else return self~string~text
     end
+*/
+
     sizeC = self~codepointCount -- size in codepoints
-    returnBuffer = .nil <> buffer
+    returnBuffer = .nil \== buffer
     if .nil == buffer then buffer = .MutableBuffer~new(, sizeC * targetEncoding~codepointMaxBytes)
+    buffer~encoding = targetEncoding~asEncodingFor(buffer) -- raise an error if not compatible
+    bufferStart = buffer~length + 1
     do i=1 to sizeC
         codepoint = self~codepoint(i)
-        targetEncoding~encode(codepoint, :buffer)
+        targetEncoding~encode(codepoint, :buffer) -- WTF-8 is correctly managed (use appendToBuffer)
     end
+    string = buffer~substr(bufferStart)
+    -- It's a new string, without any encoding stored on it
+    string~encoding = targetEncoding
+    if memorize then self~cacheString(targetEncoding, string)
+
     if returnBuffer then return buffer
-                      else return .RexxText~new(buffer~string, targetEncoding)
+    text = .RexxText~new(string, targetEncoding)
+    if memorize then text~internalIndexer~cacheString(self~class, self~string)
+    return text
 
 
 ::method UTF8
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.UTF8_Encoding, :buffer)
+    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    return self~convertUnicodeToUnicode(.UTF8_Encoding, :strict, :memorize, :buffer)
 
 
 ::method WTF8
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.WTF8_Encoding, :buffer)
+    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    return self~convertUnicodeToUnicode(.WTF8_Encoding, :strict, :memorize, :buffer)
 
 
 ::method UTF16
@@ -2221,14 +2346,14 @@ How other languages are supporting escape characters for Unicode:
 
 ::method UTF16BE
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.UTF16BE_Encoding, :buffer)
+    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    return self~convertUnicodeToUnicode(.UTF16BE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method UTF16LE
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.UTF16LE_Encoding, :buffer)
+    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    return self~convertUnicodeToUnicode(.UTF16LE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method WTF16
@@ -2237,14 +2362,14 @@ How other languages are supporting escape characters for Unicode:
 
 ::method WTF16BE
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.WTF16BE_Encoding, :buffer)
+    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    return self~convertUnicodeToUnicode(.WTF16BE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method WTF16LE
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.WTF16LE_Encoding, :buffer)
+    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    return self~convertUnicodeToUnicode(.WTF16LE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method UTF32
@@ -2253,42 +2378,42 @@ How other languages are supporting escape characters for Unicode:
 
 ::method UTF32BE
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.UTF32BE_Encoding, :buffer)
+    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    return self~convertUnicodeToUnicode(.UTF32BE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method UTF32LE
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.UTF32LE_Encoding, :buffer)
+    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    return self~convertUnicodeToUnicode(.UTF32LE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method Unicode
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
+    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
     targetEncoding = .Unicode_Encoding~toSupport(self~maximumCodepoint)
-    return self~convertUnicodeToUnicode(targetEncoding, :buffer)
+    return self~convertUnicodeToUnicode(targetEncoding, :strict, :memorize, :buffer)
 
 
 ::method Unicode8
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
+    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
     .Unicode8_Encoding~checkCodepoint(self~maximumCodepoint, checkingMaximumCodepoint: .true)
-    return self~convertUnicodeToUnicode(.Unicode8_Encoding, :buffer)
+    return self~convertUnicodeToUnicode(.Unicode8_Encoding, :strict, :memorize, :buffer)
 
 
 ::method Unicode16
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
+    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
     .Unicode16_Encoding~checkCodepoint(self~maximumCodepoint, checkingMaximumCodepoint: .true)
-    return self~convertUnicodeToUnicode(.Unicode16_Encoding, :buffer)
+    return self~convertUnicodeToUnicode(.Unicode16_Encoding, :strict, :memorize, :buffer)
 
 
 ::method Unicode32
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
+    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
     .Unicode32_Encoding~checkCodepoint(self~maximumCodepoint, checkingMaximumCodepoint: .true)
-    return self~convertUnicodeToUnicode(.Unicode32_Encoding, :buffer)
+    return self~convertUnicodeToUnicode(.Unicode32_Encoding, :strict, :memorize, :buffer)
 
 
 /******************************************************************************/
@@ -2663,45 +2788,71 @@ How other languages are supporting escape characters for Unicode:
 
 ::method UTF8
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
-    if self~class~isUTF8 then do
-        if .nil <> buffer then return buffer~~append(self~string)
-                          else return self~string~text
-    end
+    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+
+    targetEncoding = .UTF8_Encoding
+    if .nil <> buffer then return targetEncoding~append(self~string, :buffer) -- done? TODO is it correct? there is no check here. WTF8 converted to UTF8 could raise errors.
+    if self~class~isUTF8 then return self~string~text
+
+    string = self~getCachedString(targetEncoding)
+    if .nil \== string then return string~text
+
     -- yes, always a new string.
     -- Don't use string~copy, because the reference to the associated text is in the copy,
     -- and that forbids to assign a new RexxText.
-    if .nil <> buffer then return buffer~~append(self~string) -- TODO is it correct? there is no check here. WTF8 converted to UTF8 could raise errors.
-                      else return .RexxText~new(.String~new(self~string), .UTF8_Encoding)
+    text = .RexxText~new(.String~new(self~string), targetEncoding)
+    if memorize then do
+        self~cacheString(targetEncoding, text~string)
+        text~internalIndexer~cacheString(self~class, self~string)
+    end
+    return text
 
 
 ::method WTF8
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
-    if self~class~isWTF8 then do
-        if .nil <> buffer then return buffer~~append(self~string)
-                          else return self~string~text
-    end
+    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+
+    targetEncoding = .WTF8_Encoding
+    if .nil <> buffer then return targetEncoding~append(self~string, :buffer) -- done? TODO is it correct?
+    if self~class~isWTF8 then return self~string~text
+
+    string = self~getCachedString(targetEncoding)
+    if .nil \== string then return string~text
+
     -- yes, always a new string.
     -- Don't use string~copy, because the reference to the associated text is in the copy,
     -- and that forbids to assign a new RexxText.
-    if .nil <> buffer then return buffer~~append(self~string) -- TODO is it correct?
-                      else return .RexxText~new(.String~new(self~string), .WTF8_Encoding)
+    text = .RexxText~new(.String~new(self~string), targetEncoding)
+    if memorize then do
+        self~cacheString(targetEncoding, text~string)
+        text~internalIndexer~cacheString(self~class, self~string)
+    end
+    return text
 
 
 ::method Unicode
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
+    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
     if self~class~isUnicodeN then do
-        if .nil <> buffer then return buffer~~append(self~string)
+        if .nil <> buffer then return self~class~append(self~string, :buffer)
                           else return self~string~text
     end
     if self~string~isASCII then do
-        if .nil <> buffer then return buffer~~append(self~string)
+        targetEncoding = .Unicode8_Encoding
+        if .nil <> buffer then return targetEncoding~append(self~string, :buffer)
+
+        string = self~getCachedString(targetEncoding)
+        if .nil \== string then return string~text
+
         -- yes, always a new string. The original string is still associated to the Byte_Encoding.
         -- Don't use string~copy, because the reference to the associated text is in the copy,
         -- and that forbids to assign a new RexxText.
-        return .RexxText~new(.String~new(self~string), .Unicode8_Encoding)
+        text = .RexxText~new(.String~new(self~string), targetEncoding)
+        if memorize then do
+            self~cacheString(targetEncoding, text~string)
+            text~internalIndexer~cacheString(self~class, self~string)
+        end
+        return text
     end
     forward class (super)
 
@@ -2749,6 +2900,7 @@ How other languages are supporting escape characters for Unicode:
         else do
             text = .RexxText~new(string, self~class)
             text~internalIndexer~setBitFlags(mask)
+            -- Remember: string is automatically linked to text so the final makeRexxTextOrString will return this text
         end
     end
     if memorize then self~cacheString(mask, string)
@@ -3198,44 +3350,84 @@ the concatenation back to WTF-8.
 
 ::method encodeASCIIstring class
     use strict arg string
-    use strict named arg buffer(1)=.nil
+    use strict named arg memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+
+    text = .nil
+    if string~hasText then text = string~text
+
+    targetEncoding = self
+    if .nil \== text then do
+        cachedString = text~internalIndexer~getCachedString(targetEncoding)
+        if .nil \== cachedString then do
+            if .nil <> buffer then return targetEncoding~append(cachedString, :buffer)
+                              else return cachedString~text
+        end
+    end
+
     sizeB = string~length -- size in bytes
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new(, sizeB * 2) -- yes, always 2, no need to use codepointMaxBytes
+    buffer~encoding = targetEncoding~asEncodingFor(buffer) -- raise an error if not compatible
+    bufferStart = buffer~length + 1
+
     do i=1 to sizeB
         buffer~append("00"x) -- big endian
         buffer~append(string~subchar(i))
     end
+
+    convertedString = buffer~substr(bufferStart)
+    -- It's a new string, without any encoding stored on it
+    convertedString~encoding = targetEncoding
+    if memorize, .nil \== text then text~internalIndexer~cacheString(targetEncoding, convertedString)
+
     if returnBuffer then return buffer
-                    else return .RexxText~new(buffer~string, self)
+    convertedText = .RexxText~new(convertedString, targetEncoding)
+    if memorize then convertedText~internalIndexer~cacheString(string~encoding, string)
+    return convertedText
 
 
 ::method UTF16BE
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
-    if self~class~isUTF16BE then do
-        if .nil <> buffer then return buffer~~append(self~string)
-        return self~string~text
-    end
+    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+
+    if .nil <> buffer then return self~class~append(self~string, :buffer)
+    if self~class~isUTF16BE then return self~string~text
+
+    targetEncoding = .UTF16BE_Encoding
+    string = self~getCachedString(targetEncoding)
+    if .nil \== string then return string~text
+
     -- yes, always a new string.
     -- Don't use string~copy, because the reference to the associated text is in the copy,
     -- and that forbids to assign a new RexxText.
-    if .nil <> buffer then return buffer~~append(self~string)
-                      else return .RexxText~new(.String~new(self~string), .UTF16BE_Encoding)
+    text = .RexxText~new(.String~new(self~string), targetEncoding)
+    if memorize then do
+        self~cacheString(targetEncoding, text~string)
+        text~internalIndexer~cacheString(self~class, self~string)
+    end
+    return text
 
 
 ::method WTF16BE
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
-    if self~class~isWTF16BE then do
-        if .nil <> buffer then return buffer~~append(self~string)
-        return self~string~text
-    end
+    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+
+    if .nil <> buffer then return self~class~append(self~string, :buffer)
+    if self~class~isWTF16BE then return self~string~text
+
+    targetEncoding = .WTF16BE_Encoding
+    string = self~getCachedString(targetEncoding)
+    if .nil \== string then return string~text
+
     -- yes, always a new string.
     -- Don't use string~copy, because the reference to the associated text is in the copy,
     -- and that forbids to assign a new RexxText.
-    if .nil <> buffer then return buffer~~append(self~string)
-                      else return .RexxText~new(.String~new(self~string), .WTF16BE_Encoding)
+    text = .RexxText~new(.String~new(self~string), targetEncoding)
+    if memorize then do
+        self~cacheString(targetEncoding, text~string)
+        text~internalIndexer~cacheString(self~class, self~string)
+    end
+    return text
 
 
 /*
@@ -3267,44 +3459,84 @@ the concatenation back to WTF-8.
 
 ::method encodeASCIIstring class
     use strict arg string
-    use strict named arg buffer(1)=.nil
+    use strict named arg memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+
+    text = .nil
+    if string~hasText then text = string~text
+
+    targetEncoding = self
+    if .nil \== text then do
+        cachedString = text~internalIndexer~getCachedString(targetEncoding)
+        if .nil \== cachedString then do
+            if .nil <> buffer then return targetEncoding~append(cachedString, :buffer)
+                              else return cachedString~text
+        end
+    end
+
     sizeB = string~length -- size in bytes
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new(, sizeB * 2) -- yes, always 2, no need to use codepointMaxBytes
+    buffer~encoding = targetEncoding~asEncodingFor(buffer) -- raise an error if not compatible
+    bufferStart = buffer~length + 1
+
     do i=1 to sizeB
         buffer~append(string~subchar(i))
         buffer~append("00"x) -- little endian
     end
+
+    convertedString = buffer~substr(bufferStart)
+    -- It's a new string, without any encoding stored on it
+    convertedString~encoding = targetEncoding
+    if memorize, .nil \== text then text~internalIndexer~cacheString(targetEncoding, convertedString)
+
     if returnBuffer then return buffer
-                    else return .RexxText~new(buffer~string, self)
+    convertedText = .RexxText~new(convertedString, targetEncoding)
+    if memorize then convertedText~internalIndexer~cacheString(string~encoding, string)
+    return convertedText
 
 
 ::method UTF16LE
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
-    if self~class~isUTF16LE then do
-        if .nil <> buffer then return buffer~~append(self~string)
-                          else return self~string~text
-    end
+    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+
+    if .nil <> buffer then return buffer~~append(self~string)
+    if self~class~isUTF16LE then return self~string~text
+
+    targetEncoding = .UTF16LE_Encoding
+    string = self~getCachedString(targetEncoding)
+    if .nil \== string then return string~text
+
     -- yes, always a new string.
     -- Don't use string~copy, because the reference to the associated text is in the copy,
     -- and that forbids to assign a new RexxText.
-    if .nil <> buffer then return buffer~~append(self~string)
-                      else return .RexxText~new(.String~new(self~string), .UTF16LE_Encoding)
+    text = .RexxText~new(.String~new(self~string), targetEncoding)
+    if memorize then do
+        self~cacheString(targetEncoding, text~string)
+        text~internalIndexer~cacheString(self~class, self~string)
+    end
+    return text
 
 
 ::method WTF16LE
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
-    if self~class~isWTF16LE then do
-        if .nil <> buffer then return buffer~~append(self~string)
-                          else return self~string~text
-    end
+    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+
+    if .nil <> buffer then return buffer~~append(self~string)
+    if self~class~isWTF16LE then return self~string~text
+
+    targetEncoding = .WTF16LE_Encoding
+    string = self~getCachedString(targetEncoding)
+    if .nil \== string then return string~text
+
     -- yes, always a new string.
     -- Don't use string~copy, because the reference to the associated text is in the copy,
     -- and that forbids to assign a new RexxText.
-    if .nil <> buffer then return buffer~~append(self~string)
-                      else return .RexxText~new(.String~new(self~string), .WTF16LE_Encoding)
+    text = .RexxText~new(.String~new(self~string), targetEncoding)
+    if memorize then do
+        self~cacheString(targetEncoding, text~string)
+        text~internalIndexer~cacheString(self~class, self~string)
+    end
+    return text
 
 
 /*
@@ -3641,21 +3873,45 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 
 ::method encodeASCIIstring class
     use strict arg string
-    use strict named arg buffer(1)=.nil
+    use strict named arg memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+
+    text = .nil
+    if string~hasText then text = string~text
+
+    targetEncoding = self
+    if .nil \== text then do
+        cachedString = text~internalIndexer~getCachedString(targetEncoding)
+        if .nil \== cachedString then do
+            if .nil <> buffer then return targetEncoding~append(cachedString, :buffer)
+                              else return cachedString~text
+        end
+    end
+
     sizeB = string~length -- size in bytes
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new(, sizeB * 4) -- yes, always 4, no need to use codepointMaxBytes
+    buffer~encoding = targetEncoding~asEncodingFor(buffer) -- raise an error if not compatible
+    bufferStart = buffer~length + 1
+
     do i=1 to sizeB
         buffer~append("000000"x) -- big endian
         buffer~append(string~subchar(i))
     end
+
+    convertedString = buffer~substr(bufferStart)
+    -- It's a new string, without any encoding stored on it
+    convertedString~encoding = targetEncoding
+    if memorize, .nil \== text then text~internalIndexer~cacheString(targetEncoding, convertedString)
+
     if returnBuffer then return buffer
-                    else return .RexxText~new(buffer~string, self)
+    convertedText = .RexxText~new(convertedString, targetEncoding)
+    if memorize then convertedText~internalIndexer~cacheString(string~encoding, string)
+    return convertedText
 
 
 ::method UTF32BE
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
+    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
     if .nil <> buffer then return buffer~~append(self~string)
                       else return self~string~text
 
@@ -3692,21 +3948,45 @@ Concatenating WTF-16 strings is easy: no extra care, just concatenate the bytes.
 
 ::method encodeASCIIstring class
     use strict arg string
-    use strict named arg buffer(1)=.nil
+    use strict named arg memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+
+    text = .nil
+    if string~hasText then text = string~text
+
+    targetEncoding = self
+    if .nil \== text then do
+        cachedString = text~internalIndexer~getCachedString(targetEncoding)
+        if .nil \== cachedString then do
+            if .nil <> buffer then return targetEncoding~append(cachedString, :buffer)
+                              else return cachedString~text
+        end
+    end
+
     sizeB = string~length -- size in bytes
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new(, sizeB * 4) -- yes, always 4, no need to use codepointMaxBytes
+    buffer~encoding = targetEncoding~asEncodingFor(buffer) -- raise an error if not compatible
+    bufferStart = buffer~length + 1
+
     do i=1 to sizeB
         buffer~append(string~subchar(i))
         buffer~append("000000"x) -- little endian
     end
+
+    convertedString = buffer~substr(bufferStart)
+    -- It's a new string, without any encoding stored on it
+    convertedString~encoding = targetEncoding
+    if memorize, .nil \== text then text~internalIndexer~cacheString(targetEncoding, convertedString)
+
     if returnBuffer then return buffer
-                    else return .RexxText~new(buffer~string, self)
+    convertedText = .RexxText~new(convertedString, targetEncoding)
+    if memorize then convertedText~internalIndexer~cacheString(string~encoding, string)
+    return convertedText
 
 
 ::method UTF32LE
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
+    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
     if .nil <> buffer then return buffer~~append(self~string)
                       else return self~string~text
 
@@ -3751,11 +4031,6 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 */
 ::class "Unicode_Encoding" mixinclass Object private
 
-::method activate class
-    expose isLittleEndian
-    isLittleEndian = .Unicode~systemIsLittleEndian -- cache the value for faster access
-
-
 ::method isUnicodeN class
     use strict arg -- none
     return .true
@@ -3769,11 +4044,10 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 
 
 ::method decodeCodepoint class private
-    expose isLittleEndian
     -- Will reach this method only once.
     -- After the first call, the message "decodeCodepoint" will be sent directly to the method specialized for this endianness
-    if isLittleEndian then self~setMethod("decodeCodepoint", self~instanceMethod("decodeCodepointLE"), "Object")
-                      else self~setMethod("decodeCodepoint", self~instanceMethod("decodeCodepointBE"), "Object")
+    if .Unicode~systemIsLittleEndian then self~setMethod("decodeCodepoint", self~instanceMethod("decodeCodepointLE"), "Object")
+                                     else self~setMethod("decodeCodepoint", self~instanceMethod("decodeCodepointBE"), "Object")
     forward message "decodeCodepoint"
 
 
@@ -3798,11 +4072,10 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 
 
 ::method encodeCodepoint class private
-    expose isLittleEndian
     -- Will reach this method only once.
     -- After the first call, the message "encodeCodepoint" will be sent directly to the method specialized for this endianness
-    if isLittleEndian then self~setMethod("encodeCodepoint", self~instanceMethod("encodeCodepointLE"), "Object")
-                      else self~setMethod("encodeCodepoint", self~instanceMethod("encodeCodepointBE"), "Object")
+    if .Unicode~systemIsLittleEndian then self~setMethod("encodeCodepoint", self~instanceMethod("encodeCodepointLE"), "Object")
+                                     else self~setMethod("encodeCodepoint", self~instanceMethod("encodeCodepointBE"), "Object")
     forward message "encodeCodepoint"
 
 
@@ -3822,7 +4095,7 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 
 ::method Unicode
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
+    use strict named arg strict = .false, buffer(1)=.nil
     if .nil <> buffer then return buffer~~append(self~string)
                       else return self~string~text
 
@@ -4059,13 +4332,28 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 
 
 ::method encodeASCIIstring class
-    expose isLittleEndian
     use strict arg string
-    use strict named arg buffer(1)=.nil
+    use strict named arg memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+
+    text = .nil
+    if string~hasText then text = string~text
+
+    targetEncoding = self
+    if .nil \== text then do
+        cachedString = text~internalIndexer~getCachedString(targetEncoding)
+        if .nil \== cachedString then do
+            if .nil <> buffer then return targetEncoding~append(cachedString, :buffer)
+                              else return cachedString~text
+        end
+    end
+
     sizeB = string~length -- size in bytes
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new(, sizeB * 2)
-    if isLittleEndian then do
+    buffer~encoding = targetEncoding~asEncodingFor(buffer) -- raise an error if not compatible
+    bufferStart = buffer~length + 1
+
+    if .Unicode~systemIsLittleEndian then do
         loop i=1 to sizeB
             buffer~append(string~subchar(i))
             buffer~append("00"x) -- little endian
@@ -4077,8 +4365,16 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
             buffer~append(string~subchar(i))
         end
     end
+
+    convertedString = buffer~substr(bufferStart)
+    -- It's a new string, without any encoding stored on it
+    convertedString~encoding = targetEncoding
+    if memorize, .nil \== text then text~internalIndexer~cacheString(targetEncoding, convertedString)
+
     if returnBuffer then return buffer
-                    else return .RexxText~new(buffer~string, self)
+    convertedText = .RexxText~new(convertedString, targetEncoding)
+    if memorize then convertedText~internalIndexer~cacheString(string~encoding, string)
+    return convertedText
 
 
 /********************/
@@ -4246,13 +4542,28 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 
 
 ::method encodeASCIIstring class
-    expose isLittleEndian
     use strict arg string
-    use strict named arg buffer(1)=.nil
+    use strict named arg memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+
+    text = .nil
+    if string~hasText then text = string~text
+
+    targetEncoding = self
+    if .nil \== text then do
+        cachedString = text~internalIndexer~getCachedString(targetEncoding)
+        if .nil \== cachedString then do
+            if .nil <> buffer then return targetEncoding~append(cachedString, :buffer)
+                              else return cachedString~text
+        end
+    end
+
     sizeB = string~length -- size in bytes
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new(, sizeB * 4)
-    if isLittleEndian then do
+    buffer~encoding = targetEncoding~asEncodingFor(buffer) -- raise an error if not compatible
+    bufferStart = buffer~length + 1
+
+    if .Unicode~systemIsLittleEndian then do
         loop i=1 to sizeB
             buffer~append(string~subchar(i))
             buffer~append("000000"x) -- little endian
@@ -4264,8 +4575,16 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
             buffer~append(string~subchar(i))
         end
     end
+
+    convertedString = buffer~substr(bufferStart)
+    -- It's a new string, without any encoding stored on it
+    convertedString~encoding = targetEncoding
+    if memorize, .nil \== text then text~internalIndexer~cacheString(targetEncoding, convertedString)
+
     if returnBuffer then return buffer
-                    else return .RexxText~new(buffer~string, self)
+    convertedText = .RexxText~new(convertedString, targetEncoding)
+    if memorize then convertedText~internalIndexer~cacheString(string~encoding, string)
+    return convertedText
 
 
 /********************/

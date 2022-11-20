@@ -2,6 +2,48 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2022 November 20
+
+[Encoded strings]
+
+For consistency, all the conversion methods accept the named argument 'strict',
+even if it's not needed for the unicode encodings.
+Previously, was supported only for the byte encodings.
+The default value of 'strict' is now .false.
+
+The conversion methods accept the named argument 'memorize(3)'.
+Its default value is given by .unicode~memorizeConversions which is .false by default.
+Example:
+    s = "hello"
+    t = s~text
+    utf16 = t~utf16(mem:)
+    utf32 = t~utf32(mem:)
+    t~utf16~"==":.object(utf16)=         -- 1
+    t~utf32~"==":.object(utf32)=         -- 1
+
+    /*
+    CP1252 to UTF-8, UTF-16, UTF-32
+    "Un œuf de chez MaPoule™ coûte ±0.40€"
+    */
+    str_cp1252 = "Un " || "9C"x || "uf de chez MaPoule" || "99"x || " co" || "FB"x || "te " || "B1"x || "0.40" || "80"x
+    txt_cp1252 = str_cp1252~text("cp1252")
+    utf8  = txt_cp1252~utf8(mem:)
+    utf16 = txt_cp1252~utf16(mem:)
+    utf32 = txt_cp1252~utf32(mem:)
+    txt_cp1252~utf8 ~"==":.object(utf8) =         -- 1
+    txt_cp1252~utf16~"==":.object(utf16)=         -- 1
+    txt_cp1252~utf32~"==":.object(utf32)=         -- 1
+
+
+When an optional buffer is passed, must check that its encoding is compatible.
+Done for the conversion methods.
+Example:
+    b = .mutablebuffer~new      -- No encoding yet
+    "hello"~text~utf16(:b)      -- now the buffer's encoding is UTF-16
+    "bye"~text~utf8(:b)         -- Encoding: cannot append UTF-8 to UTF-16BE '[00]h[00]e[00]l[00]l[00]o'.
+
+
+===============================================================================
 2022 November 11
 
 [Named arguments]
@@ -802,6 +844,7 @@ Idem for the function 'left'
 
 todo:
 apply this change to all the functions and methods that take a pad argument.
+2022 Oct, 4: a more general approach can be used, see notes on Oct 4.
 
 
 ===============================================================================

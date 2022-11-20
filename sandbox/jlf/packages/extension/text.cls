@@ -68,7 +68,7 @@ The purpose of this method is to avoid to create systematically a RexxText when
 needing an object supporting the Trait "EncodedStringable".
 ::Trait "EncodedStringable"
 ::method ~encoding
-::method ~isASCII
+::method ~isCompatibleWithASCII
 
 A RexxText is returned as-is.
 A MutableBuffer is returned as-is (avoid to request a String from it)
@@ -153,26 +153,28 @@ See also this same method on RexxText and MutableBuffer and String.
 
 ::attribute encoding get
     expose encoding myText
+    use strict arg -- none
     if var("myText") then return myText~encoding
     if var("encoding") then return encoding
     return .Encoding~defaultEncoding
 
 
 ::attribute encoding set
-    expose encoding myText isCompatibleWithByteString
+    expose encoding myText
     use strict arg newEncoding
     encoding = .Encoding~factory(newEncoding, self)
-    drop isCompatibleWithByteString -- to be reevaluated
     if var("myText") then myText~encoding = newEncoding
 
 
 ::method hasEncoding
     expose encoding
+    use strict arg -- none
     return var("encoding")
 
 
 ::method hasText
     expose myText
+    use strict arg -- none
     return var("myText")
 
 
@@ -188,16 +190,23 @@ See also this same method on RexxText and MutableBuffer and String.
 
 
 /*
+Depending on its encoding, an encoded string may be not compatible with ASCII.
+*/
+::method isCompatibleWithASCII
+    -- IMPORTANT! Don't cache the value because it can be invalidated when the encoding is changed
+    if (self~encoding~isByte | self~encoding~isUTF8 | self~encoding~isWTF8 | self~encoding~isUnicode8), self~isASCII then return .true
+    return .false
+
+
+/*
 Depending on its encoding, an encoded string may be not compatible with
 the String methods (byte-oriented).
 */
 ::method isCompatibleWithByteString
-    expose isCompatibleWithByteString
-    -- true if the String methods are applicable
-    if var("isCompatibleWithByteString") then return isCompatibleWithByteString
-    if self~encoding~isByte then isCompatibleWithByteString = .true
-    else isCompatibleWithByteString = (self~encoding~isUTF8 | self~encoding~isWTF8) & self~string~isASCII
-    return isCompatibleWithByteString
+    -- IMPORTANT! Don't cache the value because it can be invalidated when the encoding is changed
+    if self~encoding~isByte then return .true
+    if (self~encoding~isUTF8 | self~encoding~isWTF8 | self~encoding~isUnicode8), self~isASCII then return .true
+    return .false
 
 
 /*
@@ -207,12 +216,14 @@ Otherwise return the string.
 */
 ::method requestTextOrBufferOrString
     expose myText
+    use strict arg -- none
     if var("myText") then return myText
     return self
 
 
 -- Equivalent to isPolymorphicString in StringClass.cpp
 ::method isTextOrBufferOrString
+    use strict arg -- none
     return .true
 
 
@@ -265,6 +276,7 @@ Otherwise return the string.
 
 ::attribute encoding get
     expose encoding
+    use strict arg -- none
     if var("encoding") then return encoding
     return .Encoding~defaultEncoding
 
@@ -286,6 +298,7 @@ Otherwise return the string.
 
 ::method hasEncoding
     expose encoding
+    use strict arg -- none
     return var("encoding")
 
 
@@ -294,11 +307,13 @@ Allows to use a MutableBuffer or a RexxText indistinctly,
 without requesting a string from the buffer
 */
 ::method requestTextOrBufferOrString
+    use strict arg -- none
     return self
 
 
 -- Equivalent to isPolymorphicString in StringClass.cpp
 ::method isTextOrBufferOrString
+    use strict arg -- none
     return .true
 
 
@@ -323,6 +338,12 @@ without requesting a string from the buffer
     if string~length > length then string = string~left(length - 3)"..."
     -- escape3 is needed to have a proper display like this: [00]4[00]1
     return self~description(s:1) "'"escape3(string)"'"
+
+
+::method isCompatibleWithASCII
+    -- IMPORTANT! Don't cache the value because it can be invalidated when the encoding is changed
+    if (self~encoding~isByte | self~encoding~isUTF8 | self~encoding~isWTF8 | self~encoding~isUnicode8), self~isASCII then return .true
+    return .false
 
 
 /******************************************************************************/
@@ -367,6 +388,7 @@ base class...
 */
 ::method makestring
     expose indexer
+    use strict arg -- none
     if self~isCompatibleWithByteString then return indexer~string
     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
 
@@ -397,11 +419,13 @@ base class...
 Allows to use a String or a RexxText indistinctly
 */
 ::method requestTextOrBufferOrString
+    use strict arg -- none
     return self
 
 
 -- Equivalent to isPolymorphicString in StringClass.cpp
 ::method isTextOrBufferOrString
+    use strict arg -- none
     return .true
 
 
@@ -480,10 +504,20 @@ Allows to use a String or a RexxText indistinctly
 
 
 ::method isASCII
-    expose isASCII
-    if var("isASCII") then return isASCII
-    isASCII = (self~encoding~isByte | self~encoding~isUTF8 | self~encoding~isWTF8) & self~string~isASCII
-    return isASCII
+    forward to (self~string)
+
+
+::method isCompatibleWithASCII
+    -- IMPORTANT! Don't cache the value because it can be invalidated when the encoding is changed
+    if (self~encoding~isByte | self~encoding~isUTF8 | self~encoding~isWTF8 | self~encoding~isUnicode8), self~string~isASCII then return .true
+    return .false
+
+
+::method isCompatibleWithByteString
+    -- IMPORTANT! Don't cache the value because it can be invalidated when the encoding is changed
+    if self~encoding~isByte then return .true
+    if (self~encoding~isUTF8 | self~encoding~isWTF8 | self~encoding~isUnicode8), self~string~isASCII then return .true
+    return .false
 
 
 ::method isUpper
@@ -500,15 +534,6 @@ Allows to use a String or a RexxText indistinctly
     forward to (self~indexer) continue
     isLower = result
     return result
-
-
-::method isCompatibleWithByteString
-    expose isCompatibleWithByteString
-    -- true if the String methods are applicable
-    if var("isCompatibleWithByteString") then return isCompatibleWithByteString
-    if self~encoding~isByte then isCompatibleWithByteString = .true
-    else isCompatibleWithByteString = (self~encoding~isUTF8 | self~encoding~isWTF8) & self~string~isASCII
-    return isCompatibleWithByteString
 
 
 ::method codepoints
@@ -624,27 +649,24 @@ Allows to use a String or a RexxText indistinctly
     -- The purpose is not to check that the text is an hexadecimal value (will be checked by the String class)
     -- The purpose is to ensure that the text encoding is compatible with the String class,
     -- and to provide an accurate error.
-    -- Could test ~isCompatibleWithByteString, but ~isASCII is faster and sufficient here
     use strict arg -- none
-    if \self~isASCII then raise syntax 23.900 array(self~descriptionForError "is not compatible with a Rexx hexadecimal value")
+    if \self~isCompatibleWithByteString then raise syntax 23.900 array(self~descriptionForError "is not compatible with a Rexx hexadecimal value")
 
 
 ::method checkNumericValueCompatibility
     -- The purpose is not to check that the text is a numeric value (will be checked by the String class)
     -- The purpose is to ensure that the text encoding is compatible with the String class,
     -- and to provide an accurate error.
-    -- Could test ~isCompatibleWithByteString, but ~isASCII is faster and sufficient here
     use strict arg -- none
-    if \self~isASCII then raise syntax 23.900 array(self~descriptionForError "is not compatible with a Rexx numeric value")
+    if \self~isCompatibleWithByteString then raise syntax 23.900 array(self~descriptionForError "is not compatible with a Rexx numeric value")
 
 
 ::method checkLogicalValueCompatibility
     -- The purpose is not to check that the text is a logical value (will be checked by the String class)
     -- The purpose is to ensure that the text encoding is compatible with the String class,
     -- and to provide an accurate error.
-    -- Could test ~isCompatibleWithByteString, but ~isASCII is faster and sufficient here
     use strict arg -- none
-    if \self~isASCII then raise syntax 23.900 array(self~descriptionForError "is not compatible with a Rexx logical value")
+    if \self~isCompatibleWithByteString then raise syntax 23.900 array(self~descriptionForError "is not compatible with a Rexx logical value")
 
 
 ::method unescape
@@ -825,6 +847,15 @@ words
 x2b                             full (raise an error if not compatible with String)
 x2c                             full (raise an error if not compatible with String)
 x2d                             full (raise an error if not compatible with String
+
+Other methods/routines
+======================
+stringChunks
+    parse (only for breakTokens)
+    pos (only for escapeCharacters)
+    caselessWordPos (only for breakTokens)
+    .LengthComparator~new("d") (only for breakTokens)
+
 */
 
 ::method "[]"
@@ -1481,5 +1512,3 @@ x2d                             full (raise an error if not compatible with Stri
     if .nil == left then return -- no result: try the alternative message
     encoding = .Encoding~ForConcatenation(left, self)
     return encoding~concatenate(left, self)
-
-

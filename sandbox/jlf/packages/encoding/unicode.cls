@@ -44,7 +44,8 @@
 ::attribute codepointBidiClassNames get class
 ::attribute codepointDecompositionTypeNames get class
 ::attribute codepointBoundClassNames get class
-::attribute memorizeTransformations class -- global flag to control if the NFC, NFD, ... transformtions are memorized on the string
+::attribute memorizeConversions class -- global flag to control if the conversions from/to Unicode are memorized on the text
+::attribute memorizeTransformations class -- global flag to control if the NFC, NFD, ... transformtions are memorized on the text
 
 
 ::method initialize class
@@ -54,6 +55,7 @@
                          totalIntervalCharacters -
                          totalIntervalCharactersNotExpanded -
                          totalCharacterNameAliases -
+                         memorizeConversions -
                          memorizeTransformations
     use strict arg -- none
     packageDirectory = .file~new(.context~package~name)~parent
@@ -68,6 +70,7 @@
     totalIntervalCharactersNotExpanded = -1
     totalCharacterNameAliases = 0
     self~declareCharacters
+    memorizeConversions = .false
     memorizeTransformations = .false
 
 
@@ -81,6 +84,7 @@
     "characterIntervals",
     "dataDirectory",
     "maxCodepoint",
+    "memorizeConversions",
     "memorizeTransformations",
     "systemIsLittleEndian",
     "totalCharactersLoaded",
