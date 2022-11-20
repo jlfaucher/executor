@@ -443,7 +443,7 @@ P. P...    'ARITY'                : 'String' 'Doer' (doers.cls)
 When a value is a supplier, it's possible to see it as a table when ending the
 line with "==".
 No data is consumed because the display is made using a copy of the supplier.
-There is no sort, the order is the suppier's order.
+There is no sort, the order is the supplier's order.
 To get a sorted output, you can convert the supplier to a table (the datas of the supplier are consumed).
 In case of supplier for a coactivity, you must explicitely convert it to a table
 because even a copy will consume the datas of the coactivity.

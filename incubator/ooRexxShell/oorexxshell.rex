@@ -1949,7 +1949,7 @@ Helpers
         .ooRexxShell~sayError("Usage: < filename")
         return .false
     end
-    if \.ooRexxShell~queueFile(filename, check:) then return .false
+    if \.ooRexxShell~queueFile(filename, .true) then return .false
     return .ooRexxShell~queueFile(filename)
 
 
@@ -1959,8 +1959,7 @@ Helpers
     -- (search for "rxqueue" in this file to see how these 2 different queues
     -- are managed).
 
-    use strict arg filename, visitedFiles=(.set~new)
-    use strict named arg check=.false, directory=""
+    use strict arg filename, check=.false, directory="", visitedFiles=(.queue~new)
     program = .nil
     if directory \== "" then program = .context~package~findProgram(directory || .file~separator || filename)
     if .nil == program then program = .context~package~findProgram(filename)
@@ -1968,11 +1967,11 @@ Helpers
         .ooRexxShell~sayError("File not found:" filename)
         return .false
     end
-    if visitedFiles[program] \== .nil then do
+    if visitedFiles~hasItem(program) then do
         .ooRexxShell~sayError("Recursive inclusion:" filename)
         return .false
     end
-    visitedFiles[program] = program
+    visitedFiles~push(program)
     directory = .file~new(program)~parent
     error = .false
     multiLineComments = .false
@@ -1981,11 +1980,9 @@ Helpers
         queue "indent+"
         fileInfo = "-- Start of file" filename
         box = "-"~copies(fileInfo~length)
-        queue ""
         queue box
         queue fileInfo
         queue box
-        queue ""
     end
     signal on notready
     do forever
@@ -1997,8 +1994,8 @@ Helpers
         monoLineComment = line~left(2) == "--"
         parse var line word1 rest
         if \multiLineComments, \monoLineComment, maybeCommand, word1 == "<" then do
-            filename = rest~strip
-            .ooRexxShell~queueFile(filename, visitedFiles, :check, :directory)
+            filenameArgument = rest~strip
+            .ooRexxShell~queueFile(filenameArgument, check, directory, visitedFiles)
             if result == .false then error = .true
         end
         else if \check then queue rawline
@@ -2007,13 +2004,12 @@ Helpers
     if \check then do
         fileInfo = "-- End of file" filename
         box = "-"~copies(fileInfo~length)
-        queue ""
         queue box
         queue fileInfo
         queue box
         queue "indent-"
-        queue ""
     end
+    visitedFiles~pull
     return error == .false
 
 
