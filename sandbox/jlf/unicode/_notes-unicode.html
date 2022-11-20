@@ -47,6 +47,7 @@ Contents:
     <a href="#Encoding_title">Encoding title</a>
     <a href="#ICU_title">ICU title</a>
     <a href="#ICU_bindings">ICU bindings</a>
+    <a href="#ICU_title">ICU title</a>
     <a href="#ICU4X_title">ICU4X title</a>
     <a href="#Twitter_text_parsing">Twitter text parsing</a>
     <a href="#terminal___console___cmd">terminal / console / cmd</a>
@@ -341,6 +342,13 @@ INTERROBANG
 𝕥 (U+1D565) MATHEMATICAL DOUBLE-STRUCK SMALL T
 𝟶 (U+1D7F6) MATHEMATICAL MONOSPACE DIGIT ZERO
 𠂊 (U+2008A) Han Character
+
+
+<a target="_blank" rel="noopener noreferrer" href="http://unicode.org/udhr/">http://unicode.org/udhr/</a>
+UDHR in Unicode
+The goal of the UDHR in Unicode project is to demonstrate the use of Unicode
+for a wide variety of languages, using the Universal Declaration of Human Rights
+(UDHR) as a representative text.
 
 
 <hr><h2 id="U__notation__Unicode_escape_sequence">U+ notation, Unicode escape sequence</h2><hr>
@@ -1747,6 +1755,44 @@ Boost.Locale creates the natural glue between the C++ locales framework, iostrea
 Using OS X’s Built-in ICU Library in Your Own Project
 
 
+<hr><h2 id="ICU_title">ICU title</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://icu.unicode.org">https://icu.unicode.org</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Trie">https://en.wikipedia.org/wiki/Trie</a>
+Tries are a form of string-indexed look-up data structure, which is used to store a dictionary list
+of words that can be searched on in a manner that allows for efficient generation of completion lists.
+Tries can be efficacious on string-searching algorithms such as predictive text,
+approximate string matching, and spell checking in comparison to a binary search trees.
+A trie can be seen as a tree-shaped deterministic finite automaton.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://icu.unicode.org/design/struct/utrie">https://icu.unicode.org/design/struct/utrie</a>
+ICU Code Point Tries
+We use a form of "trie" adapted to single code points.
+The bits in the code point integer are divided into two or more parts.
+The first part is used as an array offset, the value there is used as a start offset into another array.
+The next code point bit field is used as an additional offset into that array, to fetch another value.
+The final part yields the data for the code point.
+Non-final arrays are called index arrays or tables.
+---
+For a general-purpose structure, we want to be able to be able to store a unique value for every character.
+This determines the number of bits needed in the last index table.
+With 136,690 characters assigned in Unicode 10, we need at least 18 bits.
+We allocate data values in blocks aligned at multiples of 4, and we use 16-bit index words shifted left by 2 bits.
+This leads to a small loss in how densely the data table can be used, and how well it can be compacted, but not nearly as much as if we were using 32-bit index words.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://icu.unicode.org/design/struct/tries/bytestrie">https://icu.unicode.org/design/struct/tries/bytestrie</a>
+It maps from arbitrary byte sequences to 32-bit integers.
+(Small non-negative integers are stored more efficiently. Negative integers are the least efficient.)
+The BytesTrie and UCharsTrie structures are nearly the same, except that the UCharsTrie uses fewer, larger units.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://icu.unicode.org/design/struct/tries/ucharstrie">https://icu.unicode.org/design/struct/tries/ucharstrie</a>
+Same design as a BytesTrie, but mapping any UnicodeString (any sequence of 16-bit units) to 32-bit integer values.
+
+
 <hr><h2 id="ICU4X_title">ICU4X title</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://icu4x.unicode.org/">https://icu4x.unicode.org/</a>
 
@@ -1825,6 +1871,16 @@ jlf: Not yet supported by ICU4X, too bad... I need that for Executor.
 
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/545">https://github.com/unicode-org/icu4x/issues/545</a>
 Reconsider UTF-32 support
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/131">https://github.com/unicode-org/icu4x/issues/131</a>
+Port BytesTrie to ICU4X #131
+with feedback from Markus Scherer (ICU)
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/2721">https://github.com/unicode-org/icu4x/issues/2721</a>
+Specialized zerovec collections for stringy types
+Sketch of a potential AsciiTrie.
 
 
 <hr><h2 id="Twitter_text_parsing">Twitter text parsing</h2><hr>
@@ -3026,6 +3082,12 @@ There are these comments in <a target="_blank" rel="noopener noreferrer" href="h
 
 <a target="_blank" rel="noopener noreferrer" href="https://andre.arko.net/2013/12/01/strings-in-ruby-are-utf-8-now/">https://andre.arko.net/2013/12/01/strings-in-ruby-are-utf-8-now/</a>
 "baﬄe".upcase == "BAFFLE"
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/open-i18n/rust-unic">https://github.com/open-i18n/rust-unic</a>
+UNIC: Unicode and Internationalization Crates for Rust
+jlf: seems stale since Oct 21, 2020. Killed by ICU4X?
+This fork is still alive: <a target="_blank" rel="noopener noreferrer" href="https://github.com/eyeplum/rust-unic">https://github.com/eyeplum/rust-unic</a>
 
 
 <hr><h2 id="Swift_lang">Swift lang</h2><hr>

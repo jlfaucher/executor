@@ -271,6 +271,13 @@ INTERROBANG
 𠂊 (U+2008A) Han Character
 
 
+http://unicode.org/udhr/
+UDHR in Unicode
+The goal of the UDHR in Unicode project is to demonstrate the use of Unicode
+for a wide variety of languages, using the Universal Declaration of Human Rights
+(UDHR) as a representative text.
+
+
 ================================================================================
 U+ notation, Unicode escape sequence
 ================================================================================
@@ -1787,6 +1794,47 @@ Using OS X’s Built-in ICU Library in Your Own Project
 
 
 ================================================================================
+ICU title
+================================================================================
+
+https://icu.unicode.org
+
+
+https://en.wikipedia.org/wiki/Trie
+Tries are a form of string-indexed look-up data structure, which is used to store a dictionary list
+of words that can be searched on in a manner that allows for efficient generation of completion lists.
+Tries can be efficacious on string-searching algorithms such as predictive text,
+approximate string matching, and spell checking in comparison to a binary search trees.
+A trie can be seen as a tree-shaped deterministic finite automaton.
+
+
+https://icu.unicode.org/design/struct/utrie
+ICU Code Point Tries
+We use a form of "trie" adapted to single code points.
+The bits in the code point integer are divided into two or more parts.
+The first part is used as an array offset, the value there is used as a start offset into another array.
+The next code point bit field is used as an additional offset into that array, to fetch another value.
+The final part yields the data for the code point.
+Non-final arrays are called index arrays or tables.
+---
+For a general-purpose structure, we want to be able to be able to store a unique value for every character.
+This determines the number of bits needed in the last index table.
+With 136,690 characters assigned in Unicode 10, we need at least 18 bits.
+We allocate data values in blocks aligned at multiples of 4, and we use 16-bit index words shifted left by 2 bits.
+This leads to a small loss in how densely the data table can be used, and how well it can be compacted, but not nearly as much as if we were using 32-bit index words.
+
+
+https://icu.unicode.org/design/struct/tries/bytestrie
+It maps from arbitrary byte sequences to 32-bit integers.
+(Small non-negative integers are stored more efficiently. Negative integers are the least efficient.)
+The BytesTrie and UCharsTrie structures are nearly the same, except that the UCharsTrie uses fewer, larger units.
+
+
+https://icu.unicode.org/design/struct/tries/ucharstrie
+Same design as a BytesTrie, but mapping any UnicodeString (any sequence of 16-bit units) to 32-bit integer values.
+
+
+================================================================================
 ICU4X title
 ================================================================================
 
@@ -1867,6 +1915,16 @@ jlf: Not yet supported by ICU4X, too bad... I need that for Executor.
 
 https://github.com/unicode-org/icu4x/issues/545
 Reconsider UTF-32 support
+
+
+https://github.com/unicode-org/icu4x/issues/131
+Port BytesTrie to ICU4X #131
+with feedback from Markus Scherer (ICU)
+
+
+https://github.com/unicode-org/icu4x/issues/2721
+Specialized zerovec collections for stringy types
+Sketch of a potential AsciiTrie.
 
 
 ================================================================================
@@ -3149,6 +3207,12 @@ There are these comments in https://news.ycombinator.com/item?id=32700315
 
 https://andre.arko.net/2013/12/01/strings-in-ruby-are-utf-8-now/
 "baﬄe".upcase == "BAFFLE"
+
+
+https://github.com/open-i18n/rust-unic
+UNIC: Unicode and Internationalization Crates for Rust
+jlf: seems stale since Oct 21, 2020. Killed by ICU4X?
+This fork is still alive: https://github.com/eyeplum/rust-unic
 
 
 ================================================================================
