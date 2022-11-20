@@ -6,6 +6,20 @@ Sandbox for experimental work, what's done so far.
 
 [Encoded strings]
 
+New set of examples that I use also for non-regression (too lazy to use the test framework).
+cdsamples
+cd encoding
+make force all
+
+The generated txt files are compared with the reference txt files.
+Easy to see if something changed.
+
+
+===============================================================================
+2022 November 20
+
+[Encoded strings]
+
 For consistency, all the conversion methods accept the named argument 'strict',
 even if it's not needed for the unicode encodings.
 Previously, was supported only for the byte encodings.
