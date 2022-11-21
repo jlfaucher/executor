@@ -133,7 +133,7 @@ Message term
 
     >>-receiver[--| Arguments |--]----------------------------><
 
-![USE NAMED ARG](SyntaxDiagram/sd_Message_term_brackets.png)
+![USE NAMED ARG](SyntaxDiagram/sd_Message_term_index.png)
 
 
 ---------------
