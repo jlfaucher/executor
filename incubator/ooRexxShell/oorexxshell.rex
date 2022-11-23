@@ -281,7 +281,7 @@ main: procedure
         if .ooRexxShell~debug then trace i ; else trace off
         call on halt name haltHandler
 
-        -- Will be used by .ooRexxShell~sleep to test if the previous command was an end of multline commment.
+        -- Will be used by .ooRexxShell~sleep to test if the previous command was an end of multiline commment.
         -- The duration of the pause will be proportional to the number of characters in the multiline comment.
         -- Also used by readline to decide if the history file must be updated (a repeated input is stored only once).
         .ooRexxShell~inputrxPrevious = .ooRexxShell~inputrx
@@ -2010,6 +2010,7 @@ Helpers
         queue "indent-"
     end
     visitedFiles~pull
+    stream~close
     return error == .false
 
 
