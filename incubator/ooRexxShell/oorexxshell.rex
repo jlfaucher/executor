@@ -1037,7 +1037,7 @@ Helpers
     packageStack~pull
 
     -- Report the collisions, if any
-    if level == 0 then do
+    if level == 0, .ooRexxShell~isInteractive then do
         do className over collisions~allIndexes~sort
             .ooRexxShell~sayError("Collision detected for class" className)
             definitionNumber = 1
@@ -1089,7 +1089,7 @@ Helpers
     packageStack~pull
 
     -- Report the collisions, if any
-    if level == 0 then do
+    if level == 0, .ooRexxShell~isInteractive then do
         do routineName over collisions~allIndexes~sort
             .ooRexxShell~sayError("Collision detected for routine" routineName)
             definitionNumber = 1
