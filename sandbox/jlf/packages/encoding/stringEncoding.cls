@@ -512,7 +512,6 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     -- If the action is to title then check if the begining of the section is a begining of word
     if action == "t" then do
         -- Simple split by words using space as separator. Absolutly not Unicode compliant.
-        -- ziglyph implements the Unicode algorithm for text segmentation.
         beginOfWord = .false
         if codepointIndexB == 1 then beginOfWord = .true -- 1st character
         else do
@@ -841,15 +840,6 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     use strict arg startC=1, length=(max(0, self~length - startC + 1))
     use strict named arg buffer(1)=.nil
     return self~lower_upper_title("t", startC, length, :buffer)
-
-
-/*
--- Other possible implementation: using ziglyph (limited to UTF-8)
-::method title
-    use strict arg -- none
-    stringTitle = .Unicode~stringToTitle(self~string)
-    return .RexxText~new(stringTitle, self~class)
-*/
 
 
 ::method upper

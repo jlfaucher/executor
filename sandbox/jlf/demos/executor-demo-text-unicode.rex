@@ -6,17 +6,12 @@ demo on
 --------------------
 
 /*
-The prototype is currently using 3 libraries:
+The prototype is currently using 2 libraries:
 - utf8proc    https://github.com/JuliaStrings/utf8proc
-- ziglyph     https://github.com/jecolon/ziglyph
 - icu4x       https://github.com/unicode-org/icu4x
-
-These 3 libraries have overlapping features.
-In the end, icu4x could be the only library used by Executor.
 
 Current usage:
 - utf8proc is used for grapheme segmentation, characters properties, normalization, upper/lower/title.
-- ziglyph is used for upper/lower/title. Will be used for word and sentence segmentation, collation (not locale-aware).
 - icu4x will be used for locale-aware services (segmentation, collation, translation, formatting).
 */
 sleep no prompt
@@ -229,17 +224,12 @@ sleep no prompt
 -- Unicode upper lower
 ----------------------
 
-/*
-For one character, utf8proc and ziglyph provide different results for upper/title:
-( "ß"   U+00DF Ll 1 "LATIN SMALL LETTER SHARP S" )
-*/
 smallSharpS = .unicode~character("LATIN SMALL LETTER SHARP S")                              --  ( "ß"   U+00DF Ll 1 "LATIN SMALL LETTER SHARP S" )
 .unicode~utf8proc_codepointToUpper(smallSharpS~codepoint)~pipe{.unicode~character(item)}=   --  ( "ẞ"   U+1E9E Lu 1 "LATIN CAPITAL LETTER SHARP S" )
-.Unicode~ziglyph_stringToUpper(smallSharpS~utf8~string)~text~characters=                    -- [( "ß"   U+00DF Ll 1 "LATIN SMALL LETTER SHARP S" )]
 sleep no prompt
 
 /*
-Both are wrong, should be "SS".
+Should be "SS".
 Unicode standard 15 section 5.18 Case Mappings:
     Default casing                                         Tailored casing
     (small sharp) ß <--- ß (capital sharp)                 (small sharp) ß <--> ẞ (capital sharp)
@@ -252,17 +242,13 @@ to uppercase to capital sharp s.
 */
 
 /*
-For some characters, utf8proc and ziglyph provide the same wrong results for upper/lower
+Another example of wrong result for upper/lower
 TODO: plug ICU4X and see if the result is ok with Locale “Turkish (Turkey)” (tr_TR)
 */
 sleep no prompt
 
 "Diyarbakır"~text~upper=                            -- T'DIYARBAKIR'   should be DİYARBAKIR
-.Unicode~ziglyph_stringToUpper("Diyarbakır")=       --  'DIYARBAKIR'
-"DİYARBAKIR"~text~casefold=                         -- T'di̇yarbakir'   should be diyarbakır
-.Unicode~ziglyph_stringToCaseFold("DİYARBAKIR")=    --  'di̇yarbakir'
 "DİYARBAKIR"~text~lower=                            -- T'diyarbakir'
-.Unicode~ziglyph_stringToLower("DİYARBAKIR")=       --  'diyarbakir'
 
 
 --------------------------

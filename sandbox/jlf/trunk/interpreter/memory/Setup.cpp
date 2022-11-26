@@ -1463,10 +1463,6 @@ void RexxMemory::createImage(const char *imageTarget)
   defineKernelMethod("UTF8PROC_CODEPOINTISLOWER"           , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointIsLower), 1);
   defineKernelMethod("UTF8PROC_CODEPOINTISUPPER"           , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointIsUpper), 1);
   defineKernelMethod("UTF8PROC_TRANSFORM"                  , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_transform), 1, true);  // pass named arguments
-  defineKernelMethod("ZIGLYPH_STRINGTOCASEFOLD"            , TheUnicodeClassBehaviour, CPPM(Unicode::ziglyph_stringToCaseFold), 1);
-  defineKernelMethod("ZIGLYPH_STRINGTOLOWER"               , TheUnicodeClassBehaviour, CPPM(Unicode::ziglyph_stringToLower), 1);
-  defineKernelMethod("ZIGLYPH_STRINGTOTITLE"               , TheUnicodeClassBehaviour, CPPM(Unicode::ziglyph_stringToTitle), 1);
-  defineKernelMethod("ZIGLYPH_STRINGTOUPPER"               , TheUnicodeClassBehaviour, CPPM(Unicode::ziglyph_stringToUpper), 1);
                                        /* set the scope of the methods to   */
                                        /* this classes oref                 */
   TheUnicodeClassBehaviour->setMethodDictionaryScope(TheUnicodeClass);

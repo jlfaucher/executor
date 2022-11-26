@@ -120,11 +120,6 @@ public:
     RexxInteger *utf8proc_codepointIsLower(RexxObject *rexxCodepoint);
     RexxInteger *utf8proc_codepointIsUpper(RexxObject *rexxCodepoint);
     RexxObject *utf8proc_transform(RexxString *str, RexxObject **named_arglist, size_t named_argcount);
-
-    RexxString *ziglyph_stringToCaseFold(RexxString *string);
-    RexxString *ziglyph_stringToLower(RexxString *string);
-    RexxString *ziglyph_stringToTitle(RexxString *string);
-    RexxString *ziglyph_stringToUpper(RexxString *string);
 };
 
 #endif

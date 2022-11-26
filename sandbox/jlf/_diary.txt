@@ -2,6 +2,16 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2022 November 26
+
+Remove dependency on ziglyph
+Can't upgrade to ziglyph for zig 0.10.0 with Unicode 15.0.0 support
+because zig maintainers introduced a dependency on ___ulock_wait2
+which is not supported by my MacOs version (High Sierre 10.13.6).
+https://github.com/ziglang/zig/issues/13313#issuecomment-1304802222
+
+
+===============================================================================
 2022 November 20
 
 [Encoded strings]

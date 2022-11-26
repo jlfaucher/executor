@@ -32,24 +32,19 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
-</span><span style="font-weight:bold;color:green;">Input queue name: S1db5Q7fada1c498d0
+</span><span style="font-weight:bold;color:green;">Input queue name: S302Q7fada1c560c0
 </span>
 <span style="font-weight:bold;color:blue;">--------------------
 </span><span style="font-weight:bold;color:blue;">-- Unicode libraries
 </span><span style="font-weight:bold;color:blue;">--------------------
 </span>
 <span style="font-weight:bold;color:blue;">/*
-</span><span style="font-weight:bold;color:blue;">The prototype is currently using 3 libraries:
+</span><span style="font-weight:bold;color:blue;">The prototype is currently using 2 libraries:
 </span><span style="font-weight:bold;color:blue;">- utf8proc    https://github.com/JuliaStrings/utf8proc
-</span><span style="font-weight:bold;color:blue;">- ziglyph     https://github.com/jecolon/ziglyph
 </span><span style="font-weight:bold;color:blue;">- icu4x       https://github.com/unicode-org/icu4x
-</span><span style="font-weight:bold;color:blue;">
-</span><span style="font-weight:bold;color:blue;">These 3 libraries have overlapping features.
-</span><span style="font-weight:bold;color:blue;">In the end, icu4x could be the only library used by Executor.
 </span><span style="font-weight:bold;color:blue;">
 </span><span style="font-weight:bold;color:blue;">Current usage:
 </span><span style="font-weight:bold;color:blue;">- utf8proc is used for grapheme segmentation, characters properties, normalization, upper/lower/title.
-</span><span style="font-weight:bold;color:blue;">- ziglyph is used for upper/lower/title. Will be used for word and sentence segmentation, collation (not locale-aware).
 </span><span style="font-weight:bold;color:blue;">- icu4x will be used for locale-aware services (segmentation, collation, translation, formatting).
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
@@ -560,18 +555,12 @@ T'di̇yarbakir'
 </span><span style="font-weight:bold;color:blue;">-- Unicode upper lower
 </span><span style="font-weight:bold;color:blue;">----------------------
 </span>
-<span style="font-weight:bold;color:blue;">/*
-</span><span style="font-weight:bold;color:blue;">For one character, utf8proc and ziglyph provide different results for upper/title:
-</span><span style="font-weight:bold;color:blue;">( &quot;ß&quot;   U+00DF Ll 1 &quot;LATIN SMALL LETTER SHARP S&quot; )
-</span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">smallSharpS = .unicode~character(&quot;LATIN SMALL LETTER SHARP S&quot;)                              </span><span style="font-weight:bold;color:blue;">--  ( &quot;ß&quot;   U+00DF Ll 1 &quot;LATIN SMALL LETTER SHARP S&quot; )</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">smallSharpS = .unicode~character(&quot;LATIN SMALL LETTER SHARP S&quot;)                              </span><span style="font-weight:bold;color:blue;">--  ( &quot;ß&quot;   U+00DF Ll 1 &quot;LATIN SMALL LETTER SHARP S&quot; )</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~utf8proc_codepointToUpper(smallSharpS~codepoint)~pipe{.unicode~character(item)}=   </span><span style="font-weight:bold;color:blue;">--  ( &quot;ẞ&quot;   U+1E9E Lu 1 &quot;LATIN CAPITAL LETTER SHARP S&quot; )</span>
 ( &quot;ẞ&quot;   U+1E9E Lu 1 &quot;LATIN CAPITAL LETTER SHARP S&quot; )
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~ziglyph_stringToUpper(smallSharpS~utf8~string)~text~characters=                    </span><span style="font-weight:bold;color:blue;">-- [( &quot;ß&quot;   U+00DF Ll 1 &quot;LATIN SMALL LETTER SHARP S&quot; )]</span>
-[( &quot;ß&quot;   U+00DF Ll 1 &quot;LATIN SMALL LETTER SHARP S&quot; )]
 
 <span style="font-weight:bold;color:blue;">/*
-</span><span style="font-weight:bold;color:blue;">Both are wrong, should be &quot;SS&quot;.
+</span><span style="font-weight:bold;color:blue;">Should be &quot;SS&quot;.
 </span><span style="font-weight:bold;color:blue;">Unicode standard 15 section 5.18 Case Mappings:
 </span><span style="font-weight:bold;color:blue;">    Default casing                                         Tailored casing
 </span><span style="font-weight:bold;color:blue;">    (small sharp) ß &lt;--- ß (capital sharp)                 (small sharp) ß &lt;--&gt; ẞ (capital sharp)
@@ -584,22 +573,14 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~ziglyph_str
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
 <span style="font-weight:bold;color:blue;">/*
-</span><span style="font-weight:bold;color:blue;">For some characters, utf8proc and ziglyph provide the same wrong results for upper/lower
+</span><span style="font-weight:bold;color:blue;">Another example of wrong result for upper/lower
 </span><span style="font-weight:bold;color:blue;">TODO: plug ICU4X and see if the result is ok with Locale “Turkish (Turkey)” (tr_TR)
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Diyarbakır&quot;~text~upper=                            </span><span style="font-weight:bold;color:blue;">-- T'DIYARBAKIR'   should be DİYARBAKIR</span>
 T'DIYARBAKIR'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~ziglyph_stringToUpper(&quot;Diyarbakır&quot;)=       </span><span style="font-weight:bold;color:blue;">--  'DIYARBAKIR'</span>
-'DIYARBAKIR'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;DİYARBAKIR&quot;~text~casefold=                         </span><span style="font-weight:bold;color:blue;">-- T'di̇yarbakir'   should be diyarbakır</span>
-T'di̇yarbakir'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~ziglyph_stringToCaseFold(&quot;DİYARBAKIR&quot;)=    </span><span style="font-weight:bold;color:blue;">--  'di̇yarbakir'</span>
-'di̇yarbakir'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;DİYARBAKIR&quot;~text~lower=                            </span><span style="font-weight:bold;color:blue;">-- T'diyarbakir'</span>
 T'diyarbakir'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~ziglyph_stringToLower(&quot;DİYARBAKIR&quot;)=       </span><span style="font-weight:bold;color:blue;">--  'diyarbakir'</span>
-'diyarbakir'
 
 
 <span style="font-weight:bold;color:blue;">--------------------------
@@ -806,9 +787,9 @@ T'0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvw
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">text~isNFD=</span>
 -1
 ooRexx[sh]&gt; ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">do 500; textNFD = text~NFD; end</span>
-<span style="font-weight:bold;color:green;">Duration: 5.976571
+<span style="font-weight:bold;color:green;">Duration: 22.585776
 </span>ooRexx[sh]&gt; ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">do 500; textNFD = text~NFD(mem:); end</span>
-<span style="font-weight:bold;color:green;">Duration: 0.038046
+<span style="font-weight:bold;color:green;">Duration: 0.064316
 </span><span style="font-weight:bold;color:purple;">text~nfd~&quot;==&quot;:.object( textNFD)=                </span><span style="font-weight:bold;color:blue;">-- 1 (this is really the same object)</span>
  1
 

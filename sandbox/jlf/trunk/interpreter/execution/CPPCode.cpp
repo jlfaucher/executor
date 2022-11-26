@@ -1126,10 +1126,6 @@ CPPM(Unicode::utf8proc_codepointToTitle),
 CPPM(Unicode::utf8proc_codepointIsLower),
 CPPM(Unicode::utf8proc_codepointIsUpper),
 CPPM(Unicode::utf8proc_transform),
-CPPM(Unicode::ziglyph_stringToCaseFold),
-CPPM(Unicode::ziglyph_stringToLower),
-CPPM(Unicode::ziglyph_stringToTitle),
-CPPM(Unicode::ziglyph_stringToUpper),
 
 NULL                                   /* final terminating method          */
 };

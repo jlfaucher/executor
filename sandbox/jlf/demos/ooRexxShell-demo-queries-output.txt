@@ -22,7 +22,7 @@ loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
 REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
-Input queue name: S1f49Q7fada1c49be0
+Input queue name: S3baQ7fada1c560c0
 
 --------------
 -- ooRexxShell
@@ -73,7 +73,7 @@ Commands:
     sleep [n] [no prompt]: used in demo mode to pause during n seconds (default 2 sec).
     trace off|on [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity][.verbose]]: deactivate|activate the trace.
     trap off|on [l[ostdigits]] [nom[ethod]] [nos[tring]] [nov[alue]] [s[yntax]]: deactivate|activate the conditions traps.
-Input queue name: S1f49Q7fada1c49be0
+Input queue name: S3baQ7fada1c560c0
 [Info] 41 lines displayed
 
 /*
@@ -1169,6 +1169,7 @@ P. PC..    'ASCII_US'                            : 'WINDOW' (ncurses.cls)
 P. P...    'ASCII_US'                            : 'WINDOW' (ncurses.cls)
 P. P...    'ASCII_VT'                            : 'WINDOW' (ncurses.cls)
 P. PC..    'ASCII_VT'                            : 'WINDOW' (ncurses.cls)
+.M PCG.    'ASENCODINGFOR'                       : 'StringIndexer' (stringEncoding.cls)
 P. P.G.    'ASSUME_DEFAULT_COLORS'               : 'WINDOW' (ncurses.cls)
 P. P.G.    'AT'                                  : 'Array' (REXX)
 P. P.G.    'AT'                                  : 'Directory' (REXX)
@@ -1849,13 +1850,13 @@ P. P...    'CODEPOINTMAXBYTES'                   : 'Unicode8_Encoding' (stringEn
 .M PC..    'CODEPOINTMAXBYTES'                   : 'UTF32_CommonServices' (stringEncoding.cls)
 .M PC..    'CODEPOINTMAXBYTES'                   : 'XTF16_CommonServices' (stringEncoding.cls)
 .M PC..    'CODEPOINTMAXBYTES'                   : 'XTF8_CommonServices' (stringEncoding.cls)
-.M P...    'CODEPOINTMAXBYTES'                   : 'UTF32_CommonServices' (stringEncoding.cls)
-.M P...    'CODEPOINTMAXBYTES'                   : 'XTF16_CommonServices' (stringEncoding.cls)
-.M P...    'CODEPOINTMAXBYTES'                   : 'XTF8_CommonServices' (stringEncoding.cls)
 P. PC..    'CODEPOINTMAXBYTES'                   : 'Byte_Encoding' (stringEncoding.cls)
 P. PC..    'CODEPOINTMAXBYTES'                   : 'Unicode16_Encoding' (stringEncoding.cls)
 P. PC..    'CODEPOINTMAXBYTES'                   : 'Unicode32_Encoding' (stringEncoding.cls)
 P. PC..    'CODEPOINTMAXBYTES'                   : 'Unicode8_Encoding' (stringEncoding.cls)
+.M P...    'CODEPOINTMAXBYTES'                   : 'UTF32_CommonServices' (stringEncoding.cls)
+.M P...    'CODEPOINTMAXBYTES'                   : 'XTF16_CommonServices' (stringEncoding.cls)
+.M P...    'CODEPOINTMAXBYTES'                   : 'XTF8_CommonServices' (stringEncoding.cls)
 .M P.G.    'CODEPOINTS'                          : 'RexxTextContents' (text.cls)
 .M P.G.    'CODEPOINTS'                          : 'StringIndexer' (stringEncoding.cls)
 .M PCG.    'CODEPOINTSIZEINBYTES'                : 'StringIndexer' (stringEncoding.cls)
@@ -3302,6 +3303,9 @@ P. PCG.    'ISCASESENSITIVE'                     : 'File' (StreamClasses.orx)
 .M P.G.    'ISCCSTRIPPED'                        : 'StringIndexer' (stringEncoding.cls)
 .. P.G.    'ISCLASSMETACHARACTER'                : 'RegexParser' (regex.cls)
 .. P.G.    'ISCLOSURECHARACTER'                  : 'RegexParser' (regex.cls)
+.M P.G.    'ISCOMPATIBLEWITHASCII'               : 'EncodedMutableBuffer' (text.cls)
+.M P.G.    'ISCOMPATIBLEWITHASCII'               : 'EncodedString' (text.cls)
+.M P.G.    'ISCOMPATIBLEWITHASCII'               : 'RexxTextContents' (text.cls)
 P. P.G.    'ISCOMPATIBLEWITHBYTESTRING'          : 'Object' (text.cls)
 .M P.G.    'ISCOMPATIBLEWITHBYTESTRING'          : 'EncodedString' (text.cls)
 .M P.G.    'ISCOMPATIBLEWITHBYTESTRING'          : 'RexxTextContents' (text.cls)
@@ -3982,12 +3986,12 @@ PM P.G.    'MAPWR'                               : 'MutableBufferMapper' (functi
 .. P.G.    'MATCH'                               : 'UnixLineEndNode' (regex.cls)
 .. P.G.    'MATCH'                               : 'UnixMultiLineEndNode' (regex.cls)
 .. P.G.    'MATCH'                               : 'UnixMultilineCaretNode' (regex.cls)
+.M P.G.    'MATCH'                               : 'IndexerStringInterface' (stringEncoding.cls)
+.M P.G.    'MATCH'                               : 'RexxTextStringInterface' (text.cls)
 P. P.G.    'MATCH'                               : 'MutableBuffer' (REXX)
 P. P.G.    'MATCH'                               : 'Pattern' (regex.cls)
 P. P.G.    'MATCH'                               : 'RegularExpression' (rxregexp.cls)
 P. P.G.    'MATCH'                               : 'String' (REXX)
-.M P.G.    'MATCH'                               : 'IndexerStringInterface' (stringEncoding.cls)
-.M P.G.    'MATCH'                               : 'RexxTextStringInterface' (text.cls)
 .M P.G.    'MATCHCHAR'                           : 'IndexerStringInterface' (stringEncoding.cls)
 .M P.G.    'MATCHCHAR'                           : 'RexxTextStringInterface' (text.cls)
 P. P.G.    'MATCHCHAR'                           : 'MutableBuffer' (REXX)
@@ -4769,7 +4773,6 @@ P. PCG.    'REQUESTTEXTORBUFFERORSTRING'         : 'Object' (text.cls)
 .M P.G.    'REQUESTTEXTORBUFFERORSTRING'         : 'EncodedMutableBuffer' (text.cls)
 .M P.G.    'REQUESTTEXTORBUFFERORSTRING'         : 'EncodedString' (text.cls)
 .M P.G.    'REQUESTTEXTORBUFFERORSTRING'         : 'RexxTextInitializer' (text.cls)
-PM P.G.    'RESET'                               : 'pipeStage' (pipe.cls)
 P. P.G.    'RESET'                               : 'after' (pipe.cls)
 P. P.G.    'RESET'                               : 'before' (pipe.cls)
 P. P.G.    'RESET'                               : 'between' (pipe.cls)
@@ -4780,6 +4783,7 @@ P. P.G.    'RESET'                               : 'partitionedCounter' (pipe.cl
 P. P.G.    'RESET'                               : 'sort' (pipe.cls)
 P. P.G.    'RESET'                               : 'sortWith' (pipe.cls)
 P. P.G.    'RESET'                               : 'take' (pipe.cls)
+PM P.G.    'RESET'                               : 'pipeStage' (pipe.cls)
 P. P.G.    'RESHAPE'                             : 'Object' (array.cls)
 P. P.G.    'RESIZE'                              : 'CircularQueue' (CoreClasses.orx)
 .. P.G.    'RESOLVEBACKREFERENCEPATH'            : 'MatchContext' (regex.cls)
@@ -5135,9 +5139,6 @@ P. P.G.    'STRICT='                             : 'sort' (pipe.cls)
 .. P.G.    'STRICTINCLUDE'                       : 'Filtering' (oorexxshell_queries.cls)
 .. P.G.    'STRICTINCLUDE='                      : 'Filtering' (oorexxshell_queries.cls)
 P. PCG.    'STRING'                              : 'Object' (REXX)
-.M P.G.    'STRING'                              : 'RexxTextInitializer' (text.cls)
-.M P.G.    'STRING'                              : 'StringIndexer' (stringEncoding.cls)
-PM P.G.    'STRING'                              : 'Stream' (StreamClasses.orx)
 P. P.G.    'STRING'                              : 'BSF.InputStream' (BSF.CLS)
 P. P.G.    'STRING'                              : 'BSF.OutputStream' (BSF.CLS)
 P. P.G.    'STRING'                              : 'CHTYPE' (ncurses.cls)
@@ -5161,6 +5162,9 @@ P. P.G.    'STRING'                              : 'UnicodeCharacterAlias' (unic
 P. P.G.    'STRING'                              : 'UnicodeCharacterInterval' (unicode.cls)
 P. P.G.    'STRING'                              : 'UnicodeCharacterIntervalSupplier' (unicode.cls)
 P. P.G.    'STRING'                              : 'UnicodeCharacterSupplier' (unicode.cls)
+.M P.G.    'STRING'                              : 'RexxTextInitializer' (text.cls)
+.M P.G.    'STRING'                              : 'StringIndexer' (stringEncoding.cls)
+PM P.G.    'STRING'                              : 'Stream' (StreamClasses.orx)
 P. P.G.    'STRING='                             : 'StringChunk' (stringChunk.cls)
 P. P.G.    'STRING='                             : 'StringOfWords' (rgf_util2.rex)
 .M ..G.    'STRING='                             : 'RexxTextInitializer' (text.cls)
@@ -5819,10 +5823,6 @@ P. ..G.    'YIELDRESULT'                         : 'Generator' (generator.cls)
 PM P...    'YM'                                  : 'RoutineDoer' (doers.cls)
 P. P.G.    'Z'                                   : 'MEVENT' (ncurses.cls)
 P. P.G.    'Z='                                  : 'MEVENT' (ncurses.cls)
-P. PCG.    'ZIGLYPH_STRINGTOCASEFOLD'            : 'Unicode' (REXX)
-P. PCG.    'ZIGLYPH_STRINGTOLOWER'               : 'Unicode' (REXX)
-P. PCG.    'ZIGLYPH_STRINGTOTITLE'               : 'Unicode' (REXX)
-P. PCG.    'ZIGLYPH_STRINGTOUPPER'               : 'Unicode' (REXX)
 PM PCG.    '[]'                                  : 'pipeStage' (pipe.cls)
 P. PCG.    '[]'                                  : 'COMPLEX' (complex.cls)
 P. PCG.    '[]'                                  : 'Unicode' (unicode.cls)
@@ -6082,8 +6082,8 @@ P          'RGF_UTIL_EXTENDED'                    : (rgf_util2.rex)
 P          'RIGHT2'                               : (rgf_util2.rex)
 P          'ROUTINEINFOS'                         : (oorexxshell_queries.cls)
 P          'SAMESHAPES'                           : (array.cls)
-P          'SHAPE'                                : (array.cls)
 .          'SHAPE'                                : (rgf_util2.rex)
+P          'SHAPE'                                : (array.cls)
 .          'SHELL'                                : (oorexxshell.rex)
 P          'SORT2'                                : (rgf_util2.rex)
 P          'STABLESORT2'                          : (rgf_util2.rex)
@@ -6401,6 +6401,7 @@ P. P.G.    'HASENCODING'                 : 'String' 'EncodedString' (text.cls)
 P. P.G.    'HASTEXT'                     : 'String' 'EncodedString' (text.cls)
 P. P...    'IFFALSE'                     : 'String' 'LogicalExtension' (logical.cls)
 P. P...    'IFTRUE'                      : 'String' 'LogicalExtension' (logical.cls)
+P. P.G.    'ISCOMPATIBLEWITHASCII'       : 'String' 'EncodedString' (text.cls)
 P. P.G.    'ISCOMPATIBLEWITHBYTESTRING'  : 'String' 'EncodedString' (text.cls)
 P. P.G.    'ISCOMPATIBLEWITHBYTESTRING'  : 'String' 'Object' (text.cls)
 P. PCG.    'ISCOMPATIBLEWITHBYTESTRING'  : 'String' 'Object' (text.cls)
@@ -6519,8 +6520,8 @@ P. P.G.    'WORDPOS2'                    : 'String' 'String' (rgf_util2_wrappers
 P. PCG.    'XDIGIT'                      : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
 P. P.G.    '[]'                          : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
 P. P...    '~()'                         : 'String' 'Doer' (doers.cls)
-[Info] [1] Class 'String' has 380 methods
-[Info] 211 lines displayed
+[Info] [1] Class 'String' has 381 methods
+[Info] 212 lines displayed
 
 /*
 Display the hidden methods: all lines containing "----" from 4th character.

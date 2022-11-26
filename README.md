@@ -36,7 +36,6 @@ Main ideas explored with this prototype:
 
 Prototype based on:
 - [utf8proc][utf8proc]
-- [ziglyph][ziglyph]
 - [ICU4X][ICU4X]
 
 Notes about Unicode:
@@ -402,4 +401,3 @@ Several demos are available [here][demos_with_asciinema].
 [wikipedia_breadth_first_search]: http://en.wikipedia.org/wiki/Breadth-first_search
 [wikipedia_fixed_point_combinator]: http://en.wikipedia.org/wiki/Fixed-point_combinator#Y_combinator "Wikipedia fixed point combinator"
 [wikipedia_memoization]: https://en.wikipedia.org/wiki/Memoization
-[ziglyph]: https://zig.news/dude_the_builder/ziglyph-unicode-wrangling-llj
