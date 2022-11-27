@@ -32,7 +32,7 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
-</span><span style="font-weight:bold;color:green;">Input queue name: S1d2cQ7fada1d451b0
+</span><span style="font-weight:bold;color:green;">Input queue name: S59baQ7fada1c57710
 </span>
 <span style="font-weight:bold;color:blue;">----------------------------------
 </span><span style="font-weight:bold;color:blue;">-- Text encoding - Internal checks
@@ -48,7 +48,7 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~text = .RexxText~n
 </span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~text = .RexxText~new(s)                </span><span style="font-weight:bold;color:blue;">-- ok, the RexxText is linked to s, now can be assigned to s~text</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~text(&quot;byte&quot;) || &quot;è&quot;~text(&quot;utf8&quot;)=    </span><span style="font-weight:bold;color:blue;">-- Cannot concatenate Byte with UTF-8</span>
-<span style="font-weight:bold;color:red;">Encoding: cannot concatenate Byte not-ASCII 'é' with UTF-8 not-ASCII 'è'.
+<span style="font-weight:bold;color:red;">Encoding: cannot append UTF-8 not-ASCII 'è' to Byte not-ASCII 'é'.
 </span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~text(&quot;byte&quot;) || &quot;é&quot;~text(&quot;utf8&quot;)=    </span><span style="font-weight:bold;color:blue;">-- T'éé' encoded UTF-8</span>
 T'éé'
