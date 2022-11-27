@@ -66,6 +66,16 @@ HostEmu[ooRexx]> oorexx in.=                        -- temporarily switch to ooR
 HostEmu[ooRexx]> exit                               -- the exit command is supported whatever the interpreter
 */
 
+argrx = arg(1)
+if argrx~word(1)~caselessEquals("--showInitialization") then do
+    -- Typical usage: when non-interactive demo, we want to show the initialization
+    .ooRexxShell~showInitialization = .true
+    argrx = argrx~subword(2)
+end
+
+.ooRexxShell~isInteractive = (argrx == "" & lines() == 0) -- Example of not interactive session: echo say 1+2 | oorexxshell
+if .ooRexxShell~isInteractive then .ooRexxShell~showInitialization = .true
+
 .platform~initialize
 
 -- Use a security manager to trap the calls to the systemCommandHandler:
@@ -78,14 +88,9 @@ shell~setSecurityManager(.ooRexxShell~securityManager)
 -- In case of error, must end any running coactivity, otherwise the program doesn't terminate
 signal on any name error
 
-.ooRexxShell~isInteractive = (arg(1) == "" & lines() == 0) -- Example of not interactive session: echo dir | oorexxshell
-
--- Typical usage: when non-interactive demo, we want to show the initialization
-.ooRexxShell~showInitialization = .ooRexxShell~isInteractive | arg(1)~caselessEquals("--showInitialization")
-
 -- Bypass defect 2933583 (fixed in release 4.0.1):
 -- Must pass the current address (default) because will be reset to system address when entering in SHELL routine
-shell~call(arg(1), address())
+shell~call(argrx, address())
 
 finalize:
 if .ooRexxShell~isExtended then .Coactivity~endAll
@@ -258,16 +263,9 @@ end
 
 call checkReadlineCapability
 
-select
-    when .ooRexxShell~showInitialization then do
-        call intro
-        call main
-    end
-    otherwise do
-        if .ooRexxShell~initialArgument <> "" then push unquoted(.ooRexxShell~initialArgument) -- One-liner
-        call main
-    end
-end
+if .ooRexxShell~initialArgument <> "" then push unquoted(.ooRexxShell~initialArgument) -- One-liner
+if .ooRexxShell~showInitialization then call intro
+call main
 
 call rxqueue "delete", .ooRexxShell~queueName
 
@@ -338,11 +336,15 @@ main: procedure
 
             when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("demo off") then
                 .ooRexxShell~demo = .false
-            when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("demo on") then
+            when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("demo on") then do
                 .ooRexxShell~demo = .true
+                -- .ooRexxShell~demoFast = .false   -- remember: don't do that, to give priority to "demo fast" from the command  line
+            end
 
-            when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("demo fast") then
+            when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("demo fast") then do
+                .ooRexxShell~demo = .true   -- "demo fast" is first of all "demo". That allows to not put "demo on" in a script when using "demo fast" from the command line
                 .ooRexxShell~demoFast = .true
+            end
 
             when .ooRexxShell~maybeCommand & .ooRexxShell~input~caselessEquals("exit") then
                 exit
@@ -1215,6 +1217,7 @@ Helpers
     self~showColor = .false
     self~showComment = .false
     self~showInfosNext = .false
+    self~showInitialization = .false
     self~stackFrames = .list~new
     self~traceReadline = .false
     self~traceDispatchCommand = .false
@@ -1355,7 +1358,7 @@ Helpers
 
     .ooRexxShell~traceback = condition~traceback
     .ooRexxShell~stackFrames = condition~stackFrames
-    if \ .ooRexxShell~isInteractive then .ooRexxShell~sayStackFrames
+    if \ (.ooRexxShell~isInteractive | .ooRexxShell~demo) then .ooRexxShell~sayStackFrames
 
     if condition~condition <> "SYNTAX" then .ooRexxShell~sayError(condition~condition)
     if condition~description <> .nil, condition~description <> "" then .ooRexxShell~sayError(condition~description)
@@ -1367,7 +1370,6 @@ Helpers
 
 
 ::method sayStackFrames class
-    if .ooRexxShell~demo then return
     use strict arg stream=.output -- you can pass .error if you want to separate normal output and error output
     if .nil == .ooRexxShell~stackFrames then return
     supplier = .ooRexxShell~stackFrames~supplier
