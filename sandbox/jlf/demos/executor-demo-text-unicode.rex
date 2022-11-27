@@ -429,11 +429,7 @@ text = xrange("0", "FF"x)~text("cp1252")~utf8
 text=
 text~isNFD=
 sleep
-infos next
-do 500; textNFD = text~NFD; end
-sleep
-infos next
-do 500; textNFD = text~NFD(mem:); end
+textNFD = text~NFD(mem:)
 sleep no prompt
 text~nfd~"==":.object( textNFD)=                -- 1 (this is really the same object)
 

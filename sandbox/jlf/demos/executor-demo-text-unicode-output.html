@@ -32,7 +32,7 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
-</span><span style="font-weight:bold;color:green;">Input queue name: S302Q7fada1c560c0
+</span><span style="font-weight:bold;color:green;">Input queue name: S5a33Q7fada1c57710
 </span>
 <span style="font-weight:bold;color:blue;">--------------------
 </span><span style="font-weight:bold;color:blue;">-- Unicode libraries
@@ -786,11 +786,8 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">text=</span>
 T'0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">text~isNFD=</span>
 -1
-ooRexx[sh]&gt; ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">do 500; textNFD = text~NFD; end</span>
-<span style="font-weight:bold;color:green;">Duration: 22.585776
-</span>ooRexx[sh]&gt; ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">do 500; textNFD = text~NFD(mem:); end</span>
-<span style="font-weight:bold;color:green;">Duration: 0.064316
-</span><span style="font-weight:bold;color:purple;">text~nfd~&quot;==&quot;:.object( textNFD)=                </span><span style="font-weight:bold;color:blue;">-- 1 (this is really the same object)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">textNFD = text~NFD(mem:)</span>
+<span style="font-weight:bold;color:purple;">text~nfd~&quot;==&quot;:.object( textNFD)=                </span><span style="font-weight:bold;color:blue;">-- 1 (this is really the same object)</span>
  1
 
 <span style="font-weight:bold;color:blue;">/*

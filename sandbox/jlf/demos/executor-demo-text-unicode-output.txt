@@ -22,7 +22,7 @@ loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
 REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
-Input queue name: S302Q7fada1c560c0
+Input queue name: S5a33Q7fada1c57710
 
 --------------------
 -- Unicode libraries
@@ -776,10 +776,7 @@ ooRexx[sh]> text=
 T'0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ'
 ooRexx[sh]> text~isNFD=
 -1
-ooRexx[sh]> ooRexx[sh]> do 500; textNFD = text~NFD; end
-Duration: 22.585776
-ooRexx[sh]> ooRexx[sh]> do 500; textNFD = text~NFD(mem:); end
-Duration: 0.064316
+ooRexx[sh]> textNFD = text~NFD(mem:)
 text~nfd~"==":.object( textNFD)=                -- 1 (this is really the same object)
  1
 
