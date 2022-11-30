@@ -258,9 +258,9 @@ debug off|on: deactivate|activate the full trace of the internals of ooRexxShell
 demo off|on: deactivate|activate the demonstration mode.
 exit: exit ooRexxShell.
 goto <label>: used in a demo script to skip lines, until <label>: (note colon) is reached.
-indent+ | indent-: used by the command < to show the level of inclusion
+indent+ | indent-: used by the command < to show the level of inclusion.
 infos off|on|next: deactivate|activate the display of informations after each execution.
-prompt directory off|on: deactivate|activate the display of the directory before the prompt.
+prompt off|on [a[ddress]] [d[irectoy]] [i[nterpret]]: deactivate|activate the display of the prompt components.
 readline off: use the raw parse pull for the input.
 readline on: delegate to the system readline (history, tab completion).
 reload: exit the current session and reload all the packages/libraries.
@@ -344,6 +344,29 @@ Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
 
 History of changes
 ==================
+
+-----------------------------------------------
+2022 nov 30
+
+Rework the syntax of the command "prompt":
+old: prompt directory off|on
+new: prompt off|on [a[ddress]] [d[irectoy]] [i[nterpret]]
+
+The need is to not display the address when doing non-regression tests.
+That way, the referenve output will be similar for all platforms.
+
+Examples:
+
+prompt off
+>
+
+prompt on address directory
+/local/rexx
+[sh]>
+
+prompt off address directory on interpreter
+ooRexx>
+
 
 -----------------------------------------------
 2022 nov 28

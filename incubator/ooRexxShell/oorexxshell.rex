@@ -372,10 +372,10 @@ main: procedure
             when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("infos next") then
                 .ooRexxShell~showInfosNext = .true
 
-            when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("prompt directory off") then
-                .ooRexxShell~promptDirectory = .false
-            when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("prompt directory on") then
-                .ooRexxShell~promptDirectory = .true
+            when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessAbbrev("prompt off") then
+                .ooRexxShell~promptSettings(.false, .ooRexxShell~input)
+            when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessAbbrev("prompt on") then
+                .ooRexxShell~promptSettings(.true, .ooRexxShell~input)
 
             when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("readline off") then
                 .ooRexxShell~readline = .false
@@ -552,8 +552,12 @@ Helpers
 ::routine prompt
     use strict arg currentAddress
     -- No longer display the prompt, return it and let readline display it
-    prompt = .ooRexxShell~interpreter
-    if .ooRexxShell~interpreter~caselessEquals("ooRexx") then prompt ||= "["currentAddress"]" ; else prompt ||= "[ooRexx]"
+    prompt = ""
+    if .ooRexxShell~promptInterpreter then prompt = .ooRexxShell~interpreter
+    if .ooRexxShell~promptAddress then do
+        if .ooRexxShell~interpreter~caselessEquals("ooRexx") then prompt ||= "["currentAddress"]"
+                                                             else prompt ||= "[ooRexx]"
+    end
     if .ooRexxShell~securityManager~isEnabledByUser then prompt ||= "> " ; else prompt ||= "!> "
     return prompt
 
@@ -657,8 +661,8 @@ Helpers
             when maybeCommand & input~caselessEquals("indent+") then nop
             when maybeCommand & input~caselessEquals("indent-") then nop
             when maybeCommand & input~caselessEquals("infos next") then nop
-            when maybeCommand & input~caselessEquals("prompt directory off") then nop
-            when maybeCommand & input~caselessEquals("prompt directory on") then nop
+            when maybeCommand & input~caselessAbbrev("prompt off") then nop
+            when maybeCommand & input~caselessAbbrev("prompt on") then nop
             when maybeCommand & input~word(1)~right(1) == ":" & input~words == 1 & \isDriveLetter(input~word(1)) then nop -- label (when not drive letter)
             when maybeCommand & input~word(1)~caselessEquals("sleep") then do
                 if .ooRexxShell~maybeCommand & .ooRexxShell~input~word(1)~caseLessEquals("sleep") then nop -- prompt already displayed
@@ -1142,7 +1146,9 @@ Helpers
 ::attribute maybeCommand class -- Indicator used during the analysis of the command line
 ::attribute maybeCommandPrevious class
 ::attribute prompt class -- The prompt to display
+::attribute promptAddress class -- .true by default: display the current system address in interpreter[address]
 ::attribute promptDirectory class -- .true by default: display the prompt directory
+::attribute promptInterpreter class -- .true by default: display the current interpreter name in interpreter[address]
 ::attribute queueName class -- Private queue for no interference with the user commands
 ::attribute queueInitialName class -- Backup the initial external queue name (probably "SESSION")
 ::attribute RC class -- Return code from the last executed command
@@ -1212,7 +1218,9 @@ Helpers
     self~isInteractive = .false
     self~maxItemsDisplayed = 1000
     self~maybeCommand = .false
+    self~promptAddress = .true
     self~promptDirectory = .true
+    self~promptInterpreter = .true
     self~readline = .false
     self~showColor = .false
     self~showComment = .false
@@ -1273,7 +1281,9 @@ Helpers
     "isInteractive",
     "maxItemsDisplayed",
     "prompt",
+    "promptAddress",
     "promptDirectory",
+    "promptInterpreter",
     "queueName",
     "queueInitialName",
     "RC",
@@ -1721,7 +1731,7 @@ Helpers
     say "    goto <label>: used in a demo script to skip lines, until <label>: (note colon) is reached."
     say "    indent+ | indent-: used by the command < to show the level of inclusion."
     say "    infos off|on|next: deactivate|activate the display of informations after each execution."
-    say "    prompt directory off|on: deactivate|activate the display of the directory before the prompt."
+    say "    prompt off|on [a[ddress]] [d[irectoy]] [i[nterpret]]: deactivate|activate the display of the prompt components."
     say "    readline off: use the raw parse pull for the input."
     say "    readline on: delegate to the system readline (history, tab completion)."
     say "    reload: exit the current session and reload all the packages/libraries."
@@ -1822,6 +1832,23 @@ Helpers
 -- Other --
 -----------
 
+::method promptSettings class
+    use strict arg prompt, input
+    parse var input . . rest
+    if rest == "" then do
+        self~promptAddress = prompt
+        self~promptDirectory = prompt
+        self~promptInterpreter = prompt
+    end
+    do arg over .ooRexxShell~stringChunks(rest)
+        if "off"~caselessEquals(arg) then prompt = .false
+        else if "on"~caselessEquals(arg) then prompt = .true
+        else if "address"~caselessAbbrev(arg, 1) then self~promptAddress= prompt
+        else if "directory"~caselessAbbrev(arg, 1) then self~promptDirectory = prompt
+        else if "interpreter"~caselessAbbrev(arg, 1) then self~promptInterpreter = prompt
+        else .ooRexxShell~sayError("Unknown prompt component:" arg)
+    end
+
 
 ::method trace class
     use strict arg trace, input
@@ -1835,14 +1862,16 @@ Helpers
     end
     do arg over .ooRexxShell~stringChunks(rest)
         parse var arg word1 "." rest
-        if "dispatchcommand"~caselessAbbrev(arg) then self~traceDispatchCommand = trace
-        else if "filter"~caselessAbbrev(arg) then self~traceFilter = trace
-        else if "readline"~caselessAbbrev(arg) then self~traceReadline = trace
-        else if "securitymanager"~caselessAbbrev(word1) then do
+        if "off"~caselessEquals(arg) then trace = .false
+        else if "on"~caselessEquals(arg) then trace = .true
+        else if "dispatchcommand"~caselessAbbrev(arg, 1) then self~traceDispatchCommand = trace
+        else if "filter"~caselessAbbrev(arg, 1) then self~traceFilter = trace
+        else if "readline"~caselessAbbrev(arg, 1) then self~traceReadline = trace
+        else if "securitymanager"~caselessAbbrev(word1, 1) then do
             self~securityManager~traceCommand = trace
             self~securityManager~verbose = .false
             if rest <> "" then do
-                if "verbose"~caselessAbbrev(rest) then self~securityManager~verbose = trace
+                if "verbose"~caselessAbbrev(rest, 1) then self~securityManager~verbose = trace
                 else .ooRexxShell~sayError("Expected 'v[erbose]' after" quoted(word1".")". Got" quoted(rest))
             end
         end
@@ -1851,7 +1880,7 @@ Helpers
             self~securityManager~traceCommand = trace
             self~securityManager~verbose = trace
         end
-        else .ooRexxShell~sayError("Unknown:" arg)
+        else .ooRexxShell~sayError("Unknown trace argument:" arg)
     end
 
 
@@ -1866,7 +1895,9 @@ Helpers
         self~trapSyntax = trap
     end
     do arg over .ooRexxShell~stringChunks(rest)
-        if "lostdigits"~caselessAbbrev(arg, 1) then self~trapLostdigits= trap
+        if "off"~caselessEquals(arg) then trap = .false
+        else if "on"~caselessEquals(arg) then trap = .true
+        else if "lostdigits"~caselessAbbrev(arg, 1) then self~trapLostdigits= trap
         else if "nomethod"~caselessAbbrev(arg, 3) then self~trapNoMethod = trap
         else if "nostring"~caselessAbbrev(arg, 3) then self~trapNoString = trap
         else if "novalue"~caselessAbbrev(arg, 3) then self~trapNoValue = trap
