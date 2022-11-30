@@ -1945,14 +1945,13 @@ Helpers
     -- Returns .true if no error.
 
     use strict arg input
-    parse var input . filename -- everything after the first word '<' is the filename, which can contain spaces.
-    filename = filename~strip -- remove only leading and trailing spaces
-    if filename == "" then do
-        .ooRexxShell~sayError("Usage: < filename")
-        return .false
-    end
+    parse var input . args
+    results = .ooRexxShell~parseQueueFileArguments(args)
+    if .nil == results then return .false
+    filename = results[1]
+    substitutions = results[2]
     if \.ooRexxShell~queueFile(filename, .true) then return .false
-    return .ooRexxShell~queueFile(filename)
+    return .ooRexxShell~queueFile(filename, .false, substitutions)
 
 
 ::method queueFile class
@@ -1961,7 +1960,7 @@ Helpers
     -- (search for "rxqueue" in this file to see how these 2 different queues
     -- are managed).
 
-    use strict arg filename, check=.false, directory="", visitedFiles=(.queue~new)
+    use strict arg filename, check=.false, substitutions=.nil, directory="", visitedFiles=(.queue~new)
     program = .nil
     if directory \== "" then program = .context~package~findProgram(directory || .file~separator || filename)
     if .nil == program then program = .context~package~findProgram(filename)
@@ -1996,11 +1995,17 @@ Helpers
         monoLineComment = line~left(2) == "--"
         parse var line word1 rest
         if \multiLineComments, \monoLineComment, maybeCommand, word1 == "<" then do
-            filenameArgument = rest~strip
-            .ooRexxShell~queueFile(filenameArgument, check, directory, visitedFiles)
-            if result == .false then error = .true
+            results = .ooRexxShell~parseQueueFileArguments(rest)
+            if .nil == results then error = .true
+            else do
+                -- Remember: don't overwrite filename and substitutions
+                filenameArgument = results[1]
+                substitutionsArgument = results[2]
+                .ooRexxShell~queueFile(filenameArgument, check, substitutionsArgument, directory, visitedFiles)
+                if result == .false then error = .true
+            end
         end
-        else if \check then queue rawline
+        else if \check then queue applySubstitutions(rawline, substitutions)
     end
     notready:
     if \check then do
@@ -2014,6 +2019,48 @@ Helpers
     visitedFiles~pull
     stream~close
     return error == .false
+
+    applySubstitutions: procedure
+        use strict arg string, substitutions
+        if .nil \== substitutions then do
+            loop i=1 to substitutions~items by 2
+                toReplace = substitutions~at(i)
+                replacedBy = substitutions~at(i+1)
+                if .nil == toReplace then iterate
+                if .nil == replacedBy then iterate
+                string = string~caselessChangeStr(toReplace, replacedBy)
+            end
+        end
+        return string
+
+
+::method parseQueueFileArguments class
+    use strict arg args
+    results = parse_qword_rest(args)
+    filename = results[1]
+    rest = results[2]
+    if filename == "" then do
+        .ooRexxShell~sayError("Usage: < filename [substitutions]")
+        return .nil
+    end
+    -- Parse the substitution rules: s/text/newtext/ where the character after s can be any character
+    substitutions = .queue~new
+    do while rest \== ""
+        if rest~subchar(1) \== "s" then do
+            .ooRexxShell~sayError("Invalid substitution rule. Expected s/text/newtext/. Got" rest)
+            return .nil
+        end
+        separator = rest~subchar(2)
+        if rest~countStr(separator) < 3 then do
+            .ooRexxShell~sayError("Invalid substitution rule. Expected s/text/newtext/. Got" rest)
+            return .nil
+        end
+        parse var rest (rest~left(2)) toReplace (separator) replacedBy (separator) nextRest
+        substitutions~append(toReplace)
+        substitutions~append(replacedBy)
+        rest = nextRest~strip
+    end
+    return .array~of(filename, substitutions)
 
 
 ::method stringChunks class
@@ -2662,6 +2709,17 @@ The colors are managed with escape characters.
 -------------------------------------------------------------------------------
 -- Helpers
 -------------------------------------------------------------------------------
+
+::routine parse_qword_rest public
+    -- Parse a quoted string (optional) otherwise parse a word
+    -- The double quotes are not supported
+    use strict arg string
+    string = string~strip
+    char1 = string~subchar(1)
+    if char1 == '"' | char1 == "'" then parse var string (char1) word1 (char1) rest
+    else parse var string word1 rest
+    return .array~of(word1, rest~strip)
+
 
 ::routine quoted public
     -- Remember: keep it, because the method .String~quoted is NOT available with standard ooRexx.

@@ -346,6 +346,32 @@ History of changes
 ==================
 
 -----------------------------------------------
+2022 nov 28
+
+The command "< filename" allows to declare text substitutions which are applied
+to each line of the included file.
+
+    < filename s/text1/newText1/ s/text2/newText2/ ...
+
+The separator / can be replaced by any character, as long as the same separator
+is used in a substitution rule.
+The substitutions are applied from left to right using caselessReplace:
+- all the occurences of text1 are replaced by newText1
+- then all the occurences of text2 are replaced by newText2
+- and so on
+Just plain text matching, no metacharacter (. * ^$), no regular expression.
+
+Typical usage : emulate macro arguments
+
+    < "my file" s/$(1)/55/ s|il dit|He says|
+
+These substitutions applied to
+    say "Il dit ""I am $(1) years old"""
+give
+    say "He says ""I am 55 years old"""
+
+
+-----------------------------------------------
 2022 nov 17
 
 New command "< filename" to include the file's lines in the input queue.
