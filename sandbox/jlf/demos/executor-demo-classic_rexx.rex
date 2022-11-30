@@ -67,5 +67,4 @@ sleep no prompt
 /*
 End of demonstration.
 */
-prompt directory on
 demo off

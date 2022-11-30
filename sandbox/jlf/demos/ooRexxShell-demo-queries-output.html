@@ -32,7 +32,7 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
-</span><span style="font-weight:bold;color:green;">Input queue name: S3baQ7fada1c560c0
+</span><span style="font-weight:bold;color:green;">Input queue name: Seb4dQ7fada1d592c0
 </span>
 <span style="font-weight:bold;color:blue;">--------------
 </span><span style="font-weight:bold;color:blue;">-- ooRexxShell
@@ -74,7 +74,7 @@ Commands:
     goto &lt;label&gt;: used in a demo script to skip lines, until &lt;label&gt;: (note colon) is reached.
     indent+ | indent-: used by the command &lt; to show the level of inclusion.
     infos off|on|next: deactivate|activate the display of informations after each execution.
-    prompt directory off|on: deactivate|activate the display of the directory before the prompt.
+    prompt off|on [a[ddress]] [d[irectoy]] [i[nterpret]]: deactivate|activate the display of the prompt components.
     readline off: use the raw parse pull for the input.
     readline on: delegate to the system readline (history, tab completion).
     reload: exit the current session and reload all the packages/libraries.
@@ -83,7 +83,7 @@ Commands:
     sleep [n] [no prompt]: used in demo mode to pause during n seconds (default 2 sec).
     trace off|on [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity][.verbose]]: deactivate|activate the trace.
     trap off|on [l[ostdigits]] [nom[ethod]] [nos[tring]] [nov[alue]] [s[yntax]]: deactivate|activate the conditions traps.
-Input queue name: S3baQ7fada1c560c0
+Input queue name: Seb4dQ7fada1d592c0
 <span style="font-weight:bold;color:green;">[Info] 41 lines displayed
 </span>
 <span style="font-weight:bold;color:blue;">/*
@@ -800,8 +800,8 @@ P. P.G.    '//'                                  : 'COMPLEX' (complex.cls)
 P. P.G.    '//'                                  : 'String' (REXX)
 P. P.G.    '//'                                  : 'TimeSpan' (CoreClasses.orx)
 P. P.G.    '//'                                  : 'indeterminate' (indeterminate.cls)
-.M P.G.    '//'                                  : 'RexxTextOperators' (text.cls)
 PM P.G.    '//'                                  : 'ArrayOperators' (array.cls)
+.M P.G.    '//'                                  : 'RexxTextOperators' (text.cls)
 PM P.G.    '//OP:RIGHT'                          : 'ArrayOperators' (array.cls)
 .M P.G.    '//OP:RIGHT'                          : 'RexxTextOperators' (text.cls)
 P. P.G.    '//OP:RIGHT'                          : 'COMPLEX' (complex.cls)
@@ -889,10 +889,10 @@ PM PCG.    '&gt;'                                   : 'pipeStage' (pipe.cls)
 P. P.G.    '&gt;'                                   : 'String' (REXX)
 P. P.G.    '&gt;'                                   : 'indeterminate' (indeterminate.cls)
 P. P.G.    '&gt;'                                   : 'infinity' (infinity.cls)
-.M P.G.    '&gt;'                                   : 'RexxTextOperators' (text.cls)
 PM P.G.    '&gt;'                                   : 'ArrayOperators' (array.cls)
 PM P.G.    '&gt;'                                   : 'Orderable' (CoreClasses.orx)
 PM P.G.    '&gt;'                                   : 'pipeStage' (pipe.cls)
+.M P.G.    '&gt;'                                   : 'RexxTextOperators' (text.cls)
 P. ----    '&gt;&lt;'                                  : 'Stem' (REXX)
 P. P.G.    '&gt;&lt;'                                  : 'Class' (REXX)
 P. P.G.    '&gt;&lt;'                                  : 'Object' (REXX)
@@ -1860,13 +1860,13 @@ P. P...    'CODEPOINTMAXBYTES'                   : 'Unicode8_Encoding' (stringEn
 .M PC..    'CODEPOINTMAXBYTES'                   : 'UTF32_CommonServices' (stringEncoding.cls)
 .M PC..    'CODEPOINTMAXBYTES'                   : 'XTF16_CommonServices' (stringEncoding.cls)
 .M PC..    'CODEPOINTMAXBYTES'                   : 'XTF8_CommonServices' (stringEncoding.cls)
+.M P...    'CODEPOINTMAXBYTES'                   : 'UTF32_CommonServices' (stringEncoding.cls)
+.M P...    'CODEPOINTMAXBYTES'                   : 'XTF16_CommonServices' (stringEncoding.cls)
+.M P...    'CODEPOINTMAXBYTES'                   : 'XTF8_CommonServices' (stringEncoding.cls)
 P. PC..    'CODEPOINTMAXBYTES'                   : 'Byte_Encoding' (stringEncoding.cls)
 P. PC..    'CODEPOINTMAXBYTES'                   : 'Unicode16_Encoding' (stringEncoding.cls)
 P. PC..    'CODEPOINTMAXBYTES'                   : 'Unicode32_Encoding' (stringEncoding.cls)
 P. PC..    'CODEPOINTMAXBYTES'                   : 'Unicode8_Encoding' (stringEncoding.cls)
-.M P...    'CODEPOINTMAXBYTES'                   : 'UTF32_CommonServices' (stringEncoding.cls)
-.M P...    'CODEPOINTMAXBYTES'                   : 'XTF16_CommonServices' (stringEncoding.cls)
-.M P...    'CODEPOINTMAXBYTES'                   : 'XTF8_CommonServices' (stringEncoding.cls)
 .M P.G.    'CODEPOINTS'                          : 'RexxTextContents' (text.cls)
 .M P.G.    'CODEPOINTS'                          : 'StringIndexer' (stringEncoding.cls)
 .M PCG.    'CODEPOINTSIZEINBYTES'                : 'StringIndexer' (stringEncoding.cls)
@@ -4403,6 +4403,7 @@ P. ..G.    'PARSEJSONVALUE'                      : 'JSON' (json.cls)
 .. P.G.    'PARSENAMEDCLASSFAMILY'               : 'RegexParser' (regex.cls)
 .. P.G.    'PARSENAMEDGROUP'                     : 'RegexParser' (regex.cls)
 .. P.G.    'PARSENUMBER'                         : 'RegexParser' (regex.cls)
+P. PCG.    'PARSEQUEUEFILEARGUMENTS'             : 'OOREXXSHELL' (oorexxshell.rex)
 .. P.G.    'PARSESEQUENCE'                       : 'RegexParser' (regex.cls)
 .. P.G.    'PARSESTARTANCHOR'                    : 'RegexParser' (regex.cls)
 .. P.G.    'PARSESUBGROUPNAME'                   : 'RegexParser' (regex.cls)
@@ -4568,10 +4569,15 @@ P. P.G.    'PROCESSSECONDARY'                    : 'fanin' (pipe.cls)
 .. P.G.    'PROFILE'                             : 'pipeContext' (pipe.cls)
 P. PCG.    'PROMPT'                              : 'OOREXXSHELL' (oorexxshell.rex)
 P. PCG.    'PROMPT='                             : 'OOREXXSHELL' (oorexxshell.rex)
+P. PCG.    'PROMPTADDRESS'                       : 'OOREXXSHELL' (oorexxshell.rex)
+P. PCG.    'PROMPTADDRESS='                      : 'OOREXXSHELL' (oorexxshell.rex)
 P. PCG.    'PROMPTCOLOR'                         : 'OOREXXSHELL' (oorexxshell.rex)
 P. PCG.    'PROMPTCOLOR='                        : 'OOREXXSHELL' (oorexxshell.rex)
 P. PCG.    'PROMPTDIRECTORY'                     : 'OOREXXSHELL' (oorexxshell.rex)
 P. PCG.    'PROMPTDIRECTORY='                    : 'OOREXXSHELL' (oorexxshell.rex)
+P. PCG.    'PROMPTINTERPRETER'                   : 'OOREXXSHELL' (oorexxshell.rex)
+P. PCG.    'PROMPTINTERPRETER='                  : 'OOREXXSHELL' (oorexxshell.rex)
+P. PCG.    'PROMPTSETTINGS'                      : 'OOREXXSHELL' (oorexxshell.rex)
 .. PCG.    'PROTOCOLS'                           : 'SOCKETOPTIONS' (socket.cls)
 .. P...    'PSTRUCT'                             : 'WINDOWSPLATFORM' (oorexxshell.rex)
 .. PC..    'PSTRUCT'                             : 'WINDOWSPLATFORM' (oorexxshell.rex)
@@ -5953,7 +5959,7 @@ PM P.G.    '||'                                  : 'pipeStage' (pipe.cls)
 P. P.G.    '||OP:RIGHT'                          : 'COMPLEX' (complex.cls)
 PM P.G.    '||OP:RIGHT'                          : 'ArrayOperators' (array.cls)
 PM P...    '~()'                                 : 'Doer' (doers.cls)
-<span style="font-weight:bold;color:green;">[Info] 5265 lines displayed
+<span style="font-weight:bold;color:green;">[Info] 5271 lines displayed
 </span>
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">List of methods whose name contains &quot;MakeString&quot; (caseless).
@@ -6038,8 +6044,8 @@ P          'DUMP2'                                : (rgf_util2.rex)
 .          'DUMPRESULT'                           : (oorexxshell.rex)
 P          'ENQUOTE2'                             : (rgf_util2.rex)
 P          'ESCAPE2'                              : (rgf_util2.rex)
-.          'ESCAPE3'                              : (rgf_util2.rex)
 P          'ESCAPE3'                              : (string.cls)
+.          'ESCAPE3'                              : (rgf_util2.rex)
 .          'ESCAPEQUOTES'                         : (BSF.CLS)
 .          'EVAL'                                 : (logical.cls)
 .          'EXPANDUNICODECHARACTERINTERVALS'      : (oorexxshell.rex)
@@ -6071,6 +6077,7 @@ P          'PACKAGEINFOS'                         : (oorexxshell_queries.cls)
 P          'PAREN'                                : (oorexxshell.rex)
 P          'PARSEJAVAOPTIONS'                     : (BSF.CLS)
 P          'PARSEWORDS2'                          : (rgf_util2.rex)
+P          'PARSE_QWORD_REST'                     : (oorexxshell.rex)
 .          'PARTIALMERGEARRAYS'                   : (doers.cls)
 .          'PIPE'                                 : (pipe_extension.cls)
 P          'POS2'                                 : (rgf_util2.rex)
@@ -6092,8 +6099,8 @@ P          'RGF_UTIL_EXTENDED'                    : (rgf_util2.rex)
 P          'RIGHT2'                               : (rgf_util2.rex)
 P          'ROUTINEINFOS'                         : (oorexxshell_queries.cls)
 P          'SAMESHAPES'                           : (array.cls)
-.          'SHAPE'                                : (rgf_util2.rex)
 P          'SHAPE'                                : (array.cls)
+.          'SHAPE'                                : (rgf_util2.rex)
 .          'SHELL'                                : (oorexxshell.rex)
 P          'SORT2'                                : (rgf_util2.rex)
 P          'STABLESORT2'                          : (rgf_util2.rex)
@@ -6124,7 +6131,7 @@ P          'XBSFUNINIT4JAVABEAN'                  : (BSF.CLS)
 P          'XRANGE'                               : (string.cls)
 P          'Y'                                    : (doers.cls)
 P          'YIELD'                                : (coactivity.cls)
-<span style="font-weight:bold;color:green;">[Info] 148 lines displayed
+<span style="font-weight:bold;color:green;">[Info] 149 lines displayed
 </span>
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">List of packages visible from the current context.

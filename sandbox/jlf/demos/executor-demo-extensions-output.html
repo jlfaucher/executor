@@ -32,7 +32,7 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
-</span><span style="font-weight:bold;color:green;">Input queue name: S1c33Q7fada1d451b0
+</span><span style="font-weight:bold;color:green;">Input queue name: Se80fQ7fada1c4b2b0
 </span>
 <span style="font-weight:bold;color:blue;">----------------------
 </span><span style="font-weight:bold;color:blue;">-- Executor extensions
@@ -148,6 +148,7 @@ P. P.G.    'HASENCODING'                 : 'String' 'EncodedString' (text.cls)
 P. P.G.    'HASTEXT'                     : 'String' 'EncodedString' (text.cls)
 P. P...    'IFFALSE'                     : 'String' 'LogicalExtension' (logical.cls)
 P. P...    'IFTRUE'                      : 'String' 'LogicalExtension' (logical.cls)
+P. P.G.    'ISCOMPATIBLEWITHASCII'       : 'String' 'EncodedString' (text.cls)
 P. P.G.    'ISCOMPATIBLEWITHBYTESTRING'  : 'String' 'EncodedString' (text.cls)
 P. P.G.    'ISCOMPATIBLEWITHBYTESTRING'  : 'String' 'Object' (text.cls)
 P. PCG.    'ISCOMPATIBLEWITHBYTESTRING'  : 'String' 'Object' (text.cls)
@@ -266,8 +267,8 @@ P. P.G.    'WORDPOS2'                    : 'String' 'String' (rgf_util2_wrappers
 P. PCG.    'XDIGIT'                      : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
 P. P.G.    '[]'                          : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
 P. P...    '~()'                         : 'String' 'Doer' (doers.cls)
-<span style="font-weight:bold;color:green;">[Info] [1] Class 'String' has 380 methods
-</span><span style="font-weight:bold;color:green;">[Info] 211 lines displayed
+<span style="font-weight:bold;color:green;">[Info] [1] Class 'String' has 381 methods
+</span><span style="font-weight:bold;color:green;">[Info] 212 lines displayed
 </span>
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">Blocks
@@ -482,82 +483,82 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">generator~()=</span>
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:blue;">-- Raw output, not easy to read
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">system RXTRACE_CONCURRENCY=ON rexx concurrency_trace.rex</span>
-00000000afea2380 0000000000d95b00 0000000000000000 00000       1 *-* .demo~new~exec(1)
-00000000afea2380 0000000000d95b00 0000000000000000 00000         &gt;E&gt;   .DEMO =&gt; &quot;The DEMO class&quot;
-00000000afea2380 0000000000d95b00 0000000000000000 00000         &gt;M&gt;   &quot;NEW&quot; =&gt; &quot;a DEMO&quot;
-00000000afea2380 0000000000d95b00 0000000000000000 00000         &gt;L&gt;   &quot;1&quot;
-00000000afea2380 0000000000d95b00 0000000000000000 00000         &gt;A&gt;   &quot;1&quot;
-00000000afea2380 0000000000d9ed80 0000000000d9eff0 00000         &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
-00000000afea2380 0000000000d9ed80 0000000000d9eff0 00001*      8 *-* use arg id
-00000000afea2380 0000000000d9ed80 0000000000d9eff0 00001*        &gt;&gt;&gt;   &quot;1&quot;
-00000000afea2380 0000000000d9ed80 0000000000d9eff0 00001*        &gt;=&gt;   ID &lt;= &quot;1&quot;
-00000000afea2380 0000000000d9ed80 0000000000d9eff0 00001*      9 *-* reply
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*        &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
-00000000afea2380 0000000000d95b00 0000000000000000 00000       2 *-* .demo~new~exec(2)
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*     10 *-* do 2
-00000000afea2380 0000000000d95b00 0000000000000000 00000         &gt;E&gt;   .DEMO =&gt; &quot;The DEMO class&quot;
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*        &gt;L&gt;     &quot;2&quot;
-00000000afea2380 0000000000d95b00 0000000000000000 00000         &gt;M&gt;   &quot;NEW&quot; =&gt; &quot;a DEMO&quot;
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*        &gt;&gt;&gt;     &quot;2&quot;
-00000000afea2380 0000000000d95b00 0000000000000000 00000         &gt;L&gt;   &quot;2&quot;
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*     11 *-*   say &quot;TASK&quot; id
-00000000afea2380 0000000000d95b00 0000000000000000 00000         &gt;A&gt;   &quot;2&quot;
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*        &gt;L&gt;     &quot;TASK&quot;
-00000000afea2380 0000000000dac630 0000000000dac8a0 00000         &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*        &gt;V&gt;     ID =&gt; &quot;1&quot;
-00000000afea2380 0000000000dac630 0000000000dac8a0 00001*      8 *-* use arg id
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 1&quot;
-00000000afea2380 0000000000dac630 0000000000dac8a0 00001*        &gt;&gt;&gt;   &quot;2&quot;
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*        &gt;&gt;&gt;     &quot;TASK 1&quot;
+00000000afea2380 000000001092bb00 0000000000000000 00000       1 *-* .demo~new~exec(1)
+00000000afea2380 000000001092bb00 0000000000000000 00000         &gt;E&gt;   .DEMO =&gt; &quot;The DEMO class&quot;
+00000000afea2380 000000001092bb00 0000000000000000 00000         &gt;M&gt;   &quot;NEW&quot; =&gt; &quot;a DEMO&quot;
+00000000afea2380 000000001092bb00 0000000000000000 00000         &gt;L&gt;   &quot;1&quot;
+00000000afea2380 000000001092bb00 0000000000000000 00000         &gt;A&gt;   &quot;1&quot;
+00000000afea2380 0000000010934d80 0000000010934ff0 00000         &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
+00000000afea2380 0000000010934d80 0000000010934ff0 00001*      8 *-* use arg id
+00000000afea2380 0000000010934d80 0000000010934ff0 00001*        &gt;&gt;&gt;   &quot;1&quot;
+00000000afea2380 0000000010934d80 0000000010934ff0 00001*        &gt;=&gt;   ID &lt;= &quot;1&quot;
+00000000afea2380 0000000010934d80 0000000010934ff0 00001*      9 *-* reply
+0000000000501000 0000000010934d80 0000000010934ff0 00001*        &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
+00000000afea2380 000000001092bb00 0000000000000000 00000       2 *-* .demo~new~exec(2)
+0000000000501000 0000000010934d80 0000000010934ff0 00001*     10 *-* do 2
+00000000afea2380 000000001092bb00 0000000000000000 00000         &gt;E&gt;   .DEMO =&gt; &quot;The DEMO class&quot;
+0000000000501000 0000000010934d80 0000000010934ff0 00001*        &gt;L&gt;     &quot;2&quot;
+00000000afea2380 000000001092bb00 0000000000000000 00000         &gt;M&gt;   &quot;NEW&quot; =&gt; &quot;a DEMO&quot;
+0000000000501000 0000000010934d80 0000000010934ff0 00001*        &gt;&gt;&gt;     &quot;2&quot;
+00000000afea2380 000000001092bb00 0000000000000000 00000         &gt;L&gt;   &quot;2&quot;
+0000000000501000 0000000010934d80 0000000010934ff0 00001*     11 *-*   say &quot;TASK&quot; id
+00000000afea2380 000000001092bb00 0000000000000000 00000         &gt;A&gt;   &quot;2&quot;
+0000000000501000 0000000010934d80 0000000010934ff0 00001*        &gt;L&gt;     &quot;TASK&quot;
+00000000afea2380 0000000010942630 00000000109428a0 00000         &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
+0000000000501000 0000000010934d80 0000000010934ff0 00001*        &gt;V&gt;     ID =&gt; &quot;1&quot;
+00000000afea2380 0000000010942630 00000000109428a0 00001*      8 *-* use arg id
+0000000000501000 0000000010934d80 0000000010934ff0 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 1&quot;
+00000000afea2380 0000000010942630 00000000109428a0 00001*        &gt;&gt;&gt;   &quot;2&quot;
+0000000000501000 0000000010934d80 0000000010934ff0 00001*        &gt;&gt;&gt;     &quot;TASK 1&quot;
+00000000afea2380 0000000010942630 00000000109428a0 00001*        &gt;=&gt;   ID &lt;= &quot;2&quot;
 TASK 1
-00000000afea2380 0000000000dac630 0000000000dac8a0 00001*        &gt;=&gt;   ID &lt;= &quot;2&quot;
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*     12 *-*   call syssleep 1
-00000000afea2380 0000000000dac630 0000000000dac8a0 00001*      9 *-* reply
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*        &gt;L&gt;     &quot;1&quot;
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*        &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*        &gt;A&gt;     &quot;1&quot;
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*     10 *-* do 2
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*        &gt;L&gt;     &quot;2&quot;
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*        &gt;&gt;&gt;     &quot;2&quot;
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*     11 *-*   say &quot;TASK&quot; id
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*        &gt;L&gt;     &quot;TASK&quot;
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*        &gt;V&gt;     ID =&gt; &quot;2&quot;
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 2&quot;
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*        &gt;&gt;&gt;     &quot;TASK 2&quot;
+00000000afea2380 0000000010942630 00000000109428a0 00001*      9 *-* reply
+0000000000501000 0000000010934d80 0000000010934ff0 00001*     12 *-*   call syssleep 1
+0000000000704000 0000000010942630 00000000109428a0 00001*        &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
+0000000000501000 0000000010934d80 0000000010934ff0 00001*        &gt;L&gt;     &quot;1&quot;
+0000000000704000 0000000010942630 00000000109428a0 00001*     10 *-* do 2
+0000000000501000 0000000010934d80 0000000010934ff0 00001*        &gt;A&gt;     &quot;1&quot;
+0000000000704000 0000000010942630 00000000109428a0 00001*        &gt;L&gt;     &quot;2&quot;
+0000000000704000 0000000010942630 00000000109428a0 00001*        &gt;&gt;&gt;     &quot;2&quot;
+0000000000704000 0000000010942630 00000000109428a0 00001*     11 *-*   say &quot;TASK&quot; id
+0000000000704000 0000000010942630 00000000109428a0 00001*        &gt;L&gt;     &quot;TASK&quot;
+0000000000704000 0000000010942630 00000000109428a0 00001*        &gt;V&gt;     ID =&gt; &quot;2&quot;
+0000000000704000 0000000010942630 00000000109428a0 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 2&quot;
+0000000000704000 0000000010942630 00000000109428a0 00001*        &gt;&gt;&gt;     &quot;TASK 2&quot;
 TASK 2
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*     12 *-*   call syssleep 1
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*        &gt;L&gt;     &quot;1&quot;
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*        &gt;A&gt;     &quot;1&quot;
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*        &gt;&gt;&gt;     &quot;0&quot;
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*     13 *-* end
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*     10 *-* do 2
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*     11 *-*   say &quot;TASK&quot; id
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*        &gt;L&gt;     &quot;TASK&quot;
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*        &gt;V&gt;     ID =&gt; &quot;1&quot;
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 1&quot;
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*        &gt;&gt;&gt;     &quot;TASK 1&quot;
+0000000000704000 0000000010942630 00000000109428a0 00001*     12 *-*   call syssleep 1
+0000000000704000 0000000010942630 00000000109428a0 00001*        &gt;L&gt;     &quot;1&quot;
+0000000000704000 0000000010942630 00000000109428a0 00001*        &gt;A&gt;     &quot;1&quot;
+0000000000501000 0000000010934d80 0000000010934ff0 00001*        &gt;&gt;&gt;     &quot;0&quot;
+0000000000501000 0000000010934d80 0000000010934ff0 00001*     13 *-* end
+0000000000501000 0000000010934d80 0000000010934ff0 00001*     10 *-* do 2
+0000000000501000 0000000010934d80 0000000010934ff0 00001*     11 *-*   say &quot;TASK&quot; id
+0000000000501000 0000000010934d80 0000000010934ff0 00001*        &gt;L&gt;     &quot;TASK&quot;
+0000000000501000 0000000010934d80 0000000010934ff0 00001*        &gt;V&gt;     ID =&gt; &quot;1&quot;
+0000000000501000 0000000010934d80 0000000010934ff0 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 1&quot;
+0000000000501000 0000000010934d80 0000000010934ff0 00001*        &gt;&gt;&gt;     &quot;TASK 1&quot;
 TASK 1
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*     12 *-*   call syssleep 1
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*        &gt;L&gt;     &quot;1&quot;
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*        &gt;A&gt;     &quot;1&quot;
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*        &gt;&gt;&gt;     &quot;0&quot;
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*     13 *-* end
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*     10 *-* do 2
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*     11 *-*   say &quot;TASK&quot; id
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*        &gt;L&gt;     &quot;TASK&quot;
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*        &gt;V&gt;     ID =&gt; &quot;2&quot;
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 2&quot;
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*        &gt;&gt;&gt;     &quot;TASK 2&quot;
+0000000000501000 0000000010934d80 0000000010934ff0 00001*     12 *-*   call syssleep 1
+0000000000501000 0000000010934d80 0000000010934ff0 00001*        &gt;L&gt;     &quot;1&quot;
+0000000000501000 0000000010934d80 0000000010934ff0 00001*        &gt;A&gt;     &quot;1&quot;
+0000000000704000 0000000010942630 00000000109428a0 00001*        &gt;&gt;&gt;     &quot;0&quot;
+0000000000704000 0000000010942630 00000000109428a0 00001*     13 *-* end
+0000000000704000 0000000010942630 00000000109428a0 00001*     10 *-* do 2
+0000000000704000 0000000010942630 00000000109428a0 00001*     11 *-*   say &quot;TASK&quot; id
+0000000000704000 0000000010942630 00000000109428a0 00001*        &gt;L&gt;     &quot;TASK&quot;
+0000000000704000 0000000010942630 00000000109428a0 00001*        &gt;V&gt;     ID =&gt; &quot;2&quot;
+0000000000704000 0000000010942630 00000000109428a0 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 2&quot;
+0000000000704000 0000000010942630 00000000109428a0 00001*        &gt;&gt;&gt;     &quot;TASK 2&quot;
 TASK 2
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*     12 *-*   call syssleep 1
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*        &gt;L&gt;     &quot;1&quot;
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*        &gt;A&gt;     &quot;1&quot;
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*        &gt;&gt;&gt;     &quot;0&quot;
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*        &gt;&gt;&gt;     &quot;0&quot;
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*     13 *-* end
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*     13 *-* end
-000000000a398000 0000000000d9ed80 0000000000d9eff0 00001*     10 *-* do 2
-000000000a59b000 0000000000dac630 0000000000dac8a0 00001*     10 *-* do 2
+0000000000704000 0000000010942630 00000000109428a0 00001*     12 *-*   call syssleep 1
+0000000000704000 0000000010942630 00000000109428a0 00001*        &gt;L&gt;     &quot;1&quot;
+0000000000704000 0000000010942630 00000000109428a0 00001*        &gt;A&gt;     &quot;1&quot;
+0000000000501000 0000000010934d80 0000000010934ff0 00001*        &gt;&gt;&gt;     &quot;0&quot;
+0000000000704000 0000000010942630 00000000109428a0 00001*        &gt;&gt;&gt;     &quot;0&quot;
+0000000000501000 0000000010934d80 0000000010934ff0 00001*     13 *-* end
+0000000000704000 0000000010942630 00000000109428a0 00001*     13 *-* end
+0000000000501000 0000000010934d80 0000000010934ff0 00001*     10 *-* do 2
+0000000000704000 0000000010942630 00000000109428a0 00001*     10 *-* do 2
 ooRexx[sh]&gt; <span style="font-weight:bold;color:blue;">-- Human-readable output, generated by piping the output through tracer.rex
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">system RXTRACE_CONCURRENCY=ON rexx concurrency_trace.rex 2&gt;&amp;1 | rexx trace/tracer.rex</span>
 T1   A1                     1 *-* .demo~new~exec(1)
@@ -789,7 +790,7 @@ PM P...    'YM' : 'RoutineDoer' (doers.cls)
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">fib_Y = almost_fib~Y</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">fib_Y~(23)=</span>
  28657
-<span style="font-weight:bold;color:green;">Duration: 34.489568
+<span style="font-weight:bold;color:green;">Duration: 16.228391
 </span><span style="font-weight:bold;color:green;">#Coactivities: 1
 </span>
 <span style="font-weight:bold;color:blue;">/*
@@ -798,7 +799,7 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">fib_Y~(23)=</span>
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">fib_YM = almost_fib~YM</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">fib_YM~(23)=</span>
  28657
-<span style="font-weight:bold;color:green;">Duration: 0.031131
+<span style="font-weight:bold;color:green;">Duration: 0.005830
 </span><span style="font-weight:bold;color:green;">#Coactivities: 1
 </span>
 <span style="font-weight:bold;color:blue;">/*
@@ -866,7 +867,7 @@ fib_YM~(17500)=8.594475392487880685715609318313958956965186135981014406583281854
 fib_YM~(20000)=2.531162323732361242240155003520607291766356485802485278951929841991312781760541315230153423463759229E+4179
 fib_YM~(22500)=7.454536101973301545514060322899628474921968473702388044321015228379740189148914655473430519859925903E+4701
 fib_YM~(25000)=2.195438355517303012780791914841720922849015222302155773145178112730662303998294388326731046697794993E+5224
-<span style="font-weight:bold;color:green;">Duration: 12.583051
+<span style="font-weight:bold;color:green;">Duration: 8.114956
 </span><span style="font-weight:bold;color:green;">#Coactivities: 1
 </span>
 <span style="font-weight:bold;color:blue;">/*

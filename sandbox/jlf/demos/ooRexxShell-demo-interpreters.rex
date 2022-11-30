@@ -1,4 +1,4 @@
-prompt directory off
+prompt off directory
 demo on
 
 --------------
@@ -191,5 +191,4 @@ sleep
 /*
 End of demonstration.
 */
-prompt directory on
 demo off

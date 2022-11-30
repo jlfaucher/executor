@@ -1,4 +1,4 @@
-prompt directory off
+prompt off directory
 demo on
 
 ----------------------------------
@@ -225,6 +225,5 @@ sleep no prompt
 /*
 End of demonstration.
 */
-prompt directory on
 demo off
 RC = 0 -- clear RC to not have an error reported by the non-regresion tests

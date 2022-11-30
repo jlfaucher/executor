@@ -22,7 +22,7 @@ loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
 REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
-Input queue name: S1e5aQ7fada1c499a0
+Input queue name: Se9faQ7fada1d59060
 
 --------------------------------------------
 -- Text encoding - Compatibility with String

@@ -22,7 +22,7 @@ loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
 REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
-Input queue name: S1efcQ7fada1c49a70
+Input queue name: SeafaQ7fada1c4b670
 
 --------------
 -- ooRexxShell
