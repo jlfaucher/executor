@@ -7,8 +7,10 @@ t
 -- to utf8
 --------------------------------------------------------------------------------
 
+< include_conversion_infos s/$(text)/t/
+drop utf8
 utf8 = t~utf8(mem:)
-utf8~c2x=
+< include_conversion_infos s/$(text)/utf8/
 t~utf8~"==":.object(utf8)=                      -- 1
 
 < include_conversion_mutablebuffers.rex

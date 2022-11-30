@@ -7,8 +7,10 @@ t
 -- to utf32le
 --------------------------------------------------------------------------------
 
+< include_conversion_infos s/$(text)/t/
+drop utf32le
 utf32le = t~utf32le(mem:)
-utf32le~c2x=
+< include_conversion_infos s/$(text)/utf32le/
 t~utf32le~"==":.object(utf32le)=                -- 1
 
 < include_conversion_mutablebuffers.rex

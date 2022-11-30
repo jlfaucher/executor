@@ -1,5 +1,5 @@
 /*
-depends on:
+Depends on:
 $(text)
 */
 

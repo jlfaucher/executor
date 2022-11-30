@@ -1,151 +1,183 @@
 
-ooRexx[sh]> t = "Joyeux"~text "Noel"
-ooRexx[sh]> < include_concatenation_infos
+ooRexx> drop t
+ooRexx> t = "Joyeux"~text "Noel"
+ooRexx> < include_concatenation_infos s/$(text)/t/
     --------------------------------------------
     -- Start of file include_concatenation_infos
     --------------------------------------------
     /*
-    depends on t
+    depends on:
+    t
     */
     
-    ooRexx[sh]> t~description=
+    ooRexx> t~description=
     'UTF-8 ASCII (11 graphemes, 11 codepoints, 11 bytes, 0 error)'
-    ooRexx[sh]> t~c2x=
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
     '4A 6F 79 65 75 78 20 4E 6F 65 6C'
-    ooRexx[sh]> t~c2u=
+    ooRexx> t~c2u=
     'U+004A U+006F U+0079 U+0065 U+0075 U+0078 U+0020 U+004E U+006F U+0065 U+006C'
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
 
-ooRexx[sh]> t = "Joyeux"~text "Noël"
-ooRexx[sh]> < include_concatenation_infos
+ooRexx> drop t
+ooRexx> t = "Joyeux"~text "Noël"
+ooRexx> < include_concatenation_infos s/$(text)/t/
     --------------------------------------------
     -- Start of file include_concatenation_infos
     --------------------------------------------
     /*
-    depends on t
+    depends on:
+    t
     */
     
-    ooRexx[sh]> t~description=
+    ooRexx> t~description=
     'UTF-8 not-ASCII (11 graphemes, 11 codepoints, 12 bytes, 0 error)'
-    ooRexx[sh]> t~c2x=
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
     '4A 6F 79 65 75 78 20 4E 6F C3AB 6C'
-    ooRexx[sh]> t~c2u=
+    ooRexx> t~c2u=
     'U+004A U+006F U+0079 U+0065 U+0075 U+0078 U+0020 U+004E U+006F U+00EB U+006C'
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
 
-ooRexx[sh]> t = "Joyeux" "Noel"~text
-ooRexx[sh]> < include_concatenation_infos
+ooRexx> drop t
+ooRexx> t = "Joyeux" "Noel"~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
     --------------------------------------------
     -- Start of file include_concatenation_infos
     --------------------------------------------
     /*
-    depends on t
+    depends on:
+    t
     */
     
-    ooRexx[sh]> t~description=
+    ooRexx> t~description=
     'UTF-8 ASCII (11 graphemes, 11 codepoints, 11 bytes, 0 error)'
-    ooRexx[sh]> t~c2x=
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
     '4A 6F 79 65 75 78 20 4E 6F 65 6C'
-    ooRexx[sh]> t~c2u=
+    ooRexx> t~c2u=
     'U+004A U+006F U+0079 U+0065 U+0075 U+0078 U+0020 U+004E U+006F U+0065 U+006C'
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
 
-ooRexx[sh]> t = "Joyeux" "Noël"~text
-ooRexx[sh]> < include_concatenation_infos
+ooRexx> drop t
+ooRexx> t = "Joyeux" "Noël"~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
     --------------------------------------------
     -- Start of file include_concatenation_infos
     --------------------------------------------
     /*
-    depends on t
+    depends on:
+    t
     */
     
-    ooRexx[sh]> t~description=
+    ooRexx> t~description=
     'UTF-8 not-ASCII (11 graphemes, 11 codepoints, 12 bytes, 0 error)'
-    ooRexx[sh]> t~c2x=
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
     '4A 6F 79 65 75 78 20 4E 6F C3AB 6C'
-    ooRexx[sh]> t~c2u=
+    ooRexx> t~c2u=
     'U+004A U+006F U+0079 U+0065 U+0075 U+0078 U+0020 U+004E U+006F U+00EB U+006C'
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
 
-ooRexx[sh]> t = "Joyeux"~text || " Noel"
-ooRexx[sh]> < include_concatenation_infos
+ooRexx> drop t
+ooRexx> t = "Joyeux"~text || " Noel"
+ooRexx> < include_concatenation_infos s/$(text)/t/
     --------------------------------------------
     -- Start of file include_concatenation_infos
     --------------------------------------------
     /*
-    depends on t
+    depends on:
+    t
     */
     
-    ooRexx[sh]> t~description=
+    ooRexx> t~description=
     'UTF-8 ASCII (11 graphemes, 11 codepoints, 11 bytes, 0 error)'
-    ooRexx[sh]> t~c2x=
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
     '4A 6F 79 65 75 78 20 4E 6F 65 6C'
-    ooRexx[sh]> t~c2u=
+    ooRexx> t~c2u=
     'U+004A U+006F U+0079 U+0065 U+0075 U+0078 U+0020 U+004E U+006F U+0065 U+006C'
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
 
-ooRexx[sh]> t = "Joyeux"~text || " Noël"
-ooRexx[sh]> < include_concatenation_infos
+ooRexx> drop t
+ooRexx> t = "Joyeux"~text || " Noël"
+ooRexx> < include_concatenation_infos s/$(text)/t/
     --------------------------------------------
     -- Start of file include_concatenation_infos
     --------------------------------------------
     /*
-    depends on t
+    depends on:
+    t
     */
     
-    ooRexx[sh]> t~description=
+    ooRexx> t~description=
     'UTF-8 not-ASCII (11 graphemes, 11 codepoints, 12 bytes, 0 error)'
-    ooRexx[sh]> t~c2x=
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
     '4A 6F 79 65 75 78 20 4E 6F C3AB 6C'
-    ooRexx[sh]> t~c2u=
+    ooRexx> t~c2u=
     'U+004A U+006F U+0079 U+0065 U+0075 U+0078 U+0020 U+004E U+006F U+00EB U+006C'
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
 
-ooRexx[sh]> t = "Joyeux" || " Noel"~text
-ooRexx[sh]> < include_concatenation_infos
+ooRexx> drop t
+ooRexx> t = "Joyeux" || " Noel"~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
     --------------------------------------------
     -- Start of file include_concatenation_infos
     --------------------------------------------
     /*
-    depends on t
+    depends on:
+    t
     */
     
-    ooRexx[sh]> t~description=
+    ooRexx> t~description=
     'UTF-8 ASCII (11 graphemes, 11 codepoints, 11 bytes, 0 error)'
-    ooRexx[sh]> t~c2x=
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
     '4A 6F 79 65 75 78 20 4E 6F 65 6C'
-    ooRexx[sh]> t~c2u=
+    ooRexx> t~c2u=
     'U+004A U+006F U+0079 U+0065 U+0075 U+0078 U+0020 U+004E U+006F U+0065 U+006C'
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
 
-ooRexx[sh]> t = "Joyeux" || " Noël"~text
-ooRexx[sh]> < include_concatenation_infos
+ooRexx> drop t
+ooRexx> t = "Joyeux" || " Noël"~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
     --------------------------------------------
     -- Start of file include_concatenation_infos
     --------------------------------------------
     /*
-    depends on t
+    depends on:
+    t
     */
     
-    ooRexx[sh]> t~description=
+    ooRexx> t~description=
     'UTF-8 not-ASCII (11 graphemes, 11 codepoints, 12 bytes, 0 error)'
-    ooRexx[sh]> t~c2x=
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
     '4A 6F 79 65 75 78 20 4E 6F C3AB 6C'
-    ooRexx[sh]> t~c2u=
+    ooRexx> t~c2u=
     'U+004A U+006F U+0079 U+0065 U+0075 U+0078 U+0020 U+004E U+006F U+00EB U+006C'
     ------------------------------------------
     -- End of file include_concatenation_infos

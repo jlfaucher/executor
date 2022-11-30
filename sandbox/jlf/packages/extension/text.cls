@@ -334,8 +334,8 @@ without requesting a string from the buffer
 ::method descriptionForError
     -- Display the <length> first characters
     use strict arg length=10
-    string = self
-    if string~length > length then string = string~left(length - 3)"..."
+    string = self~substr(1, min(length, self~length)) -- Remember: ~left not supported
+    if self~length > length then string = string~left(length - 3)"..."
     -- escape3 is needed to have a proper display like this: [00]4[00]1
     return self~description(s:1) "'"escape3(string)"'"
 

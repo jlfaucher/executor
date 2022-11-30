@@ -6,8 +6,11 @@ t
 --------------------------------------------------------------------------------
 -- to wtf16le
 --------------------------------------------------------------------------------
+
+< include_conversion_infos s/$(text)/t/
+drop wtf16le
 wtf16le = t~wtf16le(mem:)
-wtf16le~c2x=
+< include_conversion_infos s/$(text)/wtf16le/
 t~wtf16le~"==":.object(wtf16le)=                -- 1
 
 < include_conversion_mutablebuffers.rex

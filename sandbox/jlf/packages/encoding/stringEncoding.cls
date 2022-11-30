@@ -421,6 +421,7 @@ https://www.iana.org/assignments/character-sets/character-sets.xhtml
     if leftEncoding~isUTF16LE, rightEncoding~isWTF16LE then return .WTF16LE_Encoding
     if leftEncoding~isWTF16LE, rightEncoding~isUTF16LE then return .WTF16LE_Encoding
 
+    -- TODO Discutable?
     -- Consider that Unicode32 is never compatible with UTF-32BE or UTF-32LE
     -- even if it can be compatible in function of the CPU endianness.
     -- It's to ensure that if a program works on a little-endian CPU then it works on a big-endian CPU, and vice-versa.
@@ -1879,7 +1880,7 @@ How other languages are supporting escape characters for Unicode:
 
     string = self~getCachedString(targetEncoding)
     if .nil \== string then do
-        if .nil <> buffer then return targetEncoding~append(string, buffer)
+        if .nil <> buffer then return targetEncoding~append(string, :buffer)
                           else return string~text
     end
 
@@ -2287,7 +2288,7 @@ How other languages are supporting escape characters for Unicode:
     if self~class == targetEncoding then string = self~string
     else string = self~getCachedString(targetEncoding)
     if .nil \== string then do
-        if .nil <> buffer then return targetEncoding~append(string, buffer) -- buffer~~append(string)
+        if .nil <> buffer then return targetEncoding~append(string, :buffer) -- buffer~~append(string)
                           else return string~text
     end
 

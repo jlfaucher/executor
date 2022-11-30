@@ -7,8 +7,10 @@ t
 -- to utf32be
 --------------------------------------------------------------------------------
 
+< include_conversion_infos s/$(text)/t/
+drop utf32be
 utf32be = t~utf32be(mem:)
-utf32be~c2x=
+< include_conversion_infos s/$(text)/utf32be/
 t~utf32be~"==":.object(utf32be)=                -- 1
 
 < include_conversion_mutablebuffers.rex

@@ -7,8 +7,10 @@ t
 -- to unicode
 --------------------------------------------------------------------------------
 
+< include_conversion_infos s/$(text)/t/
+drop unicode
 unicode = t~unicode(mem:)
-unicode~c2x=
+< include_conversion_infos s/$(text)/unicode/
 t~unicode~"==":.object(unicode)=                -- 1
 
 < include_conversion_mutablebuffers.rex

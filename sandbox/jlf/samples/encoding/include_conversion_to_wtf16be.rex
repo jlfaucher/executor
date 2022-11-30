@@ -7,8 +7,10 @@ t
 -- to wtf16be
 --------------------------------------------------------------------------------
 
+< include_conversion_infos s/$(text)/t/
+drop wtf16be
 wtf16be = t~wtf16be(mem:)
-wtf16be~c2x=
+< include_conversion_infos s/$(text)/wtf16be/
 t~wtf16be~"==":.object(wtf16be)=                -- 1
 
 < include_conversion_mutablebuffers.rex

@@ -7,8 +7,10 @@ t
 -- to wtf8
 --------------------------------------------------------------------------------
 
+< include_conversion_infos s/$(text)/t/
+drop wtf8
 wtf8 = t~wtf8(mem:)
-wtf8~c2x=
+< include_conversion_infos s/$(text)/wtf8/
 t~wtf8~"==":.object(wtf8)=                      -- 1
 
 < include_conversion_mutablebuffers.rex

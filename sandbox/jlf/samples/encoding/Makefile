@@ -1,22 +1,31 @@
-samples = main_conversion main_concatenation
+mainFiles = main_conversion main_concatenation
+
+# The demos can be used as non-regression tests
+demos = ../../demos
+demoFiles = demo-text demo-text-internal_checks demo-text-unicode demo-text-compatibility
+
 
 help:
-	@echo "make [force] all"
-	@for s in $(samples); do (echo "make [force]" $$s.output.txt); done
+	@echo "make all"
+	@for f in $(mainFiles); do (echo "make" $$f); done
+	@for f in $(demoFiles); do (echo "make" $$f); done
 	@echo "make clean"
 
 all:
-	@for s in $(samples); do (make $$s.output.txt); done
+	@for f in $(mainFiles); do (make $$f); done
+	@for f in $(demoFiles); do (make $$f); done
 
-force:
-	@for s in $(samples); do (touch $$s.rex); done
+main_% :
+	bash -i -c 'cat $@.rex | oorexxshell demo fast > $@.output.txt 2>&1'
+	-diff -q $@.output.reference.txt $@.output.txt
 
-%.output.txt : %.rex
-	bash -i -c 'cat $< | oorexxshell demo fast > $@ 2>&1'
-	-diff -q $*.output.reference.txt $@
+demo-% :
+	bash -i -c 'cat $(demos)/executor-$@.rex | oorexxshell demo fast > executor-$@.output.txt 2>&1'
+	-diff -q executor-$@.output.reference.txt executor-$@.output.txt
 
 clean:
-	@for s in $(samples); do (rm -f $$s.output.txt); done
+	@for f in $(mainFiles); do (rm -f $$f.output.txt); done
+	@for f in $(demoFiles); do (rm -f executor-$$f.output.txt); done
 
 
 # bash -i -c 'command" is a trick to bypass the SIP hell:

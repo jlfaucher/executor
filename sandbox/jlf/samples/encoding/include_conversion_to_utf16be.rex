@@ -7,8 +7,10 @@ t
 -- to utf16be
 --------------------------------------------------------------------------------
 
+< include_conversion_infos s/$(text)/t/
+drop utf16be
 utf16be = t~utf16be(mem:)
-utf16be~c2x=
+< include_conversion_infos s/$(text)/utf16be/
 t~utf16be~"==":.object(utf16be)=                -- 1
 
 < include_conversion_mutablebuffers.rex
