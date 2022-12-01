@@ -20,7 +20,8 @@ main_% :
 	-diff -q $@.output.reference.txt $@.output.txt
 
 demo-% :
-	bash -i -c 'cat $(demos)/executor-$@.rex | oorexxshell demo fast > executor-$@.output.txt 2>&1'
+	@# Don't display the current address in the prompt
+	bash -i -c 'echo prompt off address | cat - $(demos)/executor-$@.rex | oorexxshell demo fast > executor-$@.output.txt 2>&1'
 	-diff -q executor-$@.output.reference.txt executor-$@.output.txt
 
 clean:
