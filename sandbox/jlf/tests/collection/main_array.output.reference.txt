@@ -1,0 +1,1965 @@
+
+ooRexx> .context~package~loadPackage("collection_helpers.cls")
+
+
+-- --------------------------------------------------------------
+-- Array initializers
+-- --------------------------------------------------------------
+
+-- If there is only one argument, and this argument has the method ~supplier then each item returned by the argument's supplier is an item.
+ooRexx> call dump_collection      .array~new(2,3)~of(1~upto(6))
+[Array:
+ [ 1, 1] :  1
+ [ 1, 2] :  2
+ [ 1, 3] :  3
+ [ 2, 1] :  4
+ [ 2, 2] :  5
+ [ 2, 3] :  6
+]
+-- 1 2 3
+-- 4 5 6
+
+-- If there is only one argument, and this argument is a doer, then the doer is called for each cell to initialize.
+ooRexx> call dump_collection      .array~new(2,3)~of{10*item}
+[Array:
+ [ 1, 1] :  10
+ [ 1, 2] :  20
+ [ 1, 3] :  30
+ [ 2, 1] :  40
+ [ 2, 2] :  50
+ [ 2, 3] :  60
+]
+-- 10 20 30
+-- 40 50 60
+
+-- Otherwise, when more than one argument, each argument is an item as-is.
+ooRexx> call dump_collection      .array~new(2,3)~of(1,2,3,4,5,6)
+[Array:
+ [ 1, 1] :  1
+ [ 1, 2] :  2
+ [ 1, 3] :  3
+ [ 2, 1] :  4
+ [ 2, 2] :  5
+ [ 2, 3] :  6
+]
+-- 1 2 3
+-- 4 5 6
+
+-- If some arguments are omitted, then the corresponding item in the initialized arrat remains non-assigned.
+ooRexx> call dump_collection      .array~new(2,3)~of(1,,3,,5,6)
+[Array:
+ [ 1, 1] :  1
+ [ 1, 3] :  3
+ [ 2, 2] :  5
+ [ 2, 3] :  6
+]
+-- 1 . 3
+-- . 5 6
+
+-- For me, there is a problem (bug ?) when the last arguments are explicitely omitted : they are not counted by the interpreter !
+-- I passed explicitely 6 arguments, 3 of them being omitted.
+-- 19/09/2017 Fixed in Executor
+ooRexx> call dump_collection      .array~new(2,3)~of(1,,3,,5,)
+[Array:
+ [ 1, 1] :  1
+ [ 1, 3] :  3
+ [ 2, 2] :  5
+]
+-- 1 . 3
+-- . 5 .
+-- Before the fix, the last omitted argument was ignored and the result was :
+-- 1 . 3
+-- . 5 1
+
+-- Rules inspired by APL :
+-- If there are too many items, the extra items are ignored.
+-- If there are fewer items than implied by the dimensions, the list of items is reused as many times as necessary to fill the array.
+ooRexx> call dump_collection      .array~new(2,3)~of(1,2)
+[Array:
+ [ 1, 1] :  1
+ [ 1, 2] :  2
+ [ 1, 3] :  1
+ [ 2, 1] :  2
+ [ 2, 2] :  1
+ [ 2, 3] :  2
+]
+-- 1 2 1
+-- 2 1 2
+
+-- Test case that demonstrated a bug (a new generator was created when initializing the second array)
+ooRexx> g={::coactivity loop i=0; if i//2 == 0 then .yield[i]; else .yield[]; end}
+ooRexx> call dump_collection      .array~new(2,3)~of(g)
+[Array:
+ [ 1, 1] :  0
+ [ 1, 3] :  2
+ [ 2, 2] :  4
+]
+-- 0 . 2
+-- . 4 .
+ooRexx> call dump_collection      .array~new(2,3)~of(g)
+[Array:
+ [ 1, 1] :  6
+ [ 1, 3] :  8
+ [ 2, 2] :  10
+]
+-- 6  . 8
+-- . 10 .
+
+
+-- --------------------------------------------------------------
+-- Recursive arrays
+-- --------------------------------------------------------------
+
+ooRexx> a = .array~of("string1","string2")
+ooRexx> b = .array~of("string2")
+ooRexx> b~append(a)
+ooRexx> a~append(b)
+ooRexx> a~append(a)
+-- display the first three levels
+ooRexx> call dump_collection      a, 3
+[Array:
+       1 : string1
+       2 : string2
+       3 : 
+           [Array:
+                  1 : string2
+                  2 : 
+                      [Array:
+                             1 : string1
+                             2 : string2
+                             3 : ...
+                             4 : ...
+                      ]
+           ]
+       4 : 
+           [Array:
+                  1 : string1
+                  2 : string2
+                  3 : 
+                      [Array:
+                             1 : string2
+                             2 : ...
+                      ]
+                  4 : 
+                      [Array:
+                             1 : string1
+                             2 : string2
+                             3 : ...
+                             4 : ...
+                      ]
+           ]
+]
+
+ooRexx> say a~ppRepresentation
+a1=['string1','string2',['string2',*a1],*a1]
+
+ooRexx> a~pipe(.console "dataflow")
+source:1,'string1' 
+source:2,'string2' 
+source:3,a1=[v1='string2',a2=['string1',*v1,*a1,*a2]] 
+source:4,a1=['string1',v1='string2',[*v1,*a1],*a1] 
+
+ooRexx> a~pipe(.inject "iterateBefore" {item} "recursive.0.memorize" | .console "dataflow")
+source:1,v1='string1' | inject:1,*v1 
+source:2,v1='string2' | inject:2,*v1 
+source:3,a1=[v1='string2',a2=['string1',*v1,*a1,*a2]] | inject:1,*v1 
+source:3,a1=[v1='string2',a2=['string1',*v1,*a1,*a2]] | inject:2,*a2 
+source:4,a1=[v1='string1',v2='string2',[*v2,*a1],*a1] | inject:1,*v1 
+source:4,a1=['string1',v1='string2',[*v1,*a1],*a1] | inject:2,*v1 
+source:4,a1=['string1',v1='string2',a2=[*v1,*a1],*a1] | inject:3,*a2 
+source:4,a1=['string1',v1='string2',[*v1,*a1],*a1] | inject:4,*a1 
+
+ooRexx> d = .array~of("d")
+ooRexx> c = .array~of("c", d)
+ooRexx> b = .array~of("b", c)
+ooRexx> a = .array~of("a", b)
+ooRexx> d~append(a)
+-- display the first five levels
+ooRexx> call dump_collection      a, 5
+[Array:
+       1 : a
+       2 : 
+           [Array:
+                  1 : b
+                  2 : 
+                      [Array:
+                             1 : c
+                             2 : 
+                                 [Array:
+                                        1 : d
+                                        2 : 
+                                            [Array:
+                                                   1 : a
+                                                   2 : ...
+                                            ]
+                                 ]
+                      ]
+           ]
+]
+
+ooRexx> say a~ppRepresentation
+a1=['a',['b',['c',['d',*a1]]]]
+
+-- --------------------------------------------------------------
+-- Array operators
+-- --------------------------------------------------------------
+
+ooRexx> a = .array~of(10, 20, 30)
+ooRexx> b = .array~of(5, a, 5+6i)
+ooRexx> c = .array~of(15+16i, b, 15)
+
+ooRexx> call dump_collection      -a
+[Array:
+       1 : -10
+       2 : -20
+       3 : -30
+]
+ooRexx> call dump_collection      -b
+[Array:
+       1 : -5
+       2 : 
+           [Array:
+                  1 : -10
+                  2 : -20
+                  3 : -30
+           ]
+       3 : -5-6i
+]
+ooRexx> call dump_collection      -c
+[Array:
+       1 : -15-16i
+       2 : 
+           [Array:
+                  1 : -5
+                  2 : 
+                      [Array:
+                             1 : -10
+                             2 : -20
+                             3 : -30
+                      ]
+                  3 : -5-6i
+           ]
+       3 : -15
+]
+
+ooRexx> call dump_collection      100 + a
+[Array:
+       1 :  110
+       2 :  120
+       3 :  130
+]
+ooRexx> call dump_collection      100 + b
+[Array:
+       1 :  105
+       2 : 
+           [Array:
+                  1 :  110
+                  2 :  120
+                  3 :  130
+           ]
+       3 : 105+6i
+]
+ooRexx> call dump_collection      100 + c
+[Array:
+       1 : 115+16i
+       2 : 
+           [Array:
+                  1 :  105
+                  2 : 
+                      [Array:
+                             1 :  110
+                             2 :  120
+                             3 :  130
+                      ]
+                  3 : 105+6i
+           ]
+       3 :  115
+]
+ooRexx> call dump_collection      a + 100
+[Array:
+       1 :  110
+       2 :  120
+       3 :  130
+]
+ooRexx> call dump_collection      b + 100
+[Array:
+       1 :  105
+       2 : 
+           [Array:
+                  1 :  110
+                  2 :  120
+                  3 :  130
+           ]
+       3 : 105+6i
+]
+ooRexx> call dump_collection      c + 100
+[Array:
+       1 : 115+16i
+       2 : 
+           [Array:
+                  1 :  105
+                  2 : 
+                      [Array:
+                             1 :  110
+                             2 :  120
+                             3 :  130
+                      ]
+                  3 : 105+6i
+           ]
+       3 :  115
+]
+ooRexx> call dump_collection      (100+200i) + a
+[Array:
+       1 : 110+200i
+       2 : 120+200i
+       3 : 130+200i
+]
+ooRexx> call dump_collection      (100+200i) + b
+[Array:
+       1 : 105+200i
+       2 : 
+           [Array:
+                  1 : 110+200i
+                  2 : 120+200i
+                  3 : 130+200i
+           ]
+       3 : 105+206i
+]
+ooRexx> call dump_collection      (100+200i) + c
+[Array:
+       1 : 115+216i
+       2 : 
+           [Array:
+                  1 : 105+200i
+                  2 : 
+                      [Array:
+                             1 : 110+200i
+                             2 : 120+200i
+                             3 : 130+200i
+                      ]
+                  3 : 105+206i
+           ]
+       3 : 115+200i
+]
+ooRexx> call dump_collection      a + (100+200i)
+[Array:
+       1 : 110+200i
+       2 : 120+200i
+       3 : 130+200i
+]
+ooRexx> call dump_collection      b + (100+200i)
+[Array:
+       1 : 105+200i
+       2 : 
+           [Array:
+                  1 : 110+200i
+                  2 : 120+200i
+                  3 : 130+200i
+           ]
+       3 : 105+206i
+]
+ooRexx> call dump_collection      c + (100+200i)
+[Array:
+       1 : 115+216i
+       2 : 
+           [Array:
+                  1 : 105+200i
+                  2 : 
+                      [Array:
+                             1 : 110+200i
+                             2 : 120+200i
+                             3 : 130+200i
+                      ]
+                  3 : 105+206i
+           ]
+       3 : 115+200i
+]
+ooRexx> call dump_collection      a + a
+[Array:
+       1 :  20
+       2 :  40
+       3 :  60
+]
+ooRexx> call dump_collection      b + b
+[Array:
+       1 :  10
+       2 : 
+           [Array:
+                  1 :  20
+                  2 :  40
+                  3 :  60
+           ]
+       3 : 10+12i
+]
+ooRexx> call dump_collection      c + c
+[Array:
+       1 : 30+32i
+       2 : 
+           [Array:
+                  1 :  10
+                  2 : 
+                      [Array:
+                             1 :  20
+                             2 :  40
+                             3 :  60
+                      ]
+                  3 : 10+12i
+           ]
+       3 :  30
+]
+ooRexx> call dump_collection      a + b + c
+[Array:
+       1 : 30+16i
+       2 : 
+           [Array:
+                  1 :  35
+                  2 : 
+                      [Array:
+                             1 :  50
+                             2 :  60
+                             3 :  70
+                      ]
+                  3 : 55+6i
+           ]
+       3 : 50+6i
+]
+
+ooRexx> call dump_collection      100 - a
+[Array:
+       1 :  90
+       2 :  80
+       3 :  70
+]
+ooRexx> call dump_collection      100 - b
+[Array:
+       1 :  95
+       2 : 
+           [Array:
+                  1 :  90
+                  2 :  80
+                  3 :  70
+           ]
+       3 : 95-6i
+]
+ooRexx> call dump_collection      100 - c
+[Array:
+       1 : 85-16i
+       2 : 
+           [Array:
+                  1 :  95
+                  2 : 
+                      [Array:
+                             1 :  90
+                             2 :  80
+                             3 :  70
+                      ]
+                  3 : 95-6i
+           ]
+       3 :  85
+]
+ooRexx> call dump_collection      a - 100
+[Array:
+       1 : -90
+       2 : -80
+       3 : -70
+]
+ooRexx> call dump_collection      b - 100
+[Array:
+       1 : -95
+       2 : 
+           [Array:
+                  1 : -90
+                  2 : -80
+                  3 : -70
+           ]
+       3 : -95+6i
+]
+ooRexx> call dump_collection      c - 100
+[Array:
+       1 : -85+16i
+       2 : 
+           [Array:
+                  1 : -95
+                  2 : 
+                      [Array:
+                             1 : -90
+                             2 : -80
+                             3 : -70
+                      ]
+                  3 : -95+6i
+           ]
+       3 : -85
+]
+ooRexx> call dump_collection      (100+200i) - a
+[Array:
+       1 : 90+200i
+       2 : 80+200i
+       3 : 70+200i
+]
+ooRexx> call dump_collection      (100+200i) - b
+[Array:
+       1 : 95+200i
+       2 : 
+           [Array:
+                  1 : 90+200i
+                  2 : 80+200i
+                  3 : 70+200i
+           ]
+       3 : 95+194i
+]
+ooRexx> call dump_collection      (100+200i) - c
+[Array:
+       1 : 85+184i
+       2 : 
+           [Array:
+                  1 : 95+200i
+                  2 : 
+                      [Array:
+                             1 : 90+200i
+                             2 : 80+200i
+                             3 : 70+200i
+                      ]
+                  3 : 95+194i
+           ]
+       3 : 85+200i
+]
+ooRexx> call dump_collection      a - (100+200i)
+[Array:
+       1 : -90-200i
+       2 : -80-200i
+       3 : -70-200i
+]
+ooRexx> call dump_collection      b - (100+200i)
+[Array:
+       1 : -95-200i
+       2 : 
+           [Array:
+                  1 : -90-200i
+                  2 : -80-200i
+                  3 : -70-200i
+           ]
+       3 : -95-194i
+]
+ooRexx> call dump_collection      c - (100+200i)
+[Array:
+       1 : -85-184i
+       2 : 
+           [Array:
+                  1 : -95-200i
+                  2 : 
+                      [Array:
+                             1 : -90-200i
+                             2 : -80-200i
+                             3 : -70-200i
+                      ]
+                  3 : -95-194i
+           ]
+       3 : -85-200i
+]
+ooRexx> call dump_collection      a - a
+[Array:
+       1 :  0
+       2 :  0
+       3 :  0
+]
+ooRexx> call dump_collection      b - b
+[Array:
+       1 :  0
+       2 : 
+           [Array:
+                  1 :  0
+                  2 :  0
+                  3 :  0
+           ]
+       3 : 0+0i
+]
+ooRexx> call dump_collection      c - c
+[Array:
+       1 : 0+0i
+       2 : 
+           [Array:
+                  1 :  0
+                  2 : 
+                      [Array:
+                             1 :  0
+                             2 :  0
+                             3 :  0
+                      ]
+                  3 : 0+0i
+           ]
+       3 :  0
+]
+ooRexx> call dump_collection      a - b - c
+[Array:
+       1 : -10-16i
+       2 : 
+           [Array:
+                  1 :  5
+                  2 : 
+                      [Array:
+                             1 : -10
+                             2 : -20
+                             3 : -30
+                      ]
+                  3 : -15-6i
+           ]
+       3 : 10-6i
+]
+
+ooRexx> call dump_collection      100 * a
+[Array:
+       1 :  1000
+       2 :  2000
+       3 :  3000
+]
+ooRexx> call dump_collection      100 * b
+[Array:
+       1 :  500
+       2 : 
+           [Array:
+                  1 :  1000
+                  2 :  2000
+                  3 :  3000
+           ]
+       3 : 500+600i
+]
+ooRexx> call dump_collection      100 * c
+[Array:
+       1 : 1500+1600i
+       2 : 
+           [Array:
+                  1 :  500
+                  2 : 
+                      [Array:
+                             1 :  1000
+                             2 :  2000
+                             3 :  3000
+                      ]
+                  3 : 500+600i
+           ]
+       3 :  1500
+]
+ooRexx> call dump_collection      a * 100
+[Array:
+       1 :  1000
+       2 :  2000
+       3 :  3000
+]
+ooRexx> call dump_collection      b * 100
+[Array:
+       1 :  500
+       2 : 
+           [Array:
+                  1 :  1000
+                  2 :  2000
+                  3 :  3000
+           ]
+       3 : 500+600i
+]
+ooRexx> call dump_collection      c * 100
+[Array:
+       1 : 1500+1600i
+       2 : 
+           [Array:
+                  1 :  500
+                  2 : 
+                      [Array:
+                             1 :  1000
+                             2 :  2000
+                             3 :  3000
+                      ]
+                  3 : 500+600i
+           ]
+       3 :  1500
+]
+ooRexx> call dump_collection      (100+200i) * a
+[Array:
+       1 : 1000+2000i
+       2 : 2000+4000i
+       3 : 3000+6000i
+]
+ooRexx> call dump_collection      (100+200i) * b
+[Array:
+       1 : 500+1000i
+       2 : 
+           [Array:
+                  1 : 1000+2000i
+                  2 : 2000+4000i
+                  3 : 3000+6000i
+           ]
+       3 : -700+1600i
+]
+ooRexx> call dump_collection      (100+200i) * c
+[Array:
+       1 : -1700+4600i
+       2 : 
+           [Array:
+                  1 : 500+1000i
+                  2 : 
+                      [Array:
+                             1 : 1000+2000i
+                             2 : 2000+4000i
+                             3 : 3000+6000i
+                      ]
+                  3 : -700+1600i
+           ]
+       3 : 1500+3000i
+]
+ooRexx> call dump_collection      a * (100+200i)
+[Array:
+       1 : 1000+2000i
+       2 : 2000+4000i
+       3 : 3000+6000i
+]
+ooRexx> call dump_collection      b * (100+200i)
+[Array:
+       1 : 500+1000i
+       2 : 
+           [Array:
+                  1 : 1000+2000i
+                  2 : 2000+4000i
+                  3 : 3000+6000i
+           ]
+       3 : -700+1600i
+]
+ooRexx> call dump_collection      c * (100+200i)
+[Array:
+       1 : -1700+4600i
+       2 : 
+           [Array:
+                  1 : 500+1000i
+                  2 : 
+                      [Array:
+                             1 : 1000+2000i
+                             2 : 2000+4000i
+                             3 : 3000+6000i
+                      ]
+                  3 : -700+1600i
+           ]
+       3 : 1500+3000i
+]
+ooRexx> call dump_collection      a * a
+[Array:
+       1 :  100
+       2 :  400
+       3 :  900
+]
+ooRexx> call dump_collection      b * b
+[Array:
+       1 :  25
+       2 : 
+           [Array:
+                  1 :  100
+                  2 :  400
+                  3 :  900
+           ]
+       3 : -11+60i
+]
+ooRexx> call dump_collection      c * c
+[Array:
+       1 : -31+480i
+       2 : 
+           [Array:
+                  1 :  25
+                  2 : 
+                      [Array:
+                             1 :  100
+                             2 :  400
+                             3 :  900
+                      ]
+                  3 : -11+60i
+           ]
+       3 :  225
+]
+ooRexx> call dump_collection      a * b * c
+[Array:
+       1 : 750+800i
+       2 : 
+           [Array:
+                  1 :  1000
+                  2 : 
+                      [Array:
+                             1 :  4000
+                             2 :  8000
+                             3 :  12000
+                      ]
+                  3 : 3000+3600i
+           ]
+       3 : 2250+2700i
+]
+
+ooRexx> call dump_collection      100 / a
+[Array:
+       1 :  10
+       2 :  5
+       3 :  3.33333333
+]
+ooRexx> call dump_collection      100 / b
+[Array:
+       1 :  20
+       2 : 
+           [Array:
+                  1 :  10
+                  2 :  5
+                  3 :  3.33333333
+           ]
+       3 : 8.19672131-9.83606557i
+]
+ooRexx> call dump_collection      100 / c
+[Array:
+       1 : 3.11850312-3.32640333i
+       2 : 
+           [Array:
+                  1 :  20
+                  2 : 
+                      [Array:
+                             1 :  10
+                             2 :  5
+                             3 :  3.33333333
+                      ]
+                  3 : 8.19672131-9.83606557i
+           ]
+       3 :  6.66666667
+]
+ooRexx> call dump_collection      a / 100
+[Array:
+       1 :  0.1
+       2 :  0.2
+       3 :  0.3
+]
+ooRexx> call dump_collection      b / 100
+[Array:
+       1 :  0.05
+       2 : 
+           [Array:
+                  1 :  0.1
+                  2 :  0.2
+                  3 :  0.3
+           ]
+       3 : 0.05+0.06i
+]
+ooRexx> call dump_collection      c / 100
+[Array:
+       1 : 0.15+0.16i
+       2 : 
+           [Array:
+                  1 :  0.05
+                  2 : 
+                      [Array:
+                             1 :  0.1
+                             2 :  0.2
+                             3 :  0.3
+                      ]
+                  3 : 0.05+0.06i
+           ]
+       3 :  0.15
+]
+ooRexx> call dump_collection      (100+200i) / a
+[Array:
+       1 : 10+20i
+       2 : 5+10i
+       3 : 3.33333333+6.66666667i
+]
+ooRexx> call dump_collection      (100+200i) / b
+[Array:
+       1 : 20+40i
+       2 : 
+           [Array:
+                  1 : 10+20i
+                  2 : 5+10i
+                  3 : 3.33333333+6.66666667i
+           ]
+       3 : 27.8688525+6.55737705i
+]
+ooRexx> call dump_collection      (100+200i) / c
+[Array:
+       1 : 9.77130977+2.91060291i
+       2 : 
+           [Array:
+                  1 : 20+40i
+                  2 : 
+                      [Array:
+                             1 : 10+20i
+                             2 : 5+10i
+                             3 : 3.33333333+6.66666667i
+                      ]
+                  3 : 27.8688525+6.55737705i
+           ]
+       3 : 6.66666667+13.3333333i
+]
+ooRexx> call dump_collection      a / (100+200i)
+[Array:
+       1 : 0.02-0.04i
+       2 : 0.04-0.08i
+       3 : 0.06-0.12i
+]
+ooRexx> call dump_collection      b / (100+200i)
+[Array:
+       1 : 0.01-0.02i
+       2 : 
+           [Array:
+                  1 : 0.02-0.04i
+                  2 : 0.04-0.08i
+                  3 : 0.06-0.12i
+           ]
+       3 : 0.034-0.008i
+]
+ooRexx> call dump_collection      c / (100+200i)
+[Array:
+       1 : 0.094-0.028i
+       2 : 
+           [Array:
+                  1 : 0.01-0.02i
+                  2 : 
+                      [Array:
+                             1 : 0.02-0.04i
+                             2 : 0.04-0.08i
+                             3 : 0.06-0.12i
+                      ]
+                  3 : 0.034-0.008i
+           ]
+       3 : 0.03-0.06i
+]
+ooRexx> call dump_collection      a / a
+[Array:
+       1 :  1
+       2 :  1
+       3 :  1
+]
+ooRexx> call dump_collection      b / b
+[Array:
+       1 :  1
+       2 : 
+           [Array:
+                  1 :  1
+                  2 :  1
+                  3 :  1
+           ]
+       3 : 1+0i
+]
+ooRexx> call dump_collection      c / c
+[Array:
+       1 : 1+0i
+       2 : 
+           [Array:
+                  1 :  1
+                  2 : 
+                      [Array:
+                             1 :  1
+                             2 :  1
+                             3 :  1
+                      ]
+                  3 : 1+0i
+           ]
+       3 :  1
+]
+ooRexx> call dump_collection      a / b / c
+[Array:
+       1 : 0.0623700624-0.0665280665i
+       2 : 
+           [Array:
+                  1 :  0.4
+                  2 : 
+                      [Array:
+                             1 :  0.1
+                             2 :  0.05
+                             3 :  0.0333333333
+                      ]
+                  3 : 0.0546448089-0.0655737705i
+           ]
+       3 : 0.163934426-0.196721312i
+]
+
+ooRexx> call dump_collection      100 % a
+[Array:
+       1 :  10
+       2 :  5
+       3 :  3
+]
+ooRexx> call dump_collection      100 % b
+[Array:
+       1 :  20
+       2 : 
+           [Array:
+                  1 :  10
+                  2 :  5
+                  3 :  3
+           ]
+       3 : 8-9i
+]
+ooRexx> call dump_collection      100 % c
+[Array:
+       1 : 3-3i
+       2 : 
+           [Array:
+                  1 :  20
+                  2 : 
+                      [Array:
+                             1 :  10
+                             2 :  5
+                             3 :  3
+                      ]
+                  3 : 8-9i
+           ]
+       3 :  6
+]
+ooRexx> call dump_collection      a % 100
+[Array:
+       1 :  0
+       2 :  0
+       3 :  0
+]
+ooRexx> call dump_collection      b % 100
+[Array:
+       1 :  0
+       2 : 
+           [Array:
+                  1 :  0
+                  2 :  0
+                  3 :  0
+           ]
+       3 : 0+0i
+]
+ooRexx> call dump_collection      c % 100
+[Array:
+       1 : 0+0i
+       2 : 
+           [Array:
+                  1 :  0
+                  2 : 
+                      [Array:
+                             1 :  0
+                             2 :  0
+                             3 :  0
+                      ]
+                  3 : 0+0i
+           ]
+       3 :  0
+]
+ooRexx> call dump_collection      (100+200i) % a
+[Array:
+       1 : 10+20i
+       2 : 5+10i
+       3 : 3+6i
+]
+ooRexx> call dump_collection      (100+200i) % b
+[Array:
+       1 : 20+40i
+       2 : 
+           [Array:
+                  1 : 10+20i
+                  2 : 5+10i
+                  3 : 3+6i
+           ]
+       3 : 27+6i
+]
+ooRexx> call dump_collection      (100+200i) % c
+[Array:
+       1 : 9+2i
+       2 : 
+           [Array:
+                  1 : 20+40i
+                  2 : 
+                      [Array:
+                             1 : 10+20i
+                             2 : 5+10i
+                             3 : 3+6i
+                      ]
+                  3 : 27+6i
+           ]
+       3 : 6+13i
+]
+ooRexx> call dump_collection      a % (100+200i)
+[Array:
+       1 : 0+0i
+       2 : 0+0i
+       3 : 0+0i
+]
+ooRexx> call dump_collection      b % (100+200i)
+[Array:
+       1 : 0+0i
+       2 : 
+           [Array:
+                  1 : 0+0i
+                  2 : 0+0i
+                  3 : 0+0i
+           ]
+       3 : 0+0i
+]
+ooRexx> call dump_collection      c % (100+200i)
+[Array:
+       1 : 0+0i
+       2 : 
+           [Array:
+                  1 : 0+0i
+                  2 : 
+                      [Array:
+                             1 : 0+0i
+                             2 : 0+0i
+                             3 : 0+0i
+                      ]
+                  3 : 0+0i
+           ]
+       3 : 0+0i
+]
+ooRexx> call dump_collection      a % a
+[Array:
+       1 :  1
+       2 :  1
+       3 :  1
+]
+ooRexx> call dump_collection      b % b
+[Array:
+       1 :  1
+       2 : 
+           [Array:
+                  1 :  1
+                  2 :  1
+                  3 :  1
+           ]
+       3 : 1+0i
+]
+ooRexx> call dump_collection      c % c
+[Array:
+       1 : 1+0i
+       2 : 
+           [Array:
+                  1 :  1
+                  2 : 
+                      [Array:
+                             1 :  1
+                             2 :  1
+                             3 :  1
+                      ]
+                  3 : 1+0i
+           ]
+       3 :  1
+]
+ooRexx> call dump_collection      a % b % c
+[Array:
+       1 : 0+0i
+       2 : 
+           [Array:
+                  1 :  0
+                  2 : 
+                      [Array:
+                             1 :  0
+                             2 :  0
+                             3 :  0
+                      ]
+                  3 : 0+0i
+           ]
+       3 : 0+0i
+]
+
+ooRexx> call dump_collection      100 // a
+[Array:
+       1 :  0
+       2 :  0
+       3 :  10
+]
+ooRexx> call dump_collection      100 // b
+[Array:
+       1 :  0
+       2 : 
+           [Array:
+                  1 :  0
+                  2 :  0
+                  3 :  10
+           ]
+       3 : 12-51i
+]
+ooRexx> call dump_collection      100 // c
+[Array:
+       1 : 57-157i
+       2 : 
+           [Array:
+                  1 :  0
+                  2 : 
+                      [Array:
+                             1 :  0
+                             2 :  0
+                             3 :  10
+                      ]
+                  3 : 12-51i
+           ]
+       3 :  10
+]
+ooRexx> call dump_collection      a // 100
+[Array:
+       1 :  10
+       2 :  20
+       3 :  30
+]
+ooRexx> call dump_collection      b // 100
+[Array:
+       1 :  5
+       2 : 
+           [Array:
+                  1 :  10
+                  2 :  20
+                  3 :  30
+           ]
+       3 : 500+600i
+]
+ooRexx> call dump_collection      c // 100
+[Array:
+       1 : 1500+1600i
+       2 : 
+           [Array:
+                  1 :  5
+                  2 : 
+                      [Array:
+                             1 :  10
+                             2 :  20
+                             3 :  30
+                      ]
+                  3 : 500+600i
+           ]
+       3 :  15
+]
+ooRexx> call dump_collection      (100+200i) // a
+[Array:
+       1 : 0+0i
+       2 : 0+0i
+       3 : 300+600i
+]
+ooRexx> call dump_collection      (100+200i) // b
+[Array:
+       1 : 0+0i
+       2 : 
+           [Array:
+                  1 : 0+0i
+                  2 : 0+0i
+                  3 : 300+600i
+           ]
+       3 : 53+34i
+]
+ooRexx> call dump_collection      (100+200i) // c
+[Array:
+       1 : 371+438i
+       2 : 
+           [Array:
+                  1 : 0+0i
+                  2 : 
+                      [Array:
+                             1 : 0+0i
+                             2 : 0+0i
+                             3 : 300+600i
+                      ]
+                  3 : 53+34i
+           ]
+       3 : 150+75i
+]
+ooRexx> call dump_collection      a // (100+200i)
+[Array:
+       1 : 1000-2000i
+       2 : 2000-4000i
+       3 : 3000-6000i
+]
+ooRexx> call dump_collection      b // (100+200i)
+[Array:
+       1 : 500-1000i
+       2 : 
+           [Array:
+                  1 : 1000-2000i
+                  2 : 2000-4000i
+                  3 : 3000-6000i
+           ]
+       3 : 1700-400i
+]
+ooRexx> call dump_collection      c // (100+200i)
+[Array:
+       1 : 4700-1400i
+       2 : 
+           [Array:
+                  1 : 500-1000i
+                  2 : 
+                      [Array:
+                             1 : 1000-2000i
+                             2 : 2000-4000i
+                             3 : 3000-6000i
+                      ]
+                  3 : 1700-400i
+           ]
+       3 : 1500-3000i
+]
+ooRexx> call dump_collection      a // a
+[Array:
+       1 :  0
+       2 :  0
+       3 :  0
+]
+ooRexx> call dump_collection      b // b
+[Array:
+       1 :  0
+       2 : 
+           [Array:
+                  1 :  0
+                  2 :  0
+                  3 :  0
+           ]
+       3 : 0+0i
+]
+ooRexx> call dump_collection      c // c
+[Array:
+       1 : 0+0i
+       2 : 
+           [Array:
+                  1 :  0
+                  2 : 
+                      [Array:
+                             1 :  0
+                             2 :  0
+                             3 :  0
+                      ]
+                  3 : 0+0i
+           ]
+       3 :  0
+]
+ooRexx> call dump_collection      a // b // c
+[Array:
+       1 : 0+0i
+       2 : 
+           [Array:
+                  1 :  0
+                  2 : 
+                      [Array:
+                             1 :  0
+                             2 :  0
+                             3 :  0
+                      ]
+                  3 : 39-59i
+           ]
+       3 : 195-195i
+]
+
+ooRexx> call dump_collection      100 ** a
+[Array:
+       1 :  1E+20
+       2 :  1E+40
+       3 :  1E+60
+]
+--call dump_collection      100 ** b                  -- Operand to the right of the power operator (**) must be a whole number; found "a COMPLEX"
+--call dump_collection      100 ** c                  -- Operand to the right of the power operator (**) must be a whole number; found "a COMPLEX"
+ooRexx> call dump_collection      a ** 100
+[Array:
+       1 :  1E+100
+       2 :  1.2676506E+130
+       3 :  5.15377521E+147
+]
+--call dump_collection      b ** 100                  -- Object "a COMPLEX" does not understand message "**"
+--call dump_collection      c ** 100                  -- Object "a COMPLEX" does not understand message "**"
+--call dump_collection      (100+200i) ** a    -- Object "a COMPLEX" does not understand message "**"
+--call dump_collection      (100+200i) ** b    -- Object "a COMPLEX" does not understand message "**"
+--call dump_collection      (100+200i) ** c    -- Object "a COMPLEX" does not understand message "**"
+--call dump_collection      a ** (100+200i)    -- Operand to the right of the power operator (**) must be a whole number; found "a COMPLEX"
+--call dump_collection      b ** (100+200i)    -- Operand to the right of the power operator (**) must be a whole number; found "a COMPLEX"
+--call dump_collection      c ** (100+200i)    -- Object "a COMPLEX" does not understand message "**"
+ooRexx> call dump_collection      a ** a
+[Array:
+       1 :  1E+10
+       2 :  1.048576E+26
+       3 :  2.05891132E+44
+]
+--call dump_collection      b ** b                    -- Object "a COMPLEX" does not understand message "**"
+--call dump_collection      c ** c                    -- Object "a COMPLEX" does not understand message "**"
+--call dump_collection      a ** b ** c               -- Operand to the right of the power operator (**) must be a whole number; found "a COMPLEX"
+
+ooRexx> call dump_collection      100 a
+[Array:
+       1 : 100 10
+       2 : 100 20
+       3 : 100 30
+]
+ooRexx> call dump_collection      100 b
+[Array:
+       1 : 100 5
+       2 : 
+           [Array:
+                  1 : 100 10
+                  2 : 100 20
+                  3 : 100 30
+           ]
+       3 : 100 5+6i
+]
+ooRexx> call dump_collection      100 c
+[Array:
+       1 : 100 15+16i
+       2 : 
+           [Array:
+                  1 : 100 5
+                  2 : 
+                      [Array:
+                             1 : 100 10
+                             2 : 100 20
+                             3 : 100 30
+                      ]
+                  3 : 100 5+6i
+           ]
+       3 : 100 15
+]
+ooRexx> call dump_collection      a 100
+[Array:
+       1 : 10 100
+       2 : 20 100
+       3 : 30 100
+]
+ooRexx> call dump_collection      b 100
+[Array:
+       1 : 5 100
+       2 : 
+           [Array:
+                  1 : 10 100
+                  2 : 20 100
+                  3 : 30 100
+           ]
+       3 : 5+6i 100
+]
+ooRexx> call dump_collection      c 100
+[Array:
+       1 : 15+16i 100
+       2 : 
+           [Array:
+                  1 : 5 100
+                  2 : 
+                      [Array:
+                             1 : 10 100
+                             2 : 20 100
+                             3 : 30 100
+                      ]
+                  3 : 5+6i 100
+           ]
+       3 : 15 100
+]
+ooRexx> call dump_collection      (100+200i) a
+[Array:
+       1 : 100+200i 10
+       2 : 100+200i 20
+       3 : 100+200i 30
+]
+ooRexx> call dump_collection      (100+200i) b
+[Array:
+       1 : 100+200i 5
+       2 : 
+           [Array:
+                  1 : 100+200i 10
+                  2 : 100+200i 20
+                  3 : 100+200i 30
+           ]
+       3 : 100+200i 5+6i
+]
+ooRexx> call dump_collection      (100+200i) c
+[Array:
+       1 : 100+200i 15+16i
+       2 : 
+           [Array:
+                  1 : 100+200i 5
+                  2 : 
+                      [Array:
+                             1 : 100+200i 10
+                             2 : 100+200i 20
+                             3 : 100+200i 30
+                      ]
+                  3 : 100+200i 5+6i
+           ]
+       3 : 100+200i 15
+]
+ooRexx> call dump_collection      a (100+200i)
+[Array:
+       1 : 10 100+200i
+       2 : 20 100+200i
+       3 : 30 100+200i
+]
+ooRexx> call dump_collection      b (100+200i)
+[Array:
+       1 : 5 100+200i
+       2 : 
+           [Array:
+                  1 : 10 100+200i
+                  2 : 20 100+200i
+                  3 : 30 100+200i
+           ]
+       3 : 5+6i 100+200i
+]
+ooRexx> call dump_collection      c (100+200i)
+[Array:
+       1 : 15+16i 100+200i
+       2 : 
+           [Array:
+                  1 : 5 100+200i
+                  2 : 
+                      [Array:
+                             1 : 10 100+200i
+                             2 : 20 100+200i
+                             3 : 30 100+200i
+                      ]
+                  3 : 5+6i 100+200i
+           ]
+       3 : 15 100+200i
+]
+ooRexx> call dump_collection      a a
+[Array:
+       1 : 10 10
+       2 : 20 20
+       3 : 30 30
+]
+ooRexx> call dump_collection      b b
+[Array:
+       1 : 5 5
+       2 : 
+           [Array:
+                  1 : 10 10
+                  2 : 20 20
+                  3 : 30 30
+           ]
+       3 : 5+6i 5+6i
+]
+ooRexx> call dump_collection      c c
+[Array:
+       1 : 15+16i 15+16i
+       2 : 
+           [Array:
+                  1 : 5 5
+                  2 : 
+                      [Array:
+                             1 : 10 10
+                             2 : 20 20
+                             3 : 30 30
+                      ]
+                  3 : 5+6i 5+6i
+           ]
+       3 : 15 15
+]
+ooRexx> call dump_collection      a b c
+[Array:
+       1 : 10 5 15+16i
+       2 : 
+           [Array:
+                  1 : 20 10 5
+                  2 : 
+                      [Array:
+                             1 : 20 20 10
+                             2 : 20 20 20
+                             3 : 20 20 30
+                      ]
+                  3 : 20 30 5+6i
+           ]
+       3 : 30 5+6i 15
+]
+
+ooRexx> call dump_collection      100 || a
+[Array:
+       1 :  10010
+       2 :  10020
+       3 :  10030
+]
+ooRexx> call dump_collection      100 || b
+[Array:
+       1 :  1005
+       2 : 
+           [Array:
+                  1 :  10010
+                  2 :  10020
+                  3 :  10030
+           ]
+       3 : 1005+6i
+]
+ooRexx> call dump_collection      100 || c
+[Array:
+       1 : 10015+16i
+       2 : 
+           [Array:
+                  1 :  1005
+                  2 : 
+                      [Array:
+                             1 :  10010
+                             2 :  10020
+                             3 :  10030
+                      ]
+                  3 : 1005+6i
+           ]
+       3 :  10015
+]
+ooRexx> call dump_collection      a || 100
+[Array:
+       1 :  10100
+       2 :  20100
+       3 :  30100
+]
+ooRexx> call dump_collection      b || 100
+[Array:
+       1 :  5100
+       2 : 
+           [Array:
+                  1 :  10100
+                  2 :  20100
+                  3 :  30100
+           ]
+       3 : 5+6i100
+]
+ooRexx> call dump_collection      c || 100
+[Array:
+       1 : 15+16i100
+       2 : 
+           [Array:
+                  1 :  5100
+                  2 : 
+                      [Array:
+                             1 :  10100
+                             2 :  20100
+                             3 :  30100
+                      ]
+                  3 : 5+6i100
+           ]
+       3 :  15100
+]
+ooRexx> call dump_collection      (100+200i) || a
+[Array:
+       1 : 100+200i10
+       2 : 100+200i20
+       3 : 100+200i30
+]
+ooRexx> call dump_collection      (100+200i) || b
+[Array:
+       1 : 100+200i5
+       2 : 
+           [Array:
+                  1 : 100+200i10
+                  2 : 100+200i20
+                  3 : 100+200i30
+           ]
+       3 : 100+200i5+6i
+]
+ooRexx> call dump_collection      (100+200i) || c
+[Array:
+       1 : 100+200i15+16i
+       2 : 
+           [Array:
+                  1 : 100+200i5
+                  2 : 
+                      [Array:
+                             1 : 100+200i10
+                             2 : 100+200i20
+                             3 : 100+200i30
+                      ]
+                  3 : 100+200i5+6i
+           ]
+       3 : 100+200i15
+]
+ooRexx> call dump_collection      a || (100+200i)
+[Array:
+       1 : 10100+200i
+       2 : 20100+200i
+       3 : 30100+200i
+]
+ooRexx> call dump_collection      b || (100+200i)
+[Array:
+       1 : 5100+200i
+       2 : 
+           [Array:
+                  1 : 10100+200i
+                  2 : 20100+200i
+                  3 : 30100+200i
+           ]
+       3 : 5+6i100+200i
+]
+ooRexx> call dump_collection      c || (100+200i)
+[Array:
+       1 : 15+16i100+200i
+       2 : 
+           [Array:
+                  1 : 5100+200i
+                  2 : 
+                      [Array:
+                             1 : 10100+200i
+                             2 : 20100+200i
+                             3 : 30100+200i
+                      ]
+                  3 : 5+6i100+200i
+           ]
+       3 : 15100+200i
+]
+ooRexx> call dump_collection      a || a
+[Array:
+       1 :  1010
+       2 :  2020
+       3 :  3030
+]
+ooRexx> call dump_collection      b || b
+[Array:
+       1 :  55
+       2 : 
+           [Array:
+                  1 :  1010
+                  2 :  2020
+                  3 :  3030
+           ]
+       3 : 5+6i5+6i
+]
+ooRexx> call dump_collection      c || c
+[Array:
+       1 : 15+16i15+16i
+       2 : 
+           [Array:
+                  1 :  55
+                  2 : 
+                      [Array:
+                             1 :  1010
+                             2 :  2020
+                             3 :  3030
+                      ]
+                  3 : 5+6i5+6i
+           ]
+       3 :  1515
+]
+ooRexx> call dump_collection      a || b || c
+[Array:
+       1 : 10515+16i
+       2 : 
+           [Array:
+                  1 :  20105
+                  2 : 
+                      [Array:
+                             1 :  202010
+                             2 :  202020
+                             3 :  202030
+                      ]
+                  3 : 20305+6i
+           ]
+       3 : 305+6i15
+]
+
+ooRexx> call dump_collection      (100)(a)
+[Array:
+       1 :  10010
+       2 :  10020
+       3 :  10030
+]
+ooRexx> call dump_collection      (100)(b)
+[Array:
+       1 :  1005
+       2 : 
+           [Array:
+                  1 :  10010
+                  2 :  10020
+                  3 :  10030
+           ]
+       3 : 1005+6i
+]
+ooRexx> call dump_collection      (100)(c)
+[Array:
+       1 : 10015+16i
+       2 : 
+           [Array:
+                  1 :  1005
+                  2 : 
+                      [Array:
+                             1 :  10010
+                             2 :  10020
+                             3 :  10030
+                      ]
+                  3 : 1005+6i
+           ]
+       3 :  10015
+]
+ooRexx> call dump_collection      (a)(100)
+[Array:
+       1 :  10100
+       2 :  20100
+       3 :  30100
+]
+ooRexx> call dump_collection      (b)(100)
+[Array:
+       1 :  5100
+       2 : 
+           [Array:
+                  1 :  10100
+                  2 :  20100
+                  3 :  30100
+           ]
+       3 : 5+6i100
+]
+ooRexx> call dump_collection      (c)(100)
+[Array:
+       1 : 15+16i100
+       2 : 
+           [Array:
+                  1 :  5100
+                  2 : 
+                      [Array:
+                             1 :  10100
+                             2 :  20100
+                             3 :  30100
+                      ]
+                  3 : 5+6i100
+           ]
+       3 :  15100
+]
+ooRexx> call dump_collection      ((100+200i))(a)
+[Array:
+       1 : 100+200i10
+       2 : 100+200i20
+       3 : 100+200i30
+]
+ooRexx> call dump_collection      ((100+200i))(b)
+[Array:
+       1 : 100+200i5
+       2 : 
+           [Array:
+                  1 : 100+200i10
+                  2 : 100+200i20
+                  3 : 100+200i30
+           ]
+       3 : 100+200i5+6i
+]
+ooRexx> call dump_collection      ((100+200i))(c)
+[Array:
+       1 : 100+200i15+16i
+       2 : 
+           [Array:
+                  1 : 100+200i5
+                  2 : 
+                      [Array:
+                             1 : 100+200i10
+                             2 : 100+200i20
+                             3 : 100+200i30
+                      ]
+                  3 : 100+200i5+6i
+           ]
+       3 : 100+200i15
+]
+ooRexx> call dump_collection      (a)((100+200i))
+[Array:
+       1 : 10100+200i
+       2 : 20100+200i
+       3 : 30100+200i
+]
+ooRexx> call dump_collection      (b)((100+200i))
+[Array:
+       1 : 5100+200i
+       2 : 
+           [Array:
+                  1 : 10100+200i
+                  2 : 20100+200i
+                  3 : 30100+200i
+           ]
+       3 : 5+6i100+200i
+]
+ooRexx> call dump_collection      (c)((100+200i))
+[Array:
+       1 : 15+16i100+200i
+       2 : 
+           [Array:
+                  1 : 5100+200i
+                  2 : 
+                      [Array:
+                             1 : 10100+200i
+                             2 : 20100+200i
+                             3 : 30100+200i
+                      ]
+                  3 : 5+6i100+200i
+           ]
+       3 : 15100+200i
+]
+ooRexx> call dump_collection      (a)(a)
+[Array:
+       1 :  1010
+       2 :  2020
+       3 :  3030
+]
+ooRexx> call dump_collection      (b)(b)
+[Array:
+       1 :  55
+       2 : 
+           [Array:
+                  1 :  1010
+                  2 :  2020
+                  3 :  3030
+           ]
+       3 : 5+6i5+6i
+]
+ooRexx> call dump_collection      (c)(c)
+[Array:
+       1 : 15+16i15+16i
+       2 : 
+           [Array:
+                  1 :  55
+                  2 : 
+                      [Array:
+                             1 :  1010
+                             2 :  2020
+                             3 :  3030
+                      ]
+                  3 : 5+6i5+6i
+           ]
+       3 :  1515
+]
+ooRexx> call dump_collection      (a)(b)(c)
+[Array:
+       1 : 10515+16i
+       2 : 
+           [Array:
+                  1 :  20105
+                  2 : 
+                      [Array:
+                             1 :  202010
+                             2 :  202020
+                             3 :  202030
+                      ]
+                  3 : 20305+6i
+           ]
+       3 : 305+6i15
+]
+
+ooRexx> call dump_collection      1~upto(10) >= 5
+[Array:
+       1 :  0
+       2 :  0
+       3 :  0
+       4 :  0
+       5 :  1
+       6 :  1
+       7 :  1
+       8 :  1
+       9 :  1
+      10 :  1
+]
+ooRexx> call dump_collection      \ (1~upto(10) >= 5)
+[Array:
+       1 :  1
+       2 :  1
+       3 :  1
+       4 :  1
+       5 :  0
+       6 :  0
+       7 :  0
+       8 :  0
+       9 :  0
+      10 :  0
+]
+
+
+ooRexx> ts1day = .TimeSpan~fromDays(1)
+ooRexx> ts1hour = .TimeSpan~fromHours(1)
+ooRexx> ts1minute = .TimeSpan~fromMinutes(1)
+ooRexx> ts1second = .TimeSpan~fromSeconds(1)
+ooRexx> ts1microsecond = .TimeSpan~fromMicroseconds(1)
+ooRexx> date = .datetime~new(2013,1,10, 12, 30, 10)
+
+ooRexx> call dump_collection      .array~of(ts1microsecond, ts1second, ts1minute, ts1hour, ts1day) + date
+[Array:
+       1 : 2013-01-10T12:30:10.000001
+       2 : 2013-01-10T12:30:11.000000
+       3 : 2013-01-10T12:31:10.000000
+       4 : 2013-01-10T13:30:10.000000
+       5 : 2013-01-11T12:30:10.000000
+]
+ooRexx> call dump_collection      date + .array~of(ts1microsecond, ts1second, ts1minute, ts1hour, ts1day)
+[Array:
+       1 : 2013-01-10T12:30:10.000001
+       2 : 2013-01-10T12:30:11.000000
+       3 : 2013-01-10T12:31:10.000000
+       4 : 2013-01-10T13:30:10.000000
+       5 : 2013-01-11T12:30:10.000000
+]
