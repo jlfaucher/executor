@@ -67,11 +67,23 @@ HostEmu[ooRexx]> exit                               -- the exit command is suppo
 */
 
 argrx = arg(1)
-if argrx~word(1)~caselessEquals("--showInitialization") then do
-    -- Typical usage: when non-interactive demo, we want to show the initialization
-    .ooRexxShell~showInitialization = .true
-    argrx = argrx~subword(2)
+parse var argrx word1 rest
+do while word1~left(2) == "--"
+    if word1~caselessEquals("--showInitialization") then do
+        -- Typical usage: when non-interactive demo, we want to show the initialization
+        .ooRexxShell~showInitialization = .true
+    end
+    else if word1~caselessEquals("--declareAll") then do
+        .ooRexxShell~declareAll = .true
+    end
+    else do
+        .ooRexxShell~sayError("Unknown option" word1)
+        return -1
+    end
+    argrx = rest
+    parse var argrx word1 rest
 end
+
 
 .ooRexxShell~isInteractive = (argrx == "" & lines() == 0) -- Example of not interactive session: echo say 1+2 | oorexxshell
 if .ooRexxShell~isInteractive then .ooRexxShell~showInitialization = .true
@@ -940,8 +952,11 @@ Helpers
         if .ooRexxShell~isInteractive then .ooRexxShell~sayComment("Unicode character names not loaded, execute: call loadUnicodeCharacterNames")
     end
 
-    call declareAllPublicClasses
-    call declareAllPublicRoutines
+    call checkCircularRequires
+    if .ooRexxShell~declareAll then do
+        call declareAllPublicClasses
+        call declareAllPublicRoutines
+    end
     return
 
 
@@ -1009,6 +1024,37 @@ Helpers
     end
     loadLibraryError:
     .ooRexxShell~sayError("loadLibrary KO for" filename)
+    return .false
+
+
+-------------------------------------------------------------------------------
+::routine checkCircularRequires
+    -- Temporary until I retrofit the ooRexx5 native check
+    use strict arg package=(.context~package), packageStack=(.queue~new), level=0
+    if packageStack~hasItem(package) then do
+        -- already visited
+        if .ooRexxShell~isInteractive then do
+            .ooRexxShell~sayError("Circular ::requires")
+            .ooRexxShell~sayError("    "package~name)
+            packageSupplier = packageStack~supplier
+            do while packageSupplier~available
+                .ooRexxShell~sayError("    "packageSupplier~item~name)
+                packageSupplier~next
+            end
+        end
+        return .true -- circular
+    end
+
+    circular = .false
+    packageStack~push(package)
+    importedPackageSupplier = package~importedPackages~supplier
+    do while importedPackageSupplier~available
+        package = importedPackageSupplier~item
+        call checkCircularRequires package, packageStack, level+1
+        if result == .true then return .true -- stop at first detection of circular requires
+        importedPackageSupplier~next
+    end
+    packageStack~pull
     return .false
 
 
@@ -1122,6 +1168,7 @@ Helpers
 ::attribute commandInterpreter class -- The current interpreter, can be the first word of inputrx, or the default interpreter
 ::attribute countCommentChars class
 ::attribute countCommentLines class
+::attribute declareAll class
 ::attribute demo class
 ::attribute demoFast class
 ::attribute defaultSleepDelay class
@@ -1199,6 +1246,7 @@ Helpers
     self~countCommentChars = 0
     self~countCommentLines = 0
     self~debug = .false
+    self~declareAll = .false
     self~defaultSleepDelay = 2
     self~demo = .false
     self~demoFast = .false -- by default, the demo is slow (SysSleep is executed)

@@ -346,6 +346,22 @@ History of changes
 ==================
 
 -----------------------------------------------
+2022 dec 09
+
+The public classes and routines of the packages that are pre-loaded by ooRexxShell
+are no longer automatically made available to the scripts called by ooRexxShell.
+This default behavior has been changed to let detect missing dependencies when
+doing non-regression tests.
+
+New option --declareAll
+When using the option --declareAll, the scripts called by ooRexxShell can be
+executed without adding any ::requires directive for the pre-loaded packages.
+
+Add a detection of circular ::requires
+Will be removed when/if I retrofit this functionality from ooRexx5.
+
+
+-----------------------------------------------
 2022 nov 30
 
 Rework the syntax of the command "prompt":
