@@ -2,6 +2,25 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2022 December 09
+
+[Encoded strings]
+
+Split the big file "stringEncoding.cls" in several files.
+New encodings can be added without modifying the existing sources.
+
+ooRexxShell has been modified to let detect missing and circular ::requires.
+After this change, it appears that the regular expressions are no longer supported.
+That's because ooRexxShell hid the fact a ::requires was missing in stringChunkExtended.cls
+Now fixed.
+
+Utility dotsymbols.rex
+Display a unique sorted list of the dot symbols of the file <filename>.
+Works only with the debug version of Executor.
+Used to find missing ::requires after splitting"stringEncoding.cls".
+
+
+===============================================================================
 2022 November 26
 
 Remove dependency on ziglyph

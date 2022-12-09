@@ -1,4 +1,7 @@
-::requires "stringChunk.cls"
+-- Optional: load the package regex.cls
+.context~package~loadPackage("regex/regex.cls")
+
+ ::requires "extension/stringChunk.cls"
 
 ::extension stringChunk
 
@@ -150,3 +153,12 @@
     do line over matcher~source
         displayer~send(display, prefix || "matcher:" line)
     end
+
+
+::routine loadPackage
+    use strict arg filename
+    signal on syntax name loadPackageError
+    .context~package~loadPackage(filename)
+    return .true
+    loadPackageError:
+    return .false

@@ -9,6 +9,9 @@ This script needs a modified ooRexx interpreter which support extension of prede
 .MutableBuffer~define("appendLegacy", .MutableBuffer~method("append"))
 .MutableBuffer~define("append", "do i=1 to arg(); self~appendLegacy(arg(i)); end; return self")
 
+-- Compatibility with ooRexx5
+.globalRoutines["XRANGE"] = .routines~xrange
+
 ::extension String                          inherit StringPrettyPrinter
 ::extension String                          inherit StringCompatibilityWithOORexx5
 ::extension String                          inherit StringHelpers
@@ -359,6 +362,22 @@ Similar to ~makeArray(separator), with these differences:
     pp = "M'"self~string"'"
     -- Use 0xXX notation for escaped character
     return escape3(pp)
+
+
+/******************************************************************************/
+::routine ppHexNumber public
+    -- Helper to display an hexadecimal value: 0 --> 00x, 255 --> FFx
+    -- The value can be negative: -1 --> -01x
+    use strict arg number
+    if \datatype(number, "W") then return "not a whole number"
+    sign = ""
+    if sign(number) < 0 then sign = "-"
+    number = abs(number)
+    if number < 256 then size = 2
+    else if number < 65536 then size = 4
+    else if number < 16777216 then size = 6
+    else size = 8
+    return sign || number~d2x(size) || "x"
 
 
 /******************************************************************************/

@@ -9,7 +9,6 @@
 
 ::requires "extension/string.cls"
 ::requires "encoding/stringEncoding.cls"
-::requires "encoding/unicode.cls"   -- to make .Unicode available to the scripts that requires the current file
 
 --::options trace r
 

@@ -1,6 +1,29 @@
 .Unicode~initialize
 
-::requires "encoding/stringEncoding.cls"
+::requires "encoding/unicode8_encoding.cls"
+::requires "encoding/unicode16_encoding.cls"
+::requires "encoding/unicode32_encoding.cls"
+::requires "encoding/utf8_encoding"
+::requires "encoding/utf16_encoding"
+::requires "encoding/utf32_encoding"
+::requires "encoding/wtf8_encoding"
+::requires "encoding/wtf16_encoding"
+
+/*
+Depends on
+.UNICODE16_ENCODING
+.UNICODE32_ENCODING
+.UNICODE8_ENCODING
+.UNICODE_ENCODING
+.UTF16BE_ENCODING
+.UTF16LE_ENCODING
+.UTF32BE_ENCODING
+.UTF32LE_ENCODING
+.UTF8_ENCODING
+.WTF16BE_ENCODING
+.WTF16LE_ENCODING
+.WTF8_ENCODING
+*/
 
 
 /******************************************************************************/
