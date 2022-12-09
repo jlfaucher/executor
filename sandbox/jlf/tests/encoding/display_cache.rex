@@ -7,3 +7,5 @@ arg(1)~internalIndexer~stringsCache~pipe(-
     .sort "byindex" |-
     .console {index~ppstring~left(35)} ":" {item~description~left(75)} {item~ppstring~left(100)}-
 )
+
+::requires "pipeline/pipe_extension.cls"

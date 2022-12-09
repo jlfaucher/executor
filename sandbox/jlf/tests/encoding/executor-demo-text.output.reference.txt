@@ -233,7 +233,7 @@ UTF-32 to UTF-8, UTF-16
 The Byte_Encoding can be specialized to add support for specific encoding conversions.
 */
 ooRexx> .Encoding~supported~table==
-a Table (31 items)
+a Table (32 items)
  819           : (The ISO88591_Encoding class)
  8859          : (The ISO88591_Encoding class)
  28591         : (The ISO88591_Encoding class)
@@ -248,6 +248,7 @@ a Table (31 items)
 'L1'           : (The ISO88591_Encoding class)
 'LATIN'        : (The ISO88591_Encoding class)
 'LATIN1'       : (The ISO88591_Encoding class)
+'UNICODE'      : (The Unicode_Encoding class)
 'UNICODE16'    : (The Unicode16_Encoding class)
 'UNICODE32'    : (The Unicode32_Encoding class)
 'UNICODE8'     : (The Unicode8_Encoding class)
