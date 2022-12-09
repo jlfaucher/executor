@@ -1,5 +1,5 @@
 -- Optional: load the package regex.cls
-.context~package~loadPackage("regex/regex.cls")
+call loadPackage "regex/regex.cls"
 
  ::requires "extension/stringChunk.cls"
 
