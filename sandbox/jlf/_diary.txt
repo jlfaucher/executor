@@ -2,6 +2,36 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+22/12/2022
+
+Building on my new MBP...
+Not possible to compile ICU4X headers under macOS Monterey 12.6.2 with the compiler
+bundled with Xcode.
+Apple clang version 14.0.0 (clang-1400.0.29.202
+The error message says "introduced in macOS 10.13"
+
+    [ 18%] Building CXX object CMakeFiles/rexx.dir/interpreter/classes/TextClass.cpp.o
+    In file included from /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/classes/TextClass.cpp:676:
+    In file included from /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/classes/support/m17n/icu4x/ffi/diplomat/cpp/include/ICU4XAnyCalendarKind.hpp:10:
+    /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/classes/support/m17n/icu4x/ffi/diplomat/cpp/include/diplomat_runtime.hpp:114:40: error: 'get<diplomat::Err<ICU4XError>, diplomat::Ok<std::monostate>, diplomat::Err<ICU4XError>>' is unavailable: introduced in macOS 10.13
+          return result<T2, E>(Err<E>(std::get<Err<E>>(std::move(this->val))));
+                                           ^
+    /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/classes/support/m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocale.hpp:258:36: note: in instantiation of function template specialization 'diplomat::result<std::monostate, ICU4XError>::replace_ok<std::string>' requested here
+      return diplomat_result_out_value.replace_ok(std::move(diplomat_writeable_string));
+                                       ^
+    /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/variant:1535:17: note: 'get<diplomat::Err<ICU4XError>, diplomat::Ok<std::monostate>, diplomat::Err<ICU4XError>>' has been explicitly marked unavailable here
+    constexpr _Tp&& get(variant<_Types...>&& __v) {
+                    ^
+    1 error generated.
+    make[2]: *** [CMakeFiles/rexx.dir/interpreter/classes/TextClass.cpp.o] Error 1
+    make[1]: *** [CMakeFiles/rexx.dir/all] Error 2
+    make: *** [all] Error 2
+
+No choice... Must install a recent clang!
+https://github.com/llvm/llvm-project/releases/tag/llvmorg-15.0.6
+
+
+===============================================================================
 2022 December 09
 
 [Encoded strings]
@@ -1571,7 +1601,8 @@ Same options as when sending the message "matcher" to a string.
 > matcher: expose description pattern; use strict arg string; return pattern~find(string)~matched
 17 sec
 
-Note that "/.*father.*" in mode not wholestring is just unusable: 419 sec
+Note that "/.*father.*" in mode not wholestring is just unusable: 419 sec under MBP 2010 Intel Core 2 Duo
+[2022 Dec 22] Still unusable under MBP 2021 M1 Pro: 78s (only 5.37 faster)
 
 
 ===============================================================================

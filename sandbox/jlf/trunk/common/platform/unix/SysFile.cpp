@@ -75,6 +75,14 @@ const int SysFile::stdinHandle = 0;
 const int SysFile::stdoutHandle = 1;
 const int SysFile::stderrHandle = 2;
 
+#if defined __APPLE__
+# define open64 open
+// avoid warning: '(l)stat64' is deprecated: first deprecated in macOS 10.6
+# define stat64 stat
+# define lstat64 lstat
+# define fstat64 fstat
+#endif
+
 /**
  * Default constructor for a SysFile object.
  */
@@ -1230,5 +1238,5 @@ bool SysFile::hasData()
         return false;
     }
     return true;
-    
+
 }

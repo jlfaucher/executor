@@ -65,6 +65,13 @@ const char SysFileSystem::EOF_Marker = 0x1A;
 const char *SysFileSystem::EOL_Marker = "\n";
 const char SysFileSystem::PathDelimiter = '/';
 
+#if defined __APPLE__
+# define open64 open
+// avoid warning: '(l)stat64' is deprecated: first deprecated in macOS 10.6
+# define stat64 stat
+# define lstat64 lstat
+#endif
+
 /*********************************************************************/
 /*                                                                   */
 /* FUNCTION    : SearchFileName                                      */
