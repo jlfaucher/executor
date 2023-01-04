@@ -1866,8 +1866,8 @@ syntax:              -- propagate condition
          say ppIndex2(s~index, surroundIndexByQuotes)~left(maxWidth) ":" pp2(s~item, surroundItemByQuotes)
          -- JLF
          if .nil <> doer then do
-              if doer~hasMethod("doWithNamedArguments") then doer~doWithNamedArguments("item", subitem, "index", s~index)
-              else doer~call(subitem, s~index) -- only routine is supported
+              if doer~hasMethod("doWithNamedArguments") then doer~doWithNamedArguments("item", s~item, "index", s~index)
+              else doer~call(s~item, s~index) -- only routine is supported
          end
      end
      s~next
