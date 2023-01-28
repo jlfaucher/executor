@@ -278,6 +278,10 @@ for a wide variety of languages, using the Universal Declaration of Human Rights
 (UDHR) as a representative text.
 
 
+https://github.com/jagracey/Awesome-Unicode
+Awesome Unicode
+
+
 ================================================================================
 U+ notation, Unicode escape sequence
 ================================================================================
@@ -359,6 +363,22 @@ UnicodeWords	An iterator over the substrings of a string which, after splitting 
 https://github.com/knighton/unicode
 Minimalist Unicode normalization/segmentation library. Python and C++.
 Abandonned, last commit 21/05/2015
+
+
+https://hsivonen.fi/string-length/
+First published: 2019-09-08
+It’s Not Wrong that "🤦🏼‍♂️".length == 7
+But It’s Better that "🤦🏼‍♂️".len() == 17 and Rather Useless that len("🤦🏼‍♂️") == 5
+But I Want the Length to Be 1!
+jlf:
+    "🤦🏼‍♂️"~text~length=  -- 1
+    "🤦🏼‍♂️"~text~characters==
+    an Array (shape [5], 5 items)
+     1 : ( "🤦"  U+1F926 So 2 "FACE PALM" )
+     2 : ( "🏼"  U+1F3FC Sk 2 "EMOJI MODIFIER FITZPATRICK TYPE-3" )
+     3 : ( "‍"    U+200D Cf 0 "ZERO WIDTH JOINER", "ZWJ" )
+     4 : ( "♂"   U+2642 So 1 "MALE SIGN" )
+     5 : ( "️"    U+FE0F Mn 0 "VARIATION SELECTOR-16", "VS16" )
 
 
 07/06/2021
@@ -919,6 +939,19 @@ ISO 3166-1 (Codes for the representation of names of countries and their subdivi
 
 
 https://observablehq.com/@jobleonard/which-unicode-flags-are-reversible
+
+
+================================================================================
+IME - Input Method Editor
+================================================================================
+
+https://hsivonen.fi/ime/
+An IME is a piece of software that transforms user-generated input events
+(mostly keyboard events, but some IMEs allow some auxiliary pointing device interaction)
+into text in a manner more complex than a mere keyboard layout.
+Basically, if the relationship between the keys that a user presses on a hardware keyboard
+and the text that ends up in an applications text buffer is more complex than when writing French,
+an IME is in use.
 
 
 ================================================================================
@@ -1595,7 +1628,7 @@ https://simonsapin.github.io/wtf-8
 
 
 ====================================================================================
-Indexation of UTF-8 strings
+Codepoint/grapheme indexation
 ====================================================================================
 
 https://nullprogram.com/blog/2019/05/29/
@@ -1611,6 +1644,12 @@ ObjectIcon
     the ucs type maintains an index of offsets into the utf-8 string to make random access faster. The
     size of the index is only a few percent of the total allocation for the ucs object.
 Jlf: I made a code review, but could not understand how they do that :-(
+Not clear if it's a codepoint indexation or a grapheme indexation.
+
+
+https://lwn.net/Articles/864994/
+jlf: discussion about Raku NFG and its technical limitations.
+It's also the traditional discussion about "why do you need a direct access to the graphemes".
 
 
 ================================================================================
@@ -1927,6 +1966,62 @@ Specialized zerovec collections for stringy types
 Sketch of a potential AsciiTrie.
 
 
+https://github.com/unicode-org/icu4x/pull/2722
+Experimental AsciiTrie implementation
+
+
+https://github.com/unicode-org/icu4x/issues/2755
+Get word break type
+When you iterate through text using the WordBreakIterator, you get the boundaries of words, spaces, punctuation, etc.
+It does not appear to tell you what kind of token or break that is has found.
+The C-language version of ICU has a function on the iterator called getRuleStatus()
+that returns an enum that describes the last break it found. The documentation is here:
+https://unicode-org.github.io/icu/userguide/boundaryanalysis/
+
+
+https://github.com/unicode-org/icu4x/pull/2777/files
+added initial benchmarks for normalizer.
+
+
+https://github.com/unicode-org/icu4x/pull/2779/files
+add collator initial bench
+
+
+https://github.com/unicode-org/icu4x/discussions/2877
+How to use segmenter
+
+
+https://github.com/unicode-org/icu4x/issues/2886
+Consider providing mapping to Standardized Variants for CJK Compatibility Ideographs
+Across GitHub, I found 3 users of this feature in unicode-normalization:
+    https://github.com/sunfishcode/basic-text (by the implementor of the unicode-normalization feature)
+    https://github.com/logannc/fuzzywuzzy-rs (unclear to me why you'd want this for a fuzzy match; I'd expect a fuzzy match not to want to distinguish the variations)
+    https://github.com/crlf0710/runestr-rs
+
+
+https://github.com/unicode-org/icu4x/issues/2975
+How supported do we consider non-keyextract users?
+
+
+https://github.com/unicode-org/icu4x/issues/2908
+Time zone needs for calendar application
+Use case by team member of Mozilla Thunderbird
+
+
+Not related to Unicode, but related to the fact I put the ICU4X cdylib in Executor github...
+https://github.com/ankane/polars-ruby/blob/master/ext/polars/Cargo.toml
+Is it a way to avoid bundling the original rust lib?
+https://news.ycombinator.com/item?id=34425233
+---
+Not clear to me: for Python, are the lib binaries installed by
+https://pypi.org/project/polars/
+?
+apparently yes, see https://pypi.org/project/polars/#files
+---
+For ruby, is it built by a github workflow?
+https://github.com/ankane/polars-ruby/blob/master/.github/workflows/release.yml
+
+
 ================================================================================
 Twitter text parsing
 ================================================================================
@@ -1993,6 +2088,17 @@ Eryk Sun Jul 21, 2019 at 13:31
 
 https://stackoverflow.com/questions/49476326/displaying-unicode-in-powershell/49481797#49481797
 Displaying Unicode in Powershell
+
+
+================================================================================
+Windows OS
+================================================================================
+
+https://learn.microsoft.com/en-us/windows/win32/intl/international-support
+jlf: I search which functionalities are available only to unicode apps...
+- can be multilingual without managing code pages
+- IME? not sure if it's only for unicode apps
+- other?
 
 
 ================================================================================
@@ -2258,6 +2364,20 @@ UTF-8/16 encoder/decoder
 
     : utf16le ( state string -- state string )
         [ [ swap (utf16le) ] each ] { } make ;
+
+
+================================================================================
+GO lang
+================================================================================
+
+https://github.com/unicode-org/icu4x/issues/2882
+https://cs.opensource.google/go/x/text
+The golang x-text library has re-implemented most of ICU from scratch,
+and some of their algorithms and data structures might be interesting
+for the icu4x project
+(afaik x-text was not just a port of the ICU codebase to another language,
+but an actual re-implementation).
+You might want to have a look at their code, or talk to @mpvl who wrote most of it.
 
 
 ================================================================================
@@ -3213,6 +3333,26 @@ https://github.com/open-i18n/rust-unic
 UNIC: Unicode and Internationalization Crates for Rust
 jlf: seems stale since Oct 21, 2020. Killed by ICU4X?
 This fork is still alive: https://github.com/eyeplum/rust-unic
+
+
+https://github.com/logannc/fuzzywuzzy-rs
+port of https://github.com/seatgeek/fuzzywuzzy
+(Fuzzy String Matching in Python
+This project has been renamed and moved to https://github.com/seatgeek/thefuzz)
+Fuzzy string matching like a boss.
+It uses Levenshtein Distance to calculate the differences between sequences in a simple-to-use package.
+https://en.wikipedia.org/wiki/Levenshtein_distance
+
+
+https://hsivonen.fi/encoding_rs/
+encoding_rs: a Web-Compatible Character Encoding Library in Rust
+encoding_rs is a high-decode-performance, low-legacy-encode-footprint and high-correctness implementation
+of the WHATWG Encoding Standard written in Rust.
+---
+https://hsivonen.fi/modern-cpp-in-rust/
+How I Wrote a Modern C++ Library in Rust
+Slides: https://hsivonen.fi/rustfest2018/
+Video: https://media.ccc.de/v/rustfest18-5-a_rust_crate_that_also_quacks_like_a_modern_c_library
 
 
 ================================================================================
