@@ -707,29 +707,47 @@ if (WIN32)
     )
 endif ()
 
-if (WIN32)
-    message(STATUS "ICU4X for x86_64-pc-windows-msvc")
+# Which to test: CMAKE_SYSTEM_PROCESSOR or CMAKE_HOST_SYSTEM_PROCESSOR?
+if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64")
+    # Windows X86_64
+    set (icu4x_arch "x86_64")
+#-----------------------------------------------------
+# CAN'T BUILD ICU4X UNDER WINDOWS ARM64 FOR THE MOMENT
+#-----------------------------------------------------
+#elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "ARM64")
+#    # Windows ARM64
+#    set (icu4x_arch "aarch64")
+elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
+    # MacOs X86_64
+    set (icu4x_arch "x86_64")
+elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64")
+    # MacOs ARM64 (Apple Silicon), and maybe Linux (not tested)
+    set (icu4x_arch "aarch64")
+endif ()
+
+if (WIN32 AND icu4x_arch)
+    message(STATUS "ICU4X for ${icu4x_arch}-pc-windows-msvc")
     add_definitions(/DHAVE_ICU4X)
     # Library name to link with
     set (icu4x_lib icu_capi_cdylib)
     # Relative path to ICU4X dylib in the source tree
-    set (icu4x_dylib     ${icu4x_dir}/target/x86_64-pc-windows-msvc/release/icu_capi_cdylib.dll)
-    set (icu4x_dylib_exp ${icu4x_dir}/target/x86_64-pc-windows-msvc/release/icu_capi_cdylib.dll.exp)
-    set (icu4x_dylib_lib ${icu4x_dir}/target/x86_64-pc-windows-msvc/release/icu_capi_cdylib.dll.lib)
-    set (icu4x_dylib_pdb ${icu4x_dir}/target/x86_64-pc-windows-msvc/release/icu_capi_cdylib.pdb)
+    set (icu4x_dylib     ${icu4x_dir}/target/${icu4x_arch}-pc-windows-msvc/release/icu_capi_cdylib.dll)
+    set (icu4x_dylib_exp ${icu4x_dir}/target/${icu4x_arch}-pc-windows-msvc/release/icu_capi_cdylib.dll.exp)
+    set (icu4x_dylib_lib ${icu4x_dir}/target/${icu4x_arch}-pc-windows-msvc/release/icu_capi_cdylib.dll.lib)
+    set (icu4x_dylib_pdb ${icu4x_dir}/target/${icu4x_arch}-pc-windows-msvc/release/icu_capi_cdylib.pdb)
     # Full path to ICU4X dylib in the source tree
     set_property(TARGET icu_capi_cdylib PROPERTY IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/${icu4x_dylib})
     set_property(TARGET icu_capi_cdylib PROPERTY IMPORTED_IMPLIB ${CMAKE_CURRENT_SOURCE_DIR}/${icu4x_dylib_lib})
     # Visual C++ wants c++20
     set_source_files_properties(${build_classes_dir}/TextClass.cpp PROPERTIES COMPILE_OPTIONS "/std:c++20")
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${icu4x_dylib} COMPONENT Core DESTINATION ${INSTALL_LIB_DIR})
-elseif (APPLE)
-    message(STATUS "ICU4X for x86_64-apple-darwin")
+elseif (APPLE AND icu4x_arch)
+    message(STATUS "ICU4X for ${icu4x_arch}-apple-darwin")
     add_definitions(/DHAVE_ICU4X)
     # Library name to link with
     set (icu4x_lib icu_capi_cdylib)
     # Relative path to ICU4X dylib in the source tree
-    set (icu4x_dylib ${icu4x_dir}/target/x86_64-apple-darwin/release/libicu_capi_cdylib.dylib)
+    set (icu4x_dylib ${icu4x_dir}/target/${icu4x_arch}-apple-darwin/release/libicu_capi_cdylib.dylib)
     # Full path to ICU4X dylib in the source tree
     set_property(TARGET icu_capi_cdylib PROPERTY IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/${icu4x_dylib})
     # I wanted to use std=c++20 to be aligned with Visual C++ (which wants c++20) but that doesn't work :-(

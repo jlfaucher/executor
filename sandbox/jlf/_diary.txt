@@ -2,6 +2,47 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+30/01/2023
+
+Update the ICU4X binaries: release 1.1
+
+
+Wanted to build ICU4X under Windows ARM
+but error when running
+cargo install cargo-make
+error C2065: 'BN_ULLONG': undeclared identifier
+
+https://github.com/briansmith/ring/issues/1167
+THE thread to read to (try to) understand the problem.
+The conclusion is:
+ring is planning on a 0.16.21 release which will also fix the build for aarch64-pc-windows-msvc
+
+https://github.com/briansmith/ring/issues/1551
+0.16.21 release
+
+https://github.com/briansmith/ring/pull/1554
+Enable Windows on ARM builds for 0.16.x
+
+In the meantime, I deactivate the use of ICU4X in the build of Executor for Windows ARM..
+
+
+REMEMBER
+Done
+----
+download rustup-init.exe from https://www.rust-lang.org/tools/install
+run rustup-init.exe
+
+Still todo
+----------
+cargo install cargo-make
+cargo install cargo-readme
+E:
+cd \local\Unicode\ICU4X\git
+cargo build -p icu_capi_cdylib --all-features --release
+copy target\release\icu_capi_cdylib.dll (and .exp, .lib, .pdb)
+
+
+===============================================================================
 22/12/2022
 
 Building on my new MBP...
@@ -183,18 +224,18 @@ Examples:
 textNFC = "Noël"~text~NFC
 textNFC~characters==
     an Array (shape [4], 4 items)
-     1 : ( "N"   U+004E Lu 1 "" )
-     2 : ( "o"   U+006F Ll 1 "" )
-     3 : ( "ë"   U+00EB Ll 1 "" )
-     4 : ( "l"   U+006C Ll 1 "" )
+     1 : ( "N"   U+004E Lu 1 "LATIN CAPITAL LETTER N" )
+     2 : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
+     3 : ( "ë"   U+00EB Ll 1 "LATIN SMALL LETTER E WITH DIAERESIS" )
+     4 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
 textNFD="Noël"~text~NFD
 textNFD~characters==
     an Array (shape [5], 5 items)
-     1 : ( "N"   U+004E Lu 1 "" )
-     2 : ( "o"   U+006F Ll 1 "" )
-     3 : ( "e"   U+0065 Ll 1 "" )
-     4 : ( "̈"    U+0308 Mn 0 "" )
-     5 : ( "l"   U+006C Ll 1 "" )
+     1 : ( "N"   U+004E Lu 1 "LATIN CAPITAL LETTER N" )
+     2 : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
+     3 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
+     4 : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
+     5 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
 (textNFC == textNFD)=                                               -- 1
 (textNFC = textNFD)=                                                -- 1
 (" "textNFC == textNFD" ")=                                         -- 0 because strict
@@ -204,7 +245,7 @@ textNFD~characters==
 ("-"textNFC = ("\u{OBLIQUE HYPHEN}"textNFD"\u{ZWSP}")~unescape)=    -- 1
 
 "pere noel"~text~caselessCompareTo("Père Noël")=                    -- -1 (lesser)
-"pere noel"~text~caselessCompareTo("Père Noël", stripMark:.true)=   --  0 (equal)
+"pere noel"~text~caselessCompareTo("Père Noël", stripMark:.true)=   --  0 (equal because the accents are ignored)
 
 
 [Encoded strings]

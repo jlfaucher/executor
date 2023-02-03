@@ -672,7 +672,7 @@ RexxObject *Unicode::utf8proc_transform(RexxString *string, RexxObject **named_a
 /******************************************************************************/
 
 #ifdef HAVE_ICU4X
-// All the headers of ICU4X (to see the impact on the size of rexx dylib)
+// All the C++ headers of ICU4X
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XAnyCalendarKind.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XBidi.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XBidiDirection.hpp"
@@ -695,7 +695,6 @@ RexxObject *Unicode::utf8proc_transform(RexxString *string, RexxObject **named_a
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCollatorOptionsV1.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCollatorStrength.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XComposingNormalizer.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCreateDataProviderResult.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XCustomTimeZone.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XDataProvider.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XDataStruct.hpp"
@@ -715,7 +714,7 @@ RexxObject *Unicode::utf8proc_transform(RexxString *string, RexxObject **named_a
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XGraphemeClusterBreakIteratorLatin1.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XGraphemeClusterBreakIteratorUtf16.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XGraphemeClusterBreakIteratorUtf8.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XGraphemeClusterBreakSegmenter.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XGraphemeClusterSegmenter.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XGregorianDateFormatter.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XGregorianDateTimeFormatter.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XGregorianZonedDateTimeFormatter.hpp"
@@ -731,7 +730,7 @@ RexxObject *Unicode::utf8proc_transform(RexxString *string, RexxObject **named_a
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLineBreakIteratorUtf8.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLineBreakOptionsV1.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLineBreakRule.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLineBreakSegmenter.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLineSegmenter.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XList.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XListFormatter.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XListLength.hpp"
@@ -739,10 +738,10 @@ RexxObject *Unicode::utf8proc_transform(RexxString *string, RexxObject **named_a
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocaleCanonicalizer.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocaleExpander.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocaleFallbackConfig.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocaleFallbackIterator.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocaleFallbackPriority.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocaleFallbacker.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocaleFallbackerWithConfig.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocaleFallbackIterator.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLocaleFallbackPriority.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XLogger.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XMetazoneCalculator.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XOrdering.hpp"
@@ -756,7 +755,7 @@ RexxObject *Unicode::utf8proc_transform(RexxString *string, RexxObject **named_a
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XSentenceBreakIteratorLatin1.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XSentenceBreakIteratorUtf16.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XSentenceBreakIteratorUtf8.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XSentenceBreakSegmenter.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XSentenceSegmenter.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XTime.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XTimeFormatter.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XTimeLength.hpp"
@@ -769,6 +768,6 @@ RexxObject *Unicode::utf8proc_transform(RexxString *string, RexxObject **named_a
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XWordBreakIteratorUtf16.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XWordBreakIteratorUtf8.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XWordBreakRule.hpp"
-#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XWordBreakSegmenter.hpp"
+#include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XWordSegmenter.hpp"
 #include "m17n/icu4x/ffi/diplomat/cpp/include/ICU4XZonedDateTimeFormatter.hpp"
 #endif
