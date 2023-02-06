@@ -73,6 +73,9 @@ do while word1~left(2) == "--"
         -- Typical usage: when non-interactive demo, we want to show the initialization
         .ooRexxShell~showInitialization = .true
     end
+    else if word1~caselessEquals("--showStackFrames") then do
+        .ooRexxShell~showStackFrames = .true
+    end
     else if word1~caselessEquals("--declareAll") then do
         .ooRexxShell~declareAll = .true
     end
@@ -622,11 +625,11 @@ Helpers
         end
         when queued() == 0 & lines() == 0 & .ooRexxShell~readlineAddress~caselessEquals("cmd") & .ooRexxShell~readline then do
             inputrx = readline_with_cmd(prompt)
-            if inputrx <> "", inputrx <> .ooRexxShell~inputrxPrevious then history~lineout(inputrx)
+            if inputrx <> "", inputrx <> .ooRexxShell~inputrxPrevious, .ooRexxShell~isInteractive then history~lineout(inputrx)
         end
         when queued() == 0 & lines() == 0 & .ooRexxShell~readlineAddress~caselessEquals("bash") & .ooRexxShell~readline then do
             inputrx = readline_with_bash(prompt)
-            if inputrx <> "", inputrx <> .ooRexxShell~inputrxPrevious then history~lineout(inputrx)
+            if inputrx <> "", inputrx <> .ooRexxShell~inputrxPrevious, .ooRexxShell~isInteractive then history~lineout(inputrx)
         end
         otherwise do
             if .ooRexxShell~isInteractive then do
@@ -636,7 +639,7 @@ Helpers
             queue_or_stdin = queued() <> 0 | lines() <> 0
             parse pull inputrx -- Input queue or standard input or keyboard.
             if .ooRexxShell~isInteractive & queue_or_stdin then say inputrx -- display the input only if coming from queue or from stdin
-            if inputrx <> "", inputrx <> .ooRexxShell~inputrxPrevious then history~lineout(inputrx)
+            if inputrx <> "", inputrx <> .ooRexxShell~inputrxPrevious, .ooRexxShell~isInteractive then history~lineout(inputrx)
         end
     end
 
@@ -1207,6 +1210,7 @@ Helpers
 ::attribute showInfos class
 ::attribute showInfosNext class
 ::attribute showInitialization class
+::attribute showStackFrames class
 ::attribute stackFrames class -- stackframes of last error
 ::attribute systemAddress class -- "CMD" under Windows, "sh" under Linux/MacOs
 ::attribute traceback class -- traceback of last error
@@ -1274,6 +1278,7 @@ Helpers
     self~showComment = .false
     self~showInfosNext = .false
     self~showInitialization = .false
+    self~showStackFrames = .false
     self~stackFrames = .list~new
     self~traceReadline = .false
     self~traceDispatchCommand = .false
@@ -1416,7 +1421,7 @@ Helpers
 
     .ooRexxShell~traceback = condition~traceback
     .ooRexxShell~stackFrames = condition~stackFrames
-    if \ (.ooRexxShell~isInteractive | .ooRexxShell~demo) then .ooRexxShell~sayStackFrames
+    if .ooRexxShell~showStackFrames | \ (.ooRexxShell~isInteractive | .ooRexxShell~demo) then .ooRexxShell~sayStackFrames
 
     if condition~condition <> "SYNTAX" then .ooRexxShell~sayError(condition~condition)
     if condition~description <> .nil, condition~description <> "" then .ooRexxShell~sayError(condition~description)

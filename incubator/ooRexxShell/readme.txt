@@ -346,6 +346,22 @@ History of changes
 ==================
 
 -----------------------------------------------
+2023 feb 05
+
+The file ~/.oorexxshell_history is now updated only when ooRexxShell is in
+interactive mode.
+
+
+New option --showStackFrames
+By default, when ooRexxShell traps an error, only a short description of the
+error is displayed. The user can display more informations using one of these
+queries: ?bt ?tb ?sf.
+Using this option, a stack frame will be display for each trapped error.
+First need:
+Analyzing unexpected errors during a demo or during non regression tests.
+
+
+-----------------------------------------------
 2022 dec 09
 
 The public classes and routines of the packages that are pre-loaded by ooRexxShell
