@@ -18,9 +18,7 @@ Main ideas explored with this prototype :
 
 /*
 On my Mac, where locale returns :
-*/
-ooRexx> "locale"
-LANG=
+LANG=""
 LC_COLLATE="en_US.UTF-8"
 LC_CTYPE="en_US.UTF-8"
 LC_MESSAGES="en_US.UTF-8"
@@ -29,7 +27,6 @@ LC_NUMERIC="en_US.UTF-8"
 LC_TIME="en_US.UTF-8"
 LC_ALL="en_US.UTF-8"
 
-/*
 I get that under ooRexxShell :
 */
 ooRexx> s1 = "é"
@@ -58,7 +55,6 @@ s2~text~length=                     -- 1 grapheme
 s2~text~codepoints~count=           -- 2 codepoints
 s2~text~string~length=              -- 3 bytes
 */
-ooRexx> 
 ooRexx> .encoding~defaultEncoding = "utf8"
 ooRexx> s1~text~length=                     -- 1 grapheme
  1

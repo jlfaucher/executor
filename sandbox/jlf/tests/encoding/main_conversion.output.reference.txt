@@ -1814,17 +1814,17 @@ ooRexx> < include_conversion.rex
     -- End of file include_conversion.rex
     -------------------------------------
 ooRexx> call display_cache t
-(The UTF16BE_Encoding class)        : UTF-16BE (128 graphemes, 128 codepoints, 256 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The UTF16LE_Encoding class)        : UTF-16LE (128 graphemes, 128 codepoints, 256 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The UTF32BE_Encoding class)        : UTF-32BE (128 graphemes, 128 codepoints, 512 bytes, 0 error)                '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
-(The UTF32LE_Encoding class)        : UTF-32LE (128 graphemes, 128 codepoints, 512 bytes, 0 error)                '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The UTF8_Encoding class)           : UTF-8 ASCII (128 graphemes, 128 codepoints, 128 bytes, 0 error)             '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
-(The Unicode16_Encoding class)      : Unicode16 (128 graphemes, 128 codepoints, 256 bytes, 0 error)               '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The Unicode32_Encoding class)      : Unicode32 (128 graphemes, 128 codepoints, 512 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The Unicode8_Encoding class)       : Unicode8 ASCII (128 graphemes, 128 codepoints, 128 bytes, 0 error)          '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
-(The WTF16BE_Encoding class)        : WTF-16BE (128 graphemes, 128 codepoints, 256 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The WTF16LE_Encoding class)        : WTF-16LE (128 graphemes, 128 codepoints, 256 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The WTF8_Encoding class)           : WTF-8 ASCII (128 graphemes, 128 codepoints, 128 bytes, 0 error)             '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'UTF-16BE'                          : UTF-16BE (128 graphemes, 128 codepoints, 256 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'UTF-16LE'                          : UTF-16LE (128 graphemes, 128 codepoints, 256 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'UTF-32BE'                          : UTF-32BE (128 graphemes, 128 codepoints, 512 bytes, 0 error)                '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
+'UTF-32LE'                          : UTF-32LE (128 graphemes, 128 codepoints, 512 bytes, 0 error)                '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'UTF-8'                             : UTF-8 ASCII (128 graphemes, 128 codepoints, 128 bytes, 0 error)             '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'Unicode16'                         : Unicode16 (128 graphemes, 128 codepoints, 256 bytes, 0 error)               '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'Unicode32'                         : Unicode32 (128 graphemes, 128 codepoints, 512 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'Unicode8'                          : Unicode8 ASCII (128 graphemes, 128 codepoints, 128 bytes, 0 error)          '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'WTF-16BE'                          : WTF-16BE (128 graphemes, 128 codepoints, 256 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'WTF-16LE'                          : WTF-16LE (128 graphemes, 128 codepoints, 256 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'WTF-8'                             : WTF-8 ASCII (128 graphemes, 128 codepoints, 128 bytes, 0 error)             '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
 
 
 --------------------------------------------------------------------------------
@@ -3616,16 +3616,16 @@ ooRexx> < include_conversion.rex
     -- End of file include_conversion.rex
     -------------------------------------
 ooRexx> call display_cache t
-(The UTF16BE_Encoding class)        : UTF-16BE (256 graphemes, 256 codepoints, 512 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The UTF16LE_Encoding class)        : UTF-16LE (256 graphemes, 256 codepoints, 512 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The UTF32BE_Encoding class)        : UTF-32BE (256 graphemes, 256 codepoints, 1024 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
-(The UTF32LE_Encoding class)        : UTF-32LE (256 graphemes, 256 codepoints, 1024 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The UTF8_Encoding class)           : UTF-8 not-ASCII (256 graphemes, 256 codepoints, 401 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
-(The Unicode16_Encoding class)      : Unicode16 (256 graphemes, 256 codepoints, 512 bytes, 0 error)               '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The Unicode32_Encoding class)      : Unicode32 (256 graphemes, 256 codepoints, 1024 bytes, 0 error)              '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The WTF16BE_Encoding class)        : WTF-16BE (256 graphemes, 256 codepoints, 512 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The WTF16LE_Encoding class)        : WTF-16LE (256 graphemes, 256 codepoints, 512 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The WTF8_Encoding class)           : WTF-8 not-ASCII (256 graphemes, 256 codepoints, 401 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'UTF-16BE'                          : UTF-16BE (256 graphemes, 256 codepoints, 512 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'UTF-16LE'                          : UTF-16LE (256 graphemes, 256 codepoints, 512 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'UTF-32BE'                          : UTF-32BE (256 graphemes, 256 codepoints, 1024 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
+'UTF-32LE'                          : UTF-32LE (256 graphemes, 256 codepoints, 1024 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'UTF-8'                             : UTF-8 not-ASCII (256 graphemes, 256 codepoints, 401 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'Unicode16'                         : Unicode16 (256 graphemes, 256 codepoints, 512 bytes, 0 error)               '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'Unicode32'                         : Unicode32 (256 graphemes, 256 codepoints, 1024 bytes, 0 error)              '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'WTF-16BE'                          : WTF-16BE (256 graphemes, 256 codepoints, 512 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'WTF-16LE'                          : WTF-16LE (256 graphemes, 256 codepoints, 512 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'WTF-8'                             : WTF-8 not-ASCII (256 graphemes, 256 codepoints, 401 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
 
 
 --------------------------------------------------------------------------------
@@ -5400,17 +5400,17 @@ ooRexx> < include_conversion.rex
     -- End of file include_conversion.rex
     -------------------------------------
 ooRexx> call display_cache t
-(The UTF16BE_Encoding class)        : UTF-16BE (191 graphemes, 191 codepoints, 382 bytes, 0 error)                '[00] [00]![00]"[00]#[00]$[00]%[00]&[00]''[00]([00])[00]*[00]+[00],[00]-[00].[00]/[00]0[00]1[00]2[00 
-(The UTF16LE_Encoding class)        : UTF-16LE (191 graphemes, 191 codepoints, 382 bytes, 0 error)                ' [00]![00]"[00]#[00]$[00]%[00]&[00]''[00]([00])[00]*[00]+[00],[00]-[00].[00]/[00]0[00]1[00]2[00]3[0 
-(The UTF32BE_Encoding class)        : UTF-32BE (191 graphemes, 191 codepoints, 764 bytes, 0 error)                '[000000] [000000]![000000]"[000000]#[000000]$[000000]%[000000]&[000000]''[000000]([000000])[000000] 
-(The UTF32LE_Encoding class)        : UTF-32LE (191 graphemes, 191 codepoints, 764 bytes, 0 error)                ' [000000]![000000]"[000000]#[000000]$[000000]%[000000]&[000000]''[000000]([000000])[000000]*[000000 
-(The UTF8_Encoding class)           : UTF-8 not-ASCII (191 graphemes, 191 codepoints, 287 bytes, 0 error)         ' !"#$%&''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~Â Â 
-(The Unicode16_Encoding class)      : Unicode16 (191 graphemes, 191 codepoints, 382 bytes, 0 error)               ' [00]![00]"[00]#[00]$[00]%[00]&[00]''[00]([00])[00]*[00]+[00],[00]-[00].[00]/[00]0[00]1[00]2[00]3[0 
-(The Unicode32_Encoding class)      : Unicode32 (191 graphemes, 191 codepoints, 764 bytes, 0 error)               ' [000000]![000000]"[000000]#[000000]$[000000]%[000000]&[000000]''[000000]([000000])[000000]*[000000 
-(The Unicode8_Encoding class)       : Unicode8 not-ASCII (191 graphemes, 191 codepoints, 191 bytes, 0 error)      ' !"#$%&''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢ 
-(The WTF16BE_Encoding class)        : WTF-16BE (191 graphemes, 191 codepoints, 382 bytes, 0 error)                '[00] [00]![00]"[00]#[00]$[00]%[00]&[00]''[00]([00])[00]*[00]+[00],[00]-[00].[00]/[00]0[00]1[00]2[00 
-(The WTF16LE_Encoding class)        : WTF-16LE (191 graphemes, 191 codepoints, 382 bytes, 0 error)                ' [00]![00]"[00]#[00]$[00]%[00]&[00]''[00]([00])[00]*[00]+[00],[00]-[00].[00]/[00]0[00]1[00]2[00]3[0 
-(The WTF8_Encoding class)           : WTF-8 not-ASCII (191 graphemes, 191 codepoints, 287 bytes, 0 error)         ' !"#$%&''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~Â Â 
+'UTF-16BE'                          : UTF-16BE (191 graphemes, 191 codepoints, 382 bytes, 0 error)                '[00] [00]![00]"[00]#[00]$[00]%[00]&[00]''[00]([00])[00]*[00]+[00],[00]-[00].[00]/[00]0[00]1[00]2[00 
+'UTF-16LE'                          : UTF-16LE (191 graphemes, 191 codepoints, 382 bytes, 0 error)                ' [00]![00]"[00]#[00]$[00]%[00]&[00]''[00]([00])[00]*[00]+[00],[00]-[00].[00]/[00]0[00]1[00]2[00]3[0 
+'UTF-32BE'                          : UTF-32BE (191 graphemes, 191 codepoints, 764 bytes, 0 error)                '[000000] [000000]![000000]"[000000]#[000000]$[000000]%[000000]&[000000]''[000000]([000000])[000000] 
+'UTF-32LE'                          : UTF-32LE (191 graphemes, 191 codepoints, 764 bytes, 0 error)                ' [000000]![000000]"[000000]#[000000]$[000000]%[000000]&[000000]''[000000]([000000])[000000]*[000000 
+'UTF-8'                             : UTF-8 not-ASCII (191 graphemes, 191 codepoints, 287 bytes, 0 error)         ' !"#$%&''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~Â Â 
+'Unicode16'                         : Unicode16 (191 graphemes, 191 codepoints, 382 bytes, 0 error)               ' [00]![00]"[00]#[00]$[00]%[00]&[00]''[00]([00])[00]*[00]+[00],[00]-[00].[00]/[00]0[00]1[00]2[00]3[0 
+'Unicode32'                         : Unicode32 (191 graphemes, 191 codepoints, 764 bytes, 0 error)               ' [000000]![000000]"[000000]#[000000]$[000000]%[000000]&[000000]''[000000]([000000])[000000]*[000000 
+'Unicode8'                          : Unicode8 not-ASCII (191 graphemes, 191 codepoints, 191 bytes, 0 error)      ' !"#$%&''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢ 
+'WTF-16BE'                          : WTF-16BE (191 graphemes, 191 codepoints, 382 bytes, 0 error)                '[00] [00]![00]"[00]#[00]$[00]%[00]&[00]''[00]([00])[00]*[00]+[00],[00]-[00].[00]/[00]0[00]1[00]2[00 
+'WTF-16LE'                          : WTF-16LE (191 graphemes, 191 codepoints, 382 bytes, 0 error)                ' [00]![00]"[00]#[00]$[00]%[00]&[00]''[00]([00])[00]*[00]+[00],[00]-[00].[00]/[00]0[00]1[00]2[00]3[0 
+'WTF-8'                             : WTF-8 not-ASCII (191 graphemes, 191 codepoints, 287 bytes, 0 error)         ' !"#$%&''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~Â Â 
 
 
 --------------------------------------------------------------------------------
@@ -7209,19 +7209,19 @@ ooRexx> < include_conversion.rex
     -- End of file include_conversion.rex
     -------------------------------------
 ooRexx> call display_cache t
-'[01]'                              : UTF-8 not-ASCII (284 graphemes, 339 codepoints, 569 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
-'[02]'                              : UTF-8 not-ASCII (284 graphemes, 405 codepoints, 636 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
-'[04]'                              : UTF-8 not-ASCII (312 graphemes, 372 codepoints, 606 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
-'[08]'                              : UTF-8 not-ASCII (312 graphemes, 438 codepoints, 673 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
-'[10]'                              : UTF-8 not-ASCII (287 graphemes, 345 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
-(The UTF16BE_Encoding class)        : UTF-16BE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The UTF16LE_Encoding class)        : UTF-16LE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The UTF32BE_Encoding class)        : UTF-32BE (284 graphemes, 342 codepoints, 1368 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
-(The UTF32LE_Encoding class)        : UTF-32LE (284 graphemes, 342 codepoints, 1368 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The Unicode32_Encoding class)      : Unicode32 (284 graphemes, 342 codepoints, 1368 bytes, 0 error)              '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The WTF16BE_Encoding class)        : WTF-16BE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The WTF16LE_Encoding class)        : WTF-16LE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The WTF8_Encoding class)           : WTF-8 not-ASCII (284 graphemes, 342 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+ 1                                  : UTF-8 not-ASCII (284 graphemes, 339 codepoints, 569 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+ 2                                  : UTF-8 not-ASCII (284 graphemes, 405 codepoints, 636 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+ 4                                  : UTF-8 not-ASCII (312 graphemes, 372 codepoints, 606 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+ 8                                  : UTF-8 not-ASCII (312 graphemes, 438 codepoints, 673 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+ 10                                 : UTF-8 not-ASCII (287 graphemes, 345 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'UTF-16BE'                          : UTF-16BE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'UTF-16LE'                          : UTF-16LE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'UTF-32BE'                          : UTF-32BE (284 graphemes, 342 codepoints, 1368 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
+'UTF-32LE'                          : UTF-32LE (284 graphemes, 342 codepoints, 1368 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'Unicode32'                         : Unicode32 (284 graphemes, 342 codepoints, 1368 bytes, 0 error)              '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'WTF-16BE'                          : WTF-16BE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'WTF-16LE'                          : WTF-16LE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'WTF-8'                             : WTF-8 not-ASCII (284 graphemes, 342 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
 
 
 --------------------------------------------------------------------------------
@@ -9021,19 +9021,19 @@ ooRexx> < include_conversion.rex
     -- End of file include_conversion.rex
     -------------------------------------
 ooRexx> call display_cache t
-'[01]'                              : WTF-8 not-ASCII (285 graphemes, 340 codepoints, 573 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
-'[02]'                              : WTF-8 not-ASCII (285 graphemes, 406 codepoints, 640 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
-'[04]'                              : WTF-8 not-ASCII (313 graphemes, 373 codepoints, 610 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
-'[08]'                              : WTF-8 not-ASCII (313 graphemes, 439 codepoints, 677 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
-'[10]'                              : WTF-8 not-ASCII (288 graphemes, 346 codepoints, 576 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
-(The UTF16BE_Encoding class)        : UTF-16BE (285 graphemes, 343 codepoints, 694 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The UTF16LE_Encoding class)        : UTF-16LE (285 graphemes, 343 codepoints, 694 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The UTF32BE_Encoding class)        : UTF-32BE (285 graphemes, 343 codepoints, 1372 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
-(The UTF32LE_Encoding class)        : UTF-32LE (285 graphemes, 343 codepoints, 1372 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The UTF8_Encoding class)           : UTF-8 not-ASCII (285 graphemes, 343 codepoints, 576 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
-(The Unicode32_Encoding class)      : Unicode32 (285 graphemes, 343 codepoints, 1372 bytes, 0 error)              '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The WTF16BE_Encoding class)        : WTF-16BE (285 graphemes, 343 codepoints, 694 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The WTF16LE_Encoding class)        : WTF-16LE (285 graphemes, 343 codepoints, 694 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+ 1                                  : WTF-8 not-ASCII (285 graphemes, 340 codepoints, 573 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+ 2                                  : WTF-8 not-ASCII (285 graphemes, 406 codepoints, 640 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+ 4                                  : WTF-8 not-ASCII (313 graphemes, 373 codepoints, 610 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+ 8                                  : WTF-8 not-ASCII (313 graphemes, 439 codepoints, 677 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+ 10                                 : WTF-8 not-ASCII (288 graphemes, 346 codepoints, 576 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'UTF-16BE'                          : UTF-16BE (285 graphemes, 343 codepoints, 694 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'UTF-16LE'                          : UTF-16LE (285 graphemes, 343 codepoints, 694 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'UTF-32BE'                          : UTF-32BE (285 graphemes, 343 codepoints, 1372 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
+'UTF-32LE'                          : UTF-32LE (285 graphemes, 343 codepoints, 1372 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'UTF-8'                             : UTF-8 not-ASCII (285 graphemes, 343 codepoints, 576 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'Unicode32'                         : Unicode32 (285 graphemes, 343 codepoints, 1372 bytes, 0 error)              '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'WTF-16BE'                          : WTF-16BE (285 graphemes, 343 codepoints, 694 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'WTF-16LE'                          : WTF-16LE (285 graphemes, 343 codepoints, 694 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
 
 
 --------------------------------------------------------------------------------
@@ -10838,14 +10838,14 @@ ooRexx> < include_conversion.rex
     -- End of file include_conversion.rex
     -------------------------------------
 ooRexx> call display_cache t
-(The UTF16LE_Encoding class)        : UTF-16LE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The UTF32BE_Encoding class)        : UTF-32BE (284 graphemes, 342 codepoints, 1368 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
-(The UTF32LE_Encoding class)        : UTF-32LE (284 graphemes, 342 codepoints, 1368 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The UTF8_Encoding class)           : UTF-8 not-ASCII (284 graphemes, 342 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
-(The Unicode32_Encoding class)      : Unicode32 (284 graphemes, 342 codepoints, 1368 bytes, 0 error)              '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The WTF16BE_Encoding class)        : WTF-16BE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The WTF16LE_Encoding class)        : WTF-16LE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The WTF8_Encoding class)           : WTF-8 not-ASCII (284 graphemes, 342 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'UTF-16LE'                          : UTF-16LE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'UTF-32BE'                          : UTF-32BE (284 graphemes, 342 codepoints, 1368 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
+'UTF-32LE'                          : UTF-32LE (284 graphemes, 342 codepoints, 1368 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'UTF-8'                             : UTF-8 not-ASCII (284 graphemes, 342 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'Unicode32'                         : Unicode32 (284 graphemes, 342 codepoints, 1368 bytes, 0 error)              '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'WTF-16BE'                          : WTF-16BE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'WTF-16LE'                          : WTF-16LE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'WTF-8'                             : WTF-8 not-ASCII (284 graphemes, 342 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
 
 
 --------------------------------------------------------------------------------
@@ -12614,14 +12614,14 @@ ooRexx> < include_conversion.rex
     -- End of file include_conversion.rex
     -------------------------------------
 ooRexx> call display_cache t
-(The UTF16BE_Encoding class)        : UTF-16BE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The UTF32BE_Encoding class)        : UTF-32BE (284 graphemes, 342 codepoints, 1368 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
-(The UTF32LE_Encoding class)        : UTF-32LE (284 graphemes, 342 codepoints, 1368 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The UTF8_Encoding class)           : UTF-8 not-ASCII (284 graphemes, 342 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
-(The Unicode32_Encoding class)      : Unicode32 (284 graphemes, 342 codepoints, 1368 bytes, 0 error)              '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The WTF16BE_Encoding class)        : WTF-16BE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The WTF16LE_Encoding class)        : WTF-16LE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The WTF8_Encoding class)           : WTF-8 not-ASCII (284 graphemes, 342 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'UTF-16BE'                          : UTF-16BE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'UTF-32BE'                          : UTF-32BE (284 graphemes, 342 codepoints, 1368 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
+'UTF-32LE'                          : UTF-32LE (284 graphemes, 342 codepoints, 1368 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'UTF-8'                             : UTF-8 not-ASCII (284 graphemes, 342 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'Unicode32'                         : Unicode32 (284 graphemes, 342 codepoints, 1368 bytes, 0 error)              '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'WTF-16BE'                          : WTF-16BE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'WTF-16LE'                          : WTF-16LE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'WTF-8'                             : WTF-8 not-ASCII (284 graphemes, 342 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
 
 
 --------------------------------------------------------------------------------
@@ -14427,14 +14427,14 @@ ooRexx> < include_conversion.rex
     -- End of file include_conversion.rex
     -------------------------------------
 ooRexx> call display_cache t
-(The UTF16LE_Encoding class)        : UTF-16LE (285 graphemes, 343 codepoints, 694 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The UTF32BE_Encoding class)        : UTF-32BE (285 graphemes, 343 codepoints, 1372 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
-(The UTF32LE_Encoding class)        : UTF-32LE (285 graphemes, 343 codepoints, 1372 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The UTF8_Encoding class)           : UTF-8 not-ASCII (285 graphemes, 343 codepoints, 576 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
-(The Unicode32_Encoding class)      : Unicode32 (285 graphemes, 343 codepoints, 1372 bytes, 0 error)              '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The WTF16BE_Encoding class)        : WTF-16BE (285 graphemes, 343 codepoints, 694 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The WTF16LE_Encoding class)        : WTF-16LE (285 graphemes, 343 codepoints, 694 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The WTF8_Encoding class)           : WTF-8 not-ASCII (285 graphemes, 343 codepoints, 576 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'UTF-16LE'                          : UTF-16LE (285 graphemes, 343 codepoints, 694 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'UTF-32BE'                          : UTF-32BE (285 graphemes, 343 codepoints, 1372 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
+'UTF-32LE'                          : UTF-32LE (285 graphemes, 343 codepoints, 1372 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'UTF-8'                             : UTF-8 not-ASCII (285 graphemes, 343 codepoints, 576 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'Unicode32'                         : Unicode32 (285 graphemes, 343 codepoints, 1372 bytes, 0 error)              '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'WTF-16BE'                          : WTF-16BE (285 graphemes, 343 codepoints, 694 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'WTF-16LE'                          : WTF-16LE (285 graphemes, 343 codepoints, 694 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'WTF-8'                             : WTF-8 not-ASCII (285 graphemes, 343 codepoints, 576 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
 
 
 --------------------------------------------------------------------------------
@@ -16204,14 +16204,14 @@ ooRexx> < include_conversion.rex
     -- End of file include_conversion.rex
     -------------------------------------
 ooRexx> call display_cache t
-(The UTF16BE_Encoding class)        : UTF-16BE (285 graphemes, 343 codepoints, 694 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The UTF32BE_Encoding class)        : UTF-32BE (285 graphemes, 343 codepoints, 1372 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
-(The UTF32LE_Encoding class)        : UTF-32LE (285 graphemes, 343 codepoints, 1372 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The UTF8_Encoding class)           : UTF-8 not-ASCII (285 graphemes, 343 codepoints, 576 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
-(The Unicode32_Encoding class)      : Unicode32 (285 graphemes, 343 codepoints, 1372 bytes, 0 error)              '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The WTF16BE_Encoding class)        : WTF-16BE (285 graphemes, 343 codepoints, 694 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The WTF16LE_Encoding class)        : WTF-16LE (285 graphemes, 343 codepoints, 694 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The WTF8_Encoding class)           : WTF-8 not-ASCII (285 graphemes, 343 codepoints, 576 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'UTF-16BE'                          : UTF-16BE (285 graphemes, 343 codepoints, 694 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'UTF-32BE'                          : UTF-32BE (285 graphemes, 343 codepoints, 1372 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
+'UTF-32LE'                          : UTF-32LE (285 graphemes, 343 codepoints, 1372 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'UTF-8'                             : UTF-8 not-ASCII (285 graphemes, 343 codepoints, 576 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'Unicode32'                         : Unicode32 (285 graphemes, 343 codepoints, 1372 bytes, 0 error)              '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'WTF-16BE'                          : WTF-16BE (285 graphemes, 343 codepoints, 694 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'WTF-16LE'                          : WTF-16LE (285 graphemes, 343 codepoints, 694 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'WTF-8'                             : WTF-8 not-ASCII (285 graphemes, 343 codepoints, 576 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
 
 
 --------------------------------------------------------------------------------
@@ -17996,14 +17996,14 @@ ooRexx> < include_conversion.rex
     -- End of file include_conversion.rex
     -------------------------------------
 ooRexx> call display_cache t
-(The UTF16BE_Encoding class)        : UTF-16BE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The UTF16LE_Encoding class)        : UTF-16LE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The UTF32LE_Encoding class)        : UTF-32LE (284 graphemes, 342 codepoints, 1368 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The UTF8_Encoding class)           : UTF-8 not-ASCII (284 graphemes, 342 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
-(The Unicode32_Encoding class)      : Unicode32 (284 graphemes, 342 codepoints, 1368 bytes, 0 error)              '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The WTF16BE_Encoding class)        : WTF-16BE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The WTF16LE_Encoding class)        : WTF-16LE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The WTF8_Encoding class)           : WTF-8 not-ASCII (284 graphemes, 342 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'UTF-16BE'                          : UTF-16BE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'UTF-16LE'                          : UTF-16LE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'UTF-32LE'                          : UTF-32LE (284 graphemes, 342 codepoints, 1368 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'UTF-8'                             : UTF-8 not-ASCII (284 graphemes, 342 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'Unicode32'                         : Unicode32 (284 graphemes, 342 codepoints, 1368 bytes, 0 error)              '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'WTF-16BE'                          : WTF-16BE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'WTF-16LE'                          : WTF-16LE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'WTF-8'                             : WTF-8 not-ASCII (284 graphemes, 342 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
 
 
 --------------------------------------------------------------------------------
@@ -19788,14 +19788,14 @@ ooRexx> < include_conversion.rex
     -- End of file include_conversion.rex
     -------------------------------------
 ooRexx> call display_cache t
-(The UTF16BE_Encoding class)        : UTF-16BE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The UTF16LE_Encoding class)        : UTF-16LE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The UTF32BE_Encoding class)        : UTF-32BE (284 graphemes, 342 codepoints, 1368 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
-(The UTF8_Encoding class)           : UTF-8 not-ASCII (284 graphemes, 342 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
-(The Unicode32_Encoding class)      : Unicode32 (284 graphemes, 342 codepoints, 1368 bytes, 0 error)              '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The WTF16BE_Encoding class)        : WTF-16BE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The WTF16LE_Encoding class)        : WTF-16LE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The WTF8_Encoding class)           : WTF-8 not-ASCII (284 graphemes, 342 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'UTF-16BE'                          : UTF-16BE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'UTF-16LE'                          : UTF-16LE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'UTF-32BE'                          : UTF-32BE (284 graphemes, 342 codepoints, 1368 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
+'UTF-8'                             : UTF-8 not-ASCII (284 graphemes, 342 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'Unicode32'                         : Unicode32 (284 graphemes, 342 codepoints, 1368 bytes, 0 error)              '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'WTF-16BE'                          : WTF-16BE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'WTF-16LE'                          : WTF-16LE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'WTF-8'                             : WTF-8 not-ASCII (284 graphemes, 342 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
 
 
 --------------------------------------------------------------------------------
@@ -21561,16 +21561,16 @@ ooRexx> < include_conversion.rex
     -- End of file include_conversion.rex
     -------------------------------------
 ooRexx> call display_cache t
-(The UTF16BE_Encoding class)        : UTF-16BE (256 graphemes, 256 codepoints, 512 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The UTF16LE_Encoding class)        : UTF-16LE (256 graphemes, 256 codepoints, 512 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The UTF32BE_Encoding class)        : UTF-32BE (256 graphemes, 256 codepoints, 1024 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
-(The UTF32LE_Encoding class)        : UTF-32LE (256 graphemes, 256 codepoints, 1024 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The UTF8_Encoding class)           : UTF-8 not-ASCII (256 graphemes, 256 codepoints, 384 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
-(The Unicode16_Encoding class)      : Unicode16 (256 graphemes, 256 codepoints, 512 bytes, 0 error)               '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The Unicode32_Encoding class)      : Unicode32 (256 graphemes, 256 codepoints, 1024 bytes, 0 error)              '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The WTF16BE_Encoding class)        : WTF-16BE (256 graphemes, 256 codepoints, 512 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The WTF16LE_Encoding class)        : WTF-16LE (256 graphemes, 256 codepoints, 512 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The WTF8_Encoding class)           : WTF-8 not-ASCII (256 graphemes, 256 codepoints, 384 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'UTF-16BE'                          : UTF-16BE (256 graphemes, 256 codepoints, 512 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'UTF-16LE'                          : UTF-16LE (256 graphemes, 256 codepoints, 512 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'UTF-32BE'                          : UTF-32BE (256 graphemes, 256 codepoints, 1024 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
+'UTF-32LE'                          : UTF-32LE (256 graphemes, 256 codepoints, 1024 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'UTF-8'                             : UTF-8 not-ASCII (256 graphemes, 256 codepoints, 384 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'Unicode16'                         : Unicode16 (256 graphemes, 256 codepoints, 512 bytes, 0 error)               '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'Unicode32'                         : Unicode32 (256 graphemes, 256 codepoints, 1024 bytes, 0 error)              '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'WTF-16BE'                          : WTF-16BE (256 graphemes, 256 codepoints, 512 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'WTF-16LE'                          : WTF-16LE (256 graphemes, 256 codepoints, 512 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'WTF-8'                             : WTF-8 not-ASCII (256 graphemes, 256 codepoints, 384 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
 
 
 --------------------------------------------------------------------------------
@@ -23352,15 +23352,15 @@ ooRexx> < include_conversion.rex
     -- End of file include_conversion.rex
     -------------------------------------
 ooRexx> call display_cache t
-(The UTF16BE_Encoding class)        : UTF-16BE (279 graphemes, 332 codepoints, 664 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The UTF16LE_Encoding class)        : UTF-16LE (279 graphemes, 332 codepoints, 664 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The UTF32BE_Encoding class)        : UTF-32BE (279 graphemes, 332 codepoints, 1328 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
-(The UTF32LE_Encoding class)        : UTF-32LE (279 graphemes, 332 codepoints, 1328 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The UTF8_Encoding class)           : UTF-8 not-ASCII (279 graphemes, 332 codepoints, 546 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
-(The Unicode32_Encoding class)      : Unicode32 (279 graphemes, 332 codepoints, 1328 bytes, 0 error)              '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The WTF16BE_Encoding class)        : WTF-16BE (279 graphemes, 332 codepoints, 664 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The WTF16LE_Encoding class)        : WTF-16LE (279 graphemes, 332 codepoints, 664 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The WTF8_Encoding class)           : WTF-8 not-ASCII (279 graphemes, 332 codepoints, 546 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'UTF-16BE'                          : UTF-16BE (279 graphemes, 332 codepoints, 664 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'UTF-16LE'                          : UTF-16LE (279 graphemes, 332 codepoints, 664 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'UTF-32BE'                          : UTF-32BE (279 graphemes, 332 codepoints, 1328 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
+'UTF-32LE'                          : UTF-32LE (279 graphemes, 332 codepoints, 1328 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'UTF-8'                             : UTF-8 not-ASCII (279 graphemes, 332 codepoints, 546 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'Unicode32'                         : Unicode32 (279 graphemes, 332 codepoints, 1328 bytes, 0 error)              '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'WTF-16BE'                          : WTF-16BE (279 graphemes, 332 codepoints, 664 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'WTF-16LE'                          : WTF-16LE (279 graphemes, 332 codepoints, 664 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'WTF-8'                             : WTF-8 not-ASCII (279 graphemes, 332 codepoints, 546 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
 
 
 --------------------------------------------------------------------------------
@@ -25152,11 +25152,11 @@ ooRexx> < include_conversion.rex
     -- End of file include_conversion.rex
     -------------------------------------
 ooRexx> call display_cache t
-(The UTF16BE_Encoding class)        : UTF-16BE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The UTF16LE_Encoding class)        : UTF-16LE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The UTF32BE_Encoding class)        : UTF-32BE (284 graphemes, 342 codepoints, 1368 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
-(The UTF32LE_Encoding class)        : UTF-32LE (284 graphemes, 342 codepoints, 1368 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
-(The UTF8_Encoding class)           : UTF-8 not-ASCII (284 graphemes, 342 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
-(The WTF16BE_Encoding class)        : WTF-16BE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
-(The WTF16LE_Encoding class)        : WTF-16LE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
-(The WTF8_Encoding class)           : WTF-8 not-ASCII (284 graphemes, 342 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'UTF-16BE'                          : UTF-16BE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'UTF-16LE'                          : UTF-16LE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'UTF-32BE'                          : UTF-32BE (284 graphemes, 342 codepoints, 1368 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
+'UTF-32LE'                          : UTF-32LE (284 graphemes, 342 codepoints, 1368 bytes, 0 error)               '[000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B0000000C 
+'UTF-8'                             : UTF-8 not-ASCII (284 graphemes, 342 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'WTF-16BE'                          : WTF-16BE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
+'WTF-16LE'                          : WTF-16LE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
+'WTF-8'                             : WTF-8 not-ASCII (284 graphemes, 342 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 

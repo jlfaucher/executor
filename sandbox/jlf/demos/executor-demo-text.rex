@@ -21,14 +21,18 @@ sleep 15 no prompt
 
 /*
 On my Mac, where locale returns :
-*/
-sleep
-"locale"
-sleep no prompt
+LANG=""
+LC_COLLATE="en_US.UTF-8"
+LC_CTYPE="en_US.UTF-8"
+LC_MESSAGES="en_US.UTF-8"
+LC_MONETARY="en_US.UTF-8"
+LC_NUMERIC="en_US.UTF-8"
+LC_TIME="en_US.UTF-8"
+LC_ALL="en_US.UTF-8"
 
-/*
 I get that under ooRexxShell :
 */
+sleep
 s1 = "é"
 s1=                                 -- 'é'
 sleep
@@ -57,7 +61,6 @@ s2~text~codepoints~count=           -- 2 codepoints
 s2~text~string~length=              -- 3 bytes
 */
 sleep
-
 .encoding~defaultEncoding = "utf8"
 s1~text~length=                     -- 1 grapheme
 sleep
