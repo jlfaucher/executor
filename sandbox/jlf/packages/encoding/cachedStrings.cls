@@ -3,44 +3,29 @@
 
 
 ::method init class
-    expose powerOfTwo keyCache
+    expose powerOfTwo
+    -- powerOfTwo[i] = 2 ** (i-1)
+    -- 2 **       0  1  2  3  4   5   6   7    8    9
     powerOfTwo = (1, 2, 4, 8, 16, 32, 64, 128, 256, 512)
-    keyCache = .array~new -- map an integer to an interned string which is usable as an index of an IdentityTable
     self~init:super
 
 
 ::method bitPosMask class
-    expose powerOfTwo keyCache
-    use strict arg bitPos -- range 0 to (array~size - 1)
+    expose powerOfTwo
+    use strict arg bitPos -- range 0 to (powerOfTwo~size - 1)
     dmask = powerOfTwo[bitpos + 1]
-    --return dmask~d2c
-    --/*
-    cmask = keyCache[dmask]
-    if .nil == cmask then do
-        cmask = dmask~d2c
-        keyCache[dmask] = cmask
-    end
-    return cmask
-    --*/
+    return dmask~d2x
 
 
 ::method bitFlagsMask class
     -- pre-condition:  each argument is 0 or not 0 or omitted
     -- post-condition: result = arg(1) + arg(2) * 2 + arg(3) * 4 + arg(4) * 8 ...
-    expose powerOfTwo keyCache
+    expose powerOfTwo
     dmask = 0
     do i=1 to arg()
         if arg(i, "e") then dmask += (arg(i) \== 0) * powerOfTwo[i] -- (2 ** (i - 1))
     end
-    --return dmask~d2c
-    --/*
-    cmask = keyCache[dmask]
-    if .nil == cmask then do
-        cmask = dmask~d2c
-        keyCache[dmask] = cmask
-    end
-    return cmask
-    --*/
+    return dmask~d2x
 
 
 /******************************************************************************/
@@ -67,8 +52,8 @@ Example of set of flags:
 ::method init
     expose stringsCache assignedBitFlags bitFlags
 
+    stringsCache = .Directory~new
     -- Usage: if the flag is set then val = flag else val = -1 (see bitFlag)
-    stringsCache = /*.Directory~new --*/ .IdentityTable~new
     assignedBitFlags = 0~d2c
     bitFlags = 0~d2c
     self~init:super
@@ -115,11 +100,11 @@ Example of set of flags:
 
 ::method getCachedString private
     expose stringsCache
-    use strict arg mask
-    return stringsCache~at(mask) -- .nil if not found
+    use strict arg key
+    return stringsCache~at(key) -- .nil if not found
 
 
 ::method cacheString private
     expose stringsCache
-    use strict arg mask, string
-    stringsCache~put(string, mask)
+    use strict arg key, string
+    stringsCache~put(string, key)

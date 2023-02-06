@@ -281,7 +281,7 @@
 
     targetEncoding = self
     if .nil \== text then do
-        cachedString = text~internalIndexer~getCachedString(targetEncoding)
+        cachedString = text~internalIndexer~getCachedString(targetEncoding~name)
         if .nil \== cachedString then do
             if .nil <> buffer then return targetEncoding~append(cachedString, :buffer)
                               else return cachedString~text
@@ -302,11 +302,11 @@
     convertedString = buffer~substr(bufferStart)
     -- It's a new string, without any encoding stored on it
     convertedString~encoding = targetEncoding
-    if memorize, .nil \== text then text~internalIndexer~cacheString(targetEncoding, convertedString)
+    if memorize, .nil \== text then text~internalIndexer~cacheString(targetEncoding~name, convertedString)
 
     if returnBuffer then return buffer
     convertedText = .RexxText~new(convertedString, targetEncoding)
-    if memorize then convertedText~internalIndexer~cacheString(string~encoding, string)
+    if memorize then convertedText~internalIndexer~cacheString(string~encoding~name, string)
     return convertedText
 
 
@@ -318,7 +318,7 @@
     if self~class~isUTF16BE then return self~string~text
 
     targetEncoding = .UTF16BE_Encoding
-    string = self~getCachedString(targetEncoding)
+    string = self~getCachedString(targetEncoding~name)
     if .nil \== string then return string~text
 
     -- yes, always a new string.
@@ -326,8 +326,8 @@
     -- and that forbids to assign a new RexxText.
     text = .RexxText~new(.String~new(self~string), targetEncoding)
     if memorize then do
-        self~cacheString(targetEncoding, text~string)
-        text~internalIndexer~cacheString(self~class, self~string)
+        self~cacheString(targetEncoding~name, text~string)
+        text~internalIndexer~cacheString(self~class~name, self~string)
     end
     return text
 
@@ -340,7 +340,7 @@
     if self~class~isWTF16BE then return self~string~text
 
     targetEncoding = .WTF16BE_Encoding
-    string = self~getCachedString(targetEncoding)
+    string = self~getCachedString(targetEncoding~name)
     if .nil \== string then return string~text
 
     -- yes, always a new string.
@@ -348,8 +348,8 @@
     -- and that forbids to assign a new RexxText.
     text = .RexxText~new(.String~new(self~string), targetEncoding)
     if memorize then do
-        self~cacheString(targetEncoding, text~string)
-        text~internalIndexer~cacheString(self~class, self~string)
+        self~cacheString(targetEncoding~name, text~string)
+        text~internalIndexer~cacheString(self~class~name, self~string)
     end
     return text
 
@@ -390,7 +390,7 @@
 
     targetEncoding = self
     if .nil \== text then do
-        cachedString = text~internalIndexer~getCachedString(targetEncoding)
+        cachedString = text~internalIndexer~getCachedString(targetEncoding~name)
         if .nil \== cachedString then do
             if .nil <> buffer then return targetEncoding~append(cachedString, :buffer)
                               else return cachedString~text
@@ -411,11 +411,11 @@
     convertedString = buffer~substr(bufferStart)
     -- It's a new string, without any encoding stored on it
     convertedString~encoding = targetEncoding
-    if memorize, .nil \== text then text~internalIndexer~cacheString(targetEncoding, convertedString)
+    if memorize, .nil \== text then text~internalIndexer~cacheString(targetEncoding~name, convertedString)
 
     if returnBuffer then return buffer
     convertedText = .RexxText~new(convertedString, targetEncoding)
-    if memorize then convertedText~internalIndexer~cacheString(string~encoding, string)
+    if memorize then convertedText~internalIndexer~cacheString(string~encoding~name, string)
     return convertedText
 
 
@@ -427,7 +427,7 @@
     if self~class~isUTF16LE then return self~string~text
 
     targetEncoding = .UTF16LE_Encoding
-    string = self~getCachedString(targetEncoding)
+    string = self~getCachedString(targetEncoding~name)
     if .nil \== string then return string~text
 
     -- yes, always a new string.
@@ -435,8 +435,8 @@
     -- and that forbids to assign a new RexxText.
     text = .RexxText~new(.String~new(self~string), targetEncoding)
     if memorize then do
-        self~cacheString(targetEncoding, text~string)
-        text~internalIndexer~cacheString(self~class, self~string)
+        self~cacheString(targetEncoding~name, text~string)
+        text~internalIndexer~cacheString(self~class~name, self~string)
     end
     return text
 
@@ -449,7 +449,7 @@
     if self~class~isWTF16LE then return self~string~text
 
     targetEncoding = .WTF16LE_Encoding
-    string = self~getCachedString(targetEncoding)
+    string = self~getCachedString(targetEncoding~name)
     if .nil \== string then return string~text
 
     -- yes, always a new string.
@@ -457,8 +457,8 @@
     -- and that forbids to assign a new RexxText.
     text = .RexxText~new(.String~new(self~string), targetEncoding)
     if memorize then do
-        self~cacheString(targetEncoding, text~string)
-        text~internalIndexer~cacheString(self~class, self~string)
+        self~cacheString(targetEncoding~name, text~string)
+        text~internalIndexer~cacheString(self~class~name, self~string)
     end
     return text
 

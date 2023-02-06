@@ -488,10 +488,7 @@ How other languages are supporting escape characters for Unicode:
 
 
 ::attribute isNFC get
-    -- This comment is repeated in many places, update all of them!
-    -- bit      9       8       7              6         5     4        3    2    1   0
-    -- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
-    bitFlag = self~bitFlag(0)
+    bitFlag = self~bitFlag(self~FLAG_NFC)
     if bitFlag \== -1 then return bitFlag
 
     /*
@@ -502,7 +499,7 @@ How other languages are supporting escape characters for Unicode:
     Careful! The sentence above is NOT talking about ISO-8859-1 (alias Latin-1 )
     */
     if self~maximumCodepoint \== -1, self~maximumCodepoint <= 255 then do
-        self~setBitFlag(0)
+        self~setBitFlag(self~FLAG_NFC)
         return .true
     end
 
@@ -513,16 +510,13 @@ How other languages are supporting escape characters for Unicode:
 
 
 ::attribute isNFD get
-    -- This comment is repeated in many places, update all of them!
-    -- bit      9       8       7              6         5     4        3    2    1   0
-    -- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
-    bitFlag = self~bitFlag(1)
+    bitFlag = self~bitFlag(self~FLAG_NFD)
     if bitFlag \== -1 then return bitFlag
 
     -- http://www.unicode.org/reports/tr15/#Implementation_Notes
     -- Text exclusively containing ASCII characters (U+0000..U+007F) is left unaffected by all of the Normalization Forms
     if self~string~isCompatibleWithASCII then do
-        self~setBitFlag(1)
+        self~setBitFlag(self~FLAG_NFD)
         return .true
     end
 
@@ -533,16 +527,13 @@ How other languages are supporting escape characters for Unicode:
 
 
 ::attribute isNFKC get
-    -- This comment is repeated in many places, update all of them!
-    -- bit      9       8       7              6         5     4        3    2    1   0
-    -- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
-    bitFlag = self~bitFlag(2)
+    bitFlag = self~bitFlag(self~FLAG_NFKC)
     if bitFlag \== -1 then return bitFlag
 
     -- http://www.unicode.org/reports/tr15/#Implementation_Notes
     -- Text exclusively containing ASCII characters (U+0000..U+007F) is left unaffected by all of the Normalization Forms
     if self~string~isCompatibleWithASCII then do
-        self~setBitFlag(2)
+        self~setBitFlag(self~FLAG_NFKC)
         return .true
     end
 
@@ -553,16 +544,13 @@ How other languages are supporting escape characters for Unicode:
 
 
 ::attribute isNFKD get
-    -- This comment is repeated in many places, update all of them!
-    -- bit      9       8       7              6         5     4        3    2    1   0
-    -- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
-    bitFlag = self~bitFlag(3)
+    bitFlag = self~bitFlag(self~FLAG_NFKD)
     if bitFlag \== -1 then return bitFlag
 
     -- http://www.unicode.org/reports/tr15/#Implementation_Notes
     -- Text exclusively containing ASCII characters (U+0000..U+007F) is left unaffected by all of the Normalization Forms
     if self~string~isCompatibleWithASCII then do
-        self~setBitFlag(3)
+        self~setBitFlag(self~FLAG_NFKD)
         return .true
     end
 
@@ -573,48 +561,30 @@ How other languages are supporting escape characters for Unicode:
 
 
 ::attribute isCasefold get
-    -- This comment is repeated in many places, update all of them!
-    -- bit      9       8       7              6         5     4        3    2    1   0
-    -- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
-    return self~bitFlag(4)
+    return self~bitFlag(self~FLAG_CASEFOLD)
 
 
 ::method casefold abstract
 
 
 ::attribute isLumped get
-    -- This comment is repeated in many places, update all of them!
-    -- bit      9       8       7              6         5     4        3    2    1   0
-    -- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
-    return self~bitFlag(5)
+    return self~bitFlag(self~FLAG_LUMP)
 
 
 ::attribute isMarkStripped get
-    -- This comment is repeated in many places, update all of them!
-    -- bit      9       8       7              6         5     4        3    2    1   0
-    -- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
-    return self~bitFlag(6)
+    return self~bitFlag(self~FLAG_STRIP_MARK)
 
 
 ::attribute isIgnorableStripped get
-    -- This comment is repeated in many places, update all of them!
-    -- bit      9       8       7              6         5     4        3    2    1   0
-    -- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
-    return self~bitFlag(7)
+    return self~bitFlag(self~FLAG_STRIP_IGNORABLE)
 
 
 ::attribute isCCStripped get
-    -- This comment is repeated in many places, update all of them!
-    -- bit      9       8       7              6         5     4        3    2    1   0
-    -- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
-    return self~bitFlag(8)
+    return self~bitFlag(self~FLAG_STRIP_CC)
 
 
 ::attribute isNAStripped get
-    -- This comment is repeated in many places, update all of them!
-    -- bit      9       8       7              6         5     4        3    2    1   0
-    -- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
-    return self~bitFlag(9)
+    return self~bitFlag(self~FLAG_STRIP_NA)
 
 
 /******************************************************************************/

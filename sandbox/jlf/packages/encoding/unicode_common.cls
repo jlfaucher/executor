@@ -186,7 +186,7 @@ Depends on
 
     string = .nil
     if self~class == targetEncoding then string = self~string
-    else string = self~getCachedString(targetEncoding)
+    else string = self~getCachedString(targetEncoding~name)
     if .nil \== string then do
         if .nil <> buffer then return targetEncoding~append(string, :buffer) -- buffer~~append(string)
                           else return string~text
@@ -211,11 +211,11 @@ Depends on
     string = buffer~substr(bufferStart)
     -- It's a new string, without any encoding stored on it
     string~encoding = targetEncoding
-    if memorize then self~cacheString(targetEncoding, string)
+    if memorize then self~cacheString(targetEncoding~name, string)
 
     if returnBuffer then return buffer
     text = .RexxText~new(string, targetEncoding)
-    if memorize then text~internalIndexer~cacheString(self~class, self~string)
+    if memorize then text~internalIndexer~cacheString(self~class~name, self~string)
     return text
 
 

@@ -390,7 +390,7 @@ Depends on
     if .nil <> buffer then return targetEncoding~append(self~string, :buffer) -- done? TODO is it correct? there is no check here. WTF8 converted to UTF8 could raise errors.
     if self~class~isUTF8 then return self~string~text
 
-    string = self~getCachedString(targetEncoding)
+    string = self~getCachedString(targetEncoding~name)
     if .nil \== string then return string~text
 
     -- yes, always a new string.
@@ -398,8 +398,8 @@ Depends on
     -- and that forbids to assign a new RexxText.
     text = .RexxText~new(.String~new(self~string), targetEncoding)
     if memorize then do
-        self~cacheString(targetEncoding, text~string)
-        text~internalIndexer~cacheString(self~class, self~string)
+        self~cacheString(targetEncoding~name, text~string)
+        text~internalIndexer~cacheString(self~class~name, self~string)
     end
     return text
 
@@ -412,7 +412,7 @@ Depends on
     if .nil <> buffer then return targetEncoding~append(self~string, :buffer) -- done? TODO is it correct?
     if self~class~isWTF8 then return self~string~text
 
-    string = self~getCachedString(targetEncoding)
+    string = self~getCachedString(targetEncoding~name)
     if .nil \== string then return string~text
 
     -- yes, always a new string.
@@ -420,8 +420,8 @@ Depends on
     -- and that forbids to assign a new RexxText.
     text = .RexxText~new(.String~new(self~string), targetEncoding)
     if memorize then do
-        self~cacheString(targetEncoding, text~string)
-        text~internalIndexer~cacheString(self~class, self~string)
+        self~cacheString(targetEncoding~name, text~string)
+        text~internalIndexer~cacheString(self~class~name, self~string)
     end
     return text
 
@@ -437,7 +437,7 @@ Depends on
         targetEncoding = .Unicode8_Encoding
         if .nil <> buffer then return targetEncoding~append(self~string, :buffer)
 
-        string = self~getCachedString(targetEncoding)
+        string = self~getCachedString(targetEncoding~name)
         if .nil \== string then return string~text
 
         -- yes, always a new string. The original string is still associated to the Byte_Encoding.
@@ -445,19 +445,28 @@ Depends on
         -- and that forbids to assign a new RexxText.
         text = .RexxText~new(.String~new(self~string), targetEncoding)
         if memorize then do
-            self~cacheString(targetEncoding, text~string)
-            text~internalIndexer~cacheString(self~class, self~string)
+            self~cacheString(targetEncoding~name, text~string)
+            text~internalIndexer~cacheString(self~class~name, self~string)
         end
         return text
     end
     forward class (super)
 
 
-::method transform
-    -- This comment is repeated in many places, update all of them!
-    -- bit      9       8       7              6         5     4        3    2    1   0
-    -- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
+-- bit      9       8       7              6         5     4        3    2    1   0
+-- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
+::constant FLAG_NFC 0
+::constant FLAG_NFD 1
+::constant FLAG_NFKC 2
+::constant FLAG_NFKD 3
+::constant FLAG_CASEFOLD 4
+::constant FLAG_LUMP 5
+::constant FLAG_STRIP_MARK 6
+::constant FLAG_STRIP_IGNORABLE 7
+::constant FLAG_STRIP_CC 8
+::constant FLAG_STRIP_NA 9
 
+::method transform
     use strict arg -- none
     use strict named arg normalization(4) = 1, casefold(4) = .false, lump= .false, stripMark = .false, stripIgnorable= .false, stripCC = .false, stripNA = .false, returnString = .false, memorize(3) = (.Unicode~memorizeTransformations)
 
@@ -479,6 +488,8 @@ Depends on
     else if normalization == 3 then self~isNFKC
     else if normalization == 4 then self~isNFKD
 
+    -- bit                      0                   1                   2                   3                   4         5     6          7               8        9
+    -- flag                     NFC                 NFD                 NFKC                NFKD                casefold  lump  stripMark  stripIgnorable  stripCC  stripNA
     mask = .BitKey~bitFlagsMask(normalization == 1, normalization == 2, normalization == 3, normalization == 4, casefold, lump, stripMark, stripIgnorable, stripCC, stripNA)
     string = self~getCachedString(mask)
     if .nil \== string then return string~makeRexxTextOrString(returnString) -- already memorized

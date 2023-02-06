@@ -211,6 +211,18 @@ Depends on
     return maximumUnicodeCodepoint
 
 
+/*
+Remember
+https://groups.io/g/rexxla-members/message/857
+-- Code for translating common national-language glyphs from 0850 to 1252 codepoints
+oubytes = 'c7fce9e2e4e0e5e7eaebe8efeeecc4c5c9e6c6f4f6f2fbf9ffd6dcf8a3d8d783e1edf3faf1d1aababfaeacbdbca1ab'x ,
+        ||'bbc1c2c0a9a2a5e3c3a4f0d0cacbc8cdcecfa6ccd3dfd4d2f5d5b5dadbd9fdddafb4adb1beb6a7f7b8b0a8b7b9b3b2'x
+inbytes = '808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadae'x ,
+        ||'afb5b6b7b8bdbec6c7cfd0d1d2d3d4d6d7d8dddee0e1e2e3e4e5e6e9eaebecedeeeff0f1f3f4f5f6f7f8f9fafbfcfd'x
+newline = translate(oldline,oubytes,inbytes)
+
+*/
+
 ::method convertByteToUnicode private
     use strict arg targetEncoding
     use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
@@ -218,7 +230,7 @@ Depends on
     tableTranscodingToUnicode = self~class~tableTranscodingToUnicode
     if .nil == tableTranscodingToUnicode then signal cannot_convert
 
-    string = self~getCachedString(targetEncoding)
+    string = self~getCachedString(targetEncoding~name)
     if .nil \== string then do
         if .nil <> buffer then return targetEncoding~append(string, :buffer)
                           else return string~text
@@ -248,11 +260,11 @@ Depends on
     string = buffer~substr(bufferStart)
     -- It's a new string, without any encoding stored on it
     string~encoding = targetEncoding
-    if memorize then self~cacheString(targetEncoding, string)
+    if memorize then self~cacheString(targetEncoding~name, string)
 
     if returnBuffer then return buffer
     text = .RexxText~new(string, targetEncoding)
-    if memorize then text~internalIndexer~cacheString(self~class, self~string)
+    if memorize then text~internalIndexer~cacheString(self~class~name, self~string)
     return text
 
     cannot_convert:          raise syntax 23.900 array(self~class~name "encoding: cannot convert" self~description(short: .true) "to" targetEncoding~name)
@@ -264,7 +276,7 @@ Depends on
     if self~string~isASCII then do
         if .nil <> buffer then return targetEncoding~append(self~string, :buffer)
 
-        string = self~getCachedString(targetEncoding)
+        string = self~getCachedString(targetEncoding~name)
         if .nil \== string then return string~text
 
         -- yes, always a new string. The original string is still associated to the Byte_Encoding.
@@ -272,8 +284,8 @@ Depends on
         -- and that forbids to assign a new RexxText.
         text = .RexxText~new(.String~new(self~string), targetEncoding)
         if memorize then do
-            self~cacheString(targetEncoding, text~string)
-            text~internalIndexer~cacheString(self~class, self~string)
+            self~cacheString(targetEncoding~name, text~string)
+            text~internalIndexer~cacheString(self~class~name, self~string)
         end
         return text
     end
@@ -288,7 +300,7 @@ Depends on
     if self~string~isASCII then do
         if .nil <> buffer then return targetEncoding~append(self~string, :buffer)
 
-        string = self~getCachedString(targetEncoding)
+        string = self~getCachedString(targetEncoding~name)
         if .nil \== string then return string~text
 
         -- yes, always a new string. The original string is still associated to the Byte_Encoding.
@@ -296,8 +308,8 @@ Depends on
         -- and that forbids to assign a new RexxText.
         text = .RexxText~new(.String~new(self~string), targetEncoding)
         if memorize then do
-            self~cacheString(targetEncoding, text~string)
-            text~internalIndexer~cacheString(self~class, self~string)
+            self~cacheString(targetEncoding~name, text~string)
+            text~internalIndexer~cacheString(self~class~name, self~string)
         end
         return text
     end
@@ -369,7 +381,7 @@ Depends on
     if self~string~isASCII then do
         if .nil <> buffer then return targetEncoding~append(self~string, :buffer)
 
-        string = self~getCachedString(targetEncoding)
+        string = self~getCachedString(targetEncoding~name)
         if .nil \== string then return string~text
 
         -- yes, always a new string. The original string is still associated to the Byte_Encoding.
@@ -377,8 +389,8 @@ Depends on
         -- and that forbids to assign a new RexxText.
         text = .RexxText~new(.String~new(self~string), targetEncoding)
         if memorize then do
-            self~cacheString(targetEncoding, text~string)
-            text~internalIndexer~cacheString(self~class, self~string)
+            self~cacheString(targetEncoding~name, text~string)
+            text~internalIndexer~cacheString(self~class~name, self~string)
         end
         return text
     end
