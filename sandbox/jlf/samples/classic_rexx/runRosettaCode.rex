@@ -21,8 +21,6 @@ REMEMBER : Under MacOs, I did not find how to execute regina from rexx or regina
            So no need to use the executable 'regina'.
 */
 
-path="Lang/REXX/"
-
 parse version version
 say "Your REXX interpreter is" version
 
@@ -263,22 +261,43 @@ if action = "-list" then do
     return
 end
 
-say separator
-say "["indexSolution"]" solution
-say separator
+path="Lang/REXX/"
+rexxFile = solution
 
 /* Under Windows, the symbolic links are not supported.
    Git creates ordinary text files which contain the relative path.
    Something like that:
    ../../Task/9-billion-names-of-God-the-integer/REXX */
-if "" == stream(path || solution, "c", "query exists") then do
-    /* Solution not found, maybe the directory is a text file containing the relative path */
+if "" == stream(path || rexxFile, "c", "query exists") then do
+    /* Rexx file not found, maybe the directory is a text file containing the relative path */
     parse var solution directory "/" file
     symbolicLink = path || directory
     relativePath = linein(symbolicLink)
     call stream symbolicLink, "c", "close"
-    solution = relativePath"/"file
+    rexxFile = relativePath"/"file
 end
+
+-- Under Windows running in a VM, and accessing a mounted network drive,
+-- the symbolic links are converted on the fly to .lnk files.
+-- The previous workaround is not working, must use another workaround...
+if "" == stream(path || rexxFile, "c", "query exists") then do
+    -- Workaround: build the relative path from Task.
+    parse var solution directory "/" file
+    path = "Task/"directory"/REXX/"
+    rexxFile = file
+end
+
+if "" == stream(path || rexxFile, "c", "query exists") then do
+    -- Still not found
+    runKo.0 += 1
+    index = runKo.0
+    runKo.index = right(indexSolution, 4) ";" 0 ";" "NOT FOUND" ";" solution
+    return
+end
+
+say separator
+say "["indexSolution"]" solution
+say separator
 
 if args == "stdin" then do
     file = ""                                           /* In case SysTempFileName not loaded */
@@ -291,14 +310,14 @@ if args == "stdin" then do
     call stream file, "c", "close"
 
     call time "reset"
-    display file "|" rexxExecutable utf8option path || solution
+    display file "|" rexxExecutable utf8option path || rexxFile
     solution_RC = RC
     duration = time("elapsed")
     delete file
 end
 else do
     call time "reset"
-    rexxExecutable utf8option path || solution escape(args)
+    rexxExecutable utf8option path || rexxFile escape(args)
     solution_RC = RC
     duration = time("elapsed")
 end
