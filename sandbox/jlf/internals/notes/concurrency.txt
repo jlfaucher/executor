@@ -1,5 +1,21 @@
 ===============================================================================
 
+https://tenthousandmeters.com/blog/python-behind-the-scenes-13-the-gil-and-its-effects-on-python-multithreading/
+Python behind the scenes #13: the GIL and its effects on Python multithreading
+---
+Experience report: Larry Hastings' Gilectomy project started in 2016.
+---
+there is an initiative to introduce multiple GILs to CPython. It's called subinterpreters.
+The idea is to have multiple interpreters within the same process.
+Threads within one interpreter still share the GIL, but multiple interpreters can run parallel.
+No GIL is needed to synchronize interpreters because they have no common global state
+and do not share Python objects. All global state is made per-interpreter,
+and interpreters communicate via message passing only. The ultimate goal is to
+introduce to Python a concurrency model based on communicating sequential
+processes found in languages like Go and Clojure.
+
+===============================================================================
+
 https://github.com/llvm/llvm-project/blob/main/llvm/docs/Atomics.rst
 
 ===================================================================================
