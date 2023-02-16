@@ -54,7 +54,7 @@
                     idntfr = string~substr(first, length)
                     startWithDigit = idntfr~left(1)~datatype("9")
                     character = .Unicode~character(idntfr, hexadecimal: startWithDigit)
-                    character~text(self~class, :buffer)
+                    character~text(self~encoding, :buffer)
                 end
 
                 else if character == "u" then do
@@ -64,7 +64,7 @@
                     if codepoint~length < 4 then signal expecting_4_hexadecimal_digits
                     if \codepoint~datatype("X") then signal expecting_4_hexadecimal_digits
                     character = .Unicode~character(codepoint, hexadecimal: .true)
-                    character~text(self~class, :buffer)
+                    character~text(self~encoding, :buffer)
                     pos += 4
                 end
 
@@ -75,7 +75,7 @@
                     if codepoint~length < 8 then signal expecting_8_hexadecimal_digits
                     if \codepoint~datatype("X") then signal expecting_8_hexadecimal_digits
                     character = .Unicode~character(codepoint, hexadecimal: .true)
-                    character~text(self~class, :buffer)
+                    character~text(self~encoding, :buffer)
                     pos += 8
                 end
 
@@ -104,14 +104,14 @@
     buffer~append(string~substr(from))
 
     if returnBuffer then return buffer
-                    else return .RexxText~new(buffer~string, self~class)
+                    else return .RexxText~new(buffer~string, self~encoding)
 
-    unicode_character_not_supported:                  raise syntax 23.900 array(self~class~name "encoding: \"character" not supported")
-    expecting_name_or_sequence_of_hexadecimal_digits: raise syntax 23.900 array(self~class~name "encoding: expecting a character name {name} or 1..8 hexadecimal digits {X..X} after \u")
-    expecting_4_hexadecimal_digits:                   raise syntax 23.900 array(self~class~name "encoding: expecting 4 hexadecimal digits after \u, got '"codepoint"'")
-    expecting_8_hexadecimal_digits:                   raise syntax 23.900 array(self~class~name "encoding: expecting 8 hexadecimal digits after \U, got '"codepoint"'")
-    expecting_sequence_of_hexadecimal_digits:         raise syntax 23.900 array(self~class~name "encoding: expecting 1..n hexadecimal digits {X..X} after \x")
-    unsupported_escape_character:                     raise syntax 23.900 array(self~class~name "encoding: escape character '"character"' not supported")
+    unicode_character_not_supported:                  raise syntax 23.900 array(self~encoding~name "encoding: \"character" not supported")
+    expecting_name_or_sequence_of_hexadecimal_digits: raise syntax 23.900 array(self~encoding~name "encoding: expecting a character name {name} or 1..8 hexadecimal digits {X..X} after \u")
+    expecting_4_hexadecimal_digits:                   raise syntax 23.900 array(self~encoding~name "encoding: expecting 4 hexadecimal digits after \u, got '"codepoint"'")
+    expecting_8_hexadecimal_digits:                   raise syntax 23.900 array(self~encoding~name "encoding: expecting 8 hexadecimal digits after \U, got '"codepoint"'")
+    expecting_sequence_of_hexadecimal_digits:         raise syntax 23.900 array(self~encoding~name "encoding: expecting 1..n hexadecimal digits {X..X} after \x")
+    unsupported_escape_character:                     raise syntax 23.900 array(self~encoding~name "encoding: escape character '"character"' not supported")
 
 
 /******************************************************************************/

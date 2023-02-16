@@ -364,7 +364,7 @@ without requesting a string from the buffer
     -- Optimization by redundance (pure attributes are 3 to 4 times faster than methods just exposing and returning the value)
     string = indexer~string
     text = self
-    encoding = indexer~class
+    encoding = indexer~encoding
 
     -- store itself as counterpart of string
     string~text = self
@@ -432,19 +432,19 @@ Allows to use a String or a RexxText indistinctly
 /*
     expose indexer
     use strict arg -- none
-    return indexer~class
+    return indexer~encoding
 */
 
 ::attribute encoding set
     expose indexer /* rest is optim */ string text encoding
     use strict arg newEncoding
     newEncoding = .Encoding~factory(newEncoding, indexer~string)
-    if indexer~class <> newEncoding then do
+    if indexer~encoding <> newEncoding then do
         indexer = newEncoding~analyze(indexer~string)
         -- Optimization by redundance (pure attributes are 3 to 4 times faster than methods just exposing and returning the value)
         string = indexer~string
         text = self
-        encoding = indexer~class
+        encoding = indexer~encoding
     end
 
 
@@ -461,7 +461,7 @@ Allows to use a String or a RexxText indistinctly
     -- Optimization by redundance (pure attributes are 3 to 4 times faster than methods just exposing and returning the value)
     selfCopy~string = indexerCopy~string
     selfCopy~text = selfCopy
-    selfCopy~encoding = indexerCopy~class
+    selfCopy~encoding = indexerCopy~encoding
 
     stringCopy = indexerCopy~string -- this string copy is not yet linked to the RexxText copy
     stringCopy~text = selfCopy -- from now, the string copy is linked to its RexxText counterpart
@@ -936,13 +936,13 @@ stringChunks
 
 
 ::method caselessPos
-    use arg needle, ... -- not strict, just need to check 'other'
-    if self~isCompatibleWithByteString, other~isCompatibleWithByteString then forward to (self~string)
+    use arg needle, ... -- not strict, just need to check 'needle'
+    if self~isCompatibleWithByteString, needle~isCompatibleWithByteString then forward to (self~string)
     forward to (self~indexer)
 
 
 ::method caselessStartsWith
-    use arg other -- not strict, just need to check this one
+    use arg other -- not strict, just need to check 'other'
     if self~isCompatibleWithByteString, other~isCompatibleWithByteString then do
         forward message "caselessPos" to (self~string) continue
         return result == 1
@@ -979,7 +979,7 @@ stringChunks
 
 ::method contains
     -- regex.cls uses the method .String~contains which is available only from ooRexx v5.
-    use arg other -- not strict, just need to check this one
+    use arg other -- not strict, just need to check 'other'
     if self~isCompatibleWithByteString, other~isCompatibleWithByteString then do
         forward message "pos" to (self~string) continue
         return result \== 0
@@ -996,7 +996,7 @@ stringChunks
 
 
 ::method endsWith
-    use arg other -- not strict, just need to check this one
+    use arg other -- not strict, just need to check 'other'
     if self~isCompatibleWithByteString, other~isCompatibleWithByteString then do
         forward message "endsWith" to (self~string) continue
         return result <> 0

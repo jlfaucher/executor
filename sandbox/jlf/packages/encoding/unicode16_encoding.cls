@@ -177,7 +177,7 @@
     startB = self~codepointIndex(indexC)
     if .nil == self~codepointIndexes, self~codepointCount == self~string~length then do
         -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last codepoint can be 4 bytes.
-        if decode then return self~class~decode(self~string, startB, 2)
+        if decode then return self~encoding~decode(self~string, startB, 2)
                   else return self~string~substr(startB, 2)
     end
     nextB = self~codepointIndex(indexC+1)
@@ -185,7 +185,7 @@
     absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
     if decode then do
         if startB < 0 then return .Unicode~replacementCharacter~codepoint -- the current byte sequence is invalid
-        return self~class~decode(self~string, absStartB, absNextB - absStartB)
+        return self~encoding~decode(self~string, absStartB, absNextB - absStartB)
     end
     return self~string~substr(absStartB, absNextB - absStartB) -- yes, always the current byte sequence, even if invalid
 
@@ -210,10 +210,10 @@
     if .nil == self~graphemeIndexes, self~graphemeCount == self~string~length then do
         -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last grapheme can be more than one codepoint
         if .nil <> buffer then return buffer~~append(self~string~substr(startB, 2))
-                          else return .RexxText~new(self~string~substr(startB, 2), self~class)
+                          else return .RexxText~new(self~string~substr(startB, 2), self~encoding)
     end
     nextB = self~graphemeIndex(indexG+1)
     absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
     absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
     if .nil <> buffer then return buffer~~append(self~string~substr(absStartB, absNextB - absStartB))
-                      else return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~class) -- yes, always the current byte sequence, even if invalid
+                      else return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~encoding) -- yes, always the current byte sequence, even if invalid

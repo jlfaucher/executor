@@ -16,6 +16,14 @@
 ::constant isUTF8 1
 ::constant BOM "EF BB BF"x
 
+/*
+Remember
++         if skipBOM? = .true
++         then do
++            prolog = self~charin(,3)
++            if prolog \= 'EFBBBF'x then self~seek('=1')
++         end /* DO */
+*/
 
 ::method checkCodepoint class
     -- Remember : previousCodepoint can be .nil (first codepoint) or <0 (error recovery)

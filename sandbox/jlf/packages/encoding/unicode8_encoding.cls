@@ -130,10 +130,10 @@
     if .nil == self~graphemeIndexes, self~graphemeCount == self~string~length then do
         -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last grapheme can be more than one codepoint.
         if .nil <> buffer then return buffer~~append(self~string~subchar(indexG))
-                          else return .RexxText~new(self~string~subchar(indexG), self~class)
+                          else return .RexxText~new(self~string~subchar(indexG), self~encoding)
     end
     nextB = self~graphemeIndex(indexG+1)
     absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
     absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
     if .nil <> buffer then return buffer~~append(self~string~substr(absStartB, absNextB - absStartB))
-                      else return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~class) -- yes, always the current byte sequence, even if invalid
+                      else return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~encoding) -- yes, always the current byte sequence, even if invalid

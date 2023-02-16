@@ -187,7 +187,7 @@ Depends on
     use strict named arg buffer(1)=.nil
     startB = abs(self~graphemeIndex(indexG))
     if .nil <> buffer then return buffer~~append(self~string~subchar(startB))
-                      else return .RexxText~new(self~string~subchar(startB), self~class)
+                      else return .RexxText~new(self~string~subchar(startB), self~encoding)
 
 
 ::method maximumUnicodeCodepoint private
@@ -197,7 +197,7 @@ Depends on
     use strict arg -- none
     if var("maximumUnicodeCodepoint") then return maximumUnicodeCodepoint
     maximumUnicodeCodepoint = 0
-    tableTranscodingToUnicode = self~class~tableTranscodingToUnicode
+    tableTranscodingToUnicode = self~encoding~tableTranscodingToUnicode
     if .nil <> tableTranscodingToUnicode then do
         sizeC = self~codepointCount -- size in codepoints
         do i=1 to sizeC
@@ -227,7 +227,7 @@ newline = translate(oldline,oubytes,inbytes)
     use strict arg targetEncoding
     use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
 
-    tableTranscodingToUnicode = self~class~tableTranscodingToUnicode
+    tableTranscodingToUnicode = self~encoding~tableTranscodingToUnicode
     if .nil == tableTranscodingToUnicode then signal cannot_convert
 
     string = self~getCachedString(targetEncoding~name)
@@ -264,10 +264,10 @@ newline = translate(oldline,oubytes,inbytes)
 
     if returnBuffer then return buffer
     text = .RexxText~new(string, targetEncoding)
-    if memorize then text~internalIndexer~cacheString(self~class~name, self~string)
+    if memorize then text~internalIndexer~cacheString(self~encoding~name, self~string)
     return text
 
-    cannot_convert:          raise syntax 23.900 array(self~class~name "encoding: cannot convert" self~description(short: .true) "to" targetEncoding~name)
+    cannot_convert:          raise syntax 23.900 array(self~encoding~name "encoding: cannot convert" self~description(short: .true) "to" targetEncoding~name)
 
 
 ::method UTF8
@@ -285,7 +285,7 @@ newline = translate(oldline,oubytes,inbytes)
         text = .RexxText~new(.String~new(self~string), targetEncoding)
         if memorize then do
             self~cacheString(targetEncoding~name, text~string)
-            text~internalIndexer~cacheString(self~class~name, self~string)
+            text~internalIndexer~cacheString(self~encoding~name, self~string)
         end
         return text
     end
@@ -309,7 +309,7 @@ newline = translate(oldline,oubytes,inbytes)
         text = .RexxText~new(.String~new(self~string), targetEncoding)
         if memorize then do
             self~cacheString(targetEncoding~name, text~string)
-            text~internalIndexer~cacheString(self~class~name, self~string)
+            text~internalIndexer~cacheString(self~encoding~name, self~string)
         end
         return text
     end
@@ -390,7 +390,7 @@ newline = translate(oldline,oubytes,inbytes)
         text = .RexxText~new(.String~new(self~string), targetEncoding)
         if memorize then do
             self~cacheString(targetEncoding~name, text~string)
-            text~internalIndexer~cacheString(self~class~name, self~string)
+            text~internalIndexer~cacheString(self~encoding~name, self~string)
         end
         return text
     end

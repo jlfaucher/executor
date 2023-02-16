@@ -61,7 +61,7 @@
     endB = abs(self~graphemeIndex(endC+1))
 
     string = self~string
-    encoding = self~class
+    encoding = self~encoding
     returnBuffer = .nil <> buffer
 
     -- Initialize the left not-impacted section
@@ -222,7 +222,7 @@
 
 
 ::method center
-    use strict arg length, pad=(self~class~spaceCharacter)
+    use strict arg length, pad=(self~encoding~spaceCharacter)
     use strict named arg buffer(1)=.nil
 
     if \datatype(length, "w") then signal invalid_length
@@ -237,12 +237,12 @@
 
     if witdh == len then do
         if .nil <> buffer then return buffer~~append(self~string)
-                          else return .RexxText~new(self~string, self~class)
+                          else return .RexxText~new(self~string, self~encoding)
     end
 
     if width == 0 then do
         if .nil <> buffer then return buffer -- unchanged because result of center is ""
-                          else return self~class~emptyString
+                          else return self~encoding~emptyString
     end
 
     if width > len then do
@@ -313,11 +313,11 @@
         self~grapheme(indexG, :buffer)
     end
     if returnBuffer then return buffer
-                    else return .RexxText~new(buffer~string, self~class)
+                    else return .RexxText~new(buffer~string, self~encoding)
 
 
 ::method right
-    use strict arg length, pad=(self~class~spaceCharacter)
+    use strict arg length, pad=(self~encoding~spaceCharacter)
     use strict named arg buffer(1)=.nil
 
     if \datatype(length, "w") then signal invalid_length
@@ -339,7 +339,7 @@
     right = self~string~right(endB - startB)
     if lengthPad == 0 then do
         if .nil <> buffer then return buffer~~append(right)
-                          else return .RexxText~new(right, self~class)
+                          else return .RexxText~new(right, self~encoding)
     end
     if .nil <> buffer then do
         -- can't use encoding~concatenate for pad because pad~copies appends directly to the buffer
@@ -356,7 +356,7 @@
 
 
 ::method substr
-    use strict arg startC, length=(max(0, self~length - startC + 1)), pad=(self~class~spaceCharacter)
+    use strict arg startC, length=(max(0, self~length - startC + 1)), pad=(self~encoding~spaceCharacter)
     use strict named arg buffer(1)=.nil
 
     if \datatype(startC, "w") then signal invalid_position
@@ -381,7 +381,7 @@
     substr = self~string~substr(startB, endB - startB)
     if lengthPad == 0 then do
         if .nil <> buffer then return buffer~~append(substr)
-                          else return .RexxText~new(substr, self~class)
+                          else return .RexxText~new(substr, self~encoding)
     end
     if .nil <> buffer then do
         encoding~concatenate(substr, :buffer)

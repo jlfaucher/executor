@@ -185,7 +185,7 @@ Depends on
     use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1) = .nil
 
     string = .nil
-    if self~class == targetEncoding then string = self~string
+    if self~encoding == targetEncoding then string = self~string
     else string = self~getCachedString(targetEncoding~name)
     if .nil \== string then do
         if .nil <> buffer then return targetEncoding~append(string, :buffer) -- buffer~~append(string)
@@ -193,8 +193,8 @@ Depends on
     end
 
 /*
-    if self~class == targetEncoding then do
-        if .nil <> buffer then return self~class~concatenate(self~string, buffer) -- buffer~~append(self~string)
+    if self~encoding == targetEncoding then do
+        if .nil <> buffer then return self~encoding~concatenate(self~string, buffer) -- buffer~~append(self~string)
                           else return self~string~text
     end
 */
@@ -215,7 +215,7 @@ Depends on
 
     if returnBuffer then return buffer
     text = .RexxText~new(string, targetEncoding)
-    if memorize then text~internalIndexer~cacheString(self~class~name, self~string)
+    if memorize then text~internalIndexer~cacheString(self~encoding~name, self~string)
     return text
 
 

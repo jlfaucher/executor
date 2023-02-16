@@ -348,7 +348,7 @@ Depends on
     absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
     if decode then do
         if startB < 0 then return .Unicode~replacementCharacter~codepoint -- the current byte sequence is invalid
-        return self~class~decode(self~string, absStartB, absNextB - absStartB)
+        return self~encoding~decode(self~string, absStartB, absNextB - absStartB)
     end
     return self~string~substr(absStartB, absNextB - absStartB) -- yes, always the current byte sequence, even if invalid
 
@@ -372,14 +372,14 @@ Depends on
     if .nil == self~graphemeIndexes, self~graphemeCount == self~string~length then do
         -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last grapheme can be more than one codepoint.
         if .nil <> buffer then return buffer~~append(self~string~subchar(indexG))
-                          else return .RexxText~new(self~string~subchar(indexG), self~class)
+                          else return .RexxText~new(self~string~subchar(indexG), self~encoding)
     end
     startB = self~graphemeIndex(indexG)
     nextB = self~graphemeIndex(indexG+1)
     absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
     absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
     if .nil <> buffer then return buffer~~append(self~string~substr(absStartB, absNextB - absStartB))
-                      else return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~class) -- yes, always the current byte sequence, even if invalid
+                      else return .RexxText~new(self~string~substr(absStartB, absNextB - absStartB), self~encoding) -- yes, always the current byte sequence, even if invalid
 
 
 ::method UTF8
@@ -388,7 +388,7 @@ Depends on
 
     targetEncoding = .UTF8_Encoding
     if .nil <> buffer then return targetEncoding~append(self~string, :buffer) -- done? TODO is it correct? there is no check here. WTF8 converted to UTF8 could raise errors.
-    if self~class~isUTF8 then return self~string~text
+    if self~encoding~isUTF8 then return self~string~text
 
     string = self~getCachedString(targetEncoding~name)
     if .nil \== string then return string~text
@@ -399,7 +399,7 @@ Depends on
     text = .RexxText~new(.String~new(self~string), targetEncoding)
     if memorize then do
         self~cacheString(targetEncoding~name, text~string)
-        text~internalIndexer~cacheString(self~class~name, self~string)
+        text~internalIndexer~cacheString(self~encoding~name, self~string)
     end
     return text
 
@@ -410,7 +410,7 @@ Depends on
 
     targetEncoding = .WTF8_Encoding
     if .nil <> buffer then return targetEncoding~append(self~string, :buffer) -- done? TODO is it correct?
-    if self~class~isWTF8 then return self~string~text
+    if self~encoding~isWTF8 then return self~string~text
 
     string = self~getCachedString(targetEncoding~name)
     if .nil \== string then return string~text
@@ -421,7 +421,7 @@ Depends on
     text = .RexxText~new(.String~new(self~string), targetEncoding)
     if memorize then do
         self~cacheString(targetEncoding~name, text~string)
-        text~internalIndexer~cacheString(self~class~name, self~string)
+        text~internalIndexer~cacheString(self~encoding~name, self~string)
     end
     return text
 
@@ -429,8 +429,8 @@ Depends on
 ::method Unicode
     use strict arg -- none
     use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    if self~class~isUnicodeN then do
-        if .nil <> buffer then return self~class~append(self~string, :buffer)
+    if self~encoding~isUnicodeN then do
+        if .nil <> buffer then return self~encoding~append(self~string, :buffer)
                           else return self~string~text
     end
     if self~string~isASCII then do
@@ -446,7 +446,7 @@ Depends on
         text = .RexxText~new(.String~new(self~string), targetEncoding)
         if memorize then do
             self~cacheString(targetEncoding~name, text~string)
-            text~internalIndexer~cacheString(self~class~name, self~string)
+            text~internalIndexer~cacheString(self~encoding~name, self~string)
         end
         return text
     end
@@ -502,10 +502,10 @@ Depends on
         else nop -- CAREFUL! don't store 0 (keep -1) because maybe one of the indicators could be 1
         if returnString then do
             -- It's a new string, without any encoding stored on it
-            string~encoding = self~class
+            string~encoding = self~encoding
         end
         else do
-            text = .RexxText~new(string, self~class)
+            text = .RexxText~new(string, self~encoding)
             text~internalIndexer~setBitFlags(mask)
             -- Remember: string is automatically linked to text so the final makeRexxTextOrString will return this text
         end

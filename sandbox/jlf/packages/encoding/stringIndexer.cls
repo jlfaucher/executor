@@ -283,6 +283,10 @@ For example, if startB==6 then previousCodepointIndex==3
     return clone
 
 
+::method encoding
+    return self~class
+
+
 ::method description
     /*
     "noël👩‍👨‍👩‍👧🎅"~text~description(s:1)          -- 'UTF-8 not-ASCII'
@@ -312,7 +316,7 @@ For example, if startB==6 then previousCodepointIndex==3
                                       self~string~length~singularPluralCount("byte", "bytes")",",
                                       errorCount~singularPluralCount("error", "errors"),
                                       || ")"
-    return " "~join(self~class~description(self~string~isASCII), sizesDescription)
+    return " "~join(self~encoding~description(self~string~isASCII), sizesDescription)
 
 
 ::method descriptionForError
