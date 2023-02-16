@@ -23,6 +23,10 @@ https://github.com/briansmith/ring/issues/1551
 https://github.com/briansmith/ring/pull/1554
 Enable Windows on ARM builds for 0.16.x
 
+https://github.com/rust-lang/rustup/issues/2612
+aarch64 windows
+See the last comments... Rings is blocking and seems to be hardly maintained...
+
 In the meantime, I deactivate the use of ICU4X in the build of Executor for Windows ARM..
 
 
