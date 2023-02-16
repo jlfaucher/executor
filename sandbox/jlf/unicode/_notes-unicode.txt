@@ -19,6 +19,10 @@ https://www.unicode.org/Public/MAPPINGS                         (ISO8859)
     the ISO/IEC 8859 standard.
 
 
+https://www.unicode.org/reports/
+Unicode® Technical Reports
+
+
 UNICODE COLLATION ALGORITHM
 Unicode has an official string collation algorithm called UCA
 http://unicode.org/reports/tr10/
@@ -280,6 +284,24 @@ for a wide variety of languages, using the Universal Declaration of Human Rights
 
 https://github.com/jagracey/Awesome-Unicode
 Awesome Unicode
+
+
+https://cldr.unicode.org/index/charts
+CLDR Charts
+By-Type Chart: Numbers:Symbols
+Question
+    I am using the following code excerpt to format numbers:
+        LocalizedNumberFormatter lnFmt = NumberFormatter.withLocale(Locale.US).unit(MeasureUnit.CELSIUS).unitWidth(NumberFormatter.UnitWidth.SHORT);
+        System.out.println(lnFmt.format(-10).toString());
+    In the resulting string, minus sign is represented as 0x2d (ASCII HYPHEN-MINUS).
+    Shouldn't it be U+2212 (Unicode MINUS SIGN)?
+Answer
+    You can see the minus sign symbol being used for each locale here:
+    https://unicode-org.github.io/cldr-staging/charts/latest/by_type/numbers.symbols.html#2f08b5ebf85e1e8b
+    U+2212 is used in: ·fa· ·ps· ·uz_Arab· ·eo· ·et· ·eu· ·fi· ·fo· ·gsw· ·hr· ·kl· ·ksh· ·lt· ·nn· ·no· ·rm· ·se· ·sl· ·sv·
+Question
+    Where this list of locales was taken from?
+    I am particulary interested in ‘ru’: why U+2212 is not used for it?
 
 
 ================================================================================
@@ -2311,6 +2333,64 @@ so the primary interface must be highly functional and encoding neutral.
 
 
 ================================================================================
+Dart lang
+================================================================================
+
+Dart SDK uses ICU4X?
+jlf: to investigate...
+---
+On Fuchsia, the Dart SDK uses createTimeZone() with metazone names obtained from the OS (usage site).
+ICU4X currently only supports this stuff with BCP-47 ids. We should have a way to go from metazone names to BCP-47 ids.
+I suspect this is already part of the plan but I'm not sure if there's a specific issue filed (@nordzilla?)
+---
+In the link you posted, it shows "America/New_York", which is an IANA time zone name, not a metazone name.
+Did you mean to ask about IANA-to-BCP47 mapping? That would be #2909
+
+
+https://github.com/dart-lang/sdk/blob/main/sdk/lib/core/string.dart
+https://github.com/dart-lang/sdk/blob/e995cb5f7cd67d39c1ee4bdbe95c8241db36725f/pkg/analyzer/lib/source/source_range.dart
+
+https://github.com/dart-lang/
+https://github.com/dart-lang/language
+https://github.com/dart-lang/sdk
+
+https://dart.dev/guides/language/language-tour#strings
+A Dart string (String object) holds a sequence of UTF-16 code units.
+
+
+https://dart.dev/guides/language/language-tour#runes-and-grapheme-clusters
+In Dart, runes expose the Unicode code points of a string.
+You can use the characters package to view or manipulate user-perceived
+characters, also known as Unicode (extended) grapheme clusters.
+
+
+https://dart.dev/guides/libraries/library-tour#strings-and-regular-expressions
+
+
+https://pub.dev/packages/characters
+Characters are strings viewed as sequences of user-perceived characters,
+also known as Unicode (extended) grapheme clusters.
+The Characters class allows access to the individual characters of a string,
+and a way to navigate back and forth between them using a CharacterRange.
+
+https://medium.com/dartlang/dart-string-manipulation-done-right-5abd0668ba3e
+Like many other programming languages designed before emojis started to dominate
+our daily communications and the rise of multilingual support in commercial apps,
+Dart represents a string as a sequence of UTF-16 code units.
+---
+jlf: they say that the Dart users are not aware of the Characters package.
+They try to improve the situation in the Flutter framework, but they are not
+very happy of the situation:
+Those mitigations can help, but they are limited to string manipulations
+performed in the context of a Flutter project. We need to carefully measure
+their effectiveness after they become available. A more complete solution at the
+Dart language level will likely require migration of at least some existing code,
+although a few options (for example, static extension types) might make breaking
+changes manageable.
+More technical investigation is needed to fully understand the trade-offs.
+
+
+================================================================================
 Factor lang
 ================================================================================
 
@@ -3713,3 +3793,30 @@ achieving 40-70% reduction over gzip alone
 
 https://github.com/jecolon/ziglyph/issues/3
 More size-optimal grapheme cluster sorting
+
+
+08/02/2023
+https://github.com/natecraddock/zf
+a commandline fuzzy finder that prioritizes matches on filenames
+To review: uses zygliph
+https://github.com/jecolon/ziglyph/issues/20
+Grapheme segmentation with ZWJ sequences
+
+
+10/02/2023
+https://github.com/jecolon/ziglyph/issues/20
+Grapheme segmentation with ZWJ sequences
+---
+jlf: Executor is ok with utf8proc
+t = "🐻‍❄️🐻‍❄️"~text
+t~description=              -- 'UTF-8 not-ASCII (2 graphemes, 8 codepoints, 26 bytes, 0 error)'
+t~characters==
+    an Array (shape [8], 8 items)
+     1 : ( "🐻"  U+1F43B So 2 "BEAR FACE" )
+     2 : ( "‍"    U+200D Cf 0 "ZERO WIDTH JOINER", "ZWJ" )
+     3 : ( "❄"   U+2744 So 1 "SNOWFLAKE" )
+     4 : ( "️"    U+FE0F Mn 0 "VARIATION SELECTOR-16", "VS16" )
+     5 : ( "🐻"  U+1F43B So 2 "BEAR FACE" )
+     6 : ( "‍"    U+200D Cf 0 "ZERO WIDTH JOINER", "ZWJ" )
+     7 : ( "❄"   U+2744 So 1 "SNOWFLAKE" )
+     8 : ( "️"    U+FE0F Mn 0 "VARIATION SELECTOR-16", "VS16" )
