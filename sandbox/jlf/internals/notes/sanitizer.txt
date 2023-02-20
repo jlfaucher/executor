@@ -1,0 +1,61 @@
+================================================================================
+Google
+================================================================================
+
+https://github.com/google/sanitizers/wiki/AddressSanitizer
+
+clang
+-fsanitize=address -O1 -fno-omit-frame-pointer -g
+
+
+================================================================================
+Apple
+================================================================================
+
+https://developer.apple.com/documentation/xcode/diagnosing-memory-thread-and-crash-issues-early
+
+
+Address Sanitizer—The ASan tool identifies potential memory-related corruption issues.
+-fsanitize=address
+
+Thread Sanitizer—The TSan tool detects race conditions between threads.
+-fsanitize=thread
+
+Main Thread Checker—This tool verifies that system APIs that must run on the main thread actually do run on that thread.
+
+Undefined Behavior Sanitizer—The UBSan tool detects divide-by-zero errors, attempts to access memory using a misaligned pointer, and other undefined behaviors.
+-fsanitize=alignment                        Misaligned pointer
+-fsanitize=bool                             Invalid Boolean value
+-fsanitize=bounds                           Out-of-bounds array access
+-fsanitize=enum                             Invalid enumeration value
+-fsanitize=vptr                             Dynamic type violation
+-fsanitize=integer-divide-by-zero           Division by zero
+-fsanitize=float-divide-by-zero             Division by zero
+-fsanitize=float-cast-overflow              Invalid float cast
+-fsanitize=nonnull-attribute                Nonnull argument violation
+-fsanitize=nullability-arg                  Nonnull argument violation
+-fsanitize=nullability-assign               Nonnull variable assignment violation
+-fsanitize=returns-nonnull-attribute        Nonnull return value violation
+-fsanitize-nullability-return               Nonnull return value violation
+-fsanitize=null                             Null reference creation and null pointer dereference
+-fsanitize=object-size                      Invalid object size
+-fsanitize=shift                            Invalid shift
+-fsanitize=signed-integer-overflow          Integer overflow
+-fsanitize=unreachable                      Reaching of unreachable point
+-fsanitize=vla-bound                        Invalid variable-length array
+
+
+================================================================================
+gcc
+================================================================================
+
+https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html
+
+To investigate when I have a Linux box.
+
+
+================================================================================
+Microsoft
+================================================================================
+
+https://learn.microsoft.com/en-us/cpp/sanitizers/asan?view=msvc-170
