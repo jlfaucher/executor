@@ -1,0 +1,264 @@
+-------------------------------------------------------------------------------
+ooRexx graphemes
+-------------------------------------------------------------------------------
+
+Procedure similar to the implementation of utf8proc_decompose
+iterate over the codepoints
+call utf8proc_decompose_char
+
+Julia
+-----
+"grapheme" :
+    utf8proc.jl
+utf8proc_grapheme_break_stateful : utf8proc.jl
+utf8proc_grapheme_break : utf8proc.jl
+UTF8PROC_CHARBOUND : declared in utf8proc.jl, but not used
+
+
+-------------------------------------------------------------------------------
+not related to codepoint
+-------------------------------------------------------------------------------
+
+const char *
+utf8proc_version(void);
+
+const char *
+utf8proc_errmsg(utf8proc_ssize_t errcode);
+
+
+-------------------------------------------------------------------------------
+utf-8 to utf-8 with transformation/normalization
+-------------------------------------------------------------------------------
+
+ * - UTF8PROC_DECOMPOSE     - decompose Unicode combining characters
+ * - UTF8PROC_COMPOSE       - compose Unicode combining characters
+ * - UTF8PROC_COMPAT        - replace certain codepoints with their compatibility decomposition (i.e. formatting information is lost)
+ * - UTF8PROC_IGNORE        - strip "default ignorable characters" such as SOFT-HYPHEN or ZERO-WIDTH-SPACE
+ * - UTF8PROC_STRIPCC       - strip and/or converts control characters
+                                NLF-sequences are transformed into space, except if one of the NLF2LS/PS/LF options is given.
+                                HorizontalTab (HT) and FormFeed (FF) are treated as a NLF-sequence in this case.
+                                All other control characters are simply removed.
+ * - UTF8PROC_NLF2LS        - NLF-sequences (LF, CRLF, CR, NEL) are representing a line break, and should be converted to the codepoint for line separation (LS)
+ * - UTF8PROC_NLF2PS        - NLF-sequences are representing a paragraph break, and should be converted to the codepoint for paragraph separation (PS)
+ * - UTF8PROC_NLF2LF        - NLF-sequences meaning is unknown
+ * - UTF8PROC_STRIPMARK     - strips all character markings.
+                                This includes non-spacing, spacing and enclosing (i.e. accents).
+                                This option works only with UTF8PROC_COMPOSE or UTF8PROC_DECOMPOSE
+ * - UTF8PROC_CASEFOLD      - performs unicode case folding, to be able to do a case-insensitive string comparison
+ * - UTF8PROC_NULLTERM      - processing will be stopped when a NULL byte is encounted
+ * - UTF8PROC_STABLE        - (JLF : i think this option is missing in the doc) prohibit combining characters that would violate the unicode versioning stability
+utf8proc_ssize_t
+utf8proc_map(
+  const utf8proc_uint8_t *str, utf8proc_ssize_t strlen, utf8proc_uint8_t **dstptr, utf8proc_option_t options
+);
+
+ * - UTF8PROC_DECOMPOSE
+ * - UTF8PROC_STABLE
+utf8proc_uint8_t *
+utf8proc_NFD(const utf8proc_uint8_t *str);
+
+ * - UTF8PROC_COMPOSE
+ * - UTF8PROC_STABLE
+utf8proc_uint8_t *
+utf8proc_NFC(const utf8proc_uint8_t *str);
+
+ * - UTF8PROC_DECOMPOSE
+ * - UTF8PROC_COMPAT
+ * - UTF8PROC_STABLE
+utf8proc_uint8_t *
+utf8proc_NFKD(const utf8proc_uint8_t *str);
+
+ * - UTF8PROC_COMPOSE
+ * - UTF8PROC_COMPAT
+ * - UTF8PROC_STABLE
+utf8proc_uint8_t *
+utf8proc_NFKC(const utf8proc_uint8_t *str);
+
+
+-------------------------------------------------------------------------------
+decoding utf-8 to codepoints (no transformation/normalization)
+-------------------------------------------------------------------------------
+
+utf8proc_ssize_t
+utf8proc_iterate(const utf8proc_uint8_t *str, utf8proc_ssize_t strlen, utf8proc_int32_t *codepoint_ref);
+
+
+-------------------------------------------------------------------------------
+decompose utf-8 to codepoints
+-------------------------------------------------------------------------------
+
+ * - UTF8PROC_REJECTNA      - return an error if the input contains unassigned codepoints
+ * - UTF8PROC_IGNORE        - strip "default ignorable characters" such as SOFT-HYPHEN or ZERO-WIDTH-SPACE
+ * - UTF8PROC_CASEFOLD      - performs unicode case folding, to be able to do a case-insensitive string comparison
+ * - UTF8PROC_COMPAT        - replace certain codepoints with their compatibility decomposition (i.e. formatting information is lost)
+ * - UTF8PROC_CHARBOUND     - insert 0xFF bytes before each grapheme cluster (see UAX#29)
+ * - UTF8PROC_LUMP          - lump certain different codepoints together
+                                E.g. HYPHEN U+2010 and MINUS U+2212 to ASCII "-". See lump.md for details.
+                                If NLF2LF is set, this includes a transformation of paragraph and line separators to ASCII line-feed (LF).
+ * - UTF8PROC_STRIPMARK     - strips all character markings.
+                                This includes non-spacing, spacing and enclosing (i.e. accents).
+                                This option works only with UTF8PROC_COMPOSE or UTF8PROC_DECOMPOSE
+ * - UTF8PROC_NULLTERM      - processing will be stopped when a NULL byte is encounted
+utf8proc_ssize_t
+utf8proc_decompose(
+  const utf8proc_uint8_t *str, utf8proc_ssize_t strlen,
+  utf8proc_int32_t *buffer, utf8proc_ssize_t bufsize, utf8proc_option_t options
+);
+
+
+-------------------------------------------------------------------------------
+decompose codepoint to codepoints
+-------------------------------------------------------------------------------
+
+ * - UTF8PROC_REJECTNA      - return an error if `codepoint` is unassigned
+ * - UTF8PROC_IGNORE        - strip "default ignorable characters" such as SOFT-HYPHEN or ZERO-WIDTH-SPACE
+ * - UTF8PROC_CASEFOLD      - performs unicode case folding, to be able to do a case-insensitive string comparison
+ * - UTF8PROC_COMPAT        - replace certain codepoints with their compatibility decomposition (i.e. formatting information is lost)
+ * - UTF8PROC_CHARBOUND     - insert 0xFF bytes before each grapheme cluster (see UAX#29)
+ * - UTF8PROC_LUMP          - lump certain different codepoints together
+                                E.g. HYPHEN U+2010 and MINUS U+2212 to ASCII "-". See lump.md for details.
+                                If NLF2LF is set, this includes a transformation of paragraph and line separators to ASCII line-feed (LF).
+ * - UTF8PROC_STRIPMARK     - strips all character markings.
+                                This includes non-spacing, spacing and enclosing (i.e. accents).
+                                This option works only with UTF8PROC_COMPOSE or UTF8PROC_DECOMPOSE
+utf8proc_ssize_t
+utf8proc_decompose_char(
+  utf8proc_int32_t codepoint, utf8proc_int32_t *dst, utf8proc_ssize_t bufsize,
+  utf8proc_option_t options, int *last_boundclass
+);
+
+
+-------------------------------------------------------------------------------
+encoding codepoint to utf-8
+-------------------------------------------------------------------------------
+
+utf8proc_ssize_t
+utf8proc_encode_char(utf8proc_int32_t codepoint, utf8proc_uint8_t *dst);
+
+
+-------------------------------------------------------------------------------
+re-encoding codepoints to utf-8 in place
+-------------------------------------------------------------------------------
+
+JLF : just a subset of the options supported by utf8proc_map ?
+ * - UTF8PROC_STRIPCC       - strip and/or convert control characters
+                                NLF-sequences are transformed into space, except if one of the NLF2LS/PS/LF options is given.
+                                HorizontalTab (HT) and FormFeed (FF) are treated as a NLF-sequence in this case.
+                                All other control characters are simply removed.
+ * - UTF8PROC_NLF2LS        - NLF-sequences (LF, CRLF, CR, NEL) are representing a line break, and should be converted to the codepoint for line separation (LS)
+ * - UTF8PROC_NLF2PS        - NLF-sequences are representing a paragraph break, and should be converted to the codepoint for paragraph separation (PS)
+ * - UTF8PROC_NLF2LF        - NLF-sequences meaning is unknown
+ * - UTF8PROC_COMPOSE       - try to combine decomposed codepoints into composite codepoints
+ * - UTF8PROC_STABLE        - prohibit combining characters that would violate the unicode versioning stability
+utf8proc_ssize_t
+utf8proc_reencode(utf8proc_int32_t *buffer, utf8proc_ssize_t length, utf8proc_option_t options);
+
+
+-------------------------------------------------------------------------------
+codepoint properties
+-------------------------------------------------------------------------------
+
+utf8proc_bool
+utf8proc_codepoint_valid(utf8proc_int32_t codepoint);
+
+utf8proc_category_t
+utf8proc_category(utf8proc_int32_t codepoint);
+
+const char *
+utf8proc_category_string(utf8proc_int32_t codepoint);
+
+const utf8proc_property_t *
+utf8proc_get_property(utf8proc_int32_t codepoint);
+
+http://man7.org/linux/man-pages/man3/wcwidth.3.html
+https://github.com/jquast/wcwidth (python-only implementation)
+int
+utf8proc_charwidth(utf8proc_int32_t codepoint);
+
+utf8proc_bool
+utf8proc_grapheme_break(utf8proc_int32_t codepoint1, utf8proc_int32_t codepoint2);
+
+-------------------------------------------------------------------------------
+Code review of normalization
+-------------------------------------------------------------------------------
+
+utf8proc_NFD		UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_DECOMPOSE
+utf8proc_NFC		UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_COMPOSE
+utf8proc_NFKD		UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT
+utf8proc_NFKC		UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT
+utf8proc_NFKC_Casefold	UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD | UTF8PROC_IGNORE
+
+
+
+utf8proc_normalize_utf32
+ * - @ref UTF8PROC_NLF2LS  - convert LF, CRLF, CR and NEL into LS
+ * - @ref UTF8PROC_NLF2PS  - convert LF, CRLF, CR and NEL into PS
+ * - @ref UTF8PROC_NLF2LF  - convert LF, CRLF, CR and NEL into LF
+ * - @ref UTF8PROC_STRIPCC - strip or convert all non-affected control characters
+ * - @ref UTF8PROC_COMPOSE - try to combine decomposed codepoints into composite
+ *                           codepoints
+ * - @ref UTF8PROC_STABLE  - prohibit combining characters that would violate
+ *                           the unicode versioning stability
+ * - @ref UTF8PROC_CHARBOUND - insert 0xFF bytes before each grapheme cluster
+
+
+UTF8PROC_NULLTERM
+	utf8proc_decompose_custom
+
+UTF8PROC_STABLE
+	utf8proc_normalize_utf32
+		called by utf8proc_reencode
+			called by utf8proc_map_custom
+
+UTF8PROC_DECOMPOSE
+	utf8proc_decompose_char
+	utf8proc_decompose_custom
+
+UTF8PROC_COMPOSE
+	utf8proc_decompose_char
+	utf8proc_decompose_custom
+	utf8proc_normalize_utf32
+
+UTF8PROC_COMPAT
+	utf8proc_decompose_char
+
+UTF8PROC_CASEFOLD
+	utf8proc_decompose_char
+
+UTF8PROC_IGNORE
+	utf8proc_decompose_char
+
+
+utf8proc_map
+	utf8proc_map_custom
+		utf8proc_decompose_custom		convert utf-8 str/strlen into codepoints
+							The same as utf8proc_decompose_char, but acts on a whole UTF-8 string and orders the decomposed sequences correctly.
+			rpos = 0; wpos = 0
+			boundclass = UTF8PROC_BOUNDCLASS_START
+			while (1) {
+				get next codepoint uc and its index rpos
+				test if must stop
+				apply custom_func on uc
+				utf8proc_decompose_char(uc, buffer+wpos, <remaining buffer size>, options, &boundclass)   --> returns the count of codepoints or <0 when error
+			}
+			iterate over buffer {
+				if needed swap pair of codepoints
+			}
+		utf8proc_reencode	(impacted by UTF8PROC_STABLE)
+
+
+utf8proc_decompose_char		(the options with no comment are missing in the doc)
+	UTF8PROC_COMPOSE
+	UTF8PROC_DECOMPOSE
+	UTF8PROC_REJECTNA	return an error `codepoint` is unassigned
+	UTF8PROC_IGNORE		strip "default ignorable" codepoints
+	UTF8PROC_STRIPNA	remove unassigned codepoints
+	UTF8PROC_LUMP		lump certain different codepoints together
+	UTF8PROC_NLF2LS
+	UTF8PROC_NLF2PS
+	UTF8PROC_STRIPMARK	remove all character marks
+	UTF8PROC_CASEFOLD	apply Unicode casefolding
+	UTF8PROC_COMPAT		replace certain codepoints with their compatibility decomposition
+	UTF8PROC_CHARBOUND	insert 0xFF bytes before each grapheme cluster
+
+
