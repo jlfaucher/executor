@@ -707,7 +707,9 @@ if (WIN32)
     )
 endif ()
 
-# Which to test: CMAKE_SYSTEM_PROCESSOR or CMAKE_HOST_SYSTEM_PROCESSOR?
+# https://stackoverflow.com/questions/70475665/what-are-the-possible-values-of-cmake-system-processor
+# When cross-compiling, CMAKE_SYSTEM_PROCESSOR is set by the toolchain file.
+# When not cross-compiling, CMAKE_SYSTEM_PROCESSOR has the same value as CMAKE_HOST_SYSTEM_PROCESSOR.
 if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64")
     # Windows X86_64
     set (icu4x_arch "x86_64")
