@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
-Input queue name: Se976Q7fada1d58fc0
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 8 Feb 2023
+Input queue name: S399eQ6000008e84e0
 
 --------------------
 -- Unicode libraries
@@ -553,7 +553,7 @@ ooRexx[sh]> .unicode~utf8proc_codepointToUpper(smallSharpS~codepoint)~pipe{.unic
 Should be "SS".
 Unicode standard 15 section 5.18 Case Mappings:
     Default casing                                         Tailored casing
-    (small sharp) ß <--- ß (capital sharp)                 (small sharp) ß <--> ẞ (capital sharp)
+    (small sharp) ß <--- ẞ (capital sharp)                 (small sharp) ß <--> ẞ (capital sharp)
     (small sharp) ß ---> SS
                  ss <--> SS                                             ss <--> SS
 When using the default Unicode casing operations, capital sharp s will lowercase
@@ -1019,4 +1019,3 @@ an Array (shape [1], 1 items)
 /*
 End of demonstration.
 */
-

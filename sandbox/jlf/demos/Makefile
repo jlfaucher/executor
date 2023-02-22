@@ -39,11 +39,14 @@ force::
 %-output.html : %.cast
 	asciinema cat $? | aha --title "$@" > $@
 
-# 1) Remember! $ has special meaning in makefiles. If you want to use it in a shell command, you have to double it.
+# 1) Remember! $ has special meaning in makefiles. If you want to use it in a
+#    shell command, you have to double it.
 # 2) asciinema replaces the invalid UTF-8 characters by the REPLACEMENT CHARACTER.
 #    That's why I no longer find encoding errors in the output files.
+# 3) See below for a detailled description of the perl regex
+#    Used to remove the escape characters for colors.
 %-output.txt : %.cast
-	asciinema cat $? | sed -e $$'s/\x1b\[[0-9;]*m//g' > $@
+	asciinema cat $? | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)//g' > $@
 
 # No longer used because it's a re-execution instead of a simple cat
 # %-output.txt : %.rex
@@ -62,3 +65,33 @@ force::
 #     echo "export LD_LIBRARY_PATH=`echo $LD_LIBRARY_PATH`" >> "$REXX_ENVIRONMENT"
 #     echo "export DYLD_LIBRARY_PATH=`echo $DYLD_LIBRARY_PATH`" >> "$REXX_ENVIRONMENT"
 # These 2 variables are made available to the rexx process, and BSF4ooRexx is loaded.
+
+# https://superuser.com/questions/236930/how-to-clean-up-output-of-linux-script-command
+#     cat typescript | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)//g' | col -b > typescript-processed
+#
+# here's some interpretation of the string input to perl:
+#
+# s/pattern//g means to do a substitution on the entire (the g option means do
+# the entire thing instead of stopping on the first substitute) input string.
+#
+# here's some interpretation of the regex pattern:
+#
+# \e match the special "escape" control character (ASCII 0x1A)
+#
+# ( and ) are the beginning and end of a group
+#
+# | means the group can match one of N patterns. where the N patterns are
+#     [^\[\]] or
+#     \[.*?[a-zA-Z] or
+#     \].*?\a
+#
+# [^\[\]] means: match a set of NOT characters where the not characters are [ and ]
+#
+# \[.*?[a-zA-Z] means:
+#    match a string starting with [ then do a non-greedy .*?
+#    until the first alpha character
+#
+# \].*?\a means:
+#    match a string that starts with ] then do a non-greedy .*?
+#    until you hit the special control character called
+#    "the alert (bell) character"

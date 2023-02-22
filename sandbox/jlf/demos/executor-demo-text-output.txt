@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
-Input queue name: Se874Q7fada1d58ea0
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 8 Feb 2023
+Input queue name: S38fdQ6000008e00d0
 
 ----------------
 -- Text encoding
@@ -43,9 +43,7 @@ Main ideas explored with this prototype :
 
 /*
 On my Mac, where locale returns :
-*/
-ooRexx[sh]> "locale"
-LANG=
+LANG=""
 LC_COLLATE="en_US.UTF-8"
 LC_CTYPE="en_US.UTF-8"
 LC_MESSAGES="en_US.UTF-8"
@@ -54,7 +52,6 @@ LC_NUMERIC="en_US.UTF-8"
 LC_TIME="en_US.UTF-8"
 LC_ALL="en_US.UTF-8"
 
-/*
 I get that under ooRexxShell :
 */
 ooRexx[sh]> s1 = "é"
@@ -83,7 +80,6 @@ s2~text~length=                     -- 1 grapheme
 s2~text~codepoints~count=           -- 2 codepoints
 s2~text~string~length=              -- 3 bytes
 */
-ooRexx[sh]> 
 ooRexx[sh]> .encoding~defaultEncoding = "utf8"
 ooRexx[sh]> s1~text~length=                     -- 1 grapheme
  1
@@ -258,7 +254,7 @@ UTF-32 to UTF-8, UTF-16
 The Byte_Encoding can be specialized to add support for specific encoding conversions.
 */
 ooRexx[sh]> .Encoding~supported~table==
-a Table (31 items)
+a Table (32 items)
  819           : (The ISO88591_Encoding class)
  8859          : (The ISO88591_Encoding class)
  28591         : (The ISO88591_Encoding class)
@@ -273,6 +269,7 @@ a Table (31 items)
 'L1'           : (The ISO88591_Encoding class)
 'LATIN'        : (The ISO88591_Encoding class)
 'LATIN1'       : (The ISO88591_Encoding class)
+'UNICODE'      : (The Unicode_Encoding class)
 'UNICODE16'    : (The Unicode16_Encoding class)
 'UNICODE32'    : (The Unicode32_Encoding class)
 'UNICODE8'     : (The Unicode8_Encoding class)
@@ -434,4 +431,3 @@ T'潮獮湥敳'
 /*
 End of demonstration.
 */
-

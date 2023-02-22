@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
-Input queue name: Se80fQ7fada1c4b2b0
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 8 Feb 2023
+Input queue name: S38cfQ6000008e8410
 
 ----------------------
 -- Executor extensions
@@ -473,82 +473,82 @@ V1       (activation) ? activation->getVariableDictionary() : NULL      // setti
 */
 ooRexx[sh]> -- Raw output, not easy to read
 ooRexx[sh]> system RXTRACE_CONCURRENCY=ON rexx concurrency_trace.rex
-00000000afea2380 000000001092bb00 0000000000000000 00000       1 *-* .demo~new~exec(1)
-00000000afea2380 000000001092bb00 0000000000000000 00000         >E>   .DEMO => "The DEMO class"
-00000000afea2380 000000001092bb00 0000000000000000 00000         >M>   "NEW" => "a DEMO"
-00000000afea2380 000000001092bb00 0000000000000000 00000         >L>   "1"
-00000000afea2380 000000001092bb00 0000000000000000 00000         >A>   "1"
-00000000afea2380 0000000010934d80 0000000010934ff0 00000         >I> Method "EXEC" with scope "DEMO" in package "/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex".
-00000000afea2380 0000000010934d80 0000000010934ff0 00001*      8 *-* use arg id
-00000000afea2380 0000000010934d80 0000000010934ff0 00001*        >>>   "1"
-00000000afea2380 0000000010934d80 0000000010934ff0 00001*        >=>   ID <= "1"
-00000000afea2380 0000000010934d80 0000000010934ff0 00001*      9 *-* reply
-0000000000501000 0000000010934d80 0000000010934ff0 00001*        >I> Method "EXEC" with scope "DEMO" in package "/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex".
-00000000afea2380 000000001092bb00 0000000000000000 00000       2 *-* .demo~new~exec(2)
-0000000000501000 0000000010934d80 0000000010934ff0 00001*     10 *-* do 2
-00000000afea2380 000000001092bb00 0000000000000000 00000         >E>   .DEMO => "The DEMO class"
-0000000000501000 0000000010934d80 0000000010934ff0 00001*        >L>     "2"
-00000000afea2380 000000001092bb00 0000000000000000 00000         >M>   "NEW" => "a DEMO"
-0000000000501000 0000000010934d80 0000000010934ff0 00001*        >>>     "2"
-00000000afea2380 000000001092bb00 0000000000000000 00000         >L>   "2"
-0000000000501000 0000000010934d80 0000000010934ff0 00001*     11 *-*   say "TASK" id
-00000000afea2380 000000001092bb00 0000000000000000 00000         >A>   "2"
-0000000000501000 0000000010934d80 0000000010934ff0 00001*        >L>     "TASK"
-00000000afea2380 0000000010942630 00000000109428a0 00000         >I> Method "EXEC" with scope "DEMO" in package "/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex".
-0000000000501000 0000000010934d80 0000000010934ff0 00001*        >V>     ID => "1"
-00000000afea2380 0000000010942630 00000000109428a0 00001*      8 *-* use arg id
-0000000000501000 0000000010934d80 0000000010934ff0 00001*        >O>     " " => "TASK 1"
-00000000afea2380 0000000010942630 00000000109428a0 00001*        >>>   "2"
-0000000000501000 0000000010934d80 0000000010934ff0 00001*        >>>     "TASK 1"
-00000000afea2380 0000000010942630 00000000109428a0 00001*        >=>   ID <= "2"
+0000000002acc580 000000005b017b30 0000000000000000 00000       1 *-* .demo~new~exec(1)
+0000000002acc580 000000005b017b30 0000000000000000 00000         >E>   .DEMO => "The DEMO class"
+0000000002acc580 000000005b017b30 0000000000000000 00000         >M>   "NEW" => "a DEMO"
+0000000002acc580 000000005b017b30 0000000000000000 00000         >L>   "1"
+0000000002acc580 000000005b017b30 0000000000000000 00000         >A>   "1"
+0000000002acc580 000000005b020db0 000000005b021020 00000         >I> Method "EXEC" with scope "DEMO" in package "/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex".
+0000000002acc580 000000005b020db0 000000005b021020 00001*      8 *-* use arg id
+0000000002acc580 000000005b020db0 000000005b021020 00001*        >>>   "1"
+0000000002acc580 000000005b020db0 000000005b021020 00001*        >=>   ID <= "1"
+0000000002acc580 000000005b020db0 000000005b021020 00001*      9 *-* reply
+000000006d92f000 000000005b020db0 000000005b021020 00001*        >I> Method "EXEC" with scope "DEMO" in package "/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex".
+0000000002acc580 000000005b017b30 0000000000000000 00000       2 *-* .demo~new~exec(2)
+000000006d92f000 000000005b020db0 000000005b021020 00001*     10 *-* do 2
+0000000002acc580 000000005b017b30 0000000000000000 00000         >E>   .DEMO => "The DEMO class"
+000000006d92f000 000000005b020db0 000000005b021020 00001*        >L>     "2"
+0000000002acc580 000000005b017b30 0000000000000000 00000         >M>   "NEW" => "a DEMO"
+000000006d92f000 000000005b020db0 000000005b021020 00001*        >>>     "2"
+0000000002acc580 000000005b017b30 0000000000000000 00000         >L>   "2"
+000000006d92f000 000000005b020db0 000000005b021020 00001*     11 *-*   say "TASK" id
+0000000002acc580 000000005b017b30 0000000000000000 00000         >A>   "2"
+000000006d92f000 000000005b020db0 000000005b021020 00001*        >L>     "TASK"
+0000000002acc580 000000005b02e6e0 000000005b02e950 00000         >I> Method "EXEC" with scope "DEMO" in package "/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex".
+000000006d92f000 000000005b020db0 000000005b021020 00001*        >V>     ID => "1"
+0000000002acc580 000000005b02e6e0 000000005b02e950 00001*      8 *-* use arg id
+000000006d92f000 000000005b020db0 000000005b021020 00001*        >O>     " " => "TASK 1"
+0000000002acc580 000000005b02e6e0 000000005b02e950 00001*        >>>   "2"
+000000006d92f000 000000005b020db0 000000005b021020 00001*        >>>     "TASK 1"
 TASK 1
-00000000afea2380 0000000010942630 00000000109428a0 00001*      9 *-* reply
-0000000000501000 0000000010934d80 0000000010934ff0 00001*     12 *-*   call syssleep 1
-0000000000704000 0000000010942630 00000000109428a0 00001*        >I> Method "EXEC" with scope "DEMO" in package "/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex".
-0000000000501000 0000000010934d80 0000000010934ff0 00001*        >L>     "1"
-0000000000704000 0000000010942630 00000000109428a0 00001*     10 *-* do 2
-0000000000501000 0000000010934d80 0000000010934ff0 00001*        >A>     "1"
-0000000000704000 0000000010942630 00000000109428a0 00001*        >L>     "2"
-0000000000704000 0000000010942630 00000000109428a0 00001*        >>>     "2"
-0000000000704000 0000000010942630 00000000109428a0 00001*     11 *-*   say "TASK" id
-0000000000704000 0000000010942630 00000000109428a0 00001*        >L>     "TASK"
-0000000000704000 0000000010942630 00000000109428a0 00001*        >V>     ID => "2"
-0000000000704000 0000000010942630 00000000109428a0 00001*        >O>     " " => "TASK 2"
-0000000000704000 0000000010942630 00000000109428a0 00001*        >>>     "TASK 2"
+0000000002acc580 000000005b02e6e0 000000005b02e950 00001*        >=>   ID <= "2"
+000000006d92f000 000000005b020db0 000000005b021020 00001*     12 *-*   call syssleep 1
+0000000002acc580 000000005b02e6e0 000000005b02e950 00001*      9 *-* reply
+000000006d92f000 000000005b020db0 000000005b021020 00001*        >L>     "1"
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*        >I> Method "EXEC" with scope "DEMO" in package "/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex".
+000000006d92f000 000000005b020db0 000000005b021020 00001*        >A>     "1"
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*     10 *-* do 2
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*        >L>     "2"
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*        >>>     "2"
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*     11 *-*   say "TASK" id
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*        >L>     "TASK"
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*        >V>     ID => "2"
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*        >O>     " " => "TASK 2"
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*        >>>     "TASK 2"
 TASK 2
-0000000000704000 0000000010942630 00000000109428a0 00001*     12 *-*   call syssleep 1
-0000000000704000 0000000010942630 00000000109428a0 00001*        >L>     "1"
-0000000000704000 0000000010942630 00000000109428a0 00001*        >A>     "1"
-0000000000501000 0000000010934d80 0000000010934ff0 00001*        >>>     "0"
-0000000000501000 0000000010934d80 0000000010934ff0 00001*     13 *-* end
-0000000000501000 0000000010934d80 0000000010934ff0 00001*     10 *-* do 2
-0000000000501000 0000000010934d80 0000000010934ff0 00001*     11 *-*   say "TASK" id
-0000000000501000 0000000010934d80 0000000010934ff0 00001*        >L>     "TASK"
-0000000000501000 0000000010934d80 0000000010934ff0 00001*        >V>     ID => "1"
-0000000000501000 0000000010934d80 0000000010934ff0 00001*        >O>     " " => "TASK 1"
-0000000000501000 0000000010934d80 0000000010934ff0 00001*        >>>     "TASK 1"
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*     12 *-*   call syssleep 1
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*        >L>     "1"
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*        >A>     "1"
+000000006d92f000 000000005b020db0 000000005b021020 00001*        >>>     "0"
+000000006d92f000 000000005b020db0 000000005b021020 00001*     13 *-* end
+000000006d92f000 000000005b020db0 000000005b021020 00001*     10 *-* do 2
+000000006d92f000 000000005b020db0 000000005b021020 00001*     11 *-*   say "TASK" id
+000000006d92f000 000000005b020db0 000000005b021020 00001*        >L>     "TASK"
+000000006d92f000 000000005b020db0 000000005b021020 00001*        >V>     ID => "1"
+000000006d92f000 000000005b020db0 000000005b021020 00001*        >O>     " " => "TASK 1"
+000000006d92f000 000000005b020db0 000000005b021020 00001*        >>>     "TASK 1"
 TASK 1
-0000000000501000 0000000010934d80 0000000010934ff0 00001*     12 *-*   call syssleep 1
-0000000000501000 0000000010934d80 0000000010934ff0 00001*        >L>     "1"
-0000000000501000 0000000010934d80 0000000010934ff0 00001*        >A>     "1"
-0000000000704000 0000000010942630 00000000109428a0 00001*        >>>     "0"
-0000000000704000 0000000010942630 00000000109428a0 00001*     13 *-* end
-0000000000704000 0000000010942630 00000000109428a0 00001*     10 *-* do 2
-0000000000704000 0000000010942630 00000000109428a0 00001*     11 *-*   say "TASK" id
-0000000000704000 0000000010942630 00000000109428a0 00001*        >L>     "TASK"
-0000000000704000 0000000010942630 00000000109428a0 00001*        >V>     ID => "2"
-0000000000704000 0000000010942630 00000000109428a0 00001*        >O>     " " => "TASK 2"
-0000000000704000 0000000010942630 00000000109428a0 00001*        >>>     "TASK 2"
+000000006d92f000 000000005b020db0 000000005b021020 00001*     12 *-*   call syssleep 1
+000000006d92f000 000000005b020db0 000000005b021020 00001*        >L>     "1"
+000000006d92f000 000000005b020db0 000000005b021020 00001*        >A>     "1"
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*        >>>     "0"
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*     13 *-* end
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*     10 *-* do 2
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*     11 *-*   say "TASK" id
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*        >L>     "TASK"
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*        >V>     ID => "2"
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*        >O>     " " => "TASK 2"
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*        >>>     "TASK 2"
 TASK 2
-0000000000704000 0000000010942630 00000000109428a0 00001*     12 *-*   call syssleep 1
-0000000000704000 0000000010942630 00000000109428a0 00001*        >L>     "1"
-0000000000704000 0000000010942630 00000000109428a0 00001*        >A>     "1"
-0000000000501000 0000000010934d80 0000000010934ff0 00001*        >>>     "0"
-0000000000704000 0000000010942630 00000000109428a0 00001*        >>>     "0"
-0000000000501000 0000000010934d80 0000000010934ff0 00001*     13 *-* end
-0000000000704000 0000000010942630 00000000109428a0 00001*     13 *-* end
-0000000000501000 0000000010934d80 0000000010934ff0 00001*     10 *-* do 2
-0000000000704000 0000000010942630 00000000109428a0 00001*     10 *-* do 2
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*     12 *-*   call syssleep 1
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*        >L>     "1"
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*        >A>     "1"
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*        >>>     "0"
+000000006d92f000 000000005b020db0 000000005b021020 00001*        >>>     "0"
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*     13 *-* end
+000000006d92f000 000000005b020db0 000000005b021020 00001*     13 *-* end
+000000006db3b000 000000005b02e6e0 000000005b02e950 00001*     10 *-* do 2
+000000006d92f000 000000005b020db0 000000005b021020 00001*     10 *-* do 2
 ooRexx[sh]> -- Human-readable output, generated by piping the output through tracer.rex
 ooRexx[sh]> system RXTRACE_CONCURRENCY=ON rexx concurrency_trace.rex 2>&1 | rexx trace/tracer.rex
 T1   A1                     1 *-* .demo~new~exec(1)
@@ -556,12 +556,12 @@ T1   A1                       >E>   .DEMO => "The DEMO class"
 T1   A1                       >M>   "NEW" => "a DEMO"
 T1   A1                       >L>   "1"
 T1   A1                       >A>   "1"
-T1   A2     V1                >I> Method "EXEC" with scope "DEMO" in package "/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex".
+T1   A2     V1                >I> Method "EXEC" with scope "DEMO" in package "/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex".
 T1   A2     V1      1*      8 *-* use arg id
 T1   A2     V1      1*        >>>   "1"
 T1   A2     V1      1*        >=>   ID <= "1"
 T1   A2     V1      1*      9 *-* reply
-T2   A2     V1      1*        >I> Method "EXEC" with scope "DEMO" in package "/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex".
+T2   A2     V1      1*        >I> Method "EXEC" with scope "DEMO" in package "/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex".
 T1   A1                     2 *-* .demo~new~exec(2)
 T2   A2     V1      1*     10 *-* do 2
 T1   A1                       >E>   .DEMO => "The DEMO class"
@@ -572,7 +572,7 @@ T1   A1                       >L>   "2"
 T2   A2     V1      1*     11 *-*   say "TASK" id
 T1   A1                       >A>   "2"
 T2   A2     V1      1*        >L>     "TASK"
-T1   A3     V2                >I> Method "EXEC" with scope "DEMO" in package "/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex".
+T1   A3     V2                >I> Method "EXEC" with scope "DEMO" in package "/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex".
 T2   A2     V1      1*        >V>     ID => "1"
 T1   A3     V2      1*      8 *-* use arg id
 T2   A2     V1      1*        >O>     " " => "TASK 1"
@@ -583,7 +583,7 @@ T1   A3     V2      1*        >=>   ID <= "2"
 T2   A2     V1      1*     12 *-*   call syssleep 1
 T1   A3     V2      1*      9 *-* reply
 T2   A2     V1      1*        >L>     "1"
-T3   A3     V2      1*        >I> Method "EXEC" with scope "DEMO" in package "/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex".
+T3   A3     V2      1*        >I> Method "EXEC" with scope "DEMO" in package "/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex".
 T2   A2     V1      1*        >A>     "1"
 T3   A3     V2      1*     10 *-* do 2
 T3   A3     V2      1*        >L>     "2"
@@ -598,34 +598,34 @@ T3   A3     V2      1*     12 *-*   call syssleep 1
 T3   A3     V2      1*        >L>     "1"
 T3   A3     V2      1*        >A>     "1"
 T2   A2     V1      1*        >>>     "0"
-T2   A2     V1      1*     13 *-* end
-T2   A2     V1      1*     10 *-* do 2
-T2   A2     V1      1*     11 *-*   say "TASK" id
-T2   A2     V1      1*        >L>     "TASK"
-T2   A2     V1      1*        >V>     ID => "1"
-T2   A2     V1      1*        >O>     " " => "TASK 1"
-T2   A2     V1      1*        >>>     "TASK 1"
-TASK 1
-T2   A2     V1      1*     12 *-*   call syssleep 1
-T2   A2     V1      1*        >L>     "1"
-T2   A2     V1      1*        >A>     "1"
 T3   A3     V2      1*        >>>     "0"
+T2   A2     V1      1*     13 *-* end
 T3   A3     V2      1*     13 *-* end
+T2   A2     V1      1*     10 *-* do 2
 T3   A3     V2      1*     10 *-* do 2
+T2   A2     V1      1*     11 *-*   say "TASK" id
 T3   A3     V2      1*     11 *-*   say "TASK" id
+T2   A2     V1      1*        >L>     "TASK"
 T3   A3     V2      1*        >L>     "TASK"
+T2   A2     V1      1*        >V>     ID => "1"
 T3   A3     V2      1*        >V>     ID => "2"
+T2   A2     V1      1*        >O>     " " => "TASK 1"
 T3   A3     V2      1*        >O>     " " => "TASK 2"
+T2   A2     V1      1*        >>>     "TASK 1"
 T3   A3     V2      1*        >>>     "TASK 2"
+TASK 1
 TASK 2
+T2   A2     V1      1*     12 *-*   call syssleep 1
 T3   A3     V2      1*     12 *-*   call syssleep 1
+T2   A2     V1      1*        >L>     "1"
 T3   A3     V2      1*        >L>     "1"
+T2   A2     V1      1*        >A>     "1"
 T3   A3     V2      1*        >A>     "1"
 T2   A2     V1      1*        >>>     "0"
-T2   A2     V1      1*     13 *-* end
-T2   A2     V1      1*     10 *-* do 2
 T3   A3     V2      1*        >>>     "0"
+T2   A2     V1      1*     13 *-* end
 T3   A3     V2      1*     13 *-* end
+T2   A2     V1      1*     10 *-* do 2
 T3   A3     V2      1*     10 *-* do 2
 
 /*
@@ -767,7 +767,34 @@ Implementation of the Y combinator with memoization:
 */
 ooRexx[sh]> ?ms YM
 PM P...    'YM' : 'RoutineDoer' (doers.cls)
-[Info] 1 line displayed
+ > 0001 use named arg verbose=.false
+ > 0002     if verbose then trace i
+ > 0003 
+ > 0004     -- lambda_f
+ > 0005     f = self -- to be closer to the notation (would be passed by parameter to lambda_f when implemented by a function instead of a method)
+ > 0006     YnamedArgs = .context~namedArgs
+ > 0007     table = .Table~new
+ > 0008 
+ > 0009     lambda_x = {
+ > 0010         expose f verbose YnamedArgs table
+ > 0011         if verbose then trace i
+ > 0012         use strict arg x
+ > 0013         lambda_v = {
+ > 0014                      expose x verbose table
+ > 0015                      if verbose then trace i
+ > 0016                      --use strict arg v
+ > 0017                      v = arg(1, "a")
+ > 0018                      v_index = v~tostring
+ > 0019                      r = table[v_index]
+ > 0020                      if .nil <> r then return r
+ > 0021                      r = x~(x)~doWith(v, n:.context~namedArgs)
+ > 0022                      table[v_index] = r
+ > 0023                      return r
+ > 0024                 }
+ > 0025         return f ~ doWith(.array~of(lambda_v), n:YnamedArgs)
+ > 0026     }
+ > 0027     return lambda_x ~ (lambda_x)
+[Info] 28 lines displayed
 
 /*
 Application to Fibonacci:
@@ -780,7 +807,7 @@ The not-memoizing version needs around 15 sec.
 ooRexx[sh]> fib_Y = almost_fib~Y
 ooRexx[sh]> fib_Y~(23)=
  28657
-Duration: 16.228391
+Duration: 3.312914
 #Coactivities: 1
 
 /*
@@ -789,7 +816,7 @@ The memoizing version calculates almost instantly.
 ooRexx[sh]> fib_YM = almost_fib~YM
 ooRexx[sh]> fib_YM~(23)=
  28657
-Duration: 0.005830
+Duration: 0.037201
 #Coactivities: 1
 
 /*
@@ -857,10 +884,9 @@ fib_YM~(17500)=8.594475392487880685715609318313958956965186135981014406583281854
 fib_YM~(20000)=2.531162323732361242240155003520607291766356485802485278951929841991312781760541315230153423463759229E+4179
 fib_YM~(22500)=7.454536101973301545514060322899628474921968473702388044321015228379740189148914655473430519859925903E+4701
 fib_YM~(25000)=2.195438355517303012780791914841720922849015222302155773145178112730662303998294388326731046697794993E+5224
-Duration: 8.114956
+Duration: 1.686025
 #Coactivities: 1
 
 /*
 End of demonstration.
 */
-

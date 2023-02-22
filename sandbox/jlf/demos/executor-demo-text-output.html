@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
-</span><span style="font-weight:bold;color:green;">Input queue name: Se874Q7fada1d58ea0
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 8 Feb 2023
+</span><span style="font-weight:bold;color:green;">Input queue name: S38fdQ6000008e00d0
 </span>
 <span style="font-weight:bold;color:blue;">----------------
 </span><span style="font-weight:bold;color:blue;">-- Text encoding
@@ -53,18 +53,15 @@
 </span>
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">On my Mac, where locale returns :
-</span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;locale&quot;</span>
-LANG=
-LC_COLLATE=&quot;en_US.UTF-8&quot;
-LC_CTYPE=&quot;en_US.UTF-8&quot;
-LC_MESSAGES=&quot;en_US.UTF-8&quot;
-LC_MONETARY=&quot;en_US.UTF-8&quot;
-LC_NUMERIC=&quot;en_US.UTF-8&quot;
-LC_TIME=&quot;en_US.UTF-8&quot;
-LC_ALL=&quot;en_US.UTF-8&quot;
-
-<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">LANG=&quot;&quot;
+</span><span style="font-weight:bold;color:blue;">LC_COLLATE=&quot;en_US.UTF-8&quot;
+</span><span style="font-weight:bold;color:blue;">LC_CTYPE=&quot;en_US.UTF-8&quot;
+</span><span style="font-weight:bold;color:blue;">LC_MESSAGES=&quot;en_US.UTF-8&quot;
+</span><span style="font-weight:bold;color:blue;">LC_MONETARY=&quot;en_US.UTF-8&quot;
+</span><span style="font-weight:bold;color:blue;">LC_NUMERIC=&quot;en_US.UTF-8&quot;
+</span><span style="font-weight:bold;color:blue;">LC_TIME=&quot;en_US.UTF-8&quot;
+</span><span style="font-weight:bold;color:blue;">LC_ALL=&quot;en_US.UTF-8&quot;
+</span><span style="font-weight:bold;color:blue;">
 </span><span style="font-weight:bold;color:blue;">I get that under ooRexxShell :
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s1 = &quot;é&quot;</span>
@@ -93,8 +90,7 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s2~c2x=             
 </span><span style="font-weight:bold;color:blue;">s2~text~codepoints~count=           -- 2 codepoints
 </span><span style="font-weight:bold;color:blue;">s2~text~string~length=              -- 3 bytes
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; 
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.encoding~defaultEncoding = &quot;utf8&quot;</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.encoding~defaultEncoding = &quot;utf8&quot;</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s1~text~length=                     </span><span style="font-weight:bold;color:blue;">-- 1 grapheme</span>
  1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s1~text~codepoints~count=           </span><span style="font-weight:bold;color:blue;">-- 1 codepoint</span>
@@ -268,7 +264,7 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">helloZalgo~text~c2g=
 </span><span style="font-weight:bold;color:blue;">The Byte_Encoding can be specialized to add support for specific encoding conversions.
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Encoding~supported~table==</span>
-a Table (31 items)
+a Table (32 items)
  819           : (The ISO88591_Encoding class)
  8859          : (The ISO88591_Encoding class)
  28591         : (The ISO88591_Encoding class)
@@ -283,6 +279,7 @@ a Table (31 items)
 'L1'           : (The ISO88591_Encoding class)
 'LATIN'        : (The ISO88591_Encoding class)
 'LATIN1'       : (The ISO88591_Encoding class)
+'UNICODE'      : (The Unicode_Encoding class)
 'UNICODE16'    : (The Unicode16_Encoding class)
 'UNICODE32'    : (The Unicode32_Encoding class)
 'UNICODE8'     : (The Unicode8_Encoding class)

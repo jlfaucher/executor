@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 5 Nov 2022
-Input queue name: Se9faQ7fada1d59060
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 8 Feb 2023
+Input queue name: S39d8Q6000008e84e0
 
 --------------------------------------------
 -- Text encoding - Compatibility with String
@@ -500,4 +500,3 @@ T'AB'
 /*
 End of demonstration.
 */
-

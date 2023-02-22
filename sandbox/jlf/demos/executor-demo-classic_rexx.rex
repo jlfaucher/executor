@@ -57,10 +57,10 @@ sleep no prompt
 
 /*
 Results for Regina:         Results for ooRexx5:
-Ok=201                      Ok=90
+Ok=203                      Ok=90
 Skip=24                     Skip=23
-Ko=30                       Ko=142
-duration=294.076001         duration=26.823694
+Ko=28                       Ko=142
+duration=91.641678          duration=26.823694
 */
 sleep no prompt
 
