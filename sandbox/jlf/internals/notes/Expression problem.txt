@@ -1,5 +1,43 @@
 In relation with extensions of predefined classes in ooRexx.
 
+--------------------------------------------------------------------------------
+Monkey-patching
+--------------------------------------------------------------------------------
+
+https://shopify.engineering/the-case-against-monkey-patching
+The Case Against Monkey Patching, From a Rails Core Team Member
+
+https://www.justinweiss.com/articles/3-ways-to-monkey-patch-without-making-a-mess/
+Ruby
+
+https://blog.daveallie.com/clean-monkey-patching
+Ruby Clean Monkey Patching
+
+https://stackoverflow.com/questions/30757126/why-the-module-classmethods-defined-and-extended-in-the-same-namespace
+Ruby
+This is actually a pretty common practice in Ruby.
+Basically, what it's saying is: when some object performs include MyModule, make
+it also extend MyModule::ClassMethods. Such a feat is useful if you want a mixin
+that adds some methods not just to the instances of a class, but to the class itself.
+
+https://www.pythonforthelab.com/blog/monkey-patching-and-its-consequences/
+Python
+
+https://machinelearningmastery.com/monkey-patching-python-code/
+Python
+
+http://blog.headius.com/2012/11/refining-ruby.html
+Ruby
+
+http://yehudakatz.com/2010/11/30/ruby-2-0-refinements-in-practice/
+Ruby
+The purpose of refinements in Ruby 2.0 is to make monkey-patching safer.
+Specifically, the goal is to make it possible to extend core classes, but to
+limit the effect of those extensions to a particular area of code.
+
+
+--------------------------------------------------------------------------------
+
 https://developer.apple.com/library/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Extensions.html#//apple_ref/doc/uid/TP40014097-CH24-ID151
 Extensions add new functionality to an existing class, structure, enumeration, or protocol type.
 This includes the ability to extend types for which you do not have access to the original source code (known as retroactive modeling).
@@ -9,8 +47,6 @@ http://adambard.com/blog/structured-clojure-protocols-and-multimethods/
 Structured clojure: Protocols and multimethods
 http://clojure.org/multimethods
 http://stackoverflow.com/questions/4509782/simple-explanation-of-clojure-protocols
-
-http://blog.headius.com/2012/11/refining-ruby.html
 
 http://perfectionkills.com/extending-native-builtins/
 
@@ -37,8 +73,7 @@ Virtual extension methods
 
 http://confluence.jetbrains.net/display/Kotlin/Extension+functions
 
-http://yehudakatz.com/2010/11/30/ruby-2-0-refinements-in-practice/
-
 http://javascriptweblog.wordpress.com/2011/12/05/extending-javascript-natives/
 
 https://groups.google.com/forum/?hl=en&fromgroups#!topic/qilang/uGNHTS9LII4
+The expression problem
