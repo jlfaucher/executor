@@ -7209,11 +7209,11 @@ ooRexx> < include_conversion.rex
     -- End of file include_conversion.rex
     -------------------------------------
 ooRexx> call display_cache t
- 1                                  : UTF-8 not-ASCII (284 graphemes, 339 codepoints, 569 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
- 2                                  : UTF-8 not-ASCII (284 graphemes, 405 codepoints, 636 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
- 4                                  : UTF-8 not-ASCII (312 graphemes, 372 codepoints, 606 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
- 8                                  : UTF-8 not-ASCII (312 graphemes, 438 codepoints, 673 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
- 10                                 : UTF-8 not-ASCII (287 graphemes, 345 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'[01]'                              : UTF-8 not-ASCII (284 graphemes, 339 codepoints, 569 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'[02]'                              : UTF-8 not-ASCII (284 graphemes, 405 codepoints, 636 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'[04]'                              : UTF-8 not-ASCII (312 graphemes, 372 codepoints, 606 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'[08]'                              : UTF-8 not-ASCII (312 graphemes, 438 codepoints, 673 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'[10]'                              : UTF-8 not-ASCII (287 graphemes, 345 codepoints, 572 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
 'UTF-16BE'                          : UTF-16BE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
 'UTF-16LE'                          : UTF-16LE (284 graphemes, 342 codepoints, 690 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
 'UTF-32BE'                          : UTF-32BE (284 graphemes, 342 codepoints, 1368 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
@@ -9021,11 +9021,11 @@ ooRexx> < include_conversion.rex
     -- End of file include_conversion.rex
     -------------------------------------
 ooRexx> call display_cache t
- 1                                  : WTF-8 not-ASCII (285 graphemes, 340 codepoints, 573 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
- 2                                  : WTF-8 not-ASCII (285 graphemes, 406 codepoints, 640 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
- 4                                  : WTF-8 not-ASCII (313 graphemes, 373 codepoints, 610 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
- 8                                  : WTF-8 not-ASCII (313 graphemes, 439 codepoints, 677 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
- 10                                 : WTF-8 not-ASCII (288 graphemes, 346 codepoints, 576 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'[01]'                              : WTF-8 not-ASCII (285 graphemes, 340 codepoints, 573 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'[02]'                              : WTF-8 not-ASCII (285 graphemes, 406 codepoints, 640 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'[04]'                              : WTF-8 not-ASCII (313 graphemes, 373 codepoints, 610 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'[08]'                              : WTF-8 not-ASCII (313 graphemes, 439 codepoints, 677 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'[10]'                              : WTF-8 not-ASCII (288 graphemes, 346 codepoints, 576 bytes, 0 error)         '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
 'UTF-16BE'                          : UTF-16BE (285 graphemes, 343 codepoints, 694 bytes, 0 error)                '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
 'UTF-16LE'                          : UTF-16LE (285 graphemes, 343 codepoints, 694 bytes, 0 error)                '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
 'UTF-32BE'                          : UTF-32BE (285 graphemes, 343 codepoints, 1372 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 

@@ -14,7 +14,7 @@
     expose powerOfTwo
     use strict arg bitPos -- range 0 to (powerOfTwo~size - 1)
     dmask = powerOfTwo[bitpos + 1]
-    return dmask~d2x
+    return dmask~d2c -- MUST be ~d2c to let apply bitAnd, bitOr
 
 
 ::method bitFlagsMask class
@@ -25,7 +25,7 @@
     do i=1 to arg()
         if arg(i, "e") then dmask += (arg(i) \== 0) * powerOfTwo[i] -- (2 ** (i - 1))
     end
-    return dmask~d2x
+    return dmask~d2c -- MUST be ~d2c to let apply bitAnd, bitOr
 
 
 /******************************************************************************/
@@ -33,18 +33,19 @@
 
 /*
 A same text can be transformed in several strings, each described by a set of flags.
-This set of flags is used as a key to store the corresponding string in a cache.
+This set of flags is used as a key to store the corresponding string in a cache
+(byte encoded representation).
 Example of set of flags:
     Assuming that NFC is bit 0, casefold is bit 4, stripMark is bit 6:
-    NFC = 1                                     key = '[01]'    01x     00000001
-    NFC casefold = 1 + 16 = 17                  key = '[11]'    11x     00010001
-    NFC casefold stripMark = 1 + 16 + 32 = 49   key = '1'       31x     00110001
+    NFC = 1                                     01x     00000001        key = '1'x
+    NFC casefold = 1 + 16 = 17                  11x     00010001        key = '11'x
+    NFC casefold stripMark = 1 + 16 + 32 = 49   31x     00110001        key = '31'x
     etc...
 
     Cached strings:
-    stringsCache at '[01]' = NFC
-    stringsCache at '[11]' = NFC casefold
-    stringsCache at '1'    = NFC casefold stripMark
+    stringsCache at '1'x    = NFC
+    stringsCache at '11'x   = NFC casefold
+    stringsCache at '31'x   = NFC casefold stripMark
 */
 
 ::attribute stringsCache get -- for tuning/display only
@@ -70,7 +71,7 @@ Example of set of flags:
 
     expose assignedBitFlags bitFlags
     use strict arg bitPos
-    mask = .BitKey~bitPosMask(bitPos) -- interned (2 ** bitPos)~d2c
+    mask = .BitKey~bitPosMask(bitPos)
     if assignedBitFlags~bitand(mask) == mask then return bitFlags~bitand(mask) == mask
     return -1   -- unknown
 
@@ -86,16 +87,16 @@ Example of set of flags:
 ::method setBitFlag private
     expose assignedBitFlags bitFlags
     use strict arg bitPos
-    mask = .BitKey~bitPosMask(bitPos) -- interned (2 ** bitPos)~d2c
-    assignedBitFlags = assignedBitFlags~bitor(mask) -- this bit is set
-    bitFlags = bitFlags~bitor(mask)                 -- this flag is 1
+    mask = .BitKey~bitPosMask(bitPos)
+    assignedBitFlags = assignedBitFlags~bitor(mask) -- this bit has a value
+    bitFlags = bitFlags~bitor(mask)                 -- this bit has the value 1
 
 
 ::method setBitFlags private
     expose assignedBitFlags bitFlags
     use strict arg mask
-    assignedBitFlags = assignedBitFlags~bitor(mask) -- all these flags are set
-    bitFlags = bitFlags~bitor(mask)                 -- all these flags are 1
+    assignedBitFlags = assignedBitFlags~bitor(mask) -- all these bits have a value
+    bitFlags = bitFlags~bitor(mask)                 -- all these bits have the value 1
 
 
 ::method getCachedString private
