@@ -92,3 +92,8 @@ Toutes ces versions sont appelées indistinctement MVS dans la langue courante.
 Basé sur une architecture extrêmement fiable ayant fait ses preuves au cours des décennies, il est plébiscité par toutes les sociétés ayant de très gros besoins de disponibilité et de performances, on le retrouve comme site central (ordinateur central = Mainframe) chez la majorité des banques, assurances, mutuelles, industries automobiles, distributeurs car c'est le seul OS permettant de répondre à leurs attentes en termes de fiabilité, performances et accès concurrents.
 Le z/OS est un OS complètement différent des OS courants type Windows ou Unix. L'exemple le plus flagrant est la gestion des fichiers par catalogue et non de manière hiérarchique. Ainsi, sous z/OS , on ne trouve pas de répertoire. Les fichiers sont cataloguées mais non hiérarchisés dans des répertoires. Pour désigner un fichier, on parle de DSN, c'est à dire de Data Set Name. Le DSN est composé de plusieurs alias connectés par un point, dont seul le premier alias renvoie à un catalogue.
 Ces systèmes peuvent utiliser l'EBCDIC.
+
+================================================================================
+DA Mainframe Disassembler in REXX
+================================================================================
+https://github.com/abend0c1/da
