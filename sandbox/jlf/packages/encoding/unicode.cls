@@ -53,6 +53,12 @@ Depends on
 ::constant maxCodepoint 1114111
 ::constant characterIndexOffset 1 -- +1 because index 0 must be supported.
 
+-- Code to pass to utf8proc_transform with the named argument normalization:
+::constant NFC 1
+::constant NFD 2
+::constant NFKC 3
+::constant NFKD 4
+
 ::attribute dataDirectory get class
 ::attribute totalCharactersLoaded get class
 ::attribute totalIntervalCharacters get class

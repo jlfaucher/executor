@@ -2,7 +2,91 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
-30/01/2023
+2023 March 08
+
+[Encoded strings]
+
+Implementation of caselessMatchChar, matchChar
+"Noëlle"~text~matchChar(2, "aeiouy")=                       -- 1
+"Noëlle"~text~matchChar(3, "aeiouy")=                       -- 0
+"Noëlle"~text~matchChar(3, "aeëiouy")=                      -- 1    include the accents in the list of accepted characters
+"Noëlle"~text~matchChar(3, "aeiouy", stripMark:)=           -- 1    or remove the accents from the tested string
+"Noëlle"~text~matchChar(6, "aeiouy")=                       -- 1
+
+"Bundesschnellstraße"                                       -- at 14: "s", at 18:"ß"
+ 1234567890123456789
+"Bundesschnellstraße"~text~matchChar(14, "s")=              -- 1
+"Bundesschnellstraße"~text~matchChar(18, "s")=              -- 0
+"Bundesschnellstraße"~text~matchChar(18, "sß")=             -- 1
+"Bundesschnellstraße"~text~caselessMatchChar(18, "s")=      -- 1    "ß" becomes "ss" which is 2 graphemes. The first grapheme at 18 matches "s"
+"Bundesschnellstraße"~text~caselessMatchChar(19, "s")=      -- 0    "ß" becomes "ss" which is 2 graphemes. The grapheme at 19 is "e", not the second "s"
+"Bundesschnellstraße"~text~caselessMatchChar(19, "e")=      -- 1    "ß" becomes "ss" which is 2 graphemes. The grapheme at 19 is "e", not the second "s"
+
+The ligature disappears in NFK[CD] but not in NF[CD]
+"baﬄe"~text~NFKC=                                            -- T'baffle'
+"baﬄe"~text~NFKD=                                            -- T'baffle'
+"baﬄe"~text~matchChar(3, "f")=                               -- 0     "ﬄ" is ONE grapheme because NFC
+"baﬄe"~text~matchChar(3, "ﬄ")=                              -- 1     "ﬄ" is ONE grapheme because NFC
+"baﬄe"~text~matchChar(3, "ﬄ", normalization:.Unicode~NFKD)= -- 1     "ﬄ" becomes "ffl" (3 graphemes). There is a match because the first grapheme is "f"
+"baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=  -- 1     "ﬄ" becomes "ffl" (3 graphemes). There is a match because the first grapheme is "f"
+"baﬄe"~text~matchChar(4, "f", normalization:.Unicode~NFKD)=  -- 0     "ﬄ" becomes "ffl" (3 graphemes). The grapheme at 4 is "e", not the second "f"
+"baﬄe"~text~matchChar(4, "e", normalization:.Unicode~NFKD)=  -- 1     "ﬄ" becomes "ffl" (3 graphemes). The grapheme at 4 is "e", not the second "f"
+
+The ligature disappears when casefolded
+"baﬄe"~text~casefold=                                        -- T'baffle'
+"BAFFLE"~text~caselessMatchChar(3, "ﬄ")=                     -- 1      "ﬄ" becomes "ffl" (3 graphemes), there is a match on "f" at 3
+"BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                     -- 1      "ﬄ" becomes "ffl" (3 graphemes), there is a match on "l" at 5
+"BAFFLE"~text~caselessMatchChar(5, "L")=                      -- 1      there is a match on "l" at 5
+
+
+Implementation of caselessEquals, equals
+"ŒUF"~text~caselessEquals("œuf")=           -- 1
+"œuf"~text~caselessEquals("ŒUF")=           -- 1
+"Straße"~text~caselessEquals("strasse")=    -- 1
+"strasse"~text~caselessEquals("Straße")=    -- 1
+
+
+Reminder: a caseless method is transforming its arguments using CaseFold.
+The default normalization is NFC, it's possible to change it with the argument
+normalization
+    .unicode~NFC    (default)
+    .unicode~NFD
+    .unicode~NFKC
+    .unicode~NFKD
+There is no value NFKC_CF because it can be done with NFKC + stripIgnorable
+
+
+Some ligatures are not decomposed by NFKC.
+"ŒUF"~text~caselessEquals("oeuf")=                                  -- 0
+"ŒUF"~text~caselessEquals("oeuf", normalization:.Unicode~NFKC)=     -- 0
+
+https://github.com/unicode-org/icu4x/issues/3151#issuecomment-1458494311
+ŒUF and œuf are primary-equal to oeuf, whereas they are not identifier caseless matches.
+For general-purpose matching that does not have stability requirements,
+something collation-based is more appropriate.
+Todo with ICU4X...
+
+https://www.unicode.org/L2/L2023/23005.htm#174-C4
+Recently the UTC approved (in consensus 174-C4) a change to the collation of
+punctuation marks that look like the ASCII ' and ", which has the effect that
+O'Connor (APOSTROPHE) will now be primary-equal to O’Connor (RIGHT SINGLE QUOTATION MARK)
+Todo with ICU4X...
+
+
+Implementation of caselessMatch and match to rework to support this case where
+the casefold transformation invalidates the position 14:
+"Bundesstraße im Freiland"~text~caselessMatch(14, "im")=        -- returns false, must be true
+ 123456789012345678901234
+"Bundesstraße im Freiland"~text~caselessMatch(15, "im")=        -- returns true, must be false
+An easy implementation is to extract the substring and then apply the transformations and then compare.
+That will be in contradiction with this sentence in RexxRef, but acceptable for
+a prototype:
+"The caselessMatch method is useful for efficient string parsing as it does not
+require new string objects be extracted from the target string."
+
+
+===============================================================================
+2023 January 30
 
 Update the ICU4X binaries: release 1.1
 
@@ -47,7 +131,14 @@ copy target\release\icu_capi_cdylib.dll (and .exp, .lib, .pdb)
 
 
 ===============================================================================
-22/12/2022
+2022 December 22
+
+[update 2022 Feb24]
+Next section is WRONG.
+No need to install a recent clang.
+I had this error because of this declaration in setenv-macos:
+    MACOSX_DEPLOYMENT_TARGET=10.9
+After changing the value to 10.13, as written in the error message, no problem.
 
 Building on my new MBP...
 Not possible to compile ICU4X headers under macOS Monterey 12.6.2 with the compiler
@@ -103,6 +194,10 @@ Can't upgrade to ziglyph for zig 0.10.0 with Unicode 15.0.0 support
 because zig maintainers introduced a dependency on ___ulock_wait2
 which is not supported by my MacOs version (High Sierre 10.13.6).
 https://github.com/ziglang/zig/issues/13313#issuecomment-1304802222
+
+Update 2023 Feb 21
+https://github.com/ziglang/zig/issues/14405
+macOS 10.15: dyld: lazy symbol binding failed: Symbol not found: ___ulock_wait2
 
 
 ===============================================================================

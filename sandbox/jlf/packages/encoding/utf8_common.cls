@@ -515,19 +515,19 @@ Depends on
 
 
 ::method NFC
-    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", 1))
+    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", .Unicode~NFC))
 
 
 ::method NFD
-    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", 2))
+    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", .Unicode~NFD))
 
 
 ::method NFKC
-    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", 3))
+    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", .Unicode~NFKC))
 
 
 ::method NFKD
-    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", 4))
+    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", .Unicode~NFKD))
 
 
 ::method casefold

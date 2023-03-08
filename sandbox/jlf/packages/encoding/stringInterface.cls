@@ -32,9 +32,15 @@
     must_have_a_text_or_buffer_or_string_value: raise syntax 93.900 array("Method positional argument "i" must have a text or buffer or string value")
 
 
-::method endsWithText
+::method compareText private
+    use strict arg text, pad
+    use strict named arg normalization, casefold, lump, stripIgnorable, stripMark
+    -- todo
+
+
+::method endsWithText private
     use strict arg other
-    use strict named arg casefold
+    use strict named arg normalization, casefold, lump, stripIgnorable, stripMark
     -- todo
 /*
     start = self~length - substr~length + 1
@@ -118,34 +124,54 @@
     invalid_position:           raise syntax 93.924 array(startC)
 
 
-::method matchCharText
+::method matchCharText private
     use strict arg nC, chars
-    -- todo
+    use strict named arg normalization, casefold, lump, stripIgnorable, stripMark
+
+    selfIndexer = self
+    call check_position nC, selfIndexer~length
+
+    charsText = chars~request("RexxText") -- not requestTextOrBufferOrString because we really need a RexxText
+    if .nil == charsText then signal argument_2_must_have_a_text_or_string_value
+    charsNormText = charsText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
+
+    graphemeText = selfIndexer~grapheme(nC)
+    graphemeNormText = graphemeText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
+    -- The grapheme may become 2 graphemes... "ß" becomes "ss" when casefolded
+    -- Test only the first grapheme, because the second grapheme doesn't exist in the original string
+    firstGrapheme = graphemeNormText~grapheme(1)
+    return charsNormText~string~pos(firstGrapheme~string) \== 0
+
+    check_position: procedure
+        use strict arg position, max
+        if \datatype(position, "w") then signal invalid_position
+        if position <= 0 then signal invalid_position
+        if position > max then signal invalid_position
+        return
+
+        invalid_position: raise syntax 93.924 array(position)
+
+    argument_2_must_have_a_text_or_string_value: raise syntax 93.900 /*93.938*/ array("Method positional argument 2 must have a text or string value")
 
 
 ::method matchText private
     use strict arg startC, other, nC, lengthC
-    -- stay limited to NFC because of the position and length
-    use strict named arg casefold, lump, stripIgnorable, stripMark -- boolean
+    -- the position and length are related to the internal normalized strings
+    use strict named arg normalization, casefold, lump, stripIgnorable, stripMark
 
     selfIndexer = self
-    call check_position startC, selfIndexer~length
+    selfText = selfIndexer~string~text
+    selfNormText = selfText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
+    selfNormIndexer = selfNormText~internalIndexer
+    call check_position startC, selfNormIndexer~length
 
     otherText = other~request("RexxText") -- not requestTextOrBufferOrString because we really need a RexxText
-    if .nil == otherText then signal must_have_a_text_or_string_value
-
-    otherIndexer = otherText~internalIndexer
-    call check_position nC, otherIndexer~length
-
-    if .nil == lengthC then lengthC = otherIndexer~length - nC + 1
-    call check_length lengthC, otherIndexer~length, nC
-
-    selfText = selfIndexer~string~text
-    selfNormText = selfText~NFC(:casefold, :lump, :stripIgnorable, :stripMark)
-    selfNormIndexer = selfNormText~internalIndexer
-
-    otherNormText = otherText~NFC(:casefold, :lump, :stripIgnorable, :stripMark)
+    if .nil == otherText then signal argument_2_must_have_a_text_or_string_value
+    otherNormText = otherText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
     otherNormIndexer = otherNormText~internalIndexer
+    call check_position nC, otherNormIndexer~length
+    if .nil == lengthC then lengthC = otherNormIndexer~length - nC + 1
+    call check_length lengthC, otherNormIndexer~length, nC
 
     startB = abs(selfNormIndexer~graphemeIndex(startC))
     nB = abs(otherNormIndexer~graphemeIndex(nC))
@@ -177,12 +203,12 @@
 
         invalid_length: raise syntax 93.923 array(length)
 
-    must_have_a_text_or_string_value: raise syntax 93.900 /*93.938*/ array("Method positional argument 2 must have a text or string value")
+    argument_2_must_have_a_text_or_string_value: raise syntax 93.900 /*93.938*/ array("Method positional argument 2 must have a text or string value")
 
 
 ::method posText private
     use strict arg needle, startC, lengthC
-    use strict named arg casefold -- boolean
+    use strict named arg casefold, lump, stripIgnorable, stripMark
     -- todo
 
 
@@ -200,25 +226,34 @@
     must_have_a_text_or_buffer_or_string_value: raise syntax 93.900 array("Method positional argument 1 must have a text or buffer or string value")
 
 
+::method caselessCompare
+    use strict arg text, pad=(self~encoding~spaceCharacter)
+    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
+    return self~compareText(text, pad, :normalization, casefold:.true, :lump, :stripIgnorable, :stripMark)
+
+
 ::method caselessEndsWith
     use strict arg other
-    return self~endsWithText(other, casefold: .true)
+    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
+    return self~endsWithText(other, :normalization, casefold:.true, :lump, :stripIgnorable, :stripMark)
 
 
 ::method caselessMatch
     use strict arg startC, other, nC=1, lengthC=.nil
-    use strict named arg lump= .false, stripIgnorable= .false, stripMark=.false
-    return self~matchText(startC, other, nC, lengthC, casefold: .true, :lump, :stripIgnorable, :stripMark)
+    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
+    return self~matchText(startC, other, nC, lengthC, :normalization, casefold:.true, :lump, :stripIgnorable, :stripMark)
 
 
 ::method caselessMatchChar
     use strict arg nC, chars
-    return self~matchCharText(nC, chars, casefold: .true)
+    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
+    return self~matchCharText(nC, chars, :normalization, casefold:.true, :lump, :stripIgnorable, :stripMark)
 
 
 ::method caselessPos
     use strict arg needle, startC=1, lengthC=(self~length)
-    return self~posText(needle, startC, lengthC, casefold: .true)
+    use strict named arg lump=.false, stripIgnorable=.false, stripMark=.false
+    return self~posText(needle, startC, lengthC, casefold:.true, :lump, :stripIgnorable, :stripMark)
 
 
 ::method center
@@ -229,7 +264,7 @@
     if length < 0 then signal invalid_length
 
     pad = pad~request("RexxText") -- not requestTextOrBufferOrString because we really need the pad's length in graphemes
-    if .nil == pad then signal must_have_a_text_or_string_value
+    if .nil == pad then signal argument_3_must_have_a_text_or_string_value
     if pad~length <> 1 then signal incorrect_pad
 
     width = length
@@ -267,14 +302,21 @@
         return self~substr(leftPad + 1, width)
     end
 
-    incorrect_pad:                    raise syntax 93.922 array(pad~descriptionForError)
-    invalid_length:                   raise syntax 93.923 array(length)
-    must_have_a_text_or_string_value: raise syntax 93.900 array("Method positional argument 3 must have a text or string value")
+    incorrect_pad:                               raise syntax 93.922 array(pad~descriptionForError)
+    invalid_length:                              raise syntax 93.923 array(length)
+    argument_3_must_have_a_text_or_string_value: raise syntax 93.900 array("Method positional argument 3 must have a text or string value")
+
+
+::method compare
+    use strict arg text, pad=(self~encoding~spaceCharacter)
+    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
+    return self~compareText(text, pad, :normalization, casefold:.false, :lump, :stripIgnorable, :stripMark)
 
 
 ::method endsWith
     use strict arg other
-    return self~endsWithText(other, casefold: .false)
+    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
+    return self~endsWithText(other, :normalization, casefold:.false, :lump, :stripIgnorable, :stripMark)
 
 
 ::method length -- number of graphemes
@@ -290,18 +332,20 @@
 
 ::method match
     use strict arg startC, other, nC=1, lengthC=.nil
-    use strict named arg lump= .false, stripIgnorable= .false, stripMark=.false
-    return self~matchText(startC, other, nC, lengthC, casefold: .false, :lump, :stripIgnorable, :stripMark)
+    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
+    return self~matchText(startC, other, nC, lengthC, :normalization, casefold:.false, :lump, :stripIgnorable, :stripMark)
 
 
 ::method matchChar
     use strict arg nC, chars
-    return self~matchCharText(nC, chars, casefold: .false)
+    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
+    return self~matchCharText(nC, chars, casefold:.false, :normalization, :lump, :stripIgnorable, :stripMark)
 
 
 ::method pos
     use strict arg needle, startC=1, lengthC=(self~length)
-    return self~posText(needle, startC, lengthC, casefold: .false)
+    use strict named arg lump=.false, stripIgnorable=.false, stripMark=.false
+    return self~posText(needle, startC, lengthC, casefold:.false, :lump, :stripIgnorable, :stripMark)
 
 
 ::method reverse
@@ -324,7 +368,7 @@
     if length < 0 then signal invalid_length
 
     pad = pad~request("RexxText") -- not requestTextOrBufferOrString because we really need the pad's length in graphemes
-    if .nil == pad then signal must_have_a_text_or_string_value
+    if .nil == pad then signal argument_3_must_have_a_text_or_string_value
     if pad~length <> 1 then signal incorrect_pad
 
     encoding = .Encoding~forConcatenation(self~string, pad) -- raise an error if not compatible
@@ -350,9 +394,9 @@
     end
     return encoding~concatenate(pad~copies(lengthPad), right)
 
-    incorrect_pad:                    raise syntax 93.922 array(pad~descriptionForError)
-    invalid_length:                   raise syntax 93.923 array(length)
-    must_have_a_text_or_string_value: raise syntax 93.900 array("Method positional argument 3 must have a text or string value")
+    incorrect_pad:                               raise syntax 93.922 array(pad~descriptionForError)
+    invalid_length:                              raise syntax 93.923 array(length)
+    argument_3_must_have_a_text_or_string_value: raise syntax 93.900 array("Method positional argument 3 must have a text or string value")
 
 
 ::method substr
@@ -366,7 +410,7 @@
     if length < 0 then signal invalid_length
 
     pad = pad~request("RexxText") -- not requestTextOrBufferOrString because we really need the pad's length in graphemes
-    if .nil == pad then signal must_have_a_text_or_string_value
+    if .nil == pad then signal argument_3_must_have_a_text_or_string_value
     if pad~length <> 1 then signal incorrect_pad
 
     encoding = .Encoding~forConcatenation(self~string, pad) -- raise an error if not compatible
@@ -393,10 +437,10 @@
     end
     return encoding~concatenate(substr, pad~copies(lengthPad))
 
-    incorrect_pad:                    raise syntax 93.922 array(pad~descriptionForError)
-    invalid_length:                   raise syntax 93.923 array(length)
-    invalid_position:                 raise syntax 93.924 array(startC)
-    must_have_a_text_or_string_value: raise syntax 93.900 array("Method positional argument 3 must have a text or string value")
+    incorrect_pad:                               raise syntax 93.922 array(pad~descriptionForError)
+    invalid_length:                              raise syntax 93.923 array(length)
+    invalid_position:                            raise syntax 93.924 array(startC)
+    argument_3_must_have_a_text_or_string_value: raise syntax 93.900 array("Method positional argument 3 must have a text or string value")
 
 
 -- not a String method but maybe in the future...
