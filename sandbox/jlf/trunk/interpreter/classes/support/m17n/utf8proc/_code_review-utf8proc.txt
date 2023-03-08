@@ -182,11 +182,11 @@ utf8proc_grapheme_break(utf8proc_int32_t codepoint1, utf8proc_int32_t codepoint2
 Code review of normalization
 -------------------------------------------------------------------------------
 
-utf8proc_NFD		UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_DECOMPOSE
-utf8proc_NFC		UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_COMPOSE
-utf8proc_NFKD		UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT
-utf8proc_NFKC		UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT
-utf8proc_NFKC_Casefold	UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD | UTF8PROC_IGNORE
+utf8proc_NFD            UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_DECOMPOSE
+utf8proc_NFC            UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_COMPOSE
+utf8proc_NFKD           UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT
+utf8proc_NFKC           UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT
+utf8proc_NFKC_Casefold  UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD | UTF8PROC_IGNORE
 
 
 
@@ -199,66 +199,75 @@ utf8proc_normalize_utf32
  *                           codepoints
  * - @ref UTF8PROC_STABLE  - prohibit combining characters that would violate
  *                           the unicode versioning stability
- * - @ref UTF8PROC_CHARBOUND - insert 0xFF bytes before each grapheme cluster
+ * - @ref UTF8PROC_CHARBOUND - insert 0xFF bytes before each grapheme cluster   <-- not managed here
 
 
 UTF8PROC_NULLTERM
-	utf8proc_decompose_custom
+    utf8proc_decompose_custom
 
 UTF8PROC_STABLE
-	utf8proc_normalize_utf32
-		called by utf8proc_reencode
-			called by utf8proc_map_custom
+    utf8proc_normalize_utf32
+        called by utf8proc_reencode
+            called by utf8proc_map_custom
 
 UTF8PROC_DECOMPOSE
-	utf8proc_decompose_char
-	utf8proc_decompose_custom
+    utf8proc_decompose_char
+    utf8proc_decompose_custom
 
 UTF8PROC_COMPOSE
-	utf8proc_decompose_char
-	utf8proc_decompose_custom
-	utf8proc_normalize_utf32
+    utf8proc_decompose_char
+    utf8proc_decompose_custom
+    utf8proc_normalize_utf32
 
 UTF8PROC_COMPAT
-	utf8proc_decompose_char
+    utf8proc_decompose_char
 
 UTF8PROC_CASEFOLD
-	utf8proc_decompose_char
+    utf8proc_decompose_char
 
 UTF8PROC_IGNORE
-	utf8proc_decompose_char
+    utf8proc_decompose_char
 
 
 utf8proc_map
-	utf8proc_map_custom
-		utf8proc_decompose_custom		convert utf-8 str/strlen into codepoints
-							The same as utf8proc_decompose_char, but acts on a whole UTF-8 string and orders the decomposed sequences correctly.
-			rpos = 0; wpos = 0
-			boundclass = UTF8PROC_BOUNDCLASS_START
-			while (1) {
-				get next codepoint uc and its index rpos
-				test if must stop
-				apply custom_func on uc
-				utf8proc_decompose_char(uc, buffer+wpos, <remaining buffer size>, options, &boundclass)   --> returns the count of codepoints or <0 when error
-			}
-			iterate over buffer {
-				if needed swap pair of codepoints
-			}
-		utf8proc_reencode	(impacted by UTF8PROC_STABLE)
+    utf8proc_map_custom
+        -- 1st call of utf8proc_decompose_custom to get the size of the needed 32-bit codepoints buffer
+        -- allocate the 32-bit codepoints buffer
+        -- 2nd call of utf8proc_decompose_custom with the allocated 32-bit codepoints buffer
+            utf8proc_decompose_custom       -- convert utf-8 str/strlen into codepoints
+                                            -- The same as utf8proc_decompose_char,
+                                            -- but acts on a whole UTF-8 string and orders the decomposed sequences correctly.
+                rpos = 0; wpos = 0
+                boundclass = UTF8PROC_BOUNDCLASS_START
+                while (1) {
+                    get next codepoint uc and its index rpos using utf8proc_iterate
+                    if invalid UTF-8 then stop
+                    test if must stop, depending on the option UTF8PROC_NULLTERM
+                    apply custom_func on uc
+                    utf8proc_decompose_char(uc, buffer+wpos, <remaining buffer size>, options, &boundclass)   --> returns the count of codepoints or <0 when error
+                }
+                iterate over buffer {
+                    if needed swap pair of codepoints
+                }
+        -- reencode in place in the buffer
+        utf8proc_reencode   (impacted by UTF8PROC_STABLE)
+            utf8proc_normalize_utf32    -- works on a buffer of 32-bit codepoints
+                -- 1st pass: apply the options UTF8PROC_NLF2LS, UTF8PROC_NLF2PS, UTF8PROC_STRIPCC
+                -- 2nd pass: apply the option UTF8PROC_COMPOSE
+            -- encode each codepoint (if option UTF8PROC_CHARBOUND then encode the codepoint -1 as 0xFF
 
 
-utf8proc_decompose_char		(the options with no comment are missing in the doc)
-	UTF8PROC_COMPOSE
-	UTF8PROC_DECOMPOSE
-	UTF8PROC_REJECTNA	return an error `codepoint` is unassigned
-	UTF8PROC_IGNORE		strip "default ignorable" codepoints
-	UTF8PROC_STRIPNA	remove unassigned codepoints
-	UTF8PROC_LUMP		lump certain different codepoints together
-	UTF8PROC_NLF2LS
-	UTF8PROC_NLF2PS
-	UTF8PROC_STRIPMARK	remove all character marks
-	UTF8PROC_CASEFOLD	apply Unicode casefolding
-	UTF8PROC_COMPAT		replace certain codepoints with their compatibility decomposition
-	UTF8PROC_CHARBOUND	insert 0xFF bytes before each grapheme cluster
-
+utf8proc_decompose_char     (the options with no comment are missing in the doc)
+    UTF8PROC_COMPOSE
+    UTF8PROC_DECOMPOSE
+    UTF8PROC_REJECTNA   return an error `codepoint` is unassigned
+    UTF8PROC_IGNORE     strip "default ignorable" codepoints
+    UTF8PROC_STRIPNA    remove unassigned codepoints
+    UTF8PROC_LUMP       lump certain different codepoints together
+    UTF8PROC_NLF2LS
+    UTF8PROC_NLF2PS
+    UTF8PROC_STRIPMARK  remove all character marks
+    UTF8PROC_CASEFOLD   apply Unicode casefolding
+    UTF8PROC_COMPAT     replace certain codepoints with their compatibility decomposition
+    UTF8PROC_CHARBOUND  insert 0xFF bytes before each grapheme cluster
 
