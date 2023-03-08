@@ -54,6 +54,7 @@ Contents:
     <a href="#terminal___console___cmd">terminal / console / cmd</a>
     <a href="#Windows_OS">Windows OS</a>
     <a href="#Z_OS">Z/OS</a>
+    <a href="#IBM_RPG_Lang">IBM RPG Lang</a>
     <a href="#Language_comparison">Language comparison</a>
     <a href="#Regular_expressions">Regular expressions</a>
     <a href="#Test_cases__test_cases__tests_files">Test cases, test-cases, tests files</a>
@@ -205,6 +206,10 @@ BIDI BRACKETS FOR DUMMIES
 
 
 <hr><h2 id="Unicode_general_informations">Unicode general informations</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://codepoints.net/">https://codepoints.net/</a>
+Very detailled decription of each character
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/UTF-8">https://en.wikipedia.org/wiki/UTF-8</a>
 <a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/UTF-16">https://en.wikipedia.org/wiki/UTF-16</a>
 <a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/UTF-32">https://en.wikipedia.org/wiki/UTF-32</a>
@@ -692,6 +697,22 @@ normalised strings produces another normalised string. From UAX #15:
     their string concatenation X+Y is not guaranteed to be normalized.
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/7171377/separating-unicode-ligature-characters">https://stackoverflow.com/questions/7171377/separating-unicode-ligature-characters</a>
+NFKD is no panacea: there are plenty of ligatures and other notionally combined
+forms it just does not work on at all. For example, it will not manage to decompose
+ß or ẞ to SS (even those there is a casefold thither!), nor Æ to AE or æ to ae,
+nor Œ to OE or œ to oe. It is also useless for turning ð or đ into d or ø into o.
+For all those things, you need the UCA (Unicode Collation Algorithm), not NFKD.
+NFD/NFKD also both have the annoying property of destroying singletons, if this
+matters to you.
+---
+my understanding is that those decompositions you mention should not be done.
+They are not simply ligatures in the typographical sense, but real separate
+characters that are used differently! ß can be decomposed to ss if necessary
+(for example if you can only store ASCII), but they are not equivalent. The ff
+Ligature, on the other hand is only a typographical ligature.
+
+
 <hr><h2 id="Character_set">Character set</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://www.gnu.org/software/libc/manual/html_mono/libc.html#Character-Set-Handling">https://www.gnu.org/software/libc/manual/html_mono/libc.html#Character-Set-Handling</a>
 
@@ -771,6 +792,10 @@ Under simple case folding rules the lower of Æ is ǣ.
 However with full case folding rules this also matches ae.
 Which one is correct? Well that depends on who you ask.
 
+
+See also
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/3151">https://github.com/unicode-org/icu4x/issues/3151</a>
+in the section "ICU4X title".
 
 <hr><h2 id="Locale">Locale</h2><hr>
 02/06/2021
@@ -989,6 +1014,25 @@ a site devoted to working with Collations, Unicode, Encodings, Code Pages, etc i
 
 29/05/2021
 <a target="_blank" rel="noopener noreferrer" href="https://tonsky.me/blog/emoji/">https://tonsky.me/blog/emoji/</a>
+
+
+27/02/2023
+<a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=34925446">https://news.ycombinator.com/item?id=34925446</a>
+Discussion about emoji and graphemes (again...).
+Nothing very interesting in this discussion.
+Remember:
+The "length" of a string in extended grapheme clusters is not stable across Unicode versions, which seems like a recipe for confusion.
+The length in code units is unambiguous and constant across versions.
+---
+Executor:
+NinjaCat = "🐱‍👤"
+NinjaCat~description=
+    'UTF-8 not-ASCII (11 bytes)'
+NinjaCat~text~characters==
+    an Array (shape [3], 3 items)
+     1 : ( "🐱"  U+1F431 So 2 "CAT FACE" )
+     2 : ( "‍"    U+200D Cf 0 "ZERO WIDTH JOINER", "ZWJ" )
+     3 : ( "👤"  U+1F464 So 2 "BUST IN SILHOUETTE" )
 
 
 <hr><h2 id="Countries__flags">Countries, flags</h2><hr>
@@ -1549,6 +1593,10 @@ multiple bogus bytes?
 jlf: the answer is not clear to me...
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt">https://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt</a>
+UTF-8 decoder capability and stress test
+
+
 <hr><h2 id="Mojibake">Mojibake</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/LuminosoInsight/python-ftfy">https://github.com/LuminosoInsight/python-ftfy</a>
 ftfy can fix mojibake (encoding mix-ups), by detecting patterns of characters
@@ -1661,6 +1709,10 @@ Discussion about ropes, ideal of strings...
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/xi-editor/xi-editor/blob/e8065a3993b80af0aadbca0e50602125d60e4e38/doc/rope_science/rope_science_03.md">https://github.com/xi-editor/xi-editor/blob/e8065a3993b80af0aadbca0e50602125d60e4e38/doc/rope_science/rope_science_03.md</a>
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=34948308">https://news.ycombinator.com/item?id=34948308</a>
+Several references to older papers
+
+
 <hr><h2 id="Encoding_title">Encoding title</h2><hr>
 
 <a target="_blank" rel="noopener noreferrer" href="https://thephd.dev/the-c-c++-rust-string-text-encoding-api-landscape">https://thephd.dev/the-c-c++-rust-string-text-encoding-api-landscape</a>
@@ -1703,6 +1755,10 @@ Software Services and Consulting.
 
 
 <hr><h2 id="ICU_title">ICU title</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://unicode-org.github.io/icu/">https://unicode-org.github.io/icu/</a>
+ICU documentation
+
+
 <a target="_blank" rel="noopener noreferrer" href="http://stackoverflow.com/questions/8253033/what-open-source-c-or-c-libraries-can-convert-arbitrary-utf-32-to-nfc">http://stackoverflow.com/questions/8253033/what-open-source-c-or-c-libraries-can-convert-arbitrary-utf-32-to-nfc</a>
 What open source C or C++ libraries can convert arbitrary UTF-32 to NFC?
 
@@ -2001,6 +2057,150 @@ For ruby, is it built by a github workflow?
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/ankane/polars-ruby/blob/master/.github/workflows/release.yml">https://github.com/ankane/polars-ruby/blob/master/.github/workflows/release.yml</a>
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/3151">https://github.com/unicode-org/icu4x/issues/3151</a>
+icu_casemapping feature request: methods fold and full_fold should apply Turkic mappings depending on locale
+    ---
+    Markus Scherer:
+    Applying Turkic case foldings automatically is dangerous.
+    While case mappings are intended for human consumption and take a locale parameter,
+    case foldings are used for processing (case-insensitive matching) not for display,
+    and in most cases it is very surprising when "IBM" and "ibm" don't match when the
+    locale is Turkish or Azerbaijani.
+    It is much safer to let the developer control this explicitly. (By comparison,
+    ICU4C/ICU4J have folding functions that take a boolean parameter for default vs.
+    Turkic foldings. This also models the boolean condition in the relevant Unicode
+    data file.)
+    ---
+    lucatrv
+    If I understand correctly, icu_collator should be used when strings need to be sorted,
+    while a case-folding method of icu_casemapping should be used when strings need
+    just to be matched. However icu_collator can also be used to match strings, see
+    for instance examples using Ordering::Equal here, so it is not clear to me which
+    one to use in this case.
+    Finally, another source of confusion (at least for me) is that icu_casemapping
+    can be used for both case mapping and case folding, but its documentation mentions
+    only "Case mapping for Unicode characters and strings".
+    ---
+    sffc
+    The collator does a fuzzier match. The example you cited shows that it considers
+    "às" and "as" to be equal, for example.
+    @markusicu is it safe to say that most users who are looking for a fuzzy string
+    comparison utility should favor the collator over casefold+nfd?
+    ---
+    sffc
+    See also <a target="_blank" rel="noopener noreferrer" href="https://github.com/tc39/ecma402/issues/256">https://github.com/tc39/ecma402/issues/256</a>
+    ---
+    hsivonen
+    Casefold+NFD and ignoring combining diacritics after the NFD operation gives a
+    general case-insensitive, diacritic-insensitive match. To further match the root
+    search collation (apart from the Hangul aspect for which I don't understand the
+    use case), you'd have to also ignore certain Arabic marks and the Thai phinthu
+    (virama). (The Hebrew aspect of the search root is gone from CLDR trunk already.)
+
+    Apart from Turkic case-insensitivity, the key thing that the search collation
+    tailorings provide on top of the above is being able to have a diacritic-insensitive
+    mode where certain things that technically are diacritics but that are on a
+    per-language basis considered to form a distinct base letter are not ignored on
+    a locale-sensitive basis. For example, o and ö are distinct for Finnish, Swedish,
+    Icelandic, and Turkish (not sure if them being equal for Estonian search is
+    intentional or a CLDR bug) in collator-based search even when ignoring diacritics.
+
+    Based on observing the performance of Firefox's ctrl/cmd-f (not collator based)
+    relative to Chrome's and Safari's (collator-based), I believe that casefold+NFD
+    and ignoring certain things post-NFD will be faster than collator-based search.
+    However, if you also want not to ignore certain diacritics on a per-locale basis,
+    it's up to you to implement those rules. That is, ICU4X doesn't do it for you.
+    You can find out what the rules are by reading the CLDR search collation sources.
+
+    (FWIW, Firefox's ctrl/cmd-f does not have locale-dependent rules for diacritics.
+    The checkbox either ignores all of them or none.)
+
+    ECMA-402 and ICU4X don't have API surface for collator-based substring match.
+    You can only do full-string comparison, so you can search in the sense of
+    filtering a set/list of items by a search key.
+    ---
+    Markus Scherer
+        &gt; If I understand correctly, CaseMapping::to_full_fold applies full case folding
+        &gt; + NFD and ignores combining diacritics.
+    I think not. I believe it just applies the “full” Case_Folding mappings to each
+    character, as opposed to the Simple_Case_Folding. Normalization and removing
+    diacritics etc. would be separate steps / function calls.
+    <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr44/#Case_Folding">https://www.unicode.org/reports/tr44/#Case_Folding</a>
+
+        &gt; Therefore it actually provides the fuzziest match (general case-insensitive
+        &gt; and diacritic-insensitive match). To my understanding this should be equivalent
+        &gt; to the icu_collator primary strength level,
+        &gt; <a target="_blank" rel="noopener noreferrer" href="https://icu4x.unicode.org/doc/icu_collator/enum.Strength.html#variant.Primary">https://icu4x.unicode.org/doc/icu_collator/enum.Strength.html#variant.Primary</a>
+    No. Similar in effect, but as Henri said, collation mappings do a lot more, such
+    as ignoring control codes and variation selectors.
+
+        &gt; which I guess is independent from locale
+    Not really. There are language-specific collation mappings, such as German "ä"="ae"
+    (on primary level), but of course for the majority of Unicode characters each
+    tailoring behaves like the Unicode default.
+
+    Collation also provides for a number of parametric settings, although most of
+    those are relevant for sorting, not for matching and searching. They do let you
+    select things like “ignore punctuation” and “ignore diacritics but not case”.
+    <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr35/tr35-collation.html#Setting_Options">https://www.unicode.org/reports/tr35/tr35-collation.html#Setting_Options</a>
+    ---
+    lucatrv
+    Referring to Section 3.13, Default Case Algorithms in the Unicode Standard,
+    now I understand that CaseMapping::full_fold applies the toCasefold(X)
+    operation (R4 page 155), which is the Case_Folding property.
+
+    To allow proper caseless matching of strings interpreted as identifiers,
+    in my opinion another method CaseMapping::NFKC_full_fold should be added,
+    to apply the toNFKC_Casefold(X) operation (R5 page 155), which is the
+    NFKC_Casefold property. Then another method should be added to allow
+    identifier caseless matching, which could be either the combined function
+    toNFKC_Casefold(NFD(X)) (D147 page 158) or the lower level NFD(X)
+    normalization function. Otherwise to keep things simpler, maybe just a
+    method named CaseMapping::caseless could be added which applies
+    toNFKC_Casefold(NFD(X)) (D147 page 158). Do you agree, or otherwise how can
+    I perform proper caseless categorization and matching?
+    ---
+    eggrobin
+    For case-insensitive identifier comparison (identifiers include programming
+    language identifiers, but also things like usernames: @EGGROBIN and @eggrobin
+    are the same person), Unicode provides the operation toNFKC_Casefold, used
+    in the definition of identifier caseless match (D147 in Default Caseless Matching).
+
+    Earlier versions of Unicode (prior to 5.2) recommended the use of NFKC and
+    casefolding directly, without the removal of default ignorable code points
+    performed by toNFKC_Casefold.
+
+    The foldings thus have stability guarantees that make them suitable for usage
+    in identifier comparison in conjunction with NFKC
+    (see <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/policies/stability_policy.html#Case_Folding).">https://www.unicode.org/policies/stability_policy.html#Case_Folding).</a>
+
+    As @markusicu wrote above, since identifier systems typically need to use a
+    locale-independent comparison, the Turkic foldings need to be used with great
+    care: whether @eggrobin is the same as @EGGROBIN should not depend on
+    someone’s language.
+
+    @markusicu is it safe to say that most users who are looking for a fuzzy
+    string comparison utility should favor the collator over casefold+nfd?
+    ^ @macchiati for advice on the most recommended way to perform fuzzy string
+    matching.
+
+    I am neither Markus nor Mark, but I would say that for general-purpose
+    matching that does not have stability requirements, something collation-based
+    is more appropriate. In particular, Chrome’s Ctrl+F search uses that.
+
+    This is, as has been mentioned, fuzzier (beyond the accents already mentioned,
+    note that ŒUF and œuf are primary-equal to oeuf, whereas they are not
+    identifier caseless matches).
+
+    An important consideration is that, being unstable (there is a somewhat
+    squishy stability policy, see <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/policies/collation_stability.html">https://www.unicode.org/policies/collation_stability.html</a>
+    and <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/collation/ducet-changes.html),">https://www.unicode.org/collation/ducet-changes.html),</a> fuzzy matching
+    based on collation can be improved. Most recently the UTC approved (in
+    consensus 174-C4) a change to the collation of punctuation marks that look
+    like the ASCII ' and ", which has the effect that O'Connor will now be
+    primary-equal to O’Connor.
+
+
 <hr><h2 id="Twitter_text_parsing">Twitter text parsing</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/twitter/twitter-text">https://github.com/twitter/twitter-text</a>
 Twitter Text Libraries. This code is used at Twitter to tokenize and parse text
@@ -2083,6 +2283,85 @@ Normalization
 Collation
 Bidi transformation
 Stringprep conversion
+
+
+<hr><h2 id="IBM_RPG_Lang">IBM RPG Lang</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/i/7.4?topic=cdt-processing-string-data-by-natural-size-each-character">https://www.ibm.com/docs/en/i/7.4?topic=cdt-processing-string-data-by-natural-size-each-character</a>
+Processing string data by the natural size of each character
+    String data can have characters of different sizes.
+    - UTF-8 data can have characters with 1, 2, 3, or 4 bytes.
+      For example, the character 'a' has one byte, and the character 'á' has two bytes.
+      UTF-8 data is defined as alphanumeric with CCSID(*UTF8) or CCSID(1208).
+
+    - UTF-16 data can have characters with 2 or 4 bytes.
+      UTF-16 data is defined as UCS-2 with CCSID(*UTF16) or CCSID(1200).
+
+    - EBCDIC mixed SBCS/DBCS data can have characters with 1 or 2 bytes.
+      Additionally, double-byte data is surrouned by shift bytes.
+      The shift-out byte x'0E' begins a section of DBCS data and the shift-in
+      byte x'0F' ends the section of DBCS data.
+
+    - ASCII mixed SBCS/DBCS data can have characters with 1 or 2 bytes.
+      ASCII mixed SBCS/DBCS data is defined as alphanumeric with a CCSID that
+      represents mixed SBCS/DBCS data such as 950.
+
+    Default behaviour, CHARCOUNT STDCHARSIZE
+    By default, data is processed using the standard-character-size mode.
+    The compiler processes string data by bytes or double bytes without regard
+    for size of each character.
+
+    When CHARCOUNT NATURAL is in effect:
+    The compiler processes string operations by the natural size of each character.
+    The compiler sets the CHARCOUNT NATURAL mode for a file if the CHARCOUNT is
+    not specified for the file.
+    The CHARCOUNT mode for the file affects the movement of data from RPG fields
+    to the output buffer and key buffer used for the file operations.
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/i/7.4?topic=fdk-charcountnatural-stdcharsize">https://www.ibm.com/docs/en/i/7.4?topic=fdk-charcountnatural-stdcharsize</a>
+CHARCOUNT(*NATURAL | *STDCHARSIZE)
+    The CHARCOUNT keyword controls how RPG handles string truncation when moving
+    data from RPG program variables to the output buffer and key buffer for the file.
+
+    *NATURAL
+    If the data type of the field in the output buffer or key buffer is relevant
+    according to the CHARCOUNTTYPES Control keyword, any necessary truncation
+    when data is moved is done according to the CHARCOUNT NATURAL mode for assignment.
+
+    *STDCHARSIZE
+    Any necessary truncation when data is moved is done by bytes or double bytes,
+    without regard for the size of each character.
+    When the CHARCOUNT keyword is not specified, the current CHARCOUNT setting
+    is used for the file, as determined by the CHARCOUNT Control keyword or the
+    most recent /CHARCOUNT directive preceding the definition for the file.
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/i/7.4?topic=keywords-charcounttypesutf8-utf16-jobrun-mixedebcdic-mixedascii">https://www.ibm.com/docs/en/i/7.4?topic=keywords-charcounttypesutf8-utf16-jobrun-mixedebcdic-mixedascii</a>
+CHARCOUNTTYPES(*UTF8 *UTF16 *JOBRUN *MIXEDEBCDIC *MIXEDASCII)
+    The Control keyword CHARCOUNTTYPES specifies the types of data that are
+    processed by characters rather than by bytes or double bytes when
+    CHARCOUNT NATURAL mode is in effect.
+
+    *UTF8
+    Specify *UTF8 if your module might work with UTF-8 data which has characters
+    of different lengths. For example, the UTF-8 character 'a' has one byte, and
+    the UTF-8 character 'á' has two bytes.
+
+    *UTF16
+    Specify *UTF16 if your module might work with UTF-16 data which has some
+    4-byte characters.
+
+    *JOBRUN
+    Specify *JOBRUN if your job CCSID might support mixed SBCS and DBCS data,
+    and the RPG variables in your module defined to have the job CCSID might
+    contain some DBCS data.
+
+    *MIXEDEBCDIC
+    Specify *MIXEDEBCDIC if your module might work with EBCDIC data which
+    supports both SBCS and DBCS characters. This includes data defined with
+    CCSID(*JOBRUNMIX) and data defined with a mixed SBCS/DBCS CCSID such as 937.
+
+    *MIXEDASCII
+    Specify *ASCII if your module might work with ASCII data which supports
+    both SBCS and DBCS characters.
 
 
 <hr><h2 id="Language_comparison">Language comparison</h2><hr>
@@ -2418,6 +2697,17 @@ The differences between this format and the standard UTF-8 format are the follow
 - Supplementary characters are represented in the form of surrogate pairs.
 
 
+Decomposition of ligature
+In Java, you'll need to use the Normalizer class and the NFKC form:
+---
+String ff ="\uFB00";
+String normalized = Normalizer.normalize(ff, Form.NFKC);
+System.out.println(ff + " = " + normalized);
+---
+This will print
+ﬀ = ff
+
+
 <hr><h2 id="JavaScript_lang">JavaScript lang</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://certitude.consulting/blog/en/invisible-backdoor/">https://certitude.consulting/blog/en/invisible-backdoor/</a>
 THE INVISIBLE JAVASCRIPT BACKDOOR
@@ -2584,64 +2874,140 @@ jlf: "NFKC_CF" seems the name to search to get useful infos about utf8proc_NFKC_
 14/09/2021
 <a target="_blank" rel="noopener noreferrer" href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Character-Properties.html">https://www.gnu.org/software/emacs/manual/html_node/elisp/Character-Properties.html</a>
     name
-    Corresponds to the Name Unicode property. The value is a string consisting of upper-case Latin letters A to Z, digits, spaces, and hyphen ‘-’ characters. For unassigned codepoints, the value is nil.
+    Corresponds to the Name Unicode property.
+    The value is a string consisting of upper-case Latin letters A to Z, digits,
+    spaces, and hyphen ‘-’ characters. For unassigned codepoints, the value is nil.
 
     general-category
-    Corresponds to the General_Category Unicode property. The value is a symbol whose name is a 2-letter abbreviation of the character’s classification. For unassigned codepoints, the value is Cn.
+    Corresponds to the General_Category Unicode property.
+    The value is a symbol whose name is a 2-letter abbreviation of the character’s
+    classification. For unassigned codepoints, the value is Cn.
 
     canonical-combining-class
-    Corresponds to the Canonical_Combining_Class Unicode property. The value is an integer. For unassigned codepoints, the value is zero.
+    Corresponds to the Canonical_Combining_Class Unicode property.
+    The value is an integer. For unassigned codepoints, the value is zero.
 
     bidi-class
-    Corresponds to the Unicode Bidi_Class property. The value is a symbol whose name is the Unicode directional type of the character. Emacs uses this property when it reorders bidirectional text for display (see Bidirectional Display). For unassigned codepoints, the value depends on the code blocks to which the codepoint belongs: most unassigned codepoints get the value of L (strong L), but some get values of AL (Arabic letter) or R (strong R).
+    Corresponds to the Unicode Bidi_Class property.
+    The value is a symbol whose name is the Unicode directional type of the
+    character. Emacs uses this property when it reorders bidirectional text for
+    display (see Bidirectional Display). For unassigned codepoints, the value
+    depends on the code blocks to which the codepoint belongs: most unassigned
+    codepoints get the value of L (strong L), but some get values of AL (Arabic
+    letter) or R (strong R).
 
     decomposition
-    Corresponds to the Unicode properties Decomposition_Type and Decomposition_Value. The value is a list, whose first element may be a symbol representing a compatibility formatting tag, such as small18; the other elements are characters that give the compatibility decomposition sequence of this character. For characters that don’t have decomposition sequences, and for unassigned codepoints, the value is a list with a single member, the character itself.
+    Corresponds to the Unicode properties Decomposition_Type and Decomposition_Value.
+    The value is a list, whose first element may be a symbol representing a
+    compatibility formatting tag, such as small18; the other elements are
+    characters that give the compatibility decomposition sequence of this
+    character. For characters that don’t have decomposition sequences, and for
+    unassigned codepoints, the value is a list with a single member, the
+    character itself.
 
     decimal-digit-value
-    Corresponds to the Unicode Numeric_Value property for characters whose Numeric_Type is ‘Decimal’. The value is an integer, or nil if the character has no decimal digit value. For unassigned codepoints, the value is nil, which means NaN, or “not a number”.
+    Corresponds to the Unicode Numeric_Value property for characters whose
+    Numeric_Type is ‘Decimal’. The value is an integer, or nil if the character
+    has no decimal digit value. For unassigned codepoints, the value is nil,
+    which means NaN, or “not a number”.
 
     digit-value
-    Corresponds to the Unicode Numeric_Value property for characters whose Numeric_Type is ‘Digit’. The value is an integer. Examples of such characters include compatibility subscript and superscript digits, for which the value is the corresponding number. For characters that don’t have any numeric value, and for unassigned codepoints, the value is nil, which means NaN.
+    Corresponds to the Unicode Numeric_Value property for characters whose
+    Numeric_Type is ‘Digit’. The value is an integer. Examples of such characters
+    include compatibility subscript and superscript digits, for which the value
+    is the corresponding number. For characters that don’t have any numeric value,
+    and for unassigned codepoints, the value is nil, which means NaN.
 
     numeric-value
-    Corresponds to the Unicode Numeric_Value property for characters whose Numeric_Type is ‘Numeric’. The value of this property is a number. Examples of characters that have this property include fractions, subscripts, superscripts, Roman numerals, currency numerators, and encircled numbers. For example, the value of this property for the character U+2155 VULGAR FRACTION ONE FIFTH is 0.2. For characters that don’t have any numeric value, and for unassigned codepoints, the value is nil, which means NaN.
+    Corresponds to the Unicode Numeric_Value property for characters whose
+    Numeric_Type is ‘Numeric’. The value of this property is a number. Examples
+    of characters that have this property include fractions, subscripts,
+    superscripts, Roman numerals, currency numerators, and encircled numbers.
+    For example, the value of this property for the character U+2155 VULGAR
+    FRACTION ONE FIFTH is 0.2. For characters that don’t have any numeric value,
+    and for unassigned codepoints, the value is nil, which means NaN.
 
     mirrored
-    Corresponds to the Unicode Bidi_Mirrored property. The value of this property is a symbol, either Y or N. For unassigned codepoints, the value is N.
+    Corresponds to the Unicode Bidi_Mirrored property.
+    The value of this property is a symbol, either Y or N. For unassigned
+    codepoints, the value is N.
 
     mirroring
-    Corresponds to the Unicode Bidi_Mirroring_Glyph property. The value of this property is a character whose glyph represents the mirror image of the character’s glyph, or nil if there’s no defined mirroring glyph. All the characters whose mirrored property is N have nil as their mirroring property; however, some characters whose mirrored property is Y also have nil for mirroring, because no appropriate characters exist with mirrored glyphs. Emacs uses this property to display mirror images of characters when appropriate (see Bidirectional Display). For unassigned codepoints, the value is nil.
+    Corresponds to the Unicode Bidi_Mirroring_Glyph property.
+    The value of this property is a character whose glyph represents the mirror
+    image of the character’s glyph, or nil if there’s no defined mirroring glyph.
+    All the characters whose mirrored property is N have nil as their mirroring
+    property; however, some characters whose mirrored property is Y also have nil
+    for mirroring, because no appropriate characters exist with mirrored glyphs.
+    Emacs uses this property to display mirror images of characters when
+    appropriate (see Bidirectional Display). For unassigned codepoints, the
+    value is nil.
 
     paired-bracket
-    Corresponds to the Unicode Bidi_Paired_Bracket property. The value of this property is the codepoint of a character’s paired bracket, or nil if the character is not a bracket character. This establishes a mapping between characters that are treated as bracket pairs by the Unicode Bidirectional Algorithm; Emacs uses this property when it decides how to reorder for display parentheses, braces, and other similar characters (see Bidirectional Display).
+    Corresponds to the Unicode Bidi_Paired_Bracket property.
+    The value of this property is the codepoint of a character’s paired bracket,
+    or nil if the character is not a bracket character. This establishes a
+    mapping between characters that are treated as bracket pairs by the Unicode
+    Bidirectional Algorithm; Emacs uses this property when it decides how to
+    reorder for display parentheses, braces, and other similar characters (see
+    Bidirectional Display).
 
     bracket-type
-    Corresponds to the Unicode Bidi_Paired_Bracket_Type property. For characters whose paired-bracket property is non-nil, the value of this property is a symbol, either o (for opening bracket characters) or c (for closing bracket characters). For characters whose paired-bracket property is nil, the value is the symbol n (None). Like paired-bracket, this property is used for bidirectional display.
+    Corresponds to the Unicode Bidi_Paired_Bracket_Type property.
+    For characters whose paired-bracket property is non-nil, the value of this
+    property is a symbol, either o (for opening bracket characters) or c (for
+    closing bracket characters). For characters whose paired-bracket property is
+    nil, the value is the symbol n (None). Like paired-bracket, this property is
+    used for bidirectional display.
 
     old-name
-    Corresponds to the Unicode Unicode_1_Name property. The value is a string. For unassigned codepoints, and characters that have no value for this property, the value is nil.
+    Corresponds to the Unicode Unicode_1_Name property.
+    The value is a string. For unassigned codepoints, and characters that have
+    no value for this property, the value is nil.
 
     iso-10646-comment
-    Corresponds to the Unicode ISO_Comment property. The value is either a string or nil. For unassigned codepoints, the value is nil.
+    Corresponds to the Unicode ISO_Comment property.
+    The value is either a string or nil. For unassigned codepoints, the value
+    is nil.
 
     uppercase
-    Corresponds to the Unicode Simple_Uppercase_Mapping property. The value of this property is a single character. For unassigned codepoints, the value is nil, which means the character itself.
+    Corresponds to the Unicode Simple_Uppercase_Mapping property.
+    The value of this property is a single character. For unassigned codepoints,
+    the value is nil, which means the character itself.
 
     lowercase
-    Corresponds to the Unicode Simple_Lowercase_Mapping property. The value of this property is a single character. For unassigned codepoints, the value is nil, which means the character itself.
+    Corresponds to the Unicode Simple_Lowercase_Mapping property.
+    The value of this property is a single character. For unassigned codepoints,
+    the value is nil, which means the character itself.
 
     titlecase
-    Corresponds to the Unicode Simple_Titlecase_Mapping property. Title case is a special form of a character used when the first character of a word needs to be capitalized. The value of this property is a single character. For unassigned codepoints, the value is nil, which means the character itself.
+    Corresponds to the Unicode Simple_Titlecase_Mapping property.
+    Title case is a special form of a character used when the first character of
+    a word needs to be capitalized. The value of this property is a single
+    character. For unassigned codepoints, the value is nil, which means the
+    character itself.
 
     special-uppercase
-    Corresponds to Unicode language- and context-independent special upper-casing rules. The value of this property is a string (which may be empty). For example mapping for U+00DF LATIN SMALL LETTER SHARP S is "SS". For characters with no special mapping, the value is nil which means uppercase property needs to be consulted instead.
+    Corresponds to Unicode language- and context-independent special upper-casing
+    rules. The value of this property is a string (which may be empty). For
+    example mapping for U+00DF LATIN SMALL LETTER SHARP S is "SS". For characters
+    with no special mapping, the value is nil which means uppercase property
+    needs to be consulted instead.
 
     special-lowercase
-    Corresponds to Unicode language- and context-independent special lower-casing rules. The value of this property is a string (which may be empty). For example mapping for U+0130 LATIN CAPITAL LETTER I WITH DOT ABOVE the value is "i\u0307" (i.e. 2-character string consisting of LATIN SMALL LETTER I followed by U+0307 COMBINING DOT ABOVE). For characters with no special mapping, the value is nil which means lowercase property needs to be consulted instead.
+    Corresponds to Unicode language- and context-independent special lower-casing
+    rules. The value of this property is a string (which may be empty). For
+    example mapping for U+0130 LATIN CAPITAL LETTER I WITH DOT ABOVE the value is
+    "i\u0307" (i.e. 2-character string consisting of LATIN SMALL LETTER I followed
+    by U+0307 COMBINING DOT ABOVE). For characters with no special mapping, the
+    value is nil which means lowercase property needs to be consulted instead.
 
     special-titlecase
-    Corresponds to Unicode unconditional special title-casing rules. The value of this property is a string (which may be empty). For example mapping for U+FB01 LATIN SMALL LIGATURE FI the value is "Fi". For characters with no special mapping, the value is nil which means titlecase property needs to be consulted instead.
+    Corresponds to Unicode unconditional special title-casing rules.
+    The value of this property is a string (which may be empty). For example
+    mapping for U+FB01 LATIN SMALL LIGATURE FI the value is "Fi". For characters
+    with no special mapping, the value is nil which means titlecase property
+    needs to be consulted instead.
 
 
 <hr><h2 id="Mathematica_lang">Mathematica lang</h2><hr>
@@ -3314,6 +3680,9 @@ Auto-generated documentation for Swift.
 A Unicode string value that is a collection of characters.
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://developer.apple.com/documentation/swift/string">https://developer.apple.com/documentation/swift/string</a>
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://developer.apple.com/documentation/swift/unicode/canonicalcombiningclass">https://developer.apple.com/documentation/swift/unicode/canonicalcombiningclass</a>
 Unicode.CanonicalCombiningClass
 The classification of a scalar used in the Canonical Ordering Algorithm defined by the Unicode Standard.
@@ -3681,6 +4050,30 @@ t~characters==
      6 : ( "‍"    U+200D Cf 0 "ZERO WIDTH JOINER", "ZWJ" )
      7 : ( "❄"   U+2744 So 1 "SNOWFLAKE" )
      8 : ( "️"    U+FE0F Mn 0 "VARIATION SELECTOR-16", "VS16" )
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://devlog.hexops.com/2021/unicode-sorting-why-browsers-added-special-emoji-matching/">https://devlog.hexops.com/2021/unicode-sorting-why-browsers-added-special-emoji-matching/</a>
+    Whether your application is in Go and has it’s own Unicode Collation Algorithm
+    (UCA) implementation, or Rust and uses bindings to the popular ICU4C library -
+    one thing is going to remain true: it requires large data files to work.
+
+    The UCA algorithm depends on two quite large data table files to work:
+    - UnicodeData.txt for normalization, a step required before sorting can take place.
+    - allkeys.txt for weighting certain text above others.
+    - And more, if you want truly locale-aware sorting and not just “the default”
+      the UCA algorithm gives you.
+    Together, these files can add up to over a half a megabyte.
+
+    While WASM languages could shell out to JavaScript browser APIs for collation,
+    I suspect they won’t due to the lack of guarantees around those APIs.
+
+    A more likely scenario is languages continuing to leave locale-aware sorting
+    as an optional, opt-in feature - that also makes your application larger.
+
+    I think this a worthwhile problem to solve, so I am working on compression a
+    lgorithms for these files specifically in Zig to reduce them to only a few
+    tens of kilobytes.
+    <a target="_blank" rel="noopener noreferrer" href="https://github.com/jecolon/ziglyph/issues/3">https://github.com/jecolon/ziglyph/issues/3</a>
 </pre>
 </body>
 </html>
