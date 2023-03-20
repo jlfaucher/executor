@@ -130,6 +130,8 @@ Unicode general informations
 
 https://codepoints.net/
 Very detailled decription of each character
+Source of the WEB site:
+https://github.com/Codepoints/codepoints.net
 
 
 https://en.wikipedia.org/wiki/UTF-8
@@ -456,6 +458,10 @@ you would be unsatisfied. In fact there are tons of Unicode bugs that can't be c
 due to the compatibility reason, and can only be fixed via tailored locale-dependent schemes.
 
 
+https://stackoverflow.com/questions/27331819/whats-the-difference-between-a-character-a-code-point-a-glyph-and-a-grapheme
+What's the difference between a character, a code point, a glyph and a grapheme?
+jlf: not very good...
+
 ================================================================================
 Normalization, equivalence
 ================================================================================
@@ -665,6 +671,7 @@ https://www.w3.org/TR/charmod-norm/
 Character Model for the World Wide Web: String Matching
 MUST READ, PLENTY OF EXAMPLES FOR CORNER CASES
 
+
 https://www.w3.org/TR/charmod-norm/#definitionCaseFolding
 Very good explanation!
     A few characters have a case folding that map one Unicode code point to two or more code points.
@@ -694,6 +701,7 @@ Very good explanation!
         Turkic Language Folding
         I	⇒	ı	Turkic language folding of dotless (ASCII) letter I
         İ	⇒	i	Turkic language folding of dotted letter I
+
 
 https://www.w3.org/TR/charmod-norm/#matchingAlgorithm
 There are four choices for text normalization:
@@ -736,6 +744,13 @@ Which one is correct? Well that depends on who you ask.
 See also
 https://github.com/unicode-org/icu4x/issues/3151
 in the section "ICU4X title".
+
+
+https://lwn.net/Articles/784316/
+Working with UTF-8 in the kernel
+jlf: interesting read about NTFS caseless, and about a drama because of lack of
+support for the turkish case.
+
 
 ================================================================================
 Locale
@@ -824,6 +839,9 @@ https://www.ibm.com/docs/en/aix/7.1?topic=globalization-locales
 https://bugzilla.mozilla.org/show_bug.cgi?id=1612379
 Narrow down the list of ICU locales we ship
 
+https://github.com/unicode-org/icu4x/blob/main/docs/tutorials/data_management.md
+Data management in ICU4X
+
 
 ================================================================================
 CLDR Common Locale Data Repository
@@ -843,6 +861,12 @@ the Common Locale Data Repository to format dates, plurals, and more. Based on t
 ================================================================================
 Case mappings
 ================================================================================
+
+Rule Final_Sigma in default case algorithms.
+https://github.com/php/php-src/pull/10268
+jlf: difficult to implement, involves to scan arbitrarily far to the left and
+right of capital sigma.
+
 
 https://unicode.org/faq/casemap_charprop.html
 
@@ -877,6 +901,39 @@ fun Char.titlecase(locale: Locale): String
     val titlecaseTurkish = chars.map { it.titlecase(turkishLocale) }
     println(titlecase) // [A, ǅ, ʼN, +, Ss, I]
     println(titlecaseTurkish) // [A, ǅ, ʼN, +, Ss, İ]
+
+
+https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/177
+jlf: good summary, was not so obvious before I understand there are simple and
+full case mappings...
+    Also note that the Unicode standard only provides defaults for, but then
+    goes on to say that locale/language specific mappings should really be used.
+
+    The Unicode standard is very explicit that things like uppercase
+    transformations should be able to handle language specific issues such as
+    the Turkish dotted and dotless i, and that “ß” should be uppercased to
+    “SS” in German.
+
+    See:
+        Q: Is all of the Unicode case mapping information in UnicodeData.txt?
+        A: No. The UnicodeData.txt file includes all of the one-to-one case mappings.
+        Since many parsers were built with the expectation that UnicodeData.txt
+        would have at most a single character in each case mapping field, the
+        file SpecialCasing.txt was added to provide the one-to-many mappings,
+        such as the one needed for uppercasing ß (U+00DF LATIN SMALL LETTER SHARP S).
+        In addition, CaseFolding.txt contains additional mappings used in case
+        folding and caseless matching. For more information, see Section 5.18,
+        Case Mappings in The Unicode Standard.
+    and
+        A: The Unicode Standard defines the default case mapping for each
+        individual character, with each character considered in isolation. This
+        mapping does not provide for the context in which the character appears,
+        nor for the language-specific rules that must be applied when working in
+        natural language text.
+
+
+https://www.b-list.org/weblog/2018/nov/26/case/
+Truths programmers should know about case
 
 
 ================================================================================
@@ -952,6 +1009,11 @@ and they do not sort consistently across versions/environments.
 
 https://collations.info/concepts/
 a site devoted to working with Collations, Unicode, Encodings, Code Pages, etc in Microsoft SQL Server.
+
+
+https://www.unicode.org/reports/tr35/tr35-collation.html
+UNICODE LOCALE DATA MARKUP LANGUAGE (LDML)
+PART 5: COLLATION
 
 
 ================================================================================
@@ -1830,6 +1892,11 @@ https://icu4c-demos.unicode.org/icu-bin/scompare
 ICU Unicode String Comparison
 Interactive demo application
 
+
+https://begriffs.com/posts/2019-05-23-unicode-icu.html
+Unicode programming, with examples
+
+
 ================================================================================
 ICU bindings
 ================================================================================
@@ -2243,6 +2310,17 @@ icu_casemapping feature request: methods fold and full_fold should apply Turkic 
     primary-equal to O’Connor.
 
 
+https://github.com/unicode-org/icu4x/issues/3178
+Consider supporting three layers of collation data for search collations
+Markus Scherer
+Outside of ICU4X we usually try to make code & data work according to the
+algorithms, not according to what the known data looks like right now.
+ICU4C/J allow users to build custom tailorings at build time and at runtime.
+It should be possible to tailor relative to something that is tailored in the
+intermediate root search.
+
+
+
 ================================================================================
 Twitter text parsing
 ================================================================================
@@ -2562,6 +2640,57 @@ Boost.Locale
 Boost.Locale uses the-state-of-the-art Unicode and Localization library: ICU - International Components for Unicode.
 
 
+https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2729r0.html
+Unicode in the Library, Part 2: Normalization
+Zach Laine
+
+
+https://github.com/uni-algo/uni-algo
+Unicode Algorithms Implementation for C/C++
+https://www.reddit.com/r/cpp/comments/xspvn4/unialgo_v050_modern_unicode_library/
+uni-algo v0.5.0: Modern Unicode Library
+https://www.reddit.com/r/cpp/comments/vtgckq/new_unicode_library/
+Older post with more infos
+https://github.com/uni-algo/uni-algo-single-include
+Single include version for Unicode Algorithms Implementation
+This repository contains single include version of uni-algo library.
+
+
+https://github.com/hikogui/hikogui/tree/main/src/hikogui/unicode
+https://github.com/hikogui/hikogui
+Modern accelerated GUI
+jlf: the point is not the GUI, but the tools to parse Unicode UCD.
+See https://github.com/hikogui/hikogui/tree/main/tools
+---
+Comment of the author in https://www.reddit.com/r/cpp/comments/vtgckq/new_unicode_library/
+I recently discovered a way to compress the unicode-data-set, while still being
+able to do quick lookups, with a single associative indirection.
+Basically you chunk the data in groups of 32 entries. Then you de-duplicate
+these chunks and make a index table (about 64kbyte) that points to the chunks.
+This works because a code-point is only 21 bits, which you can split in 16 bit
+msb and 5 bit lsb. This means that the index table has less than 64k uint16_t
+entries.
+My data is including the index around 700 KByte. With the following data:
+    general category: 5 bit
+    grapheme cluster break: 4
+    line break class: 6
+    word break property: 5
+    sentence break property: 4
+    east asian width: 3
+    bidi class:5
+    bidi bracket type: 2
+    bidi mirroring glyph: 16
+    ccc: 8
+    script: 8
+    decomposition type: 5
+    decomposition index: 21 (decomposition table not included in the 700kbyte)
+    composition index: 14 (composition table not included in the 700kbyte)
+Of the 128 bits per entry, 22 bits are currently unused. It is also possible to
+compress a single entry. For example ccc is always zero for non-composing
+code-points, so it could share those bits with properties that are only allowed
+for non-composing code-points.
+
+
 ================================================================================
 DotNet, CoreFx
 ================================================================================
@@ -2819,6 +2948,10 @@ Julia lang
 Remember: search in issues with "utf8proc in:title,body"
 
 
+https://bkamins.github.io/julialang/2020/08/13/strings.html
+The String, or There and Back Again
+
+
 https://docs.julialang.org/en/v1/manual/strings/
     You can input any Unicode character in single quotes using \u followed by up to
     four hexadecimal digits or \U followed by up to eight hexadecimal digits
@@ -2847,6 +2980,9 @@ It doesn't match the β here: isless("β", "α")
 
 
 https://juliapackages.com/p/strs
+jlf: the string implemenation of Scott P Jones
+Seems quiet since last year...
+
     This uses Swift-style \ escape sequences, such as \u{xxxx} for Unicode constants,
     instead of \uXXXX and \UXXXXXXXX, which have the advantage of not having to worry
     about some digit or letter A-F or a-f occurring after the last hex digit of the Unicode constant.
@@ -2910,6 +3046,42 @@ https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercas
 
     julia> Base.Unicode.uppercase("µ")[1]
     'Μ': Unicode U+039c (category Lu: Letter, uppercase)
+
+
+jlf: I find the next thead interesting from a social point of view...
+https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/40
+Yet another Stefan Karpinski against Scott P Jones...
+https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/42
+    jlf: helping Scott P Jones
+https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/46
+    Referencing https://github.com/JuliaLang/julia/pull/25021
+https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/72
+    jlf: Stefan Karpinski not happy
+https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/79
+    jlf: Stefan Karpinski not happy
+https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/88
+    jlf: Scott P Jones not happy
+https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/130
+    Using a hybrid encoding like Python 3’s strings or @ScottPJones’s UniStr
+    means that not only do you need to look at every byte of incoming data, but
+    you also have to transcode it in general. This is a total performance
+    nightmare for dealing with large text files.
+https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/133
+    jlf: Interesting points of Stefan Karpinski regarding the validation of strings.
+https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/138
+    jlf: not sure if Scott P Jones says that graphemes are no needed...
+https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/144
+    jlf: révolte!
+https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/148
+    jlf: "This is a plea for the thread to stop."
+https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/154
+    jlf: very upset guy
+
+
+https://github.com/JuliaLang/julia/pull/25021
+Move Unicode-related functions to new Unicode stdlib package
+jlf: nothing interesting in the comments, but this is this PR that Scott P Jones
+describes as a bomb.
 
 
 https://github.com/JuliaLang/julia/pull/19469#issuecomment-264810748
@@ -3803,12 +3975,29 @@ Slides: https://hsivonen.fi/rustfest2018/
 Video: https://media.ccc.de/v/rustfest18-5-a_rust_crate_that_also_quacks_like_a_modern_c_library
 
 
+https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2773r0.pdf
+(pdf...)
+    Generally speaking, reducing the size of the tables has a direct impact on
+    performance, if only because increasing cache locality is the most effective
+    way to improve the performance of anything.
+    I landed on a set of strategies developed by the rust team
+    https://github.com/rust-lang/rust/tree/master/src/tools/unicode-table-generator/src
+
+
+================================================================================
+Saxon lang
+================================================================================
+
+https://www.saxonica.com/documentation12/#!localization/unicode-collation-algorithm
+Unicode Collation Algorithm
+
+
 ================================================================================
 Swift lang
 ================================================================================
 
 
-https://docs.swift.org/swift-book/LanguageGuide/StringsAndCharacters.html
+https://docs.swift.org/swift-book/documentation/the-swift-programming-language/stringsandcharacters/
 Strings and Characters
 
 

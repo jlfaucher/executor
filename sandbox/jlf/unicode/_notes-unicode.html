@@ -81,6 +81,7 @@ Contents:
     <a href="#R_lang">R lang</a>
     <a href="#Rexx_lang">Rexx lang</a>
     <a href="#Rust_lang">Rust lang</a>
+    <a href="#Saxon_lang">Saxon lang</a>
     <a href="#Swift_lang">Swift lang</a>
     <a href="#Zig_lang__Ziglyph">Zig lang, Ziglyph</a>
 
@@ -208,6 +209,8 @@ BIDI BRACKETS FOR DUMMIES
 <hr><h2 id="Unicode_general_informations">Unicode general informations</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://codepoints.net/">https://codepoints.net/</a>
 Very detailled decription of each character
+Source of the WEB site:
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/Codepoints/codepoints.net">https://github.com/Codepoints/codepoints.net</a>
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/UTF-8">https://en.wikipedia.org/wiki/UTF-8</a>
@@ -525,6 +528,10 @@ you would be unsatisfied. In fact there are tons of Unicode bugs that can't be c
 due to the compatibility reason, and can only be fixed via tailored locale-dependent schemes.
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/27331819/whats-the-difference-between-a-character-a-code-point-a-glyph-and-a-grapheme">https://stackoverflow.com/questions/27331819/whats-the-difference-between-a-character-a-code-point-a-glyph-and-a-grapheme</a>
+What's the difference between a character, a code point, a glyph and a grapheme?
+jlf: not very good...
+
 <hr><h2 id="Normalization__equivalence">Normalization, equivalence</h2><hr>
 26/11/2013
 Text normalization in Go
@@ -725,6 +732,7 @@ Ligature, on the other hand is only a typographical ligature.
 Character Model for the World Wide Web: String Matching
 MUST READ, PLENTY OF EXAMPLES FOR CORNER CASES
 
+
 <a target="_blank" rel="noopener noreferrer" href="https://www.w3.org/TR/charmod-norm/#definitionCaseFolding">https://www.w3.org/TR/charmod-norm/#definitionCaseFolding</a>
 Very good explanation!
     A few characters have a case folding that map one Unicode code point to two or more code points.
@@ -754,6 +762,7 @@ Very good explanation!
         Turkic Language Folding
         I	⇒	ı	Turkic language folding of dotless (ASCII) letter I
         İ	⇒	i	Turkic language folding of dotted letter I
+
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.w3.org/TR/charmod-norm/#matchingAlgorithm">https://www.w3.org/TR/charmod-norm/#matchingAlgorithm</a>
 There are four choices for text normalization:
@@ -796,6 +805,13 @@ Which one is correct? Well that depends on who you ask.
 See also
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/3151">https://github.com/unicode-org/icu4x/issues/3151</a>
 in the section "ICU4X title".
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://lwn.net/Articles/784316/">https://lwn.net/Articles/784316/</a>
+Working with UTF-8 in the kernel
+jlf: interesting read about NTFS caseless, and about a drama because of lack of
+support for the turkish case.
+
 
 <hr><h2 id="Locale">Locale</h2><hr>
 02/06/2021
@@ -881,6 +897,9 @@ AIX documentation
 <a target="_blank" rel="noopener noreferrer" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1612379">https://bugzilla.mozilla.org/show_bug.cgi?id=1612379</a>
 Narrow down the list of ICU locales we ship
 
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/blob/main/docs/tutorials/data_management.md">https://github.com/unicode-org/icu4x/blob/main/docs/tutorials/data_management.md</a>
+Data management in ICU4X
+
 
 <hr><h2 id="CLDR_Common_Locale_Data_Repository">CLDR Common Locale Data Repository</h2><hr>
 19/06/2021
@@ -895,6 +914,12 @@ the Common Locale Data Repository to format dates, plurals, and more. Based on t
 
 
 <hr><h2 id="Case_mappings">Case mappings</h2><hr>
+Rule Final_Sigma in default case algorithms.
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/php/php-src/pull/10268">https://github.com/php/php-src/pull/10268</a>
+jlf: difficult to implement, involves to scan arbitrarily far to the left and
+right of capital sigma.
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://unicode.org/faq/casemap_charprop.html">https://unicode.org/faq/casemap_charprop.html</a>
 
 
@@ -928,6 +953,39 @@ fun Char.titlecase(locale: Locale): String
     val titlecaseTurkish = chars.map { it.titlecase(turkishLocale) }
     println(titlecase) // [A, ǅ, ʼN, +, Ss, I]
     println(titlecaseTurkish) // [A, ǅ, ʼN, +, Ss, İ]
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/177">https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/177</a>
+jlf: good summary, was not so obvious before I understand there are simple and
+full case mappings...
+    Also note that the Unicode standard only provides defaults for, but then
+    goes on to say that locale/language specific mappings should really be used.
+
+    The Unicode standard is very explicit that things like uppercase
+    transformations should be able to handle language specific issues such as
+    the Turkish dotted and dotless i, and that “ß” should be uppercased to
+    “SS” in German.
+
+    See:
+        Q: Is all of the Unicode case mapping information in UnicodeData.txt?
+        A: No. The UnicodeData.txt file includes all of the one-to-one case mappings.
+        Since many parsers were built with the expectation that UnicodeData.txt
+        would have at most a single character in each case mapping field, the
+        file SpecialCasing.txt was added to provide the one-to-many mappings,
+        such as the one needed for uppercasing ß (U+00DF LATIN SMALL LETTER SHARP S).
+        In addition, CaseFolding.txt contains additional mappings used in case
+        folding and caseless matching. For more information, see Section 5.18,
+        Case Mappings in The Unicode Standard.
+    and
+        A: The Unicode Standard defines the default case mapping for each
+        individual character, with each character considered in isolation. This
+        mapping does not provide for the context in which the character appears,
+        nor for the language-specific rules that must be applied when working in
+        natural language text.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.b-list.org/weblog/2018/nov/26/case/">https://www.b-list.org/weblog/2018/nov/26/case/</a>
+Truths programmers should know about case
 
 
 <hr><h2 id="Collation__sorting">Collation, sorting</h2><hr>
@@ -1000,6 +1058,11 @@ and they do not sort consistently across versions/environments.
 
 <a target="_blank" rel="noopener noreferrer" href="https://collations.info/concepts/">https://collations.info/concepts/</a>
 a site devoted to working with Collations, Unicode, Encodings, Code Pages, etc in Microsoft SQL Server.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr35/tr35-collation.html">https://www.unicode.org/reports/tr35/tr35-collation.html</a>
+UNICODE LOCALE DATA MARKUP LANGUAGE (LDML)
+PART 5: COLLATION
 
 
 <hr><h2 id="Emoji">Emoji</h2><hr>
@@ -1797,6 +1860,11 @@ todo: review
 ICU Unicode String Comparison
 Interactive demo application
 
+
+<a target="_blank" rel="noopener noreferrer" href="https://begriffs.com/posts/2019-05-23-unicode-icu.html">https://begriffs.com/posts/2019-05-23-unicode-icu.html</a>
+Unicode programming, with examples
+
+
 <hr><h2 id="ICU_bindings">ICU bindings</h2><hr>
 02/06/2021
 <a target="_blank" rel="noopener noreferrer" href="https://gitlab.pyicu.org/main/pyicu">https://gitlab.pyicu.org/main/pyicu</a>
@@ -2201,6 +2269,17 @@ icu_casemapping feature request: methods fold and full_fold should apply Turkic 
     primary-equal to O’Connor.
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/3178">https://github.com/unicode-org/icu4x/issues/3178</a>
+Consider supporting three layers of collation data for search collations
+Markus Scherer
+Outside of ICU4X we usually try to make code &amp; data work according to the
+algorithms, not according to what the known data looks like right now.
+ICU4C/J allow users to build custom tailorings at build time and at runtime.
+It should be possible to tailor relative to something that is tailored in the
+intermediate root search.
+
+
+
 <hr><h2 id="Twitter_text_parsing">Twitter text parsing</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/twitter/twitter-text">https://github.com/twitter/twitter-text</a>
 Twitter Text Libraries. This code is used at Twitter to tokenize and parse text
@@ -2484,6 +2563,57 @@ Boost.Locale
 Boost.Locale uses the-state-of-the-art Unicode and Localization library: ICU - International Components for Unicode.
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2729r0.html">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2729r0.html</a>
+Unicode in the Library, Part 2: Normalization
+Zach Laine
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/uni-algo/uni-algo">https://github.com/uni-algo/uni-algo</a>
+Unicode Algorithms Implementation for C/C++
+<a target="_blank" rel="noopener noreferrer" href="https://www.reddit.com/r/cpp/comments/xspvn4/unialgo_v050_modern_unicode_library/">https://www.reddit.com/r/cpp/comments/xspvn4/unialgo_v050_modern_unicode_library/</a>
+uni-algo v0.5.0: Modern Unicode Library
+<a target="_blank" rel="noopener noreferrer" href="https://www.reddit.com/r/cpp/comments/vtgckq/new_unicode_library/">https://www.reddit.com/r/cpp/comments/vtgckq/new_unicode_library/</a>
+Older post with more infos
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/uni-algo/uni-algo-single-include">https://github.com/uni-algo/uni-algo-single-include</a>
+Single include version for Unicode Algorithms Implementation
+This repository contains single include version of uni-algo library.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/hikogui/hikogui/tree/main/src/hikogui/unicode">https://github.com/hikogui/hikogui/tree/main/src/hikogui/unicode</a>
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/hikogui/hikogui">https://github.com/hikogui/hikogui</a>
+Modern accelerated GUI
+jlf: the point is not the GUI, but the tools to parse Unicode UCD.
+See <a target="_blank" rel="noopener noreferrer" href="https://github.com/hikogui/hikogui/tree/main/tools">https://github.com/hikogui/hikogui/tree/main/tools</a>
+---
+Comment of the author in <a target="_blank" rel="noopener noreferrer" href="https://www.reddit.com/r/cpp/comments/vtgckq/new_unicode_library/">https://www.reddit.com/r/cpp/comments/vtgckq/new_unicode_library/</a>
+I recently discovered a way to compress the unicode-data-set, while still being
+able to do quick lookups, with a single associative indirection.
+Basically you chunk the data in groups of 32 entries. Then you de-duplicate
+these chunks and make a index table (about 64kbyte) that points to the chunks.
+This works because a code-point is only 21 bits, which you can split in 16 bit
+msb and 5 bit lsb. This means that the index table has less than 64k uint16_t
+entries.
+My data is including the index around 700 KByte. With the following data:
+    general category: 5 bit
+    grapheme cluster break: 4
+    line break class: 6
+    word break property: 5
+    sentence break property: 4
+    east asian width: 3
+    bidi class:5
+    bidi bracket type: 2
+    bidi mirroring glyph: 16
+    ccc: 8
+    script: 8
+    decomposition type: 5
+    decomposition index: 21 (decomposition table not included in the 700kbyte)
+    composition index: 14 (composition table not included in the 700kbyte)
+Of the 128 bits per entry, 22 bits are currently unused. It is also possible to
+compress a single entry. For example ccc is always zero for non-composing
+code-points, so it could share those bits with properties that are only allowed
+for non-composing code-points.
+
+
 <hr><h2 id="DotNet__CoreFx">DotNet, CoreFx</h2><hr>
 28/07/2021
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/dotnet/corefxlab/issues/2368">https://github.com/dotnet/corefxlab/issues/2368</a>
@@ -2717,6 +2847,10 @@ THE INVISIBLE JAVASCRIPT BACKDOOR
 Remember: search in issues with "utf8proc in:title,body"
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://bkamins.github.io/julialang/2020/08/13/strings.html">https://bkamins.github.io/julialang/2020/08/13/strings.html</a>
+The String, or There and Back Again
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://docs.julialang.org/en/v1/manual/strings/">https://docs.julialang.org/en/v1/manual/strings/</a>
     You can input any Unicode character in single quotes using \u followed by up to
     four hexadecimal digits or \U followed by up to eight hexadecimal digits
@@ -2745,6 +2879,9 @@ It doesn't match the β here: isless("β", "α")
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://juliapackages.com/p/strs">https://juliapackages.com/p/strs</a>
+jlf: the string implemenation of Scott P Jones
+Seems quiet since last year...
+
     This uses Swift-style \ escape sequences, such as \u{xxxx} for Unicode constants,
     instead of \uXXXX and \UXXXXXXXX, which have the advantage of not having to worry
     about some digit or letter A-F or a-f occurring after the last hex digit of the Unicode constant.
@@ -2808,6 +2945,42 @@ two strings are canonically equivalent (optionally casefolding and/or stripping 
 
     julia&gt; Base.Unicode.uppercase("µ")[1]
     'Μ': Unicode U+039c (category Lu: Letter, uppercase)
+
+
+jlf: I find the next thead interesting from a social point of view...
+<a target="_blank" rel="noopener noreferrer" href="https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/40">https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/40</a>
+Yet another Stefan Karpinski against Scott P Jones...
+<a target="_blank" rel="noopener noreferrer" href="https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/42">https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/42</a>
+    jlf: helping Scott P Jones
+<a target="_blank" rel="noopener noreferrer" href="https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/46">https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/46</a>
+    Referencing <a target="_blank" rel="noopener noreferrer" href="https://github.com/JuliaLang/julia/pull/25021">https://github.com/JuliaLang/julia/pull/25021</a>
+<a target="_blank" rel="noopener noreferrer" href="https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/72">https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/72</a>
+    jlf: Stefan Karpinski not happy
+<a target="_blank" rel="noopener noreferrer" href="https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/79">https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/79</a>
+    jlf: Stefan Karpinski not happy
+<a target="_blank" rel="noopener noreferrer" href="https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/88">https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/88</a>
+    jlf: Scott P Jones not happy
+<a target="_blank" rel="noopener noreferrer" href="https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/130">https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/130</a>
+    Using a hybrid encoding like Python 3’s strings or @ScottPJones’s UniStr
+    means that not only do you need to look at every byte of incoming data, but
+    you also have to transcode it in general. This is a total performance
+    nightmare for dealing with large text files.
+<a target="_blank" rel="noopener noreferrer" href="https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/133">https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/133</a>
+    jlf: Interesting points of Stefan Karpinski regarding the validation of strings.
+<a target="_blank" rel="noopener noreferrer" href="https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/138">https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/138</a>
+    jlf: not sure if Scott P Jones says that graphemes are no needed...
+<a target="_blank" rel="noopener noreferrer" href="https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/144">https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/144</a>
+    jlf: révolte!
+<a target="_blank" rel="noopener noreferrer" href="https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/148">https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/148</a>
+    jlf: "This is a plea for the thread to stop."
+<a target="_blank" rel="noopener noreferrer" href="https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/154">https://discourse.julialang.org/t/problems-with-deprecations-of-islower-lowercase-isupper-uppercase/7797/154</a>
+    jlf: very upset guy
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/JuliaLang/julia/pull/25021">https://github.com/JuliaLang/julia/pull/25021</a>
+Move Unicode-related functions to new Unicode stdlib package
+jlf: nothing interesting in the comments, but this is this PR that Scott P Jones
+describes as a bomb.
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/JuliaLang/julia/pull/19469#issuecomment-264810748">https://github.com/JuliaLang/julia/pull/19469#issuecomment-264810748</a>
@@ -3668,9 +3841,23 @@ Slides: <a target="_blank" rel="noopener noreferrer" href="https://hsivonen.fi/r
 Video: <a target="_blank" rel="noopener noreferrer" href="https://media.ccc.de/v/rustfest18-5-a_rust_crate_that_also_quacks_like_a_modern_c_library">https://media.ccc.de/v/rustfest18-5-a_rust_crate_that_also_quacks_like_a_modern_c_library</a>
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2773r0.pdf">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2773r0.pdf</a>
+(pdf...)
+    Generally speaking, reducing the size of the tables has a direct impact on
+    performance, if only because increasing cache locality is the most effective
+    way to improve the performance of anything.
+    I landed on a set of strategies developed by the rust team
+    <a target="_blank" rel="noopener noreferrer" href="https://github.com/rust-lang/rust/tree/master/src/tools/unicode-table-generator/src">https://github.com/rust-lang/rust/tree/master/src/tools/unicode-table-generator/src</a>
+
+
+<hr><h2 id="Saxon_lang">Saxon lang</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://www.saxonica.com/documentation12/#!localization/unicode-collation-algorithm">https://www.saxonica.com/documentation12/#!localization/unicode-collation-algorithm</a>
+Unicode Collation Algorithm
+
+
 <hr><h2 id="Swift_lang">Swift lang</h2><hr>
 
-<a target="_blank" rel="noopener noreferrer" href="https://docs.swift.org/swift-book/LanguageGuide/StringsAndCharacters.html">https://docs.swift.org/swift-book/LanguageGuide/StringsAndCharacters.html</a>
+<a target="_blank" rel="noopener noreferrer" href="https://docs.swift.org/swift-book/documentation/the-swift-programming-language/stringsandcharacters/">https://docs.swift.org/swift-book/documentation/the-swift-programming-language/stringsandcharacters/</a>
 Strings and Characters
 
 
