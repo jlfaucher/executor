@@ -276,7 +276,7 @@ newline = translate(oldline,oubytes,inbytes)
 
     if returnBuffer then return buffer
     text = .RexxText~new(string, targetEncoding)
-    if memorize then text~internalIndexer~cacheString(self~encoding~name, self~string)
+    if memorize then text~indexer~cacheString(self~encoding~name, self~string)
     return text
 
     cannot_convert:          raise syntax 23.900 array(self~encoding~name "encoding: cannot convert" self~description(short: .true) "to" targetEncoding~name)
@@ -297,7 +297,7 @@ newline = translate(oldline,oubytes,inbytes)
         text = .RexxText~new(.String~new(self~string), targetEncoding)
         if memorize then do
             self~cacheString(targetEncoding~name, text~string)
-            text~internalIndexer~cacheString(self~encoding~name, self~string)
+            text~indexer~cacheString(self~encoding~name, self~string)
         end
         return text
     end
@@ -321,7 +321,7 @@ newline = translate(oldline,oubytes,inbytes)
         text = .RexxText~new(.String~new(self~string), targetEncoding)
         if memorize then do
             self~cacheString(targetEncoding~name, text~string)
-            text~internalIndexer~cacheString(self~encoding~name, self~string)
+            text~indexer~cacheString(self~encoding~name, self~string)
         end
         return text
     end
@@ -402,7 +402,7 @@ newline = translate(oldline,oubytes,inbytes)
         text = .RexxText~new(.String~new(self~string), targetEncoding)
         if memorize then do
             self~cacheString(targetEncoding~name, text~string)
-            text~internalIndexer~cacheString(self~encoding~name, self~string)
+            text~indexer~cacheString(self~encoding~name, self~string)
         end
         return text
     end

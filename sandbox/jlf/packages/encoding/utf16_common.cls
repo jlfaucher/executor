@@ -281,7 +281,7 @@
 
     targetEncoding = self
     if .nil \== text then do
-        cachedString = text~internalIndexer~getCachedString(targetEncoding~name)
+        cachedString = text~indexer~getCachedString(targetEncoding~name)
         if .nil \== cachedString then do
             if .nil <> buffer then return targetEncoding~append(cachedString, :buffer)
                               else return cachedString~text
@@ -302,11 +302,11 @@
     convertedString = buffer~substr(bufferStart)
     -- It's a new string, without any encoding stored on it
     convertedString~encoding = targetEncoding
-    if memorize, .nil \== text then text~internalIndexer~cacheString(targetEncoding~name, convertedString)
+    if memorize, .nil \== text then text~indexer~cacheString(targetEncoding~name, convertedString)
 
     if returnBuffer then return buffer
     convertedText = .RexxText~new(convertedString, targetEncoding)
-    if memorize then convertedText~internalIndexer~cacheString(string~encoding~name, string)
+    if memorize then convertedText~indexer~cacheString(string~encoding~name, string)
     return convertedText
 
 
@@ -327,7 +327,7 @@
     text = .RexxText~new(.String~new(self~string), targetEncoding)
     if memorize then do
         self~cacheString(targetEncoding~name, text~string)
-        text~internalIndexer~cacheString(self~encoding~name, self~string)
+        text~indexer~cacheString(self~encoding~name, self~string)
     end
     return text
 
@@ -349,7 +349,7 @@
     text = .RexxText~new(.String~new(self~string), targetEncoding)
     if memorize then do
         self~cacheString(targetEncoding~name, text~string)
-        text~internalIndexer~cacheString(self~encoding~name, self~string)
+        text~indexer~cacheString(self~encoding~name, self~string)
     end
     return text
 
@@ -390,7 +390,7 @@
 
     targetEncoding = self
     if .nil \== text then do
-        cachedString = text~internalIndexer~getCachedString(targetEncoding~name)
+        cachedString = text~indexer~getCachedString(targetEncoding~name)
         if .nil \== cachedString then do
             if .nil <> buffer then return targetEncoding~append(cachedString, :buffer)
                               else return cachedString~text
@@ -411,11 +411,11 @@
     convertedString = buffer~substr(bufferStart)
     -- It's a new string, without any encoding stored on it
     convertedString~encoding = targetEncoding
-    if memorize, .nil \== text then text~internalIndexer~cacheString(targetEncoding~name, convertedString)
+    if memorize, .nil \== text then text~indexer~cacheString(targetEncoding~name, convertedString)
 
     if returnBuffer then return buffer
     convertedText = .RexxText~new(convertedString, targetEncoding)
-    if memorize then convertedText~internalIndexer~cacheString(string~encoding~name, string)
+    if memorize then convertedText~indexer~cacheString(string~encoding~name, string)
     return convertedText
 
 
@@ -436,7 +436,7 @@
     text = .RexxText~new(.String~new(self~string), targetEncoding)
     if memorize then do
         self~cacheString(targetEncoding~name, text~string)
-        text~internalIndexer~cacheString(self~encoding~name, self~string)
+        text~indexer~cacheString(self~encoding~name, self~string)
     end
     return text
 
@@ -458,7 +458,7 @@
     text = .RexxText~new(.String~new(self~string), targetEncoding)
     if memorize then do
         self~cacheString(targetEncoding~name, text~string)
-        text~internalIndexer~cacheString(self~encoding~name, self~string)
+        text~indexer~cacheString(self~encoding~name, self~string)
     end
     return text
 

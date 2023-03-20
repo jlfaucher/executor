@@ -236,7 +236,7 @@ Depends on
 
     if returnBuffer then return buffer
     text = .RexxText~new(string, targetEncoding)
-    if memorize then text~internalIndexer~cacheString(self~encoding~name, self~string)
+    if memorize then text~indexer~cacheString(self~encoding~name, self~string)
     return text
 
 

@@ -399,7 +399,7 @@ Depends on
     text = .RexxText~new(.String~new(self~string), targetEncoding)
     if memorize then do
         self~cacheString(targetEncoding~name, text~string)
-        text~internalIndexer~cacheString(self~encoding~name, self~string)
+        text~indexer~cacheString(self~encoding~name, self~string)
     end
     return text
 
@@ -421,7 +421,7 @@ Depends on
     text = .RexxText~new(.String~new(self~string), targetEncoding)
     if memorize then do
         self~cacheString(targetEncoding~name, text~string)
-        text~internalIndexer~cacheString(self~encoding~name, self~string)
+        text~indexer~cacheString(self~encoding~name, self~string)
     end
     return text
 
@@ -446,7 +446,7 @@ Depends on
         text = .RexxText~new(.String~new(self~string), targetEncoding)
         if memorize then do
             self~cacheString(targetEncoding~name, text~string)
-            text~internalIndexer~cacheString(self~encoding~name, self~string)
+            text~indexer~cacheString(self~encoding~name, self~string)
         end
         return text
     end
@@ -506,7 +506,7 @@ Depends on
         end
         else do
             text = .RexxText~new(string, self~encoding)
-            text~internalIndexer~setBitFlags(mask)
+            text~indexer~setBitFlags(mask)
             -- Remember: string is automatically linked to text so the final makeRexxTextOrString will return this text
         end
     end

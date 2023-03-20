@@ -449,7 +449,7 @@ Allows to use a String or a RexxText indistinctly
 
 
 -- Must use an attribute to return the indexer, because the indexer is not visible from the other mixinclasses
-::attribute indexer private
+::attribute indexer -- private -- this method should be accessible only by RexxText, StringIndexer and its subclasses
 
 
 ::method copy

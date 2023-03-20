@@ -2,7 +2,7 @@
 ::extension StringIndexer inherit IndexerStringInterface
 
 ::requires "encoding/encoding.cls"
-::requires "encoding/stringIndexer.cls" -- for internalIndexer
+--::requires "encoding/stringIndexer.cls"
 
 -- ::requires "encoding/unicode.cls"    -- .Unicode
 -- ::requires "extension/text.cls"      -- .RexxText

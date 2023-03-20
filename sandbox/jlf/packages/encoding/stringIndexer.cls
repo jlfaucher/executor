@@ -1,5 +1,3 @@
-::extension RexxText inherit RexxTextInternalFacade
-
 ::requires "extension/string.cls"   -- for escape3
 ::requires "encoding/cachedStrings.cls"
 
@@ -592,14 +590,6 @@ How other languages are supporting escape characters for Unicode:
 
 ::attribute isNAStripped get
     return self~bitFlag(self~FLAG_STRIP_NA)
-
-
-/******************************************************************************/
-::class "RexxTextInternalFacade" mixinclass Object private
-
--- Give access to the indexer of a RexxText
-::method internalIndexer -- this method should be accessible only by StringIndexer and its subclasses
-    return self~indexer
 
 
 /******************************************************************************/
