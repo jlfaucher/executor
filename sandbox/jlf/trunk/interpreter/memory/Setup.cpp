@@ -1457,9 +1457,9 @@ void RexxMemory::createImage(const char *imageTarget)
   defineKernelMethod("UTF8PROC_CODEPOINTCONTROLBOUNDARY"   , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointControlBoundary), 1);
   defineKernelMethod("UTF8PROC_CODEPOINTCHARWIDTH"         , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointCharWidth), 1);
   defineKernelMethod("UTF8PROC_CODEPOINTBOUNDCLASS"        , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointBoundClass), 1);
-  defineKernelMethod("UTF8PROC_CODEPOINTTOLOWER"           , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointToLower), 1);
-  defineKernelMethod("UTF8PROC_CODEPOINTTOUPPER"           , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointToUpper), 1);
-  defineKernelMethod("UTF8PROC_CODEPOINTTOTITLE"           , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointToTitle), 1);
+  defineKernelMethod("UTF8PROC_CODEPOINTTOLOWERSIMPLE"     , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointToLowerSimple), 1);
+  defineKernelMethod("UTF8PROC_CODEPOINTTOUPPERSIMPLE"     , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointToUpperSimple), 1);
+  defineKernelMethod("UTF8PROC_CODEPOINTTOTITLESIMPLE"     , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointToTitleSimple), 1);
   defineKernelMethod("UTF8PROC_CODEPOINTISLOWER"           , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointIsLower), 1);
   defineKernelMethod("UTF8PROC_CODEPOINTISUPPER"           , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointIsUpper), 1);
   defineKernelMethod("UTF8PROC_TRANSFORM"                  , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_transform), 1, true);  // pass named arguments

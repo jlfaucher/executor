@@ -131,22 +131,34 @@ Depends on
     return 1
 
 
-::method codepointToLower class
+::method codepointToLowerSimple class
     use strict arg codepoint
     if 65 <= codepoint, codepoint <= 90 then return codepoint + 32
     return codepoint
 
 
-::method codepointToUpper class
+::method codepointToLowerFull class
+    forward message "codepointToLowerSimple"
+
+
+::method codepointToUpperSimple class
     use strict arg codepoint
     if 97 <= codepoint, codepoint <= 122 then return codepoint - 32
     return codepoint
 
 
-::method codepointToTitle class
+::method codepointToUpperFull class
+    forward message "codepointToUpperSimple"
+
+
+::method codepointToTitleSimple class
     use strict arg codepoint
     if 97 <= codepoint, codepoint <= 122 then return codepoint - 32
     return codepoint
+
+
+::method codepointToTitleFull class
+    forward message "codepointToTitleSimple"
 
 
 ::method tableTranscodingToUnicode class

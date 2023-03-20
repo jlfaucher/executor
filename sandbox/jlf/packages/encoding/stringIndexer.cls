@@ -141,13 +141,16 @@ For example, if startB==6 then previousCodepointIndex==3
 ::method codepointSizeInBytes class abstract -- how many bytes to encode this codepoint
 
 
-::method codepointToLower class abstract
+::method codepointToLowerSimple class abstract  -- return 1 codepoint
+::method codepointToLowerFull class abstract    -- return 1..n codepoints
 
 
-::method codepointToUpper class abstract
+::method codepointToUpperSimple class abstract  -- return 1 codepoint
+::method codepointToUpperFull class abstract    -- return 1..n codepoints
 
 
-::method codepointToTitle class abstract
+::method codepointToTitleSimple class abstract  -- return 1 codepoint
+::method codepointToTitleFull class abstract    -- return 1..n codepoints
 
 
 ::method description class

@@ -160,7 +160,7 @@ sleep no prompt
 -- Ignorable (boolean)
 -- http://www.unicode.org/review/pr-5.html
 -- http://unicode.org/L2/L2002/02368-default-ignorable.html
--- First 10 characters such as bidiMirrored == .true
+-- First 10 characters such as ignorable == .true
 .unicode~characters~pipe(.select {item~ignorable} | .take 10 | .console)
 sleep no prompt
 
@@ -224,12 +224,14 @@ sleep no prompt
 -- Unicode upper lower
 ----------------------
 
-smallSharpS = .unicode~character("LATIN SMALL LETTER SHARP S")                              --  ( "ß"   U+00DF Ll 1 "LATIN SMALL LETTER SHARP S" )
-.unicode~utf8proc_codepointToUpper(smallSharpS~codepoint)~pipe{.unicode~character(item)}=   --  ( "ẞ"   U+1E9E Lu 1 "LATIN CAPITAL LETTER SHARP S" )
+smallSharpS = .unicode~character("LATIN SMALL LETTER SHARP S")  --  ( "ß"   U+00DF Ll 1 "LATIN SMALL LETTER SHARP S" )
+smallSharpS~toUpperSimple=                                      --  7838 (codepoint in decimal)
+smallSharpS~toUpperFull=                                        --  TODO: 83 83 (codepoints in decimal)
+.Unicode~character(smallSharpS~toUpperSimple)=                  --  ( "ẞ"   U+1E9E Lu 1 "LATIN CAPITAL LETTER SHARP S" )
+"ß"~text~upper=                                                 --  TODO: T'SS'
 sleep no prompt
 
 /*
-Should be "SS".
 Unicode standard 15 section 5.18 Case Mappings:
     Default casing                                         Tailored casing
     (small sharp) ß <--- ẞ (capital sharp)                 (small sharp) ß <--> ẞ (capital sharp)

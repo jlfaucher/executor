@@ -114,9 +114,9 @@ public:
     RexxInteger *utf8proc_codepointControlBoundary(RexxObject *rexxCodepoint);
     RexxInteger *utf8proc_codepointCharWidth(RexxObject *rexxCodepoint);
     RexxInteger *utf8proc_codepointBoundClass(RexxObject *rexxCodepoint);
-    RexxInteger *utf8proc_codepointToLower(RexxObject *rexxCodepoint);
-    RexxInteger *utf8proc_codepointToUpper(RexxObject *rexxCodepoint);
-    RexxInteger *utf8proc_codepointToTitle(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointToLowerSimple(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointToUpperSimple(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointToTitleSimple(RexxObject *rexxCodepoint);
     RexxInteger *utf8proc_codepointIsLower(RexxObject *rexxCodepoint);
     RexxInteger *utf8proc_codepointIsUpper(RexxObject *rexxCodepoint);
     RexxObject *utf8proc_transform(RexxString *str, RexxObject **named_arglist, size_t named_argcount);

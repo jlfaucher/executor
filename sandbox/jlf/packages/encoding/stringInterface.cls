@@ -81,7 +81,7 @@
 
     -- If the action is to title then check if the begining of the section is a begining of word
     if action == "t" then do
-        -- Simple split by words using space as separator. Absolutly not Unicode compliant.
+        -- Simple split by words using space as separator. Absolutly not Unicode compliant (todo).
         beginOfWord = .false
         if codepointIndexB == 1 then beginOfWord = .true -- 1st character
         else do
@@ -94,24 +94,30 @@
         end
     end
 
+    -- utf8proc has no function working on a whole string.
+    -- It provides only functions taking a codepoint.
+    -- It doesn't implement the special casing rules.
     do while codepointIndexB < endB
         nextCodepointIndexB = encoding~nextCodepointIndex(string, codepointIndexB, errorInfo: error)
         if nextCodepointIndexB > 0 then do -- if no error
             if nextCodepointIndexB == codepointIndexB then leave -- should not happen, but...
             codepointSizeB = nextCodepointIndexB - codepointIndexB
             codepoint = encoding~decode(string, codepointIndexB, codepointSizeB)
-            if action == "l" then codepoint = encoding~codepointToLower(codepoint)
-            else if action == "u" then codepoint = encoding~codepointToUpper(codepoint)
+            if action == "l" then codepoints = encoding~codepointToLowerFull(codepoint)
+            else if action == "u" then codepoints = encoding~codepointToUpperFull(codepoint)
             else if action == "t" then do
-                if beginOfWord then codepoint = encoding~codepointToTitle(codepoint)
-                               else codepoint = encoding~codepointToLower(codepoint)
+                if beginOfWord then codepoints = encoding~codepointToTitleFull(codepoint)
+                               else codepoints = encoding~codepointToLowerFull(codepoint)
                 beginOfWord = (string~substr(codepointIndexB, codepointSizeB) == encoding~spaceCharacter~string)
             end
         end
         else do
-            codepoint = .Unicode~replacementCharacter~codepoint
+            codepoints = .Unicode~replacementCharacter~codepoint
         end
-        encoding~encode(codepoint, :buffer)
+        do while codepoints <> ""
+            parse var codepoints codepoint codepoints
+            encoding~encode(codepoint, :buffer)
+        end
         codepointIndexB = abs(nextCodepointIndexB)
     end
 
@@ -160,28 +166,32 @@
     use strict named arg normalization, casefold, lump, stripIgnorable, stripMark
 
     selfIndexer = self
-    selfText = selfIndexer~string~text
-    selfNormText = selfText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
-    selfNormIndexer = selfNormText~internalIndexer
-    call check_position startC, selfNormIndexer~length
+    call check_position startC, selfIndexer~length
 
     otherText = other~request("RexxText") -- not requestTextOrBufferOrString because we really need a RexxText
     if .nil == otherText then signal argument_2_must_have_a_text_or_string_value
-    otherNormText = otherText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
-    otherNormIndexer = otherNormText~internalIndexer
-    call check_position nC, otherNormIndexer~length
-    if .nil == lengthC then lengthC = otherNormIndexer~length - nC + 1
-    call check_length lengthC, otherNormIndexer~length, nC
+    call check_position nC, otherText~length
+    if .nil == lengthC then lengthC = otherText~length - nC + 1
+    call check_length lengthC, otherText~length, nC
 
-    startB = abs(selfNormIndexer~graphemeIndex(startC))
-    nB = abs(otherNormIndexer~graphemeIndex(nC))
-    mC = nC + lengthC
-    mB = abs(otherNormIndexer~graphemeIndex(mC))
-    lengthB = mB - nB
+    -- This implementation doesn't fulfill the following performance assertion,
+    -- but it's just a prototype, okay?
+    -- RexxRef:
+    -- The match method is useful for efficient string parsing as it does not
+    -- require new string objects be extracted from the target string.
 
-    selfNormString = selfNormIndexer~string
-    otherNormString = otherNormIndexer~string
-    return selfNormString~match(startB, otherNormString, nB, lengthB)
+    -- I do that because it's an easy way to support
+    --   "Bundesstraße im Freiland"~text~caselessMatch(14, "im")
+    -- where the casefold transformation invalidates the position 14 ("ß" becomes "ss")
+
+    selfText = selfIndexer~string~text
+    selfSubText = selfText~substr(startC)
+    otherSubText = otherText~substr(nC, lengthC)
+
+    selfTransformed = selfSubText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
+    otherTransformed = otherSubText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
+
+    return selfTransformed~string~match(1, otherTransformed~string)
 
     check_position: procedure
         use strict arg position, max

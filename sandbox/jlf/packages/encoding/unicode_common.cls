@@ -144,19 +144,40 @@ Depends on
         signal forever
 
 
-::method codepointToLower class
+::method codepointToLowerSimple class
     use strict arg codepoint
-    return .Unicode~utf8proc_codepointToLower(codepoint)
+    return .Unicode~utf8proc_codepointToLowerSimple(codepoint)
 
 
-::method codepointToUpper class
+::method codepointToLowerFull class
     use strict arg codepoint
-    return .Unicode~utf8proc_codepointToUpper(codepoint)
+    lowerFull = .Unicode~codepointToLowerFull(codepoint)
+    if .nil \== lowerFull then return lowerFull
+    return .Unicode~utf8proc_codepointToLowerSimple(codepoint)
 
 
-::method codepointToTitle class
+::method codepointToUpperSimple class
     use strict arg codepoint
-    return .Unicode~utf8proc_codepointToTitle(codepoint)
+    return .Unicode~utf8proc_codepointToUpperSimple(codepoint)
+
+
+::method codepointToUpperFull class
+    use strict arg codepoint
+    upperFull = .Unicode~codepointToUpperFull(codepoint)
+    if .nil \== upperFull then return upperFull
+    return .Unicode~utf8proc_codepointToUpperSimple(codepoint)
+
+
+::method codepointToTitleSimple class
+    use strict arg codepoint
+    return .Unicode~utf8proc_codepointToTitleSimple(codepoint)
+
+
+::method codepointToTitleFull class
+    use strict arg codepoint
+    titleFull = .Unicode~codepointToTitleFull(codepoint)
+    if .nil \== titleFull then return titleFull
+    return .Unicode~utf8proc_codepointToTitleSimple(codepoint)
 
 
 /********************/

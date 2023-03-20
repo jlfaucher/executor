@@ -41,9 +41,9 @@ Depends on
     RexxInteger *utf8proc_codepointControlBoundary(RexxObject *rexxCodepoint);
     RexxInteger *utf8proc_codepointCharWidth(RexxObject *rexxCodepoint);
     RexxInteger *utf8proc_codepointBoundClass(RexxObject *rexxCodepoint);
-    RexxInteger *utf8proc_codepointToLower(RexxObject *rexxCodepoint);
-    RexxInteger *utf8proc_codepointToUpper(RexxObject *rexxCodepoint);
-    RexxInteger *utf8proc_codepointToTitle(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointToLowerSimple(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointToUpperSimple(RexxObject *rexxCodepoint);
+    RexxInteger *utf8proc_codepointToTitleSimple(RexxObject *rexxCodepoint);
     RexxInteger *utf8proc_codepointIsLower(RexxObject *rexxCodepoint);
     RexxInteger *utf8proc_codepointIsUpper(RexxObject *rexxCodepoint);
     RexxObject *utf8proc_transform(RexxString *str, RexxObject **named_arglist, size_t named_argcount);
@@ -567,6 +567,24 @@ Depends on
 ::constant BOUNDCLASS_E_ZWG 20 /* BOUNDCLASS_EXTENDED_PICTOGRAPHIC + ZWJ */
 
 
+-- return 1..n codepoints in decimal, or .nil
+::method codepointToLowerFull class
+    use strict arg codepoint
+    return .nil -- todo
+
+
+-- return 1..n codepoints in decimal, or .nil
+::method codepointToUpperFull class
+    use strict arg codepoint
+    return .nil -- todo
+
+
+-- return 1..n codepoints in decimal, or .nil
+::method codepointToTitleFull class
+    use strict arg codepoint
+    return .nil -- todo
+
+
 /*
 UAX44-LM2.
 https://unicode.org/reports/tr44/#UAX44-LM2
@@ -864,22 +882,52 @@ https://unicode.org/reports/tr44/#UAX44-LM3
     return .Unicode~codepointBoundClassName(codepoint)
 
 
-::method toLower
+-- Simple case mappings in UnicodeData.txt, returns a single codepoint
+::method toLowerSimple
     expose codepoint
     use strict arg -- none
-    return .Unicode~character(.Unicode~utf8proc_codepointToLower(codepoint))
+    return .Unicode~utf8proc_codepointToLowerSimple(codepoint)
 
 
-::method toUpper
+-- Full case mappings in SpecialCasing.txt, returns 1..n codepoints
+::method toLowerFull
     expose codepoint
     use strict arg -- none
-    return .Unicode~character(.Unicode~utf8proc_codepointToUpper(codepoint))
+    lowerFull = .Unicode~codepointToLowerFull(codepoint)
+    if .nil \== lowerFull then return lowerFull
+    return .Unicode~utf8proc_codepointToLowerSimple(codepoint)
 
 
-::method toTitle
+-- Simple case mappings in UnicodeData.txt, returns a single codepoint
+::method toUpperSimple
     expose codepoint
     use strict arg -- none
-    return .Unicode~character(.Unicode~utf8proc_codepointToTitle(codepoint))
+    return .Unicode~utf8proc_codepointToUpperSimple(codepoint)
+
+
+-- Full case mappings in SpecialCasing.txt, returns 1..n codepoints
+::method toUpperFull
+    expose codepoint
+    use strict arg -- none
+    upperFull = .Unicode~codepointToUpperFull(codepoint)
+    if .nil \== upperFull then return upperFull
+    return .Unicode~utf8proc_codepointToUpperSimple(codepoint)
+
+
+-- Simple case mappings in UnicodeData.txt, returns a single codepoint
+::method toTitleSimple
+    expose codepoint
+    use strict arg -- none
+    return .Unicode~utf8proc_codepointToTitleSimple(codepoint)
+
+
+-- Full case mappings in SpecialCasing.txt, returns 1..n codepoints
+::method toTitleFull
+    expose codepoint
+    use strict arg -- none
+    titleFull = .Unicode~codepointToTitleFull(codepoint)
+    if .nil \== titleFull then return titleFull
+    return .Unicode~utf8proc_codepointToTitleSimple(codepoint)
 
 
 ::method isLower

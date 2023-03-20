@@ -502,21 +502,21 @@ typedef enum {
 #endif
 
 
-RexxInteger *Unicode::utf8proc_codepointToLower(RexxObject *rexxCodepoint)
+RexxInteger *Unicode::utf8proc_codepointToLowerSimple(RexxObject *rexxCodepoint)
 {
     utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointToLower: codepoint must be an integer");
     return new_integer(utf8proc_tolower(codepoint));
 }
 
 
-RexxInteger *Unicode::utf8proc_codepointToUpper(RexxObject *rexxCodepoint)
+RexxInteger *Unicode::utf8proc_codepointToUpperSimple(RexxObject *rexxCodepoint)
 {
     utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointToUpper: codepoint must be an integer");
     return new_integer(utf8proc_toupper(codepoint));
 }
 
 
-RexxInteger *Unicode::utf8proc_codepointToTitle(RexxObject *rexxCodepoint)
+RexxInteger *Unicode::utf8proc_codepointToTitleSimple(RexxObject *rexxCodepoint)
 {
     utf8proc_int32_t codepoint = (utf8proc_int32_t)integer(rexxCodepoint, "CodepointToTitle: codepoint must be an integer");
     return new_integer(utf8proc_totitle(codepoint));

@@ -2,6 +2,19 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2023 March 20
+
+[Encoded strings]
+
+Rework implementation of caselessMatch to support correctly
+"Bundesstraße im Freiland"~text~caselessMatch(14, "im")     -- .true
+
+Prepare the support of full case mappings (rules defined in SpecialCasing.txt).
+utf8proc supports only the simple case mappings:
+toLower, toUpper and toTitle return only one codepoint.
+
+
+===============================================================================
 2023 March 08
 
 [Encoded strings]
@@ -53,7 +66,8 @@ normalization
     .unicode~NFD
     .unicode~NFKC
     .unicode~NFKD
-There is no value NFKC_CF because it can be done with NFKC + stripIgnorable
+There is no value NFKC_CF because it can be done using the caseless methods by
+passing NFKC + stripIgnorable.
 
 
 Some ligatures are not decomposed by NFKC.
@@ -1133,8 +1147,8 @@ Examples:
     "noël👩‍👨‍👩‍👧🎅"~text~center(10)=                   -- T'  noël👩‍👨‍👩‍👧🎅  '
     "noël👩‍👨‍👩‍👧🎅"~text~center(10)~description=       -- 'UTF-8 not-ASCII (10 graphemes, 16 codepoints, 38 bytes, 0 error)'
     pad = "═"
-    pad~description=                                    -- 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'
-    pad~c2x=                                            -- 'E29590'
+    pad~description=                                          -- 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'
+    pad~c2x=                                                  -- 'E29590'
     "noël👩‍👨‍👩‍👧🎅"~text~center(10, pad)=              -- T'══noël👩‍👨‍👩‍👧🎅══'
     "noël👩‍👨‍👩‍👧🎅"~text~center(10, pad)~description=  -- 'UTF-8 not-ASCII (10 graphemes, 16 codepoints, 46 bytes, 0 error)'
 

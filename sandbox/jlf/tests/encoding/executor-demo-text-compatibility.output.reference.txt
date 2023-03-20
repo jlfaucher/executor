@@ -243,26 +243,19 @@ ooRexx> "noel"~text~matchChar(3, "Ee")=             -- forward to String
 ooRexx> "noel"~text~matchChar(3, "Ee"~text)=        -- forward to String
  1
 ooRexx> "noel"~text~matchChar(3, "EËeë")=
-Message "MATCHCHARTEXT" did not return a result.
-Error code= 91.999
+ 1
 ooRexx> "noel"~text~matchChar(3, "EËeë"~text)=
-Message "MATCHCHARTEXT" did not return a result.
-Error code= 91.999
+ 1
 ooRexx> "noël"~text~matchChar(3, "EËeë")=
-Message "MATCHCHARTEXT" did not return a result.
-Error code= 91.999
+ 1
 ooRexx> "noël"~text~matchChar(3, "EËeë"~text)=
-Message "MATCHCHARTEXT" did not return a result.
-Error code= 91.999
+ 1
 ooRexx> "noël"~text~matchChar(3, "EËeë")=
-Message "MATCHCHARTEXT" did not return a result.
-Error code= 91.999
+ 1
 ooRexx> "noël"~text~matchChar(4, "Ll"~text)=
-Message "MATCHCHARTEXT" did not return a result.
-Error code= 91.999
+ 1
 ooRexx> "noël"~text~matchChar(4, "Ll"~text)=
-Message "MATCHCHARTEXT" did not return a result.
-Error code= 91.999
+ 1
 
 
 -- pos
@@ -353,8 +346,7 @@ ooRexx> p = .Pattern~compile("a.c"~text)
 ooRexx> p~matches("abc"~text)=
  1
 ooRexx> p~matches("aôc"~text)=
-Message "MATCHCHARTEXT" did not return a result.
-Error code= 91.999
+ 1
 
 ooRexx> p = .Pattern~compile("à.c"~text)
 UTF-8 not-ASCII 'à' cannot be converted to a String instance.
