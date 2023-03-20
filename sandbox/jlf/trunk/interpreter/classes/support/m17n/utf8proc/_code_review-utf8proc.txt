@@ -271,3 +271,117 @@ utf8proc_decompose_char     (the options with no comment are missing in the doc)
     UTF8PROC_COMPAT     replace certain codepoints with their compatibility decomposition
     UTF8PROC_CHARBOUND  insert 0xFF bytes before each grapheme cluster
 
+
+-------------------------------------------------------------------------------
+Casefold
+-------------------------------------------------------------------------------
+
+utf8proc_decompose_char
+  const utf8proc_property_t *property;
+  property = unsafe_get_property(uc);
+
+  if (options & UTF8PROC_CASEFOLD) {
+    if (property->casefold_seqindex != UINT16_MAX) {
+      return seqindex_write_char_decomposed(property->casefold_seqindex, dst, bufsize, options, last_boundclass);
+    }
+  }
+
+
+/*
+This function is called with seqindex being
+either
+    property->casefold_seqindex
+or
+    property->decomp_seqindex
+
+3FFF
+11 1111 1111 1111   (14 bits)
+>> 14 (rest of the bits)
+See cpary2c in data_generator.rb:
+  if lencode >= 3 #we have only 2 bits for the length
+    array = [lencode] + array
+    lencode = 3
+  end
+
+*/
+static utf8proc_ssize_t seqindex_write_char_decomposed(utf8proc_uint16_t seqindex,
+                                                       utf8proc_int32_t *dst,
+                                                       utf8proc_ssize_t bufsize,
+                                                       utf8proc_option_t options,
+                                                       int *last_boundclass) {
+  utf8proc_ssize_t written = 0;
+  const utf8proc_uint16_t *entry = &utf8proc_sequences[seqindex & 0x3FFF];
+  int len = seqindex >> 14;
+  if (len >= 3) {
+    len = *entry;
+    entry++;
+  }
+  for (; len >= 0; entry++, len--) {
+    utf8proc_int32_t entry_cp = seqindex_decode_entry(&entry);
+
+    written += utf8proc_decompose_char(entry_cp, dst+written,
+      (bufsize > written) ? (bufsize - written) : 0, options,
+    last_boundclass);
+    if (written < 0) return UTF8PROC_ERROR_OVERFLOW;
+  }
+  return written;
+}
+
+
+--------------------------------------------------------------------------------
+utf8proc_data.c
+--------------------------------------------------------------------------------
+
+static const utf8proc_uint16_t utf8proc_sequences[] = {
+  97, 98, 99, 100, 101, 102, 103,
+  104, 105, 106, 107, 108, 109, 110, 111,
+  112, 113, 114, 115, 116, 117, 118, 119,
+  120, 121, 122, 32, 32, 776, 32, 772,
+  50, 51, 32, 769, 956, 32, 807, 49,
+  ...
+
+
+static const utf8proc_uint16_t utf8proc_stage2table[] = {
+  1, 2, 2, 2, 2, 2, 2,
+  2, 2, 3, 4, 3, 5, 6, 2,
+  2, 2, 2, 2, 2, 2, 2, 2,
+  2, 2, 2, 2, 2, 7, 7, 7,
+  3, 8, 9, 9, 10, 11, 10, 9,
+  ...
+
+
+static const utf8proc_property_t utf8proc_properties[] = {
+  {0, 0, 0, 0, UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX,  false,false,false,false, 1, 0, UTF8PROC_BOUNDCLASS_OTHER},
+  {UTF8PROC_CATEGORY_CC, 0, UTF8PROC_BIDI_CLASS_BN, 0, UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX, false, true, false, true, 0, 0, UTF8PROC_BOUNDCLASS_CONTROL},
+  {UTF8PROC_CATEGORY_CC, 0, UTF8PROC_BIDI_CLASS_BN, 0, UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX, false, false, false, true, 0, 0, UTF8PROC_BOUNDCLASS_CONTROL},
+  {UTF8PROC_CATEGORY_CC, 0, UTF8PROC_BIDI_CLASS_S, 0, UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX, false, false, false, true, 0, 0, UTF8PROC_BOUNDCLASS_CONTROL},
+  {UTF8PROC_CATEGORY_CC, 0, UTF8PROC_BIDI_CLASS_B, 0, UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX, false, false, false, true, 0, 0, UTF8PROC_BOUNDCLASS_LF},
+  ...
+
+
+static const utf8proc_uint16_t utf8proc_combinations[] = {
+  0, 46, 192, 193, 194, 195, 196, 197, 0,
+  256, 258, 260, 550, 461, 0, 0, 512,
+  514, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,
+  ...
+
+--------------------------------------------------------------------------------
+data_generator.rb
+--------------------------------------------------------------------------------
+
+UCD files used by utf8proc
+
+UnicodeData.txt
+utf8proc_data.c.new: data_generator.rb UnicodeData.txt GraphemeBreakProperty.txt DerivedCoreProperties.txt CompositionExclusions.txt CaseFolding.txt CharWidths.txt emoji-data.txt
+	$(RUBY) data_generator.rb < UnicodeData.txt > $@
+
+$ignorable_list = File.read("DerivedCoreProperties.txt", :encoding => 'utf-8')[/# Derived Property: Default_Ignorable_Code_Point.*?# Total code points:/m]
+$uppercase_list = File.read("DerivedCoreProperties.txt", :encoding => 'utf-8')[/# Derived Property: Uppercase.*?# Total code points:/m]
+$lowercase_list = File.read("DerivedCoreProperties.txt", :encoding => 'utf-8')[/# Derived Property: Lowercase.*?# Total code points:/m]
+$grapheme_boundclass_list = File.read("GraphemeBreakProperty.txt", :encoding => 'utf-8')
+$emoji_data_list = File.read("emoji-data.txt", :encoding => 'utf-8')
+$charwidth_list = File.read("CharWidths.txt", :encoding => 'utf-8')
+$exclusions = File.read("CompositionExclusions.txt", :encoding => 'utf-8')[/# \(1\) Script Specifics.*?# Total code points:/m]
+$excl_version = File.read("CompositionExclusions.txt", :encoding => 'utf-8')[/# \(2\) Post Composition Version precomposed characters.*?# Total code points:/m]
+$case_folding_string = File.read("CaseFolding.txt", :encoding => 'utf-8')
