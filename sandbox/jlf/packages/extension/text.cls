@@ -935,10 +935,10 @@ stringChunks
 ::method caselessEndsWith
     use arg other -- not strict, just need to check this one
     if self~isCompatibleWithByteString, other~isCompatibleWithByteString then do
-        forward message "caselessEndsWith" to (self~string) continue
+        forward to (self~string) continue
         return result <> 0
     end
-    forward message "caselessEndsWith" to (self~indexer)
+    forward to (self~indexer)
 
 
 ::method caselessEquals
@@ -948,9 +948,11 @@ stringChunks
 
 
 ::method caselessMatch
-    use strict arg startC, other, nC=1, lengthC=(other~length - nC + 1)
+    use arg startC, other -- not strict, just testing the compatibility with String
+    if self~isCompatibleWithByteString, other~isCompatibleWithByteString then forward to (self~string)
+
+    use strict arg startC, other, nC=1, lengthC=.nil
     use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
-    if self~isCompatibleWithByteString, other~isCompatibleWithByteString then return self~string~caselessMatch(startC, other, nC, lengthC)
     return self~indexer~caselessMatch(startC, other, nC, lengthC, :normalization, :lump, :stripIgnorable, :stripMark)
 
 
@@ -1086,9 +1088,11 @@ stringChunks
 
 
 ::method match
+    use arg startC, other -- not strict, just testing the compatibility with String
+    if self~isCompatibleWithByteString, other~isCompatibleWithByteString then forward to (self~string)
+
     use strict arg startC, other, nC=1, lengthC=.nil
     use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
-    if self~isCompatibleWithByteString, other~isCompatibleWithByteString then return self~string~match(startC, other, nC, lengthC)
     return self~indexer~match(startC, other, nC, lengthC, :normalization, :lump, :stripIgnorable, :stripMark)
 
 
