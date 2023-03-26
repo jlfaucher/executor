@@ -1,3 +1,15 @@
+https://lldb.llvm.org/use/tutorial.html
+
+Pfff... Under Macos ARM, for unknown reasons, a breakpoint set in xcode can't be activated.
+The workaround I use is to declare the breakpoint in the lldb window.
+For that, I must use a pull instruction, then pause the execution, then declare the breakpoint,
+then contnue execution.
+
+arguments: -e "pull; say SysLoadFuncs()"
+breakpoint set --file rexxutil.cpp --line 1125
+
+
+===========================================================================================
 https://news.ycombinator.com/item?id=35092998
 What a good debugger can do
 
