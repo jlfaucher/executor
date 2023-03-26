@@ -1135,3 +1135,20 @@ Maybe I should review what was done in official oorexx to clean the rexx.img
     12155	[#1712] rexx.img varies from ASLR	bigrixx	02/10/2021 12:36 AM
     12153	[#1712] rexx.img varies from ASLR	bigrixx	02/09/2021 10:07 PM
 https://sourceforge.net/p/oorexx/bugs/1712/
+
+================================================================================
+oorexxshell
+================================================================================
+
+23/03/2023
+J Leslie Turriff <jlturriff@mail.com>
+in netrexx@groups.io
+Re: [netrexx] NetRexx Workspace
+The current XDG standard is to place configuration files in ~/.config,
+thus .config/nrws.properties.
+
+Maybe I should do that for oorexxshell
+Currently it's
+    self~settingsFile = HOME || "/.oorexxshell.ini"
+    self~historyFile = HOME || "/.oorexxshell_history"
+
