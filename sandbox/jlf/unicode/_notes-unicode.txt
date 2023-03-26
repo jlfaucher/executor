@@ -462,6 +462,12 @@ https://stackoverflow.com/questions/27331819/whats-the-difference-between-a-char
 What's the difference between a character, a code point, a glyph and a grapheme?
 jlf: not very good...
 
+
+https://github.com/clipperhouse/words
+words is a command which splits strings into individual words, as defined by Unicode.
+It accepts text from stdin, and writes one word (token) per line to stdout.
+
+
 ================================================================================
 Normalization, equivalence
 ================================================================================
@@ -1014,6 +1020,14 @@ a site devoted to working with Collations, Unicode, Encodings, Code Pages, etc i
 https://www.unicode.org/reports/tr35/tr35-collation.html
 UNICODE LOCALE DATA MARKUP LANGUAGE (LDML)
 PART 5: COLLATION
+
+
+================================================================================
+BIDI
+================================================================================
+
+https://www.iamcal.com/understanding-bidirectional-text/
+Understanding Bidirectional (BIDI) Text in Unicode
 
 
 ================================================================================

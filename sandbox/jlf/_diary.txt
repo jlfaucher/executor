@@ -2,6 +2,23 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2023 March 26
+
+[Encoded strings]
+
+Integration of the library uni-algo v0.7.1
+https://github.com/uni-algo/uni-algo
+
+Prerequisite:
+Compiler supporting C++17.
+Only the file that includes the uni-algo headers need to be compiled with C++17.
+The rest of the interpreter stay compiled with C++11.
+
+More complete than utf8proc.
+utf8proc is better for the transformations applied during normalization.
+
+
+===============================================================================
 2023 March 20
 
 [Encoded strings]

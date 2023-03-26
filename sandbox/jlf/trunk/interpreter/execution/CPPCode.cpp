@@ -1109,6 +1109,7 @@ CPPM(RexxText::newRexx),
 CPPM(Unicode::newRexx),
 CPPM(Unicode::copyRexx),
 CPPM(Unicode::systemIsLittleEndian),
+
 CPPM(Unicode::utf8proc_version),
 CPPM(Unicode::utf8proc_graphemeBreak),
 CPPM(Unicode::utf8proc_codepointCategory),
@@ -1126,6 +1127,8 @@ CPPM(Unicode::utf8proc_codepointToTitleSimple),
 CPPM(Unicode::utf8proc_codepointIsLower),
 CPPM(Unicode::utf8proc_codepointIsUpper),
 CPPM(Unicode::utf8proc_transform),
+
+CPPM(Unicode::unialgo_version),
 
 NULL                                   /* final terminating method          */
 };

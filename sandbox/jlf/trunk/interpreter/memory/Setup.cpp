@@ -1446,6 +1446,7 @@ void RexxMemory::createImage(const char *imageTarget)
   defineKernelMethod(CHAR_NEW                              , TheUnicodeClassBehaviour, CPPM(Unicode::newRexx), A_COUNT);
   defineKernelMethod(CHAR_COPY                             , TheUnicodeClassBehaviour, CPPM(Unicode::copyRexx), 0);
   defineKernelMethod("SYSTEMISLITTLEENDIAN"                , TheUnicodeClassBehaviour, CPPM(Unicode::systemIsLittleEndian), 0);
+
   defineKernelMethod("UTF8PROC_VERSION"                    , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_version), 0);
   defineKernelMethod("UTF8PROC_GRAPHEMEBREAK"              , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_graphemeBreak), 1);
   defineKernelMethod("UTF8PROC_CODEPOINTCATEGORY"          , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointCategory), 1);
@@ -1463,6 +1464,9 @@ void RexxMemory::createImage(const char *imageTarget)
   defineKernelMethod("UTF8PROC_CODEPOINTISLOWER"           , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointIsLower), 1);
   defineKernelMethod("UTF8PROC_CODEPOINTISUPPER"           , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_codepointIsUpper), 1);
   defineKernelMethod("UTF8PROC_TRANSFORM"                  , TheUnicodeClassBehaviour, CPPM(Unicode::utf8proc_transform), 1, true);  // pass named arguments
+
+  defineKernelMethod("UNIALGO_VERSION"                    , TheUnicodeClassBehaviour, CPPM(Unicode::unialgo_version), 0);
+
                                        /* set the scope of the methods to   */
                                        /* this classes oref                 */
   TheUnicodeClassBehaviour->setMethodDictionaryScope(TheUnicodeClass);

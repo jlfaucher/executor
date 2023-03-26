@@ -683,6 +683,21 @@ install(TARGETS rexxapi RUNTIME DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core
 set_target_properties(rexxapi PROPERTIES SOVERSION ${ORX_API_LEVEL})
 create_install_symlink(rexxapi)
 
+##################### unicode ###########################
+
+# Needed for uni-algo and ICU4X
+if (WIN32)
+    set_source_files_properties(${build_classes_support_dir}/m17n/uni-algo/src/data.cpp PROPERTIES COMPILE_OPTIONS "/std:c++17")
+    # Visual C++ wants c++20 to compile ICU4X
+    set_source_files_properties(${build_classes_dir}/TextClass.cpp PROPERTIES COMPILE_OPTIONS "/std:c++20")
+else ()
+    set_source_files_properties(${build_classes_support_dir}/m17n/uni-algo/src/data.cpp PROPERTIES COMPILE_OPTIONS "-std=c++17")
+    # For ICU4X, I wanted to use std=c++20 to be aligned with Visual C++ (which wants c++20) but that doesn't work :-(
+    # It works if I use -std=c++17, don't ask me why
+    set_source_files_properties(${build_classes_dir}/TextClass.cpp PROPERTIES COMPILE_OPTIONS "-std=c++17")
+endif ()
+
+
 ##################### utf8proc ###########################
 
 if (WIN32)
@@ -703,6 +718,7 @@ add_library(icu_capi_cdylib SHARED IMPORTED GLOBAL)
 if (WIN32)
     add_definitions(
     # suppress warning C4099: type name first seen using 'struct' now seen using 'class'
+    # (maybe no longer needed, was needed for v1.0)
                 /wd4099
     )
 endif ()
@@ -740,8 +756,6 @@ if (WIN32 AND icu4x_arch)
     # Full path to ICU4X dylib in the source tree
     set_property(TARGET icu_capi_cdylib PROPERTY IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/${icu4x_dylib})
     set_property(TARGET icu_capi_cdylib PROPERTY IMPORTED_IMPLIB ${CMAKE_CURRENT_SOURCE_DIR}/${icu4x_dylib_lib})
-    # Visual C++ wants c++20
-    set_source_files_properties(${build_classes_dir}/TextClass.cpp PROPERTIES COMPILE_OPTIONS "/std:c++20")
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${icu4x_dylib} COMPONENT Core DESTINATION ${INSTALL_LIB_DIR})
 elseif (APPLE AND icu4x_arch)
     message(STATUS "ICU4X for ${icu4x_arch}-apple-darwin")
@@ -752,9 +766,6 @@ elseif (APPLE AND icu4x_arch)
     set (icu4x_dylib ${icu4x_dir}/target/${icu4x_arch}-apple-darwin/release/libicu_capi_cdylib.dylib)
     # Full path to ICU4X dylib in the source tree
     set_property(TARGET icu_capi_cdylib PROPERTY IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/${icu4x_dylib})
-    # I wanted to use std=c++20 to be aligned with Visual C++ (which wants c++20) but that doesn't work :-(
-    # It works if I use -std=c++17, don't ask me why
-    set_source_files_properties(${build_classes_dir}/TextClass.cpp PROPERTIES COMPILE_OPTIONS "-std=c++17")
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${icu4x_dylib} COMPONENT Core DESTINATION ${INSTALL_LIB_DIR})
 else ()
     message(STATUS "ICU4X not yet supported by Executor for this platform")
@@ -790,6 +801,7 @@ set (classes_support_sources
             ${build_classes_support_dir}/RexxListTable.cpp
             ${build_classes_support_dir}/StringUtil.cpp
             ${build_classes_support_dir}/m17n/utf8proc/utf8proc.c
+            ${build_classes_support_dir}/m17n/uni-algo/src/data.cpp
             )
 endif()
 

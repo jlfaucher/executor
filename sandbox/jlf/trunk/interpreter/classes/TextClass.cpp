@@ -667,6 +667,30 @@ RexxObject *Unicode::utf8proc_transform(RexxString *string, RexxObject **named_a
 
 /******************************************************************************/
 /*                                                                            */
+/* Unicode Class - utf8proc                                                   */
+/*                                                                            */
+/******************************************************************************/
+
+#include <sstream>
+#include <string>
+
+#include "m17n/uni-algo/include/uni_algo/version.h"
+
+
+RexxString *Unicode::unialgo_version()
+{
+    std::stringstream version;
+    version << una::version::library::major << "." << una::version::library::minor << "." << una::version::library::patch;
+    // Don't use version.str().cstr() because cstr() would return a pointer to a temporary object
+    // See https://stackoverflow.com/questions/1374468/stringstream-string-and-char-conversion-confusion
+    const std::string& version_str = version.str();
+    const char* version_cstr = version_str.c_str();
+    return new_string(version_cstr);
+}
+
+
+/******************************************************************************/
+/*                                                                            */
 /* Unicode Class - icu4x                                                      */
 /*                                                                            */
 /******************************************************************************/
