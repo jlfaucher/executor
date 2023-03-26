@@ -47,6 +47,7 @@
 #include <pthread.h>
 #include <rexx.h>
 #include <oorexxapi.h>
+#include "PlatformDefinitions.h" // first need: DEFRXSTRING
 
 #include "../../hostemu.h"
 
@@ -397,7 +398,7 @@ RexxReturnCode RexxEntry GrxHost(PCONSTRXSTRING command,
 
    pthread_mutex_unlock(&hmtxExecIO);
 
-   sprintf(retc->strptr, "%ld", rc);
+   snprintf(retc->strptr, DEFRXSTRING, "%ld", rc);
    retc->strlength = strlen(retc->strptr);
    #ifdef HOSTEMU_DEBUG
    printf("HOSTEMU: Subcom return code = %u.\n", rc);
@@ -436,16 +437,18 @@ static unsigned long ExecIO_Write_From_Stem (
    /* process request */
    if (ExecIO_Options.lRcdCnt == 0)
       return 0;
-   Stem = (char *)malloc(strlen(ExecIO_Options.aStem) + 33);
+   size_t StemSize = strlen(ExecIO_Options.aStem) + 33;
+   Stem = (char *)malloc(StemSize);
    if (Stem == NULL) {
       return ERR_EXECIO_NO_STORAGE; // Insufficient free storage to load EXECIO
       }
    strcpy(Stem, ExecIO_Options.aStem);
-   Index = Stem + strlen(Stem);
+   size_t StemLen = strlen(Stem);
+   Index = Stem + StemLen;
    if (ExecIO_Options.lRcdCnt == -1) {
       /* process an "*" record count */
       // get the number of elements
-      sprintf(Index, "%u", 0);
+      snprintf(Index, StemSize - StemLen, "%u", 0);
       if (FetchRexxVar(Stem, &rxVal))
       {
         return ERR_EXECIO_VAR_INVALID; // Variable name supplied on STEM or VAR option was not valid
@@ -453,7 +456,7 @@ static unsigned long ExecIO_Write_From_Stem (
       elements = atoi(rxVal.strptr);
       RexxFreeMemory(rxVal.strptr);
       while (ExecIO_Options.lStartRcd <= elements) {
-         sprintf(Index, "%ld", ExecIO_Options.lStartRcd);
+         snprintf(Index, StemSize - StemLen, "%ld", ExecIO_Options.lStartRcd);
          if (FetchRexxVar(Stem, &rxVal))
          {
            return ERR_EXECIO_VAR_INVALID; // Variable name supplied on STEM or VAR option was not valid
@@ -467,7 +470,7 @@ static unsigned long ExecIO_Write_From_Stem (
    else {
       /* process a specific record count */
       while (ExecIO_Options.lStartRcd <= ExecIO_Options.lRcdCnt) {
-         sprintf(Index, "%ld", ExecIO_Options.lStartRcd);
+         snprintf(Index, StemSize - StemLen, "%ld", ExecIO_Options.lStartRcd);
          if (FetchRexxVar(Stem, &rxVal))
          {
            return ERR_EXECIO_VAR_INVALID; // Variable name supplied on STEM or VAR option was not valid
@@ -591,12 +594,13 @@ static unsigned long ExecIO_Read_To_Stem (
    int i;
 
    /* process request */
-   Stem = (char *)malloc(strlen(ExecIO_Options.aStem) + 33);
+   size_t StemSize = strlen(ExecIO_Options.aStem) + 33;
+   Stem = (char *)malloc(StemSize);
    if (Stem == NULL) {
       return ERR_EXECIO_NO_STORAGE; // Insufficient free storage to load EXECIO
       }
 
-   // skip until we reach line number 'StartRcd' 
+   // skip until we reach line number 'StartRcd'
    for (i = 1; i < ExecIO_Options.lStartRcd; i++)
    {
      char* ignore; // avoid warning: ignoring return value of 'char* fgets(char*, int, FILE*)'
@@ -604,7 +608,8 @@ static unsigned long ExecIO_Read_To_Stem (
    }
 
    strcpy(Stem, ExecIO_Options.aStem);
-   Index = Stem + strlen(Stem);
+   size_t StemLen = strlen(Stem);
+   Index = Stem + StemLen;
    i = 0;
 
    if (ExecIO_Options.lRcdCnt == -1) {
@@ -613,7 +618,7 @@ static unsigned long ExecIO_Read_To_Stem (
          if (*(szInline + strlen(szInline) - 1) == '\n')
             *(szInline + strlen(szInline) - 1) = '\0';
          i++;
-         sprintf(Index, "%d", i);
+         snprintf(Index, StemSize - StemLen, "%d", i);
          if (SetRexxVar(Stem, szInline, strlen(szInline)))
          {
            return ERR_EXECIO_VAR_INVALID; // Variable name supplied on STEM or VAR option was not valid
@@ -628,7 +633,7 @@ static unsigned long ExecIO_Read_To_Stem (
                *(szInline + strlen(szInline) - 1) = '\0';
                }
             i++;
-            sprintf(Index, "%d", i);
+            snprintf(Index, StemSize - StemLen, "%d", i);
             if (SetRexxVar(Stem, szInline, strlen(szInline)))
             {
               return ERR_EXECIO_VAR_INVALID; // Variable name supplied on STEM or VAR option was not valid
@@ -641,8 +646,8 @@ static unsigned long ExecIO_Read_To_Stem (
          ExecIO_Options.lRcdCnt--;
          }
       }
-   sprintf(szInline, "%d", i);
-   sprintf(Index, "%d", 0);
+   snprintf(szInline, sizeof szInline, "%d", i);
+   snprintf(Index, StemSize - StemLen, "%d", 0);
    if (SetRexxVar(Stem, szInline, strlen(szInline)))
    {
      return ERR_EXECIO_VAR_INVALID; // Variable name supplied on STEM or VAR option was not valid
@@ -679,7 +684,7 @@ static unsigned long ExecIO_Read_To_Queue (
 
    /* process request */
 
-   // skip until we reach line number 'StartRcd' 
+   // skip until we reach line number 'StartRcd'
    for (i = 1; i < ExecIO_Options.lStartRcd; i++)
    {
      char* ignore; // avoid warning: ignoring return value of 'char* fgets(char*, int, FILE*)'

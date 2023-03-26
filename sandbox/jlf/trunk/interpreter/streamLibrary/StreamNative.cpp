@@ -875,7 +875,7 @@ void StreamInfo::implicitOpen(int type)
             if (defaultResult == NULLOBJECT)
             {
                 char work[30];
-                sprintf(work, "ERROR:%d", fileInfo.errorInfo());
+                snprintf(work, sizeof work, "ERROR:%d", fileInfo.errorInfo());
                 defaultResult = context->NewStringFromAsciiz(work);
             }
             notreadyError();
@@ -2200,7 +2200,7 @@ const char *StreamInfo::streamFlush()
     if (!fileInfo.flush())
     {
         char         work[30];              /* error information buffer          */
-        sprintf(work, "ERROR:%d", fileInfo.errorInfo());   /* format the error return           */
+        snprintf(work, sizeof work, "ERROR:%d", fileInfo.errorInfo());   /* format the error return           */
                                         /* go raise a notready condition     */
         notreadyError(fileInfo.errorInfo(), context->NewStringFromAsciiz(work));
     }
@@ -2444,7 +2444,7 @@ const char *StreamInfo::streamOpen(const char *options)
             char work[32];
 
             /* format the error return           */
-            sprintf(work, "ERROR:%d", ENOENT);
+            snprintf(work, sizeof work, "ERROR:%d", ENOENT);
             /* go raise a notready condition     */
             notreadyError(ENOENT, context->NewStringFromAsciiz(work));
         }
@@ -2479,7 +2479,7 @@ const char *StreamInfo::streamOpen(const char *options)
             {
                 char work[32];
 
-                sprintf(work, "ERROR:%d", fileInfo.errorInfo()); /* format the error return           */
+                snprintf(work, sizeof work, "ERROR:%d", fileInfo.errorInfo()); /* format the error return           */
                 /* go raise a notready condition     */
                 notreadyError(fileInfo.errorInfo(), context->NewStringFromAsciiz(work));
             }
@@ -2489,7 +2489,7 @@ const char *StreamInfo::streamOpen(const char *options)
         else
         {
             char work[32];
-            sprintf(work, "ERROR:%d", fileInfo.errorInfo()); /* format the error return           */
+            snprintf(work, sizeof work, "ERROR:%d", fileInfo.errorInfo()); /* format the error return           */
             /* go raise a notready condition     */
             notreadyError(fileInfo.errorInfo(), context->NewStringFromAsciiz(work));
         }
@@ -3645,12 +3645,12 @@ RexxStringObject StreamInfo::getDescription()
             if (errorString != NULL)
             {
                                                  /* format the result string          */
-                sprintf(work, "NOTREADY:%d %s", errorInfo, errorString);
+                snprintf(work, sizeof work, "NOTREADY:%d %s", errorInfo, errorString);
             }
             else
             {
                                                  /* format the result string          */
-                sprintf(work, "NOTREADY:%d", errorInfo);
+                snprintf(work, sizeof work, "NOTREADY:%d", errorInfo);
 
             }
             return context->NewStringFromAsciiz(work);
@@ -3667,12 +3667,12 @@ RexxStringObject StreamInfo::getDescription()
             if (errorString != NULL)
             {
                                                  /* format the result string          */
-                sprintf(work, "ERROR:%d %s", errorInfo, errorString);
+                snprintf(work, sizeof work, "ERROR:%d %s", errorInfo, errorString);
             }
             else
             {
                                                  /* format the result string          */
-                sprintf(work, "ERROR:%d", errorInfo);
+                snprintf(work, sizeof work, "ERROR:%d", errorInfo);
 
             }
             return context->NewStringFromAsciiz(work);

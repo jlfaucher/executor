@@ -1052,7 +1052,7 @@ RexxString *RexxSource::traceBack(RexxActivation *activation, SourceLocation &lo
     char         linenumber[11];         /* formatted line number             */
 
                                            /* format the value                  */
-    sprintf(linenumber,"%zu", location.getLineNumber());
+    snprintf(linenumber, sizeof linenumber, "%zu", location.getLineNumber());
 
     line = this->extract(location);      /* extract the source string         */
                                          /* doesn't exist and this isn't a    */

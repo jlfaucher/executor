@@ -1465,7 +1465,7 @@ BUILTIN(DATE)
     {                     /* process the various styles        */
 
         case 'B':                          /* 'B'asedate                        */
-            timestamp.formatBaseDate(work);
+            timestamp.formatBaseDate(work, sizeof work);
             break;
 
         case 'F':                          /* 'F'asedate                        */
@@ -1477,11 +1477,11 @@ BUILTIN(DATE)
             break;
 
         case 'D':                          /* 'D'ays                            */
-            timestamp.formatDays(work);
+            timestamp.formatDays(work, sizeof work);
             break;
 
         case 'E':                          /* 'E'uropean                        */
-            timestamp.formatEuropeanDate(work, outputSeparator);
+            timestamp.formatEuropeanDate(work, sizeof work, outputSeparator);
             break;
 
         case 'L':                          /* 'L'ocal                           */
@@ -1489,7 +1489,7 @@ BUILTIN(DATE)
                 /* get the month name                */
                 RexxString *month_name = SystemInterpreter::getMessageText(Message_Translations_January + month - 1);
                 /* format as a date                  */
-                sprintf(work, "%ld %s %4.4ld", long(day), month_name->getStringData(), long(year));
+                snprintf(work, sizeof work, "%ld %s %4.4ld", long(day), month_name->getStringData(), long(year));
                 break;
 
             }
@@ -1499,19 +1499,19 @@ BUILTIN(DATE)
             break;
 
         case 'N':                          /* 'N'ormal -- default format        */
-            timestamp.formatNormalDate(work, outputSeparator);
+            timestamp.formatNormalDate(work, sizeof work, outputSeparator);
             break;
 
         case 'O':                          /* 'O'rdered                         */
-            timestamp.formatOrderedDate(work, outputSeparator);
+            timestamp.formatOrderedDate(work, sizeof work, outputSeparator);
             break;
 
         case 'S':                          /* 'S'tandard format (ISO dates)     */
-            timestamp.formatStandardDate(work, outputSeparator);
+            timestamp.formatStandardDate(work, sizeof work, outputSeparator);
             break;
 
         case 'U':                          /* 'U'SA                             */
-            timestamp.formatUsaDate(work, outputSeparator);
+            timestamp.formatUsaDate(work, sizeof work, outputSeparator);
             break;
 
         case 'W':                          /* 'W'eekday                         */
@@ -1697,7 +1697,7 @@ BUILTIN(TIME)
                 else
                 {
                     // format as a long time
-                    sprintf(work, "%d.%06d", (int)(threshold / (int64_t)MICROSECONDS), (int)(threshold % (int64_t)MICROSECONDS));
+                    snprintf(work, sizeof work, "%d.%06d", (int)(threshold / (int64_t)MICROSECONDS), (int)(threshold % (int64_t)MICROSECONDS));
                 }
                 /* format the result                 */
                 if (style == 'R')               /* is this a reset call?             */
@@ -1708,27 +1708,27 @@ BUILTIN(TIME)
             }
 
         case 'C':                         /* 'C'ivil time                      */
-            timestamp.formatCivilTime(work);
+            timestamp.formatCivilTime(work, sizeof work);
             break;
 
         case 'H':                         /* 'Hours'                           */
-            timestamp.formatHours(work);
+            timestamp.formatHours(work, sizeof work);
             break;
 
         case 'L':                         /* 'L'ong format                     */
-            timestamp.formatLongTime(work);
+            timestamp.formatLongTime(work, sizeof work);
             break;
 
         case 'M':                         /* 'M'inutes format                  */
-            timestamp.formatMinutes(work);
+            timestamp.formatMinutes(work, sizeof work);
             break;
 
         case 'N':                         /* 'N'ormal format...the default     */
-            timestamp.formatNormalTime(work);
+            timestamp.formatNormalTime(work, sizeof work);
             break;
 
         case 'S':                         /* 'S'econds format...total seconds  */
-            timestamp.formatSeconds(work);
+            timestamp.formatSeconds(work, sizeof work);
             break;
 
         case 'F':                          /* 'F'ull                            */

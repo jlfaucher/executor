@@ -174,7 +174,7 @@ void parmerr( int   msgid )            /* removed useless code       */
     /* open message catalog in NLSPATH   */
     if ((catd = catopen(REXXMESSAGEFILE, SECOND_PARAMETER)) == (nl_catd)CATD_ERR)
     {
-        sprintf(DataArea, "%s/%s", ORX_CATDIR, REXXMESSAGEFILE);
+        snprintf(DataArea, sizeof DataArea, "%s/%s", ORX_CATDIR, REXXMESSAGEFILE);
         if ((catd = catopen(DataArea, SECOND_PARAMETER)) == (nl_catd)CATD_ERR)
         {
             fprintf(stderr, "\nCannot open REXX message catalog %s.\nNot in NLSPATH or %s.\n",
@@ -188,7 +188,7 @@ void parmerr( int   msgid )            /* removed useless code       */
         if (!message)                      /* got a message ?                   */
 #if defined(OPSYS_LINUX) && !defined(OPSYS_SUN)
         {
-            sprintf(DataArea, "%s/%s", ORX_CATDIR, REXXMESSAGEFILE);
+            snprintf(DataArea, sizeof DataArea, "%s/%s", ORX_CATDIR, REXXMESSAGEFILE);
             if ((catd = catopen(DataArea, SECOND_PARAMETER)) == (nl_catd)CATD_ERR)
             {
                 printf("\nCannot open REXX message catalog %s.\nNot in NLSPATH or %s.\n",

@@ -1127,7 +1127,7 @@ RexxDirectory *RexxActivity::createExceptionObject(wholenumber_t  errcode,
     char work[32];
                                          /* format the number (string) into   */
                                          /*  work buffer.                     */
-    sprintf(work,"%ld.%1ld", long(errcode/1000), long(errcode - primary));
+    snprintf(work, sizeof work, "%ld.%1ld", long(errcode/1000), long(errcode - primary));
     RexxString *code = new_string(work); /* get the formatted code            */
     exobj->put(code, OREF_CODE);
 
@@ -1428,7 +1428,7 @@ void RexxActivity::reraiseException(RexxDirectory *exobj)
         char            work[30];            /* temp buffer for formatting        */
              /* format the number (string) into   */
              /*  work buffer.                     */
-        sprintf(work,"%1ld%3.3ld", long(errornumber/1000), long(errornumber - primary));
+        snprintf(work, sizeof work, "%1ld%3.3ld", long(errornumber/1000), long(errornumber - primary));
         errornumber = atol(work);          /* convert to a long value           */
                                            /* retrieve the secondary message    */
         RexxString *message = SystemInterpreter::getMessageText(errornumber);

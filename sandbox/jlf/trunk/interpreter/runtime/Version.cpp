@@ -70,7 +70,7 @@ RexxString *Interpreter::getVersionNumber()
             day++;                             /* step over it                      */
         }
                                                /* format the result                 */
-        sprintf(buffer, "REXX-ooRexx_%d.%d.%d(MT)_%s-bit 6.04 %s %s %s", ORX_VER, ORX_REL, ORX_MOD,
+        snprintf(buffer, sizeof buffer, "REXX-ooRexx_%d.%d.%d(MT)_%s-bit 6.04 %s %s %s", ORX_VER, ORX_REL, ORX_MOD,
 #ifdef __REXX64__
 			"64",
 #else

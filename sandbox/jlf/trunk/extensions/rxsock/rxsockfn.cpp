@@ -538,7 +538,7 @@ RexxRoutine4(int, SockGetSockOpt, int, sock, CSTRING, level, CSTRING, option, CS
     switch (opt)
     {
         case SO_LINGER:
-            sprintf(buffer,"%d %d", lingStruct.l_onoff, lingStruct.l_linger);
+            snprintf(buffer, sizeof buffer, "%d %d", lingStruct.l_onoff, lingStruct.l_linger);
             break;
 
         case SO_TYPE:
@@ -552,7 +552,7 @@ RexxRoutine4(int, SockGetSockOpt, int, sock, CSTRING, level, CSTRING, option, CS
             break;
 
         default:
-            sprintf(buffer,"%d", intVal);
+            snprintf(buffer, sizeof buffer, "%d", intVal);
     }
 
     // set the variable

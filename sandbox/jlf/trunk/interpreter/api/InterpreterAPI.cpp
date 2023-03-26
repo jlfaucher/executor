@@ -233,7 +233,7 @@ RexxReturnCode REXXENTRY RexxTranslateInstoreProgram(const char *inFile, CONSTRX
 char *REXXENTRY RexxGetVersionInformation()
 {
     char ver[100];
-    sprintf( ver, " %d.%d.%d", ORX_VER, ORX_REL, ORX_MOD );
+    snprintf( ver, sizeof ver, " %d.%d.%d", ORX_VER, ORX_REL, ORX_MOD );
     char header[] = "Open Object Rexx Version";
   #ifdef _DEBUG
     char build[] = " - Internal Test Version\nBuild date: ";
@@ -250,11 +250,12 @@ char *REXXENTRY RexxGetVersionInformation()
     char copy3[] = "\nthe terms of the Common Public License v1.0 which accompanies this";
     char copy4[] = "\ndistribution or at";
     char copy5[] = "\nhttp://www.oorexx.org/license.html";
-    char *ptr = (char *)SystemInterpreter::allocateResultMemory(strlen(header) + strlen(ver) + strlen(build) + strlen(__DATE__) +
-        strlen(mode) + strlen(copy1) + strlen(copy2) + strlen(copy3) + strlen(copy4) + strlen(copy5) + 1);
+    size_t size = strlen(header) + strlen(ver) + strlen(build) + strlen(__DATE__) +
+                  strlen(mode) + strlen(copy1) + strlen(copy2) + strlen(copy3) + strlen(copy4) + strlen(copy5) + 1;
+    char *ptr = (char *)SystemInterpreter::allocateResultMemory(size);
     if (ptr != NULL)
     {
-        sprintf(ptr, "%s%s%s%s%s%s%s%s%s%s", header, ver, build, __DATE__, mode, copy1, copy2, copy3, copy4, copy5);
+        snprintf(ptr, size, "%s%s%s%s%s%s%s%s%s%s", header, ver, build, __DATE__, mode, copy1, copy2, copy3, copy4, copy5);
     }
     return ptr;
 }

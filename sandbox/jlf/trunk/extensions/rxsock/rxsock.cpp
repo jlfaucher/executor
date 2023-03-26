@@ -377,7 +377,7 @@ void hostEntToStem(RexxCallContext *context, struct hostent *pHostEnt, StemManag
      *---------------------------------------------------------------*/
     for (count=0; pHostEnt->h_aliases[count]; count++)
     {
-        sprintf(szBuffer,"ALIAS.%d",count+1);
+        snprintf(szBuffer, sizeof szBuffer, "ALIAS.%d",count+1);
         stem.setValue(szBuffer, context->String(pHostEnt->h_aliases[count]));
     }
 
@@ -406,7 +406,7 @@ void hostEntToStem(RexxCallContext *context, struct hostent *pHostEnt, StemManag
      *---------------------------------------------------------------*/
     for (count=0; pHostEnt->h_addr_list[count]; count++)
     {
-        sprintf(szBuffer, "ADDR.%d", count+1);
+        snprintf(szBuffer, sizeof szBuffer, "ADDR.%d", count+1);
         addr.s_addr = (*(uint32_t *)pHostEnt->h_addr_list[count]);
 
         stem.setValue(szBuffer, context->String(inet_ntoa(addr)));
@@ -556,7 +556,7 @@ void setErrno(RexxCallContext *context, bool noError)
         case ENOTEMPTY       : pszErrno = "ENOTEMPTY";            break;
 #endif
         default:
-            sprintf(szBuff,"%d",theErrno);
+            snprintf(szBuff, sizeof szBuff, "%d",theErrno);
     }
 
     context->SetContextVariable("errno", context->String(pszErrno));
@@ -576,7 +576,7 @@ RexxRoutine0(RexxStringObject, SockVersion)
 {
     char buffer[256];
 
-    sprintf(buffer, "%d.%d.%d", ORX_VER, ORX_REL, ORX_MOD);
+    snprintf(buffer, sizeof buffer, "%d.%d.%d", ORX_VER, ORX_REL, ORX_MOD);
     return context->String(buffer);
 }
 

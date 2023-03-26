@@ -1136,10 +1136,10 @@ bool RexxDateTime::getNumber(const char *input, wholenumber_t length, int *targe
  *
  * @param buffer The target buffer for the output.
  */
-void RexxDateTime::formatBaseDate(char *buffer)
+void RexxDateTime::formatBaseDate(char *buffer, size_t size)
 {
     // format this into the buffer as a number
-    sprintf(buffer, "%zd", getBaseDate());
+    snprintf(buffer, size, "%zd", getBaseDate());
 }
 
 
@@ -1170,10 +1170,10 @@ void RexxDateTime::formatUnixTime(char *buffer)
  *
  * @param buffer The target buffer for the output.
  */
-void RexxDateTime::formatDays(char *buffer)
+void RexxDateTime::formatDays(char *buffer, size_t size)
 {
     // format this into the buffer as a number
-    sprintf(buffer, "%d", (int)getYearDay());
+    snprintf(buffer, size, "%d", (int)getYearDay());
 }
 
 
@@ -1185,11 +1185,11 @@ void RexxDateTime::formatDays(char *buffer)
  *               be NULL, in which case the default is used.  The string value
  *               can also be a null string ("").
  */
-void RexxDateTime::formatEuropeanDate(char *buffer, const char *sep)
+void RexxDateTime::formatEuropeanDate(char *buffer, size_t size, const char *sep)
 {
     // make sure we have a valid delimiter
     sep = sep == NULL ? "/" : sep;
-    sprintf(buffer, "%02d%s%02d%s%02d", day, sep, month, sep, year % 100);
+    snprintf(buffer, size, "%02d%s%02d%s%02d", day, sep, month, sep, year % 100);
 }
 
 
@@ -1212,11 +1212,11 @@ void RexxDateTime::formatMonthName(char *buffer)
  *               be NULL, in which case the default is used.  The string value
  *               can also be a null string ("").
  */
-void RexxDateTime::formatNormalDate(char *buffer, const char *sep)
+void RexxDateTime::formatNormalDate(char *buffer, size_t size, const char *sep)
 {
     // make sure we have a valid delimiter
     sep = sep == NULL ? " " : sep;
-    sprintf(buffer, "%d%s%3.3s%s%4.4d", day, sep, monthNames[month-1], sep, year);
+    snprintf(buffer, size, "%d%s%3.3s%s%4.4d", day, sep, monthNames[month-1], sep, year);
 }
 
 
@@ -1228,11 +1228,11 @@ void RexxDateTime::formatNormalDate(char *buffer, const char *sep)
  *               be NULL, in which case the default is used.  The string value
  *               can also be a null string ("").
  */
-void RexxDateTime::formatOrderedDate(char *buffer, const char *sep)
+void RexxDateTime::formatOrderedDate(char *buffer, size_t size, const char *sep)
 {
     // make sure we have a valid delimiter
     sep = sep == NULL ? "/" : sep;
-    sprintf(buffer, "%02d%s%02d%s%02d", year % 100, sep, month, sep, day);
+    snprintf(buffer, size, "%02d%s%02d%s%02d", year % 100, sep, month, sep, day);
 }
 
 
@@ -1244,11 +1244,11 @@ void RexxDateTime::formatOrderedDate(char *buffer, const char *sep)
  *               be NULL, in which case the default is used.  The string value
  *               can also be a null string ("").
  */
-void RexxDateTime::formatStandardDate(char *buffer, const char *sep)
+void RexxDateTime::formatStandardDate(char *buffer, size_t size, const char *sep)
 {
     // make sure we have a valid delimiter
     sep = sep == NULL ? "" : sep;
-    sprintf(buffer, "%04d%s%02d%s%02d", year, sep, month, sep, day);
+    snprintf(buffer, size, "%04d%s%02d%s%02d", year, sep, month, sep, day);
 }
 
 
@@ -1260,11 +1260,11 @@ void RexxDateTime::formatStandardDate(char *buffer, const char *sep)
  *               be NULL, in which case the default is used.  The string value
  *               can also be a null string ("").
  */
-void RexxDateTime::formatUsaDate(char *buffer, const char *sep)
+void RexxDateTime::formatUsaDate(char *buffer, size_t size, const char *sep)
 {
     // make sure we have a valid delimiter
     sep = sep == NULL ? "/" : sep;
-    sprintf(buffer, "%02d%s%02d%s%02d", month, sep, day, sep, year % 100);
+    snprintf(buffer, size, "%02d%s%02d%s%02d", month, sep, day, sep, year % 100);
 }
 
 
@@ -1287,7 +1287,7 @@ void RexxDateTime::formatWeekDay(char *buffer)
  *
  * @param buffer The target buffer for the output.
  */
-void RexxDateTime::formatCivilTime(char *buffer)
+void RexxDateTime::formatCivilTime(char *buffer, size_t size)
 {
     int adjustedHours = hours;
     if (adjustedHours == 0)
@@ -1298,7 +1298,7 @@ void RexxDateTime::formatCivilTime(char *buffer)
     {
         adjustedHours -= 12;
     }
-    sprintf(buffer,"%d:%2.2d%s", adjustedHours, minutes, hours >= 12 ? POSTMERIDIAN : ANTEMERIDIAN);
+    snprintf(buffer, size, "%d:%2.2d%s", adjustedHours, minutes, hours >= 12 ? POSTMERIDIAN : ANTEMERIDIAN);
 }
 
 
@@ -1307,9 +1307,9 @@ void RexxDateTime::formatCivilTime(char *buffer)
  *
  * @param buffer The target buffer for the output.
  */
-void RexxDateTime::formatHours(char *buffer)
+void RexxDateTime::formatHours(char *buffer, size_t size)
 {
-    sprintf(buffer, "%d", hours);       // just format the hours
+    snprintf(buffer, size, "%d", hours);       // just format the hours
 }
 
 
@@ -1318,9 +1318,9 @@ void RexxDateTime::formatHours(char *buffer)
  *
  * @param buffer The target buffer for the output.
  */
-void RexxDateTime::formatLongTime(char *buffer)
+void RexxDateTime::formatLongTime(char *buffer, size_t size)
 {
-    sprintf(buffer, "%2.2d:%2.2d:%2.2d.%6.6d", hours, minutes, seconds, microseconds);
+    snprintf(buffer, size, "%2.2d:%2.2d:%2.2d.%6.6d", hours, minutes, seconds, microseconds);
 }
 
 
@@ -1329,9 +1329,9 @@ void RexxDateTime::formatLongTime(char *buffer)
  *
  * @param buffer The target buffer for the output.
  */
-void RexxDateTime::formatMinutes(char *buffer)
+void RexxDateTime::formatMinutes(char *buffer, size_t size)
 {
-    sprintf(buffer,"%d", hours * MINUTES_IN_HOUR + minutes);
+    snprintf(buffer, size, "%d", hours * MINUTES_IN_HOUR + minutes);
 }
 
 
@@ -1340,9 +1340,9 @@ void RexxDateTime::formatMinutes(char *buffer)
  *
  * @param buffer The target buffer for the output.
  */
-void RexxDateTime::formatNormalTime(char *buffer)
+void RexxDateTime::formatNormalTime(char *buffer, size_t size)
 {
-    sprintf(buffer, "%2.2d:%2.2d:%2.2d", hours, minutes, seconds);
+    snprintf(buffer, size, "%2.2d:%2.2d:%2.2d", hours, minutes, seconds);
 }
 
 
@@ -1351,9 +1351,9 @@ void RexxDateTime::formatNormalTime(char *buffer)
  *
  * @param buffer The target buffer for the output.
  */
-void RexxDateTime::formatSeconds(char *buffer)
+void RexxDateTime::formatSeconds(char *buffer, size_t size)
 {
-    sprintf(buffer, "%d", (hours * MINUTES_IN_HOUR + minutes) * SECONDS_IN_MINUTE + seconds);
+    snprintf(buffer, size, "%d", (hours * MINUTES_IN_HOUR + minutes) * SECONDS_IN_MINUTE + seconds);
 }
 
 

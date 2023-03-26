@@ -1484,8 +1484,8 @@ RexxToken *RexxSource::sourceNextToken(
                         this->clause->setEnd(this->line_number, this->line_offset);
                         // update the error information
                         clauseLocation = clause->getLocation();
-                        sprintf(badchar, "%c", inch);
-                        sprintf(hexbadchar, "%2.2X", inch);
+                        snprintf(badchar, sizeof badchar, "%c", inch);
+                        snprintf(hexbadchar, sizeof badchar, "%2.2X", inch);
                         /* report the error                  */
                         syntaxError(Error_Invalid_character_char, new_string(badchar), new_string(hexbadchar));
                         break;

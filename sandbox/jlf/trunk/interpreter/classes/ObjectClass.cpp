@@ -2020,7 +2020,7 @@ RexxString  *RexxObject::oref()
 {
     char buffer[20];                     /* buffered address                  */
 
-    sprintf(buffer, "%p", this);         /* format this                       */
+    snprintf(buffer, sizeof buffer, "%p", this); /* format this                       */
                                          /* and return a string               */
     return(RexxString *)new_string(buffer, 8);
 }

@@ -162,11 +162,12 @@ char *resolve_tilde(const char *path)
             if (!home_dir)                  /* if no home dir info        */
                 return(0);
             /* get space for the buf      */
-            dir_buf = (char *)malloc(strlen(home_dir)+strlen(st)+2);
+            size_t size = strlen(home_dir)+strlen(st)+2;
+            dir_buf = (char *)malloc(size);
             if (!dir_buf)
                 return(0);
             /* merge the strings          */
-            sprintf(dir_buf, "%s/%s", home_dir, st);
+            snprintf(dir_buf, size, "%s/%s", home_dir, st);
             return dir_buf;
         }
         else
@@ -174,10 +175,11 @@ char *resolve_tilde(const char *path)
             /* get home directory path    */
             home_dir = getenv("HOME");     /* from the environment       */
                                            /* get space for the buf      */
-            dir_buf = (char *)malloc(strlen(home_dir)+2);
+            size_t size = strlen(home_dir)+2;
+            dir_buf = (char *)malloc(size);
             if (!dir_buf)
                 return(0);
-            sprintf(dir_buf, "%s/", home_dir);
+            snprintf(dir_buf, size, "%s/", home_dir);
             return dir_buf;
         }
     }
@@ -194,11 +196,12 @@ char *resolve_tilde(const char *path)
             {                  /* no user                    */
                 return NULL;                     /* nothing happend            */
             }
-            dir_buf = (char *)malloc(strlen(ppwd->pw_dir)+2);
+            size_t size = strlen(ppwd->pw_dir)+2;
+            dir_buf = (char *)malloc(size);
             if (!dir_buf)
                 return NULL;
             /* merge the strings          */
-            sprintf(dir_buf, "%s/", ppwd->pw_dir);
+            snprintf(dir_buf, size, "%s/", ppwd->pw_dir);
         }
         else
         {                            /* there is a slash           */
@@ -211,11 +214,12 @@ char *resolve_tilde(const char *path)
             ppwd = getpwnam(username);     /* get info about the user    */
             slash++;                       /* step over the slash        */
                                            /* get space for the buf      */
-            dir_buf = (char *)malloc(strlen(ppwd->pw_dir)+strlen(slash)+2);
+            size_t size = strlen(ppwd->pw_dir)+strlen(slash)+2;
+            dir_buf = (char *)malloc(size);
             if (!dir_buf)
                 return NULL;
             /* merge the strings          */
-            sprintf(dir_buf, "%s/%s", ppwd->pw_dir, slash);
+            snprintf(dir_buf, size, "%s/%s", ppwd->pw_dir, slash);
         }
         return dir_buf;                  /* directory change to        */
     }
@@ -526,7 +530,7 @@ void SystemInterpreter::restoreEnvironment(
     if (chdir(current) == -1)             /* restore the curr dir       */
     {
         char msg[1024];
-        sprintf(msg, "Error restoring current directory: %s", current);
+        snprintf(msg, sizeof msg, "Error restoring current directory: %s", current);
         reportException(Error_System_service_service, msg);
     }
     current += strlen(current);          /* update the pointer         */

@@ -121,10 +121,10 @@ RexxString *SystemInterpreter::getMessageText(wholenumber_t code )
                                               /* open message catalog in NLSPATH   */
             if ((catd = catopen(REXXMESSAGEFILE, SECOND_PARAMETER)) == (nl_catd)CATD_ERR)
             {
-                sprintf(DataArea, "%s/%s", ORX_CATDIR, REXXMESSAGEFILE);
+                snprintf(DataArea, sizeof DataArea, "%s/%s", ORX_CATDIR, REXXMESSAGEFILE);
                 if ((catd = catopen(DataArea, SECOND_PARAMETER)) == (nl_catd)CATD_ERR)
                 {
-                    sprintf(DataArea, "Cannot open REXX message catalog %s.  Not in NLSPATH or %s.",
+                    snprintf(DataArea, sizeof DataArea, "Cannot open REXX message catalog %s.  Not in NLSPATH or %s.",
                             REXXMESSAGEFILE, ORX_CATDIR);
                     return new_string(DataArea);
                 }
@@ -133,10 +133,10 @@ RexxString *SystemInterpreter::getMessageText(wholenumber_t code )
             if (!message)                    /* got a message ?                   */
             {
 #if defined(OPSYS_LINUX) && !defined(OPSYS_SUN)
-                sprintf(DataArea, "%s/%s", ORX_CATDIR, REXXMESSAGEFILE);
+                snprintf(DataArea, sizeof DataArea, "%s/%s", ORX_CATDIR, REXXMESSAGEFILE);
                 if ((catd = catopen(DataArea, SECOND_PARAMETER)) == (nl_catd)CATD_ERR)
                 {
-                    sprintf(DataArea, "Cannot open REXX message catalog %s.  Not in NLSPATH or %s.",
+                    snprintf(DataArea, sizeof DataArea, "Cannot open REXX message catalog %s.  Not in NLSPATH or %s.",
                             REXXMESSAGEFILE, ORX_CATDIR);
                     return new_string(DataArea);
                 }
@@ -167,7 +167,7 @@ RexxString *SystemInterpreter::getMessageText(wholenumber_t code )
     }
     return OREF_NULL;                     /* no message retrieved              */
 #else
-    sprintf(DataArea,"Cannot get description for error %d",msgid);
+    snprintf(DataArea, sizeof DataArea; "Cannot get description for error %d",msgid);
     return new_string(&DataArea);
 #endif
 }
@@ -193,7 +193,7 @@ RexxString *SystemInterpreter::getMessageHeader(wholenumber_t code )
         {              /* found the target code?            */
             msgid = p->msgid;                 /* get msg number associated w/ error*/
                                               /* format as a message header        */
-            sprintf(DataArea, "REX%4.4dE: ", msgid);
+            snprintf(DataArea, sizeof DataArea, "REX%4.4dE: ", msgid);
             return new_string(DataArea);     /* return as a string object         */
         }
     }

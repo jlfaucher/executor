@@ -88,7 +88,7 @@ void DisplayError(int msgid)           /* simplified catalog access@MAE004M */
     /* open message catalog in NLSPATH   */
     if ((catd = catopen(REXXMESSAGEFILE, SECOND_PARAMETER)) == (nl_catd)CATD_ERR)
     {
-        sprintf(DataArea, "%s/%s", ORX_CATDIR, REXXMESSAGEFILE);
+        snprintf(DataArea, sizeof DataArea, "%s/%s", ORX_CATDIR, REXXMESSAGEFILE);
         if ((catd = catopen(DataArea, SECOND_PARAMETER)) == (nl_catd)CATD_ERR)
         {
             printf("\n*** Cannot open REXX message catalog %s.\nNot in NLSPATH or %s.\n",
@@ -99,7 +99,7 @@ void DisplayError(int msgid)           /* simplified catalog access@MAE004M */
     message = catgets(catd, set_num, msgid, NULL);
     if (!message)                    /* got a message ?                     */
     {
-        sprintf(DataArea, "%s/%s", ORX_CATDIR, REXXMESSAGEFILE);
+        snprintf(DataArea, sizeof DataArea, "%s/%s", ORX_CATDIR, REXXMESSAGEFILE);
         if ((catd = catopen(DataArea, SECOND_PARAMETER)) == (nl_catd)CATD_ERR)
         {
             printf("\nCannot open REXX message catalog %s.\nNot in NLSPATH or %s.\n",

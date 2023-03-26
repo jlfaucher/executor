@@ -2433,7 +2433,7 @@ RexxString *RexxString::newString(double number, stringsize_t precision)
     {
         char buffer[64];
         // format as a string
-        sprintf(buffer, "%.*g", (int)precision, number);
+        snprintf(buffer, sizeof buffer, "%.*g", (int)precision, number);
         size_t len = strlen(buffer);
         // if the last character is a decimal, we remove that
         if (buffer[len - 1] == '.')

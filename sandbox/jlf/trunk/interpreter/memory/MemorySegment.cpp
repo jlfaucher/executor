@@ -216,7 +216,7 @@ NormalSegmentSet::NormalSegmentSet(RexxMemory *mem) :
     {  /* there are only                    */
         /* DeadPools subpools! (<, not <=)   */
         char buffer[100];
-        sprintf(buffer, "Normal allocation subpool %d for blocks of size %d", i, DeadPoolToLength(i));
+        snprintf(buffer, sizeof buffer, "Normal allocation subpool %d for blocks of size %d", i, DeadPoolToLength(i));
         subpools[i].setID(buffer);
         /* make sure these are properly set up as single size */
         /* keepers */

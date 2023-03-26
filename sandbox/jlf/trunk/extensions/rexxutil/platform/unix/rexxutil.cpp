@@ -154,6 +154,7 @@
 #endif
 
 #include "oorexxapi.h"
+#include "PlatformDefinitions.h" // first need: DEFRXSTRING
 
 #if defined( HAVE_SYS_WAIT_H )
 # include <sys/wait.h>
@@ -350,8 +351,10 @@ extern char *resolve_tilde(const char *);
 }
 
 
+// No way to know the size of the buffer.
+// Assumption: DEFRXSTRING, see RexxNativeActivation::callRegisteredRoutine
 #define RETVAL(retc) { \
-  sprintf(retstr->strptr, "%d", retc); \
+  snprintf(retstr->strptr, DEFRXSTRING, "%d", retc); \
   retstr->strlength = strlen(retstr->strptr); \
   return VALID_ROUTINE; \
 }
@@ -1362,7 +1365,7 @@ size_t RexxEntry SysMkDir(const char *name, size_t numargs, CONSTRXSTRING args[]
   }
   rc = mkdir(path, mode);
   if(!rc){                             /* if worked well             */
-    sprintf(retstr->strptr, "%d", (int)rc); /* result is return code      */
+    snprintf(retstr->strptr, DEFRXSTRING, "%d", (int)rc); /* result is return code      */
     retstr->strlength = strlen(retstr->strptr);
     return VALID_ROUTINE;
   }
@@ -1370,32 +1373,32 @@ size_t RexxEntry SysMkDir(const char *name, size_t numargs, CONSTRXSTRING args[]
     switch (errno) {
 
       case EACCES: {
-        sprintf(retstr->strptr, "%d", 5); /* result: Access denied   */
+        snprintf(retstr->strptr, DEFRXSTRING, "%d", 5); /* result: Access denied   */
         retstr->strlength = strlen(retstr->strptr);
         break;
       }
       case EEXIST: {
-        sprintf(retstr->strptr, "%d", 87);/*result: already exists   */
+        snprintf(retstr->strptr, DEFRXSTRING, "%d", 87);/*result: already exists   */
         retstr->strlength = strlen(retstr->strptr);
         break;
       }
       case EMLINK: {
-        sprintf(retstr->strptr, "%d", 206);/* result: exceeds range  */
+        snprintf(retstr->strptr, DEFRXSTRING, "%d", 206);/* result: exceeds range  */
         retstr->strlength = strlen(retstr->strptr);
         break;
       }
       case ENOSPC: {
-        sprintf(retstr->strptr, "%d", 206);/* result: exceeds range  */
+        snprintf(retstr->strptr, DEFRXSTRING, "%d", 206);/* result: exceeds range  */
         retstr->strlength = strlen(retstr->strptr);
         break;
       }
       case EROFS: {
-        sprintf(retstr->strptr, "%d", 108);/* result:read only system*/
+        snprintf(retstr->strptr, DEFRXSTRING, "%d", 108);/* result:read only system*/
         retstr->strlength = strlen(retstr->strptr);
         break;
       }
       default:
-        sprintf(retstr->strptr, "%d", 2);  /* result: file not found */
+        snprintf(retstr->strptr, DEFRXSTRING, "%d", 2);  /* result: file not found */
         retstr->strlength = strlen(retstr->strptr);
         break;
     }
@@ -1436,7 +1439,7 @@ size_t RexxEntry SysRmDir(const char *name, size_t numargs, CONSTRXSTRING args[]
 
   rc = rmdir(path);                    /* Remove the directory       */
   if(!rc){                             /* if worked well             */
-    sprintf(retstr->strptr, "%d", (int)rc); /* result is return code      */
+    snprintf(retstr->strptr, DEFRXSTRING, "%d", (int)rc); /* result is return code      */
     retstr->strlength = strlen(retstr->strptr);
     return VALID_ROUTINE;
   }
@@ -1444,46 +1447,46 @@ size_t RexxEntry SysRmDir(const char *name, size_t numargs, CONSTRXSTRING args[]
     switch (errno) {
 
       case EACCES: {
-        sprintf(retstr->strptr, "%d", 5); /* result: Access denied   */
+        snprintf(retstr->strptr, DEFRXSTRING, "%d", 5); /* result: Access denied   */
         retstr->strlength = strlen(retstr->strptr);
         break;
       }
 #if defined( ENOTEMPTY ) && defined( EEXIST )
       case EEXIST: {
-        sprintf(retstr->strptr, "%d", 87);/*result: already exists   */
+        snprintf(retstr->strptr, DEFRXSTRING, "%d", 87);/*result: already exists   */
         retstr->strlength = strlen(retstr->strptr);
         break;
       }
 #elif defined( ENOTEMPTY )
       case ENOTEMPTY: {                 /* sometimes used for EEXITST */
-        sprintf(retstr->strptr, "%d", 87);/*result: already exists   */
+        snprintf(retstr->strptr, DEFRXSTRING, "%d", 87);/*result: already exists   */
         retstr->strlength = strlen(retstr->strptr);
         break;
       }
 #elif defined( EEXIST )
       case EEXIST: {
-        sprintf(retstr->strptr, "%d", 87);/*result: already exists   */
+        snprintf(retstr->strptr, DEFRXSTRING, "%d", 87);/*result: already exists   */
         retstr->strlength = strlen(retstr->strptr);
         break;
       }
 #endif
       case EBUSY: {
-        sprintf(retstr->strptr, "%d", 5);/* result: currently in use */
+        snprintf(retstr->strptr, DEFRXSTRING, "%d", 5);/* result: currently in use */
         retstr->strlength = strlen(retstr->strptr);
         break;
       }
       case ENOENT: {
-        sprintf(retstr->strptr, "%d", 87);/* result: doesn't exitst  */
+        snprintf(retstr->strptr, DEFRXSTRING, "%d", 87);/* result: doesn't exitst  */
         retstr->strlength = strlen(retstr->strptr);
         break;
       }
       case EROFS: {
-        sprintf(retstr->strptr, "%d", 108);/* result:read only system*/
+        snprintf(retstr->strptr, DEFRXSTRING, "%d", 108);/* result:read only system*/
         retstr->strlength = strlen(retstr->strptr);
         break;
       }
    default:
-        sprintf(retstr->strptr, "%d", 2);  /* result: dir not found  */
+        snprintf(retstr->strptr, DEFRXSTRING, "%d", 2);  /* result: dir not found  */
         retstr->strlength = strlen(retstr->strptr);
         break;
     }
@@ -1522,7 +1525,7 @@ size_t RexxEntry SysFileDelete(const char *name, size_t numargs, CONSTRXSTRING a
 
   rc = remove(path);                   /* Remove the file            */
   if(!rc){                             /* if worked well             */
-    sprintf(retstr->strptr, "%d", (int)rc); /* result is return code      */
+    snprintf(retstr->strptr, DEFRXSTRING, "%d", (int)rc); /* result is return code      */
     retstr->strlength = strlen(retstr->strptr);
     return VALID_ROUTINE;
   }
@@ -1530,27 +1533,27 @@ size_t RexxEntry SysFileDelete(const char *name, size_t numargs, CONSTRXSTRING a
     switch (errno) {
 
       case EACCES: {
-        sprintf(retstr->strptr, "%d", 5); /* result: Access denied   */
+        snprintf(retstr->strptr, DEFRXSTRING, "%d", 5); /* result: Access denied   */
         retstr->strlength = strlen(retstr->strptr);
         break;
       }
       case EBUSY: {
-        sprintf(retstr->strptr, "%d", 5);/* result: currently in use */
+        snprintf(retstr->strptr, DEFRXSTRING, "%d", 5);/* result: currently in use */
         retstr->strlength = strlen(retstr->strptr);
         break;
       }
       case ENOENT: {
-        sprintf(retstr->strptr, "%d", 87);/* result: doesn't exist   */
+        snprintf(retstr->strptr, DEFRXSTRING, "%d", 87);/* result: doesn't exist   */
         retstr->strlength = strlen(retstr->strptr);
         break;
       }
       case EROFS: {
-        sprintf(retstr->strptr, "%d", 108);/* result:read only system*/
+        snprintf(retstr->strptr, DEFRXSTRING, "%d", 108);/* result:read only system*/
         retstr->strlength = strlen(retstr->strptr);
         break;
       }
       default:
-        sprintf(retstr->strptr, "%d", 2);  /* result: file not found */
+        snprintf(retstr->strptr, DEFRXSTRING, "%d", 2);  /* result: file not found */
         retstr->strlength = strlen(retstr->strptr);
         break;
     }
@@ -1642,7 +1645,7 @@ size_t RexxEntry SysFileSearch(const char *name, size_t numargs, CONSTRXSTRING a
     ptr = mystrstr(line, target, len, args[0].strlength, sensitive);
     if (ptr) {
       if (linenums) {
-        sprintf(ldp.ibuf, "%d ", (int)num);
+        snprintf(ldp.ibuf, sizeof ldp.ibuf, "%d ", (int)num);
         len2 = strlen(ldp.ibuf);
         memcpy(ldp.ibuf+len2, line, len < IBUF_LEN-len2 ? len : IBUF_LEN-len2);
         ldp.vlen = IBUF_LEN < len+len2 ? IBUF_LEN : len + len2;
@@ -1652,7 +1655,7 @@ size_t RexxEntry SysFileSearch(const char *name, size_t numargs, CONSTRXSTRING a
         ldp.vlen = len;
       }
       ldp.count++;
-      sprintf(ldp.varname+ldp.stemlen, "%d", (int)ldp.count);
+      snprintf(ldp.varname+ldp.stemlen, sizeof ldp.varname, "%d", (int)ldp.count);
       if (ldp.ibuf[ldp.vlen-1] == '\n')
         ldp.vlen--;
       ldp.shvb.shvnext = NULL;
@@ -1676,7 +1679,7 @@ size_t RexxEntry SysFileSearch(const char *name, size_t numargs, CONSTRXSTRING a
   free(line);
   CloseFile(&filedata);                /* Close that file            */
                                        /* set stem.0 to lines read   */
-  sprintf(ldp.ibuf, "%d", (int)ldp.count);
+  snprintf(ldp.ibuf, sizeof ldp.ibuf, "%d", (int)ldp.count);
   ldp.varname[ldp.stemlen] = '0';
   ldp.varname[ldp.stemlen+1] = 0;
   ldp.shvb.shvnext = NULL;
@@ -1781,7 +1784,7 @@ size_t RexxEntry SysLinVer(const char *name, size_t numargs, CONSTRXSTRING args[
   if(uname(&info) < 0)                   /* if no info stored          */
     return INVALID_ROUTINE;            /* get out                    */
 
-  sprintf(retstr->strptr, "%s %s",info.sysname,info.release);
+  snprintf(retstr->strptr, DEFRXSTRING, "%s %s",info.sysname,info.release);
   retstr->strlength = strlen(retstr->strptr);
   return VALID_ROUTINE;
 }
@@ -1806,7 +1809,7 @@ size_t RexxEntry SysVersion(const char *name, size_t numargs, CONSTRXSTRING args
   if(uname(&info) < 0)                 /* if no info stored          */
     return INVALID_ROUTINE;            /* get out                    */
 
-  sprintf(retstr->strptr, "%s %s.%s",info.sysname, info.version, info.release);
+  snprintf(retstr->strptr, DEFRXSTRING, "%s %s.%s",info.sysname, info.version, info.release);
 
   retstr->strlength = strlen(retstr->strptr);
   return VALID_ROUTINE;
@@ -2615,7 +2618,7 @@ bool linFindNextDir(RexxCallContext *c, const char *fileSpec, const char *path, 
                 return false;
             }
 
-            sprintf(dFullPath, "%s%s", path, dir_entry->d_name);
+            snprintf(dFullPath, sizeof fullPath, "%s%s", path, dir_entry->d_name);
         }
 
         lstat(fullPath, finfo);
@@ -3149,7 +3152,7 @@ bool formatFile(RexxCallContext *c, RXTREEDATA *treeData, uint32_t options, stru
         if ( options & LONG_TIME )
         {
 
-            sprintf(treeData->fileTime, "%4d-%02d-%02d %02d:%02d:%02d  %10lu  ",
+            snprintf(treeData->fileTime, sizeof treeData->fileTime, "%4d-%02d-%02d %02d:%02d:%02d  %10lu  ",
                       timestamp->tm_year + 1900,
                       timestamp->tm_mon + 1,
                       timestamp->tm_mday,
@@ -3162,7 +3165,7 @@ bool formatFile(RexxCallContext *c, RXTREEDATA *treeData, uint32_t options, stru
         {
             if ( options & EDITABLE_TIME )
             {
-                sprintf(treeData->fileTime, "%02d/%02d/%02d/%02d/%02d  %10lu  ",
+                snprintf(treeData->fileTime, sizeof treeData->fileTime, "%02d/%02d/%02d/%02d/%02d  %10lu  ",
                           (timestamp->tm_year) % 100,
                           timestamp->tm_mon + 1,
                           timestamp->tm_mday,
@@ -3172,7 +3175,7 @@ bool formatFile(RexxCallContext *c, RXTREEDATA *treeData, uint32_t options, stru
             }
             else
             {
-                sprintf(treeData->fileTime, "%2d/%02d/%02d  %2d:%02d%c  %10lu  ",
+                snprintf(treeData->fileTime, sizeof treeData->fileTime, "%2d/%02d/%02d  %2d:%02d%c  %10lu  ",
                           timestamp->tm_mon+1,
                           timestamp->tm_mday,
                           timestamp->tm_year % 100,
@@ -3184,7 +3187,7 @@ bool formatFile(RexxCallContext *c, RXTREEDATA *treeData, uint32_t options, stru
         }
         tp = typeOfEntry(finfo->st_mode);
 
-        sprintf(treeData->fileAttr, "%c%c%c%c%c%c%c%c%c%c  ",
+        snprintf(treeData->fileAttr, sizeof treeData->fileAttr, "%c%c%c%c%c%c%c%c%c%c  ",
                   tp,
                   (finfo->st_mode & S_IREAD)  ? 'r' : '-',
                   (finfo->st_mode & S_IWRITE) ? 'w' : '-',
@@ -3208,7 +3211,7 @@ bool formatFile(RexxCallContext *c, RXTREEDATA *treeData, uint32_t options, stru
             }
 
             // The buffer is now guaranteed to be big enough.
-            sprintf(treeData->dFoundFileLine, "%s%s%s",
+            snprintf(treeData->dFoundFileLine, need, "%s%s%s",
                     treeData->fileTime, treeData->fileAttr, treeData->dFoundFile);
         }
     }
@@ -3314,7 +3317,7 @@ static bool recursiveFindFile(RexxCallContext *c, const char *path, RXTREEDATA *
                 }
 
                 // We are guarenteed the buffer is big enough.
-                sprintf(treeData->dFoundFile, "%s%s", path, fileName);
+                snprintf(treeData->dFoundFile, len+1, "%s%s", path, fileName);
             }
 
             if ( ! formatFile(c, treeData, options, &finfo) )
@@ -3357,7 +3360,7 @@ static bool recursiveFindFile(RexxCallContext *c, const char *path, RXTREEDATA *
                 }
 
                 // We are guarenteed the buffer is big enough.
-                sprintf(treeData->dFoundFile, "%s%s", path, fileName);
+                snprintf(treeData->dFoundFile, len+1, "%s%s", path, fileName);
             }
 
             if ( ! formatFile(c, treeData, options, &finfo) )
@@ -3408,7 +3411,7 @@ static bool recursiveFindFile(RexxCallContext *c, const char *path, RXTREEDATA *
                     }
 
                     // We are guarenteed the buffer is big enough.
-                    sprintf(dTmpDirName, "%s%s/", path, fileName);
+                    snprintf(dTmpDirName, len+1, "%s%s/", path, fileName);
                 }
 
                 if ( ! recursiveFindFile(c, dTmpDirName, treeData, options) )
@@ -3649,19 +3652,19 @@ size_t RexxEntry SysTempFileName(const char *name, size_t numargs, CONSTRXSTRING
     switch (j)
     {
        case 1:
-              sprintf(numstr, "%01u", (int)num);
+              snprintf(numstr, sizeof numstr, "%01u", (int)num);
               break;
        case 2:
-              sprintf(numstr, "%02u", (int)num);
+              snprintf(numstr, sizeof numstr, "%02u", (int)num);
               break;
        case 3:
-              sprintf(numstr, "%03u", (int)num);
+              snprintf(numstr, sizeof numstr, "%03u", (int)num);
               break;
        case 4:
-              sprintf(numstr, "%04u", (int)num);
+              snprintf(numstr, sizeof numstr, "%04u", (int)num);
               break;
        case 5:
-              sprintf(numstr, "%05u", (int)num);
+              snprintf(numstr, sizeof numstr, "%05u", (int)num);
               break;
        default:
               return INVALID_ROUTINE;            /* raise error condition */
@@ -3779,7 +3782,7 @@ size_t RexxEntry SysSetPriority(const char *name, size_t numargs, CONSTRXSTRING 
     return INVALID_ROUTINE;             /* raise error condition              */
   }
 
-  sprintf(retstr->strptr, "%d", rc);   /* format the return code              */
+  snprintf(retstr->strptr, DEFRXSTRING, "%d", rc);   /* format the return code              */
   retstr->strlength = strlen(retstr->strptr);
 
   return VALID_ROUTINE;                /* good completion                     */
@@ -3908,25 +3911,25 @@ size_t RexxEntry SysGetMessage(const char *name, size_t numargs, CONSTRXSTRING a
   /* generate full message with insertions                           */
   switch(icount){
     case(1):{
-      if(sprintf(retstr->strptr, msg,args[2].strptr) != msg_length)
+      if(snprintf(retstr->strptr, DEFRXSTRING, msg,args[2].strptr) != msg_length)
         strcpy(retstr->strptr, error_insertions);
       break;
     }
     case(2):{
-      if(sprintf(retstr->strptr, msg,args[2].strptr,
+      if(snprintf(retstr->strptr, DEFRXSTRING, msg,args[2].strptr,
                                      args[3].strptr) != msg_length)
         strcpy(retstr->strptr, error_insertions);
       break;
     }
     case(3):{
-      if(sprintf(retstr->strptr, msg,args[2].strptr,
+      if(snprintf(retstr->strptr, DEFRXSTRING, msg,args[2].strptr,
                                      args[3].strptr,
                                      args[4].strptr) != msg_length)
         strcpy(retstr->strptr, error_insertions);
       break;
     }
     case(4):{
-      if(sprintf(retstr->strptr, msg,args[2].strptr,
+      if(snprintf(retstr->strptr, DEFRXSTRING, msg,args[2].strptr,
                                      args[3].strptr,
                                      args[4].strptr,
                                      args[5].strptr) != msg_length)
@@ -3934,7 +3937,7 @@ size_t RexxEntry SysGetMessage(const char *name, size_t numargs, CONSTRXSTRING a
       break;
     }
     case(5):{
-      if(sprintf(retstr->strptr, msg,args[2].strptr,
+      if(snprintf(retstr->strptr, DEFRXSTRING, msg,args[2].strptr,
                                      args[3].strptr,
                                      args[4].strptr,
                                      args[5].strptr,
@@ -3943,7 +3946,7 @@ size_t RexxEntry SysGetMessage(const char *name, size_t numargs, CONSTRXSTRING a
       break;
     }
     case(6):{
-      if(sprintf(retstr->strptr, msg,args[2].strptr,
+      if(snprintf(retstr->strptr, DEFRXSTRING, msg,args[2].strptr,
                                      args[3].strptr,
                                      args[4].strptr,
                                      args[5].strptr,
@@ -3953,7 +3956,7 @@ size_t RexxEntry SysGetMessage(const char *name, size_t numargs, CONSTRXSTRING a
       break;
     }
     case(7):{
-      if(sprintf(retstr->strptr, msg,args[2].strptr,
+      if(snprintf(retstr->strptr, DEFRXSTRING, msg,args[2].strptr,
                                      args[3].strptr,
                                      args[4].strptr,
                                      args[5].strptr,
@@ -3964,7 +3967,7 @@ size_t RexxEntry SysGetMessage(const char *name, size_t numargs, CONSTRXSTRING a
       break;
     }
     case(8):{
-      if(sprintf(retstr->strptr, msg,args[2].strptr,
+      if(snprintf(retstr->strptr, DEFRXSTRING, msg,args[2].strptr,
                                      args[3].strptr,
                                      args[4].strptr,
                                      args[5].strptr,
@@ -3976,7 +3979,7 @@ size_t RexxEntry SysGetMessage(const char *name, size_t numargs, CONSTRXSTRING a
       break;
     }
     case(9):{
-      if(sprintf(retstr->strptr, msg,args[2].strptr,
+      if(snprintf(retstr->strptr, DEFRXSTRING, msg,args[2].strptr,
                                      args[3].strptr,
                                      args[4].strptr,
                                      args[5].strptr,
@@ -4136,25 +4139,25 @@ size_t RexxEntry SysGetMessageX(const char *name, size_t numargs, CONSTRXSTRING 
   /* generate full message with insertions                           */
   switch(icount){
     case(1):{
-      if(sprintf(retstr->strptr, msg,args[3].strptr) != msg_length)
+      if(snprintf(retstr->strptr, DEFRXSTRING, msg,args[3].strptr) != msg_length)
         strcpy(retstr->strptr, error_insertions);
       break;
     }
     case(2):{
-      if(sprintf(retstr->strptr, msg,args[3].strptr,
+      if(snprintf(retstr->strptr, DEFRXSTRING, msg,args[3].strptr,
                                      args[4].strptr) != msg_length)
         strcpy(retstr->strptr, error_insertions);
       break;
     }
     case(3):{
-      if(sprintf(retstr->strptr, msg,args[3].strptr,
+      if(snprintf(retstr->strptr, DEFRXSTRING, msg,args[3].strptr,
                                      args[4].strptr,
                                      args[5].strptr) != msg_length)
         strcpy(retstr->strptr, error_insertions);
       break;
     }
     case(4):{
-      if(sprintf(retstr->strptr, msg,args[3].strptr,
+      if(snprintf(retstr->strptr, DEFRXSTRING, msg,args[3].strptr,
                                      args[4].strptr,
                                      args[5].strptr,
                                      args[6].strptr) != msg_length)
@@ -4162,7 +4165,7 @@ size_t RexxEntry SysGetMessageX(const char *name, size_t numargs, CONSTRXSTRING 
       break;
     }
     case(5):{
-      if(sprintf(retstr->strptr, msg,args[3].strptr,
+      if(snprintf(retstr->strptr, DEFRXSTRING, msg,args[3].strptr,
                                      args[4].strptr,
                                      args[5].strptr,
                                      args[6].strptr,
@@ -4171,7 +4174,7 @@ size_t RexxEntry SysGetMessageX(const char *name, size_t numargs, CONSTRXSTRING 
       break;
     }
     case(6):{
-      if(sprintf(retstr->strptr, msg,args[3].strptr,
+      if(snprintf(retstr->strptr, DEFRXSTRING, msg,args[3].strptr,
                                      args[4].strptr,
                                      args[5].strptr,
                                      args[6].strptr,
@@ -4181,7 +4184,7 @@ size_t RexxEntry SysGetMessageX(const char *name, size_t numargs, CONSTRXSTRING 
       break;
     }
     case(7):{
-      if(sprintf(retstr->strptr, msg,args[3].strptr,
+      if(snprintf(retstr->strptr, DEFRXSTRING, msg,args[3].strptr,
                                      args[4].strptr,
                                      args[5].strptr,
                                      args[6].strptr,
@@ -4192,7 +4195,7 @@ size_t RexxEntry SysGetMessageX(const char *name, size_t numargs, CONSTRXSTRING 
       break;
     }
     case(8):{
-      if(sprintf(retstr->strptr, msg,args[3].strptr,
+      if(snprintf(retstr->strptr, DEFRXSTRING, msg,args[3].strptr,
                                      args[4].strptr,
                                      args[5].strptr,
                                      args[6].strptr,
@@ -4204,7 +4207,7 @@ size_t RexxEntry SysGetMessageX(const char *name, size_t numargs, CONSTRXSTRING 
       break;
     }
     case(9):{
-      if(sprintf(retstr->strptr, msg,args[3].strptr,
+      if(snprintf(retstr->strptr, DEFRXSTRING, msg,args[3].strptr,
                                      args[4].strptr,
                                      args[5].strptr,
                                      args[6].strptr,
@@ -4467,7 +4470,7 @@ size_t RexxEntry SysFork(const char *name, size_t numargs, CONSTRXSTRING args[],
     return INVALID_ROUTINE;
   else
   {
-    sprintf(retstr->strptr, "%d", fork());
+    snprintf(retstr->strptr, DEFRXSTRING, "%d", fork());
     retstr->strlength = strlen(retstr->strptr);
   }
   return VALID_ROUTINE;                /* no error on call           */
@@ -4493,7 +4496,7 @@ size_t RexxEntry SysWait(const char *name, size_t numargs, CONSTRXSTRING args[],
   else
   {
     wait( &iStatus );
-    sprintf(retstr->strptr, "%d", iStatus);
+    snprintf(retstr->strptr, DEFRXSTRING, "%d", iStatus);
     retstr->strlength = strlen(retstr->strptr);
   }
   return VALID_ROUTINE;                /* no error on call           */
@@ -4545,7 +4548,7 @@ size_t RexxEntry SysCreatePipe(const char *name, size_t numargs, CONSTRXSTRING a
       return VALID_ROUTINE;                  /* no error on call           */
     }
   }
-  sprintf(retstr->strptr, "%d %d", iaH[0], iaH[1]);/* Create return string */
+  snprintf(retstr->strptr, DEFRXSTRING, "%d %d", iaH[0], iaH[1]);/* Create return string */
   retstr->strlength = strlen(retstr->strptr);
 
   return VALID_ROUTINE;                      /* no error on call           */
@@ -4693,7 +4696,7 @@ size_t RexxEntry SysGetFileDateTime(const char *name, size_t numargs, CONSTRXSTR
      newtime->tm_year += 1900;
      newtime->tm_mon += 1;
 
-     sprintf(retstr->strptr, "%4d-%02d-%02d %02d:%02d:%02d",
+     snprintf(retstr->strptr, DEFRXSTRING, "%4d-%02d-%02d %02d:%02d:%02d",
              newtime->tm_year,
              newtime->tm_mon,
              newtime->tm_mday,
@@ -4914,12 +4917,12 @@ size_t RexxEntry SysStemSort(const char *name, size_t numargs, CONSTRXSTRING arg
 
     /* the sorting is done in the interpreter */
     if (!RexxStemSort(stemName, sortOrder, sortType, first, last, firstCol, lastCol)) {
-        sprintf(retstr->strptr, "-1");
+        snprintf(retstr->strptr, DEFRXSTRING, "-1");
         retstr->strlength = 2;
         return INVALID_ROUTINE;
     }
 
-    sprintf(retstr->strptr, "0");
+    snprintf(retstr->strptr, DEFRXSTRING, "0");
     retstr->strlength = 1;
     return VALID_ROUTINE;
 }
@@ -5213,28 +5216,28 @@ size_t RexxEntry SysQueryProcess(const char *name, size_t numargs, CONSTRXSTRING
 
   if ((numargs == 0) || (!strcasecmp(args[0].strptr, "PID")))
   {
-    sprintf(retstr->strptr, "%d", getpid());
+    snprintf(retstr->strptr, DEFRXSTRING, "%d", getpid());
     retstr->strlength = strlen(retstr->strptr);
     return VALID_ROUTINE;                /* no error on call           */
   }
   else
   if (!strcasecmp(args[0].strptr, "PPID"))
   {
-    sprintf(retstr->strptr, "%d", getppid());
+    snprintf(retstr->strptr, DEFRXSTRING, "%d", getppid());
     retstr->strlength = strlen(retstr->strptr);
     return VALID_ROUTINE;                /* no error on call           */
   }
   else
   if (!strcasecmp(args[0].strptr, "PGID"))
   {
-    sprintf(retstr->strptr, "%d", getpgid(getpid()));
+    snprintf(retstr->strptr, DEFRXSTRING, "%d", getpgid(getpid()));
     retstr->strlength = strlen(retstr->strptr);
     return VALID_ROUTINE;                /* no error on call           */
   }
   else
   if (!strcasecmp(args[0].strptr, "PPRIO"))
   {
-    sprintf(retstr->strptr, "%d", getpriority(PRIO_PROCESS, 0));
+    snprintf(retstr->strptr, DEFRXSTRING, "%d", getpriority(PRIO_PROCESS, 0));
     retstr->strlength = strlen(retstr->strptr);
     return VALID_ROUTINE;                /* no error on call           */
   }
@@ -5245,7 +5248,7 @@ size_t RexxEntry SysQueryProcess(const char *name, size_t numargs, CONSTRXSTRING
   iRc = getrusage ( RUSAGE_SELF, &struResUse);
   if ( iRc )
   {
-     sprintf(retstr->strptr, " System error; errno = %d", errno);
+     snprintf(retstr->strptr, DEFRXSTRING, " System error; errno = %d", errno);
      retstr->strlength = strlen(retstr->strptr);
      return VALID_ROUTINE;               /* no error on call           */
   }
@@ -5266,7 +5269,7 @@ size_t RexxEntry SysQueryProcess(const char *name, size_t numargs, CONSTRXSTRING
     if (uiUsedCPUTime >= 60 ) uiUsedSeconds = uiUsedCPUTime % 60;
     else uiUsedSeconds = uiUsedCPUTime;
 
-    sprintf(retstr->strptr, "CPU_Time Summary: %2d:%.2d:%.2d:%.3d  Kernel:",
+    snprintf(retstr->strptr, DEFRXSTRING, "CPU_Time Summary: %2d:%.2d:%.2d:%.3d  Kernel:",
                     uiUsedHours, uiUsedMinutes, uiUsedSeconds, uiUsedCPUmsec );
 
     uiUsedCPUmsec = (unsigned int) struResUse.ru_stime.tv_usec/1000;
@@ -5277,7 +5280,7 @@ size_t RexxEntry SysQueryProcess(const char *name, size_t numargs, CONSTRXSTRING
     if (uiUsedCPUTime >= 60 ) uiUsedSeconds = uiUsedCPUTime % 60;
     else uiUsedSeconds = uiUsedCPUTime;
 
-    sprintf(timebuf, " %2d:%.2d:%.2d:%.3d  User:", uiUsedHours,
+    snprintf(timebuf, sizeof timebuf, " %2d:%.2d:%.2d:%.3d  User:", uiUsedHours,
                                  uiUsedMinutes, uiUsedSeconds, uiUsedCPUmsec );
     strcat(retstr->strptr, timebuf);
 
@@ -5289,7 +5292,7 @@ size_t RexxEntry SysQueryProcess(const char *name, size_t numargs, CONSTRXSTRING
     if (uiUsedCPUTime >= 60 ) uiUsedSeconds = uiUsedCPUTime % 60;
     else uiUsedSeconds = uiUsedCPUTime;
 
-    sprintf(timebuf, " %2d:%.2d:%.2d:%.3d", uiUsedHours,
+    snprintf(timebuf, sizeof timebuf, " %2d:%.2d:%.2d:%.3d", uiUsedHours,
                                  uiUsedMinutes, uiUsedSeconds, uiUsedCPUmsec );
     strcat(retstr->strptr, timebuf);
 
@@ -5299,21 +5302,21 @@ size_t RexxEntry SysQueryProcess(const char *name, size_t numargs, CONSTRXSTRING
   else
   if (!strcasecmp(args[0].strptr, "PMEM"))  /* Show max memory RSS used   */
   {
-    sprintf(retstr->strptr, "Max_Memory_RSS: %ld", struResUse.ru_maxrss);
+    snprintf(retstr->strptr, DEFRXSTRING, "Max_Memory_RSS: %ld", struResUse.ru_maxrss);
     retstr->strlength = strlen(retstr->strptr);
     return VALID_ROUTINE;                /* no error on call           */
   }
   else
   if (!strcasecmp(args[0].strptr, "PSWAPS")) /* Memory has been swapped   */
   {
-    sprintf(retstr->strptr, "Memory_swaps: %ld", struResUse.ru_nswap);
+    snprintf(retstr->strptr, DEFRXSTRING, "Memory_swaps: %ld", struResUse.ru_nswap);
     retstr->strlength = strlen(retstr->strptr);
     return VALID_ROUTINE;                /* no error on call           */
   }
   else
   if (!strcasecmp(args[0].strptr, "PRCVDSIG")) /* Process received signals*/
   {
-    sprintf(retstr->strptr, "Received_signals: %ld", struResUse.ru_nsignals);
+    snprintf(retstr->strptr, DEFRXSTRING, "Received_signals: %ld", struResUse.ru_nsignals);
     retstr->strlength = strlen(retstr->strptr);
     return VALID_ROUTINE;                /* no error on call           */
   }
@@ -5371,7 +5374,7 @@ size_t RexxEntry SysUtilVersion(const char *name, size_t numargs, CONSTRXSTRING 
   if (numargs != 0)                    /* validate arg count         */
     return INVALID_ROUTINE;
                                        /* format into the buffer            */
-  sprintf(retstr->strptr, "%d.%d.%d", ORX_VER, ORX_REL, ORX_MOD);
+  snprintf(retstr->strptr, DEFRXSTRING, "%d.%d.%d", ORX_VER, ORX_REL, ORX_MOD);
   retstr->strlength = strlen(retstr->strptr);
 
   return VALID_ROUTINE;

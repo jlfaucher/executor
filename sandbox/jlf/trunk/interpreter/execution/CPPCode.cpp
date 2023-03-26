@@ -1155,7 +1155,7 @@ CPPCode *CPPCode::resolveExportedMethod(const char *name, PCPPM targetMethod, si
     }
 
     char buffer[256];
-    sprintf(buffer,"Unresolved exported method:  %s", name);
+    snprintf(buffer, sizeof buffer, "Unresolved exported method:  %s", name);
     /* this is a bad error               */
     Interpreter::logicError(buffer);
     return NULL;                         /* needs a return value              */

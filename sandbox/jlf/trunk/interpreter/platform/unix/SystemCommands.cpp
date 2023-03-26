@@ -432,25 +432,27 @@ bool sys_process_cd(RexxExitContext *context, const char * cmd, RexxObjectPtr rc
                 return false;
             }
             /* get space for the buf      */
-            dir_buf = (char *)malloc(strlen(home_dir)+strlen(st)+2);
+            size_t size = strlen(home_dir)+strlen(st)+2;
+            dir_buf = (char *)malloc(size);
             if (!dir_buf)
             {
                 return false;
             }
             /* merge the strings          */
-            sprintf(dir_buf, "%s/%s", home_dir, st);
+            snprintf(dir_buf, size, "%s/%s", home_dir, st);
         }
         else
         {
             /* get home directory path    */
             home_dir = getenv("HOME");     /* from the environment       */
                                            /* get space for the buf      */
-            dir_buf = (char *)malloc(strlen(home_dir)+2);
+            size_t size = strlen(home_dir)+2;
+            dir_buf = (char *)malloc(size);
             if (!dir_buf)
             {
                 return false;
             }
-            sprintf(dir_buf, "%s/", home_dir);
+            snprintf(dir_buf, size, "%s/", home_dir);
         }
     }
     else if (*(st) == '~')             /* cmd is '~username...'      */
@@ -466,13 +468,14 @@ bool sys_process_cd(RexxExitContext *context, const char * cmd, RexxObjectPtr rc
                 return false;
             }
                                            /* get space for the buf      */
-            dir_buf = (char *)malloc(strlen(ppwd->pw_dir)+2);
+            size_t size = strlen(ppwd->pw_dir)+2;
+            dir_buf = (char *)malloc(size);
             if (!dir_buf)
             {
                 return false;
             }
             /* merge the strings          */
-            sprintf(dir_buf, "%s/", ppwd->pw_dir);
+            snprintf(dir_buf, size, "%s/", ppwd->pw_dir);
         }
         else                            /* there is a slash           */
         {
@@ -487,13 +490,14 @@ bool sys_process_cd(RexxExitContext *context, const char * cmd, RexxObjectPtr rc
             }
             slash++;                       /* step over the slash        */
                                            /* get space for the buf      */
-            dir_buf = (char *)malloc(strlen(ppwd->pw_dir)+strlen(slash)+2);
+            size_t size = strlen(ppwd->pw_dir)+strlen(slash)+2;
+            dir_buf = (char *)malloc(size);
             if (!dir_buf)
             {
                 return false;
             }
             /* merge the strings          */
-            sprintf(dir_buf, "%s/%s", ppwd->pw_dir, slash);
+            snprintf(dir_buf, size, "%s/%s", ppwd->pw_dir, slash);
         }
     }
     else

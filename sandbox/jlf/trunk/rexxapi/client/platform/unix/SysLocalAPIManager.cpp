@@ -121,7 +121,7 @@ void SysLocalAPIManager::setActiveSessionQueue(QueueHandle sessionQueue)
 {
     char envbuffer[MAX_QUEUE_NAME_LENGTH+1];
     // set this as an environment variable for programs we call
-    sprintf(envbuffer, "%p", (void *)sessionQueue);
+    snprintf(envbuffer, sizeof envbuffer, "%p", (void *)sessionQueue);
     setenv("RXQUEUESESSION", envbuffer, 1); // overwrite the old value
 }
 

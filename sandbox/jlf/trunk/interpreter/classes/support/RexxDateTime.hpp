@@ -149,23 +149,23 @@ public:
     bool setSeconds(wholenumber_t s);
     bool setMinutes(wholenumber_t m);
     bool adjustTimeZone(int64_t o);
-    void formatBaseDate(char *buffer);
+    void formatBaseDate(char *buffer, size_t size);
     void formatBaseTime(char *buffer);
     void formatUnixTime(char *buffer);
-    void formatDays(char *buffer);
-    void formatEuropeanDate(char *buffer, const char *sep);
+    void formatDays(char *buffer, size_t size);
+    void formatEuropeanDate(char *buffer, size_t size, const char *sep);
     void formatMonthName(char *buffer);
-    void formatNormalDate(char *buffer, const char *sep);
-    void formatOrderedDate(char *buffer, const char *sep);
-    void formatStandardDate(char *buffer, const char *sep);
-    void formatUsaDate(char *buffer, const char *sep);
+    void formatNormalDate(char *buffer, size_t size, const char *sep);
+    void formatOrderedDate(char *buffer, size_t size, const char *sep);
+    void formatStandardDate(char *buffer, size_t size, const char *sep);
+    void formatUsaDate(char *buffer, size_t size, const char *sep);
     void formatWeekDay(char *buffer);
-    void formatCivilTime(char *buffer);
-    void formatHours(char *buffer);
-    void formatLongTime(char *buffer);
-    void formatMinutes(char *buffer);
-    void formatNormalTime(char *buffer);
-    void formatSeconds(char *buffer);
+    void formatCivilTime(char *buffer, size_t size);
+    void formatHours(char *buffer, size_t size);
+    void formatLongTime(char *buffer, size_t size);
+    void formatMinutes(char *buffer, size_t size);
+    void formatNormalTime(char *buffer, size_t size);
+    void formatSeconds(char *buffer, size_t size);
     void formatTimeZone(char *buffer);
     inline void setTimeZoneOffset(int64_t o) { timeZoneOffset = o; }
     inline int64_t getTimeZoneOffset() { return timeZoneOffset; }

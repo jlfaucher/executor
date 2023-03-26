@@ -3832,7 +3832,7 @@ RexxNumberString *RexxNumberString::newInstanceFromDouble(double number, size_t 
     char doubleStr[30];
     /* get double as a string value.     */
     /* Use digits as precision.          */
-    sprintf(doubleStr, "%.*g", (int)(precision + 2), number);
+    snprintf(doubleStr, sizeof doubleStr, "%.*g", (int)(precision + 2), number);
     resultLen = strlen(doubleStr);       /* Compute length of floatString     */
                                          /* Create new NumberString           */
     result = new (resultLen) RexxNumberString (resultLen, precision);

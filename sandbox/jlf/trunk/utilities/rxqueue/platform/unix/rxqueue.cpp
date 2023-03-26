@@ -305,7 +305,7 @@ void options_error( int   type,        /* Error type.                */
     /* Open the message catalog via environment variable NLSPATH ----------- */
     if ((catd = catopen(REXXMESSAGEFILE, 0)) == (nl_catd)CATD_ERR)
     {
-        sprintf(DataArea, "%s/%s", ORX_CATDIR, REXXMESSAGEFILE);
+        snprintf(DataArea, sizeof DataArea, "%s/%s", ORX_CATDIR, REXXMESSAGEFILE);
         if ((catd = catopen(DataArea, 0)) == (nl_catd)CATD_ERR)
         {
             printf("\nCannot open REXX message catalog %s.  Not in NLSPATH or %s.\n",
@@ -317,10 +317,10 @@ void options_error( int   type,        /* Error type.                */
 
     if (!pszMessage)
     {
-        sprintf(DataArea, "%s/%s", ORX_CATDIR, REXXMESSAGEFILE);
+        snprintf(DataArea, sizeof DataArea, "%s/%s", ORX_CATDIR, REXXMESSAGEFILE);
         if ((catd = catopen(DataArea, 0)) == (nl_catd)CATD_ERR)
         {
-            sprintf(DataArea, "\nCannot open REXX message catalog %s.  Not in NLSPATH or %s.\n",
+            snprintf(DataArea, sizeof DataArea, "\nCannot open REXX message catalog %s.  Not in NLSPATH or %s.\n",
                     REXXMESSAGEFILE, ORX_CATDIR);
         }
         else
@@ -343,7 +343,7 @@ void options_error( int   type,        /* Error type.                */
     }
     catclose(catd);                     /* close the catalog                 */
 #else
-    sprintf(DataArea,"*** Cannot get description for error!");
+    snprintf(DataArea, sizeof DataArea, "*** Cannot get description for error!");
 #endif
     /* now do the parameter substitutions in the message template... */
     pInsert = strstr(DataArea, "%1");
@@ -351,7 +351,7 @@ void options_error( int   type,        /* Error type.                */
     {
         pInsert++; /* advance to 1 of %1 */
         *pInsert = 's';
-        sprintf(achIMessage,DataArea,quename);
+        snprintf(achIMessage, sizeof achIMessage, DataArea,quename);
         pszMessage = achIMessage;
     }
     else

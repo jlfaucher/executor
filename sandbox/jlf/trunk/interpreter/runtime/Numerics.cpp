@@ -898,10 +898,10 @@ RexxString *Numerics::pointerToString(void *p)
     char temp[32];
     // unfortunately, the formation of %p is not consistent across platforms.
     // We first format this directly, and if the value does not be
-    sprintf(temp, "%p", p);
+    snprintf(temp, sizeof temp, "%p", p);
     if (temp[1] != 'x')
     {
-        sprintf(temp, "0x%p", p);
+        snprintf(temp, sizeof temp, "0x%p", p);
     }
     return new_string(temp);
 

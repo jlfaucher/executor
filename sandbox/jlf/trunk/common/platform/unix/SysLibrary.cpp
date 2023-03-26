@@ -85,13 +85,13 @@ bool SysLibrary::load(
         return false;
     }
 
-    sprintf(nameBuffer, "lib%s%s", name, ORX_SHARED_LIBRARY_EXT);
+    snprintf(nameBuffer, sizeof nameBuffer, "lib%s%s", name, ORX_SHARED_LIBRARY_EXT);
     // try loading directly
     libraryHandle = dlopen(nameBuffer, RTLD_LAZY);
     // if not found, then try from /usr/lib
     if (libraryHandle == NULL)
     {
-        sprintf(nameBuffer, "/usr/lib/lib%s%s", name, ORX_SHARED_LIBRARY_EXT);
+        snprintf(nameBuffer, sizeof nameBuffer, "/usr/lib/lib%s%s", name, ORX_SHARED_LIBRARY_EXT);
         libraryHandle = dlopen(nameBuffer, RTLD_LAZY);
         // still can't find it?
         if (libraryHandle == NULL)
