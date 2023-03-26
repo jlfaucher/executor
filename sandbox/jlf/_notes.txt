@@ -1152,3 +1152,10 @@ Currently it's
     self~settingsFile = HOME || "/.oorexxshell.ini"
     self~historyFile = HOME || "/.oorexxshell_history"
 
+================================================================================
+ICU4X
+================================================================================
+
+Don't know how to avoid this warning:
+...icu4x/target/aarch64-apple-darwin/release/libicu_capi_cdylib.dylib) was built for newer macOS version (12.0) than being linked (11.0)
+https://stackoverflow.com/questions/43216273/object-file-was-built-for-newer-osx-version-than-being-linked
