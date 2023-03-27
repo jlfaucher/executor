@@ -375,7 +375,7 @@ A coactivity can be suspended, and can receive a new set of arguments after each
     
 
 ------------------------
-StackFrame~nameArguments
+StackFrame~namedArguments
 ------------------------
 
 Returns a directory of named arguments used to invoke the execution frame represented by the StackFrame instance.
