@@ -72,6 +72,8 @@ Named arguments:
 
 ![Arguments](SyntaxDiagram/sd_Named_arguments.png)
 
+![Arguments](SyntaxDiagram/sd_Named_arguments.svg)
+
 Shorthand syntax
 
     name:           -- without expr, pass .true
