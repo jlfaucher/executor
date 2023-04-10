@@ -1945,7 +1945,9 @@ RexxMessage *RexxObject::startCommon(RexxObject *message, RexxObject **arguments
     ProtectedObject m(messageName);
 
     /* Create the new message object.    */
-    RexxMessage *newMessage = new RexxMessage(this, messageName, startScope, arguments, argCount, named_argCount);
+    RexxArray  *argPtr = new (argCount + 2 * named_argCount, arguments) RexxArray;
+    ProtectedObject p_argPtr(argPtr);
+    RexxMessage *newMessage = new RexxMessage(this, messageName, startScope, argPtr->data(), argCount, named_argCount);
     ProtectedObject p(newMessage);
     newMessage->start(OREF_NULL);        /* Tell the message object to start  */
     return newMessage;                   /* return the new message object     */

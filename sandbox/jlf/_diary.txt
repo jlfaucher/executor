@@ -2,6 +2,42 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2023 April 10
+
+Named arguments
+Discovered a major regression when running Example 12.2. Message object usage.
+Successive calls of the method ~start are creating messages that use the same
+array of arguments.
+ 	rexx.dll!RexxMessage::RexxMessage(RexxObject * _target, RexxString * msgName, RexxObject * scope, RexxObject * * _arglist, unsigned __int64 _argcount, unsigned __int64 _named_argcount) Line 81	C++
+ 	rexx.dll!RexxObject::startCommon(RexxObject * message, RexxObject * * arguments, unsigned __int64 argCount, unsigned __int64 named_argCount) Line 1948	C++
+ 	rexx.dll!RexxObject::start(RexxObject * * arguments, unsigned __int64 argCount, unsigned __int64 named_argCount) Line 1925	C++
+ 	rexx.dll!CPPCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * messageName, RexxObject * * argPtr, unsigned __int64 count, unsigned __int64 named_count, ProtectedObject & result) Line 124	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 count, unsigned __int64 named_count, ProtectedObject & result) Line 325	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned __int64 count, unsigned __int64 named_count, ProtectedObject & result, bool processUnknown) Line 822	C++
+>	rexx.dll!RexxExpressionStack::send(RexxString * message, unsigned __int64 count, unsigned __int64 namedCount, ProtectedObject & result) Line 69	C++
+The common memory area comes from the expression stack.
+ooRexx 4.2 is ok
+    RexxMessage *RexxObject::startCommon(RexxObject *message, RexxObject **arguments, size_t argCount)
+    {
+        ...
+        /* Create the new message object.    */
+        RexxMessage *newMessage = new RexxMessage(this, messageName, startScope, new (argCount, arguments) RexxArray);
+        ...
+because the operator new makes a copy:
+    void *   RexxArray::operator new(size_t size,
+        size_t items,                      /* items in the array                */
+        RexxObject **first )               /* array of items to fill array      */
+    {
+        RexxArray *newArray = new_array(items);         /* get a new array                   */
+        if (items != 0)                      /* not a null array?                 */
+        {
+            /* copy the references in            */
+            memcpy(newArray->data(), first, (sizeof(RexxObject *) * items));
+            ...
+Fixed in Executor by creating a new array.
+
+
+===============================================================================
 2023 March 26
 
 [Encoded strings]
@@ -28,7 +64,7 @@ Rework implementation of caselessMatch to support correctly
 
 Prepare the support of full case mappings (rules defined in SpecialCasing.txt).
 utf8proc supports only the simple case mappings:
-toLower, toUpper and toTitle return only one codepoint.
+toLowerSimple, toUpperSimple and toTitleSimple return only one codepoint.
 
 
 ===============================================================================

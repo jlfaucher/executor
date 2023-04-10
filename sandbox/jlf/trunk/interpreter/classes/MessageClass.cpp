@@ -631,11 +631,11 @@ RexxObject *RexxMessage::newRexx(
             {
                 /* yes, build array of all arguments */
 
-                // should work with named argument...
-                // the array is built in-place, so the named arguments are still after the positional arguments
-                // and this array is stored as-is on the instance of Message (no copy)
-                argPtr = new (argCount - 3, msgArgs + 3) RexxArray;
-                argCountMsg = argPtr->size();
+                // makes a copy of msgArgs, including the named arguments
+                argPtr = new (argCount - 3 + 2 * named_argCount, msgArgs + 3) RexxArray;
+                p_argPtr = argPtr;
+                argCountMsg = argCount - 3;
+                named_argCountMsg = named_argCount;
             }
             else
             {
@@ -651,7 +651,6 @@ RexxObject *RexxMessage::newRexx(
         argCountMsg = 0; // 0 positional argument
         named_argCountMsg = 0;
     }
-    ProtectedObject p(argPtr);
     /* all args are parcelled out, go    */
     /*create the new message object...   */
     RexxMessage *newMessage = new RexxMessage(_target, msgName, _startScope, argPtr->data(), argCountMsg, named_argCountMsg);
