@@ -176,7 +176,8 @@ comsumption of stack frames.
 Should be possible when the option CONTINUE is not used.
 Could be used to emulate tail recursion.
 Under MacOs, last value before stack overflow when calculating the factorial:
-Executor: 1056      ooRexx5: 17441 (yes! and then segmentation fault)
+x86_64  Executor: 1056      ooRexx5: 17441 (yes! and then segmentation fault)
+arm64   Executor: 4282      ooRexx5: 20079 and then seg fault
     use arg n
     say factorial(n)
     return
@@ -184,7 +185,8 @@ Executor: 1056      ooRexx5: 17441 (yes! and then segmentation fault)
     use arg n
     if n==0 then return 1
     else return n * factorial(n-1)
-Executor: 736       ooRexx5: 793
+x86_64  Executor:  736      ooRexx5: 793
+arm64   Executor: 3778      ooRexx5: 886        bizarre!
     use arg n
     say factorial(n)
     return
@@ -192,7 +194,8 @@ Executor: 736       ooRexx5: 793
     use arg n
     if n==0 then return 1
     else return n * factorial(n-1)
-Executor: 487       ooRexx5: 511
+x86_64  Executor:  487      ooRexx5: 511
+arm64   Executor: 2293      ooRexx5: 591        bizarre!
     use arg n
     say factorial(n)
     return
@@ -200,9 +203,11 @@ Executor: 487       ooRexx5: 511
     use arg n
     if n==0 then return 1
     else return n * .context~executable~call(n-1)
-484
+x86_64   484
+arm64   2290
     {use arg n; if n==0 then return 1; else return n * .context~executable~call(n-1) }~call(484)=
-197
+x86_64  197
+arm64   890
     {use arg n; if n==0 then return 1; else return n * .context~executable~(n-1) }~(197)=
 I would like to support the same limit 484 when using the doer method ~().
     ::class "Doer" mixinclass Object public inherit DoerFactory
