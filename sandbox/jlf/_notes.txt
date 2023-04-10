@@ -869,6 +869,89 @@ thinking about grapheme indexes (draft)
 
 
 ================================================================================
+Encoded strings - Miscellaneous notes
+================================================================================
+
+A string reverse works correctly only at grapheme level.
+A string reverse at codepoint level can corrupt the string.
+So if ARB decides to support Unicode at codepoint level only, then the method
+'reverse' should not be declared  Unicode compliant.
+
+Example 1
+"René"~text~nfd~characters==
+    an Array (shape [5], 5 items)
+     1 : ( "R"   U+0052 Lu 1 "LATIN CAPITAL LETTER R" )
+     2 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
+     3 : ( "n"   U+006E Ll 1 "LATIN SMALL LETTER N" )
+     4 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
+     5 : ( "́"    U+0301 Mn 0 "COMBINING ACUTE ACCENT" )
+"René"~text~nfd~c2g==
+    '52 65 6E 65CC81'
+"René"~text~nfd~graphemes~each("c2x")==
+    an Array (shape [4], 4 items)
+     1 :  52
+     2 :  65
+     3 : '6E'
+     4 : '65 CC81'
+"René"~text~nfd~reverse~characters==
+    an Array (shape [5], 5 items)
+     1 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
+     2 : ( "́"    U+0301 Mn 0 "COMBINING ACUTE ACCENT" )
+     3 : ( "n"   U+006E Ll 1 "LATIN SMALL LETTER N" )
+     4 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
+     5 : ( "R"   U+0052 Lu 1 "LATIN CAPITAL LETTER R" )
+"René"~text~nfd~reverse~c2g==
+    '65CC81 6E 65 52'
+"René"~text~nfd~reverse~graphemes~each("c2x")==
+    an Array (shape [4], 4 items)
+     1 : '65 CC81'
+     2 : '6E'
+     3 :  65
+     4 :  52
+
+Example 2
+https://www.w3.org/TR/charmod-norm/#composition_decomposition
+NFC: The resulting character sequence can still contain combining marks, since
+not all character sequences have a precomposed equivalent.
+Many scripts offer no alternative to the use of combining marks, such as the
+Devanagari vowels in this example:
+"यूनिकोड"~text~characters==
+    an Array (shape [7], 7 items)
+     1 : ( "य"   U+092F Lo 1 "DEVANAGARI LETTER YA" )
+     2 : ( "ू"    U+0942 Mn 0 "DEVANAGARI VOWEL SIGN UU" )
+     3 : ( "न"   U+0928 Lo 1 "DEVANAGARI LETTER NA" )
+     4 : ( "ि"    U+093F Mc 0 "DEVANAGARI VOWEL SIGN I" )
+     5 : ( "क"   U+0915 Lo 1 "DEVANAGARI LETTER KA" )
+     6 : ( "ो"    U+094B Mc 0 "DEVANAGARI VOWEL SIGN O" )
+     7 : ( "ड"   U+0921 Lo 1 "DEVANAGARI LETTER DDA" )
+"यूनिकोड"~text~c2g=
+    'E0A4AFE0A582 E0A4A8E0A4BF E0A495E0A58B E0A4A1'
+"यूनिकोड"~text~graphemes~each("c2x")==
+    an Array (shape [4], 4 items)
+     1 : 'E0A4AF E0A582'
+     2 : 'E0A4A8 E0A4BF'
+     3 : 'E0A495 E0A58B'
+     4 : 'E0A4A1'
+"यूनिकोड"~text~reverse~characters==
+    an Array (shape [7], 7 items)
+     1 : ( "ड"   U+0921 Lo 1 "DEVANAGARI LETTER DDA" )
+     2 : ( "क"   U+0915 Lo 1 "DEVANAGARI LETTER KA" )
+     3 : ( "ो"    U+094B Mc 0 "DEVANAGARI VOWEL SIGN O" )
+     4 : ( "न"   U+0928 Lo 1 "DEVANAGARI LETTER NA" )
+     5 : ( "ि"    U+093F Mc 0 "DEVANAGARI VOWEL SIGN I" )
+     6 : ( "य"   U+092F Lo 1 "DEVANAGARI LETTER YA" )
+     7 : ( "ू"    U+0942 Mn 0 "DEVANAGARI VOWEL SIGN UU" )
+"यूनिकोड"~text~reverse~c2g==
+    'E0A4A1 E0A495E0A58B E0A4A8E0A4BF E0A4AFE0A582'
+"यूनिकोड"~text~reverse~graphemes~each("c2x")==
+    an Array (shape [4], 4 items)
+     1 : 'E0A4A1'
+     2 : 'E0A495 E0A58B'
+     3 : 'E0A4A8 E0A4BF'
+     4 : 'E0A4AF E0A582'
+
+
+================================================================================
 ooRexx5 optimizations
 ================================================================================
 
