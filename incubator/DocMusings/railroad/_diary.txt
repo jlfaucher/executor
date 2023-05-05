@@ -1,4 +1,29 @@
 ===============================================================================
+2022 apr 02
+
+Under MacOs ARM with java/jdk/bellsoft/jdk-19.0.2-full.jdk, batik-1.7 is no longer working :-(
+java -jar $BATIK_RASTERIZER_JAR
+Exception in thread "main" java.lang.UnsupportedOperationException: The Security Manager is deprecated and will be removed in a future release
+
+Same error with batik 1.15
+java -jar /local/XmlToolSet/batik-1.15/batik-rasterizer-1.15.jar
+Exception in thread "main" java.lang.UnsupportedOperationException: The Security Manager is deprecated and will be removed in a future release
+
+I install batik 1.16
+No more exception about security manager
+but...
+Pfff... Again
+Exception in thread "main" java.lang.NoClassDefFoundError: org/mozilla/javascript/WrapFactory
+	at org.apache.batik.bridge.RhinoInterpreterFactory.createInterpreter(RhinoInterpreterFactory.java:82)
+
+echo $CLASSPATH
+/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/bsf4ooRexx-v641-20220131-bin.jar:
+Still this error if I delete CLASSPATH
+Still this error if I delete rhino-1.7.7.jar in batik-1.16/lib
+Still this error if I declare CLASSPATH=/Users/Shared/local/XmlToolSet/batik-1.16/lib:/Users/Shared/local/XmlToolSet/batik-1.16/lib/rhino-1.7.7.jar
+
+
+===============================================================================
 2022 oct 20
 
 Under MacOs
@@ -7,9 +32,10 @@ Exception in thread "main" java.lang.NoClassDefFoundError: org/mozilla/javascrip
 
 https://github.com/robander/svg-syntaxdiagrams
 https://github.com/robander/svg-syntaxdiagrams/issues/3
-Comments:
-- I fixed the problem by downloading a binary release of Rhino, and copying the rhino-1.7.9.jar file to the dita-ot-2.5.4\lib directory.
-- Not sure what caused this - I was only ever able to reproduce the error by deleting the Rhino code that was stored within the Batik library.
+    Comments:
+    - I fixed the problem by downloading a binary release of Rhino, and copying the rhino-1.7.9.jar file to the dita-ot-2.5.4\lib directory.
+    - Not sure what caused this - I was only ever able to reproduce the error by deleting the Rhino code that was stored within the Batik library.
+jlf: NOT WORKING WITH BATIK which is aleady delivered with rhino-1.7.7.jar
 
 Current version of batik installed is batik-1.13
 I install the latest version of Batik: batik-1.15
