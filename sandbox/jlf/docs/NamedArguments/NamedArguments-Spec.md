@@ -72,7 +72,7 @@ Named arguments:
 
 ![Arguments](SyntaxDiagram/sd_Named_arguments.png)
 
-![Arguments](SyntaxDiagram/sd_Named_arguments.svg)
+![Arguments](SyntaxDiagram/sd_Named_arguments.pdf)
 
 Shorthand syntax
 
