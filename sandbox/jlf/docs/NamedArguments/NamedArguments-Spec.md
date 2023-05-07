@@ -8,23 +8,25 @@ with constants.xml
     <string name="diagram_unit">in</string>
 and syntaxdiagram.css
         font-family: Times-New-Roman;
-the png have these sizes
-    sd_Arguments                3462 × 980      3462/150=23.08%
-    sd_Context_setArgs          4766 × 514      4766/150=31.77%
-    sd_Function                 2461 × 301      2461/150=16.41%
-    sd_Instruction_CALL         3004 × 532      3004/150=20.03%
-    sd_Instruction_FORWARD      12234 × 774     12234/150=81.56%
-    sd_Instruction_USE          8620 × 1119     8620/150=57.47%
-    sd_Message_new              8309 × 927      8309/150=55.39%
-    sd_Message_term_brackets    2031 × 299      2031/150=13.54%
-    sd_Message_term             5629 × 512      5629/150=37.53%
-    sd_Named_arguments          2206 × 980      2206/150=14.71%
-    sd_Object_run               7127 × 927      7127/150=47.51%
-    sd_Object_sendWith          6411 × 514      6411/150=42.74%
-    sd_Object_startWith         6418 × 514      6418/150=42.79%
-    sd_Positional_arguments     1805 × 788      1805/150=12.03%
-    sd_Routine_callWith         4830 × 514      4830/150=32.2%
+the png have these sizes:
+    sd_Arguments                3462 × 980      3462/150=23.08%     *2=46.16
+    sd_Context_setArgs          4766 × 514      4766/150=31.77%     *2=63.54
+    sd_Function                 2461 × 301      2461/150=16.41%     *2=32.82
+    sd_Instruction_CALL         3004 × 532      3004/150=20.03%     *2=40.06
+    sd_Instruction_FORWARD      12234 × 774     12234/150=81.56%    *2=163.12
+    sd_Instruction_USE          8620 × 1119     8620/150=57.47%     *2=114.94
+    sd_Message_new              8309 × 927      8309/150=55.39%     *2=110.78
+    sd_Message_term_brackets    2031 × 299      2031/150=13.54%     *2=27.08
+    sd_Message_term             5629 × 512      5629/150=37.53%     *2=75.06
+    sd_Named_arguments          2206 × 980      2206/150=14.71%     *2=29.42
+    sd_Object_run               7127 × 927      7127/150=47.51%     *2=95.02
+    sd_Object_sendWith          6411 × 514      6411/150=42.74%     *2=85.48
+    sd_Object_startWith         6418 × 514      6418/150=42.79%     *2=85.58
+    sd_Positional_arguments     1805 × 788      1805/150=12.03%     *2=24.06
+    sd_Routine_callWith         4830 × 514      4830/150=32.2%      *2=64.4
 
+Must multiply the width by 2 because the github rendering is too small compared
+to a local rendering.
 -->
 
 Named arguments - Specification
@@ -68,7 +70,7 @@ Arguments:
          +-------------------------------| Named arguments |--+
          +--| Positional arguments |--,--| Named arguments |--+
 
-<img src="SyntaxDiagram/sd_Arguments.png" width="23.08%">
+<img src="SyntaxDiagram/sd_Arguments.png" width="46.16%">
 
 
 Positional arguments:
@@ -79,7 +81,7 @@ Positional arguments:
           |            |
           +-expression-+
 
-<img src="SyntaxDiagram/sd_Positional_arguments.png" width="12.03%">
+<img src="SyntaxDiagram/sd_Positional_arguments.png" width="24.06%">
 
 
 Named arguments:
@@ -92,7 +94,7 @@ Named arguments:
           |                |
           +------:-varname-+
 
-<img src="SyntaxDiagram/sd_Named_arguments.png" width="14.71%">
+<img src="SyntaxDiagram/sd_Named_arguments.png" width="29.42%">
 
 
 
@@ -153,11 +155,11 @@ Message term
     >>-receiver-+- ~ --+-messagename--+----------+--+---------------------+---><
                 +- ~~ -+              +-:-symbol-+  +-(--| Arguments |--)-+
 
-<img src="SyntaxDiagram/sd_Message_term.png" width="37.53%">
+<img src="SyntaxDiagram/sd_Message_term.png" width="75.06%">
 
     >>-receiver[--| Arguments |--]----------------------------><
 
-<img src="SyntaxDiagram/sd_Message_term_brackets.png" width="13.54%">
+<img src="SyntaxDiagram/sd_Message_term_brackets.png" width="27.08%">
 
 
 ---------------
@@ -185,7 +187,7 @@ Instruction CALL
     >>-CALL----+-name-----+----| Arguments |--------------------><
                +-(-expr-)-+
 
-<img src="SyntaxDiagram/sd_Instruction_CALL.png" width="20.03%">
+<img src="SyntaxDiagram/sd_Instruction_CALL.png" width="40.06%">
 
 
 --------
@@ -194,7 +196,7 @@ Function
 
     >>-function_name(----| Arguments |----)-------------------><
 
-<img src="SyntaxDiagram/sd_Function.png" width="16.41%">
+<img src="SyntaxDiagram/sd_Function.png" width="32.82%">
 
 
 -------------------
@@ -211,7 +213,7 @@ There, `"Array"` is followed by a mandatory array. `"Individual"` is followed by
                 +--CONTINUE--+  |   +--ARGUMENTS--expra--+  +--NAMEDARGUMENTS--exprd--+   |  +--MESSAGE--exprm--+  +--CLASS--exprs--+  +--TO--exprt--+
                                 +--------------ARRAY----(--| Arguments |--)---------------+
 
-<img src="SyntaxDiagram/sd_Instruction_FORWARD.png" width="81.56%">
+<img src="SyntaxDiagram/sd_Instruction_FORWARD.png" width="163.12%">
 
 
 ---------------
@@ -225,7 +227,7 @@ Instruction USE
                                                         +--+-------+-----------------------------------------------+
                                                            +--...--+
 
-<img src="SyntaxDiagram/sd_Instruction_USE.png" width="57.47%">
+<img src="SyntaxDiagram/sd_Instruction_USE.png" width="114.94%">
 
 When the option `NAMED` is specified:
 
@@ -289,7 +291,7 @@ There, `ARRAY` is followed by a list of arguments. `ARGUMENTS` is followed by a 
                                  +--+-------------------+--+--------------------------+--+
                                     +-,-"Array"-,-expra-+  +-,-NAMEDARGUMENTS-:-exprd-+
 
-<img src="SyntaxDiagram/sd_Message_new.png" width="55.39%">
+<img src="SyntaxDiagram/sd_Message_new.png" width="110.78%">
 
 `NAMEDARGUMENTS:` can be abbreviated to 1 letter (`n:`).  
 
@@ -314,7 +316,7 @@ There, `ARRAY` is followed by a list of arguments. `ARGUMENTS` is followed by a 
                    +--+-------------------+--+--------------------------+--+
                       +-,-"Array"-,-expra-+  +-,-NAMEDARGUMENTS-:-exprd-+
 
-<img src="SyntaxDiagram/sd_Object_run.png" width="47.51%">
+<img src="SyntaxDiagram/sd_Object_run.png" width="95.02%">
 
 `NAMEDARGUMENTS:` can be abbreviated to 1 letter (`n:`).  
 
@@ -326,7 +328,7 @@ Object~sendWith
     >>-sendWith(-messagename-,-arguments-+--------------------------+--)---><
                                          +-,-NAMEDARGUMENTS-:-exprd-+
 
-<img src="SyntaxDiagram/sd_Object_sendWith.png" width="42.74%">
+<img src="SyntaxDiagram/sd_Object_sendWith.png" width="85.48%">
 
 `NAMEDARGUMENTS:` can be abbreviated to 1 letter (`n:`).  
 
@@ -338,7 +340,7 @@ Object~startWith
     >>-startWith(-messagename-,-arguments-+--------------------------+-)---><
                                           +-,-NAMEDARGUMENTS-:-exprd-+
 
-<img src="SyntaxDiagram/sd_Object_startWith.png" width="42.79%">
+<img src="SyntaxDiagram/sd_Object_startWith.png" width="85.58%">
 
 `NAMEDARGUMENTS:` can be abbreviated to 1 letter (`n:`).  
 
@@ -350,7 +352,7 @@ Routine~callWith
     >>-callWith(-array-+--------------------------+-)---><
                        +-,-NAMEDARGUMENTS-:-exprd-+
 
-<img src="SyntaxDiagram/sd_Routine_callWith.png" width="32.2%">
+<img src="SyntaxDiagram/sd_Routine_callWith.png" width="64.4%">
 
 `NAMEDARGUMENTS`: can be abbreviated to 1 letter (`n:`).  
 
@@ -374,7 +376,7 @@ Context~setArgs
     >>-setArgs(-array-+--------------------------+-)---><
                       +-,-NAMEDARGUMENTS-:-exprd-+
 
-<img src="SyntaxDiagram/sd_Context_setArgs.png" width="31.77%">
+<img src="SyntaxDiagram/sd_Context_setArgs.png" width="63.54%">
 
 `NAMEDARGUMENTS:` can be abbreviated to 1 letter (`n:`).  
 
