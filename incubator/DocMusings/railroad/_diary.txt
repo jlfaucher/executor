@@ -1,5 +1,42 @@
 ===============================================================================
-2022 apr 02
+2023 may 06
+
+Pfff...
+Fighting during hours and days and weeks and months and years, ad nauseam, against
+Exception in thread "main" java.lang.NoClassDefFoundError: org/mozilla/javascript/WrapFactory
+	at org.apache.batik.bridge.RhinoInterpreterFactory.createInterpreter(RhinoInterpreterFactory.java:82)
+
+ALLELUIA!
+Adolfo in this thread provided the solution
+https://stackoverflow.com/questions/7891250/batik-not-in-classpath-error-when-running-servlet
+
+Rhino is not in the Class-Path of MANIFEST.MF of batik-rasterizer-<version>.jar
+WHY?????
+
+Procedure:
+go to the lib directory of Batik
+mkdir tmp
+cd tmp
+# extract the content of the jar file into the current directory
+jar -xf ../batik-rasterizer-<version>.jar
+# create a copy of MANIFEST.MF and update it
+cp META-INF/MANIFEST.MF .
+edit ./MANIFEST.MF to add rhino-<version>.jar in Class-Path
+REMEMBER: max length is 72, can break a line and continue it next line by starting with a space.
+Here, I use TWO spaces because each jar is separated by a space, so the character after the first space is another space.
+Class-Path: lib/batik-shared-resources-1.16.jar
+  lib/batik-svgrasterizer-1.16.jar
+  lib/batik-parser-1.16.jar
+  ...
+# recreate the jar file
+jar cmf MANIFEST.MF batik-rasterizer-<version>.jar org/*
+backup the original lib/batik-rasterizer-<version>.jar
+replace it by the new one with the updated MANIFEST.MF
+THAT'S IT! NOW IT WORKS!!!!
+
+
+===============================================================================
+2023 apr 02
 
 Under MacOs ARM with java/jdk/bellsoft/jdk-19.0.2-full.jdk, batik-1.7 is no longer working :-(
 java -jar $BATIK_RASTERIZER_JAR
