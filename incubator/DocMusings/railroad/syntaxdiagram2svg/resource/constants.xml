@@ -4,11 +4,11 @@
     <!-- Margin around entire diagram (top-level element). -->
     <scalar name="diagram_margin_topbottom">5</scalar>
     <scalar name="diagram_margin_sides">5</scalar>
-    
+
     <!-- Space inside boxes that contain text. -->
     <scalar name="box_padding_vertical">4</scalar>
     <scalar name="box_padding_horizontal">4</scalar>
-    
+
     <!-- Corner radius for boxes, per element. -->
     <array name="box_corner_radius">
         <scalar name="kwd">3</scalar>
@@ -20,7 +20,7 @@
         <scalar name="fragref">0</scalar>
         <scalar name="groupcomp">3</scalar>
     </array>
-    
+
     <!-- Horizontal padding between elements inside a box. -->
     <array name="box_medial_padding">
         <scalar name="kwd">0</scalar>
@@ -32,57 +32,57 @@
         <scalar name="fragref">0</scalar>
         <scalar name="groupcomp">2</scalar>
     </array>
-    
+
     <!--- Line curvature -->
     <scalar name="loop_corner_radius">10</scalar>
     <scalar name="decision_corner_radius">5</scalar>
-    
+
     <!-- Arrow head. -->
     <scalar name="arrow_size">5</scalar>
-    
+
     <!-- Arrow lengths for initial, middle and end of sequences. -->
     <scalar name="sequence_join_length_initial">10</scalar>
     <scalar name="sequence_join_length_medial">15</scalar>
     <scalar name="sequence_join_length_final">10</scalar>
-    
+
     <scalar name="loop_join_length_initial">10</scalar>
     <scalar name="loop_join_length_final">10</scalar>
 
     <scalar name="decision_join_length_initial">10</scalar>
     <scalar name="decision_join_length_final">10</scalar>
-    
+
     <!-- Vertical spacing between loop and return path. -->
     <scalar name="loop_row_padding">10</scalar>
     <!-- Vertical spacing between choices. -->
     <scalar name="decision_row_padding">6</scalar>
-    
+
     <!-- Vertical spacing between split diagram rows. -->
     <scalar name="diagram_row_padding">15</scalar>
-    
+
     <!-- Line-wrapping lengh and indent. -->
     <scalar name="diagram_wrap_width">550</scalar> <!-- Adjust this parameter to fit in the PDF page -->
     <scalar name="diagram_wrap_width" target_format="PNG">10000</scalar> <!-- "infinite" size for PNG -->
     <scalar name="diagram_wrap_indent">30</scalar>
-    
+
     <!-- Maximum diagram size, in SVG pixels. -->
-    <scalar name="diagram_max_width">550</scalar> <!-- This parameter is used to calculate xscale. 
+    <scalar name="diagram_max_width">550</scalar> <!-- This parameter is used to calculate xscale.
                                                        I want to avoid a scale < 1.0, to keep a normal size, so use a big value.
                                                        The parameter diagram_wrap_width will take care of the page width.
                                                        [later]
                                                        Ooops ! Sometimes, the addin does not know how to wrap, and in this case,
                                                        we really need a good value here, at least for PDF. -->
-    <scalar name="diagram_max_width" target_format="PNG">10000</scalar> <!-- "infinite" size for PNG -->
+    <scalar name="diagram_max_width" target_format="PNG">10000</scalar> <!-- "infinite" size (10000) for PNG -->
     <scalar name="diagram_max_height">1000</scalar>
     <!-- One SVG pixel is this many units for the container.   Try "0.28" and "in" for 90 DPI print output. -->
-    <scalar name="diagram_scale">1</scalar>
-    <string name="diagram_unit">px</string>
-    
+    <scalar name="diagram_scale">0.1</scalar>         <!-- 1 px, 0.28 in-->
+    <string name="diagram_unit">in</string>         <!--  px -->
+
     <!-- Padding on either side of note callout in notecontainer. -->
     <scalar name="note_padding_sides">2</scalar>
-    
+
     <!-- Move text down by this amount. -->
     <scalar name="text_baseline_shift">3</scalar>
     <!-- Move note callout up by this amount.  -->
     <scalar name="note_baseline_shift">5</scalar>
-    
+
 </constants>

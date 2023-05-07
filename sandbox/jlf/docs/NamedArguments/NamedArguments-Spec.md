@@ -3,6 +3,28 @@
 Remember: when you create/update a syntax diagram, you must copy it in the file
 NamedArguments-SD.xml
 
+with constants.xml
+    <scalar name="diagram_scale">0.1</scalar>
+    <string name="diagram_unit">in</string>
+and syntaxdiagram.css
+        font-family: Times-New-Roman;
+the png have these sizes
+    sd_Arguments                3462 × 980      3462/150=23.08%
+    sd_Context_setArgs          4766 × 514      4766/150=31.77%
+    sd_Function                 2461 × 301      2461/150=16.41%
+    sd_Instruction_CALL         3004 × 532      3004/150=20.03%
+    sd_Instruction_FORWARD      12234 × 774     12234/150=81.56%
+    sd_Instruction_USE          8620 × 1119     8620/150=57.47%
+    sd_Message_new              8309 × 927      8309/150=55.39%
+    sd_Message_term_brackets    2031 × 299      2031/150=13.54%
+    sd_Message_term             5629 × 512      5629/150=37.53%
+    sd_Named_arguments          2206 × 980      2206/150=14.71%
+    sd_Object_run               7127 × 927      7127/150=47.51%
+    sd_Object_sendWith          6411 × 514      6411/150=42.74%
+    sd_Object_startWith         6418 × 514      6418/150=42.79%
+    sd_Positional_arguments     1805 × 788      1805/150=12.03%
+    sd_Routine_callWith         4830 × 514      4830/150=32.2%
+
 -->
 
 Named arguments - Specification
@@ -46,7 +68,7 @@ Arguments:
          +-------------------------------| Named arguments |--+
          +--| Positional arguments |--,--| Named arguments |--+
 
-![Arguments](SyntaxDiagram/sd_Arguments.png)
+<img src="SyntaxDiagram/sd_Arguments.png" width="23.08%">
 
 
 Positional arguments:
@@ -57,7 +79,7 @@ Positional arguments:
           |            |
           +-expression-+
 
-![Arguments](SyntaxDiagram/sd_Positional_arguments.png)
+<img src="SyntaxDiagram/sd_Positional_arguments.png" width="12.03%">
 
 
 Named arguments:
@@ -70,9 +92,9 @@ Named arguments:
           |                |
           +------:-varname-+
 
-![Arguments](SyntaxDiagram/sd_Named_arguments.png)
+<img src="SyntaxDiagram/sd_Named_arguments.png" width="14.71%">
 
-![Arguments](SyntaxDiagram/sd_Named_arguments.pdf)
+
 
 Shorthand syntax
 
@@ -131,11 +153,11 @@ Message term
     >>-receiver-+- ~ --+-messagename--+----------+--+---------------------+---><
                 +- ~~ -+              +-:-symbol-+  +-(--| Arguments |--)-+
 
-![USE NAMED ARG](SyntaxDiagram/sd_Message_term.png)
+<img src="SyntaxDiagram/sd_Message_term.png" width="37.53%">
 
     >>-receiver[--| Arguments |--]----------------------------><
 
-![USE NAMED ARG](SyntaxDiagram/sd_Message_term_index.png)
+<img src="SyntaxDiagram/sd_Message_term_brackets.png" width="13.54%">
 
 
 ---------------
@@ -163,7 +185,7 @@ Instruction CALL
     >>-CALL----+-name-----+----| Arguments |--------------------><
                +-(-expr-)-+
 
-![USE NAMED ARG](SyntaxDiagram/sd_Instruction_CALL.png)
+<img src="SyntaxDiagram/sd_Instruction_CALL.png" width="20.03%">
 
 
 --------
@@ -172,7 +194,7 @@ Function
 
     >>-function_name(----| Arguments |----)-------------------><
 
-![USE NAMED ARG](SyntaxDiagram/sd_Function.png)
+<img src="SyntaxDiagram/sd_Function.png" width="16.41%">
 
 
 -------------------
@@ -189,7 +211,7 @@ There, `"Array"` is followed by a mandatory array. `"Individual"` is followed by
                 +--CONTINUE--+  |   +--ARGUMENTS--expra--+  +--NAMEDARGUMENTS--exprd--+   |  +--MESSAGE--exprm--+  +--CLASS--exprs--+  +--TO--exprt--+
                                 +--------------ARRAY----(--| Arguments |--)---------------+
 
-![USE NAMED ARG](SyntaxDiagram/sd_Instruction_FORWARD.png)
+<img src="SyntaxDiagram/sd_Instruction_FORWARD.png" width="81.56%">
 
 
 ---------------
@@ -203,7 +225,7 @@ Instruction USE
                                                         +--+-------+-----------------------------------------------+
                                                            +--...--+
 
-![USE NAMED ARG](SyntaxDiagram/sd_Instruction_USE.png)
+<img src="SyntaxDiagram/sd_Instruction_USE.png" width="57.47%">
 
 When the option `NAMED` is specified:
 
@@ -267,7 +289,7 @@ There, `ARRAY` is followed by a list of arguments. `ARGUMENTS` is followed by a 
                                  +--+-------------------+--+--------------------------+--+
                                     +-,-"Array"-,-expra-+  +-,-NAMEDARGUMENTS-:-exprd-+
 
-![USE NAMED ARG](SyntaxDiagram/sd_Message_new.png)
+<img src="SyntaxDiagram/sd_Message_new.png" width="55.39%">
 
 `NAMEDARGUMENTS:` can be abbreviated to 1 letter (`n:`).  
 
@@ -292,7 +314,7 @@ There, `ARRAY` is followed by a list of arguments. `ARGUMENTS` is followed by a 
                    +--+-------------------+--+--------------------------+--+
                       +-,-"Array"-,-expra-+  +-,-NAMEDARGUMENTS-:-exprd-+
 
-![USE NAMED ARG](SyntaxDiagram/sd_Object_run.png)
+<img src="SyntaxDiagram/sd_Object_run.png" width="47.51%">
 
 `NAMEDARGUMENTS:` can be abbreviated to 1 letter (`n:`).  
 
@@ -304,7 +326,7 @@ Object~sendWith
     >>-sendWith(-messagename-,-arguments-+--------------------------+--)---><
                                          +-,-NAMEDARGUMENTS-:-exprd-+
 
-![USE NAMED ARG](SyntaxDiagram/sd_Object_sendWith.png)
+<img src="SyntaxDiagram/sd_Object_sendWith.png" width="42.74%">
 
 `NAMEDARGUMENTS:` can be abbreviated to 1 letter (`n:`).  
 
@@ -316,7 +338,7 @@ Object~startWith
     >>-startWith(-messagename-,-arguments-+--------------------------+-)---><
                                           +-,-NAMEDARGUMENTS-:-exprd-+
 
-![USE NAMED ARG](SyntaxDiagram/sd_Object_startWith.png)
+<img src="SyntaxDiagram/sd_Object_startWith.png" width="42.79%">
 
 `NAMEDARGUMENTS:` can be abbreviated to 1 letter (`n:`).  
 
@@ -328,7 +350,7 @@ Routine~callWith
     >>-callWith(-array-+--------------------------+-)---><
                        +-,-NAMEDARGUMENTS-:-exprd-+
 
-![USE NAMED ARG](SyntaxDiagram/sd_Routine_callWith.png)
+<img src="SyntaxDiagram/sd_Routine_callWith.png" width="32.2%">
 
 `NAMEDARGUMENTS`: can be abbreviated to 1 letter (`n:`).  
 
@@ -352,7 +374,7 @@ Context~setArgs
     >>-setArgs(-array-+--------------------------+-)---><
                       +-,-NAMEDARGUMENTS-:-exprd-+
 
-![USE NAMED ARG](SyntaxDiagram/sd_Context_setArgs.png)
+<img src="SyntaxDiagram/sd_Context_setArgs.png" width="31.77%">
 
 `NAMEDARGUMENTS:` can be abbreviated to 1 letter (`n:`).  
 

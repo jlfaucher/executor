@@ -1,4 +1,22 @@
 ===============================================================================
+2023 may 07
+
+Improve the quality of the PNG
+    <scalar name="diagram_scale">0.1</scalar>
+    <string name="diagram_unit">in</string>
+Was
+    <scalar name="diagram_scale">1</scalar>
+    <string name="diagram_unit">px</string>
+
+The PNG are bigger, and now a width must be specified when referencing a PNG,
+otherwise the displayed railroad is way too big.
+See for example NamedArguments-Spec.md
+    sd_Arguments.png is 3462 × 980
+    3462/150=23.08%
+    <img src="SyntaxDiagram/sd_Arguments.png" width="23.08%">
+
+
+===============================================================================
 2023 may 06
 
 Pfff...

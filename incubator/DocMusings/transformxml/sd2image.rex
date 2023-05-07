@@ -1,14 +1,14 @@
-/**** 
+/****
 Usage :
     $sourcename [-help] <sd_File> [<logFile>]
 Description :
-    Create a subdirectory <sd_File> (without suffix) and generate an image file 
+    Create a subdirectory <sd_File> (without suffix) and generate an image file
     for each syntax diagram or fragment in <sd_File>.
     Generated formats : SVG, PNG, PDF.
 Prerequisites :
     Assumes that the syntaxdiagram2svg addin is located in the directory
     ../railroad/syntaxdiagram2svg (path relative to current script directory).
-    Depends on xsltproc. 
+    Depends on xsltproc.
     Depends on the environment variable BATIK_RASTERIZER_JAR.
 ****/
 
@@ -34,7 +34,7 @@ sdFileNameExt = filespec("name", sdFile)
 sdFileExt = filespec("extension", sdFile)
 sdFileName = sdFileNameExt~left(sdFileNameExt~length - sdFileExt~length - 1)
 
--- Each sd_File has its own subdirectory : 
+-- Each sd_File has its own subdirectory :
 -- mydir/sd_myfile.xml --> mydir/sd_myfile/
 outputDir = sdFileDir || sdFileName
 if createDirectoryVerbose(outputDir, log) < 0 then return 1
@@ -152,7 +152,7 @@ return 0
     self~help = .false
     self~logFile = ""
     self~sdFile = ""
-    
+
     -- Tokenize the arguments, if needed
     use strict arg callType, arguments -- always an array
     select
@@ -160,7 +160,7 @@ return 0
         when callType == "SUBROUTINE" & arguments~items == 1 & arguments[1]~isA(.array) then self~args = arguments[1]
         otherwise self~args = arguments
     end
-    
+
     -- Use makeArray to have a non-sparse array,
     -- because omitted parameters have no corresponding index,
     -- and we ignore omitted parameters here.
@@ -168,12 +168,12 @@ return 0
         if self~args[i] == "" then self~args~remove(i)
     end
     self~args = self~args~makeArray
-    
+
     if self~args~items == 0 then do
         self~help = .true
         return
     end
-    
+
     -- Process the options
     loop i=1 to self~args~items
         option = self~args[i]
@@ -191,7 +191,7 @@ return 0
         -- Return now if help requested
         if self~help then return
     end
-    
+
     -- Process the arguments
     -- sdFile is mandatory
     if i > self~args~items then do
