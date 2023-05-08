@@ -110,7 +110,7 @@ Unicode® Technical Reports
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/glossary">https://www.unicode.org/glossary</a>
 Code Point.
-    (1) Any value in the Unicode codespace; that is, the range of integers from 0 to 10FFFF16.
+    (1) Any value in the Unicode codespace; that is, the range of integers from 0 to 10FFFF.
         Not all code points are assigned to encoded characters. See code point type.
     (2) A value, or position, for a character, in any coded character set.
 Code Unit.
@@ -118,7 +118,7 @@ Code Unit.
     The Unicode Standard uses 8-bit code units in the UTF-8 encoding form, 16-bit code units in the UTF-16 encoding form, and 32-bit code units in the UTF-32 encoding form.
 Unicode Scalar Value.
     Any Unicode code point except high-surrogate and low-surrogate code points.
-    In other words, the ranges of integers 0 to D7FF16 and E00016 to 10FFFF16 inclusive.
+    In other words, the ranges of integers 0 to D7FF and E000 to 10FFFF inclusive.
 
 
 UNICODE COLLATION ALGORITHM
@@ -4341,6 +4341,25 @@ A Unicode string value that is a collection of characters.
 <a target="_blank" rel="noopener noreferrer" href="https://developer.apple.com/documentation/swift/string">https://developer.apple.com/documentation/swift/string</a>
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://www.simpleswiftguide.com/get-character-from-string-using-its-index-in-swift/">https://www.simpleswiftguide.com/get-character-from-string-using-its-index-in-swift/</a>
+jlf: no direct access to a character
+Doesn't work:
+    let input = "Swift Tutorials"
+    let char = input[3]
+Work:
+    let input = "Swift Tutorials"
+    let char = input[input.index(input.startIndex, offsetBy: 3)]
+A "workaround" to have direct access
+    extension StringProtocol {
+        subscript(offset: Int) -&gt; Character {
+            self[index(startIndex, offsetBy: offset)]
+        }
+    }
+Which can be used just like that:
+    let input = "Swift Tutorials"
+    let char = input[3]
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://developer.apple.com/documentation/swift/unicode/canonicalcombiningclass">https://developer.apple.com/documentation/swift/unicode/canonicalcombiningclass</a>
 Unicode.CanonicalCombiningClass
 The classification of a scalar used in the Canonical Ordering Algorithm defined by the Unicode Standard.
@@ -4363,6 +4382,9 @@ String Processing For Swift 4
 
 <a target="_blank" rel="noopener noreferrer" href="https://swift.org/blog/utf8-string/">https://swift.org/blog/utf8-string/</a>
 Swift 5 switches the preferred encoding of strings from UTF-16 to UTF-8 while preserving efficient Objective-C-interoperability.
+jlf: Search "breadcrumb".
+Notice that the article is about Swift Objective-C interoperability.
+The language Swift itself is not allowing random access to characters.
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://bugs.swift.org/browse/SR-7602">https://bugs.swift.org/browse/SR-7602</a>
@@ -4371,6 +4393,60 @@ UTF8 should be (one of) the fastest String encoding(s)
 
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/apple/swift/blob/7e68e8f4a3cb1173e909dc22a3490c05e43fa592/stdlib/public/core/StringObject.swift">https://github.com/apple/swift/blob/7e68e8f4a3cb1173e909dc22a3490c05e43fa592/stdlib/public/core/StringObject.swift</a>
 swift/stdlib/public/core/StringObject.swift
+jlf: the link above is a frozen link
+To have an up-to-date view, go to
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/apple/swift/tree/main/stdlib/public/core">https://github.com/apple/swift/tree/main/stdlib/public/core</a>
+Many code to review!
+    String.swift
+    StringBreadcrumbs.swift
+    StringBridge.swift
+    StringCharacterView.swift
+    StringComparable.swift
+    StringComparison.swift
+    StringCreate.swift
+    StringGraphemeBreaking.swift
+        jlf: Apparently, there are some difficulties when going bacwards .
+          // When walking backwards, it's impossible to know whether we were in an emoji
+          // sequence without walking further backwards. This walks the string backwards
+          // enough until we figure out whether or not to break our
+          // (.zwj, .extendedPictographic) question.
+
+          // When walking backwards, it's impossible to know whether we break when we
+          // see our first (.regionalIndicator, .regionalIndicator) without walking
+          // further backwards. This walks the string backwards enough until we figure
+          // out whether or not to break these RIs.
+    StringGuts.swift
+    StringGutsRangeReplaceable.swift
+    StringGutsSlice.swift
+    StringHashable.swift
+    StringIndex.swift
+    StringIndexConversions.swift
+    StringIndexValidation.swift
+    StringInterpolation.swift
+    StringLegacy.swift
+    StringNormalization.swift
+    StringObject.swift
+    StringProtocol.swift
+    StringRangeReplaceableCollection.swift
+    StringStorage.swift
+    StringStorageBridge.swift
+    StringSwitch.swift
+    StringTesting.swift
+    StringUTF16View.swift
+    StringUTF8Validation.swift
+    StringUTF8View.swift
+    StringUnicodeScalarView.swift
+    StringWordBreaking.swift
+    Substring.swift
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/apple/swift/blob/main/stdlib/public/core/StringBreadcrumbs.swift">https://github.com/apple/swift/blob/main/stdlib/public/core/StringBreadcrumbs.swift</a>
+Breadcrumb optimization
+The distance between successive breadcrumbs, measured in UTF-16 code units is 64.
+internal static var breadcrumbStride: Int { 64 }
+jlf: nothing sophisticated here...
+They scan the whole string by iterating over the UTF-16 indexes and when i % stride == 0 then self.crumbs.append(curIdx)
+When searching the offset for a String.Index, they do a binary search.
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/55389444/whats-does-extended-grapheme-clusters-are-canonically-equivalent-means-in-term">https://stackoverflow.com/questions/55389444/whats-does-extended-grapheme-clusters-are-canonically-equivalent-means-in-term</a>
