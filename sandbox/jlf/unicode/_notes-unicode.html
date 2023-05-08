@@ -20,6 +20,7 @@ Contents:
     <a href="#CLDR_Common_Locale_Data_Repository">CLDR Common Locale Data Repository</a>
     <a href="#Case_mappings">Case mappings</a>
     <a href="#Collation__sorting">Collation, sorting</a>
+    <a href="#BIDI">BIDI</a>
     <a href="#Emoji">Emoji</a>
     <a href="#Countries__flags">Countries, flags</a>
     <a href="#IME___Input_Method_Editor">IME - Input Method Editor</a>
@@ -58,6 +59,7 @@ Contents:
     <a href="#Language_comparison">Language comparison</a>
     <a href="#Regular_expressions">Regular expressions</a>
     <a href="#Test_cases__test_cases__tests_files">Test cases, test-cases, tests files</a>
+    <a href="#bold__italic__strikethrough__underline__backwards__upside_down">bold, italic, strikethrough, underline, backwards, upside down</a>
     <a href="#youtube">youtube</a>
     <a href="#Ada_lang">Ada lang</a>
     <a href="#Awk_lang">Awk lang</a>
@@ -74,6 +76,7 @@ Contents:
     <a href="#Lisp_lang">Lisp lang</a>
     <a href="#Mathematica_lang">Mathematica lang</a>
     <a href="#MOAR_VM_RAKU_lang">MOAR-VM RAKU lang</a>
+    <a href="#netrexx_lang">netrexx lang</a>
     <a href="#Oracle">Oracle</a>
     <a href="#Perl_lang__Perl_6_has_been_renamed_to_Raku_">Perl lang (Perl 6 has been renamed to Raku)</a>
     <a href="#PHP_lang">PHP lang</a>
@@ -103,6 +106,19 @@ Contents:
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/">https://www.unicode.org/reports/</a>
 Unicode® Technical Reports
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/glossary">https://www.unicode.org/glossary</a>
+Code Point.
+    (1) Any value in the Unicode codespace; that is, the range of integers from 0 to 10FFFF16.
+        Not all code points are assigned to encoded characters. See code point type.
+    (2) A value, or position, for a character, in any coded character set.
+Code Unit.
+    The minimal bit combination that can represent a unit of encoded text for processing or interchange.
+    The Unicode Standard uses 8-bit code units in the UTF-8 encoding form, 16-bit code units in the UTF-16 encoding form, and 32-bit code units in the UTF-32 encoding form.
+Unicode Scalar Value.
+    Any Unicode code point except high-surrogate and low-surrogate code points.
+    In other words, the ranges of integers 0 to D7FF16 and E00016 to 10FFFF16 inclusive.
 
 
 UNICODE COLLATION ALGORITHM
@@ -182,28 +198,6 @@ This is usually, but not always, the NFC form.
 03/08/2022
 <a target="_blank" rel="noopener noreferrer" href="https://discourse.julialang.org/t/unicode-15-0-beta-and-sorting-collation/83090">https://discourse.julialang.org/t/unicode-15-0-beta-and-sorting-collation/83090</a>
 <a target="_blank" rel="noopener noreferrer" href="https://unicode.org/emoji/charts-15.0/emoji-ordering.html">https://unicode.org/emoji/charts-15.0/emoji-ordering.html</a>
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/notes/tn39/">https://www.unicode.org/notes/tn39/</a>
-BIDI BRACKETS FOR DUMMIES
-    — So is the Arabic U+FD3E ﴾ ORNATE LEFT PARENTHESIS a bracket, too?
-    No.
-    — Why not?
-    Because I said so.
-    — How about quotation marks? They come in pairs and enclose stuff inside, separating it from all the stuff outside. Some of them, like that French thingie ‹ even look like brackets.
-    No, they aren't "brackets", either.
-    — Why not?
-    Because I said so.
-    — How about U+300C 「 LEFT CORNER BRACKET? Is that a "bracket"?
-    Yes, that is a bracket.
-    — But I thought that was a Japanese quotation mark. How come it is a bracket, but the other quotation marks aren't?
-    Because I said so. Oh, and U+230A ⌊ LEFT FLOOR is a "bracket", too.
-    — But that doesn't make any sense. What does "FLOOR" have to do with brackets?
-    It's probably something to do with maths, but it's a "bracket", anyway. Besides, if you were a decent carpenter, you would know what a floor bracket was.
-    — How about the left angle bracket "&lt;"? Is that at least a "bracket"?
-    No.
-    — Why not?
-    Because it's a LESS-THAN SIGN. And enough with all these silly "Why?" and "Why not?" questions.
 
 
 <hr><h2 id="Unicode_general_informations">Unicode general informations</h2><hr>
@@ -291,12 +285,6 @@ Search Unicode.org
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.w3.org/TR/charmod/">https://www.w3.org/TR/charmod/</a>
 Character Model for the World Wide Web 1.0: Fundamentals
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://www.codesections.com/blog/raku-unicode/">https://www.codesections.com/blog/raku-unicode/</a>
-A deep dive into Raku's Unicode support
-Grepping for "Unicode Character Database" brings us to unicode_db.c.
-<a target="_blank" rel="noopener noreferrer" href="https://github.com/MoarVM/MoarVM/blob/master/src/strings/unicode_db.c">https://github.com/MoarVM/MoarVM/blob/master/src/strings/unicode_db.c</a>
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.johndcook.com/blog/2021/11/01/number-sets-html/">https://www.johndcook.com/blog/2021/11/01/number-sets-html/</a>
@@ -427,6 +415,18 @@ UNICODE SECURITY MECHANISMS
 <a target="_blank" rel="noopener noreferrer" href="https://api.mtr.pub/vhf/confusable_homoglyphs">https://api.mtr.pub/vhf/confusable_homoglyphs</a>
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://util.unicode.org/UnicodeJsps/confusables.jsp">https://util.unicode.org/UnicodeJsps/confusables.jsp</a>
+<a target="_blank" rel="noopener noreferrer" href="https://www.w3.org/TR/charmod-norm/#normalizationLimitations">https://www.w3.org/TR/charmod-norm/#normalizationLimitations</a>
+Confusable characters:
+"ΡРP"~text~characters==
+    an Array (shape [3], 3 items)
+     1 : ( "Ρ"   U+03A1 Lu 1 "GREEK CAPITAL LETTER RHO" )
+     2 : ( "Р"   U+0420 Lu 1 "CYRILLIC CAPITAL LETTER ER" )
+     3 : ( "P"   U+0050 Lu 1 "LATIN CAPITAL LETTER P" )
+These confusable characters are not impacted by the lump option:
+"ΡРP"~text~nfc(lump:)~characters    -- same result
+
+
 <hr><h2 id="Segmentation__Grapheme">Segmentation, Grapheme</h2><hr>
 29/05/2021
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/alvinlindstam/grapheme">https://github.com/alvinlindstam/grapheme</a>
@@ -531,6 +531,12 @@ due to the compatibility reason, and can only be fixed via tailored locale-depen
 <a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/27331819/whats-the-difference-between-a-character-a-code-point-a-glyph-and-a-grapheme">https://stackoverflow.com/questions/27331819/whats-the-difference-between-a-character-a-code-point-a-glyph-and-a-grapheme</a>
 What's the difference between a character, a code point, a glyph and a grapheme?
 jlf: not very good...
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/clipperhouse/words">https://github.com/clipperhouse/words</a>
+words is a command which splits strings into individual words, as defined by Unicode.
+It accepts text from stdin, and writes one word (token) per line to stdout.
+
 
 <hr><h2 id="Normalization__equivalence">Normalization, equivalence</h2><hr>
 26/11/2013
@@ -1063,6 +1069,36 @@ a site devoted to working with Collations, Unicode, Encodings, Code Pages, etc i
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr35/tr35-collation.html">https://www.unicode.org/reports/tr35/tr35-collation.html</a>
 UNICODE LOCALE DATA MARKUP LANGUAGE (LDML)
 PART 5: COLLATION
+
+
+<hr><h2 id="BIDI">BIDI</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://www.iamcal.com/understanding-bidirectional-text/">https://www.iamcal.com/understanding-bidirectional-text/</a>
+Understanding Bidirectional (BIDI) Text in Unicode
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.w3.org/International/articles/inline-bidi-markup/uba-basics">https://www.w3.org/International/articles/inline-bidi-markup/uba-basics</a>
+Unicode Bidirectional Algorithm basics
+jlf: the example are gif images :-(( no way to copy-paste the characters.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/notes/tn39/">https://www.unicode.org/notes/tn39/</a>
+BIDI BRACKETS FOR DUMMIES
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/5801820/how-to-solve-bidi-bracket-issues">https://stackoverflow.com/questions/5801820/how-to-solve-bidi-bracket-issues</a>
+How to solve BiDi bracket issues?
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://gist.github.com/mvidner/e96ac917d9a54e09d9730220a34b0d24">https://gist.github.com/mvidner/e96ac917d9a54e09d9730220a34b0d24</a>
+Problems with Bidirectional (BiDi) Text
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.w3.org/International/questions/qa-bidi-unicode-controls">https://www.w3.org/International/questions/qa-bidi-unicode-controls</a>
+How to use Unicode controls for bidi text
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/mvidner/bidi-test">https://github.com/mvidner/bidi-test</a>
+Testing bidirectional text
 
 
 <hr><h2 id="Emoji">Emoji</h2><hr>
@@ -1675,6 +1711,9 @@ I recommend getting emoji for your test cases by copy-pasting them from emojiped
 <a target="_blank" rel="noopener noreferrer" href="https://emojipedia.org/">https://emojipedia.org/</a>
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Mojibake">https://en.wikipedia.org/wiki/Mojibake</a>
+
+
 <hr><h2 id="Filenames">Filenames</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://opensource.apple.com/source/subversion/subversion-52/subversion/notes/unicode-composition-for-filenames.auto.html">https://opensource.apple.com/source/subversion/subversion-52/subversion/notes/unicode-composition-for-filenames.auto.html</a>
 2 problems follow:
@@ -2279,6 +2318,15 @@ It should be possible to tailor relative to something that is tailored in the
 intermediate root search.
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/discussions/3231#discussioncomment-5599221">https://github.com/unicode-org/icu4x/discussions/3231#discussioncomment-5599221</a>
+    @sffc , Will ICU4X Test Data provider give correct results for Lao language?
+    I was running segment_utf16 on Lao string but its results are not inline with ICU4C results.
+
+    The ICU4X Test Data provider supports Japanese and Thai. For the other languages,
+    you should follow the steps in the tutorial to generate your own data; in general
+    the testdata provider is intended for testing. You can also track #2945 which
+    will make it possible to get full data without needing to build it using the tool.
+
 
 <hr><h2 id="Twitter_text_parsing">Twitter text parsing</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/twitter/twitter-text">https://github.com/twitter/twitter-text</a>
@@ -2362,6 +2410,13 @@ Normalization
 Collation
 Bidi transformation
 Stringprep conversion
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://listserv.ua.edu/cgi-bin/wa?A2=IBM-MAIN;5304fbc3.2304&S=">https://listserv.ua.edu/cgi-bin/wa?A2=IBM-MAIN;5304fbc3.2304&S=</a>
+Re: TSO Rexx C2X Incorrect Output
+Events such as this affirm my belief in minimal munging of user data by default.
+jlf: this sentence is to remember when designing how Unicode should be supported
+by Rexx...
 
 
 <hr><h2 id="IBM_RPG_Lang">IBM RPG Lang</h2><hr>
@@ -2473,6 +2528,20 @@ search for "unicode" and read...
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/lemire/unicode_lipsum">https://github.com/lemire/unicode_lipsum</a>
 
 
+<hr><h2 id="bold__italic__strikethrough__underline__backwards__upside_down">bold, italic, strikethrough, underline, backwards, upside down</h2><hr>
+I remember I saw an open-sourced implementation, but forgot to note it.
+The URLs below are not providing a link to an open-sourced implementation, to
+remove sooner or later.
+<a target="_blank" rel="noopener noreferrer" href="https://convertcase.net/unicode-text-converter/">https://convertcase.net/unicode-text-converter/</a>
+<a target="_blank" rel="noopener noreferrer" href="https://yaytext.com/">https://yaytext.com/</a>
+<a target="_blank" rel="noopener noreferrer" href="https://capitalizemytitle.com/">https://capitalizemytitle.com/</a>
+<a target="_blank" rel="noopener noreferrer" href="https://capitalizemytitle.com/fancy-text-generator/">https://capitalizemytitle.com/fancy-text-generator/</a>
+<a target="_blank" rel="noopener noreferrer" href="http://slothsoft.net/UnicodeMapper/">http://slothsoft.net/UnicodeMapper/</a>
+<a target="_blank" rel="noopener noreferrer" href="https://www.fontgenerator.org/">https://www.fontgenerator.org/</a>
+<a target="_blank" rel="noopener noreferrer" href="https://peterwunder.de/projects/prettify/">https://peterwunder.de/projects/prettify/</a>
+<a target="_blank" rel="noopener noreferrer" href="https://texteditor.com/">https://texteditor.com/</a>
+
+
 <hr><h2 id="youtube">youtube</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/playlist?list=PLMc927ywQmTNQrscw7yvaJbAbMJDIjeBh">https://www.youtube.com/playlist?list=PLMc927ywQmTNQrscw7yvaJbAbMJDIjeBh</a>
 Videos from Unicode's Overview of Internationalization and Unicode Projects
@@ -2487,19 +2556,19 @@ UXStrings Ada Unicode Extended Strings
 <a target="_blank" rel="noopener noreferrer" href="https://www.reddit.com/r/ada/comments/t4hpip/ann_uxstrings_package_available_uxs_20220226/">https://www.reddit.com/r/ada/comments/t4hpip/ann_uxstrings_package_available_uxs_20220226/</a>
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/Blady-Com/UXStrings">https://github.com/Blady-Com/UXStrings</a>
 
-<hr><h2 id="Awk_lang">Awk lang</h2><hr>
-Brian Kernighan adds Unicode support to Awk
-<a target="_blank" rel="noopener noreferrer" href="https://github.com/onetrueawk/awk/commit/9ebe940cf3c652b0e373634d2aa4a00b8395b636">https://github.com/onetrueawk/awk/commit/9ebe940cf3c652b0e373634d2aa4a00b8395b636</a>
-<a target="_blank" rel="noopener noreferrer" href="https://github.com/onetrueawk/awk/tree/unicode-support">https://github.com/onetrueawk/awk/tree/unicode-support</a>
-<a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=32534173">https://news.ycombinator.com/item?id=32534173</a>
-
-
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/AdaForge/Thematics/wiki/Unicode-and-String-manipulations">https://github.com/AdaForge/Thematics/wiki/Unicode-and-String-manipulations</a>
 Unicode and String manipulations in UTF-8, UTF-16, ...
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/48829940/utf-8-on-windows-with-ada">https://stackoverflow.com/questions/48829940/utf-8-on-windows-with-ada</a>
 UTF-8 on Windows with Ada
+
+
+<hr><h2 id="Awk_lang">Awk lang</h2><hr>
+Brian Kernighan adds Unicode support to Awk
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/onetrueawk/awk/commit/9ebe940cf3c652b0e373634d2aa4a00b8395b636">https://github.com/onetrueawk/awk/commit/9ebe940cf3c652b0e373634d2aa4a00b8395b636</a>
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/onetrueawk/awk/tree/unicode-support">https://github.com/onetrueawk/awk/tree/unicode-support</a>
+<a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=32534173">https://news.ycombinator.com/item?id=32534173</a>
 
 
 <hr><h2 id="C___lang__Boost">C++ lang, Boost</h2><hr>
@@ -2779,6 +2848,47 @@ You might want to have a look at their code, or talk to @mpvl who wrote most of 
 
 
 <hr><h2 id="Java_lang">Java lang</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://docs.oracle.com/en/java/javase/">https://docs.oracle.com/en/java/javase/</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://docs.oracle.com/en/java/javase/20/docs/api/java.base/java/text/BreakIterator.html">https://docs.oracle.com/en/java/javase/20/docs/api/java.base/java/text/BreakIterator.html</a>
+java.text.BreakIterator
+The default implementation of the character boundary analysis conforms to the
+Unicode Consortium's Extended Grapheme Cluster breaks. For more detail, refer to
+Grapheme Cluster Boundaries section in the Unicode Standard Annex #29.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://docs.oracle.com/en/java/javase/20/intl/internationalization-overview.html">https://docs.oracle.com/en/java/javase/20/intl/internationalization-overview.html</a>
+Internationalization Overview
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://codeahoy.com/2016/05/08/the-char-type-in-java-is-broken/">https://codeahoy.com/2016/05/08/the-char-type-in-java-is-broken/</a>
+Java has supported Unicode since its first release and strings are internally
+represented using UTF-16 encoding. UTF-16 is a variable length encoding scheme.
+For characters that can fit into the 16 bits space, it uses 2 bytes to represent
+them. For all other characters, it uses 4 bytes.
+For a character that requires more than 16 bits, like these emojis 👦👩, the
+char methods like someString.charAt(0) or someString.substring(0,1) will break
+and give you only half the code point.
+
+<a target="_blank" rel="noopener noreferrer" href="https://docs.oracle.com/javase/tutorial/i18n/text/unicode.html">https://docs.oracle.com/javase/tutorial/i18n/text/unicode.html</a>
+    When the specification for the Java language was created, the Unicode standard
+    was accepted and the char primitive was defined as a 16-bit data type, with
+    characters in the hexadecimal range from 0x0000 to 0xFFFF.
+
+    Because 16-bit encoding supports 216 (65,536) characters, which is insufficient
+    to define all characters in use throughout the world, the Unicode standard was
+    extended to 0x10FFFF, which supports over one million characters. The definition
+    of a character in the Java programming language could not be changed from 16
+    bits to 32 bits without causing millions of Java applications to no longer run
+    properly. To correct the definition, a scheme was developed to handle characters
+    that could not be encoded in 16 bits.
+
+    The characters with values that are outside of the 16-bit range, and within the
+    range from 0x10000 to 0x10FFFF, are called supplementary characters and are
+    defined as a pair of char values.
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://openjdk.org/jeps/400">https://openjdk.org/jeps/400</a>
 JEP 400: UTF-8 by Default
 A quick way to see the default charset of the current JDK is with the following command:
@@ -2836,6 +2946,213 @@ System.out.println(ff + " = " + normalized);
 ---
 This will print
 ﬀ = ff
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/9699071/what-is-the-javas-internal-represention-for-string-modified-utf-8-utf-16">https://stackoverflow.com/questions/9699071/what-is-the-javas-internal-represention-for-string-modified-utf-8-utf-16</a>
+    You can confirm the following by looking at the source code of the relevant version of the java.lang.String class in OpenJDK.
+    Prior to Java 9, the standard in-memory representation for a Java String is UTF-16 code-units held in a char[].
+        private final char value[];
+    With Java 6 update 21 and later, there was a non-standard option (-XX:UseCompressedStrings) to enable compressed strings. This feature was removed in Java 7.
+    For Java 9 and later, the implementation of String has been changed to use a compact representation by default.
+        private final byte[] value;
+        private final byte coder;      // LATIN1 (0) or UTF16 (1)
+
+    <a target="_blank" rel="noopener noreferrer" href="https://docs.oracle.com/en/java/javase/20/docs/specs/man/java.html#advanced-runtime-options-for-java">https://docs.oracle.com/en/java/javase/20/docs/specs/man/java.html#advanced-runtime-options-for-java</a>
+    -XX:-CompactStrings
+    Disables the Compact Strings feature.
+    By default, this option is enabled.
+    When this option is enabled, Java Strings containing only single-byte characters are internally represented
+    and stored as single-byte-per-character Strings using ISO-8859-1 / Latin-1 encoding.
+    This reduces, by 50%, the amount of space required for Strings containing only single-byte characters.
+    For Java Strings containing at least one multibyte character:
+    these are represented and stored as 2 bytes per character using UTF-16 encoding.
+    Disabling the Compact Strings feature forces the use of UTF-16 encoding as the internal representation for all Java Strings.
+
+    As of 2023, see JEP 254: Compact Strings <a target="_blank" rel="noopener noreferrer" href="https://openjdk.org/jeps/254">https://openjdk.org/jeps/254</a>
+    <a target="_blank" rel="noopener noreferrer" href="https://howtodoinjava.com/java9/compact-strings/">https://howtodoinjava.com/java9/compact-strings/</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/44178432/difference-between-compact-strings-and-compressed-strings-in-java-9">https://stackoverflow.com/questions/44178432/difference-between-compact-strings-and-compressed-strings-in-java-9</a>
+    In Java 9 on the other hand, compact strings are fully integrated into the JDK source.
+    String is always backed by byte[], where characters use one byte if they are Latin-1 and otherwise two.
+    Most operations do a check to see which is the case, e.g. charAt:
+
+        public char charAt(int index) {
+            if (isLatin1()) {
+                return StringLatin1.charAt(value, index);
+            } else {
+                return StringUTF16.charAt(value, index);
+            }
+        }
+
+    Compact strings are enabled by default and can be partially disabled - "partially"
+    because they are still backed by a byte[] and operations returning chars must still
+    put them together from two separate bytes
+
+    public int length() {
+        return value.length &gt;&gt; coder();
+    }
+    If our String is Latin1 only, coder is going to be zero, so length of value (the byte array) is the size of chars.
+    For non-Latin1 divide by two.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.baeldung.com/java-string-encode-utf-8">https://www.baeldung.com/java-string-encode-utf-8</a>
+Encoding With Core Java
+    // First, we get the String bytes, and then we create a new one using the retrieved bytes and the desired charset:
+    String rawString = "Entwickeln Sie mit Vergnügen";
+    byte[] bytes = rawString.getBytes(StandardCharsets.UTF_8);
+    String utf8EncodedString = new String(bytes, StandardCharsets.UTF_8);
+    assertEquals(rawString, utf8EncodedString);
+Encoding With Java 7 StandardCharsets
+    // First, we'll encode the String into bytes, and second, we'll decode it into a UTF-8 String:
+    String rawString = "Entwickeln Sie mit Vergnügen";
+    ByteBuffer buffer = StandardCharsets.UTF_8.encode(rawString);
+    String utf8EncodedString = StandardCharsets.UTF_8.decode(buffer).toString();
+    assertEquals(rawString, utf8EncodedString);
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.baeldung.com/java-string-to-byte-array">https://www.baeldung.com/java-string-to-byte-array</a>
+Convert String to Byte Array and Reverse in Java
+    Converting a String to Byte Array
+        A String is stored as an array of Unicode characters in Java.
+        To convert it to a byte array, we translate the sequence of characters into a sequence of bytes.
+        For this translation, we use an instance of Charset.
+        This class specifies a mapping between a sequence of chars and a sequence of bytes.
+        We refer to the above process as encoding.
+
+        Using String.getBytes()
+            The String class provides three overloaded getBytes methods to encode a String into a byte array:
+                - getBytes() – encodes using platform's default charset
+                    ---
+                    String inputString = "Hello World!";
+                    byte[] byteArrray = inputString.getBytes();
+                    ---
+                    The above method is platform-dependent, as it uses the platform's default charset. We can get this charset by calling Charset.defaultCharset().
+                - getBytes (String charsetName) – encodes using the named charset
+                - getBytes (Charset charset) – encodes using the provided charset
+
+        Using Charset.encode()
+            The Charset class provides encode(), a convenient method that encodes Unicode characters into bytes.
+            This method always replaces invalid input and unmappable-characters using the charset's default replacement byte array.
+                ---
+                String inputString = "Hello ਸੰਸਾਰ!";
+                Charset charset = StandardCharsets.US_ASCII;
+                byte[] byteArrray = charset.encode(inputString).array();
+                ---
+
+        CharsetEncoder
+            CharsetEncoder transforms Unicode characters into a sequence of bytes for a given charset.
+            Moreover, it provides fine-grained control over the encoding process.
+                ---
+                String inputString = "Hello ਸੰਸਾਰ!";
+                CharsetEncoder encoder = StandardCharsets.US_ASCII.newEncoder();
+                encoder.onMalformedInput(CodingErrorAction.IGNORE)
+                  .onUnmappableCharacter(CodingErrorAction.REPLACE)
+                  .replaceWith(new byte[] { 0 });
+                byte[] byteArrray = encoder.encode(CharBuffer.wrap(inputString)).array();
+                ---
+
+    Converting a Byte Array to String
+        We refer to the process of converting a byte array to a String as decoding.
+        Similar to encoding, this process requires a Charset.
+        However, we can't just use any charset for decoding a byte array.
+        In particular, we should use the charset that encoded the String into the byte array.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://retrocomputing.stackexchange.com/questions/26535/why-do-java-classfiles-and-jni-use-a-frankensteins-monster-encoding-crossin">https://retrocomputing.stackexchange.com/questions/26535/why-do-java-classfiles-and-jni-use-a-frankensteins-monster-encoding-crossin</a>
+Why do Java classfiles (and JNI) use a "Frankenstein's monster" encoding crossing UTF-8 and UTF-16?
+jlf: interesting for the history. If I understand correctly, Java uses the CESU-8
+encoding to store strings in classfiles and JNI payloads.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/CESU-8">https://en.wikipedia.org/wiki/CESU-8</a>
+CESU-8 = Compatibility Encoding Scheme for UTF-16: 8-Bit
+- A Unicode code point from the Basic Multilingual Plane (BMP), i.e. a code point
+  in the range U+0000 to U+FFFF, is encoded in the same way as in UTF-8
+- A Unicode supplementary character, i.e. a code point in the range U+10000 to
+  U+10FFFF, is first represented as a surrogate pair, like in UTF-16, and then each
+  surrogate code point is encoded in UTF-8. Therefore, CESU-8 needs six bytes (3
+  bytes per surrogate) for each Unicode supplementary character while UTF-8 needs only four.
+CESU-8 is not an official part of the Unicode Standard, because Unicode Technical
+Reports are informative documents only. It should be used exclusively for internal
+processing and never for external data exchange.
+Supporting CESU-8 in HTML documents is prohibited by the W3C and WHATWG HTML
+standards, as it would present a cross-site scripting vulnerability.
+
+
+What is the level of support of surrogates?
+    Java.lang.Character.isSurrogatePair()
+    Java.lang.Character.toCodePoint(char high, char low) : int
+    String.codePointAt()
+    Character.codePointAt()
+
+
+<a target="_blank" rel="noopener noreferrer" href="http://hauchee.blogspot.com/2015/05/surrogate-characters-mechanism.html">http://hauchee.blogspot.com/2015/05/surrogate-characters-mechanism.html</a>
+    Neither String or StringBuilder working properly. To avoid the issue above, use
+    java.text.BreakIterator to determine the correct position.
+    jlf: the code below show how to pass from logical position to real position.
+        public static void main(String[] args) {
+            String text = "a\uD834\uDD60s\uD834\uDD60\uD834\uDD60©₂"; // text: a텠s텠텠©₂
+            int startIndex = 2;
+            int endIndex = 5;
+
+            BreakIterator charIterator = BreakIterator.getCharacterInstance();
+            System.out.println(
+                    subString(charIterator, text, startIndex, endIndex)); // output: s텠텠
+        }
+
+        private static String subString(BreakIterator charIterator,
+                String target, int start, int end) {
+            int realStart = 0;
+            int realEnd = 0;
+            charIterator.setText(target);
+            int boundary = charIterator.first();
+            int i = 0;
+            while (boundary != BreakIterator.DONE) {
+                if (i == start) {
+                    realStart = boundary;
+                }
+                if (i == end) {
+                    realEnd = boundary;
+                    break;
+                }
+                boundary = charIterator.next();
+                i++;
+            }
+            return target.substring(realStart, realEnd);
+        }
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/s-u/rJava/issues/51">https://github.com/s-u/rJava/issues/51</a>
+    R to Java interface
+    Error on UTF-16 surrogate pairs
+    Java uses UTF-16 internally and encodes Unicode characters above U+FFFF with
+    surrogate pairs. When strings containing such characters are converted to UTF-8
+    by rJava they are encoded as a pair of 3 byte sequences rather than as the correct
+    4 byte sequence. This is not valid UTF-8 and will result in "invalid multibyte string" errors.
+    <a target="_blank" rel="noopener noreferrer" href="http://unicode.org/faq/utf_bom.html#utf8-4">http://unicode.org/faq/utf_bom.html#utf8-4</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://bugs.openjdk.org/browse/JDK-8291660">https://bugs.openjdk.org/browse/JDK-8291660</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://youtrack.jetbrains.com/issue/IDEA-197555">https://youtrack.jetbrains.com/issue/IDEA-197555</a>
+\b{g} not supported in regex
+In the docs for java.util.regex.Pattern (<a target="_blank" rel="noopener noreferrer" href="https://docs.oracle.com/javase/10/docs/api/java/util/regex/Pattern.html):">https://docs.oracle.com/javase/10/docs/api/java/util/regex/Pattern.html):</a>
+\b{g} is listed under the “Boundary matchers” section: “\b{g} A Unicode extended grapheme cluster boundary”
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.reddit.com/r/LanguageTechnology/comments/af0ice/seeking_lightweight_java_graphemetophoneme_g2p/">https://www.reddit.com/r/LanguageTechnology/comments/af0ice/seeking_lightweight_java_graphemetophoneme_g2p/</a>
+Seeking lightweight Java grapheme-to-phoneme (G2P) model
+Succeeded at getting jg2p working. It's doing pretty well in terms of
+pronunciation quality but the model is very large for an Android app and takes
+forever to load.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/steveash/jg2p/">https://github.com/steveash/jg2p/</a>
+jg2p
+Java implementation of a general grapheme to phoneme toolkit using a pipeline of
+CRFs, a log-loss re-ranker, and a joint "graphone" language model.
 
 
 <hr><h2 id="JavaScript_lang">JavaScript lang</h2><hr>
@@ -3190,6 +3507,18 @@ At the begining, there are a few minutes about character properties.
 
 
 <hr><h2 id="MOAR_VM_RAKU_lang">MOAR-VM RAKU lang</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://docs.raku.org/language/unicode">https://docs.raku.org/language/unicode</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/MoarVM/MoarVM/blob/master/docs/strings.asciidoc">https://github.com/MoarVM/MoarVM/blob/master/docs/strings.asciidoc</a>
+MoarVM string documentation.
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.codesections.com/blog/raku-unicode/">https://www.codesections.com/blog/raku-unicode/</a>
+A deep dive into Raku's Unicode support
+Grepping for "Unicode Character Database" brings us to unicode_db.c.
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/MoarVM/MoarVM/blob/master/src/strings/unicode_db.c">https://github.com/MoarVM/MoarVM/blob/master/src/strings/unicode_db.c</a>
+
+
 29/05/2021
 <a target="_blank" rel="noopener noreferrer" href="http://moarvm.com/releases.html">http://moarvm.com/releases.html</a>
     2017.07
@@ -3284,6 +3613,142 @@ Normalization
 NFG
     Normalization Form Grapheme. Similar to NFC except graphemes which contain multiple codepoints
     are stored in Synthetic graphemes.
+
+
+<hr><h2 id="netrexx_lang">netrexx lang</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://groups.io/g/netrexx/topic/93734685">https://groups.io/g/netrexx/topic/93734685</a>
+Unicode Examples
+
+
+(this not NetRexx, but this answer is useful for NetRexx)
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/63410278/code-point-and-utf-16-code-units-are-the-same-thing">https://stackoverflow.com/questions/63410278/code-point-and-utf-16-code-units-are-the-same-thing</a>
+    code point and UTF-16 code units are the same thing?
+
+    No, they are different.
+    I know, MDN uses the rarely used "code units" term, which confuses people a lot.
+
+    Code points are the number given to a Unicode element (character).
+    This is independent to the encoding, and it can be as high as 0x​10FFFF.
+    UTF-32 code units are equivalent to Unicode code points (if you are using the correct endianess).
+
+    Code units in UTF-16 are units of 16bit data.
+    UTF-16 uses 1 or 2 code units to describe a code point, depending on its value.
+
+    Code points below (or equal) to 0xFFFF (the old limit/expectation of Unicode
+    that such numbers were enough to encode all characters) use just 1 code unit,
+    and its value is the same as the code point.
+
+    Unicode expanded the code point space, so now code points between 0x010000..0x10FFFF require 2 code units
+    (and we use "surrogates" to encode such characters), 4 bytes total.
+
+    So, code points are not the same as code units.
+    For UTF-16, code units are 16bit long, and code points could be 1 or 2 code units.
+
+
+(this is JavaScript, but this answer is useful for NetRexx)
+<a target="_blank" rel="noopener noreferrer" href="https://exploringjs.com/impatient-js/ch_unicode.html#:~:text=Code%20units%20are%20numbers%20that,has%208%2Dbit%20code%20units.">https://exploringjs.com/impatient-js/ch_unicode.html#:~:text=Code%20units%20are%20numbers%20that,has%208%2Dbit%20code%20units.</a>
+    each UTF-16 code unit is always either a leading surrogate, a trailing surrogate, or encodes a BMP code point
+    BMP = Basic Multilingual Plane (0x0000–0xFFFF)
+
+
+(this is JavaScript, but this answer is useful for NetRexx)
+<a target="_blank" rel="noopener noreferrer" href="https://www.w3schools.com/jsref/jsref_codepointat.asp#:~:text=Difference%20Between%20charCodeAt()%20and%20codePointAt()&text=charCodeAt()%20returns%20a%20number,value%20greather%200xFFFF%20(65535).">https://www.w3schools.com/jsref/jsref_codepointat.asp#:~:text=Difference%20Between%20charCodeAt()%20and%20codePointAt()&text=charCodeAt()%20returns%20a%20number,value%20greather%200xFFFF%20(65535).</a>
+Difference Between charCodeAt() and codePointAt()
+    charCodeAt() is UTF-16, codePointAt() is Unicode.
+    charCodeAt() returns a number between 0 and 65535.
+    Both methods return an integer representing the UTF-16 code of a character,
+    but only codePointAt() can return the full value of a Unicode value greather 0xFFFF (65535).
+
+
+(this is Unicode, but this answer is useful for NetRexx)
+<a target="_blank" rel="noopener noreferrer" href="https://unicode.org/faq/utf_bom.html#:~:text=Surrogates%20are%20code%20points%20from,DC0016%20to%20DFFF16.">https://unicode.org/faq/utf_bom.html#:~:text=Surrogates%20are%20code%20points%20from,DC0016%20to%20DFFF16.</a>
+    What are surrogates?
+        Surrogates are code points from two special ranges of Unicode values, reserved
+        for use as the leading, and trailing values of paired code units in UTF-16.
+        Leading surrogates, also called high surrogates, are encoded from D80016 to DBFF16,
+        and trailing surrogates, or low surrogates, from DC0016 to DFFF16.
+        They are called surrogates, since they do not represent characters directly, but only as a pair.
+
+    What is the difference between UCS-2 and UTF-16?
+        UCS-2 is obsolete terminology which refers to a Unicode implementation up to Unicode 1.1,
+        before surrogate code points and UTF-16 were added to Version 2.0 of the standard. This term should now be avoided.
+        UCS-2 does not describe a data format distinct from UTF-16, because both use exactly the same 16-bit code unit representations.
+        However, UCS-2 does not interpret surrogate code points, and thus cannot be used to conformantly represent supplementary characters.
+        Sometimes in the past an implementation has been labeled “UCS-2” to indicate that it does not support supplementary characters
+        and doesn’t interpret pairs of surrogate code points as characters.
+        Such an implementation would not handle processing of character properties,
+        code point boundaries, collation, etc. for supplementary characters, nor would it
+        be able to support most emoji, for example. [AF]
+
+
+(this is Unicode, but this answer is useful for NetRexx)
+Unicode standard
+    How the word "surrogate" is used
+        surrogate pair
+        surrogate code unit
+        surrogate code point
+        leading surrogate
+        trailing surrogate
+        high-surrogate code point
+        high-surrogate code unit
+        low-surrogate code point
+        low-surrogate code unit
+
+    Surrogates
+        D71
+        High-surrogate code point: A Unicode code point in the range U+D800 to U+DBFF.
+
+        D72
+        High-surrogate code unit: A 16-bit code unit in the range D80016 to DBFF16, used in
+        UTF-16 as the leading code unit of a surrogate pair.
+
+        D73
+        Low-surrogate code point: A Unicode code point in the range U+DC00 to U+DFFF.
+
+        D74
+        Low-surrogate code unit: A 16-bit code unit in the range DC0016 to DFFF16,
+        used in UTF-16 as the trailing code unit of a surrogate pair.
+
+    UTF-16
+        In the UTF-16 encoding form, non-surrogate code points in the range U+0000..U+FFFF
+        are represented as a single 16-bit code unit; code points in the supplementary planes,
+        in the range U+10000..U+10FFFF, are represented as pairs of 16-bit code units.
+        These pairs of special code units are known as surrogate pairs. The values of the code units
+        used for surro- gate pairs are completely disjunct from the code units used for the
+        single code unit representations, thus maintaining non-overlap for all code point representations in UTF-16.
+
+    Code Points Unassigned to Abstract Characters
+        C1
+        A process shall not interpret a high-surrogate code point or a low-surrogate code point as an abstract character.
+        • The high-surrogate and low-surrogate code points are designated for surrogate code units in the UTF-16 character encoding form.
+          They are unassigned to any abstract character.
+
+
+(this is Java, but this answer is useful for NetRexx)
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/39955169/which-encoding-does-java-uses-utf-8-or-utf-16/39957184#39957184">https://stackoverflow.com/questions/39955169/which-encoding-does-java-uses-utf-8-or-utf-16/39957184#39957184</a>
+Which encoding does Java uses UTF-8 or UTF-16?
+    Note that
+    new String(bytes, StandardCharsets.UTF_16);
+    does not "convert it to UTF-16 explicitly".
+    This string constructor takes a sequence of bytes, which is supposed to be in
+    the encoding that you have given in the second argument, and converts it to the
+    UTF-16 representation of whatever characters those bytes represent in that encoding.
+
+    You can't tell Java how to internally store strings.
+    It always stores them as UTF-16.
+    The constructor String(byte[],Charset) tells Java to create a UTF-16 string from
+    an array of bytes that is supposed to be in the given character set.
+    The method getBytes(Charset) tells Java to give you a sequence of bytes that
+    represent the string in the given encoding (charset).
+    And the method getBytes() without an argument does the same - but uses your
+    platform's default character set for the conversion.
+
+    Edit: in fact, Java 9 introduced just such a change in internal representation
+    of strings, where, by default, strings whose characters all fall in the ISO-8859-1
+    range are internally represented in ISO-8859-1, whereas strings with at least one
+    character outside that range are internally represented in UTF-16 as before.
+    So indeed, getBytes(StandardCharsets.UTF_16) no longer returns the internal representation.
+
 
 <hr><h2 id="Oracle">Oracle</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://docs.oracle.com/database/121/NLSPG/ch5lingsort.htm#NLSPG288">https://docs.oracle.com/database/121/NLSPG/ch5lingsort.htm#NLSPG288</a>
@@ -3856,6 +4321,12 @@ Unicode Collation Algorithm
 
 
 <hr><h2 id="Swift_lang">Swift lang</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/apple/swift-evolution/blob/main/proposals/0363-unicode-for-string-processing.md">https://github.com/apple/swift-evolution/blob/main/proposals/0363-unicode-for-string-processing.md</a>
+Proposal: Unicode for String Processing
+This proposal describes Regex's rich Unicode support during regex matching,
+along with the character classes and options that define and modify that behavior.
+This proposal is one component of a larger regex-powered string processing initiative.
+
 
 <a target="_blank" rel="noopener noreferrer" href="https://docs.swift.org/swift-book/documentation/the-swift-programming-language/stringsandcharacters/">https://docs.swift.org/swift-book/documentation/the-swift-programming-language/stringsandcharacters/</a>
 Strings and Characters
@@ -3928,7 +4399,7 @@ milseman Michael Ilseman added a comment - 5 Nov 2018 3:44 PM
 
 
 13/06/2021
-<a target="_blank" rel="noopener noreferrer" href="https://github.com/apple/swift-evolution/blob/master/proposals/0211-unicode-scalar-properties.md">https://github.com/apple/swift-evolution/blob/master/proposals/0211-unicode-scalar-properties.md</a>
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/apple/swift-evolution/blob/main/proposals/0211-unicode-scalar-properties.md">https://github.com/apple/swift-evolution/blob/main/proposals/0211-unicode-scalar-properties.md</a>
 Add Unicode Properties to Unicode.Scalar
     Issues Linking with ICU
     The Swift standard library uses the system's ICU libraries to implement its Unicode support.
