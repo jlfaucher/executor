@@ -951,6 +951,25 @@ Devanagari vowels in this example:
      4 : 'E0A4AF E0A582'
 
 
+Negator '¬'
+In some code pages Not is 'AA'X, in others 'AC'X. In Unicode it's U+00AC ('C2AC'X in UTF-8).
+Z/OS port of Regina REXX
+    533 $ locale
+    LC_COLLATE="en_US.UTF-8"
+
+        trace R; parse version .
+        1 *-* parse version .
+    .>   "REXX-Regina_3.9.5(MT) 5.00 25 Jun 2022"
+
+    I have no displayable '¬' that works with that Regina, but:
+       "trace R; parse source .; interpret 'say' 'ac'x 0
+        1 *-* parse source .
+    .>   "UNIX SUBROUTINE /tmp/Linux-4.19.0-24-amd64-paulgilm/Rx_4088"
+          *-* interpret 'say' 'ac'x 0
+          *-* interpret 'say' 'ac'x 0
+    1
+
+
 ================================================================================
 ooRexx5 optimizations
 ================================================================================
