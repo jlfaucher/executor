@@ -1,4 +1,9 @@
 In relation with extensions of predefined classes in ooRexx.
+The title "Expression problem" is not good for ooRexx because it's about static
+type safety (e.g., no casts)
+https://en.wikipedia.org/wiki/Expression_problem
+Adding "Extension" in the title.
+
 
 --------------------------------------------------------------------------------
 Monkey-patching
@@ -38,10 +43,44 @@ limit the effect of those extensions to a particular area of code.
 
 --------------------------------------------------------------------------------
 
-https://developer.apple.com/library/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Extensions.html#//apple_ref/doc/uid/TP40014097-CH24-ID151
+https://docs.swift.org/swift-book/documentation/the-swift-programming-language/extensions/
 Extensions add new functionality to an existing class, structure, enumeration, or protocol type.
 This includes the ability to extend types for which you do not have access to the original source code (known as retroactive modeling).
 Extensions can add new functionality to a type, but they cannot override existing functionality.
+---
+Note
+Extensions can add new computed properties, but they can’t add stored properties,
+or add property observers to existing properties.
+jlf: ooRexx is more powerful because it's possible to add stored proprties.
+That is the killer feature! Any object, including an instance of predefined
+class, and the class itself, has a pool of variables.
+
+https://docs.swift.org/swift-book/documentation/the-swift-programming-language/protocols/#Protocol-Extensions
+Swift Protocol Extensions
+
+
+https://stackoverflow.com/questions/37104683/are-there-other-languages-that-have-something-like-swifts-extensions
+Swift extensions are not monkey patching.
+
+
+--------------------------------------------------------------------------------
+
+
+https://www.reddit.com/r/Kotlin/comments/de6o4e/kotlin_extension_functions_vs_ruby_and_java/
+kotlin extension functions vs ruby and java script monkey patching?
+It is not the same.
+First, for you to use an extension function, you need to import it.
+Second, they don't show up if you use reflection to look at the class.
+Third, since you are actually not modifying the class, you can have 2 extension
+methods with the same name and signature in the same program, and not have any
+error (let's say they are private, and are in libraries you are using).
+The way monkey patch works is like you said, by adding a new method to a class.
+The way extension functions work, is by creating a regular function, and just
+giving you a nice syntactic sugar for accessing it.
+
+
+--------------------------------------------------------------------------------
+
 
 http://adambard.com/blog/structured-clojure-protocols-and-multimethods/
 Structured clojure: Protocols and multimethods
@@ -70,8 +109,6 @@ http://cr.openjdk.java.net/~briangoetz/lambda/Defender%20Methods%20v4.pdf
 
 http://www.wiki.jvmlangsummit.com/images/7/71/2011_Goetz_Extension.pdf
 Virtual extension methods
-
-http://confluence.jetbrains.net/display/Kotlin/Extension+functions
 
 http://javascriptweblog.wordpress.com/2011/12/05/extending-javascript-natives/
 
