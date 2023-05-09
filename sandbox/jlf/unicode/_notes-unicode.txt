@@ -3784,8 +3784,8 @@ https://unicode.org/faq/utf_bom.html#:~:text=Surrogates%20are%20code%20points%20
     What are surrogates?
         Surrogates are code points from two special ranges of Unicode values, reserved
         for use as the leading, and trailing values of paired code units in UTF-16.
-        Leading surrogates, also called high surrogates, are encoded from D80016 to DBFF16,
-        and trailing surrogates, or low surrogates, from DC0016 to DFFF16.
+        Leading surrogates, also called high surrogates, are encoded from D800 to DBFF,
+        and trailing surrogates, or low surrogates, from DC00 to DFFF.
         They are called surrogates, since they do not represent characters directly, but only as a pair.
 
     What is the difference between UCS-2 and UTF-16?
@@ -3818,14 +3818,14 @@ Unicode standard
         High-surrogate code point: A Unicode code point in the range U+D800 to U+DBFF.
 
         D72
-        High-surrogate code unit: A 16-bit code unit in the range D80016 to DBFF16, used in
+        High-surrogate code unit: A 16-bit code unit in the range D800 to DBFF, used in
         UTF-16 as the leading code unit of a surrogate pair.
 
         D73
         Low-surrogate code point: A Unicode code point in the range U+DC00 to U+DFFF.
 
         D74
-        Low-surrogate code unit: A 16-bit code unit in the range DC0016 to DFFF16,
+        Low-surrogate code unit: A 16-bit code unit in the range DC00 to DFFF,
         used in UTF-16 as the trailing code unit of a surrogate pair.
 
     UTF-16
@@ -4504,6 +4504,22 @@ A "workaround" to have direct access
 Which can be used just like that:
     let input = "Swift Tutorials"
     let char = input[3]
+
+
+https://gist.github.com/paultopia/6609780e7b53676b7dfc55736221cd23
+paultopia/monkey_patch_slicing_into_string.swift
+Another "workaround" to have direct access to the characters like that:
+    var s = "here is a boring string"
+    print(s.getCharList())
+    print(s[1])
+    print(s[-1])
+    print(s[0, 5])
+    print(s[5, 0])
+    print(s[3...6])
+    print(s[2..<10])
+    print(s[...15])
+    print(s[2...])
+    print(s[..<15])
 
 
 https://developer.apple.com/documentation/swift/unicode/canonicalcombiningclass
