@@ -1264,6 +1264,60 @@ Encoded strings - queries
 
 
 ================================================================================
+Why a pure attribute is 4 to 5 times faster than a method ?
+================================================================================
+
+::attribute
+no response yet...
+
+Executor
+-------
+
+void RexxSource::attributeDirective()
+    RexxString *name = token->value; /* get the string name               */
+    RexxString *internalname = this->commonString(name->upper());
+    RexxVariableBase *retriever = this->getRetriever(name);
+                    createAttributeGetterMethod(internalname, retriever, Class, Private == PRIVATE_SCOPE,
+                        Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
+
+
+void RexxSource::createAttributeGetterMethod(RexxString *name, RexxVariableBase *retriever,
+    bool classMethod, bool privateMethod, bool protectedMethod, bool guardedMethod)
+{
+    // create the kernel method for the accessor
+    BaseCode *code = new AttributeGetterCode(retriever);
+    RexxMethod *_method = new RexxMethod(name, code);
+    _method->setAttributes(privateMethod, protectedMethod, guardedMethod);
+    // add this to the target
+    addMethod(name, _method, classMethod);
+}
+
+
+ooRexx5
+-------
+
+void LanguageParser::attributeDirective()
+    RexxString *name = token->value();
+    RexxString *internalname = commonString(name->upper());
+    RexxVariableBase *retriever = getRetriever(name);
+                createAttributeGetterMethod(internalname, retriever, isClass, accessFlag, protectedFlag, guardFlag);
+
+
+void LanguageParser::createAttributeGetterMethod(RexxString *name, RexxVariableBase *retriever,
+    bool classMethod, AccessFlag privateMethod, ProtectedFlag protectedMethod, GuardFlag guardedMethod)
+{
+    // create the kernel method for the accessor
+    Protected<BaseCode> code = new AttributeGetterCode(retriever);
+    Protected<MethodClass> _method = new MethodClass(name, code);
+    _method->setAttributes(privateMethod, protectedMethod, guardedMethod);
+    // mark as an attribute method
+    _method->setAttribute();
+    // add this to the target
+    addMethod(name, _method, classMethod);
+}
+
+
+================================================================================
 ooRexx5 optimizations
 ================================================================================
 
