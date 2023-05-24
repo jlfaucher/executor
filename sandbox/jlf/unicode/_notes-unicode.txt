@@ -295,6 +295,16 @@ Question
     I am particulary interested in ‘ru’: why U+2212 is not used for it?
 
 
+https://stackoverflow.com/questions/10143836/why-is-there-no-utf-24
+Why is there no UTF-24? [duplicate]
+Well, the truth is : UTF-24 was suggested in 2007 :
+http://unicode.org/mail-arch/unicode-ml/y2007-m01/0057.html
+
+Possible Duplicate:
+Why UTF-32 exists whereas only 21 bits are necessary to encode every character?
+https://stackoverflow.com/questions/6339756/why-utf-32-exists-whereas-only-21-bits-are-necessary-to-encode-every-character
+
+
 ================================================================================
 U+ notation, Unicode escape sequence
 ================================================================================
@@ -469,6 +479,19 @@ It accepts text from stdin, and writes one word (token) per line to stdout.
 Normalization, equivalence
 ================================================================================
 
+https://unicode.org/faq/normalization.html
+Normalization FAQ
+
+
+https://www.macchiato.com/unicode-intl-sw/nfc-faq
+NFC FAQ
+jlf: MUST READ!
+
+
+https://www.unicode.org/reports/tr15
+UNICODE NORMALIZATION FORMS
+
+
 26/11/2013
 Text normalization in Go
 https://blog.golang.org/normalization
@@ -561,11 +584,6 @@ NFKC    Les caractères sont décomposés par équivalence canonique et de compa
         compatibility decomposition followed by canonical composition
 FCD     "Fast C or D" form; cf. UTN #5
 FCC     "Fast C Contiguous"; cf. UTN #5
-
-
-https://www.macchiato.com/unicode-intl-sw/nfc-faq
-NFC FAQ
-jlf: MUST READ!
 
 
 09/06/2021
@@ -2453,6 +2471,7 @@ Z/OS
 ================================================================================
 
 https://www.ibm.com/docs/en/zos/2.3.0?topic=mvs-zos-unicode-services-users-guide-reference
+https://www.ibm.com/docs/en/zos/2.4.0?topic=mvs-zos-unicode-services-users-guide-reference
 Unicode services
 
 
@@ -2761,6 +2780,26 @@ Of the 128 bits per entry, 22 bits are currently unused. It is also possible to
 compress a single entry. For example ccc is always zero for non-composing
 code-points, so it could share those bits with properties that are only allowed
 for non-composing code-points.
+
+
+================================================================================
+cRexx lang
+================================================================================
+
+cRexx uses this library:
+https://github.com/sheredom/utf8.h
+---
+Codepoint Case
+Various functions provided will do case insensitive compares, or transform utf8
+strings from one case to another. Given the vastness of unicode, and the authors
+lack of understanding beyond latin codepoints on whether case means anything,
+the following categories are the only ones that will be checked in case insensitive code:
+    ASCII
+    Latin-1 Supplement
+    Latin Extended-A
+    Latin Extended-B
+    Greek and Coptic
+    Cyrillic
 
 
 ================================================================================
@@ -3623,9 +3662,6 @@ At the begining, there are a few minutes about character properties.
 MOAR-VM RAKU lang
 ================================================================================
 
-https://docs.raku.org/language/unicode
-
-
 https://github.com/MoarVM/MoarVM/blob/master/docs/strings.asciidoc
 MoarVM string documentation.
 
@@ -3867,6 +3903,60 @@ Which encoding does Java uses UTF-8 or UTF-16?
     range are internally represented in ISO-8859-1, whereas strings with at least one
     character outside that range are internally represented in UTF-16 as before.
     So indeed, getBytes(StandardCharsets.UTF_16) no longer returns the internal representation.
+
+
+(this thread contains answers useful for NetRexx)
+https://lucumr.pocoo.org/2014/1/9/ucs-vs-utf8/
+UCS vs UTF-8 as Internal String Encoding
+jlf: Very good introduction 100% applicable to NetRexx
+
+https://news.ycombinator.com/item?id=9618306
+jlf: comments about the blog above.
+Interesting comments about the need or non-need to have direct access to code
+units or "characters" in constant time.
+---
+Unicode provides 3 classes of grapheme clusters (legacy, extended and tailored)
+at least one of which (tailored) is locale-dependent (`ch` is a single tailored
+grapheme cluster under the Slovak locale, because it's the ch digraph).
+---
+A text-editing control is thinking in terms of "grapheme clusters", not in terms
+of codepoints.
+jlf: not true. BBEdit works at codepoint level.
+👩‍👨‍👩‍👧🎅
+2 graphemes, 8 codepoints, 29 bytes
+c2x = 'F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7 F09F8E85'
+c2u = 'U+1F469 U+200D U+1F468 U+200D U+1F469 U+200D U+1F467 U+1F385'
+c2g = 'F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7 F09F8E85'
+In BBEdit, I see 8 "characters" and can move the cursor between each "character".
+The ZERO WIDTH JOINER codepoints are visible.
+In VSCode, I see 2 "characters".
+---
+What is the practicality of an unbounded number of possible graphemes?
+The standard itself doesn't mention any bounds but there is Unicode Standard Annex #15 -
+Unicode Normalization Forms which defines the Stream-Safe Text Format.
+    UAX15-D3. Stream-Safe Text Format: A Unicode string is said to be in
+    Stream-Safe Text Format if it would not contain any sequences of
+    non-starters longer than 30 characters in length when normalized
+    to NFKD.
+---
+This sub-part of the thread is exactly what we are discussing for NetRexx
+https://news.ycombinator.com/item?id=9620112
+---
+jlf: next description is exactly what I do in the Executor prototype.
+What you really want is constant-time dereferencing of designators for semantically
+meaningful substrings. But no language AFAIK actually has that. The fundamental
+problem is that most languages have painted themselves into a corner by carving
+into stone the fact that strings can be dereferenced by integers. Once you've
+done that, you're pretty much screwed. It's not that you can't make it work,
+it's just that it requires an awful lot of machinery. You basically need to build
+an index for every string you construct, and that can get very expensive.
+Fixed-width representations are a less-than-perfect-but-still-not-entirely-unreasonable
+engineering solution to this problem.
+
+
+(this is Python, but this link could be useful for NetRexx c2x and x2c)
+https://docs.python.org/3/library/struct.html
+Interpret bytes as packed binary data
 
 
 ================================================================================
@@ -4190,6 +4280,14 @@ Interesting infos about caseless matching
 
 https://gist.github.com/dpk/8325992
 PyICU cheat sheet
+
+
+10/05/2023
+https://bugs.python.org/issue12729
+Python lib re cannot handle Unicode properly due to narrow/wide bug
+jlf: TODO not yet read, but seems interesting.
+I found this link thanks to https://news.ycombinator.com/item?id=9618306 (referenced
+in the NetRexx section)
 
 
 ================================================================================
