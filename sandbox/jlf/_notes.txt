@@ -982,6 +982,288 @@ Z/OS port of Regina REXX
 
 
 ================================================================================
+Encoded strings - queries
+================================================================================
+
+-- List the classes implemented by the package text.cls.
+-- All these classes are mixin classes.
+?c = (text.cls)
+    .M         'EncodedMutableBuffer'                           : (text.cls)
+    .M         'EncodedString'                                  : (text.cls)
+    .M         'RexxTextContents'                               : (text.cls)
+    .M         'RexxTextInitializer'                            : (text.cls)
+    .M         'RexxTextOperators'                              : (text.cls)
+    .M         'RexxTextPrettyPrinter'                          : (text.cls)
+    .M         'RexxTextStringInterface'                        : (text.cls)
+
+
+-- List the methods of the classes implemented by the package text.cls
+-- We retrieve the mixin classes listed by the previous query, plus the Object class for which a direct extension is applied.
+-- Not listed here (220 lines)
+?cm = (text.cls)
+
+
+-- List the Object's method added by text.cls
+-- No need of ?cmi because Object can"t be extended by inheritance
+?cm Object = (text.cls)
+    P. P.G.    'ISCOMPATIBLEWITHBYTESTRING'  : 'Object' 'Object' (text.cls)
+    P. PCG.    'ISCOMPATIBLEWITHBYTESTRING'  : 'Object' 'Object' (text.cls)
+    P. PCG.    'ISTEXTORBUFFERORSTRING'      : 'Object' 'Object' (text.cls)
+    P. P.G.    'ISTEXTORBUFFERORSTRING'      : 'Object' 'Object' (text.cls)
+    P. PCG.    'REQUESTTEXTORBUFFERORSTRING' : 'Object' 'Object' (text.cls)
+    P. P.G.    'REQUESTTEXTORBUFFERORSTRING' : 'Object' 'Object' (text.cls)
+
+
+-- List the String's method added by text.cls
+?cmi String = (text.cls)
+    P. P.G.    'COPY'                        : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'DESCRIPTION'                 : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'DESCRIPTIONFORERROR'         : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'ENCODING'                    : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'ENCODING='                   : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'HASENCODING'                 : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'HASTEXT'                     : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'ISCOMPATIBLEWITHASCII'       : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'ISCOMPATIBLEWITHBYTESTRING'  : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'ISCOMPATIBLEWITHBYTESTRING'  : 'String' 'Object' (text.cls)
+    P. PCG.    'ISCOMPATIBLEWITHBYTESTRING'  : 'String' 'Object' (text.cls)
+    P. P.G.    'ISTEXTORBUFFERORSTRING'      : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'ISTEXTORBUFFERORSTRING'      : 'String' 'Object' (text.cls)
+    P. PCG.    'ISTEXTORBUFFERORSTRING'      : 'String' 'Object' (text.cls)
+    P. P.G.    'MAKEREXXTEXT'                : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'MAKEREXXTEXTORSTRING'        : 'String' 'EncodedString' (text.cls)
+    P. PCG.    'REQUESTTEXTORBUFFERORSTRING' : 'String' 'Object' (text.cls)
+    P. P.G.    'REQUESTTEXTORBUFFERORSTRING' : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'REQUESTTEXTORBUFFERORSTRING' : 'String' 'Object' (text.cls)
+    P. P.G.    'TEXT'                        : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'TEXT='                       : 'String' 'EncodedString' (text.cls)
+
+-- List the MutableBuffer's method added by text.cls
+?cmi MutableBuffer = (text.cls)
+    P. P.G.    'DESCRIPTION'                 : 'MutableBuffer' 'EncodedMutableBuffer' (text.cls)
+    P. P.G.    'DESCRIPTIONFORERROR'         : 'MutableBuffer' 'EncodedMutableBuffer' (text.cls)
+    P. P.G.    'ENCODING'                    : 'MutableBuffer' 'EncodedMutableBuffer' (text.cls)
+    P. P.G.    'ENCODING='                   : 'MutableBuffer' 'EncodedMutableBuffer' (text.cls)
+    P. P.G.    'HASENCODING'                 : 'MutableBuffer' 'EncodedMutableBuffer' (text.cls)
+    P. P.G.    'INIT_EXTENDED'               : 'MutableBuffer' 'EncodedMutableBuffer' (text.cls)
+    P. P.G.    'ISCOMPATIBLEWITHASCII'       : 'MutableBuffer' 'EncodedMutableBuffer' (text.cls)
+    P. P.G.    'ISCOMPATIBLEWITHBYTESTRING'  : 'MutableBuffer' 'Object' (text.cls)
+    P. PCG.    'ISCOMPATIBLEWITHBYTESTRING'  : 'MutableBuffer' 'Object' (text.cls)
+    P. PCG.    'ISTEXTORBUFFERORSTRING'      : 'MutableBuffer' 'Object' (text.cls)
+    P. P.G.    'ISTEXTORBUFFERORSTRING'      : 'MutableBuffer' 'EncodedMutableBuffer' (text.cls)
+    P. P.G.    'ISTEXTORBUFFERORSTRING'      : 'MutableBuffer' 'Object' (text.cls)
+    P. PCG.    'REQUESTTEXTORBUFFERORSTRING' : 'MutableBuffer' 'Object' (text.cls)
+    P. P.G.    'REQUESTTEXTORBUFFERORSTRING' : 'MutableBuffer' 'EncodedMutableBuffer' (text.cls)
+    P. P.G.    'REQUESTTEXTORBUFFERORSTRING' : 'MutableBuffer' 'Object' (text.cls)
+
+
+-- StringIndexer is a mixin class.
+-- List the classes that inherit from it: the supported encodings.
+.StringIndexer~pipe(.subclasses "recursive" | .sort | .console "item")
+    (The Byte_Encoding class)
+    (The CP1252_Encoding class)
+    (The ISO88591_Encoding class)
+    (The UTF16BE_Encoding class)
+    (The UTF16LE_Encoding class)
+    (The UTF32BE_Encoding class)
+    (The UTF32LE_Encoding class)
+    (The UTF8_Encoding class)
+    (The Unicode16_Encoding class)
+    (The Unicode32_Encoding class)
+    (The Unicode8_Encoding class)
+    (The WTF16BE_Encoding class)
+    (The WTF16LE_Encoding class)
+    (The WTF8_Encoding class)
+
+
+-- A supported encoding can have several aliases.
+.encoding~supported~table==
+    a Table (32 items)
+     819           : (The ISO88591_Encoding class)
+     8859          : (The ISO88591_Encoding class)
+     28591         : (The ISO88591_Encoding class)
+    'BYTE'         : (The Byte_Encoding class)
+    'BYTES'        : (The Byte_Encoding class)
+    'CP1252'       : (The CP1252_Encoding class)
+    'CP819'        : (The ISO88591_Encoding class)
+    'CSISOLATIN1'  : (The ISO88591_Encoding class)
+    'IBM819'       : (The ISO88591_Encoding class)
+    'ISO88591'     : (The ISO88591_Encoding class)
+    'ISOIR100'     : (The ISO88591_Encoding class)
+    'L1'           : (The ISO88591_Encoding class)
+    'LATIN'        : (The ISO88591_Encoding class)
+    'LATIN1'       : (The ISO88591_Encoding class)
+    'UNICODE'      : (The Unicode_Encoding class)
+    'UNICODE16'    : (The Unicode16_Encoding class)
+    'UNICODE32'    : (The Unicode32_Encoding class)
+    'UNICODE8'     : (The Unicode8_Encoding class)
+    'UTF16'        : (The UTF16BE_Encoding class)
+    'UTF16BE'      : (The UTF16BE_Encoding class)
+    'UTF16LE'      : (The UTF16LE_Encoding class)
+    'UTF32'        : (The UTF32BE_Encoding class)
+    'UTF32BE'      : (The UTF32BE_Encoding class)
+    'UTF32LE'      : (The UTF32LE_Encoding class)
+    'UTF8'         : (The UTF8_Encoding class)
+    'WE8ISO8859P1' : (The ISO88591_Encoding class)
+    'WINDOWS1252'  : (The CP1252_Encoding class)
+    'WINDOWS28591' : (The ISO88591_Encoding class)
+    'WTF16'        : (The WTF16BE_Encoding class)
+    'WTF16BE'      : (The WTF16BE_Encoding class)
+    'WTF16LE'      : (The WTF16LE_Encoding class)
+    'WTF8'         : (The WTF8_Encoding class)
+
+
+-- List the StringIndexer's methods (common interface for all the supported encodings)
+?cm StringIndexer
+    PM PCG.    'ANALYZE'                : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'APPENDTOBUFFER'         : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'ASENCODINGFOR'          : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'BYTESEQUENCESIZE'       : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'C2G'                    : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'C2U'                    : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'C2X'                    : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'CASE'                   : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'CASEFOLD'               : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'CHARACTERS'             : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'CHECKCODEPOINT'         : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'CODEPOINT'              : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'CODEPOINTCOUNT'         : 'StringIndexer' (stringIndexer.cls)
+    PM ..G.    'CODEPOINTINDEXES'       : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'CODEPOINTMAXBYTES'      : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'CODEPOINTS'             : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'CODEPOINTSIZEINBYTES'   : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'CODEPOINTTOLOWERFULL'   : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'CODEPOINTTOLOWERSIMPLE' : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'CODEPOINTTOTITLEFULL'   : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'CODEPOINTTOTITLESIMPLE' : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'CODEPOINTTOUPPERFULL'   : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'CODEPOINTTOUPPERSIMPLE' : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'CODEUNITSIZEINBYTES'    : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'CONCATENATE'            : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'COPY'                   : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'DECODE'                 : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'DESCRIPTION'            : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'DESCRIPTION'            : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'DESCRIPTIONFORERROR'    : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'DESCRIPTIONFORERROR'    : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'EMPTYSTRING'            : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'ENCODE'                 : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'ENCODING'               : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'ERRORS'                 : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'GRAPHEME'               : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'GRAPHEMECOUNT'          : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'GRAPHEMEINDEX'          : 'StringIndexer' (stringIndexer.cls)
+    PM ..G.    'GRAPHEMEINDEXES'        : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'GRAPHEMES'              : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'INIT'                   : 'StringIndexer' (stringIndexer.cls)
+    PM P...    'ISBYTE'                 : 'StringIndexer' (stringIndexer.cls)
+    PM PC..    'ISBYTE'                 : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'ISCASEFOLD'             : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'ISCCSTRIPPED'           : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'ISIGNORABLESTRIPPED'    : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'ISLOWER'                : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'ISLUMPED'               : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'ISMARKSTRIPPED'         : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'ISNASTRIPPED'           : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'ISNFC'                  : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'ISNFD'                  : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'ISNFKC'                 : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'ISNFKD'                 : 'StringIndexer' (stringIndexer.cls)
+    PM P...    'ISUNICODE'              : 'StringIndexer' (stringIndexer.cls)
+    PM PC..    'ISUNICODE'              : 'StringIndexer' (stringIndexer.cls)
+    PM PC..    'ISUNICODE16'            : 'StringIndexer' (stringIndexer.cls)
+    PM P...    'ISUNICODE16'            : 'StringIndexer' (stringIndexer.cls)
+    PM P...    'ISUNICODE32'            : 'StringIndexer' (stringIndexer.cls)
+    PM PC..    'ISUNICODE32'            : 'StringIndexer' (stringIndexer.cls)
+    PM P...    'ISUNICODE8'             : 'StringIndexer' (stringIndexer.cls)
+    PM PC..    'ISUNICODE8'             : 'StringIndexer' (stringIndexer.cls)
+    PM P...    'ISUNICODEN'             : 'StringIndexer' (stringIndexer.cls)
+    PM PC..    'ISUNICODEN'             : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'ISUPPER'                : 'StringIndexer' (stringIndexer.cls)
+    PM P...    'ISUTF16'                : 'StringIndexer' (stringIndexer.cls)
+    PM PC..    'ISUTF16'                : 'StringIndexer' (stringIndexer.cls)
+    PM PC..    'ISUTF16BE'              : 'StringIndexer' (stringIndexer.cls)
+    PM P...    'ISUTF16BE'              : 'StringIndexer' (stringIndexer.cls)
+    PM P...    'ISUTF16LE'              : 'StringIndexer' (stringIndexer.cls)
+    PM PC..    'ISUTF16LE'              : 'StringIndexer' (stringIndexer.cls)
+    PM PC..    'ISUTF32'                : 'StringIndexer' (stringIndexer.cls)
+    PM P...    'ISUTF32'                : 'StringIndexer' (stringIndexer.cls)
+    PM P...    'ISUTF32BE'              : 'StringIndexer' (stringIndexer.cls)
+    PM PC..    'ISUTF32BE'              : 'StringIndexer' (stringIndexer.cls)
+    PM P...    'ISUTF32LE'              : 'StringIndexer' (stringIndexer.cls)
+    PM PC..    'ISUTF32LE'              : 'StringIndexer' (stringIndexer.cls)
+    PM P...    'ISUTF8'                 : 'StringIndexer' (stringIndexer.cls)
+    PM PC..    'ISUTF8'                 : 'StringIndexer' (stringIndexer.cls)
+    PM PC..    'ISWTF16'                : 'StringIndexer' (stringIndexer.cls)
+    PM P...    'ISWTF16'                : 'StringIndexer' (stringIndexer.cls)
+    PM PC..    'ISWTF16BE'              : 'StringIndexer' (stringIndexer.cls)
+    PM P...    'ISWTF16BE'              : 'StringIndexer' (stringIndexer.cls)
+    PM PC..    'ISWTF16LE'              : 'StringIndexer' (stringIndexer.cls)
+    PM P...    'ISWTF16LE'              : 'StringIndexer' (stringIndexer.cls)
+    PM P...    'ISWTF32'                : 'StringIndexer' (stringIndexer.cls)
+    PM PC..    'ISWTF32'                : 'StringIndexer' (stringIndexer.cls)
+    PM PC..    'ISWTF32BE'              : 'StringIndexer' (stringIndexer.cls)
+    PM P...    'ISWTF32BE'              : 'StringIndexer' (stringIndexer.cls)
+    PM P...    'ISWTF32LE'              : 'StringIndexer' (stringIndexer.cls)
+    PM PC..    'ISWTF32LE'              : 'StringIndexer' (stringIndexer.cls)
+    PM PC..    'ISWTF8'                 : 'StringIndexer' (stringIndexer.cls)
+    PM P...    'ISWTF8'                 : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'MAXIMUMCODEPOINT'       : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'NAME'                   : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'NEXTCODEPOINTINDEX'     : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'NFC'                    : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'NFD'                    : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'NFKC'                   : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'NFKD'                   : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'PREVIOUSCODEPOINTINDEX' : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'SPACECHARACTER'         : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'STRING'                 : 'StringIndexer' (stringIndexer.cls)
+    PM ..G.    'STRING='                : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'UNESCAPE'               : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'UNICODE'                : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'UNICODE16'              : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'UNICODE32'              : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'UNICODE8'               : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'UTF16'                  : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'UTF16BE'                : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'UTF16LE'                : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'UTF32'                  : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'UTF32BE'                : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'UTF32LE'                : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'UTF8'                   : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'WTF16'                  : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'WTF16BE'                : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'WTF16LE'                : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'WTF8'                   : 'StringIndexer' (stringIndexer.cls)
+
+
+-- List all the methods c2x
+?ms c2x
+    -- RexxText delegates to the indexer
+    .M P.G.    'C2X' : 'RexxTextStringInterface' (text.cls)
+     > 0001 forward to (self~indexer)
+
+    -- String's native implementation
+    P. P.G.    'C2X' : 'String' (REXX)
+
+    -- Same implementation for all the encodings.
+    -- The part specific to each encoding is managed by self~codepoints
+    PM P.G.    'C2X' : 'StringIndexer' (stringIndexer.cls)
+     > 0001 use strict arg -- none
+     > 0002     codepoints = self~codepoints
+     > 0003     buffer = .MutableBuffer~new
+     > 0004     first = .true
+     > 0005     do while codepoints~available
+     > 0006         if \first then buffer~append(" ")
+     > 0007         first = .false
+     > 0008         codepoint = codepoints~item(.false) -- false: don't decode
+     > 0009         buffer~append(codepoint~c2x)
+     > 0010         codepoints~next
+     > 0011     end
+     > 0012     return buffer~string
+
+
+================================================================================
 ooRexx5 optimizations
 ================================================================================
 
