@@ -1,3 +1,92 @@
+Sticky
+
+https://sourceforge.net/p/oorexx/rel5wiki/Home/
+
+
+https://sourceforge.net/p/oorexx/code-0/12679
+Modifying INSTALL file for 5.0.0
+
+
+================================================================================
+12/05/2023
+
+From P.O.
+
+ It seems a twig in main/branches is used to populate main/releases.
+
+Example:
+
+/main/branches/4.1 has been used as the base for 4.1.0, 4.1.1, 4.1.2 and 4.1.3 releases in /main/releases
+
+/main/branches/4.2 has been used as the base for 4.2.0 release in /main/releases
+
+/main/branches/old-4.3 seems never to have reached a release status
+
+So the steps in a release should be to
+
+(i) copy a release candidate from trunk to /main/branches/m.n
+(ii) when it has been confirmed that the release candidate is a good one AND all
+     the necessary changes have been made /main/branches/m.n ONLY THEN is the
+     release candidate copied to /main/releases
+
+This provides the advantage that if we decide that we need to select another
+release candidate this is not a problem, we just replace the old one with a new
+one in /main/branches/m.n. There is also sufficient time to try out uploads and
+amending scripts before it becomes visible to the public.
+
+Does this make sense to all? Applied to 5.0.0 we need to copy the 5.0.0 release
+back to  /main/branches/5.0 (not 5.0.0 or 5.0.1) and use it for preparing the
+next bug fix release. THEN, when there is time for 5.1.0 in the distant future
+we copy trunk to main/branches/5.1 and so on.
+
+Looking at the “release rate” for ooRexx 4 the minor bug fix releases have been
+3 months to 1.5 year in-between, I interpret this as on a need-to-fix time basis.
+The major releases have been between 9 months to 2 years (longer time between
+the later releases).
+
+
+================================================================================
+10/05/2023
+
+On Wed, May 10, 2023 at 3:51 AM ooRexx <oorexx@jonases.se> wrote:
+    I added the missing softlink so that Windows users can find rxsock.pdf, Is this the right way to do it on sourceforge?
+    The status “Closed” is only set when there is a release version, right?
+    When shall the status “Pending” be used?
+Pending should be used until the change is available in a shipped release.
+That allows us to determine what changes are actually in a release.
+Closed should never be used until a release containing the change has shipped.
+
+    What is the difference between the milestones 5.0.0, 5.0.1 and 5.1.0?
+That indicates which release the change is going to ship on.
+Since the 5.0.0 has already been released, that should never be used again.
+5.0.1 would be a release that will contain only bug fixes to 5.0.0.
+The 5.1.0 release will contain new content, as well as bug fixes to 5.0.0 content.
+Bug fixes like this one should be applied to both the trunk and the 5.0.1 branch and the 5.0.1 milestone used.
+
+    This fix solved the problem for 5.1.0Beta but the installer for 5.0.0 is still missing it. Is it ok to go in and make a retrospective build for 5.0.0 and correct it manually?
+No, it is not ok. Once 5.0.0 has shipped, no changes to that tree are permitted. Fixes can only be released by spinning a 5.0.1 release.
+
+----------
+
+    Thanks for the info, makes sense. But unfortunately most people will be using 5.0.0 rather than the rolling release so they will miss out on things like this. I guess we need to start thinking about a 5.0.1 then. I will change the milestone for #1894 and #1875 to 5.0.1 then.
+We don't ship a new bug-fix release every time there's a change.
+This should wait until we have a significant number of them or there's a bug
+that impacts a lot of users. This is nowhere near that level.
+
+    Re #1854 it is still ok to add missing files, like the source files to 5.0.0 ?
+I think it's ok to upload the source file archive to sourceforge and label it 5.0.0,
+but any changes (e.g. CmakeList changes) only get applied to the appropriate branches
+
+===============================================================================
+December 2022
+Delivery of ooRexx 5.0
+
+https://sourceforge.net/p/oorexx/rel5wiki/Home/
+
+
+===============================================================================
+
+
 ===================
 Development process
 ===================
