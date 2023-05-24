@@ -1,5 +1,13 @@
 This file is not limited to co-routines. Also covers iterators, generators.
 
+https://blog.adacore.com/coroutines-in-ada-a-clean-but-heavy-implementation
+Coroutines with Rendezvous
+
+https://www.ilikebigbits.com/2016_03_20_coroutines.html
+very simple coroutine implementation that is just a wrapper around a std::thread
+but with mechanisms to pass the execution from the outer (owning) thread to the
+inner (coroutine) thread
+
 https://github.com/llvm/llvm-project/blob/main/llvm/docs/Coroutines.rst
 
 https://davidwalsh.name/es6-generators
