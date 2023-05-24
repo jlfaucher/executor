@@ -869,6 +869,17 @@ thinking about grapheme indexes (draft)
 
 
 ================================================================================
+Encoded strings - TODO
+================================================================================
+
+TODO: substr should copy the flags for normalization
+but not the cached strings
+
+TODO: test if a string is NFC when indexing
+https://www.unicode.org/reports/tr15/#Implementation_Notes
+
+
+================================================================================
 Encoded strings - Miscellaneous notes
 ================================================================================
 
