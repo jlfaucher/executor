@@ -148,6 +148,17 @@
     firstGrapheme = graphemeNormText~grapheme(1)
     return charsNormText~string~pos(firstGrapheme~string) \== 0
 
+    /*
+    TODO:
+    Double check that this test is good:
+        return charsNormText~string~pos(firstGrapheme~string) \== 0
+    firstGrapheme can be made of several  bytes.
+    charsNormText is a string of 1..n characters where each character can be made of several bytes.
+    Is there a risk to match on the boundary between 2 characters?
+    Maybe here I could use the option of utf8proc to insert a separator between each grapheme?
+    Or better: do a clean implementation where each grapheme of charsNormText is compared with firstGrapheme.
+    */
+
     check_position: procedure
         use strict arg position, max
         if \datatype(position, "w") then signal invalid_position
