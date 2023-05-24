@@ -290,6 +290,12 @@ Depends on
     looseMatchingIndex = UAX44_LM2(name)
     codepoint = characterNames[looseMatchingIndex]
     if .nil <> codepoint then return characters[self~characterIndexOffset + codepoint]
+
+    -- fallback: if the name is made of just one codepoint then search this codepoint
+    codepoints = name~text~codepoints
+    if codepoints~count == 1 then return self~characterByCodepoint(codepoints~item)
+    if name~text~length == 1 then signal character_made_of_several_codepoints
+
     signal name_not_found
 
     remove_leading_zeros:
@@ -298,10 +304,11 @@ Depends on
         else if firstNonZero > 1 then name = name~substr(firstNonZero) -- remove all the leading zeros
         return
 
-    invalid_hexadecimal_codepoint: raise syntax 93.900 array("an hexadecimal codepoint is 1..8 hex digits, got '"name"'")
-    invalid_decimal_codepoint:     raise syntax 93.900 array("a decimal codepoint is 1..7 digits, got '"name"'")
-    invalid_u_plus:                raise syntax 93.900 array(prefix "is followed by 4..6 hex digits, got '"name"'")
-    name_not_found:                raise syntax 93.900 array("Name '"name"' not found")
+    invalid_hexadecimal_codepoint:          raise syntax 93.900 array("an hexadecimal codepoint is 1..8 hex digits, got '"name"'")
+    invalid_decimal_codepoint:              raise syntax 93.900 array("a decimal codepoint is 1..7 digits, got '"name"'")
+    invalid_u_plus:                         raise syntax 93.900 array(prefix "is followed by 4..6 hex digits, got '"name"'")
+    character_made_of_several_codepoints:   raise syntax 93.900 array("The character '"name"' is made of several codepoints:" name~text~c2u)
+    name_not_found:                         raise syntax 93.900 array("Name '"name"' not found")
 
 
 ::method characterByCodepoint class
@@ -818,7 +825,7 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 ::method bidiClass
     expose codepoint
     use strict arg -- none
-    return .Unicode~utf8proc_utf8proc_codepointBidiClass(codepoint)
+    return .Unicode~utf8proc_codepointBidiClass(codepoint)
 
 
 -- http://www.unicode.org/reports/tr44/#Bidi_Class_Values
@@ -942,6 +949,46 @@ https://unicode.org/reports/tr44/#UAX44-LM3
     expose codepoint
     use strict arg -- none
     return .Unicode~utf8proc_codepointIsUpper(codepoint)
+
+
+::method properties
+    messages =,
+        "aliases",,
+        "bidiClass",,
+        "bidiClassName",,
+        "bidiMirrored",,
+        "boundClass",,
+        "boundClassName",,
+        "category",,
+        "categoryName",,
+        "charWidth",,
+        "codepoint",,
+        "combiningClass",,
+        "controlBoundary",,
+        "decompositionTypeName",,
+        "decompositionType",,
+        "ignorable",,
+        "isLower",,
+        "isUpper",,
+        "name",,
+        "toLowerFull",,
+        "toLowerSimple",,
+        "toTitleFull",,
+        "toTitleSimple",,
+        "toUpperFull",,
+        "toUpperSimple",,
+        "Unicode",,
+        "UTF16BE",,
+        "UTF16LE",,
+        "UTF32BE",,
+        "UTF32LE",,
+        "UTF8"
+    properties = .directory~new
+    do message over messages
+        value = self~send(message)
+        properties~put(value, message)
+    end
+    return properties
 
 
 /******************************************************************************/

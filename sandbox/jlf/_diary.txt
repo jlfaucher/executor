@@ -2,9 +2,62 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2023 May 24
+
+[Unicode]
+
+For convenience, it's now possible to search directly a character if it's made of one codepoint only:
+.Unicode~character("a")=    -- ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
+.Unicode~character("à")=    -- ( "à"   U+00E0 Ll 1 "LATIN SMALL LETTER A WITH GRAVE" )
+.Unicode~character("à")=    -- Error: The character 'à' is made of several codepoints: U+0061 U+0300
+
+For the last example, you can get an array of characters:
+"à"~text~characters==
+    an Array (shape [2], 2 items)
+     1 : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
+     2 : ( "̀"    U+0300 Mn 0 "COMBINING GRAVE ACCENT" )
+
+
+New method UnicodeCharacter~properties: Return a directory of properties.
+.Unicode~character("U+000D")~properties=
+    a Directory (30 items)
+    'aliases'               : [(CARRIAGE RETURN),(CR)]
+    'bidiClass'             :  16
+    'bidiClassName'         : 'B'
+    'bidiMirrored'          :  0
+    'boundClass'            :  2
+    'boundClassName'        : 'CR'
+    'category'              :  26
+    'categoryName'          : 'Cc'
+    'charWidth'             :  0
+    'codepoint'             :  13
+    'combiningClass'        :  0
+    'controlBoundary'       :  1
+    'decompositionType'     :  0
+    'decompositionTypeName' : 'None'
+    'ignorable'             :  0
+    'isLower'               :  0
+    'isUpper'               :  0
+    'name'                  : ''
+    'toLowerFull'           :  13
+    'toLowerSimple'         :  13
+    'toTitleFull'           :  13
+    'toTitleSimple'         :  13
+    'toUpperFull'           :  13
+    'toUpperSimple'         :  13
+    'Unicode'               : T'[0D]'
+    'UTF16BE'               : T'[000D]'
+    'UTF16LE'               : T'[0D00]'
+    'UTF32BE'               : T'[0000000D]'
+    'UTF32LE'               : T'[0D000000]'
+    'UTF8'                  : T'[0D]'
+
+
+===============================================================================
 2023 April 10
 
-Named arguments
+[Named arguments]
+
 Discovered a major regression when running Example 12.2. Message object usage.
 Successive calls of the method ~start are creating messages that use the same
 array of arguments.
@@ -186,6 +239,9 @@ Done
 ----
 download rustup-init.exe from https://www.rust-lang.org/tools/install
 run rustup-init.exe
+[later]
+rustup self update
+rustup update
 
 Still todo
 ----------
