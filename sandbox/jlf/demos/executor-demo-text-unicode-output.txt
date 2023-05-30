@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 8 Feb 2023
-Input queue name: S399eQ6000008e84e0
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 26 Mar 2023
+Input queue name: S618dQ60000304d6c0
 
 --------------------
 -- Unicode libraries
@@ -34,7 +34,8 @@ The prototype is currently using 2 libraries:
 - icu4x       https://github.com/unicode-org/icu4x
 
 Current usage:
-- utf8proc is used for grapheme segmentation, characters properties, normalization, upper/lower/title.
+- utf8proc is used for grapheme segmentation, characters properties, normalization, simple upper/lower/title.
+- uni-algo is used for full upper/lower/title.
 - icu4x will be used for locale-aware services (segmentation, collation, translation, formatting).
 */
 
@@ -427,7 +428,7 @@ a Directory (17 items)
 -- Ignorable (boolean)
 -- http://www.unicode.org/review/pr-5.html
 -- http://unicode.org/L2/L2002/02368-default-ignorable.html
--- First 10 characters such as bidiMirrored == .true
+-- First 10 characters such as ignorable == .true
 ooRexx[sh]> .unicode~characters~pipe(.select {item~ignorable} | .take 10 | .console)
 173 : ( "­"   U+00AD Cf 1 "SOFT HYPHEN", "SHY" )
 847 : ( "͏"    U+034F Mn 0 "COMBINING GRAPHEME JOINER", "CGJ" )
@@ -545,12 +546,17 @@ T'di̇yarbakir'
 -- Unicode upper lower
 ----------------------
 
-ooRexx[sh]> smallSharpS = .unicode~character("LATIN SMALL LETTER SHARP S")                              --  ( "ß"   U+00DF Ll 1 "LATIN SMALL LETTER SHARP S" )
-ooRexx[sh]> .unicode~utf8proc_codepointToUpper(smallSharpS~codepoint)~pipe{.unicode~character(item)}=   --  ( "ẞ"   U+1E9E Lu 1 "LATIN CAPITAL LETTER SHARP S" )
+ooRexx[sh]> smallSharpS = .unicode~character("LATIN SMALL LETTER SHARP S")  --  ( "ß"   U+00DF Ll 1 "LATIN SMALL LETTER SHARP S" )
+ooRexx[sh]> smallSharpS~toUpperSimple=                                      --  7838 (codepoint in decimal)
+ 7838
+ooRexx[sh]> smallSharpS~toUpperFull=                                        --  TODO: 83 83 (codepoints in decimal)
+ 7838
+ooRexx[sh]> .Unicode~character(smallSharpS~toUpperSimple)=                  --  ( "ẞ"   U+1E9E Lu 1 "LATIN CAPITAL LETTER SHARP S" )
 ( "ẞ"   U+1E9E Lu 1 "LATIN CAPITAL LETTER SHARP S" )
+ooRexx[sh]> "ß"~text~upper=                                                 --  TODO: T'SS'
+T'ẞ'
 
 /*
-Should be "SS".
 Unicode standard 15 section 5.18 Case Mappings:
     Default casing                                         Tailored casing
     (small sharp) ß <--- ẞ (capital sharp)                 (small sharp) ß <--> ẞ (capital sharp)
@@ -587,7 +593,7 @@ TODO: Add support for UTF-16, UTF-32
 
 ooRexx[sh]> string = "\u{BEL}Le\u{IDEOGRAPHIC SPACE}\u{OGHAM SPACE MARK}\u{ZERO-WIDTH-SPACE}Père\t\u{HYPHEN}\u{SOFT-HYPHEN}\u{EN DASH}\u{EM DASH}Noël\x{EFB790}\r\n"
 ooRexx[sh]> text = string~text~unescape
-ooRexx[sh]> text~characters==
+ooRexx[sh]> text~UnicodeCharacters==
 an Array (shape [22], 22 items)
  1  : ( ""    U+0007 Cc 0 "", "ALERT", "BEL" )
  2  : ( "L"   U+004C Lu 1 "LATIN CAPITAL LETTER L" )
@@ -791,7 +797,7 @@ Some remarks about the string used in the next demo:
   The ligature disappears in NFK[CD] but not in NF[CD]
 */
 
-ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~characters==
+ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~UnicodeCharacters==
 an Array (shape [22], 22 items)
  1  : ( "ä"   U+00E4 Ll 1 "LATIN SMALL LETTER A WITH DIAERESIS" )
  2  : ( "ö"   U+00F6 Ll 1 "LATIN SMALL LETTER O WITH DIAERESIS" )
@@ -827,7 +833,7 @@ Canonical Decomposition
 Characters are decomposed by canonical equivalence, and multiple combining characters are arranged in a specific order.
 */
 
-ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~characters==
+ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~UnicodeCharacters==
 an Array (shape [26], 26 items)
  1  : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
  2  : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
@@ -867,7 +873,7 @@ Canonical Decomposition, followed by Canonical Composition
 Characters are decomposed and then recomposed by canonical equivalence.
 */
 
-ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~characters==
+ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~UnicodeCharacters==
 an Array (shape [19], 19 items)
  1  : ( "ä"   U+00E4 Ll 1 "LATIN SMALL LETTER A WITH DIAERESIS" )
  2  : ( "ö"   U+00F6 Ll 1 "LATIN SMALL LETTER O WITH DIAERESIS" )
@@ -900,7 +906,7 @@ Compatibility Decomposition (K is used to stand for compatibility to avoid confu
 Characters are decomposed by compatibility, and multiple combining characters are arranged in a specific order.
 */
 
-ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~characters==
+ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~UnicodeCharacters==
 an Array (shape [45], 45 items)
  1  : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
  2  : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
@@ -959,7 +965,7 @@ Compatibility Decomposition, followed by Canonical Composition
 Characters are decomposed by compatibility, then recomposed by canonical equivalence.
 */
 
-ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~characters==
+ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~UnicodeCharacters==
 an Array (shape [38], 38 items)
  1  : ( "ä"   U+00E4 Ll 1 "LATIN SMALL LETTER A WITH DIAERESIS" )
  2  : ( "ö"   U+00F6 Ll 1 "LATIN SMALL LETTER O WITH DIAERESIS" )
@@ -1005,13 +1011,13 @@ ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~upper=       -- T'Ä�
 T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE'
 
 -- The normalization forms are implemented only for UTF-8 and WTF-8.
-ooRexx[sh]> "D800 DC01"x~text("utf16")~nfd~characters==    -- Method NFD is ABSTRACT and cannot be directly invoked.
+ooRexx[sh]> "D800 DC01"x~text("utf16")~nfd~UnicodeCharacters==    -- Method NFD is ABSTRACT and cannot be directly invoked.
 Method NFD is ABSTRACT and cannot be directly invoked.
 Error code= 93.965
-ooRexx[sh]> "D800 DC01"x~text("utf16")~utf8~nfd~characters==
+ooRexx[sh]> "D800 DC01"x~text("utf16")~utf8~nfd~UnicodeCharacters==
 an Array (shape [1], 1 items)
  1 : ( "𐀁"   U+10001 Lo 1 "LINEAR B SYLLABLE B038 E" )
-ooRexx[sh]> "\uD800\uDC01"~text("wtf8")~unescape~nfd~characters==
+ooRexx[sh]> "\uD800\uDC01"~text("wtf8")~unescape~nfd~UnicodeCharacters==
 an Array (shape [1], 1 items)
  1 : ( "𐀁"   U+10001 Lo 1 "LINEAR B SYLLABLE B038 E" )
 

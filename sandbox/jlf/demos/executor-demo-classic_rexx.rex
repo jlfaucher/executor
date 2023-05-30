@@ -18,6 +18,8 @@ sleep no prompt
 Illustration by running the Rosetta Code solutions for REXX.
 The solutions are installed locally from https://github.com/acmeism/RosettaCodeData
 The script RunRosettaCode must be executed from the directory which contains the directory Lang.
+The script and the results for Regina and ooRexx5 are available here:
+https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/samples/classic_rexx
 */
 sleep
 system

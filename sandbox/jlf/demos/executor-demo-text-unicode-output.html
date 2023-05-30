@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 8 Feb 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S399eQ6000008e84e0
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 26 Mar 2023
+</span><span style="font-weight:bold;color:green;">Input queue name: S618dQ60000304d6c0
 </span>
 <span style="font-weight:bold;color:blue;">--------------------
 </span><span style="font-weight:bold;color:blue;">-- Unicode libraries
@@ -44,7 +44,8 @@
 </span><span style="font-weight:bold;color:blue;">- icu4x       https://github.com/unicode-org/icu4x
 </span><span style="font-weight:bold;color:blue;">
 </span><span style="font-weight:bold;color:blue;">Current usage:
-</span><span style="font-weight:bold;color:blue;">- utf8proc is used for grapheme segmentation, characters properties, normalization, upper/lower/title.
+</span><span style="font-weight:bold;color:blue;">- utf8proc is used for grapheme segmentation, characters properties, normalization, simple upper/lower/title.
+</span><span style="font-weight:bold;color:blue;">- uni-algo is used for full upper/lower/title.
 </span><span style="font-weight:bold;color:blue;">- icu4x will be used for locale-aware services (segmentation, collation, translation, formatting).
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
@@ -437,7 +438,7 @@ a Directory (17 items)
 <span style="font-weight:bold;color:blue;">-- Ignorable (boolean)
 </span><span style="font-weight:bold;color:blue;">-- http://www.unicode.org/review/pr-5.html
 </span><span style="font-weight:bold;color:blue;">-- http://unicode.org/L2/L2002/02368-default-ignorable.html
-</span><span style="font-weight:bold;color:blue;">-- First 10 characters such as bidiMirrored == .true
+</span><span style="font-weight:bold;color:blue;">-- First 10 characters such as ignorable == .true
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~characters~pipe(.select {item~ignorable} | .take 10 | .console)</span>
 173 : ( &quot;­&quot;   U+00AD Cf 1 &quot;SOFT HYPHEN&quot;, &quot;SHY&quot; )
 847 : ( &quot;͏&quot;    U+034F Mn 0 &quot;COMBINING GRAPHEME JOINER&quot;, &quot;CGJ&quot; )
@@ -555,12 +556,17 @@ T'di̇yarbakir'
 </span><span style="font-weight:bold;color:blue;">-- Unicode upper lower
 </span><span style="font-weight:bold;color:blue;">----------------------
 </span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">smallSharpS = .unicode~character(&quot;LATIN SMALL LETTER SHARP S&quot;)                              </span><span style="font-weight:bold;color:blue;">--  ( &quot;ß&quot;   U+00DF Ll 1 &quot;LATIN SMALL LETTER SHARP S&quot; )</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~utf8proc_codepointToUpper(smallSharpS~codepoint)~pipe{.unicode~character(item)}=   </span><span style="font-weight:bold;color:blue;">--  ( &quot;ẞ&quot;   U+1E9E Lu 1 &quot;LATIN CAPITAL LETTER SHARP S&quot; )</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">smallSharpS = .unicode~character(&quot;LATIN SMALL LETTER SHARP S&quot;)  </span><span style="font-weight:bold;color:blue;">--  ( &quot;ß&quot;   U+00DF Ll 1 &quot;LATIN SMALL LETTER SHARP S&quot; )</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">smallSharpS~toUpperSimple=                                      </span><span style="font-weight:bold;color:blue;">--  7838 (codepoint in decimal)</span>
+ 7838
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">smallSharpS~toUpperFull=                                        </span><span style="font-weight:bold;color:blue;">--  TODO: 83 83 (codepoints in decimal)</span>
+ 7838
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~character(smallSharpS~toUpperSimple)=                  </span><span style="font-weight:bold;color:blue;">--  ( &quot;ẞ&quot;   U+1E9E Lu 1 &quot;LATIN CAPITAL LETTER SHARP S&quot; )</span>
 ( &quot;ẞ&quot;   U+1E9E Lu 1 &quot;LATIN CAPITAL LETTER SHARP S&quot; )
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;ß&quot;~text~upper=                                                 </span><span style="font-weight:bold;color:blue;">--  TODO: T'SS'</span>
+T'ẞ'
 
 <span style="font-weight:bold;color:blue;">/*
-</span><span style="font-weight:bold;color:blue;">Should be &quot;SS&quot;.
 </span><span style="font-weight:bold;color:blue;">Unicode standard 15 section 5.18 Case Mappings:
 </span><span style="font-weight:bold;color:blue;">    Default casing                                         Tailored casing
 </span><span style="font-weight:bold;color:blue;">    (small sharp) ß &lt;--- ẞ (capital sharp)                 (small sharp) ß &lt;--&gt; ẞ (capital sharp)
@@ -597,7 +603,7 @@ T'diyarbakir'
 </span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string = &quot;\u{BEL}Le\u{IDEOGRAPHIC SPACE}\u{OGHAM SPACE MARK}\u{ZERO-WIDTH-SPACE}Père\t\u{HYPHEN}\u{SOFT-HYPHEN}\u{EN DASH}\u{EM DASH}Noël\x{EFB790}\r\n&quot;</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">text = string~text~unescape</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">text~characters==</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">text~UnicodeCharacters==</span>
 an Array (shape [22], 22 items)
  1  : ( &quot;&quot;    U+0007 Cc 0 &quot;&quot;, &quot;ALERT&quot;, &quot;BEL&quot; )
  2  : ( &quot;L&quot;   U+004C Lu 1 &quot;LATIN CAPITAL LETTER L&quot; )
@@ -801,7 +807,7 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">textNFD = text~NFD(m
 </span><span style="font-weight:bold;color:blue;">  The ligature disappears in NFK[CD] but not in NF[CD]
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~characters==</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~UnicodeCharacters==</span>
 an Array (shape [22], 22 items)
  1  : ( &quot;ä&quot;   U+00E4 Ll 1 &quot;LATIN SMALL LETTER A WITH DIAERESIS&quot; )
  2  : ( &quot;ö&quot;   U+00F6 Ll 1 &quot;LATIN SMALL LETTER O WITH DIAERESIS&quot; )
@@ -837,7 +843,7 @@ T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
 </span><span style="font-weight:bold;color:blue;">Characters are decomposed by canonical equivalence, and multiple combining characters are arranged in a specific order.
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfd~characters==</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfd~UnicodeCharacters==</span>
 an Array (shape [26], 26 items)
  1  : ( &quot;a&quot;   U+0061 Ll 1 &quot;LATIN SMALL LETTER A&quot; )
  2  : ( &quot;̈&quot;    U+0308 Mn 0 &quot;COMBINING DIAERESIS&quot; )
@@ -877,7 +883,7 @@ T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
 </span><span style="font-weight:bold;color:blue;">Characters are decomposed and then recomposed by canonical equivalence.
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfc~characters==</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfc~UnicodeCharacters==</span>
 an Array (shape [19], 19 items)
  1  : ( &quot;ä&quot;   U+00E4 Ll 1 &quot;LATIN SMALL LETTER A WITH DIAERESIS&quot; )
  2  : ( &quot;ö&quot;   U+00F6 Ll 1 &quot;LATIN SMALL LETTER O WITH DIAERESIS&quot; )
@@ -910,7 +916,7 @@ T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
 </span><span style="font-weight:bold;color:blue;">Characters are decomposed by compatibility, and multiple combining characters are arranged in a specific order.
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfkd~characters==</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfkd~UnicodeCharacters==</span>
 an Array (shape [45], 45 items)
  1  : ( &quot;a&quot;   U+0061 Ll 1 &quot;LATIN SMALL LETTER A&quot; )
  2  : ( &quot;̈&quot;    U+0308 Mn 0 &quot;COMBINING DIAERESIS&quot; )
@@ -969,7 +975,7 @@ T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE'
 </span><span style="font-weight:bold;color:blue;">Characters are decomposed by compatibility, then recomposed by canonical equivalence.
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfkc~characters==</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfkc~UnicodeCharacters==</span>
 an Array (shape [38], 38 items)
  1  : ( &quot;ä&quot;   U+00E4 Ll 1 &quot;LATIN SMALL LETTER A WITH DIAERESIS&quot; )
  2  : ( &quot;ö&quot;   U+00F6 Ll 1 &quot;LATIN SMALL LETTER O WITH DIAERESIS&quot; )
@@ -1015,13 +1021,13 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöu
 T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE'
 
 <span style="font-weight:bold;color:blue;">-- The normalization forms are implemented only for UTF-8 and WTF-8.
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 DC01&quot;x~text(&quot;utf16&quot;)~nfd~characters==    </span><span style="font-weight:bold;color:blue;">-- Method NFD is ABSTRACT and cannot be directly invoked.</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 DC01&quot;x~text(&quot;utf16&quot;)~nfd~UnicodeCharacters==    </span><span style="font-weight:bold;color:blue;">-- Method NFD is ABSTRACT and cannot be directly invoked.</span>
 <span style="font-weight:bold;color:red;">Method NFD is ABSTRACT and cannot be directly invoked.
 </span><span style="font-weight:bold;color:red;">Error code= 93.965
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 DC01&quot;x~text(&quot;utf16&quot;)~utf8~nfd~characters==</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 DC01&quot;x~text(&quot;utf16&quot;)~utf8~nfd~UnicodeCharacters==</span>
 an Array (shape [1], 1 items)
  1 : ( &quot;𐀁&quot;   U+10001 Lo 1 &quot;LINEAR B SYLLABLE B038 E&quot; )
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;\uD800\uDC01&quot;~text(&quot;wtf8&quot;)~unescape~nfd~characters==</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;\uD800\uDC01&quot;~text(&quot;wtf8&quot;)~unescape~nfd~UnicodeCharacters==</span>
 an Array (shape [1], 1 items)
  1 : ( &quot;𐀁&quot;   U+10001 Lo 1 &quot;LINEAR B SYLLABLE B038 E&quot; )
 
