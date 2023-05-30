@@ -14,6 +14,7 @@ The uni-algo library API consists of the following parts:
 - [**uni_algo/ranges_norm.h**](#anchor-ranges-norm) - normalization ranges
 - [**uni_algo/ranges_grapheme.h**](#anchor-ranges-grapheme) - grapheme ranges
 - [**uni_algo/ranges_word.h**](#anchor-ranges-word) - word ranges
+- [**uni_algo/script.h**](#anchor-script) - code point script property
 - [**uni_algo/prop.h**](#anchor-prop) - code point properties
 - [**other classes**](#anchor-other)
 
@@ -43,7 +44,7 @@ Includes all enabled modules.
 **`uni_algo/version.h`** - version (header-only)
 
 Provides information about the library version and Unicode version.<br>
-Other files always include this file.
+See comments inside the file for more info.
 
 ---
 
@@ -90,15 +91,16 @@ una::cases::to_casefold_utf8  - case folding
 
 una::caseless::compare_utf8 - case insensitive comparison
 una::caseless::collate_utf8 - collation
-una::caseless::search_utf8  - search
+una::caseless::find_utf8    - search
 
 una::casesens::compare_utf8 - case sensitive comparison
 una::casesens::collate_utf8 - collation
-una::casesens::search_utf8  - search
+una::casesens::find_utf8    - search
 ```
 Lower, upper, title case support `una::locale`<br>
 Case folding is always locale-independent and<br>
-others are based on Default Case Matching and always locale-independent too.
+others are based on Default Case Matching and always locale-independent too.<br>
+Find functions return result in `una::found` class.
 
 ---
 
@@ -179,7 +181,8 @@ una::views::norm::nfkd
 ```
 una::views::grapheme::utf8 - requires integral UTF-8 range produces UTF-8 std::string_view subranges of graphemes
 ```
-Uses [UAX #29: Unicode Text Segmentation -> Grapheme Cluster Boundary Rules](https://unicode.org/reports/tr29/#Grapheme_Cluster_Boundaries)
+The algorithm uses [UAX #29: Unicode Text Segmentation -> Grapheme Cluster Boundary Rules](https://unicode.org/reports/tr29/#Grapheme_Cluster_Boundaries)<br>
+The grapheme range supports cursor. For details see [doc/CURSOR.md](CURSOR.md)
 
 ---
 
@@ -201,8 +204,23 @@ is_punctuation      - includes only punctuation
 is_segspace         - includes only spaces
 is_newline          - includes only new lines
 ```
-Uses [UAX #29: Unicode Text Segmentation -> Word Boundary Rules](https://unicode.org/reports/tr29/#Word_Boundaries)<br>
-`word_only` is a special case of UAX #29 that takes only words and skips all punctuation and such.
+The algorithm uses [UAX #29: Unicode Text Segmentation -> Word Boundary Rules](https://unicode.org/reports/tr29/#Word_Boundaries)<br>
+`word_only` is a special case of UAX #29 that takes only words and skips all punctuation and such.<br>
+The word range supports cursor. For details see [doc/CURSOR.md](CURSOR.md)
+
+---
+
+<a id="anchor-script"></a>
+**`uni_algo/script.h`** - code point script property (requeries src/data.cpp)
+
+```
+una::codepoint::get_script - get code point script property
+una::codepoint::has_script - check if a code point has script extensions property
+```
+The functions use `una::locale::script` class for script property and `char32_t` for code point.<br>
+Example: `assert(una::codepoint::get_script(U'W') == una::locale::script{"Latn"})`<br>
+The algorithm uses [UAX #24: Unicode Script Property](https://www.unicode.org/reports/tr24)<br>
+List of all scripts: https://en.wikipedia.org/wiki/Script_(Unicode)
 
 ---
 
@@ -275,6 +293,6 @@ class una::codepoint::prop_norm         - provides <a href="https://www.unicode.
 **`other classes`**
 ```
 class una::error    - error status, used by validation functions
-class una::search   - search result, used by search functions
+class una::found    - search result, used by find functions
 class una::sentinel - sentinel, used by ranges
 ```

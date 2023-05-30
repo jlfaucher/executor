@@ -27,6 +27,8 @@ uaix_static it_in_utf8 iter_utf8(it_in_utf8 first, it_end_utf8 last, type_codept
 
     type_codept c = (*s & 0xFF), c2 = 0, c3 = 0, c4 = 0; // c2, c3, c4 tag_can_be_uninitialized
 
+    // NOLINTBEGIN(bugprone-assignment-in-if-condition)
+
     if (uaix_likely(c <= 0x7F)) // Fast route for ASCII
     {
         *codepoint = c;
@@ -120,11 +122,9 @@ uaix_static it_in_utf8 iter_utf8(it_in_utf8 first, it_end_utf8 last, type_codept
         ++s;
     }
 
-    // Error: invalid code unit or overlong code point or truncated sequence in UTF-8
+    // NOLINTEND(bugprone-assignment-in-if-condition)
 
-#ifdef UNI_ALGO_TEST_CPP_THROW_ON_ILL_FORMED
-    throw std::runtime_error("ill-formed UTF-8");
-#endif
+    // Error: invalid code unit or overlong code point or truncated sequence in UTF-8
 
     *codepoint = error;
 
@@ -142,7 +142,7 @@ uaix_static it_in_utf16 iter_utf16(it_in_utf16 first, it_end_utf16 last, type_co
 
     it_in_utf16 src = first;
 
-    type_codept h = (*src & 0xFFFF);
+    const type_codept h = (*src & 0xFFFF);
     ++src;
 
     if (uaix_unlikely(h >= 0xD800 && h <= 0xDFFF)) // Surrogate pair
@@ -151,11 +151,11 @@ uaix_static it_in_utf16 iter_utf16(it_in_utf16 first, it_end_utf16 last, type_co
         {
             if (src != last) // Unpaired high surrogate if reached the end here
             {
-                type_codept l = (*src & 0xFFFF);
+                const type_codept l = (*src & 0xFFFF);
 
                 if (l >= 0xDC00 && l <= 0xDFFF) // Low surrogate is in range
                 {
-                    type_codept c = ((h - 0xD800) << 10) + (l - 0xDC00) + 0x10000;
+                    const type_codept c = ((h - 0xD800) << 10) + (l - 0xDC00) + 0x10000;
                     *codepoint = c;
                     ++src;
                     return src;
@@ -170,10 +170,6 @@ uaix_static it_in_utf16 iter_utf16(it_in_utf16 first, it_end_utf16 last, type_co
     }
 
     // Error: lone low surrogate or broken surrogate pair in UTF-16
-
-#ifdef UNI_ALGO_TEST_CPP_THROW_ON_ILL_FORMED
-    throw std::runtime_error("ill-formed UTF-16");
-#endif
 
     *codepoint = error;
     return src;

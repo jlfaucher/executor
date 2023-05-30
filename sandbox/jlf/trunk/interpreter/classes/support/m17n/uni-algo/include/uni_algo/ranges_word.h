@@ -5,20 +5,19 @@
 #ifndef UNI_ALGO_RANGES_WORD_H_UAIH
 #define UNI_ALGO_RANGES_WORD_H_UAIH
 
-#ifdef UNI_ALGO_DISABLE_BREAK_WORD
-#error "Break Word module is disabled via define UNI_ALGO_DISABLE_BREAK_WORD"
+#ifdef UNI_ALGO_DISABLE_SEGMENT_WORD
+#error "Word segmentation module is disabled via define UNI_ALGO_DISABLE_SEGMENT_WORD"
 #endif
 
 #include <string_view>
 #include <cassert>
 
 #include "config.h"
-#include "version.h"
 #include "internal/safe_layer.h"
 #include "internal/ranges_core.h"
 
 #include "impl/impl_iter.h"
-#include "impl/impl_break_word.h"
+#include "impl/impl_segment_word.h"
 
 namespace una {
 
@@ -45,9 +44,9 @@ private:
         detail::type_codept word_prop = 0;
         detail::type_codept next_word_prop = 0;
 
-        detail::impl_break_word_state state{};
+        detail::impl_segment_word_state state{};
 
-        uaiw_constexpr void iter_func_break_word_utf8()
+        uaiw_constexpr void iter_func_segment_word_utf8()
         {
             it_begin = it_pos;
 
@@ -57,7 +56,7 @@ private:
                 word_prop = next_word_prop;
                 detail::type_codept codepoint = 0;
                 it_next = detail::inline_iter_utf8(it_next, std::end(parent->range), &codepoint, detail::impl_iter_replacement);
-                if (detail::inline_break_word_utf8(&state, codepoint, &next_word_prop, it_next, std::end(parent->range)))
+                if (detail::inline_segment_word_utf8(&state, codepoint, &next_word_prop, it_next, std::end(parent->range)))
                     return;
             }
 
@@ -67,9 +66,9 @@ private:
                 word_prop = next_word_prop;
             }
         }
-        uaiw_constexpr void iter_func_break_word_rev_utf8()
+        uaiw_constexpr void iter_func_segment_word_rev_utf8()
         {
-            detail::impl_break_word_state_reset(&state);
+            detail::impl_segment_word_state_reset(&state);
             it_pos = it_begin;
 
             while (it_begin != std::begin(parent->range))
@@ -78,7 +77,7 @@ private:
                 word_prop = next_word_prop;
                 detail::type_codept codepoint = 0;
                 it_begin = detail::inline_iter_rev_utf8(std::begin(parent->range), it_begin, &codepoint, detail::impl_iter_replacement);
-                if (detail::inline_break_word_rev_utf8(&state, codepoint, &next_word_prop, std::begin(parent->range), it_begin))
+                if (detail::inline_segment_word_rev_utf8(&state, codepoint, &next_word_prop, std::begin(parent->range), it_begin))
                 {
                     it_begin = it_next;
                     break;
@@ -86,7 +85,27 @@ private:
             }
 
             it_next = it_pos;
-            detail::impl_break_word_state_reset(&state);
+            detail::impl_segment_word_state_reset(&state);
+        }
+        uaiw_constexpr void iter_func_segment_word_pos_utf8(Iter pos)
+        {
+            // Find UTF-8 boundary
+            for (std::size_t i = 0; i < 3 && pos != std::end(parent->range); ++i, ++pos)
+            {
+                if (((*pos & 0xFF) & 0xC0) != 0x80)
+                    break;
+            }
+
+            // NOTE: https://unicode.org/reports/tr29/#Random_Access
+
+            it_begin = pos;
+
+            iter_func_segment_word_rev_utf8();
+
+            it_pos = it_begin;
+            it_next = it_begin;
+
+            iter_func_segment_word_utf8();
         }
 
         using is_contiguous = detail::rng::is_range_contiguous<Range>;
@@ -106,9 +125,14 @@ private:
             if (begin == end)
                 return;
 
-            detail::impl_break_word_state_reset(&state);
+            detail::impl_segment_word_state_reset(&state);
 
-            iter_func_break_word_utf8();
+            iter_func_segment_word_utf8();
+        }
+        uaiw_constexpr explicit utf8(utf8_view& p, Iter begin, Sent, Iter pos)
+            : parent{std::addressof(p)}, it_begin{begin}, it_pos{begin}, it_next{begin}
+        {
+            iter_func_segment_word_pos_utf8(pos);
         }
         template<class T = reference> typename std::enable_if_t<is_contiguous::value, T>
         uaiw_constexpr operator*() const
@@ -117,18 +141,18 @@ private:
         }
         uaiw_constexpr Iter begin() const noexcept { return it_begin; }
         uaiw_constexpr Iter end() const noexcept { return it_pos; }
-        uaiw_constexpr bool is_word()             const noexcept { return detail::impl_break_is_word(word_prop); }
-        uaiw_constexpr bool is_word_number()      const noexcept { return detail::impl_break_is_word_number(word_prop); }
-        uaiw_constexpr bool is_word_letter()      const noexcept { return detail::impl_break_is_word_letter(word_prop); }
-        uaiw_constexpr bool is_word_kana()        const noexcept { return detail::impl_break_is_word_kana(word_prop); }
-        uaiw_constexpr bool is_word_ideographic() const noexcept { return detail::impl_break_is_word_ideo(word_prop); }
-        uaiw_constexpr bool is_emoji()            const noexcept { return detail::impl_break_is_word_emoji(word_prop); }
-        uaiw_constexpr bool is_punctuation()      const noexcept { return detail::impl_break_is_word_punct(word_prop); }
-        uaiw_constexpr bool is_segspace()         const noexcept { return detail::impl_break_is_word_space(word_prop); }
-        uaiw_constexpr bool is_newline()          const noexcept { return detail::impl_break_is_word_newline(word_prop); }
+        uaiw_constexpr bool is_word()             const noexcept { return detail::impl_segment_is_word(word_prop); }
+        uaiw_constexpr bool is_word_number()      const noexcept { return detail::impl_segment_is_word_number(word_prop); }
+        uaiw_constexpr bool is_word_letter()      const noexcept { return detail::impl_segment_is_word_letter(word_prop); }
+        uaiw_constexpr bool is_word_kana()        const noexcept { return detail::impl_segment_is_word_kana(word_prop); }
+        uaiw_constexpr bool is_word_ideographic() const noexcept { return detail::impl_segment_is_word_ideo(word_prop); }
+        uaiw_constexpr bool is_emoji()            const noexcept { return detail::impl_segment_is_word_emoji(word_prop); }
+        uaiw_constexpr bool is_punctuation()      const noexcept { return detail::impl_segment_is_word_punct(word_prop); }
+        uaiw_constexpr bool is_segspace()         const noexcept { return detail::impl_segment_is_word_space(word_prop); }
+        uaiw_constexpr bool is_newline()          const noexcept { return detail::impl_segment_is_word_newline(word_prop); }
         uaiw_constexpr utf8& operator++()
         {
-            iter_func_break_word_utf8();
+            iter_func_segment_word_utf8();
 
             return *this;
         }
@@ -140,7 +164,7 @@ private:
         }
         uaiw_constexpr utf8& operator--()
         {
-            iter_func_break_word_rev_utf8();
+            iter_func_segment_word_rev_utf8();
 
             return *this;
         }
@@ -187,6 +211,10 @@ public:
     {
         return utf8<iter_t, sent_t>{*this, std::end(range), std::end(range)};
     }
+    uaiw_constexpr auto cursor(iter_t pos)
+    {
+        return utf8<iter_t, sent_t>{*this, std::begin(range), std::end(range), pos};
+    }
     //uaiw_constexpr bool empty() { return begin() == end(); }
     //explicit uaiw_constexpr operator bool() { return !empty(); }
 };
@@ -211,9 +239,9 @@ private:
         detail::type_codept word_prop = 0;
         detail::type_codept next_word_prop = 0;
 
-        detail::impl_break_word_state state{};
+        detail::impl_segment_word_state state{};
 
-        uaiw_constexpr void iter_func_break_word_utf16()
+        uaiw_constexpr void iter_func_segment_word_utf16()
         {
             it_begin = it_pos;
 
@@ -223,7 +251,7 @@ private:
                 word_prop = next_word_prop;
                 detail::type_codept codepoint = 0;
                 it_next = detail::inline_iter_utf16(it_next, std::end(parent->range), &codepoint, detail::impl_iter_replacement);
-                if (detail::inline_break_word_utf16(&state, codepoint, &next_word_prop, it_next, std::end(parent->range)))
+                if (detail::inline_segment_word_utf16(&state, codepoint, &next_word_prop, it_next, std::end(parent->range)))
                     return;
             }
 
@@ -233,9 +261,9 @@ private:
                 word_prop = next_word_prop;
             }
         }
-        uaiw_constexpr void iter_func_break_word_rev_utf16()
+        uaiw_constexpr void iter_func_segment_word_rev_utf16()
         {
-            detail::impl_break_word_state_reset(&state);
+            detail::impl_segment_word_state_reset(&state);
             it_pos = it_begin;
 
             while (it_begin != std::begin(parent->range))
@@ -244,7 +272,7 @@ private:
                 word_prop = next_word_prop;
                 detail::type_codept codepoint = 0;
                 it_begin = detail::inline_iter_rev_utf16(std::begin(parent->range), it_begin, &codepoint, detail::impl_iter_replacement);
-                if (detail::inline_break_word_rev_utf16(&state, codepoint, &next_word_prop, std::begin(parent->range), it_begin))
+                if (detail::inline_segment_word_rev_utf16(&state, codepoint, &next_word_prop, std::begin(parent->range), it_begin))
                 {
                     it_begin = it_next;
                     break;
@@ -252,7 +280,27 @@ private:
             }
 
             it_next = it_pos;
-            detail::impl_break_word_state_reset(&state);
+            detail::impl_segment_word_state_reset(&state);
+        }
+        uaiw_constexpr void iter_func_segment_word_pos_utf16(Iter pos)
+        {
+            // Find UTF-16 boundary
+            for (std::size_t i = 0; i < 1 && pos != std::end(parent->range); ++i, ++pos)
+            {
+                if (!((*pos & 0xFFFF) >= 0xDC00 && (*pos & 0xFFFF) <= 0xDFFF))
+                    break;
+            }
+
+            // NOTE: https://unicode.org/reports/tr29/#Random_Access
+
+            it_begin = pos;
+
+            iter_func_segment_word_rev_utf16();
+
+            it_pos = it_begin;
+            it_next = it_begin;
+
+            iter_func_segment_word_utf16();
         }
 
         using is_contiguous = detail::rng::is_range_contiguous<Range>;
@@ -272,9 +320,14 @@ private:
             if (begin == end)
                 return;
 
-            detail::impl_break_word_state_reset(&state);
+            detail::impl_segment_word_state_reset(&state);
 
-            iter_func_break_word_utf16();
+            iter_func_segment_word_utf16();
+        }
+        uaiw_constexpr explicit utf16(utf16_view& p, Iter begin, Sent, Iter pos)
+            : parent{std::addressof(p)}, it_begin{begin}, it_pos{begin}, it_next{begin}
+        {
+            iter_func_segment_word_pos_utf16(pos);
         }
         template<class T = reference> typename std::enable_if_t<is_contiguous::value, T>
         uaiw_constexpr operator*() const
@@ -283,18 +336,18 @@ private:
         }
         uaiw_constexpr Iter begin() const noexcept { return it_begin; }
         uaiw_constexpr Iter end() const noexcept { return it_pos; }
-        uaiw_constexpr bool is_word()             const noexcept { return detail::impl_break_is_word(word_prop); }
-        uaiw_constexpr bool is_word_number()      const noexcept { return detail::impl_break_is_word_number(word_prop); }
-        uaiw_constexpr bool is_word_letter()      const noexcept { return detail::impl_break_is_word_letter(word_prop); }
-        uaiw_constexpr bool is_word_kana()        const noexcept { return detail::impl_break_is_word_kana(word_prop); }
-        uaiw_constexpr bool is_word_ideographic() const noexcept { return detail::impl_break_is_word_ideo(word_prop); }
-        uaiw_constexpr bool is_emoji()            const noexcept { return detail::impl_break_is_word_emoji(word_prop); }
-        uaiw_constexpr bool is_punctuation()      const noexcept { return detail::impl_break_is_word_punct(word_prop); }
-        uaiw_constexpr bool is_segspace()         const noexcept { return detail::impl_break_is_word_space(word_prop); }
-        uaiw_constexpr bool is_newline()          const noexcept { return detail::impl_break_is_word_newline(word_prop); }
+        uaiw_constexpr bool is_word()             const noexcept { return detail::impl_segment_is_word(word_prop); }
+        uaiw_constexpr bool is_word_number()      const noexcept { return detail::impl_segment_is_word_number(word_prop); }
+        uaiw_constexpr bool is_word_letter()      const noexcept { return detail::impl_segment_is_word_letter(word_prop); }
+        uaiw_constexpr bool is_word_kana()        const noexcept { return detail::impl_segment_is_word_kana(word_prop); }
+        uaiw_constexpr bool is_word_ideographic() const noexcept { return detail::impl_segment_is_word_ideo(word_prop); }
+        uaiw_constexpr bool is_emoji()            const noexcept { return detail::impl_segment_is_word_emoji(word_prop); }
+        uaiw_constexpr bool is_punctuation()      const noexcept { return detail::impl_segment_is_word_punct(word_prop); }
+        uaiw_constexpr bool is_segspace()         const noexcept { return detail::impl_segment_is_word_space(word_prop); }
+        uaiw_constexpr bool is_newline()          const noexcept { return detail::impl_segment_is_word_newline(word_prop); }
         uaiw_constexpr utf16& operator++()
         {
-            iter_func_break_word_utf16();
+            iter_func_segment_word_utf16();
 
             return *this;
         }
@@ -306,7 +359,7 @@ private:
         }
         uaiw_constexpr utf16& operator--()
         {
-            iter_func_break_word_rev_utf16();
+            iter_func_segment_word_rev_utf16();
 
             return *this;
         }
@@ -352,6 +405,10 @@ public:
     uaiw_constexpr auto end()
     {
         return utf16<iter_t, sent_t>{*this, std::end(range), std::end(range)};
+    }
+    uaiw_constexpr auto cursor(iter_t pos)
+    {
+        return utf16<iter_t, sent_t>{*this, std::begin(range), std::end(range), pos};
     }
     //uaiw_constexpr bool empty() { return begin() == end(); }
     //explicit uaiw_constexpr operator bool() { return !empty(); }
@@ -380,9 +437,9 @@ private:
         detail::type_codept word_prop = 0;
         detail::type_codept next_word_prop = 0;
 
-        detail::impl_break_word_state state{};
+        detail::impl_segment_word_state state{};
 
-        uaiw_constexpr void iter_func_break_word_only_utf8()
+        uaiw_constexpr void iter_func_segment_word_only_utf8()
         {
             it_begin = it_pos;
 
@@ -392,9 +449,9 @@ private:
                 word_prop = next_word_prop;
                 detail::type_codept codepoint = 0;
                 it_next = detail::inline_iter_utf8(it_next, std::end(parent->range), &codepoint, detail::impl_iter_replacement);
-                if (detail::inline_break_word_utf8(&state, codepoint, &next_word_prop, it_next, std::end(parent->range)))
+                if (detail::inline_segment_word_utf8(&state, codepoint, &next_word_prop, it_next, std::end(parent->range)))
                 {
-                    if (detail::impl_break_is_word(word_prop))
+                    if (detail::impl_segment_is_word(word_prop))
                         return;
 
                     it_begin = it_pos;
@@ -406,14 +463,13 @@ private:
             {
                 it_pos = it_next;
                 word_prop = next_word_prop;
-                if (!detail::impl_break_is_word(word_prop))
+                if (!detail::impl_segment_is_word(word_prop))
                     it_begin = it_next;
             }
         }
-
-        uaiw_constexpr void iter_func_break_word_only_rev_utf8()
+        uaiw_constexpr void iter_func_segment_word_only_rev_utf8()
         {
-            detail::impl_break_word_state_reset(&state);
+            detail::impl_segment_word_state_reset(&state);
             it_pos = it_begin;
 
             while (it_begin != std::begin(parent->range))
@@ -422,9 +478,9 @@ private:
                 word_prop = next_word_prop;
                 detail::type_codept codepoint = 0;
                 it_begin = detail::inline_iter_rev_utf8(std::begin(parent->range), it_begin, &codepoint, detail::impl_iter_replacement);
-                if (detail::inline_break_word_rev_utf8(&state, codepoint, &next_word_prop, std::begin(parent->range), it_begin))
+                if (detail::inline_segment_word_rev_utf8(&state, codepoint, &next_word_prop, std::begin(parent->range), it_begin))
                 {
-                    if (detail::impl_break_is_word(word_prop))
+                    if (detail::impl_segment_is_word(word_prop))
                     {
                         it_begin = it_next;
                         break;
@@ -434,7 +490,27 @@ private:
             }
 
             it_next = it_pos;
-            detail::impl_break_word_state_reset(&state);
+            detail::impl_segment_word_state_reset(&state);
+        }
+        uaiw_constexpr void iter_func_segment_word_only_pos_utf8(Iter pos)
+        {
+            // Find UTF-8 boundary
+            for (std::size_t i = 0; i < 3 && pos != std::end(parent->range); ++i, ++pos)
+            {
+                if (((*pos & 0xFF) & 0xC0) != 0x80)
+                    break;
+            }
+
+            // NOTE: https://unicode.org/reports/tr29/#Random_Access
+
+            it_begin = pos;
+
+            iter_func_segment_word_only_rev_utf8();
+
+            it_pos = it_begin;
+            it_next = it_begin;
+
+            iter_func_segment_word_only_utf8();
         }
 
         using is_contiguous = detail::rng::is_range_contiguous<Range>;
@@ -454,9 +530,14 @@ private:
             if (begin == end)
                 return;
 
-            detail::impl_break_word_state_reset(&state);
+            detail::impl_segment_word_state_reset(&state);
 
-            iter_func_break_word_only_utf8();
+            iter_func_segment_word_only_utf8();
+        }
+        uaiw_constexpr explicit utf8(utf8_view& p, Iter begin, Sent, Iter pos)
+            : parent{std::addressof(p)}, it_begin{begin}, it_pos{begin}, it_next{begin}
+        {
+            iter_func_segment_word_only_pos_utf8(pos);
         }
         template<class T = reference> typename std::enable_if_t<is_contiguous::value, T>
         uaiw_constexpr operator*() const
@@ -467,7 +548,7 @@ private:
         uaiw_constexpr Iter end() const noexcept { return it_pos; }
         uaiw_constexpr utf8& operator++()
         {
-            iter_func_break_word_only_utf8();
+            iter_func_segment_word_only_utf8();
 
             return *this;
         }
@@ -479,7 +560,7 @@ private:
         }
         uaiw_constexpr utf8& operator--()
         {
-            iter_func_break_word_only_rev_utf8();
+            iter_func_segment_word_only_rev_utf8();
 
             return *this;
         }
@@ -526,6 +607,10 @@ public:
     {
         return utf8<iter_t, sent_t>{*this, std::end(range), std::end(range)};
     }
+    uaiw_constexpr auto cursor(iter_t pos)
+    {
+        return utf8<iter_t, sent_t>{*this, std::begin(range), std::end(range), pos};
+    }
     //uaiw_constexpr bool empty() { return begin() == end(); }
     //explicit uaiw_constexpr operator bool() { return !empty(); }
 };
@@ -550,9 +635,9 @@ private:
         detail::type_codept word_prop = 0;
         detail::type_codept next_word_prop = 0;
 
-        detail::impl_break_word_state state{};
+        detail::impl_segment_word_state state{};
 
-        uaiw_constexpr void iter_func_break_word_only_utf16()
+        uaiw_constexpr void iter_func_segment_word_only_utf16()
         {
             it_begin = it_pos;
 
@@ -562,9 +647,9 @@ private:
                 word_prop = next_word_prop;
                 detail::type_codept codepoint = 0;
                 it_next = detail::inline_iter_utf16(it_next, std::end(parent->range), &codepoint, detail::impl_iter_replacement);
-                if (detail::inline_break_word_utf16(&state, codepoint, &next_word_prop, it_next, std::end(parent->range)))
+                if (detail::inline_segment_word_utf16(&state, codepoint, &next_word_prop, it_next, std::end(parent->range)))
                 {
-                    if (detail::impl_break_is_word(word_prop))
+                    if (detail::impl_segment_is_word(word_prop))
                         return;
 
                     it_begin = it_pos;
@@ -576,14 +661,13 @@ private:
             {
                 it_pos = it_next;
                 word_prop = next_word_prop;
-                if (!detail::impl_break_is_word(word_prop))
+                if (!detail::impl_segment_is_word(word_prop))
                     it_begin = it_next;
             }
         }
-
-        uaiw_constexpr void iter_func_break_word_only_rev_utf16()
+        uaiw_constexpr void iter_func_segment_word_only_rev_utf16()
         {
-            detail::impl_break_word_state_reset(&state);
+            detail::impl_segment_word_state_reset(&state);
             it_pos = it_begin;
 
             while (it_begin != std::begin(parent->range))
@@ -592,9 +676,9 @@ private:
                 word_prop = next_word_prop;
                 detail::type_codept codepoint = 0;
                 it_begin = detail::inline_iter_rev_utf16(std::begin(parent->range), it_begin, &codepoint, detail::impl_iter_replacement);
-                if (detail::inline_break_word_rev_utf16(&state, codepoint, &next_word_prop, std::begin(parent->range), it_begin))
+                if (detail::inline_segment_word_rev_utf16(&state, codepoint, &next_word_prop, std::begin(parent->range), it_begin))
                 {
-                    if (detail::impl_break_is_word(word_prop))
+                    if (detail::impl_segment_is_word(word_prop))
                     {
                         it_begin = it_next;
                         break;
@@ -604,7 +688,27 @@ private:
             }
 
             it_next = it_pos;
-            detail::impl_break_word_state_reset(&state);
+            detail::impl_segment_word_state_reset(&state);
+        }
+        uaiw_constexpr void iter_func_segment_word_only_pos_utf16(Iter pos)
+        {
+            // Find UTF-16 boundary
+            for (std::size_t i = 0; i < 1 && pos != std::end(parent->range); ++i, ++pos)
+            {
+                if (!((*pos & 0xFFFF) >= 0xDC00 && (*pos & 0xFFFF) <= 0xDFFF))
+                    break;
+            }
+
+            // NOTE: https://unicode.org/reports/tr29/#Random_Access
+
+            it_begin = pos;
+
+            iter_func_segment_word_only_rev_utf16();
+
+            it_pos = it_begin;
+            it_next = it_begin;
+
+            iter_func_segment_word_only_utf16();
         }
 
         using is_contiguous = detail::rng::is_range_contiguous<Range>;
@@ -624,9 +728,14 @@ private:
             if (begin == end)
                 return;
 
-            detail::impl_break_word_state_reset(&state);
+            detail::impl_segment_word_state_reset(&state);
 
-            iter_func_break_word_only_utf16();
+            iter_func_segment_word_only_utf16();
+        }
+        uaiw_constexpr explicit utf16(utf16_view& p, Iter begin, Sent, Iter pos)
+            : parent{std::addressof(p)}, it_begin{begin}, it_pos{begin}, it_next{begin}
+        {
+            iter_func_segment_word_only_pos_utf16(pos);
         }
         template<class T = reference> typename std::enable_if_t<is_contiguous::value, T>
         uaiw_constexpr operator*() const
@@ -637,7 +746,7 @@ private:
         uaiw_constexpr Iter end() const noexcept { return it_pos; }
         uaiw_constexpr utf16& operator++()
         {
-            iter_func_break_word_only_utf16();
+            iter_func_segment_word_only_utf16();
 
             return *this;
         }
@@ -649,7 +758,7 @@ private:
         }
         uaiw_constexpr utf16& operator--()
         {
-            iter_func_break_word_only_rev_utf16();
+            iter_func_segment_word_only_rev_utf16();
 
             return *this;
         }
@@ -695,6 +804,10 @@ public:
     uaiw_constexpr auto end()
     {
         return utf16<iter_t, sent_t>{*this, std::end(range), std::end(range)};
+    }
+    uaiw_constexpr auto cursor(iter_t pos)
+    {
+        return utf16<iter_t, sent_t>{*this, std::begin(range), std::end(range), pos};
     }
     //uaiw_constexpr bool empty() { return begin() == end(); }
     //explicit uaiw_constexpr operator bool() { return !empty(); }

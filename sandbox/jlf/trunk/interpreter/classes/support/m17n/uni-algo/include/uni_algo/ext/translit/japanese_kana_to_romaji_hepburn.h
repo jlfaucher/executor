@@ -88,11 +88,11 @@ private:
 
         if (view[0] >= 0x3040 && view[0] <= 0x309F) // Hiragana
         {
-            std::size_t m = view[0] - 0x3040;
+            const std::size_t m = view[0] - 0x3040;
             if (complex_map[m][0])
             {
                 // HIRAGANA LETTER SMALL YA/YU/YO
-                char32_t v = (view[1] == 0x3083) ? U'a' : (view[1] == 0x3085) ? U'u' : (view[1] == 0x3087) ? U'o' : 0;
+                const char32_t v = (view[1] == 0x3083) ? U'a' : (view[1] == 0x3085) ? U'u' : (view[1] == 0x3087) ? U'o' : 0;
                 if (v)
                 {
                     if (complex_map[m][1])
@@ -112,11 +112,11 @@ private:
         }
         else if (view[0] >= 0x30A0 && view[0] <= 0x30FF) // Katakana
         {
-            std::size_t m = view[0] - 0x30A0;
+            const std::size_t m = view[0] - 0x30A0;
             if (complex_map[m][0])
             {
                 // KATAKANA LETTER SMALL YA/YU/YO
-                char32_t v = (view[1] == 0x30E3) ? U'a' : (view[1] == 0x30E5) ? U'u' : (view[1] == 0x30E7) ? U'o' : 0;
+                const char32_t v = (view[1] == 0x30E3) ? U'a' : (view[1] == 0x30E5) ? U'u' : (view[1] == 0x30E7) ? U'o' : 0;
                 if (v)
                 {
                     if (complex_map[m][1])
@@ -147,7 +147,7 @@ public:
     // so a proxy function is required to use it with translit view
     static constexpr std::size_t buf_func(detail::translit::buffer& buf, bool& prev)
     {
-        std::u32string_view view = buf;
+        const std::u32string_view view = buf;
 
         // Syllabic n (prev is only needed for n) or Long consonants
         if ((prev && buf[0] == U'n') || buf[0] == 0x3063 || buf[0] == 0x30C3) // HIRAGANA/KATAKANA LETTER SMALL TU
@@ -182,7 +182,7 @@ public:
         {
             if (buf.size() > 1)
             {
-                std::size_t size = complex_fn(buf, view.substr(0, 2), 0);
+                const std::size_t size = complex_fn(buf, view.substr(0, 2), 0);
                 if (size)
                 {
                     prev = true;
@@ -190,7 +190,7 @@ public:
                     // -1 to leave the last code point in the buffer for long vowels etc.
                 }
             }
-            std::size_t size = simple_fn(buf, buf[0], 0);
+            const std::size_t size = simple_fn(buf, buf[0], 0);
             if (size)
             {
                 prev = true;
@@ -201,7 +201,7 @@ public:
         {
             if (buf.size() > 2)
             {
-                std::size_t size = complex_fn(buf, view.substr(1, 2), 1);
+                const std::size_t size = complex_fn(buf, view.substr(1, 2), 1);
                 if (size)
                 {
                     prev = true;
@@ -211,7 +211,7 @@ public:
             // Long vowels
             if (buf.size() > 1 && buf[1] != 0x3063 && buf[1] != 0x30C3) // HIRAGANA/KATAKANA LETTER SMALL TU
             {
-                std::size_t size = simple_fn(buf, buf[1], 1);
+                const std::size_t size = simple_fn(buf, buf[1], 1);
                 if (size)
                 {
                     prev = false;
@@ -279,7 +279,7 @@ japanese_kana_to_romaji_hepburn_utf8(std::basic_string_view<UTF8> source, const 
     auto result = detail::rng::translit_view{ranges::utf8_view{source}, func, tr::buf_size}
         | ranges::to_utf8_reserve<std::basic_string<UTF8, std::char_traits<UTF8>, Alloc>>(source.size(), alloc);
 
-#ifndef UNI_ALGO_DISABLE_SHRINK_TO_FIT
+#ifndef UNI_ALGO_NO_SHRINK_TO_FIT
     result.shrink_to_fit();
 #endif
     return result;
@@ -298,7 +298,7 @@ japanese_kana_to_romaji_hepburn_utf16(std::basic_string_view<UTF16> source, cons
     auto result = detail::rng::translit_view{ranges::utf16_view{source}, func, tr::buf_size}
         | ranges::to_utf16_reserve<std::basic_string<UTF16, std::char_traits<UTF16>, Alloc>>(source.size(), alloc);
 
-#ifndef UNI_ALGO_DISABLE_SHRINK_TO_FIT
+#ifndef UNI_ALGO_NO_SHRINK_TO_FIT
     result.shrink_to_fit();
 #endif
     return result;
@@ -324,7 +324,7 @@ inline uaiw_constexpr std::u8string utf8_japanese_kana_to_romaji_hepburn(std::u8
 }
 #endif // __cpp_lib_char8_t
 
-} // namespace una::translit
+} // namespace unx::translit
 
 #endif // UNI_ALGO_JAPANESE_KANA_TO_ROMAJI_HEPBURN_H_UAIH
 

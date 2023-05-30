@@ -6,10 +6,10 @@
 #define UNI_ALGO_IMPL_CASE_H_UAIH
 
 #include "impl_iter.h"
-// Note that title case has cross dependency with break word module
+// Note that title case has cross dependency with word segmentation module
 // and if it's disabled all title case functions must be disabled too
-#ifndef UNI_ALGO_DISABLE_BREAK_WORD
-#include "impl_break_word.h"
+#ifndef UNI_ALGO_DISABLE_SEGMENT_WORD
+#include "impl_segment_word.h"
 #endif
 
 #include "internal_defines.h"
@@ -70,41 +70,41 @@ struct case_special_pair
 uaix_always_inline
 uaix_static type_codept stages_lower(type_codept c)
 {
-    type_codept v = stages(c, stage1_lower, stage2_lower);
+    const type_codept v = stages(c, stage1_lower, stage2_lower);
     return v ? v : c;
 }
 
 uaix_always_inline
 uaix_static type_codept stages_upper(type_codept c)
 {
-    type_codept v = stages(c, stage1_upper, stage2_upper);
+    const type_codept v = stages(c, stage1_upper, stage2_upper);
     return v ? v : c;
 }
 
 uaix_always_inline
 uaix_static type_codept stages_fold(type_codept c)
 {
-    type_codept v = stages(c, stage1_fold, stage2_fold);
+    const type_codept v = stages(c, stage1_fold, stage2_fold);
     return v ? v : c;
 }
 
-#ifndef UNI_ALGO_DISABLE_BREAK_WORD
+#ifndef UNI_ALGO_DISABLE_SEGMENT_WORD
 
 uaix_always_inline
 uaix_static type_codept stages_title(type_codept c)
 {
-    type_codept v = stages(c, stage1_title, stage2_title);
+    const type_codept v = stages(c, stage1_title, stage2_title);
     return v ? v : c;
 }
 
-#endif // UNI_ALGO_DISABLE_BREAK_WORD
+#endif // UNI_ALGO_DISABLE_SEGMENT_WORD
 
 #ifndef UNI_ALGO_DISABLE_COLLATE
 
 uaix_always_inline
 uaix_static type_codept stages_order(type_codept c)
 {
-    type_codept v = stages(c, stage1_order, stage2_order);
+    const type_codept v = stages(c, stage1_order, stage2_order);
     return v ? v : c + 0x110000;
     // Sort code points that are not in DUCET in code point order
     // The result must never be > 0x3FBFFF or it will break our experimental sort keys
@@ -125,7 +125,7 @@ uaix_static size_t stages_special_fold(type_codept c, struct case_special_buffer
 {
     if (c <= 0xFFFF)
     {
-        size_t n = stages(c, stage1_special_fold, stage2_special_fold);
+        const size_t n = stages(c, stage1_special_fold, stage2_special_fold);
         buffer->cps[0] = stage3_special_fold[n][1];
         buffer->cps[1] = stage3_special_fold[n][2];
         buffer->cps[2] = stage3_special_fold[n][3];
@@ -141,7 +141,7 @@ uaix_static bool stages_special_fold_check(type_codept c)
 
     if (c <= 0xFFFF)
     {
-        size_t n = stages(c, stage1_special_fold, stage2_special_fold);
+        const size_t n = stages(c, stage1_special_fold, stage2_special_fold);
         return n ? true : false;
     }
     return false;
@@ -152,7 +152,7 @@ uaix_static size_t stages_special_upper(type_codept c, struct case_special_buffe
 {
     if (c <= 0xFFFF)
     {
-        size_t n = stages(c, stage1_special_upper, stage2_special_upper);
+        const size_t n = stages(c, stage1_special_upper, stage2_special_upper);
         buffer->cps[0] = stage3_special_upper[n][1];
         buffer->cps[1] = stage3_special_upper[n][2];
         buffer->cps[2] = stage3_special_upper[n][3];
@@ -168,20 +168,20 @@ uaix_static bool stages_special_upper_check(type_codept c)
 
     if (c <= 0xFFFF)
     {
-        size_t n = stages(c, stage1_special_upper, stage2_special_upper);
+        const size_t n = stages(c, stage1_special_upper, stage2_special_upper);
         return n ? true : false;
     }
     return false;
 }
 
-#ifndef UNI_ALGO_DISABLE_BREAK_WORD
+#ifndef UNI_ALGO_DISABLE_SEGMENT_WORD
 
 uaix_always_inline
 uaix_static size_t stages_special_title(type_codept c, struct case_special_buffer* const buffer)
 {
     if (c <= 0xFFFF)
     {
-        size_t n = stages(c, stage1_special_title, stage2_special_title);
+        const size_t n = stages(c, stage1_special_title, stage2_special_title);
         buffer->cps[0] = stage3_special_title[n][1];
         buffer->cps[1] = stage3_special_title[n][2];
         buffer->cps[2] = stage3_special_title[n][3];
@@ -197,13 +197,13 @@ uaix_static bool stages_special_title_check(type_codept c)
 
     if (c <= 0xFFFF)
     {
-        size_t n = stages(c, stage1_special_title, stage2_special_title);
+        const size_t n = stages(c, stage1_special_title, stage2_special_title);
         return n ? true : false;
     }
     return false;
 }
 
-#endif // UNI_ALGO_DISABLE_BREAK_WORD
+#endif // UNI_ALGO_DISABLE_SEGMENT_WORD
 
 #endif // UNI_ALGO_DISABLE_FULL_CASE
 
@@ -229,7 +229,7 @@ uaix_static bool case_final_sigma_fwd_utf8(it_in_utf8 first, it_end_utf8 last)
     {
         src = iter_utf8(src, last, &c, iter_replacement);
 
-        type_codept prop = stages_case_prop(c);
+        const type_codept prop = stages_case_prop(c);
 
         if (prop & prop_Cased_Ignorable)
             continue;
@@ -251,7 +251,7 @@ uaix_static bool case_final_sigma_rev_utf8(it_in_utf8 first, it_in_utf8 last)
     {
         src = iter_rev_utf8(first, src, &c, iter_replacement);
 
-        type_codept prop = stages_case_prop(c);
+        const type_codept prop = stages_case_prop(c);
 
         if (prop & prop_Cased_Ignorable)
             continue;
@@ -273,7 +273,7 @@ uaix_static bool case_final_sigma_fwd_utf16(it_in_utf16 first, it_end_utf16 last
     {
         src = iter_utf16(src, last, &c, iter_replacement);
 
-        type_codept prop = stages_case_prop(c);
+        const type_codept prop = stages_case_prop(c);
 
         if (prop & prop_Cased_Ignorable)
             continue;
@@ -295,7 +295,7 @@ uaix_static bool case_final_sigma_rev_utf16(it_in_utf16 first, it_in_utf16 last)
     {
         src = iter_rev_utf16(first, src, &c, iter_replacement);
 
-        type_codept prop = stages_case_prop(c);
+        const type_codept prop = stages_case_prop(c);
 
         if (prop & prop_Cased_Ignorable)
             continue;
@@ -307,7 +307,7 @@ uaix_static bool case_final_sigma_rev_utf16(it_in_utf16 first, it_in_utf16 last)
 
 #endif // UNI_ALGO_DISABLE_FULL_CASE
 
-#ifndef UNI_ALGO_DISABLE_BREAK_WORD
+#ifndef UNI_ALGO_DISABLE_SEGMENT_WORD
 
 // Forward declaration for title case functions
 
@@ -321,7 +321,7 @@ template<typename it_in_utf16, typename it_end_utf16, typename it_out_utf16>
 #endif
 uaix_static size_t case_title_utf16(it_in_utf16 first, it_end_utf16 last, it_out_utf16 result);
 
-#endif // UNI_ALGO_DISABLE_BREAK_WORD
+#endif // UNI_ALGO_DISABLE_SEGMENT_WORD
 
 // The Unicode Standard: 3.13 Default Case Algorithms:
 // Default Case Conversion (locale-independent)
@@ -378,7 +378,7 @@ uaix_static size_t impl_case_map_utf8(it_in_utf8 first, it_end_utf8 last, it_out
             if (stages_special_upper_check(c))
             {
                 struct case_special_buffer buffer = {{0}}; // tag_can_be_uninitialized
-                size_t size = stages_special_upper(c, &buffer);
+                const size_t size = stages_special_upper(c, &buffer);
 
                 for (size_t i = 0; i < size; ++i)
                     dst = codepoint_to_utf8(buffer.cps[i], dst);
@@ -401,7 +401,7 @@ uaix_static size_t impl_case_map_utf8(it_in_utf8 first, it_end_utf8 last, it_out
             if (stages_special_fold_check(c))
             {
                 struct case_special_buffer buffer = {{0}}; // tag_can_be_uninitialized
-                size_t size = stages_special_fold(c, &buffer);
+                const size_t size = stages_special_fold(c, &buffer);
 
                 for (size_t i = 0; i < size; ++i)
                     dst = codepoint_to_utf8(buffer.cps[i], dst);
@@ -414,7 +414,7 @@ uaix_static size_t impl_case_map_utf8(it_in_utf8 first, it_end_utf8 last, it_out
             dst = codepoint_to_utf8(c, dst);
         }
     }
-#ifndef UNI_ALGO_DISABLE_BREAK_WORD
+#ifndef UNI_ALGO_DISABLE_SEGMENT_WORD
     else if (mode == impl_case_map_mode_titlecase)
         return case_title_utf8(first, last, result);
 #endif
@@ -475,7 +475,7 @@ uaix_static size_t impl_case_map_utf16(it_in_utf16 first, it_end_utf16 last, it_
             if (stages_special_upper_check(c))
             {
                 struct case_special_buffer buffer = {{0}}; // tag_can_be_uninitialized
-                size_t size = stages_special_upper(c, &buffer);
+                const size_t size = stages_special_upper(c, &buffer);
 
                 for (size_t i = 0; i < size; ++i)
                     dst = codepoint_to_utf16(buffer.cps[i], dst);
@@ -498,7 +498,7 @@ uaix_static size_t impl_case_map_utf16(it_in_utf16 first, it_end_utf16 last, it_
             if (stages_special_fold_check(c))
             {
                 struct case_special_buffer buffer = {{0}}; // tag_can_be_uninitialized
-                size_t size = stages_special_fold(c, &buffer);
+                const size_t size = stages_special_fold(c, &buffer);
 
                 for (size_t i = 0; i < size; ++i)
                     dst = codepoint_to_utf16(buffer.cps[i], dst);
@@ -511,7 +511,7 @@ uaix_static size_t impl_case_map_utf16(it_in_utf16 first, it_end_utf16 last, it_
             dst = codepoint_to_utf16(c, dst);
         }
     }
-#ifndef UNI_ALGO_DISABLE_BREAK_WORD
+#ifndef UNI_ALGO_DISABLE_SEGMENT_WORD
     else if (mode == impl_case_map_mode_titlecase)
         return case_title_utf16(first, last, result);
 #endif
@@ -909,9 +909,9 @@ uaix_static int impl_case_collate_utf16(it_in_utf16 first1, it_end_utf16 last1,
 #ifdef __cplusplus
 template<typename it_in_utf8, typename it_end_utf8>
 #endif
-uaix_static bool impl_case_search_utf8(it_in_utf8 first1, it_end_utf8 last1,
-                                       it_in_utf8 first2, it_end_utf8 last2, bool caseless,
-                                       size_t* const pos, size_t* const end)
+uaix_static bool impl_case_find_utf8(it_in_utf8 first1, it_end_utf8 last1,
+                                     it_in_utf8 first2, it_end_utf8 last2, bool caseless,
+                                     size_t* const found_pos, size_t* const found_end)
 {
     it_in_utf8 src1 = first1;
     it_in_utf8 src2 = first2;
@@ -947,8 +947,8 @@ uaix_static bool impl_case_search_utf8(it_in_utf8 first1, it_end_utf8 last1,
 
         if (src2 == last2)
         {
-            *pos = (size_t)(prev - first1);
-            *end = (size_t)(src1 - first1);
+            *found_pos = (size_t)(prev - first1);
+            *found_end = (size_t)(src1 - first1);
             return true;
         }
 
@@ -997,8 +997,8 @@ uaix_static bool impl_case_search_utf8(it_in_utf8 first1, it_end_utf8 last1,
     if (src2 == last2)
 #endif
     {
-        *pos = (size_t)(prev - first1);
-        *end = (size_t)(src1 - first1);
+        *found_pos = (size_t)(prev - first1);
+        *found_end = (size_t)(src1 - first1);
         return true;
     }
 
@@ -1011,9 +1011,9 @@ uaix_static bool impl_case_search_utf8(it_in_utf8 first1, it_end_utf8 last1,
 #ifdef __cplusplus
 template<typename it_in_utf16, typename it_end_utf16>
 #endif
-uaix_static bool impl_case_search_utf16(it_in_utf16 first1, it_end_utf16 last1,
-                                        it_in_utf16 first2, it_end_utf16 last2, bool caseless,
-                                        size_t* const pos, size_t* const end)
+uaix_static bool impl_case_find_utf16(it_in_utf16 first1, it_end_utf16 last1,
+                                      it_in_utf16 first2, it_end_utf16 last2, bool caseless,
+                                      size_t* const found_pos, size_t* const found_end)
 {
     it_in_utf16 src1 = first1;
     it_in_utf16 src2 = first2;
@@ -1049,8 +1049,8 @@ uaix_static bool impl_case_search_utf16(it_in_utf16 first1, it_end_utf16 last1,
 
         if (src2 == last2)
         {
-            *pos = (size_t)(prev - first1);
-            *end = (size_t)(src1 - first1);
+            *found_pos = (size_t)(prev - first1);
+            *found_end = (size_t)(src1 - first1);
             return true;
         }
 
@@ -1099,8 +1099,8 @@ uaix_static bool impl_case_search_utf16(it_in_utf16 first1, it_end_utf16 last1,
     if (src2 == last2)
 #endif
     {
-        *pos = (size_t)(prev - first1);
-        *end = (size_t)(src1 - first1);
+        *found_pos = (size_t)(prev - first1);
+        *found_end = (size_t)(src1 - first1);
         return true;
     }
 
@@ -1242,7 +1242,7 @@ uaix_static bool impl_case_like_utf8(it_in_utf8 first1, it_end_utf8 last1,
     return false;
 }
 
-#ifndef UNI_ALGO_DISABLE_BREAK_WORD
+#ifndef UNI_ALGO_DISABLE_SEGMENT_WORD
 
 #ifdef __cplusplus
 template<typename it_in_utf8, typename it_end_utf8, typename it_out_utf8>
@@ -1265,8 +1265,8 @@ uaix_static size_t case_title_utf8(it_in_utf8 first, it_end_utf8 last, it_out_ut
     bool make_lower = false; // tag_must_be_initialized
 
     type_codept word_prop = 0; // Not used here
-    struct impl_break_word_state state = {0,0,0,0,0,0,0}; // tag_can_be_uninitialized
-    impl_break_word_state_reset(&state);
+    struct impl_segment_word_state state = {0,0,0,0,0,0,0}; // tag_can_be_uninitialized
+    impl_segment_word_state_reset(&state);
 
     while (src != last)
     {
@@ -1276,7 +1276,7 @@ uaix_static size_t case_title_utf8(it_in_utf8 first, it_end_utf8 last, it_out_ut
         if (!found_break)
         {
             // Find break (if at the end then force break)
-            if (break_word_utf8(&state, c, &word_prop, src, last) || src == last)
+            if (segment_word_utf8(&state, c, &word_prop, src, last) || src == last)
             {
                 //brk = prev;
                 brk = src;
@@ -1308,7 +1308,7 @@ uaix_static size_t case_title_utf8(it_in_utf8 first, it_end_utf8 last, it_out_ut
                 if (stages_special_title_check(c))
                 {
                     struct case_special_buffer buffer = {{0}};
-                    size_t size = stages_special_title(c, &buffer);
+                    const size_t size = stages_special_title(c, &buffer);
 
                     for (size_t i = 0; i < size; ++i)
                         dst = codepoint_to_utf8(buffer.cps[i], dst);
@@ -1363,8 +1363,8 @@ uaix_static size_t case_title_utf16(it_in_utf16 first, it_end_utf16 last, it_out
     bool make_lower = false; // tag_must_be_initialized
 
     type_codept word_prop = 0; // Not used here
-    struct impl_break_word_state state = {0,0,0,0,0,0,0}; // tag_can_be_uninitialized
-    impl_break_word_state_reset(&state);
+    struct impl_segment_word_state state = {0,0,0,0,0,0,0}; // tag_can_be_uninitialized
+    impl_segment_word_state_reset(&state);
 
     while (src != last)
     {
@@ -1374,7 +1374,7 @@ uaix_static size_t case_title_utf16(it_in_utf16 first, it_end_utf16 last, it_out
         if (!found_break)
         {
             // Find break (if at the end then force break)
-            if (break_word_utf16(&state, c, &word_prop, src, last) || src == last)
+            if (segment_word_utf16(&state, c, &word_prop, src, last) || src == last)
             {
                 //brk = prev;
                 brk = src;
@@ -1406,7 +1406,7 @@ uaix_static size_t case_title_utf16(it_in_utf16 first, it_end_utf16 last, it_out
                 if (stages_special_title_check(c))
                 {
                     struct case_special_buffer buffer = {{0}};
-                    size_t size = stages_special_title(c, &buffer);
+                    const size_t size = stages_special_title(c, &buffer);
 
                     for (size_t i = 0; i < size; ++i)
                         dst = codepoint_to_utf16(buffer.cps[i], dst);
@@ -1445,7 +1445,7 @@ uaix_static size_t case_title_utf16(it_in_utf16 first, it_end_utf16 last, it_out
     return (size_t)(dst - result);
 }
 
-#endif // UNI_ALGO_DISABLE_BREAK_WORD
+#endif // UNI_ALGO_DISABLE_SEGMENT_WORD
 
 // This is just an example how sort keys can look with this simple collation algorithm.
 // They are not that usefull so these functions are disabled for now.
@@ -1692,13 +1692,13 @@ uaix_static type_codept impl_case_to_simple_casefold(type_codept c)
     return (c <= 0x10FFFF && !(c >= 0xD800 && c <= 0xDFFF)) ? stages_fold(c) : 0xFFFD;
 }
 
-#ifndef UNI_ALGO_DISABLE_BREAK_WORD
+#ifndef UNI_ALGO_DISABLE_SEGMENT_WORD
 uaix_always_inline
 uaix_static type_codept impl_case_to_simple_titlecase(type_codept c)
 {
     return (c <= 0x10FFFF && !(c >= 0xD800 && c <= 0xDFFF)) ? stages_title(c) : 0xFFFD;
 }
-#endif // UNI_ALGO_DISABLE_BREAK_WORD
+#endif // UNI_ALGO_DISABLE_SEGMENT_WORD
 
 #ifndef UNI_ALGO_DISABLE_FULL_CASE
 
@@ -1725,7 +1725,7 @@ template<typename it_out_utf32>
 uaix_always_inline_tmpl
 uaix_static size_t impl_case_to_uppercase(type_codept c, it_out_utf32 dst)
 {
-    size_t n = (c <= 0xFFFF) ? stages(c, stage1_special_upper, stage2_special_upper) : 0;
+    const size_t n = (c <= 0xFFFF) ? stages(c, stage1_special_upper, stage2_special_upper) : 0;
     if (n)
     {
         *dst++ = stage3_special_upper[n][1];
@@ -1743,7 +1743,7 @@ template<typename it_out_utf32>
 uaix_always_inline_tmpl
 uaix_static size_t impl_case_to_casefold(type_codept c, it_out_utf32 dst)
 {
-    size_t n = (c <= 0xFFFF) ? stages(c, stage1_special_fold, stage2_special_fold) : 0;
+    const size_t n = (c <= 0xFFFF) ? stages(c, stage1_special_fold, stage2_special_fold) : 0;
     if (n)
     {
         *dst++ = stage3_special_fold[n][1];
@@ -1755,14 +1755,14 @@ uaix_static size_t impl_case_to_casefold(type_codept c, it_out_utf32 dst)
     return 1;
 }
 
-#ifndef UNI_ALGO_DISABLE_BREAK_WORD
+#ifndef UNI_ALGO_DISABLE_SEGMENT_WORD
 #ifdef __cplusplus
 template<typename it_out_utf32>
 #endif
 uaix_always_inline_tmpl
 uaix_static size_t impl_case_to_titlecase(type_codept c, it_out_utf32 dst)
 {
-    size_t n = (c <= 0xFFFF) ? stages(c, stage1_special_title, stage2_special_title) : 0;
+    const size_t n = (c <= 0xFFFF) ? stages(c, stage1_special_title, stage2_special_title) : 0;
     if (n)
     {
         *dst++ = stage3_special_title[n][1];
@@ -1773,7 +1773,7 @@ uaix_static size_t impl_case_to_titlecase(type_codept c, it_out_utf32 dst)
     *dst = impl_case_to_simple_titlecase(c);
     return 1;
 }
-#endif // UNI_ALGO_DISABLE_BREAK_WORD
+#endif // UNI_ALGO_DISABLE_SEGMENT_WORD
 
 #endif // UNI_ALGO_DISABLE_FULL_CASE
 

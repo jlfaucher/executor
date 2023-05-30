@@ -42,7 +42,7 @@ uaix_static bool case_after_soft_dotted_utf8(it_in_utf8 first, it_in_utf8 src)
     {
         s = iter_rev_utf8(first, s, &c, iter_replacement);
 
-        type_codept prop = stages_case_prop(c);
+        const type_codept prop = stages_case_prop(c);
 
         if (prop & prop_Soft_Dotted)
             return true;
@@ -62,7 +62,7 @@ uaix_static bool case_more_above_utf8(it_in_utf8 src, it_end_utf8 last)
      * C is followed by a character of combining class 230 (Above)
      * with no intervening character of combining class 0 or 230 (Above).
      * [^\p{ccc=230}\p{ccc=0}]* [\p{ccc=230}]
-     * Note: it seems the rule actually is [^\p{ccc=0}]* [\p{ccc=230}]
+     * NOTE: It seems the rule actually is [^\p{ccc=0}]* [\p{ccc=230}]
      * it passes all tests this way and the behaviour is the same as in ICU
      */
 
@@ -73,11 +73,11 @@ uaix_static bool case_more_above_utf8(it_in_utf8 src, it_end_utf8 last)
     {
         s = iter_utf8(s, last, &c, iter_replacement);
 
-        type_codept prop = stages_case_prop(c);
+        const type_codept prop = stages_case_prop(c);
 
         if (prop & prop_CCC_230)
             return true;
-        if (!(prop & prop_CCC_NOT_0) || (prop & prop_CCC_230))
+        if (!(prop & prop_CCC_NOT_0))
             return false;
     }
 
@@ -106,7 +106,7 @@ uaix_static bool case_before_dot_utf8(it_in_utf8 src, it_end_utf8 last)
         if (c == 0x0307)
             return true;
 
-        type_codept prop = stages_case_prop(c);
+        const type_codept prop = stages_case_prop(c);
 
         if (!(prop & prop_CCC_NOT_0) || (prop & prop_CCC_230))
             return false;
@@ -136,7 +136,7 @@ uaix_static bool case_after_i_utf8(it_in_utf8 first, it_in_utf8 src)
         if (c == 0x0049) // I
             return true;
 
-        type_codept prop = stages_case_prop(c);
+        const type_codept prop = stages_case_prop(c);
 
         if (!(prop & prop_CCC_NOT_0) || (prop & prop_CCC_230))
             return false;
@@ -160,7 +160,7 @@ uaix_static bool case_after_soft_dotted_utf16(it_in_utf16 first, it_in_utf16 src
     {
         s = iter_rev_utf16(first, s, &c, iter_replacement);
 
-        type_codept prop = stages_case_prop(c);
+        const type_codept prop = stages_case_prop(c);
 
         if (prop & prop_Soft_Dotted)
             return true;
@@ -183,11 +183,11 @@ uaix_static bool case_more_above_utf16(it_in_utf16 src, it_end_utf16 last)
     {
         s = iter_utf16(s, last, &c, iter_replacement);
 
-        type_codept prop = stages_case_prop(c);
+        const type_codept prop = stages_case_prop(c);
 
         if (prop & prop_CCC_230)
             return true;
-        if (!(prop & prop_CCC_NOT_0) || (prop & prop_CCC_230))
+        if (!(prop & prop_CCC_NOT_0))
             return false;
     }
 
@@ -209,7 +209,7 @@ uaix_static bool case_before_dot_utf16(it_in_utf16 src, it_end_utf16 last)
         if (c == 0x0307)
             return true;
 
-        type_codept prop = stages_case_prop(c);
+        const type_codept prop = stages_case_prop(c);
 
         if (!(prop & prop_CCC_NOT_0) || (prop & prop_CCC_230))
             return false;
@@ -233,7 +233,7 @@ uaix_static bool case_after_i_utf16(it_in_utf16 first, it_in_utf16 src)
         if (c == 0x0049) // I
             return true;
 
-        type_codept prop = stages_case_prop(c);
+        const type_codept prop = stages_case_prop(c);
 
         if (!(prop & prop_CCC_NOT_0) || (prop & prop_CCC_230))
             return false;
@@ -262,7 +262,7 @@ uaix_static it_out_utf8 case_locale_upper_lt_utf8(type_codept c, it_out_utf8 dst
     if (stages_special_upper_check(c))
     {
         struct case_special_buffer buffer = {{0}}; // tag_can_be_uninitialized
-        size_t size = stages_special_upper(c, &buffer);
+        const size_t size = stages_special_upper(c, &buffer);
 
         for (size_t i = 0; i < size; ++i)
             dst = codepoint_to_utf8(buffer.cps[i], dst);
@@ -384,7 +384,7 @@ uaix_static it_out_utf8 case_locale_upper_tr_az_utf8(type_codept c, it_out_utf8 
     if (stages_special_upper_check(c))
     {
         struct case_special_buffer buffer = {{0}}; // tag_can_be_uninitialized
-        size_t size = stages_special_upper(c, &buffer);
+        const size_t size = stages_special_upper(c, &buffer);
 
         for (size_t i = 0; i < size; ++i)
             dst = codepoint_to_utf8(buffer.cps[i], dst);
@@ -469,7 +469,7 @@ uaix_static it_out_utf16 case_locale_upper_lt_utf16(type_codept c, it_out_utf16 
     if (stages_special_upper_check(c))
     {
         struct case_special_buffer buffer = {{0}}; // tag_can_be_uninitialized
-        size_t size = stages_special_upper(c, &buffer);
+        const size_t size = stages_special_upper(c, &buffer);
 
         for (size_t i = 0; i < size; ++i)
             dst = codepoint_to_utf16(buffer.cps[i], dst);
@@ -578,7 +578,7 @@ uaix_static it_out_utf16 case_locale_upper_tr_az_utf16(type_codept c, it_out_utf
     if (stages_special_upper_check(c))
     {
         struct case_special_buffer buffer = {{0}}; // tag_can_be_uninitialized
-        size_t size = stages_special_upper(c, &buffer);
+        const size_t size = stages_special_upper(c, &buffer);
 
         for (size_t i = 0; i < size; ++i)
             dst = codepoint_to_utf16(buffer.cps[i], dst);
@@ -1054,7 +1054,6 @@ uaix_const uaix_array(type_codept, case_locale_el_map_1F00_1FFF, 256) =
 };
 
 uaix_always_inline
-// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 uaix_static type_codept case_greek_upper(type_codept c, bool* const prev_vowel_with_accent, bool* const maybe_eta_with_tonos)
 {
     // The data and the algorithm is based on: http://site.icu-project.org/design/case/greek-upper
@@ -1133,7 +1132,7 @@ uaix_static size_t case_upper_el_utf8(it_in_utf8 first, it_end_utf8 last, it_out
 
         src = iter_utf8(src, last, &c, iter_replacement);
 
-        type_codept upper = case_greek_upper(c, &prev_vowel_with_accent, &maybe_eta_with_tonos);
+        const type_codept upper = case_greek_upper(c, &prev_vowel_with_accent, &maybe_eta_with_tonos);
         if (upper)
         {
             // Use Final_Sigma function here because Eta follows the same "word boundary" rules
@@ -1153,7 +1152,7 @@ uaix_static size_t case_upper_el_utf8(it_in_utf8 first, it_end_utf8 last, it_out
             if (stages_special_upper_check(c))
             {
                 struct case_special_buffer buffer = {{0}};
-                size_t size = stages_special_upper(c, &buffer);
+                const size_t size = stages_special_upper(c, &buffer);
 
                 for (size_t i = 0; i < size; ++i)
                     dst = codepoint_to_utf8(buffer.cps[i], dst);
@@ -1187,7 +1186,7 @@ uaix_static size_t case_upper_el_utf16(it_in_utf16 first, it_end_utf16 last, it_
 
         src = iter_utf16(src, last, &c, iter_replacement);
 
-        type_codept upper = case_greek_upper(c, &after_vowel_with_accent, &maybe_eta_with_tonos);
+        const type_codept upper = case_greek_upper(c, &after_vowel_with_accent, &maybe_eta_with_tonos);
         if (upper)
         {
             // Use Final_Sigma function here because Eta follows the same "word boundary" rules
@@ -1206,7 +1205,7 @@ uaix_static size_t case_upper_el_utf16(it_in_utf16 first, it_end_utf16 last, it_
             if (stages_special_upper_check(c))
             {
                 struct case_special_buffer buffer = {{0}};
-                size_t size = stages_special_upper(c, &buffer);
+                const size_t size = stages_special_upper(c, &buffer);
 
                 for (size_t i = 0; i < size; ++i)
                     dst = codepoint_to_utf16(buffer.cps[i], dst);
@@ -1223,7 +1222,7 @@ uaix_static size_t case_upper_el_utf16(it_in_utf16 first, it_end_utf16 last, it_
     return (size_t)(dst - result);
 }
 
-#ifndef UNI_ALGO_DISABLE_BREAK_WORD
+#ifndef UNI_ALGO_DISABLE_SEGMENT_WORD
 
 #ifdef __cplusplus
 template<typename it_in_utf8, typename it_end_utf8, typename it_out_utf8>
@@ -1241,8 +1240,8 @@ uaix_static size_t case_title_locale_utf8(it_in_utf8 first, it_end_utf8 last, it
     bool make_lower = false; // tag_must_be_initialized
 
     type_codept word_prop = 0; // Not used here
-    struct impl_break_word_state state = {0,0,0,0,0,0,0}; // tag_can_be_uninitialized
-    impl_break_word_state_reset(&state);
+    struct impl_segment_word_state state = {0,0,0,0,0,0,0}; // tag_can_be_uninitialized
+    impl_segment_word_state_reset(&state);
 
     while (src != last)
     {
@@ -1252,7 +1251,7 @@ uaix_static size_t case_title_locale_utf8(it_in_utf8 first, it_end_utf8 last, it
         if (!found_break)
         {
             // Find break (if at the end then force break)
-            if (break_word_utf8(&state, c, &word_prop, src, last) || src == last)
+            if (segment_word_utf8(&state, c, &word_prop, src, last) || src == last)
             {
                 brk = src;
                 src = prev_brk;
@@ -1313,7 +1312,7 @@ uaix_static size_t case_title_locale_utf8(it_in_utf8 first, it_end_utf8 last, it
                 if (stages_special_title_check(c))
                 {
                     struct case_special_buffer buffer = {{0}};
-                    size_t size = stages_special_title(c, &buffer);
+                    const size_t size = stages_special_title(c, &buffer);
 
                     for (size_t i = 0; i < size; ++i)
                         dst = codepoint_to_utf8(buffer.cps[i], dst);
@@ -1384,8 +1383,8 @@ uaix_static size_t case_title_locale_utf16(it_in_utf16 first, it_end_utf16 last,
     bool make_lower = false; // tag_must_be_initialized
 
     type_codept word_prop = 0; // Not used here
-    struct impl_break_word_state state = {0,0,0,0,0,0,0}; // tag_can_be_uninitialized
-    impl_break_word_state_reset(&state);
+    struct impl_segment_word_state state = {0,0,0,0,0,0,0}; // tag_can_be_uninitialized
+    impl_segment_word_state_reset(&state);
 
     while (src != last)
     {
@@ -1395,7 +1394,7 @@ uaix_static size_t case_title_locale_utf16(it_in_utf16 first, it_end_utf16 last,
         if (!found_break)
         {
             // Find break (if at the end then force break)
-            if (break_word_utf16(&state, c, &word_prop, src, last) || src == last)
+            if (segment_word_utf16(&state, c, &word_prop, src, last) || src == last)
             {
                 brk = src;
                 src = prev_brk;
@@ -1455,7 +1454,7 @@ uaix_static size_t case_title_locale_utf16(it_in_utf16 first, it_end_utf16 last,
                 if (stages_special_title_check(c))
                 {
                     struct case_special_buffer buffer = {{0}};
-                    size_t size = stages_special_title(c, &buffer);
+                    const size_t size = stages_special_title(c, &buffer);
 
                     for (size_t i = 0; i < size; ++i)
                         dst = codepoint_to_utf16(buffer.cps[i], dst);
@@ -1508,7 +1507,7 @@ uaix_static size_t case_title_locale_utf16(it_in_utf16 first, it_end_utf16 last,
     return (size_t)(dst - result);
 }
 
-#endif // UNI_ALGO_DISABLE_BREAK_WORD
+#endif // UNI_ALGO_DISABLE_SEGMENT_WORD
 
 #ifdef __cplusplus
 template<typename it_in_utf8, typename it_end_utf8, typename it_out_utf8>
@@ -1547,7 +1546,7 @@ uaix_static size_t impl_case_map_locale_utf8(it_in_utf8 first, it_end_utf8 last,
 
             return (size_t)(dst - result);
         }
-#ifndef UNI_ALGO_DISABLE_BREAK_WORD
+#ifndef UNI_ALGO_DISABLE_SEGMENT_WORD
         if (mode == impl_case_map_mode_titlecase)
             return case_title_locale_utf8(first, last, result, language);
 #endif
@@ -1578,7 +1577,7 @@ uaix_static size_t impl_case_map_locale_utf8(it_in_utf8 first, it_end_utf8 last,
 
             return (size_t)(dst - result);
         }
-#ifndef UNI_ALGO_DISABLE_BREAK_WORD
+#ifndef UNI_ALGO_DISABLE_SEGMENT_WORD
         if (mode == impl_case_map_mode_titlecase)
             return case_title_locale_utf8(first, last, result, language);
 #endif
@@ -1588,7 +1587,7 @@ uaix_static size_t impl_case_map_locale_utf8(it_in_utf8 first, it_end_utf8 last,
         if (mode == impl_case_map_mode_uppercase)
             return case_upper_el_utf8(first, last, result);
     }
-#ifndef UNI_ALGO_DISABLE_BREAK_WORD
+#ifndef UNI_ALGO_DISABLE_SEGMENT_WORD
     else if (language == case_map_language_nl)
     {
         if (mode == impl_case_map_mode_titlecase)
@@ -1636,7 +1635,7 @@ uaix_static size_t impl_case_map_locale_utf16(it_in_utf16 first, it_end_utf16 la
 
             return (size_t)(dst - result);
         }
-#ifndef UNI_ALGO_DISABLE_BREAK_WORD
+#ifndef UNI_ALGO_DISABLE_SEGMENT_WORD
         if (mode == impl_case_map_mode_titlecase)
             return case_title_locale_utf16(first, last, result, language);
 #endif
@@ -1667,7 +1666,7 @@ uaix_static size_t impl_case_map_locale_utf16(it_in_utf16 first, it_end_utf16 la
 
             return (size_t)(dst - result);
         }
-#ifndef UNI_ALGO_DISABLE_BREAK_WORD
+#ifndef UNI_ALGO_DISABLE_SEGMENT_WORD
         if (mode == impl_case_map_mode_titlecase)
             return case_title_locale_utf16(first, last, result, language);
 #endif
@@ -1677,7 +1676,7 @@ uaix_static size_t impl_case_map_locale_utf16(it_in_utf16 first, it_end_utf16 la
         if (mode == impl_case_map_mode_uppercase)
             return case_upper_el_utf16(first, last, result);
     }
-#ifndef UNI_ALGO_DISABLE_BREAK_WORD
+#ifndef UNI_ALGO_DISABLE_SEGMENT_WORD
     else if (language == case_map_language_nl)
     {
         if (mode == impl_case_map_mode_titlecase)

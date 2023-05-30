@@ -2,12 +2,29 @@
 Only the most important stuff is listed here.<br>
 See commit history between tags for details.
 
-## [v0.7.1](https://github.com/uni-algo/uni-algo/tree/v0.7.1) (27.02.2023)
+## [v0.8.1](https://github.com/uni-algo/uni-algo/tree/v0.8.0) (2023-05-15)
+- Fixed constexpr UTF conversion in Clang ([#27](https://github.com/uni-algo/uni-algo/issues/27))
+
+## [v0.8.0](https://github.com/uni-algo/uni-algo/tree/v0.8.0) (2023-05-07)
+- Added scripts and script extensions support ([UAX #24: Unicode Script Property](https://www.unicode.org/reports/tr24))
+- Added cursor support for text segmentation ([doc/CURSOR.md](doc/CURSOR.md))
+- Optimized UTF conversion of ASCII strings
+- Changed versions in namespace `una::version` to classes ([#18](https://github.com/uni-algo/uni-algo/issues/18))
+- File `uni_algo/version.h` is not included by other files anymore
+- Improved `una::error` class added `una::error::code`
+- Renamed `search` functions to `find` ([#23](https://github.com/uni-algo/uni-algo/issues/23))
+- Renamed `una::search` class to `una::found` ([#23](https://github.com/uni-algo/uni-algo/issues/23))
+- Renamed config defines:
+  - `UNI_ALGO_DISABLE_SHRINK_TO_FIT` to `UNI_ALGO_NO_SHRINK_TO_FIT`
+  - `UNI_ALGO_DISABLE_BREAK_GRAPHEME` to `UNI_ALGO_DISABLE_SEGMENT_GRAPHEME`
+  - `UNI_ALGO_DISABLE_BREAK_WORD` to `UNI_ALGO_DISABLE_SEGMENT_WORD`
+
+## [v0.7.1](https://github.com/uni-algo/uni-algo/tree/v0.7.1) (2023-02-27)
 - Fixed bug when normalization and UTF-16 views are used with input ranges ([#22](https://github.com/uni-algo/uni-algo/issues/22)). Thanks [@tocic](https://github.com/tocic).
 
-## [v0.7.0](https://github.com/uni-algo/uni-algo/tree/v0.7.0) (07.02.2023)
+## [v0.7.0](https://github.com/uni-algo/uni-algo/tree/v0.7.0) (2023-02-07)
 - Renamed main namespace from `uni::` to `una::`
-- Splitted .h files with ranges and functions:
+- Splitted .h files with ranges and functions: ([#15](https://github.com/uni-algo/uni-algo/issues/15))
   - Added files: `uni_algo/ranges_norm.h` and `uni_algo/ranges_conv.h`
   - Renamed file `uni_algo/break_grapheme.h` to `uni_algo/ranges_grapheme.h`
   - Renamed file `uni_algo/break_word.h` to `uni_algo/ranges_word.h`
@@ -17,7 +34,7 @@ See commit history between tags for details.
 - Added ASCII extension
 - Removed function uni::codepoint::to_decompose_hangul_u32
 
-## [v0.6.0](https://github.com/uni-algo/uni-algo/tree/v0.6.0) (07.11.2022)
+## [v0.6.0](https://github.com/uni-algo/uni-algo/tree/v0.6.0) (2022-11-07)
 - Added uni::is_valid_utf8/16/32 functions for strings
 - Added custom allocator support for template functions
 - Added custom allocator support for output ranges
@@ -27,7 +44,7 @@ See commit history between tags for details.
 - Lowered requirements for word/grapheme breaks to bidirectional range
 - Extensions now use unx namespace instead of uni
 
-## [v0.5.0](https://github.com/uni-algo/uni-algo/tree/v0.5.0) (01.10.2022)
+## [v0.5.0](https://github.com/uni-algo/uni-algo/tree/v0.5.0) (2022-10-01)
 - Updated to Unicode 15.0.0
 - Added single include version
 - Renamed files from cpp_uni_* to uni_algo/*
@@ -39,7 +56,7 @@ See commit history between tags for details.
 - Removed function uni::codepoint::is_same_category
 - Redesigned transliterators more than two times faster now
 
-## [v0.4.0](https://github.com/uni-algo/uni-algo/tree/v0.4.0) (30.08.2022)
+## [v0.4.0](https://github.com/uni-algo/uni-algo/tree/v0.4.0) (2022-08-30)
 - Added code point basic properties
 - Added code point case properties
 - Added code point case tranformations
@@ -47,7 +64,7 @@ See commit history between tags for details.
 - Added code point normalization tranformations
 - Added ranges to_utf8_reserve and to_utf16_reserve
 
-## [v0.3.0](https://github.com/uni-algo/uni-algo/tree/v0.3.0) (07.08.2022)
+## [v0.3.0](https://github.com/uni-algo/uni-algo/tree/v0.3.0) (2022-08-07)
 - Added support for char8_t strings
 - Switched from iterators to ranges
 - Switched to ranges in transliterators
@@ -61,8 +78,8 @@ See commit history between tags for details.
 - Removed break: grapheme, word iterators
 - Renamed function is_pos() to has_pos() in class error
 
-## [v0.2.0](https://github.com/uni-algo/uni-algo/tree/v0.2.0) (14.07.2022)
+## [v0.2.0](https://github.com/uni-algo/uni-algo/tree/v0.2.0) (2022-07-14)
 - Updated to Unicode 14.0.0
 
-## [v0.1.0](https://github.com/uni-algo/uni-algo/tree/v0.1.0) (07.07.2022)
+## [v0.1.0](https://github.com/uni-algo/uni-algo/tree/v0.1.0) (2022-07-07)
 - Initial commit

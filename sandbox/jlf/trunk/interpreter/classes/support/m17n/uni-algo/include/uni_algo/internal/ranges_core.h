@@ -30,7 +30,6 @@
 #endif
 
 #include "../config.h"
-#include "../version.h"
 
 namespace una {
 
@@ -128,7 +127,7 @@ using is_range_contiguous = std::conditional_t<std::ranges::contiguous_range<Ran
 #endif
 
 // In C++17 std::string_view doesn't have iterators pair constructor
-// so we use this a bit ugly approach to make it work. It is only used in break ranges.
+// so we use this a bit ugly approach to make it work. It is only used in text segmentation ranges.
 // This helper function requeries contiguous range, but no checks here must be checked where used.
 #if !defined(__cpp_lib_ranges) || defined(UNI_ALGO_FORCE_CPP17_RANGES)
 template<class StringViewResult, class Range, class Iter>
@@ -274,7 +273,7 @@ template <class R>
 uaiw_constexpr auto operator|(R&& r, const adaptor_all& a) { return a(std::forward<R>(r)); }
 #endif
 
-} // namespase detail::rng
+} // namespace detail::rng
 
 namespace ranges::views {
 
@@ -290,7 +289,7 @@ template<class Range>
 using all_t = std::views::all_t<Range>;
 #endif
 
-} // namespace views
+} // namespace ranges::views
 
 namespace views = ranges::views;
 

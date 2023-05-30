@@ -10,8 +10,7 @@
 #include <string_view>
 
 #include "../config.h"
-#include "../version.h"
-#include "../internal/search.h"
+#include "../internal/found.h"
 
 namespace una::detail::ascii {
 
@@ -127,7 +126,7 @@ inline uaiw_constexpr std::string to_uppercase_ascii(std::string_view source)
     return to_uppercase_ascii<char>(source);
 }
 
-} // namespace case
+} // namespace cases
 
 namespace casesens {
 
@@ -142,18 +141,18 @@ uaiw_constexpr int compare_ascii(std::basic_string_view<T> string1, std::basic_s
 }
 
 template<typename T>
-uaiw_constexpr una::search search_ascii(std::basic_string_view<T> string1, std::basic_string_view<T> string2)
+uaiw_constexpr una::found find_ascii(std::basic_string_view<T> string1, std::basic_string_view<T> string2)
 {
     static_assert(std::is_integral_v<T>);
 
     // The same as binary find
 
-    std::size_t pos = string1.find(string2);
+    const std::size_t pos = string1.find(string2);
 
     if (pos == std::string_view::npos)
-        return una::search{};
+        return una::found{};
 
-    return una::search{true, pos, pos + string2.size()};
+    return una::found{pos, pos + string2.size()};
 }
 
 #ifndef UNI_ALGO_IMPL_DISABLE_COLLATE
@@ -205,9 +204,9 @@ inline uaiw_constexpr int collate_ascii(std::string_view string1, std::string_vi
     return collate_ascii<char>(string1, string2);
 }
 #endif // UNI_ALGO_IMPL_DISABLE_COLLATE
-inline uaiw_constexpr una::search search_ascii(std::string_view string1, std::string_view string2)
+inline uaiw_constexpr una::found find_ascii(std::string_view string1, std::string_view string2)
 {
-    return search_ascii<char>(string1, string2);
+    return find_ascii<char>(string1, string2);
 }
 
 } // namespace casesens
@@ -245,18 +244,18 @@ uaiw_constexpr int compare_ascii(std::basic_string_view<T> string1, std::basic_s
 }
 
 template<typename T>
-uaiw_constexpr una::search search_ascii(std::basic_string_view<T> string1, std::basic_string_view<T> string2)
+uaiw_constexpr una::found find_ascii(std::basic_string_view<T> string1, std::basic_string_view<T> string2)
 {
     static_assert(std::is_integral_v<T>);
 
     // TODO: Maybe move to low-level
     // See comment in casesens::collate_ascii above
 
-    std::size_t m = string2.size();
-    std::size_t n = string1.size();
+    const std::size_t m = string2.size();
+    const std::size_t n = string1.size();
 
     if (m > n)
-        return una::search{};
+        return una::found{};
 
     for (std::size_t i = 0; i <= n - m; ++i)
     {
@@ -278,10 +277,10 @@ uaiw_constexpr una::search search_ascii(std::basic_string_view<T> string1, std::
         }
 
         if (j == m)
-            return una::search{true, i, i + m};
+            return una::found{i, i + m};
     }
 
-    return una::search{};
+    return una::found{};
 }
 
 #ifndef UNI_ALGO_IMPL_DISABLE_COLLATE
@@ -330,9 +329,9 @@ inline uaiw_constexpr int collate_ascii(std::string_view string1, std::string_vi
     return collate_ascii<char>(string1, string2);
 }
 #endif // UNI_ALGO_IMPL_DISABLE_COLLATE
-inline uaiw_constexpr una::search search_ascii(std::string_view string1, std::string_view string2)
+inline uaiw_constexpr una::found find_ascii(std::string_view string1, std::string_view string2)
 {
-    return search_ascii<char>(string1, string2);
+    return find_ascii<char>(string1, string2);
 }
 
 } // namespace caseless
@@ -363,8 +362,8 @@ uaiw_constexpr std::basic_string_view<T> trim_ascii(std::basic_string_view<T> vi
 
     static_assert(std::is_integral_v<T>);
 
-    std::size_t pos = view.find_first_not_of(detail::ascii::data_trim_view<T>);
-    std::size_t end = view.find_last_not_of(detail::ascii::data_trim_view<T>);
+    const std::size_t pos = view.find_first_not_of(detail::ascii::data_trim_view<T>);
+    const std::size_t end = view.find_last_not_of(detail::ascii::data_trim_view<T>);
 
     view.remove_prefix(pos == std::string_view::npos ? 0 : pos);
     view.remove_suffix(end == std::string_view::npos ? 0 : view.size() + pos - end - 1);
@@ -379,7 +378,7 @@ uaiw_constexpr std::basic_string_view<T> trim_start_ascii(std::basic_string_view
 
     static_assert(std::is_integral_v<T>);
 
-    std::size_t pos = view.find_first_not_of(detail::ascii::data_trim_view<T>);
+    const std::size_t pos = view.find_first_not_of(detail::ascii::data_trim_view<T>);
 
     view.remove_prefix(pos == std::string_view::npos ? 0 : pos);
 
@@ -393,7 +392,7 @@ uaiw_constexpr std::basic_string_view<T> trim_end_ascii(std::basic_string_view<T
 
     static_assert(std::is_integral_v<T>);
 
-    std::size_t end = view.find_last_not_of(detail::ascii::data_trim_view<T>);
+    const std::size_t end = view.find_last_not_of(detail::ascii::data_trim_view<T>);
 
     view.remove_suffix(end == std::string_view::npos ? 0 : view.size() - end - 1);
 

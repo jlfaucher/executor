@@ -14,7 +14,6 @@
 #include <iterator> // std::back_insert_iterator
 
 #include "config.h"
-#include "version.h"
 #include "internal/safe_layer.h"
 
 #include "impl/impl_norm.h"
@@ -35,7 +34,7 @@ uaiw_constexpr Dst t_norm(const Alloc& alloc, const Src& src)
 {
     Dst dst{alloc};
 
-    std::size_t length = src.size();
+    const std::size_t length = src.size();
 
     if (length)
     {
@@ -65,7 +64,7 @@ uaiw_constexpr Dst t_norm(const Alloc& alloc, const Src& src)
 #  endif
 #endif
 
-#ifndef UNI_ALGO_DISABLE_SHRINK_TO_FIT
+#ifndef UNI_ALGO_NO_SHRINK_TO_FIT
         dst.shrink_to_fit();
 #endif
     }
@@ -112,7 +111,7 @@ uaiw_constexpr Dst t_norm2(const Alloc& alloc, const Src& src)
 {
     Dst dst{alloc};
 
-    std::size_t length = src.size();
+    const std::size_t length = src.size();
 
     if (length)
     {
@@ -127,7 +126,7 @@ uaiw_constexpr Dst t_norm2(const Alloc& alloc, const Src& src)
 
         dst.reserve(length * 3 / 2);
 
-        proxy_it_out<std::back_insert_iterator<Dst>> it_out{std::back_inserter(dst)};
+        const proxy_it_out<std::back_insert_iterator<Dst>> it_out{std::back_inserter(dst)};
 
 #if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
         FnNorm(src.cbegin(), src.cend(), it_out);
@@ -137,7 +136,7 @@ uaiw_constexpr Dst t_norm2(const Alloc& alloc, const Src& src)
         FnNorm(safe::in{src.data(), src.size()}, safe::end{src.data() + src.size()}, it_out);
 #endif
 
-#ifndef UNI_ALGO_DISABLE_SHRINK_TO_FIT
+#ifndef UNI_ALGO_NO_SHRINK_TO_FIT
         dst.shrink_to_fit();
 #endif
     }
@@ -146,6 +145,26 @@ uaiw_constexpr Dst t_norm2(const Alloc& alloc, const Src& src)
 }
 
 #endif // UNI_ALGO_DISABLE_NFKC_NFKD
+
+// Normalization detection
+
+#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
+template<typename Src, int(*FnDetect)(typename Src::const_iterator, typename Src::const_iterator)>
+#elif defined(UNI_ALGO_FORCE_C_POINTERS)
+template<typename Src, int(*FnDetect)(typename Src::const_pointer, typename Src::const_pointer)>
+#else // Safe layer
+template<typename Src, int(*FnDetect)(safe::in<typename Src::const_pointer>, safe::end<typename Src::const_pointer>)>
+#endif
+uaiw_constexpr bool t_detect(const Src& src)
+{
+#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
+    return FnDetect(src.cbegin(), src.cend()) == detail::impl_norm_is_yes;
+#elif defined(UNI_ALGO_FORCE_C_POINTERS)
+    return FnDetect(src.data(), src.data() + src.size()) == detail::impl_norm_is_yes;
+#else // Safe layer
+    return FnDetect(safe::in{src.data(), src.size()}, safe::end{src.data() + src.size()}) == detail::impl_norm_is_yes;
+#endif
+}
 
 } // namespace detail
 
@@ -264,14 +283,7 @@ uaiw_constexpr bool is_nfc_utf8(std::basic_string_view<UTF8> source)
 {
     static_assert(std::is_integral_v<UTF8>);
 
-#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
-    return detail::impl_norm_is_nfc_utf8(source.cbegin(), source.cend()) == detail::impl_norm_is_yes;
-#elif defined(UNI_ALGO_FORCE_C_POINTERS)
-    return detail::impl_norm_is_nfc_utf8(source.data(), source.data() + source.size()) == detail::impl_norm_is_yes;
-#else // Safe layer
-    namespace safe = detail::safe;
-    return detail::impl_norm_is_nfc_utf8(safe::in{source.data(), source.size()}, safe::end{source.data() + source.size()}) == detail::impl_norm_is_yes;
-#endif
+    return detail::t_detect<std::basic_string_view<UTF8>, detail::impl_norm_is_nfc_utf8>(source);
 }
 
 template<typename UTF8>
@@ -279,14 +291,7 @@ uaiw_constexpr bool is_nfd_utf8(std::basic_string_view<UTF8> source)
 {
     static_assert(std::is_integral_v<UTF8>);
 
-#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
-    return detail::impl_norm_is_nfd_utf8(source.cbegin(), source.cend()) == detail::impl_norm_is_yes;
-#elif defined(UNI_ALGO_FORCE_C_POINTERS)
-    return detail::impl_norm_is_nfd_utf8(source.data(), source.data() + source.size()) == detail::impl_norm_is_yes;
-#else // Safe layer
-    namespace safe = detail::safe;
-    return detail::impl_norm_is_nfd_utf8(safe::in{source.data(), source.size()}, safe::end{source.data() + source.size()}) == detail::impl_norm_is_yes;
-#endif
+    return detail::t_detect<std::basic_string_view<UTF8>, detail::impl_norm_is_nfd_utf8>(source);
 }
 
 #ifndef UNI_ALGO_DISABLE_NFKC_NFKD
@@ -295,14 +300,7 @@ uaiw_constexpr bool is_nfkc_utf8(std::basic_string_view<UTF8> source)
 {
     static_assert(std::is_integral_v<UTF8>);
 
-#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
-    return detail::impl_norm_is_nfkc_utf8(source.cbegin(), source.cend()) == detail::impl_norm_is_yes;
-#elif defined(UNI_ALGO_FORCE_C_POINTERS)
-    return detail::impl_norm_is_nfkc_utf8(source.data(), source.data() + source.size())  == detail::impl_norm_is_yes;
-#else // Safe layer
-    namespace safe = detail::safe;
-    return detail::impl_norm_is_nfkc_utf8(safe::in{source.data(), source.size()}, safe::end{source.data() + source.size()}) == detail::impl_norm_is_yes;
-#endif
+    return detail::t_detect<std::basic_string_view<UTF8>, detail::impl_norm_is_nfkc_utf8>(source);
 }
 
 template<typename UTF8>
@@ -310,14 +308,7 @@ uaiw_constexpr bool is_nfkd_utf8(std::basic_string_view<UTF8> source)
 {
     static_assert(std::is_integral_v<UTF8>);
 
-#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
-    return detail::impl_norm_is_nfkd_utf8(source.cbegin(), source.cend()) == detail::impl_norm_is_yes;
-#elif defined(UNI_ALGO_FORCE_C_POINTERS)
-    return detail::impl_norm_is_nfkd_utf8(source.data(), source.data() + source.size()) == detail::impl_norm_is_yes;
-#else // Safe layer
-    namespace safe = detail::safe;
-    return detail::impl_norm_is_nfkd_utf8(safe::in{source.data(), source.size()}, safe::end{source.data() + source.size()}) == detail::impl_norm_is_yes;
-#endif
+    return detail::t_detect<std::basic_string_view<UTF8>, detail::impl_norm_is_nfkd_utf8>(source);
 }
 #endif // UNI_ALGO_DISABLE_NFKC_NFKD
 
@@ -326,14 +317,7 @@ uaiw_constexpr bool is_nfc_utf16(std::basic_string_view<UTF16> source)
 {
     static_assert(std::is_integral_v<UTF16> && sizeof(UTF16) >= sizeof(char16_t));
 
-#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
-    return detail::impl_norm_is_nfc_utf16(source.cbegin(), source.cend()) == detail::impl_norm_is_yes;
-#elif defined(UNI_ALGO_FORCE_C_POINTERS)
-    return detail::impl_norm_is_nfc_utf16(source.data(), source.data() + source.size()) == detail::impl_norm_is_yes;
-#else // Safe layer
-    namespace safe = detail::safe;
-    return detail::impl_norm_is_nfc_utf16(safe::in{source.data(), source.size()}, safe::end{source.data() + source.size()}) == detail::impl_norm_is_yes;
-#endif
+    return detail::t_detect<std::basic_string_view<UTF16>, detail::impl_norm_is_nfc_utf16>(source);
 }
 
 template<typename UTF16>
@@ -341,14 +325,7 @@ uaiw_constexpr bool is_nfd_utf16(std::basic_string_view<UTF16> source)
 {
     static_assert(std::is_integral_v<UTF16> && sizeof(UTF16) >= sizeof(char16_t));
 
-#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
-    return detail::impl_norm_is_nfd_utf16(source.cbegin(), source.cend()) == detail::impl_norm_is_yes;
-#elif defined(UNI_ALGO_FORCE_C_POINTERS)
-    return detail::impl_norm_is_nfd_utf16(source.data(), source.data() + source.size()) == detail::impl_norm_is_yes;
-#else // Safe layer
-    namespace safe = detail::safe;
-    return detail::impl_norm_is_nfd_utf16(safe::in{source.data(), source.size()}, safe::end{source.data() + source.size()}) == detail::impl_norm_is_yes;
-#endif
+    return detail::t_detect<std::basic_string_view<UTF16>, detail::impl_norm_is_nfd_utf16>(source);
 }
 
 #ifndef UNI_ALGO_DISABLE_NFKC_NFKD
@@ -357,14 +334,7 @@ uaiw_constexpr bool is_nfkc_utf16(std::basic_string_view<UTF16> source)
 {
     static_assert(std::is_integral_v<UTF16> && sizeof(UTF16) >= sizeof(char16_t));
 
-#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
-    return detail::impl_norm_is_nfkc_utf16(source.cbegin(), source.cend()) == detail::impl_norm_is_yes;
-#elif defined(UNI_ALGO_FORCE_C_POINTERS)
-    return detail::impl_norm_is_nfkc_utf16(source.data(), source.data() + source.size()) == detail::impl_norm_is_yes;
-#else // Safe layer
-    namespace safe = detail::safe;
-    return detail::impl_norm_is_nfkc_utf16(safe::in{source.data(), source.size()}, safe::end{source.data() + source.size()}) == detail::impl_norm_is_yes;
-#endif
+    return detail::t_detect<std::basic_string_view<UTF16>, detail::impl_norm_is_nfkc_utf16>(source);
 }
 
 template<typename UTF16>
@@ -372,14 +342,7 @@ uaiw_constexpr bool is_nfkd_utf16(std::basic_string_view<UTF16> source)
 {
     static_assert(std::is_integral_v<UTF16> && sizeof(UTF16) >= sizeof(char16_t));
 
-#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
-    return detail::impl_norm_is_nfkd_utf16(source.cbegin(), source.cend()) == detail::impl_norm_is_yes;
-#elif defined(UNI_ALGO_FORCE_C_POINTERS)
-    return detail::impl_norm_is_nfkd_utf16(source.data(), source.data() + source.size()) == detail::impl_norm_is_yes;
-#else // Safe layer
-    namespace safe = detail::safe;
-    return detail::impl_norm_is_nfkd_utf16(safe::in{source.data(), source.size()}, safe::end{source.data() + source.size()}) == detail::impl_norm_is_yes;
-#endif
+    return detail::t_detect<std::basic_string_view<UTF16>, detail::impl_norm_is_nfkd_utf16>(source);
 }
 #endif // UNI_ALGO_DISABLE_NFKC_NFKD
 

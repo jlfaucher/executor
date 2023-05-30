@@ -10,7 +10,6 @@
 #endif
 
 #include "config.h"
-#include "version.h"
 #include "internal/ranges_core.h"
 
 #include "impl/impl_iter.h"
@@ -416,7 +415,7 @@ struct adaptor_closure_to_utf8_reserve
 
         Result result{alloc};
         result.reserve(size);
-        std::back_insert_iterator output{result};
+        const std::back_insert_iterator output{result};
         for (auto c : r)
             detail::impl_output_utf8(static_cast<char32_t>(c), output);
         return result;
@@ -463,7 +462,7 @@ struct adaptor_closure_to_utf16_reserve
 
         Result result{alloc};
         result.reserve(size);
-        std::back_insert_iterator output{result};
+        const std::back_insert_iterator output{result};
         for (auto c : r)
             detail::impl_output_utf16(static_cast<char32_t>(c), output);
         return result;

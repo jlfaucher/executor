@@ -14,9 +14,8 @@
 #include <cassert>
 
 #include "config.h"
-#include "version.h"
 #include "internal/safe_layer.h"
-#include "internal/search.h"
+#include "internal/found.h"
 
 // Clang-Tidy thinks that locale.h form C is included here
 // NOLINTNEXTLINE(modernize-deprecated-headers, hicpp-deprecated-headers)
@@ -43,7 +42,7 @@ uaiw_constexpr Dst t_map(const Alloc& alloc, const Src& src, int mode, type_code
 {
     Dst dst{alloc};
 
-    std::size_t length = src.size();
+    const std::size_t length = src.size();
 
     if (length)
     {
@@ -73,12 +72,65 @@ uaiw_constexpr Dst t_map(const Alloc& alloc, const Src& src, int mode, type_code
 #  endif
 #endif
 
-#ifndef UNI_ALGO_DISABLE_SHRINK_TO_FIT
+#ifndef UNI_ALGO_NO_SHRINK_TO_FIT
         dst.shrink_to_fit();
 #endif
     }
 
     return dst;
+}
+
+#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
+template<typename Src, int(*FnComp)(typename Src::const_iterator, typename Src::const_iterator,
+                                    typename Src::const_iterator, typename Src::const_iterator, bool)>
+#elif defined(UNI_ALGO_FORCE_C_POINTERS)
+template<typename Src, int(*FnComp)(typename Src::const_pointer, typename Src::const_pointer,
+                                    typename Src::const_pointer, typename Src::const_pointer, bool)>
+#else // Safe layer
+template<typename Src, int(*FnComp)(safe::in<typename Src::const_pointer>, safe::end<typename Src::const_pointer>,
+                                    safe::in<typename Src::const_pointer>, safe::end<typename Src::const_pointer>, bool)>
+#endif
+uaiw_constexpr int t_comp(const Src& src1, const Src& src2, bool caseless)
+{
+#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
+    return FnComp(src1.cbegin(), src1.cend(),
+                  src2.cbegin(), src2.cend(), caseless);
+#elif defined(UNI_ALGO_FORCE_C_POINTERS)
+    return FnComp(src1.data(), src1.data() + src1.size(),
+                  src2.data(), src2.data() + src2.size(), caseless);
+#else // Safe layer
+    return FnComp(safe::in{src1.data(), src1.size()}, safe::end{src1.data() + src1.size()},
+                  safe::in{src2.data(), src2.size()}, safe::end{src2.data() + src2.size()}, caseless);
+#endif
+}
+
+#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
+template<typename Src, bool(*FnFind)(typename Src::const_iterator, typename Src::const_iterator,
+                                     typename Src::const_iterator, typename Src::const_iterator, bool, size_t*, size_t*)>
+#elif defined(UNI_ALGO_FORCE_C_POINTERS)
+template<typename Src, bool(*FnFind)(typename Src::const_pointer, typename Src::const_pointer,
+                                     typename Src::const_pointer, typename Src::const_pointer, bool, size_t*, size_t*)>
+#else // Safe layer
+template<typename Src, bool(*FnFind)(safe::in<typename Src::const_pointer>, safe::end<typename Src::const_pointer>,
+                                     safe::in<typename Src::const_pointer>, safe::end<typename Src::const_pointer>, bool, size_t*, size_t*)>
+#endif
+uaiw_constexpr una::found t_find(const Src& src1, const Src& src2, bool caseless)
+{
+    size_t found_pos = detail::impl_npos;
+    size_t found_end = detail::impl_npos;
+
+#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
+    const bool ret = FnFind(src1.cbegin(), src1.cend(),
+                            src2.cbegin(), src2.cend(), caseless, &found_pos, &found_end);
+#elif defined(UNI_ALGO_FORCE_C_POINTERS)
+    const bool ret = FnFind(src1.data(), src1.data() + src1.size(),
+                            src2.data(), src2.data() + src2.size(), caseless, &found_pos, &found_end);
+#else // Safe layer
+    const bool ret = FnFind(safe::in{src1.data(), src1.size()}, safe::end{src1.data() + src1.size()},
+                            safe::in{src2.data(), src2.size()}, safe::end{src2.data() + src2.size()}, caseless, &found_pos, &found_end);
+#endif
+
+    return ret ? una::found{found_pos, found_end} : una::found{};
 }
 
 } // namespace detail
@@ -254,7 +306,7 @@ inline uaiw_constexpr std::wstring to_uppercase_utf16(std::wstring_view source, 
 #endif // WCHAR_MAX >= 0x7FFF && WCHAR_MAX <= 0xFFFF
 #endif // UNI_ALGO_DISABLE_FULL_CASE
 
-#ifndef UNI_ALGO_DISABLE_BREAK_WORD
+#ifndef UNI_ALGO_DISABLE_SEGMENT_WORD
 template<typename UTF8, typename Alloc = std::allocator<UTF8>>
 uaiw_constexpr std::basic_string<UTF8, std::char_traits<UTF8>, Alloc>
 to_titlecase_utf8(std::basic_string_view<UTF8> source, const Alloc& alloc = Alloc())
@@ -325,7 +377,7 @@ inline uaiw_constexpr std::wstring to_titlecase_utf16(std::wstring_view source, 
 }
 #endif // WCHAR_MAX >= 0x7FFF && WCHAR_MAX <= 0xFFFF
 #endif // UNI_ALGO_DISABLE_FULL_CASE
-#endif // UNI_ALGO_DISABLE_BREAK_WORD
+#endif // UNI_ALGO_DISABLE_SEGMENT_WORD
 
 } // namespace cases
 
@@ -336,17 +388,7 @@ uaiw_constexpr int compare_utf8(std::basic_string_view<UTF8> string1, std::basic
 {
     static_assert(std::is_integral_v<UTF8>);
 
-#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
-    return detail::impl_case_compare_utf8(string1.cbegin(), string1.cend(),
-                                          string2.cbegin(), string2.cend(), false);
-#elif defined(UNI_ALGO_FORCE_C_POINTERS)
-    return detail::impl_case_compare_utf8(string1.data(), string1.data() + string1.size(),
-                                          string2.data(), string2.data() + string2.size(), false);
-#else // Safe layer
-    namespace safe = detail::safe;
-    return detail::impl_case_compare_utf8(safe::in{string1.data(), string1.size()}, safe::end{string1.data() + string1.size()},
-                                          safe::in{string2.data(), string2.size()}, safe::end{string2.data() + string2.size()}, false);
-#endif
+    return detail::t_comp<std::basic_string_view<UTF8>, detail::impl_case_compare_utf8>(string1, string2, false);
 }
 
 template<typename UTF16>
@@ -354,17 +396,7 @@ uaiw_constexpr int compare_utf16(std::basic_string_view<UTF16> string1, std::bas
 {
     static_assert(std::is_integral_v<UTF16> && sizeof(UTF16) >= sizeof(char16_t));
 
-#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
-    return detail::impl_case_compare_utf16(string1.cbegin(), string1.cend(),
-                                           string2.cbegin(), string2.cend(), false);
-#elif defined(UNI_ALGO_FORCE_C_POINTERS)
-    return detail::impl_case_compare_utf16(string1.data(), string1.data() + string1.size(),
-                                           string2.data(), string2.data() + string2.size(), false);
-#else // Safe layer
-    namespace safe = detail::safe;
-    return detail::impl_case_compare_utf16(safe::in{string1.data(), string1.size()}, safe::end{string1.data() + string1.size()},
-                                           safe::in{string2.data(), string2.size()}, safe::end{string2.data() + string2.size()}, false);
-#endif
+    return detail::t_comp<std::basic_string_view<UTF16>, detail::impl_case_compare_utf16>(string1, string2, false);
 }
 
 #ifndef UNI_ALGO_DISABLE_COLLATE
@@ -373,17 +405,7 @@ uaiw_constexpr int collate_utf8(std::basic_string_view<UTF8> string1, std::basic
 {
     static_assert(std::is_integral_v<UTF8>);
 
-#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
-    return detail::impl_case_collate_utf8(string1.cbegin(), string1.cend(),
-                                          string2.cbegin(), string2.cend(), false);
-#elif defined(UNI_ALGO_FORCE_C_POINTERS)
-    return detail::impl_case_collate_utf8(string1.data(), string1.data() + string1.size(),
-                                          string2.data(), string2.data() + string2.size(), false);
-#else // Safe layer
-    namespace safe = detail::safe;
-    return detail::impl_case_collate_utf8(safe::in{string1.data(), string1.size()}, safe::end{string1.data() + string1.size()},
-                                          safe::in{string2.data(), string2.size()}, safe::end{string2.data() + string2.size()}, false);
-#endif
+    return detail::t_comp<std::basic_string_view<UTF8>, detail::impl_case_collate_utf8>(string1, string2, false);
 }
 
 template<typename UTF16>
@@ -391,60 +413,24 @@ uaiw_constexpr int collate_utf16(std::basic_string_view<UTF16> string1, std::bas
 {
     static_assert(std::is_integral_v<UTF16> && sizeof(UTF16) >= sizeof(char16_t));
 
-#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
-    return detail::impl_case_collate_utf16(string1.cbegin(), string1.cend(),
-                                           string2.cbegin(), string2.cend(), false);
-#elif defined(UNI_ALGO_FORCE_C_POINTERS)
-    return detail::impl_case_collate_utf16(string1.data(), string1.data() + string1.size(),
-                                           string2.data(), string2.data() + string2.size(), false);
-#else // Safe layer
-    namespace safe = detail::safe;
-    return detail::impl_case_collate_utf16(safe::in{string1.data(), string1.size()}, safe::end{string1.data() + string1.size()},
-                                           safe::in{string2.data(), string2.size()}, safe::end{string2.data() + string2.size()}, false);
-#endif
+    return detail::t_comp<std::basic_string_view<UTF16>, detail::impl_case_collate_utf16>(string1, string2, false);
 }
 #endif // UNI_ALGO_DISABLE_COLLATE
 
 template<typename UTF8>
-uaiw_constexpr una::search search_utf8(std::basic_string_view<UTF8> string1, std::basic_string_view<UTF8> string2)
+uaiw_constexpr una::found find_utf8(std::basic_string_view<UTF8> string1, std::basic_string_view<UTF8> string2)
 {
     static_assert(std::is_integral_v<UTF8>);
 
-    size_t pos = detail::impl_npos, end = detail::impl_npos;
-#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
-    bool ret = detail::impl_case_search_utf8(string1.cbegin(), string1.cend(),
-                                             string2.cbegin(), string2.cend(), false, &pos, &end);
-#elif defined(UNI_ALGO_FORCE_C_POINTERS)
-    bool ret = detail::impl_case_search_utf8(string1.data(), string1.data() + string1.size(),
-                                             string2.data(), string2.data() + string2.size(), false, &pos, &end);
-#else // Safe layer
-    namespace safe = detail::safe;
-    bool ret = detail::impl_case_search_utf8(safe::in{string1.data(), string1.size()}, safe::end{string1.data() + string1.size()},
-                                             safe::in{string2.data(), string2.size()}, safe::end{string2.data() + string2.size()}, false, &pos, &end);
-#endif
-
-    return una::search{ret, pos, end};
+    return detail::t_find<std::basic_string_view<UTF8>, detail::impl_case_find_utf8>(string1, string2, false);
 }
 
 template<typename UTF16>
-uaiw_constexpr una::search search_utf16(std::basic_string_view<UTF16> string1, std::basic_string_view<UTF16> string2)
+uaiw_constexpr una::found find_utf16(std::basic_string_view<UTF16> string1, std::basic_string_view<UTF16> string2)
 {
     static_assert(std::is_integral_v<UTF16> && sizeof(UTF16) >= sizeof(char16_t));
 
-    size_t pos = detail::impl_npos, end = detail::impl_npos;
-#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
-    bool ret = detail::impl_case_search_utf16(string1.cbegin(), string1.cend(),
-                                              string2.cbegin(), string2.cend(), false, &pos, &end);
-#elif defined(UNI_ALGO_FORCE_C_POINTERS)
-    bool ret = detail::impl_case_search_utf16(string1.data(), string1.data() + string1.size(),
-                                              string2.data(), string2.data() + string2.size(), false, &pos, &end);
-#else // Safe layer
-    namespace safe = detail::safe;
-    bool ret = detail::impl_case_search_utf16(safe::in{string1.data(), string1.size()}, safe::end{string1.data() + string1.size()},
-                                              safe::in{string2.data(), string2.size()}, safe::end{string2.data() + string2.size()}, false, &pos, &end);
-#endif
-
-    return una::search{ret, pos, end};
+    return detail::t_find<std::basic_string_view<UTF16>, detail::impl_case_find_utf16>(string1, string2, false);
 }
 
 inline uaiw_constexpr int compare_utf8(std::string_view string1, std::string_view string2)
@@ -457,9 +443,9 @@ inline uaiw_constexpr int collate_utf8(std::string_view string1, std::string_vie
     return collate_utf8<char>(string1, string2);
 }
 #endif // UNI_ALGO_DISABLE_COLLATE
-inline uaiw_constexpr una::search search_utf8(std::string_view string1, std::string_view string2)
+inline uaiw_constexpr una::found find_utf8(std::string_view string1, std::string_view string2)
 {
-    return search_utf8<char>(string1, string2);
+    return find_utf8<char>(string1, string2);
 }
 inline uaiw_constexpr int compare_utf16(std::u16string_view string1, std::u16string_view string2)
 {
@@ -471,9 +457,9 @@ inline uaiw_constexpr int collate_utf16(std::u16string_view string1, std::u16str
     return collate_utf16<char16_t>(string1, string2);
 }
 #endif // UNI_ALGO_DISABLE_COLLATE
-inline uaiw_constexpr una::search search_utf16(std::u16string_view string1, std::u16string_view string2)
+inline uaiw_constexpr una::found find_utf16(std::u16string_view string1, std::u16string_view string2)
 {
-    return search_utf16<char16_t>(string1, string2);
+    return find_utf16<char16_t>(string1, string2);
 }
 #if WCHAR_MAX >= 0x7FFF && WCHAR_MAX <= 0xFFFF // 16-bit wchar_t
 inline uaiw_constexpr int compare_utf16(std::wstring_view string1, std::wstring_view string2)
@@ -486,9 +472,9 @@ inline uaiw_constexpr int collate_utf16(std::wstring_view string1, std::wstring_
     return collate_utf16<wchar_t>(string1, string2);
 }
 #endif // UNI_ALGO_DISABLE_COLLATE
-inline uaiw_constexpr una::search search_utf16(std::wstring_view string1, std::wstring_view string2)
+inline uaiw_constexpr una::found find_utf16(std::wstring_view string1, std::wstring_view string2)
 {
-    return search_utf16<wchar_t>(string1, string2);
+    return find_utf16<wchar_t>(string1, string2);
 }
 #endif // WCHAR_MAX >= 0x7FFF && WCHAR_MAX <= 0xFFFF
 
@@ -536,17 +522,7 @@ uaiw_constexpr int compare_utf8(std::basic_string_view<UTF8> string1, std::basic
 {
     static_assert(std::is_integral_v<UTF8>);
 
-#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
-    return detail::impl_case_compare_utf8(string1.cbegin(), string1.cend(),
-                                          string2.cbegin(), string2.cend(), true);
-#elif defined(UNI_ALGO_FORCE_C_POINTERS)
-    return detail::impl_case_compare_utf8(string1.data(), string1.data() + string1.size(),
-                                          string2.data(), string2.data() + string2.size(), true);
-#else // Safe layer
-    namespace safe = detail::safe;
-    return detail::impl_case_compare_utf8(safe::in{string1.data(), string1.size()}, safe::end{string1.data() + string1.size()},
-                                          safe::in{string2.data(), string2.size()}, safe::end{string2.data() + string2.size()}, true);
-#endif
+    return detail::t_comp<std::basic_string_view<UTF8>, detail::impl_case_compare_utf8>(string1, string2, true);
 }
 
 template<typename UTF16>
@@ -554,17 +530,7 @@ uaiw_constexpr int compare_utf16(std::basic_string_view<UTF16> string1, std::bas
 {
     static_assert(std::is_integral_v<UTF16> && sizeof(UTF16) >= sizeof(char16_t));
 
-#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
-    return detail::impl_case_compare_utf16(string1.cbegin(), string1.cend(),
-                                           string2.cbegin(), string2.cend(), true);
-#elif defined(UNI_ALGO_FORCE_C_POINTERS)
-    return detail::impl_case_compare_utf16(string1.data(), string1.data() + string1.size(),
-                                           string2.data(), string2.data() + string2.size(), true);
-#else // Safe layer
-    namespace safe = detail::safe;
-    return detail::impl_case_compare_utf16(safe::in{string1.data(), string1.size()}, safe::end{string1.data() + string1.size()},
-                                           safe::in{string2.data(), string2.size()}, safe::end{string2.data() + string2.size()}, true);
-#endif
+    return detail::t_comp<std::basic_string_view<UTF16>, detail::impl_case_compare_utf16>(string1, string2, true);
 }
 
 #ifndef UNI_ALGO_DISABLE_COLLATE
@@ -573,17 +539,7 @@ uaiw_constexpr int collate_utf8(std::basic_string_view<UTF8> string1, std::basic
 {
     static_assert(std::is_integral_v<UTF8>);
 
-#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
-    return detail::impl_case_collate_utf8(string1.cbegin(), string1.cend(),
-                                          string2.cbegin(), string2.cend(), true);
-#elif defined(UNI_ALGO_FORCE_C_POINTERS)
-    return detail::impl_case_collate_utf8(string1.data(), string1.data() + string1.size(),
-                                          string2.data(), string2.data() + string2.size(), true);
-#else // Safe layer
-    namespace safe = detail::safe;
-    return detail::impl_case_collate_utf8(safe::in{string1.data(), string1.size()}, safe::end{string1.data() + string1.size()},
-                                          safe::in{string2.data(), string2.size()}, safe::end{string2.data() + string2.size()}, true);
-#endif
+    return detail::t_comp<std::basic_string_view<UTF8>, detail::impl_case_collate_utf8>(string1, string2, true);
 }
 
 template<typename UTF16>
@@ -591,60 +547,24 @@ uaiw_constexpr int collate_utf16(std::basic_string_view<UTF16> string1, std::bas
 {
     static_assert(std::is_integral_v<UTF16> && sizeof(UTF16) >= sizeof(char16_t));
 
-#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
-    return detail::impl_case_collate_utf16(string1.cbegin(), string1.cend(),
-                                           string2.cbegin(), string2.cend(), true);
-#elif defined(UNI_ALGO_FORCE_C_POINTERS)
-    return detail::impl_case_collate_utf16(string1.data(), string1.data() + string1.size(),
-                                           string2.data(), string2.data() + string2.size(), true);
-#else // Safe layer
-    namespace safe = detail::safe;
-    return detail::impl_case_collate_utf16(safe::in{string1.data(), string1.size()}, safe::end{string1.data() + string1.size()},
-                                           safe::in{string2.data(), string2.size()}, safe::end{string2.data() + string2.size()}, true);
-#endif
+    return detail::t_comp<std::basic_string_view<UTF16>, detail::impl_case_collate_utf16>(string1, string2, true);
 }
 #endif // UNI_ALGO_DISABLE_COLLATE
 
 template<typename UTF8>
-uaiw_constexpr una::search search_utf8(std::basic_string_view<UTF8> string1, std::basic_string_view<UTF8> string2)
+uaiw_constexpr una::found find_utf8(std::basic_string_view<UTF8> string1, std::basic_string_view<UTF8> string2)
 {
     static_assert(std::is_integral_v<UTF8>);
 
-    size_t pos = detail::impl_npos, end = detail::impl_npos;
-#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
-    bool ret = detail::impl_case_search_utf8(string1.cbegin(), string1.cend(),
-                                             string2.cbegin(), string2.cend(), true, &pos, &end);
-#elif defined(UNI_ALGO_FORCE_C_POINTERS)
-    bool ret = detail::impl_case_search_utf8(string1.data(), string1.data() + string1.size(),
-                                             string2.data(), string2.data() + string2.size(), true, &pos, &end);
-#else // Safe layer
-    namespace safe = detail::safe;
-    bool ret = detail::impl_case_search_utf8(safe::in{string1.data(), string1.size()}, safe::end{string1.data() + string1.size()},
-                                             safe::in{string2.data(), string2.size()}, safe::end{string2.data() + string2.size()}, true, &pos, &end);
-#endif
-
-    return una::search{ret, pos, end};
+    return detail::t_find<std::basic_string_view<UTF8>, detail::impl_case_find_utf8>(string1, string2, true);
 }
 
 template<typename UTF16>
-uaiw_constexpr una::search search_utf16(std::basic_string_view<UTF16> string1, std::basic_string_view<UTF16> string2)
+uaiw_constexpr una::found find_utf16(std::basic_string_view<UTF16> string1, std::basic_string_view<UTF16> string2)
 {
     static_assert(std::is_integral_v<UTF16> && sizeof(UTF16) >= sizeof(char16_t));
 
-    size_t pos = detail::impl_npos, end = detail::impl_npos;
-#if defined(UNI_ALGO_FORCE_CPP_ITERATORS)
-    bool ret = detail::impl_case_search_utf16(string1.cbegin(), string1.cend(),
-                                              string2.cbegin(), string2.cend(), true, &pos, &end);
-#elif defined(UNI_ALGO_FORCE_C_POINTERS)
-    bool ret = detail::impl_case_search_utf16(string1.data(), string1.data() + string1.size(),
-                                              string2.data(), string2.data() + string2.size(), true, &pos, &end);
-#else // Safe layer
-    namespace safe = detail::safe;
-    bool ret = detail::impl_case_search_utf16(safe::in{string1.data(), string1.size()}, safe::end{string1.data() + string1.size()},
-                                              safe::in{string2.data(), string2.size()}, safe::end{string2.data() + string2.size()}, true, &pos, &end);
-#endif
-
-    return una::search{ret, pos, end};
+    return detail::t_find<std::basic_string_view<UTF16>, detail::impl_case_find_utf16>(string1, string2, true);
 }
 
 inline uaiw_constexpr int compare_utf8(std::string_view string1, std::string_view string2)
@@ -657,9 +577,9 @@ inline uaiw_constexpr int collate_utf8(std::string_view string1, std::string_vie
     return collate_utf8<char>(string1, string2);
 }
 #endif // UNI_ALGO_DISABLE_COLLATE
-inline uaiw_constexpr una::search search_utf8(std::string_view string1, std::string_view string2)
+inline uaiw_constexpr una::found find_utf8(std::string_view string1, std::string_view string2)
 {
-    return search_utf8<char>(string1, string2);
+    return find_utf8<char>(string1, string2);
 }
 inline uaiw_constexpr int compare_utf16(std::u16string_view string1, std::u16string_view string2)
 {
@@ -671,9 +591,9 @@ inline uaiw_constexpr int collate_utf16(std::u16string_view string1, std::u16str
     return collate_utf16<char16_t>(string1, string2);
 }
 #endif // UNI_ALGO_DISABLE_COLLATE
-inline uaiw_constexpr una::search search_utf16(std::u16string_view string1, std::u16string_view string2)
+inline uaiw_constexpr una::found find_utf16(std::u16string_view string1, std::u16string_view string2)
 {
-    return search_utf16<char16_t>(string1, string2);
+    return find_utf16<char16_t>(string1, string2);
 }
 #if WCHAR_MAX >= 0x7FFF && WCHAR_MAX <= 0xFFFF // 16-bit wchar_t
 inline uaiw_constexpr int compare_utf16(std::wstring_view string1, std::wstring_view string2)
@@ -686,9 +606,9 @@ inline uaiw_constexpr int collate_utf16(std::wstring_view string1, std::wstring_
     return collate_utf16<wchar_t>(string1, string2);
 }
 #endif // UNI_ALGO_DISABLE_COLLATE
-inline uaiw_constexpr una::search search_utf16(std::wstring_view string1, std::wstring_view string2)
+inline uaiw_constexpr una::found find_utf16(std::wstring_view string1, std::wstring_view string2)
 {
-    return search_utf16<wchar_t>(string1, string2);
+    return find_utf16<wchar_t>(string1, string2);
 }
 #endif // WCHAR_MAX >= 0x7FFF && WCHAR_MAX <= 0xFFFF
 
@@ -775,7 +695,7 @@ inline uaiw_constexpr std::u8string to_uppercase_utf8(std::u8string_view source,
 {
     return to_uppercase_utf8<char8_t>(source, locale);
 }
-#ifndef UNI_ALGO_DISABLE_BREAK_WORD
+#ifndef UNI_ALGO_DISABLE_SEGMENT_WORD
 #ifndef UNI_ALGO_DISABLE_FULL_CASE
 inline uaiw_constexpr std::u8string to_titlecase_utf8(std::u8string_view source)
 {
@@ -786,7 +706,7 @@ inline uaiw_constexpr std::u8string to_titlecase_utf8(std::u8string_view source,
     return to_titlecase_utf8<char8_t>(source, locale);
 }
 #endif // UNI_ALGO_DISABLE_FULL_CASE
-#endif // UNI_ALGO_DISABLE_BREAK_WORD
+#endif // UNI_ALGO_DISABLE_SEGMENT_WORD
 
 } // namespace cases
 
@@ -802,9 +722,9 @@ inline uaiw_constexpr int collate_utf8(std::u8string_view string1, std::u8string
     return collate_utf8<char8_t>(string1, string2);
 }
 #endif // UNI_ALGO_DISABLE_COLLATE
-inline uaiw_constexpr una::search search_utf8(std::u8string_view string1, std::u8string_view string2)
+inline uaiw_constexpr una::found find_utf8(std::u8string_view string1, std::u8string_view string2)
 {
-    return search_utf8<char8_t>(string1, string2);
+    return find_utf8<char8_t>(string1, string2);
 }
 
 } // namespace casesens
@@ -821,9 +741,9 @@ inline uaiw_constexpr int collate_utf8(std::u8string_view string1, std::u8string
     return collate_utf8<char8_t>(string1, string2);
 }
 #endif // UNI_ALGO_DISABLE_COLLATE
-inline uaiw_constexpr una::search search_utf8(std::u8string_view string1, std::u8string_view string2)
+inline uaiw_constexpr una::found find_utf8(std::u8string_view string1, std::u8string_view string2)
 {
-    return search_utf8<char8_t>(string1, string2);
+    return find_utf8<char8_t>(string1, string2);
 }
 
 } // namespace caseless
@@ -907,12 +827,12 @@ inline uaiw_constexpr char32_t to_simple_casefold(char32_t c) noexcept
     return detail::impl_case_to_simple_casefold(c);
 }
 
-#ifndef UNI_ALGO_DISABLE_BREAK_WORD
+#ifndef UNI_ALGO_DISABLE_SEGMENT_WORD
 inline uaiw_constexpr char32_t to_simple_titlecase(char32_t c) noexcept
 {
     return detail::impl_case_to_simple_titlecase(c);
 }
-#endif // UNI_ALGO_DISABLE_BREAK_WORD
+#endif // UNI_ALGO_DISABLE_SEGMENT_WORD
 
 #ifndef UNI_ALGO_DISABLE_FULL_CASE
 
@@ -958,7 +878,7 @@ inline uaiw_constexpr std::u32string to_casefold_u32(char32_t c)
     return dst;
 }
 
-#ifndef UNI_ALGO_DISABLE_BREAK_WORD
+#ifndef UNI_ALGO_DISABLE_SEGMENT_WORD
 inline uaiw_constexpr std::u32string to_titlecase_u32(char32_t c)
 {
     std::u32string dst;
@@ -972,7 +892,7 @@ inline uaiw_constexpr std::u32string to_titlecase_u32(char32_t c)
 #endif
     return dst;
 }
-#endif // UNI_ALGO_DISABLE_BREAK_WORD
+#endif // UNI_ALGO_DISABLE_SEGMENT_WORD
 
 #endif // UNI_ALGO_DISABLE_FULL_CASE
 

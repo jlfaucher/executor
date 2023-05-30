@@ -202,7 +202,7 @@ macedonian_to_latin_docs_utf8(std::basic_string_view<UTF8> source, const Alloc& 
     auto result = detail::rng::translit_view{ranges::utf8_view{source}, tr::buf_func, tr::buf_size}
         | ranges::to_utf8_reserve<std::basic_string<UTF8, std::char_traits<UTF8>, Alloc>>(source.size(), alloc);
 
-#ifndef UNI_ALGO_DISABLE_SHRINK_TO_FIT
+#ifndef UNI_ALGO_NO_SHRINK_TO_FIT
     result.shrink_to_fit();
 #endif
     return result;
@@ -218,7 +218,7 @@ macedonian_to_latin_docs_utf16(std::basic_string_view<UTF16> source, const Alloc
     auto result = detail::rng::translit_view{ranges::utf16_view{source}, tr::buf_func, tr::buf_size}
         | ranges::to_utf16_reserve<std::basic_string<UTF16, std::char_traits<UTF16>, Alloc>>(source.size(), alloc);
 
-#ifndef UNI_ALGO_DISABLE_SHRINK_TO_FIT
+#ifndef UNI_ALGO_NO_SHRINK_TO_FIT
     result.shrink_to_fit();
 #endif
     return result;
@@ -244,7 +244,7 @@ inline uaiw_constexpr std::u8string macedonian_to_latin_docs_utf8(std::u8string_
 }
 #endif // __cpp_lib_char8_t
 
-} // namespace una::translit
+} // namespace unx::translit
 
 #endif // UNI_ALGO_MACEDONIAN_TO_LATIN_DOCS_H_UAIH
 

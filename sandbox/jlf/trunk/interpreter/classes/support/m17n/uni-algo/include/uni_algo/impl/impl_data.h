@@ -26,14 +26,19 @@
 #include "data/data_prop.h"
 #endif
 
-#ifndef UNI_ALGO_DISABLE_BREAK_GRAPHEME
-#include "data/extern_break_grapheme.h"
-#include "data/data_break_grapheme.h"
+#ifndef UNI_ALGO_DISABLE_SCRIPT
+#include "data/extern_script.h"
+#include "data/data_script.h"
 #endif
 
-#ifndef UNI_ALGO_DISABLE_BREAK_WORD
-#include "data/extern_break_word.h"
-#include "data/data_break_word.h"
+#ifndef UNI_ALGO_DISABLE_SEGMENT_GRAPHEME
+#include "data/extern_segment_grapheme.h"
+#include "data/data_segment_grapheme.h"
+#endif
+
+#ifndef UNI_ALGO_DISABLE_SEGMENT_WORD
+#include "data/extern_segment_word.h"
+#include "data/data_segment_word.h"
 #endif
 
 #include "internal_undefs.h"

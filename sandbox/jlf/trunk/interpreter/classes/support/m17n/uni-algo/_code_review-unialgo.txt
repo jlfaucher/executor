@@ -1,0 +1,92 @@
+================================================================================
+uni_algo/config.h
+================================================================================
+
+// C++20 or higher and header-only version is required for constexpr library
+#if defined(UNI_ALGO_STATIC_DATA) && (__cplusplus >= 202002L || _MSVC_LANG >= 202002L)
+// NOTE: This include is needed for __cpp_lib_constexpr_string below
+#include <version>
+#if (__cpp_constexpr >= 201907L) && defined(__cpp_lib_constexpr_string) \
+    && !(defined(__clang__) && defined(__GLIBCXX__)) // constexpr standard lib is broken in Clang with libstdc++
+#define UNI_ALGO_CONSTEXPR
+#define uaiw_constexpr constexpr
+#endif
+#endif
+#ifndef UNI_ALGO_CONSTEXPR
+#define uaiw_constexpr
+#endif
+
+================================================================================
+uni_algo/case.h
+================================================================================
+
+namespace cases {
+
+template<typename UTF8, typename Alloc = std::allocator<UTF8>>
+uaiw_constexpr std::basic_string<UTF8, std::char_traits<UTF8>, Alloc>
+to_lowercase_utf8(std::basic_string_view<UTF8> source, const Alloc& alloc = Alloc())
+{
+    static_assert(std::is_integral_v<UTF8>);
+
+    return detail::t_map<std::basic_string<UTF8, std::char_traits<UTF8>, Alloc>, Alloc, std::basic_string_view<UTF8>,
+            detail::impl_x_case_map_utf8, detail::impl_case_map_loc_utf8>(alloc, source,
+            detail::impl_case_map_mode_lowercase);
+}
+
+inline uaiw_constexpr std::string to_lowercase_utf8(std::string_view source)
+{
+    return to_lowercase_utf8<char>(source);
+}
+
+
+return
+detail::t_map<
+                std::basic_string<
+                                   UTF8,
+                                   std::char_traits<UTF8>,
+                                   Alloc
+                                 >,
+                Alloc,
+                std::basic_string_view<UTF8>,
+                detail::impl_x_case_map_utf8,                     // 3
+                detail::impl_case_map_locale_utf8                 // method
+             >(alloc,
+               source,
+               detail::impl_case_map_mode_lowercase, static_cast<char32_t>(locale.get_language())
+              );
+
+--------------------------------------------------------------------------------
+
+#ifndef UNI_ALGO_DISABLE_FULL_CASE
+template<typename UTF8, typename Alloc = std::allocator<UTF8>>
+uaiw_constexpr std::basic_string<UTF8, std::char_traits<UTF8>, Alloc>
+to_lowercase_utf8(std::basic_string_view<UTF8> source, const una::locale& locale, const Alloc& alloc = Alloc())
+{
+    static_assert(std::is_integral_v<UTF8>);
+
+    return detail::t_map<std::basic_string<UTF8, std::char_traits<UTF8>, Alloc>, Alloc, std::basic_string_view<UTF8>,
+            detail::impl_x_case_map_utf8, detail::impl_case_map_locale_utf8>(alloc, source,
+            detail::impl_case_map_mode_lowercase, static_cast<char32_t>(locale.get_language()));
+}
+
+
+inline uaiw_constexpr std::string to_lowercase_utf8(std::string_view source, const una::locale& locale)
+{
+    return to_lowercase_utf8<char>(source, locale);
+}
+
+
+--------------------------------------------------------------------------------
+
+namespace cases {
+
+inline uaiw_constexpr std::u8string to_lowercase_utf8(std::u8string_view source)
+{
+    return to_lowercase_utf8<char8_t>(source);
+}
+
+
+inline uaiw_constexpr std::u8string to_lowercase_utf8(std::u8string_view source, const una::locale& locale)
+{
+    return to_lowercase_utf8<char8_t>(source, locale);
+}

@@ -5,26 +5,6 @@
 #ifndef UNI_ALGO_CONFIG_H_UAIH
 #define UNI_ALGO_CONFIG_H_UAIH
 
-// UNI_ALGO_CPP_LIB_VERSION
-// Describes the library version number in XYYYZZZ format such that:
-// (VERSION % 1000) is the patch version 0..255,
-// (VERSION / 1000 % 1000) is the minor version 0..255,
-// (VERSION / 1000000) is the major version 0..255.
-
-// UNI_ALGO_UNICODE_VERSION
-// Describes Unicode version number in XYYYZZZ format such that:
-// (VERSION % 1000) is the update version 0..255,
-// (VERSION / 1000 % 1000) is the minor version 0..255,
-// (VERSION / 1000000) is the major version 1..255.
-
-// Note that una::version namespace can be used to get these values.
-
-// TODO: Rename:
-// UNI_ALGO_DISABLE_BREAK_GRAPHEME -> UNI_ALGO_DISABLE_SEGMENT_GRAPHEME
-// UNI_ALGO_DISABLE_BREAK_WORD -> UNI_ALGO_DISABLE_SEGMENT_WORD
-// UNI_ALGO_DISABLE_SHRINK_TO_FIT -> UNI_ALGO_NO_SHRINK_TO_FIT
-// UNI_ALGO_ENABLE_SAFE_LAYER -> UNI_ALGO_SAFE_LAYER (Not sure about this one)
-
 // Note that you can just add the following defines to your project
 // instead of uncommenting the defines here.
 
@@ -42,14 +22,18 @@
 // Note that if this module is disabled unaccent functions
 // in Normalization module will be disabled too.
 
-//#define UNI_ALGO_DISABLE_BREAK_GRAPHEME
-// Disable Break Grapheme module.
+//#define UNI_ALGO_DISABLE_SCRIPT
+// Disable Script module.
+// Reduces Unicode data size by ~70 KB.
+
+//#define UNI_ALGO_DISABLE_SEGMENT_GRAPHEME
+// Disable Grapheme segmentation module.
 // Reduces Unicode data size by ~25 KB.
 
-//#define UNI_ALGO_DISABLE_BREAK_WORD
-// Disable Break Word module.
+//#define UNI_ALGO_DISABLE_SEGMENT_WORD
+// Disable Word segmentation module.
 // Reduces Unicode data size by ~35 KB.
-// Note that if Break Word module is disabled title case functions
+// Note that if Word segmentation module is disabled title case functions
 // in Case module will be disabled too because it is needed for them.
 
 //#define UNI_ALGO_DISABLE_COLLATE
@@ -69,7 +53,7 @@
 //#define UNI_ALGO_DISABLE_SYSTEM_LOCALE
 // Disable system locale facilities: una::locale::system() function etc.
 
-//#define UNI_ALGO_DISABLE_SHRINK_TO_FIT
+//#define UNI_ALGO_NO_SHRINK_TO_FIT
 // Most of functions do shrink_to_fit() call at the end of a function by default
 // but if you use a custom allocator or want to maximize the performance of the library
 // it might be better to disable it and do the call manually only when needed.
@@ -81,7 +65,7 @@
 // The define is only usefull if you need compatibility with legacy implementations
 // that don't expect that an UTF-16 string can grow in size.
 // Note that UTF-8 string still can grow in size even with simple case mapping.
-// Can be used to achive the maximum performance when you are 100% sure that you
+// Can be used to achieve the maximum performance when you are 100% sure that you
 // will be using the library with languages that don't need full case mapping.
 // In other words the define must be avoided at all cost.
 // The define affects only Case module.
@@ -135,7 +119,7 @@ static_assert(std::is_unsigned<type_char32>::value && sizeof(type_char32) >= siz
 // Note that the the library supports CHAR_BIT more than 8-bit perfectly fine.
 // Such platforms are rare so it is just mentioned here.
 //static_assert(std::numeric_limits<unsigned char>::max() >= 255); // Always true
-}
+} // namespace una::detail
 
 // Define namespace that low-level will use
 #define UNI_ALGO_IMPL_NAMESPACE_BEGIN namespace una::detail {
@@ -189,8 +173,8 @@ static_assert(std::is_unsigned<type_char32>::value && sizeof(type_char32) >= siz
 //#define UNI_ALGO_EXPERIMENTAL // Enable experimental stuff for tests
 //#define UNI_ALGO_LOG_CPP_ITER // Enable logging for UTF-8/16 iterators
 
-// Can be enabled for testing and debugging aid and should be disabled in stable releases.
-// Never ever rely on asserts! Use the define together with -D_GLIBCXX_DEBUG but do not rely on this either.
+// Can be enabled for testing and debugging aid and must be disabled in stable releases.
+// The define must only be used by the low-level and it must never rely on asserts.
 //#define UNI_ALGO_TEST_ASSERT
 #ifdef UNI_ALGO_TEST_ASSERT
 #include <cassert>
@@ -200,8 +184,5 @@ static_assert(std::is_unsigned<type_char32>::value && sizeof(type_char32) >= siz
 // Other test defines
 //#define UNI_ALGO_TEST_DISABLE_ALWAYS_INLINE_GLOBAL
 //#define UNI_ALGO_TEST_DISABLE_ALWAYS_INLINE_GLOBAL_EX
-//#include <stdexcept>
-//#define UNI_ALGO_TEST_CPP_THROW_ON_ILL_FORMED
-//#define UNI_ALGO_TEST_CPP_THROW_ASSERT
 
 #endif // UNI_ALGO_CONFIG_H_UAIH
