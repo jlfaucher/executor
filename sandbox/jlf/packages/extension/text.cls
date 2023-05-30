@@ -549,6 +549,10 @@ Allows to use a String or a RexxText indistinctly
 */
 
 
+::method UnicodeCharacters
+    forward to (self~indexer)
+
+
 ::method characters
     forward to (self~indexer)
 

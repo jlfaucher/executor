@@ -13,8 +13,9 @@
 ::extension Collection                      inherit CollectionGenerator
 ::extension Coactivity                      inherit CoactivityGenerator
 ::extension Supplier                        inherit SupplierGenerator
-::extension String                          inherit StringGenerator
-::extension MutableBuffer                   inherit MutableBufferGenerator
+::extension String                          inherit TextOrBufferOrStringGenerator
+::extension RexxText                        inherit TextOrBufferOrStringGenerator
+::extension MutableBuffer                   inherit TextOrBufferOrStringGenerator
 
 -- Repeater
 ::extension String                          inherit RepeaterGenerator
@@ -720,47 +721,19 @@
 -- Generator
 
 --------------------------------------------------
-::class "StringGenerator" mixinclass object public
+::class "TextOrBufferOrStringGenerator" mixinclass object public
 --------------------------------------------------
 
 -- Yield each character one by one
 ::method generateC unguarded
     use strict arg action={arg(1)}
-    return .Generator~new(self~makeArray(""))~iterateBefore~action(action)
+    return .Generator~new(self~characters)~iterateBefore~action(action)
 
 
 -- Yield each character one by one, as a pair (char, char_pos)
 ::method generateCI unguarded
     use strict arg action={arg(1)}
-    return .Generator~new(self~makeArray(""))~iterateBefore~action(action)~returnIndex
-
-
--- Yield each word one by one
-::method generateW unguarded
-    use strict arg action={arg(1)}
-    return .Generator~new(self~subwords)~iterateBefore~action(action)
-
-
--- Yield each word one by one, as a pair (word, word_index)
-::method generateWI unguarded
-    use strict arg action={arg(1)}
-    return .Generator~new(self~subwords)~iterateBefore~action(action)~returnIndex
-
-
----------------------------------------------------------
-::class "MutableBufferGenerator" mixinclass object public
----------------------------------------------------------
-
--- Yield each character one by one
-::method generateC unguarded
-    use strict arg action={arg(1)}
-    return .Generator~new(self~makeArray(""))~iterateBefore~action(action)
-
-
--- Yield each character one by one, as a pair (char, char_pos)
-::method generateCI unguarded
-    use strict arg action={arg(1)}
-    return .Generator~new(self~makeArray(""))~iterateBefore~action(action)~returnIndex
+    return .Generator~new(self~characters)~iterateBefore~action(action)~returnIndex
 
 
 -- Yield each word one by one

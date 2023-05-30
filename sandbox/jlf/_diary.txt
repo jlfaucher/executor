@@ -2,6 +2,71 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2023 May 31
+
+[Encoded strings]
+
+The method RexxText~characters now returns graphemes instead of UnicodeCharacters.
+Use the new method RexxText~UnicodeCharacters to get UnicodeCharacters. This method
+raises an error when used with non-Unicode encodings (like "Byte").
+
+New method String~characters and MutableBuffer~characters to support a same
+interface with RexxText.
+
+
+[Functional]
+
+Add support for functional methods to RexxText.
+The only needed methods on RexxText are
+    ~characters
+    ~subwords   (still to implement)
+    ~chunks     (still to implement)
+
+Example inspired by https://elixir-lang.org/
+Frequency of each character, ignoring the accents:
+"Notre père Noël 🎅"~text~transform(stripMark:)~reduce(by: "characters", initial: .stem~new~~put(0)){accu[item~string] += 1}=
+    a Stem (9 items)
+    '🎅' :  1
+    ' '    :  3
+    'e'    :  4
+    'l'    :  1
+    'N'    :  2
+    'o'    :  2
+    'p'    :  1
+    'r'    :  2
+    't'    :  1
+Note:
+I have to explicitely convert the item to a string, otherwise error
+    UTF-8 not-ASCII '🎅' cannot be converted to a String instance.
+It's because the class Stem wants an index of class String:
+    /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls
+       392 *-* raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
+    <No package>
+           *-* Compiled method "REQUEST" with scope "Object".
+    <No package>
+           *-* Compiled method "[]" with scope "Stem".
+    /local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell.rex
+         1 *-* accu[item] += 1
+
+
+[Generator]
+
+Add support for generator methods to RexxText.
+The only needed methods on RexxText are
+    ~characters
+    ~subwords   (still to implement)
+
+g="Noël 🎅"~text~generateC
+ooRexx[sh]> g~()=       -- T'N'
+ooRexx[sh]> g~()=       -- T'o'
+ooRexx[sh]> g~()=       -- T'ë'
+ooRexx[sh]> g~()=       -- T'l'
+ooRexx[sh]> g~()=       -- T' '
+ooRexx[sh]> g~()=       -- T'🎅'
+ooRexx[sh]> g~()=       -- [no result]
+
+
+===============================================================================
 2023 May 30
 
 [Encoded strings]
@@ -49,7 +114,7 @@ For convenience, it's now possible to search directly a character if it's made o
 .Unicode~character("à")=    -- Error: The character 'à' is made of several codepoints: U+0061 U+0300
 
 For the last example, you can get an array of characters:
-"à"~text~characters==
+"à"~text~UnicodeCharacters==
     an Array (shape [2], 2 items)
      1 : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
      2 : ( "̀"    U+0300 Mn 0 "COMBINING GRAVE ACCENT" )
@@ -481,14 +546,14 @@ Thanks to the lump transformation, all the Unicode spaces are supported.
 
 Examples:
 textNFC = "Noël"~text~NFC
-textNFC~characters==
+textNFC~UnicodeCharacters==
     an Array (shape [4], 4 items)
      1 : ( "N"   U+004E Lu 1 "LATIN CAPITAL LETTER N" )
      2 : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
      3 : ( "ë"   U+00EB Ll 1 "LATIN SMALL LETTER E WITH DIAERESIS" )
      4 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
 textNFD="Noël"~text~NFD
-textNFD~characters==
+textNFD~UnicodeCharacters==
     an Array (shape [5], 5 items)
      1 : ( "N"   U+004E Lu 1 "LATIN CAPITAL LETTER N" )
      2 : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
@@ -585,9 +650,9 @@ rexx ooRexxTry.rex  (no need of wchar as in 2012)
 
 copy-paste in the code area:
 .unicode~loadDerivedName("load", .true)
-call dump2 "père Noël"~text~characters
+call dump2 "père Noël"~text~UnicodeCharacters
 say "noël👩‍👨‍👩‍👧🎅"~text~description
-call dump2 "noël👩‍👨‍👩‍👧🎅" ~text~characters
+call dump2 "noël👩‍👨‍👩‍👧🎅" ~text~UnicodeCharacters
 
 
 ===============================================================================
@@ -707,7 +772,7 @@ Examples:
     nfcString = "äXü"
         nfcText = nfcString~text
         nfcText~c2x=                            -- 'C3A4 58 C3BC'
-        nfcText~characters==
+        nfcText~UnicodeCharacters==
             an Array (shape [3], 3 items)
              1 : ( "ä"   U+00E4 Ll 1 "LATIN SMALL LETTER A WITH DIAERESIS" )
              2 : ( "X"   U+0058 Lu 1 "LATIN CAPITAL LETTER X" )
@@ -715,7 +780,7 @@ Examples:
     nfdString = "äXü"
         nfdText = nfdString~text
         nfdText~c2x=                            -- '61 CC88 58 75 CC88'
-        nfdText~characters==
+        nfdText~UnicodeCharacters==
             an Array (shape [5], 5 items)
              1 : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
              2 : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
@@ -965,7 +1030,7 @@ Examples:
 
     string = "\u{BEL}Le\u{IDEOGRAPHIC SPACE}\u{OGHAM SPACE MARK}\u{ZERO-WIDTH-SPACE}Père\t\u{HYPHEN}\u{SOFT-HYPHEN}\u{EN DASH}\u{EM DASH}Noël\x{EFB790}\r\n"
     text = string~text~unescape
-    text~characters==
+    text~UnicodeCharacters==
         an Array (shape [22], 22 items)
          1  : ( ""    U+0007 Cc 0 "", "ALERT", "BEL" )                                                  <-- removable with STRIPCC:.true
          2  : ( "L"   U+004C Lu 1 "LATIN CAPITAL LETTER L" )
@@ -1569,7 +1634,7 @@ From now, the returned NFD is always the memorized text:
       "baﬄe"~text~upper=          -- T'BAﬄE', not BAFFLE
       The ligature disappears in NFK[CD] but not in NF[CD]
 */
-"äöü äöü x̂ ϔ ﷺ baﬄe"~text~characters==
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~UnicodeCharacters==
     an Array (shape [22~], 22 items)
      1  : ( "ä"   U+00E4 Ll 1 "LATIN SMALL LETTER A WITH DIAERESIS" )
      2  : ( "ö"   U+00F6 Ll 1 "LATIN SMALL LETTER O WITH DIAERESIS" )
@@ -1603,7 +1668,7 @@ From now, the returned NFD is always the memorized text:
     Canonical Decomposition
     Characters are decomposed by canonical equivalence, and multiple combining characters are arranged in a specific order.
 */
-"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~characters==
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~UnicodeCharacters==
     an Array (shape [26], 26 items)
      1  : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
      2  : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
@@ -1641,7 +1706,7 @@ From now, the returned NFD is always the memorized text:
     Canonical Decomposition, followed by Canonical Composition
     Characters are decomposed and then recomposed by canonical equivalence.
 */
-"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~characters==
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~UnicodeCharacters==
     an Array (shape [19], 19 items)
      1  : ( "ä"   U+00E4 Ll 1 "LATIN SMALL LETTER A WITH DIAERESIS" )
      2  : ( "ö"   U+00F6 Ll 1 "LATIN SMALL LETTER O WITH DIAERESIS" )
@@ -1672,7 +1737,7 @@ From now, the returned NFD is always the memorized text:
     Compatibility Decomposition (K is used to stand for compatibility to avoid confusion with the C standing for composition)
     Characters are decomposed by compatibility, and multiple combining characters are arranged in a specific order.
 */
-"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~characters==
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~UnicodeCharacters==
     an Array (shape [45], 45 items)
      1  : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
      2  : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
@@ -1729,7 +1794,7 @@ From now, the returned NFD is always the memorized text:
     Compatibility Decomposition, followed by Canonical Composition
     Characters are decomposed by compatibility, then recomposed by canonical equivalence.
 */
-"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~characters==
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~UnicodeCharacters==
     an Array (shape [38], 38 items)
      1  : ( "ä"   U+00E4 Ll 1 "LATIN SMALL LETTER A WITH DIAERESIS" )
      2  : ( "ö"   U+00F6 Ll 1 "LATIN SMALL LETTER O WITH DIAERESIS" )
@@ -1775,17 +1840,17 @@ From now, the returned NFD is always the memorized text:
 
 
 -- The normalization forms are implemented only for UTF-8 and WTF-8.
-"D800 DC01"x~text("utf16")~nfd~characters==         -- Method NFD is ABSTRACT and cannot be directly invoked.
-"D800 DC01"x~text("utf16")~utf8~nfd~characters==
+"D800 DC01"x~text("utf16")~nfd~UnicodeCharacters==  -- Method NFD is ABSTRACT and cannot be directly invoked.
+"D800 DC01"x~text("utf16")~utf8~nfd~UnicodeCharacters==
     an Array (shape [1], 1 items)
      1 : ( "𐀁"   U+10001 Lo 1 "LINEAR B SYLLABLE B038 E" )
-"\uD800\uDC01"~text("wtf8")~unescape~nfd~characters==
+"\uD800\uDC01"~text("wtf8")~unescape~nfd~UnicodeCharacters==
     an Array (shape [1], 1 items)
      1 : ( "𐀁"   U+10001 Lo 1 "LINEAR B SYLLABLE B038 E" )
 
 -- If the WTF-8 string is not a valid UTF-8 string then an error is raised by utf8proc
-"D800"x     ~text("wtf16")~wtf8~nfd~characters==    -- Invalid UTF-8 string
-"\uD800"~text("wtf8")~unescape~nfd~characters==     -- Invalid UTF-8 string
+"D800"x     ~text("wtf16")~wtf8~nfd~UnicodeCharacters==    -- Invalid UTF-8 string
+"\uD800"~text("wtf8")~unescape~nfd~UnicodeCharacters==     -- Invalid UTF-8 string
 
 
 ===============================================================================
@@ -1828,7 +1893,7 @@ https://discourse.julialang.org/t/stupid-question-on-unicode/27674/10
          3 : 'UTF-8 sequence at byte-position 3 has an invalid start byte 189 (BDx) (non-shortest form).'
 
     Yes, I should support it when the encoding is WTF-8, because the concatenation manages correctly this case:
-        ("\uD83D"~text~wtf8~unescape || "\uDE3F"~text~wtf8~unescape)~characters==
+        ("\uD83D"~text~wtf8~unescape || "\uDE3F"~text~wtf8~unescape)~UnicodeCharacters==
         an Array (shape [1], 1 items)
          1 : ( "😿"  U+1F63F So 2 "CRYING CAT FACE" )
 
@@ -1850,7 +1915,7 @@ https://discourse.julialang.org/t/indexing-strings-by-unicode-code-point-instead
     parse value "äöü  100"~text with key 6 value     -- key="äöü  ", value=100
 
     -- NFC
-    "äöü  100"~text~characters==
+    "äöü  100"~text~UnicodeCharacters==
         an Array (shape [8], 8 items)
          1 : ( "ä"   U+00E4 Ll 1 "LATIN SMALL LETTER A WITH DIAERESIS" )
          2 : ( "ö"   U+00F6 Ll 1 "LATIN SMALL LETTER O WITH DIAERESIS" )
@@ -1862,7 +1927,7 @@ https://discourse.julialang.org/t/indexing-strings-by-unicode-code-point-instead
          8 : ( "0"   U+0030 Nd 1 "DIGIT ZERO" )
 
     -- NFD
-    "äöü  100"~text~characters==
+    "äöü  100"~text~UnicodeCharacters==
         an Array (shape [11], 11 items)
          1  : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
          2  : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
@@ -2454,7 +2519,7 @@ a GraphemeSupplier
  4 : T'd‍'
  5 : T'👩‍🎅'
 
-"noël👩‍👨‍👩‍👧🎅"~text~characters==
+"noël👩‍👨‍👩‍👧🎅"~text~UnicodeCharacters==
     an Array (shape [12], 12 items)
      1  : ( "n"   U+006E Ll 1 "LATIN SMALL LETTER N" )
      2  : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
@@ -2643,7 +2708,7 @@ Examples:
 .unicode~character("LATIN SMALL LETTER SHARP S")~toUpper        -- (U+1E9E Lu "LATIN CAPITAL LETTER SHARP S")
 .unicode~character("LATIN SMALL LETTER SHARP S")~toUpper~utf8=  -- T'ẞ'
 -- T'ß' to uppercase should be T'SS':
-"0053 0053"x~text("utf16")~characters==
+"0053 0053"x~text("utf16")~UnicodeCharacters==
     an Array (shape [2], 2 items)
      1 : (U+0053 Lu "LATIN CAPITAL LETTER S")
      2 : (U+0053 Lu "LATIN CAPITAL LETTER S")
@@ -2654,7 +2719,7 @@ Examples:
 .unicode~character("LATIN CAPITAL LETTER I WITH DOT ABOVE")~toLower=        -- (U+0069 Ll "LATIN SMALL LETTER I")
 .unicode~character("LATIN CAPITAL LETTER I WITH DOT ABOVE")~toLower~utf8=   -- T'i'
 -- T'İ' to lowercase should be T'i̇':
-"0069 0307"x~text("utf16")~characters==
+"0069 0307"x~text("utf16")~UnicodeCharacters==
     an Array (shape [2], 2 items)
      1 : (U+0069 Ll "LATIN SMALL LETTER I")
      2 : (U+0307 Mn "COMBINING DOT ABOVE")

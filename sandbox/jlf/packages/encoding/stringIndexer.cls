@@ -389,9 +389,14 @@ For example, if startB==6 then previousCodepointIndex==3
     -- use strict arg indexC, decode=.true
 
 
-::method characters
+::method UnicodeCharacters
     use strict arg -- none
-    return self~codepoints~each{.unicode~character(item)}
+    if self~isUnicode then return self~codepoints~each{.unicode~character(item)}
+    -- no result if not Unicode encoding
+
+
+::method characters
+    forward message "graphemes"
 
 
 ::method graphemes

@@ -9,7 +9,8 @@ The prototype is currently using 2 libraries:
 - icu4x       https://github.com/unicode-org/icu4x
 
 Current usage:
-- utf8proc is used for grapheme segmentation, characters properties, normalization, upper/lower/title.
+- utf8proc is used for grapheme segmentation, characters properties, normalization, simple upper/lower/title.
+- uni-algo is used for full upper/lower/title.
 - icu4x will be used for locale-aware services (segmentation, collation, translation, formatting).
 */
 
@@ -567,7 +568,7 @@ TODO: Add support for UTF-16, UTF-32
 
 ooRexx> string = "\u{BEL}Le\u{IDEOGRAPHIC SPACE}\u{OGHAM SPACE MARK}\u{ZERO-WIDTH-SPACE}Père\t\u{HYPHEN}\u{SOFT-HYPHEN}\u{EN DASH}\u{EM DASH}Noël\x{EFB790}\r\n"
 ooRexx> text = string~text~unescape
-ooRexx> text~characters==
+ooRexx> text~UnicodeCharacters==
 an Array (shape [22], 22 items)
  1  : ( ""    U+0007 Cc 0 "", "ALERT", "BEL" )
  2  : ( "L"   U+004C Lu 1 "LATIN CAPITAL LETTER L" )
@@ -771,7 +772,7 @@ Some remarks about the string used in the next demo:
   The ligature disappears in NFK[CD] but not in NF[CD]
 */
 
-ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~characters==
+ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~UnicodeCharacters==
 an Array (shape [22], 22 items)
  1  : ( "ä"   U+00E4 Ll 1 "LATIN SMALL LETTER A WITH DIAERESIS" )
  2  : ( "ö"   U+00F6 Ll 1 "LATIN SMALL LETTER O WITH DIAERESIS" )
@@ -807,7 +808,7 @@ Canonical Decomposition
 Characters are decomposed by canonical equivalence, and multiple combining characters are arranged in a specific order.
 */
 
-ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~characters==
+ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~UnicodeCharacters==
 an Array (shape [26], 26 items)
  1  : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
  2  : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
@@ -847,7 +848,7 @@ Canonical Decomposition, followed by Canonical Composition
 Characters are decomposed and then recomposed by canonical equivalence.
 */
 
-ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~characters==
+ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~UnicodeCharacters==
 an Array (shape [19], 19 items)
  1  : ( "ä"   U+00E4 Ll 1 "LATIN SMALL LETTER A WITH DIAERESIS" )
  2  : ( "ö"   U+00F6 Ll 1 "LATIN SMALL LETTER O WITH DIAERESIS" )
@@ -880,7 +881,7 @@ Compatibility Decomposition (K is used to stand for compatibility to avoid confu
 Characters are decomposed by compatibility, and multiple combining characters are arranged in a specific order.
 */
 
-ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~characters==
+ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~UnicodeCharacters==
 an Array (shape [45], 45 items)
  1  : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
  2  : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
@@ -939,7 +940,7 @@ Compatibility Decomposition, followed by Canonical Composition
 Characters are decomposed by compatibility, then recomposed by canonical equivalence.
 */
 
-ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~characters==
+ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~UnicodeCharacters==
 an Array (shape [38], 38 items)
  1  : ( "ä"   U+00E4 Ll 1 "LATIN SMALL LETTER A WITH DIAERESIS" )
  2  : ( "ö"   U+00F6 Ll 1 "LATIN SMALL LETTER O WITH DIAERESIS" )
@@ -985,13 +986,13 @@ ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~upper=       -- T'ÄÖÜ 
 T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE'
 
 -- The normalization forms are implemented only for UTF-8 and WTF-8.
-ooRexx> "D800 DC01"x~text("utf16")~nfd~characters==    -- Method NFD is ABSTRACT and cannot be directly invoked.
+ooRexx> "D800 DC01"x~text("utf16")~nfd~UnicodeCharacters==    -- Method NFD is ABSTRACT and cannot be directly invoked.
 Method NFD is ABSTRACT and cannot be directly invoked.
 Error code= 93.965
-ooRexx> "D800 DC01"x~text("utf16")~utf8~nfd~characters==
+ooRexx> "D800 DC01"x~text("utf16")~utf8~nfd~UnicodeCharacters==
 an Array (shape [1], 1 items)
  1 : ( "𐀁"   U+10001 Lo 1 "LINEAR B SYLLABLE B038 E" )
-ooRexx> "\uD800\uDC01"~text("wtf8")~unescape~nfd~characters==
+ooRexx> "\uD800\uDC01"~text("wtf8")~unescape~nfd~UnicodeCharacters==
 an Array (shape [1], 1 items)
  1 : ( "𐀁"   U+10001 Lo 1 "LINEAR B SYLLABLE B038 E" )
 

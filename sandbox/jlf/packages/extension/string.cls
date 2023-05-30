@@ -134,6 +134,11 @@ Similar to ~makeArray(separator), with these differences:
     return ""
 
 
+::method characters
+    -- To be aligned with RexxText
+    return self~makearray("")
+
+
 /******************************************************************************/
 ::class "MutableBufferHelpers"  mixinclass Object public
 
@@ -182,6 +187,11 @@ Similar to ~makeArray(separator), with these differences:
         if .nil == appender then self~append(object~string)
                             else appender~append(object, buffer: self)
         return
+
+
+::method characters
+    -- To be aligned with RexxText
+    return self~makearray("")
 
 
 /******************************************************************************/

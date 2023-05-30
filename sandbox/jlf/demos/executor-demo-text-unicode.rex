@@ -11,7 +11,8 @@ The prototype is currently using 2 libraries:
 - icu4x       https://github.com/unicode-org/icu4x
 
 Current usage:
-- utf8proc is used for grapheme segmentation, characters properties, normalization, upper/lower/title.
+- utf8proc is used for grapheme segmentation, characters properties, normalization, simple upper/lower/title.
+- uni-algo is used for full upper/lower/title.
 - icu4x will be used for locale-aware services (segmentation, collation, translation, formatting).
 */
 sleep no prompt
@@ -268,7 +269,7 @@ sleep no prompt
 
 string = "\u{BEL}Le\u{IDEOGRAPHIC SPACE}\u{OGHAM SPACE MARK}\u{ZERO-WIDTH-SPACE}Père\t\u{HYPHEN}\u{SOFT-HYPHEN}\u{EN DASH}\u{EM DASH}Noël\x{EFB790}\r\n"
 text = string~text~unescape
-text~characters==
+text~UnicodeCharacters==
 sleep no prompt
 
 /*
@@ -447,7 +448,7 @@ Some remarks about the string used in the next demo:
 */
 sleep no prompt
 
-"äöü äöü x̂ ϔ ﷺ baﬄe"~text~characters==
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~UnicodeCharacters==
 sleep
 "äöü äöü x̂ ϔ ﷺ baﬄe"~text~description=      -- 'UTF-8 not-ASCII (18 graphemes, 22 codepoints, 34 bytes, 0 error)'
 sleep
@@ -462,7 +463,7 @@ Characters are decomposed by canonical equivalence, and multiple combining chara
 */
 sleep no prompt
 
-"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~characters==
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~UnicodeCharacters==
 sleep
 "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~description=  -- 'UTF-8 not-ASCII (18 graphemes, 26 codepoints, 39 bytes, 0 error)'
 sleep
@@ -477,7 +478,7 @@ Characters are decomposed and then recomposed by canonical equivalence.
 */
 sleep no prompt
 
-"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~characters==
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~UnicodeCharacters==
 sleep
 "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~description=  -- 'UTF-8 not-ASCII (18 graphemes, 19 codepoints, 31 bytes, 0 error)'
 sleep
@@ -492,7 +493,7 @@ Characters are decomposed by compatibility, and multiple combining characters ar
 */
 sleep no prompt
 
-"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~characters==
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~UnicodeCharacters==
 sleep
 "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~description= -- 'UTF-8 not-ASCII (37 graphemes, 45 codepoints, 69 bytes, 0 error)'
 sleep
@@ -507,7 +508,7 @@ Characters are decomposed by compatibility, then recomposed by canonical equival
 */
 sleep no prompt
 
-"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~characters==
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~UnicodeCharacters==
 sleep
 "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~description= -- 'UTF-8 not-ASCII (37 graphemes, 38 codepoints, 61 bytes, 0 error)'
 sleep
@@ -515,11 +516,11 @@ sleep
 sleep no prompt
 
 -- The normalization forms are implemented only for UTF-8 and WTF-8.
-"D800 DC01"x~text("utf16")~nfd~characters==    -- Method NFD is ABSTRACT and cannot be directly invoked.
+"D800 DC01"x~text("utf16")~nfd~UnicodeCharacters==    -- Method NFD is ABSTRACT and cannot be directly invoked.
 sleep
-"D800 DC01"x~text("utf16")~utf8~nfd~characters==
+"D800 DC01"x~text("utf16")~utf8~nfd~UnicodeCharacters==
 sleep
-"\uD800\uDC01"~text("wtf8")~unescape~nfd~characters==
+"\uD800\uDC01"~text("wtf8")~unescape~nfd~UnicodeCharacters==
 sleep no prompt
 
 

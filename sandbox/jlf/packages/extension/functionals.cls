@@ -6,25 +6,29 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::extension Collection          inherit CollectionFilter
 ::extension OrderedCollection   inherit OrderedCollectionFilter
 ::extension Supplier            inherit SupplierFilter
-::extension String              inherit StringFilter
-::extension MutableBuffer       inherit MutableBufferFilter
+::extension String              inherit TextOrBufferOrStringFilter
+::extension RexxText            inherit TextOrBufferOrStringFilter
+::extension MutableBuffer       inherit TextOrBufferOrStringFilter
 
 -- Iterator
 ::extension Collection          inherit CollectionIterator
 ::extension Supplier            inherit SupplierIterator
-::extension String              inherit StringIterator
-::extension MutableBuffer       inherit MutableBufferIterator
+::extension String              inherit TextOrBufferOrStringIterator
+::extension RexxText            inherit TextOrBufferOrStringIterator
+::extension MutableBuffer       inherit TextOrBufferOrStringIterator
 
 -- Reducer
 ::extension Collection          inherit CollectionReducer
 ::extension Supplier            inherit SupplierReducer
-::extension String              inherit StringReducer
-::extension MutableBuffer       inherit MutableBufferReducer
+::extension String              inherit TextOrBufferOrStringReducer
+::extension RexxText            inherit TextOrBufferOrStringReducer
+::extension MutableBuffer       inherit TextOrBufferOrStringReducer
 
 -- Mapper
 ::extension Collection          inherit CollectionMapper
 ::extension String              inherit StringMapper
-::extension MutableBuffer       inherit MutableBufferMapper
+::extension RexxText            inherit RexxTextMapper -- yes, needs a specialized mixin class
+::extension MutableBuffer       inherit MutableBufferMapper -- yes, needs a specialized mixin class
 
 -- Repeater
 ::extension String              inherit RepeaterCollector
@@ -39,13 +43,13 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- http://en.wikipedia.org/wiki/Fold_(higher-order_function)
 
 ------------------------------------------------
-::class "StringReducer" mixinclass Object public
+::class "TextOrBufferOrStringReducer" mixinclass Object public
 ------------------------------------------------
 
 -- Facade with named argument 'by' to indicate by which criteria the split for reduction is done
 ::method reduce unguarded
     use /*strict*/ named arg by="words" -- not strict because other named arguments can be passed that will be handled later
-    if "characters"~caselessAbbrev(by, 1) then forward message "reduce" to (self~makeArray(""))
+    if "characters"~caselessAbbrev(by, 1) then forward message "reduce" to (self~characters)
     if "chunks"~caselessAbbrev(by, 3)     then forward message "reduce" to (self~chunks) -- for more complex cases, use "string"~chunks(...your args...)~reduce(...)
     if "words"~caselessAbbrev(by, 1)      then forward message "reduce" to (self~subwords)
     raise syntax 93.900 array ("Unsupported reduce by:"by)
@@ -57,7 +61,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- 567~reduceC{arg(1) + arg(2) + arg(3)} -- initial value is the first char (default), reduce by char, index passed as 3rd argument, returns 5 + 6+2 + 7+3 = 23
 -- 567~reduceC(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, reduce by char, index passed as 3rd argument, returns 0 + 5+1 + 6+2 + 7+3 = 24
 ::method reduceC unguarded
-    forward message "reduce" to (self~makeArray(""))
+    forward message "reduce" to (self~characters)
 
 -- Iterate over the words of the string and combine them into one value by applying the given action to (current_value, current_word)
 -- "10 20 30"~reduceW("+") -- initial value is the first word (default), reduce by word, returns 60
@@ -65,38 +69,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the words of the string and combine them into one value by applying the given action to (current_value, current_word, current_word_index)
 -- "10 20 30"~reduceW{arg(1) + arg(2) + arg(3)} -- initial value is the first word (default), reduce by word, index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
 -- "10 20 30"~reduceW(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, reduce by word, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
-::method reduceW unguarded
-    forward message "reduce" to (self~subwords)
-
-
--------------------------------------------------------
-::class "MutableBufferReducer" mixinclass Object public
--------------------------------------------------------
-
--- Facade with named argument 'by' to indicate by which criteria the split for reduction is done
-::method reduce unguarded
-    use /*strict*/ named arg by="words" -- not strict because other named arguments can be passed that will be handled later
-    if "characters"~caselessAbbrev(by, 1) then forward message "reduce" to (self~makeArray(""))
-    if "chunks"~caselessAbbrev(by, 3)     then forward message "reduce" to (self~chunks) -- for more complex cases, use "string"~chunks(...your args...)~reduce(...)
-    if "words"~caselessAbbrev(by, 1)      then forward message "reduce" to (self~subwords)
-    raise syntax 93.900 array ("Unsupported reduce by:"by)
-
-
--- Iterate over the characters of the mutable buffer and combine them into one value by applying the given action to (current_value, current_char)
--- .MutableBuffer~new(123)~reduceC("+") -- initial value is the first char (default), reduce by char, returns 6
--- .MutableBuffer~new(123)~reduceC(100, "+") -- initial value is 100, reduce by char, returns 106
--- Iterate over the characters of the mutable buffer and combine them into one value by applying the given action to (current_value, current_char, current_char_pos)
--- .MutableBuffer~new(567)~reduceC{arg(1) + arg(2) + arg(3)} -- initial value is the first char (default), reduce by char, index passed as 3rd argument, returns 5 + 6+2 + 7+3 = 23
--- .MutableBuffer~new(567)~reduceC(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, reduce by char, index passed as 3rd argument, returns 0 + 5+1 + 6+2 + 7+3 = 24
-::method reduceC unguarded
-    forward message "reduce" to (self~makeArray(""))
-
--- Iterate over the words of the mutable buffer and combine them into one value by applying the given action to (current_value, current_word)
--- .MutableBuffer~new("10 20 30")~reduceW("+") -- initial value is the first word (default), reduce by word, returns 60
--- .MutableBuffer~new("10 20 30")~reduceW(100, "+") -- initial value is 100, reduce by word, returns 160
--- Iterate over the words of the mutable buffer and combine them into one value by applying the given action to (current_value, current_word, current_word_index)
--- .MutableBuffer~new("10 20 30")~reduceW{arg(1) + arg(2) + arg(3)} -- initial value is the first word (default), reduce by word, index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
--- .MutableBuffer~new("10 20 30")~reduceW(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, reduce by word, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
 ::method reduceW unguarded
     forward message "reduce" to (self~subwords)
 
@@ -212,6 +184,45 @@ This script needs a modified ooRexx interpreter which support extension of prede
 --::method mapWR
 
 
+-----------------------------------------------
+::class "RexxTextMapper" mixinclass Object public
+-----------------------------------------------
+
+-- Facade with named argument 'by' to indicate by which criteria the split for reduction is done
+::method map unguarded
+    use strict arg action={arg(1)}
+    use /*strict*/ named arg by="words", action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    if "characters"~caselessAbbrev(by, 1) then return .MutableBuffer~new~mapCImpl(self, action, separator)~string~text
+    if "chunks"~caselessAbbrev(by, 3)     then return .MutableBuffer~new~mapChunksImpl(self, action, separator)~string~text
+    if "words"~caselessAbbrev(by, 1)      then return .MutableBuffer~new~mapWImpl(self, action, separator)~string~text
+    raise syntax 93.900 array ("Unsupported map by:"by)
+
+
+-- Iterate over the characters of the text and apply the given action to (current_char)
+-- "abcdefghijklmnopqrstuvwxyz"~text~mapC{arg(1)~verify('aeiouy')} -- returns "01110111011111011111011101"
+-- Iterate over the characters of the text and apply the given action to (current_char, current_char_pos)
+-- "abcdefghijk"~text~mapC(sep:" "){arg(2)":"arg(1)} -- returns "1:a 2:b 3:c 4:d 5:e 6:f 7:g 8:h 9:i 10:j 11:k"
+::method mapC unguarded
+    use strict arg action={arg(1)}
+    use /*strict*/ named arg action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    return .MutableBuffer~new~mapCImpl(self, action, separator)~string~text
+
+-- Not applicable to a text
+--::method mapCR
+
+-- Iterate over the words of the text and apply the given action to (current_word)
+-- "one two three"~mapW{if arg(1)~length > 3 then arg(1)} -- returns "three"
+-- Iterate over the words of the text and apply the given action to (current_word, current_word_index)
+-- "one two three"~mapW(sep:" "){arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
+::method mapW unguarded
+    use strict arg action={arg(1)}
+    use /*strict*/ named arg action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    return .MutableBuffer~new~mapWImpl(self, action, separator)~string~text
+
+-- Not applicable to a text
+--::method mapWR
+
+
 ------------------------------------------------------
 ::class "MutableBufferMapper" mixinclass Object public
 ------------------------------------------------------
@@ -272,12 +283,12 @@ This script needs a modified ooRexx interpreter which support extension of prede
     use /*strict*/ named arg action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
     return self~mapWImpl(self~string, action, separator) -- self~string because self will be emptied
 
-::method mapCImpl -- not private because called by String~map
+::method mapCImpl -- not private because called by String~map and RexxText~map
     use strict arg source, action, separator
     doer = action~doer
     arity = doer~arity
     self~delete(1)
-    supplier = source~makearray("")~supplier -- really not optimized but...
+    supplier = source~characters~supplier -- really not optimized but...
     first = .true
     do while supplier~available
         if arity == 9999   then doer~do(      supplier~item,        supplier~index,-
@@ -392,18 +403,18 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- These methods returns an array. If you need a result object which is of the same type as the iterated object, then use ~map.
 
 -------------------------------------------------
-::class "StringIterator" mixinclass Object public
+::class "TextOrBufferOrStringIterator" mixinclass Object public
 -------------------------------------------------
 
 -- Iterate over the characters of the string and apply the given action to (current_char)
 -- An array of results is returned (can be empty).
 ::method eachC unguarded
-    forward message "each" to (self~makeArray(""))
+    forward message "each" to (self~characters)
 
 -- Iterate over the characters of the string and apply the given action to (current_char, current_char_pos)
 -- An array of pairs (result, index) is returned (can be empty).
 ::method eachCI unguarded
-    forward message "eachI" to (self~makeArray(""))
+    forward message "eachI" to (self~characters)
 
 -- Iterate over the words of the string and apply the given action to (current_word)
 -- A array of results is returned (can be empty).
@@ -412,31 +423,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 -- Iterate over the words of the string and apply the given action to (current_word, current_word_index)
 -- An array of pairs (result, index) is returned (can be empty).
-::method eachWI unguarded
-    forward message "eachI" to (self~subwords)
-
-
---------------------------------------------------------
-::class "MutableBufferIterator" mixinclass Object public
---------------------------------------------------------
-
--- Iterate over the characters of the mutable buffer and apply the given action to (current_char)
--- An array of results is returned (can be empty).
-::method eachC unguarded
-    forward message "each" to (self~makeArray(""))
-
--- Iterate over the characters of the mutable buffer and apply the given action to (current_char, current_char_pos)
--- An array of pairs (result, index) is returned (can be empty).
-::method eachCI unguarded
-    forward message "eachI" to (self~makeArray(""))
-
--- Iterate over the words of the mutable buffer and apply the given action to (current_word)
--- An array of results is returned (can be empty).
-::method eachW unguarded
-    forward message "each" to (self~subwords)
-
--- Iterate over the words of the mutable buffer and apply the given action to (current_word, current_word_index)
--- An array of pairs (result, word_index) is returned (can be empty).
 ::method eachWI unguarded
     forward message "eachI" to (self~subwords)
 
@@ -500,100 +486,100 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Filter.
 
 -----------------------------------------------
-::class "StringFilter" mixinclass Object public
+::class "TextOrBufferOrStringFilter" mixinclass Object public
 -----------------------------------------------
 
 ::method dropFirstC unguarded
-    forward message "drop" to (self~makeArray(""))
+    forward message "drop" to (self~characters)
 
 ::method dropC unguarded
-    forward message "drop" to (self~makeArray(""))
+    forward message "drop" to (self~characters)
 
 ::method dropFirstCI unguarded
-    forward message "dropI" to (self~makeArray(""))
+    forward message "dropI" to (self~characters)
 
 ::method dropCI unguarded
-    forward message "dropI" to (self~makeArray(""))
+    forward message "dropI" to (self~characters)
 
 ::method dropLastC unguarded
-    forward message "dropLast" to (self~makeArray(""))
+    forward message "dropLast" to (self~characters)
 
 ::method dropLastCI unguarded
-    forward message "dropLastI" to (self~makeArray(""))
+    forward message "dropLastI" to (self~characters)
 
 ::method dropUntilC unguarded
-    forward message "dropUntil" to (self~makeArray(""))
+    forward message "dropUntil" to (self~characters)
 
 ::method dropUntilCI unguarded
-    forward message "dropUntilI" to (self~makeArray(""))
+    forward message "dropUntilI" to (self~characters)
 
 ::method dropWhileC unguarded
-    forward message "dropWhile" to (self~makeArray(""))
+    forward message "dropWhile" to (self~characters)
 
 ::method dropWhileCI unguarded
-    forward message "dropWhileI" to (self~makeArray(""))
+    forward message "dropWhileI" to (self~characters)
 
 -- Iterate over the characters of the string and reject the characters for which the given filter applied to (current_char) returns true.
 -- An array of not rejected characters is returned (can be empty).
 ::method rejectC unguarded
-    forward message "reject" to (self~makeArray(""))
+    forward message "reject" to (self~characters)
 
 -- Iterate over the characters of the string and reject the characters for which the given filter applied to (current_char, current_char_pos) returns true.
 -- An array of pairs (not rejected character, char_pos) is returned (can be empty).
 ::method rejectCI unguarded
-    forward message "rejectI" to (self~makeArray(""))
+    forward message "rejectI" to (self~characters)
 
 -- Iterate over the characters of the string and select the characters for which the given filter applied to (current_char) returns true.
 -- An array of selected characters is returned (can be empty).
 ::method selectC unguarded
-    forward message "select" to (self~makeArray(""))
+    forward message "select" to (self~characters)
 
 -- Iterate over the characters of the string and select the characters for which the given filter applied to (current_char, current_char_pos) returns true.
 -- An array of pairs (selected character, char_pos) is returned (can be empty).
 ::method selectCI unguarded
-    forward message "selectI" to (self~makeArray(""))
+    forward message "selectI" to (self~characters)
 
 ::method takeFirstC unguarded
-    forward message "take" to (self~makeArray(""))
+    forward message "take" to (self~characters)
 
 ::method takeC unguarded
-    forward message "take" to (self~makeArray(""))
+    forward message "take" to (self~characters)
 
 ::method takeFirstCI unguarded
-    forward message "takeI" to (self~makeArray(""))
+    forward message "takeI" to (self~characters)
 
 ::method takeCI unguarded
-    forward message "takeI" to (self~makeArray(""))
+    forward message "takeI" to (self~characters)
 
 ::method takeLastC unguarded
-    forward message "takeLast" to (self~makeArray(""))
+    forward message "takeLast" to (self~characters)
 
 ::method takeLastCI unguarded
-    forward message "takeLastI" to (self~makeArray(""))
+    forward message "takeLastI" to (self~characters)
 
 ::method takeUntilC unguarded
-    forward message "until" to (self~makeArray(""))
+    forward message "until" to (self~characters)
 
 ::method untilC unguarded
-    forward message "until" to (self~makeArray(""))
+    forward message "until" to (self~characters)
 
 ::method takeUntilCI unguarded
-    forward message "untilI" to (self~makeArray(""))
+    forward message "untilI" to (self~characters)
 
 ::method untilCI unguarded
-    forward message "untilI" to (self~makeArray(""))
+    forward message "untilI" to (self~characters)
 
 ::method takeWhileC unguarded
-    forward message "while" to (self~makeArray(""))
+    forward message "while" to (self~characters)
 
 ::method whileC unguarded
-    forward message "while" to (self~makeArray(""))
+    forward message "while" to (self~characters)
 
 ::method takeWhileCI unguarded
-    forward message "whileI" to (self~makeArray(""))
+    forward message "whileI" to (self~characters)
 
 ::method whileCI unguarded
-    forward message "whileI" to (self~makeArray(""))
+    forward message "whileI" to (self~characters)
 
 ::method dropFirstW unguarded
     forward message "drop" to (self~subwords)
@@ -641,189 +627,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
     forward message "select" to (self~subwords)
 
 -- Iterate over the words of the string and select the words for which the given filter applied to (current_word, current_word_index) returns true.
--- An array of pairs (selected word, word_index) is returned (can be empty).
-::method selectWI unguarded
-    forward message "selectI" to (self~subwords)
-
-::method takeFirstW unguarded
-    forward message "take" to (self~subwords)
-
-::method takeW unguarded
-    forward message "take" to (self~subwords)
-
-::method takeFirstWI unguarded
-    forward message "takeI" to (self~subwords)
-
-::method takeWI unguarded
-    forward message "takeI" to (self~subwords)
-
-::method takeLastW unguarded
-    forward message "takeLast" to (self~subwords)
-
-::method takeLastWI unguarded
-    forward message "takeLastI" to (self~subwords)
-
-::method takeUntilW unguarded
-    forward message "until" to (self~subwords)
-
-::method untilW unguarded
-    forward message "until" to (self~subwords)
-
-::method takeUntilWI unguarded
-    forward message "untilI" to (self~subwords)
-
-::method untilWI unguarded
-    forward message "untilI" to (self~subwords)
-
-::method takeWhileW unguarded
-    forward message "while" to (self~subwords)
-
-::method whileW unguarded
-    forward message "while" to (self~subwords)
-
-::method takeWhileWI unguarded
-    forward message "whileI" to (self~subwords)
-
-::method whileWI unguarded
-    forward message "whileI" to (self~subwords)
-
-
-------------------------------------------------------
-::class "MutableBufferFilter" mixinclass Object public
-------------------------------------------------------
-
-::method dropFirstC unguarded
-    forward message "drop" to (self~makeArray(""))
-
-::method dropC unguarded
-    forward message "drop" to (self~makeArray(""))
-
-::method dropFirstCI unguarded
-    forward message "dropI" to (self~makeArray(""))
-
-::method dropCI unguarded
-    forward message "dropI" to (self~makeArray(""))
-
-::method dropLastC unguarded
-    forward message "dropLast" to (self~makeArray(""))
-
-::method dropLastCI unguarded
-    forward message "dropLastI" to (self~makeArray(""))
-
-::method dropUntilC unguarded
-    forward message "dropUntil" to (self~makeArray(""))
-
-::method dropUntilCI unguarded
-    forward message "dropUntilI" to (self~makeArray(""))
-
-::method dropWhileC unguarded
-    forward message "dropWhile" to (self~makeArray(""))
-
-::method dropWhileCI unguarded
-    forward message "dropWhileI" to (self~makeArray(""))
-
--- Iterate over the characters of the mutable buffer and reject the characters for which the given filter applied to (current_char) returns true.
--- An array of not rejected characters is returned (can be empty).
-::method rejectC unguarded
-    forward message "reject" to (self~makeArray(""))
-
--- Iterate over the characters of the mutable buffer and reject the characters for which the given filter applied to (current_char, current_char_pos) returns true.
--- An array of pairs (not rejected character, char_pos) is returned (can be empty).
-::method rejectCI unguarded
-    forward message "rejectI" to (self~makeArray(""))
-
--- Iterate over the characters of the mutable buffer and select the characters for which the given filter applied to (current_char) returns true.
--- An array of selected characters is returned (can be empty).
-::method selectC unguarded
-    forward message "select" to (self~makeArray(""))
-
--- Iterate over the characters of the mutable buffer and select the characters for which the given filter applied to (current_char, current_char_pos) returns true.
--- An array of pairs (selected character, char_pos) is returned (can be empty).
-::method selectCI unguarded
-    forward message "selectI" to (self~makeArray(""))
-
-::method takeFirstC unguarded
-    forward message "take" to (self~makeArray(""))
-
-::method takeC unguarded
-    forward message "take" to (self~makeArray(""))
-
-::method takeFirstCI unguarded
-    forward message "takeI" to (self~makeArray(""))
-
-::method takeCI unguarded
-    forward message "takeI" to (self~makeArray(""))
-
-::method takeLastC unguarded
-    forward message "takeLast" to (self~makeArray(""))
-
-::method takeLastCI unguarded
-    forward message "takeLastI" to (self~makeArray(""))
-
-::method takeUntilC unguarded
-    forward message "until" to (self~makeArray(""))
-
-::method untilC unguarded
-    forward message "until" to (self~makeArray(""))
-
-::method takeUntilCI unguarded
-    forward message "untilI" to (self~makeArray(""))
-
-::method untilCI unguarded
-    forward message "untilI" to (self~makeArray(""))
-
-::method takeWhileC unguarded
-    forward message "while" to (self~makeArray(""))
-
-::method whileC unguarded
-    forward message "while" to (self~makeArray(""))
-
-::method takeWhileCI unguarded
-    forward message "whileI" to (self~makeArray(""))
-
-::method whileCI unguarded
-    forward message "whileI" to (self~makeArray(""))
-
-::method dropW unguarded
-    forward message "drop" to (self~subwords)
-
-::method dropWI unguarded
-    forward message "dropI" to (self~subwords)
-
-::method dropLastW unguarded
-    forward message "dropLast" to (self~subwords)
-
-::method dropLastWI unguarded
-    forward message "dropLastI" to (self~subwords)
-
-::method dropUntilW unguarded
-    forward message "dropUntil" to (self~subwords)
-
-::method dropUntilWI unguarded
-    forward message "dropUntilI" to (self~subwords)
-
-::method dropWhileW unguarded
-    forward message "dropWhile" to (self~subwords)
-
-::method dropWhileWI unguarded
-    forward message "dropWhileI" to (self~subwords)
-
--- Iterate over the words of the mutable buffer and reject the words for which the given filter applied to (current_word) returns true.
--- An array of not rejected words is returned (can be empty).
-::method rejectW unguarded
-    forward message "reject" to (self~subwords)
-
--- Iterate over the words of the mutable buffer and reject the words for which the given filter applied to (current_word, current_word_index) returns true.
--- An array of pairs (not rejected word, word_index) is returned (can be empty).
-::method rejectWI unguarded
-    forward message "rejectI" to (self~subwords)
-
--- Iterate over the words of the mutable buffer and select the words for which the given filter applied to (current_word) returns true.
--- An array of selected words is returned (can be empty).
-::method selectW unguarded
-    forward message "select" to (self~subwords)
-
--- Iterate over the words of the mutable buffer and select the words for which the given filter applied to (current_word, current_word_index) returns true.
 -- An array of pairs (selected word, word_index) is returned (can be empty).
 ::method selectWI unguarded
     forward message "selectI" to (self~subwords)

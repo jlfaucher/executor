@@ -302,13 +302,13 @@ T'👩‍👨‍👩‍👧'
 
 
 -- substr
-ooRexx> "noel"~text~substr(3, 3, "x")=; result~description=    -- forward to String
+ooRexx> "noel"~text~substr(3, 3, "x")=; result~description=   -- forward to String
 T'elx'
 'UTF-8 ASCII (3 graphemes, 3 codepoints, 3 bytes, 0 error)'
-ooRexx> "noel"~substr(3, 3, "▷")=; result~description=        -- forward to String: error because the pad character is 3 bytes
+ooRexx> "noel"~substr(3, 3, "▷")=; result~description=        -- self is a String: error because the pad character is 3 bytes
 Incorrect pad or character argument specified; found "▷"
 Error code= 93.922
-ooRexx> "noel"~substr(3, 3, "▷"~text)=; result~description=   -- forward to String: error because the pad character is not compatible with String
+ooRexx> "noel"~substr(3, 3, "▷"~text)=; result~description=   -- self is a String: error because the pad character is not compatible with String
 UTF-8 not-ASCII '▷' cannot be converted to a String instance.
 Error code= 23.900
 ooRexx> "noel"~text~substr(3, 3, "▷")=; result~description=   -- no error because self is a RexxText and the pad character is one grapheme when converted to the default encoding
