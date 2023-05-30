@@ -2387,6 +2387,11 @@ https://github.com/unicode-org/icu4x/discussions/3231#discussioncomment-5599221
     will make it possible to get full data without needing to build it using the tool.
 
 
+https://www.youtube.com/watch?v=ZzsbN7HBd7E
+Rust Zürisee, Dec 2022: Next Generation i18n with Rust Using ICU4X
+Talk by Shane Carr (starts at 11:20, with some intros from the organizers first)
+
+
 ================================================================================
 Twitter text parsing
 ================================================================================
@@ -2668,8 +2673,15 @@ https://news.ycombinator.com/item?id=32534173
 
 
 ================================================================================
-C++ lang, Boost
+C++ lang, cpp lang, Boost
 ================================================================================
+
+https://www.youtube.com/watch?v=iQWtiYNK3kQ
+A Crash Course in Unicode for C++ Developers - Steve Downey - [CppNow 2021]
+jlf: good video for pronunciation
+  57:16 Algorithms
+1:12:27 The future for C++ (you can stop here, not very interesting)
+
 
 02/06/2021
 http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1238r1.html
@@ -2909,6 +2921,22 @@ Dart language level will likely require migration of at least some existing code
 although a few options (for example, static extension types) might make breaking
 changes manageable.
 More technical investigation is needed to fully understand the trade-offs.
+
+
+================================================================================
+Elixir lang
+================================================================================
+
+https://elixir-lang.org/
+"Elixir" |> String.graphemes() |> Enum.frequencies()        %{"E" => 1, "i" => 2, "l" => 1, "r" => 1, "x" => 1}
+---
+"Elixir"~text~reduce(by: "characters", initial: .stem~new~~put(0)){accu[item] += 1}=
+    a Stem (5 items)
+    'E' :  1
+    'i' :  2
+    'l' :  1
+    'r' :  1
+    'x' :  1
 
 
 ================================================================================
@@ -4434,6 +4462,26 @@ Regina doc
 
 
 ================================================================================
+Ruby lang
+================================================================================
+
+https://andre.arko.net/2013/12/01/strings-in-ruby-are-utf-8-now/
+composition in the form of ligatures isn’t handled at all
+    "baﬄe".upcase == "BAFFLE"             # => false
+Has been fixed in a later version:
+    "baﬄe".upcase                         # => "BAFFLE"
+BUT
+other things are still not good in Ruby 3.2.2 (March 30, 2023):
+"noël".reverse                             # => "l̈eon"
+"noël"[0..2]                               # => "noe"
+---
+"baﬄe"~text~upper=                        -- T'BAﬄE'      30/05/2023 Executor not good because utf8proc upper is not good
+"baﬄe"~text~caselessEquals("baffle")=     -- 1             30/05/2023 Executor is good because utf8proc casefold is good
+"noël"~text~reverse=                       -- T'lëon'
+"noël"~text[1,3]=                          -- T'noë'
+
+
+================================================================================
 Rust lang
 ================================================================================
 
@@ -4514,10 +4562,6 @@ There are these comments in https://news.ycombinator.com/item?id=32700315
     Yes. The two-step tables are really not that expensive and they enable features not possible with range and binary search, like identifying the category of a character cheaply.
 
 
-https://andre.arko.net/2013/12/01/strings-in-ruby-are-utf-8-now/
-"baﬄe".upcase == "BAFFLE"
-
-
 https://github.com/open-i18n/rust-unic
 UNIC: Unicode and Internationalization Crates for Rust
 jlf: seems stale since Oct 21, 2020. Killed by ICU4X?
@@ -4551,6 +4595,11 @@ https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2773r0.pdf
     way to improve the performance of anything.
     I landed on a set of strategies developed by the rust team
     https://github.com/rust-lang/rust/tree/master/src/tools/unicode-table-generator/src
+
+
+https://www.youtube.com/watch?v=Mcuqzx3rBWc
+Strings in Rust FINALLY EXPLAINED!
+jlf: is there something to learn from 15:29 Indexing into a string?
 
 
 ================================================================================
