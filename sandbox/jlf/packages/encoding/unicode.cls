@@ -951,8 +951,9 @@ https://unicode.org/reports/tr44/#UAX44-LM3
     return .Unicode~utf8proc_codepointIsUpper(codepoint)
 
 
-::method properties
-    messages =,
+::method properties class
+    -- TODO: align with UCD PropertyAliases.txt
+    return,
         "aliases",,
         "bidiClass",,
         "bidiClassName",,
@@ -983,12 +984,24 @@ https://unicode.org/reports/tr44/#UAX44-LM3
         "UTF32BE",,
         "UTF32LE",,
         "UTF8"
+
+
+::method properties
     properties = .directory~new
-    do message over messages
+    do message over self~class~properties
         value = self~send(message)
         properties~put(value, message)
     end
     return properties
+
+
+::method "[]" class
+    forward message "character" to (.Unicode)
+
+
+::routine .UnicodeCharacter public
+    -- For convenience: equivalent to .Unicode~character
+    return .Unicode~sendWith("character", .context~args, n:.context~namedArgs)
 
 
 /******************************************************************************/

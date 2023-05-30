@@ -2,6 +2,33 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2023 May 29
+
+[Unicode]
+
+For convenience, additional way to search a character:
+-- with a routine
+.UnicodeCharacter("bed")=           -- ( "🛏"   U+1F6CF So 1 "BED" )
+.UnicodeCharacter("bed", h:)=       -- ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
+-- with the operator []
+.UnicodeCharacter["bed"]=           -- ( "🛏"   U+1F6CF So 1 "BED" )
+.UnicodeCharacter["bed", h:]=       -- ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
+
+This comes in complement of:
+.Unicode["bed", h:]=                -- ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
+.Unicode~character("bed", h:)=      -- ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
+
+
+New method UnicodeCharacter~properties at class level: return a list of property names.
+.UnicodeCharacter~properties=
+    ['aliases','bidiClass','bidiClassName','bidiMirrored','boundClass','boundClassName',
+     'category','categoryName','charWidth','codepoint','combiningClass','controlBoundary',
+     'decompositionTypeName','decompositionType','ignorable','isLower','isUpper','name',
+     'toLowerFull','toLowerSimple','toTitleFull','toTitleSimple','toUpperFull',
+     'toUpperSimple','Unicode','UTF16BE','UTF16LE','UTF32BE','UTF32LE','UTF8']
+
+
+===============================================================================
 2023 May 24
 
 [Unicode]
@@ -18,7 +45,7 @@ For the last example, you can get an array of characters:
      2 : ( "̀"    U+0300 Mn 0 "COMBINING GRAVE ACCENT" )
 
 
-New method UnicodeCharacter~properties: Return a directory of properties.
+New method UnicodeCharacter~properties at instance level: Return a directory of properties.
 .Unicode~character("U+000D")~properties=
     a Directory (30 items)
     'aliases'               : [(CARRIAGE RETURN),(CR)]

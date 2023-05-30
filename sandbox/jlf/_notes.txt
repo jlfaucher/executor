@@ -868,15 +868,40 @@ thinking about grapheme indexes (draft)
         71 : +16
 
 
+https://code.google.com/archive/p/judyarray/
+
+
+https://juliapackages.com/p/judydicts           deprecated
+
+https://judy.sourceforge.net/
+https://sourceforge.net/projects/judy/
+
+https://nanxiao.me/en/a-judy-array-example/
+
+
 ================================================================================
 Encoded strings - TODO
 ================================================================================
+
+TODO: segmentation
+Add indexes for words (tr29) and sentences.
 
 TODO: substr should copy the flags for normalization
 but not the cached strings
 
 TODO: test if a string is NFC when indexing
 https://www.unicode.org/reports/tr15/#Implementation_Notes
+In fact it's possible to test if the string is in any normalization form, on the fly,
+using quick check, character by character (no, yes, maybe).
+
+TODO: align .UnicodeCharacters~properties with UCD PropertyAliases.txt
+
+TODO: stream-safe text format
+The Unicode standard provides for a stream-safe format where no more than 30
+characters need to be examined, and combining grapheme joiner is U+034F used to
+mark boundaries.
+utf8proc works only with strings, not with streams, so this format is not needed.
+But is there an impact on the strings?
 
 
 ================================================================================
