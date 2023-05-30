@@ -11056,6 +11056,23 @@ remove oodialog :
 main/trunk/extensions/platform/windows/oodialog
 main/trunk/samples/windows/oodialog
 
+9980..10164     cmake support
+
+10083   Clean up some build-time messages that don't really provide any useful information any more
+
+10167..10170    modernize samples
+
+to merge:
+10171   [bugs:#1266] qualify() BIF Crashes Interpreter
+10195   [#596] Add a package method to the Class class
+10196   [#598] Allow .File object on .Properties load and save methods
+10203   Fix use of uinitialized variable in the rxmath extension.
+10205   [feature-requests:#451] add contains method to String Class...non-word versions for string and mutablebuffer
+10207   [feature-requests:#451] add contains method to String Class...the word versions for both string and mutablebuffer
+
+The hostile fork starts at 10208, ends at 10464.
+From now, it's impossible to merge trunk in Executor repository.
+
 
 Remember Cornerstone :
 Merge by cherry-pick, option ignore line endings
