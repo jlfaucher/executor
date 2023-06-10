@@ -987,6 +987,13 @@ Devanagari vowels in this example:
      4 : 'E0A4AF E0A582'
 
 
+https://hexdocs.pm/elixir/String.html#reverse/1
+Keep in mind reversing the same string twice does not necessarily yield the original string:
+"̀e"~text~c2x=                  -- 'CC80 65'  -- 2 graphemes
+"̀e"~text~reverse~c2x=          -- '65 CC80'  -- 1 grapheme
+"̀e"~text~reverse~reverse~c2x=  -- '65 CC80'  -- reversing 1 grapheme gives this same grapheme
+
+
 Negator '¬'
 In some code pages Not is 'AA'X, in others 'AC'X. In Unicode it's U+00AC ('C2AC'X in UTF-8).
 Z/OS port of Regina REXX
