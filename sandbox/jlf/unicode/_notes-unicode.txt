@@ -19,8 +19,67 @@ https://www.unicode.org/Public/MAPPINGS                         (ISO8859)
     the ISO/IEC 8859 standard.
 
 
+https://www.unicode.org/faq/specifications.html
+
+
 https://www.unicode.org/reports/
 Unicode® Technical Reports
+    A Unicode Standard Annex (UAX) forms an integral part of the Unicode Standard,
+    but is published as a separate document. The Unicode Standard may require
+    conformance to normative content in a Unicode Standard Annex, if so specified
+    in the Conformance chapter of that version of the Unicode Standard.
+
+    A Unicode Technical Standard (UTS) is an independent specification.
+    Conformance to the Unicode Standard does not imply conformance to any UTS.
+
+    A Unicode Technical Report (UTR) contains informative material.
+    Conformance to the Unicode Standard does not imply conformance to any UTR.
+    Other specifications, however, are free to make normative references to a UTR.
+
+
+Unicode Standard Annex (UAX)
+
+    UAX #9, The Unicode Bidirectional Algorithm
+    https://www.unicode.org/reports/tr9/
+
+    UAX #11, East Asian Width
+    https://www.unicode.org/reports/tr11/
+
+    UAX #14, Unicode Line Breaking Algorithm
+    https://www.unicode.org/reports/tr14/
+
+    UAX #15, Unicode Normalization Forms
+    https://www.unicode.org/reports/tr15/
+
+    UAX #24, Unicode Script Property
+    https://www.unicode.org/reports/tr24/
+
+    UAX #29, Unicode Text Segmentation
+    https://www.unicode.org/reports/tr29/
+
+    UAX #31, Unicode Identifier and Pattern Syntax
+    https://www.unicode.org/reports/tr31/
+
+    UAX #34, Unicode Named Character Sequences
+    https://www.unicode.org/reports/tr34/
+
+    UAX #38, Unicode Han Database (Unihan)
+    https://www.unicode.org/reports/tr38/
+
+    UAX #41, Common References for Unicode Standard Annexes
+    https://www.unicode.org/reports/tr41/
+
+    UAX #42, Unicode Character Database in XML
+    https://www.unicode.org/reports/tr42/
+
+    UAX #44, Unicode Character Database
+    https://www.unicode.org/reports/tr44/
+
+    UAX #45, U-Source Ideographs
+    https://www.unicode.org/reports/tr45/
+
+    UAX #50, Unicode Vertical Text Layout
+    https://www.unicode.org/reports/tr50/
 
 
 https://www.unicode.org/glossary
@@ -54,10 +113,6 @@ http://www.unicode.org/Public/UCA/latest/allkeys.txt
 UTS10-D1. Collation Weight: A non-negative integer used in the UCA to establish a means for systematic comparison of constructed sort keys.
 UTS10-D2. Collation Element: An ordered list of collation weights.
 UTS10-D3. Collation Level: The position of a collation weight in a collation element.
-
-
-https://www.unicode.org/reports/tr14/
-UNICODE LINE BREAKING ALGORITHM
 
 
 https://unicode.org/reports/tr15/#Detecting_Normalization_Forms
@@ -110,9 +165,8 @@ Canonically Equivalent Shortest Form (CESF)
 This is usually, but not always, the NFC form.
 
 
-03/08/2022
-https://discourse.julialang.org/t/unicode-15-0-beta-and-sorting-collation/83090
-https://unicode.org/emoji/charts-15.0/emoji-ordering.html
+Conformance
+https://github.com/unicode-org/conformance
 
 
 ================================================================================
@@ -303,6 +357,13 @@ http://unicode.org/mail-arch/unicode-ml/y2007-m01/0057.html
 Possible Duplicate:
 Why UTF-32 exists whereas only 21 bits are necessary to encode every character?
 https://stackoverflow.com/questions/6339756/why-utf-32-exists-whereas-only-21-bits-are-necessary-to-encode-every-character
+
+
+https://unicodebook.readthedocs.io/
+Book "Programming with Unicode"
+2010-2011, Victor Stinner
+jlf: only one occurrence of the word "grapheme".
+Maybe at that time, it was not obvious that it would become an important concept.
 
 
 ================================================================================
@@ -961,6 +1022,11 @@ Truths programmers should know about case
 Collation, sorting
 ================================================================================
 
+https://www.unicode.org/reports/tr35/tr35-collation.html
+UNICODE LOCALE DATA MARKUP LANGUAGE (LDML)
+PART 5: COLLATION
+
+
 01/06/2021
 https://github.com/jgm/unicode-collation
 https://hackage.haskell.org/package/unicode-collation
@@ -994,6 +1060,11 @@ It's the comments section which is interesting.
 
 https://discourse.julialang.org/t/sorting-strings-by-unicode-collation-order/11195
 Not supported
+
+
+03/08/2022
+https://discourse.julialang.org/t/unicode-15-0-beta-and-sorting-collation/83090
+https://unicode.org/emoji/charts-15.0/emoji-ordering.html
 
 
 https://en.wikipedia.org/wiki/Natural_sort_order
@@ -1030,11 +1101,6 @@ and they do not sort consistently across versions/environments.
 
 https://collations.info/concepts/
 a site devoted to working with Collations, Unicode, Encodings, Code Pages, etc in Microsoft SQL Server.
-
-
-https://www.unicode.org/reports/tr35/tr35-collation.html
-UNICODE LOCALE DATA MARKUP LANGUAGE (LDML)
-PART 5: COLLATION
 
 
 ================================================================================
@@ -1907,6 +1973,9 @@ Software Services and Consulting.
 ICU title
 ================================================================================
 
+https://icu.unicode.org
+
+
 https://unicode-org.github.io/icu/
 ICU documentation
 
@@ -1952,6 +2021,41 @@ Interactive demo application
 
 https://begriffs.com/posts/2019-05-23-unicode-icu.html
 Unicode programming, with examples
+
+
+https://en.wikipedia.org/wiki/Trie
+Tries are a form of string-indexed look-up data structure, which is used to store a dictionary list
+of words that can be searched on in a manner that allows for efficient generation of completion lists.
+Tries can be efficacious on string-searching algorithms such as predictive text,
+approximate string matching, and spell checking in comparison to a binary search trees.
+A trie can be seen as a tree-shaped deterministic finite automaton.
+
+
+https://icu.unicode.org/design/struct/utrie
+ICU Code Point Tries
+We use a form of "trie" adapted to single code points.
+The bits in the code point integer are divided into two or more parts.
+The first part is used as an array offset, the value there is used as a start offset into another array.
+The next code point bit field is used as an additional offset into that array, to fetch another value.
+The final part yields the data for the code point.
+Non-final arrays are called index arrays or tables.
+---
+For a general-purpose structure, we want to be able to be able to store a unique value for every character.
+This determines the number of bits needed in the last index table.
+With 136,690 characters assigned in Unicode 10, we need at least 18 bits.
+We allocate data values in blocks aligned at multiples of 4, and we use 16-bit index words shifted left by 2 bits.
+This leads to a small loss in how densely the data table can be used, and how well it can be compacted, but not nearly as much as if we were using 32-bit index words.
+
+
+https://icu.unicode.org/design/struct/tries/bytestrie
+It maps from arbitrary byte sequences to 32-bit integers.
+(Small non-negative integers are stored more efficiently. Negative integers are the least efficient.)
+The BytesTrie and UCharsTrie structures are nearly the same, except that the UCharsTrie uses fewer, larger units.
+
+
+https://icu.unicode.org/design/struct/tries/ucharstrie
+Same design as a BytesTrie, but mapping any UnicodeString (any sequence of 16-bit units) to 32-bit integer values.
+
 
 
 ================================================================================
@@ -2031,47 +2135,6 @@ Boost.Locale creates the natural glue between the C++ locales framework, iostrea
 
 http://blog.lukhnos.org/post/6441462604/using-os-xs-built-in-icu-library-in-your-own
 Using OS X’s Built-in ICU Library in Your Own Project
-
-
-================================================================================
-ICU title
-================================================================================
-
-https://icu.unicode.org
-
-
-https://en.wikipedia.org/wiki/Trie
-Tries are a form of string-indexed look-up data structure, which is used to store a dictionary list
-of words that can be searched on in a manner that allows for efficient generation of completion lists.
-Tries can be efficacious on string-searching algorithms such as predictive text,
-approximate string matching, and spell checking in comparison to a binary search trees.
-A trie can be seen as a tree-shaped deterministic finite automaton.
-
-
-https://icu.unicode.org/design/struct/utrie
-ICU Code Point Tries
-We use a form of "trie" adapted to single code points.
-The bits in the code point integer are divided into two or more parts.
-The first part is used as an array offset, the value there is used as a start offset into another array.
-The next code point bit field is used as an additional offset into that array, to fetch another value.
-The final part yields the data for the code point.
-Non-final arrays are called index arrays or tables.
----
-For a general-purpose structure, we want to be able to be able to store a unique value for every character.
-This determines the number of bits needed in the last index table.
-With 136,690 characters assigned in Unicode 10, we need at least 18 bits.
-We allocate data values in blocks aligned at multiples of 4, and we use 16-bit index words shifted left by 2 bits.
-This leads to a small loss in how densely the data table can be used, and how well it can be compacted, but not nearly as much as if we were using 32-bit index words.
-
-
-https://icu.unicode.org/design/struct/tries/bytestrie
-It maps from arbitrary byte sequences to 32-bit integers.
-(Small non-negative integers are stored more efficiently. Negative integers are the least efficient.)
-The BytesTrie and UCharsTrie structures are nearly the same, except that the UCharsTrie uses fewer, larger units.
-
-
-https://icu.unicode.org/design/struct/tries/ucharstrie
-Same design as a BytesTrie, but mapping any UnicodeString (any sequence of 16-bit units) to 32-bit integer values.
 
 
 ================================================================================
@@ -2390,6 +2453,14 @@ https://github.com/unicode-org/icu4x/discussions/3231#discussioncomment-5599221
 https://www.youtube.com/watch?v=ZzsbN7HBd7E
 Rust Zürisee, Dec 2022: Next Generation i18n with Rust Using ICU4X
 Talk by Shane Carr (starts at 11:20, with some intros from the organizers first)
+
+
+https://github.com/unicode-org/icu4x/discussions/3522
+Some word segmentation results are different than we get in ICU4C
+- Khmer string មនុស្សទាំងអស់ is giving 13 index as a breakpoint in ICU4X while ICU4C gives 6
+- ຮ່ສົ່ສີ 5 in ICU4C while 7 in ICU4X
+- กระเพรา 3 in ICU4C while 7 in ICU4X
+I'm using the full data blob with all keys and locales.
 
 
 ================================================================================
@@ -2937,6 +3008,65 @@ https://elixir-lang.org/
     'l' :  1
     'r' :  1
     'x' :  1
+
+
+https://hexdocs.pm/elixir/String.html
+Strings in Elixir are UTF-8 encoded binaries.
+Works at grapheme level.
+The functions in this module rely on the Unicode Standard, but do not contain
+any of the locale specific behaviour.
+To act according to the Unicode Standard, many functions in this module run in
+linear time, as they need to traverse the whole string considering the proper
+Unicode code points.
+For example, String.length/1 will take longer as the input grows.
+On the other hand, Kernel.byte_size/1 always runs in constant time (i.e.
+regardless of the input size).
+---
+Interesting: they manage correctly the upper/lower without using a locale.
+upcase(string, mode \\ :default)
+Converts all characters in the given string to uppercase according to mode.
+mode may be :default, :ascii, :greek or :turkic.
+    The :default mode considers all non-conditional transformations outlined in the Unicode standard.
+    :ascii uppercases only the letters a to z.
+    :greek includes the context sensitive mappings found in Greek.
+    :turkic properly handles the letter i with the dotless variant.
+
+
+https://hexdocs.pm/elixir/unicode-syntax.html
+Strings are UTF-8 encoded.
+Charlists are lists of Unicode code points. In such cases, the contents are kept
+as written by developers, without any transformation.
+Elixir allows Unicode characters in its variables, atoms, and calls.
+From now on, we will refer to those terms as identifiers.
+The characters allowed in identifiers are the ones specified by Unicode.
+Elixir normalizes all characters to be the in the NFC form.
+Mixed-script identifiers are not supported for security reasons.
+    аdmin
+    "аdmin"~text~unicodecharacters==
+    an Array (shape [5], 5 items)
+     1 : ( "а"   U+0430 Ll 1 "CYRILLIC SMALL LETTER A" )
+     2 : ( "d"   U+0064 Ll 1 "LATIN SMALL LETTER D" )
+     3 : ( "m"   U+006D Ll 1 "LATIN SMALL LETTER M" )
+     4 : ( "i"   U+0069 Ll 1 "LATIN SMALL LETTER I" )
+     5 : ( "n"   U+006E Ll 1 "LATIN SMALL LETTER N" )
+The character must either be all in Cyrillic or all in Latin.
+The only mixed-scripts that Elixir allows, according to the Highly Restrictive
+Unicode recommendations, are:
+    Latin and Han with Bopomofo
+    Latin and Japanese
+    Latin and Korean
+Elixir will also warn on confusable identifiers in the same file.
+For example, Elixir will emit a warning if you use both variables а (Cyrillic)
+and а (Latin) in your code.
+Elixir implements the requirements outlined in the Unicode Annex #31
+(https://unicode.org/reports/tr31/)
+Elixir does not allow the use of ZWJ or ZWNJ in identifiers and therefore does
+not implement R1a.
+Bidirectional control characters are also not supported.
+R1b is guaranteed for backwards compatibility purposes.
+Elixir supports only code points \t (0009), \n (000A), \r (000D) and \s (0020)
+as whitespace and therefore does not follow requirement R3.
+R3 requires a wider variety of whitespace and syntax characters to be supported.
 
 
 ================================================================================
@@ -4056,12 +4186,11 @@ https://www.python.org/dev/peps/
         I	287	reStructuredText Docstring Format	Goodger
 
     Accepted PEPs (accepted; may not be implemented yet)
-        SA	597	Add optional EncodingWarning	Naoki
-        SA	616	String methods to remove prefixes and suffixes	Sweeney
-        SA	623	Remove wstr from Unicode	Naoki
+        SA	675	Arbitrary Literal String Type
+        SA	686	Make UTF-8 mode default
+        SA	701	Syntactic formalization of f-strings
 
     Open PEPs (under consideration)
-        S	558	Defined semantics for locals()	Coghlan
 
     Finished PEPs (done, with a stable interface)
         SF	100	Python Unicode Integration	Lemburg
@@ -4080,6 +4209,9 @@ https://www.python.org/dev/peps/
         SF	529	Change Windows filesystem encoding to UTF-8	Dower
         SF	538	Coercing the legacy C locale to a UTF-8 based locale	Coghlan
         SF	540	Add a new UTF-8 Mode	Stinner
+        SF	597	Add optional EncodingWarning	Naoki
+        SF	616	String methods to remove prefixes and suffixes	Sweeney
+        SF	623	Remove wstr from Unicode	Naoki
         SF	624	Remove Py_UNICODE encoder APIs	Naoki
         SF	3101	Advanced String Formatting	Talin
         SF	3112	Bytes literals in Python 3000	Orendorff
@@ -4092,6 +4224,7 @@ https://www.python.org/dev/peps/
     Deferred PEPs (postponed pending further research or updates)
         SD	501	General purpose string interpolation	Coghlan
         SD	536	Final Grammar for Literal String Interpolation	Angerer
+        SD	558	Defined semantics for locals()	Coghlan
 
     Abandoned, Withdrawn, and Rejected PEPs
         SS	215	String Interpolation	Yee
@@ -4311,11 +4444,35 @@ PyICU cheat sheet
 
 
 10/05/2023
+https://github.com/python/cpython/issues/56938
+original URL before migration to github:
 https://bugs.python.org/issue12729
-Python lib re cannot handle Unicode properly due to narrow/wide bug
-jlf: TODO not yet read, but seems interesting.
-I found this link thanks to https://news.ycombinator.com/item?id=9618306 (referenced
-in the NetRexx section)
+
+    Python lib re cannot handle Unicode properly due to narrow/wide bug
+    jlf: TODO not yet read, but seems interesting.
+    I found this link thanks to https://news.ycombinator.com/item?id=9618306 (referenced
+    in the NetRexx section)
+
+
+https://peps.python.org/pep-0414/
+PEP 414 – Explicit Unicode Literal for Python 3.3
+Specifically, the Python 3 definition for string literal prefixes will be expanded to allow:
+    "u" | "U"
+in addition to the currently supported:
+    "r" | "R"
+The following will all denote ordinary Python 3 strings:
+    'text'
+    "text"
+    '''text'''
+    """text"""
+    u'text'
+    u"text"
+    u'''text'''
+    u"""text"""
+    U'text'
+    U"text"
+    U'''text'''
+    U"""text"""
 
 
 ================================================================================
@@ -4465,10 +4622,131 @@ Regina doc
 Ruby lang
 ================================================================================
 
+jlf note:
+still searching articles/blogs comparing the Ruby's approach (multi-encodings)
+with languages that force the conversion to Unicode (be it utf-8 or Unicode scalars).
+
+
+https://docs.ruby-lang.org/en/master/encodings_rdoc.html
+Encodings
+jlf: Executor has a similar support of encodings, with less defaults and less
+     supported encodings. Otherwise the technical solution is the same: all
+     encodings are equal, there is no forced internal encoding, no forced
+     conversion.
+Default encodings:
+    - Encoding.default_external:     the default external encoding
+    - Encoding.default_internal:     the default internal encoding (may be nil)
+    - locale:       the default encoding for a string from the environment
+    - filesystem:   the default encoding for a string from the filesystem
+String encoding
+    A Ruby String object has an encoding that is an instance of class Encoding.
+    The encoding may be retrieved by method String#encoding.
+        's'.encoding # => #<Encoding:UTF-8>
+    The default encoding for a string literal is the script encoding
+The encoding for a string may be changed:
+    s = "R\xC3\xA9sum\xC3\xA9"     # => "Résumé"
+    s.encoding                     # => #<Encoding:UTF-8>
+    s.force_encoding('ISO-8859-1') # => "R\xC3\xA9sum\xC3\xA9"
+    s.encoding                     # => #<Encoding:ISO-8859-1>
+Stream Encodings
+    Certain stream objects can have two encodings; these objects include instances of:
+        IO.
+        File.
+        ARGF.
+        StringIO.
+    The two encodings are:
+    - An external encoding, which identifies the encoding of the stream.
+      The default external encoding is:
+          - UTF-8 for a text stream.
+          - ASCII-8BIT for a binary stream.
+    - An internal encoding, which (if not nil) specifies the encoding to be used
+      for the string constructed from the stream.
+      The default internal encoding is nil (no conversion).
+Script Encoding
+    The default script encoding is UTF-8; a Ruby source file may set its script
+    encoding with a magic comment on the first line of the file (or second line,
+    if there is a shebang on the first).
+    The comment must contain the word coding or encoding, followed by a colon,
+    space and the Encoding name or alias:
+        # encoding: ISO-8859-1
+        __ENCODING__ #=> #<Encoding:ISO-8859-1>
+This example writes a string to a file, encoding it as ISO-8859-1, then reads
+the file into a new string, encoding it as UTF-8:
+    s = "R\u00E9sum\u00E9"
+    path = 't.tmp'
+    ext_enc = 'ISO-8859-1'
+    int_enc = 'UTF-8'
+
+    File.write(path, s, external_encoding: ext_enc)
+    raw_text = File.binread(path)                                                               # "R\xE9sum\xE9"
+    transcoded_text = File.read(path, external_encoding: ext_enc, internal_encoding: int_enc)   # "Résumé"
+
+
+https://www.justinweiss.com/articles/3-steps-to-fix-encoding-problems-in-ruby/
+3 Steps to Fix Encoding Problems in Ruby
+The major difference between encode and force_encoding is that encode might
+change bytes, and force_encoding won’t.
+In ASCII-8BIT, every character is represented by a single byte.
+That is, str.chars.length == str.bytes.length.
+
+
+https://www.cloudbees.com/blog/how-ruby-string-encoding-benefits-developers
+Familiarize Yourself with Ruby String Encoding
+written August 14, 2018
+Ruby encoding methods
+- String#force_encoding is a way of saying that we know the bits for the characters
+  are correct and we simply want to properly define how those bits are to be
+  interpreted to characters.
+- String#encode will transcode the bits themselves that form the characters from
+  whatever the string is currently encoded as to our target encoding.
+Example of the byte size being different from the character length:
+    "łał".size
+    # => 3
+    "łał".bytesize
+    # => 5
+Different operating systems have different default character encodings so
+programming languages need to support these.
+    Encoding.default_external
+    # => #<encoding:utf -8></encoding:utf>
+Ruby defaults to UTF-8 as its encoding so if it is opening up files from the
+operating system and the default is different from UTF-8, it will transcode the
+input from that encoding to UTF-8. If this isn't desirable, you may change the
+default internal encoding in Ruby with Encoding.default_internal. Otherwise you
+can use specific IO encodings in your Ruby code.
+    File.open(filename, 'r:UTF-8', &amp;:read)
+    # or
+    File.open(filename, external_encoding: "ASCII-8BIT", internal_encoding: "ASCII-8BIT") do |f| f.read end
+Lately, I've been integrating Ruby's encoding support to Rust with the library Rutie.
+Rutie allows you to write Rust that works in Ruby and Ruby that works in Rust.
+jlf: see Rutie in Rust lang.
+
+
+https://docs.ruby-lang.org/en/3.2/case_mapping_rdoc.html
+Case Mapping
+By default, all of these methods use full Unicode case mapping, which is suitable for most languages.
+Non-ASCII case mapping and folding are supported for UTF-8, UTF-16BE/LE, UTF-32BE/LE, and ISO-8859-1~16 Strings/Symbols.
+Context-dependent case mapping is currently not supported (Unicode standard: Context Specification for Casing).
+In most cases, case conversions of a string have the same number of characters. There are exceptions (see also :fold below):
+    s = "\u00DF" # => "ß"
+    s.upcase     # => "SS"
+    s = "\u0149" # => "ŉ"
+    s.upcase     # => "ʼN"
+Case mapping may also depend on locale (see also :turkic below)
+    s = "\u0049"        # => "I"
+    s.downcase          # => "i" # Dot above.
+    s.downcase(:turkic) # => "ı" # No dot above.
+Case changing methods may not maintain Unicode normalization.
+Except for casecmp and casecmp?, each of the case-mapping methods listed above accepts optional arguments, *options.
+The arguments may be:
+    :ascii only.
+    :fold only.
+    :turkic or :lithuanian or both.
+
+
 https://andre.arko.net/2013/12/01/strings-in-ruby-are-utf-8-now/
 composition in the form of ligatures isn’t handled at all
     "baﬄe".upcase == "BAFFLE"             # => false
-Has been fixed in a later version:
+jlf: Has been fixed in a later version:
     "baﬄe".upcase                         # => "BAFFLE"
 BUT
 other things are still not good in Ruby 3.2.2 (March 30, 2023):
@@ -4479,6 +4757,15 @@ other things are still not good in Ruby 3.2.2 (March 30, 2023):
 "baﬄe"~text~caselessEquals("baffle")=     -- 1             30/05/2023 Executor is good because utf8proc casefold is good
 "noël"~text~reverse=                       -- T'lëon'
 "noël"~text[1,3]=                          -- T'noë'
+
+
+https://github.com/jmhodges/rchardet
+Character encoding auto-detection in Ruby.
+jlf: no doc :-(
+Returns a confidence rate?
+    cd = CharDet.detect(some_data)
+    encoding = cd['encoding']
+    confidence = cd['confidence'] # 0.0 <= confidence <= 1.0
 
 
 ================================================================================
@@ -4599,7 +4886,18 @@ https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2773r0.pdf
 
 https://www.youtube.com/watch?v=Mcuqzx3rBWc
 Strings in Rust FINALLY EXPLAINED!
-jlf: is there something to learn from 15:29 Indexing into a string?
+jlf: is there something to learn from 15:29 Indexing into a string? no.
+
+
+https://github.com/rust-lang/regex/blob/master/UNICODE.md
+regex Unicode conformance
+jlf: I found the URL above in this HN comment (related to awk support of Unicode)
+https://news.ycombinator.com/item?id=32538560
+
+
+https://github.com/danielpclark/rutie
+Integrate Ruby with your Rust application. Or integrate Rust with your Ruby application.
+https://github.com/danielpclark/rutie/blob/master/src/class/string.rs
 
 
 ================================================================================
@@ -4700,6 +4998,12 @@ https://bugs.swift.org/browse/SR-7602
 UTF8 should be (one of) the fastest String encoding(s)
 
 
+milseman Michael Ilseman added a comment - 5 Nov 2018 3:44 PM
+    It's now the fastest encoding.
+    https://forums.swift.org/t/string-s-abi-and-utf-8/17676/1
+    https://github.com/apple/swift/pull/20315
+
+
 https://github.com/apple/swift/blob/7e68e8f4a3cb1173e909dc22a3490c05e43fa592/stdlib/public/core/StringObject.swift
 swift/stdlib/public/core/StringObject.swift
 jlf: the link above is a frozen link
@@ -4714,7 +5018,7 @@ Many code to review!
     StringComparison.swift
     StringCreate.swift
     StringGraphemeBreaking.swift
-        jlf: Apparently, there are some difficulties when going bacwards .
+        jlf: Apparently, there are some difficulties when going backwards .
           // When walking backwards, it's impossible to know whether we were in an emoji
           // sequence without walking further backwards. This walks the string backwards
           // enough until we figure out whether or not to break our
@@ -4775,12 +5079,6 @@ Recent versions of Unicode now have more robust classifications for emoji, so th
 No need to start from scratch; feel free to build on the work that we’ve already done.
 All of this applies only to identifiers. Literals should never be messed with by the compiler.
 That are, after all, supposed to be literals.
-
-
-milseman Michael Ilseman added a comment - 5 Nov 2018 3:44 PM
-    It's now the fastest encoding.
-    https://forums.swift.org/t/string-s-abi-and-utf-8/17676/1
-    https://github.com/apple/swift/pull/20315
 
 
 13/06/2021
