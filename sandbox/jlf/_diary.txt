@@ -2,6 +2,16 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2023 Jun 11
+
+[Encoded strings]
+
+Unescape: Add support for
+    \xXX                1 byte denoted by 2 hex digits ('x' lowercase)      supported by Ruby
+    \XXXXX              2 bytes denoted by 4 hex digits ('X' uppercase)     supported by ? (added to be aligned with uU)
+
+
+===============================================================================
 2023 May 31
 
 [Encoded strings]

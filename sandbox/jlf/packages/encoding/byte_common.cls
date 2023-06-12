@@ -60,10 +60,10 @@
                 else if character == "u" then do
                     -- \uXXXX
                     length = min(4, string~length - pos + 1)
-                    codepoint = string~substr(pos, length)
-                    if codepoint~length < 4 then signal expecting_4_hexadecimal_digits
-                    if \codepoint~datatype("X") then signal expecting_4_hexadecimal_digits
-                    character = .Unicode~character(codepoint, hexadecimal: .true)
+                    hexadecimalDigits = string~substr(pos, length)
+                    if hexadecimalDigits~length < 4 then signal expecting_4_hexadecimal_digits
+                    if \hexadecimalDigits~datatype("X") then signal expecting_4_hexadecimal_digits
+                    character = .Unicode~character(hexadecimalDigits, hexadecimal: .true)
                     character~text(self~encoding, :buffer)
                     pos += 4
                 end
@@ -71,10 +71,10 @@
                 else if character == "U" then do
                     -- \uXXXXXXXX
                     length = min(8, string~length - pos + 1)
-                    codepoint = string~substr(pos, length)
-                    if codepoint~length < 8 then signal expecting_8_hexadecimal_digits
-                    if \codepoint~datatype("X") then signal expecting_8_hexadecimal_digits
-                    character = .Unicode~character(codepoint, hexadecimal: .true)
+                    hexadecimalDigits = string~substr(pos, length)
+                    if hexadecimalDigits~length < 8 then signal expecting_8_hexadecimal_digits
+                    if \hexadecimalDigits~datatype("X") then signal expecting_8_hexadecimal_digits
+                    character = .Unicode~character(hexadecimalDigits, hexadecimal: .true)
                     character~text(self~encoding, :buffer)
                     pos += 8
                 end
@@ -83,17 +83,41 @@
 
             when character == "x" then do
                 -- \x{X..X} sequence of 1..n hexadecimal digits
-                if string~subchar(pos) \== "{" then signal expecting_sequence_of_hexadecimal_digits
-                pos += 1 -- skip {
-                first = pos
-                pos = string~pos("}", pos)
-                if pos == 0 then signal expecting_sequence_of_hexadecimal_digits
-                length = pos - first
-                if length == 0 then signal expecting_sequence_of_hexadecimal_digits
-                pos += 1 -- skip }
-                hexadecimalDigits = string~substr(first, length)
-                characters = hexadecimalDigits~x2c -- 1..n bytes
-                buffer~append(characters)
+                if string~subchar(pos) == "{" then do
+                    pos += 1 -- skip {
+                    first = pos
+                    pos = string~pos("}", pos)
+                    if pos == 0 then signal expecting_sequence_of_hexadecimal_digits
+                    length = pos - first
+                    if length == 0 then signal expecting_sequence_of_hexadecimal_digits
+                    pos += 1 -- skip }
+                    hexadecimalDigits = string~substr(first, length)
+                    bytes = hexadecimalDigits~x2c -- 1..n bytes
+                    buffer~append(bytes)
+                end
+
+                else if character == "x" then do
+                    -- \xXX
+                    length = min(2, string~length - pos + 1)
+                    hexadecimalDigits = string~substr(pos, length)
+                    if hexadecimalDigits~length < 2 then signal expecting_2_hexadecimal_digits
+                    if \hexadecimalDigits~datatype("X") then signal expecting_2_hexadecimal_digits
+                    bytes = hexadecimalDigits~x2c -- 2 bytes
+                    buffer~append(bytes)
+                    pos += 2
+                end
+
+                else if character == "X" then do
+                    -- \xXXXX
+                    length = min(4, string~length - pos + 1)
+                    hexadecimalDigits = string~substr(pos, length)
+                    if hexadecimalDigits~length < 4 then signal expecting_4_hexadecimal_digits
+                    if \hexadecimalDigits~datatype("X") then signal expecting_4_hexadecimal_digits
+                    bytes = hexadecimalDigits~x2c -- 4 bytes
+                    buffer~append(bytes)
+                    pos += 4
+                end
+
             end
 
             otherwise signal unsupported_escape_character
@@ -107,10 +131,11 @@
                     else return .RexxText~new(buffer~string, self~encoding)
 
     unicode_character_not_supported:                  raise syntax 23.900 array(self~encoding~name "encoding: \"character" not supported")
-    expecting_name_or_sequence_of_hexadecimal_digits: raise syntax 23.900 array(self~encoding~name "encoding: expecting a character name {name} or 1..8 hexadecimal digits {X..X} after \u")
-    expecting_4_hexadecimal_digits:                   raise syntax 23.900 array(self~encoding~name "encoding: expecting 4 hexadecimal digits after \u, got '"codepoint"'")
-    expecting_8_hexadecimal_digits:                   raise syntax 23.900 array(self~encoding~name "encoding: expecting 8 hexadecimal digits after \U, got '"codepoint"'")
-    expecting_sequence_of_hexadecimal_digits:         raise syntax 23.900 array(self~encoding~name "encoding: expecting 1..n hexadecimal digits {X..X} after \x")
+    expecting_name_or_sequence_of_hexadecimal_digits: raise syntax 23.900 array(self~encoding~name "encoding: expecting a character name {name} or 1..8 hexadecimal digits {X..X} after \"character)
+    expecting_2_hexadecimal_digits:                   raise syntax 23.900 array(self~encoding~name "encoding: expecting 2 hexadecimal digits after \"character", got '"hexadecimalDigits"'")
+    expecting_4_hexadecimal_digits:                   raise syntax 23.900 array(self~encoding~name "encoding: expecting 4 hexadecimal digits after \"character", got '"hexadecimalDigits"'")
+    expecting_8_hexadecimal_digits:                   raise syntax 23.900 array(self~encoding~name "encoding: expecting 8 hexadecimal digits after \"character", got '"hexadecimalDigits"'")
+    expecting_sequence_of_hexadecimal_digits:         raise syntax 23.900 array(self~encoding~name "encoding: expecting 1..n hexadecimal digits {X..X} after \"character)
     unsupported_escape_character:                     raise syntax 23.900 array(self~encoding~name "encoding: escape character '"character"' not supported")
 
 

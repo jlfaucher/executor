@@ -476,6 +476,8 @@ Executor supports
     \U{X..X}            Unicode character denoted by 1-8 hex digits. The first character must be a digit 0..9 ('U' uppercase)
     \uXXXX              Unicode character denoted by 4 hex digits ('u' lowercase)
     \UXXXXXXXX          Unicode character denoted by 8 hex digits ('U' uppercase)
+    \xXX                1 byte denoted by 2 hex digits ('x' lowercase)
+    \XXXXX              2 bytes denoted by 4 hex digits ('X' uppercase)
 
 How other languages are supporting escape characters for Unicode:
     \N{Unicode name}    Character name in the Unicode database (Python, Julia)
@@ -485,6 +487,7 @@ How other languages are supporting escape characters for Unicode:
     \u{XXXXXX}          hexadecimal Unicode code point UTF-8 encoded (1 or more digits) (zig)
     \uXXXX              Unicode character denoted by four hex digits (Python, Julia, Netrexx, Java, JSON)
     \UXXXXXXXX          Unicode character denoted by eight hex digits (Python, Julia)
+    \xXX                1 byte denoted by 2 hex digits (Netrexx, Ruby)
 
     https://javajee.com/unicode-escapes-in-java
     The compiler translates Unicode escapes into the characters they represent
