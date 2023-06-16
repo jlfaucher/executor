@@ -37,7 +37,7 @@ return errorCount <> 0
     use strict arg -- none
     use strict named arg indent=0
     spaces = " "~copies(indent)
-    encodings = .encoding~supported~table
+    encodings = .encoding~list~table
     allIndexes = encodings~allIndexes
     widthMax = allIndexes~each("length")~reduce("max")
     do encodingName over allIndexes~sort

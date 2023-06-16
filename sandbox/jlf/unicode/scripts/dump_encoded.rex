@@ -42,7 +42,7 @@ return errorCount <> 0
     use strict arg -- none
     use strict named arg indent=0
     spaces = " "~copies(indent)
-    encodings = .encoding~supported~table
+    encodings = .encoding~list~table
     allIndexes = encodings~allIndexes
     widthMax = allIndexes~each("length")~reduce("max")
     do encodingName over allIndexes~sort
@@ -71,13 +71,13 @@ return errorCount <> 0
     errorCount = 0
     lineNumber = 1
     do forever
-        -- lineText = stream~linein -- an EncodeStream returns directly a RexxText
+        -- lineText = stream~linein -- an EncodedStream returns directly a RexxText
         lineString = stream~linein
         lineText = lineString~text(encoding)
         say spaces || lineNumber~left(4) lineText~ppString -- raw output of lineText, in binary format, whatever its encoding
         say spaces || lineNumber~left(4) lineText~description
         say spaces || lineNumber~left(4) lineText~c2x
-        lineText~characters~each{
+        lineText~UnicodeCharacters~each{
             expose spaces lineNumber
             say spaces || lineNumber~left(4) item
         }
