@@ -9,7 +9,8 @@ Increased font-size of 2 (now 10pt)
 For HTML (media screen) :
 Increased font-size of 4 (now 12pt)
 jlf 20/10/2022: 10pt
-jlf 06/05/2023: 11pt
+jlf 06/05/2023: 11pt + kwd bold for media screen
+jlf 22/06/2023: 10pt
 */
 
 @namespace "http://www.w3.org/2000/svg";
@@ -53,8 +54,9 @@ svg[class="syntaxdiagram"] g[class~="kwd"] text {
 @media screen {
     svg[class="syntaxdiagram"] g[class~="kwd"] text {
         font-family: Times-New-Roman;
-        font-size: 11pt;
-        font-weight: bold; /* JLF : try... */
+        font-size: 10pt;
+        font-weight: normal; /* JLF : try bold... back to normal*/
+        color: #0000FF; /* jlf : blue... doesn't work */
     }
 }
 
@@ -76,7 +78,7 @@ svg[class="syntaxdiagram"] g[class~="var"] text {
 @media screen {
     svg[class="syntaxdiagram"] g[class~="var"] text {
         font-family: Times-New-Roman;
-        font-size: 11pt;
+        font-size: 10pt;
     }
 }
 
@@ -99,7 +101,7 @@ svg[class="syntaxdiagram"] g[class~="delim"] text {
 @media screen {
     svg[class="syntaxdiagram"] g[class~="delim"] text {
         font-family: Times-New-Roman;
-        font-size: 11pt;
+        font-size: 10pt;
     }
 }
 
@@ -145,7 +147,7 @@ svg[class="syntaxdiagram"] g[class~="sep"] text {
 @media screen {
     svg[class="syntaxdiagram"] g[class~="sep"] text {
         font-family: Times-New-Roman;
-        font-size: 11pt;
+        font-size: 10pt;
     }
 }
 
@@ -168,7 +170,7 @@ svg[class="syntaxdiagram"] g[class~="repsep"] text {
 @media screen {
     svg[class="syntaxdiagram"] g[class~="repsep"] text {
         font-family: Times-New-Roman;
-        font-size: 11pt;
+        font-size: 10pt;
     }
 }
 
@@ -191,7 +193,7 @@ svg[class="syntaxdiagram"] a[class~="fragref"] text {
 @media screen {
     svg[class="syntaxdiagram"] g[class~="fragref"] text {
         font-family: Times-New-Roman;
-        font-size: 11pt;
+        font-size: 10pt;
     }
 }
 
