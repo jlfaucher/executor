@@ -224,7 +224,7 @@ sleep no prompt
 The Byte_Encoding can be specialized to add support for specific encoding conversions.
 */
 sleep
-.Encoding~supported~table==
+.Encoding~list~table==
 sleep 10 no prompt
 
 /*

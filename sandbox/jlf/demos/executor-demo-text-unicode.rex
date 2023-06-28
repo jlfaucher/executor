@@ -8,6 +8,7 @@ demo on
 /*
 The prototype is currently using 2 libraries:
 - utf8proc    https://github.com/JuliaStrings/utf8proc
+- uni-algo    https://github.com/uni-algo/uni-algo
 - icu4x       https://github.com/unicode-org/icu4x
 
 Current usage:
@@ -61,12 +62,16 @@ sleep no prompt
 
 /*
 Escape characters can be used in literal strings, they are unescaped at run-time.
+Note: should be supported at parse-time, it's just that this prototype doesn't
+modify the lexer, for the moment.
     \u{Unicode name}    Character name in the Unicode database
     \U{Unicode name}    same as \u{Unicode name}
     \u{X..X}            Unicode character denoted by 1-8 hex digits. The first character must be a digit 0..9
     \U{X..X}            same as \u{X..X}
     \uXXXX              Unicode character denoted by 4 hex digits ('u' lowercase)
     \UXXXXXXXX          Unicode character denoted by 8 hex digits ('U' uppercase)
+    \xXX                1 byte denoted by 2 hex digits ('x' lowercase)
+    \XXXXX              2 bytes denoted by 4 hex digits ('X' uppercase)
 */
 sleep no prompt
 

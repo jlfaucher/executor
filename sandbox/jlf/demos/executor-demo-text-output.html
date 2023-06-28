@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 8 Feb 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S38fdQ6000008e00d0
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 26 Mar 2023
+</span><span style="font-weight:bold;color:green;">Input queue name: S17294Q6000008139b0
 </span>
 <span style="font-weight:bold;color:blue;">----------------
 </span><span style="font-weight:bold;color:blue;">-- Text encoding
@@ -263,40 +263,51 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">helloZalgo~text~c2g=
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">The Byte_Encoding can be specialized to add support for specific encoding conversions.
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Encoding~supported~table==</span>
-a Table (32 items)
- 819           : (The ISO88591_Encoding class)
- 8859          : (The ISO88591_Encoding class)
- 28591         : (The ISO88591_Encoding class)
-'BYTE'         : (The Byte_Encoding class)
-'BYTES'        : (The Byte_Encoding class)
-'CP1252'       : (The CP1252_Encoding class)
-'CP819'        : (The ISO88591_Encoding class)
-'CSISOLATIN1'  : (The ISO88591_Encoding class)
-'IBM819'       : (The ISO88591_Encoding class)
-'ISO88591'     : (The ISO88591_Encoding class)
-'ISOIR100'     : (The ISO88591_Encoding class)
-'L1'           : (The ISO88591_Encoding class)
-'LATIN'        : (The ISO88591_Encoding class)
-'LATIN1'       : (The ISO88591_Encoding class)
-'UNICODE'      : (The Unicode_Encoding class)
-'UNICODE16'    : (The Unicode16_Encoding class)
-'UNICODE32'    : (The Unicode32_Encoding class)
-'UNICODE8'     : (The Unicode8_Encoding class)
-'UTF16'        : (The UTF16BE_Encoding class)
-'UTF16BE'      : (The UTF16BE_Encoding class)
-'UTF16LE'      : (The UTF16LE_Encoding class)
-'UTF32'        : (The UTF32BE_Encoding class)
-'UTF32BE'      : (The UTF32BE_Encoding class)
-'UTF32LE'      : (The UTF32LE_Encoding class)
-'UTF8'         : (The UTF8_Encoding class)
-'WE8ISO8859P1' : (The ISO88591_Encoding class)
-'WINDOWS1252'  : (The CP1252_Encoding class)
-'WINDOWS28591' : (The ISO88591_Encoding class)
-'WTF16'        : (The WTF16BE_Encoding class)
-'WTF16BE'      : (The WTF16BE_Encoding class)
-'WTF16LE'      : (The WTF16LE_Encoding class)
-'WTF8'         : (The WTF8_Encoding class)
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Encoding~list~table==</span>
+a Table (43 items)
+ 437               : (The IBM437_Encoding class)
+ 819               : (The ISO88591_Encoding class)
+ 8859              : (The ISO88591_Encoding class)
+ 28591             : (The ISO88591_Encoding class)
+'ASCII8BIT'        : (The Byte_Encoding class)
+'BINARY'           : (The Byte_Encoding class)
+'BYTE'             : (The Byte_Encoding class)
+'BYTES'            : (The Byte_Encoding class)
+'CP1252'           : (The WINDOWS1252_Encoding class)
+'CP437'            : (The IBM437_Encoding class)
+'CP65001'          : (The UTF8_Encoding class)
+'CP819'            : (The ISO88591_Encoding class)
+'CSISOLATIN1'      : (The ISO88591_Encoding class)
+'CSPC8CODEPAGE437' : (The IBM437_Encoding class)
+'CSWINDOWS1252'    : (The WINDOWS1252_Encoding class)
+'IBM1252'          : (The IBM1252_Encoding class)
+'IBM437'           : (The IBM437_Encoding class)
+'IBM5348'          : (The WINDOWS1252_Encoding class)
+'IBM819'           : (The ISO88591_Encoding class)
+'ISO88591'         : (The ISO88591_Encoding class)
+'ISOIR100'         : (The ISO88591_Encoding class)
+'L1'               : (The ISO88591_Encoding class)
+'LATIN'            : (The ISO88591_Encoding class)
+'LATIN1'           : (The ISO88591_Encoding class)
+'UNICODE'          : (The Unicode_Encoding class)
+'UNICODE16'        : (The Unicode16_Encoding class)
+'UNICODE32'        : (The Unicode32_Encoding class)
+'UNICODE8'         : (The Unicode8_Encoding class)
+'UTF16'            : (The UTF16BE_Encoding class)
+'UTF16BE'          : (The UTF16BE_Encoding class)
+'UTF16LE'          : (The UTF16LE_Encoding class)
+'UTF32'            : (The UTF32BE_Encoding class)
+'UTF32BE'          : (The UTF32BE_Encoding class)
+'UTF32LE'          : (The UTF32LE_Encoding class)
+'UTF8'             : (The UTF8_Encoding class)
+'WE8ISO8859P1'     : (The ISO88591_Encoding class)
+'WINDOWS1252'      : (The WINDOWS1252_Encoding class)
+'WINDOWS28591'     : (The ISO88591_Encoding class)
+'WINDOWS437'       : (The IBM437_Encoding class)
+'WTF16'            : (The WTF16BE_Encoding class)
+'WTF16BE'          : (The WTF16BE_Encoding class)
+'WTF16LE'          : (The WTF16LE_Encoding class)
+'WTF8'             : (The WTF8_Encoding class)
 
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">Example: CP1252 to UTF-8
@@ -305,7 +316,7 @@ a Table (32 items)
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">str_cp1252 = &quot;Un &quot; || &quot;9C&quot;x || &quot;uf de chez MaPoule&quot; || &quot;99&quot;x || &quot; co&quot; || &quot;FB&quot;x || &quot;te &quot; || &quot;B1&quot;x || &quot;0.40&quot; || &quot;80&quot;x</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">txt_cp1252 = str_cp1252~text(&quot;cp1252&quot;)</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">txt_cp1252~description=</span>
-'CP1252 not-ASCII (36 graphemes, 36 codepoints, 36 bytes, 0 error)'
+'windows-1252 not-ASCII (36 graphemes, 36 codepoints, 36 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">txt_cp1252~c2x=</span>
 '55 6E 20 9C 75 66 20 64 65 20 63 68 65 7A 20 4D 61 50 6F 75 6C 65 99 20 63 6F FB 74 65 20 B1 30 2E 34 30 80'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">txt_utf8 = txt_cp1252~utf8</span>
