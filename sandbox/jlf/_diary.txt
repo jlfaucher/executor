@@ -1323,6 +1323,15 @@ Multiplying by 2 was not enough...
 Why do I need THAT?
 Ok under MacOs, crash under Windows.
 
+2023.06.27
+oorexx [bugs:#1911] The interpreter is using too small of a stacksize.
+The build of the interpreter uses a 500Kb stack size that is hardcoded into the
+PlatformDefinitions.h file for both Windows and *ix platforms. This size is also
+specified as the /STACK option for linking the .exe files on Windows. This value
+is actually smaller than the default 1Mb limit that Windows uses. This should be
+reworked so that the value used comes from the CMakeList.txt definitions and is
+inline with more modern limits.
+
 
 ===============================================================================
 2022 September 15
