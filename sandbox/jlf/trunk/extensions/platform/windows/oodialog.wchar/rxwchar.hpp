@@ -46,9 +46,11 @@ typedef rxcharA *CSTRINGA;
 typedef rxcharW *CSTRINGW;
 
 #ifdef UNICODE
+#pragma message ( "********** UNICODE **********" )
 typedef wchar_t rxcharT;
 typedef std::wstring rxstringT;
 #else
+#pragma message ( "********** NOT UNICODE **********" )
 typedef char rxcharT;
 typedef std::string rxstringT;
 #endif
@@ -94,7 +96,7 @@ extern bool rxW2A(const rxcharW *pszW, rxcharA **ppszA);
     const rxcharA *cs1 = converter1.source();   // returns directly the multi byte string, no copy (don't delete it).
     rxcharW *ws1 = converter1.targetCopy();     // convert to wide char if not yet done, and return a COPY of the wide char string at each call (you must delete it at each call).
     const rxcharW *wcs1a = converter1.target(); // convert to wide char if not yet done, and return the same wide char string at each call (don't delete it, will be automatically freed).
-    const rxcharW *wcs1b = converter1;          // same as target() 
+    const rxcharW *wcs1b = converter1;          // same as target()
 
     rxConverter<rxcharW, rxcharA> converter2 = L"wide char string";
     rxcharA *s2 = converter2.targetCopy();      // convert to multi byte if not yet done, and return a COPY of the multi byte string at each call (you must delete it at each call).
