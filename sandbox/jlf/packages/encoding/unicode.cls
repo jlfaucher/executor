@@ -106,20 +106,20 @@ Depends on
 
 ::method informations class
     messages = ,
-    "characters",
-    "characterIntervals",
-    "dataDirectory",
-    "maxCodepoint",
-    "memorizeConversions",
-    "memorizeTransformations",
-    "systemIsLittleEndian",
-    "totalCharactersLoaded",
-    "totalCharacterNameAliases",
-    "totalIntervalCharacters",
-    "totalIntervalCharactersNotExpanded",
+    "characters",,
+    "characterIntervals",,
+    "dataDirectory",,
+    "maxCodepoint",,
+    "memorizeConversions",,
+    "memorizeTransformations",,
+    "systemIsLittleEndian",,
+    "totalCharactersLoaded",,
+    "totalCharacterNameAliases",,
+    "totalIntervalCharacters",,
+    "totalIntervalCharactersNotExpanded",,
     "version"
     informations = .directory~new
-    do message over messages~subwords
+    do message over messages
         value = self~send(message)
         informations~put(value, message)
     end
