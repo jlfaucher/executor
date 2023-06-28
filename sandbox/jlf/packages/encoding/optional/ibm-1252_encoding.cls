@@ -8,7 +8,8 @@
 /******************************************************************************/
 ::class "IBM1252_Encoding" subclass Byte_Encoding public
 
-::constant name "ibm-1252_P100-2000"
+-- ::constant name "ibm-1252_P100-2000"
+::constant name "ibm-1252"
 
 
 ::attribute tableTranscodingToUnicode class get

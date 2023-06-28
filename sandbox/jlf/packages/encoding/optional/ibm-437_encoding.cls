@@ -3,16 +3,15 @@
 .encoding~register("CP437", .IBM437_Encoding)               -- alias defined in Ruby, alias defined by IANA, alias defined by ICU (cp437)
 .encoding~register("437", .IBM437_Encoding)                 -- alias defined by IANA, alias defined by ICU  (437)
 .encoding~register("CSPC8CODEPAGE437", .IBM437_Encoding)    -- alias defined by IANA, alias defined by ICU (csPC8CodePage437)
-.encoding~register("WINDOWS437", .IBM437_Encoding)    -- alias defined by ICU (windows-437)
+.encoding~register("WINDOWS437", .IBM437_Encoding)          -- alias defined by ICU (windows-437)
 
 ::requires "encoding/byte_encoding.cls"
 ::requires "encoding/encoding.cls"
 
 /******************************************************************************/
 ::class "IBM437_Encoding" subclass Byte_Encoding public
--- alias Window-1252
 
-::constant name "CP1252"
+::constant name "IBM437"
 
 
 ::attribute tableTranscodingToUnicode class get

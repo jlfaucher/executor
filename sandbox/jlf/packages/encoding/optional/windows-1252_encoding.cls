@@ -1,17 +1,18 @@
 -- ibm-5348_P100-1997
-.encoding~register("WINDOWS1252", .IBM5348_Encoding)        -- alias defined by IANA and Wikipedia and Java and ICU
-.encoding~register("CSWINDOWS1252", .IBM5348_Encoding)      -- alias defined by IANA
-.encoding~register("CP1252", .IBM5348_Encoding)             -- alias defined by Wikipedia and ICU (not defined by IANA)
-.encoding~register("IBM5348", .IBM5348_Encoding)            -- alias defined by Wikipedia and ICU (not defined by IANA)
+.encoding~register("WINDOWS1252", .WINDOWS1252_Encoding)    -- alias defined by IANA and Wikipedia and Java and ICU
+.encoding~register("CSWINDOWS1252", .WINDOWS1252_Encoding)  -- alias defined by IANA
+.encoding~register("CP1252", .WINDOWS1252_Encoding)         -- alias defined by Wikipedia and ICU (not defined by IANA)
+.encoding~register("IBM5348", .WINDOWS1252_Encoding)        -- alias defined by Wikipedia and ICU (not defined by IANA)
 
 ::requires "encoding/byte_encoding.cls"
 ::requires "encoding/encoding.cls"
 
 /******************************************************************************/
-::class "IBM5348_Encoding" subclass Byte_Encoding public
--- alias Window-1252
+-- ::class "IBM5348_Encoding" subclass Byte_Encoding public
+::class "WINDOWS1252_Encoding" subclass Byte_Encoding public
 
-::constant name "ibm-5348_P100-1997"
+-- ::constant name "ibm-5348_P100-1997"
+::constant name "windows-1252"
 
 
 ::attribute tableTranscodingToUnicode class get

@@ -22,7 +22,6 @@
 
 /******************************************************************************/
 ::class "ISO88591_Encoding" subclass Byte_Encoding public
--- many aliases
 
 ::constant name "ISO-8859-1"
 
