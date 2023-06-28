@@ -482,7 +482,10 @@ dispatchCommand:
         .ooRexxShell~sayError("RC=" RC)
     end
     if RC <> 0 | .ooRexxShell~error then do
-        if \.ooRexxShell~demo then .ooRexxShell~sayInfo(.ooRexxShell~command)
+        -- Not sure why I display that, because it's rather internal stuff (transformed command).
+        -- Today, I was surprised to see it, thinking I forgot to remove a debug display...
+        -- Decision: put in comment.
+        --if \.ooRexxShell~demo then .ooRexxShell~sayInfo(.ooRexxShell~command)
     end
     if .ooRexxShell~showInfos | .ooRexxShell~showInfosNext then do
         .ooRexxShell~sayInfo("Duration:" time('e')) -- elapsed duration
