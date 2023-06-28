@@ -471,9 +471,9 @@ For example, if startB==6 then previousCodepointIndex==3
 /*
 Executor supports
     \u{Unicode name}    Character name in the Unicode database
-    \U{Unicode name}
+    \U{Unicode name}    same as \u
     \u{X..X}            Unicode character denoted by 1-8 hex digits. The first character must be a digit 0..9 ('u' lowercase)
-    \U{X..X}            Unicode character denoted by 1-8 hex digits. The first character must be a digit 0..9 ('U' uppercase)
+    \U{X..X}            same as \u
     \uXXXX              Unicode character denoted by 4 hex digits ('u' lowercase)
     \UXXXXXXXX          Unicode character denoted by 8 hex digits ('U' uppercase)
     \xXX                1 byte denoted by 2 hex digits ('x' lowercase)
@@ -483,11 +483,12 @@ How other languages are supporting escape characters for Unicode:
     \N{Unicode name}    Character name in the Unicode database (Python, Julia)
     \u{Unicode name}
     \U{Unicode name}
+    \u{nnnn ...}        Unicode character(s), where each nnnn is 1-6 hexadecimal digits (Ruby)
     \u{X..X}            Unicode character denoted by a 1–8 hex digits (Swift)
     \u{XXXXXX}          hexadecimal Unicode code point UTF-8 encoded (1 or more digits) (zig)
-    \uXXXX              Unicode character denoted by four hex digits (Python, Julia, Netrexx, Java, JSON)
-    \UXXXXXXXX          Unicode character denoted by eight hex digits (Python, Julia)
-    \xXX                1 byte denoted by 2 hex digits (Netrexx, Ruby)
+    \uXXXX              Unicode character denoted by four hex digits (Java, JSON, Julia, Netrexx, Python, Ruby)
+    \UXXXXXXXX          Unicode character denoted by eight hex digits (Julia, Python)
+    \xXX                1 byte denoted by 2 hex digits (Netrexx, Python, Ruby)
 
     https://javajee.com/unicode-escapes-in-java
     The compiler translates Unicode escapes into the characters they represent
