@@ -89,7 +89,9 @@ Code Point.
     (2) A value, or position, for a character, in any coded character set.
 Code Unit.
     The minimal bit combination that can represent a unit of encoded text for processing or interchange.
-    The Unicode Standard uses 8-bit code units in the UTF-8 encoding form, 16-bit code units in the UTF-16 encoding form, and 32-bit code units in the UTF-32 encoding form.
+    The Unicode Standard uses 8-bit code units in the UTF-8 encoding form,
+    16-bit code units in the UTF-16 encoding form,
+    and 32-bit code units in the UTF-32 encoding form.
 Unicode Scalar Value.
     Any Unicode code point except high-surrogate and low-surrogate code points.
     In other words, the ranges of integers 0 to D7FF and E000 to 10FFFF inclusive.
@@ -97,8 +99,8 @@ Unicode Scalar Value.
 
 UNICODE COLLATION ALGORITHM
 Unicode has an official string collation algorithm called UCA
-http://unicode.org/reports/tr10/
-https://unicode.org/reports/tr10/#S2.1.1
+https://www.unicode.org/reports/tr10/
+https://www.unicode.org/reports/tr10/#S2.1.1
 The Unicode Collation Algorithm takes an input Unicode string and a Collation Element Table,
 containing mapping data for characters. It produces a sort key, which is an array of
 unsigned 16-bit integers. Two or more sort keys so produced can then be binary-compared
@@ -108,19 +110,20 @@ to give the correct comparison between the strings for which they were generated
 08/06/2021
 Default Unicode Collation Element Table (DUCET)
 For the latest version, see:
-http://www.unicode.org/Public/UCA/latest/allkeys.txt
+https://www.unicode.org/Public/UCA/latest/allkeys.txt
 ---
-UTS10-D1. Collation Weight: A non-negative integer used in the UCA to establish a means for systematic comparison of constructed sort keys.
+UTS10-D1. Collation Weight: A non-negative integer used in the UCA to establish
+          a means for systematic comparison of constructed sort keys.
 UTS10-D2. Collation Element: An ordered list of collation weights.
 UTS10-D3. Collation Level: The position of a collation weight in a collation element.
 
 
-https://unicode.org/reports/tr15/#Detecting_Normalization_Forms
+https://www.unicode.org/reports/tr15/#Detecting_Normalization_Forms
 UNICODE NORMALIZATION FORMS
 
 
-http://www.unicode.org/reports/tr31/#Alternative_Identifier_Syntax
-http://unicode.org/reports/tr31/
+https://www.unicode.org/reports/tr31/#Alternative_Identifier_Syntax
+https://www.unicode.org/reports/tr31/
 UNICODE IDENTIFIER AND PATTERN SYNTAX
 jlf: there is ONE (just ONE) occurence of NFKC_CF:
     Comparison and matching should be done after converting to NFKC_CF format.
@@ -130,12 +133,13 @@ In the UnicodeStandard PDF:
 - The mapping NFKC_Casefold (short alias NFKC_CF) is specified in the data
   file DerivedNormalizationProps.txt in the Unicode Character Database.
 - The derived binary property Changes_When_NFKC_Casefolded is also listed
-  in the data file DerivedNormalizationProps.txt in the Unicode Character Database.Conformance 156 3.13 Default Case Algorithms
+  in the data file DerivedNormalizationProps.txt in the Unicode Character Database.
+  Conformance 156 3.13 Default Case Algorithms
 For more information on the use of NFKC_Casefold and caseless matching for identifiers,
 see Unicode Standard Annex #31, “Unicode Identifier and Pattern Syntax
 
 
-https://unicode.org/reports/tr36/#visual_spoofing
+https://www.unicode.org/reports/tr36/#visual_spoofing
 UNICODE SECURITY CONSIDERATIONS
 
 
@@ -155,7 +159,7 @@ UNICODEMATH, A NEARLY PLAIN-TEXT ENCODING OF MATHEMATIC
     (𝑎 + 𝑏)𝑛 = ∑ (𝑛 𝑘) 𝑎𝑘𝑏𝑛−𝑘
 
 
-https://unicode.org/notes/tn5/
+https://www.unicode.org/notes/tn5/
 Unicode Technical Note #5
 CANONICAL EQUIVALENCE IN APPLICATIONS
 
@@ -169,6 +173,10 @@ Conformance
 https://github.com/unicode-org/conformance
 
 
+https://www.unicode.org/main.html
+Unicode® Technical Site
+    https://www.unicode.org/faq/
+
 ================================================================================
 Unicode general informations
 ================================================================================
@@ -177,6 +185,10 @@ https://codepoints.net/
 Very detailled decription of each character
 Source of the WEB site:
 https://github.com/Codepoints/codepoints.net
+
+
+https://util.unicode.org/UnicodeJsps/
+Lot of informations about a character.
 
 
 https://en.wikipedia.org/wiki/UTF-8
@@ -320,7 +332,7 @@ INTERROBANG
 𠂊 (U+2008A) Han Character
 
 
-http://unicode.org/udhr/
+https://unicode.org/udhr/
 UDHR in Unicode
 The goal of the UDHR in Unicode project is to demonstrate the use of Unicode
 for a wide variety of languages, using the Universal Declaration of Human Rights
@@ -352,7 +364,7 @@ Question
 https://stackoverflow.com/questions/10143836/why-is-there-no-utf-24
 Why is there no UTF-24? [duplicate]
 Well, the truth is : UTF-24 was suggested in 2007 :
-http://unicode.org/mail-arch/unicode-ml/y2007-m01/0057.html
+https://unicode.org/mail-arch/unicode-ml/y2007-m01/0057.html
 
 Possible Duplicate:
 Why UTF-32 exists whereas only 21 bits are necessary to encode every character?
@@ -399,9 +411,9 @@ Unicode Escape Sequences Across Various Languages and Platforms
 Security
 ================================================================================
 
-http://www.unicode.org/reports/tr39
+https://www.unicode.org/reports/tr39
 UNICODE SECURITY MECHANISMS
-http://www.unicode.org/Public/security/latest/confusables.txt
+https://www.unicode.org/Public/security/latest/confusables.txt
 
 
 https://www.trojansource.codes/
@@ -433,7 +445,7 @@ Here too, he says that CR+LF is a grapheme...
 
 Same here:
 https://www.reddit.com/r/programming/comments/m274cg/til_rn_crlf_is_a_single_grapheme_cluster/
-https://unicode.org/reports/tr29/#Table_Combining_Char_Sequences_and_Grapheme_Clusters
+https://www.unicode.org/reports/tr29/#Table_Combining_Char_Sequences_and_Grapheme_Clusters
 
 
 01/06/2021
@@ -452,8 +464,12 @@ USentenceBoundIndices	External iterator for sentence boundaries and byte offsets
 USentenceBounds	External iterator for a string's sentence boundaries.
 UWordBoundIndices	External iterator for word boundaries and byte offsets.
 UWordBounds	External iterator for a string's word boundaries.
-UnicodeSentences	An iterator over the substrings of a string which, after splitting the string on sentence boundaries, contain any characters with the Alphabetic property, or with General_Category=Number.
-UnicodeWords	An iterator over the substrings of a string which, after splitting the string on word boundaries, contain any characters with the Alphabetic property, or with General_Category=Number.
+UnicodeSentences	An iterator over the substrings of a string which, after splitting
+    the string on sentence boundaries, contain any characters with the Alphabetic
+    property, or with General_Category=Number.
+UnicodeWords	An iterator over the substrings of a string which, after splitting
+    the string on word boundaries, contain any characters with the Alphabetic
+    property, or with General_Category=Number.
 
 
 https://github.com/knighton/unicode
@@ -506,7 +522,8 @@ Is 👩‍👨‍👩‍👧' really a grapheme?
 When moving the cursor in BBEdit, I see a boundary between each character.
 [later]
 Ok, when moving the cursor in Visual Studio Code, it's really a unique grapheme, no way to put the cursor "inside".
-And the display is aligned with what I see in Google Chrome : one WOMAN followed by a family, and no way to put the cursor between the WOMAN and the family.
+And the display is aligned with what I see in Google Chrome :
+one WOMAN followed by a family, and no way to put the cursor between the WOMAN and the family.
 ---
 https://www.unicode.org/review/pr-27.html       (old, talk about Unicode 4)
 https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundaries   (todo: review occurences of ZWJ)
@@ -540,7 +557,7 @@ It accepts text from stdin, and writes one word (token) per line to stdout.
 Normalization, equivalence
 ================================================================================
 
-https://unicode.org/faq/normalization.html
+https://www.unicode.org/faq/normalization.html
 Normalization FAQ
 
 
@@ -671,7 +688,10 @@ https://docs.rs/unicode-normalization
     is_nfkd_quick               Quickly check if a string is in NFKD.
 
     Enums
-    IsNormalized	The QuickCheck algorithm can quickly determine if a text is or isn’t normalized without any allocations in many cases, but it has to be able to return Maybe when a full decomposition and recomposition is necessary.
+    IsNormalized	The QuickCheck algorithm can quickly determine if a text is
+                    or isn’t normalized without any allocations in many cases,
+                    but it has to be able to return Maybe when a full decomposition
+                    and recomposition is necessary.
 
 
 08/06/2021
@@ -950,7 +970,7 @@ jlf: difficult to implement, involves to scan arbitrarily far to the left and
 right of capital sigma.
 
 
-https://unicode.org/faq/casemap_charprop.html
+https://www.unicode.org/faq/casemap_charprop.html
 
 
 https://stackoverflow.com/questions/7360996/unicode-correct-title-case-in-java?noredirect=1&lq=1
@@ -1064,7 +1084,7 @@ Not supported
 
 03/08/2022
 https://discourse.julialang.org/t/unicode-15-0-beta-and-sorting-collation/83090
-https://unicode.org/emoji/charts-15.0/emoji-ordering.html
+https://www.unicode.org/emoji/charts-15.0/emoji-ordering.html
 
 
 https://en.wikipedia.org/wiki/Natural_sort_order
@@ -1244,8 +1264,16 @@ Optimization, SIMD
 https://lemire.me/blog/2018/05/16/validating-utf-8-strings-using-as-little-as-0-7-cycles-per-byte/
 
 
+[obsolete]
 https://github.com/lemire/fastvalidate-utf-8
 header-only library to validate utf-8 strings at high speeds (using SIMD instructions)
+jlf 2023/06/16 (now obsolete)
+NOTE: The fastvalidate-utf-8 library is obsolete as of 2022: please adopt the simdutf library.
+It is much more powerful, faster and better tested.
+
+
+https://github.com/simdutf/simdutf
+simdutf: Unicode at gigabytes per second
 
 
 08/06/2021
@@ -1276,6 +1304,19 @@ Referenced from
 https://github.com/simdutf/simdutf
 https://news.ycombinator.com/item?id=32700315
 Unicode routines (UTF8, UTF16, UTF32): billions of characters per second using SSE2, AVX2, NEON, AVX-512.
+
+
+https://jcdav.is/2016/09/01/How-the-JVM-compares-your-strings/
+(jlf: also referenced in the section "String comparison")
+How the JVM compares your strings using the craziest x86 instruction you've never heard of
+---
+Comment from a Swift thread:
+https://forums.swift.org/t/string-s-abi-and-utf-8/17676/25
+PCMPxSTRx is no longer faster than equivalent "simple" vector instruction sequences for straightforward comparisons
+(this had already been the case for a few years when that article was written, which is curious).
+It can be used productively (with some care) for some other operations like substring matching,
+but that's not as much of a heavy-hitter. There's a bunch of string stuff that will benefit from general vectorization,
+and which is absolutely on our roadmap to tackle, but using the PCMPxSTRx instructions specifically isn't a source of wins on the most important operations.
 
 
 ================================================================================
@@ -1336,6 +1377,32 @@ break words into syllables
 ================================================================================
 Indic languages
 ================================================================================
+
+https://www.unicode.org/faq/indic.html
+Indic scripts in the narrow sense are the nine major Brahmi-derived scripts of India.
+In a wider sense, the term can cover all Brahmic scripts and Kharoshthi.
+What is ISCII?
+Indian Standard Code for Information Interchange (ISCII) is the character code
+for Indian scripts that originate from the Brahmi script.
+Keywords:
+    nukta
+    Vedic Sanskrit
+    vowel signs (matras)
+    vowel modifiers (candrabindu, anusvara)
+    the consonant modifier (nukta)
+    Tamil
+    Bengali (Bangla) / Assamese Script
+    Sindhi implosive consonants
+
+
+FAQ: How do I collate Indic language data?
+Collation order is not the same as code point order. A good treatment of some
+issues specific to collation in Indic languages can be found in the paper
+Issues in Indic Language Collation by Cathy Wissink (https://www.unicode.org/notes/tn1/)
+Collation in general must proceed at the level of language or language variant,
+not at the script or codepoint levels. See also UTS #10: Unicode Collation Algorithm.
+Some Indic-specific issues are also discussed in that report.
+
 
 This section illustrates that Unicode’s concepts like “extended grapheme cluster”
 are meant to provide some low-level, general segmentation, and are not going
@@ -1483,6 +1550,12 @@ https://docs.microsoft.com/en-us/typography/script-development/devanagari
 Developing OpenType Fonts for Devanagari Script
 
 
+https://manishearth.github.io/blog/2018/02/15/picking-apart-the-crashing-ios-string/
+Picking Apart the Crashing iOS String
+Posted by Manish Goregaokar on February 15, 2018
+jlf: he's a black belt! or is it his native tongue?
+
+
 ================================================================================
 Korean
 ================================================================================
@@ -1543,7 +1616,7 @@ A pair NFC considers different but a user might consider the same is 'µ' (MICRO
 NFKC will collapse these two.
 
 
-http://www.unicode.org/reports/tr10/
+https://www.unicode.org/reports/tr10/
 Unicode® Technical Standard #10
 UNICODE COLLATION ALGORITHM
 Collation is the general term for the process and function of determining the sorting order of strings of characters.
@@ -1567,7 +1640,7 @@ Short definition of NFD, NFC, NFKD, NFKC
     #348 volcharset:UTF8 doesn't work from Mac
 
 
-http://unicode.org/faq/normalization.html
+https://www.unicode.org/faq/normalization.html
 Mode detailled description of normalization
 
 
@@ -1929,6 +2002,23 @@ Several references to older papers
 Encoding title
 ================================================================================
 
+https://www.iana.org/assignments/character-sets/character-sets.xhtml
+Character Sets
+(IANA Character Sets registry)
+These are the official names for character sets that may be used in
+the Internet and may be referred to in Internet documentation.  These
+names are expressed in ANSI_X3.4-1968 which is commonly called
+US-ASCII or simply ASCII.  The character set most commonly use in the
+Internet and used especially in protocol standards is US-ASCII, this
+is strongly encouraged.  The use of the name US-ASCII is also
+encouraged.
+---
+jlf: see encoding.spec.whatwg.org elsewhere in this document. They say:
+"User agents have also significantly deviated from the labels listed in the
+IANA Character Sets registry. To stop spreading legacy encodings further,
+this specification is exhaustive about the aforementioned details and therefore
+has no need for the registry."
+
 
 https://thephd.dev/the-c-c++-rust-string-text-encoding-api-landscape
 OCTOBER 12, 2022
@@ -1967,6 +2057,21 @@ through SG16, P1629 - Standard Text Encoding
 https://github.com/soasis
 Shepherd's Oasis
 Software Services and Consulting.
+
+
+https://encoding.spec.whatwg.org/
+Encoding
+The Encoding Standard defines encodings and their JavaScript API.
+---
+The table below lists all encodings and their labels user agents must support.
+User agents must not support any other encodings or labels.
+<table>
+---
+Most legacy encodings make use of an index. An index is an ordered list of entries,
+each entry consisting of a pointer and a corresponding code point. Within an index
+pointers are unique and code points can be duplicated.
+Note: An efficient implementation likely has two indexes per encoding.
+One optimized for its decoder and one for its encoder.
 
 
 ================================================================================
@@ -2056,6 +2161,14 @@ The BytesTrie and UCharsTrie structures are nearly the same, except that the UCh
 https://icu.unicode.org/design/struct/tries/ucharstrie
 Same design as a BytesTrie, but mapping any UnicodeString (any sequence of 16-bit units) to 32-bit integer values.
 
+
+https://github.com/unicode-org/icu/tree/main/icu4c/source/data/mappings
+Encodings
+
+
+https://github.com/unicode-org/icu/blob/main/icu4c/source/data/mappings/convrtrs.txt
+https://icu4c-demos.unicode.org/icu-bin/convexp
+Demo Converter Explorer
 
 
 ================================================================================
@@ -2461,6 +2574,51 @@ Some word segmentation results are different than we get in ICU4C
 - ຮ່ສົ່ສີ 5 in ICU4C while 7 in ICU4X
 - กระเพรา 3 in ICU4C while 7 in ICU4X
 I'm using the full data blob with all keys and locales.
+jlf: see the discussion, there is some code.
+
+
+https://github.com/unicode-org/icu4x/issues/2945
+Default constructors with full data
+jlf: remember "close #2743 in favour of #2945. the solution we're working on there trivially extends to FFI."
+sffc
+We have built data providers as a first-class feature in ICU4X. We currently tutor
+clients on how to build their data file and detail all the knobs at their disposal,
+which is essential to ICU4X's mission.
+
+
+https://github.com/unicode-org/icu4x/issues/3552#issuecomment-1600050638
+/// ICU4C's TestGreekUpper
+#[test]
+fn test_greek_upper() {
+    let cm = CaseMapping::new_with_locale(&locale!("el"));
+
+    // https://unicode-org.atlassian.net/browse/ICU-5456
+    assert_eq!(cm.to_full_uppercase_string("άδικος, κείμενο, ίριδα"), "ΑΔΙΚΟΣ, ΚΕΙΜΕΝΟ, ΙΡΙΔΑ");
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=307039
+    // https://bug307039.bmoattachments.org/attachment.cgi?id=194893
+    assert_eq!(cm.to_full_uppercase_string("Πατάτα"), "ΠΑΤΑΤΑ");
+    assert_eq!(cm.to_full_uppercase_string("Αέρας, Μυστήριο, Ωραίο"), "ΑΕΡΑΣ, ΜΥΣΤΗΡΙΟ, ΩΡΑΙΟ");
+    assert_eq!(cm.to_full_uppercase_string("Μαΐου, Πόρος, Ρύθμιση"), "ΜΑΪΟΥ, ΠΟΡΟΣ, ΡΥΘΜΙΣΗ");
+    assert_eq!(cm.to_full_uppercase_string("ΰ, Τηρώ, Μάιος"), "Ϋ, ΤΗΡΩ, ΜΑΪΟΣ");
+    assert_eq!(cm.to_full_uppercase_string("άυλος"), "ΑΫΛΟΣ");
+    assert_eq!(cm.to_full_uppercase_string("ΑΫΛΟΣ"), "ΑΫΛΟΣ");
+    assert_eq!(cm.to_full_uppercase_string("Άκλιτα ρήματα ή άκλιτες μετοχές"), "ΑΚΛΙΤΑ ΡΗΜΑΤΑ Ή ΑΚΛΙΤΕΣ ΜΕΤΟΧΕΣ");
+    // http://www.unicode.org/udhr/d/udhr_ell_monotonic.html
+    assert_eq!(cm.to_full_uppercase_string("Επειδή η αναγνώριση της αξιοπρέπειας"), "ΕΠΕΙΔΗ Η ΑΝΑΓΝΩΡΙΣΗ ΤΗΣ ΑΞΙΟΠΡΕΠΕΙΑΣ");
+    assert_eq!(cm.to_full_uppercase_string("νομικού ή διεθνούς"), "ΝΟΜΙΚΟΥ Ή ΔΙΕΘΝΟΥΣ");
+    // http://unicode.org/udhr/d/udhr_ell_polytonic.html
+    assert_eq!(cm.to_full_uppercase_string("Ἐπειδὴ ἡ ἀναγνώριση"), "ΕΠΕΙΔΗ Η ΑΝΑΓΝΩΡΙΣΗ");
+    assert_eq!(cm.to_full_uppercase_string("νομικοῦ ἢ διεθνοῦς"), "ΝΟΜΙΚΟΥ Ή ΔΙΕΘΝΟΥΣ");
+    // From Google bug report
+    assert_eq!(cm.to_full_uppercase_string("Νέο, Δημιουργία"), "ΝΕΟ, ΔΗΜΙΟΥΡΓΙΑ");
+    // http://crbug.com/234797
+    assert_eq!(cm.to_full_uppercase_string("Ελάτε να φάτε τα καλύτερα παϊδάκια!"), "ΕΛΑΤΕ ΝΑ ΦΑΤΕ ΤΑ ΚΑΛΥΤΕΡΑ ΠΑΪΔΑΚΙΑ!");
+    assert_eq!(cm.to_full_uppercase_string("Μαΐου, τρόλεϊ"), "ΜΑΪΟΥ, ΤΡΟΛΕΪ");
+    assert_eq!(cm.to_full_uppercase_string("Το ένα ή το άλλο."), "ΤΟ ΕΝΑ Ή ΤΟ ΑΛΛΟ.");
+    // http://multilingualtypesetting.co.uk/blog/greek-typesetting-tips/
+    assert_eq!(cm.to_full_uppercase_string("ρωμέικα"), "ΡΩΜΕΪΚΑ");
+    assert_eq!(cm.to_full_uppercase_string("ή."), "Ή.");
+}
 
 
 ================================================================================
@@ -3059,7 +3217,7 @@ Elixir will also warn on confusable identifiers in the same file.
 For example, Elixir will emit a warning if you use both variables а (Cyrillic)
 and а (Latin) in your code.
 Elixir implements the requirements outlined in the Unicode Annex #31
-(https://unicode.org/reports/tr31/)
+(https://www.unicode.org/reports/tr31/)
 Elixir does not allow the use of ZWJ or ZWNJ in identifiers and therefore does
 not implement R1a.
 Bidirectional control characters are also not supported.
@@ -3129,6 +3287,92 @@ UTF-8/16 encoder/decoder
 GO lang
 ================================================================================
 
+https://go.dev/
+
+https://pkg.go.dev/strings
+Package strings implements simple functions to manipulate UTF-8 encoded strings.
+jlf: BIFs
+
+
+https://go.dev/blog/slices
+Arrays, slices (and strings): The mechanics of 'append'
+Rob Pike
+26 September 2013
+---
+jlf: prerequisite to understand how strings are managed
+
+
+https://go.dev/blog/strings
+Strings, bytes, runes and characters in Go
+Rob Pike
+23 October 2013
+---
+In Go, a string is in effect a read-only slice of bytes.
+A string holds arbitrary bytes. It is not required to hold Unicode text, UTF-8 text,
+or any other predefined format.
+    const sample = "\xbd\xb2\x3d\xbc\x20\xe2\x8c\x98"
+Indexing a string accesses individual bytes, not characters.
+    for i := 0; i < len(sample); i++ {
+        fmt.Printf("%x ", sample[i])        # bd b2 3d bc 20 e2 8c 98
+    }
+A shorter way to generate presentable output for a messy string is to use the %x
+(hexadecimal) format verb of fmt.Printf. It just dumps out the sequential bytes
+of the string as hexadecimal digits, two per byte.
+    fmt.Printf("%x\n", sample)              # bdb23dbc20e28c98
+    fmt.Printf("% x\n", sample)             # bd b2 3d bc 20 e2 8c 98
+The %q (quoted) verb will escape any non-printable byte sequences in a string so
+the output is unambiguous.
+    fmt.Printf("%q\n", sample)              # "\xbd\xb2=\xbc ⌘"
+    fmt.Printf("%+q\n", sample)             # "\xbd\xb2=\xbc \u2318"
+The Go language defines the word rune as an alias for the type int32, so programs
+can be clear when an integer value represents a code point.
+A for range loop decodes one UTF-8-encoded rune on each iteration. Each time around
+the loop, the index of the loop is the starting position of the current rune, measured
+in bytes, and the code point is its value.
+    const nihongo = "日本語"
+    for index, runeValue := range nihongo {
+        fmt.Printf("%#U starts at byte position %d\n", runeValue, index)
+    }
+The output shows how each code point occupies multiple bytes:
+    U+65E5 '日' starts at byte position 0
+    U+672C '本' starts at byte position 3
+    U+8A9E '語' starts at byte position 6
+
+
+https://go.dev/pkg/unicode/utf8/
+Unicode/utf8 package
+
+
+https://go.dev/blog/normalization
+Text normalization in Go
+Marcel van Lohuizen
+26 November 2013
+---
+To write your text as NFC, use the https://pkg.go.dev/golang.org/x/text/unicode/norm
+package to wrap your io.Writer of choice:
+    wc := norm.NFC.Writer(w)
+    defer wc.Close()
+    // write as before...
+If you have a small string and want to do a quick conversion, you can use this simpler form:
+    norm.NFC.Bytes(b)
+
+
+https://cs.opensource.google/go/x/text
+This repository holds supplementary Go libraries for text processing, many involving Unicode.
+
+
+https://pkg.go.dev/golang.org/x/text/collate
+The collate package, which can sort strings in a language-specific way, works
+correctly even with unnormalized strings
+
+
+https://go.dev/blog/matchlang
+Language and Locale Matching in Go
+The Go package https://golang.org/x/text/language implements the BCP 47 standard
+for language tags and adds support for deciding which language to use based on
+data published in the Unicode Common Locale Data Repository (CLDR).
+
+
 https://github.com/unicode-org/icu4x/issues/2882
 https://cs.opensource.google/go/x/text
 The golang x-text library has re-implemented most of ICU from scratch,
@@ -3137,6 +3381,23 @@ for the icu4x project
 (afaik x-text was not just a port of the ICU codebase to another language,
 but an actual re-implementation).
 You might want to have a look at their code, or talk to @mpvl who wrote most of it.
+
+
+https://github.com/golang/go/blob/master/src/cmd/compile/internal/syntax/scanner.go
+Implementation of Golang’s lexer
+Identifier is made up of letters and digits (where first is always a letter) and
+letter is an arbitrary Unicode code point.
+
+    package main
+    import "fmt"
+    func 隨機名稱() {
+        fmt.Println("It works!")
+    }
+    func main() {
+        隨機名稱()
+        źdźbło := 1
+        fmt.Println(źdźbło)
+    }
 
 
 ================================================================================
@@ -3425,7 +3686,7 @@ https://github.com/s-u/rJava/issues/51
     surrogate pairs. When strings containing such characters are converted to UTF-8
     by rJava they are encoded as a pair of 3 byte sequences rather than as the correct
     4 byte sequence. This is not valid UTF-8 and will result in "invalid multibyte string" errors.
-    http://unicode.org/faq/utf_bom.html#utf8-4
+    https://www.unicode.org/faq/utf_bom.html#utf8-4
 
 
 https://bugs.openjdk.org/browse/JDK-8291660
@@ -3497,7 +3758,7 @@ It doesn't match the β here: isless("β", "α")
 
 
 https://juliapackages.com/p/strs
-jlf: the string implemenation of Scott P Jones
+jlf: the string implemention of Scott P Jones
 Seems quiet since last year...
 
     This uses Swift-style \ escape sequences, such as \u{xxxx} for Unicode constants,
@@ -3650,7 +3911,7 @@ jlf: "NFKC_CF" seems the name to search to get useful infos about utf8proc_NFKC_
         normalizeUnicode(x, form = "NCF")
         form: a character string specifying the type of Unicode normalization to be used.
               Should be one of the strings "NFC", "NFD", "NFKC", "NFKD", "NFKC_CF" or "NFKC_Casefold".
-        The forms "NFKC_CF" or "NFKC_Casefold" (which are equivalent) are described in http://unicode.org/reports/tr31/.
+        The forms "NFKC_CF" or "NFKC_Casefold" (which are equivalent) are described in https://www.unicode.org/reports/tr31/.
     https://www.lanqiao.cn/library/elasticsearch-definitive-guide-cn/220_Token_normalization/40_Case_folding
         Case folding is the act of converting words into a (usually lowercase) form that does not necessarily result in the correct spelling, but does allow case-insensitive comparisons.
         jlf: they say "The default normalization form that the icu_normalizer token filter uses is nfkc_cf"
@@ -3974,7 +4235,7 @@ Difference Between charCodeAt() and codePointAt()
 
 
 (this is Unicode, but this answer is useful for NetRexx)
-https://unicode.org/faq/utf_bom.html#:~:text=Surrogates%20are%20code%20points%20from,DC0016%20to%20DFFF16.
+https://www.unicode.org/faq/utf_bom.html#:~:text=Surrogates%20are%20code%20points%20from,DC0016%20to%20DFFF16.
     What are surrogates?
         Surrogates are code points from two special ranges of Unicode values, reserved
         for use as the leading, and trailing values of paired code units in UTF-16.
@@ -4178,6 +4439,19 @@ Extensive, portable and performant handling of UTF-8 and grapheme clusters for P
 Python lang
 ================================================================================
 
+https://github.com/dabeaz-course/practical-python/blob/master/Notes/01_Introduction/04_Strings.md
+Practical Python Programming. A course by David Beazley
+jlf:good introduction to Python strings.
+
+
+https://www.youtube.com/watch?v=Nfqh6lr3frQ
+The Guts of Unicode in Python
+Benjamin Peterson
+This talk will examine how Python's internal Unicode representation has changed
+from its introduction through the latest major changes in Python 3.3.
+jlf: not too long (28 min), good overview.
+
+
 10/08/2021
 List of Python PEPS related to string.
 https://www.python.org/dev/peps/
@@ -4201,6 +4475,7 @@ https://www.python.org/dev/peps/
         SF	278	Universal Newline Support	Jansen
         SF	292	Simpler String Substitutions	Warsaw
         SF	331	Locale-Independent Float/String Conversions	Reis
+        SF	383	Non-decodable Bytes in System Character Interfaces	von Löwis
         SF	393	Flexible String Representation	v. Löwis
         SF	414	Explicit Unicode Literal for Python 3.3	Ronacher, Coghlan
         SF	498	Literal String Interpolation	Smith
@@ -4266,13 +4541,17 @@ https://docs.python.org/3/howto/unicode.html
         https://docs.python.org/3/library/codecs.html#standard-encodings
 
     One-character Unicode strings can also be created with the chr() built-in function,
-    which takes integers and returns a Unicode string of length 1 that contains the corresponding code point:
+    which takes integers and returns a Unicode string of length 1 that contains
+    the corresponding code point:
         chr(57344)      # '\ue000'
-    The reverse operation is the built-in ord() function that takes a one-character Unicode string and returns the code point value:
+    The reverse operation is the built-in ord() function that takes a one-character
+    Unicode string and returns the code point value:
         ord('\ue000')   # 57344
 
-    The opposite method of bytes.decode() is str.encode(), which returns a bytes representation of the Unicode string, encoded in the requested encoding.
-    The errors parameter is the same as the parameter of the decode() method but supports a few more possible handlers.
+    The opposite method of bytes.decode() is str.encode(), which returns a bytes
+    representation of the Unicode string, encoded in the requested encoding.
+    The errors parameter is the same as the parameter of the decode() method
+    but supports a few more possible handlers.
         'strict'            (raise a UnicodeDecodeError exception),
         'replace'           inserts a question mark instead of the unencodable character,
         'ignore'            (just leave the character out of the Unicode result),
@@ -4290,7 +4569,9 @@ https://docs.python.org/3/howto/unicode.html
         >>> [ord(c) for c in s]
         [97, 172, 4660, 8364, 32768]
 
-    Python supports writing source code in UTF-8 by default, but you can use almost any encoding if you declare the encoding being used. This is done by including a special comment as either the first or second line of the source file:
+    Python supports writing source code in UTF-8 by default, but you can use almost
+    any encoding if you declare the encoding being used. This is done by including
+    a special comment as either the first or second line of the source file:
         #!/usr/bin/env python
         # -*- coding: latin-1 -*-
         u = 'abcdé'
@@ -4475,6 +4756,102 @@ The following will all denote ordinary Python 3 strings:
     U"""text"""
 
 
+Types of string and their methods:
+    string          "H"     "H"[0]  # "H"
+    unicode string  u"H"    u"H"[0] # "H"
+    byte string     b"H"    b"H"[0] # 72        string of 8-bit bytes
+    raw string      r"H"    r"H"[0] # "H"       string literals with an uninterpreted backslash.
+    f-string        f"H"    f"H"[0] # "H"       string with formatted expression substitution.
+
+        dir(""), dir(f""), dir(r"")     dir(b"")
+        -------------------------------------------------
+        __add__                         __add__
+                                        __bytes__
+        __class__                       __class__
+        __contains__                    __contains__
+        __delattr__                     __delattr__
+        __dir__                         __dir__
+        __doc__                         __doc__
+        __eq__                          __eq__
+        __format__                      __format__
+        __ge__                          __ge__
+        __getattribute__                __getattribute__
+        __getitem__                     __getitem__
+        __getnewargs__                  __getnewargs__
+        __getstate__                    __getstate__
+        __gt__                          __gt__
+        __hash__                        __hash__
+        __init__                        __init__
+        __init_subclass__               __init_subclass__
+        __iter__                        __iter__
+        __le__                          __le__
+        __len__                         __len__
+        __lt__                          __lt__
+        __mod__                         __mod__
+        __mul__                         __mul__
+        __ne__                          __ne__
+        __new__                         __new__
+        __reduce__                      __reduce__
+        __reduce_ex__                   __reduce_ex__
+        __repr__                        __repr__
+        __rmod__                        __rmod__
+        __rmul__                        __rmul__
+        __setattr__                     __setattr__
+        __sizeof__                      __sizeof__
+        __str__                         __str__
+        __subclasshook__                __subclasshook__
+        capitalize                      capitalize
+        casefold
+        center                          center
+        count                           count
+                                        decode
+        encode
+        endswith                        endswith
+        expandtabs                      expandtabs
+        find                            find
+        format
+        format_map
+                                        fromhex
+                                        hex
+        index                           index
+        isalnum                         isalnum
+        isalpha                         isalpha
+        isascii                         isascii
+        isdecimal
+        isdigit                         isdigit
+        isidentifier
+        islower                         islower
+        isnumeric
+        isprintable
+        isspace                         isspace
+        istitle                         istitle
+        isupper                         isupper
+        join                            join
+        ljust                           ljust
+        lower                           lower
+        lstrip                          lstrip
+        maketrans                       maketrans
+        partition                       partition
+        removeprefix                    removeprefix
+        removesuffix                    removesuffix
+        replace                         replace
+        rfind                           rfind
+        rindex                          rindex
+        rjust                           rjust
+        rpartition                      rpartition
+        rsplit                          rsplit
+        rstrip                          rstrip
+        split                           split
+        splitlines                      splitlines
+        startswith                      startswith
+        strip                           strip
+        swapcase                        swapcase
+        title                           title
+        translate                       translate
+        upper                           upper
+        zfill                           zfill
+
+
 ================================================================================
 R lang
 ================================================================================
@@ -4627,6 +5004,10 @@ still searching articles/blogs comparing the Ruby's approach (multi-encodings)
 with languages that force the conversion to Unicode (be it utf-8 or Unicode scalars).
 
 
+https://ruby-doc.org/current/Encoding.html
+
+https://github.com/ruby/ruby/blob/master/encoding.c
+
 https://docs.ruby-lang.org/en/master/encodings_rdoc.html
 Encodings
 jlf: Executor has a similar support of encodings, with less defaults and less
@@ -4766,6 +5147,33 @@ Returns a confidence rate?
     cd = CharDet.detect(some_data)
     encoding = cd['encoding']
     confidence = cd['confidence'] # 0.0 <= confidence <= 1.0
+
+
+https://bugs.ruby-lang.org/issues/18949
+Deprecate and remove replicate and dummy encodings
+Rejected by Naruse:
+    String is a container and an encoding is a label of it. While data whose
+    encoding is an encoding categorized in dummy encodings in Ruby, we cannot
+    avoid such encodings.
+<reopened, lot of discussions>
+This is all done now, only https://github.com/ruby/ruby/pull/7079.
+Overall:
+    We deprecated and removed Encoding#replicate
+    We removed get_actual_encoding()
+    We limited to 256 encodings and kept rb_define_dummy_encoding() with that constraint.
+    There is a single flat array to lookup encodings, rb_enc_from_index() is fast now.
+
+
+https://github.com/ruby/ruby/pull/3803
+Add string encoding IBM720 alias CP720
+The mapping table is generated from the ICU project:
+https://github.com/unicode-org/icu/blob/master/icu4c/source/data/mappings/ibm-720_P100-1997.ucm
+
+
+https://speakerdeck.com/ima1zumi/dive-into-encoding
+slide 23: Code Set Independent (CSI), Treat all encodings fair
+slide 24: Each instance of string has encoding information
+slide 26: Universal Coded Set (UCS)
 
 
 ================================================================================
@@ -4921,6 +5329,15 @@ This proposal is one component of a larger regex-powered string processing initi
 
 https://docs.swift.org/swift-book/documentation/the-swift-programming-language/stringsandcharacters/
 Strings and Characters
+    Every string is composed of encoding-independent Unicode characters, and provides
+    support for accessing those characters in various Unicode representations.
+
+    When a Unicode string is written to a text file or some other storage, the Unicode
+    scalars in that string are encoded in one of several Unicode-defined encoding forms.
+    Each form encodes the string in small chunks known as code units. These include the
+    UTF-8 encoding form (which encodes a string as 8-bit code units), the UTF-16 encoding
+    form (which encodes a string as 16-bit code units), and the UTF-32 encoding form
+    (which encodes a string as 32-bit code units).
 
 
 03/08/2021
@@ -4992,10 +5409,80 @@ Swift 5 switches the preferred encoding of strings from UTF-16 to UTF-8 while pr
 jlf: Search "breadcrumb".
 Notice that the article is about Swift Objective-C interoperability.
 The language Swift itself is not allowing random access to characters.
+---
+Swift 5, like Rust, performs encoding validation once on creation, when it is far
+more efficient to do so. NSStrings, which are lazily bridged (zero-copy) into
+Swift and use UTF-16, may contain invalid content (i.e. isolated surrogates).
+As in Swift 4.2, these are lazily validated when read from.
 
 
-https://bugs.swift.org/browse/SR-7602
+https://bugs.swift.org/browse/SR-7602 (redirect to next URL)
+https://github.com/apple/swift/issues/50144
 UTF8 should be (one of) the fastest String encoding(s)
+---
+Requirements:
+
+    being able to copy UTF-8 encoded bytes from a String into a pre-allocated raw buffer
+    must be allocation-free and as fast as memcpy can copy them
+
+    creating a String from UTF-8 encoded bytes should just validate the encoding and store the bytes as they are
+    (jlf: "and store the bytes as they are" --> YES!)
+
+    slightly softer but still very strong requirement: currently (even with ASCII)
+    only the stdlib seems to be able to get a pointer to the contiguous ASCII representation
+    (if at all in that form). That works fine if you just want to copy the bytes
+    (UnsafeMutableBufferPointer(start: destinationStart, count: destinationLength).initialize(from: string.utf8)
+    which will use memcpy if in ASCII representation) but doesn't allow you to implement
+    your own algorithms that are only performant on a contiguously stored [UInt8]
+---
+jlf: this comment in the thread is particularly interesting, because it reminds
+me what was said on the ARB mailing list about byte versus string.
+https://github.com/apple/swift/issues/50144#issuecomment-1108303710
+    May 9, 2018
+
+    @milseman Virtually all of it comes down to `String(data: myData, encoding: .utf8)`
+    and `myString.data(encoding: .utf8)`.
+
+    When parsing protocols such as HTTP, Redis, MySQL, PostgreSQL, etc we will read data from
+    the OS into an `UnsafeBufferPointer<UInt8>`. This is almost always via NIO's
+    [`ByteBuffer`](https://apple.github.io/swift-nio/docs/current/NIO/Structs/ByteBuffer.html) type.
+    We sometimes grab `String` from that directly or grab `Data` if we want to iterate over the bytes
+    for additional parsing.
+
+    In other words, from `UnsafePointer<UInt8>` we commonly read `FixedWidthInteger`,
+    `BinaryFloatingPoint`, `Data`, and `String`. All are very performant except String
+    which is the concern since the vast majority of bytes ends up being `String`s.
+    Considering the DB use case specifically, the data transfer is usually emails,
+    names, bios, comments, etc. Very few bytes are actually dedicated to binary
+    numbers or data blobs. Strings everywhere.
+
+    To summarize, the faster we can get from `Swift.Unsafe...Pointer<UInt8>` or
+    `Foundation.Data` to `String` the better. That will affect (for the better!)
+    quite literally our entire framework.
+---
+jlf: this comment from the same thread shows which questions we should answer for Rexx:
+https://github.com/apple/swift/issues/50144#issuecomment-1108303720
+
+    Along the lines of potentially separable issues, what is your validation story?
+    If the stream of bytes contains invalid UTF-8, do you want:
+
+    1) The initializer to fail resulting in nil
+    2) The initializer to fail producing an error
+    3) The invalid bytes to be replaced with U+FFFD
+    4) The bytes verbatim, and experience the emergent behavior / unspecified results / security hazard from those bytes.
+
+    For reference, I think [Rust's model](https://doc.rust-lang.org/std/string/struct.String.html) is pretty good:
+
+    `from_utf8` produces an error explaining why the code units were invalid
+    `from_utf8_lossy` replaces encoding errors with U+FFFD
+    `from_utf8_unchecked` which takes the bytes, but if there's an encoding error, then memory safety has been violated
+
+    I'm not entirely sure if accepting invalid bytes requires voiding memory safety
+    (assuming bounds checking always happens), but it is totally a security hazard if used improperly.
+    We may want to be very cautious about if/how we expose it.
+
+    I think that trying to do read-time validation is dubious for UTF-16, and totally bananas for UTF-8.
+    (jlf: I don't understand this last sentence. By "read-time", does he means "when working with the string?")
 
 
 milseman Michael Ilseman added a comment - 5 Nov 2018 3:44 PM
@@ -5060,6 +5547,14 @@ internal static var breadcrumbStride: Int { 64 }
 jlf: nothing sophisticated here...
 They scan the whole string by iterating over the UTF-16 indexes and when i % stride == 0 then self.crumbs.append(curIdx)
 When searching the offset for a String.Index, they do a binary search.
+
+
+https://github.com/apple/swift/pull/20315/commits/2e368a3f6a25b5e84c0f682861ea0a5c9b3b26af
+[String] Introduce StringBreadcrumbs
+Breadcrumbs provide us amortized O(1) access to the UTF-16 view, which
+is vital for efficient Cocoa interoperability.
+---
+jlf: this the commit where breadcrumbs are added to Swift (Nov 4, 2018).
 
 
 https://stackoverflow.com/questions/55389444/whats-does-extended-grapheme-clusters-are-canonically-equivalent-means-in-term
@@ -5352,6 +5847,87 @@ This compares the strings in a case-insensitive way according to the Unicode sta
 There is also localizedCaseInsensitiveCompare() which does a comparison according to the current locale, and
     s1.compare(s2, options: .caseInsensitive, locale: ...)
 for a case-insensitive comparison according to an arbitrary given locale.
+
+
+https://www.kodeco.com/3418439-encoding-and-decoding-in-swift
+jlf: out of subject, it's not related to strings. It's about serialization of data strctures.
+
+
+https://github.com/apple/swift-evolution/blob/main/proposals/0241-string-index-explicit-encoding-offset.md
+Deprecate String Index Encoded Offsets
+Feb 23, 2019
+jlf: I add this URL for this description, not for the topic covered by this proposition:
+    String abstracts away details about the underlying encoding used in its storage.
+    String.Index is opaque and represents a position within a String or Substring.
+    This can make serializing a string alongside its indices difficult, and for that
+    reason SE-0180 added a computed variable and initializer encodedOffset in Swift 4.0.
+
+    String was always meant to be capable of handling multiple backing encodings for
+    its contents, and this is realized in Swift 5. String now uses UTF-8 for its
+    preferred “fast” native encoding, but has a resilient fallback for strings of
+    different encodings. Currently, we only use this fall-back for lazily-bridged
+    Cocoa strings, which are commonly encoded as UTF-16, though it can be extended
+    in the future thanks to resilience.
+
+    Unfortunately, SE-0180’s approach of a single notion of encodedOffset is flawed.
+    A string can be serialized with a choice of encodings, and the offset is therefore
+    encoding-dependent and requires access to the contents of the string to calculate.
+
+
+https://www.tutorialkart.com/swift-tutorial/swift-read-text-file/#gsc.tab=0
+Read text file
+
+    import Foundation
+    let file = "sample.txt"
+    var result = ""
+    //if you get access to the directory
+    if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+        //prepare file url
+        let fileURL = dir.appendingPathComponent(file)
+        do {
+            result = try String(contentsOf: fileURL, encoding: .utf8)
+        }
+        catch {/* handle if there are any errors */}
+    }
+    print(result)
+
+
+https://www.appsdeveloperblog.com/read-and-write-string-into-a-text-file/
+Read and Write String Into a Text File
+
+      let fileName = "myFileName.txt"
+      var filePath = ""
+
+      // Fine documents directory on device
+      let dirs : [String] = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.documentDirectory, FileManager.SearchPathDomainMask.allDomainsMask, true)
+      if dirs.count > 0 {
+          let dir = dirs[0] //documents directory
+          filePath = dir.appending("/" + fileName)
+          print("Local path = \(filePath)")
+      } else {
+          print("Could not find local directory to store file")
+          return
+      }
+
+      // Set the contents
+      let fileContentToWrite = "Text to be recorded into file"
+      do {
+          // Write contents to file
+          try fileContentToWrite.write(toFile: filePath, atomically: false, encoding: String.Encoding.utf8)
+      }
+      catch let error as NSError {
+          print("An error took place: \(error)")
+      }
+
+      // Read file content. Example in Swift
+      do {
+          // Read file content
+          let contentFromFile = try NSString(contentsOfFile: filePath, encoding: String.Encoding.utf8.rawValue)
+          print(contentFromFile)
+      }
+      catch let error as NSError {
+          print("An error took place: \(error)")
+      }
 
 
 ================================================================================
