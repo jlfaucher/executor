@@ -2,6 +2,25 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2023 Jun 29
+
+[Encoded strings]
+
+Rename .Encoding~supported
+    to .Encoding~list
+because I never remember the name "supported"
+and because Ruby uses Encoding.list
+
+
+Add candidate encodings supported by Ruby, Iana, Java.
+This is only a giant list of encoding names and their aliases.
+
+Rework the existing encodings (new names, more aliases).
+New encoding ibm-437.
+The encoding iso-8859-1 has now a Unicode mapping for all the characters.
+
+
+===============================================================================
 2023 Jun 28
 
 [Encoded strings]

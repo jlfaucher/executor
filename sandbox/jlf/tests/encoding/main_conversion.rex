@@ -9,7 +9,7 @@ demo on
 -- Supported encodings
 --------------------------------------------------------------------------------
 
-.encoding~supported~pipe(.sort "byindex" | .console "index.25" ":" "item")
+.encoding~list~pipe(.sort "byIndex" | .console "index.25" ":" "item")
 
 
 --------------------------------------------------------------------------------

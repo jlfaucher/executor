@@ -1,5 +1,7 @@
 .encoding~register("BYTE", .Byte_Encoding)
 .encoding~register("BYTES", .Byte_Encoding)
+.encoding~register("ASCII8BIT", .Byte_Encoding)     -- Alias defined in Ruby
+.encoding~register("BINARY", .Byte_Encoding)        -- Alias defined in Ruby
 
 --::requires "encoding/unicode_common.cls"
 ::requires "encoding/byte_common.cls"

@@ -1,6 +1,7 @@
 .encoding~register("UTF16", .UTF16BE_Encoding)
 .encoding~register("UTF16BE", .UTF16BE_Encoding)
 .encoding~register("UTF16LE", .UTF16LE_Encoding)
+--.encoding~register("UCS2BE", .UTF16BE_Encoding)     -- Alias defined in Ruby, but I'm not convinced it's a good alias for UTF-16
 
 ::requires "encoding/encoding.cls"
 ::requires "encoding/utf16_common.cls"

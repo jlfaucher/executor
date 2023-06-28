@@ -1,6 +1,8 @@
 .encoding~register("UTF32", .UTF32BE_Encoding)
 .encoding~register("UTF32BE", .UTF32BE_Encoding)
 .encoding~register("UTF32LE", .UTF32LE_Encoding)
+--.encoding~register("UCS4BE", .UTF32BE_Encoding)     -- Alias defined in Ruby, but I'm not convinced it's a good alias for UTF-32BE
+--.encoding~register("UCS4LE", .UTF32LE_Encoding)     -- Alias defined in Ruby, but I'm not convinced it's a good alias for UTF-32LE
 
 ::requires "encoding/encoding.cls"
 ::requires "encoding/unicode_common.cls"

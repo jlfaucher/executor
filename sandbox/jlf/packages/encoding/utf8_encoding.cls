@@ -1,4 +1,5 @@
 .encoding~register("UTF8", .UTF8_Encoding)
+.encoding~register("CP65001", .UTF8_Encoding)   -- Alias defined in Ruby
 
 ::requires "encoding/encoding.cls"
 ::requires "encoding/byte_common.cls"

@@ -145,21 +145,41 @@
 -- The specific transcoding table lets define specific values for some characters.
 ::routine createCharacterTranscodingTable public -- private
     use strict arg size, specificTranscoding
+
+    -- The default mapping is equal to the character code
     tableTranscodingToUnicode = .array~new(size)
     do i = 0 to size-1
         tableTranscodingToUnicode[i+1] = i -- bof bof... 1-based
     end
+
+    -- Now replace the mappings for which a specific value is defined
+    /* Example of declaration of specific values (this is an array)
+        , --    00      01      02      03      04      05      06      07      08      09      0A      0B      0C      0D      0E      0F
+        "80:",  "20AC",  "-81", "201A", "0192", "201E", "2026", "2020", "2021", "02C6", "2030", "0160", "2039", "0152",  "-8D", "017D",  "-8F",,
+        "90:",   "-90", "2018", "2019", "201C", "201D", "2022", "2013", "2014", "02DC", "2122", "0161", "203A", "0153",  "-9D", "017E", "0178"
+
+       The current index is set to "80:" (ends with colon)
+       Current index + "00": The code 80 is mapped to "20AC"
+       Current index + "01": The code 81 is mapped to "-81" (fallback if not strict conversion, otherwise error)
+       Etc...
+       For convenience, these notations can be used to indicate that a mapping is equal to the code:
+       , "=", ...
+       ,    , ...       Omitted value
+    */
     nextSpecificIndex = 0
     do i=1 to specificTranscoding~items
         item = specificTranscoding[i]
-        if item~right(1) == ":" then do -- Ends with colon, this is an index. For example: "80:"
+        if .nil \== item, item~right(1) == ":" then do -- Ends with colon, this is an index. For example: "80:"
             nextSpecificIndex = item~left(item~length - 1)~x2d
         end
         else do
-            if item == "" then codepoint = "" -- no transcoding
-            else if item~left(1) == "-" then codepoint = -(item~substr(2)~x2d) -- unused character with fallback transcoding. For example: "-81" --> -129
-            else codepoint = item~x2d
-            tableTranscodingToUnicode[nextSpecificIndex+1] = codepoint -- bof bof... 1-based array
+            if .nil \== item, item \== "=" then do
+                if item == "" then codepoint = "" -- no transcoding
+                else if item~left(1) == "-" then codepoint = -(item~substr(2)~x2d) -- unused character with fallback transcoding. For example: "-81" --> -129
+                else codepoint = item~x2d
+
+                tableTranscodingToUnicode[nextSpecificIndex+1] = codepoint -- bof bof... 1-based array
+            end
             nextSpecificIndex += 1
         end
     end
