@@ -453,19 +453,6 @@ Depends on
     forward class (super)
 
 
--- bit      9       8       7              6         5     4        3    2    1   0
--- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
-::constant FLAG_NFC 0
-::constant FLAG_NFD 1
-::constant FLAG_NFKC 2
-::constant FLAG_NFKD 3
-::constant FLAG_CASEFOLD 4
-::constant FLAG_LUMP 5
-::constant FLAG_STRIP_MARK 6
-::constant FLAG_STRIP_IGNORABLE 7
-::constant FLAG_STRIP_CC 8
-::constant FLAG_STRIP_NA 9
-
 ::method transform
     use strict arg -- none
     use strict named arg normalization(4) = 1, casefold(4) = .false, lump= .false, stripMark = .false, stripIgnorable= .false, stripCC = .false, stripNA = .false, returnString = .false, memorize(3) = (.Unicode~memorizeTransformations)
@@ -496,12 +483,22 @@ Depends on
     if self~bitFlagsAllTrue(mask) then string = self~string -- already in the requested form
     else do
         string = .Unicode~utf8proc_transform(self~string, :normalization, :casefold, :lump, :stripMark, :stripIgnorable, :stripCC, :stripNA)
-        if (string == self~string) then do
-            self~setBitFlags(mask) -- all these flags are set to true
-        end
-        else nop -- CAREFUL! don't store 0 (keep -1) because maybe one of the indicators could be 1
+        if (string == self~string) then self~setBitFlags(mask) -- all these flags are set to true
+        -- from here, we know that the original string is different from the transformed string
+        -- if the mask is just one flag then we can set this flag to 0 on the original string
+        else if mask == .BitKey~bitPosMask(self~FLAG_NFC) then self~clearBitFlags(mask)
+        else if mask == .BitKey~bitPosMask(self~FLAG_NFD) then self~clearBitFlags(mask)
+        else if mask == .BitKey~bitPosMask(self~FLAG_NFKC) then self~clearBitFlags(mask)
+        else if mask == .BitKey~bitPosMask(self~FLAG_NFKD) then self~clearBitFlags(mask)
+        else if mask == .BitKey~bitPosMask(self~FLAG_CASEFOLD) then self~clearBitFlags(mask)
+        else if mask == .BitKey~bitPosMask(self~FLAG_LUMP) then self~clearBitFlags(mask)
+        else if mask == .BitKey~bitPosMask(self~FLAG_STRIP_MARK) then self~clearBitFlags(mask)
+        else if mask == .BitKey~bitPosMask(self~FLAG_STRIP_IGNORABLE) then self~clearBitFlags(mask)
+        else if mask == .BitKey~bitPosMask(self~FLAG_STRIP_CC) then self~clearBitFlags(mask)
+        else if mask == .BitKey~bitPosMask(self~FLAG_STRIP_NA) then self~clearBitFlags(mask)
+        else nop -- CAREFUL! not just one flag, don't store 0 (keep -1) because maybe one of the indicators could be 1 or could become 1 when applying a unitary transformation
         if returnString then do
-            -- It's a new string, without any encoding stored on it
+            -- It's a new string, without any encoding stored on it, so can't store the flags
             string~encoding = self~encoding
         end
         else do

@@ -501,6 +501,45 @@ How other languages are supporting escape characters for Unicode:
 ::method unescape abstract
 
 
+-- See the comments on the class "CachedStrings" in cachedStrings.cls
+-- See the method "transform" in utf8_common.cls
+-- bit      9       8       7              6         5     4        3    2    1   0
+-- flag     stripNA stripCC stripIgnorable stripMark lump  casefold NFKD NFKC NFD NFC
+::constant FLAG_NFC 0
+::constant FLAG_NFD 1
+::constant FLAG_NFKC 2
+::constant FLAG_NFKD 3
+::constant FLAG_CASEFOLD 4
+::constant FLAG_LUMP 5
+::constant FLAG_STRIP_MARK 6
+::constant FLAG_STRIP_IGNORABLE 7
+::constant FLAG_STRIP_CC 8
+::constant FLAG_STRIP_NA 9
+
+
+::method flags
+    -- for debug
+    flags = ,
+    "FLAG_NFC",,
+    "FLAG_NFD",,
+    "FLAG_NFKC",,
+    "FLAG_NFKD",,
+    "FLAG_CASEFOLD",,
+    "FLAG_LUMP",,
+    "FLAG_STRIP_MARK",,
+    "FLAG_STRIP_IGNORABLE",,
+    "FLAG_STRIP_CC",,
+    "FLAG_STRIP_NA"
+    values = .directory~new
+    do flag over flags
+        bitPos = self~send(flag)
+        value = self~bitFlag(bitPos)
+        values~put(value, flag)
+    end
+
+    return values
+
+
 ::attribute isNFC get
     bitFlag = self~bitFlag(self~FLAG_NFC)
     if bitFlag \== -1 then return bitFlag

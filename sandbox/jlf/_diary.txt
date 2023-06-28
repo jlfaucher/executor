@@ -2,6 +2,33 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2023 Jun 28
+
+[Encoded strings]
+
+Bitkey is now 2 bytes (4 hex digits) always.
+
+For debug, give temporarilly access to the flags stored on an indexer.
+"Père Noël"~text~nfc(casefold:, stripMark:)~indexer~flags=
+    a Directory (10 items)
+    'FLAG_CASEFOLD'        :  1
+    'FLAG_LUMP'            : -1
+    'FLAG_NFC'             :  1
+    'FLAG_NFD'             : -1
+    'FLAG_NFKC'            : -1
+    'FLAG_NFKD'            : -1
+    'FLAG_STRIP_CC'        : -1
+    'FLAG_STRIP_IGNORABLE' : -1
+    'FLAG_STRIP_MARK'      :  1
+    'FLAG_STRIP_NA'        : -1
+
+Transform:
+If the original string is different from the transformed string
+and if the mask is just one flag
+then we can set this flag to 0 on the original string.
+
+
+===============================================================================
 2023 Jun 11
 
 [Encoded strings]
