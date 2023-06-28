@@ -18,6 +18,10 @@
 ::constant codepointMaxBytes 1
 
 
+::method analyze class
+    forward class (.Unicode_CommonServices) -- bypass the implementation of Unicode_Encoding whose purpose is to raise an error (not a nice solution, is it possible to do better?)
+
+
 ::method checkCodepoint class
     -- All the codepoints in the range 0..255 are ok
     -- Remember : previousCodepoint can be .nil (first codepoint) or <0 (error recovery)

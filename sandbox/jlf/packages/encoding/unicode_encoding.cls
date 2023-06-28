@@ -48,6 +48,10 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 */
 ::class "Unicode_Encoding" mixinclass Object public -- private
 
+::method analyze class
+    raise syntax 23.900 array ("'UNICODE' can't be used to create a RexxText. Use 'UNICODE8' or 'UNICODE16' or 'UNICODE32'")
+
+
 ::method isUnicodeN class
     use strict arg -- none
     return .true
