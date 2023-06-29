@@ -767,6 +767,11 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
     expose encodings
     use strict arg encodingName, encoding
     encodingName = .Encoding~normalizedName(encodingName)
+    registered = encodings[encodingName]
+    if .nil \== registered, registered \== encoding then do
+        .error~say("Collision when declaring the alias" encodingName "for" encoding)
+        .error~say("This alias is already used for" registered)
+    end
     encodings[encodingName] = encoding
     .environment~setentry(encoding~id, encoding) -- Mandatory otherwise the encoding classes are not visible from this package
 
