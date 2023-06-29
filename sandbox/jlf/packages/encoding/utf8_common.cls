@@ -455,7 +455,7 @@ Depends on
 
 ::method transform
     use strict arg -- none
-    use strict named arg normalization(4) = 1, casefold(4) = .false, lump= .false, stripMark = .false, stripIgnorable= .false, stripCC = .false, stripNA = .false, returnString = .false, memorize(3) = (.Unicode~memorizeTransformations)
+    use strict named arg normalization = 1, casefold = .false, lump= .false, stripMark = .false, stripIgnorable= .false, stripCC = .false, stripNA = .false, returnString = .false, memorize(3) = (.Unicode~memorizeTransformations)
 
     .validate~wholeNumberRange("normalization", normalization, 0, 4)
     .validate~logical("casefold", casefold)
