@@ -2,6 +2,18 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2023 Jun 30
+
+Update the ICU4X binaries: release 1.2
+
+Still can't build ICU4X under Windows ARM
+because of error when running
+    cargo install cargo-make
+ring@0.16.21 is blocking since more than 8 months
+https://github.com/briansmith/ring/issues/1551
+
+
+===============================================================================
 2023 Jun 29
 
 [Encoded strings]

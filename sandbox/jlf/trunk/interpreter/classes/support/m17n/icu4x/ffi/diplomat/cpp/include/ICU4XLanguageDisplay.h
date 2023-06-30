@@ -1,5 +1,5 @@
-#ifndef ICU4XWordBreakRule_H
-#define ICU4XWordBreakRule_H
+#ifndef ICU4XLanguageDisplay_H
+#define ICU4XLanguageDisplay_H
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -10,11 +10,10 @@
 namespace capi {
 #endif
 
-typedef enum ICU4XWordBreakRule {
-  ICU4XWordBreakRule_Normal = 0,
-  ICU4XWordBreakRule_BreakAll = 1,
-  ICU4XWordBreakRule_KeepAll = 2,
-} ICU4XWordBreakRule;
+typedef enum ICU4XLanguageDisplay {
+  ICU4XLanguageDisplay_Dialect = 0,
+  ICU4XLanguageDisplay_Standard = 1,
+} ICU4XLanguageDisplay;
 #ifdef __cplusplus
 } // namespace capi
 #endif
@@ -23,7 +22,7 @@ namespace capi {
 extern "C" {
 #endif
 
-void ICU4XWordBreakRule_destroy(ICU4XWordBreakRule* self);
+void ICU4XLanguageDisplay_destroy(ICU4XLanguageDisplay* self);
 
 #ifdef __cplusplus
 } // extern "C"
