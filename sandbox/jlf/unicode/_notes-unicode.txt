@@ -3289,6 +3289,84 @@ GO lang
 
 https://go.dev/
 
+
+https://go.dev/ref/spec#Conversions_to_and_from_a_string_type
+jlf: worth reading, they cover all the possible conversions between bytes, rune
+and string.
+
+
+https://go.dev/play/
+The Go Playground
+
+
+https://github.com/traefik/yaegi
+Another Elegant Go Interpreter
+---
+rlwrap yaegi
+
+
+https://yourbasic.org/golang/
+Tutorial, a selection related to strings
+---
+    []byte("Noël")                                              // [78 111 195 171 108]
+
+    // 1. Using the string() constructor
+    string([]byte{78, 111, 195, 171, 108})                      // Noël
+
+    // 2. Go provides a package called bytes with a function called NewBuffer(), which
+    //    creates a new Buffer and then uses the String() method to get the string output.
+    bytes.NewBuffer([]byte{78, 111, 195, 171, 108}).String()    // Noël
+
+    // 3. Using fmt.Sprintf() function
+    fmt.Sprintf("%s", []byte{78, 111, 195, 171, 108})           // Noël
+
+    // String building
+    fmt.Sprintf("Size: %d MB.", 85)                             // Size: 85 MB.
+
+    // High-performance string concatenation
+    var b strings.Builder
+    b.Grow(32) // preallocate memory when the maximum size of the string is known
+    for i, p := range []int{2, 3, 5, 7, 11, 13} {
+        fmt.Fprintf(&b, "%d:%d, ", i+1, p)
+    }
+    s := b.String()   // no copying
+    s = s[:b.Len()-2] // no copying (removes trailing ", ")
+    fmt.Println(s)    // 1:2, 2:3, 3:5, 4:7, 5:11, 6:13
+
+    // Convert string to runes
+    // For an invalid UTF-8 sequence, the rune value will be 0xFFFD for each invalid byte.
+    []rune("Noël")        // [78 111 235 108]
+
+    // Convert runes to string
+    // When you convert a slice of runes to a string, you get a new string that
+    // is the concatenation of the runes converted to UTF-8 encoded strings.
+    // Values outside the range of valid Unicode code points are converted to
+    // \uFFFD, the Unicode replacement character �.
+    string([]rune{'\u004E', '\u006F', '\u00EB', '\u006C'})  // Noël
+
+    // String iteration by runes
+    //    the range loop iterates over Unicode code points.
+    //    The index is the first byte of a UTF-8-encoded code point;
+    //    the second value, of type rune, is the value of the code point.
+    //    For an invalid UTF-8 sequence, the second value will be 0xFFFD,
+    //    and the iteration will advance a single byte.
+    for i, ch := range "日本語" {
+        fmt.Printf("%#U starts at byte position %d\n", ch, i)
+    }
+    // Output:
+    U+004E 'N' starts at byte position 0
+    U+006F 'o' starts at byte position 1
+    U+00EB 'ë' starts at byte position 2
+    U+006C 'l' starts at byte position 4
+
+    // String iteration by bytes
+    const s = "Noël"
+    for i := 0; i < len(s); i++ {
+        fmt.Printf("%x ", s[i])
+    }
+    // Output: 4e 6f c3 ab 6c
+
+
 https://pkg.go.dev/strings
 Package strings implements simple functions to manipulate UTF-8 encoded strings.
 jlf: BIFs
@@ -3300,6 +3378,8 @@ Rob Pike
 26 September 2013
 ---
 jlf: prerequisite to understand how strings are managed
+Next blog also helps (no relation with Unicode, but...)
+https://teivah.medium.com/slice-length-vs-capacity-in-go-af71a754b7d8
 
 
 https://go.dev/blog/strings
@@ -3366,6 +3446,105 @@ The collate package, which can sort strings in a language-specific way, works
 correctly even with unnormalized strings
 
 
+https://pkg.go.dev/golang.org/x/text/encoding
+Package encoding defines an interface for character encodings, such as Shift JIS
+and Windows 1252, that can convert to and from UTF-8.
+Encoding implementations are provided in other packages, such as
+    golang.org/x/text/encoding/charmap
+    golang.org/x/text/encoding/japanese.
+A Decoder converts bytes to UTF-8. It implements transform.Transformer.
+    Transforming source bytes that are not of that encoding will not result in
+    an error per se. Each byte that cannot be transcoded will be represented in
+    the output by the UTF-8 encoding of '\uFFFD', the replacement rune.
+    ---
+    jlf: strange... I was expecting a more conservative conversion, since the
+    core language supports any bytes in a string.
+An Encoder converts bytes from UTF-8. It implements transform.Transformer.
+    Each rune that cannot be transcoded will result in an error. In this case,
+    the transform will consume all source byte up to, not including the offending
+    rune. Transforming source bytes that are not valid UTF-8 will be replaced by
+    `\uFFFD`.
+    ---
+    jlf: the previous description seems contradictory.
+    "up to, not including the offending rune"
+    "not valid UTF-8 will be replaced by `\uFFFD`"
+
+https://pkg.go.dev/golang.org/x/text@v0.10.0/encoding/charmap
+Package charmap provides simple character encodings such as IBM Code Page 437
+and Windows 1252.
+    CodePage037 is the IBM Code Page 037 encoding.
+    CodePage1047 is the IBM Code Page 1047 encoding.
+    CodePage1140 is the IBM Code Page 1140 encoding.
+    CodePage437 is the IBM Code Page 437 encoding.
+    CodePage850 is the IBM Code Page 850 encoding.
+    CodePage852 is the IBM Code Page 852 encoding.
+    CodePage855 is the IBM Code Page 855 encoding.
+    CodePage858 is the Windows Code Page 858 encoding.
+    CodePage860 is the IBM Code Page 860 encoding.
+    CodePage862 is the IBM Code Page 862 encoding.
+    CodePage863 is the IBM Code Page 863 encoding.
+    CodePage865 is the IBM Code Page 865 encoding.
+    CodePage866 is the IBM Code Page 866 encoding.
+    ISO8859_1 is the ISO 8859-1 encoding.
+    ISO8859_10 is the ISO 8859-10 encoding.
+    ISO8859_13 is the ISO 8859-13 encoding.
+    ISO8859_14 is the ISO 8859-14 encoding.
+    ISO8859_15 is the ISO 8859-15 encoding.
+    ISO8859_16 is the ISO 8859-16 encoding.
+    ISO8859_2 is the ISO 8859-2 encoding.
+    ISO8859_3 is the ISO 8859-3 encoding.
+    ISO8859_4 is the ISO 8859-4 encoding.
+    ISO8859_5 is the ISO 8859-5 encoding.
+    ISO8859_6 is the ISO 8859-6 encoding.
+    ISO8859_7 is the ISO 8859-7 encoding.
+    ISO8859_8 is the ISO 8859-8 encoding.
+    ISO8859_9 is the ISO 8859-9 encoding.
+    KOI8R is the KOI8-R encoding.
+    KOI8U is the KOI8-U encoding.
+    Macintosh is the Macintosh encoding.
+    MacintoshCyrillic is the Macintosh Cyrillic encoding.
+    Windows1250 is the Windows 1250 encoding.
+    Windows1251 is the Windows 1251 encoding.
+    Windows1252 is the Windows 1252 encoding.
+    Windows1253 is the Windows 1253 encoding.
+    Windows1254 is the Windows 1254 encoding.
+    Windows1255 is the Windows 1255 encoding.
+    Windows1256 is the Windows 1256 encoding.
+    Windows1257 is the Windows 1257 encoding.
+    Windows1258 is the Windows 1258 encoding.
+    Windows874 is the Windows 874 encoding.
+
+https://pkg.go.dev/golang.org/x/text@v0.10.0/encoding/japanese
+Package japanese provides Japanese encodings such as EUC-JP and Shift JIS.
+    EUCJP is the EUC-JP encoding.
+    ISO2022JP is the ISO-2022-JP encoding.
+    ShiftJIS is the Shift JIS encoding, also known as Code Page 932 and Windows-31J.
+
+https://pkg.go.dev/golang.org/x/text@v0.10.0/encoding/korean
+Package korean provides Korean encodings such as EUC-KR.
+    EUCKR is the EUC-KR encoding, also known as Code Page 949.
+
+https://pkg.go.dev/golang.org/x/text@v0.10.0/encoding/simplifiedchinese
+Package simplifiedchinese provides Simplified Chinese encodings such as GBK.
+    HZGB2312 is the HZ-GB2312 encoding.
+
+https://pkg.go.dev/golang.org/x/text@v0.10.0/encoding/traditionalchinese
+Package traditionalchinese provides Traditional Chinese encodings such as Big5.
+    Big5 is the Big5 encoding, also known as Code Page 950.
+
+https://pkg.go.dev/golang.org/x/text@v0.10.0/encoding/unicode
+Package unicode provides Unicode encodings such as UTF-16.
+    UTF8 is the UTF-8 encoding. It neither removes nor adds byte order marks.
+    UTF8BOM is an UTF-8 encoding where the decoder strips a leading byte order mark while the encoder adds one.
+    UTF16 returns a UTF-16 Encoding for the given default endianness and byte order mark (BOM) policy.
+        func UTF16(e Endianness, b BOMPolicy) encoding.Encoding
+
+https://pkg.go.dev/golang.org/x/text@v0.10.0/encoding/unicode/utf32
+Package utf32 provides the UTF-32 Unicode encoding.
+    UTF32 returns a UTF-32 Encoding for the given default endianness and byte order mark (BOM) policy.
+        func UTF32(e Endianness, b BOMPolicy) encoding.Encoding
+
+
 https://go.dev/blog/matchlang
 Language and Locale Matching in Go
 The Go package https://golang.org/x/text/language implements the BCP 47 standard
@@ -3398,6 +3577,16 @@ letter is an arbitrary Unicode code point.
         źdźbło := 1
         fmt.Println(źdźbło)
     }
+
+
+https://henvic.dev/posts/go-utf8/
+UTF-8 strings with Go: len(s) isn't enough
+jlf: in his initial post, the guy was not aware of graphemes
+and it's after a feedback on Reddit that he addded stuff about graphemes.
+
+
+https://github.com/rivo/uniseg
+Unicode Text Segmentation, Word Wrapping, and String Width Calculation in Go
 
 
 ================================================================================
