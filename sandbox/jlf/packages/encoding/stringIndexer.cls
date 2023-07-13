@@ -78,7 +78,7 @@ if error then
     otherwise
         errorInfo[1] = error description
         checkCodepoint == -1 if the error is about previousCodepoint
-        checkCodepoint == 0  if the error is abour codepoint
+        checkCodepoint == 0  if the error is about codepoint
 */
 ::method checkCodepoint class abstract
     -- use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
@@ -486,9 +486,10 @@ How other languages are supporting escape characters for Unicode:
     \u{nnnn ...}        Unicode character(s), where each nnnn is 1-6 hexadecimal digits (Ruby)
     \u{X..X}            Unicode character denoted by a 1–8 hex digits (Swift)
     \u{XXXXXX}          hexadecimal Unicode code point UTF-8 encoded (1 or more digits) (zig)
-    \uXXXX              Unicode character denoted by four hex digits (Java, JSON, Julia, Netrexx, Python, Ruby)
-    \UXXXXXXXX          Unicode character denoted by eight hex digits (Julia, Python)
-    \xXX                1 byte denoted by 2 hex digits (Netrexx, Python, Ruby)
+    \uXXXX              Unicode character denoted by 4 hex digits (Go, Java, JSON, Julia, Netrexx, Python, Ruby)
+    \UXXXXXXXX          Unicode character denoted by 8 hex digits (Go, Julia, Python)
+    \xXX                1 byte denoted by 2 hex digits (Go, Netrexx, Python, Ruby)
+    \XXX                Unicode character denoted by 3 octal digits (Go)
 
     https://javajee.com/unicode-escapes-in-java
     The compiler translates Unicode escapes into the characters they represent
