@@ -1,4 +1,53 @@
 ================================================================================
+Notes Case folding/lowercase/uppercase
+================================================================================
+https://github.com/uni-algo/uni-algo/issues/29#issuecomment-1627809027
+
+Case folding/lowercase/uppercase views are not implemented at the moment.
+They are planned and will be implemented the same as normalization views.
+Right now you can do it manually through properties uni_algo/prop.h like this:
+
+    std::string str8 = "Straße";
+    auto view = una::ranges::utf8_view{str8};
+
+    for (auto it = view.begin(); it != view.end(); ++it)
+    {
+        std::u32string s = una::codepoint::to_casefold_u32(*it); // Full case folding
+        char32_t c = una::codepoint::to_simple_casefold(*it); // Simple case folding
+    }
+
+
+================================================================================
+Notes canonical caseless match
+================================================================================
+
+https://github.com/uni-algo/uni-algo/discussions/30#discussioncomment-6452682
+Q:
+In your library, you have una::caseless::compare_utf8, which is described as "case insensitive".
+Is this the same as a canonical caseless match?
+
+A:
+No, it's not the same. The Unicode Standard describes canonical caseless match like this:
+A string X is a canonical caseless match for a string Y if and only if:
+    NFD(toCasefold(NFD(X))) = NFD(toCasefold(NFD(Y)))
+So it will look like this with the library:
+    bool canonical_caseless_match(std::string_view str1, std::string_view str2)
+    {
+        return una::norm::to_nfd_utf8(una::cases::to_casefold_utf8(una::norm::to_nfd_utf8(str1)))
+               ==
+               una::norm::to_nfd_utf8(una::cases::to_casefold_utf8(una::norm::to_nfd_utf8(str2)));
+    }
+Of course the performance of this won't be that great. Technically it's possible
+to implement it better with views but the problem right now the library doesn't
+have case folding view (it's planned). So you need to implement it manually with
+una::codepoint::to_casefold_u32 function from uni_algo/prop.h.
+If you want to try it then as a starting point you can use canonical_equivalence
+function in example/cpp_ranges.h. But it won't be easy for sure, you probably
+need to implement you own case folding view first because the algorithm requires
+case folding to be between 2 NFDs.
+
+
+================================================================================
 uni_algo/config.h
 ================================================================================
 
