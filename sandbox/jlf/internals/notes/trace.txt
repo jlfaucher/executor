@@ -51,7 +51,7 @@ code that does what your first code block attempts is:
 
 
 Wondering if the atomic counters have an impact on the concurrency trace.
-Added temporarilly support for "on" and "on+" (not committed)
+Added temporarily support for "on" and "on+" (not committed)
 - When "on", use non atomic counters
 - When "on+", use atomic counters
 Code review (MacOs) to understand how std::atomic works.
