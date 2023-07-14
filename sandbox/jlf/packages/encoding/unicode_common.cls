@@ -56,15 +56,31 @@ Depends on
             -- The byte-sequence starting at previousCodepointIndexB is invalid,
             -- undo the last index
             -- currently, that can happen only for WTF-8 in case of high-surrogate followed by a low-surrogate
-            codepointCount -= 1
-            graphemeCount -= 1
+            /*
+                "D800"x~text("wtf16")~wtf8~c2x=             -- 'EDA080' is the high surrogate U+D800 encoded in WTF-8
+                "DC00"x~text("wtf16")~wtf8~c2x=             -- 'EDB080' is the low surrogate U+DC00 encoded in WTF-8
+
+                -- Remember: keep "41 42", it's to illustrate that the isolated surrogate is a grapheme in WTF-8
+
+                "41 42 EDA080"x~text("wtf8")~c2u=           -- 'U+0041 U+0042 U+D800'   no error, the isolated high surrogate is a grapheme
+                "41 42 EDA080"x~text("wtf8")~c2g=           -- '41 42 EDA080'
+
+                                                            -- BUT if the next codepoint is a low surrogate then it's an error
+                "41 42 EDA080 EDB080"x~text("wtf8")~c2u=    -- 'U+0041 U+0042 U+FFFD U+FFFD U+FFFD U+DC00'
+                "41 42 EDA080 EDB080"x~text("wtf8")~c2g=    -- '41     42     ED     A0     80     EDB080'
+            */
+            codepointCount -= 1         -- yes, always, no problem
+            graphemeCount -= 1          -- This is true ONLY for WTF-8
+                                        -- See the example above. The isolated high surrogate is a grapheme when encoded in WTF-8.
+                                        -- If, in the future, checkCodepoint can return -1 for an encoding other than WTF-8
+                                        -- then the update of graphemeCount is maybe to rework!
             indexB = previousCodepointIndexB
-            nextB = indexB + self~codeUnitSizeInBytes -- add 1 or 2 or 4
+            nextB = indexB + encoding~codeUnitSizeInBytes -- add 1 or 2 or 4
             signal error
         end
         else if checkResult == 0 then do
             -- The byte-sequence starting at indexB is invalid,
-            nextB = indexB + self~codeUnitSizeInBytes -- add 1 or 2 or 4
+            nextB = indexB + encoding~codeUnitSizeInBytes -- add 1 or 2 or 4
             signal error
         end
 
@@ -101,7 +117,7 @@ Depends on
     */
     indexCodepoint:
         codepointCount += 1
-        if indexB <> self~codeUnitSizeInBytes * (codepointCount -1) + 1 then do
+        if indexB <> encoding~codeUnitSizeInBytes * (codepointCount -1) + 1 then do
             codepointIndexes[codepointCount] = indexB
         end
         maximumCodepoint = max(maximumCodepoint, codepoint)
@@ -109,7 +125,7 @@ Depends on
 
     indexGrapheme:
         graphemeCount += 1
-        if indexB <> self~codeUnitSizeInBytes * (graphemeCount -1) + 1 then do
+        if indexB <> encoding~codeUnitSizeInBytes * (graphemeCount -1) + 1 then do
             graphemeIndexes[graphemeCount] = indexB
         end
         return
