@@ -200,101 +200,147 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
     -- You can see the implemented encodings in the folder 'optional'.
 
     -- windows-1250 (Central and Eastern Europe. Defined by Java)
-    -- encodings["CP1250"] = .CP1250_Encoding
-    -- encodings["WINDOWS1250"] = .CP1250_Encoding
-    -- encodings["CSWINDOWS1250"] = .CP1250_Encoding        -- alias defined by IANA (cswindows1250)
+    -- encodings["WINDOWS1250"] = .WINDOWS1250_Encoding
+    -- encodings["CP1250"] = .WINDOWS1250_Encoding          -- alias defined in Java (cp1250)
+    -- encodings["CP5346"] = .WINDOWS1250_Encoding          -- alias defined in Java (cp5346)
+    -- encodings["CSWINDOWS1250"] = .WINDOWS1250_Encoding   -- alias defined by IANA (cswindows1250)
 
     -- windows-1251 (Bulgarian, Byelorussian, Macedonian, Russian, Serbian. Defined in Java)
-    -- encodings["CP1251"] = .CP1251_Encoding
-    -- encodings["WINDOWS1251"] = .CP1251_Encoding
-    -- encodings["CSWINDOWS1251"] = .CP1251_Encoding        -- alias defined by IANA (cswindows1251)
+    -- encodings["WINDOWS1251"] = .WINDOWS1251_Encoding
+    -- encodings["CP1251"] = .WINDOWS1251_Encoding          -- alias defined in Java (cp1251)
+    -- encodings["CSWINDOWS1251"] = .WINDOWS1251_Encoding   -- alias defined by IANA (cswindows1251)
+    -- encodings["CP5347"] = .WINDOWS1251_Encoding          -- alias defined in Java (cp5347)
+    -- encodings["ANSI1251"] = .WINDOWS1251_Encoding        -- alias defined in Java (ansi-1251)
 
     -- windows-1253 (Greek. Defined by Java)
-    -- encodings["CP1253"] = .CP1253_Encoding
-    -- encodings["WINDOWS1253"] = .CP1253_Encoding
-    -- encodings["CSWINDOWS1253"] = .CP1253_Encoding        -- alias defined by IANA (cswindows1253)
+    -- encodings["WINDOWS1253"] = .WINDOWS1253_Encoding
+    -- encodings["CP1253"] = .WINDOWS1253_Encoding          -- alias defined in Java (cp1253)
+    -- encodings["CSWINDOWS1253"] = .WINDOWS1253_Encoding   -- alias defined by IANA (cswindows1253)
+    -- encodings["CP5349"] = .WINDOWS1253_Encoding          -- alias defined in Java (cp5349)
 
     -- windows-1254 (Turkish. Defined by Java)
-    -- encodings["CP1254"] = .CP1254_Encoding
-    -- encodings["WINDOWS1254"] = .CP1254_Encoding
-    -- encodings["CSWINDOWS1254"] = .CP1254_Encoding        -- alias defined by IANA (cswindows1254)
+    -- encodings["WINDOWS1254"] = .WINDOWS1254_Encoding
+    -- encodings["CP1254"] = .WINDOWS1254_Encoding          -- alias defined in Java (cp1254)
+    -- encodings["CSWINDOWS1254"] = .WINDOWS1254_Encoding   -- alias defined by IANA (cswindows1254)
+    -- encodings["CP5350"] = .WINDOWS1254_Encoding          -- alias defined in Java (cp5350)
 
     -- windows-1255 (Hebrew)
-    -- encodings["CP1255"] = .CP1255_Encoding
-    -- encodings["WINDOWS1255"] = .CP1255_Encoding
-    -- encodings["CSWINDOWS1255"] = .CP1255_Encoding        -- alias defined by IANA (cswindows1255)
+    -- encodings["WINDOWS1255"] = .WINDOWS1255_Encoding
+    -- encodings["CP1255"] = .WINDOWS1255_Encoding          -- alias defined in Java (cp1255)
+    -- encodings["CSWINDOWS1255"] = .WINDOWS1255_Encoding   -- alias defined by IANA (cswindows1255)
 
     -- windows-1256 (Arabic)
-    -- encodings["CP1256"] = .CP1256_Encoding
-    -- encodings["WINDOWS1256"] = .CP1256_Encoding
-    -- encodings["CSWINDOWS1256"] = .CP1256_Encoding        -- alias defined by IANA (cswindows1256)
+    -- encodings["WINDOWS1256"] = .WINDOWS1256_Encoding
+    -- encodings["CP1256"] = .WINDOWS1256_Encoding          -- alias defined in Java (cp1256)
+    -- encodings["CSWINDOWS1256"] = .WINDOWS1256_Encoding   -- alias defined by IANA (cswindows1256)
 
     -- windows-1257 (Baltic languages. Defined by Java)
-    -- encodings["CP1257"] = .CP1257_Encoding
-    -- encodings["WINDOWS1257"] = .CP1257_Encoding
-    -- encodings["CSWINDOWS1257"] = .CP1257_Encoding        -- alias defined by IANA (cswindows1257)
+    -- encodings["WINDOWS1257"] = .WINDOWS1257_Encoding
+    -- encodings["CP1257"] = .WINDOWS1257_Encoding          -- alias defined in Java (cp1257)
+    -- encodings["CSWINDOWS1257"] = .WINDOWS1257_Encoding   -- alias defined by IANA (cswindows1257)
+    -- encodings["CP5353"] = .WINDOWS1257_Encoding          -- alias defined in Java (cp5353)
 
     -- windows-1258 (Vietnamese)
-    -- encodings["CP1258"] = .CP1258_Encoding
-    -- encodings["WINDOWS1258"] = .CP1258_Encoding
-    -- encodings["CSWINDOWS1258"] = .CP1258_Encoding        -- alias defined by IANA (cswindows1258)
+    -- encodings["WINDOWS1258"] = .WINDOWS1258_Encoding
+    -- encodings["CP1258"] = .WINDOWS1258_Encoding          -- alias defined in Java (cp1258)
+    -- encodings["CSWINDOWS1258"] = .WINDOWS1258_Encoding   -- alias defined by IANA (cswindows1258)
 
     -- ISO-8859-2 (Central and Eastern Europe, defined by Java)
     -- encodings["ISO88592"] = .ISO88592_Encoding
-    -- encodings["CSISOLATIN2"] = .ISO88592_Encoding        -- alias defined by IANA (csISOLatin2)
-    -- encodings["ISOIR101"] = .ISO88592_Encoding           -- alias defined by IANA (iso-ir-101)
-    -- encodings["L2"] = .ISO88592_Encoding
-    -- encodings["LATIN2"] = .ISO88592_Encoding
+    -- encodings["CSISOLATIN2"] = .ISO88592_Encoding        -- alias defined by IANA, Java (csISOLatin2)
+    -- encodings["ISOIR101"] = .ISO88592_Encoding           -- alias defined by IANA, Java (iso-ir-101)
+    -- encodings["L2"] = .ISO88592_Encoding                 -- alias defined in Java (l2)
+    -- encodings["LATIN2"] = .ISO88592_Encoding             -- alias defined in Java (latin2)
+    -- encodings["IBM912"] = .ISO88592_Encoding             -- alias defined in Java (ibm912, ibm-912)
+    -- encodings["88592"] = .ISO88592_Encoding              -- alias defined in Java (8859_2)
+    -- encodings["CP912"] = .ISO88592_Encoding              -- alias defined in Java (cp912)
+    -- encodings["ISO885921987"] = .ISO88592_Encoding       -- alias defined in Java (ISO_8859-2:1987)
 
-    -- ISO-8859-3 (Esperanto, Maltese)
+    -- ISO-8859-3 (Esperanto, Maltese. Defined in Java)
     -- encodings["ISO88593"] = .ISO88593_Encoding
-    -- encodings["CSISOLATIN3"] = .ISO88593_Encoding        -- alias defined by IANA (csISOLatin3)
-    -- encodings["ISOIR109"] = .ISO88593_Encoding           -- alias defined by IANA (iso-ir-109)
-    -- encodings["L3"] = .ISO88593_Encoding
-    -- encodings["LATIN3"] = .ISO88593_Encoding
+    -- encodings["CSISOLATIN3"] = .ISO88593_Encoding        -- alias defined by IANA, Java (csISOLatin3)
+    -- encodings["ISOIR109"] = .ISO88593_Encoding           -- alias defined by IANA, Java (iso-ir-109)
+    -- encodings["L3"] = .ISO88593_Encoding                 -- alias defined in Java (l3)
+    -- encodings["LATIN3"] = .ISO88593_Encoding             -- alias defined in Java (latin3)
+    -- encodings["IBM913"] = .ISO88593_Encoding             -- alias defined in Java (ibm913, ibm-913)
+    -- encodings["88593"] = .ISO88593_Encoding              -- alias defined in Java (8859_3)
+    -- encodings["CP913"] = .ISO88593_Encoding              -- alias defined in Java (cp913)
+    -- encodings["913"] = .ISO88593_Encoding                -- alias defined in Java (913)
+    -- encodings["ISO885931988"] = .ISO88593_Encoding       -- alias defined in Java (ISO_8859-3:1988)
 
     -- ISO-8859-4 (Baltic languages, defined by Java)
     -- encodings["ISO88594"] = .ISO88594_Encoding
-    -- encodings["CSISOLATIN4"] = .ISO88594_Encoding        -- alias defined by IANA (csISOLatin4)
-    -- encodings["ISOIR110"] = .ISO88594_Encoding           -- alias defined by IANA (iso-ir-110)
-    -- encodings["L4"] = .ISO88594_Encoding
-    -- encodings["LATIN4"] = .ISO88594_Encoding
+    -- encodings["CSISOLATIN4"] = .ISO88594_Encoding        -- alias defined by IANA, Java (csISOLatin4)
+    -- encodings["ISOIR110"] = .ISO88594_Encoding           -- alias defined by IANA, Java (iso-ir-110)
+    -- encodings["L4"] = .ISO88594_Encoding                 -- alias defined in Java (l4)
+    -- encodings["LATIN4"] = .ISO88594_Encoding             -- alias defined in Java (latin4)
+    -- encodings["88594"] = .ISO88594_Encoding              -- alias defined in Java (8859_4)
+    -- encodings["CP914"] = .ISO88594_Encoding              -- alias defined in Java (cp914)
+    -- encodings["ISO885941988"] = .ISO88594_Encoding       -- alias defined in Java (ISO_8859-4:1988)
+    -- encodings["IBM914"] = .ISO88594_Encoding             -- alias defined in Java (ibm914, ibm-914)
+    -- encodings["914"] = .ISO88594_Encoding                -- alias defined in Java (914)
 
     -- ISO-8859-5 (Bulgarian, Byelorussian, Macedonian, Russian, Serbian. Defined by Java)
     -- encodings["ISO88595"] = .ISO88595_Encoding
-    -- encodings["CSISOLATINCYRILLIC"] = .ISO88595_Encoding -- alias defined by IANA (csISOLatinCyrillic)
-    -- encodings["CYRILLIC"] = .ISO88595_Encoding
-    -- encodings["ISOIR144"] = .ISO88595_Encoding           -- alias defined by IANA (iso-ir-144)
+    -- encodings["CSISOLATINCYRILLIC"] = .ISO88595_Encoding -- alias defined by IANA, Java (csISOLatinCyrillic)
+    -- encodings["CYRILLIC"] = .ISO88595_Encoding           -- alias defined in Java (cyrillic)
+    -- encodings["ISOIR144"] = .ISO88595_Encoding           -- alias defined by IANA, Java (iso-ir-144)
+    -- encodings["ISO885951988"] = .ISO88595_Encoding       -- alias defined in Java (ISO_8859-5:1988)
+    -- encodings["CP915"] = .ISO88595_Encoding              -- alias defined in Java (cp915)
+    -- encodings["88595"] = .ISO88595_Encoding              -- alias defined in Java (8859_5)
+    -- encodings["IBM915"] = .ISO88595_Encoding             -- alias defined in Java (ibm915, ibm-915)
+    -- encodings["915"] = .ISO88595_Encoding                -- alias defined in Java (915)
 
-    -- ISO-8859-6 (Arabic)
+    -- ISO-8859-6 (Arabic. Defined in Java)
     -- encodings["ISO88596"] = .ISO88596_Encoding
-    -- encodings["ARABIC"] = .ISO88596_Encoding
-    -- encodings["ASMO708"] = .ISO88596_Encoding            -- alias defined by IANA (ASMO-708)
-    -- encodings["CSISOLATINARABIC"] = .ISO88596_Encoding   -- alias defined by IANA (csISOLatinArabic)
-    -- encodings["ECMA114"] = .ISO88596_Encoding            -- alias defined by IANA (ECMA-114)
-    -- encodings["ISOIR127"] = .ISO88596_Encoding           -- alias defined by IANA (iso-ir-127)
+    -- encodings["ARABIC"] = .ISO88596_Encoding             -- alias defined in Java (arabic)
+    -- encodings["ASMO708"] = .ISO88596_Encoding            -- alias defined by IANA, Java (ASMO-708)
+    -- encodings["CSISOLATINARABIC"] = .ISO88596_Encoding   -- alias defined by IANA, Java (csISOLatinArabic)
+    -- encodings["ECMA114"] = .ISO88596_Encoding            -- alias defined by IANA, Java (ECMA-114)
+    -- encodings["ISOIR127"] = .ISO88596_Encoding           -- alias defined by IANA, Java (iso-ir-127)
+    -- encodings["88596"] = .ISO88596_Encoding              -- alias defined in Java (8859_6)
+    -- encodings["IBM1089"] = .ISO88596_Encoding            -- alias defined in Java (ibm1089, ibm-1089)
+    -- encodings["1089"] = .ISO88596_Encoding               -- alias defined in Java (1089)
+    -- encodings["ISO885961987"] = .ISO88596_Encoding       -- alias defined in Java (ISO_8859-6:1987)
+    -- encodings["CP1089"] = .ISO88596_Encoding             -- alias defined in Java (cp1089)
 
     -- ISO-8859-7 (Greek. Defined by Java)
     -- encodings["ISO88597"] = .ISO88597_Encoding
-    -- encodings["CSISOLATINGREEK"] = .ISO88597_Encoding    -- alias defined by IANA (csISOLatinGreek)
-    -- encodings["ECMA118"] = .ISO88597_Encoding            -- alias defined by IANA (ECMA-118)
-    -- encodings["ELOT928"] = .ISO88597_Encoding            -- alias defined by IANA (ELOT_928)
-    -- encodings["GREEK"] = .ISO88597_Encoding
-    -- encodings["GREEK8"] = .ISO88597_Encoding
-    -- encodings["ISOIR126"] = .ISO88597_Encoding           -- alias defined by IANA (iso-ir-126)
+    -- encodings["CSISOLATINGREEK"] = .ISO88597_Encoding    -- alias defined by IANA, Java (csISOLatinGreek)
+    -- encodings["ECMA118"] = .ISO88597_Encoding            -- alias defined by IANA, Java (ECMA-118)
+    -- encodings["ELOT928"] = .ISO88597_Encoding            -- alias defined by IANA, Java (ELOT_928)
+    -- encodings["GREEK"] = .ISO88597_Encoding              -- alias defined in Java (greek)
+    -- encodings["GREEK8"] = .ISO88597_Encoding             -- alias defined in Java (greek8)
+    -- encodings["ISOIR126"] = .ISO88597_Encoding           -- alias defined by IANA, Java (iso-ir-126)
+    -- encodings["88597"] = .ISO88597_Encoding              -- alias defined in Java (8859_7)
+    -- encodings["IBM813"] = .ISO88597_Encoding             -- alias defined in Java (ibm813, ibm-813)
+    -- encodings["CP813"] = .ISO88597_Encoding              -- alias defined in Java (cp813)
+    -- encodings["ISO885971987"] = .ISO88597_Encoding       -- alias defined in Java (ISO_8859-7:1987)
+    -- encodings["SUNEUGREEK"] = .ISO88597_Encoding         -- alias defined in Java (sun_eu_greek)
+    -- encodings["813"] = .ISO88597_Encoding                -- alias defined in Java (813)
 
-    -- ISO-8859-8 (Hebrew)
+    -- ISO-8859-8 (Hebrew. Defined in Java)
     -- encodings["ISO88598"] = .ISO88598_Encoding
-    -- encodings["CSISOLATINHEBREW"] = .ISO88598_Encoding   -- alias defined by IANA (csISOLatinHebrew)
-    -- encodings["HEBREW"] = .ISO88598_Encoding
-    -- encodings["ISOIR138"] = .ISO88598_Encoding           -- alias defined by IANA (iso-ir-138)
+    -- encodings["CSISOLATINHEBREW"] = .ISO88598_Encoding   -- alias defined by IANA, Java (csISOLatinHebrew)
+    -- encodings["HEBREW"] = .ISO88598_Encoding             -- alias defined in Java (hebrew)
+    -- encodings["ISOIR138"] = .ISO88598_Encoding           -- alias defined by IANA, Java (iso-ir-138)
+    -- encodings["88598"] = .ISO88598_Encoding              -- alias defined in Java (8859_8)
+    -- encodings["ISO885981988"] = .ISO88598_Encoding       -- alias defined in Java (ISO_8859-8:1988)
+    -- encodings["CP916"] = .ISO88598_Encoding              -- alias defined in Java (cp916)
+    -- encodings["IBM916"] = .ISO88598_Encoding             -- alias defined in Java (ibm916, ibm-916)
+    -- encodings["916"] = .ISO88598_Encoding                -- alias defined in Java (916)
 
     -- ISO-8859-9 (Turkish. Defined by Java)
     -- encodings["ISO88599"] = .ISO88599_Encoding
-    -- encodings["CSISOLATIN5"] = .ISO88599_Encoding        -- alias defined by IANA (csISOLatin5)
-    -- encodings["L5"] = .ISO88599_Encoding
-    -- encodings["LATIN5"] = .ISO88599_Encoding
-    -- encodings["ISOIR148"] = .ISO88599_Encoding           -- alias defined by IANA (iso-ir-148)
+    -- encodings["CSISOLATIN5"] = .ISO88599_Encoding        -- alias defined by IANA, Java (csISOLatin5)
+    -- encodings["L5"] = .ISO88599_Encoding                 -- alias defined in Java (l5)
+    -- encodings["LATIN5"] = .ISO88599_Encoding             -- alias defined in Java (latin5)
+    -- encodings["ISOIR148"] = .ISO88599_Encoding           -- alias defined by IANA, Java (iso-ir-148)
+    -- encodings["IBM920"] = .ISO88599_Encoding             -- alias defined in Java (ibm920, ibm-920)
+    -- encodings["88599"] = .ISO88599_Encoding              -- alias defined in Java (8859_9)
+    -- encodings["ISO885991989"] = .ISO88599_Encoding       -- alias defined in Java (ISO_8859-9:1989)
+    -- encodings["CP920"] = .ISO88599_Encoding              -- alias defined in Java (cp920)
+    -- encodings["920"] = .ISO88599_Encoding                -- alias defined in Java (920)
 
     -- ISO-8859-10 (Nordic languages, defined by Java)
     -- encodings["ISO885910"] = .ISO885910_Encoding
@@ -304,14 +350,16 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
     -- encodings["ISOIR157"] = .ISO885910_Encoding          -- alias defined by IANA (iso-ir-157)
 
     -- ISO-8859-11 (Thai languages)                         -- not a main encoding for IANA, just an alias of TIS-620
-    -- encodings["ISO885911"] = .ISO885911_Encoding
+    -- encodings["ISO885911"] = .ISO885911_Encoding         -- main name in ?, alias in Java (iso-8859-11, iso8859_11)
     -- encodings["THAI"] = .ISO885911_Encoding
+    -- encodings["XISO885911"] = .ISO885911_Encoding        -- main name in Java (x-iso-8859-11)
 
     -- ISO-8859-13 (Baltic languages. Defined by Java)
     -- encodings["ISO885913"] = .ISO885913_Encoding
     -- encodings["CSISO885913"] = .ISO885913_Encoding       -- alias defined by IANA (csISO885913)
     -- encodings["L7"] = .ISO885913_Encoding                -- this alias is not defined by IANA
     -- encodings["LATIN7"] = .ISO885913_Encoding            -- this alias is not defined by IANA
+    -- encodings["885913"] = .ISO885913_Encoding           -- alias defined by Java (8859_13)
 
     -- ISO-8859-14 (Celtic languages)
     -- encodings["ISO885914"] = .ISO885914_Encoding
@@ -324,20 +372,30 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
 
     -- ISO-8859-15 (Western Europe. Defined by Java)
     -- encodings["ISO885915"] = .ISO885915_Encoding
-    -- encodings["CSISO885915"] = .ISO885915_Encoding       -- alias defined by IANA (csISO885915)
+    -- encodings["CSISO885915"] = .ISO885915_Encoding       -- alias defined by IANA, Java (csISO885915)
     -- encodings["L9"] = .ISO885915_Encoding                -- this alias is not defined by IANA
-    -- encodings["LATIN9"] = .ISO885915_Encoding
+    -- encodings["LATIN9"] = .ISO885915_Encoding            -- alias defined in Java (Latin-9, LATIN9)
+    -- encodings["LATIN0"] = .ISO885915_Encoding            -- alias defined in Java (LATIN0)
+    -- encodings["ISO885915FDIS"] = .ISO885915_Encoding     -- alias defined in Java (ISO8859_15_FDIS)
+    -- encodings["CP923"] = .ISO885915_Encoding             -- alias defined in Java (cp923)
+    -- encodings["885915"] = .ISO885915_Encoding            -- alias defined in Java (8859_15)
+    -- encodings["IBM923"] = .ISO885915_Encoding            -- alias defined in Java (IBM923, IBM-923)
+    -- encodings["923"] = .ISO885915_Encoding               -- alias defined in Java (923)
+    -- encodings["CSISOLATIN9"] = .ISO885915_Encoding       -- alias defined in Java (csISOlatin9)
+    -- encodings["CSISOLATIN0"] = .ISO885915_Encoding       -- alias defined in Java (csISOlatin0)
 
-    -- ISO-8859-16 (South-Eastern Europe)
+    -- ISO-8859-16 (South-Eastern Europe. Defined by Java)
     -- encodings["ISO885916"] = .ISO885916_Encoding
-    -- encodings["CSISO885916"] = .ISO885916_Encoding       -- alias defined by IANA (csISO885916)
-    -- encodings["ISOIR226"] = .ISO885916_Encoding          -- alias defined by IANA (iso-ir-226)
-    -- encodings["L10"] = .ISO885916_Encoding
-    -- encodings["LATIN10"] = .ISO885916_Encoding
+    -- encodings["CSISO885916"] = .ISO885916_Encoding       -- alias defined by IANA, Java (csISO885916)
+    -- encodings["ISOIR226"] = .ISO885916_Encoding          -- alias defined by IANA, Java (iso-ir-226)
+    -- encodings["L10"] = .ISO885916_Encoding               -- alias defined in Java (l10)
+    -- encodings["LATIN10"] = .ISO885916_Encoding           -- alias defined in Java (latin10)
+    -- encodings["ISO8859162001"] = .ISO885916_Encoding     -- alias defined in Java (ISO_8859-16:2001)
 
     -- Mac Roman (Western Europe)                           -- not defined by IANA
     -- macRoman (jlf: assumption same as Mac Roman)
     -- encodings["MACROMAN"] = .MACROMAN_Encoding
+    -- encodings["XMACROMAN"] = .MACROMAN_Encoding          -- main name in Java (x-MacRoman)
 
     -- macintosh                                            -- defined by IANA
     -- encodings["MACINTOSH"] = .MACINTOSH_Encoding
@@ -348,13 +406,14 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
     /* Encodings supported by Ruby */
     /*******************************/
 
-    -- Big5 (defined in Ruby)
+    -- Big5 (defined in Ruby, Java)
     -- encodings["BIG5"] = .BIG5_Encoding
-    -- encodings["CSBIG5"] = .BIG5_Encoding                 -- alias defined by IANA (csBig5)
+    -- encodings["CSBIG5"] = .BIG5_Encoding                 -- alias defined by IANA, Java (csBig5)
 
-    -- Big5-HKSCS (defined in Ruby)
+    -- Big5-HKSCS (defined in Ruby, Java)
     -- encodings["BIG5HKSCS"] = .BIG5HKSCS_Encoding
     -- encodings["CSBIG5HKSCS"] = .BIG5HKSCS_Encoding       -- alias defined by IANA (csBig5HKSCS)
+    -- encodings["BIG5HK"] = .BIG5HKSCS_Encoding            -- alias defined by Java (big5hk)
 
     -- Big5-UAO (defined in Ruby)                           -- not defined by IANA
     -- encodings["BIG5UAO"] = .BIG5UAO_Encoding
@@ -377,10 +436,16 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
         -- encodings["CP855"] = .CP855_Encoding             -- In IANA, CP855 is an alias of IBM855
 
     -- CP949 (defined in Ruby, not defined by IANA)
-    -- encodings["CP949"] = .CP949_Encoding
+    -- encodings["CP949"] = .CP949_Encoding                 -- main name in Ruby, alias of x-IBM949 in Java (cp949)
+    -- encodings["XIBM949"] = .CP949_Encoding               -- main name in Java (x-IBM949)
+    -- encodings["IBM949"] = .CP949_Encoding                -- alias in Java (ibm949, ibm-949)
+    -- encodings["949"] = .CP949_Encoding                   -- alias in Java (949)
 
     -- CP950 (defined in Ruby, not defined by IANA)
-    -- encodings["CP950"] = .CP950_Encoding
+    -- encodings["CP950"] = .CP950_Encoding                 -- main name in Ruby, alias of x-IBM950 in Java (cp950)
+    -- encodings["XIBM950"] = .CP950_Encoding               -- main name in Java (x-IBM950)
+    -- encodings["IBM950"] = .CP950_Encoding                -- alias in Java (ibm950, ibm-950)
+    -- encodings["950"] = .CP950_Encoding                   -- alias in Java (950)
 
     -- CP951 (defined in Ruby, not defined by IANA)
     -- encodings["CP951"] = .CP951_Encoding
@@ -396,131 +461,153 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
     -- encodings["EUCJIS2004"] = .EUCJIS2004_Encoding
     -- encodings["EUCJISX0213"] = .EUCJISX0213_Encoding     -- alias defined in Ruby (EUC-JISX0213)
 
-    -- EUC-JP (defined in Ruby, defined by IANA)
+    -- EUC-JP (defined in Ruby, Java, defined by IANA)
     -- encodings["EUCJP"] = .EUCJP_Encoding
+    -- encodings["XEUCJP"] = .EUCJP_Encoding                -- alias defined in Java (x-euc-jp, x-eucjp)
+    -- encodings["EUCJIS"] = .EUCJP_Encoding                -- alias defined in Java (eucjis)
+    -- encodings["EXTENDEDUNIXCODEPACKEDFORMATFORJAPANESE"] = .EUCJP_Encoding  -- alias defined in Java (Extended_UNIX_Code_Packed_Format_for_Japanese)
     -- encodings["CSEUCPKDFMTJAPANESE"] = .EUCJP_Encoding   -- alias defined by IANA (csEUCPkdFmtJapanese)
 
     -- eucJP-ms (defined in Ruby, not defined by IANA)
     -- encodings["EUCJPMS"] = .EUCJPMS_Encoding
 
-    -- EUC-KR (defined in Ruby, defined by IANA)
+    -- EUC-KR (defined in Ruby, Java, defined by IANA)
     -- encodings["EUCKR"] = .EUCKR_Encoding
     -- encodings["CSEUCKR"] = .EUCKR_Encoding               -- alias defined by IANA (csEUCKR)
+    -- encodings["KSC56011987"] = .EUCKR_Encoding           -- alias defined in Java (ksc5601-1987, ksc5601_1987, ks_c_5601-1987)
+    -- encodings["KSC5601"] = .EUCKR_Encoding               -- alias defined in Java (ksc5601, ksc_5601)
+    -- encodings["5601"] = .EUCKR_Encoding                  -- alias defined in Java (5601)
 
-    -- EUC-TW (defined in Ruby, not defined by IANA)
-    -- encodings["EUCTW"] = .EUCTW_Encoding
+    -- EUC-TW (defined in Ruby, Java, not defined by IANA)
+    -- encodings["EUCTW"] = .EUCTW_Encoding                 -- main name in Ruby, alias defined in Java (euctw, EUC-TW, euc_tw)
+    -- encodings["XEUCTW"] = .EUCTW_Encoding                -- main name in Java (x-EUC-TW)
+    -- encodings["CNS11643"] = .EUCTW_Encoding              -- alias defined in Java (cns11643)
 
     -- GB1988 (defined in Ruby, not defined by IANA even if the alias csISO57GB1988 is defined for GB_1988-80)
     -- encodings["GB1988"] = .GB1988_Encoding
 
-    -- GB2312 (defined in Ruby, defined by IANA)
+    -- GB2312 (defined in Ruby, Java, defined by IANA)
     -- encodings["GB2312"] = .GB2312_Encoding
-    -- encodings["EUCCN"] = .GB2312_Encoding                -- alias defined in Ruby (EUC-CN)
+    -- encodings["EUCCN"] = .GB2312_Encoding                -- alias defined in Ruby (EUC-CN), Java (euc-cn, euccn, EUC_CN)
     -- encodings["CSGB2312"] = .GB2312_Encoding             -- alias defined by IANA (csGB2312)
+    -- encodings["XEUCCN"] = .GB2312_Encoding               -- alias defined in Java (x-EUC-CN)
+    -- encodings["GB231280"] = .GB2312_Encoding             -- alias defined in Java (gb2312-80)
+    -- encodings["GB23121980"] = .GB2312_Encoding           -- alias defined in Java (gb2312-1980)
 
     -- GB12345 (defined in Ruby, not defined in IANA)
     -- encodings["GB12345"] = .GB12345_Encoding
 
-    -- GB18030 (defined in Ruby, defined by IANA)
+    -- GB18030 (defined in Ruby, Java, defined by IANA)
     -- encodings["GB18030"] = .GB18030_Encoding
     -- encodings["CSGB18030"] = .GB18030_Encoding           -- alias defined by IANA (csGB18030)
+    -- encodings["GB180302000"] = .GB18030_Encoding        -- alias defined in Java (gb18030-2000)
 
-    -- GBK (defined in Ruby, defined by IANA)
+    -- GBK (defined in Ruby, Java, defined by IANA)
     -- encodings["GBK"] = .GBK_Encoding
-    -- encodings["CP936"] = .GBK_Encoding                   -- alias defined by IANA (CP936)
+    -- encodings["CP936"] = .GBK_Encoding                   -- alias defined by IANA, Java (CP936)
     -- encodings["MS936"] = .GBK_Encoding                   -- alias defined by IANA (MS936)
-    -- encodings["WINDOWS936"] = .GBK_Encoding              -- alias defined by IANA (windows-936)
+    -- encodings["WINDOWS936"] = .GBK_Encoding              -- alias defined by IANA, Java (windows-936)
     -- encodings["CSGBK"] = .GBK_Encoding                   -- alias defined by IANA (csGBK)
+    -- encodings["XMSWIN936"] = .GBK_Encoding               -- main name in Java (x-mswin-936)
 
     -- IBM720 (defined in Ruby, not defined by IANA)
     -- encodings["IBM720"] = .IBM720_Encoding
     -- encodings["CP720"] = .IBM720_Encoding                -- alias defined in Ruby
 
     -- IBM737 (defined in Ruby, not defined by IANA)
-    -- encodings["IBM737"] = .IBM737_Encoding
-    -- encodings["CP737"] = .IBM737_Encoding                -- alias defined in Ruby
+    -- encodings["IBM737"] = .IBM737_Encoding               -- main name in Ruby, alias in Java (ibm737)
+    -- encodings["CP737"] = .IBM737_Encoding                -- alias defined in Ruby, Java (cp737)
     -- encodings["XIBM737"] = .IBM737_Encoding              -- main encoding in Java (x-IBM737)
+    -- encodings["737"] = .IBM737_Encoding                  -- alias in Java (737)
+    -- encodings["IBM737"] = .IBM737_Encoding               -- alias in Java (ibm-737)
 
     -- IBM775 (defined in Ruby, defined by IANA, defined in Java)
     -- encodings["IBM775"] = .IBM775_Encoding
     -- encodings["CP775"] = .IBM775_Encoding                -- alias defined in Ruby, alias defined by IANA (cp775)
     -- encodings["CSPC775BALTIC"] = .IBM775_Encoding        -- alias defined by IANA (csPC775Baltic)
+    -- encodings["775"] = .IBM775_Encoding                  -- alias defined in Java (775)
 
     -- IBM850 (defined by Java, defined as alias of CP850 in Ruby)
     -- encodings["IBM850"] = .IBM850_Encoding
     -- encodings["CP850"] = .IBM850_Encoding
+    -- encodings["850"] = .IBM850_Encoding                  -- alias defined in Java (850)
+    -- encodings["CSPC850MULTILINGUAL"] = .IBM850_Encoding  -- alias defined in Java (cspc850multilingual)
 
     -- IBM852 (defined in Ruby, defined by IANA, defined by Java)
     -- encodings["IBM852"] = .IBM852_Encoding
-    -- encodings["CP852"] = .IBM852_Encoding                -- alias defined by IANA (cp852)
-    -- encodings["852"] = .IBM852_Encoding                  -- alias defined by IANA (852)
-    -- encodings["CSPCP852"] = .IBM852_Encoding             -- alias defined by IANA (csPCp852)
+    -- encodings["CP852"] = .IBM852_Encoding                -- alias defined by IANA, Java (cp852)
+    -- encodings["852"] = .IBM852_Encoding                  -- alias defined by IANA, Java (852)
+    -- encodings["CSPCP852"] = .IBM852_Encoding             -- alias defined by IANA, Java (csPCp852)
 
     -- IBM855 (defined in Ruby, defined by IANA, defined by Java)
     -- encodings["IBM855"] = .IBM855_Encoding
-    -- encodings["CP855"] = .IBM855_Encoding                -- alias defined by IANA (cp855)
-    -- encodings["855"] = .IBM855_Encoding                  -- alias defined by IANA (855)
+    -- encodings["CP855"] = .IBM855_Encoding                -- alias defined by IANA, Java (cp855)
+    -- encodings["855"] = .IBM855_Encoding                  -- alias defined by IANA, Java (855)
     -- encodings["CSIBM855"] = .IBM855_Encoding             -- alias defined by IANA (csIBM855)
+    -- encodings["CSPCP855"] = .IBM855_Encoding             -- alias defined by Java (cspcp855)
 
     -- IBM857 (defined in Ruby, defined by IANA, defined by Java)
     -- encodings["IBM857"] = .IBM857_Encoding
-    -- encodings["CP857"] = .IBM857_Encoding                -- alias defined in Ruby, alias defined by IANA (CP857)
-    -- encodings["857"] = .IBM857_Encoding                  -- alias defined by IANA (857)
-    -- encodings["CSIBM857"] = .IBM857_Encoding             -- alias defined by IANA (csIBM857)
+    -- encodings["CP857"] = .IBM857_Encoding                -- alias defined in Ruby, alias defined by IANA (CP857), alias defined in Java (cp857)
+    -- encodings["857"] = .IBM857_Encoding                  -- alias defined by IANA, Java (857)
+    -- encodings["CSIBM857"] = .IBM857_Encoding             -- alias defined by IANA, Java (csIBM857)
 
-    -- IBM860 (defined in Ruby, defined by IANA)
+    -- IBM860 (defined in Ruby, Java, defined by IANA)
     -- encodings["IBM860"] = .IBM860_Encoding
-    -- encodings["CP860"] = .IBM860_Encoding                -- alias defined in Ruby, alias defined by IANA (cp860)
-    -- encodings["860"] = .IBM860_Encoding                  -- alias defined by IANA (860)
-    -- encodings["CSIBM860"] = .IBM860_Encoding             -- alias defined by IANA (csIBM860)
+    -- encodings["CP860"] = .IBM860_Encoding                -- alias defined in Ruby, Java, alias defined by IANA (cp860)
+    -- encodings["860"] = .IBM860_Encoding                  -- alias defined by IANA, Java (860)
+    -- encodings["CSIBM860"] = .IBM860_Encoding             -- alias defined by IANA, Java (csIBM860)
 
-    -- IBM861 (defined in Ruby, defined by IANA)
+    -- IBM861 (defined in Ruby, Java, defined by IANA)
     -- encodings["IBM861"] = .IBM861_Encoding
-    -- encodings["CP861"] = .IBM861_Encoding                -- alias defined in Ruby, alais defined by IANA (cp861)
-    -- encodings["861"] = .IBM861_Encoding                  -- alias defined by IANA (861)
-    -- encodings["CPIS"] = .IBM861_Encoding                 -- alias defined by IANA (cp-is)
-    -- encodings["CSIBM861"] = .IBM861_Encoding             -- alias defined by IANA (csIBM861)
+    -- encodings["CP861"] = .IBM861_Encoding                -- alias defined in Ruby, Java, alias defined by IANA (cp861)
+    -- encodings["861"] = .IBM861_Encoding                  -- alias defined by IANA, Java (861)
+    -- encodings["CPIS"] = .IBM861_Encoding                 -- alias defined by IANA, Java (cp-is)
+    -- encodings["CSIBM861"] = .IBM861_Encoding             -- alias defined by IANA, Java (csIBM861)
 
     -- IBM862 (defined in Ruby, defined by IANA, defined in Java)
     -- encodings["IBM862"] = .IBM862_Encoding
-    -- encodings["CP862"] = .IBM862_Encoding                -- alias defined in Ruby, alias defined by IANA (cp862)
-    -- encodings["862"] = .IBM862_Encoding                  -- alias defined by IANA (862)
-    -- encodings["CSPC862LATINHEBREW"] = .IBM862_Encoding   -- alias defined by IANA (csPC862LatinHebrew)
+    -- encodings["CP862"] = .IBM862_Encoding                -- alias defined in Ruby, Java, alias defined by IANA (cp862)
+    -- encodings["862"] = .IBM862_Encoding                  -- alias defined by IANA, Java (862)
+    -- encodings["CSPC862LATINHEBREW"] = .IBM862_Encoding   -- alias defined by IANA, Java (csPC862LatinHebrew)
+    -- encodings["CSIBM862"] = .IBM862_Encoding             -- alias defined in Java (csIBM862)
 
-    -- IBM863 (defined in Ruby, defined by IANA)
+    -- IBM863 (defined in Ruby, Java, defined by IANA)
     -- encodings["IBM863"] = .IBM863_Encoding
-    -- encodings["CP863"] = .IBM863_Encoding                -- alias defined in Ruby, alias defined by IANA (cp863)
-    -- encodings["863"] = .IBM863_Encoding                  -- alias defined by IANA (863)
-    -- encodings["CSIBM863"] = .IBM863_Encoding             -- alias defined by IANA (csIBM863)
+    -- encodings["CP863"] = .IBM863_Encoding                -- alias defined in Ruby, Java, alias defined by IANA (cp863)
+    -- encodings["863"] = .IBM863_Encoding                  -- alias defined by IANA, Java (863)
+    -- encodings["CSIBM863"] = .IBM863_Encoding             -- alias defined by IANA, Java (csIBM863)
 
-    -- IBM864 (defined in Ruby, defined by IANA)
+    -- IBM864 (defined in Ruby, Java, defined by IANA)
     -- encodings["IBM864"] = .IBM864_Encoding
-    -- encodings["CP864"] = .IBM864_Encoding                -- alias defined in Ruby, alias defined by IANA (cp864)
-    -- encodings["CSIBM864"] = .IBM864_Encoding             -- alias defined by IANA (csIBM864)
+    -- encodings["CP864"] = .IBM864_Encoding                -- alias defined in Ruby, Java, alias defined by IANA (cp864)
+    -- encodings["864"] = .IBM864_Encoding                  -- alias defined in Java (864)
+    -- encodings["CSIBM864"] = .IBM864_Encoding             -- alias defined by IANA, Java (csIBM864)
 
-    -- IBM865 (defined in Ruby, defined by IANA)
+    -- IBM865 (defined in Ruby, Java, defined by IANA)
     -- encodings["IBM865"] = .IBM865_Encoding
-    -- encodings["CP865"] = .IBM865_Encoding                -- alias defined in Ruby, alias defined by IANA (cp865)
-    -- encodings["865"] = .IBM865_Encoding                  -- alias defined by IANA (865)
-    -- encodings["CSIBM865"] = .IBM865_Encoding             -- alias defined by IANA (csIBM865)
+    -- encodings["CP865"] = .IBM865_Encoding                -- alias defined in Ruby, Java, alias defined by IANA (cp865)
+    -- encodings["865"] = .IBM865_Encoding                  -- alias defined by IANA, Java (865)
+    -- encodings["CSIBM865"] = .IBM865_Encoding             -- alias defined by IANA, Java (csIBM865)
 
-    -- IBM866 (defined in Ruby, defined by IANA, defined by Java)
+    -- IBM866 (defined in Ruby, Java, defined by IANA, defined by Java)
     -- encodings["IBM866"] = .IBM866_Encoding
-    -- encodings["CP866"] = .IBM866_Encoding                -- alias defined in Ruby, alias defined by IANA (cp866)
-    -- encodings["866"] = .IBM866_Encoding                  -- alias defined by IANA (866)
-    -- encodings["CSIBM866"] = .IBM866_Encoding             -- alias defined by IANA (csIBM866)
+    -- encodings["CP866"] = .IBM866_Encoding                -- alias defined in Ruby, Java, alias defined by IANA (cp866)
+    -- encodings["866"] = .IBM866_Encoding                  -- alias defined by IANA, Java (866)
+    -- encodings["CSIBM866"] = .IBM866_Encoding             -- alias defined by IANA, Java (csIBM866)
 
-    -- IBM869 (defined in Ruby, defined by IANA)
+    -- IBM869 (defined in Ruby, Java, defined by IANA)
     -- encodings["IBM869"] = .IBM869_Encoding
-    -- encodings["CP869"] = .IBM869_Encoding                -- alias defined in Ruby, alias defined by IANA (cp869)
-    -- encodings["869"] = .IBM869_Encoding                  -- alias defined by IANA (869)
-    -- encodings["CPGR"] = .IBM869_Encoding                 -- alias defined by IANA (cp-gr)
-    -- encodings["CSIBM869"] = .IBM869_Encoding             -- alias defined by IANA (csIBM869)
+    -- encodings["CP869"] = .IBM869_Encoding                -- alias defined in Ruby, Java, alias defined by IANA (cp869)
+    -- encodings["869"] = .IBM869_Encoding                  -- alias defined by IANA, Java (869)
+    -- encodings["CPGR"] = .IBM869_Encoding                 -- alias defined by IANA, Java (cp-gr)
+    -- encodings["CSIBM869"] = .IBM869_Encoding             -- alias defined by IANA, Java (csIBM869)
 
     -- KOI8-R (defined in Ruby, defined by IANA, defined in Java)
     -- encodings["KOI8R"] = .KOI8R_Encoding
     -- encodings["CP878"] = .KOI8R_Encoding                 -- alias defined in Ruby
-    -- encodings["CSKOI8R"] = .KOI8R_Encoding               -- alias defined by IANA (csKOI8R)
+    -- encodings["CSKOI8R"] = .KOI8R_Encoding               -- alias defined by IANA, Java (csKOI8R)
+    -- encodings["KOI8"] = .KOI8R_Encoding                  -- alias defined in Java (koi8)
 
     -- KOI8-U (defined in Ruby, defined by IANA, defined in Java)
     -- encodings["KOI8U"] = .KOI8U_Encoding
@@ -530,16 +617,20 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
     -- encodings["MACCENTEURO"] = .MACCENTEURO_Encoding
 
     -- macCroatian (defined in Ruby, not defined by IANA)
-    -- encodings["MACCROATIAN"] = .MACCROATIAN_Encoding
+    -- encodings["MACCROATIAN"] = .MACCROATIAN_Encoding     -- main name in Ruby, alias of x-MacCroatian in Java (MacCroatian)
+    -- encodings["XMACCROATIAN"] = .MACCROATIAN_Encoding    -- main name in Java (x-MacCroatian)
 
     -- macCyrillic (defined in Ruby, not defined by IANA)
     -- encodings["MACCYRILLIC"] = .MACCYRILLIC_Encoding
+    -- encodings["XMACCYRILLIC"] = .MACCYRILLIC_Encoding    -- main name in Java (x-MacCyrillic)
 
     -- macGreek (defined in Ruby, not defined by IANA)
     -- encodings["MACGREEK"] = .MACGREEK_Encoding
+    -- encodings["XMACGREEK"] = .MACGREEK_Encoding          -- main name in Java (x-MacGreek)
 
     -- macIceland (defined in Ruby, not defined by IANA)
     -- encodings["MACICELAND"] = .MACICELAND_Encoding
+    -- encodings["XMACICELAND"] = .MACICELAND_Encoding      -- main name in Java (x-MacIceland)
 
     -- MacJapanese (defined in Ruby, not defined by IANA)
     -- encodings["MACJAPANESE"] = .MACJAPANESE_Encoding
@@ -547,20 +638,26 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
 
     -- macRomania (defined in Ruby, not defined by IANA)
     -- encodings["MACROMANIA"] = .MACROMANIA_Encoding
+    -- encodings["XMACROMANIA"] = .MACROMANIA_Encoding      -- main name in Java (x-MacRomania)
 
     -- macThai (defined in Ruby, not defined by IANA)
     -- encodings["MACTHAI"] = .MACTHAI_Encoding
+    -- encodings["XMACTHAI"] = .MACTHAI_Encoding            -- main name in Java (x-MacThai)
 
     -- macTurkish (defined in Ruby, not defined by IANA)
     -- encodings["MACTURKISH"] = .MACTURKISH_Encoding
+    -- encodings["XMACTURKISH"] = .MACTURKISH_Encoding      -- main name in Java (x-MacTurkish)
 
     -- macUkraine (defined in Ruby, not defined by IANA)
     -- encodings["MACUKRAINE"] = .MACUKRAINE_Encoding
+    -- encodings["XMACUKRAINE"] = .MACUKRAINE_Encoding      -- main name in Java (x-MacUkraine)
 
-    -- Shift_JIS (defined in Ruby, defined by IANA)
+    -- Shift_JIS (defined in Ruby, Java, defined by IANA)
     -- encodings["SHIFTJIS"] = .SHIFTJIS_Encoding
-    -- encodings["MSKANJI"] = .SHIFTJIS_Encoding            -- alias defined by IANA (MS_Kanji)
-    -- encodings["CSSHIFTJIS"] = .SHIFTJIS_Encoding         -- alias defined by IANA (csShiftJIS)
+    -- encodings["MSKANJI"] = .SHIFTJIS_Encoding            -- alias defined by IANA, Java (MS_Kanji)
+    -- encodings["CSSHIFTJIS"] = .SHIFTJIS_Encoding         -- alias defined by IANA, Java (csShiftJIS)
+    -- encodings["XSJIS"] = .SHIFTJIS_Encoding              -- alias defined in Java (x-sjis)
+    -- encodings["SJIS"] = .SHIFTJIS_Encoding               -- alias defined in Java (sjis)
 
     -- SJIS-DoCoMo (defined in Ruby, not defined by IANA)
     -- encodings["SJISDOCOMO"] = .SJISDOCOMO_Encoding
@@ -581,20 +678,23 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
     -- encodings["TIS620"] = .TIS620_Encoding
     -- encodings["CSTIS620"] = .TIS620_Encoding             -- alias defined by IANA (csTIS620)
     -- ISO-8859-11: alias defined by IANA. Collides with main encoding having the same name.
+    -- encodings["TIS6202533"] = .TIS620_Encoding           -- alias defined in Java (tis620.2533)
 
     -- US-ASCII (defined in Ruby. It's different from Byte, because limited to 00..7F. Defined by IANA. Defined in Java)
     -- encodings["USASCII"] = .USASCII_Encoding
-    -- encodings["ASCII"] = .USASCII_Encoding               -- alias defined in Ruby
-    -- encodings["ANSIX341968"] = .USASCII_Encoding         -- alias defined in Ruby, alias defined by IANA (ANSI_X3.4-1968)
-    -- encodings["ANSIX341986"] = .USASCII_Encoding         -- alias defined by IANA (ANSI_X3.4-1986)
-    -- encodings["646"] = .USASCII_Encoding                 -- alias defined in Ruby
-    -- encodings["ISOIR6"] = .USASCII_Encoding              -- alias defined by IANA (iso-ir-6)
-    -- encodings["ISO646IRV1991"] = .USASCII_Encoding       -- alias defined by IANA (ISO_646.irv:1991)
-    -- encodings["ISO646US"] = .USASCII_Encoding            -- alias defined by IANA (ISO646-US)
-    -- encodings["US"] = .USASCII_Encoding                  -- alias defined by IANA (us)
-    -- encodings["IBM367"] = .USASCII_Encoding              -- alias defined by IANA (IBM367)
-    -- encodings["CP367"] = .USASCII_Encoding               -- alias defined by IANA (cp367)
-    -- encodings["CSASCII"] = .USASCII_Encoding             -- alias defined by IANA (csASCII)
+    -- encodings["ASCII"] = .USASCII_Encoding               -- alias defined in Ruby, Java
+    -- encodings["ANSIX341968"] = .USASCII_Encoding         -- alias defined in Ruby, Java, alias defined by IANA (ANSI_X3.4-1968)
+    -- encodings["ANSIX341986"] = .USASCII_Encoding         -- alias defined by IANA, Java (ANSI_X3.4-1986)
+    -- encodings["646"] = .USASCII_Encoding                 -- alias defined in Ruby, Java (646)
+    -- encodings["ISOIR6"] = .USASCII_Encoding              -- alias defined by IANA, Java (iso-ir-6)
+    -- encodings["ISO646IRV1991"] = .USASCII_Encoding       -- alias defined by IANA, Java (ISO_646.irv:1991)
+    -- encodings["ISO646US"] = .USASCII_Encoding            -- alias defined by IANA, Java (ISO646-US)
+    -- encodings["US"] = .USASCII_Encoding                  -- alias defined by IANA, Java (us)
+    -- encodings["IBM367"] = .USASCII_Encoding              -- alias defined by IANA, Java (IBM367)
+    -- encodings["CP367"] = .USASCII_Encoding               -- alias defined by IANA, Java (cp367)
+    -- encodings["CSASCII"] = .USASCII_Encoding             -- alias defined by IANA, Java (csASCII)
+    -- encodings["iso646irv1983"] = .USASCII_Encoding       -- alias defined in Java (iso_646.irv:1983)
+    -- encodings["ASCII7"] = .USASCII_Encoding              -- alias defined by IANA, Java (ascii7)
 
     -- UTF8-DoCoMo (defined in Ruby, not defined by IANA)
     -- encodings["UTF8DOCOMO"] = .UTF8DOCOMO_Encoding
@@ -616,10 +716,12 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
     -- Windows-31J (defined in Ruby, defined by IANA)
     -- encodings["WINDOWS31J"] = .WINDOWS31J_Encoding
     -- encodings["CP932"] = .WINDOWS31J_Encoding            -- alias defined in Ruby
-    -- encodings["CSWINDOWS31J"] = .WINDOWS31J_Encoding     -- alias defined in Ruby (csWindows31J)
+    -- encodings["CSWINDOWS31J"] = .WINDOWS31J_Encoding     -- alias defined in Ruby, alias defined by IANA (csWindows31J)
     -- encodings["SJIS"] = .WINDOWS31J_Encoding             -- alias defined in Ruby
-    -- encodings["PCK"] = .WINDOWS31J_Encoding              -- alias defined in Ruby
-    -- encodings["CSWINDOWS31J"] = .WINDOWS31J_Encoding     -- alias defined by IANA (csWindows31J)
+    -- encodings["PCK"] = .WINDOWS31J_Encoding              -- alias defined in Ruby, Java (pck)
+    -- encodings["MS932"] = .WINDOWS31J_Encoding            -- alias defined in Java (MS932)
+    -- encodings["WINDOWS932"] = .WINDOWS31J_Encoding       -- alias defined in Java (windows-932)
+    -- encodings["XPCK"] = .WINDOWS31J_Encoding             -- main name in Java (x-PCK)
 
     -- Windows-874 (defined in Ruby, defined by IANA)
     -- encodings["WINDOWS874"] = .WINDOWS874_Encoding
@@ -726,35 +828,109 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
     https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
     Oracle Java documentation - Supported Encodings
 
-    Basic Encoding Set (contained in lib/rt.jar)
-    Canonical Name      Canonical Name             Alias or Aliases             Description
-    for java.nio API    for java.io API
-                        and java.lang API
-    ----------------------------------------------------------------------------
-                                                                                Variant of Cp850 with Euro character
-    IBM00858            Cp858                   cp858
-                                                858
-                                                PC-Multilingual-850+euro
-                                                cp00858
-                                                ccsid00858
-                                                                                MS-DOS United States, Australia, New Zealand, South Africa
-    IBM437              Cp437                   ibm437
-                                                437
-                                                ibm-437
-                                                cspc8codepage437
-                                                cp437
-                                                windows-437
-                                                                                32-bit Unicode (or UCS) Transformation Format, big-endian byte order, with byte-order mark
-    x-UTF-32BE-BOM      UTF_32BE_BOM            UTF_32BE_BOM
-                                                UTF-32BE-BOM
-                                                                                32-bit Unicode (or UCS) Transformation Format, little-endian byte order, with byte-order mark
-    x-UTF-32LE-BOM      UTF_32LE_BOM            UTF_32LE_BOM
-                                                UTF-32LE-BOM
-                                                                                Sixteen-bit Unicode (or UCS) Transformation Format, little-endian byte order, with byte-order mark
-    x-UTF-16LE-BOM      UnicodeLittle           UnicodeLittle
+    Rony list of encodings (list only the codes not listed above)
 
-    Extended Encoding Set (contained in lib/charsets.jar)
-    not reviewed, too many encodings, very low added value
+    IBM-Thai: ibm-838, ibm838, 838, cp838
+    IBM00858: PC-Multilingual-850+euro, ibm858, cp858, 858, cp00858, ibm-858, ccsid00858
+    IBM01140: ibm1140, ebcdic-us-037+euro, cp1140, ibm-1140, 1140, cp01140, ccsid01140
+    IBM01141: ibm1141, cp01141, ibm-1141, 1141, cp1141, ccsid01141, ebcdic-de-273+euro
+    IBM01142: cp01142, ibm1142, ccsid01142, ebcdic-no-277+euro, ibm-1142, 1142, cp1142, ebcdic-dk-277+euro
+    IBM01143: cp01143, ccsid01143, ibm1143, ebcdic-se-278+euro, ibm-1143, 1143, cp1143, ebcdic-fi-278+euro
+    IBM01144: cp01144, ccsid01144, ebcdic-it-280+euro, ibm1144, ibm-1144, 1144, cp1144
+    IBM01145: ccsid01145, ebcdic-es-284+euro, ibm1145, ibm-1145, 1145, cp01145, cp1145
+    IBM01146: ibm-1146, 1146, cp01146, ibm1146, ccsid01146, ebcdic-gb-285+euro, cp1146
+    IBM01147: cp1147, ibm-1147, 1147, cp01147, ccsid01147, ebcdic-fr-277+euro, ibm1147
+    IBM01148: cp1148, ebcdic-international-500+euro, ibm-1148, 1148, cp01148, ccsid01148, ibm1148
+    IBM01149: ebcdic-s-871+euro, ibm-1149, 1149, cp1149, ccsid01149, ibm1149, cp01149
+    IBM037: cp037, ibm037, ibm-037, csIBM037, ebcdic-cp-us, ebcdic-cp-ca, ebcdic-cp-nl, ebcdic-cp-wt, 037, cpibm37, cs-ebcdic-cp-wt, ibm-37, cs-ebcdic-cp-us, cs-ebcdic-cp-ca, cs-ebcdic-cp-nl
+    IBM1026: cp1026, ibm-1026, 1026, ibm1026
+    IBM1047: ibm-1047, 1047, cp1047
+    IBM273: ibm-273, ibm273, 273, cp273
+    IBM277: ibm277, 277, cp277, ibm-277
+    IBM278: cp278, 278, ibm-278, ebcdic-cp-se, csIBM278, ibm278, ebcdic-sv
+    IBM280: ibm280, 280, cp280, ibm-280
+    IBM284: csIBM284, ibm-284, cpibm284, ibm284, 284, cp284
+    IBM285: csIBM285, cp285, ebcdic-gb, ibm-285, cpibm285, ibm285, 285, ebcdic-cp-gb
+    IBM290: ibm290, 290, cp290, EBCDIC-JP-kana, csIBM290, ibm-290
+    IBM297: 297, csIBM297, cp297, ibm297, ibm-297, cpibm297, ebcdic-cp-fr
+    IBM420: ibm420, 420, cp420, csIBM420, ibm-420, ebcdic-cp-ar1
+    IBM424: ebcdic-cp-he, csIBM424, ibm-424, ibm424, 424, cp424
+    IBM500: ibm-500, ibm500, 500, ebcdic-cp-bh, ebcdic-cp-ch, csIBM500, cp500
+    IBM868: ibm868, 868, cp868, csIBM868, ibm-868, cp-ar
+    IBM870: 870, cp870, csIBM870, ibm-870, ibm870, ebcdic-cp-roece, ebcdic-cp-yu
+    IBM871: ibm871, 871, cp871, ebcdic-cp-is, csIBM871, ibm-871
+    IBM918: 918, ibm-918, ebcdic-cp-ar2, cp918
+    ISO-2022-CN: csISO2022CN, ISO2022CN
+    ISO-2022-JP: csjisencoding, iso2022jp, jis_encoding, jis, csISO2022JP
+    ISO-2022-JP-2: csISO2022JP2, iso2022jp2
+    ISO-2022-KR: csISO2022KR, ISO2022KR
+    JIS_X0201: JIS0201, csHalfWidthKatakana, X0201, JIS_X0201
+    JIS_X0212-1990: JIS0212, iso-ir-159, x0212, jis_x0212-1990, csISO159JISX02121990
+    x-Big5-HKSCS-2001: Big5_HKSCS_2001, big5-hkscs-2001, big5hk-2001, big5-hkscs:unicode3.0, big5hkscs-2001
+    x-Big5-Solaris: Big5_Solaris
+    x-euc-jp-linux: euc_jp_linux, euc-jp-linux
+    x-eucJP-Open: eucJP-open, EUC_JP_Solaris
+    x-IBM1006: ibm1006, ibm-1006, 1006, cp1006
+    x-IBM1025: ibm-1025, 1025, cp1025, ibm1025
+    x-IBM1046: ibm1046, ibm-1046, 1046, cp1046
+    x-IBM1097: ibm1097, ibm-1097, 1097, cp1097
+    x-IBM1098: ibm-1098, 1098, cp1098, ibm1098
+    x-IBM1112: ibm1112, ibm-1112, 1112, cp1112
+    x-IBM1122: cp1122, ibm1122, ibm-1122, 1122
+    x-IBM1123: ibm1123, ibm-1123, 1123, cp1123
+    x-IBM1124: ibm-1124, 1124, cp1124, ibm1124
+    x-IBM1129: 1129, ibm1129, cp1129, ibm-1129
+    x-IBM1166: cp1166, ibm1166, ibm-1166, 1166
+    x-IBM1364: cp1364, ibm1364, ibm-1364, 1364
+    x-IBM1381: cp1381, ibm-1381, 1381, ibm1381
+    x-IBM1383: ibm1383, ibm-1383, 1383, cp1383, cpeuccn, ibmeuccn, ibm-euccn
+    x-IBM29626C: cp29626c, ibm-29626c, ibm-eucjp, ibm29626c, 29626c
+    x-IBM300: cp300, ibm300, 300, ibm-300
+    x-IBM33722: 33722, ibm-33722, cp33722, ibm33722, ibm-5050, ibm-33722_vascii_vpua
+    x-IBM833: ibm833, 833, ibm-833, cp833
+    x-IBM834: ibm834, 834, cp834, ibm-834
+    x-IBM856: ibm856, 856, cp856, ibm-856
+    x-IBM874: ibm-874, ibm874, 874, cp874           to check: is it also Windows-874?
+    x-IBM875: ibm-875, ibm875, 875, cp875
+    x-IBM921: ibm921, 921, ibm-921, cp921
+    x-IBM922: ibm922, 922, cp922, ibm-922
+    x-IBM930: ibm-930, ibm930, 930, cp930
+    x-IBM933: ibm933, 933, cp933, ibm-933
+    x-IBM935: cp935, ibm935, 935, ibm-935
+    x-IBM937: ibm-937, ibm937, 937, cp937
+    x-IBM939: ibm-939, cp939, ibm939, 939
+    x-IBM942: ibm-942, cp942, ibm942, 942
+    x-IBM942C: ibm932, x-ibm932, ibm-932, ibm942C, ibm-942C, 942C, 932, cp942C, cp932       -- different from ms932
+    x-IBM943: ibm943, 943, ibm-943, cp943
+    x-IBM943C: 943C, cp943C, ibm943C, ibm-943C
+    x-IBM948: ibm-948, ibm948, 948, cp948
+    x-IBM949C: ibm949C, ibm-949C, cp949C, 949C
+    x-IBM964: ibm-964, cp964, ibm-euctw, ibm964, 964
+    x-IBM970: ibm970, ibm-eucKR, 970, cp970, ibm-970
+    x-ISCII91: ISCII91, iso-ir-153, iscii, ST_SEV_358-88, csISO153GOST1976874
+    x-ISO-2022-CN-CNS: ISO2022CN_CNS, ISO-2022-CN-CNS
+    x-ISO-2022-CN-GB: ISO2022CN_GB, ISO-2022-CN-GB
+    x-JIS0208: JIS0208, JIS_C6226-1983, iso-ir-87, x0208, JIS_X0208-1983, csISO87JISX0208
+    x-JISAutoDetect: JISAutoDetect
+    x-Johab: ms1361, ksc5601_1992, johab, ksc5601-1992
+    x-MacArabic: MacArabic
+    x-MacCentralEurope: MacCentralEurope
+    x-MacDingbat: MacDingbat
+    x-MacHebrew: MacHebrew
+    x-MacSymbol: MacSymbol
+    x-MS932_0213: MS932:2004, windows-932:2004, MS932_0213, MS932-0213, windows-932-0213
+    x-MS950-HKSCS: MS950_HKSCS
+    x-MS950-HKSCS-XP: MS950_HKSCS_XP
+    x-SJIS_0213: shift_jis:2004, sjis_0213, sjis:2004, shift_jis_0213:2004, sjis-0213, sjis_0213:2004
+    x-UTF-16LE-BOM: UnicodeLittle
+    X-UTF-32BE-BOM: UTF_32BE_BOM, UTF-32BE-BOM
+    X-UTF-32LE-BOM: UTF_32LE_BOM, UTF-32LE-BOM
+    x-windows-50220: cp50220, ms50220
+    x-windows-50221: cp50221, ms50221
+    x-windows-874: ms-874, ms874, windows-874
+    x-windows-949: windows949, ms949, windows-949, ms_949
+    x-windows-950: ms950, windows-950
+    x-windows-iso2022jp: windows-iso2022jp
 */
 
 ::method normalizedName class
@@ -814,12 +990,10 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
     left = left~requestTextOrBufferOrString
     if .nil == left then signal left_must_have_a_text_or_buffer_or_string_value
     leftEncoding = left~encoding
-    leftIsCompatibleWithASCII = left~isCompatibleWithASCII
 
     right = right~requestTextOrBufferOrString
     if .nil == right then signal right_must_have_a_text_or_buffer_or_string_value
     rightEncoding = right~encoding
-    rightIsCompatibleWithASCII = right~isCompatibleWithASCII
 
     if leftEncoding == rightEncoding then return leftEncoding
 
@@ -827,12 +1001,17 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
     if leftEncoding~isWTF8, rightEncoding~isUTF8 then return .WTF8_Encoding
     -- Keep the following tests after the previous tests, to keep the priority for WTF8
     -- Give priority to unicode over byte-encoding
-    -- When unicode on both sides then give priority to the left encoding
-    if leftIsCompatibleWithASCII, (rightEncoding~isUTF8 | rightEncoding~isWTF8 | rightEncoding~isUnicode8) then do
+    -- Otherwise give priority to the left encoding
+    if left~isCompatibleWithASCII, rightEncoding~isCompatibleWithASCII then do
         if leftEncoding~isUnicode then return leftEncoding
-        return rightEncoding
+        if rightEncoding~isUnicode then return rightEncoding
+        return leftEncoding
     end
-    if (leftEncoding~isUTF8 | leftEncoding~isWTF8 | leftEncoding~isUnicode8), rightIsCompatibleWithASCII then return leftEncoding
+    if leftEncoding~isCompatibleWithASCII, right~isCompatibleWithASCII then do
+        if leftEncoding~isUnicode then return leftEncoding
+        if rightEncoding~isUnicode then return rightEncoding
+        return leftEncoding
+    end
 
     if leftEncoding~isUTF16BE, rightEncoding~isWTF16BE then return .WTF16BE_Encoding
     if leftEncoding~isWTF16BE, rightEncoding~isUTF16BE then return .WTF16BE_Encoding
@@ -857,7 +1036,7 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
     use strict arg left, right -- text or string or buffer
     if left~encoding~isByte, right~encoding~isByte, left~encoding == right~encoding then return "b"
     if left~isCompatibleWithASCII, right~isCompatibleWithASCII then return "b"
-    if left~isCompatibleWithASCII, (right~encoding~isUTF8 | right~encoding~isWTF8) then return "u"
-    if (left~encoding~isUTF8 | left~encoding~isWTF8), right~isCompatibleWithASCII then return "u"
     if left~encoding~isUnicode & right~encoding~isUnicode then return "u"
+    if left~isCompatibleWithASCII, right~encoding~isUnicode, right~encoding~isCompatibleWithASCII then return "u"
+    if left~encoding~isUnicode, left~encoding~isCompatibleWithASCII, right~isCompatibleWithASCII then return "u"
     raise syntax 23.900 array("Encoding: cannot compare" left~descriptionForError "with" right~descriptionForError)

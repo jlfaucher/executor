@@ -36,6 +36,7 @@ Depends on
 ::constant isByte 1
 ::constant codeUnitSizeInBytes 1
 ::constant codepointMaxBytes 1
+::constant isCompatibleWithASCII 1  -- can be set to false by subclasses
 
 
 ::method analyze class

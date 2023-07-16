@@ -37,6 +37,7 @@ Concatenating WTF-8 strings requires extra care to preserve well-formedness.
 --::constant isUTF8 1 -- WTF8 is not UTF8
 ::constant isWTF8 1
 ::constant BOM "EF BB BF"x
+::constant isCompatibleWithASCII 1
 
 
 ::method checkCodepoint class
@@ -122,3 +123,19 @@ the concatenation back to WTF-8.
         end
     end
     buffer~append(string)
+/*
+"D800"x~text("wtf16")~wtf8~c2x=             -- 'EDA080' is the high surrogate U+D800 encoded in WTF-8
+"DC00"x~text("wtf16")~wtf8~c2x=             -- 'EDB080' is the low surrogate U+DC00 encoded in WTF-8
+
+                                            -- The WTF-8 encoding manages correctly the concatenation of a high surrogate with a low surrogate
+("EDA080"x~text("wtf8") ||  "EDB080"x~text("wtf8"))~c2u=  -- 'U+10000'
+("EDA080"x~text("wtf8") ||  "EDB080"x~text("wtf8"))~c2g=  -- 'F0908080'
+
+                                            -- The WTF-8 concatenation of a low surrogate with a high surrogate remains two distinct codepoints/graphemes
+("EDB080"x~text("wtf8") ||  "EDA080"x~text("wtf8"))~c2u=  -- 'U+DC00 U+D800'
+("EDB080"x~text("wtf8") ||  "EDA080"x~text("wtf8"))~c2g=  -- 'EDB080 EDA080'
+
+                                            -- unescape \u applied to WTF-8 manages correctly the concatenation of a high surrogate with a low surrogate
+"\uD800\uDC00"~text("wtf8")~unescape~c2u=   -- 'U+10000'
+"\uD800\uDC00"~text("wtf8")~unescape~c2g=   -- 'F0908080'
+*/

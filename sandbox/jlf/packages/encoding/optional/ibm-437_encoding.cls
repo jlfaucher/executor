@@ -1,9 +1,10 @@
--- IBM437 (defined in Ruby, defined by IANA)
+-- IBM437 (defined in Ruby, Java, defined by IANA)
+-- chcp 437
 .encoding~register("IBM437", .IBM437_Encoding)
-.encoding~register("CP437", .IBM437_Encoding)               -- alias defined in Ruby, alias defined by IANA, alias defined by ICU (cp437)
+.encoding~register("CP437", .IBM437_Encoding)               -- alias defined in Ruby, Java, alias defined by IANA, alias defined by ICU (cp437)
 .encoding~register("437", .IBM437_Encoding)                 -- alias defined by IANA, alias defined by ICU  (437)
 .encoding~register("CSPC8CODEPAGE437", .IBM437_Encoding)    -- alias defined by IANA, alias defined by ICU (csPC8CodePage437)
-.encoding~register("WINDOWS437", .IBM437_Encoding)          -- alias defined by ICU (windows-437)
+.encoding~register("WINDOWS437", .IBM437_Encoding)          -- alias defined by ICU, Java (windows-437)
 
 ::requires "encoding/byte_encoding.cls"
 ::requires "encoding/encoding.cls"

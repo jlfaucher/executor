@@ -16,6 +16,7 @@
 ::constant name "UTF-8"
 ::constant isUTF8 1
 ::constant BOM "EF BB BF"x
+::constant isCompatibleWithASCII 1
 
 /*
 Remember

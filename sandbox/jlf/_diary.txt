@@ -2,6 +2,23 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2023 Jul 14
+
+All encodings have now an indicator isCompatibleWithASCII.
+Currently true for Byte, UTF-8, WTF-8 and Unicode-8 encodings.
+That allows to replace
+    if (encoding~isByte | encoding~isUTF8 | encoding~isWTF8 | encoding~isUnicode8)
+by
+    if (encoding~isCompatibleWithASCII)
+The concatenation of strings having 2 different byte encodings is now possible
+if both encodings are compatible with ASCII and if both strings are ASCII only.
+
+
+More work on encoding aliases.
+Update the giant comment which lists encoding names and their aliases.
+
+
+===============================================================================
 2023 Jun 30
 
 Update the ICU4X binaries: release 1.2
@@ -25,7 +42,7 @@ and because Ruby uses Encoding.list
 
 
 Add candidate encodings supported by Ruby, Iana, Java.
-This is only a giant list of encoding names and their aliases.
+This is only a giant comment which lists encoding names and their aliases.
 
 Rework the existing encodings (new names, more aliases).
 New encoding ibm-437.
@@ -39,7 +56,7 @@ The encoding iso-8859-1 has now a Unicode mapping for all the characters.
 
 Bitkey is now 2 bytes (4 hex digits) always.
 
-For debug, give temporarilly access to the flags stored on an indexer.
+For debug, give temporarily access to the flags stored on an indexer.
 "Père Noël"~text~nfc(casefold:, stripMark:)~indexer~flags=
     a Directory (10 items)
     'FLAG_CASEFOLD'        :  1

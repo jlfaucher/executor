@@ -3,13 +3,16 @@
 --  iso-ir-100, csISOLatin1, latin1, l1, IBM819. Code page 28591 a.k.a. Windows-28591 is used for it in Windows.[9] IBM calls it code page 819 or CP819 (CCSID 819).[10][11][12][13] Oracle calls it WE8ISO8859P1.[14]
 -- https://docs.python.org/3/library/codecs.html#standard-encodings
 --  iso-8859-1, iso8859-1, 8859, cp819, latin, latin1, L1
+-- chcp 28591
 .encoding~register("819", .ISO88591_Encoding)
 .encoding~register("8859", .ISO88591_Encoding)
+.encoding~register("88591", .ISO88591_Encoding)             -- alias defined in Java (8859_1)
 .encoding~register("28591", .ISO88591_Encoding)
 .encoding~register("CP819", .ISO88591_Encoding)
 .encoding~register("CSISOLATIN1", .ISO88591_Encoding)
 .encoding~register("IBM819", .ISO88591_Encoding)
 .encoding~register("ISO88591", .ISO88591_Encoding)
+.encoding~register("ISO885911987", .ISO88591_Encoding)      -- alias defined in Java (ISO_8859-1:1987)
 .encoding~register("ISOIR100", .ISO88591_Encoding)
 .encoding~register("L1", .ISO88591_Encoding)
 .encoding~register("LATIN", .ISO88591_Encoding)
@@ -51,17 +54,27 @@
         using Unicode codepoint = character code.
         So replacing "" by "=" everywhere in the table below, using a variable in case I need to rollback.
     */
+    /*
+        2023.07.14
+        The previous decision looks good when reading that:
+        https://en.wikipedia.org/wiki/ISO/IEC_8859-1
+        In 1992, the IANA registered the character map ISO_8859-1:1987, more
+        commonly known by its preferred MIME name of ISO-8859-1 (note the extra
+        hyphen over ISO 8859-1), a superset of ISO 8859-1, for use on the Internet.
+        This map assigns the C0 and C1 control codes to the unassigned code values
+        thus provides for 256 characters via every possible 8-bit value.
+    */
     expose tableTranscodingToUnicode
     use strict arg -- none
-    undef = "="     -- supported, equal to itself
-    -- undef = ""   -- not supported
+    code = "="     -- supported, equal to itself
+    -- code = ""   -- not supported
     specificTranscoding =,
         , --    00      01      02      03      04      05      06      07      08      09      0A      0B      0C      0D      0E      0F
-        "00:",  "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",,
-        "10:",  "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",,
-        "7F:",                                                                                                                          "=",,
-        "80:",  "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",,
-        "90:",  "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "=",    "="
+        "00:",  code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,,
+        "10:",  code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,,
+        "7F:",                                                                                                                          code,,
+        "80:",  code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,,
+        "90:",  code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code
     tableTranscodingToUnicode = createCharacterTranscodingTable(256, specificTranscoding)
 
 /*

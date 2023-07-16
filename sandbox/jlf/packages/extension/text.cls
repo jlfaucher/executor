@@ -193,7 +193,7 @@ Depending on its encoding, an encoded string may be not compatible with ASCII.
 */
 ::method isCompatibleWithASCII
     -- IMPORTANT! Don't cache the value because it can be invalidated when the encoding is changed
-    if (self~encoding~isByte | self~encoding~isUTF8 | self~encoding~isWTF8 | self~encoding~isUnicode8), self~isASCII then return .true
+    if self~encoding~isCompatibleWithASCII, self~isASCII then return .true
     return .false
 
 
@@ -204,7 +204,7 @@ the String methods (byte-oriented).
 ::method isCompatibleWithByteString
     -- IMPORTANT! Don't cache the value because it can be invalidated when the encoding is changed
     if self~encoding~isByte then return .true
-    if (self~encoding~isUTF8 | self~encoding~isWTF8 | self~encoding~isUnicode8), self~isASCII then return .true
+    if self~encoding~isCompatibleWithASCII, self~isASCII then return .true
     return .false
 
 
@@ -341,7 +341,7 @@ without requesting a string from the buffer
 
 ::method isCompatibleWithASCII
     -- IMPORTANT! Don't cache the value because it can be invalidated when the encoding is changed
-    if (self~encoding~isByte | self~encoding~isUTF8 | self~encoding~isWTF8 | self~encoding~isUnicode8), self~isASCII then return .true
+    if self~encoding~isCompatibleWithASCII, self~isASCII then return .true
     return .false
 
 
@@ -508,14 +508,14 @@ Allows to use a String or a RexxText indistinctly
 
 ::method isCompatibleWithASCII
     -- IMPORTANT! Don't cache the value because it can be invalidated when the encoding is changed
-    if (self~encoding~isByte | self~encoding~isUTF8 | self~encoding~isWTF8 | self~encoding~isUnicode8), self~string~isASCII then return .true
+    if self~encoding~isCompatibleWithASCII, self~string~isASCII then return .true
     return .false
 
 
 ::method isCompatibleWithByteString
     -- IMPORTANT! Don't cache the value because it can be invalidated when the encoding is changed
     if self~encoding~isByte then return .true
-    if (self~encoding~isUTF8 | self~encoding~isWTF8 | self~encoding~isUnicode8), self~string~isASCII then return .true
+    if self~encoding~isCompatibleWithASCII, self~string~isASCII then return .true
     return .false
 
 

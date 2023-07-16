@@ -1,6 +1,7 @@
 -- ibm-1252_P100-2000
+-- no chcp?
 .encoding~register("IBM1252", .IBM1252_Encoding)            -- alias defined by ICU
--- .encoding~register("WINDOWS1252", .IBM1252_Encoding)     -- alias defined by ICU. Not registered because conflicts with ibm-5348_P100-1997
+-- .encoding~register("WINDOWS1252", .IBM1252_Encoding)     -- alias defined by ICU. Not registered because conflicts with WINDOWS1252_Encoding
 
 ::requires "encoding/byte_encoding.cls"
 ::requires "encoding/encoding.cls"

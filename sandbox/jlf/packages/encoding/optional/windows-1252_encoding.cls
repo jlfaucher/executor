@@ -1,8 +1,11 @@
 -- ibm-5348_P100-1997
+-- chcp 1252
 .encoding~register("WINDOWS1252", .WINDOWS1252_Encoding)    -- alias defined by IANA and Wikipedia and Java and ICU
 .encoding~register("CSWINDOWS1252", .WINDOWS1252_Encoding)  -- alias defined by IANA
-.encoding~register("CP1252", .WINDOWS1252_Encoding)         -- alias defined by Wikipedia and ICU (not defined by IANA)
+.encoding~register("CP1252", .WINDOWS1252_Encoding)         -- alias defined by Wikipedia and ICU and Java (not defined by IANA)
 .encoding~register("IBM5348", .WINDOWS1252_Encoding)        -- alias defined by Wikipedia and ICU (not defined by IANA)
+-- .encoding~register("IBM1252", .WINDOWS1252_Encoding)     -- alias defined in Java (ibm1252, ibm-1252). Not registered because conflict with IBM1252_Encoding.
+.encoding~register("CP5348", .WINDOWS1252_Encoding)         -- alias defined in Java (cp5348)
 
 ::requires "encoding/byte_encoding.cls"
 ::requires "encoding/encoding.cls"

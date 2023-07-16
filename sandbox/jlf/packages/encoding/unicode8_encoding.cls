@@ -16,6 +16,7 @@
 ::constant isUnicode8 1
 ::constant codeUnitSizeInBytes 1
 ::constant codepointMaxBytes 1
+::constant isCompatibleWithASCII 1
 
 
 ::method analyze class

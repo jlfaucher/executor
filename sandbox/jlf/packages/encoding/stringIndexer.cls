@@ -40,6 +40,8 @@ Depends on
 ::constant isUnicode16 0
 ::constant isUnicode32 0
 
+::constant isCompatibleWithASCII 0
+
 
 ::method codeUnitSizeInBytes class abstract -- constant 1 2 or 4
 
@@ -210,12 +212,11 @@ For example, if startB==6 then previousCodepointIndex==3
 
 -- If you modify this method then see if forConcatenation must be modified as well
 ::method asEncodingFor class
-    use strict arg buffer
-    targetEncoding = self
+    use strict arg buffer   -- left part
+    targetEncoding = self   -- right part
     if \buffer~hasEncoding then return targetEncoding -- when no encoding then any encoding is compatible
 
     bufferEncoding = buffer~encoding
-    bufferIsCompatibleWithASCII = buffer~isCompatibleWithASCII
 
     if bufferEncoding == targetEncoding then return bufferEncoding
 
@@ -223,22 +224,24 @@ For example, if startB==6 then previousCodepointIndex==3
     if bufferEncoding~isWTF8, targetEncoding~isUTF8 then return .WTF8_Encoding
     -- Keep the following tests after the previous tests, to keep the priority for WTF8
     -- Give priority to unicode over byte-encoding
-    -- When unicode on both sides then give priority to the left encoding
-    if bufferIsCompatibleWithASCII, (targetEncoding~isUTF8 | targetEncoding~isWTF8 | targetEncoding~isUnicode8) then do
+    -- Otherwise give priority to the left encoding
+    if buffer~isCompatibleWithASCII, targetEncoding~isCompatibleWithASCII then do
         if bufferEncoding~isUnicode then return bufferEncoding
-        return targetEncoding
+        if targetEncoding~isUnicode then return targetEncoding
+        return bufferEncoding
     end
     -- I'm not sure if the next test is good...
     -- The good test is to test if the right part (here target) isCompatibleWithASCII
     -- but we have only the target encoding, not a real string to test.
     -- The implementation of isCompatibleWithASCII tests 2 things:
-    --   - the encoding: (self~encoding~isByte | self~encoding~isUTF8 | self~encoding~isWTF8 | self~encoding~isUnicode8)
+    --   - the encoding: self~encoding~isCompatibleWithASCII
     --   - the asciiness of the string: self~string~isASCII
     -- Here, I test only the encoding. The asciiness will be tested elsewhere (for example in StringIndexer~append)
-    if   (bufferEncoding~isUTF8 | bufferEncoding~isWTF8 | bufferEncoding~isUnicode8) -
-       , (targetEncoding~isUTF8 | targetEncoding~isWTF8 | targetEncoding~isUnicode8) -
-       -- , target~isASCII -
-    then return bufferEncoding
+    if   bufferEncoding~isCompatibleWithASCII, targetEncoding~isCompatibleWithASCII then do
+        if bufferEncoding~isUnicode then return bufferEncoding
+        if targetEncoding~isUnicode then return targetEncoding
+        return bufferEncoding
+    end
 
     if bufferEncoding~isUTF16BE, targetEncoding~isWTF16BE then return .WTF16BE_Encoding
     if bufferEncoding~isWTF16BE, targetEncoding~isUTF16BE then return .WTF16BE_Encoding
