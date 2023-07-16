@@ -11,7 +11,7 @@ Contents:
     <a href="#Unicode_standard">Unicode standard</a>
     <a href="#Unicode_general_informations">Unicode general informations</a>
     <a href="#U__notation__Unicode_escape_sequence">U+ notation, Unicode escape sequence</a>
-    <a href="#Security">Security</a>
+    <a href="#Security_title">Security title</a>
     <a href="#Segmentation__Grapheme">Segmentation, Grapheme</a>
     <a href="#Normalization__equivalence">Normalization, equivalence</a>
     <a href="#Character_set">Character set</a>
@@ -29,7 +29,9 @@ Contents:
     <a href="#Variation_sequence">Variation sequence</a>
     <a href="#Whitespaces__separators">Whitespaces, separators</a>
     <a href="#Hyphenation">Hyphenation</a>
+    <a href="#Classical_languages">Classical languages</a>
     <a href="#Indic_languages">Indic languages</a>
+    <a href="#CJK">CJK</a>
     <a href="#Korean">Korean</a>
     <a href="#Japanese">Japanese</a>
     <a href="#String_Matching">String Matching</a>
@@ -50,10 +52,13 @@ Contents:
     <a href="#ICU_title">ICU title</a>
     <a href="#ICU_bindings">ICU bindings</a>
     <a href="#ICU4X_title">ICU4X title</a>
+    <a href="#utf8proc_title">utf8proc title</a>
     <a href="#Twitter_text_parsing">Twitter text parsing</a>
     <a href="#terminal___console___cmd">terminal / console / cmd</a>
+    <a href="#QT_Title">QT Title</a>
+    <a href="#macOS">macOS</a>
     <a href="#Windows_OS">Windows OS</a>
-    <a href="#Z_OS">Z/OS</a>
+    <a href="#z_OS">z/OS</a>
     <a href="#IBM_RPG_Lang">IBM RPG Lang</a>
     <a href="#Language_comparison">Language comparison</a>
     <a href="#Regular_expressions">Regular expressions</a>
@@ -70,13 +75,14 @@ Contents:
     <a href="#Elixir_lang">Elixir lang</a>
     <a href="#Factor_lang">Factor lang</a>
     <a href="#GO_lang">GO lang</a>
+    <a href="#jRuby_lang">jRuby lang</a>
     <a href="#Java_lang">Java lang</a>
     <a href="#JavaScript_lang">JavaScript lang</a>
     <a href="#Julia_lang">Julia lang</a>
     <a href="#Kotlin_lang">Kotlin lang</a>
     <a href="#Lisp_lang">Lisp lang</a>
     <a href="#Mathematica_lang">Mathematica lang</a>
-    <a href="#MOAR_VM_RAKU_lang">MOAR-VM RAKU lang</a>
+    <a href="#MOAR_VM_RAKU_lang_Rakudo_lang__Perl6__Perl_6_">MOAR-VM RAKU lang Rakudo lang (Perl6, Perl 6)</a>
     <a href="#netrexx_lang">netrexx lang</a>
     <a href="#Oracle">Oracle</a>
     <a href="#Perl_lang__Perl_6_has_been_renamed_to_Raku_">Perl lang (Perl 6 has been renamed to Raku)</a>
@@ -92,6 +98,13 @@ Contents:
 
 
 <hr><h2 id="Unicode_standard">Unicode standard</h2><hr>
+Remember
+Don't know why, but the Unicode consortium has 2 different URLs:
+    <a target="_blank" rel="noopener noreferrer" href="https://unicode.org/">https://unicode.org/</a>
+    <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/">https://www.unicode.org/</a>
+To avoid doubling URLs, I use the 2nd form.
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://home.unicode.org/">https://home.unicode.org/</a>
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/">https://www.unicode.org/</a>                                        (same as home.unicode.org)
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/versions/">https://www.unicode.org/versions/</a>
@@ -99,6 +112,11 @@ Contents:
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/versions/enumeratedversions.html">https://www.unicode.org/versions/enumeratedversions.html</a>        (current and previous versions)
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/Public/">https://www.unicode.org/Public/</a>                                 (datas for current and previous versions)
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/ucd/">https://www.unicode.org/ucd/</a>
+UCD = Unicode Character Database
+
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/Public/MAPPINGS">https://www.unicode.org/Public/MAPPINGS</a>                         (ISO8859)
     These tables are considered to be authoritative mappings
@@ -224,10 +242,6 @@ In the UnicodeStandard PDF:
   Conformance 156 3.13 Default Case Algorithms
 For more information on the use of NFKC_Casefold and caseless matching for identifiers,
 see Unicode Standard Annex #31, “Unicode Identifier and Pattern Syntax
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr36/#visual_spoofing">https://www.unicode.org/reports/tr36/#visual_spoofing</a>
-UNICODE SECURITY CONSIDERATIONS
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr51/">https://www.unicode.org/reports/tr51/</a>
@@ -371,6 +385,8 @@ Number sets in HTML and Unicode
 
 <a target="_blank" rel="noopener noreferrer" href="https://lwn.net/Articles/667669/">https://lwn.net/Articles/667669/</a>
 Is the current Unicode design impractical?
+jlf: this link is also in the section Raku Lang because it's about Perl6.
+jlf: worth reading.
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.sciencedirect.com/science/article/pii/S1742287613000595">https://www.sciencedirect.com/science/article/pii/S1742287613000595</a>
@@ -416,7 +432,7 @@ INTERROBANG
 𠂊 (U+2008A) Han Character
 
 
-<a target="_blank" rel="noopener noreferrer" href="https://unicode.org/udhr/">https://unicode.org/udhr/</a>
+<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/udhr/">https://www.unicode.org/udhr/</a>
 UDHR in Unicode
 The goal of the UDHR in Unicode project is to demonstrate the use of Unicode
 for a wide variety of languages, using the Universal Declaration of Human Rights
@@ -448,7 +464,7 @@ Question
 <a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/10143836/why-is-there-no-utf-24">https://stackoverflow.com/questions/10143836/why-is-there-no-utf-24</a>
 Why is there no UTF-24? [duplicate]
 Well, the truth is : UTF-24 was suggested in 2007 :
-<a target="_blank" rel="noopener noreferrer" href="https://unicode.org/mail-arch/unicode-ml/y2007-m01/0057.html">https://unicode.org/mail-arch/unicode-ml/y2007-m01/0057.html</a>
+<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/mail-arch/unicode-ml/y2007-m01/0057.html">https://www.unicode.org/mail-arch/unicode-ml/y2007-m01/0057.html</a>
 
 Possible Duplicate:
 Why UTF-32 exists whereas only 21 bits are necessary to encode every character?
@@ -488,7 +504,7 @@ Need reference to good ABNF for \uXXXX syntax
 Unicode Escape Sequences Across Various Languages and Platforms
 
 
-<hr><h2 id="Security">Security</h2><hr>
+<hr><h2 id="Security_title">Security title</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr39">https://www.unicode.org/reports/tr39</a>
 UNICODE SECURITY MECHANISMS
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/Public/security/latest/confusables.txt">https://www.unicode.org/Public/security/latest/confusables.txt</a>
@@ -510,6 +526,44 @@ Confusable characters:
      3 : ( "P"   U+0050 Lu 1 "LATIN CAPITAL LETTER P" )
 These confusable characters are not impacted by the lump option:
 "ΡРP"~text~nfc(lump:)~characters    -- same result
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr36/#visual_spoofing">https://www.unicode.org/reports/tr36/#visual_spoofing</a>
+UNICODE SECURITY CONSIDERATIONS
+
+
+<a target="_blank" rel="noopener noreferrer" href="http://www.unicode.org/reports/tr55/">http://www.unicode.org/reports/tr55/</a>
+Draft Unicode® Technical Standard #55
+UNICODE SOURCE CODE HANDLING
+---
+While the normative material for computer language specifications is part of the
+Unicode Standard, in Unicode Standard Annex #31, Unicode Identifiers and Syntax
+[UAX31], the algorithms specific to the display of source code or to higher-level
+diagnostics are specified in this document.
+Note: While, for the sake of brevity, many of the examples in this document make
+use of non-ASCII identifiers, most of the issues described here apply even if
+non-ASCII characters are confined to strings and comments.
+---
+3.1.1 Normalization and Case
+Case-insensitive languages should meet requirement UAX31-R4 with normalization
+form KC, and requirement UAX31-R5 with full case folding. They should ignore
+default ignorable code points in comparison. Conformance with these requirements
+and ignoring of default ignorable code points may be achieved by comparing
+identifiers after applying the transformation toNFKC_Casefold.
+Note: Full case folding is preferable to simple case folding, as it better
+matches expectations of case-insensitive equivalence.
+The choice between Normalization Form C and Normalization Form KC should match
+expectations of identifier equivalence for the language.
+In a case-sensitive language, identifiers are the same if and only if they look
+the same, so Normalization Form C (canonical equivalence) is appropriate, as
+canonical equivalent sequences should display the same way.
+In a case-insensitive language, the equivalence relation between identifiers is
+based on a more abstract sense of character identity; for instance, e and E are
+treated as the same letter. Normalization Form KC (compatibility equivalence) is
+an equivalence between characters that share such an abstract identity.
+Example: In a case-insensitive language, SO and so are the same identifier; if
+that language uses Normalization Form KC, the identifiers so and 𝖘𝖔 are likewise
+identical.
 
 
 <hr><h2 id="Segmentation__Grapheme">Segmentation, Grapheme</h2><hr>
@@ -626,6 +680,42 @@ jlf: not very good...
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/clipperhouse/words">https://github.com/clipperhouse/words</a>
 words is a command which splits strings into individual words, as defined by Unicode.
 It accepts text from stdin, and writes one word (token) per line to stdout.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr29/#Random_Access">https://www.unicode.org/reports/tr29/#Random_Access</a>
+    jlf: Executor uses indexers for random access (ako breadcrumbs).
+
+    Random access introduces a further complication. When iterating through a string
+    from beginning to end, a regular expression or state machine works well. From
+    each boundary to find the next boundary is very fast. By constructing a state
+    table for the reverse direction from the same specification of the rules,
+    reverse iteration is possible.
+
+    However, suppose that the user wants to iterate starting at a random point in
+    the text, or detect whether a random point in the text is a boundary. If the
+    starting point does not provide enough context to allow the correct set of rules
+    to be applied, then one could fail to find a valid boundary point. For example,
+    suppose a user clicked after the first space after the question mark in
+    “Are␣you␣there?␣ ␣No,␣I’m␣not”. On a forward iteration searching for a sentence
+    boundary, one would fail to find the boundary before the “N”, because the “?”
+    had not been seen yet.
+
+    A second set of rules to determine a “safe” starting point provides a solution.
+    Iterate backward with this second set of rules until a safe starting point is
+    located, then iterate forward from there. Iterate forward to find boundaries
+    that were located between the safe point and the starting point; discard these.
+    The desired boundary is the first one that is not less than the starting point.
+    The safe rules must be designed so that they function correctly no matter what
+    the starting point is, so they have to be conservative in terms of finding
+    boundaries, and only find those boundaries that can be determined by a small
+    context (a few neighboring characters).
+
+    This process would represent a significant performance cost if it had to be
+    performed on every search. However, this functionality can be wrapped up in an
+    iterator object, which preserves the information regarding whether it currently
+    is at a valid boundary point. Only if it is reset to an arbitrary location in
+    the text is this extra backup processing performed. The iterator may even cache
+    local values that it has already traversed.
 
 
 <hr><h2 id="Normalization__equivalence">Normalization, equivalence</h2><hr>
@@ -1401,6 +1491,33 @@ break words into syllables
     [3] <a target="_blank" rel="noopener noreferrer" href="https://github.com/search?q=hyphenate&type=repositories">https://github.com/search?q=hyphenate&type=repositories</a>
     <a target="_blank" rel="noopener noreferrer" href="https://tug.org/docs/liang/liang-thesis.pdf">https://tug.org/docs/liang/liang-thesis.pdf</a>
 
+<hr><h2 id="Classical_languages">Classical languages</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://docs.cltk.org/en/latest/">https://docs.cltk.org/en/latest/</a>
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/cltk/cltk">https://github.com/cltk/cltk</a>
+The Classical Language Toolkit
+Python library
+The Classical Language Toolkit (CLTK) is a Python library offering natural
+language processing (NLP) for pre-modern languages. Pre-configured pipelines are
+available for 19 languages.
+    Akkadian
+    Arabic
+    Aramaic
+    Classical Chinese
+    Coptic
+    Gothic
+    Greek
+    Hindi
+    Latin
+    Middle High German
+    English
+    French
+    Old Church Slavonic
+    Old Norse
+    Pali
+    Panjabi
+    Sanskrit (Some parts of the Sanskrit library are forked from the Indic NLP Library)
+
+
 <hr><h2 id="Indic_languages">Indic languages</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/faq/indic.html">https://www.unicode.org/faq/indic.html</a>
 Indic scripts in the narrow sense are the nine major Brahmi-derived scripts of India.
@@ -1431,6 +1548,25 @@ Some Indic-specific issues are also discussed in that report.
 This section illustrates that Unicode’s concepts like “extended grapheme cluster”
 are meant to provide some low-level, general segmentation, and are not going
 to be enough for ideal experience for end users.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Devanagari#Conjunct_consonants">https://en.wikipedia.org/wiki/Devanagari#Conjunct_consonants</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Devanagari_conjuncts">https://en.wikipedia.org/wiki/Devanagari_conjuncts</a>
+Conjunct consonants are a form of orthographic ligature characteristic of the
+Brahmic scripts. They are constructed of more than two consonant letters.
+Biconsonantal conjuncts are common, but longer conjuncts are increasingly
+constrained by the languages' phonologies and the actual number of conjuncts
+observed drops sharply. Ulrich Stiehl includes a five-letter Devanagari conjunct
+र्त्स्न्य (rtsny)[1] among the top 360 most frequent conjuncts found in Classical
+Sanskrit;[2] the complete list appears below. Conjuncts often span a syllable
+boundary, and many of the conjuncts below occur only in the middle of words,
+where the coda consonants of one syllable are conjoined with the onset c
+onsonants of the following syllable.
+[1] As in Sanskrit word कार्त्स्न्य (In Bengali Script কার্ৎস্ন্য), meaning "The Whole, Entirety"
+[2] Stiehl, Ulrich. "Devanagari-Schreibübungen" (PDF). www.sanskritweb.net.
+    <a target="_blank" rel="noopener noreferrer" href="http://www.sanskritweb.net/deutsch/devanagari.pdf">http://www.sanskritweb.net/deutsch/devanagari.pdf</a>
 
 <a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/6805311/combining-devanagari-characters">https://stackoverflow.com/questions/6805311/combining-devanagari-characters</a>
 Combining Devanagari characters
@@ -1536,6 +1672,11 @@ The library provides the following functionalities:
     Translation
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/AI4Bharat/indicnlp_catalog">https://github.com/AI4Bharat/indicnlp_catalog</a>
+The Indic NLP Catalog
+jlf: way beyond Unicode, tons of URLs...
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=20056966">https://news.ycombinator.com/item?id=20056966</a>
 jlf: Devnagari seems to be an example where grapheme is not the right segmentation
 What does "index" mean? (hindi) "इंडेक्स" का क्या अर्थ है?
@@ -1577,7 +1718,27 @@ Developing OpenType Fonts for Devanagari Script
 <a target="_blank" rel="noopener noreferrer" href="https://manishearth.github.io/blog/2018/02/15/picking-apart-the-crashing-ios-string/">https://manishearth.github.io/blog/2018/02/15/picking-apart-the-crashing-ios-string/</a>
 Picking Apart the Crashing iOS String
 Posted by Manish Goregaokar on February 15, 2018
+Indic scripts and consonant clusters
 jlf: he's a black belt! or is it his native tongue?
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/75210512/how-to-split-devanagari-bi-tri-and-tetra-conjunct-consonants-as-a-whole-from-a-s">https://stackoverflow.com/questions/75210512/how-to-split-devanagari-bi-tri-and-tetra-conjunct-consonants-as-a-whole-from-a-s</a>
+How to split Devanagari bi-tri and tetra conjunct consonants as a whole from a string?
+    "हिन्दी मुख्यमंत्री हिमंत"
+    Current output:
+    हि  न्  दी   मु  ख्  य  मं  त्  री    हि  मं  त
+    Desired ouput:
+    हि न्दी  मु ख्य मं त्री  हि मं त
+
+
+<hr><h2 id="CJK">CJK</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://resources.oreilly.com/examples/9781565922242/blob/master/doc/cjk.inf">https://resources.oreilly.com/examples/9781565922242/blob/master/doc/cjk.inf</a>
+Version 2.1 (July 12, 1996)
+Online Companion to "Understanding Japanese Information Processing"
+This online document provides information on CJK (that is, Chinese, Japanese,
+and Korean) character set standards and encoding systems.
+---
+jlf: 1996... but maybe some things to learn.
 
 
 <hr><h2 id="Korean">Korean</h2><hr>
@@ -2045,6 +2206,100 @@ each entry consisting of a pointer and a corresponding code point. Within an ind
 pointers are unique and code points can be duplicated.
 Note: An efficient implementation likely has two indexes per encoding.
 One optimized for its decoder and one for its encoder.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.git-tower.com/help/guides/faq-and-tips/faq/encoding/windows">https://www.git-tower.com/help/guides/faq-and-tips/faq/encoding/windows</a>
+Character encoding for commit messages
+---
+When Git creates and stores a commit, the commit message entered by the user is
+stored as binary data and there is no conversion between encodings. The encoding
+of your commit message is determined by the client you are using to compose the
+commit message.
+Git stores the name of the commit encoding if the config key "i18n.commitEncoding"
+is set (and if it's not the default value "utf-8").
+If you commit changes from the command line, this value must match the encoding
+set in your shell environment. Otherwise, a wrong encoding is stored with the
+commit and can result in garbled output when viewing the commit history.
+If you view the commit log on the command line, the config value "i18n.logOutputEncoding"
+(which defaults to "i18n.commitEncoding") needs to match your shell encoding as well.
+The command converts messages from the commit encoding to the output encoding.
+If your shell encoding does not match the output encoding, you will again receive
+garbled output!
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.git-scm.com/docs/gitattributes/2.18.0#_working_tree_encoding">https://www.git-scm.com/docs/gitattributes/2.18.0#_working_tree_encoding</a>
+gitattributes - Defining attributes per path
+working-tree-encoding
+Git recognizes files encoded in ASCII or one of its supersets (e.g. UTF-8,
+ISO-8859-1, …​) as text files. Files encoded in certain other encodings (e.g.
+UTF-16) are interpreted as binary and consequently built-in Git text processing
+tools (e.g. git diff) as well as most Git web front ends do not visualize the
+contents of these files by default.
+In these cases you can tell Git the encoding of a file in the working directory
+with the working-tree-encoding attribute. If a file with this attribute is added
+to Git, then Git reencodes the content from the specified encoding to UTF-8.
+Finally, Git stores the UTF-8 encoded content in its internal data structure
+(called "the index"). On checkout the content is reencoded back to the specified
+encoding.
+---
+jlf: there is a number of pitfalls, read the article.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/436220/how-to-determine-the-encoding-of-text">https://stackoverflow.com/questions/436220/how-to-determine-the-encoding-of-text</a>
+How to determine the encoding of text
+jlf: for Python, not reviewed, may bring interesting infos.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/90838/how-can-i-detect-the-encoding-codepage-of-a-text-file">https://stackoverflow.com/questions/90838/how-can-i-detect-the-encoding-codepage-of-a-text-file</a>
+How can I detect the encoding/codepage of a text file?
+jlf: for C#, not reviewed, may bring interesting infos.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/7048745/what-is-the-difference-between-utf-8-and-iso-8859-1">https://stackoverflow.com/questions/7048745/what-is-the-difference-between-utf-8-and-iso-8859-1</a>
+What is the difference between UTF-8 and ISO-8859-1?
+jlf: the interesting part are the comments about ISO-8859-1.
+---
+ISO 8859-1 is a single-byte encoding that can represent the first 256 Unicode characters.
+---
+cp1252 is a superset of the ISO-8859-1, containing additional printable
+characters in the 0x80-0x9F range, notably the Euro symbol € and the much
+maligned "smart quotes" “”. This frequently leads to a mismatch where 8859-1 can
+be displayed as 1252 perfectly fine, and 1252 may seem to display fine as 8859-1,
+but will misbehave when one of those extra symbols shows up.
+---
+jlf: so the previous comment says that ISO-8859-1 is not defined in the 0x80-0x9F
+range... IS IT or IS IT NOT???
+---
+One more important thing to realise: if you see iso-8859-1, it probably refers
+to Windows-1252 rather than ISO/IEC 8859-1. They differ in the range 0x80–0x9F,
+where ISO 8859-1 has the C1 control codes, and Windows-1252 has useful visible
+characters instead.
+For example, ISO 8859-1 has 0x85 as a control character (in Unicode, U+0085, ``),
+while Windows-1252 has a horizontal ellipsis (in Unicode, U+2026 HORIZONTAL ELLIPSIS, …).
+The WHATWG Encoding spec (as used by HTML) expressly declares iso-8859-1 to be
+a label for windows-1252, and web browsers do not support ISO 8859-1 in any way.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.mobilefish.com/tutorials/character_encoding/character_encoding_quickguide_iso8859_1.html">https://www.mobilefish.com/tutorials/character_encoding/character_encoding_quickguide_iso8859_1.html</a>
+jlf: not sure this page is a good reference. The fact they wrote "Unicode, a 16-bit character set."
+brings a doubt about the rest of their page...
+I reference it for their definition of ISO-8859-1.
+---
+HTML and HTTP protocols make frequent reference to ISO Latin-1 and the character
+code ISO-8859-1. The HTTP specification mandates the use of the code ISO-8859-1
+as the default character code that is passed over the network.
+ISO-8859-1 explicitly does not define displayable characters for positions 0-31
+and 127-159, and the HTML standard does not allow those to be used for displayable
+characters. The only characters in this range that are used are 9, 10 and 13,
+which are tab, newline and carriage return respectively.
+Note: ISO-8859-1 is also known as Latin-1.
+---
+jlf: so they say
+- 00..1F is not defined except 09, 0A, 0D (so they are different from
+ <a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/ISO/IEC_8859-1)">https://en.wikipedia.org/wiki/ISO/IEC_8859-1)</a> where all 00..1F is undefined.
+- 7F..9F is not defined
+Confirmed by their text file:
+<a target="_blank" rel="noopener noreferrer" href="https://www.mobilefish.com/download/character_set/iso8859_1.txt">https://www.mobilefish.com/download/character_set/iso8859_1.txt</a>
 
 
 <hr><h2 id="ICU_title">ICU title</h2><hr>
@@ -2585,6 +2840,66 @@ fn test_greek_upper() {
 }
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/3174#issuecomment-1624080765">https://github.com/unicode-org/icu4x/issues/3174#issuecomment-1624080765</a>
+Should search collation be a different data key + constructor? #3174
+---
+jlf
+Don't know if this long comment brings something useful for Rexx.
+They are searching for use-cases.
+whole-string matching, collation, substring or prefix matching.
+<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr10/#Searching:">https://www.unicode.org/reports/tr10/#Searching:</a> It's typically used for a substring
+match, like Ctrl-F in a browser.
+Why is collation the way it is? There's a use case for diacritic-insensitive string
+matching. And there is also the observation that you need special handling for certain
+diacritics like German umlauts.
+It seems weird that Thai for example has certain tailorings that are not in other
+Brahmic languages.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/discussions/3688#discussioncomment-6456010">https://github.com/unicode-org/icu4x/discussions/3688#discussioncomment-6456010</a>
+Recommended data provider type for libraries depending on ICU4X
+---
+I finished creating a library that uses ICU4X as its backend, while learning Rust.
+For my library I used the DataProvider for as the interface to CLDR data
+(currently just using icu_testdata, though seen the page to generate customised
+datasets).
+So now I am wondering what would be the recommended data provider to use for a
+library using ICU4X as its backend?
+---
+If you know the data you want at build time, I suggest using a baked data provider,
+otherwise use a Blob one with postcard.
+You can generate data using these steps
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/blob/main/docs/tutorials/data_management.md">https://github.com/unicode-org/icu4x/blob/main/docs/tutorials/data_management.md</a>
+In the 1.3 release there will be a compiled_data feature that lets you include
+data by default, kinda like testdata but intended for production.
+---
+compiled_data feature may just be what my library could use without the need for
+users to supply data provider for my library, if I understand the intended
+purpose of this up coming feature. Where is this feature located in the master,
+so I may start looking at it for design purposes, while waiting for 1.3 release?
+---
+jlf: this answer is seriously incomprehensible!
+The feature is present on all of the component crates and it exposes functions
+like DateTimeFormatter::try_new() that don't have a provider argument.
+<a target="_blank" rel="noopener noreferrer" href="https://unicode-org.github.io/icu4x/docs/icu/datetime/struct.DateTimeFormatter.html#method.try_new">https://unicode-org.github.io/icu4x/docs/icu/datetime/struct.DateTimeFormatter.html#method.try_new</a>
+The crate also does contain an unstable baked provider that users can pass in
+themselves, but note that it only implements data stuff from that particular
+crate and they'll need to combine it with providers from other crates if the
+type they are using uses data from everywhere (like DateTimeFormat: it uses
+plurals and decimal data too)
+<a target="_blank" rel="noopener noreferrer" href="https://unicode-org.github.io/icu4x/docs/icu/datetime/provider/struct.Baked.html">https://unicode-org.github.io/icu4x/docs/icu/datetime/provider/struct.Baked.html</a>
+---
+This is a good question; what should intermediate libraries expose to their
+users? I'll schedule this for a discussion at an upcoming developers call.
+
+
+<hr><h2 id="utf8proc_title">utf8proc title</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://codeberg.org/dnkl/foot/pulls/100">https://codeberg.org/dnkl/foot/pulls/100</a>
+Grapheme shaping using libutf8proc #100
+jlf tag: character width
+jlf: to read?
+
+
 <hr><h2 id="Twitter_text_parsing">Twitter text parsing</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/twitter/twitter-text">https://github.com/twitter/twitter-text</a>
 Twitter Text Libraries. This code is used at Twitter to tokenize and parse text
@@ -2647,6 +2962,17 @@ Eryk Sun Jul 21, 2019 at 13:31
 Displaying Unicode in Powershell
 
 
+<hr><h2 id="QT_Title">QT Title</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://bugreports.qt.io/browse/QTBUG-48726">https://bugreports.qt.io/browse/QTBUG-48726</a>
+Combining diacritics misplaced when using monospace fonts
+jlf tag: character width
+
+
+<hr><h2 id="macOS">macOS</h2><hr>
+you can enter emoji (and other Unicode characters) using standard operating
+system tools—like ctrl cmd space.
+
+
 <hr><h2 id="Windows_OS">Windows OS</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/win32/intl/international-support">https://learn.microsoft.com/en-us/windows/win32/intl/international-support</a>
 jlf: I search which functionalities are available only to unicode apps...
@@ -2655,19 +2981,36 @@ jlf: I search which functionalities are available only to unicode apps...
 - other?
 
 
-<hr><h2 id="Z_OS">Z/OS</h2><hr>
-<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/zos/2.3.0?topic=mvs-zos-unicode-services-users-guide-reference">https://www.ibm.com/docs/en/zos/2.3.0?topic=mvs-zos-unicode-services-users-guide-reference</a>
-<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/zos/2.4.0?topic=mvs-zos-unicode-services-users-guide-reference">https://www.ibm.com/docs/en/zos/2.4.0?topic=mvs-zos-unicode-services-users-guide-reference</a>
+<hr><h2 id="z_OS">z/OS</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/zos/2.5.0?topic=mvs-zos-unicode-services-users-guide-reference">https://www.ibm.com/docs/en/zos/2.5.0?topic=mvs-zos-unicode-services-users-guide-reference</a>
 Unicode services
 
 
-<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/zos/2.3.0?topic=reference-application-programmer-information">https://www.ibm.com/docs/en/zos/2.3.0?topic=reference-application-programmer-information</a>
+<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/zos/2.5.0?topic=reference-application-programmer-information">https://www.ibm.com/docs/en/zos/2.5.0?topic=reference-application-programmer-information</a>
 Character conversion
 Case conversion
 Normalization
 Collation
 Bidi transformation
 Stringprep conversion
+---
+jlf:
+There is this note at the begining of the page "Bidi transformation":
+    "IBM does not intend to enhance the bidi transformation service. Instead, it is
+    recommended that you use the character conversion 'extended bidi support' for all
+    new development and for the highest level of bidi support."
+Can't find where is described this 'extended bidi support'.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www-40.ibm.com/servers/resourcelink/svc00100.nsf/pages/zOSV2R5IndexFile/$file/index.html">https://www-40.ibm.com/servers/resourcelink/svc00100.nsf/pages/zOSV2R5IndexFile/$file/index.html</a>
+search Ctrl+F "unicode": only one result:
+cunu100_v2r5.pdf	SA38-0680-50	z/OS Unicode Services User's Guide and Reference
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/zos/2.5.0">https://www.ibm.com/docs/en/zos/2.5.0</a>
+    Search "Unicode" in z/OS 2.5 documentation:
+    <a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/search/unicode?scope=SSLTBW_2.5.0">https://www.ibm.com/docs/en/search/unicode?scope=SSLTBW_2.5.0</a>
+jlf: not sure it's very interesting... All the links are just one page with few informations.
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://listserv.ua.edu/cgi-bin/wa?A2=IBM-MAIN;5304fbc3.2304&S=">https://listserv.ua.edu/cgi-bin/wa?A2=IBM-MAIN;5304fbc3.2304&S=</a>
@@ -2675,6 +3018,117 @@ Re: TSO Rexx C2X Incorrect Output
 Events such as this affirm my belief in minimal munging of user data by default.
 jlf: this sentence is to remember when designing how Unicode should be supported
 by Rexx...
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/76569347/what-are-the-supported-code-points-for-special-characters-for-valid-z-os-datas">https://stackoverflow.com/questions/76569347/what-are-the-supported-code-points-for-special-characters-for-valid-z-os-datas</a>
+What are the supported code points for 'special characters' for valid z/OS datasets?
+jlf: the link above was given in this IBM-MAIN thread
+<a target="_blank" rel="noopener noreferrer" href="https://listserv.ua.edu/cgi-bin/wa?A2=ind2307&L=IBM-MAIN&D=0&P=121856">https://listserv.ua.edu/cgi-bin/wa?A2=ind2307&L=IBM-MAIN&D=0&P=121856</a>
+---
+Matt Hogstrom:
+I did some testing by creating a file in USS in CP047 with the characters “@#$”
+and then used iconv to convert them to a variety of code pages and compare the
+results. Some conversions failed but when looking at the code pages that failed
+they didn’t appear to me to be what I would consider mainstream.  For the ones
+I’m familiar with they all converted correctly.
+
+The command was
+    'iconv -f 1047 -t 37 special &gt; converted;chtag -t -c 37 converted;cmp special converted’
+I changed to the encoding of 37 to other code pages and most worked fine.
+You can find the list of cps supported by issuing 'iconv -l’ and there are a lot
+of them.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://listserv.ua.edu/cgi-bin/wa?A2=ind2307&L=IBM-MAIN&D=0&P=183611">https://listserv.ua.edu/cgi-bin/wa?A2=ind2307&L=IBM-MAIN&D=0&P=183611</a>
+Python 3.11 on z/OS - UTF-8 errors
+---
+I am trying to get a python package (psutil) to run on z/OS.
+I downloaded the package from github and then tar'ed it and uploaded it binary
+to my home-dir in OMVS.
+In my homedir I untar'ed to files and ran the command "chtag -tc IBM-1047 *' to
+set the files to UTF-8.
+I got make to work by converting the tab char to x'05' - no problem - and I got
+the C compiler to work also.
+Now my problem is that I can not make Python compile the setup.py file.
+It dies with a UTF-error on a char x'97' in statement 48 pos 2:
+    from _common import AIX  # NOQA
+---
+It's this package
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/giampaolo/psutil/blob/master/INSTALL.rst">https://github.com/giampaolo/psutil/blob/master/INSTALL.rst</a>
+---
+I believe UTF-8 is IBM-1208.
+---
+Have you tried the z/OS Open Tools phytonport - <a target="_blank" rel="noopener noreferrer" href="https://github.com/ZOSOpenTools">https://github.com/ZOSOpenTools</a>
+---
+Have you considered cloning the repository and utilizing Git's file
+tagging feature? It can handle the tagging process for you. If you don't
+have internet access, a suggestion would be to tag all the files as
+ISO8859-1. It's advisable to avoid using UTF-8, as it may cause issues
+with some ported tools that will not work. That includes the majority of
+Rocket ported tools. If you list the IBM Python runtime library you will
+notice that all source files are tagged "iso8859-1" even though Python
+mandates UTF-8.
+---
+I'm doing this on the company sandbox so I can not make a git clone.
+And trying 8859-1 (cp 819) does not change anything:
+    /home/bc6608/psutil:chtag -p setup.py
+    t ISO8859-1   T=on  setup.py
+
+    PYTHONWARNINGS=all python3 setup.py build_ext -i `python3 -c  "import sys, os;  py36 = sys.version_info[:2] &gt;= (3, 6);  cpus = os.cpu_count() or 1 if py36 else 1;  print('--parallel %s' % cpus if cpus &gt; 1 else '')"`
+    Traceback (most recent call last):
+     File "/home/bc6608/psutil/setup.py", line 47, in &lt;module&gt;
+       from _common import AIX  # NOQA
+       ^^^^^^^^^^^^^^^^^^^^^^^
+    UnicodeDecodeError: 'utf-8' codec can't decode byte 0x97 in position 2: invalid start byte
+---
+Found the error.
+The error was not the codepage of the setup.py, but the codepage of the imported file _common .
+Once it got chtag -tc 1047 _common.py I got further.
+---
+I can’t recreate your problem but I used a different method. I downloaded a zip file from Github, uploaded it to z/OS and followed these steps:
+    jar xf psutill-master.zip
+    cd psutil-master
+    chtag -R -tc iso8859-1 .
+    python3 setup.py
+---
+A quick question -
+Will the same chtag command work for, say, Java packages/projects?
+    Answer: yes
+Or, would I have to use chtag -R -tc UTF-8 if a project expects to things to be in UTF8?
+    Answer:
+    I'd like to understand your reasons for wanting to encode your Java source
+    files in UTF-8. It's important to note that the default encoding on z/OS is
+    IBM-1047 (EBCDIC). We typically use ISO8859-1 and have to specify the
+    "-encoding iso8859-1" option when using the javac compiler. As mentioned
+    earlier, tagging files as UTF-8 can lead to unexpected issues, which is why
+    it's not commonly done. If you examine the file attributes of modern
+    languages like Python, Node.js, Go, etc., you'll notice that their source
+    files are tagged as ISO8859-1.
+    A while ago, one of our ported tools developers provided me with a detailed
+    explanation regarding the challenges associated with UTF-8 for ported tools.
+    Although I don't recall all the specifics, it had something to do with
+    double conversions. Therefore, the general rule of thumb is to avoid using
+    UTF-8 unless it is necessary, such as when embedding a YAML document into a
+    Java JAR file.
+---
+We specify &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt; in
+our Maven builds as most of the time we are building off host on machines with
+UTF8 locales. However,  we tag our files ISO8859-1 on z/OS other then some YAML
+docs that must be tagged UTF-8 or else SnakeYaml barfs when reading it from the
+class path which doesn’t support tags :). The server runs with file.encoding=ISO8859-1
+as well. If we cared about the euro sign we could change it to ISO8859-15 which
+is still an 8-bit character set. It’s those pesky codes above 0x7F in UTF-8 that
+cause the issues.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/support/pages/system/files/inline-files/Managing%20the%20code%20page%20conversion%20when%20migrating%20zOS%20source%20files%20to%20Git%20-%201.0.pdf">https://www.ibm.com/support/pages/system/files/inline-files/Managing%20the%20code%20page%20conversion%20when%20migrating%20zOS%20source%20files%20to%20Git%20-%201.0.pdf</a>
+(PDF)
+Managing the code page conversion when migrating z/OS source files to Git
+---
+Git has proven to be the de-facto standard in the Open Source world, and the
+z/OS platform can interact with Git through the z/OS Git client, which is
+maintained by Rocket Software in its “Open Source Languages and Tools for z/OS”
+package.
 
 
 <hr><h2 id="IBM_RPG_Lang">IBM RPG Lang</h2><hr>
@@ -3493,6 +3947,60 @@ and it's after a feedback on Reddit that he addded stuff about graphemes.
 Unicode Text Segmentation, Word Wrapping, and String Width Calculation in Go
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://pkg.go.dev/github.com/rivo/uniseg#hdr-Monospace_Width">https://pkg.go.dev/github.com/rivo/uniseg#hdr-Monospace_Width</a>
+Monospace Width
+Monospace width, as referred to in this package, is the width of a string in a monospace font.
+This package differs from wcswidth() in a number of ways, presumably to generate more visually pleasing results.
+Note that whether these widths appear correct depends on your application's render engine,
+to which extent it conforms to the Unicode Standard, and its choice of font.
+---
+Rules implemented by uniseg:
+    we assume that every code point has a width of 1, with the following exceptions:
+
+    - Code points with grapheme cluster break properties Control, CR, LF, Extend, and ZWJ have a width of 0.
+    - U+2E3A, Two-Em Dash, has a width of 3.
+    - U+2E3B, Three-Em Dash, has a width of 4.
+    - Characters with the East-Asian Width properties "Fullwidth" (F) and "Wide" (W)
+      have a width of 2. (Properties "Ambiguous" (A) and "Neutral" (N) both have a width of 1.)
+    - Code points with grapheme cluster break property Regional Indicator have a width of 2.
+    - Code points with grapheme cluster break property Extended Pictographic have
+      a width of 2, unless their Emoji Presentation flag is "No", in which case the width is 1.
+
+    - For Hangul grapheme clusters composed of conjoining Jamo and for Regional Indicators
+      (flags), all code points except the first one have a width of 0.
+    - For grapheme clusters starting with an Extended Pictographic, any additional
+      code point will force a total width of 2, except if the Variation Selector-15
+      (U+FE0E) is included, in which case the total width is always 1.
+    - Grapheme clusters ending with Variation Selector-16 (U+FE0F) have a width of 2.
+---
+jlf: mouais, in conclusion there is no guarantee that the result will be good.
+---
+uniseg.StringWidth("🇩🇪🏳️‍🌈!")       -- uniseg returns 5
+utf8proc:
+"🇩🇪🏳️‍🌈!"~text~unicodeCharacters~each("charWidth")=     -- [ 1, 1, 1, 0, 0, 2, 1]
+"🇩🇪🏳️‍🌈!"~text~unicodeCharacters==
+    an Array (shape [7], 7 items)
+     1 : ( "🇩"   U+1F1E9 So 1 "REGIONAL INDICATOR SYMBOL LETTER D" )
+     2 : ( "🇪"   U+1F1EA So 1 "REGIONAL INDICATOR SYMBOL LETTER E" )
+     3 : ( "🏳"   U+1F3F3 So 1 "WAVING WHITE FLAG" )
+     4 : ( "️"    U+FE0F Mn 0 "VARIATION SELECTOR-16", "VS16" )
+     5 : ( "‍"    U+200D Cf 0 "ZERO WIDTH JOINER", "ZWJ" )
+     6 : ( "🌈"  U+1F308 So 2 "RAINBOW" )
+     7 : ( "!"   U+0021 Po 1 "EXCLAMATION MARK" )
+
+
+<hr><h2 id="jRuby_lang">jRuby lang</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/jruby/jruby/blob/master/core/src/main/java/org/jruby/RubyString.java">https://github.com/jruby/jruby/blob/master/core/src/main/java/org/jruby/RubyString.java</a>
+jlf: big file, more than 7000 lines.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/jruby/jruby/blob/master/core/src/main/java/org/jruby/RubyEncoding.java">https://github.com/jruby/jruby/blob/master/core/src/main/java/org/jruby/RubyEncoding.java</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/jruby/jruby/blob/master/lib/ruby/stdlib/unicode_normalize/normalize.rb">https://github.com/jruby/jruby/blob/master/lib/ruby/stdlib/unicode_normalize/normalize.rb</a>
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/jruby/jruby/blob/master/spec/ruby/core/string/unicode_normalize_spec.rb">https://github.com/jruby/jruby/blob/master/spec/ruby/core/string/unicode_normalize_spec.rb</a>
+
+
 <hr><h2 id="Java_lang">Java lang</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://docs.oracle.com/en/java/javase/">https://docs.oracle.com/en/java/javase/</a>
 
@@ -3804,6 +4312,15 @@ CRFs, a log-loss re-ranker, and a joint "graphone" language model.
 <hr><h2 id="JavaScript_lang">JavaScript lang</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://certitude.consulting/blog/en/invisible-backdoor/">https://certitude.consulting/blog/en/invisible-backdoor/</a>
 THE INVISIBLE JAVASCRIPT BACKDOOR
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.npmjs.com/package/tty-strings">https://www.npmjs.com/package/tty-strings</a>
+A one stop shop for working with text displayed in the terminal.
+The goal of this project is to alleviate the headache of working with Javascript's
+internal representation of unicode characters, particularly within the context of
+displaying text in the terminal for command line applications.
+---
+jlf tag: character width
 
 
 <hr><h2 id="Julia_lang">Julia lang</h2><hr>
@@ -4152,9 +4669,80 @@ Live CEOing Ep 426: Language Design in Wolfram Language [Unicode Characters &amp
 At the begining, there are a few minutes about character properties.
 
 
-<hr><h2 id="MOAR_VM_RAKU_lang">MOAR-VM RAKU lang</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://writings.stephenwolfram.com/2022/06/launching-version-13-1-of-wolfram-language-mathematica/#emojis-and-more-multilingual-support">https://writings.stephenwolfram.com/2022/06/launching-version-13-1-of-wolfram-language-mathematica/#emojis-and-more-multilingual-support</a>
+Launching Version 13.1 of Wolfram Language &amp; Mathematica 🙀🤠🥳
+Emojis! And More Multilingual Support
+Original 16-bit Unicode is “plane 0”. Now there are up to 16 additional planes.
+Not quite 32-bit characters, but given the way computers work, the approach now
+is to allow characters to be represented by 32-bit objects. It’s far from trivial
+to do that uniformly and efficiently. And for us it’s been a long process to
+upgrade everything in our system—from string manipulation to notebook rendering—
+to handle full 32-bit characters. And that’s finally been achieved in Version 13.1.
+---
+You can have wolf and ram variables:
+    In:= Expand[(🐺 + 🐏)^8]
+    In:= Expand[(\|01f43a + \|01f40f)^8]
+               8       7            6    2         5   3         4   4         3   5         2    6           7      8
+    Out= 🐏  + 8 🐏  🐺 + 28 🐏  🐺  + 56 🐏  🐺  + 70 🐏  🐺  + 56 🐏  🐺  + 28 🐏  🐺  + 8 🐏 🐺  + 🐺
+
+The 🐏 sorts before the 🐺 because it happens to have a numerically smaller character code:
+    In:= ToCharacterCode["🐺🐏"]
+    In:= ToCharacterCode["\|01f43a\|01f40f"]
+    Out= {128058, 128015}
+---
+In:= Grid[Outer[StringJoin[#1, "\:200d", #2] &amp; , {"👩", "👨"}, {"🔬", "🏫", "🎓", "🍳", "🚀", "🔧"}]]
+In:= Grid[Outer[StringJoin[#1, "\:200d", #2] &amp; , {"\|01f469", "\|01f468"}, {"\|01f52c", "\|01f3eb", "\|01f393", "\|01f373", "\|01f680", "\|01f527"}]]
+Out= 👩‍🔬   👩‍🏫   👩‍🎓   👩‍🍳   👩‍🚀   👩‍🔧
+     👨‍🔬   👨‍🏫   👨‍🎓   👨‍🍳   👨‍🚀   👨‍🔧
+---
+No outer product in Executor, only element-wise operators
+("👩", "👨")~each{(item || .Unicode["zero width joiner"]~text) || ("🔬", "🏫", "🎓", "🍳", "🚀", "🔧")}==
+    an Array (shape [2], 2 items)
+     1 : [T'👩‍🔬',T'👩‍🏫',T'👩‍🎓',T'👩‍🍳',T'👩‍🚀',T'👩‍🔧']
+     2 : [T'👨‍🔬',T'👨‍🏫',T'👨‍🎓',T'👨‍🍳',T'👨‍🚀',T'👨‍🔧']
+---
+In:= CharacterRange[74000, 74050]
+Out= {𒄐, 𒄑, 𒄒, 𒄓, 𒄔, 𒄕, 𒄖, 𒄗, 𒄘, 𒄙, 𒄚, 𒄛, 𒄜, 𒄝, 𒄞, 𒄟, 𒄠, 𒄡, 𒄢, 𒄣,
+ &gt;    𒄤, 𒄥, 𒄦, 𒄧, 𒄨, 𒄩, 𒄪, 𒄫, 𒄬, 𒄭, 𒄮, 𒄯, 𒄰, 𒄱, 𒄲, 𒄳, 𒄴, 𒄵, 𒄶, 𒄷,
+ &gt;    𒄸, 𒄹, 𒄺, 𒄻, 𒄼, 𒄽, 𒄾, 𒄿, 𒅀, 𒅁, 𒅂}
+In:= FromCharacterCode[{2361, 2367}]
+Out= हि
+In:= Characters["हि"]
+In:= Characters["\:0939\:093f"]
+Out= {ह, ि}
+In:= Characters["o\:0308"]
+Out= {o, ̈}
+In:= CharacterNormalize["o\:0308", "NFC"]
+Out= ö
+In:= ToCharacterCode[%]
+Out= {246}
+
+
+<hr><h2 id="MOAR_VM_RAKU_lang_Rakudo_lang__Perl6__Perl_6_">MOAR-VM RAKU lang Rakudo lang (Perl6, Perl 6)</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://raku-advent.blog/2022/12/23/sigils-2/">https://raku-advent.blog/2022/12/23/sigils-2/</a>
+jlf: not related to unicode, but good for general culture.
+A sigil is any non-alphabetic character that’s used at the front of a word, and
+that conveys meta information about the word. For example, hashtags are a sigil:
+the  #  in  #nofilter  is a sigil that communicates that “nofilter” is a tag
+(not a regular word of text). The Raku programming language uses sigils to mark
+its variables; Raku has four sigils:
+@   (normally associated with arrays),
+    can only be used for types that implement the  Positional  (“array-like”) role
+%   (normally associated with hashes),
+    can only be used for types that implement the  Associative  (“hash-like”) role
+&amp;   (normally associated with functions)
+    can only be used for types that implement the  Callable  (“function-like”) role
+$  (for other variables, such as numbers and strings).
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/MoarVM/MoarVM/blob/master/docs/strings.asciidoc">https://github.com/MoarVM/MoarVM/blob/master/docs/strings.asciidoc</a>
 MoarVM string documentation.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://docs.raku.org/type/Str">https://docs.raku.org/type/Str</a>
+class Str
+Built-in class for strings. Objects of type Str are immutable.
+
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.codesections.com/blog/raku-unicode/">https://www.codesections.com/blog/raku-unicode/</a>
 A deep dive into Raku's Unicode support
@@ -4256,6 +4844,88 @@ Normalization
 NFG
     Normalization Form Grapheme. Similar to NFC except graphemes which contain multiple codepoints
     are stored in Synthetic graphemes.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://perl6advent.wordpress.com/2015/12/07/day-7-unicode-perl-6-and-you/">https://perl6advent.wordpress.com/2015/12/07/day-7-unicode-perl-6-and-you/</a>
+Types
+    Str type: graphemes
+        say "नि".codes;    # returns  2
+        say "नि".chars;    # returns  1
+        say "\r\n".chars;    # returns 1
+    NFC, NFD, NFKC, NFKD: types (jlf: types? really?)
+    Uni: work with codepoints, no normalization (keep text as-is)
+    Blob: family of types to work at the binary level
+Unicode source code
+    say 0 ∈ «42 -5 1».map(&amp;log ∘ &amp;abs);
+    say 0.1e0 + 0.2e0 ≅ 0.3e0;
+    say ｢There is no \escape in here!｣
+"Texas" source code
+    say 0 (elem) &lt;&lt;42 -5 1&gt;&gt;.map(&amp;log o &amp;abs);
+    say 0.1e0 + 0.2e0 =~= 0.3e0;
+    say Q[[[There is no \escape in here!]]]
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://perl6advent.wordpress.com/2015/12/07/day-7-unicode-perl-6-and-you/#comment-14302">https://perl6advent.wordpress.com/2015/12/07/day-7-unicode-perl-6-and-you/#comment-14302</a>
+jlf: interesting critics about graphemes.
+See also the comment after, which provides answers to the critics.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://lwn.net/Articles/667036/">https://lwn.net/Articles/667036/</a>
+Unicode, Perl 6, and You
+jlf: interesting opinions.
+<a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Devanagari#Conjunct_consonants">https://en.wikipedia.org/wiki/Devanagari#Conjunct_consonants</a>
+jlf: this is executable code (what is this notation &lt; षि &gt; ?)
+    &lt; षि &gt; .NFC .say    # NFC:0x&lt;0937 093f&gt;
+    &lt; षि &gt; .NFKC .say   # NFD:0x&lt;0937 093f&gt;
+    &lt; षि &gt; .NFD .say    # NFKC:0x&lt;0937 093f&gt;
+    &lt; षि &gt; .NFKD .say   # NFKD:0x&lt;0937 093f&gt;
+Particularly interesting, this subthread:
+<a target="_blank" rel="noopener noreferrer" href="https://lwn.net/Articles/667669/">https://lwn.net/Articles/667669/</a>
+Is the current Unicode design impractical?
+
+
+jlf tests
+"Bundesstraße im Freiland".lc                               -- bundesstraße im freiland
+"Bundesstraße im Freiland".uc                               -- BUNDESSTRASSE IM FREILAND
+"Bundesstraße im Freiland".fc                               -- bundesstrasse im freiland
+"Bundesstraße im Freiland".index("Freiland")                -- 16
+"Bundesstraße im Freiland".index("freiland", :ignorecase)   -- 16
+"Bundesstraße ss ß ss".indices("ss", :ignorecase)           -- (5 10 13 16 18)
+ 01234567890123456789
+"Bundesstraße ss ß ss".fc.indices("ss")                     -- (5 10 14 17 20)
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://raku-advent.blog/2022/12/22/day-22-hes-making-a-list-part-1/">https://raku-advent.blog/2022/12/22/day-22-hes-making-a-list-part-1/</a>
+Unicode’s CLDR (Common Linguistic Data Repository)
+jlf: to read...
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.nu42.com/2015/12/perl6-newline-translation-broken.html">https://www.nu42.com/2015/12/perl6-newline-translation-broken.html</a>
+Newline translation in Perl6 is broken
+A. Sinan Unur
+December 11, 2015
+---
+jlf:
+Referenced from <a target="_blank" rel="noopener noreferrer" href="https://perl6advent.wordpress.com/2015/12/07/day-7-unicode-perl-6-and-you/#comment-14382">https://perl6advent.wordpress.com/2015/12/07/day-7-unicode-perl-6-and-you/#comment-14382</a>
+I reference this URL in case \r\n versus \r is a problem for Rexx Unicodified.
+For Unicode, \r\n is one grapheme. Maybe no relation with the failed test cases.
+Was fixed like that:
+    <a target="_blank" rel="noopener noreferrer" href="https://github.com/Raku/old-issue-tracker/issues/4849#issuecomment-570873506">https://github.com/Raku/old-issue-tracker/issues/4849#issuecomment-570873506</a>
+    * We do translation of \r\n graphemes to \n on all input read as text except
+      sockets, independent of platform
+    * We do translation of all \n graphemes to \r\n on text output to handles
+      except sockets, on Windows only
+    * \n is now, unless `use newline` is in force, always \x0A
+    * We don't do any such translation when using .encode/.decode, and of course
+      when reading/writing Bufs to files, providing an escape hatch from translation if needed
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://6guts.wordpress.com/2015/11/21/what-one-christmas-elf-has-been-up-to/">https://6guts.wordpress.com/2015/11/21/what-one-christmas-elf-has-been-up-to/</a>
+jlf: referenced for the section NFG improvements.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://6guts.wordpress.com/2015/10/15/last-week-unicode-case-fixes-and-much-more/">https://6guts.wordpress.com/2015/10/15/last-week-unicode-case-fixes-and-much-more/</a>
+jlf: referenced for the section A case of Unicode.
 
 
 <hr><h2 id="netrexx_lang">netrexx lang</h2><hr>
@@ -4493,6 +5163,72 @@ Unless one specifies otherwise, Perl 6 normalizes a text string to NFC when it's
 <hr><h2 id="PHP_lang">PHP lang</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/nicolas-grekas/Patchwork-UTF8">https://github.com/nicolas-grekas/Patchwork-UTF8</a>
 Extensive, portable and performant handling of UTF-8 and grapheme clusters for PHP
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://kunststube.net/encoding/">https://kunststube.net/encoding/</a>
+jlf: First, a general introduction to encoding. Then a focus on PHP.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.php.net/manual/en/function.iconv.php">https://www.php.net/manual/en/function.iconv.php</a>
+iconv — Convert a string from one character encoding to another
+iconv(string $from_encoding, string $to_encoding, string $string): string|false
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.php.net/manual/en/book.mbstring.php">https://www.php.net/manual/en/book.mbstring.php</a>
+Multibyte String
+replicates all important string functions in a multi-byte aware fashion.
+Because the mb_ functions now have to actually think about what they're doing,
+they need to know what encoding they're working on. Therefore every mb_ function
+accepts an $encoding parameter as well. Alternatively, this can be set globally
+for all mb_ functions using mb_internal_encoding.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.php.net/manual/en/mbstring.overload.php">https://www.php.net/manual/en/mbstring.overload.php</a>
+Warning
+This feature has been DEPRECATED as of PHP 7.2.0, and REMOVED as of PHP 8.0.0.
+Relying on this feature is highly discouraged.
+---
+mbstring supports a 'function overloading' feature which enables you to add
+multibyte awareness to such an application without code modification by
+overloading multibyte counterparts on the standard string functions. For
+example, mb_substr() is called instead of substr() if function overloading is
+enabled. This feature makes it easy to port applications that only support
+single-byte encodings to a multibyte environment in many cases.
+---
+jlf: the few user's comments are all negative.
+     hum... this is one of the choices we foresee for Rexx. Bad idea?
+Example: "In short, only use mbstring.func_overload if you are 100% certain that
+nothing on your site relies on manipulating binary data in PHP."
+
+
+Search PHP souces: grapheme
+<a target="_blank" rel="noopener noreferrer" href="https://heap.space/search?project=PHP-8.2&full=grapheme&defs=&refs=&path=&hist=&type=">https://heap.space/search?project=PHP-8.2&full=grapheme&defs=&refs=&path=&hist=&type=</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://news-web.php.net/group.php?group=php.i18n">https://news-web.php.net/group.php?group=php.i18n</a>
+php.i18n
+Most recent: 08 Feb 2018 (?)
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://news-web.php.net/php.i18n/1439">https://news-web.php.net/php.i18n/1439</a>
+Unicode support with UString abstraction layer
+21/03/2012 by Umberto Salsi
+jlf: no URL
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://wiki.php.net/rfc/ustring">https://wiki.php.net/rfc/ustring</a>
+    UString is much quicker than mbstring thanks to the use of ICU.
+<a target="_blank" rel="noopener noreferrer" href="https://www.reddit.com/r/PHP/comments/2jvvol/rfc_ustring/">https://www.reddit.com/r/PHP/comments/2jvvol/rfc_ustring/</a>
+    Low enthusiasm on reddit...
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/krakjoe/ustring">https://github.com/krakjoe/ustring</a>
+    UnicodeString for PHP7
+    dead, last commit on Mar 17, 2016
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/nicolas-grekas/Patchwork-UTF8">https://github.com/nicolas-grekas/Patchwork-UTF8</a>
+Patchwork-UTF8
+Extensive, portable and performant handling of UTF-8 and grapheme clusters for PHP
+Dead? last commit was on May 18, 2016
 
 
 <hr><h2 id="Python_lang">Python lang</h2><hr>
@@ -4909,6 +5645,22 @@ Types of string and their methods:
         zfill                           zfill
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/72371202/unicodedecodeerror-utf-8-codec-cant-decode-byte-0x97-in-position-3118-inval">https://stackoverflow.com/questions/72371202/unicodedecodeerror-utf-8-codec-cant-decode-byte-0x97-in-position-3118-inval</a>
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0x97 in position 3118: invalid start byte Simple text file [duplicate]
+(jlf: just keeping a note for the example)
+It seems like the file is not encoded in utf-8. Could you try open the file using
+io.open with latin-1 encoding instead?
+<a target="_blank" rel="noopener noreferrer" href="https://docs.python.org/3/library/functions.html#open">https://docs.python.org/3/library/functions.html#open</a>
+    --- (example)
+    from textblob import TextBlob
+    import io
+
+    with io.open("positive.txt", encoding='latin-1') as f:
+        for line in f.read().split('\n'):
+            # do what you want with line
+    ---
+
+
 <hr><h2 id="R_lang">R lang</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://stringi.gagolewski.com/index.html">https://stringi.gagolewski.com/index.html</a>
 stringi: Fast and Portable Character String Processing in R
@@ -5224,6 +5976,39 @@ slide 24: Each instance of string has encoding information
 slide 26: Universal Coded Set (UCS)
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://shopify.engineering/code-ranges-ruby-strings">https://shopify.engineering/code-ranges-ruby-strings</a>
+Code Ranges: A Deeper Look at Ruby Strings
+Code ranges are a way for the VM to avoid repeated work and optimize operations
+on a per-string basis, guiding away from slow paths when that functionality
+isn't needed.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://tomdebruijn.com/posts/rust-string-length-width-calculations/">https://tomdebruijn.com/posts/rust-string-length-width-calculations/</a>
+The article is about Rust, but there is an appendix about Ruby.
+Seems a good summary, so copy-paste here...
+---
+    When calling Ruby's String#length, it returns the length of characters like
+    Rust's Chars.count. If you want the length in bytes you need to call String#bytesize.
+        "abc".length   # =&gt; 3 characters
+        "abc".bytesize # =&gt; 3 bytes
+        "é".length     # =&gt; 1 characters
+        "é".bytesize   # =&gt; 2 bytes
+
+    Calling the length on emoji will return the individual characters as the length.
+    The 👩‍🔬 emoji is three characters and eleven bytes in Ruby as well.
+        "👩‍🔬".length   # =&gt; 3 characters
+        "👩‍🔬".bytesize # =&gt; 11 bytes
+
+    Do you want grapheme clusters? it's built-in to Ruby with String#grapheme_clusters.
+        "👩‍🔬".grapheme_clusters.length # =&gt; 1 cluster
+
+    To calculate the display with, we can use the unicode-display_width gem. The same
+    multiple counting of emoji in the grapheme cluster still applies here.
+        require "unicode/display_width"
+        Unicode::DisplayWidth.of("👩‍🔬") # =&gt; 4
+        Unicode::DisplayWidth.of("❤️") # =&gt; 1
+
+
 <hr><h2 id="Rust_lang">Rust lang</h2><hr>
 Seen in a comment here :  <a target="_blank" rel="noopener noreferrer" href="https://bugs.swift.org/browse/SR-7602">https://bugs.swift.org/browse/SR-7602</a>
 
@@ -5351,6 +6136,58 @@ jlf: I found the URL above in this HN comment (related to awk support of Unicode
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/danielpclark/rutie">https://github.com/danielpclark/rutie</a>
 Integrate Ruby with your Rust application. Or integrate Rust with your Ruby application.
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/danielpclark/rutie/blob/master/src/class/string.rs">https://github.com/danielpclark/rutie/blob/master/src/class/string.rs</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://tomdebruijn.com/posts/rust-string-length-width-calculations/">https://tomdebruijn.com/posts/rust-string-length-width-calculations/</a>
+Calculating String length and width
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/lintje/lintje/blob/501aab06e19008e787237438a69ac961f38bb4b7/src/utils.rs#L22-L71">https://github.com/lintje/lintje/blob/501aab06e19008e787237438a69ac961f38bb4b7/src/utils.rs#L22-L71</a>
+    // Return String display width as rendered in a monospace font according to the Unicode
+    // specification.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.reddit.com/r/rust/comments/gpw2ra/how_is_the_rust_compiler_able_to_tell_the_visible/">https://www.reddit.com/r/rust/comments/gpw2ra/how_is_the_rust_compiler_able_to_tell_the_visible/</a>
+How is the Rust compiler able to tell the visible width of unicode characters?
+---
+jlf: some arbitray excerpts
+- rustc uses the unicode-width crate (<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-rs/unicode-width)">https://github.com/unicode-rs/unicode-width)</a>
+- Now try it with the rainbow flag emoji. Unicode is hard :)
+- explanation:
+  the rainbow flag emoji is actually just a white flag + zero width joiner + a rainbow, meaning it's technically three characters.
+- Sure but why doesn't the unicode-width crate handle that?
+- The unicode-width crate operates on scalar values. I don't believe Unicode has
+  a way to determine whether a grapheme cluster is halfwidth/fullwidth. The most
+  reasonable way to determine this would probably be the maximum width of any scalar
+  value within a grapheme cluster, but this isn't part of any standard and probably
+  isn't 100% accurate.
+- It is also dependent on the display platform. A platform with support for displaying
+  emojis but only in older unicode versions would indeed display multiple emojis
+  on the screen. I don't believe there's a platform independent way to detect the
+  visual length of any given series of unicode codepoints. For Rust this isn't a
+  problem as we restrict the unicode identifiers only to things that are fairly
+  homogeneous (namely, no emojis in your variable names!).
+- At the bottom of things is the unicode-width native Rust implementation, based
+  off the Unicode 13.0 data tables. In C/POSIX land, we would use the function
+  wcwidth(). Unfortunately, this isn't the whole story. The actual number of
+  columns used is dependent upon your font and the font layout engine.
+  See section 7.4 of my Free book, Hacking the Planet! with Notcurses, aka "Fixed-width Fonts Ain't So Fixed."
+  <a target="_blank" rel="noopener noreferrer" href="https://nick-black.com/htp-notcurses.pdf#page=57">https://nick-black.com/htp-notcurses.pdf#page=57</a>
+  you want pages 47--49 (p49 has some good examples).
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-rs/unicode-width">https://github.com/unicode-rs/unicode-width</a>
+Displayed width of Unicode characters and strings according to UAX#11 rules.
+NOTE: The computed width values may not match the actual rendered column width.
+For example, the woman scientist emoji comprises of a woman emoji, a zero-width
+joiner and a microscope emoji.
+
+    extern crate unicode_width;
+    use unicode_width::UnicodeWidthStr;
+
+    fn main() {
+        assert_eq!(UnicodeWidthStr::width("👩"), 2); // Woman
+        assert_eq!(UnicodeWidthStr::width("🔬"), 2); // Microscope
+        assert_eq!(UnicodeWidthStr::width("👩‍🔬"), 4); // Woman scientist
+    }
 
 
 <hr><h2 id="Saxon_lang">Saxon lang</h2><hr>
