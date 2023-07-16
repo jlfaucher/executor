@@ -414,7 +414,7 @@ sleep no prompt
 "only ASCII"~text~isNFKD=                       -- 1
 sleep
 text = "Noël"~text
-text~isNFC=                                     -- -1
+text~isNFC=                                     -- 1
 text~isNFD=                                     -- -1
 sleep
 textNFC = text~NFC

@@ -228,7 +228,7 @@ sleep
 sleep 10 no prompt
 
 /*
-Example: CP1252 to UTF-8
+Example: CP1252 to UTF-8 (where CP1252 is an alias of Windows-1252)
 "Un œuf de chez MaPoule™ coûte ±0.40€"
 */
 sleep

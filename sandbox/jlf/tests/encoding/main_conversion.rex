@@ -23,7 +23,7 @@ call display_cache t
 
 
 --------------------------------------------------------------------------------
--- from CP1252
+-- from CP1252 (alias of Windows-1252)
 --------------------------------------------------------------------------------
 
 drop t
@@ -37,7 +37,7 @@ call display_cache t
 --------------------------------------------------------------------------------
 
 drop t
-t = xrange("20"x, "7E"x, "A0"x, "FF"x)~text("ISO-8859-1")   -- characters from 00x to 1Fx and from 7Fx to 9F can't be converted to Unicode
+t = xrange("00"x, "FF"x)~text("ISO-8859-1")     -- all the characters from 00x to FFx can be converted to Unicode
 < include_conversion.rex
 call display_cache t
 
