@@ -6,7 +6,7 @@ demo on
 --------------------
 
 /*
-The prototype is currently using 2 libraries:
+The prototype is currently using 3 libraries:
 - utf8proc    https://github.com/JuliaStrings/utf8proc
 - uni-algo    https://github.com/uni-algo/uni-algo
 - icu4x       https://github.com/unicode-org/icu4x
