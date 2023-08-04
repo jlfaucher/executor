@@ -455,7 +455,7 @@ sleep no prompt
 
 "äöü äöü x̂ ϔ ﷺ baﬄe"~text~UnicodeCharacters==
 sleep
-"äöü äöü x̂ ϔ ﷺ baﬄe"~text~description=      -- 'UTF-8 not-ASCII (18 graphemes, 22 codepoints, 34 bytes, 0 error)'
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~description=      -- 'UTF-8 not-ASCII (18 characters, 22 codepoints, 34 bytes, 0 error)'
 sleep
 "äöü äöü x̂ ϔ ﷺ baﬄe"~text~upper=            -- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE
 sleep no prompt
@@ -470,7 +470,7 @@ sleep no prompt
 
 "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~UnicodeCharacters==
 sleep
-"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~description=  -- 'UTF-8 not-ASCII (18 graphemes, 26 codepoints, 39 bytes, 0 error)'
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~description=  -- 'UTF-8 not-ASCII (18 characters, 26 codepoints, 39 bytes, 0 error)'
 sleep
 "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~upper=        -- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
 sleep no prompt
@@ -485,7 +485,7 @@ sleep no prompt
 
 "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~UnicodeCharacters==
 sleep
-"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~description=  -- 'UTF-8 not-ASCII (18 graphemes, 19 codepoints, 31 bytes, 0 error)'
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~description=  -- 'UTF-8 not-ASCII (18 characters, 19 codepoints, 31 bytes, 0 error)'
 sleep
 "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~upper=        -- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
 sleep no prompt
@@ -500,7 +500,7 @@ sleep no prompt
 
 "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~UnicodeCharacters==
 sleep
-"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~description= -- 'UTF-8 not-ASCII (37 graphemes, 45 codepoints, 69 bytes, 0 error)'
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~description= -- 'UTF-8 not-ASCII (37 characters, 45 codepoints, 69 bytes, 0 error)'
 sleep
 "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~upper=       -- T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE
 sleep no prompt
@@ -515,7 +515,7 @@ sleep no prompt
 
 "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~UnicodeCharacters==
 sleep
-"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~description= -- 'UTF-8 not-ASCII (37 graphemes, 38 codepoints, 61 bytes, 0 error)'
+"äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~description= -- 'UTF-8 not-ASCII (37 characters, 38 codepoints, 61 bytes, 0 error)'
 sleep
 "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~upper=       -- T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE'
 sleep no prompt

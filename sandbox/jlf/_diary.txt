@@ -2,15 +2,39 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
-2023 Jul 25
+2023 Aug 04
+
+[Encoded strings]
+
+Rename "grapheme" to "character" in the RexxText interface because the concept
+of grapheme is not applicable to byte encodings.
+
+-- Compatibility with initial interface
+::method graphemes; forward message "characters"
+::method grapheme; forward message "character"
+
+c2g, c2u and UnicodeCharacters are now abstract method at the top level.
+They are implemented only for the Unicode indexers.
+
+
+Update the demo executor-demo-text-unicode.rex
+- Strict/non-strict RexxText equality
+- caselessCompareTo
+- caselessEquals
+- caselessMatch
+- caselessMatchChar
+- matchChar using an optional NFKD transformation
+- functional
+- generator
+
+
+===============================================================================
+2023 Aug 04
 
 [Encoded strings]
 
 c2g and c2u no longer return a result if the text is not Unicode.
 (same as UnicodeCharacters)
-TODO:
-rename "grapheme" to "character" in the RexxText interface because this concept
-is not applicable to byte encodings.
 
 
 Fix regression in .Encoding~forConcatenation.
@@ -212,6 +236,7 @@ Update library uni-algo from v0.7.1 to v0.8.1
 https://github.com/uni-algo/uni-algo
 
 .Unicode~unialgo_version=           -- '0.8.1'
+
 
 ===============================================================================
 2023 May 29

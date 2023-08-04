@@ -1,5 +1,6 @@
 .Unicode~initialize
 
+::requires "encoding/stringIndexer.cls"
 ::requires "encoding/unicode8_encoding.cls"
 ::requires "encoding/unicode16_encoding.cls"
 ::requires "encoding/unicode32_encoding.cls"

@@ -45,7 +45,7 @@ Depends on
     case = 0
     if string~datatype("L") then case = 1
     if case == 0,  string~datatype("U") then case = 2
-    -- Bytes, codepoints and graphemes are identical
+    -- Bytes, codepoints and characters are identical
     -- The string holds all the needed informations, no need to calculate indexes
     -- The maximum codepoint is not calculated: -1
     return self~new(string, -1, .nil, sizeB, .nil, sizeB, case, .nil)
@@ -187,20 +187,20 @@ Depends on
               else return self~string~subchar(startB)
 
 
-::method graphemeIndex
+::method characterIndex
     use strict arg indexG
-    if indexG < 1 then raise syntax 23.900 array (self~description "invalid grapheme index:" indexG)
-    if indexG > self~graphemeCount then indexG = self~string~length + 1
+    if indexG < 1 then raise syntax 23.900 array (self~description "invalid character index:" indexG)
+    if indexG > self~characterCount then indexG = self~string~length + 1
     return indexG
 
 
-::method grapheme
+::method character
     -- 2 modes:
-    -- if the buffer is passed as argument then append the grapheme to the buffer, and return the buffer
-    -- otherwise return the grapheme as a RexxText
+    -- if the buffer is passed as argument then append the character to the buffer, and return the buffer
+    -- otherwise return the character as a RexxText
     use strict arg indexG
     use strict named arg buffer(1)=.nil
-    startB = abs(self~graphemeIndex(indexG))
+    startB = abs(self~characterIndex(indexG))
     if .nil <> buffer then return buffer~~append(self~string~subchar(startB))
                       else return .RexxText~new(self~string~subchar(startB), self~encoding)
 

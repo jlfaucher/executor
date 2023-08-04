@@ -258,8 +258,8 @@ For example, if startB==6 then previousCodepointIndex==3
 ::attribute maximumCodepoint get -- -1 if not calculated (Byte_Encoding doesn't calculate it)
 ::attribute codepointIndexes get private -- will be removed, no need of direct access to a codepoint
 ::attribute codepointCount get
-::attribute graphemeIndexes get private
-::attribute graphemeCount get
+::attribute characterIndexes get private
+::attribute characterCount get
 ::attribute errors get
 ::attribute case get -- 1 lowercase, 2 uppercase
 
@@ -267,8 +267,8 @@ For example, if startB==6 then previousCodepointIndex==3
 ::method init
     expose string -
            maximumCodepoint codepointIndexes codepointCount -
-           graphemeIndexes graphemeCount case errors
-    use strict arg string, maximumCodepoint, codepointIndexes, codepointCount, graphemeIndexes, graphemeCount, case, errors
+           characterIndexes characterCount case errors
+    use strict arg string, maximumCodepoint, codepointIndexes, codepointCount, characterIndexes, characterCount, case, errors
     self~init:super
 
 
@@ -288,28 +288,28 @@ For example, if startB==6 then previousCodepointIndex==3
 ::method description
     /*
     "noël👩‍👨‍👩‍👧🎅"~text~description(s:1)          -- 'UTF-8 not-ASCII'
-    "noël👩‍👨‍👩‍👧🎅"~text~description               -- 'UTF-8 not-ASCII (6 graphemes, 12 codepoints, 34 bytes, 0 error)'
-    "noël👩‍👨‍👩‍👧🎅"~text~description(t:1)          -- 'UTF-8 not-ASCII (6 graphemes (3 indexes from index 4), 12 codepoints (9 indexes from index 4), 34 bytes, 0 error)'
-    "noël👩‍👨‍👩‍👧🎅"~text~utf16~description(t:1)    -- 'UTF-16BE (6 graphemes (1 index from index 6), 12 codepoints (7 indexes from index 6), 34 bytes, 0 error)'
-    "noël👩‍👨‍👩‍👧🎅"~text~utf32~description(t:1)    -- 'UTF-32BE (6 graphemes (1 index from index 6), 12 codepoints (0 index), 48 bytes, 0 error)'
+    "noël👩‍👨‍👩‍👧🎅"~text~description               -- 'UTF-8 not-ASCII (6 characters, 12 codepoints, 34 bytes, 0 error)'
+    "noël👩‍👨‍👩‍👧🎅"~text~description(t:1)          -- 'UTF-8 not-ASCII (6 characters (3 indexes from index 4), 12 codepoints (9 indexes from index 4), 34 bytes, 0 error)'
+    "noël👩‍👨‍👩‍👧🎅"~text~utf16~description(t:1)    -- 'UTF-16BE (6 characters (1 index from index 6), 12 codepoints (7 indexes from index 6), 34 bytes, 0 error)'
+    "noël👩‍👨‍👩‍👧🎅"~text~utf32~description(t:1)    -- 'UTF-32BE (6 characters (1 index from index 6), 12 codepoints (0 index), 48 bytes, 0 error)'
     */
     use strict arg -- none
     use strict named arg short(1)=.false, technical(1)=.false
     if .nil == self~errors then errorCount = 0
                            else errorCount = self~errors~size
     techInfoCodepoints = ""
-    techInfoGraphemes = ""
+    techInfoCharacters = ""
     if technical then do
         if .nil == self~codepointIndexes,
             then techInfoCodepoints = " (0 index)"
             else techInfoCodepoints = " ("self~codepointIndexes~items~singularPluralCount("index", "indexes")" from index "self~codepointIndexes~first")"
-        if .nil == self~graphemeIndexes,
-            then techInfoGraphemes = " (0 index)"
-            else techInfoGraphemes = " ("self~graphemeIndexes~items~singularPluralCount("index", "indexes")" from index "self~graphemeIndexes~first")"
+        if .nil == self~characterIndexes,
+            then techInfoCharacters = " (0 index)"
+            else techInfoCharacters = " ("self~characterIndexes~items~singularPluralCount("index", "indexes")" from index "self~characterIndexes~first")"
     end
     sizesDescription = ""
     if \short then sizesDescription = "(" ||,
-                                      self~graphemes~count~singularPluralCount("grapheme", "graphemes")techInfoGraphemes",",
+                                      self~characters~count~singularPluralCount("character", "characters")techInfoCharacters",",
                                       self~codepoints~count~singularPluralCount("codepoint", "codepoints")techInfoCodepoints",",
                                       self~string~length~singularPluralCount("byte", "bytes")",",
                                       errorCount~singularPluralCount("error", "errors"),
@@ -343,44 +343,12 @@ For example, if startB==6 then previousCodepointIndex==3
     return buffer~string
 
 
-::method c2u
-    use strict arg -- none
-    use strict named arg buffer(1)=.nil
-    if self~isUnicode then do
-        codepoints = self~codepoints
-        returnBuffer = .nil <> buffer
-        if .nil == buffer then buffer = .MutableBuffer~new
-        first = .true
-        do while codepoints~available
-            if \first then buffer~append(" ")
-            first = .false
-            call ppCodepoint codepoints~item, :buffer
-            codepoints~next
-        end
-        if returnBuffer then return buffer
-                        else return buffer~string
-    end
-    -- no result if not Unicode encoding
+::method c2u abstract
+    -- use strict arg -- none
 
 
-::method c2g
-    use strict arg -- none
-    use strict named arg buffer(1)=.nil
-    if self~isUnicode then do
-        graphemes = self~graphemes
-        returnBuffer = .nil <> buffer
-        if .nil == buffer then buffer = .MutableBuffer~new
-        first = .true
-        do while graphemes~available
-            if \first then buffer~append(" ")
-            first = .false
-            buffer~append(graphemes~item~string~c2x)
-            graphemes~next
-        end
-        if returnBuffer then return buffer
-                        else return buffer~string
-    end
-    -- no result if not Unicode encoding
+::method c2g abstract
+    -- use strict arg -- none
 
 
 ::method codepoints
@@ -392,26 +360,20 @@ For example, if startB==6 then previousCodepointIndex==3
     -- use strict arg indexC, decode=.true
 
 
-::method UnicodeCharacters
-    use strict arg -- none
-    if self~isUnicode then return self~codepoints~each{.unicode~character(item)}
-    -- no result if not Unicode encoding
+::method UnicodeCharacters abstract
+    -- use strict arg -- none
 
 
 ::method characters
-    forward message "graphemes"
-
-
-::method graphemes
     use strict arg -- none
-    return .GraphemeSupplier~new(self)
+    return .CharacterSupplier~new(self)
 
 
-::method graphemeIndex abstract
+::method characterIndex abstract
     -- use strict arg indexG
 
 
-::method grapheme abstract
+::method character abstract
     -- use strict arg indexG
     -- use strict named arg buffer(1)=.nil
 
@@ -689,7 +651,7 @@ How other languages are supporting escape characters for Unicode:
 
 
 /******************************************************************************/
-::class "GraphemeSupplier" public subclass Supplier
+::class "CharacterSupplier" public subclass Supplier
 
 ::method init
     expose indexer indexG
@@ -703,13 +665,13 @@ How other languages are supporting escape characters for Unicode:
 ::method count
     expose indexer
     use strict arg -- none
-    return indexer~graphemeCount
+    return indexer~characterCount
 
 
 ::method available
     expose indexer indexG
     use strict arg -- none
-    return indexG <= indexer~graphemeCount
+    return indexG <= indexer~characterCount
 
 
 ::method index
@@ -721,7 +683,7 @@ How other languages are supporting escape characters for Unicode:
 ::method item
     expose indexer indexG
     use strict arg -- none
-    if self~available then return indexer~grapheme(indexG)
+    if self~available then return indexer~character(indexG)
 
 
 ::method next

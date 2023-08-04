@@ -64,8 +64,8 @@
     if length == 0 then return self~string~text
 
     endC = min(startC + length - 1, self~length)
-    startB = abs(self~graphemeIndex(startC))
-    endB = abs(self~graphemeIndex(endC+1))
+    startB = abs(self~characterIndex(startC))
+    endB = abs(self~characterIndex(endC+1))
 
     string = self~string
     encoding = self~encoding
@@ -142,22 +142,22 @@
     if .nil == charsText then signal argument_2_must_have_a_text_or_string_value
     charsNormText = charsText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
 
-    graphemeText = selfIndexer~grapheme(nC)
-    graphemeNormText = graphemeText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
-    -- The grapheme may become 2 graphemes... "ß" becomes "ss" when casefolded
-    -- Test only the first grapheme, because the second grapheme doesn't exist in the original string
-    firstGrapheme = graphemeNormText~grapheme(1)
-    return charsNormText~string~pos(firstGrapheme~string) \== 0
+    characterText = selfIndexer~character(nC)
+    characterNormText = characterText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
+    -- The character may become 2 characters... "ß" becomes "ss" when casefolded
+    -- Test only the first character, because the second character doesn't exist in the original string
+    firstCharacter = characterNormText~character(1)
+    return charsNormText~string~pos(firstCharacter~string) \== 0
 
     /*
     TODO:
     Double check that this test is good:
-        return charsNormText~string~pos(firstGrapheme~string) \== 0
-    firstGrapheme can be made of several  bytes.
+        return charsNormText~string~pos(firstCharacter~string) \== 0
+    firstCharacter can be made of several  bytes.
     charsNormText is a string of 1..n characters where each character can be made of several bytes.
     Is there a risk to match on the boundary between 2 characters?
-    Maybe here I could use the option of utf8proc to insert a separator between each grapheme?
-    Or better: do a clean implementation where each grapheme of charsNormText is compared with firstGrapheme.
+    Maybe here I could use the option of utf8proc to insert a separator between each character?
+    Or better: do a clean implementation where each character of charsNormText is compared with firstCharacter.
     */
 
     check_position: procedure
@@ -285,7 +285,7 @@
     if \datatype(length, "w") then signal invalid_length
     if length < 0 then signal invalid_length
 
-    pad = pad~request("RexxText") -- not requestTextOrBufferOrString because we really need the pad's length in graphemes
+    pad = pad~request("RexxText") -- not requestTextOrBufferOrString because we really need the pad's length in characters
     if .nil == pad then signal argument_3_must_have_a_text_or_string_value
     if pad~length <> 1 then signal incorrect_pad
 
@@ -341,9 +341,9 @@
     return self~endsWithText(other, :normalization, casefold:.false, :lump, :stripIgnorable, :stripMark)
 
 
-::method length -- number of graphemes
+::method length -- number of characters
     use strict arg -- none
-    return self~graphemeCount
+    return self~characterCount
 
 
 ::method lower
@@ -375,8 +375,8 @@
     use strict named arg buffer(1)=.nil
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new
-    do indexG = self~graphemeCount to 1 by -1
-        self~grapheme(indexG, :buffer)
+    do indexG = self~characterCount to 1 by -1
+        self~character(indexG, :buffer)
     end
     if returnBuffer then return buffer
                     else return .RexxText~new(buffer~string, self~encoding)
@@ -389,7 +389,7 @@
     if \datatype(length, "w") then signal invalid_length
     if length < 0 then signal invalid_length
 
-    pad = pad~request("RexxText") -- not requestTextOrBufferOrString because we really need the pad's length in graphemes
+    pad = pad~request("RexxText") -- not requestTextOrBufferOrString because we really need the pad's length in characters
     if .nil == pad then signal argument_3_must_have_a_text_or_string_value
     if pad~length <> 1 then signal incorrect_pad
 
@@ -399,9 +399,9 @@
     length = length - lengthPad
 
     endC = self~length + 1
-    endB = abs(self~graphemeIndex(endC))
+    endB = abs(self~characterIndex(endC))
     startC = endC - length
-    startB = abs(self~graphemeIndex(startC))
+    startB = abs(self~characterIndex(startC))
     right = self~string~right(endB - startB)
     if lengthPad == 0 then do
         if .nil <> buffer then return buffer~~append(right)
@@ -431,7 +431,7 @@
     if \datatype(length, "w") then signal invalid_length
     if length < 0 then signal invalid_length
 
-    pad = pad~request("RexxText") -- not requestTextOrBufferOrString because we really need the pad's length in graphemes
+    pad = pad~request("RexxText") -- not requestTextOrBufferOrString because we really need the pad's length in characters
     if .nil == pad then signal argument_3_must_have_a_text_or_string_value
     if pad~length <> 1 then signal incorrect_pad
 
@@ -442,8 +442,8 @@
     lengthPad = max(0, length - remainingLength)
     endC = min(startC + length - 1, self~length)
 
-    startB = abs(self~graphemeIndex(startC))
-    endB = abs(self~graphemeIndex(endC+1))
+    startB = abs(self~characterIndex(startC))
+    endB = abs(self~characterIndex(endC+1))
     substr = self~string~substr(startB, endB - startB)
     if lengthPad == 0 then do
         if .nil <> buffer then return buffer~~append(substr)

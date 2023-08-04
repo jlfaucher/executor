@@ -32,7 +32,7 @@ Should be possible to delegate to Unicode8 16 32.
 Remove the index for codepoints (codepointIndexes).
 There is no need of direct access to a codepoint.
 
-Grapheme indexes : see if it's possible to replace .Array by a class being really a sparse array.
+Characters indexes : see if it's possible to replace .Array by a class being really a sparse array.
 This class should be ultra specialized for the management of string indexes.
 For example, could manage a flexible storage in function of the size of the index.
 Maybe a multi-stage table ?

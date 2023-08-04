@@ -82,7 +82,7 @@ A String is linked to a RexxText, which itself is linked to this String:
      ▲  text --------> a RexxText
      │                     indexer (anEncoding)
      │                          codepoints (sequential access)
-     │                          graphemes  (direct access)
+     │                          characters (direct access to graphemes)
      +-<---------------------<- string
 
 The ooRexx programmer has the choice :
@@ -136,13 +136,13 @@ More examples of encoded string
 sleep
 "( ͡° ͜ʖ﻿ ͡°)"~text~description=
 sleep
-"( ͡° ͜ʖ﻿ ͡°)"~text~graphemes~each("c2x")=
+"( ͡° ͜ʖ﻿ ͡°)"~text~characters~each("c2x")=
 sleep
 "( ͡° ͜ʖ﻿ ͡°)"~text~codepoints~each{"U+"item~d2x}=
 sleep
 "(ノಠ益ಠ)ノ彡"~text~description=
 sleep
-"(ノಠ益ಠ)ノ彡"~text~graphemes~each("c2x")=
+"(ノಠ益ಠ)ノ彡"~text~characters~each("c2x")=
 sleep
 "(ノಠ益ಠ)ノ彡"~text~codepoints~each{"U+"item~d2x}=
 sleep 5 no prompt
@@ -184,7 +184,7 @@ is one grapheme, made up of 15 codepoints
 sleep
 family = "👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦"
 family=
-family~text~description=                              -- 1 grapheme, 15 codepoints, 53 bytes
+family~text~description=                              -- 1 character, 15 codepoints, 53 bytes
 sleep
 family~text~c2x=
 sleep
@@ -202,7 +202,7 @@ h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o᷃ͪ�
 sleep
 helloZalgo = "h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞"
 helloZalgo =
-helloZalgo~text~description=                          -- 5 graphemes, 54 codepoints, 111 bytes
+helloZalgo~text~description=                          -- 5 characters, 54 codepoints, 111 bytes
 sleep
 helloZalgo~text~c2x=
 sleep
@@ -288,40 +288,40 @@ The description includes technical informations (t:1) about the internal tables 
 */
 sleep
 howMuchOfStorage = "how much of storage?"
-howMuchOfStorage~text~description(t:1)=         -- UTF-8:     20 graphemes, 20 codepoints,  20 bytes
+howMuchOfStorage~text~description(t:1)=         -- UTF-8:     20 characters, 20 codepoints,  20 bytes
 sleep
-howMuchOfStorage~text~utf16~description(t:1)=   -- UTF-16:    20 graphemes, 20 codepoints,  40 bytes
+howMuchOfStorage~text~utf16~description(t:1)=   -- UTF-16:    20 characters, 20 codepoints,  40 bytes
 sleep
-howMuchOfStorage~text~utf32~description(t:1)=   -- UTF-32:    20 graphemes, 20 codepoints,  80 bytes
+howMuchOfStorage~text~utf32~description(t:1)=   -- UTF-32:    20 characters, 20 codepoints,  80 bytes
 sleep
-howMuchOfStorage~text~unicode~description(t:1)= -- Unicode8:  20 graphemes, 20 codepoints,  20 bytes
+howMuchOfStorage~text~unicode~description(t:1)= -- Unicode8:  20 characters, 20 codepoints,  20 bytes
 sleep
 rexCharacters = "'rex' in their name: ꎅ ꎜ ꏑ 🦖"
-rexCharacters~text~description(t:1)=            -- UTF-8:     28 graphemes, 28 codepoints,  37 bytes
+rexCharacters~text~description(t:1)=            -- UTF-8:     28 characters, 28 codepoints,  37 bytes
 sleep
-rexCharacters~text~utf16~description(t:1)=      -- UTF-16:    28 graphemes, 28 codepoints,  58 bytes
+rexCharacters~text~utf16~description(t:1)=      -- UTF-16:    28 characters, 28 codepoints,  58 bytes
 sleep
-rexCharacters~text~utf32~description(t:1)=      -- UTF-32:    28 graphemes, 28 codepoints, 112 bytes
+rexCharacters~text~utf32~description(t:1)=      -- UTF-32:    28 characters, 28 codepoints, 112 bytes
 sleep
-rexCharacters~text~unicode~description(t:1)=    -- Unicode32: 28 graphemes, 28 codepoints, 112 bytes
+rexCharacters~text~unicode~description(t:1)=    -- Unicode32: 28 characters, 28 codepoints, 112 bytes
 sleep
 family = "👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦"
-family~text~description(t:1)=                   -- UTF-8:      1 grapheme,  15 codepoints,  53 bytes
+family~text~description(t:1)=                   -- UTF-8:      1 character,  15 codepoints,  53 bytes
 sleep
-family~text~utf16~description(t:1)=             -- UTF-16:     1 grapheme,  15 codepoints,  46 bytes
+family~text~utf16~description(t:1)=             -- UTF-16:     1 character,  15 codepoints,  46 bytes
 sleep
-family~text~utf32~description(t:1)=             -- UTF-32:     1 grapheme,  15 codepoints,  60 bytes
+family~text~utf32~description(t:1)=             -- UTF-32:     1 character,  15 codepoints,  60 bytes
 sleep
-family~text~unicode~description(t:1)=           -- Unicode32:  1 grapheme,  15 codepoints,  60 byte
+family~text~unicode~description(t:1)=           -- Unicode32:  1 character,  15 codepoints,  60 byte
 sleep
 helloZalgo = "h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞"
-helloZalgo~text~description(t:1)=               -- UTF-8:      5 graphemes, 54 codepoints, 111 bytes
+helloZalgo~text~description(t:1)=               -- UTF-8:      5 characters, 54 codepoints, 111 bytes
 sleep
-helloZalgo~text~utf16~description(t:1)=         -- UTF-16:     5 graphemes, 54 codepoints, 108 bytes
+helloZalgo~text~utf16~description(t:1)=         -- UTF-16:     5 characters, 54 codepoints, 108 bytes
 sleep
-helloZalgo~text~utf32~description(t:1)=         -- UTF-32:     5 graphemes, 54 codepoints, 216 bytes
+helloZalgo~text~utf32~description(t:1)=         -- UTF-32:     5 characters, 54 codepoints, 216 bytes
 sleep
-helloZalgo~text~unicode~description(t:1)=       -- Unicode16:  5 graphemes, 54 codepoints, 108 bytes
+helloZalgo~text~unicode~description(t:1)=       -- Unicode16:  5 characters, 54 codepoints, 108 bytes
 sleep no prompt
 
 

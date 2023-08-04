@@ -353,29 +353,29 @@ Depends on
     return self~string~substr(absStartB, absNextB - absStartB) -- yes, always the current byte sequence, even if invalid
 
 
-::method graphemeIndex
+::method characterIndex
     use strict arg indexG
-    if indexG < 1 then raise syntax 23.900 array (self~description "invalid grapheme index:" indexG)
-    if indexG > self~graphemeCount then return self~string~length + 1
-    if .nil == self~graphemeIndexes then return indexG
-    indexB = self~graphemeIndexes[indexG]
+    if indexG < 1 then raise syntax 23.900 array (self~description "invalid character index:" indexG)
+    if indexG > self~characterCount then return self~string~length + 1
+    if .nil == self~characterIndexes then return indexG
+    indexB = self~characterIndexes[indexG]
     if .nil <> indexB then return indexB
     return indexG -- sparse array: the value is equal to the index
 
 
-::method grapheme
+::method character
     -- 2 modes:
-    -- if the buffer is passed as argument then append the grapheme to the buffer, and return the buffer
-    -- otherwise return the grapheme as a RexxText
+    -- if the buffer is passed as argument then append the character to the buffer, and return the buffer
+    -- otherwise return the character as a RexxText
     use strict arg indexG
     use strict named arg buffer(1)=.nil
-    if .nil == self~graphemeIndexes, self~graphemeCount == self~string~length then do
-        -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last grapheme can be more than one codepoint.
+    if .nil == self~characterIndexes, self~characterCount == self~string~length then do
+        -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last character can be more than one codepoint.
         if .nil <> buffer then return buffer~~append(self~string~subchar(indexG))
                           else return .RexxText~new(self~string~subchar(indexG), self~encoding)
     end
-    startB = self~graphemeIndex(indexG)
-    nextB = self~graphemeIndex(indexG+1)
+    startB = self~characterIndex(indexG)
+    nextB = self~characterIndex(indexG+1)
     absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
     absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
     if .nil <> buffer then return buffer~~append(self~string~substr(absStartB, absNextB - absStartB))

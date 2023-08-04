@@ -1,6 +1,9 @@
 prompt off directory
 demo on
 
+call loadUnicodeCharacterNames
+
+
 --------------------------------------------
 -- Text encoding - Compatibility with String
 --------------------------------------------
@@ -38,6 +41,53 @@ sleep
 "noël👩‍👨‍👩‍👧🎅"~text~c2x=
 sleep
 "noël👩‍👨‍👩‍👧🎅"~text~c2g=
+sleep no prompt
+
+
+/*
+Two RexxText values are considered equal if their extended grapheme clusters
+are canonically equivalent.This is used by the Swift language.
+Q&A: https://lists.isocpp.org/sg16/2018/08/0121.php
+
+TODO: confirm that it's NFC, and only that.
+The definition of canonical equivalence by the Unicode standard seems not
+limited to NFC. https://unicode.org/notes/tn5/
+*/
+sleep no prompt
+
+/*
+The strict comparison operators use the NFC normalization.
+After normalization, they delegate to the String's strict comparison operators.
+
+The non-strict comparison operators use the NFC normalization plus
+    stripIgnorable:.true
+    lump:.true
+After normalization + transformations, they delegate to the String's non-strict
+comparison operators. Thanks to the lump transformation, all the Unicode spaces
+are supported.
+*/
+
+textNFC = "Noël"~text~NFC
+sleep
+textNFC~UnicodeCharacters==
+sleep
+textNFD="Noël"~text~NFD
+sleep
+textNFD~UnicodeCharacters==
+sleep
+(textNFC == textNFD)=                                               -- 1
+sleep
+(textNFC = textNFD)=                                                -- 1
+sleep
+(" "textNFC == textNFD" ")=                                         -- 0 because strict
+sleep
+(" "textNFC = textNFD" ")=                                          -- 1
+sleep
+(" "textNFC = (textNFD"\u{NBSP}")~unescape)=                        -- 1
+sleep
+(" "textNFC = (textNFD"\u{ZWSP}")~unescape)=                        -- 1
+sleep
+("-"textNFC = ("\u{OBLIQUE HYPHEN}"textNFD"\u{ZWSP}")~unescape)=    -- 1
 sleep no prompt
 
 
@@ -85,6 +135,74 @@ sleep no prompt
 sleep no prompt
 
 
+/*
+A caseless method is transforming its arguments using CaseFold.
+The default normalization is NFC, it's possible to change it with the argument
+normalization
+    .unicode~NFC    (default)
+    .unicode~NFD
+    .unicode~NFKC
+    .unicode~NFKD
+There is no value NFKC_CF because it can be done using the caseless methods by
+passing NFKC + stripIgnorable.
+*/
+sleep no prompt
+
+
+-- caselessCompareTo
+"pere noel"~text~caselessCompareTo("Père Noël")=                    -- -1 (lesser)
+sleep
+"pere noel"~text~caselessCompareTo("Père Noël", stripMark:.true)=   --  0 (equal because the accents are ignored)
+sleep no prompt
+
+
+-- caselessEquals
+"ŒUF"~text~caselessEquals("œuf")=           -- 1
+sleep
+"œuf"~text~caselessEquals("ŒUF")=           -- 1
+sleep
+"Straße"~text~caselessEquals("strasse")=    -- 1
+sleep
+"strasse"~text~caselessEquals("Straße")=    -- 1
+sleep no prompt
+
+
+-- caselessMatch
+-- "Bundesschnellstraße"                                    -- at 14: "s", at 18:"ß"
+--  1234567890123456789
+"Bundesstraße im Freiland"~text~caselessMatch(14, "im")=    -- .true
+sleep no prompt
+
+
+-- caselessMatchChar
+-- "Bundesschnellstraße"                                    -- at 14: "s", at 18:"ß"
+--  1234567890123456789
+"Bundesschnellstraße"~text~caselessMatchChar(18, "s")=      -- 1    "ß" becomes "ss" which is 2 characters. The first character at 18 matches "s"
+sleep
+"Bundesschnellstraße"~text~caselessMatchChar(19, "s")=      -- 0    "ß" becomes "ss" which is 2 characters. The character at 19 is "e", not the second "s"
+sleep
+"Bundesschnellstraße"~text~caselessMatchChar(19, "e")=      -- 1    "ß" becomes "ss" which is 2 characters. The character at 19 is "e", not the second "s"
+sleep no prompt
+
+-- caselessMatchChar (cont.)
+-- The ligature disappears when casefolded
+"baﬄe"~text~casefold=                                        -- T'baffle'
+sleep
+"BAFFLE"~text~caselessMatchChar(3, "ﬄ")=                     -- 1      "ﬄ" becomes "ffl" (3 characters), there is a match on "f" at 3
+sleep
+"BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                     -- 1      "ﬄ" becomes "ffl" (3 characters), there is a match on "l" at 5
+sleep
+"BAFFLE"~text~caselessMatchChar(5, "L")=                      -- 1      there is a match on "l" at 5
+sleep no prompt
+
+-- caselessMatchChar (cont.)
+-- Some ligatures are not decomposed by NFKC.
+"ŒUF"~text~caselessEquals("oeuf")=                                  -- 0
+sleep
+"ŒUF"~text~caselessEquals("oeuf", normalization:.Unicode~NFKC)=     -- 0
+sleep no prompt
+
+
 -- center
 "noelFC"~text~center(10)=; result~description=              -- forward to String
 sleep
@@ -119,7 +237,7 @@ sleep
 sleep
 "═"~description=                                            -- 'UTF-8 not-ASCII (3 bytes)'
 sleep
-"═"~text~description=                                       -- 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'
+"═"~text~description=                                       -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 sleep
 "═"~c2x=                                                    -- 'E29590'
 sleep
@@ -223,9 +341,36 @@ sleep
 sleep
 "noël"~text~matchChar(3, "EËeë")=
 sleep
+"noël"~text~matchChar(3, "Ee", stripMark:)= -- remove the accents from the tested string
+sleep
 "noël"~text~matchChar(4, "Ll"~text)=
 sleep
 "noël"~text~matchChar(4, "Ll"~text)=
+sleep no prompt
+
+-- matchChar (cont.)
+-- "Bundesschnellstraße"                                    -- at 14: "s", at 18:"ß"
+--  1234567890123456789
+"Bundesschnellstraße"~text~matchChar(14, "s")=              -- 1
+sleep
+"Bundesschnellstraße"~text~matchChar(18, "s")=              -- 0
+sleep
+"Bundesschnellstraße"~text~matchChar(18, "ß")=              -- 1
+sleep no prompt
+
+-- matchChar (cont.)
+-- The ligature disappears in NFK[CD] but not in NF[CD]
+"baﬄe"~text~matchChar(3, "f")=                               -- 0     "ﬄ" is ONE character because NFC
+sleep
+"baﬄe"~text~matchChar(3, "ﬄ")=                              -- 1     "ﬄ" is ONE character because NFC
+sleep
+"baﬄe"~text~matchChar(3, "ﬄ", normalization:.Unicode~NFKD)= -- 1     "ﬄ" becomes "ffl" (3 characters). There is a match because the first character is "f"
+sleep
+"baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=  -- 1     "ﬄ" becomes "ffl" (3 characters). There is a match because the first character is "f"
+sleep
+"baﬄe"~text~matchChar(4, "f", normalization:.Unicode~NFKD)=  -- 0     "ﬄ" becomes "ffl" (3 characters). The character at 4 is "e", not the second "f"
+sleep
+"baﬄe"~text~matchChar(4, "e", normalization:.Unicode~NFKD)=  -- 1     "ﬄ" becomes "ffl" (3 characters). The character at 4 is "e", not the second "f"
 sleep no prompt
 
 
@@ -268,7 +413,7 @@ sleep
 sleep
 "noel"~substr(3, 3, "▷"~text)=; result~description=   -- self is a String: error because the pad character is not compatible with String
 sleep
-"noel"~text~substr(3, 3, "▷")=; result~description=   -- no error because self is a RexxText and the pad character is one grapheme when converted to the default encoding
+"noel"~text~substr(3, 3, "▷")=; result~description=   -- no error because self is a RexxText and the pad character is one character when converted to the default encoding
 sleep
 "noël👩‍👨‍👩‍👧🎅"~text~substr(3, 3, "▷")=; result~description=
 sleep
@@ -282,6 +427,59 @@ sleep
 "not an hexadecimal value"~text~x2c
 sleep
 "not an hexadecimal value 🤔"~text~x2c
+sleep no prompt
+
+
+---------------------------------------------------------
+-- Text encoding - Functional
+---------------------------------------------------------
+
+/*
+The only needed methods on RexxText are
+    ~characters
+    ~subwords   (still to implement)
+    ~chunks     (still to implement)
+*/
+sleep no prompt
+
+/*
+Example inspired by https://elixir-lang.org/
+Frequency of each character, ignoring the accents:
+"Elixir" |> String.graphemes() |> Enum.frequencies()
+%{"E" => 1, "i" => 2, "l" => 1, "r" => 1, "x" => 1}
+*/
+sleep no prompt
+
+"Notre père Noël 🎅"~text~transform(stripMark:)~reduce(by: "characters", initial: .stem~new~~put(0)){accu[item~string] += 1}=
+sleep no prompt
+
+
+---------------------------------------------------------
+-- Text encoding - Generator
+---------------------------------------------------------
+
+/*
+The only needed methods on RexxText are
+    ~characters
+    ~subwords   (still to implement)
+*/
+sleep no prompt
+
+g="Noël 🎅"~text~generateC
+sleep
+g~()=       -- T'N'
+sleep
+g~()=       -- T'o'
+sleep
+g~()=       -- T'ë'
+sleep
+g~()=       -- T'l'
+sleep
+g~()=       -- T' '
+sleep
+g~()=       -- T'🎅'
+sleep
+g~()=       -- [no result]
 sleep no prompt
 
 
@@ -305,9 +503,6 @@ p = .Pattern~compile("à.c"~text)
 sleep no prompt
 
 
-/*
-
-
 -----------------------------------------
 -- Text encoding - Compatibility with BIF
 -----------------------------------------
@@ -317,7 +512,7 @@ sleep no prompt
 
 Several solutions in RosettaCode are in error because the pad character used
 with the function 'center' is a UTF-8 string made of several bytes.
-The function center now supports utf-8 pad made of 1 grapheme.
+The function center now supports utf-8 pad made of 1 multi-bytes character.
 When the pad is not a 1 byte character then the interpreter converts the string
 to a RexxText and sends it the message "center".
 The returned value is the String associated to the RexxText.
@@ -328,19 +523,19 @@ the String (which is normal).
 
 "═"~description=                                -- 'UTF-8 not-ASCII (3 bytes)'
 sleep
-"═"~text~description=                           -- 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'
+"═"~text~description=                           -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 sleep
 "═"~c2x=                                        -- 'E29590'
 sleep
 center("hello", 20, "═")=                       -- '═══════hello════════'
 sleep
-center("hello", 20, "═")~text~description=      -- 'UTF-8 not-ASCII (20 graphemes, 20 codepoints, 50 bytes, 0 error)'
+center("hello", 20, "═")~text~description=      -- 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
 sleep no prompt
 
 -- Idem for the function 'left'
 left("hello", 20, "═")=                         -- 'hello═══════════════'
 sleep
-left("hello", 20, "═")~text~description=        -- 'UTF-8 not-ASCII (20 graphemes, 20 codepoints, 50 bytes, 0 error)'
+left("hello", 20, "═")~text~description=        -- 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
 sleep no prompt
 
 

@@ -801,8 +801,8 @@ an Array (shape [22], 22 items)
  20 : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
  21 : ( "ﬄ"   U+FB04 Ll 1 "LATIN SMALL LIGATURE FFL" )
  22 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
-ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~description=      -- 'UTF-8 not-ASCII (18 graphemes, 22 codepoints, 34 bytes, 0 error)'
-'UTF-8 not-ASCII (18 graphemes, 22 codepoints, 34 bytes, 0 error)'
+ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~description=      -- 'UTF-8 not-ASCII (18 characters, 22 codepoints, 34 bytes, 0 error)'
+'UTF-8 not-ASCII (18 characters, 22 codepoints, 34 bytes, 0 error)'
 ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~upper=            -- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE
 T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
 
@@ -841,8 +841,8 @@ an Array (shape [26], 26 items)
  24 : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
  25 : ( "ﬄ"   U+FB04 Ll 1 "LATIN SMALL LIGATURE FFL" )
  26 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
-ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~description=  -- 'UTF-8 not-ASCII (18 graphemes, 26 codepoints, 39 bytes, 0 error)'
-'UTF-8 not-ASCII (18 graphemes, 26 codepoints, 39 bytes, 0 error)'
+ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~description=  -- 'UTF-8 not-ASCII (18 characters, 26 codepoints, 39 bytes, 0 error)'
+'UTF-8 not-ASCII (18 characters, 26 codepoints, 39 bytes, 0 error)'
 ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~upper=        -- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
 T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
 
@@ -874,8 +874,8 @@ an Array (shape [19], 19 items)
  17 : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
  18 : ( "ﬄ"   U+FB04 Ll 1 "LATIN SMALL LIGATURE FFL" )
  19 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
-ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~description=  -- 'UTF-8 not-ASCII (18 graphemes, 19 codepoints, 31 bytes, 0 error)'
-'UTF-8 not-ASCII (18 graphemes, 19 codepoints, 31 bytes, 0 error)'
+ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~description=  -- 'UTF-8 not-ASCII (18 characters, 19 codepoints, 31 bytes, 0 error)'
+'UTF-8 not-ASCII (18 characters, 19 codepoints, 31 bytes, 0 error)'
 ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~upper=        -- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
 T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
 
@@ -933,8 +933,8 @@ an Array (shape [45], 45 items)
  43 : ( "f"   U+0066 Ll 1 "LATIN SMALL LETTER F" )
  44 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
  45 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
-ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~description= -- 'UTF-8 not-ASCII (37 graphemes, 45 codepoints, 69 bytes, 0 error)'
-'UTF-8 not-ASCII (37 graphemes, 45 codepoints, 69 bytes, 0 error)'
+ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~description= -- 'UTF-8 not-ASCII (37 characters, 45 codepoints, 69 bytes, 0 error)'
+'UTF-8 not-ASCII (37 characters, 45 codepoints, 69 bytes, 0 error)'
 ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~upper=       -- T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE
 T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE'
 
@@ -985,8 +985,8 @@ an Array (shape [38], 38 items)
  36 : ( "f"   U+0066 Ll 1 "LATIN SMALL LETTER F" )
  37 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
  38 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
-ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~description= -- 'UTF-8 not-ASCII (37 graphemes, 38 codepoints, 61 bytes, 0 error)'
-'UTF-8 not-ASCII (37 graphemes, 38 codepoints, 61 bytes, 0 error)'
+ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~description= -- 'UTF-8 not-ASCII (37 characters, 38 codepoints, 61 bytes, 0 error)'
+'UTF-8 not-ASCII (37 characters, 38 codepoints, 61 bytes, 0 error)'
 ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~upper=       -- T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE'
 T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE'
 

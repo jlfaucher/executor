@@ -22,7 +22,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'UTF-8 ASCII (11 graphemes, 11 codepoints, 11 bytes, 0 error)'
+    'UTF-8 ASCII (11 characters, 11 codepoints, 11 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -45,7 +45,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'UTF-8 not-ASCII (11 graphemes, 11 codepoints, 12 bytes, 0 error)'
+    'UTF-8 not-ASCII (11 characters, 11 codepoints, 12 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -68,7 +68,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'UTF-8 ASCII (11 graphemes, 11 codepoints, 11 bytes, 0 error)'
+    'UTF-8 ASCII (11 characters, 11 codepoints, 11 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -91,7 +91,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'UTF-8 not-ASCII (11 graphemes, 11 codepoints, 12 bytes, 0 error)'
+    'UTF-8 not-ASCII (11 characters, 11 codepoints, 12 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -114,7 +114,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'UTF-8 ASCII (11 graphemes, 11 codepoints, 11 bytes, 0 error)'
+    'UTF-8 ASCII (11 characters, 11 codepoints, 11 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -137,7 +137,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'UTF-8 not-ASCII (11 graphemes, 11 codepoints, 12 bytes, 0 error)'
+    'UTF-8 not-ASCII (11 characters, 11 codepoints, 12 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -160,7 +160,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'UTF-8 ASCII (11 graphemes, 11 codepoints, 11 bytes, 0 error)'
+    'UTF-8 ASCII (11 characters, 11 codepoints, 11 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -183,7 +183,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'UTF-8 not-ASCII (11 graphemes, 11 codepoints, 12 bytes, 0 error)'
+    'UTF-8 not-ASCII (11 characters, 11 codepoints, 12 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -236,13 +236,14 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'windows-1252 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    'windows-1252 ASCII (9 characters, 9 codepoints, 9 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
     '50 65 72 65 20 4E 6F 65 6C'
     ooRexx> t~c2u=
-    [no result]
+    Method C2U is ABSTRACT and cannot be directly invoked.
+    Error code= 93.965
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -261,13 +262,14 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'windows-1252 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    'windows-1252 ASCII (9 characters, 9 codepoints, 9 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
     '50 65 72 65 20 4E 6F 65 6C'
     ooRexx> t~c2u=
-    [no result]
+    Method C2U is ABSTRACT and cannot be directly invoked.
+    Error code= 93.965
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -286,13 +288,14 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'windows-1252 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    'windows-1252 ASCII (9 characters, 9 codepoints, 9 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
     '50 65 72 65 20 4E 6F 65 6C'
     ooRexx> t~c2u=
-    [no result]
+    Method C2U is ABSTRACT and cannot be directly invoked.
+    Error code= 93.965
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -309,13 +312,14 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'ISO-8859-1 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    'ISO-8859-1 not-ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
     '50 65 72 65 20 4E 6F C3 AB 6C'
     ooRexx> t~c2u=
-    [no result]
+    Method C2U is ABSTRACT and cannot be directly invoked.
+    Error code= 93.965
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -334,13 +338,14 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'ISO-8859-1 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    'ISO-8859-1 not-ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
     '50 65 72 65 20 4E 6F C3 AB 6C'
     ooRexx> t~c2u=
-    [no result]
+    Method C2U is ABSTRACT and cannot be directly invoked.
+    Error code= 93.965
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -359,13 +364,14 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'ISO-8859-1 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    'ISO-8859-1 not-ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
     '50 65 72 65 20 4E 6F C3 AB 6C'
     ooRexx> t~c2u=
-    [no result]
+    Method C2U is ABSTRACT and cannot be directly invoked.
+    Error code= 93.965
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -382,13 +388,14 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'windows-1252 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    'windows-1252 not-ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
     '50 C3 A8 72 65 20 4E 6F 65 6C'
     ooRexx> t~c2u=
-    [no result]
+    Method C2U is ABSTRACT and cannot be directly invoked.
+    Error code= 93.965
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -407,13 +414,14 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'windows-1252 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    'windows-1252 not-ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
     '50 C3 A8 72 65 20 4E 6F 65 6C'
     ooRexx> t~c2u=
-    [no result]
+    Method C2U is ABSTRACT and cannot be directly invoked.
+    Error code= 93.965
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -432,13 +440,14 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'windows-1252 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    'windows-1252 not-ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
     '50 C3 A8 72 65 20 4E 6F 65 6C'
     ooRexx> t~c2u=
-    [no result]
+    Method C2U is ABSTRACT and cannot be directly invoked.
+    Error code= 93.965
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -488,13 +497,14 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'windows-1252 not-ASCII (6 graphemes, 6 codepoints, 6 bytes, 0 error)'
+    'windows-1252 not-ASCII (6 characters, 6 codepoints, 6 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
     '50 C3 A8 72 65 20'
     ooRexx> t~c2u=
-    [no result]
+    Method C2U is ABSTRACT and cannot be directly invoked.
+    Error code= 93.965
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -515,13 +525,14 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'windows-1252 not-ASCII (6 graphemes, 6 codepoints, 6 bytes, 0 error)'
+    'windows-1252 not-ASCII (6 characters, 6 codepoints, 6 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
     '50 C3 A8 72 65 20'
     ooRexx> t~c2u=
-    [no result]
+    Method C2U is ABSTRACT and cannot be directly invoked.
+    Error code= 93.965
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -547,7 +558,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'UTF-8 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    'UTF-8 ASCII (9 characters, 9 codepoints, 9 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -572,7 +583,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'UTF-8 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    'UTF-8 ASCII (9 characters, 9 codepoints, 9 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -597,7 +608,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'UTF-8 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    'UTF-8 ASCII (9 characters, 9 codepoints, 9 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -620,7 +631,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'Unicode8 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    'Unicode8 not-ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -645,7 +656,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'Unicode8 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    'Unicode8 not-ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -670,7 +681,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'Unicode8 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    'Unicode8 not-ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -693,7 +704,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'UTF-8 not-ASCII (9 graphemes, 9 codepoints, 10 bytes, 0 error)'
+    'UTF-8 not-ASCII (9 characters, 9 codepoints, 10 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -718,7 +729,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'UTF-8 not-ASCII (9 graphemes, 9 codepoints, 10 bytes, 0 error)'
+    'UTF-8 not-ASCII (9 characters, 9 codepoints, 10 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -743,7 +754,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'UTF-8 not-ASCII (9 graphemes, 9 codepoints, 10 bytes, 0 error)'
+    'UTF-8 not-ASCII (9 characters, 9 codepoints, 10 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -799,7 +810,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'UTF-8 not-ASCII (5 graphemes, 5 codepoints, 6 bytes, 0 error)'
+    'UTF-8 not-ASCII (5 characters, 5 codepoints, 6 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -826,7 +837,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'UTF-8 not-ASCII (5 graphemes, 5 codepoints, 6 bytes, 0 error)'
+    'UTF-8 not-ASCII (5 characters, 5 codepoints, 6 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -858,7 +869,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'Unicode8 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    'Unicode8 ASCII (9 characters, 9 codepoints, 9 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -883,7 +894,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'Unicode8 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    'Unicode8 ASCII (9 characters, 9 codepoints, 9 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -908,7 +919,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'Unicode8 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    'Unicode8 ASCII (9 characters, 9 codepoints, 9 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -931,7 +942,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'Unicode8 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    'Unicode8 not-ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -956,7 +967,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'Unicode8 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    'Unicode8 not-ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -981,7 +992,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'Unicode8 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    'Unicode8 not-ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -1037,13 +1048,14 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'Byte not-ASCII (6 graphemes, 6 codepoints, 6 bytes, 0 error)'
+    'Byte not-ASCII (6 characters, 6 codepoints, 6 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
     '50 C3 A8 72 65 20'
     ooRexx> t~c2u=
-    [no result]
+    Method C2U is ABSTRACT and cannot be directly invoked.
+    Error code= 93.965
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -1064,13 +1076,14 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'Byte not-ASCII (6 graphemes, 6 codepoints, 6 bytes, 0 error)'
+    'Byte not-ASCII (6 characters, 6 codepoints, 6 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
     '50 C3 A8 72 65 20'
     ooRexx> t~c2u=
-    [no result]
+    Method C2U is ABSTRACT and cannot be directly invoked.
+    Error code= 93.965
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -1120,13 +1133,14 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'Byte not-ASCII (6 graphemes, 6 codepoints, 6 bytes, 0 error)'
+    'Byte not-ASCII (6 characters, 6 codepoints, 6 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
     '50 C3 A8 72 65 20'
     ooRexx> t~c2u=
-    [no result]
+    Method C2U is ABSTRACT and cannot be directly invoked.
+    Error code= 93.965
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -1147,13 +1161,14 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'Byte not-ASCII (6 graphemes, 6 codepoints, 6 bytes, 0 error)'
+    'Byte not-ASCII (6 characters, 6 codepoints, 6 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
     '50 C3 A8 72 65 20'
     ooRexx> t~c2u=
-    [no result]
+    Method C2U is ABSTRACT and cannot be directly invoked.
+    Error code= 93.965
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -1179,7 +1194,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'Unicode8 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    'Unicode8 ASCII (9 characters, 9 codepoints, 9 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -1204,7 +1219,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'Unicode8 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    'Unicode8 ASCII (9 characters, 9 codepoints, 9 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -1229,7 +1244,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'Unicode8 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    'Unicode8 ASCII (9 characters, 9 codepoints, 9 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -1285,7 +1300,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'Unicode8 ASCII (5 graphemes, 5 codepoints, 5 bytes, 0 error)'
+    'Unicode8 ASCII (5 characters, 5 codepoints, 5 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -1312,7 +1327,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'Unicode8 ASCII (5 graphemes, 5 codepoints, 5 bytes, 0 error)'
+    'Unicode8 ASCII (5 characters, 5 codepoints, 5 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -1335,7 +1350,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'Unicode8 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    'Unicode8 not-ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -1360,7 +1375,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'Unicode8 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    'Unicode8 not-ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -1385,7 +1400,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'Unicode8 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    'Unicode8 not-ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -1441,7 +1456,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'Unicode8 not-ASCII (6 graphemes, 6 codepoints, 6 bytes, 0 error)'
+    'Unicode8 not-ASCII (6 characters, 6 codepoints, 6 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=
@@ -1468,7 +1483,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     */
     
     ooRexx> t~description=
-    'Unicode8 not-ASCII (6 graphemes, 6 codepoints, 6 bytes, 0 error)'
+    'Unicode8 not-ASCII (6 characters, 6 codepoints, 6 bytes, 0 error)'
     ooRexx> t~errors==
     (The NIL object)
     ooRexx> t~c2x=

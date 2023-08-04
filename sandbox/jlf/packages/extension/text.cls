@@ -108,7 +108,7 @@ See also this same method on RexxText and MutableBuffer and String.
      ▲  text --------> aRexxText
      │                     indexer (anEncoding)
      │                          codepoints (sequential access)
-     │                          graphemes  (direct access)
+     │                          characters  (direct access to graphemes)
      +-<---------------------<- string
 */
 
@@ -618,11 +618,7 @@ Allows to use a String or a RexxText indistinctly
     forward to (self~indexer)
 
 
-::method graphemes
-    forward to (self~indexer)
-
-
-::method grapheme
+::method character
     forward to (self~indexer)
 
 
@@ -803,6 +799,11 @@ Allows to use a String or a RexxText indistinctly
 
 ::method isNAStripped
     forward to (self~indexer)
+
+
+-- Compatibility with initial interface
+::method graphemes; forward message "characters"
+::method grapheme; forward message "character"
 
 
 /******************************************************************************/
@@ -1142,9 +1143,9 @@ stringChunks
     forward message "substr" arguments (arg(1, "a")~~insert(1, .nil))
 
 
-::method length -- number of graphemes
+::method length -- number of characters
     use strict arg -- none
-    return self~indexer~graphemeCount
+    return self~indexer~characterCount
 
 
 ::method lower
@@ -1217,7 +1218,7 @@ stringChunks
 
 
 ::method subchar
-    forward message "grapheme"
+    forward message "character"
 
 
 ::method substr
