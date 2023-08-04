@@ -31,15 +31,15 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 26 Mar 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: Se7ceQ60000081c000
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 4 Aug 2023
+</span><span style="font-weight:bold;color:green;">Input queue name: S14cb2Q600003d8e3c0
 </span>
 <span style="font-weight:bold;color:blue;">--------------------
 </span><span style="font-weight:bold;color:blue;">-- Unicode libraries
 </span><span style="font-weight:bold;color:blue;">--------------------
 </span>
 <span style="font-weight:bold;color:blue;">/*
-</span><span style="font-weight:bold;color:blue;">The prototype is currently using 2 libraries:
+</span><span style="font-weight:bold;color:blue;">The prototype is currently using 3 libraries:
 </span><span style="font-weight:bold;color:blue;">- utf8proc    https://github.com/JuliaStrings/utf8proc
 </span><span style="font-weight:bold;color:blue;">- uni-algo    https://github.com/uni-algo/uni-algo
 </span><span style="font-weight:bold;color:blue;">- icu4x       https://github.com/unicode-org/icu4x
@@ -770,7 +770,7 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;only ASCII&quo
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;only ASCII&quot;~text~isNFKD=                       </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">text = &quot;Noël&quot;~text</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">text~isNFC=                                     </span><span style="font-weight:bold;color:blue;">-- -1</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">text~isNFC=                                     </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">text~isNFD=                                     </span><span style="font-weight:bold;color:blue;">-- -1</span>
 -1
@@ -836,8 +836,8 @@ an Array (shape [22], 22 items)
  20 : ( &quot;a&quot;   U+0061 Ll 1 &quot;LATIN SMALL LETTER A&quot; )
  21 : ( &quot;ﬄ&quot;   U+FB04 Ll 1 &quot;LATIN SMALL LIGATURE FFL&quot; )
  22 : ( &quot;e&quot;   U+0065 Ll 1 &quot;LATIN SMALL LETTER E&quot; )
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~description=      </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (18 graphemes, 22 codepoints, 34 bytes, 0 error)'</span>
-'UTF-8 not-ASCII (18 graphemes, 22 codepoints, 34 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~description=      </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (18 characters, 22 codepoints, 34 bytes, 0 error)'</span>
+'UTF-8 not-ASCII (18 characters, 22 codepoints, 34 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~upper=            </span><span style="font-weight:bold;color:blue;">-- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE</span>
 T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
 
@@ -876,8 +876,8 @@ an Array (shape [26], 26 items)
  24 : ( &quot;a&quot;   U+0061 Ll 1 &quot;LATIN SMALL LETTER A&quot; )
  25 : ( &quot;ﬄ&quot;   U+FB04 Ll 1 &quot;LATIN SMALL LIGATURE FFL&quot; )
  26 : ( &quot;e&quot;   U+0065 Ll 1 &quot;LATIN SMALL LETTER E&quot; )
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfd~description=  </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (18 graphemes, 26 codepoints, 39 bytes, 0 error)'</span>
-'UTF-8 not-ASCII (18 graphemes, 26 codepoints, 39 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfd~description=  </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (18 characters, 26 codepoints, 39 bytes, 0 error)'</span>
+'UTF-8 not-ASCII (18 characters, 26 codepoints, 39 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfd~upper=        </span><span style="font-weight:bold;color:blue;">-- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'</span>
 T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
 
@@ -909,8 +909,8 @@ an Array (shape [19], 19 items)
  17 : ( &quot;a&quot;   U+0061 Ll 1 &quot;LATIN SMALL LETTER A&quot; )
  18 : ( &quot;ﬄ&quot;   U+FB04 Ll 1 &quot;LATIN SMALL LIGATURE FFL&quot; )
  19 : ( &quot;e&quot;   U+0065 Ll 1 &quot;LATIN SMALL LETTER E&quot; )
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfc~description=  </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (18 graphemes, 19 codepoints, 31 bytes, 0 error)'</span>
-'UTF-8 not-ASCII (18 graphemes, 19 codepoints, 31 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfc~description=  </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (18 characters, 19 codepoints, 31 bytes, 0 error)'</span>
+'UTF-8 not-ASCII (18 characters, 19 codepoints, 31 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfc~upper=        </span><span style="font-weight:bold;color:blue;">-- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'</span>
 T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
 
@@ -968,8 +968,8 @@ an Array (shape [45], 45 items)
  43 : ( &quot;f&quot;   U+0066 Ll 1 &quot;LATIN SMALL LETTER F&quot; )
  44 : ( &quot;l&quot;   U+006C Ll 1 &quot;LATIN SMALL LETTER L&quot; )
  45 : ( &quot;e&quot;   U+0065 Ll 1 &quot;LATIN SMALL LETTER E&quot; )
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfkd~description= </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (37 graphemes, 45 codepoints, 69 bytes, 0 error)'</span>
-'UTF-8 not-ASCII (37 graphemes, 45 codepoints, 69 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfkd~description= </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (37 characters, 45 codepoints, 69 bytes, 0 error)'</span>
+'UTF-8 not-ASCII (37 characters, 45 codepoints, 69 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfkd~upper=       </span><span style="font-weight:bold;color:blue;">-- T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE</span>
 T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE'
 
@@ -1020,8 +1020,8 @@ an Array (shape [38], 38 items)
  36 : ( &quot;f&quot;   U+0066 Ll 1 &quot;LATIN SMALL LETTER F&quot; )
  37 : ( &quot;l&quot;   U+006C Ll 1 &quot;LATIN SMALL LETTER L&quot; )
  38 : ( &quot;e&quot;   U+0065 Ll 1 &quot;LATIN SMALL LETTER E&quot; )
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfkc~description= </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (37 graphemes, 38 codepoints, 61 bytes, 0 error)'</span>
-'UTF-8 not-ASCII (37 graphemes, 38 codepoints, 61 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfkc~description= </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (37 characters, 38 codepoints, 61 bytes, 0 error)'</span>
+'UTF-8 not-ASCII (37 characters, 38 codepoints, 61 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~nfkc~upper=       </span><span style="font-weight:bold;color:blue;">-- T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE'</span>
 T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE'
 

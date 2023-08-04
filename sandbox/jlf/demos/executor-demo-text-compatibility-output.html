@@ -31,9 +31,17 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 26 Mar 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S61acQ600003049ba0
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 4 Aug 2023
+</span><span style="font-weight:bold;color:green;">Input queue name: S14cecQ600003d8e3c0
 </span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
+<span style="font-weight:bold;color:green;">Load the Unicode character names 15.0.0 
+</span>.............................................<span style="font-weight:bold;color:green;">
+</span><span style="font-weight:bold;color:green;">Total loaded character names: 149186
+</span><span style="font-weight:bold;color:green;">Total character name aliases: 473
+</span><span style="font-weight:bold;color:blue;">Unicode character intervals not expanded, execute: call expandUnicodeCharacterIntervals
+</span>
+
 <span style="font-weight:bold;color:blue;">--------------------------------------------
 </span><span style="font-weight:bold;color:blue;">-- Text encoding - Compatibility with String
 </span><span style="font-weight:bold;color:blue;">--------------------------------------------
@@ -63,7 +71,7 @@
 </span>
 
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~description=</span>
-'UTF-8 not-ASCII (6 graphemes, 12 codepoints, 34 bytes, 0 error)'
+'UTF-8 not-ASCII (6 characters, 12 codepoints, 34 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~c2u=</span>
 'U+006E U+006F U+00EB U+006C U+1F469 U+200D U+1F468 U+200D U+1F469 U+200D U+1F467 U+1F385'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~c2x=</span>
@@ -72,16 +80,69 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍�
 '6E 6F C3AB 6C F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7 F09F8E85'
 
 
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Two RexxText values are considered equal if their extended grapheme clusters
+</span><span style="font-weight:bold;color:blue;">are canonically equivalent.This is used by the Swift language.
+</span><span style="font-weight:bold;color:blue;">Q&amp;A: https://lists.isocpp.org/sg16/2018/08/0121.php
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">TODO: confirm that it's NFC, and only that.
+</span><span style="font-weight:bold;color:blue;">The definition of canonical equivalence by the Unicode standard seems not
+</span><span style="font-weight:bold;color:blue;">limited to NFC. https://unicode.org/notes/tn5/
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">The strict comparison operators use the NFC normalization.
+</span><span style="font-weight:bold;color:blue;">After normalization, they delegate to the String's strict comparison operators.
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">The non-strict comparison operators use the NFC normalization plus
+</span><span style="font-weight:bold;color:blue;">    stripIgnorable:.true
+</span><span style="font-weight:bold;color:blue;">    lump:.true
+</span><span style="font-weight:bold;color:blue;">After normalization + transformations, they delegate to the String's non-strict
+</span><span style="font-weight:bold;color:blue;">comparison operators. Thanks to the lump transformation, all the Unicode spaces
+</span><span style="font-weight:bold;color:blue;">are supported.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">textNFC = &quot;Noël&quot;~text~NFC</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">textNFC~UnicodeCharacters==</span>
+an Array (shape [4], 4 items)
+ 1 : ( &quot;N&quot;   U+004E Lu 1 &quot;LATIN CAPITAL LETTER N&quot; )
+ 2 : ( &quot;o&quot;   U+006F Ll 1 &quot;LATIN SMALL LETTER O&quot; )
+ 3 : ( &quot;ë&quot;   U+00EB Ll 1 &quot;LATIN SMALL LETTER E WITH DIAERESIS&quot; )
+ 4 : ( &quot;l&quot;   U+006C Ll 1 &quot;LATIN SMALL LETTER L&quot; )
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">textNFD=&quot;Noël&quot;~text~NFD</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">textNFD~UnicodeCharacters==</span>
+an Array (shape [5], 5 items)
+ 1 : ( &quot;N&quot;   U+004E Lu 1 &quot;LATIN CAPITAL LETTER N&quot; )
+ 2 : ( &quot;o&quot;   U+006F Ll 1 &quot;LATIN SMALL LETTER O&quot; )
+ 3 : ( &quot;e&quot;   U+0065 Ll 1 &quot;LATIN SMALL LETTER E&quot; )
+ 4 : ( &quot;̈&quot;    U+0308 Mn 0 &quot;COMBINING DIAERESIS&quot; )
+ 5 : ( &quot;l&quot;   U+006C Ll 1 &quot;LATIN SMALL LETTER L&quot; )
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(textNFC == textNFD)=                                               </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(textNFC = textNFD)=                                                </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(&quot; &quot;textNFC == textNFD&quot; &quot;)=                                         </span><span style="font-weight:bold;color:blue;">-- 0 because strict</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(&quot; &quot;textNFC = textNFD&quot; &quot;)=                                          </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(&quot; &quot;textNFC = (textNFD&quot;\u{NBSP}&quot;)~unescape)=                        </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(&quot; &quot;textNFC = (textNFD&quot;\u{ZWSP}&quot;)~unescape)=                        </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(&quot;-&quot;textNFC = (&quot;\u{OBLIQUE HYPHEN}&quot;textNFD&quot;\u{ZWSP}&quot;)~unescape)=    </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+
+
 <span style="font-weight:bold;color:blue;">-- []
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text[3]=; result~description=</span>
 T'ë'
-'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 2 bytes, 0 error)'
+'UTF-8 not-ASCII (1 character, 1 codepoint, 2 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text[3,3]=; result~description=</span>
 T'ël👩‍👨‍👩‍👧'
-'UTF-8 not-ASCII (3 graphemes, 9 codepoints, 28 bytes, 0 error)'
+'UTF-8 not-ASCII (3 characters, 9 codepoints, 28 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text[3,6]=; result~description=</span>
 T'ël👩‍👨‍👩‍👧🎅'
-'UTF-8 not-ASCII (4 graphemes, 10 codepoints, 32 bytes, 0 error)'
+'UTF-8 not-ASCII (4 characters, 10 codepoints, 32 bytes, 0 error)'
 
 
 <span style="font-weight:bold;color:blue;">-- ?
@@ -122,76 +183,143 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~text~
 '6E 6F C3AB 6C F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7 F09F8E85'
 
 
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">A caseless method is transforming its arguments using CaseFold.
+</span><span style="font-weight:bold;color:blue;">The default normalization is NFC, it's possible to change it with the argument
+</span><span style="font-weight:bold;color:blue;">normalization
+</span><span style="font-weight:bold;color:blue;">    .unicode~NFC    (default)
+</span><span style="font-weight:bold;color:blue;">    .unicode~NFD
+</span><span style="font-weight:bold;color:blue;">    .unicode~NFKC
+</span><span style="font-weight:bold;color:blue;">    .unicode~NFKD
+</span><span style="font-weight:bold;color:blue;">There is no value NFKC_CF because it can be done using the caseless methods by
+</span><span style="font-weight:bold;color:blue;">passing NFKC + stripIgnorable.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
+
+<span style="font-weight:bold;color:blue;">-- caselessCompareTo
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;pere noel&quot;~text~caselessCompareTo(&quot;Père Noël&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- -1 (lesser)</span>
+-1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;pere noel&quot;~text~caselessCompareTo(&quot;Père Noël&quot;, stripMark:.true)=   </span><span style="font-weight:bold;color:blue;">--  0 (equal because the accents are ignored)</span>
+ 0
+
+
+<span style="font-weight:bold;color:blue;">-- caselessEquals
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;ŒUF&quot;~text~caselessEquals(&quot;œuf&quot;)=           </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;œuf&quot;~text~caselessEquals(&quot;ŒUF&quot;)=           </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Straße&quot;~text~caselessEquals(&quot;strasse&quot;)=    </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;strasse&quot;~text~caselessEquals(&quot;Straße&quot;)=    </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+
+
+<span style="font-weight:bold;color:blue;">-- caselessMatch
+</span><span style="font-weight:bold;color:blue;">-- &quot;Bundesschnellstraße&quot;                                    -- at 14: &quot;s&quot;, at 18:&quot;ß&quot;
+</span><span style="font-weight:bold;color:blue;">--  1234567890123456789
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstraße im Freiland&quot;~text~caselessMatch(14, &quot;im&quot;)=    </span><span style="font-weight:bold;color:blue;">-- .true</span>
+ 1
+
+
+<span style="font-weight:bold;color:blue;">-- caselessMatchChar
+</span><span style="font-weight:bold;color:blue;">-- &quot;Bundesschnellstraße&quot;                                    -- at 14: &quot;s&quot;, at 18:&quot;ß&quot;
+</span><span style="font-weight:bold;color:blue;">--  1234567890123456789
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~text~caselessMatchChar(18, &quot;s&quot;)=      </span><span style="font-weight:bold;color:blue;">-- 1    &quot;ß&quot; becomes &quot;ss&quot; which is 2 characters. The first character at 18 matches &quot;s&quot;</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~text~caselessMatchChar(19, &quot;s&quot;)=      </span><span style="font-weight:bold;color:blue;">-- 0    &quot;ß&quot; becomes &quot;ss&quot; which is 2 characters. The character at 19 is &quot;e&quot;, not the second &quot;s&quot;</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~text~caselessMatchChar(19, &quot;e&quot;)=      </span><span style="font-weight:bold;color:blue;">-- 1    &quot;ß&quot; becomes &quot;ss&quot; which is 2 characters. The character at 19 is &quot;e&quot;, not the second &quot;s&quot;</span>
+ 1
+
+<span style="font-weight:bold;color:blue;">-- caselessMatchChar (cont.)
+</span><span style="font-weight:bold;color:blue;">-- The ligature disappears when casefolded
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~casefold=                                        </span><span style="font-weight:bold;color:blue;">-- T'baffle'</span>
+T'baffle'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatchChar(3, &quot;ﬄ&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- 1      &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 characters), there is a match on &quot;f&quot; at 3</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatchChar(5, &quot;ﬄ&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- 1      &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 characters), there is a match on &quot;l&quot; at 5</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatchChar(5, &quot;L&quot;)=                      </span><span style="font-weight:bold;color:blue;">-- 1      there is a match on &quot;l&quot; at 5</span>
+ 1
+
+<span style="font-weight:bold;color:blue;">-- caselessMatchChar (cont.)
+</span><span style="font-weight:bold;color:blue;">-- Some ligatures are not decomposed by NFKC.
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;ŒUF&quot;~text~caselessEquals(&quot;oeuf&quot;)=                                  </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;ŒUF&quot;~text~caselessEquals(&quot;oeuf&quot;, normalization:.Unicode~NFKC)=     </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ 0
+
+
 <span style="font-weight:bold;color:blue;">-- center
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noelFC&quot;~text~center(10)=; result~description=              </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
 T'  noelFC  '
-'UTF-8 ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+'UTF-8 ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~center(10)=; result~description=</span>
 T'  noël👩‍👨‍👩‍👧🎅  '
-'UTF-8 not-ASCII (10 graphemes, 16 codepoints, 38 bytes, 0 error)'
+'UTF-8 not-ASCII (10 characters, 16 codepoints, 38 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~center(9)=; result~description=</span>
 T' noël👩‍👨‍👩‍👧🎅  '
-'UTF-8 not-ASCII (9 graphemes, 15 codepoints, 37 bytes, 0 error)'
+'UTF-8 not-ASCII (9 characters, 15 codepoints, 37 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~center(8)=; result~description=</span>
 T' noël👩‍👨‍👩‍👧🎅 '
-'UTF-8 not-ASCII (8 graphemes, 14 codepoints, 36 bytes, 0 error)'
+'UTF-8 not-ASCII (8 characters, 14 codepoints, 36 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~center(7)=; result~description=</span>
 T'noël👩‍👨‍👩‍👧🎅 '
-'UTF-8 not-ASCII (7 graphemes, 13 codepoints, 35 bytes, 0 error)'
+'UTF-8 not-ASCII (7 characters, 13 codepoints, 35 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~center(6)=; result~description=</span>
 T'noël👩‍👨‍👩‍👧🎅'
-'UTF-8 not-ASCII (6 graphemes, 12 codepoints, 34 bytes, 0 error)'
+'UTF-8 not-ASCII (6 characters, 12 codepoints, 34 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~center(5)=; result~description=</span>
 T'noël👩‍👨‍👩‍👧'
-'UTF-8 not-ASCII (5 graphemes, 11 codepoints, 30 bytes, 0 error)'
+'UTF-8 not-ASCII (5 characters, 11 codepoints, 30 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~center(4)=; result~description=</span>
 T'oël👩‍👨‍👩‍👧'
-'UTF-8 not-ASCII (4 graphemes, 10 codepoints, 29 bytes, 0 error)'
+'UTF-8 not-ASCII (4 characters, 10 codepoints, 29 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~center(3)=; result~description=</span>
 T'oël'
-'UTF-8 not-ASCII (3 graphemes, 3 codepoints, 4 bytes, 0 error)'
+'UTF-8 not-ASCII (3 characters, 3 codepoints, 4 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~center(2)=; result~description=</span>
 T'ël'
-'UTF-8 not-ASCII (2 graphemes, 2 codepoints, 3 bytes, 0 error)'
+'UTF-8 not-ASCII (2 characters, 2 codepoints, 3 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~center(1)=; result~description=</span>
 T'ë'
-'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 2 bytes, 0 error)'
+'UTF-8 not-ASCII (1 character, 1 codepoint, 2 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~center(0)=; result~description=</span>
 T''
-'UTF-8 ASCII (0 grapheme, 0 codepoint, 0 byte, 0 error)'
+'UTF-8 ASCII (0 character, 0 codepoint, 0 byte, 0 error)'
 
 <span style="font-weight:bold;color:blue;">-- center with pad
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;=&quot;~description=                                            </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 ASCII (1 byte)'</span>
-'UTF-8 ASCII (1 byte)'
+'UTF-8 ASCII by default (1 byte)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;=&quot;~c2x=                                                    </span><span style="font-weight:bold;color:blue;">-- '3D'</span>
 '3D'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noelFC&quot;~text~center(10, &quot;=&quot;)=; result~description=         </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
 T'==noelFC=='
-'UTF-8 ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+'UTF-8 ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~description=                                            </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (3 bytes)'</span>
-'UTF-8 not-ASCII (3 bytes)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~text~description=                                       </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'</span>
-'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'
+'UTF-8 not-ASCII by default (3 bytes)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~text~description=                                       </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'</span>
+'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~c2x=                                                    </span><span style="font-weight:bold;color:blue;">-- 'E29590'</span>
 'E29590'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noelFC&quot;~text~center(10, &quot;═&quot;)=; result~description=         </span><span style="font-weight:bold;color:blue;">-- don't forward to String because the pad is more than 1 byte</span>
 T'══noelFC══'
-'UTF-8 not-ASCII (10 graphemes, 10 codepoints, 18 bytes, 0 error)'
+'UTF-8 not-ASCII (10 characters, 10 codepoints, 18 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~center(10, &quot;═&quot;)=; result~description=</span>
 T'══noël👩‍👨‍👩‍👧🎅══'
-'UTF-8 not-ASCII (10 graphemes, 16 codepoints, 46 bytes, 0 error)'
+'UTF-8 not-ASCII (10 characters, 16 codepoints, 46 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~center(9, &quot;═&quot;)=; result~description=</span>
 T'═noël👩‍👨‍👩‍👧🎅══'
-'UTF-8 not-ASCII (9 graphemes, 15 codepoints, 43 bytes, 0 error)'
+'UTF-8 not-ASCII (9 characters, 15 codepoints, 43 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~center(8, &quot;═&quot;)=; result~description=</span>
 T'═noël👩‍👨‍👩‍👧🎅═'
-'UTF-8 not-ASCII (8 graphemes, 14 codepoints, 40 bytes, 0 error)'
+'UTF-8 not-ASCII (8 characters, 14 codepoints, 40 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~center(7, &quot;═&quot;)=; result~description=</span>
 T'noël👩‍👨‍👩‍👧🎅═'
-'UTF-8 not-ASCII (7 graphemes, 13 codepoints, 37 bytes, 0 error)'
+'UTF-8 not-ASCII (7 characters, 13 codepoints, 37 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~center(6, &quot;═&quot;)=; result~description=</span>
 T'noël👩‍👨‍👩‍👧🎅'
-'UTF-8 not-ASCII (6 graphemes, 12 codepoints, 34 bytes, 0 error)'
+'UTF-8 not-ASCII (6 characters, 12 codepoints, 34 bytes, 0 error)'
 
 
 <span style="font-weight:bold;color:blue;">-- contains
@@ -222,7 +350,7 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~tex
 <span style="font-weight:bold;color:blue;">-- copies
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~copies(4)=; result~description=</span>
 T'noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅'
-'UTF-8 not-ASCII (24 graphemes, 48 codepoints, 136 bytes, 0 error)'
+'UTF-8 not-ASCII (24 characters, 48 codepoints, 136 bytes, 0 error)'
 
 
 <span style="font-weight:bold;color:blue;">-- hashCode
@@ -287,9 +415,36 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~te
  1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~matchChar(3, &quot;EËeë&quot;)=</span>
  1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~matchChar(3, &quot;Ee&quot;, stripMark:)= </span><span style="font-weight:bold;color:blue;">-- remove the accents from the tested string</span>
+ 1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~matchChar(4, &quot;Ll&quot;~text)=</span>
  1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~matchChar(4, &quot;Ll&quot;~text)=</span>
+ 1
+
+<span style="font-weight:bold;color:blue;">-- matchChar (cont.)
+</span><span style="font-weight:bold;color:blue;">-- &quot;Bundesschnellstraße&quot;                                    -- at 14: &quot;s&quot;, at 18:&quot;ß&quot;
+</span><span style="font-weight:bold;color:blue;">--  1234567890123456789
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~text~matchChar(14, &quot;s&quot;)=              </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~text~matchChar(18, &quot;s&quot;)=              </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~text~matchChar(18, &quot;ß&quot;)=              </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+
+<span style="font-weight:bold;color:blue;">-- matchChar (cont.)
+</span><span style="font-weight:bold;color:blue;">-- The ligature disappears in NFK[CD] but not in NF[CD]
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(3, &quot;f&quot;)=                               </span><span style="font-weight:bold;color:blue;">-- 0     &quot;ﬄ&quot; is ONE character because NFC</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(3, &quot;ﬄ&quot;)=                              </span><span style="font-weight:bold;color:blue;">-- 1     &quot;ﬄ&quot; is ONE character because NFC</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(3, &quot;ﬄ&quot;, normalization:.Unicode~NFKD)= </span><span style="font-weight:bold;color:blue;">-- 1     &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 characters). There is a match because the first character is &quot;f&quot;</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(3, &quot;f&quot;, normalization:.Unicode~NFKD)=  </span><span style="font-weight:bold;color:blue;">-- 1     &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 characters). There is a match because the first character is &quot;f&quot;</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(4, &quot;f&quot;, normalization:.Unicode~NFKD)=  </span><span style="font-weight:bold;color:blue;">-- 0     &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 characters). The character at 4 is &quot;e&quot;, not the second &quot;f&quot;</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(4, &quot;e&quot;, normalization:.Unicode~NFKD)=  </span><span style="font-weight:bold;color:blue;">-- 1     &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 characters). The character at 4 is &quot;e&quot;, not the second &quot;f&quot;</span>
  1
 
 
@@ -327,34 +482,34 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~tex
 <span style="font-weight:bold;color:blue;">-- subchar
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~subchar(3)=; result~description=</span>
 T'ë'
-'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 2 bytes, 0 error)'
+'UTF-8 not-ASCII (1 character, 1 codepoint, 2 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~subchar(4)=; result~description=</span>
 T'l'
-'UTF-8 ASCII (1 grapheme, 1 codepoint, 1 byte, 0 error)'
+'UTF-8 ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~subchar(5)=; result~description=</span>
 T'👩‍👨‍👩‍👧'
-'UTF-8 not-ASCII (1 grapheme, 7 codepoints, 25 bytes, 0 error)'
+'UTF-8 not-ASCII (1 character, 7 codepoints, 25 bytes, 0 error)'
 
 
 <span style="font-weight:bold;color:blue;">-- substr
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~text~substr(3, 3, &quot;x&quot;)=; result~description=   </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
 T'elx'
-'UTF-8 ASCII (3 graphemes, 3 codepoints, 3 bytes, 0 error)'
+'UTF-8 ASCII (3 characters, 3 codepoints, 3 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~substr(3, 3, &quot;▷&quot;)=; result~description=        </span><span style="font-weight:bold;color:blue;">-- self is a String: error because the pad character is 3 bytes</span>
 <span style="font-weight:bold;color:red;">Incorrect pad or character argument specified; found &quot;▷&quot;
 </span><span style="font-weight:bold;color:red;">Error code= 93.922
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~substr(3, 3, &quot;▷&quot;~text)=; result~description=   </span><span style="font-weight:bold;color:blue;">-- self is a String: error because the pad character is not compatible with String</span>
 <span style="font-weight:bold;color:red;">UTF-8 not-ASCII '▷' cannot be converted to a String instance.
 </span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~text~substr(3, 3, &quot;▷&quot;)=; result~description=   </span><span style="font-weight:bold;color:blue;">-- no error because self is a RexxText and the pad character is one grapheme when converted to the default encoding</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~text~substr(3, 3, &quot;▷&quot;)=; result~description=   </span><span style="font-weight:bold;color:blue;">-- no error because self is a RexxText and the pad character is one character when converted to the default encoding</span>
 T'el▷'
-'UTF-8 not-ASCII (3 graphemes, 3 codepoints, 5 bytes, 0 error)'
+'UTF-8 not-ASCII (3 characters, 3 codepoints, 5 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~substr(3, 3, &quot;▷&quot;)=; result~description=</span>
 T'ël👩‍👨‍👩‍👧'
-'UTF-8 not-ASCII (3 graphemes, 9 codepoints, 28 bytes, 0 error)'
+'UTF-8 not-ASCII (3 characters, 9 codepoints, 28 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~substr(3, 6, &quot;▷&quot;)=; result~description=</span>
 T'ël👩‍👨‍👩‍👧🎅▷▷'
-'UTF-8 not-ASCII (6 graphemes, 12 codepoints, 38 bytes, 0 error)'
+'UTF-8 not-ASCII (6 characters, 12 codepoints, 38 bytes, 0 error)'
 
 
 <span style="font-weight:bold;color:blue;">-- x2c
@@ -367,6 +522,64 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;not an hexadec
 <span style="font-weight:bold;color:red;">UTF-8 not-ASCII 'not an ...' is not compatible with a Rexx hexadecimal value.
 </span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span>
+
+<span style="font-weight:bold;color:blue;">---------------------------------------------------------
+</span><span style="font-weight:bold;color:blue;">-- Text encoding - Functional
+</span><span style="font-weight:bold;color:blue;">---------------------------------------------------------
+</span>
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">The only needed methods on RexxText are
+</span><span style="font-weight:bold;color:blue;">    ~characters
+</span><span style="font-weight:bold;color:blue;">    ~subwords   (still to implement)
+</span><span style="font-weight:bold;color:blue;">    ~chunks     (still to implement)
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Example inspired by https://elixir-lang.org/
+</span><span style="font-weight:bold;color:blue;">Frequency of each character, ignoring the accents:
+</span><span style="font-weight:bold;color:blue;">&quot;Elixir&quot; |&gt; String.graphemes() |&gt; Enum.frequencies()
+</span><span style="font-weight:bold;color:blue;">%{&quot;E&quot; =&gt; 1, &quot;i&quot; =&gt; 2, &quot;l&quot; =&gt; 1, &quot;r&quot; =&gt; 1, &quot;x&quot; =&gt; 1}
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Notre père Noël 🎅&quot;~text~transform(stripMark:)~reduce(by: &quot;characters&quot;, initial: .stem~new~~put(0)){accu[item~string] += 1}=</span>
+a Stem (9 items)
+'🎅' :  1
+' '    :  3
+'e'    :  4
+'l'    :  1
+'N'    :  2
+'o'    :  2
+'p'    :  1
+'r'    :  2
+'t'    :  1
+
+
+<span style="font-weight:bold;color:blue;">---------------------------------------------------------
+</span><span style="font-weight:bold;color:blue;">-- Text encoding - Generator
+</span><span style="font-weight:bold;color:blue;">---------------------------------------------------------
+</span>
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">The only needed methods on RexxText are
+</span><span style="font-weight:bold;color:blue;">    ~characters
+</span><span style="font-weight:bold;color:blue;">    ~subwords   (still to implement)
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">g=&quot;Noël 🎅&quot;~text~generateC</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">g~()=       </span><span style="font-weight:bold;color:blue;">-- T'N'</span>
+T'N'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">g~()=       </span><span style="font-weight:bold;color:blue;">-- T'o'</span>
+T'o'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">g~()=       </span><span style="font-weight:bold;color:blue;">-- T'ë'</span>
+T'ë'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">g~()=       </span><span style="font-weight:bold;color:blue;">-- T'l'</span>
+T'l'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">g~()=       </span><span style="font-weight:bold;color:blue;">-- T' '</span>
+T' '
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">g~()=       </span><span style="font-weight:bold;color:blue;">-- T'🎅'</span>
+T'🎅'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">g~()=       </span><span style="font-weight:bold;color:blue;">-- [no result]</span>
+[no result]
+
 
 <span style="font-weight:bold;color:blue;">---------------------------------------------------------
 </span><span style="font-weight:bold;color:blue;">-- Text encoding - Compatibility with regular expressions
@@ -388,19 +601,16 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">p = .Pattern~compile
 </span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span>
 
-<span style="font-weight:bold;color:blue;">/*
-</span><span style="font-weight:bold;color:blue;">
-</span><span style="font-weight:bold;color:blue;">
-</span><span style="font-weight:bold;color:blue;">-----------------------------------------
+<span style="font-weight:bold;color:blue;">-----------------------------------------
 </span><span style="font-weight:bold;color:blue;">-- Text encoding - Compatibility with BIF
 </span><span style="font-weight:bold;color:blue;">-----------------------------------------
-</span><span style="font-weight:bold;color:blue;">
-</span><span style="font-weight:bold;color:blue;">/*
+</span>
+<span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">[Intermediate solution]
 </span><span style="font-weight:bold;color:blue;">
 </span><span style="font-weight:bold;color:blue;">Several solutions in RosettaCode are in error because the pad character used
 </span><span style="font-weight:bold;color:blue;">with the function 'center' is a UTF-8 string made of several bytes.
-</span><span style="font-weight:bold;color:blue;">The function center now supports utf-8 pad made of 1 grapheme.
+</span><span style="font-weight:bold;color:blue;">The function center now supports utf-8 pad made of 1 multi-bytes character.
 </span><span style="font-weight:bold;color:blue;">When the pad is not a 1 byte character then the interpreter converts the string
 </span><span style="font-weight:bold;color:blue;">to a RexxText and sends it the message &quot;center&quot;.
 </span><span style="font-weight:bold;color:blue;">The returned value is the String associated to the RexxText.
@@ -410,21 +620,21 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">p = .Pattern~compile
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~description=                                </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (3 bytes)'</span>
-'UTF-8 not-ASCII (3 bytes)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~text~description=                           </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'</span>
-'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'
+'UTF-8 not-ASCII by default (3 bytes)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~text~description=                           </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'</span>
+'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~c2x=                                        </span><span style="font-weight:bold;color:blue;">-- 'E29590'</span>
 'E29590'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">center(&quot;hello&quot;, 20, &quot;═&quot;)=                       </span><span style="font-weight:bold;color:blue;">-- '═══════hello════════'</span>
 '═══════hello════════'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">center(&quot;hello&quot;, 20, &quot;═&quot;)~text~description=      </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (20 graphemes, 20 codepoints, 50 bytes, 0 error)'</span>
-'UTF-8 not-ASCII (20 graphemes, 20 codepoints, 50 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">center(&quot;hello&quot;, 20, &quot;═&quot;)~text~description=      </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'</span>
+'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
 
 <span style="font-weight:bold;color:blue;">-- Idem for the function 'left'
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">left(&quot;hello&quot;, 20, &quot;═&quot;)=                         </span><span style="font-weight:bold;color:blue;">-- 'hello═══════════════'</span>
 'hello═══════════════'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">left(&quot;hello&quot;, 20, &quot;═&quot;)~text~description=        </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (20 graphemes, 20 codepoints, 50 bytes, 0 error)'</span>
-'UTF-8 not-ASCII (20 graphemes, 20 codepoints, 50 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">left(&quot;hello&quot;, 20, &quot;═&quot;)~text~description=        </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'</span>
+'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
 
 
 <span style="font-weight:bold;color:blue;">/*
@@ -461,7 +671,7 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s=                  
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~isCompatibleWithByteString=                   </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~description=                                  </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 ASCII (8 bytes)'</span>
-'UTF-8 ASCII (8 bytes)'
+'UTF-8 ASCII by default (8 bytes)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">length(s)=                                      </span><span style="font-weight:bold;color:blue;">-- 8 because encoding UTF-8 ASCII is compatible with String</span>
  8
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~encoding = &quot;UTF16&quot;</span>
@@ -483,7 +693,7 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s=                  
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~isCompatibleWithByteString=                   </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~description=                                  </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 ASCII (8 bytes)'</span>
-'UTF-8 ASCII (8 bytes)'
+'UTF-8 ASCII by default (8 bytes)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">length(s)=                                      </span><span style="font-weight:bold;color:blue;">-- 8 because encoding UTF-8 ASCII is compatible with String</span>
  8
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~encoding = &quot;UTF32&quot;</span>

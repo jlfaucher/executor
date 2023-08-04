@@ -21,8 +21,16 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 26 Mar 2023
-Input queue name: S61acQ600003049ba0
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 4 Aug 2023
+Input queue name: S14cecQ600003d8e3c0
+
+ooRexx[sh]> call loadUnicodeCharacterNames
+Load the Unicode character names 15.0.0 
+.............................................
+Total loaded character names: 149186
+Total character name aliases: 473
+Unicode character intervals not expanded, execute: call expandUnicodeCharacterIntervals
+
 
 --------------------------------------------
 -- Text encoding - Compatibility with String
@@ -53,7 +61,7 @@ Notice that 👩‍👨‍👩‍👧 constitute only 1 grapheme thanks to the Z
 
 
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~description=
-'UTF-8 not-ASCII (6 graphemes, 12 codepoints, 34 bytes, 0 error)'
+'UTF-8 not-ASCII (6 characters, 12 codepoints, 34 bytes, 0 error)'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~c2u=
 'U+006E U+006F U+00EB U+006C U+1F469 U+200D U+1F468 U+200D U+1F469 U+200D U+1F467 U+1F385'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~c2x=
@@ -62,16 +70,69 @@ ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~c2g=
 '6E 6F C3AB 6C F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7 F09F8E85'
 
 
+/*
+Two RexxText values are considered equal if their extended grapheme clusters
+are canonically equivalent.This is used by the Swift language.
+Q&A: https://lists.isocpp.org/sg16/2018/08/0121.php
+
+TODO: confirm that it's NFC, and only that.
+The definition of canonical equivalence by the Unicode standard seems not
+limited to NFC. https://unicode.org/notes/tn5/
+*/
+
+/*
+The strict comparison operators use the NFC normalization.
+After normalization, they delegate to the String's strict comparison operators.
+
+The non-strict comparison operators use the NFC normalization plus
+    stripIgnorable:.true
+    lump:.true
+After normalization + transformations, they delegate to the String's non-strict
+comparison operators. Thanks to the lump transformation, all the Unicode spaces
+are supported.
+*/
+
+ooRexx[sh]> textNFC = "Noël"~text~NFC
+ooRexx[sh]> textNFC~UnicodeCharacters==
+an Array (shape [4], 4 items)
+ 1 : ( "N"   U+004E Lu 1 "LATIN CAPITAL LETTER N" )
+ 2 : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
+ 3 : ( "ë"   U+00EB Ll 1 "LATIN SMALL LETTER E WITH DIAERESIS" )
+ 4 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
+ooRexx[sh]> textNFD="Noël"~text~NFD
+ooRexx[sh]> textNFD~UnicodeCharacters==
+an Array (shape [5], 5 items)
+ 1 : ( "N"   U+004E Lu 1 "LATIN CAPITAL LETTER N" )
+ 2 : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
+ 3 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
+ 4 : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
+ 5 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
+ooRexx[sh]> (textNFC == textNFD)=                                               -- 1
+ 1
+ooRexx[sh]> (textNFC = textNFD)=                                                -- 1
+ 1
+ooRexx[sh]> (" "textNFC == textNFD" ")=                                         -- 0 because strict
+ 0
+ooRexx[sh]> (" "textNFC = textNFD" ")=                                          -- 1
+ 1
+ooRexx[sh]> (" "textNFC = (textNFD"\u{NBSP}")~unescape)=                        -- 1
+ 1
+ooRexx[sh]> (" "textNFC = (textNFD"\u{ZWSP}")~unescape)=                        -- 1
+ 1
+ooRexx[sh]> ("-"textNFC = ("\u{OBLIQUE HYPHEN}"textNFD"\u{ZWSP}")~unescape)=    -- 1
+ 1
+
+
 -- []
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text[3]=; result~description=
 T'ë'
-'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 2 bytes, 0 error)'
+'UTF-8 not-ASCII (1 character, 1 codepoint, 2 bytes, 0 error)'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text[3,3]=; result~description=
 T'ël👩‍👨‍👩‍👧'
-'UTF-8 not-ASCII (3 graphemes, 9 codepoints, 28 bytes, 0 error)'
+'UTF-8 not-ASCII (3 characters, 9 codepoints, 28 bytes, 0 error)'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text[3,6]=; result~description=
 T'ël👩‍👨‍👩‍👧🎅'
-'UTF-8 not-ASCII (4 graphemes, 10 codepoints, 32 bytes, 0 error)'
+'UTF-8 not-ASCII (4 characters, 10 codepoints, 32 bytes, 0 error)'
 
 
 -- ?
@@ -112,76 +173,143 @@ ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~c2x=
 '6E 6F C3AB 6C F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7 F09F8E85'
 
 
+/*
+A caseless method is transforming its arguments using CaseFold.
+The default normalization is NFC, it's possible to change it with the argument
+normalization
+    .unicode~NFC    (default)
+    .unicode~NFD
+    .unicode~NFKC
+    .unicode~NFKD
+There is no value NFKC_CF because it can be done using the caseless methods by
+passing NFKC + stripIgnorable.
+*/
+
+
+-- caselessCompareTo
+ooRexx[sh]> "pere noel"~text~caselessCompareTo("Père Noël")=                    -- -1 (lesser)
+-1
+ooRexx[sh]> "pere noel"~text~caselessCompareTo("Père Noël", stripMark:.true)=   --  0 (equal because the accents are ignored)
+ 0
+
+
+-- caselessEquals
+ooRexx[sh]> "ŒUF"~text~caselessEquals("œuf")=           -- 1
+ 1
+ooRexx[sh]> "œuf"~text~caselessEquals("ŒUF")=           -- 1
+ 1
+ooRexx[sh]> "Straße"~text~caselessEquals("strasse")=    -- 1
+ 1
+ooRexx[sh]> "strasse"~text~caselessEquals("Straße")=    -- 1
+ 1
+
+
+-- caselessMatch
+-- "Bundesschnellstraße"                                    -- at 14: "s", at 18:"ß"
+--  1234567890123456789
+ooRexx[sh]> "Bundesstraße im Freiland"~text~caselessMatch(14, "im")=    -- .true
+ 1
+
+
+-- caselessMatchChar
+-- "Bundesschnellstraße"                                    -- at 14: "s", at 18:"ß"
+--  1234567890123456789
+ooRexx[sh]> "Bundesschnellstraße"~text~caselessMatchChar(18, "s")=      -- 1    "ß" becomes "ss" which is 2 characters. The first character at 18 matches "s"
+ 1
+ooRexx[sh]> "Bundesschnellstraße"~text~caselessMatchChar(19, "s")=      -- 0    "ß" becomes "ss" which is 2 characters. The character at 19 is "e", not the second "s"
+ 0
+ooRexx[sh]> "Bundesschnellstraße"~text~caselessMatchChar(19, "e")=      -- 1    "ß" becomes "ss" which is 2 characters. The character at 19 is "e", not the second "s"
+ 1
+
+-- caselessMatchChar (cont.)
+-- The ligature disappears when casefolded
+ooRexx[sh]> "baﬄe"~text~casefold=                                        -- T'baffle'
+T'baffle'
+ooRexx[sh]> "BAFFLE"~text~caselessMatchChar(3, "ﬄ")=                     -- 1      "ﬄ" becomes "ffl" (3 characters), there is a match on "f" at 3
+ 1
+ooRexx[sh]> "BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                     -- 1      "ﬄ" becomes "ffl" (3 characters), there is a match on "l" at 5
+ 1
+ooRexx[sh]> "BAFFLE"~text~caselessMatchChar(5, "L")=                      -- 1      there is a match on "l" at 5
+ 1
+
+-- caselessMatchChar (cont.)
+-- Some ligatures are not decomposed by NFKC.
+ooRexx[sh]> "ŒUF"~text~caselessEquals("oeuf")=                                  -- 0
+ 0
+ooRexx[sh]> "ŒUF"~text~caselessEquals("oeuf", normalization:.Unicode~NFKC)=     -- 0
+ 0
+
+
 -- center
 ooRexx[sh]> "noelFC"~text~center(10)=; result~description=              -- forward to String
 T'  noelFC  '
-'UTF-8 ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+'UTF-8 ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(10)=; result~description=
 T'  noël👩‍👨‍👩‍👧🎅  '
-'UTF-8 not-ASCII (10 graphemes, 16 codepoints, 38 bytes, 0 error)'
+'UTF-8 not-ASCII (10 characters, 16 codepoints, 38 bytes, 0 error)'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(9)=; result~description=
 T' noël👩‍👨‍👩‍👧🎅  '
-'UTF-8 not-ASCII (9 graphemes, 15 codepoints, 37 bytes, 0 error)'
+'UTF-8 not-ASCII (9 characters, 15 codepoints, 37 bytes, 0 error)'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(8)=; result~description=
 T' noël👩‍👨‍👩‍👧🎅 '
-'UTF-8 not-ASCII (8 graphemes, 14 codepoints, 36 bytes, 0 error)'
+'UTF-8 not-ASCII (8 characters, 14 codepoints, 36 bytes, 0 error)'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(7)=; result~description=
 T'noël👩‍👨‍👩‍👧🎅 '
-'UTF-8 not-ASCII (7 graphemes, 13 codepoints, 35 bytes, 0 error)'
+'UTF-8 not-ASCII (7 characters, 13 codepoints, 35 bytes, 0 error)'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(6)=; result~description=
 T'noël👩‍👨‍👩‍👧🎅'
-'UTF-8 not-ASCII (6 graphemes, 12 codepoints, 34 bytes, 0 error)'
+'UTF-8 not-ASCII (6 characters, 12 codepoints, 34 bytes, 0 error)'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(5)=; result~description=
 T'noël👩‍👨‍👩‍👧'
-'UTF-8 not-ASCII (5 graphemes, 11 codepoints, 30 bytes, 0 error)'
+'UTF-8 not-ASCII (5 characters, 11 codepoints, 30 bytes, 0 error)'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(4)=; result~description=
 T'oël👩‍👨‍👩‍👧'
-'UTF-8 not-ASCII (4 graphemes, 10 codepoints, 29 bytes, 0 error)'
+'UTF-8 not-ASCII (4 characters, 10 codepoints, 29 bytes, 0 error)'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(3)=; result~description=
 T'oël'
-'UTF-8 not-ASCII (3 graphemes, 3 codepoints, 4 bytes, 0 error)'
+'UTF-8 not-ASCII (3 characters, 3 codepoints, 4 bytes, 0 error)'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(2)=; result~description=
 T'ël'
-'UTF-8 not-ASCII (2 graphemes, 2 codepoints, 3 bytes, 0 error)'
+'UTF-8 not-ASCII (2 characters, 2 codepoints, 3 bytes, 0 error)'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(1)=; result~description=
 T'ë'
-'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 2 bytes, 0 error)'
+'UTF-8 not-ASCII (1 character, 1 codepoint, 2 bytes, 0 error)'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(0)=; result~description=
 T''
-'UTF-8 ASCII (0 grapheme, 0 codepoint, 0 byte, 0 error)'
+'UTF-8 ASCII (0 character, 0 codepoint, 0 byte, 0 error)'
 
 -- center with pad
 ooRexx[sh]> "="~description=                                            -- 'UTF-8 ASCII (1 byte)'
-'UTF-8 ASCII (1 byte)'
+'UTF-8 ASCII by default (1 byte)'
 ooRexx[sh]> "="~c2x=                                                    -- '3D'
 '3D'
 ooRexx[sh]> "noelFC"~text~center(10, "=")=; result~description=         -- forward to String
 T'==noelFC=='
-'UTF-8 ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+'UTF-8 ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
 ooRexx[sh]> "═"~description=                                            -- 'UTF-8 not-ASCII (3 bytes)'
-'UTF-8 not-ASCII (3 bytes)'
-ooRexx[sh]> "═"~text~description=                                       -- 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'
-'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'
+'UTF-8 not-ASCII by default (3 bytes)'
+ooRexx[sh]> "═"~text~description=                                       -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
+'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 ooRexx[sh]> "═"~c2x=                                                    -- 'E29590'
 'E29590'
 ooRexx[sh]> "noelFC"~text~center(10, "═")=; result~description=         -- don't forward to String because the pad is more than 1 byte
 T'══noelFC══'
-'UTF-8 not-ASCII (10 graphemes, 10 codepoints, 18 bytes, 0 error)'
+'UTF-8 not-ASCII (10 characters, 10 codepoints, 18 bytes, 0 error)'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(10, "═")=; result~description=
 T'══noël👩‍👨‍👩‍👧🎅══'
-'UTF-8 not-ASCII (10 graphemes, 16 codepoints, 46 bytes, 0 error)'
+'UTF-8 not-ASCII (10 characters, 16 codepoints, 46 bytes, 0 error)'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(9, "═")=; result~description=
 T'═noël👩‍👨‍👩‍👧🎅══'
-'UTF-8 not-ASCII (9 graphemes, 15 codepoints, 43 bytes, 0 error)'
+'UTF-8 not-ASCII (9 characters, 15 codepoints, 43 bytes, 0 error)'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(8, "═")=; result~description=
 T'═noël👩‍👨‍👩‍👧🎅═'
-'UTF-8 not-ASCII (8 graphemes, 14 codepoints, 40 bytes, 0 error)'
+'UTF-8 not-ASCII (8 characters, 14 codepoints, 40 bytes, 0 error)'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(7, "═")=; result~description=
 T'noël👩‍👨‍👩‍👧🎅═'
-'UTF-8 not-ASCII (7 graphemes, 13 codepoints, 37 bytes, 0 error)'
+'UTF-8 not-ASCII (7 characters, 13 codepoints, 37 bytes, 0 error)'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~center(6, "═")=; result~description=
 T'noël👩‍👨‍👩‍👧🎅'
-'UTF-8 not-ASCII (6 graphemes, 12 codepoints, 34 bytes, 0 error)'
+'UTF-8 not-ASCII (6 characters, 12 codepoints, 34 bytes, 0 error)'
 
 
 -- contains
@@ -212,7 +340,7 @@ Error code= 91.999
 -- copies
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~copies(4)=; result~description=
 T'noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅'
-'UTF-8 not-ASCII (24 graphemes, 48 codepoints, 136 bytes, 0 error)'
+'UTF-8 not-ASCII (24 characters, 48 codepoints, 136 bytes, 0 error)'
 
 
 -- hashCode
@@ -277,9 +405,36 @@ ooRexx[sh]> "noël"~text~matchChar(3, "EËeë"~text)=
  1
 ooRexx[sh]> "noël"~text~matchChar(3, "EËeë")=
  1
+ooRexx[sh]> "noël"~text~matchChar(3, "Ee", stripMark:)= -- remove the accents from the tested string
+ 1
 ooRexx[sh]> "noël"~text~matchChar(4, "Ll"~text)=
  1
 ooRexx[sh]> "noël"~text~matchChar(4, "Ll"~text)=
+ 1
+
+-- matchChar (cont.)
+-- "Bundesschnellstraße"                                    -- at 14: "s", at 18:"ß"
+--  1234567890123456789
+ooRexx[sh]> "Bundesschnellstraße"~text~matchChar(14, "s")=              -- 1
+ 1
+ooRexx[sh]> "Bundesschnellstraße"~text~matchChar(18, "s")=              -- 0
+ 0
+ooRexx[sh]> "Bundesschnellstraße"~text~matchChar(18, "ß")=              -- 1
+ 1
+
+-- matchChar (cont.)
+-- The ligature disappears in NFK[CD] but not in NF[CD]
+ooRexx[sh]> "baﬄe"~text~matchChar(3, "f")=                               -- 0     "ﬄ" is ONE character because NFC
+ 0
+ooRexx[sh]> "baﬄe"~text~matchChar(3, "ﬄ")=                              -- 1     "ﬄ" is ONE character because NFC
+ 1
+ooRexx[sh]> "baﬄe"~text~matchChar(3, "ﬄ", normalization:.Unicode~NFKD)= -- 1     "ﬄ" becomes "ffl" (3 characters). There is a match because the first character is "f"
+ 1
+ooRexx[sh]> "baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=  -- 1     "ﬄ" becomes "ffl" (3 characters). There is a match because the first character is "f"
+ 1
+ooRexx[sh]> "baﬄe"~text~matchChar(4, "f", normalization:.Unicode~NFKD)=  -- 0     "ﬄ" becomes "ffl" (3 characters). The character at 4 is "e", not the second "f"
+ 0
+ooRexx[sh]> "baﬄe"~text~matchChar(4, "e", normalization:.Unicode~NFKD)=  -- 1     "ﬄ" becomes "ffl" (3 characters). The character at 4 is "e", not the second "f"
  1
 
 
@@ -317,34 +472,34 @@ Error code= 91.999
 -- subchar
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(3)=; result~description=
 T'ë'
-'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 2 bytes, 0 error)'
+'UTF-8 not-ASCII (1 character, 1 codepoint, 2 bytes, 0 error)'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(4)=; result~description=
 T'l'
-'UTF-8 ASCII (1 grapheme, 1 codepoint, 1 byte, 0 error)'
+'UTF-8 ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~subchar(5)=; result~description=
 T'👩‍👨‍👩‍👧'
-'UTF-8 not-ASCII (1 grapheme, 7 codepoints, 25 bytes, 0 error)'
+'UTF-8 not-ASCII (1 character, 7 codepoints, 25 bytes, 0 error)'
 
 
 -- substr
 ooRexx[sh]> "noel"~text~substr(3, 3, "x")=; result~description=   -- forward to String
 T'elx'
-'UTF-8 ASCII (3 graphemes, 3 codepoints, 3 bytes, 0 error)'
+'UTF-8 ASCII (3 characters, 3 codepoints, 3 bytes, 0 error)'
 ooRexx[sh]> "noel"~substr(3, 3, "▷")=; result~description=        -- self is a String: error because the pad character is 3 bytes
 Incorrect pad or character argument specified; found "▷"
 Error code= 93.922
 ooRexx[sh]> "noel"~substr(3, 3, "▷"~text)=; result~description=   -- self is a String: error because the pad character is not compatible with String
 UTF-8 not-ASCII '▷' cannot be converted to a String instance.
 Error code= 23.900
-ooRexx[sh]> "noel"~text~substr(3, 3, "▷")=; result~description=   -- no error because self is a RexxText and the pad character is one grapheme when converted to the default encoding
+ooRexx[sh]> "noel"~text~substr(3, 3, "▷")=; result~description=   -- no error because self is a RexxText and the pad character is one character when converted to the default encoding
 T'el▷'
-'UTF-8 not-ASCII (3 graphemes, 3 codepoints, 5 bytes, 0 error)'
+'UTF-8 not-ASCII (3 characters, 3 codepoints, 5 bytes, 0 error)'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~substr(3, 3, "▷")=; result~description=
 T'ël👩‍👨‍👩‍👧'
-'UTF-8 not-ASCII (3 graphemes, 9 codepoints, 28 bytes, 0 error)'
+'UTF-8 not-ASCII (3 characters, 9 codepoints, 28 bytes, 0 error)'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~substr(3, 6, "▷")=; result~description=
 T'ël👩‍👨‍👩‍👧🎅▷▷'
-'UTF-8 not-ASCII (6 graphemes, 12 codepoints, 38 bytes, 0 error)'
+'UTF-8 not-ASCII (6 characters, 12 codepoints, 38 bytes, 0 error)'
 
 
 -- x2c
@@ -356,6 +511,64 @@ Error code= 93.933
 ooRexx[sh]> "not an hexadecimal value 🤔"~text~x2c
 UTF-8 not-ASCII 'not an ...' is not compatible with a Rexx hexadecimal value.
 Error code= 23.900
+
+
+---------------------------------------------------------
+-- Text encoding - Functional
+---------------------------------------------------------
+
+/*
+The only needed methods on RexxText are
+    ~characters
+    ~subwords   (still to implement)
+    ~chunks     (still to implement)
+*/
+
+/*
+Example inspired by https://elixir-lang.org/
+Frequency of each character, ignoring the accents:
+"Elixir" |> String.graphemes() |> Enum.frequencies()
+%{"E" => 1, "i" => 2, "l" => 1, "r" => 1, "x" => 1}
+*/
+
+ooRexx[sh]> "Notre père Noël 🎅"~text~transform(stripMark:)~reduce(by: "characters", initial: .stem~new~~put(0)){accu[item~string] += 1}=
+a Stem (9 items)
+'🎅' :  1
+' '    :  3
+'e'    :  4
+'l'    :  1
+'N'    :  2
+'o'    :  2
+'p'    :  1
+'r'    :  2
+'t'    :  1
+
+
+---------------------------------------------------------
+-- Text encoding - Generator
+---------------------------------------------------------
+
+/*
+The only needed methods on RexxText are
+    ~characters
+    ~subwords   (still to implement)
+*/
+
+ooRexx[sh]> g="Noël 🎅"~text~generateC
+ooRexx[sh]> g~()=       -- T'N'
+T'N'
+ooRexx[sh]> g~()=       -- T'o'
+T'o'
+ooRexx[sh]> g~()=       -- T'ë'
+T'ë'
+ooRexx[sh]> g~()=       -- T'l'
+T'l'
+ooRexx[sh]> g~()=       -- T' '
+T' '
+ooRexx[sh]> g~()=       -- T'🎅'
+T'🎅'
+ooRexx[sh]> g~()=       -- [no result]
+[no result]
 
 
 ---------------------------------------------------------
@@ -378,9 +591,6 @@ UTF-8 not-ASCII 'à' cannot be converted to a String instance.
 Error code= 23.900
 
 
-/*
-
-
 -----------------------------------------
 -- Text encoding - Compatibility with BIF
 -----------------------------------------
@@ -390,7 +600,7 @@ Error code= 23.900
 
 Several solutions in RosettaCode are in error because the pad character used
 with the function 'center' is a UTF-8 string made of several bytes.
-The function center now supports utf-8 pad made of 1 grapheme.
+The function center now supports utf-8 pad made of 1 multi-bytes character.
 When the pad is not a 1 byte character then the interpreter converts the string
 to a RexxText and sends it the message "center".
 The returned value is the String associated to the RexxText.
@@ -400,21 +610,21 @@ the String (which is normal).
 */
 
 ooRexx[sh]> "═"~description=                                -- 'UTF-8 not-ASCII (3 bytes)'
-'UTF-8 not-ASCII (3 bytes)'
-ooRexx[sh]> "═"~text~description=                           -- 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'
-'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'
+'UTF-8 not-ASCII by default (3 bytes)'
+ooRexx[sh]> "═"~text~description=                           -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
+'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 ooRexx[sh]> "═"~c2x=                                        -- 'E29590'
 'E29590'
 ooRexx[sh]> center("hello", 20, "═")=                       -- '═══════hello════════'
 '═══════hello════════'
-ooRexx[sh]> center("hello", 20, "═")~text~description=      -- 'UTF-8 not-ASCII (20 graphemes, 20 codepoints, 50 bytes, 0 error)'
-'UTF-8 not-ASCII (20 graphemes, 20 codepoints, 50 bytes, 0 error)'
+ooRexx[sh]> center("hello", 20, "═")~text~description=      -- 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
+'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
 
 -- Idem for the function 'left'
 ooRexx[sh]> left("hello", 20, "═")=                         -- 'hello═══════════════'
 'hello═══════════════'
-ooRexx[sh]> left("hello", 20, "═")~text~description=        -- 'UTF-8 not-ASCII (20 graphemes, 20 codepoints, 50 bytes, 0 error)'
-'UTF-8 not-ASCII (20 graphemes, 20 codepoints, 50 bytes, 0 error)'
+ooRexx[sh]> left("hello", 20, "═")~text~description=        -- 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
+'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
 
 
 /*
@@ -451,7 +661,7 @@ ooRexx[sh]> s=                                              -- '[00]A[00]B[00]C[
 ooRexx[sh]> s~isCompatibleWithByteString=                   -- 1
  1
 ooRexx[sh]> s~description=                                  -- 'UTF-8 ASCII (8 bytes)'
-'UTF-8 ASCII (8 bytes)'
+'UTF-8 ASCII by default (8 bytes)'
 ooRexx[sh]> length(s)=                                      -- 8 because encoding UTF-8 ASCII is compatible with String
  8
 ooRexx[sh]> s~encoding = "UTF16"
@@ -473,7 +683,7 @@ ooRexx[sh]> s=                                              -- '[000000]A[000000
 ooRexx[sh]> s~isCompatibleWithByteString=                   -- 1
  1
 ooRexx[sh]> s~description=                                  -- 'UTF-8 ASCII (8 bytes)'
-'UTF-8 ASCII (8 bytes)'
+'UTF-8 ASCII by default (8 bytes)'
 ooRexx[sh]> length(s)=                                      -- 8 because encoding UTF-8 ASCII is compatible with String
  8
 ooRexx[sh]> s~encoding = "UTF32"

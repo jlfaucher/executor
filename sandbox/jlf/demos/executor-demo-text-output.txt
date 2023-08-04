@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 26 Mar 2023
-Input queue name: S17294Q6000008139b0
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 4 Aug 2023
+Input queue name: S14c75Q600003d84a90
 
 ----------------
 -- Text encoding
@@ -102,7 +102,7 @@ A String is linked to a RexxText, which itself is linked to this String:
      ▲  text --------> a RexxText
      │                     indexer (anEncoding)
      │                          codepoints (sequential access)
-     │                          graphemes  (direct access)
+     │                          characters (direct access to graphemes)
      +-<---------------------<- string
 
 The ooRexx programmer has the choice :
@@ -142,22 +142,22 @@ CR+LF is a grapheme made of 2 codepoints.
 LF+CR are 2 graphemes.
 */
 ooRexx[sh]> "0D0A"x~text~description=
-'UTF-8 ASCII (1 grapheme, 2 codepoints, 2 bytes, 0 error)'
+'UTF-8 ASCII (1 character, 2 codepoints, 2 bytes, 0 error)'
 ooRexx[sh]> "0A0D"x~text~description=
-'UTF-8 ASCII (2 graphemes, 2 codepoints, 2 bytes, 0 error)'
+'UTF-8 ASCII (2 characters, 2 codepoints, 2 bytes, 0 error)'
 
 /*
 More examples of encoded string
 */
 ooRexx[sh]> "( ͡° ͜ʖ﻿ ͡°)"~text~description=
-'UTF-8 not-ASCII (9 graphemes, 12 codepoints, 20 bytes, 0 error)'
-ooRexx[sh]> "( ͡° ͜ʖ﻿ ͡°)"~text~graphemes~each("c2x")=
+'UTF-8 not-ASCII (9 characters, 12 codepoints, 20 bytes, 0 error)'
+ooRexx[sh]> "( ͡° ͜ʖ﻿ ͡°)"~text~characters~each("c2x")=
 [ 28,'20 CDA1','C2B0','20 CD9C','CA96','EFBBBF','20 CDA1','C2B0', 29]
 ooRexx[sh]> "( ͡° ͜ʖ﻿ ͡°)"~text~codepoints~each{"U+"item~d2x}=
 ['U+28','U+20','U+361','U+B0','U+20','U+35C','U+296','U+FEFF','U+20','U+361','U+B0','U+29']
 ooRexx[sh]> "(ノಠ益ಠ)ノ彡"~text~description=
-'UTF-8 not-ASCII (8 graphemes, 8 codepoints, 20 bytes, 0 error)'
-ooRexx[sh]> "(ノಠ益ಠ)ノ彡"~text~graphemes~each("c2x")=
+'UTF-8 not-ASCII (8 characters, 8 codepoints, 20 bytes, 0 error)'
+ooRexx[sh]> "(ノಠ益ಠ)ノ彡"~text~characters~each("c2x")=
 [ 28,'E3838E','E0B2A0','E79B8A','E0B2A0', 29,'E3838E','E5BDA1']
 ooRexx[sh]> "(ノಠ益ಠ)ノ彡"~text~codepoints~each{"U+"item~d2x}=
 ['U+28','U+30CE','U+CA0','U+76CA','U+CA0','U+29','U+30CE','U+5F61']
@@ -215,8 +215,8 @@ is one grapheme, made up of 15 codepoints
 ooRexx[sh]> family = "👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦"
 ooRexx[sh]> family=
 '👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦'
-ooRexx[sh]> family~text~description=                              -- 1 grapheme, 15 codepoints, 53 bytes
-'UTF-8 not-ASCII (1 grapheme, 15 codepoints, 53 bytes, 0 error)'
+ooRexx[sh]> family~text~description=                              -- 1 character, 15 codepoints, 53 bytes
+'UTF-8 not-ASCII (1 character, 15 codepoints, 53 bytes, 0 error)'
 ooRexx[sh]> family~text~c2x=
 'F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7 E2808D F09F91A6 E2808D F09F91A7 E2808D F09F91A7 E2808D F09F91A6'
 ooRexx[sh]> family~text~c2u=
@@ -233,8 +233,8 @@ h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o᷃ͪ�
 ooRexx[sh]> helloZalgo = "h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞"
 ooRexx[sh]> helloZalgo =
 'h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞'
-ooRexx[sh]> helloZalgo~text~description=                          -- 5 graphemes, 54 codepoints, 111 bytes
-'UTF-8 not-ASCII (5 graphemes, 54 codepoints, 111 bytes, 0 error)'
+ooRexx[sh]> helloZalgo~text~description=                          -- 5 characters, 54 codepoints, 111 bytes
+'UTF-8 not-ASCII (5 characters, 54 codepoints, 111 bytes, 0 error)'
 ooRexx[sh]> helloZalgo~text~c2x=
 '68 CD86 CCB5 E1B78A CC9F CD89 CD94 CC9F CCB2 65 CCBE CCB7 CD87 CCBC CD89 CCB2 6C EFB8A3 EFB8A0 CDA6 CCB8 CD93 CCAD CC97 E1B7BF CCA8 6C CC91 CC88 CDAE CD8C EFB8A1 CC95 CCB6 CCAF CCBB 6F E1B783 CDAA CC86 CC81 E1B788 CD81 CD9E CCB5 CC9D CD9C CCAC CCAF E1B78A CDA2 CCAD CCAF CCA6'
 ooRexx[sh]> helloZalgo~text~c2u=
@@ -254,17 +254,19 @@ UTF-32 to UTF-8, UTF-16
 The Byte_Encoding can be specialized to add support for specific encoding conversions.
 */
 ooRexx[sh]> .Encoding~list~table==
-a Table (43 items)
+a Table (46 items)
  437               : (The IBM437_Encoding class)
  819               : (The ISO88591_Encoding class)
  8859              : (The ISO88591_Encoding class)
  28591             : (The ISO88591_Encoding class)
+ 88591             : (The ISO88591_Encoding class)
 'ASCII8BIT'        : (The Byte_Encoding class)
 'BINARY'           : (The Byte_Encoding class)
 'BYTE'             : (The Byte_Encoding class)
 'BYTES'            : (The Byte_Encoding class)
 'CP1252'           : (The WINDOWS1252_Encoding class)
 'CP437'            : (The IBM437_Encoding class)
+'CP5348'           : (The WINDOWS1252_Encoding class)
 'CP65001'          : (The UTF8_Encoding class)
 'CP819'            : (The ISO88591_Encoding class)
 'CSISOLATIN1'      : (The ISO88591_Encoding class)
@@ -275,6 +277,7 @@ a Table (43 items)
 'IBM5348'          : (The WINDOWS1252_Encoding class)
 'IBM819'           : (The ISO88591_Encoding class)
 'ISO88591'         : (The ISO88591_Encoding class)
+'ISO885911987'     : (The ISO88591_Encoding class)
 'ISOIR100'         : (The ISO88591_Encoding class)
 'L1'               : (The ISO88591_Encoding class)
 'LATIN'            : (The ISO88591_Encoding class)
@@ -300,20 +303,20 @@ a Table (43 items)
 'WTF8'             : (The WTF8_Encoding class)
 
 /*
-Example: CP1252 to UTF-8
+Example: CP1252 to UTF-8 (where CP1252 is an alias of Windows-1252)
 "Un œuf de chez MaPoule™ coûte ±0.40€"
 */
 ooRexx[sh]> str_cp1252 = "Un " || "9C"x || "uf de chez MaPoule" || "99"x || " co" || "FB"x || "te " || "B1"x || "0.40" || "80"x
 ooRexx[sh]> txt_cp1252 = str_cp1252~text("cp1252")
 ooRexx[sh]> txt_cp1252~description=
-'windows-1252 not-ASCII (36 graphemes, 36 codepoints, 36 bytes, 0 error)'
+'windows-1252 not-ASCII (36 characters, 36 codepoints, 36 bytes, 0 error)'
 ooRexx[sh]> txt_cp1252~c2x=
 '55 6E 20 9C 75 66 20 64 65 20 63 68 65 7A 20 4D 61 50 6F 75 6C 65 99 20 63 6F FB 74 65 20 B1 30 2E 34 30 80'
 ooRexx[sh]> txt_utf8 = txt_cp1252~utf8
 ooRexx[sh]> txt_utf8=
 T'Un œuf de chez MaPoule™ coûte ±0.40€'
 ooRexx[sh]> txt_utf8~description=
-'UTF-8 not-ASCII (36 graphemes, 36 codepoints, 43 bytes, 0 error)'
+'UTF-8 not-ASCII (36 characters, 36 codepoints, 43 bytes, 0 error)'
 ooRexx[sh]> txt_utf8~c2x=
 '55 6E 20 C593 75 66 20 64 65 20 63 68 65 7A 20 4D 61 50 6F 75 6C 65 E284A2 20 63 6F C3BB 74 65 20 C2B1 30 2E 34 30 E282AC'
 
@@ -340,7 +343,7 @@ ooRexx[sh]> "côté"~text~unicode~pipe{item~description(s:1) ":" item~c2x}=
 ooRexx[sh]> "noël‍👨‍👩‍👧"~text~maximumCodepoint~pipe{"U+"item~d2x}=   -- U+1F469 is the maximum codepoint
 'U+1F469'
 ooRexx[sh]> "noël‍👨‍👩‍👧"~text~unicode~description(t:1)=              -- For this maximum codepoint, we need Unicode32
-'Unicode32 (5 graphemes (1 index from index 5), 10 codepoints (0 index), 40 bytes, 0 error)'
+'Unicode32 (5 characters (1 index from index 5), 10 codepoints (0 index), 40 bytes, 0 error)'
 
 -- The endianness of the UnicodeN_Encoding is the one of the machine.
 -- With an Intel CPU, it's little-endian.
@@ -359,41 +362,41 @@ The second step is to convert to UTF-16 or UTF-32.
 The description includes technical informations (t:1) about the internal tables for indexation.
 */
 ooRexx[sh]> howMuchOfStorage = "how much of storage?"
-ooRexx[sh]> howMuchOfStorage~text~description(t:1)=         -- UTF-8:     20 graphemes, 20 codepoints,  20 bytes
-'UTF-8 ASCII (20 graphemes (0 index), 20 codepoints (0 index), 20 bytes, 0 error)'
-ooRexx[sh]> howMuchOfStorage~text~utf16~description(t:1)=   -- UTF-16:    20 graphemes, 20 codepoints,  40 bytes
-'UTF-16BE (20 graphemes (0 index), 20 codepoints (0 index), 40 bytes, 0 error)'
-ooRexx[sh]> howMuchOfStorage~text~utf32~description(t:1)=   -- UTF-32:    20 graphemes, 20 codepoints,  80 bytes
-'UTF-32BE (20 graphemes (0 index), 20 codepoints (0 index), 80 bytes, 0 error)'
-ooRexx[sh]> howMuchOfStorage~text~unicode~description(t:1)= -- Unicode8:  20 graphemes, 20 codepoints,  20 bytes
-'Unicode8 ASCII (20 graphemes (0 index), 20 codepoints (0 index), 20 bytes, 0 error)'
+ooRexx[sh]> howMuchOfStorage~text~description(t:1)=         -- UTF-8:     20 characters, 20 codepoints,  20 bytes
+'UTF-8 ASCII (20 characters (0 index), 20 codepoints (0 index), 20 bytes, 0 error)'
+ooRexx[sh]> howMuchOfStorage~text~utf16~description(t:1)=   -- UTF-16:    20 characters, 20 codepoints,  40 bytes
+'UTF-16BE (20 characters (0 index), 20 codepoints (0 index), 40 bytes, 0 error)'
+ooRexx[sh]> howMuchOfStorage~text~utf32~description(t:1)=   -- UTF-32:    20 characters, 20 codepoints,  80 bytes
+'UTF-32BE (20 characters (0 index), 20 codepoints (0 index), 80 bytes, 0 error)'
+ooRexx[sh]> howMuchOfStorage~text~unicode~description(t:1)= -- Unicode8:  20 characters, 20 codepoints,  20 bytes
+'Unicode8 ASCII (20 characters (0 index), 20 codepoints (0 index), 20 bytes, 0 error)'
 ooRexx[sh]> rexCharacters = "'rex' in their name: ꎅ ꎜ ꏑ 🦖"
-ooRexx[sh]> rexCharacters~text~description(t:1)=            -- UTF-8:     28 graphemes, 28 codepoints,  37 bytes
-'UTF-8 not-ASCII (28 graphemes (6 indexes from index 23), 28 codepoints (6 indexes from index 23), 37 bytes, 0 error)'
-ooRexx[sh]> rexCharacters~text~utf16~description(t:1)=      -- UTF-16:    28 graphemes, 28 codepoints,  58 bytes
-'UTF-16BE (28 graphemes (0 index), 28 codepoints (0 index), 58 bytes, 0 error)'
-ooRexx[sh]> rexCharacters~text~utf32~description(t:1)=      -- UTF-32:    28 graphemes, 28 codepoints, 112 bytes
-'UTF-32BE (28 graphemes (0 index), 28 codepoints (0 index), 112 bytes, 0 error)'
-ooRexx[sh]> rexCharacters~text~unicode~description(t:1)=    -- Unicode32: 28 graphemes, 28 codepoints, 112 bytes
-'Unicode32 (28 graphemes (0 index), 28 codepoints (0 index), 112 bytes, 0 error)'
+ooRexx[sh]> rexCharacters~text~description(t:1)=            -- UTF-8:     28 characters, 28 codepoints,  37 bytes
+'UTF-8 not-ASCII (28 characters (6 indexes from index 23), 28 codepoints (6 indexes from index 23), 37 bytes, 0 error)'
+ooRexx[sh]> rexCharacters~text~utf16~description(t:1)=      -- UTF-16:    28 characters, 28 codepoints,  58 bytes
+'UTF-16BE (28 characters (0 index), 28 codepoints (0 index), 58 bytes, 0 error)'
+ooRexx[sh]> rexCharacters~text~utf32~description(t:1)=      -- UTF-32:    28 characters, 28 codepoints, 112 bytes
+'UTF-32BE (28 characters (0 index), 28 codepoints (0 index), 112 bytes, 0 error)'
+ooRexx[sh]> rexCharacters~text~unicode~description(t:1)=    -- Unicode32: 28 characters, 28 codepoints, 112 bytes
+'Unicode32 (28 characters (0 index), 28 codepoints (0 index), 112 bytes, 0 error)'
 ooRexx[sh]> family = "👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦"
-ooRexx[sh]> family~text~description(t:1)=                   -- UTF-8:      1 grapheme,  15 codepoints,  53 bytes
-'UTF-8 not-ASCII (1 grapheme (0 index), 15 codepoints (14 indexes from index 2), 53 bytes, 0 error)'
-ooRexx[sh]> family~text~utf16~description(t:1)=             -- UTF-16:     1 grapheme,  15 codepoints,  46 bytes
-'UTF-16BE (1 grapheme (0 index), 15 codepoints (14 indexes from index 2), 46 bytes, 0 error)'
-ooRexx[sh]> family~text~utf32~description(t:1)=             -- UTF-32:     1 grapheme,  15 codepoints,  60 bytes
-'UTF-32BE (1 grapheme (0 index), 15 codepoints (0 index), 60 bytes, 0 error)'
-ooRexx[sh]> family~text~unicode~description(t:1)=           -- Unicode32:  1 grapheme,  15 codepoints,  60 byte
-'Unicode32 (1 grapheme (0 index), 15 codepoints (0 index), 60 bytes, 0 error)'
+ooRexx[sh]> family~text~description(t:1)=                   -- UTF-8:      1 character,  15 codepoints,  53 bytes
+'UTF-8 not-ASCII (1 character (0 index), 15 codepoints (14 indexes from index 2), 53 bytes, 0 error)'
+ooRexx[sh]> family~text~utf16~description(t:1)=             -- UTF-16:     1 character,  15 codepoints,  46 bytes
+'UTF-16BE (1 character (0 index), 15 codepoints (14 indexes from index 2), 46 bytes, 0 error)'
+ooRexx[sh]> family~text~utf32~description(t:1)=             -- UTF-32:     1 character,  15 codepoints,  60 bytes
+'UTF-32BE (1 character (0 index), 15 codepoints (0 index), 60 bytes, 0 error)'
+ooRexx[sh]> family~text~unicode~description(t:1)=           -- Unicode32:  1 character,  15 codepoints,  60 byte
+'Unicode32 (1 character (0 index), 15 codepoints (0 index), 60 bytes, 0 error)'
 ooRexx[sh]> helloZalgo = "h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞"
-ooRexx[sh]> helloZalgo~text~description(t:1)=               -- UTF-8:      5 graphemes, 54 codepoints, 111 bytes
-'UTF-8 not-ASCII (5 graphemes (4 indexes from index 2), 54 codepoints (52 indexes from index 3), 111 bytes, 0 error)'
-ooRexx[sh]> helloZalgo~text~utf16~description(t:1)=         -- UTF-16:     5 graphemes, 54 codepoints, 108 bytes
-'UTF-16BE (5 graphemes (4 indexes from index 2), 54 codepoints (0 index), 108 bytes, 0 error)'
-ooRexx[sh]> helloZalgo~text~utf32~description(t:1)=         -- UTF-32:     5 graphemes, 54 codepoints, 216 bytes
-'UTF-32BE (5 graphemes (4 indexes from index 2), 54 codepoints (0 index), 216 bytes, 0 error)'
-ooRexx[sh]> helloZalgo~text~unicode~description(t:1)=       -- Unicode16:  5 graphemes, 54 codepoints, 108 bytes
-'Unicode16 (5 graphemes (4 indexes from index 2), 54 codepoints (0 index), 108 bytes, 0 error)'
+ooRexx[sh]> helloZalgo~text~description(t:1)=               -- UTF-8:      5 characters, 54 codepoints, 111 bytes
+'UTF-8 not-ASCII (5 characters (4 indexes from index 2), 54 codepoints (52 indexes from index 3), 111 bytes, 0 error)'
+ooRexx[sh]> helloZalgo~text~utf16~description(t:1)=         -- UTF-16:     5 characters, 54 codepoints, 108 bytes
+'UTF-16BE (5 characters (4 indexes from index 2), 54 codepoints (0 index), 108 bytes, 0 error)'
+ooRexx[sh]> helloZalgo~text~utf32~description(t:1)=         -- UTF-32:     5 characters, 54 codepoints, 216 bytes
+'UTF-32BE (5 characters (4 indexes from index 2), 54 codepoints (0 index), 216 bytes, 0 error)'
+ooRexx[sh]> helloZalgo~text~unicode~description(t:1)=       -- Unicode16:  5 characters, 54 codepoints, 108 bytes
+'Unicode16 (5 characters (4 indexes from index 2), 54 codepoints (0 index), 108 bytes, 0 error)'
 
 
 /*

@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 26 Mar 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S17294Q6000008139b0
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 4 Aug 2023
+</span><span style="font-weight:bold;color:green;">Input queue name: S14c75Q600003d84a90
 </span>
 <span style="font-weight:bold;color:blue;">----------------
 </span><span style="font-weight:bold;color:blue;">-- Text encoding
@@ -112,7 +112,7 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s2~text~string~lengt
 </span><span style="font-weight:bold;color:blue;">     ▲  text --------&gt; a RexxText
 </span><span style="font-weight:bold;color:blue;">     │                     indexer (anEncoding)
 </span><span style="font-weight:bold;color:blue;">     │                          codepoints (sequential access)
-</span><span style="font-weight:bold;color:blue;">     │                          graphemes  (direct access)
+</span><span style="font-weight:bold;color:blue;">     │                          characters (direct access to graphemes)
 </span><span style="font-weight:bold;color:blue;">     +-&lt;---------------------&lt;- string
 </span><span style="font-weight:bold;color:blue;">
 </span><span style="font-weight:bold;color:blue;">The ooRexx programmer has the choice :
@@ -152,22 +152,22 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">myText~length=      
 </span><span style="font-weight:bold;color:blue;">LF+CR are 2 graphemes.
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;0D0A&quot;x~text~description=</span>
-'UTF-8 ASCII (1 grapheme, 2 codepoints, 2 bytes, 0 error)'
+'UTF-8 ASCII (1 character, 2 codepoints, 2 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;0A0D&quot;x~text~description=</span>
-'UTF-8 ASCII (2 graphemes, 2 codepoints, 2 bytes, 0 error)'
+'UTF-8 ASCII (2 characters, 2 codepoints, 2 bytes, 0 error)'
 
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">More examples of encoded string
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;( ͡° ͜ʖ﻿ ͡°)&quot;~text~description=</span>
-'UTF-8 not-ASCII (9 graphemes, 12 codepoints, 20 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;( ͡° ͜ʖ﻿ ͡°)&quot;~text~graphemes~each(&quot;c2x&quot;)=</span>
+'UTF-8 not-ASCII (9 characters, 12 codepoints, 20 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;( ͡° ͜ʖ﻿ ͡°)&quot;~text~characters~each(&quot;c2x&quot;)=</span>
 [ 28,'20 CDA1','C2B0','20 CD9C','CA96','EFBBBF','20 CDA1','C2B0', 29]
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;( ͡° ͜ʖ﻿ ͡°)&quot;~text~codepoints~each{&quot;U+&quot;item~d2x}=</span>
 ['U+28','U+20','U+361','U+B0','U+20','U+35C','U+296','U+FEFF','U+20','U+361','U+B0','U+29']
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;(ノಠ益ಠ)ノ彡&quot;~text~description=</span>
-'UTF-8 not-ASCII (8 graphemes, 8 codepoints, 20 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;(ノಠ益ಠ)ノ彡&quot;~text~graphemes~each(&quot;c2x&quot;)=</span>
+'UTF-8 not-ASCII (8 characters, 8 codepoints, 20 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;(ノಠ益ಠ)ノ彡&quot;~text~characters~each(&quot;c2x&quot;)=</span>
 [ 28,'E3838E','E0B2A0','E79B8A','E0B2A0', 29,'E3838E','E5BDA1']
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;(ノಠ益ಠ)ノ彡&quot;~text~codepoints~each{&quot;U+&quot;item~d2x}=</span>
 ['U+28','U+30CE','U+CA0','U+76CA','U+CA0','U+29','U+30CE','U+5F61']
@@ -225,8 +225,8 @@ a Table (9 items)
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">family = &quot;👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦&quot;</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">family=</span>
 '👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">family~text~description=                              </span><span style="font-weight:bold;color:blue;">-- 1 grapheme, 15 codepoints, 53 bytes</span>
-'UTF-8 not-ASCII (1 grapheme, 15 codepoints, 53 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">family~text~description=                              </span><span style="font-weight:bold;color:blue;">-- 1 character, 15 codepoints, 53 bytes</span>
+'UTF-8 not-ASCII (1 character, 15 codepoints, 53 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">family~text~c2x=</span>
 'F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7 E2808D F09F91A6 E2808D F09F91A7 E2808D F09F91A7 E2808D F09F91A6'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">family~text~c2u=</span>
@@ -243,8 +243,8 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">family~text~c2g=</sp
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">helloZalgo = &quot;h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞&quot;</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">helloZalgo =</span>
 'h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">helloZalgo~text~description=                          </span><span style="font-weight:bold;color:blue;">-- 5 graphemes, 54 codepoints, 111 bytes</span>
-'UTF-8 not-ASCII (5 graphemes, 54 codepoints, 111 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">helloZalgo~text~description=                          </span><span style="font-weight:bold;color:blue;">-- 5 characters, 54 codepoints, 111 bytes</span>
+'UTF-8 not-ASCII (5 characters, 54 codepoints, 111 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">helloZalgo~text~c2x=</span>
 '68 CD86 CCB5 E1B78A CC9F CD89 CD94 CC9F CCB2 65 CCBE CCB7 CD87 CCBC CD89 CCB2 6C EFB8A3 EFB8A0 CDA6 CCB8 CD93 CCAD CC97 E1B7BF CCA8 6C CC91 CC88 CDAE CD8C EFB8A1 CC95 CCB6 CCAF CCBB 6F E1B783 CDAA CC86 CC81 E1B788 CD81 CD9E CCB5 CC9D CD9C CCAC CCAF E1B78A CDA2 CCAD CCAF CCA6'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">helloZalgo~text~c2u=</span>
@@ -264,17 +264,19 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">helloZalgo~text~c2g=
 </span><span style="font-weight:bold;color:blue;">The Byte_Encoding can be specialized to add support for specific encoding conversions.
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Encoding~list~table==</span>
-a Table (43 items)
+a Table (46 items)
  437               : (The IBM437_Encoding class)
  819               : (The ISO88591_Encoding class)
  8859              : (The ISO88591_Encoding class)
  28591             : (The ISO88591_Encoding class)
+ 88591             : (The ISO88591_Encoding class)
 'ASCII8BIT'        : (The Byte_Encoding class)
 'BINARY'           : (The Byte_Encoding class)
 'BYTE'             : (The Byte_Encoding class)
 'BYTES'            : (The Byte_Encoding class)
 'CP1252'           : (The WINDOWS1252_Encoding class)
 'CP437'            : (The IBM437_Encoding class)
+'CP5348'           : (The WINDOWS1252_Encoding class)
 'CP65001'          : (The UTF8_Encoding class)
 'CP819'            : (The ISO88591_Encoding class)
 'CSISOLATIN1'      : (The ISO88591_Encoding class)
@@ -285,6 +287,7 @@ a Table (43 items)
 'IBM5348'          : (The WINDOWS1252_Encoding class)
 'IBM819'           : (The ISO88591_Encoding class)
 'ISO88591'         : (The ISO88591_Encoding class)
+'ISO885911987'     : (The ISO88591_Encoding class)
 'ISOIR100'         : (The ISO88591_Encoding class)
 'L1'               : (The ISO88591_Encoding class)
 'LATIN'            : (The ISO88591_Encoding class)
@@ -310,20 +313,20 @@ a Table (43 items)
 'WTF8'             : (The WTF8_Encoding class)
 
 <span style="font-weight:bold;color:blue;">/*
-</span><span style="font-weight:bold;color:blue;">Example: CP1252 to UTF-8
+</span><span style="font-weight:bold;color:blue;">Example: CP1252 to UTF-8 (where CP1252 is an alias of Windows-1252)
 </span><span style="font-weight:bold;color:blue;">&quot;Un œuf de chez MaPoule™ coûte ±0.40€&quot;
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">str_cp1252 = &quot;Un &quot; || &quot;9C&quot;x || &quot;uf de chez MaPoule&quot; || &quot;99&quot;x || &quot; co&quot; || &quot;FB&quot;x || &quot;te &quot; || &quot;B1&quot;x || &quot;0.40&quot; || &quot;80&quot;x</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">txt_cp1252 = str_cp1252~text(&quot;cp1252&quot;)</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">txt_cp1252~description=</span>
-'windows-1252 not-ASCII (36 graphemes, 36 codepoints, 36 bytes, 0 error)'
+'windows-1252 not-ASCII (36 characters, 36 codepoints, 36 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">txt_cp1252~c2x=</span>
 '55 6E 20 9C 75 66 20 64 65 20 63 68 65 7A 20 4D 61 50 6F 75 6C 65 99 20 63 6F FB 74 65 20 B1 30 2E 34 30 80'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">txt_utf8 = txt_cp1252~utf8</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">txt_utf8=</span>
 T'Un œuf de chez MaPoule™ coûte ±0.40€'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">txt_utf8~description=</span>
-'UTF-8 not-ASCII (36 graphemes, 36 codepoints, 43 bytes, 0 error)'
+'UTF-8 not-ASCII (36 characters, 36 codepoints, 43 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">txt_utf8~c2x=</span>
 '55 6E 20 C593 75 66 20 64 65 20 63 68 65 7A 20 4D 61 50 6F 75 6C 65 E284A2 20 63 6F C3BB 74 65 20 C2B1 30 2E 34 30 E282AC'
 
@@ -350,7 +353,7 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">txt_utf8~c2x=</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël‍👨‍👩‍👧&quot;~text~maximumCodepoint~pipe{&quot;U+&quot;item~d2x}=   </span><span style="font-weight:bold;color:blue;">-- U+1F469 is the maximum codepoint</span>
 'U+1F469'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël‍👨‍👩‍👧&quot;~text~unicode~description(t:1)=              </span><span style="font-weight:bold;color:blue;">-- For this maximum codepoint, we need Unicode32</span>
-'Unicode32 (5 graphemes (1 index from index 5), 10 codepoints (0 index), 40 bytes, 0 error)'
+'Unicode32 (5 characters (1 index from index 5), 10 codepoints (0 index), 40 bytes, 0 error)'
 
 <span style="font-weight:bold;color:blue;">-- The endianness of the UnicodeN_Encoding is the one of the machine.
 </span><span style="font-weight:bold;color:blue;">-- With an Intel CPU, it's little-endian.
@@ -369,41 +372,41 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël‍👨�
 </span><span style="font-weight:bold;color:blue;">The description includes technical informations (t:1) about the internal tables for indexation.
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">howMuchOfStorage = &quot;how much of storage?&quot;</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">howMuchOfStorage~text~description(t:1)=         </span><span style="font-weight:bold;color:blue;">-- UTF-8:     20 graphemes, 20 codepoints,  20 bytes</span>
-'UTF-8 ASCII (20 graphemes (0 index), 20 codepoints (0 index), 20 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">howMuchOfStorage~text~utf16~description(t:1)=   </span><span style="font-weight:bold;color:blue;">-- UTF-16:    20 graphemes, 20 codepoints,  40 bytes</span>
-'UTF-16BE (20 graphemes (0 index), 20 codepoints (0 index), 40 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">howMuchOfStorage~text~utf32~description(t:1)=   </span><span style="font-weight:bold;color:blue;">-- UTF-32:    20 graphemes, 20 codepoints,  80 bytes</span>
-'UTF-32BE (20 graphemes (0 index), 20 codepoints (0 index), 80 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">howMuchOfStorage~text~unicode~description(t:1)= </span><span style="font-weight:bold;color:blue;">-- Unicode8:  20 graphemes, 20 codepoints,  20 bytes</span>
-'Unicode8 ASCII (20 graphemes (0 index), 20 codepoints (0 index), 20 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">howMuchOfStorage~text~description(t:1)=         </span><span style="font-weight:bold;color:blue;">-- UTF-8:     20 characters, 20 codepoints,  20 bytes</span>
+'UTF-8 ASCII (20 characters (0 index), 20 codepoints (0 index), 20 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">howMuchOfStorage~text~utf16~description(t:1)=   </span><span style="font-weight:bold;color:blue;">-- UTF-16:    20 characters, 20 codepoints,  40 bytes</span>
+'UTF-16BE (20 characters (0 index), 20 codepoints (0 index), 40 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">howMuchOfStorage~text~utf32~description(t:1)=   </span><span style="font-weight:bold;color:blue;">-- UTF-32:    20 characters, 20 codepoints,  80 bytes</span>
+'UTF-32BE (20 characters (0 index), 20 codepoints (0 index), 80 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">howMuchOfStorage~text~unicode~description(t:1)= </span><span style="font-weight:bold;color:blue;">-- Unicode8:  20 characters, 20 codepoints,  20 bytes</span>
+'Unicode8 ASCII (20 characters (0 index), 20 codepoints (0 index), 20 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">rexCharacters = &quot;'rex' in their name: ꎅ ꎜ ꏑ 🦖&quot;</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">rexCharacters~text~description(t:1)=            </span><span style="font-weight:bold;color:blue;">-- UTF-8:     28 graphemes, 28 codepoints,  37 bytes</span>
-'UTF-8 not-ASCII (28 graphemes (6 indexes from index 23), 28 codepoints (6 indexes from index 23), 37 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">rexCharacters~text~utf16~description(t:1)=      </span><span style="font-weight:bold;color:blue;">-- UTF-16:    28 graphemes, 28 codepoints,  58 bytes</span>
-'UTF-16BE (28 graphemes (0 index), 28 codepoints (0 index), 58 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">rexCharacters~text~utf32~description(t:1)=      </span><span style="font-weight:bold;color:blue;">-- UTF-32:    28 graphemes, 28 codepoints, 112 bytes</span>
-'UTF-32BE (28 graphemes (0 index), 28 codepoints (0 index), 112 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">rexCharacters~text~unicode~description(t:1)=    </span><span style="font-weight:bold;color:blue;">-- Unicode32: 28 graphemes, 28 codepoints, 112 bytes</span>
-'Unicode32 (28 graphemes (0 index), 28 codepoints (0 index), 112 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">rexCharacters~text~description(t:1)=            </span><span style="font-weight:bold;color:blue;">-- UTF-8:     28 characters, 28 codepoints,  37 bytes</span>
+'UTF-8 not-ASCII (28 characters (6 indexes from index 23), 28 codepoints (6 indexes from index 23), 37 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">rexCharacters~text~utf16~description(t:1)=      </span><span style="font-weight:bold;color:blue;">-- UTF-16:    28 characters, 28 codepoints,  58 bytes</span>
+'UTF-16BE (28 characters (0 index), 28 codepoints (0 index), 58 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">rexCharacters~text~utf32~description(t:1)=      </span><span style="font-weight:bold;color:blue;">-- UTF-32:    28 characters, 28 codepoints, 112 bytes</span>
+'UTF-32BE (28 characters (0 index), 28 codepoints (0 index), 112 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">rexCharacters~text~unicode~description(t:1)=    </span><span style="font-weight:bold;color:blue;">-- Unicode32: 28 characters, 28 codepoints, 112 bytes</span>
+'Unicode32 (28 characters (0 index), 28 codepoints (0 index), 112 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">family = &quot;👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦&quot;</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">family~text~description(t:1)=                   </span><span style="font-weight:bold;color:blue;">-- UTF-8:      1 grapheme,  15 codepoints,  53 bytes</span>
-'UTF-8 not-ASCII (1 grapheme (0 index), 15 codepoints (14 indexes from index 2), 53 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">family~text~utf16~description(t:1)=             </span><span style="font-weight:bold;color:blue;">-- UTF-16:     1 grapheme,  15 codepoints,  46 bytes</span>
-'UTF-16BE (1 grapheme (0 index), 15 codepoints (14 indexes from index 2), 46 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">family~text~utf32~description(t:1)=             </span><span style="font-weight:bold;color:blue;">-- UTF-32:     1 grapheme,  15 codepoints,  60 bytes</span>
-'UTF-32BE (1 grapheme (0 index), 15 codepoints (0 index), 60 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">family~text~unicode~description(t:1)=           </span><span style="font-weight:bold;color:blue;">-- Unicode32:  1 grapheme,  15 codepoints,  60 byte</span>
-'Unicode32 (1 grapheme (0 index), 15 codepoints (0 index), 60 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">family~text~description(t:1)=                   </span><span style="font-weight:bold;color:blue;">-- UTF-8:      1 character,  15 codepoints,  53 bytes</span>
+'UTF-8 not-ASCII (1 character (0 index), 15 codepoints (14 indexes from index 2), 53 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">family~text~utf16~description(t:1)=             </span><span style="font-weight:bold;color:blue;">-- UTF-16:     1 character,  15 codepoints,  46 bytes</span>
+'UTF-16BE (1 character (0 index), 15 codepoints (14 indexes from index 2), 46 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">family~text~utf32~description(t:1)=             </span><span style="font-weight:bold;color:blue;">-- UTF-32:     1 character,  15 codepoints,  60 bytes</span>
+'UTF-32BE (1 character (0 index), 15 codepoints (0 index), 60 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">family~text~unicode~description(t:1)=           </span><span style="font-weight:bold;color:blue;">-- Unicode32:  1 character,  15 codepoints,  60 byte</span>
+'Unicode32 (1 character (0 index), 15 codepoints (0 index), 60 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">helloZalgo = &quot;h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞&quot;</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">helloZalgo~text~description(t:1)=               </span><span style="font-weight:bold;color:blue;">-- UTF-8:      5 graphemes, 54 codepoints, 111 bytes</span>
-'UTF-8 not-ASCII (5 graphemes (4 indexes from index 2), 54 codepoints (52 indexes from index 3), 111 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">helloZalgo~text~utf16~description(t:1)=         </span><span style="font-weight:bold;color:blue;">-- UTF-16:     5 graphemes, 54 codepoints, 108 bytes</span>
-'UTF-16BE (5 graphemes (4 indexes from index 2), 54 codepoints (0 index), 108 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">helloZalgo~text~utf32~description(t:1)=         </span><span style="font-weight:bold;color:blue;">-- UTF-32:     5 graphemes, 54 codepoints, 216 bytes</span>
-'UTF-32BE (5 graphemes (4 indexes from index 2), 54 codepoints (0 index), 216 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">helloZalgo~text~unicode~description(t:1)=       </span><span style="font-weight:bold;color:blue;">-- Unicode16:  5 graphemes, 54 codepoints, 108 bytes</span>
-'Unicode16 (5 graphemes (4 indexes from index 2), 54 codepoints (0 index), 108 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">helloZalgo~text~description(t:1)=               </span><span style="font-weight:bold;color:blue;">-- UTF-8:      5 characters, 54 codepoints, 111 bytes</span>
+'UTF-8 not-ASCII (5 characters (4 indexes from index 2), 54 codepoints (52 indexes from index 3), 111 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">helloZalgo~text~utf16~description(t:1)=         </span><span style="font-weight:bold;color:blue;">-- UTF-16:     5 characters, 54 codepoints, 108 bytes</span>
+'UTF-16BE (5 characters (4 indexes from index 2), 54 codepoints (0 index), 108 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">helloZalgo~text~utf32~description(t:1)=         </span><span style="font-weight:bold;color:blue;">-- UTF-32:     5 characters, 54 codepoints, 216 bytes</span>
+'UTF-32BE (5 characters (4 indexes from index 2), 54 codepoints (0 index), 216 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">helloZalgo~text~unicode~description(t:1)=       </span><span style="font-weight:bold;color:blue;">-- Unicode16:  5 characters, 54 codepoints, 108 bytes</span>
+'Unicode16 (5 characters (4 indexes from index 2), 54 codepoints (0 index), 108 bytes, 0 error)'
 
 
 <span style="font-weight:bold;color:blue;">/*
