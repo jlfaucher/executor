@@ -46,8 +46,11 @@
     The lines where the mapping is identicial are shifted on the right.
     The lines starting at margin 1 are lines where the mapping is different from the character.
 
-    Some characters have TWO mappings...
-    I don't understand the meaning of |0 and |1.
+    Some characters have TWO mappings: |0 |1
+    The definition is given in icu4c/source/tools/toolutil/ucm.h
+     * f flag for roundtrip (0), fallback (1), sub mapping (2), reverse fallback (3)
+
+    Still not clear what to do with this fallback flag.
     In the ICU demo, only the mappings |0 are used. I do the same.
     https://icu4c-demos.unicode.org/icu-bin/convexp?conv=ibm-5348_P100-1997
 

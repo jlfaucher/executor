@@ -1,3 +1,14 @@
+/*
+All the strings in this file are UTF-8.
+When I put an encoding on them, their contents remain UTF-8, that's the
+normal behavior: a text is a view, a layer, an interpretation of the bytes.
+The bytes themselves are not impacted by a view.
+That's why a text like "Noël"~text("unicode-8") will show
+"4E 6F C3 AB 6C" instead of "4E 6F EB 6C".
+The concatenation rules depend on the encoding and the asciiness, so the tests
+remain pertinent: in both representations, the string is not ASCII.
+*/
+
 
 ooRexx> drop t
 ooRexx> t = "Joyeux"~text "Noel"
@@ -179,6 +190,1291 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     '4A 6F 79 65 75 78 20 4E 6F C3AB 6C'
     ooRexx> t~c2u=
     'U+004A U+006F U+0079 U+0065 U+0075 U+0078 U+0020 U+004E U+006F U+00EB U+006C'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+/*
+        Left                    Right                   Candidates      Result          Rule
+        ------------------------------------------------------------------------------------
+        Byte ASCII              Byte ASCII              Left, Right     Left            R3      Left
+        Byte ASCII              Byte not-ASCII          Right           Right           R4      Right
+        Byte not-ASCII          Byte ASCII              Left            Left            R5      Left
+        Byte not-ASCII          Byte not-ASCII                          error                   None
+        Unicode ASCII           Unicode ASCII           Left, Right     Left            R1      Left
+        Unicode ASCII           Unicode not-ASCII       Right           Right           R4      Right
+        Unicode not-ASCII       Unicode ASCII           Left            Left            R5      Left
+        Unicode not-ASCII       Unicode not-ASCII                       error                   None
+        Byte ASCII              Unicode ASCII           Left, Right     Right           R2      Promote to Right
+        Byte ASCII              Unicode not-ASCII       Right           Right           R4      Promote to Right
+        Byte not-ASCII          Unicode ASCII           Left            Left            R5      Demote to Left
+        Byte not-ASCII          Unicode not-ASCII                       error                   None
+        Unicode ASCII           Byte ASCII              Left, Right     Left            R1      Promote to Left
+        Unicode ASCII           Byte not-ASCII          Right           Right           R4      Demote to Right
+        Unicode not-ASCII       Byte ASCII              Left            Left            R5      Promote to Left
+        Unicode not-ASCII       Byte not-ASCII                          error                   None
+*/
+
+/*
+        Left                    Right                   Candidates      Result          Rule
+        ------------------------------------------------------------------------------------
+        Byte ASCII              Byte ASCII              Left, Right     Left            R3      Left
+        Byte ASCII              Byte not-ASCII          Right           Right           R4      Right
+        Byte not-ASCII          Byte ASCII              Left            Left            R5      Left
+        Byte not-ASCII          Byte not-ASCII                          error                   None
+*/
+
+ooRexx> drop t
+ooRexx> t = "Pere"~text("windows-1252") "Noel"~text("iso-8859-1")
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'windows-1252 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 65 72 65 20 4E 6F 65 6C'
+    ooRexx> t~c2u=
+    [no result]
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> "Pere"~text("windows-1252")~appendEncoded(" "~text("windows-1252"), :b)~appendEncoded("Noel"~text("iso-8859-1"), :b)
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'windows-1252 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 65 72 65 20 4E 6F 65 6C'
+    ooRexx> t~c2u=
+    [no result]
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> b~appendEncoded("Pere"~text("windows-1252"), " "~text("windows-1252"), "Noel"~text("iso-8859-1"))
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'windows-1252 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 65 72 65 20 4E 6F 65 6C'
+    ooRexx> t~c2u=
+    [no result]
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop t
+ooRexx> t = "Pere"~text("windows-1252") "Noël"~text("iso-8859-1")
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'ISO-8859-1 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 65 72 65 20 4E 6F C3 AB 6C'
+    ooRexx> t~c2u=
+    [no result]
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> "Pere"~text("windows-1252")~appendEncoded(" "~text("windows-1252"), :b)~appendEncoded("Noël"~text("iso-8859-1"), :b)
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'ISO-8859-1 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 65 72 65 20 4E 6F C3 AB 6C'
+    ooRexx> t~c2u=
+    [no result]
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> b~appendEncoded("Pere"~text("windows-1252"), " "~text("windows-1252"), "Noël"~text("iso-8859-1"))
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'ISO-8859-1 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 65 72 65 20 4E 6F C3 AB 6C'
+    ooRexx> t~c2u=
+    [no result]
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop t
+ooRexx> t = "Père"~text("windows-1252") "Noel"~text("iso-8859-1")
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'windows-1252 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 C3 A8 72 65 20 4E 6F 65 6C'
+    ooRexx> t~c2u=
+    [no result]
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> "Père"~text("windows-1252")~appendEncoded(" "~text("windows-1252"), :b)~appendEncoded("Noel"~text("iso-8859-1"), :b)
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'windows-1252 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 C3 A8 72 65 20 4E 6F 65 6C'
+    ooRexx> t~c2u=
+    [no result]
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> b~appendEncoded("Père"~text("windows-1252"), " "~text("windows-1252"), "Noel"~text("iso-8859-1"))
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'windows-1252 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 C3 A8 72 65 20 4E 6F 65 6C'
+    ooRexx> t~c2u=
+    [no result]
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop t
+ooRexx> t = "Père"~text("windows-1252") "Noël"~text("iso-8859-1")
+Encoding: cannot append ISO-8859-1 not-ASCII 'Noël' to windows-1252 not-ASCII 'Père'.
+Error code= 23.900
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    NOVALUE
+    T
+    ooRexx> t~errors==
+    NOVALUE
+    T
+    ooRexx> t~c2x=
+    NOVALUE
+    T
+    ooRexx> t~c2u=
+    NOVALUE
+    T
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> "Père"~text("windows-1252")~appendEncoded(" "~text("windows-1252"), :b)~appendEncoded("Noël"~text("iso-8859-1"), :b)
+Encoding: cannot append ISO-8859-1 not-ASCII 'Noël' to windows-1252 not-ASCII 'Père '.
+Error code= 23.900
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'windows-1252 not-ASCII (6 graphemes, 6 codepoints, 6 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 C3 A8 72 65 20'
+    ooRexx> t~c2u=
+    [no result]
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> b~appendEncoded("Père"~text("windows-1252"), " "~text("windows-1252"), "Noël"~text("iso-8859-1"))
+Encoding: cannot append ISO-8859-1 not-ASCII 'Noël' to windows-1252 not-ASCII 'Père '.
+Error code= 23.900
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'windows-1252 not-ASCII (6 graphemes, 6 codepoints, 6 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 C3 A8 72 65 20'
+    ooRexx> t~c2u=
+    [no result]
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+/*
+        Left                    Right                   Candidates      Result          Rule
+        ------------------------------------------------------------------------------------
+        Unicode ASCII           Unicode ASCII           Left, Right     Left            R1      Left
+        Unicode ASCII           Unicode not-ASCII       Right           Right           R4      Right
+        Unicode not-ASCII       Unicode ASCII           Left            Left            R5      Left
+        Unicode not-ASCII       Unicode not-ASCII                       error                   None
+*/
+
+ooRexx> drop t
+ooRexx> t = "Pere"~text("utf-8") "Noel"~text("unicode-8")
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'UTF-8 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 65 72 65 20 4E 6F 65 6C'
+    ooRexx> t~c2u=
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> "Pere"~text("utf-8")~appendEncoded(" "~text("utf-8"), :b)~appendEncoded("Noel"~text("unicode-8"), :b)
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'UTF-8 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 65 72 65 20 4E 6F 65 6C'
+    ooRexx> t~c2u=
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> b~appendEncoded("Pere"~text("utf-8"), " "~text("utf-8"), "Noel"~text("unicode-8"))
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'UTF-8 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 65 72 65 20 4E 6F 65 6C'
+    ooRexx> t~c2u=
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop t
+ooRexx> t = "Pere"~text("utf-8") "Noël"~text("unicode-8")
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'Unicode8 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 65 72 65 20 4E 6F C3 AB 6C'
+    ooRexx> t~c2u=
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+00C3 U+00AB U+006C'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> "Pere"~text("utf-8")~appendEncoded(" "~text("utf-8"), :b)~appendEncoded("Noël"~text("unicode-8"), :b)
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'Unicode8 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 65 72 65 20 4E 6F C3 AB 6C'
+    ooRexx> t~c2u=
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+00C3 U+00AB U+006C'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> b~appendEncoded("Pere"~text("utf-8"), " "~text("utf-8"), "Noël"~text("unicode-8"))
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'Unicode8 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 65 72 65 20 4E 6F C3 AB 6C'
+    ooRexx> t~c2u=
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+00C3 U+00AB U+006C'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop t
+ooRexx> t = "Père"~text("utf-8") "Noel"~text("unicode-8")
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'UTF-8 not-ASCII (9 graphemes, 9 codepoints, 10 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 C3A8 72 65 20 4E 6F 65 6C'
+    ooRexx> t~c2u=
+    'U+0050 U+00E8 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> "Père"~text("utf-8")~appendEncoded(" "~text("utf-8"), :b)~appendEncoded("Noel"~text("unicode-8"), :b)
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'UTF-8 not-ASCII (9 graphemes, 9 codepoints, 10 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 C3A8 72 65 20 4E 6F 65 6C'
+    ooRexx> t~c2u=
+    'U+0050 U+00E8 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> b~appendEncoded("Père"~text("utf-8"), " "~text("utf-8"), "Noel"~text("unicode-8"))
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'UTF-8 not-ASCII (9 graphemes, 9 codepoints, 10 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 C3A8 72 65 20 4E 6F 65 6C'
+    ooRexx> t~c2u=
+    'U+0050 U+00E8 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop t
+ooRexx> t = "Père"~text("utf-8") "Noël"~text("unicode-8")
+Encoding: cannot append Unicode8 not-ASCII 'Noël' to UTF-8 not-ASCII 'Père'.
+Error code= 23.900
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    NOVALUE
+    T
+    ooRexx> t~errors==
+    NOVALUE
+    T
+    ooRexx> t~c2x=
+    NOVALUE
+    T
+    ooRexx> t~c2u=
+    NOVALUE
+    T
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> "Père"~text("utf-8")~appendEncoded(" "~text("utf-8"), :b)~appendEncoded("Noël"~text("unicode-8"), :b)
+Encoding: cannot append Unicode8 not-ASCII 'Noël' to UTF-8 not-ASCII 'Père '.
+Error code= 23.900
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'UTF-8 not-ASCII (5 graphemes, 5 codepoints, 6 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 C3A8 72 65 20'
+    ooRexx> t~c2u=
+    'U+0050 U+00E8 U+0072 U+0065 U+0020'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> b~appendEncoded("Père"~text("utf-8"), " "~text("utf-8"), "Noël"~text("unicode-8"))
+Encoding: cannot append Unicode8 not-ASCII 'Noël' to UTF-8 not-ASCII 'Père '.
+Error code= 23.900
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'UTF-8 not-ASCII (5 graphemes, 5 codepoints, 6 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 C3A8 72 65 20'
+    ooRexx> t~c2u=
+    'U+0050 U+00E8 U+0072 U+0065 U+0020'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+/*
+        Left                    Right                   Candidates      Result          Rule
+        ------------------------------------------------------------------------------------
+        Byte ASCII              Unicode ASCII           Left, Right     Right           R2      Promote to Right
+        Byte ASCII              Unicode not-ASCII       Right           Right           R4      Promote to Right
+        Byte not-ASCII          Unicode ASCII           Left            Left            R5      Demote to Left
+        Byte not-ASCII          Unicode not-ASCII                       error                   None
+*/
+
+ooRexx> drop t
+ooRexx> t = "Pere"~text("byte") "Noel"~text("unicode-8")
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'Unicode8 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 65 72 65 20 4E 6F 65 6C'
+    ooRexx> t~c2u=
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> "Pere"~text("byte")~appendEncoded(" "~text("byte"), :b)~appendEncoded("Noel"~text("unicode-8"), :b)
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'Unicode8 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 65 72 65 20 4E 6F 65 6C'
+    ooRexx> t~c2u=
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> b~appendEncoded("Pere"~text("byte"), " "~text("byte"), "Noel"~text("unicode-8"))
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'Unicode8 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 65 72 65 20 4E 6F 65 6C'
+    ooRexx> t~c2u=
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop t
+ooRexx> t = "Pere"~text("byte") "Noël"~text("unicode-8")
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'Unicode8 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 65 72 65 20 4E 6F C3 AB 6C'
+    ooRexx> t~c2u=
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+00C3 U+00AB U+006C'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> "Pere"~text("byte")~appendEncoded(" "~text("byte"), :b)~appendEncoded("Noël"~text("unicode-8"), :b)
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'Unicode8 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 65 72 65 20 4E 6F C3 AB 6C'
+    ooRexx> t~c2u=
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+00C3 U+00AB U+006C'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> b~appendEncoded("Pere"~text("byte"), " "~text("byte"), "Noël"~text("unicode-8"))
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'Unicode8 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 65 72 65 20 4E 6F C3 AB 6C'
+    ooRexx> t~c2u=
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+00C3 U+00AB U+006C'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop t
+ooRexx> t = "Père"~text("byte") "Noel"~text("unicode-8")
+Encoding: cannot append Unicode8 ASCII 'Noel' to Byte not-ASCII 'Père'.
+Error code= 23.900
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    NOVALUE
+    T
+    ooRexx> t~errors==
+    NOVALUE
+    T
+    ooRexx> t~c2x=
+    NOVALUE
+    T
+    ooRexx> t~c2u=
+    NOVALUE
+    T
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> "Père"~text("byte")~appendEncoded(" "~text("byte"), :b)~appendEncoded("Noel"~text("unicode-8"), :b)
+Encoding: cannot append Unicode8 ASCII 'Noel' to Byte not-ASCII 'Père '.
+Error code= 23.900
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'Byte not-ASCII (6 graphemes, 6 codepoints, 6 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 C3 A8 72 65 20'
+    ooRexx> t~c2u=
+    [no result]
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> b~appendEncoded("Père"~text("byte"), " "~text("byte"), "Noel"~text("unicode-8"))
+Encoding: cannot append Unicode8 ASCII 'Noel' to Byte not-ASCII 'Père '.
+Error code= 23.900
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'Byte not-ASCII (6 graphemes, 6 codepoints, 6 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 C3 A8 72 65 20'
+    ooRexx> t~c2u=
+    [no result]
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop t
+ooRexx> t = "Père"~text("byte") "Noël"~text("unicode-8")
+Encoding: cannot append Unicode8 not-ASCII 'Noël' to Byte not-ASCII 'Père'.
+Error code= 23.900
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    NOVALUE
+    T
+    ooRexx> t~errors==
+    NOVALUE
+    T
+    ooRexx> t~c2x=
+    NOVALUE
+    T
+    ooRexx> t~c2u=
+    NOVALUE
+    T
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> "Père"~text("byte")~appendEncoded(" "~text("byte"), :b)~appendEncoded("Noël"~text("unicode-8"), :b)
+Encoding: cannot append Unicode8 not-ASCII 'Noël' to Byte not-ASCII 'Père '.
+Error code= 23.900
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'Byte not-ASCII (6 graphemes, 6 codepoints, 6 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 C3 A8 72 65 20'
+    ooRexx> t~c2u=
+    [no result]
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> b~appendEncoded("Père"~text("byte"), " "~text("byte"), "Noël"~text("unicode-8"))
+Encoding: cannot append Unicode8 not-ASCII 'Noël' to Byte not-ASCII 'Père '.
+Error code= 23.900
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'Byte not-ASCII (6 graphemes, 6 codepoints, 6 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 C3 A8 72 65 20'
+    ooRexx> t~c2u=
+    [no result]
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+/*
+        Left                    Right                   Candidates      Result          Rule
+        ------------------------------------------------------------------------------------
+        Unicode ASCII           Byte ASCII              Left, Right     Left            R1      Promote to Left
+        Unicode ASCII           Byte not-ASCII          Right           Right           R4      Demote to Right
+        Unicode not-ASCII       Byte ASCII              Left            Left            R5      Promote to Left
+        Unicode not-ASCII       Byte not-ASCII                          error                   None
+*/
+
+ooRexx> drop t
+ooRexx> t = "Pere"~text("unicode-8") "Noel"~text("byte")
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'Unicode8 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 65 72 65 20 4E 6F 65 6C'
+    ooRexx> t~c2u=
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> "Pere"~text("unicode-8")~appendEncoded(" "~text("unicode-8"), :b)~appendEncoded("Noel"~text("byte"), :b)
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'Unicode8 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 65 72 65 20 4E 6F 65 6C'
+    ooRexx> t~c2u=
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> b~appendEncoded("Pere"~text("unicode-8"), " "~text("unicode-8"), "Noel"~text("byte"))
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'Unicode8 ASCII (9 graphemes, 9 codepoints, 9 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 65 72 65 20 4E 6F 65 6C'
+    ooRexx> t~c2u=
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop t
+ooRexx> t = "Pere"~text("unicode-8") "Noël"~text("byte")
+Encoding: cannot append Byte not-ASCII 'Noël' to Unicode8 ASCII 'Pere'.
+Error code= 23.900
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    NOVALUE
+    T
+    ooRexx> t~errors==
+    NOVALUE
+    T
+    ooRexx> t~c2x=
+    NOVALUE
+    T
+    ooRexx> t~c2u=
+    NOVALUE
+    T
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> "Pere"~text("unicode-8")~appendEncoded(" "~text("unicode-8"), :b)~appendEncoded("Noël"~text("byte"), :b)
+Encoding: cannot append Byte not-ASCII 'Noël' to Unicode8 ASCII 'Pere '.
+Error code= 23.900
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'Unicode8 ASCII (5 graphemes, 5 codepoints, 5 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 65 72 65 20'
+    ooRexx> t~c2u=
+    'U+0050 U+0065 U+0072 U+0065 U+0020'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> b~appendEncoded("Pere"~text("unicode-8"), " "~text("unicode-8"), "Noël"~text("byte"))
+Encoding: cannot append Byte not-ASCII 'Noël' to Unicode8 ASCII 'Pere '.
+Error code= 23.900
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'Unicode8 ASCII (5 graphemes, 5 codepoints, 5 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 65 72 65 20'
+    ooRexx> t~c2u=
+    'U+0050 U+0065 U+0072 U+0065 U+0020'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop t
+ooRexx> t = "Père"~text("unicode-8") "Noel"~text("byte")
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'Unicode8 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 C3 A8 72 65 20 4E 6F 65 6C'
+    ooRexx> t~c2u=
+    'U+0050 U+00C3 U+00A8 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> "Père"~text("unicode-8")~appendEncoded(" "~text("unicode-8"), :b)~appendEncoded("Noel"~text("byte"), :b)
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'Unicode8 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 C3 A8 72 65 20 4E 6F 65 6C'
+    ooRexx> t~c2u=
+    'U+0050 U+00C3 U+00A8 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> b~appendEncoded("Père"~text("unicode-8"), " "~text("unicode-8"), "Noel"~text("byte"))
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'Unicode8 not-ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 C3 A8 72 65 20 4E 6F 65 6C'
+    ooRexx> t~c2u=
+    'U+0050 U+00C3 U+00A8 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop t
+ooRexx> t = "Père"~text("unicode-8") "Noël"~text("byte")
+Encoding: cannot append Byte not-ASCII 'Noël' to Unicode8 not-ASCII 'Père'.
+Error code= 23.900
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    NOVALUE
+    T
+    ooRexx> t~errors==
+    NOVALUE
+    T
+    ooRexx> t~c2x=
+    NOVALUE
+    T
+    ooRexx> t~c2u=
+    NOVALUE
+    T
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> "Père"~text("unicode-8")~appendEncoded(" "~text("unicode-8"), :b)~appendEncoded("Noël"~text("byte"), :b)
+Encoding: cannot append Byte not-ASCII 'Noël' to Unicode8 not-ASCII 'Père '.
+Error code= 23.900
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'Unicode8 not-ASCII (6 graphemes, 6 codepoints, 6 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 C3 A8 72 65 20'
+    ooRexx> t~c2u=
+    'U+0050 U+00C3 U+00A8 U+0072 U+0065 U+0020'
+    ------------------------------------------
+    -- End of file include_concatenation_infos
+    ------------------------------------------
+
+ooRexx> drop b t
+ooRexx> b = .MutableBuffer~new
+ooRexx> b~appendEncoded("Père"~text("unicode-8"), " "~text("unicode-8"), "Noël"~text("byte"))
+Encoding: cannot append Byte not-ASCII 'Noël' to Unicode8 not-ASCII 'Père '.
+Error code= 23.900
+ooRexx> t = b~string~text
+ooRexx> < include_concatenation_infos s/$(text)/t/
+    --------------------------------------------
+    -- Start of file include_concatenation_infos
+    --------------------------------------------
+    /*
+    depends on:
+    t
+    */
+    
+    ooRexx> t~description=
+    'Unicode8 not-ASCII (6 graphemes, 6 codepoints, 6 bytes, 0 error)'
+    ooRexx> t~errors==
+    (The NIL object)
+    ooRexx> t~c2x=
+    '50 C3 A8 72 65 20'
+    ooRexx> t~c2u=
+    'U+0050 U+00C3 U+00A8 U+0072 U+0065 U+0020'
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------

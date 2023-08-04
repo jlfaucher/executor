@@ -1,3 +1,7 @@
+-- Return a string whose encoding is that of the MutableBuffer.
+.MutableBuffer~define("stringNative", .MutableBuffer~method("string"))
+.MutableBuffer~define("string", "forward message 'encodedString'")
+
 ::extension RexxText        inherit RexxTextInitializer
 ::extension RexxText        inherit RexxTextPrettyPrinter
 ::extension RexxText        inherit RexxTextContents
@@ -108,6 +112,13 @@ See also this same method on RexxText and MutableBuffer and String.
      +-<---------------------<- string
 */
 
+/*
+    REMEMBER!
+    The string's encoding is lost when using a string's method which returns a string
+    (like left, right, substr, etc...).
+    Exception:
+    The 'string' method is ok because it returns the string itself (no copy).
+*/
 
 ::attribute text get
     expose encoding myText -- attribute added on the String instance
@@ -237,8 +248,8 @@ Otherwise return the string.
 
 ::method description
     /*
-    "noël👩‍👨‍👩‍👧🎅"~description(s:1)          -- 'UTF-8 not-ASCII'
-    "noël👩‍👨‍👩‍👧🎅"~description               -- 'UTF-8 not-ASCII (34 bytes)'
+    "noël👩‍👨‍👩‍👧🎅"~description(s:1)          -- 'UTF-8 not-ASCII by default'
+    "noël👩‍👨‍👩‍👧🎅"~description               -- 'UTF-8 not-ASCII by default (34 bytes)'
     */
     if self~hasText then forward to (self~text)
     use strict arg -- none
@@ -247,7 +258,9 @@ Otherwise return the string.
     if \short then sizesDescription = "(" ||,
                                       self~length~singularPluralCount("byte", "bytes"),
                                       || ")"
-    return " "~join(self~encoding~description(self~isASCII), sizesDescription)
+    defaultEncoding = ""
+    if \self~hasEncoding then defaultEncoding = "by default"
+    return " "~join(self~encoding~description(self~isASCII), defaultEncoding, sizesDescription)
 
 
 ::method descriptionForError
@@ -273,6 +286,14 @@ Otherwise return the string.
     The analysis is done when a RexxText instance is created from the buffer's string.
 */
 
+/*
+    REMEMBER!
+    The buffer's encoding is lost when using a buffer's method which returns a string
+    (like left, right, substr, etc...).
+    Exception:
+    The 'string' method is redefined to keep the encoding (forwards the message "encodedString").
+*/
+
 ::attribute encoding get
     expose encoding
     use strict arg -- none
@@ -291,7 +312,7 @@ Otherwise return the string.
 ::method init_extended
     expose encoding
     -- if the optional argument 'string' is provided then memorize its encoding
-    if arg(1, "e") then encoding = arg(1)~encoding
+    if arg(1, "e"), arg(1)~hasEncoding then encoding = arg(1)~encoding
     -- forward class (super) -- don't forward, that would raise an unknown method
 
 
@@ -299,6 +320,17 @@ Otherwise return the string.
     expose encoding
     use strict arg -- none
     return var("encoding")
+
+
+-- Apparently, this method is not called when named "string"
+-- Maybe a problem with inherited methods
+-- Workaround: see at the begining of this file
+::method encodedString
+    expose encoding
+    use strict arg -- none
+    string = self~stringNative
+    if var("encoding") then string~encoding = encoding
+    return string
 
 
 /*
@@ -318,8 +350,8 @@ without requesting a string from the buffer
 
 ::method description
     /*
-    .MutableBuffer~new("noël👩‍👨‍👩‍👧🎅")~description(s:1)          -- 'UTF-8 not-ASCII'
-    .MutableBuffer~new("noël👩‍👨‍👩‍👧🎅")~description               -- 'UTF-8 not-ASCII (34 bytes)'
+    .MutableBuffer~new("noël👩‍👨‍👩‍👧🎅")~description(s:1)          -- 'UTF-8 not-ASCII by default'
+    .MutableBuffer~new("noël👩‍👨‍👩‍👧🎅")~description               -- 'UTF-8 not-ASCII by default (34 bytes)'
     */
     use strict arg -- none
     use strict named arg short(1)=.false, technical(1)=.false /* not used */
@@ -327,7 +359,10 @@ without requesting a string from the buffer
     if \short then sizesDescription = "(" ||,
                                       self~length~singularPluralCount("byte", "bytes"),
                                       || ")"
-    return " "~join(self~encoding~description(self~isASCII), sizesDescription)
+    -- It's useful to know if the buffer has an explicit encoding (because impacts the concatenation)
+    defaultEncoding = ""
+    if \self~hasEncoding then defaultEncoding = "by default"
+    return " "~join(self~encoding~description(self~isASCII), defaultEncoding, sizesDescription)
 
 
 ::method descriptionForError
@@ -343,6 +378,30 @@ without requesting a string from the buffer
     -- IMPORTANT! Don't cache the value because it can be invalidated when the encoding is changed
     if self~encoding~isCompatibleWithASCII, self~isASCII then return .true
     return .false
+
+
+-- If you modify this method then see if the method IndexerHelpers~append (at class level) must be modified as well
+::method appendEncoded
+    -- I tried to use the name "append" for this method, but it's a bad idea!
+    -- ~append must remain the native implementation, because it's used in many
+    -- places, and because a stack overflow occurs.
+
+    -- Positional arguments : zero to N text or buffer or string.
+    use strict arg ...
+    use strict named arg buffer(1)=.nil -- yes, support this parameter, to offer the same interface as .RexxText~appendEncoded
+    if .nil == buffer then buffer = self
+    if buffer \== self then buffer~appendEncoded(self)
+
+    do i=1 to arg()
+        text = arg(i)~requestTextOrBufferOrString
+        if .nil == text then signal must_have_a_text_or_buffer_or_string_value
+        encoding = .Encoding~forConcatenation(buffer, text) -- raise an error if not compatible
+        buffer~encoding = encoding
+        encoding~concatenate(text, :buffer)
+    end
+    return buffer
+
+    must_have_a_text_or_buffer_or_string_value: raise syntax 93.900 array("Method positional argument "i" must have a text or buffer or string value")
 
 
 /******************************************************************************/
@@ -427,6 +486,8 @@ Allows to use a String or a RexxText indistinctly
     use strict arg -- none
     return .true
 
+
+::constant hasEncoding 1
 
 ::attribute encoding get
 /*
@@ -881,6 +942,11 @@ stringChunks
 
 ::method append
     forward to (self~indexer)
+
+
+-- Redudant, to offer the same interface as MutableBuffer
+::method appendEncoded
+    forward message "append"
 
 
 ::method c2d

@@ -989,34 +989,74 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
 
     left = left~requestTextOrBufferOrString
     if .nil == left then signal left_must_have_a_text_or_buffer_or_string_value
-    leftEncoding = left~encoding
+    leftEncoding = left~encoding -- will be the default encoding if left has no encoding
 
     right = right~requestTextOrBufferOrString
     if .nil == right then signal right_must_have_a_text_or_buffer_or_string_value
-    rightEncoding = right~encoding
+    rightEncoding = right~encoding -- will be the default encoding if right has no encoding
+
+    -- If left is a buffer with no encoding then use the right encoding.
+    -- In other words, don't use the default encoding for the left buffer.
+    -- Notice that this rule doesn't apply to a right buffer, only a left buffer has this encoding neutrality.
+    if left~isA(.MutableBuffer), \left~hasEncoding then return rightEncoding
 
     if leftEncoding == rightEncoding then return leftEncoding
 
     if leftEncoding~isUTF8, rightEncoding~isWTF8 then return .WTF8_Encoding
     if leftEncoding~isWTF8, rightEncoding~isUTF8 then return .WTF8_Encoding
-    -- Keep the following tests after the previous tests, to keep the priority for WTF8
-    -- Give priority to unicode over byte-encoding
-    -- Otherwise give priority to the left encoding
-    if left~isCompatibleWithASCII, rightEncoding~isCompatibleWithASCII then do
-        if leftEncoding~isUnicode then return leftEncoding
-        if rightEncoding~isUnicode then return rightEncoding
-        return leftEncoding
-    end
-    if leftEncoding~isCompatibleWithASCII, right~isCompatibleWithASCII then do
-        if leftEncoding~isUnicode then return leftEncoding
-        if rightEncoding~isUnicode then return rightEncoding
-        return leftEncoding
-    end
-
     if leftEncoding~isUTF16BE, rightEncoding~isWTF16BE then return .WTF16BE_Encoding
     if leftEncoding~isWTF16BE, rightEncoding~isUTF16BE then return .WTF16BE_Encoding
     if leftEncoding~isUTF16LE, rightEncoding~isWTF16LE then return .WTF16LE_Encoding
     if leftEncoding~isWTF16LE, rightEncoding~isUTF16LE then return .WTF16LE_Encoding
+
+    -- Keep the following tests after the previous tests, to keep the priority for WTF8/WTF16
+    /*
+        Left encoding <> Right encoding
+        Left encoding and Right encoding are compatible with ASCII (BYTE and its specialisations, UTF-8, WTF-8, UNICODE-8)
+
+        A side is candidate when it can absorb the other side.
+        Only ASCII characters from 00 to 7F can be absorbed (Ruby approach).
+        When both sides are candidate then
+        - give priority to unicode over byte-encoding
+        - give priority to the left encoding
+
+        Alignment with JMB vocabulary:
+        None, Left, Right have the same definitions as JMB's.
+        Promotion, Demotion are not based on inheritance:
+        - Byte can be promoted to Unicode
+        - Unicode can be demoted to Byte
+
+        Left                    Right                   Candidates      Result          Rule
+        ------------------------------------------------------------------------------------
+        Byte ASCII              Byte ASCII              Left, Right     Left            R3      Left
+        Byte ASCII              Byte not-ASCII          Right           Right           R4      Right
+        Byte not-ASCII          Byte ASCII              Left            Left            R5      Left
+        Byte not-ASCII          Byte not-ASCII                          error                   None
+        Unicode ASCII           Unicode ASCII           Left, Right     Left            R1      Left
+        Unicode ASCII           Unicode not-ASCII       Right           Right           R4      Right
+        Unicode not-ASCII       Unicode ASCII           Left            Left            R5      Left
+        Unicode not-ASCII       Unicode not-ASCII                       error                   None
+        Byte ASCII              Unicode ASCII           Left, Right     Right           R2      Promote to Right
+        Byte ASCII              Unicode not-ASCII       Right           Right           R4      Promote to Right
+        Byte not-ASCII          Unicode ASCII           Left            Left            R5      Demote to Left
+        Byte not-ASCII          Unicode not-ASCII                       error                   None
+        Unicode ASCII           Byte ASCII              Left, Right     Left            R1      Promote to Left
+        Unicode ASCII           Byte not-ASCII          Right           Right           R4      Demote to Right
+        Unicode not-ASCII       Byte ASCII              Left            Left            R5      Promote to Left
+        Unicode not-ASCII       Byte not-ASCII                          error                   None
+    */
+    demoteIsAllowed = 0
+    rightIsDemotion = (leftEncoding~isUnicode & \rightEncoding~isUnicode)
+    leftIsDemotion = (rightEncoding~isUnicode & \leftEncoding~isUnicode)
+    if leftEncoding~isCompatibleWithASCII, rightEncoding~isCompatibleWithASCII then do
+        if left~isCompatibleWithASCII, right~isCompatibleWithASCII then do
+            if leftEncoding~isUnicode then return leftEncoding      -- Unicode          -- R1
+            if rightEncoding~isUnicode then return rightEncoding    -- Unicode          -- R2
+            return leftEncoding                                     -- Byte             -- R3
+        end
+        if left~isCompatibleWithASCII, (demoteIsAllowed | \rightIsDemotion) then return rightEncoding    -- Unicode or Byte  -- R4
+        if right~isCompatibleWithASCII, (demoteIsAllowed | \leftIsDemotion) then return leftEncoding   -- Unicode or Byte  -- R5
+    end
 
     -- TODO Discutable?
     -- Consider that Unicode32 is never compatible with UTF-32BE or UTF-32LE

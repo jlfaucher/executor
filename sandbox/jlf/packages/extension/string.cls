@@ -6,8 +6,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
 .string~define("append", .string~method("||"))
 
 -- Compatibility with ooRexx5
-.MutableBuffer~define("appendLegacy", .MutableBuffer~method("append"))
-.MutableBuffer~define("append", "do i=1 to arg(); self~appendLegacy(arg(i)); end; return self")
+.MutableBuffer~define("appendNative", .MutableBuffer~method("append"))
+.MutableBuffer~define("append", "do i=1 to arg(); self~appendNative(arg(i)); end; return self")
 
 -- Compatibility with ooRexx5
 .globalRoutines["XRANGE"] = .routines~xrange

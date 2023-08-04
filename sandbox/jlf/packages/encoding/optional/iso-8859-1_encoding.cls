@@ -49,6 +49,7 @@
     */
     /*
         2023.06.28
+        https://unicode-org.github.io/icu/userguide/conversion/ (search ISO-8859-1)
         Given the comments found in ICU, I decide to consider that any character
         of a string encoded as iso-8859-1 is converted directly to Unicode by
         using Unicode codepoint = character code.

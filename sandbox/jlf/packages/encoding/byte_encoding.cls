@@ -254,13 +254,8 @@ newline = translate(oldline,oubytes,inbytes)
     sizeC = self~codepointCount -- size in codepoints
     returnBuffer = .nil <> buffer
 
-    if .nil == buffer then do
-        buffer = .MutableBuffer~new(, sizeC * targetEncoding~codepointMaxBytes)
-        buffer~encoding = targetEncoding
-    end
-    else do
-        buffer~encoding = targetEncoding~asEncodingFor(buffer) -- raise an error if not compatible
-    end
+    if .nil == buffer then buffer = .MutableBuffer~new(, sizeC * targetEncoding~codepointMaxBytes)
+    buffer~encoding = targetEncoding~asEncodingFor(buffer) -- raise an error if not compatible
 
     bufferStart = buffer~length + 1
     do i=1 to sizeC

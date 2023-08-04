@@ -11,6 +11,7 @@
 /******************************************************************************/
 ::class "IndexerHelpers" mixinclass Object public -- private
 
+-- If you modify this method then see if the method EncodedMutableBuffer~appendEncoded must be modified as well
 ::method append class
     -- Positional arguments : zero to N text or buffer or string.
     use arg ...
@@ -237,7 +238,7 @@
 ::class "IndexerStringInterface" mixinclass Object public -- private
 
 ::method append
-    use strict arg text -- text or string
+    use strict arg text -- text or buffer or string
     use strict named arg buffer(1)=.nil
     text = text~requestTextOrBufferOrString
     if .nil == text then signal must_have_a_text_or_buffer_or_string_value

@@ -222,31 +222,25 @@ For example, if startB==6 then previousCodepointIndex==3
 
     if bufferEncoding~isUTF8, targetEncoding~isWTF8 then return .WTF8_Encoding
     if bufferEncoding~isWTF8, targetEncoding~isUTF8 then return .WTF8_Encoding
-    -- Keep the following tests after the previous tests, to keep the priority for WTF8
-    -- Give priority to unicode over byte-encoding
-    -- Otherwise give priority to the left encoding
-    if buffer~isCompatibleWithASCII, targetEncoding~isCompatibleWithASCII then do
-        if bufferEncoding~isUnicode then return bufferEncoding
-        if targetEncoding~isUnicode then return targetEncoding
-        return bufferEncoding
-    end
-    -- I'm not sure if the next test is good...
-    -- The good test is to test if the right part (here target) isCompatibleWithASCII
-    -- but we have only the target encoding, not a real string to test.
-    -- The implementation of isCompatibleWithASCII tests 2 things:
-    --   - the encoding: self~encoding~isCompatibleWithASCII
-    --   - the asciiness of the string: self~string~isASCII
-    -- Here, I test only the encoding. The asciiness will be tested elsewhere (for example in StringIndexer~append)
-    if   bufferEncoding~isCompatibleWithASCII, targetEncoding~isCompatibleWithASCII then do
-        if bufferEncoding~isUnicode then return bufferEncoding
-        if targetEncoding~isUnicode then return targetEncoding
-        return bufferEncoding
-    end
-
     if bufferEncoding~isUTF16BE, targetEncoding~isWTF16BE then return .WTF16BE_Encoding
     if bufferEncoding~isWTF16BE, targetEncoding~isUTF16BE then return .WTF16BE_Encoding
     if bufferEncoding~isUTF16LE, targetEncoding~isWTF16LE then return .WTF16LE_Encoding
     if bufferEncoding~isWTF16LE, targetEncoding~isUTF16LE then return .WTF16LE_Encoding
+
+    -- Keep the following tests after the previous tests, to keep the priority for WTF8/WTF16
+    -- no 'right' string, assume it's always ASCII
+    demoteIsAllowed = 0
+    targetIsDemotion = (bufferEncoding~isUnicode & \targetEncoding~isUnicode)
+    bufferIsDemotion = (targetEncoding~isUnicode & \bufferEncoding~isUnicode)
+    if bufferEncoding~isCompatibleWithASCII, targetEncoding~isCompatibleWithASCII then do
+        if buffer~isCompatibleWithASCII, 1 /* right~isCompatibleWithASCII */ then do
+            if bufferEncoding~isUnicode then return bufferEncoding      -- Unicode          -- R1
+            if targetEncoding~isUnicode then return targetEncoding      -- Unicode          -- R2
+            return bufferEncoding                                       -- Byte             -- R3
+        end
+        if buffer~isCompatibleWithASCII, (demoteIsAllowed | \targetIsDemotion) then return targetEncoding   -- Unicode or Byte  -- R4
+        if 1 /* right~isCompatibleWithASCII **/, (demoteIsAllowed | \bufferIsDemotion) then return bufferEncoding   -- Unicode or Byte  -- R5
+    end
 
     -- Consider that Unicode32 is never compatible with UTF-32BE or UTF-32LE
     -- even if it can be compatible in function of the CPU endianness.
@@ -352,35 +346,41 @@ For example, if startB==6 then previousCodepointIndex==3
 ::method c2u
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    codepoints = self~codepoints
-    returnBuffer = .nil <> buffer
-    if .nil == buffer then buffer = .MutableBuffer~new
-    first = .true
-    do while codepoints~available
-        if \first then buffer~append(" ")
-        first = .false
-        call ppCodepoint codepoints~item, :buffer
-        codepoints~next
+    if self~isUnicode then do
+        codepoints = self~codepoints
+        returnBuffer = .nil <> buffer
+        if .nil == buffer then buffer = .MutableBuffer~new
+        first = .true
+        do while codepoints~available
+            if \first then buffer~append(" ")
+            first = .false
+            call ppCodepoint codepoints~item, :buffer
+            codepoints~next
+        end
+        if returnBuffer then return buffer
+                        else return buffer~string
     end
-    if returnBuffer then return buffer
-                    else return buffer~string
+    -- no result if not Unicode encoding
 
 
 ::method c2g
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    graphemes = self~graphemes
-    returnBuffer = .nil <> buffer
-    if .nil == buffer then buffer = .MutableBuffer~new
-    first = .true
-    do while graphemes~available
-        if \first then buffer~append(" ")
-        first = .false
-        buffer~append(graphemes~item~string~c2x)
-        graphemes~next
+    if self~isUnicode then do
+        graphemes = self~graphemes
+        returnBuffer = .nil <> buffer
+        if .nil == buffer then buffer = .MutableBuffer~new
+        first = .true
+        do while graphemes~available
+            if \first then buffer~append(" ")
+            first = .false
+            buffer~append(graphemes~item~string~c2x)
+            graphemes~next
+        end
+        if returnBuffer then return buffer
+                        else return buffer~string
     end
-    if returnBuffer then return buffer
-                    else return buffer~string
+    -- no result if not Unicode encoding
 
 
 ::method codepoints

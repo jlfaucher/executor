@@ -127,14 +127,14 @@ T''
 
 -- center with pad
 ooRexx> "="~description=                                            -- 'UTF-8 ASCII (1 byte)'
-'UTF-8 ASCII (1 byte)'
+'UTF-8 ASCII by default (1 byte)'
 ooRexx> "="~c2x=                                                    -- '3D'
 '3D'
 ooRexx> "noelFC"~text~center(10, "=")=; result~description=         -- forward to String
 T'==noelFC=='
 'UTF-8 ASCII (10 graphemes, 10 codepoints, 10 bytes, 0 error)'
 ooRexx> "═"~description=                                            -- 'UTF-8 not-ASCII (3 bytes)'
-'UTF-8 not-ASCII (3 bytes)'
+'UTF-8 not-ASCII by default (3 bytes)'
 ooRexx> "═"~text~description=                                       -- 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'
 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'
 ooRexx> "═"~c2x=                                                    -- 'E29590'
@@ -375,7 +375,7 @@ the String (which is normal).
 */
 
 ooRexx> "═"~description=                                -- 'UTF-8 not-ASCII (3 bytes)'
-'UTF-8 not-ASCII (3 bytes)'
+'UTF-8 not-ASCII by default (3 bytes)'
 ooRexx> "═"~text~description=                           -- 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'
 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'
 ooRexx> "═"~c2x=                                        -- 'E29590'
@@ -426,7 +426,7 @@ ooRexx> s=                                              -- '[00]A[00]B[00]C[00]D
 ooRexx> s~isCompatibleWithByteString=                   -- 1
  1
 ooRexx> s~description=                                  -- 'UTF-8 ASCII (8 bytes)'
-'UTF-8 ASCII (8 bytes)'
+'UTF-8 ASCII by default (8 bytes)'
 ooRexx> length(s)=                                      -- 8 because encoding UTF-8 ASCII is compatible with String
  8
 ooRexx> s~encoding = "UTF16"
@@ -448,7 +448,7 @@ ooRexx> s=                                              -- '[000000]A[000000]B'
 ooRexx> s~isCompatibleWithByteString=                   -- 1
  1
 ooRexx> s~description=                                  -- 'UTF-8 ASCII (8 bytes)'
-'UTF-8 ASCII (8 bytes)'
+'UTF-8 ASCII by default (8 bytes)'
 ooRexx> length(s)=                                      -- 8 because encoding UTF-8 ASCII is compatible with String
  8
 ooRexx> s~encoding = "UTF32"

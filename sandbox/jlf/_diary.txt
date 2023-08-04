@@ -2,7 +2,59 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2023 Jul 25
+
+[Encoded strings]
+
+c2g and c2u no longer return a result if the text is not Unicode.
+(same as UnicodeCharacters)
+TODO:
+rename "grapheme" to "character" in the RexxText interface because this concept
+is not applicable to byte encodings.
+
+
+Fix regression in .Encoding~forConcatenation.
+Rules when Left encoding and Right encoding are compatible with ASCII:
+    A side is candidate when it can absorb the other side.
+    Only ASCII characters from 00 to 7F can be absorbed (Ruby approach).
+    When both sides are candidate then
+    - give priority to unicode over byte-encoding
+    - give priority to the left encoding
+New rule for buffer:
+    If left is a buffer with no encoding then use the right encoding.
+    This rule doesn't apply to a right buffer, only a left buffer has this
+    encoding neutrality.
+
+
+ICU ucm files for encodings
+Some characters have TWO mappings: |0 |1
+The definition is given in icu4c/source/tools/toolutil/ucm.h
+ * f flag for roundtrip (0), fallback (1), sub mapping (2), reverse fallback (3)
+Still not clear what to do with this fallback flag.
+
+
+New method 'appendEncoded' on MutableBuffer.
+The native method 'append' remains unaware of encodings. I tried to replace
+'append' by 'appendEncoded' but that's a bad idea. The method 'append' is used
+everywhere, some stack overflows happen.
+
+New method 'appendEncoded' on RexxText, which forwards 'append'.
+This is to offer the same interface as MutableBuffer.
+
+    --- Following expressions return the same result correctly tagged 'ISO-8859-1'
+    b = .MutableBuffer~new; "Pere"~text("windows-1252")~append(" "~text("windows-1252"), :b)~appendEncoded("Noël"~text("iso-8859-1"), :b)=; result~description=
+    b = .MutableBuffer~new; "Pere"~text("windows-1252")~appendEncoded(" "~text("windows-1252"), :b)~appendEncoded("Noël"~text("iso-8859-1"), :b)=; result~description=
+    b = .MutableBuffer~new; b~appendEncoded("Pere"~text("windows-1252"), " "~text("windows-1252"), "Noël"~text("iso-8859-1"))=; result~description=
+
+    -- Following expressions (not using 'appendEncoded') return the same result as above, but wrongly tagged 'windows-1252' or 'UTF-8'
+    b = .MutableBuffer~new; "Pere"~text("windows-1252")~append(" "~text("windows-1252"), :b)~append("Noël"~text("iso-8859-1"), :b)=; result~description=
+    b = .MutableBuffer~new; b~append("Pere"~text("windows-1252"), " "~text("windows-1252"), "Noël"~text("iso-8859-1"))=; result~description=
+
+
+===============================================================================
 2023 Jul 14
+
+[Encoded strings]
 
 All encodings have now an indicator isCompatibleWithASCII.
 Currently true for Byte, UTF-8, WTF-8 and Unicode-8 encodings.
@@ -93,7 +145,7 @@ Unescape: Add support for
 
 The method RexxText~characters now returns graphemes instead of UnicodeCharacters.
 Use the new method RexxText~UnicodeCharacters to get UnicodeCharacters. This method
-raises an error when used with non-Unicode encodings (like "Byte").
+raises an error "no returned value" when used with non-Unicode encodings (like "Byte").
 
 New method String~characters and MutableBuffer~characters to support a same
 interface with RexxText.
@@ -417,6 +469,9 @@ Enable Windows on ARM builds for 0.16.x
 https://github.com/rust-lang/rustup/issues/2612
 aarch64 windows
 See the last comments... Rings is blocking and seems to be hardly maintained...
+
+https://github.com/briansmith/ring/issues/1614
+jlf 23/07/2023 The saga continues.. Soon one year that 'ring' is blocking, it's pathetic.
 
 In the meantime, I deactivate the use of ICU4X in the build of Executor for Windows ARM..
 
@@ -1267,6 +1322,7 @@ and also options to load a library or a package:
 
 Differences, compared to rexx -e:
 - .syscargs has a value
+- The labels are not supported (limitation of the instruction interpret)
 - The directives :: are not supported. Use the options -l or -p.
 - If no RESULT value then returns the RC value (rexx doesn't return the RC value)
   (Oct 03, 2022: Align with rexx, return the RC value only in case of error)
