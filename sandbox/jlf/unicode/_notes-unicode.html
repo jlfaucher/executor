@@ -74,6 +74,7 @@ Contents:
     <a href="#Dart_lang">Dart lang</a>
     <a href="#Elixir_lang">Elixir lang</a>
     <a href="#Factor_lang">Factor lang</a>
+    <a href="#Fortran_lang">Fortran lang</a>
     <a href="#GO_lang">GO lang</a>
     <a href="#jRuby_lang">jRuby lang</a>
     <a href="#Java_lang">Java lang</a>
@@ -82,17 +83,18 @@ Contents:
     <a href="#Kotlin_lang">Kotlin lang</a>
     <a href="#Lisp_lang">Lisp lang</a>
     <a href="#Mathematica_lang">Mathematica lang</a>
-    <a href="#MOAR_VM_RAKU_lang_Rakudo_lang__Perl6__Perl_6_">MOAR-VM RAKU lang Rakudo lang (Perl6, Perl 6)</a>
     <a href="#netrexx_lang">netrexx lang</a>
     <a href="#Oracle">Oracle</a>
     <a href="#Perl_lang__Perl_6_has_been_renamed_to_Raku_">Perl lang (Perl 6 has been renamed to Raku)</a>
     <a href="#PHP_lang">PHP lang</a>
     <a href="#Python_lang">Python lang</a>
     <a href="#R_lang">R lang</a>
+    <a href="#RAKU_lang_Rakudo_lang__Perl6__Perl_6__MOAR_VM_">RAKU lang Rakudo lang (Perl6, Perl 6, MOAR-VM)</a>
     <a href="#Rexx_lang">Rexx lang</a>
     <a href="#Ruby_lang">Ruby lang</a>
     <a href="#Rust_lang">Rust lang</a>
     <a href="#Saxon_lang">Saxon lang</a>
+    <a href="#SQL_lang">SQL lang</a>
     <a href="#Swift_lang">Swift lang</a>
     <a href="#Zig_lang__Ziglyph">Zig lang, Ziglyph</a>
 
@@ -185,6 +187,15 @@ Unicode Standard Annex (UAX)
 
     UAX #50, Unicode Vertical Text Layout
     <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr50/">https://www.unicode.org/reports/tr50/</a>
+
+
+Unicode Technical Standard  (UTS)
+
+    UTS #22, UNICODE CHARACTER MAPPING MARKUP LANGUAGE (CharMapML)
+    <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr22/">https://www.unicode.org/reports/tr22/</a>
+    This document specifies an XML format for the interchange of mapping data
+    for character encodings, and describes some of the issues connected with the
+    use of character conversion.
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/glossary">https://www.unicode.org/glossary</a>
@@ -1297,6 +1308,10 @@ How to use Unicode controls for bidi text
 Testing bidirectional text
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://terminal-wg.pages.freedesktop.org/bidi/">https://terminal-wg.pages.freedesktop.org/bidi/</a>
+BiDi in Terminal Emulators
+
+
 <hr><h2 id="Emoji">Emoji</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/Public/emoji/15.0/emoji-test.txt">https://www.unicode.org/Public/emoji/15.0/emoji-test.txt</a>
 
@@ -1729,6 +1744,33 @@ How to split Devanagari bi-tri and tetra conjunct consonants as a whole from a s
     हि  न्  दी   मु  ख्  य  मं  त्  री    हि  मं  त
     Desired ouput:
     हि न्दी  मु ख्य मं त्री  हि मं त
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/L2/L2023/23107-terminal-suppt.pdf">https://www.unicode.org/L2/L2023/23107-terminal-suppt.pdf</a>
+Proper Complex Script Support in Text Terminals
+page 8
+Characters in one line will further be grouped into terminal clusters.
+A terminal cluster contains the characters that are combined together in the
+terminal environment. It is an instance of the tailored grapheme cluster defined
+in UAX #29. In Indic scripts, for example, syllables with virama conjoiners in
+the middle will be considered one single terminal cluster, while they are
+treated as multiple extended grapheme clusters in UAX #29.
+---
+page9
+In some writing systems, the form of a character may depend on the characters
+that follow it. One example of this is Devanagari’s repha forms. This requires
+the establishment of a work zone that contains the most recent characters, and
+the property of the characters in the work zone is considered volatile and may
+change depending on the incoming text from the guest.
+When the terminal receives text, it will first append the text into the work
+zone and measure the entire work zone to process potential property changes.
+If the measurement result says that the text in the work zone could be broken
+into multiple clusters, then the work zone will be shrunk to only contain the
+last (maybe incomplete) cluster. The text before that will be committed, and its
+properties will no longer change. As a result, at any time the work zone will
+contain at most one cluster. When the cursor moves (via the terminal receiving a
+cursor move command or a newline), all the text in the work zone will be
+committed—even if it is incomplete—and the work zone will be cleared.
 
 
 <hr><h2 id="CJK">CJK</h2><hr>
@@ -2310,6 +2352,11 @@ Confirmed by their text file:
 ICU documentation
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://icu-project.org/docs/">https://icu-project.org/docs/</a>
+ICU Documents and Papers
+jlf: old?
+
+
 <a target="_blank" rel="noopener noreferrer" href="http://stackoverflow.com/questions/8253033/what-open-source-c-or-c-libraries-can-convert-arbitrary-utf-32-to-nfc">http://stackoverflow.com/questions/8253033/what-open-source-c-or-c-libraries-can-convert-arbitrary-utf-32-to-nfc</a>
 What open source C or C++ libraries can convert arbitrary UTF-32 to NFC?
 
@@ -2387,11 +2434,46 @@ The BytesTrie and UCharsTrie structures are nearly the same, except that the UCh
 Same design as a BytesTrie, but mapping any UnicodeString (any sequence of 16-bit units) to 32-bit integer values.
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://icu.unicode.org/charts/charset">https://icu.unicode.org/charts/charset</a>
+    <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu/blob/main/icu4c/source/data/mappings/convrtrs.txt">https://github.com/unicode-org/icu/blob/main/icu4c/source/data/mappings/convrtrs.txt</a>
+    ICU alias table
+    jlf: the ultimate reference?
+    ---
+    # Here is the file format using BNF-like syntax:
+    #
+    # converterTable ::= tags { converterLine* }
+    # converterLine ::= converterName [ tags ] { taggedAlias* }'\n'
+    # taggedAlias ::= alias [ tags ]
+    # tags ::= '{' { tag+ } '}'
+    # tag ::= standard['*']
+    # converterName ::= [0-9a-zA-Z:_'-']+
+    # alias ::= converterName
+    ---
+    standard
+    # The * after the standard tag denotes that the previous alias is the
+    # preferred (default) charset name for that standard. There can only
+    # be one of these default charset names per converter.
+    ---
+    Affinity tags
+    If an alias is given to more than one converter, it is considered to be an
+    ambiguous alias, and the affinity list will choose the converter to use when
+    a standard isn't specified with the alias.
+    The general ordering is from specific and frequently used to more general
+    or rarely used at the bottom.
+    {   UTR22           # Name format specified by <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr22/">https://www.unicode.org/reports/tr22/</a>
+        IBM             # The IBM CCSID number is specified by ibm-*
+        WINDOWS         # The Microsoft code page identifier number is specified by windows-*. The rest are recognized IE names.
+        JAVA            # Source: Sun JDK. Alias name case is ignored, but dashes are not ignored.
+        IANA            # Source: <a target="_blank" rel="noopener noreferrer" href="http://www.iana.org/assignments/character-sets">http://www.iana.org/assignments/character-sets</a>
+        MIME            # Source: <a target="_blank" rel="noopener noreferrer" href="http://www.iana.org/assignments/character-sets">http://www.iana.org/assignments/character-sets</a>
+        }
+
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu/tree/main/icu4c/source/data/mappings">https://github.com/unicode-org/icu/tree/main/icu4c/source/data/mappings</a>
 Encodings
 
 
-<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu/blob/main/icu4c/source/data/mappings/convrtrs.txt">https://github.com/unicode-org/icu/blob/main/icu4c/source/data/mappings/convrtrs.txt</a>
 <a target="_blank" rel="noopener noreferrer" href="https://icu4c-demos.unicode.org/icu-bin/convexp">https://icu4c-demos.unicode.org/icu-bin/convexp</a>
 Demo Converter Explorer
 
@@ -2893,6 +2975,41 @@ This is a good question; what should intermediate libraries expose to their
 users? I'll schedule this for a discussion at an upcoming developers call.
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/3709">https://github.com/unicode-org/icu4x/issues/3709</a>
+Chinese and Dangi inconsistent with ICU implementations for extreme dates
+The current implementation of the Chinese calendar, as well as the Dangi calendar
+in #3694, are not consistent with ICU for all dates; based on writing a number of
+manual test cases (see the aforementioned PR), this seems to only be an issue for
+dates very far in the past or far in the future (ex. year -3000 ISO).
+Furthermore, the ICU4X Chinese/Dangi and astronomy functions are newly-written
+and have several algorithms based on the most recent edition of Calendrical
+Calculations, while the existing ICU code seems to be from 2000, incorporating
+algorithms from the 1997 edition of Calendrical Calculations.
+---
+jlf: I take note of this because it's interesting to see the differences with ICU.
+
+
+Calendars
+in <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/pull/3744#discussion_r1277062568">https://github.com/unicode-org/icu4x/pull/3744#discussion_r1277062568</a>
+they reference this common lisp code
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/EdReingold/calendar-code2/blob/main/calendar.l#L2352">https://github.com/EdReingold/calendar-code2/blob/main/calendar.l#L2352</a>
+---
+jlf: I take note of this to remember
+;;;; The Functions (code, comments, and definitions) contained in this
+;;;; file (the "Program") were written by Edward M. Reingold and Nachum
+;;;; Dershowitz (the "Authors")
+;;;; These Functions are explained in the Authors'
+;;;; book, "Calendrical Calculations", 4th ed. (Cambridge University
+;;;; Press, 2016)
+---
+<a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Calendrical_Calculations">https://en.wikipedia.org/wiki/Calendrical_Calculations</a>
+<a target="_blank" rel="noopener noreferrer" href="https://reingold.co/calendars.shtml">https://reingold.co/calendars.shtml</a>
+The resource page for the book makes all the source code for the book available for download.
+<a target="_blank" rel="noopener noreferrer" href="https://www.cambridge.org/ch/universitypress/subjects/computer-science/computing-general-interest/calendrical-calculations-ultimate-edition-4th-edition?format=PB&isbn=9781107683167#resources">https://www.cambridge.org/ch/universitypress/subjects/computer-science/computing-general-interest/calendrical-calculations-ultimate-edition-4th-edition?format=PB&isbn=9781107683167#resources</a>
+The code has been ported to Python
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/espinielli/pycalcal">https://github.com/espinielli/pycalcal</a>
+
+
 <hr><h2 id="utf8proc_title">utf8proc title</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://codeberg.org/dnkl/foot/pulls/100">https://codeberg.org/dnkl/foot/pulls/100</a>
 Grapheme shaping using libutf8proc #100
@@ -2962,6 +3079,12 @@ Eryk Sun Jul 21, 2019 at 13:31
 Displaying Unicode in Powershell
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://akr.am/blog/posts/using-utf-8-in-the-windows-terminal">https://akr.am/blog/posts/using-utf-8-in-the-windows-terminal</a>
+Using UTF-8 in the Windows Terminal
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/microsoft/terminal">https://github.com/microsoft/terminal</a>
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/Microsoft/Cascadia-Code">https://github.com/Microsoft/Cascadia-Code</a>
+
+
 <hr><h2 id="QT_Title">QT Title</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://bugreports.qt.io/browse/QTBUG-48726">https://bugreports.qt.io/browse/QTBUG-48726</a>
 Combining diacritics misplaced when using monospace fonts
@@ -2979,6 +3102,144 @@ jlf: I search which functionalities are available only to unicode apps...
 - can be multilingual without managing code pages
 - IME? not sure if it's only for unicode apps
 - other?
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/59404120/what-is-the-difference-in-using-cstringw-cstringa-and-ct2w-ct2a-to-convert-strin">https://stackoverflow.com/questions/59404120/what-is-the-difference-in-using-cstringw-cstringa-and-ct2w-ct2a-to-convert-strin</a>
+What is the difference in using CStringW/CStringA and CT2W/CT2A to convert strings?
+    CString offers a number of conversion constructors to convert between ANSI and
+    Unicode encoding. They are as convenient as they are dangerous, often masking bugs.
+
+    By contrast, the Cs2d macros (where s = source, d = destination) work on raw
+    C-style strings; no CString instances are created in the process of converting
+    between character encodings.
+
+    Both of the above perform a conversion with an implied ANSI codepage (either
+    CP_THREAD_ACP or CP_ACP in case the _CONVERSION_DONT_USE_THREAD_LOCALE
+    preprocessor symbol is defined). CP_ACP is particularly troublesome, as it's a
+    process-global setting, that any thread can change at any time.
+
+    Which one should you choose for your conversions? Neither of the above. Use the
+    EX versions instead (see string and text classes for a full list).
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/cpp/atl/string-and-text-classes?view=msvc-170">https://learn.microsoft.com/en-us/cpp/atl/string-and-text-classes?view=msvc-170</a>
+String and Text Classes
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/15362859/getclipboarddata-cf-unicodetext">https://stackoverflow.com/questions/15362859/getclipboarddata-cf-unicodetext</a>
+GetClipboardData (CF_UNICODETEXT)
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://jerrington.me/posts/2015-12-31-windows-debugging-for-fun-and-profit.html">https://jerrington.me/posts/2015-12-31-windows-debugging-for-fun-and-profit.html</a>
+jlf: I reference this page for the code related to clipboard. Search for "locale".
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/win32/dataxchg/standard-clipboard-formats">https://learn.microsoft.com/en-us/windows/win32/dataxchg/standard-clipboard-formats</a>
+Standard Clipboard Formats
+CF_LOCALE
+    Locale identifier (LCID) associated with text in the clipboard.
+    The system uses the code page associated with CF_LOCALE to implicitly
+    convert from CF_TEXT to CF_UNICODETEXT.
+CF_TEXT
+    Text format. Each line ends with a carriage return/linefeed (CR-LF) combination.
+    A null character signals the end of the data. Use this format for ANSI text.
+CF_UNICODETEXT
+    Unicode text format. Each line ends with a carriage return/linefeed (CR-LF)
+    combination. A null character signals the end of the data.
+
+
+Locale
+    <a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/win32/intl/language-identifiers">https://learn.microsoft.com/en-us/windows/win32/intl/language-identifiers</a>
+    A language identifier is a standard international numeric abbreviation
+    for the language in a country or geographical region. Each language has
+    a unique language identifier (data type LANGID), a 16-bit value that
+    consists of a primary language identifier and a sublanguage identifier.
+    +-------------------------+-------------------------+
+    |     SubLanguage ID      |   Primary Language ID   |
+    +-------------------------+-------------------------+
+    15                    10  9                         0   bit
+
+    <a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/win32/intl/sort-order-identifiers">https://learn.microsoft.com/en-us/windows/win32/intl/sort-order-identifiers</a>
+    A sort order identifier is defined in the form "_sortorder", at the end
+    of the locale name used in the identifier, for example, "de-DE_phoneb",
+    where "phoneb" is the sort order.
+    The corresponding locale identifier is created as follows:
+    MAKELCID(MAKELANGID(LANG_GERMAN, SUBLANG_GERMAN), SORT_GERMAN_PHONE_BOOK).
+
+    <a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/win32/intl/locale-identifiers">https://learn.microsoft.com/en-us/windows/win32/intl/locale-identifiers</a>
+    Each locale has a unique identifier, a 32-bit value that consists of a
+    language identifier and a sort order identifier.
+    +-------------+---------+-------------------------+
+    |   Reserved  | Sort ID |      Language ID        |
+    +-------------+---------+-------------------------+
+    31         20 19     16 15                      0   bit
+
+    <a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/win32/api/winnls/nf-winnls-getuilanguageinfo">https://learn.microsoft.com/en-us/windows/win32/api/winnls/nf-winnls-getuilanguageinfo</a>
+
+    <a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/previous-versions/windows/embedded/ms930130(v=msdn.10)?redirectedfrom=MSDN">https://learn.microsoft.com/en-us/previous-versions/windows/embedded/ms930130(v=msdn.10)?redirectedfrom=MSDN</a>
+    Locale Code Table
+    jlf: obsolete, but for the moment I don't haver better.
+    Correspondance  Locale identifier (LCID) &lt;--&gt; Default code page
+    ---
+    LCID    Code page   Language: sublanguage
+    0x0436  1252        Afrikaans: South Africa
+    0x041c  1250        Albanian: Albania
+    0x1401  1256        Arabic: Algeria
+    0x3c01  1256        Arabic: Bahrain
+    etc...
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://devblogs.microsoft.com/oldnewthing/20161007-00/?p=94475">https://devblogs.microsoft.com/oldnewthing/20161007-00/?p=94475</a>
+How can I get the default code page for a locale?
+    UINT GetAnsiCodePageForLocale(LCID lcid)
+    {
+      UINT acp;
+      int sizeInChars = sizeof(acp) / sizeof(TCHAR);
+      if (GetLocaleInfo(lcid,
+                        LOCALE_IDEFAULTANSICODEPAGE |
+                        LOCALE_RETURN_NUMBER,
+                        reinterpret_cast&lt;LPTSTR&gt;(&amp;acp),
+                        sizeInChars) != sizeInChars) {
+        // Oops - something went wrong
+      }
+      return acp;
+    }
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.w3.org/TR/ltli/#dfn-locale-neutral">https://www.w3.org/TR/ltli/#dfn-locale-neutral</a>
+Locale neutral
+jlf: je pige que dalle
+Locale-neutral. A non-linguistic field is said to be locale-neutral when it is
+stored or exchanged in a format that is not specifically appropriate for any
+given language, locale, or culture and which can be interpreted unambiguously
+for presentation in a locale aware way.
+Many specifications use a serialization scheme, such as those provided by
+[XMLSCHEMA11-2] or [JSON-LD], to provide a locale neutral encoding of
+non-linguistic fields in document formats or protocols.
+A locale-neutral representation might itself be linked to a specific cultural
+preference, but such linkages should be minimized.
+
+
+<a target="_blank" rel="noopener noreferrer" href="http://archives.miloush.net/michkap/archive/2005/04/18/409095.html">http://archives.miloush.net/michkap/archive/2005/04/18/409095.html</a>
+A few of the gotchas of WideCharToMultiByte
+by Michael S. Kaplan, published on 2005/04/18 02:01 -04:00, original URI: <a target="_blank" rel="noopener noreferrer" href="http://blogs.msdn.com/b/michkap/archive/2005/04/18/409095.aspx">http://blogs.msdn.com/b/michkap/archive/2005/04/18/409095.aspx</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="http://archives.miloush.net/michkap/archive/2005/04/19/409566.html">http://archives.miloush.net/michkap/archive/2005/04/19/409566.html</a>
+A few of the gotchas of MultiByteToWideChar
+by Michael S. Kaplan, published on 2005/04/19 04:30 -04:00, original URI: <a target="_blank" rel="noopener noreferrer" href="http://blogs.msdn.com/b/michkap/archive/2005/04/19/409566.aspx">http://blogs.msdn.com/b/michkap/archive/2005/04/19/409566.aspx</a>
+---
+jlf: I reached this page because the flag MB_COMPOSITE is not working!
+This page brings the answer: the Microsoft doc has this note
+    Note  For UTF-8 or code page 54936 (GB18030, starting with Windows Vista),
+    dwFlags must be set to either 0 or MB_ERR_INVALID_CHARS. Otherwise, the function
+    fails with ERROR_INVALID_FLAGS.
+Uh?
+
+
+<a target="_blank" rel="noopener noreferrer" href="http://archives.miloush.net/michkap/archive/2005/02/26/381020.html">http://archives.miloush.net/michkap/archive/2005/02/26/381020.html</a>
+What the &amp;%#$ does MB_USEGLYPHCHARS do?
+by Michael S. Kaplan, published on 2005/02/26 15:26 -05:00, original URI: <a target="_blank" rel="noopener noreferrer" href="http://blogs.msdn.com/b/michkap/archive/2005/02/26/381020.aspx">http://blogs.msdn.com/b/michkap/archive/2005/02/26/381020.aspx</a>
 
 
 <hr><h2 id="z_OS">z/OS</h2><hr>
@@ -3284,6 +3545,13 @@ Brian Kernighan adds Unicode support to Awk
 
 
 <hr><h2 id="C___lang__cpp_lang__Boost">C++ lang, cpp lang, Boost</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://en.cppreference.com/w/cpp/language/string_literal">https://en.cppreference.com/w/cpp/language/string_literal</a>
+String literal
+(referenced by Adrian)
+Some examples:
+<a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/cpp/cpp/string-and-character-literals-cpp">https://learn.microsoft.com/en-us/cpp/cpp/string-and-character-literals-cpp</a>
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/watch?v=iQWtiYNK3kQ">https://www.youtube.com/watch?v=iQWtiYNK3kQ</a>
 A Crash Course in Unicode for C++ Developers - Steve Downey - [CppNow 2021]
 jlf: good video for pronunciation
@@ -3296,12 +3564,32 @@ jlf: good video for pronunciation
     SG16 initial Unicode direction and guidance for C++20 and beyond.
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/sg16-unicode/sg16">https://github.com/sg16-unicode/sg16</a>
     SG16 is an ISO/IEC JTC1/SC22/WG21 C++ study group tasked with improving Unicode and text processing support within the C++ standard.
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/sg16-unicode/sg16-meetings">https://github.com/sg16-unicode/sg16-meetings</a>
+    Summaries of SG16 virtual meetings
+<a target="_blank" rel="noopener noreferrer" href="https://lists.isocpp.org/mailman/listinfo.cgi/sg16">https://lists.isocpp.org/mailman/listinfo.cgi/sg16</a>
+    SG16 mailing list
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2020/p1629r1.html">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2020/p1629r1.html</a>
+P1629R1
+Transcoding the 🌐 - Standard Text Encoding
+Published Proposal, 2020-03-02
+---
+jlf: referenced by Zach Laine in P2728R0.
+[P1629R1] from JeanHeyd Meneide is a much more ambitious proposal that aims to
+standardize a general-purpose text encoding conversion mechanism. This proposal
+is not at odds with P1629; the two proposals have largely orthogonal aims. This
+proposal only concerns itself with UTF interconversions, which is all that is
+required for Unicode support. P1629 is concerned with those conversions, plus a
+lot more. Accepting both proposals would not cause problems; in fact, the APIs
+proposed here could be used to implement parts of the P1629 design.
 
 
 01/06/2021
 Zach Laine
 <a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/watch?v=944GjKxwMBo">https://www.youtube.com/watch?v=944GjKxwMBo</a>
 <a target="_blank" rel="noopener noreferrer" href="https://tzlaine.github.io/text/doc/html/boost_text__proposed_/the_text_layer.html">https://tzlaine.github.io/text/doc/html/boost_text__proposed_/the_text_layer.html</a>
+<a target="_blank" rel="noopener noreferrer" href="https://tzlaine.github.io/text/doc/html/index.html">https://tzlaine.github.io/text/doc/html/index.html</a>
 The Text Layer
 <a target="_blank" rel="noopener noreferrer" href="https://tzlaine.github.io/text/doc/html/">https://tzlaine.github.io/text/doc/html/</a>
 Chapter 1. Boost.Text (Proposed) - 2018
@@ -3315,6 +3603,64 @@ Chapter 1. Boost.Text (Proposed) - 2018
         optimization                    27/10/2019
         rope_free_fn_reimplementation   26/07/2020
 No longer working on this project ?
+---
+Restart working on 22/03/2022
+Zach's library was last discussed at the 2023-05-10 SG16 meeting; see
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/sg16-unicode/sg16-meetings#may-10th-2023.">https://github.com/sg16-unicode/sg16-meetings#may-10th-2023.</a>
+---
+<a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/watch?v=AoLl\_ZZqyOk">https://www.youtube.com/watch?v=AoLl\_ZZqyOk</a>
+Applying the Lessons of std::ranges to Unicode in the C++ Standard Library - Zach Laine CppNow 2023
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://isocpp.org/files/papers/P2728R0.html">https://isocpp.org/files/papers/P2728R0.html</a> (see more recent version below)
+Unicode in the Library, Part 1: UTF Transcoding
+Document #: P2728R0
+Date:       2022-11-20
+Reply-to:   Zach Laine  &lt;whatwasthataddress@gmail.com&gt;
+---
+New version:
+<a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2728r5.html">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2728r5.html</a>
+Document #: P2728R5
+Date:       2023-07-05
+---
+latest published version:
+<a target="_blank" rel="noopener noreferrer" href="https://wg21.link/p2728">https://wg21.link/p2728</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2729r0.html">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2729r0.html</a>
+Unicode in the Library, Part 2: Normalization
+Document #: P2729R0
+Date:       2022-11-20
+Reply-to:   Zach Laine  &lt;whatwasthataddress@gmail.com&gt;
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2773r0.pdf">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2773r0.pdf</a>
+paper D2773R0 by Corentin Jabot
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p1949r7.html">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p1949r7.html</a>
+C++ Identifier Syntax using Unicode Standard Annex 31
+Document #: P1949R7
+Date:       2021-04-12
+---
+Adopt Unicode Annex 31 as part of C++ 23.
+- That C++ identifiers match the pattern (XID_Start + _ ) + XID_Continue*.
+- That portable source is required to be normalized as NFC.
+- That using unassigned code points be ill-formed.
+This proposal also recommends adoption of Unicode normalization form C (NFC)
+for identifiers to ensure that when compared, identifiers intended to be the
+same will compare as equal. Legacy encodings are generally naturally in NFC when
+converted to Unicode. Most tools will, by default, produce NFC text.
+Some scripts require the use of characters as joiners that are not allowed by
+base UAX #31, these will no longer be available as identifiers in C++.
+As a side-effect of adopting the identifier characters from UAX #31, using emoji
+in or as identifiers becomes ill-formed.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2528r0.html">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2528r0.html</a>
+C++ Identifier Security using Unicode Standard Annex 39
+Document #: P2538R0
+Date:       2022-01-22
 
 
 14/06/2021
@@ -3351,11 +3697,6 @@ Boost.Locale
 Boost.Locale uses the-state-of-the-art Unicode and Localization library: ICU - International Components for Unicode.
 
 
-<a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2729r0.html">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2729r0.html</a>
-Unicode in the Library, Part 2: Normalization
-Zach Laine
-
-
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/uni-algo/uni-algo">https://github.com/uni-algo/uni-algo</a>
 Unicode Algorithms Implementation for C/C++
 <a target="_blank" rel="noopener noreferrer" href="https://www.reddit.com/r/cpp/comments/xspvn4/unialgo_v050_modern_unicode_library/">https://www.reddit.com/r/cpp/comments/xspvn4/unialgo_v050_modern_unicode_library/</a>
@@ -3365,6 +3706,16 @@ Older post with more infos
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/uni-algo/uni-algo-single-include">https://github.com/uni-algo/uni-algo-single-include</a>
 Single include version for Unicode Algorithms Implementation
 This repository contains single include version of uni-algo library.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.reddit.com/r/cpp/comments/14t2lzm/unialgo_v100_modern_unicode_library/">https://www.reddit.com/r/cpp/comments/14t2lzm/unialgo_v100_modern_unicode_library/</a>
+uni-algo v1.0.0: Modern Unicode Library
+---
+jlf: see the critics of Zach Laine's library... mg152 has good arguments.
+---
+jlf: this library is referenced in the comments
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/hikogui/hikogui/tree/main/src/hikogui/unicode">https://github.com/hikogui/hikogui/tree/main/src/hikogui/unicode</a>
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/hikogui/hikogui/tree/main/tools/ucd">https://github.com/hikogui/hikogui/tree/main/tools/ucd</a>
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/hikogui/hikogui/tree/main/src/hikogui/unicode">https://github.com/hikogui/hikogui/tree/main/src/hikogui/unicode</a>
@@ -3642,6 +3993,23 @@ UTF-8/16 encoder/decoder
 
     : utf16le ( state string -- state string )
         [ [ swap (utf16le) ] each ] { } make ;
+
+
+<hr><h2 id="Fortran_lang">Fortran lang</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://fortran-lang.discourse.group/t/using-unicode-characters-in-fortran/2764">https://fortran-lang.discourse.group/t/using-unicode-characters-in-fortran/2764</a>
+jlf: hum... it's a blind support of UTF-8, as we do with current Rexx.
+There is no support of Unicode.
+In the unicode_len.f90 example:
+    chars = 'Fortran is 💪, 😎, 🔥!'
+    if (len(chars) /= 28) error stop
+28 is the lentgh in bytes...
+In the unicode_index.f90 example:
+    chars = '📐: 4.0·tan⁻¹(1.0) = π'
+    i = index(chars, 'n')
+    if (i /= 14) error stop
+    i = index(chars, '¹')
+    if (i /= 18) error stop
+14 and 18 are byte positions...
 
 
 <hr><h2 id="GO_lang">GO lang</h2><hr>
@@ -4718,216 +5086,6 @@ In:= ToCharacterCode[%]
 Out= {246}
 
 
-<hr><h2 id="MOAR_VM_RAKU_lang_Rakudo_lang__Perl6__Perl_6_">MOAR-VM RAKU lang Rakudo lang (Perl6, Perl 6)</h2><hr>
-<a target="_blank" rel="noopener noreferrer" href="https://raku-advent.blog/2022/12/23/sigils-2/">https://raku-advent.blog/2022/12/23/sigils-2/</a>
-jlf: not related to unicode, but good for general culture.
-A sigil is any non-alphabetic character that’s used at the front of a word, and
-that conveys meta information about the word. For example, hashtags are a sigil:
-the  #  in  #nofilter  is a sigil that communicates that “nofilter” is a tag
-(not a regular word of text). The Raku programming language uses sigils to mark
-its variables; Raku has four sigils:
-@   (normally associated with arrays),
-    can only be used for types that implement the  Positional  (“array-like”) role
-%   (normally associated with hashes),
-    can only be used for types that implement the  Associative  (“hash-like”) role
-&amp;   (normally associated with functions)
-    can only be used for types that implement the  Callable  (“function-like”) role
-$  (for other variables, such as numbers and strings).
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://github.com/MoarVM/MoarVM/blob/master/docs/strings.asciidoc">https://github.com/MoarVM/MoarVM/blob/master/docs/strings.asciidoc</a>
-MoarVM string documentation.
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://docs.raku.org/type/Str">https://docs.raku.org/type/Str</a>
-class Str
-Built-in class for strings. Objects of type Str are immutable.
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://www.codesections.com/blog/raku-unicode/">https://www.codesections.com/blog/raku-unicode/</a>
-A deep dive into Raku's Unicode support
-Grepping for "Unicode Character Database" brings us to unicode_db.c.
-<a target="_blank" rel="noopener noreferrer" href="https://github.com/MoarVM/MoarVM/blob/master/src/strings/unicode_db.c">https://github.com/MoarVM/MoarVM/blob/master/src/strings/unicode_db.c</a>
-
-
-29/05/2021
-<a target="_blank" rel="noopener noreferrer" href="http://moarvm.com/releases.html">http://moarvm.com/releases.html</a>
-    2017.07
-        Greatly reduce the cases when string concatenation needs renormalization
-        Use normalize_should_break to decide if concat needs normalization
-        Rename should_break to MVM_unicode_normalize_should_break
-        Fix memory leak in MVM_nfg_is_concat_stable
-        If both last_a and first_b during concat are non-0 CCC, re-NFG
-    --&gt; maybe to review : the last sentence seems to be an optimization of concatenation.
-    2017.02
-        Implement support for synthetic graphemes in MVM_unicode_string_compare
-        Implement configurable collation_mode for MVM_unicode_string_compare
-    2017.01
-        Add a new unicmp_s op, which compares using the Unicode Collation Algorithm
-        Add support for Grapheme_Cluster_Break=Prepend from Unicode 9.0
-        Add a script to download the latest version of all of the Unicode data
-    --&gt; should review this script
-    2015.11
-        NFG now uses Unicode Grapheme Cluster algorithm; "\r\n" is now one grapheme
-    --&gt; ??? [later] ah, I had a bug! Was not analyzing an UTF-8 ASCII string... Now fixed:
-        "0A0D"x~text~description= -- UTF-8 ASCII ( 2 graphemes, 2 codepoints, 2 bytes )
-        "0D0A"x~text~description= -- UTF-8 ASCII ( 1 grapheme, 2 codepoints, 2 bytes )
-
-
-29/05/2021
-<a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=26591373">https://news.ycombinator.com/item?id=26591373</a>
-String length functions for single emoji characters evaluate to greater than 1
---&gt; to check : MOAR VM really concatenate a 8bit string with a 32bit string using a string concatenation object ?
-
-    You could do it the way Raku does. It's implementation defined. (Rakudo on MoarVM)
-    The way MoarVM does it is that it does NFG, which is sort of like NFC except that it stores grapheme clusters as if they were negative codepoints.
-
-    If a string is ASCII it uses an 8bit storage format, otherwise it uses a 32bit one.
-    It also creates a tree of immutable string objects.
-    If you do a substring operation it creates a substring object that points at an existing string object.
-    If you combine two strings it creates a string concatenation object. Which is useful for combining an 8bit string with a 32bit one.
-    All of that is completely opaque at the Raku level of course.
-
-        my $str = "\c[FACE PALM, EMOJI MODIFIER FITZPATRICK TYPE-3, ZWJ, MALE SIGN, VARIATION SELECTOR-16]";
-
-        say $str.chars;        # 1
-        say $str.codes;        # 5
-        say $str.encode('utf16').elems; # 7
-        say $str.encode('utf16').bytes; # 14
-        say $str.encode.elems; # 17
-        say $str.encode.bytes; # 17
-        say $str.codes * 4;    # 20
-        #(utf32 encode/decode isn't implemented in MoarVM yet)
-
-        say for $str.uninames;
-        # FACE PALM
-        # EMOJI MODIFIER FITZPATRICK TYPE-3
-        # ZERO WIDTH JOINER
-        # MALE SIGN
-        # VARIATION SELECTOR-16
-    The reason we have utf8-c8 encode/decode is because filenames, usernames, and passwords are not actually Unicode.
-    (I have 4 files all named rèsumè in the same folder on my computer.)
-    utf8-c8 uses the same synthetic codepoint system as grapheme clusters.
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://andrewshitov.com/2018/10/31/unicode-in-perl-6/">https://andrewshitov.com/2018/10/31/unicode-in-perl-6/</a>
-Unicode in Raku
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://docs.raku.org/language/unicode">https://docs.raku.org/language/unicode</a>
-Raku applies normalization by default to all input and output except for file names,
-which are read and written as UTF8-C8
-UTF-8 Clean-8 is an encoder/decoder that primarily works as the UTF-8 one. However,
-upon encountering a byte sequence that will either not decode as valid UTF-8, or
-that would not round-trip due to normalization, it will use NFG synthetics to
-keep track of the original bytes involved. This means that encoding back to UTF-8 Clean-8
-will be able to recreate the bytes as they originally existed.
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://github.com/MoarVM/MoarVM/blob/master/docs/strings.asciidoc">https://github.com/MoarVM/MoarVM/blob/master/docs/strings.asciidoc</a>
-Strings in MoarVM
-Strands
-    Strands are a type of MVMString which instead of being a flat string with contiguous data,
-    actually contains references to other strings. Strands are created during concatenation
-    or substring operations. When two flat strings are concatenated together, a Strand with
-    references to both string a and string b is created. If string a and string b were strands
-    themselves, the references of string a and references of string b are copied one after another
-    into the Strand.
-Synthetic’s
-    Synthetics are graphemes which contain multiple codepoints. In MoarVM these are stored
-    and accessed using a trie, while the actual data itself stores the base character seprately
-    and then the combiners are stored in an array.
-    Currently the maximum number of combiners in a synthetic is 1024.
-    MoarVM will throw an exception if you attempt to create a grapheme with more than 1024 codepoints in it.
-Normalization
-    MoarVM normalizes into NFG form all input text.
-NFG
-    Normalization Form Grapheme. Similar to NFC except graphemes which contain multiple codepoints
-    are stored in Synthetic graphemes.
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://perl6advent.wordpress.com/2015/12/07/day-7-unicode-perl-6-and-you/">https://perl6advent.wordpress.com/2015/12/07/day-7-unicode-perl-6-and-you/</a>
-Types
-    Str type: graphemes
-        say "नि".codes;    # returns  2
-        say "नि".chars;    # returns  1
-        say "\r\n".chars;    # returns 1
-    NFC, NFD, NFKC, NFKD: types (jlf: types? really?)
-    Uni: work with codepoints, no normalization (keep text as-is)
-    Blob: family of types to work at the binary level
-Unicode source code
-    say 0 ∈ «42 -5 1».map(&amp;log ∘ &amp;abs);
-    say 0.1e0 + 0.2e0 ≅ 0.3e0;
-    say ｢There is no \escape in here!｣
-"Texas" source code
-    say 0 (elem) &lt;&lt;42 -5 1&gt;&gt;.map(&amp;log o &amp;abs);
-    say 0.1e0 + 0.2e0 =~= 0.3e0;
-    say Q[[[There is no \escape in here!]]]
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://perl6advent.wordpress.com/2015/12/07/day-7-unicode-perl-6-and-you/#comment-14302">https://perl6advent.wordpress.com/2015/12/07/day-7-unicode-perl-6-and-you/#comment-14302</a>
-jlf: interesting critics about graphemes.
-See also the comment after, which provides answers to the critics.
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://lwn.net/Articles/667036/">https://lwn.net/Articles/667036/</a>
-Unicode, Perl 6, and You
-jlf: interesting opinions.
-<a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Devanagari#Conjunct_consonants">https://en.wikipedia.org/wiki/Devanagari#Conjunct_consonants</a>
-jlf: this is executable code (what is this notation &lt; षि &gt; ?)
-    &lt; षि &gt; .NFC .say    # NFC:0x&lt;0937 093f&gt;
-    &lt; षि &gt; .NFKC .say   # NFD:0x&lt;0937 093f&gt;
-    &lt; षि &gt; .NFD .say    # NFKC:0x&lt;0937 093f&gt;
-    &lt; षि &gt; .NFKD .say   # NFKD:0x&lt;0937 093f&gt;
-Particularly interesting, this subthread:
-<a target="_blank" rel="noopener noreferrer" href="https://lwn.net/Articles/667669/">https://lwn.net/Articles/667669/</a>
-Is the current Unicode design impractical?
-
-
-jlf tests
-"Bundesstraße im Freiland".lc                               -- bundesstraße im freiland
-"Bundesstraße im Freiland".uc                               -- BUNDESSTRASSE IM FREILAND
-"Bundesstraße im Freiland".fc                               -- bundesstrasse im freiland
-"Bundesstraße im Freiland".index("Freiland")                -- 16
-"Bundesstraße im Freiland".index("freiland", :ignorecase)   -- 16
-"Bundesstraße ss ß ss".indices("ss", :ignorecase)           -- (5 10 13 16 18)
- 01234567890123456789
-"Bundesstraße ss ß ss".fc.indices("ss")                     -- (5 10 14 17 20)
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://raku-advent.blog/2022/12/22/day-22-hes-making-a-list-part-1/">https://raku-advent.blog/2022/12/22/day-22-hes-making-a-list-part-1/</a>
-Unicode’s CLDR (Common Linguistic Data Repository)
-jlf: to read...
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://www.nu42.com/2015/12/perl6-newline-translation-broken.html">https://www.nu42.com/2015/12/perl6-newline-translation-broken.html</a>
-Newline translation in Perl6 is broken
-A. Sinan Unur
-December 11, 2015
----
-jlf:
-Referenced from <a target="_blank" rel="noopener noreferrer" href="https://perl6advent.wordpress.com/2015/12/07/day-7-unicode-perl-6-and-you/#comment-14382">https://perl6advent.wordpress.com/2015/12/07/day-7-unicode-perl-6-and-you/#comment-14382</a>
-I reference this URL in case \r\n versus \r is a problem for Rexx Unicodified.
-For Unicode, \r\n is one grapheme. Maybe no relation with the failed test cases.
-Was fixed like that:
-    <a target="_blank" rel="noopener noreferrer" href="https://github.com/Raku/old-issue-tracker/issues/4849#issuecomment-570873506">https://github.com/Raku/old-issue-tracker/issues/4849#issuecomment-570873506</a>
-    * We do translation of \r\n graphemes to \n on all input read as text except
-      sockets, independent of platform
-    * We do translation of all \n graphemes to \r\n on text output to handles
-      except sockets, on Windows only
-    * \n is now, unless `use newline` is in force, always \x0A
-    * We don't do any such translation when using .encode/.decode, and of course
-      when reading/writing Bufs to files, providing an escape hatch from translation if needed
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://6guts.wordpress.com/2015/11/21/what-one-christmas-elf-has-been-up-to/">https://6guts.wordpress.com/2015/11/21/what-one-christmas-elf-has-been-up-to/</a>
-jlf: referenced for the section NFG improvements.
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://6guts.wordpress.com/2015/10/15/last-week-unicode-case-fixes-and-much-more/">https://6guts.wordpress.com/2015/10/15/last-week-unicode-case-fixes-and-much-more/</a>
-jlf: referenced for the section A case of Unicode.
-
-
 <hr><h2 id="netrexx_lang">netrexx lang</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://groups.io/g/netrexx/topic/93734685">https://groups.io/g/netrexx/topic/93734685</a>
 Unicode Examples
@@ -5661,6 +5819,23 @@ io.open with latin-1 encoding instead?
     ---
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/life4/textdistance">https://github.com/life4/textdistance</a>
+Compute distance between sequences.
+30+ algorithms, pure python implementation, common interface, optional external libs usage.
+Reimplemented in Rust by the same author: <a target="_blank" rel="noopener noreferrer" href="https://github.com/life4/textdistance.rs">https://github.com/life4/textdistance.rs</a>
+
+
+Testing the JMB's example
+"ς".upper()                                       # 'Σ'
+"σ".upper()                                       # 'Σ'
+"ὈΔΥΣΣΕΎΣ".lower()                              # 'ὀδυσσεύς'    last Σ becomes ς
+"ὈΔΥΣΣΕΎΣA".lower()                             # 'ὀδυσσεύσa'   last Σ becomes σ
+# Humm... the concatenation doesn't change ς to σ
+"ὈΔΥΣΣΕΎΣ".lower() + "A"                        # 'ὀδυσσεύςA'
+("ὈΔΥΣΣΕΎΣ".lower() + "A").upper()              # 'ὈΔΥΣΣΕΎΣA'
+("ὈΔΥΣΣΕΎΣ".lower() + "A").upper().lower()      # 'ὀδυσσεύσa'
+
+
 <hr><h2 id="R_lang">R lang</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://stringi.gagolewski.com/index.html">https://stringi.gagolewski.com/index.html</a>
 stringi: Fast and Portable Character String Processing in R
@@ -5671,6 +5846,240 @@ Paper (PDF): <a target="_blank" rel="noopener noreferrer" href="https://www.jsta
 
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/gagolews/stringi">https://github.com/gagolews/stringi</a>
 Fast and Portable Character String Processing in R (with the Unicode ICU)
+
+
+<hr><h2 id="RAKU_lang_Rakudo_lang__Perl6__Perl_6__MOAR_VM_">RAKU lang Rakudo lang (Perl6, Perl 6, MOAR-VM)</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://raku-advent.blog/2022/12/23/sigils-2/">https://raku-advent.blog/2022/12/23/sigils-2/</a>
+jlf: not related to unicode, but good for general culture.
+A sigil is any non-alphabetic character that’s used at the front of a word, and
+that conveys meta information about the word. For example, hashtags are a sigil:
+the  #  in  #nofilter  is a sigil that communicates that “nofilter” is a tag
+(not a regular word of text). The Raku programming language uses sigils to mark
+its variables; Raku has four sigils:
+@   (normally associated with arrays),
+    can only be used for types that implement the  Positional  (“array-like”) role
+%   (normally associated with hashes),
+    can only be used for types that implement the  Associative  (“hash-like”) role
+&amp;   (normally associated with functions)
+    can only be used for types that implement the  Callable  (“function-like”) role
+$  (for other variables, such as numbers and strings).
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/MoarVM/MoarVM/blob/master/docs/strings.asciidoc">https://github.com/MoarVM/MoarVM/blob/master/docs/strings.asciidoc</a>
+MoarVM string documentation.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://docs.raku.org/type/Str">https://docs.raku.org/type/Str</a>
+class Str
+Built-in class for strings. Objects of type Str are immutable.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://course.raku.org/essentials/strings/string-concatenation/">https://course.raku.org/essentials/strings/string-concatenation/</a>
+String concatenation
+jlf: strange... the concatenation is not described in the doc of Str.
+In Raku, you concatenate strings using concatenation operator.
+This operator is a tilde: ~.
+    my $greeting = 'Hello, ';
+    my $who = 'World!';
+    say $greeting ~ $who;
+Concatenation with assignment
+    $str = $str ~ $another-str;
+    $str ~= $another-str;
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.codesections.com/blog/raku-unicode/">https://www.codesections.com/blog/raku-unicode/</a>
+A deep dive into Raku's Unicode support
+Grepping for "Unicode Character Database" brings us to unicode_db.c.
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/MoarVM/MoarVM/blob/master/src/strings/unicode_db.c">https://github.com/MoarVM/MoarVM/blob/master/src/strings/unicode_db.c</a>
+
+
+29/05/2021
+<a target="_blank" rel="noopener noreferrer" href="http://moarvm.com/releases.html">http://moarvm.com/releases.html</a>
+    2017.07
+        Greatly reduce the cases when string concatenation needs renormalization
+        Use normalize_should_break to decide if concat needs normalization
+        Rename should_break to MVM_unicode_normalize_should_break
+        Fix memory leak in MVM_nfg_is_concat_stable
+        If both last_a and first_b during concat are non-0 CCC, re-NFG
+    --&gt; maybe to review : the last sentence seems to be an optimization of concatenation.
+    2017.02
+        Implement support for synthetic graphemes in MVM_unicode_string_compare
+        Implement configurable collation_mode for MVM_unicode_string_compare
+    2017.01
+        Add a new unicmp_s op, which compares using the Unicode Collation Algorithm
+        Add support for Grapheme_Cluster_Break=Prepend from Unicode 9.0
+        Add a script to download the latest version of all of the Unicode data
+    --&gt; should review this script
+    2015.11
+        NFG now uses Unicode Grapheme Cluster algorithm; "\r\n" is now one grapheme
+    --&gt; ??? [later] ah, I had a bug! Was not analyzing an UTF-8 ASCII string... Now fixed:
+        "0A0D"x~text~description= -- UTF-8 ASCII ( 2 graphemes, 2 codepoints, 2 bytes )
+        "0D0A"x~text~description= -- UTF-8 ASCII ( 1 grapheme, 2 codepoints, 2 bytes )
+
+
+29/05/2021
+<a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=26591373">https://news.ycombinator.com/item?id=26591373</a>
+String length functions for single emoji characters evaluate to greater than 1
+--&gt; to check : MOAR VM really concatenate a 8bit string with a 32bit string using a string concatenation object ?
+
+    You could do it the way Raku does. It's implementation defined. (Rakudo on MoarVM)
+    The way MoarVM does it is that it does NFG, which is sort of like NFC except that it stores grapheme clusters as if they were negative codepoints.
+
+    If a string is ASCII it uses an 8bit storage format, otherwise it uses a 32bit one.
+    It also creates a tree of immutable string objects.
+    If you do a substring operation it creates a substring object that points at an existing string object.
+    If you combine two strings it creates a string concatenation object. Which is useful for combining an 8bit string with a 32bit one.
+    All of that is completely opaque at the Raku level of course.
+
+        my $str = "\c[FACE PALM, EMOJI MODIFIER FITZPATRICK TYPE-3, ZWJ, MALE SIGN, VARIATION SELECTOR-16]";
+
+        say $str.chars;        # 1
+        say $str.codes;        # 5
+        say $str.encode('utf16').elems; # 7
+        say $str.encode('utf16').bytes; # 14
+        say $str.encode.elems; # 17
+        say $str.encode.bytes; # 17
+        say $str.codes * 4;    # 20
+        #(utf32 encode/decode isn't implemented in MoarVM yet)
+
+        say for $str.uninames;
+        # FACE PALM
+        # EMOJI MODIFIER FITZPATRICK TYPE-3
+        # ZERO WIDTH JOINER
+        # MALE SIGN
+        # VARIATION SELECTOR-16
+    The reason we have utf8-c8 encode/decode is because filenames, usernames, and passwords are not actually Unicode.
+    (I have 4 files all named rèsumè in the same folder on my computer.)
+    utf8-c8 uses the same synthetic codepoint system as grapheme clusters.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://andrewshitov.com/2018/10/31/unicode-in-perl-6/">https://andrewshitov.com/2018/10/31/unicode-in-perl-6/</a>
+Unicode in Raku
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://docs.raku.org/language/unicode">https://docs.raku.org/language/unicode</a>
+Raku applies normalization by default to all input and output except for file names,
+which are read and written as UTF8-C8
+UTF-8 Clean-8 is an encoder/decoder that primarily works as the UTF-8 one. However,
+upon encountering a byte sequence that will either not decode as valid UTF-8, or
+that would not round-trip due to normalization, it will use NFG synthetics to
+keep track of the original bytes involved. This means that encoding back to UTF-8 Clean-8
+will be able to recreate the bytes as they originally existed.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/MoarVM/MoarVM/blob/master/docs/strings.asciidoc">https://github.com/MoarVM/MoarVM/blob/master/docs/strings.asciidoc</a>
+Strings in MoarVM
+Strands
+    Strands are a type of MVMString which instead of being a flat string with contiguous data,
+    actually contains references to other strings. Strands are created during concatenation
+    or substring operations. When two flat strings are concatenated together, a Strand with
+    references to both string a and string b is created. If string a and string b were strands
+    themselves, the references of string a and references of string b are copied one after another
+    into the Strand.
+Synthetic’s
+    Synthetics are graphemes which contain multiple codepoints. In MoarVM these are stored
+    and accessed using a trie, while the actual data itself stores the base character seprately
+    and then the combiners are stored in an array.
+    Currently the maximum number of combiners in a synthetic is 1024.
+    MoarVM will throw an exception if you attempt to create a grapheme with more than 1024 codepoints in it.
+Normalization
+    MoarVM normalizes into NFG form all input text.
+NFG
+    Normalization Form Grapheme. Similar to NFC except graphemes which contain multiple codepoints
+    are stored in Synthetic graphemes.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://perl6advent.wordpress.com/2015/12/07/day-7-unicode-perl-6-and-you/">https://perl6advent.wordpress.com/2015/12/07/day-7-unicode-perl-6-and-you/</a>
+Types
+    Str type: graphemes
+        say "नि".codes;    # returns  2
+        say "नि".chars;    # returns  1
+        say "\r\n".chars;    # returns 1
+    NFC, NFD, NFKC, NFKD: types (jlf: types? really?)
+    Uni: work with codepoints, no normalization (keep text as-is)
+    Blob: family of types to work at the binary level
+Unicode source code
+    say 0 ∈ «42 -5 1».map(&amp;log ∘ &amp;abs);
+    say 0.1e0 + 0.2e0 ≅ 0.3e0;
+    say ｢There is no \escape in here!｣
+"Texas" source code
+    say 0 (elem) &lt;&lt;42 -5 1&gt;&gt;.map(&amp;log o &amp;abs);
+    say 0.1e0 + 0.2e0 =~= 0.3e0;
+    say Q[[[There is no \escape in here!]]]
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://perl6advent.wordpress.com/2015/12/07/day-7-unicode-perl-6-and-you/#comment-14302">https://perl6advent.wordpress.com/2015/12/07/day-7-unicode-perl-6-and-you/#comment-14302</a>
+jlf: interesting critics about graphemes.
+See also the comment after, which provides answers to the critics.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://lwn.net/Articles/667036/">https://lwn.net/Articles/667036/</a>
+Unicode, Perl 6, and You
+jlf: interesting opinions.
+<a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Devanagari#Conjunct_consonants">https://en.wikipedia.org/wiki/Devanagari#Conjunct_consonants</a>
+jlf: this is executable code (what is this notation &lt; षि &gt; ?)
+    &lt; षि &gt; .NFC .say    # NFC:0x&lt;0937 093f&gt;
+    &lt; षि &gt; .NFKC .say   # NFD:0x&lt;0937 093f&gt;
+    &lt; षि &gt; .NFD .say    # NFKC:0x&lt;0937 093f&gt;
+    &lt; षि &gt; .NFKD .say   # NFKD:0x&lt;0937 093f&gt;
+Particularly interesting, this subthread:
+<a target="_blank" rel="noopener noreferrer" href="https://lwn.net/Articles/667669/">https://lwn.net/Articles/667669/</a>
+Is the current Unicode design impractical?
+
+
+jlf tests
+"Bundesstraße im Freiland".lc                               -- bundesstraße im freiland
+"Bundesstraße im Freiland".uc                               -- BUNDESSTRASSE IM FREILAND
+"Bundesstraße im Freiland".fc                               -- bundesstrasse im freiland
+"Bundesstraße im Freiland".index("Freiland")                -- 16
+"Bundesstraße im Freiland".index("freiland", :ignorecase)   -- 16
+"Bundesstraße ss ß ss".indices("ss", :ignorecase)           -- (5 10 13 16 18)
+ 01234567890123456789
+"Bundesstraße ss ß ss".fc.indices("ss")                     -- (5 10 14 17 20)
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://raku-advent.blog/2022/12/22/day-22-hes-making-a-list-part-1/">https://raku-advent.blog/2022/12/22/day-22-hes-making-a-list-part-1/</a>
+Unicode’s CLDR (Common Linguistic Data Repository)
+jlf: to read...
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.nu42.com/2015/12/perl6-newline-translation-broken.html">https://www.nu42.com/2015/12/perl6-newline-translation-broken.html</a>
+Newline translation in Perl6 is broken
+A. Sinan Unur
+December 11, 2015
+---
+jlf:
+Referenced from <a target="_blank" rel="noopener noreferrer" href="https://perl6advent.wordpress.com/2015/12/07/day-7-unicode-perl-6-and-you/#comment-14382">https://perl6advent.wordpress.com/2015/12/07/day-7-unicode-perl-6-and-you/#comment-14382</a>
+I reference this URL in case \r\n versus \r is a problem for Rexx Unicodified.
+For Unicode, \r\n is one grapheme. Maybe no relation with the failed test cases.
+Was fixed like that:
+    <a target="_blank" rel="noopener noreferrer" href="https://github.com/Raku/old-issue-tracker/issues/4849#issuecomment-570873506">https://github.com/Raku/old-issue-tracker/issues/4849#issuecomment-570873506</a>
+    * We do translation of \r\n graphemes to \n on all input read as text except
+      sockets, independent of platform
+    * We do translation of all \n graphemes to \r\n on text output to handles
+      except sockets, on Windows only
+    * \n is now, unless `use newline` is in force, always \x0A
+    * We don't do any such translation when using .encode/.decode, and of course
+      when reading/writing Bufs to files, providing an escape hatch from translation if needed
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://6guts.wordpress.com/2015/11/21/what-one-christmas-elf-has-been-up-to/">https://6guts.wordpress.com/2015/11/21/what-one-christmas-elf-has-been-up-to/</a>
+jlf: referenced for the section NFG improvements.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://6guts.wordpress.com/2015/10/15/last-week-unicode-case-fixes-and-much-more/">https://6guts.wordpress.com/2015/10/15/last-week-unicode-case-fixes-and-much-more/</a>
+jlf: referenced for the section A case of Unicode.
+
+
+Testing the JMB's example
+"ς".uc                            # Σ
+"σ".uc                            # Σ
+"ὈΔΥΣΣΕΎΣ".lc                   # ὀδυσσεύς     last Σ becomes ς
+"ὈΔΥΣΣΕΎΣA".lc                  # ὀδυσσεύσa    last Σ becomes σ
+# Humm... the concatenation doesn't change ς to σ
+"ὈΔΥΣΣΕΎΣ".lc ~ "A"             # ὀδυσσεύςA
+("ὈΔΥΣΣΕΎΣ".lc ~ "A").uc        # ὈΔΥΣΣΕΎΣA
+("ὈΔΥΣΣΕΎΣ".lc ~ "A").uc.lc     # ὀδυσσεύσa
 
 
 <hr><h2 id="Rexx_lang">Rexx lang</h2><hr>
@@ -5806,7 +6215,10 @@ with languages that force the conversion to Unicode (be it utf-8 or Unicode scal
 
 <a target="_blank" rel="noopener noreferrer" href="https://ruby-doc.org/current/Encoding.html">https://ruby-doc.org/current/Encoding.html</a>
 
+
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/ruby/ruby/blob/master/encoding.c">https://github.com/ruby/ruby/blob/master/encoding.c</a>
+jlf: search "compat"
+
 
 <a target="_blank" rel="noopener noreferrer" href="https://docs.ruby-lang.org/en/master/encodings_rdoc.html">https://docs.ruby-lang.org/en/master/encodings_rdoc.html</a>
 Encodings
@@ -6190,9 +6602,115 @@ joiner and a microscope emoji.
     }
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/life4/textdistance.rs">https://github.com/life4/textdistance.rs</a>
+<a target="_blank" rel="noopener noreferrer" href="https://www.reddit.com/r/rust/comments/13lo6ne/textdistancers_rust_library_to_compare_strings_or/">https://www.reddit.com/r/rust/comments/13lo6ne/textdistancers_rust_library_to_compare_strings_or/</a>
+textdistance.rs: Rust library to compare strings (or any sequences).
+25+ algorithms, pure Rust, common interface, Unicode support.
+Based on popular and battle-tested textdistance Python library <a target="_blank" rel="noopener noreferrer" href="https://github.com/life4/textdistance">https://github.com/life4/textdistance</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/dguo/strsim-rs">https://github.com/dguo/strsim-rs</a>
+Rust implementations of string similarity metrics:
+    Hamming
+    Levenshtein - distance &amp; normalized
+    Optimal string alignment
+    Damerau-Levenshtein - distance &amp; normalized
+    Jaro and Jaro-Winkler - this implementation of Jaro-Winkler does not limit the common prefix length
+    Sørensen-Dice
+
+
 <hr><h2 id="Saxon_lang">Saxon lang</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://www.saxonica.com/documentation12/#!localization/unicode-collation-algorithm">https://www.saxonica.com/documentation12/#!localization/unicode-collation-algorithm</a>
 Unicode Collation Algorithm
+
+
+<hr><h2 id="SQL_lang">SQL lang</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://dev.mysql.com/doc/refman/8.0/en/charset-unicode.html">https://dev.mysql.com/doc/refman/8.0/en/charset-unicode.html</a>
+Unicode Support
+BMP characters
+- can be encoded in a variable-length encoding using 8, 16, or 24 bits (1 to 3 bytes)
+- can be encoded in a fixed-length encoding using 16 bits (2 bytes).
+Supplementary characters take more space than BMP characters (up to 4 bytes per character).
+MySQL supports these Unicode character sets:
+- utf8mb4: A UTF-8 encoding of the Unicode character set using one to four bytes per character.
+- utf8mb3: A UTF-8 encoding of the Unicode character set using one to three bytes per character.
+  This character set is deprecated in MySQL 8.0, and you should use utfmb4 instead.
+- utf8: An alias for utf8mb3. In MySQL 8.0, this alias is deprecated; use utf8mb4 instead.
+  utf8 is expected in a future release to become an alias for utf8mb4.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://dev.mysql.com/doc/refman/8.0/en/charset-unicode-utf8mb4.html">https://dev.mysql.com/doc/refman/8.0/en/charset-unicode-utf8mb4.html</a>
+jlf: I take note of this URL for this concatenation rule:
+utf8mb4 is a superset of utf8mb3, so for an operation such as the following
+concatenation, the result has character set utf8mb4 and the collation of
+utf8mb4_col:
+    SELECT CONCAT(utf8mb3_col, utf8mb4_col);
+Similarly, the following comparison in the WHERE clause works according to the
+collation of utf8mb4_col:
+    SELECT * FROM utf8mb3_tbl, utf8mb4_tbl
+    WHERE utf8mb3_tbl.utf8mb3_col = utf8mb4_tbl.utf8mb4_col;
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://dev.mysql.com/doc/refman/8.0/en/storage-requirements.html#data-types-storage-reqs-strings">https://dev.mysql.com/doc/refman/8.0/en/storage-requirements.html#data-types-storage-reqs-strings</a>
+String Type Storage Requirements
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://dev.mysql.com/doc/refman/8.0/en/charset-introducer.html">https://dev.mysql.com/doc/refman/8.0/en/charset-introducer.html</a>
+Character Set Introducers
+A character string literal, hexadecimal literal, or bit-value literal may have
+an optional character set introducer and COLLATE clause, to designate it as a
+string that uses a particular character set and collation:
+    [_charset_name] literal [COLLATE collation_name]
+The _charset_name expression is formally called an introducer. It tells the
+parser, “the string that follows uses character set charset_name.” An introducer
+does not change the string to the introducer character set like CONVERT() would
+do. It does not change the string value, although padding may occur. The
+introducer is just a signal.
+---
+Examples:
+    SELECT 'abc';
+    SELECT _latin1'abc';
+    SELECT _binary'abc';
+    SELECT _utf8mb4'abc' COLLATE utf8mb4_danish_ci;
+
+    SELECT _latin1 X'4D7953514C';
+    SELECT _utf8mb4 0x4D7953514C COLLATE utf8mb4_danish_ci;
+
+    SELECT _latin1 b'1000001';
+    SELECT _utf8mb4 0b1000001 COLLATE utf8mb4_danish_ci;
+---
+Character string literals can be designated as binary strings by using the
+_binary introducer.
+    mysql&gt; SET @v1 = X'000D' | X'0BC0';
+    mysql&gt; SET @v2 = _binary X'000D' | X'0BC0';
+    mysql&gt; SELECT HEX(@v1), HEX(@v2);
+    +----------+----------+
+    | HEX(@v1) | HEX(@v2) |
+    +----------+----------+
+    | BCD      | 0BCD     |
+    +----------+----------+
+---
+Followed by rules to determines the character set and collation of a character
+string literal, hexadecimal literal, or bit-value literal.
+See the page for the details.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.eversql.com/mysql-utf8-vs-utf8mb4-whats-the-difference-between-utf8-and-utf8mb4/">https://www.eversql.com/mysql-utf8-vs-utf8mb4-whats-the-difference-between-utf8-and-utf8mb4/</a>
+MySQL utf8 vs utf8mb4 – What’s the difference between utf8 and utf8mb4?
+MySQL decided that UTF-8 can only hold 3 bytes per character (as it's defined
+as an alias of utf8mb3). Why? no good reason that I can find documented anywhere.
+Few years later, when MySQL 5.5.3 was released, they introduced a new encoding
+called utf8mb4, which is actually the real 4-byte utf8 encoding that you know and love.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.percona.com/blog/migrating-to-utf8mb4-things-to-consider/">https://www.percona.com/blog/migrating-to-utf8mb4-things-to-consider/</a>
+Migrating to utf8mb4: Things to Consider
+The utf8mb4 character set is the new default as of MySQL 8.0, and this change
+neither affects existing data nor forces any upgrades.
+Migration to utf8mb4 has many advantages including:
+- It can store more symbols, including emojis
+- It has new collations for Asian languages
+- It is faster than utf8mb3
 
 
 <hr><h2 id="Swift_lang">Swift lang</h2><hr>
@@ -6804,6 +7322,13 @@ Read and Write String Into a Text File
       catch let error as NSError {
           print("An error took place: \(error)")
       }
+
+
+Testing the JMB's example
+"ς".uppercased()                  // "Σ"
+"σ".uc                            // "Σ"
+"ὈΔΥΣΣΕΎΣ".lowercased()         // "ὀδυσσεύσ"     NOT SUPPORTED last Σ becomes ς
+"ὈΔΥΣΣΕΎΣA".lowercased()        // "ὀδυσσεύσa"    last Σ becomes σ
 
 
 <hr><h2 id="Zig_lang__Ziglyph">Zig lang, Ziglyph</h2><hr>
