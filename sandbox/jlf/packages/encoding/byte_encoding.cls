@@ -39,6 +39,17 @@ Depends on
 ::constant isCompatibleWithASCII 1  -- can be set to false by subclasses
 
 
+::attribute tableTranscodingToUnicode class get
+::attribute tableTranscodingFromUnicode class get
+
+
+::method activate class
+    expose tableTranscodingToUnicode tableTranscodingFromUnicode
+    tables = createCharacterTranscodingTable(128) -- direct mapping of the first 128 characters, no need of specificTranscoding
+    tableTranscodingToUnicode = tables[1]
+    tableTranscodingFromUnicode = tables[2]
+
+
 ::method analyze class
     use strict arg string
     sizeB = string~length -- size in bytes
@@ -164,11 +175,6 @@ Depends on
     forward message "codepointToTitleSimple"
 
 
-::method tableTranscodingToUnicode class
-    use strict arg -- none
-    return .nil
-
-
 /********************/
 /* Instance methods */
 /********************/
@@ -207,11 +213,11 @@ Depends on
 
 ::method maximumUnicodeCodepoint private
     -- Needed when converting to Unicode_Encoding (1st pass: get the maxium codepoint)
-    -- Don't do any check, will be done by convertByteToUnicode (2nd pass)
+    -- Don't do any check, will be done by convertToUnicode (2nd pass)
     expose maximumUnicodeCodepoint -- cached
     use strict arg -- none
     if var("maximumUnicodeCodepoint") then return maximumUnicodeCodepoint
-    maximumUnicodeCodepoint = 0
+    maximumUnicodeCodepoint = 255
     tableTranscodingToUnicode = self~encoding~tableTranscodingToUnicode
     if .nil <> tableTranscodingToUnicode then do
         sizeC = self~codepointCount -- size in codepoints
@@ -238,12 +244,17 @@ newline = translate(oldline,oubytes,inbytes)
 
 */
 
-::method convertByteToUnicode private
+::method convertToUnicode
     use strict arg targetEncoding
     use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
 
+    targetEncoding = .Encoding~factory(targetEncoding)
+    if \targetEncoding~isUnicode then signal target_encoding_not_unicode
+
+    if self~string~isASCII then return targetEncoding~encodeASCIIstring(self~string, :memorize, :buffer)
+
     tableTranscodingToUnicode = self~encoding~tableTranscodingToUnicode
-    if .nil == tableTranscodingToUnicode then signal cannot_convert
+    if .nil == tableTranscodingToUnicode then signal cannot_convert_encoding
 
     string = self~getCachedString(targetEncoding~name)
     if .nil \== string then do
@@ -263,7 +274,9 @@ newline = translate(oldline,oubytes,inbytes)
         codepoint = tableTranscodingToUnicode[charcode+1] -- bof bof... 1-based array
         -- An empty string means no mapping
         -- A negative codepoint means unused character with fallback mapping
-        if codepoint == "" | (codepoint < 0 & strict) then raise syntax 23.900 array(self~name "encoding: cannot convert" self~description(short: .true) "character" charcode "("charcode~d2x") at byte-position" i "to" targetEncoding~name)
+        if .nil == codepoint then signal cannot_convert_character
+        if codepoint == "" then signal cannot_convert_character
+        if strict, codepoint < 0 then signal cannot_convert_character
         targetEncoding~encode(abs(codepoint), :buffer)
     end
 
@@ -277,55 +290,19 @@ newline = translate(oldline,oubytes,inbytes)
     if memorize then text~indexer~cacheString(self~encoding~name, self~string)
     return text
 
-    cannot_convert:          raise syntax 23.900 array(self~encoding~name "encoding: cannot convert" self~description(short: .true) "to" targetEncoding~name)
+    target_encoding_not_unicode:    raise syntax 23.900 array("The target encoding '"targetEncoding~name"' is not a Unicode encoding")
+    cannot_convert_encoding:        raise syntax 23.900 array(self~encoding~name "encoding: cannot convert" self~description(short: .true) "to" targetEncoding~name)
+    cannot_convert_character:       raise syntax 23.900 array(self~encoding~name "encoding: cannot convert" self~description(short: .true) "character" charcode "("charcode~d2x") at byte-position" i "to" targetEncoding~name)
 
 
 ::method UTF8
     use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    targetEncoding = .UTF8_Encoding
-    if self~string~isASCII then do
-        if .nil <> buffer then return targetEncoding~append(self~string, :buffer)
-
-        string = self~getCachedString(targetEncoding~name)
-        if .nil \== string then return string~text
-
-        -- yes, always a new string. The original string is still associated to the Byte_Encoding.
-        -- Don't use string~copy, because the reference to the associated text is in the copy,
-        -- and that forbids to assign a new RexxText.
-        text = .RexxText~new(.String~new(self~string), targetEncoding)
-        if memorize then do
-            self~cacheString(targetEncoding~name, text~string)
-            text~indexer~cacheString(self~encoding~name, self~string)
-        end
-        return text
-    end
-    else do
-        return self~convertByteToUnicode(targetEncoding, :strict, :memorize, :buffer)
-    end
+    return self~convertToUnicode(.UTF8_Encoding, :strict, :memorize, :buffer)
 
 
 ::method WTF8
     use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    targetEncoding = .WTF8_Encoding
-    if self~string~isASCII then do
-        if .nil <> buffer then return targetEncoding~append(self~string, :buffer)
-
-        string = self~getCachedString(targetEncoding~name)
-        if .nil \== string then return string~text
-
-        -- yes, always a new string. The original string is still associated to the Byte_Encoding.
-        -- Don't use string~copy, because the reference to the associated text is in the copy,
-        -- and that forbids to assign a new RexxText.
-        text = .RexxText~new(.String~new(self~string), targetEncoding)
-        if memorize then do
-            self~cacheString(targetEncoding~name, text~string)
-            text~indexer~cacheString(self~encoding~name, self~string)
-        end
-        return text
-    end
-    else do
-        return self~convertByteToUnicode(targetEncoding, :strict, :memorize, :buffer)
-    end
+    return self~convertToUnicode(.WTF8_Encoding, :strict, :memorize, :buffer)
 
 
 ::method UTF16
@@ -334,14 +311,12 @@ newline = translate(oldline,oubytes,inbytes)
 
 ::method UTF16BE
     use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    if self~string~isASCII then return .UTF16BE_Encoding~encodeASCIIstring(self~string, :memorize, :buffer)
-                           else return self~convertByteToUnicode(.UTF16BE_Encoding, :strict, :memorize, :buffer)
+    return self~convertToUnicode(.UTF16BE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method UTF16LE
     use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    if self~string~isASCII then return .UTF16LE_Encoding~encodeASCIIstring(self~string, :memorize, :buffer)
-                           else return self~convertByteToUnicode(.UTF16LE_Encoding, :strict, :memorize, :buffer)
+    return self~convertToUnicode(.UTF16LE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method WTF16
@@ -350,14 +325,12 @@ newline = translate(oldline,oubytes,inbytes)
 
 ::method WTF16BE
     use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    if self~string~isASCII then return .WTF16BE_Encoding~encodeASCIIstring(self~string, :memorize, :buffer)
-                           else return self~convertByteToUnicode(.WTF16BE_Encoding, :strict, :memorize, :buffer)
+    return self~convertToUnicode(.WTF16BE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method WTF16LE
     use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    if self~string~isASCII then return .WTF16LE_Encoding~encodeASCIIstring(self~string, :memorize, :buffer)
-                           else return self~convertByteToUnicode(.WTF16LE_Encoding, :strict, :memorize, :buffer)
+    return self~convertToUnicode(.WTF16LE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method UTF32
@@ -366,54 +339,30 @@ newline = translate(oldline,oubytes,inbytes)
 
 ::method UTF32BE
     use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    if self~string~isASCII then return .UTF32BE_Encoding~encodeASCIIstring(self~string, :memorize, :buffer)
-                           else return self~convertByteToUnicode(.UTF32BE_Encoding, :strict, :memorize, :buffer)
+    return self~convertToUnicode(.UTF32BE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method UTF32LE
     use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    if self~string~isASCII then return .UTF32LE_Encoding~encodeASCIIstring(self~string, :memorize, :buffer)
-                           else return self~convertByteToUnicode(.UTF32LE_Encoding, :strict, :memorize, :buffer)
+    return self~convertToUnicode(.UTF32LE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method Unicode
     use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    if self~string~isASCII then forward message "Unicode8"
-    else do
-        targetEncoding = .Unicode_Encoding~toSupport(self~maximumUnicodeCodepoint)
-        return self~convertByteToUnicode(targetEncoding, :strict, :memorize, :buffer)
-    end
+    targetEncoding = .Unicode_Encoding~toSupport(self~maximumUnicodeCodepoint)
+    return self~convertToUnicode(targetEncoding, :strict, :memorize, :buffer)
 
 
 ::method Unicode8
     use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    targetEncoding = .Unicode8_Encoding
-    if self~string~isASCII then do
-        if .nil <> buffer then return targetEncoding~append(self~string, :buffer)
-
-        string = self~getCachedString(targetEncoding~name)
-        if .nil \== string then return string~text
-
-        -- yes, always a new string. The original string is still associated to the Byte_Encoding.
-        -- Don't use string~copy, because the reference to the associated text is in the copy,
-        -- and that forbids to assign a new RexxText.
-        text = .RexxText~new(.String~new(self~string), targetEncoding)
-        if memorize then do
-            self~cacheString(targetEncoding~name, text~string)
-            text~indexer~cacheString(self~encoding~name, self~string)
-        end
-        return text
-    end
-    else return self~convertByteToUnicode(targetEncoding, :strict, :memorize, :buffer)
+    return self~convertToUnicode(.Unicode8_Encoding, :strict, :memorize, :buffer)
 
 
 ::method Unicode16
     use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    if self~string~isASCII then return .Unicode16_Encoding~encodeASCIIstring(self~string, :memorize, :buffer)
-                           else return self~convertByteToUnicode(.Unicode16_Encoding, :strict, :memorize, :buffer)
+    return self~convertToUnicode(.Unicode16_Encoding, :strict, :memorize, :buffer)
 
 
 ::method Unicode32
     use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    if self~string~isASCII then return .Unicode32_Encoding~encodeASCIIstring(self~string, :memorize, :buffer)
-                           else return self~convertByteToUnicode(.Unicode32_Encoding, :strict, :memorize, :buffer)
+    return self~convertToUnicode(.Unicode32_Encoding, :strict, :memorize, :buffer)

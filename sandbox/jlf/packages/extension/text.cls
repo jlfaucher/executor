@@ -622,6 +622,16 @@ Allows to use a String or a RexxText indistinctly
     forward to (self~indexer)
 
 
+-- General service to convert to a Byte encoding
+::method convertToByte
+    forward to (self~indexer)
+
+
+-- General service to convert to a Unicode encoding
+::method convertToUnicode
+    forward to (self~indexer)
+
+
 -- UTF-8 representation
 ::method UTF8
     forward to (self~indexer)

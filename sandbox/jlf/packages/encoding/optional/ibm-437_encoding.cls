@@ -15,7 +15,9 @@
 ::constant name "IBM437"
 
 
+-- keep these declarations! inheritance from Byte_Encoding is not enough
 ::attribute tableTranscodingToUnicode class get
+::attribute tableTranscodingFromUnicode class get
 
 
 ::method activate class
@@ -26,7 +28,7 @@
     -- 17 rules are given, I understand nothing.
     -- DECISION: I dont't use this Wikipedia table, I use this file from ICU:
     -- https://github.com/unicode-org/icu/tree/main/icu4c/source/data/mappings/ibm-437_P100-1995.ucm
-    expose tableTranscodingToUnicode
+    expose tableTranscodingToUnicode tableTranscodingFromUnicode
     use strict arg -- none
     specificTranscoding =,
         , --    00      01      02      03      04      05      06      07      08      09      0A      0B      0C      0D      0E      0F
@@ -40,7 +42,9 @@
         "D0:",  "2568", "2564", "2565", "2559", "2558", "2552", "2553", "256B", "256A", "2518", "250C", "2588", "2584", "258C", "2590", "2580",,
         "E0:",  "03B1", "00DF", "0393", "03C0", "03A3", "03C3", "03BC", "03C4", "03A6", "0398", "03A9", "03B4", "221E", "03C6", "03B5", "2229",,
         "F0:",  "2261", "00B1", "2265", "2264", "2320", "2321", "00F7", "2248", "00B0", "2219", "00B7", "221A", "207F", "00B2", "25A0", "00A0"
-    tableTranscodingToUnicode = createCharacterTranscodingTable(256, specificTranscoding)
+    tables = createCharacterTranscodingTable(256, specificTranscoding)
+    tableTranscodingToUnicode = tables[1]
+    tableTranscodingFromUnicode = tables[2]
 
 /*
     ibm-437_P100-1995.ucm sorted by 2nd column.

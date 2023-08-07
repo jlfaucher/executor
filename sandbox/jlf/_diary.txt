@@ -2,6 +2,24 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2023 Aug 07
+
+[Encoded strings]
+
+Add conversion from a Unicode encoding to a Byte encoding.
+    "Père Noël"~text~convertToByte("cp437")~c2x=                                -- '50 8A 72 65 20 4E 6F 89 6C'
+    '50 8A 72 65 20 4E 6F 89 6C'x~text("cp437")~utf8~c2x=                       -- '50 C3A8 72 65 20 4E 6F C3AB 6C'
+    '50 8A 72 65 20 4E 6F 89 6C'x~text("cp437")~convertToUnicode("utf8")~c2x=   -- '50 C3A8 72 65 20 4E 6F C3AB 6C'
+
+    "Père Noël 🎅 10€"~text; do encoding over .Byte_Encoding~subclasses~~append(.Byte_Encoding); say encoding~name~left(13)":" text~convertToByte(encoding, replace:"FF"x)~c2x; end
+        ISO-8859-1   : 50 E8 72 65 20 4E 6F EB 6C 20 FF 20 31 30 FF
+        ibm-1252     : 50 E8 72 65 20 4E 6F EB 6C 20 FF 20 31 30 FF
+        windows-1252 : 50 E8 72 65 20 4E 6F EB 6C 20 FF 20 31 30 80
+        IBM437       : 50 8A 72 65 20 4E 6F 89 6C 20 FF 20 31 30 FF
+        Byte         : 50 FF 72 65 20 4E 6F FF 6C 20 FF 20 31 30 FF
+
+
+===============================================================================
 2023 Aug 04
 
 [Encoded strings]

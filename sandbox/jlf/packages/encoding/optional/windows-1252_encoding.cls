@@ -18,7 +18,9 @@
 ::constant name "windows-1252"
 
 
+-- keep these declarations! inheritance from Byte_Encoding is not enough
 ::attribute tableTranscodingToUnicode class get
+::attribute tableTranscodingFromUnicode class get
 
 
 ::method activate class
@@ -26,13 +28,15 @@
     -- According to the information on Microsoft's and the Unicode Consortium's websites,
     -- positions 81, 8D, 8F, 90, and 9D are unused;
     -- however, the Windows API MultiByteToWideChar maps these to the corresponding C1 control codes.
-    expose tableTranscodingToUnicode
+    expose tableTranscodingToUnicode tableTranscodingFromUnicode
     use strict arg -- none
     specificTranscoding =,
         , --    00      01      02      03      04      05      06      07      08      09      0A      0B      0C      0D      0E      0F
         "80:",  "20AC", "-81",  "201A", "0192", "201E", "2026", "2020", "2021", "02C6", "2030", "0160", "2039", "0152",  "-8D", "017D",  "-8F",,
         "90:",  "-90",  "2018", "2019", "201C", "201D", "2022", "2013", "2014", "02DC", "2122", "0161", "203A", "0153",  "-9D", "017E", "0178"
-    tableTranscodingToUnicode = createCharacterTranscodingTable(256, specificTranscoding)
+    tables = createCharacterTranscodingTable(256, specificTranscoding)
+    tableTranscodingToUnicode = tables[1]
+    tableTranscodingFromUnicode = tables[2]
 
 
 /*

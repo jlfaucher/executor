@@ -29,7 +29,9 @@
 ::constant name "ISO-8859-1"
 
 
+-- keep these declarations! inheritance from Byte_Encoding is not enough
 ::attribute tableTranscodingToUnicode class get
+::attribute tableTranscodingFromUnicode class get
 
 
 ::method activate class
@@ -65,7 +67,7 @@
         This map assigns the C0 and C1 control codes to the unassigned code values
         thus provides for 256 characters via every possible 8-bit value.
     */
-    expose tableTranscodingToUnicode
+    expose tableTranscodingToUnicode tableTranscodingFromUnicode
     use strict arg -- none
     code = "="     -- supported, equal to itself
     -- code = ""   -- not supported
@@ -76,7 +78,9 @@
         "7F:",                                                                                                                          code,,
         "80:",  code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,,
         "90:",  code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code,   code
-    tableTranscodingToUnicode = createCharacterTranscodingTable(256, specificTranscoding)
+    tables = createCharacterTranscodingTable(256, specificTranscoding)
+    tableTranscodingToUnicode = tables[1]
+    tableTranscodingFromUnicode = tables[2]
 
 /*
 https://github.com/unicode-org/icu/blob/main/icu4c/source/data/mappings/convrtrs.txt

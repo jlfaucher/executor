@@ -1,4 +1,5 @@
 ::requires "encoding/stringIndexer.cls"
+::requires "encoding/encoding.cls"
 -- ::requires "encoding/unicode.cls"    -- .Unicode
 -- ::requires "extension/text.cls"      -- .RexxText
 
@@ -201,7 +202,7 @@ Depends on
 /* Instance methods */
 /********************/
 
-::method convertUnicodeToUnicode
+::method convertToUnicode
     /*
     D93 Encoding form conversion:
     A conversion defined directly between the code unit sequences of one Unicode
@@ -222,6 +223,9 @@ Depends on
     use strict arg targetEncoding
     use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1) = .nil
 
+    targetEncoding = .Encoding~factory(targetEncoding)
+    if \targetEncoding~isUnicode then signal target_encoding_not_unicode
+
     string = .nil
     if self~encoding == targetEncoding then string = self~string
     else string = self~getCachedString(targetEncoding~name)
@@ -229,13 +233,6 @@ Depends on
         if .nil <> buffer then return targetEncoding~append(string, :buffer) -- buffer~~append(string)
                           else return string~text
     end
-
-/*
-    if self~encoding == targetEncoding then do
-        if .nil <> buffer then return self~encoding~concatenate(self~string, buffer) -- buffer~~append(self~string)
-                          else return self~string~text
-    end
-*/
 
     sizeC = self~codepointCount -- size in codepoints
     returnBuffer = .nil \== buffer
@@ -255,6 +252,74 @@ Depends on
     text = .RexxText~new(string, targetEncoding)
     if memorize then text~indexer~cacheString(self~encoding~name, self~string)
     return text
+
+    target_encoding_not_unicode:    raise syntax 23.900 array("The target encoding '"targetEncoding~name"' is not a Unicode encoding")
+
+
+::method convertToByte
+    use strict arg targetEncoding
+    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil, replacementCharacter(7)=.nil
+
+    targetEncoding = .Encoding~factory(targetEncoding)
+    if \targetEncoding~isByte then signal target_encoding_not_byte
+
+    tableTranscodingFromUnicode = targetEncoding~tableTranscodingFromUnicode
+    if .nil == tableTranscodingFromUnicode then signal cannot_convert_encoding
+
+    -- replacementCharacter: 1 character max or .nil.
+    -- if .nil then will raise an error if a character can't be converted
+    -- otherwise if not "" then will be used in replacement of a character that can't be converted
+    -- otherwise any character that can't be converted will be ignored
+    if .nil \== replacementCharacter then do
+        replacementCharacter = replacementCharacter~string
+        if replacementCharacter~length > 1 then signal invalid_replacement_character
+        if replacementCharacter \== "" then replacementCharacter = replacementCharacter~c2d -- ready to use by encode which expects a whole number 0..255
+    end
+
+    string = self~getCachedString(targetEncoding~name)
+    if .nil \== string then do
+        if .nil <> buffer then return targetEncoding~append(string, :buffer)
+                          else return string~text
+    end
+
+    sizeC = self~codepointCount -- size in codepoints
+    returnBuffer = .nil <> buffer
+
+    if .nil == buffer then buffer = .MutableBuffer~new(, sizeC * targetEncoding~codepointMaxBytes)
+    buffer~encoding = targetEncoding~asEncodingFor(buffer) -- raise an error if not compatible
+
+    bufferStart = buffer~length + 1
+    do i=1 to sizeC
+        codepoint = self~codepoint(i)
+        charcode = tableTranscodingFromUnicode~at(codepoint)
+        charcode = check_replace_char()
+        if .nil == charcode then signal cannot_convert_character
+        if charcode \== "" then targetEncoding~encode(charcode, :buffer)
+    end
+
+    string = buffer~substr(bufferStart)
+    -- It's a new string, without any encoding stored on it
+    string~encoding = targetEncoding
+    if memorize then self~cacheString(targetEncoding~name, string)
+
+    if returnBuffer then return buffer
+    text = .RexxText~new(string, targetEncoding)
+    if memorize then text~indexer~cacheString(self~encoding~name, self~string)
+    return text
+
+    target_encoding_not_byte:       raise syntax 23.900 array("The target encoding '"targetEncoding~name"' is not a Byte encoding")
+    invalid_replacement_character:  raise syntax 23.900 array("The replacement character is one byte max, got '"replacementCharacter"' ("replacementCharacter~c2x")")
+    cannot_convert_encoding:        raise syntax 23.900 array(self~encoding~name "encoding: cannot convert" self~description(short: .true) "to" targetEncoding~name)
+    cannot_convert_character:       raise syntax 23.900 array(self~encoding~name "encoding: cannot convert" self~description(short: .true) "codepoint" codepoint "("codepoint~d2x") at position" i "to" targetEncoding~name)
+
+    check_replace_char:
+        -- A .nil charcode means no mapping
+        -- An empty charcode means no mapping
+        -- A negative charcode means unused character with fallback mapping
+        if .nil == charcode then return replacementCharacter
+        if charcode == "" then return replacementCharacter
+        if strict, charcode < 0 then return .nil -- no fallback when strict
+        return abs(charcode)
 
 
 ::method c2u
@@ -299,13 +364,13 @@ Depends on
 ::method UTF8
     use strict arg -- none
     use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.UTF8_Encoding, :strict, :memorize, :buffer)
+    return self~convertToUnicode(.UTF8_Encoding, :strict, :memorize, :buffer)
 
 
 ::method WTF8
     use strict arg -- none
     use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.WTF8_Encoding, :strict, :memorize, :buffer)
+    return self~convertToUnicode(.WTF8_Encoding, :strict, :memorize, :buffer)
 
 
 ::method UTF16
@@ -315,13 +380,13 @@ Depends on
 ::method UTF16BE
     use strict arg -- none
     use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.UTF16BE_Encoding, :strict, :memorize, :buffer)
+    return self~convertToUnicode(.UTF16BE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method UTF16LE
     use strict arg -- none
     use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.UTF16LE_Encoding, :strict, :memorize, :buffer)
+    return self~convertToUnicode(.UTF16LE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method WTF16
@@ -331,13 +396,13 @@ Depends on
 ::method WTF16BE
     use strict arg -- none
     use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.WTF16BE_Encoding, :strict, :memorize, :buffer)
+    return self~convertToUnicode(.WTF16BE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method WTF16LE
     use strict arg -- none
     use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.WTF16LE_Encoding, :strict, :memorize, :buffer)
+    return self~convertToUnicode(.WTF16LE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method UTF32
@@ -347,38 +412,38 @@ Depends on
 ::method UTF32BE
     use strict arg -- none
     use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.UTF32BE_Encoding, :strict, :memorize, :buffer)
+    return self~convertToUnicode(.UTF32BE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method UTF32LE
     use strict arg -- none
     use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    return self~convertUnicodeToUnicode(.UTF32LE_Encoding, :strict, :memorize, :buffer)
+    return self~convertToUnicode(.UTF32LE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method Unicode
     use strict arg -- none
     use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
     targetEncoding = .Unicode_Encoding~toSupport(self~maximumCodepoint)
-    return self~convertUnicodeToUnicode(targetEncoding, :strict, :memorize, :buffer)
+    return self~convertToUnicode(targetEncoding, :strict, :memorize, :buffer)
 
 
 ::method Unicode8
     use strict arg -- none
     use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
     .Unicode8_Encoding~checkCodepoint(self~maximumCodepoint, checkingMaximumCodepoint: .true)
-    return self~convertUnicodeToUnicode(.Unicode8_Encoding, :strict, :memorize, :buffer)
+    return self~convertToUnicode(.Unicode8_Encoding, :strict, :memorize, :buffer)
 
 
 ::method Unicode16
     use strict arg -- none
     use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
     .Unicode16_Encoding~checkCodepoint(self~maximumCodepoint, checkingMaximumCodepoint: .true)
-    return self~convertUnicodeToUnicode(.Unicode16_Encoding, :strict, :memorize, :buffer)
+    return self~convertToUnicode(.Unicode16_Encoding, :strict, :memorize, :buffer)
 
 
 ::method Unicode32
     use strict arg -- none
     use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
     .Unicode32_Encoding~checkCodepoint(self~maximumCodepoint, checkingMaximumCodepoint: .true)
-    return self~convertUnicodeToUnicode(.Unicode32_Encoding, :strict, :memorize, :buffer)
+    return self~convertToUnicode(.Unicode32_Encoding, :strict, :memorize, :buffer)

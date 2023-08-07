@@ -97,6 +97,42 @@
     return 1
 
 
+::method encodeASCIIstring class
+    use strict arg string
+    use strict named arg memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+
+    text = .nil
+    if string~hasText then text = string~text
+
+    targetEncoding = self
+    if .nil \== text then do
+        cachedString = text~indexer~getCachedString(targetEncoding~name)
+        if .nil \== cachedString then do
+            if .nil <> buffer then return targetEncoding~append(cachedString, :buffer)
+                              else return cachedString~text
+        end
+    end
+
+    sizeB = string~length -- size in bytes
+    returnBuffer = .nil <> buffer
+    if .nil == buffer then buffer = .MutableBuffer~new(, sizeB * 2)
+    buffer~encoding = targetEncoding~asEncodingFor(buffer) -- raise an error if not compatible
+    bufferStart = buffer~length + 1
+
+    -- Easy conversion: nothing to do, it's the string itself
+    targetEncoding~append(string, :buffer)
+
+    convertedString = buffer~substr(bufferStart)
+    -- It's a new string, without any encoding stored on it
+    convertedString~encoding = targetEncoding
+    if memorize, .nil \== text then text~indexer~cacheString(targetEncoding~name, convertedString)
+
+    if returnBuffer then return buffer
+    convertedText = .RexxText~new(convertedString, targetEncoding)
+    if memorize then convertedText~indexer~cacheString(string~encoding~name, string)
+    return convertedText
+
+
 /********************/
 /* Instance methods */
 /********************/

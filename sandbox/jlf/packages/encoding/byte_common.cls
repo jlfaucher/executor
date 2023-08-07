@@ -144,10 +144,13 @@
 -- By default, a transcoded character is equal to itself.
 -- The specific transcoding table lets define specific values for some characters.
 ::routine createCharacterTranscodingTable public -- private
-    use strict arg size, specificTranscoding
+    use strict arg size, specificTranscoding=(.array~new)
 
     -- The default mapping is equal to the character code
     tableTranscodingToUnicode = .array~new(size)
+    -- Pre-fill the table for all the source-encoding characters
+    -- Some of them will be replaced by a specific value
+    tableTranscodingFromUnicode = .directory~new/*(size)*/
     do i = 0 to size-1
         tableTranscodingToUnicode[i+1] = i -- bof bof... 1-based
     end
@@ -179,11 +182,17 @@
                 else codepoint = item~x2d
 
                 tableTranscodingToUnicode[nextSpecificIndex+1] = codepoint -- bof bof... 1-based array
+                if \tableTranscodingFromUnicode~hasIndex(nextSpecificIndex) then tableTranscodingFromUnicode~put(.nil, nextSpecificIndex) -- explicitely put .nil, doesn't map to itself
+                tableTranscodingFromUnicode~put(nextSpecificIndex * sign(codepoint), abs(codepoint))
             end
             nextSpecificIndex += 1
         end
     end
-    return tableTranscodingToUnicode
+    -- Put the mapping for the characters which maps to themselves (i.e. not already in the table)
+    do i = 0 to size-1
+        if \tableTranscodingFromUnicode~hasIndex(i) then tableTranscodingFromUnicode~put(i, i)
+    end
+    return .array~of(tableTranscodingToUnicode, tableTranscodingFromUnicode)
 
 
 /******************************************************************************/
