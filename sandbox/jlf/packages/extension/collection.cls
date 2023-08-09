@@ -3,8 +3,10 @@ if \ .stringtable~isa(.class) then .environment["STRINGTABLE"] = .directory
 
 ::extension MapCollection inherit MapCollectionInitializer
 ::extension Collection    inherit CollectionPrettyPrinter
+::extension Collection    inherit CollectionIterTools
 
 --::options trace i
+::requires "extension/doers.cls"
 
 /******************************************************************************/
 
@@ -178,3 +180,88 @@ comparing numbers in the 2**128 range
         return table
     end
     return .table~new~putAll(self)
+
+
+
+
+/******************************************************************************/
+
+-- Collections Utilities
+-- Inspired by Python itertools
+
+::class "CollectionIterTools" mixinclass Object public
+
+::method product2 class public
+    -- Cartesian product of 2 collections
+    use strict arg collection1, collection2=(collection1), action={(item1, item2)}
+    .Validate~classType("collection1", collection1, .Collection)
+    if arg() == 2, arg(2)~isA(.Doer) then return self~product2(collection1, collection1, arg(2))
+    .Validate~classType("collection2", collection2, .Collection)
+    .Validate~classType("action", action, .Doer)
+
+    doer = action~doer
+    collectedItems = .Array~new
+
+    supplier1 = collection1~supplier
+    do while supplier1~available
+        item1 = supplier1~item
+        index1 = supplier1~index
+
+        supplier2 = collection2~supplier
+        do while supplier2~available
+            item2 = supplier2~item
+            index2 = supplier2~index
+
+            doer~(item1,  index1,  item2,  index2,-
+                 :item1, :index1, :item2, :index2)
+            if var("result") then collectedItems~append(result)
+
+            supplier2~next
+        end
+
+        supplier1~next
+    end
+    return collectedItems
+
+
+::method product3 class public
+    -- Cartesian product of 3 collections
+    use strict arg collection1, collection2=(collection1), collection3=(collection2), action={(item1, item2, item3)}
+    .Validate~classType("collection1", collection1, .Collection)
+    if arg() == 2, arg(2)~isA(.Doer) then return self~product3(collection1, collection1, collection1, arg(2))
+    .Validate~classType("collection2", collection2, .Collection)
+    if arg() == 3, arg(3)~isA(.Doer) then return self~product3(collection1, collection2, collection1, arg(3))
+    .Validate~classType("collection3", collection3, .Collection)
+    .Validate~classType("action", action, .Doer)
+
+    doer = action~doer
+    collectedItems = .Array~new
+
+    supplier1 = collection1~supplier
+    do while supplier1~available
+        item1 = supplier1~item
+        index1 = supplier1~index
+
+        supplier2 = collection2~supplier
+        do while supplier2~available
+            item2 = supplier2~item
+            index2 = supplier2~index
+
+            supplier3 = collection3~supplier
+            do while supplier3~available
+                item3 = supplier3~item
+                index3 = supplier3~index
+
+                doer~(item1,  index1,  item2,  index2,  item3,  index3,-
+                     :item1, :index1, :item2, :index2, :item3, :index3)
+                if var("result") then collectedItems~append(result)
+
+                supplier3~next
+            end
+
+            supplier2~next
+        end
+
+        supplier1~next
+    end
+    return collectedItems

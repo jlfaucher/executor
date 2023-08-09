@@ -2,6 +2,35 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2023 Aug 09
+
+[Collection]
+
+New class method .Collection.product2
+    use strict arg collection1, collection2=(collection1), action={(item1, item2)}
+Cartesian product of 2 collections.
+The first collection is mandatory, the second collection is optional (use collection1 by default).
+The action is called for each couple (item1, item2).
+The arguments passed to the action are item1, index1, item2, index2.
+The default action is to return the couple (item1, item2).
+The result is an array of all the results returned by the action.
+
+New class method .Collection.product3
+    use strict arg collection1, collection2=(collection1), collection3=(collection2), action={(item1, item2, item3)}
+Cartesian product of 3 collections.
+
+.Collection~product2((1,2))=                     -- [[ 1, 1],[ 1, 2],[ 2, 1],[ 2, 2]]
+.Collection~product2((1,2), ("a", "b", "c"))=    -- [[ 1,'a'],[ 1,'b'],[ 1,'c'],[ 2,'a'],[ 2,'b'],[ 2,'c']]
+.Collection~product2((1,2), (10, 20)){say index1":"item1 index2":"item2}=
+    1:1 1:10
+    1:1 2:20
+    2:2 1:10
+    2:2 2:20
+    an Array (no shape, 0 items)
+.Collection~product3((1,2))=                    -- [[ 1, 1, 1],[ 1, 1, 2],[ 1, 2, 1],[ 1, 2, 2],[ 2, 1, 1],[ 2, 1, 2],[ 2, 2, 1],[ 2, 2, 2]]
+
+
+===============================================================================
 2023 Aug 07
 
 [Encoded strings]
