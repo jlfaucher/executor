@@ -230,7 +230,7 @@ comparing numbers in the 2**128 range
     .Validate~classType("collection1", collection1, .Collection)
     if arg() == 2, arg(2)~isA(.Doer) then return self~product3(collection1, collection1, collection1, arg(2))
     .Validate~classType("collection2", collection2, .Collection)
-    if arg() == 3, arg(3)~isA(.Doer) then return self~product3(collection1, collection2, collection1, arg(3))
+    if arg() == 3, arg(3)~isA(.Doer) then return self~product3(collection1, collection2, collection2, arg(3))
     .Validate~classType("collection3", collection3, .Collection)
     .Validate~classType("action", action, .Doer)
 
