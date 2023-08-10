@@ -34,6 +34,7 @@ Contents:
     <a href="#CJK">CJK</a>
     <a href="#Korean">Korean</a>
     <a href="#Japanese">Japanese</a>
+    <a href="#Text_rendering">Text rendering</a>
     <a href="#String_Matching">String Matching</a>
     <a href="#Fuzzy_String_Matching">Fuzzy String Matching</a>
     <a href="#Levenshtein_distance_and_string_similarity">Levenshtein distance and string similarity</a>
@@ -96,6 +97,7 @@ Contents:
     <a href="#Saxon_lang">Saxon lang</a>
     <a href="#SQL_lang">SQL lang</a>
     <a href="#Swift_lang">Swift lang</a>
+    <a href="#Typst_lang">Typst lang</a>
     <a href="#Zig_lang__Ziglyph">Zig lang, Ziglyph</a>
 
 
@@ -681,6 +683,12 @@ What Unicode gives you by default, the (extended) grapheme cluster, is as useful
 the DUCET (Default Unicode Collation Element Table); while you can live with them,
 you would be unsatisfied. In fact there are tons of Unicode bugs that can't be corrected
 due to the compatibility reason, and can only be fixed via tailored locale-dependent schemes.
+---
+Hangul normalization and collation is broken in Unicode, albeit for slightly different reasons.
+The Unicode Collation Algorithm explictly devotes two sections related to Hangul; the first section, for "trailing weights" [1], is recommended for the detailed explanation.
+The Unicode Text Segmentation standard [2] explicitly mentions that Indic aksaras [3]
+require the tailoring to grapheme clusters. Depending on the view, you can also consider
+orthographic digraphs as examples (Dutch "ij" is sometimes considered a single character for example).
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/27331819/whats-the-difference-between-a-character-a-code-point-a-glyph-and-a-grapheme">https://stackoverflow.com/questions/27331819/whats-the-difference-between-a-character-a-code-point-a-glyph-and-a-grapheme</a>
@@ -1773,6 +1781,11 @@ cursor move command or a newline), all the text in the work zone will be
 committed—even if it is incomplete—and the work zone will be cleared.
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://slideplayer.com/slide/11341056/">https://slideplayer.com/slide/11341056/</a>
+INDIC TEXT SEGMENTATION
+todo: read
+
+
 <hr><h2 id="CJK">CJK</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://resources.oreilly.com/examples/9781565922242/blob/master/doc/cjk.inf">https://resources.oreilly.com/examples/9781565922242/blob/master/doc/cjk.inf</a>
 Version 2.1 (July 12, 1996)
@@ -1795,6 +1808,15 @@ The Korean Writing System
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.johndcook.com/blog/2022/09/25/katakana-hiragana-unicode/">https://www.johndcook.com/blog/2022/09/25/katakana-hiragana-unicode/</a>
 <a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=32987710">https://news.ycombinator.com/item?id=32987710</a>
+
+
+<hr><h2 id="Text_rendering">Text rendering</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://faultlore.com/blah/text-hates-you/">https://faultlore.com/blah/text-hates-you/</a>
+Text Rendering Hates You
+Aria Beingessner
+September 28th, 2019
+jlf: culture générale
+todo: read
 
 
 <hr><h2 id="String_Matching">String Matching</h2><hr>
@@ -3085,6 +3107,13 @@ Using UTF-8 in the Windows Terminal
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/Microsoft/Cascadia-Code">https://github.com/Microsoft/Cascadia-Code</a>
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/PowerShell/PowerShell/issues/7233">https://github.com/PowerShell/PowerShell/issues/7233</a>
+Make console windows fully UTF-8 by default on Windows, in line with the behavior on Unix-like platforms
+mklement0 opened this issue on Jul 5, 2018
+---
+jlf still opened on 2023.08.08
+
+
 <hr><h2 id="QT_Title">QT Title</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://bugreports.qt.io/browse/QTBUG-48726">https://bugreports.qt.io/browse/QTBUG-48726</a>
 Combining diacritics misplaced when using monospace fonts
@@ -3242,6 +3271,10 @@ What the &amp;%#$ does MB_USEGLYPHCHARS do?
 by Michael S. Kaplan, published on 2005/02/26 15:26 -05:00, original URI: <a target="_blank" rel="noopener noreferrer" href="http://blogs.msdn.com/b/michkap/archive/2005/02/26/381020.aspx">http://blogs.msdn.com/b/michkap/archive/2005/02/26/381020.aspx</a>
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/apps/design/globalizing/use-utf8-code-page">https://learn.microsoft.com/en-us/windows/apps/design/globalizing/use-utf8-code-page</a>
+Use UTF-8 code pages in Windows apps
+
+
 <hr><h2 id="z_OS">z/OS</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/zos/2.5.0?topic=mvs-zos-unicode-services-users-guide-reference">https://www.ibm.com/docs/en/zos/2.5.0?topic=mvs-zos-unicode-services-users-guide-reference</a>
 Unicode services
@@ -3390,6 +3423,63 @@ Git has proven to be the de-facto standard in the Open Source world, and the
 z/OS platform can interact with Git through the z/OS Git client, which is
 maintained by Rocket Software in its “Open Source Languages and Tools for z/OS”
 package.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/zos/2.2.0?topic=server-different-end-line-characters-in-text-files">https://www.ibm.com/docs/en/zos/2.2.0?topic=server-different-end-line-characters-in-text-files</a>
+Different end of line characters in text files
+---
+In general, z/OS UNIX text files contain a newline character at the end of each
+line. In ASCII, newline is X'0A'. In EBCDIC, newline is X'15'. (For example,
+ASCII code page ISO8859-1 and EBCDIC code page IBM-1047 translate back and forth
+between these characters.) Windows programs normally use a carriage return
+followed by a line feed character at the end of each line of a text file. In
+ASCII, carriage return/line feed is X'0D'/X'0A'. In EBCDIC, carriage return/line
+feed is X'0D'/X'15'. The tr command shown in the preceding example deletes all
+of the carriage return characters. (Line feed and newline characters have the
+same hexadecimal value.) The SMB server can translate end of line characters
+from ASCII to EBCDIC and back but it does not change the type of delimiter (PC
+versus z/OS UNIX) nor the number of characters in the file.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/zos/2.5.0?topic=options-record-format-recfm">https://www.ibm.com/docs/en/zos/2.5.0?topic=options-record-format-recfm</a>
+Record Format (RECFM)
+RECFM specifies the characteristics of the records in the data set as fixed-length (F),
+variable-length (V), ASCII variable-length (D), or undefined-length (U). Blocked
+records are specified as FB, VB, or DB. Spanned records are specified as VS, VBS,
+DS, or DBS. You can also specify the records as fixed-length standard by using
+FS or FBS. You can request track overflow for records other than standard format
+by adding a T to the RECFM parameter (for example, by coding FBT). Track overflow
+is ignored for PDSEs.
+The type of print control can be specified to be in ANSI format-A, or in machine code
+format-M. See
+Using Optional Control Characters (<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/SSLTBW_2.5.0/com.ibm.zos.v2r5.idad400/occ.htm#occ)">https://www.ibm.com/docs/en/SSLTBW_2.5.0/com.ibm.zos.v2r5.idad400/occ.htm#occ)</a>
+and z/OS DFSMS Macro Instructions for Data Sets (<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/SSLTBW_2.5.0/com.ibm.zos.v2r5.idad500/abstract.htm)">https://www.ibm.com/docs/en/SSLTBW_2.5.0/com.ibm.zos.v2r5.idad500/abstract.htm)</a>
+for information about control characters.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://docs.tibco.com/pub/mftps-zos/8.0.0/doc/html/GUID-A0CF702B-C126-43BE-86B2-8DF589FAD6BF.html">https://docs.tibco.com/pub/mftps-zos/8.0.0/doc/html/GUID-A0CF702B-C126-43BE-86B2-8DF589FAD6BF.html</a>
+TIBCO® Managed File Transfer Platform Server for z/OS
+RECFM={ F | FB | V | VB | U | VS | VBS}
+Default=V
+This parameter defines the significance of the character logical record length
+(semantics of LRECL boundaries). You can specify fixed, variable, or system default
+The valid values are as follows:
+    - F: each string contains exactly the number of characters defined by the string length parameter.
+    - FB:   all blocks and all logical record are fixed in size.
+            One or more logical records reside in each block.
+    - V:    the length of each string is less than or equal to the string length parameter.
+    - VB:   blocks as well as logical record length can be of any size.
+            One or more logical records reside in each block.
+    - U:    blocks are of variable size. No logical records are used.
+            The logical record length is displayed as zero.
+            This record format is usually only used in load libraries.
+            Block size must be used if you are specifying U.
+    - VS:   records are variable and can span logical blocks.
+            RECFM=VS is not supported when checkpoint restart is used.
+    - VBS:  blocks as well as logical record length can be of any size.
+            One or more logical records reside in each block.
+            Records are variable and can span logical blocks.
+            RECFM=VBS is not supported when checkpoint restart is used.
 
 
 <hr><h2 id="IBM_RPG_Lang">IBM RPG Lang</h2><hr>
@@ -3805,6 +3895,12 @@ Scenarios and Design Philosophy - UTF-8 string support
     Tons of comments, with this conclusion:
     The discussion in this issue is too long and github has troubles rendering it.
     I think we should close this issue and start a new one in dotnet/runtime.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/dotnet/runtime/tree/main">https://github.com/dotnet/runtime/tree/main</a>
+.Net runtime
+jlf: could be useful
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/dotnet/runtime/blob/main/src/libraries/System.Console/src/System/Console.cs">https://github.com/dotnet/runtime/blob/main/src/libraries/System.Console/src/System/Console.cs</a>
 
 
 <hr><h2 id="Dafny_lang">Dafny lang</h2><hr>
@@ -4689,6 +4785,12 @@ internal representation of unicode characters, particularly within the context o
 displaying text in the terminal for command line applications.
 ---
 jlf tag: character width
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/foliojs/linebreak">https://github.com/foliojs/linebreak</a>
+A JS implementation of the Unicode Line Breaking Algorithm (UAX #14)
+It is used by PDFKit (<a target="_blank" rel="noopener noreferrer" href="https://github.com/foliojs/pdfkit)">https://github.com/foliojs/pdfkit)</a> for line wrapping text
+in PDF documents.
 
 
 <hr><h2 id="Julia_lang">Julia lang</h2><hr>
@@ -6213,6 +6315,31 @@ still searching articles/blogs comparing the Ruby's approach (multi-encodings)
 with languages that force the conversion to Unicode (be it utf-8 or Unicode scalars).
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://docs.ruby-lang.org/en/3.2/String.html">https://docs.ruby-lang.org/en/3.2/String.html</a>
+class String
+    ---
+    jlf: focus on comparison.
+    I did not find the definition of "compatible".
+
+    Methods for Comparing
+        ==, ===: Returns true if a given other string has the same content as self.
+        eql?: Returns true if the content is the same as the given other string.
+        &lt;=&gt;: Returns -1, 0, or 1 as a given other string is smaller than, equal to, or larger than self.
+        casecmp: Ignoring case, returns -1, 0, or 1 as a given other string is smaller than, equal to, or larger than self.
+        casecmp?: Returns true if the string is equal to a given string after Unicode case folding; false otherwise.
+
+    Returns false if the two strings’ encodings are not compatible:
+        "\u{e4 f6 fc}" == ("\u{e4 f6 fc}")                          # =&gt; true
+        "\u{e4 f6 fc}".encode("ISO-8859-1") == ("\u{e4 f6 fc}")     # =&gt; false
+
+        "\u{e4 f6 fc}".eql?("\u{e4 f6 fc}")                         # =&gt; true
+        "\u{e4 f6 fc}".encode("ISO-8859-1").eql?("\u{e4 f6 fc}")    # =&gt; false
+
+        # "äöü"   "ÄÖÜ"
+        "\u{e4 f6 fc}".casecmp("\u{c4 d6 dc}")                      # =&gt; 1
+        "\u{e4 f6 fc}".encode("ISO-8859-1").casecmp("\u{c4 d6 dc}") # =&gt; nil
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://ruby-doc.org/current/Encoding.html">https://ruby-doc.org/current/Encoding.html</a>
 
 
@@ -6314,6 +6441,95 @@ Rutie allows you to write Rust that works in Ruby and Ruby that works in Rust.
 jlf: see Rutie in Rust lang.
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://ruby-core.ruby-lang.narkive.com/RDKAvdS7/20483-encoding-of-symbols#post2">https://ruby-core.ruby-lang.narkive.com/RDKAvdS7/20483-encoding-of-symbols#post2</a>
+[ruby-core:20483] encoding of symbols
+---
+jlf: AT LAST! I found a discussion about the comparison of strings.
+LONG thread, to carefully read.
+---
+This message 2008-12-14 is a good summary!
+Is it still correct today?
+<a target="_blank" rel="noopener noreferrer" href="https://ruby-core.ruby-lang.narkive.com/RDKAvdS7/20483-encoding-of-symbols#post12">https://ruby-core.ruby-lang.narkive.com/RDKAvdS7/20483-encoding-of-symbols#post12</a>
+    - String operations are done using the bytes in the strings - they are not
+    converted to codepoints internally
+
+    - String equality comparisons seem to be simply done on a byte-by-byte
+    basis, without regard to the encoding
+
+    - *However* other operations are not simply byte-by-byte. They are done
+    character-by-character, but without converting to codepoints - eg: a 3
+    byte character is kept as 3 bytes. For example this means that when
+    operating on a variable-length encoding, simple operations like indexing
+    can be inefficient, as Ruby may have to scan through the string from the
+    start. However Ruby does try to optimize this where possible.
+
+    - There is also a concept of "compatible encodings". Given 2 encodings e1
+    &amp; e2, e1 is compatible with e2 if the representation of every character in
+    e1 is the same as in e2. This implies that e2 must be a "bigger" encoding
+    than e1 - ie: e2 is a superset of e1. Typically we are mainly talking
+    about US-ASCII here, which is compatible with most other character sets
+    that are either all single-byte (eg: all the ISO-8859 sets) or are
+    variable-length multi-byte (eg: UTF-8).
+
+    - When operating on encodings e1 &amp; e2, if e1 is compatible with e2, then
+    Ruby treats both strings as being in encoding e2.
+
+    - String#&gt; and String#&lt; are a bit wierd. Normally they are just done on a
+    byte-by-byte basis, UNLESS the strings are the same and are incompatible
+    encodings, then they always seem to return FALSE. (I have to check this -
+    it may be more complicated than this).
+
+    - When operating on incompatible encodings, *normally* non-comparison
+    operations (including regexp matches) raise an "Encoding Compatibility
+    Error".
+
+    - However there appears to be an exception to this: if operating on 2
+    incompatible encodings AND US-ASCII is compatible with both, AND both
+    strings are US-ASCII strings, then the operation appears to proceed,
+    treating both as US-ASCII. For example "abc" as an ISO-8859-1 and "abc" as
+    UTF-8. I guess this is Ruby being "forgiving". (Personally I am not sure
+    if this is good or bad). The encoding of the result (for example of a
+    string concatenation) seems to be one of the 2 original encodings - I
+    haven't figured out the logic to this yet :)
+---
+jlf: this one seems ugly...
+    Actually I just checked this, and this is wrong, sorry. I ended up looking
+    at the source code of rb_str_cmp() in string.c, and here is what I think
+    it does:
+
+    - it does a byte-by-byte comparison. Assuming the strings are different,
+    Ruby returns what you would expect based on this.
+
+    - if the strings are byte for byte identical, but they have incompatible
+    encodings and at least one of the strings contains a non-ASCII character,
+    then it seems that the result is determined by the ordering of the
+    encodings, based on ruby's "encoding index" - an internal ordering of the
+    available encodings. Maybe I have got this wrong - it doesn't make a lot
+    of sense to me!
+---
+    I don't mean to shoot you down in flames, but a lot of thought and effort
+    has gone into Ruby's encoding support. Ruby could have followed the Python
+    route of converting everything to Unicode, but that was rejected for various
+    good reasons. Also automatic transcoding to solve issues of incompatible
+    encodings was also rejected because it causes a number of problems, in
+    particular I believe that transcoding isn't necessarilly accurate, because
+    for example there may be multiple or ambiguous representations of the same
+    character.
+---
+    Yukihiro Matsumoto
+    UTF-8 + ASCII-8BIT makes ASCII-8BIT. Binary wins.
+    jlf: hum... I do the opposite with Executor
+    jlf 2023.08.09: I checked today with Ruby 3.2, the result is UTF-8
+
+
+
+<a target="_blank" rel="noopener noreferrer" href="http://graysoftinc.com/character-encodings">http://graysoftinc.com/character-encodings</a>
+jlf: 12 articles about character encoding in Ruby.
+From 2008-10-14 to 2009-06-18
+Old, but maybe interesting?
+todo: read
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://docs.ruby-lang.org/en/3.2/case_mapping_rdoc.html">https://docs.ruby-lang.org/en/3.2/case_mapping_rdoc.html</a>
 Case Mapping
 By default, all of these methods use full Unicode case mapping, which is suitable for most languages.
@@ -6393,6 +6609,30 @@ Code Ranges: A Deeper Look at Ruby Strings
 Code ranges are a way for the VM to avoid repeated work and optimize operations
 on a per-string basis, guiding away from slow paths when that functionality
 isn't needed.
+jlf: not sure this article is useful.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://idiosyncratic-ruby.com/66-ruby-has-character.html">https://idiosyncratic-ruby.com/66-ruby-has-character.html</a>
+Ruby has Character
+video: <a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/watch?v=hlryzsdGtZo">https://www.youtube.com/watch?v=hlryzsdGtZo</a>
+(jlf: too small, not very readable, but good for pronuntiation: "Louby")
+---
+jlf: this page is interesting for the one-liners.
+Tools implemented by the author
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/janlelis/unibits">https://github.com/janlelis/unibits</a>     Visualize different Unicode encodings in the terminal
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/janlelis/uniscribe">https://github.com/janlelis/uniscribe</a>   Know your Unicode ✀
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://idiosyncratic-ruby.com/41-proper-unicoding.html">https://idiosyncratic-ruby.com/41-proper-unicoding.html</a>
+Proper Unicoding
+Ruby's Regexp engine has a powerful feature built in: It can match for Unicode
+character properties.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://idiosyncratic-ruby.com/26-file-encoding-magic.html">https://idiosyncratic-ruby.com/26-file-encoding-magic.html</a>
+default source encoding
+    # coding: cp1252
+    p "".encoding #=&gt; #&lt;Encoding:Windows-1252&gt;
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://tomdebruijn.com/posts/rust-string-length-width-calculations/">https://tomdebruijn.com/posts/rust-string-length-width-calculations/</a>
@@ -6419,6 +6659,176 @@ Seems a good summary, so copy-paste here...
         require "unicode/display_width"
         Unicode::DisplayWidth.of("👩‍🔬") # =&gt; 4
         Unicode::DisplayWidth.of("❤️") # =&gt; 1
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://ruby-doc.org/3.2.2/File.html">https://ruby-doc.org/3.2.2/File.html</a>
+class File
+A File object is a representation of a file in the underlying platform.
+---
+Data mode
+To specify whether data is to be treated as text or as binary data, either of
+the following may be suffixed to any of the string read/write modes above:
+    't': Text data; sets the default external encoding to Encoding::UTF_8;
+         on Windows, enables conversion between EOL and CRLF and enables
+         interpreting 0x1A as an end-of-file marker.
+    'b': Binary data; sets the default external encoding to Encoding::ASCII_8BIT;
+         on Windows, suppresses conversion between EOL and CRLF and disables
+         interpreting 0x1A as an end-of-file marker.
+---
+Encodings
+Any of the string modes above may specify encodings - either external encoding
+only or both external and internal encodings - by appending one or both encoding
+names, separated by colons:
+    f = File.new('t.dat', 'rb')
+    f.external_encoding # =&gt; #&lt;Encoding:ASCII-8BIT&gt;
+    f.internal_encoding # =&gt; nil
+    f = File.new('t.dat', 'rb:UTF-16')
+    f.external_encoding # =&gt; #&lt;Encoding:UTF-16 (dummy)&gt;
+    f.internal_encoding # =&gt; nil
+    f = File.new('t.dat', 'rb:UTF-16:UTF-16')
+    f.external_encoding # =&gt; #&lt;Encoding:UTF-16 (dummy)&gt;
+    f.internal_encoding # =&gt; #&lt;Encoding:UTF-16&gt;
+    f.close
+- When the external encoding is set, strings read are tagged by that encoding
+  when reading, and strings written are converted to that encoding when writing.
+- When both external and internal encodings are set, strings read are converted
+  from external to internal encoding, and strings written are converted from
+  internal to external encoding. For further details about transcoding input and
+  output, see Encodings.
+  <a target="_blank" rel="noopener noreferrer" href="https://ruby-doc.org/3.2.2/encodings_rdoc.html#label-Encodings">https://ruby-doc.org/3.2.2/encodings_rdoc.html#label-Encodings</a>
+
+
+String comparison
+If the encodings are different then the strings are different.
+So it's not a comparison of Unicode codepoints.
+    irb(main):026:0&gt; s1 = "hello"
+    =&gt; "hello"
+    irb(main):027:0&gt; s1
+    =&gt; "hello"
+    irb(main):028:0&gt; s2 = "hello"
+    =&gt; "hello"
+    irb(main):029:0&gt; s1 == s2
+    =&gt; true
+    irb(main):030:0&gt; s2.force_encoding("utf-16")
+    =&gt; "\x68\x65\x6C\x6C\x6F"
+    irb(main):031:0&gt; s2
+    =&gt; "\x68\x65\x6C\x6C\x6F"
+    irb(main):032:0&gt; s1 == s2
+    =&gt; false
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://bugs.ruby-lang.org/issues/9111">https://bugs.ruby-lang.org/issues/9111</a>
+Encoding-free String comparison
+14/11/2013
+    ---
+    Description
+    Currently, strings with the same content but with different encodings count
+    as different strings. This causes strange behaviour as below (noted in
+    StackOverflow question
+    <a target="_blank" rel="noopener noreferrer" href="http://stackoverflow.com/questions/19977788/strange-behavior-in-packed-ruby-strings#19978206):">http://stackoverflow.com/questions/19977788/strange-behavior-in-packed-ruby-strings#19978206):</a>
+
+    [128].pack("C")             # =&gt; "\x80"
+    [128].pack("C") == "\x80"   # =&gt; false
+    Since [128].pack("C") has the encoding ASCII-8BIT and "\x80" (by default)
+    has the encoding UTF-8, the two strings are not equal.
+
+    Also, comparison of strings with different encodings may end up with a messy,
+    unintended result.
+    I suggest that the comparison String#&lt;=&gt; should not be based on the respective
+    encoding of the strings, but all the strings should be internally converted
+    to UTF-8 for the purpose of comparison.
+    ---
+    nobu (Nobuyoshi Nakada)
+    It's unacceptable to always convert all strings to UTF-8, should restrict to
+    comparison with an ASCII-8BIT string.
+    ---
+    naruse (Yui NARUSE)
+    The standard practice is NFD("â") == NFD("a" + "^").
+    To NFD, you can use some libraries.
+    ---
+    duerst (Martin Dürst)
+    Lié à Feature #10084: Add Unicode String Normalization to String class ajouté
+    <a target="_blank" rel="noopener noreferrer" href="https://bugs.ruby-lang.org/issues/10084">https://bugs.ruby-lang.org/issues/10084</a>
+    ---
+    jlf 09/08/2023: ticket still opened...
+    The test [128].pack("C") == "\x80" still returns false, so I assume they made
+    no change.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://bugs.ruby-lang.org/issues/10084">https://bugs.ruby-lang.org/issues/10084</a>
+Add Unicode String Normalization to String class
+23/07/2014
+    ---
+    nobu (Nobuyoshi Nakada)
+    What will happen for a non-unicode string, raising an exception?
+    ---
+    duerst (Martin Dürst)
+    This is a very good question. I'm okay with whatever Matz and the community
+    think is best.
+
+    There are many potential approaches. In general, these will be:
+        1. Make the operation a no-op.
+        2. Convert to UTF-8, normalize, then convert back.
+        3. Implement normalization directly in the encoding.
+        4. Raise an exception.
+
+    There is also the question of what a "non-unicode" or "unicode" string is.
+
+    UTF-8 is the preferred way to handle Unicode in Ruby, and is where normalization
+    is really needed and will be used.
+
+    For the other encodings, unless we go with 1) or 4), the following considerations
+    apply.
+
+    UTF8-Mac, UTF8-DoCoMo, UTF8-KDDI and UTF8-Softbank are essentially UTF-8 but
+    with slightly different character conversions. For these encodings, the easiest
+    thing to do is force_encoding to UTF-8, normalize, and force_encoding back.
+    A C-level implementation may not actually need force_encoding, but a Ruby
+    implementation does. There are some questions about what normalizing UTF8-Mac
+    means, so that may have to be treated separately. The DoCoMo/KDDI/Softbank
+    variants are mostly about emoji, which as far as I know are not affected by
+    normalization.
+
+    Then there are UTF-16LE/BE and UTF-32LE/BE. For these, it depends on the
+    implementation. A Ruby-level implementation (unless very slow) may want to
+    convert to UTF-8 and back. A C-level implementation may not need to do this.
+
+    Then there is also GB18030. Conversion to UTF-8 and back seems to be the best
+    solution. Doing normalization directly in GB18030 will need too much data.
+
+    For other, truely non-unicode encodings, implementing noramlization directly
+    in the encoding would mean the following: Analyze to what extent the normalization
+    applies to the encoding in question, and apply this part.
+    As an example, '①'.nfkc produces '1' in UTF-8, it could do the same in Windows-31J.
+    The analysis might take some time (but can be automated), and the data needed
+    for each encoding would mostly be just very small.
+    ---
+    matz (Yukihiro Matsumoto)
+    First of all, I don't think normalize is the best name.
+    I propose unicode_normalize instead, since this normalization is sort of
+    unicode specific.
+
+    It should raise an exception for non Unicode strings.
+    It shouldn't convert to UTF-8 implicitly inside.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.honeybadger.io/blog/troubleshooting-encoding-errors-in-ruby/">https://www.honeybadger.io/blog/troubleshooting-encoding-errors-in-ruby/</a>
+Troubleshooting Encoding Errors in Ruby
+---
+jlf: interesting for the one-liners
+---
+"H".bytes                                                                                   # =&gt; [72]           in decimal
+"H".bytes.map {|e| e.to_s 2}                                                                # =&gt; ["1001000"]    convert in base 2
+Encoding.name_list                                                                          # =&gt; ["ASCII-8BIT", "UTF-8", "US-ASCII", "UTF-16BE", "UTF-16LE", "UTF-32BE", "UTF-32LE", "UTF-16", "UTF-32", "UTF8-MAC", "EUC-JP", "Windows-31J", "Big5", "Big5-HKSCS", "Big5-UAO", "CP949", "Emacs-Mule", "EUC-KR", ...]
+"hellÔ!".encode("US-ASCII")                                                                 # in `encode': U+00D4 from UTF-8 to US-ASCII (Encoding::UndefinedConversionError)
+"hellÔ!".force_encoding("US-ASCII");                                                        # =&gt; "hell\xC3\x94!"
+"abc\xCF\x88\xCF\x88"                                                                       # =&gt; "abcψψ"
+"abcψψ".force_encoding("US-ASCII").valid_encoding?                                          # =&gt; false
+"abcψψ".encode("US-ASCII", "UTF-8", invalid: :replace, undef: :replace, replace: "")        # =&gt; "abc"
+"abc\xA1z".encode("US-ASCII")                                                               # in `encode': "\xA1" on UTF-8 (Encoding::InvalidByteSequenceError)
+"abc\xA1z".force_encoding("US-ASCII").scrub("*")                                            # =&gt; "abc*z"
+"abc\xA1z".force_encoding("US-ASCII").scrub("")                                             # =&gt; "abcz"
+"abc\xA1z".force_encoding("US-ASCII").valid_encoding?                                       # =&gt; false
 
 
 <hr><h2 id="Rust_lang">Rust lang</h2><hr>
@@ -6617,6 +7027,10 @@ Rust implementations of string similarity metrics:
     Damerau-Levenshtein - distance &amp; normalized
     Jaro and Jaro-Winkler - this implementation of Jaro-Winkler does not limit the common prefix length
     Sørensen-Dice
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://docs.rs/xi-unicode/latest/xi_unicode/">https://docs.rs/xi-unicode/latest/xi_unicode/</a>
+Unicode utilities useful for text editing, including a line breaking iterator.
 
 
 <hr><h2 id="Saxon_lang">Saxon lang</h2><hr>
@@ -6948,7 +7362,7 @@ When searching the offset for a String.Index, they do a binary search.
 Breadcrumbs provide us amortized O(1) access to the UTF-16 view, which
 is vital for efficient Cocoa interoperability.
 ---
-jlf: this the commit where breadcrumbs are added to Swift (Nov 4, 2018).
+jlf: this is the commit where breadcrumbs are added to Swift (Nov 4, 2018).
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/55389444/whats-does-extended-grapheme-clusters-are-canonically-equivalent-means-in-term">https://stackoverflow.com/questions/55389444/whats-does-extended-grapheme-clusters-are-canonically-equivalent-means-in-term</a>
@@ -7329,6 +7743,31 @@ Testing the JMB's example
 "σ".uc                            // "Σ"
 "ὈΔΥΣΣΕΎΣ".lowercased()         // "ὀδυσσεύσ"     NOT SUPPORTED last Σ becomes ς
 "ὈΔΥΣΣΕΎΣA".lowercased()        // "ὀδυσσεύσa"    last Σ becomes σ
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://developer.apple.com/documentation/swift/character/isnewline">https://developer.apple.com/documentation/swift/character/isnewline</a>
+isNewline
+A Boolean value indicating whether this character represents a newline.
+For example, the following characters all represent newlines:
+    “\n” (U+000A): LINE FEED (LF)
+    U+000B: LINE TABULATION (VT)
+    U+000C: FORM FEED (FF)
+    “\r” (U+000D): CARRIAGE RETURN (CR)
+    “\r\n” (U+000D U+000A): CR-LF
+    U+0085: NEXT LINE (NEL)
+    U+2028: LINE SEPARATOR
+    U+2029: PARAGRAPH SEPARATOR
+---
+jlf: this is related to Unicode properties of a character.
+But what is the impacts on file I/O?
+
+
+<hr><h2 id="Typst_lang">Typst lang</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/typst/typst">https://github.com/typst/typst</a>
+A new markup-based typesetting system that is powerful and easy to learn.
+---
+jlf: uses ICU4X
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/3811">https://github.com/unicode-org/icu4x/issues/3811</a>
 
 
 <hr><h2 id="Zig_lang__Ziglyph">Zig lang, Ziglyph</h2><hr>
