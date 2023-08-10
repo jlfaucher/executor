@@ -46,7 +46,7 @@ t_UTF32LE = t_UTF8~UTF32LE; call all_conversions t_UTF32LE
         use strict arg t, m
         call charout , t~encoding~name t~c2x "--> "
         tc = t~send(m)
-        call charout , tc~send("is"m) tc~encoding~name tc~c2x ";" tc~c2u
+        call charout , tc~encoding~send("is"m) tc~encoding~name tc~c2x ";" tc~c2u
         say
         return
 
