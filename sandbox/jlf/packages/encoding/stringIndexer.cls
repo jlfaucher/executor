@@ -210,9 +210,11 @@ For example, if startB==6 then previousCodepointIndex==3
     buffer~append(string)
 
 
--- If you modify this method then see if forConcatenation must be modified as well
+-- If you modify this method then see if compatibleEncoding must be modified as well
 ::method asEncodingFor class
     use strict arg buffer   -- left part
+    use strict named arg demotionIsAllowed=.false, errorInfo=.nil
+
     targetEncoding = self   -- right part
     if \buffer~hasEncoding then return targetEncoding -- when no encoding then any encoding is compatible
 
@@ -229,7 +231,6 @@ For example, if startB==6 then previousCodepointIndex==3
 
     -- Keep the following tests after the previous tests, to keep the priority for WTF8/WTF16
     -- no 'right' string, assume it's always ASCII
-    demoteIsAllowed = 0
     targetIsDemotion = (bufferEncoding~isUnicode & \targetEncoding~isUnicode)
     bufferIsDemotion = (targetEncoding~isUnicode & \bufferEncoding~isUnicode)
     if bufferEncoding~isCompatibleWithASCII, targetEncoding~isCompatibleWithASCII then do
@@ -238,15 +239,23 @@ For example, if startB==6 then previousCodepointIndex==3
             if targetEncoding~isUnicode then return targetEncoding      -- Unicode          -- R2
             return bufferEncoding                                       -- Byte             -- R3
         end
-        if buffer~isCompatibleWithASCII, (demoteIsAllowed | \targetIsDemotion) then return targetEncoding   -- Unicode or Byte  -- R4
-        if 1 /* right~isCompatibleWithASCII **/, (demoteIsAllowed | \bufferIsDemotion) then return bufferEncoding   -- Unicode or Byte  -- R5
+        if buffer~isCompatibleWithASCII, (demotionIsAllowed | \targetIsDemotion) then return targetEncoding   -- Unicode or Byte  -- R4
+        if 1 /* right~isCompatibleWithASCII **/, (demotionIsAllowed | \bufferIsDemotion) then return bufferEncoding   -- Unicode or Byte  -- R5
     end
 
     -- Consider that Unicode32 is never compatible with UTF-32BE or UTF-32LE
     -- even if it can be compatible in function of the CPU endianness.
     -- It's to ensure that if a program works on a little-endian CPU then it works on a big-endian CPU, and vice-versa.
 
-    raise syntax 23.900 array("Encoding: cannot append" targetEncoding~description "to" buffer~descriptionForError)
+    return error("Encoding: cannot append" targetEncoding~description "to" buffer~descriptionForError)
+
+    error:
+        use strict arg errorMessage
+        if .nil <> errorInfo then do
+            errorInfo[1] = errorMessage"."
+            return .nil
+        end
+        raise syntax 23.900 array (errorMessage)
 
 
 /********************/
@@ -386,6 +395,16 @@ For example, if startB==6 then previousCodepointIndex==3
 ::method isUpper
     expose case
     return case == 2
+
+
+::method convertToByte abstract
+    -- use strict arg targetEncoding
+    -- use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil, replacementCharacter(7)=.nil
+
+
+::method convertToUnicode abstract
+    -- use strict arg targetEncoding
+    -- use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
 
 
 ::method UTF8 abstract

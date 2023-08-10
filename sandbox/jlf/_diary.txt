@@ -2,6 +2,37 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2023 Aug 10
+
+[Encoded strings]
+
+Refinement of the rules for comparison.
+Same logic as concatenation, with one difference: the cases where Unicode is
+demoted to Byte are allowed (because a comparison can be made in any order).
+Reminder: Since the strings remain unchanged, the comparison is made on the
+encoded strings, not on the codepoints. This is the same approach as Ruby.
+Unlike Ruby, the strings are normalized on the fly (temporary strings).
+Currently, only valid UTF-8 strings can be normalized (utf8proc limitation).
+Under the hood, utf8proc converts the UTF-8 string to an array of 32-bit
+codepoints, apply the transformations and then convert back in place to UTF-8.
+
+New program to test all the combinations of encodings.
+    cdunicode
+    rexx test_encoding_combinations.rex > test_encoding_combinations-output.txt
+For each combination, test
+    ASCII,ASCII,
+    not-ASCII,ASCII
+    ASCII,not-ASCII.
+    not-ASCII,not-ASCII.
+
+Summary:
+    16 encodings
+    256 encoding combinations * 4 asciiness combinations = 1024 cases
+    1024 cases * 3 checks = 3072 results of which 2328 errors
+    78 bad buffer encodings <-- to review and fix
+
+
+===============================================================================
 2023 Aug 09
 
 [Collection]

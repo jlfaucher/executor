@@ -984,8 +984,9 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
 
 
 -- If you modify this method then see if asEncodingFor must be modified as well
-::method forConcatenation class
+::method compatibleEncoding class
     use strict arg left, right -- text or buffer or string
+    use strict named arg for = "<not specified>", demotionIsAllowed=.false, errorInfo=.nil
 
     left = left~requestTextOrBufferOrString
     if .nil == left then signal left_must_have_a_text_or_buffer_or_string_value
@@ -1045,7 +1046,6 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
         Unicode not-ASCII       Byte ASCII              Left            Left            R5      Promote to Left
         Unicode not-ASCII       Byte not-ASCII                          error                   None
     */
-    demoteIsAllowed = 0
     rightIsDemotion = (leftEncoding~isUnicode & \rightEncoding~isUnicode)
     leftIsDemotion = (rightEncoding~isUnicode & \leftEncoding~isUnicode)
     if leftEncoding~isCompatibleWithASCII, rightEncoding~isCompatibleWithASCII then do
@@ -1054,8 +1054,8 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
             if rightEncoding~isUnicode then return rightEncoding    -- Unicode          -- R2
             return leftEncoding                                     -- Byte             -- R3
         end
-        if left~isCompatibleWithASCII, (demoteIsAllowed | \rightIsDemotion) then return rightEncoding    -- Unicode or Byte  -- R4
-        if right~isCompatibleWithASCII, (demoteIsAllowed | \leftIsDemotion) then return leftEncoding   -- Unicode or Byte  -- R5
+        if left~isCompatibleWithASCII, (demotionIsAllowed | \rightIsDemotion) then return rightEncoding   -- Unicode or Byte  -- R4
+        if right~isCompatibleWithASCII, (demotionIsAllowed | \leftIsDemotion) then return leftEncoding    -- Unicode or Byte  -- R5
     end
 
     -- TODO Discutable?
@@ -1063,20 +1063,55 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
     -- even if it can be compatible in function of the CPU endianness.
     -- It's to ensure that if a program works on a little-endian CPU then it works on a big-endian CPU, and vice-versa.
 
-    raise syntax 23.900 array("Encoding: cannot append" right~descriptionForError "to" left~descriptionForError)
+    select
+        when for == "concatenation" then signal cannot_append
+        when for == "comparison" then signal cannot_compare
+        otherwise signal encodings_not_compatible
+    end
 
-    left_must_have_a_text_or_buffer_or_string_value:  raise syntax 93.900 array("Method positional argument 'left' must have a text or buffer or string value")
-    right_must_have_a_text_or_buffer_or_string_value: raise syntax 93.900 array("Method positional argument 'right' must have a text or buffer or string value")
+    return
+
+    left_must_have_a_text_or_buffer_or_string_value:  return error("Method positional argument 'left' must have a text or buffer or string value")
+    right_must_have_a_text_or_buffer_or_string_value: return error("Method positional argument 'right' must have a text or buffer or string value")
+    cannot_append:                                    return error("Encoding: cannot append" right~descriptionForError "to" left~descriptionForError)
+    cannot_compare:                                   return error("Encoding: cannot compare" right~descriptionForError "with" left~descriptionForError)
+    encodings_not_compatible:                         return error("Encoding: " right~descriptionForError "is not compatible with" left~descriptionForError)
+
+    error:
+        use strict arg errorMessage
+        if .nil <> errorInfo then do
+            errorInfo[1] = errorMessage"."
+            return .nil
+        end
+        raise syntax 23.900 array (errorMessage)
+
+
+::method forConcatenation class
+    -- if a concatenation is possible then return the encoding to use for the concatenation.
+    -- otherwise raise an error or return .nil, in function of errorInfo.
+    use strict arg left, right -- text or buffer or string
+    use strict named arg errorInfo=.nil
+    return self~compatibleEncoding(left, right, for: "concatenation", demotionIsAllowed:.false, :errorInfo)
 
 
 ::method comparisonMode class
-    -- if a byte comparison is possible then return "b"
-    -- if a unicode comparision is possible then return "u"
-    -- otherwise raise an error
-    use strict arg left, right -- text or string or buffer
+    -- if a byte comparison is possible then return "b".
+    -- if a unicode comparison is possible then return "u".
+    -- otherwise raise an error or return "error", in function of errorInfo.
+    use strict arg left, right -- text or string or buffer.
+    use strict named arg errorInfo=.nil
+
+    encoding = self~compatibleEncoding(left, right, for: "comparison", demotionIsAllowed:.true, :errorInfo)
+    if .nil == encoding then return "error"
+    if encoding~isByte then return "b"
+    if left~isCompatibleWithASCII, right~isCompatibleWithASCII then return "b"
+    return "u"
+
+    /*
     if left~encoding~isByte, right~encoding~isByte, left~encoding == right~encoding then return "b"
     if left~isCompatibleWithASCII, right~isCompatibleWithASCII then return "b"
     if left~encoding~isUnicode & right~encoding~isUnicode then return "u"
-    if left~isCompatibleWithASCII, right~encoding~isUnicode, right~encoding~isCompatibleWithASCII then return "u"
-    if left~encoding~isUnicode, left~encoding~isCompatibleWithASCII, right~isCompatibleWithASCII then return "u"
+    if left~isCompatibleWithASCII, right~encoding~isUnicode, right~encoding~isCompatibleWithASCII then return "u"   -- really?
+    if left~encoding~isUnicode, left~encoding~isCompatibleWithASCII, right~isCompatibleWithASCII then return "u"    -- really?
+    */
     raise syntax 23.900 array("Encoding: cannot compare" left~descriptionForError "with" right~descriptionForError)
