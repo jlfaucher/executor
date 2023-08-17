@@ -677,7 +677,7 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 ::method string
     expose codepoint name aliases
     use strict arg encoding=(.Encoding~defaultOutputEncoding)
-    encoding = .Encoding~factory(encoding)
+    encoding = .Encoding~factory(encoding, , codepoint)
     if codepoint < 32 then string = "" -- the control characters are not displayed
                       else string = encoding~encode(codepoint)~string
     string = '"'string'"' " "~copies(3 - self~charWidth)
@@ -690,7 +690,7 @@ https://unicode.org/reports/tr44/#UAX44-LM3
     expose codepoint
     use strict arg encoding="default"
     use strict named arg buffer(1)=.nil
-    encoding = .Encoding~factory(encoding)
+    encoding = .Encoding~factory(encoding, , codepoint)
     return encoding~encode(codepoint, :buffer)
 
 

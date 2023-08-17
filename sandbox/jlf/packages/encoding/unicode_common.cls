@@ -202,7 +202,15 @@ Depends on
 /* Instance methods */
 /********************/
 
-::method convertToUnicode
+::method transcodeTo
+    use strict arg targetEncoding
+    targetEncoding = .Encoding~factory(targetEncoding, self~string)
+    if targetEncoding~isUnicode then forward message "convertToUnicode"
+    if targetEncoding~isByte then forward message "convertToByte"
+    -- Should not reach here
+
+
+::method convertToUnicode private
     /*
     D93 Encoding form conversion:
     A conversion defined directly between the code unit sequences of one Unicode
@@ -221,9 +229,9 @@ Depends on
       well-formed code unit sequences.
     */
     use strict arg targetEncoding
-    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1) = .nil
+    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1) = .nil, replacementCharacter(7)=.nil
 
-    targetEncoding = .Encoding~factory(targetEncoding)
+    targetEncoding = .Encoding~factory(targetEncoding, self~string)
     if \targetEncoding~isUnicode then signal target_encoding_not_unicode
 
     string = .nil
@@ -256,11 +264,11 @@ Depends on
     target_encoding_not_unicode:    raise syntax 23.900 array("The target encoding '"targetEncoding~name"' is not a Unicode encoding")
 
 
-::method convertToByte
+::method convertToByte private
     use strict arg targetEncoding
     use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil, replacementCharacter(7)=.nil
 
-    targetEncoding = .Encoding~factory(targetEncoding)
+    targetEncoding = .Encoding~factory(targetEncoding, self~string)
     if \targetEncoding~isByte then signal target_encoding_not_byte
 
     tableTranscodingFromUnicode = targetEncoding~tableTranscodingFromUnicode

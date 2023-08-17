@@ -130,7 +130,7 @@ See also this same method on RexxText and MutableBuffer and String.
     end
     else if arg(1, "e") then do
         -- If the encoding was explicitely specified then change the encoding
-        textEncoding = .Encoding~factory(textEncoding, self)
+        textEncoding = .Encoding~factory(textEncoding, self~string)
         if myText~encoding <> textEncoding then myText~encoding = textEncoding
     end
     encoding = myText~encoding -- align string & text encoding.
@@ -172,7 +172,7 @@ See also this same method on RexxText and MutableBuffer and String.
 ::attribute encoding set
     expose encoding myText
     use strict arg newEncoding
-    encoding = .Encoding~factory(newEncoding, self)
+    encoding = .Encoding~factory(newEncoding, self~string)
     if var("myText") then myText~encoding = newEncoding
 
 
@@ -622,13 +622,8 @@ Allows to use a String or a RexxText indistinctly
     forward to (self~indexer)
 
 
--- General service to convert to a Byte encoding
-::method convertToByte
-    forward to (self~indexer)
-
-
--- General service to convert to a Unicode encoding
-::method convertToUnicode
+-- General service to convert to another encoding
+::method transcodeTo
     forward to (self~indexer)
 
 

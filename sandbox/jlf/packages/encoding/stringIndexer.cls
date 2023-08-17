@@ -397,14 +397,9 @@ For example, if startB==6 then previousCodepointIndex==3
     return case == 2
 
 
-::method convertToByte abstract
+::method transcodeTo abstract
     -- use strict arg targetEncoding
     -- use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil, replacementCharacter(7)=.nil
-
-
-::method convertToUnicode abstract
-    -- use strict arg targetEncoding
-    -- use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
 
 
 ::method UTF8 abstract

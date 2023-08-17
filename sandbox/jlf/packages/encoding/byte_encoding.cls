@@ -244,11 +244,19 @@ newline = translate(oldline,oubytes,inbytes)
 
 */
 
-::method convertToUnicode
+::method transcodeTo
     use strict arg targetEncoding
-    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    targetEncoding = .Encoding~factory(targetEncoding, self~string)
+    if targetEncoding~isUnicode then forward message "convertToUnicode"
+    if targetEncoding~isByte then forward message "convertToByte"
+    -- Should not reach here
 
-    targetEncoding = .Encoding~factory(targetEncoding)
+
+::method convertToUnicode private
+    use strict arg targetEncoding
+    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil, replacementCharacter(7)=.nil
+
+    targetEncoding = .Encoding~factory(targetEncoding, self~string)
     if \targetEncoding~isUnicode then signal target_encoding_not_unicode
 
     if self~string~isASCII then return targetEncoding~encodeASCIIstring(self~string, :memorize, :buffer)
@@ -293,6 +301,27 @@ newline = translate(oldline,oubytes,inbytes)
     target_encoding_not_unicode:    raise syntax 23.900 array("The target encoding '"targetEncoding~name"' is not a Unicode encoding")
     cannot_convert_encoding:        raise syntax 23.900 array(self~encoding~name "encoding: cannot convert" self~description(short: .true) "to" targetEncoding~name)
     cannot_convert_character:       raise syntax 23.900 array(self~encoding~name "encoding: cannot convert" self~description(short: .true) "character" charcode "("charcode~d2x") at byte-position" i "to" targetEncoding~name)
+
+
+::method convertToByte private
+    use strict arg targetEncoding
+    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil, replacementCharacter(7)=.nil
+
+    targetEncoding = .Encoding~factory(targetEncoding, self~string)
+    if \targetEncoding~isByte then signal target_encoding_not_byte
+
+    string = .nil
+    if self~encoding == targetEncoding then string = self~string
+    else string = self~getCachedString(targetEncoding~name)
+    if .nil \== string then do
+        if .nil <> buffer then return targetEncoding~append(string, :buffer) -- buffer~~append(string)
+                          else return string~text
+    end
+    -- Todo: if ASCII then I can transcode
+    signal not_supported
+
+    not_supported:              raise syntax 23.900 array("Direct transcoding from '"self~encoding~name"' to '"targetEncoding~name"' is not supported")
+    target_encoding_not_byte:   raise syntax 23.900 array("The target encoding '"targetEncoding~name"' is not a Byte encoding")
 
 
 ::method UTF8

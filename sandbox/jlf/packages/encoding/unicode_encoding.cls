@@ -1,6 +1,9 @@
 -- "UNICODE" can't be used to create a RexxText.
 -- But can be used in conversion, to get the shortest possible representation
-.encoding~register("UNICODE", .Unicode_Encoding)
+-- Don't register because it's just a facade, not a real encoding
+--.encoding~register("UNICODE", .Unicode_Encoding)
+
+.environment~setentry("UNICODE_ENCODING", .Unicode_Encoding)
 
 ::requires "encoding/encoding.cls"
 
@@ -48,10 +51,6 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 */
 ::class "Unicode_Encoding" mixinclass Object public -- private
 
-::method analyze class
-    raise syntax 23.900 array ("'UNICODE' can't be used to create a RexxText. Use 'UNICODE8' or 'UNICODE16' or 'UNICODE32'")
-
-
 ::method isUnicodeN class
     use strict arg -- none
     return .true
@@ -59,9 +58,12 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 
 ::method toSupport class
     use strict arg codepoint
+    if codepoint < 0 then signal not_supported
     if codepoint < 256 then return .Unicode8_Encoding
     if codepoint < 65536 then return .Unicode16_Encoding
     return .Unicode32_Encoding
+
+    not_supported: raise syntax 23.900 array ("'UNICODE' can't be used here. Use 'UNICODE8' or 'UNICODE16' or 'UNICODE32'")
 
 
 ::method decodeCodepoint class private

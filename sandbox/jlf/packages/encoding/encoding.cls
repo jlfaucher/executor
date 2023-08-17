@@ -960,7 +960,7 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
 
 ::method factory class
     expose encodings
-    use strict arg encoding, string=""
+    use strict arg encoding, string="", maximumCodepoint=(-1)
     if encoding~isA(.Class), encoding~isSubClassOf(.StringIndexer) then return encoding
     encodingName = .Encoding~normalizedName(encoding~string)
     if encodingName == "DEFAULT" then return .Encoding~defaultEncoding
@@ -978,6 +978,10 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
         if string~startsWith(.UTF32BE_Encoding~BOM) then return .UTF32BE_Encoding
         if string~startsWith(.UTF32LE_Encoding~BOM) then return .UTF32LE_Encoding
         return .UTF32BE_Encoding -- The Unicode norm specifies that the default UTF-32 is big endian
+    end
+    if encodingName == "UNICODE" then do
+        if maximumCodepoint == -1, string~hasText then maximumCodepoint = string~text~maximumCodepoint
+        return .Unicode_Encoding~toSupport(maximumCodepoint)
     end
     if encodings~hasEntry(encodingName) then return encodings[encodingName]
     raise syntax 93.900 array("Encoding: '"encoding"' is not supported")

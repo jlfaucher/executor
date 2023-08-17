@@ -2,6 +2,20 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2023 Aug 17
+
+[Encoded strings]
+
+The methods "convertToByte" and "convertToUnicode" become private.
+A new method "transcodeTo" is added, which delegates to the private methods.
+All the combinations of encodings are supported, except from byte to byte:
+    from/to  |     byte        |     unicode
+    ---------+-----------------+-------------
+    byte     |  not supported  |    supported
+    unicode  |  supported      |    supported
+
+
+===============================================================================
 2023 Aug 10
 
 [Encoded strings]
@@ -29,7 +43,15 @@ Summary:
     16 encodings
     256 encoding combinations * 4 asciiness combinations = 1024 cases
     1024 cases * 3 checks = 3072 results of which 2328 errors
-    78 bad buffer encodings <-- to review and fix
+    78 flagged buffer encodings <-- to review
+        [later]
+        After review of the cases where the flag "*" is displayed, I see that
+        the returned buffer encoding is always the same as the original buffer
+        encoding. And that's good.
+        Note for me: it's the same encoding because of the assumption that the
+        right string will be ASCII. In this case, the left side wins (i.e. the
+        original buffer encoding). If the assumption is wrong then an error will
+        be raised when the real concatenation is done. And that's good.
 
 
 ===============================================================================
