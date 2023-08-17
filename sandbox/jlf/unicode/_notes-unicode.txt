@@ -397,6 +397,37 @@ jlf: only one occurrence of the word "grapheme".
 Maybe at that time, it was not obvious that it would become an important concept.
 
 
+https://mcilloni.ovh/2023/07/23/unicode-is-hard/
+Unicode is harder than you think
+23 Jul 2023
+---
+jlf: good overview, with some ICU samples.
+
+
+https://www.kermitproject.org/utf8.html
+UTF-8 SAMPLER
+Last update: Sun Mar 12 14:21:05 2023
+
+
+http://www.inter-locale.com/whitepaper/learn/learn-to-test.html
+International Testing Basics
+Testing non-English and non-ASCII (and/or Unicode) support in a product requires
+tests and test plans that exercise the edge cases in the software.
+
+
+https://www.youtube.com/watch?v=gd5uJ7Nlvvo
+Plain Text - Dylan Beattie - NDC Copenhagen 2022
+---
+jlf: many comments say it's a good talk
+did not watch
+todo: watch
+
+
+https://www.smashingmagazine.com/2012/06/all-about-unicode-utf8-character-sets/
+Unicode, UTF8 & Character Sets: The Ultimate Guide
+jlf: maybe to read
+
+
 ================================================================================
 U+ notation, Unicode escape sequence
 ================================================================================
@@ -489,6 +520,18 @@ an equivalence between characters that share such an abstract identity.
 Example: In a case-insensitive language, SO and so are the same identifier; if
 that language uses Normalization Form KC, the identifiers so and 𝖘𝖔 are likewise
 identical.
+
+
+Unicode 15.1
+[icu-design] ICU 74 API proposal: bidiSkeleton and LTR- and RTL-confusabilities
+The Source Code Working Group, a limited-duration working group under the
+Properties & Algorithms Group of the Unicode Technical Committee, has added a
+new bidi-aware concept of confusability to UTS #39 in Unicode Version 15.1;
+until publication see the proposed update,
+https://www.unicode.org/reports/tr39/tr39-27.html#Confusable_Detection.
+The new UTS #55, Unicode Source Code Handling, to be published simultaneously
+with Unicode Version 15.1, recommends the use of this new kind of confusability:
+https://www.unicode.org/reports/tr55/tr55-2.html#Confusable-Detection.
 
 
 ================================================================================
@@ -650,6 +693,22 @@ https://www.unicode.org/reports/tr29/#Random_Access
     is at a valid boundary point. Only if it is reset to an arbitrary location in
     the text is this extra backup processing performed. The iterator may even cache
     local values that it has already traversed.
+
+
+Unicode 15.1
+New rule GB9c for grapheme segmentation.
+https://www.unicode.org/reports/tr29/proposed.html
+---
+jlf: saw this review note
+"the new rule GB9c has been implemented in CLDR and ICU as a profile for some years"
+What is a profile?
+---
+This specification defines default mechanisms; more sophisticated implementations
+can and should tailor them for particular locales or environments and, for the
+purpose of claiming conformance, document the tailoring in the form of a profile.
+...
+Note that a profile can both add and remove boundary positions, compared to the
+results specified by UAX29-C1-1, UAX29-C2-1, or UAX29-C3-1.
 
 
 ================================================================================
@@ -1259,6 +1318,10 @@ https://terminal-wg.pages.freedesktop.org/bidi/
 BiDi in Terminal Emulators
 
 
+https://www.w3.org/International/articles/inline-bidi-markup/uba-basics
+Unicode Bidirectional Algorithm basics
+W3C
+
 ================================================================================
 Emoji
 ================================================================================
@@ -1420,6 +1483,14 @@ PCMPxSTRx is no longer faster than equivalent "simple" vector instruction sequen
 It can be used productively (with some care) for some other operations like substring matching,
 but that's not as much of a heavy-hitter. There's a bunch of string stuff that will benefit from general vectorization,
 and which is absolutely on our roadmap to tackle, but using the PCMPxSTRx instructions specifically isn't a source of wins on the most important operations.
+
+
+https://news.ycombinator.com/item?id=34267936
+Transcoding Unicode with AVX-512: AMD Zen 4 vs. Intel Ice Lake (lemire.me)
+
+
+https://www.reddit.com/r/java/comments/qafjtg/faster_charset_encoding/
+Java 17 uses avx in both encoding and decoding
 
 
 ================================================================================
@@ -1789,6 +1860,14 @@ https://news.ycombinator.com/item?id=32987710
 
 
 ================================================================================
+Polish
+================================================================================
+
+https://www.twardoch.com/download/polishhowto/index.html
+Polish diacritics how to?
+
+
+================================================================================
 Text rendering
 ================================================================================
 
@@ -2118,6 +2197,135 @@ https://opensource.apple.com/source/subversion/subversion-52/subversion/notes/un
  1) We can't generally depend on the OS to give us back the
      exact filename we gave it
  2) The same filename may be encoded in different codepoints
+
+
+https://linux.die.net/man/1/convmv
+convmv - converts filenames from one encoding to another
+
+
+https://news.ycombinator.com/item?id=33986655
+jlf: discussion about text vs byte for filenames
+
+
+https://news.ycombinator.com/item?id=33991506
+Python already has the "surrogateescape" error handler [0] that performs
+something similar to what you described: undecodable bytes are translated into
+unpaired U+DC80 to U+DCFF surrogates. Of course, this isn't standardized in any
+way, but I've found it useful myself for smuggling raw pathnames through Java.
+[0] https://peps.python.org/pep-0383/
+
+
+https://news.ycombinator.com/item?id=33988943
+I’m a little confused, how can a file name be non-decodable? A file with that
+name exists, so someone somewhere knows how to decode it. Why wouldn’t Python
+just always use the same encoding as the OS it’s running on? Is this some
+locale-related thing?
+---
+    > A file with that name exists, so someone somewhere knows how to decode it.
+    No. A unix filename is just a bunch of bytes (two of them being off-limits).
+    There is no requirement that it be in any encoding.
+    You can always use a fallback encoding (an iso-8859) to get something out of
+    the garbage, but it's just that, garbage.
+    Windows has a similar issue, NTFS paths are sequences of UCS2 code units, but
+    there's no guarantee that they form any sort of valid UTF-16 string, you can
+    find random lone surrogates for instance.
+    And I'm sure network filesystems have invented their own even worse issues,
+    because being awful is what they do.
+
+    > Why wouldn’t Python just always use the same encoding as the OS it’s running on?
+    1. because OS don't really have encodings, Python has a function to try and
+       retrieve FS encoding[0] but per the above there's no requirement that it
+       is correct for any file, let alone the one you actually want to open
+       (hell technically speaking it's not even a property of the FS)
+    2. because OS lie and user configurations are garbage, you can't even trust
+       the user's locale to be configured properly for reading files (an other
+       mistake Python 3 made, incidentally)
+    3. because the user may not even have created the file, it might come from a
+       broken archive, or some random download from someone having fun with
+       filenames, or from fetching crap from an FTP or network share
+
+    There are a few FS / FS configurations which are reliable, in that case they
+    either error or pre-mangle the files on intake.
+    IIRC ZFS can be configured to only accept valid UTF-8 filenames, HFS(+)
+    requires valid unicode (stored as UTF-16) and APFS does as well (stored as UTF-8).
+
+    [0] https://docs.python.org/3/library/sys.html#sys.getfilesystem...
+
+
+https://news.ycombinator.com/item?id=33986421
+Stefan Karpinski:
+On UNIX, paths are UTF-8 by convention, but not forced to be valid. Treating
+paths as UTF-8 works very well as long as you hadn't also make the mistake of
+requiring your UTF-8 strings to be valid (which Python did, unfortunately).
+On Windows, paths are UTF-16 by convention, but also not forced to be valid.
+However, invalid UTF-16 can be faithfully converted to WTF-8 and converted back
+losslessly, so you can translate Windows paths to WTF-16 and everything Just
+Works™ [1].
+There aren't any operating systems I'm aware of where paths are actually
+Shift-JIS by convention, so that seems like a non-issue. Using "UTF-8 by
+convention" strings works on all modern OSes.
+
+    [1] Ok, here's why the WTF-8 thing works so well. If we write WTF-16 for
+    potentially invalid UTF-16 (just arbitrary sequences of 16-bit code units), then
+    the mapping between WTF-16 and WTF-8 space is a bijection because it's
+    losslessly round-trippable. But more importantly, this WTF-8/16 bijection is
+    also a homomorphism with respect to pretty much any string operation you can
+    think of. For example `utf16_concat(a, b) == utf8_concat(wtf8(a), wtf8(b))` for
+    arbitrary UTF-16 strings a and b. Similar identities hold for other string
+    operations like searching for substrings or splitting on specific strings.
+---
+> There aren't any operating systems I'm aware of where paths are actually
+  Shift-JIS by convention, so that seems like a non-issue. Using "UTF-8 by
+  convention" strings works on all modern OSes.
+Nonsense. Unix paths use the system locale by convention, and it's entirely
+normal for that to be Shift-JIS.
+
+
+https://news.ycombinator.com/item?id=33985510
+Stefan Karpinski:
+Absolutely right. Deprecating direct string indexing would have been the right
+move. Require writing `str.chars()` to get something that lets you slice by
+Unicode characters (i.e. code points); provide `str.graphemes()` and
+`str.grapheme_clusters()` to get something that lets you slice by graphemes and
+grapheme clusters, respectively. Cache an index structure that lets you do that
+kind of indexing efficiently once you've asked for it the first time. Provide an
+API to clear the caches.
+Not allowing strings to represent invalid Unicode is also a huge mistake (and
+essentially forced by the representation strategy that they adopted). It forces
+any programmer who wants to robustly handle potentially invalid string data to
+use byte vectors instead. Which is exactly what they did with OS paths, but
+that's far from the only place you can get invalid strings. You can get invalid
+strings almost anywhere! Worse, since it's incredibly inconvenient to work with
+byte vectors when you want to do stringlike stuff, no one does it unless forced
+to, so this design choice effectively guarantees that all Python code that works
+with strings will blow up if it encounters anything invalid—which is a very
+common occurrence.
+If only there was a type that behaves like a string and supports all the handy
+string operations but which handles invalid data gracefully. Then you could
+write robust string code conveniently. But at that point, you should just make
+that the standard string type! This isn't hypothetical, it's exactly how Burnt
+Sushi's bstr type [1] works in Rust and how the standard String type works in
+Julia.
+[1] https://github.com/BurntSushi/bstr
+---
+Jasper_
+It's worth noting that Python str's are sequences of code points, not scalar
+values. This was a truly horrendous mistake made mostly out of ignorance, but
+now they rely upon it in surrogateescape to hide "invalid" data, so...
+I have ranted for long hours go friends about the insanity of Python 3's text
+model before. It's mostly the blind leading the blind.
+---
+Animats:
+Unicode string indexing should have been made lazy, rather than deprecated.
+Random access to strings is rare. Mostly, operations are moving forward linearly
+or using saved positions.
+So, only build the index for random access if needed. Optimize "advance one
+glyph" and "back up one glyph" expressed as indexing, and you'll get most of the
+frequently used cases. Have the "index" functions that return a string index
+return an opaque type that's a byte index. Attempting to convert that to an
+integer forces creation of the string index.
+This preserves the user visible semantics but keeps performance.
+PyPy does something like this.
 
 
 ================================================================================
@@ -2616,6 +2824,12 @@ https://icu4x.unicode.org/
 
 https://github.com/unicode-org/icu4x
 
+
+https://news.ycombinator.com/item?id=35608997
+ICU4X 1.2: Now With Text Segmentation and More on Low-Resource Devices
+MONDAY, APRIL 17, 2023
+
+
 http://blog.unicode.org/2022/09/announcing-icu4x-10.html
     SEPTEMBER 29, 2022
     Announcing ICU4X 1.0
@@ -3067,6 +3281,32 @@ The code has been ported to Python
 https://github.com/espinielli/pycalcal
 
 
+https://github.com/uni-algo/uni-algo/issues/31
+L with stroke letter (U+0141, U+0142) doesn't normalize.
+    auto const polish = std::string{"ąćęłńóśźż ĄĆĘŁŃÓŚŹŻ"};
+    auto norm = una::norm::to_unaccent_utf8(polish);
+    Everything is normalized except 'ł' and 'Ł'.
+Everything is normalized except 'ł' and 'Ł'.
+---
+Strokes are not accents. As far as I know there is no data table in Unicode that
+maps L with stroke to L so no plans to implemented it, you need to do it
+manually if needed.
+--
+jlf: idem with utf8proc
+"ąćęłńóśźż ĄĆĘŁŃÓŚŹŻ"~text~nfc(stripmark:)=     -- T'acełnoszz ACEŁNOSZZ'
+"ąćęłńóśźż ĄĆĘŁŃÓŚŹŻ"~text~nfd(stripmark:)=     -- T'acełnoszz ACEŁNOSZZ'
+---
+https://en.wikipedia.org/wiki/%C5%81
+    Character                   Ł           ł
+    Unicode                     321 0141    322 0142
+    CP 852                      157 9D      136 88
+    CP 775                      173 AD      136 88
+    Mazovia                     156 9C      146 92
+    Windows-1250, ISO-8859-2    163 A3      179 B3
+    Windows-1257, ISO-8859-13   217 D9      249 F9
+    Mac Central European        252 FC      184 B8
+
+
 ================================================================================
 utf8proc title
 ================================================================================
@@ -3168,11 +3408,19 @@ jlf tag: character width
 
 
 ================================================================================
-macOS
+macOS OS
 ================================================================================
 
 you can enter emoji (and other Unicode characters) using standard operating
 system tools—like ctrl cmd space.
+
+
+https://eclecticlight.co/2021/05/08/explainer-unicode-normalization-and-apfs/
+Explainer: Unicode, normalization and APFS
+hoakley  May 8, 2021
+---
+One of the oldest problems with Apple’s APFS file system is how it encodes file
+and directory names using Unicode.
 
 
 ================================================================================
@@ -4192,6 +4440,10 @@ UTF-8/16 encoder/decoder
         [ [ swap (utf16le) ] each ] { } make ;
 
 
+https://re.factorcode.org/2023/05/unicode.html
+jlf: very basic, but may be useful to write little tests
+
+
 ================================================================================
 Fortran lang
 ================================================================================
@@ -5078,6 +5330,10 @@ conversions which are not covered in Unicode standard but are important for user
 all very important if you don't have a Ł key on your keyboard, for example,
 and trying to enter it as L (and find some Polish street for example).
 Now we have our own highly-optimized implementation for NFKD and Case Folding.
+---
+jlf: made a search in https://github.com/mapsme/omim, but could not find where
+they handle Ł=>L
+Found NormalizeAndSimplifyString, but it doesn't simplify Ł=>L.
 
 
 https://github.com/JuliaStrings/utf8proc/pull/102
@@ -6081,6 +6337,12 @@ Testing the JMB's example
 ("ὈΔΥΣΣΕΎΣ".lower() + "A").upper().lower()      # 'ὀδυσσεύσa'
 
 
+https://news.ycombinator.com/item?id=33984308
+The History and rationale of the Python 3 Unicode model for the operating system (vstinner.github.io)
+jlf: HN comments about this old blog
+https://vstinner.github.io/python30-listdir-undecodable-filenames.html
+
+
 ================================================================================
 R lang
 ================================================================================
@@ -6495,6 +6757,12 @@ class String
         "\u{e4 f6 fc}".encode("ISO-8859-1").casecmp("\u{c4 d6 dc}") # => nil
 
 
+https://yehudakatz.com/2010/05/17/encodings-unabridged/
+Encodings, Unabridged
+jlf: this article explains why the Ruby team consider that Unicode is not a
+     good solution for CJK.
+
+
 https://ruby-doc.org/current/Encoding.html
 
 
@@ -6504,10 +6772,12 @@ jlf: search "compat"
 
 https://docs.ruby-lang.org/en/master/encodings_rdoc.html
 Encodings
+---
 jlf: Executor has a similar support of encodings, with less defaults and less
      supported encodings. Otherwise the technical solution is the same: all
      encodings are equal, there is no forced internal encoding, no forced
      conversion.
+---
 Default encodings:
     - Encoding.default_external:     the default external encoding
     - Encoding.default_internal:     the default internal encoding (may be nil)
@@ -7189,6 +7459,13 @@ Rust implementations of string similarity metrics:
 
 https://docs.rs/xi-unicode/latest/xi_unicode/
 Unicode utilities useful for text editing, including a line breaking iterator.
+
+
+https://github.com/BurntSushi/bstr
+A string type for Rust that is not required to be valid UTF-8.
+---
+jlf: this crate is referenced by Stefan Karpinski in the section Filenames
+(search this URL).
 
 
 ================================================================================
