@@ -980,7 +980,7 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
         return .UTF32BE_Encoding -- The Unicode norm specifies that the default UTF-32 is big endian
     end
     if encodingName == "UNICODE" then do
-        if maximumCodepoint == -1, string~hasText then maximumCodepoint = string~text~maximumCodepoint
+        if maximumCodepoint == -1, string~hasText, string~text~encoding~isUnicode then maximumCodepoint = string~text~maximumCodepoint
         return .Unicode_Encoding~toSupport(maximumCodepoint)
     end
     if encodings~hasEntry(encodingName) then return encodings[encodingName]
