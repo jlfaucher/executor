@@ -4,16 +4,21 @@ mainFiles = main_conversion main_concatenation
 demos = ../../demos
 demoFiles = demo-text demo-text-internal_checks demo-text-unicode demo-text-compatibility
 
+# Some Unicode scripts can be used as non-regression tests
+uscripts = ../../unicode/scripts
+uscriptsFiles = list_invalid_utf8 test_convert test_encoding_combinations test_replacement_characters
 
 help:
 	@echo "make all"
 	@for f in $(mainFiles); do (echo "make" $$f); done
 	@for f in $(demoFiles); do (echo "make" $$f); done
+	@for f in $(uscriptsFiles); do (echo "make" $$f); done
 	@echo "make clean"
 
 all:
 	@for f in $(mainFiles); do (make $$f); done
 	@for f in $(demoFiles); do (make $$f); done
+	@for f in $(uscriptsFiles); do (make $$f); done
 
 main_% :
 	bash -i -c 'cat $@.rex | oorexxshell demo fast > $@.output.txt 2>&1'
@@ -24,9 +29,14 @@ demo-% :
 	bash -i -c 'echo prompt off address | cat - $(demos)/executor-$@.rex | oorexxshell demo fast > executor-$@.output.txt 2>&1'
 	-diff -q executor-$@.output.reference.txt executor-$@.output.txt
 
+$(uscriptsFiles) :
+	bash -i -c 'rexx $(uscripts)/$@.rex > $@.output.txt 2>&1'
+	-diff -q $@.output.reference.txt $@.output.txt
+
 clean:
 	@for f in $(mainFiles); do (rm -f $$f.output.txt); done
 	@for f in $(demoFiles); do (rm -f executor-$$f.output.txt); done
+	@for f in $(uscriptsFiles); do (rm -f $$f.output.txt); done
 
 
 # bash -i -c 'command" is a trick to bypass the SIP hell:
