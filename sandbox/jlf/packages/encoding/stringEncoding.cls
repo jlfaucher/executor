@@ -26,9 +26,6 @@ TODOs
 
 Unicode8 16 32 : should I create common methods in Unicode_Encoding?
 
-The encoding name "UNICODE" is supported but can't be used to create a RexxText.
-Should be possible to delegate to Unicode8 16 32.
-
 Remove the index for codepoints (codepointIndexes).
 There is no need of direct access to a codepoint.
 

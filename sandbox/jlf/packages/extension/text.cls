@@ -950,7 +950,7 @@ stringChunks
     forward to (self~indexer)
 
 
--- Redudant, to offer the same interface as MutableBuffer
+-- Redundant, to offer the same interface as MutableBuffer
 ::method appendEncoded
     forward message "append"
 

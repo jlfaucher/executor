@@ -67,6 +67,17 @@
         This map assigns the C0 and C1 control codes to the unassigned code values
         thus provides for 256 characters via every possible 8-bit value.
     */
+    /*
+        2023.08.20
+        Hum... https://encoding.spec.whatwg.org/ defines iso-8859-1 as an alias of windows-1252
+        So there is a BIG disagreement between IANA and encoding.spec.whatwg.org
+        Confirmed by this sentence in the preface of https://encoding.spec.whatwg.org/:
+        "User agents have also significantly deviated from the labels listed in
+        the IANA Character Sets registry. To stop spreading legacy encodings
+        further, this specification is exhaustive about the aforementioned
+        details and therefore has no need for the registry."
+        I decide to stick with ICU.
+    */
     expose tableTranscodingToUnicode tableTranscodingFromUnicode
     use strict arg -- none
     code = "="     -- supported, equal to itself

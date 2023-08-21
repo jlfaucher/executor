@@ -28,6 +28,7 @@
     -- According to the information on Microsoft's and the Unicode Consortium's websites,
     -- positions 81, 8D, 8F, 90, and 9D are unused;
     -- however, the Windows API MultiByteToWideChar maps these to the corresponding C1 control codes.
+    -- 2023.09.20 Double-checked with https://encoding.spec.whatwg.org/index-windows-1252.txt
     expose tableTranscodingToUnicode tableTranscodingFromUnicode
     use strict arg -- none
     specificTranscoding =,
