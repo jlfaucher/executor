@@ -1,9 +1,9 @@
 -- "UNICODE" can't be used to create a RexxText.
 -- But can be used in conversion, to get the shortest possible representation
 -- Don't register because it's just a facade, not a real encoding
---.encoding~register("UNICODE", .Unicode_Encoding)
+--.encoding~register("UNICODE", .UnicodeN_Encoding)
 
-.environment~setentry("UNICODE_ENCODING", .Unicode_Encoding)
+.environment~setentry("UNICODEN_ENCODING", .UnicodeN_Encoding)
 
 ::requires "encoding/encoding.cls"
 
@@ -49,21 +49,19 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
     UTF8PROC_DLLEXPORT utf8proc_ssize_t utf8proc_reencode(
       utf8proc_int32_t *buffer, utf8proc_ssize_t length, utf8proc_option_t options);
 */
-::class "Unicode_Encoding" mixinclass Object public -- private
+::class "UnicodeN_Encoding" mixinclass Object public -- private
 
-::method isUnicodeN class
-    use strict arg -- none
-    return .true
+::constant isUnicodeN 1
 
 
 ::method toSupport class
-    use strict arg codepoint
+    use strict arg codepoint, encodingName="UnicodeN"
     if codepoint < 0 then signal not_supported
     if codepoint < 256 then return .Unicode8_Encoding
     if codepoint < 65536 then return .Unicode16_Encoding
     return .Unicode32_Encoding
 
-    not_supported: raise syntax 23.900 array ("'UNICODE' can't be used here. Use 'UNICODE8' or 'UNICODE16' or 'UNICODE32'")
+    not_supported: raise syntax 23.900 array ("'"encodingName"' can't be used here. Use 'Unicode8' or 'Unicode16' or 'Unicode32'")
 
 
 ::method decodeCodepoint class private
@@ -116,8 +114,8 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 /* Instance methods */
 /********************/
 
--- Optimization: the conversion to Unicode of a Unicode_Encoding instance is itself.
-::method Unicode
+-- Optimization: the conversion to Unicode of a UnicodeN_Encoding instance is itself.
+::method UnicodeN
     use strict arg -- none
     use strict named arg strict = .false, buffer(1)=.nil
     if .nil <> buffer then return buffer~~append(self~string)

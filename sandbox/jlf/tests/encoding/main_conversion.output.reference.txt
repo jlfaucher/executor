@@ -3215,7 +3215,7 @@ ooRexx> < include_conversion.rex
             ---------------------------------------
         ooRexx> drop unicode8
         ooRexx> unicode8 = t~unicode8(mem:)
-        Unicode8 encoding: invalid codepoint 8364 (U+20AC). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 129. Allowed range is 0..255.
         Error code= 23.900
             -----------------------------------------
             -- Start of file include_conversion_infos
@@ -3241,7 +3241,7 @@ ooRexx> < include_conversion.rex
             -- End of file include_conversion_infos
             ---------------------------------------
         ooRexx> t~unicode8~"==":.object(unicode8)=              -- 1
-        Unicode8 encoding: invalid codepoint 8364 (U+20AC). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 129. Allowed range is 0..255.
         Error code= 23.900
         
             ------------------------------------------------------
@@ -3269,13 +3269,13 @@ ooRexx> < include_conversion.rex
             ----------------------------------------------------
         
         ooRexx> t~unicode8(b: mb_utf8)
-        Unicode8 encoding: invalid codepoint 8364 (U+20AC). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 129. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_utf8~encoding=                               -- utf8
         (The UTF8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf8)
-        Unicode8 encoding: invalid codepoint 8364 (U+20AC). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 129. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_wtf8~encoding=                               -- wtf8
         (The WTF8_Encoding class)
@@ -3317,7 +3317,7 @@ ooRexx> < include_conversion.rex
         (The UTF32LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode8)
-        Unicode8 encoding: invalid codepoint 8364 (U+20AC). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 129. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_unicode8~encoding=                           -- unicode8
         (The Unicode8_Encoding class)
@@ -6818,7 +6818,7 @@ ooRexx> < include_conversion.rex
             ---------------------------------------
         ooRexx> drop unicode8
         ooRexx> unicode8 = t~unicode8(mem:)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 129. Allowed range is 0..255.
         Error code= 23.900
             -----------------------------------------
             -- Start of file include_conversion_infos
@@ -6844,7 +6844,7 @@ ooRexx> < include_conversion.rex
             -- End of file include_conversion_infos
             ---------------------------------------
         ooRexx> t~unicode8~"==":.object(unicode8)=              -- 1
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 129. Allowed range is 0..255.
         Error code= 23.900
         
             ------------------------------------------------------
@@ -6872,67 +6872,67 @@ ooRexx> < include_conversion.rex
             ----------------------------------------------------
         
         ooRexx> t~unicode8(b: mb_utf8)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 129. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_utf8~encoding=                               -- utf8
         (The UTF8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf8)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 129. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_wtf8~encoding=                               -- wtf8
         (The WTF8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf16be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_utf16be~encoding=                            -- utf16be
         (The UTF16BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf16le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_utf16le~encoding=                            -- utf16le
         (The UTF16LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf16be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to WTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_wtf16be~encoding=                            -- wtf16be
         (The WTF16BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf16le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to WTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_wtf16le~encoding=                            -- wtf16le
         (The WTF16LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf32be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-32BE ''.
         Error code= 23.900
         ooRexx> mb_utf32be~encoding=                            -- utf32be
         (The UTF32BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf32le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-32LE ''.
         Error code= 23.900
         ooRexx> mb_utf32le~encoding=                            -- utf32le
         (The UTF32LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode8)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 129. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_unicode8~encoding=                           -- unicode8
         (The Unicode8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode16)                     -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to Unicode16 ''.
         Error code= 23.900
         ooRexx> mb_unicode16~encoding=                          -- unicode16
         (The Unicode16_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode32)                     -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to Unicode32 ''.
         Error code= 23.900
         ooRexx> mb_unicode32~encoding=                          -- unicode32
         (The Unicode32_Encoding class)
@@ -6972,7 +6972,7 @@ ooRexx> < include_conversion.rex
             ---------------------------------------
         ooRexx> drop unicode16
         ooRexx> unicode16 = t~unicode16(mem:)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 410. Allowed range is 0..65535.
         Error code= 23.900
             -----------------------------------------
             -- Start of file include_conversion_infos
@@ -6998,7 +6998,7 @@ ooRexx> < include_conversion.rex
             -- End of file include_conversion_infos
             ---------------------------------------
         ooRexx> t~unicode16~"==":.object(unicode16)=            -- 1
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 410. Allowed range is 0..65535.
         Error code= 23.900
         
             ------------------------------------------------------
@@ -7026,67 +7026,67 @@ ooRexx> < include_conversion.rex
             ----------------------------------------------------
         
         ooRexx> t~unicode16(b: mb_utf8)                         -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_utf8~encoding=                               -- utf8
         (The UTF8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf8)                         -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_wtf8~encoding=                               -- wtf8
         (The WTF8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf16be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_utf16be~encoding=                            -- utf16be
         (The UTF16BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf16le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_utf16le~encoding=                            -- utf16le
         (The UTF16LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf16be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_wtf16be~encoding=                            -- wtf16be
         (The WTF16BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf16le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_wtf16le~encoding=                            -- wtf16le
         (The WTF16LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf32be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-32BE ''.
         Error code= 23.900
         ooRexx> mb_utf32be~encoding=                            -- utf32be
         (The UTF32BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf32le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-32LE ''.
         Error code= 23.900
         ooRexx> mb_utf32le~encoding=                            -- utf32le
         (The UTF32LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode8)                     -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to Unicode8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_unicode8~encoding=                           -- unicode8
         (The Unicode8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode16)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 410. Allowed range is 0..65535.
         Error code= 23.900
         ooRexx> mb_unicode16~encoding=                          -- unicode16
         (The Unicode16_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode32)                    -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to Unicode32 ''.
         Error code= 23.900
         ooRexx> mb_unicode32~encoding=                          -- unicode32
         (The Unicode32_Encoding class)
@@ -8630,7 +8630,7 @@ ooRexx> < include_conversion.rex
             ---------------------------------------
         ooRexx> drop unicode8
         ooRexx> unicode8 = t~unicode8(mem:)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 129. Allowed range is 0..255.
         Error code= 23.900
             -----------------------------------------
             -- Start of file include_conversion_infos
@@ -8656,7 +8656,7 @@ ooRexx> < include_conversion.rex
             -- End of file include_conversion_infos
             ---------------------------------------
         ooRexx> t~unicode8~"==":.object(unicode8)=              -- 1
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 129. Allowed range is 0..255.
         Error code= 23.900
         
             ------------------------------------------------------
@@ -8684,67 +8684,67 @@ ooRexx> < include_conversion.rex
             ----------------------------------------------------
         
         ooRexx> t~unicode8(b: mb_utf8)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 129. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_utf8~encoding=                               -- utf8
         (The UTF8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf8)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 129. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_wtf8~encoding=                               -- wtf8
         (The WTF8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf16be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_utf16be~encoding=                            -- utf16be
         (The UTF16BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf16le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_utf16le~encoding=                            -- utf16le
         (The UTF16LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf16be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to WTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_wtf16be~encoding=                            -- wtf16be
         (The WTF16BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf16le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to WTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_wtf16le~encoding=                            -- wtf16le
         (The WTF16LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf32be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-32BE ''.
         Error code= 23.900
         ooRexx> mb_utf32be~encoding=                            -- utf32be
         (The UTF32BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf32le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-32LE ''.
         Error code= 23.900
         ooRexx> mb_utf32le~encoding=                            -- utf32le
         (The UTF32LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode8)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 129. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_unicode8~encoding=                           -- unicode8
         (The Unicode8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode16)                     -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to Unicode16 ''.
         Error code= 23.900
         ooRexx> mb_unicode16~encoding=                          -- unicode16
         (The Unicode16_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode32)                     -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to Unicode32 ''.
         Error code= 23.900
         ooRexx> mb_unicode32~encoding=                          -- unicode32
         (The Unicode32_Encoding class)
@@ -8784,7 +8784,7 @@ ooRexx> < include_conversion.rex
             ---------------------------------------
         ooRexx> drop unicode16
         ooRexx> unicode16 = t~unicode16(mem:)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 410. Allowed range is 0..65535.
         Error code= 23.900
             -----------------------------------------
             -- Start of file include_conversion_infos
@@ -8810,7 +8810,7 @@ ooRexx> < include_conversion.rex
             -- End of file include_conversion_infos
             ---------------------------------------
         ooRexx> t~unicode16~"==":.object(unicode16)=            -- 1
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 410. Allowed range is 0..65535.
         Error code= 23.900
         
             ------------------------------------------------------
@@ -8838,67 +8838,67 @@ ooRexx> < include_conversion.rex
             ----------------------------------------------------
         
         ooRexx> t~unicode16(b: mb_utf8)                         -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_utf8~encoding=                               -- utf8
         (The UTF8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf8)                         -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_wtf8~encoding=                               -- wtf8
         (The WTF8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf16be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_utf16be~encoding=                            -- utf16be
         (The UTF16BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf16le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_utf16le~encoding=                            -- utf16le
         (The UTF16LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf16be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_wtf16be~encoding=                            -- wtf16be
         (The WTF16BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf16le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_wtf16le~encoding=                            -- wtf16le
         (The WTF16LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf32be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-32BE ''.
         Error code= 23.900
         ooRexx> mb_utf32be~encoding=                            -- utf32be
         (The UTF32BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf32le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-32LE ''.
         Error code= 23.900
         ooRexx> mb_utf32le~encoding=                            -- utf32le
         (The UTF32LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode8)                     -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to Unicode8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_unicode8~encoding=                           -- unicode8
         (The Unicode8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode16)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 410. Allowed range is 0..65535.
         Error code= 23.900
         ooRexx> mb_unicode16~encoding=                          -- unicode16
         (The Unicode16_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode32)                    -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to Unicode32 ''.
         Error code= 23.900
         ooRexx> mb_unicode32~encoding=                          -- unicode32
         (The Unicode32_Encoding class)
@@ -10442,7 +10442,7 @@ ooRexx> < include_conversion.rex
             ---------------------------------------
         ooRexx> drop unicode8
         ooRexx> unicode8 = t~unicode8(mem:)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
             -----------------------------------------
             -- Start of file include_conversion_infos
@@ -10468,7 +10468,7 @@ ooRexx> < include_conversion.rex
             -- End of file include_conversion_infos
             ---------------------------------------
         ooRexx> t~unicode8~"==":.object(unicode8)=              -- 1
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
         
             ------------------------------------------------------
@@ -10496,67 +10496,67 @@ ooRexx> < include_conversion.rex
             ----------------------------------------------------
         
         ooRexx> t~unicode8(b: mb_utf8)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_utf8~encoding=                               -- utf8
         (The UTF8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf8)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_wtf8~encoding=                               -- wtf8
         (The WTF8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf16be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_utf16be~encoding=                            -- utf16be
         (The UTF16BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf16le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_utf16le~encoding=                            -- utf16le
         (The UTF16LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf16be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to WTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_wtf16be~encoding=                            -- wtf16be
         (The WTF16BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf16le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to WTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_wtf16le~encoding=                            -- wtf16le
         (The WTF16LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf32be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-32BE ''.
         Error code= 23.900
         ooRexx> mb_utf32be~encoding=                            -- utf32be
         (The UTF32BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf32le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-32LE ''.
         Error code= 23.900
         ooRexx> mb_utf32le~encoding=                            -- utf32le
         (The UTF32LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode8)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_unicode8~encoding=                           -- unicode8
         (The Unicode8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode16)                     -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to Unicode16 ''.
         Error code= 23.900
         ooRexx> mb_unicode16~encoding=                          -- unicode16
         (The Unicode16_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode32)                     -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to Unicode32 ''.
         Error code= 23.900
         ooRexx> mb_unicode32~encoding=                          -- unicode32
         (The Unicode32_Encoding class)
@@ -10596,7 +10596,7 @@ ooRexx> < include_conversion.rex
             ---------------------------------------
         ooRexx> drop unicode16
         ooRexx> unicode16 = t~unicode16(mem:)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 523. Allowed range is 0..65535.
         Error code= 23.900
             -----------------------------------------
             -- Start of file include_conversion_infos
@@ -10622,7 +10622,7 @@ ooRexx> < include_conversion.rex
             -- End of file include_conversion_infos
             ---------------------------------------
         ooRexx> t~unicode16~"==":.object(unicode16)=            -- 1
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 523. Allowed range is 0..65535.
         Error code= 23.900
         
             ------------------------------------------------------
@@ -10650,67 +10650,67 @@ ooRexx> < include_conversion.rex
             ----------------------------------------------------
         
         ooRexx> t~unicode16(b: mb_utf8)                         -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_utf8~encoding=                               -- utf8
         (The UTF8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf8)                         -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_wtf8~encoding=                               -- wtf8
         (The WTF8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf16be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_utf16be~encoding=                            -- utf16be
         (The UTF16BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf16le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_utf16le~encoding=                            -- utf16le
         (The UTF16LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf16be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_wtf16be~encoding=                            -- wtf16be
         (The WTF16BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf16le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_wtf16le~encoding=                            -- wtf16le
         (The WTF16LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf32be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-32BE ''.
         Error code= 23.900
         ooRexx> mb_utf32be~encoding=                            -- utf32be
         (The UTF32BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf32le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-32LE ''.
         Error code= 23.900
         ooRexx> mb_utf32le~encoding=                            -- utf32le
         (The UTF32LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode8)                     -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to Unicode8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_unicode8~encoding=                           -- unicode8
         (The Unicode8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode16)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 523. Allowed range is 0..65535.
         Error code= 23.900
         ooRexx> mb_unicode16~encoding=                          -- unicode16
         (The Unicode16_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode32)                    -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to Unicode32 ''.
         Error code= 23.900
         ooRexx> mb_unicode32~encoding=                          -- unicode32
         (The Unicode32_Encoding class)
@@ -12218,7 +12218,7 @@ ooRexx> < include_conversion.rex
             ---------------------------------------
         ooRexx> drop unicode8
         ooRexx> unicode8 = t~unicode8(mem:)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
             -----------------------------------------
             -- Start of file include_conversion_infos
@@ -12244,7 +12244,7 @@ ooRexx> < include_conversion.rex
             -- End of file include_conversion_infos
             ---------------------------------------
         ooRexx> t~unicode8~"==":.object(unicode8)=              -- 1
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
         
             ------------------------------------------------------
@@ -12272,67 +12272,67 @@ ooRexx> < include_conversion.rex
             ----------------------------------------------------
         
         ooRexx> t~unicode8(b: mb_utf8)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_utf8~encoding=                               -- utf8
         (The UTF8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf8)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_wtf8~encoding=                               -- wtf8
         (The WTF8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf16be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_utf16be~encoding=                            -- utf16be
         (The UTF16BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf16le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_utf16le~encoding=                            -- utf16le
         (The UTF16LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf16be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to WTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_wtf16be~encoding=                            -- wtf16be
         (The WTF16BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf16le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to WTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_wtf16le~encoding=                            -- wtf16le
         (The WTF16LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf32be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-32BE ''.
         Error code= 23.900
         ooRexx> mb_utf32be~encoding=                            -- utf32be
         (The UTF32BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf32le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-32LE ''.
         Error code= 23.900
         ooRexx> mb_utf32le~encoding=                            -- utf32le
         (The UTF32LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode8)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_unicode8~encoding=                           -- unicode8
         (The Unicode8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode16)                     -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to Unicode16 ''.
         Error code= 23.900
         ooRexx> mb_unicode16~encoding=                          -- unicode16
         (The Unicode16_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode32)                     -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to Unicode32 ''.
         Error code= 23.900
         ooRexx> mb_unicode32~encoding=                          -- unicode32
         (The Unicode32_Encoding class)
@@ -12372,7 +12372,7 @@ ooRexx> < include_conversion.rex
             ---------------------------------------
         ooRexx> drop unicode16
         ooRexx> unicode16 = t~unicode16(mem:)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 523. Allowed range is 0..65535.
         Error code= 23.900
             -----------------------------------------
             -- Start of file include_conversion_infos
@@ -12398,7 +12398,7 @@ ooRexx> < include_conversion.rex
             -- End of file include_conversion_infos
             ---------------------------------------
         ooRexx> t~unicode16~"==":.object(unicode16)=            -- 1
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 523. Allowed range is 0..65535.
         Error code= 23.900
         
             ------------------------------------------------------
@@ -12426,67 +12426,67 @@ ooRexx> < include_conversion.rex
             ----------------------------------------------------
         
         ooRexx> t~unicode16(b: mb_utf8)                         -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_utf8~encoding=                               -- utf8
         (The UTF8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf8)                         -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_wtf8~encoding=                               -- wtf8
         (The WTF8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf16be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_utf16be~encoding=                            -- utf16be
         (The UTF16BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf16le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_utf16le~encoding=                            -- utf16le
         (The UTF16LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf16be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_wtf16be~encoding=                            -- wtf16be
         (The WTF16BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf16le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_wtf16le~encoding=                            -- wtf16le
         (The WTF16LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf32be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-32BE ''.
         Error code= 23.900
         ooRexx> mb_utf32be~encoding=                            -- utf32be
         (The UTF32BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf32le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-32LE ''.
         Error code= 23.900
         ooRexx> mb_utf32le~encoding=                            -- utf32le
         (The UTF32LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode8)                     -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to Unicode8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_unicode8~encoding=                           -- unicode8
         (The Unicode8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode16)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 523. Allowed range is 0..65535.
         Error code= 23.900
         ooRexx> mb_unicode16~encoding=                          -- unicode16
         (The Unicode16_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode32)                    -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to Unicode32 ''.
         Error code= 23.900
         ooRexx> mb_unicode32~encoding=                          -- unicode32
         (The Unicode32_Encoding class)
@@ -14031,7 +14031,7 @@ ooRexx> < include_conversion.rex
             ---------------------------------------
         ooRexx> drop unicode8
         ooRexx> unicode8 = t~unicode8(mem:)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
             -----------------------------------------
             -- Start of file include_conversion_infos
@@ -14057,7 +14057,7 @@ ooRexx> < include_conversion.rex
             -- End of file include_conversion_infos
             ---------------------------------------
         ooRexx> t~unicode8~"==":.object(unicode8)=              -- 1
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
         
             ------------------------------------------------------
@@ -14085,67 +14085,67 @@ ooRexx> < include_conversion.rex
             ----------------------------------------------------
         
         ooRexx> t~unicode8(b: mb_utf8)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_utf8~encoding=                               -- utf8
         (The UTF8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf8)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_wtf8~encoding=                               -- wtf8
         (The WTF8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf16be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_utf16be~encoding=                            -- utf16be
         (The UTF16BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf16le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_utf16le~encoding=                            -- utf16le
         (The UTF16LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf16be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to WTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_wtf16be~encoding=                            -- wtf16be
         (The WTF16BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf16le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to WTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_wtf16le~encoding=                            -- wtf16le
         (The WTF16LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf32be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-32BE ''.
         Error code= 23.900
         ooRexx> mb_utf32be~encoding=                            -- utf32be
         (The UTF32BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf32le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-32LE ''.
         Error code= 23.900
         ooRexx> mb_utf32le~encoding=                            -- utf32le
         (The UTF32LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode8)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_unicode8~encoding=                           -- unicode8
         (The Unicode8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode16)                     -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to Unicode16 ''.
         Error code= 23.900
         ooRexx> mb_unicode16~encoding=                          -- unicode16
         (The Unicode16_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode32)                     -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to Unicode32 ''.
         Error code= 23.900
         ooRexx> mb_unicode32~encoding=                          -- unicode32
         (The Unicode32_Encoding class)
@@ -14185,7 +14185,7 @@ ooRexx> < include_conversion.rex
             ---------------------------------------
         ooRexx> drop unicode16
         ooRexx> unicode16 = t~unicode16(mem:)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 523. Allowed range is 0..65535.
         Error code= 23.900
             -----------------------------------------
             -- Start of file include_conversion_infos
@@ -14211,7 +14211,7 @@ ooRexx> < include_conversion.rex
             -- End of file include_conversion_infos
             ---------------------------------------
         ooRexx> t~unicode16~"==":.object(unicode16)=            -- 1
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 523. Allowed range is 0..65535.
         Error code= 23.900
         
             ------------------------------------------------------
@@ -14239,67 +14239,67 @@ ooRexx> < include_conversion.rex
             ----------------------------------------------------
         
         ooRexx> t~unicode16(b: mb_utf8)                         -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_utf8~encoding=                               -- utf8
         (The UTF8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf8)                         -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_wtf8~encoding=                               -- wtf8
         (The WTF8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf16be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_utf16be~encoding=                            -- utf16be
         (The UTF16BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf16le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_utf16le~encoding=                            -- utf16le
         (The UTF16LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf16be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_wtf16be~encoding=                            -- wtf16be
         (The WTF16BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf16le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_wtf16le~encoding=                            -- wtf16le
         (The WTF16LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf32be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-32BE ''.
         Error code= 23.900
         ooRexx> mb_utf32be~encoding=                            -- utf32be
         (The UTF32BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf32le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-32LE ''.
         Error code= 23.900
         ooRexx> mb_utf32le~encoding=                            -- utf32le
         (The UTF32LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode8)                     -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to Unicode8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_unicode8~encoding=                           -- unicode8
         (The Unicode8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode16)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 523. Allowed range is 0..65535.
         Error code= 23.900
         ooRexx> mb_unicode16~encoding=                          -- unicode16
         (The Unicode16_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode32)                    -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to Unicode32 ''.
         Error code= 23.900
         ooRexx> mb_unicode32~encoding=                          -- unicode32
         (The Unicode32_Encoding class)
@@ -15808,7 +15808,7 @@ ooRexx> < include_conversion.rex
             ---------------------------------------
         ooRexx> drop unicode8
         ooRexx> unicode8 = t~unicode8(mem:)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
             -----------------------------------------
             -- Start of file include_conversion_infos
@@ -15834,7 +15834,7 @@ ooRexx> < include_conversion.rex
             -- End of file include_conversion_infos
             ---------------------------------------
         ooRexx> t~unicode8~"==":.object(unicode8)=              -- 1
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
         
             ------------------------------------------------------
@@ -15862,67 +15862,67 @@ ooRexx> < include_conversion.rex
             ----------------------------------------------------
         
         ooRexx> t~unicode8(b: mb_utf8)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_utf8~encoding=                               -- utf8
         (The UTF8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf8)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_wtf8~encoding=                               -- wtf8
         (The WTF8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf16be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_utf16be~encoding=                            -- utf16be
         (The UTF16BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf16le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_utf16le~encoding=                            -- utf16le
         (The UTF16LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf16be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to WTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_wtf16be~encoding=                            -- wtf16be
         (The WTF16BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf16le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to WTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_wtf16le~encoding=                            -- wtf16le
         (The WTF16LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf32be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-32BE ''.
         Error code= 23.900
         ooRexx> mb_utf32be~encoding=                            -- utf32be
         (The UTF32BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf32le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-32LE ''.
         Error code= 23.900
         ooRexx> mb_utf32le~encoding=                            -- utf32le
         (The UTF32LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode8)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_unicode8~encoding=                           -- unicode8
         (The Unicode8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode16)                     -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to Unicode16 ''.
         Error code= 23.900
         ooRexx> mb_unicode16~encoding=                          -- unicode16
         (The Unicode16_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode32)                     -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to Unicode32 ''.
         Error code= 23.900
         ooRexx> mb_unicode32~encoding=                          -- unicode32
         (The Unicode32_Encoding class)
@@ -15962,7 +15962,7 @@ ooRexx> < include_conversion.rex
             ---------------------------------------
         ooRexx> drop unicode16
         ooRexx> unicode16 = t~unicode16(mem:)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 523. Allowed range is 0..65535.
         Error code= 23.900
             -----------------------------------------
             -- Start of file include_conversion_infos
@@ -15988,7 +15988,7 @@ ooRexx> < include_conversion.rex
             -- End of file include_conversion_infos
             ---------------------------------------
         ooRexx> t~unicode16~"==":.object(unicode16)=            -- 1
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 523. Allowed range is 0..65535.
         Error code= 23.900
         
             ------------------------------------------------------
@@ -16016,67 +16016,67 @@ ooRexx> < include_conversion.rex
             ----------------------------------------------------
         
         ooRexx> t~unicode16(b: mb_utf8)                         -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_utf8~encoding=                               -- utf8
         (The UTF8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf8)                         -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_wtf8~encoding=                               -- wtf8
         (The WTF8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf16be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_utf16be~encoding=                            -- utf16be
         (The UTF16BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf16le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_utf16le~encoding=                            -- utf16le
         (The UTF16LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf16be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_wtf16be~encoding=                            -- wtf16be
         (The WTF16BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf16le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_wtf16le~encoding=                            -- wtf16le
         (The WTF16LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf32be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-32BE ''.
         Error code= 23.900
         ooRexx> mb_utf32be~encoding=                            -- utf32be
         (The UTF32BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf32le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-32LE ''.
         Error code= 23.900
         ooRexx> mb_utf32le~encoding=                            -- utf32le
         (The UTF32LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode8)                     -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to Unicode8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_unicode8~encoding=                           -- unicode8
         (The Unicode8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode16)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 523. Allowed range is 0..65535.
         Error code= 23.900
         ooRexx> mb_unicode16~encoding=                          -- unicode16
         (The Unicode16_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode32)                    -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128575 (U+1F63F). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to Unicode32 ''.
         Error code= 23.900
         ooRexx> mb_unicode32~encoding=                          -- unicode32
         (The Unicode32_Encoding class)
@@ -17600,7 +17600,7 @@ ooRexx> < include_conversion.rex
             ---------------------------------------
         ooRexx> drop unicode8
         ooRexx> unicode8 = t~unicode8(mem:)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 513. Allowed range is 0..255.
         Error code= 23.900
             -----------------------------------------
             -- Start of file include_conversion_infos
@@ -17626,7 +17626,7 @@ ooRexx> < include_conversion.rex
             -- End of file include_conversion_infos
             ---------------------------------------
         ooRexx> t~unicode8~"==":.object(unicode8)=              -- 1
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 513. Allowed range is 0..255.
         Error code= 23.900
         
             ------------------------------------------------------
@@ -17654,67 +17654,67 @@ ooRexx> < include_conversion.rex
             ----------------------------------------------------
         
         ooRexx> t~unicode8(b: mb_utf8)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 513. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_utf8~encoding=                               -- utf8
         (The UTF8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf8)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 513. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_wtf8~encoding=                               -- wtf8
         (The WTF8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf16be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_utf16be~encoding=                            -- utf16be
         (The UTF16BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf16le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_utf16le~encoding=                            -- utf16le
         (The UTF16LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf16be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to WTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_wtf16be~encoding=                            -- wtf16be
         (The WTF16BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf16le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to WTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_wtf16le~encoding=                            -- wtf16le
         (The WTF16LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf32be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-32BE ''.
         Error code= 23.900
         ooRexx> mb_utf32be~encoding=                            -- utf32be
         (The UTF32BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf32le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-32LE ''.
         Error code= 23.900
         ooRexx> mb_utf32le~encoding=                            -- utf32le
         (The UTF32LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode8)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 513. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_unicode8~encoding=                           -- unicode8
         (The Unicode8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode16)                     -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to Unicode16 ''.
         Error code= 23.900
         ooRexx> mb_unicode16~encoding=                          -- unicode16
         (The Unicode16_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode32)                     -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to Unicode32 ''.
         Error code= 23.900
         ooRexx> mb_unicode32~encoding=                          -- unicode32
         (The Unicode32_Encoding class)
@@ -17754,7 +17754,7 @@ ooRexx> < include_conversion.rex
             ---------------------------------------
         ooRexx> drop unicode16
         ooRexx> unicode16 = t~unicode16(mem:)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 1045. Allowed range is 0..65535.
         Error code= 23.900
             -----------------------------------------
             -- Start of file include_conversion_infos
@@ -17780,7 +17780,7 @@ ooRexx> < include_conversion.rex
             -- End of file include_conversion_infos
             ---------------------------------------
         ooRexx> t~unicode16~"==":.object(unicode16)=            -- 1
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 1045. Allowed range is 0..65535.
         Error code= 23.900
         
             ------------------------------------------------------
@@ -17808,67 +17808,67 @@ ooRexx> < include_conversion.rex
             ----------------------------------------------------
         
         ooRexx> t~unicode16(b: mb_utf8)                         -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_utf8~encoding=                               -- utf8
         (The UTF8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf8)                         -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_wtf8~encoding=                               -- wtf8
         (The WTF8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf16be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_utf16be~encoding=                            -- utf16be
         (The UTF16BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf16le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_utf16le~encoding=                            -- utf16le
         (The UTF16LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf16be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_wtf16be~encoding=                            -- wtf16be
         (The WTF16BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf16le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_wtf16le~encoding=                            -- wtf16le
         (The WTF16LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf32be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-32BE ''.
         Error code= 23.900
         ooRexx> mb_utf32be~encoding=                            -- utf32be
         (The UTF32BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf32le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-32LE ''.
         Error code= 23.900
         ooRexx> mb_utf32le~encoding=                            -- utf32le
         (The UTF32LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode8)                     -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to Unicode8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_unicode8~encoding=                           -- unicode8
         (The Unicode8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode16)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 1045. Allowed range is 0..65535.
         Error code= 23.900
         ooRexx> mb_unicode16~encoding=                          -- unicode16
         (The Unicode16_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode32)                    -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to Unicode32 ''.
         Error code= 23.900
         ooRexx> mb_unicode32~encoding=                          -- unicode32
         (The Unicode32_Encoding class)
@@ -19392,7 +19392,7 @@ ooRexx> < include_conversion.rex
             ---------------------------------------
         ooRexx> drop unicode8
         ooRexx> unicode8 = t~unicode8(mem:)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 513. Allowed range is 0..255.
         Error code= 23.900
             -----------------------------------------
             -- Start of file include_conversion_infos
@@ -19418,7 +19418,7 @@ ooRexx> < include_conversion.rex
             -- End of file include_conversion_infos
             ---------------------------------------
         ooRexx> t~unicode8~"==":.object(unicode8)=              -- 1
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 513. Allowed range is 0..255.
         Error code= 23.900
         
             ------------------------------------------------------
@@ -19446,67 +19446,67 @@ ooRexx> < include_conversion.rex
             ----------------------------------------------------
         
         ooRexx> t~unicode8(b: mb_utf8)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 513. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_utf8~encoding=                               -- utf8
         (The UTF8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf8)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 513. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_wtf8~encoding=                               -- wtf8
         (The WTF8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf16be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_utf16be~encoding=                            -- utf16be
         (The UTF16BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf16le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_utf16le~encoding=                            -- utf16le
         (The UTF16LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf16be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to WTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_wtf16be~encoding=                            -- wtf16be
         (The WTF16BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf16le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to WTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_wtf16le~encoding=                            -- wtf16le
         (The WTF16LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf32be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-32BE ''.
         Error code= 23.900
         ooRexx> mb_utf32be~encoding=                            -- utf32be
         (The UTF32BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf32le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-32LE ''.
         Error code= 23.900
         ooRexx> mb_utf32le~encoding=                            -- utf32le
         (The UTF32LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode8)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 513. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_unicode8~encoding=                           -- unicode8
         (The Unicode8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode16)                     -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to Unicode16 ''.
         Error code= 23.900
         ooRexx> mb_unicode16~encoding=                          -- unicode16
         (The Unicode16_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode32)                     -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to Unicode32 ''.
         Error code= 23.900
         ooRexx> mb_unicode32~encoding=                          -- unicode32
         (The Unicode32_Encoding class)
@@ -19546,7 +19546,7 @@ ooRexx> < include_conversion.rex
             ---------------------------------------
         ooRexx> drop unicode16
         ooRexx> unicode16 = t~unicode16(mem:)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 1045. Allowed range is 0..65535.
         Error code= 23.900
             -----------------------------------------
             -- Start of file include_conversion_infos
@@ -19572,7 +19572,7 @@ ooRexx> < include_conversion.rex
             -- End of file include_conversion_infos
             ---------------------------------------
         ooRexx> t~unicode16~"==":.object(unicode16)=            -- 1
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 1045. Allowed range is 0..65535.
         Error code= 23.900
         
             ------------------------------------------------------
@@ -19600,67 +19600,67 @@ ooRexx> < include_conversion.rex
             ----------------------------------------------------
         
         ooRexx> t~unicode16(b: mb_utf8)                         -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_utf8~encoding=                               -- utf8
         (The UTF8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf8)                         -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_wtf8~encoding=                               -- wtf8
         (The WTF8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf16be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_utf16be~encoding=                            -- utf16be
         (The UTF16BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf16le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_utf16le~encoding=                            -- utf16le
         (The UTF16LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf16be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_wtf16be~encoding=                            -- wtf16be
         (The WTF16BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf16le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_wtf16le~encoding=                            -- wtf16le
         (The WTF16LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf32be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-32BE ''.
         Error code= 23.900
         ooRexx> mb_utf32be~encoding=                            -- utf32be
         (The UTF32BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf32le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-32LE ''.
         Error code= 23.900
         ooRexx> mb_utf32le~encoding=                            -- utf32le
         (The UTF32LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode8)                     -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to Unicode8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_unicode8~encoding=                           -- unicode8
         (The Unicode8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode16)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 1045. Allowed range is 0..65535.
         Error code= 23.900
         ooRexx> mb_unicode16~encoding=                          -- unicode16
         (The Unicode16_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode32)                    -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to Unicode32 ''.
         Error code= 23.900
         ooRexx> mb_unicode32~encoding=                          -- unicode32
         (The Unicode32_Encoding class)
@@ -22965,7 +22965,7 @@ ooRexx> < include_conversion.rex
             ---------------------------------------
         ooRexx> drop unicode8
         ooRexx> unicode8 = t~unicode8(mem:)
-        Unicode8 encoding: invalid maximum codepoint 65059 (U+FE23). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
             -----------------------------------------
             -- Start of file include_conversion_infos
@@ -22991,7 +22991,7 @@ ooRexx> < include_conversion.rex
             -- End of file include_conversion_infos
             ---------------------------------------
         ooRexx> t~unicode8~"==":.object(unicode8)=              -- 1
-        Unicode8 encoding: invalid maximum codepoint 65059 (U+FE23). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
         
             ------------------------------------------------------
@@ -23019,67 +23019,67 @@ ooRexx> < include_conversion.rex
             ----------------------------------------------------
         
         ooRexx> t~unicode8(b: mb_utf8)
-        Unicode8 encoding: invalid maximum codepoint 65059 (U+FE23). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_utf8~encoding=                               -- utf8
         (The UTF8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf8)
-        Unicode8 encoding: invalid maximum codepoint 65059 (U+FE23). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_wtf8~encoding=                               -- wtf8
         (The WTF8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf16be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 65059 (U+FE23). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_utf16be~encoding=                            -- utf16be
         (The UTF16BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf16le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 65059 (U+FE23). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_utf16le~encoding=                            -- utf16le
         (The UTF16LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf16be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 65059 (U+FE23). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to WTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_wtf16be~encoding=                            -- wtf16be
         (The WTF16BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf16le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 65059 (U+FE23). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to WTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_wtf16le~encoding=                            -- wtf16le
         (The WTF16LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf32be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 65059 (U+FE23). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-32BE ''.
         Error code= 23.900
         ooRexx> mb_utf32be~encoding=                            -- utf32be
         (The UTF32BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf32le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 65059 (U+FE23). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-32LE ''.
         Error code= 23.900
         ooRexx> mb_utf32le~encoding=                            -- utf32le
         (The UTF32LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode8)
-        Unicode8 encoding: invalid maximum codepoint 65059 (U+FE23). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 257. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_unicode8~encoding=                           -- unicode8
         (The Unicode8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode16)                     -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 65059 (U+FE23). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to Unicode16 ''.
         Error code= 23.900
         ooRexx> mb_unicode16~encoding=                          -- unicode16
         (The Unicode16_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode32)                     -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 65059 (U+FE23). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to Unicode32 ''.
         Error code= 23.900
         ooRexx> mb_unicode32~encoding=                          -- unicode32
         (The Unicode32_Encoding class)
@@ -24756,7 +24756,7 @@ ooRexx> < include_conversion.rex
             ---------------------------------------
         ooRexx> drop unicode8
         ooRexx> unicode8 = t~unicode8(mem:)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 513. Allowed range is 0..255.
         Error code= 23.900
             -----------------------------------------
             -- Start of file include_conversion_infos
@@ -24782,7 +24782,7 @@ ooRexx> < include_conversion.rex
             -- End of file include_conversion_infos
             ---------------------------------------
         ooRexx> t~unicode8~"==":.object(unicode8)=              -- 1
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 513. Allowed range is 0..255.
         Error code= 23.900
         
             ------------------------------------------------------
@@ -24810,67 +24810,67 @@ ooRexx> < include_conversion.rex
             ----------------------------------------------------
         
         ooRexx> t~unicode8(b: mb_utf8)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 513. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_utf8~encoding=                               -- utf8
         (The UTF8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf8)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 513. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_wtf8~encoding=                               -- wtf8
         (The WTF8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf16be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_utf16be~encoding=                            -- utf16be
         (The UTF16BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf16le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_utf16le~encoding=                            -- utf16le
         (The UTF16LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf16be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to WTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_wtf16be~encoding=                            -- wtf16be
         (The WTF16BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_wtf16le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to WTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_wtf16le~encoding=                            -- wtf16le
         (The WTF16LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf32be)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-32BE ''.
         Error code= 23.900
         ooRexx> mb_utf32be~encoding=                            -- utf32be
         (The UTF32BE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_utf32le)                       -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to UTF-32LE ''.
         Error code= 23.900
         ooRexx> mb_utf32le~encoding=                            -- utf32le
         (The UTF32LE_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode8)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Unicode8 encoding: invalid codepoint 8364 (U+20AC) at byte-position 513. Allowed range is 0..255.
         Error code= 23.900
         ooRexx> mb_unicode8~encoding=                           -- unicode8
         (The Unicode8_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode16)                     -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to Unicode16 ''.
         Error code= 23.900
         ooRexx> mb_unicode16~encoding=                          -- unicode16
         (The Unicode16_Encoding class)
         
         ooRexx> t~unicode8(b: mb_unicode32)                     -- error (ok)
-        Unicode8 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..255.
+        Encoding: cannot append Unicode8 to Unicode32 ''.
         Error code= 23.900
         ooRexx> mb_unicode32~encoding=                          -- unicode32
         (The Unicode32_Encoding class)
@@ -24910,7 +24910,7 @@ ooRexx> < include_conversion.rex
             ---------------------------------------
         ooRexx> drop unicode16
         ooRexx> unicode16 = t~unicode16(mem:)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 1045. Allowed range is 0..65535.
         Error code= 23.900
             -----------------------------------------
             -- Start of file include_conversion_infos
@@ -24936,7 +24936,7 @@ ooRexx> < include_conversion.rex
             -- End of file include_conversion_infos
             ---------------------------------------
         ooRexx> t~unicode16~"==":.object(unicode16)=            -- 1
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 1045. Allowed range is 0..65535.
         Error code= 23.900
         
             ------------------------------------------------------
@@ -24964,67 +24964,67 @@ ooRexx> < include_conversion.rex
             ----------------------------------------------------
         
         ooRexx> t~unicode16(b: mb_utf8)                         -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_utf8~encoding=                               -- utf8
         (The UTF8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf8)                         -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_wtf8~encoding=                               -- wtf8
         (The WTF8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf16be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_utf16be~encoding=                            -- utf16be
         (The UTF16BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf16le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_utf16le~encoding=                            -- utf16le
         (The UTF16LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf16be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-16BE ''.
         Error code= 23.900
         ooRexx> mb_wtf16be~encoding=                            -- wtf16be
         (The WTF16BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_wtf16le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to WTF-16LE ''.
         Error code= 23.900
         ooRexx> mb_wtf16le~encoding=                            -- wtf16le
         (The WTF16LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf32be)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-32BE ''.
         Error code= 23.900
         ooRexx> mb_utf32be~encoding=                            -- utf32be
         (The UTF32BE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_utf32le)                      -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to UTF-32LE ''.
         Error code= 23.900
         ooRexx> mb_utf32le~encoding=                            -- utf32le
         (The UTF32LE_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode8)                     -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to Unicode8 ASCII ''.
         Error code= 23.900
         ooRexx> mb_unicode8~encoding=                           -- unicode8
         (The Unicode8_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode16)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Unicode16 encoding: invalid codepoint 128104 (U+1F468) at byte-position 1045. Allowed range is 0..65535.
         Error code= 23.900
         ooRexx> mb_unicode16~encoding=                          -- unicode16
         (The Unicode16_Encoding class)
         
         ooRexx> t~unicode16(b: mb_unicode32)                    -- error (ok)
-        Unicode16 encoding: invalid maximum codepoint 128105 (U+1F469). Allowed range is 0..65535.
+        Encoding: cannot append Unicode16 to Unicode32 ''.
         Error code= 23.900
         ooRexx> mb_unicode32~encoding=                          -- unicode32
         (The Unicode32_Encoding class)

@@ -17,7 +17,6 @@ Depends on
 .UNICODE16_ENCODING
 .UNICODE32_ENCODING
 .UNICODE8_ENCODING
-.UNICODE_ENCODING
 .UTF16BE_ENCODING
 .UTF16LE_ENCODING
 .UTF32BE_ENCODING
@@ -132,16 +131,16 @@ Depends on
     -- 2 modes:
     -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
     -- otherwise return the encoded codepoint as a RexxText
-    use strict arg codepoint
+    use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
     use strict named arg buffer(1)=.nil
-    self~checkCodepoint(codepoint, checkOnlyRange: .true) -- check only range, the other errors will be detected during analysis
+    self~checkCodepoint(codepoint, codepointIndexB, previousCodepoint, previousCodepointIndexB, checkOnlyRange: .true) -- check only range, the other errors will be detected during analysis
     if .nil <> buffer then return buffer~~append(codepoint~d2c)
                       else return .RexxText~new(codepoint~d2c, self)
 
 
 ::method codepointSizeInBytes class
-    use strict arg codepoint
-    self~checkCodepoint(codepoint, checkOnlyRange: .true)
+    use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
+    self~checkCodepoint(codepoint, codepointIndexB, previousCodepoint, previousCodepointIndexB, checkOnlyRange: .true)
     return 1
 
 
@@ -211,25 +210,32 @@ Depends on
                       else return .RexxText~new(self~string~subchar(startB), self~encoding)
 
 
-::method maximumUnicodeCodepoint private
-    -- Needed when converting to Unicode_Encoding (1st pass: get the maxium codepoint)
-    -- Don't do any check, will be done by convertToUnicode (2nd pass)
+::method maximumUnicodeCodepoint
+    -- Needed when converting to UnicodeN_Encoding (1st pass: get the maxium codepoint)
+    -- Returns -1 if unknown (because of lack of transcoding table)
+    -- Raise an error if at least one character can't be converted to Unicode
+    -- Otherwise returns the maximum Unicode codepoint
     expose maximumUnicodeCodepoint -- cached
     use strict arg -- none
     if var("maximumUnicodeCodepoint") then return maximumUnicodeCodepoint
-    maximumUnicodeCodepoint = 255
+    maximumUnicodeCodepoint = -1
     tableTranscodingToUnicode = self~encoding~tableTranscodingToUnicode
     if .nil <> tableTranscodingToUnicode then do
+        maximumUnicodeCodepoint = 0 -- In case of empty string, to let convert to Unicode8
         sizeC = self~codepointCount -- size in codepoints
         do i=1 to sizeC
             charcode = self~codepoint(i)
             codepoint = tableTranscodingToUnicode[charcode+1] -- bof bof... 1-based array
+            -- .nil means "cannot convert"
             -- An empty string means no mapping
+            if .nil == codepoint | codepoint == "" then signal cannot_convert_character
             -- A negative codepoint means unused character with fallback mapping
-            if codepoint <> "" then maximumUnicodeCodepoint = max(maximumUnicodeCodepoint, abs(codepoint))
+            maximumUnicodeCodepoint = max(maximumUnicodeCodepoint, abs(codepoint))
         end
     end
     return maximumUnicodeCodepoint
+
+    cannot_convert_character: raise syntax 23.900 array(self~encoding~name "encoding: cannot convert" self~description(short: .true) "character" charcode "("charcode~d2x") at byte-position" i "to Unicode")
 
 
 /*
@@ -279,13 +285,14 @@ newline = translate(oldline,oubytes,inbytes)
     bufferStart = buffer~length + 1
     do i=1 to sizeC
         charcode = self~codepoint(i)
+        indexB = self~codepointIndex(i)
         codepoint = tableTranscodingToUnicode[charcode+1] -- bof bof... 1-based array
         -- An empty string means no mapping
         -- A negative codepoint means unused character with fallback mapping
         if .nil == codepoint then signal cannot_convert_character
         if codepoint == "" then signal cannot_convert_character
         if strict, codepoint < 0 then signal cannot_convert_character
-        targetEncoding~encode(abs(codepoint), :buffer)
+        targetEncoding~encode(abs(codepoint), indexB, :buffer)
     end
 
     string = buffer~substr(bufferStart)
@@ -377,9 +384,12 @@ newline = translate(oldline,oubytes,inbytes)
 
 
 ::method Unicode
+    forward message "UnicodeN"
+
+
+::method UnicodeN
     use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    targetEncoding = .Unicode_Encoding~toSupport(self~maximumUnicodeCodepoint)
-    return self~convertToUnicode(targetEncoding, :strict, :memorize, :buffer)
+    return self~convertToUnicode("UnicodeN", :strict, :memorize, :buffer)
 
 
 ::method Unicode8

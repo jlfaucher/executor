@@ -8,7 +8,7 @@ Depends on
 .UNICODE16_ENCODING
 .UNICODE32_ENCODING
 .UNICODE8_ENCODING
-.UNICODE_ENCODING
+.UNICODEN_ENCODING
 .UTF16BE_ENCODING
 .UTF16LE_ENCODING
 .UTF32BE_ENCODING
@@ -249,7 +249,8 @@ Depends on
     bufferStart = buffer~length + 1
     do i=1 to sizeC
         codepoint = self~codepoint(i)
-        targetEncoding~encode(codepoint, :buffer) -- WTF-8 is correctly managed (use appendToBuffer)
+        indexB = self~codepointIndex(i)
+        targetEncoding~encode(codepoint, indexB, :buffer) -- WTF-8 is correctly managed (use appendToBuffer)
     end
     string = buffer~substr(bufferStart)
     -- It's a new string, without any encoding stored on it
@@ -299,10 +300,11 @@ Depends on
     bufferStart = buffer~length + 1
     do i=1 to sizeC
         codepoint = self~codepoint(i)
+        indexB = self~codepointIndex(i)
         charcode = tableTranscodingFromUnicode~at(codepoint)
         charcode = check_replace_char()
         if .nil == charcode then signal cannot_convert_character
-        if charcode \== "" then targetEncoding~encode(charcode, :buffer)
+        if charcode \== "" then targetEncoding~encode(charcode, indexB, :buffer)
     end
 
     string = buffer~substr(bufferStart)
@@ -362,6 +364,10 @@ Depends on
     end
     if returnBuffer then return buffer
                     else return buffer~string
+
+
+::method maximumUnicodeCodepoint
+    forward message "maximumCodepoint"
 
 
 ::method UnicodeCharacters
@@ -430,28 +436,28 @@ Depends on
 
 
 ::method Unicode
+    forward message "UnicodeN"
+
+
+::method UnicodeN
     use strict arg -- none
     use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    targetEncoding = .Unicode_Encoding~toSupport(self~maximumCodepoint)
-    return self~convertToUnicode(targetEncoding, :strict, :memorize, :buffer)
+    return self~convertToUnicode("UnicodeN", :strict, :memorize, :buffer)
 
 
 ::method Unicode8
     use strict arg -- none
     use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    .Unicode8_Encoding~checkCodepoint(self~maximumCodepoint, checkingMaximumCodepoint: .true)
     return self~convertToUnicode(.Unicode8_Encoding, :strict, :memorize, :buffer)
 
 
 ::method Unicode16
     use strict arg -- none
     use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    .Unicode16_Encoding~checkCodepoint(self~maximumCodepoint, checkingMaximumCodepoint: .true)
     return self~convertToUnicode(.Unicode16_Encoding, :strict, :memorize, :buffer)
 
 
 ::method Unicode32
     use strict arg -- none
     use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
-    .Unicode32_Encoding~checkCodepoint(self~maximumCodepoint, checkingMaximumCodepoint: .true)
     return self~convertToUnicode(.Unicode32_Encoding, :strict, :memorize, :buffer)

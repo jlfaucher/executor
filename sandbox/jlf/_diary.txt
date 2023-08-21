@@ -2,6 +2,27 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2023 Aug 21
+
+[Encoded strings]
+
+More work on transcoding:
+
+Rename the class "Unicode_Encoding" to "UnicodeN_Encoding".
+"UnicodeN" is now accepted as an encoding name, in complement of "Unicode".
+
+The method "maximumUnicodeCodepoint" is no longer private.
+- For Byte encodings, returns the maximum Unicode codepoint if the text was converted to Unicode.
+- For Unicode encodings, it's the same value as maximumCodepoint.
+
+The methods ~encode and ~codepointSizeInBytes now accept the same positional
+arguments as ~checkCodepoint to let report the byte position in case of error
+during a transcoding.
+old:    use strict arg codepoint
+new:    use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
+
+
+===============================================================================
 2023 Aug 17
 
 [Encoded strings]

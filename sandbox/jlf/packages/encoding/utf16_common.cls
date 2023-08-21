@@ -163,11 +163,11 @@
     -- 2 modes:
     -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
     -- otherwise return the encoded codepoint as a RexxText
-    use strict arg codepoint
+    use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
     use strict named arg buffer(1)=.nil
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new(, self~codepointMaxBytes)
-    self~checkCodepoint(codepoint, checkOnlyRange: .true) -- check only range, the other errors will be detected during analysis
+    self~checkCodepoint(codepoint, codepointIndexB, previousCodepoint, previousCodepointIndexB, checkOnlyRange: .true) -- check only range, the other errors will be detected during analysis
     if codepoint < 55296 then do -- U+0000 to U+D7FF
         buffer~append(self~encodeCodepoint(codepoint))
     end
@@ -183,8 +183,8 @@
 
 
 ::method codepointSizeInBytes class
-    use strict arg codepoint
-    self~checkCodepoint(codepoint, checkOnlyRange: .true)
+    use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
+    self~checkCodepoint(codepoint, codepointIndexB, previousCodepoint, previousCodepointIndexB, checkOnlyRange: .true)
     if codepoint < 65536 then return 2
     return 4
 

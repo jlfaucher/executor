@@ -24,7 +24,7 @@ end
 /*
 TODOs
 
-Unicode8 16 32 : should I create common methods in Unicode_Encoding?
+Unicode8 16 32 : should I create common methods in UnicodeN_Encoding?
 
 Remove the index for codepoints (codepointIndexes).
 There is no need of direct access to a codepoint.

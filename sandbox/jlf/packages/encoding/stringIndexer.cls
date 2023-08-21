@@ -369,6 +369,10 @@ For example, if startB==6 then previousCodepointIndex==3
     -- use strict arg indexC, decode=.true
 
 
+::method maximumUnicodeCodepoint abstract
+    -- use strict arg -- none
+
+
 ::method UnicodeCharacters abstract
     -- use strict arg -- none
 
@@ -531,7 +535,7 @@ How other languages are supporting escape characters for Unicode:
     ---
     Careful! The sentence above is NOT talking about ISO-8859-1 (alias Latin-1 )
     */
-    if self~maximumCodepoint \== -1, self~maximumCodepoint <= 255 then do
+    if self~maximumUnicodeCodepoint \== -1, self~maximumUnicodeCodepoint <= 255 then do
         self~setBitFlag(self~FLAG_NFC)
         return .true
     end

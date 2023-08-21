@@ -1,7 +1,7 @@
 .encoding~register("UNICODE32", .Unicode32_Encoding)
 
 ::requires "encoding/encoding.cls"
-::requires "encoding/unicode_encoding.cls"
+::requires "encoding/unicodeN_encoding.cls"
 ::requires "encoding/unicode_common.cls"
 ::requires "encoding/stringIndexer.cls"
 ::requires "encoding/byte_common.cls" -- for atBytePosition
@@ -11,7 +11,7 @@
 
 
 /******************************************************************************/
-::class "Unicode32_Encoding" public inherit Unicode_Encoding Unicode_CommonServices StringIndexer
+::class "Unicode32_Encoding" public inherit UnicodeN_Encoding Unicode_CommonServices StringIndexer
 
 ::constant name "Unicode32"
 ::constant isUnicode32 1
@@ -99,16 +99,16 @@
     -- 2 modes:
     -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
     -- otherwise return the encoded codepoint as a RexxText
-    use strict arg codepoint
+    use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
     use strict named arg buffer(1)=.nil
-    self~checkCodepoint(codepoint, checkOnlyRange: .true) -- check only range, the other errors will be detected during analysis
+    self~checkCodepoint(codepoint, codepointIndexB, previousCodepoint, previousCodepointIndexB, checkOnlyRange: .true) -- check only range, the other errors will be detected during analysis
     if .nil <> buffer then return buffer~~append(self~encodeCodepoint(codepoint))
                       else return .RexxText~new(self~encodeCodepoint(codepoint), self)
 
 
 ::method codepointSizeInBytes class
-    use strict arg codepoint
-    self~checkCodepoint(codepoint, checkOnlyRange: .true)
+    use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
+    self~checkCodepoint(codepoint, codepointIndexB, previousCodepoint, previousCodepointIndexB, checkOnlyRange: .true)
     return 4
 
 

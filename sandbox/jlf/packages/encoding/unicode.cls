@@ -4,18 +4,18 @@
 ::requires "encoding/unicode8_encoding.cls"
 ::requires "encoding/unicode16_encoding.cls"
 ::requires "encoding/unicode32_encoding.cls"
-::requires "encoding/utf8_encoding"
-::requires "encoding/utf16_encoding"
-::requires "encoding/utf32_encoding"
-::requires "encoding/wtf8_encoding"
-::requires "encoding/wtf16_encoding"
+::requires "encoding/utf8_encoding.cls"
+::requires "encoding/utf16_encoding.cls"
+::requires "encoding/utf32_encoding.cls"
+::requires "encoding/wtf8_encoding.cls"
+::requires "encoding/wtf16_encoding.cls"
 
 /*
 Depends on
 .UNICODE16_ENCODING
 .UNICODE32_ENCODING
 .UNICODE8_ENCODING
-.UNICODE_ENCODING
+.UNICODEN_ENCODING
 .UTF16BE_ENCODING
 .UTF16LE_ENCODING
 .UTF32BE_ENCODING
@@ -773,10 +773,14 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 
 
 ::method Unicode
+    forward message "UnicodeN"
+
+
+::method UnicodeN
     expose codepoint
     use strict arg -- none
     use strict named arg buffer(1)=.nil
-    targetEncoding = .Unicode_Encoding~toSupport(codepoint)
+    targetEncoding = .UnicodeN_Encoding~toSupport(codepoint)
     return targetEncoding~encode(codepoint, :buffer)
 
 

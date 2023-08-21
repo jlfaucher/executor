@@ -603,6 +603,12 @@ Allows to use a String or a RexxText indistinctly
 ::method maximumCodepoint
     forward to (self~indexer)
 
+
+-- For Byte encodings, returns the maximum Unicode codepoint if the text was converted to Unicode.
+-- For Unicode encodings, it's the same value as maximumCodepoint.
+::method maximumUnicodeCodepoint
+    forward to (self~indexer)
+
 /*
 -- No direct access to codepoint, not needed.
 ::method codepoint
@@ -684,6 +690,10 @@ Allows to use a String or a RexxText indistinctly
 
 -- Unicode representation (Unicode8, Unicode16 or Unicode32)
 ::method Unicode
+    forward message "UnicodeN"
+
+
+::method UnicodeN
     forward to (self~indexer)
 
 
