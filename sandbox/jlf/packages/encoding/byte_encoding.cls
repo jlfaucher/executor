@@ -88,7 +88,7 @@ Depends on
     -- sizeB <> -1 ==> this method assumes that the encoding has been checked and is valid
     use strict arg string /* or buffer */, startB=1, sizeB=(-1)
     if sizeB == -1 then do
-        nextB = self~nextCodepointIndex(string, startB) -- raise error if invalid, so no need to test if < 0
+        nextB = self~nextCodepointIndexB(string, startB) -- raise error if invalid, so no need to test if < 0
         sizeB = nextB - startB
     end
     if sizeB == 0 then return .nil
@@ -106,7 +106,7 @@ Depends on
     return 1
 
 
-::method nextCodepointIndex class
+::method nextCodepointIndexB class
     use strict arg string /* or buffer */, startB
     -- use named arg errorInfo=.nil
     if startB < 1 then return startB -- don't move because below start of string
@@ -114,12 +114,12 @@ Depends on
     return startB + 1
 
 
-::method previousCodepointIndex class
+::method previousCodepointIndexB class
     -- indexB is the index of the first byte of the current codepoint
     --   cp1  |cp2  |cp3...
     --   byte1|byte2|byte3...
     --   1    |2    |3
-    -- For example, if indexB==3 then previousCodepointIndex==2
+    -- For example, if indexB==3 then previousCodepointIndexB==2
     use strict arg string /* or buffer */, startB
     if string~length == 0 then return startB -- don't move because empty string
     if startB <= 1 then return startB -- don't move because at start of string or before
@@ -178,7 +178,7 @@ Depends on
 /* Instance methods */
 /********************/
 
-::method codepointIndex
+::method codepointIndexB
     use strict arg indexC
     if indexC < 1 then raise syntax 23.900 array (self~description "invalid codepoint index:" indexC)
     if indexC > self~codepointCount then indexC = self~codepointCount + 1
@@ -187,25 +187,25 @@ Depends on
 
 ::method codepoint
     use strict arg indexC, decode=.true
-    startB = self~codepointIndex(indexC)
+    startB = self~codepointIndexB(indexC)
     if decode then return self~string~subchar(startB)~c2d
               else return self~string~subchar(startB)
 
 
-::method characterIndex
-    use strict arg indexG
-    if indexG < 1 then raise syntax 23.900 array (self~description "invalid character index:" indexG)
-    if indexG > self~characterCount then indexG = self~string~length + 1
-    return indexG
+::method characterIndexB
+    use strict arg indexC
+    if indexC < 1 then raise syntax 23.900 array (self~description "invalid character index:" indexC)
+    if indexC > self~characterCount then indexC = self~string~length + 1
+    return indexC -- easy, indexB is equal to indexC
 
 
 ::method character
     -- 2 modes:
     -- if the buffer is passed as argument then append the character to the buffer, and return the buffer
     -- otherwise return the character as a RexxText
-    use strict arg indexG
+    use strict arg indexC
     use strict named arg buffer(1)=.nil
-    startB = abs(self~characterIndex(indexG))
+    startB = abs(self~characterIndexB(indexC))
     if .nil <> buffer then return buffer~~append(self~string~subchar(startB))
                       else return .RexxText~new(self~string~subchar(startB), self~encoding)
 
@@ -285,7 +285,7 @@ newline = translate(oldline,oubytes,inbytes)
     bufferStart = buffer~length + 1
     do i=1 to sizeC
         charcode = self~codepoint(i)
-        indexB = self~codepointIndex(i)
+        indexB = self~codepointIndexB(i)
         codepoint = tableTranscodingToUnicode[charcode+1] -- bof bof... 1-based array
         -- An empty string means no mapping
         -- A negative codepoint means unused character with fallback mapping

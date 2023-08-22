@@ -45,11 +45,11 @@ sleep no prompt
 -- If you don't pass a size to ~decode then the method calculates it, while checking the validity of the encoding
 s = "63 C3 B4 74 65 CC 81 F0 9F 91 8D"x  -- An UTF-8 string: 'côté👍'
 .utf8_encoding~decode(s, 1)=             -- 99
-.utf8_encoding~nextCodepointIndex(s, 1)= -- 2
+.utf8_encoding~nextCodepointIndexB(s, 1)= -- 2
 .utf8_encoding~decode(s, 2)=             -- 244
-.utf8_encoding~nextCodepointIndex(s, 2)= -- 4
+.utf8_encoding~nextCodepointIndexB(s, 2)= -- 4
 .utf8_encoding~decode(s, 8)=             -- 128077
-.utf8_encoding~nextCodepointIndex(s, 8)= -- 12
+.utf8_encoding~nextCodepointIndexB(s, 8)= -- 12
 .utf8_encoding~decode(s, 12)=            -- .nil (end of string)
 sleep no prompt
 
@@ -94,11 +94,11 @@ sleep no prompt
 
 -- If you don't pass a size to ~decode then the method calculates it, while checking the validity of the encoding
 .utf16be_encoding~decode(s16, 1)=               -- 99
-.utf16be_encoding~nextCodepointIndex(s16, 1)=   -- 3
+.utf16be_encoding~nextCodepointIndexB(s16, 1)=   -- 3
 .utf16be_encoding~decode(s16, 3)=               -- 244
-.utf16be_encoding~nextCodepointIndex(s16, 3)=   -- 5
+.utf16be_encoding~nextCodepointIndexB(s16, 3)=   -- 5
 .utf16be_encoding~decode(s16, 11)=              -- 128077
-.utf16be_encoding~nextCodepointIndex(s16, 11)=  -- 15
+.utf16be_encoding~nextCodepointIndexB(s16, 11)=  -- 15
 .utf16be_encoding~decode(s16, 15)=              -- .nil (end of string)
 sleep no prompt
 

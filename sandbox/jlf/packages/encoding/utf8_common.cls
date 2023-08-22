@@ -35,7 +35,7 @@ Depends on
     -- sizeB <> -1 ==> this method assumes that the encoding has been checked and is valid
     use strict arg string /* or buffer */, startB=1, sizeB=(-1)
     if sizeB == -1 then do
-        nextB = self~nextCodepointIndex(string, startB) -- raise error if invalid, so no need to test if < 0
+        nextB = self~nextCodepointIndexB(string, startB) -- raise error if invalid, so no need to test if < 0
         sizeB = nextB - startB
     end
     -- numeric digits 10 -- not needed, the greatest possible value is .utf8_encoding~decode("FF FF FF FF"x, 1, 4) = 2 097 151 (7 digits)
@@ -56,7 +56,7 @@ Depends on
     -- Typical usage:
     --     encoding~decode(string, startB, encoding~byteSequenceSize(string, startB))
     -- By passing a non-negative size to ~decode, the checks are disabled.
-    -- CAREFUL! The returned size can be different from the size that would be derived from nextCodepointIndex
+    -- CAREFUL! The returned size can be different from the size that would be derived from nextCodepointIndexB
     use strict arg string /* or buffer */, startB=1
     startByte = string~subchar(startB)
     if startByte == "" then return 0
@@ -67,7 +67,7 @@ Depends on
     return -1
 
 
-::method nextCodepointIndex class
+::method nextCodepointIndexB class
     /*
         Table 3-7. Well-Formed UTF-8 Byte Sequences
             Code Points         First Byte  Second Byte     Third Byte      Fourth Byte
@@ -200,7 +200,7 @@ Depends on
     end
     return indexB
 
-    -- Remember: in case of error, NEVER return nextCodepointIndex==startB
+    -- Remember: in case of error, NEVER return nextCodepointIndexB==startB
     -- because that would create an infinite loop when scanning (see CreateIndexer)
     -- MUST always advance.
 
@@ -215,20 +215,20 @@ Depends on
     truncated:                 return error(indexB, self~name "encoding: byte sequence at byte-position" startB "is truncated, expected" byteCount "bytes")
 
     error:
-        use strict arg nextCodepointIndex, errorMessage
+        use strict arg nextCodepointIndexB, errorMessage
         if .nil <> errorInfo then do
             errorInfo[1] = errorMessage"."
-            return -nextCodepointIndex
+            return -nextCodepointIndexB
         end
         raise syntax 23.900 array (errorMessage)
 
 
-::method previousCodepointIndex class
+::method previousCodepointIndexB class
     -- indexB is the index of the first byte of the current codepoint
     --   cp1        |cp2              |cp3...
     --   byte1|byte2|byte3|byte4|byte5|byte6...
     --   1    |2    |3    |4    |5    |6...
-    -- For example, if indexB==6 then previousCodepointIndex==3
+    -- For example, if indexB==6 then previousCodepointIndexB==3
     use strict arg string /* or buffer */, startB
     use strict named arg errorInfo=.nil
     if string~length == 0 then return startB -- don't move because empty string
@@ -240,7 +240,7 @@ Depends on
         else do -- test if this is a valid start byte
             /*
             error = .array~new(1)
-            next = self~nextCodepointIndex(string, indexB, errorInfo: error)
+            next = self~nextCodepointIndexB(string, indexB, errorInfo: error)
             if next == startB then return indexB
             */
             startByte = byte
@@ -255,16 +255,16 @@ Depends on
     end
     signal start_byte_not_found
 
-    -- Remember: in case of error, NEVER return nextCodepointIndex==startB
+    -- Remember: in case of error, NEVER return nextCodepointIndexB==startB
     -- MUST always move back.
 
     start_byte_not_found: return error(startB - 1 /* not indexB */, self~name "encoding: No start byte found when searching previous codepoint of codepoint at byte-position" startB)
 
     error:
-        use strict arg previousCodepointIndex, errorMessage
+        use strict arg previousCodepointIndexB, errorMessage
         if .nil <> errorInfo then do
             errorInfo[1] = errorMessage"."
-            return -previousCodepointIndex -- negative value means error
+            return -previousCodepointIndexB -- negative value means error
         end
         raise syntax 23.900 array (errorMessage)
 
@@ -360,7 +360,7 @@ Depends on
 /* Instance methods */
 /********************/
 
-::method codepointIndex
+::method codepointIndexB
     use strict arg indexC
     if indexC < 1 then raise syntax 23.900 array (self~description "invalid codepoint index:" indexC)
     if indexC > self~codepointCount then return self~string~length + 1
@@ -373,13 +373,13 @@ Depends on
 ::method codepoint
     -- to reimplement using a byte index because codepointIndexes will be removed
     use strict arg indexC, decode=.true
-    startB = self~codepointIndex(indexC)
+    startB = self~codepointIndexB(indexC)
     if .nil == self~codepointIndexes, self~codepointCount == self~string~length then do
         -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last codepoint can be more than one byte.
         if decode then return self~string~subchar(startB)~c2d
                   else return self~string~subchar(startB)
     end
-    nextB = self~codepointIndex(indexC+1)
+    nextB = self~codepointIndexB(indexC+1)
     absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
     absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
     if decode then do
@@ -389,29 +389,29 @@ Depends on
     return self~string~substr(absStartB, absNextB - absStartB) -- yes, always the current byte sequence, even if invalid
 
 
-::method characterIndex
-    use strict arg indexG
-    if indexG < 1 then raise syntax 23.900 array (self~description "invalid character index:" indexG)
-    if indexG > self~characterCount then return self~string~length + 1
-    if .nil == self~characterIndexes then return indexG
-    indexB = self~characterIndexes[indexG]
+::method characterIndexB
+    use strict arg indexC
+    if indexC < 1 then raise syntax 23.900 array (self~description "invalid character index:" indexC)
+    if indexC > self~characterCount then return self~string~length + 1
+    if .nil == self~characterIndexes then return indexC
+    indexB = self~characterIndexes[indexC]
     if .nil <> indexB then return indexB
-    return indexG -- sparse array: the value is equal to the index
+    return indexC -- sparse array: the value is equal to the index
 
 
 ::method character
     -- 2 modes:
     -- if the buffer is passed as argument then append the character to the buffer, and return the buffer
     -- otherwise return the character as a RexxText
-    use strict arg indexG
+    use strict arg indexC
     use strict named arg buffer(1)=.nil
     if .nil == self~characterIndexes, self~characterCount == self~string~length then do
         -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last character can be more than one codepoint.
-        if .nil <> buffer then return buffer~~append(self~string~subchar(indexG))
-                          else return .RexxText~new(self~string~subchar(indexG), self~encoding)
+        if .nil <> buffer then return buffer~~append(self~string~subchar(indexC))
+                          else return .RexxText~new(self~string~subchar(indexC), self~encoding)
     end
-    startB = self~characterIndex(indexG)
-    nextB = self~characterIndex(indexG+1)
+    startB = self~characterIndexB(indexC)
+    nextB = self~characterIndexB(indexC+1)
     absStartB = abs(startB) -- startB can be negative (meaning current byte sequence is invalid)
     absNextB = abs(nextB) -- nextB can be negative (meaning next byte sequence is invalid)
     if .nil <> buffer then return buffer~~append(self~string~substr(absStartB, absNextB - absStartB))

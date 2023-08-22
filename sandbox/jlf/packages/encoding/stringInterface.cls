@@ -64,8 +64,8 @@
     if length == 0 then return self~string~text
 
     endC = min(startC + length - 1, self~length)
-    startB = abs(self~characterIndex(startC))
-    endB = abs(self~characterIndex(endC+1))
+    startB = abs(self~characterIndexB(startC))
+    endB = abs(self~characterIndexB(endC+1))
 
     string = self~string
     encoding = self~encoding
@@ -86,7 +86,7 @@
         beginOfWord = .false
         if codepointIndexB == 1 then beginOfWord = .true -- 1st character
         else do
-            previousCodepointIndexB = encoding~previousCodepointIndex(string, codepointIndexB, errorInfo: error)
+            previousCodepointIndexB = encoding~previousCodepointIndexB(string, codepointIndexB, errorInfo: error)
             if previousCodepointIndexB > 0,  previousCodepointIndexB \== codepointIndexB then do
                 codepointSizeB = codepointIndexB - previousCodepointIndexB
                 -- remember: don't test directly .Unicode~spaceCharacter because this method is not limited to Unicode
@@ -99,7 +99,7 @@
     -- It provides only functions taking a codepoint.
     -- It doesn't implement the special casing rules.
     do while codepointIndexB < endB
-        nextCodepointIndexB = encoding~nextCodepointIndex(string, codepointIndexB, errorInfo: error)
+        nextCodepointIndexB = encoding~nextCodepointIndexB(string, codepointIndexB, errorInfo: error)
         if nextCodepointIndexB > 0 then do -- if no error
             if nextCodepointIndexB == codepointIndexB then leave -- should not happen, but...
             codepointSizeB = nextCodepointIndexB - codepointIndexB
@@ -375,8 +375,8 @@
     use strict named arg buffer(1)=.nil
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new
-    do indexG = self~characterCount to 1 by -1
-        self~character(indexG, :buffer)
+    do indexC = self~characterCount to 1 by -1
+        self~character(indexC, :buffer)
     end
     if returnBuffer then return buffer
                     else return .RexxText~new(buffer~string, self~encoding)
@@ -399,9 +399,9 @@
     length = length - lengthPad
 
     endC = self~length + 1
-    endB = abs(self~characterIndex(endC))
+    endB = abs(self~characterIndexB(endC))
     startC = endC - length
-    startB = abs(self~characterIndex(startC))
+    startB = abs(self~characterIndexB(startC))
     right = self~string~right(endB - startB)
     if lengthPad == 0 then do
         if .nil <> buffer then return buffer~~append(right)
@@ -442,8 +442,8 @@
     lengthPad = max(0, length - remainingLength)
     endC = min(startC + length - 1, self~length)
 
-    startB = abs(self~characterIndex(startC))
-    endB = abs(self~characterIndex(endC+1))
+    startB = abs(self~characterIndexB(startC))
+    endB = abs(self~characterIndexB(endC+1))
     substr = self~string~substr(startB, endB - startB)
     if lengthPad == 0 then do
         if .nil <> buffer then return buffer~~append(substr)

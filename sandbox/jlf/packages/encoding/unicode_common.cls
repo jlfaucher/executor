@@ -48,7 +48,7 @@ Depends on
     errorInfo = .array~new(1) -- simulate a variable reference: errorInfo[1] = errorMessage
     forever:
         codepoint = .nil
-        nextB = encoding~nextCodepointIndex(string, indexB, :errorInfo)
+        nextB = encoding~nextCodepointIndexB(string, indexB, :errorInfo)
         if nextB < 0 then signal error
         codepoint = encoding~decode(string, indexB, nextB - indexB) -- codepoint can be .nil if nextB == indexB
 
@@ -249,7 +249,7 @@ Depends on
     bufferStart = buffer~length + 1
     do i=1 to sizeC
         codepoint = self~codepoint(i)
-        indexB = self~codepointIndex(i)
+        indexB = self~codepointIndexB(i)
         targetEncoding~encode(codepoint, indexB, :buffer) -- WTF-8 is correctly managed (use appendToBuffer)
     end
     string = buffer~substr(bufferStart)
@@ -300,7 +300,7 @@ Depends on
     bufferStart = buffer~length + 1
     do i=1 to sizeC
         codepoint = self~codepoint(i)
-        indexB = self~codepointIndex(i)
+        indexB = self~codepointIndexB(i)
         charcode = tableTranscodingFromUnicode~at(codepoint)
         charcode = check_replace_char()
         if .nil == charcode then signal cannot_convert_character

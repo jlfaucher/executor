@@ -2,6 +2,22 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2023 Aug 22
+
+[Encoded strings]
+
+Rename the method "characterIndex" to "characterIndexB".
+Rename the method "codepointIndex" to "codepointIndexB".
+Rename the method "nextCodepointIndex" to "nextCodepointIndexB".
+Rename the method "previousCodepointIndex" to "previousCodepointIndexB".
+
+Continue to eliminate any reference to "G"rapheme, when applicable:
+Rename "indexG" to "indexC".
+"C" means "C"haracter, by opposition to "B"yte. A character can be either a
+codepoint or an EGC, in function of the context.
+
+
+===============================================================================
 2023 Aug 21
 
 [Encoded strings]

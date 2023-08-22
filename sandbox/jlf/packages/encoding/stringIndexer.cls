@@ -101,36 +101,36 @@ if sizeB == 0 then return .nil otherwise return a string made of one codepoint
 
 
 /*
-If end of string, then nextCodepointIndex == startB.
+If end of string, then nextCodepointIndexB == startB.
 
-if errorInfo \== .nil then in case of error: nextCodepointIndex is negative and always greater than startB.
+if errorInfo \== .nil then in case of error: nextCodepointIndexB is negative and always greater than startB.
                                              errorInfo[1] == error description.
-if errorInfo  == .nil  then no need to test if nextCodepointIndex is negative. In case of error, a condition is raised.
+if errorInfo  == .nil  then no need to test if nextCodepointIndexB is negative. In case of error, a condition is raised.
 */
-::method nextCodepointIndex class abstract
+::method nextCodepointIndexB class abstract
     -- use strict arg string /* or buffer */, startB
     -- use strict named arg errorInfo=.nil
 
 
 /*
-If startB is the start of string then nextCodepointIndex is equal to startB.
+If startB is the start of string then nextCodepointIndexB is equal to startB.
 
-If startB is beyond the end of string +1 byte then nextCodepointIndex is equal to startB.
+If startB is beyond the end of string +1 byte then nextCodepointIndexB is equal to startB.
 Which means "no previous codepoint".
 Not trying to walk back until a valid codepoint is found, whatever the distance.
-Reason: if no error then startB - previousCodepointIndex is the length in bytes of the previous codepoint.
+Reason: if no error then startB - previousCodepointIndexB is the length in bytes of the previous codepoint.
 
-if errorInfo \== .nil then in case of error: nextCodepointIndex is negative and always lesser than startB.
+if errorInfo \== .nil then in case of error: nextCodepointIndexB is negative and always lesser than startB.
                                              errorInfo[1] == error description.
-if errorInfo  == .nil  then no need to test if nextCodepointIndex is negative. In case of error, a condition is raised.
+if errorInfo  == .nil  then no need to test if nextCodepointIndexB is negative. In case of error, a condition is raised.
 
 startB is the index of the first byte of the current codepoint
   cp1        |cp2              |cp3...
   byte1|byte2|byte3|byte4|byte5|byte6...
   1    |2    |3    |4    |5    |6...
-For example, if startB==6 then previousCodepointIndex==3
+For example, if startB==6 then previousCodepointIndexB==3
 */
-::method previousCodepointIndex class abstract
+::method previousCodepointIndexB class abstract
     -- use strict arg string /* or buffer */, startB
     -- use strict named arg errorInfo=.nil
 
@@ -382,12 +382,12 @@ For example, if startB==6 then previousCodepointIndex==3
     return .CharacterSupplier~new(self)
 
 
-::method characterIndex abstract
-    -- use strict arg indexG
+::method characterIndexB abstract
+    -- use strict arg indexC
 
 
 ::method character abstract
-    -- use strict arg indexG
+    -- use strict arg indexC
     -- use strict named arg buffer(1)=.nil
 
 
@@ -672,11 +672,11 @@ How other languages are supporting escape characters for Unicode:
 ::class "CharacterSupplier" public subclass Supplier
 
 ::method init
-    expose indexer indexG
+    expose indexer indexC
     use strict arg indexer
     empty = .array~new(0) -- No need to create a copy, the string is immutable
     self~init:super(empty, empty)
-    indexG = 1
+    indexC = 1
     -- self~init:super -- Don't forward, would raise error "argument 1 is required"
 
 
@@ -687,27 +687,27 @@ How other languages are supporting escape characters for Unicode:
 
 
 ::method available
-    expose indexer indexG
+    expose indexer indexC
     use strict arg -- none
-    return indexG <= indexer~characterCount
+    return indexC <= indexer~characterCount
 
 
 ::method index
-    expose indexG
+    expose indexC
     use strict arg -- none
-    if self~available then return indexG
+    if self~available then return indexC
 
 
 ::method item
-    expose indexer indexG
+    expose indexer indexC
     use strict arg -- none
-    if self~available then return indexer~character(indexG)
+    if self~available then return indexer~character(indexC)
 
 
 ::method next
-    expose indexG
+    expose indexC
     use strict arg -- none
-    indexG += 1
+    indexC += 1
 
 
 /******************************************************************************/
