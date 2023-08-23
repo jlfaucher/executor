@@ -975,7 +975,7 @@ stringChunks
 
 ::method caselessCompare
     use strict arg text, pad=(self~encoding~spaceCharacter)
-    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
     padIsCompatibleWithByteString = .true
     if arg(2, "e") then do
         if \pad~isCompatibleWithByteString then padIsCompatibleWithByteString = .false
@@ -984,12 +984,12 @@ stringChunks
     if self~isCompatibleWithByteString, text~isCompatibleWithByteString, padIsCompatibleWithByteString then do
         return self~string~caselessCompare(text, pad)
     end
-    return self~indexer~caselessCompare(text, pad, :normalization, :lump, :stripIgnorable, :stripMark)
+    return self~indexer~caselessCompare(text, pad, :strict, :normalization, :lump, :stripIgnorable, :stripMark)
 
 
 ::method caselessCompareTo
     use strict arg text, n=1, length=.nil
-    use strict named arg normalization=(.Unicode~NFC), casefold=.true, lump=.false, stripIgnorable=.false, stripMark =.false
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark =.false
     text = text~request("RexxText") -- not requestTextOrBufferOrString because we really need a RexxText
     if .nil == length then do
         selfLength = self~length
@@ -1001,8 +1001,8 @@ stringChunks
         selfLength = min(length, self~length)
         textLength = min(length, text~length)
     end
-    selfNormalized = self~substr(n, selfLength)~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
-    textNormalized = text~substr(n, textLength)~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
+    selfNormalized = self~substr(n, selfLength)~transform(:normalization, casefold:.true, :lump, :stripIgnorable, :stripMark)
+    textNormalized = text~substr(n, textLength)~transform(:normalization, casefold:.true, :lump, :stripIgnorable, :stripMark)
     return selfNormalized~string~CompareTo(textNormalized~string)
 
     invalid_length: raise syntax 93.923 array(length)
@@ -1010,6 +1010,7 @@ stringChunks
 
 ::method caselessContains
     use arg other -- not strict, just need to check this one
+    -- use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark =.false
     if self~isCompatibleWithByteString, other~isCompatibleWithByteString then do
         forward message "caselessPos" to (self~string) continue
         return result <> 0
@@ -1020,6 +1021,7 @@ stringChunks
 
 ::method caselessEndsWith
     use arg other -- not strict, just need to check this one
+    -- use strict named arg strict:.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark =.false
     if self~isCompatibleWithByteString, other~isCompatibleWithByteString then do
         forward to (self~string) continue
         return result <> 0
@@ -1029,8 +1031,8 @@ stringChunks
 
 ::method caselessEquals
     use strict arg other
-    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark =.false
-    return self~caselessCompareTo(other, :normalization, :lump, :stripIgnorable, :stripMark) == 0
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark =.false
+    return self~caselessCompareTo(other, :strict, :normalization, :lump, :stripIgnorable, :stripMark) == 0
 
 
 ::method caselessMatch
@@ -1038,15 +1040,15 @@ stringChunks
     if self~isCompatibleWithByteString, other~isCompatibleWithByteString then forward to (self~string)
 
     use strict arg startC, other, nC=1, lengthC=.nil
-    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
-    return self~indexer~caselessMatch(startC, other, nC, lengthC, :normalization, :lump, :stripIgnorable, :stripMark)
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
+    return self~indexer~caselessMatch(startC, other, nC, lengthC, :strict, :normalization, :lump, :stripIgnorable, :stripMark)
 
 
 ::method caselessMatchChar
     use strict arg nC, chars
-    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
     if self~isCompatibleWithByteString, chars~isCompatibleWithByteString then return self~string~caselessMatchChar(nC, chars)
-    return self~indexer~caselessMatchChar(nC, chars, :normalization, :lump, :stripIgnorable, :stripMark)
+    return self~indexer~caselessMatchChar(nC, chars, :strict, :normalization, :lump, :stripIgnorable, :stripMark)
 
 
 ::method caselessPos
@@ -1087,20 +1089,20 @@ stringChunks
 
 ::method compare
     use strict arg text, pad=(self~encoding~spaceCharacter)
-    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
     padIsCompatibleWithByteString = .true
     if arg(2, "e") then do
         if \pad~isCompatibleWithByteString then padIsCompatibleWithByteString = .false
         else if pad~length > 1 then padIsCompatibleWithByteString = .false -- maybe its length will be 1 when converted to text
     end
     if self~isCompatibleWithByteString, text~isCompatibleWithByteString, padIsCompatibleWithByteString then return self~string~compare(text, pad)
-    return self~indexer~compare(text, pad, :normalization, :lump, :stripIgnorable, :stripMark)
+    return self~indexer~compare(text, pad, :strict, :normalization, :lump, :stripIgnorable, :stripMark)
 
 
 ::method compareTo
     use strict arg text, n=1, length=.nil
-    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
-    return self~caselessCompareTo(text, n, length, :normalization, casefold:.false, :lump, :stripIgnorable, :stripMark)
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
+    return self~caselessCompareTo(text, n, length, :strict, :normalization, casefold:.false, :lump, :stripIgnorable, :stripMark)
 
 
 ::method contains
@@ -1131,8 +1133,8 @@ stringChunks
 
 ::method equals
     use strict arg other
-    use strict named arg lump=.false, stripIgnorable=.false, stripMark=.false
-    return self~compareTo(other, :lump, :stripIgnorable, :stripMark)
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
+    return self~compareTo(other, :strict, :normalization, :lump, :stripIgnorable, :stripMark)
 
 
 ::method hashCode
@@ -1178,15 +1180,15 @@ stringChunks
     if self~isCompatibleWithByteString, other~isCompatibleWithByteString then forward to (self~string)
 
     use strict arg startC, other, nC=1, lengthC=.nil
-    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
-    return self~indexer~match(startC, other, nC, lengthC, :normalization, :lump, :stripIgnorable, :stripMark)
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
+    return self~indexer~match(startC, other, nC, lengthC, :strict, :normalization, :lump, :stripIgnorable, :stripMark)
 
 
 ::method matchChar
     use strict arg nC, chars
-    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
     if self~isCompatibleWithByteString, chars~isCompatibleWithByteString then return self~string~matchChar(nC, chars)
-    return self~indexer~matchChar(nC, chars, :normalization, :lump, :stripIgnorable, :stripMark)
+    return self~indexer~matchChar(nC, chars, :strict, :normalization, :lump, :stripIgnorable, :stripMark)
 
 
 ::method pos

@@ -250,25 +250,25 @@
 
 ::method caselessCompare
     use strict arg text, pad=(self~encoding~spaceCharacter)
-    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
     return self~compareText(text, pad, :normalization, casefold:.true, :lump, :stripIgnorable, :stripMark)
 
 
 ::method caselessEndsWith
     use strict arg other
-    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
     return self~endsWithText(other, :normalization, casefold:.true, :lump, :stripIgnorable, :stripMark)
 
 
 ::method caselessMatch
     use strict arg startC, other, nC=1, lengthC=.nil
-    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
     return self~matchText(startC, other, nC, lengthC, :normalization, casefold:.true, :lump, :stripIgnorable, :stripMark)
 
 
 ::method caselessMatchChar
     use strict arg nC, chars
-    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
     return self~matchCharText(nC, chars, :normalization, casefold:.true, :lump, :stripIgnorable, :stripMark)
 
 
@@ -331,13 +331,13 @@
 
 ::method compare
     use strict arg text, pad=(self~encoding~spaceCharacter)
-    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
     return self~compareText(text, pad, :normalization, casefold:.false, :lump, :stripIgnorable, :stripMark)
 
 
 ::method endsWith
     use strict arg other
-    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
     return self~endsWithText(other, :normalization, casefold:.false, :lump, :stripIgnorable, :stripMark)
 
 
@@ -354,13 +354,13 @@
 
 ::method match
     use strict arg startC, other, nC=1, lengthC=.nil
-    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
     return self~matchText(startC, other, nC, lengthC, :normalization, casefold:.false, :lump, :stripIgnorable, :stripMark)
 
 
 ::method matchChar
     use strict arg nC, chars
-    use strict named arg normalization=(.Unicode~NFC), lump=.false, stripIgnorable=.false, stripMark=.false
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
     return self~matchCharText(nC, chars, casefold:.false, :normalization, :lump, :stripIgnorable, :stripMark)
 
 

@@ -62,6 +62,14 @@ Depends on
 ::constant NFKC 3
 ::constant NFKD 4
 
+::method defaultNormalization class
+    use named arg strict=.true
+    if strict then return .Unicode~NFC
+    -- not strict
+    -- for experimentation, no idea if this is the right choice
+    return .Unicode~NFKD
+
+
 ::attribute dataDirectory get class
 ::attribute totalCharactersLoaded get class
 ::attribute totalIntervalCharacters get class

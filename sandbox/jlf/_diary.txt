@@ -2,6 +2,25 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2023 Aug 23
+
+[Encoded strings]
+
+The default normalization is now managed by the Unicode class:
+- NFC when strict
+- NFKD when not strict
+
+
+The methods doing comparisons now accept the named argument 'strict':
+- By default, the comparisons are made in strict mode (i.e. like ==).
+  This is aligned with the classic Rexx.
+- lump and stripIgnorable are false when strict, and true when not strict.
+- stripMark is not impacted by the strict mode. It's up to the Rexx user to
+  explicitely decide if the accents are removed.
+  By default, the accents are not removed. This is aligned with the classic Rexx.
+
+
+===============================================================================
 2023 Aug 22
 
 [Encoded strings]
