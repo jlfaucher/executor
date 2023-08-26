@@ -2,6 +2,22 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2023 Aug 26
+
+[Encoded strings]
+
+Crash when executing
+.unicode~character("ZERO_WIDTH-SPACE")=
+---
+# Problematic frame:
+# C  [librexx.4.dylib+0x3bfec]  RexxString::checkIsASCII()+0xc
+---
+RexxMutableBuffer::translate
+The argument pad is NULL.
+Fixed.
+
+
+===============================================================================
 2023 Aug 23
 
 [Encoded strings]

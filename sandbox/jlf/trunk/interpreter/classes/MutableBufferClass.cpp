@@ -1353,6 +1353,7 @@ RexxMutableBuffer *RexxMutableBuffer::translate(RexxString *tableo, RexxString *
                                           /* get the pad character             */
     codepoint_t padChar = optionalPadArgument(pad, ' ', ARG_THREE);
     bool padInserted = false;
+    bool padIsASCII = ((padChar & 0x80) == 0);
     size_t startPos = optionalPositionArgument(_start, 1, ARG_FOUR);
     size_t range = optionalLengthArgument(_range, getLength() - startPos + 1, ARG_FOUR);
 
@@ -1399,7 +1400,7 @@ RexxMutableBuffer *RexxMutableBuffer::translate(RexxString *tableo, RexxString *
     }
 
     if (!translateIsASCII) this->setIsASCII(false); // no need to check again, we are sure it's not ASCII
-    else if (padInserted && !pad->checkIsASCII()) this->setIsASCII(false); // no need to check again, we are sure it's not ASCII
+    else if (padInserted && !padIsASCII) this->setIsASCII(false); // no need to check again, we are sure it's not ASCII
     // here we know that the new characters are all ASCII
     // if the buffer was not ASCII before the translation, maybe it is now, to check again
     else if (!this->isASCII()) this->setIsASCIIChecked(false); // check again
