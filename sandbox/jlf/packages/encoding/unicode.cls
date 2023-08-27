@@ -10,6 +10,8 @@
 ::requires "encoding/wtf8_encoding.cls"
 ::requires "encoding/wtf16_encoding.cls"
 
+-- ::options trace i
+
 /*
 Depends on
 .UNICODE16_ENCODING

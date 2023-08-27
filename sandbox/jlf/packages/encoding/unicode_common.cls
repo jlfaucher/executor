@@ -349,23 +349,6 @@ Depends on
                     else return buffer~string
 
 
-::method c2g
-    use strict arg -- none
-    use strict named arg buffer(1)=.nil
-    characters = self~characters
-    returnBuffer = .nil <> buffer
-    if .nil == buffer then buffer = .MutableBuffer~new
-    first = .true
-    do while characters~available
-        if \first then buffer~append(" ")
-        first = .false
-        buffer~append(characters~item~string~c2x)
-        characters~next
-    end
-    if returnBuffer then return buffer
-                    else return buffer~string
-
-
 ::method maximumUnicodeCodepoint
     forward message "maximumCodepoint"
 

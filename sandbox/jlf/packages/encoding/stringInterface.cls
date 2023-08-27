@@ -36,18 +36,84 @@
 ::method compareText private
     use strict arg text, pad
     use strict named arg normalization, casefold, lump, stripIgnorable, stripMark
-    -- todo
+
+    selfText = self~string~text
+
+    textText = text~request("RexxText") -- not requestTextOrBufferOrString because we really need a RexxText
+    if .nil == textText then signal argument_1_must_have_a_text_or_string_value
+
+    padText = pad~request("RexxText") -- not requestTextOrBufferOrString because we really need the pad's length in characters
+    if .nil == padText then signal incorrect_pad
+    if padText~length <> 1 then signal incorrect_padText
+
+    -- max length before transformation
+    maxLength = max(selfText~length, textText~length)
+
+    -- The shorter string is padded on the right with pad if necessary.
+    if selfText~length < maxLength then selfText = selfText~left(maxlength, padText)
+    if textText~length < maxLength then textText = textText~left(maxlength, padText)
+
+    -- whole transformation only for text
+    textNormalized = textText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
+    textIndexB = 1
+    textLengthB = textNormalized~string~length
+
+    do indexC=1 to maxLength
+        -- transform self on the fly to keep the user-perceived indexes (indexes before transformation)
+        char = selfText~character(indexC)
+        charNormalized = char~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
+        charLengthB = charNormalized~string~length
+        -- The character may become 0..n characters... "ß" becomes "ss" when casefolded, an ignorable character is removed if stripIgnorable:.true
+
+        if charLengthB == 0 then iterate -- ignorable for comparison, but not ignored for the user-perceived index
+                                         -- (in other words, an ignorable character is counted in the length, and has an index)
+        if \textNormalized~string~match(textIndexB, charNormalized~string) then return indexC -- user-perceived position of first mismatch
+        textIndexB += charLengthB
+    end
+    return 0
+
+    argument_1_must_have_a_text_or_string_value: raise syntax 93.900 /*93.938*/ array("Method positional argument 1 must have a text or string value")
+    incorrect_pad:                               raise syntax 93.922 array(pad)
+    incorrect_padText:                           raise syntax 93.922 array(padText~descriptionForError)
+
+
+::method compareToText private
+    use strict arg text, n=1, length=.nil
+    use strict named arg normalization, casefold, lump, stripIgnorable, stripMark
+    text = text~request("RexxText") -- not requestTextOrBufferOrString because we really need a RexxText
+    if .nil == length then do
+        selfLength = self~length
+        textLength = text~length
+    end
+    else do
+        if \datatype(length, "w") then signal invalid_length
+        if length < 0 then signal invalid_length -- 0 accepted
+        selfLength = min(length, self~length)
+        textLength = min(length, text~length)
+    end
+    selfNormalized = self~substr(n, selfLength)~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
+    textNormalized = text~substr(n, textLength)~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
+    return selfNormalized~string~CompareTo(textNormalized~string)
+
+    invalid_length: raise syntax 93.923 array(length)
 
 
 ::method endsWithText private
     use strict arg other
     use strict named arg normalization, casefold, lump, stripIgnorable, stripMark
-    -- todo
-/*
-    start = self~length - substr~length + 1
-    if start < 1 then return .false
-    return self~pos(substr, start) == start
-*/
+
+    selfTextNormalized = self~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
+
+    otherText = other~request("RexxText") -- not requestTextOrBufferOrString because we really need a RexxText
+    if .nil == otherText then signal argument_1_must_have_a_text_or_string_value
+    otherTextNormalized = otherText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
+
+    if otherTextNormalized~string~length == 0 then return .false
+    startC = selfTextNormalized~string~length - otherTextNormalized~string~length + 1
+    if startC <= 0 then return .false -- can't match, other is longer than self
+    return selfTextNormalized~string~match(startC, otherTextNormalized~string)
+
+    argument_1_must_have_a_text_or_string_value: raise syntax 93.900 /*93.938*/ array("Method positional argument 1 must have a text or string value")
 
 
 ::method lower_upper_title private
@@ -127,38 +193,34 @@
     if returnBuffer then return buffer
                     else return .RexxText~new(buffer~string, encoding)
 
-    invalid_length:             raise syntax 93.923 array(length)
-    invalid_position:           raise syntax 93.924 array(startC)
+    invalid_length:     raise syntax 93.923 array(length)
+    invalid_position:   raise syntax 93.924 array(startC)
 
 
 ::method matchCharText private
     use strict arg nC, chars
     use strict named arg normalization, casefold, lump, stripIgnorable, stripMark
 
-    selfIndexer = self
-    call check_position nC, selfIndexer~length
+    call check_position nC, self~length
 
     charsText = chars~request("RexxText") -- not requestTextOrBufferOrString because we really need a RexxText
     if .nil == charsText then signal argument_2_must_have_a_text_or_string_value
-    charsNormText = charsText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
+    -- yes, normalize the whole chars.
+    -- If it contains ligatures, then it may be decomposed and the test will be done with each character of the decomposed ligature
+    charsTextNormalized = charsText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
 
-    characterText = selfIndexer~character(nC)
-    characterNormText = characterText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
-    -- The character may become 2 characters... "ß" becomes "ss" when casefolded
-    -- Test only the first character, because the second character doesn't exist in the original string
-    firstCharacter = characterNormText~character(1)
-    return charsNormText~string~pos(firstCharacter~string) \== 0
+    characterText = self~character(nC)
+    characterTextNormalized = characterText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
+    -- The character may become 0..n characters... "ß" becomes "ss" when casefolded, an ignorable character is removed if stripIgnorable:.true
 
-    /*
-    TODO:
-    Double check that this test is good:
-        return charsNormText~string~pos(firstCharacter~string) \== 0
-    firstCharacter can be made of several  bytes.
-    charsNormText is a string of 1..n characters where each character can be made of several bytes.
-    Is there a risk to match on the boundary between 2 characters?
-    Maybe here I could use the option of utf8proc to insert a separator between each character?
-    Or better: do a clean implementation where each character of charsNormText is compared with firstCharacter.
-    */
+    do i=1 to characterTextNormalized~length
+        ithCharacterTextNormalized = characterTextNormalized~character(i)
+        do j=1 to charsTextNormalized~length
+            jthCharTextNormalized = charsTextNormalized~character(j)
+            if ithCharacterTextNormalized~string == jthCharTextNormalized~string then return .true
+        end
+    end
+    return .false
 
     check_position: procedure
         use strict arg position, max
@@ -174,11 +236,9 @@
 
 ::method matchText private
     use strict arg startC, other, nC, lengthC
-    -- the position and length are related to the internal normalized strings
     use strict named arg normalization, casefold, lump, stripIgnorable, stripMark
 
-    selfIndexer = self
-    call check_position startC, selfIndexer~length
+    call check_position startC, self~length
 
     otherText = other~request("RexxText") -- not requestTextOrBufferOrString because we really need a RexxText
     if .nil == otherText then signal argument_2_must_have_a_text_or_string_value
@@ -196,14 +256,14 @@
     --   "Bundesstraße im Freiland"~text~caselessMatch(14, "im")
     -- where the casefold transformation invalidates the position 14 ("ß" becomes "ss")
 
-    selfText = selfIndexer~string~text
+    selfText = self~string~text
     selfSubText = selfText~substr(startC)
     otherSubText = otherText~substr(nC, lengthC)
 
-    selfTransformed = selfSubText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
-    otherTransformed = otherSubText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
+    selfNormalized = selfSubText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
+    otherNormalized = otherSubText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
 
-    return selfTransformed~string~match(1, otherTransformed~string)
+    return selfNormalized~string~match(1, otherNormalized~string)
 
     check_position: procedure
         use strict arg position, max
@@ -229,9 +289,54 @@
 
 
 ::method posText private
+    /*
+    "abc def ghi"~pos("c de")           --> start=1,  length=11-start+1=11,             limit=start+length-4=8,     try from 1 to 8     --> 3
+     12345678...
+    "abc def ghi"~pos("c de", 2)        --> start=2,  length=11-start+1=10,             limit=start+length-4=8,     try from 2 to 8     --> 3
+      2345678...
+    "abc def ghi"~pos("i", 10)          --> start=10, length=11-start+1=2,              limit=start+length-1=11,    try from 10 to 11  --> 11
+              01
+    "abc def ghi"~pos("c d", 2, 4)      --> start=2,  length=min(4,11-start+1)=4,       limit=start+length-3=3,     try from 2 to 3     --> 3
+      23..
+    "abc def ghi"~pos("c de", 2, 6)     --> start=2,  length=min(6, 11-start+1)=6,      limit=start+length-4=4,     try from 2 to 4     --> 3
+      234...
+    "abc def ghi"~pos(" g", 2, 8)       --> start=2,  length=min(8, 11-start+1)=8,      limit=start+length-2=8,     try from 2 to 8     --> 8
+      2345678.
+    "abc def ghi"~pos(" g", 2, 80)      --> start=2,  length=min(80, 11-start+1)=10,    limit=start+length-2=10,    try from 2 to 10    --> 8
+      2345678...
+    */
     use strict arg needle, startC, lengthC
-    use strict named arg casefold, lump, stripIgnorable, stripMark
+    use strict named arg normalization, casefold, lump, stripIgnorable, stripMark
     -- todo
+
+    needleText = needle~request("RexxText") -- not requestTextOrBufferOrString because we really need a RexxText
+    if .nil == needleText then signal argument_1_must_have_a_text_or_string_value
+
+    if \datatype(startC, "w") then signal invalid_position
+    if startC < 1 then signal invalid_position
+
+    if \datatype(lengthC, "w") then signal invalid_length
+    if lengthC < 0 then signal invalid_length
+    if length == 0 then return 0
+
+    if self~length == 0 then return 0
+    if needleText~length == 0 then return 0
+    if startC > self~length then return 0
+
+    lengthC = min(lengthC, self~length - startC + 1)
+    searchArea = self~substr(startC, lengthC)
+    searchAreaNormalized = searchArea~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
+    needleTextNormalized = needleText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
+    posB = searchAreaNormalized~string~pos(needleTextNormalized~string)
+    if posB == 0 then return 0
+    posC = searchAreaNormalized~indexer~characterIndexC(posB)
+    if posC < 0 then signal byte_position_not_aligned_with_character
+    return startC - 1 + posC
+
+    argument_1_must_have_a_text_or_string_value: raise syntax 93.900 /*93.938*/ array("Method positional argument 1 must have a text or string value")
+    invalid_position:                            raise syntax 93.924 array(startC)
+    invalid_length:                              raise syntax 93.923 array(lengthC)
+    byte_position_not_aligned_with_character:    raise syntax 23.900 array(searchAreaNormalized~description "The byte position" posB "is not aligned with the character position" abs(posC))
 
 
 /******************************************************************************/
@@ -254,6 +359,12 @@
     return self~compareText(text, pad, :normalization, casefold:.true, :lump, :stripIgnorable, :stripMark)
 
 
+::method caselessCompareTo
+    use strict arg text, n=1, length=.nil
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark =.false
+    return self~compareToText(text, n, length, :normalization, casefold:.true, :lump, :stripIgnorable, :stripMark)
+
+
 ::method caselessEndsWith
     use strict arg other
     use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
@@ -274,8 +385,8 @@
 
 ::method caselessPos
     use strict arg needle, startC=1, lengthC=(self~length)
-    use strict named arg lump=.false, stripIgnorable=.false, stripMark=.false
-    return self~posText(needle, startC, lengthC, casefold:.true, :lump, :stripIgnorable, :stripMark)
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
+    return self~posText(needle, startC, lengthC, :normalization, casefold:.true, :lump, :stripIgnorable, :stripMark)
 
 
 ::method center
@@ -285,9 +396,9 @@
     if \datatype(length, "w") then signal invalid_length
     if length < 0 then signal invalid_length
 
-    pad = pad~request("RexxText") -- not requestTextOrBufferOrString because we really need the pad's length in characters
-    if .nil == pad then signal argument_3_must_have_a_text_or_string_value
-    if pad~length <> 1 then signal incorrect_pad
+    padText = pad~request("RexxText") -- not requestTextOrBufferOrString because we really need the pad's length in characters
+    if .nil == padText then signal incorrect_pad
+    if padText~length <> 1 then signal incorrect_padText
 
     width = length
     len = self~length
@@ -303,7 +414,7 @@
     end
 
     if width > len then do
-        encoding = .Encoding~forConcatenation(self~string, pad) -- raise an error if not compatible
+        encoding = .Encoding~forConcatenation(self~string, padText) -- raise an error if not compatible
         leftPad = (width - len) % 2
         rightPad = (width - len) - leftPad
         space = rightPad + leftPad + len
@@ -312,27 +423,33 @@
             -- TODO: rework
             -- can't use encoding~concatenate for pad because pad~copies appends directly to the buffer
             -- consequence: will not detect WTF8 special concatenation, if any/
-            pad~copies(leftPad, :buffer)
+            padText~copies(leftPad, :buffer)
             encoding~concatenate(self~string, :buffer)
-            pad~copies(rightPad, :buffer)
+            padText~copies(rightPad, :buffer)
             return buffer
         end
-        return encoding~concatenate(pad~copies(leftPad), self~string, pad~copies(rightPad))
+        return encoding~concatenate(padText~copies(leftPad), self~string, padText~copies(rightPad))
     end
     else do
         leftPad = (len - width) % 2 -- integer divide
         return self~substr(leftPad + 1, width)
     end
 
-    incorrect_pad:                               raise syntax 93.922 array(pad~descriptionForError)
-    invalid_length:                              raise syntax 93.923 array(length)
-    argument_3_must_have_a_text_or_string_value: raise syntax 93.900 array("Method positional argument 3 must have a text or string value")
+    invalid_length:     raise syntax 93.923 array(length)
+    incorrect_pad:      raise syntax 93.922 array(pad)
+    incorrect_padText:  raise syntax 93.922 array(padText~descriptionForError)
 
 
 ::method compare
     use strict arg text, pad=(self~encoding~spaceCharacter)
     use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
     return self~compareText(text, pad, :normalization, casefold:.false, :lump, :stripIgnorable, :stripMark)
+
+
+::method compareTo
+    use strict arg text, n=1, length=.nil
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark =.false
+    return self~compareToText(text, n, length, :normalization, casefold:.false, :lump, :stripIgnorable, :stripMark)
 
 
 ::method endsWith
@@ -366,8 +483,8 @@
 
 ::method pos
     use strict arg needle, startC=1, lengthC=(self~length)
-    use strict named arg lump=.false, stripIgnorable=.false, stripMark=.false
-    return self~posText(needle, startC, lengthC, casefold:.false, :lump, :stripIgnorable, :stripMark)
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
+    return self~posText(needle, startC, lengthC, :normalization, casefold:.false, :lump, :stripIgnorable, :stripMark)
 
 
 ::method reverse
@@ -389,11 +506,11 @@
     if \datatype(length, "w") then signal invalid_length
     if length < 0 then signal invalid_length
 
-    pad = pad~request("RexxText") -- not requestTextOrBufferOrString because we really need the pad's length in characters
-    if .nil == pad then signal argument_3_must_have_a_text_or_string_value
-    if pad~length <> 1 then signal incorrect_pad
+    padText = pad~request("RexxText") -- not requestTextOrBufferOrString because we really need the pad's length in characters
+    if .nil == padText then signal incorrect_pad
+    if padText~length <> 1 then signal incorrect_padText
 
-    encoding = .Encoding~forConcatenation(self~string, pad) -- raise an error if not compatible
+    encoding = .Encoding~forConcatenation(self~string, padText) -- raise an error if not compatible
 
     lengthPad = max(0, length - self~length)
     length = length - lengthPad
@@ -410,15 +527,15 @@
     if .nil <> buffer then do
         -- can't use encoding~concatenate for pad because pad~copies appends directly to the buffer
         -- consequence: will not detect WTF8 special concatenation, if any.
-        pad~copies(lengthPad, :buffer)
+        padText~copies(lengthPad, :buffer)
         encoding~concatenate(right, :buffer)
         return buffer
     end
-    return encoding~concatenate(pad~copies(lengthPad), right)
+    return encoding~concatenate(padText~copies(lengthPad), right)
 
-    incorrect_pad:                               raise syntax 93.922 array(pad~descriptionForError)
-    invalid_length:                              raise syntax 93.923 array(length)
-    argument_3_must_have_a_text_or_string_value: raise syntax 93.900 array("Method positional argument 3 must have a text or string value")
+    invalid_length:     raise syntax 93.923 array(length)
+    incorrect_pad:      raise syntax 93.922 array(pad)
+    incorrect_padText:  raise syntax 93.922 array(padText~descriptionForError)
 
 
 ::method substr
@@ -431,13 +548,13 @@
     if \datatype(length, "w") then signal invalid_length
     if length < 0 then signal invalid_length
 
-    pad = pad~request("RexxText") -- not requestTextOrBufferOrString because we really need the pad's length in characters
-    if .nil == pad then signal argument_3_must_have_a_text_or_string_value
-    if pad~length <> 1 then signal incorrect_pad
+    padText = pad~request("RexxText") -- not requestTextOrBufferOrString because we really need the pad's length in characters
+    if .nil == padText then signal incorrect_pad
+    if padText~length <> 1 then signal incorrect_padText
 
-    encoding = .Encoding~forConcatenation(self~string, pad) -- raise an error if not compatible
+    encoding = .Encoding~forConcatenation(self~string, padText) -- raise an error if not compatible
 
-    if startC > self~length then return pad~copies(length, :buffer)
+    if startC > self~length then return padText~copies(length, :buffer)
     remainingLength = self~length - startC + 1 -- always >= 0
     lengthPad = max(0, length - remainingLength)
     endC = min(startC + length - 1, self~length)
@@ -454,15 +571,15 @@
         -- TODO: rework
         -- can't use encoding~concatenate for pad because pad~copies appends directly to the buffer
         -- consequence: will not detect WTF8 special concatenation, if any.
-        pad~copies(lengthPad, :buffer)
+        padText~copies(lengthPad, :buffer)
         return buffer
     end
-    return encoding~concatenate(substr, pad~copies(lengthPad))
+    return encoding~concatenate(substr, padText~copies(lengthPad))
 
-    incorrect_pad:                               raise syntax 93.922 array(pad~descriptionForError)
-    invalid_length:                              raise syntax 93.923 array(length)
-    invalid_position:                            raise syntax 93.924 array(startC)
-    argument_3_must_have_a_text_or_string_value: raise syntax 93.900 array("Method positional argument 3 must have a text or string value")
+    invalid_length:     raise syntax 93.923 array(length)
+    invalid_position:   raise syntax 93.924 array(startC)
+    incorrect_pad:      raise syntax 93.922 array(pad)
+    incorrect_padText:  raise syntax 93.922 array(padText~descriptionForError)
 
 
 -- not a String method but maybe in the future...

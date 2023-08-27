@@ -178,25 +178,11 @@ Depends on
 /* Instance methods */
 /********************/
 
-::method codepointIndexB
-    use strict arg indexC
-    if indexC < 1 then raise syntax 23.900 array (self~description "invalid codepoint index:" indexC)
-    if indexC > self~codepointCount then indexC = self~codepointCount + 1
-    return indexC
-
-
 ::method codepoint
     use strict arg indexC, decode=.true
     startB = self~codepointIndexB(indexC)
     if decode then return self~string~subchar(startB)~c2d
               else return self~string~subchar(startB)
-
-
-::method characterIndexB
-    use strict arg indexC
-    if indexC < 1 then raise syntax 23.900 array (self~description "invalid character index:" indexC)
-    if indexC > self~characterCount then indexC = self~string~length + 1
-    return indexC -- easy, indexB is equal to indexC
 
 
 ::method character

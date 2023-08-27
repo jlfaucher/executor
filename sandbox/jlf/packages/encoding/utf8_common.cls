@@ -360,16 +360,6 @@ Depends on
 /* Instance methods */
 /********************/
 
-::method codepointIndexB
-    use strict arg indexC
-    if indexC < 1 then raise syntax 23.900 array (self~description "invalid codepoint index:" indexC)
-    if indexC > self~codepointCount then return self~string~length + 1
-    if .nil == self~codepointIndexes then return indexC
-    indexB = self~codepointIndexes[indexC]
-    if .nil <> indexB then return indexB
-    return indexC -- sparse array: the value is equal to the index
-
-
 ::method codepoint
     -- to reimplement using a byte index because codepointIndexes will be removed
     use strict arg indexC, decode=.true
@@ -387,16 +377,6 @@ Depends on
         return self~encoding~decode(self~string, absStartB, absNextB - absStartB)
     end
     return self~string~substr(absStartB, absNextB - absStartB) -- yes, always the current byte sequence, even if invalid
-
-
-::method characterIndexB
-    use strict arg indexC
-    if indexC < 1 then raise syntax 23.900 array (self~description "invalid character index:" indexC)
-    if indexC > self~characterCount then return self~string~length + 1
-    if .nil == self~characterIndexes then return indexC
-    indexB = self~characterIndexes[indexC]
-    if .nil <> indexB then return indexB
-    return indexC -- sparse array: the value is equal to the index
 
 
 ::method character

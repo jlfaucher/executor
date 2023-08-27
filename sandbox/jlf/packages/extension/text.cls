@@ -859,17 +859,17 @@ c2d                             full
 c2x                             full
 caselessAbbrev
 caselessChangeStr
-caselessCompare
-caselessCompareTo               full UTF-8 (expansion like "ß" --> "ss" will invalidate the user's positions)
+caselessCompare                 full UTF-8
+caselessCompareTo               full UTF-8 (expansion like "ß" --> "ss" is supported but the result maybe be surprising when providing a length - false positive?)
 caselessContains                (new 5)
 caselessContainsWord            (new 5)
 caselessCountStr
-caselessEndsWith                (new 5)
+caselessEndsWith                (new 5) full UTF-8
 caselessEquals                  full UTF-8
-caselessLastPos
+caselessLastPos                 full UTF-8
 caselessMatch                   full UTF-8
 caselessMatchChar               full UTF-8
-caselessPos
+caselessPos                     full UTF-8
 caselessStartsWith              (new 5)
 caselessWordPos
 center                          full
@@ -877,7 +877,7 @@ centre                          full
 changeStr
 contains                        (new 5)
 containsWord                    (new 5)
-compare
+compare                         full UTF-8
 compareTo                       full UTF-8
 copies                          full
 countStr
@@ -888,7 +888,7 @@ decodeBase64
 delStr
 delWord
 encodeBase64
-endsWith                        (new 5)
+endsWith                        (new 5) full UTF-8
 equals                          full UTF-8
 format
 hashCode                        full
@@ -906,7 +906,7 @@ max
 min
 modulo                          (new 5)
 overlay
-pos
+pos                             full UTF-8
 replaceAt
 reverse                         full
 right                           full
@@ -988,24 +988,12 @@ stringChunks
 
 
 ::method caselessCompareTo
-    use strict arg text, n=1, length=.nil
-    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark =.false
-    text = text~request("RexxText") -- not requestTextOrBufferOrString because we really need a RexxText
-    if .nil == length then do
-        selfLength = self~length
-        textLength = text~length
-    end
-    else do
-        if \datatype(length, "w") then signal invalid_length
-        if length < 0 then signal invalid_length -- 0 accepted
-        selfLength = min(length, self~length)
-        textLength = min(length, text~length)
-    end
-    selfNormalized = self~substr(n, selfLength)~transform(:normalization, casefold:.true, :lump, :stripIgnorable, :stripMark)
-    textNormalized = text~substr(n, textLength)~transform(:normalization, casefold:.true, :lump, :stripIgnorable, :stripMark)
-    return selfNormalized~string~CompareTo(textNormalized~string)
+    use arg text -- not strict, just testing the compatibility with String
+    if self~isCompatibleWithByteString, text~isCompatibleWithByteString then forward to (self~string)
 
-    invalid_length: raise syntax 93.923 array(length)
+    use strict arg text, n=1, length=.nil
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
+    return self~indexer~caselessCompareTo(text, n, length, :strict, :normalization, :lump, :stripIgnorable, :stripMark)
 
 
 ::method caselessContains
@@ -1100,9 +1088,12 @@ stringChunks
 
 
 ::method compareTo
+    use arg text -- not strict, just testing the compatibility with String
+    if self~isCompatibleWithByteString, text~isCompatibleWithByteString then forward to (self~string)
+
     use strict arg text, n=1, length=.nil
     use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
-    return self~caselessCompareTo(text, n, length, :strict, :normalization, casefold:.false, :lump, :stripIgnorable, :stripMark)
+    return self~indexer~compareTo(text, n, length, :strict, :normalization, :lump, :stripIgnorable, :stripMark)
 
 
 ::method contains

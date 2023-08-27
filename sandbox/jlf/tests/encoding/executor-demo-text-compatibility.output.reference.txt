@@ -293,23 +293,17 @@ ooRexx> "noel"~text~contains("oe")=                 -- forward to String
 ooRexx> "noel"~text~contains("oe"~text)=            -- forward to String
  1
 ooRexx> "noel"~text~contains("oë")=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 0
 ooRexx> "noel"~text~contains("oë"~text)=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 0
 ooRexx> "noël"~text~contains("oe")=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 0
 ooRexx> "noël"~text~contains("oe"~text)=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 0
 ooRexx> "noël"~text~contains("oë")=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 1
 ooRexx> "noël"~text~contains("oë"~text)=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 1
 
 
 -- copies
@@ -419,29 +413,21 @@ ooRexx> "noel"~text~pos("oe")=                      -- forward to String
 ooRexx> "noel"~text~pos("oe"~text)=                 -- forward to String
  2
 ooRexx> "noel"~text~pos("oë")=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 0
 ooRexx> "noel"~text~pos("oë"~text)=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 0
 ooRexx> "noël"~text~pos("oe")=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 0
 ooRexx> "noël"~text~pos("oe"~text)=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 0
 ooRexx> "noël"~text~pos("oë")=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 2
 ooRexx> "noël"~text~pos("oë"~text)=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 2
 ooRexx> "noël"~text~pos("l")=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 4
 ooRexx> "noël"~text~pos("l"~text)=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 4
 
 
 -- subchar

@@ -6,6 +6,327 @@ Sandbox for experimental work, what's done so far.
 
 [Encoded strings]
 
+New non-regression test file tests/encoding/diary_examples.rex which contains
+all the diary's examples related to encoded strings.
+Usage:
+    cd tests/encoding
+    make diary_examples
+
+
+Reverse the decision that makes c2g available only to Unicode indexers.
+c2g is also useful and relevant for Byte indexers, even if the word "grapheme"
+is rather a Unicode concept.
+c2u and UnicodeCharacters remain limited to Unicode indexers.
+
+
+The method codepointIndexB is refactored: unique implementation for all the
+encodings.
+
+The method characterIndexB is refactored: unique implementation for all the
+encodings.
+
+
+New method characterIndexC which retrieves the character index corresponding to
+a given byte position, using a binay search. The result is negative when the
+byte index is not aligned with the character index.
+---
+t = "noël👩‍👨‍👩‍👧🎅"~text; t~c2g=    -- '6E 6F C3AB 6C F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7 F09F8E85'
+t = "noël👩‍👨‍👩‍👧🎅"~text; do indexB=1 to t~string~length + 2; indexC = t~indexer~characterIndexC(indexB); character = t~character(abs(indexC)); say "indexB" indexB~right(3) "--> indexC" indexC~right(4) "    " character~c2x; end
+    indexB   1 --> indexC    1      6E
+    indexB   2 --> indexC    2      6F
+    indexB   3 --> indexC    3      C3AB
+    indexB   4 --> indexC   -3      C3AB
+    indexB   5 --> indexC    4      6C
+    indexB   6 --> indexC    5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB   7 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB   8 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB   9 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB  10 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB  11 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB  12 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB  13 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB  14 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB  15 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB  16 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB  17 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB  18 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB  19 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB  20 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB  21 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB  22 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB  23 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB  24 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB  25 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB  26 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB  27 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB  28 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB  29 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB  30 --> indexC   -5      F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7
+    indexB  31 --> indexC    6      F09F8E85
+    indexB  32 --> indexC   -6      F09F8E85
+    indexB  33 --> indexC   -6      F09F8E85
+    indexB  34 --> indexC   -6      F09F8E85
+    indexB  35 --> indexC    7
+    indexB  36 --> indexC    7
+
+New non-regression test file tests/encoding/test_character_index.rex
+Usage:
+    cd tests/encoding
+    make test_character_index
+
+
+Implementation of caselessCompare, compare
+------------------------------------------
+    "hello"~text~compare("hello")=                          -- 0
+    "hello"~text~compare("helloo")=                         -- 6
+    "hello"~text~compare("hellô")=                          -- 5
+    "hello"~text~caselessCompare("hellô",stripMark:)=       -- 0
+    "hellÔ"~text~caselessCompare("hellô")=                  -- 0
+    "hellÔ"~text~caselessCompare("")=                       -- 1
+    "hellÔ"~text~caselessCompare("", "h")=                  -- 2
+    zwsp = "\u{ZERO WIDTH SPACE}"~text~unescape             -- ignorable
+    ("he"zwsp"llo")~compare("hellô")=                       -- 3 (ok)
+    ("he"zwsp"llo")~compare("hellô", stripIgnorable:)=      -- 6 (ok? not 5 because the ignorable character count as a character)
+
+
+-- casefold 2 characters: "ß" becomes "ss"
+    "Bundesstraße im Freiland"~text~caselessCompare("Bundesstraße")=        -- 14 (good)
+    "Bundesstraße im Freiland"~text~caselessCompare("Bundesstraße", "_")=   -- 13 (good)
+    "Bundesstraße im Freiland"~text~caselessCompare("bundesstrasse")=       -- 14 (good)
+    "Bundesstrasse im Freiland"~text~caselessCompare("bundesstraße")=       -- 15 (good)
+    "straßssßßssse"~text~compare("stra", "ß")=                              --  6 (good)
+    "straßssßßssse"~text~caselessCompare("stra", "ß")=                      -- 13 (questionable? the last 's' match half of the pad 'ss')
+
+/*
+This test case is a little bit strange because:
+- the case-folded character looks identical to the original character.
+- the normalization and the casefold have the same effect.
+*/
+-- casefold 3 characters: "ΐ" 'U+0390' becomes "ΐ" 'U+03B9 U+0308 U+0301'
+    iota_dt = "\u{GREEK SMALL LETTER IOTA WITH DIALYTIKA AND TONOS}"~text~unescape
+    iota_dt~casefold~UnicodeCharacters==
+        an Array (shape [3], 3 items)
+         1 : ( "ι"   U+03B9 Ll 1 "GREEK SMALL LETTER IOTA" )
+         2 : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
+         3 : ( "́"    U+0301 Mn 0 "COMBINING ACUTE ACCENT" )
+    ("a" iota_dt "b")~compare("a")=                         -- 3
+    ("a" iota_dt "b")~compare("a" iota_dt)=                 -- 5
+    ("a" iota_dt~casefold "b")~compare("a" iota_dt)=                                -- 5 (yes! not 3 because the default NFC transforms iota_dt~casefold 'U+03B9 U+0308 U+0301' into 'U+0390')
+    ("a" iota_dt~casefold "b")~compare("a" iota_dt, normalization: .Unicode~NFD)=   -- 5 (yes! not 3 because NFD transforms iota_dt 'U+0390' into 'U+03B9 U+0308 U+0301'
+    ("a" iota_dt~casefold "b")~compare("a" iota_dt, normalization: 0)=              -- 3 because normalization deactivated
+    ("a" iota_dt "b")~caselessCompare("a")=                 -- 3
+    ("a" iota_dt "b")~caselessCompare("a" iota_dt)=         -- 5
+    ("a" iota_dt "b")~caselessCompare("a ", iota_dt)=       -- 4
+
+
+Implementation of caselessEndsWith, endsWith
+--------------------------------------------
+    "hello"~text~endsWith("")=                              -- false
+    "hello"~text~endsWith("o")=                             -- true
+    "hello"~text~endsWith("ô")=                             -- false
+    "hello"~text~endsWith("ô", stripMark:)=                 -- true
+    "hello"~text~endsWith("O")=                             -- false
+    "hello"~text~caselessEndsWith("O")=                     -- true
+
+
+Rework implementation of caselessMatchChar, matchChar
+-----------------------------------------------------
+The character at position n and the chars are normalized. Any character can
+become several decomposed characters (for example the ligatures). These
+decomposed characters are iterated over and compared letter by letter.
+    "BAFFLE"~text~caselessMatchChar(3, "ﬄ")=               -- 1      "ﬄ" becomes "ffl" (3 graphemes), there is a match on "f" at 3
+    "BAFFLE"~text~caselessMatchChar(5, "ﬄ")=               -- 1      "ﬄ" becomes "ffl" (3 graphemes), there is a match on "l" at 5
+    "baffle"~text~caselessMatchChar(5, "L")=                -- 1      there is a match on "l" at 5 (forward to string)
+    "baﬄe"~text~caselessMatchChar(3, "ﬄ")=                -- 1      "ﬄ" at 3 (1 grapheme) becomes "ffl" (3 graphemes), there is a match on "l"
+    "baﬄe"~text~caselessMatchChar(3, "F")=                 -- 1      "ﬄ" at 3 (1 grapheme) becomes "ffl" (3 graphemes), there is a match on "f"
+    "baﬄe"~text~caselessMatchChar(3, "L")=                 -- 1      "ﬄ" at 3 (1 grapheme) becomes "ffl" (3 graphemes), there is a match on "l"
+    "baﬄe"~text~caselessMatchChar(4, "E")=                 -- 1      the grapheme at 4 is "e", not "f". There is a match with "e"
+
+
+Rework implementation of caselessCompareTo, compareTo
+-----------------------------------------------------
+Forward to String when possible.
+Main implementation moved to the IndexerHelpers.
+New non-regression tests:
+    "Père Noël"~text~nfc~compareTo("Père Noël"~text~nfc)=                       -- 0 (equal)
+    "Père Noël"~text~nfc~compareTo("Père Noël"~text~nfd)=                       -- 0 (equal)
+    "Père Noël"~text~nfd~compareTo("Père Noël"~text~nfc)=                       -- 0 (equal)
+    "Père Noël"~text~nfd~compareTo("Père Noël"~text~nfd)=                       -- 0 (equal)
+    ---
+    "Pere Noël"~text~nfc~compareTo("Père Noel"~text~nfc, stripMark:)=           -- 0 (equal)
+    "Pere Noël"~text~nfc~compareTo("Père Noel"~text~nfd, stripMark:)=           -- 0 (equal)
+    "Pere Noël"~text~nfd~compareTo("Père Noel"~text~nfc, stripMark:)=           -- 0 (equal)
+    "Pere Noël"~text~nfd~compareTo("Père Noel"~text~nfd, stripMark:)=           -- 0 (equal)
+    ---
+    "1st Père Noël"~text~nfc~compareTo("2nd Père Noël"~text~nfc)=               -- -1 (lesser)
+    "1st Père Noël"~text~nfc~compareTo("2nd Père Noël"~text~nfd)=               -- -1 (lesser)
+    "1st Père Noël"~text~nfd~compareTo("2nd Père Noël"~text~nfc)=               -- -1 (lesser)
+    "1st Père Noël"~text~nfd~compareTo("2nd Père Noël"~text~nfd)=               -- -1 (lesser)
+    ---
+    "Père Noël 2nd"~text~nfc~compareTo("Père Noël 1st"~text~nfc)=               -- 1 (greater)
+    "Père Noël 2nd"~text~nfc~compareTo("Père Noël 1st"~text~nfd)=               -- 1 (greater)
+    "Père Noël 2nd"~text~nfd~compareTo("Père Noël 1st"~text~nfc)=               -- 1 (greater)
+    "Père Noël 2nd"~text~nfd~compareTo("Père Noël 1st"~text~nfd)=               -- 1 (greater)
+    ---
+    "Pere Noël"~text~nfc~compareTo("Père Noel"~text~nfc, 3, 4)=                 -- 0 (equal)
+    "Pere Noël"~text~nfc~compareTo("Père Noel"~text~nfd, 3, 4)=                 -- 0 (equal)
+    "Pere Noël"~text~nfd~compareTo("Père Noel"~text~nfc, 3, 4)=                 -- 0 (equal)
+    "Pere Noël"~text~nfd~compareTo("Père Noel"~text~nfd, 3, 4)=                 -- 0 (equal)
+    ---
+    "PÈRE NOËL"~text~nfc~compareTo("Père Noël"~text~nfc)=                       -- -1 (lesser)
+    "PÈRE NOËL"~text~nfc~compareTo("Père Noël"~text~nfd)=                       -- -1 (lesser)
+    "PÈRE NOËL"~text~nfd~compareTo("Père Noël"~text~nfc)=                       -- -1 (lesser)
+    "PÈRE NOËL"~text~nfd~compareTo("Père Noël"~text~nfd)=                       -- -1 (lesser)
+    ---
+    "PÈRE NOËL"~text~nfc~caselessCompareTo("Père Noël"~text~nfc)=               -- 0 (equal)
+    "PÈRE NOËL"~text~nfc~caselessCompareTo("Père Noël"~text~nfd)=               -- 0 (equal)
+    "PÈRE NOËL"~text~nfd~caselessCompareTo("Père Noël"~text~nfc)=               -- 0 (equal)
+    "PÈRE NOËL"~text~nfd~caselessCompareTo("Père Noël"~text~nfd)=               -- 0 (equal)
+    ---
+    "PERE NOËL"~text~nfc~caselessCompareTo("Père Noel"~text~nfc, 3, 4)=         -- 0 (equal)
+    "PERE NOËL"~text~nfc~caselessCompareTo("Père Noel"~text~nfd, 3, 4)=         -- 0 (equal)
+    "PERE NOËL"~text~nfd~caselessCompareTo("Père Noel"~text~nfc, 3, 4)=         -- 0 (equal)
+    "PERE NOËL"~text~nfd~caselessCompareTo("Père Noel"~text~nfd, 3, 4)=         -- 0 (equal)
+
+
+Implementation of caselessPos, pos
+----------------------------------
+    --       P  è       r  e  _  N  o  ë       l
+    --       1  2       3  4  5  6  7  8       9
+    -- NFC  '50 C3A8    72 65 20 4E 6F C3AB    6C'
+    --       1  2 3     4  5  6  7  8  9 10    11
+    -- NFD  '50 65 CC80 72 65 20 4E 6F 65 CC88 6C'
+    --       1  2  3 4  5  6  7  8  9  19 1112 13
+                                                            --      self needle
+    "Père Noël Père Noël"~text~pos("l")=                    -- 9    NFC, NFC
+    "Père Noël Père Noël"     ~pos("l")=                    -- 11   NFC, NFC
+
+    "Père Noël Père Noël"~text~pos("l", , 8)=               -- 0    NFC, NFC
+    "Père Noël Père Noël"     ~pos("l", , 10)=              -- 0    NFC, NFC
+
+    "Père Noël Père Noël"~text~pos("l", , 9)=               -- 9    NFC, NFC
+    "Père Noël Père Noël"     ~pos("l", , 11)=              -- 11   NFC, NFC
+
+    "Père Noël Père Noël"~text~pos("l", 10)=                -- 19   NFC, NFC
+    "Père Noël Père Noël"     ~pos("l", 12)=                -- 23   NFC, NFC
+
+    "Père Noël Père Noël"~text~pos("l", 10, 9)=             -- 0    NFC, NFC
+    "Père Noël Père Noël"     ~pos("l", 12, 11)=            -- 0    NFC, NFC
+
+    "Père Noël Père Noël"~text~pos("l", 10, 10)=            -- 19   NFC, NFC
+    "Père Noël Père Noël"     ~pos("l", 12, 12)=            -- 23   NFC, NFC
+
+    ---
+
+    "Père Noël Père Noël"~text~pos("l")=                    -- 9    NFD, NFC
+    "Père Noël Père Noël"     ~pos("l")=                    -- 13   NFD, NFC
+
+    "Père Noël Père Noël"~text~pos("l", , 8)=               -- 0    NFD, NFC
+    "Père Noël Père Noël"     ~pos("l", , 12)=              -- 0    NFD, NFC
+
+    "Père Noël Père Noël"~text~pos("l", , 9)=               -- 9    NFD, NFC
+    "Père Noël Père Noël"     ~pos("l", , 13)=              -- 13   NFD, NFC
+
+    "Père Noël Père Noël"~text~pos("l", 10)=                -- 19   NFD, NFC
+    "Père Noël Père Noël"     ~pos("l", 14)=                -- 27   NFD, NFC
+
+    "Père Noël Père Noël"~text~pos("l", 10, 9)=             -- 0    NFD, NFC
+    "Père Noël Père Noël"     ~pos("l", 14, 13)=            -- 0    NFD, NFC
+
+    "Père Noël Père Noël"~text~pos("l", 10, 10)=            -- 19   NFD, NFC
+    "Père Noël Père Noël"     ~pos("l", 14, 14)=            -- 27   NFD, NFC
+
+    ---
+
+    "Père Noël Père Noël"~text~pos("oë")=                   -- 7    NFC, NFC
+    "Père Noël Père Noël"     ~pos("oë")=                   -- 8    NFC, NFC
+
+    "Père Noël Père Noël"~text~pos("oë", , 7)=              -- 0    NFC, NFC
+    "Père Noël Père Noël"     ~pos("oë", , 9)=              -- 0    NFC, NFC
+
+    "Père Noël Père Noël"~text~pos("oë", , 8)=              -- 7    NFC, NFC
+    "Père Noël Père Noël"     ~pos("oë", , 10)=             -- 8    NFC, NFC
+
+    "Père Noël Père Noël"~text~pos("oë", 8)=                -- 17   NFC, NFC
+    "Père Noël Père Noël"     ~pos("oë", 9)=                -- 20   NFC, NFC
+
+    "Père Noël Père Noël"~text~pos("oë", 8, 10)=            -- 0    NFC, NFC
+    "Père Noël Père Noël"     ~pos("oë", 9, 13)=            -- 0    NFC, NFC
+
+    "Père Noël Père Noël"~text~pos("oë", 8, 11)=            -- 17   NFC, NFC
+    "Père Noël Père Noël"     ~pos("oë", 9, 14)=            -- 20   NFC, NFC
+
+    ---
+
+    "Père Noël Père Noël"~text~pos("oë")=                   -- 7    NFD, NFC
+    "Père Noël Père Noël"     ~pos("oë")=                   -- 0    NFD, NFC    always 0, no need to test all the combinations
+
+    "Père Noël Père Noël"~text~pos("oë", , 7)=              -- 0    NFD, NFC
+
+    "Père Noël Père Noël"~text~pos("oë", , 8)=              -- 7    NFD, NFC
+
+    "Père Noël Père Noël"~text~pos("oë", 8)=                -- 17   NFD, NFC
+
+    "Père Noël Père Noël"~text~pos("oë", 8, 10)=            -- 0    NFD, NFC
+
+    "Père Noël Père Noël"~text~pos("oë", 8, 11)=            -- 17   NFD, NFC
+
+    ---
+
+    "Père Noël Père Noël"~text~pos("oë")=                   -- 7    NFC, NFD
+    "Père Noël Père Noël"     ~pos("oë")=                   -- 0    NFC, NFD   always 0, no need to test all the combinations
+
+    "Père Noël Père Noël"~text~pos("oë", , 7)=              -- 0    NFC, NFD
+
+    "Père Noël Père Noël"~text~pos("oë", , 8)=              -- 7    NFC, NFD
+
+    "Père Noël Père Noël"~text~pos("oë", 8)=                -- 17   NFC, NFD
+
+    "Père Noël Père Noël"~text~pos("oë", 8, 10)=            -- 0    NFC, NFD
+
+    "Père Noël Père Noël"~text~pos("oë", 8, 11)=            -- 17   NFC, NFD
+
+    ---
+
+    "Père Noël Père Noël"~text~pos("oë")=                   -- 7    NFD, NFD
+    "Père Noël Père Noël"     ~pos("oë")=                   -- 9    NFD, NFD
+
+    "Père Noël Père Noël"~text~pos("oë", , 7)=              -- 0    NFD, NFD
+    "Père Noël Père Noël"     ~pos("oë", , 11)=             -- 0    NFD, NFD
+
+    "Père Noël Père Noël"~text~pos("oë", , 8)=              -- 7    NFD, NFD
+    "Père Noël Père Noël"     ~pos("oë", , 12)=             -- 9    NFD, NFD
+
+    "Père Noël Père Noël"~text~pos("oë", 8)=                -- 17   NFD, NFD
+    "Père Noël Père Noël"     ~pos("oë", 10)=               -- 23   NFD, NFD
+
+    "Père Noël Père Noël"~text~pos("oë", 8, 10)=            -- 0    NFD, NFD
+    "Père Noël Père Noël"     ~pos("oë", 10, 16)=           -- 0    NFD, NFD
+
+    "Père Noël Père Noël"~text~pos("oë", 8, 11)=            -- 17   NFD, NFD
+    "Père Noël Père Noël"     ~pos("oë", 10, 17)=           -- 23   NFD, NFD
+
+    ---
+
+    "Père Noël Père Noël"~text~pos("oe")=                   -- 0    NFC, NFC    always 0, no need to test all the combinations
+    "Père Noël Père Noël"~text~pos("oe", stripMark:)=       -- 7    NFC, NFC
+
+    "Père Noël Père Noël"~text~pos("oe", , 7, stripMark:)=  -- 0    NFC, NFC
+
+    "Père Noël Père Noël"~text~pos("oe", , 8, stripMark:)=  -- 7    NFC, NFC
+
+    "Père Noël Père Noël"~text~pos("oe", 8, stripMark:)=    -- 17   NFC, NFC
+
+    "Père Noël Père Noël"~text~pos("oe", 8, 10, stripMark:)=-- 0    NFC, NFC
+
+    "Père Noël Père Noël"~text~pos("oe", 8, 11, stripMark:)=-- 17   NFC, NFC
+
+
+===============================================================================
+2023 Aug 26
+
+[Encoded strings]
+
 Crash when executing
 .unicode~character("ZERO_WIDTH-SPACE")=
 ---
@@ -591,7 +912,7 @@ The ligature disappears when casefolded
 "baﬄe"~text~casefold=                                        -- T'baffle'
 "BAFFLE"~text~caselessMatchChar(3, "ﬄ")=                     -- 1      "ﬄ" becomes "ffl" (3 graphemes), there is a match on "f" at 3
 "BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                     -- 1      "ﬄ" becomes "ffl" (3 graphemes), there is a match on "l" at 5
-"BAFFLE"~text~caselessMatchChar(5, "L")=                      -- 1      there is a match on "l" at 5
+"BAFFLE"~text~caselessMatchChar(5, "L")=                      -- 1      there is a match on "l" at 5 (forward to String)
 
 
 Implementation of caselessEquals, equals

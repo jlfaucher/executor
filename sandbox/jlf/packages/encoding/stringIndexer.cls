@@ -356,8 +356,32 @@ For example, if startB==6 then previousCodepointIndexB==3
     -- use strict arg -- none
 
 
-::method c2g abstract
-    -- use strict arg -- none
+::method c2g
+    use strict arg -- none
+    use strict named arg buffer(1)=.nil
+    characters = self~characters
+    returnBuffer = .nil <> buffer
+    if .nil == buffer then buffer = .MutableBuffer~new
+    first = .true
+    do while characters~available
+        if \first then buffer~append(" ")
+        first = .false
+        buffer~append(characters~item~string~c2x)
+        characters~next
+    end
+    if returnBuffer then return buffer
+                    else return buffer~string
+
+
+::method codepointIndexB
+    use strict arg indexC
+    if indexC < 1 then raise syntax 23.900 array (self~description "invalid codepoint index:" indexC)
+    if indexC > self~codepointCount then return self~string~length + 1
+    array = self~codepointIndexes
+    if .nil == array then return self~codeUnitSizeInBytes * (indexC - 1) + 1
+    indexB = self~codepointIndexes[indexC]
+    if .nil <> indexB then return indexB
+    return self~codeUnitSizeInBytes * (indexC - 1) + 1 -- sparse array: the value can be derived from the index
 
 
 ::method codepoints
@@ -382,8 +406,52 @@ For example, if startB==6 then previousCodepointIndexB==3
     return .CharacterSupplier~new(self)
 
 
-::method characterIndexB abstract
-    -- use strict arg indexC
+::method characterIndexB
+    use strict arg indexC
+    if indexC < 1 then raise syntax 23.900 array (self~description "invalid character index:" indexC)
+    if indexC > self~characterCount then return self~string~length + 1
+    array = self~characterIndexes
+    if .nil == array then return self~codeUnitSizeInBytes * (indexC - 1) + 1
+    indexB = array[indexC]
+    if .nil <> indexB then return indexB
+    return self~codeUnitSizeInBytes * (indexC - 1) + 1 -- sparse array: the value is equal to the index
+
+
+::method characterIndexC
+    -- binary search
+    -- negative when not aligned with the character index
+    use strict arg indexB, index1=1, index2=(self~length)
+    if indexB < 1 then raise syntax 23.900 array (self~description "invalid character index:" indexB)
+    if indexB > self~string~length then return self~characterCount + 1
+    array = self~characterIndexes
+    codeUnitSizeInBytes = self~codeUnitSizeInBytes
+    if .nil == array then return indexC(indexB)
+    do forever
+        if index1 > index2 then return -index2 -- -- negative when not aligned with the character index
+        indexC = (index1 + index2) % 2
+        item = array[indexC]
+        if .nil == item then item = indexB(indexC) -- sparse array: the value can be derived from the index
+                        else item = abs(item) -- the stored index can be negative to indicate an invalid character
+        if item == indexB then return indexC
+        if item > indexB then index2 = indexC - 1
+                         else index1 = indexC + 1
+    end
+    return -- should never reach here
+
+    indexB:
+        return codeUnitSizeInBytes * (indexC - 1) + 1
+
+    indexC:
+        /*
+        For example UTF-16, Unicode16:
+        indexB = 2 * (indexC - 1) + 1
+        indexB - 1 = 2 * (indexC - 1)
+        (indexB - 1) / 2 = indexC - 1
+        1 + (indexB - 1) / 2 = indexC
+        */
+        indexC = 1 + (indexB - 1) / codeUnitSizeInBytes
+        if indexC~dataType("W") then return indexC
+        return -(indexC~floor) -- negative when not aligned with the character index
 
 
 ::method character abstract
