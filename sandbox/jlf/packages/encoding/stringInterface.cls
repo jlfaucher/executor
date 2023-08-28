@@ -306,7 +306,7 @@
       2345678...
     */
     use strict arg needle, startC, lengthC
-    use strict named arg normalization, casefold, lump, stripIgnorable, stripMark
+    use strict named arg normalization, casefold, lump, stripIgnorable, stripMark, aligned
     -- todo
 
     needleText = needle~request("RexxText") -- not requestTextOrBufferOrString because we really need a RexxText
@@ -330,13 +330,16 @@
     posB = searchAreaNormalized~string~pos(needleTextNormalized~string)
     if posB == 0 then return 0
     posC = searchAreaNormalized~indexer~characterIndexC(posB)
-    if posC < 0 then signal byte_position_not_aligned_with_character
+    if posC < 0 then do
+        if aligned then signal byte_position_not_aligned_with_character
+        posC = abs(posC)"."posB -- number such as the integer part is the character index and the decimal part is the byte index
+    end
     return startC - 1 + posC
 
     argument_1_must_have_a_text_or_string_value: raise syntax 93.900 /*93.938*/ array("Method positional argument 1 must have a text or string value")
     invalid_position:                            raise syntax 93.924 array(startC)
     invalid_length:                              raise syntax 93.923 array(lengthC)
-    byte_position_not_aligned_with_character:    raise syntax 23.900 array(searchAreaNormalized~description "The byte position" posB "is not aligned with the character position" abs(posC))
+    byte_position_not_aligned_with_character:    raise syntax 23.900 array(searchAreaNormalized~descriptionForError "The byte position" posB "is not aligned with the character position" abs(posC))
 
 
 /******************************************************************************/
@@ -385,8 +388,8 @@
 
 ::method caselessPos
     use strict arg needle, startC=1, lengthC=(self~length)
-    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
-    return self~posText(needle, startC, lengthC, :normalization, casefold:.true, :lump, :stripIgnorable, :stripMark)
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false, aligned=.true
+    return self~posText(needle, startC, lengthC, :normalization, casefold:.true, :lump, :stripIgnorable, :stripMark, :aligned)
 
 
 ::method center
@@ -483,8 +486,8 @@
 
 ::method pos
     use strict arg needle, startC=1, lengthC=(self~length)
-    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
-    return self~posText(needle, startC, lengthC, :normalization, casefold:.false, :lump, :stripIgnorable, :stripMark)
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false, aligned=.true
+    return self~posText(needle, startC, lengthC, :normalization, casefold:.false, :lump, :stripIgnorable, :stripMark, :aligned)
 
 
 ::method reverse

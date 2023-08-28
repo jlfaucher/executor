@@ -2,6 +2,23 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2023 Aug 28
+
+[Encoded strings]
+
+Add a named argument 'aligned' to caselessPos, pos:
+- If aligned=.true (default) then raise an error if the byte position of the
+  result is not aligned with the character index.
+- If aligned=.false then return a number indexC.indexB when the result is not
+  aligned (number such as the integer part is the character index and the
+  decimal part is the byte index).
+Example:
+    "noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅")=                           -- UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
+    "noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅", aligned:.false)=           -- 5.27
+    "noël👩‍👨‍👩‍👧🎅"~text~pos("👩‍👨‍👩‍👧🎅", aligned:.false)=  -- 5 (no decimal part when the byte index is aligned)
+
+
+===============================================================================
 2023 Aug 26
 
 [Encoded strings]
