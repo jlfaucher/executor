@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 8 Feb 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S392aQ6000008e84e0
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 14 Aug 2023
+</span><span style="font-weight:bold;color:green;">Input queue name: S809fQ6000020c2150
 </span>
 <span style="font-weight:bold;color:blue;">----------------------------------
 </span><span style="font-weight:bold;color:blue;">-- Text encoding - Internal checks
@@ -88,15 +88,15 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.byte_encoding~encod
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s = &quot;63 C3 B4 74 65 CC 81 F0 9F 91 8D&quot;x  </span><span style="font-weight:bold;color:blue;">-- An UTF-8 string: 'côté👍'</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~decode(s, 1)=             </span><span style="font-weight:bold;color:blue;">-- 99</span>
  99
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~nextCodepointIndex(s, 1)= </span><span style="font-weight:bold;color:blue;">-- 2</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~nextCodepointIndexB(s, 1)= </span><span style="font-weight:bold;color:blue;">-- 2</span>
  2
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~decode(s, 2)=             </span><span style="font-weight:bold;color:blue;">-- 244</span>
  244
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~nextCodepointIndex(s, 2)= </span><span style="font-weight:bold;color:blue;">-- 4</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~nextCodepointIndexB(s, 2)= </span><span style="font-weight:bold;color:blue;">-- 4</span>
  4
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~decode(s, 8)=             </span><span style="font-weight:bold;color:blue;">-- 128077</span>
  128077
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~nextCodepointIndex(s, 8)= </span><span style="font-weight:bold;color:blue;">-- 12</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~nextCodepointIndexB(s, 8)= </span><span style="font-weight:bold;color:blue;">-- 12</span>
  12
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~decode(s, 12)=            </span><span style="font-weight:bold;color:blue;">-- .nil (end of string)</span>
 (The NIL object)
@@ -168,15 +168,15 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">t16~c2g=            
 <span style="font-weight:bold;color:blue;">-- If you don't pass a size to ~decode then the method calculates it, while checking the validity of the encoding
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~decode(s16, 1)=               </span><span style="font-weight:bold;color:blue;">-- 99</span>
  99
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~nextCodepointIndex(s16, 1)=   </span><span style="font-weight:bold;color:blue;">-- 3</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~nextCodepointIndexB(s16, 1)=   </span><span style="font-weight:bold;color:blue;">-- 3</span>
  3
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~decode(s16, 3)=               </span><span style="font-weight:bold;color:blue;">-- 244</span>
  244
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~nextCodepointIndex(s16, 3)=   </span><span style="font-weight:bold;color:blue;">-- 5</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~nextCodepointIndexB(s16, 3)=   </span><span style="font-weight:bold;color:blue;">-- 5</span>
  5
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~decode(s16, 11)=              </span><span style="font-weight:bold;color:blue;">-- 128077</span>
  128077
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~nextCodepointIndex(s16, 11)=  </span><span style="font-weight:bold;color:blue;">-- 15</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~nextCodepointIndexB(s16, 11)=  </span><span style="font-weight:bold;color:blue;">-- 15</span>
  15
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~decode(s16, 15)=              </span><span style="font-weight:bold;color:blue;">-- .nil (end of string)</span>
 (The NIL object)

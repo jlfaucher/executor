@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 4 Aug 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S14cb2Q600003d8e3c0
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 14 Aug 2023
+</span><span style="font-weight:bold;color:green;">Input queue name: S8f37Q6000020c34d0
 </span>
 <span style="font-weight:bold;color:blue;">--------------------
 </span><span style="font-weight:bold;color:blue;">-- Unicode libraries
@@ -1026,8 +1026,8 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöu
 T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE'
 
 <span style="font-weight:bold;color:blue;">-- The normalization forms are implemented only for UTF-8 and WTF-8.
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 DC01&quot;x~text(&quot;utf16&quot;)~nfd~UnicodeCharacters==    </span><span style="font-weight:bold;color:blue;">-- Method NFD is ABSTRACT and cannot be directly invoked.</span>
-<span style="font-weight:bold;color:red;">Method NFD is ABSTRACT and cannot be directly invoked.
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 DC01&quot;x~text(&quot;utf16&quot;)~nfd~UnicodeCharacters==    </span><span style="font-weight:bold;color:blue;">-- Method TRANSFORM is ABSTRACT and cannot be directly invoked.</span>
+<span style="font-weight:bold;color:red;">Method TRANSFORM is ABSTRACT and cannot be directly invoked.
 </span><span style="font-weight:bold;color:red;">Error code= 93.965
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 DC01&quot;x~text(&quot;utf16&quot;)~utf8~nfd~UnicodeCharacters==</span>
 an Array (shape [1], 1 items)

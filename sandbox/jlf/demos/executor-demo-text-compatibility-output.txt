@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 4 Aug 2023
-Input queue name: S14cecQ600003d8e3c0
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 14 Aug 2023
+Input queue name: S8f79Q6000020c34d0
 
 ooRexx[sh]> call loadUnicodeCharacterNames
 Load the Unicode character names 15.0.0 
@@ -84,7 +84,7 @@ limited to NFC. https://unicode.org/notes/tn5/
 The strict comparison operators use the NFC normalization.
 After normalization, they delegate to the String's strict comparison operators.
 
-The non-strict comparison operators use the NFC normalization plus
+The non-strict comparison operators use the NFKD normalization plus
     stripIgnorable:.true
     lump:.true
 After normalization + transformations, they delegate to the String's non-strict
@@ -186,11 +186,50 @@ passing NFKC + stripIgnorable.
 */
 
 
+-- caselessCompare
+-- casefold 2 characters: "ß" becomes "ss"
+ooRexx[sh]> "Bundesstraße im Freiland"~text~caselessCompare("Bundesstraße")=        -- 14
+ 14
+ooRexx[sh]> "Bundesstraße im Freiland"~text~caselessCompare("Bundesstraße", "_")=   -- 13
+ 13
+ooRexx[sh]> "Bundesstraße im Freiland"~text~caselessCompare("bundesstrasse")=       -- 14
+ 14
+ooRexx[sh]> "Bundesstrasse im Freiland"~text~caselessCompare("bundesstraße")=       -- 15
+ 15
+ooRexx[sh]> "straßssßßssse"~text~compare("stra", "ß")=                              --  6
+ 6
+ooRexx[sh]> "straßssßßssse"~text~caselessCompare("stra", "ß")=                      -- 13 (questionable? the last 's' match half of the pad 'ss')
+ 13
+
+
 -- caselessCompareTo
 ooRexx[sh]> "pere noel"~text~caselessCompareTo("Père Noël")=                    -- -1 (lesser)
 -1
 ooRexx[sh]> "pere noel"~text~caselessCompareTo("Père Noël", stripMark:.true)=   --  0 (equal because the accents are ignored)
  0
+
+
+-- caselessEndsWith
+ooRexx[sh]> "hello"~text~caselessEndsWith("")=                  -- false
+ 0
+ooRexx[sh]> "hello"~text~caselessEndsWith("O")=                 -- true
+ 1
+ooRexx[sh]> "hello"~text~caselessEndsWith("Ô")=                 -- false
+ 0
+ooRexx[sh]> "hello"~text~caselessEndsWith("Ô", stripMark:)=     -- true
+ 1
+"noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("🎅")=                -- true
+ 1
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("👧🎅")=              -- true (yes... not required to be aligned with a grapheme)
+ 1
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("‍👧🎅")=             -- true (yes... not required to be aligned with a grapheme)
+ 1
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("👩‍👧🎅")=           -- true (yes... not required to be aligned with a grapheme)
+ 1
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("ël👩‍👨‍👩‍👧🎅")=   -- true
+ 1
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("ËL👩‍👨‍👩‍👧🎅")=   -- true
+ 1
 
 
 -- caselessEquals
@@ -201,6 +240,27 @@ ooRexx[sh]> "œuf"~text~caselessEquals("ŒUF")=           -- 1
 ooRexx[sh]> "Straße"~text~caselessEquals("strasse")=    -- 1
  1
 ooRexx[sh]> "strasse"~text~caselessEquals("Straße")=    -- 1
+ 1
+
+-- caselessEquals (cont.) strict versus non-strict
+ooRexx[sh]> string1 = "LE\u{IDEOGRAPHIC SPACE}PÈ\u{ZERO-WIDTH-SPACE}RE\u{HYPHEN}NOËL"~text~unescape
+ooRexx[sh]> string2 = "Le\u{OGHAM SPACE MARK}Père\u{EN DASH}No\u{ZERO-WIDTH-SPACE}ël"~text~unescape
+ooRexx[sh]> string1=                                                -- T'LE　PÈ​RE‐NOËL
+T'LE　PÈ​RE‐NOËL'
+ooRexx[sh]> string2=                                                -- T'Le Père–No​ël'
+T'Le Père–No​ël'
+ooRexx[sh]> string1~c2x=                                            -- '4C 45 E38080 50 C388 E2808B 52 45 E28090 4E 4F C38B 4C'
+'4C 45 E38080 50 C388 E2808B 52 45 E28090 4E 4F C38B 4C'
+ooRexx[sh]> string2~c2x=                                            -- '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
+'4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
+ooRexx[sh]> string1~caselessEquals(string2)=                        -- false (strict mode)
+ 0
+ooRexx[sh]> -- The non-strict mode applies these transformations:
+ooRexx[sh]> string1~nfkd(casefold:, lump:, stripIgnorable:)~c2x=    -- '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
+'6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
+ooRexx[sh]> string2~nfkd(casefold:, lump:, stripIgnorable:)~c2x=    -- '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
+'6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
+ooRexx[sh]> string1~caselessEquals(string2, strict:.false)=         -- true (non-strict mode)
  1
 
 
@@ -238,6 +298,28 @@ ooRexx[sh]> "ŒUF"~text~caselessEquals("oeuf")=                                 
  0
 ooRexx[sh]> "ŒUF"~text~caselessEquals("oeuf", normalization:.Unicode~NFKC)=     -- 0
  0
+
+
+-- caselessPos
+ooRexx[sh]> "Père Noël Père Noël"~text~caselessPos("OË")=                   -- 7
+ 7
+ooRexx[sh]> "Père Noël Père Noël"~text~caselessPos("OË", 8)=                -- 17
+ 17
+ooRexx[sh]> "Père Noël Père Noël"~text~caselessPos("OË", 8, 10)=            -- 0
+ 0
+ooRexx[sh]> "Père Noël Père Noël"~text~caselessPos("OE")=                   -- 0
+ 0
+ooRexx[sh]> "Père Noël Père Noël"~text~caselessPos("OE", stripMark:)=       -- 7
+ 7
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessPos("🎅")=                     -- 6
+ 6
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👧🎅")=                   -- UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
+UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
+Error code= 23.900
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👧🎅", aligned:.false)=   -- 5.27 (the integer part is the character index and the  decimal part is the byte index)
+ 5.27
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👩‍👨‍👩‍👧🎅", aligned:.false)=   -- 5 (no decimal part when the byte index is aligned)
+ 5
 
 
 -- center
@@ -312,35 +394,110 @@ T'noël👩‍👨‍👩‍👧🎅'
 'UTF-8 not-ASCII (6 characters, 12 codepoints, 34 bytes, 0 error)'
 
 
+-- compare
+ooRexx[sh]> "Bundesstraße im Freiland"~text~compare("Bundesstraße")=        -- 14
+ 14
+ooRexx[sh]> "Bundesstraße im Freiland"~text~compare("Bundesstraße", "_")=   -- 13
+ 13
+ooRexx[sh]> "Bundesstraße im Freiland"~text~compare("Bundesstrasse")=       -- 11
+ 11
+ooRexx[sh]> "Bundesstrasse im Freiland"~text~compare("Bundesstraße")=       -- 11
+ 11
+ooRexx[sh]> "straßssßßssse"~text~compare("stra", "ß")=                      --  6
+ 6
+
+
+-- compareTo
+ooRexx[sh]> "pere noel"~text~compareTo("père noël")=                    -- -1 (lesser)
+-1
+ooRexx[sh]> "pere noel"~text~compareTo("père noël", stripMark:.true)=   --  0 (equal because the accents are ignored)
+ 0
+
+
 -- contains
 ooRexx[sh]> "noel"~text~contains("oe")=                 -- forward to String
  1
 ooRexx[sh]> "noel"~text~contains("oe"~text)=            -- forward to String
  1
 ooRexx[sh]> "noel"~text~contains("oë")=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 0
 ooRexx[sh]> "noel"~text~contains("oë"~text)=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 0
 ooRexx[sh]> "noël"~text~contains("oe")=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 0
 ooRexx[sh]> "noël"~text~contains("oe"~text)=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 0
 ooRexx[sh]> "noël"~text~contains("oë")=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 1
 ooRexx[sh]> "noël"~text~contains("oë"~text)=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 1
 
 
 -- copies
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~copies(4)=; result~description=
 T'noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅'
 'UTF-8 not-ASCII (24 characters, 48 codepoints, 136 bytes, 0 error)'
+
+
+-- endsWith
+ooRexx[sh]> "hello"~text~endsWith("")=                  -- false
+ 0
+ooRexx[sh]> "hello"~text~endsWith("o")=                 -- true
+ 1
+ooRexx[sh]> "hello"~text~endsWith("ô")=                 -- false
+ 0
+ooRexx[sh]> "hello"~text~endsWith("ô", stripMark:)=     -- true
+ 1
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~endsWith("🎅")=                -- true
+ 1
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~endsWith("👧🎅")=              -- true (yes... not required to be aligned with a grapheme)
+ 1
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~endsWith("‍👧🎅")=             -- true (yes... not required to be aligned with a grapheme)
+ 1
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~endsWith("👩‍👧🎅")=           -- true (yes... not required to be aligned with a grapheme)
+ 1
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~endsWith("ël👩‍👨‍👩‍👧🎅")=   -- true
+ 1
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~endsWith("ËL👩‍👨‍👩‍👧🎅")=   -- false
+ 0
+
+
+-- equals
+ooRexx[sh]> "ŒUF"~text~lower~equals("œuf")=             -- true
+ 1
+ooRexx[sh]> "ŒUF"~text~equals("œuf")=                   -- false (would be true if caseless)
+ 0
+ooRexx[sh]> "œuf"~text~equals("ŒUF")=                   -- false (would be true if caseless)
+ 0
+ooRexx[sh]> "Straße"~text~lower~equals("straße")=       -- true (U+00DF "LATIN SMALL LETTER SHARP S" remains unchanged since it's already a lower letter)
+ 1
+ooRexx[sh]> "Straße"~text~casefold~equals("strasse")=   -- true (U+00DF "LATIN SMALL LETTER SHARP S" becomes "ss" when casefolded)
+ 1
+ooRexx[sh]> "Straße"~text~equals("strasse")=            -- false (would be true if caseless)
+ 0
+ooRexx[sh]> "strasse"~text~equals("Straße")=            -- false (would be true if caseless)
+ 0
+
+-- equals (cont.) strict versus non-strict
+ooRexx[sh]> string1 = "Le\u{IDEOGRAPHIC SPACE}Pè\u{ZERO-WIDTH-SPACE}re\u{HYPHEN}Noël"~text~unescape
+ooRexx[sh]> string2 = "Le\u{OGHAM SPACE MARK}Père\u{EN DASH}No\u{ZERO-WIDTH-SPACE}ël"~text~unescape
+ooRexx[sh]> string1=                                    -- T'Le　Pè​re‐Noël'
+T'Le　Pè​re‐Noël'
+ooRexx[sh]> string2=                                    -- T'Le Père–No​ël'
+T'Le Père–No​ël'
+ooRexx[sh]> string1~c2x=                                -- '4C 65 E38080 50 C3A8 E2808B 72 65 E28090 4E 6F C3AB 6C'
+'4C 65 E38080 50 C3A8 E2808B 72 65 E28090 4E 6F C3AB 6C'
+ooRexx[sh]> string2~c2x=                                -- '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
+'4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
+ooRexx[sh]> string1~equals(string2)=                    -- false (strict mode)
+ 0
+ooRexx[sh]> -- The non-strict mode applies these transformations:
+ooRexx[sh]> string1~nfkd(lump:, stripIgnorable:)~c2x=   -- '4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'
+'4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'
+ooRexx[sh]> string2~nfkd(lump:, stripIgnorable:)~c2x=   -- '4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'
+'4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'
+ooRexx[sh]> string1~equals(string2, strict:.false)=     -- true (non-strict mode)
+ 1
 
 
 -- hashCode
@@ -350,9 +507,39 @@ ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~hashCode~c2x=
 '8FA5DCDA35AE1A58'
 
 
+-- left
+ooRexx[sh]> do i=0 to 9; "left("i") = " || "noël👩‍👨‍👩‍👧🎅"~text~left(i)=; end
+T'left(0) = '
+T'left(1) = n'
+T'left(2) = no'
+T'left(3) = noë'
+T'left(4) = noël'
+T'left(5) = noël👩‍👨‍👩‍👧'
+T'left(6) = noël👩‍👨‍👩‍👧🎅'
+T'left(7) = noël👩‍👨‍👩‍👧🎅 '
+T'left(8) = noël👩‍👨‍👩‍👧🎅  '
+T'left(9) = noël👩‍👨‍👩‍👧🎅   '
+ooRexx[sh]> do i=0 to 9; "left("i", ▷) = " || "noël👩‍👨‍👩‍👧🎅"~text~left(i, "▷")=; end
+T'left(0, ▷) = '
+T'left(1, ▷) = n'
+T'left(2, ▷) = no'
+T'left(3, ▷) = noë'
+T'left(4, ▷) = noël'
+T'left(5, ▷) = noël👩‍👨‍👩‍👧'
+T'left(6, ▷) = noël👩‍👨‍👩‍👧🎅'
+T'left(7, ▷) = noël👩‍👨‍👩‍👧🎅▷'
+T'left(8, ▷) = noël👩‍👨‍👩‍👧🎅▷▷'
+T'left(9, ▷) = noël👩‍👨‍👩‍👧🎅▷▷▷'
+
+
 -- length
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~length=
  6
+
+
+-- lower
+ooRexx[sh]> "LE PÈRE NOËL EST FATIGUÉ..."~text~lower=       -- T'le père noël est fatigué...'
+T'le père noël est fatigué...'
 
 
 -- match
@@ -444,29 +631,80 @@ ooRexx[sh]> "noel"~text~pos("oe")=                      -- forward to String
 ooRexx[sh]> "noel"~text~pos("oe"~text)=                 -- forward to String
  2
 ooRexx[sh]> "noel"~text~pos("oë")=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 0
 ooRexx[sh]> "noel"~text~pos("oë"~text)=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 0
 ooRexx[sh]> "noël"~text~pos("oe")=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 0
 ooRexx[sh]> "noël"~text~pos("oe"~text)=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 0
 ooRexx[sh]> "noël"~text~pos("oë")=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 2
 ooRexx[sh]> "noël"~text~pos("oë"~text)=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 2
 ooRexx[sh]> "noël"~text~pos("l")=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 4
 ooRexx[sh]> "noël"~text~pos("l"~text)=
-Message "POSTEXT" did not return a result.
-Error code= 91.999
+ 4
+ooRexx[sh]> "Père Noël Père Noël"~text~pos("oë")=                   -- 7
+ 7
+ooRexx[sh]> "Père Noël Père Noël"~text~pos("oë", 8)=                -- 17
+ 17
+ooRexx[sh]> "Père Noël Père Noël"~text~pos("oë", 8, 10)=            -- 0
+ 0
+ooRexx[sh]> "Père Noël Père Noël"~text~pos("oe")=                   -- 0
+ 0
+ooRexx[sh]> "Père Noël Père Noël"~text~pos("oe", stripMark:)=       -- 7
+ 7
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~pos("🎅")=                     -- 6
+ 6
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅")=                   -- UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
+UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
+Error code= 23.900
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅", aligned:.false)=   -- 5.27
+ 5.27
+
+
+-- reverse (correct)
+ooRexx[sh]> "noël"~text~c2x=            -- '6E 6F C3AB 6C'
+'6E 6F C3AB 6C'
+ooRexx[sh]> "noël"~text~reverse~c2x=    -- '6C C3AB 6F 6E'
+'6C C3AB 6F 6E'
+ooRexx[sh]> "noël"~text~reverse=        -- T'lëon'
+T'lëon'
+
+-- reverse (wrong)
+ooRexx[sh]> "noël"~c2x=             -- '6E6FC3AB6C'
+'6E6FC3AB6C'
+ooRexx[sh]> "noël"~reverse~c2x=     -- '6CABC36F6E'
+'6CABC36F6E'
+ooRexx[sh]> "noël"~reverse=         -- 'l??on'
+'l��on'
+
+
+-- right
+ooRexx[sh]> do i=0 to 9; "right("i") = " || "noël👩‍👨‍👩‍👧🎅"~text~right(i)=; end
+T'right(0) = '
+T'right(1) = 🎅'
+T'right(2) = 👩‍👨‍👩‍👧🎅'
+T'right(3) = l👩‍👨‍👩‍👧🎅'
+T'right(4) = ël👩‍👨‍👩‍👧🎅'
+T'right(5) = oël👩‍👨‍👩‍👧🎅'
+T'right(6) = noël👩‍👨‍👩‍👧🎅'
+T'right(7) =  noël👩‍👨‍👩‍👧🎅'
+T'right(8) =   noël👩‍👨‍👩‍👧🎅'
+T'right(9) =    noël👩‍👨‍👩‍👧🎅'
+ooRexx[sh]> do i=0 to 9; "right("i", ▷) = " || "noël👩‍👨‍👩‍👧🎅"~text~right(i, "▷")=; end
+T'right(0, ▷) = '
+T'right(1, ▷) = 🎅'
+T'right(2, ▷) = 👩‍👨‍👩‍👧🎅'
+T'right(3, ▷) = l👩‍👨‍👩‍👧🎅'
+T'right(4, ▷) = ël👩‍👨‍👩‍👧🎅'
+T'right(5, ▷) = oël👩‍👨‍👩‍👧🎅'
+T'right(6, ▷) = noël👩‍👨‍👩‍👧🎅'
+T'right(7, ▷) = ▷noël👩‍👨‍👩‍👧🎅'
+T'right(8, ▷) = ▷▷noël👩‍👨‍👩‍👧🎅'
+T'right(9, ▷) = ▷▷▷noël👩‍👨‍👩‍👧🎅'
 
 
 -- subchar
@@ -500,6 +738,13 @@ T'ël👩‍👨‍👩‍👧'
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~substr(3, 6, "▷")=; result~description=
 T'ël👩‍👨‍👩‍👧🎅▷▷'
 'UTF-8 not-ASCII (6 characters, 12 codepoints, 38 bytes, 0 error)'
+
+
+-- upper
+ooRexx[sh]> "Le père Noël est fatigué..."~text~upper=       -- T'LE PÈRE NOËL EST FATIGUÉ...'
+T'LE PÈRE NOËL EST FATIGUÉ...'
+
+
 
 
 -- x2c

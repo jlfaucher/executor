@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 4 Aug 2023
-Input queue name: S14cb2Q600003d8e3c0
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 14 Aug 2023
+Input queue name: S8f37Q6000020c34d0
 
 --------------------
 -- Unicode libraries
@@ -1016,8 +1016,8 @@ ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~upper=       -- T'Ä�
 T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE'
 
 -- The normalization forms are implemented only for UTF-8 and WTF-8.
-ooRexx[sh]> "D800 DC01"x~text("utf16")~nfd~UnicodeCharacters==    -- Method NFD is ABSTRACT and cannot be directly invoked.
-Method NFD is ABSTRACT and cannot be directly invoked.
+ooRexx[sh]> "D800 DC01"x~text("utf16")~nfd~UnicodeCharacters==    -- Method TRANSFORM is ABSTRACT and cannot be directly invoked.
+Method TRANSFORM is ABSTRACT and cannot be directly invoked.
 Error code= 93.965
 ooRexx[sh]> "D800 DC01"x~text("utf16")~utf8~nfd~UnicodeCharacters==
 an Array (shape [1], 1 items)

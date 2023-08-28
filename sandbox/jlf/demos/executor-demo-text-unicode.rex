@@ -521,7 +521,7 @@ sleep
 sleep no prompt
 
 -- The normalization forms are implemented only for UTF-8 and WTF-8.
-"D800 DC01"x~text("utf16")~nfd~UnicodeCharacters==    -- Method NFD is ABSTRACT and cannot be directly invoked.
+"D800 DC01"x~text("utf16")~nfd~UnicodeCharacters==    -- Method TRANSFORM is ABSTRACT and cannot be directly invoked.
 sleep
 "D800 DC01"x~text("utf16")~utf8~nfd~UnicodeCharacters==
 sleep

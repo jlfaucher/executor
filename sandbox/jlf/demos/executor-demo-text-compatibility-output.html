@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 4 Aug 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S14cecQ600003d8e3c0
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 14 Aug 2023
+</span><span style="font-weight:bold;color:green;">Input queue name: S8f79Q6000020c34d0
 </span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.0.0 
@@ -94,7 +94,7 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍�
 </span><span style="font-weight:bold;color:blue;">The strict comparison operators use the NFC normalization.
 </span><span style="font-weight:bold;color:blue;">After normalization, they delegate to the String's strict comparison operators.
 </span><span style="font-weight:bold;color:blue;">
-</span><span style="font-weight:bold;color:blue;">The non-strict comparison operators use the NFC normalization plus
+</span><span style="font-weight:bold;color:blue;">The non-strict comparison operators use the NFKD normalization plus
 </span><span style="font-weight:bold;color:blue;">    stripIgnorable:.true
 </span><span style="font-weight:bold;color:blue;">    lump:.true
 </span><span style="font-weight:bold;color:blue;">After normalization + transformations, they delegate to the String's non-strict
@@ -196,11 +196,50 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~text~
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
 
+<span style="font-weight:bold;color:blue;">-- caselessCompare
+</span><span style="font-weight:bold;color:blue;">-- casefold 2 characters: &quot;ß&quot; becomes &quot;ss&quot;
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstraße im Freiland&quot;~text~caselessCompare(&quot;Bundesstraße&quot;)=        </span><span style="font-weight:bold;color:blue;">-- 14</span>
+ 14
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstraße im Freiland&quot;~text~caselessCompare(&quot;Bundesstraße&quot;, &quot;_&quot;)=   </span><span style="font-weight:bold;color:blue;">-- 13</span>
+ 13
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstraße im Freiland&quot;~text~caselessCompare(&quot;bundesstrasse&quot;)=       </span><span style="font-weight:bold;color:blue;">-- 14</span>
+ 14
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstrasse im Freiland&quot;~text~caselessCompare(&quot;bundesstraße&quot;)=       </span><span style="font-weight:bold;color:blue;">-- 15</span>
+ 15
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;straßssßßssse&quot;~text~compare(&quot;stra&quot;, &quot;ß&quot;)=                              </span><span style="font-weight:bold;color:blue;">--  6</span>
+ 6
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;straßssßßssse&quot;~text~caselessCompare(&quot;stra&quot;, &quot;ß&quot;)=                      </span><span style="font-weight:bold;color:blue;">-- 13 (questionable? the last 's' match half of the pad 'ss')</span>
+ 13
+
+
 <span style="font-weight:bold;color:blue;">-- caselessCompareTo
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;pere noel&quot;~text~caselessCompareTo(&quot;Père Noël&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- -1 (lesser)</span>
 -1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;pere noel&quot;~text~caselessCompareTo(&quot;Père Noël&quot;, stripMark:.true)=   </span><span style="font-weight:bold;color:blue;">--  0 (equal because the accents are ignored)</span>
  0
+
+
+<span style="font-weight:bold;color:blue;">-- caselessEndsWith
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~text~caselessEndsWith(&quot;&quot;)=                  </span><span style="font-weight:bold;color:blue;">-- false</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~text~caselessEndsWith(&quot;O&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- true</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~text~caselessEndsWith(&quot;Ô&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- false</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~text~caselessEndsWith(&quot;Ô&quot;, stripMark:)=     </span><span style="font-weight:bold;color:blue;">-- true</span>
+ 1
+<span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessEndsWith(&quot;🎅&quot;)=                </span><span style="font-weight:bold;color:blue;">-- true</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessEndsWith(&quot;👧🎅&quot;)=              </span><span style="font-weight:bold;color:blue;">-- true (yes... not required to be aligned with a grapheme)</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessEndsWith(&quot;‍👧🎅&quot;)=             </span><span style="font-weight:bold;color:blue;">-- true (yes... not required to be aligned with a grapheme)</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessEndsWith(&quot;👩‍👧🎅&quot;)=           </span><span style="font-weight:bold;color:blue;">-- true (yes... not required to be aligned with a grapheme)</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessEndsWith(&quot;ël👩‍👨‍👩‍👧🎅&quot;)=   </span><span style="font-weight:bold;color:blue;">-- true</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessEndsWith(&quot;ËL👩‍👨‍👩‍👧🎅&quot;)=   </span><span style="font-weight:bold;color:blue;">-- true</span>
+ 1
 
 
 <span style="font-weight:bold;color:blue;">-- caselessEquals
@@ -211,6 +250,27 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;œuf&quot;~tex
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Straße&quot;~text~caselessEquals(&quot;strasse&quot;)=    </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;strasse&quot;~text~caselessEquals(&quot;Straße&quot;)=    </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+
+<span style="font-weight:bold;color:blue;">-- caselessEquals (cont.) strict versus non-strict
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1 = &quot;LE\u{IDEOGRAPHIC SPACE}PÈ\u{ZERO-WIDTH-SPACE}RE\u{HYPHEN}NOËL&quot;~text~unescape</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string2 = &quot;Le\u{OGHAM SPACE MARK}Père\u{EN DASH}No\u{ZERO-WIDTH-SPACE}ël&quot;~text~unescape</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1=                                                </span><span style="font-weight:bold;color:blue;">-- T'LE　PÈ​RE‐NOËL</span>
+T'LE　PÈ​RE‐NOËL'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string2=                                                </span><span style="font-weight:bold;color:blue;">-- T'Le Père–No​ël'</span>
+T'Le Père–No​ël'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~c2x=                                            </span><span style="font-weight:bold;color:blue;">-- '4C 45 E38080 50 C388 E2808B 52 45 E28090 4E 4F C38B 4C'</span>
+'4C 45 E38080 50 C388 E2808B 52 45 E28090 4E 4F C38B 4C'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string2~c2x=                                            </span><span style="font-weight:bold;color:blue;">-- '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'</span>
+'4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~caselessEquals(string2)=                        </span><span style="font-weight:bold;color:blue;">-- false (strict mode)</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:blue;">-- The non-strict mode applies these transformations:
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~nfkd(casefold:, lump:, stripIgnorable:)~c2x=    </span><span style="font-weight:bold;color:blue;">-- '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'</span>
+'6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string2~nfkd(casefold:, lump:, stripIgnorable:)~c2x=    </span><span style="font-weight:bold;color:blue;">-- '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'</span>
+'6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~caselessEquals(string2, strict:.false)=         </span><span style="font-weight:bold;color:blue;">-- true (non-strict mode)</span>
  1
 
 
@@ -248,6 +308,28 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~t
  0
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;ŒUF&quot;~text~caselessEquals(&quot;oeuf&quot;, normalization:.Unicode~NFKC)=     </span><span style="font-weight:bold;color:blue;">-- 0</span>
  0
+
+
+<span style="font-weight:bold;color:blue;">-- caselessPos
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;OË&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 7</span>
+ 7
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;OË&quot;, 8)=                </span><span style="font-weight:bold;color:blue;">-- 17</span>
+ 17
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;OË&quot;, 8, 10)=            </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;OE&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;OE&quot;, stripMark:)=       </span><span style="font-weight:bold;color:blue;">-- 7</span>
+ 7
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessPos(&quot;🎅&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- 6</span>
+ 6
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessPos(&quot;👧🎅&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.</span>
+<span style="font-weight:bold;color:red;">UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessPos(&quot;👧🎅&quot;, aligned:.false)=   </span><span style="font-weight:bold;color:blue;">-- 5.27 (the integer part is the character index and the  decimal part is the byte index)</span>
+ 5.27
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessPos(&quot;👩‍👨‍👩‍👧🎅&quot;, aligned:.false)=   </span><span style="font-weight:bold;color:blue;">-- 5 (no decimal part when the byte index is aligned)</span>
+ 5
 
 
 <span style="font-weight:bold;color:blue;">-- center
@@ -322,35 +404,110 @@ T'noël👩‍👨‍👩‍👧🎅'
 'UTF-8 not-ASCII (6 characters, 12 codepoints, 34 bytes, 0 error)'
 
 
+<span style="font-weight:bold;color:blue;">-- compare
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstraße im Freiland&quot;~text~compare(&quot;Bundesstraße&quot;)=        </span><span style="font-weight:bold;color:blue;">-- 14</span>
+ 14
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstraße im Freiland&quot;~text~compare(&quot;Bundesstraße&quot;, &quot;_&quot;)=   </span><span style="font-weight:bold;color:blue;">-- 13</span>
+ 13
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstraße im Freiland&quot;~text~compare(&quot;Bundesstrasse&quot;)=       </span><span style="font-weight:bold;color:blue;">-- 11</span>
+ 11
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstrasse im Freiland&quot;~text~compare(&quot;Bundesstraße&quot;)=       </span><span style="font-weight:bold;color:blue;">-- 11</span>
+ 11
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;straßssßßssse&quot;~text~compare(&quot;stra&quot;, &quot;ß&quot;)=                      </span><span style="font-weight:bold;color:blue;">--  6</span>
+ 6
+
+
+<span style="font-weight:bold;color:blue;">-- compareTo
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;pere noel&quot;~text~compareTo(&quot;père noël&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- -1 (lesser)</span>
+-1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;pere noel&quot;~text~compareTo(&quot;père noël&quot;, stripMark:.true)=   </span><span style="font-weight:bold;color:blue;">--  0 (equal because the accents are ignored)</span>
+ 0
+
+
 <span style="font-weight:bold;color:blue;">-- contains
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~text~contains(&quot;oe&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
  1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~text~contains(&quot;oe&quot;~text)=            </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
  1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~text~contains(&quot;oë&quot;)=</span>
-<span style="font-weight:bold;color:red;">Message &quot;POSTEXT&quot; did not return a result.
-</span><span style="font-weight:bold;color:red;">Error code= 91.999
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~text~contains(&quot;oë&quot;~text)=</span>
-<span style="font-weight:bold;color:red;">Message &quot;POSTEXT&quot; did not return a result.
-</span><span style="font-weight:bold;color:red;">Error code= 91.999
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~contains(&quot;oe&quot;)=</span>
-<span style="font-weight:bold;color:red;">Message &quot;POSTEXT&quot; did not return a result.
-</span><span style="font-weight:bold;color:red;">Error code= 91.999
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~contains(&quot;oe&quot;~text)=</span>
-<span style="font-weight:bold;color:red;">Message &quot;POSTEXT&quot; did not return a result.
-</span><span style="font-weight:bold;color:red;">Error code= 91.999
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~contains(&quot;oë&quot;)=</span>
-<span style="font-weight:bold;color:red;">Message &quot;POSTEXT&quot; did not return a result.
-</span><span style="font-weight:bold;color:red;">Error code= 91.999
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~contains(&quot;oë&quot;~text)=</span>
-<span style="font-weight:bold;color:red;">Message &quot;POSTEXT&quot; did not return a result.
-</span><span style="font-weight:bold;color:red;">Error code= 91.999
-</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~text~contains(&quot;oë&quot;~text)=</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~contains(&quot;oe&quot;)=</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~contains(&quot;oe&quot;~text)=</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~contains(&quot;oë&quot;)=</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~contains(&quot;oë&quot;~text)=</span>
+ 1
+
 
 <span style="font-weight:bold;color:blue;">-- copies
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~copies(4)=; result~description=</span>
 T'noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅'
 'UTF-8 not-ASCII (24 characters, 48 codepoints, 136 bytes, 0 error)'
+
+
+<span style="font-weight:bold;color:blue;">-- endsWith
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~text~endsWith(&quot;&quot;)=                  </span><span style="font-weight:bold;color:blue;">-- false</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~text~endsWith(&quot;o&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- true</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~text~endsWith(&quot;ô&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- false</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~text~endsWith(&quot;ô&quot;, stripMark:)=     </span><span style="font-weight:bold;color:blue;">-- true</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~endsWith(&quot;🎅&quot;)=                </span><span style="font-weight:bold;color:blue;">-- true</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~endsWith(&quot;👧🎅&quot;)=              </span><span style="font-weight:bold;color:blue;">-- true (yes... not required to be aligned with a grapheme)</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~endsWith(&quot;‍👧🎅&quot;)=             </span><span style="font-weight:bold;color:blue;">-- true (yes... not required to be aligned with a grapheme)</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~endsWith(&quot;👩‍👧🎅&quot;)=           </span><span style="font-weight:bold;color:blue;">-- true (yes... not required to be aligned with a grapheme)</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~endsWith(&quot;ël👩‍👨‍👩‍👧🎅&quot;)=   </span><span style="font-weight:bold;color:blue;">-- true</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~endsWith(&quot;ËL👩‍👨‍👩‍👧🎅&quot;)=   </span><span style="font-weight:bold;color:blue;">-- false</span>
+ 0
+
+
+<span style="font-weight:bold;color:blue;">-- equals
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;ŒUF&quot;~text~lower~equals(&quot;œuf&quot;)=             </span><span style="font-weight:bold;color:blue;">-- true</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;ŒUF&quot;~text~equals(&quot;œuf&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- false (would be true if caseless)</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;œuf&quot;~text~equals(&quot;ŒUF&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- false (would be true if caseless)</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Straße&quot;~text~lower~equals(&quot;straße&quot;)=       </span><span style="font-weight:bold;color:blue;">-- true (U+00DF &quot;LATIN SMALL LETTER SHARP S&quot; remains unchanged since it's already a lower letter)</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Straße&quot;~text~casefold~equals(&quot;strasse&quot;)=   </span><span style="font-weight:bold;color:blue;">-- true (U+00DF &quot;LATIN SMALL LETTER SHARP S&quot; becomes &quot;ss&quot; when casefolded)</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Straße&quot;~text~equals(&quot;strasse&quot;)=            </span><span style="font-weight:bold;color:blue;">-- false (would be true if caseless)</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;strasse&quot;~text~equals(&quot;Straße&quot;)=            </span><span style="font-weight:bold;color:blue;">-- false (would be true if caseless)</span>
+ 0
+
+<span style="font-weight:bold;color:blue;">-- equals (cont.) strict versus non-strict
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1 = &quot;Le\u{IDEOGRAPHIC SPACE}Pè\u{ZERO-WIDTH-SPACE}re\u{HYPHEN}Noël&quot;~text~unescape</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string2 = &quot;Le\u{OGHAM SPACE MARK}Père\u{EN DASH}No\u{ZERO-WIDTH-SPACE}ël&quot;~text~unescape</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1=                                    </span><span style="font-weight:bold;color:blue;">-- T'Le　Pè​re‐Noël'</span>
+T'Le　Pè​re‐Noël'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string2=                                    </span><span style="font-weight:bold;color:blue;">-- T'Le Père–No​ël'</span>
+T'Le Père–No​ël'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~c2x=                                </span><span style="font-weight:bold;color:blue;">-- '4C 65 E38080 50 C3A8 E2808B 72 65 E28090 4E 6F C3AB 6C'</span>
+'4C 65 E38080 50 C3A8 E2808B 72 65 E28090 4E 6F C3AB 6C'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string2~c2x=                                </span><span style="font-weight:bold;color:blue;">-- '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'</span>
+'4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~equals(string2)=                    </span><span style="font-weight:bold;color:blue;">-- false (strict mode)</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:blue;">-- The non-strict mode applies these transformations:
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~nfkd(lump:, stripIgnorable:)~c2x=   </span><span style="font-weight:bold;color:blue;">-- '4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'</span>
+'4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string2~nfkd(lump:, stripIgnorable:)~c2x=   </span><span style="font-weight:bold;color:blue;">-- '4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'</span>
+'4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~equals(string2, strict:.false)=     </span><span style="font-weight:bold;color:blue;">-- true (non-strict mode)</span>
+ 1
 
 
 <span style="font-weight:bold;color:blue;">-- hashCode
@@ -360,9 +517,39 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍�
 '8FA5DCDA35AE1A58'
 
 
+<span style="font-weight:bold;color:blue;">-- left
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">do i=0 to 9; &quot;left(&quot;i&quot;) = &quot; || &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~left(i)=; end</span>
+T'left(0) = '
+T'left(1) = n'
+T'left(2) = no'
+T'left(3) = noë'
+T'left(4) = noël'
+T'left(5) = noël👩‍👨‍👩‍👧'
+T'left(6) = noël👩‍👨‍👩‍👧🎅'
+T'left(7) = noël👩‍👨‍👩‍👧🎅 '
+T'left(8) = noël👩‍👨‍👩‍👧🎅  '
+T'left(9) = noël👩‍👨‍👩‍👧🎅   '
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">do i=0 to 9; &quot;left(&quot;i&quot;, ▷) = &quot; || &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~left(i, &quot;▷&quot;)=; end</span>
+T'left(0, ▷) = '
+T'left(1, ▷) = n'
+T'left(2, ▷) = no'
+T'left(3, ▷) = noë'
+T'left(4, ▷) = noël'
+T'left(5, ▷) = noël👩‍👨‍👩‍👧'
+T'left(6, ▷) = noël👩‍👨‍👩‍👧🎅'
+T'left(7, ▷) = noël👩‍👨‍👩‍👧🎅▷'
+T'left(8, ▷) = noël👩‍👨‍👩‍👧🎅▷▷'
+T'left(9, ▷) = noël👩‍👨‍👩‍👧🎅▷▷▷'
+
+
 <span style="font-weight:bold;color:blue;">-- length
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~length=</span>
  6
+
+
+<span style="font-weight:bold;color:blue;">-- lower
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;LE PÈRE NOËL EST FATIGUÉ...&quot;~text~lower=       </span><span style="font-weight:bold;color:blue;">-- T'le père noël est fatigué...'</span>
+T'le père noël est fatigué...'
 
 
 <span style="font-weight:bold;color:blue;">-- match
@@ -454,30 +641,81 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~t
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~text~pos(&quot;oe&quot;~text)=                 </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
  2
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~text~pos(&quot;oë&quot;)=</span>
-<span style="font-weight:bold;color:red;">Message &quot;POSTEXT&quot; did not return a result.
-</span><span style="font-weight:bold;color:red;">Error code= 91.999
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~text~pos(&quot;oë&quot;~text)=</span>
-<span style="font-weight:bold;color:red;">Message &quot;POSTEXT&quot; did not return a result.
-</span><span style="font-weight:bold;color:red;">Error code= 91.999
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~pos(&quot;oe&quot;)=</span>
-<span style="font-weight:bold;color:red;">Message &quot;POSTEXT&quot; did not return a result.
-</span><span style="font-weight:bold;color:red;">Error code= 91.999
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~pos(&quot;oe&quot;~text)=</span>
-<span style="font-weight:bold;color:red;">Message &quot;POSTEXT&quot; did not return a result.
-</span><span style="font-weight:bold;color:red;">Error code= 91.999
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~pos(&quot;oë&quot;)=</span>
-<span style="font-weight:bold;color:red;">Message &quot;POSTEXT&quot; did not return a result.
-</span><span style="font-weight:bold;color:red;">Error code= 91.999
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~pos(&quot;oë&quot;~text)=</span>
-<span style="font-weight:bold;color:red;">Message &quot;POSTEXT&quot; did not return a result.
-</span><span style="font-weight:bold;color:red;">Error code= 91.999
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~pos(&quot;l&quot;)=</span>
-<span style="font-weight:bold;color:red;">Message &quot;POSTEXT&quot; did not return a result.
-</span><span style="font-weight:bold;color:red;">Error code= 91.999
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~pos(&quot;l&quot;~text)=</span>
-<span style="font-weight:bold;color:red;">Message &quot;POSTEXT&quot; did not return a result.
-</span><span style="font-weight:bold;color:red;">Error code= 91.999
-</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~text~pos(&quot;oë&quot;~text)=</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~pos(&quot;oe&quot;)=</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~pos(&quot;oe&quot;~text)=</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~pos(&quot;oë&quot;)=</span>
+ 2
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~pos(&quot;oë&quot;~text)=</span>
+ 2
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~pos(&quot;l&quot;)=</span>
+ 4
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~pos(&quot;l&quot;~text)=</span>
+ 4
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~text~pos(&quot;oë&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 7</span>
+ 7
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~text~pos(&quot;oë&quot;, 8)=                </span><span style="font-weight:bold;color:blue;">-- 17</span>
+ 17
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~text~pos(&quot;oë&quot;, 8, 10)=            </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~text~pos(&quot;oe&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~text~pos(&quot;oe&quot;, stripMark:)=       </span><span style="font-weight:bold;color:blue;">-- 7</span>
+ 7
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~pos(&quot;🎅&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- 6</span>
+ 6
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~pos(&quot;👧🎅&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.</span>
+<span style="font-weight:bold;color:red;">UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~pos(&quot;👧🎅&quot;, aligned:.false)=   </span><span style="font-weight:bold;color:blue;">-- 5.27</span>
+ 5.27
+
+
+<span style="font-weight:bold;color:blue;">-- reverse (correct)
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~c2x=            </span><span style="font-weight:bold;color:blue;">-- '6E 6F C3AB 6C'</span>
+'6E 6F C3AB 6C'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~reverse~c2x=    </span><span style="font-weight:bold;color:blue;">-- '6C C3AB 6F 6E'</span>
+'6C C3AB 6F 6E'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~reverse=        </span><span style="font-weight:bold;color:blue;">-- T'lëon'</span>
+T'lëon'
+
+<span style="font-weight:bold;color:blue;">-- reverse (wrong)
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~c2x=             </span><span style="font-weight:bold;color:blue;">-- '6E6FC3AB6C'</span>
+'6E6FC3AB6C'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~reverse~c2x=     </span><span style="font-weight:bold;color:blue;">-- '6CABC36F6E'</span>
+'6CABC36F6E'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~reverse=         </span><span style="font-weight:bold;color:blue;">-- 'l??on'</span>
+'l��on'
+
+
+<span style="font-weight:bold;color:blue;">-- right
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">do i=0 to 9; &quot;right(&quot;i&quot;) = &quot; || &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~right(i)=; end</span>
+T'right(0) = '
+T'right(1) = 🎅'
+T'right(2) = 👩‍👨‍👩‍👧🎅'
+T'right(3) = l👩‍👨‍👩‍👧🎅'
+T'right(4) = ël👩‍👨‍👩‍👧🎅'
+T'right(5) = oël👩‍👨‍👩‍👧🎅'
+T'right(6) = noël👩‍👨‍👩‍👧🎅'
+T'right(7) =  noël👩‍👨‍👩‍👧🎅'
+T'right(8) =   noël👩‍👨‍👩‍👧🎅'
+T'right(9) =    noël👩‍👨‍👩‍👧🎅'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">do i=0 to 9; &quot;right(&quot;i&quot;, ▷) = &quot; || &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~right(i, &quot;▷&quot;)=; end</span>
+T'right(0, ▷) = '
+T'right(1, ▷) = 🎅'
+T'right(2, ▷) = 👩‍👨‍👩‍👧🎅'
+T'right(3, ▷) = l👩‍👨‍👩‍👧🎅'
+T'right(4, ▷) = ël👩‍👨‍👩‍👧🎅'
+T'right(5, ▷) = oël👩‍👨‍👩‍👧🎅'
+T'right(6, ▷) = noël👩‍👨‍👩‍👧🎅'
+T'right(7, ▷) = ▷noël👩‍👨‍👩‍👧🎅'
+T'right(8, ▷) = ▷▷noël👩‍👨‍👩‍👧🎅'
+T'right(9, ▷) = ▷▷▷noël👩‍👨‍👩‍👧🎅'
+
 
 <span style="font-weight:bold;color:blue;">-- subchar
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~subchar(3)=; result~description=</span>
@@ -510,6 +748,13 @@ T'ël👩‍👨‍👩‍👧'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~substr(3, 6, &quot;▷&quot;)=; result~description=</span>
 T'ël👩‍👨‍👩‍👧🎅▷▷'
 'UTF-8 not-ASCII (6 characters, 12 codepoints, 38 bytes, 0 error)'
+
+
+<span style="font-weight:bold;color:blue;">-- upper
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Le père Noël est fatigué...&quot;~text~upper=       </span><span style="font-weight:bold;color:blue;">-- T'LE PÈRE NOËL EST FATIGUÉ...'</span>
+T'LE PÈRE NOËL EST FATIGUÉ...'
+
+
 
 
 <span style="font-weight:bold;color:blue;">-- x2c

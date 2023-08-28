@@ -59,7 +59,7 @@ sleep no prompt
 The strict comparison operators use the NFC normalization.
 After normalization, they delegate to the String's strict comparison operators.
 
-The non-strict comparison operators use the NFC normalization plus
+The non-strict comparison operators use the NFKD normalization plus
     stripIgnorable:.true
     lump:.true
 After normalization + transformations, they delegate to the String's non-strict
@@ -149,11 +149,50 @@ passing NFKC + stripIgnorable.
 sleep no prompt
 
 
+-- caselessCompare
+-- casefold 2 characters: "ß" becomes "ss"
+"Bundesstraße im Freiland"~text~caselessCompare("Bundesstraße")=        -- 14
+sleep
+"Bundesstraße im Freiland"~text~caselessCompare("Bundesstraße", "_")=   -- 13
+sleep
+"Bundesstraße im Freiland"~text~caselessCompare("bundesstrasse")=       -- 14
+sleep
+"Bundesstrasse im Freiland"~text~caselessCompare("bundesstraße")=       -- 15
+sleep
+"straßssßßssse"~text~compare("stra", "ß")=                              --  6
+sleep
+"straßssßßssse"~text~caselessCompare("stra", "ß")=                      -- 13 (questionable? the last 's' match half of the pad 'ss')
+sleep no prompt
+
+
 -- caselessCompareTo
 "pere noel"~text~caselessCompareTo("Père Noël")=                    -- -1 (lesser)
 sleep
 "pere noel"~text~caselessCompareTo("Père Noël", stripMark:.true)=   --  0 (equal because the accents are ignored)
 sleep no prompt
+
+
+-- caselessEndsWith
+"hello"~text~caselessEndsWith("")=                  -- false
+sleep
+"hello"~text~caselessEndsWith("O")=                 -- true
+sleep
+"hello"~text~caselessEndsWith("Ô")=                 -- false
+sleep
+"hello"~text~caselessEndsWith("Ô", stripMark:)=     -- true
+sleep no prompt
+sleep
+"noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("🎅")=                -- true
+sleep
+"noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("👧🎅")=              -- true (yes... not required to be aligned with a grapheme)
+sleep
+"noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("‍👧🎅")=             -- true (yes... not required to be aligned with a grapheme)
+sleep
+"noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("👩‍👧🎅")=           -- true (yes... not required to be aligned with a grapheme)
+sleep
+"noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("ël👩‍👨‍👩‍👧🎅")=   -- true
+sleep
+"noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("ËL👩‍👨‍👩‍👧🎅")=   -- true
 
 
 -- caselessEquals
@@ -164,6 +203,25 @@ sleep
 "Straße"~text~caselessEquals("strasse")=    -- 1
 sleep
 "strasse"~text~caselessEquals("Straße")=    -- 1
+sleep no prompt
+
+-- caselessEquals (cont.) strict versus non-strict
+string1 = "LE\u{IDEOGRAPHIC SPACE}PÈ\u{ZERO-WIDTH-SPACE}RE\u{HYPHEN}NOËL"~text~unescape
+string2 = "Le\u{OGHAM SPACE MARK}Père\u{EN DASH}No\u{ZERO-WIDTH-SPACE}ël"~text~unescape
+sleep
+string1=                                                -- T'LE　PÈ​RE‐NOËL
+string2=                                                -- T'Le Père–No​ël'
+sleep
+string1~c2x=                                            -- '4C 45 E38080 50 C388 E2808B 52 45 E28090 4E 4F C38B 4C'
+string2~c2x=                                            -- '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
+sleep
+string1~caselessEquals(string2)=                        -- false (strict mode)
+sleep
+-- The non-strict mode applies these transformations:
+string1~nfkd(casefold:, lump:, stripIgnorable:)~c2x=    -- '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
+string2~nfkd(casefold:, lump:, stripIgnorable:)~c2x=    -- '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
+sleep
+string1~caselessEquals(string2, strict:.false)=         -- true (non-strict mode)
 sleep no prompt
 
 
@@ -200,6 +258,27 @@ sleep no prompt
 "ŒUF"~text~caselessEquals("oeuf")=                                  -- 0
 sleep
 "ŒUF"~text~caselessEquals("oeuf", normalization:.Unicode~NFKC)=     -- 0
+sleep no prompt
+
+
+-- caselessPos
+"Père Noël Père Noël"~text~caselessPos("OË")=                   -- 7
+sleep
+"Père Noël Père Noël"~text~caselessPos("OË", 8)=                -- 17
+sleep
+"Père Noël Père Noël"~text~caselessPos("OË", 8, 10)=            -- 0
+sleep
+"Père Noël Père Noël"~text~caselessPos("OE")=                   -- 0
+sleep
+"Père Noël Père Noël"~text~caselessPos("OE", stripMark:)=       -- 7
+sleep
+"noël👩‍👨‍👩‍👧🎅"~text~caselessPos("🎅")=                     -- 6
+sleep
+"noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👧🎅")=                   -- UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
+sleep
+"noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👧🎅", aligned:.false)=   -- 5.27 (the integer part is the character index and the  decimal part is the byte index)
+sleep
+"noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👩‍👨‍👩‍👧🎅", aligned:.false)=   -- 5 (no decimal part when the byte index is aligned)
 sleep no prompt
 
 
@@ -255,6 +334,26 @@ sleep
 sleep no prompt
 
 
+-- compare
+"Bundesstraße im Freiland"~text~compare("Bundesstraße")=        -- 14
+sleep
+"Bundesstraße im Freiland"~text~compare("Bundesstraße", "_")=   -- 13
+sleep
+"Bundesstraße im Freiland"~text~compare("Bundesstrasse")=       -- 11
+sleep
+"Bundesstrasse im Freiland"~text~compare("Bundesstraße")=       -- 11
+sleep
+"straßssßßssse"~text~compare("stra", "ß")=                      --  6
+sleep no prompt
+
+
+-- compareTo
+"pere noel"~text~compareTo("père noël")=                    -- -1 (lesser)
+sleep
+"pere noel"~text~compareTo("père noël", stripMark:.true)=   --  0 (equal because the accents are ignored)
+sleep no prompt
+
+
 -- contains
 "noel"~text~contains("oe")=                 -- forward to String
 sleep
@@ -279,6 +378,65 @@ sleep no prompt
 sleep no prompt
 
 
+-- endsWith
+"hello"~text~endsWith("")=                  -- false
+sleep
+"hello"~text~endsWith("o")=                 -- true
+sleep
+"hello"~text~endsWith("ô")=                 -- false
+sleep
+"hello"~text~endsWith("ô", stripMark:)=     -- true
+sleep
+"noël👩‍👨‍👩‍👧🎅"~text~endsWith("🎅")=                -- true
+sleep
+"noël👩‍👨‍👩‍👧🎅"~text~endsWith("👧🎅")=              -- true (yes... not required to be aligned with a grapheme)
+sleep
+"noël👩‍👨‍👩‍👧🎅"~text~endsWith("‍👧🎅")=             -- true (yes... not required to be aligned with a grapheme)
+sleep
+"noël👩‍👨‍👩‍👧🎅"~text~endsWith("👩‍👧🎅")=           -- true (yes... not required to be aligned with a grapheme)
+sleep
+"noël👩‍👨‍👩‍👧🎅"~text~endsWith("ël👩‍👨‍👩‍👧🎅")=   -- true
+sleep
+"noël👩‍👨‍👩‍👧🎅"~text~endsWith("ËL👩‍👨‍👩‍👧🎅")=   -- false
+sleep no prompt
+
+
+-- equals
+"ŒUF"~text~lower~equals("œuf")=             -- true
+sleep
+"ŒUF"~text~equals("œuf")=                   -- false (would be true if caseless)
+sleep
+"œuf"~text~equals("ŒUF")=                   -- false (would be true if caseless)
+sleep
+"Straße"~text~lower~equals("straße")=       -- true (U+00DF "LATIN SMALL LETTER SHARP S" remains unchanged since it's already a lower letter)
+sleep
+"Straße"~text~casefold~equals("strasse")=   -- true (U+00DF "LATIN SMALL LETTER SHARP S" becomes "ss" when casefolded)
+sleep
+"Straße"~text~equals("strasse")=            -- false (would be true if caseless)
+sleep
+"strasse"~text~equals("Straße")=            -- false (would be true if caseless)
+sleep no prompt
+
+-- equals (cont.) strict versus non-strict
+string1 = "Le\u{IDEOGRAPHIC SPACE}Pè\u{ZERO-WIDTH-SPACE}re\u{HYPHEN}Noël"~text~unescape
+string2 = "Le\u{OGHAM SPACE MARK}Père\u{EN DASH}No\u{ZERO-WIDTH-SPACE}ël"~text~unescape
+sleep
+string1=                                    -- T'Le　Pè​re‐Noël'
+string2=                                    -- T'Le Père–No​ël'
+sleep
+string1~c2x=                                -- '4C 65 E38080 50 C3A8 E2808B 72 65 E28090 4E 6F C3AB 6C'
+string2~c2x=                                -- '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
+sleep
+string1~equals(string2)=                    -- false (strict mode)
+sleep
+-- The non-strict mode applies these transformations:
+string1~nfkd(lump:, stripIgnorable:)~c2x=   -- '4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'
+string2~nfkd(lump:, stripIgnorable:)~c2x=   -- '4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'
+sleep
+string1~equals(string2, strict:.false)=     -- true (non-strict mode)
+sleep no prompt
+
+
 -- hashCode
 "noël👩‍👨‍👩‍👧🎅"~text~hashCode~class=
 sleep
@@ -286,9 +444,20 @@ sleep
 sleep no prompt
 
 
+-- left
+do i=0 to 9; "left("i") = " || "noël👩‍👨‍👩‍👧🎅"~text~left(i)=; end
+sleep
+do i=0 to 9; "left("i", ▷) = " || "noël👩‍👨‍👩‍👧🎅"~text~left(i, "▷")=; end
+sleep no prompt
+
+
 -- length
 "noël👩‍👨‍👩‍👧🎅"~text~length=
 sleep no prompt
+
+
+-- lower
+"LE PÈRE NOËL EST FATIGUÉ..."~text~lower=       -- T'le père noël est fatigué...'
 
 
 -- match
@@ -394,6 +563,46 @@ sleep
 "noël"~text~pos("l")=
 sleep
 "noël"~text~pos("l"~text)=
+sleep
+"Père Noël Père Noël"~text~pos("oë")=                   -- 7
+sleep
+"Père Noël Père Noël"~text~pos("oë", 8)=                -- 17
+sleep
+"Père Noël Père Noël"~text~pos("oë", 8, 10)=            -- 0
+sleep
+"Père Noël Père Noël"~text~pos("oe")=                   -- 0
+sleep
+"Père Noël Père Noël"~text~pos("oe", stripMark:)=       -- 7
+sleep
+"noël👩‍👨‍👩‍👧🎅"~text~pos("🎅")=                     -- 6
+sleep
+"noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅")=                   -- UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
+sleep
+"noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅", aligned:.false)=   -- 5.27
+sleep no prompt
+
+
+-- reverse (correct)
+"noël"~text~c2x=            -- '6E 6F C3AB 6C'
+sleep
+"noël"~text~reverse~c2x=    -- '6C C3AB 6F 6E'
+sleep
+"noël"~text~reverse=        -- T'lëon'
+sleep no prompt
+
+-- reverse (wrong)
+"noël"~c2x=             -- '6E6FC3AB6C'
+sleep
+"noël"~reverse~c2x=     -- '6CABC36F6E'
+sleep
+"noël"~reverse=         -- 'l??on'
+sleep no prompt
+
+
+-- right
+do i=0 to 9; "right("i") = " || "noël👩‍👨‍👩‍👧🎅"~text~right(i)=; end
+sleep
+do i=0 to 9; "right("i", ▷) = " || "noël👩‍👨‍👩‍👧🎅"~text~right(i, "▷")=; end
 sleep no prompt
 
 
@@ -419,6 +628,12 @@ sleep
 sleep
 "noël👩‍👨‍👩‍👧🎅"~text~substr(3, 6, "▷")=; result~description=
 sleep no prompt
+
+
+-- upper
+"Le père Noël est fatigué..."~text~upper=       -- T'LE PÈRE NOËL EST FATIGUÉ...'
+
+
 
 
 -- x2c
