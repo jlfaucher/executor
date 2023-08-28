@@ -93,6 +93,22 @@
     end
     selfNormalized = self~substr(n, selfLength)~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
     textNormalized = text~substr(n, textLength)~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
+
+    /*
+    REMEMBER!
+    This method is called by caselessCompareTo, compareTo. These 2 methods are
+    called by caselessEquals, equals. These 4 methods accept an optional named
+    argument 'strict'.
+
+    About strict versus non-strict comparison in ooRexx doc:
+    For all other comparison operators, if both terms involved are numeric, a
+    numeric comparison is effected. Otherwise, both terms are treated as
+    character strings, leading and trailing whitespace characters are ignored,
+    and the shorter string is padded with blanks on the right.
+
+    So, if strict=.false, I should follow the definition above.
+    Currently this is not the case.
+    */
     return selfNormalized~string~CompareTo(textNormalized~string)
 
     invalid_length: raise syntax 93.923 array(length)

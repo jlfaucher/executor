@@ -23,6 +23,20 @@ They call the method 'transform' which is now declared abstract.
 For the moment, only the UTF-8 indexer implements 'transform'.
 
 
+Comparison operators:
+Take into account the default normalization managed by the .Unicode class
+- NFC when strict
+- NFKD when not strict
+Example:
+    ("baﬄe"~text == "baffle"~text) =    -- false
+    ("baﬄe"~text = "baffle"~text) =     -- true
+Reminder: the non-strict mode supports all the Unicode spaces, not just U+0032.
+    string1 = " Le\u{IDEOGRAPHIC SPACE}Pè\u{ZERO-WIDTH-SPACE}re\u{HYPHEN}Noël"~text~unescape
+    string2 = "Le\u{OGHAM SPACE MARK}Père\u{EN DASH}No\u{ZERO-WIDTH-SPACE}ël "~text~unescape
+    (string1 == string2) =              -- false
+    (string1 = string2) =               -- true
+
+
 ===============================================================================
 2023 Aug 26
 

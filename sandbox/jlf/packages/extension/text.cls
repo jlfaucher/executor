@@ -866,7 +866,7 @@ caselessContainsWord            (new 5)
 caselessCountStr
 caselessEndsWith                (new 5) full UTF-8
 caselessEquals                  full UTF-8
-caselessLastPos                 full UTF-8
+caselessLastPos
 caselessMatch                   full UTF-8
 caselessMatchChar               full UTF-8
 caselessPos                     full UTF-8
@@ -875,10 +875,10 @@ caselessWordPos
 center                          full
 centre                          full
 changeStr
-contains                        (new 5)
-containsWord                    (new 5)
 compare                         full UTF-8
 compareTo                       full UTF-8
+contains                        (new 5)
+containsWord                    (new 5)
 copies                          full
 countStr
 d2c
@@ -1125,7 +1125,7 @@ stringChunks
 ::method equals
     use strict arg other
     use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false
-    return self~compareTo(other, :strict, :normalization, :lump, :stripIgnorable, :stripMark)
+    return self~compareTo(other, :strict, :normalization, :lump, :stripIgnorable, :stripMark) == 0
 
 
 ::method hashCode
@@ -1363,6 +1363,17 @@ stringChunks
     As a result, == will always return .false when compared to .nil and \== will
     always return .true. All of the relational comparisons (for example, <, >,
     <=, etc.) will always return .false when compared to .nil.
+
+    About strict versus non-strict comparison in ooRexx doc:
+    For all other comparison operators, if both terms involved are numeric, a
+    numeric comparison is effected. Otherwise, both terms are treated as
+    character strings, leading and trailing whitespace characters are ignored,
+    and the shorter string is padded with blanks on the right.
+
+    Note: there is no need to implement a Unicode-aware numeric comparison,
+    because Executor doesn't try to support arithmetic with digits encoded in
+    UTF-16 or UTF-32. When compatible with byte strings, Executor forwards to
+    the String class which supports a numeric comparison.
     */
     if .nil == right then forward message (message) to (self~string) array(right) -- delegate to String for the management of .nil
     -- Give chance to an alternative operator before requesting a text or buffer or string
@@ -1379,8 +1390,8 @@ stringChunks
     -- Unicode comparison
     right = right~request("RexxText")
     if .nil == right then return
-    selfNormalized = self~NFC(lump: \strict, stripIgnorable: \strict)
-    rightNormalized = right~NFC(lump: \strict, stripIgnorable: \strict)
+    selfNormalized = self~transform(normalization: .Unicode~defaultNormalization(:strict), lump: \strict, stripIgnorable: \strict)
+    rightNormalized = right~transform(normalization: .Unicode~defaultNormalization(:strict), lump: \strict, stripIgnorable: \strict)
     forward message (message) to (selfNormalized~string) array (rightNormalized~string)
 
 
@@ -1395,8 +1406,8 @@ stringChunks
     -- Unicode comparison
     left = left~request("RexxText")
     if .nil == left then return
-    leftNormalized = left~NFC(lump: \strict, stripIgnorable: \strict)
-    selfNormalized = self~NFC(lump: \strict, stripIgnorable: \strict)
+    leftNormalized = left~transform(normalization: .Unicode~defaultNormalization(:strict), lump: \strict, stripIgnorable: \strict)
+    selfNormalized = self~transform(normalization: .Unicode~defaultNormalization(:strict), lump: \strict, stripIgnorable: \strict)
     forward message (message) to (leftNormalized~string) array (selfNormalized~string)
 
 
