@@ -569,6 +569,9 @@ How other languages are supporting escape characters for Unicode:
 ::constant FLAG_STRIP_NA 9
 
 
+::method transform abstract
+
+
 ::method flags
     -- for debug
     flags = ,
@@ -611,7 +614,8 @@ How other languages are supporting escape characters for Unicode:
     return -1   -- unknown
 
 
-::method NFC abstract
+::method NFC
+    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", .Unicode~NFC))
 
 
 ::attribute isNFD get
@@ -628,7 +632,8 @@ How other languages are supporting escape characters for Unicode:
     return -1   -- unknown
 
 
-::method NFD abstract
+::method NFD
+    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", .Unicode~NFD))
 
 
 ::attribute isNFKC get
@@ -645,7 +650,8 @@ How other languages are supporting escape characters for Unicode:
     return -1   -- unknown
 
 
-::method NFKC abstract
+::method NFKC
+    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", .Unicode~NFKC))
 
 
 ::attribute isNFKD get
@@ -662,14 +668,16 @@ How other languages are supporting escape characters for Unicode:
     return -1   -- unknown
 
 
-::method NFKD abstract
+::method NFKD
+    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", .Unicode~NFKD))
 
 
 ::attribute isCasefold get
     return self~bitFlag(self~FLAG_CASEFOLD)
 
 
-::method casefold abstract
+::method casefold
+    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", 0)~~setEntry("casefold", .true))
 
 
 ::attribute isLumped get

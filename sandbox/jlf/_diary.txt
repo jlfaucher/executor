@@ -18,6 +18,11 @@ Example:
     "noël👩‍👨‍👩‍👧🎅"~text~pos("👩‍👨‍👩‍👧🎅", aligned:.false)=  -- 5 (no decimal part when the byte index is aligned)
 
 
+The methods NFC, NFD, NFKC, NFKD and casefold are no longer abstract.
+They call the method 'transform' which is now declared abstract.
+For the moment, only the UTF-8 indexer implements 'transform'.
+
+
 ===============================================================================
 2023 Aug 26
 

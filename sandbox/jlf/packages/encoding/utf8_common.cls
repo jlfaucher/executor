@@ -525,23 +525,3 @@ Depends on
     end
     if memorize then self~cacheString(mask, string)
     return string~makeRexxTextOrString(returnString)
-
-
-::method NFC
-    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", .Unicode~NFC))
-
-
-::method NFD
-    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", .Unicode~NFD))
-
-
-::method NFKC
-    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", .Unicode~NFKC))
-
-
-::method NFKD
-    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", .Unicode~NFKD))
-
-
-::method casefold
-    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", 0)~~setEntry("casefold", .true))
