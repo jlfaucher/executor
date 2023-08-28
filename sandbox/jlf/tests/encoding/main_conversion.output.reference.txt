@@ -1821,19 +1821,19 @@ ooRexx> < include_conversion.rex
     --------------------------------------------------------------------------------
     
     ooRexx> t~nfc(mem:)=
-    Method NFC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfd(mem:)=
-    Method NFD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkc(mem:)=
-    Method NFKC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkd(mem:)=
-    Method NFKD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~casefold(mem:)=
-    Method CASEFOLD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     -------------------------------------
     -- End of file include_conversion.rex
@@ -3635,19 +3635,19 @@ ooRexx> < include_conversion.rex
     --------------------------------------------------------------------------------
     
     ooRexx> t~nfc(mem:)=
-    Method NFC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfd(mem:)=
-    Method NFD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkc(mem:)=
-    Method NFKC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkd(mem:)=
-    Method NFKD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~casefold(mem:)=
-    Method CASEFOLD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     -------------------------------------
     -- End of file include_conversion.rex
@@ -5431,19 +5431,19 @@ ooRexx> < include_conversion.rex
     --------------------------------------------------------------------------------
     
     ooRexx> t~nfc(mem:)=
-    Method NFC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfd(mem:)=
-    Method NFD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkc(mem:)=
-    Method NFKC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkd(mem:)=
-    Method NFKD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~casefold(mem:)=
-    Method CASEFOLD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     -------------------------------------
     -- End of file include_conversion.rex
@@ -10869,19 +10869,19 @@ ooRexx> < include_conversion.rex
     --------------------------------------------------------------------------------
     
     ooRexx> t~nfc(mem:)=
-    Method NFC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfd(mem:)=
-    Method NFD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkc(mem:)=
-    Method NFKC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkd(mem:)=
-    Method NFKD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~casefold(mem:)=
-    Method CASEFOLD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     -------------------------------------
     -- End of file include_conversion.rex
@@ -12645,19 +12645,19 @@ ooRexx> < include_conversion.rex
     --------------------------------------------------------------------------------
     
     ooRexx> t~nfc(mem:)=
-    Method NFC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfd(mem:)=
-    Method NFD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkc(mem:)=
-    Method NFKC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkd(mem:)=
-    Method NFKD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~casefold(mem:)=
-    Method CASEFOLD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     -------------------------------------
     -- End of file include_conversion.rex
@@ -14458,19 +14458,19 @@ ooRexx> < include_conversion.rex
     --------------------------------------------------------------------------------
     
     ooRexx> t~nfc(mem:)=
-    Method NFC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfd(mem:)=
-    Method NFD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkc(mem:)=
-    Method NFKC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkd(mem:)=
-    Method NFKD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~casefold(mem:)=
-    Method CASEFOLD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     -------------------------------------
     -- End of file include_conversion.rex
@@ -16235,19 +16235,19 @@ ooRexx> < include_conversion.rex
     --------------------------------------------------------------------------------
     
     ooRexx> t~nfc(mem:)=
-    Method NFC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfd(mem:)=
-    Method NFD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkc(mem:)=
-    Method NFKC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkd(mem:)=
-    Method NFKD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~casefold(mem:)=
-    Method CASEFOLD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     -------------------------------------
     -- End of file include_conversion.rex
@@ -18027,19 +18027,19 @@ ooRexx> < include_conversion.rex
     --------------------------------------------------------------------------------
     
     ooRexx> t~nfc(mem:)=
-    Method NFC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfd(mem:)=
-    Method NFD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkc(mem:)=
-    Method NFKC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkd(mem:)=
-    Method NFKD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~casefold(mem:)=
-    Method CASEFOLD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     -------------------------------------
     -- End of file include_conversion.rex
@@ -19819,19 +19819,19 @@ ooRexx> < include_conversion.rex
     --------------------------------------------------------------------------------
     
     ooRexx> t~nfc(mem:)=
-    Method NFC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfd(mem:)=
-    Method NFD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkc(mem:)=
-    Method NFKC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkd(mem:)=
-    Method NFKD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~casefold(mem:)=
-    Method CASEFOLD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     -------------------------------------
     -- End of file include_conversion.rex
@@ -21592,19 +21592,19 @@ ooRexx> < include_conversion.rex
     --------------------------------------------------------------------------------
     
     ooRexx> t~nfc(mem:)=
-    Method NFC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfd(mem:)=
-    Method NFD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkc(mem:)=
-    Method NFKC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkd(mem:)=
-    Method NFKD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~casefold(mem:)=
-    Method CASEFOLD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     -------------------------------------
     -- End of file include_conversion.rex
@@ -23383,19 +23383,19 @@ ooRexx> < include_conversion.rex
     --------------------------------------------------------------------------------
     
     ooRexx> t~nfc(mem:)=
-    Method NFC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfd(mem:)=
-    Method NFD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkc(mem:)=
-    Method NFKC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkd(mem:)=
-    Method NFKD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~casefold(mem:)=
-    Method CASEFOLD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     -------------------------------------
     -- End of file include_conversion.rex
@@ -25183,19 +25183,19 @@ ooRexx> < include_conversion.rex
     --------------------------------------------------------------------------------
     
     ooRexx> t~nfc(mem:)=
-    Method NFC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfd(mem:)=
-    Method NFD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkc(mem:)=
-    Method NFKC is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~nfkd(mem:)=
-    Method NFKD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     ooRexx> t~casefold(mem:)=
-    Method CASEFOLD is ABSTRACT and cannot be directly invoked.
+    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
     Error code= 93.965
     -------------------------------------
     -- End of file include_conversion.rex

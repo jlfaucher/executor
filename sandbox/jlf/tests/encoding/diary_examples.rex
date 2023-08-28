@@ -8,6 +8,41 @@ call loadUnicodeCharacterNames
 
 
 -- ===============================================================================
+-- 2023 Aug 28
+
+/*
+Add a named argument 'aligned' to caselessPos, pos:
+- If aligned=.true (default) then raise an error if the byte position of the
+  result is not aligned with the character index.
+- If aligned=.false then return a number indexC.indexB when the result is not
+  aligned (number such as the integer part is the character index and the
+  decimal part is the byte index).
+Example:
+*/
+    "noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅")=                           -- UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
+    "noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅", aligned:.false)=           -- 5.27
+    "noël👩‍👨‍👩‍👧🎅"~text~pos("👩‍👨‍👩‍👧🎅", aligned:.false)=  -- 5 (no decimal part when the byte index is aligned)
+
+
+/*
+Comparison operators:
+Take into account the default normalization managed by the .Unicode class
+- NFC when strict
+- NFKD when not strict
+Example:
+*/
+    ("baﬄe"~text == "baffle"~text) =    -- false
+    ("baﬄe"~text = "baffle"~text) =     -- true
+/*
+Reminder: the non-strict mode supports all the Unicode spaces, not just U+0032.
+*/
+    string1 = " Le\u{IDEOGRAPHIC SPACE}Pè\u{ZERO-WIDTH-SPACE}re\u{HYPHEN}Noël"~text~unescape
+    string2 = "Le\u{OGHAM SPACE MARK}Père\u{EN DASH}No\u{ZERO-WIDTH-SPACE}ël "~text~unescape
+    (string1 == string2) =              -- false
+    (string1 = string2) =               -- true
+
+
+-- ===============================================================================
 -- 2023 Aug 26
 
 t = "noël👩‍👨‍👩‍👧🎅"~text; t~c2g=    -- '6E 6F C3AB 6C F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7 F09F8E85'
@@ -1040,7 +1075,7 @@ The methods NFxx sets the corresponding indicator isNFxx
 
 
 -- The normalization forms are implemented only for UTF-8 and WTF-8.
-"D800 DC01"x~text("utf16")~nfd~UnicodeCharacters==  -- Method NFD is ABSTRACT and cannot be directly invoked.
+"D800 DC01"x~text("utf16")~nfd~UnicodeCharacters==  -- Method TRANSFORM is ABSTRACT and cannot be directly invoked.
 "D800 DC01"x~text("utf16")~utf8~nfd~UnicodeCharacters==
 "\uD800\uDC01"~text("wtf8")~unescape~nfd~UnicodeCharacters==
 

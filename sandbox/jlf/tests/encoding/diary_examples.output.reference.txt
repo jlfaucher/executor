@@ -11,6 +11,47 @@ ooRexx> .Unicode~memorizeTransformations = .false
 
 
 -- ===============================================================================
+-- 2023 Aug 28
+
+/*
+Add a named argument 'aligned' to caselessPos, pos:
+- If aligned=.true (default) then raise an error if the byte position of the
+  result is not aligned with the character index.
+- If aligned=.false then return a number indexC.indexB when the result is not
+  aligned (number such as the integer part is the character index and the
+  decimal part is the byte index).
+*/
+ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅")=                           -- UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
+UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
+Error code= 23.900
+ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅", aligned:.false)=           -- 5.27
+ 5.27
+ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~pos("👩‍👨‍👩‍👧🎅", aligned:.false)=  -- 5 (no decimal part when the byte index is aligned)
+ 5
+
+
+/*
+Comparison operators:
+Take into account the default normalization managed by the .Unicode class
+- NFC when strict
+- NFKD when not strict
+*/
+ooRexx>     ("baﬄe"~text == "baffle"~text) =    -- false
+ 0
+ooRexx>     ("baﬄe"~text = "baffle"~text) =     -- true
+ 1
+/*
+Reminder: the non-strict mode supports all the Unicode spaces, not just U+0032.
+*/
+ooRexx>     string1 = " Le\u{IDEOGRAPHIC SPACE}Pè\u{ZERO-WIDTH-SPACE}re\u{HYPHEN}Noël"~text~unescape
+ooRexx>     string2 = "Le\u{OGHAM SPACE MARK}Père\u{EN DASH}No\u{ZERO-WIDTH-SPACE}ël "~text~unescape
+ooRexx>     (string1 == string2) =              -- false
+ 0
+ooRexx>     (string1 = string2) =               -- true
+ 1
+
+
+-- ===============================================================================
 -- 2023 Aug 26
 
 ooRexx> t = "noël👩‍👨‍👩‍👧🎅"~text; t~c2g=    -- '6E 6F C3AB 6C F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7 F09F8E85'
@@ -1713,8 +1754,8 @@ T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE'
 
 
 -- The normalization forms are implemented only for UTF-8 and WTF-8.
-ooRexx> "D800 DC01"x~text("utf16")~nfd~UnicodeCharacters==  -- Method NFD is ABSTRACT and cannot be directly invoked.
-Method NFD is ABSTRACT and cannot be directly invoked.
+ooRexx> "D800 DC01"x~text("utf16")~nfd~UnicodeCharacters==  -- Method TRANSFORM is ABSTRACT and cannot be directly invoked.
+Method TRANSFORM is ABSTRACT and cannot be directly invoked.
 Error code= 93.965
 ooRexx> "D800 DC01"x~text("utf16")~utf8~nfd~UnicodeCharacters==
 an Array (shape [1], 1 items)
