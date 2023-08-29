@@ -170,7 +170,7 @@ Keep it compatible with official ooRexx
     Output:
         an Array (shape [3], 3 items)
          1 : 'hello John how are you'
-         2 : 'good bye Jonh'
+         2 : 'good bye John'
          3 : 'my name is "BOND"'
     */
 
