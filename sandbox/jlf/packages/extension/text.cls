@@ -368,7 +368,7 @@ without requesting a string from the buffer
 ::method descriptionForError
     -- Display the <length> first characters
     use strict arg length=10
-    string = self~substr(1, min(length, self~length)) -- Remember: ~left not supported
+    string = self~substr(1, min(length, self~length)) -- left
     if self~length > length then string = string~left(length - 3)"..."
     -- escape3 is needed to have a proper display like this: [00]4[00]1
     return self~description(s:1) "'"escape3(string)"'"
@@ -861,7 +861,7 @@ caselessAbbrev
 caselessChangeStr
 caselessCompare                 full UTF-8
 caselessCompareTo               full UTF-8 (expansion like "ß" --> "ss" is supported but the result maybe be surprising when providing a length - false positive?)
-caselessContains                (new 5)
+caselessContains                (new 5) full UTF-8
 caselessContainsWord            (new 5)
 caselessCountStr
 caselessEndsWith                (new 5) full UTF-8
@@ -877,7 +877,7 @@ centre                          full
 changeStr
 compare                         full UTF-8
 compareTo                       full UTF-8
-contains                        (new 5)
+contains                        (new 5) full UTF-8
 containsWord                    (new 5)
 copies                          full
 countStr
@@ -998,7 +998,7 @@ stringChunks
 
 ::method caselessContains
     use arg other -- not strict, just need to check this one
-    -- use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark =.false
+    -- use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark =.false, aligned=.true
     if self~isCompatibleWithByteString, other~isCompatibleWithByteString then do
         forward message "caselessPos" to (self~string) continue
         return result <> 0

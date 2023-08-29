@@ -11,6 +11,38 @@ ooRexx> .Unicode~memorizeTransformations = .false
 
 
 -- ===============================================================================
+-- 2023 Aug 29
+
+/*
+Implementation of caselessContains, contains:
+(forwards to caselessPos or pos, and returns .true if result <> 0)
+(was already implemented, waiting for 'pos' implementation)
+*/
+ooRexx>     "Père Noël Père Noël"~text~contains("oë")=                   -- .true
+ 1
+ooRexx>     "Père Noël Père Noël"~text~contains("oë", , 7)=              -- .false
+ 0
+ooRexx>     "Père Noël Père Noël"~text~contains("oë", , 8)=              -- .true
+ 1
+ooRexx>     "Père Noël Père Noël"~text~contains("oë", 8)=                -- .true
+ 1
+ooRexx>     "Père Noël Père Noël"~text~contains("oë", 8, 10)=            -- .false
+ 0
+ooRexx>     "Père Noël Père Noël"~text~contains("oë", 8, 11)=            -- .true
+ 1
+ooRexx>     "Père Noël Père Noël"~text~caselessContains("OË", 8, 11)=    -- .true
+ 1
+
+ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~contains("👧🎅")=                           -- UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
+UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
+Error code= 23.900
+ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~contains("👧🎅", aligned:.false)=           -- .true
+ 1
+ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~contains("👩‍👨‍👩‍👧🎅", aligned:.false)=  -- .true
+ 1
+
+
+-- ===============================================================================
 -- 2023 Aug 28
 
 /*

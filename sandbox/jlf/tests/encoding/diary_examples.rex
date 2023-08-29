@@ -8,6 +8,28 @@ call loadUnicodeCharacterNames
 
 
 -- ===============================================================================
+-- 2023 Aug 29
+
+/*
+Implementation of caselessContains, contains:
+(forwards to caselessPos or pos, and returns .true if result <> 0)
+(was already implemented, waiting for 'pos' implementation)
+Examples:
+*/
+    "Père Noël Père Noël"~text~contains("oë")=                   -- .true
+    "Père Noël Père Noël"~text~contains("oë", , 7)=              -- .false
+    "Père Noël Père Noël"~text~contains("oë", , 8)=              -- .true
+    "Père Noël Père Noël"~text~contains("oë", 8)=                -- .true
+    "Père Noël Père Noël"~text~contains("oë", 8, 10)=            -- .false
+    "Père Noël Père Noël"~text~contains("oë", 8, 11)=            -- .true
+    "Père Noël Père Noël"~text~caselessContains("OË", 8, 11)=    -- .true
+
+    "noël👩‍👨‍👩‍👧🎅"~text~contains("👧🎅")=                           -- UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
+    "noël👩‍👨‍👩‍👧🎅"~text~contains("👧🎅", aligned:.false)=           -- .true
+    "noël👩‍👨‍👩‍👧🎅"~text~contains("👩‍👨‍👩‍👧🎅", aligned:.false)=  -- .true
+
+
+-- ===============================================================================
 -- 2023 Aug 28
 
 /*
