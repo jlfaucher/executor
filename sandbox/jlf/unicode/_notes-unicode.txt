@@ -1322,6 +1322,17 @@ https://www.w3.org/International/articles/inline-bidi-markup/uba-basics
 Unicode Bidirectional Algorithm basics
 W3C
 
+
+http://fribidi.org/
+GNU FriBidi is an implementation of the Unicode Bidirectional Algorithm (bidi).
+jlf: dead...
+The latest release is fribidi-0.19.7.tar.bz2 from August 4, 2015. This release
+is based on Unicode 6.2.0 character database.
+---
+jlf: maybe not dead, but low activity... v1.0.13
+https://github.com/fribidi/fribidi
+
+
 ================================================================================
 Emoji
 ================================================================================
@@ -1372,6 +1383,23 @@ ISO 3166-1 (Codes for the representation of names of countries and their subdivi
 
 
 https://observablehq.com/@jobleonard/which-unicode-flags-are-reversible
+
+
+================================================================================
+Text shaping library
+================================================================================
+
+https://harfbuzz.github.io/
+https://github.com/harfbuzz/harfbuzz
+jlf: referenced by ICU
+Users of ICU Layout are strongly encouraged to consider the HarfBuzz project as
+a replacement for the ICU Layout Engine.
+
+
+Uniscribe if you are writing Windows software
+
+
+CoreText on macOS
 
 
 ================================================================================
@@ -2457,6 +2485,8 @@ OCTOBER 12, 2022
 JeanHeyd Meneide
 Project Editor for ISO/IEC JTC1 SC22 WG14 - Programming Languages, C.
 The Wonderfully Terrible World of C and C++ Encoding APIs (with Some Rust)
+---
+jlf:
 Is he criticizing the work of Zach Laine? ( https://github.com/tzlaine/text )
 "someone was doing something wrong on the internet and I couldn’t let that pass:"
 
@@ -2609,6 +2639,10 @@ https://icu.unicode.org
 
 https://unicode-org.github.io/icu/
 ICU documentation
+
+
+https://unicode-org.github.io/icu-docs/apidoc/released/icu4c/
+Entry point of API Reference
 
 
 https://icu-project.org/docs/
@@ -2821,8 +2855,32 @@ ICU4X title
 ================================================================================
 
 https://icu4x.unicode.org/
+lead by Shane Carr (https://www.sffc.xyz)
+
 
 https://github.com/unicode-org/icu4x
+
+
+https://www.unicode.org/faq/unicode_license.html
+jlf: ICU4X uses UNICODE LICENSE V3
+The Unicode License is a permissive MIT type of license. However, there are
+several additional considerations identified separately in the associated
+Unicode Terms of Use (https://www.unicode.org/copyright.html).
+---
+Comparison with other licenses:
+https://en.wikipedia.org/wiki/Comparison_of_free_and_open-source_software_licenses
+jlf: hum... the "unicode license" is not in this table...
+
+
+https://www.reddit.com/r/rust/comments/q4xaig/icu_vs_rust_icu/
+icu vs rust_icu
+Oct 10, 2021
+---
+jlf : here "icu" is ICU4X and rust_icu is another crate.
+Well... it's a mess, plenty of separated crates more or less finalized.
+There is a comment from an ICU4X committer saying "ICU4X does not have normalization".
+Of course, it's now supported but it's to say that ICU4X is far to be as complete
+as ICU.
 
 
 https://news.ycombinator.com/item?id=35608997
@@ -8281,3 +8339,21 @@ https://devlog.hexops.com/2021/unicode-sorting-why-browsers-added-special-emoji-
     lgorithms for these files specifically in Zig to reduce them to only a few
     tens of kilobytes.
     https://github.com/jecolon/ziglyph/issues/3
+
+
+================================================================================
+Knock, knock.
+================================================================================
+
+Knock, knock.
+    Who’s there?
+You.
+    You who?
+Yoo-hoo! It's You Nicode.
+
+
+Knock, knock.
+    Who’s there?
+Sue.
+    Sue who?
+It's Sue Nicode.

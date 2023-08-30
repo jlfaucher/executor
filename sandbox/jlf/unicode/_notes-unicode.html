@@ -23,6 +23,7 @@ Contents:
     <a href="#BIDI">BIDI</a>
     <a href="#Emoji">Emoji</a>
     <a href="#Countries__flags">Countries, flags</a>
+    <a href="#Text_shaping_library">Text shaping library</a>
     <a href="#IME___Input_Method_Editor">IME - Input Method Editor</a>
     <a href="#Evidence_of_partial_or_wrong_support_of_Unicode">Evidence of partial or wrong support of Unicode</a>
     <a href="#Optimization__SIMD">Optimization, SIMD</a>
@@ -100,6 +101,7 @@ Contents:
     <a href="#Swift_lang">Swift lang</a>
     <a href="#Typst_lang">Typst lang</a>
     <a href="#Zig_lang__Ziglyph">Zig lang, Ziglyph</a>
+    <a href="#Knock__knock_">Knock, knock.</a>
 
 
 <hr><h2 id="Unicode_standard">Unicode standard</h2><hr>
@@ -1384,6 +1386,17 @@ BiDi in Terminal Emulators
 Unicode Bidirectional Algorithm basics
 W3C
 
+
+<a target="_blank" rel="noopener noreferrer" href="http://fribidi.org/">http://fribidi.org/</a>
+GNU FriBidi is an implementation of the Unicode Bidirectional Algorithm (bidi).
+jlf: dead...
+The latest release is fribidi-0.19.7.tar.bz2 from August 4, 2015. This release
+is based on Unicode 6.2.0 character database.
+---
+jlf: maybe not dead, but low activity... v1.0.13
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/fribidi/fribidi">https://github.com/fribidi/fribidi</a>
+
+
 <hr><h2 id="Emoji">Emoji</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/Public/emoji/15.0/emoji-test.txt">https://www.unicode.org/Public/emoji/15.0/emoji-test.txt</a>
 
@@ -1428,6 +1441,20 @@ ISO 3166-1 (Codes for the representation of names of countries and their subdivi
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://observablehq.com/@jobleonard/which-unicode-flags-are-reversible">https://observablehq.com/@jobleonard/which-unicode-flags-are-reversible</a>
+
+
+<hr><h2 id="Text_shaping_library">Text shaping library</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://harfbuzz.github.io/">https://harfbuzz.github.io/</a>
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/harfbuzz/harfbuzz">https://github.com/harfbuzz/harfbuzz</a>
+jlf: referenced by ICU
+Users of ICU Layout are strongly encouraged to consider the HarfBuzz project as
+a replacement for the ICU Layout Engine.
+
+
+Uniscribe if you are writing Windows software
+
+
+CoreText on macOS
 
 
 <hr><h2 id="IME___Input_Method_Editor">IME - Input Method Editor</h2><hr>
@@ -2429,6 +2456,8 @@ OCTOBER 12, 2022
 JeanHeyd Meneide
 Project Editor for ISO/IEC JTC1 SC22 WG14 - Programming Languages, C.
 The Wonderfully Terrible World of C and C++ Encoding APIs (with Some Rust)
+---
+jlf:
 Is he criticizing the work of Zach Laine? ( <a target="_blank" rel="noopener noreferrer" href="https://github.com/tzlaine/text">https://github.com/tzlaine/text</a> )
 "someone was doing something wrong on the internet and I couldn’t let that pass:"
 
@@ -2578,6 +2607,10 @@ Confirmed by their text file:
 
 <a target="_blank" rel="noopener noreferrer" href="https://unicode-org.github.io/icu/">https://unicode-org.github.io/icu/</a>
 ICU documentation
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://unicode-org.github.io/icu-docs/apidoc/released/icu4c/">https://unicode-org.github.io/icu-docs/apidoc/released/icu4c/</a>
+Entry point of API Reference
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://icu-project.org/docs/">https://icu-project.org/docs/</a>
@@ -2784,8 +2817,32 @@ Using OS X’s Built-in ICU Library in Your Own Project
 
 <hr><h2 id="ICU4X_title">ICU4X title</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://icu4x.unicode.org/">https://icu4x.unicode.org/</a>
+lead by Shane Carr (<a target="_blank" rel="noopener noreferrer" href="https://www.sffc.xyz)">https://www.sffc.xyz)</a>
+
 
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x">https://github.com/unicode-org/icu4x</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/faq/unicode_license.html">https://www.unicode.org/faq/unicode_license.html</a>
+jlf: ICU4X uses UNICODE LICENSE V3
+The Unicode License is a permissive MIT type of license. However, there are
+several additional considerations identified separately in the associated
+Unicode Terms of Use (<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/copyright.html).">https://www.unicode.org/copyright.html).</a>
+---
+Comparison with other licenses:
+<a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Comparison_of_free_and_open-source_software_licenses">https://en.wikipedia.org/wiki/Comparison_of_free_and_open-source_software_licenses</a>
+jlf: hum... the "unicode license" is not in this table...
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.reddit.com/r/rust/comments/q4xaig/icu_vs_rust_icu/">https://www.reddit.com/r/rust/comments/q4xaig/icu_vs_rust_icu/</a>
+icu vs rust_icu
+Oct 10, 2021
+---
+jlf : here "icu" is ICU4X and rust_icu is another crate.
+Well... it's a mess, plenty of separated crates more or less finalized.
+There is a comment from an ICU4X committer saying "ICU4X does not have normalization".
+Of course, it's now supported but it's to say that ICU4X is far to be as complete
+as ICU.
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=35608997">https://news.ycombinator.com/item?id=35608997</a>
@@ -8106,6 +8163,21 @@ t~characters==
     lgorithms for these files specifically in Zig to reduce them to only a few
     tens of kilobytes.
     <a target="_blank" rel="noopener noreferrer" href="https://github.com/jecolon/ziglyph/issues/3">https://github.com/jecolon/ziglyph/issues/3</a>
+
+
+<hr><h2 id="Knock__knock_">Knock, knock.</h2><hr>
+Knock, knock.
+    Who’s there?
+You.
+    You who?
+Yoo-hoo! It's You Nicode.
+
+
+Knock, knock.
+    Who’s there?
+Sue.
+    Sue who?
+It's Sue Nicode.
 </pre>
 </body>
 </html>
