@@ -1,6 +1,6 @@
 #/*----------------------------------------------------------------------------*/
 #/*                                                                            */
-#/* Copyright (c) 2014-2021 Rexx Language Association. All rights reserved.    */
+#/* Copyright (c) 2014-2023 Rexx Language Association. All rights reserved.    */
 #/*                                                                            */
 #/* This program and the accompanying materials are made available under       */
 #/* the terms of the Common Public License v1.0 which accompanies this         */
@@ -41,14 +41,20 @@
 #/*----------------------------------------------------------------------------*/
 message(STATUS "CMake version is ${CMAKE_VERSION}")
 if (APPLE)
-# apple build with lower cmake version have an @rpath problem
+    # apple builds with prior cmake version have an @rpath problem
     cmake_minimum_required (VERSION 3.12)
 else ()
-#for other platforms
+    # for other platforms
     cmake_minimum_required (VERSION 2.8.12)
 endif ()
 cmake_policy(VERSION 2.8...3.3)
-cmake_policy(SET CMP0075 NEW)     # jlf 2021.04.10 to get rid of CMP0075 policy. Official ooRexx has the same warning
+
+# must come before the project command
+# 10.13.6 High Sierra is the minimum system supported
+if( APPLE AND BUILD_OSX_UNIVERSAL_BINARIES )
+  set( CMAKE_OSX_DEPLOYMENT_TARGET 10.13.6 CACHE STRING  "" FORCE)
+endif()
+
 project (ooRexx)
 include(CheckIncludeFile)
 include(CheckLibraryExists)
@@ -185,7 +191,7 @@ endif ()
    SET(CPACK_PACKAGE_VERSION_MAJOR ${ORX_MAJOR})
    SET(CPACK_PACKAGE_VERSION_MINOR ${ORX_MINOR})
    SET(CPACK_PACKAGE_VERSION_PATCH ${ORX_MOD_LVL})
-   set(CPACK_PACKAGE_NAME "ooRexx")
+   set(CPACK_PACKAGE_NAME "oorexx")
    set(CPACK_PACKAGE_LONG_NAME "Open Object Rexx")
    set(CPACK_PACKAGE_VENDOR "Rexx Language Association")
    set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_SOURCE_DIR}/ReleaseNotes)
@@ -302,6 +308,15 @@ endif ()
 
 include_directories(${PROJECT_BINARY_DIR})
 if (WIN32)
+   if (${ORX_ARCHITECTURE} STREQUAL "64")
+      set (EXE_MANIFEST_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${ORX_PLATFORM_DIR}/rexx64.exe.manifest)
+      set (NSIS_CPU "x86_64")
+   else ()
+      set (EXE_MANIFEST_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${ORX_PLATFORM_DIR}/rexx32.exe.manifest)
+      set (NSIS_CPU "x86_32")
+   endif ()
+   file(TO_NATIVE_PATH ${EXE_MANIFEST_FILE} EXE_MANIFEST_FILE)
+   set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:8388608")
    add_definitions(/DORX_VER=${ORX_MAJOR}
             /DORX_REL=${ORX_MINOR}
             /DORX_MOD=${ORX_MOD_LVL}
@@ -311,39 +326,31 @@ if (WIN32)
             /DORX_SYS_STR="${ORX_SYS_STR}"
             /DORX_CATDIR="${catdir}"
             /DORX_SHARED_LIBRARY_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}"
+            /DORX_SYSTEM_PROCESSOR="${NSIS_CPU}"
             /DORX_REXXPATH="${CMAKE_REXXPATH}"
-# we build for Vista or higher; no more XP support
-# (this define restricts us to the Win 6.0 APIs; anything higher will fail)
+            # we build for Vista or higher; no more XP support
+            # (this define restricts us to the Win 6.0 APIs; anything higher will fail)
             /D_WIN32_WINNT=0x0600
-# suppress CRT_SECURE warnings
-# (we might instead use the secure versions, by using these two DEFINEs:
+            # suppress CRT_SECURE warnings
+            # (we might instead use the secure versions, by using these two DEFINEs:
 #           /D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1
 #           /D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT=1
             /D_CRT_SECURE_NO_DEPRECATE
             /D_CRT_SECURE_NO_WARNINGS
             /D_CRT_NONSTDC_NO_DEPRECATE
             /DNOMINMAX
-# suppress warning C4291: no matching operator delete found; memory will not be freed if initialization throws an exception
+            # suppress warning C4291: no matching operator delete found; memory will not be freed if initialization throws an exception
             /wd4291
 # give errors for missing override specifications or method hiding with warning level 3
 #           /w34263 /w34266
             /DWIN32 /D_WINDOWS /DHAVE_CONFIG_H)
-   if (${ORX_ARCHITECTURE} STREQUAL "64")
-      set (EXE_MANIFEST_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${ORX_PLATFORM_DIR}/rexx64.exe.manifest)
-      set (NSIS_CPU "x86_64")
-   else ()
-      set (EXE_MANIFEST_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${ORX_PLATFORM_DIR}/rexx32.exe.manifest)
-      set (NSIS_CPU "x86_32")
-   endif ()
-   file(TO_NATIVE_PATH ${EXE_MANIFEST_FILE} EXE_MANIFEST_FILE)
-   set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:524288")
 else ()
    add_definitions(-DORX_VER=${ORX_MAJOR} -DORX_REL=${ORX_MINOR} -DORX_MOD=${ORX_MOD_LVL} -DORX_BLD=${ORX_BLD_LVL}
-
             -DOOREXX_COPY_YEAR="${ORX_COPY_YEAR}"
             -DORX_SYS_STR="${ORX_SYS_STR}"
             -DORX_CATDIR="${catdir}" -D_GNU_SOURCE
             -DORX_SHARED_LIBRARY_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}"
+            -DORX_SYSTEM_PROCESSOR="${CMAKE_SYSTEM_PROCESSOR}"
             -DORX_REXXPATH="${CMAKE_REXXPATH}"
             -D${ORX_SYS_STR} -DOPSYS_${ORX_SYS_STR} -DHAVE_CONFIG_H)
     set (ORX_SYSLIB_DL ${CMAKE_DL_LIBS})
@@ -483,7 +490,7 @@ set (PACKAGE ${PROJECT_NAME})
 set (PACKAGE_BUGREPORT "https://sourceforge.net/projects/oorexx/")
 set (PACKAGE_NAME ${PROJECT_NAME})
 set (PACKAGE_STRING ${PROJECT_NAME})
-set (PACKAGE_TARNAME "ooRexx.tar")
+set (PACKAGE_TARNAME "oorexx.tar")
 set (PACKAGE_URL "https://www.oorexx.org/")
 set (PACKAGE_VERSION ${ORX_VER_STR})
 set (VERSION ${ORX_VER_STR})
@@ -492,7 +499,6 @@ set (STDC_HEADERS 1)
 
 # Configure files config.h
 configure_file(config.h.in.cmake ${PROJECT_BINARY_DIR}/config.h)
-
 
 
 #/*----------------------------------------------------------------------------*/
@@ -1141,6 +1147,7 @@ target_link_libraries(rexx_exe rexx rexxapi ${platform_rexx_exe_libs} ${CMAKE_RE
 # Merge in extra manifest information on Windows
 if (WIN32)
 add_custom_command(TARGET rexx_exe POST_BUILD
+   DEPENDS ${EXE_MANIFEST_FILE}
    COMMAND "mt.exe" -nologo -manifest \"${EXE_MANIFEST_FILE}\" "-inputresource:bin\\rexx.exe;#1" "-outputresource:bin\\rexx.exe;#1"
    COMMENT "Adding custom manifest to rexx.exe...")
 endif ()
@@ -1763,6 +1770,7 @@ if (FALSE)                 # jlf : not existing in oodialog wchar
                 ${build_extensions_oodialog_dir})
    target_link_libraries(oodialog_exe rexx rexxapi shlwapi)
    add_custom_command(TARGET oodialog_exe POST_BUILD
+      DEPENDS ${EXE_MANIFEST_FILE}
       COMMAND "mt.exe" -nologo -manifest \"${EXE_MANIFEST_FILE}\" "-inputresource:bin\\ooDialog.exe;#1" "-outputresource:bin\\ooDialog.exe;#1"
       COMMENT "Adding custom manifest to ooDialog.exe...")
    install(TARGETS oodialog_exe RUNTIME COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR})
@@ -1802,6 +1810,7 @@ if (FALSE)                 # jlf : not existing in oodialog wchar
                 ${build_extensions_oodialog_dir})
    target_link_libraries(oodialog_com rexx rexxapi shell32 Advapi32)
    add_custom_command(TARGET oodialog_com POST_BUILD
+      DEPENDS ${EXE_MANIFEST_FILE}
       COMMAND "mt.exe" -nologo -manifest \"${EXE_MANIFEST_FILE}\" "-inputresource:bin\\ooDialog.com;#1" "-outputresource:bin\\ooDialog.com;#1"
       COMMENT "Adding custom manifest to ooDialog.com...")
    install(TARGETS oodialog_com RUNTIME COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR})
@@ -1866,6 +1875,7 @@ if (WIN32)
                ${build_messages_dir})
    target_link_libraries(rexxhide rexx rexxapi)
    add_custom_command(TARGET rexxhide POST_BUILD
+      DEPENDS ${EXE_MANIFEST_FILE}
       COMMAND "mt.exe" -nologo -manifest \"${EXE_MANIFEST_FILE}\" "-inputresource:bin\\rexxhide.exe;#1" "-outputresource:bin\\rexxhide.exe;#1"
       COMMENT "Adding custom manifest to rexxhide.exe...")
    install(TARGETS rexxhide RUNTIME COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR})
@@ -1885,6 +1895,7 @@ if (WIN32)
                ${build_messages_dir})
    target_link_libraries(rexxpaws rexx rexxapi)
    add_custom_command(TARGET rexxpaws POST_BUILD
+      DEPENDS ${EXE_MANIFEST_FILE}
       COMMAND "mt.exe" -nologo -manifest \"${EXE_MANIFEST_FILE}\" "-inputresource:bin\\rexxpaws.exe;#1" "-outputresource:bin\\rexxpaws.exe;#1"
       COMMENT "Adding custom manifest to rexxpaws.exe...")
    install(TARGETS rexxpaws RUNTIME COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR})
@@ -2064,7 +2075,7 @@ if (NOT WIN32)
       add_custom_target(${name}_man ALL DEPENDS ${name}.${cat}.gz)
       install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${name}.${cat}.gz
           DESTINATION ${INSTALL_MAN_DIR}/man${cat}
-          PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
+          PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
    endmacro (add_manpage)
 
    add_manpage (rexx 1)
@@ -2092,7 +2103,9 @@ add_subdirectory (samples)
 
 # The Windows installer assumes we have the docs available.  Don't try building
 # any of the installer stuff if this is not available.
-if (WIN32 AND DOC_SOURCE_DIR)
+if (DOC_SOURCE_DIR)
+
+ if (WIN32)
    # Add the install directory to the module path so the custom template can be located.
    set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/${build_platform_dir}/install ${CMAKE_MODULE_PATH})
 
@@ -2273,8 +2286,13 @@ endif ()
       file(TO_NATIVE_PATH ${DOC_SOURCE_DIR} NATIVE_DOC_DIR)
 
       # Name of the installer file we're going to create
-      set(INSTALLER_FILE "ooRexx-${ORX_VERSION_NSIS}.windows.${NSIS_CPU}.exe")
-      set(INSTALLER_SCRIPT "ooRexx-${ORX_VERSION_NSIS}.windows.${NSIS_CPU}.nsi")
+      if (DEFINED OS_DIST)
+         set(INSTALLER_FILE "${CPACK_PACKAGE_NAME}-${ORX_VERSION_NSIS}.${OS_DIST}.${NSIS_CPU}.exe")
+         set(INSTALLER_SCRIPT "${CPACK_PACKAGE_NAME}-${ORX_VERSION_NSIS}.${OS_DIST}.${NSIS_CPU}.nsi")
+      else ()
+         set(INSTALLER_FILE "${CPACK_PACKAGE_NAME}-${ORX_VERSION_NSIS}.windows.${NSIS_CPU}.exe")
+         set(INSTALLER_SCRIPT "${CPACK_PACKAGE_NAME}-${ORX_VERSION_NSIS}.windows.${NSIS_CPU}.nsi")
+      endif ()
 
       # create an installer file from the template
       message(STATUS "Building NSIS template ${INSTALLER_SCRIPT}")
@@ -2361,6 +2379,27 @@ endif ()
           WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
           COMMENT "Removing NSIS installer build files")
    endif()
+
+   else () # Unix
+	   # install each of the doc files
+	   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/CHANGES COMPONENT Docs DESTINATION ${INSTALL_DOC_DIR} RENAME CHANGES.txt)
+	   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ReleaseNotes COMPONENT Docs DESTINATION ${INSTALL_DOC_DIR} RENAME ReleaseNotes.txt)
+
+	   install(FILES ${DOC_SOURCE_DIR}/readme.pdf COMPONENT Docs DESTINATION ${INSTALL_DOC_DIR})
+	   install(FILES ${DOC_SOURCE_DIR}/orxncurses.pdf COMPONENT Docs DESTINATION ${INSTALL_DOC_DIR})
+
+	   install(FILES ${DOC_SOURCE_DIR}/rexxapi.pdf COMPONENT Docs DESTINATION ${INSTALL_DOC_DIR})
+	   install(FILES ${DOC_SOURCE_DIR}/rexxextensions.pdf COMPONENT Docs DESTINATION ${INSTALL_DOC_DIR})
+
+	   install(FILES ${DOC_SOURCE_DIR}/rexxpg.pdf COMPONENT Docs DESTINATION ${INSTALL_DOC_DIR})
+	   install(FILES ${DOC_SOURCE_DIR}/rexxref.pdf COMPONENT Docs DESTINATION ${INSTALL_DOC_DIR})
+	   install(FILES ${DOC_SOURCE_DIR}/rxmath.pdf COMPONENT Docs DESTINATION ${INSTALL_DOC_DIR})
+	   install(FILES ${DOC_SOURCE_DIR}/rxsock.pdf COMPONENT Docs DESTINATION ${INSTALL_DOC_DIR})
+	   install(FILES ${DOC_SOURCE_DIR}/rxftp.pdf COMPONENT Docs DESTINATION ${INSTALL_DOC_DIR})
+
+	   install(FILES ${DOC_SOURCE_DIR}/unixextensions.pdf COMPONENT Docs DESTINATION ${INSTALL_DOC_DIR})
+
+   endif()
 endif ()
 
 
@@ -2408,7 +2447,9 @@ if (BUILD_RPM)
       set(CPACK_PACKAGE_RELEASE ${ORX_BLD_LVL})
    endif ()
 
-   set(CPACK_RPM_PACKAGE_VERSION ${ORX_VERSION})
+# changed from ORX_VERSION to ORX_VER_STR because ORX_VERSION is redefined for versioning
+# resulting in an incorrect version number here
+   set(CPACK_RPM_PACKAGE_VERSION ${ORX_VER_STR})
    set(CPACK_RPM_PACKAGE_RELEASE ${CPACK_PACKAGE_RELEASE})
    set(CPACK_RPM_PACKAGE_LICENSE "CPL")
    set(CPACK_RPM_PACKAGE_URL "https://www.oorexx.org/")
@@ -2418,11 +2459,11 @@ if (BUILD_RPM)
    set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
    set(CPACK_RPM_PACKAGE_SUMMARY "Open Object Rexx is an object-oriented scripting language.")
 
-   set(CPACK_RPM_PACKAGE_ARCHITECTURE ${CMAKE_HOST_SYSTEM_PROCESSOR})
+   set(CPACK_RPM_PACKAGE_ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
    if (DEFINED OS_DIST)
-      set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${ORX_MAJOR}.${ORX_MINOR}.${ORX_MOD_LVL}-${CPACK_PACKAGE_RELEASE}.${OS_DIST}.${CMAKE_HOST_SYSTEM_PROCESSOR}")
+      set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${ORX_MAJOR}.${ORX_MINOR}.${ORX_MOD_LVL}-${CPACK_PACKAGE_RELEASE}.${OS_DIST}.${CMAKE_SYSTEM_PROCESSOR}")
    else ()
-      set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${ORX_MAJOR}.${ORX_MINOR}.${ORX_MOD_LVL}-${CPACK_PACKAGE_RELEASE}.${CMAKE_HOST_SYSTEM_PROCESSOR}")
+      set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${ORX_MAJOR}.${ORX_MINOR}.${ORX_MOD_LVL}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}")
    endif ()
    set(CPACK_RPM_PACKAGE_DESCRIPTION
 "Open Object Rexx is an object-oriented scripting language. The language
@@ -2458,7 +2499,7 @@ if (BUILD_DEB)
      ")
    set(CPACK_GENERATOR DEB)
    # The package name MUST be in lower case.
-   set(CPACK_DEBIAN_PACKAGE_NAME oorexx)
+   set(CPACK_DEBIAN_PACKAGE_NAME ${CPACK_PACKAGE_NAME})
    if (DEFINED PROD)
       set(CPACK_PACKAGE_RELEASE 1)
    else ()
@@ -2470,9 +2511,9 @@ if (BUILD_DEB)
    set(CPACK_DEBIAN_PACKAGE_MAINTAINER "sahananda@users.sf.net")
    set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
    if (DEFINED OS_DIST)
-      set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${ORX_MAJOR}.${ORX_MINOR}.${ORX_MOD_LVL}-${CPACK_PACKAGE_RELEASE}.${OS_DIST}.${CMAKE_HOST_SYSTEM_PROCESSOR}")
+      set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${ORX_MAJOR}.${ORX_MINOR}.${ORX_MOD_LVL}-${CPACK_PACKAGE_RELEASE}.${OS_DIST}.${CMAKE_SYSTEM_PROCESSOR}")
    else ()
-      set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${ORX_MAJOR}.${ORX_MINOR}.${ORX_MOD_LVL}-${CPACK_PACKAGE_RELEASE}.${CMAKE_HOST_SYSTEM_PROCESSOR}")
+      set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${ORX_MAJOR}.${ORX_MINOR}.${ORX_MOD_LVL}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}")
    endif ()
    # The DEB generator does not support a multi-line description.
    set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Open Object Rexx is an object-oriented scripting language.")
@@ -2481,7 +2522,7 @@ endif ()
 # Build for FREEBSD
 if (BUILD_FREEBSD)
    set(CPACK_GENERATOR FREEBSD)
-   set(CPACK_FREEBSD_PACKAGE_NAME ooRexx)
+   set(CPACK_FREEBSD_PACKAGE_NAME ${CPACK_PACKAGE_NAME})
    if (DEFINED PROD)
       set(CPACK_PACKAGE_RELEASE 1)
    else ()
@@ -2490,9 +2531,9 @@ if (BUILD_FREEBSD)
    set(CPACK_FREEBSD_PACKAGE_MAINTAINER "sahananda@users.sf.net")
    set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
    if (DEFINED OS_DIST)
-      set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${ORX_MAJOR}.${ORX_MINOR}.${ORX_MOD_LVL}-${CPACK_PACKAGE_RELEASE}.${OS_DIST}.${CMAKE_HOST_SYSTEM_PROCESSOR}")
+      set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${ORX_MAJOR}.${ORX_MINOR}.${ORX_MOD_LVL}-${CPACK_PACKAGE_RELEASE}.${OS_DIST}.${CMAKE_SYSTEM_PROCESSOR}")
    else ()
-      set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${ORX_MAJOR}.${ORX_MINOR}.${ORX_MOD_LVL}-${CPACK_PACKAGE_RELEASE}.${CMAKE_HOST_SYSTEM_PROCESSOR}")
+      set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${ORX_MAJOR}.${ORX_MINOR}.${ORX_MOD_LVL}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}")
    endif ()
    set(CPACK_FREEBSD_PACKAGE_LICENSE "CPL")
    set(CPACK_FREEBSD_PACKAGE_DESCRIPTION
@@ -2509,14 +2550,17 @@ For more information on ooRexx, visit https://www.oorexx.org/
 For more information on Rexx, visit https://www.rexxla.org/")
 endif ()
 
-# Build for Apple macOS
+# Build for Apple macOS, fallback when OS not defined
+if (NOT DEFINED OS_DIST AND APPLE)
+   set(OS_DIST "macos")
+endif ()
+
 if (BUILD_DMG)
 # The installer is built in a post-process script build_macOS_dmg.sh.in
 # initialised from platform/unix/macos/install/build_macOS_dmg.sh.in
 # using settings from here
 
-# Always 64 bit for macOS
-   set(OS_DIST "macOS")
+# Always 64 bit for macOS; as of rev 12671 it should be all lowercase
 
 # This is copied from DEB & RPM Installers
    if (DEFINED PROD)
@@ -2525,18 +2569,95 @@ if (BUILD_DMG)
       set(CPACK_PACKAGE_RELEASE ${ORX_BLD_LVL})
    endif ()
 
-   if (DEFINED OS_DIST)
-      set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${ORX_MAJOR}.${ORX_MINOR}.${ORX_MOD_LVL}-${CPACK_PACKAGE_RELEASE}.${OS_DIST}.${CMAKE_HOST_SYSTEM_PROCESSOR}")
+# This was changed to cope with arm64 or x86_64 or both
+   if( APPLE AND BUILD_OSX_UNIVERSAL_BINARIES )
+      set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${ORX_MAJOR}.${ORX_MINOR}.${ORX_MOD_LVL}-${CPACK_PACKAGE_RELEASE}.${OS_DIST}.arm64.x86_64")
    else ()
-      set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${ORX_MAJOR}.${ORX_MINOR}.${ORX_MOD_LVL}-${CPACK_PACKAGE_RELEASE}.${CMAKE_HOST_SYSTEM_PROCESSOR}")
+      set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${ORX_MAJOR}.${ORX_MINOR}.${ORX_MOD_LVL}-${CPACK_PACKAGE_RELEASE}.${OS_DIST}.${CMAKE_SYSTEM_PROCESSOR}")
    endif ()
 
+   message(STATUS "ORX_BLD_LVL ${ORX_BLD_LVL}")
+   message(STATUS "CPACK_PACKAGE_RELEASE ${CPACK_PACKAGE_RELEASE}")
    message(STATUS "CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_FILE_NAME}")
 
    # Be sure to do this AFTER you set the CPACK_PACKAGE_FILE_NAME
 
    configure_file( ${CMAKE_SOURCE_DIR}/platform/unix/macos/install/build_macOS_dmg.sh.in ${CMAKE_BINARY_DIR}/build_macOS_dmg.sh IMMEDIATE @ONLY )
 
+endif ()
+
+
+######################  portable Rexx Home ENVironment archive  ##########################
+set (zip_dir_name           _portable_)
+set (run_rexx_exe           ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rexx)
+set (run_rexx_create_script ${CMAKE_CURRENT_SOURCE_DIR}/support/portable/createPortable.rex)
+
+if (WIN32)
+   set (rexx_exe_cpu ${NSIS_CPU})
+   set (rexx_exe_opsys win)
+   set (rexx_exe_shell_ft cmd)
+else  () # Unix
+   exec_program("uname" ARGS "-s" OUTPUT_VARIABLE rexx_exe_opsys) # execute_process() did not work out
+   set (rexx_exe_shell_ft sh)
+
+   if( APPLE AND BUILD_OSX_UNIVERSAL_BINARIES )
+      set(rexx_exe_cpu "universal")
+   else ()
+      set(rexx_exe_cpu ${CMAKE_SYSTEM_PROCESSOR})
+   endif ()
+endif ()
+string(TOLOWER ${rexx_exe_opsys} rexx_exe_opsys) # make sure operating system is lowercase
+string(TOLOWER "${CMAKE_BUILD_TYPE}" rexx_build_type)
+
+if (DEFINED CPACK_PACKAGE_FILE_NAME)
+   # 2023-01-05: use the installation package name, if defined
+   set (zip_name "${CPACK_PACKAGE_FILE_NAME}-portable-${rexx_build_type}")
+else ()
+   # 2023-01-05: field sequence should follow as close as possible the installation package name
+   # set (zip_name "${CPACK_PACKAGE_NAME}-${ORX_VER_STR}-${ORX_BLD_LVL}.${rexx_exe_opsys}.${ORX_ARCHITECTURE}-${rexx_exe_cpu}-portable-${rexx_build_type}")
+   set (zip_name "${CPACK_PACKAGE_NAME}-${ORX_VER_STR}-${ORX_BLD_LVL}.${OS_DIST}.${rexx_exe_cpu}-portable-${rexx_build_type}")
+endif ()
+
+add_custom_target(portable
+  COMMAND ${CMAKE_COMMAND} -E remove_directory "${zip_dir_name}"  # make sure directory gets removed
+  # Rexx program that does a DESTDIR local install and creates the zip directory structure
+  COMMAND ${run_rexx_exe}  ${run_rexx_create_script} -portable_dirname ${zip_dir_name} -zip_name ${zip_name}
+
+  # change into temporary directory and create runtime archive
+  COMMAND ${CMAKE_COMMAND} -E chdir "${zip_dir_name}"
+          ${CMAKE_COMMAND} -E tar "cfv" "${zip_name}-runtime.zip" --format=zip
+                                 "${zip_name}/bin"
+                                 "${zip_name}/lib"
+                                 "${zip_name}/include"
+                                 "${zip_name}/setupoorexx.${rexx_exe_shell_ft}"
+                                 "${zip_name}/setupoorexx.rex"
+                                 "${zip_name}/testoorexx.rex"
+                                 "${zip_name}/readme.txt"
+
+  # change into temporary directory and create full archive
+  COMMAND ${CMAKE_COMMAND} -E chdir "${zip_dir_name}"
+          ${CMAKE_COMMAND} -E tar "cfv" "${zip_name}.zip" --format=zip
+                                 "${zip_name}"
+
+  # copy archives
+  COMMAND ${CMAKE_COMMAND} -E copy "${zip_dir_name}/${zip_name}-runtime.zip" "${CMAKE_CURRENT_BINARY_DIR}"
+  COMMAND ${CMAKE_COMMAND} -E copy "${zip_dir_name}/${zip_name}.zip" "${CMAKE_CURRENT_BINARY_DIR}"
+
+  # delete archives
+  COMMAND ${CMAKE_COMMAND} -E remove "${zip_dir_name}/${zip_name}-runtime.zip"
+                                     "${zip_dir_name}/${zip_name}.zip"
+
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  COMMENT "Creating portable Rexx Home ENVironment zip archives ...")
+# <-- portable Rexx Home ENVironment archive <--
+
+# Create a source package
+if(BUILD_SOURCE)
+  set(CPACK_PACKAGING_INSTALL_PREFIX "/")
+  set(CPACK_SOURCE_GENERATOR "TGZ")
+  set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${ORX_MAJOR}.${ORX_MINOR}.${ORX_MOD_LVL}-${CPACK_PACKAGE_RELEASE}")
+  message(STATUS "CPACK_PACKAGING_INSTALL_PREFIX ${CPACK_PACKAGING_INSTALL_PREFIX}")
+  message(STATUS "CPACK_SOURCE_PACKAGE_FILE_NAME ${CPACK_SOURCE_PACKAGE_FILE_NAME}")
 endif ()
 
 # Do not move the following statement!! It must be the last statement in this file.

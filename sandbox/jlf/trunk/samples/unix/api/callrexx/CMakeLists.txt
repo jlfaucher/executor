@@ -52,28 +52,31 @@ cmake_policy(VERSION 2.8...3.3)
 #/*----------------------------------------------------------------------------*/
 project (callrexx)
 
+# add GROUP_WRITE right to default permissions
+set (PERM_EXECUTE PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE )
+set (PERM_RW      PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ GROUP_WRITE WORLD_READ  )
+
 #################### callrexx1 (executable) #########################
 # additional source files required by specific platforms
-set (platform_callrexx1_libs ${ORX_SYSLIB_DL})
 # Sources for callrexx1
-add_executable(callrexx1 ${PROJECT_SOURCE_DIR}/callrexx1)
+add_executable(callrexx1 ${PROJECT_SOURCE_DIR}/callrexx1.cpp)
 # Include file definition
 target_include_directories(callrexx1 PUBLIC
             ${build_api_dir}
             ${build_api_platform_dir})
 # Extra link library definitions
-target_link_libraries(callrexx1 rexx ${platform_callrexx1_libs})
-install(TARGETS callrexx1 RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+target_link_libraries(callrexx1 rexx rexxapi)
+install(TARGETS callrexx1 RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin ${PERM_EXECUTE})
 
 #################### callrexx2 (executable) #########################
 # additional source files required by specific platforms
 #set (platform_callrexx2_libs ${ORX_SYSLIB_DL} ${ORX_SYSLIB_PTHREAD})
 # Sources for callrexx2
-add_executable(callrexx2 ${PROJECT_SOURCE_DIR}/callrexx2)
+add_executable(callrexx2 ${PROJECT_SOURCE_DIR}/callrexx2.c)
 # Include file definition
 target_include_directories(callrexx2 PUBLIC
             ${build_api_dir}
             ${build_api_platform_dir})
 # Extra link library definitions
 target_link_libraries(callrexx2 rexx)
-install(TARGETS callrexx2 RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+install(TARGETS callrexx2 RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin ${PERM_EXECUTE})

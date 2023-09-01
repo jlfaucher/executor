@@ -52,13 +52,17 @@ cmake_policy(VERSION 2.8...3.3)
 #/*----------------------------------------------------------------------------*/
 project (wpipe3)
 
+# add GROUP_WRITE right to default permissions
+set (PERM_EXECUTE PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE )
+set (PERM_RW      PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ GROUP_WRITE WORLD_READ  )
+
 #################### wpipe3 (executable) #########################
 # Sources for wpipe3
-add_library(wpipe3 SHARED ${PROJECT_SOURCE_DIR}/rexxasp3)
+add_library(wpipe3 SHARED ${PROJECT_SOURCE_DIR}/rexxasp3.c)
 # Include file definition
 target_include_directories(wpipe3 PUBLIC
             ${build_api_dir}
             ${build_api_platform_dir})
 # Extra link library definitions
 target_link_libraries(wpipe3 rexx rexxapi)
-install(TARGETS wpipe3 LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+install(TARGETS wpipe3 LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/bin ${PERM_EXECUTE})
