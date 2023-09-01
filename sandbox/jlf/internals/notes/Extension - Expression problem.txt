@@ -114,3 +114,7 @@ http://javascriptweblog.wordpress.com/2011/12/05/extending-javascript-natives/
 
 https://groups.google.com/forum/?hl=en&fromgroups#!topic/qilang/uGNHTS9LII4
 The expression problem
+
+https://github.com/jll63/yomm2
+Fast, orthogonal, open multi-methods.
+Solve the Expression Problem in C++17.
