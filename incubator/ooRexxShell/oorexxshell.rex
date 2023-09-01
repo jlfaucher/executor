@@ -361,6 +361,15 @@ main: procedure
                 .ooRexxShell~demoFast = .true
             end
 
+            when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("test regression") then do
+                -- Settings for [non-]regression tests
+                -- A script can test .ooRexxShell~testRegression to deactivate the parts that display different values at each execution
+                -- The command "infos next" is deactivated (because it displays the duration)
+                .ooRexxShell~demo = .true
+                .ooRexxShell~demoFast = .true
+                .ooRexxShell~testRegression = .true
+            end
+
             when .ooRexxShell~maybeCommand & .ooRexxShell~input~caselessEquals("exit") then
                 exit
 
@@ -385,7 +394,7 @@ main: procedure
             when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("infos on") then
                 .ooRexxShell~showInfos = .true
             when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("infos next") then
-                .ooRexxShell~showInfosNext = .true
+                .ooRexxShell~showInfosNext = \.ooRexxShell~testRegression -- deactivated in mode "test regression"
 
             when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessAbbrev("prompt off") then
                 .ooRexxShell~promptSettings(.false, .ooRexxShell~input)
@@ -1216,6 +1225,7 @@ Helpers
 ::attribute showStackFrames class
 ::attribute stackFrames class -- stackframes of last error
 ::attribute systemAddress class -- "CMD" under Windows, "sh" under Linux/MacOs
+::attribute testRegression class
 ::attribute traceback class -- traceback of last error
 
 ::attribute showColor class
@@ -1283,6 +1293,7 @@ Helpers
     self~showInitialization = .false
     self~showStackFrames = .false
     self~stackFrames = .list~new
+    self~testRegression = .false -- a script can test this attribute to decide if some parts are deactivated to have repeatable results (for [non-]regression tests)
     self~traceReadline = .false
     self~traceDispatchCommand = .false
     self~traceFilter = .false
@@ -1323,6 +1334,7 @@ Helpers
     "commandInterpreter",
     "debug",
     "demo",
+    "demoFast",
     "defaultSleepDelay",
     "hasBsf",
     "hasIndentedStream",
@@ -1349,6 +1361,7 @@ Helpers
     "showInfos",
     "systemAddress",
     "showColor",
+    "testRegression",
     "traceDispatchCommand",
     "traceFilter",
     "traceReadline",
@@ -1782,7 +1795,7 @@ Helpers
     say "    < filename: read the file and put each line in the queue."
     say "    color off|on: deactivate|activate the colors."
     say "    debug off|on: deactivate|activate the full trace of the internals of ooRexxShell."
-    say "    demo off|on: deactivate|activate the demonstration mode."
+    say "    demo off|on|fast: deactivate|activate the demonstration mode."
     say "    exit: exit ooRexxShell."
     say "    goto <label>: used in a demo script to skip lines, until <label>: (note colon) is reached."
     say "    indent+ | indent-: used by the command < to show the level of inclusion."
@@ -1794,6 +1807,7 @@ Helpers
     say "    security off: deactivate the security manager. No transformation of commands."
     say "    security on : activate the security manager. Transformation of commands."
     say "    sleep [n] [no prompt]: used in demo mode to pause during n seconds (default" .ooRexxShell~defaultSleepDelay "sec)."
+    say "    test regression: activate the regression testing mode."
     say "    trace off|on [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity][.verbose]]: deactivate|activate the trace."
     say "    trap off|on [l[ostdigits]] [nom[ethod]] [nos[tring]] [nov[alue]] [s[yntax]]: deactivate|activate the conditions traps."
     say "Input queue name:" .ooRexxShell~queueName
@@ -2011,19 +2025,18 @@ Helpers
 ::method goto class
     use strict arg input
     parse var input . word2 rest
-    if rest <> "" then do
-        .ooRexxShell~sayError("Expected a label, got:" word2 rest)
-        return
-    end
+    interpretCondition = interpretCondition(rest)
+    if interpretCondition \== .true then return .false -- don't do it (whatever the reason: syntax error, interpret error or result not a boolean)
     if word2 == "" then do
         .ooRexxShell~sayError("Missing label")
-        return
+        return .false
     end
     if isDriveLetter(word2":") then do
         .ooRexxShell~sayError("Can't go to this label, because "word2": is a drive letter")
-        return
+        return .false
     end
     .ooRexxShell~gotoLabel = word2
+    return .true
 
 
 ::method queueFileCommand class
@@ -2035,10 +2048,13 @@ Helpers
     parse var input . args
     results = .ooRexxShell~parseQueueFileArguments(args)
     if .nil == results then return .false
-    filename = results[1]
-    substitutions = results[2]
-    if \.ooRexxShell~queueFile(filename, .true) then return .false
-    return .ooRexxShell~queueFile(filename, .false, substitutions)
+    if results~isA(.array) then do
+        filename = results[1]
+        substitutions = results[2]
+        if \.ooRexxShell~queueFile(filename, .true) then return .false
+        return .ooRexxShell~queueFile(filename, .false, substitutions)
+    end
+    return .true -- here results == .false, which deactivates the '<' command. It's not an error.
 
 
 ::method queueFile class
@@ -2084,13 +2100,14 @@ Helpers
         if \multiLineComments, \monoLineComment, maybeCommand, word1 == "<" then do
             results = .ooRexxShell~parseQueueFileArguments(rest)
             if .nil == results then error = .true
-            else do
+            else if results~isA(.array) then do
                 -- Remember: don't overwrite filename and substitutions
                 filenameArgument = results[1]
                 substitutionsArgument = results[2]
                 .ooRexxShell~queueFile(filenameArgument, check, substitutionsArgument, directory, visitedFiles)
                 if result == .false then error = .true
             end
+            else nop -- here results == .false, which deactivates the '<' command. It's not an error.
         end
         else if \check then queue applySubstitutions(rawline, substitutions)
     end
@@ -2122,21 +2139,21 @@ Helpers
 
 
 ::method parseQueueFileArguments class
+    -- returns .nil in case of error
+    -- returns .false if a 'when condition' deactivates the '<' command
+    -- otherwise returns an array (filename, substitutions)
     use strict arg args
     results = parse_qword_rest(args)
     filename = results[1]
     rest = results[2]
     if filename == "" then do
-        .ooRexxShell~sayError("Usage: < filename [substitutions]")
+        .ooRexxShell~sayError("Usage: < filename [substitutions] [when condition]")
         return .nil
     end
     -- Parse the substitution rules: s/text/newtext/ where the character after s can be any character
     substitutions = .queue~new
     do while rest \== ""
-        if rest~subchar(1) \== "s" then do
-            .ooRexxShell~sayError("Invalid substitution rule. Expected s/text/newtext/. Got" rest)
-            return .nil
-        end
+        if rest~subchar(1) \== "s" then leave -- it's maybe a 'when condition'
         separator = rest~subchar(2)
         if rest~countStr(separator) < 3 then do
             .ooRexxShell~sayError("Invalid substitution rule. Expected s/text/newtext/. Got" rest)
@@ -2147,7 +2164,13 @@ Helpers
         substitutions~append(replacedBy)
         rest = nextRest~strip
     end
-    return .array~of(filename, substitutions)
+    -- Optional when condition
+    -- Pass an error message related to the substitutions, that will be displayed in case of syntax error
+    -- (because both "s/text/newtext/" and "when expression" are candidate)
+    interpretCondition = interpretCondition(rest, "Invalid substitution rule. Expected s/text/newtext/.")
+    if interpretCondition == .true then return .array~of(filename, substitutions)
+    if interpretCondition == .false then return .false -- the 'when condition' deactivates the '<' command
+    return .nil -- error
 
 
 ::method stringChunks class
@@ -2863,3 +2886,48 @@ The colors are managed with escape characters.
     if string~subchar(2) <> ":" then return .false
     letterDrive = string~subchar(1)~upper
     return letterDrive >= "A" & letterDrive <= "Z"
+
+
+::routine interpretCondition public
+    -- returns "syntax_error" in case of syntax error (no "when" or no condition)
+    -- returns "evaluation_error" in case of error raised when evaluating the condition
+    -- otherwise returns .true or .false
+    use strict arg whenCondition, otherExpectation=""
+    if whenCondition~strip \== "" then do
+        parse var whenCondition word1 rest
+        if \word1~caselessEquals("when") | rest~strip == "" then do
+            if otherExpectation \== "" then do
+                .ooRexxShell~sayError(otherExpectation)
+                .ooRexxShell~sayError("and / or")
+                .ooRexxShell~sayError("Expected 'when' followed by a condition")
+                .ooRexxShell~sayError("Got:" word1 rest)
+            end
+            else .ooRexxShell~sayError("Expected 'when' followed by a condition. Got:" word1 rest)
+            return "syntax_error"
+        end
+        call evaluation rest
+        if datatype(result, "O") then return result -- boolean (good)
+        if \var("result") then .ooRexxShell~sayError("The 'when expression' did not return a result")
+        else .ooRexxShell~sayError("The 'when expression' did not return a boolean. Got:" result~string)
+        return .false
+    end
+    return .true -- no 'when condition'
+
+    evaluation: procedure
+        -- Use an inner procedure to let the caller catch the result if the string contains "return [something]"
+        -- With official ooRexx, a security manager should be used to intercept the system calls.
+        -- I will not do that, but I try to reduce the risks by using a (hopfully) non-existent environment
+        use strict arg string
+        signal on syntax
+        options "NOCOMMANDS" -- to allow "when expression" instead of "when result=expression"
+        address "a non existent environment to reduce the risks of executing a system command"
+        drop result
+        interpret string -- if contains "return" then returns immediatly to the caller
+        address -- restore
+        if var("result") then return result
+        return
+
+        syntax:
+        address -- restore
+        .ooRexxShell~sayCondition(condition("O"))
+        return "evaluation_error"

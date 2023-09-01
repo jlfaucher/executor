@@ -346,6 +346,44 @@ History of changes
 ==================
 
 -----------------------------------------------
+2023 sep 01
+
+New command "test regression":
+- activate the mode "demo fast"
+- set .ooRexxShell~testRegression to .true
+Example:
+    cat script.rex | oorexxshell test regression
+
+New property .ooRexxShell~testRegression set to .false by default. It can be set
+to true when running [non-]regression tests, to deactivate the outputs that
+could be different at each execution.
+When .ooRexxShell~testRegression is .true then the command "infos next" is
+deactivated (because it displays the duration and the count of active
+coactivities).
+A script can have conditional sections based on this property.
+
+
+The commands '<' and 'goto' support an optional 'when condition'.
+First need: use some demos for non-regression.
+Some parts of the demos must be deactivated because their results change at each
+execution (duration, concurrent trace).
+
+Example for Executor:
+    goto label          -- always executed
+    goto label when 1   -- always excuted
+    goto label when 0   -- never executed
+    < file s/x/10/ s/y/20/ when \.ooRexxShell~testRegression
+
+Example for official ooRexx:
+(must use 'return' or set the variable 'result')
+    goto label                  -- always executed
+    goto label when return 1    -- always excuted
+    goto label when result=1    -- always excuted
+    goto label when return 0    -- never executed
+    goto label when result=0    -- never executed
+
+
+-----------------------------------------------
 2023 feb 05
 
 The file ~/.oorexxshell_history is now updated only when ooRexxShell is in
