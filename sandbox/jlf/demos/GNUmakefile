@@ -1,37 +1,42 @@
-executorDemos = array classic_rexx extensions text text-internal_checks text-unicode text-compatibility
-ooRexxShellDemos = helpers interpreters queries
+#######################################
+# GNUmakefile for make (Macos, Linux) #
+#######################################
+
+# Keep this name!
+# Under Macos and Linux, make will use in priority GNUmakefile.
+# Under Windows, nmake will ignore GNUmakefile and use Makefile.
+
+demoFiles = executor-demo-array \
+            executor-demo-classic_rexx \
+            executor-demo-extensions \
+            executor-demo-text \
+            executor-demo-text-internal_checks \
+            executor-demo-text-unicode \
+            executor-demo-text-compatibility \
+            ooRexxShell-demo-helpers \
+            ooRexxShell-demo-interpreters \
+            ooRexxShell-demo-queries
 
 help:
 	@echo "make all"
 	@echo "make cast"
 	@echo "make html"
 	@echo "make txt"
+	@echo "make force"
 
 all: cast html txt
 
-cast::
-	@for d in $(executorDemos); do (make executor-demo-$$d.cast); done
+cast:
+	@for d in $(demoFiles); do (make $$d.cast); done
 
-cast::
-	@for d in $(ooRexxShellDemos); do (make ooRexxShell-demo-$$d.cast); done
+html:
+	@for d in $(demoFiles); do (make $$d-output.html); done
 
-html::
-	@for d in $(executorDemos); do (make executor-demo-$$d-output.html); done
+txt:
+	@for d in $(demoFiles); do (make $$d-output.txt); done
 
-html::
-	@for d in $(ooRexxShellDemos); do (make ooRexxShell-demo-$$d-output.html); done
-
-txt::
-	@for d in $(executorDemos); do (make executor-demo-$$d-output.txt); done
-
-txt::
-	@for d in $(ooRexxShellDemos); do (make ooRexxShell-demo-$$d-output.txt); done
-
-force::
-	@for d in $(executorDemos); do (touch executor-demo-$$d.rex); done
-
-force::
-	@for d in $(ooRexxShellDemos); do (touch ooRexxShell-demo-$$d.rex); done
+force:
+	@for d in $(demoFiles); do (touch $$d.rex); done
 
 %.cast : %.rex
 	-asciinema rec -c "bash -i -c 'cat $? | oorexxshell --showInitialization'" --overwrite $@

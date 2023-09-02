@@ -2,6 +2,28 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2023 Sep 02
+
+Makefiles for tests are now available for nmake (Windows):
+- "Makefile" renamed "GNUmakefile".
+  Under Macos and Linux, make will use in priority GNUmakefile, ignoring
+  "Makefile".
+- New "Makefile" for each test directory.
+  Under Windows, nmake will ignore GNUmakefile and use Makefile.
+Usage for macOS and Linux:
+    cdtests
+    cd collection
+    make all
+    cd ../encoding
+    make all
+    cd ../extension
+    make all
+  Usage for Windows:
+    idem, with nmake.
+The regressions are detected by comparing the output with a reference output.
+
+
+===============================================================================
 2023 Sep 01
 
 [ooRexxShell]
@@ -25,6 +47,9 @@ The commands '<' and 'goto' support an optional 'when condition'.
 First need: use some demos for non-regression.
 Some parts of the demos must be deactivated because their results change at each
 execution (duration, concurrent trace).
+
+The condition is the rest of the line after 'when'.
+It's evaluated with the INTERPRET instruction.
 
 Example for Executor:
     goto label          -- always executed
@@ -2387,7 +2412,7 @@ The normalized text can be memorized on the original text:
     text = "père Noël"~text
     textNFD = text~nfd(memorize:.true)      -- abbreviation mem:.true
 From now, the returned NFD is always the memorized text:
-    text~nfd == textNFD                     -- .true
+    text~nfd == textNFD=                    -- .true
 
 
 /*
