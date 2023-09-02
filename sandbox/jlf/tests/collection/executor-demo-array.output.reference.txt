@@ -1,0 +1,326 @@
+
+--------------------
+-- Array programming
+--------------------
+
+/*
+rank
+
+APL R←⍴⍴Y
+An array may have 0 or more axes or dimensions.
+The number of axes of an array is known as its rank.
+An array with 0 axes (rank 0) is called a scalar
+An array with 1 axis (rank 1) is called a vector.
+An array with 2 axes (rank 2) is called a matrix or table.
+An array with 3 axes (rank 3) is called a cube.
+An array with more than 2 axes is called a multi-dimensional array
+*/
+
+/*
+shape
+
+APL R←⍴Y (Rho)
+The shape of a scalar is an empty vector []
+The shape of an array is an array which gives the size of each dimension.
+*/
+
+/*
+Any object other than an array is a scalar.
+In particular, a string is a scalar, not an array as in APL.
+Special case which does not exist in APL : The rank of an array with no dimension yet assigned is -1.
+*/
+
+-- scalar
+ooRexx> "string"~shape=
+[]
+ooRexx> "string"~rank=
+ 0
+
+-- array with no dimension
+ooRexx> .array~new~shape=
+an Array (shape [], 0 items)
+ooRexx> .array~new~rank=
+-1
+
+/*
+The helper v(...) creates a vector.
+*/
+
+-- empty vector
+ooRexx> v()=
+[]
+ooRexx> v()~rank=
+ 1
+
+-- vector of 3 items
+ooRexx> v(0,1,2)~shape=
+[ 3]
+ooRexx> v(0,1,2)~rank=
+ 1
+
+/*
+The helper a(...) creates an empty array of specified dimensions.
+It's almost similar to .array~new(...), except for a() which returns an array with 0 dimension (a scalar).
+Once the number of dimension(s) is fixed, it's no longer possible to change it.
+This is different from .array~new which returns an array without dimension.
+The number of dimension(s) will be determined by the first access to the array:
+a = .array~new; say a[]        -- Not enough positional arguments for method; 1 expected
+a = .array~new; say a[1]       -- 1 dimension
+a = .array~new; say a[1,1]     -- 2 dimensions
+*/
+
+-- array with 0 dimension (scalar)
+ooRexx> nodim = a()
+ooRexx> nodim=
+an Array (shape [], 0 items)
+ooRexx> nodim~rank=
+ 0
+
+-- you can't use any index with such array
+ooRexx> nodim[1]=
+Too many subscripts for array; 0 expected.
+Error code= 93.926
+
+-- but no index is ok
+ooRexx> nodim[]=
+(The NIL object)
+ooRexx> nodim[] = "hello!"
+ooRexx> nodim[]=
+'hello!'
+
+-- empty vector of shape 5
+ooRexx> a(5)~shape=
+[ 5]
+ooRexx> a(5)~rank=
+ 1
+
+-- empty matrix of shape 2,2
+ooRexx> a(2,2)~shape=
+[ 2, 2]
+ooRexx> a(2,2)~rank=
+ 2
+
+-- empty cube of shape 3,3,3
+ooRexx> a(3,3,3)~shape=
+[ 3, 3, 3]
+ooRexx> a(3,3,3)~rank=
+ 3
+
+/*
+The instance method array~of is an initializer which takes into account the dimensions (shape) of the array.
+
+Rules inspired by APL :
+If there are too many items, the extra items are ignored.
+If there are fewer items than implied by the dimensions, the list of items is reused as many times as necessary to fill the array.
+*/
+ooRexx> a(6)~of(1,2,3)=
+[ 1, 2, 3, 1, 2, 3]
+ooRexx> a(2,3)~of(1,2,3)=
+an Array (shape [2,3], 6 items)
+[ 1, 1] :  1
+[ 1, 2] :  2
+[ 1, 3] :  3
+[ 2, 1] :  1
+[ 2, 2] :  2
+[ 2, 3] :  3
+ooRexx> a(6)~of(1,2,3,4,5,6,7,8,9)=
+[ 1, 2, 3, 4, 5, 6]
+ooRexx> a(2,3)~of(1,2,3,4,5,6,7,8,9)=
+an Array (shape [2,3], 6 items)
+[ 1, 1] :  1
+[ 1, 2] :  2
+[ 1, 3] :  3
+[ 2, 1] :  4
+[ 2, 2] :  5
+[ 2, 3] :  6
+
+/*
+If there is only one argument, and this argument has the method ~supplier then each item returned by the argument's supplier is an item.
+*/
+ooRexx> oorexx a(2,3)~of(.object~methods~allIndexes~sort)=
+an Array (shape [2,3], 6 items)
+[ 1, 1] : ''
+[ 1, 2] : ' '
+[ 1, 3] : '<>'
+[ 2, 1] : '='
+[ 2, 2] : '=='
+[ 2, 3] : '><'
+
+/*
+If there is only one argument, and this argument is a doer, then the doer is called for each cell to initialize.
+The value returned by the doer is the item for the current cell.
+If no value returned then the cell remains unassigned.
+*/
+ooRexx> a(2,3)~of{ if item//4 <> 0 then 10*item }=
+an Array (shape [2,3], 5 items)
+[ 1, 1] :  10
+[ 1, 2] :  20
+[ 1, 3] :  30
+[ 2, 2] :  50
+[ 2, 3] :  60
+
+/*
+If there is more than one argument then each argument is an item as-is.
+If some arguments are omitted, then the corresponding item in the initialized array remains non-assigned.
+*/
+ooRexx> a(2,3)~of(1,,3,,5,)=
+an Array (shape [2,3], 3 items)
+[ 1, 1] :  1
+[ 1, 3] :  3
+[ 2, 2] :  5
+
+/*
+reshape
+
+APL R←X⍴Y (Rho)
+args : new dimension(s)
+*/
+ooRexx> a(5)~of{ 2*item }=
+[ 2, 4, 6, 8, 10]
+ooRexx> a(5)~of{ 2*item }~reshape(3,3)=
+an Array (shape [3,3], 9 items)
+[ 1, 1] :  2
+[ 1, 2] :  4
+[ 1, 3] :  6
+[ 2, 1] :  8
+[ 2, 2] :  10
+[ 2, 3] :  2
+[ 3, 1] :  4
+[ 3, 2] :  6
+[ 3, 3] :  8
+
+/*
+each
+
+APL R←,Y (Ravel)
+Y may be any array. R is a vector of the elements of Y taken in row-major order.
+inverse of reshape, which turns any data into a vector whose length is the product
+of the shape vector (the dimensions) of the operand array
+*/
+ooRexx> a(1,2,3)~of{index}=
+an Array (shape [1,2,3], 6 items)
+[ 1, 1, 1] : [ 1, 1, 1]
+[ 1, 1, 2] : [ 1, 1, 2]
+[ 1, 1, 3] : [ 1, 1, 3]
+[ 1, 2, 1] : [ 1, 2, 1]
+[ 1, 2, 2] : [ 1, 2, 2]
+[ 1, 2, 3] : [ 1, 2, 3]
+ooRexx> a(1,2,3)~of{index}~each=
+[[ 1, 1, 1],[ 1, 1, 2],[ 1, 1, 3],[ 1, 2, 1],[ 1, 2, 2],[ 1, 2, 3]]
+
+/*
+depth
+
+APL R←≡Y (Equal Underbar)
+Depth (≡) indicates the degree of nesting within an array.
+It returns a non-negative integer which defines the maximum number of levels
+of structure to be penetrated in order to get to a simple scalar where simple means non-nested.
+The depth of an array is 1 greater than that of its most deeply nested item.
+
+Returns "infinity" when the array is self-referencing.
+*/
+ooRexx> 1~depth=
+ 0
+ooRexx> v(1)~depth=
+ 1
+ooRexx> v(v(1))~depth=
+ 2
+ooRexx> v=v(1); v~append(v); v~depth=;
+(The positive infinity)
+
+/*
+enclose
+
+APL R←⊂Y (Left Shoe)
+If Y is a simple scalar, R is the simple scalar unchanged.
+Otherwise, R has a depth whose magnitude is one greater than the magnitude of the depth of Y.
+*/
+ooRexx> e=1~enclose
+ooRexx> e=
+ 1
+ooRexx> e~depth=
+ 0
+ooRexx> e=v(1)~enclose~enclose
+ooRexx> e=
+<<[ 1]>>
+ooRexx> e~depth=
+ 3
+
+/*
+disclose
+
+APL R←⊃Y (Right Shoe)
+Disclose is the inverse of Enclose.
+*/
+ooRexx> e=v(1)~enclose~enclose
+ooRexx> e=
+<<[ 1]>>
+ooRexx> e=e~disclose
+ooRexx> e=
+<[ 1]>
+ooRexx> e~depth=
+ 2
+ooRexx> e=e~disclose
+ooRexx> e=
+[ 1]
+ooRexx> e~depth=
+ 1
+
+/*
+Indexing a vector
+It is possible to extract several items in a single operation, and in any order.
+An item can be selected more than once.
+*/
+ooRexx> vector = (10,20,30,40,50)
+ooRexx> vector~indexer(3)=
+[ 30]
+ooRexx> vector~indexer(3,3)=
+[ 30, 30]
+ooRexx> 'LE CHAT'~eachc~indexer(7,5,2,3,4,6,7)~tostring("c")=
+'THE CAT'
+
+/*
+The index may be an array of any shape: scalar, vector, matrix, or an array of higher rank.
+When a vector is indexed by an array, the result has exactly the same shape as the index
+array, as if each item of the index had been replaced by the item it designates:
+*/
+ooRexx> index = a(3,5)~of(5,5,4,4,3,3,2,2,1,1)
+ooRexx> index=
+an Array (shape [3,5], 15 items)
+[ 1, 1] :  5
+[ 1, 2] :  5
+[ 1, 3] :  4
+[ 1, 4] :  4
+[ 1, 5] :  3
+[ 2, 1] :  3
+[ 2, 2] :  2
+[ 2, 3] :  2
+[ 2, 4] :  1
+[ 2, 5] :  1
+[ 3, 1] :  5
+[ 3, 2] :  5
+[ 3, 3] :  4
+[ 3, 4] :  4
+[ 3, 5] :  3
+ooRexx> vector = (10,20,30,40,50)
+ooRexx> vector~indexer(index)=
+an Array (shape [3,5], 15 items)
+[ 1, 1] :  50
+[ 1, 2] :  50
+[ 1, 3] :  40
+[ 1, 4] :  40
+[ 1, 5] :  30
+[ 2, 1] :  30
+[ 2, 2] :  20
+[ 2, 3] :  20
+[ 2, 4] :  10
+[ 2, 5] :  10
+[ 3, 1] :  50
+[ 3, 2] :  50
+[ 3, 3] :  40
+[ 3, 4] :  40
+[ 3, 5] :  30
+
+/*
+End of demonstration.
+*/
