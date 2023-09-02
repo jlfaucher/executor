@@ -1038,7 +1038,7 @@ The methods NFxx sets the corresponding indicator isNFxx
     text = "père Noël"~text
     textNFD = text~nfd(memorize:.true)      -- abbreviation mem:.true
 -- From now, the returned NFD is always the memorized text:
-    text~nfd == textNFD                     -- .true
+    text~nfd == textNFD=                    -- .true
 
 
 /*
@@ -1404,7 +1404,8 @@ Add character intervals.
 
 
 -- Informations about Unicode:
-.Unicode~informations=
+-- Remove dataDirectory because the value is different between Windows and Macos/Linux
+.Unicode~informations~~remove("dataDirectory")=
 
 
 -- ===============================================================================

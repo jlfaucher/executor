@@ -38,11 +38,11 @@ ooRexx> .unicode~characters=
 Unicode character names defined by interval are not loaded by default.
 The following method gives informations about these intervals.
 */
-ooRexx> .unicode~informations=
-a Directory (12 items)
+-- Remove dataDirectory because the value is different between Windows and Macos/Linux
+ooRexx> .Unicode~informations~~remove("dataDirectory")=
+a Directory (11 items)
 'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=16 notExpanded:16 intervals, 105071 characters)
 'characters'                         : (an UnicodeCharacterSupplier count=44180 size=918000)
-'dataDirectory'                      : (/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/Unicode-15.0.0)
 'maxCodepoint'                       :  1114111
 'memorizeConversions'                :  0
 'memorizeTransformations'            :  0

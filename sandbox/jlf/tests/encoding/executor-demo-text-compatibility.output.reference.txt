@@ -230,7 +230,8 @@ ooRexx> string2~c2x=                                            -- '4C 65 E19A80
 '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
 ooRexx> string1~caselessEquals(string2)=                        -- false (strict mode)
  0
-ooRexx> -- The non-strict mode applies these transformations:
+
+-- The non-strict mode applies these transformations:
 ooRexx> string1~nfkd(casefold:, lump:, stripIgnorable:)~c2x=    -- '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
 '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
 ooRexx> string2~nfkd(casefold:, lump:, stripIgnorable:)~c2x=    -- '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'

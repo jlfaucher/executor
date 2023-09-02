@@ -1560,9 +1560,8 @@ The methods NFxx sets the corresponding indicator isNFxx
 ooRexx>     text = "père Noël"~text
 ooRexx>     textNFD = text~nfd(memorize:.true)      -- abbreviation mem:.true
 -- From now, the returned NFD is always the memorized text:
-ooRexx>     text~nfd == textNFD                     -- .true
-bash: 1: command not found
-RC= 127
+ooRexx>     text~nfd == textNFD=                    -- .true
+ 1
 
 
 /*
@@ -3378,11 +3377,11 @@ an UnicodeCharacterIntervalSupplier
 
 
 -- Informations about Unicode:
-ooRexx> .Unicode~informations=
-a Directory (12 items)
+-- Remove dataDirectory because the value is different between Windows and Macos/Linux
+ooRexx> .Unicode~informations~~remove("dataDirectory")=
+a Directory (11 items)
 'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=16 notExpanded:16 intervals, 105071 characters)
 'characters'                         : (an UnicodeCharacterSupplier count=44185 size=918000)
-'dataDirectory'                      : (/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/Unicode-15.0.0)
 'maxCodepoint'                       :  1114111
 'memorizeConversions'                :  0
 'memorizeTransformations'            :  0
