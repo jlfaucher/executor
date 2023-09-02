@@ -23,6 +23,9 @@ Usage for macOS and Linux:
 The regressions are detected by comparing the output with a reference output.
 
 
+Make the demos usable for [non-]regression tests.
+
+
 ===============================================================================
 2023 Sep 01
 

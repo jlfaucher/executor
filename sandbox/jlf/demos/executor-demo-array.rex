@@ -136,7 +136,7 @@ sleep no prompt
 If there is only one argument, and this argument has the method ~supplier then each item returned by the argument's supplier is an item.
 */
 sleep
-a(2,3)~of(.environment)=
+oorexx a(2,3)~of(.object~methods~allIndexes~sort)=
 sleep no prompt
 
 /*

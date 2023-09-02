@@ -35,7 +35,9 @@ sleep no prompt
 Unicode character names defined by interval are not loaded by default.
 The following method gives informations about these intervals.
 */
-.unicode~informations=
+sleep no prompt
+-- Remove dataDirectory because the value is different between Windows and Macos/Linux
+.Unicode~informations~~remove("dataDirectory")=
 sleep no prompt
 
 -- Select the characters whose category is Cc (Control)

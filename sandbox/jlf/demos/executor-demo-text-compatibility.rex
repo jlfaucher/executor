@@ -216,7 +216,8 @@ string1~c2x=                                            -- '4C 45 E38080 50 C388
 string2~c2x=                                            -- '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
 sleep
 string1~caselessEquals(string2)=                        -- false (strict mode)
-sleep
+sleep no prompt
+
 -- The non-strict mode applies these transformations:
 string1~nfkd(casefold:, lump:, stripIgnorable:)~c2x=    -- '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
 string2~nfkd(casefold:, lump:, stripIgnorable:)~c2x=    -- '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
