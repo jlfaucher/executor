@@ -2,6 +2,17 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
+2023 May 30
+
+[Encoded strings]
+
+Update library uni-algo from v0.8.1 to v1.0.0
+https://github.com/uni-algo/uni-algo
+
+.Unicode~unialgo_version=           -- '1.0.0'
+
+
+===============================================================================
 2023 Sep 06
 
 [Encoded strings]

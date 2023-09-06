@@ -15,21 +15,21 @@
 #  endif
 #endif
 
-#include <type_traits>
 #include <iterator>
 #include <utility> // std::forward
 #include <memory> // std::addressof
 #include <cassert>
-#if defined(__cpp_lib_ranges) && !defined(UNI_ALGO_FORCE_CPP17_RANGES)
-#include <ranges>
-#else
-#include <string_view>
-#endif
 #ifdef UNI_ALGO_LOG_CPP_ITER
 #include <iostream>
 #endif
 
 #include "../config.h"
+
+#if defined(__cpp_lib_ranges) && !defined(UNI_ALGO_FORCE_CPP17_RANGES)
+#include <ranges>
+#else
+#include <string_view>
+#endif
 
 namespace una {
 
@@ -174,9 +174,6 @@ using ref_view = std::ranges::ref_view<R>;
 // std::owning_view is available in C++20 starting with __cpp_lib_ranges >= 202110L
 // but we still enable our owning_view only in C++17 so in C++20 inside all view sometimes
 // std::owning_view will be used and sometimes std::ranges::subrange it shouldn't create any problems.
-// C++ Commitee just thought it is a good idea to add std::ranges that is still WIP to C++20
-// for God sake just make them experimental or something in C++20 and add them to C++23.
-// Now I'm forced to deal with that crap. Thank you so much bros much appreciate it.
 #if !defined(__cpp_lib_ranges) || defined(UNI_ALGO_FORCE_CPP17_RANGES) || (__cpp_lib_ranges >= 202110L)
 #if !defined(__cpp_lib_ranges) || defined(UNI_ALGO_FORCE_CPP17_RANGES)
 // https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p2415r2.html

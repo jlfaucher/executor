@@ -2,7 +2,18 @@
 Only the most important stuff is listed here.<br>
 See commit history between tags for details.
 
-## [v0.8.1](https://github.com/uni-algo/uni-algo/tree/v0.8.0) (2023-05-15)
+## [v1.0.0](https://github.com/uni-algo/uni-algo/tree/v1.0.0) (2023-07-07)
+- Stabilized API ([doc/API_API_STABILITY.md](doc/API_API_STABILITY.md))
+- Added more documentation (see `doc` directory)
+- Added support for `una::error` to normalization detection functions
+- Reduced the size of normalization Unicode data by 80 KB
+- Removed normalization functions that work with iterators (they are experimental for now)
+- Removed config define `UNI_ALGO_DISABLE_FULL_CASE` (the define is still available for testing purposes but not supported anymore)
+
+## [v0.8.2](https://github.com/uni-algo/uni-algo/tree/v0.8.2) (2023-06-21)
+- Fixed normalization detection functions ([#28](https://github.com/uni-algo/uni-algo/issues/28))
+
+## [v0.8.1](https://github.com/uni-algo/uni-algo/tree/v0.8.1) (2023-05-15)
 - Fixed constexpr UTF conversion in Clang ([#27](https://github.com/uni-algo/uni-algo/issues/27))
 
 ## [v0.8.0](https://github.com/uni-algo/uni-algo/tree/v0.8.0) (2023-05-07)
