@@ -12,6 +12,23 @@ https://github.com/uni-algo/uni-algo
 .Unicode~unialgo_version=           -- '1.0.0'
 
 
+[build]
+
+After installation of a new version of CMake (3.27.4) under MacOs, I have plenty
+of warnings:
+    CMake Deprecation Warning at samples/CMakeLists.txt:48 (cmake_policy):
+      Compatibility with CMake < 3.5 will be removed from a future version of
+      CMake.
+
+      Update the VERSION argument <min> value or use a ...<max> suffix to tell
+      CMake that the project does not need compatibility with older versions.
+Fixed by changing
+    cmake_policy(VERSION 2.8...3.3)
+to
+    cmake_policy(VERSION 2.8...3.5)
+in all the CMakeLists.txt
+
+
 ===============================================================================
 2023 Sep 06
 

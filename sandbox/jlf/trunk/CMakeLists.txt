@@ -47,7 +47,7 @@ else ()
     # for other platforms
     cmake_minimum_required (VERSION 2.8.12)
 endif ()
-cmake_policy(VERSION 2.8...3.3)
+cmake_policy(VERSION 2.8...3.5)
 
 # must come before the project command
 # 10.13.6 High Sierra is the minimum system supported
