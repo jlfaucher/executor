@@ -322,7 +322,7 @@
       2345678...
     */
     use strict arg needle, startC, lengthC
-    use strict named arg normalization, casefold, lump, stripIgnorable, stripMark, aligned
+    use strict named arg normalization, casefold, lump, stripIgnorable, stripMark, aligned, debug
     -- todo
 
     needleText = needle~request("RexxText") -- not requestTextOrBufferOrString because we really need a RexxText
@@ -343,19 +343,77 @@
     searchArea = self~substr(startC, lengthC)
     searchAreaNormalized = searchArea~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
     needleTextNormalized = needleText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark)
+if debug then do
+width = 30
+say "searchArea ="~left(width) searchArea~string
+say "searchArea~c2x ="~left(width) searchArea~c2x
+say "searchAreaNormalized ="~left(width) searchAreaNormalized~string
+say "searchAreaNormalized~c2x ="~left(width) searchAreaNormalized~c2x
+say "needleTextNormalized ="~left(width) needleTextNormalized~string
+say "needleTextNormalized~c2x ="~left(width) needleTextNormalized~c2x
+end
     posB = searchAreaNormalized~string~pos(needleTextNormalized~string)
     if posB == 0 then return 0
-    posC = searchAreaNormalized~indexer~characterIndexC(posB)
+    posC = searchAreaNormalized~indexer~characterIndexC(posB) -- posC can be negative if posB is not aligned with a character position
+    absPosC = abs(posC)
+if debug then do
+say "posC in transformed =" posC
+say "posB in transformed =" posB
+end
+
+    -- Convert the position in the transformed string into the position in the original (not transformed) string
+    offsetC = 0
+    offsetB = 0
+    searchAreaTransformedPosC = 1
+    searchAreaTransformedPosB = 1
+    searchAreaPosB = 1
+    do searchAreaPosC = 1 to searchArea~length
+        if searchAreaTransformedPosC == absPosC then do
+if debug then do
+say "---"
+say "searchAreaPosC =" searchAreaPosC
+say "searchAreaPosB =" searchAreaPosB
+say "searchAreaTransformedPosC =" searchAreaTransformedPosC
+say "searchAreaTransformedPosB =" searchAreaTransformedPosB
+end
+            offsetC = searchAreaTransformedPosC - searchAreaPosC
+            offsetB = searchAreaTransformedPosB - searchAreaPosB
+            leave
+        end
+        c = searchArea~character(searchAreaPosC)
+if debug then say "c =" c~string
+        cNormalized = c~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark, memorize:.false)
+        searchAreaPosB += c~string~length
+        searchAreaTransformedPosC += cNormalized~length
+        searchAreaTransformedPosB += cNormalized~string~length
+        if searchAreaTransformedPosC > absPosC then signal algorithm_to_rework -- should not happen
+        if searchAreaTransformedPosB > posB then signal algorithm_to_rework -- should not happen
+    end
+if debug then do
+say "offsetC =" offsetC
+say "offsetB =" offsetB
+end
+
+    startB = self~characterIndexB(startC)
+    posB =               startB - 1 +    posB - offsetB
+    posC = sign(posC) * (startC - 1 + absPosC - offsetC)
+    absPosC = abs(posC)
+if debug then do
+say "posC in self =" posC
+say "posB in self =" posB
+end
+
     if posC < 0 then do
         if aligned then signal byte_position_not_aligned_with_character
-        posC = abs(posC)"."posB -- number such as the integer part is the character index and the decimal part is the byte index
+        posC = absPosC"."posB -- number such as the integer part is the character index and the decimal part is the byte index
     end
-    return startC - 1 + posC
+    return posC
 
     argument_1_must_have_a_text_or_string_value: raise syntax 93.900 /*93.938*/ array("Method positional argument 1 must have a text or string value")
     invalid_position:                            raise syntax 93.924 array(startC)
     invalid_length:                              raise syntax 93.923 array(lengthC)
-    byte_position_not_aligned_with_character:    raise syntax 23.900 array(searchAreaNormalized~descriptionForError "The byte position" posB "is not aligned with the character position" abs(posC))
+    algorithm_to_rework:                         raise syntax 93.923 array("Algoritm to rework")
+    byte_position_not_aligned_with_character:    raise syntax 23.900 array(searchAreaNormalized~descriptionForError "The byte position" posB "is not aligned with the character position" absPosC)
 
 
 /******************************************************************************/
@@ -404,8 +462,8 @@
 
 ::method caselessPos
     use strict arg needle, startC=1, lengthC=(self~length)
-    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false, aligned=.true
-    return self~posText(needle, startC, lengthC, :normalization, casefold:.true, :lump, :stripIgnorable, :stripMark, :aligned)
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false, aligned=.true, debug=.false
+    return self~posText(needle, startC, lengthC, :normalization, casefold:.true, :lump, :stripIgnorable, :stripMark, :aligned, :debug)
 
 
 ::method center
@@ -502,8 +560,8 @@
 
 ::method pos
     use strict arg needle, startC=1, lengthC=(self~length)
-    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false, aligned=.true
-    return self~posText(needle, startC, lengthC, :normalization, casefold:.false, :lump, :stripIgnorable, :stripMark, :aligned)
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false, aligned=.true, debug=.false
+    return self~posText(needle, startC, lengthC, :normalization, casefold:.false, :lump, :stripIgnorable, :stripMark, :aligned, :debug)
 
 
 ::method reverse

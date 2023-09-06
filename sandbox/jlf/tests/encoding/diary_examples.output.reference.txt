@@ -11,6 +11,204 @@ ooRexx> .Unicode~memorizeTransformations = .false
 
 
 -- ===============================================================================
+-- 2023 Sep 06
+
+/*
+Fix the implementation of caselessPos, pos.
+Was not returning the right position when the length of the string changed
+internally. Now the results are identical to Raku's (with a few exceptions).
+*/
+
+ooRexx> "Bundesstraße im Freiland"~text~pos("Freiland")=                -- 17
+ 17
+ooRexx> "Bundesstraße im Freiland"~text~caselessPos("freiland")=        -- 17
+ 17
+
+--------------
+-- test case 1
+--------------
+-- pos (no internal transformation)
+ooRexx>                                                         --  01 02 03 04 05 06 07 08 09 10 11   12 13 14 15 16 17 18 19   20 21 22 23
+ooRexx> "Bundesstraße sss sßs ss"~text~c2g=                     -- '42 75 6E 64 65 73 73 74 72 61 C39F 65 20 73 73 73 20 73 C39F 73 20 73 73'
+'42 75 6E 64 65 73 73 74 72 61 C39F 65 20 73 73 73 20 73 C39F 73 20 73 73'
+ooRexx>                                                         --  B  u  n  d  e  s  s  t  r  a  ß    e  _  s  s  s  _  s  ß    s  _  s  s
+ooRexx>                                                         --                 |                         |                         |        no overlap
+ooRexx>                                                         --                 |                         |  |                      |        with overlap
+
+ooRexx> "Bundesstraße sss sßs ss"~text~pos("ss")=               -- 6
+ 6
+ooRexx> "Bundesstraße sss sßs ss"~text~pos("ss", 7)=            -- 14
+ 14
+ooRexx> "Bundesstraße sss sßs ss"~text~pos("ss", 15)=           -- 15 (overlap)
+ 15
+ooRexx> "Bundesstraße sss sßs ss"~text~pos("ss", 16)=           -- 22
+ 22
+ooRexx> "Bundesstraße sss sßs ss"~text~pos("ss", 23)=           -- 0
+ 0
+
+--------------
+-- test case 2
+--------------
+-- caselessPos (apply casefold internally but returns external indexes)
+ooRexx>                                                         --  01 02 03 04 05 06 07 08 09 10 11   12 13 14 15 16 17 18 19   20 21 22 23
+ooRexx> "Bundesstraße sss sßs ss"~text~c2g=                     -- '42 75 6E 64 65 73 73 74 72 61 C39F 65 20 73 73 73 20 73 C39F 73 20 73 73'
+'42 75 6E 64 65 73 73 74 72 61 C39F 65 20 73 73 73 20 73 C39F 73 20 73 73'
+ooRexx>                                                         --  B  u  n  d  e  s  s  t  r  a  ß    e  _  s  s  s  _  s  ß    s  _  s  s
+ooRexx>                                                         --                 |              |          |           |             |        no overlap
+ooRexx>                                                         --                 |              |          |  |        |  |          |        with overlap
+
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("ss")=       -- 6
+ 6
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("ss", 7)=    -- 11
+ 11
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("ss", 12)=   -- 14
+ 14
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("ss", 15)=   -- 15 (overlap)
+ 15
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("ss", 16)=   -- 18           (Raku doesn't return this index, am I wrong? sounds good to me...)
+ 18
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("ss", 19)=   -- 19 (overlap) (Raku doesn't return this index, am I wrong? sounds good to me...)
+ 19
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("ss", 20)=   -- 22
+ 22
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("ss", 23)=   -- 0
+ 0
+
+--------------
+-- test case 3
+--------------
+-- casefold~pos (the returned indexes are different from caselessPos because the string is transformed before calling ~pos)
+-- Use "ü" instead of "u" to have a non-ASCII string.
+-- Without "ü", the 'pos' method would forward to String.
+ooRexx>                                                         --  01 02   03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+ooRexx> "Bündesstraße sss sßs ss"~text~casefold~c2g=            -- '62 C3BC 6E 64 65 73 73 74 72 61 73 73 65 20 73 73 73 20 73 73 73 73 20 73 73'
+'62 C3BC 6E 64 65 73 73 74 72 61 73 73 65 20 73 73 73 20 73 73 73 73 20 73 73'
+ooRexx>                                                         --  b  ü    n  d  e  s  s  t  r  a  s  s  e  _  s  s  s  _  s  s  s  s  _  s  s
+ooRexx>                                                         --                   |              |           |           |     |        |    no overlap
+ooRexx>                                                         --                   |              |           |  |        |  |  |        |    with overlap
+
+ooRexx> "Bündesstraße sss sßs ss"~text~casefold~pos("ss")=      -- 6
+ 6
+ooRexx> "Bündesstraße sss sßs ss"~text~casefold~pos("ss", 7)=   -- 11
+ 11
+ooRexx> "Bündesstraße sss sßs ss"~text~casefold~pos("ss", 12)=  -- 15
+ 15
+ooRexx> "Bündesstraße sss sßs ss"~text~casefold~pos("ss", 16)=  -- 16 (overlap)
+ 16
+ooRexx> "Bündesstraße sss sßs ss"~text~casefold~pos("ss", 17)=  -- 19
+ 19
+ooRexx> "Bündesstraße sss sßs ss"~text~casefold~pos("ss", 20)=  -- 20 (overlap)
+ 20
+ooRexx> "Bündesstraße sss sßs ss"~text~casefold~pos("ss", 21)=  -- 21 (overlap)
+ 21
+ooRexx> "Bündesstraße sss sßs ss"~text~casefold~pos("ss", 22)=  -- 24
+ 24
+ooRexx> "Bündesstraße sss sßs ss"~text~casefold~pos("ss", 25)=  -- 0
+ 0
+
+
+--------------
+-- test case 4
+--------------
+-- TAG SPACE is ignorable
+ooRexx> "TÊt\u{TAG SPACE}e"~text~unescape~length=                                       -- 4
+ 4
+ooRexx> "TÊt\u{TAG SPACE}e"~text~unescape~c2g=                                          -- '54 C38A 74F3A080A0 65'
+'54 C38A 74F3A080A0 65'
+ooRexx> "TÊt\u{TAG SPACE}e"~text~unescape~transform(stripIgnorable:)~c2g=               -- '54 C38A 74 65'
+'54 C38A 74 65'
+
+--------------
+-- test case 5
+--------------
+-- pos with ignorable (no internal transformation)
+ooRexx>                                                                                 --  01 02   03         04 05 06 07 08 09 10 11   12 13 14 15 16 17         18   19 20
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~c2g=             -- '54 C38A 74F3A080A0 65 20 73 73 73 20 73 C39F 73 20 73 73 20 74F3A080A0 C3AA 54 45'
+'54 C38A 74F3A080A0 65 20 73 73 73 20 73 C39F 73 20 73 73 20 74F3A080A0 C3AA 54 45'
+ooRexx>                                                                                 --  T  Ê    t TAG SPAC e  _  s  s  s  _  s  ß    s  _  s  s  _  t TAG SPAC ê    T  E
+ooRexx>                                                                                 --                           |  |                      |
+
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~pos("ss")=       -- 6
+ 6
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~pos("ss", 7)=    -- 7
+ 7
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~pos("ss", 8)=    -- 14
+ 14
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~pos("ss", 15)=   -- 0
+ 0
+
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~pos("te")=       -- 0
+ 0
+
+--------------
+-- test case 6
+--------------
+-- caselessPos with ignorable (apply casefold internally but returns external indexes)
+ooRexx>                                                                                 --  01 02   03         04 05 06 07 08 09 10 11   12 13 14 15 16 17         18   19 20
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~c2g=             -- '54 C38A 74F3A080A0 65 20 73 73 73 20 73 C39F 73 20 73 73 20 74F3A080A0 C3AA 54 45'
+'54 C38A 74F3A080A0 65 20 73 73 73 20 73 C39F 73 20 73 73 20 74F3A080A0 C3AA 54 45'
+ooRexx>                                                                                 --  T  Ê    t TAG SPAC e  _  s  s  s  _  s  ß    s  _  s  s  _  t TAG SPAC ê    T  E
+ooRexx>                                                                                 --                           |  |        |  |          |
+
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("ss")=       -- 6
+ 6
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("ss", 7)=    -- 7 (overlap)
+ 7
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("ss", 8)=    -- 10
+ 10
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("ss", 11)=   -- 11 (overlap)
+ 11
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("ss", 12)=   -- 14
+ 14
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("ss", 15)=   -- 0
+ 0
+
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te")=       -- 19
+ 19
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", 20)=   -- 0
+ 0
+
+--------------
+-- test case 7
+--------------
+-- pos with ignorable (apply casefold + stripMark internally but returns external indexes)
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~pos("te", stripMark:)=   -- 0
+ 0
+
+--------------
+-- test case 8
+--------------
+-- caselessPos with ignorable (apply casefold + stripMark internally but returns external indexes)
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", stripMark:)=       -- 1
+ 1
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", 2, stripMark:)=    -- 19
+ 19
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", 20, stripMark:)=   -- 0
+ 0
+
+--------------
+-- test case 9
+--------------
+-- caselessPos with ignorable (apply casefold + stripIgnorable internally but returns external indexes)
+ooRexx>                                                                                 --  01 02   03         04 05 06 07 08 09 10 11   12 13 14 15 16 17         18   19 20
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~c2g=             -- '54 C38A 74F3A080A0 65 20 73 73 73 20 73 C39F 73 20 73 73 20 74F3A080A0 C3AA 54 45'
+'54 C38A 74F3A080A0 65 20 73 73 73 20 73 C39F 73 20 73 73 20 74F3A080A0 C3AA 54 45'
+ooRexx>                                                                                 --  T  Ê    t TAG SPAC e  _  s  s  s  _  s  ß    s  _  s  s  _  t TAG SPAC ê    T  E
+ooRexx>                                                                                 --  |       |                                                   |               |
+
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", stripMark:, stripIgnorable:)=      -- 1
+ 1
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", 2, stripMark:, stripIgnorable:)=   -- 3
+ 3
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", 4, stripMark:, stripIgnorable:)=   -- 17
+ 17
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", 18, stripMark:, stripIgnorable:)=  -- 19
+ 19
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", 20, stripMark:, stripIgnorable:)=  -- 0
+ 0
+
+
+-- ===============================================================================
 -- 2023 Aug 29
 
 /*
