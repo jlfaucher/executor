@@ -56,6 +56,11 @@ if( APPLE AND BUILD_OSX_UNIVERSAL_BINARIES )
 endif()
 
 project (ooRexx)
+
+if( APPLE AND BUILD_OSX_UNIVERSAL_BINARIES )
+  set( CMAKE_OSX_ARCHITECTURES arm64 x86_64 )
+endif()
+
 include(CheckIncludeFile)
 include(CheckLibraryExists)
 include(CheckFunctionExists)
@@ -141,7 +146,7 @@ if(SUBVERSION_FOUND)
     set(ORX_BLD_LVL ${ORX_WC_REVISION})
   endif()
 endif()
-message(STATUS "SVN Revision Number is ${ORX_BLD_LVL}")
+message(STATUS "Revision Number is ${ORX_BLD_LVL}")
 
 # find a xalan executable.
     FIND_PROGRAM(XALAN_EXECUTABLE xalan
@@ -165,9 +170,6 @@ set (VERSION_INFO "-version-info ${ORX_CURRENT}:${ORX_REVISION}:${ORX_AGE}")
 set (ORX_VERSION ${ORX_CURRENT}.${ORX_AGE}.${ORX_REVISION})
 
 
-# The following are general settings
-# Always create shared libraries (DLLs)
-set (CMAKE_CXX_CREATE_SHARED_MODULE 1)
 # Set the platform subdirectory name
 if (WIN32)
    set (ORX_PLATFORM_DIR platform/windows)
@@ -359,50 +361,39 @@ endif ()
 
 # Check header files and functions. These are all defined to the config.h file.
 check_include_file(xlocale.h HAVE_XLOCALE_H)
-check_include_file(ctype.h HAVE_CTYPE_H)
-check_include_file(float.h HAVE_FLOAT_H)
-check_include_file(limits.h HAVE_LIMITS_H)
 check_include_file(locale.h HAVE_LOCALE_H)
 check_include_file(malloc.h HAVE_MALLOC_H)
 check_include_file(alloca.h HAVE_ALLOCA_H)
 check_include_file(memory.h HAVE_MEMORY_H)
-check_function_exists(memset HAVE_MEMSET)
-check_function_exists(nsleep HAVE_NSLEEP)
 check_function_exists(setlocale HAVE_SETLOCALE)
 check_include_file(signal.h HAVE_SIGNAL_H)
-check_include_file(stdarg.h HAVE_STDARG_H)
-check_include_file(stddef.h HAVE_STDDEF_H)
-check_include_file(stdio.h HAVE_STDIO_H)
-check_include_file(stdlib.h HAVE_STDLIB_H)
-check_include_file(string.h HAVE_STRING_H)
 check_include_file(time.h HAVE_TIME_H)
-check_function_exists(vprintf HAVE_VPRINTF)
-check_include_file(fcntl.h HAVE_FCNTL_H)
-check_function_exists(nanosleep HAVE_NANOSLEEP)
 check_include_file(inttypes.h HAVE_INTTYPES_H)
 check_include_file(stdint.h HAVE_STDINT_H)
-check_symbol_exists(wordexp "wordexp.h;stdlib.h" HAVE_WORDEXP)
-check_include_file(wordexp.h HAVE_WORDEXP_H)
 if (NOT WIN32)
+  check_function_exists(nsleep HAVE_NSLEEP)
+  check_function_exists(nanosleep HAVE_NANOSLEEP)
+  check_library_exists(crypt crypt "" HAVE_LIBCRYPT)
+  if (HAVE_LIBCRYPT)
+    set(CMAKE_REQUIRED_LIBRARIES crypt)
+  endif ()
+  check_function_exists(crypt HAVE_CRYPT)
+  check_symbol_exists(wordexp "wordexp.h;stdlib.h" HAVE_WORDEXP)
+  check_include_file(wordexp.h HAVE_WORDEXP_H)
   check_include_file(sys/xattr.h HAVE_SYS_XATTR_H)
   check_function_exists(catopen HAVE_CATOPEN)
   check_include_file(dlfcn.h HAVE_DLFCN_H)
   check_include_file(features.h HAVE_FEATURES_H)
   check_include_file(filehdr.h HAVE_FILEHDR_H)
-  check_function_exists(fstat HAVE_FSTAT)
-  check_function_exists(gcvt HAVE_GCVT)
-  check_function_exists(geteuid HAVE_GETEUID)
-  check_function_exists(getpgrp HAVE_GETPGRP)
   check_function_exists(getpwuid HAVE_GETPWUID)
-  check_function_exists(gettimeofday HAVE_GETTIMEOFDAY)
   check_function_exists(IDtouser HAVE_IDTOUSER)
   check_function_exists(euidaccess HAVE_EUIDACCESS)
   find_library(HAVE_LIBPTHREAD pthread)
   find_library(HAVE_LIBRT rt)
   check_include_file(mesg.h HAVE_MESG_H)
-  check_include_file(netinet/in.h HAVE_NETINET_IN_H)
   check_include_file(nl_types.h HAVE_NL_TYPES_H)
   check_include_file(pthread.h HAVE_PTHREAD_H)
+  check_include_file(pthread_np.h HAVE_PTHREAD_NP_H)
   set(CMAKE_REQUIRED_LIBRARIES pthread)
   set(CMAKE_REQUIRED_DEFINITIONS "-D_GNU_SOURCE=1")
   check_function_exists(pthread_mutexattr_settype HAVE_PTHREAD_MUTEXATTR_SETTYPE)
@@ -421,6 +412,18 @@ if (NOT WIN32)
                            tryme = PTHREAD_MUTEX_RECURSIVE;
                            return 0;}"
                           HAVE_PTHREAD_MUTEX_RECURSIVE)
+  list(APPEND CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
+  list(APPEND CMAKE_REQUIRED_LIBRARIES pthread)
+  check_function_exists(pthread_getattr_np HAVE_PTHREAD_GETATTR_NP)
+  if (HAVE_PTHREAD_NP_H)
+    check_symbol_exists(pthread_attr_get_np "pthread.h;pthread_np.h" HAVE_PTHREAD_ATTR_GET_NP)
+  else ()
+    check_symbol_exists(pthread_attr_get_np pthread.h HAVE_PTHREAD_ATTR_GET_NP)
+  endif ()
+  check_symbol_exists(pthread_stackseg_np pthread_np.h HAVE_PTHREAD_STACKSEG_NP)
+  list(REMOVE_ITEM CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
+  check_function_exists(pthread_attr_getstack HAVE_PTHREAD_ATTR_GETSTACK)
+  check_function_exists(pthread_get_stacksize_np HAVE_PTHREAD_GET_STACKSIZE_NP)
   # this requires -ldl on the link
   set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_DL_LIBS})
   check_c_source_compiles("#include <dlfcn.h>
@@ -435,12 +438,12 @@ if (NOT WIN32)
   check_symbol_exists(FS_CASEFOLD_FL linux/fs.h HAVE_FS_CASEFOLD_FL)
   check_symbol_exists(_NSGetExecutablePath mach-o/dyld.h HAVE_NSGETEXECUTABLEPATH)
   check_symbol_exists(getexecname stdlib.h HAVE_GETEXECNAME)
+  check_symbol_exists(KERN_PROC_PATHNAME "sys/types.h;sys/sysctl.h" HAVE_KERN_PROC_PATHNAME)
+  check_symbol_exists(KERN_PROC_ARGV "sys/types.h;sys/sysctl.h" HAVE_KERN_PROC_ARGV)
   check_struct_has_member("struct stat" st_mtim sys/stat.h HAVE_STAT_ST_MTIM)
   check_struct_has_member("struct stat" st_mtimespec sys/stat.h HAVE_STAT_ST_MTIMESPEC)
   check_include_file(pwd.h HAVE_PWD_H)
   check_include_file(sched.h HAVE_SCHED_H)
-  check_function_exists(sighold HAVE_SIGHOLD)
-  check_function_exists(strdup HAVE_STRDUP)
   check_include_file(strings.h HAVE_STRINGS_H)
   check_include_file(stropts.h HAVE_STROPTS_H)
   check_include_file(sys/filio.h HAVE_SYS_FILIO_H)
@@ -449,13 +452,11 @@ if (NOT WIN32)
   check_include_file(sys/select.h HAVE_SYS_SELECT_H)
   check_include_file(sys/sem.h HAVE_SYS_SEM_H)
   check_include_file(sys/signal.h HAVE_SYS_SIGNAL_H)
-  check_include_file(sys/socket.h HAVE_SYS_SOCKET_H)
-  check_include_file(sys/stat.h HAVE_SYS_STAT_H)
-  check_include_file(sys/syscall.h HAVE_SYS_SYSCALL_H)
   check_include_file(sys/time.h HAVE_SYS_TIME_H)
-  check_include_file(sys/types.h HAVE_SYS_TYPES_H)
   check_include_file(sys/utsname.h HAVE_SYS_UTSNAME_H)
   check_include_file(sys/wait.h HAVE_SYS_WAIT_H)
+  check_include_file(ifaddrs.h HAVE_IFADDRS_H)
+  check_symbol_exists(getifaddrs "sys/types.h;sys/socket.h;ifaddrs.h" HAVE_GETIFADDRS)
   check_c_source_compiles("#include <sys/types.h>
                            #include <sys/sem.h>
                            int main(int arg, char **argv) {
@@ -578,6 +579,8 @@ if (WIN32)
 string(REGEX REPLACE "/EHsc" "/EHsc-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
 # This replaces the /MD compile flag with /MT.
+# as soon as we can require CMake minimum of 3.15 below hack should be replaced with
+# set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 set(CompilerFlags
         CMAKE_CXX_FLAGS
         CMAKE_CXX_FLAGS_DEBUG
@@ -1935,6 +1938,7 @@ configure_build_file(ccreply.rex ${build_samples_dir})
 # configure_build_file(delegation.rex ${build_samples_dir})                                         # official only
 # configure_build_file(dynamicMethod.rex ${build_samples_dir})                                      # official only
 # configure_build_file(factor.rex ${build_samples_dir})                                             # official only
+# configure_build_file(getOoRexxDocs.rex ${build_samples_dir})
 configure_build_file(greply.rex ${build_samples_dir})
 configure_build_file(guess.rex ${build_samples_dir})
 # configure_build_file(interface.rex ${build_samples_dir})                                          # official only
@@ -2016,6 +2020,7 @@ install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/ccreply.rex COMPONENT Samples
 # install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/delegation.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                       # official only
 # install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/dynamicMethod.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                    # official only
 # install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/factor.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                           # official only
+# install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/getOoRexxDocs.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})
 install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/greply.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})
 install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/guess.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})
 # install(PROGRAMS ${CMAKE_SAMPLES_OUTPUT_DIRECTORY}/interface.rex COMPONENT Samples DESTINATION ${INSTALL_SAMPLES_DIR})                        # official only
@@ -2139,7 +2144,7 @@ if (DOC_SOURCE_DIR)
    set(NSIS_INSTALL_COMPONENTS Core Docs DevLib Samples)
 
 
-   # Add addititional Windows-only install files
+   # Add additional Windows-only install files
    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${build_platform_dir}/rexx.ico COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR})
    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/CPLv1.0.txt COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR})
 
@@ -2258,7 +2263,8 @@ endif ()
    install_doc_shortcut("ooRexx APIs (Application Programming Interfaces)" "rexxapi.pdf")
    install_doc_shortcut("ooRexx Programming Guide" "rexxpg.pdf")
    install_doc_shortcut("ooRexx Mathematical Functions Reference" "rxmath.pdf")
-   install_doc_shortcut("ooRexx rxFTP Class Reference" "rxftp.pdf")
+   install_doc_shortcut("ooRexx TCP/IP Socket Functions Reference" "rxsock.pdf")
+   install_doc_shortcut("ooRexx RxFtp Class Library Reference" "rxftp.pdf")
 if (FALSE)                                                                                                                                  # oodialog not included in Executor
    install_doc_shortcut("ooDialog Reference" "oodialog.pdf")
    install_doc_shortcut("ooDialog Release Notes" "ooDialog_ReleaseNotes.txt")
