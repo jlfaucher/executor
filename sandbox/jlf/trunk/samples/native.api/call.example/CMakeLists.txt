@@ -56,16 +56,14 @@ project (call.example)
 # additional source files required by specific platforms
 set (platform_libs ${ORX_SYSLIB_DL})
 # Sources for call.example
-add_executable(stackOverflow
-    ${PROJECT_SOURCE_DIR}/stackOverflow.cpp)
+add_executable(stackOverflow  ${PROJECT_SOURCE_DIR}/stackOverflow.cpp)
 # Include file definition
 target_include_directories(stackOverflow PUBLIC
             ${build_api_dir}
             ${build_api_platform_dir})
 target_link_libraries(stackOverflow rexx rexxapi ${ORX_SYSLIB_DL})
 
-add_executable(runRexxProgram
-    ${PROJECT_SOURCE_DIR}/runRexxProgram.cpp)
+add_executable(runRexxProgram ${PROJECT_SOURCE_DIR}/runRexxProgram.cpp)
 # Include file definition
 target_include_directories(runRexxProgram PUBLIC
             ${build_api_dir}

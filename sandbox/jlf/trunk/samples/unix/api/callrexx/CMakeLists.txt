@@ -52,6 +52,8 @@ cmake_policy(VERSION 2.8...3.5)
 #/*----------------------------------------------------------------------------*/
 project (callrexx)
 
+# set variables used in here
+set (DEST ${INSTALL_SAMPLES_DIR}/native.api)
 # add GROUP_WRITE right to default permissions
 set (PERM_EXECUTE PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE )
 set (PERM_RW      PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ GROUP_WRITE WORLD_READ  )
@@ -66,7 +68,7 @@ target_include_directories(callrexx1 PUBLIC
             ${build_api_platform_dir})
 # Extra link library definitions
 target_link_libraries(callrexx1 rexx rexxapi)
-install(TARGETS callrexx1 RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin ${PERM_EXECUTE})
+install(TARGETS callrexx1 RUNTIME DESTINATION ${DEST} ${PERM_EXECUTE})
 
 #################### callrexx2 (executable) #########################
 # additional source files required by specific platforms
@@ -79,4 +81,4 @@ target_include_directories(callrexx2 PUBLIC
             ${build_api_platform_dir})
 # Extra link library definitions
 target_link_libraries(callrexx2 rexx)
-install(TARGETS callrexx2 RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin ${PERM_EXECUTE})
+install(TARGETS callrexx2 RUNTIME DESTINATION ${DEST} ${PERM_EXECUTE})

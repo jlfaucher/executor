@@ -65,4 +65,4 @@ target_include_directories(wpipe2 PUBLIC
             ${build_api_platform_dir})
 # Extra link library definitions
 target_link_libraries(wpipe2 rexx rexxapi)
-install(TARGETS wpipe2 LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/bin ${PERM_EXECUTE})
+install(TARGETS wpipe2 LIBRARY DESTINATION ${INSTALL_SAMPLES_DIR}/native.api ${PERM_EXECUTE})

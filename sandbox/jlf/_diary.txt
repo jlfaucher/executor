@@ -29,6 +29,53 @@ to
 in all the CMakeLists.txt
 
 
+[build]
+Continue to align CMakeLists.txt with ooRexx5:
+- use relative paths for bin, include, lib, etc...
+- no longer put samples binaries in bin.
+
+
+[build]
+I don't know how to get ride of this warning under macOS:
+    [ 70%] Linking CXX shared library lib/librexx.dylib
+    ld: warning:
+    dylib (/local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/classes/support/m17n/icu4x/target/aarch64-apple-darwin/release/libicu_capi_cdylib.dylib)
+    was built for newer macOS version (12.0) than being linked (11.0)
+My system is Ventura 13.5!!!!
+Why does it complain about 11.0????
+I updated the Xcode command line tools with
+    xcode-select --install
+but the warning is still displayed.
+Ça me pompe l'air :-((
+Later:
+The warning disappeared after deactivating these lines in the builder script setenv-macos-arm64:
+#export MACOSX_DEPLOYMENT_TARGET=12
+#export CXXFLAGS="-stdlib=libc++ -mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET $CXXFLAGS"
+#export LDFLAGS="-stdlib=libc++ -mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET $LDFLAGS"
+
+
+Other problem:
+when I do a build with existing binaries, I get this error (not blocking the delivery):
+    -- Up-to-date: /Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/share/ooRexx/native.api/stackOverflow
+    error: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/install_name_tool:
+           for: /Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/share/ooRexx/native.api/stackOverflow
+           (for architecture arm64) option "-add_rpath @executable_path/../lib" would duplicate path, file already has LC_RPATH for: @executable_path/../lib
+    error: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/install_name_tool:
+           no LC_RPATH load command with path: /Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/build/lib
+           found in: /Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/share/ooRexx/native.api/stackOverflow
+           (for architecture arm64), required for specified option "-delete_rpath /Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/build/lib"
+for these binaries:
+    native.api/stackOverflow
+    native.api/runRexxProgram
+    native.api/callrexx1
+    native.api/callrexx2
+    native.api/libwpipe1
+    native.api/libwpipe2
+    native.api/libwpipe3
+ooRexx5 doesn't have this problem.
+Ça me pompe l'air :-((
+
+
 ===============================================================================
 2023 Sep 06
 
