@@ -1,0 +1,124 @@
+rexx.cat
+used only under Linux
+no longer found after alignment of CMakeFiles.txt with ooRexx5 (relative paths)
+
+#define REXXMESSAGEFILE    "rexx.cat"
+
+Should apply the same solution as rexx.img to find rexx.cat
+or set NLSPATH
+
+
+--------------------------------------------------------------------------------
+solution as rexx.img to find rexx.cat
+--------------------------------------------------------------------------------
+
+#define BASEIMAGE     "rexx.img"
+
+
+Windows
+FileSystem.cpp
+void SystemInterpreter::loadImage(char **imageBuffer, size_t *imageSize )
+{
+    char fullname[MAX_PATH + 1];    // finally resolved name
+
+    if (!SysFileSystem::primitiveSearchName(BASEIMAGE, NULL, NULL, fullname))
+    {
+        Interpreter::logicError("no startup image");   /* can't find it       */
+    }
+
+    /* try to open the file              */
+    HANDLE fileHandle = CreateFile(fullname, GENERIC_READ, FILE_SHARE_READ,
+                            NULL, OPEN_EXISTING, FILE_FLAG_WRITE_THROUGH, NULL);
+
+    if (fileHandle == INVALID_HANDLE_VALUE)
+    {
+        Interpreter::logicError("no startup image");   /* can't find it       */
+    }
+    DWORD     bytesRead;                 /* number of bytes read              */
+    /* Read in the size of the image     */
+    ReadFile(fileHandle, imageSize, sizeof(size_t), &bytesRead, NULL);
+    *imageBuffer = memoryObject.allocateImageBuffer(*imageSize);
+    /* read in the image                 */
+    ReadFile(fileHandle, *imageBuffer, (DWORD)*imageSize, &bytesRead, NULL);
+    // set this to the actual size read.
+    *imageSize = bytesRead;
+    CloseHandle(fileHandle);                /* and close the file             */
+}
+
+
+
+
+
+Unix
+FileSystem.cpp
+void SystemInterpreter::loadImage(char **imageBuffer, size_t *imageSize)
+/*******************************************************************/
+/* Function : Load the image into storage                          */
+/*******************************************************************/
+{
+    char fullname[PATH_MAX + 2];    // finally resolved name
+    // try first in the current directory
+    FILE *image = fopen(BASEIMAGE, "rb");
+    // if not found, then try a path search
+    if (image == NULL)
+    {
+        // The file may purposefully have no extension.
+        if (!SysFileSystem::primitiveSearchName(BASEIMAGE, getenv("PATH"), NULL, fullname))
+        {
+    #ifdef ORX_CATDIR
+             strcpy(fullname, ORX_CATDIR"/rexx.img");
+    #else
+             Interpreter::logicError("no startup image");   /* open failure                      */
+    #endif
+        }
+        image = fopen(fullname, "rb");/* try to open the file              */
+        if ( image == NULL )
+        {
+            Interpreter::logicError("unable to open image file");
+        }
+    }
+
+    /* Read in the size of the image     */
+    if (!fread(imageSize, 1, sizeof(size_t), image))
+    {
+        Interpreter::logicError("could not check the size of the image");
+    }
+    /* Create new segment for image      */
+    *imageBuffer = (char *)memoryObject.allocateImageBuffer(*imageSize);
+    /* Create an object the size of the  */
+    /* image. We will be overwriting the */
+    /* object header.                    */
+    /* read in the image, store the      */
+    /* the size read                     */
+    if (!(*imageSize = fread(*imageBuffer, 1, *imageSize, image)))
+    {
+        Interpreter::logicError("could not read in the image");
+    }
+    fclose(image);                       /* and close the file                */
+}
+
+--------------------------------------------------------------------------------
+solution for rexx.cat
+--------------------------------------------------------------------------------
+
+either
+export NLSPATH=$builder_delivery_dir/rexx.cat
+
+or
+files to fix (search "REXXMESSAGEFILE"):
+
+unix/ErrorMessages.cpp
+SystemInterpreter::getMessageText
+
+unix/RexxCompiler.cpp
+DisplayError
+
+unix/Rexxutil.cpp
+SysGetMessage
+SysGetMessageX
+
+unix/rxqueue.cpp
+options_error
+
+unix/rxsubcom.cpp
+parmerr

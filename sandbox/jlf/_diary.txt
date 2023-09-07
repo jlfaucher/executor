@@ -2,7 +2,19 @@ Sandbox for experimental work, what's done so far.
 
 
 ===============================================================================
-2023 May 30
+2023 Sep 07
+
+[Error messages]
+
+Regression after alignment of CMakeLists.txt:
+Cannot open REXX message catalog rexx.cat.  Not in NLSPATH or bin.
+Error code= 35.1
+---
+Fixed by defining NLSPATH="$builder_delivery_dir/bin/rexx.cat"
+
+
+===============================================================================
+2023 Sep 06
 
 [Encoded strings]
 
@@ -49,10 +61,10 @@ but the warning is still displayed.
 Ça me pompe l'air :-((
 Later:
 The warning disappeared after deactivating these lines in the builder script setenv-macos-arm64:
-#export MACOSX_DEPLOYMENT_TARGET=12
+#export MACOSX_DEPLOYMENT_TARGET=10.13
 #export CXXFLAGS="-stdlib=libc++ -mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET $CXXFLAGS"
 #export LDFLAGS="-stdlib=libc++ -mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET $LDFLAGS"
-
+(For the records, changing 10.13 to 12 did not fix the warning, I still don't know from where came this 11.0)
 
 Other problem:
 when I do a build with existing binaries, I get this error (not blocking the delivery):
