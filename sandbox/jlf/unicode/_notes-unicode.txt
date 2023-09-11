@@ -1013,6 +1013,14 @@ support for the turkish case.
 
 
 ================================================================================
+String matching - Collation
+================================================================================
+
+https://unicode-org.github.io/icu/userguide/collation/string-search.html
+(ICU) String Search Service
+
+
+================================================================================
 Locale
 ================================================================================
 
@@ -2443,6 +2451,9 @@ It's also the traditional discussion about "why do you need a direct access to t
 Rope
 ================================================================================
 
+See also ZenoString (from Alan Kay - Saxonica)
+
+
 https://github.com/josephg/librope
 Little C library for heavyweight utf-8 strings (rope).
 
@@ -3363,6 +3374,12 @@ https://en.wikipedia.org/wiki/%C5%81
     Windows-1250, ISO-8859-2    163 A3      179 B3
     Windows-1257, ISO-8859-13   217 D9      249 F9
     Mac Central European        252 FC      184 B8
+
+
+https://github.com/unicode-org/icu4x/discussions/3981#discussioncomment-6882618
+String search with collators
+references this ICU link:
+https://unicode-org.github.io/icu/userguide/collation/string-search.html
 
 
 ================================================================================
@@ -6599,14 +6616,52 @@ Is the current Unicode design impractical?
 
 
 jlf tests
-"Bundesstraße im Freiland".lc                               -- bundesstraße im freiland
-"Bundesstraße im Freiland".uc                               -- BUNDESSTRASSE IM FREILAND
-"Bundesstraße im Freiland".fc                               -- bundesstrasse im freiland
-"Bundesstraße im Freiland".index("Freiland")                -- 16
-"Bundesstraße im Freiland".index("freiland", :ignorecase)   -- 16
-"Bundesstraße ss ß ss".indices("ss", :ignorecase)           -- (5 10 13 16 18)
- 01234567890123456789
-"Bundesstraße ss ß ss".fc.indices("ss")                     -- (5 10 14 17 20)
+    "Bundesstraße im Freiland".lc                               -- bundesstraße im freiland
+    "Bundesstraße im Freiland".uc                               -- BUNDESSTRASSE IM FREILAND
+    "Bundesstraße im Freiland".fc                               -- bundesstrasse im freiland
+    "Bundesstraße im Freiland".index("Freiland")                -- 16 (start at 0) (executor: 17)
+    "Bundesstraße im Freiland".index("freiland", :ignorecase)   -- 16
+
+                                                                                    -- Bundesstraße sss sßs ss
+                                                                                    -- 01234567890123456789012
+                                                                                    --      |    |  ||  ||  |
+    "Bundesstraße sss sßs ss".indices("ss")                                         -- (5 13 21)
+    "Bundesstraße sss sßs ss".indices("ss", :overlap)                               -- (5 13 14 21)
+    "Bundesstraße sss sßs ss".indices("ss", :ignorecase)                            -- (5 10 13 18 21)
+    "Bundesstraße sss sßs ss".indices("ss", :ignorecase, :overlap)                  -- (5 10 13 14 18 21)   not 17?
+
+    "Bundesstraße sss sßs ss".indices("s", :ignorecase, :overlap)                   -- (5 6 13 14 15 17 19 21 22)
+    "Bundesstraße sss sßs ss".indices("sSs", :ignorecase, :overlap)                 -- (13 17 18)
+    "Bundesstraße sss sßs ss".indices("sSsS", :ignorecase, :overlap)                -- (17)
+
+    "Bündesstraße sss sßs ss".fc                                                    -- bundesstrasse sss ssss ss
+                                                                                    -- 0123456789012345678901234
+                                                                                    --      |    |   ||  |||  |
+    "Bündëssträßë sss sßs ss".fc.indices("ss")                                      -- (5 10 14 18 20 23)
+    "Bündëssträßë sss sßs ss".fc.indices("ss", :overlap)                            -- (5 10 14 15 18 19 20 23)
+
+                                                                                    -- straßssßßssse
+                                                                                    -- 0123456789012
+                                                                                    --     || ||||
+    "straßssßßssse".indices("Ss", :ignorecase)                                      -- (4 7 9)
+    "straßssßßssse".indices("Ss", :ignorecase, :overlap)                            -- (4 5 7 8 9 10)
+
+    "TÊt\c[TAG SPACE]e".chars   -- 4, "t" + "TAG SPACE" is one grapheme
+    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".fc                             -- TÊt󠀠e sss ssss ss t󠀠êTE
+                                                                                    -- 012345678901234567890
+                                                                                    -- ^ ^  ||  |||  |  ^ ^
+    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".indices("ss")                  -- (5 13)
+    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".indices("ss", :ignorecase)     -- (5 10 13)
+    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".fc.indices("ss")               -- (5 9 11 14)      11? why not 10? because no overlap
+    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".fc.indices("ss", :overlap)     -- (5 6 9 10 11 14)
+
+    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".fc.indices("te")               -- ()
+    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".fc.indices("te", :ignorecase)  -- (19)
+    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".fc.indices("te", :ignoremark)  -- (0 2 17 19)      so TAG SPACE is ignored when :ignoremark
+
+    -- Matching inside a grapheme
+    "noël👩‍👨‍👩‍👧🎅".indices("👧🎅")                                         -- ()
+    "noël👩‍👨‍👩‍👧🎅".indices("👨‍👩")                                        -- ()
 
 
 https://raku-advent.blog/2022/12/22/day-22-hes-making-a-list-part-1/
@@ -7534,6 +7589,66 @@ https://www.saxonica.com/documentation12/#!localization/unicode-collation-algori
 Unicode Collation Algorithm
 
 
+https://www.saxonica.com/documentation12/index.html#!localization/sorting-and-collations
+Sorting and collations
+
+
+https://www.saxonica.com/documentation12/index.html#!changes/spi/10-11
+Changes from 10 to 11
+Strings
+    Most uses of CharSequence have been replaced by a new class
+    net.sf.saxon.str.UnicodeString (which also replaces the old class
+    net.sf.saxon.regex.UnicodeString).
+    The UnicodeString class has a number of implementations.
+    All of them are designed to be codepoint-addressible: they expose an
+    indexable array of 32-bit codepoint values, and never use surrogate pairs.
+    The implementations of UnicodeString include:
+        - Twine8:
+          a string consisting entirely of codepoints in the range 1-255, held in
+          an array with one byte per character.
+        - Twine16:
+          a string consisting entirely of codepoints in the range 1-65535, held
+          in an array with two bytes per character.
+        - Twine24:
+          a string of arbitrary codepoints, held in an array with three bytes
+          per character.
+        - Slice8:
+          a sub-range of an array using one byte per character.
+        - Slice16:
+          a sub-range of an array using two bytes per character.
+        - Slice24:
+          a sub-range of an array using two bytes per character.
+        - BMPString:
+          a wrapper around a Java/C# string known to contain no surrogate pairs.
+        - ZenoString:
+          a composite string held as a list of segments, each of which is itself
+          a UnicodeString. The name derives from the algorithm used to combine
+          segments, which results in segments having progressively decreasing
+          lengths towards the end of the string.
+        - StringView:
+          a wrapper around an arbitrary Java/C# string. (This stores the string
+          both in its native Java/C# form, and using a "real" codepoint-
+          addressible implementation of UnicodeString, which is constructed
+          lazily when it is first required.)
+
+    Unicode normalization of strings (for example in the fn:normalize-unicode()
+    function) now uses the JDK class java.text.Normalizer rather than code
+    derived from the Unicode Consortium's implementation.
+    This appears to be substantially faster.
+
+
+https://www.balisage.net/Proceedings/vol26/html/Kay01/BalisageVol26-Kay01.html
+ZenoString: A Data Structure for Processing XML Strings
+August 2 - 6, 2021
+Compare with
+- Monolithic char arrays
+- Strings in Saxon
+- Ropes
+- Finger Trees
+  https://www.cambridge.org/core/journals/journal-of-functional-programming/article/finger-trees-a-simple-generalpurpose-data-structure/BF419BCA07292DCAAF2A946E6BDF573B#article
+  finger-trees-a-simple-general-purpose-data-structure.pdf
+
+
 ================================================================================
 SQL lang
 ================================================================================
@@ -8273,6 +8388,24 @@ A new markup-based typesetting system that is powerful and easy to learn.
 ---
 jlf: uses ICU4X
 https://github.com/unicode-org/icu4x/issues/3811
+
+
+================================================================================
+XPath lang
+================================================================================
+
+https://www.w3.org/TR/xpath-functions-31/#string-functions
+Functions on strings
+jlf:
+to read
+no "grapheme" in this document.
+written by Michael Kay (XSLT WG), Saxonica <http://www.saxonica.com/>
+
+
+https://www.w3.org/TR/xpath-functions-31/#string.match
+String functions that use regular expressions
+jlf: part of the doc "Functions on strings" above, explicitely referenced for
+direct access.
 
 
 ================================================================================
