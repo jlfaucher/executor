@@ -11,6 +11,561 @@ ooRexx> .Unicode~memorizeTransformations = .false
 
 
 -- ===============================================================================
+-- 2023 Sep 11
+
+/*
+casefold now supports the option stripMark.
+
+Rework the implementation of caselessPos, pos.
+- Thanks to Raku and Chrome, I realize that a matching should be succesful only
+  if all the bytes of a grapheme are matched.
+- New named argument 'asList', to return a list of positions
+  (similar to Raku's method .indices).
+- New named argument overlap: (same as Raku)
+  If the optional named argument 'overlap' is specified, the search continues
+  from the position directly following the previous match, otherwise the search
+  will continue after the previous match.
+*/
+
+/*
+When aligned:.false, a returned position has the form +/-posC.posB where posB is
+the position of the matched byte in the transformed haystack, and posC is the
+corresponding grapheme position in the untransformed haystack.
+Don't use trunc(abs(position)) because you may need up to numeric digits 40:
+    position max can be +/-(2**64-1)||"."||(2**64-1)
+Use instead:
+    if position~matchChar(1, "+-") then parse var position 2 posC "." posB
+*/
+
+/*
+Additional test cases to cover corner cases for caselessPos, pos.
+*/
+
+--------------
+-- test case 1
+--------------
+-- case no overlap versus overlap
+
+ooRexx> "àààààà"~text~caselessPos("aa", stripMark:)=                                    -- 1
+ 1
+ooRexx> "àààààà"~text~caselessPos("aa", stripMark:, asList:)~allItems=                  -- [ 1, 3, 5]
+[ 1, 3, 5]
+ooRexx> "àààààà"~text~caselessPos("aa", stripMark:, asList:, overlap:)~allItems=        -- [ 1, 2, 3, 4, 5]
+[ 1, 2, 3, 4, 5]
+ooRexx> "àààààà"~text~caselessPos("aa", stripMark:, asList:, aligned:.false)=
+a List (3 items)
+ 0 : [+1.1,+3.5]
+ 1 : [+3.5,+5.9]
+ 2 : [+5.9,+7.13]
+ooRexx> "àààààà"~text~caselessPos("aa", stripMark:, asList:, overlap:, aligned:.false)=
+a List (5 items)
+ 0 : [+1.1,+3.5]
+ 1 : [+2.3,+4.7]
+ 2 : [+3.5,+5.9]
+ 3 : [+4.7,+6.11]
+ 4 : [+5.9,+7.13]
+
+--------------
+-- test case 2
+--------------
+-- case where the end of the matching is inside the untransformed grapheme
+
+ooRexx> "ß"~text~caselessPos("s")=                                  -- 0, not 1 because 1 would match only the first byte of "ß"-->"ss"
+ 0
+ooRexx> "ß"~text~caselessPos("s", asList:)=                         -- a List (0 items)
+a List (0 items)
+ooRexx> "ß"~text~caselessPos("s", asList:, overlap:)=               -- a List (0 items)
+a List (0 items)
+ooRexx> "ß"~text~caselessPos("s", asList:, aligned:.false)=
+a List (2 items)
+ 0 : [+1.1,-1.2]
+ 1 : [-1.2,+2.3]
+ooRexx> "ß"~text~caselessPos("s", asList:, overlap:, aligned:.false)=
+a List (2 items)
+ 0 : [+1.1,-1.2]
+ 1 : [-1.2,+2.3]
+
+ooRexx> "sß"~text~caselessPos("ss")=                                -- 2, not 1 because 1 would match only the first byte of "ß"-->"ss"
+ 2
+ooRexx> "sß"~text~caselessPos("ss", asList:)~allItems=              -- [ 2]
+[ 2]
+ooRexx> "sß"~text~caselessPos("ss", asList:, overlap:)~allItems=    -- [ 2]
+[ 2]
+ooRexx> "sß"~text~caselessPos("ss", asList:, aligned:.false)=
+a List (1 items)
+ 0 : [+1.1,-2.3]
+ooRexx> "sß"~text~caselessPos("ss", asList:, overlap:, aligned:.false)=
+a List (2 items)
+ 0 : [+1.1,-2.3]
+ 1 : [+2.2,+3.4]
+
+ooRexx> "sßs"~text~caselessPos("s", 2)=                             -- 3, not 2 because 2 would match only the first byte of "ß"-->"ss"
+ 3
+ooRexx> "sßs"~text~caselessPos("s", 2, asList:)~allItems=           -- [ 3]
+[ 3]
+ooRexx> "sßs"~text~caselessPos("s", 2, asList:, overlap:)~allItems= -- [ 3]
+[ 3]
+ooRexx> "sßs"~text~caselessPos("s", 2, asList:, aligned:.false)=
+a List (3 items)
+ 0 : [+2.2,-2.3]
+ 1 : [-2.3,+3.4]
+ 2 : [+3.4,+4.5]
+ooRexx> "sßs"~text~caselessPos("s", 2, asList:, overlap:, aligned:.false)=
+a List (3 items)
+ 0 : [+2.2,-2.3]
+ 1 : [-2.3,+3.4]
+ 2 : [+3.4,+4.5]
+
+ooRexx> "sßs"~text~caselessPos("ss")=                               -- 2, not 1 because 1 would match only the first byte of "ß"-->"ss"
+ 2
+ooRexx> "sßs"~text~caselessPos("ss", asList:)~allItems=             -- [ 2]
+[ 2]
+ooRexx> "sßs"~text~caselessPos("ss", asList:, overlap:)~allItems=   -- [ 2]
+[ 2]
+ooRexx> "sßs"~text~caselessPos("ss", asList:, aligned:.false)=
+a List (2 items)
+ 0 : [+1.1,-2.3]
+ 1 : [-2.3,+4.5]
+ooRexx> "sßs"~text~caselessPos("ss", asList:, overlap:, aligned:.false)=
+a List (3 items)
+ 0 : [+1.1,-2.3]
+ 1 : [+2.2,+3.4]
+ 2 : [-2.3,+4.5]
+
+--------------
+-- test case 3
+--------------
+-- caselessPos (apply casefold internally but returns external indexes)
+-- search 1 character, no overlap when searching a single character.
+
+ooRexx>                                                         --  01 02 03 04 05 06 07 08 09 10 11   12 13 14 15 16 17 18 19   20 21 22 23
+ooRexx> "Bundesstraße sss sßs ss"~text~c2g=                     -- '42 75 6E 64 65 73 73 74 72 61 C39F 65 20 73 73 73 20 73 C39F 73 20 73 73'
+'42 75 6E 64 65 73 73 74 72 61 C39F 65 20 73 73 73 20 73 C39F 73 20 73 73'
+ooRexx>                                                         --  B  u  n  d  e  s  s  t  r  a  ß    e  _  s  s  s  _  s  ß    s  _  s  s
+ooRexx>                                                         --                 |  |           |          |  |  |     |  |    |     |  |
+
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("s")=        -- 6
+ 6
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("s", 7)=     -- 7
+ 7
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("s", 8)=     -- 14
+ 14
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("s", 15)=    -- 15
+ 15
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("s", 16)=    -- 16
+ 16
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("s", 17)=    -- 18
+ 18
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("s", 19)=    -- 20
+ 20
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("s", 21)=    -- 22
+ 22
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("s", 23)=    -- 23
+ 23
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("s", 24)=    -- 0
+ 0
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("s", asList:)~allItems=              -- [ 6, 7, 14, 15, 16, 18, 20, 22, 23]
+[ 6, 7, 14, 15, 16, 18, 20, 22, 23]
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("s", asList:, overlap:)~allItems=    -- [ 6, 7, 14, 15, 16, 18, 20, 22, 23]
+[ 6, 7, 14, 15, 16, 18, 20, 22, 23]
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("s", asList:, aligned:.false)=
+a List (13 items)
+ 0  : [+6.6,+7.7]
+ 1  : [+7.7,+8.8]
+ 2  : [+11.11,-11.12]
+ 3  : [-11.12,+12.13]
+ 4  : [+14.15,+15.16]
+ 5  : [+15.16,+16.17]
+ 6  : [+16.17,+17.18]
+ 7  : [+18.19,+19.20]
+ 8  : [+19.20,-19.21]
+ 9  : [-19.21,+20.22]
+ 10 : [+20.22,+21.23]
+ 11 : [+22.24,+23.25]
+ 12 : [+23.25,+24.26]
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("s", asList:, overlap:, aligned:.false)=
+a List (13 items)
+ 0  : [+6.6,+7.7]
+ 1  : [+7.7,+8.8]
+ 2  : [+11.11,-11.12]
+ 3  : [-11.12,+12.13]
+ 4  : [+14.15,+15.16]
+ 5  : [+15.16,+16.17]
+ 6  : [+16.17,+17.18]
+ 7  : [+18.19,+19.20]
+ 8  : [+19.20,-19.21]
+ 9  : [-19.21,+20.22]
+ 10 : [+20.22,+21.23]
+ 11 : [+22.24,+23.25]
+ 12 : [+23.25,+24.26]
+
+--------------
+-- test case 4
+--------------
+-- caselessPos (apply casefold internally but returns external indexes)
+-- search 3 characters
+
+ooRexx>                                                         --  01 02 03 04 05 06 07 08 09 10 11   12 13 14 15 16 17 18 19   20 21 22 23
+ooRexx> "Bundesstraße sss sßs ss"~text~c2g=                     -- '42 75 6E 64 65 73 73 74 72 61 C39F 65 20 73 73 73 20 73 C39F 73 20 73 73'
+'42 75 6E 64 65 73 73 74 72 61 C39F 65 20 73 73 73 20 73 C39F 73 20 73 73'
+ooRexx>                                                         --  B  u  n  d  e  s  s  t  r  a  ß    e  _  s  s  s  _  s  ß    s  _  s  s
+ooRexx>                                                         --                                           |           |  |
+
+ooRexx>                                                                                 --                  Raku                Chrome
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("sSs")=                              -- 14               13                  y
+ 14
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("sSs", 15)=                          -- 18               17                  y
+ 18
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("sSs", 19)=                          -- 19   (overlap)   18 (if overlap)     y
+ 19
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("sSs", 20)=                          -- 0
+ 0
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("sSs", asList:)~allItems=            -- [ 14, 18]
+[ 14, 18]
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("sSs", asList:, overlap:)~allItems=  -- [ 14, 18, 19]
+[ 14, 18, 19]
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("sSs", asList:, aligned:.false)=
+a List (2 items)
+ 0 : [+14.15,+17.18]
+ 1 : [+18.19,+20.22]
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("sSs", asList:, overlap:, aligned:.false)=
+a List (3 items)
+ 0 : [+14.15,+17.18]
+ 1 : [+18.19,+20.22]
+ 2 : [+19.20,+21.23]
+
+--------------
+-- test case 5
+--------------
+-- caselessPos (apply casefold internally but returns external indexes)
+-- search 4 characters
+
+ooRexx>                                                         --  01 02 03 04 05 06 07 08 09 10 11   12 13 14 15 16 17 18 19   20 21 22 23
+ooRexx> "Bundesstraße sss sßs ss"~text~c2g=                     -- '42 75 6E 64 65 73 73 74 72 61 C39F 65 20 73 73 73 20 73 C39F 73 20 73 73'
+'42 75 6E 64 65 73 73 74 72 61 C39F 65 20 73 73 73 20 73 C39F 73 20 73 73'
+ooRexx>                                                         --  B  u  n  d  e  s  s  t  r  a  ß    e  _  s  s  s  _  s  ß    s  _  s  s
+ooRexx>                                                         --                                                       |
+
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("sSsS")=                             -- 18 (good, same result as Raku and Chrome)
+ 18
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("sSsS", asList:)~allItems=           -- [ 18]
+[ 18]
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("sSsS", asList:, overlap:)~allItems= -- [ 18]
+[ 18]
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("sSsS", asList:, aligned:.false)=
+a List (1 items)
+ 0 : [+18.19,+21.23]
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("sSsS", asList:, overlap:, aligned:.false)=
+a List (1 items)
+ 0 : [+18.19,+21.23]
+
+--------------
+-- test case 6
+--------------
+-- caselessPos (apply casefold internally but returns external indexes)
+-- search 2 characters in a long sequence
+
+ooRexx>                                                         --  01 02 03 04 05   06 07 08   09   10 11 12 13
+ooRexx> "straßssßßssse"~text~c2g=                               -- '73 74 72 61 C39F 73 73 C39F C39F 73 73 73 65'
+'73 74 72 61 C39F 73 73 C39F C39F 73 73 73 65'
+ooRexx>                                                         --  s  t  r  a  ß    s  s  ß    ß    s  s  s  e
+ooRexx>                                                         --              |    |  |  |    |    |  |
+
+ooRexx>                                                         --                  Raku                Chome
+ooRexx> "straßssßßssse"~text~caselessPos("Ss")=                 -- 5                4                   y
+ 5
+ooRexx> "straßssßßssse"~text~caselessPos("Ss", 6)=              -- 6                5 (if overlap)      y       why Raku needs overlap?
+ 6
+ooRexx> "straßssßßssse"~text~caselessPos("Ss", 7)=              -- 8                7                   y
+ 8
+ooRexx> "straßssßßssse"~text~caselessPos("Ss", 9)=              -- 9                8 (if overlap)      y       why Raku needs overlap?
+ 9
+ooRexx> "straßssßßssse"~text~caselessPos("Ss", 10)=             -- 10               9                   y
+ 10
+ooRexx> "straßssßßssse"~text~caselessPos("Ss", 11)=             -- 11   (overlap)   10 (if overlap)     y
+ 11
+ooRexx> "straßssßßssse"~text~caselessPos("Ss", 12)=             -- 0
+ 0
+ooRexx> "straßssßßssse"~text~caselessPos("Ss", asList:)~allItems=           -- [ 5, 6, 8, 9, 10]
+[ 5, 6, 8, 9, 10]
+ooRexx> "straßssßßssse"~text~caselessPos("Ss", asList:, overlap:)~allItems= -- [ 5, 6, 8, 9, 10, 11]
+[ 5, 6, 8, 9, 10, 11]
+ooRexx> "straßssßßssse"~text~caselessPos("Ss", asList:, aligned:.false)=
+a List (5 items)
+ 0 : [+5.5,+6.7]
+ 1 : [+6.7,+8.9]
+ 2 : [+8.9,+9.11]
+ 3 : [+9.11,+10.13]
+ 4 : [+10.13,+12.15]
+ooRexx> "straßssßßssse"~text~caselessPos("Ss", asList:, overlap:, aligned:.false)=
+a List (10 items)
+ 0 : [+5.5,+6.7]
+ 1 : [-5.6,+7.8]
+ 2 : [+6.7,+8.9]
+ 3 : [+7.8,-8.10]
+ 4 : [+8.9,+9.11]
+ 5 : [-8.10,-9.12]
+ 6 : [+9.11,+10.13]
+ 7 : [-9.12,+11.14]
+ 8 : [+10.13,+12.15]
+ 9 : [+11.14,+13.16]
+
+--------------
+-- test case 7
+--------------
+-- pos, caselessPos
+
+ooRexx>                                                     --  01 02 03 04 05   06 07 08 09 10   11 12                                                 13
+ooRexx>                                                     --  0                         1                      2                   3                    4
+ooRexx>                                                     --  1  2  3  4  5 6  7  8  9  0  1 2  3  4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8  9 0 1 2
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~c2g=             -- '73 74 72 61 C39F 65 20 6E 6F C3AB 6C F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7 F09F8E85'
+'73 74 72 61 C39F 65 20 6E 6F C3AB 6C F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7 F09F8E85'
+ooRexx>                                                     --                                                                                 |
+
+ooRexx> "👧🎅"~text~c2g=                                   -- 'F09F91A7 F09F8E85'
+'F09F91A7 F09F8E85'
+ooRexx> "👧🎅"~text~casefold~c2g=                          -- 'F09F91A7 F09F8E85'
+'F09F91A7 F09F8E85'
+
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅", 1, aligned:.false)=         -- [-12.35,+14.43]
+[-12.35,+14.43]
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅", 12, aligned:.false)=        -- [-12.35,+14.43]
+[-12.35,+14.43]
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅", 13, aligned:.false)=        -- 0
+ 0
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅", 13, asList:)=               -- a List (0 items)
+a List (0 items)
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅", 13, asList:, overlap:)=     -- a List (0 items)
+a List (0 items)
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅", asList:, aligned:.false)=
+a List (1 items)
+ 0 : [-12.35,+14.43]
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅", asList:, overlap:, aligned:.false)=
+a List (1 items)
+ 0 : [-12.35,+14.43]
+
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👧🎅", 1, aligned:.false)=     -- [-12.35,+14.43]
+[-12.35,+14.43]
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👧🎅", 12, aligned:.false)=    -- [-12.35,+14.43]
+[-12.35,+14.43]
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👧🎅", 13, aligned:.false)=    -- 0
+ 0
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👧🎅", asList:, aligned:.false)=
+a List (1 items)
+ 0 : [-12.35,+14.43]
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👧🎅", asList:, overlap:, aligned:.false)=
+a List (1 items)
+ 0 : [-12.35,+14.43]
+
+-- yes, 12.35, not 12.34 even if "ë" (2 bytes) becomes internally "e" (1 byte)
+-- because the indexes are external (relative to the target string, not related to the internal transformed string)
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👧🎅", 1, aligned:.false, stripMark:)=     -- [-12.35,+14.43]
+[-12.35,+14.43]
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👧🎅", 12, aligned:.false, stripMark:)=    -- [-12.35,+14.43]
+[-12.35,+14.43]
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👧🎅", 13, aligned:.false, stripMark:)=    -- 0
+ 0
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👧🎅", asList:, aligned:.false, stripMark:)=
+a List (1 items)
+ 0 : [-12.35,+14.43]
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👧🎅", asList:, overlap:, aligned:.false, stripMark:)=
+a List (1 items)
+ 0 : [-12.35,+14.43]
+
+--------------
+-- test case 8
+--------------
+-- casefold
+
+ooRexx>                                                     --  01 02 03 04 05 06 07 08 09 10 11   12 13                                                 14
+ooRexx>                                                     --  0                          1                      2                   3                    4
+ooRexx>                                                     --  1  2  3  4  5  6  7  8  9  0  1 2  3  4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8  9 0 1 2
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~casefold~c2g=    -- '73 74 72 61 73 73 65 20 6E 6F C3AB 6C F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7 F09F8E85'
+'73 74 72 61 73 73 65 20 6E 6F C3AB 6C F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7 F09F8E85'
+ooRexx>                                                     --                                                                                  |
+
+-- here we get 13 because "ß" is replaced by "ss" before calling pos
+-- the byte position .35 is unchanged because "ß" is 2 bytes, as is "ss".
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~casefold~pos("👧🎅", 1, aligned:.false)=                -- [-13.35,+15.43]
+[-13.35,+15.43]
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~casefold~pos("👧🎅", asList:, aligned:.false)=
+a List (1 items)
+ 0 : [-13.35,+15.43]
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~casefold~pos("👧🎅", asList:, overlap:, aligned:.false)=
+a List (1 items)
+ 0 : [-13.35,+15.43]
+
+-- stripMark has no impact on the byte position because it's an internal transformation
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~casefold~pos("👧🎅", 1, aligned:.false, stripMark:)=    -- [-13.35,+15.43]
+[-13.35,+15.43]
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~casefold~pos("👧🎅", asList:, aligned:.false, stripMark:)=
+a List (1 items)
+ 0 : [-13.35,+15.43]
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~casefold~pos("👧🎅", asList:, overlap:, aligned:.false, stripMark:)=
+a List (1 items)
+ 0 : [-13.35,+15.43]
+
+-- here we get 13.34 because stripMark has an impact on the byte position:
+-- "ë" (2 bytes" becomes "e" (1 byte) before calling pos.
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~casefold(stripMark:)~pos("👧🎅", 1, aligned:.false)=    -- [-13.34,+15.42]
+[-13.34,+15.42]
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~casefold(stripMark:)~pos("👧🎅", asList:, aligned:.false)=
+a List (1 items)
+ 0 : [-13.34,+15.42]
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~casefold(stripMark:)~pos("👧🎅", asList:, overlap:, aligned:.false)=
+a List (1 items)
+ 0 : [-13.34,+15.42]
+
+--------------
+-- test case 9
+--------------
+-- pos with a needle inside a grapheme of the haystack
+-- Raku consider there is no matching.
+
+ooRexx> "👨‍👩"~text~c2g=                                  -- 'F09F91A8E2808DF09F91A9'
+'F09F91A8E2808DF09F91A9'
+
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~pos("👨‍👩")=                   -- 0
+ 0
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~pos("👨‍👩", aligned:.false)=   -- [-12.21,-12.32]
+[-12.21,-12.32]
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~pos("👨‍👩", asList:, aligned:.false)=
+a List (1 items)
+ 0 : [-12.21,-12.32]
+ooRexx> "straße noël👩‍👨‍👩‍👧🎅"~text~pos("👨‍👩", asList:, overlap:, aligned:.false)=
+a List (1 items)
+ 0 : [-12.21,-12.32]
+
+---------------
+-- test case 10
+---------------
+-- pos with ignorable (no internal transformation)
+-- TAG SPACE is ignorable
+
+ooRexx>                                                                                 --  01 02   03         04 05 06 07 08 09 10 11   12 13 14 15 16 17         18   19 20
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~c2g=             -- '54 C38A 74F3A080A0 65 20 73 73 73 20 73 C39F 73 20 73 73 20 74F3A080A0 C3AA 54 45'
+'54 C38A 74F3A080A0 65 20 73 73 73 20 73 C39F 73 20 73 73 20 74F3A080A0 C3AA 54 45'
+ooRexx>                                                                                 --  T  Ê    t TAG SPAC e  _  s  s  s  _  s  ß    s  _  s  s  _  t TAG SPAC ê    T  E
+ooRexx>                                                                                 --                           |  |                      |
+
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~pos("ss", asList:)~allItems=             -- [ 6, 14]
+[ 6, 14]
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~pos("ss", asList:, overlap:)~allItems=   -- [ 6, 7, 14]
+[ 6, 7, 14]
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~pos("ss", asList:, aligned:.false)=
+a List (2 items)
+ 0 : [+6.11,+8.13]
+ 1 : [+14.20,+16.22]
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~pos("ss", asList:, overlap:, aligned:.false)=
+a List (3 items)
+ 0 : [+6.11,+8.13]
+ 1 : [+7.12,+9.14]
+ 2 : [+14.20,+16.22]
+
+--------------
+-- test case 11
+--------------
+-- caselessPos with ignorable (apply casefold internally but returns external indexes)
+-- TAG SPACE is ignorable
+
+ooRexx>                                                                                 --  01 02   03         04 05 06 07 08 09 10 11   12 13 14 15 16 17         18   19 20
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~c2g=             -- '54 C38A 74F3A080A0 65 20 73 73 73 20 73 C39F 73 20 73 73 20 74F3A080A0 C3AA 54 45'
+'54 C38A 74F3A080A0 65 20 73 73 73 20 73 C39F 73 20 73 73 20 74F3A080A0 C3AA 54 45'
+ooRexx>                                                                                 --  T  Ê    t TAG SPAC e  _  s  s  s  _  s  ß    s  _  s  s  _  t TAG SPAC ê    T  E
+ooRexx>                                                                                 --                           |  |           |          |
+
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("ss", asList:)~allItems=             -- [ 6, 11, 14]
+[ 6, 11, 14]
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("ss", asList:, overlap:)~allItems=   -- [ 6, 7, 11, 14]
+[ 6, 7, 11, 14]
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("ss", asList:, aligned:.false)=
+a List (4 items)
+ 0 : [+6.11,+8.13]
+ 1 : [+10.15,-11.17]
+ 2 : [-11.17,+13.19]
+ 3 : [+14.20,+16.22]
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("ss", asList:, overlap:, aligned:.false)=
+a List (6 items)
+ 0 : [+6.11,+8.13]
+ 1 : [+7.12,+9.14]
+ 2 : [+10.15,-11.17]
+ 3 : [+11.16,+12.18]
+ 4 : [-11.17,+13.19]
+ 5 : [+14.20,+16.22]
+
+
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", asList:)~allItems=             -- [ 19]
+[ 19]
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", asList:, overlap:)~allItems=   -- [ 19]
+[ 19]
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", asList:, aligned:.false)=
+a List (1 items)
+ 0 : [+19.30,+21.32]
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", asList:, overlap:, aligned:.false)=
+a List (1 items)
+ 0 : [+19.30,+21.32]
+
+---------------
+-- test case 12
+---------------
+-- pos with ignorable (apply casefold + stripMark internally but returns external indexes)
+-- TAG SPACE is ignorable
+
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~pos("te", stripMark:, asList:)=              -- a List (0 items)
+a List (0 items)
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~pos("te", stripMark:, asList:, overlap:)=    -- a List (0 items)
+a List (0 items)
+
+---------------
+-- test case 13
+---------------
+-- caselessPos with ignorable (apply casefold + stripMark internally but returns external indexes)
+-- TAG SPACE is ignorable
+
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", stripMark:, asList:)~allItems=             -- [ 1, 19]
+[ 1, 19]
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", stripMark:, asList:, overlap:)~allItems=   -- [ 1, 19]
+[ 1, 19]
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", stripMark:, asList:, aligned:.false)=
+a List (2 items)
+ 0 : [+1.1,+3.4]
+ 1 : [+19.30,+21.32]
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", stripMark:, asList:, overlap:, aligned:.false)=
+a List (2 items)
+ 0 : [+1.1,+3.4]
+ 1 : [+19.30,+21.32]
+
+---------------
+-- test case 14
+---------------
+-- caselessPos with ignorable (apply casefold + stripIgnorable internally but returns external indexes)
+-- TAG SPACE is ignorable
+
+ooRexx>                                                                                 --  01 02   03         04 05 06 07 08 09 10 11   12 13 14 15 16 17         18   19 20
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~c2g=             -- '54 C38A 74F3A080A0 65 20 73 73 73 20 73 C39F 73 20 73 73 20 74F3A080A0 C3AA 54 45'
+'54 C38A 74F3A080A0 65 20 73 73 73 20 73 C39F 73 20 73 73 20 74F3A080A0 C3AA 54 45'
+ooRexx>                                                                                 --  T  Ê    t TAG SPAC e  _  s  s  s  _  s  ß    s  _  s  s  _  t TAG SPAC ê    T  E
+ooRexx>                                                                                 --  |       |                                                   |               |
+
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", stripMark:, stripIgnorable:, asList:)~allItems=            -- [ 1, 3, 17, 19]
+[ 1, 3, 17, 19]
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", stripMark:, stripIgnorable:, asList:, overlap:)~allItems=  -- [ 1, 3, 17, 19]
+[ 1, 3, 17, 19]
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", stripMark:, stripIgnorable:, asList:, aligned:.false)=
+a List (4 items)
+ 0 : [+1.1,+3.4]
+ 1 : [+3.4,+5.10]
+ 2 : [+17.23,+19.30]
+ 3 : [+19.30,+21.32]
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", stripMark:, stripIgnorable:, asList:, overlap:, aligned:.false)=
+a List (4 items)
+ 0 : [+1.1,+3.4]
+ 1 : [+3.4,+5.10]
+ 2 : [+17.23,+19.30]
+ 3 : [+19.30,+21.32]
+
+
+-- ===============================================================================
 -- 2023 Sep 06
 
 /*
@@ -65,9 +620,7 @@ ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("ss", 12)=   -- 14
  14
 ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("ss", 15)=   -- 15 (overlap)
  15
-ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("ss", 16)=   -- 18           (Raku doesn't return this index, am I wrong? sounds good to me...)
- 18
-ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("ss", 19)=   -- 19 (overlap) (Raku doesn't return this index, am I wrong? sounds good to me...)
+ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("ss", 16)=   -- 19           (Raku doesn't return this index, am I wrong? sounds good to me...)
  19
 ooRexx> "Bundesstraße sss sßs ss"~text~caselessPos("ss", 20)=   -- 22
  22
@@ -154,9 +707,7 @@ ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~casele
  6
 ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("ss", 7)=    -- 7 (overlap)
  7
-ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("ss", 8)=    -- 10
- 10
-ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("ss", 11)=   -- 11 (overlap)
+ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("ss", 8)=    -- 11
  11
 ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("ss", 12)=   -- 14
  14
@@ -231,9 +782,8 @@ ooRexx>     "Père Noël Père Noël"~text~contains("oë", 8, 11)=            --
 ooRexx>     "Père Noël Père Noël"~text~caselessContains("OË", 8, 11)=    -- .true
  1
 
-ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~contains("👧🎅")=                           -- UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
-UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
-Error code= 23.900
+ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~contains("👧🎅")=                           -- .false
+ 0
 ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~contains("👧🎅", aligned:.false)=           -- .true
  1
 ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~contains("👩‍👨‍👩‍👧🎅", aligned:.false)=  -- .true
@@ -245,19 +795,25 @@ ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~contains("👩‍👨‍�
 
 /*
 Add a named argument 'aligned' to caselessPos, pos:
-- If aligned=.true (default) then raise an error if the byte position of the
-  result is not aligned with the character index.
-- If aligned=.false then return a number indexC.indexB when the result is not
-  aligned (number such as the integer part is the character index and the
-  decimal part is the byte index).
+- If aligned=.true (default) then return the first character position in the
+  untransformed haystack such as all the bytes of the transformed needle are
+  matched with corresponding bytes in the transformed haystack AND the first
+  and last byte positions are aligned with character positions.
+  If no match then return 0.
+- If aligned=.false then return a couple (array) of numbers +/-posC.posB where
+  posB is the position of the matched byte in the transformed haystack, and posC
+  is the corresponding grapheme position in the untransformed haystack.
+  A number is negative if the byte position is not aligned with the corresponding
+  character position.
+  The first number is the start of the matching.
+  The second number is the end of the matching + 1.
 */
-ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅")=                           -- UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
-UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
-Error code= 23.900
-ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅", aligned:.false)=           -- 5.27
- 5.27
-ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~pos("👩‍👨‍👩‍👧🎅", aligned:.false)=  -- 5 (no decimal part when the byte index is aligned)
- 5
+ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅")=                           -- 0
+ 0
+ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅", aligned:.false)=           -- [-5.27,+7.35]
+[-5.27,+7.35]
+ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~pos("👩‍👨‍👩‍👧🎅", aligned:.false)=  -- [+5.6,+7.35]
+[+5.6,+7.35]
 
 
 /*

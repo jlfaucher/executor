@@ -677,7 +677,26 @@ How other languages are supporting escape characters for Unicode:
 
 
 ::method casefold
-    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", 0)~~setEntry("casefold", .true))
+    -- casefold does not normalize, except if explicitely requested by the caller, or if the caller specified stripMark:.true.
+    -- utf8proc note: The option UTF8PROC_STRIPMARK works only with UTF8PROC_COMPOSE or UTF8PROC_DECOMPOSE.
+    -- Rules:
+    -- if the named argument normalization is not set then
+    --     if the named argument stripMark is .true then
+    --         don't force the normalization to 0.
+    --     otherwise
+    --         force the normalization to 0, to avoid using the default normalization
+    --         because casefold can be applied without normalizing the string.
+    namedArgs = .context~namedArgs
+    if namedArgs~entry("stripMark") \== .true then do -- can be .nil (not specified by the caller), .false (not requested), .true (requested)
+        -- The caller did not request to strip the accent marks, so the utf8proc note doesn't apply.
+        if .nil == namedArgs~entry("normalization") then do
+            -- The caller did not specify a normalization, so the default one would be applied.
+            -- Force the normalization to 0 (no normalization).
+            namedArgs~setEntry("normalization", 0)
+        end
+    end
+    namedArgs~setEntry("casefold", .true) -- the purpose of this method
+    forward message "transform" namedArguments (namedArgs)
 
 
 ::attribute isLumped get

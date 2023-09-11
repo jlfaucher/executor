@@ -1003,7 +1003,8 @@ stringChunks
         forward message "caselessPos" to (self~string) continue
         return result <> 0
     end
-    forward message "caselessPos" to (self~indexer) continue
+    -- Force asList: to .false, we want a position
+    forward message "caselessPos" to (self~indexer) namedArguments (.context~namedArgs~~setEntry("asList", .false)) continue
     return result <> 0
 
 
@@ -1051,7 +1052,8 @@ stringChunks
         forward message "caselessPos" to (self~string) continue
         return result == 1
     end
-    forward message "caselessPos" to (self~indexer) continue
+    -- Force asList: to .false, we want a position
+    forward message "caselessPos" to (self~indexer) namedArguments (.context~namedArgs~~setEntry("asList", .false)) continue
     return result == 1
 
 
@@ -1103,7 +1105,8 @@ stringChunks
         forward message "pos" to (self~string) continue
         return result \== 0
     end
-    forward message "pos" to (self~indexer) continue
+    -- Force asList: to .false, we want a position
+    forward message "pos" to (self~indexer) namedArguments (.context~namedArgs~~setEntry("asList", .false)) continue
     return result \== 0
 
 
@@ -1221,7 +1224,8 @@ stringChunks
         forward message "pos" to (self~string) continue
         return result == 1
     end
-    forward message "pos" to (self~indexer) continue
+    -- Force asList: to .false, we want a position
+    forward message "pos" to (self~indexer) namedArguments (.context~namedArgs~~setEntry("asList", .false)) continue
     return result == 1
 
 
