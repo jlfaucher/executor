@@ -1,5 +1,15 @@
 http://www.jpaulmorrison.com/fbp/
 
+
+Clojure
+My mental model of transducers
+https://blog.danieljanus.pl/2023/09/09/transducers/
+
+
+Grokking Clojure transducers
+https://dev.solita.fi/2021/10/14/grokking-clojure-transducers.html
+
+
 Javascript
 Introduction into Channels and Transducers in JavaScript
 https://medium.com/javascript-inside/introduction-into-channels-and-transducers-in-javascript-a1dfd0a09268#.hp9ijj3ta
