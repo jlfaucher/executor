@@ -345,6 +345,7 @@ Similar to ~makeArray(separator), with these differences:
     -- strings are surrounded by quotes, except string numbers.
     if self~dataType("N") then do
         if self < 0 then return self -- the first character is the minus sign
+        if self~matchChar(1, " +") then return self -- the first character is already a space or a plus
         return " "self               -- the first character is a space (could also display a plus sign)
     end
     pp = self
