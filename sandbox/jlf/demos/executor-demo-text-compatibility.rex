@@ -275,11 +275,25 @@ sleep
 sleep
 "noël👩‍👨‍👩‍👧🎅"~text~caselessPos("🎅")=                     -- 6
 sleep
-"noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👧🎅")=                   -- UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
+"noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👧🎅")=                   -- 0
+sleep no prompt
+
+-- caselessPos in not-aligned mode
+/*
+aligned=.false is intended for analysis of matchings and [non-]regression tests.
+Otherwise, I don't see any use.
+
+If aligned=.false then return a couple (array) of numbers +/-posC.posB where
+posB is the position of the matched byte in the transformed haystack, and posC
+is the corresponding grapheme position in the untransformed haystack.
+A number is negative if the byte position is not aligned with the corresponding
+character position.
+The first number is the start of the matching.
+The second number is the end of the matching + 1.
+*/
+"noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👧🎅", aligned:.false)=   -- [-5.27,+7.35]
 sleep
-"noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👧🎅", aligned:.false)=   -- 5.27 (the integer part is the character index and the  decimal part is the byte index)
-sleep
-"noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👩‍👨‍👩‍👧🎅", aligned:.false)=   -- 5 (no decimal part when the byte index is aligned)
+"noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👩‍👨‍👩‍👧🎅", aligned:.false)=   -- [+5.6,+7.35]
 sleep no prompt
 
 
@@ -577,9 +591,11 @@ sleep
 sleep
 "noël👩‍👨‍👩‍👧🎅"~text~pos("🎅")=                     -- 6
 sleep
-"noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅")=                   -- UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
+"noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅")=                   -- 0
 sleep
-"noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅", aligned:.false)=   -- 5.27
+"noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅", aligned:.false)=   -- [-5.27,+7.35]
+sleep
+"noël👩‍👨‍👩‍👧🎅"~text~pos("👩‍👨‍👩‍👧🎅", aligned:.false)=   -- [+5.6,+7.35]
 sleep no prompt
 
 

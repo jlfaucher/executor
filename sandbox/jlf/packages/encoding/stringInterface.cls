@@ -356,10 +356,11 @@ end
     if asList then list = .list~new
     else pos = 0
 
-    searchAreaPosC = 1              -- updated by convertPosition
-    searchAreaPosB = 1              -- idem
-    searchAreaTransformedPosC = 1   -- idem
-    searchAreaTransformedPosB = 1   -- idem
+    -- updated by convertPosition
+    searchAreaPosC = 1
+    searchAreaPosB = 1
+    searchAreaTransformedPosC = 1
+    searchAreaTransformedPosB = 1
 
     searchAreaNormalizedStartB = 1
     do forever
@@ -370,11 +371,12 @@ if debug then do
 end
         if posBFirst == 0 then leave -- not found
 
-        -- will check that the start of the needle covers all the bytes of the first grapheme of searchArea
+        -- will check that the start of the transformed needle covers all the transformed bytes of the first matched grapheme of searchArea
         posCFirst = convertPosition(posBFirst)
 
         posCLastPlus1 = .nil
         -- no need to check the end pos if we know already that the start pos doesn't match
+        -- (must be aligned with the first byte of the first matched grapheme)
         if .nil \== posCFirst then do
             -- backup
             searchAreaPosC_ = searchAreaPosC
@@ -382,7 +384,8 @@ end
             searchAreaTransformedPosC_ = searchAreaTransformedPosC
             searchAreaTransformedPosB_ = searchAreaTransformedPosB
 
-            -- will check that the end of the needle covers all the bytes of the last grapheme of searchArea
+            -- will check that the end of the transformed needle covers all the transformed bytes of the last matched grapheme of searchArea
+            -- (must be aligned with the first byte of the first grapheme after the matched graphemes)
             posBLastPlus1 = posBFirst + needleTextTransformed~string~length
             posCLastPlus1 = convertPosition(posBLastPlus1)
 
@@ -394,8 +397,8 @@ end
         end
 
         if .nil == posCFirst | .nil == posCLastPlus1 then pos = 0 -- either first or last is not aligned, and the caller passed aligned:.true
-        else if posCFirst~matchChar(1, "+-") | posCLastPlus1~matchChar(1, "+-") then pos = (posCFirst, posCLastPlus1) -- either first or last is not aligned, and the caller passed aligned:.false
-        else pos = posCFirst
+        else if posCFirst~matchChar(1, "+-") | posCLastPlus1~matchChar(1, "+-") then pos = (posCFirst, posCLastPlus1) -- the caller passed aligned:.false
+        else pos = posCFirst -- aligned matching
 
         if pos \== 0 then do
             if asList then list~append(pos)
@@ -405,6 +408,7 @@ end
         if pos == 0 then searchAreaNormalizedStartB += 1
         else if overlap then searchAreaNormalizedStartB = posBFirst + 1
         else searchAreaNormalizedStartB = posBFirst + needleTextTransformed~string~length
+        searchAreaNormalizedStartB = max(searchAreaNormalizedStartB, searchAreaTransformedPosB) -- for ligature like "ﬄ"
     end
     if asList then return list
     return pos
@@ -416,7 +420,23 @@ end
 
     ----------------------------------------------------------------------------
     convertPosition:
-        -- Convert the position in the transformed string into the position in the original (not transformed) string
+        /*
+        Convert a position in the transformed string into a position in the original (not transformed) string.
+        For that, we have two cursors:
+            - one external cursor in the search area (external indexes)
+            - one internal cursor in the transformed search area (internal indexes)
+        Each cursor has a byte position and a character (grapheme) position.
+            - External cursor:
+                    searchAreaPosB
+                    searchAreaPosC
+            - Internal cursor:
+                    searchAreaTransformedPosB
+                    searchAreaTransformedPosC
+        We increment the external cursor until we reach or exceed the internal byte position posB passed as argument.
+        If posB is exactly reached then we have an aligned position (returns a positive position).
+        If posB is exceeded then we have a not-aligned position (returns a negative position).
+        */
+
         use strict arg posB
 if debug then do
         say "--- Enter convertPosition ----"
@@ -429,9 +449,14 @@ if debug then do
 end
 
         do while searchAreaPosC <= searchArea~length
-            if searchAreaTransformedPosC == absposC then leave
+            if searchAreaTransformedPosB == posB then do
+if debug then do
+                say "exactly reached"
+end
+                leave
+            end
             c = searchArea~character(searchAreaPosC)
-            cTransformed = c~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark, memorize:.false)
+            cTransformed = c~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark, memorize:.false) -- yes, don't memorize, it's just a character
 if debug then do
             call charout , searchAreaPosC
             call charout , "    " searchAreaPosB
@@ -445,61 +470,63 @@ end
             searchAreaTransformedPosB += cTransformed~string~length
             searchAreaPosC += 1
             searchAreaPosB += c~string~length
-            if,
-                  searchAreaTransformedPosC > absposC,
-                | searchAreaTransformedPosB > posB,
+if debug then do
+            call charout , "searchAreaPosC =" searchAreaPosC
+            call charout , "    searchAreaPosB =" searchAreaPosB
+            call charout , "    searchAreaTransformedPosC =" searchAreaTransformedPosC
+            call charout , "    searchAreaTransformedPosB =" searchAreaTransformedPosB
+            say
+end
+
+            if searchAreaTransformedPosC > absposC,
+               |,
+               searchAreaTransformedPosB > posB,
             then do
-                -- case where the end of the matching is inside the untransformed grapheme
+                -- case where the start or end of the matching does not cover all the bytes of the transformed grapheme.
                 -- Ex:
                 --     "ß"~text~caselessPos("s") --> 0, not 1 because 1 would match only the first byte of "ß"-->"ss"
                 --     "sß"~text~caselessPos("ss") --> 2, not 1 because 1 would match only the first byte of "ß"-->"ss"
-                posC = -absPosC -- force to be negative
+                posC = -absPosC -- force to be negative, to indicate that the matching is not aligned.
+                searchAreaTransformedPosC -= cTransformed~length
+                searchAreaTransformedPosB -= cTransformed~string~length
+                searchAreaPosC -= 1
+                searchAreaPosB -= c~string~length
 if debug then do
                 say "force posC negative =" posC
 end
                 leave
             end
-        end
-        offsetC = searchAreaTransformedPosC - searchAreaPosC
-        offsetB = searchAreaTransformedPosB - searchAreaPosB
+        end -- do while
 if debug then do
         say "searchAreaPosC =" searchAreaPosC
         say "searchAreaPosB =" searchAreaPosB
         say "searchAreaTransformedPosC =" searchAreaTransformedPosC
         say "searchAreaTransformedPosB =" searchAreaTransformedPosB
-        say "offsetC =" offsetC
-        say "offsetB =" offsetB
 end
 
+        -- so far, we have relative positions, calculate the global positions
         startB = self~characterIndexB(startC)
-        posB =               startB - 1 +    posB - offsetB
-        posC = sign(posC) * (startC - 1 + absposC - offsetC)
+        posB = startB - 1 + posB
+        posC = sign(posC) * (startC - 1 + searchAreaPosC)
         absposC = abs(posC)
 if debug then do
         say "startC =" startC
         say "startB =" startB
         say "posC in self =" posC
-        say "posB in self =" posB
+        say "posB in transformed =" posB
 end
 
-        /*
-        if posC < 0 then do
-            if aligned then posC = .nil -- byte position not aligned with character ==> no matching
-            else posC = posC"."posB -- negative number such as the integer part is the character index and the decimal part is the byte index
-        end
-        */
         if aligned then do
             if posC < 0 then posC = .nil -- byte position not aligned with character ==> no matching
         end
         else do
             if posC < 0 then posC = "-"absposC"."posB   -- "-"(character index)".'(byte index)
-                        else posC = "+"absposC"."posB   -- " "(character index)".'(byte index)
+                        else posC = "+"absposC"."posB   -- "+"(character index)".'(byte index)
         end
 if debug then do
     say "--- Leave convertPosition ----"
 end
         return posC
-    ----------------------------------------------------------------------------
 
 
 /******************************************************************************/

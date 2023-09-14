@@ -6616,52 +6616,59 @@ Is the current Unicode design impractical?
 
 
 jlf tests
-    "Bundesstraße im Freiland".lc                               -- bundesstraße im freiland
-    "Bundesstraße im Freiland".uc                               -- BUNDESSTRASSE IM FREILAND
-    "Bundesstraße im Freiland".fc                               -- bundesstrasse im freiland
-    "Bundesstraße im Freiland".index("Freiland")                -- 16 (start at 0) (executor: 17)
-    "Bundesstraße im Freiland".index("freiland", :ignorecase)   -- 16
+    "Bundesstraße im Freiland".lc                               # bundesstraße im freiland
+    "Bundesstraße im Freiland".uc                               # BUNDESSTRASSE IM FREILAND
+    "Bundesstraße im Freiland".fc                               # bundesstrasse im freiland
+    "Bundesstraße im Freiland".index("Freiland")                # 16 (start at 0) (executor: 17)
+    "Bundesstraße im Freiland".index("freiland", :ignorecase)   # 16
 
-                                                                                    -- Bundesstraße sss sßs ss
-                                                                                    -- 01234567890123456789012
-                                                                                    --      |    |  ||  ||  |
-    "Bundesstraße sss sßs ss".indices("ss")                                         -- (5 13 21)
-    "Bundesstraße sss sßs ss".indices("ss", :overlap)                               -- (5 13 14 21)
-    "Bundesstraße sss sßs ss".indices("ss", :ignorecase)                            -- (5 10 13 18 21)
-    "Bundesstraße sss sßs ss".indices("ss", :ignorecase, :overlap)                  -- (5 10 13 14 18 21)   not 17?
+                                                                                    # Bundesstraße sss sßs ss
+                                                                                    # 01234567890123456789012
+                                                                                    #      |    |  ||  ||  |
+    "Bundesstraße sss sßs ss".indices("ss")                                         # (5 13 21)
+    "Bundesstraße sss sßs ss".indices("ss", :overlap)                               # (5 13 14 21)
+    "Bundesstraße sss sßs ss".indices("ss", :ignorecase)                            # (5 10 13 18 21)
+    "Bundesstraße sss sßs ss".indices("ss", :ignorecase, :overlap)                  # (5 10 13 14 18 21)   not 17?
 
-    "Bundesstraße sss sßs ss".indices("s", :ignorecase, :overlap)                   -- (5 6 13 14 15 17 19 21 22)
-    "Bundesstraße sss sßs ss".indices("sSs", :ignorecase, :overlap)                 -- (13 17 18)
-    "Bundesstraße sss sßs ss".indices("sSsS", :ignorecase, :overlap)                -- (17)
+    "Bundesstraße sss sßs ss".indices("s", :ignorecase, :overlap)                   # (5 6 13 14 15 17 19 21 22)
+    "Bundesstraße sss sßs ss".indices("sSs", :ignorecase, :overlap)                 # (13 17 18)
+    "Bundesstraße sss sßs ss".indices("sSsS", :ignorecase, :overlap)                # (17)
 
-    "Bündesstraße sss sßs ss".fc                                                    -- bundesstrasse sss ssss ss
-                                                                                    -- 0123456789012345678901234
-                                                                                    --      |    |   ||  |||  |
-    "Bündëssträßë sss sßs ss".fc.indices("ss")                                      -- (5 10 14 18 20 23)
-    "Bündëssträßë sss sßs ss".fc.indices("ss", :overlap)                            -- (5 10 14 15 18 19 20 23)
+    "Bündesstraße sss sßs ss".fc                                                    # bundesstrasse sss ssss ss
+                                                                                    # 0123456789012345678901234
+                                                                                    #      |    |   ||  |||  |
+    "Bündëssträßë sss sßs ss".fc.indices("ss")                                      # (5 10 14 18 20 23)
+    "Bündëssträßë sss sßs ss".fc.indices("ss", :overlap)                            # (5 10 14 15 18 19 20 23)
 
-                                                                                    -- straßssßßssse
-                                                                                    -- 0123456789012
-                                                                                    --     || ||||
-    "straßssßßssse".indices("Ss", :ignorecase)                                      -- (4 7 9)
-    "straßssßßssse".indices("Ss", :ignorecase, :overlap)                            -- (4 5 7 8 9 10)
+                                                                                    # straßssßßssse
+                                                                                    # 0123456789012
+                                                                                    #     || ||||
+    "straßssßßssse".indices("Ss", :ignorecase)                                      # (4 7 9)
+    "straßssßßssse".indices("Ss", :ignorecase, :overlap)                            # (4 5 7 8 9 10)
 
-    "TÊt\c[TAG SPACE]e".chars   -- 4, "t" + "TAG SPACE" is one grapheme
-    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".fc                             -- TÊt󠀠e sss ssss ss t󠀠êTE
-                                                                                    -- 012345678901234567890
-                                                                                    -- ^ ^  ||  |||  |  ^ ^
-    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".indices("ss")                  -- (5 13)
-    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".indices("ss", :ignorecase)     -- (5 10 13)
-    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".fc.indices("ss")               -- (5 9 11 14)      11? why not 10? because no overlap
-    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".fc.indices("ss", :overlap)     -- (5 6 9 10 11 14)
+    "TÊt\c[TAG SPACE]e".chars                                                       # 4, "t" + "TAG SPACE" is one grapheme
+    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".fc                             # TÊt󠀠e sss ssss ss t󠀠êTE
+                                                                                    # 012345678901234567890
+                                                                                    # ^ ^  ||  |||  |  ^ ^
+    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".indices("ss")                  # (5 13)
+    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".indices("ss", :ignorecase)     # (5 10 13)
+    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".fc.indices("ss")               # (5 9 11 14)      11? why not 10? because no overlap
+    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".fc.indices("ss", :overlap)     # (5 6 9 10 11 14)
 
-    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".fc.indices("te")               -- ()
-    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".fc.indices("te", :ignorecase)  -- (19)
-    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".fc.indices("te", :ignoremark)  -- (0 2 17 19)      so TAG SPACE is ignored when :ignoremark
+    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".fc.indices("te")               # ()
+    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".fc.indices("te", :ignorecase)  # (19)
+    "TÊt\c[TAG SPACE]e sss sßs ss t\c[TAG SPACE]êTE".fc.indices("te", :ignoremark)  # (0 2 17 19)      so TAG SPACE is ignored when :ignoremark
 
-    -- Matching inside a grapheme
-    "noël👩‍👨‍👩‍👧🎅".indices("👧🎅")                                         -- ()
-    "noël👩‍👨‍👩‍👧🎅".indices("👨‍👩")                                        -- ()
+    # Matching inside a grapheme
+    "noël👩‍👨‍👩‍👧🎅".indices("👧🎅")                                         # ()
+    "noël👩‍👨‍👩‍👧🎅".indices("👨‍👩")                                        # ()
+
+    # Matching a ligature
+                                                                                    # bâﬄé
+                                                                                    # 012 3
+    "bâﬄé".indices("é")                                                            # (3)
+    "bâﬄé".indices("ffl")                                                          # ()
+    "bâﬄé".indices("ffl", :ignorecase)                                             # (2)
 
 
 https://raku-advent.blog/2022/12/22/day-22-hes-making-a-list-part-1/

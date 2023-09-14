@@ -8,6 +8,136 @@ call loadUnicodeCharacterNames
 
 
 -- ===============================================================================
+-- 2023 Sep 14
+
+/*
+Fix implementation of caselessPos, pos for ligatures.
+The results were not good for some byte indexes when using aligned:.false
+*/
+
+--------------
+-- test case 1
+--------------
+-- pos with ligature "ﬄ" in strict mode (default)
+
+"bâﬄé"~text~c2u=                            -- 'U+0062 U+00E2 U+FB04 U+00E9'
+
+/*
+                                             --  01 | 02   | 03     | 04     (external grapheme indexes)
+                                             --  1  | 2 3  | 4 5 6  | 7 8    (external byte indexes)
+"bâﬄé"~text~c2g=                            -- '62 | C3A2 | EFAC84 | C3A9'
+                                             --  b  | â    | ﬄ     | é
+*/
+
+"bâﬄé"~text~pos("é")=                       -- 4
+"bâﬄé"~text~pos("e")=                       -- 0
+"bâﬄé"~text~pos("e", stripMark:)=           -- 4
+"bâﬄé"~text~pos("f")=                       -- 0 because in strict mode, "ﬄ" remains U+FB04
+"bâﬄé"~text~pos("f", asList:, overlap:, aligned:.false)=  -- a List (0 items)
+
+--------------
+-- test case 2
+--------------
+-- caselessPos with ligature "ﬄ" in strict mode (default)
+-- (apply casefold internally but returns external indexes)
+-- The ligature is decomposed by casefold.
+
+/*
+                                             --  01 | 02   | 03       | 04     (external grapheme indexes)
+                                             --  1  | 2 3  | 4 5 6    | 7 8    (external byte indexes)
+"bâﬄé"~text~c2g=                            -- '62 | C3A2 | EFAC84   | C3A9'
+                                             --  b  | â    | ﬄ       | é
+
+                                             --  01 | 02   | 03       | 04     (external grapheme indexes)
+                                             --  1  | 2 3  | 4  5  6  | 7      (internal byte indexes)
+"bâﬄé"~text~casefold~c2g=                   -- '62 | C3A2 | 66 66 6C | C3A9'
+                                             --  b  | â    | f  f  l  | é
+*/
+
+"bâﬄé"~text~caselessPos("É")=               -- 4
+"bâﬄé"~text~caselessPos("E")=               -- 0
+"bâﬄé"~text~caselessPos("E", stripMark:)=   -- 4
+"bâﬄé"~text~caselessPos("F")=               -- 0 because "F" matches only a subset of "ﬄ"-->"ffl"
+"bâﬄé"~text~caselessPos("FF")=              -- 0 because "FF" matches only a subset of "ﬄ"-->"ffl"
+"bâﬄé"~text~caselessPos("FL")=              -- 0 because "FL" matches only a subset of "ﬄ"-->"ffl"
+"bâﬄé"~text~caselessPos("FFL")=             -- 3 because "FFL" matches all of "ﬄ"-->"ffl"
+"bâﬄé"~text~caselessPos("F", asList:, overlap:, aligned:.false)=
+"bâﬄﬄé"~text~caselessPos("É")=              -- 5
+"bâﬄﬄé"~text~caselessPos("FFL", asList:, overlap:, aligned:.false)=
+"bâﬄﬄé"~text~caselessPos("F", asList:, overlap:, aligned:.false)=
+"bâﬄﬄé"~text~caselessPos("FLFF")=                   -- 0
+"bâﬄﬄé"~text~caselessPos("FLFF", aligned:.false)=   -- [-3.5,-4.9]
+"bâﬄﬄé"~text~caselessPos("FFLFFL")=                 -- 3
+
+--------------
+-- test case 3
+--------------
+-- pos with ligature "ﬄ" in non-strict mode
+-- (in non-strict mode, the normalization is NFKD, but returns external indexes)
+-- The ligature is decomposed by NFKD
+
+/*
+                                             --  01 | 02     | 03       | 04     (external grapheme indexes)
+                                             --  1  | 2 3    | 4 5 6    | 7 8    (external byte indexes)
+"bâﬄé"~text~c2g=                            -- '62 | C3A2   | EFAC84   | C3A9'
+                                             --  b  | â      | ﬄ       | é
+
+                                             --  01 | 02     | 03       | 04     (external grapheme indexes)
+                                             --  1  | 2 3 4  | 5 6 7    | 8 9 0  (internal byte indexes)
+"bâﬄé"~text~NFKD~c2g=                       -- '62 | 61CC82 | 66 66 6C | 65CC81'
+                                             --  b  | a ^    | f  f  l  | e ´
+*/
+
+"bâﬄé"~text~pos("é", strict:.false)=                -- 4
+"bâﬄé"~text~pos("e", strict:.false)=                -- 0
+"bâﬄé"~text~pos("e", strict:.false, stripMark:)=    -- 4
+"bâﬄé"~text~pos("f", strict:.false)=                -- 0 because "f" matches only a subset of "ﬄ"-->"ffl"
+"bâﬄé"~text~pos("ff", strict:.false)=               -- 0 because "ff" matches only a subset of "ﬄ"-->"ffl"
+"bâﬄé"~text~pos("ffl", strict:.false)=              -- 3 because "ffl" matches all of "ﬄ"-->"ffl"
+"bâﬄé"~text~pos("f", strict:.false, asList:, overlap:, aligned:.false)=
+"bâﬄﬄé"~text~pos("é", strict:.false)=              -- 5
+"bâﬄﬄé"~text~pos("ffl", strict:.false, asList:, overlap:, aligned:.false)=
+"bâﬄﬄé"~text~pos("f", strict:.false, asList:, overlap:, aligned:.false)=
+"bâﬄﬄé"~text~pos("flff", strict:.false)=                    -- 0
+"bâﬄﬄé"~text~pos("flff", strict:.false, aligned:.false)=    -- [-3.6,-4.10]
+"bâﬄﬄé"~text~pos("fflffl", strict:.false)=                  -- 3
+
+--------------
+-- test case 4
+--------------
+-- caselessPos with ligature "ﬄ" in non-strict mode
+-- (apply casefold internally but returns external indexes)
+-- (in non-strict mode, the normalization is NFKD, but returns external indexes)
+-- The ligature is decomposed both by casefold and by NFKD.
+
+/*
+                                             --  01 | 02     | 03       | 04     (external grapheme indexes)
+                                             --  1  | 2 3    | 4 5 6    | 7 8    (external byte indexes)
+"bâﬄé"~text~c2g=                            -- '62 | C3A2   | EFAC84   | C3A9'
+                                             --  b  | â      | ﬄ       | é
+
+                                             --  01 | 02     | 03       | 04     (external grapheme indexes)
+                                             --  1  | 2 3 4  | 5 6 7    | 8 9 0  (internal byte indexes)
+"bâﬄé"~text~NFKD~c2g=                       -- '62 | 61CC82 | 66 66 6C | 65CC81'
+                                             --  b  | a ^    | f  f  l  | e ´
+*/
+
+"bâﬄé"~text~caselessPos("É", strict:.false)=               -- 4
+"bâﬄé"~text~caselessPos("E", strict:.false)=               -- 0
+"bâﬄé"~text~caselessPos("E", strict:.false, stripMark:)=   -- 4
+"bâﬄé"~text~caselessPos("F", strict:.false)=               -- 0 because "F" matches only a subset of "ﬄ"-->"ffl"
+"bâﬄé"~text~caselessPos("FF", strict:.false)=              -- 0 because "FF" matches only a subset of "ﬄ"-->"ffl"
+"bâﬄé"~text~caselessPos("FFL", strict:.false)=             -- 3 because "FFL" matches all of "ﬄ"-->"ffl"
+"bâﬄé"~text~caselessPos("F", strict:.false, asList:, overlap:, aligned:.false)=
+"bâﬄﬄé"~text~caselessPos("É", strict:.false)=             -- 5
+"bâﬄﬄé"~text~caselessPos("FFL", strict:.false, asList:, overlap:, aligned:.false)=
+"bâﬄﬄé"~text~caselessPos("F", strict:.false, asList:, overlap:, aligned:.false)=
+"bâﬄﬄé"~text~caselessPos("FLFF", strict:.false)=                    -- 0
+"bâﬄﬄé"~text~caselessPos("FLFF", strict:.false, aligned:.false)=    -- [-3.6,-4.10]
+"bâﬄﬄé"~text~caselessPos("FFLFFL", strict:.false)=                  -- 3
+
+
+-- ===============================================================================
 -- 2023 Sep 11
 
 /*
@@ -26,6 +156,8 @@ Rework the implementation of caselessPos, pos.
 
 /*
 Remember:
+aligned=.false is intended for analysis of matchings and [non-]regression tests.
+Otherwise, I don't see any use.
 When aligned:.false, a returned position has the form +/-posC.posB where posB is
 the position of the matched byte in the transformed haystack, and posC is the
 corresponding grapheme position in the untransformed haystack.
@@ -44,6 +176,18 @@ Additional test cases to cover corner cases for caselessPos, pos.
 --------------
 -- case no overlap versus overlap
 
+/*
+                                --  01   | 02   | 03   | 04   | 05   | 06
+                                --  1 2  | 3 4  | 5 6  | 7 8  | 9 0  | 1 2
+"àààààà"~text~c2g=              -- 'C3A0 | C3A0 | C3A0 | C3A0 | C3A0 | C3A0'
+                                --  à    | à    | à    | à    | à    | à
+
+                                --  01   | 02   | 03   | 04   | 05   | 06
+                                --  1 2  | 3 4  | 5 6  | 7 8  | 9 0  | 1 2
+"àààààà"~text~casefold~c2g=     -- 'C3A0 | C3A0 | C3A0 | C3A0 | C3A0 | C3A0'
+                                --  à    | à    | à    | à    | à    | à
+*/
+
 "àààààà"~text~caselessPos("aa", stripMark:)=                                    -- 1
 "àààààà"~text~caselessPos("aa", stripMark:, asList:)~allItems=                  -- [ 1, 3, 5]
 "àààààà"~text~caselessPos("aa", stripMark:, asList:, overlap:)~allItems=        -- [ 1, 2, 3, 4, 5]
@@ -55,17 +199,53 @@ Additional test cases to cover corner cases for caselessPos, pos.
 --------------
 -- case where the end of the matching is inside the untransformed grapheme
 
+/*
+                            --  01
+                            --  1 2
+"ß"~text~c2g=               -- 'C39F'
+                            --  ß
+
+                            --  01 02
+                            --  1  2
+"ß"~text~casefold~c2g=      -- '73 73'
+                            --  s  s
+*/
+
 "ß"~text~caselessPos("s")=                                  -- 0, not 1 because 1 would match only the first byte of "ß"-->"ss"
 "ß"~text~caselessPos("s", asList:)=                         -- a List (0 items)
 "ß"~text~caselessPos("s", asList:, overlap:)=               -- a List (0 items)
 "ß"~text~caselessPos("s", asList:, aligned:.false)=
 "ß"~text~caselessPos("s", asList:, overlap:, aligned:.false)=
 
+/*
+                            --  01 | 02
+                            --  1  | 2 3
+"sß"~text~c2g=              -- '73 | C39F'
+                            --  s  | ß
+
+                            --  01 | 02 03
+                            --  1  | 2  3
+"sß"~text~casefold~c2g=     -- '73 | 73 73'
+                            --  s  | s  s
+*/
+
 "sß"~text~caselessPos("ss")=                                -- 2, not 1 because 1 would match only the first byte of "ß"-->"ss"
 "sß"~text~caselessPos("ss", asList:)~allItems=              -- [ 2]
 "sß"~text~caselessPos("ss", asList:, overlap:)~allItems=    -- [ 2]
 "sß"~text~caselessPos("ss", asList:, aligned:.false)=
 "sß"~text~caselessPos("ss", asList:, overlap:, aligned:.false)=
+
+/*
+                            --  01 | 02    | 03
+                            --  1  | 2 3   | 4
+"sßs"~text~c2g=             -- '73 | C39F  | 73'
+                            --  s  | ß     | s
+
+                            --  01 | 02 03 | 04
+                            --  1  | 2  3  | 4
+"sßs"~text~casefold~c2g=    -- '73 | 73 73 | 73'
+                            --  s  | s  s  | s
+*/
 
 "sßs"~text~caselessPos("s", 2)=                             -- 3, not 2 because 2 would match only the first byte of "ß"-->"ss"
 "sßs"~text~caselessPos("s", 2, asList:)~allItems=           -- [ 3]
@@ -85,10 +265,18 @@ Additional test cases to cover corner cases for caselessPos, pos.
 -- caselessPos (apply casefold internally but returns external indexes)
 -- search 1 character, no overlap when searching a single character.
 
-                                                        --  01 02 03 04 05 06 07 08 09 10 11   12 13 14 15 16 17 18 19   20 21 22 23
-"Bundesstraße sss sßs ss"~text~c2g=                     -- '42 75 6E 64 65 73 73 74 72 61 C39F 65 20 73 73 73 20 73 C39F 73 20 73 73'
-                                                        --  B  u  n  d  e  s  s  t  r  a  ß    e  _  s  s  s  _  s  ß    s  _  s  s
-                                                        --                 |  |           |          |  |  |     |  |    |     |  |
+/*
+                                                        --  01 | 02 | 03 | 04 | 05 | 06 | 07 | 08 | 09 | 10 | 11    | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19    | 20 | 21 | 22 | 23
+                                                        --  1  | 2  | 3  | 4  | 5  | 6  | 7  | 8  | 9  | 0  | 1 2   | 3  | 4  | 5  | 6  | 7  | 8  | 9  | 0 1   | 2  | 3  | 4  | 5
+"Bundesstraße sss sßs ss"~text~c2g=                     -- '42 | 75 | 6E | 64 | 65 | 73 | 73 | 74 | 72 | 61 | C39F  | 65 | 20 | 73 | 73 | 73 | 20 | 73 | C39F  | 73 | 20 | 73 | 73'
+                                                        --  B  | u  | n  | d  | e  | s  | s  | t  | r  | a  | ß     | e  | _  | s  | s  | s  | _  | s  | ß     | s  | _  | s  | s
+                                                        --                           ^    ^                   ^                 ^    ^    ^         ^    ^       ^         ^    ^
+
+                                                        --  01 | 02 | 03 | 04 | 05 | 06 | 07 | 08 | 09 | 10 | 11    | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19    | 20 | 21 | 22 | 23
+                                                        --  1  | 2  | 3  | 4  | 5  | 6  | 7  | 8  | 9  | 0  | 1  2  | 3  | 4  | 5  | 6  | 7  | 8  | 9  | 0  1  | 2  | 3  | 4  | 5
+"Bundesstraße sss sßs ss"~text~casefold~c2g=            -- '62 | 75 | 6E | 64 | 65 | 73 | 73 | 74 | 72 | 61 | 73 73 | 65 | 20 | 73 | 73 | 73 | 20 | 73 | 73 73 | 73 | 20 | 73 | 73'
+                                                        --  B  | u  | n  | d  | e  | s  | s  | t  | r  | a  | ß     | e  | _  | s  | s  | s  | _  | s  | ß     | s  | _  | s  | s
+*/
 
 "Bundesstraße sss sßs ss"~text~caselessPos("s")=        -- 6
 "Bundesstraße sss sßs ss"~text~caselessPos("s", 7)=     -- 7
@@ -111,10 +299,12 @@ Additional test cases to cover corner cases for caselessPos, pos.
 -- caselessPos (apply casefold internally but returns external indexes)
 -- search 3 characters
 
+/*
                                                         --  01 02 03 04 05 06 07 08 09 10 11   12 13 14 15 16 17 18 19   20 21 22 23
 "Bundesstraße sss sßs ss"~text~c2g=                     -- '42 75 6E 64 65 73 73 74 72 61 C39F 65 20 73 73 73 20 73 C39F 73 20 73 73'
                                                         --  B  u  n  d  e  s  s  t  r  a  ß    e  _  s  s  s  _  s  ß    s  _  s  s
                                                         --                                           |           |  |
+*/
 
                                                                                 --                  Raku                Chrome
 "Bundesstraße sss sßs ss"~text~caselessPos("sSs")=                              -- 14               13                  y
@@ -132,10 +322,12 @@ Additional test cases to cover corner cases for caselessPos, pos.
 -- caselessPos (apply casefold internally but returns external indexes)
 -- search 4 characters
 
+/*
                                                         --  01 02 03 04 05 06 07 08 09 10 11   12 13 14 15 16 17 18 19   20 21 22 23
 "Bundesstraße sss sßs ss"~text~c2g=                     -- '42 75 6E 64 65 73 73 74 72 61 C39F 65 20 73 73 73 20 73 C39F 73 20 73 73'
                                                         --  B  u  n  d  e  s  s  t  r  a  ß    e  _  s  s  s  _  s  ß    s  _  s  s
                                                         --                                                       |
+*/
 
 "Bundesstraße sss sßs ss"~text~caselessPos("sSsS")=                             -- 18 (good, same result as Raku and Chrome)
 "Bundesstraße sss sßs ss"~text~caselessPos("sSsS", asList:)~allItems=           -- [ 18]
@@ -149,10 +341,12 @@ Additional test cases to cover corner cases for caselessPos, pos.
 -- caselessPos (apply casefold internally but returns external indexes)
 -- search 2 characters in a long sequence
 
+/*
                                                         --  01 02 03 04 05   06 07 08   09   10 11 12 13
 "straßssßßssse"~text~c2g=                               -- '73 74 72 61 C39F 73 73 C39F C39F 73 73 73 65'
                                                         --  s  t  r  a  ß    s  s  ß    ß    s  s  s  e
                                                         --              |    |  |  |    |    |  |
+*/
 
                                                         --                  Raku                Chome
 "straßssßßssse"~text~caselessPos("Ss")=                 -- 5                4                   y
@@ -172,11 +366,13 @@ Additional test cases to cover corner cases for caselessPos, pos.
 --------------
 -- pos, caselessPos
 
+/*
                                                     --  01 02 03 04 05   06 07 08 09 10   11 12                                                 13
                                                     --  0                         1                      2                   3                    4
                                                     --  1  2  3  4  5 6  7  8  9  0  1 2  3  4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8  9 0 1 2
 "straße noël👩‍👨‍👩‍👧🎅"~text~c2g=             -- '73 74 72 61 C39F 65 20 6E 6F C3AB 6C F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7 F09F8E85'
                                                     --                                                                                 |
+*/
 
 "👧🎅"~text~c2g=                                   -- 'F09F91A7 F09F8E85'
 "👧🎅"~text~casefold~c2g=                          -- 'F09F91A7 F09F8E85'
@@ -208,11 +404,13 @@ Additional test cases to cover corner cases for caselessPos, pos.
 --------------
 -- casefold
 
+/*
                                                     --  01 02 03 04 05 06 07 08 09 10 11   12 13                                                 14
                                                     --  0                          1                      2                   3                    4
                                                     --  1  2  3  4  5  6  7  8  9  0  1 2  3  4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8  9 0 1 2
 "straße noël👩‍👨‍👩‍👧🎅"~text~casefold~c2g=    -- '73 74 72 61 73 73 65 20 6E 6F C3AB 6C F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7 F09F8E85'
                                                     --                                                                                  |
+*/
 
 -- here we get 13 because "ß" is replaced by "ss" before calling pos
 -- the byte position .35 is unchanged because "ß" is 2 bytes, as is "ss".
@@ -250,10 +448,12 @@ Additional test cases to cover corner cases for caselessPos, pos.
 -- pos with ignorable (no internal transformation)
 -- TAG SPACE is ignorable
 
+/*
                                                                                 --  01 02   03         04 05 06 07 08 09 10 11   12 13 14 15 16 17         18   19 20
 "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~c2g=             -- '54 C38A 74F3A080A0 65 20 73 73 73 20 73 C39F 73 20 73 73 20 74F3A080A0 C3AA 54 45'
                                                                                 --  T  Ê    t TAG SPAC e  _  s  s  s  _  s  ß    s  _  s  s  _  t TAG SPAC ê    T  E
                                                                                 --                           |  |                      |
+*/
 
 "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~pos("ss", asList:)~allItems=             -- [ 6, 14]
 "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~pos("ss", asList:, overlap:)~allItems=   -- [ 6, 7, 14]
@@ -266,10 +466,12 @@ Additional test cases to cover corner cases for caselessPos, pos.
 -- caselessPos with ignorable (apply casefold internally but returns external indexes)
 -- TAG SPACE is ignorable
 
+/*
                                                                                 --  01 02   03         04 05 06 07 08 09 10 11   12 13 14 15 16 17         18   19 20
 "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~c2g=             -- '54 C38A 74F3A080A0 65 20 73 73 73 20 73 C39F 73 20 73 73 20 74F3A080A0 C3AA 54 45'
                                                                                 --  T  Ê    t TAG SPAC e  _  s  s  s  _  s  ß    s  _  s  s  _  t TAG SPAC ê    T  E
                                                                                 --                           |  |           |          |
+*/
 
 "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("ss", asList:)~allItems=             -- [ 6, 11, 14]
 "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("ss", asList:, overlap:)~allItems=   -- [ 6, 7, 11, 14]
@@ -308,10 +510,12 @@ Additional test cases to cover corner cases for caselessPos, pos.
 -- caselessPos with ignorable (apply casefold + stripIgnorable internally but returns external indexes)
 -- TAG SPACE is ignorable
 
+/*
                                                                                 --  01 02   03         04 05 06 07 08 09 10 11   12 13 14 15 16 17         18   19 20
 "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~c2g=             -- '54 C38A 74F3A080A0 65 20 73 73 73 20 73 C39F 73 20 73 73 20 74F3A080A0 C3AA 54 45'
                                                                                 --  T  Ê    t TAG SPAC e  _  s  s  s  _  s  ß    s  _  s  s  _  t TAG SPAC ê    T  E
                                                                                 --  |       |                                                   |               |
+*/
 
 "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", stripMark:, stripIgnorable:, asList:)~allItems=            -- [ 1, 3, 17, 19]
 "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", stripMark:, stripIgnorable:, asList:, overlap:)~allItems=  -- [ 1, 3, 17, 19]
@@ -335,11 +539,14 @@ internally. Now the results are identical to Raku's (with a few exceptions).
 -- test case 1
 --------------
 -- pos (no internal transformation)
+
+/*
                                                         --  01 02 03 04 05 06 07 08 09 10 11   12 13 14 15 16 17 18 19   20 21 22 23
 "Bundesstraße sss sßs ss"~text~c2g=                     -- '42 75 6E 64 65 73 73 74 72 61 C39F 65 20 73 73 73 20 73 C39F 73 20 73 73'
                                                         --  B  u  n  d  e  s  s  t  r  a  ß    e  _  s  s  s  _  s  ß    s  _  s  s
                                                         --                 |                         |                         |        no overlap
                                                         --                 |                         |  |                      |        with overlap
+*/
 
 "Bundesstraße sss sßs ss"~text~pos("ss")=               -- 6
 "Bundesstraße sss sßs ss"~text~pos("ss", 7)=            -- 14
@@ -351,11 +558,14 @@ internally. Now the results are identical to Raku's (with a few exceptions).
 -- test case 2
 --------------
 -- caselessPos (apply casefold internally but returns external indexes)
+
+/*
                                                         --  01 02 03 04 05 06 07 08 09 10 11   12 13 14 15 16 17 18 19   20 21 22 23
 "Bundesstraße sss sßs ss"~text~c2g=                     -- '42 75 6E 64 65 73 73 74 72 61 C39F 65 20 73 73 73 20 73 C39F 73 20 73 73'
                                                         --  B  u  n  d  e  s  s  t  r  a  ß    e  _  s  s  s  _  s  ß    s  _  s  s
                                                         --                 |              |          |           |             |        no overlap
                                                         --                 |              |          |  |        |  |          |        with overlap
+*/
 
 "Bundesstraße sss sßs ss"~text~caselessPos("ss")=       -- 6
 "Bundesstraße sss sßs ss"~text~caselessPos("ss", 7)=    -- 11
@@ -371,11 +581,14 @@ internally. Now the results are identical to Raku's (with a few exceptions).
 -- casefold~pos (the returned indexes are different from caselessPos because the string is transformed before calling ~pos)
 -- Use "ü" instead of "u" to have a non-ASCII string.
 -- Without "ü", the 'pos' method would forward to String.
+
+/*
                                                         --  01 02   03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
 "Bündesstraße sss sßs ss"~text~casefold~c2g=            -- '62 C3BC 6E 64 65 73 73 74 72 61 73 73 65 20 73 73 73 20 73 73 73 73 20 73 73'
                                                         --  b  ü    n  d  e  s  s  t  r  a  s  s  e  _  s  s  s  _  s  s  s  s  _  s  s
                                                         --                   |              |           |           |     |        |    no overlap
                                                         --                   |              |           |  |        |  |  |        |    with overlap
+*/
 
 "Bündesstraße sss sßs ss"~text~casefold~pos("ss")=      -- 6
 "Bündesstraße sss sßs ss"~text~casefold~pos("ss", 7)=   -- 11
@@ -400,10 +613,13 @@ internally. Now the results are identical to Raku's (with a few exceptions).
 -- test case 5
 --------------
 -- pos with ignorable (no internal transformation)
+
+/*
                                                                                 --  01 02   03         04 05 06 07 08 09 10 11   12 13 14 15 16 17         18   19 20
 "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~c2g=             -- '54 C38A 74F3A080A0 65 20 73 73 73 20 73 C39F 73 20 73 73 20 74F3A080A0 C3AA 54 45'
                                                                                 --  T  Ê    t TAG SPAC e  _  s  s  s  _  s  ß    s  _  s  s  _  t TAG SPAC ê    T  E
                                                                                 --                           |  |                      |
+*/
 
 "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~pos("ss")=       -- 6
 "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~pos("ss", 7)=    -- 7
@@ -416,10 +632,13 @@ internally. Now the results are identical to Raku's (with a few exceptions).
 -- test case 6
 --------------
 -- caselessPos with ignorable (apply casefold internally but returns external indexes)
+
+/*
                                                                                 --  01 02   03         04 05 06 07 08 09 10 11   12 13 14 15 16 17         18   19 20
 "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~c2g=             -- '54 C38A 74F3A080A0 65 20 73 73 73 20 73 C39F 73 20 73 73 20 74F3A080A0 C3AA 54 45'
                                                                                 --  T  Ê    t TAG SPAC e  _  s  s  s  _  s  ß    s  _  s  s  _  t TAG SPAC ê    T  E
                                                                                 --                           |  |        |  |          |
+*/
 
 "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("ss")=       -- 6
 "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("ss", 7)=    -- 7 (overlap)
@@ -448,10 +667,13 @@ internally. Now the results are identical to Raku's (with a few exceptions).
 -- test case 9
 --------------
 -- caselessPos with ignorable (apply casefold + stripIgnorable internally but returns external indexes)
+
+/*
                                                                                 --  01 02   03         04 05 06 07 08 09 10 11   12 13 14 15 16 17         18   19 20
 "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~c2g=             -- '54 C38A 74F3A080A0 65 20 73 73 73 20 73 C39F 73 20 73 73 20 74F3A080A0 C3AA 54 45'
                                                                                 --  T  Ê    t TAG SPAC e  _  s  s  s  _  s  ß    s  _  s  s  _  t TAG SPAC ê    T  E
                                                                                 --  |       |                                                   |               |
+*/
 
 "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", stripMark:, stripIgnorable:)=      -- 1
 "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~caselessPos("te", 2, stripMark:, stripIgnorable:)=   -- 3
@@ -499,6 +721,10 @@ Add a named argument 'aligned' to caselessPos, pos:
   character position.
   The first number is the start of the matching.
   The second number is the end of the matching + 1.
+
+aligned=.false is intended for analysis of matchings and [non-]regression tests.
+Otherwise, I don't see any use.
+
 Example:
 */
     "noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅")=                           -- 0
@@ -637,12 +863,15 @@ This test case is a little bit strange because:
 
 -- Implementation of caselessPos, pos
 -- ----------------------------------
+
+/*
     --       P  è       r  e  _  N  o  ë       l
     --       1  2       3  4  5  6  7  8       9
     -- NFC  '50 C3A8    72 65 20 4E 6F C3AB    6C'
     --       1  2 3     4  5  6  7  8  9 10    11
     -- NFD  '50 65 CC80 72 65 20 4E 6F 65 CC88 6C'
     --       1  2  3 4  5  6  7  8  9  19 1112 13
+*/
                                                             --      self needle
     "Père Noël Père Noël"~text~pos("l")=                    -- 9    NFC, NFC
     "Père Noël Père Noël"     ~pos("l")=                    -- 11   NFC, NFC
