@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 14 Aug 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S8f79Q6000020c34d0
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 6 Sep 2023
+</span><span style="font-weight:bold;color:green;">Input queue name: Sb81eQ600001ce30c0
 </span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.0.0 
@@ -265,7 +265,8 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string2~c2x=        
 '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~caselessEquals(string2)=                        </span><span style="font-weight:bold;color:blue;">-- false (strict mode)</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:blue;">-- The non-strict mode applies these transformations:
+
+<span style="font-weight:bold;color:blue;">-- The non-strict mode applies these transformations:
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~nfkd(casefold:, lump:, stripIgnorable:)~c2x=    </span><span style="font-weight:bold;color:blue;">-- '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'</span>
 '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string2~nfkd(casefold:, lump:, stripIgnorable:)~c2x=    </span><span style="font-weight:bold;color:blue;">-- '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'</span>
@@ -323,13 +324,26 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël P�
  7
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessPos(&quot;🎅&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- 6</span>
  6
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessPos(&quot;👧🎅&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.</span>
-<span style="font-weight:bold;color:red;">UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
-</span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessPos(&quot;👧🎅&quot;, aligned:.false)=   </span><span style="font-weight:bold;color:blue;">-- 5.27 (the integer part is the character index and the  decimal part is the byte index)</span>
- 5.27
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessPos(&quot;👩‍👨‍👩‍👧🎅&quot;, aligned:.false)=   </span><span style="font-weight:bold;color:blue;">-- 5 (no decimal part when the byte index is aligned)</span>
- 5
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessPos(&quot;👧🎅&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ 0
+
+<span style="font-weight:bold;color:blue;">-- caselessPos in not-aligned mode
+</span><span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">aligned=.false is intended for analysis of matchings and [non-]regression tests.
+</span><span style="font-weight:bold;color:blue;">Otherwise, I don't see any use.
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">If aligned=.false then return a couple (array) of numbers +/-posC.posB where
+</span><span style="font-weight:bold;color:blue;">posB is the position of the matched byte in the transformed haystack, and posC
+</span><span style="font-weight:bold;color:blue;">is the corresponding grapheme position in the untransformed haystack.
+</span><span style="font-weight:bold;color:blue;">A number is negative if the byte position is not aligned with the corresponding
+</span><span style="font-weight:bold;color:blue;">character position.
+</span><span style="font-weight:bold;color:blue;">The first number is the start of the matching.
+</span><span style="font-weight:bold;color:blue;">The second number is the end of the matching + 1.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessPos(&quot;👧🎅&quot;, aligned:.false)=   </span><span style="font-weight:bold;color:blue;">-- [-5.27,+7.35]</span>
+[-5.27,+7.35]
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessPos(&quot;👩‍👨‍👩‍👧🎅&quot;, aligned:.false)=   </span><span style="font-weight:bold;color:blue;">-- [+5.6,+7.35]</span>
+[+5.6,+7.35]
 
 
 <span style="font-weight:bold;color:blue;">-- center
@@ -668,11 +682,12 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël P�
  7
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~pos(&quot;🎅&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- 6</span>
  6
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~pos(&quot;👧🎅&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.</span>
-<span style="font-weight:bold;color:red;">UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
-</span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~pos(&quot;👧🎅&quot;, aligned:.false)=   </span><span style="font-weight:bold;color:blue;">-- 5.27</span>
- 5.27
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~pos(&quot;👧🎅&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~pos(&quot;👧🎅&quot;, aligned:.false)=   </span><span style="font-weight:bold;color:blue;">-- [-5.27,+7.35]</span>
+[-5.27,+7.35]
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~pos(&quot;👩‍👨‍👩‍👧🎅&quot;, aligned:.false)=   </span><span style="font-weight:bold;color:blue;">-- [+5.6,+7.35]</span>
+[+5.6,+7.35]
 
 
 <span style="font-weight:bold;color:blue;">-- reverse (correct)

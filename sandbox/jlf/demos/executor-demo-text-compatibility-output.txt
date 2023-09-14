@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 14 Aug 2023
-Input queue name: S8f79Q6000020c34d0
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 6 Sep 2023
+Input queue name: Sb81eQ600001ce30c0
 
 ooRexx[sh]> call loadUnicodeCharacterNames
 Load the Unicode character names 15.0.0 
@@ -255,7 +255,8 @@ ooRexx[sh]> string2~c2x=                                            -- '4C 65 E1
 '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
 ooRexx[sh]> string1~caselessEquals(string2)=                        -- false (strict mode)
  0
-ooRexx[sh]> -- The non-strict mode applies these transformations:
+
+-- The non-strict mode applies these transformations:
 ooRexx[sh]> string1~nfkd(casefold:, lump:, stripIgnorable:)~c2x=    -- '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
 '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
 ooRexx[sh]> string2~nfkd(casefold:, lump:, stripIgnorable:)~c2x=    -- '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
@@ -313,13 +314,26 @@ ooRexx[sh]> "Père Noël Père Noël"~text~caselessPos("OE", stripMark:)=       
  7
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessPos("🎅")=                     -- 6
  6
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👧🎅")=                   -- UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
-UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
-Error code= 23.900
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👧🎅", aligned:.false)=   -- 5.27 (the integer part is the character index and the  decimal part is the byte index)
- 5.27
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👩‍👨‍👩‍👧🎅", aligned:.false)=   -- 5 (no decimal part when the byte index is aligned)
- 5
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👧🎅")=                   -- 0
+ 0
+
+-- caselessPos in not-aligned mode
+/*
+aligned=.false is intended for analysis of matchings and [non-]regression tests.
+Otherwise, I don't see any use.
+
+If aligned=.false then return a couple (array) of numbers +/-posC.posB where
+posB is the position of the matched byte in the transformed haystack, and posC
+is the corresponding grapheme position in the untransformed haystack.
+A number is negative if the byte position is not aligned with the corresponding
+character position.
+The first number is the start of the matching.
+The second number is the end of the matching + 1.
+*/
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👧🎅", aligned:.false)=   -- [-5.27,+7.35]
+[-5.27,+7.35]
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessPos("👩‍👨‍👩‍👧🎅", aligned:.false)=   -- [+5.6,+7.35]
+[+5.6,+7.35]
 
 
 -- center
@@ -658,11 +672,12 @@ ooRexx[sh]> "Père Noël Père Noël"~text~pos("oe", stripMark:)=       -- 7
  7
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~pos("🎅")=                     -- 6
  6
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅")=                   -- UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
-UTF-8 not-ASCII 'noël👩‍👨‍👩‍👧🎅' The byte position 27 is not aligned with the character position 5.
-Error code= 23.900
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅", aligned:.false)=   -- 5.27
- 5.27
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅")=                   -- 0
+ 0
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅", aligned:.false)=   -- [-5.27,+7.35]
+[-5.27,+7.35]
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~pos("👩‍👨‍👩‍👧🎅", aligned:.false)=   -- [+5.6,+7.35]
+[+5.6,+7.35]
 
 
 -- reverse (correct)

@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 14 Aug 2023
-Input queue name: S8f37Q6000020c34d0
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 6 Sep 2023
+Input queue name: Sba27Q600001cf9450
 
 --------------------
 -- Unicode libraries
@@ -63,7 +63,7 @@ ooRexx[sh]> .unicode~characters=
 Unicode character names defined by interval are not loaded by default.
 The following method gives informations about these intervals.
 */
-ooRexx[sh]> .unicode~informations=
+ooRexx[sh]> .Unicode~informations=
 a Directory (12 items)
 'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=16 notExpanded:16 intervals, 105071 characters)
 'characters'                         : (an UnicodeCharacterSupplier count=44180 size=918000)

@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 8 Feb 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S36c1Q6000008e00d0
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 6 Sep 2023
+</span><span style="font-weight:bold;color:green;">Input queue name: Sba04Q600001ce30c0
 </span>
 <span style="font-weight:bold;color:blue;">--------------------
 </span><span style="font-weight:bold;color:blue;">-- Array programming
@@ -172,14 +172,14 @@ an Array (shape [2,3], 6 items)
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">If there is only one argument, and this argument has the method ~supplier then each item returned by the argument's supplier is an item.
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">a(2,3)~of(.environment)=</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">a(2,3)~of(.object~methods~allIndexes~sort)=</span>
 an Array (shape [2,3], 6 items)
-[ 1, 1] : '[0A]'
-[ 1, 2] : (The Comparable class)
-[ 1, 3] : (java.lang.Class@44e81672)
-[ 2, 1] : (The CP1252_Encoding class)
-[ 2, 2] : (The InvertingComparator class)
-[ 2, 3] :  0
+[ 1, 1] : ''
+[ 1, 2] : ' '
+[ 1, 3] : '&lt;&gt;'
+[ 2, 1] : '='
+[ 2, 2] : '=='
+[ 2, 3] : '&gt;&lt;'
 
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">If there is only one argument, and this argument is a doer, then the doer is called for each cell to initialize.

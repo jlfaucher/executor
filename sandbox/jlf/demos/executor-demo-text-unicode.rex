@@ -36,8 +36,13 @@ Unicode character names defined by interval are not loaded by default.
 The following method gives informations about these intervals.
 */
 sleep no prompt
+goto unicode_informations_for_regression_tests when .ooRexxShell~testRegression
+.Unicode~informations=
+goto unicode_informations_end
+unicode_informations_for_regression_tests:
 -- Remove dataDirectory because the value is different between Windows and Macos/Linux
 .Unicode~informations~~remove("dataDirectory")=
+unicode_informations_end:
 sleep no prompt
 
 -- Select the characters whose category is Cc (Control)
