@@ -112,7 +112,7 @@ codepoint_t padArgument(
     {
         /* argument not good, so raise an    */
         /*error                              */
-        reportException(Error_Incorrect_method_pad, argument);
+        reportException(Error_Incorrect_method_pad, parameter); // better to display parameter instead of argument
     }
     /* yes, return the character.        */
     return parameter->getChar(0);
