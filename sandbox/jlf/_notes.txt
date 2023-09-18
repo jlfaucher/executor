@@ -1017,6 +1017,10 @@ Z/OS port of Regina REXX
 Encoded strings - queries
 ================================================================================
 
+-- List all the git commits such as their message contains "encod" or "unicode"
+git log -i --grep=encod --grep=unicode --pretty=medium > log-encod.txt
+
+
 -- List the classes implemented by the package text.cls.
 -- All these classes are mixin classes.
 ?c = (text.cls)
@@ -1645,3 +1649,13 @@ ICU4X
 Don't know how to avoid this warning:
 ...icu4x/target/aarch64-apple-darwin/release/libicu_capi_cdylib.dylib) was built for newer macOS version (12.0) than being linked (11.0)
 https://stackoverflow.com/questions/43216273/object-file-was-built-for-newer-osx-version-than-being-linked
+
+
+================================================================================
+regex.cls
+================================================================================
+
+p = .Pattern~compile("(.)*foo")
+p~matches("xfooxxxxxxfooXXXX")=
+Invalid position argument specified; found "0".
+
