@@ -22,7 +22,7 @@ loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
 REXX-ooRexx_4.3.0(MT)_64-bit 6.04 6 Sep 2023
-Input queue name: Sb81eQ600001ce30c0
+Input queue name: S11725Q600001cd4a90
 
 ooRexx[sh]> call loadUnicodeCharacterNames
 Load the Unicode character names 15.0.0 
@@ -220,11 +220,11 @@ ooRexx[sh]> "hello"~text~caselessEndsWith("Ô", stripMark:)=     -- true
  1
 "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("🎅")=                -- true
  1
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("👧🎅")=              -- true (yes... not required to be aligned with a grapheme)
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("👧🎅")=              -- true (questionable... not required to be aligned with a grapheme)
  1
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("‍👧🎅")=             -- true (yes... not required to be aligned with a grapheme)
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("‍👧🎅")=             -- true (questionable... not required to be aligned with a grapheme)
  1
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("👩‍👧🎅")=           -- true (yes... not required to be aligned with a grapheme)
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("👩‍👧🎅")=           -- true (questionable... not required to be aligned with a grapheme)
  1
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("ël👩‍👨‍👩‍👧🎅")=   -- true
  1
@@ -253,7 +253,7 @@ ooRexx[sh]> string1~c2x=                                            -- '4C 45 E3
 '4C 45 E38080 50 C388 E2808B 52 45 E28090 4E 4F C38B 4C'
 ooRexx[sh]> string2~c2x=                                            -- '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
 '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
-ooRexx[sh]> string1~caselessEquals(string2)=                        -- false (strict mode)
+ooRexx[sh]> string1~caselessEquals(string2)=                        -- false (strict mode by default)
  0
 
 -- The non-strict mode applies these transformations:
@@ -464,11 +464,11 @@ ooRexx[sh]> "hello"~text~endsWith("ô", stripMark:)=     -- true
  1
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~endsWith("🎅")=                -- true
  1
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~endsWith("👧🎅")=              -- true (yes... not required to be aligned with a grapheme)
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~endsWith("👧🎅")=              -- true (questionable... not required to be aligned with a grapheme)
  1
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~endsWith("‍👧🎅")=             -- true (yes... not required to be aligned with a grapheme)
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~endsWith("‍👧🎅")=             -- true (questionable... not required to be aligned with a grapheme)
  1
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~endsWith("👩‍👧🎅")=           -- true (yes... not required to be aligned with a grapheme)
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~endsWith("👩‍👧🎅")=           -- true (questionable... not required to be aligned with a grapheme)
  1
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~endsWith("ël👩‍👨‍👩‍👧🎅")=   -- true
  1
@@ -503,7 +503,7 @@ ooRexx[sh]> string1~c2x=                                -- '4C 65 E38080 50 C3A8
 '4C 65 E38080 50 C3A8 E2808B 72 65 E28090 4E 6F C3AB 6C'
 ooRexx[sh]> string2~c2x=                                -- '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
 '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
-ooRexx[sh]> string1~equals(string2)=                    -- false (strict mode)
+ooRexx[sh]> string1~equals(string2)=                    -- false (strict mode by default)
  0
 ooRexx[sh]> -- The non-strict mode applies these transformations:
 ooRexx[sh]> string1~nfkd(lump:, stripIgnorable:)~c2x=   -- '4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'
@@ -742,8 +742,8 @@ ooRexx[sh]> "noel"~substr(3, 3, "▷")=; result~description=        -- self is a
 Incorrect pad or character argument specified; found "▷"
 Error code= 93.922
 ooRexx[sh]> "noel"~substr(3, 3, "▷"~text)=; result~description=   -- self is a String: error because the pad character is not compatible with String
-UTF-8 not-ASCII '▷' cannot be converted to a String instance.
-Error code= 23.900
+Incorrect pad or character argument specified; found "▷"
+Error code= 93.922
 ooRexx[sh]> "noel"~text~substr(3, 3, "▷")=; result~description=   -- no error because self is a RexxText and the pad character is one character when converted to the default encoding
 T'el▷'
 'UTF-8 not-ASCII (3 characters, 3 codepoints, 5 bytes, 0 error)'
@@ -840,15 +840,75 @@ A way to test the compatibility of RexxText with String is to pass instances of
 RexxText to the regular expression engine regex.cls, and see what happens...
 */
 
-ooRexx[sh]> p = .Pattern~compile("a.c"~text)
-ooRexx[sh]> p~matches("abc"~text)=
+ooRexx[sh]> pB = .Pattern~compile("a.c")
+ooRexx[sh]> pT = .Pattern~compile("a.c"~text)
+ooRexx[sh]> pB~matches("abc")=                          -- 1
  1
-ooRexx[sh]> p~matches("aôc"~text)=
+ooRexx[sh]> pT~matches("abc"~text)=                     -- 1
+ 1
+ooRexx[sh]> pB~matches("aôc")=                          -- 0 (KO)
+ 0
+ooRexx[sh]> pT~matches("aôc"~text)=                     -- 1
+ 1
+ooRexx[sh]> pB~matches("a🎅c")=                         -- 0 (KO)
+ 0
+ooRexx[sh]> pT~matches("a🎅c"~text)=                    -- 1
  1
 
-ooRexx[sh]> p = .Pattern~compile("à.c"~text)
-UTF-8 not-ASCII 'à' cannot be converted to a String instance.
-Error code= 23.900
+ooRexx[sh]> pB = .Pattern~compile("🤶...🎅")
+ooRexx[sh]> pT = .Pattern~compile("🤶...🎅"~text)
+ooRexx[sh]> pB~matches("🤶123🎅")=                      -- 1
+ 1
+ooRexx[sh]> pT~matches("🤶123🎅"~text)=                 -- 1
+ 1
+ooRexx[sh]> pB~matches("🤶🐕2🐈🎅")=                    -- 0 (KO)
+ 0
+ooRexx[sh]> pT~matches("🤶🐕2🐈🎅"~text)=               -- 1
+ 1
+ooRexx[sh]> pB~matches("🤶🐕👩‍👨‍👩‍👧🐈🎅")=          -- 0 (KO)
+ 0
+ooRexx[sh]> pT~matches("🤶🐕👩‍👨‍👩‍👧🐈🎅"~text)=     -- 1
+ 1
+
+-- "🤶" or "🎅"
+ooRexx[sh]> pB = .Pattern~compile("🤶|🎅")
+ooRexx[sh]> pT = .Pattern~compile("🤶|🎅"~text)
+ooRexx[sh]> pB~startsWith("🤶🎅c")=                             -- 1
+ 1
+ooRexx[sh]> pT~startsWith("🤶🎅c"~text)=                        -- 1
+ 1
+ooRexx[sh]> pB~startsWith("🎅🤶c")=                             -- 1
+ 1
+ooRexx[sh]> pT~startsWith("🎅🤶c"~text)=                        -- 1
+ 1
+ooRexx[sh]> r = pB~find("xxx🤶🎅cxxx")
+ooRexx[sh]> r~matched=; r~start=; r~end=; r~text=; r~length=
+ 1
+ 4
+ 8
+'🤶'
+ 4
+ooRexx[sh]> r = pT~find("xxx🤶🎅cxxx"~text)
+ooRexx[sh]> r~matched=; r~start=; r~end=; r~text=; r~length=
+ 1
+ 4
+ 5
+T'🤶'
+ 1
+ooRexx[sh]> r = pB~find("xxx🎅🤶cxxx")
+ooRexx[sh]> r~matched=; r~start=; r~end=; r~text=; r~length=
+ 1
+ 4
+ 8
+'🎅'
+ 4
+ooRexx[sh]> r = pT~find("xxx🎅🤶cxxx"~text)
+ooRexx[sh]> r~matched=; r~start=; r~end=; r~text=; r~length=
+ 1
+ 4
+ 5
+T'🎅'
+ 1
 
 
 -----------------------------------------

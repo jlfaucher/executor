@@ -32,7 +32,7 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 6 Sep 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: Sb81eQ600001ce30c0
+</span><span style="font-weight:bold;color:green;">Input queue name: S11725Q600001cd4a90
 </span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.0.0 
@@ -230,11 +230,11 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~te
  1
 <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessEndsWith(&quot;🎅&quot;)=                </span><span style="font-weight:bold;color:blue;">-- true</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessEndsWith(&quot;👧🎅&quot;)=              </span><span style="font-weight:bold;color:blue;">-- true (yes... not required to be aligned with a grapheme)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessEndsWith(&quot;👧🎅&quot;)=              </span><span style="font-weight:bold;color:blue;">-- true (questionable... not required to be aligned with a grapheme)</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessEndsWith(&quot;‍👧🎅&quot;)=             </span><span style="font-weight:bold;color:blue;">-- true (yes... not required to be aligned with a grapheme)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessEndsWith(&quot;‍👧🎅&quot;)=             </span><span style="font-weight:bold;color:blue;">-- true (questionable... not required to be aligned with a grapheme)</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessEndsWith(&quot;👩‍👧🎅&quot;)=           </span><span style="font-weight:bold;color:blue;">-- true (yes... not required to be aligned with a grapheme)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessEndsWith(&quot;👩‍👧🎅&quot;)=           </span><span style="font-weight:bold;color:blue;">-- true (questionable... not required to be aligned with a grapheme)</span>
  1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessEndsWith(&quot;ël👩‍👨‍👩‍👧🎅&quot;)=   </span><span style="font-weight:bold;color:blue;">-- true</span>
  1
@@ -263,7 +263,7 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~c2x=        
 '4C 45 E38080 50 C388 E2808B 52 45 E28090 4E 4F C38B 4C'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string2~c2x=                                            </span><span style="font-weight:bold;color:blue;">-- '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'</span>
 '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~caselessEquals(string2)=                        </span><span style="font-weight:bold;color:blue;">-- false (strict mode)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~caselessEquals(string2)=                        </span><span style="font-weight:bold;color:blue;">-- false (strict mode by default)</span>
  0
 
 <span style="font-weight:bold;color:blue;">-- The non-strict mode applies these transformations:
@@ -474,11 +474,11 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~te
  1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~endsWith(&quot;🎅&quot;)=                </span><span style="font-weight:bold;color:blue;">-- true</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~endsWith(&quot;👧🎅&quot;)=              </span><span style="font-weight:bold;color:blue;">-- true (yes... not required to be aligned with a grapheme)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~endsWith(&quot;👧🎅&quot;)=              </span><span style="font-weight:bold;color:blue;">-- true (questionable... not required to be aligned with a grapheme)</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~endsWith(&quot;‍👧🎅&quot;)=             </span><span style="font-weight:bold;color:blue;">-- true (yes... not required to be aligned with a grapheme)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~endsWith(&quot;‍👧🎅&quot;)=             </span><span style="font-weight:bold;color:blue;">-- true (questionable... not required to be aligned with a grapheme)</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~endsWith(&quot;👩‍👧🎅&quot;)=           </span><span style="font-weight:bold;color:blue;">-- true (yes... not required to be aligned with a grapheme)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~endsWith(&quot;👩‍👧🎅&quot;)=           </span><span style="font-weight:bold;color:blue;">-- true (questionable... not required to be aligned with a grapheme)</span>
  1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~endsWith(&quot;ël👩‍👨‍👩‍👧🎅&quot;)=   </span><span style="font-weight:bold;color:blue;">-- true</span>
  1
@@ -513,7 +513,7 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~c2x=        
 '4C 65 E38080 50 C3A8 E2808B 72 65 E28090 4E 6F C3AB 6C'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string2~c2x=                                </span><span style="font-weight:bold;color:blue;">-- '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'</span>
 '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~equals(string2)=                    </span><span style="font-weight:bold;color:blue;">-- false (strict mode)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~equals(string2)=                    </span><span style="font-weight:bold;color:blue;">-- false (strict mode by default)</span>
  0
 ooRexx[sh]&gt; <span style="font-weight:bold;color:blue;">-- The non-strict mode applies these transformations:
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~nfkd(lump:, stripIgnorable:)~c2x=   </span><span style="font-weight:bold;color:blue;">-- '4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'</span>
@@ -752,8 +752,8 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~sub
 <span style="font-weight:bold;color:red;">Incorrect pad or character argument specified; found &quot;▷&quot;
 </span><span style="font-weight:bold;color:red;">Error code= 93.922
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~substr(3, 3, &quot;▷&quot;~text)=; result~description=   </span><span style="font-weight:bold;color:blue;">-- self is a String: error because the pad character is not compatible with String</span>
-<span style="font-weight:bold;color:red;">UTF-8 not-ASCII '▷' cannot be converted to a String instance.
-</span><span style="font-weight:bold;color:red;">Error code= 23.900
+<span style="font-weight:bold;color:red;">Incorrect pad or character argument specified; found &quot;▷&quot;
+</span><span style="font-weight:bold;color:red;">Error code= 93.922
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~text~substr(3, 3, &quot;▷&quot;)=; result~description=   </span><span style="font-weight:bold;color:blue;">-- no error because self is a RexxText and the pad character is one character when converted to the default encoding</span>
 T'el▷'
 'UTF-8 not-ASCII (3 characters, 3 codepoints, 5 bytes, 0 error)'
@@ -850,16 +850,76 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">g~()=       </span><
 </span><span style="font-weight:bold;color:blue;">RexxText to the regular expression engine regex.cls, and see what happens...
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">p = .Pattern~compile(&quot;a.c&quot;~text)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">p~matches(&quot;abc&quot;~text)=</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB = .Pattern~compile(&quot;a.c&quot;)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT = .Pattern~compile(&quot;a.c&quot;~text)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;abc&quot;)=                          </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">p~matches(&quot;aôc&quot;~text)=</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;abc&quot;~text)=                     </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;aôc&quot;)=                          </span><span style="font-weight:bold;color:blue;">-- 0 (KO)</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;aôc&quot;~text)=                     </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;a🎅c&quot;)=                         </span><span style="font-weight:bold;color:blue;">-- 0 (KO)</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;a🎅c&quot;~text)=                    </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
 
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">p = .Pattern~compile(&quot;à.c&quot;~text)</span>
-<span style="font-weight:bold;color:red;">UTF-8 not-ASCII 'à' cannot be converted to a String instance.
-</span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB = .Pattern~compile(&quot;🤶...🎅&quot;)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT = .Pattern~compile(&quot;🤶...🎅&quot;~text)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;🤶123🎅&quot;)=                      </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;🤶123🎅&quot;~text)=                 </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;🤶🐕2🐈🎅&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- 0 (KO)</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;🤶🐕2🐈🎅&quot;~text)=               </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;🤶🐕👩‍👨‍👩‍👧🐈🎅&quot;)=          </span><span style="font-weight:bold;color:blue;">-- 0 (KO)</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;🤶🐕👩‍👨‍👩‍👧🐈🎅&quot;~text)=     </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+
+<span style="font-weight:bold;color:blue;">-- &quot;🤶&quot; or &quot;🎅&quot;
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB = .Pattern~compile(&quot;🤶|🎅&quot;)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT = .Pattern~compile(&quot;🤶|🎅&quot;~text)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~startsWith(&quot;🤶🎅c&quot;)=                             </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT~startsWith(&quot;🤶🎅c&quot;~text)=                        </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~startsWith(&quot;🎅🤶c&quot;)=                             </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT~startsWith(&quot;🎅🤶c&quot;~text)=                        </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r = pB~find(&quot;xxx🤶🎅cxxx&quot;)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r~text=; r~length=</span>
+ 1
+ 4
+ 8
+'🤶'
+ 4
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r = pT~find(&quot;xxx🤶🎅cxxx&quot;~text)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r~text=; r~length=</span>
+ 1
+ 4
+ 5
+T'🤶'
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r = pB~find(&quot;xxx🎅🤶cxxx&quot;)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r~text=; r~length=</span>
+ 1
+ 4
+ 8
+'🎅'
+ 4
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r = pT~find(&quot;xxx🎅🤶cxxx&quot;~text)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r~text=; r~length=</span>
+ 1
+ 4
+ 5
+T'🎅'
+ 1
+
 
 <span style="font-weight:bold;color:blue;">-----------------------------------------
 </span><span style="font-weight:bold;color:blue;">-- Text encoding - Compatibility with BIF
