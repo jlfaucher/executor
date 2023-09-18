@@ -8,6 +8,165 @@ call loadUnicodeCharacterNames
 
 
 -- ===============================================================================
+-- 2023 Sep 16
+
+/*
+Relax the constraint "self~isCompatibleWithByteString" when converting a RexxText
+to a String.
+That allows to go further in the tests of regular expression.
+*/
+
+-- bug in regex.cls
+p = .Pattern~compile("(.)*foo")
+p~matches("xfooxxxxxxfooXXXX")=         -- Invalid position argument specified; found "0".
+
+
+-- False success in text mode
+-- "à" is 2 bytes 'C3A0', "🎅" is 4 bytes 'F09F8E85'
+-- When compiling a String then each of the bytes of "à" or "🎅" become candidate for matching
+-- When compiling a RexxText then only the sequence of all the bytes of "à" or "🎅" should match... But that's not the case.
+pB = .Pattern~compile("[àb🎅]")
+pT = .Pattern~compile("[àb🎅]"~text)
+pB~startsWith('àXXXX')=                             -- 1
+pT~startsWith('àXXXX'~text)=                        -- 1 but matched only C3
+pB~startsWith('bXXXX')=                             -- 1
+pT~startsWith('bXXXX'~text)=                        -- 1
+pB~startsWith('🎅XXXX')=                            -- 1
+pT~startsWith('🎅XXXX'~text)=                       -- 1
+pB~startsWith('F0'x || 'XXXX')=                     -- 1
+pT~startsWith('F0'x || 'XXXX'~text)=                -- Invalid UTF-8 string (raised by utf8proc)
+pT~startsWith('F0'x || 'XXXX')=                     -- 1 (not good)
+pB~startsWith('9F'x || 'XXXX')=                     -- 1
+pT~startsWith('9F'x || 'XXXX'~text)=                -- Invalid UTF-8 string (raised by utf8proc)
+pT~startsWith('9F'x || 'XXXX')=                     -- 1 (not good)
+
+
+-- greedy pattern
+pB = .Pattern~compile("(.)*fô🎅")
+pT = .Pattern~compile("(.)*fô🎅"~text)
+pB~matches("xfooxxxxxxfô🎅")=                        -- 1
+pT~matches("xfooxxxxxxfô🎅"~text)=                   -- 1
+pB~startsWith("xfooxxxxxxfô🎅")=                     -- 1
+pT~startsWith("xfooxxxxxxfô🎅"~text)=                -- 1
+
+
+-- zero or one occurrances of "a"
+pB = .Pattern~compile("a?")
+pT = .Pattern~compile("a?"~text)
+pB~matches("")=                                     -- 1
+pT~matches(""~text)=                                -- 1
+pB~matches("a")=                                    -- 1
+pT~matches("a"~text)=                               -- 1
+pB~matches("aa")=                                   -- 0
+pT~matches("aa"~text)=                              -- 0
+
+
+-- zero or one occurrances of "🎅"
+pB = .Pattern~compile("🎅?")
+pT = .Pattern~compile("🎅?"~text)
+pB~matches("")=                                     -- 0 (KO)
+pT~matches(""~text)=                                -- 1
+pB~matches("🎅")=                                   -- 1
+pT~matches("🎅"~text)=                              -- 1
+pB~matches("🎅🎅")=                                 -- 0
+pT~matches("🎅🎅"~text)=                            -- 0
+
+
+-- exactly 3 occurrences of "a"
+pB = .Pattern~compile("a{3}")
+pT = .Pattern~compile("a{3}"~text)
+pB~matches("aa")=                                   -- 0
+pT~matches("aa"~text)=                              -- 0
+pB~matches("aaa")=                                  -- 1
+pT~matches("aaa"~text)=                             -- 1
+pB~matches("aaaa")=                                 -- 0
+pT~matches("aaaa"~text)=                            -- 0
+
+
+-- exactly 3 occurrences of "🎅"
+pB = .Pattern~compile("🎅{3}")
+pT = .Pattern~compile("🎅{3}"~text)
+pB~matches("🎅🎅")=                                 -- 0
+pT~matches("🎅🎅"~text)=                            -- 0
+pB~matches("🎅🎅🎅")=                               -- 0    KO
+pT~matches("🎅🎅🎅"~text)=                          -- 1
+pB~matches("🎅🎅🎅🎅")=                             -- 0
+pT~matches("🎅🎅🎅🎅"~text)=                        -- 0
+
+
+-- repetitive "b" in the middle
+pB = .Pattern~compile("ab{2}c")
+pT = .Pattern~compile("ab{2}c"~text)
+pB~matches("ac")=                                   -- 0
+pT~matches("ac"~text)=                              -- 0
+pB~matches("abc")=                                  -- 0
+pT~matches("abc"~text)=                             -- 0
+pB~matches("abbc")=                                 -- 1
+pT~matches("abbc"~text)=                            -- 1
+pB~matches("abbbc")=                                -- 0
+pT~matches("abbbc"~text)=                           -- 0
+
+
+-- repetitive "🎅" in the middle
+pB = .Pattern~compile("a🎅{2}c")
+pT = .Pattern~compile("a🎅{2}c"~text)
+pB~matches("ac")=                                   -- 0
+pT~matches("ac"~text)=                              -- 0
+pB~matches("a🎅c")=                                 -- 0
+pT~matches("a🎅c"~text)=                            -- 0
+pB~matches("a🎅🎅c")=                               -- 0 (KO)
+pT~matches("a🎅🎅c"~text)=                          -- 1
+pB~matches("a🎅🎅🎅c")=                             -- 0
+pT~matches("a🎅🎅🎅c"~text)=                        -- 0
+
+
+-- "a" or "b"
+pB = .Pattern~compile("a|b")
+pT = .Pattern~compile("a|b"~text)
+pB~matches("a")=                                    -- 1
+pT~matches("a"~text)=                               -- 1
+pB~matches("b")=                                    -- 1
+pT~matches("b"~text)=                               -- 1
+pB~matches("c")=                                    -- 0
+pT~matches("c"~text)=                               -- 0
+pB~startsWith("abc")=                               -- 1
+pT~startsWith("abc"~text)=                          -- 1
+pB~startsWith("bac")=                               -- 1
+pT~startsWith("bac"~text)=                          -- 1
+r = pB~find("xxxabcxxx")
+r~matched=; r~start=; r~end=; r~text=; r~length=
+r = pT~find("xxxabcxxx"~text)
+r~matched=; r~start=; r~end=; r~text=; r~length=
+r = pB~find("xxxbacxxx")
+r~matched=; r~start=; r~end=; r~text=; r~length=
+r = pT~find("xxxbacxxx"~text)
+r~matched=; r~start=; r~end=; r~text=; r~length=
+
+
+-- "🤶" or "🎅"
+pB = .Pattern~compile("🤶|🎅")
+pT = .Pattern~compile("🤶|🎅"~text)
+pB~matches("🤶")=                                   -- 1
+pT~matches("🤶"~text)=                              -- 1
+pB~matches("🎅")=                                   -- 1
+pT~matches("🎅"~text)=                              -- 1
+pB~matches("c")=                                    -- 0
+pT~matches("c"~text)=                               -- 0
+pB~startsWith("🤶🎅c")=                             -- 1
+pT~startsWith("🤶🎅c"~text)=                        -- 1
+pB~startsWith("🎅🤶c")=                             -- 1
+pT~startsWith("🎅🤶c"~text)=                        -- 1
+r = pB~find("xxx🤶🎅cxxx")
+r~matched=; r~start=; r~end=; r~text=; r~length=
+r = pT~find("xxx🤶🎅cxxx"~text)
+r~matched=; r~start=; r~end=; r~text=; r~length=
+r = pB~find("xxx🎅🤶cxxx")
+r~matched=; r~start=; r~end=; r~text=; r~length=
+r = pT~find("xxx🎅🤶cxxx"~text)
+r~matched=; r~start=; r~end=; r~text=; r~length=
+
+
+-- ===============================================================================
 -- 2023 Sep 14
 
 /*

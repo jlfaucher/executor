@@ -447,6 +447,8 @@ base class...
 ::method makestring
     expose indexer
     use strict arg -- none
+    return indexer~string -- for experimentation, don't check if compatible
+
     if self~isCompatibleWithByteString then return indexer~string
     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
 

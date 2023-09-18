@@ -184,11 +184,11 @@ sleep no prompt
 sleep
 "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("🎅")=                -- true
 sleep
-"noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("👧🎅")=              -- true (yes... not required to be aligned with a grapheme)
+"noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("👧🎅")=              -- true (questionable... not required to be aligned with a grapheme)
 sleep
-"noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("‍👧🎅")=             -- true (yes... not required to be aligned with a grapheme)
+"noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("‍👧🎅")=             -- true (questionable... not required to be aligned with a grapheme)
 sleep
-"noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("👩‍👧🎅")=           -- true (yes... not required to be aligned with a grapheme)
+"noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("👩‍👧🎅")=           -- true (questionable... not required to be aligned with a grapheme)
 sleep
 "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("ël👩‍👨‍👩‍👧🎅")=   -- true
 sleep
@@ -215,7 +215,7 @@ sleep
 string1~c2x=                                            -- '4C 45 E38080 50 C388 E2808B 52 45 E28090 4E 4F C38B 4C'
 string2~c2x=                                            -- '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
 sleep
-string1~caselessEquals(string2)=                        -- false (strict mode)
+string1~caselessEquals(string2)=                        -- false (strict mode by default)
 sleep no prompt
 
 -- The non-strict mode applies these transformations:
@@ -404,11 +404,11 @@ sleep
 sleep
 "noël👩‍👨‍👩‍👧🎅"~text~endsWith("🎅")=                -- true
 sleep
-"noël👩‍👨‍👩‍👧🎅"~text~endsWith("👧🎅")=              -- true (yes... not required to be aligned with a grapheme)
+"noël👩‍👨‍👩‍👧🎅"~text~endsWith("👧🎅")=              -- true (questionable... not required to be aligned with a grapheme)
 sleep
-"noël👩‍👨‍👩‍👧🎅"~text~endsWith("‍👧🎅")=             -- true (yes... not required to be aligned with a grapheme)
+"noël👩‍👨‍👩‍👧🎅"~text~endsWith("‍👧🎅")=             -- true (questionable... not required to be aligned with a grapheme)
 sleep
-"noël👩‍👨‍👩‍👧🎅"~text~endsWith("👩‍👧🎅")=           -- true (yes... not required to be aligned with a grapheme)
+"noël👩‍👨‍👩‍👧🎅"~text~endsWith("👩‍👧🎅")=           -- true (questionable... not required to be aligned with a grapheme)
 sleep
 "noël👩‍👨‍👩‍👧🎅"~text~endsWith("ël👩‍👨‍👩‍👧🎅")=   -- true
 sleep
@@ -442,7 +442,7 @@ sleep
 string1~c2x=                                -- '4C 65 E38080 50 C3A8 E2808B 72 65 E28090 4E 6F C3AB 6C'
 string2~c2x=                                -- '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
 sleep
-string1~equals(string2)=                    -- false (strict mode)
+string1~equals(string2)=                    -- false (strict mode by default)
 sleep
 -- The non-strict mode applies these transformations:
 string1~nfkd(lump:, stripIgnorable:)~c2x=   -- '4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'
@@ -725,14 +725,40 @@ RexxText to the regular expression engine regex.cls, and see what happens...
 */
 sleep no prompt
 
-p = .Pattern~compile("a.c"~text)
-p~matches("abc"~text)=
-sleep
-p~matches("aôc"~text)=
+pB = .Pattern~compile("a.c")
+pT = .Pattern~compile("a.c"~text)
+pB~matches("abc")=                          -- 1
+pT~matches("abc"~text)=                     -- 1
+pB~matches("aôc")=                          -- 0 (KO)
+pT~matches("aôc"~text)=                     -- 1
+pB~matches("a🎅c")=                         -- 0 (KO)
+pT~matches("a🎅c"~text)=                    -- 1
 sleep no prompt
 
-p = .Pattern~compile("à.c"~text)
-sleep no prompt
+pB = .Pattern~compile("🤶...🎅")
+pT = .Pattern~compile("🤶...🎅"~text)
+pB~matches("🤶123🎅")=                      -- 1
+pT~matches("🤶123🎅"~text)=                 -- 1
+pB~matches("🤶🐕2🐈🎅")=                    -- 0 (KO)
+pT~matches("🤶🐕2🐈🎅"~text)=               -- 1
+pB~matches("🤶🐕👩‍👨‍👩‍👧🐈🎅")=          -- 0 (KO)
+pT~matches("🤶🐕👩‍👨‍👩‍👧🐈🎅"~text)=     -- 1
+
+-- "🤶" or "🎅"
+pB = .Pattern~compile("🤶|🎅")
+pT = .Pattern~compile("🤶|🎅"~text)
+pB~startsWith("🤶🎅c")=                             -- 1
+pT~startsWith("🤶🎅c"~text)=                        -- 1
+pB~startsWith("🎅🤶c")=                             -- 1
+pT~startsWith("🎅🤶c"~text)=                        -- 1
+r = pB~find("xxx🤶🎅cxxx")
+r~matched=; r~start=; r~end=; r~text=; r~length=
+r = pT~find("xxx🤶🎅cxxx"~text)
+r~matched=; r~start=; r~end=; r~text=; r~length=
+r = pB~find("xxx🎅🤶cxxx")
+r~matched=; r~start=; r~end=; r~text=; r~length=
+r = pT~find("xxx🎅🤶cxxx"~text)
+r~matched=; r~start=; r~end=; r~text=; r~length=
 
 
 -----------------------------------------
