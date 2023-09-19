@@ -1378,7 +1378,7 @@ g~()=       -- [no result]
 -- 2023 March 20
 
 -- Rework implementation of caselessMatch to support correctly
-"Bundesstraße im Freiland"~text~caselessMatch(14, "im")     -- .true
+"Bundesstraße im Freiland"~text~caselessMatch(14, "im")=    -- .true
 
 
 -- ===============================================================================
