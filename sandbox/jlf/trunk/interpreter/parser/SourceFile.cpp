@@ -5429,55 +5429,6 @@ RexxObject *RexxSource::subExpression(
     //return _argArray;                     /* return the argument array         */
 }
 
-void checkNamedArguments(RexxQueue *names)
-{
-    // No named parameter name must start with the name of another named parameter.
-    // Exception: a stem name can be used as prefix in several compound names.
-
-    char buffer[256];
-    const char *errorMessage = "Named argument: '%s:' and '%s:' denote the same argument";
-
-    // The queue is from right to left: The first index is the last name in the term
-    // Ex: with f(n1:1, n2:2, n3:3), the first item is n3, the next is n2
-    // For error reporting, I prefer from left to right: start with last index.
-    RexxObject *index1 = names->lastRexx();
-    while (index1 != TheNilObject)
-    {
-        RexxObject *current1 = names->at(index1);
-        index1 = names->previous(index1);
-        if (current1 == TheNilObject) continue;
-        RexxString *current1string = (RexxString *)current1;
-        const char *current1cstring = current1string->getStringData();
-
-        // A stem name is ignored
-        if (isStem(current1cstring)) continue;
-
-        RexxObject *index2 = index1;
-        while (index2 != TheNilObject)
-        {
-            RexxObject *current2 = names->at(index2);
-            index2 = names->previous(index2);
-            if (current2 == TheNilObject) continue;
-            RexxString *current2string = (RexxString *)current2;
-            const char *current2cstring = current2string->getStringData();
-
-            // A stem name is ignored
-            if (isStem(current2cstring)) continue;
-
-            if (1 == current1string->pos(current2string, 0))
-            {
-                Utilities::snprintf(buffer, sizeof buffer - 1, errorMessage, current2cstring, current1cstring);
-                reportException(Error_Translation_user_defined, buffer);
-            }
-            if (1 == current2string->pos(current1string, 0))
-            {
-                Utilities::snprintf(buffer, sizeof buffer - 1, errorMessage, current1cstring, current2cstring);
-                reportException(Error_Translation_user_defined, buffer);
-            }
-        }
-    }
-}
-
 void RexxSource::argList(
   RexxToken   *_first,                  /* token starting arglist            */
   int          terminators,             /* expression termination context    */
@@ -5586,12 +5537,6 @@ void RexxSource::argList(
                 if (token->classId != TOKEN_SYMBOL) syntaxError(Error_Translation_user_defined,
                                                                 new_string("Named argument: expected symbol followed by colon, or colon followed by symbol"));
                 this->needVariable(token);
-                // Next check is good when the same name is passed more than once,
-                // but not working when the same named argument is passed with different abbreviated names
-                // Ex: assuming use named arg myNamedArgument(1)
-                //     myfunc(m:0, myNamed:0, mynamedArgument:0)
-                // No error raised here because the names are different.
-                // See checkNamedArguments for a more general check.
                 if (localNamedArglist->hasItem(token->value) == TheTrueObject) syntaxError(Error_Translation_user_defined,
                                                                                        token->value->concatToCstring("Named argument: '")->concatWithCstring(":' is passed more than once"));
                 localNamedArglist->push(token->value); // Bypass the bug described above by using a queue local to this method.
@@ -5612,12 +5557,6 @@ void RexxSource::argList(
                 if (token->classId != TOKEN_SYMBOL) syntaxError(Error_Translation_user_defined,
                                                                 new_string("Named argument: expected symbol followed by colon, or colon followed by symbol"));
                 this->needVariable(token);
-                // Next check is good when the same name is passed more than once,
-                // but not working when the same named argument is passed with different abbreviated names
-                // Ex: assuming use named arg myNamedArgument(1)
-                //     myfunc(m:0, myNamed:0, mynamedArgument:0)
-                // No error raised here because the names are different.
-                // See checkNamedArguments for a more general check.
                 if (localNamedArglist->hasItem(token->value) == TheTrueObject) syntaxError(Error_Translation_user_defined,
                                                                                        token->value->concatToCstring("Named argument: '")->concatWithCstring(":' is passed more than once"));
                 localNamedArglist->push(token->value); // Bypass the bug described above by using a queue local to this method.
@@ -5689,8 +5628,6 @@ void RexxSource::argList(
 
     positionalArgumentCount = total;
     namedArgumentCount = namedTotal;
-
-    checkNamedArguments(localNamedArglist);
 
     //return realcount;                    /* return the argument count         */
     //return total;

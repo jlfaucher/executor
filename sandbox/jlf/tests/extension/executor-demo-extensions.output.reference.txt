@@ -593,11 +593,11 @@ PM P...    'YM' : 'RoutineDoer' (doers.cls)
  > 0018                      v_index = v~tostring
  > 0019                      r = table[v_index]
  > 0020                      if .nil <> r then return r
- > 0021                      r = x~(x)~doWith(v, n:.context~namedArgs)
+ > 0021                      r = x~(x)~doWith(v, namedArguments: .context~namedArgs)
  > 0022                      table[v_index] = r
  > 0023                      return r
  > 0024                 }
- > 0025         return f ~ doWith(.array~of(lambda_v), n:YnamedArgs)
+ > 0025         return f ~ doWith(.array~of(lambda_v), namedArguments: YnamedArgs)
  > 0026     }
  > 0027     return lambda_x ~ (lambda_x)
 [Info] 28 lines displayed

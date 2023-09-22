@@ -51,7 +51,6 @@ class UseVariable
 public:
     RexxVariableBase *variable;        // the variable accessor
     RexxObject *defaultValue;          // default value for optional variables
-    RexxInteger *minimumLength;        // minimum length for abbreviation of named arg name
 };
 
 
@@ -61,7 +60,7 @@ public:
     inline void  operator delete(void *) { }
     inline void  operator delete(void *, void *) { }
 
-    RexxInstructionUseStrict(size_t, bool, bool, bool, bool, RexxQueue *, RexxQueue *, RexxQueue *);
+    RexxInstructionUseStrict(size_t, bool, bool, bool, bool, RexxQueue *, RexxQueue *);
     inline RexxInstructionUseStrict(RESTORETYPE restoreType) { ; };
     void live(size_t);
     void liveGeneral(int reason);

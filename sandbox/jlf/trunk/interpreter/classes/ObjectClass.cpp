@@ -1760,7 +1760,7 @@ RexxObject *RexxObject::sendWith(RexxObject *message, RexxArray *arguments,
 
     // use strict named arg namedArguments=.NIL
     NamedArguments expectedNamedArguments(1); // At most, one named argument
-    expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", 1, TheNilObject); // At least 1 characters, default value = .NIL
+    expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", TheNilObject); // At least 1 characters, default value = .NIL
     expectedNamedArguments.match(named_arglist, named_argcount, /*strict*/ true, /*extraAllowed*/ false);
 
     RexxDirectory *named_arguments_value = (RexxDirectory*)expectedNamedArguments[0].value;
@@ -1867,7 +1867,7 @@ RexxMessage *RexxObject::startWith(RexxObject *message, RexxArray *arguments,
 
     // use strict named arg namedArguments=.NIL
     NamedArguments expectedNamedArguments(1); // At most, one named argument
-    expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", 1, TheNilObject); // At least 1 characters, default value = .NIL
+    expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", TheNilObject); // At least 1 characters, default value = .NIL
     expectedNamedArguments.match(named_arglist, named_argcount, /*strict*/ true, /*extraAllowed*/ false);
     RexxDirectory *named_arguments_value = (RexxDirectory*)expectedNamedArguments[0].value;
 
@@ -2161,7 +2161,7 @@ RexxObject  *RexxObject::run(
 
         // use strict named arg namedArguments=.NIL
         NamedArguments expectedNamedArguments(1); // At most, one named argument
-        expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", 1, TheNilObject); // At least 1 character, default value = .NIL
+        expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", TheNilObject); // At least 1 character, default value = .NIL
         expectedNamedArguments.match(arguments + argumentsCount, named_argumentsCount, /*strict*/ true, /*extraAllowed*/ false);
 
         argdirectory = (RexxDirectory *)expectedNamedArguments[0].value;
@@ -2751,7 +2751,7 @@ RexxObject *RexxObject::unknownRexx(
 {
     // use strict named arg namedArguments=.NIL
     NamedArguments expectedNamedArguments(1); // At most, one named argument
-    expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", 1, TheNilObject); // At least 1 characters, default value = .NIL
+    expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", TheNilObject); // At least 1 characters, default value = .NIL
     expectedNamedArguments.match(named_arglist, named_argcount, /*strict*/ true, /*extraAllowed*/ false);
     RexxDirectory *namedArguments = (RexxDirectory*)expectedNamedArguments[0].value;
 

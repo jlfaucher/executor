@@ -671,7 +671,7 @@ an IdentityTable (3 items)
 '6162636465666768696A6B6C6D6E6F707172737475767778797A'
 
 
-   "The quick brown fox jumps over the lazy dog"~mapW("length", sep:" ")~dump
+   "The quick brown fox jumps over the lazy dog"~mapW("length", separator: " ")~dump
 '3 5 5 3 5 4 3 4 3'
 
 
@@ -693,7 +693,7 @@ M'abcdefghijklmnopqrstuvwxyz'
    buffer = .MutableBuffer~new("The quick brown fox jumps over the lazy dog")
    buffer~dump -- mutable buffer before mapping
 M'The quick brown fox jumps over the lazy dog'
-   buffer~mapW("length", sep:" ")~dump
+   buffer~mapW("length", separator: " ")~dump
 M'3 5 5 3 5 4 3 4 3'
    buffer~dump -- mutable buffer after mapping
 M'The quick brown fox jumps over the lazy dog'
@@ -713,7 +713,7 @@ M'6162636465666768696A6B6C6D6E6F707172737475767778797A'
    buffer = .MutableBuffer~new("The quick brown fox jumps over the lazy dog")
    buffer~dump -- mutable buffer before mapping
 M'The quick brown fox jumps over the lazy dog'
-   buffer~mapWR("length", sep:" ")~dump
+   buffer~mapWR("length", separator: " ")~dump
 M'3 5 5 3 5 4 3 4 3'
    buffer~dump -- mutable buffer after mapping
 M'3 5 5 3 5 4 3 4 3'
@@ -1051,12 +1051,12 @@ an Array (shape [4], 4 items)
 'bcdfghjklmnpqrstvwxz'
 
 
-   "one two three"~mapW(sep:" "){if item~length == 3 then item}~dump
+   "one two three"~mapW(separator: " "){if item~length == 3 then item}~dump
 'one two'
 
 
 -- Reminder : index passed as 2nd argument
-   "one two three"~mapW(sep:" "){index":"item}~dump
+   "one two three"~mapW(separator: " "){index":"item}~dump
 '1:one 2:two 3:three'
 
 
@@ -1075,9 +1075,9 @@ M'bcdfghjklmnpqrstvwxz'
 
    translation = .Directory~of("quick", "slow", "lazy", "nervous", "brown", "yellow", "dog", "cat")
    translation~setMethod("UNKNOWN", "return arg(1)")
-   "The quick brown fox jumps over the lazy dog"~mapW(sep:" "){expose translation ; translation[arg(1)]}~dump
+   "The quick brown fox jumps over the lazy dog"~mapW(separator: " "){expose translation ; translation[arg(1)]}~dump
 'The slow yellow fox jumps over the nervous cat'
-   .MutableBuffer~new("The quick brown fox jumps over the lazy dog")~mapW(sep:" "){expose translation ; translation[arg(1)]}~dump
+   .MutableBuffer~new("The quick brown fox jumps over the lazy dog")~mapW(separator: " "){expose translation ; translation[arg(1)]}~dump
 M'The slow yellow fox jumps over the nervous cat'
 
 

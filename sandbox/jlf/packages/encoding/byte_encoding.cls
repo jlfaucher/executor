@@ -132,7 +132,7 @@ Depends on
     -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
     -- otherwise return the encoded codepoint as a RexxText
     use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     self~checkCodepoint(codepoint, codepointIndexB, previousCodepoint, previousCodepointIndexB, checkOnlyRange: .true) -- check only range, the other errors will be detected during analysis
     if .nil <> buffer then return buffer~~append(codepoint~d2c)
                       else return .RexxText~new(codepoint~d2c, self)
@@ -190,7 +190,7 @@ Depends on
     -- if the buffer is passed as argument then append the character to the buffer, and return the buffer
     -- otherwise return the character as a RexxText
     use strict arg indexC
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     startB = abs(self~characterIndexB(indexC))
     if .nil <> buffer then return buffer~~append(self~string~subchar(startB))
                       else return .RexxText~new(self~string~subchar(startB), self~encoding)
@@ -246,7 +246,7 @@ newline = translate(oldline,oubytes,inbytes)
 
 ::method convertToUnicode private
     use strict arg targetEncoding
-    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil, replacementCharacter(7)=.nil
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil, replacementCharacter=.nil
 
     targetEncoding = .Encoding~factory(targetEncoding, self~string)
     if \targetEncoding~isUnicode then signal target_encoding_not_unicode
@@ -298,7 +298,7 @@ newline = translate(oldline,oubytes,inbytes)
 
 ::method convertToByte private
     use strict arg targetEncoding
-    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil, replacementCharacter(7)=.nil
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil, replacementCharacter=.nil
 
     targetEncoding = .Encoding~factory(targetEncoding, self~string)
     if \targetEncoding~isByte then signal target_encoding_not_byte
@@ -318,12 +318,12 @@ newline = translate(oldline,oubytes,inbytes)
 
 
 ::method UTF8
-    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode(.UTF8_Encoding, :strict, :memorize, :buffer)
 
 
 ::method WTF8
-    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode(.WTF8_Encoding, :strict, :memorize, :buffer)
 
 
@@ -332,12 +332,12 @@ newline = translate(oldline,oubytes,inbytes)
 
 
 ::method UTF16BE
-    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode(.UTF16BE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method UTF16LE
-    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode(.UTF16LE_Encoding, :strict, :memorize, :buffer)
 
 
@@ -346,12 +346,12 @@ newline = translate(oldline,oubytes,inbytes)
 
 
 ::method WTF16BE
-    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode(.WTF16BE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method WTF16LE
-    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode(.WTF16LE_Encoding, :strict, :memorize, :buffer)
 
 
@@ -360,12 +360,12 @@ newline = translate(oldline,oubytes,inbytes)
 
 
 ::method UTF32BE
-    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode(.UTF32BE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method UTF32LE
-    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode(.UTF32LE_Encoding, :strict, :memorize, :buffer)
 
 
@@ -374,20 +374,20 @@ newline = translate(oldline,oubytes,inbytes)
 
 
 ::method UnicodeN
-    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode("UnicodeN", :strict, :memorize, :buffer)
 
 
 ::method Unicode8
-    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode(.Unicode8_Encoding, :strict, :memorize, :buffer)
 
 
 ::method Unicode16
-    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode(.Unicode16_Encoding, :strict, :memorize, :buffer)
 
 
 ::method Unicode32
-    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode(.Unicode32_Encoding, :strict, :memorize, :buffer)

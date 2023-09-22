@@ -15,7 +15,7 @@
 ::method append class
     -- Positional arguments : zero to N text or buffer or string.
     use arg ...
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new
     buffer~encoding = self~asEncodingFor(buffer) -- raise an error if not compatible
@@ -134,7 +134,7 @@
 
 ::method lower_upper_title private
     use strict arg action, startC, length
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
 
     if \datatype(startC, "w") then signal invalid_position
     if startC <= 0 then signal invalid_position
@@ -584,7 +584,7 @@ end
 
 ::method append
     use strict arg text -- text or buffer or string
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     text = text~requestTextOrBufferOrString
     if .nil == text then signal must_have_a_text_or_buffer_or_string_value
     encoding = .Encoding~forConcatenation(self~string, text) -- raise an error if not compatible
@@ -631,7 +631,7 @@ end
 
 ::method center
     use strict arg length, pad=(self~encoding~spaceCharacter)
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
 
     if \datatype(length, "w") then signal invalid_length
     if length < 0 then signal invalid_length
@@ -705,7 +705,7 @@ end
 
 ::method lower
     use strict arg startC=1, length=(max(0, self~length - startC + 1))
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     return self~lower_upper_title("l", startC, length, :buffer)
 
 
@@ -729,7 +729,7 @@ end
 
 ::method reverse
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new
     do indexC = self~characterCount to 1 by -1
@@ -741,7 +741,7 @@ end
 
 ::method right
     use strict arg length, pad=(self~encoding~spaceCharacter)
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
 
     if \datatype(length, "w") then signal invalid_length
     if length < 0 then signal invalid_length
@@ -780,7 +780,7 @@ end
 
 ::method substr
     use strict arg startC, length=(max(0, self~length - startC + 1)), pad=(self~encoding~spaceCharacter)
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
 
     if \datatype(startC, "w") then signal invalid_position
     if startC <= 0 then signal invalid_position
@@ -825,11 +825,11 @@ end
 -- not a String method but maybe in the future...
 ::method title
     use strict arg startC=1, length=(max(0, self~length - startC + 1))
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     return self~lower_upper_title("t", startC, length, :buffer)
 
 
 ::method upper
     use strict arg startC=1, length=(max(0, self~length - startC + 1))
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     return self~lower_upper_title("u", startC, length, :buffer)

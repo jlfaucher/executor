@@ -293,7 +293,7 @@ RexxObject *RoutineClass::callWithRexx(RexxArray *args,
 
     // use strict named arg namedArguments=.NIL
     NamedArguments expectedNamedArguments(1); // At most, one named argument
-    expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", 1, TheNilObject); // At least 1 characters, default value = .NIL
+    expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", TheNilObject); // At least 1 characters, default value = .NIL
     expectedNamedArguments.match(named_arglist, named_argcount, /*strict*/ true, /*extraAllowed*/ false);
     RexxDirectory *named_args_value = (RexxDirectory*)expectedNamedArguments[0].value;
 

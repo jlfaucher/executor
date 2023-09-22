@@ -81,7 +81,7 @@ t = "Pere"~text("windows-1252") "Noel"~text("iso-8859-1")
 
 drop b t
 b = .MutableBuffer~new
-"Pere"~text("windows-1252")~appendEncoded(" "~text("windows-1252"), :b)~appendEncoded("Noel"~text("iso-8859-1"), :b)
+"Pere"~text("windows-1252")~appendEncoded(" "~text("windows-1252"), buffer:b)~appendEncoded("Noel"~text("iso-8859-1"), buffer:b)
 t = b~string~text
 < include_concatenation_infos s/$(text)/t/
 
@@ -97,7 +97,7 @@ t = "Pere"~text("windows-1252") "Noël"~text("iso-8859-1")
 
 drop b t
 b = .MutableBuffer~new
-"Pere"~text("windows-1252")~appendEncoded(" "~text("windows-1252"), :b)~appendEncoded("Noël"~text("iso-8859-1"), :b)
+"Pere"~text("windows-1252")~appendEncoded(" "~text("windows-1252"), buffer:b)~appendEncoded("Noël"~text("iso-8859-1"), buffer:b)
 t = b~string~text
 < include_concatenation_infos s/$(text)/t/
 
@@ -113,7 +113,7 @@ t = "Père"~text("windows-1252") "Noel"~text("iso-8859-1")
 
 drop b t
 b = .MutableBuffer~new
-"Père"~text("windows-1252")~appendEncoded(" "~text("windows-1252"), :b)~appendEncoded("Noel"~text("iso-8859-1"), :b)
+"Père"~text("windows-1252")~appendEncoded(" "~text("windows-1252"), buffer:b)~appendEncoded("Noel"~text("iso-8859-1"), buffer:b)
 t = b~string~text
 < include_concatenation_infos s/$(text)/t/
 
@@ -129,7 +129,7 @@ t = "Père"~text("windows-1252") "Noël"~text("iso-8859-1")
 
 drop b t
 b = .MutableBuffer~new
-"Père"~text("windows-1252")~appendEncoded(" "~text("windows-1252"), :b)~appendEncoded("Noël"~text("iso-8859-1"), :b)
+"Père"~text("windows-1252")~appendEncoded(" "~text("windows-1252"), buffer:b)~appendEncoded("Noël"~text("iso-8859-1"), buffer:b)
 t = b~string~text
 < include_concatenation_infos s/$(text)/t/
 
@@ -154,7 +154,7 @@ t = "Pere"~text("utf-8") "Noel"~text("unicode-8")
 
 drop b t
 b = .MutableBuffer~new
-"Pere"~text("utf-8")~appendEncoded(" "~text("utf-8"), :b)~appendEncoded("Noel"~text("unicode-8"), :b)
+"Pere"~text("utf-8")~appendEncoded(" "~text("utf-8"), buffer:b)~appendEncoded("Noel"~text("unicode-8"), buffer:b)
 t = b~string~text
 < include_concatenation_infos s/$(text)/t/
 
@@ -170,7 +170,7 @@ t = "Pere"~text("utf-8") "Noël"~text("unicode-8")
 
 drop b t
 b = .MutableBuffer~new
-"Pere"~text("utf-8")~appendEncoded(" "~text("utf-8"), :b)~appendEncoded("Noël"~text("unicode-8"), :b)
+"Pere"~text("utf-8")~appendEncoded(" "~text("utf-8"), buffer:b)~appendEncoded("Noël"~text("unicode-8"), buffer:b)
 t = b~string~text
 < include_concatenation_infos s/$(text)/t/
 
@@ -186,7 +186,7 @@ t = "Père"~text("utf-8") "Noel"~text("unicode-8")
 
 drop b t
 b = .MutableBuffer~new
-"Père"~text("utf-8")~appendEncoded(" "~text("utf-8"), :b)~appendEncoded("Noel"~text("unicode-8"), :b)
+"Père"~text("utf-8")~appendEncoded(" "~text("utf-8"), buffer:b)~appendEncoded("Noel"~text("unicode-8"), buffer:b)
 t = b~string~text
 < include_concatenation_infos s/$(text)/t/
 
@@ -202,7 +202,7 @@ t = "Père"~text("utf-8") "Noël"~text("unicode-8")
 
 drop b t
 b = .MutableBuffer~new
-"Père"~text("utf-8")~appendEncoded(" "~text("utf-8"), :b)~appendEncoded("Noël"~text("unicode-8"), :b)
+"Père"~text("utf-8")~appendEncoded(" "~text("utf-8"), buffer:b)~appendEncoded("Noël"~text("unicode-8"), buffer:b)
 t = b~string~text
 < include_concatenation_infos s/$(text)/t/
 
@@ -227,7 +227,7 @@ t = "Pere"~text("byte") "Noel"~text("unicode-8")
 
 drop b t
 b = .MutableBuffer~new
-"Pere"~text("byte")~appendEncoded(" "~text("byte"), :b)~appendEncoded("Noel"~text("unicode-8"), :b)
+"Pere"~text("byte")~appendEncoded(" "~text("byte"), buffer:b)~appendEncoded("Noel"~text("unicode-8"), buffer:b)
 t = b~string~text
 < include_concatenation_infos s/$(text)/t/
 
@@ -243,7 +243,7 @@ t = "Pere"~text("byte") "Noël"~text("unicode-8")
 
 drop b t
 b = .MutableBuffer~new
-"Pere"~text("byte")~appendEncoded(" "~text("byte"), :b)~appendEncoded("Noël"~text("unicode-8"), :b)
+"Pere"~text("byte")~appendEncoded(" "~text("byte"), buffer:b)~appendEncoded("Noël"~text("unicode-8"), buffer:b)
 t = b~string~text
 < include_concatenation_infos s/$(text)/t/
 
@@ -259,7 +259,7 @@ t = "Père"~text("byte") "Noel"~text("unicode-8")
 
 drop b t
 b = .MutableBuffer~new
-"Père"~text("byte")~appendEncoded(" "~text("byte"), :b)~appendEncoded("Noel"~text("unicode-8"), :b)
+"Père"~text("byte")~appendEncoded(" "~text("byte"), buffer:b)~appendEncoded("Noel"~text("unicode-8"), buffer:b)
 t = b~string~text
 < include_concatenation_infos s/$(text)/t/
 
@@ -275,7 +275,7 @@ t = "Père"~text("byte") "Noël"~text("unicode-8")
 
 drop b t
 b = .MutableBuffer~new
-"Père"~text("byte")~appendEncoded(" "~text("byte"), :b)~appendEncoded("Noël"~text("unicode-8"), :b)
+"Père"~text("byte")~appendEncoded(" "~text("byte"), buffer:b)~appendEncoded("Noël"~text("unicode-8"), buffer:b)
 t = b~string~text
 < include_concatenation_infos s/$(text)/t/
 
@@ -300,7 +300,7 @@ t = "Pere"~text("unicode-8") "Noel"~text("byte")
 
 drop b t
 b = .MutableBuffer~new
-"Pere"~text("unicode-8")~appendEncoded(" "~text("unicode-8"), :b)~appendEncoded("Noel"~text("byte"), :b)
+"Pere"~text("unicode-8")~appendEncoded(" "~text("unicode-8"), buffer:b)~appendEncoded("Noel"~text("byte"), buffer:b)
 t = b~string~text
 < include_concatenation_infos s/$(text)/t/
 
@@ -316,7 +316,7 @@ t = "Pere"~text("unicode-8") "Noël"~text("byte")
 
 drop b t
 b = .MutableBuffer~new
-"Pere"~text("unicode-8")~appendEncoded(" "~text("unicode-8"), :b)~appendEncoded("Noël"~text("byte"), :b)
+"Pere"~text("unicode-8")~appendEncoded(" "~text("unicode-8"), buffer:b)~appendEncoded("Noël"~text("byte"), buffer:b)
 t = b~string~text
 < include_concatenation_infos s/$(text)/t/
 
@@ -332,7 +332,7 @@ t = "Père"~text("unicode-8") "Noel"~text("byte")
 
 drop b t
 b = .MutableBuffer~new
-"Père"~text("unicode-8")~appendEncoded(" "~text("unicode-8"), :b)~appendEncoded("Noel"~text("byte"), :b)
+"Père"~text("unicode-8")~appendEncoded(" "~text("unicode-8"), buffer:b)~appendEncoded("Noel"~text("byte"), buffer:b)
 t = b~string~text
 < include_concatenation_infos s/$(text)/t/
 
@@ -348,7 +348,7 @@ t = "Père"~text("unicode-8") "Noël"~text("byte")
 
 drop b t
 b = .MutableBuffer~new
-"Père"~text("unicode-8")~appendEncoded(" "~text("unicode-8"), :b)~appendEncoded("Noël"~text("byte"), :b)
+"Père"~text("unicode-8")~appendEncoded(" "~text("unicode-8"), buffer:b)~appendEncoded("Noël"~text("byte"), buffer:b)
 t = b~string~text
 < include_concatenation_infos s/$(text)/t/
 

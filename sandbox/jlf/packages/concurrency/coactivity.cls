@@ -354,7 +354,7 @@ Status transitions :
         context = context~parentContext -- .nil if native or top-level activation.
     end
     if .nil == context then raise syntax 93.900 array ("Can't update the arguments, yield's context not found")
-    context~setargs(arguments, n:namedArguments) -- assigns the positional and named arguments that the coactivity's client passed to 'resume'
+    context~setargs(arguments, :namedArguments) -- assigns the positional and named arguments that the coactivity's client passed to 'resume'
 
 
 ::method yieldLast private

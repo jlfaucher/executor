@@ -3,6 +3,19 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2023 Sep 22
+
+[Named arguments]
+
+Remove the possibility to indicate a minimum length.
+The rules were too constraining, in particular this one: "No named parameter
+name must start with the name of another named parameter". This rule was set
+to have better error messages in case of ambiguity because of the minimum length.
+And I found recently that it can be tedious to keep the minimum length aligned
+in all the methods using the same named arguments.
+
+
+===============================================================================
 2023 Sep 18
 
 [Encoded strings]

@@ -202,15 +202,11 @@ call interpret 'call useStrictOneNamed_WithDefaultExpression'
 call interpret 'call useStrictOneNamed_WithDefaultExpression a1:2'
 call interpret 'call useStrictAutoNamed_WithEllipse'
 call interpret 'call useNamed_SimpleSymbol v1:1, v3:3, v5:5'
-call interpret 'call useNamed_WithMinimumLength'
 
 call interpret 'call useAutoNamed_SimpleSymbol v1:1, v3:3, v5:5, index:"My index", item:"My item"' -
              , 'The automatic variables are created first (here v3=3, v5=5, index="My index" and item="My item"), in the order of declaration on caller side (left to right).' -
              , 'Then the declared named arguments are assigned with the passed values, in the order of declaration on called side (left to right).' -
              , 'So it''s possible to initialize a named argument with an automatic variable (here v2 is assigned the value of index).'
-
-call interpret 'call useNamed_Stem_CompoundSymbol_0 stem.:0, stem.v1.:1, stem.v2.:2' -
-             , 'It''s possible to have several named arguments starting with the same stem name.'
 
 call interpret 'call useNamed_Stem_CompoundSymbol_1 stem.v1:1, stem.:0, stem.v3:3, stem.v4:4, index:"My index", item:"My item"' -
              , 'The option auto is not used, so stem.v4, index and item are not created as local variables.' -
@@ -246,18 +242,6 @@ call interpret 'call useAutoNamed_CompoundSymbol stem.v1:1, stem.v3:3, stem.v4:4
              , 'Then the declared named arguments are assigned with the passed values, in the order of declaration on called side (left to right).' -
              , 'Then the assignments stem.v1=1, stem.v2="My index" (default) and stem.v3=3 are made.' -
              , 'Note that the automatic variable stem.v4 is available, since the stem is not reset.'
-
-call interpret 'call useAutoNamed_CompoundSymbol_Abbreviatable stem.v1.:1, stem.v3.:3, index:"My index", item:"My item"' -
-            , 'It''s possible to have an abbreviated [compound] name ending with a period.' -
-            , 'Notice that the stem is reset at each call because of ''use named arg stem.''.' -
-            , 'If you pass a value then the stem is reset when this value is assigned as default value.' -
-            , 'If you don''t pass a value then the stem is dropped before assigning the other values.'
-
-call interpret 'call useAutoNamed_CompoundSymbol_Abbreviatable_in_a_block stem.v1.:1, stem.v3.:3, index:"My index", item:"My item"' -
-            , 'Same test case as previous, except that the code is embedded in a block, and the stem is not reset.' -
-            , 'Notice that the abbreviated argument names are used as-is by the implicit ''use auto named arg'' instruction' -
-            , 'which is automatically inserted at parse time.' -
-            , 'That''s why you have the indexes ''V1.'' and ''V3.''.'
 
 say "Testing the display of trace"
 say '{...<source>..}~(a:1,b:"letter b",stem.:"default", stem.a:100, stem.b:200, stem.c:300)'
@@ -493,13 +477,13 @@ call interpret 'r = .myclass~sendWith("mymethod", (1, 2), namedArguments: "not a
 
 
 -- Method 'callWith'
-call interpret '{}~rawExecutable~callwith(.array~of(), n:.directory~of(""))' -
+call interpret '{}~rawExecutable~callwith(.array~of(), namedArguments: .directory~of(""))' -
              , 'Error 20.900: Expected a symbol for the named argument name; found ""'
-call interpret '{}~rawExecutable~callwith(.array~of(), n:.directory~of("1"))' -
+call interpret '{}~rawExecutable~callwith(.array~of(), namedArguments: .directory~of("1"))' -
              , 'Error 20.900: Expected a symbol for the named argument name; found "1"'
-call interpret '{}~rawExecutable~callwith(.array~of(), n:.directory~of("a 1"))' -
+call interpret '{}~rawExecutable~callwith(.array~of(), namedArguments: .directory~of("a 1"))' -
              , 'Error 20.900: Expected a symbol for the named argument name; found "a 1"'
-call interpret '{}~rawExecutable~callwith(.array~of(), n:.directory~of(".a"))' -
+call interpret '{}~rawExecutable~callwith(.array~of(), namedArguments: .directory~of(".a"))' -
              , 'Error 20.900: Expected a symbol for the named argument name; found ".a"'
 
 -- Instruction 'forward'
@@ -553,47 +537,11 @@ call interpret 'call useStrictOneNamed_WithDefaultExpression b2:2' -
 call interpret 'call useStrictAutoNamed_WithoutEllipse' -
              , 'Error 99.900: STRICT AUTO requires the "..." argument marker at the end of the argument list'
 
--- Abbreviation
-call interpret '{use named arg name()}' -
-             , 'Error 26.900: Use named arg: The minimum length of an abbreviatable name must be a whole number > 0 and <= name''s length; found "NAME()'
-call interpret '{use named arg name(0)}' -
-             , 'Error 26.900: Use named arg: The minimum length of an abbreviatable name must be a whole number > 0 and <= name''s length; found "NAME(0)'
-call interpret '{use named arg name(10)}' -
-             , 'Error 26.900: Use named arg: The minimum length of an abbreviatable name must be a whole number > 0 and <= name''s length; found "NAME(10)'
-call interpret '{use named arg command, commands}' -
-             , 'Error 99.900: Use named arg: The name ''COMMAND'' collides with ''COMMANDS'''
-call interpret '{use named arg commands, command}' -
-             , 'Error 99.900: Use named arg: The name ''COMMANDS'' collides with ''COMMAND'''
-call interpret '{use named arg command, commands(7)}' -
-             , 'Error 99.900: Use named arg: The name ''COMMAND'' collides with ''COMMANDS(7)'''
-call interpret '{use named arg commands(7), command}' -
-             , 'Error 99.900: Use named arg: The name ''COMMANDS(7)'' collides with ''COMMAND'''
-call interpret '{use named arg command(1), commands(7)}' -
-             , 'Error 99.900: Use named arg: The name ''COMMAND(1)'' collides with ''COMMANDS(7)'''
-call interpret '{use named arg commands(7), command(1)}' -
-             , 'Error 99.900: Use named arg: The name ''COMMANDS(7)'' collides with ''COMMAND(1)'''
+-- Duplicated name
 call interpret '{use named arg n, n}' -
              , 'Error 99.900: Use named arg: The name ''N'' is declared more than once'
-call interpret '{use named arg item(1), index(1)}' -
-             , 'Error 99.900: Use named arg: The name ''ITEM(1)'' collides with ''INDEX(1)'''
-
--- Abbreviation of stem & compound name
-call interpret '{use named arg stem.key1(5)}' -
-             , 'Error 26.900: Use named arg: A compound name cannot be abbreviated to a stem name; found "STEM.KEY1(5)'
-call interpret '{use named arg stem.key1.key2(9)}' -
-             , 'Error 26.900: Use named arg: The optional part of an abbreviatable name cannot contain a period; found "STEM.KEY1.KEY2(9)'
-call interpret '{use named arg stem., stem.key1(6), stem.key2(7)}' -
-             , 'Error 99.900: Use named arg: The name ''STEM.KEY1(6)'' collides with ''STEM.KEY2(7)'''
 call interpret '{use named arg stem., stem.key1, stem.key1}' -
              , 'Error 99.900: Use named arg: The name ''STEM.KEY1'' is declared more than once'
-call interpret '{use named arg stem., stem.key1, stem.key1.key2}' -
-             , 'Error 99.900: Use named arg: The name ''STEM.KEY1'' collides with ''STEM.KEY1.KEY2'''
-call interpret '{use named arg stem, stem.key1, stem.key2}' -
-             , 'Error 99.900: Use named arg: The name ''STEM'' collides with ''STEM.KEY1'''
-call interpret '{use strict named arg stem.v1., stem.v1.key1(8), stem.v1.key2(8)}' -
-             , 'Error 99.900: Use named arg: The name ''STEM.V1.'' collides with ''STEM.V1.KEY1(8)''' -
-             , 'stem.v1. is NOT a stem name, because it contains 2 periods.' -
-             , 'so the exception ''a stem name can be used as prefix in several compound names'' is not applicable here.'
 
 -- Change arguments
 call interpret '.context~setArgs' -
@@ -716,28 +664,6 @@ interpret: procedure
     return ""
 
 --------------------------------------------------------------------------------
-::routine useNamed_WithMinimumLength
-    -- Specifying a minimum length
-
-    call indent
-    say 'use named arg name(1)'
-         use named arg name(1)
-
-    call indent
-    say 'use named arg name(3)'
-         use named arg name(3)
-
-    call indent
-    say 'use named arg name(+1)'
-         use named arg name(+1)
-
-    call indent
-    say 'use named arg name(1) = 10'
-         use named arg name(1) = 10
-
-    return ""
-
---------------------------------------------------------------------------------
 ::routine useStrictAutoNamed_WithoutEllipse
     source = ( -
     'call sayArg .context'              ,-
@@ -765,17 +691,6 @@ interpret: procedure
     say 'use auto named arg v1=(item), v2=(index)'
          use auto named arg v1=(item), v2=(index)
     call sayCollection "variables", .context~variables
-    return ""
-
---------------------------------------------------------------------------------
-:: routine useNamed_Stem_CompoundSymbol_0
-    call sayArg .context
-    call indent
-    -- It's possible to abbreviate with a final period in the main part of the abbreviatable names
-    say 'use strict named arg stem., stem.v1.key(8), stem.v2.key(8)'
-         use strict named arg stem., stem.v1.key(8), stem.v2.key(8)
-    call sayCollection "variables", .context~variables
-    call sayCollection "stem", stem.
     return ""
 
 --------------------------------------------------------------------------------
@@ -817,30 +732,6 @@ interpret: procedure
     call sayCollection "variables", .context~variables
     call sayCollection "stem", stem.
     return ""
-
---------------------------------------------------------------------------------
-:: routine useAutoNamed_CompoundSymbol_Abbreviatable
-    call sayArg .context
-    call indent
-    -- Shortest abbreviation ending with a period
-    say 'use auto named arg stem.(5), stem.v1.key(8), stem.v2.key(8)=(item), stem.v3.key(8)=(index)'
-         use auto named arg stem.(5), stem.v1.key(8), stem.v2.key(8)=(item), stem.v3.key(8)=(index)
-    call sayCollection "variables", .context~variables
-    call sayCollection "stem", stem.
-    return ""
-
---------------------------------------------------------------------------------
-:: routine useAutoNamed_CompoundSymbol_Abbreviatable_in_a_block
-{
-    call sayArg .context
-    call indent
-    -- Shortest abbreviation ending with a period
-    say 'use auto named arg stem.v1.key(8), stem.v2.key(8)=(item), stem.v3.key(8)=(index)'
-         use auto named arg stem.v1.key(8), stem.v2.key(8)=(item), stem.v3.key(8)=(index)
-    call sayCollection "variables", .context~variables
-    call sayCollection "stem", stem.
-    return ""
-}~rawExecutable~callWith(.context~args, n:.context~namedArgs)
 
 --------------------------------------------------------------------------------
 :: routine useNamed_EnvironmentSymbolNotAllowed
@@ -931,7 +822,7 @@ interpret: procedure
 
     use arg positionalArguments
     use named arg namedArguments
-    .context~setArgs(positionalArguments, n:namedArguments)
+    .context~setArgs(positionalArguments, namedArguments: namedArguments)
     call indent 1
     say "After setArgs"
     call sayArg .context
@@ -941,7 +832,7 @@ interpret: procedure
     say "On entry in the thread (migrated arguments)"
     call sayArg .context
 
-    .context~setArgs(.array~of(1, 2, 3), n:.directory~of(n1:1, n2:2, n3:3))
+    .context~setArgs(.array~of(1, 2, 3), namedArguments: .directory~of(n1:1, n2:2, n3:3))
     call indent 1
     say "After setArgs in thread"
     call sayArg .context

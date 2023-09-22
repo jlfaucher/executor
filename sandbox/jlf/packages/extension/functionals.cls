@@ -152,7 +152,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Facade with named argument 'by' to indicate by which criteria the split for reduction is done
 ::method map unguarded
     use strict arg action={arg(1)}
-    use /*strict*/ named arg by="words", action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    use /*strict*/ named arg by="words", action=(action), separator="" -- not strict because other named arguments can be passed that will be handled later
     if "characters"~caselessAbbrev(by, 1) then return .MutableBuffer~new~mapCImpl(self, action, separator)~string
     if "chunks"~caselessAbbrev(by, 3)     then return .MutableBuffer~new~mapChunksImpl(self, action, separator)~string
     if "words"~caselessAbbrev(by, 1)      then return .MutableBuffer~new~mapWImpl(self, action, separator)~string
@@ -165,7 +165,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- "abcdefghijk"~mapC(sep:" "){arg(2)":"arg(1)} -- returns "1:a 2:b 3:c 4:d 5:e 6:f 7:g 8:h 9:i 10:j 11:k"
 ::method mapC unguarded
     use strict arg action={arg(1)}
-    use /*strict*/ named arg action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    use /*strict*/ named arg action=(action), separator="" -- not strict because other named arguments can be passed that will be handled later
     return .MutableBuffer~new~mapCImpl(self, action, separator)~string
 
 -- Not applicable to a string
@@ -177,7 +177,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- "one two three"~mapW(sep:" "){arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
 ::method mapW unguarded
     use strict arg action={arg(1)}
-    use /*strict*/ named arg action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    use /*strict*/ named arg action=(action), separator="" -- not strict because other named arguments can be passed that will be handled later
     return .MutableBuffer~new~mapWImpl(self, action, separator)~string
 
 -- Not applicable to a string
@@ -191,7 +191,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Facade with named argument 'by' to indicate by which criteria the split for reduction is done
 ::method map unguarded
     use strict arg action={arg(1)}
-    use /*strict*/ named arg by="words", action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    use /*strict*/ named arg by="words", action=(action), separator="" -- not strict because other named arguments can be passed that will be handled later
     if "characters"~caselessAbbrev(by, 1) then return .MutableBuffer~new~mapCImpl(self, action, separator)~string~text
     if "chunks"~caselessAbbrev(by, 3)     then return .MutableBuffer~new~mapChunksImpl(self, action, separator)~string~text
     if "words"~caselessAbbrev(by, 1)      then return .MutableBuffer~new~mapWImpl(self, action, separator)~string~text
@@ -204,7 +204,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- "abcdefghijk"~text~mapC(sep:" "){arg(2)":"arg(1)} -- returns "1:a 2:b 3:c 4:d 5:e 6:f 7:g 8:h 9:i 10:j 11:k"
 ::method mapC unguarded
     use strict arg action={arg(1)}
-    use /*strict*/ named arg action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    use /*strict*/ named arg action=(action), separator="" -- not strict because other named arguments can be passed that will be handled later
     return .MutableBuffer~new~mapCImpl(self, action, separator)~string~text
 
 -- Not applicable to a text
@@ -216,7 +216,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- "one two three"~mapW(sep:" "){arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
 ::method mapW unguarded
     use strict arg action={arg(1)}
-    use /*strict*/ named arg action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    use /*strict*/ named arg action=(action), separator="" -- not strict because other named arguments can be passed that will be handled later
     return .MutableBuffer~new~mapWImpl(self, action, separator)~string~text
 
 -- Not applicable to a text
@@ -230,7 +230,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Facade with named argument 'by' to indicate by which criteria the split for mapping is done
 ::method map unguarded
     use strict arg action={arg(1)}
-    use /*strict*/ named arg by="words", action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    use /*strict*/ named arg by="words", action=(action), separator="" -- not strict because other named arguments can be passed that will be handled later
     if "characters"~caselessAbbrev(by, 1) then return .MutableBuffer~new~mapCImpl(self, action, separator)
     if "chunks"~caselessAbbrev(by, 3)     then return .MutableBuffer~new~mapChunksImpl(self, action, separator)
     if "words"~caselessAbbrev(by, 1)      then return .MutableBuffer~new~mapWImpl(self, action, separator)
@@ -240,7 +240,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Apply the mapping in-place
 ::method mapR unguarded
     use strict arg action={arg(1)}
-    use /*strict*/ named arg by="words", action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    use /*strict*/ named arg by="words", action=(action), separator="" -- not strict because other named arguments can be passed that will be handled later
     if "characters"~caselessAbbrev(by, 1) then return self~mapCImpl(self, action, separator)
     if "chunks"~caselessAbbrev(by, 3)     then return self~mapChunksImpl(self, action, separator)
     if "words"~caselessAbbrev(by, 1)      then return self~mapWImpl(self, action, separator)
@@ -253,7 +253,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- .MutableBuffer~new("abcdefghijk")~mapC(sep:" "){arg(2)":"arg(1)} -- returns "1:a 2:b 3:c 4:d 5:e 6:f 7:g 8:h 9:i 10:j 11:k"
 ::method mapC unguarded
     use strict arg action={arg(1)}
-    use /*strict*/ named arg action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    use /*strict*/ named arg action=(action), separator="" -- not strict because other named arguments can be passed that will be handled later
     return .MutableBuffer~new~mapCImpl(self, action, separator)
 
 -- Iterate over the characters of the mutable buffer and apply the given action to (current_char) in-place
@@ -262,7 +262,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- .MutableBuffer~new("abcdefghijk")~mapCR(sep:" "){arg(2)":"arg(1)" "} -- returns "1:a 2:b 3:c 4:d 5:e 6:f 7:g 8:h 9:i 10:j 11:k"
 ::method mapCR
     use strict arg action={arg(1)}
-    use /*strict*/ named arg action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    use /*strict*/ named arg action=(action), separator="" -- not strict because other named arguments can be passed that will be handled later
     return self~mapCImpl(self~string, action, separator) -- self~string because self will be emptied
 
 -- Iterate over the words of the mutable buffer and apply the given action to (current_char)
@@ -271,7 +271,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- .MutableBuffer~new("one two three")~mapW(sep:" "){arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
 ::method mapW unguarded
     use strict arg action={arg(1)}
-    use /*strict*/ named arg action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    use /*strict*/ named arg action=(action), separator="" -- not strict because other named arguments can be passed that will be handled later
     return .MutableBuffer~new~mapWImpl(self, action, separator)
 
 -- Iterate over the words of the mutable buffer and apply the given action to (current_char) in-place
@@ -280,7 +280,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- .MutableBuffer~new("one two three")~mapWR(sep:" "){arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
 ::method mapWR
     use strict arg action={arg(1)}
-    use /*strict*/ named arg action=(action), separator(3)="" -- not strict because other named arguments can be passed that will be handled later
+    use /*strict*/ named arg action=(action), separator="" -- not strict because other named arguments can be passed that will be handled later
     return self~mapWImpl(self~string, action, separator) -- self~string because self will be emptied
 
 ::method mapCImpl -- not private because called by String~map and RexxText~map
@@ -1172,8 +1172,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
     use arg msg, args
     use named arg namedArguments
     if self~dataType("N"), msg~dataType("N") then do
-        if msg >= self then return self~sendWith("upto", args~~insert(msg, .nil), n:namedArguments)
-        else return self~sendWith("downto", args~~insert(msg, .nil), n:namedArguments)
+        if msg >= self then return self~sendWith("upto", args~~insert(msg, .nil), :namedArguments)
+        else return self~sendWith("downto", args~~insert(msg, .nil), :namedArguments)
     end
     -- Next line is not working... returns .true when NO method UNKNOWN on a superclass
     -- if self~hasMethod:super("UNKNOWN") then forward class (super)

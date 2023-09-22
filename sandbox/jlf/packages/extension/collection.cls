@@ -124,7 +124,7 @@ See output of concurrency/generator-test.rex
 -- Or maybe still more general, for a table: (expressionKey1:expressionValue1, ...)
 ::routine d public
     if arg() == 0 then return .context~namedArgs
-    return .Directory~sendWith("of", .context~args, n:.context~namedArgs)
+    return .Directory~sendWith("of", .context~args, namedArguments: .context~namedArgs)
 
 
 /******************************************************************************/

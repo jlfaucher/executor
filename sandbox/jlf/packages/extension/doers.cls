@@ -87,13 +87,13 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 
 ::method go unguarded
-    --return self~startWith("do", .context~args, n:.context~namedArgs)
-    forward message "startWith" array("do", .context~args, n:.context~namedArgs)
+    --return self~startWith("do", .context~args, namedArguments: .context~namedArgs)
+    forward message "startWith" array("do", .context~args, namedArguments: .context~namedArgs)
 
 
 ::method goWith unguarded
-    --return self~startWith("doWith", .context~args, n:.context~namedArgs)
-    forward message "startWith" array("doWith", .context~args, n:.context~namedArgs)
+    --return self~startWith("doWith", .context~args, namedArguments: .context~namedArgs)
+    forward message "startWith" array("doWith", .context~args, namedArguments: .context~namedArgs)
 
 
 /*
@@ -244,8 +244,8 @@ Ex :
             arg1a = .array~of(item)
             arg2a = .array~of()
         end
-        if doer~needsObject then doer~doWith(arg1, arg2a, n:namedArgs)
-        else doer~doWith(arg1a, n:namedArgs)
+        if doer~needsObject then doer~doWith(arg1, arg2a, namedArguments: namedArgs)
+        else doer~doWith(arg1a, namedArguments: namedArgs)
         r = arg1
         if var("result") then r = result
         if .nil == r then return .nil -- stop now
@@ -360,9 +360,9 @@ Ex :
                      if verbose then trace i
                      --use strict arg v
                      v = arg(1, "a")
-                     return x~(x)~doWith(v, n:.context~namedArgs)
+                     return x~(x)~doWith(v, namedArguments: .context~namedArgs)
                 }
-        return f ~ doWith(.array~of(lambda_v), n:YnamedArgs)
+        return f ~ doWith(.array~of(lambda_v), namedArguments: YnamedArgs)
     }
     return lambda_x ~ (lambda_x)
 
@@ -389,11 +389,11 @@ Ex :
                      v_index = v~tostring
                      r = table[v_index]
                      if .nil <> r then return r
-                     r = x~(x)~doWith(v, n:.context~namedArgs)
+                     r = x~(x)~doWith(v, namedArguments: .context~namedArgs)
                      table[v_index] = r
                      return r
                 }
-        return f ~ doWith(.array~of(lambda_v), n:YnamedArgs)
+        return f ~ doWith(.array~of(lambda_v), namedArguments: YnamedArgs)
     }
     return lambda_x ~ (lambda_x)
 
@@ -418,7 +418,7 @@ Ex :
                      expose x
                      args = .context~args
                      kwargs = .context~namedArgs
-                     return x~(x)~doWith(args, n:kwargs)
+                     return x~(x)~doWith(args, namedArguments: kwargs)
                 }
         return func~(Y3)
     }
@@ -448,13 +448,13 @@ Ex :
 
 ::method do unguarded
     use strict arg object, ...
-    forward to (object) message "run" array (self, "a", arg(2,"a"), n:.context~namedArgs)
+    forward to (object) message "run" array (self, "a", arg(2,"a"), namedArguments: .context~namedArgs)
 
 
 ::method doWith unguarded
     use strict arg object, array
-    use strict named arg namedArguments(1) = (.nil)
-    forward to (object) message "run" array (self, "a", array, n:namedArguments)
+    use strict named arg namedArguments = (.nil)
+    forward to (object) message "run" array (self, "a", array, :namedArguments)
 
 
 -----------------------------------------------------------------------------
@@ -473,13 +473,13 @@ Ex :
 
 ::method do unguarded
     use strict arg object, ...
-    forward to (object) message "sendWith" array (self, arg(2,"a"), n:.context~namedArgs)
+    forward to (object) message "sendWith" array (self, arg(2,"a"), namedArguments: .context~namedArgs)
 
 
 ::method doWith unguarded
     use strict arg object, array
-    use strict named arg namedArguments(1) = (.nil)
-    forward to (object) message "sendWith" array (self, array, n:namedArguments)
+    use strict named arg namedArguments = (.nil)
+    forward to (object) message "sendWith" array (self, array, :namedArguments)
 
 
 ::method source unguarded
@@ -626,7 +626,7 @@ Ex :
 */
 ::method unknown unguarded
     use arg msg, args
-    use named arg namedArguments(1)
+    use named arg namedArguments
     forward message (msg) arguments (args) namedArguments (namedArguments) to (self~doer)
 
 
@@ -650,7 +650,7 @@ Ex :
 
 ::method doWith unguarded
     use strict arg array
-    use strict named arg namedArguments(1) = (.nil)
+    use strict named arg namedArguments = (.nil)
     forward message "resume" arguments (array) namedArguments(namedArguments)
 
 
@@ -747,7 +747,7 @@ Examples :
 
 ::method doWith unguarded
     use strict arg array
-    use strict named arg namedArguments(1) = (.nil)
+    use strict named arg namedArguments = (.nil)
     forward message "do" arguments (array) namedArguments(namedArguments)
 
 

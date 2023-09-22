@@ -156,7 +156,7 @@ For example, if startB==6 then previousCodepointIndexB==3
 ::method description class
     -- 'UTF-8 not-ASCII'
     use arg isASCII -- optional
-    use strict named arg short(1)=.false, technical(1)=.false -- same as the instance method, not used (for the moment)
+    use strict named arg short=.false, technical=.false -- same as the instance method, not used (for the moment)
     if arg(1, "o") then return self~name
     if self~codeUnitSizeInBytes > 1 then return self~name -- doesn't make sense to include asciiness
     if isASCII then asciiness = "ASCII"
@@ -175,7 +175,7 @@ For example, if startB==6 then previousCodepointIndexB==3
     -- Remember: This method does not change the encoding of the buffer.
     --           Use .StringIndexer~append (inherited from .IndexerHelpers) to have the buffer's encoding updated.
     use arg ...
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new
     -- This method does not change the encoding of the buffer
@@ -206,7 +206,7 @@ For example, if startB==6 then previousCodepointIndexB==3
 ::method appendToBuffer class
     -- WTF-8 overrides this method
     use strict arg string
-    use strict named arg buffer(1)
+    use strict named arg buffer
     buffer~append(string)
 
 
@@ -296,14 +296,14 @@ For example, if startB==6 then previousCodepointIndexB==3
 
 ::method description
     /*
-    "noël👩‍👨‍👩‍👧🎅"~text~description(s:1)          -- 'UTF-8 not-ASCII'
-    "noël👩‍👨‍👩‍👧🎅"~text~description               -- 'UTF-8 not-ASCII (6 characters, 12 codepoints, 34 bytes, 0 error)'
-    "noël👩‍👨‍👩‍👧🎅"~text~description(t:1)          -- 'UTF-8 not-ASCII (6 characters (3 indexes from index 4), 12 codepoints (9 indexes from index 4), 34 bytes, 0 error)'
-    "noël👩‍👨‍👩‍👧🎅"~text~utf16~description(t:1)    -- 'UTF-16BE (6 characters (1 index from index 6), 12 codepoints (7 indexes from index 6), 34 bytes, 0 error)'
-    "noël👩‍👨‍👩‍👧🎅"~text~utf32~description(t:1)    -- 'UTF-32BE (6 characters (1 index from index 6), 12 codepoints (0 index), 48 bytes, 0 error)'
+    "noël👩‍👨‍👩‍👧🎅"~text~description(short:1)           -- 'UTF-8 not-ASCII'
+    "noël👩‍👨‍👩‍👧🎅"~text~description                    -- 'UTF-8 not-ASCII (6 characters, 12 codepoints, 34 bytes, 0 error)'
+    "noël👩‍👨‍👩‍👧🎅"~text~description(technical:1)       -- 'UTF-8 not-ASCII (6 characters (3 indexes from index 4), 12 codepoints (9 indexes from index 4), 34 bytes, 0 error)'
+    "noël👩‍👨‍👩‍👧🎅"~text~utf16~description(technical:1) -- 'UTF-16BE (6 characters (1 index from index 6), 12 codepoints (7 indexes from index 6), 34 bytes, 0 error)'
+    "noël👩‍👨‍👩‍👧🎅"~text~utf32~description(technical:1) -- 'UTF-32BE (6 characters (1 index from index 6), 12 codepoints (0 index), 48 bytes, 0 error)'
     */
     use strict arg -- none
-    use strict named arg short(1)=.false, technical(1)=.false
+    use strict named arg short=.false, technical=.false
     if .nil == self~errors then errorCount = 0
                            else errorCount = self~errors~size
     techInfoCodepoints = ""
@@ -334,7 +334,7 @@ For example, if startB==6 then previousCodepointIndexB==3
     -- escape3 is needed to have a proper display for this:
     -- say "41"~text~utf16~string  -- 41
     -- say escape3("41"~text~utf16~string)  -- [00]4[00]1
-    return self~description(s:1) "'"escape3(text~string)"'"
+    return self~description(short:1) "'"escape3(text~string)"'"
 
 
 ::method c2x
@@ -358,7 +358,7 @@ For example, if startB==6 then previousCodepointIndexB==3
 
 ::method c2g
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     characters = self~characters
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new
@@ -456,7 +456,7 @@ For example, if startB==6 then previousCodepointIndexB==3
 
 ::method character abstract
     -- use strict arg indexC
-    -- use strict named arg buffer(1)=.nil
+    -- use strict named arg buffer=.nil
 
 
 ::method isLower
@@ -471,7 +471,7 @@ For example, if startB==6 then previousCodepointIndexB==3
 
 ::method transcodeTo abstract
     -- use strict arg targetEncoding
-    -- use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil, replacementCharacter(7)=.nil
+    -- use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil, replacementCharacter=.nil
 
 
 ::method UTF8 abstract
@@ -815,7 +815,7 @@ How other languages are supporting escape characters for Unicode:
     hexadecimal digits—for example, U+0001, U+0012, U+0123, U+1234, U+12345, U+102345
     */
     use strict arg codepoint
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     if \datatype(codepoint, "W") then return "not a whole number"
     if codepoint < 0 then return "-" || ppCodepoint(-codepoint)
     if .nil == buffer then do

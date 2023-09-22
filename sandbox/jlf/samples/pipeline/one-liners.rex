@@ -52,12 +52,12 @@ dir = ".."
 count = 3
 say "List the files and directories in the '"dir"' directory, using a pipe component"
 say "Limited to" count "files per directory"
-files = {use named arg depth(1)=0, count(1)=5; return .fileTree "rec."depth "mem.file" | .sort | .take count {dataflow["file"]~item~parent} | .console "item" | .lineCount | .console "item"}
+files = {use named arg depth=0, count=5; return .fileTree "rec."depth "mem.file" | .sort | .take count {dataflow["file"]~item~parent} | .console "item" | .lineCount | .console "item"}
 say "files = {" files~source[1]"}"
 do depth=0 to 2
     say
     say '"'dir'"~pipe(files~(depth:'depth', count:'count'))'
-    dir~pipe(files~(d:depth, c:count))
+    dir~pipe(files~(:depth, :count))
     say
     say separator
 end

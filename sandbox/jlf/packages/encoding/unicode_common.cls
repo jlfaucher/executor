@@ -229,7 +229,7 @@ Depends on
       well-formed code unit sequences.
     */
     use strict arg targetEncoding
-    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1) = .nil, replacementCharacter(7)=.nil
+    use strict named arg strict = .false, memorize = (.Unicode~memorizeConversions), buffer = .nil, replacementCharacter=.nil
 
     targetEncoding = .Encoding~factory(targetEncoding, self~string)
     if \targetEncoding~isUnicode then signal target_encoding_not_unicode
@@ -267,7 +267,7 @@ Depends on
 
 ::method convertToByte private
     use strict arg targetEncoding
-    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil, replacementCharacter(7)=.nil
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil, replacementCharacter=.nil
 
     targetEncoding = .Encoding~factory(targetEncoding, self~string)
     if \targetEncoding~isByte then signal target_encoding_not_byte
@@ -334,7 +334,7 @@ Depends on
 
 ::method c2u
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     codepoints = self~codepoints
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new
@@ -360,13 +360,13 @@ Depends on
 
 ::method UTF8
     use strict arg -- none
-    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode(.UTF8_Encoding, :strict, :memorize, :buffer)
 
 
 ::method WTF8
     use strict arg -- none
-    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode(.WTF8_Encoding, :strict, :memorize, :buffer)
 
 
@@ -376,13 +376,13 @@ Depends on
 
 ::method UTF16BE
     use strict arg -- none
-    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict = .false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode(.UTF16BE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method UTF16LE
     use strict arg -- none
-    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict = .false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode(.UTF16LE_Encoding, :strict, :memorize, :buffer)
 
 
@@ -392,13 +392,13 @@ Depends on
 
 ::method WTF16BE
     use strict arg -- none
-    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict = .false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode(.WTF16BE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method WTF16LE
     use strict arg -- none
-    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict = .false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode(.WTF16LE_Encoding, :strict, :memorize, :buffer)
 
 
@@ -408,13 +408,13 @@ Depends on
 
 ::method UTF32BE
     use strict arg -- none
-    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict = .false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode(.UTF32BE_Encoding, :strict, :memorize, :buffer)
 
 
 ::method UTF32LE
     use strict arg -- none
-    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict = .false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode(.UTF32LE_Encoding, :strict, :memorize, :buffer)
 
 
@@ -424,23 +424,23 @@ Depends on
 
 ::method UnicodeN
     use strict arg -- none
-    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict = .false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode("UnicodeN", :strict, :memorize, :buffer)
 
 
 ::method Unicode8
     use strict arg -- none
-    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict = .false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode(.Unicode8_Encoding, :strict, :memorize, :buffer)
 
 
 ::method Unicode16
     use strict arg -- none
-    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict = .false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode(.Unicode16_Encoding, :strict, :memorize, :buffer)
 
 
 ::method Unicode32
     use strict arg -- none
-    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict = .false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     return self~convertToUnicode(.Unicode32_Encoding, :strict, :memorize, :buffer)

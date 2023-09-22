@@ -30,7 +30,7 @@ So I added the 'pipe' method which injects the object in the pipe :
     end
 
     -- case 2 : normal pipe.
-    use strict named arg profile=.false, memorize(3)=.false, args=(.array~new(0)), namedArgs(1)=(.directory~new)
+    use strict named arg profile=.false, memorize=.false, args=(.array~new(0)), namedArgs=(.directory~new)
     if pipe~isa(.class) then pipe = pipe~new
     pipe~go(object, profile, memorize, args, namedArgs)
     return pipe
@@ -38,7 +38,7 @@ So I added the 'pipe' method which injects the object in the pipe :
 
 ::routine copipe private
     use strict arg object, pipe /* .pipeStage|.doer */
-    use strict named arg profile=.false, memorize(3)=.false
+    use strict named arg profile=.false, memorize=.false
     return {::coactivity
             expose object pipe profile memorize
             --object~pipe(pipe, profile: profile, memorize: memorize)
@@ -52,25 +52,25 @@ So I added the 'pipe' method which injects the object in the pipe :
 
 ::method pipe class unguarded
     use strict arg pipe
-    use strict named arg profile=.false, memorize(3)=.false -- mem allowed to be consistent with the option "memorize" that can be abbreviated to 3 characters
+    use strict named arg profile=.false, memorize=.false
     return pipe(self, pipe, profile: profile, memorize: memorize)
 
 
 ::method copipe class unguarded
     use strict arg pipe
-    use strict named arg profile=.false, memorize(3)=.false -- mem allowed to be consistent with the option "memorize" that can be abbreviated to 3 characters
+    use strict named arg profile=.false, memorize=.false
     return copipe(self, pipe, profile: profile, memorize: memorize)
 
 
 ::method pipe unguarded
     use strict arg pipe
-    use strict named arg profile=.false, memorize(3)=.false -- mem allowed to be consistent with the option "memorize" that can be abbreviated to 3 characters
+    use strict named arg profile=.false, memorize=.false
     return pipe(self, pipe, profile: profile, memorize: memorize)
 
 
 ::method copipe unguarded
     use strict arg pipe
-    use strict named arg profile=.false, memorize(3)=.false -- mem allowed to be consistent with the option "memorize" that can be abbreviated to 3 characters
+    use strict named arg profile=.false, memorize=.false
     return copipe(self, pipe, profile: profile, memorize: memorize)
 
 

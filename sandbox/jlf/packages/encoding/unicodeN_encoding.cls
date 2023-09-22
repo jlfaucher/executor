@@ -117,6 +117,6 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 -- Optimization: the conversion to Unicode of a UnicodeN_Encoding instance is itself.
 ::method UnicodeN
     use strict arg -- none
-    use strict named arg strict = .false, buffer(1)=.nil
+    use strict named arg strict = .false, buffer=.nil
     if .nil <> buffer then return buffer~~append(self~string)
                       else return self~string~text

@@ -671,8 +671,8 @@ ooRexx> .Unicode~utf8proc_transform(text~string, stripMark:, normalization:1)=  
 ooRexx> .Unicode~utf8proc_transform(text~string, stripNA:)=                 --  '[07]Le　 ​Père[09]‐­–—Noël[0D0A]'
 '[07]Le　 ​Père[09]‐­–—Noël[0D0A]'
 
--- Application of several options (abbreviated names)
-ooRexx> .Unicode~utf8proc_transform(text~string, casef:, lump:, norm:1, stripi:, stripc:, stripm:, stripn:)= --  'le  pere ---noel '
+-- Application of several options
+ooRexx> .Unicode~utf8proc_transform(text~string, casefold:, lump:, normalization:1, stripIgnorable:, stripCC:, stripMark:, stripNA:)= --  'le  pere ---noel '
 'le  pere ---noel '
 
 /*
@@ -753,7 +753,7 @@ ooRexx> textNFD~isNFD=                                  -- 1
 /*
 The normalized text can be memorized on the original text:
     text = "père Noël"~text
-    textNFD = text~nfd(memorize:)               -- abbreviation mem:.true
+    textNFD = text~nfd(memorize:)
 From now, the returned NFD is always the memorized text.
 */
 
@@ -762,7 +762,7 @@ ooRexx> text=
 T'0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ'
 ooRexx> text~isNFD=
 -1
-ooRexx> textNFD = text~NFD(mem:)
+ooRexx> textNFD = text~NFD(memorize:)
 text~nfd~"==":.object( textNFD)=                -- 1 (this is really the same object)
  1
 

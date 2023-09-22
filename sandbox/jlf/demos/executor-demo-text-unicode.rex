@@ -358,8 +358,8 @@ sleep no prompt
 .Unicode~utf8proc_transform(text~string, stripNA:)=                 --  '[07]Le　 ​Père[09]‐­–—Noël[0D0A]'
 sleep no prompt
 
--- Application of several options (abbreviated names)
-.Unicode~utf8proc_transform(text~string, casef:, lump:, norm:1, stripi:, stripc:, stripm:, stripn:)= --  'le  pere ---noel '
+-- Application of several options
+.Unicode~utf8proc_transform(text~string, casefold:, lump:, normalization:1, stripIgnorable:, stripCC:, stripMark:, stripNA:)= --  'le  pere ---noel '
 sleep no prompt
 
 /*
@@ -435,7 +435,7 @@ sleep no prompt
 /*
 The normalized text can be memorized on the original text:
     text = "père Noël"~text
-    textNFD = text~nfd(memorize:)               -- abbreviation mem:.true
+    textNFD = text~nfd(memorize:)
 From now, the returned NFD is always the memorized text.
 */
 sleep no prompt
@@ -444,7 +444,7 @@ text = xrange("0", "FF"x)~text("cp1252")~utf8
 text=
 text~isNFD=
 sleep
-textNFD = text~NFD(mem:)
+textNFD = text~NFD(memorize:)
 sleep no prompt
 text~nfd~"==":.object( textNFD)=                -- 1 (this is really the same object)
 

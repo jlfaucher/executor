@@ -564,14 +564,14 @@ RexxObject *Unicode::utf8proc_transform(RexxString *string, RexxObject **named_a
 
     // use strict named arg casefold(5) = .false, lump= .false, nlf = 0, normalization(4) = 0, stripCC(6) = .false, stripIgnorable(6)= .false, stripMark(6) = .false, stripNA(6) = .false
     NamedArguments expectedNamedArguments(8); // 8 named arguments
-    expectedNamedArguments[0] = NamedArgument("CASEFOLD",      5, TheFalseObject); // At least 5 character, default value = .false
-    expectedNamedArguments[1] = NamedArgument("LUMP",         -1, TheFalseObject); // All characters, default value = .false
-    expectedNamedArguments[2] = NamedArgument("NLF",          -1, IntegerZero);    // All characters, default value = 0 (0=none, 1=NLF2LF, 2=NLF2LS, 3=NLF2PS)
-    expectedNamedArguments[3] = NamedArgument("NORMALIZATION", 4, IntegerZero);    // At least 4 characters, default value = 0 (0=none, 1=NFC, 2=NFD, 3=NFKC, 4=NFKD)
-    expectedNamedArguments[4] = NamedArgument("STRIPCC",       6, TheFalseObject); // At least 6 characters, default value = .false
-    expectedNamedArguments[5] = NamedArgument("STRIPIGNORABLE",6, TheFalseObject); // At least 6 character, default value = .false
-    expectedNamedArguments[6] = NamedArgument("STRIPMARK",     6, TheFalseObject); // At least 6 characters, default value = .false
-    expectedNamedArguments[7] = NamedArgument("STRIPNA",       6, TheFalseObject); // At least 6 characters, default value = .false
+    expectedNamedArguments[0] = NamedArgument("CASEFOLD",      TheFalseObject); // default value = .false
+    expectedNamedArguments[1] = NamedArgument("LUMP",          TheFalseObject); // default value = .false
+    expectedNamedArguments[2] = NamedArgument("NLF",           IntegerZero);    // default value = 0 (0=none, 1=NLF2LF, 2=NLF2LS, 3=NLF2PS)
+    expectedNamedArguments[3] = NamedArgument("NORMALIZATION", IntegerZero);    // default value = 0 (0=none, 1=NFC, 2=NFD, 3=NFKC, 4=NFKD)
+    expectedNamedArguments[4] = NamedArgument("STRIPCC",       TheFalseObject); // default value = .false
+    expectedNamedArguments[5] = NamedArgument("STRIPIGNORABLE",TheFalseObject); // default value = .false
+    expectedNamedArguments[6] = NamedArgument("STRIPMARK",     TheFalseObject); // default value = .false
+    expectedNamedArguments[7] = NamedArgument("STRIPNA",       TheFalseObject); // default value = .false
     expectedNamedArguments.match(named_arglist, named_argcount, /*strict*/ true, /*extraAllowed*/ false);
     ssize_t casefold =      integerRange(expectedNamedArguments[0].value, 0, 1, Error_Logical_value_user_defined, "Transform: value of named argument \"casefold\" must be 0 or 1");
     ssize_t lump =          integerRange(expectedNamedArguments[1].value, 0, 1, Error_Logical_value_user_defined, "Transform: value of named argument \"lump\" must be 0 or 1");

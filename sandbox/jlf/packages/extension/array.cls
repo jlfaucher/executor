@@ -406,7 +406,7 @@ v()               | []                            | 1         | [0]             
     -- Ex :
     --     v( v(1), v(2) ) can be used with a vector : shape [2], depth 2. The indexes have 1 indice, the result is shape [2], depth 1.
     --     v( v(1,2), v(3,4) ) can be used with a matrix : shape [2], depth 2. The indexes have 2 indices, the result is shape [2], depth 1.
-    return index~leftElementWise({itemRight~atIndex(itemLeft)}, self~enclose, d:1)
+    return index~leftElementWise({itemRight~atIndex(itemLeft)}, self~enclose, depth: 1)
 
     /*
         vector~indexer()=           []
@@ -976,7 +976,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
     To adjust correctly this self reference, must not remove the mappings from the stack when returning from a recursive call.
     */
     use strict arg action={item}, rightArg=.nil, stack=(.identityTable~new)
-    use strict named arg depth(1)=(.infinity~positive), expansion(1)=0, transform(1)={item}
+    use strict named arg depth=(.infinity~positive), expansion=0, transform={item}
     counterpart = stack[self]
     if .nil <> counterpart then do
         if expansion <= 0 then do
@@ -999,7 +999,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
             er = .EnclosedArray~new(.nil)
             stack[self] = er -- in case of self reference, will be used to build the new self reference
             arg = self~disclose
-            arg~leftElementWise(doer, , stack, d:depth-1, e:expansion, t:transform)
+            arg~leftElementWise(doer, , stack, depth:depth-1, :expansion, :transform)
             -- stack~remove(self)
             if var("result") then do
                 er~setEnclosed(result)
@@ -1014,7 +1014,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
             index = supplier~index
             item = supplier~item
             if item~isA(.array) | item~isA(.EnclosedArray) then do
-                item~leftElementWise(doer, , stack, d:depth-1, e:expansion, t:transform)
+                item~leftElementWise(doer, , stack, depth:depth-1, :expansion, :transform)
                 if var("result") then r[index] = result
             end
             else if depth <= 0 then do
@@ -1052,7 +1052,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
         end
         if rightArg~isA(.array) then do
             -- binary operator with enclosed array on left & not enclosed array on right : EnclosedArray op Array
-            rightArg~rightElementWise(doer, self, stack, d:depth, e:expansion, t:transform)
+            rightArg~rightElementWise(doer, self, stack, :depth, :expansion, :transform)
             if var("result") then return result
         end
     end
@@ -1071,7 +1071,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
             index = supplier~index
             item = supplier~item
             if item~isA(.array) | item~isA(.EnclosedArray) then do
-                item~leftElementWise(doer, rightArg[index], stack, d:depth-1, e:expansion, t:transform)
+                item~leftElementWise(doer, rightArg[index], stack, depth:depth-1, :expansion, :transform)
                 if var("result") then r[index] = result
             end
             else if depth <= 0 then do
@@ -1098,7 +1098,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
             er = .EnclosedArray~new(.nil)
             stack[self] = er -- in case of self reference, will be used to build the new self reference
             leftArg = self~disclose
-            leftArg~leftElementWise(doer, rightArg, stack, d:depth-1, e:expansion, t:transform)
+            leftArg~leftElementWise(doer, rightArg, stack, depth:depth-1, :expansion, :transform)
             -- stack~remove(self)
             if var("result") then do
                 er~setEnclosed(result)
@@ -1113,7 +1113,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
             index = supplier~index
             item = supplier~item
             if item~isA(.array) | item~isA(.EnclosedArray) then do
-                item~leftElementWise(doer, rightArg, stack, d:depth-1, e:expansion, t:transform)
+                item~leftElementWise(doer, rightArg, stack, depth:depth-1, :expansion, :transform)
                 if var("result") then r[index] = result
             end
             else if depth <= 0 then do
@@ -1145,7 +1145,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
     -- Other op Other :                 can't happen (right is either Array or EnclosedArray)
 
     use strict arg action, leftArg, stack=(.identityTable~new)
-    use strict named arg depth(1)=(.infinity~positive), expansion(1)=0, transform(1)={item}
+    use strict named arg depth=(.infinity~positive), expansion=0, transform={item}
     counterpart = stack[self]
     if .nil <> counterpart then do
         if expansion <= 0 then do
@@ -1161,7 +1161,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
     arity = doer~arity
 
     if leftArg~isA(.array) then do
-        leftArg~leftElementWise(doer, self, stack, d:depth, e:expansion, t:transform)
+        leftArg~leftElementWise(doer, self, stack, :depth, :expansion, :transform)
         if var("result") then return result
     end
 
@@ -1179,7 +1179,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
         er = .EnclosedArray~new(.nil)
         stack[self] = er -- in case of self reference, will be used to build the new self reference
         rightArg = self~disclose
-        rightArg~rightElementWise(doer, leftArg, stack, d:depth-1, e:expansion, t:transform)
+        rightArg~rightElementWise(doer, leftArg, stack, depth:depth-1, :expansion, :transform)
         -- stack~remove(self)
         if var("result") then do
             er~setEnclosed(result)
@@ -1195,7 +1195,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
         index = supplier~index
         item = supplier~item
         if item~isA(.array) | item~isA(.EnclosedArray) then do
-            item~rightElementWise(doer, leftArg, stack, d:depth-1, e:expansion, t:transform)
+            item~rightElementWise(doer, leftArg, stack, depth:depth-1, :expansion, :transform)
             if var("result") then r[index] = result
         end
         else if depth <= 0 then do

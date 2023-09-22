@@ -866,9 +866,9 @@ ooRexx> r~matched=; r~start=; r~end=; r~text=; r~length=
 ooRexx> r = pT~find("xxx🤶🎅cxxx"~text)
 ooRexx> r~matched=; r~start=; r~end=; r~text=; r~length=
  1
- 1
- 2
-T'x'
+ 4
+ 5
+T'🤶'
  1
 ooRexx> r = pB~find("xxx🎅🤶cxxx")
 ooRexx> r~matched=; r~start=; r~end=; r~text=; r~length=
@@ -880,9 +880,9 @@ ooRexx> r~matched=; r~start=; r~end=; r~text=; r~length=
 ooRexx> r = pT~find("xxx🎅🤶cxxx"~text)
 ooRexx> r~matched=; r~start=; r~end=; r~text=; r~length=
  1
- 1
- 2
-T'x'
+ 4
+ 5
+T'🎅'
  1
 
 

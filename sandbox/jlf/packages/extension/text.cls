@@ -248,12 +248,12 @@ Otherwise return the string.
 
 ::method description
     /*
-    "noël👩‍👨‍👩‍👧🎅"~description(s:1)          -- 'UTF-8 not-ASCII by default'
+    "noël👩‍👨‍👩‍👧🎅"~description(short:1)      -- 'UTF-8 not-ASCII by default'
     "noël👩‍👨‍👩‍👧🎅"~description               -- 'UTF-8 not-ASCII by default (34 bytes)'
     */
     if self~hasText then forward to (self~text)
     use strict arg -- none
-    use strict named arg short(1)=.false, technical(1)=.false /* not used */
+    use strict named arg short=.false, technical=.false /* not used */
     sizesDescription = ""
     if \short then sizesDescription = "(" ||,
                                       self~length~singularPluralCount("byte", "bytes"),
@@ -270,7 +270,7 @@ Otherwise return the string.
     string = self
     if string~length > length then string = string~left(length - 3)"..."
     -- escape3 is needed to have a proper display like this: [00]4[00]1
-    return self~description(s:1) "'"escape3(string)"'"
+    return self~description(short:1) "'"escape3(string)"'"
 
 
 /******************************************************************************/
@@ -350,11 +350,11 @@ without requesting a string from the buffer
 
 ::method description
     /*
-    .MutableBuffer~new("noël👩‍👨‍👩‍👧🎅")~description(s:1)          -- 'UTF-8 not-ASCII by default'
+    .MutableBuffer~new("noël👩‍👨‍👩‍👧🎅")~description(short:1)      -- 'UTF-8 not-ASCII by default'
     .MutableBuffer~new("noël👩‍👨‍👩‍👧🎅")~description               -- 'UTF-8 not-ASCII by default (34 bytes)'
     */
     use strict arg -- none
-    use strict named arg short(1)=.false, technical(1)=.false /* not used */
+    use strict named arg short=.false, technical=.false /* not used */
     sizesDescription = ""
     if \short then sizesDescription = "(" ||,
                                       self~length~singularPluralCount("byte", "bytes"),
@@ -371,7 +371,7 @@ without requesting a string from the buffer
     string = self~substr(1, min(length, self~length)) -- left
     if self~length > length then string = string~left(length - 3)"..."
     -- escape3 is needed to have a proper display like this: [00]4[00]1
-    return self~description(s:1) "'"escape3(string)"'"
+    return self~description(short:1) "'"escape3(string)"'"
 
 
 ::method isCompatibleWithASCII
@@ -388,7 +388,7 @@ without requesting a string from the buffer
 
     -- Positional arguments : zero to N text or buffer or string.
     use strict arg ...
-    use strict named arg buffer(1)=.nil -- yes, support this parameter, to offer the same interface as .RexxText~appendEncoded
+    use strict named arg buffer=.nil -- yes, support this parameter, to offer the same interface as .RexxText~appendEncoded
     if .nil == buffer then buffer = self
     if buffer \== self then buffer~appendEncoded(self)
 
@@ -1061,7 +1061,7 @@ stringChunks
 
 ::method center
     use arg _length, pad -- not strict, just need to check 'pad'
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     padIsCompatibleWithByteString = .true
     if arg(2, "e") then do
         if \pad~isCompatibleWithByteString then padIsCompatibleWithByteString = .false
@@ -1113,7 +1113,7 @@ stringChunks
 
 
 ::method copies
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     forward to (self~string) continue
     if .nil <> buffer then return buffer~~append(result)
                       else return .RexxText~new(result, self~encoding)
@@ -1141,11 +1141,11 @@ stringChunks
     -- Positional arguments : zero to N text/string or arrays of text/string (recursively).
     -- The text value of each argument is joined, with self used as separator
     -- If the encoding of an argument is not compatible for concatenation with self then an error is raised
-    use strict named arg buffer(1)=.nil, appender(1)=(self~encoding)
+    use strict named arg buffer=.nil, appender=(self~encoding)
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new
     if \buffer~hasEncoding then buffer~encoding = self~encoding
-    buffer~join(arg(1, "a"), separator: self, a: appender)
+    buffer~join(arg(1, "a"), separator: self, :appender)
     if returnBuffer then return buffer
                     else return .RexxText~new(buffer~string, self~encoding)
 
@@ -1162,7 +1162,7 @@ stringChunks
 
 
 ::method lower
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     if self~isCompatibleWithByteString then do
         forward to (self~string) continue
         if .nil <> buffer then return buffer~~append(result)
@@ -1194,7 +1194,7 @@ stringChunks
 
 
 ::method reverse
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     if self~isCompatibleWithByteString then do
         forward to (self~string) continue
         if .nil <> buffer then return buffer~~append(result)
@@ -1206,7 +1206,7 @@ stringChunks
 ::method right
     -- can't delegate to substr because here the padding is on the left
     use arg _length, pad -- not strict, just need to check 'pad'
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     padIsCompatibleWithByteString = .true
     if arg(2, "e") then do
         if \pad~isCompatibleWithByteString then padIsCompatibleWithByteString = .false
@@ -1237,7 +1237,7 @@ stringChunks
 
 ::method substr
     use arg _startB, _length, pad -- not strict, just need to check 'pad'
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     padIsCompatibleWithByteString = .true
     if arg(3, "e") then do
         if \pad~isCompatibleWithByteString then padIsCompatibleWithByteString = .false
@@ -1252,7 +1252,7 @@ stringChunks
 
 
 ::method upper
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     if self~isCompatibleWithByteString then do
         forward to (self~string) continue
         if .nil <> buffer then return buffer~~append(result)
@@ -1267,7 +1267,7 @@ stringChunks
 
 
 ::method x2c
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     self~checkHexadecimalValueCompatibility
     forward to (self~string) continue
     if .nil <> buffer then return buffer~~append(result)

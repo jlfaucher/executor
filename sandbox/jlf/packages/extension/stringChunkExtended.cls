@@ -43,7 +43,7 @@ call loadPackage "regex/regex.cls"
     stringPattern = stringChunkPattern~string
 
     use strict arg -- none
-    use strict named arg wholeString(1)=.true, caseless(1)=.true, trace(1)=.false, displayer(1)=.traceOutput, prefix(1)=""
+    use strict named arg wholeString=.true, caseless=.true, trace=.false, displayer=.traceOutput, prefix=""
     matcher = .nil
 
     firstCharIsQuoted = stringChunkPattern~quotedFlags~left(1) == "1"

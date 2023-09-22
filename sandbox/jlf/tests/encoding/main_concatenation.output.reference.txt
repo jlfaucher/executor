@@ -250,7 +250,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
 
 ooRexx> drop b t
 ooRexx> b = .MutableBuffer~new
-ooRexx> "Pere"~text("windows-1252")~appendEncoded(" "~text("windows-1252"), :b)~appendEncoded("Noel"~text("iso-8859-1"), :b)
+ooRexx> "Pere"~text("windows-1252")~appendEncoded(" "~text("windows-1252"), buffer:b)~appendEncoded("Noel"~text("iso-8859-1"), buffer:b)
 ooRexx> t = b~string~text
 ooRexx> < include_concatenation_infos s/$(text)/t/
     --------------------------------------------
@@ -326,7 +326,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
 
 ooRexx> drop b t
 ooRexx> b = .MutableBuffer~new
-ooRexx> "Pere"~text("windows-1252")~appendEncoded(" "~text("windows-1252"), :b)~appendEncoded("Noël"~text("iso-8859-1"), :b)
+ooRexx> "Pere"~text("windows-1252")~appendEncoded(" "~text("windows-1252"), buffer:b)~appendEncoded("Noël"~text("iso-8859-1"), buffer:b)
 ooRexx> t = b~string~text
 ooRexx> < include_concatenation_infos s/$(text)/t/
     --------------------------------------------
@@ -402,7 +402,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
 
 ooRexx> drop b t
 ooRexx> b = .MutableBuffer~new
-ooRexx> "Père"~text("windows-1252")~appendEncoded(" "~text("windows-1252"), :b)~appendEncoded("Noel"~text("iso-8859-1"), :b)
+ooRexx> "Père"~text("windows-1252")~appendEncoded(" "~text("windows-1252"), buffer:b)~appendEncoded("Noel"~text("iso-8859-1"), buffer:b)
 ooRexx> t = b~string~text
 ooRexx> < include_concatenation_infos s/$(text)/t/
     --------------------------------------------
@@ -483,7 +483,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
 
 ooRexx> drop b t
 ooRexx> b = .MutableBuffer~new
-ooRexx> "Père"~text("windows-1252")~appendEncoded(" "~text("windows-1252"), :b)~appendEncoded("Noël"~text("iso-8859-1"), :b)
+ooRexx> "Père"~text("windows-1252")~appendEncoded(" "~text("windows-1252"), buffer:b)~appendEncoded("Noël"~text("iso-8859-1"), buffer:b)
 Encoding: cannot append ISO-8859-1 not-ASCII 'Noël' to windows-1252 not-ASCII 'Père '.
 Error code= 23.900
 ooRexx> t = b~string~text
@@ -571,7 +571,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
 
 ooRexx> drop b t
 ooRexx> b = .MutableBuffer~new
-ooRexx> "Pere"~text("utf-8")~appendEncoded(" "~text("utf-8"), :b)~appendEncoded("Noel"~text("unicode-8"), :b)
+ooRexx> "Pere"~text("utf-8")~appendEncoded(" "~text("utf-8"), buffer:b)~appendEncoded("Noel"~text("unicode-8"), buffer:b)
 ooRexx> t = b~string~text
 ooRexx> < include_concatenation_infos s/$(text)/t/
     --------------------------------------------
@@ -644,7 +644,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
 
 ooRexx> drop b t
 ooRexx> b = .MutableBuffer~new
-ooRexx> "Pere"~text("utf-8")~appendEncoded(" "~text("utf-8"), :b)~appendEncoded("Noël"~text("unicode-8"), :b)
+ooRexx> "Pere"~text("utf-8")~appendEncoded(" "~text("utf-8"), buffer:b)~appendEncoded("Noël"~text("unicode-8"), buffer:b)
 ooRexx> t = b~string~text
 ooRexx> < include_concatenation_infos s/$(text)/t/
     --------------------------------------------
@@ -717,7 +717,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
 
 ooRexx> drop b t
 ooRexx> b = .MutableBuffer~new
-ooRexx> "Père"~text("utf-8")~appendEncoded(" "~text("utf-8"), :b)~appendEncoded("Noel"~text("unicode-8"), :b)
+ooRexx> "Père"~text("utf-8")~appendEncoded(" "~text("utf-8"), buffer:b)~appendEncoded("Noel"~text("unicode-8"), buffer:b)
 ooRexx> t = b~string~text
 ooRexx> < include_concatenation_infos s/$(text)/t/
     --------------------------------------------
@@ -796,7 +796,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
 
 ooRexx> drop b t
 ooRexx> b = .MutableBuffer~new
-ooRexx> "Père"~text("utf-8")~appendEncoded(" "~text("utf-8"), :b)~appendEncoded("Noël"~text("unicode-8"), :b)
+ooRexx> "Père"~text("utf-8")~appendEncoded(" "~text("utf-8"), buffer:b)~appendEncoded("Noël"~text("unicode-8"), buffer:b)
 Encoding: cannot append Unicode8 not-ASCII 'Noël' to UTF-8 not-ASCII 'Père '.
 Error code= 23.900
 ooRexx> t = b~string~text
@@ -882,7 +882,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
 
 ooRexx> drop b t
 ooRexx> b = .MutableBuffer~new
-ooRexx> "Pere"~text("byte")~appendEncoded(" "~text("byte"), :b)~appendEncoded("Noel"~text("unicode-8"), :b)
+ooRexx> "Pere"~text("byte")~appendEncoded(" "~text("byte"), buffer:b)~appendEncoded("Noel"~text("unicode-8"), buffer:b)
 ooRexx> t = b~string~text
 ooRexx> < include_concatenation_infos s/$(text)/t/
     --------------------------------------------
@@ -955,7 +955,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
 
 ooRexx> drop b t
 ooRexx> b = .MutableBuffer~new
-ooRexx> "Pere"~text("byte")~appendEncoded(" "~text("byte"), :b)~appendEncoded("Noël"~text("unicode-8"), :b)
+ooRexx> "Pere"~text("byte")~appendEncoded(" "~text("byte"), buffer:b)~appendEncoded("Noël"~text("unicode-8"), buffer:b)
 ooRexx> t = b~string~text
 ooRexx> < include_concatenation_infos s/$(text)/t/
     --------------------------------------------
@@ -1034,7 +1034,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
 
 ooRexx> drop b t
 ooRexx> b = .MutableBuffer~new
-ooRexx> "Père"~text("byte")~appendEncoded(" "~text("byte"), :b)~appendEncoded("Noel"~text("unicode-8"), :b)
+ooRexx> "Père"~text("byte")~appendEncoded(" "~text("byte"), buffer:b)~appendEncoded("Noel"~text("unicode-8"), buffer:b)
 Encoding: cannot append Unicode8 ASCII 'Noel' to Byte not-ASCII 'Père '.
 Error code= 23.900
 ooRexx> t = b~string~text
@@ -1119,7 +1119,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
 
 ooRexx> drop b t
 ooRexx> b = .MutableBuffer~new
-ooRexx> "Père"~text("byte")~appendEncoded(" "~text("byte"), :b)~appendEncoded("Noël"~text("unicode-8"), :b)
+ooRexx> "Père"~text("byte")~appendEncoded(" "~text("byte"), buffer:b)~appendEncoded("Noël"~text("unicode-8"), buffer:b)
 Encoding: cannot append Unicode8 not-ASCII 'Noël' to Byte not-ASCII 'Père '.
 Error code= 23.900
 ooRexx> t = b~string~text
@@ -1207,7 +1207,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
 
 ooRexx> drop b t
 ooRexx> b = .MutableBuffer~new
-ooRexx> "Pere"~text("unicode-8")~appendEncoded(" "~text("unicode-8"), :b)~appendEncoded("Noel"~text("byte"), :b)
+ooRexx> "Pere"~text("unicode-8")~appendEncoded(" "~text("unicode-8"), buffer:b)~appendEncoded("Noel"~text("byte"), buffer:b)
 ooRexx> t = b~string~text
 ooRexx> < include_concatenation_infos s/$(text)/t/
     --------------------------------------------
@@ -1286,7 +1286,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
 
 ooRexx> drop b t
 ooRexx> b = .MutableBuffer~new
-ooRexx> "Pere"~text("unicode-8")~appendEncoded(" "~text("unicode-8"), :b)~appendEncoded("Noël"~text("byte"), :b)
+ooRexx> "Pere"~text("unicode-8")~appendEncoded(" "~text("unicode-8"), buffer:b)~appendEncoded("Noël"~text("byte"), buffer:b)
 Encoding: cannot append Byte not-ASCII 'Noël' to Unicode8 ASCII 'Pere '.
 Error code= 23.900
 ooRexx> t = b~string~text
@@ -1363,7 +1363,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
 
 ooRexx> drop b t
 ooRexx> b = .MutableBuffer~new
-ooRexx> "Père"~text("unicode-8")~appendEncoded(" "~text("unicode-8"), :b)~appendEncoded("Noel"~text("byte"), :b)
+ooRexx> "Père"~text("unicode-8")~appendEncoded(" "~text("unicode-8"), buffer:b)~appendEncoded("Noel"~text("byte"), buffer:b)
 ooRexx> t = b~string~text
 ooRexx> < include_concatenation_infos s/$(text)/t/
     --------------------------------------------
@@ -1442,7 +1442,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
 
 ooRexx> drop b t
 ooRexx> b = .MutableBuffer~new
-ooRexx> "Père"~text("unicode-8")~appendEncoded(" "~text("unicode-8"), :b)~appendEncoded("Noël"~text("byte"), :b)
+ooRexx> "Père"~text("unicode-8")~appendEncoded(" "~text("unicode-8"), buffer:b)~appendEncoded("Noël"~text("byte"), buffer:b)
 Encoding: cannot append Byte not-ASCII 'Noël' to Unicode8 not-ASCII 'Père '.
 Error code= 23.900
 ooRexx> t = b~string~text

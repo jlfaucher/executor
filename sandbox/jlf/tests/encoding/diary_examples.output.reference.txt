@@ -269,9 +269,9 @@ ooRexx> r~matched=; r~start=; r~end=; r~text=; r~length=
 ooRexx> r = pT~find("xxx🤶🎅cxxx"~text)
 ooRexx> r~matched=; r~start=; r~end=; r~text=; r~length=
  1
- 1
- 2
-T'x'
+ 4
+ 5
+T'🤶'
  1
 ooRexx> r = pB~find("xxx🎅🤶cxxx")
 ooRexx> r~matched=; r~start=; r~end=; r~text=; r~length=
@@ -283,9 +283,9 @@ ooRexx> r~matched=; r~start=; r~end=; r~text=; r~length=
 ooRexx> r = pT~find("xxx🎅🤶cxxx"~text)
 ooRexx> r~matched=; r~start=; r~end=; r~text=; r~length=
  1
- 1
- 2
-T'x'
+ 4
+ 5
+T'🎅'
  1
 
 
@@ -336,8 +336,8 @@ a List (0 items)
 "bâﬄé"~text~c2g=                            -- '62 | C3A2 | EFAC84   | C3A9'
                                              --  b  | â    | ﬄ       | é
 
-                                             --  01 | 02   | 03       | 04     (external grapheme indexes)
-                                             --  1  | 2 3  | 4  5  6  | 7      (internal byte indexes)
+                                             --  01 | 02   | 03 04 05 | 06     (internal grapheme indexes)
+                                             --  1  | 2 3  | 4  5  6  | 7 8    (internal byte indexes)
 "bâﬄé"~text~casefold~c2g=                   -- '62 | C3A2 | 66 66 6C | C3A9'
                                              --  b  | â    | f  f  l  | é
 */
@@ -392,8 +392,8 @@ ooRexx> "bâﬄﬄé"~text~caselessPos("FFLFFL")=                 -- 3
 "bâﬄé"~text~c2g=                            -- '62 | C3A2   | EFAC84   | C3A9'
                                              --  b  | â      | ﬄ       | é
 
-                                             --  01 | 02     | 03       | 04     (external grapheme indexes)
-                                             --  1  | 2 3 4  | 5 6 7    | 8 9 0  (internal byte indexes)
+                                             --  01 | 02     | 03 04 05 | 06     (internal grapheme indexes)
+                                             --  1  | 2 3 4  | 5  6  7  | 8 9 0  (internal byte indexes)
 "bâﬄé"~text~NFKD~c2g=                       -- '62 | 61CC82 | 66 66 6C | 65CC81'
                                              --  b  | a ^    | f  f  l  | e ´
 */
@@ -447,8 +447,8 @@ ooRexx> "bâﬄﬄé"~text~pos("fflffl", strict:.false)=                  -- 3
 "bâﬄé"~text~c2g=                            -- '62 | C3A2   | EFAC84   | C3A9'
                                              --  b  | â      | ﬄ       | é
 
-                                             --  01 | 02     | 03       | 04     (external grapheme indexes)
-                                             --  1  | 2 3 4  | 5 6 7    | 8 9 0  (internal byte indexes)
+                                             --  01 | 02     | 03 04 05 | 06     (internal grapheme indexes)
+                                             --  1  | 2 3 4  | 5  6  7  | 8 9 0  (internal byte indexes)
 "bâﬄé"~text~NFKD~c2g=                       -- '62 | 61CC82 | 66 66 6C | 65CC81'
                                              --  b  | a ^    | f  f  l  | e ´
 */
@@ -2029,7 +2029,7 @@ ooRexx> '50 8A 72 65 20 4E 6F 89 6C'x~text("cp437")~utf8~c2x=                   
 ooRexx> '50 8A 72 65 20 4E 6F 89 6C'x~text("cp437")~transcodeTo("utf8")~c2x=        -- '50 C3A8 72 65 20 4E 6F C3AB 6C'
 '50 C3A8 72 65 20 4E 6F C3AB 6C'
 
-ooRexx> text = "Père Noël 🎅 10€"~text; do encoding over .Byte_Encoding~subclasses~~append(.Byte_Encoding); say encoding~name~left(13)":" text~transcodeTo(encoding, replace:"FF"x)~c2x; end
+ooRexx> text = "Père Noël 🎅 10€"~text; do encoding over .Byte_Encoding~subclasses~~append(.Byte_Encoding); say encoding~name~left(13)":" text~transcodeTo(encoding, replacementCharacter:"FF"x)~c2x; end
 ISO-8859-1   : 50 E8 72 65 20 4E 6F EB 6C 20 FF 20 31 30 FF
 ibm-1252     : 50 E8 72 65 20 4E 6F EB 6C 20 FF 20 31 30 FF
 windows-1252 : 50 E8 72 65 20 4E 6F EB 6C 20 FF 20 31 30 80
@@ -2042,10 +2042,10 @@ Byte         : 50 FF 72 65 20 4E 6F FF 6C 20 FF 20 31 30 FF
 
 
 --- Following expressions return the same result correctly tagged 'ISO-8859-1'
-ooRexx> b = .MutableBuffer~new; "Pere"~text("windows-1252")~append(" "~text("windows-1252"), :b)~appendEncoded("Noël"~text("iso-8859-1"), :b)=; result~description=
+ooRexx> b = .MutableBuffer~new; "Pere"~text("windows-1252")~append(" "~text("windows-1252"), buffer:b)~appendEncoded("Noël"~text("iso-8859-1"), buffer:b)=; result~description=
 M'Pere Noël'
 'ISO-8859-1 not-ASCII (10 bytes)'
-ooRexx> b = .MutableBuffer~new; "Pere"~text("windows-1252")~appendEncoded(" "~text("windows-1252"), :b)~appendEncoded("Noël"~text("iso-8859-1"), :b)=; result~description=
+ooRexx> b = .MutableBuffer~new; "Pere"~text("windows-1252")~appendEncoded(" "~text("windows-1252"), buffer:b)~appendEncoded("Noël"~text("iso-8859-1"), buffer:b)=; result~description=
 M'Pere Noël'
 'ISO-8859-1 not-ASCII (10 bytes)'
 ooRexx> b = .MutableBuffer~new; b~appendEncoded("Pere"~text("windows-1252"), " "~text("windows-1252"), "Noël"~text("iso-8859-1"))=; result~description=
@@ -2053,7 +2053,7 @@ M'Pere Noël'
 'ISO-8859-1 not-ASCII (10 bytes)'
 
 -- Following expressions (not using 'appendEncoded') return the same result as above, but wrongly tagged 'windows-1252' or 'UTF-8'
-ooRexx> b = .MutableBuffer~new; "Pere"~text("windows-1252")~append(" "~text("windows-1252"), :b)~append("Noël"~text("iso-8859-1"), :b)=; result~description=
+ooRexx> b = .MutableBuffer~new; "Pere"~text("windows-1252")~append(" "~text("windows-1252"), buffer:b)~append("Noël"~text("iso-8859-1"), buffer:b)=; result~description=
 M'Pere Noël'
 'windows-1252 not-ASCII (10 bytes)'
 ooRexx> b = .MutableBuffer~new; b~append("Pere"~text("windows-1252"), " "~text("windows-1252"), "Noël"~text("iso-8859-1"))=; result~description=
@@ -2124,20 +2124,20 @@ ooRexx> g~()=       -- [no result]
 
 -- For convenience, additional way to search a character:
 -- with a routine
-ooRexx> .UnicodeCharacter("bed")=           -- ( "🛏"   U+1F6CF So 1 "BED" )
+ooRexx> .UnicodeCharacter("bed")=                   -- ( "🛏"   U+1F6CF So 1 "BED" )
 ( "🛏"   U+1F6CF So 1 "BED" )
-ooRexx> .UnicodeCharacter("bed", h:)=       -- ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
+ooRexx> .UnicodeCharacter("bed", hexadecimal:)=     -- ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
 ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
 -- with the operator []
-ooRexx> .UnicodeCharacter["bed"]=           -- ( "🛏"   U+1F6CF So 1 "BED" )
+ooRexx> .UnicodeCharacter["bed"]=                   -- ( "🛏"   U+1F6CF So 1 "BED" )
 ( "🛏"   U+1F6CF So 1 "BED" )
-ooRexx> .UnicodeCharacter["bed", h:]=       -- ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
+ooRexx> .UnicodeCharacter["bed", hexadecimal:]=     -- ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
 ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
 
 -- This comes in complement of:
-ooRexx> .Unicode["bed", h:]=                -- ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
+ooRexx> .Unicode["bed", hexadecimal:]=              -- ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
 ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
-ooRexx> .Unicode~character("bed", h:)=      -- ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
+ooRexx> .Unicode~character("bed", hexadecimal:)=    -- ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
 ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
 
 
@@ -2296,8 +2296,8 @@ The conversion methods accept the named argument 'memorize(3)'.
 Its default value is given by .unicode~memorizeConversions which is .false by default.
     s = "hello"
     t = s~text
-    utf16 = t~utf16(mem:)
-    utf32 = t~utf32(mem:)
+    utf16 = t~utf16(memorize:)
+    utf32 = t~utf32(memorize:)
     t~utf16~"==":.object(utf16)=         -- 1
     t~utf32~"==":.object(utf32)=         -- 1
 */
@@ -2308,9 +2308,9 @@ CP1252 to UTF-8, UTF-16, UTF-32
 */
 ooRexx> str_cp1252 = "Un " || "9C"x || "uf de chez MaPoule" || "99"x || " co" || "FB"x || "te " || "B1"x || "0.40" || "80"x
 ooRexx> txt_cp1252 = str_cp1252~text("cp1252")
-ooRexx> utf8  = txt_cp1252~utf8(mem:)
-ooRexx> utf16 = txt_cp1252~utf16(mem:)
-ooRexx> utf32 = txt_cp1252~utf32(mem:)
+ooRexx> utf8  = txt_cp1252~utf8(memorize:)
+ooRexx> utf16 = txt_cp1252~utf16(memorize:)
+ooRexx> utf32 = txt_cp1252~utf32(memorize:)
 ooRexx> txt_cp1252~utf8 ~"==":.object(utf8) =         -- 1
  1
 ooRexx> txt_cp1252~utf16~"==":.object(utf16)=         -- 1
@@ -2322,9 +2322,9 @@ ooRexx> txt_cp1252~utf32~"==":.object(utf32)=         -- 1
 When an optional buffer is passed, must check that its encoding is compatible.
 Done for the conversion methods.
 */
-ooRexx> b = .mutablebuffer~new      -- No encoding yet
-ooRexx> "hello"~text~utf16(:b)      -- now the buffer's encoding is UTF-16
-ooRexx> "bye"~text~utf8(:b)         -- Encoding: cannot append UTF-8 to UTF-16BE '[00]h[00]e[00]l[00]l[00]o'.
+ooRexx> b = .mutablebuffer~new            -- No encoding yet
+ooRexx> "hello"~text~utf16(buffer:b)      -- now the buffer's encoding is UTF-16
+ooRexx> "bye"~text~utf8(buffer:b)         -- Encoding: cannot append UTF-8 to UTF-16BE '[00]h[00]e[00]l[00]l[00]o'.
 Encoding: cannot append UTF-8 to UTF-16BE '[00]h[00]e[00]l[00]l[00]o'.
 Error code= 23.900
 
@@ -2482,15 +2482,15 @@ Performance
 Examples
 */
 -- Direct access to utf8proc, returns a string
-ooRexx> s = "Père Noël ß ㎒"; do 10000; .Unicode~utf8proc_transform(s, norm:3, casefold:.true); end          -- Duration:   0.05
+ooRexx> s = "Père Noël ß ㎒"; do 10000; .Unicode~utf8proc_transform(s, normalization:3, casefold:.true); end -- Duration:   0.05
 ---
 ooRexx> t = "Père Noël ß ㎒"~text; do 10000; t~NFKC(casefold:.true); end                                     -- Duration:   7.70
 ooRexx> t = "Père Noël ß ㎒"~text; do 10000; t~NFKC(casefold:.true, returnString:.true); end                 -- Duration:   0.33
-ooRexx> t = "Père Noël ß ㎒"~text; do 10000; t~NFKC(casefold:.true, returnString:.true, mem:.true); end      -- Duration:   0.11
+ooRexx> t = "Père Noël ß ㎒"~text; do 10000; t~NFKC(casefold:.true, returnString:.true, memorize:.true); end -- Duration:   0.11
 -- The cache for NFKC  + casefold is different from the cache for NFKC only:
 ooRexx> t = "Père Noël ß ㎒"~text; do 10000; t~NFKC; end                                                     -- Duration:   6.50
 ooRexx> t = "Père Noël ß ㎒"~text; do 10000; t~NFKC(returnString:.true); end                                 -- Duration:   0.30
-ooRexx> t = "Père Noël ß ㎒"~text; do 10000; t~NFKC(returnString:.true, mem:.true); end                      -- Duration:   0.10
+ooRexx> t = "Père Noël ß ㎒"~text; do 10000; t~NFKC(returnString:.true, memorize:.true); end                 -- Duration:   0.10
 
 
 -- ===============================================================================
@@ -2660,8 +2660,8 @@ ooRexx>     -- Strips unassigned codepoints.
 ooRexx>     .Unicode~utf8proc_transform(text~string, stripNA:.true)=            --  '[07]Le　 ​Père[09]‐­–—Noël[0D0A]'
 '[07]Le　 ​Père[09]‐­–—Noël[0D0A]'
 
-ooRexx>     -- Application of several options (abbreviated names)
-ooRexx>     .Unicode~utf8proc_transform(text~string, casef:.true, lump:.true, norm:1, stripi:.true, stripc:.true, stripm:.true, stripn:.true)= --  'le  pere ---noel '
+ooRexx>     -- Application of several options
+ooRexx>     .Unicode~utf8proc_transform(text~string, casefold:.true, lump:.true, normalization:1, stripIgnorable:.true, stripCC:.true, stripMark:.true, stripNA:.true)= --  'le  pere ---noel '
 'le  pere ---noel '
 
 
@@ -2876,7 +2876,7 @@ The methods NFxx sets the corresponding indicator isNFxx
 
 -- The normalized text can be memorized on the original text:
 ooRexx>     text = "père Noël"~text
-ooRexx>     textNFD = text~nfd(memorize:.true)      -- abbreviation mem:.true
+ooRexx>     textNFD = text~nfd(memorize:.true)
 -- From now, the returned NFD is always the memorized text:
 ooRexx>     text~nfd == textNFD=                    -- .true
  1
@@ -3166,14 +3166,14 @@ Same options as when sending the message "matcher" to a string.
 
 -- Options: not wholestring, trace with prefix "> "
 */
-ooRexx> .unicode~characters("father", w:0, t:1, p:">")
+ooRexx> .unicode~characters("father", wholeString:0, trace:1, prefix:">")
 >description: stringChunkPattern="father" wholeString=0 caseless=1
 >stringPattern="father"
 >matcher: expose description stringPattern; use strict arg string; return string~caselessPos(stringPattern) <> 0
 
 -- Same options with a regular expression.
 -- "/father" is faster than "/.*father.*" but still very slow compared to "father"
-ooRexx> .unicode~characters("/father", w:0, t:1, p:"> ")
+ooRexx> .unicode~characters("/father", wholeString:0, trace:1, prefix:"> ")
 > description: stringChunkPattern="/father" wholeString=0 caseless=1
 > stringPattern="father"
 > pattern = .Pattern~compile(stringPattern, .RegexCompiler~new(.RegexCompiler~caseless))
@@ -6091,7 +6091,7 @@ ooRexx>     'aa"b\ b"cc"d\ d"ee\* ff'~chunks(breakTokens: ' a"b ')~each{item~say
 */
 
 ooRexx>     -- If an escape character is also declared break token then it's no longer an escape character
-ooRexx>     'aa"b\ b"cc"d\ d"ee\* ff'~chunks(breakTokens:"\", escapeCharacter:"\")~each{item~sayDescription(25, index, 2)}==
+ooRexx>     'aa"b\ b"cc"d\ d"ee\* ff'~chunks(breakTokens:"\", escapeCharacters:"\")~each{item~sayDescription(25, index, 2)}==
 1  |aab\ bccd\ dee|            01 18 |aa"b\ b"cc"d\ d"ee|       
 1  |00111100111100|           
 2  |\|                         19 19 |\|                        
@@ -6266,19 +6266,19 @@ Unicode32_Encoding can be used with utf8proc for the functions taking a buffer o
 
 ooRexx> "côté"~text("unicode8")=    -- T'côté Just an interpretative layer put above the string
 T'côté'
-ooRexx> "côté"~text("unicode8")~pipe{item~description(s:1) ":" item~c2x}=
+ooRexx> "côté"~text("unicode8")~pipe{item~description(short:1) ":" item~c2x}=
 'Unicode8 not-ASCII : 63 C3 B4 74 C3 A9'
 --    'Unicode8 not-ASCII : 63 C3 B4 74 C3 A9
 
 ooRexx> "côté"~text~unicode=        -- T'c?t?' UTF-8 converted to Unicode8
 T'c�t�'
-ooRexx> "côté"~text~unicode~pipe{item~description(s:1) ":" item~c2x}=
+ooRexx> "côté"~text~unicode~pipe{item~description(short:1) ":" item~c2x}=
 'Unicode8 not-ASCII : 63 F4 74 E9'
 --    'Unicode8 not-ASCII : 63 F4 74 E9
 
 ooRexx> "noël‍👨‍👩‍👧"~text~maximumCodepoint~pipe{"U+"item~d2x}=   -- U+1F469 is the maximum codepoint
 'U+1F469'
-ooRexx> "noël‍👨‍👩‍👧"~text~unicode~description(t:1)=              -- For this maximum codepoint, we need Unicode32
+ooRexx> "noël‍👨‍👩‍👧"~text~unicode~description(technical:1)=      -- For this maximum codepoint, we need Unicode32
 'Unicode32 (5 characters (1 index from index 5), 10 codepoints (0 index), 40 bytes, 0 error)'
 --    'Unicode32 not-ASCII (5 graphemes (1 index from index 5), 10 codepoints (0 index), 40 bytes, 0 error)'
 

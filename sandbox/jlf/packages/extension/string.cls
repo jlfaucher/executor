@@ -91,7 +91,7 @@ Similar to ~makeArray(separator), with these differences:
 
 ::method chunks
     use strict arg -- none
-    use strict named arg withInfos(1)=.true, breakTokens(1)="", splitLevel(1)=1, escapeCharacters(1)=""
+    use strict named arg withInfos=.true, breakTokens="", splitLevel=1, escapeCharacters=""
     return stringChunks(self, withInfos, breakTokens, splitLevel, escapeCharacters)
 
 
@@ -104,10 +104,10 @@ Similar to ~makeArray(separator), with these differences:
     -- If appender is nil then the string value (~string) of each object is joined, with self used as separator.
     -- If appender is not nil then the appender appends what he wants for each object, with self used as a separator.
     -- The appender can raise an error if the object is not supported.
-    use strict named arg buffer(1)=.nil, appender(1)=.nil
+    use strict named arg buffer=.nil, appender=.nil
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new
-    buffer~join(arg(1, "a"), separator: self, a: appender)
+    buffer~join(arg(1, "a"), separator: self, :appender)
     if returnBuffer then return buffer
                     else return buffer~string
 
@@ -149,7 +149,7 @@ Similar to ~makeArray(separator), with these differences:
 
 ::method chunks
     use strict arg -- none
-    use strict named arg withInfos(1)=.true, breakTokens(1)="", splitLevel(1)=1, escapeCharacters(1)=""
+    use strict named arg withInfos=.true, breakTokens="", splitLevel=1, escapeCharacters=""
     return stringChunks(self~string, withInfos, breakTokens, splitLevel, escapeCharacters)
 
 
@@ -159,7 +159,7 @@ Similar to ~makeArray(separator), with these differences:
 
 ::method join
     use strict arg ... -- zero to N objects or arrays of objects (recursively).
-    use strict named arg separator(1)="", appender(1)=.nil
+    use strict named arg separator="", appender=.nil
     -- If appender is nil then the string value (~string) of each object is joined, with self used as separator.
     -- If appender is not nil then the appender appends what he wants for each object, with self used as a separator.
     -- The appender can raise an error if the object is not supported.

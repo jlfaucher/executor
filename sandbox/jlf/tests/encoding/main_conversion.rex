@@ -160,7 +160,7 @@ call display_cache t
 --------------------------------------------------------------------------------
 
 drop t
-t = 0~255~reduce(initial: .mutableBuffer~new){.unicode~character(item)~unicode8(b: accu)}~string~text("unicode8")
+t = 0~255~reduce(initial: .mutableBuffer~new){.unicode~character(item)~unicode8(buffer: accu)}~string~text("unicode8")
 < include_conversion.rex
 call display_cache t
 

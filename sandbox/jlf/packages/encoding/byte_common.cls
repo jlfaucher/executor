@@ -12,7 +12,7 @@
     -- to use RexxText API instead of String API. But would be way slower...
     -- Would it make sense ? Nobody is editing literal strings encoded in 16-bit
     -- or 32-bit.
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     string = self~string
     pos = string~pos("\")
     if pos == 0 then do

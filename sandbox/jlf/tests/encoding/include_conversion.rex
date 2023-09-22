@@ -21,8 +21,8 @@ t
 -- some transformations to have a mixed cache
 --------------------------------------------------------------------------------
 
-t~nfc(mem:)=
-t~nfd(mem:)=
-t~nfkc(mem:)=
-t~nfkd(mem:)=
-t~casefold(mem:)=
+t~nfc(memorize:)=
+t~nfd(memorize:)=
+t~nfkc(memorize:)=
+t~nfkd(memorize:)=
+t~casefold(memorize:)=

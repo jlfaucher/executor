@@ -3,30 +3,8 @@
 Remember: when you create/update a syntax diagram, you must copy it in the file
 NamedArguments-SD.xml
 
-with constants.xml
-    <scalar name="diagram_scale">0.1</scalar>
-    <string name="diagram_unit">in</string>
-and syntaxdiagram.css
-        font-family: Times-New-Roman;
-the png have these sizes:
-    sd_Arguments                3462 × 980      3462/150=23.08%     *2=46.16
-    sd_Context_setArgs          4766 × 514      4766/150=31.77%     *2=63.54
-    sd_Function                 2461 × 301      2461/150=16.41%     *2=32.82
-    sd_Instruction_CALL         3004 × 532      3004/150=20.03%     *2=40.06
-    sd_Instruction_FORWARD      12234 × 774     12234/150=81.56%    *2=163.12
-    sd_Instruction_USE          8620 × 1119     8620/150=57.47%     *2=114.94
-    sd_Message_new              8309 × 927      8309/150=55.39%     *2=110.78
-    sd_Message_term_brackets    2031 × 299      2031/150=13.54%     *2=27.08
-    sd_Message_term             5629 × 512      5629/150=37.53%     *2=75.06
-    sd_Named_arguments          2206 × 980      2206/150=14.71%     *2=29.42
-    sd_Object_run               7127 × 927      7127/150=47.51%     *2=95.02
-    sd_Object_sendWith          6411 × 514      6411/150=42.74%     *2=85.48
-    sd_Object_startWith         6418 × 514      6418/150=42.79%     *2=85.58
-    sd_Positional_arguments     1805 × 788      1805/150=12.03%     *2=24.06
-    sd_Routine_callWith         4830 × 514      4830/150=32.2%      *2=64.4
+See the file png_sizes.ods for the calculation of the width attribute in <img>.
 
-Must multiply the width by 2 because the github rendering is too small compared
-to a local rendering.
 -->
 
 Named arguments - Specification
@@ -70,7 +48,7 @@ Arguments:
          +-------------------------------| Named arguments |--+
          +--| Positional arguments |--,--| Named arguments |--+
 
-<img src="SyntaxDiagram/sd_Arguments.png" width="46.16%">
+<img src="SyntaxDiagram/sd_Arguments.png" width="43.47%">
 
 
 Positional arguments:
@@ -81,7 +59,7 @@ Positional arguments:
           |            |
           +-expression-+
 
-<img src="SyntaxDiagram/sd_Positional_arguments.png" width="24.06%">
+<img src="SyntaxDiagram/sd_Positional_arguments.png" width="22.97%">
 
 
 Named arguments:
@@ -94,7 +72,7 @@ Named arguments:
           |                |
           +------:-varname-+
 
-<img src="SyntaxDiagram/sd_Named_arguments.png" width="29.42%">
+<img src="SyntaxDiagram/sd_Named_arguments.png" width="28.47%">
 
 
 
@@ -159,7 +137,7 @@ Message term
 
     >>-receiver[--| Arguments |--]----------------------------><
 
-<img src="SyntaxDiagram/sd_Message_term_brackets.png" width="27.08%">
+<img src="SyntaxDiagram/sd_Message_term_brackets.png" width="25.39%">
 
 
 ---------------
@@ -187,7 +165,7 @@ Instruction CALL
     >>-CALL----+-name-----+----| Arguments |--------------------><
                +-(-expr-)-+
 
-<img src="SyntaxDiagram/sd_Instruction_CALL.png" width="40.06%">
+<img src="SyntaxDiagram/sd_Instruction_CALL.png" width="38.20%">
 
 
 --------
@@ -196,7 +174,7 @@ Function
 
     >>-function_name(----| Arguments |----)-------------------><
 
-<img src="SyntaxDiagram/sd_Function.png" width="32.82%">
+<img src="SyntaxDiagram/sd_Function.png" width="30.20%">
 
 
 -------------------
@@ -213,21 +191,21 @@ There, `"Array"` is followed by a mandatory array. `"Individual"` is followed by
                 +--CONTINUE--+  |   +--ARGUMENTS--expra--+  +--NAMEDARGUMENTS--exprd--+   |  +--MESSAGE--exprm--+  +--CLASS--exprs--+  +--TO--exprt--+
                                 +--------------ARRAY----(--| Arguments |--)---------------+
 
-<img src="SyntaxDiagram/sd_Instruction_FORWARD.png" width="163.12%">
+<img src="SyntaxDiagram/sd_Instruction_FORWARD.png" width="152.24%">
 
 
 ---------------
 Instruction USE
 ---------------
 
-                                                           +-,----------------------------------+
-                                                           V                                    |
-    >>-USE--+----------+--+--------+-----NAMED-----ARG--+------name-+-------+---+----------+----+--+----------+----+--><
-            +--STRICT--+  +--AUTO--+                    |           +-(-n-)-+   +-=--expr--+       +--,--...--+    |
-                                                        +--+-------+-----------------------------------------------+
+                                                           +-,----------------------+
+                                                           V                        |
+    >>-USE--+----------+--+--------+-----NAMED-----ARG--+------name-+----------+----+--+----------+----+--><
+            +--STRICT--+  +--AUTO--+                    |           +-=--expr--+       +--,--...--+    |
+                                                        +--+-------+-----------------------------------+
                                                            +--...--+
 
-<img src="SyntaxDiagram/sd_Instruction_USE.png" width="114.94%">
+<img src="SyntaxDiagram/sd_Instruction_USE.png" width="94.88%">
 
 When the option `NAMED` is specified:
 
@@ -242,29 +220,6 @@ Otherwise the value of the named argument is assigned to the variable.
 There is no evaluation of the default value 'expr' when a value has been provided by the caller.  
 The order of evaluation is the order of declaration in `USE NAMED ARG` (left-to-right).  
 The automatic variables are already created and can be used during the evaluation of the default value.
-
-An optional minimum length can be specified after the name, allowing abbreviation.  
-- rule 1: The minimum length of an abbreviatable name must be a whole number > 0 and <= name's length.
-- rule 2: The optional part of an abbreviatable name cannot contain a period.
-- rule 3: A compound name cannot be abbreviated to a stem name.
-
-For example: 
-- `namedArgument(1)` will allow to pass `n:` or `na` or `nam` etc...
-- `namedArgument(0)` is not allowed (rule 1).
-- `namedArgument(100)` is not allowed (rule 1).
-- `stem.key1(4)` and shorter is not allowed (rule 2).
-- `stem.key1(5)` is not allowed (rule 3).
-- `stem.key1(6)` will allow to pass `stem.k` or `stem.ke` or `stem.key` or `stem.key1`.
-- `stem.key1.key2(9)` and shorter is not allowed (rule 2).
-- `stem.key1.key2(10)` will allow to pass `stem.key1.` or `stem.key1.k` or `stem.key1.ke` etc...
-
-No named parameter name must start with the name of another named parameter.  
-Exception: a stem name can be used as prefix in several compound names.
-
-For example:
-- `use named arg stem., stem.key1` is allowed because `stem.` is a stem name.
-- `use named arg stem, stem.key1` is not allowed because `stem` is not a stem name (no final period).
-- `use named arg stem.key1., stem.key1.key2` is not allowed because `stem.key1.`is not a stem name (several periods).
 
 --------------
 UNKNOWN method
@@ -291,9 +246,7 @@ There, `ARRAY` is followed by a list of arguments. `ARGUMENTS` is followed by a 
                                  +--+-------------------+--+--------------------------+--+
                                     +-,-"Array"-,-expra-+  +-,-NAMEDARGUMENTS-:-exprd-+
 
-<img src="SyntaxDiagram/sd_Message_new.png" width="110.78%">
-
-`NAMEDARGUMENTS:` can be abbreviated to 1 letter (`n:`).  
+<img src="SyntaxDiagram/sd_Message_new.png" width="104.73%">
 
 
 -------------
@@ -316,9 +269,7 @@ There, `ARRAY` is followed by a list of arguments. `ARGUMENTS` is followed by a 
                    +--+-------------------+--+--------------------------+--+
                       +-,-"Array"-,-expra-+  +-,-NAMEDARGUMENTS-:-exprd-+
 
-<img src="SyntaxDiagram/sd_Object_run.png" width="95.02%">
-
-`NAMEDARGUMENTS:` can be abbreviated to 1 letter (`n:`).  
+<img src="SyntaxDiagram/sd_Object_run.png" width="102.97%">
 
 
 ---------------
@@ -328,9 +279,7 @@ Object~sendWith
     >>-sendWith(-messagename-,-arguments-+--------------------------+--)---><
                                          +-,-NAMEDARGUMENTS-:-exprd-+
 
-<img src="SyntaxDiagram/sd_Object_sendWith.png" width="85.48%">
-
-`NAMEDARGUMENTS:` can be abbreviated to 1 letter (`n:`).  
+<img src="SyntaxDiagram/sd_Object_sendWith.png" width="79.75%">
 
 
 ----------------
@@ -340,9 +289,7 @@ Object~startWith
     >>-startWith(-messagename-,-arguments-+--------------------------+-)---><
                                           +-,-NAMEDARGUMENTS-:-exprd-+
 
-<img src="SyntaxDiagram/sd_Object_startWith.png" width="85.58%">
-
-`NAMEDARGUMENTS:` can be abbreviated to 1 letter (`n:`).  
+<img src="SyntaxDiagram/sd_Object_startWith.png" width="79.55%">
 
 
 ----------------
@@ -352,9 +299,7 @@ Routine~callWith
     >>-callWith(-array-+--------------------------+-)---><
                        +-,-NAMEDARGUMENTS-:-exprd-+
 
-<img src="SyntaxDiagram/sd_Routine_callWith.png" width="64.4%">
-
-`NAMEDARGUMENTS`: can be abbreviated to 1 letter (`n:`).  
+<img src="SyntaxDiagram/sd_Routine_callWith.png" width="60.16%">
 
 
 -----------------
@@ -376,9 +321,7 @@ Context~setArgs
     >>-setArgs(-array-+--------------------------+-)---><
                       +-,-NAMEDARGUMENTS-:-exprd-+
 
-<img src="SyntaxDiagram/sd_Context_setArgs.png" width="63.54%">
-
-`NAMEDARGUMENTS:` can be abbreviated to 1 letter (`n:`).  
+<img src="SyntaxDiagram/sd_Context_setArgs.png" width="59.43%">
 
 Used to transfer to a coactivity the arguments passed with `resume`.  
 A coactivity can be suspended, and can receive a new set of arguments after each resume.

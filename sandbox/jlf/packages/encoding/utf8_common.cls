@@ -275,7 +275,7 @@ Depends on
     -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
     -- otherwise return the encoded codepoint as a RexxText
     use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new(, self~codepointMaxBytes)
     self~checkCodepoint(codepoint, codepointIndexB, previousCodepoint, previousCodepointIndexB, checkOnlyRange: .true) -- check only range, the other errors will be detected during analysis
@@ -322,7 +322,7 @@ Depends on
 
 ::method encodeASCIIstring class
     use strict arg string
-    use strict named arg memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg memorize = (.Unicode~memorizeConversions), buffer=.nil
 
     text = .nil
     if string~hasText then text = string~text
@@ -384,7 +384,7 @@ Depends on
     -- if the buffer is passed as argument then append the character to the buffer, and return the buffer
     -- otherwise return the character as a RexxText
     use strict arg indexC
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     if .nil == self~characterIndexes, self~characterCount == self~string~length then do
         -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last character can be more than one codepoint.
         if .nil <> buffer then return buffer~~append(self~string~subchar(indexC))
@@ -400,7 +400,7 @@ Depends on
 
 ::method UTF8
     use strict arg -- none
-    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
 
     targetEncoding = .UTF8_Encoding
     if .nil <> buffer then return targetEncoding~append(self~string, :buffer) -- done? TODO is it correct? there is no check here. WTF8 converted to UTF8 could raise errors.
@@ -422,7 +422,7 @@ Depends on
 
 ::method WTF8
     use strict arg -- none
-    use strict named arg strict=.false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
 
     targetEncoding = .WTF8_Encoding
     if .nil <> buffer then return targetEncoding~append(self~string, :buffer) -- done? TODO is it correct?
@@ -444,7 +444,7 @@ Depends on
 
 ::method Unicode
     use strict arg -- none
-    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict = .false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     if self~encoding~isUnicodeN then do
         if .nil <> buffer then return self~encoding~append(self~string, :buffer)
                           else return self~string~text
@@ -471,7 +471,7 @@ Depends on
 
 ::method transform
     use strict arg -- none
-    use strict named arg normalization = 1, casefold = .false, lump= .false, stripMark = .false, stripIgnorable= .false, stripCC = .false, stripNA = .false, returnString = .false, memorize(3) = (.Unicode~memorizeTransformations)
+    use strict named arg normalization = 1, casefold = .false, lump= .false, stripMark = .false, stripIgnorable= .false, stripCC = .false, stripNA = .false, returnString = .false, memorize = (.Unicode~memorizeTransformations)
 
     .validate~wholeNumberRange("normalization", normalization, 0, 4)
     .validate~logical("casefold", casefold)

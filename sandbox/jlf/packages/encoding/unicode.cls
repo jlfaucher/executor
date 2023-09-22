@@ -268,7 +268,7 @@ Depends on
 ::method character class
     expose characters characterNames
     use strict arg name
-    use named arg hexadecimal(1)=.false -- can't be guessed: 100 in hexadecimal is different from 100 in decimal
+    use named arg hexadecimal=.false -- can't be guessed: 100 in hexadecimal is different from 100 in decimal
 
     -- is name an hexadecimal codepoint ?
     if hexadecimal then do
@@ -699,7 +699,7 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 ::method text
     expose codepoint
     use strict arg encoding="default"
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     encoding = .Encoding~factory(encoding, , codepoint)
     return encoding~encode(codepoint, :buffer)
 
@@ -717,14 +717,14 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 ::method UTF8
     expose codepoint
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     return .UTF8_Encoding~encode(codepoint, :buffer)
 
 
 ::method WTF8
     expose codepoint
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     return .WTF8_Encoding~encode(codepoint, :buffer)
 
 
@@ -735,14 +735,14 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 ::method UTF16BE
     expose codepoint
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     return .UTF16BE_Encoding~encode(codepoint, :buffer)
 
 
 ::method UTF16LE
     expose codepoint
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     return .UTF16LE_Encoding~encode(codepoint, :buffer)
 
 
@@ -753,14 +753,14 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 ::method WTF16BE
     expose codepoint
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     return .WTF16BE_Encoding~encode(codepoint, :buffer)
 
 
 ::method WTF16LE
     expose codepoint
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     return .WTF16LE_Encoding~encode(codepoint, :buffer)
 
 
@@ -771,14 +771,14 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 ::method UTF32BE
     expose codepoint
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     return .UTF32BE_Encoding~encode(codepoint, :buffer)
 
 
 ::method UTF32LE
     expose codepoint
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     return .UTF32LE_Encoding~encode(codepoint, :buffer)
 
 
@@ -789,7 +789,7 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 ::method UnicodeN
     expose codepoint
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     targetEncoding = .UnicodeN_Encoding~toSupport(codepoint)
     return targetEncoding~encode(codepoint, :buffer)
 
@@ -797,21 +797,21 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 ::method Unicode8
     expose codepoint
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     return .Unicode8_Encoding~encode(codepoint, :buffer)
 
 
 ::method Unicode16
     expose codepoint
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     return .Unicode16_Encoding~encode(codepoint, :buffer)
 
 
 ::method Unicode32
     expose codepoint
     use strict arg -- none
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     return .Unicode32_Encoding~encode(codepoint, :buffer)
 
 
@@ -1016,7 +1016,7 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 
 ::routine .UnicodeCharacter public
     -- For convenience: equivalent to .Unicode~character
-    return .Unicode~sendWith("character", .context~args, n:.context~namedArgs)
+    return .Unicode~sendWith("character", .context~args, namedArguments: .context~namedArgs)
 
 
 /******************************************************************************/

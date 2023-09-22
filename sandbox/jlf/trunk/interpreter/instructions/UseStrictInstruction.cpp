@@ -50,7 +50,7 @@
 #include "ExpressionBaseVariable.hpp"
 #include <algorithm>
 
-RexxInstructionUseStrict::RexxInstructionUseStrict(size_t count, bool strict, bool extraAllowed, bool autoCreate, bool named, RexxQueue *variable_list, RexxQueue *defaults, RexxQueue *minimumLength_list)
+RexxInstructionUseStrict::RexxInstructionUseStrict(size_t count, bool strict, bool extraAllowed, bool autoCreate, bool named, RexxQueue *variable_list, RexxQueue *defaults)
 {
     if (strict && autoCreate && named && !extraAllowed)
     {
@@ -74,7 +74,6 @@ RexxInstructionUseStrict::RexxInstructionUseStrict(size_t count, bool strict, bo
         count--;
         OrefSet(this, variables[count].variable, (RexxVariableBase *)variable_list->pop());
         OrefSet(this, variables[count].defaultValue, defaults->pop());
-        OrefSet(this, variables[count].minimumLength, (RexxInteger *)minimumLength_list->pop());
 
         if (this->strictChecking)
         {
@@ -114,7 +113,6 @@ void RexxInstructionUseStrict::live(size_t liveMark)
   {
       memory_mark(this->variables[i].variable);
       memory_mark(this->variables[i].defaultValue);
-      memory_mark(this->variables[i].minimumLength);
   }
 }
 
@@ -134,7 +132,6 @@ void RexxInstructionUseStrict::liveGeneral(int reason)
   {
       memory_mark_general(this->variables[i].variable);
       memory_mark_general(this->variables[i].defaultValue);
-      memory_mark_general(this->variables[i].minimumLength);
   }
 }
 
@@ -156,7 +153,6 @@ void RexxInstructionUseStrict::flatten(RexxEnvelope *envelope)
   {
       flatten_reference(newThis->variables[i].variable, envelope);
       flatten_reference(newThis->variables[i].defaultValue, envelope);
-      flatten_reference(newThis->variables[i].minimumLength, envelope);
   }
   cleanUpFlatten
 }
@@ -335,9 +331,6 @@ void RexxInstructionUseStrict::executeNamedArguments(RexxActivation *context, Re
         RexxVariableBase *variable = this->variables[i].variable;
         expectedNamedArguments[i].name = variable->getName()->getStringData();
         expectedNamedArguments[i].nameLength = variable->getName()->getLength();
-        expectedNamedArguments[i].minimumLength = -1; // by default, no abbreviation
-        RexxInteger *RexxMinimumLength = this->variables[i].minimumLength;
-        if (RexxMinimumLength != OREF_NULL) RexxMinimumLength->numberValue(expectedNamedArguments[i].minimumLength);
     }
 
     // Iterate over the named arguments passed by the caller, match them with the names declared by the callee.
@@ -443,9 +436,6 @@ void RexxInstructionUseStrict::checkNamedArguments()
         RexxVariableBase *variable = this->variables[i].variable;
         expectedNamedArguments[i].name = variable->getName()->getStringData();
         expectedNamedArguments[i].nameLength = variable->getName()->getLength();
-        expectedNamedArguments[i].minimumLength = -1; // by default, no abbreviation
-        RexxInteger *RexxMinimumLength = this->variables[i].minimumLength;
-        if (RexxMinimumLength != OREF_NULL) RexxMinimumLength->numberValue(expectedNamedArguments[i].minimumLength);
     }
 
     // Iterate over the collected named arguments, and check each one with all the followings.
@@ -455,7 +445,7 @@ void RexxInstructionUseStrict::checkNamedArguments()
     // {use named arg nfl(2), normalization(1)}
     for (size_t i = 0; i < this->variableCount; i++)
     {
-        bool matched = expectedNamedArguments.match(expectedNamedArguments[i].name, expectedNamedArguments[i].nameLength, OREF_NULL, false, expectedNamedArguments[i].minimumLength, i+1, /*parse_time*/ true);
+        bool matched = expectedNamedArguments.match(expectedNamedArguments[i].name, expectedNamedArguments[i].nameLength, OREF_NULL, false, i+1, /*parse_time*/ true);
         // if we reach here with match==true, it's a match that doesn't raise an error (typically a match with a stem name).
         if (matched) continue; // just to be explicit : here, a matched name is not an error
     }
@@ -524,47 +514,38 @@ Example:
     namedArguments.match(name3, strlen(name3), value3);
 */
 
-bool NamedArguments::match(RexxString *name, RexxObject *value, bool strict, ssize_t name_minimumLength, size_t from, bool parse_time)
+bool NamedArguments::match(RexxString *name, RexxObject *value, bool strict, size_t from, bool parse_time)
 {
     if (name == NULL) return false;
-    return this->match(name->getStringData(), name->getLength(), value, strict, name_minimumLength, from, parse_time);
+    return this->match(name->getStringData(), name->getLength(), value, strict, from, parse_time);
 }
 
-void nameCollision(const char *name1, ssize_t minimumLength1, const char *name2, ssize_t minimumLength2)
+void nameCollision(const char *name1, const char *name2)
 {
     char buffer[256];
 
     // Report the shortest name first.
     // Some examples where a swap is needed:
     // {use named arg commands, command}        --> The name 'COMMAND' collides with 'COMMANDS'
-    // {use named arg commands(7), command(1)}  --> The name 'COMMAND(1)' collides with 'COMMANDS(7)'
-    // {use named arg commands(7), command}     --> The name 'COMMANDS' collides with 'COMMANDS(7)'
-    ssize_t ml1 = minimumLength1;
-    if (ml1 == -1) ml1 = strlen(name1);
-    ssize_t ml2 = minimumLength2;
-    if (ml2 == -1) ml2 = strlen(name2);
-    if (ml1 > ml2 || (ml1 == ml2 && minimumLength1 > minimumLength2))
+    ssize_t ml1 = strlen(name1);
+    ssize_t ml2 = strlen(name2);
+    if (ml1 > ml2)
     {
         std::swap(name1, name2);
-        std::swap(minimumLength1, minimumLength2);
     }
 
-    if (minimumLength1 == minimumLength2 && strcmp(name1, name2) == 0)
+    if (strcmp(name1, name2) == 0)
     {
-        if (minimumLength1 == -1) Utilities::snprintf(buffer, sizeof buffer - 1, "Use named arg: The name '%s' is declared more than once", name1);
-        else                      Utilities::snprintf(buffer, sizeof buffer - 1, "Use named arg: The name '%s(%i)' is declared more than once", name1, minimumLength1);
+        Utilities::snprintf(buffer, sizeof buffer - 1, "Use named arg: The name '%s' is declared more than once", name1);
     }
     else
     {
-        if (minimumLength1 == -1 && minimumLength2 == -1) Utilities::snprintf(buffer, sizeof buffer - 1, "Use named arg: The name '%s' collides with '%s'", name1, name2);
-        else if (minimumLength1 == -1)                    Utilities::snprintf(buffer, sizeof buffer - 1, "Use named arg: The name '%s' collides with '%s(%i)'", name1, name2, minimumLength2);
-        else if (minimumLength2 == -1)                    Utilities::snprintf(buffer, sizeof buffer - 1, "Use named arg: The name '%s(%i)' collides with '%s'", name1, minimumLength1, name2);
-        else                                              Utilities::snprintf(buffer, sizeof buffer - 1, "Use named arg: The name '%s(%i)' collides with '%s(%i)'", name1, minimumLength1, name2, minimumLength2);
+        Utilities::snprintf(buffer, sizeof buffer - 1, "Use named arg: The name '%s' collides with '%s'", name1, name2);
     }
     reportException(Error_Translation_user_defined, buffer);
 }
 
-bool NamedArguments::match(const char *name, size_t nameLength, RexxObject *value, bool strict, ssize_t name_minimumLength, size_t from, bool parse_time)
+bool NamedArguments::match(const char *name, size_t nameLength, RexxObject *value, bool strict, size_t from, bool parse_time)
 {
     if (name == NULL) return false;
 
@@ -579,13 +560,13 @@ bool NamedArguments::match(const char *name, size_t nameLength, RexxObject *valu
     bool matched = false;
     for (i = from; i < this->count; i++)
     {
-        matched = NamedArguments::checkNameMatching(name, nameLength, name_minimumLength, i, parse_time);
+        matched = NamedArguments::checkNameMatching(name, nameLength, i, parse_time);
         if (matched) break;
     }
 
     if (matched)
     {
-        if (parse_time) nameCollision(name, name_minimumLength, this->namedArguments[i].name, this->namedArguments[i].minimumLength);
+        if (parse_time) nameCollision(name, this->namedArguments[i].name);
         else
         {
             if (value != OREF_NULL) this->namedArguments[i].value = value;
@@ -605,56 +586,9 @@ bool NamedArguments::match(const char *name, size_t nameLength, RexxObject *valu
 }
 
 
-bool NamedArguments::checkNameMatching(const char *name, size_t nameLen, ssize_t name_minimumLength, size_t i, bool parse_time)
+bool NamedArguments::checkNameMatching(const char *name, size_t nameLen, size_t i, bool parse_time)
 {
     if (this->namedArguments[i].assigned) return false; // Already matched (assumption: you will not call this helper with the same name twice)
-
-    // Remember: the minimum length of a name can be -1, or 1..n where n <= name's length
-
-    ssize_t nameLength = nameLen; // MUST be signed!
-    ssize_t nameMinimumLength = name_minimumLength; // always -1 at run-time, can be -1 or >=1 at parse_time
-    if (nameMinimumLength == -1) nameMinimumLength = nameLength;
-
     const char *expectedName = this->namedArguments[i].name;
-    ssize_t expectedNameLength = this->namedArguments[i].nameLength; // MUST be signed!
-    ssize_t expectedNameMinimumLength = this->namedArguments[i].minimumLength; // can be -1 or >=1 at parse_time and run_time
-    if (expectedNameMinimumLength == -1) expectedNameMinimumLength = expectedNameLength;
-
-    if (parse_time) // name_minimumLength can be -1 or >=1, so must test nameMinimumLength
-    {
-        // A stem name is ignored because it's normal to have compound variables with the stem name as prefix
-        // except when the same stem is specificed twice
-        if (isStem(name) && strcmp(name, expectedName) != 0) return false;
-        if (isStem(expectedName) && strcmp(expectedName, name) != 0) return false;
-
-        // Matching index(1) with item(1) : true
-        // Matching index(2) with item(1) : true
-        // Matching index(1) with item(2) : true
-        // Matching index(2) with item(2) : false
-
-        // Matching c(1) with command(1) : true
-        // Matching c(1) with command(2) : true
-        // ...
-        // Matching c(1) with command(7) : true
-        // Matching command(1) with c(1) : true
-        // Matching command(2) with c(1) : true
-        // ...
-        // Matching command(7) with c(1) : true
-        // Matching command(4) with common(4) : true
-
-        // Matching command(5) with common(5) : false
-        ssize_t minimumLength = std::min(nameMinimumLength, expectedNameMinimumLength);
-        if (strncmp(name, expectedName, minimumLength) != 0) return false; // at least one mandatory character is different
-    }
-    else // run_time: name_minimumLength is always -1, so no need to test nameMinimumLength. The whole name is checked.
-    {
-        // Matching name with 'use named arg normalization(4)'
-        // - mandatory: name[1..4] == "norm"
-        // - optional:  if name[5..] then "alization" starts with name[5..]
-        if (nameLength < expectedNameMinimumLength) return false; // too short
-        if (nameLength > expectedNameLength) return false; // too long
-        if (strncmp(name, expectedName, nameLength) != 0) return false;
-    }
-
-    return true;
+    return strcmp(name, expectedName) == 0;
 }

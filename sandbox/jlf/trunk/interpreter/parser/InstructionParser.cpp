@@ -2562,8 +2562,6 @@ RexxInstruction *RexxSource::useNew()
     saveObject(variable_list);
     RexxQueue *defaults_list = new_queue();
     saveObject(defaults_list);
-    RexxQueue *minimumLength_list = new_queue(); // Minimum length for abbreviation
-    saveObject(minimumLength_list);
     token = nextReal();                  /* get the next token                */
 
     bool allowOptionals = false;  // we don't allow trailing optionals unless the list ends with "..."
@@ -2579,7 +2577,6 @@ RexxInstruction *RexxSource::useNew()
             // we also need to push empty entries on the other queues to keep everything in sync.
             variable_list->push(OREF_NULL);
             defaults_list->push(OREF_NULL);
-            minimumLength_list->push(OREF_NULL);
             variableCount++;
             // step to the next token, and go process more
             token = nextReal();
@@ -2624,92 +2621,6 @@ RexxInstruction *RexxSource::useNew()
             variable_list->push(retriever);
             variableCount++;
             token = nextReal();
-
-            // For named argument only : optional minimum length specified after the name
-            // USE NAMED ARG myname(4)
-            if (namedArg && token->classId == TOKEN_LEFT)
-            {
-                RexxToken *tokenLeft = token; // will be used for error message
-                token = nextReal();
-
-                // if "+" then skip it
-                if (token->isOperator() && token->subclass == OPERATOR_PLUS)
-                {
-                    token = nextReal();
-                }
-                RexxString *token_strvalue = token->value;
-                size_t token_intvalue = 0;
-                if (token->subclass == SYMBOL_CONSTANT
-                    && token->numeric == INTEGER_CONSTANT
-                    && token_strvalue->requestUnsignedNumber(token_intvalue, number_digits()))
-                {
-                    RexxInteger * minimumLength = new_integer(token_intvalue);
-                    ProtectedObject p(minimumLength);
-                    minimumLength_list->push(minimumLength);
-                }
-                if ( !(token_intvalue > 0 && token_intvalue <= variableNameLength) )
-                {
-                    RexxString *message = variableName->concatToCstring("Use named arg: The minimum length of an abbreviatable name must be a whole number > 0 and <= name's length; found \"");
-                    ProtectedObject p(message);
-                    message = message->concatWithCstring("(");
-                    p = message;
-                    if (token_strvalue != NULL) message = message->concat(token_strvalue);
-                    p = message;
-                    message = message->concatWithCstring(")\"");
-                    p = message;
-                    syntaxError(Error_Invalid_whole_number_user_defined, message);
-                }
-                if (strchr(variableName->getStringData() + token_intvalue, '.') != NULL)
-                {
-                    RexxString *message = variableName->concatToCstring("Use named arg: The optional part of an abbreviatable name cannot contain a period; found \"");
-                    ProtectedObject p(message);
-                    message = message->concatWithCstring("(");
-                    p = message;
-                    message = message->concat(token_strvalue);
-                    p = message;
-                    message = message->concatWithCstring(")\"");
-                    p = message;
-                    syntaxError(Error_Invalid_whole_number_user_defined, message);
-                }
-                // abc.def.ghi
-                //    4   8
-                // (7) and below is not ok: detected by the previous rule
-                // (8) and above is ok
-                //
-                // abc.def
-                //    4
-                // (3) and below is not ok: detected by the previous rule
-                // (4) is not ok because the compound name could be abbreviated to a stem name "abc."
-                // (5) and above is ok
-                ssize_t firstPeriodIndex = -1;
-                const char *firstPeriod = strchr(variableName->getStringData(), '.');
-                if (firstPeriod != NULL) firstPeriodIndex = firstPeriod - variableName->getStringData();
-                if (variableName->getStringData()[token_intvalue -1] == '.' &&  // The shortest possible abbreviation ends with a period
-                    variableName->getStringData()[token_intvalue] != '\0' &&    // and this period is not the last character
-                    firstPeriodIndex == token_intvalue -1                       // and this period is the first period
-                   )
-                {
-                    RexxString *message = variableName->concatToCstring("Use named arg: A compound name cannot be abbreviated to a stem name; found \"");
-                    ProtectedObject p(message);
-                    message = message->concatWithCstring("(");
-                    p = message;
-                    message = message->concat(token_strvalue);
-                    p = message;
-                    message = message->concatWithCstring(")\"");
-                    p = message;
-                    syntaxError(Error_Invalid_whole_number_user_defined, message);
-                }
-                token = nextReal();
-                if (token->classId != TOKEN_RIGHT)
-                {
-                    syntaxErrorAt(Error_Unmatched_parenthesis_paren, tokenLeft);
-                }
-                token = nextReal();
-            }
-            else
-            {
-                minimumLength_list->push(OREF_NULL);
-            }
 
             // a terminator takes us out.  We need to keep all 3 lists in sync with dummy entries.
             if (token->isEndOfClause())
@@ -2765,12 +2676,11 @@ RexxInstruction *RexxSource::useNew()
     }
 
     RexxInstruction *newObject = new_variable_instruction(USE, Use, sizeof(RexxInstructionUseStrict) + (variableCount == 0 ? 0 : (variableCount - 1)) * sizeof(UseVariable));
-    new ((void *)newObject) RexxInstructionUseStrict(variableCount, strictChecking, allowOptionals, autoCreation, namedArg, variable_list, defaults_list, minimumLength_list);
+    new ((void *)newObject) RexxInstructionUseStrict(variableCount, strictChecking, allowOptionals, autoCreation, namedArg, variable_list, defaults_list);
 
     // release the object locks and return;
     removeObj(variable_list);
     removeObj(defaults_list);
-    removeObj(minimumLength_list);
     return newObject;
 }
 

@@ -260,14 +260,14 @@ Unicode32_Encoding can be used with utf8proc for the functions taking a buffer o
 sleep no prompt
 
 -- Just an interpretative layer put above the string
-"côté"~text("unicode8")~pipe{item~description(s:1) ":" item~c2x}=
+"côté"~text("unicode8")~pipe{item~description(short:1) ":" item~c2x}=
 sleep no prompt
 
 -- UTF-8 converted to Unicode8
-"côté"~text~unicode~pipe{item~description(s:1) ":" item~c2x}=
+"côté"~text~unicode~pipe{item~description(short:1) ":" item~c2x}=
 sleep
 "noël‍👨‍👩‍👧"~text~maximumCodepoint~pipe{"U+"item~d2x}=   -- U+1F469 is the maximum codepoint
-"noël‍👨‍👩‍👧"~text~unicode~description(t:1)=              -- For this maximum codepoint, we need Unicode32
+"noël‍👨‍👩‍👧"~text~unicode~description(technical:1)=      -- For this maximum codepoint, we need Unicode32
 sleep no prompt
 
 -- The endianness of the UnicodeN_Encoding is the one of the machine.
@@ -284,44 +284,44 @@ Comparing the size of UTF-8 vs UTF-16 vs UTF-32 for various strings.
 These strings are initially UTF-8 encoded.
 The first step is to get a wrapper RexxText (default encoding is UTF-8).
 The second step is to convert to UTF-16 or UTF-32.
-The description includes technical informations (t:1) about the internal tables for indexation.
+The description includes technical informations (technical:1) about the internal tables for indexation.
 */
 sleep
 howMuchOfStorage = "how much of storage?"
-howMuchOfStorage~text~description(t:1)=         -- UTF-8:     20 characters, 20 codepoints,  20 bytes
+howMuchOfStorage~text~description(technical:1)=         -- UTF-8:     20 characters, 20 codepoints,  20 bytes
 sleep
-howMuchOfStorage~text~utf16~description(t:1)=   -- UTF-16:    20 characters, 20 codepoints,  40 bytes
+howMuchOfStorage~text~utf16~description(technical:1)=   -- UTF-16:    20 characters, 20 codepoints,  40 bytes
 sleep
-howMuchOfStorage~text~utf32~description(t:1)=   -- UTF-32:    20 characters, 20 codepoints,  80 bytes
+howMuchOfStorage~text~utf32~description(technical:1)=   -- UTF-32:    20 characters, 20 codepoints,  80 bytes
 sleep
-howMuchOfStorage~text~unicode~description(t:1)= -- Unicode8:  20 characters, 20 codepoints,  20 bytes
+howMuchOfStorage~text~unicode~description(technical:1)= -- Unicode8:  20 characters, 20 codepoints,  20 bytes
 sleep
 rexCharacters = "'rex' in their name: ꎅ ꎜ ꏑ 🦖"
-rexCharacters~text~description(t:1)=            -- UTF-8:     28 characters, 28 codepoints,  37 bytes
+rexCharacters~text~description(technical:1)=            -- UTF-8:     28 characters, 28 codepoints,  37 bytes
 sleep
-rexCharacters~text~utf16~description(t:1)=      -- UTF-16:    28 characters, 28 codepoints,  58 bytes
+rexCharacters~text~utf16~description(technical:1)=      -- UTF-16:    28 characters, 28 codepoints,  58 bytes
 sleep
-rexCharacters~text~utf32~description(t:1)=      -- UTF-32:    28 characters, 28 codepoints, 112 bytes
+rexCharacters~text~utf32~description(technical:1)=      -- UTF-32:    28 characters, 28 codepoints, 112 bytes
 sleep
-rexCharacters~text~unicode~description(t:1)=    -- Unicode32: 28 characters, 28 codepoints, 112 bytes
+rexCharacters~text~unicode~description(technical:1)=    -- Unicode32: 28 characters, 28 codepoints, 112 bytes
 sleep
 family = "👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦"
-family~text~description(t:1)=                   -- UTF-8:      1 character,  15 codepoints,  53 bytes
+family~text~description(technical:1)=                   -- UTF-8:      1 character,  15 codepoints,  53 bytes
 sleep
-family~text~utf16~description(t:1)=             -- UTF-16:     1 character,  15 codepoints,  46 bytes
+family~text~utf16~description(technical:1)=             -- UTF-16:     1 character,  15 codepoints,  46 bytes
 sleep
-family~text~utf32~description(t:1)=             -- UTF-32:     1 character,  15 codepoints,  60 bytes
+family~text~utf32~description(technical:1)=             -- UTF-32:     1 character,  15 codepoints,  60 bytes
 sleep
-family~text~unicode~description(t:1)=           -- Unicode32:  1 character,  15 codepoints,  60 byte
+family~text~unicode~description(technical:1)=           -- Unicode32:  1 character,  15 codepoints,  60 byte
 sleep
 helloZalgo = "h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞"
-helloZalgo~text~description(t:1)=               -- UTF-8:      5 characters, 54 codepoints, 111 bytes
+helloZalgo~text~description(technical:1)=               -- UTF-8:      5 characters, 54 codepoints, 111 bytes
 sleep
-helloZalgo~text~utf16~description(t:1)=         -- UTF-16:     5 characters, 54 codepoints, 108 bytes
+helloZalgo~text~utf16~description(technical:1)=         -- UTF-16:     5 characters, 54 codepoints, 108 bytes
 sleep
-helloZalgo~text~utf32~description(t:1)=         -- UTF-32:     5 characters, 54 codepoints, 216 bytes
+helloZalgo~text~utf32~description(technical:1)=         -- UTF-32:     5 characters, 54 codepoints, 216 bytes
 sleep
-helloZalgo~text~unicode~description(t:1)=       -- Unicode16:  5 characters, 54 codepoints, 108 bytes
+helloZalgo~text~unicode~description(technical:1)=       -- Unicode16:  5 characters, 54 codepoints, 108 bytes
 sleep no prompt
 
 

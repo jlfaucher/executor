@@ -109,7 +109,7 @@
     -- if the buffer is passed as argument then append the encoded codepoint to the buffer, and return the buffer
     -- otherwise return the encoded codepoint as a RexxText
     use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new(, 4) -- yes, always 4, no need to use codepointMaxBytes
     self~checkCodepoint(codepoint, codepointIndexB, previousCodepoint, previousCodepointIndexB, checkOnlyRange: .true) -- check only range, the other errors will be detected during analysis
@@ -152,7 +152,7 @@
     -- if the buffer is passed as argument then append the character to the buffer, and return the buffer
     -- otherwise return the character as a RexxText
     use strict arg indexC
-    use strict named arg buffer(1)=.nil
+    use strict named arg buffer=.nil
     startB = self~characterIndexB(indexC)
     if .nil == self~characterIndexes, self~characterCount == self~string~length then do
         -- Careful with this optimization! Testing just .nil is not enough since I no longer store the last index+1: even in the case .nil, the last character can be more than one codepoint
@@ -192,7 +192,7 @@
 
 ::method encodeASCIIstring class
     use strict arg string
-    use strict named arg memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg memorize = (.Unicode~memorizeConversions), buffer=.nil
 
     text = .nil
     if string~hasText then text = string~text
@@ -230,7 +230,7 @@
 
 ::method UTF32BE
     use strict arg -- none
-    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict = .false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     if .nil <> buffer then return buffer~~append(self~string)
                       else return self~string~text
 
@@ -267,7 +267,7 @@
 
 ::method encodeASCIIstring class
     use strict arg string
-    use strict named arg memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg memorize = (.Unicode~memorizeConversions), buffer=.nil
 
     text = .nil
     if string~hasText then text = string~text
@@ -305,7 +305,7 @@
 
 ::method UTF32LE
     use strict arg -- none
-    use strict named arg strict = .false, memorize(3) = (.Unicode~memorizeConversions), buffer(1)=.nil
+    use strict named arg strict = .false, memorize = (.Unicode~memorizeConversions), buffer=.nil
     if .nil <> buffer then return buffer~~append(self~string)
                       else return self~string~text
 
