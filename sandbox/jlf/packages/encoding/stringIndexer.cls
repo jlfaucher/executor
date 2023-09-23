@@ -615,7 +615,13 @@ How other languages are supporting escape characters for Unicode:
 
 
 ::method NFC
-    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", .Unicode~NFC))
+    namedArgs = .context~namedArgs
+    normalization = namedArgs~entry("normalization")
+    if .nil \== normalization, .Unicode~NFC \== normalization then signal invalid_normalization_argument
+    namedArgs~~setEntry("normalization", .Unicode~NFC)
+    forward message "transform" namedArguments (namedArgs)
+
+    invalid_normalization_argument: raise syntax 23.900 array ("The named argument 'normalization' can be only .Unicode~NFC (".Unicode~NFC")")
 
 
 ::attribute isNFD get
@@ -633,7 +639,13 @@ How other languages are supporting escape characters for Unicode:
 
 
 ::method NFD
-    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", .Unicode~NFD))
+    namedArgs = .context~namedArgs
+    normalization = namedArgs~entry("normalization")
+    if .nil \== normalization, .Unicode~NFD \== normalization then signal invalid_normalization_argument
+    namedArgs~~setEntry("normalization", .Unicode~NFD)
+    forward message "transform" namedArguments (namedArgs)
+
+    invalid_normalization_argument: raise syntax 23.900 array ("The named argument 'normalization' can be only .Unicode~NFD (".Unicode~NFD")")
 
 
 ::attribute isNFKC get
@@ -651,7 +663,13 @@ How other languages are supporting escape characters for Unicode:
 
 
 ::method NFKC
-    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", .Unicode~NFKC))
+    namedArgs = .context~namedArgs
+    normalization = namedArgs~entry("normalization")
+    if .nil \== normalization, .Unicode~NFKC \== normalization then signal invalid_normalization_argument
+    namedArgs~~setEntry("normalization", .Unicode~NFKC)
+    forward message "transform" namedArguments (namedArgs)
+
+    invalid_normalization_argument: raise syntax 23.900 array ("The named argument 'normalization' can be only .Unicode~NFKC (".Unicode~NFKC")")
 
 
 ::attribute isNFKD get
@@ -669,7 +687,13 @@ How other languages are supporting escape characters for Unicode:
 
 
 ::method NFKD
-    forward message "transform" namedArguments (.context~namedArgs~~setEntry("normalization", .Unicode~NFKD))
+    namedArgs = .context~namedArgs
+    normalization = namedArgs~entry("normalization")
+    if .nil \== normalization, .Unicode~NFKD \== normalization then signal invalid_normalization_argument
+    namedArgs~~setEntry("normalization", .Unicode~NFKD)
+    forward message "transform" namedArguments (namedArgs)
+
+    invalid_normalization_argument: raise syntax 23.900 array ("The named argument 'normalization' can be only .Unicode~NFKD (".Unicode~NFKD")")
 
 
 ::attribute isCasefold get
