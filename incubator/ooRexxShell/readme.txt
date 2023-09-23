@@ -370,15 +370,15 @@ execution (duration, concurrent trace).
 
 Example for Executor:
     goto label          -- always executed
-    goto label when 1   -- always excuted
+    goto label when 1   -- always executed
     goto label when 0   -- never executed
     < file s/x/10/ s/y/20/ when \.ooRexxShell~testRegression
 
 Example for official ooRexx:
 (must use 'return' or set the variable 'result')
     goto label                  -- always executed
-    goto label when return 1    -- always excuted
-    goto label when result=1    -- always excuted
+    goto label when return 1    -- always executed
+    goto label when result=1    -- always executed
     goto label when return 0    -- never executed
     goto label when result=0    -- never executed
 
