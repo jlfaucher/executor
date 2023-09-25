@@ -531,6 +531,13 @@ Allows to use a String or a RexxText indistinctly
     return selfCopy
 
 
+-- To see the string value instead of "a RexxText" in trace
+-- Remember: defining defaultName had no effect
+::method objectName
+    use strict arg -- none
+    return self~ppString
+
+
 /******************************************************************************/
 ::class "RexxTextPrettyPrinter" mixinclass Object private
 
