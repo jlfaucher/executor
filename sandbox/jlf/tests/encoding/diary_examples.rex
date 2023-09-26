@@ -1641,11 +1641,14 @@ Examples:
                                                 --  1  2 3  4  5  6  7  8  9 10 11 (byte indexes)
     "père Noël"~text~c2x=                       -- '70 C3A8 72 65 20 4E 6F C3AB 6C'
                                                 --  p  è    r  e     N  o  ë    l
+    "père Noël"~match(1, "Noël")=               -- .false (byte indexes)
+    "père Noël"~text~match(1, "Noël")=          -- .false (grapheme indexes)
     "père Noël"~match(7, "Noël")=               -- .true (byte indexes)
     "père Noël"~text~match(6, "Noël")=          -- .true (grapheme indexes)
     "père Noël"~match(11, "Noël", 5)=           -- .true (byte indexes)
     "père Noël"~text~match(9, "Noël", 4)=       -- .true (grapheme indexes)
 
+    "père Noël"~text~caselessMatch(1, "NOËL")=  -- .false
     "père Noël"~text~caselessMatch(6, "NOËL")=  -- .true
 
     -- the first "äXü" is NFC, the second "äẌü" is NFD

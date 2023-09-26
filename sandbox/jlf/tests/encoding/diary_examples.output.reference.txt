@@ -2525,6 +2525,10 @@ ooRexx>                                                 --  1  2 3  4  5  6  7  
 ooRexx>     "père Noël"~text~c2x=                       -- '70 C3A8 72 65 20 4E 6F C3AB 6C'
 '70 C3A8 72 65 20 4E 6F C3AB 6C'
 ooRexx>                                                 --  p  è    r  e     N  o  ë    l
+ooRexx>     "père Noël"~match(1, "Noël")=               -- .false (byte indexes)
+ 0
+ooRexx>     "père Noël"~text~match(1, "Noël")=          -- .false (grapheme indexes)
+ 0
 ooRexx>     "père Noël"~match(7, "Noël")=               -- .true (byte indexes)
  1
 ooRexx>     "père Noël"~text~match(6, "Noël")=          -- .true (grapheme indexes)
@@ -2534,6 +2538,8 @@ ooRexx>     "père Noël"~match(11, "Noël", 5)=           -- .true (byte indexe
 ooRexx>     "père Noël"~text~match(9, "Noël", 4)=       -- .true (grapheme indexes)
  1
 
+ooRexx>     "père Noël"~text~caselessMatch(1, "NOËL")=  -- .false
+ 0
 ooRexx>     "père Noël"~text~caselessMatch(6, "NOËL")=  -- .true
  1
 
@@ -6337,6 +6343,7 @@ PM         'RexxTextMapper'                   : (functionals.cls)
 .M         'RexxTextOperators'                : (text.cls)
 .M         'RexxTextPrettyPrinter'            : (text.cls)
 .M         'RexxTextStringInterface'          : (text.cls)
+P.         'RexxTextTransformer'              : (stringIndexer.cls)
 PM         'StringIndexer'                    : (stringIndexer.cls)
 P.         'UTF16BE_Encoding'                 : (utf16_encoding.cls)
 P.         'UTF16LE_Encoding'                 : (utf16_encoding.cls)
@@ -6358,7 +6365,7 @@ P.         'WINDOWS1252_Encoding'             : (windows-1252_encoding.cls)
 P.         'WTF16BE_Encoding'                 : (wtf16_encoding.cls)
 P.         'WTF16LE_Encoding'                 : (wtf16_encoding.cls)
 P.         'WTF8_Encoding'                    : (wtf8_encoding.cls)
-[Info] 38 lines displayed
+[Info] 39 lines displayed
 
 -- ===============================================================================
 -- 2021 mar 24
