@@ -329,7 +329,7 @@ Depends on
     character = characters[self~characterIndexOffset + codepoint]
     if .nil == character  then do
         character = .UnicodeCharacter~new(codepoint)
-        characters[self~characterIndexOffset + codepoint] = character
+        if character~category \== .Unicode~CATEGORY_CN then characters[self~characterIndexOffset + codepoint] = character
     end
     return character
 
