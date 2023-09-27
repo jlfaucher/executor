@@ -43,6 +43,13 @@ Notes about Unicode:
 - [URLs with annotations][notes_unicode]
 - [Thoughts on ooRexx and Unicode][thoughts_on_ooRexx_and_unicode]
 
+Test cases:
+- [Demo Unicode intro][demo_unicode_intro]
+- [Demo Unicode checks][demo_unicode_checks]
+- [Demo Unicode services][demo_unicode_services]
+- [Demo Unicode String compatibility][demo_unicode_string_compatibility]
+- [Examples from the sandbox diary and more][encoded_strings_diary_exemples]      **🠄 NEW**
+
 ### Named arguments
 
 A positional argument list is a serie of optional expressions, separated by commas.
@@ -375,9 +382,14 @@ Several demos are available [here][demos_with_asciinema].
 
 [apl_glimpse_heaven]: http://archive.vector.org.uk/art10011550 "APL - a Glimpse of Heaven"
 [build_executor]: https://github.com/jlfaucher/builder/blob/master/build-executor.txt
+[demo_unicode_checks]: https://jlfaucher.github.io/executor.master/demos/executor-demo-text-internal_checks-output.html
+[demo_unicode_intro]: https://jlfaucher.github.io/executor.master/demos/executor-demo-text-output.html
+[demo_unicode_services]: https://jlfaucher.github.io/executor.master/demos/executor-demo-text-unicode-output.html
+[demo_unicode_string_compatibility]: https://jlfaucher.github.io/executor.master/demos/executor-demo-text-compatibility-output.html
 [demos_with_asciinema]: https://jlfaucher.github.io/executor.master/demos/index.html
 [doc]: https://jlfaucher.github.io/oorexx/docs/trunk/index.html "Graphical syntax diagrams"
 [download]: https://jlfaucher.github.io/oorexx/sandbox/index.html "Download"
+[encoded_strings_diary_exemples]: https://jlfaucher.github.io/executor.master/tests/encoding/diary_examples.output.html
 [ICU4X]: https://github.com/unicode-org/icu4x
 [internal_documentation_classes]: https://jlfaucher.github.io/executor.master/doxygen/html/classes.html
 [internal_documentation_files]: https://jlfaucher.github.io/executor.master/doxygen/html/files.html

@@ -31,6 +31,7 @@ uscriptsFiles = list_invalid_utf8 \
 help:
 	@echo "make all"
 	@for f in $(testFiles); do (echo "make" $$f); done
+	@echo "make diary_examples.output.html"
 	@for f in $(demoFiles); do (echo "make" $$f); done
 	@for f in $(scriptsFiles); do (echo "make" $$f); done
 	@for f in $(uscriptsFiles); do (echo "make" $$f); done
@@ -38,6 +39,7 @@ help:
 
 all:
 	@for f in $(testFiles); do (make $$f); done
+	make diary_examples.output.html
 	@for f in $(demoFiles); do (make $$f); done
 	@for f in $(scriptsFiles); do (make $$f); done
 	@for f in $(uscriptsFiles); do (make $$f); done
@@ -58,6 +60,12 @@ $(scriptsFiles) :
 $(uscriptsFiles) :
 	bash -i -c 'rexx $(uscripts)/$@.rex > $@.output.txt 2>&1'
 	diff -q $@.output.reference.txt $@.output.txt
+
+%.cast : %.rex
+	-asciinema rec -c "bash -i -c 'echo prompt off address | cat $? | oorexxshell --showInitialization test regression'" --overwrite $@
+
+%.output.html : %.cast
+	asciinema cat $? | aha --title "$@" > $@
 
 clean:
 	@for f in $(testFiles); do (rm -f $$f.output.txt); done

@@ -95,7 +95,8 @@ New 'RexxTextTransformer' class:
     - The transformation can be made on a part of the string (from startC, for
       lengthC characters).
     - The methods for the transformation are the same as for RexxText:
-      NFC, NFD, NFKC, NFKD, casefold, transform.
+      NFC, NFD, NFKC, NFKD, casefold, transform. The result is the instance of
+      RexxTextTransformer, not the transformed text.
     - Only one call to a transformation method can be done. This is because the
       parameters of the transformation are memorized to re-apply internally the
       transformation character by character, when moving the cursors.
@@ -115,7 +116,7 @@ New 'RexxTextTransformer' class:
 
                                      --                          Transformed part of the full text
                                      --                       +-------------------------------------+               -- GLOBAL INDEXES (offsetC=3, offsetB=7)
-                                     --  01   | 02   | 03     | 04 | 05     | 06    | 07       | 08 | 09            -- (external grapheme indexes) <---------+
+                                     --  01   | 02   | 03     | 04 | 05     | 06    | 07       | 08 | 09            -- (external character indexes) <--------+
                                      --  1 2  | 3 4  | 5 6 7  | 8  | 9 0    | 1 2   | 3 4 5    | 6  | 7 8 9         -- (external byte indexes)               |
             "éßﬄ#éßﬄ#…"~text~c2g   --  C3A9 | C39F | EFAC84 | 23 | C3A9   | C39F  | EFAC84   | 23 | E280A6        -- (external bytes)                      |
                                      --  é    | ß    | ﬄ     | #  | é      | ß     | ﬄ       | #  | …             -- (full text)                           ^
@@ -123,13 +124,13 @@ New 'RexxTextTransformer' class:
                                      --  C3A9 | C39F | EFAC84 | 23 | 65CC81 | 73 73 | 66 66 6C | 23 | E280A6        -- (internal bytes)                      |
                                                               +-------------------------------------+                                                        |
                                                                                                                     -- RELATIVE INDEXES                      |
-                                                            --  01 | 02     | 03    | 04       | 05                 -- (external grapheme indexes) <---------+
+                                                            --  01 | 02     | 03    | 04       | 05                 -- (external character indexes) <--------+
                                                             --  1  | 2 3    | 4 5   | 6 7 8    | 9                  -- (external byte indexes)               |
             "#éßﬄ#"~text~c2g=                              --  23 | C3A9   | C39F  | EFAC84   | 23                 -- (external bytes)                      |
                                                             --  #  | é      | ß     | ﬄ       | #                  -- (external subtext)                    ^
                                                                                                                                                              |
                                                                                                                     -- RELATIVE INDEXES                      |
-                                                            --  01 | 02     | 03 04 | 05 06 07 | 08                 -- (internal grapheme indexes)           |
+                                                            --  01 | 02     | 03 04 | 05 06 07 | 08                 -- (internal character indexes)          |
                                                             --  1  | 2 3 4  | 5  6  | 7  8  9  | 0                  -- (internal byte indexes) ------>-------+
             "#éßﬄ#"~text~NFD(casefold:)~c2g=               --  23 | 65CC81 | 73 73 | 66 66 6C | 23                 -- (internal bytes)
                                                             --  #  | é      | s  s  | f  f  l  | #                  -- (internal subtext)
@@ -153,18 +154,41 @@ transformer~restorePos
 transformer~ib2xc(2)=       -- 5
 
 transformer~resetPos
-do i=1 to transformer~iSubtext~string~length; say "byte pos" i~right(2, 0) "    character pos=" transformer~ib2xc(i)~string~left(20) transformer~ib2xc(i, aligned:.false); end
+do i=1 to transformer~iSubtext~string~length; say "byte pos" i~right(2) "    character pos=" transformer~ib2xc(i)~string~left(20) transformer~ib2xc(i, aligned:.false); end
 /*
-byte pos 01     character pos= 4                    +4.8    -- the 8th internal byte is aligned with the 4th external character
-byte pos 02     character pos= 5                    +5.9
-byte pos 03     character pos= The NIL object       -5.10   -- the 10th internal byte is part of the 5th external character, but is not aligned with it.
-byte pos 04     character pos= The NIL object       -5.11
-byte pos 05     character pos= 6                    +6.12
-byte pos 06     character pos= The NIL object       -6.13
-byte pos 07     character pos= 7                    +7.14
-byte pos 08     character pos= The NIL object       -7.15
-byte pos 09     character pos= The NIL object       -7.16
-byte pos 10     character pos= 8                    +8.17
+    byte pos  1     character pos= 4                    +4.8    -- the 8th internal byte is aligned with the 4th external character
+    byte pos  2     character pos= 5                    +5.9
+    byte pos  3     character pos= The NIL object       -5.10   -- the 10th internal byte is part of the 5th external character, but is not aligned with it.
+    byte pos  4     character pos= The NIL object       -5.11
+    byte pos  5     character pos= 6                    +6.12
+    byte pos  6     character pos= The NIL object       -6.13
+    byte pos  7     character pos= 7                    +7.14
+    byte pos  8     character pos= The NIL object       -7.15
+    byte pos  9     character pos= The NIL object       -7.16
+    byte pos 10     character pos= 8                    +8.17
+*/
+/*
+    More details on positions mappings.
+    transformer~iSubtext is the transformed part of the full text.
+    The internal relative byte position 1 becomes the internal global byte position 8:
+        There are 7 bytes (offsetB=7) before the part to transform: 1 + 7 = 8.
+        It's the same offsetB=7 for external and internal bytes, because this part is not transformed.
+        Remember:
+        It doesn't make sense to return the external byte position, because some internal byte positions
+        have no corresponding external byte position. For example the internal global byte position 11.
+        For diagnostics and analysis, only internal byte positions are relevant.
+    The external relative character position 1 becomes the external global character position 4:
+        There are 3 characters (offsetC=3) before the part to transform: 1 + 3 = 4.
+        It's the same offsetC=3 for external and internal characters, because this part is not transformed.
+        Remember:
+        The user works only with external global character positions.
+        It wouldn't make sense to return internal character positions.
+    Example of alignment:
+        The internal relative byte position 1 becomes the internal global byte position 8,
+        is part of the 4th external character and is aligned with it.
+    Example of non-alignment:
+        The internal relative byte position 3 becomes the internal global byte position 10,
+        is part of the 5th external character and is not aligned with it.
 */
 
 
@@ -415,7 +439,7 @@ The results were not good for some byte indexes when using aligned:.false
 "bâﬄé"~text~pos("ff", strict:.false)=               -- 0 because "ff" matches only a subset of "ﬄ"-->"ffl"
 "bâﬄé"~text~pos("ffl", strict:.false)=              -- 3 because "ffl" matches all of "ﬄ"-->"ffl"
 "bâﬄé"~text~pos("f", strict:.false, asList:, overlap:, aligned:.false)=
-"bâﬄﬄé"~text~pos("é", strict:.false)=              -- 5
+"bâﬄﬄé"~text~pos("é", strict:.false)=               -- 5
 "bâﬄﬄé"~text~pos("ffl", strict:.false, asList:, overlap:, aligned:.false)=
 "bâﬄﬄé"~text~pos("f", strict:.false, asList:, overlap:, aligned:.false)=
 "bâﬄﬄé"~text~pos("flff", strict:.false)=                    -- 0
@@ -449,7 +473,7 @@ The results were not good for some byte indexes when using aligned:.false
 "bâﬄé"~text~caselessPos("FF", strict:.false)=              -- 0 because "FF" matches only a subset of "ﬄ"-->"ffl"
 "bâﬄé"~text~caselessPos("FFL", strict:.false)=             -- 3 because "FFL" matches all of "ﬄ"-->"ffl"
 "bâﬄé"~text~caselessPos("F", strict:.false, asList:, overlap:, aligned:.false)=
-"bâﬄﬄé"~text~caselessPos("É", strict:.false)=             -- 5
+"bâﬄﬄé"~text~caselessPos("É", strict:.false)=              -- 5
 "bâﬄﬄé"~text~caselessPos("FFL", strict:.false, asList:, overlap:, aligned:.false)=
 "bâﬄﬄé"~text~caselessPos("F", strict:.false, asList:, overlap:, aligned:.false)=
 "bâﬄﬄé"~text~caselessPos("FLFF", strict:.false)=                    -- 0
@@ -690,7 +714,7 @@ Additional test cases to cover corner cases for caselessPos, pos.
                                                     --  01 02 03 04 05   06 07 08 09 10   11 12                                                 13
                                                     --  0                         1                      2                   3                    4
                                                     --  1  2  3  4  5 6  7  8  9  0  1 2  3  4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8  9 0 1 2
-"straße noël👩‍👨‍👩‍👧🎅"~text~c2g=             -- '73 74 72 61 C39F 65 20 6E 6F C3AB 6C F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7 F09F8E85'
+"straße noël👩‍👨‍👩‍👧🎅"~text~c2g=                         -- '73 74 72 61 C39F 65 20 6E 6F C3AB 6C F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7 F09F8E85'
                                                     --                                                                                 |
 */
 
@@ -728,7 +752,7 @@ Additional test cases to cover corner cases for caselessPos, pos.
                                                     --  01 02 03 04 05 06 07 08 09 10 11   12 13                                                 14
                                                     --  0                          1                      2                   3                    4
                                                     --  1  2  3  4  5  6  7  8  9  0  1 2  3  4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8  9 0 1 2
-"straße noël👩‍👨‍👩‍👧🎅"~text~casefold~c2g=    -- '73 74 72 61 73 73 65 20 6E 6F C3AB 6C F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7 F09F8E85'
+"straße noël👩‍👨‍👩‍👧🎅"~text~casefold~c2g=                -- '73 74 72 61 73 73 65 20 6E 6F C3AB 6C F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7 F09F8E85'
                                                     --                                                                                  |
 */
 
@@ -1019,9 +1043,9 @@ Examples:
     "Père Noël Père Noël"~text~contains("oë", 8, 11)=            -- .true
     "Père Noël Père Noël"~text~caselessContains("OË", 8, 11)=    -- .true
 
-    "noël👩‍👨‍👩‍👧🎅"~text~contains("👧🎅")=                           -- .false
-    "noël👩‍👨‍👩‍👧🎅"~text~contains("👧🎅", aligned:.false)=           -- .true
-    "noël👩‍👨‍👩‍👧🎅"~text~contains("👩‍👨‍👩‍👧🎅", aligned:.false)=  -- .true
+    "noël👩‍👨‍👩‍👧🎅"~text~contains("👧🎅")=                            -- .false
+    "noël👩‍👨‍👩‍👧🎅"~text~contains("👧🎅", aligned:.false)=            -- .true
+    "noël👩‍👨‍👩‍👧🎅"~text~contains("👩‍👨‍👩‍👧🎅", aligned:.false)=            -- .true
 
 
 -- ===============================================================================
@@ -1049,7 +1073,7 @@ Example:
 */
     "noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅")=                           -- 0
     "noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅", aligned:.false)=           -- [-5.27,+7.35]
-    "noël👩‍👨‍👩‍👧🎅"~text~pos("👩‍👨‍👩‍👧🎅", aligned:.false)=  -- [+5.6,+7.35]
+    "noël👩‍👨‍👩‍👧🎅"~text~pos("👩‍👨‍👩‍👧🎅", aligned:.false)=           -- [+5.6,+7.35]
 
 
 /*
@@ -1131,8 +1155,8 @@ This test case is a little bit strange because:
 -- -----------------------------------------------------
     "BAFFLE"~text~caselessMatchChar(3, "ﬄ")=               -- 1      "ﬄ" becomes "ffl" (3 graphemes), there is a match on "f" at 3
     "BAFFLE"~text~caselessMatchChar(5, "ﬄ")=               -- 1      "ﬄ" becomes "ffl" (3 graphemes), there is a match on "l" at 5
-    "baffle"~text~caselessMatchChar(5, "L")=                -- 1      there is a match on "l" at 5 (forward to string)
-    "baﬄe"~text~caselessMatchChar(3, "ﬄ")=                -- 1      "ﬄ" at 3 (1 grapheme) becomes "ffl" (3 graphemes), there is a match on "l"
+    "baffle"~text~caselessMatchChar(5, "L")=               -- 1      there is a match on "l" at 5 (forward to string)
+    "baﬄe"~text~caselessMatchChar(3, "ﬄ")=                 -- 1      "ﬄ" at 3 (1 grapheme) becomes "ffl" (3 graphemes), there is a match on "l"
     "baﬄe"~text~caselessMatchChar(3, "F")=                 -- 1      "ﬄ" at 3 (1 grapheme) becomes "ffl" (3 graphemes), there is a match on "f"
     "baﬄe"~text~caselessMatchChar(3, "L")=                 -- 1      "ﬄ" at 3 (1 grapheme) becomes "ffl" (3 graphemes), there is a match on "l"
     "baﬄe"~text~caselessMatchChar(4, "E")=                 -- 1      the grapheme at 4 is "e", not "f". There is a match with "e"
@@ -1563,8 +1587,8 @@ g~()=       -- [no result]
 "baﬄe"~text~NFKC=                                            -- T'baffle'
 "baﬄe"~text~NFKD=                                            -- T'baffle'
 "baﬄe"~text~matchChar(3, "f")=                               -- 0     "ﬄ" is ONE grapheme because NFC
-"baﬄe"~text~matchChar(3, "ﬄ")=                              -- 1     "ﬄ" is ONE grapheme because NFC
-"baﬄe"~text~matchChar(3, "ﬄ", normalization:.Unicode~NFKD)= -- 1     "ﬄ" becomes "ffl" (3 graphemes). There is a match because the first grapheme is "f"
+"baﬄe"~text~matchChar(3, "ﬄ")=                               -- 1     "ﬄ" is ONE grapheme because NFC
+"baﬄe"~text~matchChar(3, "ﬄ", normalization:.Unicode~NFKD)=  -- 1     "ﬄ" becomes "ffl" (3 graphemes). There is a match because the first grapheme is "f"
 "baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=  -- 1     "ﬄ" becomes "ffl" (3 graphemes). There is a match because the first grapheme is "f"
 "baﬄe"~text~matchChar(4, "f", normalization:.Unicode~NFKD)=  -- 0     "ﬄ" becomes "ffl" (3 graphemes). The grapheme at 4 is "e", not the second "f"
 "baﬄe"~text~matchChar(4, "e", normalization:.Unicode~NFKD)=  -- 1     "ﬄ" becomes "ffl" (3 graphemes). The grapheme at 4 is "e", not the second "f"
@@ -1573,7 +1597,7 @@ g~()=       -- [no result]
 "baﬄe"~text~casefold=                                        -- T'baffle'
 "BAFFLE"~text~caselessMatchChar(3, "ﬄ")=                     -- 1      "ﬄ" becomes "ffl" (3 graphemes), there is a match on "f" at 3
 "BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                     -- 1      "ﬄ" becomes "ffl" (3 graphemes), there is a match on "l" at 5
-"BAFFLE"~text~caselessMatchChar(5, "L")=                      -- 1      there is a match on "l" at 5 (forward to String)
+"BAFFLE"~text~caselessMatchChar(5, "L")=                     -- 1      there is a match on "l" at 5 (forward to String)
 
 
 -- Implementation of caselessEquals, equals
@@ -2384,7 +2408,7 @@ The rest of the framework is ready for full casing.
 
 
 -- Which characters have their title character different from their upper character?
-.unicode~characters~select{item~toTitleSimple <> item~toUpperSimple}~each{.Unicode[item~toTitleSimple]~utf8 .Unicode[item~ToUpperSimple]~utf8 item~utf8 item~string}==
+.unicode~characters~select{item~toTitleSimple <> item~toUpperSimple}~each{.Unicode[item~toTitleSimple]~utf8 .Unicode[item~ToUpperSimple]~utf8 item~utf8 item}==
 
 
 -- ===============================================================================
