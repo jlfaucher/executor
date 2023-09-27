@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 4 Aug 2023
-Input queue name: S14c75Q600003d84a90
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 21 Sep 2023
+Input queue name: S780dQ600001cdaa40
 
 ----------------
 -- Text encoding
@@ -254,7 +254,7 @@ UTF-32 to UTF-8, UTF-16
 The Byte_Encoding can be specialized to add support for specific encoding conversions.
 */
 ooRexx[sh]> .Encoding~list~table==
-a Table (46 items)
+a Table (45 items)
  437               : (The IBM437_Encoding class)
  819               : (The ISO88591_Encoding class)
  8859              : (The ISO88591_Encoding class)
@@ -282,7 +282,6 @@ a Table (46 items)
 'L1'               : (The ISO88591_Encoding class)
 'LATIN'            : (The ISO88591_Encoding class)
 'LATIN1'           : (The ISO88591_Encoding class)
-'UNICODE'          : (The Unicode_Encoding class)
 'UNICODE16'        : (The Unicode16_Encoding class)
 'UNICODE32'        : (The Unicode32_Encoding class)
 'UNICODE8'         : (The Unicode8_Encoding class)
@@ -334,15 +333,15 @@ Unicode32_Encoding can be used with utf8proc for the functions taking a buffer o
 */
 
 -- Just an interpretative layer put above the string
-ooRexx[sh]> "côté"~text("unicode8")~pipe{item~description(s:1) ":" item~c2x}=
+ooRexx[sh]> "côté"~text("unicode8")~pipe{item~description(short:1) ":" item~c2x}=
 'Unicode8 not-ASCII : 63 C3 B4 74 C3 A9'
 
 -- UTF-8 converted to Unicode8
-ooRexx[sh]> "côté"~text~unicode~pipe{item~description(s:1) ":" item~c2x}=
+ooRexx[sh]> "côté"~text~unicode~pipe{item~description(short:1) ":" item~c2x}=
 'Unicode8 not-ASCII : 63 F4 74 E9'
 ooRexx[sh]> "noël‍👨‍👩‍👧"~text~maximumCodepoint~pipe{"U+"item~d2x}=   -- U+1F469 is the maximum codepoint
 'U+1F469'
-ooRexx[sh]> "noël‍👨‍👩‍👧"~text~unicode~description(t:1)=              -- For this maximum codepoint, we need Unicode32
+ooRexx[sh]> "noël‍👨‍👩‍👧"~text~unicode~description(technical:1)=      -- For this maximum codepoint, we need Unicode32
 'Unicode32 (5 characters (1 index from index 5), 10 codepoints (0 index), 40 bytes, 0 error)'
 
 -- The endianness of the UnicodeN_Encoding is the one of the machine.
@@ -359,43 +358,43 @@ Comparing the size of UTF-8 vs UTF-16 vs UTF-32 for various strings.
 These strings are initially UTF-8 encoded.
 The first step is to get a wrapper RexxText (default encoding is UTF-8).
 The second step is to convert to UTF-16 or UTF-32.
-The description includes technical informations (t:1) about the internal tables for indexation.
+The description includes technical informations (technical:1) about the internal tables for indexation.
 */
 ooRexx[sh]> howMuchOfStorage = "how much of storage?"
-ooRexx[sh]> howMuchOfStorage~text~description(t:1)=         -- UTF-8:     20 characters, 20 codepoints,  20 bytes
+ooRexx[sh]> howMuchOfStorage~text~description(technical:1)=         -- UTF-8:     20 characters, 20 codepoints,  20 bytes
 'UTF-8 ASCII (20 characters (0 index), 20 codepoints (0 index), 20 bytes, 0 error)'
-ooRexx[sh]> howMuchOfStorage~text~utf16~description(t:1)=   -- UTF-16:    20 characters, 20 codepoints,  40 bytes
+ooRexx[sh]> howMuchOfStorage~text~utf16~description(technical:1)=   -- UTF-16:    20 characters, 20 codepoints,  40 bytes
 'UTF-16BE (20 characters (0 index), 20 codepoints (0 index), 40 bytes, 0 error)'
-ooRexx[sh]> howMuchOfStorage~text~utf32~description(t:1)=   -- UTF-32:    20 characters, 20 codepoints,  80 bytes
+ooRexx[sh]> howMuchOfStorage~text~utf32~description(technical:1)=   -- UTF-32:    20 characters, 20 codepoints,  80 bytes
 'UTF-32BE (20 characters (0 index), 20 codepoints (0 index), 80 bytes, 0 error)'
-ooRexx[sh]> howMuchOfStorage~text~unicode~description(t:1)= -- Unicode8:  20 characters, 20 codepoints,  20 bytes
+ooRexx[sh]> howMuchOfStorage~text~unicode~description(technical:1)= -- Unicode8:  20 characters, 20 codepoints,  20 bytes
 'Unicode8 ASCII (20 characters (0 index), 20 codepoints (0 index), 20 bytes, 0 error)'
 ooRexx[sh]> rexCharacters = "'rex' in their name: ꎅ ꎜ ꏑ 🦖"
-ooRexx[sh]> rexCharacters~text~description(t:1)=            -- UTF-8:     28 characters, 28 codepoints,  37 bytes
+ooRexx[sh]> rexCharacters~text~description(technical:1)=            -- UTF-8:     28 characters, 28 codepoints,  37 bytes
 'UTF-8 not-ASCII (28 characters (6 indexes from index 23), 28 codepoints (6 indexes from index 23), 37 bytes, 0 error)'
-ooRexx[sh]> rexCharacters~text~utf16~description(t:1)=      -- UTF-16:    28 characters, 28 codepoints,  58 bytes
+ooRexx[sh]> rexCharacters~text~utf16~description(technical:1)=      -- UTF-16:    28 characters, 28 codepoints,  58 bytes
 'UTF-16BE (28 characters (0 index), 28 codepoints (0 index), 58 bytes, 0 error)'
-ooRexx[sh]> rexCharacters~text~utf32~description(t:1)=      -- UTF-32:    28 characters, 28 codepoints, 112 bytes
+ooRexx[sh]> rexCharacters~text~utf32~description(technical:1)=      -- UTF-32:    28 characters, 28 codepoints, 112 bytes
 'UTF-32BE (28 characters (0 index), 28 codepoints (0 index), 112 bytes, 0 error)'
-ooRexx[sh]> rexCharacters~text~unicode~description(t:1)=    -- Unicode32: 28 characters, 28 codepoints, 112 bytes
+ooRexx[sh]> rexCharacters~text~unicode~description(technical:1)=    -- Unicode32: 28 characters, 28 codepoints, 112 bytes
 'Unicode32 (28 characters (0 index), 28 codepoints (0 index), 112 bytes, 0 error)'
 ooRexx[sh]> family = "👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦"
-ooRexx[sh]> family~text~description(t:1)=                   -- UTF-8:      1 character,  15 codepoints,  53 bytes
+ooRexx[sh]> family~text~description(technical:1)=                   -- UTF-8:      1 character,  15 codepoints,  53 bytes
 'UTF-8 not-ASCII (1 character (0 index), 15 codepoints (14 indexes from index 2), 53 bytes, 0 error)'
-ooRexx[sh]> family~text~utf16~description(t:1)=             -- UTF-16:     1 character,  15 codepoints,  46 bytes
+ooRexx[sh]> family~text~utf16~description(technical:1)=             -- UTF-16:     1 character,  15 codepoints,  46 bytes
 'UTF-16BE (1 character (0 index), 15 codepoints (14 indexes from index 2), 46 bytes, 0 error)'
-ooRexx[sh]> family~text~utf32~description(t:1)=             -- UTF-32:     1 character,  15 codepoints,  60 bytes
+ooRexx[sh]> family~text~utf32~description(technical:1)=             -- UTF-32:     1 character,  15 codepoints,  60 bytes
 'UTF-32BE (1 character (0 index), 15 codepoints (0 index), 60 bytes, 0 error)'
-ooRexx[sh]> family~text~unicode~description(t:1)=           -- Unicode32:  1 character,  15 codepoints,  60 byte
+ooRexx[sh]> family~text~unicode~description(technical:1)=           -- Unicode32:  1 character,  15 codepoints,  60 byte
 'Unicode32 (1 character (0 index), 15 codepoints (0 index), 60 bytes, 0 error)'
 ooRexx[sh]> helloZalgo = "h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞"
-ooRexx[sh]> helloZalgo~text~description(t:1)=               -- UTF-8:      5 characters, 54 codepoints, 111 bytes
+ooRexx[sh]> helloZalgo~text~description(technical:1)=               -- UTF-8:      5 characters, 54 codepoints, 111 bytes
 'UTF-8 not-ASCII (5 characters (4 indexes from index 2), 54 codepoints (52 indexes from index 3), 111 bytes, 0 error)'
-ooRexx[sh]> helloZalgo~text~utf16~description(t:1)=         -- UTF-16:     5 characters, 54 codepoints, 108 bytes
+ooRexx[sh]> helloZalgo~text~utf16~description(technical:1)=         -- UTF-16:     5 characters, 54 codepoints, 108 bytes
 'UTF-16BE (5 characters (4 indexes from index 2), 54 codepoints (0 index), 108 bytes, 0 error)'
-ooRexx[sh]> helloZalgo~text~utf32~description(t:1)=         -- UTF-32:     5 characters, 54 codepoints, 216 bytes
+ooRexx[sh]> helloZalgo~text~utf32~description(technical:1)=         -- UTF-32:     5 characters, 54 codepoints, 216 bytes
 'UTF-32BE (5 characters (4 indexes from index 2), 54 codepoints (0 index), 216 bytes, 0 error)'
-ooRexx[sh]> helloZalgo~text~unicode~description(t:1)=       -- Unicode16:  5 characters, 54 codepoints, 108 bytes
+ooRexx[sh]> helloZalgo~text~unicode~description(technical:1)=       -- Unicode16:  5 characters, 54 codepoints, 108 bytes
 'Unicode16 (5 characters (4 indexes from index 2), 54 codepoints (0 index), 108 bytes, 0 error)'
 
 

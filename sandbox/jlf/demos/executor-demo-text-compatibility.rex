@@ -184,11 +184,11 @@ sleep no prompt
 sleep
 "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("🎅")=                -- true
 sleep
-"noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("👧🎅")=              -- true (questionable... not required to be aligned with a grapheme)
+"noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("👧🎅")=              -- false (not aligned with a grapheme)
 sleep
-"noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("‍👧🎅")=             -- true (questionable... not required to be aligned with a grapheme)
+"noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("‍👧🎅")=             -- false (not aligned with a grapheme)
 sleep
-"noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("👩‍👧🎅")=           -- true (questionable... not required to be aligned with a grapheme)
+"noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("👩‍👧🎅")=           -- false (not aligned with a grapheme)
 sleep
 "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("ël👩‍👨‍👩‍👧🎅")=   -- true
 sleep
@@ -404,11 +404,11 @@ sleep
 sleep
 "noël👩‍👨‍👩‍👧🎅"~text~endsWith("🎅")=                -- true
 sleep
-"noël👩‍👨‍👩‍👧🎅"~text~endsWith("👧🎅")=              -- true (questionable... not required to be aligned with a grapheme)
+"noël👩‍👨‍👩‍👧🎅"~text~endsWith("👧🎅")=              -- false (not aligned with a grapheme)
 sleep
-"noël👩‍👨‍👩‍👧🎅"~text~endsWith("‍👧🎅")=             -- true (questionable... not required to be aligned with a grapheme)
+"noël👩‍👨‍👩‍👧🎅"~text~endsWith("‍👧🎅")=             -- false (not aligned with a grapheme)
 sleep
-"noël👩‍👨‍👩‍👧🎅"~text~endsWith("👩‍👧🎅")=           -- true (questionable... not required to be aligned with a grapheme)
+"noël👩‍👨‍👩‍👧🎅"~text~endsWith("👩‍👧🎅")=           -- false (not aligned with a grapheme)
 sleep
 "noël👩‍👨‍👩‍👧🎅"~text~endsWith("ël👩‍👨‍👩‍👧🎅")=   -- true
 sleep

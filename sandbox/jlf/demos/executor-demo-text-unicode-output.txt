@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 6 Sep 2023
-Input queue name: Sba27Q600001cf9450
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 21 Sep 2023
+Input queue name: S7853Q600001cdab10
 
 --------------------
 -- Unicode libraries
@@ -696,8 +696,8 @@ ooRexx[sh]> .Unicode~utf8proc_transform(text~string, stripMark:, normalization:1
 ooRexx[sh]> .Unicode~utf8proc_transform(text~string, stripNA:)=                 --  '[07]Le　 ​Père[09]‐­–—Noël[0D0A]'
 '[07]Le　 ​Père[09]‐­–—Noël[0D0A]'
 
--- Application of several options (abbreviated names)
-ooRexx[sh]> .Unicode~utf8proc_transform(text~string, casef:, lump:, norm:1, stripi:, stripc:, stripm:, stripn:)= --  'le  pere ---noel '
+-- Application of several options
+ooRexx[sh]> .Unicode~utf8proc_transform(text~string, casefold:, lump:, normalization:1, stripIgnorable:, stripCC:, stripMark:, stripNA:)= --  'le  pere ---noel '
 'le  pere ---noel '
 
 /*
@@ -778,7 +778,7 @@ ooRexx[sh]> textNFD~isNFD=                                  -- 1
 /*
 The normalized text can be memorized on the original text:
     text = "père Noël"~text
-    textNFD = text~nfd(memorize:)               -- abbreviation mem:.true
+    textNFD = text~nfd(memorize:)
 From now, the returned NFD is always the memorized text.
 */
 
@@ -787,7 +787,7 @@ ooRexx[sh]> text=
 T'0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ'
 ooRexx[sh]> text~isNFD=
 -1
-ooRexx[sh]> textNFD = text~NFD(mem:)
+ooRexx[sh]> textNFD = text~NFD(memorize:)
 text~nfd~"==":.object( textNFD)=                -- 1 (this is really the same object)
  1
 

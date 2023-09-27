@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 6 Sep 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S11725Q600001cd4a90
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 21 Sep 2023
+</span><span style="font-weight:bold;color:green;">Input queue name: S788cQ600001cdab10
 </span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.0.0 
@@ -230,12 +230,12 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~te
  1
 <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessEndsWith(&quot;🎅&quot;)=                </span><span style="font-weight:bold;color:blue;">-- true</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessEndsWith(&quot;👧🎅&quot;)=              </span><span style="font-weight:bold;color:blue;">-- true (questionable... not required to be aligned with a grapheme)</span>
- 1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessEndsWith(&quot;‍👧🎅&quot;)=             </span><span style="font-weight:bold;color:blue;">-- true (questionable... not required to be aligned with a grapheme)</span>
- 1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessEndsWith(&quot;👩‍👧🎅&quot;)=           </span><span style="font-weight:bold;color:blue;">-- true (questionable... not required to be aligned with a grapheme)</span>
- 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessEndsWith(&quot;👧🎅&quot;)=              </span><span style="font-weight:bold;color:blue;">-- false (not aligned with a grapheme)</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessEndsWith(&quot;‍👧🎅&quot;)=             </span><span style="font-weight:bold;color:blue;">-- false (not aligned with a grapheme)</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessEndsWith(&quot;👩‍👧🎅&quot;)=           </span><span style="font-weight:bold;color:blue;">-- false (not aligned with a grapheme)</span>
+ 0
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessEndsWith(&quot;ël👩‍👨‍👩‍👧🎅&quot;)=   </span><span style="font-weight:bold;color:blue;">-- true</span>
  1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~caselessEndsWith(&quot;ËL👩‍👨‍👩‍👧🎅&quot;)=   </span><span style="font-weight:bold;color:blue;">-- true</span>
@@ -474,12 +474,12 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~te
  1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~endsWith(&quot;🎅&quot;)=                </span><span style="font-weight:bold;color:blue;">-- true</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~endsWith(&quot;👧🎅&quot;)=              </span><span style="font-weight:bold;color:blue;">-- true (questionable... not required to be aligned with a grapheme)</span>
- 1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~endsWith(&quot;‍👧🎅&quot;)=             </span><span style="font-weight:bold;color:blue;">-- true (questionable... not required to be aligned with a grapheme)</span>
- 1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~endsWith(&quot;👩‍👧🎅&quot;)=           </span><span style="font-weight:bold;color:blue;">-- true (questionable... not required to be aligned with a grapheme)</span>
- 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~endsWith(&quot;👧🎅&quot;)=              </span><span style="font-weight:bold;color:blue;">-- false (not aligned with a grapheme)</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~endsWith(&quot;‍👧🎅&quot;)=             </span><span style="font-weight:bold;color:blue;">-- false (not aligned with a grapheme)</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~endsWith(&quot;👩‍👧🎅&quot;)=           </span><span style="font-weight:bold;color:blue;">-- false (not aligned with a grapheme)</span>
+ 0
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~endsWith(&quot;ël👩‍👨‍👩‍👧🎅&quot;)=   </span><span style="font-weight:bold;color:blue;">-- true</span>
  1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~endsWith(&quot;ËL👩‍👨‍👩‍👧🎅&quot;)=   </span><span style="font-weight:bold;color:blue;">-- false</span>

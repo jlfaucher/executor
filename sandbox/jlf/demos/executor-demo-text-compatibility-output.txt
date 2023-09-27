@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 6 Sep 2023
-Input queue name: S11725Q600001cd4a90
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 21 Sep 2023
+Input queue name: S788cQ600001cdab10
 
 ooRexx[sh]> call loadUnicodeCharacterNames
 Load the Unicode character names 15.0.0 
@@ -220,12 +220,12 @@ ooRexx[sh]> "hello"~text~caselessEndsWith("Ô", stripMark:)=     -- true
  1
 "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("🎅")=                -- true
  1
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("👧🎅")=              -- true (questionable... not required to be aligned with a grapheme)
- 1
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("‍👧🎅")=             -- true (questionable... not required to be aligned with a grapheme)
- 1
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("👩‍👧🎅")=           -- true (questionable... not required to be aligned with a grapheme)
- 1
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("👧🎅")=              -- false (not aligned with a grapheme)
+ 0
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("‍👧🎅")=             -- false (not aligned with a grapheme)
+ 0
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("👩‍👧🎅")=           -- false (not aligned with a grapheme)
+ 0
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("ël👩‍👨‍👩‍👧🎅")=   -- true
  1
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~caselessEndsWith("ËL👩‍👨‍👩‍👧🎅")=   -- true
@@ -464,12 +464,12 @@ ooRexx[sh]> "hello"~text~endsWith("ô", stripMark:)=     -- true
  1
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~endsWith("🎅")=                -- true
  1
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~endsWith("👧🎅")=              -- true (questionable... not required to be aligned with a grapheme)
- 1
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~endsWith("‍👧🎅")=             -- true (questionable... not required to be aligned with a grapheme)
- 1
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~endsWith("👩‍👧🎅")=           -- true (questionable... not required to be aligned with a grapheme)
- 1
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~endsWith("👧🎅")=              -- false (not aligned with a grapheme)
+ 0
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~endsWith("‍👧🎅")=             -- false (not aligned with a grapheme)
+ 0
+ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~endsWith("👩‍👧🎅")=           -- false (not aligned with a grapheme)
+ 0
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~endsWith("ël👩‍👨‍👩‍👧🎅")=   -- true
  1
 ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~text~endsWith("ËL👩‍👨‍👩‍👧🎅")=   -- false

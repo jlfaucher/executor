@@ -14,7 +14,7 @@ Depends on
 
 /******************************************************************************/
 ::class "StringIndexer" mixinclass Object public - -- private - -- abstract
-                        inherit CachedStrings
+                        inherit CachedStrings TransformHelpers
 
 ::method name class abstract
 
@@ -614,16 +614,6 @@ How other languages are supporting escape characters for Unicode:
     return -1   -- unknown
 
 
-::method NFC
-    namedArgs = .context~namedArgs
-    normalization = namedArgs~entry("normalization")
-    if .nil \== normalization, .Unicode~NFC \== normalization then signal invalid_normalization_argument
-    namedArgs~~setEntry("normalization", .Unicode~NFC)
-    forward message "transform" namedArguments (namedArgs)
-
-    invalid_normalization_argument: raise syntax 23.900 array ("The named argument 'normalization' can be only .Unicode~NFC (".Unicode~NFC")")
-
-
 ::attribute isNFD get
     bitFlag = self~bitFlag(self~FLAG_NFD)
     if bitFlag \== -1 then return bitFlag
@@ -636,16 +626,6 @@ How other languages are supporting escape characters for Unicode:
     end
 
     return -1   -- unknown
-
-
-::method NFD
-    namedArgs = .context~namedArgs
-    normalization = namedArgs~entry("normalization")
-    if .nil \== normalization, .Unicode~NFD \== normalization then signal invalid_normalization_argument
-    namedArgs~~setEntry("normalization", .Unicode~NFD)
-    forward message "transform" namedArguments (namedArgs)
-
-    invalid_normalization_argument: raise syntax 23.900 array ("The named argument 'normalization' can be only .Unicode~NFD (".Unicode~NFD")")
 
 
 ::attribute isNFKC get
@@ -662,16 +642,6 @@ How other languages are supporting escape characters for Unicode:
     return -1   -- unknown
 
 
-::method NFKC
-    namedArgs = .context~namedArgs
-    normalization = namedArgs~entry("normalization")
-    if .nil \== normalization, .Unicode~NFKC \== normalization then signal invalid_normalization_argument
-    namedArgs~~setEntry("normalization", .Unicode~NFKC)
-    forward message "transform" namedArguments (namedArgs)
-
-    invalid_normalization_argument: raise syntax 23.900 array ("The named argument 'normalization' can be only .Unicode~NFKC (".Unicode~NFKC")")
-
-
 ::attribute isNFKD get
     bitFlag = self~bitFlag(self~FLAG_NFKD)
     if bitFlag \== -1 then return bitFlag
@@ -686,6 +656,68 @@ How other languages are supporting escape characters for Unicode:
     return -1   -- unknown
 
 
+::attribute isCasefold get
+    return self~bitFlag(self~FLAG_CASEFOLD)
+
+
+::attribute isLumped get
+    return self~bitFlag(self~FLAG_LUMP)
+
+
+::attribute isMarkStripped get
+    return self~bitFlag(self~FLAG_STRIP_MARK)
+
+
+::attribute isIgnorableStripped get
+    return self~bitFlag(self~FLAG_STRIP_IGNORABLE)
+
+
+::attribute isCCStripped get
+    return self~bitFlag(self~FLAG_STRIP_CC)
+
+
+::attribute isNAStripped get
+    return self~bitFlag(self~FLAG_STRIP_NA)
+
+
+/******************************************************************************/
+::class "TransformHelpers" mixinclass Object public -- package
+
+::method transformer
+    use strict arg startC=1, lengthC=(max(0, self~length - startC + 1)), pad=(self~encoding~spaceCharacter)
+    return .RexxTextTransformer~new(self~string~text, startC, lengthC, pad)
+
+
+::method NFC
+    namedArgs = .context~namedArgs
+    normalization = namedArgs~entry("normalization")
+    if .nil \== normalization, .Unicode~NFC \== normalization then signal invalid_normalization_argument
+    namedArgs~~setEntry("normalization", .Unicode~NFC)
+    forward message "transform" namedArguments (namedArgs)
+
+    invalid_normalization_argument: raise syntax 23.900 array ("The named argument 'normalization' can be only .Unicode~NFC (".Unicode~NFC")")
+
+
+::method NFD
+    namedArgs = .context~namedArgs
+    normalization = namedArgs~entry("normalization")
+    if .nil \== normalization, .Unicode~NFD \== normalization then signal invalid_normalization_argument
+    namedArgs~~setEntry("normalization", .Unicode~NFD)
+    forward message "transform" namedArguments (namedArgs)
+
+    invalid_normalization_argument: raise syntax 23.900 array ("The named argument 'normalization' can be only .Unicode~NFD (".Unicode~NFD")")
+
+
+::method NFKC
+    namedArgs = .context~namedArgs
+    normalization = namedArgs~entry("normalization")
+    if .nil \== normalization, .Unicode~NFKC \== normalization then signal invalid_normalization_argument
+    namedArgs~~setEntry("normalization", .Unicode~NFKC)
+    forward message "transform" namedArguments (namedArgs)
+
+    invalid_normalization_argument: raise syntax 23.900 array ("The named argument 'normalization' can be only .Unicode~NFKC (".Unicode~NFKC")")
+
+
 ::method NFKD
     namedArgs = .context~namedArgs
     normalization = namedArgs~entry("normalization")
@@ -694,10 +726,6 @@ How other languages are supporting escape characters for Unicode:
     forward message "transform" namedArguments (namedArgs)
 
     invalid_normalization_argument: raise syntax 23.900 array ("The named argument 'normalization' can be only .Unicode~NFKD (".Unicode~NFKD")")
-
-
-::attribute isCasefold get
-    return self~bitFlag(self~FLAG_CASEFOLD)
 
 
 ::method casefold
@@ -723,24 +751,275 @@ How other languages are supporting escape characters for Unicode:
     forward message "transform" namedArguments (namedArgs)
 
 
-::attribute isLumped get
-    return self~bitFlag(self~FLAG_LUMP)
+/******************************************************************************/
+::class "RexxTextTransformer" public -
+                              inherit TransformHelpers
+
+/*
+full text        = original text (untransformed)
+external subtext = part of the full text to transform
+internal subtext = transformed part of the full text
+
+fulltext = "éßﬄ#éßﬄ#…"~text
+transformer = fulltext~transformer(4, 5)~NFD(casefold:)
+
+                         --                          Transformed part of the full text
+                         --                       +-------------------------------------+               -- GLOBAL INDEXES (offsetC=3, offsetB=7)
+                         --  01   | 02   | 03     | 04 | 05     | 06    | 07       | 08 | 09            -- (external grapheme indexes) <---------+
+                         --  1 2  | 3 4  | 5 6 7  | 8  | 9 0    | 1 2   | 3 4 5    | 6  | 7 8 9         -- (external byte indexes)               |
+"éßﬄ#éßﬄ#…"~text~c2g   --  C3A9 | C39F | EFAC84 | 23 | C3A9   | C39F  | EFAC84   | 23 | E280A6        -- (external bytes)                      |
+                         --  é    | ß    | ﬄ     | #  | é      | ß     | ﬄ       | #  | …             -- (full text)                           ^
+                         --  1 2  | 3 4  | 5 6 7  | 8  | 9 0 1  | 2  3  | 4  5  6  | 7  | 8 9 0         -- (internal byte indexes, offset=7)     |
+                         --  C3A9 | C39F | EFAC84 | 23 | 65CC81 | 73 73 | 66 66 6C | 23 | E280A6        -- (internal bytes)                      |
+                                                  +-------------------------------------+                                                        |
+                                                                                                        -- RELATIVE INDEXES                      |
+                                                --  01 | 02     | 03    | 04       | 05                 -- (external grapheme indexes) <---------+
+                                                --  1  | 2 3    | 4 5   | 6 7 8    | 9                  -- (external byte indexes)               |
+"#éßﬄ#"~text~c2g=                              --  23 | C3A9   | C39F  | EFAC84   | 23                 -- (external bytes)                      |
+                                                --  #  | é      | ß     | ﬄ       | #                  -- (external subtext)                    ^
+                                                                                                                                                 |
+                                                                                                        -- RELATIVE INDEXES                      |
+                                                --  01 | 02     | 03 04 | 05 06 07 | 08                 -- (internal grapheme indexes)           |
+                                                --  1  | 2 3 4  | 5  6  | 7  8  9  | 0                  -- (internal byte indexes) ------>-------+
+"#éßﬄ#"~text~NFD(casefold:)~c2g=               --  23 | 65CC81 | 73 73 | 66 66 6C | 23                 -- (internal bytes)
+                                                --  #  | é      | s  s  | f  f  l  | #                  -- (internal subtext)
+
+Method ib2xc:
+Converts an internal byte (ib) position in the internal subtext (iSubtext)
+to an external character (xc) position in the external full text (fulltext).
+
+For that, we have two cursors:
+    - an external cursor in the external untransformed subtext
+    - an internal cursor in the internal transformed subtext)
+
+Each cursor has a byte position and a character (grapheme) position.
+    - External cursor:
+            (xSubtextPosB)  todo: remove
+            xSubtextPosC
+    - Internal cursor:
+            iSubtextPosB
+            (iSubtextPosC)  todo: remove
+
+We increment the external cursor until we reach or exceed the internal
+byte position posB passed as argument.
+If posB is exactly reached then we have an aligned position (returns a
+positive position).
+If posB is exceeded then we have a not-aligned position (returns a
+negative position).
+
+If aligned=.false then return a number +/-posC.posB where posB is the
+internal position of the byte in the transformed text, and posC is
+the external position of the corresponding grapheme in the untransformed
+text.
+
+A number is negative if the byte position is not aligned with the
+corresponding character position.
+*/
+
+::attribute fulltext            -- full text from which xSubtext is extracted
+::attribute startB get          -- byte start position of xSubtext in fulltext
+::attribute startC get          -- character start position of xSubtext in fulltext
+::attribute xSubtext get        -- part of fulltext to transform (external text)
+-- ::attribute xSubtextPosB get    -- current external byte position in xSubtext
+::attribute xSubtextPosC get    -- current external character position in xSubtext
+::attribute iSubtext get        -- transformed part of fulltext (internal subtext)
+::attribute iSubtextPosB get    -- current internal byte position in iSubtext
+-- ::attribute iSubtextPosC get    -- current internal character position in iSubtext
+
+::method init
+    expose fulltext startB startC -
+           xSubtext -
+           iSubtext -
+           backupCount transformed
+
+    -- transforms fulltext~substr(startC, lengthC, pad)
+    use strict arg fulltext, startC=1, lengthC=(max(0, fulltext~length - startC + 1)), pad=(fulltext~encoding~spaceCharacter)
+    use strict named arg -- none
+
+    self~resetPos
+    startB = fulltext~indexer~characterIndexB(startC)
+    if startC == 1, lengthC == fulltext~length then xSubtext = fulltext
+    else xSubtext = fulltext~substr(startC, lengthC, pad)
+    iSubtext = .nil -- default value, until a transformation is applied
+    backupCount = 0
+    transformed = .false
 
 
-::attribute isMarkStripped get
-    return self~bitFlag(self~FLAG_STRIP_MARK)
+::method transform
+    expose xSubtext iSubtext -
+           normalization casefold lump stripIgnorable stripMark stripCC stripNA -
+           transformed
+    use strict named arg normalization = 1, casefold = .false, lump= .false, stripMark = .false, stripIgnorable= .false, stripCC = .false, stripNA = .false, memorize = (.Unicode~memorizeTransformations)
+
+    if transformed then raise syntax 93.900 array(self~class~id || ": A transformation has already been applied")
+    iSubtext = xSubtext~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA, :memorize) -- Remember: can't use returnString:.true, the result MUST be a RexxText
+    transformed = .true
+    self~resetPos
+    return self -- yes, self, not iSubtext
 
 
-::attribute isIgnorableStripped get
-    return self~bitFlag(self~FLAG_STRIP_IGNORABLE)
+::method resetPos
+    expose /*xSubtextPosB*/  xSubtextPosC  iSubtextPosB  /*iSubtextPosC*/  previousPosB
+    use strict arg -- none
+    -- xSubtextPosB = 1
+    xSubtextPosC = 1
+    iSubtextPosB = 1
+    -- iSubtextPosC = 1
+    previousPosB = 0
 
 
-::attribute isCCStripped get
-    return self~bitFlag(self~FLAG_STRIP_CC)
+::method backupPos
+    -- one backup at most, I don't need a stack
+    expose /*xSubtextPosB*/  xSubtextPosC  iSubtextPosB  /*iSubtextPosC*/  previousPosB  -
+           /*xSubtextPosB_*/ xSubtextPosC_ iSubtextPosB_ /*iSubtextPosC_*/ previousPosB_ -
+           backupCount
+    use strict arg -- none
+    if backupCount == 1 then raise syntax 93.900 array(self~class~id || ": the backup stack is full")
+    xSubtextPosC_ = xSubtextPosC
+    -- xSubtextPosB_ = xSubtextPosB
+    -- iSubtextPosC_ = iSubtextPosC
+    iSubtextPosB_ = iSubtextPosB
+    previousPosB_ = previousPosB
+    backupCount += 1
 
 
-::attribute isNAStripped get
-    return self~bitFlag(self~FLAG_STRIP_NA)
+::method restorePos
+    expose /*xSubtextPosB*/  xSubtextPosC  iSubtextPosB  /*iSubtextPosC*/  previousPosB  -
+           /*xSubtextPosB_*/ xSubtextPosC_ iSubtextPosB_ /*iSubtextPosC_*/ previousPosB_ -
+           backupCount previousPosB
+    use strict arg -- none
+    if backupCount == 0 then raise syntax 93.900 array(self~class~id || ": the backup stack is empty")
+    xSubtextPosC = xSubtextPosC_
+    -- xSubtextPosB = xSubtextPosB_
+    -- iSubtextPosC = iSubtextPosC_
+    iSubtextPosB = iSubtextPosB_
+    previousPosB = previousPosB_
+    backupCount -= 1
+
+
+::method ib2xc
+    expose,
+        startB startC -
+        xSubtext /*xSubtextPosB*/ xSubtextPosC -
+        iSubtext iSubtextPosB /*iSubtextPosC*/ -
+        normalization casefold lump stripIgnorable stripMark stripCC stripNA -
+        previousPosB transformed
+
+    use strict arg posB
+    use strict named arg aligned=.true, debug=.false
+if debug then do
+    say "--- Enter ib2xc ----"
+    say "arg posB=" posB
+end
+
+    if \transformed then raise syntax 93.900 array(self~class~id || ": You must apply a transformation before using the 'ib2xc' method")
+    if posB < previousPosB then raise syntax 93.900 array(self~class~id || ": You specified a byte position ("posB") lower than the previous one ("previousPosB")")
+    previousPosB = posB
+
+    posC = iSubtext~indexer~characterIndexC(posB) -- posC can be negative if posB is not aligned with a character position
+    absposC = abs(posC)
+if debug then do
+    say "posC in iSubtext =" posC
+end
+
+    do while xSubtextPosC <= xSubtext~length
+        if iSubtextPosB == posB then do
+if debug then do
+            say "exactly reached"
+end
+            leave
+        end
+        c = xSubtext~character(xSubtextPosC)
+        cTransformed = c~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA, memorize:.false, returnString:.true) -- yes, don't memorize, it's just a character
+if debug then do
+        call charout , xSubtextPosC
+        -- call charout , "    " xSubtextPosB
+        call charout , "    c =" c~string~quoted
+        call charout , "    cTransformed =" cTransformed~string~quoted
+        -- call charout , "    iSubtextPosC =" iSubtextPosC
+        call charout , "    iSubtextPosB =" iSubtextPosB
+        say
+end
+        -- iSubtextPosC += cTransformed~length
+        iSubtextPosB += cTransformed~string~length
+        xSubtextPosC += 1
+        -- xSubtextPosB += c~string~length
+if debug then do
+        call charout , "xSubtextPosC =" xSubtextPosC
+        -- call charout , "    xSubtextPosB =" xSubtextPosB
+        -- call charout , "    iSubtextPosC =" iSubtextPosC
+        call charout , "    iSubtextPosB =" iSubtextPosB
+        say
+end
+
+        if 0 /*iSubtextPosC > absposC*/,
+           |,
+           iSubtextPosB > posB,
+        then do
+            /*
+            Case where the start or end of the matching does not cover all
+            the bytes of the transformed grapheme.
+            Ex:
+            - "ß"~text~caselessPos("s") --> 0, not 1 because 1 would match
+              only the first byte of "ß"-->"ss"
+            - "sß"~text~caselessPos("ss") --> 2, not 1 because 1 would match
+              only the first byte of "ß"-->"ss"
+            */
+
+            -- force posC to be negative, to indicate that the matching is not
+            -- aligned.
+            posC = -absPosC
+
+            -- undo the last progression
+            -- iSubtextPosC -= cTransformed~length
+            iSubtextPosB -= cTransformed~string~length
+            xSubtextPosC -= 1
+            -- xSubtextPosB -= c~string~length
+if debug then do
+            say "force posC to be negative =" posC
+end
+            leave
+        end
+    end -- of do while
+if debug then do
+    say "xSubtextPosC =" xSubtextPosC
+    -- say "xSubtextPosB =" xSubtextPosB
+    -- say "iSubtextPosC =" iSubtextPosC
+    say "iSubtextPosB =" iSubtextPosB
+end
+
+    -- so far, we have relative positions, calculate the global positions
+    posB = startB - 1 + posB
+    posC = sign(posC) * (startC - 1 + xSubtextPosC)
+    absposC = abs(posC)
+if debug then do
+    say "startC =" startC
+    say "startB =" startB
+    say "external global posC =" posC
+    say "internal global posB =" posB
+end
+
+    if aligned then do
+        if posC < 0 then do
+            -- aligned match requested, but byte position not aligned with
+            -- character ==> no match
+            posC = .nil
+        end
+    end
+    else do
+        if posC < 0 then do
+            -- "-"(character index)".'(byte index)
+            posC = "-"absposC"."posB
+        end
+        else do
+            -- "+"(character index)".'(byte index)
+            posC = "+"absposC"."posB
+        end
+    end
+if debug then do
+say "--- Leave ib2xc ----"
+end
+    return posC
 
 
 /******************************************************************************/

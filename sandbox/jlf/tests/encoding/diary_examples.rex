@@ -8,6 +8,167 @@ call loadUnicodeCharacterNames
 
 
 -- ===============================================================================
+-- 2023 Sep 27
+
+/*
+Add the named parameters 'stripCC' and 'stripNA' to all the methods supporting
+the named parameter 'normalization'. This is utf8proc specific.
+- stripCC: remove control characters (see utf8proc doc for more information:
+  HorizontalTab (HT) and FormFeed (FF) are transformed into space)
+- stripNA: remove unassigned codepoints
+Example:
+*/
+.unicode["ESA"]=        -- ( ""    U+0087 Cc 0 "", "END OF SELECTED AREA", "ESA"
+.unicode["NBSP"]=       -- ( " "   U+00A0 Zs 1 "NO-BREAK SPACE", "NBSP" )
+.unicode["SSA"]=        -- ( ""    U+0086 Cc 0 "", "START OF SELECTED AREA", "SSA"
+.unicode["U+0378"]=     -- ( "͸"   U+0378 Cn 1 "" )     unassigned
+
+"\U{SSA}Mrs.\U{NBSP}🤶 a\u0378nd Mr.\U{NBSP}🎅\U{ESA}"~text~unescape=                                         -- T'Mrs. 🤶 a͸nd Mr. 🎅
+"\U{SSA}Mrs.\U{NBSP}🤶 a\u0378nd Mr.\U{NBSP}🎅\U{ESA}"~text~unescape~c2g=                                     -- 'C286 4D 72 73 2E C2A0 F09FA4B6 20 61 CDB8 6E 64 20 4D 72 2E C2A0 F09F8E85 C287'
+"\U{SSA}Mrs.\U{NBSP}🤶 a\u0378nd Mr.\U{NBSP}🎅\U{ESA}"~text~unescape~transform(stripNA:)~c2g=                 -- 'C286 4D 72 73 2E C2A0 F09FA4B6 20 61      6E 64 20 4D 72 2E C2A0 F09F8E85 C287'
+"\U{SSA}Mrs.\U{NBSP}🤶 a\u0378nd Mr.\U{NBSP}🎅\U{ESA}"~text~unescape~transform(stripNA:, stripCC:)~c2g=       -- '     4D 72 73 2E C2A0 F09FA4B6 20 61      6E 64 20 4D 72 2E C2A0 F09F8E85     '
+
+"\U{SSA}Mrs.\U{NBSP}🤶 a\u0378nd Mr.\U{NBSP}🎅\U{ESA}"~text~unescape~pos("and")=                              -- 0
+"\U{SSA}Mrs.\U{NBSP}🤶 a\u0378nd Mr.\U{NBSP}🎅\U{ESA}"~text~unescape~pos("and", stripNA:)=                    -- 9
+"\U{SSA}Mrs.\U{NBSP}🤶 a\u0378nd Mr.\U{NBSP}🎅\U{ESA}"~text~unescape~pos("and", stripNA:, stripCC:)=          -- 9    yes! 9, not 8 because it's the EXTERNAL position
+
+"\U{SSA}Mrs.\U{NBSP}🤶 a\u0378nd Mr.\U{NBSP}🎅\U{ESA}"~text~unescape~caselessPos("mr.")=                      -- 14
+"\U{SSA}Mrs.\U{NBSP}🤶 a\u0378nd Mr.\U{NBSP}🎅\U{ESA}"~text~unescape~caselessPos("mr.", stripNA:)=            -- 14   yes! 14, not 13
+"\U{SSA}Mrs.\U{NBSP}🤶 a\u0378nd Mr.\U{NBSP}🎅\U{ESA}"~text~unescape~caselessPos("mr.", stripNA:, stripCC:)=  -- 14   yes! 14, not 12
+
+"\U{SSA}Mrs.\U{NBSP}🤶 a\u0378nd Mr.\U{NBSP}🎅\U{ESA}"~text~unescape~caselessPos("\U{SSA}"~text~unescape)=              -- 1
+"\U{SSA}Mrs.\U{NBSP}🤶 a\u0378nd Mr.\U{NBSP}🎅\U{ESA}"~text~unescape~caselessPos("\U{SSA}"~text~unescape, stripCC:)=    -- 0
+
+"\U{SSA}Mrs.\U{NBSP}🤶 a\u0378nd Mr.\U{NBSP}🎅\U{ESA}"~text~unescape~caselessPos("a\u0378nd"~text~unescape)=                        -- 9
+"\U{SSA}Mrs.\U{NBSP}🤶 a\u0378nd Mr.\U{NBSP}🎅\U{ESA}"~text~unescape~caselessPos("a\u0378nd"~text~unescape, stripCC:)=              -- 9
+"\U{SSA}Mrs.\U{NBSP}🤶 a\u0378nd Mr.\U{NBSP}🎅\U{ESA}"~text~unescape~caselessPos("a\u0378nd"~text~unescape, stripNA:)=              -- 9    yes! 9, not 0 because \u0378 is removed both in the needle and in thehaystack
+"\U{SSA}Mrs.\U{NBSP}🤶 a\u0378nd Mr.\U{NBSP}🎅\U{ESA}"~text~unescape~caselessPos("a\u0378nd"~text~unescape, stripNA:, stripCC:)=    -- 9    yes! 9, not 8
+
+
+/*
+caselessEndsWith, endsWith: returns false if the start of the 'other' string is
+not aligned with a character.
+Examples
+*/
+"#éßﬄ#…"~text~endsWith("…")=                      -- true
+"#éßﬄ#…"~text~caselessEndsWith("…")=              -- true
+
+"#éßﬄ#…"~text~endsWith("fl#…")=                   -- false, ﬄ remains ﬄ
+"#éßﬄ#…"~text~caselessEndsWith("FL#…")=           -- false, ﬄ becomes ffl but FL is not aligned with ffl
+
+"#éßﬄ#…"~text~endsWith("ﬄ#…")=                   -- true
+"#éßﬄ#…"~text~caselessEndsWith("ﬄ#…")=           -- true
+
+"#éßﬄ#…"~text~endsWith("ffl#…")=                  -- false, ﬄ remains ﬄ
+"#éßﬄ#…"~text~caselessEndsWith("FFL#…")=          -- true,  ﬄ becomes ffl and FFL is aligned with ffl
+
+"#éßﬄ#…"~text~endsWith("sﬄ#…")=                  -- false, ß remains ß
+"#éßﬄ#…"~text~caselessEndsWith("Sﬄ#…")=          -- false, ß becomes ss but s is not aligned with ss
+
+"#éßﬄ#…"~text~endsWith("ßﬄ#…")=                  -- true
+"#éßﬄ#…"~text~caselessEndsWith("ßﬄ#…")=          -- true
+
+"#éßﬄ#…"~text~endsWith("ssﬄ#…")=                 -- false, ß remains ß
+"#éßﬄ#…"~text~caselessEndsWith("SSﬄ#…")=         -- true,  ß becomes ss
+
+"#éßﬄ#…"~text~endsWith("éßﬄ#…")=                 -- true
+"#éßﬄ#…"~text~caselessEndsWith("ÉSSFFL#…")=       -- true
+
+"#éßﬄ#…"~text~endsWith("#éßﬄ#…")=                -- true
+"#éßﬄ#…"~text~caselessEndsWith("#ÉSSFFL#…")=      -- true
+
+"#e\U{COMBINING ACUTE ACCENT}ßﬄ#…"~text~unescape~c2g=                                                                   -- '23 65CC81 C39F EFAC84 23 E280A6'
+  "\U{COMBINING ACUTE ACCENT}ßﬄ#…"~text~unescape~c2g=                                                                   -- '     CC81 C39F EFAC84 23 E280A6'
+"#e\U{COMBINING ACUTE ACCENT}ßﬄ#…"~text~unescape~endsWith("\U{COMBINING ACUTE ACCENT}ßﬄ#…"~text~unescape)=             -- false, not aligned with e\U{COMBINING ACUTE ACCENT}
+
+"#e\U{COMBINING ACUTE ACCENT}ßﬄ#…"~text~unescape~casefold~c2g=                                                          -- '23 65CC81 73 73 66 66 6C 23 E280A6'
+  "\U{COMBINING ACUTE ACCENT}SSFFL#…"~text~unescape~casefold~c2g=                                                        -- '     CC81 73 73 66 66 6C 23 E280A6'
+"#e\U{COMBINING ACUTE ACCENT}ßﬄ#…"~text~unescape~caselessEndsWith("\U{COMBINING ACUTE ACCENT}SSFFL#…"~text~unescape)=   -- false, not aligned with e\U{COMBINING ACUTE ACCENT}
+
+
+/*
+New 'RexxTextTransformer' class:
+    - Converts positions in a transformed string to positions in the corresponding
+      untransformed string. This is used for the caselessXXX methods which takes
+      or return positions.
+    - Supports inflating and deflating transformations.
+    - The transformation can be made on a part of the string (from startC, for
+      lengthC characters).
+    - The methods for the transformation are the same as for RexxText:
+      NFC, NFD, NFKC, NFKD, casefold, transform.
+    - Only one call to a transformation method can be done. This is because the
+      parameters of the transformation are memorized to re-apply internally the
+      transformation character by character, when moving the cursors.
+    - The 'transformer' method lets create an instance of RexxTextTransformer
+      from a text.
+
+    Example:
+        - full text        = original text (untransformed)
+        - external subtext = part of the full text to transform
+        - internal subtext = transformed part of the full text
+
+        The method ib2xc converts an internal byte (ib) position in the internal
+        subtext (iSubtext) to an external character (xc) position in the external
+        full text.
+        ib2xc supports only growing positions. The only way to go backward is to
+        use backupPos/restorePos or resetPos.
+
+                                     --                          Transformed part of the full text
+                                     --                       +-------------------------------------+               -- GLOBAL INDEXES (offsetC=3, offsetB=7)
+                                     --  01   | 02   | 03     | 04 | 05     | 06    | 07       | 08 | 09            -- (external grapheme indexes) <---------+
+                                     --  1 2  | 3 4  | 5 6 7  | 8  | 9 0    | 1 2   | 3 4 5    | 6  | 7 8 9         -- (external byte indexes)               |
+            "éßﬄ#éßﬄ#…"~text~c2g   --  C3A9 | C39F | EFAC84 | 23 | C3A9   | C39F  | EFAC84   | 23 | E280A6        -- (external bytes)                      |
+                                     --  é    | ß    | ﬄ     | #  | é      | ß     | ﬄ       | #  | …             -- (full text)                           ^
+                                     --  1 2  | 3 4  | 5 6 7  | 8  | 9 0 1  | 2  3  | 4  5  6  | 7  | 8 9 0         -- (internal byte indexes, offset=7)     |
+                                     --  C3A9 | C39F | EFAC84 | 23 | 65CC81 | 73 73 | 66 66 6C | 23 | E280A6        -- (internal bytes)                      |
+                                                              +-------------------------------------+                                                        |
+                                                                                                                    -- RELATIVE INDEXES                      |
+                                                            --  01 | 02     | 03    | 04       | 05                 -- (external grapheme indexes) <---------+
+                                                            --  1  | 2 3    | 4 5   | 6 7 8    | 9                  -- (external byte indexes)               |
+            "#éßﬄ#"~text~c2g=                              --  23 | C3A9   | C39F  | EFAC84   | 23                 -- (external bytes)                      |
+                                                            --  #  | é      | ß     | ﬄ       | #                  -- (external subtext)                    ^
+                                                                                                                                                             |
+                                                                                                                    -- RELATIVE INDEXES                      |
+                                                            --  01 | 02     | 03 04 | 05 06 07 | 08                 -- (internal grapheme indexes)           |
+                                                            --  1  | 2 3 4  | 5  6  | 7  8  9  | 0                  -- (internal byte indexes) ------>-------+
+            "#éßﬄ#"~text~NFD(casefold:)~c2g=               --  23 | 65CC81 | 73 73 | 66 66 6C | 23                 -- (internal bytes)
+                                                            --  #  | é      | s  s  | f  f  l  | #                  -- (internal subtext)
+*/
+transformer = "éßﬄ#éßﬄ#…"~text~transformer(4, 5)~NFD(casefold:)
+transformer~fulltext=       -- T'éßﬄ#éßﬄ#…'
+transformer~xSubtext=       -- T'#éßﬄ#'
+transformer~iSubtext=       -- T'#éssffl#'
+
+-- ib2xc supports only growing positions
+transformer~ib2xc(1)=       -- 4    the internal byte position 1 in the internal subtext corresponds to the 4th external character in the full text
+transformer~ib2xc(7)=       -- 7
+transformer~ib2xc(2)=       -- Error RexxTextTransformer: You specified a byte position (2) lower than the previous one (7).
+
+-- The previous error is avoided by backuping/restoring the current position
+transformer~resetPos        -- reset to allow iteration again from internal byte position 1
+transformer~ib2xc(1)=       -- 4
+transformer~backupPos
+transformer~ib2xc(7)=       -- 7
+transformer~restorePos
+transformer~ib2xc(2)=       -- 5
+
+transformer~resetPos
+do i=1 to transformer~iSubtext~string~length; say "byte pos" i~right(2, 0) "    character pos=" transformer~ib2xc(i)~string~left(20) transformer~ib2xc(i, aligned:.false); end
+/*
+byte pos 01     character pos= 4                    +4.8    -- the 8th internal byte is aligned with the 4th external character
+byte pos 02     character pos= 5                    +5.9
+byte pos 03     character pos= The NIL object       -5.10   -- the 10th internal byte is part of the 5th external character, but is not aligned with it.
+byte pos 04     character pos= The NIL object       -5.11
+byte pos 05     character pos= 6                    +6.12
+byte pos 06     character pos= The NIL object       -6.13
+byte pos 07     character pos= 7                    +7.14
+byte pos 08     character pos= The NIL object       -7.15
+byte pos 09     character pos= The NIL object       -7.16
+byte pos 10     character pos= 8                    +8.17
+*/
+
+
+-- ===============================================================================
 -- 2023 Sep 16
 
 /*
