@@ -32,7 +32,7 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 21 Sep 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S8fefQ600001cdaff0
+</span><span style="font-weight:bold;color:green;">Input queue name: S9fe5Q600001cdaff0
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.0.0 
@@ -173,6 +173,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;#e\U{COMBINING ACU
 </span><span style="font-weight:bold;color:blue;">      untransformed string. This is used for the caselessXXX methods which takes
 </span><span style="font-weight:bold;color:blue;">      or return positions.
 </span><span style="font-weight:bold;color:blue;">    - Supports inflating and deflating transformations.
+</span><span style="font-weight:bold;color:blue;">      jlf 2023 Sep 28: better names are expansion and contraction.
 </span><span style="font-weight:bold;color:blue;">    - The transformation can be made on a part of the string (from startC, for
 </span><span style="font-weight:bold;color:blue;">      lengthC characters).
 </span><span style="font-weight:bold;color:blue;">    - The methods for the transformation are the same as for RexxText:
@@ -3874,7 +3875,7 @@ T'I'
 
 
 <span style="font-weight:bold;color:blue;">-- Which characters have their title character different from their upper character?
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">.unicode~characters~select{item~toTitleSimple &lt;&gt; item~toUpperSimple}~each{.Unicode[item~toTitleSimple]~utf8 .Unicode[item~ToUpperSimple]~utf8 item~utf8 item~string}==</span>
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">.unicode~characters~select{item~toTitleSimple &lt;&gt; item~toUpperSimple}~each{.Unicode[item~toTitleSimple]~utf8 .Unicode[item~ToUpperSimple]~utf8 item~utf8 item}==</span>
 an Array (shape [58], 58 items)
  1  : T'ǅ Ǆ Ǆ  &quot;Ǆ&quot;   U+01C4 Lu 1 &quot;LATIN CAPITAL LETTER DZ WITH CARON&quot; '
  2  : T'ǅ Ǆ ǅ  &quot;ǅ&quot;   U+01C5 Lt 1 &quot;LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON&quot; '

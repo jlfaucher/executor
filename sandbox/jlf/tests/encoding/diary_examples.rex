@@ -92,6 +92,7 @@ New 'RexxTextTransformer' class:
       untransformed string. This is used for the caselessXXX methods which takes
       or return positions.
     - Supports inflating and deflating transformations.
+      jlf 2023 Sep 28: better names are expansion and contraction.
     - The transformation can be made on a part of the string (from startC, for
       lengthC characters).
     - The methods for the transformation are the same as for RexxText:

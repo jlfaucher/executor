@@ -3,6 +3,33 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2023 Sep 28
+
+[Encoded strings]
+
+Better names for inflating and deflating transformations:
+    https://www.unicode.org/reports/tr10/#Expansions
+    https://www.unicode.org/reports/tr10/#Contractions
+See also
+    http://www.unicode.org/reports/tr35/tr35-collation.html#Context_Sensitive_Mappings
+
+RexxTextTransformer: the next step could be collation folding... But that sounds
+way more complicated than what is implemented currently.
+https://www.unicode.org/reports/tr10/#Collation_Folding
+    Ignorable characters need special handling (jlf: the problem is not ignoring
+    ignorable characters, it's already supported with stripIgnorable. The problem
+    is "In some contexts, however, fully ignorable characters may have an effect
+    on comparison, or characters that are not ignorable at the given strength
+    level may be treated as ignorable."
+https://unicode-org.atlassian.net/browse/ICU-22422
+    Markus Scherer:
+    This is “easy except for the complicated cases”, around normalization,
+    contractions, expansions, and prefix matching.
+    It probably requires a fair bit of design and code, and maybe more data
+    (computed/cached, or prebuilt).
+
+
+===============================================================================
 2023 Sep 27
 
 [Encoded strings]
@@ -84,6 +111,7 @@ New 'RexxTextTransformer' class:
       untransformed string. This is used for the caselessXXX methods which takes
       or returns positions.
     - Supports inflating and deflating transformations.
+      jlf 2023 Sep 28: better names are expansion and contraction.
     - The transformation can be made on a part of the string (from startC, for
       lengthC characters).
     - The methods for the transformation are the same as for RexxText:
