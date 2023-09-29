@@ -396,8 +396,8 @@ Several demos are available [here][demos_with_asciinema].
 [internal_notes]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/internals/notes "Internal notes"
 [mike_vanier_article]: http://mvanier.livejournal.com/2897.html "Mike Vanier : Y combinator"
 [named_arguments_spec]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/docs/NamedArguments/NamedArguments-Spec.md "Specification of named arguments"
-[named_arguments_test_cases_output]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/samples/extension/named_arguments-test.output.txt "Test cases of named arguments (output)"
-[named_arguments_test_cases_script]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/samples/extension/named_arguments-test.rex "Test cases of named arguments (script)"
+[named_arguments_test_cases_output]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/tests/extension/named_arguments-test.output.reference.txt "Test cases of named arguments (output)"
+[named_arguments_test_cases_script]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/tests/extension/named_arguments-test.rex "Test cases of named arguments (script)"
 [notes_unicode]: https://jlfaucher.github.io/executor.master/unicode/_notes-unicode.html
 [pipes_documentation]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/packages/pipeline/pipe_readme.txt
 [rosetta_code_accumulator_factory]: http://rosettacode.org/wiki/Accumulator_factory "Rosetta code : Accumulator factory"
