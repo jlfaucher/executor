@@ -3,7 +3,6 @@
 .MutableBuffer~define("string", "forward message 'encodedString'")
 
 ::extension RexxText        inherit RexxTextInitializer
-::extension RexxText        inherit RexxTextPrettyPrinter
 ::extension RexxText        inherit RexxTextContents
 ::extension RexxText        inherit RexxTextOperators
 ::extension RexxText        inherit RexxTextStringInterface
@@ -529,30 +528,6 @@ Allows to use a String or a RexxText indistinctly
     stringCopy = indexerCopy~string -- this string copy is not yet linked to the RexxText copy
     stringCopy~text = selfCopy -- from now, the string copy is linked to its RexxText counterpart
     return selfCopy
-
-
--- To see the string value instead of "a RexxText" in trace
--- Remember: defining defaultName had no effect
-::method objectName
-    use strict arg -- none
-    return self~ppString
-
-
-/******************************************************************************/
-::class "RexxTextPrettyPrinter" mixinclass Object private
-
--- Should honor .Encoding~defaultOutputEncoding
-::method ppString
-    use arg surroundByQuotes=.true -- keep it for the moment, still needed from rgf_util2
-    use named arg ppOptions. = (.Stem~new), ppOptions.surroundByQuotes = (surroundByQuotes)
-
-    pp = self~string
-    if ppOptions.surroundByQuotes then pp = pp~quoted("'")
-
-    -- Texts are prefixed with "T"
-    pp = "T"pp
-    -- Use 0xXX notation for escaped character
-    return escape3(pp)
 
 
 /******************************************************************************/
