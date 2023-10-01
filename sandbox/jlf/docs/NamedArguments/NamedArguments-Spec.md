@@ -193,6 +193,14 @@ There, `"Array"` is followed by a mandatory array. `"Individual"` is followed by
 
 <img src="SyntaxDiagram/sd_Instruction_FORWARD.png" width="152.24%">
 
+Possible combinations to override arguments:
+
+                              positional arguments    named arguments
+    ARGUMENTS:                     overriden             forwarded
+    NAMEDARGUMENTS:                forwarded             overriden
+    ARGUMENTS NAMEDARGUMENTS:      overriden             overriden
+    ARRAY:                         overriden             overriden
+    none:                          forwarded             forwarded
 
 ---------------
 Instruction USE
