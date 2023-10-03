@@ -682,6 +682,10 @@ Helpers
         input = inputrx~space
         select
             when .ooRexxShell~gotoLabel <> "" then nop -- keep this line first
+            when inputrx == "/*" then .ooRexxShell~sayComment(inputrx)
+            when inputrx == "*/" then .ooRexxShell~sayComment(inputrx)
+            when .ooRexxShell~showComment then .ooRexxShell~sayComment(inputrx)
+            when inputrx~left(2) == "--" then .ooRexxShell~sayComment(inputrx)
             when maybeCommand & input~caselessEquals("demo off") then nop
             when maybeCommand & input~caselessEquals("demo on") then nop
             when maybeCommand & input~word(1)~caselessEquals("goto") then nop
@@ -699,10 +703,6 @@ Helpers
                     call charout , prompt
                 end
             end
-            when inputrx == "/*" then .ooRexxShell~sayComment(inputrx)
-            when inputrx == "*/" then .ooRexxShell~sayComment(inputrx)
-            when .ooRexxShell~showComment then .ooRexxShell~sayComment(inputrx)
-            when inputrx~left(2) == "--" then .ooRexxShell~sayComment(inputrx)
             when input == "" then say
             otherwise do
                 if .ooRexxShell~maybeCommand & .ooRexxShell~input~word(1)~caseLessEquals("sleep") then nop -- prompt already displayed
