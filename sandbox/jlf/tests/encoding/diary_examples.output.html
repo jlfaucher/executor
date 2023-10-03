@@ -32,7 +32,7 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 21 Sep 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S15bf3Q600001cce220
+</span><span style="font-weight:bold;color:green;">Input queue name: S163f5Q600001cc0820
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.0.0 
@@ -62,15 +62,12 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeTransfo
 </span><span style="font-weight:bold;color:blue;">Finalize the support of replacement character during transcoding.
 </span><span style="font-weight:bold;color:blue;">A replacement character can be .nil or &quot;&quot; or a character.
 </span><span style="font-weight:bold;color:blue;">When a character, it can be a String or a RexxText made of one codepoint or a UnicodeCharacter.
-</span><span style="font-weight:bold;color:blue;">In all cases, the corresponding codepoint is used.
+</span><span style="font-weight:bold;color:blue;">In all cases, the corresponding codepoint is used. This codepoint is transcoded to the target encoding.
 </span><span style="font-weight:bold;color:blue;">
 </span><span style="font-weight:bold;color:blue;">Behavior when a source codepoint does not have a matching target codepoint:
 </span><span style="font-weight:bold;color:blue;">- When the replacement character is .nil, an error is raised.
 </span><span style="font-weight:bold;color:blue;">- When the replacement character is &quot;&quot;, the source codepoint is ignored (not transcoded)
 </span><span style="font-weight:bold;color:blue;">- Otherwise the source codepoint is replaced by the replacement character.
-</span><span style="font-weight:bold;color:blue;">
-</span><span style="font-weight:bold;color:blue;">When transcoding to a Byte encoding, if the replacement character is a
-</span><span style="font-weight:bold;color:blue;">UnicodeCharacter then its codepoint must be a valid target codepoint.
 </span><span style="font-weight:bold;color:blue;">
 </span><span style="font-weight:bold;color:blue;">Reminder: if the 'strict' named argument is false (default) then the fallback
 </span><span style="font-weight:bold;color:blue;">codepoint transcodings are used, if any. So when 'strict' is false, potentially
