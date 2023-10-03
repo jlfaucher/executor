@@ -30,19 +30,32 @@ uscriptsFiles = list_invalid_utf8 \
 
 help:
 	@echo "make all"
-	@for f in $(testFiles); do (echo "make" $$f); done
-	@echo "make diary_examples.output.html"
-	@for f in $(demoFiles); do (echo "make" $$f); done
-	@for f in $(scriptsFiles); do (echo "make" $$f); done
-	@for f in $(uscriptsFiles); do (echo "make" $$f); done
+	@echo "make html"
+	@echo "---------- testFiles"
+	@for f in $(testFiles); do echo "make" $$f; done
+	@echo "---------- demoFiles"
+	@for f in $(demoFiles); do echo "make" $$f; done
+	@echo "---------- scriptsFiles"
+	@for f in $(scriptsFiles); do echo "make" $$f; done
+	@echo "---------- uscriptsFiles"
+	@for f in $(uscriptsFiles); do echo "make" $$f; done
+	@echo "---------- html"
+	@for f in $(testFiles); do echo "make" $$f.output.html; done
+	@echo "----------"
 	@echo "make clean"
 
 all:
-	@for f in $(testFiles); do (make $$f); done
-	make diary_examples.output.html
-	@for f in $(demoFiles); do (make $$f); done
-	@for f in $(scriptsFiles); do (make $$f); done
-	@for f in $(uscriptsFiles); do (make $$f); done
+	@for f in $(testFiles); do make $$f; done
+	@for f in $(demoFiles); do make $$f; done
+	@for f in $(scriptsFiles); do make $$f; done
+	@for f in $(uscriptsFiles); do make $$f; done
+	@echo
+	@echo "To be launched separately: make html"
+
+# Not in the 'all' target because I don't know how to redirect the output of asciinema to /dev/null
+# Without such a redirection, it's difficult to see if some errors were raised during make all.
+html:
+	@for f in $(testFiles); do make $$f.output.html; done
 
 $(testFiles) :
 	bash -i -c 'cat $@.rex | oorexxshell test regression > $@.output.txt 2>&1'
@@ -62,16 +75,18 @@ $(uscriptsFiles) :
 	diff -q $@.output.reference.txt $@.output.txt
 
 %.cast : %.rex
-	-asciinema rec -c "bash -i -c 'echo prompt off address | cat $? | oorexxshell --showInitialization test regression'" --overwrite $@
+	-asciinema rec -c "bash -i -c 'echo prompt off address | cat $< | oorexxshell --showInitialization test regression'" --overwrite $@
 
-%.output.html : %.cast
-	asciinema cat $? | aha --title "$@" > $@
+.PHONY: always
+%.output.html : %.cast always
+	asciinema cat $< | aha --title "$@" > $@
 
 clean:
-	@for f in $(testFiles); do (rm -f $$f.output.txt); done
-	@for f in $(demoFiles); do (rm -f $$f.output.txt); done
-	@for f in $(scriptsFiles); do (rm -f $$f.output.txt); done
-	@for f in $(uscriptsFiles); do (rm -f $$f.output.txt); done
+	@for f in $(testFiles); do rm -f $$f.output.txt; done
+	@for f in $(testFiles); do rm -f $$f.output.html; done
+	@for f in $(demoFiles); do rm -f $$f.output.txt; done
+	@for f in $(scriptsFiles); do rm -f $$f.output.txt; done
+	@for f in $(uscriptsFiles); do rm -f $$f.output.txt; done
 	@rm -f ill_formed_utf8.txt
 	@rm -f ill_formed_utf16.txt
 

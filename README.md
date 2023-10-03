@@ -49,6 +49,8 @@ Test cases:
 - [Demo Unicode services][demo_unicode_services]
 - [Demo Unicode String compatibility][demo_unicode_string_compatibility]
 - [Examples from the sandbox diary and more][encoded_strings_diary_exemples]      **🠄 NEW**
+- [Concatenation][encoded_strings_concatenation]
+- [Transcoding][encoded_strings_transcoding]
 
 ### Named arguments
 
@@ -389,7 +391,9 @@ Several demos are available [here][demos_with_asciinema].
 [demos_with_asciinema]: https://jlfaucher.github.io/executor.master/demos/index.html
 [doc]: https://jlfaucher.github.io/oorexx/docs/trunk/index.html "Graphical syntax diagrams"
 [download]: https://jlfaucher.github.io/oorexx/sandbox/index.html "Download"
+[encoded_strings_concatenation]: https://jlfaucher.github.io/executor.master/tests/encoding/main_concatenation.output.html
 [encoded_strings_diary_exemples]: https://jlfaucher.github.io/executor.master/tests/encoding/diary_examples.output.html
+[encoded_strings_transcoding]: https://jlfaucher.github.io/executor.master/tests/encoding/main_conversion.output.html
 [ICU4X]: https://github.com/unicode-org/icu4x
 [internal_documentation_classes]: https://jlfaucher.github.io/executor.master/doxygen/html/classes.html
 [internal_documentation_files]: https://jlfaucher.github.io/executor.master/doxygen/html/files.html

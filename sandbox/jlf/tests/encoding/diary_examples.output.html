@@ -32,7 +32,7 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 21 Sep 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S9fe5Q600001cdaff0
+</span><span style="font-weight:bold;color:green;">Input queue name: S15bf3Q600001cce220
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.0.0 
@@ -46,6 +46,230 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeTransfo
 
 
 <span style="font-weight:bold;color:blue;">-- ===============================================================================
+</span><span style="font-weight:bold;color:blue;">-- 2023 Oct 03
+</span>
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Move the routine createCharacterTranscodingTable from byte_common.cls to
+</span><span style="font-weight:bold;color:blue;">byte_encoding.cls. It's used only by Byte_Encoding and its subclasses.
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">The 'text' method of UnicodeCharacter has been replaced by 'transcodeTo'.
+</span><span style="font-weight:bold;color:blue;">Reason 1: the byte encodings were not supported correctly.
+</span><span style="font-weight:bold;color:blue;">Reason 2: the fact a transcoding is needed is against the definition of the
+</span><span style="font-weight:bold;color:blue;">'text' method (apply a view on the bytes without modifying them).
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">Finalize the support of replacement character during transcoding.
+</span><span style="font-weight:bold;color:blue;">A replacement character can be .nil or &quot;&quot; or a character.
+</span><span style="font-weight:bold;color:blue;">When a character, it can be a String or a RexxText made of one codepoint or a UnicodeCharacter.
+</span><span style="font-weight:bold;color:blue;">In all cases, the corresponding codepoint is used.
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">Behavior when a source codepoint does not have a matching target codepoint:
+</span><span style="font-weight:bold;color:blue;">- When the replacement character is .nil, an error is raised.
+</span><span style="font-weight:bold;color:blue;">- When the replacement character is &quot;&quot;, the source codepoint is ignored (not transcoded)
+</span><span style="font-weight:bold;color:blue;">- Otherwise the source codepoint is replaced by the replacement character.
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">When transcoding to a Byte encoding, if the replacement character is a
+</span><span style="font-weight:bold;color:blue;">UnicodeCharacter then its codepoint must be a valid target codepoint.
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">Reminder: if the 'strict' named argument is false (default) then the fallback
+</span><span style="font-weight:bold;color:blue;">codepoint transcodings are used, if any. So when 'strict' is false, potentially
+</span><span style="font-weight:bold;color:blue;">more source could be transcoded.
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">Examples:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    </span><span style="font-weight:bold;color:blue;">-- The Windows-1252 encoding has some fallback codepoint transcodings.</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    </span><span style="font-weight:bold;color:blue;">-- HOP is one of them: 81x --&gt; +U0081 only when strict:.false</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;No&quot; || &quot;EB&quot;x || &quot;l&quot; || &quot;81&quot;x)~text(&quot;windows-1252&quot;)~utf8(strict:.false)=   </span><span style="font-weight:bold;color:blue;">-- T'Noël (strict:.false is the default)</span>
+T'Noël'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;No&quot; || &quot;EB&quot;x || &quot;l&quot; || &quot;81&quot;x)~text(&quot;windows-1252&quot;)~utf8(strict:.false)~unicodecharacters==</span>
+an Array (shape [5], 5 items)
+ 1 : ( &quot;N&quot;   U+004E Lu 1 &quot;LATIN CAPITAL LETTER N&quot; )
+ 2 : ( &quot;o&quot;   U+006F Ll 1 &quot;LATIN SMALL LETTER O&quot; )
+ 3 : ( &quot;ë&quot;   U+00EB Ll 1 &quot;LATIN SMALL LETTER E WITH DIAERESIS&quot; )
+ 4 : ( &quot;l&quot;   U+006C Ll 1 &quot;LATIN SMALL LETTER L&quot; )
+ 5 : ( &quot;&quot;    U+0081 Cc 0 &quot;&quot;, &quot;HIGH OCTET PRESET&quot;, &quot;HOP&quot; )
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;No&quot; || &quot;EB&quot;x || &quot;l&quot; || &quot;81&quot;x)~text(&quot;windows-1252&quot;)~utf8(strict:.true)=    </span><span style="font-weight:bold;color:blue;">-- Cannot convert windows-1252 not-ASCII character 129 (81) at byte-position 5 to UTF-8.</span>
+<span style="font-weight:bold;color:red;">Cannot convert windows-1252 not-ASCII character 129 (81) at byte-position 5 to UTF-8.
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
+</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël\u{HOP}&quot;~text(&quot;utf8&quot;)~unescape~transcodeTo(&quot;byte&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- Cannot convert UTF-8 not-ASCII codepoint 235 (EB) at position 3 to Byte.</span>
+<span style="font-weight:bold;color:red;">Cannot convert UTF-8 not-ASCII codepoint 235 (EB) at position 3 to Byte.
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël\u{HOP}&quot;~text(&quot;utf8&quot;)~unescape~transcodeTo(&quot;windows-1252&quot;)=            </span><span style="font-weight:bold;color:blue;">-- T'No?l?'</span>
+T'No�l�'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël\u{HOP}&quot;~text(&quot;utf8&quot;)~unescape~transcodeTo(&quot;windows-1252&quot;)~c2x=        </span><span style="font-weight:bold;color:blue;">-- '4E 6F EB 6C 81'</span>
+'4E 6F EB 6C 81'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël\u{HOP}&quot;~text(&quot;utf8&quot;)~unescape~transcodeTo(&quot;windows-1252&quot;, strict:)=   </span><span style="font-weight:bold;color:blue;">-- Cannot convert UTF-8 not-ASCII codepoint 129 (81) at position 5 to windows-1252.</span>
+<span style="font-weight:bold;color:red;">Cannot convert UTF-8 not-ASCII codepoint 129 (81) at position 5 to windows-1252.
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
+</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    </span><span style="font-weight:bold;color:blue;">-- &quot;byte&quot; encoding: only 00..7F can be transcoded</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;No&quot; || &quot;EB&quot;x || &quot;l&quot; || &quot;81&quot;x)~text(&quot;byte&quot;)~utf8=                                                      </span><span style="font-weight:bold;color:blue;">-- Cannot convert Byte not-ASCII character 235 (EB) at byte-position 3 to UTF-8.</span>
+<span style="font-weight:bold;color:red;">Cannot convert Byte not-ASCII character 235 (EB) at byte-position 3 to UTF-8.
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;No&quot; || &quot;EB&quot;x || &quot;l&quot; || &quot;81&quot;x)~text(&quot;byte&quot;)~utf8(replacementCharacter:&quot;&quot;)=                             </span><span style="font-weight:bold;color:blue;">-- T'Nol'</span>
+T'Nol'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;No&quot; || &quot;EB&quot;x || &quot;l&quot; || &quot;81&quot;x)~text(&quot;byte&quot;)~utf8(replacementCharacter:&quot;#&quot;)=                            </span><span style="font-weight:bold;color:blue;">-- T'No#l#'      1 replacement character for ë because &quot;ë&quot; is 'EB'x</span>
+T'No#l#'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;No&quot; || &quot;EB&quot;x || &quot;l&quot; || &quot;81&quot;x)~text(&quot;byte&quot;)~utf8(replacementCharacter:&quot;🎅&quot;)=                           </span><span style="font-weight:bold;color:blue;">-- T'No🎅l🎅'</span>
+T'No🎅l🎅'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;No&quot; || &quot;EB&quot;x || &quot;l&quot; || &quot;81&quot;x)~text(&quot;byte&quot;)~utf8(replacementCharacter:&quot;🎅&quot;~text)=                      </span><span style="font-weight:bold;color:blue;">-- T'No🎅l🎅'</span>
+T'No🎅l🎅'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;No&quot; || &quot;EB&quot;x || &quot;l&quot; || &quot;81&quot;x)~text(&quot;byte&quot;)~utf8(replacementCharacter:.unicode[&quot;Father Christmas&quot;])=   </span><span style="font-weight:bold;color:blue;">-- T'No🎅l🎅'</span>
+T'No🎅l🎅'
+
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël&quot;~text(&quot;byte&quot;)~utf8(replacementCharacter:&quot;&quot;)=                          </span><span style="font-weight:bold;color:blue;">-- T'Nol'</span>
+T'Nol'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël&quot;~text(&quot;byte&quot;)~utf8(replacementCharacter:&quot;#&quot;)=                         </span><span style="font-weight:bold;color:blue;">-- T'No##l'         2 replacement characters for ë because &quot;ë&quot; is 'C3 AB'x</span>
+T'No##l'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël&quot;~text(&quot;byte&quot;)~utf8(replacementCharacter:&quot;🎅&quot;)=                        </span><span style="font-weight:bold;color:blue;">-- T'No🎅🎅l'</span>
+T'No🎅🎅l'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël&quot;~text(&quot;byte&quot;)~utf8(replacementCharacter:&quot;🎅🎅&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- The transcoded replacement character must have at most one codepoint, got UTF-8 not-ASCII (2 characters, 2 codepoints, 8 bytes, 0 error) '🎅🎅'.</span>
+<span style="font-weight:bold;color:red;">The transcoded replacement character must have at most one codepoint, got UTF-8 not-ASCII (2 characters, 2 codepoints, 8 bytes, 0 error) '🎅🎅'.
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël&quot;~text(&quot;byte&quot;)~utf8(replacementCharacter:&quot;🎅🎅&quot;~text)=                </span><span style="font-weight:bold;color:blue;">-- The transcoded replacement character must have at most one codepoint, got UTF-8 not-ASCII (2 characters, 2 codepoints, 8 bytes, 0 error) '🎅🎅'.</span>
+<span style="font-weight:bold;color:red;">The transcoded replacement character must have at most one codepoint, got UTF-8 not-ASCII (2 characters, 2 codepoints, 8 bytes, 0 error) '🎅🎅'.
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
+</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël&quot;~text(&quot;utf8&quot;)~transcodeTo(&quot;byte&quot;)=                                    </span><span style="font-weight:bold;color:blue;">-- Cannot convert UTF-8 not-ASCII codepoint 235 (EB) at position 3 to Byte.</span>
+<span style="font-weight:bold;color:red;">Cannot convert UTF-8 not-ASCII codepoint 235 (EB) at position 3 to Byte.
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël&quot;~text(&quot;utf8&quot;)~transcodeTo(&quot;byte&quot;, replacementCharacter:&quot;&quot;)=           </span><span style="font-weight:bold;color:blue;">-- T'Nol'</span>
+T'Nol'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël&quot;~text(&quot;utf8&quot;)~transcodeTo(&quot;byte&quot;, replacementCharacter:&quot;#&quot;)=          </span><span style="font-weight:bold;color:blue;">-- T'No#l'</span>
+T'No#l'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël&quot;~text(&quot;utf8&quot;)~transcodeTo(&quot;byte&quot;, replacementCharacter:&quot;🎅&quot;)=         </span><span style="font-weight:bold;color:blue;">-- The replacement character UTF-8 not-ASCII '🎅' cannot be transcoded to Byte.</span>
+<span style="font-weight:bold;color:red;">The replacement character UTF-8 not-ASCII '🎅' cannot be transcoded to Byte.
+</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël🤶&quot;~text(&quot;utf8&quot;)~transcodeTo(&quot;unicode&quot;, replacementCharacter:&quot;🎅&quot;)=        </span><span style="font-weight:bold;color:blue;">-- T'N[000000]o[000000]?[000000]l[000000]??[0100]'</span>
+T'N[000000]o[000000]�[000000]l[000000]6�[0100]'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël🤶&quot;~text(&quot;utf8&quot;)~transcodeTo(&quot;unicode&quot;, replacementCharacter:&quot;🎅&quot;)~c2x=    </span><span style="font-weight:bold;color:blue;">-- '4E000000 6F000000 EB000000 6C000000 36F90100'</span>
+'4E000000 6F000000 EB000000 6C000000 36F90100'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël🤶&quot;~text(&quot;utf8&quot;)~transcodeTo(&quot;unicode&quot;, replacementCharacter:&quot;🎅&quot;)~c2u=    </span><span style="font-weight:bold;color:blue;">-- 'U+004E U+006F U+00EB U+006C U+1F936'</span>
+'U+004E U+006F U+00EB U+006C U+1F936'
+
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël🤶&quot;~text(&quot;utf8&quot;)~transcodeTo(&quot;unicode8&quot;, replacementCharacter:&quot;&quot;)=          </span><span style="font-weight:bold;color:blue;">-- T'No?l'</span>
+T'No�l'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël🤶&quot;~text(&quot;utf8&quot;)~transcodeTo(&quot;unicode8&quot;, replacementCharacter:&quot;&quot;)~c2x=      </span><span style="font-weight:bold;color:blue;">-- '4E 6F EB 6C'</span>
+'4E 6F EB 6C'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël🤶&quot;~text(&quot;utf8&quot;)~transcodeTo(&quot;unicode8&quot;, replacementCharacter:&quot;#&quot;)=         </span><span style="font-weight:bold;color:blue;">-- T'No?l#'</span>
+T'No�l#'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël🤶&quot;~text(&quot;utf8&quot;)~transcodeTo(&quot;unicode8&quot;, replacementCharacter:&quot;#&quot;)~c2x=     </span><span style="font-weight:bold;color:blue;">-- '4E 6F EB 6C 23'</span>
+'4E 6F EB 6C 23'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël🤶&quot;~text(&quot;utf8&quot;)~transcodeTo(&quot;unicode8&quot;, replacementCharacter:&quot;🎅&quot;)=       </span><span style="font-weight:bold;color:blue;">-- The replacement character UTF-8 not-ASCII '🎅' cannot be transcoded to Unicode8.</span>
+<span style="font-weight:bold;color:red;">The replacement character UTF-8 not-ASCII '🎅' cannot be transcoded to Unicode8.
+</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël🤶&quot;~text(&quot;utf8&quot;)~transcodeTo(&quot;unicode16&quot;, replacementCharacter:&quot;&quot;)=         </span><span style="font-weight:bold;color:blue;">-- T'N[00]o[00]?[00]l[00]'</span>
+T'N[00]o[00]�[00]l[00]'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël🤶&quot;~text(&quot;utf8&quot;)~transcodeTo(&quot;unicode16&quot;, replacementCharacter:&quot;#&quot;)=        </span><span style="font-weight:bold;color:blue;">-- T'N[00]o[00]?[00]l[00]#[00]'</span>
+T'N[00]o[00]�[00]l[00]#[00]'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël🤶&quot;~text(&quot;utf8&quot;)~transcodeTo(&quot;unicode16&quot;, replacementCharacter:&quot;#&quot;)~c2x=    </span><span style="font-weight:bold;color:blue;">-- '4E00 6F00 EB00 6C00 2300'</span>
+'4E00 6F00 EB00 6C00 2300'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël🤶&quot;~text(&quot;utf8&quot;)~transcodeTo(&quot;unicode16&quot;, replacementCharacter:&quot;#&quot;)~c2u=    </span><span style="font-weight:bold;color:blue;">-- 'U+004E U+006F U+00EB U+006C U+0023'</span>
+'U+004E U+006F U+00EB U+006C U+0023'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël🤶&quot;~text(&quot;utf8&quot;)~transcodeTo(&quot;unicode16&quot;, replacementCharacter:&quot;🎅&quot;)=      </span><span style="font-weight:bold;color:blue;">-- The replacement character UTF-8 not-ASCII '🎅' cannot be transcoded to Unicode16.</span>
+<span style="font-weight:bold;color:red;">The replacement character UTF-8 not-ASCII '🎅' cannot be transcoded to Unicode16.
+</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël🤶&quot;~text(&quot;utf8&quot;)~transcodeTo(&quot;unicode32&quot;)=         </span><span style="font-weight:bold;color:blue;">-- T'N[000000]o[000000]?[000000]l[000000]6?[0100]'</span>
+T'N[000000]o[000000]�[000000]l[000000]6�[0100]'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël🤶&quot;~text(&quot;utf8&quot;)~transcodeTo(&quot;unicode32&quot;)~c2x=     </span><span style="font-weight:bold;color:blue;">-- '4E000000 6F000000 EB000000 6C000000 36F90100'</span>
+'4E000000 6F000000 EB000000 6C000000 36F90100'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël🤶&quot;~text(&quot;utf8&quot;)~transcodeTo(&quot;unicode32&quot;)~c2u=     </span><span style="font-weight:bold;color:blue;">-- 'U+004E U+006F U+00EB U+006C U+1F936'</span>
+'U+004E U+006F U+00EB U+006C U+1F936'
+
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">The method c2u is no longer abstract for the byte encodings.
+</span><span style="font-weight:bold;color:blue;">Now, a byte encoding is converted on the fly to UnicodeN in non strict mode,
+</span><span style="font-weight:bold;color:blue;">replacing any unsupported character by .Unicode~replacementCharacter.
+</span><span style="font-weight:bold;color:blue;">Idem for the method unicodeCharacters.
+</span><span style="font-weight:bold;color:blue;">Examples:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;FF FE FD FC&quot;x~text(&quot;byte&quot;)~c2x=                                               </span><span style="font-weight:bold;color:blue;">-- 'FF FE FD FC'</span>
+'FF FE FD FC'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;FF FE FD FC&quot;x~text(&quot;byte&quot;)~c2g=                                               </span><span style="font-weight:bold;color:blue;">-- 'FF FE FD FC'</span>
+'FF FE FD FC'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;FF FE FD FC&quot;x~text(&quot;byte&quot;)~codepoints==</span>
+a CodePointSupplier 
+ 1 :  255
+ 2 :  254
+ 3 :  253
+ 4 :  252
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;FF FE FD FC&quot;x~text(&quot;byte&quot;)~c2u=                                               </span><span style="font-weight:bold;color:blue;">-- 'U+FFFD U+FFFD U+FFFD U+FFFD'</span>
+'U+FFFD U+FFFD U+FFFD U+FFFD'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;FF FE FD FC&quot;x~text(&quot;byte&quot;)~unicodeCharacters==</span>
+an Array (shape [4], 4 items)
+ 1 : ( &quot;�&quot;   U+FFFD So 1 &quot;REPLACEMENT CHARACTER&quot; )
+ 2 : ( &quot;�&quot;   U+FFFD So 1 &quot;REPLACEMENT CHARACTER&quot; )
+ 3 : ( &quot;�&quot;   U+FFFD So 1 &quot;REPLACEMENT CHARACTER&quot; )
+ 4 : ( &quot;�&quot;   U+FFFD So 1 &quot;REPLACEMENT CHARACTER&quot; )
+
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;FF FE FD FC&quot;x~text(&quot;utf8&quot;)~c2x=                                               </span><span style="font-weight:bold;color:blue;">-- 'FF FE FD FC'</span>
+'FF FE FD FC'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;FF FE FD FC&quot;x~text(&quot;utf8&quot;)~c2g=                                               </span><span style="font-weight:bold;color:blue;">-- 'FF FE FD FC'</span>
+'FF FE FD FC'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;FF FE FD FC&quot;x~text(&quot;utf8&quot;)~c2u=                                               </span><span style="font-weight:bold;color:blue;">-- 'U+FFFD U+FFFD U+FFFD U+FFFD'</span>
+'U+FFFD U+FFFD U+FFFD U+FFFD'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;FF FE FD FC&quot;x~text(&quot;utf8&quot;)~codepoints==</span>
+a CodePointSupplier 
+ 1 :  65533
+ 2 :  65533
+ 3 :  65533
+ 4 :  65533
+
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;FF FE FD FC&quot;x~text(&quot;unicode8&quot;)~c2x=                                           </span><span style="font-weight:bold;color:blue;">-- 'FF FE FD FC'</span>
+'FF FE FD FC'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;FF FE FD FC&quot;x~text(&quot;unicode8&quot;)~c2g=                                           </span><span style="font-weight:bold;color:blue;">-- 'FF FE FD FC'</span>
+'FF FE FD FC'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;FF FE FD FC&quot;x~text(&quot;unicode8&quot;)~codepoints==</span>
+a CodePointSupplier 
+ 1 :  255
+ 2 :  254
+ 3 :  253
+ 4 :  252
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;FF FE FD FC&quot;x~text(&quot;unicode8&quot;)~c2u=                                           </span><span style="font-weight:bold;color:blue;">-- 'U+00FF U+00FE U+00FD U+00FC'</span>
+'U+00FF U+00FE U+00FD U+00FC'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;FF FE FD FC&quot;x~text(&quot;unicode8&quot;)~unicodecharacters==</span>
+an Array (shape [4], 4 items)
+ 1 : ( &quot;ÿ&quot;   U+00FF Ll 1 &quot;LATIN SMALL LETTER Y WITH DIAERESIS&quot; )
+ 2 : ( &quot;þ&quot;   U+00FE Ll 1 &quot;LATIN SMALL LETTER THORN&quot; )
+ 3 : ( &quot;ý&quot;   U+00FD Ll 1 &quot;LATIN SMALL LETTER Y WITH ACUTE&quot; )
+ 4 : ( &quot;ü&quot;   U+00FC Ll 1 &quot;LATIN SMALL LETTER U WITH DIAERESIS&quot; )
+
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;No&quot; || &quot;EB&quot;x || &quot;l&quot; || &quot;81&quot;x)~text(&quot;byte&quot;)~c2x=                           </span><span style="font-weight:bold;color:blue;">-- '4E 6F EB 6C 81'</span>
+'4E 6F EB 6C 81'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;No&quot; || &quot;EB&quot;x || &quot;l&quot; || &quot;81&quot;x)~text(&quot;byte&quot;)~c2g=                           </span><span style="font-weight:bold;color:blue;">-- '4E 6F EB 6C 81'</span>
+'4E 6F EB 6C 81'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;No&quot; || &quot;EB&quot;x || &quot;l&quot; || &quot;81&quot;x)~text(&quot;byte&quot;)~c2u=                           </span><span style="font-weight:bold;color:blue;">-- 'U+004E U+006F U+FFFD U+006C U+FFFD'</span>
+'U+004E U+006F U+FFFD U+006C U+FFFD'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;No&quot; || &quot;EB&quot;x || &quot;l&quot; || &quot;81&quot;x)~text(&quot;byte&quot;)~unicodecharacters==</span>
+an Array (shape [5], 5 items)
+ 1 : ( &quot;N&quot;   U+004E Lu 1 &quot;LATIN CAPITAL LETTER N&quot; )
+ 2 : ( &quot;o&quot;   U+006F Ll 1 &quot;LATIN SMALL LETTER O&quot; )
+ 3 : ( &quot;�&quot;   U+FFFD So 1 &quot;REPLACEMENT CHARACTER&quot; )
+ 4 : ( &quot;l&quot;   U+006C Ll 1 &quot;LATIN SMALL LETTER L&quot; )
+ 5 : ( &quot;�&quot;   U+FFFD So 1 &quot;REPLACEMENT CHARACTER&quot; )
+
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;No&quot; || &quot;EB&quot;x || &quot;l&quot; || &quot;81&quot;x)~text(&quot;windows-1252&quot;)~c2x=                   </span><span style="font-weight:bold;color:blue;">-- '4E 6F EB 6C 81'</span>
+'4E 6F EB 6C 81'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;No&quot; || &quot;EB&quot;x || &quot;l&quot; || &quot;81&quot;x)~text(&quot;windows-1252&quot;)~c2g=                   </span><span style="font-weight:bold;color:blue;">-- '4E 6F EB 6C 81'</span>
+'4E 6F EB 6C 81'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;No&quot; || &quot;EB&quot;x || &quot;l&quot; || &quot;81&quot;x)~text(&quot;windows-1252&quot;)~c2u=                   </span><span style="font-weight:bold;color:blue;">-- 'U+004E U+006F U+00EB U+006C U+0081'</span>
+'U+004E U+006F U+00EB U+006C U+0081'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;No&quot; || &quot;EB&quot;x || &quot;l&quot; || &quot;81&quot;x)~text(&quot;windows-1252&quot;)~unicodecharacters==</span>
+an Array (shape [5], 5 items)
+ 1 : ( &quot;N&quot;   U+004E Lu 1 &quot;LATIN CAPITAL LETTER N&quot; )
+ 2 : ( &quot;o&quot;   U+006F Ll 1 &quot;LATIN SMALL LETTER O&quot; )
+ 3 : ( &quot;ë&quot;   U+00EB Ll 1 &quot;LATIN SMALL LETTER E WITH DIAERESIS&quot; )
+ 4 : ( &quot;l&quot;   U+006C Ll 1 &quot;LATIN SMALL LETTER L&quot; )
+ 5 : ( &quot;&quot;    U+0081 Cc 0 &quot;&quot;, &quot;HIGH OCTET PRESET&quot;, &quot;HOP&quot; )
+
+
+<span style="font-weight:bold;color:blue;">-- ===============================================================================
 </span><span style="font-weight:bold;color:blue;">-- 2023 Sep 27
 </span>
 <span style="font-weight:bold;color:blue;">/*
@@ -54,6 +278,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeTransfo
 </span><span style="font-weight:bold;color:blue;">- stripCC: remove control characters (see utf8proc doc for more information:
 </span><span style="font-weight:bold;color:blue;">  HorizontalTab (HT) and FormFeed (FF) are transformed into space)
 </span><span style="font-weight:bold;color:blue;">- stripNA: remove unassigned codepoints
+</span><span style="font-weight:bold;color:blue;">Example:
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">.unicode[&quot;ESA&quot;]=        </span><span style="font-weight:bold;color:blue;">-- ( &quot;&quot;    U+0087 Cc 0 &quot;&quot;, &quot;END OF SELECTED AREA&quot;, &quot;ESA&quot;</span>
 ( &quot;&quot;    U+0087 Cc 0 &quot;&quot;, &quot;END OF SELECTED AREA&quot;, &quot;ESA&quot; )
@@ -791,6 +1016,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;bâﬄﬄé&quot;~
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
 <span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Remember:
 </span><span style="font-weight:bold;color:blue;">aligned=.false is intended for analysis of matchings and [non-]regression tests.
 </span><span style="font-weight:bold;color:blue;">Otherwise, I don't see any use.
 </span><span style="font-weight:bold;color:blue;">When aligned:.false, a returned position has the form +/-posC.posB where posB is
@@ -1606,6 +1832,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;TÊt\u{TAG SPACE}e
 </span><span style="font-weight:bold;color:blue;">Implementation of caselessContains, contains:
 </span><span style="font-weight:bold;color:blue;">(forwards to caselessPos or pos, and returns .true if result &lt;&gt; 0)
 </span><span style="font-weight:bold;color:blue;">(was already implemented, waiting for 'pos' implementation)
+</span><span style="font-weight:bold;color:blue;">Examples:
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~contains(&quot;oë&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- .true</span>
  1
@@ -1651,6 +1878,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;noël👩‍�
 </span><span style="font-weight:bold;color:blue;">aligned=.false is intended for analysis of matchings and [non-]regression tests.
 </span><span style="font-weight:bold;color:blue;">Otherwise, I don't see any use.
 </span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">Example:
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~pos(&quot;👧🎅&quot;)=                           </span><span style="font-weight:bold;color:blue;">-- 0</span>
  0
@@ -1665,6 +1893,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;noël👩‍�
 </span><span style="font-weight:bold;color:blue;">Take into account the default normalization managed by the .Unicode class
 </span><span style="font-weight:bold;color:blue;">- NFC when strict
 </span><span style="font-weight:bold;color:blue;">- NFKD when not strict
+</span><span style="font-weight:bold;color:blue;">Example:
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;baﬄe&quot;~text == &quot;baffle&quot;~text) =    </span><span style="font-weight:bold;color:blue;">-- false</span>
  0
@@ -2313,7 +2542,14 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">'50 8A 72 65 20 4E 6F 89
 ooRexx&gt; <span style="font-weight:bold;color:purple;">'50 8A 72 65 20 4E 6F 89 6C'x~text(&quot;cp437&quot;)~transcodeTo(&quot;utf8&quot;)~c2x=        </span><span style="font-weight:bold;color:blue;">-- '50 C3A8 72 65 20 4E 6F C3AB 6C'</span>
 '50 C3A8 72 65 20 4E 6F C3AB 6C'
 
-ooRexx&gt; <span style="font-weight:bold;color:purple;">text = &quot;Père Noël 🎅 10€&quot;~text; do encoding over .Byte_Encoding~subclasses~~append(.Byte_Encoding); say encoding~name~left(13)&quot;:&quot; text~transcodeTo(encoding, replacementCharacter:&quot;FF&quot;x)~c2x; end</span>
+<span style="font-weight:bold;color:blue;">-- The replacementCharacter &quot;FF&quot;x is interpreted as a UTF-8 string (default encoding). &quot;FF&quot;x~text~c2u= -- 'U+FFFD'
+</span><span style="font-weight:bold;color:blue;">-- Hence the error &quot;The replacement character UTF-8 not-ASCII '[FF]' cannot be transcoded to ISO-8859-1.&quot;
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">text = &quot;Père Noël 🎅 10€&quot;~text; do encoding over .Byte_Encoding~subclasses~~append(.Byte_Encoding); say encoding~name~left(13)&quot;:&quot; text~transcodeTo(encoding, replacementCharacter:&quot;FF&quot;x)~c2x; end</span>
+<span style="font-weight:bold;color:red;">The replacement character UTF-8 not-ASCII '[FF]' cannot be transcoded to ISO-8859-1.
+</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span>
+<span style="font-weight:bold;color:blue;">-- Here, the replacementCharacter is interpreted as a byte string encoded in the target encoding
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">text = &quot;Père Noël 🎅 10€&quot;~text; do encoding over .Byte_Encoding~subclasses~~append(.Byte_Encoding); say encoding~name~left(13)&quot;:&quot; text~transcodeTo(encoding, replacementCharacter:&quot;FF&quot;x~text(encoding))~c2x; end</span>
 ISO-8859-1   : 50 E8 72 65 20 4E 6F EB 6C 20 FF 20 31 30 FF
 ibm-1252     : 50 E8 72 65 20 4E 6F EB 6C 20 FF 20 31 30 FF
 windows-1252 : 50 E8 72 65 20 4E 6F EB 6C 20 FF 20 31 30 80
@@ -2578,6 +2814,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;ŒUF&quot;~text~ca
 </span><span style="font-weight:bold;color:blue;">
 </span><span style="font-weight:bold;color:blue;">The conversion methods accept the named argument 'memorize(3)'.
 </span><span style="font-weight:bold;color:blue;">Its default value is given by .unicode~memorizeConversions which is .false by default.
+</span><span style="font-weight:bold;color:blue;">Example:
 </span><span style="font-weight:bold;color:blue;">    s = &quot;hello&quot;
 </span><span style="font-weight:bold;color:blue;">    t = s~text
 </span><span style="font-weight:bold;color:blue;">    utf16 = t~utf16(memorize:)
@@ -2605,6 +2842,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">txt_cp1252~utf32~&quot;=
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">When an optional buffer is passed, must check that its encoding is compatible.
 </span><span style="font-weight:bold;color:blue;">Done for the conversion methods.
+</span><span style="font-weight:bold;color:blue;">Example:
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">b = .mutablebuffer~new            </span><span style="font-weight:bold;color:blue;">-- No encoding yet</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~text~utf16(buffer:b)      </span><span style="font-weight:bold;color:blue;">-- now the buffer's encoding is UTF-16</span>
@@ -2662,6 +2900,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;bye&quot;~text~utf
 </span><span style="font-weight:bold;color:blue;">After normalization + transformations, they delegate to the String's non-strict comparison operators.
 </span><span style="font-weight:bold;color:blue;">Thanks to the lump transformation, all the Unicode spaces are supported.
 </span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">Examples:
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">textNFC = &quot;Noël&quot;~text~NFC</span>
@@ -2803,6 +3042,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">t = &quot;Père Noël ß
 </span><span style="font-weight:bold;color:blue;">From a byte index returned by an ooRexx method, a grapheme index is derived.
 </span><span style="font-weight:bold;color:blue;">
 </span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">Examples:
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">                                                </span><span style="font-weight:bold;color:blue;">--  1  2    3  4  5  6  7  8 9  10 (grapheme indexes)</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">                                                </span><span style="font-weight:bold;color:blue;">--  1  2 3  4  5  6  7  8  9 10 11 (byte indexes)</span>
@@ -2877,6 +3117,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">    nfdText  ~match(2, n
 </span><span style="font-weight:bold;color:blue;">The purpose of this method is to support additional transformations provided by utf8proc.
 </span><span style="font-weight:bold;color:blue;">Takes a byte string as input (UTF-8 encoded), returns a new transformed byte string as output (UTF-8).
 </span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">Examples:
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    string = &quot;\u{BEL}Le\u{IDEOGRAPHIC SPACE}\u{OGHAM SPACE MARK}\u{ZERO-WIDTH-SPACE}Père\t\u{HYPHEN}\u{SOFT-HYPHEN}\u{EN DASH}\u{EM DASH}Noël\x{EFB790}\r\n&quot;</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    text = string~text~unescape</span>
@@ -2962,6 +3203,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">    .Unicode~utf8proc_tr
 </span><span style="font-weight:bold;color:blue;">New methods on RexxText
 </span><span style="font-weight:bold;color:blue;">    center
 </span><span style="font-weight:bold;color:blue;">    centre
+</span><span style="font-weight:bold;color:blue;">Examples:
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~description=                  </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (6 graphemes, 12 codepoints, 34 bytes, 0 error)'</span>
 'UTF-8 not-ASCII (6 characters, 12 codepoints, 34 bytes, 0 error)'
@@ -3545,6 +3787,7 @@ an Array (shape [10], 10 items)
 </span><span style="font-weight:bold;color:blue;">\uXXXX is now supported
 </span><span style="font-weight:bold;color:blue;">\UXXXXXXXX is now supported
 </span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">Ex:
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;\u{bed} is different from \u{0bed}&quot;~text~unescape=                         </span><span style="font-weight:bold;color:blue;">-- T'🛏 is different from ௭'</span>
 T'🛏 is different from ௭'
@@ -3575,6 +3818,7 @@ T'1 + 23 = 24'
 </span><span style="font-weight:bold;color:blue;">    \u{N..N}            Unicode character denoted by 1-8 hex digits. The first character must be a digit 0..9.
 </span><span style="font-weight:bold;color:blue;">    \u{U+X..X}          Unicode character denoted by 1-n hex digits
 </span><span style="font-weight:bold;color:blue;">    \x{X..X}            sequence of 1..n hexadecimal digits
+</span><span style="font-weight:bold;color:blue;">Examples:
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;hello\u{space}John\n&quot;~text~unescape=           </span><span style="font-weight:bold;color:blue;">-- T'hello John[0A]'</span>
 T'hello John[0A]'
@@ -3624,83 +3868,20 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;hello\u{U+20}J
 </span><span style="font-weight:bold;color:blue;">    right
 </span><span style="font-weight:bold;color:blue;">    x2d
 </span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">Examples:
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
 <span style="font-weight:bold;color:blue;">-- https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundaries
 </span><span style="font-weight:bold;color:blue;">-- no break before ZWJ (GB9), but break after if not emoji modifier sequence or emoji zwj sequence (GB11)
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">.unicode[&quot;zwj&quot;]~text~join(&quot;ab&quot;, &quot;cd&quot;, .unicode[&quot;woman&quot;], .unicode[&quot;father christmas&quot;])~c2g=  </span><span style="font-weight:bold;color:blue;">-- '61 62E2808D 63 64E2808D F09F91A9E2808DF09F8E85'</span>
-'61 62E2808D 63 64E2808D 20 22 F09F91A9 22 20 20 55 2B 31 46 34 36 39 20 53 6F 20 32 20 22 57 4F 4D 41 4E 22 20E2808D 20 22 F09F8E85 22 20 20 55 2B 31 46 33 38 35 20 53 6F 20 32 20 22 46 41 54 48 45 52 20 43 48 52 49 53 54 4D 41 53 22 20'
-ooRexx&gt; <span style="font-weight:bold;color:purple;">.unicode[&quot;zwj&quot;]~text~join(&quot;ab&quot;, &quot;cd&quot;, .unicode[&quot;woman&quot;], .unicode[&quot;father christmas&quot;])~graphemes==</span>
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">.unicode[&quot;zwj&quot;]~utf8~join(&quot;ab&quot;, &quot;cd&quot;, .unicode[&quot;woman&quot;]~utf8, .unicode[&quot;father christmas&quot;]~utf8)~c2g=  </span><span style="font-weight:bold;color:blue;">-- '61 62E2808D 63 64E2808D F09F91A9E2808DF09F8E85'</span>
+'61 62E2808D 63 64E2808D F09F91A9E2808DF09F8E85'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">.unicode[&quot;zwj&quot;]~utf8~join(&quot;ab&quot;, &quot;cd&quot;, .unicode[&quot;woman&quot;]~utf8, .unicode[&quot;father christmas&quot;]~utf8)~graphemes==</span>
 a CharacterSupplier 
- 1  : T'a'
- 2  : T'b‍'
- 3  : T'c'
- 4  : T'd‍'
- 5  : T' '
- 6  : T'&quot;'
- 7  : T'👩'
- 8  : T'&quot;'
- 9  : T' '
- 10 : T' '
- 11 : T'U'
- 12 : T'+'
- 13 : T'1'
- 14 : T'F'
- 15 : T'4'
- 16 : T'6'
- 17 : T'9'
- 18 : T' '
- 19 : T'S'
- 20 : T'o'
- 21 : T' '
- 22 : T'2'
- 23 : T' '
- 24 : T'&quot;'
- 25 : T'W'
- 26 : T'O'
- 27 : T'M'
- 28 : T'A'
- 29 : T'N'
- 30 : T'&quot;'
- 31 : T' ‍'
- 32 : T' '
- 33 : T'&quot;'
- 34 : T'🎅'
- 35 : T'&quot;'
- 36 : T' '
- 37 : T' '
- 38 : T'U'
- 39 : T'+'
- 40 : T'1'
- 41 : T'F'
- 42 : T'3'
- 43 : T'8'
- 44 : T'5'
- 45 : T' '
- 46 : T'S'
- 47 : T'o'
- 48 : T' '
- 49 : T'2'
- 50 : T' '
- 51 : T'&quot;'
- 52 : T'F'
- 53 : T'A'
- 54 : T'T'
- 55 : T'H'
- 56 : T'E'
- 57 : T'R'
- 58 : T' '
- 59 : T'C'
- 60 : T'H'
- 61 : T'R'
- 62 : T'I'
- 63 : T'S'
- 64 : T'T'
- 65 : T'M'
- 66 : T'A'
- 67 : T'S'
- 68 : T'&quot;'
- 69 : T' '
+ 1 : T'a'
+ 2 : T'b‍'
+ 3 : T'c'
+ 4 : T'd‍'
+ 5 : T'👩‍🎅'
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~UnicodeCharacters==</span>
 an Array (shape [12], 12 items)
@@ -3761,6 +3942,7 @@ T'right(9) =    noël👩‍👨‍👩‍👧🎅'
 </span><span style="font-weight:bold;color:blue;">.RexxText
 </span><span style="font-weight:bold;color:blue;">    reverse
 </span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">Examples:
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
 <span style="font-weight:bold;color:blue;">-- Correct reverse
@@ -3800,6 +3982,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~revers
 </span><span style="font-weight:bold;color:blue;">    isUpper
 </span><span style="font-weight:bold;color:blue;">    characters
 </span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">Examples:
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;aàâäeéèêëiîïoôöuûü&quot;~text~isUpper=              </span><span style="font-weight:bold;color:blue;">-- .false</span>
@@ -3818,6 +4001,7 @@ T'le père noël est fatigué...'
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">utf8proc supports only the basic cases (those in UnicodeData.txt).
 </span><span style="font-weight:bold;color:blue;">The cases described in SpecialCasing.txt are not supported by utf8proc.
+</span><span style="font-weight:bold;color:blue;">Examples:
 </span><span style="font-weight:bold;color:blue;">*/
 </span><span style="font-weight:bold;color:blue;">-- # The German es-zed is special--the normal mapping is to SS.
 </span><span style="font-weight:bold;color:blue;">-- # Note: the titlecase should never occur in practice. It is equal to titlecase(uppercase(&lt;es-zed&gt;))
@@ -5038,6 +5222,7 @@ a Directory (11 items)
 </span><span style="font-weight:bold;color:blue;">    decompTypeName  --&gt; enum '&lt;none&gt;', '&lt;font&gt;', '&lt;nobreak&gt;, ...
 </span><span style="font-weight:bold;color:blue;">    ignorable       --&gt; boolean
 </span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">Examples:
 </span><span style="font-weight:bold;color:blue;">*/
 </span><span style="font-weight:bold;color:blue;">-- All the Unicode characters (sparse array).
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">.unicode~characters==</span>
@@ -6126,6 +6311,7 @@ an Array (shape [12], 12 items)
 </span><span style="font-weight:bold;color:blue;">These flags are typically used by the matchers of type string pattern, to decide
 </span><span style="font-weight:bold;color:blue;">if a character can be special or not.
 </span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">Description:
 </span><span style="font-weight:bold;color:blue;">    routine stringChunks
 </span><span style="font-weight:bold;color:blue;">    use strict arg string, withInfos=.false, breakTokens=&quot;&quot;, splitLevel=1
 </span><span style="font-weight:bold;color:blue;">
@@ -6204,6 +6390,7 @@ an Array (shape [12], 12 items)
 </span><span style="font-weight:bold;color:blue;">    .String~chunk           withInfos is true, splitLevel is 0 --&gt; always returns ONE StringChunk
 </span><span style="font-weight:bold;color:blue;">    .String~chunks          withInfos is true by default, splitLevel is 1 by default
 </span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">Examples:
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    </span><span style="font-weight:bold;color:blue;">-- splitLevel = 0: no split</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    'aa&quot;b\ b&quot;cc&quot;d\ d&quot;ee\* ff'~chunks(splitLevel:0)~each{item~sayDescription(25, index, 2)}</span>
@@ -6625,7 +6812,7 @@ P.         'RexxText'                         : (REXX)
 .M         'RexxTextInitializer'              : (text.cls)
 PM         'RexxTextMapper'                   : (functionals.cls)
 .M         'RexxTextOperators'                : (text.cls)
-.M         'RexxTextPrettyPrinter'            : (text.cls)
+.M         'RexxTextPrettyPrinter'            : (trace.cls)
 .M         'RexxTextStringInterface'          : (text.cls)
 P.         'RexxTextTransformer'              : (stringIndexer.cls)
 PM         'StringIndexer'                    : (stringIndexer.cls)
