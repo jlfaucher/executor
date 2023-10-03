@@ -69,6 +69,7 @@ Contents:
     <a href="#Test_cases__test_cases__tests_files">Test cases, test-cases, tests files</a>
     <a href="#bold__italic__strikethrough__underline__backwards__upside_down">bold, italic, strikethrough, underline, backwards, upside down</a>
     <a href="#youtube">youtube</a>
+    <a href="#xxx_lang">xxx lang</a>
     <a href="#Ada_lang">Ada lang</a>
     <a href="#Awk_lang">Awk lang</a>
     <a href="#C___lang__cpp_lang__Boost">C++ lang, cpp lang, Boost</a>
@@ -1096,6 +1097,8 @@ support for the turkish case.
 <hr><h2 id="String_matching___Collation">String matching - Collation</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://unicode-org.github.io/icu/userguide/collation/string-search.html">https://unicode-org.github.io/icu/userguide/collation/string-search.html</a>
 (ICU) String Search Service
+jlf: they give 3 issues applicable to text searching. Accented letters and
+conjoined letters are covered by Executor. But ignorable punctuation is not.
 
 
 <hr><h2 id="Locale">Locale</h2><hr>
@@ -1196,6 +1199,10 @@ the Common Locale Data Repository to format dates, plurals, and more.
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/twitter/twitter-cldr-js">https://github.com/twitter/twitter-cldr-js</a>
 JavaScript implementation of the ICU (International Components for Unicode) that uses
 the Common Locale Data Repository to format dates, plurals, and more. Based on twitter-cldr-rb.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://unicode-org.atlassian.net/jira/software/c/projects/CLDR/issues/?filter=allissues">https://unicode-org.atlassian.net/jira/software/c/projects/CLDR/issues/?filter=allissues</a>
+CLDR tickets
 
 
 <hr><h2 id="Case_mappings">Case mappings</h2><hr>
@@ -1892,6 +1899,13 @@ INDIC TEXT SEGMENTATION
 todo: read
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=9219162">https://news.ycombinator.com/item?id=9219162</a>
+I Can Text You A Pile of Poo, But I Can’t Write My Name
+March 17th, 2015
+jlf: the article is about Bengali, but HN comments are also for other languages.
+todo: read
+
+
 <hr><h2 id="CJK">CJK</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://resources.oreilly.com/examples/9781565922242/blob/master/doc/cjk.inf">https://resources.oreilly.com/examples/9781565922242/blob/master/doc/cjk.inf</a>
 Version 2.1 (July 12, 1996)
@@ -1900,6 +1914,11 @@ This online document provides information on CJK (that is, Chinese, Japanese,
 and Korean) character set standards and encoding systems.
 ---
 jlf: 1996... but maybe some things to learn.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Cangjie_input_method">https://en.wikipedia.org/wiki/Cangjie_input_method</a>
+Cangjie input method
+jlf: nothing about Unicode... but maybe some things to learn.
 
 
 <hr><h2 id="Korean">Korean</h2><hr>
@@ -2628,6 +2647,10 @@ ICU Documents and Papers
 jlf: old?
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://unicode-org.atlassian.net/jira/software/c/projects/ICU/issues/?filter=allissues">https://unicode-org.atlassian.net/jira/software/c/projects/ICU/issues/?filter=allissues</a>
+ICU tickets
+
+
 <a target="_blank" rel="noopener noreferrer" href="http://stackoverflow.com/questions/8253033/what-open-source-c-or-c-libraries-can-convert-arbitrary-utf-32-to-nfc">http://stackoverflow.com/questions/8253033/what-open-source-c-or-c-libraries-can-convert-arbitrary-utf-32-to-nfc</a>
 What open source C or C++ libraries can convert arbitrary UTF-32 to NFC?
 
@@ -2747,6 +2770,37 @@ Encodings
 
 <a target="_blank" rel="noopener noreferrer" href="https://icu4c-demos.unicode.org/icu-bin/convexp">https://icu4c-demos.unicode.org/icu-bin/convexp</a>
 Demo Converter Explorer
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://unicode-org.atlassian.net/browse/ICU-22422">https://unicode-org.atlassian.net/browse/ICU-22422</a>
+Collation folding
+jlf: see Markus Scherer feedback
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://sourceforge.net/p/icu/mailman/icu-design/thread/SN6PR00MB04468327B475F4D6A19CF26FAFFFA%40SN6PR00MB0446.namprd00.prod.outlook.com/#msg38268251">https://sourceforge.net/p/icu/mailman/icu-design/thread/SN6PR00MB04468327B475F4D6A19CF26FAFFFA%40SN6PR00MB0446.namprd00.prod.outlook.com/#msg38268251</a>
+[icu-design] Collation Folding Tables
+jlf: this is a discussion related to ICU-22422
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr10/#Collation_Folding">https://www.unicode.org/reports/tr10/#Collation_Folding</a>
+Collation Folding
+    Matching can be done by using the collation elements, directly, as discussed above.
+    However, because matching does not use any of the ordering information, the same
+    result can be achieved by a folding. That is, two strings would fold to the same
+    string if and only if they would match according to the (tailored) collation.
+    For example, a folding for a Danish collation would map both "Gård" and "gaard"
+    to the same value. A folding for a primary-strength folding would map "Resume"
+    and "résumé" to the same value. That folded value is typically a lowercase string,
+    such as "resume".
+    jlf:
+    Chrome matches "Gård" with "gard", but not with "gaard".
+
+    A comparison between folded strings cannot be used for an ordering of strings,
+    but it can be applied to searching and matching quite effectively. The data for
+    the folding can be smaller, because the ordering information does not need to be
+    included. The folded strings are typically much shorter than a sort key, and are
+    human-readable, unlike the sort key. The processing necessary to produce the
+    folding string can also be faster than that used to create the sort key.
 
 
 <hr><h2 id="ICU_bindings">ICU bindings</h2><hr>
@@ -3343,6 +3397,15 @@ references this ICU link:
 <a target="_blank" rel="noopener noreferrer" href="https://unicode-org.github.io/icu/userguide/collation/string-search.html">https://unicode-org.github.io/icu/userguide/collation/string-search.html</a>
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/3174#issuecomment-1624080765">https://github.com/unicode-org/icu4x/issues/3174#issuecomment-1624080765</a>
+Should search collation be a different data key + constructor?
+jlf: referenced from #3981 with this comment:
+We've had discussions about search collations in the past, such as #3174
+Basically, we need a client with a clear and compelling use case who ideally can
+make some contributions, and then the team can provide mentorship to help land
+this type of feature.
+
+
 <hr><h2 id="utf8proc_title">utf8proc title</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://codeberg.org/dnkl/foot/pulls/100">https://codeberg.org/dnkl/foot/pulls/100</a>
 Grapheme shaping using libutf8proc #100
@@ -3592,6 +3655,10 @@ by Michael S. Kaplan, published on 2005/02/26 15:26 -05:00, original URI: <a tar
 
 <a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/apps/design/globalizing/use-utf8-code-page">https://learn.microsoft.com/en-us/windows/apps/design/globalizing/use-utf8-code-page</a>
 Use UTF-8 code pages in Windows apps
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://mastodon.gamedev.place/@AshleyGullen/111109299141510319">https://mastodon.gamedev.place/@AshleyGullen/111109299141510319</a>
+what it takes to pass a file path to a Windows API in C++
 
 
 <hr><h2 id="z_OS">z/OS</h2><hr>
@@ -3927,6 +3994,35 @@ remove sooner or later.
 <hr><h2 id="youtube">youtube</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/playlist?list=PLMc927ywQmTNQrscw7yvaJbAbMJDIjeBh">https://www.youtube.com/playlist?list=PLMc927ywQmTNQrscw7yvaJbAbMJDIjeBh</a>
 Videos from Unicode's Overview of Internationalization and Unicode Projects
+
+
+<hr><h2 id="xxx_lang">xxx lang</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://rosettacode.org/wiki/Unicode_strings">https://rosettacode.org/wiki/Unicode_strings</a>
+
+<a target="_blank" rel="noopener noreferrer" href="https://langdev.stackexchange.com/questions/1493/how-have-modern-language-designs-dealt-with-unicode-strings">https://langdev.stackexchange.com/questions/1493/how-have-modern-language-designs-dealt-with-unicode-strings</a>
+How have modern language designs dealt with Unicode strings?
+Asked 2023-06-13
+Answer for
+- Swift
+- Rust
+- Python 3
+- Treat it as a (mostly) library issue
+jlf: the Swift part is interesting, the rest is bof.
+    In order to speed up repeated accesses to utf16, UTF-8 strings may put a breadcrumbs pointer after the null terminator:
+    <a target="_blank" rel="noopener noreferrer" href="https://github.com/apple/swift/blob/1532fb188c55f29de7bf8aaee94896557b3a3db1/stdlib/public/core/StringStorage.swift#L157">https://github.com/apple/swift/blob/1532fb188c55f29de7bf8aaee94896557b3a3db1/stdlib/public/core/StringStorage.swift#L157</a>
+
+    The breadcrumbs are a list of the UTF-8 offsets of every 64th UTF-16 code unit:
+    <a target="_blank" rel="noopener noreferrer" href="https://github.com/apple/swift/blob/483087a47dfb56e78fcc20ef2b43085ebfb48ea0/stdlib/public/core/StringBreadcrumbs.swift">https://github.com/apple/swift/blob/483087a47dfb56e78fcc20ef2b43085ebfb48ea0/stdlib/public/core/StringBreadcrumbs.swift</a>
+
+    A string stores whether it has breadcrumbs in an unused bit in its capacity field:
+    <a target="_blank" rel="noopener noreferrer" href="https://github.com/apple/swift/blob/1532fb188c55f29de7bf8aaee94896557b3a3db1/stdlib/public/core/StringStorage.swift#L45">https://github.com/apple/swift/blob/1532fb188c55f29de7bf8aaee94896557b3a3db1/stdlib/public/core/StringStorage.swift#L45</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="http://xahlee.info/comp/unicode_essays_index.html">http://xahlee.info/comp/unicode_essays_index.html</a>
+Unicode for Programers
+jlf: this page contains several URL for programming languages. Short articles
+but there is maybe something to learn. [later] After review, no so many things
+to learn, the articles are very very short...
 
 
 <hr><h2 id="Ada_lang">Ada lang</h2><hr>
@@ -6300,13 +6396,45 @@ its variables; Raku has four sigils:
 $  (for other variables, such as numbers and strings).
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://dev.to/lizmat/series/24075">https://dev.to/lizmat/series/24075</a>
+Migrating Perl to Raku Series' Articles
+jlf: not related to unicode, but good for general culture.
+
+
+<a target="_blank" rel="noopener noreferrer" href="http://docs.p6c.org/routine.html">http://docs.p6c.org/routine.html</a>
+Raku Routines
+This is a list of all built-in routines that are documented here as part of the Raku language.
+jlf: not related to unicode, but good for general culture.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.learningraku.com/2016/11/26/quick-tip-11-number-strings-and-numberstring-allomorphs/">https://www.learningraku.com/2016/11/26/quick-tip-11-number-strings-and-numberstring-allomorphs/</a>
+Quick Tip #11: Number, Strings, and NumberString Allomorphs
+jlf: maybe the same as ooRexx string numbers?
+<a target="_blank" rel="noopener noreferrer" href="https://docs.raku.org/type/Stringy">https://docs.raku.org/type/Stringy</a>          String or object that can act as a string   (role)
+<a target="_blank" rel="noopener noreferrer" href="https://rakudocs.github.io/type/Allomorph">https://rakudocs.github.io/type/Allomorph</a>   Dual value number and string                (class)
+<a target="_blank" rel="noopener noreferrer" href="https://docs.raku.org/type/IntStr">https://docs.raku.org/type/IntStr</a>           Dual value integer and string               (class)
+<a target="_blank" rel="noopener noreferrer" href="https://docs.raku.org/type/RatStr">https://docs.raku.org/type/RatStr</a>           Dual value rational number and string       (class)
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/MoarVM/MoarVM/blob/master/docs/strings.asciidoc">https://github.com/MoarVM/MoarVM/blob/master/docs/strings.asciidoc</a>
 MoarVM string documentation.
+jlf: little intro, no detailled API.
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://docs.raku.org/type/Str">https://docs.raku.org/type/Str</a>
 class Str
 Built-in class for strings. Objects of type Str are immutable.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://docs.raku.org/type/Uni">https://docs.raku.org/type/Uni</a>
+class Uni
+A string of Unicode codepoints
+Unlike Str, which is made of Grapheme clusters, Uni is string strictly made of
+Unicode codepoints. That is, base characters and combining characters are
+separate elements of a Uni instance.
+Uni presents itself with a list-like interface of integer Codepoints.
+Typical usage of Uni is through one of its subclasses, NFC, NFD, NFKD and NFKC,
+which represent strings in one of the Unicode Normalization Forms of the same name.
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://course.raku.org/essentials/strings/string-concatenation/">https://course.raku.org/essentials/strings/string-concatenation/</a>
@@ -6463,6 +6591,12 @@ Is the current Unicode design impractical?
 
 
 jlf tests
+    # Returns a list of Unicode codepoint numbers that describe the codepoints making up the string
+    "aå«".ords                                                  # (97 229 171)
+
+    # Returns the codepoint number of the base characters of the first grapheme in the string
+    "å«".ord                                                    # 229
+
     "Bundesstraße im Freiland".lc                               # bundesstraße im freiland
     "Bundesstraße im Freiland".uc                               # BUNDESSTRASSE IM FREILAND
     "Bundesstraße im Freiland".fc                               # bundesstrasse im freiland
@@ -6560,6 +6694,12 @@ Testing the JMB's example
 "ὈΔΥΣΣΕΎΣ".lc ~ "A"             # ὀδυσσεύςA
 ("ὈΔΥΣΣΕΎΣ".lc ~ "A").uc        # ὈΔΥΣΣΕΎΣA
 ("ὈΔΥΣΣΕΎΣ".lc ~ "A").uc.lc     # ὀδυσσεύσa
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/39663846/how-can-i-make-perl-6-be-round-trip-safe-for-unicode-data">https://stackoverflow.com/questions/39663846/how-can-i-make-perl-6-be-round-trip-safe-for-unicode-data</a>
+How can I make Perl 6 be round-trip safe for Unicode data?
+Answer: UTF8-C8 isn't really a good solution (but is probably the only solution currently).
+jlf: asked in 2016-09-23, maybe the situation is better today.
 
 
 <hr><h2 id="Rexx_lang">Rexx lang</h2><hr>
@@ -7426,6 +7566,11 @@ jlf: this crate is referenced by Stefan Karpinski in the section Filenames
 (search this URL).
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://www.reddit.com/r/rust/comments/qr0rem/how_many_string_types_does_rust_have_maybe_its/">https://www.reddit.com/r/rust/comments/qr0rem/how_many_string_types_does_rust_have_maybe_its/</a>
+How many String types does Rust have? Maybe it's just 1
+jlf: to read?
+
+
 <hr><h2 id="Saxon_lang">Saxon lang</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://www.saxonica.com/documentation12/#!localization/unicode-collation-algorithm">https://www.saxonica.com/documentation12/#!localization/unicode-collation-algorithm</a>
 Unicode Collation Algorithm
@@ -8236,6 +8381,24 @@ written by Michael Kay (XSLT WG), Saxonica &lt;<a target="_blank" rel="noopener 
 String functions that use regular expressions
 jlf: part of the doc "Functions on strings" above, explicitely referenced for
 direct access.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.w3.org/TR/xpath-functions-31/#func-collation-key">https://www.w3.org/TR/xpath-functions-31/#func-collation-key</a>
+Referenced in <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/2689#issuecomment-1743127855">https://github.com/unicode-org/icu4x/issues/2689#issuecomment-1743127855</a>
+    hsivonen:
+        I'm quite skeptical of processes that use XPath having the kind of lifetimes
+        and numbers of comparisons that computing a sort key is justified, but whether
+        or not exposing sort keys in XPath is a good idea, it's good to know that XPath
+        has this dependency.
+    faassen:
+        I think the XPath spec (the library portion) has been influenced by the capabilities of ICU4J.
+        The motivation for this facility is described in the "notes" section:
+        <a target="_blank" rel="noopener noreferrer" href="https://www.w3.org/TR/xpath-functions-31/#func-collation-key">https://www.w3.org/TR/xpath-functions-31/#func-collation-key</a>
+        and is basically to use this as a collation-dependent hashmap key.
+        I can't judge myself how useful that is, so I'll defer to your skepticism.
+        I'll note however that this same specification also provides the function
+        library available to XQuery, and with XQuery the lifetimes and numbers of
+        comparisons are likely to be much bigger.
 
 
 <hr><h2 id="Zig_lang__Ziglyph">Zig lang, Ziglyph</h2><hr>
