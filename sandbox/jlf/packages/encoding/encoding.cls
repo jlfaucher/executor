@@ -1,9 +1,18 @@
+/*
+stringIndexer.cls uses the environment symbol .Encoding.
+Because of circular dependencies, it can't requires "encoding.cls"
+That's why I put the Encoding class in the global environment.
+*/
+.environment["ENCODING"] = .Encoding
+
+
 ::requires "encoding/stringIndexer.cls"
 
 /*
 Remember: don't requires the packages "xxx_encoding.cls" because that would create
 a circular dependency. Each encoding requires "encoding.cls" to register itself.
 */
+
 
 /******************************************************************************/
 ::class "Encoding" public
@@ -960,7 +969,8 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
 
 ::method factory class
     expose encodings
-    use strict arg encoding, string="", maximumUnicodeCodepoint=(-1)
+    use strict arg encoding, string=""
+    use strict named arg maximumUnicodeCodepoint=(-1), replacementCodepoint=.nil -- replacementCodepoint used for UnicodeN. Can be .nil or "" or a whole number.
     if encoding~isA(.Class), encoding~isSubClassOf(.StringIndexer) then return encoding
     encodingName = .Encoding~normalizedName(encoding~string)
     if encodingName == "DEFAULT" then return .Encoding~defaultEncoding
@@ -980,7 +990,7 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
         return .UTF32BE_Encoding -- The Unicode norm specifies that the default UTF-32 is big endian
     end
     if "UNICODEN"~abbrev(encodingName, 7) then do
-        if maximumUnicodeCodepoint == -1, string~hasText then maximumUnicodeCodepoint = string~text~maximumUnicodeCodepoint
+        if maximumUnicodeCodepoint == -1, string~hasText then maximumUnicodeCodepoint = string~text~maximumUnicodeCodepoint(:replacementCodepoint)
         return .UnicodeN_Encoding~toSupport(maximumUnicodeCodepoint, encoding~string)
     end
     if encodings~hasEntry(encodingName) then return encodings[encodingName]

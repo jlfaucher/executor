@@ -35,9 +35,7 @@
 
     error:
         use strict arg whichCodepoint, errorMessage
-        -- Ignore the argument errorInfo. If the codepoint is out of range then raise immediatly an error.
-        -- I don't want to have thousands of errors recorded because someone try to get a Unicode8 string from a string containing thousands codepoint > 255.
-        if .false then do -- .nil <> errorInfo then do
+        if .nil <> errorInfo then do
             errorInfo[1] = errorMessage"."
             return whichCodepoint -- -1 (previousCodepoint) or 0 (codepoint). A negative or null value means "error".
         end

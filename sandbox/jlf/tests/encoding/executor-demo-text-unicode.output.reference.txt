@@ -516,6 +516,7 @@ utf8proc doesn't support language-sensitive case-folding.
 The Julia developers, who use utf8proc, have decided to remain locale-independent.
 See https://github.com/JuliaLang/julia/issues/7848
 
+Example:
 The name of the second largest city in Turkey is "Diyarbakır", which contains both the dotted and dotless letters i.
 */
 ooRexx> 

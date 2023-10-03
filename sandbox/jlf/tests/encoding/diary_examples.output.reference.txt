@@ -11,6 +11,230 @@ ooRexx> .Unicode~memorizeTransformations = .false
 
 
 -- ===============================================================================
+-- 2023 Oct 03
+
+/*
+Move the routine createCharacterTranscodingTable from byte_common.cls to
+byte_encoding.cls. It's used only by Byte_Encoding and its subclasses.
+
+
+The 'text' method of UnicodeCharacter has been replaced by 'transcodeTo'.
+Reason 1: the byte encodings were not supported correctly.
+Reason 2: the fact a transcoding is needed is against the definition of the
+'text' method (apply a view on the bytes without modifying them).
+
+
+Finalize the support of replacement character during transcoding.
+A replacement character can be .nil or "" or a character.
+When a character, it can be a String or a RexxText made of one codepoint or a UnicodeCharacter.
+In all cases, the corresponding codepoint is used.
+
+Behavior when a source codepoint does not have a matching target codepoint:
+- When the replacement character is .nil, an error is raised.
+- When the replacement character is "", the source codepoint is ignored (not transcoded)
+- Otherwise the source codepoint is replaced by the replacement character.
+
+When transcoding to a Byte encoding, if the replacement character is a
+UnicodeCharacter then its codepoint must be a valid target codepoint.
+
+Reminder: if the 'strict' named argument is false (default) then the fallback
+codepoint transcodings are used, if any. So when 'strict' is false, potentially
+more source could be transcoded.
+
+Examples:
+*/
+ooRexx>     -- The Windows-1252 encoding has some fallback codepoint transcodings.
+ooRexx>     -- HOP is one of them: 81x --> +U0081 only when strict:.false
+ooRexx>     ("No" || "EB"x || "l" || "81"x)~text("windows-1252")~utf8(strict:.false)=   -- T'Noël (strict:.false is the default)
+T'Noël'
+ooRexx>     ("No" || "EB"x || "l" || "81"x)~text("windows-1252")~utf8(strict:.false)~unicodecharacters==
+an Array (shape [5], 5 items)
+ 1 : ( "N"   U+004E Lu 1 "LATIN CAPITAL LETTER N" )
+ 2 : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
+ 3 : ( "ë"   U+00EB Ll 1 "LATIN SMALL LETTER E WITH DIAERESIS" )
+ 4 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
+ 5 : ( ""    U+0081 Cc 0 "", "HIGH OCTET PRESET", "HOP" )
+ooRexx>     ("No" || "EB"x || "l" || "81"x)~text("windows-1252")~utf8(strict:.true)=    -- Cannot convert windows-1252 not-ASCII character 129 (81) at byte-position 5 to UTF-8.
+Cannot convert windows-1252 not-ASCII character 129 (81) at byte-position 5 to UTF-8.
+Error code= 23.900
+
+ooRexx>     "Noël\u{HOP}"~text("utf8")~unescape~transcodeTo("byte")=                    -- Cannot convert UTF-8 not-ASCII codepoint 235 (EB) at position 3 to Byte.
+Cannot convert UTF-8 not-ASCII codepoint 235 (EB) at position 3 to Byte.
+Error code= 23.900
+ooRexx>     "Noël\u{HOP}"~text("utf8")~unescape~transcodeTo("windows-1252")=            -- T'No?l?'
+T'No�l�'
+ooRexx>     "Noël\u{HOP}"~text("utf8")~unescape~transcodeTo("windows-1252")~c2x=        -- '4E 6F EB 6C 81'
+'4E 6F EB 6C 81'
+ooRexx>     "Noël\u{HOP}"~text("utf8")~unescape~transcodeTo("windows-1252", strict:)=   -- Cannot convert UTF-8 not-ASCII codepoint 129 (81) at position 5 to windows-1252.
+Cannot convert UTF-8 not-ASCII codepoint 129 (81) at position 5 to windows-1252.
+Error code= 23.900
+
+ooRexx>     -- "byte" encoding: only 00..7F can be transcoded
+ooRexx>     ("No" || "EB"x || "l" || "81"x)~text("byte")~utf8=                                                      -- Cannot convert Byte not-ASCII character 235 (EB) at byte-position 3 to UTF-8.
+Cannot convert Byte not-ASCII character 235 (EB) at byte-position 3 to UTF-8.
+Error code= 23.900
+ooRexx>     ("No" || "EB"x || "l" || "81"x)~text("byte")~utf8(replacementCharacter:"")=                             -- T'Nol'
+T'Nol'
+ooRexx>     ("No" || "EB"x || "l" || "81"x)~text("byte")~utf8(replacementCharacter:"#")=                            -- T'No#l#'      1 replacement character for ë because "ë" is 'EB'x
+T'No#l#'
+ooRexx>     ("No" || "EB"x || "l" || "81"x)~text("byte")~utf8(replacementCharacter:"🎅")=                           -- T'No🎅l🎅'
+T'No🎅l🎅'
+ooRexx>     ("No" || "EB"x || "l" || "81"x)~text("byte")~utf8(replacementCharacter:"🎅"~text)=                      -- T'No🎅l🎅'
+T'No🎅l🎅'
+ooRexx>     ("No" || "EB"x || "l" || "81"x)~text("byte")~utf8(replacementCharacter:.unicode["Father Christmas"])=   -- T'No🎅l🎅'
+T'No🎅l🎅'
+
+ooRexx>     "Noël"~text("byte")~utf8(replacementCharacter:"")=                          -- T'Nol'
+T'Nol'
+ooRexx>     "Noël"~text("byte")~utf8(replacementCharacter:"#")=                         -- T'No##l'         2 replacement characters for ë because "ë" is 'C3 AB'x
+T'No##l'
+ooRexx>     "Noël"~text("byte")~utf8(replacementCharacter:"🎅")=                        -- T'No🎅🎅l'
+T'No🎅🎅l'
+ooRexx>     "Noël"~text("byte")~utf8(replacementCharacter:"🎅🎅")=                     -- The transcoded replacement character must have at most one codepoint, got UTF-8 not-ASCII (2 characters, 2 codepoints, 8 bytes, 0 error) '🎅🎅'.
+The transcoded replacement character must have at most one codepoint, got UTF-8 not-ASCII (2 characters, 2 codepoints, 8 bytes, 0 error) '🎅🎅'.
+Error code= 23.900
+ooRexx>     "Noël"~text("byte")~utf8(replacementCharacter:"🎅🎅"~text)=                -- The transcoded replacement character must have at most one codepoint, got UTF-8 not-ASCII (2 characters, 2 codepoints, 8 bytes, 0 error) '🎅🎅'.
+The transcoded replacement character must have at most one codepoint, got UTF-8 not-ASCII (2 characters, 2 codepoints, 8 bytes, 0 error) '🎅🎅'.
+Error code= 23.900
+
+ooRexx>     "Noël"~text("utf8")~transcodeTo("byte")=                                    -- Cannot convert UTF-8 not-ASCII codepoint 235 (EB) at position 3 to Byte.
+Cannot convert UTF-8 not-ASCII codepoint 235 (EB) at position 3 to Byte.
+Error code= 23.900
+ooRexx>     "Noël"~text("utf8")~transcodeTo("byte", replacementCharacter:"")=           -- T'Nol'
+T'Nol'
+ooRexx>     "Noël"~text("utf8")~transcodeTo("byte", replacementCharacter:"#")=          -- T'No#l'
+T'No#l'
+ooRexx>     "Noël"~text("utf8")~transcodeTo("byte", replacementCharacter:"🎅")=         -- The replacement character UTF-8 not-ASCII '🎅' cannot be transcoded to Byte.
+The replacement character UTF-8 not-ASCII '🎅' cannot be transcoded to Byte.
+Error code= 93.900
+
+ooRexx>     "Noël🤶"~text("utf8")~transcodeTo("unicode", replacementCharacter:"🎅")=        -- T'N[000000]o[000000]?[000000]l[000000]??[0100]'
+T'N[000000]o[000000]�[000000]l[000000]6�[0100]'
+ooRexx>     "Noël🤶"~text("utf8")~transcodeTo("unicode", replacementCharacter:"🎅")~c2x=    -- '4E000000 6F000000 EB000000 6C000000 36F90100'
+'4E000000 6F000000 EB000000 6C000000 36F90100'
+ooRexx>     "Noël🤶"~text("utf8")~transcodeTo("unicode", replacementCharacter:"🎅")~c2u=    -- 'U+004E U+006F U+00EB U+006C U+1F936'
+'U+004E U+006F U+00EB U+006C U+1F936'
+
+ooRexx>     "Noël🤶"~text("utf8")~transcodeTo("unicode8", replacementCharacter:"")=          -- T'No?l'
+T'No�l'
+ooRexx>     "Noël🤶"~text("utf8")~transcodeTo("unicode8", replacementCharacter:"")~c2x=      -- '4E 6F EB 6C'
+'4E 6F EB 6C'
+ooRexx>     "Noël🤶"~text("utf8")~transcodeTo("unicode8", replacementCharacter:"#")=         -- T'No?l#'
+T'No�l#'
+ooRexx>     "Noël🤶"~text("utf8")~transcodeTo("unicode8", replacementCharacter:"#")~c2x=     -- '4E 6F EB 6C 23'
+'4E 6F EB 6C 23'
+ooRexx>     "Noël🤶"~text("utf8")~transcodeTo("unicode8", replacementCharacter:"🎅")=       -- The replacement character UTF-8 not-ASCII '🎅' cannot be transcoded to Unicode8.
+The replacement character UTF-8 not-ASCII '🎅' cannot be transcoded to Unicode8.
+Error code= 93.900
+
+ooRexx>     "Noël🤶"~text("utf8")~transcodeTo("unicode16", replacementCharacter:"")=         -- T'N[00]o[00]?[00]l[00]'
+T'N[00]o[00]�[00]l[00]'
+ooRexx>     "Noël🤶"~text("utf8")~transcodeTo("unicode16", replacementCharacter:"#")=        -- T'N[00]o[00]?[00]l[00]#[00]'
+T'N[00]o[00]�[00]l[00]#[00]'
+ooRexx>     "Noël🤶"~text("utf8")~transcodeTo("unicode16", replacementCharacter:"#")~c2x=    -- '4E00 6F00 EB00 6C00 2300'
+'4E00 6F00 EB00 6C00 2300'
+ooRexx>     "Noël🤶"~text("utf8")~transcodeTo("unicode16", replacementCharacter:"#")~c2u=    -- 'U+004E U+006F U+00EB U+006C U+0023'
+'U+004E U+006F U+00EB U+006C U+0023'
+ooRexx>     "Noël🤶"~text("utf8")~transcodeTo("unicode16", replacementCharacter:"🎅")=      -- The replacement character UTF-8 not-ASCII '🎅' cannot be transcoded to Unicode16.
+The replacement character UTF-8 not-ASCII '🎅' cannot be transcoded to Unicode16.
+Error code= 93.900
+
+ooRexx>     "Noël🤶"~text("utf8")~transcodeTo("unicode32")=         -- T'N[000000]o[000000]?[000000]l[000000]6?[0100]'
+T'N[000000]o[000000]�[000000]l[000000]6�[0100]'
+ooRexx>     "Noël🤶"~text("utf8")~transcodeTo("unicode32")~c2x=     -- '4E000000 6F000000 EB000000 6C000000 36F90100'
+'4E000000 6F000000 EB000000 6C000000 36F90100'
+ooRexx>     "Noël🤶"~text("utf8")~transcodeTo("unicode32")~c2u=     -- 'U+004E U+006F U+00EB U+006C U+1F936'
+'U+004E U+006F U+00EB U+006C U+1F936'
+
+
+/*
+The method c2u is no longer abstract for the byte encodings.
+Now, a byte encoding is converted on the fly to UnicodeN in non strict mode,
+replacing any unsupported character by .Unicode~replacementCharacter.
+Idem for the method unicodeCharacters.
+Examples:
+*/
+ooRexx>     "FF FE FD FC"x~text("byte")~c2x=                                               -- 'FF FE FD FC'
+'FF FE FD FC'
+ooRexx>     "FF FE FD FC"x~text("byte")~c2g=                                               -- 'FF FE FD FC'
+'FF FE FD FC'
+ooRexx>     "FF FE FD FC"x~text("byte")~codepoints==
+a CodePointSupplier 
+ 1 :  255
+ 2 :  254
+ 3 :  253
+ 4 :  252
+ooRexx>     "FF FE FD FC"x~text("byte")~c2u=                                               -- 'U+FFFD U+FFFD U+FFFD U+FFFD'
+'U+FFFD U+FFFD U+FFFD U+FFFD'
+ooRexx>     "FF FE FD FC"x~text("byte")~unicodeCharacters==
+an Array (shape [4], 4 items)
+ 1 : ( "�"   U+FFFD So 1 "REPLACEMENT CHARACTER" )
+ 2 : ( "�"   U+FFFD So 1 "REPLACEMENT CHARACTER" )
+ 3 : ( "�"   U+FFFD So 1 "REPLACEMENT CHARACTER" )
+ 4 : ( "�"   U+FFFD So 1 "REPLACEMENT CHARACTER" )
+
+ooRexx>     "FF FE FD FC"x~text("utf8")~c2x=                                               -- 'FF FE FD FC'
+'FF FE FD FC'
+ooRexx>     "FF FE FD FC"x~text("utf8")~c2g=                                               -- 'FF FE FD FC'
+'FF FE FD FC'
+ooRexx>     "FF FE FD FC"x~text("utf8")~c2u=                                               -- 'U+FFFD U+FFFD U+FFFD U+FFFD'
+'U+FFFD U+FFFD U+FFFD U+FFFD'
+ooRexx>     "FF FE FD FC"x~text("utf8")~codepoints==
+a CodePointSupplier 
+ 1 :  65533
+ 2 :  65533
+ 3 :  65533
+ 4 :  65533
+
+ooRexx>     "FF FE FD FC"x~text("unicode8")~c2x=                                           -- 'FF FE FD FC'
+'FF FE FD FC'
+ooRexx>     "FF FE FD FC"x~text("unicode8")~c2g=                                           -- 'FF FE FD FC'
+'FF FE FD FC'
+ooRexx>     "FF FE FD FC"x~text("unicode8")~codepoints==
+a CodePointSupplier 
+ 1 :  255
+ 2 :  254
+ 3 :  253
+ 4 :  252
+ooRexx>     "FF FE FD FC"x~text("unicode8")~c2u=                                           -- 'U+00FF U+00FE U+00FD U+00FC'
+'U+00FF U+00FE U+00FD U+00FC'
+ooRexx>     "FF FE FD FC"x~text("unicode8")~unicodecharacters==
+an Array (shape [4], 4 items)
+ 1 : ( "ÿ"   U+00FF Ll 1 "LATIN SMALL LETTER Y WITH DIAERESIS" )
+ 2 : ( "þ"   U+00FE Ll 1 "LATIN SMALL LETTER THORN" )
+ 3 : ( "ý"   U+00FD Ll 1 "LATIN SMALL LETTER Y WITH ACUTE" )
+ 4 : ( "ü"   U+00FC Ll 1 "LATIN SMALL LETTER U WITH DIAERESIS" )
+
+ooRexx>     ("No" || "EB"x || "l" || "81"x)~text("byte")~c2x=                           -- '4E 6F EB 6C 81'
+'4E 6F EB 6C 81'
+ooRexx>     ("No" || "EB"x || "l" || "81"x)~text("byte")~c2g=                           -- '4E 6F EB 6C 81'
+'4E 6F EB 6C 81'
+ooRexx>     ("No" || "EB"x || "l" || "81"x)~text("byte")~c2u=                           -- 'U+004E U+006F U+FFFD U+006C U+FFFD'
+'U+004E U+006F U+FFFD U+006C U+FFFD'
+ooRexx>     ("No" || "EB"x || "l" || "81"x)~text("byte")~unicodecharacters==
+an Array (shape [5], 5 items)
+ 1 : ( "N"   U+004E Lu 1 "LATIN CAPITAL LETTER N" )
+ 2 : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
+ 3 : ( "�"   U+FFFD So 1 "REPLACEMENT CHARACTER" )
+ 4 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
+ 5 : ( "�"   U+FFFD So 1 "REPLACEMENT CHARACTER" )
+
+ooRexx>     ("No" || "EB"x || "l" || "81"x)~text("windows-1252")~c2x=                   -- '4E 6F EB 6C 81'
+'4E 6F EB 6C 81'
+ooRexx>     ("No" || "EB"x || "l" || "81"x)~text("windows-1252")~c2g=                   -- '4E 6F EB 6C 81'
+'4E 6F EB 6C 81'
+ooRexx>     ("No" || "EB"x || "l" || "81"x)~text("windows-1252")~c2u=                   -- 'U+004E U+006F U+00EB U+006C U+0081'
+'U+004E U+006F U+00EB U+006C U+0081'
+ooRexx>     ("No" || "EB"x || "l" || "81"x)~text("windows-1252")~unicodecharacters==
+an Array (shape [5], 5 items)
+ 1 : ( "N"   U+004E Lu 1 "LATIN CAPITAL LETTER N" )
+ 2 : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
+ 3 : ( "ë"   U+00EB Ll 1 "LATIN SMALL LETTER E WITH DIAERESIS" )
+ 4 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
+ 5 : ( ""    U+0081 Cc 0 "", "HIGH OCTET PRESET", "HOP" )
+
+
+-- ===============================================================================
 -- 2023 Sep 27
 
 /*
@@ -19,6 +243,7 @@ the named parameter 'normalization'. This is utf8proc specific.
 - stripCC: remove control characters (see utf8proc doc for more information:
   HorizontalTab (HT) and FormFeed (FF) are transformed into space)
 - stripNA: remove unassigned codepoints
+Example:
 */
 ooRexx> .unicode["ESA"]=        -- ( ""    U+0087 Cc 0 "", "END OF SELECTED AREA", "ESA"
 ( ""    U+0087 Cc 0 "", "END OF SELECTED AREA", "ESA" )
@@ -756,6 +981,7 @@ Rework the implementation of caselessPos, pos.
 */
 
 /*
+Remember:
 aligned=.false is intended for analysis of matchings and [non-]regression tests.
 Otherwise, I don't see any use.
 When aligned:.false, a returned position has the form +/-posC.posB where posB is
@@ -1571,6 +1797,7 @@ ooRexx> "TÊt\u{TAG SPACE}e sss sßs ss t\u{TAG SPACE}êTE"~text~unescape~casele
 Implementation of caselessContains, contains:
 (forwards to caselessPos or pos, and returns .true if result <> 0)
 (was already implemented, waiting for 'pos' implementation)
+Examples:
 */
 ooRexx>     "Père Noël Père Noël"~text~contains("oë")=                   -- .true
  1
@@ -1616,6 +1843,7 @@ Add a named argument 'aligned' to caselessPos, pos:
 aligned=.false is intended for analysis of matchings and [non-]regression tests.
 Otherwise, I don't see any use.
 
+Example:
 */
 ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~pos("👧🎅")=                           -- 0
  0
@@ -1630,6 +1858,7 @@ Comparison operators:
 Take into account the default normalization managed by the .Unicode class
 - NFC when strict
 - NFKD when not strict
+Example:
 */
 ooRexx>     ("baﬄe"~text == "baffle"~text) =    -- false
  0
@@ -2278,7 +2507,14 @@ ooRexx> '50 8A 72 65 20 4E 6F 89 6C'x~text("cp437")~utf8~c2x=                   
 ooRexx> '50 8A 72 65 20 4E 6F 89 6C'x~text("cp437")~transcodeTo("utf8")~c2x=        -- '50 C3A8 72 65 20 4E 6F C3AB 6C'
 '50 C3A8 72 65 20 4E 6F C3AB 6C'
 
+-- The replacementCharacter "FF"x is interpreted as a UTF-8 string (default encoding). "FF"x~text~c2u= -- 'U+FFFD'
+-- Hence the error "The replacement character UTF-8 not-ASCII '[FF]' cannot be transcoded to ISO-8859-1."
 ooRexx> text = "Père Noël 🎅 10€"~text; do encoding over .Byte_Encoding~subclasses~~append(.Byte_Encoding); say encoding~name~left(13)":" text~transcodeTo(encoding, replacementCharacter:"FF"x)~c2x; end
+The replacement character UTF-8 not-ASCII '[FF]' cannot be transcoded to ISO-8859-1.
+Error code= 93.900
+
+-- Here, the replacementCharacter is interpreted as a byte string encoded in the target encoding
+ooRexx> text = "Père Noël 🎅 10€"~text; do encoding over .Byte_Encoding~subclasses~~append(.Byte_Encoding); say encoding~name~left(13)":" text~transcodeTo(encoding, replacementCharacter:"FF"x~text(encoding))~c2x; end
 ISO-8859-1   : 50 E8 72 65 20 4E 6F EB 6C 20 FF 20 31 30 FF
 ibm-1252     : 50 E8 72 65 20 4E 6F EB 6C 20 FF 20 31 30 FF
 windows-1252 : 50 E8 72 65 20 4E 6F EB 6C 20 FF 20 31 30 80
@@ -2543,6 +2779,7 @@ The default value of 'strict' is now .false.
 
 The conversion methods accept the named argument 'memorize(3)'.
 Its default value is given by .unicode~memorizeConversions which is .false by default.
+Example:
     s = "hello"
     t = s~text
     utf16 = t~utf16(memorize:)
@@ -2570,6 +2807,7 @@ ooRexx> txt_cp1252~utf32~"==":.object(utf32)=         -- 1
 /*
 When an optional buffer is passed, must check that its encoding is compatible.
 Done for the conversion methods.
+Example:
 */
 ooRexx> b = .mutablebuffer~new            -- No encoding yet
 ooRexx> "hello"~text~utf16(buffer:b)      -- now the buffer's encoding is UTF-16
@@ -2627,6 +2865,7 @@ The non-strict comparison operators now use the NFC normalization plus
 After normalization + transformations, they delegate to the String's non-strict comparison operators.
 Thanks to the lump transformation, all the Unicode spaces are supported.
 
+Examples:
 */
 
 ooRexx> textNFC = "Noël"~text~NFC
@@ -2768,6 +3007,7 @@ The real work is done by the ooRexx methods, called with the right byte indexes.
 From a byte index returned by an ooRexx method, a grapheme index is derived.
 
 
+Examples:
 */
 ooRexx>                                                 --  1  2    3  4  5  6  7  8 9  10 (grapheme indexes)
 ooRexx>                                                 --  1  2 3  4  5  6  7  8  9 10 11 (byte indexes)
@@ -2842,6 +3082,7 @@ Mainly for internal use, will replace the current native methods NFC, NFD, NFKC,
 The purpose of this method is to support additional transformations provided by utf8proc.
 Takes a byte string as input (UTF-8 encoded), returns a new transformed byte string as output (UTF-8).
 
+Examples:
 */
 ooRexx>     string = "\u{BEL}Le\u{IDEOGRAPHIC SPACE}\u{OGHAM SPACE MARK}\u{ZERO-WIDTH-SPACE}Père\t\u{HYPHEN}\u{SOFT-HYPHEN}\u{EN DASH}\u{EM DASH}Noël\x{EFB790}\r\n"
 ooRexx>     text = string~text~unescape
@@ -2927,6 +3168,7 @@ ooRexx>     .Unicode~utf8proc_transform(text~string, casefold:.true, lump:.true,
 New methods on RexxText
     center
     centre
+Examples:
 */
 ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~description=                  -- 'UTF-8 not-ASCII (6 graphemes, 12 codepoints, 34 bytes, 0 error)'
 'UTF-8 not-ASCII (6 characters, 12 codepoints, 34 bytes, 0 error)'
@@ -3510,6 +3752,7 @@ Rework ~unescape to be closer to other languages:
 \uXXXX is now supported
 \UXXXXXXXX is now supported
 
+Ex:
 */
 ooRexx> "\u{bed} is different from \u{0bed}"~text~unescape=                         -- T'🛏 is different from ௭'
 T'🛏 is different from ௭'
@@ -3540,6 +3783,7 @@ New method unescape, available only for Byte, UTF-8 and WTF-8.
     \u{N..N}            Unicode character denoted by 1-8 hex digits. The first character must be a digit 0..9.
     \u{U+X..X}          Unicode character denoted by 1-n hex digits
     \x{X..X}            sequence of 1..n hexadecimal digits
+Examples:
 */
 ooRexx>     "hello\u{space}John\n"~text~unescape=           -- T'hello John[0A]'
 T'hello John[0A]'
@@ -3589,83 +3833,20 @@ New methods:
     right
     x2d
 
+Examples:
 */
 
 -- https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundaries
 -- no break before ZWJ (GB9), but break after if not emoji modifier sequence or emoji zwj sequence (GB11)
-ooRexx> .unicode["zwj"]~text~join("ab", "cd", .unicode["woman"], .unicode["father christmas"])~c2g=  -- '61 62E2808D 63 64E2808D F09F91A9E2808DF09F8E85'
-'61 62E2808D 63 64E2808D 20 22 F09F91A9 22 20 20 55 2B 31 46 34 36 39 20 53 6F 20 32 20 22 57 4F 4D 41 4E 22 20E2808D 20 22 F09F8E85 22 20 20 55 2B 31 46 33 38 35 20 53 6F 20 32 20 22 46 41 54 48 45 52 20 43 48 52 49 53 54 4D 41 53 22 20'
-ooRexx> .unicode["zwj"]~text~join("ab", "cd", .unicode["woman"], .unicode["father christmas"])~graphemes==
+ooRexx> .unicode["zwj"]~utf8~join("ab", "cd", .unicode["woman"]~utf8, .unicode["father christmas"]~utf8)~c2g=  -- '61 62E2808D 63 64E2808D F09F91A9E2808DF09F8E85'
+'61 62E2808D 63 64E2808D F09F91A9E2808DF09F8E85'
+ooRexx> .unicode["zwj"]~utf8~join("ab", "cd", .unicode["woman"]~utf8, .unicode["father christmas"]~utf8)~graphemes==
 a CharacterSupplier 
- 1  : T'a'
- 2  : T'b‍'
- 3  : T'c'
- 4  : T'd‍'
- 5  : T' '
- 6  : T'"'
- 7  : T'👩'
- 8  : T'"'
- 9  : T' '
- 10 : T' '
- 11 : T'U'
- 12 : T'+'
- 13 : T'1'
- 14 : T'F'
- 15 : T'4'
- 16 : T'6'
- 17 : T'9'
- 18 : T' '
- 19 : T'S'
- 20 : T'o'
- 21 : T' '
- 22 : T'2'
- 23 : T' '
- 24 : T'"'
- 25 : T'W'
- 26 : T'O'
- 27 : T'M'
- 28 : T'A'
- 29 : T'N'
- 30 : T'"'
- 31 : T' ‍'
- 32 : T' '
- 33 : T'"'
- 34 : T'🎅'
- 35 : T'"'
- 36 : T' '
- 37 : T' '
- 38 : T'U'
- 39 : T'+'
- 40 : T'1'
- 41 : T'F'
- 42 : T'3'
- 43 : T'8'
- 44 : T'5'
- 45 : T' '
- 46 : T'S'
- 47 : T'o'
- 48 : T' '
- 49 : T'2'
- 50 : T' '
- 51 : T'"'
- 52 : T'F'
- 53 : T'A'
- 54 : T'T'
- 55 : T'H'
- 56 : T'E'
- 57 : T'R'
- 58 : T' '
- 59 : T'C'
- 60 : T'H'
- 61 : T'R'
- 62 : T'I'
- 63 : T'S'
- 64 : T'T'
- 65 : T'M'
- 66 : T'A'
- 67 : T'S'
- 68 : T'"'
- 69 : T' '
+ 1 : T'a'
+ 2 : T'b‍'
+ 3 : T'c'
+ 4 : T'd‍'
+ 5 : T'👩‍🎅'
 
 ooRexx> "noël👩‍👨‍👩‍👧🎅"~text~UnicodeCharacters==
 an Array (shape [12], 12 items)
@@ -3726,6 +3907,7 @@ New methods:
 .RexxText
     reverse
 
+Examples:
 */
 
 -- Correct reverse
@@ -3765,6 +3947,7 @@ New methods:
     isUpper
     characters
 
+Examples:
 */
 
 ooRexx> "aàâäeéèêëiîïoôöuûü"~text~isUpper=              -- .false
@@ -3783,6 +3966,7 @@ T'le père noël est fatigué...'
 /*
 utf8proc supports only the basic cases (those in UnicodeData.txt).
 The cases described in SpecialCasing.txt are not supported by utf8proc.
+Examples:
 */
 -- # The German es-zed is special--the normal mapping is to SS.
 -- # Note: the titlecase should never occur in practice. It is equal to titlecase(uppercase(<es-zed>))
@@ -5003,6 +5187,7 @@ The other character properties are always loaded (provided by utf8proc)
     decompTypeName  --> enum '<none>', '<font>', '<nobreak>, ...
     ignorable       --> boolean
 
+Examples:
 */
 -- All the Unicode characters (sparse array).
 ooRexx> .unicode~characters==
@@ -6091,6 +6276,7 @@ remember if the character was inside a quoted section.
 These flags are typically used by the matchers of type string pattern, to decide
 if a character can be special or not.
 
+Description:
     routine stringChunks
     use strict arg string, withInfos=.false, breakTokens="", splitLevel=1
 
@@ -6169,6 +6355,7 @@ Extensions available in Executor only:
     .String~chunk           withInfos is true, splitLevel is 0 --> always returns ONE StringChunk
     .String~chunks          withInfos is true by default, splitLevel is 1 by default
 
+Examples:
 */
 ooRexx>     -- splitLevel = 0: no split
 ooRexx>     'aa"b\ b"cc"d\ d"ee\* ff'~chunks(splitLevel:0)~each{item~sayDescription(25, index, 2)}
@@ -6590,7 +6777,7 @@ P.         'RexxText'                         : (REXX)
 .M         'RexxTextInitializer'              : (text.cls)
 PM         'RexxTextMapper'                   : (functionals.cls)
 .M         'RexxTextOperators'                : (text.cls)
-.M         'RexxTextPrettyPrinter'            : (text.cls)
+.M         'RexxTextPrettyPrinter'            : (trace.cls)
 .M         'RexxTextStringInterface'          : (text.cls)
 P.         'RexxTextTransformer'              : (stringIndexer.cls)
 PM         'StringIndexer'                    : (stringIndexer.cls)

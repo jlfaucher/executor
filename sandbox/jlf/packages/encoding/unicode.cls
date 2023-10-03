@@ -1,5 +1,15 @@
 .Unicode~initialize
 
+/*
+The Unicode class is native, so available everywhere, without requiring "unicode.cls".
+The UnicodeCharacter class is not native, so .UnicodeCharacter is defined only when requiring "unicode.cls".
+Because of circular dependencies, it's not always possible to require "unicode.cls".
+That's why I put the UnicodeCharacter class in the global environment.
+First need: byte_encoding.cls needs to test if the replacement character is a .UnicodeCharacter.
+*/
+.environment["UNICODECHARACTER"] = .UnicodeCharacter
+
+
 ::requires "encoding/stringIndexer.cls"
 ::requires "encoding/unicode8_encoding.cls"
 ::requires "encoding/unicode16_encoding.cls"
@@ -687,31 +697,24 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 ::method string
     expose codepoint name aliases
     use strict arg encoding=(.Encoding~defaultOutputEncoding)
-    encoding = .Encoding~factory(encoding, , codepoint)
+    encoding = .Encoding~factory(encoding, maximumUnicodeCodepoint: codepoint)
     if codepoint < 32 then string = "" -- the control characters are not displayed
                       else string = encoding~encode(codepoint)~string
     string = '"'string'"' " "~copies(3 - self~charWidth)
     string ||= ppCodepoint(codepoint) self~categoryName self~charWidth name~quoted
     string = ", "~join(string, aliases~each{item~string~quoted})
-    return " "string" "
-
-
-::method text
-    expose codepoint
-    use strict arg encoding="default"
-    use strict named arg buffer=.nil
-    encoding = .Encoding~factory(encoding, , codepoint)
-    return encoding~encode(codepoint, :buffer)
-
-
-::method makeRexxText
-    use strict arg -- none
-    return self~text
+    return " "string" " -- TODO: can't remember why I add spaces like that... To remove?
 
 
 ::method setName -- should be package-scope
     expose name
     use strict arg name
+
+
+::method transcodeTo
+    use strict arg targetEncoding
+    -- no need to declare the named arguments, they are forwarded
+    forward message "transcodeTo" to (self~UnicodeN) arguments ( .array~of(targetEncoding) )
 
 
 ::method UTF8

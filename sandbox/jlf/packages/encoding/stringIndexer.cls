@@ -329,12 +329,13 @@ For example, if startB==6 then previousCodepointIndexB==3
 ::method descriptionForError
     -- Display the <length> first characters
     use strict arg length=10
+    use strict named arg short=.true, technical=.false -- minimal description
     text = self~string~text
     if text~length > length then text = text~left(length - 3)"..."
     -- escape3 is needed to have a proper display for this:
     -- say "41"~text~utf16~string  -- 41
     -- say escape3("41"~text~utf16~string)  -- [00]4[00]1
-    return self~description(short:1) "'"escape3(text~string)"'"
+    return self~description(:short, :technical) "'"escape3(text~string)"'"
 
 
 ::method c2x
@@ -471,7 +472,7 @@ For example, if startB==6 then previousCodepointIndexB==3
 
 ::method transcodeTo abstract
     -- use strict arg targetEncoding
-    -- use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil, replacementCharacter=.nil
+    -- use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
 
 
 ::method UTF8 abstract
@@ -1131,3 +1132,34 @@ end
         else buffer~append(codepoint~d2x)
         return buffer
     end
+
+
+::routine replacementCodepoint public
+    use strict arg replacementCharacter, targetEncoding
+    -- replacementCharacter: text made of 1 codepoint max or .nil or "".
+    -- A replacementCharacter of type UnicodeCharacter is supported.
+    -- if .nil then will raise an error if a character can't be converted
+    -- otherwise if not "" then will be used in replacement of a character that can't be converted
+    -- otherwise any character that can't be converted will be ignored
+    -- Note:
+    -- There is no attempt to support a replacementCharacter of type whole number or hexadecimal.
+    replacementCodepoint = replacementCharacter
+    if .nil \== replacementCharacter, "" \== replacementCharacter then do
+        if replacementCharacter~isA(.UnicodeCharacter) then transcodedReplacementCharacter = replacementCharacter~transcodeTo(targetEncoding)
+        else do
+            replacementCharacterText = replacementCharacter~request("RexxText") -- not requestTextOrBufferOrString because we really need a RexxText
+            if .nil == replacementCharacterText then signal invalid_replacement_character
+            targetEncoding = .encoding~factory(targetEncoding, replacementCharacterText~string)
+            errorInfo = .array~new -- simulate a variable by reference
+            transcodedReplacementCharacter = replacementCharacterText~transcodeTo(targetEncoding, :errorInfo)
+            if .nil == transcodedReplacementCharacter then signal cannot_transcode_replacement_character
+        end
+        codepoints = transcodedReplacementCharacter~codepoints
+        if codepoints~count > 1 then signal invalid_transcoded_replacement_character -- one codepoint max
+        replacementCodepoint = codepoints~item -- first codepoint
+    end
+    return replacementCodepoint
+
+    invalid_replacement_character:              raise syntax 93.900 array("The replacement character must be a text or string or UnicodeCharacter")
+    cannot_transcode_replacement_character:     raise syntax 93.900 array("The replacement character" replacementCharacter~descriptionForError "cannot be transcoded to" targetEncoding~name)
+    invalid_transcoded_replacement_character:   raise syntax 23.900 array("The transcoded replacement character must have at most one codepoint, got" transcodedReplacementCharacter~descriptionForError(short: .false))

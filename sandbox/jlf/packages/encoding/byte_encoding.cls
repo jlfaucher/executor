@@ -27,6 +27,8 @@ Depends on
 .WTF8_ENCODING
 */
 
+--::options trace i
+
 
 /******************************************************************************/
 ::class "Byte_Encoding" public inherit Byte_CommonServices StringIndexer
@@ -45,8 +47,8 @@ Depends on
 ::method activate class
     expose tableTranscodingToUnicode tableTranscodingFromUnicode
     tables = createCharacterTranscodingTable(128) -- direct mapping of the first 128 characters, no need of specificTranscoding
-    tableTranscodingToUnicode = tables[1]
-    tableTranscodingFromUnicode = tables[2]
+    tableTranscodingToUnicode = tables[1] -- an array
+    tableTranscodingFromUnicode = tables[2] -- a directory
 
 
 ::method analyze class
@@ -65,7 +67,7 @@ Depends on
     -- Remember : previousCodepoint can be .nil (first codepoint) or <0 (error recovery)
     --            when <0 abs(previousCodepoint) is the invalid value
     use strict arg codepoint, codepointIndexB=.nil, previousCodepoint=.nil, previousCodepointIndexB=.nil
-    use strict named arg checkOnlyRange /*no impact here*/, errorInfo=.nil
+    use strict named arg checkOnlyRange=.false /*no impact here*/, errorInfo=.nil
     if .nil <> codepoint then do
         if codepoint < 0 | codepoint > 255 then signal error_range
     end
@@ -203,6 +205,7 @@ Depends on
     -- Otherwise returns the maximum Unicode codepoint
     expose maximumUnicodeCodepoint -- cached
     use strict arg -- none
+    use strict named arg replacementCodepoint=.nil -- .nil or "" or whole number
     if var("maximumUnicodeCodepoint") then return maximumUnicodeCodepoint
     maximumUnicodeCodepoint = -1
     tableTranscodingToUnicode = self~encoding~tableTranscodingToUnicode
@@ -214,14 +217,18 @@ Depends on
             codepoint = tableTranscodingToUnicode[charcode+1] -- bof bof... 1-based array
             -- .nil means "cannot convert"
             -- An empty string means no mapping
-            if .nil == codepoint | codepoint == "" then signal cannot_convert_character
+            if .nil == codepoint | codepoint == "" then do
+                if .nil == replacementCodepoint then signal cannot_convert_character
+                else if "" == replacementCodepoint then codepoint = 0 -- during the transcoding, any unsupported character is ignored (removed) when the replacement character is ""
+                else codepoint = replacementCodepoint
+            end
             -- A negative codepoint means unused character with fallback mapping
             maximumUnicodeCodepoint = max(maximumUnicodeCodepoint, abs(codepoint))
         end
     end
     return maximumUnicodeCodepoint
 
-    cannot_convert_character: raise syntax 23.900 array(self~encoding~name "encoding: cannot convert" self~description(short: .true) "character" charcode "("charcode~d2x") at byte-position" i "to Unicode")
+    cannot_convert_character: raise syntax 23.900 array("Cannot convert" self~description(short: .true) "character" charcode "("charcode~d2x") at byte-position" i "to Unicode")
 
 
 /*
@@ -237,19 +244,22 @@ newline = translate(oldline,oubytes,inbytes)
 */
 
 ::method transcodeTo
+    -- In case of transcoding error:
+    -- if errorInfo is .nil (default) then raise the error
+    -- otherwise store the error message in errorInfo and return .nil
     use strict arg targetEncoding
-    targetEncoding = .Encoding~factory(targetEncoding, self~string)
-    if targetEncoding~isUnicode then forward message "convertToUnicode"
-    if targetEncoding~isByte then forward message "convertToByte"
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
+
+    replacementCodepoint = replacementCodepoint(replacementCharacter, targetEncoding)
+    targetEncoding = .Encoding~factory(targetEncoding, self~string, :replacementCodepoint) -- replacementCodepoint is used for UnicodeN, to determine the maximumUnicodeCodepoint
+    if targetEncoding~isUnicode then return self~convertToUnicode(targetEncoding, :strict, :memorize, :buffer, :replacementCodepoint, :errorInfo)
+    if targetEncoding~isByte then return self~convertToByte(targetEncoding, :buffer)
     -- Should not reach here
 
 
 ::method convertToUnicode private
     use strict arg targetEncoding
-    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil, replacementCharacter=.nil
-
-    targetEncoding = .Encoding~factory(targetEncoding, self~string)
-    if \targetEncoding~isUnicode then signal target_encoding_not_unicode
+    use strict named arg strict, memorize, buffer, replacementCodepoint, errorInfo
 
     if self~string~isASCII then return targetEncoding~encodeASCIIstring(self~string, :memorize, :buffer)
 
@@ -273,12 +283,9 @@ newline = translate(oldline,oubytes,inbytes)
         charcode = self~codepoint(i)
         indexB = self~codepointIndexB(i)
         codepoint = tableTranscodingToUnicode[charcode+1] -- bof bof... 1-based array
-        -- An empty string means no mapping
-        -- A negative codepoint means unused character with fallback mapping
+        codepoint = check_replace_codepoint()
         if .nil == codepoint then signal cannot_convert_character
-        if codepoint == "" then signal cannot_convert_character
-        if strict, codepoint < 0 then signal cannot_convert_character
-        targetEncoding~encode(abs(codepoint), indexB, :buffer)
+        if codepoint \== "" then targetEncoding~encode(codepoint, indexB, :buffer)
     end
 
     string = buffer~substr(bufferStart)
@@ -291,17 +298,30 @@ newline = translate(oldline,oubytes,inbytes)
     if memorize then text~indexer~cacheString(self~encoding~name, self~string)
     return text
 
-    target_encoding_not_unicode:    raise syntax 23.900 array("The target encoding '"targetEncoding~name"' is not a Unicode encoding")
-    cannot_convert_encoding:        raise syntax 23.900 array(self~encoding~name "encoding: cannot convert" self~description(short: .true) "to" targetEncoding~name)
-    cannot_convert_character:       raise syntax 23.900 array(self~encoding~name "encoding: cannot convert" self~description(short: .true) "character" charcode "("charcode~d2x") at byte-position" i "to" targetEncoding~name)
+    cannot_convert_encoding:        return error("Cannot convert" self~description(short: .true) "to" targetEncoding~name)
+    cannot_convert_character:       return error("Cannot convert" self~description(short: .true) "character" charcode "("charcode~d2x") at byte-position" i "to" targetEncoding~name)
+
+    error:
+        use strict arg errorMessage
+        if .nil <> errorInfo then do
+            errorInfo[1] = errorMessage"."
+            return .nil
+        end
+        raise syntax 23.900 array (errorMessage)
+
+    check_replace_codepoint:
+        -- A .nil codepoint means no mapping
+        -- An empty codepoint means no mapping
+        -- A negative codepoint means unused character with fallback mapping
+        if .nil == codepoint then return replacementCodepoint
+        if codepoint == "" then return replacementCodepoint
+        if strict, codepoint < 0 then return .nil -- no fallback when strict
+        return abs(codepoint)
 
 
 ::method convertToByte private
     use strict arg targetEncoding
-    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil, replacementCharacter=.nil
-
-    targetEncoding = .Encoding~factory(targetEncoding, self~string)
-    if \targetEncoding~isByte then signal target_encoding_not_byte
+    use strict named arg buffer
 
     string = .nil
     if self~encoding == targetEncoding then string = self~string
@@ -310,21 +330,28 @@ newline = translate(oldline,oubytes,inbytes)
         if .nil <> buffer then return targetEncoding~append(string, :buffer) -- buffer~~append(string)
                           else return string~text
     end
-    -- Todo: if ASCII then I can transcode
+    -- Todo: I can transcode by using the source tableTranscodingToUnicode and the target tableTranscodingFromUnicode, without creating an intermediary text.
     signal not_supported
 
     not_supported:              raise syntax 23.900 array("Direct transcoding from '"self~encoding~name"' to '"targetEncoding~name"' is not supported")
-    target_encoding_not_byte:   raise syntax 23.900 array("The target encoding '"targetEncoding~name"' is not a Byte encoding")
+
+
+::method c2u
+    forward to (self~unicodeN(strict:.false, replacementCharacter:.Unicode~replacementCharacter))
+
+
+::method unicodeCharacters
+    forward to (self~unicodeN(strict:.false, replacementCharacter:.Unicode~replacementCharacter))
 
 
 ::method UTF8
-    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
-    return self~convertToUnicode(.UTF8_Encoding, :strict, :memorize, :buffer)
+    use strict arg -- none
+    forward message "transcodeTo" arguments ( .array~of(.UTF8_Encoding) )
 
 
 ::method WTF8
-    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
-    return self~convertToUnicode(.WTF8_Encoding, :strict, :memorize, :buffer)
+    use strict arg -- none
+    forward message "transcodeTo" arguments ( .array~of(.WTF8_Encoding) )
 
 
 ::method UTF16
@@ -332,13 +359,13 @@ newline = translate(oldline,oubytes,inbytes)
 
 
 ::method UTF16BE
-    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
-    return self~convertToUnicode(.UTF16BE_Encoding, :strict, :memorize, :buffer)
+    use strict arg -- none
+    forward message "transcodeTo" arguments ( .array~of(.UTF16BE_Encoding) )
 
 
 ::method UTF16LE
-    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
-    return self~convertToUnicode(.UTF16LE_Encoding, :strict, :memorize, :buffer)
+    use strict arg -- none
+    forward message "transcodeTo" arguments ( .array~of(.UTF16LE_Encoding) )
 
 
 ::method WTF16
@@ -346,13 +373,13 @@ newline = translate(oldline,oubytes,inbytes)
 
 
 ::method WTF16BE
-    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
-    return self~convertToUnicode(.WTF16BE_Encoding, :strict, :memorize, :buffer)
+    use strict arg -- none
+    forward message "transcodeTo" arguments ( .array~of(.WTF16BE_Encoding) )
 
 
 ::method WTF16LE
-    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
-    return self~convertToUnicode(.WTF16LE_Encoding, :strict, :memorize, :buffer)
+    use strict arg -- none
+    forward message "transcodeTo" arguments ( .array~of(.WTF16LE_Encoding) )
 
 
 ::method UTF32
@@ -360,13 +387,13 @@ newline = translate(oldline,oubytes,inbytes)
 
 
 ::method UTF32BE
-    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
-    return self~convertToUnicode(.UTF32BE_Encoding, :strict, :memorize, :buffer)
+    use strict arg -- none
+    forward message "transcodeTo" arguments ( .array~of(.UTF32BE_Encoding) )
 
 
 ::method UTF32LE
-    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
-    return self~convertToUnicode(.UTF32LE_Encoding, :strict, :memorize, :buffer)
+    use strict arg -- none
+    forward message "transcodeTo" arguments ( .array~of(.UTF32LE_Encoding) )
 
 
 ::method Unicode
@@ -374,20 +401,77 @@ newline = translate(oldline,oubytes,inbytes)
 
 
 ::method UnicodeN
-    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
-    return self~convertToUnicode("UnicodeN", :strict, :memorize, :buffer)
+    use strict arg -- none
+    use named arg replacementCharacter
+    forward message "transcodeTo" arguments ( .array~of("UnicodeN") )
 
 
 ::method Unicode8
-    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
-    return self~convertToUnicode(.Unicode8_Encoding, :strict, :memorize, :buffer)
+    use strict arg -- none
+    forward message "transcodeTo" arguments ( .array~of(.Unicode8_Encoding) )
 
 
 ::method Unicode16
-    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
-    return self~convertToUnicode(.Unicode16_Encoding, :strict, :memorize, :buffer)
+    use strict arg -- none
+    forward message "transcodeTo" arguments ( .array~of(.Unicode16_Encoding) )
 
 
 ::method Unicode32
-    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil
-    return self~convertToUnicode(.Unicode32_Encoding, :strict, :memorize, :buffer)
+    use strict arg -- none
+    forward message "transcodeTo" arguments ( .array~of(.Unicode32_Encoding) )
+
+
+/******************************************************************************/
+-- Helper to create a table of transcoded characters, from codepoint 0 to size-1.
+-- By default, a transcoded character is equal to itself.
+-- The specific transcoding table lets define specific values for some characters.
+::routine createCharacterTranscodingTable public -- private
+    use strict arg size, specificTranscoding=(.array~new)
+
+    -- The default mapping is equal to the character code
+    tableTranscodingToUnicode = .array~new(size)
+    -- Pre-fill the table for all the source-encoding characters
+    -- Some of them will be replaced by a specific value
+    tableTranscodingFromUnicode = .directory~new/*(size)*/
+    do i = 0 to size-1
+        tableTranscodingToUnicode[i+1] = i -- bof bof... 1-based
+    end
+
+    -- Now replace the mappings for which a specific value is defined
+    /* Example of declaration of specific values (this is an array)
+        , --    00      01      02      03      04      05      06      07      08      09      0A      0B      0C      0D      0E      0F
+        "80:",  "20AC",  "-81", "201A", "0192", "201E", "2026", "2020", "2021", "02C6", "2030", "0160", "2039", "0152",  "-8D", "017D",  "-8F",,
+        "90:",   "-90", "2018", "2019", "201C", "201D", "2022", "2013", "2014", "02DC", "2122", "0161", "203A", "0153",  "-9D", "017E", "0178"
+
+       The current index is set to "80:" (ends with colon)
+       Current index + "00": The code 80 is mapped to "20AC"
+       Current index + "01": The code 81 is mapped to "-81" (fallback if not strict conversion, otherwise error)
+       Etc...
+       For convenience, these notations can be used to indicate that a mapping is equal to the code:
+       , "=", ...
+       ,    , ...       Omitted value
+    */
+    nextSpecificIndex = 0
+    do i=1 to specificTranscoding~items
+        item = specificTranscoding[i]
+        if .nil \== item, item~right(1) == ":" then do -- Ends with colon, this is an index. For example: "80:"
+            nextSpecificIndex = item~left(item~length - 1)~x2d
+        end
+        else do
+            if .nil \== item, item \== "=" then do
+                if item == "" then codepoint = "" -- no transcoding
+                else if item~left(1) == "-" then codepoint = -(item~substr(2)~x2d) -- unused character with fallback transcoding. For example: "-81" --> -129
+                else codepoint = item~x2d
+
+                tableTranscodingToUnicode[nextSpecificIndex+1] = codepoint -- bof bof... 1-based array
+                if \tableTranscodingFromUnicode~hasIndex(nextSpecificIndex) then tableTranscodingFromUnicode~put(.nil, nextSpecificIndex) -- explicitely put .nil, doesn't map to itself
+                tableTranscodingFromUnicode~put(nextSpecificIndex * sign(codepoint), abs(codepoint))
+            end
+            nextSpecificIndex += 1
+        end
+    end
+    -- Put the mapping for the characters which maps to themselves (i.e. not already in the table)
+    do i = 0 to size-1
+        if \tableTranscodingFromUnicode~hasIndex(i) then tableTranscodingFromUnicode~put(i, i)
+    end
+    return .array~of(tableTranscodingToUnicode, tableTranscodingFromUnicode)

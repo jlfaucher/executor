@@ -1,4 +1,5 @@
 /*
+Remember:
 All the strings in this file are UTF-8.
 When I put an encoding on them, their contents remain UTF-8, that's the
 normal behavior: a text is a view, a layer, an interpretation of the bytes.
@@ -242,8 +243,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     ooRexx> t~c2x=
     '50 65 72 65 20 4E 6F 65 6C'
     ooRexx> t~c2u=
-    Method C2U is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -268,8 +268,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     ooRexx> t~c2x=
     '50 65 72 65 20 4E 6F 65 6C'
     ooRexx> t~c2u=
-    Method C2U is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -294,8 +293,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     ooRexx> t~c2x=
     '50 65 72 65 20 4E 6F 65 6C'
     ooRexx> t~c2u=
-    Method C2U is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -318,8 +316,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     ooRexx> t~c2x=
     '50 65 72 65 20 4E 6F C3 AB 6C'
     ooRexx> t~c2u=
-    Method C2U is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+00C3 U+00AB U+006C'
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -344,8 +341,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     ooRexx> t~c2x=
     '50 65 72 65 20 4E 6F C3 AB 6C'
     ooRexx> t~c2u=
-    Method C2U is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+00C3 U+00AB U+006C'
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -370,8 +366,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     ooRexx> t~c2x=
     '50 65 72 65 20 4E 6F C3 AB 6C'
     ooRexx> t~c2u=
-    Method C2U is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+00C3 U+00AB U+006C'
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -394,8 +389,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     ooRexx> t~c2x=
     '50 C3 A8 72 65 20 4E 6F 65 6C'
     ooRexx> t~c2u=
-    Method C2U is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    'U+0050 U+00C3 U+00A8 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -420,8 +414,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     ooRexx> t~c2x=
     '50 C3 A8 72 65 20 4E 6F 65 6C'
     ooRexx> t~c2u=
-    Method C2U is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    'U+0050 U+00C3 U+00A8 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -446,8 +439,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     ooRexx> t~c2x=
     '50 C3 A8 72 65 20 4E 6F 65 6C'
     ooRexx> t~c2u=
-    Method C2U is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    'U+0050 U+00C3 U+00A8 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -503,8 +495,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     ooRexx> t~c2x=
     '50 C3 A8 72 65 20'
     ooRexx> t~c2u=
-    Method C2U is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    'U+0050 U+00C3 U+00A8 U+0072 U+0065 U+0020'
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -531,8 +522,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     ooRexx> t~c2x=
     '50 C3 A8 72 65 20'
     ooRexx> t~c2u=
-    Method C2U is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    'U+0050 U+00C3 U+00A8 U+0072 U+0065 U+0020'
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -1054,8 +1044,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     ooRexx> t~c2x=
     '50 C3 A8 72 65 20'
     ooRexx> t~c2u=
-    Method C2U is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    'U+0050 U+FFFD U+FFFD U+0072 U+0065 U+0020'
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -1082,8 +1071,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     ooRexx> t~c2x=
     '50 C3 A8 72 65 20'
     ooRexx> t~c2u=
-    Method C2U is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    'U+0050 U+FFFD U+FFFD U+0072 U+0065 U+0020'
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -1139,8 +1127,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     ooRexx> t~c2x=
     '50 C3 A8 72 65 20'
     ooRexx> t~c2u=
-    Method C2U is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    'U+0050 U+FFFD U+FFFD U+0072 U+0065 U+0020'
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
@@ -1167,8 +1154,7 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     ooRexx> t~c2x=
     '50 C3 A8 72 65 20'
     ooRexx> t~c2u=
-    Method C2U is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    'U+0050 U+FFFD U+FFFD U+0072 U+0065 U+0020'
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------

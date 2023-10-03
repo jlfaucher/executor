@@ -3,6 +3,166 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2023 Oct 03
+
+[Encoded strings]
+
+Move the routine createCharacterTranscodingTable from byte_common.cls to
+byte_encoding.cls. It's used only by Byte_Encoding and its subclasses.
+
+
+The 'text' method of UnicodeCharacter has been replaced by 'transcodeTo'.
+Reason 1: the byte encodings were not supported correctly.
+Reason 2: the fact a transcoding is needed is against the definition of the
+'text' method (apply a view on the bytes without modifying them).
+
+
+Finalize the support of replacement character during transcoding.
+A replacement character can be .nil or "" or a character.
+When a character, it can be a String or a RexxText made of one codepoint or a UnicodeCharacter.
+In all cases, the corresponding codepoint is used.
+
+Behavior when a source codepoint does not have a matching target codepoint:
+- When the replacement character is .nil, an error is raised.
+- When the replacement character is "", the source codepoint is ignored (not transcoded)
+- Otherwise the source codepoint is replaced by the replacement character.
+
+When transcoding to a Byte encoding, if the replacement character is a
+UnicodeCharacter then its codepoint must be a valid target codepoint.
+
+Reminder: if the 'strict' named argument is false (default) then the fallback
+codepoint transcodings are used, if any. So when 'strict' is false, potentially
+more source could be transcoded.
+
+Examples:
+    -- The Windows-1252 encoding has some fallback codepoint transcodings.
+    -- HOP is one of them: 81x --> +U0081 only when strict:.false
+    ("No" || "EB"x || "l" || "81"x)~text("windows-1252")~utf8(strict:.false)=   -- T'Noël (strict:.false is the default)
+    ("No" || "EB"x || "l" || "81"x)~text("windows-1252")~utf8(strict:.false)~unicodecharacters==
+        an Array (shape [5], 5 items)
+         1 : ( "N"   U+004E Lu 1 "LATIN CAPITAL LETTER N" )
+         2 : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
+         3 : ( "ë"   U+00EB Ll 1 "LATIN SMALL LETTER E WITH DIAERESIS" )
+         4 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
+         5 : ( ""    U+0081 Cc 0 "", "HIGH OCTET PRESET", "HOP"
+    ("No" || "EB"x || "l" || "81"x)~text("windows-1252")~utf8(strict:.true)=    -- Cannot convert windows-1252 not-ASCII character 129 (81) at byte-position 5 to UTF-8.
+
+    "Noël\u{HOP}"~text("utf8")~unescape~transcodeTo("byte")=                    -- Cannot convert UTF-8 not-ASCII codepoint 235 (EB) at position 3 to Byte.
+    "Noël\u{HOP}"~text("utf8")~unescape~transcodeTo("windows-1252")=            -- T'No?l?'
+    "Noël\u{HOP}"~text("utf8")~unescape~transcodeTo("windows-1252")~c2x=        -- '4E 6F EB 6C 81'
+    "Noël\u{HOP}"~text("utf8")~unescape~transcodeTo("windows-1252", strict:)=   -- Cannot convert UTF-8 not-ASCII codepoint 129 (81) at position 5 to windows-1252.
+
+    -- "byte" encoding: only 00..7F can be transcoded
+    ("No" || "EB"x || "l" || "81"x)~text("byte")~utf8=                                                      -- Cannot convert Byte not-ASCII character 235 (EB) at byte-position 3 to UTF-8.
+    ("No" || "EB"x || "l" || "81"x)~text("byte")~utf8(replacementCharacter:"")=                             -- T'Nol'
+    ("No" || "EB"x || "l" || "81"x)~text("byte")~utf8(replacementCharacter:"#")=                            -- T'No#l#'      1 replacement character for ë because "ë" is 'EB'x
+    ("No" || "EB"x || "l" || "81"x)~text("byte")~utf8(replacementCharacter:"🎅")=                           -- T'No🎅l🎅'
+    ("No" || "EB"x || "l" || "81"x)~text("byte")~utf8(replacementCharacter:"🎅"~text)=                      -- T'No🎅l🎅'
+    ("No" || "EB"x || "l" || "81"x)~text("byte")~utf8(replacementCharacter:.unicode["Father Christmas"])=   -- T'No🎅l🎅'
+
+    "Noël"~text("byte")~utf8(replacementCharacter:"")=                          -- T'Nol'
+    "Noël"~text("byte")~utf8(replacementCharacter:"#")=                         -- T'No##l'         2 replacement characters for ë because "ë" is 'C3 AB'x
+    "Noël"~text("byte")~utf8(replacementCharacter:"🎅")=                        -- T'No🎅🎅l'
+    "Noël"~text("byte")~utf8(replacementCharacter:"🎅🎅")=                     -- The transcoded replacement character must have at most one codepoint, got UTF-8 not-ASCII (2 characters, 2 codepoints, 8 bytes, 0 error) '🎅🎅'.
+    "Noël"~text("byte")~utf8(replacementCharacter:"🎅🎅"~text)=                -- The transcoded replacement character must have at most one codepoint, got UTF-8 not-ASCII (2 characters, 2 codepoints, 8 bytes, 0 error) '🎅🎅'.
+
+    "Noël"~text("utf8")~transcodeTo("byte")=                                    -- Cannot convert UTF-8 not-ASCII codepoint 235 (EB) at position 3 to Byte.
+    "Noël"~text("utf8")~transcodeTo("byte", replacementCharacter:"")=           -- T'Nol'
+    "Noël"~text("utf8")~transcodeTo("byte", replacementCharacter:"#")=          -- T'No#l'
+    "Noël"~text("utf8")~transcodeTo("byte", replacementCharacter:"🎅")=         -- The replacement character UTF-8 not-ASCII '🎅' cannot be transcoded to Byte.
+
+    "Noël🤶"~text("utf8")~transcodeTo("unicode", replacementCharacter:"🎅")=        -- T'N[000000]o[000000]?[000000]l[000000]??[0100]'
+    "Noël🤶"~text("utf8")~transcodeTo("unicode", replacementCharacter:"🎅")~c2x=    -- '4E000000 6F000000 EB000000 6C000000 36F90100'
+    "Noël🤶"~text("utf8")~transcodeTo("unicode", replacementCharacter:"🎅")~c2u=    -- 'U+004E U+006F U+00EB U+006C U+1F936'
+
+    "Noël🤶"~text("utf8")~transcodeTo("unicode8", replacementCharacter:"")=          -- T'No?l'
+    "Noël🤶"~text("utf8")~transcodeTo("unicode8", replacementCharacter:"")~c2x=      -- '4E 6F EB 6C'
+    "Noël🤶"~text("utf8")~transcodeTo("unicode8", replacementCharacter:"#")=         -- T'No?l#'
+    "Noël🤶"~text("utf8")~transcodeTo("unicode8", replacementCharacter:"#")~c2x=     -- '4E 6F EB 6C 23'
+    "Noël🤶"~text("utf8")~transcodeTo("unicode8", replacementCharacter:"🎅")=       -- The replacement character UTF-8 not-ASCII '🎅' cannot be transcoded to Unicode8.
+
+    "Noël🤶"~text("utf8")~transcodeTo("unicode16", replacementCharacter:"")=         -- T'N[00]o[00]?[00]l[00]'
+    "Noël🤶"~text("utf8")~transcodeTo("unicode16", replacementCharacter:"#")=        -- T'N[00]o[00]?[00]l[00]#[00]'
+    "Noël🤶"~text("utf8")~transcodeTo("unicode16", replacementCharacter:"#")~c2x=    -- '4E00 6F00 EB00 6C00 2300'
+    "Noël🤶"~text("utf8")~transcodeTo("unicode16", replacementCharacter:"#")~c2u=    -- 'U+004E U+006F U+00EB U+006C U+0023'
+    "Noël🤶"~text("utf8")~transcodeTo("unicode16", replacementCharacter:"🎅")=      -- The replacement character UTF-8 not-ASCII '🎅' cannot be transcoded to Unicode16.
+
+    "Noël🤶"~text("utf8")~transcodeTo("unicode32")=         -- T'N[000000]o[000000]?[000000]l[000000]6?[0100]'
+    "Noël🤶"~text("utf8")~transcodeTo("unicode32")~c2x=     -- '4E000000 6F000000 EB000000 6C000000 36F90100'
+    "Noël🤶"~text("utf8")~transcodeTo("unicode32")~c2u=     -- 'U+004E U+006F U+00EB U+006C U+1F936'
+
+
+The method c2u is no longer abstract for the byte encodings.
+Now, a byte encoding is converted on the fly to UnicodeN in non strict mode,
+replacing any unsupported character by .Unicode~replacementCharacter.
+Idem for the method unicodeCharacters.
+Examples:
+    "FF FE FD FC"x~text("byte")~c2x=                                               -- 'FF FE FD FC'
+    "FF FE FD FC"x~text("byte")~c2g=                                               -- 'FF FE FD FC'
+    "FF FE FD FC"x~text("byte")~codepoints==
+        a CodePointSupplier
+         1 :  255
+         2 :  254
+         3 :  253
+         4 :  252
+    "FF FE FD FC"x~text("byte")~c2u=                                               -- 'U+FFFD U+FFFD U+FFFD U+FFFD'
+    "FF FE FD FC"x~text("byte")~unicodeCharacters==
+        an Array (shape [4], 4 items)
+         1 : ( "�"   U+FFFD So 1 "REPLACEMENT CHARACTER" )
+         2 : ( "�"   U+FFFD So 1 "REPLACEMENT CHARACTER" )
+         3 : ( "�"   U+FFFD So 1 "REPLACEMENT CHARACTER" )
+         4 : ( "�"   U+FFFD So 1 "REPLACEMENT CHARACTER" )
+
+    "FF FE FD FC"x~text("utf8")~c2x=                                               -- 'FF FE FD FC'
+    "FF FE FD FC"x~text("utf8")~c2g=                                               -- 'FF FE FD FC'
+    "FF FE FD FC"x~text("utf8")~c2u=                                               -- 'U+FFFD U+FFFD U+FFFD U+FFFD'
+    "FF FE FD FC"x~text("utf8")~codepoints==
+        a CodePointSupplier
+         1 :  65533
+         2 :  65533
+         3 :  65533
+         4 :  65533
+
+    "FF FE FD FC"x~text("unicode8")~c2x=                                           -- 'FF FE FD FC'
+    "FF FE FD FC"x~text("unicode8")~c2g=                                           -- 'FF FE FD FC'
+    "FF FE FD FC"x~text("unicode8")~codepoints==
+        a CodePointSupplier
+         1 :  255
+         2 :  254
+         3 :  253
+         4 :  252
+    "FF FE FD FC"x~text("unicode8")~c2u=                                           -- 'U+00FF U+00FE U+00FD U+00FC'
+    "FF FE FD FC"x~text("unicode8")~unicodecharacters==
+        an Array (shape [4], 4 items)
+         1 : ( "ÿ"   U+00FF Ll 1 "LATIN SMALL LETTER Y WITH DIAERESIS" )
+         2 : ( "þ"   U+00FE Ll 1 "LATIN SMALL LETTER THORN" )
+         3 : ( "ý"   U+00FD Ll 1 "LATIN SMALL LETTER Y WITH ACUTE" )
+         4 : ( "ü"   U+00FC Ll 1 "LATIN SMALL LETTER U WITH DIAERESIS" )
+
+    ("No" || "EB"x || "l" || "81"x)~text("byte")~c2x=                           -- '4E 6F EB 6C 81'
+    ("No" || "EB"x || "l" || "81"x)~text("byte")~c2g=                           -- '4E 6F EB 6C 81'
+    ("No" || "EB"x || "l" || "81"x)~text("byte")~c2u=                           -- 'U+004E U+006F U+FFFD U+006C U+FFFD'
+    ("No" || "EB"x || "l" || "81"x)~text("byte")~unicodecharacters==
+        an Array (shape [5], 5 items)
+         1 : ( "N"   U+004E Lu 1 "LATIN CAPITAL LETTER N" )
+         2 : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
+         3 : ( "�"   U+FFFD So 1 "REPLACEMENT CHARACTER" )
+         4 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
+         5 : ( "�"   U+FFFD So 1 "REPLACEMENT CHARACTER" )
+
+    ("No" || "EB"x || "l" || "81"x)~text("windows-1252")~c2x=                   -- '4E 6F EB 6C 81'
+    ("No" || "EB"x || "l" || "81"x)~text("windows-1252")~c2g=                   -- '4E 6F EB 6C 81'
+    ("No" || "EB"x || "l" || "81"x)~text("windows-1252")~c2u=                   -- 'U+004E U+006F U+00EB U+006C U+0081'
+    ("No" || "EB"x || "l" || "81"x)~text("windows-1252")~unicodecharacters==
+        an Array (shape [5], 5 items)
+         1 : ( "N"   U+004E Lu 1 "LATIN CAPITAL LETTER N" )
+         2 : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
+         3 : ( "ë"   U+00EB Ll 1 "LATIN SMALL LETTER E WITH DIAERESIS" )
+         4 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
+         5 : ( ""    U+0081 Cc 0 "", "HIGH OCTET PRESET", "HOP" )
+
+
+===============================================================================
 2023 Sep 28
 
 [Encoded strings]
