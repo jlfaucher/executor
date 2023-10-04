@@ -11,6 +11,141 @@ ooRexx> .Unicode~memorizeTransformations = .false
 
 
 -- ===============================================================================
+-- 2023 Oct 04
+
+/*
+Reactivate the constraint "self~isCompatibleWithByteString" when converting a
+RexxText to a String. It can be disabled by setting
+    .Unicode~unckeckedConversionToString = .true
+Currently, the only case where this constraint is disabled is when testing
+the regular expressions in diary_examples.rex.
+
+
+Some checks of encoding compatibiliy were missing.
+Added in:
+- compareText: caselessCompare, compare
+- compareToText: caselessCompareTo, compareTo
+- endsWithText: caselessEndsWith, endsWith
+- matchCharText: caselessMatchChar, matchChar
+- matchText: caselessMatch, match
+- posText: caselessPos, pos
+
+
+New supported methods:
+- abs       forward to String, return a String
+- b2x       forward to String, return a String
+- bitAnd    forward to String, return a String
+- bitOr     forward to String, return a String
+- bitXor    forward to String, return a String
+Examples:
+*/
+ooRexx>     (-1)~text~abs=          -- 1
+ 1
+ooRexx>     ("-x")~text~abs=        -- ABS method target must be a number; found "-x".
+ABS method target must be a number; found "-x".
+Error code= 93.943
+ooRexx>     ("-é")~text~abs=        -- UTF-8 not-ASCII '-é' is not compatible with a Rexx numeric value.
+UTF-8 not-ASCII '-é' is not compatible with a Rexx numeric value.
+Error code= 23.900
+
+ooRexx>     100~text~b2x=           -- 4
+ 4
+ooRexx>     "x"~text~b2x=           -- Only 0, 1, and whitespace characters are valid in a binary string; character found "x".
+Only 0, 1, and whitespace characters are valid in a binary string; character found "x".
+Error code= 93.934
+ooRexx>     "é"~text~b2x=           -- UTF-8 not-ASCII 'é' is not compatible with a Rexx numeric value.
+UTF-8 not-ASCII 'é' is not compatible with a Rexx numeric value.
+Error code= 23.900
+
+ooRexx>     "12"x~text~bitAnd=                                  -- '[12]'   ("12"x)
+'[12]'
+ooRexx>     "73"x~text~bitAnd("27"x~text)=                      -- '#'      ("23"x)
+'#'
+ooRexx>     "13"x~text~bitAnd("5555"x~text)=                    -- '[11]U'  ("1155"x)
+'[11]U'
+ooRexx>     "13"x~text~bitAnd("5555"x~text,"74"x~text)=         -- '[11]T'  ("1154"x)
+'[11]T'
+ooRexx>     "pQrS"~text~bitAnd(,"DF"x~text("byte"))=            -- "PQRS"
+'PQRS'
+
+ooRexx>     "12"x~text~bitOr=                                   -- '[12]'       ("12"x)
+'[12]'
+ooRexx>     "15"x~text~bitOr("24"x~text)=                       -- 5            ("35"x)
+ 5
+ooRexx>     "15"x~text~bitOr("2456"x~text)=                     -- '5V'         ("3556"x)
+'5V'
+ooRexx>     "15"x~text~bitOr("2456"x~text,"F0"x~text("byte"))=  -- '5?'         ("35F6"x)
+'5�'
+ooRexx>     "1111"x~text~bitOr(,"4D"x~text)=                    -- ']]'         ("5D5D"x)
+']]'
+ooRexx>     "pQrS"~text~bitOr(,"20"x~text)=                     -- "pqrs"
+'pqrs'
+
+ooRexx>     "12"x~text~bitXor=                                  -- '[12]'       ("12"x)
+'[12]'
+ooRexx>     "12"x~text~bitXor("22"x~text)=                      -- 0            ("30"x)
+ 0
+ooRexx>     "1211"x~text~bitXor("22"x~text)=                    -- '0[11]'      ("3011"x)
+'0[11]'
+ooRexx>     "1111"x~text~bitXor("444444"x~text)=                -- 'UUD'        ("555544"x)
+'UUD'
+ooRexx>     "1111"x~text~bitXor("444444"x~text,"40"x~text)=     -- 'UU[04]'     ("555504"x)
+'UU[04]'
+ooRexx>     "1111"x~text~bitXor(,"4D"x~text)=                   -- '\\'         ("5C5C"x)
+'\\'
+ooRexx>     "C711"x~text~bitXor("222222"x~text," "~text)=       -- '?3[02]'     ("E53302"x)
+'�3[02]'
+
+
+/*
+Implementation of caselessStartsWith, startsWith:
+(forwards to caselessPos or pos, and returns .true if result == 1)
+(was already implemented, waiting for 'pos' implementation)
+Examples:
+*/
+ooRexx>     "Père"~text~c2g=                                -- '50 C3A8 72 65'
+'50 C3A8 72 65'
+ooRexx>     "Père"~text~startsWith("50"x)=                  -- true
+ 1
+ooRexx>     "Père"~text~startsWith("50C3"x)=                -- Invalid UTF-8 string     (utf8proc error because "50C3"x is an invalid UTF-8 encoding)
+Invalid UTF-8 string.
+Error code= 22.900
+ooRexx>     "Père"~text~startsWith("50C3"x~text("byte"))=   -- Encoding: cannot compare Byte not-ASCII 'P?' with UTF-8 not-ASCII 'Père'
+Encoding: cannot compare Byte not-ASCII 'P�' with UTF-8 not-ASCII 'Père'.
+Error code= 23.900
+ooRexx>     "Père"~text~startsWith("50C3A8"x)=              -- true
+ 1
+
+ooRexx>     "éßﬄ"~text~c2g=                                 -- 'C3A9 C39F EFAC84'
+'C3A9 C39F EFAC84'
+ooRexx>     "éßﬄ"~text~casefold~c2g=                        -- 'C3A9 73 73 66 66 6C'
+'C3A9 73 73 66 66 6C'
+ooRexx>     "éßﬄ"~text~caselessStartsWith("É")=             -- true
+ 1
+ooRexx>     "éßﬄ"~text~caselessStartsWith("És")=            -- false
+ 0
+ooRexx>     "éßﬄ"~text~caselessStartsWith("Éss")=           -- true
+ 1
+ooRexx>     "éßﬄ"~text~caselessStartsWith("Éssf")=          -- false
+ 0
+ooRexx>     "éßﬄ"~text~caselessStartsWith("Éssff")=         -- false
+ 0
+ooRexx>     "éßﬄ"~text~caselessStartsWith("Éssffl")=        -- true
+ 1
+
+ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~startsWith("noël👩")=                       -- false
+ 0
+ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~startsWith("noël👩", aligned:.false)=       -- true
+ 1
+ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~startsWith("noël👩‍👨‍👩‍")=                  -- false
+ 0
+ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~startsWith("noël👩‍👨‍👩‍", aligned:.false)=  -- true
+ 1
+ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~startsWith("noël👩‍👨‍👩‍👧")=                 -- true
+ 1
+
+
+-- ===============================================================================
 -- 2023 Oct 03
 
 /*
@@ -489,6 +624,9 @@ Relax the constraint "self~isCompatibleWithByteString" when converting a RexxTex
 to a String.
 That allows to go further in the tests of regular expression.
 */
+ooRexx> unckeckedConversionToString = .Unicode~unckeckedConversionToString -- backup
+ooRexx> .Unicode~unckeckedConversionToString = .true
+
 
 -- bug in regex.cls
 ooRexx> p = .Pattern~compile("(.)*foo")
@@ -758,6 +896,9 @@ ooRexx> r~matched=; r~start=; r~end=; r~text=; r~length=
  5
 T'🎅'
  1
+
+
+ooRexx> .Unicode~unckeckedConversionToString = unckeckedConversionToString -- restore
 
 
 -- ===============================================================================
@@ -5133,7 +5274,7 @@ an UnicodeCharacterIntervalSupplier
 -- Informations about Unicode:
 -- Remove dataDirectory because the value is different between Windows and Macos/Linux
 ooRexx> .Unicode~informations~~remove("dataDirectory")=
-a Directory (11 items)
+a Directory (12 items)
 'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=16 notExpanded:16 intervals, 105071 characters)
 'characters'                         : (an UnicodeCharacterSupplier count=44184 size=918000)
 'maxCodepoint'                       :  1114111
@@ -5144,6 +5285,7 @@ a Directory (11 items)
 'totalCharactersLoaded'              :  149186
 'totalIntervalCharacters'            :  105071
 'totalIntervalCharactersNotExpanded' :  105071
+'unckeckedConversionToString'        :  0
 'version'                            : '15.0.0'
 
 

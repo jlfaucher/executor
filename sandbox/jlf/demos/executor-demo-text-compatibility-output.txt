@@ -22,7 +22,7 @@ loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
 REXX-ooRexx_4.3.0(MT)_64-bit 6.04 21 Sep 2023
-Input queue name: S788cQ600001cdab10
+Input queue name: S37e7Q600001cc89c0
 
 ooRexx[sh]> call loadUnicodeCharacterNames
 Load the Unicode character names 15.0.0 
@@ -742,8 +742,8 @@ ooRexx[sh]> "noel"~substr(3, 3, "▷")=; result~description=        -- self is a
 Incorrect pad or character argument specified; found "▷"
 Error code= 93.922
 ooRexx[sh]> "noel"~substr(3, 3, "▷"~text)=; result~description=   -- self is a String: error because the pad character is not compatible with String
-Incorrect pad or character argument specified; found "▷"
-Error code= 93.922
+UTF-8 not-ASCII '▷' cannot be converted to a String instance.
+Error code= 23.900
 ooRexx[sh]> "noel"~text~substr(3, 3, "▷")=; result~description=   -- no error because self is a RexxText and the pad character is one character when converted to the default encoding
 T'el▷'
 'UTF-8 not-ASCII (3 characters, 3 codepoints, 5 bytes, 0 error)'
@@ -840,6 +840,13 @@ A way to test the compatibility of RexxText with String is to pass instances of
 RexxText to the regular expression engine regex.cls, and see what happens...
 */
 
+/*
+Relax the constraint "self~isCompatibleWithByteString" when converting a RexxText
+to a String. That allows to go further in the tests of regular expression.
+*/
+ooRexx[sh]> unckeckedConversionToString = .Unicode~unckeckedConversionToString -- backup
+ooRexx[sh]> .Unicode~unckeckedConversionToString = .true
+
 ooRexx[sh]> pB = .Pattern~compile("a.c")
 ooRexx[sh]> pT = .Pattern~compile("a.c"~text)
 ooRexx[sh]> pB~matches("abc")=                          -- 1
@@ -909,6 +916,8 @@ ooRexx[sh]> r~matched=; r~start=; r~end=; r~text=; r~length=
  5
 T'🎅'
  1
+
+ooRexx[sh]> .Unicode~unckeckedConversionToString = unckeckedConversionToString -- restore
 
 
 -----------------------------------------

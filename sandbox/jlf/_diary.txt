@@ -3,6 +3,91 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2023 Oct 04
+
+[Encoded strings]
+
+Reactivate the constraint "self~isCompatibleWithByteString" when converting a
+RexxText to a String. It can be disabled by setting
+    .Unicode~unckeckedConversionToString = .true
+Currently, the only case where this constraint is disabled is when testing
+the regular expressions in diary_examples.rex.
+
+
+Some checks of encoding compatibiliy were missing.
+Added in:
+- compareText: caselessCompare, compare
+- compareToText: caselessCompareTo, compareTo
+- endsWithText: caselessEndsWith, endsWith
+- matchCharText: caselessMatchChar, matchChar
+- matchText: caselessMatch, match
+- posText: caselessPos, pos
+
+
+New supported methods:
+- abs       forward to String, return a String
+- b2x       forward to String, return a String
+- bitAnd    forward to String, return a String
+- bitOr     forward to String, return a String
+- bitXor    forward to String, return a String
+Examples:
+    (-1)~text~abs=          -- 1
+    ("-x")~text~abs=        -- ABS method target must be a number; found "-x".
+    ("-é")~text~abs=        -- UTF-8 not-ASCII '-é' is not compatible with a Rexx numeric value.
+
+    100~text~b2x=           -- 4
+    "x"~text~b2x=           -- Only 0, 1, and whitespace characters are valid in a binary string; character found "x".
+    "é"~text~b2x=           -- UTF-8 not-ASCII 'é' is not compatible with a Rexx numeric value.
+
+    "12"x~text~bitAnd=                                  -- '[12]'   ("12"x)
+    "73"x~text~bitAnd("27"x~text)=                      -- '#'      ("23"x)
+    "13"x~text~bitAnd("5555"x~text)=                    -- '[11]U'  ("1155"x)
+    "13"x~text~bitAnd("5555"x~text,"74"x~text)=         -- '[11]T'  ("1154"x)
+    "pQrS"~text~bitAnd(,"DF"x~text("byte"))=            -- "PQRS"
+
+    "12"x~text~bitOr=                                   -- '[12]'       ("12"x)
+    "15"x~text~bitOr("24"x~text)=                       -- 5            ("35"x)
+    "15"x~text~bitOr("2456"x~text)=                     -- '5V'         ("3556"x)
+    "15"x~text~bitOr("2456"x~text,"F0"x~text("byte"))=  -- '5?'         ("35F6"x)
+    "1111"x~text~bitOr(,"4D"x~text)=                    -- ']]'         ("5D5D"x)
+    "pQrS"~text~bitOr(,"20"x~text)=                     -- "pqrs"
+
+    "12"x~text~bitXor=                                  -- '[12]'       ("12"x)
+    "12"x~text~bitXor("22"x~text)=                      -- 0            ("30"x)
+    "1211"x~text~bitXor("22"x~text)=                    -- '0[11]'      ("3011"x)
+    "1111"x~text~bitXor("444444"x~text)=                -- 'UUD'        ("555544"x)
+    "1111"x~text~bitXor("444444"x~text,"40"x~text)=     -- 'UU[04]'     ("555504"x)
+    "1111"x~text~bitXor(,"4D"x~text)=                   -- '\\'         ("5C5C"x)
+    "C711"x~text~bitXor("222222"x~text," "~text)=       -- '?3[02]'     ("E53302"x)
+
+
+Implementation of caselessStartsWith, startsWith:
+(forwards to caselessPos or pos, and returns .true if result == 1)
+(was already implemented, waiting for 'pos' implementation)
+Examples:
+    "Père"~text~c2g=                                -- '50 C3A8 72 65'
+    "Père"~text~startsWith("50"x)=                  -- true
+    "Père"~text~startsWith("50C3"x)=                -- Invalid UTF-8 string     (utf8proc error because "50C3"x is an invalid UTF-8 encoding)
+    "Père"~text~startsWith("50C3"x~text("byte"))=   -- Encoding: cannot compare Byte not-ASCII 'P?' with UTF-8 not-ASCII 'Père'
+    "Père"~text~startsWith("50C3A8"x)=              -- true
+
+    "éßﬄ"~text~c2g=                                 -- 'C3A9 C39F EFAC84'
+    "éßﬄ"~text~casefold~c2g=                        -- 'C3A9 73 73 66 66 6C'
+    "éßﬄ"~text~caselessStartsWith("É")=             -- true
+    "éßﬄ"~text~caselessStartsWith("És")=            -- false
+    "éßﬄ"~text~caselessStartsWith("Éss")=           -- true
+    "éßﬄ"~text~caselessStartsWith("Éssf")=          -- false
+    "éßﬄ"~text~caselessStartsWith("Éssff")=         -- false
+    "éßﬄ"~text~caselessStartsWith("Éssffl")=        -- true
+
+    "noël👩‍👨‍👩‍👧🎅"~text~startsWith("noël👩")=                       -- false
+    "noël👩‍👨‍👩‍👧🎅"~text~startsWith("noël👩", aligned:.false)=       -- true
+    "noël👩‍👨‍👩‍👧🎅"~text~startsWith("noël👩‍👨‍👩‍")=                  -- false
+    "noël👩‍👨‍👩‍👧🎅"~text~startsWith("noël👩‍👨‍👩‍", aligned:.false)=  -- true
+    "noël👩‍👨‍👩‍👧🎅"~text~startsWith("noël👩‍👨‍👩‍👧")=                 -- true
+
+
+===============================================================================
 2023 Oct 03
 
 [Encoded strings]

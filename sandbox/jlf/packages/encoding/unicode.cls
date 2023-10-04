@@ -93,7 +93,7 @@ Depends on
 ::attribute codepointBoundClassNames get class
 ::attribute memorizeConversions class -- global flag to control if the conversions from/to Unicode are memorized on the text
 ::attribute memorizeTransformations class -- global flag to control if the NFC, NFD, ... transformtions are memorized on the text
-
+::attribute unckeckedConversionToString class
 
 ::method initialize class
     expose dataDirectory characters characterNames -
@@ -103,7 +103,8 @@ Depends on
                          totalIntervalCharactersNotExpanded -
                          totalCharacterNameAliases -
                          memorizeConversions -
-                         memorizeTransformations
+                         memorizeTransformations -
+                         unckeckedConversionToString
     use strict arg -- none
     packageDirectory = .file~new(.context~package~name)~parent
     dataDirectory = .file~new("Unicode-".Unicode~version, packageDirectory)
@@ -119,6 +120,7 @@ Depends on
     self~declareCharacters
     memorizeConversions = .false
     memorizeTransformations = .false
+    unckeckedConversionToString = .false
 
 
 ::method version class
@@ -138,6 +140,7 @@ Depends on
     "totalCharacterNameAliases",,
     "totalIntervalCharacters",,
     "totalIntervalCharactersNotExpanded",,
+    "unckeckedConversionToString",,
     "version"
     informations = .directory~new
     do message over messages

@@ -32,7 +32,7 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 21 Sep 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S163f5Q600001cc0820
+</span><span style="font-weight:bold;color:green;">Input queue name: S37b5Q600001cc88f0
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.0.0 
@@ -43,6 +43,141 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacte
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeConversions = .false</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeTransformations = .false</span>
+
+
+<span style="font-weight:bold;color:blue;">-- ===============================================================================
+</span><span style="font-weight:bold;color:blue;">-- 2023 Oct 04
+</span>
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Reactivate the constraint &quot;self~isCompatibleWithByteString&quot; when converting a
+</span><span style="font-weight:bold;color:blue;">RexxText to a String. It can be disabled by setting
+</span><span style="font-weight:bold;color:blue;">    .Unicode~unckeckedConversionToString = .true
+</span><span style="font-weight:bold;color:blue;">Currently, the only case where this constraint is disabled is when testing
+</span><span style="font-weight:bold;color:blue;">the regular expressions in diary_examples.rex.
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">Some checks of encoding compatibiliy were missing.
+</span><span style="font-weight:bold;color:blue;">Added in:
+</span><span style="font-weight:bold;color:blue;">- compareText: caselessCompare, compare
+</span><span style="font-weight:bold;color:blue;">- compareToText: caselessCompareTo, compareTo
+</span><span style="font-weight:bold;color:blue;">- endsWithText: caselessEndsWith, endsWith
+</span><span style="font-weight:bold;color:blue;">- matchCharText: caselessMatchChar, matchChar
+</span><span style="font-weight:bold;color:blue;">- matchText: caselessMatch, match
+</span><span style="font-weight:bold;color:blue;">- posText: caselessPos, pos
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">New supported methods:
+</span><span style="font-weight:bold;color:blue;">- abs       forward to String, return a String
+</span><span style="font-weight:bold;color:blue;">- b2x       forward to String, return a String
+</span><span style="font-weight:bold;color:blue;">- bitAnd    forward to String, return a String
+</span><span style="font-weight:bold;color:blue;">- bitOr     forward to String, return a String
+</span><span style="font-weight:bold;color:blue;">- bitXor    forward to String, return a String
+</span><span style="font-weight:bold;color:blue;">Examples:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    (-1)~text~abs=          </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;-x&quot;)~text~abs=        </span><span style="font-weight:bold;color:blue;">-- ABS method target must be a number; found &quot;-x&quot;.</span>
+<span style="font-weight:bold;color:red;">ABS method target must be a number; found &quot;-x&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 93.943
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;-é&quot;)~text~abs=        </span><span style="font-weight:bold;color:blue;">-- UTF-8 not-ASCII '-é' is not compatible with a Rexx numeric value.</span>
+<span style="font-weight:bold;color:red;">UTF-8 not-ASCII '-é' is not compatible with a Rexx numeric value.
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
+</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    100~text~b2x=           </span><span style="font-weight:bold;color:blue;">-- 4</span>
+ 4
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;x&quot;~text~b2x=           </span><span style="font-weight:bold;color:blue;">-- Only 0, 1, and whitespace characters are valid in a binary string; character found &quot;x&quot;.</span>
+<span style="font-weight:bold;color:red;">Only 0, 1, and whitespace characters are valid in a binary string; character found &quot;x&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 93.934
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;é&quot;~text~b2x=           </span><span style="font-weight:bold;color:blue;">-- UTF-8 not-ASCII 'é' is not compatible with a Rexx numeric value.</span>
+<span style="font-weight:bold;color:red;">UTF-8 not-ASCII 'é' is not compatible with a Rexx numeric value.
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
+</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;12&quot;x~text~bitAnd=                                  </span><span style="font-weight:bold;color:blue;">-- '[12]'   (&quot;12&quot;x)</span>
+'[12]'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;73&quot;x~text~bitAnd(&quot;27&quot;x~text)=                      </span><span style="font-weight:bold;color:blue;">-- '#'      (&quot;23&quot;x)</span>
+'#'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;13&quot;x~text~bitAnd(&quot;5555&quot;x~text)=                    </span><span style="font-weight:bold;color:blue;">-- '[11]U'  (&quot;1155&quot;x)</span>
+'[11]U'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;13&quot;x~text~bitAnd(&quot;5555&quot;x~text,&quot;74&quot;x~text)=         </span><span style="font-weight:bold;color:blue;">-- '[11]T'  (&quot;1154&quot;x)</span>
+'[11]T'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;pQrS&quot;~text~bitAnd(,&quot;DF&quot;x~text(&quot;byte&quot;))=            </span><span style="font-weight:bold;color:blue;">-- &quot;PQRS&quot;</span>
+'PQRS'
+
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;12&quot;x~text~bitOr=                                   </span><span style="font-weight:bold;color:blue;">-- '[12]'       (&quot;12&quot;x)</span>
+'[12]'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;15&quot;x~text~bitOr(&quot;24&quot;x~text)=                       </span><span style="font-weight:bold;color:blue;">-- 5            (&quot;35&quot;x)</span>
+ 5
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;15&quot;x~text~bitOr(&quot;2456&quot;x~text)=                     </span><span style="font-weight:bold;color:blue;">-- '5V'         (&quot;3556&quot;x)</span>
+'5V'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;15&quot;x~text~bitOr(&quot;2456&quot;x~text,&quot;F0&quot;x~text(&quot;byte&quot;))=  </span><span style="font-weight:bold;color:blue;">-- '5?'         (&quot;35F6&quot;x)</span>
+'5�'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;1111&quot;x~text~bitOr(,&quot;4D&quot;x~text)=                    </span><span style="font-weight:bold;color:blue;">-- ']]'         (&quot;5D5D&quot;x)</span>
+']]'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;pQrS&quot;~text~bitOr(,&quot;20&quot;x~text)=                     </span><span style="font-weight:bold;color:blue;">-- &quot;pqrs&quot;</span>
+'pqrs'
+
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;12&quot;x~text~bitXor=                                  </span><span style="font-weight:bold;color:blue;">-- '[12]'       (&quot;12&quot;x)</span>
+'[12]'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;12&quot;x~text~bitXor(&quot;22&quot;x~text)=                      </span><span style="font-weight:bold;color:blue;">-- 0            (&quot;30&quot;x)</span>
+ 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;1211&quot;x~text~bitXor(&quot;22&quot;x~text)=                    </span><span style="font-weight:bold;color:blue;">-- '0[11]'      (&quot;3011&quot;x)</span>
+'0[11]'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;1111&quot;x~text~bitXor(&quot;444444&quot;x~text)=                </span><span style="font-weight:bold;color:blue;">-- 'UUD'        (&quot;555544&quot;x)</span>
+'UUD'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;1111&quot;x~text~bitXor(&quot;444444&quot;x~text,&quot;40&quot;x~text)=     </span><span style="font-weight:bold;color:blue;">-- 'UU[04]'     (&quot;555504&quot;x)</span>
+'UU[04]'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;1111&quot;x~text~bitXor(,&quot;4D&quot;x~text)=                   </span><span style="font-weight:bold;color:blue;">-- '\\'         (&quot;5C5C&quot;x)</span>
+'\\'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;C711&quot;x~text~bitXor(&quot;222222&quot;x~text,&quot; &quot;~text)=       </span><span style="font-weight:bold;color:blue;">-- '?3[02]'     (&quot;E53302&quot;x)</span>
+'�3[02]'
+
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Implementation of caselessStartsWith, startsWith:
+</span><span style="font-weight:bold;color:blue;">(forwards to caselessPos or pos, and returns .true if result == 1)
+</span><span style="font-weight:bold;color:blue;">(was already implemented, waiting for 'pos' implementation)
+</span><span style="font-weight:bold;color:blue;">Examples:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père&quot;~text~c2g=                                </span><span style="font-weight:bold;color:blue;">-- '50 C3A8 72 65'</span>
+'50 C3A8 72 65'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père&quot;~text~startsWith(&quot;50&quot;x)=                  </span><span style="font-weight:bold;color:blue;">-- true</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père&quot;~text~startsWith(&quot;50C3&quot;x)=                </span><span style="font-weight:bold;color:blue;">-- Invalid UTF-8 string     (utf8proc error because &quot;50C3&quot;x is an invalid UTF-8 encoding)</span>
+<span style="font-weight:bold;color:red;">Invalid UTF-8 string.
+</span><span style="font-weight:bold;color:red;">Error code= 22.900
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père&quot;~text~startsWith(&quot;50C3&quot;x~text(&quot;byte&quot;))=   </span><span style="font-weight:bold;color:blue;">-- Encoding: cannot compare Byte not-ASCII 'P?' with UTF-8 not-ASCII 'Père'</span>
+<span style="font-weight:bold;color:red;">Encoding: cannot compare Byte not-ASCII 'P�' with UTF-8 not-ASCII 'Père'.
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père&quot;~text~startsWith(&quot;50C3A8&quot;x)=              </span><span style="font-weight:bold;color:blue;">-- true</span>
+ 1
+
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;éßﬄ&quot;~text~c2g=                                 </span><span style="font-weight:bold;color:blue;">-- 'C3A9 C39F EFAC84'</span>
+'C3A9 C39F EFAC84'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;éßﬄ&quot;~text~casefold~c2g=                        </span><span style="font-weight:bold;color:blue;">-- 'C3A9 73 73 66 66 6C'</span>
+'C3A9 73 73 66 66 6C'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;éßﬄ&quot;~text~caselessStartsWith(&quot;É&quot;)=             </span><span style="font-weight:bold;color:blue;">-- true</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;éßﬄ&quot;~text~caselessStartsWith(&quot;És&quot;)=            </span><span style="font-weight:bold;color:blue;">-- false</span>
+ 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;éßﬄ&quot;~text~caselessStartsWith(&quot;Éss&quot;)=           </span><span style="font-weight:bold;color:blue;">-- true</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;éßﬄ&quot;~text~caselessStartsWith(&quot;Éssf&quot;)=          </span><span style="font-weight:bold;color:blue;">-- false</span>
+ 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;éßﬄ&quot;~text~caselessStartsWith(&quot;Éssff&quot;)=         </span><span style="font-weight:bold;color:blue;">-- false</span>
+ 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;éßﬄ&quot;~text~caselessStartsWith(&quot;Éssffl&quot;)=        </span><span style="font-weight:bold;color:blue;">-- true</span>
+ 1
+
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~startsWith(&quot;noël👩&quot;)=                       </span><span style="font-weight:bold;color:blue;">-- false</span>
+ 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~startsWith(&quot;noël👩&quot;, aligned:.false)=       </span><span style="font-weight:bold;color:blue;">-- true</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~startsWith(&quot;noël👩‍👨‍👩‍&quot;)=                  </span><span style="font-weight:bold;color:blue;">-- false</span>
+ 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~startsWith(&quot;noël👩‍👨‍👩‍&quot;, aligned:.false)=  </span><span style="font-weight:bold;color:blue;">-- true</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~startsWith(&quot;noël👩‍👨‍👩‍👧&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- true</span>
+ 1
 
 
 <span style="font-weight:bold;color:blue;">-- ===============================================================================
@@ -524,7 +659,10 @@ byte pos 10     character pos= 8                    +8.17
 </span><span style="font-weight:bold;color:blue;">to a String.
 </span><span style="font-weight:bold;color:blue;">That allows to go further in the tests of regular expression.
 </span><span style="font-weight:bold;color:blue;">*/
-</span>
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">unckeckedConversionToString = .Unicode~unckeckedConversionToString </span><span style="font-weight:bold;color:blue;">-- backup</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~unckeckedConversionToString = .true</span>
+
+
 <span style="font-weight:bold;color:blue;">-- bug in regex.cls
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">p = .Pattern~compile(&quot;(.)*foo&quot;)</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">p~matches(&quot;xfooxxxxxxfooXXXX&quot;)=         </span><span style="font-weight:bold;color:blue;">-- Invalid position argument specified; found &quot;0&quot;.</span>
@@ -793,6 +931,9 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~
  5
 T'🎅'
  1
+
+
+ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~unckeckedConversionToString = unckeckedConversionToString </span><span style="font-weight:bold;color:blue;">-- restore</span>
 
 
 <span style="font-weight:bold;color:blue;">-- ===============================================================================
@@ -5168,7 +5309,7 @@ an UnicodeCharacterIntervalSupplier
 <span style="font-weight:bold;color:blue;">-- Informations about Unicode:
 </span><span style="font-weight:bold;color:blue;">-- Remove dataDirectory because the value is different between Windows and Macos/Linux
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~informations~~remove(&quot;dataDirectory&quot;)=</span>
-a Directory (11 items)
+a Directory (12 items)
 'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=16 notExpanded:16 intervals, 105071 characters)
 'characters'                         : (an UnicodeCharacterSupplier count=44184 size=918000)
 'maxCodepoint'                       :  1114111
@@ -5179,6 +5320,7 @@ a Directory (11 items)
 'totalCharactersLoaded'              :  149186
 'totalIntervalCharacters'            :  105071
 'totalIntervalCharactersNotExpanded' :  105071
+'unckeckedConversionToString'        :  0
 'version'                            : '15.0.0'
 
 

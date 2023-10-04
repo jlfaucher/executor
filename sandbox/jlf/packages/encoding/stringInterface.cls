@@ -12,6 +12,12 @@
 /******************************************************************************/
 ::class "IndexerHelpers" mixinclass Object public -- private
 
+-- Lets use directly a StringIndexer where a Text or Buffer or String is requested
+::method requestTextOrBufferOrString
+    use strict arg -- none
+    return self~string~text
+
+
 -- If you modify this method then see if the method EncodedMutableBuffer~appendEncoded must be modified as well
 ::method append class
     -- Positional arguments : zero to N text or buffer or string.
@@ -46,6 +52,10 @@
     padText = pad~request("RexxText") -- not requestTextOrBufferOrString because we really need the pad's length in characters
     if .nil == padText then signal incorrect_pad
     if padText~length <> 1 then signal incorrect_padText
+
+    .Encoding~comparisonMode(selfText, textText) -- raise an error if not compatible
+    .Encoding~forConcatenation(selfText, padText) -- raise an error if not compatible
+    .Encoding~forConcatenation(textText, padText) -- raise an error if not compatible
 
     -- max length before transformation
     maxLength = max(selfText~length, textText~length)
@@ -92,6 +102,9 @@
         selfLength = min(length, self~length)
         textLength = min(length, text~length)
     end
+
+    .Encoding~comparisonMode(self, text) -- raise an error if not compatible
+
     selfNormalized = self~substr(n, selfLength)~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
     textNormalized = text~substr(n, textLength)~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
 
@@ -119,13 +132,14 @@
     use strict arg other
     use strict named arg normalization, casefold, lump, stripIgnorable, stripMark, stripCC, stripNA
 
-    selfTextTransformer = self~transformer~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
-    selfTextTransformed = selfTextTransformer~iSubtext
-
     otherText = other~request("RexxText") -- not requestTextOrBufferOrString because we really need a RexxText
     if .nil == otherText then signal argument_1_must_have_a_text_or_string_value
-    otherTextTransformed = otherText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
 
+    .Encoding~comparisonMode(self, otherText) -- raise an error if not compatible
+
+    selfTextTransformer = self~transformer~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
+    selfTextTransformed = selfTextTransformer~iSubtext
+    otherTextTransformed = otherText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
     if otherTextTransformed~string~length == 0 then return .false
     startB = selfTextTransformed~string~length - otherTextTransformed~string~length + 1
     if startB <= 0 then return .false -- can't match, other is longer than self
@@ -226,6 +240,9 @@
 
     charsText = chars~request("RexxText") -- not requestTextOrBufferOrString because we really need a RexxText
     if .nil == charsText then signal argument_2_must_have_a_text_or_string_value
+
+    .Encoding~comparisonMode(self, charsText) -- raise an error if not compatible
+
     -- yes, normalize the whole chars.
     -- If it contains ligatures, then it may be decomposed and the test will be done with each character of the decomposed ligature
     charsTextNormalized = charsText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
@@ -263,6 +280,9 @@
 
     otherText = other~request("RexxText") -- not requestTextOrBufferOrString because we really need a RexxText
     if .nil == otherText then signal argument_2_must_have_a_text_or_string_value
+
+    .Encoding~comparisonMode(self, otherText) -- raise an error if not compatible
+
     call check_position nC, otherText~length
     if .nil == lengthC then lengthC = otherText~length - nC + 1
     call check_length lengthC, otherText~length, nC
@@ -328,6 +348,8 @@
 
     needleText = needle~request("RexxText") -- not requestTextOrBufferOrString because we really need a RexxText
     if .nil == needleText then signal argument_1_must_have_a_text_or_string_value
+
+    .Encoding~comparisonMode(self, needleText) -- raise an error if not compatible
 
     if \datatype(startC, "w") then signal invalid_position
     if startC < 1 then signal invalid_position
@@ -481,6 +503,9 @@ end
     if .nil == padText then signal incorrect_pad
     if padText~length <> 1 then signal incorrect_padText
 
+    -- yes, check always, even if padText will not be used
+    encoding = .Encoding~forConcatenation(self, padText) -- raise an error if not compatible
+
     width = length
     len = self~length
 
@@ -495,7 +520,6 @@ end
     end
 
     if width > len then do
-        encoding = .Encoding~forConcatenation(self~string, padText) -- raise an error if not compatible
         leftPad = (width - len) % 2
         rightPad = (width - len) - leftPad
         space = rightPad + leftPad + len

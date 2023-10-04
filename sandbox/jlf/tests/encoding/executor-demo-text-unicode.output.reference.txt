@@ -40,7 +40,7 @@ The following method gives informations about these intervals.
 */
 -- Remove dataDirectory because the value is different between Windows and Macos/Linux
 ooRexx> .Unicode~informations~~remove("dataDirectory")=
-a Directory (11 items)
+a Directory (12 items)
 'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=16 notExpanded:16 intervals, 105071 characters)
 'characters'                         : (an UnicodeCharacterSupplier count=44180 size=918000)
 'maxCodepoint'                       :  1114111
@@ -51,6 +51,7 @@ a Directory (11 items)
 'totalCharactersLoaded'              :  149186
 'totalIntervalCharacters'            :  105071
 'totalIntervalCharactersNotExpanded' :  105071
+'unckeckedConversionToString'        :  0
 'version'                            : '15.0.0'
 
 -- Select the characters whose category is Cc (Control)

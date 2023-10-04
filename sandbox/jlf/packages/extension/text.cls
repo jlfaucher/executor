@@ -446,7 +446,7 @@ base class...
 ::method makestring
     expose indexer
     use strict arg -- none
-    return indexer~string -- for experimentation, don't check if compatible
+    if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
 
     if self~isCompatibleWithByteString then return indexer~string
     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
@@ -837,12 +837,12 @@ Instance methods
 []                              (new 5) full
 ?                               (new 5) full
 abbrev
-abs
+abs                             full
 append                          (new 5) full
-b2x
-bitAnd
-bitOr
-bitXor
+b2x                             full
+bitAnd                          full
+bitOr                           full
+bitXor                          full
 c2d                             full
 c2x                             full
 caselessAbbrev
@@ -858,7 +858,7 @@ caselessLastPos
 caselessMatch                   full UTF-8
 caselessMatchChar               full UTF-8
 caselessPos                     full UTF-8
-caselessStartsWith              (new 5)
+caselessStartsWith              (new 5) full UTF-8
 caselessWordPos
 center                          full
 centre                          full
@@ -901,7 +901,7 @@ right                           full
 round
 sign
 space
-startsWith                      (new 5)
+startsWith                      (new 5) full UTF-8
 strip
 subChar                         full
 substr                          full
@@ -916,9 +916,9 @@ wordIndex
 wordLength
 wordPos
 words
-x2b                             full (raise an error if not compatible with String)
-x2c                             full (raise an error if not compatible with String)
-x2d                             full (raise an error if not compatible with String
+x2b                             full
+x2c                             full
+x2d                             full
 
 Other methods/routines
 ======================
@@ -944,6 +944,11 @@ stringChunks
     forward to (self~string)
 
 
+::method abs
+    self~checkNumericValueCompatibility
+    forward to (self~string)
+
+
 ::method append
     forward to (self~indexer)
 
@@ -951,6 +956,23 @@ stringChunks
 -- Redundant, to offer the same interface as MutableBuffer
 ::method appendEncoded
     forward message "append"
+
+
+::method b2x
+    self~checkNumericValueCompatibility
+    forward to (self~string)
+
+
+::method bitAnd
+    forward to (self~string)
+
+
+::method bitOr
+    forward to (self~string)
+
+
+::method bitXor
+    forward to (self~string)
 
 
 ::method c2d
@@ -993,7 +1015,7 @@ stringChunks
     end
     -- Force asList: to .false, we want a position
     forward message "caselessPos" to (self~indexer) namedArguments (.context~namedArgs~~setEntry("asList", .false)) continue
-    return result <> 0
+    return result <> 0 -- the result will be an array if aligned:.false.
 
 
 ::method caselessEndsWith
@@ -1042,6 +1064,8 @@ stringChunks
     end
     -- Force asList: to .false, we want a position
     forward message "caselessPos" to (self~indexer) namedArguments (.context~namedArgs~~setEntry("asList", .false)) continue
+    -- the result will be an array if aligned:.false
+    if result~isA(.array) then return result[1] == +1.1
     return result == 1
 
 
@@ -1095,7 +1119,7 @@ stringChunks
     end
     -- Force asList: to .false, we want a position
     forward message "pos" to (self~indexer) namedArguments (.context~namedArgs~~setEntry("asList", .false)) continue
-    return result \== 0
+    return result \== 0 -- the result will be an array if aligned:.false
 
 
 ::method copies
@@ -1214,6 +1238,8 @@ stringChunks
     end
     -- Force asList: to .false, we want a position
     forward message "pos" to (self~indexer) namedArguments (.context~namedArgs~~setEntry("asList", .false)) continue
+    -- the result will be an array if aligned:.false
+    if result~isA(.array) then return (result[1] = 1.1) -- hum, testing with == returns false. Should test == "+1.1" to get true when the result is something like (+1.1,-5.10)
     return result == 1
 
 

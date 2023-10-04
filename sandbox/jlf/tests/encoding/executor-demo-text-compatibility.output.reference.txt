@@ -717,8 +717,8 @@ ooRexx> "noel"~substr(3, 3, "▷")=; result~description=        -- self is a Str
 Incorrect pad or character argument specified; found "▷"
 Error code= 93.922
 ooRexx> "noel"~substr(3, 3, "▷"~text)=; result~description=   -- self is a String: error because the pad character is not compatible with String
-Incorrect pad or character argument specified; found "▷"
-Error code= 93.922
+UTF-8 not-ASCII '▷' cannot be converted to a String instance.
+Error code= 23.900
 ooRexx> "noel"~text~substr(3, 3, "▷")=; result~description=   -- no error because self is a RexxText and the pad character is one character when converted to the default encoding
 T'el▷'
 'UTF-8 not-ASCII (3 characters, 3 codepoints, 5 bytes, 0 error)'
@@ -815,6 +815,13 @@ A way to test the compatibility of RexxText with String is to pass instances of
 RexxText to the regular expression engine regex.cls, and see what happens...
 */
 
+/*
+Relax the constraint "self~isCompatibleWithByteString" when converting a RexxText
+to a String. That allows to go further in the tests of regular expression.
+*/
+ooRexx> unckeckedConversionToString = .Unicode~unckeckedConversionToString -- backup
+ooRexx> .Unicode~unckeckedConversionToString = .true
+
 ooRexx> pB = .Pattern~compile("a.c")
 ooRexx> pT = .Pattern~compile("a.c"~text)
 ooRexx> pB~matches("abc")=                          -- 1
@@ -884,6 +891,8 @@ ooRexx> r~matched=; r~start=; r~end=; r~text=; r~length=
  5
 T'🎅'
  1
+
+ooRexx> .Unicode~unckeckedConversionToString = unckeckedConversionToString -- restore
 
 
 -----------------------------------------

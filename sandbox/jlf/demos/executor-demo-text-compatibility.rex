@@ -725,6 +725,14 @@ RexxText to the regular expression engine regex.cls, and see what happens...
 */
 sleep no prompt
 
+/*
+Relax the constraint "self~isCompatibleWithByteString" when converting a RexxText
+to a String. That allows to go further in the tests of regular expression.
+*/
+unckeckedConversionToString = .Unicode~unckeckedConversionToString -- backup
+.Unicode~unckeckedConversionToString = .true
+sleep no prompt
+
 pB = .Pattern~compile("a.c")
 pT = .Pattern~compile("a.c"~text)
 pB~matches("abc")=                          -- 1
@@ -743,6 +751,7 @@ pB~matches("🤶🐕2🐈🎅")=                    -- 0 (KO)
 pT~matches("🤶🐕2🐈🎅"~text)=               -- 1
 pB~matches("🤶🐕👩‍👨‍👩‍👧🐈🎅")=          -- 0 (KO)
 pT~matches("🤶🐕👩‍👨‍👩‍👧🐈🎅"~text)=     -- 1
+sleep no prompt
 
 -- "🤶" or "🎅"
 pB = .Pattern~compile("🤶|🎅")
@@ -759,6 +768,9 @@ r = pB~find("xxx🎅🤶cxxx")
 r~matched=; r~start=; r~end=; r~text=; r~length=
 r = pT~find("xxx🎅🤶cxxx"~text)
 r~matched=; r~start=; r~end=; r~text=; r~length=
+sleep no prompt
+
+.Unicode~unckeckedConversionToString = unckeckedConversionToString -- restore
 
 
 -----------------------------------------
