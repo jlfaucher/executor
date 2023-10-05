@@ -32,7 +32,7 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 21 Sep 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S37b5Q600001cc88f0
+</span><span style="font-weight:bold;color:green;">Input queue name: S5e97Q600001cc8f70
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.0.0 
@@ -224,7 +224,13 @@ an Array (shape [5], 5 items)
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;No&quot; || &quot;EB&quot;x || &quot;l&quot; || &quot;81&quot;x)~text(&quot;windows-1252&quot;)~utf8(strict:.true)=    </span><span style="font-weight:bold;color:blue;">-- Cannot convert windows-1252 not-ASCII character 129 (81) at byte-position 5 to UTF-8.</span>
 <span style="font-weight:bold;color:red;">Cannot convert windows-1252 not-ASCII character 129 (81) at byte-position 5 to UTF-8.
 </span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;No&quot; || &quot;EB&quot;x || &quot;l&quot; || &quot;81&quot;x)~text(&quot;windows-1252&quot;)~utf8(strict:.true, replacementCharacter:&quot;&quot;)=       </span><span style="font-weight:bold;color:blue;">-- T'Noël'</span>
+T'Noël'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;No&quot; || &quot;EB&quot;x || &quot;l&quot; || &quot;81&quot;x)~text(&quot;windows-1252&quot;)~utf8(strict:.true, replacementCharacter:&quot;#&quot;)=      </span><span style="font-weight:bold;color:blue;">-- T'Noël#'</span>
+T'Noël#'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;No&quot; || &quot;EB&quot;x || &quot;l&quot; || &quot;81&quot;x)~text(&quot;windows-1252&quot;)~utf8(strict:.true, replacementCharacter:&quot;🎅&quot;)=     </span><span style="font-weight:bold;color:blue;">-- T'Noël🎅'</span>
+T'Noël🎅'
+
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Noël\u{HOP}&quot;~text(&quot;utf8&quot;)~unescape~transcodeTo(&quot;byte&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- Cannot convert UTF-8 not-ASCII codepoint 235 (EB) at position 3 to Byte.</span>
 <span style="font-weight:bold;color:red;">Cannot convert UTF-8 not-ASCII codepoint 235 (EB) at position 3 to Byte.
 </span><span style="font-weight:bold;color:red;">Error code= 23.900

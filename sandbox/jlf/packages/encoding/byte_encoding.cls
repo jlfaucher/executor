@@ -315,7 +315,7 @@ newline = translate(oldline,oubytes,inbytes)
         -- A negative codepoint means unused character with fallback mapping
         if .nil == codepoint then return replacementCodepoint
         if codepoint == "" then return replacementCodepoint
-        if strict, codepoint < 0 then return .nil -- no fallback when strict
+        if strict, codepoint < 0 then return replacementCodepoint -- no fallback when strict
         return abs(codepoint)
 
 

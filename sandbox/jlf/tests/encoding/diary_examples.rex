@@ -129,6 +129,9 @@ Examples:
     ("No" || "EB"x || "l" || "81"x)~text("windows-1252")~utf8(strict:.false)=   -- T'Noël (strict:.false is the default)
     ("No" || "EB"x || "l" || "81"x)~text("windows-1252")~utf8(strict:.false)~unicodecharacters==
     ("No" || "EB"x || "l" || "81"x)~text("windows-1252")~utf8(strict:.true)=    -- Cannot convert windows-1252 not-ASCII character 129 (81) at byte-position 5 to UTF-8.
+    ("No" || "EB"x || "l" || "81"x)~text("windows-1252")~utf8(strict:.true, replacementCharacter:"")=       -- T'Noël'
+    ("No" || "EB"x || "l" || "81"x)~text("windows-1252")~utf8(strict:.true, replacementCharacter:"#")=      -- T'Noël#'
+    ("No" || "EB"x || "l" || "81"x)~text("windows-1252")~utf8(strict:.true, replacementCharacter:"🎅")=     -- T'Noël🎅'
 
     "Noël\u{HOP}"~text("utf8")~unescape~transcodeTo("byte")=                    -- Cannot convert UTF-8 not-ASCII codepoint 235 (EB) at position 3 to Byte.
     "Noël\u{HOP}"~text("utf8")~unescape~transcodeTo("windows-1252")=            -- T'No?l?'
