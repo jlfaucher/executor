@@ -3,6 +3,17 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2023 Oct 06
+
+[Encoded strings]
+
+Update library uni-algo from v1.0.0 to v1.1.0
+https://github.com/uni-algo/uni-algo
+
+.Unicode~unialgo_version=           -- '1.1.0'
+
+
+===============================================================================
 2023 Oct 04
 
 [Encoded strings]

@@ -22,11 +22,13 @@
 
 UNI_ALGO_IMPL_NAMESPACE_BEGIN
 
-// The buffer must not be less than 4+30+18=52
-// 4 is 4 starters, check norm_decomp_return why 4
+// The buffer must not be less than 4(3)+30+18=52(51)
+// 4 is 4 starters, check norm_decomp_return why 4(3)
 // 30 is the max number of non-starters
 // 18 is max decomposition (we use the end of the buffer to store the next decomposed code point)
-// Use 70 just because it means we need 70*4+70=260 bytes on stack for any normalization
+// Use 70 just because it means we need 70*4+70=350 bytes on stack for any normalization
+// TODO: 70 is too much, now we have better safe facilities to guarantee that the size of the buffer will be enough in future Unicode versions
+// and smaller buffer gives a bit better performance for some strange reason (CPU cache maybe? Needs more testing).
 #ifdef __cplusplus
 uaix_const size_t norm_buffer_size = 70; // tag_unicode_unstable_value
 #else // tag_synchronize
@@ -288,37 +290,36 @@ uaix_static bool stages_ccc_qc_order(type_codept ccc_qc, unsigned char* const la
 uaix_always_inline
 uaix_static void norm_order(struct norm_buffer* const buffer, size_t size)
 {
+    // Canonical Ordering Algorithm
+
     if (size > 0)
     {
         size_t last = size - 1;
 
         while (last > 0)
         {
-            size_t curr = 0; // tag_must_be_initialized
-            size_t curr_ccc = 0; // tag_must_be_initialized
             size_t new_last = 0; // tag_must_be_initialized
 
-            for (; curr < last; ++curr, ++curr_ccc)
+            for (size_t curr = 0; curr < last; ++curr)
             {
                 const size_t next = curr + 1;
-                const size_t next_ccc = curr_ccc + 1;
 
-                if (buffer->ccc[next_ccc] > 0 && buffer->ccc[next_ccc] < buffer->ccc[curr_ccc])
+                if (buffer->ccc[next] > 0 && buffer->ccc[next] < buffer->ccc[curr])
                 {
                     // Swap
 
-                    const type_codept   temp     = buffer->cps[curr];
-                    const unsigned char temp_ccc = buffer->ccc[curr_ccc];
-
+                    const type_codept   temp_cps = buffer->cps[curr];
                     buffer->cps[curr] = buffer->cps[next];
-                    buffer->cps[next] = temp;
+                    buffer->cps[next] = temp_cps;
 
-                    buffer->ccc[curr_ccc] = buffer->ccc[next_ccc];
-                    buffer->ccc[next_ccc] = temp_ccc;
+                    const unsigned char temp_ccc = buffer->ccc[curr];
+                    buffer->ccc[curr] = buffer->ccc[next];
+                    buffer->ccc[next] = temp_ccc;
 
                     new_last = curr;
                 }
             }
+
             last = new_last;
         }
     }
