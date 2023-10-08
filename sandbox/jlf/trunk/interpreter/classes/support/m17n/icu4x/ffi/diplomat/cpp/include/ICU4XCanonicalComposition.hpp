@@ -37,7 +37,7 @@ class ICU4XCanonicalComposition {
   /**
    * Construct a new ICU4XCanonicalComposition instance for NFC
    * 
-   * See the [Rust documentation for `try_new_unstable`](https://docs.rs/icu/latest/icu/normalizer/properties/struct.CanonicalComposition.html#method.try_new_unstable) for more information.
+   * See the [Rust documentation for `new`](https://docs.rs/icu/latest/icu/normalizer/properties/struct.CanonicalComposition.html#method.new) for more information.
    */
   static diplomat::result<ICU4XCanonicalComposition, ICU4XError> create(const ICU4XDataProvider& provider);
 
@@ -64,9 +64,9 @@ inline diplomat::result<ICU4XCanonicalComposition, ICU4XError> ICU4XCanonicalCom
   auto diplomat_result_raw_out_value = capi::ICU4XCanonicalComposition_create(provider.AsFFI());
   diplomat::result<ICU4XCanonicalComposition, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XCanonicalComposition>(std::move(ICU4XCanonicalComposition(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XCanonicalComposition>(ICU4XCanonicalComposition(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }

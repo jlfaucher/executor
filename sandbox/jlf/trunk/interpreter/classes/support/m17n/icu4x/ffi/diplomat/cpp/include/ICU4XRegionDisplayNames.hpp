@@ -36,9 +36,9 @@ class ICU4XRegionDisplayNames {
   /**
    * Creates a new `RegionDisplayNames` from locale data and an options bag.
    * 
-   * See the [Rust documentation for `try_new_unstable`](https://docs.rs/icu/latest/icu/displaynames/struct.RegionDisplayNames.html#method.try_new_unstable) for more information.
+   * See the [Rust documentation for `try_new`](https://docs.rs/icu/latest/icu/displaynames/struct.RegionDisplayNames.html#method.try_new) for more information.
    */
-  static diplomat::result<ICU4XRegionDisplayNames, ICU4XError> try_new_unstable(const ICU4XDataProvider& provider, const ICU4XLocale& locale);
+  static diplomat::result<ICU4XRegionDisplayNames, ICU4XError> try_new(const ICU4XDataProvider& provider, const ICU4XLocale& locale);
 
   /**
    * Returns the locale specific display name of a region.
@@ -70,13 +70,13 @@ class ICU4XRegionDisplayNames {
 #include "ICU4XDataProvider.hpp"
 #include "ICU4XLocale.hpp"
 
-inline diplomat::result<ICU4XRegionDisplayNames, ICU4XError> ICU4XRegionDisplayNames::try_new_unstable(const ICU4XDataProvider& provider, const ICU4XLocale& locale) {
-  auto diplomat_result_raw_out_value = capi::ICU4XRegionDisplayNames_try_new_unstable(provider.AsFFI(), locale.AsFFI());
+inline diplomat::result<ICU4XRegionDisplayNames, ICU4XError> ICU4XRegionDisplayNames::try_new(const ICU4XDataProvider& provider, const ICU4XLocale& locale) {
+  auto diplomat_result_raw_out_value = capi::ICU4XRegionDisplayNames_try_new(provider.AsFFI(), locale.AsFFI());
   diplomat::result<ICU4XRegionDisplayNames, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XRegionDisplayNames>(std::move(ICU4XRegionDisplayNames(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XRegionDisplayNames>(ICU4XRegionDisplayNames(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -87,7 +87,7 @@ template<typename W> inline diplomat::result<std::monostate, ICU4XError> ICU4XRe
   if (diplomat_result_raw_out_value.is_ok) {
     diplomat_result_out_value = diplomat::Ok(std::monostate());
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -99,7 +99,7 @@ inline diplomat::result<std::string, ICU4XError> ICU4XRegionDisplayNames::of(con
   if (diplomat_result_raw_out_value.is_ok) {
     diplomat_result_out_value = diplomat::Ok(std::monostate());
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value.replace_ok(std::move(diplomat_writeable_string));
 }

@@ -37,7 +37,7 @@ class ICU4XWeekCalculator {
   /**
    * Creates a new [`ICU4XWeekCalculator`] from locale data.
    * 
-   * See the [Rust documentation for `try_new_unstable`](https://docs.rs/icu/latest/icu/calendar/week/struct.WeekCalculator.html#method.try_new_unstable) for more information.
+   * See the [Rust documentation for `try_new`](https://docs.rs/icu/latest/icu/calendar/week/struct.WeekCalculator.html#method.try_new) for more information.
    */
   static diplomat::result<ICU4XWeekCalculator, ICU4XError> create(const ICU4XDataProvider& provider, const ICU4XLocale& locale);
 
@@ -79,9 +79,9 @@ inline diplomat::result<ICU4XWeekCalculator, ICU4XError> ICU4XWeekCalculator::cr
   auto diplomat_result_raw_out_value = capi::ICU4XWeekCalculator_create(provider.AsFFI(), locale.AsFFI());
   diplomat::result<ICU4XWeekCalculator, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XWeekCalculator>(std::move(ICU4XWeekCalculator(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XWeekCalculator>(ICU4XWeekCalculator(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }

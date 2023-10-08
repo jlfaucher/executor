@@ -37,9 +37,9 @@ class ICU4XLocaleDisplayNamesFormatter {
   /**
    * Creates a new `LocaleDisplayNamesFormatter` from locale data and an options bag.
    * 
-   * See the [Rust documentation for `try_new_unstable`](https://docs.rs/icu/latest/icu/displaynames/struct.LocaleDisplayNamesFormatter.html#method.try_new_unstable) for more information.
+   * See the [Rust documentation for `try_new`](https://docs.rs/icu/latest/icu/displaynames/struct.LocaleDisplayNamesFormatter.html#method.try_new) for more information.
    */
-  static diplomat::result<ICU4XLocaleDisplayNamesFormatter, ICU4XError> try_new_unstable(const ICU4XDataProvider& provider, const ICU4XLocale& locale, ICU4XDisplayNamesOptionsV1 options);
+  static diplomat::result<ICU4XLocaleDisplayNamesFormatter, ICU4XError> try_new(const ICU4XDataProvider& provider, const ICU4XLocale& locale, ICU4XDisplayNamesOptionsV1 options);
 
   /**
    * Returns the locale-specific display name of a locale.
@@ -68,14 +68,14 @@ class ICU4XLocaleDisplayNamesFormatter {
 #include "ICU4XLocale.hpp"
 #include "ICU4XDisplayNamesOptionsV1.hpp"
 
-inline diplomat::result<ICU4XLocaleDisplayNamesFormatter, ICU4XError> ICU4XLocaleDisplayNamesFormatter::try_new_unstable(const ICU4XDataProvider& provider, const ICU4XLocale& locale, ICU4XDisplayNamesOptionsV1 options) {
+inline diplomat::result<ICU4XLocaleDisplayNamesFormatter, ICU4XError> ICU4XLocaleDisplayNamesFormatter::try_new(const ICU4XDataProvider& provider, const ICU4XLocale& locale, ICU4XDisplayNamesOptionsV1 options) {
   ICU4XDisplayNamesOptionsV1 diplomat_wrapped_struct_options = options;
-  auto diplomat_result_raw_out_value = capi::ICU4XLocaleDisplayNamesFormatter_try_new_unstable(provider.AsFFI(), locale.AsFFI(), capi::ICU4XDisplayNamesOptionsV1{ .style = static_cast<capi::ICU4XDisplayNamesStyle>(diplomat_wrapped_struct_options.style), .fallback = static_cast<capi::ICU4XDisplayNamesFallback>(diplomat_wrapped_struct_options.fallback), .language_display = static_cast<capi::ICU4XLanguageDisplay>(diplomat_wrapped_struct_options.language_display) });
+  auto diplomat_result_raw_out_value = capi::ICU4XLocaleDisplayNamesFormatter_try_new(provider.AsFFI(), locale.AsFFI(), capi::ICU4XDisplayNamesOptionsV1{ .style = static_cast<capi::ICU4XDisplayNamesStyle>(diplomat_wrapped_struct_options.style), .fallback = static_cast<capi::ICU4XDisplayNamesFallback>(diplomat_wrapped_struct_options.fallback), .language_display = static_cast<capi::ICU4XLanguageDisplay>(diplomat_wrapped_struct_options.language_display) });
   diplomat::result<ICU4XLocaleDisplayNamesFormatter, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XLocaleDisplayNamesFormatter>(std::move(ICU4XLocaleDisplayNamesFormatter(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XLocaleDisplayNamesFormatter>(ICU4XLocaleDisplayNamesFormatter(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -86,7 +86,7 @@ template<typename W> inline diplomat::result<std::monostate, ICU4XError> ICU4XLo
   if (diplomat_result_raw_out_value.is_ok) {
     diplomat_result_out_value = diplomat::Ok(std::monostate());
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -98,7 +98,7 @@ inline diplomat::result<std::string, ICU4XError> ICU4XLocaleDisplayNamesFormatte
   if (diplomat_result_raw_out_value.is_ok) {
     diplomat_result_out_value = diplomat::Ok(std::monostate());
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value.replace_ok(std::move(diplomat_writeable_string));
 }

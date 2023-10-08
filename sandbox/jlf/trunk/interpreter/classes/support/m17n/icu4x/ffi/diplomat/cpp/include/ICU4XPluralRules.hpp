@@ -39,14 +39,14 @@ class ICU4XPluralRules {
   /**
    * Construct an [`ICU4XPluralRules`] for the given locale, for cardinal numbers
    * 
-   * See the [Rust documentation for `try_new_cardinal_unstable`](https://docs.rs/icu/latest/icu/plurals/struct.PluralRules.html#method.try_new_cardinal_unstable) for more information.
+   * See the [Rust documentation for `try_new_cardinal`](https://docs.rs/icu/latest/icu/plurals/struct.PluralRules.html#method.try_new_cardinal) for more information.
    */
   static diplomat::result<ICU4XPluralRules, ICU4XError> create_cardinal(const ICU4XDataProvider& provider, const ICU4XLocale& locale);
 
   /**
    * Construct an [`ICU4XPluralRules`] for the given locale, for ordinal numbers
    * 
-   * See the [Rust documentation for `try_new_ordinal_unstable`](https://docs.rs/icu/latest/icu/plurals/struct.PluralRules.html#method.try_new_ordinal_unstable) for more information.
+   * See the [Rust documentation for `try_new_ordinal`](https://docs.rs/icu/latest/icu/plurals/struct.PluralRules.html#method.try_new_ordinal) for more information.
    */
   static diplomat::result<ICU4XPluralRules, ICU4XError> create_ordinal(const ICU4XDataProvider& provider, const ICU4XLocale& locale);
 
@@ -82,9 +82,9 @@ inline diplomat::result<ICU4XPluralRules, ICU4XError> ICU4XPluralRules::create_c
   auto diplomat_result_raw_out_value = capi::ICU4XPluralRules_create_cardinal(provider.AsFFI(), locale.AsFFI());
   diplomat::result<ICU4XPluralRules, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XPluralRules>(std::move(ICU4XPluralRules(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XPluralRules>(ICU4XPluralRules(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -92,9 +92,9 @@ inline diplomat::result<ICU4XPluralRules, ICU4XError> ICU4XPluralRules::create_o
   auto diplomat_result_raw_out_value = capi::ICU4XPluralRules_create_ordinal(provider.AsFFI(), locale.AsFFI());
   diplomat::result<ICU4XPluralRules, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XPluralRules>(std::move(ICU4XPluralRules(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XPluralRules>(ICU4XPluralRules(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }

@@ -35,14 +35,14 @@ class ICU4XDecomposingNormalizer {
   /**
    * Construct a new ICU4XDecomposingNormalizer instance for NFC
    * 
-   * See the [Rust documentation for `try_new_nfd_unstable`](https://docs.rs/icu/latest/icu/normalizer/struct.DecomposingNormalizer.html#method.try_new_nfd_unstable) for more information.
+   * See the [Rust documentation for `new_nfd`](https://docs.rs/icu/latest/icu/normalizer/struct.DecomposingNormalizer.html#method.new_nfd) for more information.
    */
   static diplomat::result<ICU4XDecomposingNormalizer, ICU4XError> create_nfd(const ICU4XDataProvider& provider);
 
   /**
    * Construct a new ICU4XDecomposingNormalizer instance for NFKC
    * 
-   * See the [Rust documentation for `try_new_nfkd_unstable`](https://docs.rs/icu/latest/icu/normalizer/struct.DecomposingNormalizer.html#method.try_new_nfkd_unstable) for more information.
+   * See the [Rust documentation for `new_nfkd`](https://docs.rs/icu/latest/icu/normalizer/struct.DecomposingNormalizer.html#method.new_nfkd) for more information.
    */
   static diplomat::result<ICU4XDecomposingNormalizer, ICU4XError> create_nfkd(const ICU4XDataProvider& provider);
 
@@ -88,9 +88,9 @@ inline diplomat::result<ICU4XDecomposingNormalizer, ICU4XError> ICU4XDecomposing
   auto diplomat_result_raw_out_value = capi::ICU4XDecomposingNormalizer_create_nfd(provider.AsFFI());
   diplomat::result<ICU4XDecomposingNormalizer, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XDecomposingNormalizer>(std::move(ICU4XDecomposingNormalizer(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XDecomposingNormalizer>(ICU4XDecomposingNormalizer(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -98,9 +98,9 @@ inline diplomat::result<ICU4XDecomposingNormalizer, ICU4XError> ICU4XDecomposing
   auto diplomat_result_raw_out_value = capi::ICU4XDecomposingNormalizer_create_nfkd(provider.AsFFI());
   diplomat::result<ICU4XDecomposingNormalizer, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XDecomposingNormalizer>(std::move(ICU4XDecomposingNormalizer(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XDecomposingNormalizer>(ICU4XDecomposingNormalizer(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -111,7 +111,7 @@ template<typename W> inline diplomat::result<std::monostate, ICU4XError> ICU4XDe
   if (diplomat_result_raw_out_value.is_ok) {
     diplomat_result_out_value = diplomat::Ok(std::monostate());
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -123,7 +123,7 @@ inline diplomat::result<std::string, ICU4XError> ICU4XDecomposingNormalizer::nor
   if (diplomat_result_raw_out_value.is_ok) {
     diplomat_result_out_value = diplomat::Ok(std::monostate());
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value.replace_ok(std::move(diplomat_writeable_string));
 }

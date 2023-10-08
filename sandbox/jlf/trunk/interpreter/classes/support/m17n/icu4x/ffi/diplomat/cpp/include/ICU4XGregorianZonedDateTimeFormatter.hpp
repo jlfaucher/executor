@@ -44,7 +44,7 @@ class ICU4XGregorianZonedDateTimeFormatter {
    * This function has `date_length` and `time_length` arguments and uses default options
    * for the time zone.
    * 
-   * See the [Rust documentation for `try_new_unstable`](https://docs.rs/icu/latest/icu/datetime/struct.TypedZonedDateTimeFormatter.html#method.try_new_unstable) for more information.
+   * See the [Rust documentation for `try_new`](https://docs.rs/icu/latest/icu/datetime/struct.TypedZonedDateTimeFormatter.html#method.try_new) for more information.
    */
   static diplomat::result<ICU4XGregorianZonedDateTimeFormatter, ICU4XError> create_with_lengths(const ICU4XDataProvider& provider, const ICU4XLocale& locale, ICU4XDateLength date_length, ICU4XTimeLength time_length);
 
@@ -54,7 +54,7 @@ class ICU4XGregorianZonedDateTimeFormatter {
    * This function has `date_length` and `time_length` arguments and uses an ISO-8601 style
    * fallback for the time zone with the given configurations.
    * 
-   * See the [Rust documentation for `try_new_unstable`](https://docs.rs/icu/latest/icu/datetime/struct.TypedZonedDateTimeFormatter.html#method.try_new_unstable) for more information.
+   * See the [Rust documentation for `try_new`](https://docs.rs/icu/latest/icu/datetime/struct.TypedZonedDateTimeFormatter.html#method.try_new) for more information.
    */
   static diplomat::result<ICU4XGregorianZonedDateTimeFormatter, ICU4XError> create_with_lengths_and_iso_8601_time_zone_fallback(const ICU4XDataProvider& provider, const ICU4XLocale& locale, ICU4XDateLength date_length, ICU4XTimeLength time_length, ICU4XIsoTimeZoneOptions zone_options);
 
@@ -91,9 +91,9 @@ inline diplomat::result<ICU4XGregorianZonedDateTimeFormatter, ICU4XError> ICU4XG
   auto diplomat_result_raw_out_value = capi::ICU4XGregorianZonedDateTimeFormatter_create_with_lengths(provider.AsFFI(), locale.AsFFI(), static_cast<capi::ICU4XDateLength>(date_length), static_cast<capi::ICU4XTimeLength>(time_length));
   diplomat::result<ICU4XGregorianZonedDateTimeFormatter, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XGregorianZonedDateTimeFormatter>(std::move(ICU4XGregorianZonedDateTimeFormatter(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XGregorianZonedDateTimeFormatter>(ICU4XGregorianZonedDateTimeFormatter(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -102,9 +102,9 @@ inline diplomat::result<ICU4XGregorianZonedDateTimeFormatter, ICU4XError> ICU4XG
   auto diplomat_result_raw_out_value = capi::ICU4XGregorianZonedDateTimeFormatter_create_with_lengths_and_iso_8601_time_zone_fallback(provider.AsFFI(), locale.AsFFI(), static_cast<capi::ICU4XDateLength>(date_length), static_cast<capi::ICU4XTimeLength>(time_length), capi::ICU4XIsoTimeZoneOptions{ .format = static_cast<capi::ICU4XIsoTimeZoneFormat>(diplomat_wrapped_struct_zone_options.format), .minutes = static_cast<capi::ICU4XIsoTimeZoneMinuteDisplay>(diplomat_wrapped_struct_zone_options.minutes), .seconds = static_cast<capi::ICU4XIsoTimeZoneSecondDisplay>(diplomat_wrapped_struct_zone_options.seconds) });
   diplomat::result<ICU4XGregorianZonedDateTimeFormatter, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XGregorianZonedDateTimeFormatter>(std::move(ICU4XGregorianZonedDateTimeFormatter(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XGregorianZonedDateTimeFormatter>(ICU4XGregorianZonedDateTimeFormatter(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -115,7 +115,7 @@ template<typename W> inline diplomat::result<std::monostate, ICU4XError> ICU4XGr
   if (diplomat_result_raw_out_value.is_ok) {
     diplomat_result_out_value = diplomat::Ok(std::monostate());
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -127,7 +127,7 @@ inline diplomat::result<std::string, ICU4XError> ICU4XGregorianZonedDateTimeForm
   if (diplomat_result_raw_out_value.is_ok) {
     diplomat_result_out_value = diplomat::Ok(std::monostate());
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value.replace_ok(std::move(diplomat_writeable_string));
 }

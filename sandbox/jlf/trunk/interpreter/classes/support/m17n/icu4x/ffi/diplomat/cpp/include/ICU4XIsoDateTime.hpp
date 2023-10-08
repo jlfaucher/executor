@@ -187,7 +187,7 @@ class ICU4XIsoDateTime {
    * 
    * See the [Rust documentation for `days_in_year`](https://docs.rs/icu/latest/icu/calendar/struct.Date.html#method.days_in_year) for more information.
    */
-  uint32_t days_in_year() const;
+  uint16_t days_in_year() const;
   inline const capi::ICU4XIsoDateTime* AsFFI() const { return this->inner.get(); }
   inline capi::ICU4XIsoDateTime* AsFFIMut() { return this->inner.get(); }
   inline ICU4XIsoDateTime(capi::ICU4XIsoDateTime* i) : inner(i) {}
@@ -209,9 +209,9 @@ inline diplomat::result<ICU4XIsoDateTime, ICU4XError> ICU4XIsoDateTime::create(i
   auto diplomat_result_raw_out_value = capi::ICU4XIsoDateTime_create(year, month, day, hour, minute, second, nanosecond);
   diplomat::result<ICU4XIsoDateTime, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XIsoDateTime>(std::move(ICU4XIsoDateTime(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XIsoDateTime>(ICU4XIsoDateTime(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -262,9 +262,9 @@ inline diplomat::result<ICU4XWeekOf, ICU4XError> ICU4XIsoDateTime::week_of_year(
   diplomat::result<ICU4XWeekOf, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
   capi::ICU4XWeekOf diplomat_raw_struct_out_value = diplomat_result_raw_out_value.ok;
-    diplomat_result_out_value = diplomat::Ok<ICU4XWeekOf>(std::move(ICU4XWeekOf{ .week = std::move(diplomat_raw_struct_out_value.week), .unit = std::move(static_cast<ICU4XWeekRelativeUnit>(diplomat_raw_struct_out_value.unit)) }));
+    diplomat_result_out_value = diplomat::Ok<ICU4XWeekOf>(ICU4XWeekOf{ .week = std::move(diplomat_raw_struct_out_value.week), .unit = std::move(static_cast<ICU4XWeekRelativeUnit>(diplomat_raw_struct_out_value.unit)) });
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -280,7 +280,7 @@ inline uint8_t ICU4XIsoDateTime::months_in_year() const {
 inline uint8_t ICU4XIsoDateTime::days_in_month() const {
   return capi::ICU4XIsoDateTime_days_in_month(this->inner.get());
 }
-inline uint32_t ICU4XIsoDateTime::days_in_year() const {
+inline uint16_t ICU4XIsoDateTime::days_in_year() const {
   return capi::ICU4XIsoDateTime_days_in_year(this->inner.get());
 }
 #endif

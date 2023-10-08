@@ -37,14 +37,14 @@ class ICU4XCalendar {
   /**
    * Creates a new [`ICU4XCalendar`] from the specified date and time.
    * 
-   * See the [Rust documentation for `try_new_for_locale_unstable`](https://docs.rs/icu/latest/icu/calendar/enum.AnyCalendar.html#method.try_new_for_locale_unstable) for more information.
+   * See the [Rust documentation for `new_for_locale`](https://docs.rs/icu/latest/icu/calendar/enum.AnyCalendar.html#method.new_for_locale) for more information.
    */
   static diplomat::result<ICU4XCalendar, ICU4XError> create_for_locale(const ICU4XDataProvider& provider, const ICU4XLocale& locale);
 
   /**
    * Creates a new [`ICU4XCalendar`] from the specified date and time.
    * 
-   * See the [Rust documentation for `try_new_unstable`](https://docs.rs/icu/latest/icu/calendar/enum.AnyCalendar.html#method.try_new_unstable) for more information.
+   * See the [Rust documentation for `new`](https://docs.rs/icu/latest/icu/calendar/enum.AnyCalendar.html#method.new) for more information.
    */
   static diplomat::result<ICU4XCalendar, ICU4XError> create_for_kind(const ICU4XDataProvider& provider, ICU4XAnyCalendarKind kind);
 
@@ -71,9 +71,9 @@ inline diplomat::result<ICU4XCalendar, ICU4XError> ICU4XCalendar::create_for_loc
   auto diplomat_result_raw_out_value = capi::ICU4XCalendar_create_for_locale(provider.AsFFI(), locale.AsFFI());
   diplomat::result<ICU4XCalendar, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XCalendar>(std::move(ICU4XCalendar(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XCalendar>(ICU4XCalendar(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -81,9 +81,9 @@ inline diplomat::result<ICU4XCalendar, ICU4XError> ICU4XCalendar::create_for_kin
   auto diplomat_result_raw_out_value = capi::ICU4XCalendar_create_for_kind(provider.AsFFI(), static_cast<capi::ICU4XAnyCalendarKind>(kind));
   diplomat::result<ICU4XCalendar, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XCalendar>(std::move(ICU4XCalendar(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XCalendar>(ICU4XCalendar(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }

@@ -105,49 +105,49 @@ class ICU4XCodePointMapData8 {
   /**
    * 
    * 
-   * See the [Rust documentation for `load_general_category`](https://docs.rs/icu/latest/icu/properties/maps/fn.load_general_category.html) for more information.
+   * See the [Rust documentation for `general_category`](https://docs.rs/icu/latest/icu/properties/maps/fn.general_category.html) for more information.
    */
   static diplomat::result<ICU4XCodePointMapData8, ICU4XError> load_general_category(const ICU4XDataProvider& provider);
 
   /**
    * 
    * 
-   * See the [Rust documentation for `load_bidi_class`](https://docs.rs/icu/latest/icu/properties/maps/fn.load_bidi_class.html) for more information.
+   * See the [Rust documentation for `bidi_class`](https://docs.rs/icu/latest/icu/properties/maps/fn.bidi_class.html) for more information.
    */
   static diplomat::result<ICU4XCodePointMapData8, ICU4XError> load_bidi_class(const ICU4XDataProvider& provider);
 
   /**
    * 
    * 
-   * See the [Rust documentation for `load_east_asian_width`](https://docs.rs/icu/latest/icu/properties/maps/fn.load_east_asian_width.html) for more information.
+   * See the [Rust documentation for `east_asian_width`](https://docs.rs/icu/latest/icu/properties/maps/fn.east_asian_width.html) for more information.
    */
   static diplomat::result<ICU4XCodePointMapData8, ICU4XError> load_east_asian_width(const ICU4XDataProvider& provider);
 
   /**
    * 
    * 
-   * See the [Rust documentation for `load_line_break`](https://docs.rs/icu/latest/icu/properties/maps/fn.load_line_break.html) for more information.
+   * See the [Rust documentation for `line_break`](https://docs.rs/icu/latest/icu/properties/maps/fn.line_break.html) for more information.
    */
   static diplomat::result<ICU4XCodePointMapData8, ICU4XError> load_line_break(const ICU4XDataProvider& provider);
 
   /**
    * 
    * 
-   * See the [Rust documentation for `load_grapheme_cluster_break`](https://docs.rs/icu/latest/icu/properties/maps/fn.load_grapheme_cluster_break.html) for more information.
+   * See the [Rust documentation for `grapheme_cluster_break`](https://docs.rs/icu/latest/icu/properties/maps/fn.grapheme_cluster_break.html) for more information.
    */
   static diplomat::result<ICU4XCodePointMapData8, ICU4XError> try_grapheme_cluster_break(const ICU4XDataProvider& provider);
 
   /**
    * 
    * 
-   * See the [Rust documentation for `load_word_break`](https://docs.rs/icu/latest/icu/properties/maps/fn.load_word_break.html) for more information.
+   * See the [Rust documentation for `word_break`](https://docs.rs/icu/latest/icu/properties/maps/fn.word_break.html) for more information.
    */
   static diplomat::result<ICU4XCodePointMapData8, ICU4XError> load_word_break(const ICU4XDataProvider& provider);
 
   /**
    * 
    * 
-   * See the [Rust documentation for `load_sentence_break`](https://docs.rs/icu/latest/icu/properties/maps/fn.load_sentence_break.html) for more information.
+   * See the [Rust documentation for `sentence_break`](https://docs.rs/icu/latest/icu/properties/maps/fn.sentence_break.html) for more information.
    */
   static diplomat::result<ICU4XCodePointMapData8, ICU4XError> load_sentence_break(const ICU4XDataProvider& provider);
   inline const capi::ICU4XCodePointMapData8* AsFFI() const { return this->inner.get(); }
@@ -189,9 +189,9 @@ inline diplomat::result<ICU4XCodePointMapData8, ICU4XError> ICU4XCodePointMapDat
   auto diplomat_result_raw_out_value = capi::ICU4XCodePointMapData8_load_general_category(provider.AsFFI());
   diplomat::result<ICU4XCodePointMapData8, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XCodePointMapData8>(std::move(ICU4XCodePointMapData8(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XCodePointMapData8>(ICU4XCodePointMapData8(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -199,9 +199,9 @@ inline diplomat::result<ICU4XCodePointMapData8, ICU4XError> ICU4XCodePointMapDat
   auto diplomat_result_raw_out_value = capi::ICU4XCodePointMapData8_load_bidi_class(provider.AsFFI());
   diplomat::result<ICU4XCodePointMapData8, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XCodePointMapData8>(std::move(ICU4XCodePointMapData8(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XCodePointMapData8>(ICU4XCodePointMapData8(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -209,9 +209,9 @@ inline diplomat::result<ICU4XCodePointMapData8, ICU4XError> ICU4XCodePointMapDat
   auto diplomat_result_raw_out_value = capi::ICU4XCodePointMapData8_load_east_asian_width(provider.AsFFI());
   diplomat::result<ICU4XCodePointMapData8, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XCodePointMapData8>(std::move(ICU4XCodePointMapData8(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XCodePointMapData8>(ICU4XCodePointMapData8(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -219,9 +219,9 @@ inline diplomat::result<ICU4XCodePointMapData8, ICU4XError> ICU4XCodePointMapDat
   auto diplomat_result_raw_out_value = capi::ICU4XCodePointMapData8_load_line_break(provider.AsFFI());
   diplomat::result<ICU4XCodePointMapData8, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XCodePointMapData8>(std::move(ICU4XCodePointMapData8(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XCodePointMapData8>(ICU4XCodePointMapData8(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -229,9 +229,9 @@ inline diplomat::result<ICU4XCodePointMapData8, ICU4XError> ICU4XCodePointMapDat
   auto diplomat_result_raw_out_value = capi::ICU4XCodePointMapData8_try_grapheme_cluster_break(provider.AsFFI());
   diplomat::result<ICU4XCodePointMapData8, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XCodePointMapData8>(std::move(ICU4XCodePointMapData8(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XCodePointMapData8>(ICU4XCodePointMapData8(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -239,9 +239,9 @@ inline diplomat::result<ICU4XCodePointMapData8, ICU4XError> ICU4XCodePointMapDat
   auto diplomat_result_raw_out_value = capi::ICU4XCodePointMapData8_load_word_break(provider.AsFFI());
   diplomat::result<ICU4XCodePointMapData8, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XCodePointMapData8>(std::move(ICU4XCodePointMapData8(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XCodePointMapData8>(ICU4XCodePointMapData8(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -249,9 +249,9 @@ inline diplomat::result<ICU4XCodePointMapData8, ICU4XError> ICU4XCodePointMapDat
   auto diplomat_result_raw_out_value = capi::ICU4XCodePointMapData8_load_sentence_break(provider.AsFFI());
   diplomat::result<ICU4XCodePointMapData8, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XCodePointMapData8>(std::move(ICU4XCodePointMapData8(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XCodePointMapData8>(ICU4XCodePointMapData8(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }

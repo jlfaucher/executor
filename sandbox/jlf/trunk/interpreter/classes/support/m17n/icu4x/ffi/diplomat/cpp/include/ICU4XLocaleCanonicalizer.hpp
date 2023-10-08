@@ -37,14 +37,14 @@ class ICU4XLocaleCanonicalizer {
   /**
    * Create a new [`ICU4XLocaleCanonicalizer`].
    * 
-   * See the [Rust documentation for `try_new_unstable`](https://docs.rs/icu/latest/icu/locid_transform/struct.LocaleCanonicalizer.html#method.try_new_unstable) for more information.
+   * See the [Rust documentation for `new`](https://docs.rs/icu/latest/icu/locid_transform/struct.LocaleCanonicalizer.html#method.new) for more information.
    */
   static diplomat::result<ICU4XLocaleCanonicalizer, ICU4XError> create(const ICU4XDataProvider& provider);
 
   /**
    * Create a new [`ICU4XLocaleCanonicalizer`] with extended data.
    * 
-   * See the [Rust documentation for `try_new_with_expander_unstable`](https://docs.rs/icu/latest/icu/locid_transform/struct.LocaleCanonicalizer.html#method.try_new_with_expander_unstable) for more information.
+   * See the [Rust documentation for `new_with_expander`](https://docs.rs/icu/latest/icu/locid_transform/struct.LocaleCanonicalizer.html#method.new_with_expander) for more information.
    */
   static diplomat::result<ICU4XLocaleCanonicalizer, ICU4XError> create_extended(const ICU4XDataProvider& provider);
 
@@ -71,9 +71,9 @@ inline diplomat::result<ICU4XLocaleCanonicalizer, ICU4XError> ICU4XLocaleCanonic
   auto diplomat_result_raw_out_value = capi::ICU4XLocaleCanonicalizer_create(provider.AsFFI());
   diplomat::result<ICU4XLocaleCanonicalizer, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XLocaleCanonicalizer>(std::move(ICU4XLocaleCanonicalizer(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XLocaleCanonicalizer>(ICU4XLocaleCanonicalizer(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -81,9 +81,9 @@ inline diplomat::result<ICU4XLocaleCanonicalizer, ICU4XError> ICU4XLocaleCanonic
   auto diplomat_result_raw_out_value = capi::ICU4XLocaleCanonicalizer_create_extended(provider.AsFFI());
   diplomat::result<ICU4XLocaleCanonicalizer, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XLocaleCanonicalizer>(std::move(ICU4XLocaleCanonicalizer(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XLocaleCanonicalizer>(ICU4XLocaleCanonicalizer(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }

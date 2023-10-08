@@ -35,7 +35,7 @@ class ICU4XCanonicalCombiningClassMap {
   /**
    * Construct a new ICU4XCanonicalCombiningClassMap instance for NFC
    * 
-   * See the [Rust documentation for `try_new_unstable`](https://docs.rs/icu/latest/icu/normalizer/properties/struct.CanonicalCombiningClassMap.html#method.try_new_unstable) for more information.
+   * See the [Rust documentation for `new`](https://docs.rs/icu/latest/icu/normalizer/properties/struct.CanonicalCombiningClassMap.html#method.new) for more information.
    */
   static diplomat::result<ICU4XCanonicalCombiningClassMap, ICU4XError> create(const ICU4XDataProvider& provider);
 
@@ -72,9 +72,9 @@ inline diplomat::result<ICU4XCanonicalCombiningClassMap, ICU4XError> ICU4XCanoni
   auto diplomat_result_raw_out_value = capi::ICU4XCanonicalCombiningClassMap_create(provider.AsFFI());
   diplomat::result<ICU4XCanonicalCombiningClassMap, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XCanonicalCombiningClassMap>(std::move(ICU4XCanonicalCombiningClassMap(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XCanonicalCombiningClassMap>(ICU4XCanonicalCombiningClassMap(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }

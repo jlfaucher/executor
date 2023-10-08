@@ -37,7 +37,7 @@ class ICU4XScriptWithExtensions {
   /**
    * 
    * 
-   * See the [Rust documentation for `load_script_with_extensions_unstable`](https://docs.rs/icu/latest/icu/properties/script/fn.load_script_with_extensions_unstable.html) for more information.
+   * See the [Rust documentation for `script_with_extensions`](https://docs.rs/icu/latest/icu/properties/script/fn.script_with_extensions.html) for more information.
    */
   static diplomat::result<ICU4XScriptWithExtensions, ICU4XError> create(const ICU4XDataProvider& provider);
 
@@ -90,9 +90,9 @@ inline diplomat::result<ICU4XScriptWithExtensions, ICU4XError> ICU4XScriptWithEx
   auto diplomat_result_raw_out_value = capi::ICU4XScriptWithExtensions_create(provider.AsFFI());
   diplomat::result<ICU4XScriptWithExtensions, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XScriptWithExtensions>(std::move(ICU4XScriptWithExtensions(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XScriptWithExtensions>(ICU4XScriptWithExtensions(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }

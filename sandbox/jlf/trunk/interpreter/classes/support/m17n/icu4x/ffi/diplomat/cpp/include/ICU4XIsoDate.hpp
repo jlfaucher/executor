@@ -44,6 +44,13 @@ class ICU4XIsoDate {
   static diplomat::result<ICU4XIsoDate, ICU4XError> create(int32_t year, uint8_t month, uint8_t day);
 
   /**
+   * Creates a new [`ICU4XIsoDate`] representing January 1, 1970.
+   * 
+   * See the [Rust documentation for `unix_epoch`](https://docs.rs/icu/latest/icu/calendar/struct.Date.html#method.unix_epoch) for more information.
+   */
+  static ICU4XIsoDate create_for_unix_epoch();
+
+  /**
    * Convert this date to one in a different calendar
    * 
    * See the [Rust documentation for `to_calendar`](https://docs.rs/icu/latest/icu/calendar/struct.Date.html#method.to_calendar) for more information.
@@ -121,7 +128,7 @@ class ICU4XIsoDate {
    * 
    * See the [Rust documentation for `days_in_year`](https://docs.rs/icu/latest/icu/calendar/struct.Date.html#method.days_in_year) for more information.
    */
-  uint32_t days_in_year() const;
+  uint16_t days_in_year() const;
   inline const capi::ICU4XIsoDate* AsFFI() const { return this->inner.get(); }
   inline capi::ICU4XIsoDate* AsFFIMut() { return this->inner.get(); }
   inline ICU4XIsoDate(capi::ICU4XIsoDate* i) : inner(i) {}
@@ -141,11 +148,14 @@ inline diplomat::result<ICU4XIsoDate, ICU4XError> ICU4XIsoDate::create(int32_t y
   auto diplomat_result_raw_out_value = capi::ICU4XIsoDate_create(year, month, day);
   diplomat::result<ICU4XIsoDate, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XIsoDate>(std::move(ICU4XIsoDate(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XIsoDate>(ICU4XIsoDate(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
+}
+inline ICU4XIsoDate ICU4XIsoDate::create_for_unix_epoch() {
+  return ICU4XIsoDate(capi::ICU4XIsoDate_create_for_unix_epoch());
 }
 inline ICU4XDate ICU4XIsoDate::to_calendar(const ICU4XCalendar& calendar) const {
   return ICU4XDate(capi::ICU4XIsoDate_to_calendar(this->inner.get(), calendar.AsFFI()));
@@ -167,9 +177,9 @@ inline diplomat::result<ICU4XWeekOf, ICU4XError> ICU4XIsoDate::week_of_year(cons
   diplomat::result<ICU4XWeekOf, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
   capi::ICU4XWeekOf diplomat_raw_struct_out_value = diplomat_result_raw_out_value.ok;
-    diplomat_result_out_value = diplomat::Ok<ICU4XWeekOf>(std::move(ICU4XWeekOf{ .week = std::move(diplomat_raw_struct_out_value.week), .unit = std::move(static_cast<ICU4XWeekRelativeUnit>(diplomat_raw_struct_out_value.unit)) }));
+    diplomat_result_out_value = diplomat::Ok<ICU4XWeekOf>(ICU4XWeekOf{ .week = std::move(diplomat_raw_struct_out_value.week), .unit = std::move(static_cast<ICU4XWeekRelativeUnit>(diplomat_raw_struct_out_value.unit)) });
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -185,7 +195,7 @@ inline uint8_t ICU4XIsoDate::months_in_year() const {
 inline uint8_t ICU4XIsoDate::days_in_month() const {
   return capi::ICU4XIsoDate_days_in_month(this->inner.get());
 }
-inline uint32_t ICU4XIsoDate::days_in_year() const {
+inline uint16_t ICU4XIsoDate::days_in_year() const {
   return capi::ICU4XIsoDate_days_in_year(this->inner.get());
 }
 #endif

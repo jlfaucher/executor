@@ -214,7 +214,7 @@ class ICU4XDateTime {
    * 
    * See the [Rust documentation for `days_in_year`](https://docs.rs/icu/latest/icu/calendar/struct.Date.html#method.days_in_year) for more information.
    */
-  uint32_t days_in_year() const;
+  uint16_t days_in_year() const;
 
   /**
    * Returns the [`ICU4XCalendar`] object backing this date
@@ -243,9 +243,9 @@ inline diplomat::result<ICU4XDateTime, ICU4XError> ICU4XDateTime::create_from_is
   auto diplomat_result_raw_out_value = capi::ICU4XDateTime_create_from_iso_in_calendar(year, month, day, hour, minute, second, nanosecond, calendar.AsFFI());
   diplomat::result<ICU4XDateTime, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XDateTime>(std::move(ICU4XDateTime(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XDateTime>(ICU4XDateTime(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -253,9 +253,9 @@ inline diplomat::result<ICU4XDateTime, ICU4XError> ICU4XDateTime::create_from_co
   auto diplomat_result_raw_out_value = capi::ICU4XDateTime_create_from_codes_in_calendar(era_code.data(), era_code.size(), year, month_code.data(), month_code.size(), day, hour, minute, second, nanosecond, calendar.AsFFI());
   diplomat::result<ICU4XDateTime, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
-    diplomat_result_out_value = diplomat::Ok<ICU4XDateTime>(std::move(ICU4XDateTime(diplomat_result_raw_out_value.ok)));
+    diplomat_result_out_value = diplomat::Ok<ICU4XDateTime>(ICU4XDateTime(diplomat_result_raw_out_value.ok));
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -300,9 +300,9 @@ inline diplomat::result<ICU4XWeekOf, ICU4XError> ICU4XDateTime::week_of_year(con
   diplomat::result<ICU4XWeekOf, ICU4XError> diplomat_result_out_value;
   if (diplomat_result_raw_out_value.is_ok) {
   capi::ICU4XWeekOf diplomat_raw_struct_out_value = diplomat_result_raw_out_value.ok;
-    diplomat_result_out_value = diplomat::Ok<ICU4XWeekOf>(std::move(ICU4XWeekOf{ .week = std::move(diplomat_raw_struct_out_value.week), .unit = std::move(static_cast<ICU4XWeekRelativeUnit>(diplomat_raw_struct_out_value.unit)) }));
+    diplomat_result_out_value = diplomat::Ok<ICU4XWeekOf>(ICU4XWeekOf{ .week = std::move(diplomat_raw_struct_out_value.week), .unit = std::move(static_cast<ICU4XWeekRelativeUnit>(diplomat_raw_struct_out_value.unit)) });
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -316,7 +316,7 @@ template<typename W> inline diplomat::result<std::monostate, ICU4XError> ICU4XDa
   if (diplomat_result_raw_out_value.is_ok) {
     diplomat_result_out_value = diplomat::Ok(std::monostate());
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -328,7 +328,7 @@ inline diplomat::result<std::string, ICU4XError> ICU4XDateTime::month_code() con
   if (diplomat_result_raw_out_value.is_ok) {
     diplomat_result_out_value = diplomat::Ok(std::monostate());
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value.replace_ok(std::move(diplomat_writeable_string));
 }
@@ -342,7 +342,7 @@ template<typename W> inline diplomat::result<std::monostate, ICU4XError> ICU4XDa
   if (diplomat_result_raw_out_value.is_ok) {
     diplomat_result_out_value = diplomat::Ok(std::monostate());
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value;
 }
@@ -354,7 +354,7 @@ inline diplomat::result<std::string, ICU4XError> ICU4XDateTime::era() const {
   if (diplomat_result_raw_out_value.is_ok) {
     diplomat_result_out_value = diplomat::Ok(std::monostate());
   } else {
-    diplomat_result_out_value = diplomat::Err<ICU4XError>(std::move(static_cast<ICU4XError>(diplomat_result_raw_out_value.err)));
+    diplomat_result_out_value = diplomat::Err<ICU4XError>(static_cast<ICU4XError>(diplomat_result_raw_out_value.err));
   }
   return diplomat_result_out_value.replace_ok(std::move(diplomat_writeable_string));
 }
@@ -364,7 +364,7 @@ inline uint8_t ICU4XDateTime::months_in_year() const {
 inline uint8_t ICU4XDateTime::days_in_month() const {
   return capi::ICU4XDateTime_days_in_month(this->inner.get());
 }
-inline uint32_t ICU4XDateTime::days_in_year() const {
+inline uint16_t ICU4XDateTime::days_in_year() const {
   return capi::ICU4XDateTime_days_in_year(this->inner.get());
 }
 inline ICU4XCalendar ICU4XDateTime::calendar() const {

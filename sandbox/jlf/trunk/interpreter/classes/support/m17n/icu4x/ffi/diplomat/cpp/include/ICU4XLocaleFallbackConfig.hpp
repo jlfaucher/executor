@@ -12,12 +12,13 @@
 #include "ICU4XLocaleFallbackConfig.h"
 
 #include "ICU4XLocaleFallbackPriority.hpp"
+#include "ICU4XLocaleFallbackSupplement.hpp"
 
 
 /**
  * Collection of configurations for the ICU4X fallback algorithm.
  * 
- * See the [Rust documentation for `LocaleFallbackConfig`](https://docs.rs/icu_provider_adapters/latest/icu_provider_adapters/fallback/struct.LocaleFallbackConfig.html) for more information.
+ * See the [Rust documentation for `LocaleFallbackConfig`](https://docs.rs/icu/latest/icu/locid_transform/fallback/struct.LocaleFallbackConfig.html) for more information.
  */
 struct ICU4XLocaleFallbackConfig {
  public:
@@ -31,6 +32,11 @@ struct ICU4XLocaleFallbackConfig {
    * An empty string is considered `None`.
    */
   std::string_view extension_key;
+
+  /**
+   * Fallback supplement data key to customize fallback rules.
+   */
+  ICU4XLocaleFallbackSupplement fallback_supplement;
 };
 
 
