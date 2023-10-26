@@ -739,12 +739,9 @@ endif ()
 if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64")
     # Windows X86_64
     set (icu4x_arch "x86_64")
-#-----------------------------------------------------
-# CAN'T BUILD ICU4X UNDER WINDOWS ARM64 FOR THE MOMENT
-#-----------------------------------------------------
-#elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "ARM64")
-#    # Windows ARM64
-#    set (icu4x_arch "aarch64")
+elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "ARM64")
+    # Windows ARM64
+    set (icu4x_arch "aarch64")
 elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
     # MacOs X86_64
     set (icu4x_arch "x86_64")
