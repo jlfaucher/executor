@@ -815,22 +815,27 @@ Allows to use a String or a RexxText indistinctly
 /*
 Class methods
 =============
-alnum                           (new 5) alpha + digit
-alpha                           (new 5) Lowercase + Uppercase + Lt + Lm + Lo + Nl + Other_Alphabetic
-blank                           (new 5) "horizontal" whitespace: space separators plus U+0009 tab.
-cntrl                           (new 5) Cc
+Last column comes from https://www.regular-expressions.info/posixbrackets.html
+TODO review:
+    https://htmlpreview.github.io/?https://github.com/unicode-org/icu-docs/blob/main/design/posix_classes.html
+    http://www.unicode.org/reports/tr18/#Compatibility_Properties
+
+alnum                           (new 5) alpha + digit                                                   [\p{L}\p{Nl} \p{Nd}]
+alpha                           (new 5) Lowercase + Uppercase + Lt + Lm + Lo + Nl + Other_Alphabetic    \p{L}\p{Nl}
+blank                           (new 5) "horizontal" whitespace: space separators plus U+0009 tab.      [\p{Zs}\t]
+cntrl                           (new 5) Cc                                                              \p{Cc}
 cr                              (new 5)
-digit                           (new 5) Nd
-graph                           (new 5)
-lower                           (new 5) Ll + Other_Lowercase
+digit                           (new 5) Nd                                                              \p{Nd}
+graph                           (new 5)                                                                 [^\p{Z}\p{C}]
+lower                           (new 5) Ll + Other_Lowercase                                            \p{Ll}              not other?
 nl                              (new 5)
 null                            (new 5)
-print                           (new 5)
-punct                           (new 5)
-space                           (new 5)
+print                           (new 5)                                                                 \P{C}
+punct                           (new 5)                                                                 \p{P}
+space                           (new 5)                                                                 [\p{Z}\t\r\n\v\f]
 tab                             (new 5)
-upper                           (new 5) Lu + Other_Uppercase
-xdigit                          (new 5)
+upper                           (new 5) Lu + Other_Uppercase                                            \p{Lu}              not other?
+xdigit                          (new 5)                                                                 [A-Fa-f0-9]
 
 Instance methods
 ================
