@@ -3,6 +3,45 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2023 Oct 28
+
+[Unicode]
+
+Upgrade to utf8proc version 2.9.0 with Unicode 15.1.0 support.
+
+Unicode 15.1 adds 627 characters, for a total of 149,813 characters.
+    .unicode~version=               -- 15.1.0
+    call loadUnicodeCharacterNames
+    .unicode~characters=            -- (an UnicodeCharacterSupplier count=44185 size=918000)
+    call expandUnicodeCharacterIntervals
+    .unicode~characters=            -- (an UnicodeCharacterSupplier count=149878 size=918000)
+
+Note:
+149813 is the number of character names in the file DerivedName.txt.
+I get 149878 characters instead of 149813 (+65) because I include the control characters (they have only an alias, not a name)
+    00..1F	32 control characters
+    7F..9F	33 control characters
+
+.unicode~characters~select{item~categoryName=="Cc"}==
+    an Array (shape [65], 65 items)
+     1  : ( ""    U+0000 Cc 0 "", "NULL", "NUL" )
+     2  : ( ""    U+0001 Cc 0 "", "START OF HEADING", "SOH" )
+     3  : ( ""    U+0002 Cc 0 "", "START OF TEXT", "STX" )
+     4  : ( ""    U+0003 Cc 0 "", "END OF TEXT", "ETX" )
+    ...
+
+
+===============================================================================
+2023 Oct 28
+
+[Unicode]
+
+Upgrade to ICU4X 1.3.2
+Currently no way to get the version of ICU4X, Unicode and CLDR using C++ FFI.
+https://github.com/unicode-org/icu4x/discussions/4229
+
+
+===============================================================================
 2023 Oct 08
 
 [Encoded strings]
@@ -36,6 +75,15 @@ ring@0.16.21 is blocking since 1 year now.
 And worst, the guy in charge of ring closed this ticket, saying that ring.17
 will solve the problem. WHEN???
 https://github.com/briansmith/ring/issues/1551
+https://github.com/sagiegurari/cargo-make/issues/799
+---
+update 26/10/2023
+ring 17 now appears in the build, but error about clang: "program not found".
+The BUILDING.md file says "For Windows ARM64 targets (aarch64-pc-windows-msvc),
+the Visual Studio Build Tools “VS 2022 C++ ARM64 build tools” and "clang"
+components must be installed."
+==> must install "C++ Clang Compiler for Windows (download 2.0 GB, install 8.34 GB)
+==> now build ok
 
 
 ===============================================================================

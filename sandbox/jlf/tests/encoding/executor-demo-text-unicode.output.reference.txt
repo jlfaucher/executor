@@ -21,18 +21,18 @@ Current usage:
 ---------------------
 
 -- Unicode version
-ooRexx> .unicode~version=               -- 15.0.0
-'15.0.0'
+ooRexx> .unicode~version=               -- 15.1.0
+'15.1.0'
 
 -- Unicode character names are not loaded by default
 ooRexx> call loadUnicodeCharacterNames
-Load the Unicode character names 15.0.0 
-.............................................
-Total loaded character names: 149186
+Load the Unicode character names 15.1.0 
+............................................
+Total loaded character names: 149813
 Total character name aliases: 473
 Unicode character intervals not expanded, execute: call expandUnicodeCharacterIntervals
 ooRexx> .unicode~characters=
-(an UnicodeCharacterSupplier count=44180 size=918000)
+(an UnicodeCharacterSupplier count=44185 size=918000)
 
 /*
 Unicode character names defined by interval are not loaded by default.
@@ -41,18 +41,18 @@ The following method gives informations about these intervals.
 -- Remove dataDirectory because the value is different between Windows and Macos/Linux
 ooRexx> .Unicode~informations~~remove("dataDirectory")=
 a Directory (12 items)
-'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=16 notExpanded:16 intervals, 105071 characters)
-'characters'                         : (an UnicodeCharacterSupplier count=44180 size=918000)
+'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=17 notExpanded:17 intervals, 105693 characters)
+'characters'                         : (an UnicodeCharacterSupplier count=44185 size=918000)
 'maxCodepoint'                       :  1114111
 'memorizeConversions'                :  0
 'memorizeTransformations'            :  0
 'systemIsLittleEndian'               :  1
 'totalCharacterNameAliases'          :  473
-'totalCharactersLoaded'              :  149186
-'totalIntervalCharacters'            :  105071
-'totalIntervalCharactersNotExpanded' :  105071
+'totalCharactersLoaded'              :  149813
+'totalIntervalCharacters'            :  105693
+'totalIntervalCharactersNotExpanded' :  105693
 'unckeckedConversionToString'        :  0
-'version'                            : '15.0.0'
+'version'                            : '15.1.0'
 
 -- Select the characters whose category is Cc (Control)
 ooRexx> .unicode~characters~select{item~categoryName=="Cc"}==

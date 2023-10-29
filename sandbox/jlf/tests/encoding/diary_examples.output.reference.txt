@@ -1,8 +1,8 @@
 
 ooRexx> call loadUnicodeCharacterNames
-Load the Unicode character names 15.0.0 
-.............................................
-Total loaded character names: 149186
+Load the Unicode character names 15.1.0 
+............................................
+Total loaded character names: 149813
 Total character name aliases: 473
 Unicode character intervals not expanded, execute: call expandUnicodeCharacterIntervals
 
@@ -5272,27 +5272,28 @@ an UnicodeCharacterIntervalSupplier
  11 : (U+2B740..U+2B81D "CJK UNIFIED IDEOGRAPH-*" 221 characters)
  12 : (U+2B820..U+2CEA1 "CJK UNIFIED IDEOGRAPH-*" 5761 characters)
  13 : (U+2CEB0..U+2EBE0 "CJK UNIFIED IDEOGRAPH-*" 7472 characters)
- 14 : (U+2F800..U+2FA1D "CJK COMPATIBILITY IDEOGRAPH-*" 541 characters)
- 15 : (U+30000..U+3134A "CJK UNIFIED IDEOGRAPH-*" 4938 characters)
- 16 : (U+31350..U+323AF "CJK UNIFIED IDEOGRAPH-*" 4191 characters)
+ 14 : (U+2EBF0..U+2EE5D "CJK UNIFIED IDEOGRAPH-*" 621 characters)
+ 15 : (U+2F800..U+2FA1D "CJK COMPATIBILITY IDEOGRAPH-*" 541 characters)
+ 16 : (U+30000..U+3134A "CJK UNIFIED IDEOGRAPH-*" 4938 characters)
+ 17 : (U+31350..U+323AF "CJK UNIFIED IDEOGRAPH-*" 4191 characters)
 
 
 -- Informations about Unicode:
 -- Remove dataDirectory because the value is different between Windows and Macos/Linux
 ooRexx> .Unicode~informations~~remove("dataDirectory")=
 a Directory (12 items)
-'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=16 notExpanded:16 intervals, 105071 characters)
-'characters'                         : (an UnicodeCharacterSupplier count=44184 size=918000)
+'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=17 notExpanded:17 intervals, 105693 characters)
+'characters'                         : (an UnicodeCharacterSupplier count=44189 size=918000)
 'maxCodepoint'                       :  1114111
 'memorizeConversions'                :  0
 'memorizeTransformations'            :  0
 'systemIsLittleEndian'               :  1
 'totalCharacterNameAliases'          :  473
-'totalCharactersLoaded'              :  149186
-'totalIntervalCharacters'            :  105071
-'totalIntervalCharactersNotExpanded' :  105071
+'totalCharactersLoaded'              :  149813
+'totalIntervalCharacters'            :  105693
+'totalIntervalCharactersNotExpanded' :  105693
 'unckeckedConversionToString'        :  0
-'version'                            : '15.0.0'
+'version'                            : '15.1.0'
 
 
 -- ===============================================================================

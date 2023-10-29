@@ -1,8 +1,8 @@
 
 ooRexx> call loadUnicodeCharacterNames
-Load the Unicode character names 15.0.0 
-.............................................
-Total loaded character names: 149186
+Load the Unicode character names 15.1.0 
+............................................
+Total loaded character names: 149813
 Total character name aliases: 473
 Unicode character intervals not expanded, execute: call expandUnicodeCharacterIntervals
 

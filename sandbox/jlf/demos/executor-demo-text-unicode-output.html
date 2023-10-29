@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 21 Sep 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S7853Q600001cdab10
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 8 Oct 2023
+</span><span style="font-weight:bold;color:green;">Input queue name: S3da6Q600001ccb4d0
 </span>
 <span style="font-weight:bold;color:blue;">--------------------
 </span><span style="font-weight:bold;color:blue;">-- Unicode libraries
@@ -56,37 +56,38 @@
 </span><span style="font-weight:bold;color:blue;">---------------------
 </span>
 <span style="font-weight:bold;color:blue;">-- Unicode version
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~version=               </span><span style="font-weight:bold;color:blue;">-- 15.0.0</span>
-'15.0.0'
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~version=               </span><span style="font-weight:bold;color:blue;">-- 15.1.0</span>
+'15.1.0'
 
 <span style="font-weight:bold;color:blue;">-- Unicode character names are not loaded by default
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
-<span style="font-weight:bold;color:green;">Load the Unicode character names 15.0.0 
-</span>.............................................<span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">Total loaded character names: 149186
+<span style="font-weight:bold;color:green;">Load the Unicode character names 15.1.0 
+</span>............................................<span style="font-weight:bold;color:green;">
+</span><span style="font-weight:bold;color:green;">Total loaded character names: 149813
 </span><span style="font-weight:bold;color:green;">Total character name aliases: 473
 </span><span style="font-weight:bold;color:blue;">Unicode character intervals not expanded, execute: call expandUnicodeCharacterIntervals
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~characters=</span>
-(an UnicodeCharacterSupplier count=44180 size=918000)
+(an UnicodeCharacterSupplier count=44185 size=918000)
 
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">Unicode character names defined by interval are not loaded by default.
 </span><span style="font-weight:bold;color:blue;">The following method gives informations about these intervals.
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~informations=</span>
-a Directory (12 items)
-'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=16 notExpanded:16 intervals, 105071 characters)
-'characters'                         : (an UnicodeCharacterSupplier count=44180 size=918000)
-'dataDirectory'                      : (/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/Unicode-15.0.0)
+a Directory (13 items)
+'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=17 notExpanded:17 intervals, 105693 characters)
+'characters'                         : (an UnicodeCharacterSupplier count=44185 size=918000)
+'dataDirectory'                      : (/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/Unicode-15.1.0)
 'maxCodepoint'                       :  1114111
 'memorizeConversions'                :  0
 'memorizeTransformations'            :  0
 'systemIsLittleEndian'               :  1
 'totalCharacterNameAliases'          :  473
-'totalCharactersLoaded'              :  149186
-'totalIntervalCharacters'            :  105071
-'totalIntervalCharactersNotExpanded' :  105071
-'version'                            : '15.0.0'
+'totalCharactersLoaded'              :  149813
+'totalIntervalCharacters'            :  105693
+'totalIntervalCharactersNotExpanded' :  105693
+'unckeckedConversionToString'        :  0
+'version'                            : '15.1.0'
 
 <span style="font-weight:bold;color:blue;">-- Select the characters whose category is Cc (Control)
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.unicode~characters~select{item~categoryName==&quot;Cc&quot;}==</span>
@@ -551,6 +552,7 @@ an Array (shape [3], 3 items)
 </span><span style="font-weight:bold;color:blue;">The Julia developers, who use utf8proc, have decided to remain locale-independent.
 </span><span style="font-weight:bold;color:blue;">See https://github.com/JuliaLang/julia/issues/7848
 </span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">Example:
 </span><span style="font-weight:bold;color:blue;">The name of the second largest city in Turkey is &quot;Diyarbakır&quot;, which contains both the dotted and dotless letters i.
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx[sh]&gt; 

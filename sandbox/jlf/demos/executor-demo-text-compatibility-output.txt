@@ -21,13 +21,13 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 21 Sep 2023
-Input queue name: S37e7Q600001cc89c0
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 8 Oct 2023
+Input queue name: S3e2fQ600001ccb4d0
 
 ooRexx[sh]> call loadUnicodeCharacterNames
-Load the Unicode character names 15.0.0 
-.............................................
-Total loaded character names: 149186
+Load the Unicode character names 15.1.0 
+............................................
+Total loaded character names: 149813
 Total character name aliases: 473
 Unicode character intervals not expanded, execute: call expandUnicodeCharacterIntervals
 

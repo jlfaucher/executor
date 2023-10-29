@@ -24,7 +24,7 @@ sleep no prompt
 ---------------------
 
 -- Unicode version
-.unicode~version=               -- 15.0.0
+.unicode~version=               -- 15.1.0
 
 -- Unicode character names are not loaded by default
 call loadUnicodeCharacterNames
