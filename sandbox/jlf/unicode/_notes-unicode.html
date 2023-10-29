@@ -31,6 +31,7 @@ Contents:
     <a href="#Variation_sequence">Variation sequence</a>
     <a href="#Whitespaces__separators">Whitespaces, separators</a>
     <a href="#Hyphenation">Hyphenation</a>
+    <a href="#All_languages">All languages</a>
     <a href="#Classical_languages">Classical languages</a>
     <a href="#Indic_languages">Indic languages</a>
     <a href="#CJK">CJK</a>
@@ -60,10 +61,11 @@ Contents:
     <a href="#Twitter_text_parsing">Twitter text parsing</a>
     <a href="#terminal___console___cmd">terminal / console / cmd</a>
     <a href="#QT_Title">QT Title</a>
+    <a href="#IBM_OS">IBM OS</a>
+    <a href="#IBM_RPG_Lang">IBM RPG Lang</a>
+    <a href="#IBM_z_OS">IBM z/OS</a>
     <a href="#macOS_OS">macOS OS</a>
     <a href="#Windows_OS">Windows OS</a>
-    <a href="#z_OS">z/OS</a>
-    <a href="#IBM_RPG_Lang">IBM RPG Lang</a>
     <a href="#Language_comparison">Language comparison</a>
     <a href="#Regular_expressions">Regular expressions</a>
     <a href="#Test_cases__test_cases__tests_files">Test cases, test-cases, tests files</a>
@@ -1581,6 +1583,10 @@ Transcoding Unicode with AVX-512: AMD Zen 4 vs. Intel Ice Lake (lemire.me)
 Java 17 uses avx in both encoding and decoding
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://lemire.me/blog/2023/02/16/computing-the-utf-8-size-of-a-latin-1-string-quickly-avx-edition/">https://lemire.me/blog/2023/02/16/computing-the-utf-8-size-of-a-latin-1-string-quickly-avx-edition/</a>
+Computing the UTF-8 size of a Latin 1 string quickly (AVX edition)
+
+
 <hr><h2 id="Variation_sequence">Variation sequence</h2><hr>
 22/05/2021
 List of all code points that can display differently via a variation sequence
@@ -1626,6 +1632,12 @@ break words into syllables
     [2] <a target="_blank" rel="noopener noreferrer" href="https://github.com/heiglandreas/Org_Heigl_Hyphenator">https://github.com/heiglandreas/Org_Heigl_Hyphenator</a>
     [3] <a target="_blank" rel="noopener noreferrer" href="https://github.com/search?q=hyphenate&type=repositories">https://github.com/search?q=hyphenate&type=repositories</a>
     <a target="_blank" rel="noopener noreferrer" href="https://tug.org/docs/liang/liang-thesis.pdf">https://tug.org/docs/liang/liang-thesis.pdf</a>
+
+<hr><h2 id="All_languages">All languages</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://www.omniglot.com/index.htm">https://www.omniglot.com/index.htm</a>
+The online encyclopedia of writing systems &amp; languages
+jlf: nothing about Unicode but good for culture générale.
+
 
 <hr><h2 id="Classical_languages">Classical languages</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://docs.cltk.org/en/latest/">https://docs.cltk.org/en/latest/</a>
@@ -1904,6 +1916,19 @@ I Can Text You A Pile of Poo, But I Can’t Write My Name
 March 17th, 2015
 jlf: the article is about Bengali, but HN comments are also for other languages.
 todo: read
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/L2/L2023/23140-graphemes-expectations.pdf">https://www.unicode.org/L2/L2023/23140-graphemes-expectations.pdf</a>
+Unicode 15.1:
+Unicode grapheme clusters tend to be closer to the larger user-perceived units.
+Hangul text is clearly segmented into syllable blocks. For Brahmic scripts,
+things are less clear. Grapheme clusters may contain several base-level units,
+but up to Unicode 15 always broke after virama characters. This broke not only
+within orthographic syllables, but for a number of scripts also within the
+encoding of conjunct forms that users perceive as base-level units, such as
+Khmer coengs (see subsection Subscript Consonant Signs of section 16.4 Khmer of
+the Unicode Standard). In Unicode 15.1, this is being corrected for six scripts,
+while leaving the others broken.
 
 
 <hr><h2 id="CJK">CJK</h2><hr>
@@ -2461,6 +2486,19 @@ Discussion about ropes, ideal of strings...
 Several references to older papers
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=37820532">https://news.ycombinator.com/item?id=37820532</a>
+Text showdown: Gap Buffers vs. Ropes
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://code.visualstudio.com/blogs/2018/03/23/text-buffer-reimplementation">https://code.visualstudio.com/blogs/2018/03/23/text-buffer-reimplementation</a>
+Text Buffer Reimplementation
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Piece_table">https://en.wikipedia.org/wiki/Piece_table</a>
+In computing, a piece table is a data structure typically used to represent a
+text document while it is edited in a text editor.
+
+
 <hr><h2 id="Encoding_title">Encoding title</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://www.iana.org/assignments/character-sets/character-sets.xhtml">https://www.iana.org/assignments/character-sets/character-sets.xhtml</a>
 Character Sets
@@ -2649,6 +2687,10 @@ jlf: old?
 
 <a target="_blank" rel="noopener noreferrer" href="https://unicode-org.atlassian.net/jira/software/c/projects/ICU/issues/?filter=allissues">https://unicode-org.atlassian.net/jira/software/c/projects/ICU/issues/?filter=allissues</a>
 ICU tickets
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/microsoft/icu">https://github.com/microsoft/icu</a>
+jlf: fork by Microsoft
 
 
 <a target="_blank" rel="noopener noreferrer" href="http://stackoverflow.com/questions/8253033/what-open-source-c-or-c-libraries-can-convert-arbitrary-utf-32-to-nfc">http://stackoverflow.com/questions/8253033/what-open-source-c-or-c-libraries-can-convert-arbitrary-utf-32-to-nfc</a>
@@ -2887,6 +2929,10 @@ lead by Shane Carr (<a target="_blank" rel="noopener noreferrer" href="https://w
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x">https://github.com/unicode-org/icu4x</a>
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://docs.rs">https://docs.rs</a>
+jlf: if there is a version number in the path, you can replace it with "latest"
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/faq/unicode_license.html">https://www.unicode.org/faq/unicode_license.html</a>
 jlf: ICU4X uses UNICODE LICENSE V3
 The Unicode License is a permissive MIT type of license. However, there are
@@ -2946,6 +2992,7 @@ Using ICU4X from C++
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.reddit.com/r/programming/comments/xrmine/the_unicode_consortium_announces_icu4x_10_its_new/">https://www.reddit.com/r/programming/comments/xrmine/the_unicode_consortium_announces_icu4x_10_its_new/</a>
     The C and C++ APIs are header-only, you use them by linking to the icu_capi crate (more on this here).
+    <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/blob/main/docs/tutorials/cpp.md">https://github.com/unicode-org/icu4x/blob/main/docs/tutorials/cpp.md</a>
     The C API is just not that idiomatic, so we don't advertise it as much.
     It exists more as a crutch for other languages to be able to call in, and it's optimized for cross language interop.
     That said, it has been pointed out to me that it's not that unidiomatic when you compare it with other large C libraries,
@@ -2987,6 +3034,7 @@ jlf: Not yet supported by ICU4X, too bad... I need that for Executor.
 
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/545">https://github.com/unicode-org/icu4x/issues/545</a>
 Reconsider UTF-32 support
+jlf: see also the comments about PyICU
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/131">https://github.com/unicode-org/icu4x/issues/131</a>
@@ -3014,10 +3062,6 @@ that returns an enum that describes the last break it found. The documentation i
 
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/pull/2777/files">https://github.com/unicode-org/icu4x/pull/2777/files</a>
 added initial benchmarks for normalizer.
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/pull/2779/files">https://github.com/unicode-org/icu4x/pull/2779/files</a>
-add collator initial bench
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/discussions/2877">https://github.com/unicode-org/icu4x/discussions/2877</a>
@@ -3053,6 +3097,10 @@ apparently yes, see <a target="_blank" rel="noopener noreferrer" href="https://p
 ---
 For ruby, is it built by a github workflow?
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/ankane/polars-ruby/blob/master/.github/workflows/release.yml">https://github.com/ankane/polars-ruby/blob/master/.github/workflows/release.yml</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/pull/2779/files">https://github.com/unicode-org/icu4x/pull/2779/files</a>
+add collator initial bench
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/3151">https://github.com/unicode-org/icu4x/issues/3151</a>
@@ -3209,6 +3257,52 @@ It should be possible to tailor relative to something that is tailored in the
 intermediate root search.
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/3174#issuecomment-1624080765">https://github.com/unicode-org/icu4x/issues/3174#issuecomment-1624080765</a>
+Should search collation be a different data key + constructor? #3174
+---
+jlf
+Don't know if this long comment brings something useful for Rexx.
+They are searching for use-cases.
+whole-string matching, collation, substring or prefix matching.
+<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr10/#Searching:">https://www.unicode.org/reports/tr10/#Searching:</a> It's typically used for a substring
+match, like Ctrl-F in a browser.
+Why is collation the way it is? There's a use case for diacritic-insensitive string
+matching. And there is also the observation that you need special handling for certain
+diacritics like German umlauts.
+It seems weird that Thai for example has certain tailorings that are not in other
+Brahmic languages.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/discussions/3981#discussioncomment-6882618">https://github.com/unicode-org/icu4x/discussions/3981#discussioncomment-6882618</a>
+String search with collators
+references this ICU link:
+<a target="_blank" rel="noopener noreferrer" href="https://unicode-org.github.io/icu/userguide/collation/string-search.html">https://unicode-org.github.io/icu/userguide/collation/string-search.html</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/3174#issuecomment-1624080765">https://github.com/unicode-org/icu4x/issues/3174#issuecomment-1624080765</a>
+Should search collation be a different data key + constructor?
+jlf: referenced from #3981 with this comment:
+We've had discussions about search collations in the past, such as #3174
+Basically, we need a client with a clear and compelling use case who ideally can
+make some contributions, and then the team can provide mentorship to help land
+this type of feature.
+
+
+icu_collator version 1.3.3 is released.
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/releases/tag/ind%2Ficu_collator%401.3.3">https://github.com/unicode-org/icu4x/releases/tag/ind%2Ficu_collator%401.3.3</a>
+
+<a target="_blank" rel="noopener noreferrer" href="https://docs.rs/icu_collator/latest/icu_collator/">https://docs.rs/icu_collator/latest/icu_collator/</a>
+Comparing strings according to language-dependent conventions.
+jlf: with examples
+jlf: implementation notes. <a target="_blank" rel="noopener noreferrer" href="https://docs.rs/icu_collator/latest/icu_collator/docs/index.html">https://docs.rs/icu_collator/latest/icu_collator/docs/index.html</a>
+They use NFD?
+"The key design difference between ICU4C and ICU4X is that ICU4C puts the
+canonical closure in the data (larger data) to enable lookup directly by
+precomposed characters while ICU4X always omits the canonical closure and always
+normalizes to NFD on the fly."
+jlf: ok, on the fly, so part of their algorithm.
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/discussions/3231#discussioncomment-5599221">https://github.com/unicode-org/icu4x/discussions/3231#discussioncomment-5599221</a>
     @sffc , Will ICU4X Test Data provider give correct results for Lao language?
     I was running segment_utf16 on Lao string but its results are not inline with ICU4C results.
@@ -3275,22 +3369,6 @@ fn test_greek_upper() {
     assert_eq!(cm.to_full_uppercase_string("ρωμέικα"), "ΡΩΜΕΪΚΑ");
     assert_eq!(cm.to_full_uppercase_string("ή."), "Ή.");
 }
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/3174#issuecomment-1624080765">https://github.com/unicode-org/icu4x/issues/3174#issuecomment-1624080765</a>
-Should search collation be a different data key + constructor? #3174
----
-jlf
-Don't know if this long comment brings something useful for Rexx.
-They are searching for use-cases.
-whole-string matching, collation, substring or prefix matching.
-<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr10/#Searching:">https://www.unicode.org/reports/tr10/#Searching:</a> It's typically used for a substring
-match, like Ctrl-F in a browser.
-Why is collation the way it is? There's a use case for diacritic-insensitive string
-matching. And there is also the observation that you need special handling for certain
-diacritics like German umlauts.
-It seems weird that Thai for example has certain tailorings that are not in other
-Brahmic languages.
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/discussions/3688#discussioncomment-6456010">https://github.com/unicode-org/icu4x/discussions/3688#discussioncomment-6456010</a>
@@ -3391,19 +3469,38 @@ jlf: idem with utf8proc
     Mac Central European        252 FC      184 B8
 
 
-<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/discussions/3981#discussioncomment-6882618">https://github.com/unicode-org/icu4x/discussions/3981#discussioncomment-6882618</a>
-String search with collators
-references this ICU link:
-<a target="_blank" rel="noopener noreferrer" href="https://unicode-org.github.io/icu/userguide/collation/string-search.html">https://unicode-org.github.io/icu/userguide/collation/string-search.html</a>
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/2715">https://github.com/unicode-org/icu4x/issues/2715</a>
+Minor and patch release policy
 
 
-<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/3174#issuecomment-1624080765">https://github.com/unicode-org/icu4x/issues/3174#issuecomment-1624080765</a>
-Should search collation be a different data key + constructor?
-jlf: referenced from #3981 with this comment:
-We've had discussions about search collations in the past, such as #3174
-Basically, we need a client with a clear and compelling use case who ideally can
-make some contributions, and then the team can provide mentorship to help land
-this type of feature.
+<a target="_blank" rel="noopener noreferrer" href="https://docs.google.com/document/d/1yg_2l5FFo0aAuNi4jpgcIhIYjHqJyUoJWtMduyQ0vR8/edit">https://docs.google.com/document/d/1yg_2l5FFo0aAuNi4jpgcIhIYjHqJyUoJWtMduyQ0vR8/edit</a>
+ICU4X Data Versioning Design
+This document has been migrated to Markdown in
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/pull/2919">https://github.com/unicode-org/icu4x/pull/2919</a>
+jlf: I don't see any markdown...
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/1471">https://github.com/unicode-org/icu4x/issues/1471</a>
+Decide on data file versioning policy
+jlf: For the comment of Marcus Scherer
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/165">https://github.com/unicode-org/icu4x/issues/165</a>
+Data Version
+jlf: maybe to read
+As far as semantic versioning, I no longer give deference to it as the preferred
+way to do versioning or see the topic so singularly after seeing this talk.
+<a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/watch?v=oyLBGkS5ICk">https://www.youtube.com/watch?v=oyLBGkS5ICk</a>
+jlf: Spec-ulation Keynote - Rich Hickey
+The comments say it's good, did not watch.
+
+
+DateTime
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/3347">https://github.com/unicode-org/icu4x/issues/3347</a>
+DateTimeFormatter still lacks power user APIs
+jlf: this ticket contains potentially interesting links:
+    Class hiearchy: <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/380">https://github.com/unicode-org/icu4x/issues/380</a>
+    Design doc: <a target="_blank" rel="noopener noreferrer" href="https://docs.google.com/document/d/1vJKR1s--RBmXLNIJSCtiTNPp08mab7ZwcTGxIZ9-ytI/edit#">https://docs.google.com/document/d/1vJKR1s--RBmXLNIJSCtiTNPp08mab7ZwcTGxIZ9-ytI/edit#</a>
 
 
 <hr><h2 id="utf8proc_title">utf8proc title</h2><hr>
@@ -3494,174 +3591,132 @@ Combining diacritics misplaced when using monospace fonts
 jlf tag: character width
 
 
-<hr><h2 id="macOS_OS">macOS OS</h2><hr>
-you can enter emoji (and other Unicode characters) using standard operating
-system tools—like ctrl cmd space.
+<hr><h2 id="IBM_OS">IBM OS</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/personal-communications/15.0?topic=pages-contents#ToC">https://www.ibm.com/docs/en/personal-communications/15.0?topic=pages-contents#ToC</a>
+Host Code Page Reference
+Referenced in a IBM-MAIN thread about "TN3270, EBCDIC and ASCII"
+&gt;&gt;There are a few layers to getting the codepages right for using a terminal
+&gt;&gt;emulator and ISPF Edit and Browse on the host.
+&gt;&gt;For example, in Personal Communications I first define my host codepage.  I
+&gt;&gt;have a lot of choices. From 420 (Arabic) to 1130 (Vietnamese).  I tend to
+&gt;&gt;use 1047 (U.S.) to get my square brackets right.
+jlf: tables of character codes
 
 
-<a target="_blank" rel="noopener noreferrer" href="https://eclecticlight.co/2021/05/08/explainer-unicode-normalization-and-apfs/">https://eclecticlight.co/2021/05/08/explainer-unicode-normalization-and-apfs/</a>
-Explainer: Unicode, normalization and APFS
-hoakley  May 8, 2021
----
-One of the oldest problems with Apple’s APFS file system is how it encodes file
-and directory names using Unicode.
+<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/zos/3.1.0?topic=317-zos-unix-directory-list-utility-line-commands">https://www.ibm.com/docs/en/zos/3.1.0?topic=317-zos-unix-directory-list-utility-line-commands</a>
+z/OS UNIX directory list utility line commands
+Referenced in a IBM-MAIN thread about "TN3270, EBCDIC and ASCII"
+&gt;&gt;Then on the host side. If you are using the ISPF UDLIST interface to Unix
+&gt;&gt;(OMVS) you can use either EBCDIC, ASCII, or UTF8 for EDIT or VIEW.
+Actions:
+E—edit regular file
+EA—edit ASCII file
+EU—edit UTF-8 file
+V—view regular file
+VA—view ASCII file
+VU—view UTF8 file
 
 
-<hr><h2 id="Windows_OS">Windows OS</h2><hr>
-<a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/win32/intl/international-support">https://learn.microsoft.com/en-us/windows/win32/intl/international-support</a>
-jlf: I search which functionalities are available only to unicode apps...
-- can be multilingual without managing code pages
-- IME? not sure if it's only for unicode apps
-- other?
+<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/zos/3.1.0?topic=information-pdf-browse-primary-commands">https://www.ibm.com/docs/en/zos/3.1.0?topic=information-pdf-browse-primary-commands</a>
+PDF Browse primary commands
+Referenced in a IBM-MAIN thread about "TN3270, EBCDIC and ASCII"
+&gt;&gt;In ISPF Browse, you can use the DISPLAY command to view data as UTF8,
+&gt;&gt;UTF32, UCS2, UNICODE, ASCII, USASCII, and EBCDIC, or specify the numeric
+&gt;&gt;CCSID.
+Syntax diagram DISPLAY CCSIDccsid_number
+    ASCII
+    USASCII
+    EBCDIC
+    UCS2
+    UTF8
+    UTF16
+    UTF32
+Syntax diagram FIND
+    UTF8
+    ASCII
+    USASCII
 
 
-<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/59404120/what-is-the-difference-in-using-cstringw-cstringa-and-ct2w-ct2a-to-convert-strin">https://stackoverflow.com/questions/59404120/what-is-the-difference-in-using-cstringw-cstringa-and-ct2w-ct2a-to-convert-strin</a>
-What is the difference in using CStringW/CStringA and CT2W/CT2A to convert strings?
-    CString offers a number of conversion constructors to convert between ANSI and
-    Unicode encoding. They are as convenient as they are dangerous, often masking bugs.
+<hr><h2 id="IBM_RPG_Lang">IBM RPG Lang</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/i/7.4?topic=cdt-processing-string-data-by-natural-size-each-character">https://www.ibm.com/docs/en/i/7.4?topic=cdt-processing-string-data-by-natural-size-each-character</a>
+Processing string data by the natural size of each character
+    String data can have characters of different sizes.
+    - UTF-8 data can have characters with 1, 2, 3, or 4 bytes.
+      For example, the character 'a' has one byte, and the character 'á' has two bytes.
+      UTF-8 data is defined as alphanumeric with CCSID(*UTF8) or CCSID(1208).
 
-    By contrast, the Cs2d macros (where s = source, d = destination) work on raw
-    C-style strings; no CString instances are created in the process of converting
-    between character encodings.
+    - UTF-16 data can have characters with 2 or 4 bytes.
+      UTF-16 data is defined as UCS-2 with CCSID(*UTF16) or CCSID(1200).
 
-    Both of the above perform a conversion with an implied ANSI codepage (either
-    CP_THREAD_ACP or CP_ACP in case the _CONVERSION_DONT_USE_THREAD_LOCALE
-    preprocessor symbol is defined). CP_ACP is particularly troublesome, as it's a
-    process-global setting, that any thread can change at any time.
+    - EBCDIC mixed SBCS/DBCS data can have characters with 1 or 2 bytes.
+      Additionally, double-byte data is surrouned by shift bytes.
+      The shift-out byte x'0E' begins a section of DBCS data and the shift-in
+      byte x'0F' ends the section of DBCS data.
 
-    Which one should you choose for your conversions? Neither of the above. Use the
-    EX versions instead (see string and text classes for a full list).
+    - ASCII mixed SBCS/DBCS data can have characters with 1 or 2 bytes.
+      ASCII mixed SBCS/DBCS data is defined as alphanumeric with a CCSID that
+      represents mixed SBCS/DBCS data such as 950.
 
+    Default behaviour, CHARCOUNT STDCHARSIZE
+    By default, data is processed using the standard-character-size mode.
+    The compiler processes string data by bytes or double bytes without regard
+    for size of each character.
 
-<a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/cpp/atl/string-and-text-classes?view=msvc-170">https://learn.microsoft.com/en-us/cpp/atl/string-and-text-classes?view=msvc-170</a>
-String and Text Classes
+    When CHARCOUNT NATURAL is in effect:
+    The compiler processes string operations by the natural size of each character.
+    The compiler sets the CHARCOUNT NATURAL mode for a file if the CHARCOUNT is
+    not specified for the file.
+    The CHARCOUNT mode for the file affects the movement of data from RPG fields
+    to the output buffer and key buffer used for the file operations.
 
+<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/i/7.4?topic=fdk-charcountnatural-stdcharsize">https://www.ibm.com/docs/en/i/7.4?topic=fdk-charcountnatural-stdcharsize</a>
+CHARCOUNT(*NATURAL | *STDCHARSIZE)
+    The CHARCOUNT keyword controls how RPG handles string truncation when moving
+    data from RPG program variables to the output buffer and key buffer for the file.
 
-<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/15362859/getclipboarddata-cf-unicodetext">https://stackoverflow.com/questions/15362859/getclipboarddata-cf-unicodetext</a>
-GetClipboardData (CF_UNICODETEXT)
+    *NATURAL
+    If the data type of the field in the output buffer or key buffer is relevant
+    according to the CHARCOUNTTYPES Control keyword, any necessary truncation
+    when data is moved is done according to the CHARCOUNT NATURAL mode for assignment.
 
+    *STDCHARSIZE
+    Any necessary truncation when data is moved is done by bytes or double bytes,
+    without regard for the size of each character.
+    When the CHARCOUNT keyword is not specified, the current CHARCOUNT setting
+    is used for the file, as determined by the CHARCOUNT Control keyword or the
+    most recent /CHARCOUNT directive preceding the definition for the file.
 
-<a target="_blank" rel="noopener noreferrer" href="https://jerrington.me/posts/2015-12-31-windows-debugging-for-fun-and-profit.html">https://jerrington.me/posts/2015-12-31-windows-debugging-for-fun-and-profit.html</a>
-jlf: I reference this page for the code related to clipboard. Search for "locale".
+<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/i/7.4?topic=keywords-charcounttypesutf8-utf16-jobrun-mixedebcdic-mixedascii">https://www.ibm.com/docs/en/i/7.4?topic=keywords-charcounttypesutf8-utf16-jobrun-mixedebcdic-mixedascii</a>
+CHARCOUNTTYPES(*UTF8 *UTF16 *JOBRUN *MIXEDEBCDIC *MIXEDASCII)
+    The Control keyword CHARCOUNTTYPES specifies the types of data that are
+    processed by characters rather than by bytes or double bytes when
+    CHARCOUNT NATURAL mode is in effect.
 
+    *UTF8
+    Specify *UTF8 if your module might work with UTF-8 data which has characters
+    of different lengths. For example, the UTF-8 character 'a' has one byte, and
+    the UTF-8 character 'á' has two bytes.
 
-<a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/win32/dataxchg/standard-clipboard-formats">https://learn.microsoft.com/en-us/windows/win32/dataxchg/standard-clipboard-formats</a>
-Standard Clipboard Formats
-CF_LOCALE
-    Locale identifier (LCID) associated with text in the clipboard.
-    The system uses the code page associated with CF_LOCALE to implicitly
-    convert from CF_TEXT to CF_UNICODETEXT.
-CF_TEXT
-    Text format. Each line ends with a carriage return/linefeed (CR-LF) combination.
-    A null character signals the end of the data. Use this format for ANSI text.
-CF_UNICODETEXT
-    Unicode text format. Each line ends with a carriage return/linefeed (CR-LF)
-    combination. A null character signals the end of the data.
+    *UTF16
+    Specify *UTF16 if your module might work with UTF-16 data which has some
+    4-byte characters.
 
+    *JOBRUN
+    Specify *JOBRUN if your job CCSID might support mixed SBCS and DBCS data,
+    and the RPG variables in your module defined to have the job CCSID might
+    contain some DBCS data.
 
-Locale
-    <a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/win32/intl/language-identifiers">https://learn.microsoft.com/en-us/windows/win32/intl/language-identifiers</a>
-    A language identifier is a standard international numeric abbreviation
-    for the language in a country or geographical region. Each language has
-    a unique language identifier (data type LANGID), a 16-bit value that
-    consists of a primary language identifier and a sublanguage identifier.
-    +-------------------------+-------------------------+
-    |     SubLanguage ID      |   Primary Language ID   |
-    +-------------------------+-------------------------+
-    15                    10  9                         0   bit
+    *MIXEDEBCDIC
+    Specify *MIXEDEBCDIC if your module might work with EBCDIC data which
+    supports both SBCS and DBCS characters. This includes data defined with
+    CCSID(*JOBRUNMIX) and data defined with a mixed SBCS/DBCS CCSID such as 937.
 
-    <a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/win32/intl/sort-order-identifiers">https://learn.microsoft.com/en-us/windows/win32/intl/sort-order-identifiers</a>
-    A sort order identifier is defined in the form "_sortorder", at the end
-    of the locale name used in the identifier, for example, "de-DE_phoneb",
-    where "phoneb" is the sort order.
-    The corresponding locale identifier is created as follows:
-    MAKELCID(MAKELANGID(LANG_GERMAN, SUBLANG_GERMAN), SORT_GERMAN_PHONE_BOOK).
-
-    <a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/win32/intl/locale-identifiers">https://learn.microsoft.com/en-us/windows/win32/intl/locale-identifiers</a>
-    Each locale has a unique identifier, a 32-bit value that consists of a
-    language identifier and a sort order identifier.
-    +-------------+---------+-------------------------+
-    |   Reserved  | Sort ID |      Language ID        |
-    +-------------+---------+-------------------------+
-    31         20 19     16 15                      0   bit
-
-    <a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/win32/api/winnls/nf-winnls-getuilanguageinfo">https://learn.microsoft.com/en-us/windows/win32/api/winnls/nf-winnls-getuilanguageinfo</a>
-
-    <a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/previous-versions/windows/embedded/ms930130(v=msdn.10)?redirectedfrom=MSDN">https://learn.microsoft.com/en-us/previous-versions/windows/embedded/ms930130(v=msdn.10)?redirectedfrom=MSDN</a>
-    Locale Code Table
-    jlf: obsolete, but for the moment I don't haver better.
-    Correspondance  Locale identifier (LCID) &lt;--&gt; Default code page
-    ---
-    LCID    Code page   Language: sublanguage
-    0x0436  1252        Afrikaans: South Africa
-    0x041c  1250        Albanian: Albania
-    0x1401  1256        Arabic: Algeria
-    0x3c01  1256        Arabic: Bahrain
-    etc...
+    *MIXEDASCII
+    Specify *ASCII if your module might work with ASCII data which supports
+    both SBCS and DBCS characters.
 
 
-<a target="_blank" rel="noopener noreferrer" href="https://devblogs.microsoft.com/oldnewthing/20161007-00/?p=94475">https://devblogs.microsoft.com/oldnewthing/20161007-00/?p=94475</a>
-How can I get the default code page for a locale?
-    UINT GetAnsiCodePageForLocale(LCID lcid)
-    {
-      UINT acp;
-      int sizeInChars = sizeof(acp) / sizeof(TCHAR);
-      if (GetLocaleInfo(lcid,
-                        LOCALE_IDEFAULTANSICODEPAGE |
-                        LOCALE_RETURN_NUMBER,
-                        reinterpret_cast&lt;LPTSTR&gt;(&amp;acp),
-                        sizeInChars) != sizeInChars) {
-        // Oops - something went wrong
-      }
-      return acp;
-    }
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://www.w3.org/TR/ltli/#dfn-locale-neutral">https://www.w3.org/TR/ltli/#dfn-locale-neutral</a>
-Locale neutral
-jlf: je pige que dalle
-Locale-neutral. A non-linguistic field is said to be locale-neutral when it is
-stored or exchanged in a format that is not specifically appropriate for any
-given language, locale, or culture and which can be interpreted unambiguously
-for presentation in a locale aware way.
-Many specifications use a serialization scheme, such as those provided by
-[XMLSCHEMA11-2] or [JSON-LD], to provide a locale neutral encoding of
-non-linguistic fields in document formats or protocols.
-A locale-neutral representation might itself be linked to a specific cultural
-preference, but such linkages should be minimized.
-
-
-<a target="_blank" rel="noopener noreferrer" href="http://archives.miloush.net/michkap/archive/2005/04/18/409095.html">http://archives.miloush.net/michkap/archive/2005/04/18/409095.html</a>
-A few of the gotchas of WideCharToMultiByte
-by Michael S. Kaplan, published on 2005/04/18 02:01 -04:00, original URI: <a target="_blank" rel="noopener noreferrer" href="http://blogs.msdn.com/b/michkap/archive/2005/04/18/409095.aspx">http://blogs.msdn.com/b/michkap/archive/2005/04/18/409095.aspx</a>
-
-
-<a target="_blank" rel="noopener noreferrer" href="http://archives.miloush.net/michkap/archive/2005/04/19/409566.html">http://archives.miloush.net/michkap/archive/2005/04/19/409566.html</a>
-A few of the gotchas of MultiByteToWideChar
-by Michael S. Kaplan, published on 2005/04/19 04:30 -04:00, original URI: <a target="_blank" rel="noopener noreferrer" href="http://blogs.msdn.com/b/michkap/archive/2005/04/19/409566.aspx">http://blogs.msdn.com/b/michkap/archive/2005/04/19/409566.aspx</a>
----
-jlf: I reached this page because the flag MB_COMPOSITE is not working!
-This page brings the answer: the Microsoft doc has this note
-    Note  For UTF-8 or code page 54936 (GB18030, starting with Windows Vista),
-    dwFlags must be set to either 0 or MB_ERR_INVALID_CHARS. Otherwise, the function
-    fails with ERROR_INVALID_FLAGS.
-Uh?
-
-
-<a target="_blank" rel="noopener noreferrer" href="http://archives.miloush.net/michkap/archive/2005/02/26/381020.html">http://archives.miloush.net/michkap/archive/2005/02/26/381020.html</a>
-What the &amp;%#$ does MB_USEGLYPHCHARS do?
-by Michael S. Kaplan, published on 2005/02/26 15:26 -05:00, original URI: <a target="_blank" rel="noopener noreferrer" href="http://blogs.msdn.com/b/michkap/archive/2005/02/26/381020.aspx">http://blogs.msdn.com/b/michkap/archive/2005/02/26/381020.aspx</a>
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/apps/design/globalizing/use-utf8-code-page">https://learn.microsoft.com/en-us/windows/apps/design/globalizing/use-utf8-code-page</a>
-Use UTF-8 code pages in Windows apps
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://mastodon.gamedev.place/@AshleyGullen/111109299141510319">https://mastodon.gamedev.place/@AshleyGullen/111109299141510319</a>
-what it takes to pass a file path to a Windows API in C++
-
-
-<hr><h2 id="z_OS">z/OS</h2><hr>
+<hr><h2 id="IBM_z_OS">IBM z/OS</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/zos/2.5.0?topic=mvs-zos-unicode-services-users-guide-reference">https://www.ibm.com/docs/en/zos/2.5.0?topic=mvs-zos-unicode-services-users-guide-reference</a>
 Unicode services
 
@@ -3868,83 +3923,218 @@ The valid values are as follows:
             RECFM=VBS is not supported when checkpoint restart is used.
 
 
-<hr><h2 id="IBM_RPG_Lang">IBM RPG Lang</h2><hr>
-<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/i/7.4?topic=cdt-processing-string-data-by-natural-size-each-character">https://www.ibm.com/docs/en/i/7.4?topic=cdt-processing-string-data-by-natural-size-each-character</a>
-Processing string data by the natural size of each character
-    String data can have characters of different sizes.
-    - UTF-8 data can have characters with 1, 2, 3, or 4 bytes.
-      For example, the character 'a' has one byte, and the character 'á' has two bytes.
-      UTF-8 data is defined as alphanumeric with CCSID(*UTF8) or CCSID(1208).
+<hr><h2 id="macOS_OS">macOS OS</h2><hr>
+you can enter emoji (and other Unicode characters) using standard operating
+system tools—like ctrl cmd space.
 
-    - UTF-16 data can have characters with 2 or 4 bytes.
-      UTF-16 data is defined as UCS-2 with CCSID(*UTF16) or CCSID(1200).
 
-    - EBCDIC mixed SBCS/DBCS data can have characters with 1 or 2 bytes.
-      Additionally, double-byte data is surrouned by shift bytes.
-      The shift-out byte x'0E' begins a section of DBCS data and the shift-in
-      byte x'0F' ends the section of DBCS data.
+<a target="_blank" rel="noopener noreferrer" href="https://eclecticlight.co/2021/05/08/explainer-unicode-normalization-and-apfs/">https://eclecticlight.co/2021/05/08/explainer-unicode-normalization-and-apfs/</a>
+Explainer: Unicode, normalization and APFS
+hoakley  May 8, 2021
+---
+One of the oldest problems with Apple’s APFS file system is how it encodes file
+and directory names using Unicode.
 
-    - ASCII mixed SBCS/DBCS data can have characters with 1 or 2 bytes.
-      ASCII mixed SBCS/DBCS data is defined as alphanumeric with a CCSID that
-      represents mixed SBCS/DBCS data such as 950.
 
-    Default behaviour, CHARCOUNT STDCHARSIZE
-    By default, data is processed using the standard-character-size mode.
-    The compiler processes string data by bytes or double bytes without regard
-    for size of each character.
+<hr><h2 id="Windows_OS">Windows OS</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/win32/intl/international-support">https://learn.microsoft.com/en-us/windows/win32/intl/international-support</a>
+jlf: I search which functionalities are available only to unicode apps...
+- can be multilingual without managing code pages
+- IME? not sure if it's only for unicode apps
+- other?
 
-    When CHARCOUNT NATURAL is in effect:
-    The compiler processes string operations by the natural size of each character.
-    The compiler sets the CHARCOUNT NATURAL mode for a file if the CHARCOUNT is
-    not specified for the file.
-    The CHARCOUNT mode for the file affects the movement of data from RPG fields
-    to the output buffer and key buffer used for the file operations.
 
-<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/i/7.4?topic=fdk-charcountnatural-stdcharsize">https://www.ibm.com/docs/en/i/7.4?topic=fdk-charcountnatural-stdcharsize</a>
-CHARCOUNT(*NATURAL | *STDCHARSIZE)
-    The CHARCOUNT keyword controls how RPG handles string truncation when moving
-    data from RPG program variables to the output buffer and key buffer for the file.
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/59404120/what-is-the-difference-in-using-cstringw-cstringa-and-ct2w-ct2a-to-convert-strin">https://stackoverflow.com/questions/59404120/what-is-the-difference-in-using-cstringw-cstringa-and-ct2w-ct2a-to-convert-strin</a>
+What is the difference in using CStringW/CStringA and CT2W/CT2A to convert strings?
+    CString offers a number of conversion constructors to convert between ANSI and
+    Unicode encoding. They are as convenient as they are dangerous, often masking bugs.
 
-    *NATURAL
-    If the data type of the field in the output buffer or key buffer is relevant
-    according to the CHARCOUNTTYPES Control keyword, any necessary truncation
-    when data is moved is done according to the CHARCOUNT NATURAL mode for assignment.
+    By contrast, the Cs2d macros (where s = source, d = destination) work on raw
+    C-style strings; no CString instances are created in the process of converting
+    between character encodings.
 
-    *STDCHARSIZE
-    Any necessary truncation when data is moved is done by bytes or double bytes,
-    without regard for the size of each character.
-    When the CHARCOUNT keyword is not specified, the current CHARCOUNT setting
-    is used for the file, as determined by the CHARCOUNT Control keyword or the
-    most recent /CHARCOUNT directive preceding the definition for the file.
+    Both of the above perform a conversion with an implied ANSI codepage (either
+    CP_THREAD_ACP or CP_ACP in case the _CONVERSION_DONT_USE_THREAD_LOCALE
+    preprocessor symbol is defined). CP_ACP is particularly troublesome, as it's a
+    process-global setting, that any thread can change at any time.
 
-<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/i/7.4?topic=keywords-charcounttypesutf8-utf16-jobrun-mixedebcdic-mixedascii">https://www.ibm.com/docs/en/i/7.4?topic=keywords-charcounttypesutf8-utf16-jobrun-mixedebcdic-mixedascii</a>
-CHARCOUNTTYPES(*UTF8 *UTF16 *JOBRUN *MIXEDEBCDIC *MIXEDASCII)
-    The Control keyword CHARCOUNTTYPES specifies the types of data that are
-    processed by characters rather than by bytes or double bytes when
-    CHARCOUNT NATURAL mode is in effect.
+    Which one should you choose for your conversions? Neither of the above. Use the
+    EX versions instead (see string and text classes for a full list).
 
-    *UTF8
-    Specify *UTF8 if your module might work with UTF-8 data which has characters
-    of different lengths. For example, the UTF-8 character 'a' has one byte, and
-    the UTF-8 character 'á' has two bytes.
 
-    *UTF16
-    Specify *UTF16 if your module might work with UTF-16 data which has some
-    4-byte characters.
+<a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/cpp/atl/string-and-text-classes?view=msvc-170">https://learn.microsoft.com/en-us/cpp/atl/string-and-text-classes?view=msvc-170</a>
+String and Text Classes
 
-    *JOBRUN
-    Specify *JOBRUN if your job CCSID might support mixed SBCS and DBCS data,
-    and the RPG variables in your module defined to have the job CCSID might
-    contain some DBCS data.
 
-    *MIXEDEBCDIC
-    Specify *MIXEDEBCDIC if your module might work with EBCDIC data which
-    supports both SBCS and DBCS characters. This includes data defined with
-    CCSID(*JOBRUNMIX) and data defined with a mixed SBCS/DBCS CCSID such as 937.
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/15362859/getclipboarddata-cf-unicodetext">https://stackoverflow.com/questions/15362859/getclipboarddata-cf-unicodetext</a>
+GetClipboardData (CF_UNICODETEXT)
 
-    *MIXEDASCII
-    Specify *ASCII if your module might work with ASCII data which supports
-    both SBCS and DBCS characters.
+
+<a target="_blank" rel="noopener noreferrer" href="https://jerrington.me/posts/2015-12-31-windows-debugging-for-fun-and-profit.html">https://jerrington.me/posts/2015-12-31-windows-debugging-for-fun-and-profit.html</a>
+jlf: I reference this page for the code related to clipboard. Search for "locale".
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/win32/dataxchg/standard-clipboard-formats">https://learn.microsoft.com/en-us/windows/win32/dataxchg/standard-clipboard-formats</a>
+Standard Clipboard Formats
+CF_LOCALE
+    Locale identifier (LCID) associated with text in the clipboard.
+    The system uses the code page associated with CF_LOCALE to implicitly
+    convert from CF_TEXT to CF_UNICODETEXT.
+CF_TEXT
+    Text format. Each line ends with a carriage return/linefeed (CR-LF) combination.
+    A null character signals the end of the data. Use this format for ANSI text.
+CF_UNICODETEXT
+    Unicode text format. Each line ends with a carriage return/linefeed (CR-LF)
+    combination. A null character signals the end of the data.
+
+
+Locale
+    <a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/win32/intl/language-identifiers">https://learn.microsoft.com/en-us/windows/win32/intl/language-identifiers</a>
+    A language identifier is a standard international numeric abbreviation
+    for the language in a country or geographical region. Each language has
+    a unique language identifier (data type LANGID), a 16-bit value that
+    consists of a primary language identifier and a sublanguage identifier.
+    +-------------------------+-------------------------+
+    |     SubLanguage ID      |   Primary Language ID   |
+    +-------------------------+-------------------------+
+    15                    10  9                         0   bit
+
+    <a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/win32/intl/sort-order-identifiers">https://learn.microsoft.com/en-us/windows/win32/intl/sort-order-identifiers</a>
+    A sort order identifier is defined in the form "_sortorder", at the end
+    of the locale name used in the identifier, for example, "de-DE_phoneb",
+    where "phoneb" is the sort order.
+    The corresponding locale identifier is created as follows:
+    MAKELCID(MAKELANGID(LANG_GERMAN, SUBLANG_GERMAN), SORT_GERMAN_PHONE_BOOK).
+
+    <a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/win32/intl/locale-identifiers">https://learn.microsoft.com/en-us/windows/win32/intl/locale-identifiers</a>
+    Each locale has a unique identifier, a 32-bit value that consists of a
+    language identifier and a sort order identifier.
+    +-------------+---------+-------------------------+
+    |   Reserved  | Sort ID |      Language ID        |
+    +-------------+---------+-------------------------+
+    31         20 19     16 15                      0   bit
+
+    <a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/win32/api/winnls/nf-winnls-getuilanguageinfo">https://learn.microsoft.com/en-us/windows/win32/api/winnls/nf-winnls-getuilanguageinfo</a>
+
+    <a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/previous-versions/windows/embedded/ms930130(v=msdn.10)?redirectedfrom=MSDN">https://learn.microsoft.com/en-us/previous-versions/windows/embedded/ms930130(v=msdn.10)?redirectedfrom=MSDN</a>
+    Locale Code Table
+    jlf: obsolete, but for the moment I don't haver better.
+    Correspondance  Locale identifier (LCID) &lt;--&gt; Default code page
+    ---
+    LCID    Code page   Language: sublanguage
+    0x0436  1252        Afrikaans: South Africa
+    0x041c  1250        Albanian: Albania
+    0x1401  1256        Arabic: Algeria
+    0x3c01  1256        Arabic: Bahrain
+    etc...
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://devblogs.microsoft.com/oldnewthing/20161007-00/?p=94475">https://devblogs.microsoft.com/oldnewthing/20161007-00/?p=94475</a>
+How can I get the default code page for a locale?
+    UINT GetAnsiCodePageForLocale(LCID lcid)
+    {
+      UINT acp;
+      int sizeInChars = sizeof(acp) / sizeof(TCHAR);
+      if (GetLocaleInfo(lcid,
+                        LOCALE_IDEFAULTANSICODEPAGE |
+                        LOCALE_RETURN_NUMBER,
+                        reinterpret_cast&lt;LPTSTR&gt;(&amp;acp),
+                        sizeInChars) != sizeInChars) {
+        // Oops - something went wrong
+      }
+      return acp;
+    }
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.w3.org/TR/ltli/#dfn-locale-neutral">https://www.w3.org/TR/ltli/#dfn-locale-neutral</a>
+Locale neutral
+jlf: je pige que dalle
+Locale-neutral. A non-linguistic field is said to be locale-neutral when it is
+stored or exchanged in a format that is not specifically appropriate for any
+given language, locale, or culture and which can be interpreted unambiguously
+for presentation in a locale aware way.
+Many specifications use a serialization scheme, such as those provided by
+[XMLSCHEMA11-2] or [JSON-LD], to provide a locale neutral encoding of
+non-linguistic fields in document formats or protocols.
+A locale-neutral representation might itself be linked to a specific cultural
+preference, but such linkages should be minimized.
+
+
+<a target="_blank" rel="noopener noreferrer" href="http://archives.miloush.net/michkap/archive/2005/04/18/409095.html">http://archives.miloush.net/michkap/archive/2005/04/18/409095.html</a>
+A few of the gotchas of WideCharToMultiByte
+by Michael S. Kaplan, published on 2005/04/18 02:01 -04:00, original URI: <a target="_blank" rel="noopener noreferrer" href="http://blogs.msdn.com/b/michkap/archive/2005/04/18/409095.aspx">http://blogs.msdn.com/b/michkap/archive/2005/04/18/409095.aspx</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="http://archives.miloush.net/michkap/archive/2005/04/19/409566.html">http://archives.miloush.net/michkap/archive/2005/04/19/409566.html</a>
+A few of the gotchas of MultiByteToWideChar
+by Michael S. Kaplan, published on 2005/04/19 04:30 -04:00, original URI: <a target="_blank" rel="noopener noreferrer" href="http://blogs.msdn.com/b/michkap/archive/2005/04/19/409566.aspx">http://blogs.msdn.com/b/michkap/archive/2005/04/19/409566.aspx</a>
+---
+jlf: I reached this page because the flag MB_COMPOSITE is not working!
+This page brings the answer: the Microsoft doc has this note
+    Note  For UTF-8 or code page 54936 (GB18030, starting with Windows Vista),
+    dwFlags must be set to either 0 or MB_ERR_INVALID_CHARS. Otherwise, the function
+    fails with ERROR_INVALID_FLAGS.
+Uh?
+
+
+<a target="_blank" rel="noopener noreferrer" href="http://archives.miloush.net/michkap/archive/2005/02/26/381020.html">http://archives.miloush.net/michkap/archive/2005/02/26/381020.html</a>
+What the &amp;%#$ does MB_USEGLYPHCHARS do?
+by Michael S. Kaplan, published on 2005/02/26 15:26 -05:00, original URI: <a target="_blank" rel="noopener noreferrer" href="http://blogs.msdn.com/b/michkap/archive/2005/02/26/381020.aspx">http://blogs.msdn.com/b/michkap/archive/2005/02/26/381020.aspx</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/apps/design/globalizing/use-utf8-code-page">https://learn.microsoft.com/en-us/windows/apps/design/globalizing/use-utf8-code-page</a>
+Use UTF-8 code pages in Windows apps
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://mastodon.gamedev.place/@AshleyGullen/111109299141510319">https://mastodon.gamedev.place/@AshleyGullen/111109299141510319</a>
+what it takes to pass a file path to a Windows API in C++
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/neacsum/utf8">https://github.com/neacsum/utf8</a>
+This library simplifies usage of UTF-8 encoded strings under Win32
+Related articles:
+<a target="_blank" rel="noopener noreferrer" href="https://www.codeproject.com//Articles/5252037/Doing-UTF-8-in-Windows">https://www.codeproject.com//Articles/5252037/Doing-UTF-8-in-Windows</a>
+<a target="_blank" rel="noopener noreferrer" href="https://www.codeproject.com/Articles/5259868/Doing-UTF-8-in-Windows-Part-2-Tolower-or-Not-to-Lo">https://www.codeproject.com/Articles/5259868/Doing-UTF-8-in-Windows-Part-2-Tolower-or-Not-to-Lo</a>
+<a target="_blank" rel="noopener noreferrer" href="https://www.codeproject.com/Tips/5263944/UTF-8-in-Windows-INI-Files">https://www.codeproject.com/Tips/5263944/UTF-8-in-Windows-INI-Files</a>
+---
+Reddit review: <a target="_blank" rel="noopener noreferrer" href="https://www.reddit.com/r/cpp/comments/174ee8q/doing_utf8_in_windows/">https://www.reddit.com/r/cpp/comments/174ee8q/doing_utf8_in_windows/</a>
+---
+This article about UTF-8 in Windows that does not discuss how to use a manifest
+to get UTF-8 process ANSI codepage, directs people back to the 1990's.
+Or pre-2019, at any rate.
+---
+Something else to note, if you're in the habit of keeping UTF-8 strings in
+`std::string`, is that the Visual C++ version of `std::filesystem::path`
+initialized from a `std::string` will use the default codepage for the process
+to convert the path to UTF-16. That will result in interesting failures on
+systems whose default codepage is MBCS. All without a single Windows API to be
+seen in your source.
+The solution to this is to upgrade to C++20 and use `std::u8string`, or to keep
+filenames in `std::wstring` if you don't want to deal with the odd and
+occasionally surprising limitations of `std::u8string`.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/win32/sbscs/application-manifests#activeCodePage">https://learn.microsoft.com/en-us/windows/win32/sbscs/application-manifests#activeCodePage</a>
+Application manifests - activeCodePage
+---
+On Windows 10, this element forces a process to use UTF-8 as the process code page.
+On Windows 10, the only valid value for activeCodePage is UTF-8.
+Starting in Windows 11, this element also allows selection of either the legacy
+non-UTF-8 code page, or code pages for a specific locale for legacy application
+compatibility. Modern applications are strongly encouraged to use Unicode.
+On Windows 11, activeCodePage may also be set to the value Legacy or a locale
+name such as en-US or ja-JP.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://devblogs.microsoft.com/oldnewthing/20210527-00/?p=105255">https://devblogs.microsoft.com/oldnewthing/20210527-00/?p=105255</a>
+How can I convert between IANA time zones and Windows registry-based time zones?
+A copy of ICU has been included with Windows since Windows 10 Version 1703 (build 15063).
+All you have to do is include icu.h, and you’re off to the races.
+An advantage of using the version that comes with Windows is that it is actively
+maintained and updated by the Windows team. If you need to run on older systems,
+you can build your own copy from their fork of the ICU repo,
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/microsoft/icu">https://github.com/microsoft/icu</a>
+but the job of servicing the project is now on you.
 
 
 <hr><h2 id="Language_comparison">Language comparison</h2><hr>
@@ -3955,6 +4145,11 @@ Vim, Python, Julia and Rust.
 <hr><h2 id="Regular_expressions">Regular expressions</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://www.regular-expressions.info/unicode.html">https://www.regular-expressions.info/unicode.html</a>
 \X matches a grapheme
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.regular-expressions.info/posixbrackets.html">https://www.regular-expressions.info/posixbrackets.html</a>
+POSIX Bracket Expressions
+jlf: see the table in the section Character Classes
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://pypi.org/project/regex/">https://pypi.org/project/regex/</a>
@@ -3971,6 +4166,42 @@ grapheme clusters will group 'क्' 'र' in one cluster क्र
 <a target="_blank" rel="noopener noreferrer" href="https://blog.burntsushi.net/ripgrep/">https://blog.burntsushi.net/ripgrep/</a>
 ripgrep is faster than {grep, ag, git grep, ucg, pt, sift}
 search for "unicode" and read...
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/dotnet/standard/base-types/character-classes-in-regular-expressions">https://learn.microsoft.com/en-us/dotnet/standard/base-types/character-classes-in-regular-expressions</a>
+Character classes in regular expressions
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/micromatch/posix-character-classes">https://github.com/micromatch/posix-character-classes</a>
+POSIX character classes for creating regular expressions.
+jlf: careful, not official. Looks similar to the table at
+<a target="_blank" rel="noopener noreferrer" href="https://en.wikibooks.org/wiki/Regular_Expressions/POSIX_Basic_Regular_Expressions">https://en.wikibooks.org/wiki/Regular_Expressions/POSIX_Basic_Regular_Expressions</a>
+    POSIX class	Equivalent to	Matches
+    [:alnum:]	[A-Za-z0-9]                         digits, uppercase and lowercase letters
+    [:alpha:]	[A-Za-z]                            upper- and lowercase letters
+    [:ascii:]	[\x00-\x7F]                         ASCII characters
+    [:blank:]	[ \t]                               space and TAB characters only
+    [:cntrl:]	[\x00-\x1F\x7F]                     Control characters
+    [:digit:]	[0-9]                               digits
+    [:graph:]	[^ [:cntrl:]]                       graphic characters (all characters which have graphic representation)
+    [:lower:]	[a-z]                               lowercase letters
+    [:print:]	[[:graph:] ]                        graphic characters and space
+    [:punct:]	[-!"#$%&amp;'()*+,./:;&lt;=&gt;?@[]^_`{|}~]   all punctuation characters (all graphic characters except letters and digits)
+    [:space:]	[ \t\n\r\f\v]                       all blank (whitespace) characters, including spaces, tabs, new lines, carriage returns, form feeds, and vertical tabs
+    [:upper:]	[A-Z]                               uppercase letters
+    [:word:]	[A-Za-z0-9_]                        word characters
+    [:xdigit:]	[0-9A-Fa-f]                         hexadecimal digits
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://unicode-org.github.io/icu/userguide/icu/posix.html">https://unicode-org.github.io/icu/userguide/icu/posix.html</a>
+C/POSIX Migration
+    Character classes, point 7:
+    For more about the problems with POSIX character classes in a Unicode context
+    see Annex C: Compatibility Properties in Unicode Technical Standard #18: Unicode Regular Expressions
+    <a target="_blank" rel="noopener noreferrer" href="http://www.unicode.org/reports/tr18/#Compatibility_Properties">http://www.unicode.org/reports/tr18/#Compatibility_Properties</a>
+    and see the mailing list archives for the unicode list (on unicode.org).
+    See also the ICU design document about C/POSIX character classes
+    <a target="_blank" rel="noopener noreferrer" href="https://htmlpreview.github.io/?https://github.com/unicode-org/icu-docs/blob/main/design/posix_classes.html">https://htmlpreview.github.io/?https://github.com/unicode-org/icu-docs/blob/main/design/posix_classes.html</a>
 
 
 <hr><h2 id="Test_cases__test_cases__tests_files">Test cases, test-cases, tests files</h2><hr>
@@ -5190,6 +5421,30 @@ forever to load.
 jg2p
 Java implementation of a general grapheme to phoneme toolkit using a pipeline of
 CRFs, a log-loss re-ranker, and a joint "graphone" language model.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://horstmann.com/unblog/2023-10-03/index.html">https://horstmann.com/unblog/2023-10-03/index.html</a>
+Stop Using char in Java. And Code Points
+jlf: moderately interesting...
+jlf: idem for the related HN comments <a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=37822967">https://news.ycombinator.com/item?id=37822967</a>
+Since Java 20, there is a way of iterating over the grapheme clusters of a string,
+using the BreakIterator class from Java 1.1.
+    String s = "Ciao 🇮🇹!";
+    BreakIterator iter = BreakIterator.getCharacterInstance();
+    iter.setText(s);
+    int start = boundary.first();
+    int end = boundary.next();
+    while (end != BreakIterator.DONE) {
+       String gc = s.substring(start, end);
+       start = end;
+       end = boundary.next();
+       process(gc);
+    }
+Here is a much simpler way, clearly not as efficient. I was stunned to find out
+that this worked since Java 9!
+    s.split("\\b{g}"); // An array withments "C", "i", "a", "o", " ", "🇮🇹", "!"
+Or, to get a stream:
+    Pattern.compile("\\X").matcher(s).results().map(MatchResult::group)
 
 
 <hr><h2 id="JavaScript_lang">JavaScript lang</h2><hr>
