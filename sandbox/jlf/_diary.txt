@@ -3,6 +3,34 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2023 Oct 31
+
+Installed Xcode 15.0.1
+and now I get this error when trying to debug:
+    MacBook Pro 2021 cannot run rexx.
+    Domain: IDEFoundationErrorDomain
+    Code: 3
+    Recovery Suggestion: MacBook Pro 2021 runs macOS 13.5.2, which is lower than
+    rexx’s minimum deployment target of 14.0. Change your project’s minimum
+    deployment target or upgrade MacBook Pro 2021’s version of macOS.
+I modified Cmakelist.txt to always set CMAKE_OSX_DEPLOYMENT_TARGET
+    #if( APPLE AND BUILD_OSX_UNIVERSAL_BINARIES )
+    if( APPLE )
+      set( CMAKE_OSX_DEPLOYMENT_TARGET 10.13.6 CACHE STRING  "" FORCE)
+    endif()
+NO EFFECT! WHY?
+I use an Xcode project of type External Build System.
+There is NO WAY to set a minimum deployment target in the GUI.
+[later]
+https://developer.apple.com/forums/thread/96361
+This URL describes EXACTLY my problem and there is NO solution!
+Ça me pompe l'air :-((
+
+Environment variable
+MACOSX_DEPLOYMENT_TARGET
+
+
+===============================================================================
 2023 Oct 28
 
 [Unicode]
@@ -36,7 +64,7 @@ I get 149878 characters instead of 149813 (+65) because I include the control ch
 
 [Unicode]
 
-Upgrade to ICU4X 1.3.2
+Upgrade to ICU4X 1.3.2 for Windows ARM64
 Currently no way to get the version of ICU4X, Unicode and CLDR using C++ FFI.
 https://github.com/unicode-org/icu4x/discussions/4229
 

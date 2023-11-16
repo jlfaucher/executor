@@ -51,7 +51,12 @@ cmake_policy(VERSION 2.8...3.5)
 
 # must come before the project command
 # 10.13.6 High Sierra is the minimum system supported
-if( APPLE AND BUILD_OSX_UNIVERSAL_BINARIES )
+# jlf 2023.10.31 When trying to debug with xcode 15.0.1, I get this message:
+# "MacBook Pro 2021 runs macOS 13.5.2, which is lower than rexx’s minimum deployment target of 14.0. "
+# From where is coming this 14.0?
+# The change below is has no effect :-(
+#if( APPLE AND BUILD_OSX_UNIVERSAL_BINARIES )
+if( APPLE )
   set( CMAKE_OSX_DEPLOYMENT_TARGET 10.13.6 CACHE STRING  "" FORCE)
 endif()
 
