@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 8 Oct 2023
-Input queue name: S3e2fQ600001ccb4d0
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 16 Nov 2023
+Input queue name: S1093fQ600000f448f0
 
 ooRexx[sh]> call loadUnicodeCharacterNames
 Load the Unicode character names 15.1.0 
@@ -198,8 +198,8 @@ ooRexx[sh]> "Bundesstrasse im Freiland"~text~caselessCompare("bundesstraße")=  
  15
 ooRexx[sh]> "straßssßßssse"~text~compare("stra", "ß")=                              --  6
  6
-ooRexx[sh]> "straßssßßssse"~text~caselessCompare("stra", "ß")=                      -- 13 (questionable? the last 's' match half of the pad 'ss')
- 13
+ooRexx[sh]> "straßssßßssse"~text~caselessCompare("stra", "ß")=                      -- 12 (not 13 because the last 's' matches only half of the casefolded pad "ß" which is "ss")
+ 12
 
 
 -- caselessCompareTo

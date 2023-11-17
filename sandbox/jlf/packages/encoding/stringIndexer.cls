@@ -11,6 +11,7 @@ Depends on
 .WTF8_ENCODING
 */
 
+-- ::options trace i
 
 /******************************************************************************/
 ::class "StringIndexer" mixinclass Object public - -- private - -- abstract
@@ -1001,11 +1002,14 @@ if debug then do
 end
 
     if aligned then do
+        nop -- return the negative value instead of .nil, I need it for compareText
+        /*
         if posC < 0 then do
             -- aligned match requested, but byte position not aligned with
             -- character ==> no match
             posC = .nil
         end
+        */
     end
     else do
         if posC < 0 then do

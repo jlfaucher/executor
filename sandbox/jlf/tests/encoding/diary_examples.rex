@@ -8,6 +8,210 @@ call loadUnicodeCharacterNames
 
 
 -- ===============================================================================
+-- 2023 Nov 17
+
+/*
+Rework the implementation of caselessCompare, to get the right answer here:
+*/
+"sss"~text~caselessCompare("", "ß")=                --  3 (not  4 because the 3rd  's' matches only half of the casefolded pad "ß" which is "ss")
+"straßssßßssse"~text~caselessCompare("stra", "ß")=  -- 12 (not 13 because the last 's' matches only half of the casefolded pad "ß" which is "ss")
+
+/*
+Analysis using Unicode scalars:
+
+-----------------------------------------
+CASE 1 : aligned in self, aligned in arg1
+-----------------------------------------
+*/
+
+"straßssßßssse"~text~compare("stra", "ß")=          --  6
+/*
+    "straßssßßssse"~text~unicode~c2g=
+         1  2  3  4  5  6  7  8  9  0  1  2  3      -- (external character indexes)
+         s  t  r  a  ß  s  s  ß  ß  s  s  s  e
+         73 74 72 61 DF 73 73 DF DF 73 73 73 65     -- (unicode scalars)
+    -------------------------------------------
+    "straßßßßßßßßß"~text~unicode~c2g=
+         1  2  3  4  5  6  7  8  9  0  1  2  3      -- (external character indexes)
+         s  t  r  a  ß  ß  ß  ß  ß  ß  ß  ß  ß
+         73 74 72 61 DF DF DF DF DF DF DF DF DF     -- (unicode scalars)
+                        |
+                        first different unicode scalar
+*/
+
+/*
+Debug output: the indexer supports the named parameter debug
+"straßssßßssse"~text~indexer~compare("stra", "ß", debug:.true)=
+    selfTextTransformer~iSubtext~string = straßssßßssse
+    selfTextTransformer~iSubtext~c2g = 73 74 72 61 C39F 73 73 C39F C39F 73 73 73 65
+    selfTextTransformedString~length = 16
+    textTextTransformer~iSubtext~string = straßßßßßßßßß
+    textTextTransformer~iSubtext~c2g = 73 74 72 61 C39F C39F C39F C39F C39F C39F C39F C39F C39F
+    textTextTransformedString~length = 22
+    posB1 = 7
+    posC1 = +6.7
+    posB2 = 7
+    posC2 = +6.7
+     6
+*/
+
+
+/*
+---------------------------------------------
+CASE 2 : aligned in self, not aligned in arg1
+---------------------------------------------
+*/
+
+"straßssßßssse"~text~caselessCompare("stra", "ß")=                              -- 12
+/*
+    "straßssßßssse"~text~unicode~c2g=
+         1  2  3  4  5     6  7  8     9     0  1  2  3                         -- (external character indexes)
+         s  t  r  a  ß     s  s  ß     ß     s  s  s  e
+         73 74 72 61 DF    73 73 DF    DF    73 73 73 65                        -- (unicode scalars)
+    "straßssßßssse"~text~casefold~unicode~c2g=
+         1  2  3  4  5  6  7  8  9  0  1  2  3  4  5  6                         -- (internal byte indexes)
+         s  t  r  a  s  s  s  s  s  s  s  s  s  s  s  e
+         73 74 72 61 73 73 73 73 73 73 73 73 73 73 73 65                        -- (unicode scalars)
+    ----------------------------------------------------
+    "straßßßßßßßßß"~text~unicode~c2g=
+         1  2  3  4  5     6     7     8     9     0     1     2     3          -- (external character indexes)
+         s  t  r  a  ß     ß     ß     ß     ß     ß     ß     ß     ß
+         73 74 72 61 DF    DF    DF    DF    DF    DF    DF    DF    DF         -- (unicode scalars)
+    "straßßßßßßßßß"~text~casefold~unicode~c2g=
+         1  2  3  4  5  6  7  8  9  0  1  2  3  4  5  6  7  8  9  0  1  2       -- (internal byte indexes)
+         s  t  r  a  ß     ß     ß     ß     ß     ß     ß     ß     ß
+         73 74 72 61 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73      -- (unicode scalars)
+                                                   |  |
+                                                   |  +-- 65 at (13,16) <> 73 at (-10,+16) but can't be 13 because would match only the first 73 of ß at (10,15)
+                                                   +-- yes, 12.
+*/
+
+/*
+Debug output: the indexer supports the named parameter debug
+"straßssßßssse"~text~indexer~caselessCompare("stra", "ß", debug:.true)=
+    selfTextTransformer~iSubtext~string = strassssssssssse
+    selfTextTransformer~iSubtext~c2g = 73 74 72 61 73 73 73 73 73 73 73 73 73 73 73 65
+    selfTextTransformedString~length = 16
+    textTextTransformer~iSubtext~string = strassssssssssssssssss
+    textTextTransformer~iSubtext~c2g = 73 74 72 61 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73
+    textTextTransformedString~length = 22
+    posB1 = 16
+    posC1 = +13.16
+    posB2 = 16
+    posC2 = -10.16
+     12
+*/
+
+-- Another way to test: at which moment the growing padded string on the right will no longer be found at pos 1
+--   1234567890123
+    "straßssßßssse"~text~caselessPos("straß")=          -- 1
+--   straß
+    "straßssßßssse"~text~caselessPos("straßß")=         -- 1
+--   straßß
+    "straßssßßssse"~text~caselessPos("straßßß")=        -- 1
+--   straßß ß
+    "straßssßßssse"~text~caselessPos("straßßßß")=       -- 1
+--   straßß ßß
+    "straßssßßssse"~text~caselessPos("straßßßßß")=      -- 1
+--   straßß ßßß
+    "straßssßßssse"~text~caselessPos("straßßßßßß")=     -- 0    The last ß doesn't match "se" at 12
+--   straßß ßßß ß
+
+
+/*
+---------------------------------------------
+CASE 3 : not aligned in self, aligned in arg1
+---------------------------------------------
+*/
+
+"stra"~text~caselessCompare("straßssßßssse", "ß")=  -- 9
+/*
+    1  2  3  4  5     6     7     8     9     0     1     2     3               -- (external character indexes)
+    s  t  r  a  ß     ß     ß     ß     ß     ß     ß     ß     ß
+    1  2  3  4  5  6  7  8  9  0  1  2  3  4  5  6  7  8  9  0  1  2            -- (internal byte indexes)
+    73 74 72 61 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73           -- (unicode scalars of the casefolded string)
+    -----------------------------------------------------------------
+    1  2  3  4  5     6  7  8     9     0  1  2  3                              -- (external character indexes)
+    s  t  r  a  ß     s  s  ß     ß     s  s  s  e
+    1  2  3  4  5  6  7  8  9  0  1  2  3  4  5  6                              -- (internal byte indexes)
+    73 74 72 61 73 73 73 73 73 73 73 73 73 73 73 65                             -- (unicode scalars of the casefolded string)
+                                        |        |
+                                        |        + 73 at (-10,16) <> 65 at (13,16)
+                                        +-- yes, 9.
+*/
+
+/*
+Debug output: the indexer supports the named parameter debug
+"stra"~text~indexer~caselessCompare("straßssßßssse", "ß", debug:.true)=
+    selfTextTransformer~iSubtext~string = strassssssssssssssssss
+    selfTextTransformer~iSubtext~c2g = 73 74 72 61 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73
+    selfTextTransformedString~length = 22
+    textTextTransformer~iSubtext~string = strassssssssssse
+    textTextTransformer~iSubtext~c2g = 73 74 72 61 73 73 73 73 73 73 73 73 73 73 73 65
+    textTextTransformedString~length = 16
+    posB1 = 16
+    posC1 = -10.16
+    posB2 = 16
+    posC2 = +13.16
+     9
+*/
+
+"straß"        ~text~caselessCompare("straßssßßssse", "ß")=  -- 9
+"straßß"       ~text~caselessCompare("straßssßßssse", "ß")=  -- 9
+"straßßß"      ~text~caselessCompare("straßssßßssse", "ß")=  -- 9
+"straßßßß"     ~text~caselessCompare("straßssßßssse", "ß")=  -- 9
+"straßßßßß"    ~text~caselessCompare("straßssßßssse", "ß")=  -- 9
+"straßßßßßß"   ~text~caselessCompare("straßssßßssse", "ß")=  -- 9
+"straßßßßßßß"  ~text~caselessCompare("straßssßßssse", "ß")=  -- 9
+"straßßßßßßßß" ~text~caselessCompare("straßssßßssse", "ß")=  -- 9
+
+"straß"        ~text~caselessCompareTo("straßssßßssse")=  -- -1
+"straßß"       ~text~caselessCompareTo("straßssßßssse")=  -- -1
+"straßßß"      ~text~caselessCompareTo("straßssßßssse")=  -- -1
+"straßßßß"     ~text~caselessCompareTo("straßssßßssse")=  -- -1
+"straßßßßß"    ~text~caselessCompareTo("straßssßßssse")=  -- -1     up to 9 characters, it's lesser
+"straßßßßßß"   ~text~caselessCompareTo("straßssßßssse")=  -- 1      from 10 characters, it's greater
+"straßßßßßßß"  ~text~caselessCompareTo("straßssßßssse")=  -- 1
+"straßßßßßßßß" ~text~caselessCompareTo("straßssßßssse")=  -- 1
+
+"stra"     ~caselessCompare("strasssssse", "s")=    -- 11
+"stra"~text~caselessCompare("strasssssse", "s")=    -- 11
+"strasssssse"     ~caselessCompare("stra", "s")=    -- 11
+"strasssssse"~text~caselessCompare("stra", "s")=    -- 11
+
+"strà"     ~caselessCompare("stràsssssse", "s")=    -- 12
+"strà"~text~caselessCompare("stràsssssse", "s")=    -- 11
+"stràsssssse"     ~caselessCompare("strà", "s")=    -- 12
+"stràsssssse"~text~caselessCompare("strà", "s")=    -- 11
+
+
+/*
+---------------------------------------------
+CASE 4 : not aligned in self, aligned in arg1
+---------------------------------------------
+*/
+
+iota_dt = "\u{GREEK SMALL LETTER IOTA WITH DIALYTIKA AND TONOS}"~text~unescape
+("a" iota_dt~casefold "b")~compare("a" iota_dt, normalization: 0)=  -- 3
+
+/*
+Debug output: the indexer supports the named parameter debug
+("a" iota_dt~casefold "b")~indexer~compare("a" iota_dt, normalization: 0, debug:.true)=
+    selfTextTransformer~iSubtext~string = a ΐ b
+    selfTextTransformer~iSubtext~c2g = 61 20 CEB9CC88CC81 20 62
+    selfTextTransformedString~length = 10
+    textTextTransformer~iSubtext~string = a ΐ
+    textTextTransformer~iSubtext~c2g = 61 20 CE90 20 20
+    textTextTransformedString~length = 6
+    posB1 = 4
+    posC1 = -3.4
+    posB2 = 4
+    posC2 = -3.4
+     3
+*/
+
+
+-- ===============================================================================
 -- 2023 Oct 04
 
 /*
@@ -1334,7 +1538,7 @@ t = "noël👩‍👨‍👩‍👧🎅"~text; do indexB=1 to t~string~length + 
     "Bundesstraße im Freiland"~text~caselessCompare("bundesstrasse")=       -- 14 (good)
     "Bundesstrasse im Freiland"~text~caselessCompare("bundesstraße")=       -- 15 (good)
     "straßssßßssse"~text~compare("stra", "ß")=                              --  6 (good)
-    "straßssßßssse"~text~caselessCompare("stra", "ß")=                      -- 13 (questionable? the last 's' match half of the pad 'ss')
+    "straßssßßssse"~text~caselessCompare("stra", "ß")=                      -- 12 (not 13 because the last 's' match half of the pad 'ss')
 
 /*
 This test case is a little bit strange because:

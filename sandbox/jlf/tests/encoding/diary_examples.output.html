@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 8 Oct 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S3cd6Q600001ccb400
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 16 Nov 2023
+</span><span style="font-weight:bold;color:green;">Input queue name: S10856Q600000f58750
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.1.0 
@@ -44,6 +44,246 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacte
 ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeConversions = .false</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeTransformations = .false</span>
 
+
+<span style="font-weight:bold;color:blue;">-- ===============================================================================
+</span><span style="font-weight:bold;color:blue;">-- 2023 Nov 17
+</span>
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Rework the implementation of caselessCompare, to get the right answer here:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;sss&quot;~text~caselessCompare(&quot;&quot;, &quot;ß&quot;)=                </span><span style="font-weight:bold;color:blue;">--  3 (not  4 because the 3rd  's' matches only half of the casefolded pad &quot;ß&quot; which is &quot;ss&quot;)</span>
+ 3
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;straßssßßssse&quot;~text~caselessCompare(&quot;stra&quot;, &quot;ß&quot;)=  </span><span style="font-weight:bold;color:blue;">-- 12 (not 13 because the last 's' matches only half of the casefolded pad &quot;ß&quot; which is &quot;ss&quot;)</span>
+ 12
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Analysis using Unicode scalars:
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">-----------------------------------------
+</span><span style="font-weight:bold;color:blue;">CASE 1 : aligned in self, aligned in arg1
+</span><span style="font-weight:bold;color:blue;">-----------------------------------------
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;straßssßßssse&quot;~text~compare(&quot;stra&quot;, &quot;ß&quot;)=          </span><span style="font-weight:bold;color:blue;">--  6</span>
+ 6
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">    &quot;straßssßßssse&quot;~text~unicode~c2g=
+</span><span style="font-weight:bold;color:blue;">         1  2  3  4  5  6  7  8  9  0  1  2  3      -- (external character indexes)
+</span><span style="font-weight:bold;color:blue;">         s  t  r  a  ß  s  s  ß  ß  s  s  s  e
+</span><span style="font-weight:bold;color:blue;">         73 74 72 61 DF 73 73 DF DF 73 73 73 65     -- (unicode scalars)
+</span><span style="font-weight:bold;color:blue;">    -------------------------------------------
+</span><span style="font-weight:bold;color:blue;">    &quot;straßßßßßßßßß&quot;~text~unicode~c2g=
+</span><span style="font-weight:bold;color:blue;">         1  2  3  4  5  6  7  8  9  0  1  2  3      -- (external character indexes)
+</span><span style="font-weight:bold;color:blue;">         s  t  r  a  ß  ß  ß  ß  ß  ß  ß  ß  ß
+</span><span style="font-weight:bold;color:blue;">         73 74 72 61 DF DF DF DF DF DF DF DF DF     -- (unicode scalars)
+</span><span style="font-weight:bold;color:blue;">                        |
+</span><span style="font-weight:bold;color:blue;">                        first different unicode scalar
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Debug output: the indexer supports the named parameter debug
+</span><span style="font-weight:bold;color:blue;">&quot;straßssßßssse&quot;~text~indexer~compare(&quot;stra&quot;, &quot;ß&quot;, debug:.true)=
+</span><span style="font-weight:bold;color:blue;">    selfTextTransformer~iSubtext~string = straßssßßssse
+</span><span style="font-weight:bold;color:blue;">    selfTextTransformer~iSubtext~c2g = 73 74 72 61 C39F 73 73 C39F C39F 73 73 73 65
+</span><span style="font-weight:bold;color:blue;">    selfTextTransformedString~length = 16
+</span><span style="font-weight:bold;color:blue;">    textTextTransformer~iSubtext~string = straßßßßßßßßß
+</span><span style="font-weight:bold;color:blue;">    textTextTransformer~iSubtext~c2g = 73 74 72 61 C39F C39F C39F C39F C39F C39F C39F C39F C39F
+</span><span style="font-weight:bold;color:blue;">    textTextTransformedString~length = 22
+</span><span style="font-weight:bold;color:blue;">    posB1 = 7
+</span><span style="font-weight:bold;color:blue;">    posC1 = +6.7
+</span><span style="font-weight:bold;color:blue;">    posB2 = 7
+</span><span style="font-weight:bold;color:blue;">    posC2 = +6.7
+</span><span style="font-weight:bold;color:blue;">     6
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">---------------------------------------------
+</span><span style="font-weight:bold;color:blue;">CASE 2 : aligned in self, not aligned in arg1
+</span><span style="font-weight:bold;color:blue;">---------------------------------------------
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;straßssßßssse&quot;~text~caselessCompare(&quot;stra&quot;, &quot;ß&quot;)=                              </span><span style="font-weight:bold;color:blue;">-- 12</span>
+ 12
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">    &quot;straßssßßssse&quot;~text~unicode~c2g=
+</span><span style="font-weight:bold;color:blue;">         1  2  3  4  5     6  7  8     9     0  1  2  3                         -- (external character indexes)
+</span><span style="font-weight:bold;color:blue;">         s  t  r  a  ß     s  s  ß     ß     s  s  s  e
+</span><span style="font-weight:bold;color:blue;">         73 74 72 61 DF    73 73 DF    DF    73 73 73 65                        -- (unicode scalars)
+</span><span style="font-weight:bold;color:blue;">    &quot;straßssßßssse&quot;~text~casefold~unicode~c2g=
+</span><span style="font-weight:bold;color:blue;">         1  2  3  4  5  6  7  8  9  0  1  2  3  4  5  6                         -- (internal byte indexes)
+</span><span style="font-weight:bold;color:blue;">         s  t  r  a  s  s  s  s  s  s  s  s  s  s  s  e
+</span><span style="font-weight:bold;color:blue;">         73 74 72 61 73 73 73 73 73 73 73 73 73 73 73 65                        -- (unicode scalars)
+</span><span style="font-weight:bold;color:blue;">    ----------------------------------------------------
+</span><span style="font-weight:bold;color:blue;">    &quot;straßßßßßßßßß&quot;~text~unicode~c2g=
+</span><span style="font-weight:bold;color:blue;">         1  2  3  4  5     6     7     8     9     0     1     2     3          -- (external character indexes)
+</span><span style="font-weight:bold;color:blue;">         s  t  r  a  ß     ß     ß     ß     ß     ß     ß     ß     ß
+</span><span style="font-weight:bold;color:blue;">         73 74 72 61 DF    DF    DF    DF    DF    DF    DF    DF    DF         -- (unicode scalars)
+</span><span style="font-weight:bold;color:blue;">    &quot;straßßßßßßßßß&quot;~text~casefold~unicode~c2g=
+</span><span style="font-weight:bold;color:blue;">         1  2  3  4  5  6  7  8  9  0  1  2  3  4  5  6  7  8  9  0  1  2       -- (internal byte indexes)
+</span><span style="font-weight:bold;color:blue;">         s  t  r  a  ß     ß     ß     ß     ß     ß     ß     ß     ß
+</span><span style="font-weight:bold;color:blue;">         73 74 72 61 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73      -- (unicode scalars)
+</span><span style="font-weight:bold;color:blue;">                                                   |  |
+</span><span style="font-weight:bold;color:blue;">                                                   |  +-- 65 at (13,16) &lt;&gt; 73 at (-10,+16) but can't be 13 because would match only the first 73 of ß at (10,15)
+</span><span style="font-weight:bold;color:blue;">                                                   +-- yes, 12.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Debug output: the indexer supports the named parameter debug
+</span><span style="font-weight:bold;color:blue;">&quot;straßssßßssse&quot;~text~indexer~caselessCompare(&quot;stra&quot;, &quot;ß&quot;, debug:.true)=
+</span><span style="font-weight:bold;color:blue;">    selfTextTransformer~iSubtext~string = strassssssssssse
+</span><span style="font-weight:bold;color:blue;">    selfTextTransformer~iSubtext~c2g = 73 74 72 61 73 73 73 73 73 73 73 73 73 73 73 65
+</span><span style="font-weight:bold;color:blue;">    selfTextTransformedString~length = 16
+</span><span style="font-weight:bold;color:blue;">    textTextTransformer~iSubtext~string = strassssssssssssssssss
+</span><span style="font-weight:bold;color:blue;">    textTextTransformer~iSubtext~c2g = 73 74 72 61 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73
+</span><span style="font-weight:bold;color:blue;">    textTextTransformedString~length = 22
+</span><span style="font-weight:bold;color:blue;">    posB1 = 16
+</span><span style="font-weight:bold;color:blue;">    posC1 = +13.16
+</span><span style="font-weight:bold;color:blue;">    posB2 = 16
+</span><span style="font-weight:bold;color:blue;">    posC2 = -10.16
+</span><span style="font-weight:bold;color:blue;">     12
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
+<span style="font-weight:bold;color:blue;">-- Another way to test: at which moment the growing padded string on the right will no longer be found at pos 1
+</span><span style="font-weight:bold;color:blue;">--   1234567890123
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;straßssßßssse&quot;~text~caselessPos(&quot;straß&quot;)=          </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+<span style="font-weight:bold;color:blue;">--   straß
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;straßssßßssse&quot;~text~caselessPos(&quot;straßß&quot;)=         </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+<span style="font-weight:bold;color:blue;">--   straßß
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;straßssßßssse&quot;~text~caselessPos(&quot;straßßß&quot;)=        </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+<span style="font-weight:bold;color:blue;">--   straßß ß
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;straßssßßssse&quot;~text~caselessPos(&quot;straßßßß&quot;)=       </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+<span style="font-weight:bold;color:blue;">--   straßß ßß
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;straßssßßssse&quot;~text~caselessPos(&quot;straßßßßß&quot;)=      </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+<span style="font-weight:bold;color:blue;">--   straßß ßßß
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;straßssßßssse&quot;~text~caselessPos(&quot;straßßßßßß&quot;)=     </span><span style="font-weight:bold;color:blue;">-- 0    The last ß doesn't match &quot;se&quot; at 12</span>
+ 0
+<span style="font-weight:bold;color:blue;">--   straßß ßßß ß
+</span>
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">---------------------------------------------
+</span><span style="font-weight:bold;color:blue;">CASE 3 : not aligned in self, aligned in arg1
+</span><span style="font-weight:bold;color:blue;">---------------------------------------------
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;stra&quot;~text~caselessCompare(&quot;straßssßßssse&quot;, &quot;ß&quot;)=  </span><span style="font-weight:bold;color:blue;">-- 9</span>
+ 9
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">    1  2  3  4  5     6     7     8     9     0     1     2     3               -- (external character indexes)
+</span><span style="font-weight:bold;color:blue;">    s  t  r  a  ß     ß     ß     ß     ß     ß     ß     ß     ß
+</span><span style="font-weight:bold;color:blue;">    1  2  3  4  5  6  7  8  9  0  1  2  3  4  5  6  7  8  9  0  1  2            -- (internal byte indexes)
+</span><span style="font-weight:bold;color:blue;">    73 74 72 61 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73           -- (unicode scalars of the casefolded string)
+</span><span style="font-weight:bold;color:blue;">    -----------------------------------------------------------------
+</span><span style="font-weight:bold;color:blue;">    1  2  3  4  5     6  7  8     9     0  1  2  3                              -- (external character indexes)
+</span><span style="font-weight:bold;color:blue;">    s  t  r  a  ß     s  s  ß     ß     s  s  s  e
+</span><span style="font-weight:bold;color:blue;">    1  2  3  4  5  6  7  8  9  0  1  2  3  4  5  6                              -- (internal byte indexes)
+</span><span style="font-weight:bold;color:blue;">    73 74 72 61 73 73 73 73 73 73 73 73 73 73 73 65                             -- (unicode scalars of the casefolded string)
+</span><span style="font-weight:bold;color:blue;">                                        |        |
+</span><span style="font-weight:bold;color:blue;">                                        |        + 73 at (-10,16) &lt;&gt; 65 at (13,16)
+</span><span style="font-weight:bold;color:blue;">                                        +-- yes, 9.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Debug output: the indexer supports the named parameter debug
+</span><span style="font-weight:bold;color:blue;">&quot;stra&quot;~text~indexer~caselessCompare(&quot;straßssßßssse&quot;, &quot;ß&quot;, debug:.true)=
+</span><span style="font-weight:bold;color:blue;">    selfTextTransformer~iSubtext~string = strassssssssssssssssss
+</span><span style="font-weight:bold;color:blue;">    selfTextTransformer~iSubtext~c2g = 73 74 72 61 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73
+</span><span style="font-weight:bold;color:blue;">    selfTextTransformedString~length = 22
+</span><span style="font-weight:bold;color:blue;">    textTextTransformer~iSubtext~string = strassssssssssse
+</span><span style="font-weight:bold;color:blue;">    textTextTransformer~iSubtext~c2g = 73 74 72 61 73 73 73 73 73 73 73 73 73 73 73 65
+</span><span style="font-weight:bold;color:blue;">    textTextTransformedString~length = 16
+</span><span style="font-weight:bold;color:blue;">    posB1 = 16
+</span><span style="font-weight:bold;color:blue;">    posC1 = -10.16
+</span><span style="font-weight:bold;color:blue;">    posB2 = 16
+</span><span style="font-weight:bold;color:blue;">    posC2 = +13.16
+</span><span style="font-weight:bold;color:blue;">     9
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;straß&quot;        ~text~caselessCompare(&quot;straßssßßssse&quot;, &quot;ß&quot;)=  </span><span style="font-weight:bold;color:blue;">-- 9</span>
+ 9
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;straßß&quot;       ~text~caselessCompare(&quot;straßssßßssse&quot;, &quot;ß&quot;)=  </span><span style="font-weight:bold;color:blue;">-- 9</span>
+ 9
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;straßßß&quot;      ~text~caselessCompare(&quot;straßssßßssse&quot;, &quot;ß&quot;)=  </span><span style="font-weight:bold;color:blue;">-- 9</span>
+ 9
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;straßßßß&quot;     ~text~caselessCompare(&quot;straßssßßssse&quot;, &quot;ß&quot;)=  </span><span style="font-weight:bold;color:blue;">-- 9</span>
+ 9
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;straßßßßß&quot;    ~text~caselessCompare(&quot;straßssßßssse&quot;, &quot;ß&quot;)=  </span><span style="font-weight:bold;color:blue;">-- 9</span>
+ 9
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;straßßßßßß&quot;   ~text~caselessCompare(&quot;straßssßßssse&quot;, &quot;ß&quot;)=  </span><span style="font-weight:bold;color:blue;">-- 9</span>
+ 9
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;straßßßßßßß&quot;  ~text~caselessCompare(&quot;straßssßßssse&quot;, &quot;ß&quot;)=  </span><span style="font-weight:bold;color:blue;">-- 9</span>
+ 9
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;straßßßßßßßß&quot; ~text~caselessCompare(&quot;straßssßßssse&quot;, &quot;ß&quot;)=  </span><span style="font-weight:bold;color:blue;">-- 9</span>
+ 9
+
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;straß&quot;        ~text~caselessCompareTo(&quot;straßssßßssse&quot;)=  </span><span style="font-weight:bold;color:blue;">-- -1</span>
+-1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;straßß&quot;       ~text~caselessCompareTo(&quot;straßssßßssse&quot;)=  </span><span style="font-weight:bold;color:blue;">-- -1</span>
+-1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;straßßß&quot;      ~text~caselessCompareTo(&quot;straßssßßssse&quot;)=  </span><span style="font-weight:bold;color:blue;">-- -1</span>
+-1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;straßßßß&quot;     ~text~caselessCompareTo(&quot;straßssßßssse&quot;)=  </span><span style="font-weight:bold;color:blue;">-- -1</span>
+-1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;straßßßßß&quot;    ~text~caselessCompareTo(&quot;straßssßßssse&quot;)=  </span><span style="font-weight:bold;color:blue;">-- -1     up to 9 characters, it's lesser</span>
+-1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;straßßßßßß&quot;   ~text~caselessCompareTo(&quot;straßssßßssse&quot;)=  </span><span style="font-weight:bold;color:blue;">-- 1      from 10 characters, it's greater</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;straßßßßßßß&quot;  ~text~caselessCompareTo(&quot;straßssßßssse&quot;)=  </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;straßßßßßßßß&quot; ~text~caselessCompareTo(&quot;straßssßßssse&quot;)=  </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;stra&quot;     ~caselessCompare(&quot;strasssssse&quot;, &quot;s&quot;)=    </span><span style="font-weight:bold;color:blue;">-- 11</span>
+ 11
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;stra&quot;~text~caselessCompare(&quot;strasssssse&quot;, &quot;s&quot;)=    </span><span style="font-weight:bold;color:blue;">-- 11</span>
+ 11
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;strasssssse&quot;     ~caselessCompare(&quot;stra&quot;, &quot;s&quot;)=    </span><span style="font-weight:bold;color:blue;">-- 11</span>
+ 11
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;strasssssse&quot;~text~caselessCompare(&quot;stra&quot;, &quot;s&quot;)=    </span><span style="font-weight:bold;color:blue;">-- 11</span>
+ 11
+
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;strà&quot;     ~caselessCompare(&quot;stràsssssse&quot;, &quot;s&quot;)=    </span><span style="font-weight:bold;color:blue;">-- 12</span>
+ 12
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;strà&quot;~text~caselessCompare(&quot;stràsssssse&quot;, &quot;s&quot;)=    </span><span style="font-weight:bold;color:blue;">-- 11</span>
+ 11
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;stràsssssse&quot;     ~caselessCompare(&quot;strà&quot;, &quot;s&quot;)=    </span><span style="font-weight:bold;color:blue;">-- 12</span>
+ 12
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;stràsssssse&quot;~text~caselessCompare(&quot;strà&quot;, &quot;s&quot;)=    </span><span style="font-weight:bold;color:blue;">-- 11</span>
+ 11
+
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">---------------------------------------------
+</span><span style="font-weight:bold;color:blue;">CASE 4 : not aligned in self, aligned in arg1
+</span><span style="font-weight:bold;color:blue;">---------------------------------------------
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">iota_dt = &quot;\u{GREEK SMALL LETTER IOTA WITH DIALYTIKA AND TONOS}&quot;~text~unescape</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">(&quot;a&quot; iota_dt~casefold &quot;b&quot;)~compare(&quot;a&quot; iota_dt, normalization: 0)=  </span><span style="font-weight:bold;color:blue;">-- 3</span>
+ 3
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Debug output: the indexer supports the named parameter debug
+</span><span style="font-weight:bold;color:blue;">(&quot;a&quot; iota_dt~casefold &quot;b&quot;)~indexer~compare(&quot;a&quot; iota_dt, normalization: 0, debug:.true)=
+</span><span style="font-weight:bold;color:blue;">    selfTextTransformer~iSubtext~string = a ΐ b
+</span><span style="font-weight:bold;color:blue;">    selfTextTransformer~iSubtext~c2g = 61 20 CEB9CC88CC81 20 62
+</span><span style="font-weight:bold;color:blue;">    selfTextTransformedString~length = 10
+</span><span style="font-weight:bold;color:blue;">    textTextTransformer~iSubtext~string = a ΐ
+</span><span style="font-weight:bold;color:blue;">    textTextTransformer~iSubtext~c2g = 61 20 CE90 20 20
+</span><span style="font-weight:bold;color:blue;">    textTextTransformedString~length = 6
+</span><span style="font-weight:bold;color:blue;">    posB1 = 4
+</span><span style="font-weight:bold;color:blue;">    posC1 = -3.4
+</span><span style="font-weight:bold;color:blue;">    posB2 = 4
+</span><span style="font-weight:bold;color:blue;">    posC2 = -3.4
+</span><span style="font-weight:bold;color:blue;">     3
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
 
 <span style="font-weight:bold;color:blue;">-- ===============================================================================
 </span><span style="font-weight:bold;color:blue;">-- 2023 Oct 04
@@ -612,13 +852,13 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">transformer~resetPos</sp
 ooRexx&gt; <span style="font-weight:bold;color:purple;">do i=1 to transformer~iSubtext~string~length; say &quot;byte pos&quot; i~right(2) &quot;    character pos=&quot; transformer~ib2xc(i)~string~left(20) transformer~ib2xc(i, aligned:.false); end</span>
 byte pos  1     character pos= 4                    +4.8
 byte pos  2     character pos= 5                    +5.9
-byte pos  3     character pos= The NIL object       -5.10
-byte pos  4     character pos= The NIL object       -5.11
+byte pos  3     character pos= -5                   -5.10
+byte pos  4     character pos= -5                   -5.11
 byte pos  5     character pos= 6                    +6.12
-byte pos  6     character pos= The NIL object       -6.13
+byte pos  6     character pos= -6                   -6.13
 byte pos  7     character pos= 7                    +7.14
-byte pos  8     character pos= The NIL object       -7.15
-byte pos  9     character pos= The NIL object       -7.16
+byte pos  8     character pos= -7                   -7.15
+byte pos  9     character pos= -7                   -7.16
 byte pos 10     character pos= 8                    +8.17
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">    byte pos  1     character pos= 4                    +4.8    -- the 8th internal byte is aligned with the 4th external character
@@ -2132,8 +2372,8 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Bundesstrasse 
  15
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;straßssßßssse&quot;~text~compare(&quot;stra&quot;, &quot;ß&quot;)=                              </span><span style="font-weight:bold;color:blue;">--  6 (good)</span>
  6
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;straßssßßssse&quot;~text~caselessCompare(&quot;stra&quot;, &quot;ß&quot;)=                      </span><span style="font-weight:bold;color:blue;">-- 13 (questionable? the last 's' match half of the pad 'ss')</span>
- 13
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;straßssßßssse&quot;~text~caselessCompare(&quot;stra&quot;, &quot;ß&quot;)=                      </span><span style="font-weight:bold;color:blue;">-- 12 (not 13 because the last 's' match half of the pad 'ss')</span>
+ 12
 
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">This test case is a little bit strange because:

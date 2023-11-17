@@ -161,7 +161,7 @@ sleep
 sleep
 "straßssßßssse"~text~compare("stra", "ß")=                              --  6
 sleep
-"straßssßßssse"~text~caselessCompare("stra", "ß")=                      -- 13 (questionable? the last 's' match half of the pad 'ss')
+"straßssßßssse"~text~caselessCompare("stra", "ß")=                      -- 12 (not 13 because the last 's' matches only half of the casefolded pad "ß" which is "ss")
 sleep no prompt
 
 

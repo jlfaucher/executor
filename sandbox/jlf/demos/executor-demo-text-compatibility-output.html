@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 8 Oct 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S3e2fQ600001ccb4d0
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 16 Nov 2023
+</span><span style="font-weight:bold;color:green;">Input queue name: S1093fQ600000f448f0
 </span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.1.0 
@@ -208,8 +208,8 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstrasse 
  15
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;straßssßßssse&quot;~text~compare(&quot;stra&quot;, &quot;ß&quot;)=                              </span><span style="font-weight:bold;color:blue;">--  6</span>
  6
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;straßssßßssse&quot;~text~caselessCompare(&quot;stra&quot;, &quot;ß&quot;)=                      </span><span style="font-weight:bold;color:blue;">-- 13 (questionable? the last 's' match half of the pad 'ss')</span>
- 13
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;straßssßßssse&quot;~text~caselessCompare(&quot;stra&quot;, &quot;ß&quot;)=                      </span><span style="font-weight:bold;color:blue;">-- 12 (not 13 because the last 's' matches only half of the casefolded pad &quot;ß&quot; which is &quot;ss&quot;)</span>
+ 12
 
 
 <span style="font-weight:bold;color:blue;">-- caselessCompareTo

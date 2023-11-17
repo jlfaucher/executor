@@ -42,7 +42,7 @@
 
 ::method compareText private
     use strict arg text, pad
-    use strict named arg normalization, casefold, lump, stripIgnorable, stripMark, stripCC, stripNA
+    use strict named arg normalization, casefold, lump, stripIgnorable, stripMark, stripCC, stripNA, debug=.false
 
     selfText = self~string~text
 
@@ -64,24 +64,53 @@
     if selfText~length < maxLength then selfText = selfText~left(maxlength, padText)
     if textText~length < maxLength then textText = textText~left(maxlength, padText)
 
-    -- whole transformation only for text
-    textNormalized = textText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
-    textIndexB = 1
-    textLengthB = textNormalized~string~length
-
-    do indexC=1 to maxLength
-        -- transform self on the fly to keep the user-perceived indexes (indexes before transformation)
-        char = selfText~character(indexC)
-        charNormalized = char~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
-        charLengthB = charNormalized~string~length
-        -- The character may become 0..n characters... "ß" becomes "ss" when casefolded, an ignorable character is removed if stripIgnorable:.true
-
-        if charLengthB == 0 then iterate -- ignorable for comparison, but not ignored for the user-perceived index
-                                         -- (in other words, an ignorable character is counted in the length, and has an index)
-        if \textNormalized~string~match(textIndexB, charNormalized~string) then return indexC -- user-perceived position of first mismatch
-        textIndexB += charLengthB
-    end
-    return 0
+    selfTextTransformer = selfText~transformer~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
+    selfTextTransformedString = selfTextTransformer~iSubtext~string
+    textTextTransformer = textText~transformer~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
+    textTextTransformedString = textTextTransformer~iSubtext~string
+if debug then do
+    say "selfTextTransformer~iSubtext~string =" selfTextTransformer~iSubtext~string
+    say "selfTextTransformer~iSubtext~c2g =" selfTextTransformer~iSubtext~c2g
+    say "selfTextTransformedString~length =" selfTextTransformedString~length
+    say "textTextTransformer~iSubtext~string =" textTextTransformer~iSubtext~string
+    say "textTextTransformer~iSubtext~c2g =" textTextTransformer~iSubtext~c2g
+    say "textTextTransformedString~length =" textTextTransformedString~length
+end
+    -- despite the padding made at character level, the binary strings may not have the same lengths, use the arbitrary pad "0"x
+    posB1 = selfTextTransformedString~compare(textTextTransformedString, "0"x)
+if debug then do
+    say "posB1 =" posB1
+end
+    if posB1 == 0 then return 0 -- both strings are equal
+    posC1 = selfTextTransformer~ib2xc(posB1, aligned:\debug)
+if debug then do
+    say "posC1 =" posC1
+end
+    -- yes, must get also this position posC2, to check if it's aligned.
+    -- For example: "sss"~text~caselessCompare("", "ß")
+    --      "sss" --pad--> "sss" --casefold--> "sss"
+    --      ""    --pad--> "ßßß" --casefold--> "ssssss"
+    -- Must return 3, not 4 because the 3rd "s" matches only half of casefolded "ß"
+    -- todo: remove this line   posB2 = textTextTransformedString~compare(selfTextTransformedString, "0"x)
+    posB2 = posB1 -- just to make clear that I will check if posB1 is aligned with a character in the 2nd string
+    posC2 = textTextTransformer~ib2xc(posB2, aligned:\debug)
+if debug then do
+    say "posB2 =" posB2
+    say "posC2 =" posC2
+end
+if debug then do
+    -- In debug mode, a rational is returned: posC.posB
+    -- Keep only posC
+    posC1 = trunc(posC1)
+    posC2 = trunc(posC2)
+end
+    /*
+    if .nil == posC1 | .nil == posC2 then posC1 = abs(posC1) - 1 -- When not aligned.
+    else
+    */
+    if posC1 < 0 & posC2 < 0 then return abs(posC1) -- When not aligned on both sides.
+    if posC1 < 0 | posC2 < 0 then posC1 = abs(posC1) - 1 -- When not aligned on one side.
+    return posC1
 
     argument_1_must_have_a_text_or_string_value: raise syntax 93.900 /*93.938*/ array("Method positional argument 1 must have a text or string value")
     incorrect_pad:                               raise syntax 93.922 array(pad)
@@ -144,7 +173,8 @@
     startB = selfTextTransformed~string~length - otherTextTransformed~string~length + 1
     if startB <= 0 then return .false -- can't match, other is longer than self
     startC = selfTextTransformer~ib2xc(startB)
-    if .nil == startC then return .false -- startB is not aligned with a character
+    -- if .nil == startC then return .false -- startB is not aligned with a character
+    if startC < 0 then return .false -- startB is not aligned with a character (here aligned is always true so startC is never an array)
     -- no need to test the alignment at the end, since all the bytes must be matched
     return selfTextTransformed~string~match(startB, otherTextTransformed~string)
 
@@ -373,6 +403,8 @@ if debug then do
     say "searchArea~c2g ="~left(width) searchArea~c2g
     say "searchAreaTransformed ="~left(width) searchAreaTransformed~string
     say "searchAreaTransformed~c2g ="~left(width) searchAreaTransformed~c2g
+    say "needleText ="~left(width) needleText~string
+    say "needleText~c2g ="~left(width) needleText~c2g
     say "needleTextTransformed ="~left(width) needleTextTransformed~string
     say "needleTextTransformed~c2g ="~left(width) needleTextTransformed~c2g
 end
@@ -395,11 +427,15 @@ end
         -- transformed bytes of the first matched grapheme of searchArea
         posCFirst = searchAreaTransformer~ib2xc(posBFirst, :aligned, :debug)
 
+-- The next tests are convoluted.
+-- It's because initially ib2xc returned .nil when not aligned, and now ib2xc returns a negative position.
+-- to rework from here...
         posCLastPlus1 = .nil
+        -- if aligned then
         -- no need to check the end pos if we know already that the start pos
         -- doesn't match (must be aligned with the first byte of the first
         -- matched grapheme)
-        if .nil \== posCFirst then do
+        if /*.nil \== posCFirst,*/ \(aligned & posCFirst < 0) then do
             -- will check that the end of the transformed needle covers all the
             -- transformed bytes of the last matched grapheme of searchArea
             -- (must be aligned with the first byte of the first grapheme after
@@ -410,7 +446,12 @@ end
             searchAreaTransformer~restorePos
         end
 
-        if .nil == posCFirst | .nil == posCLastPlus1 then do
+        -- Remember: keep this test of .nil. posCFirst can no longer be .nil, but posCLastPlus1 can still be .nil.
+        if aligned, .nil == posCFirst | .nil == posCLastPlus1 then do
+            -- either first or last is not aligned
+            pos = 0
+        end
+        else if aligned, posCFirst < 0 | posCLastPlus1 < 0 then do
             -- either first or last is not aligned
             pos = 0
         end
@@ -423,6 +464,7 @@ end
             -- current match in the untransformed haystack (always > 0)
             pos = posCFirst
         end
+-- ... to here
 
         if pos \== 0 then do
             if asList then list~append(pos)
@@ -458,8 +500,8 @@ end
 
 ::method caselessCompare
     use strict arg text, pad=(self~encoding~spaceCharacter)
-    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false, stripCC=.false, stripNA=.false
-    return self~compareText(text, pad, :normalization, casefold:.true, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false, stripCC=.false, stripNA=.false, debug=.false
+    return self~compareText(text, pad, :normalization, casefold:.true, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA, :debug)
 
 
 ::method caselessCompareTo
@@ -547,8 +589,8 @@ end
 
 ::method compare
     use strict arg text, pad=(self~encoding~spaceCharacter)
-    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false, stripCC=.false, stripNA=.false
-    return self~compareText(text, pad, :normalization, casefold:.false, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
+    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false, stripCC=.false, stripNA=.false, debug=.false
+    return self~compareText(text, pad, :normalization, casefold:.false, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA, :debug)
 
 
 ::method compareTo
