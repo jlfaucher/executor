@@ -168,9 +168,9 @@ Debug output: the indexer supports the named parameter debug
 "stràsssssse"~text~caselessCompare("strà", "s")=    -- 11
 
 
----------------------------------------------
-CASE 4 : not aligned in self, aligned in arg1
----------------------------------------------
+-------------------------------------------------
+CASE 4 : not aligned in self, not aligned in arg1
+-------------------------------------------------
 
 iota_dt = "\u{GREEK SMALL LETTER IOTA WITH DIALYTIKA AND TONOS}"~text~unescape
 ("a" iota_dt~casefold "b")~compare("a" iota_dt, normalization: 0)=  -- 3
@@ -216,6 +216,7 @@ https://developer.apple.com/forums/thread/96361
 This URL describes EXACTLY my problem and there is NO solution!
 Ça me pompe l'air :-((
 
+https://cmake.org/cmake/help/latest/variable/CMAKE_OSX_DEPLOYMENT_TARGET.html
 Environment variable
 MACOSX_DEPLOYMENT_TARGET
 
