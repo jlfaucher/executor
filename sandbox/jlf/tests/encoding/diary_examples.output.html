@@ -32,7 +32,7 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 16 Nov 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S10856Q600000f58750
+</span><span style="font-weight:bold;color:green;">Input queue name: S9547Q600000f58c30
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.1.0 
@@ -44,6 +44,119 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacte
 ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeConversions = .false</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeTransformations = .false</span>
 
+
+<span style="font-weight:bold;color:blue;">-- ===============================================================================
+</span><span style="font-weight:bold;color:blue;">-- 2023 Nov 28
+</span>
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">https://github.com/unicode-org/icu4x/issues/4365
+</span><span style="font-weight:bold;color:blue;">Segmenter does not work correctly in some languages
+</span><span style="font-weight:bold;color:blue;">        let text = &quot;as `নমস্কাৰ, আপোনাৰ কি খবৰ?`
+</span><span style="font-weight:bold;color:blue;">    hi `हैलो, क्या हाल हैं?`
+</span><span style="font-weight:bold;color:blue;">    mai `नमस्ते अहाँ केना छथि?`
+</span><span style="font-weight:bold;color:blue;">    mr `नमस्कार, कसे आहात?`
+</span><span style="font-weight:bold;color:blue;">    ne `नमस्ते, कस्तो हुनुहुन्छ?`
+</span><span style="font-weight:bold;color:blue;">    or `ନମସ୍କାର ତୁମେ କେମିତି ଅଛ?`
+</span><span style="font-weight:bold;color:blue;">    sa `हे त्वं किदं असि?`
+</span><span style="font-weight:bold;color:blue;">    te `హాయ్, ఎలా ఉన్నారు?`&quot;;
+</span><span style="font-weight:bold;color:blue;">icu4c: 151
+</span><span style="font-weight:bold;color:blue;">rust: 161
+</span><span style="font-weight:bold;color:blue;">---
+</span><span style="font-weight:bold;color:blue;">ICU4X and ICU4C are just using different definitions of EGCs; ICU4C has had a
+</span><span style="font-weight:bold;color:blue;">tailoring for years which has just been incorporated into Unicode 15.1, whereas
+</span><span style="font-weight:bold;color:blue;">ICU4X implements the 15.0 version without that tailoring.
+</span><span style="font-weight:bold;color:blue;">The difference is the handling of aksaras in some indic scripts:
+</span><span style="font-weight:bold;color:blue;">in Unicode 15.1 (and in any recent ICU4C) क्या is one EGC, but it is two EGCs
+</span><span style="font-weight:bold;color:blue;">(क्, या) in untailored Unicode 15.0 (and in ICU4X).
+</span><span style="font-weight:bold;color:blue;">---
+</span><span style="font-weight:bold;color:blue;">executor: 151
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">s=&quot;as `নমস্কাৰ, আপোনাৰ কি খবৰ?`&quot;'0D'x&quot;hi `हैलो, क्या हाल हैं?`&quot;'0D'x&quot;mai `नमस्ते अहाँ केना छथि?`&quot;'0D'x&quot;mr `नमस्कार, कसे आहात?`&quot;'0D'x&quot;ne `नमस्ते, कस्तो हुनुहुन्छ?`&quot;'0D'x&quot;or `ନମସ୍କାର ତୁମେ କେମିତି ଅଛ?`&quot;'0D'x&quot;sa `हे त्वं किदं असि?`&quot;'0D'x&quot;te `హాయ్, ఎలా ఉన్నారు?`&quot;</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">s~text~length=  </span><span style="font-weight:bold;color:blue;">-- 151</span>
+ 151
+
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">https://boyter.org/posts/unicode-support-what-does-that-actually-mean/
+</span><span style="font-weight:bold;color:blue;">According wikipedia the character ſ is a long s. Which means if you want to
+</span><span style="font-weight:bold;color:blue;">support unicode you need to ensure that if someone does a case insensitive
+</span><span style="font-weight:bold;color:blue;">comparison then the following examples are all string equivalent.
+</span><span style="font-weight:bold;color:blue;">ſecret == secret == Secret
+</span><span style="font-weight:bold;color:blue;">ſatisfaction == satisfaction == ſatiſfaction == Satiſfaction == SatiSfaction === ſatiSfaction
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;ſ&quot;~text~casefold=                                      </span><span style="font-weight:bold;color:blue;">-- &quot;s&quot;</span>
+T's'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;ſecret&quot;~text~caselessEquals(&quot;secret&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;ſecret&quot;~text~caselessEquals(&quot;Secret&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;ſatisfaction&quot;~text~caselessEquals(&quot;satisfaction&quot;)=     </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;satisfaction&quot;~text~caselessEquals(&quot;ſatiſfaction&quot;)=     </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;ſatiſfaction&quot;~text~caselessEquals(&quot;Satiſfaction&quot;)=     </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Satiſfaction&quot;~text~caselessEquals(&quot;SatiSfaction&quot;)=     </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;SatiSfaction&quot;~text~caselessEquals(&quot;ſatiSfaction&quot;)=     </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+
+
+<span style="font-weight:bold;color:blue;">-- ===============================================================================
+</span><span style="font-weight:bold;color:blue;">-- 2023 Nov 21
+</span>
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">To rework? matchChar sometimes returns .true whereas pos returns 0.
+</span><span style="font-weight:bold;color:blue;">Examples in demoTextCompatibility:
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">KO?
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~text~caselessMatchChar(18, &quot;s&quot;)=      </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~text~caselessPos(&quot;s&quot;, aslist:, aligned:0)=</span>
+a List (5 items)
+ 0 : [+6.6,+7.7]
+ 1 : [+7.7,+8.8]
+ 2 : [+14.14,+15.15]
+ 3 : [+18.18,-18.19]
+ 4 : [-18.19,+19.20]
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">    a List (5 items)
+</span><span style="font-weight:bold;color:blue;">     0 : [+6.6,+7.7]
+</span><span style="font-weight:bold;color:blue;">     1 : [+7.7,+8.8]
+</span><span style="font-weight:bold;color:blue;">     2 : [+14.14,+15.15]
+</span><span style="font-weight:bold;color:blue;">     3 : [+18.18,-18.19]
+</span><span style="font-weight:bold;color:blue;">     4 : [-18.19,+19.20]
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">KO?
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatchChar(5, &quot;ﬄ&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessPos(&quot;ﬄ&quot;, aslist:, aligned:0)=</span>
+a List (1 items)
+ 0 : [+3.3,+6.6]
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">    a List (1 items)
+</span><span style="font-weight:bold;color:blue;">     0 : [+3.3,+6.6]
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">KO?
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(3, &quot;f&quot;, normalization:.Unicode~NFKD)=     </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~pos(&quot;f&quot;, normalization:.Unicode~NFKD, aslist:, aligned:0)=</span>
+a List (2 items)
+ 0 : [+3.3,-3.4]
+ 1 : [-3.4,-3.5]
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">    a List (2 items)
+</span><span style="font-weight:bold;color:blue;">     0 : [+3.3,-3.4]
+</span><span style="font-weight:bold;color:blue;">     1 : [-3.4,-3.5]
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
 
 <span style="font-weight:bold;color:blue;">-- ===============================================================================
 </span><span style="font-weight:bold;color:blue;">-- 2023 Nov 17

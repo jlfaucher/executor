@@ -3,6 +3,87 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2023 Nov 28
+
+[Encoded strings]
+
+https://github.com/unicode-org/icu4x/issues/4365
+Segmenter does not work correctly in some languages
+        let text = "as `নমস্কাৰ, আপোনাৰ কি খবৰ?`
+    hi `हैलो, क्या हाल हैं?`
+    mai `नमस्ते अहाँ केना छथि?`
+    mr `नमस्कार, कसे आहात?`
+    ne `नमस्ते, कस्तो हुनुहुन्छ?`
+    or `ନମସ୍କାର ତୁମେ କେମିତି ଅଛ?`
+    sa `हे त्वं किदं असि?`
+    te `హాయ్, ఎలా ఉన్నారు?`";
+icu4c: 151
+rust: 161
+---
+ICU4X and ICU4C are just using different definitions of EGCs; ICU4C has had a
+tailoring for years which has just been incorporated into Unicode 15.1, whereas
+ICU4X implements the 15.0 version without that tailoring.
+The difference is the handling of aksaras in some indic scripts:
+in Unicode 15.1 (and in any recent ICU4C) क्या is one EGC, but it is two EGCs
+(क्, या) in untailored Unicode 15.0 (and in ICU4X).
+---
+executor: 151
+s="as `নমস্কাৰ, আপোনাৰ কি খবৰ?`"'0D'x"hi `हैलो, क्या हाल हैं?`"'0D'x"mai `नमस्ते अहाँ केना छथि?`"'0D'x"mr `नमस्कार, कसे आहात?`"'0D'x"ne `नमस्ते, कस्तो हुनुहुन्छ?`"'0D'x"or `ନମସ୍କାର ତୁମେ କେମିତି ଅଛ?`"'0D'x"sa `हे त्वं किदं असि?`"'0D'x"te `హాయ్, ఎలా ఉన్నారు?`"
+s~text~length=  -- 151
+
+
+https://boyter.org/posts/unicode-support-what-does-that-actually-mean/
+According wikipedia the character ſ is a long s. Which means if you want to
+support unicode you need to ensure that if someone does a case insensitive
+comparison then the following examples are all string equivalent.
+ſecret == secret == Secret
+ſatisfaction == satisfaction == ſatiſfaction == Satiſfaction == SatiSfaction === ſatiSfaction
+---
+"ſ"~text~casefold=                                      -- "s"
+"ſecret"~text~caselessEquals("secret")=                 -- 1
+"ſecret"~text~caselessEquals("Secret")=                 -- 1
+"ſatisfaction"~text~caselessEquals("satisfaction")=     -- 1
+"satisfaction"~text~caselessEquals("ſatiſfaction")=     -- 1
+"ſatiſfaction"~text~caselessEquals("Satiſfaction")=     -- 1
+"Satiſfaction"~text~caselessEquals("SatiSfaction")=     -- 1
+"SatiSfaction"~text~caselessEquals("ſatiSfaction")=     -- 1
+
+
+===============================================================================
+2023 Nov 21
+
+[Encoded strings]
+
+To rework? matchChar sometimes returns .true whereas pos returns 0.
+Examples in demoTextCompatibility:
+
+KO?
+"Bundesschnellstraße"~text~caselessMatchChar(18, "s")=      -- 1
+"Bundesschnellstraße"~text~caselessPos("s", aslist:, aligned:0)=
+    a List (5 items)
+     0 : [+6.6,+7.7]
+     1 : [+7.7,+8.8]
+     2 : [+14.14,+15.15]
+     3 : [+18.18,-18.19]
+     4 : [-18.19,+19.20]
+
+
+KO?
+"BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                    -- 1
+"BAFFLE"~text~caselessPos("ﬄ", aslist:, aligned:0)=
+    a List (1 items)
+     0 : [+3.3,+6.6]
+
+
+KO?
+"baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=     -- 1
+"baﬄe"~text~pos("f", normalization:.Unicode~NFKD, aslist:, aligned:0)=
+    a List (2 items)
+     0 : [+3.3,-3.4]
+     1 : [-3.4,-3.5]
+
+
+===============================================================================
 2023 Nov 17
 
 [Encoded strings]
