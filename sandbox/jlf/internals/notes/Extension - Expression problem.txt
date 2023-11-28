@@ -40,6 +40,9 @@ The purpose of refinements in Ruby 2.0 is to make monkey-patching safer.
 Specifically, the goal is to make it possible to extend core classes, but to
 limit the effect of those extensions to a particular area of code.
 
+https://railsfactory.com/the-art-of-monkey-patching-ruby
+jlf: very minimal
+
 
 --------------------------------------------------------------------------------
 
