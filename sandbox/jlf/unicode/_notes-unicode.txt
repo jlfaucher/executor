@@ -428,6 +428,12 @@ Unicode, UTF8 & Character Sets: The Ultimate Guide
 jlf: maybe to read
 
 
+https://news.ycombinator.com/item?id=37735801
+What every software developer must know about Unicode in 2023
+jlf: nothing new in this article, just reusing infos from other sites.
+jlf: did not read all the comments
+
+
 ================================================================================
 U+ notation, Unicode escape sequence
 ================================================================================
@@ -697,6 +703,9 @@ https://www.unicode.org/reports/tr29/#Random_Access
 
 Unicode 15.1
 New rule GB9c for grapheme segmentation.
+https://www.unicode.org/reports/tr29/
+---
+No longer available:
 https://www.unicode.org/reports/tr29/proposed.html
 ---
 jlf: saw this review note
@@ -1345,6 +1354,10 @@ is based on Unicode 6.2.0 character database.
 ---
 jlf: maybe not dead, but low activity... v1.0.13
 https://github.com/fribidi/fribidi
+
+
+https://news.ycombinator.com/item?id=37990523
+Ask HN: Bidirectional Text Navigation
 
 
 ================================================================================
@@ -3542,6 +3555,33 @@ jlf: this ticket contains potentially interesting links:
     Design doc: https://docs.google.com/document/d/1vJKR1s--RBmXLNIJSCtiTNPp08mab7ZwcTGxIZ9-ytI/edit#
 
 
+https://github.com/unicode-org/icu4x/pull/4334#discussion_r1403198515
+Add is_normalized_up_to to Normalizer
+#4334
+jlf remember:
+the Web-exposed ICU4C-backed behavior of current String.prototype.normalize in
+both SpiderMonkey and V8 retains unpaired surrogates in the normalization process
+(even after the first point in the string that needs to change under normalization).
+We've previously decided that ICU4X operates on the Unicode Scalar Value / Rust
+char value space and, therefore, will perform replacement of unpaired surrogates
+with the REPLACEMENT CHARACTER.
+
+
+https://github.com/unicode-org/icu4x/issues/4365
+Segmenter does not work correctly in some languages
+"as `নমস্কাৰ, আপোনাৰ কি খবৰ?`"'0D'x"hi `हैलो, क्या हाल हैं?`"'0D'x"mai `नमस्ते अहाँ केना छथि?`"'0D'x"mr `नमस्कार, कसे आहात?`"'0D'x"ne `नमस्ते, कस्तो हुनुहुन्छ?`"'0D'x"or `ନମସ୍କାର ତୁମେ କେମିତି ଅଛ?`"'0D'x"sa `हे त्वं किदं असि?`"'0D'x"te `హాయ్, ఎలా ఉన్నారు?`"
+icu4c: 151
+rust: 161
+executor: 151
+---
+ICU4X and ICU4C are just using different definitions of EGCs; ICU4C has had a
+tailoring for years which has just been incorporated into Unicode 15.1, whereas
+ICU4X implements the 15.0 version without that tailoring.
+The difference is the handling of aksaras in some indic scripts:
+in Unicode 15.1 (and in any recent ICU4C) क्या is one EGC, but it is two EGCs
+(क्, या) in untailored Unicode 15.0 (and in ICU4X).
+
+
 ================================================================================
 utf8proc title
 ================================================================================
@@ -4300,6 +4340,10 @@ https://peterwunder.de/projects/prettify/
 https://texteditor.com/
 
 
+https://gwern.net/utext
+https://news.ycombinator.com/item?id=38016735
+
+
 ================================================================================
 youtube
 ================================================================================
@@ -4346,11 +4390,23 @@ Ada lang
 
 https://docs.adacore.com/live/wave/xmlada/html/xmlada_ug/unicode.html
 
+
 http://www.dmitry-kazakov.de/ada/strings_edit.htm
+
 
 UXStrings Ada Unicode Extended Strings
 https://www.reddit.com/r/ada/comments/t4hpip/ann_uxstrings_package_available_uxs_20220226/
 https://github.com/Blady-Com/UXStrings
+---
+2023.10.14 https://groups.google.com/g/comp.lang.ada/c/rWqDxiOwa1g
+[ANN] Release of UXStrings 0.6.0
+- Add string convenient subprograms [2]: Contains, Ends_With,Starts_With,
+[2] https://github.com/Blady-Com/UXStrings/blob/master/src/uxstrings3.ads#L346
+jlf: see https://github.com/Blady-Com/UXStrings/blob/master/src/uxstrings3.adb
+After a quick look, I still don't know which kind of position is managed.
+There is a parameter Case_Sensitivity, but I never see it used with a position
+(that's the tricky part)
+
 
 https://github.com/AdaForge/Thematics/wiki/Unicode-and-String-manipulations
 Unicode and String manipulations in UTF-8, UTF-16, ...
@@ -4358,6 +4414,15 @@ Unicode and String manipulations in UTF-8, UTF-16, ...
 
 https://stackoverflow.com/questions/48829940/utf-8-on-windows-with-ada
 UTF-8 on Windows with Ada
+
+
+https://github.com/AdaCore/VSS/
+High level string and text processing library
+
+
+https://blog.adacore.com/vss-cursors-iterators-and-markers
+VSS (Virtual String Subsystem): Cursors, Iterators and Markers
+jlf: bof...
 
 
 ================================================================================
@@ -4715,6 +4780,10 @@ Dart language level will likely require migration of at least some existing code
 although a few options (for example, static extension types) might make breaking
 changes manageable.
 More technical investigation is needed to fully understand the trade-offs.
+
+
+https://github.com/robertbastian/icu4x/tree/dart/ffi/capi/dart/package
+jlf: A fork with DART FFI
 
 
 ================================================================================
