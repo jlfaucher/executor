@@ -471,6 +471,11 @@ Thinking to a new shorthand syntax
 where notation ... is inspired by Ruby:
 https://blog.saeloun.com/2020/09/16/ruby-3.0-to-add-support-for-forwarding-arguments-along-with-lead-arguments.html
 
+Update 2023 Nov 25:
+https://zverok.space/blog/2023-11-24-syntax-sugar4-argument-forwarding.html
+“Useless Ruby sugar”: Argument forwarding
+jlf: read it quickly, to read again with better motivation
+
 In Ruby, ... represents the remaining arguments after those explictely declared in the signature (called leading arguments).
 Rexx has no unique signature, so the semantic must be different.
 At first sight, I think ... should be equal to context~args, and : ... should be equal to .context~namedArgs.
