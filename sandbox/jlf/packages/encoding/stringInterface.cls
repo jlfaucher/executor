@@ -273,20 +273,16 @@ end
 
     .Encoding~comparisonMode(self, charsText) -- raise an error if not compatible
 
-    -- yes, normalize the whole chars.
-    -- If it contains ligatures, then it may be decomposed and the test will be done with each character of the decomposed ligature
-    charsTextNormalized = charsText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
-
     characterText = self~character(nC)
     characterTextNormalized = characterText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
     -- The character may become 0..n characters... "ß" becomes "ss" when casefolded, an ignorable character is removed if stripIgnorable:.true
 
-    do i=1 to characterTextNormalized~length
-        ithCharacterTextNormalized = characterTextNormalized~character(i)
-        do j=1 to charsTextNormalized~length
-            jthCharTextNormalized = charsTextNormalized~character(j)
-            if ithCharacterTextNormalized~string == jthCharTextNormalized~string then return .true
-        end
+    charsTextSupplier = charsText~characters
+    do while charsTextSupplier~available
+        charText = charsTextSupplier~item
+        charTextNormalized = charText~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
+        if characterTextNormalized~string == charTextNormalized~string then return .true
+        charsTextSupplier~next
     end
     return .false
 

@@ -3,6 +3,43 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2023 Dec 04
+
+[Encoded strings]
+
+Reworked the implementation of caselessMatchChar, matchChar.
+
+"Bundesschnellstraße"~text~caselessMatchChar(18, "s")=           -- now 0: "ß" casefolded to "ss" doesn't match "s"
+"BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                        -- now 0: "L" casefolded to "l" doesn't match "ﬄ" casefolded to "ffl" (no more iteration on each character of "ffl")
+"baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=     -- now 0: "ﬄ" casefolded to "ffl" doesn't match "f"
+
+After rework, I have these other differences:
+
+-- Case 1 sounds good (no more iteration on each character of "ffl")
+"BAFFLE"~text~caselessMatchChar(3, "ﬄ")=        -- 0    was 1 "ﬄ" becomes "ffl" (3 graphemes), there is a match on "f" at 3
+"BAFFLE"~text~caselessPos("ﬄ", aslist:, aligned:0)=
+    a List (1 items)
+     0 : [+3.3,+6.6]
+-- I get the same result as before by explicitely decomposing the ligature "ﬄ" to "ffl" BEFORE :
+"BAFFLE"~text~caselessMatchChar(3, "ﬄ"~text~transform(normalization:.Unicode~NFKD))=    -- 1
+-- here, it's ok because the match is on several characters
+"BAFFLE"~text~caselessMatch(3, "ﬄ")=            -- 1
+
+
+-- Case 2 sounds good (no more iteration on each character of "ffl")
+"BAFFLE"~text~caselessMatchChar(5, "ﬄ")=        -- 0    was 1 "ﬄ" becomes "ffl" (3 graphemes), there is a match on "l" at 5
+"BAFFLE"~text~caselessMatch(5, "ﬄ")=            -- 0
+
+
+-- Case 3 sounds good (no more iteration on each character of "ffl")
+"baﬄe"~text~caselessMatchChar(3, "F")=          -- 0    was 1 "ﬄ" at 3 (1 grapheme) becomes "ffl" (3 graphemes), there is a match on "f"
+
+
+-- Case 4 sound good (hum... did I really think that the character "ﬄ" at pos 3 can match an "l"?)
+"baﬄe"~text~caselessMatchChar(3, "L")=          -- 0    was 1 "ﬄ" at 3 (1 grapheme) becomes "ffl" (3 graphemes), there is a match on "l"
+
+
+===============================================================================
 2023 Nov 28
 
 [Encoded strings]
@@ -57,7 +94,7 @@ comparison then the following examples are all string equivalent.
 To rework? matchChar sometimes returns .true whereas pos returns 0.
 Examples in demoTextCompatibility:
 
-KO?
+KO? 2023.12.04: yes
 "Bundesschnellstraße"~text~caselessMatchChar(18, "s")=      -- 1
 "Bundesschnellstraße"~text~caselessPos("s", aslist:, aligned:0)=
     a List (5 items)
@@ -68,14 +105,14 @@ KO?
      4 : [-18.19,+19.20]
 
 
-KO?
+KO? 2023.12.04: yes
 "BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                    -- 1
 "BAFFLE"~text~caselessPos("ﬄ", aslist:, aligned:0)=
     a List (1 items)
      0 : [+3.3,+6.6]
 
 
-KO?
+KO? 2023.12.04: yes
 "baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=     -- 1
 "baﬄe"~text~pos("f", normalization:.Unicode~NFKD, aslist:, aligned:0)=
     a List (2 items)

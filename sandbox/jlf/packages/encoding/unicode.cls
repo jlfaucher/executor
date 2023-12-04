@@ -74,6 +74,13 @@ Depends on
 ::constant NFKC 3
 ::constant NFKD 4
 
+::method normalizationName class
+    expose normalizationNames
+    use strict arg normalization
+    -- wonder why I do that instead of a simple test of the 4 possible values here?
+    -- just because I think it's better to have the same approach as the other xxxName methods.
+    return normalizationNames[normalization]
+
 ::method defaultNormalization class
     use named arg strict=.true
     if strict then return .Unicode~NFC
@@ -87,6 +94,7 @@ Depends on
 ::attribute totalIntervalCharacters get class
 ::attribute totalIntervalCharactersNotExpanded get class
 ::attribute totalCharacterNameAliases get class
+::attribute normalizationNames get class
 ::attribute codepointCategoryNames get class
 ::attribute codepointBidiClassNames get class
 ::attribute codepointDecompositionTypeNames get class
@@ -162,7 +170,8 @@ Depends on
                     else raise syntax 23.900 array ("Invalid codepoint" codepoint "("ppCodepoint(codepoint)"). Allowed range is 0..".Unicode~maxCodepoint)
 
 ::method declareConstantNames class
-    expose codepointCategoryNames codepointBidiClassNames codepointDecompositionTypeNames codepointBoundClassNames
+    expose normalizationNames codepointCategoryNames codepointBidiClassNames codepointDecompositionTypeNames codepointBoundClassNames
+    normalizationNames = .array~new
     codepointCategoryNames = .array~new
     codepointBidiClassNames = .array~new
     codepointDecompositionTypeNames = .array~new
@@ -170,6 +179,10 @@ Depends on
     methods = self~methods
     do while methods~available
         methodName = methods~index
+        if methodName == "NFC" then normalizationNames[self~NFC] = "NFC"
+        if methodName == "NFD" then normalizationNames[self~NFD] = "NFD"
+        if methodName == "NFKC" then normalizationNames[self~NFKC] = "NFKC"
+        if methodName == "NFKD" then normalizationNames[self~NFKD] = "NFKD"
         if methodName~startsWith("CATEGORY_") then codepointCategoryNames[1 + self~send(methodName)] = methodName~substr("CATEGORY_"~length + 1)~lower(2)
         if methodName~startsWith("BIDI_CLASS_") then codepointBidiClassNames[self~send(methodName)] = methodName~substr("BIDI_CLASS_"~length + 1)
         if methodName~startsWith("DECOMPOSITION_TYPE_") then codepointDecompositionTypeNames[1 + self~send(methodName)] = methodName~substr("DECOMPOSITION_TYPE_"~length + 1)~lower(2)

@@ -8,6 +8,47 @@ call loadUnicodeCharacterNames
 
 
 -- ===============================================================================
+-- 2023 Dec 04
+
+/*
+Reworked the implementation of caselessMatchChar, matchCar.
+*/
+
+"Bundesschnellstraße"~text~caselessMatchChar(18, "s")=           -- now 0: "ß" casefolded to "ss" doesn't match "s"
+"BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                        -- now 0: "L" casefolded to "l" doesn't match "ﬄ" casefolded to "ffl" (no more iteration on each character of "ffl")
+"baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=     -- now 0: "ﬄ" casefolded to "ffl" doesn't match "f"
+
+/*
+After rework, I have these other differences:
+*/
+
+-- Case 1 sounds good (no more iteration on each character of "ffl")
+"BAFFLE"~text~caselessMatchChar(3, "ﬄ")=        -- 0    was 1 "ﬄ" becomes "ffl" (3 graphemes), there is a match on "f" at 3
+"BAFFLE"~text~caselessPos("ﬄ", aslist:, aligned:0)=
+/*
+    a List (1 items)
+     0 : [+3.3,+6.6]
+*/
+-- I get the same result as before by explicitely decomposing the ligature "ﬄ" to "ffl" BEFORE :
+"BAFFLE"~text~caselessMatchChar(3, "ﬄ"~text~transform(normalization:.Unicode~NFKD))=    -- 1
+-- here, it's ok because the match is on several characters
+"BAFFLE"~text~caselessMatch(3, "ﬄ")=            -- 1
+
+
+-- Case 2 sounds good (no more iteration on each character of "ffl")
+"BAFFLE"~text~caselessMatchChar(5, "ﬄ")=        -- 0    was 1 "ﬄ" becomes "ffl" (3 graphemes), there is a match on "l" at 5
+"BAFFLE"~text~caselessMatch(5, "ﬄ")=            -- 0
+
+
+-- Case 3 sounds good (no more iteration on each character of "ffl")
+"baﬄe"~text~caselessMatchChar(3, "F")=          -- 0    was 1 "ﬄ" at 3 (1 grapheme) becomes "ffl" (3 graphemes), there is a match on "f"
+
+
+-- Case 4 sound good (hum... did I really think that the character "ﬄ" at pos 3 can match an "l"?)
+"baﬄe"~text~caselessMatchChar(3, "L")=          -- 0    was 1 "ﬄ" at 3 (1 grapheme) becomes "ffl" (3 graphemes), there is a match on "l"
+
+
+-- ===============================================================================
 -- 2023 Nov 28
 
 /*
@@ -62,9 +103,9 @@ comparison then the following examples are all string equivalent.
 To rework? matchChar sometimes returns .true whereas pos returns 0.
 Examples in demoTextCompatibility:
 
-KO?
+KO? 2023.12.04: yes
 */
-"Bundesschnellstraße"~text~caselessMatchChar(18, "s")=      -- 1
+"Bundesschnellstraße"~text~caselessMatchChar(18, "s")=      -- now 0, was 1 before 2023.12.04
 "Bundesschnellstraße"~text~caselessPos("s", aslist:, aligned:0)=
 /*
     a List (5 items)
@@ -76,9 +117,9 @@ KO?
 */
 
 /*
-KO?
+KO? 2023.12.04: yes
 */
-"BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                    -- 1
+"BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                    -- now 0, was 1 before 2023.12.04
 "BAFFLE"~text~caselessPos("ﬄ", aslist:, aligned:0)=
 /*
     a List (1 items)
@@ -86,9 +127,9 @@ KO?
 */
 
 /*
-KO?
+KO? 2023.12.04: yes
 */
-"baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=     -- 1
+"baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=     -- now 0, was 1 before 2023.12.04
 "baﬄe"~text~pos("f", normalization:.Unicode~NFKD, aslist:, aligned:0)=
 /*
     a List (2 items)
@@ -1586,8 +1627,10 @@ Example:
 /*
 Comparison operators:
 Take into account the default normalization managed by the .Unicode class
-- NFC when strict
-- NFKD when not strict
+*/
+.Unicode~normalizationName(.Unicode~defaultNormalization(strict:.true))=    -- NFC when strict
+.Unicode~normalizationName(.Unicode~defaultNormalization(strict:.false))=   -- NFKD when not strict
+/*
 Example:
 */
     ("baﬄe"~text == "baffle"~text) =    -- false
@@ -1660,12 +1703,12 @@ This test case is a little bit strange because:
 
 -- Rework implementation of caselessMatchChar, matchChar
 -- -----------------------------------------------------
-    "BAFFLE"~text~caselessMatchChar(3, "ﬄ")=               -- 1      "ﬄ" becomes "ffl" (3 graphemes), there is a match on "f" at 3
-    "BAFFLE"~text~caselessMatchChar(5, "ﬄ")=               -- 1      "ﬄ" becomes "ffl" (3 graphemes), there is a match on "l" at 5
+    "BAFFLE"~text~caselessMatchChar(3, "ﬄ")=               -- 0, was 1 before 2023.12.04      "ﬄ" becomes "ffl" (3 graphemes), there is a match on "f" at 3
+    "BAFFLE"~text~caselessMatchChar(5, "ﬄ")=               -- 0, was 1 before 2023.12.04      "ﬄ" becomes "ffl" (3 graphemes), there is a match on "l" at 5
     "baffle"~text~caselessMatchChar(5, "L")=               -- 1      there is a match on "l" at 5 (forward to string)
     "baﬄe"~text~caselessMatchChar(3, "ﬄ")=                 -- 1      "ﬄ" at 3 (1 grapheme) becomes "ffl" (3 graphemes), there is a match on "l"
-    "baﬄe"~text~caselessMatchChar(3, "F")=                 -- 1      "ﬄ" at 3 (1 grapheme) becomes "ffl" (3 graphemes), there is a match on "f"
-    "baﬄe"~text~caselessMatchChar(3, "L")=                 -- 1      "ﬄ" at 3 (1 grapheme) becomes "ffl" (3 graphemes), there is a match on "l"
+    "baﬄe"~text~caselessMatchChar(3, "F")=                 -- 0, was 1 before 2023.12.04      "ﬄ" at 3 (1 grapheme) becomes "ffl" (3 graphemes), there is a match on "f"
+    "baﬄe"~text~caselessMatchChar(3, "L")=                 -- 0, was 1 before 2023.12.04      "ﬄ" at 3 (1 grapheme) becomes "ffl" (3 graphemes), there is a match on "l"
     "baﬄe"~text~caselessMatchChar(4, "E")=                 -- 1      the grapheme at 4 is "e", not "f". There is a match with "e"
 
 
@@ -2091,7 +2134,7 @@ g~()=       -- [no result]
 "Bundesschnellstraße"~text~matchChar(14, "s")=              -- 1
 "Bundesschnellstraße"~text~matchChar(18, "s")=              -- 0
 "Bundesschnellstraße"~text~matchChar(18, "sß")=             -- 1
-"Bundesschnellstraße"~text~caselessMatchChar(18, "s")=      -- 1    "ß" becomes "ss" which is 2 graphemes. The first grapheme at 18 matches "s"
+"Bundesschnellstraße"~text~caselessMatchChar(18, "s")=      -- 0, was 1 before 2023.12.04    "ß" becomes "ss" which is 2 graphemes. The first grapheme at 18 matches "s"
 "Bundesschnellstraße"~text~caselessMatchChar(19, "s")=      -- 0    "ß" becomes "ss" which is 2 graphemes. The grapheme at 19 is "e", not the second "s"
 "Bundesschnellstraße"~text~caselessMatchChar(19, "e")=      -- 1    "ß" becomes "ss" which is 2 graphemes. The grapheme at 19 is "e", not the second "s"
 
@@ -2101,14 +2144,14 @@ g~()=       -- [no result]
 "baﬄe"~text~matchChar(3, "f")=                               -- 0     "ﬄ" is ONE grapheme because NFC
 "baﬄe"~text~matchChar(3, "ﬄ")=                               -- 1     "ﬄ" is ONE grapheme because NFC
 "baﬄe"~text~matchChar(3, "ﬄ", normalization:.Unicode~NFKD)=  -- 1     "ﬄ" becomes "ffl" (3 graphemes). There is a match because the first grapheme is "f"
-"baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=  -- 1     "ﬄ" becomes "ffl" (3 graphemes). There is a match because the first grapheme is "f"
+"baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=  -- 0, was 1 before 2023.12.04     "ﬄ" becomes "ffl" (3 graphemes). There is a match because the first grapheme is "f"
 "baﬄe"~text~matchChar(4, "f", normalization:.Unicode~NFKD)=  -- 0     "ﬄ" becomes "ffl" (3 graphemes). The grapheme at 4 is "e", not the second "f"
 "baﬄe"~text~matchChar(4, "e", normalization:.Unicode~NFKD)=  -- 1     "ﬄ" becomes "ffl" (3 graphemes). The grapheme at 4 is "e", not the second "f"
 
 -- The ligature disappears when casefolded
 "baﬄe"~text~casefold=                                        -- T'baffle'
-"BAFFLE"~text~caselessMatchChar(3, "ﬄ")=                     -- 1      "ﬄ" becomes "ffl" (3 graphemes), there is a match on "f" at 3
-"BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                     -- 1      "ﬄ" becomes "ffl" (3 graphemes), there is a match on "l" at 5
+"BAFFLE"~text~caselessMatchChar(3, "ﬄ")=                     -- 0, was 1 before 2023.12.04     "ﬄ" becomes "ffl" (3 graphemes), there is a match on "f" at 3
+"BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                     -- 0, was 1 before 2023.12.04     "ﬄ" becomes "ffl" (3 graphemes), there is a match on "l" at 5
 "BAFFLE"~text~caselessMatchChar(5, "L")=                     -- 1      there is a match on "l" at 5 (forward to String)
 
 

@@ -11,6 +11,59 @@ ooRexx> .Unicode~memorizeTransformations = .false
 
 
 -- ===============================================================================
+-- 2023 Dec 04
+
+/*
+Reworked the implementation of caselessMatchChar, matchCar.
+*/
+
+ooRexx> "Bundesschnellstraße"~text~caselessMatchChar(18, "s")=           -- now 0: "ß" casefolded to "ss" doesn't match "s"
+ 0
+ooRexx> "BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                        -- now 0: "L" casefolded to "l" doesn't match "ﬄ" casefolded to "ffl" (no more iteration on each character of "ffl")
+ 0
+ooRexx> "baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=     -- now 0: "ﬄ" casefolded to "ffl" doesn't match "f"
+ 0
+
+/*
+After rework, I have these other differences:
+*/
+
+-- Case 1 sounds good (no more iteration on each character of "ffl")
+ooRexx> "BAFFLE"~text~caselessMatchChar(3, "ﬄ")=        -- 0    was 1 "ﬄ" becomes "ffl" (3 graphemes), there is a match on "f" at 3
+ 0
+ooRexx> "BAFFLE"~text~caselessPos("ﬄ", aslist:, aligned:0)=
+a List (1 items)
+ 0 : [+3.3,+6.6]
+/*
+    a List (1 items)
+     0 : [+3.3,+6.6]
+*/
+-- I get the same result as before by explicitely decomposing the ligature "ﬄ" to "ffl" BEFORE :
+ooRexx> "BAFFLE"~text~caselessMatchChar(3, "ﬄ"~text~transform(normalization:.Unicode~NFKD))=    -- 1
+ 1
+-- here, it's ok because the match is on several characters
+ooRexx> "BAFFLE"~text~caselessMatch(3, "ﬄ")=            -- 1
+ 1
+
+
+-- Case 2 sounds good (no more iteration on each character of "ffl")
+ooRexx> "BAFFLE"~text~caselessMatchChar(5, "ﬄ")=        -- 0    was 1 "ﬄ" becomes "ffl" (3 graphemes), there is a match on "l" at 5
+ 0
+ooRexx> "BAFFLE"~text~caselessMatch(5, "ﬄ")=            -- 0
+ 0
+
+
+-- Case 3 sounds good (no more iteration on each character of "ffl")
+ooRexx> "baﬄe"~text~caselessMatchChar(3, "F")=          -- 0    was 1 "ﬄ" at 3 (1 grapheme) becomes "ffl" (3 graphemes), there is a match on "f"
+ 0
+
+
+-- Case 4 sound good (hum... did I really think that the character "ﬄ" at pos 3 can match an "l"?)
+ooRexx> "baﬄe"~text~caselessMatchChar(3, "L")=          -- 0    was 1 "ﬄ" at 3 (1 grapheme) becomes "ffl" (3 graphemes), there is a match on "l"
+ 0
+
+
+-- ===============================================================================
 -- 2023 Nov 28
 
 /*
@@ -74,10 +127,10 @@ ooRexx> "SatiSfaction"~text~caselessEquals("ſatiSfaction")=     -- 1
 To rework? matchChar sometimes returns .true whereas pos returns 0.
 Examples in demoTextCompatibility:
 
-KO?
+KO? 2023.12.04: yes
 */
-ooRexx> "Bundesschnellstraße"~text~caselessMatchChar(18, "s")=      -- 1
- 1
+ooRexx> "Bundesschnellstraße"~text~caselessMatchChar(18, "s")=      -- now 0, was 1 before 2023.12.04
+ 0
 ooRexx> "Bundesschnellstraße"~text~caselessPos("s", aslist:, aligned:0)=
 a List (5 items)
  0 : [+6.6,+7.7]
@@ -95,10 +148,10 @@ a List (5 items)
 */
 
 /*
-KO?
+KO? 2023.12.04: yes
 */
-ooRexx> "BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                    -- 1
- 1
+ooRexx> "BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                    -- now 0, was 1 before 2023.12.04
+ 0
 ooRexx> "BAFFLE"~text~caselessPos("ﬄ", aslist:, aligned:0)=
 a List (1 items)
  0 : [+3.3,+6.6]
@@ -108,10 +161,10 @@ a List (1 items)
 */
 
 /*
-KO?
+KO? 2023.12.04: yes
 */
-ooRexx> "baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=     -- 1
- 1
+ooRexx> "baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=     -- now 0, was 1 before 2023.12.04
+ 0
 ooRexx> "baﬄe"~text~pos("f", normalization:.Unicode~NFKD, aslist:, aligned:0)=
 a List (2 items)
  0 : [+3.3,-3.4]
@@ -2353,8 +2406,12 @@ ooRexx>     "noël👩‍👨‍👩‍👧🎅"~text~pos("👩‍👨‍👩‍
 /*
 Comparison operators:
 Take into account the default normalization managed by the .Unicode class
-- NFC when strict
-- NFKD when not strict
+*/
+ooRexx> .Unicode~normalizationName(.Unicode~defaultNormalization(strict:.true))=    -- NFC when strict
+'NFC'
+ooRexx> .Unicode~normalizationName(.Unicode~defaultNormalization(strict:.false))=   -- NFKD when not strict
+'NFKD'
+/*
 Example:
 */
 ooRexx>     ("baﬄe"~text == "baffle"~text) =    -- false
@@ -2501,18 +2558,18 @@ ooRexx>     "hello"~text~caselessEndsWith("O")=                     -- true
 
 -- Rework implementation of caselessMatchChar, matchChar
 -- -----------------------------------------------------
-ooRexx>     "BAFFLE"~text~caselessMatchChar(3, "ﬄ")=               -- 1      "ﬄ" becomes "ffl" (3 graphemes), there is a match on "f" at 3
- 1
-ooRexx>     "BAFFLE"~text~caselessMatchChar(5, "ﬄ")=               -- 1      "ﬄ" becomes "ffl" (3 graphemes), there is a match on "l" at 5
- 1
+ooRexx>     "BAFFLE"~text~caselessMatchChar(3, "ﬄ")=               -- 0, was 1 before 2023.12.04      "ﬄ" becomes "ffl" (3 graphemes), there is a match on "f" at 3
+ 0
+ooRexx>     "BAFFLE"~text~caselessMatchChar(5, "ﬄ")=               -- 0, was 1 before 2023.12.04      "ﬄ" becomes "ffl" (3 graphemes), there is a match on "l" at 5
+ 0
 ooRexx>     "baffle"~text~caselessMatchChar(5, "L")=               -- 1      there is a match on "l" at 5 (forward to string)
  1
 ooRexx>     "baﬄe"~text~caselessMatchChar(3, "ﬄ")=                 -- 1      "ﬄ" at 3 (1 grapheme) becomes "ffl" (3 graphemes), there is a match on "l"
  1
-ooRexx>     "baﬄe"~text~caselessMatchChar(3, "F")=                 -- 1      "ﬄ" at 3 (1 grapheme) becomes "ffl" (3 graphemes), there is a match on "f"
- 1
-ooRexx>     "baﬄe"~text~caselessMatchChar(3, "L")=                 -- 1      "ﬄ" at 3 (1 grapheme) becomes "ffl" (3 graphemes), there is a match on "l"
- 1
+ooRexx>     "baﬄe"~text~caselessMatchChar(3, "F")=                 -- 0, was 1 before 2023.12.04      "ﬄ" at 3 (1 grapheme) becomes "ffl" (3 graphemes), there is a match on "f"
+ 0
+ooRexx>     "baﬄe"~text~caselessMatchChar(3, "L")=                 -- 0, was 1 before 2023.12.04      "ﬄ" at 3 (1 grapheme) becomes "ffl" (3 graphemes), there is a match on "l"
+ 0
 ooRexx>     "baﬄe"~text~caselessMatchChar(4, "E")=                 -- 1      the grapheme at 4 is "e", not "f". There is a match with "e"
  1
 
@@ -3211,8 +3268,8 @@ ooRexx> "Bundesschnellstraße"~text~matchChar(18, "s")=              -- 0
  0
 ooRexx> "Bundesschnellstraße"~text~matchChar(18, "sß")=             -- 1
  1
-ooRexx> "Bundesschnellstraße"~text~caselessMatchChar(18, "s")=      -- 1    "ß" becomes "ss" which is 2 graphemes. The first grapheme at 18 matches "s"
- 1
+ooRexx> "Bundesschnellstraße"~text~caselessMatchChar(18, "s")=      -- 0, was 1 before 2023.12.04    "ß" becomes "ss" which is 2 graphemes. The first grapheme at 18 matches "s"
+ 0
 ooRexx> "Bundesschnellstraße"~text~caselessMatchChar(19, "s")=      -- 0    "ß" becomes "ss" which is 2 graphemes. The grapheme at 19 is "e", not the second "s"
  0
 ooRexx> "Bundesschnellstraße"~text~caselessMatchChar(19, "e")=      -- 1    "ß" becomes "ss" which is 2 graphemes. The grapheme at 19 is "e", not the second "s"
@@ -3229,8 +3286,8 @@ ooRexx> "baﬄe"~text~matchChar(3, "ﬄ")=                               -- 1   
  1
 ooRexx> "baﬄe"~text~matchChar(3, "ﬄ", normalization:.Unicode~NFKD)=  -- 1     "ﬄ" becomes "ffl" (3 graphemes). There is a match because the first grapheme is "f"
  1
-ooRexx> "baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=  -- 1     "ﬄ" becomes "ffl" (3 graphemes). There is a match because the first grapheme is "f"
- 1
+ooRexx> "baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=  -- 0, was 1 before 2023.12.04     "ﬄ" becomes "ffl" (3 graphemes). There is a match because the first grapheme is "f"
+ 0
 ooRexx> "baﬄe"~text~matchChar(4, "f", normalization:.Unicode~NFKD)=  -- 0     "ﬄ" becomes "ffl" (3 graphemes). The grapheme at 4 is "e", not the second "f"
  0
 ooRexx> "baﬄe"~text~matchChar(4, "e", normalization:.Unicode~NFKD)=  -- 1     "ﬄ" becomes "ffl" (3 graphemes). The grapheme at 4 is "e", not the second "f"
@@ -3239,10 +3296,10 @@ ooRexx> "baﬄe"~text~matchChar(4, "e", normalization:.Unicode~NFKD)=  -- 1     
 -- The ligature disappears when casefolded
 ooRexx> "baﬄe"~text~casefold=                                        -- T'baffle'
 T'baffle'
-ooRexx> "BAFFLE"~text~caselessMatchChar(3, "ﬄ")=                     -- 1      "ﬄ" becomes "ffl" (3 graphemes), there is a match on "f" at 3
- 1
-ooRexx> "BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                     -- 1      "ﬄ" becomes "ffl" (3 graphemes), there is a match on "l" at 5
- 1
+ooRexx> "BAFFLE"~text~caselessMatchChar(3, "ﬄ")=                     -- 0, was 1 before 2023.12.04     "ﬄ" becomes "ffl" (3 graphemes), there is a match on "f" at 3
+ 0
+ooRexx> "BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                     -- 0, was 1 before 2023.12.04     "ﬄ" becomes "ffl" (3 graphemes), there is a match on "l" at 5
+ 0
 ooRexx> "BAFFLE"~text~caselessMatchChar(5, "L")=                     -- 1      there is a match on "l" at 5 (forward to String)
  1
 
