@@ -236,7 +236,7 @@ sleep no prompt
 -- caselessMatchChar
 -- "Bundesschnellstraße"                                    -- at 14: "s", at 18:"ß"
 --  1234567890123456789
-"Bundesschnellstraße"~text~caselessMatchChar(18, "s")=      -- 1    "ß" becomes "ss" which is 2 characters. The first character at 18 matches "s"
+"Bundesschnellstraße"~text~caselessMatchChar(18, "s")=      -- 0    "ß" becomes "ss" which is 2 characters. "s" doesn't match "ss".
 sleep
 "Bundesschnellstraße"~text~caselessMatchChar(19, "s")=      -- 0    "ß" becomes "ss" which is 2 characters. The character at 19 is "e", not the second "s"
 sleep
@@ -247,11 +247,11 @@ sleep no prompt
 -- The ligature disappears when casefolded
 "baﬄe"~text~casefold=                                        -- T'baffle'
 sleep
-"BAFFLE"~text~caselessMatchChar(3, "ﬄ")=                     -- 1      "ﬄ" becomes "ffl" (3 characters), there is a match on "f" at 3
+"BAFFLE"~text~caselessMatchChar(3, "ﬄ")=                     -- 0   The 3rd character "F" casefolded "f" doesn't match ""ﬄ"" casefolded "ffl"
 sleep
-"BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                     -- 1      "ﬄ" becomes "ffl" (3 characters), there is a match on "l" at 5
+"BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                     -- 0   The 5th character "L" casefolded "l" doesn't match ""ﬄ"" casefolded "ffl"
 sleep
-"BAFFLE"~text~caselessMatchChar(5, "L")=                      -- 1      there is a match on "l" at 5
+"BAFFLE"~text~caselessMatchChar(5, "L")=                      -- 1   There is a match on "l" at 5
 sleep no prompt
 
 -- caselessMatchChar (cont.)
@@ -544,17 +544,17 @@ sleep no prompt
 
 -- matchChar (cont.)
 -- The ligature disappears in NFK[CD] but not in NF[CD]
-"baﬄe"~text~matchChar(3, "f")=                               -- 0     "ﬄ" is ONE character because NFC
+"baﬄe"~text~matchChar(3, "f")=                               -- 0     "ﬄ" is ONE character, doesn't match "f"
 sleep
-"baﬄe"~text~matchChar(3, "ﬄ")=                              -- 1     "ﬄ" is ONE character because NFC
+"baﬄe"~text~matchChar(3, "ﬄ")=                              -- 1     There is a match because "ﬄ" on both sides
 sleep
-"baﬄe"~text~matchChar(3, "ﬄ", normalization:.Unicode~NFKD)= -- 1     "ﬄ" becomes "ffl" (3 characters). There is a match because the first character is "f"
+"baﬄe"~text~matchChar(3, "ﬄ", normalization:.Unicode~NFKD)= -- 1     There is a match because "ﬄ" on both sides
 sleep
-"baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=  -- 1     "ﬄ" becomes "ffl" (3 characters). There is a match because the first character is "f"
+"baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=  -- 0     The 3rd character "ﬄ" becomes "ffl" (3 characters), doesn't match "f"
 sleep
-"baﬄe"~text~matchChar(4, "f", normalization:.Unicode~NFKD)=  -- 0     "ﬄ" becomes "ffl" (3 characters). The character at 4 is "e", not the second "f"
+"baﬄe"~text~matchChar(4, "f", normalization:.Unicode~NFKD)=  -- 0     The 4th character is "e", doesn't match "f"
 sleep
-"baﬄe"~text~matchChar(4, "e", normalization:.Unicode~NFKD)=  -- 1     "ﬄ" becomes "ffl" (3 characters). The character at 4 is "e", not the second "f"
+"baﬄe"~text~matchChar(4, "e", normalization:.Unicode~NFKD)=  -- 1     The 4th character is "e", does match "e"
 sleep no prompt
 
 

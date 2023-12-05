@@ -250,8 +250,8 @@ ooRexx> "Bundesstraße im Freiland"~text~caselessMatch(14, "im")=    -- .true
 -- caselessMatchChar
 -- "Bundesschnellstraße"                                    -- at 14: "s", at 18:"ß"
 --  1234567890123456789
-ooRexx> "Bundesschnellstraße"~text~caselessMatchChar(18, "s")=      -- 1    "ß" becomes "ss" which is 2 characters. The first character at 18 matches "s"
- 1
+ooRexx> "Bundesschnellstraße"~text~caselessMatchChar(18, "s")=      -- 0    "ß" becomes "ss" which is 2 characters. "s" doesn't match "ss".
+ 0
 ooRexx> "Bundesschnellstraße"~text~caselessMatchChar(19, "s")=      -- 0    "ß" becomes "ss" which is 2 characters. The character at 19 is "e", not the second "s"
  0
 ooRexx> "Bundesschnellstraße"~text~caselessMatchChar(19, "e")=      -- 1    "ß" becomes "ss" which is 2 characters. The character at 19 is "e", not the second "s"
@@ -261,11 +261,11 @@ ooRexx> "Bundesschnellstraße"~text~caselessMatchChar(19, "e")=      -- 1    "ß
 -- The ligature disappears when casefolded
 ooRexx> "baﬄe"~text~casefold=                                        -- T'baffle'
 T'baffle'
-ooRexx> "BAFFLE"~text~caselessMatchChar(3, "ﬄ")=                     -- 1      "ﬄ" becomes "ffl" (3 characters), there is a match on "f" at 3
- 1
-ooRexx> "BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                     -- 1      "ﬄ" becomes "ffl" (3 characters), there is a match on "l" at 5
- 1
-ooRexx> "BAFFLE"~text~caselessMatchChar(5, "L")=                      -- 1      there is a match on "l" at 5
+ooRexx> "BAFFLE"~text~caselessMatchChar(3, "ﬄ")=                     -- 0   The 3rd character "F" casefolded "f" doesn't match ""ﬄ"" casefolded "ffl"
+ 0
+ooRexx> "BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                     -- 0   The 5th character "L" casefolded "l" doesn't match ""ﬄ"" casefolded "ffl"
+ 0
+ooRexx> "BAFFLE"~text~caselessMatchChar(5, "L")=                      -- 1   There is a match on "l" at 5
  1
 
 -- caselessMatchChar (cont.)
@@ -600,17 +600,17 @@ ooRexx> "Bundesschnellstraße"~text~matchChar(18, "ß")=              -- 1
 
 -- matchChar (cont.)
 -- The ligature disappears in NFK[CD] but not in NF[CD]
-ooRexx> "baﬄe"~text~matchChar(3, "f")=                               -- 0     "ﬄ" is ONE character because NFC
+ooRexx> "baﬄe"~text~matchChar(3, "f")=                               -- 0     "ﬄ" is ONE character, doesn't match "f"
  0
-ooRexx> "baﬄe"~text~matchChar(3, "ﬄ")=                              -- 1     "ﬄ" is ONE character because NFC
+ooRexx> "baﬄe"~text~matchChar(3, "ﬄ")=                              -- 1     There is a match because "ﬄ" on both sides
  1
-ooRexx> "baﬄe"~text~matchChar(3, "ﬄ", normalization:.Unicode~NFKD)= -- 1     "ﬄ" becomes "ffl" (3 characters). There is a match because the first character is "f"
+ooRexx> "baﬄe"~text~matchChar(3, "ﬄ", normalization:.Unicode~NFKD)= -- 1     There is a match because "ﬄ" on both sides
  1
-ooRexx> "baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=  -- 1     "ﬄ" becomes "ffl" (3 characters). There is a match because the first character is "f"
- 1
-ooRexx> "baﬄe"~text~matchChar(4, "f", normalization:.Unicode~NFKD)=  -- 0     "ﬄ" becomes "ffl" (3 characters). The character at 4 is "e", not the second "f"
+ooRexx> "baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=  -- 0     The 3rd character "ﬄ" becomes "ffl" (3 characters), doesn't match "f"
  0
-ooRexx> "baﬄe"~text~matchChar(4, "e", normalization:.Unicode~NFKD)=  -- 1     "ﬄ" becomes "ffl" (3 characters). The character at 4 is "e", not the second "f"
+ooRexx> "baﬄe"~text~matchChar(4, "f", normalization:.Unicode~NFKD)=  -- 0     The 4th character is "e", doesn't match "f"
+ 0
+ooRexx> "baﬄe"~text~matchChar(4, "e", normalization:.Unicode~NFKD)=  -- 1     The 4th character is "e", does match "e"
  1
 
 

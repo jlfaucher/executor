@@ -32,7 +32,7 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 16 Nov 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S9547Q600000f58c30
+</span><span style="font-weight:bold;color:green;">Input queue name: S13f39Q600000f59450
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.1.0 
@@ -43,6 +43,59 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacte
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeConversions = .false</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeTransformations = .false</span>
+
+
+<span style="font-weight:bold;color:blue;">-- ===============================================================================
+</span><span style="font-weight:bold;color:blue;">-- 2023 Dec 04
+</span>
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Reworked the implementation of caselessMatchChar, matchCar.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~text~caselessMatchChar(18, &quot;s&quot;)=           </span><span style="font-weight:bold;color:blue;">-- now 0: &quot;ß&quot; casefolded to &quot;ss&quot; doesn't match &quot;s&quot;</span>
+ 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatchChar(5, &quot;ﬄ&quot;)=                        </span><span style="font-weight:bold;color:blue;">-- now 0: &quot;L&quot; casefolded to &quot;l&quot; doesn't match &quot;ﬄ&quot; casefolded to &quot;ffl&quot; (no more iteration on each character of &quot;ffl&quot;)</span>
+ 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(3, &quot;f&quot;, normalization:.Unicode~NFKD)=     </span><span style="font-weight:bold;color:blue;">-- now 0: &quot;ﬄ&quot; casefolded to &quot;ffl&quot; doesn't match &quot;f&quot;</span>
+ 0
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">After rework, I have these other differences:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
+<span style="font-weight:bold;color:blue;">-- Case 1 sounds good (no more iteration on each character of &quot;ffl&quot;)
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatchChar(3, &quot;ﬄ&quot;)=        </span><span style="font-weight:bold;color:blue;">-- 0    was 1 &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 graphemes), there is a match on &quot;f&quot; at 3</span>
+ 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessPos(&quot;ﬄ&quot;, aslist:, aligned:0)=</span>
+a List (1 items)
+ 0 : [+3.3,+6.6]
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">    a List (1 items)
+</span><span style="font-weight:bold;color:blue;">     0 : [+3.3,+6.6]
+</span><span style="font-weight:bold;color:blue;">*/
+</span><span style="font-weight:bold;color:blue;">-- I get the same result as before by explicitely decomposing the ligature &quot;ﬄ&quot; to &quot;ffl&quot; BEFORE :
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatchChar(3, &quot;ﬄ&quot;~text~transform(normalization:.Unicode~NFKD))=    </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+<span style="font-weight:bold;color:blue;">-- here, it's ok because the match is on several characters
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatch(3, &quot;ﬄ&quot;)=            </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+
+
+<span style="font-weight:bold;color:blue;">-- Case 2 sounds good (no more iteration on each character of &quot;ffl&quot;)
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatchChar(5, &quot;ﬄ&quot;)=        </span><span style="font-weight:bold;color:blue;">-- 0    was 1 &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 graphemes), there is a match on &quot;l&quot; at 5</span>
+ 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatch(5, &quot;ﬄ&quot;)=            </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ 0
+
+
+<span style="font-weight:bold;color:blue;">-- Case 3 sounds good (no more iteration on each character of &quot;ffl&quot;)
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~caselessMatchChar(3, &quot;F&quot;)=          </span><span style="font-weight:bold;color:blue;">-- 0    was 1 &quot;ﬄ&quot; at 3 (1 grapheme) becomes &quot;ffl&quot; (3 graphemes), there is a match on &quot;f&quot;</span>
+ 0
+
+
+<span style="font-weight:bold;color:blue;">-- Case 4 sound good (hum... did I really think that the character &quot;ﬄ&quot; at pos 3 can match an &quot;l&quot;?)
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~caselessMatchChar(3, &quot;L&quot;)=          </span><span style="font-weight:bold;color:blue;">-- 0    was 1 &quot;ﬄ&quot; at 3 (1 grapheme) becomes &quot;ffl&quot; (3 graphemes), there is a match on &quot;l&quot;</span>
+ 0
 
 
 <span style="font-weight:bold;color:blue;">-- ===============================================================================
@@ -109,10 +162,10 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;SatiSfaction&quot;
 </span><span style="font-weight:bold;color:blue;">To rework? matchChar sometimes returns .true whereas pos returns 0.
 </span><span style="font-weight:bold;color:blue;">Examples in demoTextCompatibility:
 </span><span style="font-weight:bold;color:blue;">
-</span><span style="font-weight:bold;color:blue;">KO?
+</span><span style="font-weight:bold;color:blue;">KO? 2023.12.04: yes
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~text~caselessMatchChar(18, &quot;s&quot;)=      </span><span style="font-weight:bold;color:blue;">-- 1</span>
- 1
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~text~caselessMatchChar(18, &quot;s&quot;)=      </span><span style="font-weight:bold;color:blue;">-- now 0, was 1 before 2023.12.04</span>
+ 0
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~text~caselessPos(&quot;s&quot;, aslist:, aligned:0)=</span>
 a List (5 items)
  0 : [+6.6,+7.7]
@@ -130,10 +183,10 @@ a List (5 items)
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
 <span style="font-weight:bold;color:blue;">/*
-</span><span style="font-weight:bold;color:blue;">KO?
+</span><span style="font-weight:bold;color:blue;">KO? 2023.12.04: yes
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatchChar(5, &quot;ﬄ&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- 1</span>
- 1
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatchChar(5, &quot;ﬄ&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- now 0, was 1 before 2023.12.04</span>
+ 0
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessPos(&quot;ﬄ&quot;, aslist:, aligned:0)=</span>
 a List (1 items)
  0 : [+3.3,+6.6]
@@ -143,10 +196,10 @@ a List (1 items)
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
 <span style="font-weight:bold;color:blue;">/*
-</span><span style="font-weight:bold;color:blue;">KO?
+</span><span style="font-weight:bold;color:blue;">KO? 2023.12.04: yes
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(3, &quot;f&quot;, normalization:.Unicode~NFKD)=     </span><span style="font-weight:bold;color:blue;">-- 1</span>
- 1
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(3, &quot;f&quot;, normalization:.Unicode~NFKD)=     </span><span style="font-weight:bold;color:blue;">-- now 0, was 1 before 2023.12.04</span>
+ 0
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~pos(&quot;f&quot;, normalization:.Unicode~NFKD, aslist:, aligned:0)=</span>
 a List (2 items)
  0 : [+3.3,-3.4]
@@ -2388,8 +2441,12 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;noël👩‍�
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">Comparison operators:
 </span><span style="font-weight:bold;color:blue;">Take into account the default normalization managed by the .Unicode class
-</span><span style="font-weight:bold;color:blue;">- NFC when strict
-</span><span style="font-weight:bold;color:blue;">- NFKD when not strict
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~normalizationName(.Unicode~defaultNormalization(strict:.true))=    </span><span style="font-weight:bold;color:blue;">-- NFC when strict</span>
+'NFC'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~normalizationName(.Unicode~defaultNormalization(strict:.false))=   </span><span style="font-weight:bold;color:blue;">-- NFKD when not strict</span>
+'NFKD'
+<span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">Example:
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    (&quot;baﬄe&quot;~text == &quot;baffle&quot;~text) =    </span><span style="font-weight:bold;color:blue;">-- false</span>
@@ -2536,18 +2593,18 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;hello&quot;~te
 
 <span style="font-weight:bold;color:blue;">-- Rework implementation of caselessMatchChar, matchChar
 </span><span style="font-weight:bold;color:blue;">-- -----------------------------------------------------
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;BAFFLE&quot;~text~caselessMatchChar(3, &quot;ﬄ&quot;)=               </span><span style="font-weight:bold;color:blue;">-- 1      &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 graphemes), there is a match on &quot;f&quot; at 3</span>
- 1
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;BAFFLE&quot;~text~caselessMatchChar(5, &quot;ﬄ&quot;)=               </span><span style="font-weight:bold;color:blue;">-- 1      &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 graphemes), there is a match on &quot;l&quot; at 5</span>
- 1
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;BAFFLE&quot;~text~caselessMatchChar(3, &quot;ﬄ&quot;)=               </span><span style="font-weight:bold;color:blue;">-- 0, was 1 before 2023.12.04      &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 graphemes), there is a match on &quot;f&quot; at 3</span>
+ 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;BAFFLE&quot;~text~caselessMatchChar(5, &quot;ﬄ&quot;)=               </span><span style="font-weight:bold;color:blue;">-- 0, was 1 before 2023.12.04      &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 graphemes), there is a match on &quot;l&quot; at 5</span>
+ 0
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;baffle&quot;~text~caselessMatchChar(5, &quot;L&quot;)=               </span><span style="font-weight:bold;color:blue;">-- 1      there is a match on &quot;l&quot; at 5 (forward to string)</span>
  1
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;baﬄe&quot;~text~caselessMatchChar(3, &quot;ﬄ&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- 1      &quot;ﬄ&quot; at 3 (1 grapheme) becomes &quot;ffl&quot; (3 graphemes), there is a match on &quot;l&quot;</span>
  1
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;baﬄe&quot;~text~caselessMatchChar(3, &quot;F&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- 1      &quot;ﬄ&quot; at 3 (1 grapheme) becomes &quot;ffl&quot; (3 graphemes), there is a match on &quot;f&quot;</span>
- 1
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;baﬄe&quot;~text~caselessMatchChar(3, &quot;L&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- 1      &quot;ﬄ&quot; at 3 (1 grapheme) becomes &quot;ffl&quot; (3 graphemes), there is a match on &quot;l&quot;</span>
- 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;baﬄe&quot;~text~caselessMatchChar(3, &quot;F&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- 0, was 1 before 2023.12.04      &quot;ﬄ&quot; at 3 (1 grapheme) becomes &quot;ffl&quot; (3 graphemes), there is a match on &quot;f&quot;</span>
+ 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;baﬄe&quot;~text~caselessMatchChar(3, &quot;L&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- 0, was 1 before 2023.12.04      &quot;ﬄ&quot; at 3 (1 grapheme) becomes &quot;ffl&quot; (3 graphemes), there is a match on &quot;l&quot;</span>
+ 0
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;baﬄe&quot;~text~caselessMatchChar(4, &quot;E&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- 1      the grapheme at 4 is &quot;e&quot;, not &quot;f&quot;. There is a match with &quot;e&quot;</span>
  1
 
@@ -3246,8 +3303,8 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstra�
  0
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~text~matchChar(18, &quot;sß&quot;)=             </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~text~caselessMatchChar(18, &quot;s&quot;)=      </span><span style="font-weight:bold;color:blue;">-- 1    &quot;ß&quot; becomes &quot;ss&quot; which is 2 graphemes. The first grapheme at 18 matches &quot;s&quot;</span>
- 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~text~caselessMatchChar(18, &quot;s&quot;)=      </span><span style="font-weight:bold;color:blue;">-- 0, was 1 before 2023.12.04    &quot;ß&quot; becomes &quot;ss&quot; which is 2 graphemes. The first grapheme at 18 matches &quot;s&quot;</span>
+ 0
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~text~caselessMatchChar(19, &quot;s&quot;)=      </span><span style="font-weight:bold;color:blue;">-- 0    &quot;ß&quot; becomes &quot;ss&quot; which is 2 graphemes. The grapheme at 19 is &quot;e&quot;, not the second &quot;s&quot;</span>
  0
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~text~caselessMatchChar(19, &quot;e&quot;)=      </span><span style="font-weight:bold;color:blue;">-- 1    &quot;ß&quot; becomes &quot;ss&quot; which is 2 graphemes. The grapheme at 19 is &quot;e&quot;, not the second &quot;s&quot;</span>
@@ -3264,8 +3321,8 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~
  1
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(3, &quot;ﬄ&quot;, normalization:.Unicode~NFKD)=  </span><span style="font-weight:bold;color:blue;">-- 1     &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 graphemes). There is a match because the first grapheme is &quot;f&quot;</span>
  1
-ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(3, &quot;f&quot;, normalization:.Unicode~NFKD)=  </span><span style="font-weight:bold;color:blue;">-- 1     &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 graphemes). There is a match because the first grapheme is &quot;f&quot;</span>
- 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(3, &quot;f&quot;, normalization:.Unicode~NFKD)=  </span><span style="font-weight:bold;color:blue;">-- 0, was 1 before 2023.12.04     &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 graphemes). There is a match because the first grapheme is &quot;f&quot;</span>
+ 0
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(4, &quot;f&quot;, normalization:.Unicode~NFKD)=  </span><span style="font-weight:bold;color:blue;">-- 0     &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 graphemes). The grapheme at 4 is &quot;e&quot;, not the second &quot;f&quot;</span>
  0
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(4, &quot;e&quot;, normalization:.Unicode~NFKD)=  </span><span style="font-weight:bold;color:blue;">-- 1     &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 graphemes). The grapheme at 4 is &quot;e&quot;, not the second &quot;f&quot;</span>
@@ -3274,10 +3331,10 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~
 <span style="font-weight:bold;color:blue;">-- The ligature disappears when casefolded
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~casefold=                                        </span><span style="font-weight:bold;color:blue;">-- T'baffle'</span>
 T'baffle'
-ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatchChar(3, &quot;ﬄ&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- 1      &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 graphemes), there is a match on &quot;f&quot; at 3</span>
- 1
-ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatchChar(5, &quot;ﬄ&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- 1      &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 graphemes), there is a match on &quot;l&quot; at 5</span>
- 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatchChar(3, &quot;ﬄ&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- 0, was 1 before 2023.12.04     &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 graphemes), there is a match on &quot;f&quot; at 3</span>
+ 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatchChar(5, &quot;ﬄ&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- 0, was 1 before 2023.12.04     &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 graphemes), there is a match on &quot;l&quot; at 5</span>
+ 0
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatchChar(5, &quot;L&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- 1      there is a match on &quot;l&quot; at 5 (forward to String)</span>
  1
 

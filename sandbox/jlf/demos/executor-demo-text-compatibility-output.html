@@ -32,7 +32,7 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 16 Nov 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S1093fQ600000f448f0
+</span><span style="font-weight:bold;color:green;">Input queue name: S13f6fQ600000f48340
 </span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.1.0 
@@ -285,8 +285,8 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~caselessEqua
 <span style="font-weight:bold;color:blue;">-- caselessMatchChar
 </span><span style="font-weight:bold;color:blue;">-- &quot;Bundesschnellstraße&quot;                                    -- at 14: &quot;s&quot;, at 18:&quot;ß&quot;
 </span><span style="font-weight:bold;color:blue;">--  1234567890123456789
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~text~caselessMatchChar(18, &quot;s&quot;)=      </span><span style="font-weight:bold;color:blue;">-- 1    &quot;ß&quot; becomes &quot;ss&quot; which is 2 characters. The first character at 18 matches &quot;s&quot;</span>
- 1
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~text~caselessMatchChar(18, &quot;s&quot;)=      </span><span style="font-weight:bold;color:blue;">-- 0    &quot;ß&quot; becomes &quot;ss&quot; which is 2 characters. &quot;s&quot; doesn't match &quot;ss&quot;.</span>
+ 0
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~text~caselessMatchChar(19, &quot;s&quot;)=      </span><span style="font-weight:bold;color:blue;">-- 0    &quot;ß&quot; becomes &quot;ss&quot; which is 2 characters. The character at 19 is &quot;e&quot;, not the second &quot;s&quot;</span>
  0
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~text~caselessMatchChar(19, &quot;e&quot;)=      </span><span style="font-weight:bold;color:blue;">-- 1    &quot;ß&quot; becomes &quot;ss&quot; which is 2 characters. The character at 19 is &quot;e&quot;, not the second &quot;s&quot;</span>
@@ -296,11 +296,11 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnells
 </span><span style="font-weight:bold;color:blue;">-- The ligature disappears when casefolded
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~casefold=                                        </span><span style="font-weight:bold;color:blue;">-- T'baffle'</span>
 T'baffle'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatchChar(3, &quot;ﬄ&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- 1      &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 characters), there is a match on &quot;f&quot; at 3</span>
- 1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatchChar(5, &quot;ﬄ&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- 1      &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 characters), there is a match on &quot;l&quot; at 5</span>
- 1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatchChar(5, &quot;L&quot;)=                      </span><span style="font-weight:bold;color:blue;">-- 1      there is a match on &quot;l&quot; at 5</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatchChar(3, &quot;ﬄ&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- 0   The 3rd character &quot;F&quot; casefolded &quot;f&quot; doesn't match &quot;&quot;ﬄ&quot;&quot; casefolded &quot;ffl&quot;</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatchChar(5, &quot;ﬄ&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- 0   The 5th character &quot;L&quot; casefolded &quot;l&quot; doesn't match &quot;&quot;ﬄ&quot;&quot; casefolded &quot;ffl&quot;</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatchChar(5, &quot;L&quot;)=                      </span><span style="font-weight:bold;color:blue;">-- 1   There is a match on &quot;l&quot; at 5</span>
  1
 
 <span style="font-weight:bold;color:blue;">-- caselessMatchChar (cont.)
@@ -635,17 +635,17 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnells
 
 <span style="font-weight:bold;color:blue;">-- matchChar (cont.)
 </span><span style="font-weight:bold;color:blue;">-- The ligature disappears in NFK[CD] but not in NF[CD]
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(3, &quot;f&quot;)=                               </span><span style="font-weight:bold;color:blue;">-- 0     &quot;ﬄ&quot; is ONE character because NFC</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(3, &quot;f&quot;)=                               </span><span style="font-weight:bold;color:blue;">-- 0     &quot;ﬄ&quot; is ONE character, doesn't match &quot;f&quot;</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(3, &quot;ﬄ&quot;)=                              </span><span style="font-weight:bold;color:blue;">-- 1     &quot;ﬄ&quot; is ONE character because NFC</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(3, &quot;ﬄ&quot;)=                              </span><span style="font-weight:bold;color:blue;">-- 1     There is a match because &quot;ﬄ&quot; on both sides</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(3, &quot;ﬄ&quot;, normalization:.Unicode~NFKD)= </span><span style="font-weight:bold;color:blue;">-- 1     &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 characters). There is a match because the first character is &quot;f&quot;</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(3, &quot;ﬄ&quot;, normalization:.Unicode~NFKD)= </span><span style="font-weight:bold;color:blue;">-- 1     There is a match because &quot;ﬄ&quot; on both sides</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(3, &quot;f&quot;, normalization:.Unicode~NFKD)=  </span><span style="font-weight:bold;color:blue;">-- 1     &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 characters). There is a match because the first character is &quot;f&quot;</span>
- 1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(4, &quot;f&quot;, normalization:.Unicode~NFKD)=  </span><span style="font-weight:bold;color:blue;">-- 0     &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 characters). The character at 4 is &quot;e&quot;, not the second &quot;f&quot;</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(3, &quot;f&quot;, normalization:.Unicode~NFKD)=  </span><span style="font-weight:bold;color:blue;">-- 0     The 3rd character &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 characters), doesn't match &quot;f&quot;</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(4, &quot;e&quot;, normalization:.Unicode~NFKD)=  </span><span style="font-weight:bold;color:blue;">-- 1     &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 characters). The character at 4 is &quot;e&quot;, not the second &quot;f&quot;</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(4, &quot;f&quot;, normalization:.Unicode~NFKD)=  </span><span style="font-weight:bold;color:blue;">-- 0     The 4th character is &quot;e&quot;, doesn't match &quot;f&quot;</span>
+ 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(4, &quot;e&quot;, normalization:.Unicode~NFKD)=  </span><span style="font-weight:bold;color:blue;">-- 1     The 4th character is &quot;e&quot;, does match &quot;e&quot;</span>
  1
 
 
