@@ -428,6 +428,8 @@ Unicode, UTF8 & Character Sets: The Ultimate Guide
 jlf: maybe to read
 
 
+https://tonsky.me/blog/unicode/
+The Absolute Minimum Every Software Developer Must Know About Unicode in 2023 (Still No Excuses!)
 https://news.ycombinator.com/item?id=37735801
 What every software developer must know about Unicode in 2023
 jlf: nothing new in this article, just reusing infos from other sites.
@@ -470,6 +472,9 @@ Security title
 https://www.unicode.org/reports/tr39
 UNICODE SECURITY MECHANISMS
 https://www.unicode.org/Public/security/latest/confusables.txt
+
+
+https://en.wikipedia.org/wiki/Homoglyph
 
 
 https://www.trojansource.codes/
@@ -538,6 +543,10 @@ https://www.unicode.org/reports/tr39/tr39-27.html#Confusable_Detection.
 The new UTS #55, Unicode Source Code Handling, to be published simultaneously
 with Unicode Version 15.1, recommends the use of this new kind of confusability:
 https://www.unicode.org/reports/tr55/tr55-2.html#Confusable-Detection.
+
+
+https://semanticdiff.com/blog/pull-request-unicode-tricks/
+Unicode tricks in pull requests: Do review tools warn us?
 
 
 ================================================================================
@@ -745,6 +754,8 @@ https://blog.golang.org/normalization
 27/11/2013
 The string type is broken
 https://mortoray.com/2013/11/27/the-string-type-is-broken/
+https://news.ycombinator.com/item?id=6807524
+https://www.reddit.com/r/programming/comments/1rkdip/the_string_type_is_broken/
 In the comments
 Objective-C’s NSString type does correctly upper-case baﬄe into BAFFLE.
 (where the rectangle is a grapheme showing 2 small 'f')
@@ -1413,36 +1424,6 @@ https://observablehq.com/@jobleonard/which-unicode-flags-are-reversible
 
 
 ================================================================================
-Text shaping library
-================================================================================
-
-https://harfbuzz.github.io/
-https://github.com/harfbuzz/harfbuzz
-jlf: referenced by ICU
-Users of ICU Layout are strongly encouraged to consider the HarfBuzz project as
-a replacement for the ICU Layout Engine.
-
-
-Uniscribe if you are writing Windows software
-
-
-CoreText on macOS
-
-
-================================================================================
-IME - Input Method Editor
-================================================================================
-
-https://hsivonen.fi/ime/
-An IME is a piece of software that transforms user-generated input events
-(mostly keyboard events, but some IMEs allow some auxiliary pointing device interaction)
-into text in a manner more complex than a mere keyboard layout.
-Basically, if the relationship between the keys that a user presses on a hardware keyboard
-and the text that ends up in an applications text buffer is more complex than when writing French,
-an IME is in use.
-
-
-================================================================================
 Evidence of partial or wrong support of Unicode
 ================================================================================
 
@@ -1556,11 +1537,20 @@ Computing the UTF-8 size of a Latin 1 string quickly (AVX edition)
 Variation sequence
 ================================================================================
 
+https://www.unicode.org/Public/UCD/latest/ucd/emoji/emoji-variation-sequences.txt
+https://www.unicode.org/Public/15.1.0/ucd/emoji/emoji-variation-sequences.txt
+# emoji-variation-sequences.txt
+
+
 22/05/2021
 List of all code points that can display differently via a variation sequence
 http://randomguy32.de/unicode/charts/standardized-variants/#emoji
 Safari is better to display the characters.
 Google Chrome and Opera have the same limitations: some characters are not supported (ex: section Phags-Pa).
+
+
+https://sethmlarson.dev/unicode-variation-selectors
+Mahjong tiles and Unicode variation selectors
 
 
 ================================================================================
@@ -1606,6 +1596,47 @@ break words into syllables
     [2] https://github.com/heiglandreas/Org_Heigl_Hyphenator
     [3] https://github.com/search?q=hyphenate&type=repositories
     https://tug.org/docs/liang/liang-thesis.pdf
+
+
+================================================================================
+DNS title, Domain Name title, Domain Name System title
+================================================================================
+
+http://lambda-the-ultimate.org/node/5674#comment-97016
+jlf: I created this section because of this comment
+Have you ever looked at how international encoding of DNS names are done in URLs? It uses Punycode, and it's a disaster.
+Here's a good starting point to read up on this: https://en.wikipedia.org/wiki/Internationalized_domain_name
+
+
+https://en.wikipedia.org/wiki/Internationalized_domain_name
+Internationalized domain name
+    ToASCII leaves ASCII labels unchanged. It fails if the label is unsuitable for
+    the Domain Name System. For labels containing at least one non-ASCII character,
+    ToASCII applies the Nameprep algorithm (https://en.wikipedia.org/wiki/Nameprep)
+    This converts the label to lowercase and performs other normalization. ToASCII
+    then translates the result to ASCII, using Punycode (https://en.wikipedia.org/wiki/Punycode)
+    Finally, it prepends the four-character string "xn--". This four-character string
+    is called the ASCII Compatible Encoding (ACE) prefix. It is used to distinguish
+    labels encoded in Punycode from ordinary ASCII labels. The ToASCII algorithm can
+    fail in several ways. For example, the final string could exceed the 63-character
+    limit of a DNS label. A label for which ToASCII fails cannot be used in an
+    internationalized domain name.
+
+    The function ToUnicode reverses the action of ToASCII, stripping off the ACE prefix
+    and applying the Punycode decode algorithm. It does not reverse the Nameprep processing,
+    since that is merely a normalization and is by nature irreversible. Unlike ToASCII,
+    ToUnicode always succeeds, because it simply returns the original string if decoding fails.
+    In particular, this means that ToUnicode has no effect on a string that does not
+    begin with the ACE prefix.
+
+
+https://en.wikipedia.org/wiki/Punycode
+Punycode is a representation of Unicode with the limited ASCII character subset
+used for Internet hostnames. Using Punycode, host names containing Unicode characters
+are transcoded to a subset of ASCII consisting of letters, digits, and hyphens,
+which is called the letter–digit–hyphen (LDH) subset. For example, München
+(German name for Munich) is encoded as Mnchen-3ya.
+
 
 ================================================================================
 All languages
@@ -1961,7 +1992,28 @@ Polish diacritics how to?
 
 
 ================================================================================
-Text rendering
+IME - Input Method Editor
+================================================================================
+
+https://hsivonen.fi/ime/
+An IME is a piece of software that transforms user-generated input events
+(mostly keyboard events, but some IMEs allow some auxiliary pointing device interaction)
+into text in a manner more complex than a mere keyboard layout.
+Basically, if the relationship between the keys that a user presses on a hardware keyboard
+and the text that ends up in an applications text buffer is more complex than when writing French,
+an IME is in use.
+
+
+================================================================================
+Text editing
+================================================================================
+
+https://lord.io/text-editing-hates-you-too/
+TEXT EDITING HATES YOU TOO
+
+
+================================================================================
+Text rendering, Text shaping library
 ================================================================================
 
 https://faultlore.com/blah/text-hates-you/
@@ -1970,6 +2022,19 @@ Aria Beingessner
 September 28th, 2019
 jlf: culture générale
 todo: read
+
+
+https://harfbuzz.github.io/
+https://github.com/harfbuzz/harfbuzz
+jlf: referenced by ICU
+Users of ICU Layout are strongly encouraged to consider the HarfBuzz project as
+a replacement for the ICU Layout Engine.
+
+
+Uniscribe if you are writing Windows software
+
+
+CoreText on macOS
 
 
 ================================================================================
@@ -2891,6 +2956,37 @@ Collation Folding
     folding string can also be faster than that used to create the sort key.
 
 
+Transliterate "micro sign" to "u" using Transliterator from icu4j
+jlf: next is an answer on icu-support@lists.sourceforge.net
+https://sourceforge.net/p/icu/mailman/message/58712806/
+    On Wed, Dec 13, 2023 at 7:52 PM <go.al.ni@gmail.com> wrote:
+    > Micro sign transliterated to "m" in one case, but not in another.
+
+    While I don't know enough about the Any-Latin transliteration rules to
+    be able to tell you why this happens, the thing that happens is that
+    when you have any preceding Greek letter the transliterator will
+    afterwards treat also the micro sign (U+00B5) as a Greek letter, while
+    it otherwise will leave it as-is, as any other symbol.
+
+    If you want to transliterate only Greek letters you could explicitly
+    create a Greek transliterator, which then will always treat also the
+    micro sign (U+00B5) as a Greek letter:
+
+    var tr = Transliterator.getInstance("Greek-Latin");
+
+    Or, if you want to first treat any symbols that are also Greek letters
+    explicitly as Greek letters and then perform the Any-Latin
+    transliteration:
+
+    var tr = Transliterator.getInstance("Greek-Latin; Any-Latin;");
+
+    Or, if you want just Any-Latin but with a special case for the micro
+    sign (U+00B5):
+
+    var tr = Transliterator.createFromRules("MyAnyLatin", "µ > m;
+    ::Any-Latin;", Transliterator.FORWARD);
+
+
 ================================================================================
 ICU bindings
 ================================================================================
@@ -3582,6 +3678,102 @@ in Unicode 15.1 (and in any recent ICU4C) क्या is one EGC, but it is two
 (क्, या) in untailored Unicode 15.0 (and in ICU4X).
 
 
+https://github.com/unicode-org/icu4x/pull/4334
+is_normalized_up_to and unpaired surrogates
+---
+jlf: interesting discussion about the support of ill-formed strings
+
+
+https://github.com/unicode-org/icu4x/pull/4389
+Line breaking
+---
+jlf: they don't want to support a tailored line breaking, because this requires
+more than one code point of lookahead.
+
+
+https://github.com/unicode-org/icu4x/issues/4342
+Add functions to get ICU4X, CLDR, and Unicode versions
+---
+jlf: strange that they did not consider that earlier...
+
+
+https://github.com/unicode-org/icu4x/issues/2689
+Consider exposing sort keys
+---
+jlf : interesting for the description of the use cases (encryption, xpath)
+I created a section Xpath with their comments.
+
+
+https://github.com/unicode-org/icu4x/issues/3336
+Add support for Unicode BCP 47 locale identifiers
+---
+jlf: what is that?
+it's defined in https://unicode.org/reports/tr35/
+UNICODE LOCALE DATA MARKUP LANGUAGE (LDML)
+Unicode LDML uses stable identifiers based on [BCP47] for distinguishing among
+languages, locales, regions, currencies, time zones, transforms, and so on.
+https://www.rfc-editor.org/rfc/bcp/bcp47.txt
+
+
+https://github.com/unicode-org/icu4x/issues/3247#issuecomment-1856577508
+This month @anba landed Intl.Segmenter in Firefox based on the ICU4X Segmenter impl, reviewed by @dminor
+https://phabricator.services.mozilla.com/D195803
+I had been under the impression that Intl.Segmenter was not implementable without
+support for random access in order to implement the containing() function.
+It looks like @anba's implementation loops from the start of the string and
+repeatedly calls next() until we reach the index. While this strategy gets the
+job done, I'm concerned about the performance of this with large strings where
+we need to reach an index deep into the string. I therefore hope that we can
+continue to prioritize this issue on the basis of 402 compatibility.
+---
+jlf: to watch
+
+
+https://github.com/unicode-org/icu4x/issues/4523
+Linebreak generated before CL (Close Punctuation)
+---
+https://www.unicode.org/reports/tr14/#CL
+UNICODE LINE BREAKING ALGORITHM
+
+
+https://github.com/typst/typst/issues/3082
+Chinese punctuation is placed at the beginning of the line in some cases
+---
+jlf: Linebreak referenced from icu4x/issues/4523
+The example is wrong, a better example is provided in icu4x/issues/4523.
+
+
+https://github.com/unicode-org/icu4x/pull/4389
+Fix Unicode 15.0 line breaking
+jlf: Linebreak
+
+
+https://github.com/unicode-org/icu4x/issues/4146
+icu_segmenter::LineSegmenter incorrectly applies rule LB8a
+---
+jlf: Linebreak, for the examples of line breaks.
+
+
+https://github.com/unicode-org/icu4x/discussions/4525#discussioncomment-8155602
+Mapping between browser Intl and ICU4X
+jlf: I don't understand what they are talking about, but there are maybe good
+to know informations in this thread. In particular this URL:
+"Sensitivity" in browsers maps to a combination of strength and case level.
+https://searchfox.org/mozilla-central/rev/1aa61dcd48e128a8cbfbe59b7ba43d31bd3c248a/intl/components/src/Collator.cpp#171-185
+
+
+https://github.com/unicode-org/icu4x/issues/3284#issuecomment-1911226051
+Should the Segmenter types accept a locale?
+---
+Steven Loomis:
+Please put it into the API.
+I was doing planning on a work item to move this forward.
+This is for example languages that want to keep "ch" together etc.
+---
+jlf: so it appears from the discussion that ICU4C implements specific rules that
+are not part of UAX #29.
+
+
 ================================================================================
 utf8proc title
 ================================================================================
@@ -3671,6 +3863,13 @@ Make console windows fully UTF-8 by default on Windows, in line with the behavio
 mklement0 opened this issue on Jul 5, 2018
 ---
 jlf still opened on 2023.08.08
+
+
+https://github.com/contour-terminal/terminal-unicode-core
+Unicode Core specification for Terminal (grapheme clusters, character widths, ...)
+jlf: only a poor tex file... dead? no commit since 2 years.
+https://news.ycombinator.com/item?id=37804829
+ZERO comment in HN
 
 
 ================================================================================
@@ -4324,7 +4523,7 @@ https://github.com/lemire/unicode_lipsum
 
 
 ================================================================================
-bold, italic, strikethrough, underline, backwards, upside down
+font bold, italic, strikethrough, underline, backwards, upside down
 ================================================================================
 
 I remember I saw an open-sourced implementation, but forgot to note it.
@@ -4342,6 +4541,15 @@ https://texteditor.com/
 
 https://gwern.net/utext
 https://news.ycombinator.com/item?id=38016735
+Utext: Rich Unicode Documents (gwern.net)
+An esoteric document proposal: abuse Unicode to create the fanciest possible ‘plain text’ documents.
+
+
+https://fonts.google.com/noto
+
+
+https://unicode.org/mail-arch/unicode-ml/y2019-m01/0121.html
+Encoding italic (was: A last missing link)
 
 
 ================================================================================
@@ -4647,6 +4855,50 @@ code-points, so it could share those bits with properties that are only allowed
 for non-composing code-points.
 
 
+https://news.ycombinator.com/item?id=38424689
+Bjarne Stroustrup Quotes (stroustrup.com)
+---
+Interesting discussion about strings (not limited to C++): search for "string".
+
+
+https://www.sandordargo.com/blog/2023/11/29/cpp23-unicode-support
+C++23: Growing unicode support
+---
+The standardization committee has accepted (at least) four papers which clearly
+show a growing Unicode support in C++23.
+- C++ Identifier Syntax using Unicode Standard Annex 31
+- Remove non-encodable wide character literals and multicharacter wide character literals
+- Delimited escape sequences
+- Named universal character escapes
+        U'\N{LATIN CAPITAL LETTER A WITH MACRON}' // Equivalent to U'\u0100'
+        u8"\N{LATIN CAPITAL LETTER A WITH MACRON}\N{COMBINING GRAVE ACCENT}" // Equivalent to u8"\u0100\u0300"
+    One of the concerns was the sheer size of the Unicode name database that
+    contains the codes (e.g. U+0100) and the names (e.g. {LATIN CAPITAL LETTER A
+    WITH MACRON}). It’s around 1.5 MiB which can significantly impact the size
+    of compiler distributions. The authors proved that a non-naive
+    implementation can be around 300 KiB or even less.
+
+    jlf: next point sounds discutable, no?
+    Another open question was how to accept the Unicode-assigned names.
+    Is {latin capital letter a with macron} just as good as
+    {LATIN CAPITAL LETTER A WITH MACRON}?
+    Or what about {LATIN_CAPITAL_LETTER_A_WITH_MACRON}?
+    While the Unicode consortium standardized an algorithm called UAX44-LM2 for
+    that purpose and it’s quite permissive, language implementors barely follow
+    it. C++ is going to require an exact match with the database therefore the
+    answer to the previous question is no, {latin capital letter a with macron}
+    is not the same as {LATIN CAPITAL LETTER A WITH MACRON}. On the other hand,
+    if there will be a strong need, the requirements can be relaxed in a later
+    version.
+
+
+https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2071r2.html
+Named universal character escapes
+---
+jlf: they don't want to support UAX44-LM2
+jlf: todo, read the section "Design considerations"
+
+
 ================================================================================
 cRexx lang
 ================================================================================
@@ -4919,6 +5171,22 @@ UTF-8/16 encoder/decoder
 
 https://re.factorcode.org/2023/05/unicode.html
 jlf: very basic, but may be useful to write little tests
+
+
+https://re.factorcode.org/2023/05/case-conversion.html
+snake_case
+camelCase
+kebab-case
+PascalCase
+Ada_Case
+Train-Case
+COBOL-CASE
+MACRO_CASE
+UPPER CASE
+lower case
+Title Case
+Sentence case
+dot.case
 
 
 ================================================================================
@@ -5662,6 +5930,10 @@ It is used by PDFKit (https://github.com/foliojs/pdfkit) for line wrapping text
 in PDF documents.
 
 
+https://github.com/codebox/homoglyph
+A big list of homoglyphs and some code to detect them
+
+
 ================================================================================
 Julia lang
 ================================================================================
@@ -5862,6 +6134,62 @@ jlf: "NFKC_CF" seems the name to search to get useful infos about utf8proc_NFKC_
     https://www.lanqiao.cn/library/elasticsearch-definitive-guide-cn/220_Token_normalization/40_Case_folding
         Case folding is the act of converting words into a (usually lowercase) form that does not necessarily result in the correct spelling, but does allow case-insensitive comparisons.
         jlf: they say "The default normalization form that the icu_normalizer token filter uses is nfkc_cf"
+
+
+https://github.com/JuliaLang/julia/issues/52408
+isequal_normalized("בְּ", Unicode.normalize("בְּ")) == false
+---
+jlf: see the comments and new code
+---
+This strings is really not well supported by bbedit!
+"בְּ"~text~unicodeCharacters==
+    an Array (shape [3], 3 items)
+     1 : ( "ב"   U+05D1 Lo 1 "HEBREW LETTER BET" )
+     2 : ( "ּ"    U+05BC Mn 0 "HEBREW POINT DAGESH OR MAPIQ" )
+     3 : ( "ְ"    U+05B0 Mn 0 "HEBREW POINT SHEVA" )
+"בְּ"~text~c2x=     -- D791 D6BC D6B0
+"בְּ"~text~nfc~c2x=     -- D791 D6B0 D6BC
+
+
+https://github.com/JuliaStrings/utf8proc/issues/257
+normalization does not commute with case-folding?
+    julia> using Unicode: normalize
+    julia> s = "J\uf72\uec8\u345\u315\u5bf\u5bb\U1d16d\u5b0\u334\u35c"
+    "J"
+    julia> normalize(s, casefold=true) == normalize(normalize(s), casefold=true)
+    false
+    julia> normalize(normalize(s, casefold=true)) == normalize(normalize(s), casefold=true)
+    false
+Not sure if this is a bug or just a weird behavior of Unicode.
+---
+I get something similar in Python 3:
+    >>> import unicodedata
+    >>> s = "J\u0f72\u0ec8\u0345\u0315\u05bf\u05bb\U0001d16d\u05b0\u0334\u035c"
+    >>> unicodedata.normalize("NFC", s.casefold()) == unicodedata.normalize("NFC", s).casefold()
+    False
+    >>> unicodedata.normalize("NFC", s.casefold()) == unicodedata.normalize("NFC", unicodedata.normalize("NFC", s).casefold())
+    False
+So I guess this is a weird quirk of Unicode?
+---
+Executor idem:
+    s = "J\u0f72\u0ec8\u0345\u0315\u05bf\u05bb\U0001d16d\u05b0\u0334\u035c"~text~unescape
+
+    s~nfc(casefold:.true) == s~nfc~nfc(casefold:.true)=         -- 0
+    s~nfc(casefold:.true)~c2x=                                  -- 6A E0BB88 E0BDB2 CEB9 CCB4 D6B0 D6BB D6BF F09D85AD CC95 CD9C
+    s~nfc~nfc(casefold:.true)~c2x=                              -- 6A CCB4 D6B0 D6BB D6BF E0BB88 E0BDB2 F09D85AD CC95 CD9C CEB9
+
+    s~nfc(casefold:.true)~nfc == s~nfc~nfc(casefold:.true)=     -- 0
+    s~nfc(casefold:.true)~nfc~c2x=                              -- 6A E0BB88 E0BDB2 CEB9 CCB4 D6B0 D6BB D6BF F09D85AD CC95 CD9C
+    s~nfc~nfc(casefold:.true)~c2x=                              -- 6A CCB4 D6B0 D6BB D6BF E0BB88 E0BDB2 F09D85AD CC95 CD9C CEB9
+
+
+https://github.com/JuliaStrings/utf8proc/issues/101#issuecomment-1876151702
+jlf: maybe this example of Julia code could be useful for Executor?
+function _isequal_normalized!
+> I agree that a fast case-folded/normalized comparison function that requires
+> no buffers seems possible to write and could be useful, even for Julia;
+Note that such a function was implemented in Julia, and could be ported to C:
+https://github.com/JuliaLang/julia/blob/0f6c72c71bc947282ae18715c09f93a22828aab7/stdlib/Unicode/src/Unicode.jl#L268-L340
 
 
 ================================================================================
@@ -6388,6 +6716,10 @@ Extensive, portable and performant handling of UTF-8 and grapheme clusters for P
 Dead? last commit was on May 18, 2016
 
 
+https://blog.internet-formation.fr/2022/08/nettoyer-et-remplacer-les-homographes-et-homoglyphes-dun-texte-en-php/
+Nettoyer et remplacer les homographes (et homoglyphes) d’un texte en PHP
+
+
 ================================================================================
 Python lang
 ================================================================================
@@ -6844,6 +7176,19 @@ jlf: HN comments about this old blog
 https://vstinner.github.io/python30-listdir-undecodable-filenames.html
 
 
+https://github.com/python/cpython/blob/main/Include/cpython/unicodeobject.h
+(search "Unicode Type")
+CPython source code of Unicode string
+This URL comes from
+https://blog.vito.nyc/posts/gil-balm/
+Fast string construction for CPython extensions
+
+
+https://python.developpez.com/tutoriels/plonger-au-coeur-de-python/?page=chapitre-4-moins-strings
+jlf: todo read (french)
+Translation from english, could not find the original article.
+
+
 ================================================================================
 R lang
 ================================================================================
@@ -7183,6 +7528,25 @@ https://stackoverflow.com/questions/39663846/how-can-i-make-perl-6-be-round-trip
 How can I make Perl 6 be round-trip safe for Unicode data?
 Answer: UTF8-C8 isn't really a good solution (but is probably the only solution currently).
 jlf: asked in 2016-09-23, maybe the situation is better today.
+
+
+https://rosettacode.org/wiki/String_comparison#Raku
+String comparisons never do case folding because that's a very complicated subject
+in the modern world of Unicode. (You can explicitly apply an appropriate case-folding
+function to the arguments before doing the comparison, or for "equality" testing you
+can do matching with a case-insensitive regex, assuming Unicode's language-neutral
+case-folding rules are okay.)
+---
+Be aware that Raku applies normalization (Unicode NFC form (Normalization Form Canonical))
+by default to all input and output except for file names See docs. Raku follows the Unicode spec.
+Raku follows all of the Unicode spec, including parts that some people don't like.
+There are some graphemes for which the Unicode consortium has specified that the
+NFC form is a different (though usually visually identical) grapheme. Referred to
+in Unicode standard annex #15 as Canonical Equivalence. Raku adheres to that spec.
+
+
+https://docs.raku.org/language/traps#Traps_to_avoid
+Some problems that might arise when dealing with strings
 
 
 ================================================================================

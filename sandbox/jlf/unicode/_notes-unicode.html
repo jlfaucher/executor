@@ -24,13 +24,12 @@ Contents:
     <a href="#BIDI">BIDI</a>
     <a href="#Emoji">Emoji</a>
     <a href="#Countries__flags">Countries, flags</a>
-    <a href="#Text_shaping_library">Text shaping library</a>
-    <a href="#IME___Input_Method_Editor">IME - Input Method Editor</a>
     <a href="#Evidence_of_partial_or_wrong_support_of_Unicode">Evidence of partial or wrong support of Unicode</a>
     <a href="#Optimization__SIMD">Optimization, SIMD</a>
     <a href="#Variation_sequence">Variation sequence</a>
     <a href="#Whitespaces__separators">Whitespaces, separators</a>
     <a href="#Hyphenation">Hyphenation</a>
+    <a href="#DNS_title__Domain_Name_title__Domain_Name_System_title">DNS title, Domain Name title, Domain Name System title</a>
     <a href="#All_languages">All languages</a>
     <a href="#Classical_languages">Classical languages</a>
     <a href="#Indic_languages">Indic languages</a>
@@ -38,7 +37,9 @@ Contents:
     <a href="#Korean">Korean</a>
     <a href="#Japanese">Japanese</a>
     <a href="#Polish">Polish</a>
-    <a href="#Text_rendering">Text rendering</a>
+    <a href="#IME___Input_Method_Editor">IME - Input Method Editor</a>
+    <a href="#Text_editing">Text editing</a>
+    <a href="#Text_rendering__Text_shaping_library">Text rendering, Text shaping library</a>
     <a href="#String_Matching">String Matching</a>
     <a href="#Fuzzy_String_Matching">Fuzzy String Matching</a>
     <a href="#Levenshtein_distance_and_string_similarity">Levenshtein distance and string similarity</a>
@@ -69,7 +70,7 @@ Contents:
     <a href="#Language_comparison">Language comparison</a>
     <a href="#Regular_expressions">Regular expressions</a>
     <a href="#Test_cases__test_cases__tests_files">Test cases, test-cases, tests files</a>
-    <a href="#bold__italic__strikethrough__underline__backwards__upside_down">bold, italic, strikethrough, underline, backwards, upside down</a>
+    <a href="#font_bold__italic__strikethrough__underline__backwards__upside_down">font bold, italic, strikethrough, underline, backwards, upside down</a>
     <a href="#youtube">youtube</a>
     <a href="#xxx_lang">xxx lang</a>
     <a href="#Ada_lang">Ada lang</a>
@@ -530,6 +531,8 @@ Unicode, UTF8 &amp; Character Sets: The Ultimate Guide
 jlf: maybe to read
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://tonsky.me/blog/unicode/">https://tonsky.me/blog/unicode/</a>
+The Absolute Minimum Every Software Developer Must Know About Unicode in 2023 (Still No Excuses!)
 <a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=37735801">https://news.ycombinator.com/item?id=37735801</a>
 What every software developer must know about Unicode in 2023
 jlf: nothing new in this article, just reusing infos from other sites.
@@ -566,6 +569,9 @@ Unicode Escape Sequences Across Various Languages and Platforms
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr39">https://www.unicode.org/reports/tr39</a>
 UNICODE SECURITY MECHANISMS
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/Public/security/latest/confusables.txt">https://www.unicode.org/Public/security/latest/confusables.txt</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Homoglyph">https://en.wikipedia.org/wiki/Homoglyph</a>
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.trojansource.codes/">https://www.trojansource.codes/</a>
@@ -634,6 +640,10 @@ until publication see the proposed update,
 The new UTS #55, Unicode Source Code Handling, to be published simultaneously
 with Unicode Version 15.1, recommends the use of this new kind of confusability:
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr55/tr55-2.html#Confusable-Detection.">https://www.unicode.org/reports/tr55/tr55-2.html#Confusable-Detection.</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://semanticdiff.com/blog/pull-request-unicode-tricks/">https://semanticdiff.com/blog/pull-request-unicode-tricks/</a>
+Unicode tricks in pull requests: Do review tools warn us?
 
 
 <hr><h2 id="Segmentation__Grapheme">Segmentation, Grapheme</h2><hr>
@@ -835,6 +845,8 @@ Text normalization in Go
 27/11/2013
 The string type is broken
 <a target="_blank" rel="noopener noreferrer" href="https://mortoray.com/2013/11/27/the-string-type-is-broken/">https://mortoray.com/2013/11/27/the-string-type-is-broken/</a>
+<a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=6807524">https://news.ycombinator.com/item?id=6807524</a>
+<a target="_blank" rel="noopener noreferrer" href="https://www.reddit.com/r/programming/comments/1rkdip/the_string_type_is_broken/">https://www.reddit.com/r/programming/comments/1rkdip/the_string_type_is_broken/</a>
 In the comments
 Objective-C’s NSString type does correctly upper-case baﬄe into BAFFLE.
 (where the rectangle is a grapheme showing 2 small 'f')
@@ -1472,30 +1484,6 @@ ISO 3166-1 (Codes for the representation of names of countries and their subdivi
 <a target="_blank" rel="noopener noreferrer" href="https://observablehq.com/@jobleonard/which-unicode-flags-are-reversible">https://observablehq.com/@jobleonard/which-unicode-flags-are-reversible</a>
 
 
-<hr><h2 id="Text_shaping_library">Text shaping library</h2><hr>
-<a target="_blank" rel="noopener noreferrer" href="https://harfbuzz.github.io/">https://harfbuzz.github.io/</a>
-<a target="_blank" rel="noopener noreferrer" href="https://github.com/harfbuzz/harfbuzz">https://github.com/harfbuzz/harfbuzz</a>
-jlf: referenced by ICU
-Users of ICU Layout are strongly encouraged to consider the HarfBuzz project as
-a replacement for the ICU Layout Engine.
-
-
-Uniscribe if you are writing Windows software
-
-
-CoreText on macOS
-
-
-<hr><h2 id="IME___Input_Method_Editor">IME - Input Method Editor</h2><hr>
-<a target="_blank" rel="noopener noreferrer" href="https://hsivonen.fi/ime/">https://hsivonen.fi/ime/</a>
-An IME is a piece of software that transforms user-generated input events
-(mostly keyboard events, but some IMEs allow some auxiliary pointing device interaction)
-into text in a manner more complex than a mere keyboard layout.
-Basically, if the relationship between the keys that a user presses on a hardware keyboard
-and the text that ends up in an applications text buffer is more complex than when writing French,
-an IME is in use.
-
-
 <hr><h2 id="Evidence_of_partial_or_wrong_support_of_Unicode">Evidence of partial or wrong support of Unicode</h2><hr>
 13/08/2013
 We don’t need a string type
@@ -1601,11 +1589,20 @@ Computing the UTF-8 size of a Latin 1 string quickly (AVX edition)
 
 
 <hr><h2 id="Variation_sequence">Variation sequence</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/Public/UCD/latest/ucd/emoji/emoji-variation-sequences.txt">https://www.unicode.org/Public/UCD/latest/ucd/emoji/emoji-variation-sequences.txt</a>
+<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/Public/15.1.0/ucd/emoji/emoji-variation-sequences.txt">https://www.unicode.org/Public/15.1.0/ucd/emoji/emoji-variation-sequences.txt</a>
+# emoji-variation-sequences.txt
+
+
 22/05/2021
 List of all code points that can display differently via a variation sequence
 <a target="_blank" rel="noopener noreferrer" href="http://randomguy32.de/unicode/charts/standardized-variants/#emoji">http://randomguy32.de/unicode/charts/standardized-variants/#emoji</a>
 Safari is better to display the characters.
 Google Chrome and Opera have the same limitations: some characters are not supported (ex: section Phags-Pa).
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://sethmlarson.dev/unicode-variation-selectors">https://sethmlarson.dev/unicode-variation-selectors</a>
+Mahjong tiles and Unicode variation selectors
 
 
 <hr><h2 id="Whitespaces__separators">Whitespaces, separators</h2><hr>
@@ -1645,6 +1642,44 @@ break words into syllables
     [2] <a target="_blank" rel="noopener noreferrer" href="https://github.com/heiglandreas/Org_Heigl_Hyphenator">https://github.com/heiglandreas/Org_Heigl_Hyphenator</a>
     [3] <a target="_blank" rel="noopener noreferrer" href="https://github.com/search?q=hyphenate&type=repositories">https://github.com/search?q=hyphenate&type=repositories</a>
     <a target="_blank" rel="noopener noreferrer" href="https://tug.org/docs/liang/liang-thesis.pdf">https://tug.org/docs/liang/liang-thesis.pdf</a>
+
+
+<hr><h2 id="DNS_title__Domain_Name_title__Domain_Name_System_title">DNS title, Domain Name title, Domain Name System title</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="http://lambda-the-ultimate.org/node/5674#comment-97016">http://lambda-the-ultimate.org/node/5674#comment-97016</a>
+jlf: I created this section because of this comment
+Have you ever looked at how international encoding of DNS names are done in URLs? It uses Punycode, and it's a disaster.
+Here's a good starting point to read up on this: <a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Internationalized_domain_name">https://en.wikipedia.org/wiki/Internationalized_domain_name</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Internationalized_domain_name">https://en.wikipedia.org/wiki/Internationalized_domain_name</a>
+Internationalized domain name
+    ToASCII leaves ASCII labels unchanged. It fails if the label is unsuitable for
+    the Domain Name System. For labels containing at least one non-ASCII character,
+    ToASCII applies the Nameprep algorithm (<a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Nameprep)">https://en.wikipedia.org/wiki/Nameprep)</a>
+    This converts the label to lowercase and performs other normalization. ToASCII
+    then translates the result to ASCII, using Punycode (<a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Punycode)">https://en.wikipedia.org/wiki/Punycode)</a>
+    Finally, it prepends the four-character string "xn--". This four-character string
+    is called the ASCII Compatible Encoding (ACE) prefix. It is used to distinguish
+    labels encoded in Punycode from ordinary ASCII labels. The ToASCII algorithm can
+    fail in several ways. For example, the final string could exceed the 63-character
+    limit of a DNS label. A label for which ToASCII fails cannot be used in an
+    internationalized domain name.
+
+    The function ToUnicode reverses the action of ToASCII, stripping off the ACE prefix
+    and applying the Punycode decode algorithm. It does not reverse the Nameprep processing,
+    since that is merely a normalization and is by nature irreversible. Unlike ToASCII,
+    ToUnicode always succeeds, because it simply returns the original string if decoding fails.
+    In particular, this means that ToUnicode has no effect on a string that does not
+    begin with the ACE prefix.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Punycode">https://en.wikipedia.org/wiki/Punycode</a>
+Punycode is a representation of Unicode with the limited ASCII character subset
+used for Internet hostnames. Using Punycode, host names containing Unicode characters
+are transcoded to a subset of ASCII consisting of letters, digits, and hyphens,
+which is called the letter–digit–hyphen (LDH) subset. For example, München
+(German name for Munich) is encoded as Mnchen-3ya.
+
 
 <hr><h2 id="All_languages">All languages</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://www.omniglot.com/index.htm">https://www.omniglot.com/index.htm</a>
@@ -1978,13 +2013,41 @@ The Korean Writing System
 Polish diacritics how to?
 
 
-<hr><h2 id="Text_rendering">Text rendering</h2><hr>
+<hr><h2 id="IME___Input_Method_Editor">IME - Input Method Editor</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://hsivonen.fi/ime/">https://hsivonen.fi/ime/</a>
+An IME is a piece of software that transforms user-generated input events
+(mostly keyboard events, but some IMEs allow some auxiliary pointing device interaction)
+into text in a manner more complex than a mere keyboard layout.
+Basically, if the relationship between the keys that a user presses on a hardware keyboard
+and the text that ends up in an applications text buffer is more complex than when writing French,
+an IME is in use.
+
+
+<hr><h2 id="Text_editing">Text editing</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://lord.io/text-editing-hates-you-too/">https://lord.io/text-editing-hates-you-too/</a>
+TEXT EDITING HATES YOU TOO
+
+
+<hr><h2 id="Text_rendering__Text_shaping_library">Text rendering, Text shaping library</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://faultlore.com/blah/text-hates-you/">https://faultlore.com/blah/text-hates-you/</a>
 Text Rendering Hates You
 Aria Beingessner
 September 28th, 2019
 jlf: culture générale
 todo: read
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://harfbuzz.github.io/">https://harfbuzz.github.io/</a>
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/harfbuzz/harfbuzz">https://github.com/harfbuzz/harfbuzz</a>
+jlf: referenced by ICU
+Users of ICU Layout are strongly encouraged to consider the HarfBuzz project as
+a replacement for the ICU Layout Engine.
+
+
+Uniscribe if you are writing Windows software
+
+
+CoreText on macOS
 
 
 <hr><h2 id="String_Matching">String Matching</h2><hr>
@@ -2858,6 +2921,37 @@ Collation Folding
     folding string can also be faster than that used to create the sort key.
 
 
+Transliterate "micro sign" to "u" using Transliterator from icu4j
+jlf: next is an answer on icu-support@lists.sourceforge.net
+<a target="_blank" rel="noopener noreferrer" href="https://sourceforge.net/p/icu/mailman/message/58712806/">https://sourceforge.net/p/icu/mailman/message/58712806/</a>
+    On Wed, Dec 13, 2023 at 7:52 PM &lt;go.al.ni@gmail.com&gt; wrote:
+    &gt; Micro sign transliterated to "m" in one case, but not in another.
+
+    While I don't know enough about the Any-Latin transliteration rules to
+    be able to tell you why this happens, the thing that happens is that
+    when you have any preceding Greek letter the transliterator will
+    afterwards treat also the micro sign (U+00B5) as a Greek letter, while
+    it otherwise will leave it as-is, as any other symbol.
+
+    If you want to transliterate only Greek letters you could explicitly
+    create a Greek transliterator, which then will always treat also the
+    micro sign (U+00B5) as a Greek letter:
+
+    var tr = Transliterator.getInstance("Greek-Latin");
+
+    Or, if you want to first treat any symbols that are also Greek letters
+    explicitly as Greek letters and then perform the Any-Latin
+    transliteration:
+
+    var tr = Transliterator.getInstance("Greek-Latin; Any-Latin;");
+
+    Or, if you want just Any-Latin but with a special case for the micro
+    sign (U+00B5):
+
+    var tr = Transliterator.createFromRules("MyAnyLatin", "µ &gt; m;
+    ::Any-Latin;", Transliterator.FORWARD);
+
+
 <hr><h2 id="ICU_bindings">ICU bindings</h2><hr>
 02/06/2021
 <a target="_blank" rel="noopener noreferrer" href="https://gitlab.pyicu.org/main/pyicu">https://gitlab.pyicu.org/main/pyicu</a>
@@ -3543,6 +3637,102 @@ in Unicode 15.1 (and in any recent ICU4C) क्या is one EGC, but it is two
 (क्, या) in untailored Unicode 15.0 (and in ICU4X).
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/pull/4334">https://github.com/unicode-org/icu4x/pull/4334</a>
+is_normalized_up_to and unpaired surrogates
+---
+jlf: interesting discussion about the support of ill-formed strings
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/pull/4389">https://github.com/unicode-org/icu4x/pull/4389</a>
+Line breaking
+---
+jlf: they don't want to support a tailored line breaking, because this requires
+more than one code point of lookahead.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/4342">https://github.com/unicode-org/icu4x/issues/4342</a>
+Add functions to get ICU4X, CLDR, and Unicode versions
+---
+jlf: strange that they did not consider that earlier...
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/2689">https://github.com/unicode-org/icu4x/issues/2689</a>
+Consider exposing sort keys
+---
+jlf : interesting for the description of the use cases (encryption, xpath)
+I created a section Xpath with their comments.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/3336">https://github.com/unicode-org/icu4x/issues/3336</a>
+Add support for Unicode BCP 47 locale identifiers
+---
+jlf: what is that?
+it's defined in <a target="_blank" rel="noopener noreferrer" href="https://unicode.org/reports/tr35/">https://unicode.org/reports/tr35/</a>
+UNICODE LOCALE DATA MARKUP LANGUAGE (LDML)
+Unicode LDML uses stable identifiers based on [BCP47] for distinguishing among
+languages, locales, regions, currencies, time zones, transforms, and so on.
+<a target="_blank" rel="noopener noreferrer" href="https://www.rfc-editor.org/rfc/bcp/bcp47.txt">https://www.rfc-editor.org/rfc/bcp/bcp47.txt</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/3247#issuecomment-1856577508">https://github.com/unicode-org/icu4x/issues/3247#issuecomment-1856577508</a>
+This month @anba landed Intl.Segmenter in Firefox based on the ICU4X Segmenter impl, reviewed by @dminor
+<a target="_blank" rel="noopener noreferrer" href="https://phabricator.services.mozilla.com/D195803">https://phabricator.services.mozilla.com/D195803</a>
+I had been under the impression that Intl.Segmenter was not implementable without
+support for random access in order to implement the containing() function.
+It looks like @anba's implementation loops from the start of the string and
+repeatedly calls next() until we reach the index. While this strategy gets the
+job done, I'm concerned about the performance of this with large strings where
+we need to reach an index deep into the string. I therefore hope that we can
+continue to prioritize this issue on the basis of 402 compatibility.
+---
+jlf: to watch
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/4523">https://github.com/unicode-org/icu4x/issues/4523</a>
+Linebreak generated before CL (Close Punctuation)
+---
+<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr14/#CL">https://www.unicode.org/reports/tr14/#CL</a>
+UNICODE LINE BREAKING ALGORITHM
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/typst/typst/issues/3082">https://github.com/typst/typst/issues/3082</a>
+Chinese punctuation is placed at the beginning of the line in some cases
+---
+jlf: Linebreak referenced from icu4x/issues/4523
+The example is wrong, a better example is provided in icu4x/issues/4523.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/pull/4389">https://github.com/unicode-org/icu4x/pull/4389</a>
+Fix Unicode 15.0 line breaking
+jlf: Linebreak
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/4146">https://github.com/unicode-org/icu4x/issues/4146</a>
+icu_segmenter::LineSegmenter incorrectly applies rule LB8a
+---
+jlf: Linebreak, for the examples of line breaks.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/discussions/4525#discussioncomment-8155602">https://github.com/unicode-org/icu4x/discussions/4525#discussioncomment-8155602</a>
+Mapping between browser Intl and ICU4X
+jlf: I don't understand what they are talking about, but there are maybe good
+to know informations in this thread. In particular this URL:
+"Sensitivity" in browsers maps to a combination of strength and case level.
+<a target="_blank" rel="noopener noreferrer" href="https://searchfox.org/mozilla-central/rev/1aa61dcd48e128a8cbfbe59b7ba43d31bd3c248a/intl/components/src/Collator.cpp#171-185">https://searchfox.org/mozilla-central/rev/1aa61dcd48e128a8cbfbe59b7ba43d31bd3c248a/intl/components/src/Collator.cpp#171-185</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/3284#issuecomment-1911226051">https://github.com/unicode-org/icu4x/issues/3284#issuecomment-1911226051</a>
+Should the Segmenter types accept a locale?
+---
+Steven Loomis:
+Please put it into the API.
+I was doing planning on a work item to move this forward.
+This is for example languages that want to keep "ch" together etc.
+---
+jlf: so it appears from the discussion that ICU4C implements specific rules that
+are not part of UAX #29.
+
+
 <hr><h2 id="utf8proc_title">utf8proc title</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://codeberg.org/dnkl/foot/pulls/100">https://codeberg.org/dnkl/foot/pulls/100</a>
 Grapheme shaping using libutf8proc #100
@@ -3623,6 +3813,13 @@ Make console windows fully UTF-8 by default on Windows, in line with the behavio
 mklement0 opened this issue on Jul 5, 2018
 ---
 jlf still opened on 2023.08.08
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/contour-terminal/terminal-unicode-core">https://github.com/contour-terminal/terminal-unicode-core</a>
+Unicode Core specification for Terminal (grapheme clusters, character widths, ...)
+jlf: only a poor tex file... dead? no commit since 2 years.
+<a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=37804829">https://news.ycombinator.com/item?id=37804829</a>
+ZERO comment in HN
 
 
 <hr><h2 id="QT_Title">QT Title</h2><hr>
@@ -4248,7 +4445,7 @@ C/POSIX Migration
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/lemire/unicode_lipsum">https://github.com/lemire/unicode_lipsum</a>
 
 
-<hr><h2 id="bold__italic__strikethrough__underline__backwards__upside_down">bold, italic, strikethrough, underline, backwards, upside down</h2><hr>
+<hr><h2 id="font_bold__italic__strikethrough__underline__backwards__upside_down">font bold, italic, strikethrough, underline, backwards, upside down</h2><hr>
 I remember I saw an open-sourced implementation, but forgot to note it.
 The URLs below are not providing a link to an open-sourced implementation, to
 remove sooner or later.
@@ -4264,6 +4461,15 @@ remove sooner or later.
 
 <a target="_blank" rel="noopener noreferrer" href="https://gwern.net/utext">https://gwern.net/utext</a>
 <a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=38016735">https://news.ycombinator.com/item?id=38016735</a>
+Utext: Rich Unicode Documents (gwern.net)
+An esoteric document proposal: abuse Unicode to create the fanciest possible ‘plain text’ documents.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://fonts.google.com/noto">https://fonts.google.com/noto</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://unicode.org/mail-arch/unicode-ml/y2019-m01/0121.html">https://unicode.org/mail-arch/unicode-ml/y2019-m01/0121.html</a>
+Encoding italic (was: A last missing link)
 
 
 <hr><h2 id="youtube">youtube</h2><hr>
@@ -4554,6 +4760,50 @@ code-points, so it could share those bits with properties that are only allowed
 for non-composing code-points.
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=38424689">https://news.ycombinator.com/item?id=38424689</a>
+Bjarne Stroustrup Quotes (stroustrup.com)
+---
+Interesting discussion about strings (not limited to C++): search for "string".
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.sandordargo.com/blog/2023/11/29/cpp23-unicode-support">https://www.sandordargo.com/blog/2023/11/29/cpp23-unicode-support</a>
+C++23: Growing unicode support
+---
+The standardization committee has accepted (at least) four papers which clearly
+show a growing Unicode support in C++23.
+- C++ Identifier Syntax using Unicode Standard Annex 31
+- Remove non-encodable wide character literals and multicharacter wide character literals
+- Delimited escape sequences
+- Named universal character escapes
+        U'\N{LATIN CAPITAL LETTER A WITH MACRON}' // Equivalent to U'\u0100'
+        u8"\N{LATIN CAPITAL LETTER A WITH MACRON}\N{COMBINING GRAVE ACCENT}" // Equivalent to u8"\u0100\u0300"
+    One of the concerns was the sheer size of the Unicode name database that
+    contains the codes (e.g. U+0100) and the names (e.g. {LATIN CAPITAL LETTER A
+    WITH MACRON}). It’s around 1.5 MiB which can significantly impact the size
+    of compiler distributions. The authors proved that a non-naive
+    implementation can be around 300 KiB or even less.
+
+    jlf: next point sounds discutable, no?
+    Another open question was how to accept the Unicode-assigned names.
+    Is {latin capital letter a with macron} just as good as
+    {LATIN CAPITAL LETTER A WITH MACRON}?
+    Or what about {LATIN_CAPITAL_LETTER_A_WITH_MACRON}?
+    While the Unicode consortium standardized an algorithm called UAX44-LM2 for
+    that purpose and it’s quite permissive, language implementors barely follow
+    it. C++ is going to require an exact match with the database therefore the
+    answer to the previous question is no, {latin capital letter a with macron}
+    is not the same as {LATIN CAPITAL LETTER A WITH MACRON}. On the other hand,
+    if there will be a strong need, the requirements can be relaxed in a later
+    version.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2071r2.html">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2071r2.html</a>
+Named universal character escapes
+---
+jlf: they don't want to support UAX44-LM2
+jlf: todo, read the section "Design considerations"
+
+
 <hr><h2 id="cRexx_lang">cRexx lang</h2><hr>
 cRexx uses this library:
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/sheredom/utf8.h">https://github.com/sheredom/utf8.h</a>
@@ -4808,6 +5058,22 @@ UTF-8/16 encoder/decoder
 
 <a target="_blank" rel="noopener noreferrer" href="https://re.factorcode.org/2023/05/unicode.html">https://re.factorcode.org/2023/05/unicode.html</a>
 jlf: very basic, but may be useful to write little tests
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://re.factorcode.org/2023/05/case-conversion.html">https://re.factorcode.org/2023/05/case-conversion.html</a>
+snake_case
+camelCase
+kebab-case
+PascalCase
+Ada_Case
+Train-Case
+COBOL-CASE
+MACRO_CASE
+UPPER CASE
+lower case
+Title Case
+Sentence case
+dot.case
 
 
 <hr><h2 id="Fortran_lang">Fortran lang</h2><hr>
@@ -5536,6 +5802,10 @@ It is used by PDFKit (<a target="_blank" rel="noopener noreferrer" href="https:/
 in PDF documents.
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/codebox/homoglyph">https://github.com/codebox/homoglyph</a>
+A big list of homoglyphs and some code to detect them
+
+
 <hr><h2 id="Julia_lang">Julia lang</h2><hr>
 Remember: search in issues with "utf8proc in:title,body"
 
@@ -5733,6 +6003,62 @@ jlf: "NFKC_CF" seems the name to search to get useful infos about utf8proc_NFKC_
     <a target="_blank" rel="noopener noreferrer" href="https://www.lanqiao.cn/library/elasticsearch-definitive-guide-cn/220_Token_normalization/40_Case_folding">https://www.lanqiao.cn/library/elasticsearch-definitive-guide-cn/220_Token_normalization/40_Case_folding</a>
         Case folding is the act of converting words into a (usually lowercase) form that does not necessarily result in the correct spelling, but does allow case-insensitive comparisons.
         jlf: they say "The default normalization form that the icu_normalizer token filter uses is nfkc_cf"
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/JuliaLang/julia/issues/52408">https://github.com/JuliaLang/julia/issues/52408</a>
+isequal_normalized("בְּ", Unicode.normalize("בְּ")) == false
+---
+jlf: see the comments and new code
+---
+This strings is really not well supported by bbedit!
+"בְּ"~text~unicodeCharacters==
+    an Array (shape [3], 3 items)
+     1 : ( "ב"   U+05D1 Lo 1 "HEBREW LETTER BET" )
+     2 : ( "ּ"    U+05BC Mn 0 "HEBREW POINT DAGESH OR MAPIQ" )
+     3 : ( "ְ"    U+05B0 Mn 0 "HEBREW POINT SHEVA" )
+"בְּ"~text~c2x=     -- D791 D6BC D6B0
+"בְּ"~text~nfc~c2x=     -- D791 D6B0 D6BC
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/JuliaStrings/utf8proc/issues/257">https://github.com/JuliaStrings/utf8proc/issues/257</a>
+normalization does not commute with case-folding?
+    julia&gt; using Unicode: normalize
+    julia&gt; s = "J\uf72\uec8\u345\u315\u5bf\u5bb\U1d16d\u5b0\u334\u35c"
+    "J"
+    julia&gt; normalize(s, casefold=true) == normalize(normalize(s), casefold=true)
+    false
+    julia&gt; normalize(normalize(s, casefold=true)) == normalize(normalize(s), casefold=true)
+    false
+Not sure if this is a bug or just a weird behavior of Unicode.
+---
+I get something similar in Python 3:
+    &gt;&gt;&gt; import unicodedata
+    &gt;&gt;&gt; s = "J\u0f72\u0ec8\u0345\u0315\u05bf\u05bb\U0001d16d\u05b0\u0334\u035c"
+    &gt;&gt;&gt; unicodedata.normalize("NFC", s.casefold()) == unicodedata.normalize("NFC", s).casefold()
+    False
+    &gt;&gt;&gt; unicodedata.normalize("NFC", s.casefold()) == unicodedata.normalize("NFC", unicodedata.normalize("NFC", s).casefold())
+    False
+So I guess this is a weird quirk of Unicode?
+---
+Executor idem:
+    s = "J\u0f72\u0ec8\u0345\u0315\u05bf\u05bb\U0001d16d\u05b0\u0334\u035c"~text~unescape
+
+    s~nfc(casefold:.true) == s~nfc~nfc(casefold:.true)=         -- 0
+    s~nfc(casefold:.true)~c2x=                                  -- 6A E0BB88 E0BDB2 CEB9 CCB4 D6B0 D6BB D6BF F09D85AD CC95 CD9C
+    s~nfc~nfc(casefold:.true)~c2x=                              -- 6A CCB4 D6B0 D6BB D6BF E0BB88 E0BDB2 F09D85AD CC95 CD9C CEB9
+
+    s~nfc(casefold:.true)~nfc == s~nfc~nfc(casefold:.true)=     -- 0
+    s~nfc(casefold:.true)~nfc~c2x=                              -- 6A E0BB88 E0BDB2 CEB9 CCB4 D6B0 D6BB D6BF F09D85AD CC95 CD9C
+    s~nfc~nfc(casefold:.true)~c2x=                              -- 6A CCB4 D6B0 D6BB D6BF E0BB88 E0BDB2 F09D85AD CC95 CD9C CEB9
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/JuliaStrings/utf8proc/issues/101#issuecomment-1876151702">https://github.com/JuliaStrings/utf8proc/issues/101#issuecomment-1876151702</a>
+jlf: maybe this example of Julia code could be useful for Executor?
+function _isequal_normalized!
+&gt; I agree that a fast case-folded/normalized comparison function that requires
+&gt; no buffers seems possible to write and could be useful, even for Julia;
+Note that such a function was implemented in Julia, and could be ported to C:
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/JuliaLang/julia/blob/0f6c72c71bc947282ae18715c09f93a22828aab7/stdlib/Unicode/src/Unicode.jl#L268-L340">https://github.com/JuliaLang/julia/blob/0f6c72c71bc947282ae18715c09f93a22828aab7/stdlib/Unicode/src/Unicode.jl#L268-L340</a>
 
 
 <hr><h2 id="Kotlin_lang">Kotlin lang</h2><hr>
@@ -6238,6 +6564,10 @@ Extensive, portable and performant handling of UTF-8 and grapheme clusters for P
 Dead? last commit was on May 18, 2016
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://blog.internet-formation.fr/2022/08/nettoyer-et-remplacer-les-homographes-et-homoglyphes-dun-texte-en-php/">https://blog.internet-formation.fr/2022/08/nettoyer-et-remplacer-les-homographes-et-homoglyphes-dun-texte-en-php/</a>
+Nettoyer et remplacer les homographes (et homoglyphes) d’un texte en PHP
+
+
 <hr><h2 id="Python_lang">Python lang</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/dabeaz-course/practical-python/blob/master/Notes/01_Introduction/04_Strings.md">https://github.com/dabeaz-course/practical-python/blob/master/Notes/01_Introduction/04_Strings.md</a>
 Practical Python Programming. A course by David Beazley
@@ -6691,6 +7021,19 @@ jlf: HN comments about this old blog
 <a target="_blank" rel="noopener noreferrer" href="https://vstinner.github.io/python30-listdir-undecodable-filenames.html">https://vstinner.github.io/python30-listdir-undecodable-filenames.html</a>
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/python/cpython/blob/main/Include/cpython/unicodeobject.h">https://github.com/python/cpython/blob/main/Include/cpython/unicodeobject.h</a>
+(search "Unicode Type")
+CPython source code of Unicode string
+This URL comes from
+<a target="_blank" rel="noopener noreferrer" href="https://blog.vito.nyc/posts/gil-balm/">https://blog.vito.nyc/posts/gil-balm/</a>
+Fast string construction for CPython extensions
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://python.developpez.com/tutoriels/plonger-au-coeur-de-python/?page=chapitre-4-moins-strings">https://python.developpez.com/tutoriels/plonger-au-coeur-de-python/?page=chapitre-4-moins-strings</a>
+jlf: todo read (french)
+Translation from english, could not find the original article.
+
+
 <hr><h2 id="R_lang">R lang</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://stringi.gagolewski.com/index.html">https://stringi.gagolewski.com/index.html</a>
 stringi: Fast and Portable Character String Processing in R
@@ -7024,6 +7367,25 @@ Testing the JMB's example
 How can I make Perl 6 be round-trip safe for Unicode data?
 Answer: UTF8-C8 isn't really a good solution (but is probably the only solution currently).
 jlf: asked in 2016-09-23, maybe the situation is better today.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://rosettacode.org/wiki/String_comparison#Raku">https://rosettacode.org/wiki/String_comparison#Raku</a>
+String comparisons never do case folding because that's a very complicated subject
+in the modern world of Unicode. (You can explicitly apply an appropriate case-folding
+function to the arguments before doing the comparison, or for "equality" testing you
+can do matching with a case-insensitive regex, assuming Unicode's language-neutral
+case-folding rules are okay.)
+---
+Be aware that Raku applies normalization (Unicode NFC form (Normalization Form Canonical))
+by default to all input and output except for file names See docs. Raku follows the Unicode spec.
+Raku follows all of the Unicode spec, including parts that some people don't like.
+There are some graphemes for which the Unicode consortium has specified that the
+NFC form is a different (though usually visually identical) grapheme. Referred to
+in Unicode standard annex #15 as Canonical Equivalence. Raku adheres to that spec.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://docs.raku.org/language/traps#Traps_to_avoid">https://docs.raku.org/language/traps#Traps_to_avoid</a>
+Some problems that might arise when dealing with strings
 
 
 <hr><h2 id="Rexx_lang">Rexx lang</h2><hr>
