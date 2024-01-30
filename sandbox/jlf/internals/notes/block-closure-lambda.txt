@@ -1,4 +1,21 @@
+APL
+    https://aplwiki.com/wiki/Dfn
+    A dfn (contraction of direct function or dynamic function, pronounced "dee fun")
+    is an alternative way to define a function and operator, invented by John Scholes.
+    A dfn operator can also be called a dop (pronounced "dee op").
+
+    https://en.wikipedia.org/wiki/Direct_function
+
+        Source of inspiration
+        https://academic.oup.com/comjnl/article/32/2/98/543535
+        Why Functional Programming Matters
+
+    https://www.youtube.com/watch?v=y33XDD6ANt0
+    Dyalog '18: Dfns – Past, Present and Future
+
+
 https://github.com/rust-lang/rfcs/blob/master/text/0114-closures.md
+
 
 https://github.com/dspeyer/generators
 python-style generators for C++11, implemented with pthreads...
