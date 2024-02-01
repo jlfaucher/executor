@@ -121,3 +121,131 @@ The expression problem
 https://github.com/jll63/yomm2
 Fast, orthogonal, open multi-methods.
 Solve the Expression Problem in C++17.
+
+
+--------------------------------------------------------------------------------
+Some discussions in February 2011 about a better way to support extensions.
+At today 2024.02.01, nothing has been started to explore these ideas.
+
+
+https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/AANLkTik7q6Vjk7rxeLRJD3akKQEGz%2Bv3sAihBgm_EvGu%40mail.gmail.com/#msg27087090
+    > Just a few words about the changes I made in my sandbox : in fact I made
+    > almost nothing ! Everything is in place in the current interpreter to
+    > support this kind of extension... I had just to unlock the 'define' method
+    > and the 'inherit' method. And do a little change to let impact the already
+    > existing instances when adding a new method in the behavior.
+    > The rest is only syntax sugar (::extension).
+    >
+    > Currently, what is missing is a control to forbid the overriding of a
+    > predefined method (for the reasons explained in a previous mail).
+
+    I'm definitely -1 to implementing this feature in this manor.  I think
+    the concept of a class extender needs to be part of the model for how
+    a class works, including the implementation of the restriction on
+    method overrides.  It should be possible to query the extensions on
+    what has been added to a class and find out the specific methods that
+    have been added.  Then the ::extension directive should just map to
+    those underlying class methods.
+
+    However, I have one serious concern about the fragility of extensions.
+     Since these are not permitted to override methods of the class they
+    are being attached to, they become vulnerable to any changes to the
+    set of methods the target class may add in the future.  This would
+    mean either A) we must never add new methods to a class or B) have to
+    be very explicit about the possibility of release-to-release breakage.
+
+    Rick
+
+
+https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/AANLkTimU7A_TFsJ5BAKan0AdEsxedcQWnUixEXE3FxP0%40mail.gmail.com/#msg27087244
+    > 2011/2/19 Rick McGuire <obj...@gm...>
+    >>
+    >> I'm definitely -1 to implementing this feature in this manor.
+    >
+    > Rick, do you mean "in this manner" here ?  just to understand if the feature
+    > could be accepted, but with a different approach, or if the feature is
+    > really not wanted.
+
+    I am -1 to implementing this by using inherit and define and removing
+    the restrictions.  The concept of extensions should be a new
+    capability of classes, not just bolted over the existing mechanisms.
+
+    Rick
+
+
+https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/AANLkTikHcctAB%2BiwTsn6zj6_6FUr5HxSpyH8ivZRNQWm%40mail.gmail.com/#msg27087368
+    > ok :-)
+    > Needless to say that i'm *very* interested by more details about what could
+    > be this new capability.
+
+
+    Well, by new capability, I mean new methods that implement this
+    mechanism.  As a general principle, the directive instructions just
+    map to methods (or a series of methods) on the Class class.  It is
+    possible to create a new class just by invoking the methods, though
+    that is rarely done.  So adding an extension to a class should be done
+    via an "extend" method.  There should probably be a method that will
+    return any extensions that have been added to a class.  There are also
+    some fundamental questions that need to be defined (i.e., write the
+    docs first) before this can be implemented.  Such as,
+
+    1) what sort of class can be added as an extension?  Do we introduce a
+    new class type?  Or just override mixin class?
+    2)  Can we extend via individual methods?  Right now, I favor just
+    doing this via a class mechanism rather than by adding on methods
+    because of scope and other concerns.  This is a restriction that can
+    be easily lifted in a future release if there is sufficient demand,
+    but there are enough areas of concern that I don't favor doing this
+    initially.
+    3)  Handling the fragile base-class problem.
+    4)  What happens if a class is extended, then it inherits from a mixin
+    to create a new conflict?
+
+    Rick
+
+
+https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/AANLkTik-WhHnK9JpUCXLu%3DfvK-gBTxdxzB-1a5XUyknq%40mail.gmail.com/#msg27087620
+    >> 1) what sort of class can be added as an extension?  Do we introduce a
+    >> new class type?  Or just override mixin class?
+    >
+    > I thought that extending via individual methods was the right way (your
+    > point 2). The extension as a class may forbid to distribute the extension
+    > methods in several places. I find this capacity to distribute the extensions
+    > of a given class in several files very useful. See examples here :
+    > http://oorexx.svn.sourceforge.net/viewvc/oorexx/sandbox/jlf/samples/extension
+
+    No, absolutely not.  Adding methods individually introduces a
+    complication of what scope should be used by the method.  Methods
+    added via the define method have a common scope, which means they
+    share a common poll of variables.  It would be inappropriate for
+    extension methods to have access to the same variables used by methods
+    defined by the class itself or for methods from unrelated extensions
+    to share variables.  By restricting this to just class-based
+    extensions, the isolation and encapsulation is maintained.  I am
+    definitely -1 to individual method extension.
+
+    > Last point : my sandbox is currently in stable state. So anyone interested
+    > in testing the ::extension can get it and build.
+    > Then the file to play with is sample/extension/functional-test.rex
+
+    This is exactly what I mean by "you need to write the definition
+    first".  You first need to understand what the methods are for a
+    class, and what the restrictions are on usage.  And this needs to be
+    generalized and not just defined for the predefined classes, but all
+    classes.  The predefined ones just have some additional restrictions.
+    For example, what happens with a sequence like this:
+
+    .aClass~inherit(.addsFoo)   -- adds a "foo" method
+    .aClass~extend(.fooExtension)  -- also adds a "foo" method, which will
+    give an error
+
+    vs.
+
+    .aClass~extend(.fooExtension)  -- adds a "foo" method without error
+    because there is no conflict
+    .aClass~inherit(.addsFoo)  -- There is now a conflict caused by the
+    extension...how to handle that.
+
+    Note that in the second case, the inherit() method ends up creating a
+    conflict caused by an extension that the issuer of the inherit method
+    does not know about.
