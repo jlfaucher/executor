@@ -226,33 +226,19 @@ Ex :
         if verbose then trace i
         doer = doers~pull
         -- The first doer can take any number of positional & named arguments
-        -- If no named argument "item" has been passed, then at least one positional argument is needed
+        -- Remember:
+        -- I no longer try to pass a named argument "item".
+        -- If later I try again, then will need to take into account doer~arity
         namedArgs = .context~namedArgs
-        if \ namedArgs~hasIndex("ITEM") then do
-            -- By convention, the first positional argument is also passed as the named argument "item"
-            use strict arg item, ...
-            namedArgs["ITEM"] = item
-        end
-        if arg() >= 1 then do
-            arg1 = arg(1)
-            if arg1 <> item then raise syntax 93.900 array ("When the positional parameter ITEM is provided then it must be equal to the first positional argument")
-            arg1a = arg(1, "a")
-            arg2a = arg(2, "a")
-        end
-        else do
-            arg1 = item
-            arg1a = .array~of(item)
-            arg2a = .array~of()
-        end
-        if doer~needsObject then doer~doWith(arg1, arg2a, namedArguments: namedArgs)
-        else doer~doWith(arg1a, namedArguments: namedArgs)
-        r = arg1
+        if doer~needsObject then doer~doWith(arg(1), arg(2, "a"), namedArguments: namedArgs)
+        else doer~doWith(arg(1, "a"), namedArguments: namedArgs)
+        r = arg(1)
         if var("result") then r = result
         if .nil == r then return .nil -- stop now
         doer = doers~pull
         -- The following doers take only one positional argument: the result returned by the previous doer
         do while .nil <> doer
-            doer~do(r, item:r)
+            doer~do(r)
             -- use the current result if any, otherwise use the previous result (that allow to use a doer to display intermediate value, for example)
             if var("result") then r = result
             if .nil == r then return .nil -- stop now
