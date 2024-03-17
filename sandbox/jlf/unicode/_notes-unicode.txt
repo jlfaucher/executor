@@ -188,11 +188,22 @@ This is usually, but not always, the NFC form.
 
 Conformance
 https://github.com/unicode-org/conformance
+This repository provides tools and procedures for verifying that an
+implementation is working correctly according to the data-based specifications.
+The tests are implemented on several platforms including NodeJS (JavaScript),
+ICU4X (RUST), ICU4C, etc.
+Data Driven Test was initiated in 2022 at Google.
+The first release of the package was delivered in October, 2022.
 
 
 https://www.unicode.org/main.html
 Unicode® Technical Site
     https://www.unicode.org/faq/
+
+
+https://www.unicode.org/faq/char_combmark.html
+Characters and Combining Marks
+
 
 ================================================================================
 Unicode general informations
@@ -1316,7 +1327,7 @@ a site devoted to working with Collations, Unicode, Encodings, Code Pages, etc i
 
 
 ================================================================================
-BIDI
+BIDI title
 ================================================================================
 
 https://www.iamcal.com/understanding-bidirectional-text/
@@ -2987,6 +2998,125 @@ https://sourceforge.net/p/icu/mailman/message/58712806/
     ::Any-Latin;", Transliterator.FORWARD);
 
 
+[icu-support] CollationKey for efficient collation-aware in-place substring comparison
+
+    Question
+    https://sourceforge.net/p/icu/mailman/message/58741675/
+
+        I have a question regarding the use of CollationKey
+        <https://unicode-org.github.io/icu-docs/apidoc/dev/icu4j/com/ibm/icu/text/CollationKey.html>
+        to check whether one string "contains" the other (i.e. right string is
+        found anywhere in the left string, accounting for any specified rule-based
+        collation using ICU4J). With this, my use case in Java would be something
+        like: *contains(String left, String right, String collation)*. Suppose that
+        *collation* here is a parameter indicating the collation at hand (for
+        example: "Latin1_General_CS_AI"), and is used to get the appropriate
+        instance of *com.ibm.icu.text.Collator* (exact routing for this collation
+        is handled elsewhere in the codebase).
+
+        Problem description
+
+        Due to the nature of this operation, using *Collator.compare(String,
+        String)* proves inefficient for this problem, because it would require
+        allocating O(N) substrings of *left *before calling *compare(left.substring(),
+        right)*. Suppose N here is the length of the *left* string.
+
+        Example: *contains*("Abć", "a", "Latin1_General_CS_AI"); // returns false
+          - calls: *collator.compare("A", "a")* // returns false ("A" here is
+        "Abć".substring(0,1))
+          - calls: *collator.compare("b", "a")* // returns false ("b" here is
+        "Abć".substring(1,2))
+          - calls: *collator.compare("ć", "a")* // returns false ("ć" here is
+        "Abć".substring(2,3))
+        Here, this approach allocates *3 new strings* in order to do the
+        comparisons.
+
+        Using CollationKey
+
+        As I understood, *com.ibm.icu.text.CollationKey* is the way to go for
+        repeated comparison of strings. Here, I would like to compare strings in a
+        way that only requires generating one key for *left* (let's call it
+        *leftKey*) and one key for *right* (let's call it *rightKey*), and then
+        comparing these arrays in-place, byte per byte.
+
+        However, it doesn't seem that this operation is supported out-of-the-box
+        with *CollationKey*. While one can easily use two collation keys
+        for equality comparison and collation-aware ordering, I'm not sure if this
+        holds for substring operations as well? Given a collation key for "Abć", is
+        there a constant-time way to obtain collation keys for "A", "b", and "ć"?
+        Ideally, I would want to only traverse the "Abć" collation key (*leftKey*)
+        as a plain byte array, and do in-place comparison with the "ć" collation
+        key (*rightKey*) as a plain byte array. However, it doesn't seem
+        straightforward given the structure of the collation key (suffixes, etc.)
+
+        public boolean contains(String left, String right, String collation) {
+        >   Collator collator = ...(collation);
+        >   // get collation keys
+        >   CollationKey leftKey = collator.getCollationKey(left);
+        >   CollationKey rightKey = collator.getCollationKey(right);
+        >   // get byte arrays
+        >   byte[] lBytes = leftKey.toByteArray();
+        >   byte[] rBytes = rightKey.toByteArray();
+        >   // in-place comparison
+        >   for (int i = 0; i <= lBytes.length - rBytes.length; i++) {
+        >     if (compareKeys(lBytes, rBytes, i)) {
+        >       return true;
+        >     }
+        >   }
+        >   return false;
+        > }
+
+        Suppose there's a simple helper function such as:
+
+        > private boolean compareKeys(byte[] lBytes, byte[] rBytes, int offset) {
+        >   int len = rBytes.length;
+        >   // compare lBytes[i, i+len] to rBytes[0, len] in-place, byte by byte...
+        > }
+
+        Could you please provide any support regarding how to implement this
+        solution so that it fully takes into account the collation key byte array
+        structure? As of now, this simple comparison doesn't work because there are
+        some suffixes in both *leftKey* and *rightKey*, so exact comparison is not
+        possible, but I'm wondering if there is a way to go around this.
+
+        Alternative
+
+        It turns out that making use of *Collator.compare(Object, **Object**)* instead
+        of *Collator.compare(String, **String**)* doesn't prove to be any better
+        either, because it does *toString()* anyway, regressing the performance in
+        a similar fashion. Ideally, an implementation such as
+        *Collator.compare(Character, **Character**)* could do the trick, however
+        only under the condition that it would *not allocate* a new *String* for
+        the two arguments. This would allow traversing *left* and *right* strings
+        and comparing individual characters just by using *String.charAt* (with no
+        extra *String* allocation whatsoever).
+
+        However, I don't believe there is currently anything like
+        *Collator.compare(**Character**, **Character**)* that works exactly like
+        this. So for now, I'm trying to implement this functionality using
+        *CollationKey*.
+
+    Answer from Markus Sherer
+    https://sourceforge.net/p/icu/mailman/message/58741856/
+
+        Yes, but CollationKey is too low-level, and you would have to compute and
+        store the CollationKey for the entire left string at once, which could be
+        large.
+        “Don't do this at home” :-)
+
+        Please use class
+        <https://unicode-org.github.io/icu-docs/apidoc/released/icu4j/com/ibm/icu/text/StringSearch.html>
+        StringSearch
+        <https://unicode-org.github.io/icu-docs/apidoc/released/icu4j/com/ibm/icu/text/StringSearch.html>
+        https://unicode-org.github.io/icu/userguide/collation/string-search.html
+
+        I don't remember if StringSearch automatically loads "search" tailorings;
+        it's possible that you may have to request that explicitly.
+
+        https://www.unicode.org/reports/tr35/tr35-collation.html#Collation_Type_Fallback
+        https://www.unicode.org/reports/tr10/#Searching
+
+
 ================================================================================
 ICU bindings
 ================================================================================
@@ -3708,7 +3838,7 @@ https://github.com/unicode-org/icu4x/issues/3336
 Add support for Unicode BCP 47 locale identifiers
 ---
 jlf: what is that?
-it's defined in https://unicode.org/reports/tr35/
+it's defined in https://www.unicode.org/reports/tr35/
 UNICODE LOCALE DATA MARKUP LANGUAGE (LDML)
 Unicode LDML uses stable identifiers based on [BCP47] for distinguishing among
 languages, locales, regions, currencies, time zones, transforms, and so on.
@@ -3772,6 +3902,24 @@ This is for example languages that want to keep "ch" together etc.
 ---
 jlf: so it appears from the discussion that ICU4C implements specific rules that
 are not part of UAX #29.
+
+
+https://github.com/unicode-org/icu4x/issues/58
+Design a cohesive solution for supported locales
+
+
+https://github.com/tc39/proposal-intl-segmenter/issues/133
+Custom Dictionaries
+and a political point of view from a Hong Kong immigrant.
+
+
+https://github.com/unicode-org/icu4x/issues/3284
+Should the Segmenter types accept a locale?
+Markus Scherer:
+    No language parameter for grapheme cluster segmenter
++1
+    Language parameter for the other three segmenters
++1
 
 
 ================================================================================
@@ -4548,7 +4696,7 @@ An esoteric document proposal: abuse Unicode to create the fanciest possible ‘
 https://fonts.google.com/noto
 
 
-https://unicode.org/mail-arch/unicode-ml/y2019-m01/0121.html
+https://www.unicode.org/mail-arch/unicode-ml/y2019-m01/0121.html
 Encoding italic (was: A last missing link)
 
 
@@ -7547,6 +7695,20 @@ in Unicode standard annex #15 as Canonical Equivalence. Raku adheres to that spe
 
 https://docs.raku.org/language/traps#Traps_to_avoid
 Some problems that might arise when dealing with strings
+
+
+https://raku.guide/#_unicode
+Escape characters
+    say "\x0061";
+    say "\c[LATIN SMALL LETTER A]";
+Numbers
+    say (٤,٥,٦,1,2,3).sort; # (1 2 3 4 5 6)
+    say 1 + ٩;              # 10
+Raku has methods/operators that implement the Unicode Collation Algorithm.
+    say 'a' unicmp 'B'; # Less
+Raku provides a collate method that implements the Unicode Collation Algorithm.
+    say ('a','b','c','D','E','F').sort;    # (D E F a b c)
+    say ('a','b','c','D','E','F').collate; # (a b c D E F)
 
 
 ================================================================================
