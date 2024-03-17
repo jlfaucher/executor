@@ -322,7 +322,7 @@ Depends on
 
 ::method encodeASCIIstring class
     use strict arg string
-    use strict named arg memorize = (.Unicode~memorizeConversions), buffer=.nil
+    use strict named arg memorize = (.Unicode~memorizeTranscodings), buffer=.nil
 
     text = .nil
     if string~hasText then text = string~text
@@ -342,7 +342,7 @@ Depends on
     buffer~encoding = targetEncoding~asEncodingFor(buffer) -- raise an error if not compatible
     bufferStart = buffer~length + 1
 
-    -- Easy conversion: nothing to do, it's the string itself
+    -- Easy transcoding: nothing to do, it's the string itself
     targetEncoding~append(string, :buffer)
 
     convertedString = buffer~substr(bufferStart)
@@ -400,7 +400,7 @@ Depends on
 
 ::method UTF8
     use strict arg -- none
-    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeTranscodings), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
 
     targetEncoding = .UTF8_Encoding
     if .nil <> buffer then return targetEncoding~append(self~string, :buffer) -- done? TODO is it correct? there is no check here. WTF8 converted to UTF8 could raise errors.
@@ -422,7 +422,7 @@ Depends on
 
 ::method WTF8
     use strict arg -- none
-    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeTranscodings), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
 
     targetEncoding = .WTF8_Encoding
     if .nil <> buffer then return targetEncoding~append(self~string, :buffer) -- done? TODO is it correct?
@@ -444,7 +444,7 @@ Depends on
 
 ::method Unicode
     use strict arg -- none
-    use strict named arg strict = .false, memorize = (.Unicode~memorizeConversions), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
+    use strict named arg strict = .false, memorize = (.Unicode~memorizeTranscodings), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
     if self~encoding~isUnicodeN then do
         if .nil <> buffer then return self~encoding~append(self~string, :buffer)
                           else return self~string~text

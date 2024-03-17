@@ -217,7 +217,7 @@ For example, if startB==6 then previousCodepointIndexB==3
     use strict named arg demotionIsAllowed=.false, errorInfo=.nil
 
     targetEncoding = self   -- right part
-    if \buffer~hasEncoding then return targetEncoding -- when no encoding then any encoding is compatible
+    if \buffer~hasEncoding, buffer~length == 0 then return targetEncoding -- when no encoding then any encoding is compatible
 
     bufferEncoding = buffer~encoding
 
@@ -332,7 +332,8 @@ For example, if startB==6 then previousCodepointIndexB==3
     use strict arg length=10
     use strict named arg short=.true, technical=.false -- minimal description
     text = self~string~text
-    if text~length > length then text = text~left(length - 3)"..."
+    -- must convert to string to avoid an error like "Encoding: cannot append UTF-8 ASCII by default '...' to UTF-16BE"
+    if text~length > length then text = text~left(length - 3)~string"..."
     -- escape3 is needed to have a proper display for this:
     -- say "41"~text~utf16~string  -- 41
     -- say escape3("41"~text~utf16~string)  -- [00]4[00]1
@@ -341,8 +342,13 @@ For example, if startB==6 then previousCodepointIndexB==3
 
 ::method c2x
     use strict arg -- none
+    use strict named arg buffer=.nil
     codepoints = self~codepoints
-    buffer = .MutableBuffer~new
+    returnBuffer = .nil <> buffer
+    if .nil == buffer then buffer = .MutableBuffer~new
+    targetEncoding = self~encoding
+    buffer~encoding = targetEncoding~asEncodingFor(buffer) -- raise an error if not compatible
+    bufferStart = buffer~length + 1
     first = .true
     do while codepoints~available
         if \first then buffer~append(" ")
@@ -351,7 +357,11 @@ For example, if startB==6 then previousCodepointIndexB==3
         buffer~append(codepoint~c2x)
         codepoints~next
     end
-    return buffer~string
+    if returnBuffer then return buffer
+    xstring = buffer~substr(bufferStart)
+    -- It's a new string, without any encoding stored on it
+    xstring~encoding = targetEncoding
+    return xstring
 
 
 ::method c2u abstract
@@ -364,6 +374,9 @@ For example, if startB==6 then previousCodepointIndexB==3
     characters = self~characters
     returnBuffer = .nil <> buffer
     if .nil == buffer then buffer = .MutableBuffer~new
+    targetEncoding = self~encoding
+    buffer~encoding = targetEncoding~asEncodingFor(buffer) -- raise an error if not compatible
+    bufferStart = buffer~length + 1
     first = .true
     do while characters~available
         if \first then buffer~append(" ")
@@ -372,7 +385,10 @@ For example, if startB==6 then previousCodepointIndexB==3
         characters~next
     end
     if returnBuffer then return buffer
-                    else return buffer~string
+    gstring = buffer~substr(bufferStart)
+    -- It's a new string, without any encoding stored on it
+    gstring~encoding = targetEncoding
+    return gstring
 
 
 ::method codepointIndexB
@@ -473,7 +489,7 @@ For example, if startB==6 then previousCodepointIndexB==3
 
 ::method transcodeTo abstract
     -- use strict arg targetEncoding
-    -- use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
+    -- use strict named arg strict=.false, memorize = (.Unicode~memorizeTranscodings), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
 
 
 ::method UTF8 abstract
@@ -523,7 +539,8 @@ For example, if startB==6 then previousCodepointIndexB==3
 
 /*
 Executor supports
-    \u{Unicode name}    Character name in the Unicode database
+    \N{Unicode name}    Character name in the Unicode database or codepoint Label
+    \u{Unicode name}    Character name in the Unicode database or codepoint Label
     \U{Unicode name}    same as \u
     \u{X..X}            Unicode character denoted by 1-8 hex digits. The first character must be a digit 0..9 ('u' lowercase)
     \U{X..X}            same as \u
@@ -609,6 +626,13 @@ How other languages are supporting escape characters for Unicode:
     Careful! The sentence above is NOT talking about ISO-8859-1 (alias Latin-1 )
     */
     if self~maximumUnicodeCodepoint \== -1, self~maximumUnicodeCodepoint <= 255 then do
+        self~setBitFlag(self~FLAG_NFC)
+        return .true
+    end
+
+    -- http://www.unicode.org/reports/tr15/#Implementation_Notes
+    -- Text exclusively containing ASCII characters (U+0000..U+007F) is left unaffected by all of the Normalization Forms
+    if self~string~isCompatibleWithASCII then do
         self~setBitFlag(self~FLAG_NFC)
         return .true
     end
@@ -851,7 +875,7 @@ corresponding character position.
     expose xSubtext iSubtext -
            normalization casefold lump stripIgnorable stripMark stripCC stripNA -
            transformed
-    use strict named arg normalization = 1, casefold = .false, lump= .false, stripMark = .false, stripIgnorable= .false, stripCC = .false, stripNA = .false, memorize = (.Unicode~memorizeTransformations)
+    use strict named arg normalization = (.Unicode~defaultNormalization), casefold = .false, lump= .false, stripMark = .false, stripIgnorable= .false, stripCC = .false, stripNA = .false, memorize = (.Unicode~memorizeTransformations)
 
     if transformed then raise syntax 93.900 array(self~class~id || ": A transformation has already been applied")
     iSubtext = xSubtext~transform(:normalization, :casefold, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA, :memorize) -- Remember: can't use returnString:.true, the result MUST be a RexxText

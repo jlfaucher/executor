@@ -130,7 +130,12 @@ See also this same method on RexxText and MutableBuffer and String.
     else if arg(1, "e") then do
         -- If the encoding was explicitely specified then change the encoding
         textEncoding = .Encoding~factory(textEncoding, self~string)
-        if myText~encoding <> textEncoding then myText~encoding = textEncoding
+        if myText~encoding <> textEncoding then do
+            -- "Noël"~text("utf8") == "Noël"~text("byte")=  -- true because "Noël" is the same interned string in both expressions
+            -- Next line is an attempt to detect this strange situation, but it's not perfect.
+            -- if var("encoding") then raise syntax 23.900 array("EncodedString: The text method can't overwrite the current encoding" encoding~name "with" textEncoding~name)
+            myText~encoding = textEncoding
+        end
     end
     encoding = myText~encoding -- align string & text encoding.
     return myText
@@ -270,6 +275,12 @@ Otherwise return the string.
     if string~length > length then string = string~left(length - 3)"..."
     -- escape3 is needed to have a proper display like this: [00]4[00]1
     return self~description(short:1) "'"escape3(string)"'"
+
+
+::method u2c
+    -- Create a Unicode32 text from a sequence of U+xxxx
+    use strict named arg buffer=.nil
+    return .Unicode32_Encoding~encodeUplusString(self, :buffer)
 
 
 /******************************************************************************/
@@ -700,6 +711,10 @@ Allows to use a String or a RexxText indistinctly
     forward to (self~indexer)
 
 
+::method u2c
+    forward to (self~string) -- yes, not self~indexer
+
+
 ::method c2g
     forward to (self~indexer)
 
@@ -874,8 +889,8 @@ contains                        (new 5) full UTF-8
 containsWord                    (new 5)
 copies                          full
 countStr
-d2c
-d2x
+d2c                             full for text which isCompatibleWithByteString
+d2x                             full for text which isCompatibleWithByteString
 dataType
 decodeBase64
 delStr
@@ -938,9 +953,10 @@ stringChunks
 ::method "[]"
     -- ooRexx v5
     use strict arg n, length=1
+    use strict named arg buffer=.nil
     maxLength = self~length - n + 1 -- don't care about n<=0, will be caught by substr
     if maxLength <= 0 then return self~encoding~emptyString
-    return self~substr(n, min(length, maxLength))
+    return self~substr(n, min(length, maxLength), :buffer)
 
 
 ::method ?
@@ -1084,7 +1100,7 @@ stringChunks
     end
     if self~isCompatibleWithByteString, padIsCompatibleWithByteString then do
         forward to (self~string) continue
-        if .nil <> buffer then return buffer~~append(result)
+        if .nil <> buffer then return buffer~~appendEncoded(result)
                           else return .RexxText~new(result, self~encoding)
     end
     forward to (self~indexer)
@@ -1130,8 +1146,24 @@ stringChunks
 ::method copies
     use strict named arg buffer=.nil
     forward to (self~string) continue
-    if .nil <> buffer then return buffer~~append(result)
+    if .nil <> buffer then return buffer~~appendEncoded(result)
                       else return .RexxText~new(result, self~encoding)
+
+
+::method d2c
+    use strict named arg buffer=.nil
+    self~checkNumericValueCompatibility
+    forward to (self~string) continue
+    if .nil <> buffer then return buffer~~appendEncoded(result)
+                      else return .RexxText~new(result, self~encoding)
+
+
+::method d2x
+    use strict named arg buffer=.nil
+    self~checkNumericValueCompatibility
+    forward to (self~string) continue
+    if .nil <> buffer then return buffer~~appendEncoded(result)
+                      else return result -- yes, return a String, not a RexxText
 
 
 ::method endsWith
@@ -1180,7 +1212,7 @@ stringChunks
     use strict named arg buffer=.nil
     if self~isCompatibleWithByteString then do
         forward to (self~string) continue
-        if .nil <> buffer then return buffer~~append(result)
+        if .nil <> buffer then return buffer~~appendEncoded(result)
                           else return .RexxText~new(result, self~encoding)
     end
     forward to (self~indexer)
@@ -1212,7 +1244,7 @@ stringChunks
     use strict named arg buffer=.nil
     if self~isCompatibleWithByteString then do
         forward to (self~string) continue
-        if .nil <> buffer then return buffer~~append(result)
+        if .nil <> buffer then return buffer~~appendEncoded(result)
                           else return .RexxText~new(result, self~encoding)
     end
     forward to (self~indexer)
@@ -1229,7 +1261,7 @@ stringChunks
     end
     if self~isCompatibleWithByteString, padIsCompatibleWithByteString then do
         forward to (self~string) continue
-        if .nil <> buffer then return buffer~~append(result)
+        if .nil <> buffer then return buffer~~appendEncoded(result)
                           else return .RexxText~new(result, self~encoding)
     end
     forward to (self~indexer)
@@ -1262,7 +1294,23 @@ stringChunks
     end
     if self~isCompatibleWithByteString, padIsCompatibleWithByteString then do
         forward to (self~string) continue
-        if .nil <> buffer then return buffer~~append(result)
+        if .nil <> buffer then return buffer~~appendEncoded(result)
+                          else return .RexxText~new(result, self~encoding)
+    end
+    forward to (self~indexer)
+
+
+::method translate
+    use arg _tableo, _tablei, pad  -- not strict, just need to check 'pad'
+    use strict named arg buffer=.nil
+    padIsCompatibleWithByteString = .true
+    if arg(3, "e") then do
+        if \pad~isCompatibleWithByteString then padIsCompatibleWithByteString = .false
+        else if pad~length > 1 then padIsCompatibleWithByteString = .false -- maybe its length will be 1 when converted to default encoding
+    end
+    if self~isCompatibleWithByteString, padIsCompatibleWithByteString then do
+        forward to (self~string) continue
+        if .nil <> buffer then return buffer~~appendEncoded(result)
                           else return .RexxText~new(result, self~encoding)
     end
     forward to (self~indexer)
@@ -1272,28 +1320,34 @@ stringChunks
     use strict named arg buffer=.nil
     if self~isCompatibleWithByteString then do
         forward to (self~string) continue
-        if .nil <> buffer then return buffer~~append(result)
+        if .nil <> buffer then return buffer~~appendEncoded(result)
                           else return .RexxText~new(result, self~encoding)
     end
     forward to (self~indexer)
 
 
 ::method x2b
+    use strict named arg buffer=.nil
     self~checkHexadecimalValueCompatibility
-    forward to (self~string)
+    forward to (self~string) continue
+    if .nil <> buffer then return buffer~~appendEncoded(result)
+                      else return result -- yes, return a String, not a RexxText
 
 
 ::method x2c
     use strict named arg buffer=.nil
     self~checkHexadecimalValueCompatibility
     forward to (self~string) continue
-    if .nil <> buffer then return buffer~~append(result)
+    if .nil <> buffer then return buffer~~appendEncoded(result)
                       else return .RexxText~new(result, self~encoding)
 
 
 ::method x2d
+    use strict named arg buffer=.nil
     self~checkHexadecimalValueCompatibility
-    forward to (self~string)
+    forward to (self~string) continue
+    if .nil <> buffer then return buffer~~appendEncoded(result)
+                      else return result -- yes, return a String, not a RexxText
 
 
 /******************************************************************************/
@@ -1373,7 +1427,7 @@ stringChunks
 /* Comparison */
 /**************/
 
-::method compareSelfRight
+::method compareSelfRight private
     use strict arg right, message
     use strict named arg strict
     /*
@@ -1418,7 +1472,7 @@ stringChunks
     forward message (message) to (selfNormalized~string) array (rightNormalized~string)
 
 
-::method compareLeftSelf
+::method compareLeftSelf private
     use strict arg left, message
     use strict named arg strict
     left = left~requestTextOrBufferOrString

@@ -248,16 +248,16 @@ newline = translate(oldline,oubytes,inbytes)
     -- if errorInfo is .nil (default) then raise the error
     -- otherwise store the error message in errorInfo and return .nil
     use strict arg targetEncoding
-    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeTranscodings), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
 
     replacementCodepoint = replacementCodepoint(replacementCharacter, targetEncoding)
     targetEncoding = .Encoding~factory(targetEncoding, self~string, :replacementCodepoint) -- replacementCodepoint is used for UnicodeN, to determine the maximumUnicodeCodepoint
-    if targetEncoding~isUnicode then return self~convertToUnicode(targetEncoding, :strict, :memorize, :buffer, :replacementCodepoint, :errorInfo)
-    if targetEncoding~isByte then return self~convertToByte(targetEncoding, :buffer)
+    if targetEncoding~isUnicode then return self~transcodeToUnicode(targetEncoding, :strict, :memorize, :buffer, :replacementCodepoint, :errorInfo)
+    if targetEncoding~isByte then return self~transcodeToByte(targetEncoding, :buffer)
     -- Should not reach here
 
 
-::method convertToUnicode private
+::method transcodeToUnicode private
     use strict arg targetEncoding
     use strict named arg strict, memorize, buffer, replacementCodepoint, errorInfo
 
@@ -295,6 +295,9 @@ newline = translate(oldline,oubytes,inbytes)
 
     if returnBuffer then return buffer
     text = .RexxText~new(string, targetEncoding)
+
+    -- discutable... On the target, I memorize the origin string.
+    -- but nothing guarantees that transcoding the target string to the origin encoding would give the origin string.
     if memorize then text~indexer~cacheString(self~encoding~name, self~string)
     return text
 
@@ -319,7 +322,7 @@ newline = translate(oldline,oubytes,inbytes)
         return abs(codepoint)
 
 
-::method convertToByte private
+::method transcodeToByte private
     use strict arg targetEncoding
     use strict named arg buffer
 
@@ -445,7 +448,7 @@ newline = translate(oldline,oubytes,inbytes)
 
        The current index is set to "80:" (ends with colon)
        Current index + "00": The code 80 is mapped to "20AC"
-       Current index + "01": The code 81 is mapped to "-81" (fallback if not strict conversion, otherwise error)
+       Current index + "01": The code 81 is mapped to "-81" (fallback if not strict transcoding, otherwise error)
        Etc...
        For convenience, these notations can be used to indicate that a mapping is equal to the code:
        , "=", ...

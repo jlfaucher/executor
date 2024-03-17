@@ -93,7 +93,7 @@
 
 ::method encodeASCIIstring class
     use strict arg string
-    use strict named arg memorize = (.Unicode~memorizeConversions), buffer=.nil
+    use strict named arg memorize = (.Unicode~memorizeTranscodings), buffer=.nil
 
     text = .nil
     if string~hasText then text = string~text

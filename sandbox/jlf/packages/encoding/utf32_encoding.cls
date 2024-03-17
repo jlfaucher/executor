@@ -192,7 +192,7 @@
 
 ::method encodeASCIIstring class
     use strict arg string
-    use strict named arg memorize = (.Unicode~memorizeConversions), buffer=.nil
+    use strict named arg memorize = (.Unicode~memorizeTranscodings), buffer=.nil
 
     text = .nil
     if string~hasText then text = string~text
@@ -230,7 +230,7 @@
 
 ::method UTF32BE
     use strict arg -- none
-    use strict named arg strict = .false, memorize = (.Unicode~memorizeConversions), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
+    use strict named arg strict = .false, memorize = (.Unicode~memorizeTranscodings), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
     if .nil <> buffer then return buffer~~append(self~string)
                       else return self~string~text
 
@@ -267,7 +267,7 @@
 
 ::method encodeASCIIstring class
     use strict arg string
-    use strict named arg memorize = (.Unicode~memorizeConversions), buffer=.nil
+    use strict named arg memorize = (.Unicode~memorizeTranscodings), buffer=.nil
 
     text = .nil
     if string~hasText then text = string~text
@@ -305,7 +305,7 @@
 
 ::method UTF32LE
     use strict arg -- none
-    use strict named arg strict = .false, memorize = (.Unicode~memorizeConversions), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
+    use strict named arg strict = .false, memorize = (.Unicode~memorizeTranscodings), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
     if .nil <> buffer then return buffer~~append(self~string)
                       else return self~string~text
 

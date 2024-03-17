@@ -39,11 +39,30 @@
             when character == "t" then buffer~append("09"x) -- horizontal tab (HT)
             when character == "v" then buffer~append("0B"x) -- vertical tab (VT)
 
+            when character == "N" then do
+                -- \N{Unicode name}    Character name in the Unicode database or codepoint Label (compatibility with Python)
+                if \self~isUnicode then signal unicode_character_not_supported
+                if string~subchar(pos) == "{" then do
+                    pos += 1 -- skip {
+                    first = pos
+                    pos = string~pos("}", pos)
+                    if pos == 0 then signal expecting_name
+                    length = pos - first
+                    if length == 0 then signal expecting_name
+                    pos += 1 -- skip }
+                    idntfr = string~substr(first, length)
+                    character = .Unicode~character(idntfr, by:"NL") -- by Name or codepoint Label
+                    character~transcodeTo(self~encoding, :buffer)
+                end
+            end
+
             when character == "u" | character == "U" then do
                 if \self~isUnicode then signal unicode_character_not_supported
 
-                -- \u{Unicode name}    Character name in the Unicode database
-                -- \u{X..X}            Unicode character denoted by 1-8 hex digits
+                -- \u{Unicode name}    Character name in the Unicode database, or codepoint label
+                -- \U{Unicode name}    Character name in the Unicode database, or codepoint label
+                -- \u{X..X}            Unicode character denoted by 1-8 hex digits (must start with a digit 0..9)
+                -- \U{X..X}            Unicode character denoted by 1-8 hex digits (must start with a digit 0..9)
                 if string~subchar(pos) == "{" then do
                     pos += 1 -- skip {
                     first = pos
@@ -53,8 +72,9 @@
                     if length == 0 then signal expecting_name_or_sequence_of_hexadecimal_digits
                     pos += 1 -- skip }
                     idntfr = string~substr(first, length)
+                    idntfr = idntfr~strip
                     startWithDigit = idntfr~left(1)~datatype("9")
-                    character = .Unicode~character(idntfr, hexadecimal: startWithDigit)
+                    character = .Unicode~character(idntfr, by: "NHLU", hexadecimal: startWithDigit) -- by Name or by Hexadecimal codepoint or by codepoint Label or by U+ codepoint
                     character~transcodeTo(self~encoding, :buffer)
                 end
 
@@ -64,18 +84,18 @@
                     hexadecimalDigits = string~substr(pos, length)
                     if hexadecimalDigits~length < 4 then signal expecting_4_hexadecimal_digits
                     if \hexadecimalDigits~datatype("X") then signal expecting_4_hexadecimal_digits
-                    character = .Unicode~character(hexadecimalDigits, hexadecimal: .true)
+                    character = .Unicode~character(hexadecimalDigits, by: "H", hexadecimal: .true) -- by Hexadecimal codepoint
                     character~transcodeTo(self~encoding, :buffer)
                     pos += 4
                 end
 
                 else if character == "U" then do
-                    -- \uXXXXXXXX
+                    -- \UXXXXXXXX
                     length = min(8, string~length - pos + 1)
                     hexadecimalDigits = string~substr(pos, length)
                     if hexadecimalDigits~length < 8 then signal expecting_8_hexadecimal_digits
                     if \hexadecimalDigits~datatype("X") then signal expecting_8_hexadecimal_digits
-                    character = .Unicode~character(hexadecimalDigits, hexadecimal: .true)
+                    character = .Unicode~character(hexadecimalDigits, by: "H", hexadecimal: .true) -- by Hexadecimal codepoint
                     character~transcodeTo(self~encoding, :buffer)
                     pos += 8
                 end
@@ -132,6 +152,7 @@
                     else return .RexxText~new(buffer~string, self~encoding)
 
     unicode_character_not_supported:                  raise syntax 23.900 array(self~encoding~name "encoding: \"character" not supported")
+    expecting_name:                                   raise syntax 23.900 array(self~encoding~name "encoding: expecting a character name {name} after \"character)
     expecting_name_or_sequence_of_hexadecimal_digits: raise syntax 23.900 array(self~encoding~name "encoding: expecting a character name {name} or 1..8 hexadecimal digits {X..X} after \"character)
     expecting_2_hexadecimal_digits:                   raise syntax 23.900 array(self~encoding~name "encoding: expecting 2 hexadecimal digits after \"character", got '"hexadecimalDigits"'")
     expecting_4_hexadecimal_digits:                   raise syntax 23.900 array(self~encoding~name "encoding: expecting 4 hexadecimal digits after \"character", got '"hexadecimalDigits"'")

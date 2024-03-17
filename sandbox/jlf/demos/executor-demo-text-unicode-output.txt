@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 8 Oct 2023
-Input queue name: S3da6Q600001ccb4d0
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 16 Nov 2023
+Input queue name: Sa957Q6000007e4750
 
 --------------------
 -- Unicode libraries
@@ -69,7 +69,7 @@ a Directory (13 items)
 'characters'                         : (an UnicodeCharacterSupplier count=44185 size=918000)
 'dataDirectory'                      : (/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/Unicode-15.1.0)
 'maxCodepoint'                       :  1114111
-'memorizeConversions'                :  0
+'memorizeTranscodings'               :  0
 'memorizeTransformations'            :  0
 'systemIsLittleEndian'               :  1
 'totalCharacterNameAliases'          :  473

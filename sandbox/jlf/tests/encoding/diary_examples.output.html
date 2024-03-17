@@ -32,7 +32,7 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 16 Nov 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S13f39Q600000f59450
+</span><span style="font-weight:bold;color:green;">Input queue name: S64f7Q6000007f7740
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.1.0 
@@ -41,8 +41,199 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacte
 </span><span style="font-weight:bold;color:green;">Total character name aliases: 473
 </span><span style="font-weight:bold;color:blue;">Unicode character intervals not expanded, execute: call expandUnicodeCharacterIntervals
 </span>
-ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeConversions = .false</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeTranscodings = .false</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeTransformations = .false</span>
+
+
+<span style="font-weight:bold;color:blue;">-- ===============================================================================
+</span><span style="font-weight:bold;color:blue;">-- 2024 Mar 17
+</span>
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">For consistency with other methods, add the optional named argument 'buffer' to
+</span><span style="font-weight:bold;color:blue;">    []
+</span><span style="font-weight:bold;color:blue;">    c2g
+</span><span style="font-weight:bold;color:blue;">    c2x
+</span><span style="font-weight:bold;color:blue;">    x2b
+</span><span style="font-weight:bold;color:blue;">    x2d
+</span><span style="font-weight:bold;color:blue;">Examples:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">buffer = .MutableBuffer~new</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Tête à tête&quot;~text[2, 5, :buffer]=  </span><span style="font-weight:bold;color:blue;">-- M'ête à'</span>
+M'ête à'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;A&quot;~text~c2g(:buffer)=              </span><span style="font-weight:bold;color:blue;">-- M'ête à41'</span>
+M'ête à41'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;A&quot;~text~c2x(:buffer)=              </span><span style="font-weight:bold;color:blue;">-- M'ête à4141'</span>
+M'ête à4141'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;41&quot;~text~x2b(:buffer)=             </span><span style="font-weight:bold;color:blue;">-- M'ête à414101000001'</span>
+M'ête à414101000001'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;41&quot;~text~x2d(:buffer)=             </span><span style="font-weight:bold;color:blue;">-- M'ête à41410100000165'</span>
+M'ête à41410100000165'
+
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">For compatibility with Python, add support for \N{Unicode name}.
+</span><span style="font-weight:bold;color:blue;">Example:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;\N{for all} x \N{there exists} y such that x+y=0&quot;~text~unescape=       </span><span style="font-weight:bold;color:blue;">-- T'∀ x ∃ y such that x+y=0'</span>
+T'∀ x ∃ y such that x+y=0'
+
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Add support for code point labels.
+</span><span style="font-weight:bold;color:blue;">Examples:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">.unicode~character(&quot;&lt;control-000A&gt;&quot;)=           </span><span style="font-weight:bold;color:blue;">-- ( &quot;&quot;    U+000A Cc 0 &quot;&quot;, &quot;LINE FEED&quot;, &quot;NEW LINE&quot;, &quot;END OF LINE&quot;, &quot;LF&quot;, &quot;NL&quot;, &quot;EOL&quot; )</span>
+( &quot;&quot;    U+000A Cc 0 &quot;&quot;, &quot;LINE FEED&quot;, &quot;NEW LINE&quot;, &quot;END OF LINE&quot;, &quot;LF&quot;, &quot;NL&quot;, &quot;EOL&quot; )
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;hello\N{&lt;control-000A&gt;}bye&quot;~text~unescape=     </span><span style="font-weight:bold;color:blue;">-- T'hello[0A]bye'</span>
+T'hello[0A]bye'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;hello\U{&lt;control-000A&gt;}bye&quot;~text~unescape=     </span><span style="font-weight:bold;color:blue;">-- T'hello[0A]bye'</span>
+T'hello[0A]bye'
+
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Modify the display of UnicodeCharacter properties to show the codepoint values
+</span><span style="font-weight:bold;color:blue;">in U+ and 0x notation.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode[&quot;🤶&quot;]~properties=</span>
+a Directory (30 items)
+'aliases'               : (an Array no shape, 0 items)
+'bidiClass'             :  19
+'bidiClassName'         : 'ON'
+'bidiMirrored'          :  0
+'boundClass'            :  19
+'boundClassName'        : 'EXTENDED_PICTOGRAPHIC'
+'category'              :  22
+'categoryName'          : 'So'
+'charWidth'             :  2
+'codepoint'             : 'U+1F936'
+'combiningClass'        :  0
+'controlBoundary'       :  0
+'decompositionType'     :  0
+'decompositionTypeName' : 'None'
+'ignorable'             :  0
+'isLower'               :  0
+'isUpper'               :  0
+'name'                  : 'MOTHER CHRISTMAS'
+'toLowerFull'           : 'U+1F936'
+'toLowerSimple'         : 'U+1F936'
+'toTitleFull'           : 'U+1F936'
+'toTitleSimple'         : 'U+1F936'
+'toUpperFull'           : 'U+1F936'
+'toUpperSimple'         : 'U+1F936'
+'Unicode'               : '0x36F90100'
+'UTF16BE'               : '0xD83EDD36'
+'UTF16LE'               : '0x3ED836DD'
+'UTF32BE'               : '0x0001F936'
+'UTF32LE'               : '0x36F90100'
+'UTF8'                  : '0xF09FA4B6'
+
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Modification of the rule for buffer encoding neutrality.
+</span><span style="font-weight:bold;color:blue;">    old: If left is a        buffer with no encoding then use the right encoding.
+</span><span style="font-weight:bold;color:blue;">    new: If left is an empty buffer with no encoding then use the right encoding.
+</span><span style="font-weight:bold;color:blue;">Impacted methods:
+</span><span style="font-weight:bold;color:blue;">    .Encoding~compatibleEncoding
+</span><span style="font-weight:bold;color:blue;">    .StringIndexer~asEncodingFor
+</span><span style="font-weight:bold;color:blue;">Examples:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">buffer = .MutableBuffer~new</span>
+<span style="font-weight:bold;color:blue;">-- This is an empty buffer with no explicit encoding:
+</span><span style="font-weight:bold;color:blue;">-- The rule for encoding neutrality will apply.
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">buffer~description=                                                     </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 ASCII by default (0 byte)'</span>
+'UTF-8 ASCII by default (0 byte)'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Test&quot;~text~utf16~left(2, :buffer)=                                     </span><span style="font-weight:bold;color:blue;">-- M'[00]T[00]e'</span>
+M'[00]T[00]e'
+<span style="font-weight:bold;color:blue;">-- The buffer encoding is now UTF-16BE.
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">buffer~description=                                                     </span><span style="font-weight:bold;color:blue;">-- 'UTF-16BE (4 bytes)'</span>
+'UTF-16BE (4 bytes)'
+
+ooRexx&gt; <span style="font-weight:bold;color:purple;">buffer = .MutableBuffer~new(&quot;not empty&quot;)</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">buffer~description=                                                     </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 ASCII by default (9 bytes)'</span>
+'UTF-8 ASCII by default (9 bytes)'
+<span style="font-weight:bold;color:blue;">-- Here, the rule for encoding neutrality does not apply.
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Test&quot;~text~utf16~left(2, :buffer)=                                     </span><span style="font-weight:bold;color:blue;">-- Encoding: cannot append UTF-16BE to UTF-8 ASCII by default 'not empty'</span>
+<span style="font-weight:bold;color:red;">Encoding: cannot append UTF-16BE to UTF-8 ASCII by default 'not empty'.
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
+</span>
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">New method ~u2c on String and RexxText.
+</span><span style="font-weight:bold;color:blue;">Create a Unicode32 text from a sequence of U+xxxx.
+</span><span style="font-weight:bold;color:blue;">The U+ string/text must be compatible with a byte encoding (Byte or subclass,
+</span><span style="font-weight:bold;color:blue;">UTF-8 ASCII, WTF-8 ASCII).
+</span><span style="font-weight:bold;color:blue;">In other words, will not support a sequence of U+xxxx encoded in UTF-16 or UTF-32.
+</span><span style="font-weight:bold;color:blue;">Examples:
+</span><span style="font-weight:bold;color:blue;">*/
+</span><span style="font-weight:bold;color:blue;">-- U+ string
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;U+004E u+006F U+00EB U+006C U+1F936 U+1F385&quot;~u2c~description=          </span><span style="font-weight:bold;color:blue;">-- 'Unicode32 (6 characters, 6 codepoints, 24 bytes, 0 error)'</span>
+'Unicode32 (6 characters, 6 codepoints, 24 bytes, 0 error)'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;U+004E u+006F U+00EB U+006C U+1F936 U+1F385&quot;~u2c~c2x=                  </span><span style="font-weight:bold;color:blue;">-- '4E000000 6F000000 EB000000 6C000000 36F90100 85F30100'</span>
+'4E000000 6F000000 EB000000 6C000000 36F90100 85F30100'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;U+004E u+006F U+00EB U+006C U+1F936 U+1F385&quot;~u2c~utf8=                 </span><span style="font-weight:bold;color:blue;">-- T'Noël🤶🎅'</span>
+T'Noël🤶🎅'
+
+<span style="font-weight:bold;color:blue;">-- U+ text
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;U+004E u+006F U+00EB U+006C U+1F936 U+1F385&quot;~text~u2c~description=     </span><span style="font-weight:bold;color:blue;">-- 'Unicode32 (6 characters, 6 codepoints, 24 bytes, 0 error)'</span>
+'Unicode32 (6 characters, 6 codepoints, 24 bytes, 0 error)'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;U+004E u+006F U+00EB U+006C U+1F936 U+1F385&quot;~text~u2c~c2x=             </span><span style="font-weight:bold;color:blue;">-- '4E000000 6F000000 EB000000 6C000000 36F90100 85F30100'</span>
+'4E000000 6F000000 EB000000 6C000000 36F90100 85F30100'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;U+004E u+006F U+00EB U+006C U+1F936 U+1F385&quot;~text~u2c~utf8=            </span><span style="font-weight:bold;color:blue;">-- T'Noël🤶🎅'</span>
+T'Noël🤶🎅'
+
+ooRexx&gt; <span style="font-weight:bold;color:purple;">buffer = .MutableBuffer~new</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;U+0031 U+0032&quot;~text~u2c(:buffer)=                                      </span><span style="font-weight:bold;color:blue;">-- M'1[000000]2[000000]'</span>
+M'1[000000]2[000000]'
+<span style="font-weight:bold;color:blue;">-- The buffer encoding is now Unicode32.
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">buffer~description=                                                     </span><span style="font-weight:bold;color:blue;">-- 'Unicode32 (8 bytes)'</span>
+'Unicode32 (8 bytes)'
+
+<span style="font-weight:bold;color:blue;">-- Examples of invalid U+ string/text
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;U+004E u+006F U+00EB U+006C U+1F936 U+1F385&quot;~text~utf16~u2c=           </span><span style="font-weight:bold;color:blue;">-- UTF-16BE '[00]U[00]+[00]0[00]0[00]4[00]E[00] ...' is not compatible with an U+ string.</span>
+<span style="font-weight:bold;color:red;">UTF-16BE '[00]U[00]+[00]0[00]0[00]4[00]E[00] ...' is not compatible with an U+ string.
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;A+004E&quot;~u2c=                                                           </span><span style="font-weight:bold;color:blue;">-- Expecting U+ or u+ followed by 4..6 hex digits, got 'A+004E'</span>
+<span style="font-weight:bold;color:red;">Expecting U+ or u+ followed by 4..6 hex digits, got 'A+004E'.
+</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;u+4E&quot;~u2c=                                                             </span><span style="font-weight:bold;color:blue;">-- Expecting U+ or u+ followed by 4..6 hex digits, got 'u+4E'</span>
+<span style="font-weight:bold;color:red;">Expecting U+ or u+ followed by 4..6 hex digits, got 'u+4E'.
+</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;u+000004E&quot;~u2c=                                                        </span><span style="font-weight:bold;color:blue;">-- Expecting U+ or u+ followed by 4..6 hex digits, got 'u+000004E'</span>
+<span style="font-weight:bold;color:red;">Expecting U+ or u+ followed by 4..6 hex digits, got 'u+000004E'.
+</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span>
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">New supported methods on RexxText:
+</span><span style="font-weight:bold;color:blue;">- d2c       forward to String, return a Text or a MutableBuffer
+</span><span style="font-weight:bold;color:blue;">- d2x       forward to String, return a String or a MutableBuffer
+</span><span style="font-weight:bold;color:blue;">Examples:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;65&quot;~text~d2c=              </span><span style="font-weight:bold;color:blue;">-- T'A'</span>
+T'A'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;65&quot;~text~d2x=              </span><span style="font-weight:bold;color:blue;">-- 41</span>
+ 41
+ooRexx&gt; <span style="font-weight:bold;color:purple;">buffer = .MutableBuffer~new</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;65&quot;~text~d2c(:buffer)=     </span><span style="font-weight:bold;color:blue;">-- M'A'</span>
+M'A'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;65&quot;~text~d2x(:buffer)=     </span><span style="font-weight:bold;color:blue;">-- M'A41'</span>
+M'A41'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">buffer~encoding = &quot;utf16&quot;</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;65&quot;~text~d2c(:buffer)=     </span><span style="font-weight:bold;color:blue;">-- Encoding: cannot append UTF-8 ASCII by default 'A' to UTF-16BE 'A41'</span>
+<span style="font-weight:bold;color:red;">Encoding: cannot append UTF-8 ASCII by default 'A' to UTF-16BE 'A41'.
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
+</span>
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Partial implementation of translate (ASCII string only):
+</span><span style="font-weight:bold;color:blue;">Examples:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~text~translate=              </span><span style="font-weight:bold;color:blue;">-- 'HELLO'</span>
+T'HELLO'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~text~translate(,,&quot;x&quot;)=       </span><span style="font-weight:bold;color:blue;">-- 'xxxxx'</span>
+T'xxxxx'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~text~translate(,&quot;el&quot;,&quot;x&quot;)=   </span><span style="font-weight:bold;color:blue;">-- 'hxxxo'</span>
+T'hxxxo'
 
 
 <span style="font-weight:bold;color:blue;">-- ===============================================================================
@@ -56,7 +247,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstra�
  0
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~text~caselessMatchChar(5, &quot;ﬄ&quot;)=                        </span><span style="font-weight:bold;color:blue;">-- now 0: &quot;L&quot; casefolded to &quot;l&quot; doesn't match &quot;ﬄ&quot; casefolded to &quot;ffl&quot; (no more iteration on each character of &quot;ffl&quot;)</span>
  0
-ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(3, &quot;f&quot;, normalization:.Unicode~NFKD)=     </span><span style="font-weight:bold;color:blue;">-- now 0: &quot;ﬄ&quot; casefolded to &quot;ffl&quot; doesn't match &quot;f&quot;</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~text~matchChar(3, &quot;f&quot;, normalization:.Unicode~NFKD)=     </span><span style="font-weight:bold;color:blue;">-- now 0: &quot;ﬄ&quot; transformed to &quot;ffl&quot; doesn't match &quot;f&quot;</span>
  0
 
 <span style="font-weight:bold;color:blue;">/*
@@ -3251,7 +3442,7 @@ a Directory (30 items)
 'category'              :  26
 'categoryName'          : 'Cc'
 'charWidth'             :  0
-'codepoint'             :  13
+'codepoint'             : 'U+000D'
 'combiningClass'        :  0
 'controlBoundary'       :  1
 'decompositionType'     :  0
@@ -3260,18 +3451,18 @@ a Directory (30 items)
 'isLower'               :  0
 'isUpper'               :  0
 'name'                  : ''
-'toLowerFull'           :  13
-'toLowerSimple'         :  13
-'toTitleFull'           :  13
-'toTitleSimple'         :  13
-'toUpperFull'           :  13
-'toUpperSimple'         :  13
-'Unicode'               : T'[0D]'
-'UTF16BE'               : T'[000D]'
-'UTF16LE'               : T'[0D00]'
-'UTF32BE'               : T'[0000000D]'
-'UTF32LE'               : T'[0D000000]'
-'UTF8'                  : T'[0D]'
+'toLowerFull'           : 'U+000D'
+'toLowerSimple'         : 'U+000D'
+'toTitleFull'           : 'U+000D'
+'toTitleSimple'         : 'U+000D'
+'toUpperFull'           : 'U+000D'
+'toUpperSimple'         : 'U+000D'
+'Unicode'               : '0x0D'
+'UTF16BE'               : '0x000D'
+'UTF16LE'               : '0x0D00'
+'UTF32BE'               : '0x0000000D'
+'UTF32LE'               : '0x0D000000'
+'UTF8'                  : '0x0D'
 
 
 <span style="font-weight:bold;color:blue;">-- ===============================================================================
@@ -3367,7 +3558,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;ŒUF&quot;~text~ca
 </span><span style="font-weight:bold;color:blue;">The default value of 'strict' is now .false.
 </span><span style="font-weight:bold;color:blue;">
 </span><span style="font-weight:bold;color:blue;">The conversion methods accept the named argument 'memorize(3)'.
-</span><span style="font-weight:bold;color:blue;">Its default value is given by .unicode~memorizeConversions which is .false by default.
+</span><span style="font-weight:bold;color:blue;">Its default value is given by .unicode~memorizeTranscodings (was memorizeConversions) which is .false by default.
 </span><span style="font-weight:bold;color:blue;">Example:
 </span><span style="font-weight:bold;color:blue;">    s = &quot;hello&quot;
 </span><span style="font-weight:bold;color:blue;">    t = s~text
@@ -3445,10 +3636,11 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;bye&quot;~text~utf
 </span><span style="font-weight:bold;color:blue;">The definition of canonical equivalence by the Unicode standard seems not limited to NFC.
 </span><span style="font-weight:bold;color:blue;">https://unicode.org/notes/tn5/
 </span><span style="font-weight:bold;color:blue;">
-</span><span style="font-weight:bold;color:blue;">The strict comparison operators now use the NFC normalization.
+</span><span style="font-weight:bold;color:blue;">The strict comparison operators now use the NFC normalization (update: use .Unicode~defaultNormalization(strict:.true)).
 </span><span style="font-weight:bold;color:blue;">After normalization, they delegate to the String's strict comparison operators.
 </span><span style="font-weight:bold;color:blue;">
-</span><span style="font-weight:bold;color:blue;">The non-strict comparison operators now use the NFC normalization plus
+</span><span style="font-weight:bold;color:blue;">The non-strict comparison operators now use the NFC normalization (update: use .Unicode~defaultNormalization(strict:.false))
+</span><span style="font-weight:bold;color:blue;">plus
 </span><span style="font-weight:bold;color:blue;">    stripIgnorable:.true
 </span><span style="font-weight:bold;color:blue;">    lump:.true
 </span><span style="font-weight:bold;color:blue;">After normalization + transformations, they delegate to the String's non-strict comparison operators.
@@ -3975,7 +4167,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">    textNFD = text~nfd(m
 </span><span style="font-weight:bold;color:blue;">    - &quot;ϔ&quot; normalization forms are all different.
 </span><span style="font-weight:bold;color:blue;">    - &quot;ﷺ&quot; is one of the worst cases regarding the expansion factor in NFKS/NFKS: 18x
 </span><span style="font-weight:bold;color:blue;">    - &quot;baﬄe&quot;~text~subchar(3)=     -- T'ﬄ'
-</span><span style="font-weight:bold;color:blue;">      &quot;baﬄe&quot;~text~upper=          -- T'BAﬄE', not BAFFLE
+</span><span style="font-weight:bold;color:blue;">      &quot;baﬄe&quot;~text~upper=          -- T'BAﬄE', should be BAFFLE (to rework: utf8proc supports only simple uppercase)
 </span><span style="font-weight:bold;color:blue;">      The ligature disappears in NFK[CD] but not in NF[CD]
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;äöü äöü x̂ ϔ ﷺ baﬄe&quot;~text~UnicodeCharacters==</span>
@@ -4379,7 +4571,7 @@ T'hello John[0A]'
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;hello\u{20}John\n&quot;~text~unescape=</span>
 T'hello John[0A]'
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;hello\u{U+20}John\n&quot;~text~unescape=</span>
-<span style="font-weight:bold;color:red;">U+ is followed by 4..6 hex digits, got '20'.
+<span style="font-weight:bold;color:red;">Expected U+ or u+ followed by 4..6 hex digits, got '20'.
 </span><span style="font-weight:bold;color:red;">Error code= 93.900
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    </span><span style="font-weight:bold;color:blue;">-- \u is not supported for Byte encoding, you can use \x</span>
@@ -5730,7 +5922,7 @@ a Directory (12 items)
 'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=17 notExpanded:17 intervals, 105693 characters)
 'characters'                         : (an UnicodeCharacterSupplier count=44189 size=918000)
 'maxCodepoint'                       :  1114111
-'memorizeConversions'                :  0
+'memorizeTranscodings'               :  0
 'memorizeTransformations'            :  0
 'systemIsLittleEndian'               :  1
 'totalCharacterNameAliases'          :  473

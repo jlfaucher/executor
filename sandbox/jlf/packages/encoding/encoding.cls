@@ -1010,10 +1010,10 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
     if .nil == right then signal right_must_have_a_text_or_buffer_or_string_value
     rightEncoding = right~encoding -- will be the default encoding if right has no encoding
 
-    -- If left is a buffer with no encoding then use the right encoding.
-    -- In other words, don't use the default encoding for the left buffer.
-    -- Notice that this rule doesn't apply to a right buffer, only a left buffer has this encoding neutrality.
-    if left~isA(.MutableBuffer), \left~hasEncoding then return rightEncoding
+    -- If left is an empty buffer with no encoding then use the right encoding.
+    -- In other words, don't use the default encoding for the left buffer when it's empty.
+    -- Notice that this rule doesn't apply to a right buffer, only a left empty buffer has this encoding neutrality.
+    if left~isA(.MutableBuffer), \left~hasEncoding, left~length == 0 then return rightEncoding
 
     if leftEncoding == rightEncoding then return leftEncoding
 

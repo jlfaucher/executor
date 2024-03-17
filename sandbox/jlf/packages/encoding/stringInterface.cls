@@ -544,17 +544,19 @@ end
     -- yes, check always, even if padText will not be used
     encoding = .Encoding~forConcatenation(self, padText) -- raise an error if not compatible
 
+    if .nil \== buffer then buffer~encoding = encoding~asEncodingFor(buffer) -- raise an error if not compatible
+
     width = length
     len = self~length
 
     if witdh == len then do
-        if .nil <> buffer then return buffer~~append(self~string)
-                          else return .RexxText~new(self~string, self~encoding)
+        if .nil <> buffer then return buffer~~appendEncoded(self~string)
+                          else return .RexxText~new(self~string, encoding)
     end
 
     if width == 0 then do
         if .nil <> buffer then return buffer -- unchanged because result of center is ""
-                          else return self~encoding~emptyString
+                          else return encoding~emptyString
     end
 
     if width > len then do
@@ -565,7 +567,7 @@ end
         if .nil <> buffer then do
             -- TODO: rework
             -- can't use encoding~concatenate for pad because pad~copies appends directly to the buffer
-            -- consequence: will not detect WTF8 special concatenation, if any/
+            -- consequence: will not detect WTF8 special concatenation, if any
             padText~copies(leftPad, :buffer)
             encoding~concatenate(self~string, :buffer)
             padText~copies(rightPad, :buffer)
@@ -655,6 +657,8 @@ end
 
     encoding = .Encoding~forConcatenation(self~string, padText) -- raise an error if not compatible
 
+    if .nil \== buffer then buffer~encoding = encoding~asEncodingFor(buffer) -- raise an error if not compatible
+
     lengthPad = max(0, length - self~length)
     length = length - lengthPad
 
@@ -663,8 +667,11 @@ end
     startC = endC - length
     startB = abs(self~characterIndexB(startC))
     right = self~string~right(endB - startB)
+    -- It's a new string, without any encoding stored on it
+    right~encoding = self~encoding
+
     if lengthPad == 0 then do
-        if .nil <> buffer then return buffer~~append(right)
+        if .nil <> buffer then return buffer~~appendEncoded(right)
                           else return .RexxText~new(right, self~encoding)
     end
     if .nil <> buffer then do
@@ -697,6 +704,8 @@ end
 
     encoding = .Encoding~forConcatenation(self~string, padText) -- raise an error if not compatible
 
+    if .nil \== buffer then buffer~encoding = encoding~asEncodingFor(buffer) -- raise an error if not compatible
+
     if startC > self~length then return padText~copies(length, :buffer)
     remainingLength = self~length - startC + 1 -- always >= 0
     lengthPad = max(0, length - remainingLength)
@@ -705,9 +714,12 @@ end
     startB = abs(self~characterIndexB(startC))
     endB = abs(self~characterIndexB(endC+1))
     substr = self~string~substr(startB, endB - startB)
+    -- It's a new string, without any encoding stored on it
+    substr~encoding = self~encoding
+
     if lengthPad == 0 then do
-        if .nil <> buffer then return buffer~~append(substr)
-                          else return .RexxText~new(substr, self~encoding)
+        if .nil <> buffer then return buffer~~appendEncoded(substr)
+                          else return .RexxText~new(substr, encoding)
     end
     if .nil <> buffer then do
         encoding~concatenate(substr, :buffer)
@@ -724,6 +736,30 @@ end
     incorrect_pad:      raise syntax 93.922 array(pad)
     incorrect_padText:  raise syntax 93.922 array(padText~descriptionForError)
 
+
+/*
+::method translate
+    use strict arg tableo=.nil, tablei=.nil, pad=(self~encoding~spaceCharacter), nC=1, lengthC=(max(0, self~length - nC + 1))
+    use strict named arg buffer=.nil
+
+Argument 1 must have a string value.
+Error code= 88.909
+
+Argument 2 must have a string value.
+Error code= 88.909
+
+Argument 3 must have a string value.
+Error code= 88.909
+
+Invalid position argument specified; found "an Object".
+Error code= 93.924
+
+Invalid length argument specified; found "an Object".
+Error code= 93.923
+
+Too many arguments in invocation of method; 5 expected.
+Error code= 93.902
+*/
 
 -- not a String method but maybe in the future...
 ::method title

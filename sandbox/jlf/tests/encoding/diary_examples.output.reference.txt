@@ -6,8 +6,199 @@ Total loaded character names: 149813
 Total character name aliases: 473
 Unicode character intervals not expanded, execute: call expandUnicodeCharacterIntervals
 
-ooRexx> .Unicode~memorizeConversions = .false
+ooRexx> .Unicode~memorizeTranscodings = .false
 ooRexx> .Unicode~memorizeTransformations = .false
+
+
+-- ===============================================================================
+-- 2024 Mar 17
+
+/*
+For consistency with other methods, add the optional named argument 'buffer' to
+    []
+    c2g
+    c2x
+    x2b
+    x2d
+Examples:
+*/
+ooRexx> buffer = .MutableBuffer~new
+ooRexx> "Tête à tête"~text[2, 5, :buffer]=  -- M'ête à'
+M'ête à'
+ooRexx> "A"~text~c2g(:buffer)=              -- M'ête à41'
+M'ête à41'
+ooRexx> "A"~text~c2x(:buffer)=              -- M'ête à4141'
+M'ête à4141'
+ooRexx> "41"~text~x2b(:buffer)=             -- M'ête à414101000001'
+M'ête à414101000001'
+ooRexx> "41"~text~x2d(:buffer)=             -- M'ête à41410100000165'
+M'ête à41410100000165'
+
+
+/*
+For compatibility with Python, add support for \N{Unicode name}.
+Example:
+*/
+ooRexx> "\N{for all} x \N{there exists} y such that x+y=0"~text~unescape=       -- T'∀ x ∃ y such that x+y=0'
+T'∀ x ∃ y such that x+y=0'
+
+
+/*
+Add support for code point labels.
+Examples:
+*/
+ooRexx> .unicode~character("<control-000A>")=           -- ( ""    U+000A Cc 0 "", "LINE FEED", "NEW LINE", "END OF LINE", "LF", "NL", "EOL" )
+( ""    U+000A Cc 0 "", "LINE FEED", "NEW LINE", "END OF LINE", "LF", "NL", "EOL" )
+ooRexx> "hello\N{<control-000A>}bye"~text~unescape=     -- T'hello[0A]bye'
+T'hello[0A]bye'
+ooRexx> "hello\U{<control-000A>}bye"~text~unescape=     -- T'hello[0A]bye'
+T'hello[0A]bye'
+
+
+/*
+Modify the display of UnicodeCharacter properties to show the codepoint values
+in U+ and 0x notation.
+*/
+ooRexx> .Unicode["🤶"]~properties=
+a Directory (30 items)
+'aliases'               : (an Array no shape, 0 items)
+'bidiClass'             :  19
+'bidiClassName'         : 'ON'
+'bidiMirrored'          :  0
+'boundClass'            :  19
+'boundClassName'        : 'EXTENDED_PICTOGRAPHIC'
+'category'              :  22
+'categoryName'          : 'So'
+'charWidth'             :  2
+'codepoint'             : 'U+1F936'
+'combiningClass'        :  0
+'controlBoundary'       :  0
+'decompositionType'     :  0
+'decompositionTypeName' : 'None'
+'ignorable'             :  0
+'isLower'               :  0
+'isUpper'               :  0
+'name'                  : 'MOTHER CHRISTMAS'
+'toLowerFull'           : 'U+1F936'
+'toLowerSimple'         : 'U+1F936'
+'toTitleFull'           : 'U+1F936'
+'toTitleSimple'         : 'U+1F936'
+'toUpperFull'           : 'U+1F936'
+'toUpperSimple'         : 'U+1F936'
+'Unicode'               : '0x36F90100'
+'UTF16BE'               : '0xD83EDD36'
+'UTF16LE'               : '0x3ED836DD'
+'UTF32BE'               : '0x0001F936'
+'UTF32LE'               : '0x36F90100'
+'UTF8'                  : '0xF09FA4B6'
+
+
+/*
+Modification of the rule for buffer encoding neutrality.
+    old: If left is a        buffer with no encoding then use the right encoding.
+    new: If left is an empty buffer with no encoding then use the right encoding.
+Impacted methods:
+    .Encoding~compatibleEncoding
+    .StringIndexer~asEncodingFor
+Examples:
+*/
+ooRexx> buffer = .MutableBuffer~new
+-- This is an empty buffer with no explicit encoding:
+-- The rule for encoding neutrality will apply.
+ooRexx> buffer~description=                                                     -- 'UTF-8 ASCII by default (0 byte)'
+'UTF-8 ASCII by default (0 byte)'
+ooRexx> "Test"~text~utf16~left(2, :buffer)=                                     -- M'[00]T[00]e'
+M'[00]T[00]e'
+-- The buffer encoding is now UTF-16BE.
+ooRexx> buffer~description=                                                     -- 'UTF-16BE (4 bytes)'
+'UTF-16BE (4 bytes)'
+
+ooRexx> buffer = .MutableBuffer~new("not empty")
+ooRexx> buffer~description=                                                     -- 'UTF-8 ASCII by default (9 bytes)'
+'UTF-8 ASCII by default (9 bytes)'
+-- Here, the rule for encoding neutrality does not apply.
+ooRexx> "Test"~text~utf16~left(2, :buffer)=                                     -- Encoding: cannot append UTF-16BE to UTF-8 ASCII by default 'not empty'
+Encoding: cannot append UTF-16BE to UTF-8 ASCII by default 'not empty'.
+Error code= 23.900
+
+
+/*
+New method ~u2c on String and RexxText.
+Create a Unicode32 text from a sequence of U+xxxx.
+The U+ string/text must be compatible with a byte encoding (Byte or subclass,
+UTF-8 ASCII, WTF-8 ASCII).
+In other words, will not support a sequence of U+xxxx encoded in UTF-16 or UTF-32.
+Examples:
+*/
+-- U+ string
+ooRexx> "U+004E u+006F U+00EB U+006C U+1F936 U+1F385"~u2c~description=          -- 'Unicode32 (6 characters, 6 codepoints, 24 bytes, 0 error)'
+'Unicode32 (6 characters, 6 codepoints, 24 bytes, 0 error)'
+ooRexx> "U+004E u+006F U+00EB U+006C U+1F936 U+1F385"~u2c~c2x=                  -- '4E000000 6F000000 EB000000 6C000000 36F90100 85F30100'
+'4E000000 6F000000 EB000000 6C000000 36F90100 85F30100'
+ooRexx> "U+004E u+006F U+00EB U+006C U+1F936 U+1F385"~u2c~utf8=                 -- T'Noël🤶🎅'
+T'Noël🤶🎅'
+
+-- U+ text
+ooRexx> "U+004E u+006F U+00EB U+006C U+1F936 U+1F385"~text~u2c~description=     -- 'Unicode32 (6 characters, 6 codepoints, 24 bytes, 0 error)'
+'Unicode32 (6 characters, 6 codepoints, 24 bytes, 0 error)'
+ooRexx> "U+004E u+006F U+00EB U+006C U+1F936 U+1F385"~text~u2c~c2x=             -- '4E000000 6F000000 EB000000 6C000000 36F90100 85F30100'
+'4E000000 6F000000 EB000000 6C000000 36F90100 85F30100'
+ooRexx> "U+004E u+006F U+00EB U+006C U+1F936 U+1F385"~text~u2c~utf8=            -- T'Noël🤶🎅'
+T'Noël🤶🎅'
+
+ooRexx> buffer = .MutableBuffer~new
+ooRexx> "U+0031 U+0032"~text~u2c(:buffer)=                                      -- M'1[000000]2[000000]'
+M'1[000000]2[000000]'
+-- The buffer encoding is now Unicode32.
+ooRexx> buffer~description=                                                     -- 'Unicode32 (8 bytes)'
+'Unicode32 (8 bytes)'
+
+-- Examples of invalid U+ string/text
+ooRexx> "U+004E u+006F U+00EB U+006C U+1F936 U+1F385"~text~utf16~u2c=           -- UTF-16BE '[00]U[00]+[00]0[00]0[00]4[00]E[00] ...' is not compatible with an U+ string.
+UTF-16BE '[00]U[00]+[00]0[00]0[00]4[00]E[00] ...' is not compatible with an U+ string.
+Error code= 23.900
+ooRexx> "A+004E"~u2c=                                                           -- Expecting U+ or u+ followed by 4..6 hex digits, got 'A+004E'
+Expecting U+ or u+ followed by 4..6 hex digits, got 'A+004E'.
+Error code= 93.900
+ooRexx> "u+4E"~u2c=                                                             -- Expecting U+ or u+ followed by 4..6 hex digits, got 'u+4E'
+Expecting U+ or u+ followed by 4..6 hex digits, got 'u+4E'.
+Error code= 93.900
+ooRexx> "u+000004E"~u2c=                                                        -- Expecting U+ or u+ followed by 4..6 hex digits, got 'u+000004E'
+Expecting U+ or u+ followed by 4..6 hex digits, got 'u+000004E'.
+Error code= 93.900
+
+
+/*
+New supported methods on RexxText:
+- d2c       forward to String, return a Text or a MutableBuffer
+- d2x       forward to String, return a String or a MutableBuffer
+Examples:
+*/
+ooRexx> "65"~text~d2c=              -- T'A'
+T'A'
+ooRexx> "65"~text~d2x=              -- 41
+ 41
+ooRexx> buffer = .MutableBuffer~new
+ooRexx> "65"~text~d2c(:buffer)=     -- M'A'
+M'A'
+ooRexx> "65"~text~d2x(:buffer)=     -- M'A41'
+M'A41'
+ooRexx> buffer~encoding = "utf16"
+ooRexx> "65"~text~d2c(:buffer)=     -- Encoding: cannot append UTF-8 ASCII by default 'A' to UTF-16BE 'A41'
+Encoding: cannot append UTF-8 ASCII by default 'A' to UTF-16BE 'A41'.
+Error code= 23.900
+
+
+/*
+Partial implementation of translate (ASCII string only):
+Examples:
+*/
+ooRexx> "hello"~text~translate=              -- 'HELLO'
+T'HELLO'
+ooRexx> "hello"~text~translate(,,"x")=       -- 'xxxxx'
+T'xxxxx'
+ooRexx> "hello"~text~translate(,"el","x")=   -- 'hxxxo'
+T'hxxxo'
 
 
 -- ===============================================================================
@@ -21,7 +212,7 @@ ooRexx> "Bundesschnellstraße"~text~caselessMatchChar(18, "s")=           -- now
  0
 ooRexx> "BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                        -- now 0: "L" casefolded to "l" doesn't match "ﬄ" casefolded to "ffl" (no more iteration on each character of "ffl")
  0
-ooRexx> "baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=     -- now 0: "ﬄ" casefolded to "ffl" doesn't match "f"
+ooRexx> "baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=     -- now 0: "ﬄ" transformed to "ffl" doesn't match "f"
  0
 
 /*
@@ -3216,7 +3407,7 @@ a Directory (30 items)
 'category'              :  26
 'categoryName'          : 'Cc'
 'charWidth'             :  0
-'codepoint'             :  13
+'codepoint'             : 'U+000D'
 'combiningClass'        :  0
 'controlBoundary'       :  1
 'decompositionType'     :  0
@@ -3225,18 +3416,18 @@ a Directory (30 items)
 'isLower'               :  0
 'isUpper'               :  0
 'name'                  : ''
-'toLowerFull'           :  13
-'toLowerSimple'         :  13
-'toTitleFull'           :  13
-'toTitleSimple'         :  13
-'toUpperFull'           :  13
-'toUpperSimple'         :  13
-'Unicode'               : T'[0D]'
-'UTF16BE'               : T'[000D]'
-'UTF16LE'               : T'[0D00]'
-'UTF32BE'               : T'[0000000D]'
-'UTF32LE'               : T'[0D000000]'
-'UTF8'                  : T'[0D]'
+'toLowerFull'           : 'U+000D'
+'toLowerSimple'         : 'U+000D'
+'toTitleFull'           : 'U+000D'
+'toTitleSimple'         : 'U+000D'
+'toUpperFull'           : 'U+000D'
+'toUpperSimple'         : 'U+000D'
+'Unicode'               : '0x0D'
+'UTF16BE'               : '0x000D'
+'UTF16LE'               : '0x0D00'
+'UTF32BE'               : '0x0000000D'
+'UTF32LE'               : '0x0D000000'
+'UTF8'                  : '0x0D'
 
 
 -- ===============================================================================
@@ -3332,7 +3523,7 @@ Previously, was supported only for the byte encodings.
 The default value of 'strict' is now .false.
 
 The conversion methods accept the named argument 'memorize(3)'.
-Its default value is given by .unicode~memorizeConversions which is .false by default.
+Its default value is given by .unicode~memorizeTranscodings (was memorizeConversions) which is .false by default.
 Example:
     s = "hello"
     t = s~text
@@ -3410,10 +3601,11 @@ TODO: confirm that it's NFC, and only that.
 The definition of canonical equivalence by the Unicode standard seems not limited to NFC.
 https://unicode.org/notes/tn5/
 
-The strict comparison operators now use the NFC normalization.
+The strict comparison operators now use the NFC normalization (update: use .Unicode~defaultNormalization(strict:.true)).
 After normalization, they delegate to the String's strict comparison operators.
 
-The non-strict comparison operators now use the NFC normalization plus
+The non-strict comparison operators now use the NFC normalization (update: use .Unicode~defaultNormalization(strict:.false))
+plus
     stripIgnorable:.true
     lump:.true
 After normalization + transformations, they delegate to the String's non-strict comparison operators.
@@ -3940,7 +4132,7 @@ ooRexx>     text~nfd == textNFD=                    -- .true
     - "ϔ" normalization forms are all different.
     - "ﷺ" is one of the worst cases regarding the expansion factor in NFKS/NFKS: 18x
     - "baﬄe"~text~subchar(3)=     -- T'ﬄ'
-      "baﬄe"~text~upper=          -- T'BAﬄE', not BAFFLE
+      "baﬄe"~text~upper=          -- T'BAﬄE', should be BAFFLE (to rework: utf8proc supports only simple uppercase)
       The ligature disappears in NFK[CD] but not in NF[CD]
 */
 ooRexx> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~UnicodeCharacters==
@@ -4344,7 +4536,7 @@ T'hello John[0A]'
 ooRexx>     "hello\u{20}John\n"~text~unescape=
 T'hello John[0A]'
 ooRexx>     "hello\u{U+20}John\n"~text~unescape=
-U+ is followed by 4..6 hex digits, got '20'.
+Expected U+ or u+ followed by 4..6 hex digits, got '20'.
 Error code= 93.900
 
 ooRexx>     -- \u is not supported for Byte encoding, you can use \x
@@ -5695,7 +5887,7 @@ a Directory (12 items)
 'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=17 notExpanded:17 intervals, 105693 characters)
 'characters'                         : (an UnicodeCharacterSupplier count=44189 size=918000)
 'maxCodepoint'                       :  1114111
-'memorizeConversions'                :  0
+'memorizeTranscodings'               :  0
 'memorizeTransformations'            :  0
 'systemIsLittleEndian'               :  1
 'totalCharacterNameAliases'          :  473

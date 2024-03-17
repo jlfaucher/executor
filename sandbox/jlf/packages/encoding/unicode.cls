@@ -99,7 +99,7 @@ Depends on
 ::attribute codepointBidiClassNames get class
 ::attribute codepointDecompositionTypeNames get class
 ::attribute codepointBoundClassNames get class
-::attribute memorizeConversions class -- global flag to control if the conversions from/to Unicode are memorized on the text
+::attribute memorizeTranscodings class -- global flag to control if the results of ~transcodeTo are memorized on the text
 ::attribute memorizeTransformations class -- global flag to control if the NFC, NFD, ... transformtions are memorized on the text
 ::attribute unckeckedConversionToString class
 
@@ -110,7 +110,7 @@ Depends on
                          totalIntervalCharacters -
                          totalIntervalCharactersNotExpanded -
                          totalCharacterNameAliases -
-                         memorizeConversions -
+                         memorizeTranscodings -
                          memorizeTransformations -
                          unckeckedConversionToString
     use strict arg -- none
@@ -126,7 +126,7 @@ Depends on
     totalIntervalCharactersNotExpanded = -1
     totalCharacterNameAliases = 0
     self~declareCharacters
-    memorizeConversions = .false
+    memorizeTranscodings = .false
     memorizeTransformations = .false
     unckeckedConversionToString = .false
 
@@ -141,7 +141,7 @@ Depends on
     "characterIntervals",,
     "dataDirectory",,
     "maxCodepoint",,
-    "memorizeConversions",,
+    "memorizeTranscodings",,
     "memorizeTransformations",,
     "systemIsLittleEndian",,
     "totalCharactersLoaded",,
@@ -294,10 +294,12 @@ Depends on
 ::method character class
     expose characters characterNames
     use strict arg name
-    use named arg hexadecimal=.false -- can't be guessed: 100 in hexadecimal is different from 100 in decimal
+    use named arg by="DFHLNU", hexadecimal=.false -- can't be guessed: 100 in hexadecimal is different from 100 in decimal
+
+    name = name~strip
 
     -- is name an hexadecimal codepoint ?
-    if hexadecimal then do
+    if by~caselessContains("H"), hexadecimal then do
         call remove_leading_zeros
         if name~length <= 8, datatype(name, "X") then do
             numeric digits 10 -- to support FFFFFFFF, even if way too big for a codepoint (will be checked by characterByCodepoint)
@@ -307,15 +309,14 @@ Depends on
     end
 
     -- is name a decimal codepoint ?
-    if datatype(name, "W") then do
+    if by~caselessContains("D"), datatype(name, "W") then do
         call remove_leading_zeros
         if name~length <= 7 then return self~characterByCodepoint(name)
         signal invalid_decimal_codepoint
     end
 
     -- is name a U+ codepoint ?
-    if name~caselessStartsWith("U+") then do
-        prefix = name~left(2)
+    if by~caselessContains("U"), name~caselessStartsWith("U+") then do
         name = name~substr(3)
         if name~length >= 4, name~length <= 6, datatype(name, "X") then do
             return self~characterByCodepoint(name~x2d)
@@ -324,14 +325,42 @@ Depends on
     end
 
     -- is name a character name?
-    looseMatchingIndex = UAX44_LM2(name)
-    codepoint = characterNames[looseMatchingIndex]
-    if .nil <> codepoint then return characters[self~characterIndexOffset + codepoint]
+    if by~caselessContains("N") then do
+        looseMatchingIndex = UAX44_LM2(name)
+        codepoint = characterNames[looseMatchingIndex]
+        if .nil <> codepoint then return characters[self~characterIndexOffset + codepoint]
+    end
+
+    -- is name a code point label?
+    /*
+    code point labels are constructed by using a lowercase prefix derived from the code point type,
+    followed by a hyphen-minus and then a 4- to 6-digit hexadecimal representation of the code point.
+        Control         control-NNNN
+        Reserved        reserved-NNNN
+        Noncharacter    noncharacter-NNNN
+        Private-Use     private-use-NNNN
+        Surrogate       surrogate-NNNN
+    U+0008 label is <control-0008>
+    */
+    if by~caselessContains("L"), name~left(1) == "<", name~right(1) == ">", name~pos(" ") == 0 then do
+        hyphenPos = name~lastPos("-")
+        if hyphenPos \== 0 then do
+            parse var name "<" type =(hyphenPos) "-" hex ">"
+            if "control reserved noncharacter private-use surrogate"~wordPos(type) \== 0,,
+               hex~length >= 4, hex~length <= 6,,
+               hex~datatype("X"),
+            then do
+                return self~characterByCodepoint(hex~x2d)
+            end
+        end
+    end
 
     -- fallback: if the name is made of just one codepoint then search this codepoint
-    codepoints = name~text~codepoints
-    if codepoints~count == 1 then return self~characterByCodepoint(codepoints~item)
-    if name~text~length == 1 then signal character_made_of_several_codepoints
+    if by~caselessContains("F") then do
+        codepoints = name~text~codepoints
+        if codepoints~count == 1 then return self~characterByCodepoint(codepoints~item)
+        if name~text~length == 1 then signal character_made_of_several_codepoints
+    end
 
     signal name_not_found
 
@@ -343,7 +372,7 @@ Depends on
 
     invalid_hexadecimal_codepoint:          raise syntax 93.900 array("an hexadecimal codepoint is 1..8 hex digits, got '"name"'")
     invalid_decimal_codepoint:              raise syntax 93.900 array("a decimal codepoint is 1..7 digits, got '"name"'")
-    invalid_u_plus:                         raise syntax 93.900 array(prefix "is followed by 4..6 hex digits, got '"name"'")
+    invalid_u_plus:                         raise syntax 93.900 array("Expected U+ or u+ followed by 4..6 hex digits, got '"name"'")
     character_made_of_several_codepoints:   raise syntax 93.900 array("The character '"name"' is made of several codepoints:" name~text~c2u)
     name_not_found:                         raise syntax 93.900 array("Name '"name"' not found")
 
@@ -987,7 +1016,8 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 
 ::method properties class
     -- TODO: align with UCD PropertyAliases.txt
-    return,
+    expose properties
+    if \ var("properties") then properties =,
         "aliases",,
         "bidiClass",,
         "bidiClassName",,
@@ -1018,13 +1048,36 @@ https://unicode.org/reports/tr44/#UAX44-LM3
         "UTF32BE",,
         "UTF32LE",,
         "UTF8"
+    return properties
+
+
+::method propertiesSpecialDisplay class
+    expose specialDisplay
+    if \ var("specialDisplay") then specialDisplay = .Directory~of(,
+        "codepoint",       {arg(1)~Unicode~c2u},,
+        "toLowerFull",     {.unicode[arg(1)~toLowerFull]~unicode~c2u},,
+        "toLowerSimple",   {.unicode[arg(1)~toLowerSimple]~unicode~c2u},,
+        "toTitleFull",     {.unicode[arg(1)~toTitleFull]~unicode~c2u},,
+        "toTitleSimple",   {.unicode[arg(1)~toTitleSimple]~unicode~c2u},,
+        "toUpperFull",     {.unicode[arg(1)~toUpperFull]~unicode~c2u},,
+        "toUpperSimple",   {.unicode[arg(1)~toUpperSimple]~unicode~c2u},,
+        "Unicode",         {"0x"arg(1)~Unicode~c2x},,
+        "UTF16BE",         {"0x"arg(1)~UTF16BE~c2x},,
+        "UTF16LE",         {"0x"arg(1)~UTF16LE~c2x},,
+        "UTF32BE",         {"0x"arg(1)~UTF32BE~c2x},,
+        "UTF32LE",         {"0x"arg(1)~UTF32LE~c2x},,
+        "UTF8",            {"0x"arg(1)~UTF8~c2x},,
+        )
+    return specialDisplay
 
 
 ::method properties
     properties = .directory~new
-    do message over self~class~properties
-        value = self~send(message)
-        properties~put(value, message)
+    do property over self~class~properties
+        specialDisplay = self~class~propertiesSpecialDisplay[property]
+        if .nil \== specialDisplay then value = specialDisplay~(self)
+        else value = property~(self)
+        properties~put(value, property)
     end
     return properties
 

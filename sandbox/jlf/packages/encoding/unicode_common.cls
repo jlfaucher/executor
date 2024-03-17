@@ -208,16 +208,16 @@ Depends on
     -- if errorInfo is .nil (default) then raise the error
     -- otherwise store the error message in errorInfo and return .nil
     use strict arg targetEncoding
-    use strict named arg strict=.false, memorize = (.Unicode~memorizeConversions), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
+    use strict named arg strict=.false, memorize = (.Unicode~memorizeTranscodings), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
 
     replacementCodepoint = replacementCodepoint(replacementCharacter, targetEncoding)
     targetEncoding = .Encoding~factory(targetEncoding, self~string, :replacementCodepoint) -- replacementCodepoint is used for UnicodeN, to determine the maximumUnicodeCodepoint
-    if targetEncoding~isUnicode then return self~convertToUnicode(targetEncoding, :memorize, :buffer, :replacementCodepoint, :errorInfo)
-    if targetEncoding~isByte then return self~convertToByte(targetEncoding, :strict, :memorize, :buffer, :replacementCodepoint, :errorInfo)
+    if targetEncoding~isUnicode then return self~transcodeToUnicode(targetEncoding, :memorize, :buffer, :replacementCodepoint, :errorInfo)
+    if targetEncoding~isByte then return self~transcodeToByte(targetEncoding, :strict, :memorize, :buffer, :replacementCodepoint, :errorInfo)
     -- Should not reach here
 
 
-::method convertToUnicode private
+::method transcodeToUnicode private
     /*
     D93 Encoding form conversion:
     A conversion defined directly between the code unit sequences of one Unicode
@@ -270,6 +270,9 @@ Depends on
 
     if returnBuffer then return buffer
     text = .RexxText~new(string, targetEncoding)
+
+    -- discutable... On the target, I memorize the origin string.
+    -- but nothing guarantees that transcoding the target string to the origin encoding would give the origin string.
     if memorize then text~indexer~cacheString(self~encoding~name, self~string)
     return text
 
@@ -284,7 +287,7 @@ Depends on
         raise syntax 23.900 array (errorMessage)
 
 
-::method convertToByte private
+::method transcodeToByte private
     use strict arg targetEncoding
     use strict named arg strict, memorize, buffer, replacementCodepoint, errorInfo
 

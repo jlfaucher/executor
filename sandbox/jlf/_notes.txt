@@ -885,6 +885,19 @@ https://nanxiao.me/en/a-judy-array-example/
 
 
 ================================================================================
+Encoded strings - WON'T DO
+================================================================================
+
+Should I raise an error if the encoding is overwritten?
+    "Noël"~text("utf8") == "Noël"~text("byte")=     -- true, should raise an error "cannot compare Byte not-ASCII with UTF-8 not-ASCII"
+is true because "Noël" is an interned string.
+Both texts have the byte encoding (the last assigned).
+Same problem with
+    NU = "Noël"~text; NB = "Noël"~text; NB~encoding = "byte"; NU == NB=     -- true, should raise an error
+Decision: no, problem already identified and documented in the demos.
+
+
+================================================================================
 Encoded strings - TODO
 ================================================================================
 
@@ -1039,7 +1052,7 @@ git log -i --grep=encod --grep=unicode --pretty=medium > log-encod.txt
 
 -- List the methods of the classes implemented by the package text.cls
 -- We retrieve the mixin classes listed by the previous query, plus the Object class for which a direct extension is applied.
--- Not listed here (232 lines)
+-- Not listed here (237 lines)
 ?cm = (text.cls)
 
 
@@ -1077,6 +1090,8 @@ git log -i --grep=encod --grep=unicode --pretty=medium > log-encod.txt
     P. P.G.    'REQUESTTEXTORBUFFERORSTRING' : 'String' 'Object' (text.cls)
     P. P.G.    'TEXT'                        : 'String' 'EncodedString' (text.cls)
     P. P.G.    'TEXT='                       : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'U2C'                         : 'String' 'EncodedString' (text.cls)
+
 
 -- List the MutableBuffer's method added by text.cls
 ?cmi MutableBuffer = (text.cls)
@@ -1331,17 +1346,26 @@ git log -i --grep=encod --grep=unicode --pretty=medium > log-encod.txt
     -- The part specific to each encoding is managed by self~codepoints
     PM P.G.    'C2X' : 'StringIndexer' (stringIndexer.cls)
      > 0001 use strict arg -- none
-     > 0002     codepoints = self~codepoints
-     > 0003     buffer = .MutableBuffer~new
-     > 0004     first = .true
-     > 0005     do while codepoints~available
-     > 0006         if \first then buffer~append(" ")
-     > 0007         first = .false
-     > 0008         codepoint = codepoints~item(.false) -- false: don't decode
-     > 0009         buffer~append(codepoint~c2x)
-     > 0010         codepoints~next
-     > 0011     end
-     > 0012     return buffer~string
+     > 0002     use strict named arg buffer=.nil
+     > 0003     codepoints = self~codepoints
+     > 0004     returnBuffer = .nil <> buffer
+     > 0005     if .nil == buffer then buffer = .MutableBuffer~new
+     > 0006     targetEncoding = self~encoding
+     > 0007     buffer~encoding = targetEncoding~asEncodingFor(buffer) -- raise an error if not compatible
+     > 0008     bufferStart = buffer~length + 1
+     > 0009     first = .true
+     > 0010     do while codepoints~available
+     > 0011         if \first then buffer~append(" ")
+     > 0012         first = .false
+     > 0013         codepoint = codepoints~item(.false) -- false: don't decode
+     > 0014         buffer~append(codepoint~c2x)
+     > 0015         codepoints~next
+     > 0016     end
+     > 0017     if returnBuffer then return buffer
+     > 0018     xstring = buffer~substr(bufferStart)
+     > 0019     -- It's a new string, without any encoding stored on it
+     > 0020     xstring~encoding = targetEncoding
+     > 0021     return xstring
 
 
 ================================================================================

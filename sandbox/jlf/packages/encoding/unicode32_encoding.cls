@@ -112,7 +112,7 @@
 
 ::method encodeASCIIstring class
     use strict arg string
-    use strict named arg memorize = (.Unicode~memorizeConversions), buffer=.nil
+    use strict named arg memorize = (.Unicode~memorizeTranscodings), buffer=.nil
 
     text = .nil
     if string~hasText then text = string~text
@@ -154,6 +154,71 @@
     convertedText = .RexxText~new(convertedString, targetEncoding)
     if memorize then convertedText~indexer~cacheString(string~encoding~name, string)
     return convertedText
+
+
+::method encodeUplusString class
+    -- Create a Unicode32 string/text from a sequence of U+xxxx
+    use strict arg string
+    use strict named arg buffer=.nil
+
+    if \ string~isCompatibleWithByteString then signal not_compatible_with_byte_string
+
+    string = string~string -- in case a RexxText has been passed
+    returnBuffer = .nil <> buffer
+    if .nil == buffer then buffer = .MutableBuffer~new
+
+    targetEncoding = self
+    buffer~encoding = targetEncoding~asEncodingFor(buffer) -- raise an error if not compatible
+    bufferStart = buffer~length + 1
+
+    pos = 1
+    do forever
+        if pos > string~length then leave
+        parse var string =(pos) word .
+        valid_u_plus = .false
+        if word~caselessStartsWith("U+") then do
+            hexdigits = word~substr(3)
+            if hexdigits~length >= 4, hexdigits~length <= 6, datatype(hexdigits, "X") then do
+                valid_u_plus = .true
+                self~encode(hexdigits~x2d, :buffer)
+            end
+        end
+        if \ valid_u_plus then signal invalid_u_plus
+        pos = nextpos(string, pos)
+        if pos > string~length then leave
+    end
+
+    encodedString = buffer~substr(bufferStart)
+    -- It's a new string, without any encoding stored on it
+    encodedString~encoding = targetEncoding
+
+    if returnBuffer then return buffer
+                    else return .RexxText~new(encodedString, targetEncoding)
+
+    nextpos: procedure
+        use strict arg string, pos
+        -- Ex: string="   xxx   ", pos=1
+        --             123456789
+        -- From 1 to 3, skip space.
+        -- At 4, stopWhenSpace=.true.
+        -- From 4 to 6, skip x.
+        -- At 7, stop iteration, return 7
+        stopWhenSpace = .false
+        do i = pos to string~length
+            char = string~subchar(i)
+            if char == " " then do
+                if stopWhenSpace then return i
+            end
+            else do
+                -- We have found a non-space character.
+                -- The position of the next space will be the start position to parse the next word
+                stopWhenSpace = .true
+            end
+        end
+        return i -- string~length + 1
+
+    not_compatible_with_byte_string:    raise syntax 23.900 array(string~descriptionForError "is not compatible with an U+ string")
+    invalid_u_plus:                     raise syntax 93.900 array("Expecting U+ or u+ followed by 4..6 hex digits, got '"word"'")
 
 
 /********************/

@@ -3,8 +3,128 @@ demo on
 
 call loadUnicodeCharacterNames
 
-.Unicode~memorizeConversions = .false
+.Unicode~memorizeTranscodings = .false
 .Unicode~memorizeTransformations = .false
+
+
+-- ===============================================================================
+-- 2024 Mar 17
+
+/*
+For consistency with other methods, add the optional named argument 'buffer' to
+    []
+    c2g
+    c2x
+    x2b
+    x2d
+Examples:
+*/
+buffer = .MutableBuffer~new
+"Tête à tête"~text[2, 5, :buffer]=  -- M'ête à'
+"A"~text~c2g(:buffer)=              -- M'ête à41'
+"A"~text~c2x(:buffer)=              -- M'ête à4141'
+"41"~text~x2b(:buffer)=             -- M'ête à414101000001'
+"41"~text~x2d(:buffer)=             -- M'ête à41410100000165'
+
+
+/*
+For compatibility with Python, add support for \N{Unicode name}.
+Example:
+*/
+"\N{for all} x \N{there exists} y such that x+y=0"~text~unescape=       -- T'∀ x ∃ y such that x+y=0'
+
+
+/*
+Add support for code point labels.
+Examples:
+*/
+.unicode~character("<control-000A>")=           -- ( ""    U+000A Cc 0 "", "LINE FEED", "NEW LINE", "END OF LINE", "LF", "NL", "EOL" )
+"hello\N{<control-000A>}bye"~text~unescape=     -- T'hello[0A]bye'
+"hello\U{<control-000A>}bye"~text~unescape=     -- T'hello[0A]bye'
+
+
+/*
+Modify the display of UnicodeCharacter properties to show the codepoint values
+in U+ and 0x notation.
+*/
+.Unicode["🤶"]~properties=
+
+
+/*
+Modification of the rule for buffer encoding neutrality.
+    old: If left is a        buffer with no encoding then use the right encoding.
+    new: If left is an empty buffer with no encoding then use the right encoding.
+Impacted methods:
+    .Encoding~compatibleEncoding
+    .StringIndexer~asEncodingFor
+Examples:
+*/
+buffer = .MutableBuffer~new
+-- This is an empty buffer with no explicit encoding:
+-- The rule for encoding neutrality will apply.
+buffer~description=                                                     -- 'UTF-8 ASCII by default (0 byte)'
+"Test"~text~utf16~left(2, :buffer)=                                     -- M'[00]T[00]e'
+-- The buffer encoding is now UTF-16BE.
+buffer~description=                                                     -- 'UTF-16BE (4 bytes)'
+
+buffer = .MutableBuffer~new("not empty")
+buffer~description=                                                     -- 'UTF-8 ASCII by default (9 bytes)'
+-- Here, the rule for encoding neutrality does not apply.
+"Test"~text~utf16~left(2, :buffer)=                                     -- Encoding: cannot append UTF-16BE to UTF-8 ASCII by default 'not empty'
+
+
+/*
+New method ~u2c on String and RexxText.
+Create a Unicode32 text from a sequence of U+xxxx.
+The U+ string/text must be compatible with a byte encoding (Byte or subclass,
+UTF-8 ASCII, WTF-8 ASCII).
+In other words, will not support a sequence of U+xxxx encoded in UTF-16 or UTF-32.
+Examples:
+*/
+-- U+ string
+"U+004E u+006F U+00EB U+006C U+1F936 U+1F385"~u2c~description=          -- 'Unicode32 (6 characters, 6 codepoints, 24 bytes, 0 error)'
+"U+004E u+006F U+00EB U+006C U+1F936 U+1F385"~u2c~c2x=                  -- '4E000000 6F000000 EB000000 6C000000 36F90100 85F30100'
+"U+004E u+006F U+00EB U+006C U+1F936 U+1F385"~u2c~utf8=                 -- T'Noël🤶🎅'
+
+-- U+ text
+"U+004E u+006F U+00EB U+006C U+1F936 U+1F385"~text~u2c~description=     -- 'Unicode32 (6 characters, 6 codepoints, 24 bytes, 0 error)'
+"U+004E u+006F U+00EB U+006C U+1F936 U+1F385"~text~u2c~c2x=             -- '4E000000 6F000000 EB000000 6C000000 36F90100 85F30100'
+"U+004E u+006F U+00EB U+006C U+1F936 U+1F385"~text~u2c~utf8=            -- T'Noël🤶🎅'
+
+buffer = .MutableBuffer~new
+"U+0031 U+0032"~text~u2c(:buffer)=                                      -- M'1[000000]2[000000]'
+-- The buffer encoding is now Unicode32.
+buffer~description=                                                     -- 'Unicode32 (8 bytes)'
+
+-- Examples of invalid U+ string/text
+"U+004E u+006F U+00EB U+006C U+1F936 U+1F385"~text~utf16~u2c=           -- UTF-16BE '[00]U[00]+[00]0[00]0[00]4[00]E[00] ...' is not compatible with an U+ string.
+"A+004E"~u2c=                                                           -- Expecting U+ or u+ followed by 4..6 hex digits, got 'A+004E'
+"u+4E"~u2c=                                                             -- Expecting U+ or u+ followed by 4..6 hex digits, got 'u+4E'
+"u+000004E"~u2c=                                                        -- Expecting U+ or u+ followed by 4..6 hex digits, got 'u+000004E'
+
+
+/*
+New supported methods on RexxText:
+- d2c       forward to String, return a Text or a MutableBuffer
+- d2x       forward to String, return a String or a MutableBuffer
+Examples:
+*/
+"65"~text~d2c=              -- T'A'
+"65"~text~d2x=              -- 41
+buffer = .MutableBuffer~new
+"65"~text~d2c(:buffer)=     -- M'A'
+"65"~text~d2x(:buffer)=     -- M'A41'
+buffer~encoding = "utf16"
+"65"~text~d2c(:buffer)=     -- Encoding: cannot append UTF-8 ASCII by default 'A' to UTF-16BE 'A41'
+
+
+/*
+Partial implementation of translate (ASCII string only):
+Examples:
+*/
+"hello"~text~translate=              -- 'HELLO'
+"hello"~text~translate(,,"x")=       -- 'xxxxx'
+"hello"~text~translate(,"el","x")=   -- 'hxxxo'
 
 
 -- ===============================================================================
@@ -16,7 +136,7 @@ Reworked the implementation of caselessMatchChar, matchCar.
 
 "Bundesschnellstraße"~text~caselessMatchChar(18, "s")=           -- now 0: "ß" casefolded to "ss" doesn't match "s"
 "BAFFLE"~text~caselessMatchChar(5, "ﬄ")=                        -- now 0: "L" casefolded to "l" doesn't match "ﬄ" casefolded to "ffl" (no more iteration on each character of "ffl")
-"baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=     -- now 0: "ﬄ" casefolded to "ffl" doesn't match "f"
+"baﬄe"~text~matchChar(3, "f", normalization:.Unicode~NFKD)=     -- now 0: "ﬄ" transformed to "ffl" doesn't match "f"
 
 /*
 After rework, I have these other differences:
@@ -2177,7 +2297,7 @@ Previously, was supported only for the byte encodings.
 The default value of 'strict' is now .false.
 
 The conversion methods accept the named argument 'memorize(3)'.
-Its default value is given by .unicode~memorizeConversions which is .false by default.
+Its default value is given by .unicode~memorizeTranscodings (was memorizeConversions) which is .false by default.
 Example:
     s = "hello"
     t = s~text
@@ -2250,10 +2370,11 @@ TODO: confirm that it's NFC, and only that.
 The definition of canonical equivalence by the Unicode standard seems not limited to NFC.
 https://unicode.org/notes/tn5/
 
-The strict comparison operators now use the NFC normalization.
+The strict comparison operators now use the NFC normalization (update: use .Unicode~defaultNormalization(strict:.true)).
 After normalization, they delegate to the String's strict comparison operators.
 
-The non-strict comparison operators now use the NFC normalization plus
+The non-strict comparison operators now use the NFC normalization (update: use .Unicode~defaultNormalization(strict:.false))
+plus
     stripIgnorable:.true
     lump:.true
 After normalization + transformations, they delegate to the String's non-strict comparison operators.
@@ -2639,7 +2760,7 @@ The methods NFxx sets the corresponding indicator isNFxx
     - "ϔ" normalization forms are all different.
     - "ﷺ" is one of the worst cases regarding the expansion factor in NFKS/NFKS: 18x
     - "baﬄe"~text~subchar(3)=     -- T'ﬄ'
-      "baﬄe"~text~upper=          -- T'BAﬄE', not BAFFLE
+      "baﬄe"~text~upper=          -- T'BAﬄE', should be BAFFLE (to rework: utf8proc supports only simple uppercase)
       The ligature disappears in NFK[CD] but not in NF[CD]
 */
 "äöü äöü x̂ ϔ ﷺ baﬄe"~text~UnicodeCharacters==

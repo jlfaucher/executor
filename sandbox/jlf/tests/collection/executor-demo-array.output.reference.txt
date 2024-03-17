@@ -25,6 +25,7 @@ The shape of an array is an array which gives the size of each dimension.
 */
 
 /*
+ooRexx:
 Any object other than an array is a scalar.
 In particular, a string is a scalar, not an array as in APL.
 Special case which does not exist in APL : The rank of an array with no dimension yet assigned is -1.
@@ -217,6 +218,7 @@ It returns a non-negative integer which defines the maximum number of levels
 of structure to be penetrated in order to get to a simple scalar where simple means non-nested.
 The depth of an array is 1 greater than that of its most deeply nested item.
 
+ooRexx:
 Returns "infinity" when the array is self-referencing.
 */
 ooRexx> 1~depth=

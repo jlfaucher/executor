@@ -254,7 +254,7 @@
 
 ::method encodeASCIIstring class
     use strict arg string
-    use strict named arg memorize = (.Unicode~memorizeConversions), buffer=.nil
+    use strict named arg memorize = (.Unicode~memorizeTranscodings), buffer=.nil
 
     text = .nil
     if string~hasText then text = string~text
@@ -292,7 +292,7 @@
 
 ::method UTF16BE
     use strict arg -- none
-    use strict named arg strict = .false, memorize = (.Unicode~memorizeConversions), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
+    use strict named arg strict = .false, memorize = (.Unicode~memorizeTranscodings), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
 
     if .nil <> buffer then return self~encoding~append(self~string, :buffer)
     if self~encoding~isUTF16BE then return self~string~text
@@ -314,7 +314,7 @@
 
 ::method WTF16BE
     use strict arg -- none
-    use strict named arg strict = .false, memorize = (.Unicode~memorizeConversions), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
+    use strict named arg strict = .false, memorize = (.Unicode~memorizeTranscodings), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
 
     if .nil <> buffer then return self~encoding~append(self~string, :buffer)
     if self~encoding~isWTF16BE then return self~string~text
@@ -363,7 +363,7 @@
 
 ::method encodeASCIIstring class
     use strict arg string
-    use strict named arg memorize = (.Unicode~memorizeConversions), buffer=.nil
+    use strict named arg memorize = (.Unicode~memorizeTranscodings), buffer=.nil
 
     text = .nil
     if string~hasText then text = string~text
@@ -401,7 +401,7 @@
 
 ::method UTF16LE
     use strict arg -- none
-    use strict named arg strict = .false, memorize = (.Unicode~memorizeConversions), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
+    use strict named arg strict = .false, memorize = (.Unicode~memorizeTranscodings), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
 
     if .nil <> buffer then return buffer~~append(self~string)
     if self~encoding~isUTF16LE then return self~string~text
@@ -423,7 +423,7 @@
 
 ::method WTF16LE
     use strict arg -- none
-    use strict named arg strict = .false, memorize = (.Unicode~memorizeConversions), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
+    use strict named arg strict = .false, memorize = (.Unicode~memorizeTranscodings), buffer=.nil, replacementCharacter=.nil, errorInfo=.nil
 
     if .nil <> buffer then return buffer~~append(self~string)
     if self~encoding~isWTF16LE then return self~string~text

@@ -1,5 +1,5 @@
 -- "UNICODE" can't be used to create a RexxText.
--- But can be used in conversion, to get the shortest possible representation
+-- But can be used in transcoding, to get the shortest possible representation
 -- Don't register because it's just a facade, not a real encoding
 --.encoding~register("UNICODE", .UnicodeN_Encoding)
 
@@ -114,7 +114,7 @@ Unicode32_Encoding can be used with utf8proc for theses functions taking a 32-bi
 /* Instance methods */
 /********************/
 
--- Optimization: the conversion to Unicode of a UnicodeN_Encoding instance is itself.
+-- Optimization: the transcoding to Unicode of a UnicodeN_Encoding instance is itself.
 ::method UnicodeN
     use strict arg -- none
     use strict named arg strict = .false, buffer=.nil

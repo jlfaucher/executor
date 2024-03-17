@@ -44,7 +44,7 @@ a Directory (12 items)
 'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=17 notExpanded:17 intervals, 105693 characters)
 'characters'                         : (an UnicodeCharacterSupplier count=44185 size=918000)
 'maxCodepoint'                       :  1114111
-'memorizeConversions'                :  0
+'memorizeTranscodings'               :  0
 'memorizeTransformations'            :  0
 'systemIsLittleEndian'               :  1
 'totalCharacterNameAliases'          :  473
