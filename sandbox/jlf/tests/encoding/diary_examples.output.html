@@ -32,7 +32,7 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 16 Nov 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S64f7Q6000007f7740
+</span><span style="font-weight:bold;color:green;">Input queue name: Seba5Q6000007f8000
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.1.0 
@@ -4414,10 +4414,10 @@ an Array (shape [1], 1 items)
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">        &quot;\uD83D\uDE3F&quot;~text~unescape~errors==</span>
 an Array (shape [6], 6 items)
- 1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).'
+ 1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate, use WTF-8).'
  2 : 'UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).'
  3 : 'UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 189 (BDx) (non-shortest form).'
- 4 : 'UTF-8 encoding: byte sequence at byte-position 4 has an invalid continuation byte 184 (B8x) at byte-position 5 (low surrogate).'
+ 4 : 'UTF-8 encoding: byte sequence at byte-position 4 has an invalid continuation byte 184 (B8x) at byte-position 5 (low surrogate, use WTF-8).'
  5 : 'UTF-8 encoding: byte sequence at byte-position 5 has an invalid start byte 184 (B8x) (non-shortest form).'
  6 : 'UTF-8 encoding: byte sequence at byte-position 6 has an invalid start byte 191 (BFx) (non-shortest form).'
 

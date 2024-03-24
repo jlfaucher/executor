@@ -102,9 +102,9 @@
     -- because that would create an infinite loop when scanning (see CreateIndexer)
     -- MUST always advance.
 
-    unpaired_high_surrogate: return error(startB + 2, self~name "encoding: unpaired high surrogate" codeUnit~c2d "("ppCodepoint(codeUnit~c2d)") at byte-position" startB)
-    unpaired_low_surrogate:  return error(startB + 2, self~name "encoding: unpaired low surrogate" codeUnit~c2d "("ppCodepoint(codeUnit~c2d)") at byte-position" startB)
-    invalid_low_surrogate:   return error(startB + 2, self~name "encoding: invalid low surrogate" codeUnit~c2d "("ppCodepoint(codeUnit~c2d)") at byte-position" indexB)
+    unpaired_high_surrogate: return error(startB + 2, self~name "encoding: unpaired high surrogate" codeUnit~c2d "("ppCodepoint(codeUnit~c2d)") at byte-position" startB", use WTF-16")
+    unpaired_low_surrogate:  return error(startB + 2, self~name "encoding: unpaired low surrogate" codeUnit~c2d "("ppCodepoint(codeUnit~c2d)") at byte-position" startB", use WTF-16")
+    invalid_low_surrogate:   return error(startB + 2, self~name "encoding: invalid low surrogate" codeUnit~c2d "("ppCodepoint(codeUnit~c2d)") at byte-position" indexB", use WTF-16")
     truncated2:              return error(startB + 2, self~name "encoding: byte sequence at byte-position" startB "is truncated, expected 2 bytes")
     truncated4:              return error(startB + 2, self~name "encoding: byte sequence at byte-position" startB "is truncated, expected 4 bytes")
 

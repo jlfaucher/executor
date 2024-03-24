@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 14 Aug 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S809fQ6000020c2150
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 16 Nov 2023
+</span><span style="font-weight:bold;color:green;">Input queue name: Sec03Q6000007f8000
 </span>
 <span style="font-weight:bold;color:blue;">----------------------------------
 </span><span style="font-weight:bold;color:blue;">-- Text encoding - Internal checks
@@ -140,12 +140,12 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~encod
 </span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~encode(55296)~errors==    </span><span style="font-weight:bold;color:blue;">-- 55296 is an invalid codepoint (high surrogate)</span>
 an Array (shape [3], 3 items)
- 1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).'
+ 1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate, use WTF-8).'
  2 : 'UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).'
  3 : 'UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~encode(56320)~errors==    </span><span style="font-weight:bold;color:blue;">-- 56320 is an invalid codepoint (low surrogate)</span>
 an Array (shape [3], 3 items)
- 1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 176 (B0x) at byte-position 2 (low surrogate).'
+ 1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 176 (B0x) at byte-position 2 (low surrogate, use WTF-8).'
  2 : 'UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 176 (B0x) (non-shortest form).'
  3 : 'UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
 
@@ -185,16 +185,16 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~de
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 DC00 D801 DC01&quot;x~text(&quot;utf16&quot;)~utf8=          </span><span style="font-weight:bold;color:blue;">-- T'𐀀𐐁'</span>
 T'𐀀𐐁'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">     &quot;DC00 D801 DC01&quot;x~text(&quot;utf16&quot;)~errors=        </span><span style="font-weight:bold;color:blue;">-- Unpaired low surrogate</span>
-['UTF-16BE encoding: unpaired low surrogate 56320 (U+DC00) at byte-position 1.']
+['UTF-16BE encoding: unpaired low surrogate 56320 (U+DC00) at byte-position 1, use WTF-16.']
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">     &quot;DC00 D801 DC01&quot;x~text(&quot;wtf16&quot;)~errors=        </span><span style="font-weight:bold;color:blue;">-- acceptable when WTF-16</span>
 (The NIL object)
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">     &quot;DC00 D801 DC01&quot;x~text(&quot;wtf16&quot;)~utf8~errors==  </span><span style="font-weight:bold;color:blue;">-- but cannot be converted to UTF-8: invalid codepoint DC00x</span>
 an Array (shape [3], 3 items)
- 1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 176 (B0x) at byte-position 2 (low surrogate).'
+ 1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 176 (B0x) at byte-position 2 (low surrogate, use WTF-8).'
  2 : 'UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 176 (B0x) (non-shortest form).'
  3 : 'UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 1000 D801 DC01&quot;x~text(&quot;utf16&quot;)~errors=        </span><span style="font-weight:bold;color:blue;">-- Invalid low surrogate</span>
-['UTF-16BE encoding: invalid low surrogate 4096 (U+1000) at byte-position 3.']
+['UTF-16BE encoding: invalid low surrogate 4096 (U+1000) at byte-position 3, use WTF-16.']
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 1000 D801 DC01&quot;x~text(&quot;wtf16&quot;)~errors=        </span><span style="font-weight:bold;color:blue;">-- acceptable when WTF-16</span>
 (The NIL object)
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 DC00 D801 DC&quot;x~text(&quot;utf16&quot;)~errors==         </span><span style="font-weight:bold;color:blue;">-- character is truncated. 2 errors reported because try with 4 bytes and then 2 bytes</span>
@@ -236,11 +236,11 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~en
 <span style="font-weight:bold;color:red;">UTF-16BE encoding: invalid codepoint 6500000 (U+632EA0). Allowed range is 0..1114111.
 </span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~encode(55296)~errors=         </span><span style="font-weight:bold;color:blue;">-- 55296 is an invalid codepoint (high surrogate)</span>
-['UTF-16BE encoding: unpaired high surrogate 55296 (U+D800) at byte-position 1.']
+['UTF-16BE encoding: unpaired high surrogate 55296 (U+D800) at byte-position 1, use WTF-16.']
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.wtf16be_encoding~encode(55296)~errors=         </span><span style="font-weight:bold;color:blue;">-- acceptable when WTF-16</span>
 (The NIL object)
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~encode(56320)~errors=         </span><span style="font-weight:bold;color:blue;">-- 56320 is an invalid codepoint (low surrogate)</span>
-['UTF-16BE encoding: unpaired low surrogate 56320 (U+DC00) at byte-position 1.']
+['UTF-16BE encoding: unpaired low surrogate 56320 (U+DC00) at byte-position 1, use WTF-16.']
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.wtf16be_encoding~encode(56320)~errors=         </span><span style="font-weight:bold;color:blue;">-- acceptable when WTF-16</span>
 (The NIL object)
 
@@ -282,10 +282,10 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(t1~wtf8~string || t
 <span style="font-weight:bold;color:blue;">-- UTF-8 view of this invalid concatenation
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(t1~wtf8~string || t2~wtf8~string)~text(&quot;utf8&quot;)~errors==    </span><span style="font-weight:bold;color:blue;">-- High surrogate is not allowed, Low surrogate is not allowed</span>
 an Array (shape [6], 6 items)
- 1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).'
+ 1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate, use WTF-8).'
  2 : 'UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).'
  3 : 'UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
- 4 : 'UTF-8 encoding: byte sequence at byte-position 4 has an invalid continuation byte 176 (B0x) at byte-position 5 (low surrogate).'
+ 4 : 'UTF-8 encoding: byte sequence at byte-position 4 has an invalid continuation byte 176 (B0x) at byte-position 5 (low surrogate, use WTF-8).'
  5 : 'UTF-8 encoding: byte sequence at byte-position 5 has an invalid start byte 176 (B0x) (non-shortest form).'
  6 : 'UTF-8 encoding: byte sequence at byte-position 6 has an invalid start byte 129 (81x) (non-shortest form).'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(t1~wtf8~string || t2~wtf8~string)~text(&quot;utf8&quot;)~c2x=        </span><span style="font-weight:bold;color:blue;">-- EDA080 EDB081</span>
@@ -340,16 +340,16 @@ Checking file &quot;ill_formed_utf8.txt&quot;
   line 2: UTF-8 encoding: byte sequence at byte-position 1 has an invalid start byte 180 (B4x) (non-shortest form).
   line 3: UTF-8 encoding: byte sequence at byte-position 2 has an invalid continuation byte 116 (74x) at byte-position 3.
   line 5: UTF-8 encoding: byte sequence at byte-position 8 is truncated, expected 4 bytes.
-  line 6: UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).
+  line 6: UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate, use WTF-8).
   line 6: UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).
   line 6: UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).
-  line 7: UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 176 (B0x) at byte-position 2 (low surrogate).
+  line 7: UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 176 (B0x) at byte-position 2 (low surrogate, use WTF-8).
   line 7: UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 176 (B0x) (non-shortest form).
   line 7: UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 129 (81x) (non-shortest form).
-  line 8: UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).
+  line 8: UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate, use WTF-8).
   line 8: UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).
   line 8: UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).
-  line 8: UTF-8 encoding: byte sequence at byte-position 4 has an invalid continuation byte 176 (B0x) at byte-position 5 (low surrogate).
+  line 8: UTF-8 encoding: byte sequence at byte-position 4 has an invalid continuation byte 176 (B0x) at byte-position 5 (low surrogate, use WTF-8).
   line 8: UTF-8 encoding: byte sequence at byte-position 5 has an invalid start byte 176 (B0x) (non-shortest form).
   line 8: UTF-8 encoding: byte sequence at byte-position 6 has an invalid start byte 129 (81x) (non-shortest form).
   15 errors
@@ -379,8 +379,8 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">file~say(&quot;D800 
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">file~close</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">system rexx unicode/scripts/check_encoding utf16 ill_formed_utf16.txt</span>
 Checking file &quot;ill_formed_utf16.txt&quot;
-  line 2: UTF-16BE encoding: unpaired low surrogate 56320 (U+DC00) at byte-position 1.
-  line 3: UTF-16BE encoding: invalid low surrogate 4096 (U+1000) at byte-position 3.
+  line 2: UTF-16BE encoding: unpaired low surrogate 56320 (U+DC00) at byte-position 1, use WTF-16.
+  line 3: UTF-16BE encoding: invalid low surrogate 4096 (U+1000) at byte-position 3, use WTF-16.
   line 3: UTF-16BE encoding: byte sequence at byte-position 55 is truncated, expected 2 bytes.
   line 5: UTF-16BE encoding: byte sequence at byte-position 5 is truncated, expected 4 bytes.
   line 5: UTF-16BE encoding: byte sequence at byte-position 7 is truncated, expected 2 bytes.

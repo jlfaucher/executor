@@ -105,12 +105,12 @@ UTF-8 encoding: invalid codepoint 6500000 (U+632EA0). Allowed range is 0..111411
 Error code= 23.900
 ooRexx> .utf8_encoding~encode(55296)~errors==    -- 55296 is an invalid codepoint (high surrogate)
 an Array (shape [3], 3 items)
- 1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).'
+ 1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate, use WTF-8).'
  2 : 'UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).'
  3 : 'UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
 ooRexx> .utf8_encoding~encode(56320)~errors==    -- 56320 is an invalid codepoint (low surrogate)
 an Array (shape [3], 3 items)
- 1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 176 (B0x) at byte-position 2 (low surrogate).'
+ 1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 176 (B0x) at byte-position 2 (low surrogate, use WTF-8).'
  2 : 'UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 176 (B0x) (non-shortest form).'
  3 : 'UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
 
@@ -150,16 +150,16 @@ ooRexx> .utf16be_encoding~decode(s16, 15)=              -- .nil (end of string)
 ooRexx> "D800 DC00 D801 DC01"x~text("utf16")~utf8=          -- T'𐀀𐐁'
 T'𐀀𐐁'
 ooRexx>      "DC00 D801 DC01"x~text("utf16")~errors=        -- Unpaired low surrogate
-['UTF-16BE encoding: unpaired low surrogate 56320 (U+DC00) at byte-position 1.']
+['UTF-16BE encoding: unpaired low surrogate 56320 (U+DC00) at byte-position 1, use WTF-16.']
 ooRexx>      "DC00 D801 DC01"x~text("wtf16")~errors=        -- acceptable when WTF-16
 (The NIL object)
 ooRexx>      "DC00 D801 DC01"x~text("wtf16")~utf8~errors==  -- but cannot be converted to UTF-8: invalid codepoint DC00x
 an Array (shape [3], 3 items)
- 1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 176 (B0x) at byte-position 2 (low surrogate).'
+ 1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 176 (B0x) at byte-position 2 (low surrogate, use WTF-8).'
  2 : 'UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 176 (B0x) (non-shortest form).'
  3 : 'UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
 ooRexx> "D800 1000 D801 DC01"x~text("utf16")~errors=        -- Invalid low surrogate
-['UTF-16BE encoding: invalid low surrogate 4096 (U+1000) at byte-position 3.']
+['UTF-16BE encoding: invalid low surrogate 4096 (U+1000) at byte-position 3, use WTF-16.']
 ooRexx> "D800 1000 D801 DC01"x~text("wtf16")~errors=        -- acceptable when WTF-16
 (The NIL object)
 ooRexx> "D800 DC00 D801 DC"x~text("utf16")~errors==         -- character is truncated. 2 errors reported because try with 4 bytes and then 2 bytes
@@ -201,11 +201,11 @@ ooRexx> .utf16be_encoding~encode(6500000)~c2x=          -- 6500000 is an invalid
 UTF-16BE encoding: invalid codepoint 6500000 (U+632EA0). Allowed range is 0..1114111.
 Error code= 23.900
 ooRexx> .utf16be_encoding~encode(55296)~errors=         -- 55296 is an invalid codepoint (high surrogate)
-['UTF-16BE encoding: unpaired high surrogate 55296 (U+D800) at byte-position 1.']
+['UTF-16BE encoding: unpaired high surrogate 55296 (U+D800) at byte-position 1, use WTF-16.']
 ooRexx> .wtf16be_encoding~encode(55296)~errors=         -- acceptable when WTF-16
 (The NIL object)
 ooRexx> .utf16be_encoding~encode(56320)~errors=         -- 56320 is an invalid codepoint (low surrogate)
-['UTF-16BE encoding: unpaired low surrogate 56320 (U+DC00) at byte-position 1.']
+['UTF-16BE encoding: unpaired low surrogate 56320 (U+DC00) at byte-position 1, use WTF-16.']
 ooRexx> .wtf16be_encoding~encode(56320)~errors=         -- acceptable when WTF-16
 (The NIL object)
 
@@ -247,10 +247,10 @@ ooRexx> (t1~wtf8~string || t2~wtf8~string)~text("wtf8")~c2u=        -- U+FFFD U+
 -- UTF-8 view of this invalid concatenation
 ooRexx> (t1~wtf8~string || t2~wtf8~string)~text("utf8")~errors==    -- High surrogate is not allowed, Low surrogate is not allowed
 an Array (shape [6], 6 items)
- 1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).'
+ 1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate, use WTF-8).'
  2 : 'UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).'
  3 : 'UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
- 4 : 'UTF-8 encoding: byte sequence at byte-position 4 has an invalid continuation byte 176 (B0x) at byte-position 5 (low surrogate).'
+ 4 : 'UTF-8 encoding: byte sequence at byte-position 4 has an invalid continuation byte 176 (B0x) at byte-position 5 (low surrogate, use WTF-8).'
  5 : 'UTF-8 encoding: byte sequence at byte-position 5 has an invalid start byte 176 (B0x) (non-shortest form).'
  6 : 'UTF-8 encoding: byte sequence at byte-position 6 has an invalid start byte 129 (81x) (non-shortest form).'
 ooRexx> (t1~wtf8~string || t2~wtf8~string)~text("utf8")~c2x=        -- EDA080 EDB081
@@ -305,16 +305,16 @@ Checking file "ill_formed_utf8.txt"
   line 2: UTF-8 encoding: byte sequence at byte-position 1 has an invalid start byte 180 (B4x) (non-shortest form).
   line 3: UTF-8 encoding: byte sequence at byte-position 2 has an invalid continuation byte 116 (74x) at byte-position 3.
   line 5: UTF-8 encoding: byte sequence at byte-position 8 is truncated, expected 4 bytes.
-  line 6: UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).
+  line 6: UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate, use WTF-8).
   line 6: UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).
   line 6: UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).
-  line 7: UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 176 (B0x) at byte-position 2 (low surrogate).
+  line 7: UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 176 (B0x) at byte-position 2 (low surrogate, use WTF-8).
   line 7: UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 176 (B0x) (non-shortest form).
   line 7: UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 129 (81x) (non-shortest form).
-  line 8: UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate).
+  line 8: UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate, use WTF-8).
   line 8: UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).
   line 8: UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).
-  line 8: UTF-8 encoding: byte sequence at byte-position 4 has an invalid continuation byte 176 (B0x) at byte-position 5 (low surrogate).
+  line 8: UTF-8 encoding: byte sequence at byte-position 4 has an invalid continuation byte 176 (B0x) at byte-position 5 (low surrogate, use WTF-8).
   line 8: UTF-8 encoding: byte sequence at byte-position 5 has an invalid start byte 176 (B0x) (non-shortest form).
   line 8: UTF-8 encoding: byte sequence at byte-position 6 has an invalid start byte 129 (81x) (non-shortest form).
   15 errors
@@ -344,8 +344,8 @@ ooRexx> file~say("D800 DC00 D801 DC"x~text("utf16")~string)       -- Don't add t
 ooRexx> file~close
 ooRexx> system rexx unicode/scripts/check_encoding utf16 ill_formed_utf16.txt
 Checking file "ill_formed_utf16.txt"
-  line 2: UTF-16BE encoding: unpaired low surrogate 56320 (U+DC00) at byte-position 1.
-  line 3: UTF-16BE encoding: invalid low surrogate 4096 (U+1000) at byte-position 3.
+  line 2: UTF-16BE encoding: unpaired low surrogate 56320 (U+DC00) at byte-position 1, use WTF-16.
+  line 3: UTF-16BE encoding: invalid low surrogate 4096 (U+1000) at byte-position 3, use WTF-16.
   line 3: UTF-16BE encoding: byte sequence at byte-position 55 is truncated, expected 2 bytes.
   line 5: UTF-16BE encoding: byte sequence at byte-position 5 is truncated, expected 4 bytes.
   line 5: UTF-16BE encoding: byte sequence at byte-position 7 is truncated, expected 2 bytes.
