@@ -1,5 +1,10 @@
 This file is not limited to co-routines. Also covers iterators, generators.
 
+https://simontoth.substack.com/p/daily-bite-of-c-coroutines-step-by
+Coroutines: step by step
+reddit comments:
+https://www.reddit.com/r/cpp/comments/1bh3ztd/coroutines_step_by_step_a_journey_through_seven/
+
 https://blog.adacore.com/coroutines-in-ada-a-clean-but-heavy-implementation
 Coroutines with Rendezvous
 
