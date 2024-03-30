@@ -1,4 +1,9 @@
-
+https://go.dev/blog/execution-traces-2024
+More powerful Go execution traces
+Maybe to read, to see if some ideas are applicable to ooRexx
+---
+HN comments
+https://news.ycombinator.com/item?id=39708591
 
 
 
