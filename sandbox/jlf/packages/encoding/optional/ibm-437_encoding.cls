@@ -46,6 +46,16 @@
     tableTranscodingToUnicode = tables[1]
     tableTranscodingFromUnicode = tables[2]
 
+
+::method stripMark class private
+    use strict arg string
+    buffer = .MutableBuffer~new(string)
+    buffer~translate("CueaaaaceeeiiiAA", "80 81 82 83 84 85 86 87 88 89 8A 8B 8C 8D 8E 8F"x)
+    buffer~translate("EooouuyOUf", "90 93 94 95 96 97 98 99 9A 9F"x)
+    buffer~translate("aiounN", "A0 A1 A2 A3 A4 A5"x)
+    return buffer~string
+
+
 /*
     ibm-437_P100-1995.ucm sorted by 2nd column.
     all ICU aliases:

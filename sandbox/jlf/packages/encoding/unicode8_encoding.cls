@@ -46,6 +46,7 @@
     -- sizeB == -1 ==> this method will check the validity of the encoding
     -- sizeB <> -1 ==> this method assumes that the encoding has been checked and is valid
     use strict arg string /* or buffer */, startB=1, sizeB=(-1)
+    string = string~requestBufferOrString
     if sizeB == -1 then do
         nextB = self~nextCodepointIndexB(string, startB) -- raise error if invalid, so no need to test if < 0
         sizeB = nextB - startB
@@ -61,6 +62,7 @@
     --     indexer~decode(string, startB, indexer~byteSequenceSize(string, startB))
     -- By passing a non-negative size to ~decode, the checks are disabled.
     use strict arg string /* or buffer */, startB
+    string = string~requestBufferOrString
     lengthB = string~length
     if startB > lengthB then return 0 -- end of string
     return 1
@@ -69,6 +71,7 @@
 ::method nextCodepointIndexB class
     use strict arg string /* or buffer */, startB
     -- use named arg errorInfo=.nil
+    string = string~requestBufferOrString
     if startB < 1 then return startB -- don't move because below start of string
     if startB > string~length then return startB -- don't move because below end of string
     return startB + 1
@@ -95,6 +98,7 @@
     use strict arg string
     use strict named arg memorize = (.Unicode~memorizeTranscodings), buffer=.nil
 
+    string = string~string
     text = .nil
     if string~hasText then text = string~text
 

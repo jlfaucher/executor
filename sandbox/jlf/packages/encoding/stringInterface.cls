@@ -18,6 +18,12 @@
     return self~string~text
 
 
+-- Lets use directly a StringIndexer where a Buffer or String is requested
+::method requestBufferOrString
+    use strict arg -- none
+    return self~string
+
+
 -- If you modify this method then see if the method EncodedMutableBuffer~appendEncoded must be modified as well
 ::method append class
     -- Positional arguments : zero to N text or buffer or string.
@@ -686,6 +692,39 @@ end
     invalid_length:     raise syntax 93.923 array(length)
     incorrect_pad:      raise syntax 93.922 array(pad)
     incorrect_padText:  raise syntax 93.922 array(padText~descriptionForError)
+
+
+::method strip
+    use strict arg option="B", chars="2009"x
+    use strict named arg buffer=.nil, strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false, stripCC=.false, stripNA=.false
+
+    option = option~subchar(1)~upper
+    if option \== "B" & option \== "L" & option \== "T" then signal invalid_option
+
+    chars = chars~transcodeTo(self~encoding)
+    front = 1
+    length = self~length
+    back = length
+
+    if option \== "B" | option \== "L" then do
+        loop while length > 0
+            if \ self~matchChar(front, chars, :normalization, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA) then leave
+            front += 1
+            length -= 1
+        end
+    end
+
+    if option \== "B" | option \== "T" then do
+        loop while length > 0
+            if \ self~matchChar(back, chars, :normalization, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA) then leave
+            back -= 1
+            length -= 1
+        end
+    end
+
+    return self~substr(front, length, :buffer)
+
+    invalid_option: raise syntax 93.915 array("BEL", option)
 
 
 ::method substr

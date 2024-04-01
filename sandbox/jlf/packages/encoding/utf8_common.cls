@@ -34,6 +34,7 @@ Depends on
     -- sizeB == -1 ==> this method will check the validity of the encoding
     -- sizeB <> -1 ==> this method assumes that the encoding has been checked and is valid
     use strict arg string /* or buffer */, startB=1, sizeB=(-1)
+    string = string~requestBufferOrString
     if sizeB == -1 then do
         nextB = self~nextCodepointIndexB(string, startB) -- raise error if invalid, so no need to test if < 0
         sizeB = nextB - startB
@@ -58,6 +59,7 @@ Depends on
     -- By passing a non-negative size to ~decode, the checks are disabled.
     -- CAREFUL! The returned size can be different from the size that would be derived from nextCodepointIndexB
     use strict arg string /* or buffer */, startB=1
+    string = string~requestBufferOrString
     startByte = string~subchar(startB)
     if startByte == "" then return 0
     if startByte < "80"x then return 1                     -- 1-byte sequence 0xxxxxxx
@@ -170,6 +172,7 @@ Depends on
     */
     use strict arg string /* or buffer */, startB
     use strict named arg errorInfo=.nil
+    string = string~requestBufferOrString
     if startB < 1 then return startB -- don't move because below start of string
     indexB = startB
     startByte = string~subchar(indexB)
@@ -231,6 +234,7 @@ Depends on
     -- For example, if indexB==6 then previousCodepointIndexB==3
     use strict arg string /* or buffer */, startB
     use strict named arg errorInfo=.nil
+    string = string~requestBufferOrString
     if string~length == 0 then return startB -- don't move because empty string
     if startB <= 1 then return startB -- don't move because at start of string or before
     if startB > (string~length + 1) then return startB -- don't move because beyond the end of string
@@ -324,6 +328,7 @@ Depends on
     use strict arg string
     use strict named arg memorize = (.Unicode~memorizeTranscodings), buffer=.nil
 
+    string = string~string
     text = .nil
     if string~hasText then text = string~text
 

@@ -173,6 +173,13 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
     defaultEncoding = self~factory(encoding)
 
 
+::method setDefaultEncoding class
+    use strict arg encoding
+    previousEncoding = self~defaultEncoding
+    self~defaultEncoding = encoding
+    return previousEncoding
+
+
 ::attribute defaultInputEncoding class get
     expose defaultInputEncoding
     use strict arg -- none
@@ -186,6 +193,13 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
     defaultInputEncoding = self~factory(encoding)
 
 
+::method setDefaultInputEncoding class
+    use strict arg encoding
+    previousEncoding = self~defaultInputEncoding
+    self~defaultInputEncoding = encoding
+    return previousEncoding
+
+
 ::attribute defaultOutputEncoding class get
     expose defaultOutputEncoding
     use strict arg -- none
@@ -197,6 +211,13 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
     expose defaultOutputEncoding
     use strict arg encoding
     defaultOutputEncoding = self~factory(encoding)
+
+
+::method setDefaultOutputEncoding class
+    use strict arg encoding
+    previousEncoding = self~defaultOutputEncoding
+    self~defaultOutputEncoding = encoding
+    return previousEncoding
 
 
 ::method activate class
@@ -971,6 +992,7 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
     expose encodings
     use strict arg encoding, string=""
     use strict named arg maximumUnicodeCodepoint=(-1), replacementCodepoint=.nil -- replacementCodepoint used for UnicodeN. Can be .nil or "" or a whole number.
+    string = string~string -- wants a String
     if encoding~isA(.Class), encoding~isSubClassOf(.StringIndexer) then return encoding
     encodingName = .Encoding~normalizedName(encoding~string)
     if encodingName == "DEFAULT" then return .Encoding~defaultEncoding
@@ -1016,6 +1038,10 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
     if left~isA(.MutableBuffer), \left~hasEncoding, left~length == 0 then return rightEncoding
 
     if leftEncoding == rightEncoding then return leftEncoding
+
+    -- The Byte_Encoding can be always absorbed
+    if leftEncoding == .Byte_Encoding then return rightEncoding
+    if rightEncoding == .Byte_Encoding then return leftEncoding
 
     if leftEncoding~isUTF8, rightEncoding~isWTF8 then return .WTF8_Encoding
     if leftEncoding~isWTF8, rightEncoding~isUTF8 then return .WTF8_Encoding

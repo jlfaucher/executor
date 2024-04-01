@@ -32,6 +32,18 @@
     tableTranscodingFromUnicode = tables[2]
 
 
+::method stripMark class private
+    use strict arg string
+    buffer = .MutableBuffer~new(string)
+    buffer~translate("fS", "83 8A"x)
+    buffer~translate("sY", "9A 9F"x)
+    buffer~translate("AAAAAACEEEEIIII", "C0 C1 C2 C3 C4 C5 C7 C8 C9 CA CB CC CD CE CF"x)
+    buffer~translate("NOOOOOOUUUUY", "D1 D2 D3 D4 D5 D6 D8 D9 DA DB DC DD"x)
+    buffer~translate("aaaaaaceeeeiiii", "E0 E1 E2 E3 E4 E5 E7 E8 E9 EA EB EC ED EE EF"x)
+    buffer~translate("noooooouuuuyy", "F1 F2 F3 F4 F5 F6 F8 F9 FA FB FC FD FF"x)
+    return buffer~string
+
+
 /*
     ibm-1252_P100-2000.ucm sorted by 2nd column.
     all ICU aliases:

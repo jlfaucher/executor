@@ -56,6 +56,7 @@
 #include "StringUtil.hpp"
 #include "RexxCompoundTail.hpp"
 #include "SystemInterpreter.hpp"
+#include "PackageClass.hpp"
 
 // singleton class instance
 RexxClass *RexxString::classInstance = OREF_NULL;
@@ -2233,10 +2234,55 @@ RexxObject *RexxString::evaluate(
 /******************************************************************************/
 {
 
-  stack->push((RexxObject *)this);     /* place on the evaluation stack     */
+    RexxObject *value = this;
+    if (this->checkIsASCII() == false) // to avoid infinite recursion, don't convert ASCII strings ( the next messages will test var("encoding") and var("myText") )
+    {
+        PackageClass *package = context->getPackage();
+        ProtectedObject result;
+        bool messageUnderstood = package->messageSend(OREF_ENCODING, OREF_NULL, 0, 0, result, false);
+        if (messageUnderstood && (RexxObject *)result != OREF_NULL) // the package has an encoding
+        {
+            RexxObject *encoding = (RexxObject *)result;
+#if 0
+            printf("The package has an encoding: ");
+            const char *name = "<no name>";
+            messageUnderstood = encoding->messageSend(OREF_NAME, OREF_NULL, 0, 0, result, false);
+            if (messageUnderstood && (RexxObject *)result != OREF_NULL)
+            {
+                name = ((RexxString *)(RexxObject *)result)->getStringData();
+            }
+            printf("%s\n", name);
+#endif
+            messageUnderstood = encoding->messageSend(OREF_ISBYTE, OREF_NULL, 0, 0, result, false);
+            if (messageUnderstood && ((RexxObject *)result)->integerValue(9)->getValue() == 0) // not byte encoding
+            {
+                messageUnderstood = this->messageSend(OREF_ISCOMPATIBLEWITHBYTESTRING, OREF_NULL, 0, 0, result, false);
+                if (messageUnderstood && ((RexxObject *)result)->integerValue(9)->getValue() == 0) // string not compatible with a byte string
+                {
+#if 0
+                    const char *s = this->getStringData();
+                    printf("RexxString::evaluate '%s' ", s);
+                    while(*s)
+                    {
+                        printf("%02x", (unsigned char) *s++);
+                    }
+                    printf("\n");
+#endif
+                    // Convert to RexxText
+                    messageUnderstood = this->messageSend(OREF_TEXT, OREF_NULL, 0, 0, result, false);
+                    if (messageUnderstood && (RexxObject *)result != OREF_NULL)
+                    {
+                        value = (RexxObject *)result;
+                    }
+                }
+            }
+        }
+    }
+
+  stack->push((RexxObject *)value);     /* place on the evaluation stack     */
                                        /* trace if necessary                */
-  context->traceIntermediate((RexxObject *)this, TRACE_PREFIX_LITERAL);
-  return this;                         /* also return the result            */
+  context->traceIntermediate((RexxObject *)value, TRACE_PREFIX_LITERAL);
+  return value;                         /* also return the result            */
 }
 
 

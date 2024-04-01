@@ -102,6 +102,7 @@ the concatenation back to WTF-8.
 ::method appendToBuffer class
     use strict arg string
     use strict named arg buffer
+    string = string~string
     if buffer~length >= 3, string~length >= 3 then do
         bufferIndexB = buffer~length - 2
         if buffer~subchar(bufferIndexB)~bitand("F0"x) == "E0"x,, -- 3-byte sequence on left

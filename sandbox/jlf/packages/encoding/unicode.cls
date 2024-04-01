@@ -128,7 +128,7 @@ Depends on
     self~declareCharacters
     memorizeTranscodings = .false
     memorizeTransformations = .false
-    unckeckedConversionToString = .false
+    unckeckedConversionToString = .true
 
 
 ::method version class

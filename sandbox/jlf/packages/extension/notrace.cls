@@ -25,4 +25,5 @@
 -- Remember: moved outside of text.cls to not trace these methods when tracing the package text.cls
 ::method objectName
     use strict arg -- none
-    return self~ppString
+    -- return self~ppString     -- bad idea! display T'...' in error messages
+    return self~string

@@ -635,6 +635,15 @@ RexxString *RexxSource::packLiteral(
             value = this->commonString(value); /* now force to a common string      */
         }
     }
+    if (value != OREF_NULLSTRING)
+    {
+        // Declare that this string is byte encoded
+        ProtectedObject result;
+        RexxObject *args[1];
+        args[0] = OREF_BYTE; // positional argument
+        bool messageUnderstood = value->messageSend(OREF_SETENCODING, args, 1, 0, result, false);
+        // if not understood then don't complain because the support of encoded strings is optional
+    }
     return value;                         /* return newly created string       */
 }
 

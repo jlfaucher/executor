@@ -2,15 +2,29 @@
 .MutableBuffer~define("stringNative", .MutableBuffer~method("string"))
 .MutableBuffer~define("string", "forward message 'encodedString'")
 
+-- Since the caller is loading this package, we can assume that the caller
+-- supports an automatic conversion to text. This conversion is activated by
+-- setting an encoding other than byte.
+caller = .context~parentContext
+do while .nil \== caller
+    caller~package~encoding = .Encoding~defaultEncoding
+    caller = caller~parentContext -- .nil if native or top-level activation.
+end
+
 ::extension RexxText        inherit RexxTextInitializer
 ::extension RexxText        inherit RexxTextContents
 ::extension RexxText        inherit RexxTextOperators
 ::extension RexxText        inherit RexxTextStringInterface
+-- ::extension RexxText        inherit RexxTextPrettyPrinter    -- Moved to notrace.cls
 
 ::extension String          inherit EncodedString
+::extension String          inherit StringRexxTextInterface
+
 ::extension MutableBuffer   inherit EncodedMutableBuffer
 
-::requires "extension/string.cls"
+::extension Package         inherit EncodedPackage
+
+::requires "extension/string.cls"   -- for escape3
 ::requires "encoding/stringEncoding.cls"
 
 --::options trace r
@@ -99,6 +113,56 @@ See also this same method on RexxText and MutableBuffer and String.
     return .false
 
 
+/*
+Should find a better name (like requestByteEncodedStringable) but I find the current name crystal clear.
+At the moment of writing this comment, the result can be a MutableBuffer or a String.
+
+The purpose of this method is to avoid to create systematically a String when
+needing an object supporting the Trait "ByteEncodedStringable".
+::Trait "ByteEncodedStringable"
+::method ~encoding
+::method ~isCompatibleWithASCII
+
+A RexxText is returned as a String.
+A MutableBuffer is returned as-is (avoid to request a String from it)
+A String is returned as-is.
+For any other object, a String is requested.
+
+Here, we are in the case any other object.
+See also this same method on RexxText and MutableBuffer and String.
+
+-----------
+First need:
+-----------
+.utf8_encoding~previousCodepointIndexB("🎅noël", 2)=
+utf8proc raises "Invalid UTF-8 string" because the string "🎅noël" is converted
+automatically to text
+and this kind of comparison occurs :
+    if startByte < "80"x
+where startByte is a RexxText
+because startByte = string~subchar(indexB)
+==> the comparison startByte < "80"x is a Unicode comparison.
+
+*/
+::method requestBufferOrString class
+    string = self~request("STRING")
+    if .nil <> string then return string
+    return self~string
+
+::method requestBufferOrString
+    string = self~request("STRING")
+    if .nil <> string then return string
+    return self~string
+
+
+-- Equivalent to isPolymorphicString in StringClass.cpp
+::method isBufferOrString class
+    return .false
+
+::method isBufferOrString
+    return .false
+
+
 /******************************************************************************/
 ::class "EncodedString" mixinclass Object private
 
@@ -119,7 +183,7 @@ See also this same method on RexxText and MutableBuffer and String.
     The 'string' method is ok because it returns the string itself (no copy).
 */
 
-::attribute text get
+::method text
     expose encoding myText -- attribute added on the String instance
     -- Don't use the exposed encoding as default value because can be unassigned.
     -- Use the attribute encoding which returns the default encoding if unassigned.
@@ -180,6 +244,13 @@ See also this same method on RexxText and MutableBuffer and String.
     if var("myText") then myText~encoding = newEncoding
 
 
+::method setEncoding
+    use strict arg newEncoding
+    previousEncoding = self~encoding
+    self~encoding = newEncoding
+    return previousEncoding
+
+
 ::method hasEncoding
     expose encoding
     use strict arg -- none
@@ -204,27 +275,8 @@ See also this same method on RexxText and MutableBuffer and String.
 
 
 /*
-Depending on its encoding, an encoded string may be not compatible with ASCII.
-*/
-::method isCompatibleWithASCII
-    -- IMPORTANT! Don't cache the value because it can be invalidated when the encoding is changed
-    if self~encoding~isCompatibleWithASCII, self~isASCII then return .true
-    return .false
-
-
-/*
-Depending on its encoding, an encoded string may be not compatible with
-the String methods (byte-oriented).
-*/
-::method isCompatibleWithByteString
-    -- IMPORTANT! Don't cache the value because it can be invalidated when the encoding is changed
-    if self~encoding~isByte then return .true
-    if self~encoding~isCompatibleWithASCII, self~isASCII then return .true
-    return .false
-
-
-/*
-Allows to use a String or a RexxText indistinctly.
+Allows to use a String or a MutableBuffer or a RexxText indistinctly.
+Here, we are on a String.
 Return a text only if already created.
 Otherwise return the string.
 */
@@ -238,7 +290,23 @@ Otherwise return the string.
 -- Equivalent to isPolymorphicString in StringClass.cpp
 ::method isTextOrBufferOrString
     use strict arg -- none
-    return .true
+    return .true -- it's a String
+
+
+/*
+Allows to use a String or a MutableBuffer or a RexxText indistinctly.
+Here, we are on a String.
+Always return the string (see also the implementation on MutableBuffer and RexxText)
+*/
+::method requestBufferOrString
+    use strict arg -- none
+    return self -- a string
+
+
+-- Equivalent to isPolymorphicString in StringClass.cpp
+::method isBufferOrString
+    use strict arg -- none
+    return .true -- it's a String
 
 
 ::method copy
@@ -249,6 +317,9 @@ Otherwise return the string.
     textCopy = myText~copy
     return textCopy~string
 
+
+/******************************************************************************/
+::class "StringRexxTextInterface" mixinclass Object private
 
 ::method description
     /*
@@ -277,10 +348,280 @@ Otherwise return the string.
     return self~description(short:1) "'"escape3(string)"'"
 
 
+::method errors
+    if self~hasText then forward to (self~text)
+    return .nil -- no errors
+
+
+-- ::method isASCII
+-- native method
+
+
+/*
+Depending on its encoding, an encoded string may be not compatible with ASCII.
+*/
+::method isCompatibleWithASCII
+    -- IMPORTANT! Don't cache the value because it can be invalidated when the encoding is changed
+    if self~encoding~isCompatibleWithASCII, self~isASCII then return .true
+    return .false
+
+
+/*
+Depending on its encoding, an encoded string may be not compatible with
+the String methods (byte-oriented).
+*/
+::method isCompatibleWithByteString
+    -- IMPORTANT! Don't cache the value because it can be invalidated when the encoding is changed
+    if self~encoding~isByte then return .true
+    if self~encoding~isCompatibleWithASCII, self~isASCII then return .true
+    return .false
+
+
+::method isUpper
+    return self~datatype("U")
+
+
+::method isLower
+    return self~datatype("L")
+
+
+::method codepoints
+    /* if self~hasText then */ forward to (self~text)
+
+
+::method maximumCodepoint
+    /* if self~hasText then */ forward to (self~text)
+
+
+::method maximumUnicodeCodepoint
+    /* if self~hasText then */ forward to (self~text)
+
+/*
+-- No direct access to codepoint, not needed.
+::method codepoint
+    /* if self~hasText then */ forward to (self~text)
+*/
+
+
+::method UnicodeCharacters
+    /* if self~hasText then */ forward to (self~text)
+
+
+::method characters
+    return self~makearray("")
+
+
+::method character
+    -- 2 modes:
+    -- if the buffer is passed as argument then append the character to the buffer, and return the buffer
+    -- otherwise return the character as a String (maybe evaluated as a RexxText depending on encoding)
+    use strict arg indexC
+    use strict named arg buffer=.nil
+    if .nil <> buffer then return buffer~~append(self~subchar(indexC))
+                      else return self~subchar(indexC)
+
+
+-- General service to convert to another encoding
+::method transcodeTo
+    forward to (self~text)
+
+
+-- UTF-8 representation
+::method UTF8
+    forward to (self~text)
+
+
+-- WTF-8 representation
+::method WTF8
+    forward to (self~text)
+
+
+-- UTF-16BE or UTF-16LE representation
+::method UTF16
+    forward to (self~text)
+
+
+-- UTF-16BE representation
+::method UTF16BE
+    forward to (self~text)
+
+
+-- UTF-16LE representation
+::method UTF16LE
+    forward to (self~text)
+
+
+-- WTF-16BE or WTF-16LE representation
+::method WTF16
+    forward to (self~text)
+
+
+-- WTF-16BE representation
+::method WTF16BE
+    forward to (self~text)
+
+
+-- WTF-16LE representation
+::method WTF16LE
+    forward to (self~text)
+
+
+-- UTF-32BE or UTF-32LE representation
+::method UTF32
+    forward to (self~text)
+
+
+-- UTF-32BE representation
+::method UTF32BE
+    forward to (self~text)
+
+
+-- UTF-32LE representation
+::method UTF32LE
+    forward to (self~text)
+
+
+-- Unicode representation (Unicode8, Unicode16 or Unicode32)
+::method Unicode
+    forward message "UnicodeN"
+
+
+::method UnicodeN
+    forward to (self~text)
+
+
+-- Unicode representation limited to codepoints < 256
+::method Unicode8
+    forward to (self~text)
+
+
+-- Unicode representation limited to codepoints < 65536
+::method Unicode16
+    forward to (self~text)
+
+
+-- Unicode representation limited to codepoints <= .Unicode~maxCodepoint
+::method Unicode32
+    forward to (self~text)
+
+
+::method c2u
+    forward to (self~text)
+
+
 ::method u2c
     -- Create a Unicode32 text from a sequence of U+xxxx
     use strict named arg buffer=.nil
     return .Unicode32_Encoding~encodeUplusString(self, :buffer)
+
+
+::method c2g
+    forward to (self~text)
+
+
+::method checkHexadecimalValueCompatibility
+    -- The purpose is not to check that the text is an hexadecimal value (will be checked by the String class)
+    -- The purpose is to ensure that the text encoding is compatible with the String class,
+    -- and to provide an accurate error.
+    use strict arg -- none
+    if \self~isCompatibleWithByteString then raise syntax 23.900 array(self~descriptionForError "is not compatible with a Rexx hexadecimal value")
+
+
+::method checkNumericValueCompatibility
+    -- The purpose is not to check that the text is a numeric value (will be checked by the String class)
+    -- The purpose is to ensure that the text encoding is compatible with the String class,
+    -- and to provide an accurate error.
+    use strict arg -- none
+    if \self~isCompatibleWithByteString then raise syntax 23.900 array(self~descriptionForError "is not compatible with a Rexx numeric value")
+
+
+::method checkLogicalValueCompatibility
+    -- The purpose is not to check that the text is a logical value (will be checked by the String class)
+    -- The purpose is to ensure that the text encoding is compatible with the String class,
+    -- and to provide an accurate error.
+    use strict arg -- none
+    if \self~isCompatibleWithByteString then raise syntax 23.900 array(self~descriptionForError "is not compatible with a Rexx logical value")
+
+
+::method unescape
+    forward to (self~text)
+
+
+::method transform
+    forward to (self~text)
+
+
+::method transformer
+    forward to (self~text)
+
+
+::method title
+    forward to (self~text)
+
+
+::method isNFC
+    forward to (self~text)
+
+
+::method NFC
+    forward to (self~text)
+
+
+::method isNFD
+    forward to (self~text)
+
+
+::method NFD
+    forward to (self~text)
+
+
+::method isNFKC
+    forward to (self~text)
+
+
+::method NFKC
+    forward to (self~text)
+
+
+::method isNFKD
+    forward to (self~text)
+
+
+::method NFKD
+    forward to (self~text)
+
+
+::method isCasefold
+    forward to (self~text)
+
+
+::method casefold
+    forward to (self~text)
+
+
+::method isMarkStripped
+    forward to (self~text)
+
+
+-- no standalone method Markless
+-- works only with normalization.
+
+
+::method isIgnorableStripped
+    forward to (self~text)
+
+
+::method isCCStripped
+    forward to (self~text)
+
+
+::method isNAStripped
+    forward to (self~text)
+
+
+-- Compatibility with initial interface
+::method graphemes; forward message "characters"
+::method grapheme; forward message "character"
 
 
 /******************************************************************************/
@@ -317,6 +658,13 @@ Otherwise return the string.
     encoding = .Encoding~factory(newEncoding, self~string)
 
 
+::method setEncoding
+    use strict arg newEncoding
+    previousEncoding = self~encoding
+    self~encoding = newEncoding
+    return previousEncoding
+
+
 -- TODO: make it native
 -- Remember: needed to fix RexxMutableBufferClass::newRexx to pass all the new's arguments to init
 ::method init_extended
@@ -344,8 +692,9 @@ Otherwise return the string.
 
 
 /*
-Allows to use a MutableBuffer or a RexxText indistinctly,
-without requesting a string from the buffer
+Allows to use a String or a MutableBuffer or a RexxText indistinctly.
+Here, we are on a MutableBuffer.
+Return directly the buffer, without requesting a string from it.
 */
 ::method requestTextOrBufferOrString
     use strict arg -- none
@@ -355,7 +704,23 @@ without requesting a string from the buffer
 -- Equivalent to isPolymorphicString in StringClass.cpp
 ::method isTextOrBufferOrString
     use strict arg -- none
-    return .true
+    return .true -- it's a MutableBuffer
+
+
+/*
+Allows to use a String or a MutableBuffer or a RexxText indistinctly.
+Here, we are on a MutableBuffer.
+Return directly the buffer, without requesting a string from it.
+*/
+::method requestBufferOrString
+    use strict arg -- none
+    return self
+
+
+-- Equivalent to isPolymorphicString in StringClass.cpp
+::method isBufferOrString
+    use strict arg -- none
+    return .true -- it's a MutableBuffer
 
 
 ::method description
@@ -415,6 +780,42 @@ without requesting a string from the buffer
 
 
 /******************************************************************************/
+::class "EncodedPackage" mixinclass Object private
+
+/*
+    Nothing sophisticated here...
+    Just manage the attribute 'encoding', to know what is the encoding of the Package.
+    This encoding is used when evaluating a String, to decide if the string must be converted to a RexxText.
+    Todo later: support ::options encoding <anEncoding>
+*/
+
+::attribute encoding get
+    expose encoding
+    use strict arg -- none
+    if var("encoding") then return encoding
+    return .Byte_encoding -- Not .Encoding~defaultEncoding because most of the legacy packages don't support an automatic conversion to UTF-8 text
+
+
+::attribute encoding set
+    expose encoding
+    use strict arg newEncoding
+    encoding = .Encoding~factory(newEncoding, self~string)
+
+
+::method setEncoding
+    use strict arg newEncoding
+    previousEncoding = self~encoding
+    self~encoding = newEncoding
+    return previousEncoding
+
+
+::method hasEncoding
+    expose encoding
+    use strict arg -- none
+    return var("encoding")
+
+
+/******************************************************************************/
 ::class "RexxTextInitializer" mixinclass Object private
 
 ::method init
@@ -437,7 +838,6 @@ without requesting a string from the buffer
 
     -- store itself as counterpart of string
     string~text = self
-
 
 
 /*
@@ -475,18 +875,32 @@ base class...
 ::attribute string set private
 
 
-::attribute text get
 /*
-    use strict arg -- none
-    return self
+Added after the activation of automatic conversion to RexxText
+to support the same interface on String and RexxText.
+    "Noel"~text("byte")  -- here, "Noel" is a String
+    "Noël"~text("byte")  -- here, "Noël" is a RexxText
 */
+::method text
+    use strict arg textEncoding=(self~encoding)
+    self~encoding = textEncoding
+    return self
+
+
+/*
+Added after the activation of automatic conversion to RexxText
+to support the same interface on String and RexxText.
+*/
+::method hasText
+    return .true
 
 
 ::attribute text set private
 
 
 /*
-Allows to use a String or a RexxText indistinctly
+Allows to use a String or a MutableBuffer or a RexxText indistinctly.
+Here, we are on a RexxText.
 */
 ::method requestTextOrBufferOrString
     use strict arg -- none
@@ -496,7 +910,23 @@ Allows to use a String or a RexxText indistinctly
 -- Equivalent to isPolymorphicString in StringClass.cpp
 ::method isTextOrBufferOrString
     use strict arg -- none
-    return .true
+    return .true -- it's a RexxText
+
+
+/*
+Allows to use a String or a MutableBuffer or a RexxText indistinctly.
+Here, we are on a RexxText.
+Always return the string.
+*/
+::method requestBufferOrString
+    use strict arg -- none
+    return self~string
+
+
+-- Equivalent to isPolymorphicString in StringClass.cpp
+::method isBufferOrString
+    use strict arg -- none
+    return .true -- it's a RexxText converted to string
 
 
 ::constant hasEncoding 1
@@ -519,6 +949,13 @@ Allows to use a String or a RexxText indistinctly
         text = self
         encoding = indexer~encoding
     end
+
+
+::method setEncoding
+    use strict arg newEncoding
+    previousEncoding = self~encoding
+    self~encoding = newEncoding
+    return previousEncoding
 
 
 -- Must use an attribute to return the indexer, because the indexer is not visible from the other mixinclasses
@@ -620,6 +1057,7 @@ Allows to use a String or a RexxText indistinctly
 
 
 ::method character
+    use strict arg indexC
     forward to (self~indexer)
 
 
@@ -922,7 +1360,7 @@ round
 sign
 space
 startsWith                      (new 5) full UTF-8
-strip
+strip                           full UTF-8
 subChar                         full
 substr                          full
 subWord
@@ -1278,6 +1716,17 @@ stringChunks
     -- the result will be an array if aligned:.false
     if result~isA(.array) then return (result[1] = 1.1) -- hum, testing with == returns false. Should test == "+1.1" to get true when the result is something like (+1.1,-5.10)
     return result == 1
+
+
+::method strip
+    use arg _option, chars -- not strict, just need to check 'chars'
+    if self~isCompatibleWithByteString, pad~isCompatibleWithByteString then do
+        use named arg buffer=.nil -- not strict because other named arguments are possible (not needed here)
+        forward to (self~string) continue
+        if .nil <> buffer then return buffer~~appendEncoded(result)
+                          else return .RexxText~new(result, self~encoding)
+    end
+    forward to (self~indexer)
 
 
 ::method subchar

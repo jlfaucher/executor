@@ -3,6 +3,272 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2024 Apr 01
+
+[Encoded strings]
+
+Why did I put ppString for RexxText in extension/trace.cls???
+Now it's in extension/text.cls, much more logical!
+[later]
+jlf, learn to read yourself!
+"moved outside of text.cls to not trace these methods when tracing the package text.cls"
+ok, I move it back to extension/trace.cls
+BUT I rename trace.cls to notrace.cls
+
+
+Replace
+    ::attribute text get
+by
+    ::method text
+because it takes an argument 'textEncoding' which allows to set an encoding.
+It would be wrong to implement it as a getter attribute method.
+
+
+A package has an encoding:
+.Package
+    encoding
+    encoding=
+    hasEncoding
+The calculation of the default encoding is not so good, probably to rework.
+But for the moment, it works for me...
+Case 1: package not requesting "text.cls", directly or indirectly.
+    Most of the legacy packages don't support an encoding other than Byte.
+    The package's default encoding is Byte (not .Encoding~defaultEncoding).
+Case 2: package requesting "text.cls", directly or indirectly.
+    We assume that the caller supports an automatic conversion to text.
+    The package's default encoding is .Encoding~defaultEncoding.
+
+
+New method setEncoding on String, MutableBuffer, Package and RexxText, to change
+the current encoding and return the previous encoding.
+Example, assuming the default encoding is UTF-8:
+    "Noel"~setEncoding("windows-1252")=     -- (The UTF8_Encoding class)    (previous encoding)
+    "Noël"~setEncoding("byte")=             -- (The UTF8_Encoding class)    (previous encoding)
+Example, when the default encoding is Byte:
+    oldEncoding = .encoding~setDefaultEncoding("byte")
+    "Noel"~setEncoding("windows-1252")=     -- (The Byte_Encoding class)    (previous encoding)
+    "Noël"~setEncoding("byte")=             -- (The Byte_Encoding class)    (previous encoding)
+    .encoding~setDefaultEncoding(oldEncoding)
+
+
+New methods on the class Encoding, to change the current encoding and return
+the previous encoding:
+    setDefaultEncoding
+    setDefaultInputEncoding
+    setDefaultOutputEncoding
+
+
+Relax the constraints for the Byte_Encoding in the methods compatibleEncoding
+and asEncodingFor: The Byte_Encoding can be always absorbed.
+Reason: The Byte_Encoding is often used for diagnostic or repair.
+Examples:
+    "Père"~c2g=                             -- '50 C3A8 72 65'
+    "Père"~text~startsWith("50C3"x)=        -- false (not aligned) (was Encoding: cannot compare Byte not-ASCII 'P\C3' with UTF-8 not-ASCII 'Père')
+    "Père"~text~startsWith("50C3A8"x)=      -- true (was Encoding: cannot compare Byte not-ASCII 'Pè' with UTF-8 not-ASCII 'Père')
+
+
++-------------------------------------------+
+|            IMPORTANT MILESTONE            |
+| Activation of the automatic conversion    |
+| of String literals to RexxText instances  |
++-------------------------------------------+
+This is managed in RexxString::evaluate
+Rules:
+if string~isASCII then value = string                               -- R1 don't convert to RexxText if the string literal is ASCII
+else if .context~package~encoding~isByte then value = string        -- R2 don't convert to RexxText if the context package encoding is Byte.
+else if string~isCompatibleWithByteString then value = string       -- R3 don't convert to RexxText if the string literal is compatible with a Byte string.
+else value = string~text                                            -- R4 convert to RexxText
+Example, assuming the package encoding is UTF-8:
+    "Noel"~class=                                       -- (The String class)       R1
+
+    oldEncoding = .context~package~setEncoding("byte")
+    "Noël"~class=                                       -- (The String class)       R2
+    .context~package~setEncoding(oldEncoding)
+
+    oldEncoding = .encoding~setDefaultEncoding("byte")
+    "Noël"~class=                                       -- (The String class)       R3
+    .encoding~setDefaultEncoding(oldEncoding)
+
+    "Noël"~class=                                       -- (The RexxText class)     R4
+    "Noël"~string~class=                                -- (The String class)       R4 The string literal is a RexxText, the method ~string returns a String with encoding UTF-8
+    "Noël"~~setEncoding("byte")~class=                  -- (The RexxText class)     R4 The string literal is a RexxText, its encoding is changed from UTF-8 to Byte, the method ~string returns a String with encoding Byte
+    "Noël"~~setEncoding("byte")~string~class=           -- (The String class)       R4 The string literal is a RexxText, its encoding is changed from UTF-8 to Byte, the method ~string returns a String with encoding Byte
+
+
+Deactivate (again) the constraint "self~isCompatibleWithByteString" when converting
+a RexxText to a String (.Unicode~unckeckedConversionToString = .true).
+Reason: after activation of the automatic conversion to RexxText, I get these
+errors if I keep the constraint "self~isCompatibleWithByteString".
+    say "Noël"              -- raise an error "UTF-8 not-ASCII 'Noël' cannot be converted to a String instance"
+    xrange("00"x,"ff"x)     -- raise an error "UTF-8 not-ASCII '[FF]' cannot be converted to a String instance"
+The constraint "self~isCompatibleWithByteString" was put in place to detect when
+a RexxText instance is "lost" during conversion to string. Now that we have a
+common interface on String and RexxText, plus an automatic conversion to RexxText,
+this "loss" should occur less often. But still occurs.
+Examples, assuming the default encoding and the package encoding are UTF-8:
+    "Noël"~length=          -- 4
+    "Noël"~text~length=     -- 4
+    "Noël"~string~length=   -- 5
+    length("Noël")=         -- 5, should be 4    (with the constraint, would raise UTF-8 not-ASCII 'Noël' cannot be converted to a String instance)
+    length("Noël"~string)   -- 5
+
+
+The strings created by D2C, X2C are declared Byte encoded.
+It's because it's not unusual to create ill-formed encoded strings with these BIF/BIM.
+The Byte_Encoding is a raw encoding with few constraints, BUT it's impossible
+to transcode from/to it without errors if the string contains not-ASCII characters.
+That's why, often, a more specialized byte encoding is applied on the byte string,
+to interpret the bytes differently.
+Implementation notes:
+    D2C: RexxNumberString::d2xD2c calls StringUtil::packHex
+    X2C: StringUtil::packHex
+Examples:
+    "é"~encoding=                                   -- (The UTF8_Encoding class)
+
+    -- D2C
+    "é"~c2d=                                       -- 50089
+    d2c(50089)=                                     -- 'é'
+    50089~d2c=                                      -- 'é'
+    d2c(50089)~encoding=                            -- (The Byte_Encoding class)
+    50089~d2c~encoding=                             -- (The Byte_Encoding class)
+
+    -- X2C
+    "é"~c2x=                                        -- 'C3A9'
+    x2c("C3A9")=                                    -- 'é'
+    "C3A9"~x2c=                                     -- 'é'
+    x2c("C3A9")~encoding=                           -- (The Byte_Encoding class)
+    "C3A9"~x2c~encoding=                            -- (The Byte_Encoding class)
+
+    -- Valid Byte string, but invalid UTF-8 string
+    "C3"~x2c~encoding=                              -- (The Byte_Encoding class)
+    "C3"~x2c~text("utf8")~description=              -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 1 byte, 1 error)'
+    "C3"~x2c~text("utf8")~errors==                  -- 'UTF-8 encoding: byte sequence at byte-position 1 is truncated, expected 2 bytes
+
+
+The hexadecimal and binary strings are declared Byte encoded, for the same reasons
+as D2C, X2C.
+Implementation notes:
+    RexxSource::packLiteral
+Examples:
+    -- The encoding of a literal string is the default encoding
+    "é"~encoding=                                   -- (The UTF8_Encoding class)
+
+    -- The encoding of an hexadecimal string is the Byte encoding
+    "é"~c2x=                                        -- 'C3A9'
+    "C3A9"x=                                        -- 'é'
+    "C3A9"x~encoding=                               -- (The Byte_Encoding class)
+
+    -- The encoding of a binary string is the Byte encoding
+    "é"~c2x~x2b=                                    -- 1100001110101001
+    "11000011 10101001"b=                           -- 'é'
+    "11000011 10101001"b~encoding=                  -- (The Byte_Encoding class)
+
+
+Implementation of RexxText~Strip:
+    "Noël"~strip=                       -- T'Noël'
+    "\tNoël "~unescape~strip=           -- T'Noël'
+    "Noël"~strip("b", "ë")=             -- T'Noël'
+    "Noë"~strip("b", "ë")=              -- T'No'
+    "🤶Noël🎅"~strip("b", "lë🎅🤶")=  -- T'No'
+    "\u{NBSP}\u{EN SPACE}\u{EM SPACE}\u{HAIR SPACE}\u{FIGURE SPACE}\u{THIN SPACE}"~unescape~strip=          -- T'      '
+    "\u{NBSP}\u{EN SPACE}\u{EM SPACE}\u{HAIR SPACE}\u{FIGURE SPACE}\u{THIN SPACE}"~unescape~strip(lump:)=   -- T''
+
+
+New methods on String for compatibility with RexxText (inherit StringRexxTextInterface).
+Most of these methods forward to string~text.
+    ::method errors
+    ::method isCompatibleWithASCII
+    ::method isCompatibleWithByteString
+    ::method isUpper
+    ::method isLower
+    ::method codepoints
+    ::method maximumCodepoint
+    ::method maximumUnicodeCodepoint
+    ::method UnicodeCharacters
+    ::method characters
+    ::method character
+    ::method transcodeTo
+    ::method UTF8
+    ::method WTF8
+    ::method UTF16
+    ::method UTF16BE
+    ::method UTF16LE
+    ::method WTF16
+    ::method WTF16BE
+    ::method WTF16LE
+    ::method UTF32
+    ::method UTF32BE
+    ::method UTF32LE
+    ::method Unicode
+    ::method UnicodeN
+    ::method Unicode8
+    ::method Unicode16
+    ::method Unicode32
+    ::method c2u
+    ::method u2c
+    ::method c2g
+    ::method checkHexadecimalValueCompatibility
+    ::method checkNumericValueCompatibility
+    ::method checkLogicalValueCompatibility
+    ::method unescape
+    ::method transform
+    ::method transformer
+    ::method title
+    ::method isNFC
+    ::method NFC
+    ::method isNFD
+    ::method NFD
+    ::method isNFKC
+    ::method NFKC
+    ::method isNFKD
+    ::method NFKD
+    ::method isCasefold
+    ::method casefold
+    ::method isMarkStripped
+    ::method isIgnorableStripped
+    ::method isCCStripped
+    ::method isNAStripped
+    ::method graphemes
+    ::method grapheme
+
+
+Implementation of the abstract method 'transform' for Byte_Encoding and its subclasses.
+Parameters:
+    normalization = 0           Ignored, there is no normalization for byte strings.
+    casefold = .false           if .true then apply ~lower
+    lump= .false                Ignored
+    stripMark = .false          if .true then replace the accented letters by their base letter
+    stripIgnorable= .false      Ignored
+    stripCC = .false            if .true then remove the codepoints < 20x
+    stripNA = .false            if .true then remove the unassigned codepoints
+Examples:
+    -- casefold
+    "Père Noël"~transcodeTo("windows-1252")=                                                -- T'P?re No?l'
+    "Père Noël"~transcodeTo("windows-1252")~c2x=                                            -- '50 E8 72 65 20 4E 6F EB 6C'
+    '50 E8 72 65 20 4E 6F EB 6C'x~transform(casefold:)=                                     -- T'p?re no?l'
+    '50 E8 72 65 20 4E 6F EB 6C'x~transform(casefold:)~encoding=                            -- (The Byte_Encoding class)
+    '50 E8 72 65 20 4E 6F EB 6C'x~transform(casefold:)~utf8=                                -- Cannot convert Byte not-ASCII character 232 (E8) at byte-position 2 to UTF-8
+    '50 E8 72 65 20 4E 6F EB 6C'x~transform(casefold:)~~setEncoding("windows-1252")~utf8=   -- T'père noël'
+
+    -- stripMark depends on the encoding
+    "80 81 82 83 84 85 86 87 88 89 8A 8B 8C 8D 8E 8F 90 93 94 95 96 97 98 99 9A 9F A0 A1 A2 A3 A4 A5"x~text("ibm-437")~utf8=                           -- T'ÇüéâäàåçêëèïîìÄÅÉôöòûùÿÖÜƒáíóúñÑ'
+    "80 81 82 83 84 85 86 87 88 89 8A 8B 8C 8D 8E 8F 90 93 94 95 96 97 98 99 9A 9F A0 A1 A2 A3 A4 A5"x~text("ibm-437")~transform(stripMark:)~utf8=     -- T'CueaaaaceeeiiiAAEooouuyOUfaiounN'
+    "83 8A 9A 9F C0 C1 C2 C3 C4 C5 C7 C8 C9 CA CB CC CD CE CF D1 D2 D3 D4 D5 D6 D8 D9 DA DB DC DD E0 E1 E2 E3 E4 E5 E7 E8 E9 EA EB EC ED EE EF F1 F2 F3 F4 F5 F6 F8 F9 FA FB FC FD FF"x~text("ibm-1252")~utf8=                        -- T'ƒŠšŸÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝàáâãäåçèéêëìíîïñòóôõöøùúûüýÿ'
+    "83 8A 9A 9F C0 C1 C2 C3 C4 C5 C7 C8 C9 CA CB CC CD CE CF D1 D2 D3 D4 D5 D6 D8 D9 DA DB DC DD E0 E1 E2 E3 E4 E5 E7 E8 E9 EA EB EC ED EE EF F1 F2 F3 F4 F5 F6 F8 F9 FA FB FC FD FF"x~text("ibm-1252")~transform(stripMark:)~utf8=  -- T'fSsYAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy'
+    "C0 C1 C2 C3 C4 C5 C7 C8 C9 CA CB CC CD CE CF D1 D2 D3 D4 D5 D6 D8 D9 DA DB DC DD E0 E1 E2 E3 E4 E5 E7 E8 E9 EA EB EC ED EE EF F1 F2 F3 F4 F5 F6 F8 F9 FA FB FC FD FF"x~text("iso-8859-1")~utf8=                            -- T'ÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝàáâãäåçèéêëìíîïñòóôõöøùúûüýÿ'
+    "C0 C1 C2 C3 C4 C5 C7 C8 C9 CA CB CC CD CE CF D1 D2 D3 D4 D5 D6 D8 D9 DA DB DC DD E0 E1 E2 E3 E4 E5 E7 E8 E9 EA EB EC ED EE EF F1 F2 F3 F4 F5 F6 F8 F9 FA FB FC FD FF"x~text("iso-8859-1")~transform(stripMark:)~utf8=      -- T'AAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy'
+    "83 8A 8E 9A 9E 9F C0 C1 C2 C3 C4 C5 C7 C8 C9 CA CB CC CD CE CF D1 D2 D3 D4 D5 D6 D8 D9 DA DB DC DD E0 E1 E2 E3 E4 E5 E7 E8 E9 EA EB EC ED EE EF F1 F2 F3 F4 F5 F6 F8 F9 FA FB FC FD FF"x~text("windows-1252")~utf8=                            -- T'ƒŠŽšžŸÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝàáâãäåçèéêëìíîïñòóôõöøùúûüýÿ'
+    "83 8A 8E 9A 9E 9F C0 C1 C2 C3 C4 C5 C7 C8 C9 CA CB CC CD CE CF D1 D2 D3 D4 D5 D6 D8 D9 DA DB DC DD E0 E1 E2 E3 E4 E5 E7 E8 E9 EA EB EC ED EE EF F1 F2 F3 F4 F5 F6 F8 F9 FA FB FC FD FF"x~text("windows-1252")~transform(stripMark:)~utf8=      -- T'fSZszYAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy'
+
+    -- several transformations
+    "Père Noël"~transcodeTo("windows-1252")~transform(casefold:, stripMark:)~utf8=                      -- T'pere noel'
+    '50 E8 72 65 20 4E 6F EB 6C'x~~setEncoding("windows-1252")~transform(casefold:, stripMark:)~utf8=   -- T'pere noel'
+    -- next: the transform is done on Byte string, which has no rule for stripMark.
+    -- the accents are not removed.
+    '50 E8 72 65 20 4E 6F EB 6C'x~transform(casefold:, stripMark:)~~setEncoding("windows-1252")~utf8=   -- T'père noël'
+
+
+===============================================================================
 2024 Mar 17
 
 [Encoded strings]
@@ -126,7 +392,7 @@ Examples:
 
 Review of methods for string representation.
         String      RexxText
-b2x
+b2x       x            x
 c2d       x            x
 c2x       x            x
 d2c       x            x
@@ -598,7 +864,7 @@ https://github.com/uni-algo/uni-algo
 
 Reactivate the constraint "self~isCompatibleWithByteString" when converting a
 RexxText to a String. It can be disabled by setting
-    .Unicode~unckeckedConversionToString = .true
+    .Unicode~unckeckedConversionToString = .false
 Currently, the only case where this constraint is disabled is when testing
 the regular expressions in diary_examples.rex.
 
@@ -5099,7 +5365,7 @@ Added support for strings of codepoints encoded as native integers.
 The method ~unicode returns one of these encodings, depending on the character
 with the largest Unicode codepoint (1, 2, or 4 bytes) in the source string.
 Unlike the flexible representation of Python, the 3 representions are first-class.
-No BOM, the endiannes is the CPU one. This is for internal use only.
+No BOM, the endiannes is the CPU one. This is mainly for internal use.
 Unicode32_Encoding can be used with utf8proc for the functions taking a buffer of 32-bit integers.
 
 

@@ -919,6 +919,15 @@ RexxString *StringUtil::packHex(const char *String, size_t StringLength)
         /* this is a null string             */
         Retval = OREF_NULLSTRING;
     }
+    if (Retval != OREF_NULLSTRING)
+    {
+        // Declare that this string is byte encoded
+        ProtectedObject result;
+        RexxObject *args[1];
+        args[0] = OREF_BYTE; // positional argument
+        bool messageUnderstood = Retval->messageSend(OREF_SETENCODING, args, 1, 0, result, false);
+        // if not understood then don't complain because the support of encoded strings is optional
+    }
     return Retval;                       /* return the packed string          */
 }
 

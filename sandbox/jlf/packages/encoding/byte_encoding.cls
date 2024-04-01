@@ -89,6 +89,7 @@ Depends on
     -- sizeB == -1 ==> this method will check the validity of the encoding
     -- sizeB <> -1 ==> this method assumes that the encoding has been checked and is valid
     use strict arg string /* or buffer */, startB=1, sizeB=(-1)
+    string = string~requestBufferOrString
     if sizeB == -1 then do
         nextB = self~nextCodepointIndexB(string, startB) -- raise error if invalid, so no need to test if < 0
         sizeB = nextB - startB
@@ -104,12 +105,14 @@ Depends on
     --     encoding~decode(string, startB, encoding~byteSequenceSize(string, startB))
     -- By passing a non-negative size to ~decode, the checks are disabled.
     use strict arg string /* or buffer */, startB=1
+    string = string~requestBufferOrString
     if startB > string~length then return 0
     return 1
 
 
 ::method nextCodepointIndexB class
     use strict arg string /* or buffer */, startB
+    string = string~requestBufferOrString
     -- use named arg errorInfo=.nil
     if startB < 1 then return startB -- don't move because below start of string
     if startB > string~length then return startB -- don't move because beyond end of string
@@ -123,6 +126,7 @@ Depends on
     --   1    |2    |3
     -- For example, if indexB==3 then previousCodepointIndexB==2
     use strict arg string /* or buffer */, startB
+    string = string~requestBufferOrString
     if string~length == 0 then return startB -- don't move because empty string
     if startB <= 1 then return startB -- don't move because at start of string or before
     if startB > (string~length + 1) then return startB -- don't move because beyond the end of string
@@ -174,6 +178,52 @@ Depends on
 
 ::method codepointToTitleFull class
     forward message "codepointToTitleSimple"
+
+
+::method byteTransform class private
+    use strict arg string
+    use strict named arg casefold = .false, lump= .false, stripMark = .false, stripIgnorable= .false, stripCC = .false, stripNA = .false
+
+    if stripMark then string = self~stripMark(string)
+    if stripIgnorable then string = self~stripIgnorable(string)
+    if stripCC then string = self~stripCC(string)
+    if stripNA then string = self~stripNA(string)
+    if casefold then string = self~casefold(string)
+    return string
+
+
+::method casefold class private
+    -- Can be redefined by subclasses
+    use strict arg string
+    return string~lower
+
+
+::method stripMark class private
+    -- Can be redefined by subclasses
+    use strict arg string
+    return string
+
+
+::method stripIgnorable class private
+    -- Can be redefined by subclasses
+    use strict arg string
+    return string
+
+
+::method stripCC class private
+    -- Can be redefined by subclasses
+    use strict arg string
+    -- replace the characters 00x to 1Fx by 00x
+    string = string~translate( , "00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F"x, "00"x)
+    -- remove the characters "00"x
+    string = string~changestr("00"x, "")
+    return string
+
+
+::method stripNA class private
+    -- Can be redefined by subclasses
+    use strict arg string
+    return string
 
 
 /********************/
@@ -229,6 +279,57 @@ Depends on
     return maximumUnicodeCodepoint
 
     cannot_convert_character: raise syntax 23.900 array("Cannot convert" self~description(short: .true) "character" charcode "("charcode~d2x") at byte-position" i "to Unicode")
+
+
+::method transform
+    -- derived from XTF8_CommonServices~transform
+    use strict arg -- none
+    use strict named arg normalization = 0, casefold = .false, lump= .false, stripMark = .false, stripIgnorable= .false, stripCC = .false, stripNA = .false, returnString = .false, memorize = (.Unicode~memorizeTransformations)
+
+    .validate~wholeNumberRange("normalization", normalization, 0, 4)
+    .validate~logical("casefold", casefold)
+    .validate~logical("lump", lump)
+    .validate~logical("stripMark", stripMark)
+    .validate~logical("stripIgnorable", stripIgnorable)
+    .validate~logical("stripCC", stripCC)
+    .validate~logical("stripNA", stripNA)
+    .validate~logical("returnString", returnString)
+    .validate~logical("memorize", memorize)
+
+    -- normalization: 1=NFC, 2=NFD, 3=NFKC, 4=NFKD
+    -- There is no normalization for byte strings, but don't complain if a normalization is requested (it's a NOP)
+    normalization = 0
+
+    -- bit                      0                   1                   2                   3                   4         5     6          7               8        9
+    -- flag                     NFC                 NFD                 NFKC                NFKD                casefold  lump  stripMark  stripIgnorable  stripCC  stripNA
+    mask = .BitKey~bitFlagsMask(normalization == 1, normalization == 2, normalization == 3, normalization == 4, casefold, lump, stripMark, stripIgnorable, stripCC, stripNA)
+    string = self~getCachedString(mask)
+    if .nil \== string then return string~makeRexxTextOrString(returnString) -- already memorized
+    if self~bitFlagsAllTrue(mask) then string = self~string -- already in the requested form
+    else do
+        string = self~encoding~byteTransform(self~string, :casefold, :lump, :stripMark, :stripIgnorable, :stripCC, :stripNA)
+        if (string == self~string) then self~setBitFlags(mask) -- all these flags are set to true
+        -- from here, we know that the original string is different from the transformed string
+        -- if the mask is just one flag then we can set this flag to 0 on the original string
+        else if mask == .BitKey~bitPosMask(self~FLAG_CASEFOLD) then self~clearBitFlags(mask)
+        else if mask == .BitKey~bitPosMask(self~FLAG_LUMP) then self~clearBitFlags(mask)
+        else if mask == .BitKey~bitPosMask(self~FLAG_STRIP_MARK) then self~clearBitFlags(mask)
+        else if mask == .BitKey~bitPosMask(self~FLAG_STRIP_IGNORABLE) then self~clearBitFlags(mask)
+        else if mask == .BitKey~bitPosMask(self~FLAG_STRIP_CC) then self~clearBitFlags(mask)
+        else if mask == .BitKey~bitPosMask(self~FLAG_STRIP_NA) then self~clearBitFlags(mask)
+        else nop -- CAREFUL! not just one flag, don't store 0 (keep -1) because maybe one of the indicators could be 1 or could become 1 when applying a unitary transformation
+        if returnString then do
+            -- It's a new string, without any encoding stored on it, so can't store the flags
+            string~encoding = self~encoding
+        end
+        else do
+            text = .RexxText~new(string, self~encoding)
+            text~indexer~setBitFlags(mask)
+            -- Remember: string is automatically linked to text so the final makeRexxTextOrString will return this text
+        end
+    end
+    if memorize then self~cacheString(mask, string)
+    return string~makeRexxTextOrString(returnString)
 
 
 /*

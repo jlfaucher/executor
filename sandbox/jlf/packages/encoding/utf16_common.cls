@@ -15,6 +15,7 @@
     -- sizeB == -1 ==> this method will check the validity of the encoding
     -- sizeB <> -1 ==> this method assumes that the encoding has been checked and is valid
     use strict arg string /* or buffer */, startB=1, sizeB=(-1)
+    string = string~requestBufferOrString
     if sizeB == -1 then do
         nextB = self~nextCodepointIndexB(string, startB) -- raise error if invalid, so no need to test if < 0
         sizeB = nextB - startB
@@ -38,6 +39,7 @@
     --     indexer~decode(string, startB, indexer~byteSequenceSize(string, startB))
     -- By passing a size to ~decode, the checks are disabled, and that allows to get a codepoint even when ill-formed.
     use strict arg string /* or buffer */, startB=1
+    string = string~requestBufferOrString
     wobbly = self~isWTF16
     indexB = startB
     lengthB = string~length
@@ -67,6 +69,7 @@
 ::method nextCodepointIndexB class
     use strict arg string /* or buffer */, startB
     use strict named arg errorInfo=.nil
+    string = string~requestBufferOrString
     wobbly = self~isWTF16
     indexB = startB
     lengthB = string~length
@@ -125,6 +128,7 @@
     -- For example, if indexB==5 then previousCodepointIndexB==3 (can be 1 if cp1 is a high surrogate and cp2 is a low surrogate)
     use strict arg string /* or buffer */, startB
     use strict named arg errorInfo=.nil
+    string = string~requestBufferOrString
     lengthB = string~length
     if lengthB == 0 then return startB -- don't move because empty string
     if startB <= 1 then return startB -- don't move because at start of string or before
@@ -256,6 +260,7 @@
     use strict arg string
     use strict named arg memorize = (.Unicode~memorizeTranscodings), buffer=.nil
 
+    string = string~string
     text = .nil
     if string~hasText then text = string~text
 
@@ -365,6 +370,7 @@
     use strict arg string
     use strict named arg memorize = (.Unicode~memorizeTranscodings), buffer=.nil
 
+    string = string~string
     text = .nil
     if string~hasText then text = string~text
 

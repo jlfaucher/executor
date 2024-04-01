@@ -216,12 +216,16 @@ For example, if startB==6 then previousCodepointIndexB==3
     use strict arg buffer   -- left part
     use strict named arg demotionIsAllowed=.false, errorInfo=.nil
 
-    targetEncoding = self   -- right part
+    bufferEncoding = buffer~encoding -- left encoding
+    targetEncoding = self   -- right encoding
+
     if \buffer~hasEncoding, buffer~length == 0 then return targetEncoding -- when no encoding then any encoding is compatible
 
-    bufferEncoding = buffer~encoding
-
     if bufferEncoding == targetEncoding then return bufferEncoding
+
+    -- The Byte_Encoding can be always absorbed
+    if bufferEncoding == .Byte_Encoding then return targetEncoding
+    if targetEncoding == .Byte_Encoding then return bufferEncoding
 
     if bufferEncoding~isUTF8, targetEncoding~isWTF8 then return .WTF8_Encoding
     if bufferEncoding~isWTF8, targetEncoding~isUTF8 then return .WTF8_Encoding
