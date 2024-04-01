@@ -1,3 +1,77 @@
+================================================================================
+numeric digits for dummies
+================================================================================
+
+object.rexx@gmail.com (RMG)
+NUMERIC DIGITS defines the number of significant digits to which the calculations are carried out.
+The first significant digit in both cases is the 1.
+The leading decimal zeros are not significant digits.
+
+remesm@gmail.com
+so, zero's immediately after the decimal point are considered 'insignificant' digits?
+That would be hard to explain to a 3rd grader (which apparently I am;).
+
+object.rexx@gmail.com (RMG)
+Yes, with a caveat.
+In the number 0.01234567, the zero after the decimal point is not significant,
+However, for the number 1.01234567, the zero is significant because the first
+significant digit is the 1 to the left of the decimal point.
+The first number rounded to 4 digits is 0.01235,
+the second number rounded to 4 digits is 1.012.
+
+remesm@gmail.com
+Ah, so 'precision' is not about digits after the decimal point, but it's all digits while skipping leading zero's.
+
+
+The question was
+    remesm@gmail.com
+    Consider the following program:
+
+        /* REXX */
+        Parse Version v
+        Say v
+
+        numeric digits 4
+
+        n=0.0123456789
+        Say 'n   = 'n
+        Say 'n+0 = 'n+0
+
+        n=0.1234567890
+        Say 'n   = 'n
+        Say 'n+0 = 'n+0
+
+    On the different implementations:
+
+        $ rexx numeric.nrx
+        REXX-ooRexx_5.1.0(MT)_64-bit 6.05 12 Feb 2024
+        n   = 0.0123456789
+        n+0 = 0.01235
+        n   = 0.1234567890
+        n+0 = 0.1235
+
+        $ rrexx numeric.nrx
+        REXX-Regina_3.9.5 5.00 25 Jun 2022
+        n   = 0.0123456789
+        n+0 = 0.01235
+        n   = 0.1234567890
+        n+0 = 0.1235
+
+        $ nr numeric.nrx
+        NetRexx 4.07 11 Mar 2024
+        n   = 0.0123456789
+        n+0 = 0.01235
+        n   = 0.1234567890
+        n+0 = 0.1235
+
+    I would assume 0.0123456789+0 would yield 0.0123, i.e. 4 digits after the decimal point.
+    Where is my misunderstanding on the NUMERIC DIGITS instruction?
+
+
+================================================================================
+Hidden classes
+================================================================================
+
 Only one class visible by the ooRexx programmer (String)
 but several classes behind the scene...
 
