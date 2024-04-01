@@ -1,6 +1,8 @@
 prompt off address directory
 demo on
 
+.context~package~encoding = "byte"
+
 -- .Unicode~loadDerivedName(/*action*/ "load")=    -- load all the Unicode characters
 -- .Unicode~loadNameAliases(/*action*/ "load")=    -- load the name aliases
 

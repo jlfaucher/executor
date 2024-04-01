@@ -1,4 +1,6 @@
 
+ooRexx> .context~package~encoding = "byte"
+
 -- .Unicode~loadDerivedName(/*action*/ "load")=    -- load all the Unicode characters
 -- .Unicode~loadNameAliases(/*action*/ "load")=    -- load the name aliases
 
@@ -1809,24 +1811,21 @@ ooRexx> < include_conversion.rex
     --------------------------------------------------------------------------------
     
     ooRexx> t~nfc(memorize:)=
-    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
     ooRexx> t~nfd(memorize:)=
-    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
     ooRexx> t~nfkc(memorize:)=
-    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
     ooRexx> t~nfkd(memorize:)=
-    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
     ooRexx> t~casefold(memorize:)=
-    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>?@abcdefghijklmnopqrstuvwxyz[\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
     -------------------------------------
     -- End of file include_conversion.rex
     -------------------------------------
 ooRexx> call display_cache t
+'[0000]'                            : Byte ASCII (128 characters, 128 codepoints, 128 bytes, 0 error)             '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'[0010]'                            : Byte ASCII (128 characters, 128 codepoints, 128 bytes, 0 error)             '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
 'UTF-16BE'                          : UTF-16BE (128 characters, 128 codepoints, 256 bytes, 0 error)               '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
 'UTF-16LE'                          : UTF-16LE (128 characters, 128 codepoints, 256 bytes, 0 error)               '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
 'UTF-32BE'                          : UTF-32BE (128 characters, 128 codepoints, 512 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
@@ -3611,24 +3610,21 @@ ooRexx> < include_conversion.rex
     --------------------------------------------------------------------------------
     
     ooRexx> t~nfc(memorize:)=
-    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþ[FF]'
     ooRexx> t~nfd(memorize:)=
-    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþ[FF]'
     ooRexx> t~nfkc(memorize:)=
-    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþ[FF]'
     ooRexx> t~nfkd(memorize:)=
-    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþ[FF]'
     ooRexx> t~casefold(memorize:)=
-    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>?@abcdefghijklmnopqrstuvwxyz[\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþ[FF]'
     -------------------------------------
     -- End of file include_conversion.rex
     -------------------------------------
 ooRexx> call display_cache t
+'[0000]'                            : windows-1252 not-ASCII (256 characters, 256 codepoints, 256 bytes, 0 error) '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'[0010]'                            : windows-1252 not-ASCII (256 characters, 256 codepoints, 256 bytes, 0 error) '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
 'UTF-16BE'                          : UTF-16BE (256 characters, 256 codepoints, 512 bytes, 0 error)               '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
 'UTF-16LE'                          : UTF-16LE (256 characters, 256 codepoints, 512 bytes, 0 error)               '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
 'UTF-32BE'                          : UTF-32BE (256 characters, 256 codepoints, 1024 bytes, 0 error)              '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
@@ -5395,24 +5391,21 @@ ooRexx> < include_conversion.rex
     --------------------------------------------------------------------------------
     
     ooRexx> t~nfc(memorize:)=
-    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþ[FF]'
     ooRexx> t~nfd(memorize:)=
-    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþ[FF]'
     ooRexx> t~nfkc(memorize:)=
-    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþ[FF]'
     ooRexx> t~nfkd(memorize:)=
-    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþ[FF]'
     ooRexx> t~casefold(memorize:)=
-    Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    Error code= 93.965
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>?@abcdefghijklmnopqrstuvwxyz[\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþ[FF]'
     -------------------------------------
     -- End of file include_conversion.rex
     -------------------------------------
 ooRexx> call display_cache t
+'[0000]'                            : ISO-8859-1 not-ASCII (256 characters, 256 codepoints, 256 bytes, 0 error)   '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+'[0010]'                            : ISO-8859-1 not-ASCII (256 characters, 256 codepoints, 256 bytes, 0 error)   '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
 'UTF-16BE'                          : UTF-16BE (256 characters, 256 codepoints, 512 bytes, 0 error)               '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
 'UTF-16LE'                          : UTF-16LE (256 characters, 256 codepoints, 512 bytes, 0 error)               '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
 'UTF-32BE'                          : UTF-32BE (256 characters, 256 codepoints, 1024 bytes, 0 error)              '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 

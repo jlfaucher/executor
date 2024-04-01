@@ -12,9 +12,8 @@ ooRexx> s~text = .RexxText~new("hello")          -- The counterpart must be a Re
 EncodedString: the counterpart must be a RexxText linked to this String.
 Error code= 23.900
 ooRexx> s~text = .RexxText~new(s)                -- ok, the RexxText is linked to s, now can be assigned to s~text
-ooRexx> "é"~text("byte") || "è"~text("utf8")=    -- Cannot concatenate Byte with UTF-8
-Encoding: cannot append UTF-8 not-ASCII 'è' to Byte not-ASCII 'é'.
-Error code= 23.900
+ooRexx> "é"~text("byte") || "è"~text("utf8")=    -- T'éè'   (was Cannot concatenate Byte with UTF-8)
+T'éè'
 ooRexx> "é"~text("byte") || "é"~text("utf8")=    -- T'éé' encoded UTF-8
 T'éé'
 /*

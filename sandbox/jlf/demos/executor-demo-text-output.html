@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 21 Sep 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S780dQ600001cdaa40
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Apr 2024
+</span><span style="font-weight:bold;color:green;">Input queue name: S75f4Q6000007ea080
 </span>
 <span style="font-weight:bold;color:blue;">----------------
 </span><span style="font-weight:bold;color:blue;">-- Text encoding
@@ -66,9 +66,9 @@
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s1 = &quot;é&quot;</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s1=                                 </span><span style="font-weight:bold;color:blue;">-- 'é'</span>
-'é'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s1~length=                          </span><span style="font-weight:bold;color:blue;">-- 2</span>
- 2
+T'é'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s1~length=                          </span><span style="font-weight:bold;color:blue;">-- 1    (was 2 before automatic conversion of string literals to text)</span>
+ 1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s1~c2x=                             </span><span style="font-weight:bold;color:blue;">-- C3 A9</span>
 'C3A9'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">combining_acute_accent = &quot;cc81&quot;x</span>
@@ -151,9 +151,13 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">myText~length=      
 </span><span style="font-weight:bold;color:blue;">CR+LF is a grapheme made of 2 codepoints.
 </span><span style="font-weight:bold;color:blue;">LF+CR are 2 graphemes.
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;0D0A&quot;x~text~description=</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;0D0A&quot;x~text~description=           </span><span style="font-weight:bold;color:blue;">-- here, &quot;0D0A&quot;x is a Byte string, &quot;0D0A&quot;x~text also, so TWO graphemes</span>
+'Byte ASCII (2 characters, 2 codepoints, 2 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;0A0D&quot;x~text~description=           </span><span style="font-weight:bold;color:blue;">-- always 2 graphemes, be it Byte or UTF-8 (here, it's Byte)</span>
+'Byte ASCII (2 characters, 2 codepoints, 2 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;0D0A&quot;x~text(&quot;utf8&quot;)~description=   </span><span style="font-weight:bold;color:blue;">-- here, &quot;0D0A&quot;x is a Byte string, &quot;0D0A&quot;x~text(&quot;utf8&quot;) is UTF-8, so ONE grapheme</span>
 'UTF-8 ASCII (1 character, 2 codepoints, 2 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;0A0D&quot;x~text~description=</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;0A0D&quot;x~text(&quot;utf8&quot;)~description=   </span><span style="font-weight:bold;color:blue;">-- always 2 graphemes, be it Byte or UTF-8 (here, it's UTF-8)</span>
 'UTF-8 ASCII (2 characters, 2 codepoints, 2 bytes, 0 error)'
 
 <span style="font-weight:bold;color:blue;">/*
@@ -191,26 +195,26 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;(ノಠ益ಠ)
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">emoji_table = emoji_bag~table~map(&quot;text&quot;)</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">emoji_table~map(&quot;c2x&quot;)==</span>
 a Table (9 items)
-'⚪'    : 'E29AAA'
-'⚪️' : 'E29AAA EFB88F'
-'⚫'    : 'E29AAB'
-'⚫️' : 'E29AAB EFB88F'
-'❄'    : 'E29D84'
-'❄︎' : 'E29D84 EFB88E'
-'❄️' : 'E29D84 EFB88F'
-'❤'    : 'E29DA4'
-'❤️' : 'E29DA4 EFB88F'
+T'⚪'    : 'E29AAA'
+T'⚪️' : 'E29AAA EFB88F'
+T'⚫'    : 'E29AAB'
+T'⚫️' : 'E29AAB EFB88F'
+T'❄'    : 'E29D84'
+T'❄︎' : 'E29D84 EFB88E'
+T'❄️' : 'E29D84 EFB88F'
+T'❤'    : 'E29DA4'
+T'❤️' : 'E29DA4 EFB88F'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">emoji_table~map(&quot;c2u&quot;)==</span>
 a Table (9 items)
-'⚪'    : 'U+26AA'
-'⚪️' : 'U+26AA U+FE0F'
-'⚫'    : 'U+26AB'
-'⚫️' : 'U+26AB U+FE0F'
-'❄'    : 'U+2744'
-'❄︎' : 'U+2744 U+FE0E'
-'❄️' : 'U+2744 U+FE0F'
-'❤'    : 'U+2764'
-'❤️' : 'U+2764 U+FE0F'
+T'⚪'    : 'U+26AA'
+T'⚪️' : 'U+26AA U+FE0F'
+T'⚫'    : 'U+26AB'
+T'⚫️' : 'U+26AB U+FE0F'
+T'❄'    : 'U+2744'
+T'❄︎' : 'U+2744 U+FE0E'
+T'❄️' : 'U+2744 U+FE0F'
+T'❤'    : 'U+2764'
+T'❤️' : 'U+2764 U+FE0F'
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">The tables above are not well aligned
 </span><span style="font-weight:bold;color:blue;">because the alignement is based on the length of the indexes,
@@ -224,7 +228,7 @@ a Table (9 items)
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">family = &quot;👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦&quot;</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">family=</span>
-'👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦'
+T'👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">family~text~description=                              </span><span style="font-weight:bold;color:blue;">-- 1 character, 15 codepoints, 53 bytes</span>
 'UTF-8 not-ASCII (1 character, 15 codepoints, 53 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">family~text~c2x=</span>
@@ -242,7 +246,7 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">family~text~c2g=</sp
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">helloZalgo = &quot;h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞&quot;</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">helloZalgo =</span>
-'h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞'
+T'h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">helloZalgo~text~description=                          </span><span style="font-weight:bold;color:blue;">-- 5 characters, 54 codepoints, 111 bytes</span>
 'UTF-8 not-ASCII (5 characters, 54 codepoints, 111 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">helloZalgo~text~c2x=</span>

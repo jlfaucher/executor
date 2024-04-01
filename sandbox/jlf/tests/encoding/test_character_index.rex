@@ -50,7 +50,7 @@ call test_characterIndexC '"äöü äöü x̂ ϔ ﷺ baﬄe"~text("utf8")  ~u
 
 ::routine test_characterIndexC
     use strict arg expression
-    text = "text =" expression~space(0)
+    text = "text =" expression -- ~space(0)     -- space(0) is a bad idea! some expressions have significant spaces
     say "--------------------------------------------------------------------------------"
     say text
     say "--------------------------------------------------------------------------------"

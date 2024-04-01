@@ -13,7 +13,7 @@ sleep
 s = "hello"
 s~text = .RexxText~new("hello")          -- The counterpart must be a RexxText linked to this String
 s~text = .RexxText~new(s)                -- ok, the RexxText is linked to s, now can be assigned to s~text
-"é"~text("byte") || "è"~text("utf8")=    -- Cannot concatenate Byte with UTF-8
+"é"~text("byte") || "è"~text("utf8")=    -- T'éè'   (was Cannot concatenate Byte with UTF-8)
 "é"~text("byte") || "é"~text("utf8")=    -- T'éé' encoded UTF-8
 /*
 No error because the 2 occurences of the string "é" are the same interned string.

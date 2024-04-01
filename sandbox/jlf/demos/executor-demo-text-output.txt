@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 21 Sep 2023
-Input queue name: S780dQ600001cdaa40
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Apr 2024
+Input queue name: S75f4Q6000007ea080
 
 ----------------
 -- Text encoding
@@ -56,9 +56,9 @@ I get that under ooRexxShell :
 */
 ooRexx[sh]> s1 = "é"
 ooRexx[sh]> s1=                                 -- 'é'
-'é'
-ooRexx[sh]> s1~length=                          -- 2
- 2
+T'é'
+ooRexx[sh]> s1~length=                          -- 1    (was 2 before automatic conversion of string literals to text)
+ 1
 ooRexx[sh]> s1~c2x=                             -- C3 A9
 'C3A9'
 ooRexx[sh]> combining_acute_accent = "cc81"x
@@ -141,9 +141,13 @@ ooRexx[sh]> myText~graphemes~each("c2x")=
 CR+LF is a grapheme made of 2 codepoints.
 LF+CR are 2 graphemes.
 */
-ooRexx[sh]> "0D0A"x~text~description=
+ooRexx[sh]> "0D0A"x~text~description=           -- here, "0D0A"x is a Byte string, "0D0A"x~text also, so TWO graphemes
+'Byte ASCII (2 characters, 2 codepoints, 2 bytes, 0 error)'
+ooRexx[sh]> "0A0D"x~text~description=           -- always 2 graphemes, be it Byte or UTF-8 (here, it's Byte)
+'Byte ASCII (2 characters, 2 codepoints, 2 bytes, 0 error)'
+ooRexx[sh]> "0D0A"x~text("utf8")~description=   -- here, "0D0A"x is a Byte string, "0D0A"x~text("utf8") is UTF-8, so ONE grapheme
 'UTF-8 ASCII (1 character, 2 codepoints, 2 bytes, 0 error)'
-ooRexx[sh]> "0A0D"x~text~description=
+ooRexx[sh]> "0A0D"x~text("utf8")~description=   -- always 2 graphemes, be it Byte or UTF-8 (here, it's UTF-8)
 'UTF-8 ASCII (2 characters, 2 codepoints, 2 bytes, 0 error)'
 
 /*
@@ -181,26 +185,26 @@ ooRexx[sh]> emoji_bag = .bag~of('❤', '❤️', '❄', '❄︎', '❄️', '⚪
 ooRexx[sh]> emoji_table = emoji_bag~table~map("text")
 ooRexx[sh]> emoji_table~map("c2x")==
 a Table (9 items)
-'⚪'    : 'E29AAA'
-'⚪️' : 'E29AAA EFB88F'
-'⚫'    : 'E29AAB'
-'⚫️' : 'E29AAB EFB88F'
-'❄'    : 'E29D84'
-'❄︎' : 'E29D84 EFB88E'
-'❄️' : 'E29D84 EFB88F'
-'❤'    : 'E29DA4'
-'❤️' : 'E29DA4 EFB88F'
+T'⚪'    : 'E29AAA'
+T'⚪️' : 'E29AAA EFB88F'
+T'⚫'    : 'E29AAB'
+T'⚫️' : 'E29AAB EFB88F'
+T'❄'    : 'E29D84'
+T'❄︎' : 'E29D84 EFB88E'
+T'❄️' : 'E29D84 EFB88F'
+T'❤'    : 'E29DA4'
+T'❤️' : 'E29DA4 EFB88F'
 ooRexx[sh]> emoji_table~map("c2u")==
 a Table (9 items)
-'⚪'    : 'U+26AA'
-'⚪️' : 'U+26AA U+FE0F'
-'⚫'    : 'U+26AB'
-'⚫️' : 'U+26AB U+FE0F'
-'❄'    : 'U+2744'
-'❄︎' : 'U+2744 U+FE0E'
-'❄️' : 'U+2744 U+FE0F'
-'❤'    : 'U+2764'
-'❤️' : 'U+2764 U+FE0F'
+T'⚪'    : 'U+26AA'
+T'⚪️' : 'U+26AA U+FE0F'
+T'⚫'    : 'U+26AB'
+T'⚫️' : 'U+26AB U+FE0F'
+T'❄'    : 'U+2744'
+T'❄︎' : 'U+2744 U+FE0E'
+T'❄️' : 'U+2744 U+FE0F'
+T'❤'    : 'U+2764'
+T'❤️' : 'U+2764 U+FE0F'
 /*
 The tables above are not well aligned
 because the alignement is based on the length of the indexes,
@@ -214,7 +218,7 @@ is one grapheme, made up of 15 codepoints
 */
 ooRexx[sh]> family = "👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦"
 ooRexx[sh]> family=
-'👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦'
+T'👩‍👨‍👩‍👧‍👦‍👧‍👧‍👦'
 ooRexx[sh]> family~text~description=                              -- 1 character, 15 codepoints, 53 bytes
 'UTF-8 not-ASCII (1 character, 15 codepoints, 53 bytes, 0 error)'
 ooRexx[sh]> family~text~c2x=
@@ -232,7 +236,7 @@ h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o᷃ͪ�
 */
 ooRexx[sh]> helloZalgo = "h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞"
 ooRexx[sh]> helloZalgo =
-'h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞'
+T'h̵᷊̟͉͔̟̲͆e̷͇̼͉̲̾l̸̨͓̭̗᷿︣︠ͦl̶̯̻̑̈ͮ͌︡̕o̵̝̬̯᷊̭̯̦᷃ͪ̆́᷈́͜͢͞'
 ooRexx[sh]> helloZalgo~text~description=                          -- 5 characters, 54 codepoints, 111 bytes
 'UTF-8 not-ASCII (5 characters, 54 codepoints, 111 bytes, 0 error)'
 ooRexx[sh]> helloZalgo~text~c2x=

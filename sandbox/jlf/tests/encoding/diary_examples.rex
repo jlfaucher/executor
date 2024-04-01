@@ -8,6 +8,290 @@ call loadUnicodeCharacterNames
 
 
 -- ===============================================================================
+-- 2024 Apr 01
+
+/*
+A package has an encoding:
+.Package
+    encoding
+    encoding=
+    hasEncoding
+The calculation of the default encoding is not so good, probably to rework.
+But for the moment, it works for me...
+Case 1: package not requesting "text.cls", directly or indirectly.
+    Most of the legacy packages don't support an encoding other than Byte.
+    The package's default encoding is Byte (not .Encoding~defaultEncoding).
+Case 2: package requesting "text.cls", directly or indirectly.
+    We assume that the caller supports an automatic conversion to text.
+    The package's default encoding is .Encoding~defaultEncoding.
+*/
+
+
+/*
+New method setEncoding on String, MutableBuffer, Package and RexxText, to change
+the current encoding and return the previous encoding.
+Example, assuming the default encoding is UTF-8:
+*/
+"Noel"~setEncoding("windows-1252")=     -- (The UTF8_Encoding class)    (previous encoding)
+"Noël"~setEncoding("byte")=             -- (The UTF8_Encoding class)    (previous encoding)
+/*
+Example, when the default encoding is Byte:
+*/
+oldEncoding = .encoding~setDefaultEncoding("byte")
+"Noel"~setEncoding("windows-1252")=     -- (The Byte_Encoding class)    (previous encoding)
+"Noël"~setEncoding("byte")=             -- (The Byte_Encoding class)    (previous encoding)
+.encoding~setDefaultEncoding(oldEncoding)
+
+
+/*
+New methods on the class Encoding, to change the current encoding and return
+the previous encoding:
+    setDefaultEncoding
+    setDefaultInputEncoding
+    setDefaultOutputEncoding
+*/
+
+
+/*
+Relax the constraints for the Byte_Encoding in the methods compatibleEncoding
+and asEncodingFor: The Byte_Encoding can be always absorbed.
+Reason: The Byte_Encoding is often used for diagnostic or repair.
+Examples:
+*/
+"Père"~c2g=                             -- '50 C3A8 72 65'
+"Père"~text~startsWith("50C3"x)=        -- false (not aligned) (was Encoding: cannot compare Byte not-ASCII 'P\C3' with UTF-8 not-ASCII 'Père')
+"Père"~text~startsWith("50C3A8"x)=      -- true (was Encoding: cannot compare Byte not-ASCII 'Pè' with UTF-8 not-ASCII 'Père')
+
+
+/*
++-------------------------------------------+
+|            IMPORTANT MILESTONE            |
+| Activation of the automatic conversion    |
+| of String literals to RexxText instances  |
++-------------------------------------------+
+This is managed in RexxString::evaluate
+Rules:
+if string~isASCII then value = string                               -- R1 don't convert to RexxText if the string literal is ASCII
+else if .context~package~encoding~isByte then value = string        -- R2 don't convert to RexxText if the context package encoding is Byte.
+else if string~isCompatibleWithByteString then value = string       -- R3 don't convert to RexxText if the string literal is compatible with a Byte string.
+else value = string~text                                            -- R4 convert to RexxText
+Examples, assuming the package encoding is UTF-8:
+*/
+"Noel"~class=                                       -- (The String class)       R1
+
+oldEncoding = .context~package~setEncoding("byte")
+"Noël"~class=                                       -- (The String class)       R2
+.context~package~setEncoding(oldEncoding)
+
+oldEncoding = .encoding~setDefaultEncoding("byte")
+"Noël"~class=                                       -- (The String class)       R3
+.encoding~setDefaultEncoding(oldEncoding)
+
+"Noël"~class=                                       -- (The RexxText class)     R4
+"Noël"~string~class=                                -- (The String class)       R4 The string literal is a RexxText, the method ~string returns a String with encoding UTF-8
+"Noël"~~setEncoding("byte")~class=                  -- (The RexxText class)     R4 The string literal is a RexxText, its encoding is changed from UTF-8 to Byte, the method ~string returns a String with encoding Byte
+"Noël"~~setEncoding("byte")~string~class=           -- (The String class)       R4 The string literal is a RexxText, its encoding is changed from UTF-8 to Byte, the method ~string returns a String with encoding Byte
+
+
+/*
+Deactivate (again) the constraint "self~isCompatibleWithByteString" when converting
+a RexxText to a String (.Unicode~unckeckedConversionToString = .true).
+Reason: after activation of the automatic conversion to RexxText, I get these
+errors if I keep the constraint "self~isCompatibleWithByteString".
+    say "Noël"              -- raise an error "UTF-8 not-ASCII 'Noël' cannot be converted to a String instance"
+    xrange("00"x,"ff"x)     -- raise an error "UTF-8 not-ASCII '[FF]' cannot be converted to a String instance"
+The constraint "self~isCompatibleWithByteString" was put in place to detect when
+a RexxText instance is "lost" during conversion to string. Now that we have a
+common interface on String and RexxText, plus an automatic conversion to RexxText,
+this "loss" should occur less often. But still occurs.
+Example, assuming the default encoding and the package encoding are UTF-8:
+*/
+"Noël"~length=          -- 4
+"Noël"~text~length=     -- 4
+"Noël"~string~length=   -- 5
+length("Noël")=         -- 5, should be 4    (with the constraint, would raise UTF-8 not-ASCII 'Noël' cannot be converted to a String instance)
+length("Noël"~string)   -- 5
+
+
+/*
+The strings created by D2C, X2C are declared Byte encoded.
+It's because it's not unusual to create ill-formed encoded strings with these BIF/BIM.
+The Byte_Encoding is a raw encoding with few constraints, BUT it's impossible
+to transcode from/to it without errors if the string contains not-ASCII characters.
+That's why, often, a more specialized byte encoding is applied on the byte string,
+to interpret the bytes differently.
+Implementation notes:
+    D2C: RexxNumberString::d2xD2c calls StringUtil::packHex
+    X2C: StringUtil::packHex
+Examples:
+*/
+"é"~encoding=                                   -- (The UTF8_Encoding class)
+
+-- D2C
+"é"~c2d=                                       -- 50089
+d2c(50089)=                                     -- 'é'
+50089~d2c=                                      -- 'é'
+d2c(50089)~encoding=                            -- (The Byte_Encoding class)
+50089~d2c~encoding=                             -- (The Byte_Encoding class)
+
+-- X2C
+"é"~c2x=                                        -- 'C3A9'
+x2c("C3A9")=                                    -- 'é'
+"C3A9"~x2c=                                     -- 'é'
+x2c("C3A9")~encoding=                           -- (The Byte_Encoding class)
+"C3A9"~x2c~encoding=                            -- (The Byte_Encoding class)
+
+-- Valid Byte string, but invalid UTF-8 string
+"C3"~x2c~encoding=                              -- (The Byte_Encoding class)
+"C3"~x2c~text("utf8")~description=              -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 1 byte, 1 error)'
+"C3"~x2c~text("utf8")~errors==                  -- 'UTF-8 encoding: byte sequence at byte-position 1 is truncated, expected 2 bytes
+
+
+/*
+The hexadecimal and binary strings are declared Byte encoded, for the same reasons
+as D2C, X2C.
+Implementation notes:
+    RexxSource::packLiteral
+Examples:
+*/
+-- The encoding of a literal string is the default encoding
+"é"~encoding=                                   -- (The UTF8_Encoding class)
+
+-- The encoding of an hexadecimal string is the Byte encoding
+"é"~c2x=                                        -- 'C3A9'
+"C3A9"x=                                        -- 'é'
+"C3A9"x~encoding=                               -- (The Byte_Encoding class)
+
+-- The encoding of a binary string is the Byte encoding
+"é"~c2x~x2b=                                    -- 1100001110101001
+"11000011 10101001"b=                           -- 'é'
+"11000011 10101001"b~encoding=                  -- (The Byte_Encoding class)
+
+
+/*
+Implementation of Strip:
+*/
+"Noël"~strip=                       -- T'Noël'
+"\tNoël "~unescape~strip=           -- T'Noël'
+"Noël"~strip("b", "ë")=             -- T'Noël'
+"Noë"~strip("b", "ë")=              -- T'No'
+"🤶Noël🎅"~strip("b", "lë🎅🤶")=  -- T'No'
+"\u{NBSP}\u{EN SPACE}\u{EM SPACE}\u{HAIR SPACE}\u{FIGURE SPACE}\u{THIN SPACE}"~unescape~strip=          -- T'      '
+"\u{NBSP}\u{EN SPACE}\u{EM SPACE}\u{HAIR SPACE}\u{FIGURE SPACE}\u{THIN SPACE}"~unescape~strip(lump:)=   -- T''
+
+
+/*
+New methods on String for compatibility with RexxText (inherit StringRexxTextInterface).
+Most of these methods forward to string~text wich is UTF-8 by default.
+*/
+"a"~errors=                                 -- (The NIL object)
+"a"~isCompatibleWithASCII=                  -- 1
+"a"~isCompatibleWithByteString=             -- 1
+"a"~isUpper=                                -- 0
+"A"~isUpper=                                -- 1
+"a"~isLower=                                -- 1
+"A"~isLower=                                -- 0
+"a"~codepoints=                             -- (a CodePointSupplier)
+"a"~maximumCodepoint=                       -- 97
+"a"~maximumUnicodeCodepoint=                -- 97
+"a"~UnicodeCharacters=                      -- [( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )]
+"a"~characters=                             -- ['a']
+"a"~character(1)=                           -- 'a'
+buffer = .MutableBuffer~new; "a"~character(1, :buffer)=     -- M'a'
+"a"~transcodeTo("utf16")=                   -- T'[00]a'
+"a"~utf8=                                   -- T'a'
+"a"~wtf8=                                   -- T'a'
+"a"~utf16=                                  -- T'[00]a'
+"a"~utf16be=                                -- T'[00]a'
+"a"~utf16le=                                -- T'a[00]'
+"a"~wtf16=                                  -- T'[00]a'
+"a"~wtf16be=                                -- T'[00]a'
+"a"~wtf16le=                                -- T'a[00]
+"a"~utf32=                                  -- T'[000000]a'
+"a"~utf32be=                                -- T'[000000]a'
+"a"~utf32le=                                -- T'a[000000]'
+"a"~unicode~c2x=                            -- 61
+"a"~unicodeN~c2x=                           -- 61
+"a"~unicode8~c2x=                           -- 61
+"a"~unicode16~c2x=                          -- 6100
+"a"~unicode32~c2x=                          -- 61000000
+"a"~c2u=                                    -- 'U+0061'
+'U+0061'~u2c=                               -- T'a[000000]'
+'U+0061'~u2c~c2x=                           -- 61000000
+'U+0061'~u2c~utf8=                          -- T'a'
+"ab"~c2g=                                   -- '61 62'
+"z"~checkHexadecimalValueCompatibility=     -- [no result] (good, no error raised)
+"z"~checkNumericValueCompatibility=         -- [no result] (good, no error raised)
+"z"~checkLogicalValueCompatibility=         -- [no result] (good, no error raised)
+"\u{FLAG IN HOLE}"~unescape=                -- T'⛳'
+"a"~transform=                              -- T'a'
+"a"~transformer=                            -- (a RexxTextTransformer)
+"abc def"~title=                            -- T'Abc Def'
+"a"~isNFC=                                  -- 1
+"a"~NFC=                                    -- T'a'
+"a"~isNFD=                                  -- 1
+"a"~NFD=                                    -- T'a'
+"a"~isNFKC=                                 -- 1
+"a"~NFKC=                                   -- T'a'
+"a"~isNFKD=                                 -- 1
+"a"~NFKD=                                   -- T'a'
+"a"~isCasefold=                             -- -1
+"A"~isCasefold=                             -- -1
+"a"~transform(casefold:)~isCasefold=        -- 1
+"A"~transform(casefold:)~isCasefold=        -- 1
+"a"~casefold=                               -- T'a'
+"A"~casefold=                               -- T'a'
+"a"~isMarkStripped=                         -- -1
+"a"~transform(stripMark:)~isMarkStripped=   -- 1
+"a"~isIgnorableStripped=                    -- -1
+"a"~transform(stripIgnorable:)~isIgnorableStripped=     -- 1
+"a"~isCCStripped=                           -- -1
+"a"~transform(stripCC:)~isCCStripped=       -- 1
+"a"~isNAStripped=                           -- -1
+"a"~transform(stripNA:)~isNAStripped=       -- 1
+"ab"~graphemes=                             -- ['a','b']
+"ab"~grapheme(1)=                           -- 'a'
+
+
+/*
+Implementation of the abstract method 'transform' for Byte_Encoding and its subclasses.
+Parameters:
+    normalization = 0           Ignored, there is no normalization for byte strings.
+    casefold = .false           if .true then apply ~lower
+    lump= .false                Ignored
+    stripMark = .false          if .true then replace the accented letters by their base letter
+    stripIgnorable= .false      Ignored
+    stripCC = .false            if .true then remove the codepoints < 20x
+    stripNA = .false            if .true then remove the unassigned codepoints
+Examples:
+*/
+-- casefold
+"Père Noël"~transcodeTo("windows-1252")=                                                -- T'P?re No?l'
+"Père Noël"~transcodeTo("windows-1252")~c2x=                                            -- '50 E8 72 65 20 4E 6F EB 6C'
+'50 E8 72 65 20 4E 6F EB 6C'x~transform(casefold:)=                                     -- T'p?re no?l'
+'50 E8 72 65 20 4E 6F EB 6C'x~transform(casefold:)~encoding=                            -- (The Byte_Encoding class)
+'50 E8 72 65 20 4E 6F EB 6C'x~transform(casefold:)~utf8=                                -- Cannot convert Byte not-ASCII character 232 (E8) at byte-position 2 to UTF-8
+'50 E8 72 65 20 4E 6F EB 6C'x~transform(casefold:)~~setEncoding("windows-1252")~utf8=   -- T'père noël'
+
+-- stripMark depends on the encoding
+"80 81 82 83 84 85 86 87 88 89 8A 8B 8C 8D 8E 8F 90 93 94 95 96 97 98 99 9A 9F A0 A1 A2 A3 A4 A5"x~text("ibm-437")~utf8=                           -- T'ÇüéâäàåçêëèïîìÄÅÉôöòûùÿÖÜƒáíóúñÑ'
+"80 81 82 83 84 85 86 87 88 89 8A 8B 8C 8D 8E 8F 90 93 94 95 96 97 98 99 9A 9F A0 A1 A2 A3 A4 A5"x~text("ibm-437")~transform(stripMark:)~utf8=     -- T'CueaaaaceeeiiiAAEooouuyOUfaiounN'
+"83 8A 9A 9F C0 C1 C2 C3 C4 C5 C7 C8 C9 CA CB CC CD CE CF D1 D2 D3 D4 D5 D6 D8 D9 DA DB DC DD E0 E1 E2 E3 E4 E5 E7 E8 E9 EA EB EC ED EE EF F1 F2 F3 F4 F5 F6 F8 F9 FA FB FC FD FF"x~text("ibm-1252")~utf8=                        -- T'ƒŠšŸÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝàáâãäåçèéêëìíîïñòóôõöøùúûüýÿ'
+"83 8A 9A 9F C0 C1 C2 C3 C4 C5 C7 C8 C9 CA CB CC CD CE CF D1 D2 D3 D4 D5 D6 D8 D9 DA DB DC DD E0 E1 E2 E3 E4 E5 E7 E8 E9 EA EB EC ED EE EF F1 F2 F3 F4 F5 F6 F8 F9 FA FB FC FD FF"x~text("ibm-1252")~transform(stripMark:)~utf8=  -- T'fSsYAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy'
+"C0 C1 C2 C3 C4 C5 C7 C8 C9 CA CB CC CD CE CF D1 D2 D3 D4 D5 D6 D8 D9 DA DB DC DD E0 E1 E2 E3 E4 E5 E7 E8 E9 EA EB EC ED EE EF F1 F2 F3 F4 F5 F6 F8 F9 FA FB FC FD FF"x~text("iso-8859-1")~utf8=                            -- T'ÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝàáâãäåçèéêëìíîïñòóôõöøùúûüýÿ'
+"C0 C1 C2 C3 C4 C5 C7 C8 C9 CA CB CC CD CE CF D1 D2 D3 D4 D5 D6 D8 D9 DA DB DC DD E0 E1 E2 E3 E4 E5 E7 E8 E9 EA EB EC ED EE EF F1 F2 F3 F4 F5 F6 F8 F9 FA FB FC FD FF"x~text("iso-8859-1")~transform(stripMark:)~utf8=      -- T'AAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy'
+"83 8A 8E 9A 9E 9F C0 C1 C2 C3 C4 C5 C7 C8 C9 CA CB CC CD CE CF D1 D2 D3 D4 D5 D6 D8 D9 DA DB DC DD E0 E1 E2 E3 E4 E5 E7 E8 E9 EA EB EC ED EE EF F1 F2 F3 F4 F5 F6 F8 F9 FA FB FC FD FF"x~text("windows-1252")~utf8=                            -- T'ƒŠŽšžŸÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝàáâãäåçèéêëìíîïñòóôõöøùúûüýÿ'
+"83 8A 8E 9A 9E 9F C0 C1 C2 C3 C4 C5 C7 C8 C9 CA CB CC CD CE CF D1 D2 D3 D4 D5 D6 D8 D9 DA DB DC DD E0 E1 E2 E3 E4 E5 E7 E8 E9 EA EB EC ED EE EF F1 F2 F3 F4 F5 F6 F8 F9 FA FB FC FD FF"x~text("windows-1252")~transform(stripMark:)~utf8=      -- T'fSZszYAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy'
+
+-- several transformations
+"Père Noël"~transcodeTo("windows-1252")~transform(casefold:, stripMark:)~utf8=                      -- T'pere noel'
+'50 E8 72 65 20 4E 6F EB 6C'x~~setEncoding("windows-1252")~transform(casefold:, stripMark:)~utf8=   -- T'pere noel'
+-- next: the transform is done on Byte string, which has no rule for stripMark.
+-- the accents are not removed.
+'50 E8 72 65 20 4E 6F EB 6C'x~transform(casefold:, stripMark:)~~setEncoding("windows-1252")~utf8=   -- T'père noël'
+
+
+-- ===============================================================================
 -- 2024 Mar 17
 
 /*
@@ -115,7 +399,7 @@ buffer = .MutableBuffer~new
 "65"~text~d2c(:buffer)=     -- M'A'
 "65"~text~d2x(:buffer)=     -- M'A41'
 buffer~encoding = "utf16"
-"65"~text~d2c(:buffer)=     -- Encoding: cannot append UTF-8 ASCII by default 'A' to UTF-16BE 'A41'
+"65"~text~d2c(:buffer)=     -- M'A41A'  (was Encoding: cannot append Byte ASCII 'A' to UTF-16BE 'A41')
 
 
 /*
@@ -430,9 +714,9 @@ Debug output: the indexer supports the named parameter debug
 "strasssssse"     ~caselessCompare("stra", "s")=    -- 11
 "strasssssse"~text~caselessCompare("stra", "s")=    -- 11
 
-"strà"     ~caselessCompare("stràsssssse", "s")=    -- 12
+"strà"     ~caselessCompare("stràsssssse", "s")=    -- 11 (was 12 before automatic conversion of string literals to text)
 "strà"~text~caselessCompare("stràsssssse", "s")=    -- 11
-"stràsssssse"     ~caselessCompare("strà", "s")=    -- 12
+"stràsssssse"     ~caselessCompare("strà", "s")=    -- 11 (was 12 before automatic conversion of string literals to text)
 "stràsssssse"~text~caselessCompare("strà", "s")=    -- 11
 
 
@@ -529,8 +813,8 @@ Examples:
 */
     "Père"~text~c2g=                                -- '50 C3A8 72 65'
     "Père"~text~startsWith("50"x)=                  -- true
-    "Père"~text~startsWith("50C3"x)=                -- Invalid UTF-8 string     (utf8proc error because "50C3"x is an invalid UTF-8 encoding)
-    "Père"~text~startsWith("50C3"x~text("byte"))=   -- Encoding: cannot compare Byte not-ASCII 'P?' with UTF-8 not-ASCII 'Père'
+    "Père"~text~startsWith("50C3"x)=                -- false (not aligned)    (was Invalid UTF-8 string     (utf8proc error because "50C3"x is an invalid UTF-8 encoding))
+    "Père"~text~startsWith("50C3"x~text("byte"))=   -- false (not aligned)    (was Encoding: cannot compare Byte not-ASCII 'P?' with UTF-8 not-ASCII 'Père')
     "Père"~text~startsWith("50C3A8"x)=              -- true
 
     "éßﬄ"~text~c2g=                                 -- 'C3A9 C39F EFAC84'
@@ -883,12 +1167,12 @@ pB~startsWith('bXXXX')=                             -- 1
 pT~startsWith('bXXXX'~text)=                        -- 1
 pB~startsWith('🎅XXXX')=                            -- 1
 pT~startsWith('🎅XXXX'~text)=                       -- 1
-pB~startsWith('F0'x || 'XXXX')=                     -- 1
+pB~startsWith('F0'x || 'XXXX')=                     -- 1    (was Invalid UTF-8 string (raised by utf8proc) (was 1 before automatic conversion of string literals to text))
 pT~startsWith('F0'x || 'XXXX'~text)=                -- Invalid UTF-8 string (raised by utf8proc)
-pT~startsWith('F0'x || 'XXXX')=                     -- 1 (not good)
-pB~startsWith('9F'x || 'XXXX')=                     -- 1
+pT~startsWith('F0'x || 'XXXX')=                     -- 1    (was Invalid UTF-8 string (raised by utf8proc) (was 1 (not good) before automatic conversion of string literals to text))
+pB~startsWith('9F'x || 'XXXX')=                     -- 1    (was Invalid UTF-8 string (raised by utf8proc) (was 1 before automatic conversion of string literals to text))
 pT~startsWith('9F'x || 'XXXX'~text)=                -- Invalid UTF-8 string (raised by utf8proc)
-pT~startsWith('9F'x || 'XXXX')=                     -- 1 (not good)
+pT~startsWith('9F'x || 'XXXX')=                     -- 1    (was Invalid UTF-8 string (raised by utf8proc) (was 1 (not good) before automatic conversion of string literals to text))
 
 
 -- greedy pattern
@@ -914,7 +1198,7 @@ pT~matches("aa"~text)=                              -- 0
 -- zero or one occurrances of "🎅"
 pB = .Pattern~compile("🎅?")
 pT = .Pattern~compile("🎅?"~text)
-pB~matches("")=                                     -- 0 (KO)
+pB~matches("")=                                     -- 1 (was 0 (KO) before automatic conversion of string literals to text)
 pT~matches(""~text)=                                -- 1
 pB~matches("🎅")=                                   -- 1
 pT~matches("🎅"~text)=                              -- 1
@@ -938,7 +1222,7 @@ pB = .Pattern~compile("🎅{3}")
 pT = .Pattern~compile("🎅{3}"~text)
 pB~matches("🎅🎅")=                                 -- 0
 pT~matches("🎅🎅"~text)=                            -- 0
-pB~matches("🎅🎅🎅")=                               -- 0    KO
+pB~matches("🎅🎅🎅")=                               -- 1 (was 0    KO before automatic conversion of string literals to text)
 pT~matches("🎅🎅🎅"~text)=                          -- 1
 pB~matches("🎅🎅🎅🎅")=                             -- 0
 pT~matches("🎅🎅🎅🎅"~text)=                        -- 0
@@ -964,7 +1248,7 @@ pB~matches("ac")=                                   -- 0
 pT~matches("ac"~text)=                              -- 0
 pB~matches("a🎅c")=                                 -- 0
 pT~matches("a🎅c"~text)=                            -- 0
-pB~matches("a🎅🎅c")=                               -- 0 (KO)
+pB~matches("a🎅🎅c")=                               -- 1 (was 0 (KO) before automatic conversion of string literals to text)
 pT~matches("a🎅🎅c"~text)=                          -- 1
 pB~matches("a🎅🎅🎅c")=                             -- 0
 pT~matches("a🎅🎅🎅c"~text)=                        -- 0
@@ -1007,11 +1291,11 @@ pT~startsWith("🤶🎅c"~text)=                        -- 1
 pB~startsWith("🎅🤶c")=                             -- 1
 pT~startsWith("🎅🤶c"~text)=                        -- 1
 r = pB~find("xxx🤶🎅cxxx")
-r~matched=; r~start=; r~end=; r~text=; r~length=
+r~matched=; r~start=; r~end=; r~text=; r~length=    -- now ok (r~end was 8 and r~length was 4 before automatic conversion of string literals to text)
 r = pT~find("xxx🤶🎅cxxx"~text)
 r~matched=; r~start=; r~end=; r~text=; r~length=
 r = pB~find("xxx🎅🤶cxxx")
-r~matched=; r~start=; r~end=; r~text=; r~length=
+r~matched=; r~start=; r~end=; r~text=; r~length=    -- now ok (r~end was 8 and r~length was 4 before automatic conversion of string literals to text)
 r = pT~find("xxx🎅🤶cxxx"~text)
 r~matched=; r~start=; r~end=; r~text=; r~length=
 
@@ -1888,67 +2172,67 @@ This test case is a little bit strange because:
 */
                                                             --      self needle
     "Père Noël Père Noël"~text~pos("l")=                    -- 9    NFC, NFC
-    "Père Noël Père Noël"     ~pos("l")=                    -- 11   NFC, NFC
+    "Père Noël Père Noël"     ~pos("l")=                    -- 9    NFC, NFC    (was 11 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~pos("l", , 8)=               -- 0    NFC, NFC
-    "Père Noël Père Noël"     ~pos("l", , 10)=              -- 0    NFC, NFC
+    "Père Noël Père Noël"     ~pos("l", , 10)=              -- 9    NFC, NFC    (was 0 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~pos("l", , 9)=               -- 9    NFC, NFC
-    "Père Noël Père Noël"     ~pos("l", , 11)=              -- 11   NFC, NFC
+    "Père Noël Père Noël"     ~pos("l", , 11)=              -- 9    NFC, NFC    (was 11 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~pos("l", 10)=                -- 19   NFC, NFC
-    "Père Noël Père Noël"     ~pos("l", 12)=                -- 23   NFC, NFC
+    "Père Noël Père Noël"     ~pos("l", 12)=                -- 19   NFC, NFC    (was 23 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~pos("l", 10, 9)=             -- 0    NFC, NFC
-    "Père Noël Père Noël"     ~pos("l", 12, 11)=            -- 0    NFC, NFC
+    "Père Noël Père Noël"     ~pos("l", 12, 11)=            -- 19   NFC, NFC    (was 0 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~pos("l", 10, 10)=            -- 19   NFC, NFC
-    "Père Noël Père Noël"     ~pos("l", 12, 12)=            -- 23   NFC, NFC
+    "Père Noël Père Noël"     ~pos("l", 12, 12)=            -- 19   NFC, NFC    (was 23 before automatic conversion of string literals to text)
 
     ---
 
     "Père Noël Père Noël"~text~pos("l")=                    -- 9    NFD, NFC
-    "Père Noël Père Noël"     ~pos("l")=                    -- 13   NFD, NFC
+    "Père Noël Père Noël"     ~pos("l")=                    -- 9    NFD, NFC    (was 13 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~pos("l", , 8)=               -- 0    NFD, NFC
-    "Père Noël Père Noël"     ~pos("l", , 12)=              -- 0    NFD, NFC
+    "Père Noël Père Noël"     ~pos("l", , 12)=              -- 9    NFD, NFC    (was 0 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~pos("l", , 9)=               -- 9    NFD, NFC
-    "Père Noël Père Noël"     ~pos("l", , 13)=              -- 13   NFD, NFC
+    "Père Noël Père Noël"     ~pos("l", , 13)=              -- 9    NFD, NFC    (was 13 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~pos("l", 10)=                -- 19   NFD, NFC
-    "Père Noël Père Noël"     ~pos("l", 14)=                -- 27   NFD, NFC
+    "Père Noël Père Noël"     ~pos("l", 14)=                -- 19   NFD, NFC    (was 27 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~pos("l", 10, 9)=             -- 0    NFD, NFC
-    "Père Noël Père Noël"     ~pos("l", 14, 13)=            -- 0    NFD, NFC
+    "Père Noël Père Noël"     ~pos("l", 14, 13)=            -- 19   NFD, NFC    (was 0 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~pos("l", 10, 10)=            -- 19   NFD, NFC
-    "Père Noël Père Noël"     ~pos("l", 14, 14)=            -- 27   NFD, NFC
+    "Père Noël Père Noël"     ~pos("l", 14, 14)=            -- 19   NFD, NFC    (was 27 before automatic conversion of string literals to text)
 
     ---
 
     "Père Noël Père Noël"~text~pos("oë")=                   -- 7    NFC, NFC
-    "Père Noël Père Noël"     ~pos("oë")=                   -- 8    NFC, NFC
+    "Père Noël Père Noël"     ~pos("oë")=                   -- 7    NFC, NFC    (was 8 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~pos("oë", , 7)=              -- 0    NFC, NFC
-    "Père Noël Père Noël"     ~pos("oë", , 9)=              -- 0    NFC, NFC
+    "Père Noël Père Noël"     ~pos("oë", , 9)=              -- 7    NFC, NFC    (was 0 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~pos("oë", , 8)=              -- 7    NFC, NFC
-    "Père Noël Père Noël"     ~pos("oë", , 10)=             -- 8    NFC, NFC
+    "Père Noël Père Noël"     ~pos("oë", , 10)=             -- 7    NFC, NFC    (was 8 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~pos("oë", 8)=                -- 17   NFC, NFC
-    "Père Noël Père Noël"     ~pos("oë", 9)=                -- 20   NFC, NFC
+    "Père Noël Père Noël"     ~pos("oë", 9)=                -- 17   NFC, NFC    (was 20 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~pos("oë", 8, 10)=            -- 0    NFC, NFC
-    "Père Noël Père Noël"     ~pos("oë", 9, 13)=            -- 0    NFC, NFC
+    "Père Noël Père Noël"     ~pos("oë", 9, 13)=            -- 17   NFC, NFC    (was 0 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~pos("oë", 8, 11)=            -- 17   NFC, NFC
-    "Père Noël Père Noël"     ~pos("oë", 9, 14)=            -- 20   NFC, NFC
+    "Père Noël Père Noël"     ~pos("oë", 9, 14)=            -- 17   NFC, NFC    (was 20 before automatic conversion of string literals to text)
 
     ---
 
     "Père Noël Père Noël"~text~pos("oë")=                   -- 7    NFD, NFC
-    "Père Noël Père Noël"     ~pos("oë")=                   -- 0    NFD, NFC    always 0, no need to test all the combinations
+    "Père Noël Père Noël"     ~pos("oë")=                   -- 7    NFD, NFC    (was "always 0, no need to test all the combinations" before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~pos("oë", , 7)=              -- 0    NFD, NFC
 
@@ -1963,7 +2247,7 @@ This test case is a little bit strange because:
     ---
 
     "Père Noël Père Noël"~text~pos("oë")=                   -- 7    NFC, NFD
-    "Père Noël Père Noël"     ~pos("oë")=                   -- 0    NFC, NFD   always 0, no need to test all the combinations
+    "Père Noël Père Noël"     ~pos("oë")=                   -- 7    NFC, NFD    (was "always 0, no need to test all the combinations" before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~pos("oë", , 7)=              -- 0    NFC, NFD
 
@@ -1978,22 +2262,22 @@ This test case is a little bit strange because:
     ---
 
     "Père Noël Père Noël"~text~pos("oë")=                   -- 7    NFD, NFD
-    "Père Noël Père Noël"     ~pos("oë")=                   -- 9    NFD, NFD
+    "Père Noël Père Noël"     ~pos("oë")=                   -- 7    NFD, NFD    (was 9 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~pos("oë", , 7)=              -- 0    NFD, NFD
-    "Père Noël Père Noël"     ~pos("oë", , 11)=             -- 0    NFD, NFD
+    "Père Noël Père Noël"     ~pos("oë", , 11)=             -- 7    NFD, NFD    (was 0 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~pos("oë", , 8)=              -- 7    NFD, NFD
-    "Père Noël Père Noël"     ~pos("oë", , 12)=             -- 9    NFD, NFD
+    "Père Noël Père Noël"     ~pos("oë", , 12)=             -- 7    NFD, NFD    (was 9 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~pos("oë", 8)=                -- 17   NFD, NFD
-    "Père Noël Père Noël"     ~pos("oë", 10)=               -- 23   NFD, NFD
+    "Père Noël Père Noël"     ~pos("oë", 10)=               -- 17   NFD, NFD    (was 23 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~pos("oë", 8, 10)=            -- 0    NFD, NFD
-    "Père Noël Père Noël"     ~pos("oë", 10, 16)=           -- 0    NFD, NFD
+    "Père Noël Père Noël"     ~pos("oë", 10, 16)=           -- 17   NFD, NFD    (was 0 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~pos("oë", 8, 11)=            -- 17   NFD, NFD
-    "Père Noël Père Noël"     ~pos("oë", 10, 17)=           -- 23   NFD, NFD
+    "Père Noël Père Noël"     ~pos("oë", 10, 17)=           -- 17   NFD, NFD    (was 23 before automatic conversion of string literals to text)
 
     ---
 
@@ -2015,67 +2299,67 @@ This test case is a little bit strange because:
     ---
 
     "Père Noël Père Noël"~text~caselessPos("L")=                    -- 9    NFC, NFC
-    "Père Noël Père Noël"     ~caselessPos("L")=                    -- 11   NFC, NFC
+    "Père Noël Père Noël"     ~caselessPos("L")=                    -- 9    NFC, NFC    (was 11 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~caselessPos("L", , 8)=               -- 0    NFC, NFC
-    "Père Noël Père Noël"     ~caselessPos("L", , 10)=              -- 0    NFC, NFC
+    "Père Noël Père Noël"     ~caselessPos("L", , 10)=              -- 9    NFC, NFC    (was 0 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~caselessPos("L", , 9)=               -- 9    NFC, NFC
-    "Père Noël Père Noël"     ~caselessPos("L", , 11)=              -- 11   NFC, NFC
+    "Père Noël Père Noël"     ~caselessPos("L", , 11)=              -- 9    NFC, NFC    (was 11 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~caselessPos("L", 10)=                -- 19   NFC, NFC
-    "Père Noël Père Noël"     ~caselessPos("L", 12)=                -- 23   NFC, NFC
+    "Père Noël Père Noël"     ~caselessPos("L", 12)=                -- 19   NFC, NFC    (was 23 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~caselessPos("L", 10, 9)=             -- 0    NFC, NFC
-    "Père Noël Père Noël"     ~caselessPos("L", 12, 11)=            -- 0    NFC, NFC
+    "Père Noël Père Noël"     ~caselessPos("L", 12, 11)=            -- 19   NFC, NFC    (was 0 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~caselessPos("L", 10, 10)=            -- 19   NFC, NFC
-    "Père Noël Père Noël"     ~caselessPos("L", 12, 12)=            -- 23   NFC, NFC
+    "Père Noël Père Noël"     ~caselessPos("L", 12, 12)=            -- 19   NFC, NFC    (was 23 before automatic conversion of string literals to text)
 
     ---
 
     "Père Noël Père Noël"~text~caselessPos("L")=                    -- 9    NFD, NFC
-    "Père Noël Père Noël"     ~caselessPos("L")=                    -- 13   NFD, NFC
+    "Père Noël Père Noël"     ~caselessPos("L")=                    -- 9    NFD, NFC    (was 13 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~caselessPos("L", , 8)=               -- 0    NFD, NFC
-    "Père Noël Père Noël"     ~caselessPos("L", , 12)=              -- 0    NFD, NFC
+    "Père Noël Père Noël"     ~caselessPos("L", , 12)=              -- 9    NFD, NFC    (was 0 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~caselessPos("L", , 9)=               -- 9    NFD, NFC
-    "Père Noël Père Noël"     ~caselessPos("L", , 13)=              -- 13   NFD, NFC
+    "Père Noël Père Noël"     ~caselessPos("L", , 13)=              -- 9    NFD, NFC    (was 13 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~caselessPos("L", 10)=                -- 19   NFD, NFC
-    "Père Noël Père Noël"     ~caselessPos("L", 14)=                -- 27   NFD, NFC
+    "Père Noël Père Noël"     ~caselessPos("L", 14)=                -- 19   NFD, NFC    (was 27 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~caselessPos("L", 10, 9)=             -- 0    NFD, NFC
-    "Père Noël Père Noël"     ~caselessPos("L", 14, 13)=            -- 0    NFD, NFC
+    "Père Noël Père Noël"     ~caselessPos("L", 14, 13)=            -- 19   NFD, NFC    (was 0 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~caselessPos("L", 10, 10)=            -- 19   NFD, NFC
-    "Père Noël Père Noël"     ~caselessPos("L", 14, 14)=            -- 27   NFD, NFC
+    "Père Noël Père Noël"     ~caselessPos("L", 14, 14)=            -- 19   NFD, NFC    (was 27 before automatic conversion of string literals to text)
 
     ---
 
     "Père Noël Père Noël"~text~caselessPos("OË")=                   -- 7    NFC, NFC
-    "Père Noël Père Noël"     ~caselessPos("OË")=                   -- 0    NFC, NFC    yes, 0, not 8 because "OË"~lower=='oË'
+    "Père Noël Père Noël"     ~caselessPos("OË")=                   -- 7    NFC, NFC    (was "yes, 0, not 8 because "OË"~lower=='oË'" before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~caselessPos("OË", , 7)=              -- 0    NFC, NFC
-    "Père Noël Père Noël"     ~caselessPos("OË", , 9)=              -- 0    NFC, NFC
+    "Père Noël Père Noël"     ~caselessPos("OË", , 9)=              -- 7    NFC, NFC    (was 0 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~caselessPos("OË", , 8)=              -- 7    NFC, NFC
-    "Père Noël Père Noël"     ~caselessPos("OË", , 10)=             -- 0    NFC, NFC    yes, 0, not 8 because "OË"~lower=='oË'
+    "Père Noël Père Noël"     ~caselessPos("OË", , 10)=             -- 7    NFC, NFC    (was "yes, 0, not 8 because "OË"~lower=='oË'" before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~caselessPos("OË", 8)=                -- 17   NFC, NFC
-    "Père Noël Père Noël"     ~caselessPos("OË", 9)=                -- 0    NFC, NFC    yes, 0, not 20 because "OË"~lower=='oË'
+    "Père Noël Père Noël"     ~caselessPos("OË", 9)=                -- 17   NFC, NFC    (was "yes, 0, not 20 because "OË"~lower=='oË'" before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~caselessPos("OË", 8, 10)=            -- 0    NFC, NFC
-    "Père Noël Père Noël"     ~caselessPos("OË", 9, 13)=            -- 0    NFC, NFC
+    "Père Noël Père Noël"     ~caselessPos("OË", 9, 13)=            -- 17   NFC, NFC    (was 0 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~caselessPos("OË", 8, 11)=            -- 17   NFC, NFC
-    "Père Noël Père Noël"     ~caselessPos("OË", 9, 14)=            -- 0    NFC, NFC    yes, 0, not 20 because "OË"~lower=='oË'
+    "Père Noël Père Noël"     ~caselessPos("OË", 9, 14)=            -- 17   NFC, NFC    (was "yes, 0, not 20 because "OË"~lower=='oË'" before automatic conversion of string literals to text)
 
     ---
 
     "Père Noël Père Noël"~text~caselessPos("OË")=                   -- 7    NFD, NFC
-    "Père Noël Père Noël"     ~caselessPos("OË")=                   -- 0    NFD, NFC    always 0, no need to test all the combinations
+    "Père Noël Père Noël"     ~caselessPos("OË")=                   -- 7    NFD, NFC    (was "always 0, no need to test all the combinations" before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~caselessPos("OË", , 7)=              -- 0    NFD, NFC
 
@@ -2090,7 +2374,7 @@ This test case is a little bit strange because:
     ---
 
     "Père Noël Père Noël"~text~caselessPos("OË")=                   -- 7    NFC, NFD
-    "Père Noël Père Noël"     ~caselessPos("OË")=                   -- 0    NFC, NFD   always 0, no need to test all the combinations
+    "Père Noël Père Noël"     ~caselessPos("OË")=                   -- 7    NFC, NFD   (was "always 0, no need to test all the combinations" before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~caselessPos("OË", , 7)=              -- 0    NFC, NFD
 
@@ -2105,22 +2389,22 @@ This test case is a little bit strange because:
     ---
 
     "Père Noël Père Noël"~text~caselessPos("OË")=                   -- 7    NFD, NFD
-    "Père Noël Père Noël"     ~caselessPos("OË")=                   -- 9    NFD, NFD   yes, 9 (it works...) because the NFD representation isolate the accent: "oë"~c2x=='6F65CC88',  "OË"~lower~c2x=='6F65CC88'
+    "Père Noël Père Noël"     ~caselessPos("OË")=                   -- 7    NFD, NFD   (was "yes, 9 (it works...) because the NFD representation isolate the accent: "oë"~c2x=='6F65CC88',  "OË"~lower~c2x=='6F65CC88'" before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~caselessPos("OË", , 7)=              -- 0    NFD, NFD
-    "Père Noël Père Noël"     ~caselessPos("OË", , 11)=             -- 0    NFD, NFD
+    "Père Noël Père Noël"     ~caselessPos("OË", , 11)=             -- 7    NFD, NFD   (was 0 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~caselessPos("OË", , 8)=              -- 7    NFD, NFD
-    "Père Noël Père Noël"     ~caselessPos("OË", , 12)=             -- 9    NFD, NFD   yes, 9 (it works thanks to the NFD), see previous comment
+    "Père Noël Père Noël"     ~caselessPos("OË", , 12)=             -- 7    NFD, NFD   (was "yes, 9 (it works thanks to the NFD), see previous comment" before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~caselessPos("OË", 8)=                -- 17   NFD, NFD
-    "Père Noël Père Noël"     ~caselessPos("OË", 10)=               -- 23   NFD, NFD   yes, 23 (it works thanks to the NFD), see previous comment
+    "Père Noël Père Noël"     ~caselessPos("OË", 10)=               -- 17   NFD, NFD   (was "yes, 23 (it works thanks to the NFD), see previous comment" before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~caselessPos("OË", 8, 10)=            -- 0    NFD, NFD
-    "Père Noël Père Noël"     ~caselessPos("OË", 10, 16)=           -- 0    NFD, NFD
+    "Père Noël Père Noël"     ~caselessPos("OË", 10, 16)=           -- 17   NFD, NFD   (was 0 before automatic conversion of string literals to text)
 
     "Père Noël Père Noël"~text~caselessPos("OË", 8, 11)=            -- 17   NFD, NFD
-    "Père Noël Père Noël"     ~caselessPos("OË", 10, 17)=           -- 23   NFD, NFD   yes, 23 (it works thanks to the NFD), see previous comment
+    "Père Noël Père Noël"     ~caselessPos("OË", 10, 17)=           -- 17   NFD, NFD   (was "yes, 23 (it works thanks to the NFD), see previous comment" before automatic conversion of string literals to text)
 
     ---
 
@@ -2147,7 +2431,10 @@ This test case is a little bit strange because:
 '50 8A 72 65 20 4E 6F 89 6C'x~text("cp437")~transcodeTo("utf8")~c2x=        -- '50 C3A8 72 65 20 4E 6F C3AB 6C'
 
 -- The replacementCharacter "FF"x is interpreted as a UTF-8 string (default encoding). "FF"x~text~c2u= -- 'U+FFFD'
--- Hence the error "The replacement character UTF-8 not-ASCII '[FF]' cannot be transcoded to ISO-8859-1."
+-- Was: Hence the error "The replacement character UTF-8 not-ASCII '[FF]' cannot be transcoded to ISO-8859-1."
+-- Now: Invalid UTF-8 string (since automatic conversion of string literals to text)
+-- Now: Direct transcoding from 'Byte' to 'ISO-8859-1' is not supported (since the systematic absorption of The Byte_Encoding)
+-- TODO: test case to get the previous error message '...cannot be transcoded...'
 text = "Père Noël 🎅 10€"~text; do encoding over .Byte_Encoding~subclasses~~append(.Byte_Encoding); say encoding~name~left(13)":" text~transcodeTo(encoding, replacementCharacter:"FF"x)~c2x; end
 
 -- Here, the replacementCharacter is interpreted as a byte string encoded in the target encoding
@@ -2504,9 +2791,9 @@ Examples:
                                                 --  p  è    r  e     N  o  ë    l
     "père Noël"~match(1, "Noël")=               -- .false (byte indexes)
     "père Noël"~text~match(1, "Noël")=          -- .false (grapheme indexes)
-    "père Noël"~match(7, "Noël")=               -- .true (byte indexes)
+    "père Noël"~match(7, "Noël")=               -- .false (was ".true (byte indexes)" before automatic conversion of string literals to text)
     "père Noël"~text~match(6, "Noël")=          -- .true (grapheme indexes)
-    "père Noël"~match(11, "Noël", 5)=           -- .true (byte indexes)
+    "père Noël"~match(11, "Noël", 5)=           -- Invalid position argument specified; found "11" (was ".true (byte indexes)" before automatic conversion of string literals to text)
     "père Noël"~text~match(9, "Noël", 4)=       -- .true (grapheme indexes)
 
     "père Noël"~text~caselessMatch(1, "NOËL")=  -- .false
@@ -2522,16 +2809,16 @@ Examples:
         nfdText~c2x=                            -- '61 CC88 58 75 CC88'
         nfdText~UnicodeCharacters==
 
-    nfcString~match(1, nfdString)=              -- 0 (because binary representation is different)
+    nfcString~match(1, nfdString)=              -- 1    (was "0 (because binary representation is different)" before automatic conversion of string literals to text)
     nfcText  ~match(1, nfdText)=                -- 1
     nfdText  ~match(1, nfcText)=                -- 1
 
     -- match with "X"
 
-    nfcString~match(3, nfdString, 4, 1)=        -- 1 (byte indexes)
+    nfcString~match(3, nfdString, 4, 1)=        -- Invalid position argument specified; found "4"   (was "1 (byte indexes)" before automatic conversion of string literals to text)
     nfcText  ~match(2, nfdText,   2, 1)=        -- 1 (grapheme indexes)
 
-    nfdString~match(4, nfcString, 3, 1)=        -- 1 (byte indexes)
+    nfdString~match(4, nfcString, 3, 1)=        -- Invalid position argument specified; found "4"   (was "1 (byte indexes)" before automatic conversion of string literals to text)
     nfdText  ~match(2, nfcText,   2, 2)=        -- 1 (grapheme indexes)
 
 -- ===============================================================================
@@ -2601,7 +2888,7 @@ Examples:
     "noël👩‍👨‍👩‍👧🎅"~text~center(10)=                   -- T'  noël👩‍👨‍👩‍👧🎅  '
     "noël👩‍👨‍👩‍👧🎅"~text~center(10)~description=       -- 'UTF-8 not-ASCII (10 graphemes, 16 codepoints, 38 bytes, 0 error)'
     pad = "═"
-    pad~description=                                          -- 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'
+    pad~description=                                          -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)' (was 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)' before automatic conversion of string literals to text)
     pad~c2x=                                                  -- 'E29590'
     "noël👩‍👨‍👩‍👧🎅"~text~center(10, pad)=              -- T'══noël👩‍👨‍👩‍👧🎅══'
     "noël👩‍👨‍👩‍👧🎅"~text~center(10, pad)~description=  -- 'UTF-8 not-ASCII (10 graphemes, 16 codepoints, 46 bytes, 0 error)'
@@ -3002,10 +3289,10 @@ Examples:
 "noël"~text~reverse~c2x=    -- '6C C3AB 6F 6E'
 "noël"~text~reverse=        -- T'lëon'
 
--- Wrong reverse
-"noël"~c2x=             -- '6E6FC3AB6C'
-"noël"~reverse~c2x=     -- '6CABC36F6E'
-"noël"~reverse=         -- 'l??on'
+-- Correct reverse (was Wrong reverse before automatic conversion of string literals to text)
+"noël"~c2x=             -- '6E 6F C3AB 6C'
+"noël"~reverse~c2x=     -- '6C C3AB 6F 6E'
+"noël"~reverse=         -- T'lëon'
 
 
 -- ===============================================================================
@@ -3587,6 +3874,8 @@ Strangely, the new implementation is also faster when all the characters are ASC
 
 Benchmark using a version where the flag isASCII is not stored:
 */
+-- MUST declare the byte encoding as default encoding, otherwise "é" is converted to text and the concatenation is catastrophically long!
+previousEncoding = .encoding~setDefaultEncoding("byte") -- backup and change to Byte
 big10m = "0123456789"~copies(1e6)
 s = big10m                              -- 10 millions of ASCII characters, must check all of them
 -- do 1000; s~isASCIIold; end              -- 9.3s
@@ -3601,6 +3890,7 @@ big5m = "01234"~copies(1e6)
 s = big5m || "é" || big5m               -- 1 non-ASCII character in the middle of 10 millions of ASCII characters
 -- do 1000; s~isASCIIold; end              -- 4.7s
 do 1000; s~isASCII; end                 -- 0.001s
+.encoding~setDefaultEncoding(previousEncoding) -- restore
 
 
 -- ===============================================================================
@@ -3613,10 +3903,10 @@ Added suppliers for codepoints and graphemes.
 */
 
 s = "ça va ?"
-s~length=                           -- 8
-s~eachC{item~c2x" "}=               -- ['C3 ','A7 ', 61 , 20 , 76 , 61 , 20 ,'3F ']
-s~text~encoding=                    -- (The Byte_Encoding class)
-s~text~length=                      -- 8
+s~length=                           -- 7 (was 8 before automatic conversion of string literals to text)
+s~eachC{item~c2x" "}=               -- ['C3A7 ', 61 , 20 , 76 , 61 , 20 ,'3F ']     (was ['C3 ','A7 ', 61 , 20 , 76 , 61 , 20 ,'3F '] before automatic conversion of string literals to text)
+s~text~encoding=                    -- (The UTF8_Encoding class)
+s~text~length=                      -- 7
 s~text("utf8")~length==             -- 7
 s~text~codepoints~each=             -- [ 231, 97, 32, 118, 97, 32, 63]
 s~text~graphemes~each("c2x")=       -- ['C3A7', 61, 20, 76, 61, 20,'3F']

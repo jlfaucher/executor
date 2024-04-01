@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 16 Nov 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S10847Q600000f58750
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Apr 2024
+</span><span style="font-weight:bold;color:green;">Input queue name: S797aQ6000007c6be0
 </span><span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">Remember:
 </span><span style="font-weight:bold;color:blue;">All the strings in this file are UTF-8.
@@ -1030,39 +1030,6 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenati
     </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">drop t</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">t = &quot;Père&quot;~text(&quot;byte&quot;) &quot;Noel&quot;~text(&quot;unicode-8&quot;)</span>
-<span style="font-weight:bold;color:red;">Encoding: cannot append Unicode8 ASCII 'Noel' to Byte not-ASCII 'Père'.
-</span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenation_infos s/$(text)/t/</span>
-    <span style="font-weight:bold;color:blue;">--------------------------------------------
-    </span><span style="font-weight:bold;color:blue;">-- Start of file include_concatenation_infos
-    </span><span style="font-weight:bold;color:blue;">--------------------------------------------
-    </span><span style="font-weight:bold;color:blue;">/*
-    </span><span style="font-weight:bold;color:blue;">depends on:
-    </span><span style="font-weight:bold;color:blue;">t
-    </span><span style="font-weight:bold;color:blue;">*/
-    </span>
-    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~description=</span>
-<span style="font-weight:bold;color:red;">NOVALUE
-    </span><span style="font-weight:bold;color:red;">T
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~errors==</span>
-<span style="font-weight:bold;color:red;">NOVALUE
-    </span><span style="font-weight:bold;color:red;">T
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2x=</span>
-<span style="font-weight:bold;color:red;">NOVALUE
-    </span><span style="font-weight:bold;color:red;">T
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2u=</span>
-<span style="font-weight:bold;color:red;">NOVALUE
-    </span><span style="font-weight:bold;color:red;">T
-    </span>    <span style="font-weight:bold;color:blue;">------------------------------------------
-    </span><span style="font-weight:bold;color:blue;">-- End of file include_concatenation_infos
-    </span><span style="font-weight:bold;color:blue;">------------------------------------------
-    </span>
-ooRexx&gt; <span style="font-weight:bold;color:purple;">drop b t</span>
-ooRexx&gt; <span style="font-weight:bold;color:purple;">b = .MutableBuffer~new</span>
-ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Père&quot;~text(&quot;byte&quot;)~appendEncoded(&quot; &quot;~text(&quot;byte&quot;), buffer:b)~appendEncoded(&quot;Noel&quot;~text(&quot;unicode-8&quot;), buffer:b)</span>
-<span style="font-weight:bold;color:red;">Encoding: cannot append Unicode8 ASCII 'Noel' to Byte not-ASCII 'Père '.
-</span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">t = b~string~text</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenation_infos s/$(text)/t/</span>
     <span style="font-weight:bold;color:blue;">--------------------------------------------
     </span><span style="font-weight:bold;color:blue;">-- Start of file include_concatenation_infos
@@ -1073,13 +1040,38 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenati
     </span><span style="font-weight:bold;color:blue;">*/
     </span>
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~description=</span>
-    'Byte not-ASCII (6 characters, 6 codepoints, 6 bytes, 0 error)'
+    'Unicode8 not-ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~errors==</span>
     (The NIL object)
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2x=</span>
-    '50 C3 A8 72 65 20'
+    '50 C3 A8 72 65 20 4E 6F 65 6C'
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2u=</span>
-    'U+0050 U+FFFD U+FFFD U+0072 U+0065 U+0020'
+    'U+0050 U+00C3 U+00A8 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
+    <span style="font-weight:bold;color:blue;">------------------------------------------
+    </span><span style="font-weight:bold;color:blue;">-- End of file include_concatenation_infos
+    </span><span style="font-weight:bold;color:blue;">------------------------------------------
+    </span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">drop b t</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">b = .MutableBuffer~new</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Père&quot;~text(&quot;byte&quot;)~appendEncoded(&quot; &quot;~text(&quot;byte&quot;), buffer:b)~appendEncoded(&quot;Noel&quot;~text(&quot;unicode-8&quot;), buffer:b)</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">t = b~string~text</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenation_infos s/$(text)/t/</span>
+    <span style="font-weight:bold;color:blue;">--------------------------------------------
+    </span><span style="font-weight:bold;color:blue;">-- Start of file include_concatenation_infos
+    </span><span style="font-weight:bold;color:blue;">--------------------------------------------
+    </span><span style="font-weight:bold;color:blue;">/*
+    </span><span style="font-weight:bold;color:blue;">depends on:
+    </span><span style="font-weight:bold;color:blue;">t
+    </span><span style="font-weight:bold;color:blue;">*/
+    </span>
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~description=</span>
+    'Unicode8 not-ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~errors==</span>
+    (The NIL object)
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2x=</span>
+    '50 C3 A8 72 65 20 4E 6F 65 6C'
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2u=</span>
+    'U+0050 U+00C3 U+00A8 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
     <span style="font-weight:bold;color:blue;">------------------------------------------
     </span><span style="font-weight:bold;color:blue;">-- End of file include_concatenation_infos
     </span><span style="font-weight:bold;color:blue;">------------------------------------------
@@ -1087,9 +1079,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenati
 ooRexx&gt; <span style="font-weight:bold;color:purple;">drop b t</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">b = .MutableBuffer~new</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">b~appendEncoded(&quot;Père&quot;~text(&quot;byte&quot;), &quot; &quot;~text(&quot;byte&quot;), &quot;Noel&quot;~text(&quot;unicode-8&quot;))</span>
-<span style="font-weight:bold;color:red;">Encoding: cannot append Unicode8 ASCII 'Noel' to Byte not-ASCII 'Père '.
-</span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">t = b~string~text</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">t = b~string~text</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenation_infos s/$(text)/t/</span>
     <span style="font-weight:bold;color:blue;">--------------------------------------------
     </span><span style="font-weight:bold;color:blue;">-- Start of file include_concatenation_infos
@@ -1100,52 +1090,19 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenati
     </span><span style="font-weight:bold;color:blue;">*/
     </span>
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~description=</span>
-    'Byte not-ASCII (6 characters, 6 codepoints, 6 bytes, 0 error)'
+    'Unicode8 not-ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~errors==</span>
     (The NIL object)
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2x=</span>
-    '50 C3 A8 72 65 20'
+    '50 C3 A8 72 65 20 4E 6F 65 6C'
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2u=</span>
-    'U+0050 U+FFFD U+FFFD U+0072 U+0065 U+0020'
+    'U+0050 U+00C3 U+00A8 U+0072 U+0065 U+0020 U+004E U+006F U+0065 U+006C'
     <span style="font-weight:bold;color:blue;">------------------------------------------
     </span><span style="font-weight:bold;color:blue;">-- End of file include_concatenation_infos
     </span><span style="font-weight:bold;color:blue;">------------------------------------------
     </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">drop t</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">t = &quot;Père&quot;~text(&quot;byte&quot;) &quot;Noël&quot;~text(&quot;unicode-8&quot;)</span>
-<span style="font-weight:bold;color:red;">Encoding: cannot append Unicode8 not-ASCII 'Noël' to Byte not-ASCII 'Père'.
-</span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenation_infos s/$(text)/t/</span>
-    <span style="font-weight:bold;color:blue;">--------------------------------------------
-    </span><span style="font-weight:bold;color:blue;">-- Start of file include_concatenation_infos
-    </span><span style="font-weight:bold;color:blue;">--------------------------------------------
-    </span><span style="font-weight:bold;color:blue;">/*
-    </span><span style="font-weight:bold;color:blue;">depends on:
-    </span><span style="font-weight:bold;color:blue;">t
-    </span><span style="font-weight:bold;color:blue;">*/
-    </span>
-    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~description=</span>
-<span style="font-weight:bold;color:red;">NOVALUE
-    </span><span style="font-weight:bold;color:red;">T
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~errors==</span>
-<span style="font-weight:bold;color:red;">NOVALUE
-    </span><span style="font-weight:bold;color:red;">T
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2x=</span>
-<span style="font-weight:bold;color:red;">NOVALUE
-    </span><span style="font-weight:bold;color:red;">T
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2u=</span>
-<span style="font-weight:bold;color:red;">NOVALUE
-    </span><span style="font-weight:bold;color:red;">T
-    </span>    <span style="font-weight:bold;color:blue;">------------------------------------------
-    </span><span style="font-weight:bold;color:blue;">-- End of file include_concatenation_infos
-    </span><span style="font-weight:bold;color:blue;">------------------------------------------
-    </span>
-ooRexx&gt; <span style="font-weight:bold;color:purple;">drop b t</span>
-ooRexx&gt; <span style="font-weight:bold;color:purple;">b = .MutableBuffer~new</span>
-ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Père&quot;~text(&quot;byte&quot;)~appendEncoded(&quot; &quot;~text(&quot;byte&quot;), buffer:b)~appendEncoded(&quot;Noël&quot;~text(&quot;unicode-8&quot;), buffer:b)</span>
-<span style="font-weight:bold;color:red;">Encoding: cannot append Unicode8 not-ASCII 'Noël' to Byte not-ASCII 'Père '.
-</span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">t = b~string~text</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenation_infos s/$(text)/t/</span>
     <span style="font-weight:bold;color:blue;">--------------------------------------------
     </span><span style="font-weight:bold;color:blue;">-- Start of file include_concatenation_infos
@@ -1156,13 +1113,38 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenati
     </span><span style="font-weight:bold;color:blue;">*/
     </span>
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~description=</span>
-    'Byte not-ASCII (6 characters, 6 codepoints, 6 bytes, 0 error)'
+    'Unicode8 not-ASCII (11 characters, 11 codepoints, 11 bytes, 0 error)'
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~errors==</span>
     (The NIL object)
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2x=</span>
-    '50 C3 A8 72 65 20'
+    '50 C3 A8 72 65 20 4E 6F C3 AB 6C'
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2u=</span>
-    'U+0050 U+FFFD U+FFFD U+0072 U+0065 U+0020'
+    'U+0050 U+00C3 U+00A8 U+0072 U+0065 U+0020 U+004E U+006F U+00C3 U+00AB U+006C'
+    <span style="font-weight:bold;color:blue;">------------------------------------------
+    </span><span style="font-weight:bold;color:blue;">-- End of file include_concatenation_infos
+    </span><span style="font-weight:bold;color:blue;">------------------------------------------
+    </span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">drop b t</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">b = .MutableBuffer~new</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Père&quot;~text(&quot;byte&quot;)~appendEncoded(&quot; &quot;~text(&quot;byte&quot;), buffer:b)~appendEncoded(&quot;Noël&quot;~text(&quot;unicode-8&quot;), buffer:b)</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">t = b~string~text</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenation_infos s/$(text)/t/</span>
+    <span style="font-weight:bold;color:blue;">--------------------------------------------
+    </span><span style="font-weight:bold;color:blue;">-- Start of file include_concatenation_infos
+    </span><span style="font-weight:bold;color:blue;">--------------------------------------------
+    </span><span style="font-weight:bold;color:blue;">/*
+    </span><span style="font-weight:bold;color:blue;">depends on:
+    </span><span style="font-weight:bold;color:blue;">t
+    </span><span style="font-weight:bold;color:blue;">*/
+    </span>
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~description=</span>
+    'Unicode8 not-ASCII (11 characters, 11 codepoints, 11 bytes, 0 error)'
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~errors==</span>
+    (The NIL object)
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2x=</span>
+    '50 C3 A8 72 65 20 4E 6F C3 AB 6C'
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2u=</span>
+    'U+0050 U+00C3 U+00A8 U+0072 U+0065 U+0020 U+004E U+006F U+00C3 U+00AB U+006C'
     <span style="font-weight:bold;color:blue;">------------------------------------------
     </span><span style="font-weight:bold;color:blue;">-- End of file include_concatenation_infos
     </span><span style="font-weight:bold;color:blue;">------------------------------------------
@@ -1170,9 +1152,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenati
 ooRexx&gt; <span style="font-weight:bold;color:purple;">drop b t</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">b = .MutableBuffer~new</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">b~appendEncoded(&quot;Père&quot;~text(&quot;byte&quot;), &quot; &quot;~text(&quot;byte&quot;), &quot;Noël&quot;~text(&quot;unicode-8&quot;))</span>
-<span style="font-weight:bold;color:red;">Encoding: cannot append Unicode8 not-ASCII 'Noël' to Byte not-ASCII 'Père '.
-</span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">t = b~string~text</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">t = b~string~text</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenation_infos s/$(text)/t/</span>
     <span style="font-weight:bold;color:blue;">--------------------------------------------
     </span><span style="font-weight:bold;color:blue;">-- Start of file include_concatenation_infos
@@ -1183,13 +1163,13 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenati
     </span><span style="font-weight:bold;color:blue;">*/
     </span>
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~description=</span>
-    'Byte not-ASCII (6 characters, 6 codepoints, 6 bytes, 0 error)'
+    'Unicode8 not-ASCII (11 characters, 11 codepoints, 11 bytes, 0 error)'
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~errors==</span>
     (The NIL object)
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2x=</span>
-    '50 C3 A8 72 65 20'
+    '50 C3 A8 72 65 20 4E 6F C3 AB 6C'
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2u=</span>
-    'U+0050 U+FFFD U+FFFD U+0072 U+0065 U+0020'
+    'U+0050 U+00C3 U+00A8 U+0072 U+0065 U+0020 U+004E U+006F U+00C3 U+00AB U+006C'
     <span style="font-weight:bold;color:blue;">------------------------------------------
     </span><span style="font-weight:bold;color:blue;">-- End of file include_concatenation_infos
     </span><span style="font-weight:bold;color:blue;">------------------------------------------
@@ -1278,39 +1258,6 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenati
     </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">drop t</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">t = &quot;Pere&quot;~text(&quot;unicode-8&quot;) &quot;Noël&quot;~text(&quot;byte&quot;)</span>
-<span style="font-weight:bold;color:red;">Encoding: cannot append Byte not-ASCII 'Noël' to Unicode8 ASCII 'Pere'.
-</span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenation_infos s/$(text)/t/</span>
-    <span style="font-weight:bold;color:blue;">--------------------------------------------
-    </span><span style="font-weight:bold;color:blue;">-- Start of file include_concatenation_infos
-    </span><span style="font-weight:bold;color:blue;">--------------------------------------------
-    </span><span style="font-weight:bold;color:blue;">/*
-    </span><span style="font-weight:bold;color:blue;">depends on:
-    </span><span style="font-weight:bold;color:blue;">t
-    </span><span style="font-weight:bold;color:blue;">*/
-    </span>
-    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~description=</span>
-<span style="font-weight:bold;color:red;">NOVALUE
-    </span><span style="font-weight:bold;color:red;">T
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~errors==</span>
-<span style="font-weight:bold;color:red;">NOVALUE
-    </span><span style="font-weight:bold;color:red;">T
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2x=</span>
-<span style="font-weight:bold;color:red;">NOVALUE
-    </span><span style="font-weight:bold;color:red;">T
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2u=</span>
-<span style="font-weight:bold;color:red;">NOVALUE
-    </span><span style="font-weight:bold;color:red;">T
-    </span>    <span style="font-weight:bold;color:blue;">------------------------------------------
-    </span><span style="font-weight:bold;color:blue;">-- End of file include_concatenation_infos
-    </span><span style="font-weight:bold;color:blue;">------------------------------------------
-    </span>
-ooRexx&gt; <span style="font-weight:bold;color:purple;">drop b t</span>
-ooRexx&gt; <span style="font-weight:bold;color:purple;">b = .MutableBuffer~new</span>
-ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Pere&quot;~text(&quot;unicode-8&quot;)~appendEncoded(&quot; &quot;~text(&quot;unicode-8&quot;), buffer:b)~appendEncoded(&quot;Noël&quot;~text(&quot;byte&quot;), buffer:b)</span>
-<span style="font-weight:bold;color:red;">Encoding: cannot append Byte not-ASCII 'Noël' to Unicode8 ASCII 'Pere '.
-</span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">t = b~string~text</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenation_infos s/$(text)/t/</span>
     <span style="font-weight:bold;color:blue;">--------------------------------------------
     </span><span style="font-weight:bold;color:blue;">-- Start of file include_concatenation_infos
@@ -1321,13 +1268,38 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenati
     </span><span style="font-weight:bold;color:blue;">*/
     </span>
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~description=</span>
-    'Unicode8 ASCII (5 characters, 5 codepoints, 5 bytes, 0 error)'
+    'Unicode8 not-ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~errors==</span>
     (The NIL object)
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2x=</span>
-    '50 65 72 65 20'
+    '50 65 72 65 20 4E 6F C3 AB 6C'
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2u=</span>
-    'U+0050 U+0065 U+0072 U+0065 U+0020'
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+00C3 U+00AB U+006C'
+    <span style="font-weight:bold;color:blue;">------------------------------------------
+    </span><span style="font-weight:bold;color:blue;">-- End of file include_concatenation_infos
+    </span><span style="font-weight:bold;color:blue;">------------------------------------------
+    </span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">drop b t</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">b = .MutableBuffer~new</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Pere&quot;~text(&quot;unicode-8&quot;)~appendEncoded(&quot; &quot;~text(&quot;unicode-8&quot;), buffer:b)~appendEncoded(&quot;Noël&quot;~text(&quot;byte&quot;), buffer:b)</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">t = b~string~text</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenation_infos s/$(text)/t/</span>
+    <span style="font-weight:bold;color:blue;">--------------------------------------------
+    </span><span style="font-weight:bold;color:blue;">-- Start of file include_concatenation_infos
+    </span><span style="font-weight:bold;color:blue;">--------------------------------------------
+    </span><span style="font-weight:bold;color:blue;">/*
+    </span><span style="font-weight:bold;color:blue;">depends on:
+    </span><span style="font-weight:bold;color:blue;">t
+    </span><span style="font-weight:bold;color:blue;">*/
+    </span>
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~description=</span>
+    'Unicode8 not-ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~errors==</span>
+    (The NIL object)
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2x=</span>
+    '50 65 72 65 20 4E 6F C3 AB 6C'
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2u=</span>
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+00C3 U+00AB U+006C'
     <span style="font-weight:bold;color:blue;">------------------------------------------
     </span><span style="font-weight:bold;color:blue;">-- End of file include_concatenation_infos
     </span><span style="font-weight:bold;color:blue;">------------------------------------------
@@ -1335,9 +1307,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenati
 ooRexx&gt; <span style="font-weight:bold;color:purple;">drop b t</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">b = .MutableBuffer~new</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">b~appendEncoded(&quot;Pere&quot;~text(&quot;unicode-8&quot;), &quot; &quot;~text(&quot;unicode-8&quot;), &quot;Noël&quot;~text(&quot;byte&quot;))</span>
-<span style="font-weight:bold;color:red;">Encoding: cannot append Byte not-ASCII 'Noël' to Unicode8 ASCII 'Pere '.
-</span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">t = b~string~text</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">t = b~string~text</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenation_infos s/$(text)/t/</span>
     <span style="font-weight:bold;color:blue;">--------------------------------------------
     </span><span style="font-weight:bold;color:blue;">-- Start of file include_concatenation_infos
@@ -1348,13 +1318,13 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenati
     </span><span style="font-weight:bold;color:blue;">*/
     </span>
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~description=</span>
-    'Unicode8 ASCII (5 characters, 5 codepoints, 5 bytes, 0 error)'
+    'Unicode8 not-ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~errors==</span>
     (The NIL object)
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2x=</span>
-    '50 65 72 65 20'
+    '50 65 72 65 20 4E 6F C3 AB 6C'
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2u=</span>
-    'U+0050 U+0065 U+0072 U+0065 U+0020'
+    'U+0050 U+0065 U+0072 U+0065 U+0020 U+004E U+006F U+00C3 U+00AB U+006C'
     <span style="font-weight:bold;color:blue;">------------------------------------------
     </span><span style="font-weight:bold;color:blue;">-- End of file include_concatenation_infos
     </span><span style="font-weight:bold;color:blue;">------------------------------------------
@@ -1434,39 +1404,6 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenati
     </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">drop t</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">t = &quot;Père&quot;~text(&quot;unicode-8&quot;) &quot;Noël&quot;~text(&quot;byte&quot;)</span>
-<span style="font-weight:bold;color:red;">Encoding: cannot append Byte not-ASCII 'Noël' to Unicode8 not-ASCII 'Père'.
-</span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenation_infos s/$(text)/t/</span>
-    <span style="font-weight:bold;color:blue;">--------------------------------------------
-    </span><span style="font-weight:bold;color:blue;">-- Start of file include_concatenation_infos
-    </span><span style="font-weight:bold;color:blue;">--------------------------------------------
-    </span><span style="font-weight:bold;color:blue;">/*
-    </span><span style="font-weight:bold;color:blue;">depends on:
-    </span><span style="font-weight:bold;color:blue;">t
-    </span><span style="font-weight:bold;color:blue;">*/
-    </span>
-    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~description=</span>
-<span style="font-weight:bold;color:red;">NOVALUE
-    </span><span style="font-weight:bold;color:red;">T
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~errors==</span>
-<span style="font-weight:bold;color:red;">NOVALUE
-    </span><span style="font-weight:bold;color:red;">T
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2x=</span>
-<span style="font-weight:bold;color:red;">NOVALUE
-    </span><span style="font-weight:bold;color:red;">T
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2u=</span>
-<span style="font-weight:bold;color:red;">NOVALUE
-    </span><span style="font-weight:bold;color:red;">T
-    </span>    <span style="font-weight:bold;color:blue;">------------------------------------------
-    </span><span style="font-weight:bold;color:blue;">-- End of file include_concatenation_infos
-    </span><span style="font-weight:bold;color:blue;">------------------------------------------
-    </span>
-ooRexx&gt; <span style="font-weight:bold;color:purple;">drop b t</span>
-ooRexx&gt; <span style="font-weight:bold;color:purple;">b = .MutableBuffer~new</span>
-ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Père&quot;~text(&quot;unicode-8&quot;)~appendEncoded(&quot; &quot;~text(&quot;unicode-8&quot;), buffer:b)~appendEncoded(&quot;Noël&quot;~text(&quot;byte&quot;), buffer:b)</span>
-<span style="font-weight:bold;color:red;">Encoding: cannot append Byte not-ASCII 'Noël' to Unicode8 not-ASCII 'Père '.
-</span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">t = b~string~text</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenation_infos s/$(text)/t/</span>
     <span style="font-weight:bold;color:blue;">--------------------------------------------
     </span><span style="font-weight:bold;color:blue;">-- Start of file include_concatenation_infos
@@ -1477,13 +1414,38 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenati
     </span><span style="font-weight:bold;color:blue;">*/
     </span>
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~description=</span>
-    'Unicode8 not-ASCII (6 characters, 6 codepoints, 6 bytes, 0 error)'
+    'Unicode8 not-ASCII (11 characters, 11 codepoints, 11 bytes, 0 error)'
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~errors==</span>
     (The NIL object)
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2x=</span>
-    '50 C3 A8 72 65 20'
+    '50 C3 A8 72 65 20 4E 6F C3 AB 6C'
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2u=</span>
-    'U+0050 U+00C3 U+00A8 U+0072 U+0065 U+0020'
+    'U+0050 U+00C3 U+00A8 U+0072 U+0065 U+0020 U+004E U+006F U+00C3 U+00AB U+006C'
+    <span style="font-weight:bold;color:blue;">------------------------------------------
+    </span><span style="font-weight:bold;color:blue;">-- End of file include_concatenation_infos
+    </span><span style="font-weight:bold;color:blue;">------------------------------------------
+    </span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">drop b t</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">b = .MutableBuffer~new</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Père&quot;~text(&quot;unicode-8&quot;)~appendEncoded(&quot; &quot;~text(&quot;unicode-8&quot;), buffer:b)~appendEncoded(&quot;Noël&quot;~text(&quot;byte&quot;), buffer:b)</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">t = b~string~text</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenation_infos s/$(text)/t/</span>
+    <span style="font-weight:bold;color:blue;">--------------------------------------------
+    </span><span style="font-weight:bold;color:blue;">-- Start of file include_concatenation_infos
+    </span><span style="font-weight:bold;color:blue;">--------------------------------------------
+    </span><span style="font-weight:bold;color:blue;">/*
+    </span><span style="font-weight:bold;color:blue;">depends on:
+    </span><span style="font-weight:bold;color:blue;">t
+    </span><span style="font-weight:bold;color:blue;">*/
+    </span>
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~description=</span>
+    'Unicode8 not-ASCII (11 characters, 11 codepoints, 11 bytes, 0 error)'
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~errors==</span>
+    (The NIL object)
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2x=</span>
+    '50 C3 A8 72 65 20 4E 6F C3 AB 6C'
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2u=</span>
+    'U+0050 U+00C3 U+00A8 U+0072 U+0065 U+0020 U+004E U+006F U+00C3 U+00AB U+006C'
     <span style="font-weight:bold;color:blue;">------------------------------------------
     </span><span style="font-weight:bold;color:blue;">-- End of file include_concatenation_infos
     </span><span style="font-weight:bold;color:blue;">------------------------------------------
@@ -1491,9 +1453,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenati
 ooRexx&gt; <span style="font-weight:bold;color:purple;">drop b t</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">b = .MutableBuffer~new</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">b~appendEncoded(&quot;Père&quot;~text(&quot;unicode-8&quot;), &quot; &quot;~text(&quot;unicode-8&quot;), &quot;Noël&quot;~text(&quot;byte&quot;))</span>
-<span style="font-weight:bold;color:red;">Encoding: cannot append Byte not-ASCII 'Noël' to Unicode8 not-ASCII 'Père '.
-</span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">t = b~string~text</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">t = b~string~text</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenation_infos s/$(text)/t/</span>
     <span style="font-weight:bold;color:blue;">--------------------------------------------
     </span><span style="font-weight:bold;color:blue;">-- Start of file include_concatenation_infos
@@ -1504,13 +1464,13 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_concatenati
     </span><span style="font-weight:bold;color:blue;">*/
     </span>
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~description=</span>
-    'Unicode8 not-ASCII (6 characters, 6 codepoints, 6 bytes, 0 error)'
+    'Unicode8 not-ASCII (11 characters, 11 codepoints, 11 bytes, 0 error)'
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~errors==</span>
     (The NIL object)
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2x=</span>
-    '50 C3 A8 72 65 20'
+    '50 C3 A8 72 65 20 4E 6F C3 AB 6C'
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~c2u=</span>
-    'U+0050 U+00C3 U+00A8 U+0072 U+0065 U+0020'
+    'U+0050 U+00C3 U+00A8 U+0072 U+0065 U+0020 U+004E U+006F U+00C3 U+00AB U+006C'
     <span style="font-weight:bold;color:blue;">------------------------------------------
     </span><span style="font-weight:bold;color:blue;">-- End of file include_concatenation_infos
     </span><span style="font-weight:bold;color:blue;">------------------------------------------

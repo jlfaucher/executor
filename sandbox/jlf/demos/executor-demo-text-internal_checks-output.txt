@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 16 Nov 2023
-Input queue name: Sec03Q6000007f8000
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Apr 2024
+Input queue name: S76f2Q6000007c6be0
 
 ----------------------------------
 -- Text encoding - Internal checks
@@ -37,9 +37,8 @@ ooRexx[sh]> s~text = .RexxText~new("hello")          -- The counterpart must be 
 EncodedString: the counterpart must be a RexxText linked to this String.
 Error code= 23.900
 ooRexx[sh]> s~text = .RexxText~new(s)                -- ok, the RexxText is linked to s, now can be assigned to s~text
-ooRexx[sh]> "é"~text("byte") || "è"~text("utf8")=    -- Cannot concatenate Byte with UTF-8
-Encoding: cannot append UTF-8 not-ASCII 'è' to Byte not-ASCII 'é'.
-Error code= 23.900
+ooRexx[sh]> "é"~text("byte") || "è"~text("utf8")=    -- T'éè'   (was Cannot concatenate Byte with UTF-8)
+T'éè'
 ooRexx[sh]> "é"~text("byte") || "é"~text("utf8")=    -- T'éé' encoded UTF-8
 T'éé'
 /*

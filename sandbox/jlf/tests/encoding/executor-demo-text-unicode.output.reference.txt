@@ -51,7 +51,7 @@ a Directory (12 items)
 'totalCharactersLoaded'              :  149813
 'totalIntervalCharacters'            :  105693
 'totalIntervalCharactersNotExpanded' :  105693
-'unckeckedConversionToString'        :  0
+'unckeckedConversionToString'        :  1
 'version'                            : '15.1.0'
 
 -- Select the characters whose category is Cc (Control)

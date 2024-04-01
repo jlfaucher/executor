@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 16 Nov 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: Seba5Q6000007f8000
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Apr 2024
+</span><span style="font-weight:bold;color:green;">Input queue name: S7989Q6000007c6be0
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.1.0 
@@ -43,6 +43,424 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacte
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeTranscodings = .false</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeTransformations = .false</span>
+
+
+<span style="font-weight:bold;color:blue;">-- ===============================================================================
+</span><span style="font-weight:bold;color:blue;">-- 2024 Apr 01
+</span>
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">A package has an encoding:
+</span><span style="font-weight:bold;color:blue;">.Package
+</span><span style="font-weight:bold;color:blue;">    encoding
+</span><span style="font-weight:bold;color:blue;">    encoding=
+</span><span style="font-weight:bold;color:blue;">    hasEncoding
+</span><span style="font-weight:bold;color:blue;">The calculation of the default encoding is not so good, probably to rework.
+</span><span style="font-weight:bold;color:blue;">But for the moment, it works for me...
+</span><span style="font-weight:bold;color:blue;">Case 1: package not requesting &quot;text.cls&quot;, directly or indirectly.
+</span><span style="font-weight:bold;color:blue;">    Most of the legacy packages don't support an encoding other than Byte.
+</span><span style="font-weight:bold;color:blue;">    The package's default encoding is Byte (not .Encoding~defaultEncoding).
+</span><span style="font-weight:bold;color:blue;">Case 2: package requesting &quot;text.cls&quot;, directly or indirectly.
+</span><span style="font-weight:bold;color:blue;">    We assume that the caller supports an automatic conversion to text.
+</span><span style="font-weight:bold;color:blue;">    The package's default encoding is .Encoding~defaultEncoding.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">New method setEncoding on String, MutableBuffer, Package and RexxText, to change
+</span><span style="font-weight:bold;color:blue;">the current encoding and return the previous encoding.
+</span><span style="font-weight:bold;color:blue;">Example, assuming the default encoding is UTF-8:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noel&quot;~setEncoding(&quot;windows-1252&quot;)=     </span><span style="font-weight:bold;color:blue;">-- (The UTF8_Encoding class)    (previous encoding)</span>
+(The UTF8_Encoding class)
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~setEncoding(&quot;byte&quot;)=             </span><span style="font-weight:bold;color:blue;">-- (The UTF8_Encoding class)    (previous encoding)</span>
+(The UTF8_Encoding class)
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Example, when the default encoding is Byte:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">oldEncoding = .encoding~setDefaultEncoding(&quot;byte&quot;)</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noel&quot;~setEncoding(&quot;windows-1252&quot;)=     </span><span style="font-weight:bold;color:blue;">-- (The Byte_Encoding class)    (previous encoding)</span>
+(The Byte_Encoding class)
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~setEncoding(&quot;byte&quot;)=             </span><span style="font-weight:bold;color:blue;">-- (The Byte_Encoding class)    (previous encoding)</span>
+(The Byte_Encoding class)
+ooRexx&gt; <span style="font-weight:bold;color:purple;">.encoding~setDefaultEncoding(oldEncoding)</span>
+
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">New methods on the class Encoding, to change the current encoding and return
+</span><span style="font-weight:bold;color:blue;">the previous encoding:
+</span><span style="font-weight:bold;color:blue;">    setDefaultEncoding
+</span><span style="font-weight:bold;color:blue;">    setDefaultInputEncoding
+</span><span style="font-weight:bold;color:blue;">    setDefaultOutputEncoding
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Relax the constraints for the Byte_Encoding in the methods compatibleEncoding
+</span><span style="font-weight:bold;color:blue;">and asEncodingFor: The Byte_Encoding can be always absorbed.
+</span><span style="font-weight:bold;color:blue;">Reason: The Byte_Encoding is often used for diagnostic or repair.
+</span><span style="font-weight:bold;color:blue;">Examples:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Père&quot;~c2g=                             </span><span style="font-weight:bold;color:blue;">-- '50 C3A8 72 65'</span>
+'50 C3A8 72 65'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Père&quot;~text~startsWith(&quot;50C3&quot;x)=        </span><span style="font-weight:bold;color:blue;">-- false (not aligned) (was Encoding: cannot compare Byte not-ASCII 'P\C3' with UTF-8 not-ASCII 'Père')</span>
+ 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Père&quot;~text~startsWith(&quot;50C3A8&quot;x)=      </span><span style="font-weight:bold;color:blue;">-- true (was Encoding: cannot compare Byte not-ASCII 'Pè' with UTF-8 not-ASCII 'Père')</span>
+ 1
+
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">+-------------------------------------------+
+</span><span style="font-weight:bold;color:blue;">|            IMPORTANT MILESTONE            |
+</span><span style="font-weight:bold;color:blue;">| Activation of the automatic conversion    |
+</span><span style="font-weight:bold;color:blue;">| of String literals to RexxText instances  |
+</span><span style="font-weight:bold;color:blue;">+-------------------------------------------+
+</span><span style="font-weight:bold;color:blue;">This is managed in RexxString::evaluate
+</span><span style="font-weight:bold;color:blue;">Rules:
+</span><span style="font-weight:bold;color:blue;">if string~isASCII then value = string                               -- R1 don't convert to RexxText if the string literal is ASCII
+</span><span style="font-weight:bold;color:blue;">else if .context~package~encoding~isByte then value = string        -- R2 don't convert to RexxText if the context package encoding is Byte.
+</span><span style="font-weight:bold;color:blue;">else if string~isCompatibleWithByteString then value = string       -- R3 don't convert to RexxText if the string literal is compatible with a Byte string.
+</span><span style="font-weight:bold;color:blue;">else value = string~text                                            -- R4 convert to RexxText
+</span><span style="font-weight:bold;color:blue;">Examples, assuming the package encoding is UTF-8:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noel&quot;~class=                                       </span><span style="font-weight:bold;color:blue;">-- (The String class)       R1</span>
+(The String class)
+
+ooRexx&gt; <span style="font-weight:bold;color:purple;">oldEncoding = .context~package~setEncoding(&quot;byte&quot;)</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~class=                                       </span><span style="font-weight:bold;color:blue;">-- (The String class)       R2</span>
+(The String class)
+ooRexx&gt; <span style="font-weight:bold;color:purple;">.context~package~setEncoding(oldEncoding)</span>
+
+ooRexx&gt; <span style="font-weight:bold;color:purple;">oldEncoding = .encoding~setDefaultEncoding(&quot;byte&quot;)</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~class=                                       </span><span style="font-weight:bold;color:blue;">-- (The String class)       R3</span>
+(The String class)
+ooRexx&gt; <span style="font-weight:bold;color:purple;">.encoding~setDefaultEncoding(oldEncoding)</span>
+
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~class=                                       </span><span style="font-weight:bold;color:blue;">-- (The RexxText class)     R4</span>
+(The RexxText class)
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~string~class=                                </span><span style="font-weight:bold;color:blue;">-- (The String class)       R4 The string literal is a RexxText, the method ~string returns a String with encoding UTF-8</span>
+(The String class)
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~~setEncoding(&quot;byte&quot;)~class=                  </span><span style="font-weight:bold;color:blue;">-- (The RexxText class)     R4 The string literal is a RexxText, its encoding is changed from UTF-8 to Byte, the method ~string returns a String with encoding Byte</span>
+(The RexxText class)
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~~setEncoding(&quot;byte&quot;)~string~class=           </span><span style="font-weight:bold;color:blue;">-- (The String class)       R4 The string literal is a RexxText, its encoding is changed from UTF-8 to Byte, the method ~string returns a String with encoding Byte</span>
+(The String class)
+
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Deactivate (again) the constraint &quot;self~isCompatibleWithByteString&quot; when converting
+</span><span style="font-weight:bold;color:blue;">a RexxText to a String (.Unicode~unckeckedConversionToString = .true).
+</span><span style="font-weight:bold;color:blue;">Reason: after activation of the automatic conversion to RexxText, I get these
+</span><span style="font-weight:bold;color:blue;">errors if I keep the constraint &quot;self~isCompatibleWithByteString&quot;.
+</span><span style="font-weight:bold;color:blue;">    say &quot;Noël&quot;              -- raise an error &quot;UTF-8 not-ASCII 'Noël' cannot be converted to a String instance&quot;
+</span><span style="font-weight:bold;color:blue;">    xrange(&quot;00&quot;x,&quot;ff&quot;x)     -- raise an error &quot;UTF-8 not-ASCII '[FF]' cannot be converted to a String instance&quot;
+</span><span style="font-weight:bold;color:blue;">The constraint &quot;self~isCompatibleWithByteString&quot; was put in place to detect when
+</span><span style="font-weight:bold;color:blue;">a RexxText instance is &quot;lost&quot; during conversion to string. Now that we have a
+</span><span style="font-weight:bold;color:blue;">common interface on String and RexxText, plus an automatic conversion to RexxText,
+</span><span style="font-weight:bold;color:blue;">this &quot;loss&quot; should occur less often. But still occurs.
+</span><span style="font-weight:bold;color:blue;">Example, assuming the default encoding and the package encoding are UTF-8:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~length=          </span><span style="font-weight:bold;color:blue;">-- 4</span>
+ 4
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~text~length=     </span><span style="font-weight:bold;color:blue;">-- 4</span>
+ 4
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~string~length=   </span><span style="font-weight:bold;color:blue;">-- 5</span>
+ 5
+ooRexx&gt; <span style="font-weight:bold;color:purple;">length(&quot;Noël&quot;)=         </span><span style="font-weight:bold;color:blue;">-- 5, should be 4    (with the constraint, would raise UTF-8 not-ASCII 'Noël' cannot be converted to a String instance)</span>
+ 5
+ooRexx&gt; <span style="font-weight:bold;color:purple;">length(&quot;Noël&quot;~string)   </span><span style="font-weight:bold;color:blue;">-- 5</span>
+bash: 5: command not found
+<span style="font-weight:bold;color:red;">RC= 127
+</span>
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">The strings created by D2C, X2C are declared Byte encoded.
+</span><span style="font-weight:bold;color:blue;">It's because it's not unusual to create ill-formed encoded strings with these BIF/BIM.
+</span><span style="font-weight:bold;color:blue;">The Byte_Encoding is a raw encoding with few constraints, BUT it's impossible
+</span><span style="font-weight:bold;color:blue;">to transcode from/to it without errors if the string contains not-ASCII characters.
+</span><span style="font-weight:bold;color:blue;">That's why, often, a more specialized byte encoding is applied on the byte string,
+</span><span style="font-weight:bold;color:blue;">to interpret the bytes differently.
+</span><span style="font-weight:bold;color:blue;">Implementation notes:
+</span><span style="font-weight:bold;color:blue;">    D2C: RexxNumberString::d2xD2c calls StringUtil::packHex
+</span><span style="font-weight:bold;color:blue;">    X2C: StringUtil::packHex
+</span><span style="font-weight:bold;color:blue;">Examples:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~encoding=                                   </span><span style="font-weight:bold;color:blue;">-- (The UTF8_Encoding class)</span>
+(The UTF8_Encoding class)
+
+<span style="font-weight:bold;color:blue;">-- D2C
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~c2d=                                       </span><span style="font-weight:bold;color:blue;">-- 50089</span>
+ 50089
+ooRexx&gt; <span style="font-weight:bold;color:purple;">d2c(50089)=                                     </span><span style="font-weight:bold;color:blue;">-- 'é'</span>
+'é'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">50089~d2c=                                      </span><span style="font-weight:bold;color:blue;">-- 'é'</span>
+'é'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">d2c(50089)~encoding=                            </span><span style="font-weight:bold;color:blue;">-- (The Byte_Encoding class)</span>
+(The Byte_Encoding class)
+ooRexx&gt; <span style="font-weight:bold;color:purple;">50089~d2c~encoding=                             </span><span style="font-weight:bold;color:blue;">-- (The Byte_Encoding class)</span>
+(The Byte_Encoding class)
+
+<span style="font-weight:bold;color:blue;">-- X2C
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~c2x=                                        </span><span style="font-weight:bold;color:blue;">-- 'C3A9'</span>
+'C3A9'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">x2c(&quot;C3A9&quot;)=                                    </span><span style="font-weight:bold;color:blue;">-- 'é'</span>
+'é'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;C3A9&quot;~x2c=                                     </span><span style="font-weight:bold;color:blue;">-- 'é'</span>
+'é'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">x2c(&quot;C3A9&quot;)~encoding=                           </span><span style="font-weight:bold;color:blue;">-- (The Byte_Encoding class)</span>
+(The Byte_Encoding class)
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;C3A9&quot;~x2c~encoding=                            </span><span style="font-weight:bold;color:blue;">-- (The Byte_Encoding class)</span>
+(The Byte_Encoding class)
+
+<span style="font-weight:bold;color:blue;">-- Valid Byte string, but invalid UTF-8 string
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;C3&quot;~x2c~encoding=                              </span><span style="font-weight:bold;color:blue;">-- (The Byte_Encoding class)</span>
+(The Byte_Encoding class)
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;C3&quot;~x2c~text(&quot;utf8&quot;)~description=              </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 character, 1 codepoint, 1 byte, 1 error)'</span>
+'UTF-8 not-ASCII (1 character, 1 codepoint, 1 byte, 1 error)'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;C3&quot;~x2c~text(&quot;utf8&quot;)~errors==                  </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 encoding: byte sequence at byte-position 1 is truncated, expected 2 bytes</span>
+an Array (shape [1], 1 items)
+ 1 : 'UTF-8 encoding: byte sequence at byte-position 1 is truncated, expected 2 bytes.'
+
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">The hexadecimal and binary strings are declared Byte encoded, for the same reasons
+</span><span style="font-weight:bold;color:blue;">as D2C, X2C.
+</span><span style="font-weight:bold;color:blue;">Implementation notes:
+</span><span style="font-weight:bold;color:blue;">    RexxSource::packLiteral
+</span><span style="font-weight:bold;color:blue;">Examples:
+</span><span style="font-weight:bold;color:blue;">*/
+</span><span style="font-weight:bold;color:blue;">-- The encoding of a literal string is the default encoding
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~encoding=                                   </span><span style="font-weight:bold;color:blue;">-- (The UTF8_Encoding class)</span>
+(The UTF8_Encoding class)
+
+<span style="font-weight:bold;color:blue;">-- The encoding of an hexadecimal string is the Byte encoding
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~c2x=                                        </span><span style="font-weight:bold;color:blue;">-- 'C3A9'</span>
+'C3A9'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;C3A9&quot;x=                                        </span><span style="font-weight:bold;color:blue;">-- 'é'</span>
+'é'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;C3A9&quot;x~encoding=                               </span><span style="font-weight:bold;color:blue;">-- (The Byte_Encoding class)</span>
+(The Byte_Encoding class)
+
+<span style="font-weight:bold;color:blue;">-- The encoding of a binary string is the Byte encoding
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~c2x~x2b=                                    </span><span style="font-weight:bold;color:blue;">-- 1100001110101001</span>
+ 1100001110101001
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;11000011 10101001&quot;b=                           </span><span style="font-weight:bold;color:blue;">-- 'é'</span>
+'é'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;11000011 10101001&quot;b~encoding=                  </span><span style="font-weight:bold;color:blue;">-- (The Byte_Encoding class)</span>
+(The Byte_Encoding class)
+
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Implementation of Strip:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~strip=                       </span><span style="font-weight:bold;color:blue;">-- T'Noël'</span>
+T'Noël'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;\tNoël &quot;~unescape~strip=           </span><span style="font-weight:bold;color:blue;">-- T'Noël'</span>
+T'Noël'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~strip(&quot;b&quot;, &quot;ë&quot;)=             </span><span style="font-weight:bold;color:blue;">-- T'Noël'</span>
+T'Noël'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noë&quot;~strip(&quot;b&quot;, &quot;ë&quot;)=              </span><span style="font-weight:bold;color:blue;">-- T'No'</span>
+T'No'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;🤶Noël🎅&quot;~strip(&quot;b&quot;, &quot;lë🎅🤶&quot;)=  </span><span style="font-weight:bold;color:blue;">-- T'No'</span>
+T'No'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;\u{NBSP}\u{EN SPACE}\u{EM SPACE}\u{HAIR SPACE}\u{FIGURE SPACE}\u{THIN SPACE}&quot;~unescape~strip=          </span><span style="font-weight:bold;color:blue;">-- T'      '</span>
+T'      '
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;\u{NBSP}\u{EN SPACE}\u{EM SPACE}\u{HAIR SPACE}\u{FIGURE SPACE}\u{THIN SPACE}&quot;~unescape~strip(lump:)=   </span><span style="font-weight:bold;color:blue;">-- T''</span>
+T''
+
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">New methods on String for compatibility with RexxText (inherit StringRexxTextInterface).
+</span><span style="font-weight:bold;color:blue;">Most of these methods forward to string~text wich is UTF-8 by default.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~errors=                                 </span><span style="font-weight:bold;color:blue;">-- (The NIL object)</span>
+(The NIL object)
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~isCompatibleWithASCII=                  </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~isCompatibleWithByteString=             </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~isUpper=                                </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;A&quot;~isUpper=                                </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~isLower=                                </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;A&quot;~isLower=                                </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~codepoints=                             </span><span style="font-weight:bold;color:blue;">-- (a CodePointSupplier)</span>
+(a CodePointSupplier)
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~maximumCodepoint=                       </span><span style="font-weight:bold;color:blue;">-- 97</span>
+ 97
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~maximumUnicodeCodepoint=                </span><span style="font-weight:bold;color:blue;">-- 97</span>
+ 97
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~UnicodeCharacters=                      </span><span style="font-weight:bold;color:blue;">-- [( &quot;a&quot;   U+0061 Ll 1 &quot;LATIN SMALL LETTER A&quot; )]</span>
+[( &quot;a&quot;   U+0061 Ll 1 &quot;LATIN SMALL LETTER A&quot; )]
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~characters=                             </span><span style="font-weight:bold;color:blue;">-- ['a']</span>
+['a']
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~character(1)=                           </span><span style="font-weight:bold;color:blue;">-- 'a'</span>
+'a'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">buffer = .MutableBuffer~new; &quot;a&quot;~character(1, :buffer)=     </span><span style="font-weight:bold;color:blue;">-- M'a'</span>
+M'a'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~transcodeTo(&quot;utf16&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- T'[00]a'</span>
+T'[00]a'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~utf8=                                   </span><span style="font-weight:bold;color:blue;">-- T'a'</span>
+T'a'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~wtf8=                                   </span><span style="font-weight:bold;color:blue;">-- T'a'</span>
+T'a'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~utf16=                                  </span><span style="font-weight:bold;color:blue;">-- T'[00]a'</span>
+T'[00]a'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~utf16be=                                </span><span style="font-weight:bold;color:blue;">-- T'[00]a'</span>
+T'[00]a'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~utf16le=                                </span><span style="font-weight:bold;color:blue;">-- T'a[00]'</span>
+T'a[00]'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~wtf16=                                  </span><span style="font-weight:bold;color:blue;">-- T'[00]a'</span>
+T'[00]a'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~wtf16be=                                </span><span style="font-weight:bold;color:blue;">-- T'[00]a'</span>
+T'[00]a'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~wtf16le=                                </span><span style="font-weight:bold;color:blue;">-- T'a[00]</span>
+T'a[00]'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~utf32=                                  </span><span style="font-weight:bold;color:blue;">-- T'[000000]a'</span>
+T'[000000]a'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~utf32be=                                </span><span style="font-weight:bold;color:blue;">-- T'[000000]a'</span>
+T'[000000]a'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~utf32le=                                </span><span style="font-weight:bold;color:blue;">-- T'a[000000]'</span>
+T'a[000000]'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~unicode~c2x=                            </span><span style="font-weight:bold;color:blue;">-- 61</span>
+ 61
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~unicodeN~c2x=                           </span><span style="font-weight:bold;color:blue;">-- 61</span>
+ 61
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~unicode8~c2x=                           </span><span style="font-weight:bold;color:blue;">-- 61</span>
+ 61
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~unicode16~c2x=                          </span><span style="font-weight:bold;color:blue;">-- 6100</span>
+ 6100
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~unicode32~c2x=                          </span><span style="font-weight:bold;color:blue;">-- 61000000</span>
+ 61000000
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~c2u=                                    </span><span style="font-weight:bold;color:blue;">-- 'U+0061'</span>
+'U+0061'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">'U+0061'~u2c=                               </span><span style="font-weight:bold;color:blue;">-- T'a[000000]'</span>
+T'a[000000]'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">'U+0061'~u2c~c2x=                           </span><span style="font-weight:bold;color:blue;">-- 61000000</span>
+ 61000000
+ooRexx&gt; <span style="font-weight:bold;color:purple;">'U+0061'~u2c~utf8=                          </span><span style="font-weight:bold;color:blue;">-- T'a'</span>
+T'a'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;ab&quot;~c2g=                                   </span><span style="font-weight:bold;color:blue;">-- '61 62'</span>
+'61 62'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;z&quot;~checkHexadecimalValueCompatibility=     </span><span style="font-weight:bold;color:blue;">-- [no result] (good, no error raised)</span>
+[no result]
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;z&quot;~checkNumericValueCompatibility=         </span><span style="font-weight:bold;color:blue;">-- [no result] (good, no error raised)</span>
+[no result]
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;z&quot;~checkLogicalValueCompatibility=         </span><span style="font-weight:bold;color:blue;">-- [no result] (good, no error raised)</span>
+[no result]
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;\u{FLAG IN HOLE}&quot;~unescape=                </span><span style="font-weight:bold;color:blue;">-- T'⛳'</span>
+T'⛳'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~transform=                              </span><span style="font-weight:bold;color:blue;">-- T'a'</span>
+T'a'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~transformer=                            </span><span style="font-weight:bold;color:blue;">-- (a RexxTextTransformer)</span>
+(a RexxTextTransformer)
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;abc def&quot;~title=                            </span><span style="font-weight:bold;color:blue;">-- T'Abc Def'</span>
+T'Abc Def'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~isNFC=                                  </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~NFC=                                    </span><span style="font-weight:bold;color:blue;">-- T'a'</span>
+T'a'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~isNFD=                                  </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~NFD=                                    </span><span style="font-weight:bold;color:blue;">-- T'a'</span>
+T'a'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~isNFKC=                                 </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~NFKC=                                   </span><span style="font-weight:bold;color:blue;">-- T'a'</span>
+T'a'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~isNFKD=                                 </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~NFKD=                                   </span><span style="font-weight:bold;color:blue;">-- T'a'</span>
+T'a'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~isCasefold=                             </span><span style="font-weight:bold;color:blue;">-- -1</span>
+-1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;A&quot;~isCasefold=                             </span><span style="font-weight:bold;color:blue;">-- -1</span>
+-1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~transform(casefold:)~isCasefold=        </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;A&quot;~transform(casefold:)~isCasefold=        </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~casefold=                               </span><span style="font-weight:bold;color:blue;">-- T'a'</span>
+T'a'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;A&quot;~casefold=                               </span><span style="font-weight:bold;color:blue;">-- T'a'</span>
+T'a'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~isMarkStripped=                         </span><span style="font-weight:bold;color:blue;">-- -1</span>
+-1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~transform(stripMark:)~isMarkStripped=   </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~isIgnorableStripped=                    </span><span style="font-weight:bold;color:blue;">-- -1</span>
+-1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~transform(stripIgnorable:)~isIgnorableStripped=     </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~isCCStripped=                           </span><span style="font-weight:bold;color:blue;">-- -1</span>
+-1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~transform(stripCC:)~isCCStripped=       </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~isNAStripped=                           </span><span style="font-weight:bold;color:blue;">-- -1</span>
+-1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~transform(stripNA:)~isNAStripped=       </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;ab&quot;~graphemes=                             </span><span style="font-weight:bold;color:blue;">-- ['a','b']</span>
+['a','b']
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;ab&quot;~grapheme(1)=                           </span><span style="font-weight:bold;color:blue;">-- 'a'</span>
+'a'
+
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Implementation of the abstract method 'transform' for Byte_Encoding and its subclasses.
+</span><span style="font-weight:bold;color:blue;">Parameters:
+</span><span style="font-weight:bold;color:blue;">    normalization = 0           Ignored, there is no normalization for byte strings.
+</span><span style="font-weight:bold;color:blue;">    casefold = .false           if .true then apply ~lower
+</span><span style="font-weight:bold;color:blue;">    lump= .false                Ignored
+</span><span style="font-weight:bold;color:blue;">    stripMark = .false          if .true then replace the accented letters by their base letter
+</span><span style="font-weight:bold;color:blue;">    stripIgnorable= .false      Ignored
+</span><span style="font-weight:bold;color:blue;">    stripCC = .false            if .true then remove the codepoints &lt; 20x
+</span><span style="font-weight:bold;color:blue;">    stripNA = .false            if .true then remove the unassigned codepoints
+</span><span style="font-weight:bold;color:blue;">Examples:
+</span><span style="font-weight:bold;color:blue;">*/
+</span><span style="font-weight:bold;color:blue;">-- casefold
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël&quot;~transcodeTo(&quot;windows-1252&quot;)=                                                </span><span style="font-weight:bold;color:blue;">-- T'P?re No?l'</span>
+T'P�re No�l'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël&quot;~transcodeTo(&quot;windows-1252&quot;)~c2x=                                            </span><span style="font-weight:bold;color:blue;">-- '50 E8 72 65 20 4E 6F EB 6C'</span>
+'50 E8 72 65 20 4E 6F EB 6C'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">'50 E8 72 65 20 4E 6F EB 6C'x~transform(casefold:)=                                     </span><span style="font-weight:bold;color:blue;">-- T'p?re no?l'</span>
+T'p�re no�l'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">'50 E8 72 65 20 4E 6F EB 6C'x~transform(casefold:)~encoding=                            </span><span style="font-weight:bold;color:blue;">-- (The Byte_Encoding class)</span>
+(The Byte_Encoding class)
+ooRexx&gt; <span style="font-weight:bold;color:purple;">'50 E8 72 65 20 4E 6F EB 6C'x~transform(casefold:)~utf8=                                </span><span style="font-weight:bold;color:blue;">-- Cannot convert Byte not-ASCII character 232 (E8) at byte-position 2 to UTF-8</span>
+<span style="font-weight:bold;color:red;">Cannot convert Byte not-ASCII character 232 (E8) at byte-position 2 to UTF-8.
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">'50 E8 72 65 20 4E 6F EB 6C'x~transform(casefold:)~~setEncoding(&quot;windows-1252&quot;)~utf8=   </span><span style="font-weight:bold;color:blue;">-- T'père noël'</span>
+T'père noël'
+
+<span style="font-weight:bold;color:blue;">-- stripMark depends on the encoding
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;80 81 82 83 84 85 86 87 88 89 8A 8B 8C 8D 8E 8F 90 93 94 95 96 97 98 99 9A 9F A0 A1 A2 A3 A4 A5&quot;x~text(&quot;ibm-437&quot;)~utf8=                           </span><span style="font-weight:bold;color:blue;">-- T'ÇüéâäàåçêëèïîìÄÅÉôöòûùÿÖÜƒáíóúñÑ'</span>
+T'ÇüéâäàåçêëèïîìÄÅÉôöòûùÿÖÜƒáíóúñÑ'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;80 81 82 83 84 85 86 87 88 89 8A 8B 8C 8D 8E 8F 90 93 94 95 96 97 98 99 9A 9F A0 A1 A2 A3 A4 A5&quot;x~text(&quot;ibm-437&quot;)~transform(stripMark:)~utf8=     </span><span style="font-weight:bold;color:blue;">-- T'CueaaaaceeeiiiAAEooouuyOUfaiounN'</span>
+T'CueaaaaceeeiiiAAEooouuyOUfaiounN'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;83 8A 9A 9F C0 C1 C2 C3 C4 C5 C7 C8 C9 CA CB CC CD CE CF D1 D2 D3 D4 D5 D6 D8 D9 DA DB DC DD E0 E1 E2 E3 E4 E5 E7 E8 E9 EA EB EC ED EE EF F1 F2 F3 F4 F5 F6 F8 F9 FA FB FC FD FF&quot;x~text(&quot;ibm-1252&quot;)~utf8=                        </span><span style="font-weight:bold;color:blue;">-- T'ƒŠšŸÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝàáâãäåçèéêëìíîïñòóôõöøùúûüýÿ'</span>
+T'ƒŠšŸÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝàáâãäåçèéêëìíîïñòóôõöøùúûüýÿ'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;83 8A 9A 9F C0 C1 C2 C3 C4 C5 C7 C8 C9 CA CB CC CD CE CF D1 D2 D3 D4 D5 D6 D8 D9 DA DB DC DD E0 E1 E2 E3 E4 E5 E7 E8 E9 EA EB EC ED EE EF F1 F2 F3 F4 F5 F6 F8 F9 FA FB FC FD FF&quot;x~text(&quot;ibm-1252&quot;)~transform(stripMark:)~utf8=  </span><span style="font-weight:bold;color:blue;">-- T'fSsYAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy'</span>
+T'fSsYAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;C0 C1 C2 C3 C4 C5 C7 C8 C9 CA CB CC CD CE CF D1 D2 D3 D4 D5 D6 D8 D9 DA DB DC DD E0 E1 E2 E3 E4 E5 E7 E8 E9 EA EB EC ED EE EF F1 F2 F3 F4 F5 F6 F8 F9 FA FB FC FD FF&quot;x~text(&quot;iso-8859-1&quot;)~utf8=                            </span><span style="font-weight:bold;color:blue;">-- T'ÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝàáâãäåçèéêëìíîïñòóôõöøùúûüýÿ'</span>
+T'ÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝàáâãäåçèéêëìíîïñòóôõöøùúûüýÿ'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;C0 C1 C2 C3 C4 C5 C7 C8 C9 CA CB CC CD CE CF D1 D2 D3 D4 D5 D6 D8 D9 DA DB DC DD E0 E1 E2 E3 E4 E5 E7 E8 E9 EA EB EC ED EE EF F1 F2 F3 F4 F5 F6 F8 F9 FA FB FC FD FF&quot;x~text(&quot;iso-8859-1&quot;)~transform(stripMark:)~utf8=      </span><span style="font-weight:bold;color:blue;">-- T'AAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy'</span>
+T'AAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;83 8A 8E 9A 9E 9F C0 C1 C2 C3 C4 C5 C7 C8 C9 CA CB CC CD CE CF D1 D2 D3 D4 D5 D6 D8 D9 DA DB DC DD E0 E1 E2 E3 E4 E5 E7 E8 E9 EA EB EC ED EE EF F1 F2 F3 F4 F5 F6 F8 F9 FA FB FC FD FF&quot;x~text(&quot;windows-1252&quot;)~utf8=                            </span><span style="font-weight:bold;color:blue;">-- T'ƒŠŽšžŸÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝàáâãäåçèéêëìíîïñòóôõöøùúûüýÿ'</span>
+T'ƒŠŽšžŸÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝàáâãäåçèéêëìíîïñòóôõöøùúûüýÿ'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;83 8A 8E 9A 9E 9F C0 C1 C2 C3 C4 C5 C7 C8 C9 CA CB CC CD CE CF D1 D2 D3 D4 D5 D6 D8 D9 DA DB DC DD E0 E1 E2 E3 E4 E5 E7 E8 E9 EA EB EC ED EE EF F1 F2 F3 F4 F5 F6 F8 F9 FA FB FC FD FF&quot;x~text(&quot;windows-1252&quot;)~transform(stripMark:)~utf8=      </span><span style="font-weight:bold;color:blue;">-- T'fSZszYAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy'</span>
+T'fSZszYAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy'
+
+<span style="font-weight:bold;color:blue;">-- several transformations
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël&quot;~transcodeTo(&quot;windows-1252&quot;)~transform(casefold:, stripMark:)~utf8=                      </span><span style="font-weight:bold;color:blue;">-- T'pere noel'</span>
+T'pere noel'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">'50 E8 72 65 20 4E 6F EB 6C'x~~setEncoding(&quot;windows-1252&quot;)~transform(casefold:, stripMark:)~utf8=   </span><span style="font-weight:bold;color:blue;">-- T'pere noel'</span>
+T'pere noel'
+<span style="font-weight:bold;color:blue;">-- next: the transform is done on Byte string, which has no rule for stripMark.
+</span><span style="font-weight:bold;color:blue;">-- the accents are not removed.
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">'50 E8 72 65 20 4E 6F EB 6C'x~transform(casefold:, stripMark:)~~setEncoding(&quot;windows-1252&quot;)~utf8=   </span><span style="font-weight:bold;color:blue;">-- T'père noël'</span>
+T'père noël'
 
 
 <span style="font-weight:bold;color:blue;">-- ===============================================================================
@@ -219,10 +637,9 @@ M'A'
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;65&quot;~text~d2x(:buffer)=     </span><span style="font-weight:bold;color:blue;">-- M'A41'</span>
 M'A41'
 ooRexx&gt; <span style="font-weight:bold;color:purple;">buffer~encoding = &quot;utf16&quot;</span>
-ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;65&quot;~text~d2c(:buffer)=     </span><span style="font-weight:bold;color:blue;">-- Encoding: cannot append UTF-8 ASCII by default 'A' to UTF-16BE 'A41'</span>
-<span style="font-weight:bold;color:red;">Encoding: cannot append UTF-8 ASCII by default 'A' to UTF-16BE 'A41'.
-</span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;65&quot;~text~d2c(:buffer)=     </span><span style="font-weight:bold;color:blue;">-- M'A41A'  (was Encoding: cannot append Byte ASCII 'A' to UTF-16BE 'A41')</span>
+M'A41A'
+
 
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">Partial implementation of translate (ASCII string only):
@@ -605,12 +1022,12 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;strasssssse&quot; 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;strasssssse&quot;~text~caselessCompare(&quot;stra&quot;, &quot;s&quot;)=    </span><span style="font-weight:bold;color:blue;">-- 11</span>
  11
 
-ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;strà&quot;     ~caselessCompare(&quot;stràsssssse&quot;, &quot;s&quot;)=    </span><span style="font-weight:bold;color:blue;">-- 12</span>
- 12
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;strà&quot;     ~caselessCompare(&quot;stràsssssse&quot;, &quot;s&quot;)=    </span><span style="font-weight:bold;color:blue;">-- 11 (was 12 before automatic conversion of string literals to text)</span>
+ 11
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;strà&quot;~text~caselessCompare(&quot;stràsssssse&quot;, &quot;s&quot;)=    </span><span style="font-weight:bold;color:blue;">-- 11</span>
  11
-ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;stràsssssse&quot;     ~caselessCompare(&quot;strà&quot;, &quot;s&quot;)=    </span><span style="font-weight:bold;color:blue;">-- 12</span>
- 12
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;stràsssssse&quot;     ~caselessCompare(&quot;strà&quot;, &quot;s&quot;)=    </span><span style="font-weight:bold;color:blue;">-- 11 (was 12 before automatic conversion of string literals to text)</span>
+ 11
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;stràsssssse&quot;~text~caselessCompare(&quot;strà&quot;, &quot;s&quot;)=    </span><span style="font-weight:bold;color:blue;">-- 11</span>
  11
 
@@ -739,13 +1156,11 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;C711&quot;x~te
 '50 C3A8 72 65'
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père&quot;~text~startsWith(&quot;50&quot;x)=                  </span><span style="font-weight:bold;color:blue;">-- true</span>
  1
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père&quot;~text~startsWith(&quot;50C3&quot;x)=                </span><span style="font-weight:bold;color:blue;">-- Invalid UTF-8 string     (utf8proc error because &quot;50C3&quot;x is an invalid UTF-8 encoding)</span>
-<span style="font-weight:bold;color:red;">Invalid UTF-8 string.
-</span><span style="font-weight:bold;color:red;">Error code= 22.900
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père&quot;~text~startsWith(&quot;50C3&quot;x~text(&quot;byte&quot;))=   </span><span style="font-weight:bold;color:blue;">-- Encoding: cannot compare Byte not-ASCII 'P?' with UTF-8 not-ASCII 'Père'</span>
-<span style="font-weight:bold;color:red;">Encoding: cannot compare Byte not-ASCII 'P�' with UTF-8 not-ASCII 'Père'.
-</span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père&quot;~text~startsWith(&quot;50C3A8&quot;x)=              </span><span style="font-weight:bold;color:blue;">-- true</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père&quot;~text~startsWith(&quot;50C3&quot;x)=                </span><span style="font-weight:bold;color:blue;">-- false (not aligned)    (was Invalid UTF-8 string     (utf8proc error because &quot;50C3&quot;x is an invalid UTF-8 encoding))</span>
+ 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père&quot;~text~startsWith(&quot;50C3&quot;x~text(&quot;byte&quot;))=   </span><span style="font-weight:bold;color:blue;">-- false (not aligned)    (was Encoding: cannot compare Byte not-ASCII 'P?' with UTF-8 not-ASCII 'Père')</span>
+ 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père&quot;~text~startsWith(&quot;50C3A8&quot;x)=              </span><span style="font-weight:bold;color:blue;">-- true</span>
  1
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;éßﬄ&quot;~text~c2g=                                 </span><span style="font-weight:bold;color:blue;">-- 'C3A9 C39F EFAC84'</span>
@@ -1291,19 +1706,19 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">pB~startsWith('🎅XXXX'
  1
 ooRexx&gt; <span style="font-weight:bold;color:purple;">pT~startsWith('🎅XXXX'~text)=                       </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx&gt; <span style="font-weight:bold;color:purple;">pB~startsWith('F0'x || 'XXXX')=                     </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">pB~startsWith('F0'x || 'XXXX')=                     </span><span style="font-weight:bold;color:blue;">-- 1    (was Invalid UTF-8 string (raised by utf8proc) (was 1 before automatic conversion of string literals to text))</span>
  1
 ooRexx&gt; <span style="font-weight:bold;color:purple;">pT~startsWith('F0'x || 'XXXX'~text)=                </span><span style="font-weight:bold;color:blue;">-- Invalid UTF-8 string (raised by utf8proc)</span>
 <span style="font-weight:bold;color:red;">Invalid UTF-8 string.
 </span><span style="font-weight:bold;color:red;">Error code= 22.900
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">pT~startsWith('F0'x || 'XXXX')=                     </span><span style="font-weight:bold;color:blue;">-- 1 (not good)</span>
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">pT~startsWith('F0'x || 'XXXX')=                     </span><span style="font-weight:bold;color:blue;">-- 1    (was Invalid UTF-8 string (raised by utf8proc) (was 1 (not good) before automatic conversion of string literals to text))</span>
  1
-ooRexx&gt; <span style="font-weight:bold;color:purple;">pB~startsWith('9F'x || 'XXXX')=                     </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">pB~startsWith('9F'x || 'XXXX')=                     </span><span style="font-weight:bold;color:blue;">-- 1    (was Invalid UTF-8 string (raised by utf8proc) (was 1 before automatic conversion of string literals to text))</span>
  1
 ooRexx&gt; <span style="font-weight:bold;color:purple;">pT~startsWith('9F'x || 'XXXX'~text)=                </span><span style="font-weight:bold;color:blue;">-- Invalid UTF-8 string (raised by utf8proc)</span>
 <span style="font-weight:bold;color:red;">Invalid UTF-8 string.
 </span><span style="font-weight:bold;color:red;">Error code= 22.900
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">pT~startsWith('9F'x || 'XXXX')=                     </span><span style="font-weight:bold;color:blue;">-- 1 (not good)</span>
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">pT~startsWith('9F'x || 'XXXX')=                     </span><span style="font-weight:bold;color:blue;">-- 1    (was Invalid UTF-8 string (raised by utf8proc) (was 1 (not good) before automatic conversion of string literals to text))</span>
  1
 
 
@@ -1340,8 +1755,8 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;aa&quot
 <span style="font-weight:bold;color:blue;">-- zero or one occurrances of &quot;🎅&quot;
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">pB = .Pattern~compile(&quot;🎅?&quot;)</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">pT = .Pattern~compile(&quot;🎅?&quot;~text)</span>
-ooRexx&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;&quot;)=                                     </span><span style="font-weight:bold;color:blue;">-- 0 (KO)</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;&quot;)=                                     </span><span style="font-weight:bold;color:blue;">-- 1 (was 0 (KO) before automatic conversion of string literals to text)</span>
+ 1
 ooRexx&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;&quot;~text)=                                </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
 ooRexx&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;🎅&quot;)=                                   </span><span style="font-weight:bold;color:blue;">-- 1</span>
@@ -1378,8 +1793,8 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;🎅�
  0
 ooRexx&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;🎅🎅&quot;~text)=                            </span><span style="font-weight:bold;color:blue;">-- 0</span>
  0
-ooRexx&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;🎅🎅🎅&quot;)=                               </span><span style="font-weight:bold;color:blue;">-- 0    KO</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;🎅🎅🎅&quot;)=                               </span><span style="font-weight:bold;color:blue;">-- 1 (was 0    KO before automatic conversion of string literals to text)</span>
+ 1
 ooRexx&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;🎅🎅🎅&quot;~text)=                          </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
 ooRexx&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;🎅🎅🎅🎅&quot;)=                             </span><span style="font-weight:bold;color:blue;">-- 0</span>
@@ -1420,8 +1835,8 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;a🎅c&
  0
 ooRexx&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;a🎅c&quot;~text)=                            </span><span style="font-weight:bold;color:blue;">-- 0</span>
  0
-ooRexx&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;a🎅🎅c&quot;)=                               </span><span style="font-weight:bold;color:blue;">-- 0 (KO)</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;a🎅🎅c&quot;)=                               </span><span style="font-weight:bold;color:blue;">-- 1 (was 0 (KO) before automatic conversion of string literals to text)</span>
+ 1
 ooRexx&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;a🎅🎅c&quot;~text)=                          </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
 ooRexx&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;a🎅🎅🎅c&quot;)=                             </span><span style="font-weight:bold;color:blue;">-- 0</span>
@@ -1507,12 +1922,12 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">pB~startsWith(&quot;🎅
 ooRexx&gt; <span style="font-weight:bold;color:purple;">pT~startsWith(&quot;🎅🤶c&quot;~text)=                        </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
 ooRexx&gt; <span style="font-weight:bold;color:purple;">r = pB~find(&quot;xxx🤶🎅cxxx&quot;)</span>
-ooRexx&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r~text=; r~length=</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r~text=; r~length=    </span><span style="font-weight:bold;color:blue;">-- now ok (r~end was 8 and r~length was 4 before automatic conversion of string literals to text)</span>
  1
  4
- 8
-'🤶'
- 4
+ 5
+T'🤶'
+ 1
 ooRexx&gt; <span style="font-weight:bold;color:purple;">r = pT~find(&quot;xxx🤶🎅cxxx&quot;~text)</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r~text=; r~length=</span>
  1
@@ -1521,12 +1936,12 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~
 T'🤶'
  1
 ooRexx&gt; <span style="font-weight:bold;color:purple;">r = pB~find(&quot;xxx🎅🤶cxxx&quot;)</span>
-ooRexx&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r~text=; r~length=</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r~text=; r~length=    </span><span style="font-weight:bold;color:blue;">-- now ok (r~end was 8 and r~length was 4 before automatic conversion of string literals to text)</span>
  1
  4
- 8
-'🎅'
- 4
+ 5
+T'🎅'
+ 1
 ooRexx&gt; <span style="font-weight:bold;color:purple;">r = pT~find(&quot;xxx🎅🤶cxxx&quot;~text)</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r~text=; r~length=</span>
  1
@@ -2889,104 +3304,104 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;PERE NOËL&quo
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">                                                            </span><span style="font-weight:bold;color:blue;">--      self needle</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;l&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- 9    NFC, NFC</span>
  9
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- 11   NFC, NFC</span>
- 11
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- 9    NFC, NFC    (was 11 before automatic conversion of string literals to text)</span>
+ 9
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;l&quot;, , 8)=               </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFC</span>
  0
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;, , 10)=              </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFC</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;, , 10)=              </span><span style="font-weight:bold;color:blue;">-- 9    NFC, NFC    (was 0 before automatic conversion of string literals to text)</span>
+ 9
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;l&quot;, , 9)=               </span><span style="font-weight:bold;color:blue;">-- 9    NFC, NFC</span>
  9
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;, , 11)=              </span><span style="font-weight:bold;color:blue;">-- 11   NFC, NFC</span>
- 11
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;, , 11)=              </span><span style="font-weight:bold;color:blue;">-- 9    NFC, NFC    (was 11 before automatic conversion of string literals to text)</span>
+ 9
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;l&quot;, 10)=                </span><span style="font-weight:bold;color:blue;">-- 19   NFC, NFC</span>
  19
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;, 12)=                </span><span style="font-weight:bold;color:blue;">-- 23   NFC, NFC</span>
- 23
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;, 12)=                </span><span style="font-weight:bold;color:blue;">-- 19   NFC, NFC    (was 23 before automatic conversion of string literals to text)</span>
+ 19
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;l&quot;, 10, 9)=             </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFC</span>
  0
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;, 12, 11)=            </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFC</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;, 12, 11)=            </span><span style="font-weight:bold;color:blue;">-- 19   NFC, NFC    (was 0 before automatic conversion of string literals to text)</span>
+ 19
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;l&quot;, 10, 10)=            </span><span style="font-weight:bold;color:blue;">-- 19   NFC, NFC</span>
  19
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;, 12, 12)=            </span><span style="font-weight:bold;color:blue;">-- 23   NFC, NFC</span>
- 23
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;, 12, 12)=            </span><span style="font-weight:bold;color:blue;">-- 19   NFC, NFC    (was 23 before automatic conversion of string literals to text)</span>
+ 19
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    </span><span style="font-weight:bold;color:blue;">---</span>
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;l&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- 9    NFD, NFC</span>
  9
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- 13   NFD, NFC</span>
- 13
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- 9    NFD, NFC    (was 13 before automatic conversion of string literals to text)</span>
+ 9
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;l&quot;, , 8)=               </span><span style="font-weight:bold;color:blue;">-- 0    NFD, NFC</span>
  0
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;, , 12)=              </span><span style="font-weight:bold;color:blue;">-- 0    NFD, NFC</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;, , 12)=              </span><span style="font-weight:bold;color:blue;">-- 9    NFD, NFC    (was 0 before automatic conversion of string literals to text)</span>
+ 9
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;l&quot;, , 9)=               </span><span style="font-weight:bold;color:blue;">-- 9    NFD, NFC</span>
  9
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;, , 13)=              </span><span style="font-weight:bold;color:blue;">-- 13   NFD, NFC</span>
- 13
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;, , 13)=              </span><span style="font-weight:bold;color:blue;">-- 9    NFD, NFC    (was 13 before automatic conversion of string literals to text)</span>
+ 9
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;l&quot;, 10)=                </span><span style="font-weight:bold;color:blue;">-- 19   NFD, NFC</span>
  19
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;, 14)=                </span><span style="font-weight:bold;color:blue;">-- 27   NFD, NFC</span>
- 27
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;, 14)=                </span><span style="font-weight:bold;color:blue;">-- 19   NFD, NFC    (was 27 before automatic conversion of string literals to text)</span>
+ 19
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;l&quot;, 10, 9)=             </span><span style="font-weight:bold;color:blue;">-- 0    NFD, NFC</span>
  0
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;, 14, 13)=            </span><span style="font-weight:bold;color:blue;">-- 0    NFD, NFC</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;, 14, 13)=            </span><span style="font-weight:bold;color:blue;">-- 19   NFD, NFC    (was 0 before automatic conversion of string literals to text)</span>
+ 19
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;l&quot;, 10, 10)=            </span><span style="font-weight:bold;color:blue;">-- 19   NFD, NFC</span>
  19
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;, 14, 14)=            </span><span style="font-weight:bold;color:blue;">-- 27   NFD, NFC</span>
- 27
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;l&quot;, 14, 14)=            </span><span style="font-weight:bold;color:blue;">-- 19   NFD, NFC    (was 27 before automatic conversion of string literals to text)</span>
+ 19
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    </span><span style="font-weight:bold;color:blue;">---</span>
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;oë&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 7    NFC, NFC</span>
  7
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 8    NFC, NFC</span>
- 8
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 7    NFC, NFC    (was 8 before automatic conversion of string literals to text)</span>
+ 7
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;oë&quot;, , 7)=              </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFC</span>
  0
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;, , 9)=              </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFC</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;, , 9)=              </span><span style="font-weight:bold;color:blue;">-- 7    NFC, NFC    (was 0 before automatic conversion of string literals to text)</span>
+ 7
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;oë&quot;, , 8)=              </span><span style="font-weight:bold;color:blue;">-- 7    NFC, NFC</span>
  7
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;, , 10)=             </span><span style="font-weight:bold;color:blue;">-- 8    NFC, NFC</span>
- 8
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;, , 10)=             </span><span style="font-weight:bold;color:blue;">-- 7    NFC, NFC    (was 8 before automatic conversion of string literals to text)</span>
+ 7
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;oë&quot;, 8)=                </span><span style="font-weight:bold;color:blue;">-- 17   NFC, NFC</span>
  17
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;, 9)=                </span><span style="font-weight:bold;color:blue;">-- 20   NFC, NFC</span>
- 20
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;, 9)=                </span><span style="font-weight:bold;color:blue;">-- 17   NFC, NFC    (was 20 before automatic conversion of string literals to text)</span>
+ 17
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;oë&quot;, 8, 10)=            </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFC</span>
  0
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;, 9, 13)=            </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFC</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;, 9, 13)=            </span><span style="font-weight:bold;color:blue;">-- 17   NFC, NFC    (was 0 before automatic conversion of string literals to text)</span>
+ 17
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;oë&quot;, 8, 11)=            </span><span style="font-weight:bold;color:blue;">-- 17   NFC, NFC</span>
  17
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;, 9, 14)=            </span><span style="font-weight:bold;color:blue;">-- 20   NFC, NFC</span>
- 20
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;, 9, 14)=            </span><span style="font-weight:bold;color:blue;">-- 17   NFC, NFC    (was 20 before automatic conversion of string literals to text)</span>
+ 17
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    </span><span style="font-weight:bold;color:blue;">---</span>
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;oë&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 7    NFD, NFC</span>
  7
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 0    NFD, NFC    always 0, no need to test all the combinations</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 7    NFD, NFC    (was &quot;always 0, no need to test all the combinations&quot; before automatic conversion of string literals to text)</span>
+ 7
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;oë&quot;, , 7)=              </span><span style="font-weight:bold;color:blue;">-- 0    NFD, NFC</span>
  0
@@ -3007,8 +3422,8 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">    </span><span style="
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;oë&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 7    NFC, NFD</span>
  7
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFD   always 0, no need to test all the combinations</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 7    NFC, NFD    (was &quot;always 0, no need to test all the combinations&quot; before automatic conversion of string literals to text)</span>
+ 7
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;oë&quot;, , 7)=              </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFD</span>
  0
@@ -3029,33 +3444,33 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">    </span><span style="
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;oë&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 7    NFD, NFD</span>
  7
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 9    NFD, NFD</span>
- 9
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 7    NFD, NFD    (was 9 before automatic conversion of string literals to text)</span>
+ 7
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;oë&quot;, , 7)=              </span><span style="font-weight:bold;color:blue;">-- 0    NFD, NFD</span>
  0
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;, , 11)=             </span><span style="font-weight:bold;color:blue;">-- 0    NFD, NFD</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;, , 11)=             </span><span style="font-weight:bold;color:blue;">-- 7    NFD, NFD    (was 0 before automatic conversion of string literals to text)</span>
+ 7
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;oë&quot;, , 8)=              </span><span style="font-weight:bold;color:blue;">-- 7    NFD, NFD</span>
  7
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;, , 12)=             </span><span style="font-weight:bold;color:blue;">-- 9    NFD, NFD</span>
- 9
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;, , 12)=             </span><span style="font-weight:bold;color:blue;">-- 7    NFD, NFD    (was 9 before automatic conversion of string literals to text)</span>
+ 7
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;oë&quot;, 8)=                </span><span style="font-weight:bold;color:blue;">-- 17   NFD, NFD</span>
  17
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;, 10)=               </span><span style="font-weight:bold;color:blue;">-- 23   NFD, NFD</span>
- 23
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;, 10)=               </span><span style="font-weight:bold;color:blue;">-- 17   NFD, NFD    (was 23 before automatic conversion of string literals to text)</span>
+ 17
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;oë&quot;, 8, 10)=            </span><span style="font-weight:bold;color:blue;">-- 0    NFD, NFD</span>
  0
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;, 10, 16)=           </span><span style="font-weight:bold;color:blue;">-- 0    NFD, NFD</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;, 10, 16)=           </span><span style="font-weight:bold;color:blue;">-- 17   NFD, NFD    (was 0 before automatic conversion of string literals to text)</span>
+ 17
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~pos(&quot;oë&quot;, 8, 11)=            </span><span style="font-weight:bold;color:blue;">-- 17   NFD, NFD</span>
  17
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;, 10, 17)=           </span><span style="font-weight:bold;color:blue;">-- 23   NFD, NFD</span>
- 23
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~pos(&quot;oë&quot;, 10, 17)=           </span><span style="font-weight:bold;color:blue;">-- 17   NFD, NFD    (was 23 before automatic conversion of string literals to text)</span>
+ 17
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    </span><span style="font-weight:bold;color:blue;">---</span>
 
@@ -3085,104 +3500,104 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">    </span><span style="
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;L&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- 9    NFC, NFC</span>
  9
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- 11   NFC, NFC</span>
- 11
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- 9    NFC, NFC    (was 11 before automatic conversion of string literals to text)</span>
+ 9
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;L&quot;, , 8)=               </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFC</span>
  0
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;, , 10)=              </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFC</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;, , 10)=              </span><span style="font-weight:bold;color:blue;">-- 9    NFC, NFC    (was 0 before automatic conversion of string literals to text)</span>
+ 9
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;L&quot;, , 9)=               </span><span style="font-weight:bold;color:blue;">-- 9    NFC, NFC</span>
  9
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;, , 11)=              </span><span style="font-weight:bold;color:blue;">-- 11   NFC, NFC</span>
- 11
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;, , 11)=              </span><span style="font-weight:bold;color:blue;">-- 9    NFC, NFC    (was 11 before automatic conversion of string literals to text)</span>
+ 9
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;L&quot;, 10)=                </span><span style="font-weight:bold;color:blue;">-- 19   NFC, NFC</span>
  19
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;, 12)=                </span><span style="font-weight:bold;color:blue;">-- 23   NFC, NFC</span>
- 23
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;, 12)=                </span><span style="font-weight:bold;color:blue;">-- 19   NFC, NFC    (was 23 before automatic conversion of string literals to text)</span>
+ 19
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;L&quot;, 10, 9)=             </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFC</span>
  0
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;, 12, 11)=            </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFC</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;, 12, 11)=            </span><span style="font-weight:bold;color:blue;">-- 19   NFC, NFC    (was 0 before automatic conversion of string literals to text)</span>
+ 19
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;L&quot;, 10, 10)=            </span><span style="font-weight:bold;color:blue;">-- 19   NFC, NFC</span>
  19
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;, 12, 12)=            </span><span style="font-weight:bold;color:blue;">-- 23   NFC, NFC</span>
- 23
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;, 12, 12)=            </span><span style="font-weight:bold;color:blue;">-- 19   NFC, NFC    (was 23 before automatic conversion of string literals to text)</span>
+ 19
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    </span><span style="font-weight:bold;color:blue;">---</span>
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;L&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- 9    NFD, NFC</span>
  9
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- 13   NFD, NFC</span>
- 13
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- 9    NFD, NFC    (was 13 before automatic conversion of string literals to text)</span>
+ 9
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;L&quot;, , 8)=               </span><span style="font-weight:bold;color:blue;">-- 0    NFD, NFC</span>
  0
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;, , 12)=              </span><span style="font-weight:bold;color:blue;">-- 0    NFD, NFC</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;, , 12)=              </span><span style="font-weight:bold;color:blue;">-- 9    NFD, NFC    (was 0 before automatic conversion of string literals to text)</span>
+ 9
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;L&quot;, , 9)=               </span><span style="font-weight:bold;color:blue;">-- 9    NFD, NFC</span>
  9
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;, , 13)=              </span><span style="font-weight:bold;color:blue;">-- 13   NFD, NFC</span>
- 13
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;, , 13)=              </span><span style="font-weight:bold;color:blue;">-- 9    NFD, NFC    (was 13 before automatic conversion of string literals to text)</span>
+ 9
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;L&quot;, 10)=                </span><span style="font-weight:bold;color:blue;">-- 19   NFD, NFC</span>
  19
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;, 14)=                </span><span style="font-weight:bold;color:blue;">-- 27   NFD, NFC</span>
- 27
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;, 14)=                </span><span style="font-weight:bold;color:blue;">-- 19   NFD, NFC    (was 27 before automatic conversion of string literals to text)</span>
+ 19
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;L&quot;, 10, 9)=             </span><span style="font-weight:bold;color:blue;">-- 0    NFD, NFC</span>
  0
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;, 14, 13)=            </span><span style="font-weight:bold;color:blue;">-- 0    NFD, NFC</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;, 14, 13)=            </span><span style="font-weight:bold;color:blue;">-- 19   NFD, NFC    (was 0 before automatic conversion of string literals to text)</span>
+ 19
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;L&quot;, 10, 10)=            </span><span style="font-weight:bold;color:blue;">-- 19   NFD, NFC</span>
  19
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;, 14, 14)=            </span><span style="font-weight:bold;color:blue;">-- 27   NFD, NFC</span>
- 27
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;L&quot;, 14, 14)=            </span><span style="font-weight:bold;color:blue;">-- 19   NFD, NFC    (was 27 before automatic conversion of string literals to text)</span>
+ 19
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    </span><span style="font-weight:bold;color:blue;">---</span>
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;OË&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 7    NFC, NFC</span>
  7
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFC    yes, 0, not 8 because &quot;OË&quot;~lower=='oË'</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 7    NFC, NFC    (was &quot;yes, 0, not 8 because &quot;OË&quot;~lower=='oË'&quot; before automatic conversion of string literals to text)</span>
+ 7
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;OË&quot;, , 7)=              </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFC</span>
  0
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;, , 9)=              </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFC</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;, , 9)=              </span><span style="font-weight:bold;color:blue;">-- 7    NFC, NFC    (was 0 before automatic conversion of string literals to text)</span>
+ 7
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;OË&quot;, , 8)=              </span><span style="font-weight:bold;color:blue;">-- 7    NFC, NFC</span>
  7
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;, , 10)=             </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFC    yes, 0, not 8 because &quot;OË&quot;~lower=='oË'</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;, , 10)=             </span><span style="font-weight:bold;color:blue;">-- 7    NFC, NFC    (was &quot;yes, 0, not 8 because &quot;OË&quot;~lower=='oË'&quot; before automatic conversion of string literals to text)</span>
+ 7
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;OË&quot;, 8)=                </span><span style="font-weight:bold;color:blue;">-- 17   NFC, NFC</span>
  17
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;, 9)=                </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFC    yes, 0, not 20 because &quot;OË&quot;~lower=='oË'</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;, 9)=                </span><span style="font-weight:bold;color:blue;">-- 17   NFC, NFC    (was &quot;yes, 0, not 20 because &quot;OË&quot;~lower=='oË'&quot; before automatic conversion of string literals to text)</span>
+ 17
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;OË&quot;, 8, 10)=            </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFC</span>
  0
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;, 9, 13)=            </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFC</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;, 9, 13)=            </span><span style="font-weight:bold;color:blue;">-- 17   NFC, NFC    (was 0 before automatic conversion of string literals to text)</span>
+ 17
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;OË&quot;, 8, 11)=            </span><span style="font-weight:bold;color:blue;">-- 17   NFC, NFC</span>
  17
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;, 9, 14)=            </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFC    yes, 0, not 20 because &quot;OË&quot;~lower=='oË'</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;, 9, 14)=            </span><span style="font-weight:bold;color:blue;">-- 17   NFC, NFC    (was &quot;yes, 0, not 20 because &quot;OË&quot;~lower=='oË'&quot; before automatic conversion of string literals to text)</span>
+ 17
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    </span><span style="font-weight:bold;color:blue;">---</span>
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;OË&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 7    NFD, NFC</span>
  7
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 0    NFD, NFC    always 0, no need to test all the combinations</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 7    NFD, NFC    (was &quot;always 0, no need to test all the combinations&quot; before automatic conversion of string literals to text)</span>
+ 7
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;OË&quot;, , 7)=              </span><span style="font-weight:bold;color:blue;">-- 0    NFD, NFC</span>
  0
@@ -3203,8 +3618,8 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">    </span><span style="
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;OË&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 7    NFC, NFD</span>
  7
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFD   always 0, no need to test all the combinations</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 7    NFC, NFD   (was &quot;always 0, no need to test all the combinations&quot; before automatic conversion of string literals to text)</span>
+ 7
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;OË&quot;, , 7)=              </span><span style="font-weight:bold;color:blue;">-- 0    NFC, NFD</span>
  0
@@ -3225,33 +3640,33 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">    </span><span style="
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;OË&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 7    NFD, NFD</span>
  7
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 9    NFD, NFD   yes, 9 (it works...) because the NFD representation isolate the accent: &quot;oë&quot;~c2x=='6F65CC88',  &quot;OË&quot;~lower~c2x=='6F65CC88'</span>
- 9
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 7    NFD, NFD   (was &quot;yes, 9 (it works...) because the NFD representation isolate the accent: &quot;oë&quot;~c2x=='6F65CC88',  &quot;OË&quot;~lower~c2x=='6F65CC88'&quot; before automatic conversion of string literals to text)</span>
+ 7
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;OË&quot;, , 7)=              </span><span style="font-weight:bold;color:blue;">-- 0    NFD, NFD</span>
  0
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;, , 11)=             </span><span style="font-weight:bold;color:blue;">-- 0    NFD, NFD</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;, , 11)=             </span><span style="font-weight:bold;color:blue;">-- 7    NFD, NFD   (was 0 before automatic conversion of string literals to text)</span>
+ 7
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;OË&quot;, , 8)=              </span><span style="font-weight:bold;color:blue;">-- 7    NFD, NFD</span>
  7
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;, , 12)=             </span><span style="font-weight:bold;color:blue;">-- 9    NFD, NFD   yes, 9 (it works thanks to the NFD), see previous comment</span>
- 9
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;, , 12)=             </span><span style="font-weight:bold;color:blue;">-- 7    NFD, NFD   (was &quot;yes, 9 (it works thanks to the NFD), see previous comment&quot; before automatic conversion of string literals to text)</span>
+ 7
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;OË&quot;, 8)=                </span><span style="font-weight:bold;color:blue;">-- 17   NFD, NFD</span>
  17
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;, 10)=               </span><span style="font-weight:bold;color:blue;">-- 23   NFD, NFD   yes, 23 (it works thanks to the NFD), see previous comment</span>
- 23
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;, 10)=               </span><span style="font-weight:bold;color:blue;">-- 17   NFD, NFD   (was &quot;yes, 23 (it works thanks to the NFD), see previous comment&quot; before automatic conversion of string literals to text)</span>
+ 17
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;OË&quot;, 8, 10)=            </span><span style="font-weight:bold;color:blue;">-- 0    NFD, NFD</span>
  0
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;, 10, 16)=           </span><span style="font-weight:bold;color:blue;">-- 0    NFD, NFD</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;, 10, 16)=           </span><span style="font-weight:bold;color:blue;">-- 17   NFD, NFD   (was 0 before automatic conversion of string literals to text)</span>
+ 17
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;~text~caselessPos(&quot;OË&quot;, 8, 11)=            </span><span style="font-weight:bold;color:blue;">-- 17   NFD, NFD</span>
  17
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;, 10, 17)=           </span><span style="font-weight:bold;color:blue;">-- 23   NFD, NFD   yes, 23 (it works thanks to the NFD), see previous comment</span>
- 23
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;Père Noël Père Noël&quot;     ~caselessPos(&quot;OË&quot;, 10, 17)=           </span><span style="font-weight:bold;color:blue;">-- 17   NFD, NFD   (was &quot;yes, 23 (it works thanks to the NFD), see previous comment&quot; before automatic conversion of string literals to text)</span>
+ 17
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    </span><span style="font-weight:bold;color:blue;">---</span>
 
@@ -3288,10 +3703,13 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">'50 8A 72 65 20 4E 6F 89
 '50 C3A8 72 65 20 4E 6F C3AB 6C'
 
 <span style="font-weight:bold;color:blue;">-- The replacementCharacter &quot;FF&quot;x is interpreted as a UTF-8 string (default encoding). &quot;FF&quot;x~text~c2u= -- 'U+FFFD'
-</span><span style="font-weight:bold;color:blue;">-- Hence the error &quot;The replacement character UTF-8 not-ASCII '[FF]' cannot be transcoded to ISO-8859-1.&quot;
+</span><span style="font-weight:bold;color:blue;">-- Was: Hence the error &quot;The replacement character UTF-8 not-ASCII '[FF]' cannot be transcoded to ISO-8859-1.&quot;
+</span><span style="font-weight:bold;color:blue;">-- Now: Invalid UTF-8 string (since automatic conversion of string literals to text)
+</span><span style="font-weight:bold;color:blue;">-- Now: Direct transcoding from 'Byte' to 'ISO-8859-1' is not supported (since the systematic absorption of The Byte_Encoding)
+</span><span style="font-weight:bold;color:blue;">-- TODO: test case to get the previous error message '...cannot be transcoded...'
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">text = &quot;Père Noël 🎅 10€&quot;~text; do encoding over .Byte_Encoding~subclasses~~append(.Byte_Encoding); say encoding~name~left(13)&quot;:&quot; text~transcodeTo(encoding, replacementCharacter:&quot;FF&quot;x)~c2x; end</span>
-<span style="font-weight:bold;color:red;">The replacement character UTF-8 not-ASCII '[FF]' cannot be transcoded to ISO-8859-1.
-</span><span style="font-weight:bold;color:red;">Error code= 93.900
+<span style="font-weight:bold;color:red;">Direct transcoding from 'Byte' to 'ISO-8859-1' is not supported.
+</span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span>
 <span style="font-weight:bold;color:blue;">-- Here, the replacementCharacter is interpreted as a byte string encoded in the target encoding
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">text = &quot;Père Noël 🎅 10€&quot;~text; do encoding over .Byte_Encoding~subclasses~~append(.Byte_Encoding); say encoding~name~left(13)&quot;:&quot; text~transcodeTo(encoding, replacementCharacter:&quot;FF&quot;x~text(encoding))~c2x; end</span>
@@ -3799,13 +4217,14 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;père Noël&qu
  0
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;père Noël&quot;~text~match(1, &quot;Noël&quot;)=          </span><span style="font-weight:bold;color:blue;">-- .false (grapheme indexes)</span>
  0
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;père Noël&quot;~match(7, &quot;Noël&quot;)=               </span><span style="font-weight:bold;color:blue;">-- .true (byte indexes)</span>
- 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;père Noël&quot;~match(7, &quot;Noël&quot;)=               </span><span style="font-weight:bold;color:blue;">-- .false (was &quot;.true (byte indexes)&quot; before automatic conversion of string literals to text)</span>
+ 0
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;père Noël&quot;~text~match(6, &quot;Noël&quot;)=          </span><span style="font-weight:bold;color:blue;">-- .true (grapheme indexes)</span>
  1
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;père Noël&quot;~match(11, &quot;Noël&quot;, 5)=           </span><span style="font-weight:bold;color:blue;">-- .true (byte indexes)</span>
- 1
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;père Noël&quot;~text~match(9, &quot;Noël&quot;, 4)=       </span><span style="font-weight:bold;color:blue;">-- .true (grapheme indexes)</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;père Noël&quot;~match(11, &quot;Noël&quot;, 5)=           </span><span style="font-weight:bold;color:blue;">-- Invalid position argument specified; found &quot;11&quot; (was &quot;.true (byte indexes)&quot; before automatic conversion of string literals to text)</span>
+<span style="font-weight:bold;color:red;">Invalid position argument specified; found &quot;11&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 93.924
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;père Noël&quot;~text~match(9, &quot;Noël&quot;, 4)=       </span><span style="font-weight:bold;color:blue;">-- .true (grapheme indexes)</span>
  1
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;père Noël&quot;~text~caselessMatch(1, &quot;NOËL&quot;)=  </span><span style="font-weight:bold;color:blue;">-- .false</span>
@@ -3835,8 +4254,8 @@ an Array (shape [5], 5 items)
  4 : ( &quot;u&quot;   U+0075 Ll 1 &quot;LATIN SMALL LETTER U&quot; )
  5 : ( &quot;̈&quot;    U+0308 Mn 0 &quot;COMBINING DIAERESIS&quot; )
 
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    nfcString~match(1, nfdString)=              </span><span style="font-weight:bold;color:blue;">-- 0 (because binary representation is different)</span>
- 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    nfcString~match(1, nfdString)=              </span><span style="font-weight:bold;color:blue;">-- 1    (was &quot;0 (because binary representation is different)&quot; before automatic conversion of string literals to text)</span>
+ 1
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    nfcText  ~match(1, nfdText)=                </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    nfdText  ~match(1, nfcText)=                </span><span style="font-weight:bold;color:blue;">-- 1</span>
@@ -3844,14 +4263,16 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">    nfdText  ~match(1, n
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    </span><span style="font-weight:bold;color:blue;">-- match with &quot;X&quot;</span>
 
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    nfcString~match(3, nfdString, 4, 1)=        </span><span style="font-weight:bold;color:blue;">-- 1 (byte indexes)</span>
- 1
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    nfcText  ~match(2, nfdText,   2, 1)=        </span><span style="font-weight:bold;color:blue;">-- 1 (grapheme indexes)</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    nfcString~match(3, nfdString, 4, 1)=        </span><span style="font-weight:bold;color:blue;">-- Invalid position argument specified; found &quot;4&quot;   (was &quot;1 (byte indexes)&quot; before automatic conversion of string literals to text)</span>
+<span style="font-weight:bold;color:red;">Invalid position argument specified; found &quot;4&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 93.924
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    nfcText  ~match(2, nfdText,   2, 1)=        </span><span style="font-weight:bold;color:blue;">-- 1 (grapheme indexes)</span>
  1
 
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    nfdString~match(4, nfcString, 3, 1)=        </span><span style="font-weight:bold;color:blue;">-- 1 (byte indexes)</span>
- 1
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    nfdText  ~match(2, nfcText,   2, 2)=        </span><span style="font-weight:bold;color:blue;">-- 1 (grapheme indexes)</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    nfdString~match(4, nfcString, 3, 1)=        </span><span style="font-weight:bold;color:blue;">-- Invalid position argument specified; found &quot;4&quot;   (was &quot;1 (byte indexes)&quot; before automatic conversion of string literals to text)</span>
+<span style="font-weight:bold;color:red;">Invalid position argument specified; found &quot;4&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 93.924
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    nfdText  ~match(2, nfcText,   2, 2)=        </span><span style="font-weight:bold;color:blue;">-- 1 (grapheme indexes)</span>
  1
 
 <span style="font-weight:bold;color:blue;">-- ===============================================================================
@@ -3958,8 +4379,8 @@ T'  noël👩‍👨‍👩‍👧🎅  '
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~center(10)~description=       </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (10 graphemes, 16 codepoints, 38 bytes, 0 error)'</span>
 'UTF-8 not-ASCII (10 characters, 16 codepoints, 38 bytes, 0 error)'
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    pad = &quot;═&quot;</span>
-ooRexx&gt; <span style="font-weight:bold;color:purple;">    pad~description=                                          </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)'</span>
-'UTF-8 not-ASCII by default (3 bytes)'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">    pad~description=                                          </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)' (was 'UTF-8 not-ASCII (1 grapheme, 1 codepoint, 3 bytes, 0 error)' before automatic conversion of string literals to text)</span>
+'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    pad~c2x=                                                  </span><span style="font-weight:bold;color:blue;">-- 'E29590'</span>
 'E29590'
 ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;noël👩‍👨‍👩‍👧🎅&quot;~text~center(10, pad)=              </span><span style="font-weight:bold;color:blue;">-- T'══noël👩‍👨‍👩‍👧🎅══'</span>
@@ -4699,13 +5120,13 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~r
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~reverse=        </span><span style="font-weight:bold;color:blue;">-- T'lëon'</span>
 T'lëon'
 
-<span style="font-weight:bold;color:blue;">-- Wrong reverse
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~c2x=             </span><span style="font-weight:bold;color:blue;">-- '6E6FC3AB6C'</span>
-'6E6FC3AB6C'
-ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~reverse~c2x=     </span><span style="font-weight:bold;color:blue;">-- '6CABC36F6E'</span>
-'6CABC36F6E'
-ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~reverse=         </span><span style="font-weight:bold;color:blue;">-- 'l??on'</span>
-'l��on'
+<span style="font-weight:bold;color:blue;">-- Correct reverse (was Wrong reverse before automatic conversion of string literals to text)
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~c2x=             </span><span style="font-weight:bold;color:blue;">-- '6E 6F C3AB 6C'</span>
+'6E 6F C3AB 6C'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~reverse~c2x=     </span><span style="font-weight:bold;color:blue;">-- '6C C3AB 6F 6E'</span>
+'6C C3AB 6F 6E'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~reverse=         </span><span style="font-weight:bold;color:blue;">-- T'lëon'</span>
+T'lëon'
 
 
 <span style="font-weight:bold;color:blue;">-- ===============================================================================
@@ -5929,7 +6350,7 @@ a Directory (12 items)
 'totalCharactersLoaded'              :  149813
 'totalIntervalCharacters'            :  105693
 'totalIntervalCharactersNotExpanded' :  105693
-'unckeckedConversionToString'        :  0
+'unckeckedConversionToString'        :  1
 'version'                            : '15.1.0'
 
 
@@ -7548,6 +7969,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;( ͡° ͜ʖ﻿ ͡�
 P.         'Byte_Encoding'                    : (byte_encoding.cls)
 P.         'CodePointSupplier'                : (stringIndexer.cls)
 .M         'EncodedMutableBuffer'             : (text.cls)
+.M         'EncodedPackage'                   : (text.cls)
 .M         'EncodedString'                    : (text.cls)
 P.         'Encoding'                         : (encoding.cls)
 P.         'IBM1252_Encoding'                 : (ibm-1252_encoding.cls)
@@ -7560,10 +7982,11 @@ P.         'RexxText'                         : (REXX)
 .M         'RexxTextInitializer'              : (text.cls)
 PM         'RexxTextMapper'                   : (functionals.cls)
 .M         'RexxTextOperators'                : (text.cls)
-.M         'RexxTextPrettyPrinter'            : (trace.cls)
+.M         'RexxTextPrettyPrinter'            : (notrace.cls)
 .M         'RexxTextStringInterface'          : (text.cls)
 P.         'RexxTextTransformer'              : (stringIndexer.cls)
 PM         'StringIndexer'                    : (stringIndexer.cls)
+.M         'StringRexxTextInterface'          : (text.cls)
 P.         'UTF16BE_Encoding'                 : (utf16_encoding.cls)
 P.         'UTF16LE_Encoding'                 : (utf16_encoding.cls)
 P.         'UTF32BE_Encoding'                 : (utf32_encoding.cls)
@@ -7584,7 +8007,7 @@ P.         'WINDOWS1252_Encoding'             : (windows-1252_encoding.cls)
 P.         'WTF16BE_Encoding'                 : (wtf16_encoding.cls)
 P.         'WTF16LE_Encoding'                 : (wtf16_encoding.cls)
 P.         'WTF8_Encoding'                    : (wtf8_encoding.cls)
-<span style="font-weight:bold;color:green;">[Info] 39 lines displayed
+<span style="font-weight:bold;color:green;">[Info] 41 lines displayed
 </span>
 <span style="font-weight:bold;color:blue;">-- ===============================================================================
 </span><span style="font-weight:bold;color:blue;">-- 2021 mar 24
@@ -7598,7 +8021,9 @@ P.         'WTF8_Encoding'                    : (wtf8_encoding.cls)
 </span><span style="font-weight:bold;color:blue;">
 </span><span style="font-weight:bold;color:blue;">Benchmark using a version where the flag isASCII is not stored:
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">big10m = &quot;0123456789&quot;~copies(1e6)</span>
+</span><span style="font-weight:bold;color:blue;">-- MUST declare the byte encoding as default encoding, otherwise &quot;é&quot; is converted to text and the concatenation is catastrophically long!
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">previousEncoding = .encoding~setDefaultEncoding(&quot;byte&quot;) </span><span style="font-weight:bold;color:blue;">-- backup and change to Byte</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">big10m = &quot;0123456789&quot;~copies(1e6)</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">s = big10m                              </span><span style="font-weight:bold;color:blue;">-- 10 millions of ASCII characters, must check all of them</span>
 <span style="font-weight:bold;color:blue;">-- do 1000; s~isASCIIold; end              -- 9.3s
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">do 1000; s~isASCII; end                 </span><span style="font-weight:bold;color:blue;">-- 6.2s</span>
@@ -7612,6 +8037,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">big5m = &quot;01234&quot
 ooRexx&gt; <span style="font-weight:bold;color:purple;">s = big5m || &quot;é&quot; || big5m               </span><span style="font-weight:bold;color:blue;">-- 1 non-ASCII character in the middle of 10 millions of ASCII characters</span>
 <span style="font-weight:bold;color:blue;">-- do 1000; s~isASCIIold; end              -- 4.7s
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">do 1000; s~isASCII; end                 </span><span style="font-weight:bold;color:blue;">-- 0.001s</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">.encoding~setDefaultEncoding(previousEncoding) </span><span style="font-weight:bold;color:blue;">-- restore</span>
 
 
 <span style="font-weight:bold;color:blue;">-- ===============================================================================
@@ -7624,13 +8050,13 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">s = big5m || &quot;é&qu
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">s = &quot;ça va ?&quot;</span>
-ooRexx&gt; <span style="font-weight:bold;color:purple;">s~length=                           </span><span style="font-weight:bold;color:blue;">-- 8</span>
- 8
-ooRexx&gt; <span style="font-weight:bold;color:purple;">s~eachC{item~c2x&quot; &quot;}=               </span><span style="font-weight:bold;color:blue;">-- ['C3 ','A7 ', 61 , 20 , 76 , 61 , 20 ,'3F ']</span>
-['C3 ','A7 ', 61 , 20 , 76 , 61 , 20 ,'3F ']
-ooRexx&gt; <span style="font-weight:bold;color:purple;">s~text~encoding=                    </span><span style="font-weight:bold;color:blue;">-- (The Byte_Encoding class)</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">s~length=                           </span><span style="font-weight:bold;color:blue;">-- 7 (was 8 before automatic conversion of string literals to text)</span>
+ 7
+ooRexx&gt; <span style="font-weight:bold;color:purple;">s~eachC{item~c2x&quot; &quot;}=               </span><span style="font-weight:bold;color:blue;">-- ['C3A7 ', 61 , 20 , 76 , 61 , 20 ,'3F ']     (was ['C3 ','A7 ', 61 , 20 , 76 , 61 , 20 ,'3F '] before automatic conversion of string literals to text)</span>
+['C3A7 ', 61 , 20 , 76 , 61 , 20 ,'3F ']
+ooRexx&gt; <span style="font-weight:bold;color:purple;">s~text~encoding=                    </span><span style="font-weight:bold;color:blue;">-- (The UTF8_Encoding class)</span>
 (The UTF8_Encoding class)
-ooRexx&gt; <span style="font-weight:bold;color:purple;">s~text~length=                      </span><span style="font-weight:bold;color:blue;">-- 8</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">s~text~length=                      </span><span style="font-weight:bold;color:blue;">-- 7</span>
  7
 ooRexx&gt; <span style="font-weight:bold;color:purple;">s~text(&quot;utf8&quot;)~length==             </span><span style="font-weight:bold;color:blue;">-- 7</span>
  7

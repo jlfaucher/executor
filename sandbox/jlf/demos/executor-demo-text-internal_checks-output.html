@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 16 Nov 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: Sec03Q6000007f8000
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Apr 2024
+</span><span style="font-weight:bold;color:green;">Input queue name: S76f2Q6000007c6be0
 </span>
 <span style="font-weight:bold;color:blue;">----------------------------------
 </span><span style="font-weight:bold;color:blue;">-- Text encoding - Internal checks
@@ -47,10 +47,9 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~text = .RexxText~n
 <span style="font-weight:bold;color:red;">EncodedString: the counterpart must be a RexxText linked to this String.
 </span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~text = .RexxText~new(s)                </span><span style="font-weight:bold;color:blue;">-- ok, the RexxText is linked to s, now can be assigned to s~text</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~text(&quot;byte&quot;) || &quot;è&quot;~text(&quot;utf8&quot;)=    </span><span style="font-weight:bold;color:blue;">-- Cannot concatenate Byte with UTF-8</span>
-<span style="font-weight:bold;color:red;">Encoding: cannot append UTF-8 not-ASCII 'è' to Byte not-ASCII 'é'.
-</span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~text(&quot;byte&quot;) || &quot;é&quot;~text(&quot;utf8&quot;)=    </span><span style="font-weight:bold;color:blue;">-- T'éé' encoded UTF-8</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~text(&quot;byte&quot;) || &quot;è&quot;~text(&quot;utf8&quot;)=    </span><span style="font-weight:bold;color:blue;">-- T'éè'   (was Cannot concatenate Byte with UTF-8)</span>
+T'éè'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~text(&quot;byte&quot;) || &quot;é&quot;~text(&quot;utf8&quot;)=    </span><span style="font-weight:bold;color:blue;">-- T'éé' encoded UTF-8</span>
 T'éé'
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">No error because the 2 occurences of the string &quot;é&quot; are the same interned string.

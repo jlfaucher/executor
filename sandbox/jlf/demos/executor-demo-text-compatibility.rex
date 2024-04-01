@@ -329,7 +329,7 @@ sleep no prompt
 sleep
 "noelFC"~text~center(10, "=")=; result~description=         -- forward to String
 sleep
-"═"~description=                                            -- 'UTF-8 not-ASCII (3 bytes)'
+"═"~description=                                            -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'   (was 'UTF-8 not-ASCII (3 bytes)')
 sleep
 "═"~text~description=                                       -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 sleep
@@ -607,12 +607,12 @@ sleep
 "noël"~text~reverse=        -- T'lëon'
 sleep no prompt
 
--- reverse (wrong)
+-- reverse (correct)    (was reverse (wrong) before automatic conversion of string literals to text)
 "noël"~c2x=             -- '6E6FC3AB6C'
 sleep
-"noël"~reverse~c2x=     -- '6CABC36F6E'
+"noël"~reverse~c2x=     -- '6C C3AB 6F 6E'  (was '6CABC36F6E' before automatic conversion of string literals to text)
 sleep
-"noël"~reverse=         -- 'l??on'
+"noël"~reverse=         -- T'lëon'
 sleep no prompt
 
 
@@ -637,7 +637,7 @@ sleep no prompt
 sleep
 "noel"~substr(3, 3, "▷")=; result~description=        -- self is a String: error because the pad character is 3 bytes
 sleep
-"noel"~substr(3, 3, "▷"~text)=; result~description=   -- self is a String: error because the pad character is not compatible with String
+"noel"~substr(3, 3, "▷"~text)=; result~description=   -- self is a String: error because the pad character is 3 bytes
 sleep
 "noel"~text~substr(3, 3, "▷")=; result~description=   -- no error because self is a RexxText and the pad character is one character when converted to the default encoding
 sleep
@@ -737,9 +737,9 @@ pB = .Pattern~compile("a.c")
 pT = .Pattern~compile("a.c"~text)
 pB~matches("abc")=                          -- 1
 pT~matches("abc"~text)=                     -- 1
-pB~matches("aôc")=                          -- 0 (KO)
+pB~matches("aôc")=                          -- 1    (was 0 (KO) before automatic conversion of string literals to text)
 pT~matches("aôc"~text)=                     -- 1
-pB~matches("a🎅c")=                         -- 0 (KO)
+pB~matches("a🎅c")=                         -- 1    (was 0 (KO) before automatic conversion of string literals to text)
 pT~matches("a🎅c"~text)=                    -- 1
 sleep no prompt
 
@@ -747,9 +747,9 @@ pB = .Pattern~compile("🤶...🎅")
 pT = .Pattern~compile("🤶...🎅"~text)
 pB~matches("🤶123🎅")=                      -- 1
 pT~matches("🤶123🎅"~text)=                 -- 1
-pB~matches("🤶🐕2🐈🎅")=                    -- 0 (KO)
+pB~matches("🤶🐕2🐈🎅")=                    -- 1    (was 0 (KO) before automatic conversion of string literals to text)
 pT~matches("🤶🐕2🐈🎅"~text)=               -- 1
-pB~matches("🤶🐕👩‍👨‍👩‍👧🐈🎅")=          -- 0 (KO)
+pB~matches("🤶🐕👩‍👨‍👩‍👧🐈🎅")=          -- 1    (was 0 (KO) before automatic conversion of string literals to text)
 pT~matches("🤶🐕👩‍👨‍👩‍👧🐈🎅"~text)=     -- 1
 sleep no prompt
 
@@ -761,11 +761,11 @@ pT~startsWith("🤶🎅c"~text)=                        -- 1
 pB~startsWith("🎅🤶c")=                             -- 1
 pT~startsWith("🎅🤶c"~text)=                        -- 1
 r = pB~find("xxx🤶🎅cxxx")
-r~matched=; r~start=; r~end=; r~text=; r~length=
+r~matched=; r~start=; r~end=; r~text=; r~length=    -- now ok (r~end was 8 and r~length was 4 before automatic conversion of string literals to text)
 r = pT~find("xxx🤶🎅cxxx"~text)
 r~matched=; r~start=; r~end=; r~text=; r~length=
 r = pB~find("xxx🎅🤶cxxx")
-r~matched=; r~start=; r~end=; r~text=; r~length=
+r~matched=; r~start=; r~end=; r~text=; r~length=    -- now ok (r~end was 8 and r~length was 4 before automatic conversion of string literals to text)
 r = pT~find("xxx🎅🤶cxxx"~text)
 r~matched=; r~start=; r~end=; r~text=; r~length=
 sleep no prompt
@@ -791,7 +791,7 @@ The invariants of the method 'center' are true for the RexxText, but not true fo
 the String (which is normal).
 */
 
-"═"~description=                                -- 'UTF-8 not-ASCII (3 bytes)'
+"═"~description=                                -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'   (was 'UTF-8 not-ASCII (3 bytes)')
 sleep
 "═"~text~description=                           -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 sleep
@@ -834,7 +834,7 @@ sleep
 sleep
 length("Noël")=                                 -- TODO: 4 because "Noël"~text~length = 4
 sleep
-"Noël"~length=                                  -- 5 because String remains byte-oriented, not impacted by the default encoding
+"Noël"~length=                                  -- 4    (was "5 because String remains byte-oriented, not impacted by the default encoding" before automatic conversion of string literals to text)
 sleep no prompt
 
 -- UTF-16BE encoding
@@ -843,7 +843,7 @@ s=                                              -- '[00]A[00]B[00]C[00]D'
 sleep
 s~isCompatibleWithByteString=                   -- 1
 sleep
-s~description=                                  -- 'UTF-8 ASCII (8 bytes)'
+s~description=                                  -- 'Byte ASCII (8 bytes)'   (was 'UTF-8 ASCII (8 bytes)')
 sleep
 length(s)=                                      -- 8 because encoding UTF-8 ASCII is compatible with String
 s~encoding = "UTF16"
@@ -864,7 +864,7 @@ s=                                              -- '[000000]A[000000]B'
 sleep
 s~isCompatibleWithByteString=                   -- 1
 sleep
-s~description=                                  -- 'UTF-8 ASCII (8 bytes)'
+s~description=                                  -- 'Byte ASCII (8 bytes)'   (was 'UTF-8 ASCII (8 bytes)')
 sleep
 length(s)=                                      -- 8 because encoding UTF-8 ASCII is compatible with String
 s~encoding = "UTF32"

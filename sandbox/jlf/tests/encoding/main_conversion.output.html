@@ -31,9 +31,11 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 16 Nov 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S10837Q600000f58750
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Apr 2024
+</span><span style="font-weight:bold;color:green;">Input queue name: S796bQ6000007c6be0
 </span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">.context~package~encoding = &quot;byte&quot;</span>
+
 <span style="font-weight:bold;color:blue;">-- .Unicode~loadDerivedName(/*action*/ &quot;load&quot;)=    -- load all the Unicode characters
 </span><span style="font-weight:bold;color:blue;">-- .Unicode~loadNameAliases(/*action*/ &quot;load&quot;)=    -- load the name aliases
 </span>
@@ -1844,24 +1846,21 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_conversion.
     </span><span style="font-weight:bold;color:blue;">--------------------------------------------------------------------------------
     </span>
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~nfc(memorize:)=</span>
-<span style="font-weight:bold;color:red;">Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    </span><span style="font-weight:bold;color:red;">Error code= 93.965
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~nfd(memorize:)=</span>
-<span style="font-weight:bold;color:red;">Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    </span><span style="font-weight:bold;color:red;">Error code= 93.965
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~nfkc(memorize:)=</span>
-<span style="font-weight:bold;color:red;">Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    </span><span style="font-weight:bold;color:red;">Error code= 93.965
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~nfkd(memorize:)=</span>
-<span style="font-weight:bold;color:red;">Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    </span><span style="font-weight:bold;color:red;">Error code= 93.965
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~casefold(memorize:)=</span>
-<span style="font-weight:bold;color:red;">Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    </span><span style="font-weight:bold;color:red;">Error code= 93.965
-    </span>    <span style="font-weight:bold;color:blue;">-------------------------------------
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !&quot;#$%&amp;''()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~nfd(memorize:)=</span>
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !&quot;#$%&amp;''()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~nfkc(memorize:)=</span>
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !&quot;#$%&amp;''()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~nfkd(memorize:)=</span>
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !&quot;#$%&amp;''()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~casefold(memorize:)=</span>
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !&quot;#$%&amp;''()*+,-./0123456789:;&lt;=&gt;?@abcdefghijklmnopqrstuvwxyz[\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
+    <span style="font-weight:bold;color:blue;">-------------------------------------
     </span><span style="font-weight:bold;color:blue;">-- End of file include_conversion.rex
     </span><span style="font-weight:bold;color:blue;">-------------------------------------
     </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">call display_cache t</span>
+'[0000]'                            : Byte ASCII (128 characters, 128 codepoints, 128 bytes, 0 error)             '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !&quot;#$%&amp;''()*+,-./0123456789:;&lt;=&gt;? 
+'[0010]'                            : Byte ASCII (128 characters, 128 codepoints, 128 bytes, 0 error)             '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !&quot;#$%&amp;''()*+,-./0123456789:;&lt;=&gt;? 
 'UTF-16BE'                          : UTF-16BE (128 characters, 128 codepoints, 256 bytes, 0 error)               '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
 'UTF-16LE'                          : UTF-16LE (128 characters, 128 codepoints, 256 bytes, 0 error)               '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
 'UTF-32BE'                          : UTF-32BE (128 characters, 128 codepoints, 512 bytes, 0 error)               '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
@@ -3646,24 +3645,21 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_conversion.
     </span><span style="font-weight:bold;color:blue;">--------------------------------------------------------------------------------
     </span>
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~nfc(memorize:)=</span>
-<span style="font-weight:bold;color:red;">Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    </span><span style="font-weight:bold;color:red;">Error code= 93.965
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~nfd(memorize:)=</span>
-<span style="font-weight:bold;color:red;">Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    </span><span style="font-weight:bold;color:red;">Error code= 93.965
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~nfkc(memorize:)=</span>
-<span style="font-weight:bold;color:red;">Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    </span><span style="font-weight:bold;color:red;">Error code= 93.965
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~nfkd(memorize:)=</span>
-<span style="font-weight:bold;color:red;">Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    </span><span style="font-weight:bold;color:red;">Error code= 93.965
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~casefold(memorize:)=</span>
-<span style="font-weight:bold;color:red;">Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    </span><span style="font-weight:bold;color:red;">Error code= 93.965
-    </span>    <span style="font-weight:bold;color:blue;">-------------------------------------
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !&quot;#$%&amp;''()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~�������������������������������������������������������������������������������������������������������������������������������[FF]'
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~nfd(memorize:)=</span>
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !&quot;#$%&amp;''()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~�������������������������������������������������������������������������������������������������������������������������������[FF]'
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~nfkc(memorize:)=</span>
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !&quot;#$%&amp;''()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~�������������������������������������������������������������������������������������������������������������������������������[FF]'
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~nfkd(memorize:)=</span>
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !&quot;#$%&amp;''()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~�������������������������������������������������������������������������������������������������������������������������������[FF]'
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~casefold(memorize:)=</span>
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !&quot;#$%&amp;''()*+,-./0123456789:;&lt;=&gt;?@abcdefghijklmnopqrstuvwxyz[\]^_`abcdefghijklmnopqrstuvwxyz{|}~�������������������������������������������������������������������������������������������������������������������������������[FF]'
+    <span style="font-weight:bold;color:blue;">-------------------------------------
     </span><span style="font-weight:bold;color:blue;">-- End of file include_conversion.rex
     </span><span style="font-weight:bold;color:blue;">-------------------------------------
     </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">call display_cache t</span>
+'[0000]'                            : windows-1252 not-ASCII (256 characters, 256 codepoints, 256 bytes, 0 error) '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !&quot;#$%&amp;''()*+,-./0123456789:;&lt;=&gt;? 
+'[0010]'                            : windows-1252 not-ASCII (256 characters, 256 codepoints, 256 bytes, 0 error) '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !&quot;#$%&amp;''()*+,-./0123456789:;&lt;=&gt;? 
 'UTF-16BE'                          : UTF-16BE (256 characters, 256 codepoints, 512 bytes, 0 error)               '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
 'UTF-16LE'                          : UTF-16LE (256 characters, 256 codepoints, 512 bytes, 0 error)               '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
 'UTF-32BE'                          : UTF-32BE (256 characters, 256 codepoints, 1024 bytes, 0 error)              '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 
@@ -5430,24 +5426,21 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&lt; include_conversion.
     </span><span style="font-weight:bold;color:blue;">--------------------------------------------------------------------------------
     </span>
     ooRexx&gt; <span style="font-weight:bold;color:purple;">t~nfc(memorize:)=</span>
-<span style="font-weight:bold;color:red;">Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    </span><span style="font-weight:bold;color:red;">Error code= 93.965
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~nfd(memorize:)=</span>
-<span style="font-weight:bold;color:red;">Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    </span><span style="font-weight:bold;color:red;">Error code= 93.965
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~nfkc(memorize:)=</span>
-<span style="font-weight:bold;color:red;">Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    </span><span style="font-weight:bold;color:red;">Error code= 93.965
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~nfkd(memorize:)=</span>
-<span style="font-weight:bold;color:red;">Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    </span><span style="font-weight:bold;color:red;">Error code= 93.965
-    </span>    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~casefold(memorize:)=</span>
-<span style="font-weight:bold;color:red;">Method TRANSFORM is ABSTRACT and cannot be directly invoked.
-    </span><span style="font-weight:bold;color:red;">Error code= 93.965
-    </span>    <span style="font-weight:bold;color:blue;">-------------------------------------
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !&quot;#$%&amp;''()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~�������������������������������������������������������������������������������������������������������������������������������[FF]'
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~nfd(memorize:)=</span>
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !&quot;#$%&amp;''()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~�������������������������������������������������������������������������������������������������������������������������������[FF]'
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~nfkc(memorize:)=</span>
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !&quot;#$%&amp;''()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~�������������������������������������������������������������������������������������������������������������������������������[FF]'
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~nfkd(memorize:)=</span>
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !&quot;#$%&amp;''()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~�������������������������������������������������������������������������������������������������������������������������������[FF]'
+    ooRexx&gt; <span style="font-weight:bold;color:purple;">t~casefold(memorize:)=</span>
+    T'[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !&quot;#$%&amp;''()*+,-./0123456789:;&lt;=&gt;?@abcdefghijklmnopqrstuvwxyz[\]^_`abcdefghijklmnopqrstuvwxyz{|}~�������������������������������������������������������������������������������������������������������������������������������[FF]'
+    <span style="font-weight:bold;color:blue;">-------------------------------------
     </span><span style="font-weight:bold;color:blue;">-- End of file include_conversion.rex
     </span><span style="font-weight:bold;color:blue;">-------------------------------------
     </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">call display_cache t</span>
+'[0000]'                            : ISO-8859-1 not-ASCII (256 characters, 256 codepoints, 256 bytes, 0 error)   '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !&quot;#$%&amp;''()*+,-./0123456789:;&lt;=&gt;? 
+'[0010]'                            : ISO-8859-1 not-ASCII (256 characters, 256 codepoints, 256 bytes, 0 error)   '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !&quot;#$%&amp;''()*+,-./0123456789:;&lt;=&gt;? 
 'UTF-16BE'                          : UTF-16BE (256 characters, 256 codepoints, 512 bytes, 0 error)               '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
 'UTF-16LE'                          : UTF-16LE (256 characters, 256 codepoints, 512 bytes, 0 error)               '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
 'UTF-32BE'                          : UTF-32BE (256 characters, 256 codepoints, 1024 bytes, 0 error)              '[000000000000000100000002000000030000000400000005000000060000000700000008000000090000000A0000000B00 

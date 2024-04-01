@@ -543,7 +543,7 @@ indexB 260 --> indexC  257      ""x
 indexB 261 --> indexC  257      ""x
 
 --------------------------------------------------------------------------------
-text = xrange()~text("latin1")~utf8
+text = xrange()              ~text("latin1")~utf8
 --------------------------------------------------------------------------------
 
 text~description =
@@ -993,14 +993,14 @@ indexB  38 --> indexC    7      ""x
 indexB  39 --> indexC    7      ""x
 
 --------------------------------------------------------------------------------
-text = "äöüäöüx̂ϔﷺbaﬄe"~text("utf8")
+text = "äöü äöü x̂ ϔ ﷺ baﬄe"~text("utf8")
 --------------------------------------------------------------------------------
 
 text~description =
-UTF-8 not-ASCII (13 characters, 17 codepoints, 29 bytes, 0 error)
+UTF-8 not-ASCII (18 characters, 22 codepoints, 34 bytes, 0 error)
 
 text~c2g =
-"C3A4 C3B6 C3BC 61CC88 6FCC88 75CC88 78CC82 CF94 EFB7BA 62 61 EFAC84 65"x
+"C3A4 C3B6 C3BC 20 61CC88 6FCC88 75CC88 20 78CC82 20 CF94 20 EFB7BA 20 62 61 EFAC84 65"x
 
 indexB   1 --> indexC    1      "C3A4"x
 indexB   2 --> indexC   -1      "C3A4"x
@@ -1008,37 +1008,42 @@ indexB   3 --> indexC    2      "C3B6"x
 indexB   4 --> indexC   -2      "C3B6"x
 indexB   5 --> indexC    3      "C3BC"x
 indexB   6 --> indexC   -3      "C3BC"x
-indexB   7 --> indexC    4      "61 CC88"x
-indexB   8 --> indexC   -4      "61 CC88"x
-indexB   9 --> indexC   -4      "61 CC88"x
-indexB  10 --> indexC    5      "6F CC88"x
-indexB  11 --> indexC   -5      "6F CC88"x
-indexB  12 --> indexC   -5      "6F CC88"x
-indexB  13 --> indexC    6      "75 CC88"x
-indexB  14 --> indexC   -6      "75 CC88"x
-indexB  15 --> indexC   -6      "75 CC88"x
-indexB  16 --> indexC    7      "78 CC82"x
-indexB  17 --> indexC   -7      "78 CC82"x
-indexB  18 --> indexC   -7      "78 CC82"x
-indexB  19 --> indexC    8      "CF94"x
-indexB  20 --> indexC   -8      "CF94"x
-indexB  21 --> indexC    9      "EFB7BA"x
-indexB  22 --> indexC   -9      "EFB7BA"x
-indexB  23 --> indexC   -9      "EFB7BA"x
-indexB  24 --> indexC   10      "62"x
-indexB  25 --> indexC   11      "61"x
-indexB  26 --> indexC   12      "EFAC84"x
-indexB  27 --> indexC  -12      "EFAC84"x
-indexB  28 --> indexC  -12      "EFAC84"x
-indexB  29 --> indexC   13      "65"x
-indexB  30 --> indexC   14      ""x
-indexB  31 --> indexC   14      ""x
-indexB  32 --> indexC   14      ""x
-indexB  33 --> indexC   14      ""x
-indexB  34 --> indexC   14      ""x
+indexB   7 --> indexC    4      "20"x
+indexB   8 --> indexC    5      "61 CC88"x
+indexB   9 --> indexC   -5      "61 CC88"x
+indexB  10 --> indexC   -5      "61 CC88"x
+indexB  11 --> indexC    6      "6F CC88"x
+indexB  12 --> indexC   -6      "6F CC88"x
+indexB  13 --> indexC   -6      "6F CC88"x
+indexB  14 --> indexC    7      "75 CC88"x
+indexB  15 --> indexC   -7      "75 CC88"x
+indexB  16 --> indexC   -7      "75 CC88"x
+indexB  17 --> indexC    8      "20"x
+indexB  18 --> indexC    9      "78 CC82"x
+indexB  19 --> indexC   -9      "78 CC82"x
+indexB  20 --> indexC   -9      "78 CC82"x
+indexB  21 --> indexC   10      "20"x
+indexB  22 --> indexC   11      "CF94"x
+indexB  23 --> indexC  -11      "CF94"x
+indexB  24 --> indexC   12      "20"x
+indexB  25 --> indexC   13      "EFB7BA"x
+indexB  26 --> indexC  -13      "EFB7BA"x
+indexB  27 --> indexC  -13      "EFB7BA"x
+indexB  28 --> indexC   14      "20"x
+indexB  29 --> indexC   15      "62"x
+indexB  30 --> indexC   16      "61"x
+indexB  31 --> indexC   17      "EFAC84"x
+indexB  32 --> indexC  -17      "EFAC84"x
+indexB  33 --> indexC  -17      "EFAC84"x
+indexB  34 --> indexC   18      "65"x
+indexB  35 --> indexC   19      ""x
+indexB  36 --> indexC   19      ""x
+indexB  37 --> indexC   19      ""x
+indexB  38 --> indexC   19      ""x
+indexB  39 --> indexC   19      ""x
 
 --------------------------------------------------------------------------------
-text = xrange()~text("latin1")~wtf8
+text = xrange()              ~text("latin1")~wtf8
 --------------------------------------------------------------------------------
 
 text~description =
@@ -1488,14 +1493,14 @@ indexB  38 --> indexC    7      ""x
 indexB  39 --> indexC    7      ""x
 
 --------------------------------------------------------------------------------
-text = "äöüäöüx̂ϔﷺbaﬄe"~text("wtf8")
+text = "äöü äöü x̂ ϔ ﷺ baﬄe"~text("wtf8")
 --------------------------------------------------------------------------------
 
 text~description =
-WTF-8 not-ASCII (13 characters, 17 codepoints, 29 bytes, 0 error)
+WTF-8 not-ASCII (18 characters, 22 codepoints, 34 bytes, 0 error)
 
 text~c2g =
-"C3A4 C3B6 C3BC 61CC88 6FCC88 75CC88 78CC82 CF94 EFB7BA 62 61 EFAC84 65"x
+"C3A4 C3B6 C3BC 20 61CC88 6FCC88 75CC88 20 78CC82 20 CF94 20 EFB7BA 20 62 61 EFAC84 65"x
 
 indexB   1 --> indexC    1      "C3A4"x
 indexB   2 --> indexC   -1      "C3A4"x
@@ -1503,37 +1508,42 @@ indexB   3 --> indexC    2      "C3B6"x
 indexB   4 --> indexC   -2      "C3B6"x
 indexB   5 --> indexC    3      "C3BC"x
 indexB   6 --> indexC   -3      "C3BC"x
-indexB   7 --> indexC    4      "61 CC88"x
-indexB   8 --> indexC   -4      "61 CC88"x
-indexB   9 --> indexC   -4      "61 CC88"x
-indexB  10 --> indexC    5      "6F CC88"x
-indexB  11 --> indexC   -5      "6F CC88"x
-indexB  12 --> indexC   -5      "6F CC88"x
-indexB  13 --> indexC    6      "75 CC88"x
-indexB  14 --> indexC   -6      "75 CC88"x
-indexB  15 --> indexC   -6      "75 CC88"x
-indexB  16 --> indexC    7      "78 CC82"x
-indexB  17 --> indexC   -7      "78 CC82"x
-indexB  18 --> indexC   -7      "78 CC82"x
-indexB  19 --> indexC    8      "CF94"x
-indexB  20 --> indexC   -8      "CF94"x
-indexB  21 --> indexC    9      "EFB7BA"x
-indexB  22 --> indexC   -9      "EFB7BA"x
-indexB  23 --> indexC   -9      "EFB7BA"x
-indexB  24 --> indexC   10      "62"x
-indexB  25 --> indexC   11      "61"x
-indexB  26 --> indexC   12      "EFAC84"x
-indexB  27 --> indexC  -12      "EFAC84"x
-indexB  28 --> indexC  -12      "EFAC84"x
-indexB  29 --> indexC   13      "65"x
-indexB  30 --> indexC   14      ""x
-indexB  31 --> indexC   14      ""x
-indexB  32 --> indexC   14      ""x
-indexB  33 --> indexC   14      ""x
-indexB  34 --> indexC   14      ""x
+indexB   7 --> indexC    4      "20"x
+indexB   8 --> indexC    5      "61 CC88"x
+indexB   9 --> indexC   -5      "61 CC88"x
+indexB  10 --> indexC   -5      "61 CC88"x
+indexB  11 --> indexC    6      "6F CC88"x
+indexB  12 --> indexC   -6      "6F CC88"x
+indexB  13 --> indexC   -6      "6F CC88"x
+indexB  14 --> indexC    7      "75 CC88"x
+indexB  15 --> indexC   -7      "75 CC88"x
+indexB  16 --> indexC   -7      "75 CC88"x
+indexB  17 --> indexC    8      "20"x
+indexB  18 --> indexC    9      "78 CC82"x
+indexB  19 --> indexC   -9      "78 CC82"x
+indexB  20 --> indexC   -9      "78 CC82"x
+indexB  21 --> indexC   10      "20"x
+indexB  22 --> indexC   11      "CF94"x
+indexB  23 --> indexC  -11      "CF94"x
+indexB  24 --> indexC   12      "20"x
+indexB  25 --> indexC   13      "EFB7BA"x
+indexB  26 --> indexC  -13      "EFB7BA"x
+indexB  27 --> indexC  -13      "EFB7BA"x
+indexB  28 --> indexC   14      "20"x
+indexB  29 --> indexC   15      "62"x
+indexB  30 --> indexC   16      "61"x
+indexB  31 --> indexC   17      "EFAC84"x
+indexB  32 --> indexC  -17      "EFAC84"x
+indexB  33 --> indexC  -17      "EFAC84"x
+indexB  34 --> indexC   18      "65"x
+indexB  35 --> indexC   19      ""x
+indexB  36 --> indexC   19      ""x
+indexB  37 --> indexC   19      ""x
+indexB  38 --> indexC   19      ""x
+indexB  39 --> indexC   19      ""x
 
 --------------------------------------------------------------------------------
-text = xrange()~text("latin1")~utf16be
+text = xrange()              ~text("latin1")~utf16be
 --------------------------------------------------------------------------------
 
 text~description =
@@ -2061,7 +2071,7 @@ indexB 516 --> indexC  257      ""x
 indexB 517 --> indexC  257      ""x
 
 --------------------------------------------------------------------------------
-text = "noël👩‍👨‍👩‍👧🎅"~text("utf8")~utf16be
+text = "noël👩‍👨‍👩‍👧🎅"~text("utf8")  ~utf16be
 --------------------------------------------------------------------------------
 
 text~description =
@@ -2111,14 +2121,14 @@ indexB  38 --> indexC    7      ""x
 indexB  39 --> indexC    7      ""x
 
 --------------------------------------------------------------------------------
-text = "äöüäöüx̂ϔﷺbaﬄe"~text("utf8")~utf16be
+text = "äöü äöü x̂ ϔ ﷺ baﬄe"~text("utf8")  ~utf16be
 --------------------------------------------------------------------------------
 
 text~description =
-UTF-16BE (13 characters, 17 codepoints, 34 bytes, 0 error)
+UTF-16BE (18 characters, 22 codepoints, 44 bytes, 0 error)
 
 text~c2g =
-"00E4 00F6 00FC 00610308 006F0308 00750308 00780302 03D4 FDFA 0062 0061 FB04 0065"x
+"00E4 00F6 00FC 0020 00610308 006F0308 00750308 0020 00780302 0020 03D4 0020 FDFA 0020 0062 0061 FB04 0065"x
 
 indexB   1 --> indexC    1      "00E4"x
 indexB   2 --> indexC   -1      "00E4"x
@@ -2126,42 +2136,52 @@ indexB   3 --> indexC    2      "00F6"x
 indexB   4 --> indexC   -2      "00F6"x
 indexB   5 --> indexC    3      "00FC"x
 indexB   6 --> indexC   -3      "00FC"x
-indexB   7 --> indexC    4      "0061 0308"x
-indexB   8 --> indexC   -4      "0061 0308"x
-indexB   9 --> indexC   -4      "0061 0308"x
-indexB  10 --> indexC   -4      "0061 0308"x
-indexB  11 --> indexC    5      "006F 0308"x
-indexB  12 --> indexC   -5      "006F 0308"x
-indexB  13 --> indexC   -5      "006F 0308"x
-indexB  14 --> indexC   -5      "006F 0308"x
-indexB  15 --> indexC    6      "0075 0308"x
-indexB  16 --> indexC   -6      "0075 0308"x
-indexB  17 --> indexC   -6      "0075 0308"x
-indexB  18 --> indexC   -6      "0075 0308"x
-indexB  19 --> indexC    7      "0078 0302"x
-indexB  20 --> indexC   -7      "0078 0302"x
-indexB  21 --> indexC   -7      "0078 0302"x
-indexB  22 --> indexC   -7      "0078 0302"x
-indexB  23 --> indexC    8      "03D4"x
-indexB  24 --> indexC   -8      "03D4"x
-indexB  25 --> indexC    9      "FDFA"x
-indexB  26 --> indexC   -9      "FDFA"x
-indexB  27 --> indexC   10      "0062"x
-indexB  28 --> indexC  -10      "0062"x
-indexB  29 --> indexC   11      "0061"x
-indexB  30 --> indexC  -11      "0061"x
-indexB  31 --> indexC   12      "FB04"x
-indexB  32 --> indexC  -12      "FB04"x
-indexB  33 --> indexC   13      "0065"x
-indexB  34 --> indexC  -13      "0065"x
-indexB  35 --> indexC   14      ""x
-indexB  36 --> indexC   14      ""x
-indexB  37 --> indexC   14      ""x
-indexB  38 --> indexC   14      ""x
-indexB  39 --> indexC   14      ""x
+indexB   7 --> indexC    4      "0020"x
+indexB   8 --> indexC   -4      "0020"x
+indexB   9 --> indexC    5      "0061 0308"x
+indexB  10 --> indexC   -5      "0061 0308"x
+indexB  11 --> indexC   -5      "0061 0308"x
+indexB  12 --> indexC   -5      "0061 0308"x
+indexB  13 --> indexC    6      "006F 0308"x
+indexB  14 --> indexC   -6      "006F 0308"x
+indexB  15 --> indexC   -6      "006F 0308"x
+indexB  16 --> indexC   -6      "006F 0308"x
+indexB  17 --> indexC    7      "0075 0308"x
+indexB  18 --> indexC   -7      "0075 0308"x
+indexB  19 --> indexC   -7      "0075 0308"x
+indexB  20 --> indexC   -7      "0075 0308"x
+indexB  21 --> indexC    8      "0020"x
+indexB  22 --> indexC   -8      "0020"x
+indexB  23 --> indexC    9      "0078 0302"x
+indexB  24 --> indexC   -9      "0078 0302"x
+indexB  25 --> indexC   -9      "0078 0302"x
+indexB  26 --> indexC   -9      "0078 0302"x
+indexB  27 --> indexC   10      "0020"x
+indexB  28 --> indexC  -10      "0020"x
+indexB  29 --> indexC   11      "03D4"x
+indexB  30 --> indexC  -11      "03D4"x
+indexB  31 --> indexC   12      "0020"x
+indexB  32 --> indexC  -12      "0020"x
+indexB  33 --> indexC   13      "FDFA"x
+indexB  34 --> indexC  -13      "FDFA"x
+indexB  35 --> indexC   14      "0020"x
+indexB  36 --> indexC  -14      "0020"x
+indexB  37 --> indexC   15      "0062"x
+indexB  38 --> indexC  -15      "0062"x
+indexB  39 --> indexC   16      "0061"x
+indexB  40 --> indexC  -16      "0061"x
+indexB  41 --> indexC   17      "FB04"x
+indexB  42 --> indexC  -17      "FB04"x
+indexB  43 --> indexC   18      "0065"x
+indexB  44 --> indexC  -18      "0065"x
+indexB  45 --> indexC   19      ""x
+indexB  46 --> indexC   19      ""x
+indexB  47 --> indexC   19      ""x
+indexB  48 --> indexC   19      ""x
+indexB  49 --> indexC   19      ""x
 
 --------------------------------------------------------------------------------
-text = xrange()~text("latin1")~wtf16be
+text = xrange()              ~text("latin1")~wtf16be
 --------------------------------------------------------------------------------
 
 text~description =
@@ -2689,7 +2709,7 @@ indexB 516 --> indexC  257      ""x
 indexB 517 --> indexC  257      ""x
 
 --------------------------------------------------------------------------------
-text = "noël👩‍👨‍👩‍👧🎅"~text("utf8")~wtf16be
+text = "noël👩‍👨‍👩‍👧🎅"~text("utf8")  ~wtf16be
 --------------------------------------------------------------------------------
 
 text~description =
@@ -2739,14 +2759,14 @@ indexB  38 --> indexC    7      ""x
 indexB  39 --> indexC    7      ""x
 
 --------------------------------------------------------------------------------
-text = "äöüäöüx̂ϔﷺbaﬄe"~text("utf8")~wtf16be
+text = "äöü äöü x̂ ϔ ﷺ baﬄe"~text("utf8")  ~wtf16be
 --------------------------------------------------------------------------------
 
 text~description =
-WTF-16BE (13 characters, 17 codepoints, 34 bytes, 0 error)
+WTF-16BE (18 characters, 22 codepoints, 44 bytes, 0 error)
 
 text~c2g =
-"00E4 00F6 00FC 00610308 006F0308 00750308 00780302 03D4 FDFA 0062 0061 FB04 0065"x
+"00E4 00F6 00FC 0020 00610308 006F0308 00750308 0020 00780302 0020 03D4 0020 FDFA 0020 0062 0061 FB04 0065"x
 
 indexB   1 --> indexC    1      "00E4"x
 indexB   2 --> indexC   -1      "00E4"x
@@ -2754,42 +2774,52 @@ indexB   3 --> indexC    2      "00F6"x
 indexB   4 --> indexC   -2      "00F6"x
 indexB   5 --> indexC    3      "00FC"x
 indexB   6 --> indexC   -3      "00FC"x
-indexB   7 --> indexC    4      "0061 0308"x
-indexB   8 --> indexC   -4      "0061 0308"x
-indexB   9 --> indexC   -4      "0061 0308"x
-indexB  10 --> indexC   -4      "0061 0308"x
-indexB  11 --> indexC    5      "006F 0308"x
-indexB  12 --> indexC   -5      "006F 0308"x
-indexB  13 --> indexC   -5      "006F 0308"x
-indexB  14 --> indexC   -5      "006F 0308"x
-indexB  15 --> indexC    6      "0075 0308"x
-indexB  16 --> indexC   -6      "0075 0308"x
-indexB  17 --> indexC   -6      "0075 0308"x
-indexB  18 --> indexC   -6      "0075 0308"x
-indexB  19 --> indexC    7      "0078 0302"x
-indexB  20 --> indexC   -7      "0078 0302"x
-indexB  21 --> indexC   -7      "0078 0302"x
-indexB  22 --> indexC   -7      "0078 0302"x
-indexB  23 --> indexC    8      "03D4"x
-indexB  24 --> indexC   -8      "03D4"x
-indexB  25 --> indexC    9      "FDFA"x
-indexB  26 --> indexC   -9      "FDFA"x
-indexB  27 --> indexC   10      "0062"x
-indexB  28 --> indexC  -10      "0062"x
-indexB  29 --> indexC   11      "0061"x
-indexB  30 --> indexC  -11      "0061"x
-indexB  31 --> indexC   12      "FB04"x
-indexB  32 --> indexC  -12      "FB04"x
-indexB  33 --> indexC   13      "0065"x
-indexB  34 --> indexC  -13      "0065"x
-indexB  35 --> indexC   14      ""x
-indexB  36 --> indexC   14      ""x
-indexB  37 --> indexC   14      ""x
-indexB  38 --> indexC   14      ""x
-indexB  39 --> indexC   14      ""x
+indexB   7 --> indexC    4      "0020"x
+indexB   8 --> indexC   -4      "0020"x
+indexB   9 --> indexC    5      "0061 0308"x
+indexB  10 --> indexC   -5      "0061 0308"x
+indexB  11 --> indexC   -5      "0061 0308"x
+indexB  12 --> indexC   -5      "0061 0308"x
+indexB  13 --> indexC    6      "006F 0308"x
+indexB  14 --> indexC   -6      "006F 0308"x
+indexB  15 --> indexC   -6      "006F 0308"x
+indexB  16 --> indexC   -6      "006F 0308"x
+indexB  17 --> indexC    7      "0075 0308"x
+indexB  18 --> indexC   -7      "0075 0308"x
+indexB  19 --> indexC   -7      "0075 0308"x
+indexB  20 --> indexC   -7      "0075 0308"x
+indexB  21 --> indexC    8      "0020"x
+indexB  22 --> indexC   -8      "0020"x
+indexB  23 --> indexC    9      "0078 0302"x
+indexB  24 --> indexC   -9      "0078 0302"x
+indexB  25 --> indexC   -9      "0078 0302"x
+indexB  26 --> indexC   -9      "0078 0302"x
+indexB  27 --> indexC   10      "0020"x
+indexB  28 --> indexC  -10      "0020"x
+indexB  29 --> indexC   11      "03D4"x
+indexB  30 --> indexC  -11      "03D4"x
+indexB  31 --> indexC   12      "0020"x
+indexB  32 --> indexC  -12      "0020"x
+indexB  33 --> indexC   13      "FDFA"x
+indexB  34 --> indexC  -13      "FDFA"x
+indexB  35 --> indexC   14      "0020"x
+indexB  36 --> indexC  -14      "0020"x
+indexB  37 --> indexC   15      "0062"x
+indexB  38 --> indexC  -15      "0062"x
+indexB  39 --> indexC   16      "0061"x
+indexB  40 --> indexC  -16      "0061"x
+indexB  41 --> indexC   17      "FB04"x
+indexB  42 --> indexC  -17      "FB04"x
+indexB  43 --> indexC   18      "0065"x
+indexB  44 --> indexC  -18      "0065"x
+indexB  45 --> indexC   19      ""x
+indexB  46 --> indexC   19      ""x
+indexB  47 --> indexC   19      ""x
+indexB  48 --> indexC   19      ""x
+indexB  49 --> indexC   19      ""x
 
 --------------------------------------------------------------------------------
-text = xrange()~text("latin1")~utf16le
+text = xrange()              ~text("latin1")~utf16le
 --------------------------------------------------------------------------------
 
 text~description =
@@ -3317,7 +3347,7 @@ indexB 516 --> indexC  257      ""x
 indexB 517 --> indexC  257      ""x
 
 --------------------------------------------------------------------------------
-text = "noël👩‍👨‍👩‍👧🎅"~text("utf8")~utf16le
+text = "noël👩‍👨‍👩‍👧🎅"~text("utf8")  ~utf16le
 --------------------------------------------------------------------------------
 
 text~description =
@@ -3367,14 +3397,14 @@ indexB  38 --> indexC    7      ""x
 indexB  39 --> indexC    7      ""x
 
 --------------------------------------------------------------------------------
-text = "äöüäöüx̂ϔﷺbaﬄe"~text("utf8")~utf16le
+text = "äöü äöü x̂ ϔ ﷺ baﬄe"~text("utf8")  ~utf16le
 --------------------------------------------------------------------------------
 
 text~description =
-UTF-16LE (13 characters, 17 codepoints, 34 bytes, 0 error)
+UTF-16LE (18 characters, 22 codepoints, 44 bytes, 0 error)
 
 text~c2g =
-"E400 F600 FC00 61000803 6F000803 75000803 78000203 D403 FAFD 6200 6100 04FB 6500"x
+"E400 F600 FC00 2000 61000803 6F000803 75000803 2000 78000203 2000 D403 2000 FAFD 2000 6200 6100 04FB 6500"x
 
 indexB   1 --> indexC    1      "E400"x
 indexB   2 --> indexC   -1      "E400"x
@@ -3382,42 +3412,52 @@ indexB   3 --> indexC    2      "F600"x
 indexB   4 --> indexC   -2      "F600"x
 indexB   5 --> indexC    3      "FC00"x
 indexB   6 --> indexC   -3      "FC00"x
-indexB   7 --> indexC    4      "6100 0803"x
-indexB   8 --> indexC   -4      "6100 0803"x
-indexB   9 --> indexC   -4      "6100 0803"x
-indexB  10 --> indexC   -4      "6100 0803"x
-indexB  11 --> indexC    5      "6F00 0803"x
-indexB  12 --> indexC   -5      "6F00 0803"x
-indexB  13 --> indexC   -5      "6F00 0803"x
-indexB  14 --> indexC   -5      "6F00 0803"x
-indexB  15 --> indexC    6      "7500 0803"x
-indexB  16 --> indexC   -6      "7500 0803"x
-indexB  17 --> indexC   -6      "7500 0803"x
-indexB  18 --> indexC   -6      "7500 0803"x
-indexB  19 --> indexC    7      "7800 0203"x
-indexB  20 --> indexC   -7      "7800 0203"x
-indexB  21 --> indexC   -7      "7800 0203"x
-indexB  22 --> indexC   -7      "7800 0203"x
-indexB  23 --> indexC    8      "D403"x
-indexB  24 --> indexC   -8      "D403"x
-indexB  25 --> indexC    9      "FAFD"x
-indexB  26 --> indexC   -9      "FAFD"x
-indexB  27 --> indexC   10      "6200"x
-indexB  28 --> indexC  -10      "6200"x
-indexB  29 --> indexC   11      "6100"x
-indexB  30 --> indexC  -11      "6100"x
-indexB  31 --> indexC   12      "04FB"x
-indexB  32 --> indexC  -12      "04FB"x
-indexB  33 --> indexC   13      "6500"x
-indexB  34 --> indexC  -13      "6500"x
-indexB  35 --> indexC   14      ""x
-indexB  36 --> indexC   14      ""x
-indexB  37 --> indexC   14      ""x
-indexB  38 --> indexC   14      ""x
-indexB  39 --> indexC   14      ""x
+indexB   7 --> indexC    4      "2000"x
+indexB   8 --> indexC   -4      "2000"x
+indexB   9 --> indexC    5      "6100 0803"x
+indexB  10 --> indexC   -5      "6100 0803"x
+indexB  11 --> indexC   -5      "6100 0803"x
+indexB  12 --> indexC   -5      "6100 0803"x
+indexB  13 --> indexC    6      "6F00 0803"x
+indexB  14 --> indexC   -6      "6F00 0803"x
+indexB  15 --> indexC   -6      "6F00 0803"x
+indexB  16 --> indexC   -6      "6F00 0803"x
+indexB  17 --> indexC    7      "7500 0803"x
+indexB  18 --> indexC   -7      "7500 0803"x
+indexB  19 --> indexC   -7      "7500 0803"x
+indexB  20 --> indexC   -7      "7500 0803"x
+indexB  21 --> indexC    8      "2000"x
+indexB  22 --> indexC   -8      "2000"x
+indexB  23 --> indexC    9      "7800 0203"x
+indexB  24 --> indexC   -9      "7800 0203"x
+indexB  25 --> indexC   -9      "7800 0203"x
+indexB  26 --> indexC   -9      "7800 0203"x
+indexB  27 --> indexC   10      "2000"x
+indexB  28 --> indexC  -10      "2000"x
+indexB  29 --> indexC   11      "D403"x
+indexB  30 --> indexC  -11      "D403"x
+indexB  31 --> indexC   12      "2000"x
+indexB  32 --> indexC  -12      "2000"x
+indexB  33 --> indexC   13      "FAFD"x
+indexB  34 --> indexC  -13      "FAFD"x
+indexB  35 --> indexC   14      "2000"x
+indexB  36 --> indexC  -14      "2000"x
+indexB  37 --> indexC   15      "6200"x
+indexB  38 --> indexC  -15      "6200"x
+indexB  39 --> indexC   16      "6100"x
+indexB  40 --> indexC  -16      "6100"x
+indexB  41 --> indexC   17      "04FB"x
+indexB  42 --> indexC  -17      "04FB"x
+indexB  43 --> indexC   18      "6500"x
+indexB  44 --> indexC  -18      "6500"x
+indexB  45 --> indexC   19      ""x
+indexB  46 --> indexC   19      ""x
+indexB  47 --> indexC   19      ""x
+indexB  48 --> indexC   19      ""x
+indexB  49 --> indexC   19      ""x
 
 --------------------------------------------------------------------------------
-text = xrange()~text("latin1")~wtf16le
+text = xrange()              ~text("latin1")~wtf16le
 --------------------------------------------------------------------------------
 
 text~description =
@@ -3945,7 +3985,7 @@ indexB 516 --> indexC  257      ""x
 indexB 517 --> indexC  257      ""x
 
 --------------------------------------------------------------------------------
-text = "noël👩‍👨‍👩‍👧🎅"~text("utf8")~wtf16le
+text = "noël👩‍👨‍👩‍👧🎅"~text("utf8")  ~wtf16le
 --------------------------------------------------------------------------------
 
 text~description =
@@ -3995,14 +4035,14 @@ indexB  38 --> indexC    7      ""x
 indexB  39 --> indexC    7      ""x
 
 --------------------------------------------------------------------------------
-text = "äöüäöüx̂ϔﷺbaﬄe"~text("utf8")~wtf16le
+text = "äöü äöü x̂ ϔ ﷺ baﬄe"~text("utf8")  ~wtf16le
 --------------------------------------------------------------------------------
 
 text~description =
-WTF-16LE (13 characters, 17 codepoints, 34 bytes, 0 error)
+WTF-16LE (18 characters, 22 codepoints, 44 bytes, 0 error)
 
 text~c2g =
-"E400 F600 FC00 61000803 6F000803 75000803 78000203 D403 FAFD 6200 6100 04FB 6500"x
+"E400 F600 FC00 2000 61000803 6F000803 75000803 2000 78000203 2000 D403 2000 FAFD 2000 6200 6100 04FB 6500"x
 
 indexB   1 --> indexC    1      "E400"x
 indexB   2 --> indexC   -1      "E400"x
@@ -4010,42 +4050,52 @@ indexB   3 --> indexC    2      "F600"x
 indexB   4 --> indexC   -2      "F600"x
 indexB   5 --> indexC    3      "FC00"x
 indexB   6 --> indexC   -3      "FC00"x
-indexB   7 --> indexC    4      "6100 0803"x
-indexB   8 --> indexC   -4      "6100 0803"x
-indexB   9 --> indexC   -4      "6100 0803"x
-indexB  10 --> indexC   -4      "6100 0803"x
-indexB  11 --> indexC    5      "6F00 0803"x
-indexB  12 --> indexC   -5      "6F00 0803"x
-indexB  13 --> indexC   -5      "6F00 0803"x
-indexB  14 --> indexC   -5      "6F00 0803"x
-indexB  15 --> indexC    6      "7500 0803"x
-indexB  16 --> indexC   -6      "7500 0803"x
-indexB  17 --> indexC   -6      "7500 0803"x
-indexB  18 --> indexC   -6      "7500 0803"x
-indexB  19 --> indexC    7      "7800 0203"x
-indexB  20 --> indexC   -7      "7800 0203"x
-indexB  21 --> indexC   -7      "7800 0203"x
-indexB  22 --> indexC   -7      "7800 0203"x
-indexB  23 --> indexC    8      "D403"x
-indexB  24 --> indexC   -8      "D403"x
-indexB  25 --> indexC    9      "FAFD"x
-indexB  26 --> indexC   -9      "FAFD"x
-indexB  27 --> indexC   10      "6200"x
-indexB  28 --> indexC  -10      "6200"x
-indexB  29 --> indexC   11      "6100"x
-indexB  30 --> indexC  -11      "6100"x
-indexB  31 --> indexC   12      "04FB"x
-indexB  32 --> indexC  -12      "04FB"x
-indexB  33 --> indexC   13      "6500"x
-indexB  34 --> indexC  -13      "6500"x
-indexB  35 --> indexC   14      ""x
-indexB  36 --> indexC   14      ""x
-indexB  37 --> indexC   14      ""x
-indexB  38 --> indexC   14      ""x
-indexB  39 --> indexC   14      ""x
+indexB   7 --> indexC    4      "2000"x
+indexB   8 --> indexC   -4      "2000"x
+indexB   9 --> indexC    5      "6100 0803"x
+indexB  10 --> indexC   -5      "6100 0803"x
+indexB  11 --> indexC   -5      "6100 0803"x
+indexB  12 --> indexC   -5      "6100 0803"x
+indexB  13 --> indexC    6      "6F00 0803"x
+indexB  14 --> indexC   -6      "6F00 0803"x
+indexB  15 --> indexC   -6      "6F00 0803"x
+indexB  16 --> indexC   -6      "6F00 0803"x
+indexB  17 --> indexC    7      "7500 0803"x
+indexB  18 --> indexC   -7      "7500 0803"x
+indexB  19 --> indexC   -7      "7500 0803"x
+indexB  20 --> indexC   -7      "7500 0803"x
+indexB  21 --> indexC    8      "2000"x
+indexB  22 --> indexC   -8      "2000"x
+indexB  23 --> indexC    9      "7800 0203"x
+indexB  24 --> indexC   -9      "7800 0203"x
+indexB  25 --> indexC   -9      "7800 0203"x
+indexB  26 --> indexC   -9      "7800 0203"x
+indexB  27 --> indexC   10      "2000"x
+indexB  28 --> indexC  -10      "2000"x
+indexB  29 --> indexC   11      "D403"x
+indexB  30 --> indexC  -11      "D403"x
+indexB  31 --> indexC   12      "2000"x
+indexB  32 --> indexC  -12      "2000"x
+indexB  33 --> indexC   13      "FAFD"x
+indexB  34 --> indexC  -13      "FAFD"x
+indexB  35 --> indexC   14      "2000"x
+indexB  36 --> indexC  -14      "2000"x
+indexB  37 --> indexC   15      "6200"x
+indexB  38 --> indexC  -15      "6200"x
+indexB  39 --> indexC   16      "6100"x
+indexB  40 --> indexC  -16      "6100"x
+indexB  41 --> indexC   17      "04FB"x
+indexB  42 --> indexC  -17      "04FB"x
+indexB  43 --> indexC   18      "6500"x
+indexB  44 --> indexC  -18      "6500"x
+indexB  45 --> indexC   19      ""x
+indexB  46 --> indexC   19      ""x
+indexB  47 --> indexC   19      ""x
+indexB  48 --> indexC   19      ""x
+indexB  49 --> indexC   19      ""x
 
 --------------------------------------------------------------------------------
-text = xrange()~text("latin1")~utf32be
+text = xrange()              ~text("latin1")~utf32be
 --------------------------------------------------------------------------------
 
 text~description =
@@ -5085,7 +5135,7 @@ indexB 028 --> indexC  257      ""x
 indexB 029 --> indexC  257      ""x
 
 --------------------------------------------------------------------------------
-text = "noël👩‍👨‍👩‍👧🎅"~text("utf8")~utf32be
+text = "noël👩‍👨‍👩‍👧🎅"~text("utf8")  ~utf32be
 --------------------------------------------------------------------------------
 
 text~description =
@@ -5149,14 +5199,14 @@ indexB  52 --> indexC    7      ""x
 indexB  53 --> indexC    7      ""x
 
 --------------------------------------------------------------------------------
-text = "äöüäöüx̂ϔﷺbaﬄe"~text("utf8")~utf32be
+text = "äöü äöü x̂ ϔ ﷺ baﬄe"~text("utf8")  ~utf32be
 --------------------------------------------------------------------------------
 
 text~description =
-UTF-32BE (13 characters, 17 codepoints, 68 bytes, 0 error)
+UTF-32BE (18 characters, 22 codepoints, 88 bytes, 0 error)
 
 text~c2g =
-"000000E4 000000F6 000000FC 0000006100000308 0000006F00000308 0000007500000308 0000007800000302 000003D4 0000FDFA 00000062 00000061 0000FB04 00000065"x
+"000000E4 000000F6 000000FC 00000020 0000006100000308 0000006F00000308 0000007500000308 00000020 0000007800000302 00000020 000003D4 00000020 0000FDFA 00000020 00000062 00000061 0000FB04 00000065"x
 
 indexB   1 --> indexC    1      "000000E4"x
 indexB   2 --> indexC   -1      "000000E4"x
@@ -5170,70 +5220,90 @@ indexB   9 --> indexC    3      "000000FC"x
 indexB  10 --> indexC   -3      "000000FC"x
 indexB  11 --> indexC   -3      "000000FC"x
 indexB  12 --> indexC   -3      "000000FC"x
-indexB  13 --> indexC    4      "00000061 00000308"x
-indexB  14 --> indexC   -4      "00000061 00000308"x
-indexB  15 --> indexC   -4      "00000061 00000308"x
-indexB  16 --> indexC   -4      "00000061 00000308"x
-indexB  17 --> indexC   -4      "00000061 00000308"x
-indexB  18 --> indexC   -4      "00000061 00000308"x
-indexB  19 --> indexC   -4      "00000061 00000308"x
-indexB  20 --> indexC   -4      "00000061 00000308"x
-indexB  21 --> indexC    5      "0000006F 00000308"x
-indexB  22 --> indexC   -5      "0000006F 00000308"x
-indexB  23 --> indexC   -5      "0000006F 00000308"x
-indexB  24 --> indexC   -5      "0000006F 00000308"x
-indexB  25 --> indexC   -5      "0000006F 00000308"x
-indexB  26 --> indexC   -5      "0000006F 00000308"x
-indexB  27 --> indexC   -5      "0000006F 00000308"x
-indexB  28 --> indexC   -5      "0000006F 00000308"x
-indexB  29 --> indexC    6      "00000075 00000308"x
-indexB  30 --> indexC   -6      "00000075 00000308"x
-indexB  31 --> indexC   -6      "00000075 00000308"x
-indexB  32 --> indexC   -6      "00000075 00000308"x
-indexB  33 --> indexC   -6      "00000075 00000308"x
-indexB  34 --> indexC   -6      "00000075 00000308"x
-indexB  35 --> indexC   -6      "00000075 00000308"x
-indexB  36 --> indexC   -6      "00000075 00000308"x
-indexB  37 --> indexC    7      "00000078 00000302"x
-indexB  38 --> indexC   -7      "00000078 00000302"x
-indexB  39 --> indexC   -7      "00000078 00000302"x
-indexB  40 --> indexC   -7      "00000078 00000302"x
-indexB  41 --> indexC   -7      "00000078 00000302"x
-indexB  42 --> indexC   -7      "00000078 00000302"x
-indexB  43 --> indexC   -7      "00000078 00000302"x
-indexB  44 --> indexC   -7      "00000078 00000302"x
-indexB  45 --> indexC    8      "000003D4"x
-indexB  46 --> indexC   -8      "000003D4"x
-indexB  47 --> indexC   -8      "000003D4"x
-indexB  48 --> indexC   -8      "000003D4"x
-indexB  49 --> indexC    9      "0000FDFA"x
-indexB  50 --> indexC   -9      "0000FDFA"x
-indexB  51 --> indexC   -9      "0000FDFA"x
-indexB  52 --> indexC   -9      "0000FDFA"x
-indexB  53 --> indexC   10      "00000062"x
-indexB  54 --> indexC  -10      "00000062"x
-indexB  55 --> indexC  -10      "00000062"x
-indexB  56 --> indexC  -10      "00000062"x
-indexB  57 --> indexC   11      "00000061"x
-indexB  58 --> indexC  -11      "00000061"x
-indexB  59 --> indexC  -11      "00000061"x
-indexB  60 --> indexC  -11      "00000061"x
-indexB  61 --> indexC   12      "0000FB04"x
-indexB  62 --> indexC  -12      "0000FB04"x
-indexB  63 --> indexC  -12      "0000FB04"x
-indexB  64 --> indexC  -12      "0000FB04"x
-indexB  65 --> indexC   13      "00000065"x
-indexB  66 --> indexC  -13      "00000065"x
-indexB  67 --> indexC  -13      "00000065"x
-indexB  68 --> indexC  -13      "00000065"x
-indexB  69 --> indexC   14      ""x
-indexB  70 --> indexC   14      ""x
-indexB  71 --> indexC   14      ""x
-indexB  72 --> indexC   14      ""x
-indexB  73 --> indexC   14      ""x
+indexB  13 --> indexC    4      "00000020"x
+indexB  14 --> indexC   -4      "00000020"x
+indexB  15 --> indexC   -4      "00000020"x
+indexB  16 --> indexC   -4      "00000020"x
+indexB  17 --> indexC    5      "00000061 00000308"x
+indexB  18 --> indexC   -5      "00000061 00000308"x
+indexB  19 --> indexC   -5      "00000061 00000308"x
+indexB  20 --> indexC   -5      "00000061 00000308"x
+indexB  21 --> indexC   -5      "00000061 00000308"x
+indexB  22 --> indexC   -5      "00000061 00000308"x
+indexB  23 --> indexC   -5      "00000061 00000308"x
+indexB  24 --> indexC   -5      "00000061 00000308"x
+indexB  25 --> indexC    6      "0000006F 00000308"x
+indexB  26 --> indexC   -6      "0000006F 00000308"x
+indexB  27 --> indexC   -6      "0000006F 00000308"x
+indexB  28 --> indexC   -6      "0000006F 00000308"x
+indexB  29 --> indexC   -6      "0000006F 00000308"x
+indexB  30 --> indexC   -6      "0000006F 00000308"x
+indexB  31 --> indexC   -6      "0000006F 00000308"x
+indexB  32 --> indexC   -6      "0000006F 00000308"x
+indexB  33 --> indexC    7      "00000075 00000308"x
+indexB  34 --> indexC   -7      "00000075 00000308"x
+indexB  35 --> indexC   -7      "00000075 00000308"x
+indexB  36 --> indexC   -7      "00000075 00000308"x
+indexB  37 --> indexC   -7      "00000075 00000308"x
+indexB  38 --> indexC   -7      "00000075 00000308"x
+indexB  39 --> indexC   -7      "00000075 00000308"x
+indexB  40 --> indexC   -7      "00000075 00000308"x
+indexB  41 --> indexC    8      "00000020"x
+indexB  42 --> indexC   -8      "00000020"x
+indexB  43 --> indexC   -8      "00000020"x
+indexB  44 --> indexC   -8      "00000020"x
+indexB  45 --> indexC    9      "00000078 00000302"x
+indexB  46 --> indexC   -9      "00000078 00000302"x
+indexB  47 --> indexC   -9      "00000078 00000302"x
+indexB  48 --> indexC   -9      "00000078 00000302"x
+indexB  49 --> indexC   -9      "00000078 00000302"x
+indexB  50 --> indexC   -9      "00000078 00000302"x
+indexB  51 --> indexC   -9      "00000078 00000302"x
+indexB  52 --> indexC   -9      "00000078 00000302"x
+indexB  53 --> indexC   10      "00000020"x
+indexB  54 --> indexC  -10      "00000020"x
+indexB  55 --> indexC  -10      "00000020"x
+indexB  56 --> indexC  -10      "00000020"x
+indexB  57 --> indexC   11      "000003D4"x
+indexB  58 --> indexC  -11      "000003D4"x
+indexB  59 --> indexC  -11      "000003D4"x
+indexB  60 --> indexC  -11      "000003D4"x
+indexB  61 --> indexC   12      "00000020"x
+indexB  62 --> indexC  -12      "00000020"x
+indexB  63 --> indexC  -12      "00000020"x
+indexB  64 --> indexC  -12      "00000020"x
+indexB  65 --> indexC   13      "0000FDFA"x
+indexB  66 --> indexC  -13      "0000FDFA"x
+indexB  67 --> indexC  -13      "0000FDFA"x
+indexB  68 --> indexC  -13      "0000FDFA"x
+indexB  69 --> indexC   14      "00000020"x
+indexB  70 --> indexC  -14      "00000020"x
+indexB  71 --> indexC  -14      "00000020"x
+indexB  72 --> indexC  -14      "00000020"x
+indexB  73 --> indexC   15      "00000062"x
+indexB  74 --> indexC  -15      "00000062"x
+indexB  75 --> indexC  -15      "00000062"x
+indexB  76 --> indexC  -15      "00000062"x
+indexB  77 --> indexC   16      "00000061"x
+indexB  78 --> indexC  -16      "00000061"x
+indexB  79 --> indexC  -16      "00000061"x
+indexB  80 --> indexC  -16      "00000061"x
+indexB  81 --> indexC   17      "0000FB04"x
+indexB  82 --> indexC  -17      "0000FB04"x
+indexB  83 --> indexC  -17      "0000FB04"x
+indexB  84 --> indexC  -17      "0000FB04"x
+indexB  85 --> indexC   18      "00000065"x
+indexB  86 --> indexC  -18      "00000065"x
+indexB  87 --> indexC  -18      "00000065"x
+indexB  88 --> indexC  -18      "00000065"x
+indexB  89 --> indexC   19      ""x
+indexB  90 --> indexC   19      ""x
+indexB  91 --> indexC   19      ""x
+indexB  92 --> indexC   19      ""x
+indexB  93 --> indexC   19      ""x
 
 --------------------------------------------------------------------------------
-text = xrange()~text("latin1")~utf32le
+text = xrange()              ~text("latin1")~utf32le
 --------------------------------------------------------------------------------
 
 text~description =
@@ -6273,7 +6343,7 @@ indexB 028 --> indexC  257      ""x
 indexB 029 --> indexC  257      ""x
 
 --------------------------------------------------------------------------------
-text = "noël👩‍👨‍👩‍👧🎅"~text("utf8")~utf32le
+text = "noël👩‍👨‍👩‍👧🎅"~text("utf8")  ~utf32le
 --------------------------------------------------------------------------------
 
 text~description =
@@ -6337,14 +6407,14 @@ indexB  52 --> indexC    7      ""x
 indexB  53 --> indexC    7      ""x
 
 --------------------------------------------------------------------------------
-text = "äöüäöüx̂ϔﷺbaﬄe"~text("utf8")~utf32le
+text = "äöü äöü x̂ ϔ ﷺ baﬄe"~text("utf8")  ~utf32le
 --------------------------------------------------------------------------------
 
 text~description =
-UTF-32LE (13 characters, 17 codepoints, 68 bytes, 0 error)
+UTF-32LE (18 characters, 22 codepoints, 88 bytes, 0 error)
 
 text~c2g =
-"E4000000 F6000000 FC000000 6100000008030000 6F00000008030000 7500000008030000 7800000002030000 D4030000 FAFD0000 62000000 61000000 04FB0000 65000000"x
+"E4000000 F6000000 FC000000 20000000 6100000008030000 6F00000008030000 7500000008030000 20000000 7800000002030000 20000000 D4030000 20000000 FAFD0000 20000000 62000000 61000000 04FB0000 65000000"x
 
 indexB   1 --> indexC    1      "E4000000"x
 indexB   2 --> indexC   -1      "E4000000"x
@@ -6358,70 +6428,90 @@ indexB   9 --> indexC    3      "FC000000"x
 indexB  10 --> indexC   -3      "FC000000"x
 indexB  11 --> indexC   -3      "FC000000"x
 indexB  12 --> indexC   -3      "FC000000"x
-indexB  13 --> indexC    4      "61000000 08030000"x
-indexB  14 --> indexC   -4      "61000000 08030000"x
-indexB  15 --> indexC   -4      "61000000 08030000"x
-indexB  16 --> indexC   -4      "61000000 08030000"x
-indexB  17 --> indexC   -4      "61000000 08030000"x
-indexB  18 --> indexC   -4      "61000000 08030000"x
-indexB  19 --> indexC   -4      "61000000 08030000"x
-indexB  20 --> indexC   -4      "61000000 08030000"x
-indexB  21 --> indexC    5      "6F000000 08030000"x
-indexB  22 --> indexC   -5      "6F000000 08030000"x
-indexB  23 --> indexC   -5      "6F000000 08030000"x
-indexB  24 --> indexC   -5      "6F000000 08030000"x
-indexB  25 --> indexC   -5      "6F000000 08030000"x
-indexB  26 --> indexC   -5      "6F000000 08030000"x
-indexB  27 --> indexC   -5      "6F000000 08030000"x
-indexB  28 --> indexC   -5      "6F000000 08030000"x
-indexB  29 --> indexC    6      "75000000 08030000"x
-indexB  30 --> indexC   -6      "75000000 08030000"x
-indexB  31 --> indexC   -6      "75000000 08030000"x
-indexB  32 --> indexC   -6      "75000000 08030000"x
-indexB  33 --> indexC   -6      "75000000 08030000"x
-indexB  34 --> indexC   -6      "75000000 08030000"x
-indexB  35 --> indexC   -6      "75000000 08030000"x
-indexB  36 --> indexC   -6      "75000000 08030000"x
-indexB  37 --> indexC    7      "78000000 02030000"x
-indexB  38 --> indexC   -7      "78000000 02030000"x
-indexB  39 --> indexC   -7      "78000000 02030000"x
-indexB  40 --> indexC   -7      "78000000 02030000"x
-indexB  41 --> indexC   -7      "78000000 02030000"x
-indexB  42 --> indexC   -7      "78000000 02030000"x
-indexB  43 --> indexC   -7      "78000000 02030000"x
-indexB  44 --> indexC   -7      "78000000 02030000"x
-indexB  45 --> indexC    8      "D4030000"x
-indexB  46 --> indexC   -8      "D4030000"x
-indexB  47 --> indexC   -8      "D4030000"x
-indexB  48 --> indexC   -8      "D4030000"x
-indexB  49 --> indexC    9      "FAFD0000"x
-indexB  50 --> indexC   -9      "FAFD0000"x
-indexB  51 --> indexC   -9      "FAFD0000"x
-indexB  52 --> indexC   -9      "FAFD0000"x
-indexB  53 --> indexC   10      "62000000"x
-indexB  54 --> indexC  -10      "62000000"x
-indexB  55 --> indexC  -10      "62000000"x
-indexB  56 --> indexC  -10      "62000000"x
-indexB  57 --> indexC   11      "61000000"x
-indexB  58 --> indexC  -11      "61000000"x
-indexB  59 --> indexC  -11      "61000000"x
-indexB  60 --> indexC  -11      "61000000"x
-indexB  61 --> indexC   12      "04FB0000"x
-indexB  62 --> indexC  -12      "04FB0000"x
-indexB  63 --> indexC  -12      "04FB0000"x
-indexB  64 --> indexC  -12      "04FB0000"x
-indexB  65 --> indexC   13      "65000000"x
-indexB  66 --> indexC  -13      "65000000"x
-indexB  67 --> indexC  -13      "65000000"x
-indexB  68 --> indexC  -13      "65000000"x
-indexB  69 --> indexC   14      ""x
-indexB  70 --> indexC   14      ""x
-indexB  71 --> indexC   14      ""x
-indexB  72 --> indexC   14      ""x
-indexB  73 --> indexC   14      ""x
+indexB  13 --> indexC    4      "20000000"x
+indexB  14 --> indexC   -4      "20000000"x
+indexB  15 --> indexC   -4      "20000000"x
+indexB  16 --> indexC   -4      "20000000"x
+indexB  17 --> indexC    5      "61000000 08030000"x
+indexB  18 --> indexC   -5      "61000000 08030000"x
+indexB  19 --> indexC   -5      "61000000 08030000"x
+indexB  20 --> indexC   -5      "61000000 08030000"x
+indexB  21 --> indexC   -5      "61000000 08030000"x
+indexB  22 --> indexC   -5      "61000000 08030000"x
+indexB  23 --> indexC   -5      "61000000 08030000"x
+indexB  24 --> indexC   -5      "61000000 08030000"x
+indexB  25 --> indexC    6      "6F000000 08030000"x
+indexB  26 --> indexC   -6      "6F000000 08030000"x
+indexB  27 --> indexC   -6      "6F000000 08030000"x
+indexB  28 --> indexC   -6      "6F000000 08030000"x
+indexB  29 --> indexC   -6      "6F000000 08030000"x
+indexB  30 --> indexC   -6      "6F000000 08030000"x
+indexB  31 --> indexC   -6      "6F000000 08030000"x
+indexB  32 --> indexC   -6      "6F000000 08030000"x
+indexB  33 --> indexC    7      "75000000 08030000"x
+indexB  34 --> indexC   -7      "75000000 08030000"x
+indexB  35 --> indexC   -7      "75000000 08030000"x
+indexB  36 --> indexC   -7      "75000000 08030000"x
+indexB  37 --> indexC   -7      "75000000 08030000"x
+indexB  38 --> indexC   -7      "75000000 08030000"x
+indexB  39 --> indexC   -7      "75000000 08030000"x
+indexB  40 --> indexC   -7      "75000000 08030000"x
+indexB  41 --> indexC    8      "20000000"x
+indexB  42 --> indexC   -8      "20000000"x
+indexB  43 --> indexC   -8      "20000000"x
+indexB  44 --> indexC   -8      "20000000"x
+indexB  45 --> indexC    9      "78000000 02030000"x
+indexB  46 --> indexC   -9      "78000000 02030000"x
+indexB  47 --> indexC   -9      "78000000 02030000"x
+indexB  48 --> indexC   -9      "78000000 02030000"x
+indexB  49 --> indexC   -9      "78000000 02030000"x
+indexB  50 --> indexC   -9      "78000000 02030000"x
+indexB  51 --> indexC   -9      "78000000 02030000"x
+indexB  52 --> indexC   -9      "78000000 02030000"x
+indexB  53 --> indexC   10      "20000000"x
+indexB  54 --> indexC  -10      "20000000"x
+indexB  55 --> indexC  -10      "20000000"x
+indexB  56 --> indexC  -10      "20000000"x
+indexB  57 --> indexC   11      "D4030000"x
+indexB  58 --> indexC  -11      "D4030000"x
+indexB  59 --> indexC  -11      "D4030000"x
+indexB  60 --> indexC  -11      "D4030000"x
+indexB  61 --> indexC   12      "20000000"x
+indexB  62 --> indexC  -12      "20000000"x
+indexB  63 --> indexC  -12      "20000000"x
+indexB  64 --> indexC  -12      "20000000"x
+indexB  65 --> indexC   13      "FAFD0000"x
+indexB  66 --> indexC  -13      "FAFD0000"x
+indexB  67 --> indexC  -13      "FAFD0000"x
+indexB  68 --> indexC  -13      "FAFD0000"x
+indexB  69 --> indexC   14      "20000000"x
+indexB  70 --> indexC  -14      "20000000"x
+indexB  71 --> indexC  -14      "20000000"x
+indexB  72 --> indexC  -14      "20000000"x
+indexB  73 --> indexC   15      "62000000"x
+indexB  74 --> indexC  -15      "62000000"x
+indexB  75 --> indexC  -15      "62000000"x
+indexB  76 --> indexC  -15      "62000000"x
+indexB  77 --> indexC   16      "61000000"x
+indexB  78 --> indexC  -16      "61000000"x
+indexB  79 --> indexC  -16      "61000000"x
+indexB  80 --> indexC  -16      "61000000"x
+indexB  81 --> indexC   17      "04FB0000"x
+indexB  82 --> indexC  -17      "04FB0000"x
+indexB  83 --> indexC  -17      "04FB0000"x
+indexB  84 --> indexC  -17      "04FB0000"x
+indexB  85 --> indexC   18      "65000000"x
+indexB  86 --> indexC  -18      "65000000"x
+indexB  87 --> indexC  -18      "65000000"x
+indexB  88 --> indexC  -18      "65000000"x
+indexB  89 --> indexC   19      ""x
+indexB  90 --> indexC   19      ""x
+indexB  91 --> indexC   19      ""x
+indexB  92 --> indexC   19      ""x
+indexB  93 --> indexC   19      ""x
 
 --------------------------------------------------------------------------------
-text = xrange()~text("latin1")~unicode
+text = xrange()              ~text("latin1")~unicode
 --------------------------------------------------------------------------------
 
 text~description =
@@ -6693,7 +6783,7 @@ indexB 260 --> indexC  257      ""x
 indexB 261 --> indexC  257      ""x
 
 --------------------------------------------------------------------------------
-text = "noël👩‍👨‍👩‍👧🎅"~text("utf8")~unicode
+text = "noël👩‍👨‍👩‍👧🎅"~text("utf8")  ~unicode
 --------------------------------------------------------------------------------
 
 text~description =
@@ -6757,14 +6847,14 @@ indexB  52 --> indexC    7      ""x
 indexB  53 --> indexC    7      ""x
 
 --------------------------------------------------------------------------------
-text = "äöüäöüx̂ϔﷺbaﬄe"~text("utf8")~unicode
+text = "äöü äöü x̂ ϔ ﷺ baﬄe"~text("utf8")  ~unicode
 --------------------------------------------------------------------------------
 
 text~description =
-Unicode16 (13 characters, 17 codepoints, 34 bytes, 0 error)
+Unicode16 (18 characters, 22 codepoints, 44 bytes, 0 error)
 
 text~c2g =
-"E400 F600 FC00 61000803 6F000803 75000803 78000203 D403 FAFD 6200 6100 04FB 6500"x
+"E400 F600 FC00 2000 61000803 6F000803 75000803 2000 78000203 2000 D403 2000 FAFD 2000 6200 6100 04FB 6500"x
 
 indexB   1 --> indexC    1      "E400"x
 indexB   2 --> indexC   -1      "E400"x
@@ -6772,37 +6862,47 @@ indexB   3 --> indexC    2      "F600"x
 indexB   4 --> indexC   -2      "F600"x
 indexB   5 --> indexC    3      "FC00"x
 indexB   6 --> indexC   -3      "FC00"x
-indexB   7 --> indexC    4      "6100 0803"x
-indexB   8 --> indexC   -4      "6100 0803"x
-indexB   9 --> indexC   -4      "6100 0803"x
-indexB  10 --> indexC   -4      "6100 0803"x
-indexB  11 --> indexC    5      "6F00 0803"x
-indexB  12 --> indexC   -5      "6F00 0803"x
-indexB  13 --> indexC   -5      "6F00 0803"x
-indexB  14 --> indexC   -5      "6F00 0803"x
-indexB  15 --> indexC    6      "7500 0803"x
-indexB  16 --> indexC   -6      "7500 0803"x
-indexB  17 --> indexC   -6      "7500 0803"x
-indexB  18 --> indexC   -6      "7500 0803"x
-indexB  19 --> indexC    7      "7800 0203"x
-indexB  20 --> indexC   -7      "7800 0203"x
-indexB  21 --> indexC   -7      "7800 0203"x
-indexB  22 --> indexC   -7      "7800 0203"x
-indexB  23 --> indexC    8      "D403"x
-indexB  24 --> indexC   -8      "D403"x
-indexB  25 --> indexC    9      "FAFD"x
-indexB  26 --> indexC   -9      "FAFD"x
-indexB  27 --> indexC   10      "6200"x
-indexB  28 --> indexC  -10      "6200"x
-indexB  29 --> indexC   11      "6100"x
-indexB  30 --> indexC  -11      "6100"x
-indexB  31 --> indexC   12      "04FB"x
-indexB  32 --> indexC  -12      "04FB"x
-indexB  33 --> indexC   13      "6500"x
-indexB  34 --> indexC  -13      "6500"x
-indexB  35 --> indexC   14      ""x
-indexB  36 --> indexC   14      ""x
-indexB  37 --> indexC   14      ""x
-indexB  38 --> indexC   14      ""x
-indexB  39 --> indexC   14      ""x
+indexB   7 --> indexC    4      "2000"x
+indexB   8 --> indexC   -4      "2000"x
+indexB   9 --> indexC    5      "6100 0803"x
+indexB  10 --> indexC   -5      "6100 0803"x
+indexB  11 --> indexC   -5      "6100 0803"x
+indexB  12 --> indexC   -5      "6100 0803"x
+indexB  13 --> indexC    6      "6F00 0803"x
+indexB  14 --> indexC   -6      "6F00 0803"x
+indexB  15 --> indexC   -6      "6F00 0803"x
+indexB  16 --> indexC   -6      "6F00 0803"x
+indexB  17 --> indexC    7      "7500 0803"x
+indexB  18 --> indexC   -7      "7500 0803"x
+indexB  19 --> indexC   -7      "7500 0803"x
+indexB  20 --> indexC   -7      "7500 0803"x
+indexB  21 --> indexC    8      "2000"x
+indexB  22 --> indexC   -8      "2000"x
+indexB  23 --> indexC    9      "7800 0203"x
+indexB  24 --> indexC   -9      "7800 0203"x
+indexB  25 --> indexC   -9      "7800 0203"x
+indexB  26 --> indexC   -9      "7800 0203"x
+indexB  27 --> indexC   10      "2000"x
+indexB  28 --> indexC  -10      "2000"x
+indexB  29 --> indexC   11      "D403"x
+indexB  30 --> indexC  -11      "D403"x
+indexB  31 --> indexC   12      "2000"x
+indexB  32 --> indexC  -12      "2000"x
+indexB  33 --> indexC   13      "FAFD"x
+indexB  34 --> indexC  -13      "FAFD"x
+indexB  35 --> indexC   14      "2000"x
+indexB  36 --> indexC  -14      "2000"x
+indexB  37 --> indexC   15      "6200"x
+indexB  38 --> indexC  -15      "6200"x
+indexB  39 --> indexC   16      "6100"x
+indexB  40 --> indexC  -16      "6100"x
+indexB  41 --> indexC   17      "04FB"x
+indexB  42 --> indexC  -17      "04FB"x
+indexB  43 --> indexC   18      "6500"x
+indexB  44 --> indexC  -18      "6500"x
+indexB  45 --> indexC   19      ""x
+indexB  46 --> indexC   19      ""x
+indexB  47 --> indexC   19      ""x
+indexB  48 --> indexC   19      ""x
+indexB  49 --> indexC   19      ""x
 

@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 16 Nov 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: S13f6fQ600000f48340
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Apr 2024
+</span><span style="font-weight:bold;color:green;">Input queue name: S772aQ6000007c6be0
 </span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.1.0 
@@ -392,8 +392,8 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;=&quot;~c2x=  
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noelFC&quot;~text~center(10, &quot;=&quot;)=; result~description=         </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
 T'==noelFC=='
 'UTF-8 ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~description=                                            </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (3 bytes)'</span>
-'UTF-8 not-ASCII by default (3 bytes)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~description=                                            </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'   (was 'UTF-8 not-ASCII (3 bytes)')</span>
+'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~text~description=                                       </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'</span>
 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~c2x=                                                    </span><span style="font-weight:bold;color:blue;">-- 'E29590'</span>
@@ -698,13 +698,13 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~te
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~text~reverse=        </span><span style="font-weight:bold;color:blue;">-- T'lëon'</span>
 T'lëon'
 
-<span style="font-weight:bold;color:blue;">-- reverse (wrong)
+<span style="font-weight:bold;color:blue;">-- reverse (correct)    (was reverse (wrong) before automatic conversion of string literals to text)
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~c2x=             </span><span style="font-weight:bold;color:blue;">-- '6E6FC3AB6C'</span>
-'6E6FC3AB6C'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~reverse~c2x=     </span><span style="font-weight:bold;color:blue;">-- '6CABC36F6E'</span>
-'6CABC36F6E'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~reverse=         </span><span style="font-weight:bold;color:blue;">-- 'l??on'</span>
-'l��on'
+'6E 6F C3AB 6C'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~reverse~c2x=     </span><span style="font-weight:bold;color:blue;">-- '6C C3AB 6F 6E'  (was '6CABC36F6E' before automatic conversion of string literals to text)</span>
+'6C C3AB 6F 6E'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~reverse=         </span><span style="font-weight:bold;color:blue;">-- T'lëon'</span>
+T'lëon'
 
 
 <span style="font-weight:bold;color:blue;">-- right
@@ -751,9 +751,9 @@ T'elx'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~substr(3, 3, &quot;▷&quot;)=; result~description=        </span><span style="font-weight:bold;color:blue;">-- self is a String: error because the pad character is 3 bytes</span>
 <span style="font-weight:bold;color:red;">Incorrect pad or character argument specified; found &quot;▷&quot;
 </span><span style="font-weight:bold;color:red;">Error code= 93.922
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~substr(3, 3, &quot;▷&quot;~text)=; result~description=   </span><span style="font-weight:bold;color:blue;">-- self is a String: error because the pad character is not compatible with String</span>
-<span style="font-weight:bold;color:red;">UTF-8 not-ASCII '▷' cannot be converted to a String instance.
-</span><span style="font-weight:bold;color:red;">Error code= 23.900
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~substr(3, 3, &quot;▷&quot;~text)=; result~description=   </span><span style="font-weight:bold;color:blue;">-- self is a String: error because the pad character is 3 bytes</span>
+<span style="font-weight:bold;color:red;">Incorrect pad or character argument specified; found &quot;▷&quot;
+</span><span style="font-weight:bold;color:red;">Error code= 93.922
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~text~substr(3, 3, &quot;▷&quot;)=; result~description=   </span><span style="font-weight:bold;color:blue;">-- no error because self is a RexxText and the pad character is one character when converted to the default encoding</span>
 T'el▷'
 'UTF-8 not-ASCII (3 characters, 3 codepoints, 5 bytes, 0 error)'
@@ -863,12 +863,12 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;abc
  1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;abc&quot;~text)=                     </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;aôc&quot;)=                          </span><span style="font-weight:bold;color:blue;">-- 0 (KO)</span>
- 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;aôc&quot;)=                          </span><span style="font-weight:bold;color:blue;">-- 1    (was 0 (KO) before automatic conversion of string literals to text)</span>
+ 1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;aôc&quot;~text)=                     </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;a🎅c&quot;)=                         </span><span style="font-weight:bold;color:blue;">-- 0 (KO)</span>
- 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;a🎅c&quot;)=                         </span><span style="font-weight:bold;color:blue;">-- 1    (was 0 (KO) before automatic conversion of string literals to text)</span>
+ 1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;a🎅c&quot;~text)=                    </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
 
@@ -878,12 +878,12 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;�
  1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;🤶123🎅&quot;~text)=                 </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;🤶🐕2🐈🎅&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- 0 (KO)</span>
- 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;🤶🐕2🐈🎅&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- 1    (was 0 (KO) before automatic conversion of string literals to text)</span>
+ 1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;🤶🐕2🐈🎅&quot;~text)=               </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;🤶🐕👩‍👨‍👩‍👧🐈🎅&quot;)=          </span><span style="font-weight:bold;color:blue;">-- 0 (KO)</span>
- 0
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;🤶🐕👩‍👨‍👩‍👧🐈🎅&quot;)=          </span><span style="font-weight:bold;color:blue;">-- 1    (was 0 (KO) before automatic conversion of string literals to text)</span>
+ 1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;🤶🐕👩‍👨‍👩‍👧🐈🎅&quot;~text)=     </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
 
@@ -899,12 +899,12 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~startsWith(&quot;
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT~startsWith(&quot;🎅🤶c&quot;~text)=                        </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r = pB~find(&quot;xxx🤶🎅cxxx&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r~text=; r~length=</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r~text=; r~length=    </span><span style="font-weight:bold;color:blue;">-- now ok (r~end was 8 and r~length was 4 before automatic conversion of string literals to text)</span>
  1
  4
- 8
-'🤶'
- 4
+ 5
+T'🤶'
+ 1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r = pT~find(&quot;xxx🤶🎅cxxx&quot;~text)</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r~text=; r~length=</span>
  1
@@ -913,12 +913,12 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=
 T'🤶'
  1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r = pB~find(&quot;xxx🎅🤶cxxx&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r~text=; r~length=</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r~text=; r~length=    </span><span style="font-weight:bold;color:blue;">-- now ok (r~end was 8 and r~length was 4 before automatic conversion of string literals to text)</span>
  1
  4
- 8
-'🎅'
- 4
+ 5
+T'🎅'
+ 1
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r = pT~find(&quot;xxx🎅🤶cxxx&quot;~text)</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r~text=; r~length=</span>
  1
@@ -948,8 +948,8 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~unckeckedCo
 </span><span style="font-weight:bold;color:blue;">the String (which is normal).
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~description=                                </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (3 bytes)'</span>
-'UTF-8 not-ASCII by default (3 bytes)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~description=                                </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'   (was 'UTF-8 not-ASCII (3 bytes)')</span>
+'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~text~description=                           </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'</span>
 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~c2x=                                        </span><span style="font-weight:bold;color:blue;">-- 'E29590'</span>
@@ -990,8 +990,8 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~is
  0
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">length(&quot;Noël&quot;)=                                 </span><span style="font-weight:bold;color:blue;">-- TODO: 4 because &quot;Noël&quot;~text~length = 4</span>
  5
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~length=                                  </span><span style="font-weight:bold;color:blue;">-- 5 because String remains byte-oriented, not impacted by the default encoding</span>
- 5
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~length=                                  </span><span style="font-weight:bold;color:blue;">-- 4    (was &quot;5 because String remains byte-oriented, not impacted by the default encoding&quot; before automatic conversion of string literals to text)</span>
+ 4
 
 <span style="font-weight:bold;color:blue;">-- UTF-16BE encoding
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s = &quot;0041004200430044&quot;x</span>
@@ -999,8 +999,8 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s=                  
 '[00]A[00]B[00]C[00]D'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~isCompatibleWithByteString=                   </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~description=                                  </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 ASCII (8 bytes)'</span>
-'UTF-8 ASCII by default (8 bytes)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~description=                                  </span><span style="font-weight:bold;color:blue;">-- 'Byte ASCII (8 bytes)'   (was 'UTF-8 ASCII (8 bytes)')</span>
+'Byte ASCII (8 bytes)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">length(s)=                                      </span><span style="font-weight:bold;color:blue;">-- 8 because encoding UTF-8 ASCII is compatible with String</span>
  8
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~encoding = &quot;UTF16&quot;</span>
@@ -1021,8 +1021,8 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s=                  
 '[000000]A[000000]B'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~isCompatibleWithByteString=                   </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~description=                                  </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 ASCII (8 bytes)'</span>
-'UTF-8 ASCII by default (8 bytes)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~description=                                  </span><span style="font-weight:bold;color:blue;">-- 'Byte ASCII (8 bytes)'   (was 'UTF-8 ASCII (8 bytes)')</span>
+'Byte ASCII (8 bytes)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">length(s)=                                      </span><span style="font-weight:bold;color:blue;">-- 8 because encoding UTF-8 ASCII is compatible with String</span>
  8
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~encoding = &quot;UTF32&quot;</span>

@@ -357,8 +357,8 @@ ooRexx> "="~c2x=                                                    -- '3D'
 ooRexx> "noelFC"~text~center(10, "=")=; result~description=         -- forward to String
 T'==noelFC=='
 'UTF-8 ASCII (10 characters, 10 codepoints, 10 bytes, 0 error)'
-ooRexx> "═"~description=                                            -- 'UTF-8 not-ASCII (3 bytes)'
-'UTF-8 not-ASCII by default (3 bytes)'
+ooRexx> "═"~description=                                            -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'   (was 'UTF-8 not-ASCII (3 bytes)')
+'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 ooRexx> "═"~text~description=                                       -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 ooRexx> "═"~c2x=                                                    -- 'E29590'
@@ -663,13 +663,13 @@ ooRexx> "noël"~text~reverse~c2x=    -- '6C C3AB 6F 6E'
 ooRexx> "noël"~text~reverse=        -- T'lëon'
 T'lëon'
 
--- reverse (wrong)
+-- reverse (correct)    (was reverse (wrong) before automatic conversion of string literals to text)
 ooRexx> "noël"~c2x=             -- '6E6FC3AB6C'
-'6E6FC3AB6C'
-ooRexx> "noël"~reverse~c2x=     -- '6CABC36F6E'
-'6CABC36F6E'
-ooRexx> "noël"~reverse=         -- 'l??on'
-'l��on'
+'6E 6F C3AB 6C'
+ooRexx> "noël"~reverse~c2x=     -- '6C C3AB 6F 6E'  (was '6CABC36F6E' before automatic conversion of string literals to text)
+'6C C3AB 6F 6E'
+ooRexx> "noël"~reverse=         -- T'lëon'
+T'lëon'
 
 
 -- right
@@ -716,9 +716,9 @@ T'elx'
 ooRexx> "noel"~substr(3, 3, "▷")=; result~description=        -- self is a String: error because the pad character is 3 bytes
 Incorrect pad or character argument specified; found "▷"
 Error code= 93.922
-ooRexx> "noel"~substr(3, 3, "▷"~text)=; result~description=   -- self is a String: error because the pad character is not compatible with String
-UTF-8 not-ASCII '▷' cannot be converted to a String instance.
-Error code= 23.900
+ooRexx> "noel"~substr(3, 3, "▷"~text)=; result~description=   -- self is a String: error because the pad character is 3 bytes
+Incorrect pad or character argument specified; found "▷"
+Error code= 93.922
 ooRexx> "noel"~text~substr(3, 3, "▷")=; result~description=   -- no error because self is a RexxText and the pad character is one character when converted to the default encoding
 T'el▷'
 'UTF-8 not-ASCII (3 characters, 3 codepoints, 5 bytes, 0 error)'
@@ -828,12 +828,12 @@ ooRexx> pB~matches("abc")=                          -- 1
  1
 ooRexx> pT~matches("abc"~text)=                     -- 1
  1
-ooRexx> pB~matches("aôc")=                          -- 0 (KO)
- 0
+ooRexx> pB~matches("aôc")=                          -- 1    (was 0 (KO) before automatic conversion of string literals to text)
+ 1
 ooRexx> pT~matches("aôc"~text)=                     -- 1
  1
-ooRexx> pB~matches("a🎅c")=                         -- 0 (KO)
- 0
+ooRexx> pB~matches("a🎅c")=                         -- 1    (was 0 (KO) before automatic conversion of string literals to text)
+ 1
 ooRexx> pT~matches("a🎅c"~text)=                    -- 1
  1
 
@@ -843,12 +843,12 @@ ooRexx> pB~matches("🤶123🎅")=                      -- 1
  1
 ooRexx> pT~matches("🤶123🎅"~text)=                 -- 1
  1
-ooRexx> pB~matches("🤶🐕2🐈🎅")=                    -- 0 (KO)
- 0
+ooRexx> pB~matches("🤶🐕2🐈🎅")=                    -- 1    (was 0 (KO) before automatic conversion of string literals to text)
+ 1
 ooRexx> pT~matches("🤶🐕2🐈🎅"~text)=               -- 1
  1
-ooRexx> pB~matches("🤶🐕👩‍👨‍👩‍👧🐈🎅")=          -- 0 (KO)
- 0
+ooRexx> pB~matches("🤶🐕👩‍👨‍👩‍👧🐈🎅")=          -- 1    (was 0 (KO) before automatic conversion of string literals to text)
+ 1
 ooRexx> pT~matches("🤶🐕👩‍👨‍👩‍👧🐈🎅"~text)=     -- 1
  1
 
@@ -864,12 +864,12 @@ ooRexx> pB~startsWith("🎅🤶c")=                             -- 1
 ooRexx> pT~startsWith("🎅🤶c"~text)=                        -- 1
  1
 ooRexx> r = pB~find("xxx🤶🎅cxxx")
-ooRexx> r~matched=; r~start=; r~end=; r~text=; r~length=
+ooRexx> r~matched=; r~start=; r~end=; r~text=; r~length=    -- now ok (r~end was 8 and r~length was 4 before automatic conversion of string literals to text)
  1
  4
- 8
-'🤶'
- 4
+ 5
+T'🤶'
+ 1
 ooRexx> r = pT~find("xxx🤶🎅cxxx"~text)
 ooRexx> r~matched=; r~start=; r~end=; r~text=; r~length=
  1
@@ -878,12 +878,12 @@ ooRexx> r~matched=; r~start=; r~end=; r~text=; r~length=
 T'🤶'
  1
 ooRexx> r = pB~find("xxx🎅🤶cxxx")
-ooRexx> r~matched=; r~start=; r~end=; r~text=; r~length=
+ooRexx> r~matched=; r~start=; r~end=; r~text=; r~length=    -- now ok (r~end was 8 and r~length was 4 before automatic conversion of string literals to text)
  1
  4
- 8
-'🎅'
- 4
+ 5
+T'🎅'
+ 1
 ooRexx> r = pT~find("xxx🎅🤶cxxx"~text)
 ooRexx> r~matched=; r~start=; r~end=; r~text=; r~length=
  1
@@ -913,8 +913,8 @@ The invariants of the method 'center' are true for the RexxText, but not true fo
 the String (which is normal).
 */
 
-ooRexx> "═"~description=                                -- 'UTF-8 not-ASCII (3 bytes)'
-'UTF-8 not-ASCII by default (3 bytes)'
+ooRexx> "═"~description=                                -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'   (was 'UTF-8 not-ASCII (3 bytes)')
+'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 ooRexx> "═"~text~description=                           -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 ooRexx> "═"~c2x=                                        -- 'E29590'
@@ -955,8 +955,8 @@ ooRexx> "Noël"~isCompatibleWithByteString=              -- 0
  0
 ooRexx> length("Noël")=                                 -- TODO: 4 because "Noël"~text~length = 4
  5
-ooRexx> "Noël"~length=                                  -- 5 because String remains byte-oriented, not impacted by the default encoding
- 5
+ooRexx> "Noël"~length=                                  -- 4    (was "5 because String remains byte-oriented, not impacted by the default encoding" before automatic conversion of string literals to text)
+ 4
 
 -- UTF-16BE encoding
 ooRexx> s = "0041004200430044"x
@@ -964,8 +964,8 @@ ooRexx> s=                                              -- '[00]A[00]B[00]C[00]D
 '[00]A[00]B[00]C[00]D'
 ooRexx> s~isCompatibleWithByteString=                   -- 1
  1
-ooRexx> s~description=                                  -- 'UTF-8 ASCII (8 bytes)'
-'UTF-8 ASCII by default (8 bytes)'
+ooRexx> s~description=                                  -- 'Byte ASCII (8 bytes)'   (was 'UTF-8 ASCII (8 bytes)')
+'Byte ASCII (8 bytes)'
 ooRexx> length(s)=                                      -- 8 because encoding UTF-8 ASCII is compatible with String
  8
 ooRexx> s~encoding = "UTF16"
@@ -986,8 +986,8 @@ ooRexx> s=                                              -- '[000000]A[000000]B'
 '[000000]A[000000]B'
 ooRexx> s~isCompatibleWithByteString=                   -- 1
  1
-ooRexx> s~description=                                  -- 'UTF-8 ASCII (8 bytes)'
-'UTF-8 ASCII by default (8 bytes)'
+ooRexx> s~description=                                  -- 'Byte ASCII (8 bytes)'   (was 'UTF-8 ASCII (8 bytes)')
+'Byte ASCII (8 bytes)'
 ooRexx> length(s)=                                      -- 8 because encoding UTF-8 ASCII is compatible with String
  8
 ooRexx> s~encoding = "UTF32"

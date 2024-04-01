@@ -1,6 +1,11 @@
 /*
 Usage:
 rexx test_encoding_combinations.rex > test_encoding_combinations-output.txt
+
+Remember
+Major change on 2024, April 01
+The Byte_Encoding can be always absorbed.
+
 */
 
 -- Test all the combinations of encodings.
