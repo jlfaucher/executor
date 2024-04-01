@@ -740,6 +740,11 @@ Note that a profile can both add and remove boundary positions, compared to the
 results specified by UAX29-C1-1, UAX29-C2-1, or UAX29-C3-1.
 
 
+https://github.com/unicode-org/lstm_word_segmentation
+Python code for training an LSTM model for word segmentation in Thai, Burmese,
+and similar languages.
+
+
 ================================================================================
 Normalization, equivalence
 ================================================================================
@@ -1142,6 +1147,14 @@ Narrow down the list of ICU locales we ship
 
 https://github.com/unicode-org/icu4x/blob/main/docs/tutorials/data_management.md
 Data management in ICU4X
+
+
+https://pubs.opengroup.org/onlinepubs/9699919799/
+localedef - define locale environment
+If the locale value begins with a slash, it shall be interpreted as the pathname
+of a file that was created in the output format used by the localedef utility;
+see OUTPUT FILES under localedef. Referencing such a pathname shall result in
+that locale being used for the indicated category.
 
 
 ================================================================================
@@ -3920,6 +3933,65 @@ Markus Scherer:
 +1
     Language parameter for the other three segmenters
 +1
+
+
+https://github.com/unicode-org/icu4x/issues/3990
+Consider supporting retrieval of the language preference list from the system
+---
+jlf: some infos and pointers, for general culture.
+
+
+https://github.com/unicode-org/icu4x/issues/4705
+Bridge the gap between icu::properties::Script and icu::locid::subtags::Script
+---
+jlf: this is about script names
+---
+Markus Scherer
+    Conversion is probably fine, but in the end they are just script codes, so
+    it also makes sense to define the full set once and have Unicode APIs use a
+    subset of the values.
+    The ones in the UCD are a subset of the full set.
+    And only the ones in the UCD have Unicode-defined long value names (identifiers).
+Eggrobin
+    https://unicode.org/iso15924/codelists.html
+    https://unicode.org/iso15924/iso15924.txt
+    The PVA column is from https://www.unicode.org/Public/UCD/latest/ucd/PropertyValueAliases.txt.
+Markus Scherer
+    Also https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry
+    look for Type: script
+
+    which becomes this in CLDR:
+    https://github.com/unicode-org/cldr/blob/main/common/validity/script.xml
+
+    Note that the CLDR list includes one or more private use script subtags:
+
+    https://www.unicode.org/reports/tr35/#unicode_script_subtag_validity
+    https://www.unicode.org/reports/tr35/#Private_Use_Codes
+    Qaag is current but yucky... Don't include Qaai which has become an alias for Zinh
+
+
+https://github.com/unicode-org/icu4x/issues/3014
+Provide the Numeric_Value character property
+ICU4X is missing an API for querying the Numeric_Value property of a character.
+Markus Scherer
+    Note that Numeric_Value is easy when Numeric_Type=Decimal or Numeric_Type=Digit.
+    And maybe you need/want it only if Numeric_Type=Decimal.
+
+    When Numeric_Type=Numeric, then the Numeric_Value can be negative, huge, or a fraction.
+    These are rarely useful. https://www.unicode.org/reports/tr44/#Numeric_Value
+
+    I would start with an API that returns the value of a decimal digit.
+Markus Scherer
+    Most of the nt=digit characters are not part of a contiguous 0..9 range of characters.
+    In particular, there is often no zero.
+    Some of them are simply nt=digit because their nv is 0..9 although they are
+    part of a larger set of "numbered list bullets" where the nv>9 numbers have nt=numeric.
+
+    In UTS46, they are variously disallowed/mapped/valid.
+    See https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3Ant%3Ddigit%3A%5D&g=uts46&i=
+
+    It makes sense to me to have an API that returns the nv of nt=decimal but
+    the nv of other characters is rarely useful to programmers.
 
 
 ================================================================================
