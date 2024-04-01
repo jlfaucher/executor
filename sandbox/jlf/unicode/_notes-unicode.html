@@ -834,6 +834,11 @@ Note that a profile can both add and remove boundary positions, compared to the
 results specified by UAX29-C1-1, UAX29-C2-1, or UAX29-C3-1.
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/lstm_word_segmentation">https://github.com/unicode-org/lstm_word_segmentation</a>
+Python code for training an LSTM model for word segmentation in Thai, Burmese,
+and similar languages.
+
+
 <hr><h2 id="Normalization__equivalence">Normalization, equivalence</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/faq/normalization.html">https://www.unicode.org/faq/normalization.html</a>
 Normalization FAQ
@@ -1221,6 +1226,14 @@ Narrow down the list of ICU locales we ship
 
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/blob/main/docs/tutorials/data_management.md">https://github.com/unicode-org/icu4x/blob/main/docs/tutorials/data_management.md</a>
 Data management in ICU4X
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://pubs.opengroup.org/onlinepubs/9699919799/">https://pubs.opengroup.org/onlinepubs/9699919799/</a>
+localedef - define locale environment
+If the locale value begins with a slash, it shall be interpreted as the pathname
+of a file that was created in the output format used by the localedef utility;
+see OUTPUT FILES under localedef. Referencing such a pathname shall result in
+that locale being used for the indicated category.
 
 
 <hr><h2 id="CLDR_Common_Locale_Data_Repository">CLDR Common Locale Data Repository</h2><hr>
@@ -3879,6 +3892,65 @@ Markus Scherer:
 +1
     Language parameter for the other three segmenters
 +1
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/3990">https://github.com/unicode-org/icu4x/issues/3990</a>
+Consider supporting retrieval of the language preference list from the system
+---
+jlf: some infos and pointers, for general culture.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/4705">https://github.com/unicode-org/icu4x/issues/4705</a>
+Bridge the gap between icu::properties::Script and icu::locid::subtags::Script
+---
+jlf: this is about script names
+---
+Markus Scherer
+    Conversion is probably fine, but in the end they are just script codes, so
+    it also makes sense to define the full set once and have Unicode APIs use a
+    subset of the values.
+    The ones in the UCD are a subset of the full set.
+    And only the ones in the UCD have Unicode-defined long value names (identifiers).
+Eggrobin
+    <a target="_blank" rel="noopener noreferrer" href="https://unicode.org/iso15924/codelists.html">https://unicode.org/iso15924/codelists.html</a>
+    <a target="_blank" rel="noopener noreferrer" href="https://unicode.org/iso15924/iso15924.txt">https://unicode.org/iso15924/iso15924.txt</a>
+    The PVA column is from <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/Public/UCD/latest/ucd/PropertyValueAliases.txt.">https://www.unicode.org/Public/UCD/latest/ucd/PropertyValueAliases.txt.</a>
+Markus Scherer
+    Also <a target="_blank" rel="noopener noreferrer" href="https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry">https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry</a>
+    look for Type: script
+
+    which becomes this in CLDR:
+    <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/cldr/blob/main/common/validity/script.xml">https://github.com/unicode-org/cldr/blob/main/common/validity/script.xml</a>
+
+    Note that the CLDR list includes one or more private use script subtags:
+
+    <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr35/#unicode_script_subtag_validity">https://www.unicode.org/reports/tr35/#unicode_script_subtag_validity</a>
+    <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr35/#Private_Use_Codes">https://www.unicode.org/reports/tr35/#Private_Use_Codes</a>
+    Qaag is current but yucky... Don't include Qaai which has become an alias for Zinh
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/3014">https://github.com/unicode-org/icu4x/issues/3014</a>
+Provide the Numeric_Value character property
+ICU4X is missing an API for querying the Numeric_Value property of a character.
+Markus Scherer
+    Note that Numeric_Value is easy when Numeric_Type=Decimal or Numeric_Type=Digit.
+    And maybe you need/want it only if Numeric_Type=Decimal.
+
+    When Numeric_Type=Numeric, then the Numeric_Value can be negative, huge, or a fraction.
+    These are rarely useful. <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr44/#Numeric_Value">https://www.unicode.org/reports/tr44/#Numeric_Value</a>
+
+    I would start with an API that returns the value of a decimal digit.
+Markus Scherer
+    Most of the nt=digit characters are not part of a contiguous 0..9 range of characters.
+    In particular, there is often no zero.
+    Some of them are simply nt=digit because their nv is 0..9 although they are
+    part of a larger set of "numbered list bullets" where the nv&gt;9 numbers have nt=numeric.
+
+    In UTS46, they are variously disallowed/mapped/valid.
+    See <a target="_blank" rel="noopener noreferrer" href="https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3Ant%3Ddigit%3A%5D&g=uts46&i=">https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3Ant%3Ddigit%3A%5D&g=uts46&i=</a>
+
+    It makes sense to me to have an API that returns the nv of nt=decimal but
+    the nv of other characters is rarely useful to programmers.
 
 
 <hr><h2 id="utf8proc_title">utf8proc title</h2><hr>
