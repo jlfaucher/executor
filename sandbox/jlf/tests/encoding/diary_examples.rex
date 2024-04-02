@@ -16,8 +16,7 @@ A package has an encoding:
     encoding
     encoding=
     hasEncoding
-The calculation of the default encoding is not so good, probably to rework.
-But for the moment, it works for me...
+Rules for the calculation of a package default encoding:
 Case 1: package not requesting "text.cls", directly or indirectly.
     Most of the legacy packages don't support an encoding other than Byte.
     The package's default encoding is Byte (not .Encoding~defaultEncoding).
@@ -30,6 +29,7 @@ Case 2: package requesting "text.cls", directly or indirectly.
 /*
 New method setEncoding on String, MutableBuffer, Package and RexxText, to change
 the current encoding and return the previous encoding.
+The bytes are not impacted, it's just an update of the encoding annotation.
 Example, assuming the default encoding is UTF-8:
 */
 "Noel"~setEncoding("windows-1252")=     -- (The UTF8_Encoding class)    (previous encoding)
@@ -89,7 +89,7 @@ oldEncoding = .encoding~setDefaultEncoding("byte")
 
 "Noël"~class=                                       -- (The RexxText class)     R4
 "Noël"~string~class=                                -- (The String class)       R4 The string literal is a RexxText, the method ~string returns a String with encoding UTF-8
-"Noël"~~setEncoding("byte")~class=                  -- (The RexxText class)     R4 The string literal is a RexxText, its encoding is changed from UTF-8 to Byte, the method ~string returns a String with encoding Byte
+"Noël"~~setEncoding("byte")~class=                  -- (The RexxText class)     R4 The string literal is a RexxText, its encoding is changed from UTF-8 to Byte
 "Noël"~~setEncoding("byte")~string~class=           -- (The String class)       R4 The string literal is a RexxText, its encoding is changed from UTF-8 to Byte, the method ~string returns a String with encoding Byte
 
 
@@ -110,7 +110,7 @@ Example, assuming the default encoding and the package encoding are UTF-8:
 "Noël"~text~length=     -- 4
 "Noël"~string~length=   -- 5
 length("Noël")=         -- 5, should be 4    (with the constraint, would raise UTF-8 not-ASCII 'Noël' cannot be converted to a String instance)
-length("Noël"~string)   -- 5
+length("Noël"~string)=  -- 5
 
 
 /*
@@ -142,9 +142,14 @@ x2c("C3A9")~encoding=                           -- (The Byte_Encoding class)
 "C3A9"~x2c~encoding=                            -- (The Byte_Encoding class)
 
 -- Valid Byte string, but invalid UTF-8 string
+"C3"~x2c~class=                                 -- (The String class)
 "C3"~x2c~encoding=                              -- (The Byte_Encoding class)
+-- Apply an UTF-8 view through the String interface
+"C3"~x2c~~setEncoding("utf8")~description=      -- 'UTF-8 not-ASCII (1 byte)'
+"C3"~x2c~~setEncoding("utf8")~errors=           -- 'UTF-8 encoding: byte sequence at byte-position 1 is truncated, expected 2 bytes.'
+-- Apply an UTF-8 view through the RexxText interface
 "C3"~x2c~text("utf8")~description=              -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 1 byte, 1 error)'
-"C3"~x2c~text("utf8")~errors==                  -- 'UTF-8 encoding: byte sequence at byte-position 1 is truncated, expected 2 bytes
+"C3"~x2c~text("utf8")~errors=                   -- 'UTF-8 encoding: byte sequence at byte-position 1 is truncated, expected 2 bytes
 
 
 /*
@@ -182,7 +187,7 @@ Implementation of Strip:
 
 /*
 New methods on String for compatibility with RexxText (inherit StringRexxTextInterface).
-Most of these methods forward to string~text wich is UTF-8 by default.
+Most of these methods forward to string~text.
 */
 "a"~errors=                                 -- (The NIL object)
 "a"~isCompatibleWithASCII=                  -- 1

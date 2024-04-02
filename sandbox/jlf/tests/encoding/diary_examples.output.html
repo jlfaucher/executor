@@ -32,7 +32,7 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Apr 2024
-</span><span style="font-weight:bold;color:green;">Input queue name: S7989Q6000007c6be0
+</span><span style="font-weight:bold;color:green;">Input queue name: S8665Q6000007c6d80
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.1.0 
@@ -54,8 +54,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeTransfo
 </span><span style="font-weight:bold;color:blue;">    encoding
 </span><span style="font-weight:bold;color:blue;">    encoding=
 </span><span style="font-weight:bold;color:blue;">    hasEncoding
-</span><span style="font-weight:bold;color:blue;">The calculation of the default encoding is not so good, probably to rework.
-</span><span style="font-weight:bold;color:blue;">But for the moment, it works for me...
+</span><span style="font-weight:bold;color:blue;">Rules for the calculation of a package default encoding:
 </span><span style="font-weight:bold;color:blue;">Case 1: package not requesting &quot;text.cls&quot;, directly or indirectly.
 </span><span style="font-weight:bold;color:blue;">    Most of the legacy packages don't support an encoding other than Byte.
 </span><span style="font-weight:bold;color:blue;">    The package's default encoding is Byte (not .Encoding~defaultEncoding).
@@ -68,6 +67,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeTransfo
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">New method setEncoding on String, MutableBuffer, Package and RexxText, to change
 </span><span style="font-weight:bold;color:blue;">the current encoding and return the previous encoding.
+</span><span style="font-weight:bold;color:blue;">The bytes are not impacted, it's just an update of the encoding annotation.
 </span><span style="font-weight:bold;color:blue;">Example, assuming the default encoding is UTF-8:
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noel&quot;~setEncoding(&quot;windows-1252&quot;)=     </span><span style="font-weight:bold;color:blue;">-- (The UTF8_Encoding class)    (previous encoding)</span>
@@ -139,7 +139,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~class=
 (The RexxText class)
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~string~class=                                </span><span style="font-weight:bold;color:blue;">-- (The String class)       R4 The string literal is a RexxText, the method ~string returns a String with encoding UTF-8</span>
 (The String class)
-ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~~setEncoding(&quot;byte&quot;)~class=                  </span><span style="font-weight:bold;color:blue;">-- (The RexxText class)     R4 The string literal is a RexxText, its encoding is changed from UTF-8 to Byte, the method ~string returns a String with encoding Byte</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~~setEncoding(&quot;byte&quot;)~class=                  </span><span style="font-weight:bold;color:blue;">-- (The RexxText class)     R4 The string literal is a RexxText, its encoding is changed from UTF-8 to Byte</span>
 (The RexxText class)
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~~setEncoding(&quot;byte&quot;)~string~class=           </span><span style="font-weight:bold;color:blue;">-- (The String class)       R4 The string literal is a RexxText, its encoding is changed from UTF-8 to Byte, the method ~string returns a String with encoding Byte</span>
 (The String class)
@@ -166,10 +166,9 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~string
  5
 ooRexx&gt; <span style="font-weight:bold;color:purple;">length(&quot;Noël&quot;)=         </span><span style="font-weight:bold;color:blue;">-- 5, should be 4    (with the constraint, would raise UTF-8 not-ASCII 'Noël' cannot be converted to a String instance)</span>
  5
-ooRexx&gt; <span style="font-weight:bold;color:purple;">length(&quot;Noël&quot;~string)   </span><span style="font-weight:bold;color:blue;">-- 5</span>
-bash: 5: command not found
-<span style="font-weight:bold;color:red;">RC= 127
-</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">length(&quot;Noël&quot;~string)=  </span><span style="font-weight:bold;color:blue;">-- 5</span>
+ 5
+
 
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">The strings created by D2C, X2C are declared Byte encoded.
@@ -211,13 +210,20 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;C3A9&quot;~x2c~enc
 (The Byte_Encoding class)
 
 <span style="font-weight:bold;color:blue;">-- Valid Byte string, but invalid UTF-8 string
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;C3&quot;~x2c~encoding=                              </span><span style="font-weight:bold;color:blue;">-- (The Byte_Encoding class)</span>
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;C3&quot;~x2c~class=                                 </span><span style="font-weight:bold;color:blue;">-- (The String class)</span>
+(The String class)
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;C3&quot;~x2c~encoding=                              </span><span style="font-weight:bold;color:blue;">-- (The Byte_Encoding class)</span>
 (The Byte_Encoding class)
-ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;C3&quot;~x2c~text(&quot;utf8&quot;)~description=              </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 character, 1 codepoint, 1 byte, 1 error)'</span>
+<span style="font-weight:bold;color:blue;">-- Apply an UTF-8 view through the String interface
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;C3&quot;~x2c~~setEncoding(&quot;utf8&quot;)~description=      </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 byte)'</span>
+'UTF-8 not-ASCII (1 byte)'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;C3&quot;~x2c~~setEncoding(&quot;utf8&quot;)~errors=           </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 encoding: byte sequence at byte-position 1 is truncated, expected 2 bytes.'</span>
+['UTF-8 encoding: byte sequence at byte-position 1 is truncated, expected 2 bytes.']
+<span style="font-weight:bold;color:blue;">-- Apply an UTF-8 view through the RexxText interface
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;C3&quot;~x2c~text(&quot;utf8&quot;)~description=              </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 character, 1 codepoint, 1 byte, 1 error)'</span>
 'UTF-8 not-ASCII (1 character, 1 codepoint, 1 byte, 1 error)'
-ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;C3&quot;~x2c~text(&quot;utf8&quot;)~errors==                  </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 encoding: byte sequence at byte-position 1 is truncated, expected 2 bytes</span>
-an Array (shape [1], 1 items)
- 1 : 'UTF-8 encoding: byte sequence at byte-position 1 is truncated, expected 2 bytes.'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;C3&quot;~x2c~text(&quot;utf8&quot;)~errors=                   </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 encoding: byte sequence at byte-position 1 is truncated, expected 2 bytes</span>
+['UTF-8 encoding: byte sequence at byte-position 1 is truncated, expected 2 bytes.']
 
 
 <span style="font-weight:bold;color:blue;">/*
@@ -269,7 +275,7 @@ T''
 
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">New methods on String for compatibility with RexxText (inherit StringRexxTextInterface).
-</span><span style="font-weight:bold;color:blue;">Most of these methods forward to string~text wich is UTF-8 by default.
+</span><span style="font-weight:bold;color:blue;">Most of these methods forward to string~text.
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;a&quot;~errors=                                 </span><span style="font-weight:bold;color:blue;">-- (The NIL object)</span>
 (The NIL object)

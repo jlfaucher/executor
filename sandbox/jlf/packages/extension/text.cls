@@ -349,7 +349,7 @@ Always return the string (see also the implementation on MutableBuffer and RexxT
 
 
 ::method errors
-    if self~hasText then forward to (self~text)
+    /* if self~hasText then */ forward to (self~text)
     return .nil -- no errors
 
 
