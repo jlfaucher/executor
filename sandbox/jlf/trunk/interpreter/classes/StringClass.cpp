@@ -2256,8 +2256,10 @@ RexxObject *RexxString::evaluate(
             messageUnderstood = encoding->messageSend(OREF_ISBYTE, OREF_NULL, 0, 0, result, false);
             if (messageUnderstood && ((RexxObject *)result)->integerValue(9)->getValue() == 0) // not byte encoding
             {
+#if 0
                 messageUnderstood = this->messageSend(OREF_ISCOMPATIBLEWITHBYTESTRING, OREF_NULL, 0, 0, result, false);
                 if (messageUnderstood && ((RexxObject *)result)->integerValue(9)->getValue() == 0) // string not compatible with a byte string
+#endif
                 {
 #if 0
                     const char *s = this->getStringData();

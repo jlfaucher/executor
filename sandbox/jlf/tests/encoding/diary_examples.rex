@@ -8,6 +8,29 @@ call loadUnicodeCharacterNames
 
 
 -- ===============================================================================
+-- 2024 Apr 02
+
+/*
+No longer apply the rule R3 during the automatic conversion of String literals
+to RexxText instances. Any not-ASCII string is converted to a RexxText, whatever
+its encoding.
+Reason: inconsistency betwwen
+    "noel" "FF"x~~setEncoding("cp1252")=        -- 'noel [FF]' because concatenation of 2 String instances
+    "noël" "FF"x~~setEncoding("cp1252")=        -- Encoding: cannot append... because concatenation of a RexxText with a String
+Now:
+*/
+    "FF"x=                                      -- T'[FF]'  (was a String thanks to R3)
+    "noel" "FF"x~~setEncoding("cp1252")=        -- Encoding: cannot append windows-1252 not-ASCII '[FF]' to UTF-8 ASCII by default 'noel'   (was 'noel [FF]')
+/*
+Unchanged:
+*/
+    "noël" "FF"x=                               -- T'noël [FF]'     no error because the Byte_Encoding is always absorbed
+    "FF"x "noël"=                               -- T'[FF] noël'     idem
+    "noël" "FF"x~~setEncoding("cp1252")=        -- Encoding: cannot append windows-1252 not-ASCII '[FF]' to UTF-8 not-ASCII 'noël'
+    "FF"x~~setEncoding("cp1252") "noël"=        -- Encoding: cannot append UTF-8 not-ASCII 'noël' to windows-1252 not-ASCII '[FF]'
+
+
+-- ===============================================================================
 -- 2024 Apr 01
 
 /*
@@ -83,8 +106,9 @@ oldEncoding = .context~package~setEncoding("byte")
 "Noël"~class=                                       -- (The String class)       R2
 .context~package~setEncoding(oldEncoding)
 
+-- The rule R3 is no longer applied
 oldEncoding = .encoding~setDefaultEncoding("byte")
-"Noël"~class=                                       -- (The String class)       R3
+"Noël"~class=                                       -- (The RexxText class)     (was (The String class)       R3)
 .encoding~setDefaultEncoding(oldEncoding)
 
 "Noël"~class=                                       -- (The RexxText class)     R4
@@ -164,12 +188,12 @@ Examples:
 
 -- The encoding of an hexadecimal string is the Byte encoding
 "é"~c2x=                                        -- 'C3A9'
-"C3A9"x=                                        -- 'é'
+"C3A9"x=                                        -- T'é'
 "C3A9"x~encoding=                               -- (The Byte_Encoding class)
 
 -- The encoding of a binary string is the Byte encoding
 "é"~c2x~x2b=                                    -- 1100001110101001
-"11000011 10101001"b=                           -- 'é'
+"11000011 10101001"b=                           -- T'é'
 "11000011 10101001"b~encoding=                  -- (The Byte_Encoding class)
 
 
@@ -1172,12 +1196,12 @@ pB~startsWith('bXXXX')=                             -- 1
 pT~startsWith('bXXXX'~text)=                        -- 1
 pB~startsWith('🎅XXXX')=                            -- 1
 pT~startsWith('🎅XXXX'~text)=                       -- 1
-pB~startsWith('F0'x || 'XXXX')=                     -- 1    (was Invalid UTF-8 string (raised by utf8proc) (was 1 before automatic conversion of string literals to text))
+pB~startsWith('F0'x || 'XXXX')=                     -- Invalid UTF-8 string (raised by utf8proc) (was 1 before automatic conversion of string literals to text)
 pT~startsWith('F0'x || 'XXXX'~text)=                -- Invalid UTF-8 string (raised by utf8proc)
-pT~startsWith('F0'x || 'XXXX')=                     -- 1    (was Invalid UTF-8 string (raised by utf8proc) (was 1 (not good) before automatic conversion of string literals to text))
-pB~startsWith('9F'x || 'XXXX')=                     -- 1    (was Invalid UTF-8 string (raised by utf8proc) (was 1 before automatic conversion of string literals to text))
+pT~startsWith('F0'x || 'XXXX')=                     -- Invalid UTF-8 string (raised by utf8proc) (was 1 (not good) before automatic conversion of string literals to text)
+pB~startsWith('9F'x || 'XXXX')=                     -- Invalid UTF-8 string (raised by utf8proc) (was 1 before automatic conversion of string literals to text)
 pT~startsWith('9F'x || 'XXXX'~text)=                -- Invalid UTF-8 string (raised by utf8proc)
-pT~startsWith('9F'x || 'XXXX')=                     -- 1    (was Invalid UTF-8 string (raised by utf8proc) (was 1 (not good) before automatic conversion of string literals to text))
+pT~startsWith('9F'x || 'XXXX')=                     -- Invalid UTF-8 string (raised by utf8proc) (was 1 (not good) before automatic conversion of string literals to text)
 
 
 -- greedy pattern

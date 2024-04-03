@@ -28,7 +28,7 @@ Byte encoding
 sleep
 
 s = "63 C3 B4 74 65 CC 81 F0 9F 91 8D"x  -- An UTF-8 string. The Byte encoding works at byte level, as the String class
-s=                                       -- 'côté👍'
+s=                                       -- T'côté👍'
 .byte_encoding~decode(s, 1)=             -- 99 (63)
 .byte_encoding~decode(s, 2)=             -- 195 (C3)
 .byte_encoding~decode(s, 12)=            -- .nil (end of string)

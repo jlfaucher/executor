@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Apr 2024
-Input queue name: S76f2Q6000007c6be0
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 2 Apr 2024
+Input queue name: Sc28bQ6000007c80d0
 
 ----------------------------------
 -- Text encoding - Internal checks
@@ -52,8 +52,8 @@ Byte encoding
 */
 ooRexx[sh]> 
 ooRexx[sh]> s = "63 C3 B4 74 65 CC 81 F0 9F 91 8D"x  -- An UTF-8 string. The Byte encoding works at byte level, as the String class
-ooRexx[sh]> s=                                       -- 'côté👍'
-'côté👍'
+ooRexx[sh]> s=                                       -- T'côté👍'
+T'côté👍'
 ooRexx[sh]> .byte_encoding~decode(s, 1)=             -- 99 (63)
  99
 ooRexx[sh]> .byte_encoding~decode(s, 2)=             -- 195 (C3)

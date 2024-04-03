@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Apr 2024
-</span><span style="font-weight:bold;color:green;">Input queue name: S76f2Q6000007c6be0
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 2 Apr 2024
+</span><span style="font-weight:bold;color:green;">Input queue name: Sc28bQ6000007c80d0
 </span>
 <span style="font-weight:bold;color:blue;">----------------------------------
 </span><span style="font-weight:bold;color:blue;">-- Text encoding - Internal checks
@@ -62,8 +62,8 @@ T'éé'
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx[sh]&gt; 
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s = &quot;63 C3 B4 74 65 CC 81 F0 9F 91 8D&quot;x  </span><span style="font-weight:bold;color:blue;">-- An UTF-8 string. The Byte encoding works at byte level, as the String class</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s=                                       </span><span style="font-weight:bold;color:blue;">-- 'côté👍'</span>
-'côté👍'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s=                                       </span><span style="font-weight:bold;color:blue;">-- T'côté👍'</span>
+T'côté👍'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.byte_encoding~decode(s, 1)=             </span><span style="font-weight:bold;color:blue;">-- 99 (63)</span>
  99
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.byte_encoding~decode(s, 2)=             </span><span style="font-weight:bold;color:blue;">-- 195 (C3)</span>

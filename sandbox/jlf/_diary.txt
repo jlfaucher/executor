@@ -5,6 +5,40 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 ===============================================================================
 2024 Apr 03
 
+[Encoded strings]
+
+No longer apply the rule R3 during the automatic conversion of String literals
+to RexxText instances. Any not-ASCII string is converted to a RexxText, whatever
+its encoding.
+Reason: inconsistency betwwen
+    "noel" "FF"x~~setEncoding("cp1252")=        -- 'noel [FF]' because concatenation of 2 String instances
+    "noël" "FF"x~~setEncoding("cp1252")=        -- Encoding: cannot append... because concatenation of a RexxText with a String
+Now:
+    "FF"x=                                      -- T'[FF]'  (was a String thanks to R3)
+    "noel" "FF"x~~setEncoding("cp1252")=        -- Encoding: cannot append windows-1252 not-ASCII '[FF]' to UTF-8 ASCII by default 'noel'   (was 'noel [FF]')
+Unchanged:
+    "noël" "FF"x=                               -- T'noël [FF]'     no error because the Byte_Encoding is always absorbed
+    "FF"x "noël"=                               -- T'[FF] noël'     idem
+    "noël" "FF"x~~setEncoding("cp1252")=        -- Encoding: cannot append windows-1252 not-ASCII '[FF]' to UTF-8 not-ASCII 'noël'
+    "FF"x~~setEncoding("cp1252") "noël"=        -- Encoding: cannot append UTF-8 not-ASCII 'noël' to windows-1252 not-ASCII '[FF]'
+
+
+The literal strings are compressed by RexxSource::commonString.
+Because of that, the encoding of s1 is overwritten by the encoding of s2.
+Script:
+    say .context~package~encoding   -- The UTF8_Encoding class
+    s1 = "AB"
+    say s1~encoding                 -- The UTF8_Encoding class when s2 is not set, The Byte_Encoding class when s2 is set
+    s2 = "41 42"x                   -- "AB"
+    say s2~encoding                 -- The Byte_Encoding class
+This is the same problem that I detected already with interpret.
+Not a blocking problem.
+Maybe I will need to manage a table per encoding, will see.
+
+
+===============================================================================
+2024 Apr 03
+
 Got a random crash when running the test
     make list_invalid_utf8
 Added a GC protection in StringUtil::packHex and RexxSource::packLiteral,
@@ -15,7 +49,7 @@ After several runs in Xcode:
     #2	0x0000000100753c84 in RexxInstructionDo::checkControl(RexxActivation*, RexxExpressionStack*, RexxDoBlock*, bool)
     #3	0x0000000100753164 in RexxInstructionDo::execute(RexxActivation*, RexxExpressionStack*)
 Protect the result returned by callOperatorMethod, when needed (in DoInstruction.cpp):
-Add a GC protection in RexxInstructionDo::execute and RexxInstructionDo::controlSetup
+Add a GC protection in RexxInstructionDo::execute and RexxInstructionDo::controlSetup.
 
 
 ===============================================================================

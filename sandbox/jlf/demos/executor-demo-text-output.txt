@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Apr 2024
-Input queue name: S75f4Q6000007ea080
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 2 Apr 2024
+Input queue name: Sc252Q6000007ea490
 
 ----------------
 -- Text encoding
@@ -63,12 +63,12 @@ ooRexx[sh]> s1~c2x=                             -- C3 A9
 'C3A9'
 ooRexx[sh]> combining_acute_accent = "cc81"x
 ooRexx[sh]> s2 = "e" || combining_acute_accent
-ooRexx[sh]> s2=                                 -- 'é'
-'é'
-ooRexx[sh]> s2~length=                          -- 3
- 3
-ooRexx[sh]> s2~c2x=                             -- 65 CC 81
-'65CC81'
+ooRexx[sh]> s2=                                 -- T'é'
+T'é'
+ooRexx[sh]> s2~length=                          -- 1
+ 1
+ooRexx[sh]> s2~c2x=                             -- 65 CC81
+'65 CC81'
 
 /*
 My goal :

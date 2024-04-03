@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Apr 2024
-</span><span style="font-weight:bold;color:green;">Input queue name: S75f4Q6000007ea080
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 2 Apr 2024
+</span><span style="font-weight:bold;color:green;">Input queue name: Sc252Q6000007ea490
 </span>
 <span style="font-weight:bold;color:blue;">----------------
 </span><span style="font-weight:bold;color:blue;">-- Text encoding
@@ -73,12 +73,12 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s1~c2x=             
 'C3A9'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">combining_acute_accent = &quot;cc81&quot;x</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s2 = &quot;e&quot; || combining_acute_accent</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s2=                                 </span><span style="font-weight:bold;color:blue;">-- 'é'</span>
-'é'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s2~length=                          </span><span style="font-weight:bold;color:blue;">-- 3</span>
- 3
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s2~c2x=                             </span><span style="font-weight:bold;color:blue;">-- 65 CC 81</span>
-'65CC81'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s2=                                 </span><span style="font-weight:bold;color:blue;">-- T'é'</span>
+T'é'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s2~length=                          </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s2~c2x=                             </span><span style="font-weight:bold;color:blue;">-- 65 CC81</span>
+'65 CC81'
 
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">My goal :

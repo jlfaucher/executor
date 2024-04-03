@@ -38,12 +38,12 @@ ooRexx> s1~c2x=                             -- C3 A9
 'C3A9'
 ooRexx> combining_acute_accent = "cc81"x
 ooRexx> s2 = "e" || combining_acute_accent
-ooRexx> s2=                                 -- 'é'
-'é'
-ooRexx> s2~length=                          -- 3
- 3
-ooRexx> s2~c2x=                             -- 65 CC 81
-'65CC81'
+ooRexx> s2=                                 -- T'é'
+T'é'
+ooRexx> s2~length=                          -- 1
+ 1
+ooRexx> s2~c2x=                             -- 65 CC81
+'65 CC81'
 
 /*
 My goal :

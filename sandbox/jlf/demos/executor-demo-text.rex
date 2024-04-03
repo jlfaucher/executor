@@ -43,11 +43,11 @@ sleep
 combining_acute_accent = "cc81"x
 s2 = "e" || combining_acute_accent
 sleep
-s2=                                 -- 'é'
+s2=                                 -- T'é'
 sleep
-s2~length=                          -- 3
+s2~length=                          -- 1
 sleep
-s2~c2x=                             -- 65 CC 81
+s2~c2x=                             -- 65 CC81
 sleep no prompt
 
 /*
