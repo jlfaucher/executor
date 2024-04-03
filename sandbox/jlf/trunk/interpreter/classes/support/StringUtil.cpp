@@ -922,6 +922,7 @@ RexxString *StringUtil::packHex(const char *String, size_t StringLength)
     if (Retval != OREF_NULLSTRING)
     {
         // Declare that this string is byte encoded
+        ProtectedObject pRetval(Retval); // Must protect Retval because the GC can be triggered by messageSend
         ProtectedObject result;
         RexxObject *args[1];
         args[0] = OREF_BYTE; // positional argument

@@ -3,6 +3,22 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2024 Apr 03
+
+Got a random crash when running the test
+    make list_invalid_utf8
+Added a GC protection in StringUtil::packHex and RexxSource::packLiteral,
+but the crash still occurs randomly.
+After several runs in Xcode:
+    #0	0x000000010074bfb8 in RexxBehaviour::getOperatorMethod(unsigned long)               <-- EXC_BAD_ACCESS
+    #1	0x000000010074ba98 in callOperatorMethod(RexxObject*, unsigned long, RexxObject*)
+    #2	0x0000000100753c84 in RexxInstructionDo::checkControl(RexxActivation*, RexxExpressionStack*, RexxDoBlock*, bool)
+    #3	0x0000000100753164 in RexxInstructionDo::execute(RexxActivation*, RexxExpressionStack*)
+Protect the result returned by callOperatorMethod, when needed (in DoInstruction.cpp):
+Add a GC protection in RexxInstructionDo::execute and RexxInstructionDo::controlSetup
+
+
+===============================================================================
 2024 Apr 01
 
 [Encoded strings]
@@ -74,7 +90,7 @@ Examples:
 +-------------------------------------------+
 This is managed in RexxString::evaluate
 Rules:
-if string~isASCII then value = string                               -- R1 don't convert to RexxText if the string literal is ASCII
+if string~isASCII then value = string                               -- R1 don't convert to RexxText if the string literal is ASCII (here, NO test of encoding. Strong assumption: the source encoding is a byte encoding or UTF-8, not UTF-16 or UTF-32)
 else if .context~package~encoding~isByte then value = string        -- R2 don't convert to RexxText if the context package encoding is Byte.
 else if string~isCompatibleWithByteString then value = string       -- R3 don't convert to RexxText if the string literal is compatible with a Byte string.
 else value = string~text                                            -- R4 convert to RexxText

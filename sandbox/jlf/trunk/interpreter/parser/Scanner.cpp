@@ -638,6 +638,7 @@ RexxString *RexxSource::packLiteral(
     if (value != OREF_NULLSTRING)
     {
         // Declare that this string is byte encoded
+        ProtectedObject pvalue(value); // The GC can be triggered by messageSend. Already protected by this->commonString(value), but...
         ProtectedObject result;
         RexxObject *args[1];
         args[0] = OREF_BYTE; // positional argument

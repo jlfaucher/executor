@@ -216,6 +216,7 @@ void RexxInstructionDo::execute(
 {
     RexxDoBlock  *doblock = OREF_NULL;   /* active DO block                   */
     RexxObject   *result;                /* expression evaluation result      */
+    ProtectedObject p_result;
     RexxArray    *array;                 /* converted collection object       */
     wholenumber_t count;                 /* count for repetitive or FOR loops */
     RexxObject   *object;                /* result object (for error)*/
@@ -319,8 +320,10 @@ void RexxInstructionDo::execute(
                     /* which should force string         */
                     /* conversion also                   */
                     result = REQUEST_STRING(result);
+                    p_result = result;
                     /* force rounding                    */
                     result = callOperatorMethod(result, OPERATOR_PLUS, OREF_NULL);
+                    p_result = result;
                     context->traceResult(result);/* trace if necessary                */
                                                  /* convert the value                 */
                     if (!result->requestNumber(count, number_digits()))
@@ -362,8 +365,10 @@ void RexxInstructionDo::execute(
                     /* which should force string         */
                     /* conversion also                   */
                     result = REQUEST_STRING(result);
+                    p_result = result;
                     /* force rounding                    */
                     result = callOperatorMethod(result, OPERATOR_PLUS, OREF_NULL);
+                    p_result = result;
                     context->traceResult(result);/* trace if necessary                */
                                                  /* convert the value                 */
                     if (!result->requestNumber(count, number_digits()))
@@ -463,6 +468,7 @@ void RexxInstructionDo::controlSetup(
     RexxObject *result;                  /* expression result                 */
     ProtectedObject p_result;
     RexxObject *_initial;                /* initial variable value            */
+    ProtectedObject p_initial;
     RexxObject *object;                  /* original result object (for error)*/
     ProtectedObject p_object;
     wholenumber_t count;                 /* for count                         */
@@ -471,6 +477,7 @@ void RexxInstructionDo::controlSetup(
     _initial = this->initial->evaluate(context, stack);
     /* force rounding                    */
     _initial = callOperatorMethod(_initial, OPERATOR_PLUS, OREF_NULL);
+    p_initial = _initial;
     /* process each of the expressions   */
     for (i = 0; i < 3 && this->expressions[i] != 0; i++)
     {
