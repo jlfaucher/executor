@@ -12,8 +12,8 @@ call loadUnicodeCharacterNames
 
 /*
 No longer apply the rule R3 during the automatic conversion of String literals
-to RexxText instances. Any not-ASCII string is converted to a RexxText, whatever
-its encoding.
+to RexxText instances. If the package encoding is not a byte encoding then any
+not-ASCII String literal is converted to a RexxText, whatever its encoding.
 Reason: inconsistency betwwen
     "noel" "FF"x~~setEncoding("cp1252")=        -- 'noel [FF]' because concatenation of 2 String instances
     "noël" "FF"x~~setEncoding("cp1252")=        -- Encoding: cannot append... because concatenation of a RexxText with a String
@@ -94,9 +94,9 @@ Examples:
 +-------------------------------------------+
 This is managed in RexxString::evaluate
 Rules:
-if string~isASCII then value = string                               -- R1 don't convert to RexxText if the string literal is ASCII
-else if .context~package~encoding~isByte then value = string        -- R2 don't convert to RexxText if the context package encoding is Byte.
-else if string~isCompatibleWithByteString then value = string       -- R3 don't convert to RexxText if the string literal is compatible with a Byte string.
+if string~isASCII then value = string                               -- R1 don't convert to RexxText if the string literal is ASCII (here, NO test of encoding. Strong assumption: the source encoding is a byte encoding or UTF-8, not UTF-16 or UTF-32)
+else if .context~package~encoding~isByte then value = string        -- R2 don't convert to RexxText if the context package encoding is the Byte_Encoding or a subclass of it.
+-- else if string~isCompatibleWithByteString then value = string    -- R3 (no longer applied) don't convert to RexxText if the string literal is compatible with a Byte string.
 else value = string~text                                            -- R4 convert to RexxText
 Examples, assuming the package encoding is UTF-8:
 */
