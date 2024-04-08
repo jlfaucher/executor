@@ -139,6 +139,11 @@ public:
         return (RexxString *)protectedObject;
     }
 
+    inline operator RexxText *()
+    {
+        return (RexxText *)protectedObject;
+    }
+
     inline operator RexxMethod *()
     {
         return (RexxMethod *)protectedObject;

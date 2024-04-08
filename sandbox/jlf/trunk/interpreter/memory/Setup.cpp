@@ -174,6 +174,7 @@ void RexxMemory::createImage(const char *imageTarget)
 
                                        /* create string first               */
   RexxString::createInstance();
+  RexxText::createInstance(); // must be before the call new_text
   RexxObject::createInstance();
   RexxTable::createInstance();
   RexxIdentityTable::createInstance();
@@ -194,6 +195,7 @@ void RexxMemory::createImage(const char *imageTarget)
   IntegerNine    = new_integer(9);
   IntegerMinusOne = new_integer(-1);
 
+  TheNullText = new_text("");
 
                                        /* RexxNumberString                  */
   // NOTE:  The number string class lies about its identity
@@ -236,7 +238,6 @@ void RexxMemory::createImage(const char *imageTarget)
   WeakReference::createInstance();
   StackFrameClass::createInstance();
   RexxBlock::createInstance();
-  RexxText::createInstance();
   Unicode::createInstance();
 
                                        /* build the common retriever tables */

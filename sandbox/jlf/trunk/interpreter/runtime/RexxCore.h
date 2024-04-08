@@ -108,6 +108,7 @@ class RexxIntegerClass;
 class RexxArray;
 class RexxMemory;
 class RexxString;
+class RexxText;
 
 /******************************************************************************/
 /* Change EXTERN definition if not already created by GDATA                   */
@@ -199,6 +200,8 @@ EXTERNMEM RexxMemory  memoryObject;   /* memory object                     */
 #define IntegerEight RexxInteger::integerEight
 #define IntegerNine RexxInteger::integerNine
 #define IntegerMinusOne RexxInteger::integerMinusOne
+
+#define TheNullText RexxText::nullText
 
 #include "ClassTypeCodes.h"
 

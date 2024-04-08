@@ -65,6 +65,7 @@
   class SecurityManager;
   class BaseExecutable;
   class RexxActivity;
+  class RexxText;
 
 
   enum
@@ -292,10 +293,13 @@ inline uintptr_t HASHOREF(RexxVirtualBase *r) { return ((uintptr_t)r) >> OREFSHI
      virtual bool         truthValue(int);
      virtual bool         logicalValue(logical_t &);
      virtual RexxString  *makeString();
+     virtual RexxText    *makeText();
      virtual void         copyIntoTail(RexxCompoundTail *buffer);
      virtual RexxString  *primitiveMakeString();
+     virtual RexxText    *primitiveMakeText();
      virtual RexxArray   *makeArray();
      virtual RexxString  *stringValue();
+     virtual RexxText    *textValue();
      virtual RexxInteger *integerValue(size_t);
      virtual bool         numberValue(wholenumber_t &result, size_t precision);
      virtual bool         numberValue(wholenumber_t &result);
@@ -404,12 +408,14 @@ class RexxObject : public RexxInternalObject {
      RexxNumberString *numberString();
      RexxInteger *integerValue(size_t);
      RexxString  *makeString();
-     RexxString  *primitiveMakeString();
+     RexxText    *makeText();
      void         copyIntoTail(RexxCompoundTail *buffer);
      RexxArray   *makeArray();
      RexxString  *stringValue();
+     RexxText    *textValue();
      RexxString  *requestString();
      RexxString  *requestStringNoNOSTRING();
+     RexxText    *requestText();
      RexxInteger *requestInteger(size_t);
      bool         requestNumber(wholenumber_t &, size_t);
      bool         requestUnsignedNumber(stringsize_t &, size_t);

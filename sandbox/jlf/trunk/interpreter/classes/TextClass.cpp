@@ -48,12 +48,79 @@
 /******************************************************************************/
 
 // singleton class instance
-RexxClass *RexxText::classInstance = OREF_NULL;
+RexxTextClass *RexxText::classInstance = OREF_NULL; // TheRexxTextClass
+
+RexxText *RexxText::nullText = OREF_NULL; // Initialized by RexxMemory::restore (RexxMemory.cpp) and RexxMemory::createImage (Setup.cpp)
 
 
 void RexxText::createInstance()
 {
-    CLASS_CREATE(RexxText, "RexxText", RexxClass);
+    CLASS_CREATE(RexxText, "RexxText", RexxTextClass);
+}
+
+/*static*/ RexxText *RexxText::newText(RexxString *s)
+{
+    RexxObject *newObj = OREF_NULL;
+
+    // This method is called from RexxMemory::createImage and RexxMemory::restore
+    // At that moment, there is no current activity, and ProtectedObject can't be used.
+    // Use GlobalProtectedObject?
+    if (ActivityManager::currentActivity != NULL)
+    {
+        // Normal situation
+        newObj = new RexxText();
+        ProtectedObject p(newObj);
+        newObj->setBehaviour(TheRexxTextClass->getInstanceBehaviour());
+        if (TheRexxTextClass->hasUninitDefined())
+        {
+            newObj->hasUninit();
+        }
+        ProtectedObject p_result;
+        RexxObject *arguments[1];
+        arguments[0] = s;
+        bool messageUnderstood = newObj->messageSend(OREF_INIT, arguments, 1, 0, p_result, false);
+    }
+    else
+    {
+        // Special situation
+        newObj = new RexxText();
+        // ProtectedObject p(newObj);
+        newObj->setBehaviour(TheRexxTextClass->getInstanceBehaviour());
+        if (TheRexxTextClass->hasUninitDefined())
+        {
+            newObj->hasUninit();
+        }
+#if 0
+        // Can't send "INIT" because the extension is maybe not loaded
+        // Anyway, can't use messageSend because a ProtectedObject is needed
+        // TODO manage a native init which doesn't depend on extensions
+        ProtectedObject p_result;
+        RexxObject *arguments[1];
+        arguments[0] = s;
+        bool messageUnderstood = newObj->messageSend(OREF_INIT, arguments, 1, 0, p_result, false);
+#endif
+    }
+    return (RexxText *)newObj;
+}
+
+/*static*/ RexxText *RexxText::newText(const char *s, size_t blength)
+{
+    RexxString *string = new_string(s, blength);
+
+    // This method is called from RexxMemory::createImage and RexxMemory::restore
+    // At that moment, there is no current activity, and ProtectedObject can't be used.
+    if (ActivityManager::currentActivity != NULL)
+    {
+        // Normal situation
+        ProtectedObject p_string(string);
+        return newText(string);
+    }
+    else
+    {
+        // Special situation
+        // ProtectedObject p_string(string);
+        return newText(string);
+    }
 }
 
 RexxObject  *RexxText::newRexx(RexxObject **init_args, size_t argCount, size_t named_argCount)
@@ -100,6 +167,22 @@ RexxString *RexxText::primitiveMakeString()
 RexxString *RexxText::makeString()
 {
     return (RexxString *)this->sendMessage(OREF_REQUEST, OREF_STRINGSYM);
+}
+
+void RexxTextClass::live(size_t liveMark)
+{
+    this->RexxClass::live(liveMark);     // do RexxClass level marking
+
+    // mark the static objects
+    memory_mark(RexxText::nullText);
+}
+
+void RexxTextClass::liveGeneral(int reason)
+{
+    this->RexxClass::liveGeneral(reason);// do RexxClass level marking
+
+    // mark the static objects
+    memory_mark_general(RexxText::nullText);
 }
 
 

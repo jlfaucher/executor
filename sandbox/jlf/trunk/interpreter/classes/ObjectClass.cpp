@@ -59,6 +59,7 @@
 #include "SourceFile.hpp"
 #include "ProtectedObject.hpp"
 #include "PointerClass.hpp"
+#include "TextClass.hpp"
 
 
 // singleton class instance
@@ -1080,6 +1081,14 @@ RexxString *RexxInternalObject::stringValue()
     return OREF_NULLSTRING;              /* give a "safe" default here        */
 }
 
+RexxText *RexxInternalObject::textValue()
+/******************************************************************************/
+/* Function:  Convert a primitive internal object to a text value             */
+/******************************************************************************/
+{
+    return TheNullText;                  /* give a "safe" default here        */
+}
+
 RexxString *RexxObject::stringValue()
 /******************************************************************************/
 /* Function:  Convert a primitive object to a string value                    */
@@ -1089,12 +1098,30 @@ RexxString *RexxObject::stringValue()
     return (RexxString *)this->sendMessage(OREF_OBJECTNAME);
 }
 
+RexxText *RexxObject::textValue()
+/******************************************************************************/
+/* Function:  Convert a primitive object to a text value                      */
+/******************************************************************************/
+{
+    /* issue the text message     */
+    return (RexxText *)this->sendMessage(OREF_TEXT);
+}
+
 RexxString *RexxInternalObject::makeString()
 /******************************************************************************/
 /* Function:  Handle a string conversion REQUEST for an internal object       */
 /******************************************************************************/
 {
     return (RexxString *)TheNilObject;   /* should never occur                */
+}
+
+
+RexxText *RexxInternalObject::makeText()
+/******************************************************************************/
+/* Function:  Handle a text conversion REQUEST for an internal object         */
+/******************************************************************************/
+{
+    return (RexxText *)TheNilObject;   /* should never occur                  */
 }
 
 
@@ -1114,6 +1141,14 @@ RexxString *RexxInternalObject::primitiveMakeString()
     return (RexxString *)TheNilObject;   /* should never occur                */
 }
 
+RexxText *RexxInternalObject::primitiveMakeText()
+/******************************************************************************/
+/* Function:  Handle a text conversion REQUEST for an internal object         */
+/******************************************************************************/
+{
+    return (RexxText *)TheNilObject;   /* should never occur                  */
+}
+
 RexxString *RexxObject::makeString()
 /******************************************************************************/
 /* Function:  Handle a string conversion REQUEST for a REXX object            */
@@ -1124,6 +1159,20 @@ RexxString *RexxObject::makeString()
     else                                 /* process as a string request       */
     {
         return (RexxString *)this->sendMessage(OREF_REQUEST, OREF_STRINGSYM);
+    }
+}
+
+
+RexxText *RexxObject::makeText()
+/******************************************************************************/
+/* Function:  Handle a text conversion REQUEST for a REXX object              */
+/******************************************************************************/
+{
+    if (this->isBaseClass())             /* primitive object?                 */
+        return (RexxText *)TheNilObject; /* this never converts               */
+    else                                 /* process as a string request       */
+    {
+        return (RexxText *)this->sendMessage(OREF_REQUEST, OREF_TEXT);
     }
 }
 
@@ -1139,14 +1188,6 @@ void RexxObject::copyIntoTail(RexxCompoundTail *tail)
     value->copyIntoTail(tail);         /* pass this on to the string value  */
 }
 
-
-RexxString *RexxObject::primitiveMakeString()
-/******************************************************************************/
-/* Function:  Handle a string conversion REQUEST for a REXX object            */
-/******************************************************************************/
-{
-    return (RexxString *)TheNilObject;   /* this never converts               */
-}
 
 RexxArray *RexxInternalObject::makeArray()
 /******************************************************************************/
@@ -1261,6 +1302,40 @@ RexxString *RexxObject::requestStringNoNOSTRING()
             this->sendMessage(OREF_STRINGSYM, string_value);
         }
         return(RexxString *)string_value;  /* return the converted form         */
+    }
+}
+
+
+RexxText *RexxObject::requestText()
+/******************************************************************************/
+/* Function:  Handle a text request for a REXX object.  This will go          */
+/*            through the whole search order to do the conversion.            */
+/******************************************************************************/
+{
+
+    /* primitive object?                 */
+    if (this->isBaseClass())
+    {
+        RexxText *text_value;            /* converted object                  */
+        /* get the text representation     */
+        text_value = this->primitiveMakeText();
+        if (text_value == TheNilObject)
+        {/* didn't convert?                   */
+         /* get the final text value        */
+            text_value = this->textValue();
+        }
+        return text_value;
+    }
+    else
+    {                               /* do a real request for this        */
+        ProtectedObject text_value;
+        this->sendMessage(OREF_REQUEST, OREF_TEXT, text_value);
+        if (text_value == TheNilObject)
+        {/* didn't convert?                   */
+         /* get the final text value          */
+            this->sendMessage(OREF_TEXT, text_value);
+        }
+        return (RexxText *)text_value;  /* return the converted form         */
     }
 }
 

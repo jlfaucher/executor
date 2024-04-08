@@ -2379,7 +2379,7 @@ void RexxMemory::restore()
     RESTORE_CLASS(WeakReference, RexxClass);
     RESTORE_CLASS(StackFrame, RexxClass);
     RESTORE_CLASS(RexxBlock, RexxClass);
-    RESTORE_CLASS(RexxText, RexxClass);
+    RESTORE_CLASS(RexxText, RexxTextClass);
     RESTORE_CLASS(Unicode, RexxClass);
 
     memoryObject.setOldSpace();          /* Mark Memory Object as OldSpace    */
@@ -2397,6 +2397,8 @@ void RexxMemory::restore()
     IntegerEight  = new_integer(8);
     IntegerNine   = new_integer(9);
     IntegerMinusOne = new_integer(-1);
+
+    TheNullText = new_text("");
 
     // the activity manager will create the local server, which will use the
     // stream classes.  We need to get the external libraries reloaded before

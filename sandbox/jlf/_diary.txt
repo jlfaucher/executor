@@ -3,13 +3,36 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2024 Apr 08
+
+[Encoded strings]
+
+Start native integration of RexxText in the interpreter.
+    RexxText *RexxInternalObject::textValue()
+    RexxText *RexxObject::textValue()
+    RexxText *RexxInternalObject::makeText()
+    RexxText *RexxInternalObject::primitiveMakeText()
+    RexxText *RexxObject::makeText()
+    RexxText *RexxObject::requestText()
+
+    static RexxText *nullText;
+    static RexxText *newText(RexxString *s);                To rework!
+    static RexxText *newText(const char *s, size_t l);      To rework!
+    inline RexxText *new_text(RexxString *s)
+    inline RexxText *new_text(const char *s, size_t l)
+    inline RexxText *new_text(const char *s)
+
+    Metaclass RexxTextClass to mark the static field RexxText::nullText.
+
+
+===============================================================================
 2024 Apr 03
 
 [Encoded strings]
 
 No longer apply the rule R3 during the automatic conversion of String literals
-to RexxText instances. Any not-ASCII string is converted to a RexxText, whatever
-its encoding.
+to RexxText instances. If the package encoding is not a byte encoding then any
+not-ASCII String literal is converted to a RexxText, whatever its encoding.
 Reason: inconsistency betwwen
     "noel" "FF"x~~setEncoding("cp1252")=        -- 'noel [FF]' because concatenation of 2 String instances
     "noël" "FF"x~~setEncoding("cp1252")=        -- Encoding: cannot append... because concatenation of a RexxText with a String
@@ -125,8 +148,8 @@ Examples:
 This is managed in RexxString::evaluate
 Rules:
 if string~isASCII then value = string                               -- R1 don't convert to RexxText if the string literal is ASCII (here, NO test of encoding. Strong assumption: the source encoding is a byte encoding or UTF-8, not UTF-16 or UTF-32)
-else if .context~package~encoding~isByte then value = string        -- R2 don't convert to RexxText if the context package encoding is Byte.
-else if string~isCompatibleWithByteString then value = string       -- R3 don't convert to RexxText if the string literal is compatible with a Byte string.
+else if .context~package~encoding~isByte then value = string        -- R2 don't convert to RexxText if the context package encoding is the Byte_Encoding or a subclass of it.
+-- else if string~isCompatibleWithByteString then value = string    -- R3 (no longer applied) don't convert to RexxText if the string literal is compatible with a Byte string.
 else value = string~text                                            -- R4 convert to RexxText
 Example, assuming the package encoding is UTF-8:
     "Noel"~class=                                       -- (The String class)       R1
@@ -135,8 +158,9 @@ Example, assuming the package encoding is UTF-8:
     "Noël"~class=                                       -- (The String class)       R2
     .context~package~setEncoding(oldEncoding)
 
+    -- The rule R3 is no longer applied
     oldEncoding = .encoding~setDefaultEncoding("byte")
-    "Noël"~class=                                       -- (The String class)       R3
+    "Noël"~class=                                       -- (The RexxText class)     (was (The String class)       R3)
     .encoding~setDefaultEncoding(oldEncoding)
 
     "Noël"~class=                                       -- (The RexxText class)     R4
@@ -210,12 +234,12 @@ Examples:
 
     -- The encoding of an hexadecimal string is the Byte encoding
     "é"~c2x=                                        -- 'C3A9'
-    "C3A9"x=                                        -- 'é'
+    "C3A9"x=                                        -- T'é'
     "C3A9"x~encoding=                               -- (The Byte_Encoding class)
 
     -- The encoding of a binary string is the Byte encoding
     "é"~c2x~x2b=                                    -- 1100001110101001
-    "11000011 10101001"b=                           -- 'é'
+    "11000011 10101001"b=                           -- T'é'
     "11000011 10101001"b~encoding=                  -- (The Byte_Encoding class)
 
 

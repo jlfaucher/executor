@@ -49,6 +49,24 @@
 /*                                                                            */
 /******************************************************************************/
 
+// Needs a specific metaclass because RexxText has some static fields that need to be marked for garbage collection.
+class RexxTextClass : public RexxClass {
+ public:
+  inline RexxTextClass(RESTORETYPE restoreType) { ; };
+  void *operator new(size_t size, void *ptr) {return ptr;};
+  void *operator new (size_t);
+  void *operator new(size_t size, size_t size1, const char *className, RexxBehaviour *classBehave, RexxBehaviour *instance) { return new (size, className, classBehave, instance) RexxClass; }
+  inline void operator delete(void *, void *ptr) { }
+  inline void operator delete (void *) { }
+  inline void operator delete(void *, size_t, const char *, RexxBehaviour *, RexxBehaviour *) { }
+
+  inline RexxTextClass() { ; };
+
+  void live(size_t);
+  void liveGeneral(int reason);
+};
+
+
 // A RexxText is a RexxString by delegation, not by inheritance (don't inherit from RexxString)
 class RexxText : public RexxObject
 {
@@ -66,12 +84,33 @@ public:
     inline RexxText(RESTORETYPE restoreType) { ; };
 
     RexxObject  *newRexx(RexxObject **, size_t, size_t);
-    static void createInstance();
-    static RexxClass *classInstance; // RexxCore.h #define TheRexxTextClass RexxText::classInstance
 
     RexxString *primitiveMakeString(); // needed to convert "b"~text to string when calling left("b"~text, 1)
     RexxString *makeString();          // needed to convert "b"~text to string when calling "abc"~pos("b"~text)
+
+    static void createInstance();
+    static RexxTextClass *classInstance; // RexxCore.h #define TheRexxTextClass RexxText::classInstance
+
+    static RexxText *nullText;
+
+    static RexxText *newText(RexxString *s);
+    static RexxText *newText(const char *s, size_t l);
 };
+
+inline RexxText *new_text(RexxString *s)
+{
+    return RexxText::newText(s);
+}
+
+inline RexxText *new_text(const char *s, size_t l)
+{
+    return RexxText::newText(s, l);
+}
+
+inline RexxText *new_text(const char *s)
+{
+    return new_text(s, strlen(s));
+}
 
 
 /******************************************************************************/
