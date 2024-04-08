@@ -219,3 +219,125 @@ You can verify this by adding a say "statement" to your init method in the mixin
 It is only called when mixin class is initially created, and not when the c class
 is instantiated. If you add a setter for the V attribute to your mixin and use it
 to assign a value, the value will stick.
+
+
+================================================================================
+
+I never realized that the RexxInteger has a (what? metaclass?) different from RexxClass...
+And apparently, it’s the only class to be like that.
+
+My notes:
+
+All classes declare their class using CLASS_CREATE
+except RexxInteger and NumberString which use CLASS_CREATE_SPECIAL
+and except RexxClass, probably for bootstrap.
+    CLASS_CREATE_SPECIAL(NumberString, "String", RexxClass);
+    CLASS_CREATE_SPECIAL(Integer,      "String", RexxIntegerClass);
+
+RexxClass *NumberString::classInstance = OREF_NULL;
+RexxIntegerClass *RexxInteger::classInstance = OREF_NULL;
+
+
+Only the file IntegerClass.cpp has 2 live methods:
+void RexxInteger::live(size_t liveMark)
+void RexxIntegerClass::live(size_t liveMark)
+
+
+I noticed that all the class are doing
+    memory_mark(objectVariables);
+instead of doing
+    RexxObject::live(liveMark)
+
+This is aligned with the comment in ObjectClass.cpp
+ * Other exported classes that inherit from Object are
+ * also expected to mark this field.
+but to not forget if other attributes are added to RexxObject in the future.
+
+
+Additional notes:
+
+#define CLASS_CREATE(name) The##name##Class = new RexxClass(#name, The##name##ClassBehaviour, The##name##Behaviour);
+#define CLASS_CREATE_SPECIAL(name, id, className) The##name##Class = new className(id, The##name##ClassBehaviour, The##name##Behaviour);
+
+
+RexxClass *RexxClass::classInstance = OREF_NULL;
+RexxClass *RexxObject::classInstance = OREF_NULL;
+RexxClass *RexxString::classInstance = OREF_NULL;
+RexxIntegerClass *RexxInteger::classInstance = OREF_NULL;
+RexxClass *NumberString::classInstance = OREF_NULL;
+
+
+#define CLASS_CREATE(name)                        The##name##Class = new RexxClass(#name, The##name##ClassBehaviour, The##name##Behaviour);
+#define CLASS_CREATE_SPECIAL(name, id, className) The##name##Class = new className(id,    The##name##ClassBehaviour, The##name##Behaviour);
+
+
+ClassClass.cpp
+--------------
+RexxClass *RexxClass::classInstance = OREF_NULL;
+
+void RexxClass::createInstance()
+{
+    // create a class object
+    TheClassClass = (RexxClass *)new_object(sizeof(RexxClass));
+    // set the instance behaviour
+    TheClassClass->setBehaviour(TheClassClassBehaviour);
+    // set the instance behaviour
+    TheClassClass->setInstanceBehaviour(TheClassBehaviour);
+
+    // the initial class needs to have an ID before it can be used for
+    // other purposes.
+    TheClassClass->id = new_string("Class");
+
+    // tell the mobile support to just make a proxy for this class
+    TheClassClass->makeProxiedObject();
+    ::new ((void *)TheClassClass) RexxClass;
+}
+
+
+ObjectClass.cpp
+---------------
+RexxClass *RexxObject::classInstance = OREF_NULL;
+
+void RexxObject::createInstance()
+{
+    CLASS_CREATE(Object);
+}
+
+
+
+StringClass.cpp
+---------------
+RexxClass *RexxString::classInstance = OREF_NULL;
+
+void RexxString::createInstance()
+{
+    CLASS_CREATE(String);
+}
+
+
+IntegerClass.cpp
+----------------
+RexxIntegerClass *RexxInteger::classInstance = OREF_NULL;
+
+void RexxInteger::createInstance()
+{
+    CLASS_CREATE_SPECIAL(Integer, "String", RexxIntegerClass);
+    TheIntegerClass->initCache();
+}
+
+
+NumberStringClass.cpp
+---------------------
+RexxClass *NumberString::classInstance = OREF_NULL;
+
+void NumberString::createInstance()
+{
+    CLASS_CREATE_SPECIAL(NumberString, "String", RexxClass);
+}
+
+
+setup.cpp
+---------
+    RexxClass::createInstance();
+    RexxInteger::createInstance();
+
