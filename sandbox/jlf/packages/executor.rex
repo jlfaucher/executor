@@ -17,6 +17,7 @@ Differences, compared to rexx -e:
 signal on syntax name trap_error
 --.environment["DEBUGOUTPUT"] = .traceOutput
 .environment["DEBUGOUTPUT"] = .nullOutput
+defaultEncoding = .encoding~defaultEncoding
 
 -- The intermediate actions are postponed until the whole arguments have been parsed
 actions = .queue~new
@@ -30,22 +31,61 @@ parse_options:
     else if option == "-l"         then signal load_library
     else if option == "-p"         then signal load_package
     else if option == "-v"         then signal display_version
+    else if option == "--encoding" then signal default_encoding
     else if option~left(1) == "-"  then signal unknown_option
     else if option \== ""          then signal run_script
-    else if actions~isEmpty        then signal usage
+    -- else if actions~isEmpty        then signal usage
     else return execute_actions()
+
+
+usage:
+    .error~say("Usage:")
+    .error~say("    executor (-l libray | -p package)* --encoding encodingName [-f] filename [arguments]")
+    .error~say("    executor (-l libray | -p package)* --encoding encodingName  -e  string   [arguments]")
+    .error~say("    executor -v")
+    return -1
+
+
+missing_final_action:
+    if \ actions~isEmpty then do
+        .error~say("You did not specify what to execute:")
+        .error~say("    either [-f] filename [arguments]")
+        .error~say("    or      -e  string   [arguments]")
+    end
+    signal usage
 
 
 unknown_option:
     .error~say("Unknown option" option)
     signal usage
 
-usage:
-    .error~say("Usage:")
-    .error~say("    executor (-l libray | -p package)* [-f] filename [arguments]")
-    .error~say("    executor (-l libray | -p package)*  -e  string   [arguments]")
-    .error~say("    executor -v")
-    return -1
+
+display_version:
+    "rexx -v"
+    return RC
+
+
+default_encoding:
+    call shift_c_args -- remove --encoding
+    encodingName = c_arg()
+    if encodingName == "" then do
+        .error~say("Missing encoding")
+        signal usage
+    end
+    if encodingName~left(1) == "-" then do
+        .error~say("Missing encoding, got option" encodingName)
+        signal usage
+    end
+    call shift_c_args -- remove encoding
+    defaultEncoding = getEncoding(encodingName)
+    if defaultEncoding == .nil then do
+        .error~say(encodingName~quoted "is an invalid encoding.")
+        .error~say("Supported encodings:")
+        call saySupportedEncodings, indent:4, stream:.error
+        return -1
+    end
+    actions~append{ return .true } -- keep it, it's a way to know that an action was requested
+    signal parse_options -- continue parsing
 
 
 load_library:
@@ -93,8 +133,8 @@ run_string:
     call shift_c_args -- remove string
     args = remaining_c_args() -- as a string
     return execute_actions{
-        expose string args
-        interpreter = .Interpreter~new(string)
+        expose string args defaultEncoding
+        interpreter = .Interpreter~new(string, defaultEncoding)
         if args == "" then interpreter~interpret       -- arg() == 0
                       else interpreter~interpret(args) -- arg() == 1, whatever the number of C arguments
         -- return result and RC, if any
@@ -117,21 +157,24 @@ run_script:
     call shift_c_args -- remove filename to be aligned with rexx
     args = remaining_c_args() -- as a string
     return execute_actions{
-        expose filename args
+        expose filename args defaultEncoding
         .context~package~setUserData("displayStackFrame", "stop before")
+        -- can't use the call instruction because must have access to the package of the called filename
+        /*
         if args == "" then call (filename)      -- arg() == 0
                       else call (filename) args -- arg() == 1, whatever the number of C arguments
+        */
+        routine = .Routine~newFile(filename)
+        .encoding~setDefaultEncoding(defaultEncoding)
+        routine~package~setEncoding(defaultEncoding)
+        if args == "" then routine~call         -- arg() == 0
+                      else routine~call(args)   -- arg() == 1, whatever the number of C arguments
         -- return result and RC, if any
         res = .array~new(2)
         if var("result") then res[1] = result
         if var("RC") then res[2] = RC
         return res
     }
-
-
-display_version:
-    "rexx -v"
-    return RC
 
 
 execute_actions: procedure expose actions
@@ -157,11 +200,11 @@ execute_actions: procedure expose actions
     call declareAllPublicClasses
     call declareAllPublicRoutines
 
-    if .nil \== final_action then do
-        res = final_action~do
-        if res~hasIndex(1) then action_result = res[1]
-        if res~hasIndex(2) then action_RC = res[2]
-    end
+    if .nil == final_action then signal missing_final_action
+
+    res = final_action~do
+    if res~hasIndex(1) then action_result = res[1]
+    if res~hasIndex(2) then action_RC = res[2]
 
     return:
     if var("action_result") then return action_result
@@ -205,6 +248,35 @@ trap_error:
 
 ::routine remaining_c_args
     return .syscargs~toString("line", " ") -- concatenate all the remaining C arguments, separated by a space character.
+
+
+-------------------------------------------------------------------------------
+-- Helpers for encodings
+
+::routine saySupportedEncodings
+    use strict arg -- none
+    use strict named arg indent=0, stream=.output
+    spaces = " "~copies(indent)
+    encodings = .encoding~list~table
+    allIndexes = encodings~allIndexes
+    widthMax = 0
+    do encodingName over allIndexes
+        widthMax = max(widthMax, encodingName~length)
+    end
+    do encodingName over allIndexes~sort
+        stream~say(spaces || encodingName~left(widthMax) || " : " || encodings[encodingName])
+    end
+
+
+::routine getEncoding
+    use strict arg encodingName
+    signal on syntax name invalid_encoding
+        encoding = .encoding~factory(encodingName)
+    signal off syntax
+    return encoding
+
+    invalid_encoding:
+    return .nil
 
 
 -------------------------------------------------------------------------------
@@ -368,13 +440,15 @@ trap_error:
 ::class "Interpreter"
 
 ::method init
-    expose string
-    use strict arg string
+    expose string encoding
+    use strict arg string, encoding
 
 ::method interpret
-    expose string
+    expose string encoding
     .context~package~setUserData("name", "running INSTORE")
     .context~package~setUserData("displayStackFrame", "stop before")
+    .context~package~setEncoding(encoding)
+    .encoding~setDefaultEncoding(encoding)
     options COMMANDS
     interpret string
     -- Note: if the string contains a return or an exit, then you don't reach this line
@@ -407,6 +481,13 @@ Without this requires, the blocks used in this script were not initialized corre
 
 -- For setUserData, getUserData
 ::requires "extension/object.cls"
+
+-- For the class .Encoding
+::requires "encoding/stringEncoding.cls"
+
+-- For Supplier~table
+::requires "extension/collection.cls"
+
 
 -------------------------------------------------------------------------------
 

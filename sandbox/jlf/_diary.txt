@@ -3,6 +3,25 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2024 Apr 10
+
+[Extended interpreter]
+
+The script 'executor' now supports the option --encoding <encodingName>
+to override the default encoding.
+Usage:
+    executor (-l libray | -p package)* --encoding encodingName [-f] filename [arguments]
+    executor (-l libray | -p package)* --encoding encodingName  -e  string   [arguments]
+    executor -v
+Examples:
+    rexx executor --encoding cp1252 -e "say .encoding~defaultEncoding"      -- The WINDOWS1252_Encoding class
+    rexx executor --encoding cp1252 -e "say .context~package~name"          -- /local/rexx/oorexx/executor/sandbox/jlf/packages/executor.REX
+    rexx executor --encoding cp1252 -e "say .context~package~encoding"      -- The WINDOWS1252_Encoding class
+    rexx executor --encoding cp1252 -e "say 'Noël'~class"                   -- The String class
+    rexx executor --encoding utf8 -e "say 'Noël'~class"                     -- The RexxText class
+
+
+===============================================================================
 2024 Apr 08
 
 [Encoded strings]
@@ -141,7 +160,7 @@ Examples:
 
 
 +-------------------------------------------+
-|            IMPORTANT MILESTONE            |
+|          1st important milestone          |
 | Activation of the automatic conversion    |
 | of String literals to RexxText instances  |
 +-------------------------------------------+
@@ -3406,6 +3425,7 @@ Idem for the function 'left'
 todo:
 apply this change to all the functions and methods that take a pad argument.
 2022 Oct, 4: a more general approach can be used, see notes on Oct 4.
+2024 Apr, 10: the string BIFs are polymorphic on RexxString/RexxText.
 
 
 ===============================================================================
