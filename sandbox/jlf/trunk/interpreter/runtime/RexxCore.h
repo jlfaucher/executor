@@ -453,6 +453,18 @@ inline RexxArray * REQUEST_ARRAY(RexxObject *obj) { return ((obj)->requestArray(
 inline RexxInteger * REQUEST_INTEGER(RexxObject *obj) { return ((obj)->requestInteger(Numerics::ARGUMENT_DIGITS));}
 
 
+// Returns true if at least one positional argument is a RexxText
+inline bool hasRexxTextArguments(RexxObject **arguments, size_t argcount)
+{
+    for (size_t i=0; i < argcount; i++)
+    {
+        RexxObject *arg = arguments[i];
+        if (arg != OREF_NULL && isOfClass(RexxText, arg)) return true;
+    }
+    return false;
+}
+
+
 /******************************************************************************/
 /* Named argument helpers                                                     */
 /******************************************************************************/

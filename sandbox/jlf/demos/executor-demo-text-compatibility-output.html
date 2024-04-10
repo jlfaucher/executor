@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Apr 2024
-</span><span style="font-weight:bold;color:green;">Input queue name: S772aQ6000007c6be0
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 9 Apr 2024
+</span><span style="font-weight:bold;color:green;">Input queue name: S3de6Q600003f02490
 </span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.1.0 
@@ -935,49 +935,40 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~unckeckedCo
 </span><span style="font-weight:bold;color:blue;">-----------------------------------------
 </span>
 <span style="font-weight:bold;color:blue;">/*
-</span><span style="font-weight:bold;color:blue;">[Intermediate solution]
-</span><span style="font-weight:bold;color:blue;">
-</span><span style="font-weight:bold;color:blue;">Several solutions in RosettaCode are in error because the pad character used
-</span><span style="font-weight:bold;color:blue;">with the function 'center' is a UTF-8 string made of several bytes.
-</span><span style="font-weight:bold;color:blue;">The function center now supports utf-8 pad made of 1 multi-bytes character.
-</span><span style="font-weight:bold;color:blue;">When the pad is not a 1 byte character then the interpreter converts the string
-</span><span style="font-weight:bold;color:blue;">to a RexxText and sends it the message &quot;center&quot;.
-</span><span style="font-weight:bold;color:blue;">The returned value is the String associated to the RexxText.
-</span><span style="font-weight:bold;color:blue;">
-</span><span style="font-weight:bold;color:blue;">The invariants of the method 'center' are true for the RexxText, but not true for
-</span><span style="font-weight:bold;color:blue;">the String (which is normal).
+</span><span style="font-weight:bold;color:blue;">The string BIFs are polymorphic on RexxString/RexxText.
+</span><span style="font-weight:bold;color:blue;">If at least one positional argument is a RexxText then the BIF forwards to
+</span><span style="font-weight:bold;color:blue;">RexxText, otherwise the BIF forwards to RexxString.
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~description=                                </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'   (was 'UTF-8 not-ASCII (3 bytes)')</span>
+<span style="font-weight:bold;color:blue;">-- Function 'center'
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~description=                                </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'   (was 'UTF-8 not-ASCII (3 bytes)')</span>
 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~text~description=                           </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'</span>
 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~c2x=                                        </span><span style="font-weight:bold;color:blue;">-- 'E29590'</span>
 'E29590'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">center(&quot;hello&quot;, 20, &quot;═&quot;)=                       </span><span style="font-weight:bold;color:blue;">-- '═══════hello════════'</span>
-'═══════hello════════'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">center(&quot;hello&quot;, 20, &quot;═&quot;)=                       </span><span style="font-weight:bold;color:blue;">-- T'═══════hello════════'</span>
+T'═══════hello════════'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">center(&quot;hello&quot;, 20, &quot;═&quot;)~text~description=      </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'</span>
 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
 
-<span style="font-weight:bold;color:blue;">-- Idem for the function 'left'
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">left(&quot;hello&quot;, 20, &quot;═&quot;)=                         </span><span style="font-weight:bold;color:blue;">-- 'hello═══════════════'</span>
-'hello═══════════════'
+<span style="font-weight:bold;color:blue;">-- Function 'left'
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">left(&quot;hello&quot;, 20, &quot;═&quot;)=                         </span><span style="font-weight:bold;color:blue;">-- T'hello═══════════════'</span>
+T'hello═══════════════'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">left(&quot;hello&quot;, 20, &quot;═&quot;)~text~description=        </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'</span>
 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
 
 
 <span style="font-weight:bold;color:blue;">/*
-</span><span style="font-weight:bold;color:blue;">[General solution]
-</span><span style="font-weight:bold;color:blue;">
-</span><span style="font-weight:bold;color:blue;">The new path I would like to explore is the support of graphemes by ALL the BIF...
-</span><span style="font-weight:bold;color:blue;">I have already a tiny support for center() and left(), only triggered in case of
-</span><span style="font-weight:bold;color:blue;">pad character made of several bytes.
-</span><span style="font-weight:bold;color:blue;">
-</span><span style="font-weight:bold;color:blue;">The generalization would be to route the BIF either towards String or towards RexxText,
+</span><span style="font-weight:bold;color:blue;">[ABANDONNED]
+</span><span style="font-weight:bold;color:blue;">Other polymorphism: route the BIF either towards String or towards RexxText,
 </span><span style="font-weight:bold;color:blue;">in function of the compatibility of the arguments with String:
 </span><span style="font-weight:bold;color:blue;">BIF(str1, str2, ..., strN)
 </span><span style="font-weight:bold;color:blue;">    --&gt; forward to String (byte-oriented) if str's encoding is Byte or UTF-8 (with ASCII characters only)
 </span><span style="font-weight:bold;color:blue;">    --&gt; forward to RexxText otherwise
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">Abandonned because we have already the polymorphism on RexxString/RexxText which
+</span><span style="font-weight:bold;color:blue;">is more easy to control and to understand.
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
 <span style="font-weight:bold;color:blue;">-- UTF-8 encoding
@@ -988,9 +979,9 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">length(&quot;Noel&qu
  4
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~isCompatibleWithByteString=              </span><span style="font-weight:bold;color:blue;">-- 0</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">length(&quot;Noël&quot;)=                                 </span><span style="font-weight:bold;color:blue;">-- TODO: 4 because &quot;Noël&quot;~text~length = 4</span>
- 5
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~length=                                  </span><span style="font-weight:bold;color:blue;">-- 4    (was &quot;5 because String remains byte-oriented, not impacted by the default encoding&quot; before automatic conversion of string literals to text)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">length(&quot;Noël&quot;)=                                 </span><span style="font-weight:bold;color:blue;">-- 4 because &quot;Noël&quot; is a RexxText   (was TODO: 4 because &quot;Noël&quot;~text~length = 4)</span>
+ 4
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~length=                                  </span><span style="font-weight:bold;color:blue;">-- 4 because &quot;Noël&quot; is a RexxText   (was &quot;5 because String remains byte-oriented, not impacted by the default encoding&quot; before automatic conversion of string literals to text)</span>
  4
 
 <span style="font-weight:bold;color:blue;">-- UTF-16BE encoding
@@ -1010,9 +1001,9 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~description=      
 'UTF-16BE (8 bytes)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~length=                                       </span><span style="font-weight:bold;color:blue;">-- 8 because String is always byte-oriented (ignores the encoding)</span>
  8
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">length(s)=                                      </span><span style="font-weight:bold;color:blue;">-- TODO: 4 because forwards to Text (encoding UTF-16BE is not compatible with String)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">length(s)=                                      </span><span style="font-weight:bold;color:blue;">-- 8    (was TODO: 4 because forwards to Text (encoding UTF-16BE is not compatible with String))</span>
  8
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~text~utf8=                                    </span><span style="font-weight:bold;color:blue;">-- ABCD</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~text~utf8=                                    </span><span style="font-weight:bold;color:blue;">-- T'ABCD'</span>
 T'ABCD'
 
 <span style="font-weight:bold;color:blue;">-- UTF-32 encoding
@@ -1032,9 +1023,9 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~description=      
 'UTF-32BE (8 bytes)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~length=                                       </span><span style="font-weight:bold;color:blue;">-- 8 because String is always byte-oriented (ignores the encoding)</span>
  8
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">length(s)=                                      </span><span style="font-weight:bold;color:blue;">-- TODO: 2 because forwards to Text (encoding UTF-32 is not compatible with String)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">length(s)=                                      </span><span style="font-weight:bold;color:blue;">-- 8    (was TODO: 2 because forwards to Text (encoding UTF-32 is not compatible with String))</span>
  8
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~text~utf8=                                    </span><span style="font-weight:bold;color:blue;">-- AB</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~text~utf8=                                    </span><span style="font-weight:bold;color:blue;">-- T'AB'</span>
 T'AB'
 
 

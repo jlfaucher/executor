@@ -778,49 +778,40 @@ sleep no prompt
 -----------------------------------------
 
 /*
-[Intermediate solution]
-
-Several solutions in RosettaCode are in error because the pad character used
-with the function 'center' is a UTF-8 string made of several bytes.
-The function center now supports utf-8 pad made of 1 multi-bytes character.
-When the pad is not a 1 byte character then the interpreter converts the string
-to a RexxText and sends it the message "center".
-The returned value is the String associated to the RexxText.
-
-The invariants of the method 'center' are true for the RexxText, but not true for
-the String (which is normal).
+The string BIFs are polymorphic on RexxString/RexxText.
+If at least one positional argument is a RexxText then the BIF forwards to
+RexxText, otherwise the BIF forwards to RexxString.
 */
 
+-- Function 'center'
 "═"~description=                                -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'   (was 'UTF-8 not-ASCII (3 bytes)')
 sleep
 "═"~text~description=                           -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 sleep
 "═"~c2x=                                        -- 'E29590'
 sleep
-center("hello", 20, "═")=                       -- '═══════hello════════'
+center("hello", 20, "═")=                       -- T'═══════hello════════'
 sleep
 center("hello", 20, "═")~text~description=      -- 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
 sleep no prompt
 
--- Idem for the function 'left'
-left("hello", 20, "═")=                         -- 'hello═══════════════'
+-- Function 'left'
+left("hello", 20, "═")=                         -- T'hello═══════════════'
 sleep
 left("hello", 20, "═")~text~description=        -- 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
 sleep no prompt
 
 
 /*
-[General solution]
-
-The new path I would like to explore is the support of graphemes by ALL the BIF...
-I have already a tiny support for center() and left(), only triggered in case of
-pad character made of several bytes.
-
-The generalization would be to route the BIF either towards String or towards RexxText,
+[ABANDONNED]
+Other polymorphism: route the BIF either towards String or towards RexxText,
 in function of the compatibility of the arguments with String:
 BIF(str1, str2, ..., strN)
     --> forward to String (byte-oriented) if str's encoding is Byte or UTF-8 (with ASCII characters only)
     --> forward to RexxText otherwise
+
+Abandonned because we have already the polymorphism on RexxString/RexxText which
+is more easy to control and to understand.
 */
 sleep no prompt
 
@@ -832,9 +823,9 @@ length("Noel")=                                 -- 4 because "Noel"~length = 4
 sleep
 "Noël"~isCompatibleWithByteString=              -- 0
 sleep
-length("Noël")=                                 -- TODO: 4 because "Noël"~text~length = 4
+length("Noël")=                                 -- 4 because "Noël" is a RexxText   (was TODO: 4 because "Noël"~text~length = 4)
 sleep
-"Noël"~length=                                  -- 4    (was "5 because String remains byte-oriented, not impacted by the default encoding" before automatic conversion of string literals to text)
+"Noël"~length=                                  -- 4 because "Noël" is a RexxText   (was "5 because String remains byte-oriented, not impacted by the default encoding" before automatic conversion of string literals to text)
 sleep no prompt
 
 -- UTF-16BE encoding
@@ -853,9 +844,9 @@ s~description=                                  -- 'UTF-16BE (8 bytes)'
 sleep
 s~length=                                       -- 8 because String is always byte-oriented (ignores the encoding)
 sleep
-length(s)=                                      -- TODO: 4 because forwards to Text (encoding UTF-16BE is not compatible with String)
+length(s)=                                      -- 8    (was TODO: 4 because forwards to Text (encoding UTF-16BE is not compatible with String))
 sleep
-s~text~utf8=                                    -- ABCD
+s~text~utf8=                                    -- T'ABCD'
 sleep no prompt
 
 -- UTF-32 encoding
@@ -874,9 +865,9 @@ s~description=                                  -- 'UTF-32BE (8 bytes)'
 sleep
 s~length=                                       -- 8 because String is always byte-oriented (ignores the encoding)
 sleep
-length(s)=                                      -- TODO: 2 because forwards to Text (encoding UTF-32 is not compatible with String)
+length(s)=                                      -- 8    (was TODO: 2 because forwards to Text (encoding UTF-32 is not compatible with String))
 sleep
-s~text~utf8=                                    -- AB
+s~text~utf8=                                    -- T'AB'
 sleep no prompt
 
 

@@ -8,6 +8,143 @@ call loadUnicodeCharacterNames
 
 
 -- ===============================================================================
+-- 2024 Apr 10
+
+/*
++-----------------------------------------------------------+
+|                  2nd important milestone                  |
+| The string BIFs become polymorphic on RexxString/RexxText |
++-----------------------------------------------------------+
+If at least one positional argument is a RexxText then the BIF forwards to
+RexxText, otherwise the BIF forwards to RexxString.
+Enhanced BIFs:
+    ABBREV
+    CENTER      implemented on RexxText
+    CENTRE      implemented on RexxText
+    CHANGESTR
+    COMPARE     implemented on RexxText
+    COPIES      implemented on RexxText
+    COUNTSTR
+    D2C         implemented on RexxText
+    DELSTR
+    DELWORD
+    INSERT
+    LASTPOS
+    LEFT        implemented on RexxText
+    LENGTH      implemented on RexxText
+    LOWER       implemented on RexxText
+    OVERLAY
+    POS         implemented on RexxText
+    REVERSE     implemented on RexxText
+    RIGHT       implemented on RexxText
+    SPACE
+    STRIP       implemented on RexxText
+    SUBSTR      implemented on RexxText
+    SUBWORD
+    UPPER       implemented on RexxText
+    VERIFY
+    WORD
+    WORDINDEX
+    WORDLENGTH
+    WORDPOS
+    WORDS
+    X2C         implemented on RexxText
+Examples:
+*/
+-- CENTER
+CENTER("Noel", 10, "*")=                        -- '***Noel***'
+CENTER("Noel", 10, "🤶")=                       -- T'🤶🤶🤶Noel🤶🤶🤶'  because "🤶" is a RexxText
+CENTER("Noël", 10, "*")=                        -- T'***Noël***'            because "Noël" is a RexxText
+CENTER("Noël"~string, 10, "*")=                 --  '**Noël***'
+CENTER("Noël", 10, "🤶")=                       -- T'🤶🤶🤶Noël🤶🤶🤶'
+CENTER("Noël"~string, 10, "🤶")=                -- T'🤶🤶🤶Noël🤶🤶🤶'  because "🤶" is a RexxText
+CENTER("Noël", 10, "🤶"~string)=                -- T'🤶🤶🤶Noël🤶🤶🤶'  because "Noël" is a RexxText
+CENTER("Noel", 10, "🤶"~string)=                -- CENTER positional argument 3 must be a single character; found "🤶"
+CENTER("Noël"~string, 10, "🤶"~string)=         -- CENTER positional argument 3 must be a single character; found "🤶"
+
+-- Other BIFs
+ABBREV("Printer","Pri")=                        --  1
+ABBREV("Printer 🖨","Pri")=                     -- Object "Printer 🖨" does not understand message "ABBREV"
+CHANGESTR("p", "mpNoelpp", "m", 2)=             -- 'mmNoelmp'
+CHANGESTR("🎅", "🤶🎅Noël🎅🎅", "🤶", 2)=   -- Object "🤶🎅Noël🎅🎅" does not understand message "CHANGESTR"
+COMPARE("straSssSSssse", "stra", "S")=          -- 6
+COMPARE("straßssßßssse", "stra", "ß")=          -- 6
+COPIES("🤶", 4)=                                -- T'🤶🤶🤶🤶'
+COUNTSTR("m", "mpmp")=                          --  2
+COUNTSTR("🤶", "🤶🎅🤶🎅")=                 -- Object "🤶🎅🤶🎅" does not understand message "COUNTSTR"
+D2C(65)=                                        -- 'A'
+D2C(65~text)=                                   -- T'A'
+DELSTR("Noel", 3, 2)=                           -- 'No'
+DELSTR("Noël", 3, 2)=                           -- Object "Noël" does not understand message "DELSTR"
+DELWORD("Pere Noel p", 2, 2)=                   -- 'Pere '
+DELWORD("Père Noël 🎅", 2, 2)=                  -- Object "Père Noël 🎅" does not understand message "DELWORD"
+INSERT("123", "abc", 5, 6, "+")=                -- 'abc++123+++'
+INSERT("123", "abc", 5, 6, "🎅")=               -- Object "abc" does not understand message "INSERT"
+LASTPOS("m", "mMere Noelm")=                    -- 11
+LASTPOS("🤶", "🤶Mère Noël🤶")=                 -- Object "🤶Mère Noël🤶" does not understand message "LASTPOS"
+LEFT("abc d",8,".")=                            -- 'abc d...'
+LEFT("abc d",8,"🤶")=                           -- T'abc d🤶🤶🤶'
+LENGTH("Père Noël 🎅"~string)=                  -- 16
+LENGTH("Père Noël 🎅")=                         -- 11
+LOWER("PÈRE NOËL")=                             -- T'père noël'
+OVERLAY("123","abc",5,6,"+")=                   -- 'abc+123+++'
+OVERLAY("123","abc",5,6,"🤶")=                  -- Object "abc" does not understand message "OVERLAY"
+POS("Frei", "Bundesstraße im Freiland")=        -- 17
+REVERSE("Noël")=                                -- T'lëoN'
+RIGHT("12",5,"0")=                              --  00012
+RIGHT("12",5,"𝟶")=                             -- T'𝟶𝟶𝟶12'
+SPACE("abc  def  ",2,"+")=                      -- 'abc++def'
+SPACE("abc  def  ",2,"⊕")=                      -- Object "abc  def  " does not understand message "SPACE"
+STRIP("12.0000", "T", '.0')=                    --  12
+STRIP("12.øøøø", "T", '.ø')=                   -- T'12'    where 'ø'~c2x='C3B8'.
+STRIP(("12.øø" || "C3"x || "øø")~string, "T", '.ø'~string)=    --  12  Every byte of the last parameter is searched and removed
+STRIP("12.øø" || "C3"x || "øø", "T", '.ø')=                    -- Invalid UTF-8 string (raised by utf8proc)
+STRIP(("12.øø" || "C3"x || "øø")~transcodeTo("ISO-8859-1", replacementCharacter:"#"), "T", '.ø'~transcodeTo("ISO-8859-1"))=   -- T'12.??#'
+SUBSTR("abc",2,6,".")=                          -- 'bc....'
+SUBSTR("abc",2,6,"🤶")=                         -- T'bc🤶🤶🤶🤶'
+SUBWORD("Now is   the time",2,2)=               -- 'is   the'
+SUBWORD("Now is   the 🕑",2,2)=                 -- Object "Now is   the 🕑" does not understand message "SUBWORD"
+UPPER("père noël")=                             -- T'PÈRE NOËL'
+VERIFY("ABCDEF","ABC","N",2,3)=                 --  4
+VERIFY("ABCDEF","ABC","N"~text,2,3)=            -- Object "ABCDEF" does not understand message "VERIFY" (yes! ANY parameter is tested, including the option)
+WORD("Now is the time",3)=                      -- 'the'
+WORD("Now is the 🕑",3)=                        -- Object "Now is the 🕑" does not understand message "WORD"
+WORDINDEX("Now is the time",3)=                 --  8
+WORDINDEX("Now is the 🕑",3)=                   -- Object "Now is the 🕑" does not understand message "WORDINDEX"
+WORDLENGTH("Now is the time",4)=                --  4
+WORDLENGTH("Now is the 🕑",4)=                  -- Object "Now is the 🕑" does not understand message "WORDLENGTH"
+WORDPOS("the","Now is the time")=               --  3
+WORDPOS("the","Now is the 🕑")=                 -- Object "Now is the 🕑" does not understand message "WORDPOS"
+WORDS("Now is the time")=                       --  4
+WORDS("Now is the 🕑")=                         -- Object "Now is the 🕑" does not understand message "WORDS"
+X2C(41)=                                        -- 'A'
+X2C(41~text)=                                   -- T'A'
+
+
+/*
+Still not sure:
+When the target is a String, should the BIF d2c and x2c return a RexxText when
+the result is not-ASCII and the evaluation context encoding is not Byte?
+That would be consistent with the rules for literal string (R1, R2).
+Currently, assuming the package encoding is UTF-8:
+"FF"x is a RexxText but x2c("FF") is a String.
+And what about "FF"~x2c? currently it's a String.
+Examples:
+*/
+"FF"x=;result~description=                      -- T'[FF]'      'Byte not-ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
+x2c("FF")=;result~description=                  -- '[FF]'       'Byte not-ASCII (1 byte)'
+"FF"~x2c=;result~description=                   -- '[FF]'       'Byte not-ASCII (1 byte)'
+"FF"~text~x2c=;result~description=              -- T'[FF]'      'UTF-8 not-ASCII (1 character, 1 codepoint, 1 byte, 1 error)'
+"FF"~text("cp1252")~x2c=;result~description=    -- T'[FF]'      'windows-1252 not-ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
+---
+"41"x=;result~description=                      -- 'A'          'Byte ASCII (1 byte)'
+x2c("41")=;result~description=                  -- 'A'          'Byte ASCII (1 byte)'
+"41"~x2c=;result~description=                   -- 'A'          'Byte ASCII (1 byte)'
+"41"~text~x2c=;result~description=              -- T'A'         'UTF-8 ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
+"41"~text("cp1252")~x2c=;result~description=    -- T'A'         'windows-1252 ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
+
+
+-- ===============================================================================
 -- 2024 Apr 02
 
 /*
@@ -88,7 +225,7 @@ Examples:
 
 /*
 +-------------------------------------------+
-|            IMPORTANT MILESTONE            |
+|          1st important milestone          |
 | Activation of the automatic conversion    |
 | of String literals to RexxText instances  |
 +-------------------------------------------+
@@ -133,7 +270,7 @@ Example, assuming the default encoding and the package encoding are UTF-8:
 "Noël"~length=          -- 4
 "Noël"~text~length=     -- 4
 "Noël"~string~length=   -- 5
-length("Noël")=         -- 5, should be 4    (with the constraint, would raise UTF-8 not-ASCII 'Noël' cannot be converted to a String instance)
+length("Noël")=         -- 4    (was 5, should be 4    (with the constraint, would raise UTF-8 not-ASCII 'Noël' cannot be converted to a String instance))
 length("Noël"~string)=  -- 5
 
 

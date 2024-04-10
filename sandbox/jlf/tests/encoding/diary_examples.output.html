@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 7 Apr 2024
-</span><span style="font-weight:bold;color:green;">Input queue name: S334Q600003f01860
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 9 Apr 2024
+</span><span style="font-weight:bold;color:green;">Input queue name: S4f91Q600003f151e0
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.1.0 
@@ -43,6 +43,247 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacte
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeTranscodings = .false</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeTransformations = .false</span>
+
+
+<span style="font-weight:bold;color:blue;">-- ===============================================================================
+</span><span style="font-weight:bold;color:blue;">-- 2024 Apr 10
+</span>
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">+-----------------------------------------------------------+
+</span><span style="font-weight:bold;color:blue;">|                  2nd important milestone                  |
+</span><span style="font-weight:bold;color:blue;">| The string BIFs become polymorphic on RexxString/RexxText |
+</span><span style="font-weight:bold;color:blue;">+-----------------------------------------------------------+
+</span><span style="font-weight:bold;color:blue;">If at least one positional argument is a RexxText then the BIF forwards to
+</span><span style="font-weight:bold;color:blue;">RexxText, otherwise the BIF forwards to RexxString.
+</span><span style="font-weight:bold;color:blue;">Enhanced BIFs:
+</span><span style="font-weight:bold;color:blue;">    ABBREV
+</span><span style="font-weight:bold;color:blue;">    CENTER      implemented on RexxText
+</span><span style="font-weight:bold;color:blue;">    CENTRE      implemented on RexxText
+</span><span style="font-weight:bold;color:blue;">    CHANGESTR
+</span><span style="font-weight:bold;color:blue;">    COMPARE     implemented on RexxText
+</span><span style="font-weight:bold;color:blue;">    COPIES      implemented on RexxText
+</span><span style="font-weight:bold;color:blue;">    COUNTSTR
+</span><span style="font-weight:bold;color:blue;">    D2C         implemented on RexxText
+</span><span style="font-weight:bold;color:blue;">    DELSTR
+</span><span style="font-weight:bold;color:blue;">    DELWORD
+</span><span style="font-weight:bold;color:blue;">    INSERT
+</span><span style="font-weight:bold;color:blue;">    LASTPOS
+</span><span style="font-weight:bold;color:blue;">    LEFT        implemented on RexxText
+</span><span style="font-weight:bold;color:blue;">    LENGTH      implemented on RexxText
+</span><span style="font-weight:bold;color:blue;">    LOWER       implemented on RexxText
+</span><span style="font-weight:bold;color:blue;">    OVERLAY
+</span><span style="font-weight:bold;color:blue;">    POS         implemented on RexxText
+</span><span style="font-weight:bold;color:blue;">    REVERSE     implemented on RexxText
+</span><span style="font-weight:bold;color:blue;">    RIGHT       implemented on RexxText
+</span><span style="font-weight:bold;color:blue;">    SPACE
+</span><span style="font-weight:bold;color:blue;">    STRIP       implemented on RexxText
+</span><span style="font-weight:bold;color:blue;">    SUBSTR      implemented on RexxText
+</span><span style="font-weight:bold;color:blue;">    SUBWORD
+</span><span style="font-weight:bold;color:blue;">    UPPER       implemented on RexxText
+</span><span style="font-weight:bold;color:blue;">    VERIFY
+</span><span style="font-weight:bold;color:blue;">    WORD
+</span><span style="font-weight:bold;color:blue;">    WORDINDEX
+</span><span style="font-weight:bold;color:blue;">    WORDLENGTH
+</span><span style="font-weight:bold;color:blue;">    WORDPOS
+</span><span style="font-weight:bold;color:blue;">    WORDS
+</span><span style="font-weight:bold;color:blue;">    X2C         implemented on RexxText
+</span><span style="font-weight:bold;color:blue;">Examples:
+</span><span style="font-weight:bold;color:blue;">*/
+</span><span style="font-weight:bold;color:blue;">-- CENTER
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">CENTER(&quot;Noel&quot;, 10, &quot;*&quot;)=                        </span><span style="font-weight:bold;color:blue;">-- '***Noel***'</span>
+'***Noel***'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">CENTER(&quot;Noel&quot;, 10, &quot;🤶&quot;)=                       </span><span style="font-weight:bold;color:blue;">-- T'🤶🤶🤶Noel🤶🤶🤶'  because &quot;🤶&quot; is a RexxText</span>
+T'🤶🤶🤶Noel🤶🤶🤶'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">CENTER(&quot;Noël&quot;, 10, &quot;*&quot;)=                        </span><span style="font-weight:bold;color:blue;">-- T'***Noël***'            because &quot;Noël&quot; is a RexxText</span>
+T'***Noël***'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">CENTER(&quot;Noël&quot;~string, 10, &quot;*&quot;)=                 </span><span style="font-weight:bold;color:blue;">--  '**Noël***'</span>
+'**Noël***'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">CENTER(&quot;Noël&quot;, 10, &quot;🤶&quot;)=                       </span><span style="font-weight:bold;color:blue;">-- T'🤶🤶🤶Noël🤶🤶🤶'</span>
+T'🤶🤶🤶Noël🤶🤶🤶'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">CENTER(&quot;Noël&quot;~string, 10, &quot;🤶&quot;)=                </span><span style="font-weight:bold;color:blue;">-- T'🤶🤶🤶Noël🤶🤶🤶'  because &quot;🤶&quot; is a RexxText</span>
+T'🤶🤶🤶Noël🤶🤶🤶'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">CENTER(&quot;Noël&quot;, 10, &quot;🤶&quot;~string)=                </span><span style="font-weight:bold;color:blue;">-- T'🤶🤶🤶Noël🤶🤶🤶'  because &quot;Noël&quot; is a RexxText</span>
+T'🤶🤶🤶Noël🤶🤶🤶'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">CENTER(&quot;Noel&quot;, 10, &quot;🤶&quot;~string)=                </span><span style="font-weight:bold;color:blue;">-- CENTER positional argument 3 must be a single character; found &quot;🤶&quot;</span>
+<span style="font-weight:bold;color:red;">CENTER positional argument 3 must be a single character; found &quot;🤶&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 40.23
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">CENTER(&quot;Noël&quot;~string, 10, &quot;🤶&quot;~string)=         </span><span style="font-weight:bold;color:blue;">-- CENTER positional argument 3 must be a single character; found &quot;🤶&quot;</span>
+<span style="font-weight:bold;color:red;">CENTER positional argument 3 must be a single character; found &quot;🤶&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 40.23
+</span>
+<span style="font-weight:bold;color:blue;">-- Other BIFs
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">ABBREV(&quot;Printer&quot;,&quot;Pri&quot;)=                        </span><span style="font-weight:bold;color:blue;">--  1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">ABBREV(&quot;Printer 🖨&quot;,&quot;Pri&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- Object &quot;Printer 🖨&quot; does not understand message &quot;ABBREV&quot;</span>
+<span style="font-weight:bold;color:red;">Object &quot;Printer 🖨&quot; does not understand message &quot;ABBREV&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 97.1
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">CHANGESTR(&quot;p&quot;, &quot;mpNoelpp&quot;, &quot;m&quot;, 2)=             </span><span style="font-weight:bold;color:blue;">-- 'mmNoelmp'</span>
+'mmNoelmp'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">CHANGESTR(&quot;🎅&quot;, &quot;🤶🎅Noël🎅🎅&quot;, &quot;🤶&quot;, 2)=   </span><span style="font-weight:bold;color:blue;">-- Object &quot;🤶🎅Noël🎅🎅&quot; does not understand message &quot;CHANGESTR&quot;</span>
+<span style="font-weight:bold;color:red;">Object &quot;🤶🎅Noël🎅🎅&quot; does not understand message &quot;CHANGESTR&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 97.1
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">COMPARE(&quot;straSssSSssse&quot;, &quot;stra&quot;, &quot;S&quot;)=          </span><span style="font-weight:bold;color:blue;">-- 6</span>
+ 6
+ooRexx&gt; <span style="font-weight:bold;color:purple;">COMPARE(&quot;straßssßßssse&quot;, &quot;stra&quot;, &quot;ß&quot;)=          </span><span style="font-weight:bold;color:blue;">-- 6</span>
+ 6
+ooRexx&gt; <span style="font-weight:bold;color:purple;">COPIES(&quot;🤶&quot;, 4)=                                </span><span style="font-weight:bold;color:blue;">-- T'🤶🤶🤶🤶'</span>
+T'🤶🤶🤶🤶'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">COUNTSTR(&quot;m&quot;, &quot;mpmp&quot;)=                          </span><span style="font-weight:bold;color:blue;">--  2</span>
+ 2
+ooRexx&gt; <span style="font-weight:bold;color:purple;">COUNTSTR(&quot;🤶&quot;, &quot;🤶🎅🤶🎅&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- Object &quot;🤶🎅🤶🎅&quot; does not understand message &quot;COUNTSTR&quot;</span>
+<span style="font-weight:bold;color:red;">Object &quot;🤶🎅🤶🎅&quot; does not understand message &quot;COUNTSTR&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 97.1
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">D2C(65)=                                        </span><span style="font-weight:bold;color:blue;">-- 'A'</span>
+'A'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">D2C(65~text)=                                   </span><span style="font-weight:bold;color:blue;">-- T'A'</span>
+T'A'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">DELSTR(&quot;Noel&quot;, 3, 2)=                           </span><span style="font-weight:bold;color:blue;">-- 'No'</span>
+'No'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">DELSTR(&quot;Noël&quot;, 3, 2)=                           </span><span style="font-weight:bold;color:blue;">-- Object &quot;Noël&quot; does not understand message &quot;DELSTR&quot;</span>
+<span style="font-weight:bold;color:red;">Object &quot;Noël&quot; does not understand message &quot;DELSTR&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 97.1
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">DELWORD(&quot;Pere Noel p&quot;, 2, 2)=                   </span><span style="font-weight:bold;color:blue;">-- 'Pere '</span>
+'Pere '
+ooRexx&gt; <span style="font-weight:bold;color:purple;">DELWORD(&quot;Père Noël 🎅&quot;, 2, 2)=                  </span><span style="font-weight:bold;color:blue;">-- Object &quot;Père Noël 🎅&quot; does not understand message &quot;DELWORD&quot;</span>
+<span style="font-weight:bold;color:red;">Object &quot;Père Noël 🎅&quot; does not understand message &quot;DELWORD&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 97.1
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">INSERT(&quot;123&quot;, &quot;abc&quot;, 5, 6, &quot;+&quot;)=                </span><span style="font-weight:bold;color:blue;">-- 'abc++123+++'</span>
+'abc++123+++'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">INSERT(&quot;123&quot;, &quot;abc&quot;, 5, 6, &quot;🎅&quot;)=               </span><span style="font-weight:bold;color:blue;">-- Object &quot;abc&quot; does not understand message &quot;INSERT&quot;</span>
+<span style="font-weight:bold;color:red;">Object &quot;abc&quot; does not understand message &quot;INSERT&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 97.1
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">LASTPOS(&quot;m&quot;, &quot;mMere Noelm&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- 11</span>
+ 11
+ooRexx&gt; <span style="font-weight:bold;color:purple;">LASTPOS(&quot;🤶&quot;, &quot;🤶Mère Noël🤶&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- Object &quot;🤶Mère Noël🤶&quot; does not understand message &quot;LASTPOS&quot;</span>
+<span style="font-weight:bold;color:red;">Object &quot;🤶Mère Noël🤶&quot; does not understand message &quot;LASTPOS&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 97.1
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">LEFT(&quot;abc d&quot;,8,&quot;.&quot;)=                            </span><span style="font-weight:bold;color:blue;">-- 'abc d...'</span>
+'abc d...'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">LEFT(&quot;abc d&quot;,8,&quot;🤶&quot;)=                           </span><span style="font-weight:bold;color:blue;">-- T'abc d🤶🤶🤶'</span>
+T'abc d🤶🤶🤶'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">LENGTH(&quot;Père Noël 🎅&quot;~string)=                  </span><span style="font-weight:bold;color:blue;">-- 16</span>
+ 16
+ooRexx&gt; <span style="font-weight:bold;color:purple;">LENGTH(&quot;Père Noël 🎅&quot;)=                         </span><span style="font-weight:bold;color:blue;">-- 11</span>
+ 11
+ooRexx&gt; <span style="font-weight:bold;color:purple;">LOWER(&quot;PÈRE NOËL&quot;)=                             </span><span style="font-weight:bold;color:blue;">-- T'père noël'</span>
+T'père noël'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">OVERLAY(&quot;123&quot;,&quot;abc&quot;,5,6,&quot;+&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 'abc+123+++'</span>
+'abc+123+++'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">OVERLAY(&quot;123&quot;,&quot;abc&quot;,5,6,&quot;🤶&quot;)=                  </span><span style="font-weight:bold;color:blue;">-- Object &quot;abc&quot; does not understand message &quot;OVERLAY&quot;</span>
+<span style="font-weight:bold;color:red;">Object &quot;abc&quot; does not understand message &quot;OVERLAY&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 97.1
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">POS(&quot;Frei&quot;, &quot;Bundesstraße im Freiland&quot;)=        </span><span style="font-weight:bold;color:blue;">-- 17</span>
+ 17
+ooRexx&gt; <span style="font-weight:bold;color:purple;">REVERSE(&quot;Noël&quot;)=                                </span><span style="font-weight:bold;color:blue;">-- T'lëoN'</span>
+T'lëoN'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">RIGHT(&quot;12&quot;,5,&quot;0&quot;)=                              </span><span style="font-weight:bold;color:blue;">--  00012</span>
+ 00012
+ooRexx&gt; <span style="font-weight:bold;color:purple;">RIGHT(&quot;12&quot;,5,&quot;𝟶&quot;)=                             </span><span style="font-weight:bold;color:blue;">-- T'𝟶𝟶𝟶12'</span>
+T'𝟶𝟶𝟶12'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">SPACE(&quot;abc  def  &quot;,2,&quot;+&quot;)=                      </span><span style="font-weight:bold;color:blue;">-- 'abc++def'</span>
+'abc++def'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">SPACE(&quot;abc  def  &quot;,2,&quot;⊕&quot;)=                      </span><span style="font-weight:bold;color:blue;">-- Object &quot;abc  def  &quot; does not understand message &quot;SPACE&quot;</span>
+<span style="font-weight:bold;color:red;">Object &quot;abc  def  &quot; does not understand message &quot;SPACE&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 97.1
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">STRIP(&quot;12.0000&quot;, &quot;T&quot;, '.0')=                    </span><span style="font-weight:bold;color:blue;">--  12</span>
+ 12
+ooRexx&gt; <span style="font-weight:bold;color:purple;">STRIP(&quot;12.øøøø&quot;, &quot;T&quot;, '.ø')=                   </span><span style="font-weight:bold;color:blue;">-- T'12'    where 'ø'~c2x='C3B8'.</span>
+T'12'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">STRIP((&quot;12.øø&quot; || &quot;C3&quot;x || &quot;øø&quot;)~string, &quot;T&quot;, '.ø'~string)=    </span><span style="font-weight:bold;color:blue;">--  12  Every byte of the last parameter is searched and removed</span>
+ 12
+ooRexx&gt; <span style="font-weight:bold;color:purple;">STRIP(&quot;12.øø&quot; || &quot;C3&quot;x || &quot;øø&quot;, &quot;T&quot;, '.ø')=                    </span><span style="font-weight:bold;color:blue;">-- Invalid UTF-8 string (raised by utf8proc)</span>
+<span style="font-weight:bold;color:red;">Invalid UTF-8 string.
+</span><span style="font-weight:bold;color:red;">Error code= 22.900
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">STRIP((&quot;12.øø&quot; || &quot;C3&quot;x || &quot;øø&quot;)~transcodeTo(&quot;ISO-8859-1&quot;, replacementCharacter:&quot;#&quot;), &quot;T&quot;, '.ø'~transcodeTo(&quot;ISO-8859-1&quot;))=   </span><span style="font-weight:bold;color:blue;">-- T'12.??#'</span>
+T'12.��#'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">SUBSTR(&quot;abc&quot;,2,6,&quot;.&quot;)=                          </span><span style="font-weight:bold;color:blue;">-- 'bc....'</span>
+'bc....'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">SUBSTR(&quot;abc&quot;,2,6,&quot;🤶&quot;)=                         </span><span style="font-weight:bold;color:blue;">-- T'bc🤶🤶🤶🤶'</span>
+T'bc🤶🤶🤶🤶'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">SUBWORD(&quot;Now is   the time&quot;,2,2)=               </span><span style="font-weight:bold;color:blue;">-- 'is   the'</span>
+'is   the'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">SUBWORD(&quot;Now is   the 🕑&quot;,2,2)=                 </span><span style="font-weight:bold;color:blue;">-- Object &quot;Now is   the 🕑&quot; does not understand message &quot;SUBWORD&quot;</span>
+<span style="font-weight:bold;color:red;">Object &quot;Now is   the 🕑&quot; does not understand message &quot;SUBWORD&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 97.1
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">UPPER(&quot;père noël&quot;)=                             </span><span style="font-weight:bold;color:blue;">-- T'PÈRE NOËL'</span>
+T'PÈRE NOËL'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">VERIFY(&quot;ABCDEF&quot;,&quot;ABC&quot;,&quot;N&quot;,2,3)=                 </span><span style="font-weight:bold;color:blue;">--  4</span>
+ 4
+ooRexx&gt; <span style="font-weight:bold;color:purple;">VERIFY(&quot;ABCDEF&quot;,&quot;ABC&quot;,&quot;N&quot;~text,2,3)=            </span><span style="font-weight:bold;color:blue;">-- Object &quot;ABCDEF&quot; does not understand message &quot;VERIFY&quot; (yes! ANY parameter is tested, including the option)</span>
+<span style="font-weight:bold;color:red;">Object &quot;ABCDEF&quot; does not understand message &quot;VERIFY&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 97.1
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">WORD(&quot;Now is the time&quot;,3)=                      </span><span style="font-weight:bold;color:blue;">-- 'the'</span>
+'the'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">WORD(&quot;Now is the 🕑&quot;,3)=                        </span><span style="font-weight:bold;color:blue;">-- Object &quot;Now is the 🕑&quot; does not understand message &quot;WORD&quot;</span>
+<span style="font-weight:bold;color:red;">Object &quot;Now is the 🕑&quot; does not understand message &quot;WORD&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 97.1
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">WORDINDEX(&quot;Now is the time&quot;,3)=                 </span><span style="font-weight:bold;color:blue;">--  8</span>
+ 8
+ooRexx&gt; <span style="font-weight:bold;color:purple;">WORDINDEX(&quot;Now is the 🕑&quot;,3)=                   </span><span style="font-weight:bold;color:blue;">-- Object &quot;Now is the 🕑&quot; does not understand message &quot;WORDINDEX&quot;</span>
+<span style="font-weight:bold;color:red;">Object &quot;Now is the 🕑&quot; does not understand message &quot;WORDINDEX&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 97.1
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">WORDLENGTH(&quot;Now is the time&quot;,4)=                </span><span style="font-weight:bold;color:blue;">--  4</span>
+ 4
+ooRexx&gt; <span style="font-weight:bold;color:purple;">WORDLENGTH(&quot;Now is the 🕑&quot;,4)=                  </span><span style="font-weight:bold;color:blue;">-- Object &quot;Now is the 🕑&quot; does not understand message &quot;WORDLENGTH&quot;</span>
+<span style="font-weight:bold;color:red;">Object &quot;Now is the 🕑&quot; does not understand message &quot;WORDLENGTH&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 97.1
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">WORDPOS(&quot;the&quot;,&quot;Now is the time&quot;)=               </span><span style="font-weight:bold;color:blue;">--  3</span>
+ 3
+ooRexx&gt; <span style="font-weight:bold;color:purple;">WORDPOS(&quot;the&quot;,&quot;Now is the 🕑&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- Object &quot;Now is the 🕑&quot; does not understand message &quot;WORDPOS&quot;</span>
+<span style="font-weight:bold;color:red;">Object &quot;Now is the 🕑&quot; does not understand message &quot;WORDPOS&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 97.1
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">WORDS(&quot;Now is the time&quot;)=                       </span><span style="font-weight:bold;color:blue;">--  4</span>
+ 4
+ooRexx&gt; <span style="font-weight:bold;color:purple;">WORDS(&quot;Now is the 🕑&quot;)=                         </span><span style="font-weight:bold;color:blue;">-- Object &quot;Now is the 🕑&quot; does not understand message &quot;WORDS&quot;</span>
+<span style="font-weight:bold;color:red;">Object &quot;Now is the 🕑&quot; does not understand message &quot;WORDS&quot;.
+</span><span style="font-weight:bold;color:red;">Error code= 97.1
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">X2C(41)=                                        </span><span style="font-weight:bold;color:blue;">-- 'A'</span>
+'A'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">X2C(41~text)=                                   </span><span style="font-weight:bold;color:blue;">-- T'A'</span>
+T'A'
+
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Still not sure:
+</span><span style="font-weight:bold;color:blue;">When the target is a String, should the BIF d2c and x2c return a RexxText when
+</span><span style="font-weight:bold;color:blue;">the result is not-ASCII and the evaluation context encoding is not Byte?
+</span><span style="font-weight:bold;color:blue;">That would be consistent with the rules for literal string (R1, R2).
+</span><span style="font-weight:bold;color:blue;">Currently, assuming the package encoding is UTF-8:
+</span><span style="font-weight:bold;color:blue;">&quot;FF&quot;x is a RexxText but x2c(&quot;FF&quot;) is a String.
+</span><span style="font-weight:bold;color:blue;">And what about &quot;FF&quot;~x2c? currently it's a String.
+</span><span style="font-weight:bold;color:blue;">Examples:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;FF&quot;x=;result~description=                      </span><span style="font-weight:bold;color:blue;">-- T'[FF]'      'Byte not-ASCII (1 character, 1 codepoint, 1 byte, 0 error)'</span>
+T'[FF]'
+'Byte not-ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">x2c(&quot;FF&quot;)=;result~description=                  </span><span style="font-weight:bold;color:blue;">-- '[FF]'       'Byte not-ASCII (1 byte)'</span>
+'[FF]'
+'Byte not-ASCII (1 byte)'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;FF&quot;~x2c=;result~description=                   </span><span style="font-weight:bold;color:blue;">-- '[FF]'       'Byte not-ASCII (1 byte)'</span>
+'[FF]'
+'Byte not-ASCII (1 byte)'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;FF&quot;~text~x2c=;result~description=              </span><span style="font-weight:bold;color:blue;">-- T'[FF]'      'UTF-8 not-ASCII (1 character, 1 codepoint, 1 byte, 1 error)'</span>
+T'[FF]'
+'UTF-8 not-ASCII (1 character, 1 codepoint, 1 byte, 1 error)'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;FF&quot;~text(&quot;cp1252&quot;)~x2c=;result~description=    </span><span style="font-weight:bold;color:blue;">-- T'[FF]'      'windows-1252 not-ASCII (1 character, 1 codepoint, 1 byte, 0 error)'</span>
+T'[FF]'
+'windows-1252 not-ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
+<span style="font-weight:bold;color:blue;">---
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;41&quot;x=;result~description=                      </span><span style="font-weight:bold;color:blue;">-- 'A'          'Byte ASCII (1 byte)'</span>
+'A'
+'Byte ASCII (1 byte)'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">x2c(&quot;41&quot;)=;result~description=                  </span><span style="font-weight:bold;color:blue;">-- 'A'          'Byte ASCII (1 byte)'</span>
+'A'
+'Byte ASCII (1 byte)'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;41&quot;~x2c=;result~description=                   </span><span style="font-weight:bold;color:blue;">-- 'A'          'Byte ASCII (1 byte)'</span>
+'A'
+'Byte ASCII (1 byte)'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;41&quot;~text~x2c=;result~description=              </span><span style="font-weight:bold;color:blue;">-- T'A'         'UTF-8 ASCII (1 character, 1 codepoint, 1 byte, 0 error)'</span>
+T'A'
+'UTF-8 ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;41&quot;~text(&quot;cp1252&quot;)~x2c=;result~description=    </span><span style="font-weight:bold;color:blue;">-- T'A'         'windows-1252 ASCII (1 character, 1 codepoint, 1 byte, 0 error)'</span>
+T'A'
+'windows-1252 ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
 
 
 <span style="font-weight:bold;color:blue;">-- ===============================================================================
@@ -142,7 +383,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Père&quot;~text~s
 
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">+-------------------------------------------+
-</span><span style="font-weight:bold;color:blue;">|            IMPORTANT MILESTONE            |
+</span><span style="font-weight:bold;color:blue;">|          1st important milestone          |
 </span><span style="font-weight:bold;color:blue;">| Activation of the automatic conversion    |
 </span><span style="font-weight:bold;color:blue;">| of String literals to RexxText instances  |
 </span><span style="font-weight:bold;color:blue;">+-------------------------------------------+
@@ -197,8 +438,8 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~text~l
  4
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~string~length=   </span><span style="font-weight:bold;color:blue;">-- 5</span>
  5
-ooRexx&gt; <span style="font-weight:bold;color:purple;">length(&quot;Noël&quot;)=         </span><span style="font-weight:bold;color:blue;">-- 5, should be 4    (with the constraint, would raise UTF-8 not-ASCII 'Noël' cannot be converted to a String instance)</span>
- 5
+ooRexx&gt; <span style="font-weight:bold;color:purple;">length(&quot;Noël&quot;)=         </span><span style="font-weight:bold;color:blue;">-- 4    (was 5, should be 4    (with the constraint, would raise UTF-8 not-ASCII 'Noël' cannot be converted to a String instance))</span>
+ 4
 ooRexx&gt; <span style="font-weight:bold;color:purple;">length(&quot;Noël&quot;~string)=  </span><span style="font-weight:bold;color:blue;">-- 5</span>
  5
 

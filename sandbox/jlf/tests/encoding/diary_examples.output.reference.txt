@@ -11,6 +11,247 @@ ooRexx> .Unicode~memorizeTransformations = .false
 
 
 -- ===============================================================================
+-- 2024 Apr 10
+
+/*
++-----------------------------------------------------------+
+|                  2nd important milestone                  |
+| The string BIFs become polymorphic on RexxString/RexxText |
++-----------------------------------------------------------+
+If at least one positional argument is a RexxText then the BIF forwards to
+RexxText, otherwise the BIF forwards to RexxString.
+Enhanced BIFs:
+    ABBREV
+    CENTER      implemented on RexxText
+    CENTRE      implemented on RexxText
+    CHANGESTR
+    COMPARE     implemented on RexxText
+    COPIES      implemented on RexxText
+    COUNTSTR
+    D2C         implemented on RexxText
+    DELSTR
+    DELWORD
+    INSERT
+    LASTPOS
+    LEFT        implemented on RexxText
+    LENGTH      implemented on RexxText
+    LOWER       implemented on RexxText
+    OVERLAY
+    POS         implemented on RexxText
+    REVERSE     implemented on RexxText
+    RIGHT       implemented on RexxText
+    SPACE
+    STRIP       implemented on RexxText
+    SUBSTR      implemented on RexxText
+    SUBWORD
+    UPPER       implemented on RexxText
+    VERIFY
+    WORD
+    WORDINDEX
+    WORDLENGTH
+    WORDPOS
+    WORDS
+    X2C         implemented on RexxText
+Examples:
+*/
+-- CENTER
+ooRexx> CENTER("Noel", 10, "*")=                        -- '***Noel***'
+'***Noel***'
+ooRexx> CENTER("Noel", 10, "🤶")=                       -- T'🤶🤶🤶Noel🤶🤶🤶'  because "🤶" is a RexxText
+T'🤶🤶🤶Noel🤶🤶🤶'
+ooRexx> CENTER("Noël", 10, "*")=                        -- T'***Noël***'            because "Noël" is a RexxText
+T'***Noël***'
+ooRexx> CENTER("Noël"~string, 10, "*")=                 --  '**Noël***'
+'**Noël***'
+ooRexx> CENTER("Noël", 10, "🤶")=                       -- T'🤶🤶🤶Noël🤶🤶🤶'
+T'🤶🤶🤶Noël🤶🤶🤶'
+ooRexx> CENTER("Noël"~string, 10, "🤶")=                -- T'🤶🤶🤶Noël🤶🤶🤶'  because "🤶" is a RexxText
+T'🤶🤶🤶Noël🤶🤶🤶'
+ooRexx> CENTER("Noël", 10, "🤶"~string)=                -- T'🤶🤶🤶Noël🤶🤶🤶'  because "Noël" is a RexxText
+T'🤶🤶🤶Noël🤶🤶🤶'
+ooRexx> CENTER("Noel", 10, "🤶"~string)=                -- CENTER positional argument 3 must be a single character; found "🤶"
+CENTER positional argument 3 must be a single character; found "🤶".
+Error code= 40.23
+ooRexx> CENTER("Noël"~string, 10, "🤶"~string)=         -- CENTER positional argument 3 must be a single character; found "🤶"
+CENTER positional argument 3 must be a single character; found "🤶".
+Error code= 40.23
+
+-- Other BIFs
+ooRexx> ABBREV("Printer","Pri")=                        --  1
+ 1
+ooRexx> ABBREV("Printer 🖨","Pri")=                     -- Object "Printer 🖨" does not understand message "ABBREV"
+Object "Printer 🖨" does not understand message "ABBREV".
+Error code= 97.1
+ooRexx> CHANGESTR("p", "mpNoelpp", "m", 2)=             -- 'mmNoelmp'
+'mmNoelmp'
+ooRexx> CHANGESTR("🎅", "🤶🎅Noël🎅🎅", "🤶", 2)=   -- Object "🤶🎅Noël🎅🎅" does not understand message "CHANGESTR"
+Object "🤶🎅Noël🎅🎅" does not understand message "CHANGESTR".
+Error code= 97.1
+ooRexx> COMPARE("straSssSSssse", "stra", "S")=          -- 6
+ 6
+ooRexx> COMPARE("straßssßßssse", "stra", "ß")=          -- 6
+ 6
+ooRexx> COPIES("🤶", 4)=                                -- T'🤶🤶🤶🤶'
+T'🤶🤶🤶🤶'
+ooRexx> COUNTSTR("m", "mpmp")=                          --  2
+ 2
+ooRexx> COUNTSTR("🤶", "🤶🎅🤶🎅")=                 -- Object "🤶🎅🤶🎅" does not understand message "COUNTSTR"
+Object "🤶🎅🤶🎅" does not understand message "COUNTSTR".
+Error code= 97.1
+ooRexx> D2C(65)=                                        -- 'A'
+'A'
+ooRexx> D2C(65~text)=                                   -- T'A'
+T'A'
+ooRexx> DELSTR("Noel", 3, 2)=                           -- 'No'
+'No'
+ooRexx> DELSTR("Noël", 3, 2)=                           -- Object "Noël" does not understand message "DELSTR"
+Object "Noël" does not understand message "DELSTR".
+Error code= 97.1
+ooRexx> DELWORD("Pere Noel p", 2, 2)=                   -- 'Pere '
+'Pere '
+ooRexx> DELWORD("Père Noël 🎅", 2, 2)=                  -- Object "Père Noël 🎅" does not understand message "DELWORD"
+Object "Père Noël 🎅" does not understand message "DELWORD".
+Error code= 97.1
+ooRexx> INSERT("123", "abc", 5, 6, "+")=                -- 'abc++123+++'
+'abc++123+++'
+ooRexx> INSERT("123", "abc", 5, 6, "🎅")=               -- Object "abc" does not understand message "INSERT"
+Object "abc" does not understand message "INSERT".
+Error code= 97.1
+ooRexx> LASTPOS("m", "mMere Noelm")=                    -- 11
+ 11
+ooRexx> LASTPOS("🤶", "🤶Mère Noël🤶")=                 -- Object "🤶Mère Noël🤶" does not understand message "LASTPOS"
+Object "🤶Mère Noël🤶" does not understand message "LASTPOS".
+Error code= 97.1
+ooRexx> LEFT("abc d",8,".")=                            -- 'abc d...'
+'abc d...'
+ooRexx> LEFT("abc d",8,"🤶")=                           -- T'abc d🤶🤶🤶'
+T'abc d🤶🤶🤶'
+ooRexx> LENGTH("Père Noël 🎅"~string)=                  -- 16
+ 16
+ooRexx> LENGTH("Père Noël 🎅")=                         -- 11
+ 11
+ooRexx> LOWER("PÈRE NOËL")=                             -- T'père noël'
+T'père noël'
+ooRexx> OVERLAY("123","abc",5,6,"+")=                   -- 'abc+123+++'
+'abc+123+++'
+ooRexx> OVERLAY("123","abc",5,6,"🤶")=                  -- Object "abc" does not understand message "OVERLAY"
+Object "abc" does not understand message "OVERLAY".
+Error code= 97.1
+ooRexx> POS("Frei", "Bundesstraße im Freiland")=        -- 17
+ 17
+ooRexx> REVERSE("Noël")=                                -- T'lëoN'
+T'lëoN'
+ooRexx> RIGHT("12",5,"0")=                              --  00012
+ 00012
+ooRexx> RIGHT("12",5,"𝟶")=                             -- T'𝟶𝟶𝟶12'
+T'𝟶𝟶𝟶12'
+ooRexx> SPACE("abc  def  ",2,"+")=                      -- 'abc++def'
+'abc++def'
+ooRexx> SPACE("abc  def  ",2,"⊕")=                      -- Object "abc  def  " does not understand message "SPACE"
+Object "abc  def  " does not understand message "SPACE".
+Error code= 97.1
+ooRexx> STRIP("12.0000", "T", '.0')=                    --  12
+ 12
+ooRexx> STRIP("12.øøøø", "T", '.ø')=                   -- T'12'    where 'ø'~c2x='C3B8'.
+T'12'
+ooRexx> STRIP(("12.øø" || "C3"x || "øø")~string, "T", '.ø'~string)=    --  12  Every byte of the last parameter is searched and removed
+ 12
+ooRexx> STRIP("12.øø" || "C3"x || "øø", "T", '.ø')=                    -- Invalid UTF-8 string (raised by utf8proc)
+Invalid UTF-8 string.
+Error code= 22.900
+ooRexx> STRIP(("12.øø" || "C3"x || "øø")~transcodeTo("ISO-8859-1", replacementCharacter:"#"), "T", '.ø'~transcodeTo("ISO-8859-1"))=   -- T'12.??#'
+T'12.��#'
+ooRexx> SUBSTR("abc",2,6,".")=                          -- 'bc....'
+'bc....'
+ooRexx> SUBSTR("abc",2,6,"🤶")=                         -- T'bc🤶🤶🤶🤶'
+T'bc🤶🤶🤶🤶'
+ooRexx> SUBWORD("Now is   the time",2,2)=               -- 'is   the'
+'is   the'
+ooRexx> SUBWORD("Now is   the 🕑",2,2)=                 -- Object "Now is   the 🕑" does not understand message "SUBWORD"
+Object "Now is   the 🕑" does not understand message "SUBWORD".
+Error code= 97.1
+ooRexx> UPPER("père noël")=                             -- T'PÈRE NOËL'
+T'PÈRE NOËL'
+ooRexx> VERIFY("ABCDEF","ABC","N",2,3)=                 --  4
+ 4
+ooRexx> VERIFY("ABCDEF","ABC","N"~text,2,3)=            -- Object "ABCDEF" does not understand message "VERIFY" (yes! ANY parameter is tested, including the option)
+Object "ABCDEF" does not understand message "VERIFY".
+Error code= 97.1
+ooRexx> WORD("Now is the time",3)=                      -- 'the'
+'the'
+ooRexx> WORD("Now is the 🕑",3)=                        -- Object "Now is the 🕑" does not understand message "WORD"
+Object "Now is the 🕑" does not understand message "WORD".
+Error code= 97.1
+ooRexx> WORDINDEX("Now is the time",3)=                 --  8
+ 8
+ooRexx> WORDINDEX("Now is the 🕑",3)=                   -- Object "Now is the 🕑" does not understand message "WORDINDEX"
+Object "Now is the 🕑" does not understand message "WORDINDEX".
+Error code= 97.1
+ooRexx> WORDLENGTH("Now is the time",4)=                --  4
+ 4
+ooRexx> WORDLENGTH("Now is the 🕑",4)=                  -- Object "Now is the 🕑" does not understand message "WORDLENGTH"
+Object "Now is the 🕑" does not understand message "WORDLENGTH".
+Error code= 97.1
+ooRexx> WORDPOS("the","Now is the time")=               --  3
+ 3
+ooRexx> WORDPOS("the","Now is the 🕑")=                 -- Object "Now is the 🕑" does not understand message "WORDPOS"
+Object "Now is the 🕑" does not understand message "WORDPOS".
+Error code= 97.1
+ooRexx> WORDS("Now is the time")=                       --  4
+ 4
+ooRexx> WORDS("Now is the 🕑")=                         -- Object "Now is the 🕑" does not understand message "WORDS"
+Object "Now is the 🕑" does not understand message "WORDS".
+Error code= 97.1
+ooRexx> X2C(41)=                                        -- 'A'
+'A'
+ooRexx> X2C(41~text)=                                   -- T'A'
+T'A'
+
+
+/*
+Still not sure:
+When the target is a String, should the BIF d2c and x2c return a RexxText when
+the result is not-ASCII and the evaluation context encoding is not Byte?
+That would be consistent with the rules for literal string (R1, R2).
+Currently, assuming the package encoding is UTF-8:
+"FF"x is a RexxText but x2c("FF") is a String.
+And what about "FF"~x2c? currently it's a String.
+Examples:
+*/
+ooRexx> "FF"x=;result~description=                      -- T'[FF]'      'Byte not-ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
+T'[FF]'
+'Byte not-ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
+ooRexx> x2c("FF")=;result~description=                  -- '[FF]'       'Byte not-ASCII (1 byte)'
+'[FF]'
+'Byte not-ASCII (1 byte)'
+ooRexx> "FF"~x2c=;result~description=                   -- '[FF]'       'Byte not-ASCII (1 byte)'
+'[FF]'
+'Byte not-ASCII (1 byte)'
+ooRexx> "FF"~text~x2c=;result~description=              -- T'[FF]'      'UTF-8 not-ASCII (1 character, 1 codepoint, 1 byte, 1 error)'
+T'[FF]'
+'UTF-8 not-ASCII (1 character, 1 codepoint, 1 byte, 1 error)'
+ooRexx> "FF"~text("cp1252")~x2c=;result~description=    -- T'[FF]'      'windows-1252 not-ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
+T'[FF]'
+'windows-1252 not-ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
+---
+ooRexx> "41"x=;result~description=                      -- 'A'          'Byte ASCII (1 byte)'
+'A'
+'Byte ASCII (1 byte)'
+ooRexx> x2c("41")=;result~description=                  -- 'A'          'Byte ASCII (1 byte)'
+'A'
+'Byte ASCII (1 byte)'
+ooRexx> "41"~x2c=;result~description=                   -- 'A'          'Byte ASCII (1 byte)'
+'A'
+'Byte ASCII (1 byte)'
+ooRexx> "41"~text~x2c=;result~description=              -- T'A'         'UTF-8 ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
+T'A'
+'UTF-8 ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
+ooRexx> "41"~text("cp1252")~x2c=;result~description=    -- T'A'         'windows-1252 ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
+T'A'
+'windows-1252 ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
+
+
+-- ===============================================================================
 -- 2024 Apr 02
 
 /*
@@ -107,7 +348,7 @@ ooRexx> "Père"~text~startsWith("50C3A8"x)=      -- true (was Encoding: cannot c
 
 /*
 +-------------------------------------------+
-|            IMPORTANT MILESTONE            |
+|          1st important milestone          |
 | Activation of the automatic conversion    |
 | of String literals to RexxText instances  |
 +-------------------------------------------+
@@ -162,8 +403,8 @@ ooRexx> "Noël"~text~length=     -- 4
  4
 ooRexx> "Noël"~string~length=   -- 5
  5
-ooRexx> length("Noël")=         -- 5, should be 4    (with the constraint, would raise UTF-8 not-ASCII 'Noël' cannot be converted to a String instance)
- 5
+ooRexx> length("Noël")=         -- 4    (was 5, should be 4    (with the constraint, would raise UTF-8 not-ASCII 'Noël' cannot be converted to a String instance))
+ 4
 ooRexx> length("Noël"~string)=  -- 5
  5
 

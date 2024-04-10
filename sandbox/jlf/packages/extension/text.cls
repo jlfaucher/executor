@@ -1297,12 +1297,12 @@ Instance methods
 abbrev
 abs                             full
 append                          (new 5) full
-b2x                             full
-bitAnd                          full
-bitOr                           full
-bitXor                          full
-c2d                             full
-c2x                             full
+b2x                             full, always forward to String
+bitAnd                          full, always forward to String
+bitOr                           full, always forward to String
+bitXor                          full, always forward to String
+c2d                             full, always forward to String
+c2x                             full, always forward to String
 caselessAbbrev
 caselessChangeStr
 caselessCompare                 full UTF-8
@@ -1538,6 +1538,8 @@ stringChunks
     end
     if self~isCompatibleWithByteString, padIsCompatibleWithByteString then do
         forward to (self~string) continue
+        -- It's a new string without encoding
+        -- TODO result~setEncoding, self~encoding)
         if .nil <> buffer then return buffer~~appendEncoded(result)
                           else return .RexxText~new(result, self~encoding)
     end
@@ -1584,6 +1586,8 @@ stringChunks
 ::method copies
     use strict named arg buffer=.nil
     forward to (self~string) continue
+    -- It's a new string without encoding
+    -- TODO result~setEncoding, self~encoding)
     if .nil <> buffer then return buffer~~appendEncoded(result)
                       else return .RexxText~new(result, self~encoding)
 
@@ -1592,6 +1596,8 @@ stringChunks
     use strict named arg buffer=.nil
     self~checkNumericValueCompatibility
     forward to (self~string) continue
+    -- It's a new string without encoding
+    -- TODO result~setEncoding, self~encoding)
     if .nil <> buffer then return buffer~~appendEncoded(result)
                       else return .RexxText~new(result, self~encoding)
 
@@ -1650,6 +1656,8 @@ stringChunks
     use strict named arg buffer=.nil
     if self~isCompatibleWithByteString then do
         forward to (self~string) continue
+        -- It's a new string without encoding
+        -- TODO result~setEncoding, self~encoding)
         if .nil <> buffer then return buffer~~appendEncoded(result)
                           else return .RexxText~new(result, self~encoding)
     end
@@ -1682,6 +1690,8 @@ stringChunks
     use strict named arg buffer=.nil
     if self~isCompatibleWithByteString then do
         forward to (self~string) continue
+        -- It's a new string without encoding
+        -- TODO result~setEncoding, self~encoding)
         if .nil <> buffer then return buffer~~appendEncoded(result)
                           else return .RexxText~new(result, self~encoding)
     end
@@ -1699,6 +1709,8 @@ stringChunks
     end
     if self~isCompatibleWithByteString, padIsCompatibleWithByteString then do
         forward to (self~string) continue
+        -- It's a new string without encoding
+        -- TODO result~setEncoding, self~encoding)
         if .nil <> buffer then return buffer~~appendEncoded(result)
                           else return .RexxText~new(result, self~encoding)
     end
@@ -1723,6 +1735,8 @@ stringChunks
     if self~isCompatibleWithByteString, pad~isCompatibleWithByteString then do
         use named arg buffer=.nil -- not strict because other named arguments are possible (not needed here)
         forward to (self~string) continue
+        -- It's a new string without encoding
+        -- TODO result~setEncoding, self~encoding)
         if .nil <> buffer then return buffer~~appendEncoded(result)
                           else return .RexxText~new(result, self~encoding)
     end
@@ -1743,6 +1757,8 @@ stringChunks
     end
     if self~isCompatibleWithByteString, padIsCompatibleWithByteString then do
         forward to (self~string) continue
+        -- It's a new string without encoding
+        -- TODO result~setEncoding, self~encoding)
         if .nil <> buffer then return buffer~~appendEncoded(result)
                           else return .RexxText~new(result, self~encoding)
     end
@@ -1759,6 +1775,8 @@ stringChunks
     end
     if self~isCompatibleWithByteString, padIsCompatibleWithByteString then do
         forward to (self~string) continue
+        -- It's a new string without encoding
+        -- TODO result~setEncoding, self~encoding)
         if .nil <> buffer then return buffer~~appendEncoded(result)
                           else return .RexxText~new(result, self~encoding)
     end
@@ -1769,6 +1787,8 @@ stringChunks
     use strict named arg buffer=.nil
     if self~isCompatibleWithByteString then do
         forward to (self~string) continue
+        -- It's a new string without encoding
+        -- TODO result~setEncoding, self~encoding)
         if .nil <> buffer then return buffer~~appendEncoded(result)
                           else return .RexxText~new(result, self~encoding)
     end
@@ -1787,6 +1807,8 @@ stringChunks
     use strict named arg buffer=.nil
     self~checkHexadecimalValueCompatibility
     forward to (self~string) continue
+    -- It's a new string without encoding
+    -- TODO result~setEncoding, self~encoding)
     if .nil <> buffer then return buffer~~appendEncoded(result)
                       else return .RexxText~new(result, self~encoding)
 

@@ -92,9 +92,12 @@ stack top-1     "Print"         stack top-1     "Pri"
 #define check_args(x) expandArgs(arguments, argcount, x##_MIN, x##_MAX, CHAR_##x)
 
 #define get_arg(x,n) arguments[x##_##n - 1]
+#define set_arg(x,n1,n2) arguments[x##_##n1 - 1] = arguments[x##_##n2 - 1]
 
 #define required_string(x,n) requiredStringArg(x##_##n, arguments, argcount, CHAR_##x)
 #define optional_string(x,n) optionalStringArg(x##_##n, arguments, argcount, CHAR_##x)
+
+#define required_text(x,n) requiredTextArg(x##_##n, arguments, argcount, CHAR_##x)
 
 #define required_integer(x,n) requiredIntegerArg(x##_##n, arguments, argcount, CHAR_##x)
 #define optional_integer(x,n) optionalIntegerArg(x##_##n, arguments, argcount, CHAR_##x)

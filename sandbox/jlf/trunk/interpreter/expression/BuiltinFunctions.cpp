@@ -174,6 +174,31 @@ RexxString *optionalStringArg(size_t  position, RexxObject **arguments, size_t a
 
 
 /**
+ * Process a required argument and potentially convert it into a text argument
+ *
+ * @param position The argument position for any error messages (1 to argcount).
+ * @param argcount The number of arguments passed to the function.
+ * @param function The function name
+ *
+ * @return The text representation of the argument.
+ */
+RexxText *requiredTextArg(size_t position, RexxObject **arguments, size_t argcount, const char *function)
+{
+    RexxObject *argument = OREF_NULL;
+    if (argcount >= position) argument = arguments[position - 1];     /* get the argument in question      */
+    if (argument == OREF_NULL) reportException(Error_Incorrect_call_noarg, function, OREF_positional, position);
+
+    if (isOfClass(RexxText, argument))  /* text object already?              */
+    {
+        return(RexxText *)argument;     /* finished                          */
+    }
+    RexxText *text = argument->requestText();
+    arguments[position - 1] = text;      /* replace the argument              */
+    return text;                         /* return the replacement value      */
+}
+
+
+/**
  * Process a required argument and ensure it is a valid integer
  *
  * @param position The argument position for any error messages (1 to argcount).
@@ -316,6 +341,24 @@ void checkPadArgument(const char *pFuncName, RexxObject *position, RexxString *p
     }
 }
 
+#define TEXT_BIF_TARGET1(x,n) \
+    if (hasRexxTextArguments(arguments, argcount)) \
+    { \
+        RexxText *text = required_text(x, n); \
+        ProtectedObject p_text(text); \
+        return text->sendMessage(OREF_##x, &arguments[1], argcount-1, named_argcount); \
+    }
+
+#define TEXT_BIF_TARGET2(x,n1,n2) \
+    if (hasRexxTextArguments(arguments, argcount)) \
+    { \
+        RexxText *text = required_text(x, n1); \
+        ProtectedObject p_text(text); \
+        set_arg(x,n1,n2); \
+        return text->sendMessage(OREF_##x, &arguments[x##_##n1 - 1], argcount-1, named_argcount); \
+    }
+
+
 #define CENTER_MIN 2
 #define CENTER_MAX 3
 #define CENTER_string 1
@@ -325,25 +368,14 @@ void checkPadArgument(const char *pFuncName, RexxObject *position, RexxString *p
 BUILTIN(CENTER)
 {
     fix_args(CENTER);                    /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(CENTER, string);
+
                                          /* force first argument to a string  */
     RexxString *string = required_string(CENTER, string);
     /* this is a required length         */
     RexxInteger *length = required_integer(CENTER, length);
     RexxString *pad = optional_string(CENTER, pad);  /* the pad character must be one too */
-    if (pad != OREF_NULL && pad->getLength() > 1)
-    {
-        // could be a UTF-8 string made of 1 grapheme
-        // delegate to RexxText if possible
-        ProtectedObject result;
-        bool textOk = string->messageSend(OREF_TEXT, OREF_NULL, 0, 0, result, false);
-        if (textOk && (RexxObject *)result != OREF_NULL)
-        {
-            RexxText *text = (RexxText *)(RexxObject *)result;
-            RexxText *centeredText = (RexxText *)text->sendMessage(OREF_CENTER, length, pad);
-            result = centeredText;
-            return centeredText->sendMessage(OREF_STRINGSYM); // yes, must return the associated String because request("String") would fail
-        }
-    }
     checkPadArgument(CHAR_CENTER, IntegerThree, pad);
     return string->center(length, pad);  /* do the center function            */
 }
@@ -357,6 +389,9 @@ BUILTIN(CENTER)
 BUILTIN(CENTRE)
 {
     fix_args(CENTRE);                    /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(CENTRE, string);
+
                                          /* force first argument to a string  */
     RexxString *string = required_string(CENTRE, string);
     /* this is a required length         */
@@ -375,6 +410,9 @@ BUILTIN(CENTRE)
 BUILTIN(DELSTR)
 {
     fix_args(DELSTR);                    /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(DELSTR, string);
+
                                          /* must have the first argument      */
     RexxString *string = required_string(DELSTR, string);
     RexxInteger *n = required_integer(DELSTR, n);     /* need a delete position            */
@@ -392,6 +430,9 @@ BUILTIN(DELSTR)
 BUILTIN(DELWORD)
 {
     fix_args(DELWORD);                   /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(DELWORD, string);
+
                                          /* must have the first argument      */
     RexxString *string = required_string(DELWORD, string);
     RexxInteger *n = required_integer(DELWORD, n);    /* need a delete position            */
@@ -411,6 +452,9 @@ BUILTIN(DELWORD)
 BUILTIN(INSERT)
 {
     fix_args(INSERT);                    /* check on require number of args   */
+
+    TEXT_BIF_TARGET2(INSERT, target, new);
+
                                          /* get string for new                */
     RexxString *newString = required_string(INSERT, new);
     /* get string for target             */
@@ -433,25 +477,14 @@ BUILTIN(INSERT)
 BUILTIN(LEFT)
 {
     fix_args(LEFT);                      /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(LEFT, string);
+
                                          /* must have the first argument      */
     RexxString *string = required_string(LEFT, string);
     /* length is optional                */
     RexxInteger *length = optional_integer(LEFT, length);
     RexxString *pad = optional_string(LEFT, pad);    /* pad must be a string also         */
-    if (pad != OREF_NULL && pad->getLength() > 1)
-    {
-        // could be a UTF-8 string made of 1 grapheme
-        // delegate to RexxText if possible
-        ProtectedObject result;
-        bool textOk = string->messageSend(OREF_TEXT, OREF_NULL, 0, 0, result, false);
-        if (textOk && (RexxObject *)result != OREF_NULL)
-        {
-            RexxText *text = (RexxText *)(RexxObject *)result;
-            RexxText *leftText = (RexxText *)text->sendMessage(OREF_LEFT, length, pad);
-            result = leftText;
-            return leftText->sendMessage(OREF_STRINGSYM); // yes, must return the associated String because request("String") would fail
-        }
-    }
     checkPadArgument(CHAR_LEFT, IntegerThree, pad);
     return string->left(length, pad);    /* do the substr function            */
 }
@@ -467,6 +500,9 @@ BUILTIN(LEFT)
 BUILTIN(OVERLAY)
 {
     fix_args(OVERLAY);                   /* check on require number of args   */
+
+    TEXT_BIF_TARGET2(OVERLAY, target, new);
+
                                          /* get string for new                */
     RexxString *newString = required_string(OVERLAY, new);
     /* get string for target             */
@@ -490,6 +526,9 @@ BUILTIN(OVERLAY)
 BUILTIN(POS)
 {
     fix_args(POS);                       /* check on require number of args   */
+
+    TEXT_BIF_TARGET2(POS, haystack, needle);
+
                                          /* get string for new                */
     RexxString *needle = required_string(POS, needle);
     /* get string for target             */
@@ -510,6 +549,9 @@ BUILTIN(POS)
 BUILTIN(LASTPOS)
 {
     fix_args(LASTPOS);                   /* check on require number of args   */
+
+    TEXT_BIF_TARGET2(LASTPOS, haystack, needle);
+
                                          /* get string for new                */
     RexxString *needle = required_string(LASTPOS, needle);
     /* get string for target             */
@@ -528,6 +570,9 @@ BUILTIN(LASTPOS)
 BUILTIN(REVERSE)
 {
     fix_args(REVERSE);                   /* check on require number of args   */
+
+    TEXT_BIF_TARGET1(REVERSE, string);
+
                                          /* get string for string             */
     RexxString *string = required_string(REVERSE, string);
     return string->reverse();            /* go perform the reverse function   */
@@ -542,6 +587,9 @@ BUILTIN(REVERSE)
 BUILTIN(RIGHT)
 {
     fix_args(RIGHT);                     /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(RIGHT, string);
+
                                          /* must have the first argument      */
     RexxString *string = required_string(RIGHT, string);
     /* length is optional                */
@@ -560,6 +608,9 @@ BUILTIN(RIGHT)
 BUILTIN(STRIP)
 {
     fix_args(STRIP);                     /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(STRIP, string);
+
                                          /* must have the first argument      */
     RexxString *string = required_string(STRIP, string);
     /* option must be a string too       */
@@ -580,6 +631,9 @@ BUILTIN(STRIP)
 BUILTIN(SPACE)
 {
     fix_args(SPACE);                     /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(SPACE, string);
+
                                          /* must have the first argument      */
     RexxString *string = required_string(SPACE, string);
     RexxInteger *n = optional_integer(SPACE, n);      /* spacing is an optional integer    */
@@ -599,6 +653,9 @@ BUILTIN(SPACE)
 BUILTIN(SUBSTR)
 {
     fix_args(SUBSTR);                    /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(SUBSTR, string);
+
                                          /* must have the first argument      */
     RexxString *string = required_string(SUBSTR, string);
     RexxInteger *n = required_integer(SUBSTR, n);     /* position is required              */
@@ -621,6 +678,9 @@ BUILTIN(SUBSTR)
 BUILTIN(LOWER)
 {
     fix_args(LOWER);                     /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(LOWER, string);
+
                                          /* must have the first argument      */
     RexxString *string = required_string(LOWER, string);
     RexxInteger *n = optional_integer(LOWER, n);      /* position is optional              */
@@ -641,6 +701,9 @@ BUILTIN(LOWER)
 BUILTIN(UPPER)
 {
     fix_args(UPPER);                     /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(UPPER, string);
+
                                          /* must have the first argument      */
     RexxString *string = required_string(UPPER, string);
     RexxInteger *n = optional_integer(UPPER, n);       /* position is optional              */
@@ -660,6 +723,9 @@ BUILTIN(UPPER)
 BUILTIN(SUBWORD)
 {
     fix_args(SUBWORD);                   /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(SUBWORD, string);
+
                                          /* must have the first argument      */
     RexxString *string = required_string(SUBWORD, string);
     RexxInteger *n = required_integer(SUBWORD, n);    /* position is required              */
@@ -676,6 +742,9 @@ BUILTIN(SUBWORD)
 BUILTIN(WORD)
 {
     fix_args(WORD);                      /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(WORD, string);
+
                                          /* must have the first argument      */
     RexxString *string = required_string(WORD, string);
     RexxInteger *n = required_integer(WORD, n);       /* position is required              */
@@ -690,6 +759,9 @@ BUILTIN(WORD)
 BUILTIN(WORDINDEX)
 {
     fix_args(WORDINDEX);                 /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(WORDINDEX, string);
+
                                          /* must have the first argument      */
     RexxString *string = required_string(WORDINDEX, string);
     RexxInteger *n = required_integer(WORDINDEX, n);  /* position is required              */
@@ -704,6 +776,9 @@ BUILTIN(WORDINDEX)
 BUILTIN(WORDLENGTH)
 {
     fix_args(WORDLENGTH);                /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(WORDLENGTH, string);
+
                                          /* must have the first argument      */
     RexxString *string = required_string(WORDLENGTH, string);
     RexxInteger *n = required_integer(WORDLENGTH, n); /* position is required              */
@@ -718,6 +793,9 @@ BUILTIN(WORDLENGTH)
 BUILTIN(COPIES)
 {
     fix_args(COPIES);                    /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(COPIES, string);
+
                                          /* must have the first argument      */
     RexxString *string = required_string(COPIES, string);
     RexxInteger *n = required_integer(COPIES, n);     /* position is required              */
@@ -733,6 +811,9 @@ BUILTIN(COPIES)
 BUILTIN(WORDPOS)
 {
     fix_args(WORDPOS);                   /* check on required number of args  */
+
+    TEXT_BIF_TARGET2(WORDPOS, string, phrase);
+
                                          /* must have a phrase string         */
     RexxString *phrase = required_string(WORDPOS, phrase);
     /* must have the string argument     */
@@ -750,6 +831,9 @@ BUILTIN(WORDPOS)
 BUILTIN(WORDS)
 {
     fix_args(WORDS);                     /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(WORDS, string);
+
                                          /* must have the string argument     */
     RexxString *string = required_string(WORDS, string);
     return string->words();              /* do the words function             */
@@ -764,6 +848,9 @@ BUILTIN(WORDS)
 BUILTIN(ABBREV)
 {
     fix_args(ABBREV);                    /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(ABBREV, information);
+
                                          /* information must be a string arg  */
     RexxString *information = required_string(ABBREV, information);
     RexxString *info = required_string(ABBREV, info);/* info must also be a string        */
@@ -870,6 +957,9 @@ BUILTIN(C2X)
 BUILTIN(X2C)
 {
     fix_args(X2C);                       /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(X2C, string);
+
                                          /* must have the first string        */
     RexxString *string = required_string(X2C, string);
     return string->x2c();                /* do the x2c function               */
@@ -939,6 +1029,9 @@ BUILTIN(D2X)
 BUILTIN(D2C)
 {
     fix_args(D2C);                       /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(D2C, string);
+
                                          /* must have the first string        */
     RexxString *string = required_string(D2C, string);
     RexxInteger *n = optional_integer(D2C, n);        /* length is optional                */
@@ -954,6 +1047,9 @@ BUILTIN(D2C)
 BUILTIN(COMPARE)
 {
     fix_args(COMPARE);                   /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(COMPARE, string1);
+
                                          /* must have the first string        */
     RexxString *string1 = required_string(COMPARE, string1);
     /* and the second string also        */
@@ -971,6 +1067,9 @@ BUILTIN(COMPARE)
 BUILTIN(LENGTH)
 {
     fix_args(LENGTH);                    /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(LENGTH, string);
+
                                          /* must have a string                */
     RexxString *target = required_string(LENGTH, string);
     return target->lengthRexx();         /* get the length                    */
@@ -988,6 +1087,9 @@ BUILTIN(LENGTH)
 BUILTIN(TRANSLATE)
 {
     fix_args(TRANSLATE);                 /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(TRANSLATE, string);
+
                                          /* must have a string                */
     RexxString *string = required_string(TRANSLATE, string);
     /* output table is optional          */
@@ -1014,6 +1116,9 @@ BUILTIN(TRANSLATE)
 BUILTIN(VERIFY)
 {
     fix_args(VERIFY);                    /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(VERIFY, string);
+
                                          /* must have a string                */
     RexxString *string = required_string(VERIFY, string);
     /* reference is also required        */
@@ -2688,6 +2793,9 @@ BUILTIN(CONDITION)
 BUILTIN(CHANGESTR)
 {
     fix_args(CHANGESTR);                 /* check on require number of args   */
+
+    TEXT_BIF_TARGET2(CHANGESTR, haystack, needle);
+
                                          /* get string for new                */
     RexxString *needle = required_string(CHANGESTR, needle);
     /* get string for target             */
@@ -2708,6 +2816,9 @@ BUILTIN(CHANGESTR)
 BUILTIN(COUNTSTR)
 {
     fix_args(COUNTSTR);                  /* check on require number of args   */
+
+    TEXT_BIF_TARGET2(COUNTSTR, haystack, needle);
+
                                          /* get string for new                */
     RexxString *needle = required_string(COUNTSTR, needle);
     /* get string for target             */

@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Apr 2024
-Input queue name: S772aQ6000007c6be0
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 9 Apr 2024
+Input queue name: S3de6Q600003f02490
 
 ooRexx[sh]> call loadUnicodeCharacterNames
 Load the Unicode character names 15.1.0 
@@ -925,49 +925,40 @@ ooRexx[sh]> .Unicode~unckeckedConversionToString = unckeckedConversionToString -
 -----------------------------------------
 
 /*
-[Intermediate solution]
-
-Several solutions in RosettaCode are in error because the pad character used
-with the function 'center' is a UTF-8 string made of several bytes.
-The function center now supports utf-8 pad made of 1 multi-bytes character.
-When the pad is not a 1 byte character then the interpreter converts the string
-to a RexxText and sends it the message "center".
-The returned value is the String associated to the RexxText.
-
-The invariants of the method 'center' are true for the RexxText, but not true for
-the String (which is normal).
+The string BIFs are polymorphic on RexxString/RexxText.
+If at least one positional argument is a RexxText then the BIF forwards to
+RexxText, otherwise the BIF forwards to RexxString.
 */
 
+-- Function 'center'
 ooRexx[sh]> "═"~description=                                -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'   (was 'UTF-8 not-ASCII (3 bytes)')
 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 ooRexx[sh]> "═"~text~description=                           -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 ooRexx[sh]> "═"~c2x=                                        -- 'E29590'
 'E29590'
-ooRexx[sh]> center("hello", 20, "═")=                       -- '═══════hello════════'
-'═══════hello════════'
+ooRexx[sh]> center("hello", 20, "═")=                       -- T'═══════hello════════'
+T'═══════hello════════'
 ooRexx[sh]> center("hello", 20, "═")~text~description=      -- 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
 
--- Idem for the function 'left'
-ooRexx[sh]> left("hello", 20, "═")=                         -- 'hello═══════════════'
-'hello═══════════════'
+-- Function 'left'
+ooRexx[sh]> left("hello", 20, "═")=                         -- T'hello═══════════════'
+T'hello═══════════════'
 ooRexx[sh]> left("hello", 20, "═")~text~description=        -- 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
 
 
 /*
-[General solution]
-
-The new path I would like to explore is the support of graphemes by ALL the BIF...
-I have already a tiny support for center() and left(), only triggered in case of
-pad character made of several bytes.
-
-The generalization would be to route the BIF either towards String or towards RexxText,
+[ABANDONNED]
+Other polymorphism: route the BIF either towards String or towards RexxText,
 in function of the compatibility of the arguments with String:
 BIF(str1, str2, ..., strN)
     --> forward to String (byte-oriented) if str's encoding is Byte or UTF-8 (with ASCII characters only)
     --> forward to RexxText otherwise
+
+Abandonned because we have already the polymorphism on RexxString/RexxText which
+is more easy to control and to understand.
 */
 
 -- UTF-8 encoding
@@ -978,9 +969,9 @@ ooRexx[sh]> length("Noel")=                                 -- 4 because "Noel"~
  4
 ooRexx[sh]> "Noël"~isCompatibleWithByteString=              -- 0
  0
-ooRexx[sh]> length("Noël")=                                 -- TODO: 4 because "Noël"~text~length = 4
- 5
-ooRexx[sh]> "Noël"~length=                                  -- 4    (was "5 because String remains byte-oriented, not impacted by the default encoding" before automatic conversion of string literals to text)
+ooRexx[sh]> length("Noël")=                                 -- 4 because "Noël" is a RexxText   (was TODO: 4 because "Noël"~text~length = 4)
+ 4
+ooRexx[sh]> "Noël"~length=                                  -- 4 because "Noël" is a RexxText   (was "5 because String remains byte-oriented, not impacted by the default encoding" before automatic conversion of string literals to text)
  4
 
 -- UTF-16BE encoding
@@ -1000,9 +991,9 @@ ooRexx[sh]> s~description=                                  -- 'UTF-16BE (8 byte
 'UTF-16BE (8 bytes)'
 ooRexx[sh]> s~length=                                       -- 8 because String is always byte-oriented (ignores the encoding)
  8
-ooRexx[sh]> length(s)=                                      -- TODO: 4 because forwards to Text (encoding UTF-16BE is not compatible with String)
+ooRexx[sh]> length(s)=                                      -- 8    (was TODO: 4 because forwards to Text (encoding UTF-16BE is not compatible with String))
  8
-ooRexx[sh]> s~text~utf8=                                    -- ABCD
+ooRexx[sh]> s~text~utf8=                                    -- T'ABCD'
 T'ABCD'
 
 -- UTF-32 encoding
@@ -1022,9 +1013,9 @@ ooRexx[sh]> s~description=                                  -- 'UTF-32BE (8 byte
 'UTF-32BE (8 bytes)'
 ooRexx[sh]> s~length=                                       -- 8 because String is always byte-oriented (ignores the encoding)
  8
-ooRexx[sh]> length(s)=                                      -- TODO: 2 because forwards to Text (encoding UTF-32 is not compatible with String)
+ooRexx[sh]> length(s)=                                      -- 8    (was TODO: 2 because forwards to Text (encoding UTF-32 is not compatible with String))
  8
-ooRexx[sh]> s~text~utf8=                                    -- AB
+ooRexx[sh]> s~text~utf8=                                    -- T'AB'
 T'AB'
 
 
