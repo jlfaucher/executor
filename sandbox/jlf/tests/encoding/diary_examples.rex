@@ -282,7 +282,7 @@ x2c("41")=;result~description=                  -- 'A'          'Byte ASCII (1 b
 No longer apply the rule R3 during the automatic conversion of String literals
 to RexxText instances. If the package encoding is not a byte encoding then any
 not-ASCII String literal is converted to a RexxText, whatever its encoding.
-Reason: inconsistency betwwen
+Reason: inconsistency between
     "noel" "FF"x~~setEncoding("cp1252")=        -- 'noel [FF]' because concatenation of 2 String instances
     "noël" "FF"x~~setEncoding("cp1252")=        -- Encoding: cannot append... because concatenation of a RexxText with a String
 Now:

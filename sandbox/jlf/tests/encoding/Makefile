@@ -16,7 +16,8 @@ demos = ..\..\demos
 demoFiles = executor-demo-text \
             executor-demo-text-internal_checks \
             executor-demo-text-unicode \
-            executor-demo-text-compatibility
+            executor-demo-text-compatibility \
+            executor-demo-text-compatibility-auto-conv
 
 # ooRexx scripts in the current directory
 scriptsFiles = test_character_index

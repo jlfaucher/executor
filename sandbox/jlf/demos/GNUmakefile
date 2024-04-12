@@ -13,6 +13,7 @@ demoFiles = executor-demo-array \
             executor-demo-text-internal_checks \
             executor-demo-text-unicode \
             executor-demo-text-compatibility \
+            executor-demo-text-compatibility-auto-conv \
             ooRexxShell-demo-helpers \
             ooRexxShell-demo-interpreters \
             ooRexxShell-demo-queries

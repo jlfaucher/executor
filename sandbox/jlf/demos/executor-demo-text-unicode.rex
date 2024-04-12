@@ -71,7 +71,8 @@ sleep no prompt
 Escape characters can be used in literal strings, they are unescaped at run-time.
 Note: should be supported at parse-time, it's just that this prototype doesn't
 modify the lexer, for the moment.
-    \u{Unicode name}    Character name in the Unicode database
+    \N{Unicode name}    Character name in the Unicode database or codepoint Label
+    \u{Unicode name}    Character name in the Unicode database or codepoint Label
     \U{Unicode name}    same as \u{Unicode name}
     \u{X..X}            Unicode character denoted by 1-8 hex digits. The first character must be a digit 0..9
     \U{X..X}            same as \u{X..X}

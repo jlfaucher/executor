@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 16 Nov 2023
-</span><span style="font-weight:bold;color:green;">Input queue name: Sa957Q6000007e4750
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 11 Apr 2024
+</span><span style="font-weight:bold;color:green;">Input queue name: Sf408Q600003f24b60
 </span>
 <span style="font-weight:bold;color:blue;">--------------------
 </span><span style="font-weight:bold;color:blue;">-- Unicode libraries
@@ -86,7 +86,7 @@ a Directory (13 items)
 'totalCharactersLoaded'              :  149813
 'totalIntervalCharacters'            :  105693
 'totalIntervalCharactersNotExpanded' :  105693
-'unckeckedConversionToString'        :  0
+'unckeckedConversionToString'        :  1
 'version'                            : '15.1.0'
 
 <span style="font-weight:bold;color:blue;">-- Select the characters whose category is Cc (Control)
@@ -207,7 +207,8 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">result~name~length=<
 </span><span style="font-weight:bold;color:blue;">Escape characters can be used in literal strings, they are unescaped at run-time.
 </span><span style="font-weight:bold;color:blue;">Note: should be supported at parse-time, it's just that this prototype doesn't
 </span><span style="font-weight:bold;color:blue;">modify the lexer, for the moment.
-</span><span style="font-weight:bold;color:blue;">    \u{Unicode name}    Character name in the Unicode database
+</span><span style="font-weight:bold;color:blue;">    \N{Unicode name}    Character name in the Unicode database or codepoint Label
+</span><span style="font-weight:bold;color:blue;">    \u{Unicode name}    Character name in the Unicode database or codepoint Label
 </span><span style="font-weight:bold;color:blue;">    \U{Unicode name}    same as \u{Unicode name}
 </span><span style="font-weight:bold;color:blue;">    \u{X..X}            Unicode character denoted by 1-8 hex digits. The first character must be a digit 0..9
 </span><span style="font-weight:bold;color:blue;">    \U{X..X}            same as \u{X..X}

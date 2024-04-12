@@ -545,9 +545,9 @@ For example, if startB==6 then previousCodepointIndexB==3
 Executor supports
     \N{Unicode name}    Character name in the Unicode database or codepoint Label
     \u{Unicode name}    Character name in the Unicode database or codepoint Label
-    \U{Unicode name}    same as \u
+    \U{Unicode name}    same as \u{Unicode name}
     \u{X..X}            Unicode character denoted by 1-8 hex digits. The first character must be a digit 0..9 ('u' lowercase)
-    \U{X..X}            same as \u
+    \U{X..X}            same as \u{X..X}
     \uXXXX              Unicode character denoted by 4 hex digits ('u' lowercase)
     \UXXXXXXXX          Unicode character denoted by 8 hex digits ('U' uppercase)
     \xXX                1 byte denoted by 2 hex digits ('x' lowercase)

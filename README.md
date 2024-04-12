@@ -48,6 +48,7 @@ Test cases:
 - [Demo Unicode checks][demo_unicode_checks]
 - [Demo Unicode services][demo_unicode_services]
 - [Demo Unicode String compatibility][demo_unicode_string_compatibility]
+- [Demo Unicode String compatibility (no ~text)][demo_unicode_string_compatibility_auto_conv]      **🠄 NEW**
 - [Examples from the sandbox diary and more][encoded_strings_diary_exemples]      **🠄 NEW**
 - [Concatenation][encoded_strings_concatenation]
 - [Transcoding][encoded_strings_transcoding]
@@ -407,6 +408,7 @@ I gave up my extensions.
 [demo_unicode_intro]: https://jlfaucher.github.io/executor.master/demos/executor-demo-text-output.html
 [demo_unicode_services]: https://jlfaucher.github.io/executor.master/demos/executor-demo-text-unicode-output.html
 [demo_unicode_string_compatibility]: https://jlfaucher.github.io/executor.master/demos/executor-demo-text-compatibility-output.html
+[demo_unicode_string_compatibility_auto_conv]: https://jlfaucher.github.io/executor.master/demos/executor-demo-text-compatibility-auto-conv-output.html
 [demos_with_asciinema]: https://jlfaucher.github.io/executor.master/demos/index.html
 [doc]: https://jlfaucher.github.io/oorexx/docs/trunk/index.html "Graphical syntax diagrams"
 [download]: https://jlfaucher.github.io/oorexx/sandbox/index.html "Download"
