@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 9 Apr 2024
-</span><span style="font-weight:bold;color:green;">Input queue name: S3de6Q600003f02490
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 11 Apr 2024
+</span><span style="font-weight:bold;color:green;">Input queue name: Sb031Q600003f04d00
 </span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.1.0 
@@ -748,13 +748,13 @@ T'👩‍👨‍👩‍👧'
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~text~substr(3, 3, &quot;x&quot;)=; result~description=   </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
 T'elx'
 'UTF-8 ASCII (3 characters, 3 codepoints, 3 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~substr(3, 3, &quot;▷&quot;)=; result~description=        </span><span style="font-weight:bold;color:blue;">-- self is a String: error because the pad character is 3 bytes</span>
-<span style="font-weight:bold;color:red;">Incorrect pad or character argument specified; found &quot;▷&quot;
-</span><span style="font-weight:bold;color:red;">Error code= 93.922
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~substr(3, 3, &quot;▷&quot;~text)=; result~description=   </span><span style="font-weight:bold;color:blue;">-- self is a String: error because the pad character is 3 bytes</span>
-<span style="font-weight:bold;color:red;">Incorrect pad or character argument specified; found &quot;▷&quot;
-</span><span style="font-weight:bold;color:red;">Error code= 93.922
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~text~substr(3, 3, &quot;▷&quot;)=; result~description=   </span><span style="font-weight:bold;color:blue;">-- no error because self is a RexxText and the pad character is one character when converted to the default encoding</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~substr(3, 3, &quot;▷&quot;)=; result~description=        </span><span style="font-weight:bold;color:blue;">-- T'el▷' (was: self is a String: error because the pad character is 3 bytes)</span>
+T'el▷'
+'UTF-8 not-ASCII (3 characters, 3 codepoints, 5 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~substr(3, 3, &quot;▷&quot;~text)=; result~description=   </span><span style="font-weight:bold;color:blue;">-- T'el▷' (was: self is a String: error because the pad character is 3 bytes)</span>
+T'el▷'
+'UTF-8 not-ASCII (3 characters, 3 codepoints, 5 bytes, 0 error)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~text~substr(3, 3, &quot;▷&quot;)=; result~description=   </span><span style="font-weight:bold;color:blue;">-- no error because self is a RexxText and the pad character is one character when converted to the default encoding</span>
 T'el▷'
 'UTF-8 not-ASCII (3 characters, 3 codepoints, 5 bytes, 0 error)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~text~substr(3, 3, &quot;▷&quot;)=; result~description=</span>

@@ -127,7 +127,7 @@ RexxSourceLiteral::RexxSourceLiteral(RexxString *s, PackageClass *p, size_t star
 
     // clauser~transformSource(clauseBefore, clauseAfter)
     // Transform the source to accept auto named arguments, and to return implicitely the result of the last evaluated expression
-    RexxString *clauseBefore = new_string("use auto named arg ; options \"NOCOMMANDS\"");
+    RexxString *clauseBefore = new_string("use auto named arg ; options \"NOCOMMANDS\" ; .RexxBlock~setEncoding(.context)");
     ProtectedObject pClauseBefore(clauseBefore);
     RexxString *clauseAfter = new_string("if var(\"result\") then return result");
     ProtectedObject pClauseAfter(clauseAfter);

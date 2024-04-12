@@ -7,6 +7,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::extension RexxBlock   inherit RexxBlockDoer
 ::extension Coactivity  inherit CoactivityDoer
 ::extension String      inherit StringDoer
+::extension RexxText    inherit TextDoer
 
 --::options trace i
 ::options NOMACROSPACE
@@ -296,11 +297,13 @@ Ex :
 
 
 ::method do unguarded
-    forward message "call"
+    forward message "DYNAMICTARGET" continue
+    forward message "call" to (result)
 
 
 ::method doWith unguarded
-    forward message "callWith"
+    forward message "DYNAMICTARGET" continue
+    forward message "callWith" to (result)
 
 
 /*
@@ -434,13 +437,15 @@ Ex :
 
 ::method do unguarded
     use strict arg object, ...
-    forward to (object) message "run" array (self, "a", arg(2,"a"), namedArguments: .context~namedArgs)
+    forward to (object) message "DYNAMICTARGET" continue
+    forward to (result) message "run" array (self, "a", arg(2,"a"), namedArguments: .context~namedArgs)
 
 
 ::method doWith unguarded
     use strict arg object, array
     use strict named arg namedArguments = (.nil)
-    forward to (object) message "run" array (self, "a", array, :namedArguments)
+    forward to (object) message "DYNAMICTARGET" continue
+    forward to (result) message "run" array (self, "a", array, :namedArguments)
 
 
 -----------------------------------------------------------------------------
@@ -459,17 +464,54 @@ Ex :
 
 ::method do unguarded
     use strict arg object, ...
-    forward to (object) message "sendWith" array (self, arg(2,"a"), namedArguments: .context~namedArgs)
+    forward to (object) message "DYNAMICTARGET" continue
+    forward to (result) message "sendWith" array (self, arg(2,"a"), namedArguments: .context~namedArgs)
 
 
 ::method doWith unguarded
     use strict arg object, array
     use strict named arg namedArguments = (.nil)
-    forward to (object) message "sendWith" array (self, array, :namedArguments)
+    forward to (object) message "DYNAMICTARGET" continue
+    forward to (result) message "sendWith" array (self, array, :namedArguments)
 
 
 ::method source unguarded
     return self -- When used as a doer, a string is a message. Assume the message is the source.
+
+
+-----------------------------------------------------------------------------
+-- Mixin.
+-- Remember: I use self~string to support RexxText
+-- If the first argument of sendWith is not a String instance, then it complains
+-- positional argument 1 must be a single-dimensional array value; found "<the RexxText instance>"
+-- because argument 1 is either a String or an Array.
+
+::class "TextDoer" mixinclass Object public inherit Doer
+
+::method doer unguarded
+    use strict arg -- none
+    return self~string -- When used as a doer factory, a string is a message
+
+
+::method needsObject unguarded
+    return .true -- Must pass an object as first argument when calling do or doWith
+
+
+::method do unguarded
+    use strict arg object, ...
+    forward to (object) message "DYNAMICTARGET" continue
+    forward to (result) message "sendWith" array (self~string, arg(2,"a"), namedArguments: .context~namedArgs)
+
+
+::method doWith unguarded
+    use strict arg object, array
+    use strict named arg namedArguments = (.nil)
+    forward to (object) message "DYNAMICTARGET" continue
+    forward to (result) message "sendWith" array (self~string, array, :namedArguments)
+
+
+::method source unguarded
+    return self~string -- When used as a doer, a string is a message. Assume the message is the source.
 
 
 -----------------------------------------------------------------------------
@@ -571,17 +613,20 @@ Ex :
 
 -- Even if unknown is defined, must explicitely provide a concrete implementation because abstract
 ::method needsObject unguarded
-    forward to (self~doer)
+    forward to (self~doer) message "DYNAMICTARGET" continue
+    forward to (result)
 
 
 -- Even if unknown is defined, must explicitely provide a concrete implementation because abstract
 ::method do unguarded
-    forward to (self~doer)
+    forward to (self~doer) message "DYNAMICTARGET" continue
+    forward to (result)
 
 
 -- Even if unknown is defined, must explicitely provide a concrete implementation because abstract
 ::method doWith unguarded
-    forward to (self~doer)
+    forward to (self~doer) message "DYNAMICTARGET" continue
+    forward to (result)
 
 
 /*
@@ -600,7 +645,8 @@ Ex :
 ::method hasMethod unguarded
     use strict arg methodName
     if self~hasMethod:super(methodName) then return .true
-    forward to (self~doer)
+    forward to (self~doer) message "DYNAMICTARGET" continue
+    forward to (result)
 
 
 /*
@@ -613,7 +659,20 @@ Ex :
 ::method unknown unguarded
     use arg msg, args
     use named arg namedArguments
+    -- no dynamic target for the unknown method
     forward message (msg) arguments (args) namedArguments (namedArguments) to (self~doer)
+
+
+-- Helper for blocks
+::method setEncoding class
+    use strict arg myContext
+    context = myContext
+    do forever
+        parentContext = context~parentContext -- .nil if native or top-level activation.
+        if .nil == parentContext then leave
+        context = parentContext
+    end
+    myContext~package~setEncoding(context~package~encoding)
 
 
 -----------------------------------------------------------------------------
@@ -631,13 +690,15 @@ Ex :
 
 
 ::method do unguarded
-    forward message "resume"
+    forward message "DYNAMICTARGET" continue
+    forward to (result) message "resume"
 
 
 ::method doWith unguarded
     use strict arg array
     use strict named arg namedArguments = (.nil)
-    forward message "resume" arguments (array) namedArguments(namedArguments)
+    forward message "DYNAMICTARGET" continue
+    forward to (result) message "resume" arguments (array) namedArguments(namedArguments)
 
 
 ::method source unguarded
@@ -734,7 +795,8 @@ Examples :
 ::method doWith unguarded
     use strict arg array
     use strict named arg namedArguments = (.nil)
-    forward message "do" arguments (array) namedArguments(namedArguments)
+    forward message "DYNAMICTARGET" continue
+    forward to (result) message "do" arguments (array) namedArguments(namedArguments)
 
 
 ::method source unguarded

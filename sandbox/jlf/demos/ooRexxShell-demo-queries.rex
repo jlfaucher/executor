@@ -49,27 +49,27 @@ sleep
 sleep no prompt
 
 /*
-Methods of the class StringIterator (add '.m[ethods]').
-?classes.methods stringiterator
+Methods of the class TextOrBufferOrStringIterator (add '.m[ethods]').
+?classes.methods TextOrBufferOrStringIterator
 */
 sleep
-?classes.methods stringiterator
+?classes.methods TextOrBufferOrStringIterator
 sleep no prompt
 
 /*
-Source of the methods of the class StringIterator (add '.s[ource]').
-?classes.methods.source stringiterator
+Source of the methods of the class TextOrBufferOrStringIterator (add '.s[ource]').
+?classes.methods.source TextOrBufferOrStringIterator
 */
 sleep
-?classes.methods.source stringiterator
+?classes.methods.source TextOrBufferOrStringIterator
 sleep no prompt
 
 /*
-Methods of the class StringIterator, including the inherited methods (add '.i[nherited]').
-?classes.methods.inherited stringiterator
+Methods of the class TextOrBufferOrStringIterator, including the inherited methods (add '.i[nherited]').
+?classes.methods.inherited TextOrBufferOrStringIterator
 */
 sleep
-?classes.methods.inherited stringiterator
+?classes.methods.inherited TextOrBufferOrStringIterator
 sleep no prompt
 
 /*

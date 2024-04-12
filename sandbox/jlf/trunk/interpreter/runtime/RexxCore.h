@@ -454,7 +454,8 @@ inline RexxInteger * REQUEST_INTEGER(RexxObject *obj) { return ((obj)->requestIn
 
 
 // Returns true if at least one positional argument is a RexxText
-inline bool hasRexxTextArguments(RexxObject **arguments, size_t argcount)
+// The named arguments are not scanned
+inline bool hasRexxTextArguments(RexxObject **arguments, size_t argcount, size_t named_argcount)
 {
     for (size_t i=0; i < argcount; i++)
     {

@@ -153,6 +153,8 @@ inline char IntToHexDigit(int n)
    }
    HashCode getObjectHashCode();
 
+   virtual RexxObject *dynamicTarget(RexxObject **arguments, size_t count, size_t named_count);
+
    bool         numberValue(wholenumber_t &result, size_t precision);
    bool         numberValue(wholenumber_t &result);
    bool         unsignedNumberValue(uwholenumber_t &result, size_t precision);

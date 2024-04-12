@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 9 Apr 2024
-</span><span style="font-weight:bold;color:green;">Input queue name: S4f91Q600003f151e0
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 11 Apr 2024
+</span><span style="font-weight:bold;color:green;">Input queue name: Se741Q600003f24b60
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.1.0 
@@ -46,6 +46,172 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeTransfo
 
 
 <span style="font-weight:bold;color:blue;">-- ===============================================================================
+</span><span style="font-weight:bold;color:blue;">-- 2024 Apr 12
+</span>
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">[interpreter]
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">Add support for dynamic target when sending messages.
+</span><span style="font-weight:bold;color:blue;">The target is calculated based on the initial target and the arguments
+</span><span style="font-weight:bold;color:blue;">values/types of the message. It's still a single-dispatch.
+</span><span style="font-weight:bold;color:blue;">The ~~ form of message is not impacted: it returns the object that received the
+</span><span style="font-weight:bold;color:blue;">message (the initial target), not the calculated target.
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">New method .Object~dynamicTarget which returns the target in function of the arguments:
+</span><span style="font-weight:bold;color:blue;">    RexxObject *RexxObject::dynamicTargetRexx(RexxObject **arguments, size_t argCount, size_t named_argCount)
+</span><span style="font-weight:bold;color:blue;">    {
+</span><span style="font-weight:bold;color:blue;">        return this-&gt;dynamicTarget(arguments, argCount, named_argCount);
+</span><span style="font-weight:bold;color:blue;">    }
+</span><span style="font-weight:bold;color:blue;">By default, the dynamic target is the receiver object.
+</span><span style="font-weight:bold;color:blue;">Native classes can override the virtual method dynamicTarget.
+</span><span style="font-weight:bold;color:blue;">For the moment, it's not possible to override this method with an ooRexx method.
+</span><span style="font-weight:bold;color:blue;">Examples:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">(1,2)~dynamicTarget=                       </span><span style="font-weight:bold;color:blue;">-- initial target: [ 1, 2]</span>
+[ 1, 2]
+ooRexx&gt; <span style="font-weight:bold;color:purple;">(1,2)~dynamicTarget(&quot;string&quot;)=             </span><span style="font-weight:bold;color:blue;">-- initial target: [ 1, 2]</span>
+[ 1, 2]
+ooRexx&gt; <span style="font-weight:bold;color:purple;">(1,2)~dynamicTarget(&quot;string&quot;, &quot;teẌt&quot;)=     </span><span style="font-weight:bold;color:blue;">-- initial target: [ 1, 2]</span>
+[ 1, 2]
+
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">The forward instruction does not depend on the dynamic target calculation.
+</span><span style="font-weight:bold;color:blue;">If you need to forward using the dynamic target then do:
+</span><span style="font-weight:bold;color:blue;">    forward message &quot;DYNAMICTARGET&quot; continue
+</span><span style="font-weight:bold;color:blue;">    forward to (result)
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">[Encoded strings]
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">+---------------------------------------------------------------+
+</span><span style="font-weight:bold;color:blue;">|                   3rd important milestone                     |
+</span><span style="font-weight:bold;color:blue;">| The String messages become polymorphic on RexxString/RexxText |
+</span><span style="font-weight:bold;color:blue;">+---------------------------------------------------------------+
+</span><span style="font-weight:bold;color:blue;">If at least one positional argument is a RexxText then the String message is
+</span><span style="font-weight:bold;color:blue;">sent to the RexxText counterpart of the String instance, otherwise the String
+</span><span style="font-weight:bold;color:blue;">message is sent to the String instance.
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">The RexxString class overrides the virtual method dynamicTarget:
+</span><span style="font-weight:bold;color:blue;">    RexxObject *RexxString::dynamicTarget(RexxObject **arguments, size_t count, size_t named_count)
+</span><span style="font-weight:bold;color:blue;">    {
+</span><span style="font-weight:bold;color:blue;">        if (hasRexxTextArguments(arguments, count, named_count))
+</span><span style="font-weight:bold;color:blue;">        {
+</span><span style="font-weight:bold;color:blue;">            RexxText *text = this-&gt;requestText();
+</span><span style="font-weight:bold;color:blue;">            return text;
+</span><span style="font-weight:bold;color:blue;">        }
+</span><span style="font-weight:bold;color:blue;">        return this;
+</span><span style="font-weight:bold;color:blue;">    }
+</span><span style="font-weight:bold;color:blue;">Examples:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noel&quot;~dynamicTarget=                       </span><span style="font-weight:bold;color:blue;">-- initial target: 'Noel'</span>
+'Noel'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noel&quot;~dynamicTarget(&quot;string&quot;)=             </span><span style="font-weight:bold;color:blue;">-- initial target: 'Noel'</span>
+'Noel'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noel&quot;~dynamicTarget(&quot;string&quot;, &quot;teẌt&quot;)=     </span><span style="font-weight:bold;color:blue;">-- text counterpart of the initial target: T'Noel'  because &quot;teẌt&quot; is a RexxText</span>
+T'Noel'
+
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Examples of dynamic target with ~center:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~c2x=; &quot;é&quot;~class=                        </span><span style="font-weight:bold;color:blue;">-- 'C3A9'   (The RexxText class)</span>
+'C3A9'
+(The RexxText class)
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;test&quot;~center(10, &quot;é&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- T'ééétestééé'</span>
+T'ééétestééé'
+
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;C3A9&quot;x=; result~description=               </span><span style="font-weight:bold;color:blue;">-- T'é'     'Byte not-ASCII (2 characters, 2 codepoints, 2 bytes, 0 error)'</span>
+T'é'
+'Byte not-ASCII (2 characters, 2 codepoints, 2 bytes, 0 error)'
+<span style="font-weight:bold;color:blue;">-- next error is ok: the pad is a byte text made of 2 bytes
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;test&quot;~center(10, &quot;C3A9&quot;x)=                 </span><span style="font-weight:bold;color:blue;">-- Incorrect pad or character argument specified; found &quot;Byte not-ASCII 'é'&quot;</span>
+<span style="font-weight:bold;color:red;">Incorrect pad or character argument specified; found &quot;Byte not-ASCII 'é'&quot;
+</span><span style="font-weight:bold;color:red;">Error code= 93.922
+</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">x2c(&quot;C3A9&quot;)=; result~description=           </span><span style="font-weight:bold;color:blue;">-- 'é'      'Byte not-ASCII (2 bytes)'</span>
+'é'
+'Byte not-ASCII (2 bytes)'
+<span style="font-weight:bold;color:blue;">-- next error is ok: the pad is a string made of 2 bytes
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;test&quot;~center(10, x2c(&quot;C3A9&quot;))=             </span><span style="font-weight:bold;color:blue;">-- Incorrect pad or character argument specified; found &quot;é&quot;</span>
+<span style="font-weight:bold;color:red;">Incorrect pad or character argument specified; found &quot;é&quot;
+</span><span style="font-weight:bold;color:red;">Error code= 93.922
+</span>
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Examples of dynamic target with ~left:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;test&quot;~left(10)=                            </span><span style="font-weight:bold;color:blue;">-- 'test      '</span>
+'test      '
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;test&quot;~left(10, &quot;.&quot;)=                       </span><span style="font-weight:bold;color:blue;">-- 'test......'</span>
+'test......'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;test&quot;~left(10, &quot;🦖&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- T'test🦖🦖🦖🦖🦖🦖'</span>
+T'test🦖🦖🦖🦖🦖🦖'
+
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">The ~~ form of message is not impacted: it always returns the initial target
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;test&quot;~right(10, &quot;é&quot;)~left(20, &quot;è&quot;)=        </span><span style="font-weight:bold;color:blue;">-- T'éééééétestèèèèèèèèèè'</span>
+T'éééééétestèèèèèèèèèè'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;test&quot;~~right(10, &quot;é&quot;)~left(20, &quot;è&quot;)=       </span><span style="font-weight:bold;color:blue;">-- T'testèèèèèèèèèèèèèèèè'</span>
+T'testèèèèèèèèèèèèèèèè'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;test&quot;~right(10, &quot;é&quot;)~~left(20, &quot;è&quot;)=       </span><span style="font-weight:bold;color:blue;">-- T'éééééétest'</span>
+T'éééééétest'
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;test&quot;~~right(10, &quot;é&quot;)~~left(20, &quot;è&quot;)=      </span><span style="font-weight:bold;color:blue;">-- 'test'</span>
+'test'
+
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">[doers]
+</span><span style="font-weight:bold;color:blue;">
+</span><span style="font-weight:bold;color:blue;">RexxText inherit from TextDoer.
+</span><span style="font-weight:bold;color:blue;">Examples:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;c2x&quot;~text~do(&quot;a&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- 61  (was Object &quot;c2x&quot; does not understand message &quot;DO&quot;)</span>
+ 61
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;ça va ?&quot;~characters~each=              </span><span style="font-weight:bold;color:blue;">-- [T'ç',T'a',T' ',T'v',T'a',T' ',T'?']</span>
+[T'ç',T'a',T' ',T'v',T'a',T' ',T'?']
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;ça va ?&quot;~characters~each(&quot;c2x&quot;)=       </span><span style="font-weight:bold;color:blue;">-- ['C3A7', 61, 20, 76, 61, 20,'3F']</span>
+['C3A7', 61, 20, 76, 61, 20,'3F']
+
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">A RexxBlock has the same encoding as its package.
+</span><span style="font-weight:bold;color:blue;">This is managed by its source transformation:
+</span><span style="font-weight:bold;color:blue;">.RexxBlock~setEncoding(.context)
+</span><span style="font-weight:bold;color:blue;">Example:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">{}~rawExecutable~source==</span>
+an Array (shape [2], 2 items)
+ 1 : 'use auto named arg ; options &quot;NOCOMMANDS&quot; ; .RexxBlock~setEncoding(.context)'
+ 2 : 'if var(&quot;result&quot;) then return result'
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Examples:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">{.context~package~encoding}~()=         </span><span style="font-weight:bold;color:blue;">-- (The UTF8_Encoding class)</span>
+(The UTF8_Encoding class)
+
+ooRexx&gt; <span style="font-weight:bold;color:purple;">oldEncoding = .context~package~setEncoding(&quot;byte&quot;)</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">{.context~package~encoding}~()=         </span><span style="font-weight:bold;color:blue;">-- (The Byte_Encoding class)</span>
+(The Byte_Encoding class)
+ooRexx&gt; <span style="font-weight:bold;color:purple;">.context~package~setEncoding(oldEncoding)</span>
+
+<span style="font-weight:bold;color:blue;">-- was: Incorrect pad or character argument specified; found &quot;é&quot;
+</span><span style="font-weight:bold;color:blue;">-- because the package encoding of the block was The Byte_Encoding (default)
+</span><span style="font-weight:bold;color:blue;">-- and the string literal &quot;é&quot; was not converted to a RexxText instance.
+</span><span style="font-weight:bold;color:blue;">-- Now the package encoding of the block is The UTF8_Encoding and it works:
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">(&quot;un&quot;, &quot;deux&quot;)~each{item~right(10, &quot;é&quot;)}==</span>
+an Array (shape [2], 2 items)
+ 1 : T'ééééééééun'
+ 2 : T'éééééédeux'
+
+
+<span style="font-weight:bold;color:blue;">-- ===============================================================================
 </span><span style="font-weight:bold;color:blue;">-- 2024 Apr 10
 </span>
 <span style="font-weight:bold;color:blue;">/*
@@ -53,8 +219,8 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeTransfo
 </span><span style="font-weight:bold;color:blue;">|                  2nd important milestone                  |
 </span><span style="font-weight:bold;color:blue;">| The string BIFs become polymorphic on RexxString/RexxText |
 </span><span style="font-weight:bold;color:blue;">+-----------------------------------------------------------+
-</span><span style="font-weight:bold;color:blue;">If at least one positional argument is a RexxText then the BIF forwards to
-</span><span style="font-weight:bold;color:blue;">RexxText, otherwise the BIF forwards to RexxString.
+</span><span style="font-weight:bold;color:blue;">If at least one positional argument is a RexxText then the string BIFs forward
+</span><span style="font-weight:bold;color:blue;">to RexxText, otherwise the string BIFs forward to RexxString.
 </span><span style="font-weight:bold;color:blue;">Enhanced BIFs:
 </span><span style="font-weight:bold;color:blue;">    ABBREV
 </span><span style="font-weight:bold;color:blue;">    CENTER      implemented on RexxText
@@ -926,11 +1092,11 @@ M'A41A'
 </span><span style="font-weight:bold;color:blue;">Examples:
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~text~translate=              </span><span style="font-weight:bold;color:blue;">-- 'HELLO'</span>
-T'HELLO'
+'HELLO'
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~text~translate(,,&quot;x&quot;)=       </span><span style="font-weight:bold;color:blue;">-- 'xxxxx'</span>
-T'xxxxx'
+'xxxxx'
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~text~translate(,&quot;el&quot;,&quot;x&quot;)=   </span><span style="font-weight:bold;color:blue;">-- 'hxxxo'</span>
-T'hxxxo'
+'hxxxo'
 
 
 <span style="font-weight:bold;color:blue;">-- ===============================================================================

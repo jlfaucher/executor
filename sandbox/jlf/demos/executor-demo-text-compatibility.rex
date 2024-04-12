@@ -635,9 +635,9 @@ sleep no prompt
 -- substr
 "noel"~text~substr(3, 3, "x")=; result~description=   -- forward to String
 sleep
-"noel"~substr(3, 3, "▷")=; result~description=        -- self is a String: error because the pad character is 3 bytes
+"noel"~substr(3, 3, "▷")=; result~description=        -- T'el▷' (was: self is a String: error because the pad character is 3 bytes)
 sleep
-"noel"~substr(3, 3, "▷"~text)=; result~description=   -- self is a String: error because the pad character is 3 bytes
+"noel"~substr(3, 3, "▷"~text)=; result~description=   -- T'el▷' (was: self is a String: error because the pad character is 3 bytes)
 sleep
 "noel"~text~substr(3, 3, "▷")=; result~description=   -- no error because self is a RexxText and the pad character is one character when converted to the default encoding
 sleep

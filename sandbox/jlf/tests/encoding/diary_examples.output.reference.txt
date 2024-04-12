@@ -11,6 +11,172 @@ ooRexx> .Unicode~memorizeTransformations = .false
 
 
 -- ===============================================================================
+-- 2024 Apr 12
+
+/*
+[interpreter]
+
+Add support for dynamic target when sending messages.
+The target is calculated based on the initial target and the arguments
+values/types of the message. It's still a single-dispatch.
+The ~~ form of message is not impacted: it returns the object that received the
+message (the initial target), not the calculated target.
+
+
+New method .Object~dynamicTarget which returns the target in function of the arguments:
+    RexxObject *RexxObject::dynamicTargetRexx(RexxObject **arguments, size_t argCount, size_t named_argCount)
+    {
+        return this->dynamicTarget(arguments, argCount, named_argCount);
+    }
+By default, the dynamic target is the receiver object.
+Native classes can override the virtual method dynamicTarget.
+For the moment, it's not possible to override this method with an ooRexx method.
+Examples:
+*/
+ooRexx> (1,2)~dynamicTarget=                       -- initial target: [ 1, 2]
+[ 1, 2]
+ooRexx> (1,2)~dynamicTarget("string")=             -- initial target: [ 1, 2]
+[ 1, 2]
+ooRexx> (1,2)~dynamicTarget("string", "teẌt")=     -- initial target: [ 1, 2]
+[ 1, 2]
+
+
+/*
+The forward instruction does not depend on the dynamic target calculation.
+If you need to forward using the dynamic target then do:
+    forward message "DYNAMICTARGET" continue
+    forward to (result)
+*/
+
+
+/*
+[Encoded strings]
+
++---------------------------------------------------------------+
+|                   3rd important milestone                     |
+| The String messages become polymorphic on RexxString/RexxText |
++---------------------------------------------------------------+
+If at least one positional argument is a RexxText then the String message is
+sent to the RexxText counterpart of the String instance, otherwise the String
+message is sent to the String instance.
+
+The RexxString class overrides the virtual method dynamicTarget:
+    RexxObject *RexxString::dynamicTarget(RexxObject **arguments, size_t count, size_t named_count)
+    {
+        if (hasRexxTextArguments(arguments, count, named_count))
+        {
+            RexxText *text = this->requestText();
+            return text;
+        }
+        return this;
+    }
+Examples:
+*/
+ooRexx> "Noel"~dynamicTarget=                       -- initial target: 'Noel'
+'Noel'
+ooRexx> "Noel"~dynamicTarget("string")=             -- initial target: 'Noel'
+'Noel'
+ooRexx> "Noel"~dynamicTarget("string", "teẌt")=     -- text counterpart of the initial target: T'Noel'  because "teẌt" is a RexxText
+T'Noel'
+
+
+/*
+Examples of dynamic target with ~center:
+*/
+ooRexx> "é"~c2x=; "é"~class=                        -- 'C3A9'   (The RexxText class)
+'C3A9'
+(The RexxText class)
+ooRexx> "test"~center(10, "é")=                     -- T'ééétestééé'
+T'ééétestééé'
+
+ooRexx> "C3A9"x=; result~description=               -- T'é'     'Byte not-ASCII (2 characters, 2 codepoints, 2 bytes, 0 error)'
+T'é'
+'Byte not-ASCII (2 characters, 2 codepoints, 2 bytes, 0 error)'
+-- next error is ok: the pad is a byte text made of 2 bytes
+ooRexx> "test"~center(10, "C3A9"x)=                 -- Incorrect pad or character argument specified; found "Byte not-ASCII 'é'"
+Incorrect pad or character argument specified; found "Byte not-ASCII 'é'"
+Error code= 93.922
+
+ooRexx> x2c("C3A9")=; result~description=           -- 'é'      'Byte not-ASCII (2 bytes)'
+'é'
+'Byte not-ASCII (2 bytes)'
+-- next error is ok: the pad is a string made of 2 bytes
+ooRexx> "test"~center(10, x2c("C3A9"))=             -- Incorrect pad or character argument specified; found "é"
+Incorrect pad or character argument specified; found "é"
+Error code= 93.922
+
+
+/*
+Examples of dynamic target with ~left:
+*/
+ooRexx> "test"~left(10)=                            -- 'test      '
+'test      '
+ooRexx> "test"~left(10, ".")=                       -- 'test......'
+'test......'
+ooRexx> "test"~left(10, "🦖")=                     -- T'test🦖🦖🦖🦖🦖🦖'
+T'test🦖🦖🦖🦖🦖🦖'
+
+
+/*
+The ~~ form of message is not impacted: it always returns the initial target
+*/
+ooRexx> "test"~right(10, "é")~left(20, "è")=        -- T'éééééétestèèèèèèèèèè'
+T'éééééétestèèèèèèèèèè'
+ooRexx> "test"~~right(10, "é")~left(20, "è")=       -- T'testèèèèèèèèèèèèèèèè'
+T'testèèèèèèèèèèèèèèèè'
+ooRexx> "test"~right(10, "é")~~left(20, "è")=       -- T'éééééétest'
+T'éééééétest'
+ooRexx> "test"~~right(10, "é")~~left(20, "è")=      -- 'test'
+'test'
+
+
+/*
+[doers]
+
+RexxText inherit from TextDoer.
+Examples:
+*/
+ooRexx> "c2x"~text~do("a")=                     -- 61  (was Object "c2x" does not understand message "DO")
+ 61
+ooRexx> "ça va ?"~characters~each=              -- [T'ç',T'a',T' ',T'v',T'a',T' ',T'?']
+[T'ç',T'a',T' ',T'v',T'a',T' ',T'?']
+ooRexx> "ça va ?"~characters~each("c2x")=       -- ['C3A7', 61, 20, 76, 61, 20,'3F']
+['C3A7', 61, 20, 76, 61, 20,'3F']
+
+
+/*
+A RexxBlock has the same encoding as its package.
+This is managed by its source transformation:
+.RexxBlock~setEncoding(.context)
+Example:
+*/
+ooRexx> {}~rawExecutable~source==
+an Array (shape [2], 2 items)
+ 1 : 'use auto named arg ; options "NOCOMMANDS" ; .RexxBlock~setEncoding(.context)'
+ 2 : 'if var("result") then return result'
+
+/*
+Examples:
+*/
+ooRexx> {.context~package~encoding}~()=         -- (The UTF8_Encoding class)
+(The UTF8_Encoding class)
+
+ooRexx> oldEncoding = .context~package~setEncoding("byte")
+ooRexx> {.context~package~encoding}~()=         -- (The Byte_Encoding class)
+(The Byte_Encoding class)
+ooRexx> .context~package~setEncoding(oldEncoding)
+
+-- was: Incorrect pad or character argument specified; found "é"
+-- because the package encoding of the block was The Byte_Encoding (default)
+-- and the string literal "é" was not converted to a RexxText instance.
+-- Now the package encoding of the block is The UTF8_Encoding and it works:
+ooRexx> ("un", "deux")~each{item~right(10, "é")}==
+an Array (shape [2], 2 items)
+ 1 : T'ééééééééun'
+ 2 : T'éééééédeux'
+
+
+-- ===============================================================================
 -- 2024 Apr 10
 
 /*
@@ -18,8 +184,8 @@ ooRexx> .Unicode~memorizeTransformations = .false
 |                  2nd important milestone                  |
 | The string BIFs become polymorphic on RexxString/RexxText |
 +-----------------------------------------------------------+
-If at least one positional argument is a RexxText then the BIF forwards to
-RexxText, otherwise the BIF forwards to RexxString.
+If at least one positional argument is a RexxText then the string BIFs forward
+to RexxText, otherwise the string BIFs forward to RexxString.
 Enhanced BIFs:
     ABBREV
     CENTER      implemented on RexxText
@@ -891,11 +1057,11 @@ Partial implementation of translate (ASCII string only):
 Examples:
 */
 ooRexx> "hello"~text~translate=              -- 'HELLO'
-T'HELLO'
+'HELLO'
 ooRexx> "hello"~text~translate(,,"x")=       -- 'xxxxx'
-T'xxxxx'
+'xxxxx'
 ooRexx> "hello"~text~translate(,"el","x")=   -- 'hxxxo'
-T'hxxxo'
+'hxxxo'
 
 
 -- ===============================================================================

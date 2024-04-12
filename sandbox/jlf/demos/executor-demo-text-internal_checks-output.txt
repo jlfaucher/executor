@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 2 Apr 2024
-Input queue name: Sc28bQ6000007c80d0
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 11 Apr 2024
+Input queue name: Sb95cQ600003f11ad0
 
 ----------------------------------
 -- Text encoding - Internal checks
@@ -32,11 +32,21 @@ Input queue name: Sc28bQ6000007c80d0
 Creation of a RexxText
 */
 ooRexx[sh]> 
-ooRexx[sh]> s = "hello"
-ooRexx[sh]> s~text = .RexxText~new("hello")          -- The counterpart must be a RexxText linked to this String
-EncodedString: the counterpart must be a RexxText linked to this String.
-Error code= 23.900
-ooRexx[sh]> s~text = .RexxText~new(s)                -- ok, the RexxText is linked to s, now can be assigned to s~text
+/*
+Next lines are no longer executed, for 2 reasons:
+- The method "TEXT=" should be declared package-scope but this is not supported by Executor.
+  Not intended to be used by a rexx programmer.
+- The dynamic target changes the string target to a text target, because the argument is a text.
+  So the case "assignment of a text to a string not yet linked to a text" can no longer occur,
+  because the dynamic target converts the string to text, which becomes linked to the text.
+  The error raised is Object "hello" does not understand message "TEXT="
+*/
+/*
+s = "hello"
+s~text = .RexxText~new("hello")          -- The counterpart must be a RexxText linked to this String
+s~text = .RexxText~new(s)                -- ok, the RexxText is linked to s, now can be assigned to s~text
+*/
+
 ooRexx[sh]> "é"~text("byte") || "è"~text("utf8")=    -- T'éè'   (was Cannot concatenate Byte with UTF-8)
 T'éè'
 ooRexx[sh]> "é"~text("byte") || "é"~text("utf8")=    -- T'éé' encoded UTF-8

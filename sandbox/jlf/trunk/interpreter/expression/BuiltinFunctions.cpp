@@ -342,7 +342,7 @@ void checkPadArgument(const char *pFuncName, RexxObject *position, RexxString *p
 }
 
 #define TEXT_BIF_TARGET1(x,n) \
-    if (hasRexxTextArguments(arguments, argcount)) \
+    if (hasRexxTextArguments(arguments, argcount, named_argcount)) \
     { \
         RexxText *text = required_text(x, n); \
         ProtectedObject p_text(text); \
@@ -350,7 +350,7 @@ void checkPadArgument(const char *pFuncName, RexxObject *position, RexxString *p
     }
 
 #define TEXT_BIF_TARGET2(x,n1,n2) \
-    if (hasRexxTextArguments(arguments, argcount)) \
+    if (hasRexxTextArguments(arguments, argcount, named_argcount)) \
     { \
         RexxText *text = required_text(x, n1); \
         ProtectedObject p_text(text); \

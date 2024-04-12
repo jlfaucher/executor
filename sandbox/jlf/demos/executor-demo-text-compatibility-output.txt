@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 9 Apr 2024
-Input queue name: S3de6Q600003f02490
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 11 Apr 2024
+Input queue name: Sb031Q600003f04d00
 
 ooRexx[sh]> call loadUnicodeCharacterNames
 Load the Unicode character names 15.1.0 
@@ -738,12 +738,12 @@ T'👩‍👨‍👩‍👧'
 ooRexx[sh]> "noel"~text~substr(3, 3, "x")=; result~description=   -- forward to String
 T'elx'
 'UTF-8 ASCII (3 characters, 3 codepoints, 3 bytes, 0 error)'
-ooRexx[sh]> "noel"~substr(3, 3, "▷")=; result~description=        -- self is a String: error because the pad character is 3 bytes
-Incorrect pad or character argument specified; found "▷"
-Error code= 93.922
-ooRexx[sh]> "noel"~substr(3, 3, "▷"~text)=; result~description=   -- self is a String: error because the pad character is 3 bytes
-Incorrect pad or character argument specified; found "▷"
-Error code= 93.922
+ooRexx[sh]> "noel"~substr(3, 3, "▷")=; result~description=        -- T'el▷' (was: self is a String: error because the pad character is 3 bytes)
+T'el▷'
+'UTF-8 not-ASCII (3 characters, 3 codepoints, 5 bytes, 0 error)'
+ooRexx[sh]> "noel"~substr(3, 3, "▷"~text)=; result~description=   -- T'el▷' (was: self is a String: error because the pad character is 3 bytes)
+T'el▷'
+'UTF-8 not-ASCII (3 characters, 3 codepoints, 5 bytes, 0 error)'
 ooRexx[sh]> "noel"~text~substr(3, 3, "▷")=; result~description=   -- no error because self is a RexxText and the pad character is one character when converted to the default encoding
 T'el▷'
 'UTF-8 not-ASCII (3 characters, 3 codepoints, 5 bytes, 0 error)'

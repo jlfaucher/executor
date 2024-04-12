@@ -353,6 +353,7 @@ void RexxMemory::createImage(const char *imageTarget)
   defineKernelMethod(CHAR_ISA                    ,TheObjectBehaviour, CPPM(RexxObject::isInstanceOfRexx), 1);
   defineKernelMethod(CHAR_INSTANCEMETHOD         ,TheObjectBehaviour, CPPM(RexxObject::instanceMethodRexx), 1);
   defineKernelMethod(CHAR_INSTANCEMETHODS        ,TheObjectBehaviour, CPPM(RexxObject::instanceMethodsRexx), 1);
+  defineKernelMethod(CHAR_DYNAMICTARGET          ,TheObjectBehaviour, CPPM(RexxObject::dynamicTargetRexx), A_COUNT);
   defineKernelMethod(CHAR_IDENTITYHASH           ,TheObjectBehaviour, CPPM(RexxObject::identityHashRexx), 0);
   definePrivateKernelMethod(CHAR_RUN             ,TheObjectBehaviour, CPPM(RexxObject::run), A_COUNT);
   definePrivateKernelMethod(CHAR_SETMETHOD       ,TheObjectBehaviour, CPPM(RexxObject::setMethod), 3);

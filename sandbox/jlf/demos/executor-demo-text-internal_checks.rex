@@ -10,9 +10,21 @@ Creation of a RexxText
 */
 sleep
 
+/*
+Next lines are no longer executed, for 2 reasons:
+- The method "TEXT=" should be declared package-scope but this is not supported by Executor.
+  Not intended to be used by a rexx programmer.
+- The dynamic target changes the string target to a text target, because the argument is a text.
+  So the case "assignment of a text to a string not yet linked to a text" can no longer occur,
+  because the dynamic target converts the string to text, which becomes linked to the text.
+  The error raised is Object "hello" does not understand message "TEXT="
+*/
+/*
 s = "hello"
 s~text = .RexxText~new("hello")          -- The counterpart must be a RexxText linked to this String
 s~text = .RexxText~new(s)                -- ok, the RexxText is linked to s, now can be assigned to s~text
+*/
+
 "é"~text("byte") || "è"~text("utf8")=    -- T'éè'   (was Cannot concatenate Byte with UTF-8)
 "é"~text("byte") || "é"~text("utf8")=    -- T'éé' encoded UTF-8
 /*

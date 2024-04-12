@@ -791,41 +791,47 @@ bool RexxObject::messageSend(
     size_t           count,            /* count of arguments                */
     size_t           named_count,
     ProtectedObject &result,           // returned result
-    bool processUnknown)
+    bool processUnknown,
+    bool dynamicTarget)
     /******************************************************************************/
     /* Function:    send a message (with message lookup) to an object.            */
     /*              All types of methods are handled and dispatched               */
     /******************************************************************************/
 {
     ActivityManager::currentActivity->checkStackSpace();       /* have enough stack space?          */
+
+    RexxObject *target = this;
+    if (dynamicTarget) target = this->dynamicTarget(arguments, count, named_count);
+    ProtectedObject p_target(target);
+
     /* grab the method from this level   */
-    RexxMethod *method_save = this->behaviour->methodLookup(msgname);
+    RexxMethod *method_save = target->behaviour->methodLookup(msgname);
     /* method exists...special processing*/
     if (method_save != OREF_NULL && method_save->isSpecial())
     {
         if (method_save->isPrivate())      /* actually private method?          */
         {
             /* go validate a private method      */
-            method_save = this->checkPrivate(method_save);
+            method_save = target->checkPrivate(method_save);
         }
         /* now process protected methods     */
         if (method_save != OREF_NULL && method_save->isProtected())
         {
             /* really a protected method         */
-            this->processProtectedMethod(msgname, method_save, arguments, count, named_count, result);
+            target->processProtectedMethod(msgname, method_save, arguments, count, named_count, result);
             return true;
         }
     }
     /* have a method                     */
     if (method_save != OREF_NULL)
     {
-        method_save->run(ActivityManager::currentActivity, this, msgname, arguments, count, named_count, result);
+        method_save->run(ActivityManager::currentActivity, target, msgname, arguments, count, named_count, result);
         return true;
     }
     else if (processUnknown)
     {
         /* go process an unknown method      */
-        this->processUnknown(msgname, arguments, count, named_count, result);
+        target->processUnknown(msgname, arguments, count, named_count, result);
     }
     return false;
 }
@@ -837,25 +843,32 @@ bool RexxObject::messageSend(
     size_t           named_count,
     RexxObject      *startscope,       /* starting superclass scope         */
     ProtectedObject &result,           // returned result
-    bool processUnknown)
+    bool processUnknown,
+    bool dynamicTarget)
     /******************************************************************************/
     /* Function:    send a message (with message lookup) to an object.            */
     /*              All types of methods are handled and dispatched               */
     /******************************************************************************/
 {
     ActivityManager::currentActivity->checkStackSpace();       /* have enough stack space?          */
+
+    RexxObject *target = this;
+    if (dynamicTarget) target = this->dynamicTarget(arguments, count, named_count);
+    ProtectedObject p_target(target);
+
+    // to double check: if the target is different from this, maybe startscope will not be applicable
     /* go to the higher level            */
-    RexxMethod *method_save = this->superMethod(msgname, startscope);
+    RexxMethod *method_save = target->superMethod(msgname, startscope);
     if (method_save != OREF_NULL && method_save->isProtected())
     {
         if (method_save->isPrivate())      /* actually private method?          */
         {
-            method_save = this->checkPrivate(method_save);
+            method_save = target->checkPrivate(method_save);
         }
         /* go validate a private method      */
         else                               /* really a protected method         */
         {
-            this->processProtectedMethod(msgname, method_save, arguments, count, named_count, result);
+            target->processProtectedMethod(msgname, method_save, arguments, count, named_count, result);
             return true;
         }
     }
@@ -863,13 +876,13 @@ bool RexxObject::messageSend(
     if (method_save != OREF_NULL)
     {
         /* run the method                    */
-        method_save->run(ActivityManager::currentActivity, this, msgname, arguments, count, named_count, result);
+        method_save->run(ActivityManager::currentActivity, target, msgname, arguments, count, named_count, result);
         return true;
     }
     else if (processUnknown)
     {
         /* go process an unknown method      */
-        this->processUnknown(msgname, arguments, count, named_count, result);
+        target->processUnknown(msgname, arguments, count, named_count, result);
     }
     return false;
 }
@@ -1103,8 +1116,11 @@ RexxText *RexxObject::textValue()
 /* Function:  Convert a primitive object to a text value                      */
 /******************************************************************************/
 {
+    // printf("RexxObject::textValue this = %x, type = %s\n", this, this->behaviour->getOwningClass()->getId()->getStringData());
     /* issue the text message     */
-    return (RexxText *)this->sendMessage(OREF_TEXT);
+    RexxText *result = (RexxText *)this->sendMessage(OREF_TEXT);
+    // printf("RexxObject::textValue result = %x, type = %s\n", result, result->behaviour->getOwningClass()->getId()->getStringData());
+    return result;
 }
 
 RexxString *RexxInternalObject::makeString()
@@ -1316,6 +1332,7 @@ RexxText *RexxObject::requestText()
     /* primitive object?                 */
     if (this->isBaseClass())
     {
+        // printf("RexxObject::requestText: case base class\n");
         RexxText *text_value;            /* converted object                  */
         /* get the text representation     */
         text_value = this->primitiveMakeText();
@@ -1328,6 +1345,7 @@ RexxText *RexxObject::requestText()
     }
     else
     {                               /* do a real request for this        */
+        // printf("RexxObject::requestText: not case base class\n");
         ProtectedObject text_value;
         this->sendMessage(OREF_REQUEST, OREF_TEXT, text_value);
         if (text_value == TheNilObject)
@@ -1806,6 +1824,11 @@ RexxObject  *RexxObject::requestRexx(
     }
 }
 
+
+RexxObject  *RexxObject::dynamicTargetRexx(RexxObject **arguments, size_t argCount, size_t named_argCount)
+{
+    return this->dynamicTarget(arguments, argCount, named_argCount);
+}
 
 /**
  * Do a dynamic invocation of an object method.

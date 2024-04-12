@@ -776,8 +776,9 @@ end
     incorrect_padText:  raise syntax 93.922 array(padText~descriptionForError)
 
 
-/*
 ::method translate
+    forward to (self~string) -- TODO
+/*
     use strict arg tableo=.nil, tablei=.nil, pad=(self~encoding~spaceCharacter), nC=1, lengthC=(max(0, self~length - nC + 1))
     use strict named arg buffer=.nil
 

@@ -49,6 +49,7 @@
 
 #include "RexxCore.h"
 #include "StringClass.hpp"
+#include "TextClass.hpp"
 #include "DirectoryClass.hpp"
 #include "RexxActivation.hpp"
 #include "RexxActivity.hpp"
@@ -186,6 +187,23 @@ RexxObject *RexxString::unflatten(RexxEnvelope *envelope)
         return this->RexxObject::unflatten(envelope);
     }
 }
+
+RexxObject *RexxString::dynamicTarget(RexxObject **arguments, size_t count, size_t named_count)
+/******************************************************************************/
+/* Function:  Return either a RexxText instance or a RexxString instace       */
+/******************************************************************************/
+{
+    if (hasRexxTextArguments(arguments, count, named_count))
+    {
+        // printf("dynamicTarget: this = %x, type = '%s'\n", this, this->behaviour->getOwningClass()->getId()->getStringData());
+        RexxText *text = this->requestText();
+        // printf("dynamicTarget: text = %x, type = '%s'\n", text, text->behaviour->getOwningClass()->getId()->getStringData());
+        return text;
+    }
+
+    return this;
+}
+
 
 RexxString *RexxString::stringValue()
 /******************************************************************************/
@@ -2283,6 +2301,11 @@ RexxObject *RexxString::evaluate(
 
   stack->push((RexxObject *)value);     /* place on the evaluation stack     */
                                        /* trace if necessary                */
+
+  // TODO: value~setEncoding(packageEncoding)
+  // I tried but I have the problem of infinite recursion.
+  // Will be possible the day when I store natively the encoding onRexxString and PackageClass.
+
   context->traceIntermediate((RexxObject *)value, TRACE_PREFIX_LITERAL);
   return value;                         /* also return the result            */
 }

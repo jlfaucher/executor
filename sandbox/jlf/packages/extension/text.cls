@@ -837,7 +837,8 @@ Return directly the buffer, without requesting a string from it.
     encoding = indexer~encoding
 
     -- store itself as counterpart of string
-    string~text = self
+    -- string~text = self                               -- can't do that because infinite recursion
+    forward to (string) message "TEXT=" array(self)     -- no multiple dispatch ==> no infinite recursion
 
 
 /*
@@ -895,7 +896,22 @@ to support the same interface on String and RexxText.
     return .true
 
 
+/*
+Before the activation of the multiple dispatch
+    s = "hello"
+    s~text = .RexxText~new("hello")
+raises
+    EncodedString: the counterpart must be a RexxText linked to this String
+raised by EncodeString~"text="
+Now, with the multiple dispatch, I have
+    Object "hello" does not understand message "TEXT="
+It's because the target "hello" is converted to text T"hello"
+    initial:            "hello~"TEXT="(<a RexxText>)
+    multiple dispatch:  T"hello~"TEXT="(<a RexxText>)
+Since this method "TEXT=" should be private, I stay like that.
+*/
 ::attribute text set private
+    /*useless*/ -- forward to (self~string) -- no multiple dispatch
 
 
 /*
@@ -974,7 +990,12 @@ Always return the string.
     selfCopy~encoding = indexerCopy~encoding
 
     stringCopy = indexerCopy~string -- this string copy is not yet linked to the RexxText copy
-    stringCopy~text = selfCopy -- from now, the string copy is linked to its RexxText counterpart
+
+    -- can't do that because infinite recursion
+    -- stringCopy~text = selfCopy -- from now, the string copy is linked to its RexxText counterpart
+
+    forward to (stringCopy) message "TEXT=" array(selfCopy) continue -- no multiple dispatch ==> no infinite recursion
+
     return selfCopy
 
 
@@ -1348,6 +1369,7 @@ makeArray
 makeString                      full (raise an error if not compatible with String)
 match                           full UTF-8
 matchChar                       full UTF-8
+makeArray
 max
 min
 modulo                          (new 5)
@@ -1443,84 +1465,41 @@ stringChunks
 
 
 ::method caselessCompare
-    use strict arg text, pad=(self~encoding~spaceCharacter)
-    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false, stripCC=.false, stripNA=.false
-    padIsCompatibleWithByteString = .true
-    if arg(2, "e") then do
-        if \pad~isCompatibleWithByteString then padIsCompatibleWithByteString = .false
-        else if pad~length > 1 then padIsCompatibleWithByteString = .false -- maybe its length will be 1 when converted to text
-    end
-    if self~isCompatibleWithByteString, text~isCompatibleWithByteString, padIsCompatibleWithByteString then do
-        return self~string~caselessCompare(text, pad)
-    end
-    return self~indexer~caselessCompare(text, pad, :strict, :normalization, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
+    forward to (self~indexer)
 
 
 ::method caselessCompareTo
-    use arg text -- not strict, just testing the compatibility with String
-    if self~isCompatibleWithByteString, text~isCompatibleWithByteString then forward to (self~string)
-
-    use strict arg text, n=1, length=.nil
-    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false, stripCC=.false, stripNA=.false
-    return self~indexer~caselessCompareTo(text, n, length, :strict, :normalization, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
+    forward to (self~indexer)
 
 
 ::method caselessContains
-    use arg other -- not strict, just need to check this one
-    -- use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark =.false, aligned=.true
-    if self~isCompatibleWithByteString, other~isCompatibleWithByteString then do
-        forward message "caselessPos" to (self~string) continue
-        return result <> 0
-    end
     -- Force asList: to .false, we want a position
     forward message "caselessPos" to (self~indexer) namedArguments (.context~namedArgs~~setEntry("asList", .false)) continue
     return result <> 0 -- the result will be an array if aligned:.false.
 
 
 ::method caselessEndsWith
-    use arg other -- not strict, just need to check this one
-    -- use strict named arg strict:.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark =.false
-    if self~isCompatibleWithByteString, other~isCompatibleWithByteString then do
-        forward to (self~string) continue
-        return result <> 0
-    end
     forward to (self~indexer)
 
 
 ::method caselessEquals
-    use strict arg other
-    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark =.false, stripCC=.false, stripNA=.false
-    return self~caselessCompareTo(other, :strict, :normalization, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA) == 0
+    forward message "caselessCompareTo" to (self~indexer) continue
+    return result == 0
 
 
 ::method caselessMatch
-    use arg startC, other -- not strict, just testing the compatibility with String
-    if self~isCompatibleWithByteString, other~isCompatibleWithByteString then forward to (self~string)
-
-    use strict arg startC, other, nC=1, lengthC=.nil
-    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false, stripCC=.false, stripNA=.false
-    return self~indexer~caselessMatch(startC, other, nC, lengthC, :strict, :normalization, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
+    forward to (self~indexer)
 
 
 ::method caselessMatchChar
-    use strict arg nC, chars
-    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false, stripCC=.false, stripNA=.false
-    if self~isCompatibleWithByteString, chars~isCompatibleWithByteString then return self~string~caselessMatchChar(nC, chars)
-    return self~indexer~caselessMatchChar(nC, chars, :strict, :normalization, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
+    forward to (self~indexer)
 
 
 ::method caselessPos
-    use arg needle, ... -- not strict, just need to check 'needle'
-    if self~isCompatibleWithByteString, needle~isCompatibleWithByteString then forward to (self~string)
     forward to (self~indexer)
 
 
 ::method caselessStartsWith
-    use arg other -- not strict, just need to check 'other'
-    if self~isCompatibleWithByteString, other~isCompatibleWithByteString then do
-        forward message "caselessPos" to (self~string) continue
-        return result == 1
-    end
     -- Force asList: to .false, we want a position
     forward message "caselessPos" to (self~indexer) namedArguments (.context~namedArgs~~setEntry("asList", .false)) continue
     -- the result will be an array if aligned:.false
@@ -1529,20 +1508,6 @@ stringChunks
 
 
 ::method center
-    use arg _length, pad -- not strict, just need to check 'pad'
-    use strict named arg buffer=.nil
-    padIsCompatibleWithByteString = .true
-    if arg(2, "e") then do
-        if \pad~isCompatibleWithByteString then padIsCompatibleWithByteString = .false
-        else if pad~length > 1 then padIsCompatibleWithByteString = .false -- maybe its length will be 1 when converted to text
-    end
-    if self~isCompatibleWithByteString, padIsCompatibleWithByteString then do
-        forward to (self~string) continue
-        -- It's a new string without encoding
-        -- TODO result~setEncoding, self~encoding)
-        if .nil <> buffer then return buffer~~appendEncoded(result)
-                          else return .RexxText~new(result, self~encoding)
-    end
     forward to (self~indexer)
 
 
@@ -1551,33 +1516,14 @@ stringChunks
 
 
 ::method compare
-    use strict arg text, pad=(self~encoding~spaceCharacter)
-    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false, stripCC=.false, stripNA=.false
-    padIsCompatibleWithByteString = .true
-    if arg(2, "e") then do
-        if \pad~isCompatibleWithByteString then padIsCompatibleWithByteString = .false
-        else if pad~length > 1 then padIsCompatibleWithByteString = .false -- maybe its length will be 1 when converted to text
-    end
-    if self~isCompatibleWithByteString, text~isCompatibleWithByteString, padIsCompatibleWithByteString then return self~string~compare(text, pad)
-    return self~indexer~compare(text, pad, :strict, :normalization, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
+    forward to (self~indexer)
 
 
 ::method compareTo
-    use arg text -- not strict, just testing the compatibility with String
-    if self~isCompatibleWithByteString, text~isCompatibleWithByteString then forward to (self~string)
-
-    use strict arg text, n=1, length=.nil
-    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false, stripCC=.false, stripNA=.false
-    return self~indexer~compareTo(text, n, length, :strict, :normalization, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
+    forward to (self~indexer)
 
 
 ::method contains
-    -- regex.cls uses the method .String~contains which is available only from ooRexx v5.
-    use arg other -- not strict, just need to check 'other'
-    if self~isCompatibleWithByteString, other~isCompatibleWithByteString then do
-        forward message "pos" to (self~string) continue
-        return result \== 0
-    end
     -- Force asList: to .false, we want a position
     forward message "pos" to (self~indexer) namedArguments (.context~namedArgs~~setEntry("asList", .false)) continue
     return result \== 0 -- the result will be an array if aligned:.false
@@ -1611,17 +1557,12 @@ stringChunks
 
 
 ::method endsWith
-    use arg other -- not strict, just need to check 'other'
-    if self~isCompatibleWithByteString, other~isCompatibleWithByteString then do
-        forward message "endsWith" to (self~string)
-    end
     forward message "endsWith" to (self~indexer)
 
 
 ::method equals
-    use strict arg other
-    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false, stripCC=.false, stripNA=.false
-    return self~compareTo(other, :strict, :normalization, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA) == 0
+    forward message "compareTo" to (self~indexer) continue
+    return result == 0
 
 
 ::method hashCode
@@ -1653,76 +1594,29 @@ stringChunks
 
 
 ::method lower
-    use strict named arg buffer=.nil
-    if self~isCompatibleWithByteString then do
-        forward to (self~string) continue
-        -- It's a new string without encoding
-        -- TODO result~setEncoding, self~encoding)
-        if .nil <> buffer then return buffer~~appendEncoded(result)
-                          else return .RexxText~new(result, self~encoding)
-    end
     forward to (self~indexer)
 
 
 ::method match
-    use arg startC, other -- not strict, just testing the compatibility with String
-    if self~isCompatibleWithByteString, other~isCompatibleWithByteString then forward to (self~string)
-
-    use strict arg startC, other, nC=1, lengthC=.nil
-    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false, stripCC=.false, stripNA=.false
-    return self~indexer~match(startC, other, nC, lengthC, :strict, :normalization, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
+    forward to (self~indexer)
 
 
 ::method matchChar
-    use strict arg nC, chars
-    use strict named arg strict=.true, normalization=(.Unicode~defaultNormalization(:strict)), lump=(\strict), stripIgnorable=(\strict), stripMark=.false, stripCC=.false, stripNA=.false
-    if self~isCompatibleWithByteString, chars~isCompatibleWithByteString then return self~string~matchChar(nC, chars)
-    return self~indexer~matchChar(nC, chars, :strict, :normalization, :lump, :stripIgnorable, :stripMark, :stripCC, :stripNA)
-
+    forward to (self~indexer)
 
 ::method pos
-    use arg needle, ... -- not strict, just need to check 'needle'
-    if self~isCompatibleWithByteString, needle~isCompatibleWithByteString then forward to (self~string)
     forward to (self~indexer)
 
 
 ::method reverse
-    use strict named arg buffer=.nil
-    if self~isCompatibleWithByteString then do
-        forward to (self~string) continue
-        -- It's a new string without encoding
-        -- TODO result~setEncoding, self~encoding)
-        if .nil <> buffer then return buffer~~appendEncoded(result)
-                          else return .RexxText~new(result, self~encoding)
-    end
     forward to (self~indexer)
 
 
 ::method right
-    -- can't delegate to substr because here the padding is on the left
-    use arg _length, pad -- not strict, just need to check 'pad'
-    use strict named arg buffer=.nil
-    padIsCompatibleWithByteString = .true
-    if arg(2, "e") then do
-        if \pad~isCompatibleWithByteString then padIsCompatibleWithByteString = .false
-        else if pad~length > 1 then padIsCompatibleWithByteString = .false -- maybe its length will be 1 when converted to default encoding
-    end
-    if self~isCompatibleWithByteString, padIsCompatibleWithByteString then do
-        forward to (self~string) continue
-        -- It's a new string without encoding
-        -- TODO result~setEncoding, self~encoding)
-        if .nil <> buffer then return buffer~~appendEncoded(result)
-                          else return .RexxText~new(result, self~encoding)
-    end
     forward to (self~indexer)
 
 
 ::method startsWith
-    use arg other -- not strict, just need to check this one
-    if self~isCompatibleWithByteString, other~isCompatibleWithByteString then do
-        forward message "pos" to (self~string) continue
-        return result == 1
-    end
     -- Force asList: to .false, we want a position
     forward message "pos" to (self~indexer) namedArguments (.context~namedArgs~~setEntry("asList", .false)) continue
     -- the result will be an array if aligned:.false
@@ -1731,15 +1625,6 @@ stringChunks
 
 
 ::method strip
-    use arg _option, chars -- not strict, just need to check 'chars'
-    if self~isCompatibleWithByteString, pad~isCompatibleWithByteString then do
-        use named arg buffer=.nil -- not strict because other named arguments are possible (not needed here)
-        forward to (self~string) continue
-        -- It's a new string without encoding
-        -- TODO result~setEncoding, self~encoding)
-        if .nil <> buffer then return buffer~~appendEncoded(result)
-                          else return .RexxText~new(result, self~encoding)
-    end
     forward to (self~indexer)
 
 
@@ -1748,50 +1633,14 @@ stringChunks
 
 
 ::method substr
-    use arg _startB, _length, pad -- not strict, just need to check 'pad'
-    use strict named arg buffer=.nil
-    padIsCompatibleWithByteString = .true
-    if arg(3, "e") then do
-        if \pad~isCompatibleWithByteString then padIsCompatibleWithByteString = .false
-        else if pad~length > 1 then padIsCompatibleWithByteString = .false -- maybe its length will be 1 when converted to default encoding
-    end
-    if self~isCompatibleWithByteString, padIsCompatibleWithByteString then do
-        forward to (self~string) continue
-        -- It's a new string without encoding
-        -- TODO result~setEncoding, self~encoding)
-        if .nil <> buffer then return buffer~~appendEncoded(result)
-                          else return .RexxText~new(result, self~encoding)
-    end
     forward to (self~indexer)
 
 
 ::method translate
-    use arg _tableo, _tablei, pad  -- not strict, just need to check 'pad'
-    use strict named arg buffer=.nil
-    padIsCompatibleWithByteString = .true
-    if arg(3, "e") then do
-        if \pad~isCompatibleWithByteString then padIsCompatibleWithByteString = .false
-        else if pad~length > 1 then padIsCompatibleWithByteString = .false -- maybe its length will be 1 when converted to default encoding
-    end
-    if self~isCompatibleWithByteString, padIsCompatibleWithByteString then do
-        forward to (self~string) continue
-        -- It's a new string without encoding
-        -- TODO result~setEncoding, self~encoding)
-        if .nil <> buffer then return buffer~~appendEncoded(result)
-                          else return .RexxText~new(result, self~encoding)
-    end
     forward to (self~indexer)
 
 
 ::method upper
-    use strict named arg buffer=.nil
-    if self~isCompatibleWithByteString then do
-        forward to (self~string) continue
-        -- It's a new string without encoding
-        -- TODO result~setEncoding, self~encoding)
-        if .nil <> buffer then return buffer~~appendEncoded(result)
-                          else return .RexxText~new(result, self~encoding)
-    end
     forward to (self~indexer)
 
 

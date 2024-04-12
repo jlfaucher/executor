@@ -313,6 +313,8 @@ inline uintptr_t HASHOREF(RexxVirtualBase *r) { return ((uintptr_t)r) >> OREFSHI
      virtual RexxMethod   *instanceMethod(RexxString *);
      virtual RexxSupplier *instanceMethods(RexxClass *);
 
+     virtual RexxObject  *dynamicTarget(RexxObject **arguments, size_t count, size_t named_count) { return (RexxObject *)this; }
+
              void         hasUninit();
              void         removedUninit();
              void         printObject();
@@ -436,6 +438,9 @@ class RexxObject : public RexxInternalObject {
      RexxSupplier *instanceMethods(RexxClass *);
      RexxMethod   *instanceMethodRexx(RexxString *);
      RexxSupplier *instanceMethodsRexx(RexxClass *);
+
+     RexxObject  *dynamicTargetRexx(RexxObject **arguments, size_t argCount, size_t named_argCount);
+
      RexxString  *objectName();
      RexxObject  *objectNameEquals(RexxObject *);
      RexxClass   *classObject();
@@ -452,8 +457,8 @@ class RexxObject : public RexxInternalObject {
      RexxObject  *pmdict();
      RexxObject  *run(RexxObject **, size_t, size_t);
 
-     bool         messageSend(RexxString *, RexxObject **, size_t, size_t, ProtectedObject &, bool processUnknown=true);
-     bool         messageSend(RexxString *, RexxObject **, size_t, size_t, RexxObject *, ProtectedObject &, bool processUnknown=true);
+     bool         messageSend(RexxString *, RexxObject **, size_t, size_t, ProtectedObject &, bool processUnknown=true, bool dynamicTarget=true);
+     bool         messageSend(RexxString *, RexxObject **, size_t, size_t, RexxObject *, ProtectedObject &, bool processUnknown=true, bool dynamicTarget=true);
 
      RexxMethod  *checkPrivate(RexxMethod *);
      void         processUnknown(RexxString *, RexxObject **, size_t, size_t, ProtectedObject &);

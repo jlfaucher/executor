@@ -164,10 +164,47 @@ RexxString *RexxText::primitiveMakeString()
 }
 
 
+// Handle a REQUEST('TEXT') request for a REXX text object
+RexxText  *RexxText::primitiveMakeText()
+{
+    return this;
+}
+
+
 RexxString *RexxText::makeString()
 {
     return (RexxString *)this->sendMessage(OREF_REQUEST, OREF_STRINGSYM);
 }
+
+// Handle a REQUEST('TEXT') request for a REXX text object
+RexxText *RexxText::makeText()
+{
+    if (this->isBaseClass())
+    {
+        return this;
+    }
+    else
+    {
+        // return new_text(this->getString(), this->getEncoding()); // TODO
+        return this;
+    }
+}
+
+
+// Return the primitive text value of this object
+RexxText *RexxText::textValue()
+{
+    if (isOfClass(RexxText, this))
+    {
+        return this;
+    }
+    else
+    {
+        // return new_text(this->getString(), this->getEncoding()); // TODO
+        return this;
+    }
+}
+
 
 void RexxTextClass::live(size_t liveMark)
 {

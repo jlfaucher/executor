@@ -86,7 +86,12 @@ public:
     RexxObject  *newRexx(RexxObject **, size_t, size_t);
 
     RexxString *primitiveMakeString(); // needed to convert "b"~text to string when calling left("b"~text, 1)
+    RexxText *primitiveMakeText();
+
     RexxString *makeString();          // needed to convert "b"~text to string when calling "abc"~pos("b"~text)
+    RexxText *makeText();
+
+    RexxText *textValue();
 
     static void createInstance();
     static RexxTextClass *classInstance; // RexxCore.h #define TheRexxTextClass RexxText::classInstance

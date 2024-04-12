@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 2 Apr 2024
-</span><span style="font-weight:bold;color:green;">Input queue name: Sc28bQ6000007c80d0
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 11 Apr 2024
+</span><span style="font-weight:bold;color:green;">Input queue name: Sb95cQ600003f11ad0
 </span>
 <span style="font-weight:bold;color:blue;">----------------------------------
 </span><span style="font-weight:bold;color:blue;">-- Text encoding - Internal checks
@@ -42,11 +42,21 @@
 </span><span style="font-weight:bold;color:blue;">Creation of a RexxText
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx[sh]&gt; 
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s = &quot;hello&quot;</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~text = .RexxText~new(&quot;hello&quot;)          </span><span style="font-weight:bold;color:blue;">-- The counterpart must be a RexxText linked to this String</span>
-<span style="font-weight:bold;color:red;">EncodedString: the counterpart must be a RexxText linked to this String.
-</span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~text = .RexxText~new(s)                </span><span style="font-weight:bold;color:blue;">-- ok, the RexxText is linked to s, now can be assigned to s~text</span>
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Next lines are no longer executed, for 2 reasons:
+</span><span style="font-weight:bold;color:blue;">- The method &quot;TEXT=&quot; should be declared package-scope but this is not supported by Executor.
+</span><span style="font-weight:bold;color:blue;">  Not intended to be used by a rexx programmer.
+</span><span style="font-weight:bold;color:blue;">- The dynamic target changes the string target to a text target, because the argument is a text.
+</span><span style="font-weight:bold;color:blue;">  So the case &quot;assignment of a text to a string not yet linked to a text&quot; can no longer occur,
+</span><span style="font-weight:bold;color:blue;">  because the dynamic target converts the string to text, which becomes linked to the text.
+</span><span style="font-weight:bold;color:blue;">  The error raised is Object &quot;hello&quot; does not understand message &quot;TEXT=&quot;
+</span><span style="font-weight:bold;color:blue;">*/
+</span><span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">s = &quot;hello&quot;
+</span><span style="font-weight:bold;color:blue;">s~text = .RexxText~new(&quot;hello&quot;)          -- The counterpart must be a RexxText linked to this String
+</span><span style="font-weight:bold;color:blue;">s~text = .RexxText~new(s)                -- ok, the RexxText is linked to s, now can be assigned to s~text
+</span><span style="font-weight:bold;color:blue;">*/
+</span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~text(&quot;byte&quot;) || &quot;è&quot;~text(&quot;utf8&quot;)=    </span><span style="font-weight:bold;color:blue;">-- T'éè'   (was Cannot concatenate Byte with UTF-8)</span>
 T'éè'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~text(&quot;byte&quot;) || &quot;é&quot;~text(&quot;utf8&quot;)=    </span><span style="font-weight:bold;color:blue;">-- T'éé' encoded UTF-8</span>
