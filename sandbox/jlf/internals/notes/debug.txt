@@ -137,6 +137,68 @@ Watchpoint created: Watchpoint 1: addr = 0x10241ce74 size = 2 state = enabled ty
 print variable:
 p RexxBehaviour::primitiveBehaviours[0]
 
+================================================================================
+debug a RexxString field overwritten
+================================================================================
+
+The crash happen when evaluating the string literal 'DATETIME' in StreamClasses.orx
+
+::METHOD query                         /* standard query routine            */
+  use strict arg subcommand
+  parse upper var subcommand subcommand parms
+  signal on notready
+  subcommand = ' 'subcommand           /* add a leading blank               */
+                                       /* resolve abbreviations             */
+  parse value ' DATETIME EXISTS HANDLE POSITION SEEK SIZE STREAMTYPE TIMESTAMP' with (subcommand) +1 subcommand .
+  select
+                                       /* need the date and time?           */
+    when subcommand = 'DATETIME' then do
+
+
+printf("RexxString::evaluate this=%x value=%x encoding=%x for %s\n", this, value, this->encoding, this->getStringData());
+output
+RexxString::evaluate this=10295220 value=d228 encoding=d228 for DATETIME
+
+where value = this->text (not displayed by the printf)
+why do I have d228 in this->text and this->encoding?
+both fields should be equal to this or to OREF_NULL
+
+RexxString
+8   HashCode hashValue;                 // stored has value
+8   size_t length;                      /* string length in bytes          */
+8   RexxObject *text;                   // The text counterpart or OREF_NULL
+8   RexxObject *encoding;               // Placeholder, not yet the real encoding.
+8   RexxNumberString *NumberString;     /* lookaside information           */
+8   size_t Attributes;                  /* string attributes               */
+4   char stringData[4];                 /* Start of the string data part   */
+---
+52 --> 56 to be aligned?
+
+p sizeof(RexxString)
+96
+
+p sizeof(RexxObject)
+40
+
+Testing the addresses on a RexxString *variable
+0x00000001180600d0	this
+0x0000000118060108	this.text		+56     0x118060108 + 56 =      (118060108~x2d + 56)~d2x= -- 118060140
+0x0000000118060110	this.encoding	+8
+
+numeric digits 17
+say 118060108~x2d - 1180600d0~x2d	-- 56 (40 + 8 + 8)
+say 118060110~x2d - 118060108~x2d	-- 8
+
+LLDB watchpoint (8 bytes to watch at address 0x118060140)
+w s e -s 8 -- 0x118060140
+
+Remember
+only 1, 2, 4 or 8 is allowed for size
+
+8315220
+(8315220~x2d + 56)~d2x=     -- 8315258
+w s e -s 8 -- 0x8315258
+
 
 --------------------------------------------------------------------------------
 Exception when debugging oodialog.wchar
