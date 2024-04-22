@@ -1702,6 +1702,14 @@ available for 19 languages.
 
 
 ================================================================================
+Arabic language
+================================================================================
+
+https://en.wikipedia.org/wiki/Arabic_script_in_Unicode
+Arabic script in Unicode
+
+
+================================================================================
 Indic languages
 ================================================================================
 
@@ -2858,15 +2866,6 @@ std::string normalize(const std::string &unnormalized_utf8) {
 }
 
 
-https://icu4c-demos.unicode.org/icu-bin/icudemos
-todo: review
-
-
-https://icu4c-demos.unicode.org/icu-bin/scompare
-ICU Unicode String Comparison
-Interactive demo application
-
-
 https://begriffs.com/posts/2019-05-23-unicode-icu.html
 Unicode programming, with examples
 
@@ -2943,10 +2942,6 @@ https://icu.unicode.org/charts/charset
 
 https://github.com/unicode-org/icu/tree/main/icu4c/source/data/mappings
 Encodings
-
-
-https://icu4c-demos.unicode.org/icu-bin/convexp
-Demo Converter Explorer
 
 
 https://unicode-org.atlassian.net/browse/ICU-22422
@@ -3128,6 +3123,27 @@ https://sourceforge.net/p/icu/mailman/message/58712806/
 
         https://www.unicode.org/reports/tr35/tr35-collation.html#Collation_Type_Fallback
         https://www.unicode.org/reports/tr10/#Searching
+
+
+================================================================================
+ICU demos
+================================================================================
+
+https://icu4c-demos.unicode.org/icu-bin/icudemos
+todo: review
+
+
+https://icu4c-demos.unicode.org/icu-bin/collation.html
+ICU Collation Demo
+
+
+https://icu4c-demos.unicode.org/icu-bin/convexp
+Demo Converter Explorer
+
+
+https://icu4c-demos.unicode.org/icu-bin/scompare
+ICU Unicode String Comparison
+Interactive demo application
 
 
 ================================================================================
@@ -3819,6 +3835,13 @@ ICU4X implements the 15.0 version without that tailoring.
 The difference is the handling of aksaras in some indic scripts:
 in Unicode 15.1 (and in any recent ICU4C) क्या is one EGC, but it is two EGCs
 (क्, या) in untailored Unicode 15.0 (and in ICU4X).
+---
+eggrobin
+(For what it’s worth, क्या would be three legacy grapheme clusters, namely क्, य,
+and ा, see Table 1a of UAX29, whereas it is two 15.0 extended grapheme clusters
+and a single 15.1 extended grapheme cluster.)
+---
+Fixed by #4536
 
 
 https://github.com/unicode-org/icu4x/pull/4334
@@ -3915,6 +3938,22 @@ This is for example languages that want to keep "ch" together etc.
 ---
 jlf: so it appears from the discussion that ICU4C implements specific rules that
 are not part of UAX #29.
+---
+sffc
+The conclusions from the discussion of this issue with the CLDR design group:
+- Grapheme clusters should not be language-specific; baked into much low-level
+  processing (e.g., Swift, font mappings) which we don’t want to be language-specific
+- Content locale/text language parameter (not UI locale): Potential for accuracy;
+  make it optional, name it well
+- Ok to leave the locale on the constructor; benefit: more specific data loading
+  even for existing dictionaries & models
+My suggested path forward for this issue, then, is to add an options bag to the
+WordSegmenter, LineSegmenter, and SentenceSegmenter constructors with an optional
+content_locale field of type &LanguageIdentifier.
+---
+Steven Loomis
+This makes no sense and contradicts the long standing requests.
+I would have joined, did not realize this was coming up today.
 
 
 https://github.com/unicode-org/icu4x/issues/58
@@ -3992,6 +4031,91 @@ Markus Scherer
 
     It makes sense to me to have an API that returns the nv of nt=decimal but
     the nv of other characters is rarely useful to programmers.
+
+
+https://github.com/unicode-org/icu4x/issues/4771
+LineBreakStrictness::Anywhere gives the wrong breakpoints for Arabic in icu_segmenter
+I am aware this is probably a unicode spec issue, rather than a rust library issue, but I thought I would point it out regardless.
+This is the minimal application I was using to test this behavior:
+    use icu_segmenter::{LineBreakOptions, LineBreakStrictness, LineSegmenter};
+    fn main() {
+        let test = "الخيل والليل";
+
+        let mut options = LineBreakOptions::default();
+        options.strictness = LineBreakStrictness::Anywhere;
+
+        let segmenter = LineSegmenter::new_auto_with_options(options);
+
+        let breakpoints = segmenter.segment_str(test);
+
+        for bp in breakpoints {
+            println!("{bp}:  {}", &test[bp..]);
+        }
+    }
+This gives the following output:
+(jlf: bbedit doesn't support well this text, can't indent the whole block, can't
+indent a single line)
+0:  الخيل والليل
+2:  لخيل والليل
+4:  خيل والليل
+6:  يل والليل
+8:  ل والليل
+10:   والليل
+11:  والليل
+13:  الليل
+15:  لليل
+17:  ليل
+19:  يل
+21:  ل
+23:
+as you can tell, it is breaking after every single letter, without respect to the letters' connections. However, as I am sure you are aware, the letters' connections are not optional.
+The output I expected is the following:
+0:  الخيل والليل
+2:  لخيل والليل
+10:   والليل
+11:  والليل
+13:  الليل
+15:  لليل
+23:
+Putting the break points across the visual boundaries of the letters. This is not the current orthodoxy, but any looser breaks than that and you'd be rendering the text illegible and unnatural.
+Note: This is how old written manuscripts break their words.
+---
+Closed as not planned
+
+
+https://github.com/unicode-org/icu4x/issues/4780
+Unexpected grapheme boundary with regional indicators (GB12)
+use icu::segmenter::GraphemeClusterSegmenter;
+    fn main() {
+        let segmenter = GraphemeClusterSegmenter::new();
+        let text = "🇺🇸🏴󠁧󠁢󠁥󠁮󠁧󠁿";
+        segmenter
+            .segment_str(text)
+            .for_each(|i| println!("{}", i));
+    }
+Reports the following break points:
+    0
+    4
+    8
+    36
+which means "🇺🇸" is split into two graphemes, which should be disallowed per GB12
+---
+This is fixed by #4536.
+---
+jlf: utf8proc is ok
+"🇺🇸"~graphemes==
+    a CharacterSupplier
+     1 : T'🇺🇸'
+"🇺🇸"~unicodecharacters==
+    an Array (shape [2], 2 items)
+     1 : ( "🇺"   U+1F1FA So 1 "REGIONAL INDICATOR SYMBOL LETTER U" )
+     2 : ( "🇸"   U+1F1F8 So 1 "REGIONAL INDICATOR SYMBOL LETTER S" )
+
+
+#4536
+https://github.com/unicode-org/icu4x/pull/4536
+Update grapheme cluster break rules to Unicode 15.1
+jlf: lot of discussions about stability that I did not try to understand.
 
 
 ================================================================================
@@ -4674,6 +4798,11 @@ Vim, Python, Julia and Rust.
 Regular expressions
 ================================================================================
 
+https://regex101.com/
+Testing a regular expression.
+There is even a debugger!
+
+
 https://www.regular-expressions.info/unicode.html
 \X matches a grapheme
 
@@ -4733,6 +4862,34 @@ C/POSIX Migration
     and see the mailing list archives for the unicode list (on unicode.org).
     See also the ICU design document about C/POSIX character classes
     https://htmlpreview.github.io/?https://github.com/unicode-org/icu-docs/blob/main/design/posix_classes.html
+
+
+https://stackoverflow.com/questions/50570322/regex-pattern-matching-in-right-to-left-languages
+Regex pattern matching in right-to-left languages
+---
+jlf: only one answer. Why control characters?
+What I understand is that the bytes are in the spelling order of the characters.
+The "/"
+ooRexx returns the same sequence of bytes under macOS.
+---
+    /Store/عرمنتجات/عرع
+     2F53746F72652F   D8B9D8B1D985D986D8AAD8ACD8A7D8AA   2F   D8B9D8B1D8B9
+    |--------------| |--------------------------------| |--| |------------|
+      "/Store/"                   عرمنتجات               /  i    عرع
+
+    /Store/عرع/عرمنتجات
+     2F53746F72652F   D8B9D8B1D8B9   2F   D8B9D8B1D985D986D8AAD8ACD8A7D8AA
+    |--------------| |------------| |--| |--------------------------------|
+      "/Store/"           عرع        /  i              عرمنتجات
+
+    /Store/عرمنتجات/whatever
+    2F53746F72652F D8B9D8B1D985D986D8AAD8ACD8A7D8AA  2F  7768617465766572
+    |------------| |------------------------------| |--| |--------------|
+      "/Store/"                عرمنتجات              /        whatever
+
+
+https://stackoverflow.com/questions/20641297/unicode-characters-in-regex
+Unicode characters in Regex
 
 
 ================================================================================

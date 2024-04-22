@@ -32,6 +32,7 @@ Contents:
     <a href="#DNS_title__Domain_Name_title__Domain_Name_System_title">DNS title, Domain Name title, Domain Name System title</a>
     <a href="#All_languages">All languages</a>
     <a href="#Classical_languages">Classical languages</a>
+    <a href="#Arabic_language">Arabic language</a>
     <a href="#Indic_languages">Indic languages</a>
     <a href="#CJK">CJK</a>
     <a href="#Korean">Korean</a>
@@ -56,6 +57,7 @@ Contents:
     <a href="#Rope">Rope</a>
     <a href="#Encoding_title">Encoding title</a>
     <a href="#ICU_title">ICU title</a>
+    <a href="#ICU_demos">ICU demos</a>
     <a href="#ICU_bindings">ICU bindings</a>
     <a href="#ICU4X_title">ICU4X title</a>
     <a href="#utf8proc_title">utf8proc title</a>
@@ -1738,6 +1740,11 @@ available for 19 languages.
     Sanskrit (Some parts of the Sanskrit library are forked from the Indic NLP Library)
 
 
+<hr><h2 id="Arabic_language">Arabic language</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Arabic_script_in_Unicode">https://en.wikipedia.org/wiki/Arabic_script_in_Unicode</a>
+Arabic script in Unicode
+
+
 <hr><h2 id="Indic_languages">Indic languages</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/faq/indic.html">https://www.unicode.org/faq/indic.html</a>
 Indic scripts in the narrow sense are the nine major Brahmi-derived scripts of India.
@@ -2823,15 +2830,6 @@ std::string normalize(const std::string &amp;unnormalized_utf8) {
 }
 
 
-<a target="_blank" rel="noopener noreferrer" href="https://icu4c-demos.unicode.org/icu-bin/icudemos">https://icu4c-demos.unicode.org/icu-bin/icudemos</a>
-todo: review
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://icu4c-demos.unicode.org/icu-bin/scompare">https://icu4c-demos.unicode.org/icu-bin/scompare</a>
-ICU Unicode String Comparison
-Interactive demo application
-
-
 <a target="_blank" rel="noopener noreferrer" href="https://begriffs.com/posts/2019-05-23-unicode-icu.html">https://begriffs.com/posts/2019-05-23-unicode-icu.html</a>
 Unicode programming, with examples
 
@@ -2908,10 +2906,6 @@ Same design as a BytesTrie, but mapping any UnicodeString (any sequence of 16-bi
 
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu/tree/main/icu4c/source/data/mappings">https://github.com/unicode-org/icu/tree/main/icu4c/source/data/mappings</a>
 Encodings
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://icu4c-demos.unicode.org/icu-bin/convexp">https://icu4c-demos.unicode.org/icu-bin/convexp</a>
-Demo Converter Explorer
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://unicode-org.atlassian.net/browse/ICU-22422">https://unicode-org.atlassian.net/browse/ICU-22422</a>
@@ -3093,6 +3087,24 @@ jlf: next is an answer on icu-support@lists.sourceforge.net
 
         <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr35/tr35-collation.html#Collation_Type_Fallback">https://www.unicode.org/reports/tr35/tr35-collation.html#Collation_Type_Fallback</a>
         <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr10/#Searching">https://www.unicode.org/reports/tr10/#Searching</a>
+
+
+<hr><h2 id="ICU_demos">ICU demos</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://icu4c-demos.unicode.org/icu-bin/icudemos">https://icu4c-demos.unicode.org/icu-bin/icudemos</a>
+todo: review
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://icu4c-demos.unicode.org/icu-bin/collation.html">https://icu4c-demos.unicode.org/icu-bin/collation.html</a>
+ICU Collation Demo
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://icu4c-demos.unicode.org/icu-bin/convexp">https://icu4c-demos.unicode.org/icu-bin/convexp</a>
+Demo Converter Explorer
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://icu4c-demos.unicode.org/icu-bin/scompare">https://icu4c-demos.unicode.org/icu-bin/scompare</a>
+ICU Unicode String Comparison
+Interactive demo application
 
 
 <hr><h2 id="ICU_bindings">ICU bindings</h2><hr>
@@ -3778,6 +3790,13 @@ ICU4X implements the 15.0 version without that tailoring.
 The difference is the handling of aksaras in some indic scripts:
 in Unicode 15.1 (and in any recent ICU4C) क्या is one EGC, but it is two EGCs
 (क्, या) in untailored Unicode 15.0 (and in ICU4X).
+---
+eggrobin
+(For what it’s worth, क्या would be three legacy grapheme clusters, namely क्, य,
+and ा, see Table 1a of UAX29, whereas it is two 15.0 extended grapheme clusters
+and a single 15.1 extended grapheme cluster.)
+---
+Fixed by #4536
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/pull/4334">https://github.com/unicode-org/icu4x/pull/4334</a>
@@ -3874,6 +3893,22 @@ This is for example languages that want to keep "ch" together etc.
 ---
 jlf: so it appears from the discussion that ICU4C implements specific rules that
 are not part of UAX #29.
+---
+sffc
+The conclusions from the discussion of this issue with the CLDR design group:
+- Grapheme clusters should not be language-specific; baked into much low-level
+  processing (e.g., Swift, font mappings) which we don’t want to be language-specific
+- Content locale/text language parameter (not UI locale): Potential for accuracy;
+  make it optional, name it well
+- Ok to leave the locale on the constructor; benefit: more specific data loading
+  even for existing dictionaries &amp; models
+My suggested path forward for this issue, then, is to add an options bag to the
+WordSegmenter, LineSegmenter, and SentenceSegmenter constructors with an optional
+content_locale field of type &amp;LanguageIdentifier.
+---
+Steven Loomis
+This makes no sense and contradicts the long standing requests.
+I would have joined, did not realize this was coming up today.
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/58">https://github.com/unicode-org/icu4x/issues/58</a>
@@ -3951,6 +3986,91 @@ Markus Scherer
 
     It makes sense to me to have an API that returns the nv of nt=decimal but
     the nv of other characters is rarely useful to programmers.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/4771">https://github.com/unicode-org/icu4x/issues/4771</a>
+LineBreakStrictness::Anywhere gives the wrong breakpoints for Arabic in icu_segmenter
+I am aware this is probably a unicode spec issue, rather than a rust library issue, but I thought I would point it out regardless.
+This is the minimal application I was using to test this behavior:
+    use icu_segmenter::{LineBreakOptions, LineBreakStrictness, LineSegmenter};
+    fn main() {
+        let test = "الخيل والليل";
+
+        let mut options = LineBreakOptions::default();
+        options.strictness = LineBreakStrictness::Anywhere;
+
+        let segmenter = LineSegmenter::new_auto_with_options(options);
+
+        let breakpoints = segmenter.segment_str(test);
+
+        for bp in breakpoints {
+            println!("{bp}:  {}", &amp;test[bp..]);
+        }
+    }
+This gives the following output:
+(jlf: bbedit doesn't support well this text, can't indent the whole block, can't
+indent a single line)
+0:  الخيل والليل
+2:  لخيل والليل
+4:  خيل والليل
+6:  يل والليل
+8:  ل والليل
+10:   والليل
+11:  والليل
+13:  الليل
+15:  لليل
+17:  ليل
+19:  يل
+21:  ل
+23:
+as you can tell, it is breaking after every single letter, without respect to the letters' connections. However, as I am sure you are aware, the letters' connections are not optional.
+The output I expected is the following:
+0:  الخيل والليل
+2:  لخيل والليل
+10:   والليل
+11:  والليل
+13:  الليل
+15:  لليل
+23:
+Putting the break points across the visual boundaries of the letters. This is not the current orthodoxy, but any looser breaks than that and you'd be rendering the text illegible and unnatural.
+Note: This is how old written manuscripts break their words.
+---
+Closed as not planned
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/4780">https://github.com/unicode-org/icu4x/issues/4780</a>
+Unexpected grapheme boundary with regional indicators (GB12)
+use icu::segmenter::GraphemeClusterSegmenter;
+    fn main() {
+        let segmenter = GraphemeClusterSegmenter::new();
+        let text = "🇺🇸🏴󠁧󠁢󠁥󠁮󠁧󠁿";
+        segmenter
+            .segment_str(text)
+            .for_each(|i| println!("{}", i));
+    }
+Reports the following break points:
+    0
+    4
+    8
+    36
+which means "🇺🇸" is split into two graphemes, which should be disallowed per GB12
+---
+This is fixed by #4536.
+---
+jlf: utf8proc is ok
+"🇺🇸"~graphemes==
+    a CharacterSupplier
+     1 : T'🇺🇸'
+"🇺🇸"~unicodecharacters==
+    an Array (shape [2], 2 items)
+     1 : ( "🇺"   U+1F1FA So 1 "REGIONAL INDICATOR SYMBOL LETTER U" )
+     2 : ( "🇸"   U+1F1F8 So 1 "REGIONAL INDICATOR SYMBOL LETTER S" )
+
+
+#4536
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/pull/4536">https://github.com/unicode-org/icu4x/pull/4536</a>
+Update grapheme cluster break rules to Unicode 15.1
+jlf: lot of discussions about stability that I did not try to understand.
 
 
 <hr><h2 id="utf8proc_title">utf8proc title</h2><hr>
@@ -4600,6 +4720,11 @@ Vim, Python, Julia and Rust.
 
 
 <hr><h2 id="Regular_expressions">Regular expressions</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://regex101.com/">https://regex101.com/</a>
+Testing a regular expression.
+There is even a debugger!
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://www.regular-expressions.info/unicode.html">https://www.regular-expressions.info/unicode.html</a>
 \X matches a grapheme
 
@@ -4659,6 +4784,34 @@ C/POSIX Migration
     and see the mailing list archives for the unicode list (on unicode.org).
     See also the ICU design document about C/POSIX character classes
     <a target="_blank" rel="noopener noreferrer" href="https://htmlpreview.github.io/?https://github.com/unicode-org/icu-docs/blob/main/design/posix_classes.html">https://htmlpreview.github.io/?https://github.com/unicode-org/icu-docs/blob/main/design/posix_classes.html</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/50570322/regex-pattern-matching-in-right-to-left-languages">https://stackoverflow.com/questions/50570322/regex-pattern-matching-in-right-to-left-languages</a>
+Regex pattern matching in right-to-left languages
+---
+jlf: only one answer. Why control characters?
+What I understand is that the bytes are in the spelling order of the characters.
+The "/"
+ooRexx returns the same sequence of bytes under macOS.
+---
+    /Store/عرمنتجات/عرع
+     2F53746F72652F   D8B9D8B1D985D986D8AAD8ACD8A7D8AA   2F   D8B9D8B1D8B9
+    |--------------| |--------------------------------| |--| |------------|
+      "/Store/"                   عرمنتجات               /  i    عرع
+
+    /Store/عرع/عرمنتجات
+     2F53746F72652F   D8B9D8B1D8B9   2F   D8B9D8B1D985D986D8AAD8ACD8A7D8AA
+    |--------------| |------------| |--| |--------------------------------|
+      "/Store/"           عرع        /  i              عرمنتجات
+
+    /Store/عرمنتجات/whatever
+    2F53746F72652F D8B9D8B1D985D986D8AAD8ACD8A7D8AA  2F  7768617465766572
+    |------------| |------------------------------| |--| |--------------|
+      "/Store/"                عرمنتجات              /        whatever
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/20641297/unicode-characters-in-regex">https://stackoverflow.com/questions/20641297/unicode-characters-in-regex</a>
+Unicode characters in Regex
 
 
 <hr><h2 id="Test_cases__test_cases__tests_files">Test cases, test-cases, tests files</h2><hr>
