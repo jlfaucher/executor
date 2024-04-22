@@ -2394,90 +2394,25 @@ Helpers
 ::method select class
     if \ .ooRexxShell~showColor then return -- you don't want the colors
     use strict arg color, stream=.output
-    select
-        when .platform~is("windows") then do
-            select
-                when color~caselessEquals("default") then .platform~SetConsoleTextColor(self~default)
-                when color~caselessEquals("bdefault") then do
-                    if self~defaultForeground >= 8 then do
-                         -- if already bold then use as-is
-                        .platform~SetConsoleTextColor(self~default)
-                    end
-                    else do
-                        -- use bold version of foreground (+8)
-                        .platform~SetConsoleTextColor(self~defaultBackground * 16 + self~defaultForeground + 8)
-                    end
-                end
-                when color~caselessEquals("black") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 0)
-                when color~caselessEquals("bblack") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 8)
-                when color~caselessEquals("red") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 4)
-                when color~caselessEquals("bred") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 12)
-                when color~caselessEquals("green") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 2)
-                when color~caselessEquals("bgreen") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 10)
-                when color~caselessEquals("yellow") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 6)
-                when color~caselessEquals("byellow") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 14)
-                when color~caselessEquals("blue") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 1)
-                when color~caselessEquals("bblue") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 9)
-                when color~caselessEquals("purple") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 5)
-                when color~caselessEquals("bpurple") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 13)
-                when color~caselessEquals("cyan") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 3)
-                when color~caselessEquals("bcyan") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 11)
-                when color~caselessEquals("white") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 7)
-                when color~caselessEquals("bwhite") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 15)
-                otherwise nop
-            end
-        end
-        when .platform~is("linux") | .platform~is("macosx") | .platform~is("darwin") then do
-            select
-                when color~caselessEquals("default") then stream~charout(d2c(27)"[0m")
-                when color~caselessEquals("bdefault") then stream~charout(d2c(27)"[1m")
-                when color~caselessEquals("black") then stream~charout(d2c(27)"[0;30m")
-                when color~caselessEquals("bblack") then stream~charout(d2c(27)"[1;30m")
-                when color~caselessEquals("red") then stream~charout(d2c(27)"[0;31m")
-                when color~caselessEquals("bred") then stream~charout(d2c(27)"[1;31m")
-                when color~caselessEquals("green") then stream~charout(d2c(27)"[0;32m")
-                when color~caselessEquals("bgreen") then stream~charout(d2c(27)"[1;32m")
-                when color~caselessEquals("yellow") then stream~charout(d2c(27)"[0;33m")
-                when color~caselessEquals("byellow") then stream~charout(d2c(27)"[1;33m")
-                when color~caselessEquals("blue") then stream~charout(d2c(27)"[0;34m")
-                when color~caselessEquals("bblue") then stream~charout(d2c(27)"[1;34m")
-                when color~caselessEquals("purple") then stream~charout(d2c(27)"[0;35m")
-                when color~caselessEquals("bpurple") then stream~charout(d2c(27)"[1;35m")
-                when color~caselessEquals("cyan") then stream~charout(d2c(27)"[0;36m")
-                when color~caselessEquals("bcyan") then stream~charout(d2c(27)"[1;36m")
-                when color~caselessEquals("white") then stream~charout(d2c(27)"[0;37m")
-                when color~caselessEquals("bwhite") then stream~charout(d2c(27)"[1;37m")
-                otherwise nop
-            end
-            stream~flush -- to avoid filtering by filteringStream
-        end
-        otherwise nop
-    end
-
-
--------------------------------------------------------------------------------
-::class GCI -- http://rexx-gci.sourceforge.net/
--------------------------------------------------------------------------------
-::attribute isInstalled class
-
-
-::method init class
-    self~isInstalled = .false
-    if RxFuncadd("RxFuncDefine", "gci", "RxFuncDefine") <> 0 then return
-    if RxFuncadd("GciFuncDrop", "gci", "GciFuncDrop") <> 0 then return
-    if RxFuncadd("GciPrefixChar", "gci", "GciPrefixChar") <> 0 then return
-    self~isInstalled = .true
-
-
-/*
-Windows:
-If you want the colors in the console then you must put gci.dll in your PATH.
-You can get gci 32-bit here: http://rexx-gci.sourceforge.net
-For 64-bit support and new type aliases, see https://github.com/jlfaucher/rexx-gci
-
-Linux, MacOs : gci not needed.
-The colors are managed with escape characters.
-*/
+    if color~caselessEquals("default") then stream~charout(d2c(27)"[0m")
+    else if color~caselessEquals("bdefault") then stream~charout(d2c(27)"[1m")
+    else if color~caselessEquals("black") then stream~charout(d2c(27)"[0;30m")
+    else if color~caselessEquals("bblack") then stream~charout(d2c(27)"[1;30m")
+    else if color~caselessEquals("red") then stream~charout(d2c(27)"[0;31m")
+    else if color~caselessEquals("bred") then stream~charout(d2c(27)"[1;31m")
+    else if color~caselessEquals("green") then stream~charout(d2c(27)"[0;32m")
+    else if color~caselessEquals("bgreen") then stream~charout(d2c(27)"[1;32m")
+    else if color~caselessEquals("yellow") then stream~charout(d2c(27)"[0;33m")
+    else if color~caselessEquals("byellow") then stream~charout(d2c(27)"[1;33m")
+    else if color~caselessEquals("blue") then stream~charout(d2c(27)"[0;34m")
+    else if color~caselessEquals("bblue") then stream~charout(d2c(27)"[1;34m")
+    else if color~caselessEquals("purple") then stream~charout(d2c(27)"[0;35m")
+    else if color~caselessEquals("bpurple") then stream~charout(d2c(27)"[1;35m")
+    else if color~caselessEquals("cyan") then stream~charout(d2c(27)"[0;36m")
+    else if color~caselessEquals("bcyan") then stream~charout(d2c(27)"[1;36m")
+    else if color~caselessEquals("white") then stream~charout(d2c(27)"[0;37m")
+    else if color~caselessEquals("bwhite") then stream~charout(d2c(27)"[1;37m")
+    stream~flush -- to avoid filtering by filteringStream
 
 
 -------------------------------------------------------------------------------
@@ -2532,47 +2467,10 @@ The colors are managed with escape characters.
 ::class WindowsPlatform subclass platform
 -------------------------------------------------------------------------------
 
--- GCI type definitions
-::constant LONG "integer32"         -- typedef long                LONG;
-::constant SHORT "integer16"        -- typedef short               SHORT;
-::constant CHAR "integer8"          -- typedef char                CHAR;
-::constant ULONG "unsigned32"       -- typedef unsigned long       ULONG;
-::constant USHORT "unsigned16"      -- typedef unsigned short      USHORT;
-::constant UCHAR "unsigned8"        -- typedef unsigned char       UCHAR;
-::constant DWORD "unsigned32"       -- typedef unsigned long       DWORD;
-::constant DWORDLONG "unsigned64"   -- typedef unsigned __int64    DWORDLONG;
-::constant BOOL "integer32"         -- typedef int                 BOOL;
-::constant BOOLEAN "unsigned8"      -- typedef BYTE                BOOLEAN;
-::constant BYTE "unsigned8"         -- typedef unsigned char       BYTE;
-::constant WORD "unsigned16"        -- typedef unsigned short      WORD;
-::constant FLOAT "float32"          -- typedef float               FLOAT;
-::constant INT "integer32"          -- typedef int                 INT;
-::constant UINT "unsigned32"        -- typedef unsigned int        UINT;
-::constant HANDLE "integer"         -- typedef void                *HANDLE; -- todo: must be integer64 under win64, is it managed by GCI ?
-::constant STRUCT "container"
-::constant PSTRUCT "indirect container"
-
-
 ::method init
     forward class (super) continue
 
-    -- This part was in init at class level, but I realized that it was executed whatever the platform.
-    -- Better to move the declaration of the FFI here.
-    if .GCI~isInstalled then do
-        self~class~defineGetConsoleScreenBufferInfo
-        self~class~defineSetConsoleTextAttribute
-        self~class~defineGetStdHandle
-    end
-
     self~class~current = self -- normally you never call directly a method of .WindowsPlatform, but just in case...
-    -- Default background & foreground colors
-    wAttributes = 0
-    consoleInfo = self~GetConsoleInfo
-    if consoleInfo <> .nil then wAttributes = consoleInfo["WATTRIBUTES"]
-    colorAttributes = wAttributes // 255 -- first byte
-    .Color~default = colorAttributes
-    .Color~defaultBackground = colorAttributes % 16 -- last 4 bits
-    .Color~defaultForeground = colorAttributes // 16 -- first 4 bits
 
 
 ::method which
@@ -2639,183 +2537,6 @@ The colors are managed with escape characters.
     return .false
 
 
-::constant STD_INPUT_HANDLE -10
-::constant STD_OUTPUT_HANDLE -11
-::constant STD_ERROR_HANDLE -12
-::constant INVALID_HANDLE_VALUE -1
-
-::method defineGetStdHandle class private
-    /*
-    HANDLE WINAPI GetStdHandle(
-      __in  DWORD nStdHandle
-    );
-    */
-    stem.calltype = "stdcall"
-    stem.0 = 1
-    stem.1.type = self~DWORD
-    stem.return.type = self~HANDLE
-    return RxFuncDefine("GetStdHandle", "kernel32", "GetStdHandle", "stem") == 0 -- return .true if no error
-
-
-::method GetStdHandle private
-    use strict arg deviceId
-    stem.1.value = unsigned32(deviceId) -- GCI complains when passing a negative value...
-    call GetStdHandle "stem"
-    return stem.return.value
-
-
-::method defineGetConsoleScreenBufferInfo class private
-    /*
-    typedef struct _COORD {
-      SHORT X;
-      SHORT Y;
-    } COORD, *PCOORD;
-
-    typedef struct _SMALL_RECT {
-      SHORT Left;
-      SHORT Top;
-      SHORT Right;
-      SHORT Bottom;
-    } SMALL_RECT;
-
-    typedef struct _CONSOLE_SCREEN_BUFFER_INFO {
-      COORD      dwSize;
-      COORD      dwCursorPosition;
-      WORD       wAttributes;
-      SMALL_RECT srWindow;
-      COORD      dwMaximumWindowSize;
-    } CONSOLE_SCREEN_BUFFER_INFO;
-
-    BOOL WINAPI GetConsoleScreenBufferInfo(
-      _In_  HANDLE                      hConsoleOutput,
-      _Out_ PCONSOLE_SCREEN_BUFFER_INFO lpConsoleScreenBufferInfo
-    );
-    */
-    stem.calltype = "stdcall"
-    stem.0 = 2
-
-    stem.1.type = self~HANDLE
-
-    stem.2.type = self~PSTRUCT
-    stem.2.0 = 5
-
-    stem.2.1.type = self~STRUCT     -- COORD dwSize;
-    stem.2.1.0 = 2
-    stem.2.1.1.type = self~SHORT    --      SHORT X;
-    stem.2.1.2.type = self~SHORT    --      SHORT Y;
-
-    stem.2.2.type = self~STRUCT     -- COORD dwCursorPosition;
-    stem.2.2.0 = 2
-    stem.2.2.1.type = self~SHORT    --      SHORT X;
-    stem.2.2.2.type = self~SHORT    --      SHORT Y;
-
-    stem.2.3.type = self~WORD       -- WORD wAttributes;
-
-    stem.2.4.type = self~STRUCT     -- SMALL_RECT srWindow;
-    stem.2.4.0 = 4
-    stem.2.4.1.type = self~SHORT    --      SHORT Left;
-    stem.2.4.2.type = self~SHORT    --      SHORT Top;
-    stem.2.4.3.type = self~SHORT    --      SHORT Right;
-    stem.2.4.4.type = self~SHORT    --      SHORT Bottom;
-
-    stem.2.5.type = self~STRUCT     -- COORD dwMaximumWindowSize;
-    stem.2.5.0 = 2
-    stem.2.5.1.type = self~SHORT    --      SHORT X;
-    stem.2.5.2.type = self~SHORT    --      SHORT Y;
-
-    stem.return.type = self~BOOL
-
-    return RxFuncDefine("GetConsoleScreenBufferInfo", "kernel32", "GetConsoleScreenBufferInfo", "stem") == 0 -- return .true if no error
-
-
-::method GetConsoleScreenBufferInfo private
-    use strict arg consoleHandle
-    stem.1.value = consoleHandle
-
-    stem.2.value = 5
-
-    stem.2.1.value = 2
-    stem.2.1.1.value = 0            -- dwSize.X
-    stem.2.1.2.value = 0            -- dwSize.Y
-
-    stem.2.2.value = 2
-    stem.2.2.1.value = 0            -- dwCursorPosition.X
-    stem.2.2.2.value = 0            -- dwCursorPosition.Y
-
-    stem.2.3.value = 0              -- wAttributes
-
-    stem.2.4.value = 4
-    stem.2.4.1.value = 0            -- srWindow.Left
-    stem.2.4.2.value = 0            -- srWindow.Top
-    stem.2.4.3.value = 0            -- srWindow.Right
-    stem.2.4.4.value = 0            -- srWindow.Bottom
-
-    stem.2.5.value = 2
-    stem.2.5.1.value = 0            -- dwMaximumWindowSize.X
-    stem.2.5.2.value = 0            -- dwMaximumWindowSize.Y
-
-    call GetConsoleScreenBufferInfo "stem"
-
-    info.isValid = stem.return.value
-    info.dwSize.X = stem.2.1.1.value
-    info.dwSize.Y = stem.2.1.2.value
-    info.dwCursorPosition.X = stem.2.2.1.value
-    info.dwCursorPosition.Y = stem.2.2.2.value
-    info.wAttributes = stem.2.3.value
-    info.srWindow.Left = stem.2.4.1.value
-    info.srWindow.Top = stem.2.4.2.value
-    info.srWindow.Right = stem.2.4.3.value
-    info.srWindow.Bottom = stem.2.4.4.value
-    info.dwMaximumWindowSize.X = stem.2.5.1.value
-    info.dwMaximumWindowSize.Y = stem.2.5.2.value
-
-    return info.
-
-
-::method GetConsoleInfo
-    use strict arg -- none
-    signal on syntax -- trap unregistered GCI functions
-    consoleHandle = self~GetStdHandle(self~STD_OUTPUT_HANDLE)
-    if consoleHandle == self~INVALID_HANDLE_VALUE then return .nil
-    return self~GetConsoleScreenBufferInfo(consoleHandle)
-    syntax:
-    return .nil
-
-
-::method defineSetConsoleTextAttribute class private
-    /*
-    BOOL WINAPI SetConsoleTextAttribute(
-      __in  HANDLE hConsoleOutput,
-      __in  WORD wAttributes
-    );
-    */
-    stem.calltype = "stdcall"
-    stem.0 = 2
-    stem.1.type = self~HANDLE
-    stem.2.type = self~WORD
-    stem.return.type = self~BOOL
-    return RxFuncDefine("SetConsoleTextAttribute", "kernel32", "SetConsoleTextAttribute", "stem") == 0 -- return .true if no error
-
-
-::method SetConsoleTextAttribute private
-    use strict arg consoleHandle, characterAttributes
-    stem.1.value = consoleHandle
-    stem.2.value = characterAttributes
-    call SetConsoleTextAttribute "stem"
-    return stem.return.value
-
-
-::method SetConsoleTextColor
-    use strict arg colorNumber
-    signal on syntax -- trap unregistered GCI functions
-    consoleHandle = self~GetStdHandle(self~STD_OUTPUT_HANDLE)
-    if consoleHandle == self~INVALID_HANDLE_VALUE then return .false
-    self~SetConsoleTextAttribute(consoleHandle, colorNumber)
-    return result <> 0 -- return .true if no error
-    syntax:
-    return .false
-
-
 -------------------------------------------------------------------------------
 -- Helpers
 -------------------------------------------------------------------------------
@@ -2849,13 +2570,6 @@ The colors are managed with escape characters.
 ::routine paren public
     use strict arg string, parenLeft="(", parenRight=")"
     return parenLeft || string || parenRight
-
-
-::routine unsigned32 public
-    use strict arg number
-    numeric digits 10
-    if number >= 0 then return number
-    return 4294967296 + number
 
 
 ::routine littleendian2integer16 public
