@@ -90,7 +90,12 @@ RexxMemory memoryObject;
 #define SaveStackSize 10             /* newly created objects to save */
 #define SaveStackAllocSize 500       /* pre-allocation for save stack  */
 
-#define MaxImageSize 1800000         /* maximum startup image size */
+// After adding text and encoding to RexxString
+// under Windows ARM: Logic error: Rexx saved image exceeds expected maximum
+// (no such problem under macOS)
+// use the same value as ooRexx5
+//#define MaxImageSize 1800000         /* maximum startup image size */
+#define MaxImageSize 3000000         /* maximum startup image size */
 
 RexxDirectory *RexxMemory::globalStrings = OREF_NULL;
 RexxDirectory *RexxMemory::environment = OREF_NULL;       // global environment
@@ -883,6 +888,15 @@ void RexxMemory::restoreImage()
         if (((RexxObject *)objectPointer)->hasReferences())
             /*  Yes, mark other referenced objs  */
             ((RexxObject *)objectPointer)->liveGeneral(RESTORINGIMAGE);
+
+#if debug_encoding
+        if (primitiveTypeNum == T_String)
+        {
+            RexxString *string = (RexxString *)objectPointer;
+            printf("RexxMemory::restoreImage string=%p text=%p encoding=%p %s\n", string, string->getText(), string->getEncoding(), string->getStringData());
+        }
+#endif
+
         /* Point to next object in image..   */
         objectPointer += ((RexxObject *)objectPointer)->getObjectSize();
 
@@ -2323,6 +2337,15 @@ RexxString *RexxMemory::getGlobalName(const char *value)
     }
     /* add this to the table             */
     globalStrings->put((RexxObject *)stringValue, stringValue);
+
+    // This string is common to all packages, so the rule "assign the package encoding" is not possible
+    // Declare that this string is byte encoded
+    ProtectedObject p_result;
+    RexxObject *args[1];
+    args[0] = OREF_BYTE; // positional argument
+    bool messageUnderstood = stringValue->messageSend(OREF_SETENCODING, args, 1, 0, p_result, false);
+    // OREF_SETENCODING do that: stringValue~!setEncoding(OREF_BYTE);
+    // don't touch this->text (currently OREF_NULL). Maybe will be converted to RexxText during evaluation.
     return stringValue;              // return the newly created one
 }
 

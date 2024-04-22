@@ -891,6 +891,8 @@ CPPM(RexxString::isInteger),
 CPPM(RexxString::isASCIIRexx),
 CPPM(RexxString::upperRexx),
 CPPM(RexxString::lowerRexx),
+CPPM(RexxString::setEncodingRexx),
+CPPM(RexxString::setTextRexx),
 
                                           /* All BIF methods start here.  They */
                                           /*  will be arranged according to the*/

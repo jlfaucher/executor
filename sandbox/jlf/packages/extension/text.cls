@@ -2,15 +2,6 @@
 .MutableBuffer~define("stringNative", .MutableBuffer~method("string"))
 .MutableBuffer~define("string", "forward message 'encodedString'")
 
--- Since the caller is loading this package, we can assume that the caller
--- supports an automatic conversion to text. This conversion is activated by
--- setting an encoding other than byte.
-caller = .context~parentContext
-do while .nil \== caller
-    caller~package~encoding = .Encoding~defaultEncoding
-    caller = caller~parentContext -- .nil if native or top-level activation.
-end
-
 ::extension RexxText        inherit RexxTextInitializer
 ::extension RexxText        inherit RexxTextContents
 ::extension RexxText        inherit RexxTextOperators
@@ -60,6 +51,11 @@ b2x, c2x, d2x will always return a String, not a RexxText.
 So "41"~text~utf16~c2x will not return an UTF-16 representation of the hexadecimal digits.
 
 */
+
+
+/******************************************************************************/
+::routine textPackage public
+    return .context~package
 
 
 /******************************************************************************/
@@ -190,6 +186,8 @@ because startByte = string~subchar(indexB)
     use strict arg textEncoding=(self~encoding)
     if \var("myText") then do -- no stored counterpart
         myText = .RexxText~new(self, textEncoding) -- store the RexxText counterpart created from itself with specified encoding
+        -- self~!setText(myText) -- Object "<string>" does not understand message "!SETTEXT"
+        forward to (self) message "!SETTEXT" array(myText) -- no dynamic target
     end
     else if arg(1, "e") then do
         -- If the encoding was explicitely specified then change the encoding
@@ -201,7 +199,9 @@ because startByte = string~subchar(indexB)
             myText~encoding = textEncoding
         end
     end
-    encoding = myText~encoding -- align string & text encoding.
+    -- align string & text encoding.
+    encoding = myText~encoding
+    self~!setEncoding(encoding)
     return myText
 
 
@@ -212,9 +212,15 @@ because startByte = string~subchar(indexB)
     -- If already linked to a RexxText then only this RexxText is accepted
     expose encoding myText -- attribute added on the String instance
     use strict arg aText
+    if .nil == aText then do
+        self~detach
+        return
+    end
     if \var("myText") then do -- no stored counterpart
         if aText~isA(.RexxText), aText~string~identityHash == self~identityHash then do
             myText = aText -- store the RexxText counterpart passed by argument
+            -- self~!setText(myText) -- Object "<string>" does not understand message "!SETTEXT"
+            forward to (self) message "!SETTEXT" array(myText) -- no dynamic target
         end
         else raise syntax 23.900 array("EncodedString: the counterpart must be a RexxText linked to this String")
     end
@@ -226,7 +232,22 @@ because startByte = string~subchar(indexB)
             raise syntax 23.900 array("EncodedString: a RexxText counterpart is already assigned")
         end
     end
-    encoding = myText~encoding -- align string & text encoding.
+    -- align string & text encoding.
+    encoding = myText~encoding
+    self~!setEncoding(encoding)
+
+
+::method detach
+    expose myText
+    use strict arg -- none
+
+    if var("myText") then do
+        -- detach the string from its text
+        myOldText = myText
+        drop myText -- do it now to avoid infinite recursion
+        self~!setText -- OREF_NULL
+        myOldText~detach
+    end
 
 
 ::attribute encoding get
@@ -240,13 +261,23 @@ because startByte = string~subchar(indexB)
 ::attribute encoding set
     expose encoding myText
     use strict arg newEncoding
-    encoding = .Encoding~factory(newEncoding, self~string)
-    if var("myText") then myText~encoding = newEncoding
+    if .nil == newEncoding then do
+        if var("myText") then myText~encoding = newEncoding -- will raise an error because .nil not supported
+        drop encoding
+        self~!setEncoding -- OREF_NULL
+    end
+    else do
+        newEncoding = .Encoding~factory(newEncoding, self~string)
+        if var("myText") then myText~encoding = newEncoding
+        encoding = newEncoding
+        self~!setEncoding(encoding)
+    end
 
 
 ::method setEncoding
     use strict arg newEncoding
-    previousEncoding = self~encoding
+    if self~hasEncoding then previousEncoding = self~encoding
+                        else previousEncoding = .nil
     self~encoding = newEncoding
     return previousEncoding
 
@@ -319,7 +350,750 @@ Always return the string (see also the implementation on MutableBuffer and RexxT
 
 
 /******************************************************************************/
+::class "EncodedMutableBuffer" mixinclass Object private
+
+/*
+    Nothing sophisticated here...
+    Just manage the attribute 'encoding', to know what is the current encoding of the MutableBuffer.
+    By "current", I mean that this encoding may change during the life of the MutableBuffer,
+    especially when doing concatenations. For example, an UTF-8 buffer will become a WTF-8 buffer
+    when appending a WTF-8 string.
+    There is no analysis of contents, no indexer, no associated text.
+    The analysis is done when a RexxText instance is created from the buffer's string.
+*/
+
+/*
+    REMEMBER!
+    The buffer's encoding is lost when using a buffer's method which returns a string
+    (like left, right, substr, etc...).
+    Exception:
+    The 'string' method is redefined to keep the encoding (forwards the message "encodedString").
+*/
+
+-- TODO: make it native
+-- Remember: needed to fix RexxMutableBufferClass::newRexx to pass all the new's arguments to init
+::method init_extended
+    expose encoding
+    -- if the optional argument 'string' is provided then memorize its encoding
+    if arg(1, "e"), arg(1)~hasEncoding then encoding = arg(1)~encoding
+    -- forward class (super) -- don't forward, that would raise an unknown method
+
+
+::attribute encoding get
+    expose encoding
+    use strict arg -- none
+    if var("encoding") then return encoding
+    return .Encoding~defaultEncoding
+
+
+::attribute encoding set
+    expose encoding
+    use strict arg newEncoding
+    if .nil == newEncoding then drop encoding
+    else encoding = .Encoding~factory(newEncoding, self~string)
+
+
+::method setEncoding
+    use strict arg newEncoding
+    if self~hasEncoding then previousEncoding = self~encoding
+                        else previousEncoding = .nil
+    self~encoding = newEncoding
+    return previousEncoding
+
+
+::method hasEncoding
+    expose encoding
+    use strict arg -- none
+    return var("encoding")
+
+
+-- Apparently, this method is not called when named "string"
+-- Maybe a problem with inherited methods
+-- Workaround: see at the begining of this file
+::method encodedString
+    expose encoding
+    use strict arg -- none
+    string = self~stringNative
+    if var("encoding") then string~encoding = encoding
+    return string
+
+
+/*
+Allows to use a String or a MutableBuffer or a RexxText indistinctly.
+Here, we are on a MutableBuffer.
+Return directly the buffer, without requesting a string from it.
+*/
+::method requestTextOrBufferOrString
+    use strict arg -- none
+    return self
+
+
+-- Equivalent to isPolymorphicString in StringClass.cpp
+::method isTextOrBufferOrString
+    use strict arg -- none
+    return .true -- it's a MutableBuffer
+
+
+/*
+Allows to use a String or a MutableBuffer or a RexxText indistinctly.
+Here, we are on a MutableBuffer.
+Return directly the buffer, without requesting a string from it.
+*/
+::method requestBufferOrString
+    use strict arg -- none
+    return self
+
+
+-- Equivalent to isPolymorphicString in StringClass.cpp
+::method isBufferOrString
+    use strict arg -- none
+    return .true -- it's a MutableBuffer
+
+
+::method description
+    /*
+    .MutableBuffer~new("noël👩‍👨‍👩‍👧🎅")~description(short:1)      -- 'UTF-8 not-ASCII by default'
+    .MutableBuffer~new("noël👩‍👨‍👩‍👧🎅")~description               -- 'UTF-8 not-ASCII by default (34 bytes)'
+    */
+    use strict arg -- none
+    use strict named arg short=.false, technical=.false /* not used */
+    sizesDescription = ""
+    if \short then sizesDescription = "(" ||,
+                                      self~length~singularPluralCount("byte", "bytes"),
+                                      || ")"
+    -- It's useful to know if the buffer has an explicit encoding (because impacts the concatenation)
+    defaultEncoding = ""
+    if \self~hasEncoding then defaultEncoding = "by default"
+    return " "~join(self~encoding~description(self~isASCII), defaultEncoding, sizesDescription)
+
+
+::method descriptionForError
+    -- Display the <length> first characters
+    use strict arg length=10
+    string = self~substr(1, min(length, self~length)) -- left
+    if self~length > length then string = string~left(length - 3)"..."
+    -- escape3 is needed to have a proper display like this: [00]4[00]1
+    return self~description(short:1) "'"escape3(string)"'"
+
+
+::method isCompatibleWithASCII
+    -- IMPORTANT! Don't cache the value because it can be invalidated when the encoding is changed
+    if self~encoding~isCompatibleWithASCII, self~isASCII then return .true
+    return .false
+
+
+-- If you modify this method then see if the method IndexerHelpers~append (at class level) must be modified as well
+::method appendEncoded
+    -- I tried to use the name "append" for this method, but it's a bad idea!
+    -- ~append must remain the native implementation, because it's used in many
+    -- places, and because a stack overflow occurs.
+
+    -- Positional arguments : zero to N text or buffer or string.
+    use strict arg ...
+    use strict named arg buffer=.nil -- yes, support this parameter, to offer the same interface as .RexxText~appendEncoded
+    if .nil == buffer then buffer = self
+    if buffer \== self then buffer~appendEncoded(self)
+
+    do i=1 to arg()
+        text = arg(i)~requestTextOrBufferOrString
+        if .nil == text then signal must_have_a_text_or_buffer_or_string_value
+        encoding = .Encoding~forConcatenation(buffer, text) -- raise an error if not compatible
+        buffer~encoding = encoding
+        encoding~concatenate(text, :buffer)
+    end
+    return buffer
+
+    must_have_a_text_or_buffer_or_string_value: raise syntax 93.900 array("Method positional argument "i" must have a text or buffer or string value")
+
+
+/******************************************************************************/
+::class "EncodedPackage" mixinclass Object private
+
+/*
+    Nothing sophisticated here...
+    Just manage the attribute 'encoding', to know what is the encoding of the Package.
+    This encoding is used when evaluating a String, to decide if the string must be converted to a RexxText.
+    Todo later: support ::options encoding <anEncoding>
+*/
+
+::attribute encoding get
+    -- REMEMBER!
+    -- This method is called EACH TIME a string literal is evaluated, for the rule R2
+    expose hasImportedTextPackage encoding
+    use strict arg -- none
+
+    -- Return the stored encoding, if any
+    if var("encoding") then return encoding
+
+    /*
+    If the text package is requested (directly or indirectly), we consider that
+    the package supports RexxText and any default encoding.
+
+    REMEMBER! Don't limit the rule to "If the text package is requested directly",
+    because as soon as text.cls is loaded (directly or indirectly), the message
+    "encoding" is understood, and the variable hasImportedTextPackage is calculated
+    only once. That would imply different results in function of the ::requires:
+        ::requires "extension/text.cls"
+        ::requires "extension/extensions.cls"
+    would calculate hasImportedTextPackage = .true
+    whereas
+        ::requires "extension/extensions.cls"
+        ::requires "extension/text.cls"
+    could calculate hasImportedTextPackage = .false if a string literal is
+    evaluated before the explicit ::requires.
+    */
+    if \var("hasImportedTextPackage") then hasImportedTextPackage = hasImportedPackage(self, textPackage())
+
+    -- If the package is text-aware then return the default encoding.
+    if hasImportedTextPackage then return .Encoding~defaultEncoding
+
+    -- Here, we consider it's a legacy package not supporting RexxText.
+    -- By returning The Byte_Encoding, we deactivate the automatic conversion to RexxText.
+    -- And since The Byte_Encoding is always absorbed by the other encodings, we eliminate the concatenaion/comparison errors.
+    return .Byte_encoding
+
+    hasImportedPackage: procedure
+        use strict arg importer, package
+        importedPackages = importer~importedPackages
+        if importedPackages~hasItem(package) then return .true
+        do importer over importedPackages
+            if hasImportedPackage(importer, package) then return .true
+        end
+        return .false
+
+
+::attribute encoding set
+    expose encoding
+    use strict arg newEncoding
+    if .nil == newEncoding then drop encoding
+    else encoding = .Encoding~factory(newEncoding, self~string)
+
+
+::method setEncoding
+    use strict arg newEncoding
+    if self~hasEncoding then previousEncoding = self~encoding
+                        else previousEncoding = .nil
+    self~encoding = newEncoding
+    return previousEncoding
+
+
+::method hasEncoding
+    expose encoding
+    use strict arg -- none
+    return var("encoding")
+
+
+/******************************************************************************/
+::class "RexxTextInitializer" mixinclass Object private
+
+::method init
+    -- The RexxText is not referencing directly the String, it's the indexer
+    expose indexer /* rest is optim */ string text encoding
+    use strict arg argString, argEncoding=(argString~encoding)
+    .validate~classtype("1", argString, .string)
+    -- Some strings are interned by the interpreter, and the same instance can be returned
+    -- at different occasions.This is the case for the empty string (null string singleton
+    -- OREF_NULLSTRING. If the string is already linked to a RexxText then a new instance
+    -- must be created (don't make a copy, that would copy the link to the RexxText).
+    if argString~hasText then argString = .String~new(argString)
+    argEncoding = .Encoding~factory(argEncoding, argString)
+    indexer = argEncoding~analyze(argString)
+
+    -- Optimization by redundance (pure attributes are 3 to 4 times faster than methods just exposing and returning the value)
+    string = indexer~string
+    text = self
+    encoding = indexer~encoding
+
+    -- store itself as counterpart of string
+    -- string~text = self                               -- can't do that because infinite recursion
+    forward to (string) message "TEXT=" array(self)     -- no dynamic target ==> no infinite recursion
+
+
+/*
+Don't activate this one.
+I need to get the control when concatenating strings
+[later]
+In fact, this method is NEVER called, even if activated.
+It's because RexxText is a base class, so the C++ method primitiveMakeString is
+called by the interpreter. This method returns .nil.
+No message sent, so no way to return something.
+[later]
+For experimentation,
+I added the C++ methods primitiveMakeString and makeString to RexxText which
+always send the message request("string"), ignoring the fact that RexxText is a
+base class...
+*/
+::method makestring
+    expose indexer
+    use strict arg -- none
+    if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
+
+    if self~isCompatibleWithByteString then return indexer~string
+    raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
+
+
+::attribute string get
+/*
+::attribute string get
+    expose indexer
+    use strict arg -- none
+    return indexer~string
+*/
+
+
+::attribute string set private
+
+
+::method detach
+    expose indexer /* rest is optim */ string encoding
+    use strict arg -- none
+    if var("string") then do
+        oldString = string
+        drop string -- do it now to avoid infinite recursion
+        forward to (oldString) continue -- request the string to detach itself
+        newString = .String~new("")
+        newEncoding = newString~encoding
+        newEncoding = .Encoding~factory(newEncoding, newString)
+        indexer = newEncoding~analyze(newString)
+
+        -- Optimization by redundance
+        string = indexer~string
+        encoding = indexer~encoding
+
+        -- store itself as counterpart of string
+        -- string~text = self                               -- can't do that because infinite recursion
+        forward to (string) message "TEXT=" array(self)    -- no dynamic target ==> no infinite recursion
+    end
+
+/*
+Added after the activation of automatic conversion to RexxText
+to support the same interface on String and RexxText.
+    "Noel"~text("byte")  -- here, "Noel" is a String
+    "Noël"~text("byte")  -- here, "Noël" is a RexxText
+*/
+::method text
+    use strict arg textEncoding=(self~encoding)
+    self~encoding = textEncoding
+    return self
+
+
+/*
+Added after the activation of automatic conversion to RexxText
+to support the same interface on String and RexxText.
+*/
+::method hasText
+    return .true
+
+
+/*
+Before the activation of the dynamic target
+    s = "hello"
+    s~text = .RexxText~new("hello")
+raises
+    EncodedString: the counterpart must be a RexxText linked to this String
+raised by EncodeString~"text="
+Now, with the dynamic target, I have
+    Object "hello" does not understand message "TEXT="
+It's because the target "hello" is converted to text T"hello"
+    initial:            "hello~"TEXT="(<a RexxText>)
+    dynamic target:    T"hello~"TEXT="(<a RexxText>)
+Since this method "TEXT=" should be private on String, I stay like that.
+*/
+::attribute text set private
+    /*useless*/ -- forward to (self~string) -- no dynamic target
+
+
+/*
+Allows to use a String or a MutableBuffer or a RexxText indistinctly.
+Here, we are on a RexxText.
+*/
+::method requestTextOrBufferOrString
+    use strict arg -- none
+    return self
+
+
+-- Equivalent to isPolymorphicString in StringClass.cpp
+::method isTextOrBufferOrString
+    use strict arg -- none
+    return .true -- it's a RexxText
+
+
+/*
+Allows to use a String or a MutableBuffer or a RexxText indistinctly.
+Here, we are on a RexxText.
+Always return the string.
+*/
+::method requestBufferOrString
+    use strict arg -- none
+    return self~string
+
+
+-- Equivalent to isPolymorphicString in StringClass.cpp
+::method isBufferOrString
+    use strict arg -- none
+    return .true -- it's a RexxText converted to string
+
+
+::constant hasEncoding 1
+
+::attribute encoding get
+/*
+    expose indexer
+    use strict arg -- none
+    return indexer~encoding
+*/
+
+::attribute encoding set
+    expose indexer /* rest is optim */ string encoding
+    use strict arg newEncoding
+    -- if .nil == newEncoding then return -- reset ignored, a RexxText has always an encoding
+    newEncoding = .Encoding~factory(newEncoding, indexer~string)
+    if indexer~encoding <> newEncoding then do
+        indexer = newEncoding~analyze(indexer~string)
+        -- Optimization by redundance
+        string = indexer~string
+        encoding = indexer~encoding
+    end
+
+
+::method setEncoding
+    use strict arg newEncoding
+    previousEncoding = self~encoding -- can't be .nil because a RexxText has always an encoding
+    self~encoding = newEncoding
+    return previousEncoding
+
+
+-- Must use an attribute to return the indexer, because the indexer is not visible from the other mixinclasses
+::attribute indexer -- private -- this method should be accessible only by RexxText, StringIndexer and its subclasses
+
+
+::method copy
+    use strict arg -- none
+    selfCopy = self~copy:super -- for the moment, the copy has the same indexer as self
+    indexerCopy = selfCopy~indexer~copy -- creates a copy of the indexer and also a copy of the indexed string
+    selfCopy~indexer = indexerCopy -- from now, the copy has its own indexer, which has its own indexed string
+
+    -- Optimization by redundance (pure attributes are 3 to 4 times faster than methods just exposing and returning the value)
+    selfCopy~string = indexerCopy~string
+    selfCopy~text = selfCopy
+    selfCopy~encoding = indexerCopy~encoding
+
+    stringCopy = indexerCopy~string -- this string copy is not yet linked to the RexxText copy
+
+    -- can't do that because infinite recursion
+    -- stringCopy~text = selfCopy -- from now, the string copy is linked to its RexxText counterpart
+
+    forward to (stringCopy) message "TEXT=" array(selfCopy) continue -- no dynamic target ==> no infinite recursion
+
+    return selfCopy
+
+
+/******************************************************************************/
+::class "RexxTextContents" mixinclass Object private
+
+-- Remember: don't use expose indexer, because it's not visible. Must use self~indexer.
+
+::method description
+    forward to (self~indexer)
+
+
+::method descriptionForError
+    forward to (self~indexer)
+
+
+::method errors
+    forward to (self~indexer)
+
+
+::method isASCII
+    forward to (self~string)
+
+
+::method isCompatibleWithASCII
+    -- IMPORTANT! Don't cache the value because it can be invalidated when the encoding is changed
+    if self~encoding~isCompatibleWithASCII, self~string~isASCII then return .true
+    return .false
+
+
+::method isCompatibleWithByteString
+    -- IMPORTANT! Don't cache the value because it can be invalidated when the encoding is changed
+    if self~encoding~isByte then return .true
+    if self~encoding~isCompatibleWithASCII, self~string~isASCII then return .true
+    return .false
+
+
+::method isUpper
+    expose isUpper
+    if var("isUpper") then return isUpper
+    forward to (self~indexer) continue
+    isUpper = result
+    return result
+
+
+::method isLower
+    expose isLower
+    if var("isLower") then return isLower
+    forward to (self~indexer) continue
+    isLower = result
+    return result
+
+
+::method bytes
+    forward to (self~indexer)
+
+
+::method codepoints
+    forward to (self~indexer)
+
+
+::method maximumCodepoint
+    forward to (self~indexer)
+
+
+-- For Byte encodings, returns the maximum Unicode codepoint if the text was converted to Unicode.
+-- For Unicode encodings, it's the same value as maximumCodepoint.
+::method maximumUnicodeCodepoint
+    forward to (self~indexer)
+
+/*
+-- No direct access to codepoint, not needed.
+::method codepoint
+    forward to (self~indexer)
+*/
+
+
+::method UnicodeCharacters
+    forward to (self~indexer)
+
+
+::method characters
+    forward to (self~indexer)
+
+
+::method character
+    use strict arg indexC
+    forward to (self~indexer)
+
+
+-- General service to convert to another encoding
+::method transcodeTo
+    forward to (self~indexer)
+
+
+-- Byte representation
+/*
+The Byte_Encoding is a raw encoding with few constraints, BUT it's impossible
+to transcode from/to it without errors if the string contains not-ASCII characters.
+Here, no transcoding, it's a copy as-is whose encoding is The Byte_Encoding.
+The Byte_Encoding is often used for diagnostic or repair. It can be always
+absorbed when doing a concatenation or a comparison.
+*/
+::method byte
+    -- if self~encoding == .Byte_Encoding then return self -- always a copy, even if already with the byte encoding
+    return self~copy~~setEncoding("byte")
+
+-- UTF-8 representation
+::method UTF8
+    forward to (self~indexer)
+
+
+-- WTF-8 representation
+::method WTF8
+    forward to (self~indexer)
+
+
+-- UTF-16BE or UTF-16LE representation
+::method UTF16
+    forward to (self~indexer)
+
+
+-- UTF-16BE representation
+::method UTF16BE
+    forward to (self~indexer)
+
+
+-- UTF-16LE representation
+::method UTF16LE
+    forward to (self~indexer)
+
+
+-- WTF-16BE or WTF-16LE representation
+::method WTF16
+    forward to (self~indexer)
+
+
+-- WTF-16BE representation
+::method WTF16BE
+    forward to (self~indexer)
+
+
+-- WTF-16LE representation
+::method WTF16LE
+    forward to (self~indexer)
+
+
+-- UTF-32BE or UTF-32LE representation
+::method UTF32
+    forward to (self~indexer)
+
+
+-- UTF-32BE representation
+::method UTF32BE
+    forward to (self~indexer)
+
+
+-- UTF-32LE representation
+::method UTF32LE
+    forward to (self~indexer)
+
+
+-- Unicode representation (Unicode8, Unicode16 or Unicode32)
+::method Unicode
+    forward message "UnicodeN"
+
+
+::method UnicodeN
+    forward to (self~indexer)
+
+
+-- Unicode representation limited to codepoints < 256
+::method Unicode8
+    forward to (self~indexer)
+
+
+-- Unicode representation limited to codepoints < 65536
+::method Unicode16
+    forward to (self~indexer)
+
+
+-- Unicode representation limited to codepoints <= .Unicode~maxCodepoint
+::method Unicode32
+    forward to (self~indexer)
+
+
+::method c2u
+    forward to (self~indexer)
+
+
+::method u2c
+    forward to (self~string) -- yes, not self~indexer
+
+
+::method c2g
+    forward to (self~indexer)
+
+
+::method checkHexadecimalValueCompatibility
+    -- The purpose is not to check that the text is an hexadecimal value (will be checked by the String class)
+    -- The purpose is to ensure that the text encoding is compatible with the String class,
+    -- and to provide an accurate error.
+    use strict arg -- none
+    if \self~isCompatibleWithByteString then raise syntax 23.900 array(self~descriptionForError "is not compatible with a Rexx hexadecimal value")
+
+
+::method checkNumericValueCompatibility
+    -- The purpose is not to check that the text is a numeric value (will be checked by the String class)
+    -- The purpose is to ensure that the text encoding is compatible with the String class,
+    -- and to provide an accurate error.
+    use strict arg -- none
+    if \self~isCompatibleWithByteString then raise syntax 23.900 array(self~descriptionForError "is not compatible with a Rexx numeric value")
+
+
+::method checkLogicalValueCompatibility
+    -- The purpose is not to check that the text is a logical value (will be checked by the String class)
+    -- The purpose is to ensure that the text encoding is compatible with the String class,
+    -- and to provide an accurate error.
+    use strict arg -- none
+    if \self~isCompatibleWithByteString then raise syntax 23.900 array(self~descriptionForError "is not compatible with a Rexx logical value")
+
+
+::method unescape
+    forward to (self~indexer)
+
+
+::method transform
+    forward to (self~indexer)
+
+
+::method transformer
+    forward to (self~indexer)
+
+
+::method title
+    forward to (self~indexer)
+
+
+::method isNFC
+    forward to (self~indexer)
+
+
+::method NFC
+    forward to (self~indexer)
+
+
+::method isNFD
+    forward to (self~indexer)
+
+
+::method NFD
+    forward to (self~indexer)
+
+
+::method isNFKC
+    forward to (self~indexer)
+
+
+::method NFKC
+    forward to (self~indexer)
+
+
+::method isNFKD
+    forward to (self~indexer)
+
+
+::method NFKD
+    forward to (self~indexer)
+
+
+::method isCasefold
+    forward to (self~indexer)
+
+
+::method casefold
+    forward to (self~indexer)
+
+
+::method isMarkStripped
+    forward to (self~indexer)
+
+
+-- no standalone method Markless
+-- works only with normalization.
+
+
+::method isIgnorableStripped
+    forward to (self~indexer)
+
+
+::method isCCStripped
+    forward to (self~indexer)
+
+
+::method isNAStripped
+    forward to (self~indexer)
+
+
+-- Compatibility with initial interface
+::method graphemes; forward message "characters"
+::method grapheme; forward message "character"
+
+
+/******************************************************************************/
 ::class "StringRexxTextInterface" mixinclass Object private
+
+/*
+Methods that must be supported by String to be compatible with RexxText.
+*/
 
 ::method description
     /*
@@ -385,6 +1159,10 @@ the String methods (byte-oriented).
     return self~datatype("L")
 
 
+::method bytes
+    /* if self~hasText then */ forward to (self~text)
+
+
 ::method codepoints
     /* if self~hasText then */ forward to (self~text)
 
@@ -425,6 +1203,18 @@ the String methods (byte-oriented).
 ::method transcodeTo
     forward to (self~text)
 
+
+-- Byte representation
+/*
+The Byte_Encoding is a raw encoding with few constraints, BUT it's impossible
+to transcode from/to it without errors if the string contains not-ASCII characters.
+Here, no transcoding, it's a copy as-is whose encoding is The Byte_Encoding.
+The Byte_Encoding is often used for diagnostic or repair. It can be always
+absorbed when doing a concatenation or a comparison.
+*/
+::method byte
+    -- if self~encoding == .Byte_Encoding then return self -- always a copy, even if already with the byte encoding
+    return self~copy~~setEncoding("byte")
 
 -- UTF-8 representation
 ::method UTF8
@@ -625,668 +1415,11 @@ the String methods (byte-oriented).
 
 
 /******************************************************************************/
-::class "EncodedMutableBuffer" mixinclass Object private
-
-/*
-    Nothing sophisticated here...
-    Just manage the attribute 'encoding', to know what is the current encoding of the MutableBuffer.
-    By "current", I mean that this encoding may change during the life of the MutableBuffer,
-    especially when doing concatenations. For example, an UTF-8 buffer will become a WTF-8 buffer
-    when appending a WTF-8 string.
-    There is no analysis of contents, no indexer, no associated text.
-    The analysis is done when a RexxText instance is created from the buffer's string.
-*/
-
-/*
-    REMEMBER!
-    The buffer's encoding is lost when using a buffer's method which returns a string
-    (like left, right, substr, etc...).
-    Exception:
-    The 'string' method is redefined to keep the encoding (forwards the message "encodedString").
-*/
-
-::attribute encoding get
-    expose encoding
-    use strict arg -- none
-    if var("encoding") then return encoding
-    return .Encoding~defaultEncoding
-
-
-::attribute encoding set
-    expose encoding
-    use strict arg newEncoding
-    encoding = .Encoding~factory(newEncoding, self~string)
-
-
-::method setEncoding
-    use strict arg newEncoding
-    previousEncoding = self~encoding
-    self~encoding = newEncoding
-    return previousEncoding
-
-
--- TODO: make it native
--- Remember: needed to fix RexxMutableBufferClass::newRexx to pass all the new's arguments to init
-::method init_extended
-    expose encoding
-    -- if the optional argument 'string' is provided then memorize its encoding
-    if arg(1, "e"), arg(1)~hasEncoding then encoding = arg(1)~encoding
-    -- forward class (super) -- don't forward, that would raise an unknown method
-
-
-::method hasEncoding
-    expose encoding
-    use strict arg -- none
-    return var("encoding")
-
-
--- Apparently, this method is not called when named "string"
--- Maybe a problem with inherited methods
--- Workaround: see at the begining of this file
-::method encodedString
-    expose encoding
-    use strict arg -- none
-    string = self~stringNative
-    if var("encoding") then string~encoding = encoding
-    return string
-
-
-/*
-Allows to use a String or a MutableBuffer or a RexxText indistinctly.
-Here, we are on a MutableBuffer.
-Return directly the buffer, without requesting a string from it.
-*/
-::method requestTextOrBufferOrString
-    use strict arg -- none
-    return self
-
-
--- Equivalent to isPolymorphicString in StringClass.cpp
-::method isTextOrBufferOrString
-    use strict arg -- none
-    return .true -- it's a MutableBuffer
-
-
-/*
-Allows to use a String or a MutableBuffer or a RexxText indistinctly.
-Here, we are on a MutableBuffer.
-Return directly the buffer, without requesting a string from it.
-*/
-::method requestBufferOrString
-    use strict arg -- none
-    return self
-
-
--- Equivalent to isPolymorphicString in StringClass.cpp
-::method isBufferOrString
-    use strict arg -- none
-    return .true -- it's a MutableBuffer
-
-
-::method description
-    /*
-    .MutableBuffer~new("noël👩‍👨‍👩‍👧🎅")~description(short:1)      -- 'UTF-8 not-ASCII by default'
-    .MutableBuffer~new("noël👩‍👨‍👩‍👧🎅")~description               -- 'UTF-8 not-ASCII by default (34 bytes)'
-    */
-    use strict arg -- none
-    use strict named arg short=.false, technical=.false /* not used */
-    sizesDescription = ""
-    if \short then sizesDescription = "(" ||,
-                                      self~length~singularPluralCount("byte", "bytes"),
-                                      || ")"
-    -- It's useful to know if the buffer has an explicit encoding (because impacts the concatenation)
-    defaultEncoding = ""
-    if \self~hasEncoding then defaultEncoding = "by default"
-    return " "~join(self~encoding~description(self~isASCII), defaultEncoding, sizesDescription)
-
-
-::method descriptionForError
-    -- Display the <length> first characters
-    use strict arg length=10
-    string = self~substr(1, min(length, self~length)) -- left
-    if self~length > length then string = string~left(length - 3)"..."
-    -- escape3 is needed to have a proper display like this: [00]4[00]1
-    return self~description(short:1) "'"escape3(string)"'"
-
-
-::method isCompatibleWithASCII
-    -- IMPORTANT! Don't cache the value because it can be invalidated when the encoding is changed
-    if self~encoding~isCompatibleWithASCII, self~isASCII then return .true
-    return .false
-
-
--- If you modify this method then see if the method IndexerHelpers~append (at class level) must be modified as well
-::method appendEncoded
-    -- I tried to use the name "append" for this method, but it's a bad idea!
-    -- ~append must remain the native implementation, because it's used in many
-    -- places, and because a stack overflow occurs.
-
-    -- Positional arguments : zero to N text or buffer or string.
-    use strict arg ...
-    use strict named arg buffer=.nil -- yes, support this parameter, to offer the same interface as .RexxText~appendEncoded
-    if .nil == buffer then buffer = self
-    if buffer \== self then buffer~appendEncoded(self)
-
-    do i=1 to arg()
-        text = arg(i)~requestTextOrBufferOrString
-        if .nil == text then signal must_have_a_text_or_buffer_or_string_value
-        encoding = .Encoding~forConcatenation(buffer, text) -- raise an error if not compatible
-        buffer~encoding = encoding
-        encoding~concatenate(text, :buffer)
-    end
-    return buffer
-
-    must_have_a_text_or_buffer_or_string_value: raise syntax 93.900 array("Method positional argument "i" must have a text or buffer or string value")
-
-
-/******************************************************************************/
-::class "EncodedPackage" mixinclass Object private
-
-/*
-    Nothing sophisticated here...
-    Just manage the attribute 'encoding', to know what is the encoding of the Package.
-    This encoding is used when evaluating a String, to decide if the string must be converted to a RexxText.
-    Todo later: support ::options encoding <anEncoding>
-*/
-
-::attribute encoding get
-    expose encoding
-    use strict arg -- none
-    if var("encoding") then return encoding
-    return .Byte_encoding -- Not .Encoding~defaultEncoding because most of the legacy packages don't support an automatic conversion to UTF-8 text
-
-
-::attribute encoding set
-    expose encoding
-    use strict arg newEncoding
-    encoding = .Encoding~factory(newEncoding, self~string)
-
-
-::method setEncoding
-    use strict arg newEncoding
-    previousEncoding = self~encoding
-    self~encoding = newEncoding
-    return previousEncoding
-
-
-::method hasEncoding
-    expose encoding
-    use strict arg -- none
-    return var("encoding")
-
-
-/******************************************************************************/
-::class "RexxTextInitializer" mixinclass Object private
-
-::method init
-    -- The RexxText is not referencing directly the String, it's the indexer
-    expose indexer /* rest is optim */ string text encoding
-    use strict arg argString, argEncoding=(argString~encoding)
-    .validate~classtype("1", argString, .string)
-    -- Some strings are interned by the interpreter, and the same instance can be returned
-    -- at different occasions.This is the case for the empty string (null string singleton
-    -- OREF_NULLSTRING. If the string is already linked to a RexxText then a new instance
-    -- must be created (don't make a copy, that would copy the link to the RexxText).
-    if argString~hasText then argString = .String~new(argString)
-    argEncoding = .Encoding~factory(argEncoding, argString)
-    indexer = argEncoding~analyze(argString)
-
-    -- Optimization by redundance (pure attributes are 3 to 4 times faster than methods just exposing and returning the value)
-    string = indexer~string
-    text = self
-    encoding = indexer~encoding
-
-    -- store itself as counterpart of string
-    -- string~text = self                               -- can't do that because infinite recursion
-    forward to (string) message "TEXT=" array(self)     -- no multiple dispatch ==> no infinite recursion
-
-
-/*
-Don't activate this one.
-I need to get the control when concatenating strings
-[later]
-In fact, this method is NEVER called, even if activated.
-It's because RexxText is a base class, so the C++ method primitiveMakeString is
-called by the interpreter. This method returns .nil.
-No message sent, so no way to return something.
-[later]
-For experimentation,
-I added the C++ methods primitiveMakeString and makeString to RexxText which
-always send the message request("string"), ignoring the fact that RexxText is a
-base class...
-*/
-::method makestring
-    expose indexer
-    use strict arg -- none
-    if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
-
-    if self~isCompatibleWithByteString then return indexer~string
-    raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
-
-
-::attribute string get
-/*
-::attribute string get
-    expose indexer
-    use strict arg -- none
-    return indexer~string
-*/
-
-
-::attribute string set private
-
-
-/*
-Added after the activation of automatic conversion to RexxText
-to support the same interface on String and RexxText.
-    "Noel"~text("byte")  -- here, "Noel" is a String
-    "Noël"~text("byte")  -- here, "Noël" is a RexxText
-*/
-::method text
-    use strict arg textEncoding=(self~encoding)
-    self~encoding = textEncoding
-    return self
-
-
-/*
-Added after the activation of automatic conversion to RexxText
-to support the same interface on String and RexxText.
-*/
-::method hasText
-    return .true
-
-
-/*
-Before the activation of the multiple dispatch
-    s = "hello"
-    s~text = .RexxText~new("hello")
-raises
-    EncodedString: the counterpart must be a RexxText linked to this String
-raised by EncodeString~"text="
-Now, with the multiple dispatch, I have
-    Object "hello" does not understand message "TEXT="
-It's because the target "hello" is converted to text T"hello"
-    initial:            "hello~"TEXT="(<a RexxText>)
-    multiple dispatch:  T"hello~"TEXT="(<a RexxText>)
-Since this method "TEXT=" should be private, I stay like that.
-*/
-::attribute text set private
-    /*useless*/ -- forward to (self~string) -- no multiple dispatch
-
-
-/*
-Allows to use a String or a MutableBuffer or a RexxText indistinctly.
-Here, we are on a RexxText.
-*/
-::method requestTextOrBufferOrString
-    use strict arg -- none
-    return self
-
-
--- Equivalent to isPolymorphicString in StringClass.cpp
-::method isTextOrBufferOrString
-    use strict arg -- none
-    return .true -- it's a RexxText
-
-
-/*
-Allows to use a String or a MutableBuffer or a RexxText indistinctly.
-Here, we are on a RexxText.
-Always return the string.
-*/
-::method requestBufferOrString
-    use strict arg -- none
-    return self~string
-
-
--- Equivalent to isPolymorphicString in StringClass.cpp
-::method isBufferOrString
-    use strict arg -- none
-    return .true -- it's a RexxText converted to string
-
-
-::constant hasEncoding 1
-
-::attribute encoding get
-/*
-    expose indexer
-    use strict arg -- none
-    return indexer~encoding
-*/
-
-::attribute encoding set
-    expose indexer /* rest is optim */ string text encoding
-    use strict arg newEncoding
-    newEncoding = .Encoding~factory(newEncoding, indexer~string)
-    if indexer~encoding <> newEncoding then do
-        indexer = newEncoding~analyze(indexer~string)
-        -- Optimization by redundance (pure attributes are 3 to 4 times faster than methods just exposing and returning the value)
-        string = indexer~string
-        text = self
-        encoding = indexer~encoding
-    end
-
-
-::method setEncoding
-    use strict arg newEncoding
-    previousEncoding = self~encoding
-    self~encoding = newEncoding
-    return previousEncoding
-
-
--- Must use an attribute to return the indexer, because the indexer is not visible from the other mixinclasses
-::attribute indexer -- private -- this method should be accessible only by RexxText, StringIndexer and its subclasses
-
-
-::method copy
-    use strict arg -- none
-    selfCopy = self~copy:super -- for the moment, the copy has the same indexer as self
-    indexerCopy = selfCopy~indexer~copy -- creates a copy of the indexer and also a copy of the indexed string
-    selfCopy~indexer = indexerCopy -- from now, the copy has its own indexer, which has its own indexed string
-
-    -- Optimization by redundance (pure attributes are 3 to 4 times faster than methods just exposing and returning the value)
-    selfCopy~string = indexerCopy~string
-    selfCopy~text = selfCopy
-    selfCopy~encoding = indexerCopy~encoding
-
-    stringCopy = indexerCopy~string -- this string copy is not yet linked to the RexxText copy
-
-    -- can't do that because infinite recursion
-    -- stringCopy~text = selfCopy -- from now, the string copy is linked to its RexxText counterpart
-
-    forward to (stringCopy) message "TEXT=" array(selfCopy) continue -- no multiple dispatch ==> no infinite recursion
-
-    return selfCopy
-
-
-/******************************************************************************/
-::class "RexxTextContents" mixinclass Object private
-
--- Remember: don't use expose indexer, because it's not visible. Must use self~indexer.
-
-::method description
-    forward to (self~indexer)
-
-
-::method descriptionForError
-    forward to (self~indexer)
-
-
-::method errors
-    forward to (self~indexer)
-
-
-::method isASCII
-    forward to (self~string)
-
-
-::method isCompatibleWithASCII
-    -- IMPORTANT! Don't cache the value because it can be invalidated when the encoding is changed
-    if self~encoding~isCompatibleWithASCII, self~string~isASCII then return .true
-    return .false
-
-
-::method isCompatibleWithByteString
-    -- IMPORTANT! Don't cache the value because it can be invalidated when the encoding is changed
-    if self~encoding~isByte then return .true
-    if self~encoding~isCompatibleWithASCII, self~string~isASCII then return .true
-    return .false
-
-
-::method isUpper
-    expose isUpper
-    if var("isUpper") then return isUpper
-    forward to (self~indexer) continue
-    isUpper = result
-    return result
-
-
-::method isLower
-    expose isLower
-    if var("isLower") then return isLower
-    forward to (self~indexer) continue
-    isLower = result
-    return result
-
-
-::method codepoints
-    forward to (self~indexer)
-
-
-::method maximumCodepoint
-    forward to (self~indexer)
-
-
--- For Byte encodings, returns the maximum Unicode codepoint if the text was converted to Unicode.
--- For Unicode encodings, it's the same value as maximumCodepoint.
-::method maximumUnicodeCodepoint
-    forward to (self~indexer)
-
-/*
--- No direct access to codepoint, not needed.
-::method codepoint
-    forward to (self~indexer)
-*/
-
-
-::method UnicodeCharacters
-    forward to (self~indexer)
-
-
-::method characters
-    forward to (self~indexer)
-
-
-::method character
-    use strict arg indexC
-    forward to (self~indexer)
-
-
--- General service to convert to another encoding
-::method transcodeTo
-    forward to (self~indexer)
-
-
--- UTF-8 representation
-::method UTF8
-    forward to (self~indexer)
-
-
--- WTF-8 representation
-::method WTF8
-    forward to (self~indexer)
-
-
--- UTF-16BE or UTF-16LE representation
-::method UTF16
-    forward to (self~indexer)
-
-
--- UTF-16BE representation
-::method UTF16BE
-    forward to (self~indexer)
-
-
--- UTF-16LE representation
-::method UTF16LE
-    forward to (self~indexer)
-
-
--- WTF-16BE or WTF-16LE representation
-::method WTF16
-    forward to (self~indexer)
-
-
--- WTF-16BE representation
-::method WTF16BE
-    forward to (self~indexer)
-
-
--- WTF-16LE representation
-::method WTF16LE
-    forward to (self~indexer)
-
-
--- UTF-32BE or UTF-32LE representation
-::method UTF32
-    forward to (self~indexer)
-
-
--- UTF-32BE representation
-::method UTF32BE
-    forward to (self~indexer)
-
-
--- UTF-32LE representation
-::method UTF32LE
-    forward to (self~indexer)
-
-
--- Unicode representation (Unicode8, Unicode16 or Unicode32)
-::method Unicode
-    forward message "UnicodeN"
-
-
-::method UnicodeN
-    forward to (self~indexer)
-
-
--- Unicode representation limited to codepoints < 256
-::method Unicode8
-    forward to (self~indexer)
-
-
--- Unicode representation limited to codepoints < 65536
-::method Unicode16
-    forward to (self~indexer)
-
-
--- Unicode representation limited to codepoints <= .Unicode~maxCodepoint
-::method Unicode32
-    forward to (self~indexer)
-
-
-::method c2u
-    forward to (self~indexer)
-
-
-::method u2c
-    forward to (self~string) -- yes, not self~indexer
-
-
-::method c2g
-    forward to (self~indexer)
-
-
-::method checkHexadecimalValueCompatibility
-    -- The purpose is not to check that the text is an hexadecimal value (will be checked by the String class)
-    -- The purpose is to ensure that the text encoding is compatible with the String class,
-    -- and to provide an accurate error.
-    use strict arg -- none
-    if \self~isCompatibleWithByteString then raise syntax 23.900 array(self~descriptionForError "is not compatible with a Rexx hexadecimal value")
-
-
-::method checkNumericValueCompatibility
-    -- The purpose is not to check that the text is a numeric value (will be checked by the String class)
-    -- The purpose is to ensure that the text encoding is compatible with the String class,
-    -- and to provide an accurate error.
-    use strict arg -- none
-    if \self~isCompatibleWithByteString then raise syntax 23.900 array(self~descriptionForError "is not compatible with a Rexx numeric value")
-
-
-::method checkLogicalValueCompatibility
-    -- The purpose is not to check that the text is a logical value (will be checked by the String class)
-    -- The purpose is to ensure that the text encoding is compatible with the String class,
-    -- and to provide an accurate error.
-    use strict arg -- none
-    if \self~isCompatibleWithByteString then raise syntax 23.900 array(self~descriptionForError "is not compatible with a Rexx logical value")
-
-
-::method unescape
-    forward to (self~indexer)
-
-
-::method transform
-    forward to (self~indexer)
-
-
-::method transformer
-    forward to (self~indexer)
-
-
-::method title
-    forward to (self~indexer)
-
-
-::method isNFC
-    forward to (self~indexer)
-
-
-::method NFC
-    forward to (self~indexer)
-
-
-::method isNFD
-    forward to (self~indexer)
-
-
-::method NFD
-    forward to (self~indexer)
-
-
-::method isNFKC
-    forward to (self~indexer)
-
-
-::method NFKC
-    forward to (self~indexer)
-
-
-::method isNFKD
-    forward to (self~indexer)
-
-
-::method NFKD
-    forward to (self~indexer)
-
-
-::method isCasefold
-    forward to (self~indexer)
-
-
-::method casefold
-    forward to (self~indexer)
-
-
-::method isMarkStripped
-    forward to (self~indexer)
-
-
--- no standalone method Markless
--- works only with normalization.
-
-
-::method isIgnorableStripped
-    forward to (self~indexer)
-
-
-::method isCCStripped
-    forward to (self~indexer)
-
-
-::method isNAStripped
-    forward to (self~indexer)
-
-
--- Compatibility with initial interface
-::method graphemes; forward message "characters"
-::method grapheme; forward message "character"
-
-
-/******************************************************************************/
 ::class "RexxTextStringInterface" mixinclass Object private
 
 /*
+Methods that must be supported by RexxText to be compatible with String.
+
 Class methods
 =============
 Last column comes from https://www.regular-expressions.info/posixbrackets.html

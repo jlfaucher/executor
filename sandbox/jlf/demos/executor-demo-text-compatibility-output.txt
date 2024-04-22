@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 11 Apr 2024
-Input queue name: Sb031Q600003f04d00
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 22 Apr 2024
+Input queue name: S12ceeQ600003f3d450
 
 ooRexx[sh]> call loadUnicodeCharacterNames
 Load the Unicode character names 15.1.0 
@@ -376,7 +376,7 @@ T''
 
 -- center with pad
 ooRexx[sh]> "="~description=                                            -- 'UTF-8 ASCII (1 byte)'
-'UTF-8 ASCII by default (1 byte)'
+'UTF-8 ASCII (1 byte)'
 ooRexx[sh]> "="~c2x=                                                    -- '3D'
 '3D'
 ooRexx[sh]> "noelFC"~text~center(10, "=")=; result~description=         -- forward to String
@@ -980,8 +980,8 @@ ooRexx[sh]> s=                                              -- '[00]A[00]B[00]C[
 '[00]A[00]B[00]C[00]D'
 ooRexx[sh]> s~isCompatibleWithByteString=                   -- 1
  1
-ooRexx[sh]> s~description=                                  -- 'Byte ASCII (8 bytes)'   (was 'UTF-8 ASCII (8 bytes)')
-'Byte ASCII (8 bytes)'
+ooRexx[sh]> s~description=                                  -- 'UTF-8 ASCII (8 bytes)'
+'UTF-8 ASCII (8 bytes)'
 ooRexx[sh]> length(s)=                                      -- 8 because encoding UTF-8 ASCII is compatible with String
  8
 ooRexx[sh]> s~encoding = "UTF16"
@@ -1002,8 +1002,8 @@ ooRexx[sh]> s=                                              -- '[000000]A[000000
 '[000000]A[000000]B'
 ooRexx[sh]> s~isCompatibleWithByteString=                   -- 1
  1
-ooRexx[sh]> s~description=                                  -- 'Byte ASCII (8 bytes)'   (was 'UTF-8 ASCII (8 bytes)')
-'Byte ASCII (8 bytes)'
+ooRexx[sh]> s~description=                                  -- 'UTF-8 ASCII (8 bytes)'
+'UTF-8 ASCII (8 bytes)'
 ooRexx[sh]> length(s)=                                      -- 8 because encoding UTF-8 ASCII is compatible with String
  8
 ooRexx[sh]> s~encoding = "UTF32"

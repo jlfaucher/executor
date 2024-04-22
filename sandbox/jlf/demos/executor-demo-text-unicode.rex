@@ -68,7 +68,7 @@ result~name~length=
 sleep no prompt
 
 /*
-Escape characters can be used in literal strings, they are unescaped at run-time.
+Escape characters can be used in string literals, they are unescaped at run-time.
 Note: should be supported at parse-time, it's just that this prototype doesn't
 modify the lexer, for the moment.
     \N{Unicode name}    Character name in the Unicode database or codepoint Label

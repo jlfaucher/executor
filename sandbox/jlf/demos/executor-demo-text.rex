@@ -125,13 +125,9 @@ CR+LF is a grapheme made of 2 codepoints.
 LF+CR are 2 graphemes.
 */
 sleep
-"0D0A"x~text~description=           -- here, "0D0A"x is a Byte string, "0D0A"x~text also, so TWO graphemes
+"0D0A"x~text~description=
 sleep
-"0A0D"x~text~description=           -- always 2 graphemes, be it Byte or UTF-8 (here, it's Byte)
-sleep
-"0D0A"x~text("utf8")~description=   -- here, "0D0A"x is a Byte string, "0D0A"x~text("utf8") is UTF-8, so ONE grapheme
-sleep
-"0A0D"x~text("utf8")~description=   -- always 2 graphemes, be it Byte or UTF-8 (here, it's UTF-8)
+"0A0D"x~text~description=
 sleep 2 no prompt
 
 /*

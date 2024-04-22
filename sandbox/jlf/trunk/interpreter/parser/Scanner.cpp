@@ -635,6 +635,7 @@ RexxString *RexxSource::packLiteral(
             value = this->commonString(value); /* now force to a common string      */
         }
     }
+#if 0
     if (value != OREF_NULLSTRING)
     {
         // Declare that this string is byte encoded
@@ -643,8 +644,9 @@ RexxString *RexxSource::packLiteral(
         RexxObject *args[1];
         args[0] = OREF_BYTE; // positional argument
         bool messageUnderstood = value->messageSend(OREF_SETENCODING, args, 1, 0, result, false);
-        // if not understood then don't complain because the support of encoded strings is optional
+        // OREF_SETENCODING do that: value~!setEncoding(OREF_BYTE);        // don't touch value->text (currently OREF_NULL). Maybe will be converted to RexxText during evaluation.
     }
+#endif
     return value;                         /* return newly created string       */
 }
 

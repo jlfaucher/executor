@@ -834,7 +834,7 @@ s=                                              -- '[00]A[00]B[00]C[00]D'
 sleep
 s~isCompatibleWithByteString=                   -- 1
 sleep
-s~description=                                  -- 'Byte ASCII (8 bytes)'   (was 'UTF-8 ASCII (8 bytes)')
+s~description=                                  -- 'UTF-8 ASCII (8 bytes)'
 sleep
 length(s)=                                      -- 8 because encoding UTF-8 ASCII is compatible with String
 s~encoding = "UTF16"
@@ -855,7 +855,7 @@ s=                                              -- '[000000]A[000000]B'
 sleep
 s~isCompatibleWithByteString=                   -- 1
 sleep
-s~description=                                  -- 'Byte ASCII (8 bytes)'   (was 'UTF-8 ASCII (8 bytes)')
+s~description=                                  -- 'UTF-8 ASCII (8 bytes)'
 sleep
 length(s)=                                      -- 8 because encoding UTF-8 ASCII is compatible with String
 s~encoding = "UTF32"

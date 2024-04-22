@@ -59,6 +59,8 @@
 #include "SystemInterpreter.hpp"
 #include "PackageClass.hpp"
 
+#define check_TE debug_encoding // Check Text and Encoding
+
 // singleton class instance
 RexxClass *RexxString::classInstance = OREF_NULL;
 
@@ -69,6 +71,94 @@ RexxClass *RexxString::classInstance = OREF_NULL;
 void RexxString::createInstance()
 {
     CLASS_CREATE(String, "String", RexxClass);
+}
+
+
+void RexxString::checkTE(const char *method)
+{
+// #if debug_encoding
+    PackageClass *package = OREF_NULL;
+    const char *name = "<NULL>";
+    size_t line = 0;
+    if (ActivityManager::currentActivity == OREF_NULL) name = "<NULL activity>";
+    else
+    {
+        RexxActivation *currentContext = ActivityManager::currentActivity->getCurrentRexxFrame();
+        if (currentContext == OREF_NULL) name = "<NULL activation>";
+        else
+        {
+            line = currentContext->currentLine();
+            package = currentContext->getPackage();
+            if (package == OREF_NULL) name = "<NULL package>";
+            else
+            {
+                RexxString *packageName = package->getName();
+                if (packageName == OREF_NULL) name = "<NULL packageName>";
+                else
+                {
+                    name = packageName->getStringData();
+                    if (name == OREF_NULL) name = "<NULL name>";
+                }
+            }
+        }
+    }
+    printf("%s checkTE package=%p %s %zu\n", method, package, name, line);
+    printf("%s checkTE this=%p text=%p encoding=%p for '%s'\n", method, this, this->text, this->encoding, this->getStringData());
+    if (this->text != OREF_NULL && this->text != this) printf("%s checkTE CHECK_TEXT\n", method);
+    if (this->encoding != OREF_NULL && this->encoding != this) printf("%s checkTE PANIC!\n", method);
+// #endif
+}
+
+
+RexxString::RexxString()
+{
+#if check_TE
+    this->checkTE("RexxString::RexxString");
+#endif // check_TE
+}
+
+
+void RexxString::checkTE(RESTORETYPE restoreType)
+{
+#if debug_encoding
+    PackageClass *package = OREF_NULL;
+    const char *name = "<NULL>";
+    size_t line = 0;
+    if (ActivityManager::currentActivity == OREF_NULL) name = "<NULL activity>";
+    else
+    {
+        RexxActivation *currentContext = ActivityManager::currentActivity->getCurrentRexxFrame();
+        if (currentContext == OREF_NULL) name = "<NULL activation>";
+        else
+        {
+            line = currentContext->currentLine();
+            package = currentContext->getPackage();
+            if (package == OREF_NULL) name = "<NULL package>";
+            else
+            {
+                RexxString *packageName = package->getName();
+                if (packageName == OREF_NULL) name = "<NULL packageName>";
+                else
+                {
+                    name = packageName->getStringData();
+                    if (name == OREF_NULL) name = "<NULL name>";
+                }
+            }
+        }
+    }
+    printf("RexxString::RexxString(restoreType %u) checkTE package=%p %s %zu\n", restoreType, package, name, line);
+    printf("RexxString::RexxString(restoreType %u) checkTE this=%p text=%p encoding=%p for '%s'\n", restoreType, this, this->text, this->encoding, this->getStringData());
+    if (this->text != OREF_NULL && this->text != this) printf("RexxString::RexxString checkTE CHECK_TEXT\n");
+    if (this->encoding != OREF_NULL && this->encoding != this) printf("RexxString::RexxString checkTE PANIC!\n");
+#endif
+}
+
+
+RexxString::RexxString(RESTORETYPE restoreType)
+{
+#if check_TE
+    this->checkTE(restoreType);
+#endif // check_TE
 }
 
 
@@ -146,6 +236,8 @@ void RexxString::live(size_t liveMark)
 /******************************************************************************/
 {
     memory_mark(this->NumberString);
+    memory_mark(this->text);
+    memory_mark(this->encoding);
     memory_mark(this->objectVariables);
 }
 
@@ -154,8 +246,33 @@ void RexxString::liveGeneral(int reason)
 /* Function:  Generalized object marking                                      */
 /******************************************************************************/
 {
+#if debug_encoding
+    RexxObject *text1 = this->text;
+    RexxObject *encoding1 = this->encoding;
+    const char *stringData1 = this->getStringData();
+    const char *strEqual =     "         ";
+    const char *strDifferent = "DIFFERENT";
+    printf("RexxString::liveGeneral (1) %s string=%p text=%p encoding=%p %s\n", strEqual, this, this->getText(), this->getEncoding(), this->getStringData());
+    bool breakpoint = false;
+    if ((text1 != OREF_NULL) && (text1 != this))
+    {
+        breakpoint = true;
+    }
+    if (breakpoint) printf("RexxString::liveGeneral BREAKPOINT\n");
+#endif
+
     memory_mark_general(this->NumberString);
+    memory_mark_general(this->text);
+    memory_mark_general(this->encoding);
     memory_mark_general(this->objectVariables);
+
+#if debug_encoding
+    RexxObject *text2 = this->text;
+    RexxObject *encoding2 = this->encoding;
+    const char *stringData2 = this->getStringData();
+    bool different = (text1 != text2) || (encoding1 != encoding2) || (stringData1 != stringData2);
+    printf("RexxString::liveGeneral (2) %s string=%p text=%p encoding=%p %s\n", different ? strDifferent : strEqual, this, this->getText(), this->getEncoding(), this->getStringData());
+#endif
 }
 
 void RexxString::flatten(RexxEnvelope *envelope)
@@ -166,6 +283,10 @@ void RexxString::flatten(RexxEnvelope *envelope)
   setUpFlatten(RexxString)
 
    flatten_reference(newThis->NumberString, envelope);
+   OrefSet(newThis, newThis->text, OREF_NULL);       // not flattened
+   //flatten_reference(newThis->text, envelope);
+   OrefSet(newThis, newThis->encoding, OREF_NULL);   // iidem
+   //flatten_reference(newThis->encoding, envelope);
    flatten_reference(newThis->objectVariables, envelope);
 
   cleanUpFlatten
@@ -195,9 +316,13 @@ RexxObject *RexxString::dynamicTarget(RexxObject **arguments, size_t count, size
 {
     if (hasRexxTextArguments(arguments, count, named_count))
     {
-        // printf("dynamicTarget: this = %x, type = '%s'\n", this, this->behaviour->getOwningClass()->getId()->getStringData());
+#if 0 // debug dynamic
+        printf("dynamicTarget: this = %p, type = '%s'\n", this, this->behaviour->getOwningClass()->getId()->getStringData());
+#endif
         RexxText *text = this->requestText();
-        // printf("dynamicTarget: text = %x, type = '%s'\n", text, text->behaviour->getOwningClass()->getId()->getStringData());
+#if 0 // debug dynamic
+        printf("dynamicTarget: text = %p, type = '%s'\n", text, text->behaviour->getOwningClass()->getId()->getStringData());
+#endif
         return text;
     }
 
@@ -2022,7 +2147,8 @@ void RexxString::setNumberString(RexxObject *NumberRep)
     }
     else
     {
-        this->setHasNoReferences();         /* no more references                */
+        // No longer do that because now we have also text and encoding references
+        // this->setHasNoReferences();         /* no more references                */
     }
     return;
 }
@@ -2251,63 +2377,122 @@ RexxObject *RexxString::evaluate(
 /*            term for string literals.                                       */
 /******************************************************************************/
 {
+#if check_TE
+        this->checkTE("RexxString::evaluate 1st");
+#endif // check_TE
 
-    RexxObject *value = this;
-    if (this->checkIsASCII() == false) // to avoid infinite recursion, don't convert ASCII strings ( the next messages will test var("encoding") and var("myText") )
+#if 0 // fix encoding
+    // This "fix" hides a garbage encoding pointer
+    if (this->text != OREF_NULL && this->text != this)
     {
+        printf("RexxString::evaluate fix the text of %p text=%p encoding=%p\n", this, this->text, this->encoding);
+        OrefSet(this, this->text, OREF_NULL);
+    }
+#endif // fix encoding
+
+#if 0 // fix encoding
+    // This "fix" hides a garbage encoding pointer
+    // Fix both this->text and this->encoding
+    if (this->encoding != OREF_NULL && this->encoding != this)
+    {
+        printf("RexxString::evaluate fix the encoding of %p text=%p encoding=%p\n", this, this->text, this->encoding);
+        OrefSet(this, this->encoding, OREF_NULL);
+        OrefSet(this, this->text, OREF_NULL);
+    }
+#endif // fix encoding
+
+    RexxObject *value = this;    // by default, evaluate to itself
+    if (this->text == OREF_NULL) // this->text can be the text counterpart, or this
+    {
+#if debug_encoding // debug encoding
+        printf("RexxString::evaluate 1st evaluation for %p '%s'\n", this, this->getStringData());
+#endif // debug encoding
+
+        // First evaluation
+        this->setText(this); // By default, evaluate to itself.
+                             // Also used as a flag to know that the string literal has been evaluated (not OREF_NULL).
+#if 1
+
         PackageClass *package = context->getPackage();
+        RexxObject *packageEncoding = OREF_NULL;
+        const char *packageEncodingName = "<NULL>";
         ProtectedObject result;
         bool messageUnderstood = package->messageSend(OREF_ENCODING, OREF_NULL, 0, 0, result, false);
         if (messageUnderstood && (RexxObject *)result != OREF_NULL) // the package has an encoding
         {
-            RexxObject *encoding = (RexxObject *)result;
-#if 0
-            printf("The package has an encoding: ");
-            const char *name = "<no name>";
-            messageUnderstood = encoding->messageSend(OREF_NAME, OREF_NULL, 0, 0, result, false);
+            packageEncoding = (RexxObject *)result;
+#if debug_encoding // debug encoding
+            const char *packageName = "<NULL>";
+            messageUnderstood = package->messageSend(OREF_NAME, OREF_NULL, 0, 0, result, false);
             if (messageUnderstood && (RexxObject *)result != OREF_NULL)
             {
-                name = ((RexxString *)(RexxObject *)result)->getStringData();
+                packageName = ((RexxString *)result)->getStringData();
             }
-            printf("%s\n", name);
-#endif
-            messageUnderstood = encoding->messageSend(OREF_ISBYTE, OREF_NULL, 0, 0, result, false);
-            if (messageUnderstood && ((RexxObject *)result)->integerValue(9)->getValue() == 0) // not byte encoding
+            messageUnderstood = packageEncoding->messageSend(OREF_NAME, OREF_NULL, 0, 0, result, false);
+            if (messageUnderstood && (RexxObject *)result != OREF_NULL)
             {
-#if 0
-                messageUnderstood = this->messageSend(OREF_ISCOMPATIBLEWITHBYTESTRING, OREF_NULL, 0, 0, result, false);
-                if (messageUnderstood && ((RexxObject *)result)->integerValue(9)->getValue() == 0) // string not compatible with a byte string
-#endif
+                packageEncodingName = ((RexxString *)result)->getStringData();
+            }
+            printf("RexxString::evaluate the package %p %s has an encoding %p %s\n", package, packageName, packageEncoding, packageEncodingName);
+#endif // debug encoding
+        }
+        ProtectedObject p_packageEncoding(packageEncoding);
+
+        if (this->checkIsASCII() == false) // don't convert ASCII strings
+        {
+#if debug_encoding // debug encoding
+            printf("RexxString::evaluate not ASCII for '%s'\n", this->getStringData());
+#endif // debug encoding
+            if (packageEncoding != OREF_NULL)
+            {
+                messageUnderstood = packageEncoding->messageSend(OREF_ISBYTE, OREF_NULL, 0, 0, result, false);
+                if (messageUnderstood && ((RexxObject *)result)->integerValue(9)->getValue() == 0) // not byte encoding
                 {
-#if 0
-                    const char *s = this->getStringData();
-                    printf("RexxString::evaluate '%s' ", s);
-                    while(*s)
-                    {
-                        printf("%02x", (unsigned char) *s++);
-                    }
-                    printf("\n");
-#endif
                     // Convert to RexxText
                     messageUnderstood = this->messageSend(OREF_TEXT, OREF_NULL, 0, 0, result, false);
                     if (messageUnderstood && (RexxObject *)result != OREF_NULL)
                     {
-                        value = (RexxObject *)result;
+                        this->setText((RexxObject *)result);
+                        this->setevaluateAsText();
+#if debug_encoding // debug encoding
+                        printf("RexxString::evaluate text=%p for '%s'\n", this->text, this->getStringData());
+#endif // debug encoding
                     }
                 }
             }
         }
+#endif
+        value = this->text;
+#if debug_encoding // debug encoding
+        printf("RexxString::evaluate condition this->encoding (%p) == OREF_NULL && packageEncoding (%p) != OREF_NULL\n", this->encoding, packageEncoding);
+#endif // debug encoding
+#if 1
+        if (this->encoding == OREF_NULL && packageEncoding != OREF_NULL)
+        {
+#if debug_encoding // debug encoding
+            printf("RexxString::evaluate setEncoding %p %s on value=%p for '%s'\n", packageEncoding, packageEncodingName, value, this->getStringData());
+#endif // debug encoding
+            ProtectedObject p_value(value);
+            // The encoding of this value is equal to the encoding of the package
+            RexxObject *args[1];
+            args[0] = packageEncoding; // positional argument
+            bool messageUnderstood = value->messageSend(OREF_SETENCODING, args, 1, 0, result, false);
+            // OREF_SETENCODING do that: value~!setEncoding(packageEncoding);
+        }
+#endif
     }
-
-  stack->push((RexxObject *)value);     /* place on the evaluation stack     */
-                                       /* trace if necessary                */
-
-  // TODO: value~setEncoding(packageEncoding)
-  // I tried but I have the problem of infinite recursion.
-  // Will be possible the day when I store natively the encoding onRexxString and PackageClass.
-
-  context->traceIntermediate((RexxObject *)value, TRACE_PREFIX_LITERAL);
-  return value;                         /* also return the result            */
+    else
+    {
+        // Not first evaluation
+        if (this->evaluateAsText()) value = this->text;
+    }
+#if check_TE
+    this->checkTE("RexxString::evaluate 2nd");
+#endif // check_TE
+    stack->push((RexxObject *)value);     /* place on the evaluation stack     */
+                                          /* trace if necessary                */
+    context->traceIntermediate((RexxObject *)value, TRACE_PREFIX_LITERAL);
+    return value;                         /* also return the result            */
 }
 
 
@@ -2391,6 +2576,14 @@ RexxString *RexxString::newString(const char *string, size_t blength)
     newObj->putChar(blength, '\0');
     /* copy it over                      */
     newObj->put(0, string, blength);
+
+    newObj->setEncoding(OREF_NULL);
+    newObj->setText(OREF_NULL);
+
+#if check_TE
+    newObj->checkTE("RexxString::newString");
+#endif // check_TE
+
     /* by  default, we don't need Live   */
     newObj->setHasNoReferences();        /*sent                               */
 
@@ -2417,6 +2610,13 @@ RexxString *RexxString::rawString(size_t blength)
                                        /* Null terminate, allows faster     */
                                        /* conversion to ASCII-Z string      */
   newObj->putChar(blength, '\0');
+
+  newObj->setEncoding(OREF_NULL);
+  newObj->setText(OREF_NULL);
+
+#if check_TE
+  newObj->checkTE("RexxString::rawString");
+#endif // check_TE
                                        /* by  default, we don't need Live   */
   newObj->setHasNoReferences();        /*sent                               */
 
@@ -2466,6 +2666,14 @@ RexxString *RexxString::newUpperString(const char * string, stringsize_t blength
                                          /* Null terminate, allows faster     */
                                          /* conversion to ASCII-Z string      */
     newObj->putChar(blength, '\0');
+
+    newObj->setEncoding(OREF_NULL);
+    newObj->setText(OREF_NULL);
+
+#if check_TE
+    newObj->checkTE("RexxString::newUpperString");
+#endif // check_TE
+
     /* by  default, we don't need Live   */
     newObj->setHasNoReferences();        /*sent                               */
 

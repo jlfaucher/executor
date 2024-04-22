@@ -64,6 +64,7 @@
 #define  STRING_NONNUMERIC     0x04    /* string is non-numeric             */
 #define  STRING_ISASCII_CHECKED 0x08    /* string is ASCII only checked     */
 #define  STRING_ISASCII        0x10    /* string is ASCII only              */
+#define  STRING_EVAL_AS_TEXT   0x20    /* string evaluation returns text    */
 
 #define  INITIAL_NAME_SIZE     10      /* first name table allocation       */
 #define  EXTENDED_NAME_SIZE    10      /* amount to extend table by         */
@@ -121,8 +122,12 @@ inline char IntToHexDigit(int n)
  class RexxString : public RexxObject {
   public:
    inline void       *operator new(size_t size, void *ptr){return ptr;};
-   inline RexxString() {;} ;
-   inline RexxString(RESTORETYPE restoreType) { ; };
+   // inline RexxString() {;} ;
+   RexxString();
+   // inline RexxString(RESTORETYPE restoreType) { ; };
+   RexxString(RESTORETYPE restoreType);
+   void checkTE(const char *method);
+   void checkTE(RESTORETYPE restoreType);
 
    void        live(size_t);
    void        liveGeneral(int reason);
@@ -344,6 +349,32 @@ inline char IntToHexDigit(int n)
    inline char getChar(size_t p) { return *(this->stringData+p); };
    inline char putChar(size_t p,char c) { return *(this->stringData+p) = c; };
 
+   inline RexxObject *getText() { return this->text; }
+   inline void setText(RexxObject *t)
+   {
+       OrefSet(this, this->text, t);
+       if (t != OREF_NULL) this->setHasReferences();
+   }
+   inline RexxObject *setTextRexx(RexxObject *t)
+   {
+       RexxObject *previousText = this->getText();
+       this->setText(t);
+       return previousText;
+   }
+
+   inline RexxObject *getEncoding() { return this->encoding; }
+   inline void setEncoding(RexxObject *e)
+   {
+       OrefSet(this, this->encoding, e);
+       if (e != OREF_NULL) this->setHasReferences();
+   }
+   inline RexxObject *setEncodingRexx(RexxObject *e)
+   {
+       RexxObject *previousEncoding = this->getEncoding();
+       this->setEncoding(e);
+       return previousEncoding;
+   }
+
    inline bool upperOnly() {return (this->Attributes&STRING_NOLOWER) != 0;};
    inline bool hasLower() {return (this->Attributes&STRING_HASLOWER) != 0;};
    inline void  setUpperOnly() { this->Attributes |= STRING_NOLOWER;};
@@ -369,6 +400,9 @@ inline char IntToHexDigit(int n)
        if (value) this->Attributes |= STRING_ISASCII;
        else this->Attributes &= ~STRING_ISASCII;
    }
+
+   inline bool evaluateAsText() {return (this->Attributes & STRING_EVAL_AS_TEXT) != 0;};
+   inline void setevaluateAsText() { this->Attributes |= STRING_EVAL_AS_TEXT;};
 
    inline bool  strCompare(const char * s) {return this->memCompare((s), strlen(s));};
    inline bool  strCaselessCompare(const char * s) { return this->length == strlen(s) && Utilities::strCaselessCompare(s, this->stringData) == 0;}
@@ -517,6 +551,8 @@ inline char IntToHexDigit(int n)
    HashCode hashValue;                 // stored has value
    size_t length;                      /* string length in bytes          */
    RexxNumberString *NumberString;     /* lookaside information           */
+   RexxObject *text;                   // The text counterpart or OREF_NULL
+   RexxObject *encoding;               // Placeholder, not yet the real encoding.
    size_t Attributes;                  /* string attributes               */
    char stringData[4];                 /* Start of the string data part   */
  };

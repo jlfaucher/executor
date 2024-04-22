@@ -50,6 +50,13 @@
 /*                                                                            */
 /******************************************************************************/
 
+/*
+About OrefSet
+This class is internal, so candidate to OrefSet.
+But according the doc in ooRexx5 RexxCore.h, it's not needed for the attributes
+initialized by a constructor. Belt and suspenders, I still decide to use OrefSet.
+*/
+
 /**
  * Allocate a new RexxSourceLiteral object
  *
@@ -93,10 +100,10 @@ void RexxSourceLiteral::flatten(RexxEnvelope *envelope)
 {
   setUpFlatten(RexxSourceLiteral)
 
-  newThis->source = OREF_NULL;   // this never should be getting flattened, so sever the connection
-  newThis->package = OREF_NULL;  // idem
-  newThis->kind = OREF_NULL; // idem
-  newThis->rawExecutable = OREF_NULL;  // idem
+  OrefSet(newThis, newThis->source, OREF_NULL);   // this never should be getting flattened, so sever the connection
+  OrefSet(newThis, newThis->package, OREF_NULL);  // idem
+  OrefSet(newThis, newThis->kind, OREF_NULL); // idem
+  OrefSet(newThis, newThis->rawExecutable, OREF_NULL);  // idem
 
   cleanUpFlatten
 }
@@ -106,8 +113,8 @@ RexxSourceLiteral::RexxSourceLiteral(RexxString *s, PackageClass *p, size_t star
 {
     ProtectedObject pThis(this);
     RexxArray *sa = s->makeArrayRexx(NULL); // use default separator \n
-    this->source = sa; // transient, no need of OrefSet
-    this->package = p; // transient, no need of OrefSet
+    OrefSet(this, this->source, sa);
+    OrefSet(this, this->package, p);
     RexxArray *sourceArray = (RexxArray *)sa->copy();
     ProtectedObject pSourceArray(sourceArray);
 
@@ -123,18 +130,18 @@ RexxSourceLiteral::RexxSourceLiteral(RexxString *s, PackageClass *p, size_t star
     RexxObject *arguments[0 + (1*2)]; // 0 positional arg, 1 named arg
     arguments[0] = OREF_REMOVE; // named arg name
     arguments[1] = TheTrueObject; // named arg value
-    this->kind = (RexxString *)clauser->sendMessage(OREF_KIND, arguments, 0, 1); // transient, no need of OrefSet
+    OrefSet(this, this->kind, (RexxString *)clauser->sendMessage(OREF_KIND, arguments, 0, 1));
 
     // clauser~transformSource(clauseBefore, clauseAfter)
     // Transform the source to accept auto named arguments, and to return implicitely the result of the last evaluated expression
-    RexxString *clauseBefore = new_string("use auto named arg ; options \"NOCOMMANDS\" ; .RexxBlock~setEncoding(.context)");
+    RexxString *clauseBefore = new_string("use auto named arg ; options \"NOCOMMANDS\" ; .RexxBlock~assignDefinitionPackageEncoding(.context)");
     ProtectedObject pClauseBefore(clauseBefore);
     RexxString *clauseAfter = new_string("if var(\"result\") then return result");
     ProtectedObject pClauseAfter(clauseAfter);
     clauser->sendMessage(OREF_TRANSFORMSOURCE, clauseBefore, clauseAfter);
 
     // rawExecutable = .Clauser~rawExecutable(kind, sourceArray, package)
-    this->rawExecutable =clauserClass->sendMessage(OREF_RAWEXECUTABLE, this->kind, sourceArray, this->package); // transient, no need of OrefSet
+    OrefSet(this, this->rawExecutable, clauserClass->sendMessage(OREF_RAWEXECUTABLE, this->kind, sourceArray, this->package));
     this->closure = (0 == strncmp(this->kind->getStringData(), "cl", 2));
 }
 
@@ -277,8 +284,8 @@ void RexxBlock::flatten(RexxEnvelope *envelope)
   setUpFlatten(RexxBlock)
 
   flatten_reference(newThis->objectVariables, envelope);
-  newThis->sourceLiteral = OREF_NULL; // this never should be getting flattened, so sever the connection
-  newThis->variables = OREF_NULL;    // idem
+  OrefSet(newThis, newThis->sourceLiteral, OREF_NULL); // this never should be getting flattened, so sever the connection
+  OrefSet(newThis, newThis->variables, OREF_NULL);    // idem
 
   cleanUpFlatten
 }

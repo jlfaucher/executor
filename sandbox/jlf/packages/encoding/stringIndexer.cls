@@ -406,6 +406,11 @@ For example, if startB==6 then previousCodepointIndexB==3
     return self~codeUnitSizeInBytes * (indexC - 1) + 1 -- sparse array: the value can be derived from the index
 
 
+::method bytes
+    use strict arg -- none
+    return .ByteSupplier~new(self)
+
+
 ::method codepoints
     use strict arg -- none
     return .CodePointSupplier~new(self)
@@ -1053,6 +1058,47 @@ if debug then do
 say "--- Leave ib2xc ----"
 end
     return posC
+
+
+/******************************************************************************/
+::class "ByteSupplier" public subclass Supplier
+
+::method init
+    expose indexer indexB
+    use strict arg indexer
+    empty = .array~new(0) -- No need to create a copy, the string is immutable
+    self~init:super(empty, empty)
+    indexB = 1
+    -- self~init:super -- Don't forward, would raise error "argument 1 is required"
+
+
+::method count
+    expose indexer
+    use strict arg -- none
+    return indexer~string~length
+
+
+::method available
+    expose indexer indexB
+    use strict arg -- none
+    return indexB <= indexer~string~length
+
+
+::method index
+    expose indexB
+    use strict arg -- none
+    if self~available then return indexB
+
+
+::method item
+    expose indexer indexB
+    if self~available then return indexer~string~subchar(indexB)~c2d
+
+
+::method next
+    expose indexB
+    use strict arg -- none
+    indexB += 1
 
 
 /******************************************************************************/

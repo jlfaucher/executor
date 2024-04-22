@@ -3,6 +3,220 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2024 Apr 22
+
+[Vocabulary]
+
+string literal? or literal string?
+"string literal"    around 741 000 results
+"literal string"    around 482 000 results
+Wikipedia uses "string literal" (https://en.wikipedia.org/wiki/String_literal)
+RexxRef uses "literal string"
+I decide to use "string literal", because I use also "source literal" which
+sounds better than "literal source".
+
+
+[Code review]
+
+globalStrings
+    initialized by RexxMemory::createStrings: globalStrings = new_directory();
+    updated by RexxMemory::getGlobalName
+    used by RexxSource::globalSetup if not null
+        when building an image, all the strings from all the packages are stored in this directory.
+        when not building an image, each source (package) has its own directory: this is what I need to assign the package encoding to the string literals.
+
+getGlobalName(const char *value)
+    There is always a RexxString created with new_string(value)
+    if globalStrings is NULL then return this new string, unprotected (globalStrings is not NULL when building an image)
+    if this new string is found in globalStrings then return the found string.
+    otherwise add this new string in globalStrings
+called by
+    RexxMemory::createStrings
+    RexxBehaviour::define
+    RexxMemory::saveImage for CHAR_MEMORY and CHAR_KERNEL
+    Setup.cpp for several strings
+
+RexxMemory::createStrings in GlobalNames.cpp,
+which initialize the global variables OREF_XXX
+        #define GLOBAL_NAME(name, value) OREF_##name = getGlobalName(value);
+    called by RexxMemory::createImage
+
+
+OrefSet
+ooRexx5 uses sometimes
+    #define setField(r, v)  OrefSet(this, this->r, v)
+    #define clearField(r) setField(r, OREF_NULL)
+    #define setOtherField(o, r, v) OrefSet(o, o->r, v)
+
+
+[Debug]
+
+TWO weeks of debug to understand why the attributes text and encoding that I
+added to the class String are sometimes corrupted.
+It's because the string instances are flagged setHasNoReferences by default,
+and I was not calling setHasReferences when assigning a value to text or encoding.
+Consequence: liveGeneral was not visiting these 2 fields when building an image,
+and bad things happened when loading rexx.img...
+
+For the moment, I keep all the debug stuff that I added in several source files.
+Controlled with these definitions:
+#define debug_encoding 0 (in RexxCore.h)
+#define check_TE debug_encoding // Check Text and Encoding (in StringClass.cpp)
+
+
+[ooRexx5 retrofit]
+
+::constant is not evaluating the constant value, thus breaking the solution with
+an extended String::Evaluate.
+TODO: If possible, retrofit the ooRexx5 implementation which evaluates correctly
+the constant expression.
+ConstantGetterCode
+
+
+[Encoded strings]
+
+The encoding of a string literal is the encoding of its definition package.
+It is set when the string literal is first evaluated.
+Once a string literal has received its encoding, it does not change even if the
+package encoding is changed later. Only string literals not yet evaluated will
+be impacted. It is possible to explicitly change the encoding using the
+~setEncoding method or using the ~encoding = new_encoding assignment.
+The same goes for the default encoding. Once a calculated string has received
+its encoding, it does not change even if the default encoding is changed later.
+
+
+Consequence of the previous rule, the hexadecimal and binary strings are no longer
+declared Byte encoded. Now their encoding is given by their definition package.
+Idem for the BIFs/BIMs D2C and X2C, their results are no longer declared Byte encoded.
+Since they have no assigned encoding, their results encoding depend on the default
+encoding.
+Examples:
+    "41"x=                      -- 'A'
+    "41"x~hasEncoding=          -- 1    The encoding is stored
+    "41"x~encoding=             -- (The UTF8_Encoding class)    This is the encoding of the definition package
+    "41"~x2c=                   -- 'A'
+    "41"~x2c~hasEncoding=       -- 0    No stored encoding
+    "41"~x2c~encoding=          -- (The UTF8_Encoding class)    This is the default encoding
+
+
+For the proper management of the encoding of string literals, the globalStrings
+directory is no longer used by the parser when building an image.
+Now, each source (package) manages its own directory, even when building an image.
+For the moment, all the packages that are included in rexx.img are byte encoded,
+so this change is not needed. But maybe in the future, I may have packages with
+different encodings in rexx.img.
+
+
+It's now possible to reset the encoding of a string, mutable buffer or package
+by passing .nil when using
+    target~encoding = .nil
+    target~setEncoding(.nil)
+After reset, the encoding is no longer stored and the default encoding is returned.
+A RexxText has always an encoding, so an error is raised when passing .nil.
+This same error is raised when the target is a string linked to a RexxText.
+Examples:
+    s = "Noel"
+    s~description=                          -- 'UTF-8 ASCII (4 bytes)'
+    oldEncoding = s~setEncoding(.nil)
+    oldEncoding=                            -- (The UTF8_Encoding class)
+    s~description=                          -- 'UTF-8 ASCII by default (4 bytes)'
+    s~setEncoding(oldEncoding)
+    s~description=                          -- 'UTF-8 ASCII (4 bytes)'
+
+    t = "Noël"
+    t~description=                          -- 'UTF-8 not-ASCII (4 characters, 4 codepoints, 5 bytes, 0 error)'
+    t~setEncoding(.nil)                     -- Encoding: 'The NIL object' is not supported
+    s = t~string
+    s~description=                          -- 'UTF-8 not-ASCII (4 characters, 4 codepoints, 5 bytes, 0 error)'
+    s~setEncoding(.nil)                     -- Encoding: 'The NIL object' is not supported
+
+
+The method ~setEncoding returns .nil when the target has no stored encoding.
+That allows to reset properly the encoding when restoring the previous value.
+Note: the method ~encoding never returns .nil. It returns the default encoding
+when no encoding is stored.
+Examples:
+    .context~package~hasEncoding=                       -- 0                            The encoding is not stored
+    .context~package~encoding=                          -- (The UTF8_Encoding class)    It's the default encoding
+    oldEncoding = .context~package~setEncoding("byte")
+    oldEncoding=                                        -- (The NIL object)
+    .context~package~hasEncoding=                       -- 1                            The encoding is stored
+    .context~package~encoding=                          -- (The Byte_Encoding class)
+    .context~package~setEncoding(oldEncoding)=          -- (The Byte_Encoding class)    Previous encoding
+    .context~package~hasEncoding=                       -- 0                            Return to non-stored encoding
+    .context~package~encoding=                          -- (The UTF8_Encoding class)    It's the default encoding
+
+
+New methods:
+    .String~detach
+    .RexxText~detach
+The string is detached from its text counterpart.
+The text becomes an empty text "".
+Useful when working with big strings, to reclaim memory.
+No need to call ~detach on both targets. There is a forward to the counterpart.
+Examples:
+    s = "Noel"
+    t = s~text
+    t=              -- T'Noel'
+    s~hasText=      -- 1
+    s~detach
+    s~hasText=      -- 0
+    t=              -- T''
+
+    t = "Noël"
+    s = t~string
+    t=              -- T'Noël'
+    s~hasText=      -- 1
+    t~detach
+    s~hasText=      -- 0
+    t=              -- T''
+
+
+New methods:
+    .String~byte
+    .RexxText~byte
+Returns a Byte representation of the string or text.
+The Byte_Encoding is a raw encoding with few constraints. It's often used for
+diagnostic or repair. It can be always absorbed when doing a concatenation or a
+comparison. BUT it's impossible to transcode from/to it without errors if the
+string contains not-ASCII characters. Here, no transcoding, it's a copy as-is
+whose encoding is The Byte_Encoding.
+Examples:
+    "50C3"x~description=                    -- 'UTF-8 not-ASCII (2 characters, 2 codepoints, 2 bytes, 1 error)'
+    "Père"~text~startsWith("50C3"x)=        -- Invalid UTF-8 string (raised by utf8proc)
+    "50C3"x~byte~description=               -- 'Byte not-ASCII (2 characters, 2 codepoints, 2 bytes, 0 error)'
+    "Père"~text~startsWith("50C3"x~byte)=   -- 0 (not aligned)
+
+
+New methods:
+    .String~bytes
+    .RexxText~bytes
+Returns a ByteSupplier which provides each byte in decimal.
+Examples:
+    "Noel"~bytes==
+        a ByteSupplier
+         1 :  78
+         2 :  111
+         3 :  101
+         4 :  108
+    "Noël"~bytes==
+        a ByteSupplier
+         1 :  78
+         2 :  111
+         3 :  195
+         4 :  171
+         5 :  108
+
+
+New native methods:
+    .String~!setEncoding
+    .String~!setText
+to store directly these informations on String instances.
+Currently I have a dual storage (managed by extension, and managed by these methods).
+In the end, only the native storage will remain.
+
+
+===============================================================================
 2024 Apr 12
 
 [interpreter]
@@ -64,11 +278,10 @@ Examples of dynamic target with ~center:
     "é"~c2x=; "é"~class=                        -- 'C3A9'   (The RexxText class)
     "test"~center(10, "é")=                     -- T'ééétestééé'
 
-    "C3A9"x=; result~description=               -- T'é'     'Byte not-ASCII (2 characters, 2 codepoints, 2 bytes, 0 error)'
-    -- next error is ok: the pad is a byte text made of 2 bytes
-    "test"~center(10, "C3A9"x)=                 -- Incorrect pad or character argument specified; found "Byte not-ASCII 'é'"
+    "C3A9"x=; result~description=               -- T'é'     'UTF-8 not-ASCII (1 character, 1 codepoint, 2 bytes, 0 error)'
+    "test"~center(10, "C3A9"x)=                 -- T'ééétestééé'
 
-    x2c("C3A9")=; result~description=           -- 'é'      'Byte not-ASCII (2 bytes)'
+    x2c("C3A9")=; result~description=           -- 'é'      'UTF-8 not-ASCII by default (2 bytes)'
     -- next error is ok: the pad is a string made of 2 bytes
     "test"~center(10, x2c("C3A9"))=             -- Incorrect pad or character argument specified; found "é"
 
@@ -95,13 +308,13 @@ Examples:
     "ça va ?"~characters~each("c2x")=       -- ['C3A7', 61, 20, 76, 61, 20,'3F']
 
 
-A RexxBlock has the same encoding as its package.
+A RexxBlock has the same encoding as its definition package.
 This is managed by its source transformation:
-.RexxBlock~setEncoding(.context)
+.RexxBlock~assignDefinitionPackageEncoding(.context)
 Example:
     {}~rawExecutable~source==
         an Array (shape [2], 2 items)
-         1 : 'use auto named arg ; options "NOCOMMANDS" ; .RexxBlock~setEncoding(.context)'
+         1 : 'use auto named arg ; options "NOCOMMANDS" ; .RexxBlock~assignDefinitionPackageEncoding(.context)'
          2 : 'if var("result") then return result'
 Examples:
     {.context~package~encoding}~()=         -- (The UTF8_Encoding class)
@@ -248,20 +461,20 @@ Examples:
 Still not sure:
 When the target is a String, should the BIF d2c and x2c return a RexxText when
 the result is not-ASCII and the evaluation context encoding is not Byte?
-That would be consistent with the rules for literal string (R1, R2).
+That would be consistent with the rules for string literal (R1, R2).
 Currently, assuming the package encoding is UTF-8:
 "FF"x is a RexxText but x2c("FF") is a String.
 And what about "FF"~x2c? currently it's a String.
 Examples:
-    "FF"x=;result~description=                      -- T'[FF]'      'Byte not-ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
-    x2c("FF")=;result~description=                  -- '[FF]'       'Byte not-ASCII (1 byte)'
-    "FF"~x2c=;result~description=                   -- '[FF]'       'Byte not-ASCII (1 byte)'
+    "FF"x=;result~description=                      -- T'[FF]'      'UTF-8 not-ASCII (1 character, 1 codepoint, 1 byte, 1 error)'
+    x2c("FF")=;result~description=                  -- '[FF]'       'UTF-8 not-ASCII by default (1 byte)'
+    "FF"~x2c=;result~description=                   -- '[FF]'       'UTF-8 not-ASCII by default (1 byte)'
     "FF"~text~x2c=;result~description=              -- T'[FF]'      'UTF-8 not-ASCII (1 character, 1 codepoint, 1 byte, 1 error)'
     "FF"~text("cp1252")~x2c=;result~description=    -- T'[FF]'      'windows-1252 not-ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
     ---
-    "41"x=;result~description=                      -- 'A'          'Byte ASCII (1 byte)'
-    x2c("41")=;result~description=                  -- 'A'          'Byte ASCII (1 byte)'
-    "41"~x2c=;result~description=                   -- 'A'          'Byte ASCII (1 byte)'
+    "41"x=;result~description=                      -- 'A'          'UTF-8 ASCII (1 byte)'
+    x2c("41")=;result~description=                  -- 'A'          'UTF-8 ASCII by default (1 byte)'
+    "41"~x2c=;result~description=                   -- 'A'          'UTF-8 ASCII by default (1 byte)'
     "41"~text~x2c=;result~description=              -- T'A'         'UTF-8 ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
     "41"~text("cp1252")~x2c=;result~description=    -- T'A'         'windows-1252 ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
 
@@ -342,7 +555,7 @@ Unchanged:
     "FF"x~~setEncoding("cp1252") "noël"=        -- Encoding: cannot append UTF-8 not-ASCII 'noël' to windows-1252 not-ASCII '[FF]'
 
 
-The literal strings are compressed by RexxSource::commonString.
+The string literals are compressed by RexxSource::commonString.
 Because of that, the encoding of s1 is overwritten by the encoding of s2.
 Script:
     say .context~package~encoding   -- The UTF8_Encoding class
@@ -403,7 +616,7 @@ Case 1: package not requesting "text.cls", directly or indirectly.
     Most of the legacy packages don't support an encoding other than Byte.
     The package's default encoding is Byte (not .Encoding~defaultEncoding).
 Case 2: package requesting "text.cls", directly or indirectly.
-    We assume that the caller supports an automatic conversion to text.
+    We assume that the requester supports an automatic conversion to text.
     The package's default encoding is .Encoding~defaultEncoding.
 
 
@@ -432,8 +645,8 @@ and asEncodingFor: The Byte_Encoding can be always absorbed.
 Reason: The Byte_Encoding is often used for diagnostic or repair.
 Examples:
     "Père"~c2g=                             -- '50 C3A8 72 65'
-    "Père"~text~startsWith("50C3"x)=        -- false (not aligned) (was Encoding: cannot compare Byte not-ASCII 'P\C3' with UTF-8 not-ASCII 'Père')
-    "Père"~text~startsWith("50C3A8"x)=      -- true (was Encoding: cannot compare Byte not-ASCII 'Pè' with UTF-8 not-ASCII 'Père')
+    "Père"~text~startsWith("50C3"x~byte)=   -- false (not aligned) (was Encoding: cannot compare Byte not-ASCII 'P\C3' with UTF-8 not-ASCII 'Père')
+    "Père"~text~startsWith("50C3A8"x~byte)= -- true (was Encoding: cannot compare Byte not-ASCII 'Pè' with UTF-8 not-ASCII 'Père')
 
 
 +-------------------------------------------+
@@ -443,8 +656,8 @@ Examples:
 +-------------------------------------------+
 This is managed in RexxString::evaluate
 Rules:
-if string~isASCII then value = string                               -- R1 don't convert to RexxText if the string literal is ASCII (here, NO test of encoding. Strong assumption: the source encoding is a byte encoding or UTF-8, not UTF-16 or UTF-32)
-else if .context~package~encoding~isByte then value = string        -- R2 don't convert to RexxText if the context package encoding is the Byte_Encoding or a subclass of it.
+if string~isASCII then value = string                               -- R1 don't convert to RexxText if the string literal is ASCII (here, NO test of encoding, just testing the bytes)
+else if .context~package~encoding~isByte then value = string        -- R2 don't convert to RexxText if the encoding of its definition package is the Byte_Encoding or a subclass of it (legacy package).
 -- else if string~isCompatibleWithByteString then value = string    -- R3 (no longer applied) don't convert to RexxText if the string literal is compatible with a Byte string.
 else value = string~text                                            -- R4 convert to RexxText
 Example, assuming the package encoding is UTF-8:
@@ -455,9 +668,11 @@ Example, assuming the package encoding is UTF-8:
     .context~package~setEncoding(oldEncoding)
 
     -- The rule R3 is no longer applied
-    oldEncoding = .encoding~setDefaultEncoding("byte")
-    "Noël"~class=                                       -- (The RexxText class)     (was (The String class)       R3)
-    .encoding~setDefaultEncoding(oldEncoding)
+    -- The only way to test it is to use an hexadecimal (or binary) string literal.
+    -- [later] The hexadecimal string literals are no longer Byte encoded, so this test is no longer a good test
+    "Noël"~c2x=                                         -- '4E 6F C3AB 6C'
+    '4E 6F C3AB 6C'x~encoding=                          -- (The UTF8_Encoding class) (was (The Byte_Encoding class) so R3 could apply, but we no longer apply it)
+    '4E 6F C3AB 6C'x~class=                             -- (The RexxText class)     R4
 
     "Noël"~class=                                       -- (The RexxText class)     R4
     "Noël"~string~class=                                -- (The String class)       R4 The string literal is a RexxText, the method ~string returns a String with encoding UTF-8
@@ -483,6 +698,11 @@ Examples, assuming the default encoding and the package encoding are UTF-8:
     length("Noël"~string)=  -- 5
 
 
+----------
+ABANDONNED
+(incompatible with the decision to assign the encoding of the definition package
+to the string literals)
+----------
 The strings created by D2C, X2C are declared Byte encoded.
 It's because it's not unusual to create ill-formed encoded strings with these BIF/BIM.
 The Byte_Encoding is a raw encoding with few constraints, BUT it's impossible
@@ -499,19 +719,19 @@ Examples:
     "é"~c2d=                                       -- 50089
     d2c(50089)=                                     -- 'é'
     50089~d2c=                                      -- 'é'
-    d2c(50089)~encoding=                            -- (The Byte_Encoding class)
-    50089~d2c~encoding=                             -- (The Byte_Encoding class)
+    d2c(50089)~encoding=                            -- (The UTF8_Encoding class)    (was (The Byte_Encoding class))
+    50089~d2c~encoding=                             -- (The UTF8_Encoding class)    (was (The Byte_Encoding class))
 
     -- X2C
     "é"~c2x=                                        -- 'C3A9'
     x2c("C3A9")=                                    -- 'é'
     "C3A9"~x2c=                                     -- 'é'
-    x2c("C3A9")~encoding=                           -- (The Byte_Encoding class)
-    "C3A9"~x2c~encoding=                            -- (The Byte_Encoding class)
+    x2c("C3A9")~encoding=                           -- (The UTF8_Encoding class)    (was (The Byte_Encoding class))
+    "C3A9"~x2c~encoding=                            -- (The UTF8_Encoding class)    (was (The Byte_Encoding class))
 
     -- Valid Byte string, but invalid UTF-8 string
     "C3"~x2c~class=                                 -- (The String class)
-    "C3"~x2c~encoding=                              -- (The Byte_Encoding class)
+    "C3"~x2c~encoding=                              -- (The UTF8_Encoding class)    (was (The Byte_Encoding class))
     -- Apply an UTF-8 view through the String interface
     "C3"~x2c~~setEncoding("utf8")~description=      -- 'UTF-8 not-ASCII (1 byte)'
     "C3"~x2c~~setEncoding("utf8")~errors=           -- 'UTF-8 encoding: byte sequence at byte-position 1 is truncated, expected 2 bytes.'
@@ -520,23 +740,28 @@ Examples:
     "C3"~x2c~text("utf8")~errors=                   -- 'UTF-8 encoding: byte sequence at byte-position 1 is truncated, expected 2 bytes
 
 
+----------
+ABANDONNED
+(incompatible with the decision to assign the encoding of the definition package
+to the string literals)
+----------
 The hexadecimal and binary strings are declared Byte encoded, for the same reasons
 as D2C, X2C.
 Implementation notes:
-    RexxSource::packLiteral
+    RexxSource::packLiteral (Scanner.cpp)
 Examples:
-    -- The encoding of a literal string is the default encoding
+    -- The encoding of a string literal is the encoding of its definition package.
     "é"~encoding=                                   -- (The UTF8_Encoding class)
 
-    -- The encoding of an hexadecimal string is the Byte encoding
+    -- The encoding of an hexadecimal string is the Byte encoding.
     "é"~c2x=                                        -- 'C3A9'
     "C3A9"x=                                        -- T'é'
-    "C3A9"x~encoding=                               -- (The Byte_Encoding class)
+    "C3A9"x~encoding=                               -- (The UTF8_Encoding class)    (was (The Byte_Encoding class))
 
-    -- The encoding of a binary string is the Byte encoding
+    -- The encoding of a binary string is the Byte encoding.
     "é"~c2x~x2b=                                    -- 1100001110101001
     "11000011 10101001"b=                           -- T'é'
-    "11000011 10101001"b~encoding=                  -- (The Byte_Encoding class)
+    "11000011 10101001"b~encoding=                  -- (The UTF8_Encoding class)    (was (The Byte_Encoding class))
 
 
 Implementation of RexxText~Strip:
@@ -618,12 +843,12 @@ Parameters:
     stripNA = .false            if .true then remove the unassigned codepoints
 Examples:
     -- casefold
-    "Père Noël"~transcodeTo("windows-1252")=                                                -- T'P?re No?l'
-    "Père Noël"~transcodeTo("windows-1252")~c2x=                                            -- '50 E8 72 65 20 4E 6F EB 6C'
-    '50 E8 72 65 20 4E 6F EB 6C'x~transform(casefold:)=                                     -- T'p?re no?l'
-    '50 E8 72 65 20 4E 6F EB 6C'x~transform(casefold:)~encoding=                            -- (The Byte_Encoding class)
-    '50 E8 72 65 20 4E 6F EB 6C'x~transform(casefold:)~utf8=                                -- Cannot convert Byte not-ASCII character 232 (E8) at byte-position 2 to UTF-8
-    '50 E8 72 65 20 4E 6F EB 6C'x~transform(casefold:)~~setEncoding("windows-1252")~utf8=   -- T'père noël'
+    "Père Noël"~transcodeTo("windows-1252")=                                                     -- T'P?re No?l'
+    "Père Noël"~transcodeTo("windows-1252")~c2x=                                                 -- '50 E8 72 65 20 4E 6F EB 6C'
+    '50 E8 72 65 20 4E 6F EB 6C'x~byte~transform(casefold:)=                                     -- T'p?re no?l'
+    '50 E8 72 65 20 4E 6F EB 6C'x~byte~transform(casefold:)~encoding=                            -- (The Byte_Encoding class)
+    '50 E8 72 65 20 4E 6F EB 6C'x~byte~transform(casefold:)~utf8=                                -- Cannot convert Byte not-ASCII character 232 (E8) at byte-position 2 to UTF-8
+    '50 E8 72 65 20 4E 6F EB 6C'x~byte~transform(casefold:)~~setEncoding("windows-1252")~utf8=   -- T'père noël'
 
     -- stripMark depends on the encoding
     "80 81 82 83 84 85 86 87 88 89 8A 8B 8C 8D 8E 8F 90 93 94 95 96 97 98 99 9A 9F A0 A1 A2 A3 A4 A5"x~text("ibm-437")~utf8=                           -- T'ÇüéâäàåçêëèïîìÄÅÉôöòûùÿÖÜƒáíóúñÑ'
@@ -640,7 +865,7 @@ Examples:
     '50 E8 72 65 20 4E 6F EB 6C'x~~setEncoding("windows-1252")~transform(casefold:, stripMark:)~utf8=   -- T'pere noel'
     -- next: the transform is done on Byte string, which has no rule for stripMark.
     -- the accents are not removed.
-    '50 E8 72 65 20 4E 6F EB 6C'x~transform(casefold:, stripMark:)~~setEncoding("windows-1252")~utf8=   -- T'père noël'
+    '50 E8 72 65 20 4E 6F EB 6C'x~byte~transform(casefold:, stripMark:)~~setEncoding("windows-1252")~utf8=   -- T'père noël'
 
 
 ===============================================================================
@@ -6134,7 +6359,7 @@ This is done by searching in TheFunctionDirectory from
     RexxInstructionCall::execute
     RexxInstructionCall::trap
 when the target is a builtin function.
-If the call or function invocation uses a literal string, then the search in
+If the call or function invocation uses a string literal, then the search in
 TheFunctionDirectory is bypassed.
 
 This new functionality is used to override the builtin function XRANGE, and make
@@ -12692,7 +12917,7 @@ Probably not, according to my tests :
     ::method "()" class
 A function call is a term in an expression calling a routine.
     function_name(expression, ...)
-The function_name is a literal string or a single symbol, which is taken to be a constant.
+The function_name is a string literal or a single symbol, which is taken to be a constant.
 So no way to have something similar to the C++ operator().
 
 

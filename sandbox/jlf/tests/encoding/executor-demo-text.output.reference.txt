@@ -116,13 +116,9 @@ ooRexx> myText~graphemes~each("c2x")=
 CR+LF is a grapheme made of 2 codepoints.
 LF+CR are 2 graphemes.
 */
-ooRexx> "0D0A"x~text~description=           -- here, "0D0A"x is a Byte string, "0D0A"x~text also, so TWO graphemes
-'Byte ASCII (2 characters, 2 codepoints, 2 bytes, 0 error)'
-ooRexx> "0A0D"x~text~description=           -- always 2 graphemes, be it Byte or UTF-8 (here, it's Byte)
-'Byte ASCII (2 characters, 2 codepoints, 2 bytes, 0 error)'
-ooRexx> "0D0A"x~text("utf8")~description=   -- here, "0D0A"x is a Byte string, "0D0A"x~text("utf8") is UTF-8, so ONE grapheme
+ooRexx> "0D0A"x~text~description=
 'UTF-8 ASCII (1 character, 2 codepoints, 2 bytes, 0 error)'
-ooRexx> "0A0D"x~text("utf8")~description=   -- always 2 graphemes, be it Byte or UTF-8 (here, it's UTF-8)
+ooRexx> "0A0D"x~text~description=
 'UTF-8 ASCII (2 characters, 2 codepoints, 2 bytes, 0 error)'
 
 /*

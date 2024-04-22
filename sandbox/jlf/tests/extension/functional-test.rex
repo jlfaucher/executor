@@ -414,7 +414,7 @@ buffer~dump -- mutable buffer after mapping
 -- Reducing a collection with a routine
 -- --------------------------------------------------------------
 
--- A literal source is a routine source by default
+-- A source literal is a routine source by default
 
 -- Reduce :
 --   arg(1) - accu  : accumulated result

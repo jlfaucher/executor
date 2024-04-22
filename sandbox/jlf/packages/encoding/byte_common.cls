@@ -7,11 +7,11 @@
 -- Services for all encodings: atBytePosition
 
 ::method unescape
-    -- The escape characters are used in literal strings, they should be managed
+    -- The escape characters are used in string literals, they should be managed
     -- at parse-time. Here, this method is used at run-time.
     -- This method could work for utf-16, wtf-16, utf-32 if it was rewritten
     -- to use RexxText API instead of String API. But would be way slower...
-    -- Would it make sense ? Nobody is editing literal strings encoded in 16-bit
+    -- Would it make sense ? Nobody is editing string literals encoded in 16-bit
     -- or 32-bit.
     use strict named arg buffer=.nil
     string = self~string

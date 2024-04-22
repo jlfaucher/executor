@@ -970,6 +970,8 @@ void RexxMemory::createImage(const char *imageTarget)
   defineKernelMethod(CHAR_COMPARETO                    ,TheStringBehaviour, CPPM(RexxString::compareToRexx), 3);
   defineKernelMethod(CHAR_CASELESSCOMPARETO            ,TheStringBehaviour, CPPM(RexxString::caselessCompareToRexx), 3);
   defineKernelMethod(CHAR_ISASCII                      ,TheStringBehaviour, CPPM(RexxString::isASCIIRexx), 0);
+  defineKernelMethod("!SETENCODING"                    ,TheStringBehaviour, CPPM(RexxString::setEncodingRexx), 1);
+  defineKernelMethod("!SETTEXT"                        ,TheStringBehaviour, CPPM(RexxString::setTextRexx), 1);
                                        /* set the scope of the methods to   */
                                        /* this classes oref                 */
   TheStringBehaviour->setMethodDictionaryScope(TheStringClass);

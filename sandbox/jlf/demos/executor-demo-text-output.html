@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 2 Apr 2024
-</span><span style="font-weight:bold;color:green;">Input queue name: Sc252Q6000007ea490
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 22 Apr 2024
+</span><span style="font-weight:bold;color:green;">Input queue name: S12c66Q600003f428a0
 </span>
 <span style="font-weight:bold;color:blue;">----------------
 </span><span style="font-weight:bold;color:blue;">-- Text encoding
@@ -151,13 +151,9 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">myText~length=      
 </span><span style="font-weight:bold;color:blue;">CR+LF is a grapheme made of 2 codepoints.
 </span><span style="font-weight:bold;color:blue;">LF+CR are 2 graphemes.
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;0D0A&quot;x~text~description=           </span><span style="font-weight:bold;color:blue;">-- here, &quot;0D0A&quot;x is a Byte string, &quot;0D0A&quot;x~text also, so TWO graphemes</span>
-'Byte ASCII (2 characters, 2 codepoints, 2 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;0A0D&quot;x~text~description=           </span><span style="font-weight:bold;color:blue;">-- always 2 graphemes, be it Byte or UTF-8 (here, it's Byte)</span>
-'Byte ASCII (2 characters, 2 codepoints, 2 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;0D0A&quot;x~text(&quot;utf8&quot;)~description=   </span><span style="font-weight:bold;color:blue;">-- here, &quot;0D0A&quot;x is a Byte string, &quot;0D0A&quot;x~text(&quot;utf8&quot;) is UTF-8, so ONE grapheme</span>
+</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;0D0A&quot;x~text~description=</span>
 'UTF-8 ASCII (1 character, 2 codepoints, 2 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;0A0D&quot;x~text(&quot;utf8&quot;)~description=   </span><span style="font-weight:bold;color:blue;">-- always 2 graphemes, be it Byte or UTF-8 (here, it's UTF-8)</span>
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;0A0D&quot;x~text~description=</span>
 'UTF-8 ASCII (2 characters, 2 codepoints, 2 bytes, 0 error)'
 
 <span style="font-weight:bold;color:blue;">/*

@@ -1283,9 +1283,15 @@ void RexxSource::globalSetup()
   OrefSet(this, this->operators, new_queue());
   OrefSet(this, this->literals, new_directory());
   OrefSet(this, this->sourceLiterals, new_list());
+
   // during an image build, we have a global string table.  If this is
   // available now, use it.
-  OrefSet(this, this->strings, memoryObject.getGlobalStrings());
+
+      // for experimentation, dont use the global string table.
+      // I try to manage the encoding of string literals per package.
+      // So a string table per source is what I need.
+      // OrefSet(this, this->strings, memoryObject.getGlobalStrings());
+
   if (this->strings == OREF_NULL)
   {
       // no global string table, use a local copy
@@ -4716,6 +4722,10 @@ RexxString *RexxSource::commonString(
         this->strings->put(string, string);/* add this to the table             */
         result = string;                   /* also the final value              */
     }
+#if debug_encoding // debug encoding
+    if ((string->getText() != OREF_NULL && string->getText() != string) || (string->getEncoding() != OREF_NULL && string->getEncoding() != string)) printf("RexxSource::commonString string (in) PANIC string=%p text=%p encoding=%p %s\n", string, string->getText(), string->getEncoding(), string->getStringData());
+    if ((result->getText() != OREF_NULL && result->getText() != result) || (result->getEncoding() != OREF_NULL && result->getEncoding() != result)) printf("RexxSource::commonString result (out) PANIC result=%p text=%p encoding=%p %s\n", result, result->getText(), result->getEncoding(), result->getStringData());
+#endif // debug encoding
     return result;                       /* return the string                 */
 }
 

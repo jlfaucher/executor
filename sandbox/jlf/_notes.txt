@@ -557,8 +557,15 @@ new     ::method changeStr2 ; changeStr2(arg(1), self, ..., -1)
 
 
 ================================================================================
-pad character todo: if length > 1 then forward to RexxText
+pad character todo: if length > 1 then forward to RexxText (done)
 ================================================================================
+
+jlf 20/04/2024
+A more general solution has been implemented:
+The string BIFs become polymorphic on RexxString/RexxText.
+If at least one positional argument is a RexxText then the string BIFs forward
+to RexxText, otherwise the string BIFs forward to RexxString.
+
 
 Several classic Rexx scripts in RosettaCode contain UTF-8 characters. Ex: in
 Aliquot-sequence-classifications, there is
@@ -921,6 +928,11 @@ mark boundaries.
 utf8proc works only with strings, not with streams, so this format is not needed.
 But is there an impact on the strings?
 
+TODO: If possible, retrofit the ooRexx5 implementation.
+::constant is not evaluating the constant value, thus breaking the solution with
+an extended String::Evaluate.
+ConstantGetterCode
+
 
 ================================================================================
 Encoded strings - Miscellaneous notes
@@ -932,7 +944,7 @@ So if ARB decides to support Unicode at codepoint level only, then the method
 'reverse' should not be declared  Unicode compliant.
 
 Example 1
-"René"~text~nfd~characters==
+"René"~text~nfd~unicodeCharacters==
     an Array (shape [5], 5 items)
      1 : ( "R"   U+0052 Lu 1 "LATIN CAPITAL LETTER R" )
      2 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
@@ -947,7 +959,7 @@ Example 1
      2 :  65
      3 : '6E'
      4 : '65 CC81'
-"René"~text~nfd~reverse~characters==
+"René"~text~nfd~reverse~unicodeCharacters==
     an Array (shape [5], 5 items)
      1 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
      2 : ( "́"    U+0301 Mn 0 "COMBINING ACUTE ACCENT" )
@@ -969,7 +981,7 @@ NFC: The resulting character sequence can still contain combining marks, since
 not all character sequences have a precomposed equivalent.
 Many scripts offer no alternative to the use of combining marks, such as the
 Devanagari vowels in this example:
-"यूनिकोड"~text~characters==
+"यूनिकोड"~text~unicodeCharacters==
     an Array (shape [7], 7 items)
      1 : ( "य"   U+092F Lo 1 "DEVANAGARI LETTER YA" )
      2 : ( "ू"    U+0942 Mn 0 "DEVANAGARI VOWEL SIGN UU" )
@@ -986,7 +998,7 @@ Devanagari vowels in this example:
      2 : 'E0A4A8 E0A4BF'
      3 : 'E0A495 E0A58B'
      4 : 'E0A4A1'
-"यूनिकोड"~text~reverse~characters==
+"यूनिकोड"~text~reverse~unicodeCharacters==
     an Array (shape [7], 7 items)
      1 : ( "ड"   U+0921 Lo 1 "DEVANAGARI LETTER DDA" )
      2 : ( "क"   U+0915 Lo 1 "DEVANAGARI LETTER KA" )
@@ -1043,54 +1055,121 @@ git log -i --grep=encod --grep=unicode --pretty=medium > log-encod.txt
 -- All these classes are mixin classes.
 ?c = (text.cls)
     .M         'EncodedMutableBuffer'                           : (text.cls)
+    .M         'EncodedPackage'                                 : (text.cls)
     .M         'EncodedString'                                  : (text.cls)
     .M         'RexxTextContents'                               : (text.cls)
     .M         'RexxTextInitializer'                            : (text.cls)
     .M         'RexxTextOperators'                              : (text.cls)
     .M         'RexxTextStringInterface'                        : (text.cls)
+    .M         'StringRexxTextInterface'                        : (text.cls)
 
 
 -- List the methods of the classes implemented by the package text.cls
 -- We retrieve the mixin classes listed by the previous query, plus the Object class for which a direct extension is applied.
--- Not listed here (237 lines)
+-- Not listed here (319 lines)
 ?cm = (text.cls)
 
 
 -- List the Object's method added by text.cls
 -- No need of ?cmi because Object can"t be extended by inheritance
 ?cm Object = (text.cls)
-    P. P.G.    'ISCOMPATIBLEWITHBYTESTRING'  : 'Object' 'Object' (text.cls)
-    P. PCG.    'ISCOMPATIBLEWITHBYTESTRING'  : 'Object' 'Object' (text.cls)
-    P. PCG.    'ISTEXTORBUFFERORSTRING'      : 'Object' 'Object' (text.cls)
-    P. P.G.    'ISTEXTORBUFFERORSTRING'      : 'Object' 'Object' (text.cls)
-    P. PCG.    'REQUESTTEXTORBUFFERORSTRING' : 'Object' 'Object' (text.cls)
-    P. P.G.    'REQUESTTEXTORBUFFERORSTRING' : 'Object' 'Object' (text.cls)
+    P. PCG.    'ISBUFFERORSTRING'            : 'Object' (text.cls)
+    P. P.G.    'ISBUFFERORSTRING'            : 'Object' (text.cls)
+    P. P.G.    'ISCOMPATIBLEWITHBYTESTRING'  : 'Object' (text.cls)
+    P. PCG.    'ISCOMPATIBLEWITHBYTESTRING'  : 'Object' (text.cls)
+    P. PCG.    'ISTEXTORBUFFERORSTRING'      : 'Object' (text.cls)
+    P. P.G.    'ISTEXTORBUFFERORSTRING'      : 'Object' (text.cls)
+    P. PCG.    'REQUESTBUFFERORSTRING'       : 'Object' (text.cls)
+    P. P.G.    'REQUESTBUFFERORSTRING'       : 'Object' (text.cls)
+    P. PCG.    'REQUESTTEXTORBUFFERORSTRING' : 'Object' (text.cls)
+    P. P.G.    'REQUESTTEXTORBUFFERORSTRING' : 'Object' (text.cls)
 
 
 -- List the String's method added by text.cls
 ?cmi String = (text.cls)
-    P. P.G.    'COPY'                        : 'String' 'EncodedString' (text.cls)
-    P. P.G.    'DESCRIPTION'                 : 'String' 'EncodedString' (text.cls)
-    P. P.G.    'DESCRIPTIONFORERROR'         : 'String' 'EncodedString' (text.cls)
-    P. P.G.    'ENCODING'                    : 'String' 'EncodedString' (text.cls)
-    P. P.G.    'ENCODING='                   : 'String' 'EncodedString' (text.cls)
-    P. P.G.    'HASENCODING'                 : 'String' 'EncodedString' (text.cls)
-    P. P.G.    'HASTEXT'                     : 'String' 'EncodedString' (text.cls)
-    P. P.G.    'ISCOMPATIBLEWITHASCII'       : 'String' 'EncodedString' (text.cls)
-    P. P.G.    'ISCOMPATIBLEWITHBYTESTRING'  : 'String' 'EncodedString' (text.cls)
-    P. P.G.    'ISCOMPATIBLEWITHBYTESTRING'  : 'String' 'Object' (text.cls)
-    P. PCG.    'ISCOMPATIBLEWITHBYTESTRING'  : 'String' 'Object' (text.cls)
-    P. P.G.    'ISTEXTORBUFFERORSTRING'      : 'String' 'EncodedString' (text.cls)
-    P. P.G.    'ISTEXTORBUFFERORSTRING'      : 'String' 'Object' (text.cls)
-    P. PCG.    'ISTEXTORBUFFERORSTRING'      : 'String' 'Object' (text.cls)
-    P. P.G.    'MAKEREXXTEXT'                : 'String' 'EncodedString' (text.cls)
-    P. P.G.    'MAKEREXXTEXTORSTRING'        : 'String' 'EncodedString' (text.cls)
-    P. PCG.    'REQUESTTEXTORBUFFERORSTRING' : 'String' 'Object' (text.cls)
-    P. P.G.    'REQUESTTEXTORBUFFERORSTRING' : 'String' 'EncodedString' (text.cls)
-    P. P.G.    'REQUESTTEXTORBUFFERORSTRING' : 'String' 'Object' (text.cls)
-    P. P.G.    'TEXT'                        : 'String' 'EncodedString' (text.cls)
-    P. P.G.    'TEXT='                       : 'String' 'EncodedString' (text.cls)
-    P. P.G.    'U2C'                         : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'BYTE'                               : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'BYTES'                              : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'C2G'                                : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'C2U'                                : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'CASEFOLD'                           : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'CHARACTER'                          : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'CHARACTERS'                         : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'CHECKHEXADECIMALVALUECOMPATIBILITY' : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'CHECKLOGICALVALUECOMPATIBILITY'     : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'CHECKNUMERICVALUECOMPATIBILITY'     : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'CODEPOINTS'                         : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'COPY'                               : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'DESCRIPTION'                        : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'DESCRIPTIONFORERROR'                : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'DETACH'                             : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'ENCODING'                           : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'ENCODING='                          : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'ERRORS'                             : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'GRAPHEME'                           : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'GRAPHEMES'                          : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'HASENCODING'                        : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'HASTEXT'                            : 'String' 'EncodedString' (text.cls)
+    P. PCG.    'ISBUFFERORSTRING'                   : 'String' 'Object' (text.cls)
+    P. P.G.    'ISBUFFERORSTRING'                   : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'ISBUFFERORSTRING'                   : 'String' 'Object' (text.cls)
+    P. P.G.    'ISCASEFOLD'                         : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'ISCCSTRIPPED'                       : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'ISCOMPATIBLEWITHASCII'              : 'String' 'StringRexxTextInterface' (text.cls)
+    P. PCG.    'ISCOMPATIBLEWITHBYTESTRING'         : 'String' 'Object' (text.cls)
+    P. P.G.    'ISCOMPATIBLEWITHBYTESTRING'         : 'String' 'Object' (text.cls)
+    P. P.G.    'ISCOMPATIBLEWITHBYTESTRING'         : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'ISIGNORABLESTRIPPED'                : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'ISLOWER'                            : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'ISMARKSTRIPPED'                     : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'ISNASTRIPPED'                       : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'ISNFC'                              : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'ISNFD'                              : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'ISNFKC'                             : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'ISNFKD'                             : 'String' 'StringRexxTextInterface' (text.cls)
+    P. PCG.    'ISTEXTORBUFFERORSTRING'             : 'String' 'Object' (text.cls)
+    P. P.G.    'ISTEXTORBUFFERORSTRING'             : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'ISTEXTORBUFFERORSTRING'             : 'String' 'Object' (text.cls)
+    P. P.G.    'ISUPPER'                            : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'MAKEREXXTEXT'                       : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'MAKEREXXTEXTORSTRING'               : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'MAXIMUMCODEPOINT'                   : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'MAXIMUMUNICODECODEPOINT'            : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'NFC'                                : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'NFD'                                : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'NFKC'                               : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'NFKD'                               : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'REQUESTBUFFERORSTRING'              : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'REQUESTBUFFERORSTRING'              : 'String' 'Object' (text.cls)
+    P. PCG.    'REQUESTBUFFERORSTRING'              : 'String' 'Object' (text.cls)
+    P. PCG.    'REQUESTTEXTORBUFFERORSTRING'        : 'String' 'Object' (text.cls)
+    P. P.G.    'REQUESTTEXTORBUFFERORSTRING'        : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'REQUESTTEXTORBUFFERORSTRING'        : 'String' 'Object' (text.cls)
+    P. P.G.    'SETENCODING'                        : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'TEXT'                               : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'TEXT='                              : 'String' 'EncodedString' (text.cls)
+    P. P.G.    'TITLE'                              : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'TRANSCODETO'                        : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'TRANSFORM'                          : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'TRANSFORMER'                        : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'U2C'                                : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'UNESCAPE'                           : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'UNICODE'                            : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'UNICODE16'                          : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'UNICODE32'                          : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'UNICODE8'                           : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'UNICODECHARACTERS'                  : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'UNICODEN'                           : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'UTF16'                              : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'UTF16BE'                            : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'UTF16LE'                            : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'UTF32'                              : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'UTF32BE'                            : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'UTF32LE'                            : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'UTF8'                               : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'WTF16'                              : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'WTF16BE'                            : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'WTF16LE'                            : 'String' 'StringRexxTextInterface' (text.cls)
+    P. P.G.    'WTF8'                               : 'String' 'StringRexxTextInterface' (text.cls)
 
 
 -- List the MutableBuffer's method added by text.cls
@@ -1103,15 +1182,22 @@ git log -i --grep=encod --grep=unicode --pretty=medium > log-encod.txt
     P. P.G.    'ENCODING='                   : 'MutableBuffer' 'EncodedMutableBuffer' (text.cls)
     P. P.G.    'HASENCODING'                 : 'MutableBuffer' 'EncodedMutableBuffer' (text.cls)
     P. P.G.    'INIT_EXTENDED'               : 'MutableBuffer' 'EncodedMutableBuffer' (text.cls)
+    P. P.G.    'ISBUFFERORSTRING'            : 'MutableBuffer' 'EncodedMutableBuffer' (text.cls)
+    P. P.G.    'ISBUFFERORSTRING'            : 'MutableBuffer' 'Object' (text.cls)
+    P. PCG.    'ISBUFFERORSTRING'            : 'MutableBuffer' 'Object' (text.cls)
     P. P.G.    'ISCOMPATIBLEWITHASCII'       : 'MutableBuffer' 'EncodedMutableBuffer' (text.cls)
     P. P.G.    'ISCOMPATIBLEWITHBYTESTRING'  : 'MutableBuffer' 'Object' (text.cls)
     P. PCG.    'ISCOMPATIBLEWITHBYTESTRING'  : 'MutableBuffer' 'Object' (text.cls)
     P. PCG.    'ISTEXTORBUFFERORSTRING'      : 'MutableBuffer' 'Object' (text.cls)
     P. P.G.    'ISTEXTORBUFFERORSTRING'      : 'MutableBuffer' 'EncodedMutableBuffer' (text.cls)
     P. P.G.    'ISTEXTORBUFFERORSTRING'      : 'MutableBuffer' 'Object' (text.cls)
+    P. PCG.    'REQUESTBUFFERORSTRING'       : 'MutableBuffer' 'Object' (text.cls)
+    P. P.G.    'REQUESTBUFFERORSTRING'       : 'MutableBuffer' 'EncodedMutableBuffer' (text.cls)
+    P. P.G.    'REQUESTBUFFERORSTRING'       : 'MutableBuffer' 'Object' (text.cls)
     P. PCG.    'REQUESTTEXTORBUFFERORSTRING' : 'MutableBuffer' 'Object' (text.cls)
     P. P.G.    'REQUESTTEXTORBUFFERORSTRING' : 'MutableBuffer' 'EncodedMutableBuffer' (text.cls)
     P. P.G.    'REQUESTTEXTORBUFFERORSTRING' : 'MutableBuffer' 'Object' (text.cls)
+    P. P.G.    'SETENCODING'                 : 'MutableBuffer' 'EncodedMutableBuffer' (text.cls)
 
 
 -- StringIndexer is a mixin class.
@@ -1190,6 +1276,7 @@ git log -i --grep=encod --grep=unicode --pretty=medium > log-encod.txt
     PM PCG.    'ANALYZE'                 : 'StringIndexer' (stringIndexer.cls)
     PM PCG.    'APPENDTOBUFFER'          : 'StringIndexer' (stringIndexer.cls)
     PM PCG.    'ASENCODINGFOR'           : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'BYTES'                   : 'StringIndexer' (stringIndexer.cls)
     PM PCG.    'BYTESEQUENCESIZE'        : 'StringIndexer' (stringIndexer.cls)
     PM P.G.    'C2G'                     : 'StringIndexer' (stringIndexer.cls)
     PM P.G.    'C2U'                     : 'StringIndexer' (stringIndexer.cls)
@@ -1297,8 +1384,8 @@ git log -i --grep=encod --grep=unicode --pretty=medium > log-encod.txt
     PM P...    'ISWTF16LE'               : 'StringIndexer' (stringIndexer.cls)
     PM P...    'ISWTF32'                 : 'StringIndexer' (stringIndexer.cls)
     PM PC..    'ISWTF32'                 : 'StringIndexer' (stringIndexer.cls)
-    PM PC..    'ISWTF32BE'               : 'StringIndexer' (stringIndexer.cls)
     PM P...    'ISWTF32BE'               : 'StringIndexer' (stringIndexer.cls)
+    PM PC..    'ISWTF32BE'               : 'StringIndexer' (stringIndexer.cls)
     PM PC..    'ISWTF32LE'               : 'StringIndexer' (stringIndexer.cls)
     PM P...    'ISWTF32LE'               : 'StringIndexer' (stringIndexer.cls)
     PM PC..    'ISWTF8'                  : 'StringIndexer' (stringIndexer.cls)
@@ -1330,7 +1417,7 @@ git log -i --grep=encod --grep=unicode --pretty=medium > log-encod.txt
     PM P.G.    'WTF16BE'                 : 'StringIndexer' (stringIndexer.cls)
     PM P.G.    'WTF16LE'                 : 'StringIndexer' (stringIndexer.cls)
     PM P.G.    'WTF8'                    : 'StringIndexer' (stringIndexer.cls)
-    [Info] [1] Class 'StringIndexer' has 143 methods
+    [Info] [1] Class 'StringIndexer' has 144 methods
 
 
 -- List all the methods c2x

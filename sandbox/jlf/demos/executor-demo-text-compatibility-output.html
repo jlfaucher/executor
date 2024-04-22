@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 11 Apr 2024
-</span><span style="font-weight:bold;color:green;">Input queue name: Sb031Q600003f04d00
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 22 Apr 2024
+</span><span style="font-weight:bold;color:green;">Input queue name: S12ceeQ600003f3d450
 </span>
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.1.0 
@@ -386,7 +386,7 @@ T''
 
 <span style="font-weight:bold;color:blue;">-- center with pad
 </span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;=&quot;~description=                                            </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 ASCII (1 byte)'</span>
-'UTF-8 ASCII by default (1 byte)'
+'UTF-8 ASCII (1 byte)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;=&quot;~c2x=                                                    </span><span style="font-weight:bold;color:blue;">-- '3D'</span>
 '3D'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noelFC&quot;~text~center(10, &quot;=&quot;)=; result~description=         </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
@@ -990,8 +990,8 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s=                  
 '[00]A[00]B[00]C[00]D'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~isCompatibleWithByteString=                   </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~description=                                  </span><span style="font-weight:bold;color:blue;">-- 'Byte ASCII (8 bytes)'   (was 'UTF-8 ASCII (8 bytes)')</span>
-'Byte ASCII (8 bytes)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~description=                                  </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 ASCII (8 bytes)'</span>
+'UTF-8 ASCII (8 bytes)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">length(s)=                                      </span><span style="font-weight:bold;color:blue;">-- 8 because encoding UTF-8 ASCII is compatible with String</span>
  8
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~encoding = &quot;UTF16&quot;</span>
@@ -1012,8 +1012,8 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s=                  
 '[000000]A[000000]B'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~isCompatibleWithByteString=                   </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~description=                                  </span><span style="font-weight:bold;color:blue;">-- 'Byte ASCII (8 bytes)'   (was 'UTF-8 ASCII (8 bytes)')</span>
-'Byte ASCII (8 bytes)'
+ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~description=                                  </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 ASCII (8 bytes)'</span>
+'UTF-8 ASCII (8 bytes)'
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">length(s)=                                      </span><span style="font-weight:bold;color:blue;">-- 8 because encoding UTF-8 ASCII is compatible with String</span>
  8
 ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~encoding = &quot;UTF32&quot;</span>

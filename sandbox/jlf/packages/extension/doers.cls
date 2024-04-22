@@ -664,8 +664,10 @@ Ex :
 
 
 -- Helper for blocks
-::method setEncoding class
+-- A RexxBlock has the same encoding as its definition package.
+::method assignDefinitionPackageEncoding class
     use strict arg myContext
+    -- search the top-level package
     context = myContext
     do forever
         parentContext = context~parentContext -- .nil if native or top-level activation.

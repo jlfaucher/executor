@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 2 Apr 2024
-Input queue name: Sc252Q6000007ea490
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 22 Apr 2024
+Input queue name: S12c66Q600003f428a0
 
 ----------------
 -- Text encoding
@@ -141,13 +141,9 @@ ooRexx[sh]> myText~graphemes~each("c2x")=
 CR+LF is a grapheme made of 2 codepoints.
 LF+CR are 2 graphemes.
 */
-ooRexx[sh]> "0D0A"x~text~description=           -- here, "0D0A"x is a Byte string, "0D0A"x~text also, so TWO graphemes
-'Byte ASCII (2 characters, 2 codepoints, 2 bytes, 0 error)'
-ooRexx[sh]> "0A0D"x~text~description=           -- always 2 graphemes, be it Byte or UTF-8 (here, it's Byte)
-'Byte ASCII (2 characters, 2 codepoints, 2 bytes, 0 error)'
-ooRexx[sh]> "0D0A"x~text("utf8")~description=   -- here, "0D0A"x is a Byte string, "0D0A"x~text("utf8") is UTF-8, so ONE grapheme
+ooRexx[sh]> "0D0A"x~text~description=
 'UTF-8 ASCII (1 character, 2 codepoints, 2 bytes, 0 error)'
-ooRexx[sh]> "0A0D"x~text("utf8")~description=   -- always 2 graphemes, be it Byte or UTF-8 (here, it's UTF-8)
+ooRexx[sh]> "0A0D"x~text~description=
 'UTF-8 ASCII (2 characters, 2 codepoints, 2 bytes, 0 error)'
 
 /*

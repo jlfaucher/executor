@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 11 Apr 2024
-Input queue name: Sf408Q600003f24b60
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 22 Apr 2024
+Input queue name: S12c96Q600003f428a0
 
 --------------------
 -- Unicode libraries
@@ -194,7 +194,7 @@ ooRexx[sh]> result~name~length=
  88
 
 /*
-Escape characters can be used in literal strings, they are unescaped at run-time.
+Escape characters can be used in string literals, they are unescaped at run-time.
 Note: should be supported at parse-time, it's just that this prototype doesn't
 modify the lexer, for the moment.
     \N{Unicode name}    Character name in the Unicode database or codepoint Label
