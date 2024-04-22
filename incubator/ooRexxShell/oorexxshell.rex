@@ -174,7 +174,7 @@ if .platform~is("windows") then .ooRexxShell~readline = .false
     I did not reactivate the readline mode by default, but now, I know how to get valid UTF-8 strings with accents.
 
     Demonstration:
-        Launch ooRexxshell, by default readline if off.
+        Launch ooRexxshell, by default readline is off.
         "père Noël"~c2x=    -- '70 00 72 65 20 4E 6F 00 6C'
                             --  p  è  r  e  ␣  N  o  ë  l
         readline on
@@ -470,7 +470,7 @@ haltHandler:
 -- Remember: don't implement that as a procedure or routine or method !
 -- Moreover don't call it, you must jump to (signal) it...
 dispatchCommand:
-    call time('r') -- to see how long this takes
+    call time 'r' -- to see how long this takes
     RC = 0
     .ooRexxShell~error = .false
     call rxqueue "set", .ooRexxShell~queueInitialName -- Reactivate the initial SESSION queue, for the command evaluation
@@ -910,7 +910,7 @@ Helpers
 ::routine loadOptionalComponents
     -- The routine stringChunks is used internally by ooRexxShell
     -- Try to load the stand-alone package (don't ::requires it, to avoid an error if not found)
-    call loadPackage("extension/stringChunk.cls")
+    call loadPackage "extension/stringChunk.cls"
    .ooRexxShell~routine_stringChunks = .context~package~findroutine("stringChunks")
 
     -- The class IndentedStream is optional. Used internally by the "<" command.
@@ -919,35 +919,35 @@ Helpers
     -- Load the extensions now, because some packages may depend on extensions
     -- for compatibility with ooRexx5 (ex: json, regex)
     .ooRexxShell~isExtended = .true
-    if \loadPackage("extension/extensions.cls", .true) then do -- requires jlf sandbox ooRexx
+    if \loadPackage("extension/extensions.cls", /*silent*/ .true) then do -- requires jlf sandbox ooRexx
         .ooRexxShell~isExtended = .false
-        call loadPackage("extension/std/extensions-std.cls") -- works with standard ooRexx, but integration is weak
+        call loadPackage "extension/std/extensions-std.cls" -- works with standard ooRexx, but integration is weak
     end
 
     if .platform~is("windows") then do
-        -- call loadPackage("orexxole.cls") -- not needed, already included in the image
-        call loadPackage("oodialog.cls")
-        call loadPackage("winsystm.cls")
+        -- call loadPackage "orexxole.cls" -- not needed, already included in the image
+        call loadPackage "oodialog.cls"
+        call loadPackage "winsystm.cls"
     end
     if \.platform~is("windows") then do
-        call loadLibrary("rxunixsys")
-        call loadPackage("ncurses.cls")
+        call loadLibrary "rxunixsys"
+        call loadPackage "ncurses.cls"
     end
-    call loadPackage("csvStream.cls")
+    call loadPackage "csvStream.cls"
     if loadLibrary("hostemu") then .ooRexxShell~interpreters~setEntry("hostemu", "HostEmu")
-    call loadPackage("json.cls")
-    call loadPackage("mime.cls")
-    call loadPackage("rxftp.cls")
-    call loadLibrary("rxmath")
-    call loadPackage("rxregexp.cls")
+    call loadPackage "json.cls"
+    call loadPackage "mime.cls"
+    call loadPackage "rxftp.cls"
+    call loadLibrary "rxmath"
+    call loadPackage "rxregexp.cls"
 
     .ooRexxShell~hasRegex = loadPackage("regex/regex.cls")
 
-    call loadPackage("smtp.cls")
-    call loadPackage("socket.cls")
-    call loadPackage("streamsocket.cls")
-    call loadPackage("pipeline/pipe.cls")
-    --call loadPackage("ooSQLite.cls")
+    call loadPackage "smtp.cls"
+    call loadPackage "socket.cls"
+    call loadPackage "streamsocket.cls"
+    call loadPackage "pipeline/pipe.cls"
+    --call loadPackage "ooSQLite.cls"
     .ooRexxShell~hasRgfUtil2Extended = .false
     if loadPackage("rgf_util2/rgf_util2.rex"),, -- derived from the offical rgf_util2.rex (in BSF4ooRexx)
        .nil <> .context~package~findroutine("rgf_util_extended") then do
@@ -958,12 +958,12 @@ Helpers
     end
 
     .ooRexxShell~hasBsf = loadPackage("BSF.CLS")
-    if value("UNO_INSTALLED",,"ENVIRONMENT") <> "" then call loadPackage("UNO.CLS")
+    if value("UNO_INSTALLED",,"ENVIRONMENT") <> "" then call loadPackage "UNO.CLS"
 
     if .ooRexxShell~isExtended then do
         .ooRexxShell~hasQueries = loadPackage("oorexxshell_queries.cls")
-        call loadPackage("pipeline/pipe_extension.cls")
-        call loadPackage("rgf_util2/rgf_util2_wrappers.rex")
+        call loadPackage "pipeline/pipe_extension.cls"
+        call loadPackage "rgf_util2/rgf_util2_wrappers.rex"
         if .ooRexxShell~isInteractive then .ooRexxShell~sayComment("Unicode character names not loaded, execute: call loadUnicodeCharacterNames")
     end
 
