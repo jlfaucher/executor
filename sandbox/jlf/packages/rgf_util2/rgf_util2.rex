@@ -1,3 +1,4 @@
+#!/usr/bin/env rexx
 /*
       url to documentation and reference card (as of 2010-05-14):
                   http://wi.wu.ac.at/rgf/rexx/orx20/
@@ -91,7 +92,21 @@
                               - new routine ppPackage2(package[,indent1=""[, indent2="09"x[, lf==.endOfLine]]):
                                 returns a string rendering of the supplied package object
                   2011-08-03, - ppCondition2(): make sure that length is only calculated, if a string in hand
-                  2017-02-18, - ppCondition2(): add additional information to stackframe output to ease debugging
+                  2017-04-01, - ppCondition2(): if a Java exception in hand, show it and the causes that have
+                                led to it to ease debugging
+                  2017-04-25, - removing ooRexx 3.x support, which allows for defining all public routines and
+                                public classes verbatimly
+
+                  2017-08-05, - ppCondition2(): if a RexxException is found, recurse ppCondition2() with it
+                                to show embedded Java exceptions that have caused it (possible if Rexx code
+                                gets run from Java)
+                  2017-12-21, - use .environment instead of .local to store important constant values
+                                (this way it does not matter if the package gets employed in a different
+                                Rexx interpreter instance)
+                              - changed version style
+
+                  2018-09-30  - ppCondition2(): test whether the class .BSF (from BSF4ooRexx) is present before
+                                using it in the isA(.bsf) test
 
 
       purpose:    set of 3.2 utilities to ease programming of 3.2.0, e.g. offer sort2()- and
@@ -106,8 +121,9 @@
 
                   - create routines "leftWord([-]n)", "rightWord([-]n)"
 
-      license:    Choice of
-                  ASF 2.0, <http://www.apache.org/licenses/LICENSE-2.0>:
+                  - in ooRexx 5.0 a package has a ".local" directory that can be used to add the classes instead!
+
+      license:    ASF 2.0, <http://www.apache.org/licenses/LICENSE-2.0>:
                   --------------- cut here ----------------
                      Copyright 2008-2017 Rony G. Flatscher
 
@@ -124,66 +140,25 @@
                      limitations under the License.
                   --------------- cut here ----------------
 
-                  or
-
-                  LGPL 3.0, <http://www.fsf.org/licensing/licenses/lgpl.html> (as of: 2008-02-17)
-
-      version:    1.0.6
+      version:    110.20171221
 */
 
-.local~rgf.non.printable=xrange("00"x,"1F"x)||"FF"x
-.local~rgf.alpha.low="abcdefghijklmnopqrstuvwxyz"
-.local~rgf.alpha.upper =.rgf.alpha.low~upper
-.local~rgf.alpha    =.rgf.alpha.low || .rgf.alpha.upper
-.local~rgf.digits   ="0123456789"
-.local~rgf.alphanumeric=.rgf.alpha  || .rgf.digits
+.environment~rgf.non.printable=xrange("00"x,"1F"x)||"FF"x
+.environment~rgf.alpha.low="abcdefghijklmnopqrstuvwxyz"
+.environment~rgf.alpha.upper =.rgf.alpha.low~upper
+.environment~rgf.alpha    =.rgf.alpha.low || .rgf.alpha.upper
+.environment~rgf.digits   ="0123456789"
+.environment~rgf.alphanumeric=.rgf.alpha  || .rgf.digits
 
-.local~rgf.symbol.chars=".!_?"
-
-.local~rgf.showIdentityHash = .false -- JLF
-
-parse version "_" v "("
-
-if v<4 then       -- ooRexx smaller than 4.0.0, then use ".public_routines"
-do
-      -- make version"2" BIFs globally available
-   do idx over .methods
-     .public_routines~put(.methods[idx], idx)
-   end
-
-      -- make the classes seen globally via .local directory
-   .local~messageComparator     =.messageComparator
-   .local~NumberComparator      =.NumberComparator
-   .local~StringComparator      =.StringComparator
-   .local~StringColumnComparator=.StringColumnComparator
-   .local~StringOfWords         =.StringOfWords
-end
-else  -- running under ooRexx 4.0.0 or higher
-do
-    thisPackage=.context~package
-    do idx over .methods
-       -- routine=.routine~new(idx, .methods[idx]~source)
-       routine=.routine~new("DYNAMICALLY_CREATED_"idx, .methods[idx]~source)
-       thisPackage~addPublicRoutine(idx, routine)
-    end
-
-      -- make the classes seen globally via the package's public classes
-   thisPackage~addPublicClass("MessageComparator"     , .messageComparator     )
-   thisPackage~addPublicClass("NumberComparator"      , .NumberComparator      )
-   thisPackage~addPublicClass("StringComparator"      , .StringComparator      )
-   thisPackage~addPublicClass("StringColumnComparator", .StringColumnComparator)
-   thisPackage~addPublicClass("StringOfWords"         , .StringOfWords         )
-end
-
+.environment~rgf.symbol.chars=".!_?"
 
 ::routine rgf_util_extended public
-  -- JLF :
+  -- JLF:
   -- To let test if the extended version of rgf_util2.rex is loaded
   -- dump2 and pp2 takes more arguments in this extended version.
 
 
 ::routine interpreter_extended public
-    -- Temporary helper, maybe I will put in place something better...
     -- In Executor
     --     The tokenizer has been modified to split a symbol of the form <number><after number> in two distinct tokens.
     --     0a is the number 0 followed by the symbol a. If a=0 then 0a is (0 "" 0) = "00"
@@ -192,14 +167,10 @@ end
     return 0a == "00"
 
 
-/* ======================================================================= */
-/* === methods to be used for new BIFs                                 === */
-/* ======================================================================= */
-
    -- 2008-02-19, rgf:   abbrev      info, string [, n-length]
    /* if length is negative, then  */
 /* ======================================================================= */
-::method "abbrev2"
+::routine "abbrev2"     public
   use strict arg arg1, arg2, ...
 
   argNr=arg()              -- get maximum number of arguments
@@ -250,7 +221,7 @@ syntax:
 /* if count is negative, then the number of changes occur from the right side
    ("change the last 'count' of 'needle' occurrences in string")
 */
-::method "changeStr2"   -- (needle,haystack,newNeedle[,[-]count][,CI])
+::routine "changeStr2"  public  -- (needle,haystack,newNeedle[,[-]count][,CI])
   use strict arg arg1needle, arg2haystack, arg3newNeedle, ... -- make sure at least three args are supplied
   parse arg arg1needle, arg2haystack, arg3newNeedle, arg4count
 
@@ -342,7 +313,7 @@ syntax:
 
 /* ======================================================================= */
 -- string1, string2[, [padChar] [,{C|I}]]
-::method "compare2"
+::routine "compare2"    public
   use strict arg arg1string1, arg2string2, arg3padChar=" ", ...
 
   argNr=arg()              -- get maximum number of arguments
@@ -380,11 +351,11 @@ syntax:
 
 
 /* ======================================================================= */
--- not a BIF ::method "compareTo2"
+-- not a BIF ::routine "compareTo2"
 
 /* ======================================================================= */
 -- needle, haystack[,{C|I}]
-::method "countStr2"
+::routine "countStr2"   public
   use strict arg arg1needle, arg2haystack, ...
 
   argNr=arg()              -- get maximum number of arguments
@@ -419,7 +390,7 @@ syntax:
    -- 2008-02-21, rgf:   delStr2(string ,n-start [, n-length])
    /* if length is negative, then  */
 /* ======================================================================= */
-::method "delStr2"
+::routine "delStr2"     public
   use strict arg arg1, ...    -- make sure we have at least one arg
   parse arg ., arg2, arg3
 
@@ -489,7 +460,7 @@ syntax:
          ... if no words, returns received string
 
 */
-::method "delWord2"    -- allows negative start and length
+::routine "delWord2"    public -- allows negative start and length
   use strict arg string, arg2, ...     -- make sure we have at least one arg
 
   parse arg string, arg2, arg3
@@ -553,13 +524,13 @@ syntax:
 
 
 /* ======================================================================= */
--- not a BIF ::method "Equals2"
+-- not a BIF ::routine "Equals2"
 
 
 
 /* ======================================================================= */
 /*      lastPos     needle, haystack   [,[n-start] [,{C|I}]] */
-::method "lastPos2"
+::routine "lastPos2"    public
   use strict arg arg1needle, arg2haystack, ...
 
   argNr=arg()              -- get maximum number of arguments
@@ -613,11 +584,11 @@ syntax:
 
 
 /* ======================================================================= */
--- not a BIF ::method "match2"
+-- not a BIF ::routine "match2"
 
 /* ======================================================================= */
 /*      left2     string, length [,pad]                      */
-::method "left2"
+::routine "left2"       public
   use strict arg arg1string, arg2length, ...
 
   argNr=arg()              -- get maximum number of arguments
@@ -659,7 +630,7 @@ syntax:
    -- 2008-02-21, rgf:   lower2(string [,[n-start] [, n-length]])
    /* if length is negative, then  */
 /* ======================================================================= */
-::method "lower2"
+::routine "lower2"      public
   use strict arg arg1, ...    -- make sure we have at least one arg
   parse arg ., arg2, arg3
 
@@ -729,15 +700,15 @@ syntax:
 
 
 /* ======================================================================= */
--- not a BIF ::method "match2"
+-- not a BIF ::routine "match2"
 /* ======================================================================= */
--- not a BIF ::method "matchChar2"
+-- not a BIF ::routine "matchChar2"
 
 
    -- 2008-02-22, rgf:   overlay2(new, target [,[n-target-start] [, n-new-length]] [,pad])
    --> ATTENTION: if beyond start, prepend appropriate length pad-filled !
 /* ======================================================================= */
-::method "overlay2"
+::routine "overlay2"    public
   use strict arg new1string, arg1string, ...   -- make sure we have at least two arg
   parse arg ., ., arg2start, arg3NewLength, arg4pad
 
@@ -822,7 +793,7 @@ syntax:
 
 /* ======================================================================= */
 /*      Pos     needle, haystack   [,[n-start] [,{C|I}]] */
-::method "Pos2"
+::routine "Pos2"        public
   use strict arg arg1needle, arg2haystack, ...
 
   argNr=arg()              -- get maximum number of arguments
@@ -878,7 +849,7 @@ syntax:
 
 /* ======================================================================= */
 /*      right2     string, length [,pad]                      */
-::method "right2"
+::routine "right2"      public
   use strict arg arg1string, arg2length, ...
 
   argNr=arg()              -- get maximum number of arguments
@@ -947,7 +918,7 @@ syntax:
    Sort2(array, "M[essages]", arrayOfMessages...)
 
 */
-::method "sort2"
+::routine "sort2"       public
   use strict arg arg1, arg2="A", arg3="IN", ...
 
   signal on syntax
@@ -1076,7 +1047,7 @@ syntax: raise propagate
    stableSort2(array, "M[essages]", arrayOfMessages...)
 
 */
-::method "stableSort2"
+::routine "stableSort2" public
   use strict arg arg1, arg2="A", arg3="I", ...
 
   signal on syntax
@@ -1187,7 +1158,7 @@ syntax: raise propagate
    /* if length is negative, then position from right (end of string) */
    --> ATTENTION: if beyond start, prepend appropriate length pad-filled !
 /* ======================================================================= */
-::method "subchar2"
+::routine "subchar2"    public
   use strict arg arg1, arg2   -- make sure we have at least one arg
   parse arg arg1, arg2
 
@@ -1237,7 +1208,7 @@ syntax:
    /* if length is negative, then  */
    --> ATTENTION: if beyond start, prepend appropriate length pad-filled !
 /* ======================================================================= */
-::method "substr2"
+::routine "substr2"     public
   use strict arg arg1, ...    -- make sure we have at least one arg
   parse arg ., arg2, arg3, arg4
 
@@ -1335,7 +1306,7 @@ pp:
 /*    subWord2(string, start[, length])
          ... if no words, returns received string
 */
-::method "subWord2"  -- allows negative start and length
+::routine "subWord2"    public       -- allows negative start and length
   use strict arg string, arg2, ... -- make sure we have at least two args
 
   parse arg string, arg2, arg3
@@ -1398,7 +1369,7 @@ syntax:
    -- 2008-02-21, rgf:   upper2(string [,[n-start] [, n-length]])
    /* if length is negative, then  */
 /* ======================================================================= */
-::method "upper2"
+::routine "upper2"      public
   use strict arg arg1, ...    -- make sure we have at least one arg
   parse arg ., arg2, arg3
 
@@ -1472,7 +1443,7 @@ syntax:
 /*    WORD2(string, pos)
       ... if beyond string, then return empty string
 */
-::method "word2"       -- extract and return word
+::routine "word2"       public -- extract and return word
   use strict arg string, arg2 -- make sure we have at least one arg
 
   parse arg string, arg2
@@ -1514,7 +1485,7 @@ syntax:
 /*    WORDINDEX2(string, pos)
       ... if beyond string, then return 0
 */
-::method "wordIndex2"
+::routine "wordIndex2"  public
   use strict arg string, arg2 -- make sure we have at least one arg
 
   parse arg string, arg2
@@ -1555,7 +1526,7 @@ syntax:
 /*    WORDLENGTH2(string, position)
       ... if beyond string, then return 0
 */
-::method "wordLength2"
+::routine "wordLength2" public
   use strict arg string, arg2 -- make sure we have at least one arg
 
   parse arg string, arg2
@@ -1598,7 +1569,7 @@ syntax:
 /*
     WORDPOS2(phrase,string[,start][,{C|I}])
 */
-::method "wordPos2"
+::routine "wordPos2"    public
   use strict arg arg1, arg2, arg3=1, ...
 
   argNr=arg()              -- get maximum number of arguments
@@ -1669,7 +1640,7 @@ syntax:
                        word (index  "2")
 */
 
-::method "parseWords2"
+::routine "parseWords2" public
   use strict arg string, reference=(" "||"09"x), kind="D", returnType="W"
 
   signal on syntax
@@ -1760,12 +1731,13 @@ syntax:              -- propagate condition
 
 /* ======================================================================= */
 /*
-   JLF: Helper to display the shape of an array.
+   Helper to display the shape of an array.
 */
 
 ::routine shape private -- jlf: private to avoid collision with array.cls where this routine is also declared
     use arg coll, separator=""
-    if coll~hasMethod("shapeToString"), coll~isA(.array) then do
+    if coll~hasMethod("shapeToString"), coll~isA(.array) then
+    do
         shape = coll~shapeToString
         if shape <> "no shape" then shape = "shape" shape
         return shape || separator
@@ -1783,31 +1755,48 @@ syntax:              -- propagate condition
       comparator ... the comparator to use in sorting
 */
 ::routine dump2 public
-  -- JLF: I prefer a notation closer to the standard notation "a String" or "an Array"
-  -- JLF: add surroundItemByQuotes, surroundIndexByQuotes
-  -- JLF: add action, to let do something for each item
-  numeric digits -- stop any propagated settings, to have the default value for digits()
-  use arg coll, title=(/*"type: The" coll~class~id "class"*/ coll~defaultName), comparator=.nil, iterateOverItem=.false, surroundItemByQuotes=.true, surroundIndexByQuotes=.true, maxCount=(9~copies(digits())) /*no limit*/, action=.nil
+  if interpreter_extended() then
+  do
+    -- JLF:
+    -- I prefer a notation closer to the standard notation "a String" or "an Array"
+    -- add surroundItemByQuotes, surroundIndexByQuotes
+    -- add action, to let do something for each item
+    numeric digits -- stop any propagated settings, to have the default value for digits()
+    use arg coll, title=(/*"type: The" coll~class~id "class"*/ coll~defaultName), comparator=.nil, iterateOverItem=.false, surroundItemByQuotes=.true, surroundIndexByQuotes=.true, maxCount=(9~copies(digits())) /*no limit*/, action=.nil
+    doer = .nil
+    if .nil <> action then
+    do
+      doer = action~doer
+    end
+  end
+  else
+  do
+    use arg coll, title=("type: The" coll~class~id "class"), comparator=.nil
+    maxcount = (9~copies(digits())) -- no limit
+  end
 
   if .nil=comparator, title~isA(.comparator) then
   do
      comparator=title
-     title=(/*"type: The" coll~class~id "class"*/ coll~defaultName)
+     if interpreter_extended() then title=(/*"type: The" coll~class~id "class"*/ coll~defaultName)
+                               else title=("type: The" coll~class~id "class")
   end
 
-  -- JLF
-  doer = .nil
-  if .nil <> action then do
-    doer = action~doer
-  end
 
   if coll~isA(.supplier) then
   do
      s=coll
      len=5  -- define an arbitrary high width
-     availability = "" --JLF
-     if \s~available then availability = "(nothing available)" -- JLF
-     if .nil <> title then say title availability -- JLF .nil
+     if interpreter_extended() then
+     do
+        availability = ""
+        if \s~available then availability = "(nothing available)"
+        if .nil <> title then say title availability
+     end
+     else
+     do
+        say title
+     end
   end
   else if \coll~isA(.Collection) then   -- make sure we have a Collection else
   do
@@ -1822,58 +1811,99 @@ syntax:              -- propagate condition
   end
   else      -- a collection in hand
   do
-     shape = shape(coll, ", ") -- JLF
-     items = coll~items -- calculate once, can be long for big array
-     if .nil <> title then say title" ("shape || items "items)" -- JLF .nil shape
-     len=length(items)
+     if interpreter_extended() then
+     do
+        shape = shape(coll, ", ")
+        items = coll~items -- calculate once, can be long for big array
+        if .nil <> title then say title" ("shape || items "items)"
+        len=length(items)
+     end
+     else
+     do
+        say title": ("coll~items "items)"
+        len=length(coll~items)
+     end
   end
 
-  -- JLF say
+  if \ interpreter_extended() then say
   count=0
 
 
-  if coll~isA(.Collection) then s=makeSortedSupplier(coll, comparator, maxCount)
+  if coll~isA(.Collection) then
+  do
+     s=makeSortedSupplier(coll, comparator, maxCount)
+  end
 
    -- determine maximum length of "pretty printed" index-value
   maxWidth=0
   s2=s~copy
   do maxCount while s2~available
-     maxWidth=max(maxWidth,(ppIndex2(s2~index, surroundIndexByQuotes)~length))
+     if interpreter_extended() then maxWidth=max(maxWidth,(ppIndex2(s2~index, surroundIndexByQuotes)~length))
+                               else maxWidth=max(maxWidth,length(ppIndex2(s2~index)))
      s2~next
   end
 
   count=0
   do while s~available
      count=count+1
-     if count > maxCount then do
+     if count > maxCount then
+     do
          say "..."
-         return false -- truncated
+         return .false -- truncated
      end
-     if s~item~isa(.array) & iterateOverItem then do
-         -- JLF one line per subitem
-         do subitem over s~item~sort
-            say ppIndex2(s~index, surroundIndexByQuotes)~left(maxWidth) ":" pp2(subitem, surroundItemByQuotes)
-            -- JLF
-            if .nil <> doer then do
-              if doer~hasMethod("doWithNamedArguments") then doer~doWithNamedArguments("item", subitem, "index", s~index)
-              else doer~call(subitem, s~index) -- only routine is supported
-            end
-         end
-     end
-     else do
-         -- JLF shorter output
-         -- say "   " "#" right(count,len)":" "index="ppIndex2(s~index)~left(maxWidth) "-> item="pp2(s~item)
-         say ppIndex2(s~index, surroundIndexByQuotes)~left(maxWidth) ":" pp2(s~item, surroundItemByQuotes)
-         -- JLF
-         if .nil <> doer then do
-              if doer~hasMethod("doWithNamedArguments") then doer~doWithNamedArguments("item", s~item, "index", s~index)
-              else doer~call(s~item, s~index) -- only routine is supported
-         end
-     end
+     if interpreter_extended() then call displayCurrentItem
+                               else say "   " "#" right(count,len)":" "index="ppIndex2(s~index)~left(maxWidth) "-> item="pp2(s~item)
      s~next
   end
-  -- JLF say "-"~copies(50)
+  if \ interpreter_extended() then say "-"~copies(50)
   return true -- not truncated
+
+
+/* A different way to display the current item (when interpreter_extended) */
+displayCurrentItem:
+         if s~item~isa(.array) & iterateOverItem then
+         do
+             -- one line per subitem
+             /*
+             REMEMBER 1
+             Keep the sort in "s~item~sort" below.
+             Yes it's an array, so should keep the order.
+             BUT this is needed by ooRexxShell for the query "methods".
+             REMEMBER 2
+             Display only s~index for the index. Don't try to be smart and add subindex.
+             Again, this is needed by ooRexxShell for the query "methods".
+             The collection is a Relation between method names and the class names implementing them.
+             See makeSortedSupplier below, and its special treatment for the collections wich understand the message 'allAt'.
+             For one method name, an array of class names will be associated to the method name, in a Set collection.
+             The goal is to display:
+                method1     class1
+                method1     class2
+                method1     class3
+                method2     class1
+                etc...
+             where the class names are indeed sorted in alphabetic order.
+             */
+             do subitem over s~item~sort
+                say ppIndex2(s~index, surroundIndexByQuotes)~left(maxWidth) ":" pp2(subitem, surroundItemByQuotes)
+                if .nil <> doer then
+                do
+                  if doer~hasMethod("doWithNamedArguments") then doer~doWithNamedArguments("item", subitem, "index", s~index)
+                  else doer~call(subitem, s~index) -- only routine is supported
+                end
+             end
+         end
+         else
+         do
+             -- shorter output
+             -- say "   " "#" right(count,len)":" "index="ppIndex2(s~index)~left(maxWidth) "-> item="pp2(s~item)
+             say ppIndex2(s~index, surroundIndexByQuotes)~left(maxWidth) ":" pp2(s~item, surroundItemByQuotes)
+             if .nil <> doer then
+             do
+                  if doer~hasMethod("doWithNamedArguments") then doer~doWithNamedArguments("item", s~item, "index", s~index)
+                  else doer~call(s~item, s~index) -- only routine is supported
+             end
+         end
+         return
 
 
 /* Sort a collection considering its type and return a sorted supplier object. */
@@ -1881,8 +1911,10 @@ makeSortedSupplier: procedure
   numeric digits -- stop any propagated settings, to have the default value for digits()
   use arg coll, comparator=.nil, maxCount=(9~copies(digits()))
 
-  if coll~isA(.OrderedCollection) then do  -- don't sort, just return the supplier
-     if coll~isA(.array) then do
+  if coll~isA(.OrderedCollection) then
+  do  -- don't sort, just return the supplier
+     if coll~isA(.array) then
+     do
          if interpreter_extended() then
              return coll~supplier(maxCount+1) -- +1 to let display the ellipsis
          else
@@ -1910,7 +1942,7 @@ makeSortedSupplier: procedure
         if tmp~items=1 then
            arr2[i]=tmp~at(1)              -- save single item to show
         else
-           arr2[i]=tmp                    -- save collection of associated items (jlf: tmp)
+           arr2[i]=tmp                    -- save collection of associated items
      end
 
      return .supplier~new(arr2, arr)
@@ -1982,7 +2014,7 @@ sortArray: procedure
                           then apply respective comparators
 
 */
-::class "MessageComparator" mixinclass Comparator
+::class "MessageComparator" mixinclass Comparator       public
 
 ::method init
   expose message cacheTable messages messageArray numericComparator caselessComparator asc
@@ -2321,7 +2353,7 @@ syntax:     -- propagate syntax exception, if any
 
    Restriction:   this class is used by .StringComparator and uses StringComparator objects as well
 */
-::class "NumberComparator" mixinclass Comparator
+::class "NumberComparator" mixinclass Comparator        public
 ::method init
   expose stringComparator order
   use arg bIgnoreNonNumbers=.true, order="A", case="I"
@@ -2418,7 +2450,7 @@ syntax:     -- propagate syntax exception, if any
 
    Restriction:   this class is used by .NumberComparator and uses NumberComparator objects as well
 */
-::class "StringComparator" mixinclass Comparator
+::class "StringComparator" mixinclass Comparator        public
 ::method init
   parse upper arg order, case
 
@@ -2501,7 +2533,7 @@ syntax:     -- propagate syntax exception, if any
     as pos and length; 'length' is omitted if 'pos' is followed by a non-numeric
     argument (A|D or C|I|N)
 */
-::class 'StringColumnComparator' mixinclass Comparator
+::class 'StringColumnComparator' mixinclass Comparator  public
 
 ::method init
   expose numberComparator
@@ -2657,36 +2689,22 @@ createCodeSnippet: procedure
 /* Enclose string in square brackets show non-printable chars as Rexx hex-strings.
    If non-string object, then show its string value and hash-value.
 */
-
 ::routine pp2 public       -- rgf, 20091214
   use strict arg a1, surroundByQuotes=.true
 
   -- JLF to rework: surroundByQuotes is supported only by String~ppString
-  -- Can't pass a named argument because I want to keep rgf_util2 compatible with official ooRexx.
+  -- Can't pass a named argument, to remain compatible with official ooRexx.
   if a1~hasMethod("ppString") then return a1~ppString(surroundByQuotes)
 
-  -- JLF : this routine is redundant with the method ~ppstring defined by extension
-  -- Still useful when called by oofficial ooRexx
-
-  -- JLF : mutable buffers are prefixed with "M"
-  if a1~isa(.MutableBuffer) then return escape3("M'"a1~string"'") -- JLF : Use 0xXX notation for escaped characters
-
-  -- JLF : strings are surrounded by quotes, except string numbers.
-  if a1~isA(.string) then do
-      if a1~dataType("N") then return a1
-      if surroundByQuotes then a1 = "'"a1"'"
-      return escape3(a1) -- JLF : Use 0xXX notation for escaped characters
+  if \a1~isA(.string) then
+  do
+     if a1~isA(.Collection) then
+        return "["a1~string "("a1~items "items)" "id#_" || (a1~identityHash)"]"
+     else
+        return "["a1~string "id#_" || (a1~identityHash)"]"
   end
 
-  -- JLF : Since I pretty-print array using square brackets, I prefer to avoid square brackets
-  if a1~isA(.Collection) then do
-     shape = shape(a1, ", ") -- JLF
-     if .local~rgf.showIdentityHash then return "("a1~string "("shape || a1~items "items)" "id#_" || (a1~identityHash)")"
-     else return "("a1~string "("shape || a1~items "items))"
-  end
-  else
-     if .local~rgf.showIdentityHash then return "("a1~string "id#_" || (a1~identityHash)")"
-     else return "("a1~string")"
+  return "["escape2(a1)"]"
 
 
 /* ======================================================================= */
@@ -2696,10 +2714,10 @@ createCodeSnippet: procedure
    Formats Index-values.
 */
 ::routine ppIndex2 public  -- rgf, 20091214
-  use strict arg a1, surroundByQuotes=.true -- JLF: add surroundByQuotes
+  use strict arg a1, surroundByQuotes=.true
 
   -- JLF to rework: surroundByQuotes is supported only by String~ppString
-  -- Can't pass a named argument because I want to keep rgf_util2 compatible with official ooRexx.
+  -- Can't pass a named argument, to remain compatible with official ooRexx.
   if a1~hasMethod("ppString") then return a1~ppString(surroundByQuotes)
 
   if \a1~isA(.string) then
@@ -2707,7 +2725,6 @@ createCodeSnippet: procedure
      if a1~isA(.array), a1~dimension=1 then
      do
         -- if a1~dimension=1 then   -- create comma-delimited list of index-values?
-        -- jlf: works only for non-sparse array, which is the case of array indexes
         do
            tmpStr=""
            bFirst=.true
@@ -2724,7 +2741,7 @@ createCodeSnippet: procedure
                  bFirst=.false
               end
               else
-                 tmpStr=tmpStr","tmpVal~string -- jlf: add ~string to support correctly an array
+                 tmpStr=tmpStr","tmpVal
            end
            if a1~items>maxElements then
            do
@@ -2734,11 +2751,10 @@ createCodeSnippet: procedure
         end
      end
 
-     if .local~rgf.showIdentityHash then return "["a1~string "id#_" || (a1~identityHash)"]"
-     return "["a1~string"]"
+     return "["a1~string "id#_" || (a1~identityHash)"]"
   end
 
-  return pp2(a1, surroundByQuotes)     -- rgf, 20091228
+  return pp2(a1)     -- rgf, 20091228
 
 
 
@@ -2780,54 +2796,6 @@ createCodeSnippet: procedure
      do
         if res<>""  then
            res=res '||' enquote2(a1)
-        else
-           res=a1
-
-        a1=""
-     end
-  end
-  return res
-
-
-
-/* Escape non-printable chars by printing them between square brackets []. */
-::routine escape3 private -- jlf: private to avoid collision with string.cls where this routine is duplicated
-  parse arg a1
-
-  res=""
-
-  do while a1\==""
-     pos1=verify(a1, .rgf.non.printable, "M")
-     if pos1>0 then
-     do
-        pos2=verify(a1, .rgf.non.printable, "N" , pos1)
-
-        if pos2=0 then
-           pos2=length(a1)+1
-
-        if pos1=1 then
-        do
-           parse var a1 char +(pos2-pos1) a1
-           bef=""
-        end
-        else
-           parse var a1 bef +(pos1-1) char +(pos2-pos1) a1
-
-        if res=="" then
-        do
-           if bef \=="" then res=bef -- res=enquote2(bef) '|| '
-        end
-        else
-        do
-           res=res||bef -- res=res '||' enquote2(bef) '|| '
-        end
-
-        res=res || '['char~c2x']'
-     end
-     else
-     do
-        if res<>""  then
-           res=res||a1 -- res=res '||' enquote2(a1)
         else
            res=a1
 
@@ -2943,7 +2911,7 @@ createCodeSnippet: procedure
                  according to "reference" characters interpreted according to "kind"
 
 */
-::class "StringOfWords"
+::class "StringOfWords"                                 public
 /* Arguments:
    string      ... mandatory
    reference   ... optional (default: " "||"09"x), defines a string of characters
@@ -3388,7 +3356,6 @@ syntax: raise propagate
 */
 ::routine ppCondition2 public
   use strict arg co, bShowPackageInfo=.false, indent1="09"x, lf=.endOfLine
-
   indent2=indent1~copies(2)
   indent3=indent1~copies(3)
 
@@ -3400,106 +3367,62 @@ syntax: raise propagate
 
   mb=.MutableBuffer~new
 
+  bhasBSFClz=(.nil<>.context~package~findClass("BSF")) -- is BSF4ooRexx available?
+
   do idx over co~allindexes~sort
      entry=co[idx]
      mb~~append(indent1) ~~append(pp2(idx)~left(maxWidth)) ~~append("=") ~~append(pp2(entry)) ~~append(lf)
      if entry~isA(.collection) then
-     do
-        bStackFrames=(idx="STACKFRAMES")
-        do val over entry
-           mb ~~append(indent2) ~~append(pp2(val)) ~~append(lf)
-           if bStackFrames then
-           do
-               type=val~type
-               tmpStr="    running" ("/"type"/")~left(14)
-               target=val~target
-               if target<>.nil then
-               do
-                  tmpStr ||= " target:" pp2(target)
-               end
-
-               name=val~name
-               if name<>.nil | name<>"" then
-                  tmpStr ||= " name:" pp2(name)
-
-               items=val~arguments~items
-               if items>0 then
-               do
-                  if items>1 then tmpStr ||= " arguments: "
-                             else tmpStr ||= " argument: "
-                  tmpStr ||= pp2(args_to_string(val))
-               end
-
-               if val~executable<>.nil then
-               do
-                  pkgName=val~executable~package~name
-                  tmpStr ||= " package:" pp2(pkgName)
-/*
-                  tmpStr ||= " package:" pp2(filespec('Name',pkgName))
-                  location=filespec('Location',pkgName)
-                  if location<>"" then tmpStr ||= " in" pp2(location)
-*/
-               end
-
-               line=val~line
-               if line<>.nil then tmpStr ||= ", line #" val~line
-
-               mb ~~append(indent3) ~~append(tmpStr) ~~append(lf) ~~append(lf)
-           end
-        end
+     do val over entry
+        mb ~~append(indent2) ~~append(pp2(val)) ~~append(lf)
      end
      else if entry~isA(.package), bShowPackageInfo=.true then
      do
         mb ~~append(ppPackage2(entry, indent2, indent3, lf))
      end
 
+
+     if idx="ADDITIONAL", bHasBsfClz, entry[2]~isA(.bsf) then -- rgf, 2017-04-01: if the additional array has a Java except object, show it and its causes
+     do
+         jexc=entry[2]
+         do i=1 while jexc<>.nil
+            mb ~~append(indent3)
+            if i=1 then mb ~~append( "--> exception: " ) ~~append(pp2(jexc))
+                   else mb ~~append( "--> caused by: " ) ~~append(pp2(jexc~toString))
+            mb   ~~append(lf) -- show Java exception string
+
+            objectName=jexc~objectName
+            -- if a RexxException object, unfold its content (fetch condition object, recurse ppCondition2())
+            if objectName~abbrev("org.rexxla.bsf.engines.rexx.RexxException@") then
+            do
+                startHint2="/// ---> RECURSING over ["objectName"] ---------> \\\"
+                lengthHint=length(startHint2)-13
+                startHint1="   ///" copies("-",lengthHint-1) "\\\"
+
+                endHint2 ="\\\ <--- end of RECURSING over ["objectName"] <--- ///"
+                endHint1 ="   \\\" copies("-",lengthHint) "///"
+
+                mb ~~ append(lf)
+                mb ~~ append(startHint1) ~~append(lf)
+                mb ~~ append(startHint2) ~~append(lf)
+                mb ~~ append(startHint1) ~~append(lf)
+
+                rexExc=jexc~getRexxConditionObject
+                if rexExc~isA(.bsf) then rexExc=BsfRexxProxy(rexExc)
+                mb ~~ append(ppCondition2(rexExc))
+                mb ~~ append(endHint1) ~~append(lf)
+                mb ~~ append(endHint2) ~~append(lf)
+                mb ~~ append(endHint1) ~~append(lf)
+                mb ~~append(lf)
+            end
+
+            jexc=jexc~getCause      -- get next cause
+         end
+     end
+
   end
 
   return mb~string
-
-
-args_to_string: procedure
-  use arg stackFrame, maxLen=10
-  args=stackFrame~arguments
-  if args~size=0 then return ""
-
-  if args~hasindex(1)=.false, args~size>1 then
-     str=" "
-  else
-     str=""
-say "... args_to_string:" "items="pp2(args~items) "size="pp2(args~size) pp2(args~toString(,","))
-  do i=1 to args~size
-     if args~hasindex(i)=.true then -- not omitted, process argument
-     do
-        val=args[i]
-        tmp=""
-        select
-        when val=.nil then tmp=".nil"  -- .nil
-        when val=""   then tmp='""'    -- empty string
-        otherwise
-           do
-              tmp=val~string           -- get string representatoin
-              if tmp~length>maxLen then
-                 tmp=tmp~substr(1,maxLen)"..."
-              tmp=enquote(tmp)
-           end
-        end
-        str||=tmp
-
-        if i<args~size then str ||=", "
-     end
-     else   -- omitted argument
-     do
-        str||=", "
-     end
-  end
-  return str --~strip
-
-enquote: procedure
-  parse arg a
-  q='"';qq='""'
-  return q || a~changestr(q,qq) || q
-
 
 
 /* Create and return a string rendering of the package information.
