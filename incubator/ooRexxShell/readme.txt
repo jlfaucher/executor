@@ -274,9 +274,8 @@ trap off|on [l[ostdigits]] [nom[ethod]] [nos[tring]] [nov[alue]] [s[yntax]]: dea
 Known problems under Windows
 ============================
 
-- If you want the colors then you must put gci.dll in your PATH.
-  You can get gci here: http://rexx-gci.sourceforge.net
-  For 64-bit support and new type aliases, see https://github.com/jlfaucher/rexx-gci
+- The colors are now handled with ANSI escape sequences.
+  Prequisite: at least Windows 10.
 
 - If you launch ooRexxShell from a .bat file, then you need to prepend cmd /c to have the
   doskey history working correctly.
@@ -344,6 +343,14 @@ Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
 
 History of changes
 ==================
+
+-----------------------------------------------
+2024 apr 23
+
+Under Windows, GCI no longer needed for the colors.
+From Gil: with Windows 10/11, ANSI color sequences are supported so it should be
+possible to use the same "colorizing" as is used on non-Windows.
+
 
 -----------------------------------------------
 2023 sep 01
