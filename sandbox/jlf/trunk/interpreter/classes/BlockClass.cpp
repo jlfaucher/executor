@@ -134,7 +134,7 @@ RexxSourceLiteral::RexxSourceLiteral(RexxString *s, PackageClass *p, size_t star
 
     // clauser~transformSource(clauseBefore, clauseAfter)
     // Transform the source to accept auto named arguments, and to return implicitely the result of the last evaluated expression
-    RexxString *clauseBefore = new_string("use auto named arg ; options \"NOCOMMANDS\" ; .RexxBlock~assignDefinitionPackageEncoding(.context)");
+    RexxString *clauseBefore = new_string("use auto named arg ; options \"NOCOMMANDS\"");
     ProtectedObject pClauseBefore(clauseBefore);
     RexxString *clauseAfter = new_string("if var(\"result\") then return result");
     ProtectedObject pClauseAfter(clauseAfter);
@@ -155,6 +155,19 @@ RexxObject  *RexxSourceLiteral::evaluate(
     stack->push(value);                /* place on the evaluation stack     */
                                        /* trace if necessary                */
     context->traceIntermediate(value, TRACE_PREFIX_LITERAL);
+
+    PackageClass *package = context->getPackage();
+    ProtectedObject result;
+    bool messageUnderstood = package->messageSend(OREF_ENCODING, OREF_NULL, 0, 0, result, false);
+    if (messageUnderstood && (RexxObject *)result != OREF_NULL) // the package has an encoding
+    {
+        RexxObject *packageEncoding = (RexxObject *)result;
+        // The encoding of a block is equal to the encoding of its definition package
+        RexxObject *args[1];
+        args[0] = packageEncoding; // positional argument
+        messageUnderstood = value->messageSend(OREF_SETENCODING, args, 1, 0, result, false);
+    }
+
     return value;                      /* also return the result            */
 }
 
@@ -194,7 +207,8 @@ void *RexxBlock::operator new(size_t size)
 /**
  * Constructor for a RexxBlock object.
  *
- * @param p      The package class.
+ * @param s      The source literal.
+ * @param c      The context.
  */
 RexxBlock::RexxBlock(RexxSourceLiteral *s, RexxContext *c)
 {
@@ -229,8 +243,9 @@ RexxBlock::RexxBlock(RexxSourceLiteral *s, RexxContext *c)
  * error because RexxBlock objects can only be created
  * by the internal interpreter.
  *
- * @param args   The NEW args
- * @param argc   The count of arguments
+ * @param args          The NEW args
+ * @param argc          The count of positional arguments
+ * @param named_argc    The count of named arguments
  *
  * @return Never returns.
  */

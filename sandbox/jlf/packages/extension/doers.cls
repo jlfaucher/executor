@@ -663,20 +663,6 @@ Ex :
     forward message (msg) arguments (args) namedArguments (namedArguments) to (self~doer)
 
 
--- Helper for blocks
--- A RexxBlock has the same encoding as its definition package.
-::method assignDefinitionPackageEncoding class
-    use strict arg myContext
-    -- search the top-level package
-    context = myContext
-    do forever
-        parentContext = context~parentContext -- .nil if native or top-level activation.
-        if .nil == parentContext then leave
-        context = parentContext
-    end
-    myContext~package~setEncoding(context~package~encoding)
-
-
 -----------------------------------------------------------------------------
 -- Mixin.
 

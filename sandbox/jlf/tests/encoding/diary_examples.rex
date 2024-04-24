@@ -8,6 +8,53 @@ call loadUnicodeCharacterNames
 
 
 -- ===============================================================================
+-- 2024 Apr 24
+
+/*
+Rework the support of encoding for RexxBlock.
+The definition doesn't change:
+A RexxBlock has the same encoding as its definition package.
+New methods:
+    encoding
+    encoding=
+    hasEncoding
+    setEncoding
+Examples:
+*/
+block = {say .context~package~encoding; s1 = "Père Noël"; say s1~class s1~encoding; s2 = "Père" "Noël"; say s~class s~encoding}
+block~hasEncoding=                                  -- 1
+block~encoding=                                     -- (The UTF8_Encoding class)
+block~()
+/*
+    The UTF8_Encoding class                         -- encoding of the definition package
+    The RexxText class The UTF8_Encoding class      -- encoding of the definition package (string literal)
+    The String class The UTF8_Encoding class        -- encoding of the calculated string
+*/
+
+-- Changing the block encoding
+block = {say .context~package~encoding; s1 = "Père Noël"; say s1~class s1~encoding; s2 = "Père" "Noël"; say s~class s~encoding}
+oldEncoding = block~setEncoding("byte")
+oldEncoding=                                        -- (The UTF8_Encoding class)
+block~hasEncoding=                                  -- 1
+block~encoding=                                     -- (The Byte_Encoding class)
+block~()
+/*
+    The Byte_Encoding class                         -- encoding of the definition package
+    The String class The Byte_Encoding class        -- encoding of the definition package (string literal)
+    The String class The UTF8_Encoding class        -- Calculated string. TODO should be The Byte_Encoding
+*/
+block~setEncoding(oldEncoding)
+block~hasEncoding=                                  -- 1
+block~encoding=                                     -- (The UTF8_Encoding class)
+block~()
+/*
+    The UTF8_Encoding class
+    The String class The Byte_Encoding class        -- Once a string literal has a stored encoding, it doesn't change
+    The String class The UTF8_Encoding class
+*/
+
+
+-- ===============================================================================
 -- 2024 Apr 22
 
 /*
@@ -125,7 +172,7 @@ t=              -- T''
 New methods:
     .String~byte
     .RexxText~byte
-Returns a Byte representation of the string or text.
+Returns a copy of the string or text, with encoding = The Byte_Encoding.
 The Byte_Encoding is a raw encoding with few constraints. It's often used for
 diagnostic or repair. It can be always absorbed when doing a concatenation or a
 comparison. BUT it's impossible to transcode from/to it without errors if the
@@ -258,13 +305,6 @@ Examples:
 
 /*
 A RexxBlock has the same encoding as its definition package.
-This is managed by its source transformation:
-.RexxBlock~assignDefinitionPackageEncoding(.context)
-Example:
-*/
-{}~rawExecutable~source==
-
-/*
 Examples:
 */
 {.context~package~encoding}~()=         -- (The UTF8_Encoding class)
@@ -418,7 +458,7 @@ x2c("41")=;result~description=                  -- 'A'          'UTF-8 ASCII by 
 
 
 -- ===============================================================================
--- 2024 Apr 02
+-- 2024 Apr 03
 
 /*
 No longer apply the rule R3 during the automatic conversion of String literals
@@ -452,7 +492,7 @@ A package has an encoding:
     hasEncoding
 Rules for the calculation of a package default encoding:
 Case 1: package not requesting "text.cls", directly or indirectly.
-    Most of the legacy packages don't support an encoding other than Byte.
+    Most of the legacy packages don't support an automatic conversion to text.
     The package's default encoding is Byte (not .Encoding~defaultEncoding).
 Case 2: package requesting "text.cls", directly or indirectly.
     We assume that the requester supports an automatic conversion to text.

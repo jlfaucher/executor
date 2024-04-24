@@ -892,19 +892,6 @@ https://nanxiao.me/en/a-judy-array-example/
 
 
 ================================================================================
-Encoded strings - WON'T DO
-================================================================================
-
-Should I raise an error if the encoding is overwritten?
-    "Noël"~text("utf8") == "Noël"~text("byte")=     -- true, should raise an error "cannot compare Byte not-ASCII with UTF-8 not-ASCII"
-is true because "Noël" is an interned string.
-Both texts have the byte encoding (the last assigned).
-Same problem with
-    NU = "Noël"~text; NB = "Noël"~text; NB~encoding = "byte"; NU == NB=     -- true, should raise an error
-Decision: no, problem already identified and documented in the demos.
-
-
-================================================================================
 Encoded strings - TODO
 ================================================================================
 

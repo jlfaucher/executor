@@ -110,6 +110,7 @@ void RexxString::checkTE(const char *method)
 }
 
 
+// Never called
 RexxString::RexxString()
 {
 #if check_TE
@@ -154,6 +155,19 @@ void RexxString::checkTE(RESTORETYPE restoreType)
 }
 
 
+/*
+Called ONCE at start-up (per interpreter)
+
+#0	0x00000001006cddf8 in RexxString::RexxString(RESTORETYPE) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:159
+#1	0x0000000100703520 in RexxMemory::buildVirtualFunctionTable() at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/behaviour/VirtualFunctionTable.cpp:253
+       objectPtr = new (objectLoc) RexxString(RESTOREIMAGE);
+       virtualFunctionTable[T_String] = getVftPointer(objectLoc);
+#2	0x0000000100737394 in RexxMemory::initialize(bool, char const*) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/memory/RexxMemory.cpp:207
+#3	0x00000001007a2ee0 in Interpreter::startInterpreter(Interpreter::InterpreterStartupMode, char const*) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/runtime/Interpreter.cpp:134
+#4	0x00000001007a3470 in Interpreter::createInterpreterInstance(RexxOption*) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/runtime/Interpreter.cpp:305
+#5	0x00000001007a334c in Interpreter::createInstance(RexxInstance_*&, RexxThreadContext_*&, RexxOption*) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/runtime/Interpreter.cpp:263
+#6	0x00000001006f6f6c in ::RexxCreateInterpreter(RexxInstance **, RexxThreadContext **, RexxOption *) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/api/InterpreterAPI.cpp:383
+*/
 RexxString::RexxString(RESTORETYPE restoreType)
 {
 #if check_TE

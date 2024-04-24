@@ -29,6 +29,8 @@ P. PCG.    'ALNUM'                              : 'String' 'StringCompatibilityW
 P. PCG.    'ALPHA'                              : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
 P. P...    'ARITY'                              : 'String' 'Doer' (doers.cls)
 P. PCG.    'BLANK'                              : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
+P. P.G.    'BYTE'                               : 'String' 'StringRexxTextInterface' (text.cls)
+P. P.G.    'BYTES'                              : 'String' 'StringRexxTextInterface' (text.cls)
 P. P.G.    'C2G'                                : 'String' 'StringRexxTextInterface' (text.cls)
 P. P.G.    'C2U'                                : 'String' 'StringRexxTextInterface' (text.cls)
 P. P.G.    'CALL'                               : 'String' 'String' (rgf_util2_wrappers.rex)
@@ -61,6 +63,7 @@ P. P.G.    'DELWORD2'                           : 'String' 'String' (rgf_util2_w
 P. P.G.    'DEPTH'                              : 'String' 'Object' (array.cls)
 P. P.G.    'DESCRIPTION'                        : 'String' 'StringRexxTextInterface' (text.cls)
 P. P.G.    'DESCRIPTIONFORERROR'                : 'String' 'StringRexxTextInterface' (text.cls)
+P. P.G.    'DETACH'                             : 'String' 'EncodedString' (text.cls)
 P. PCG.    'DIGIT'                              : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
 P. P.G.    'DISCLOSE'                           : 'String' 'Object' (array.cls)
 P. P...    'DO'                                 : 'String' 'StringDoer' (doers.cls)
@@ -144,9 +147,9 @@ P. P.G.    'ISNFKC'                             : 'String' 'StringRexxTextInterf
 P. P.G.    'ISNFKD'                             : 'String' 'StringRexxTextInterface' (text.cls)
 P. P.G.    'ISNIL'                              : 'String' 'Object' (object.cls)
 P. PCG.    'ISNIL'                              : 'String' 'Object' (object.cls)
+P. PCG.    'ISTEXTORBUFFERORSTRING'             : 'String' 'Object' (text.cls)
 P. P.G.    'ISTEXTORBUFFERORSTRING'             : 'String' 'EncodedString' (text.cls)
 P. P.G.    'ISTEXTORBUFFERORSTRING'             : 'String' 'Object' (text.cls)
-P. PCG.    'ISTEXTORBUFFERORSTRING'             : 'String' 'Object' (text.cls)
 P. P.G.    'ISUPPER'                            : 'String' 'StringRexxTextInterface' (text.cls)
 P. P.G.    'JOIN'                               : 'String' 'StringHelpers' (string.cls)
 P. P.G.    'LASTPOS2'                           : 'String' 'String' (rgf_util2_wrappers.rex)
@@ -291,8 +294,8 @@ P. P.G.    'WTF8'                               : 'String' 'StringRexxTextInterf
 P. PCG.    'XDIGIT'                             : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
 P. P.G.    '[]'                                 : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
 P. P...    '~()'                                : 'String' 'Doer' (doers.cls)
-[Info] [1] Class 'String' has 442 methods
-[Info] 271 lines displayed
+[Info] [1] Class 'String' has 447 methods
+[Info] 274 lines displayed
 
 /*
 Blocks

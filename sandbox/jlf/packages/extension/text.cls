@@ -15,6 +15,8 @@
 
 ::extension Package         inherit EncodedPackage
 
+::extension RexxBlock       inherit EncodedRexxBlock
+
 ::requires "extension/string.cls"   -- for escape3
 ::requires "encoding/stringEncoding.cls"
 
@@ -512,7 +514,7 @@ Return directly the buffer, without requesting a string from it.
 /*
     Nothing sophisticated here...
     Just manage the attribute 'encoding', to know what is the encoding of the Package.
-    This encoding is used when evaluating a String, to decide if the string must be converted to a RexxText.
+    This encoding is used when evaluating a String literal, to decide if the string must be converted to a RexxText.
     Todo later: support ::options encoding <anEncoding>
 */
 
@@ -581,6 +583,31 @@ Return directly the buffer, without requesting a string from it.
     expose encoding
     use strict arg -- none
     return var("encoding")
+
+
+/******************************************************************************/
+::class "EncodedRexxBlock" mixinclass Object private
+
+/*
+    Nothing sophisticated here...
+    The encoding of a RexxBlock is given by the package of its source literal.
+    This encoding is used when evaluating a String literal inside the block, to decide if the string must be converted to a RexxText.
+*/
+
+::attribute encoding get
+    forward to (self~rawExecutable~package)
+
+
+::attribute encoding set
+    forward to (self~rawExecutable~package)
+
+
+::method setEncoding
+    forward to (self~rawExecutable~package)
+
+
+::method hasEncoding
+    forward to (self~rawExecutable~package)
 
 
 /******************************************************************************/
