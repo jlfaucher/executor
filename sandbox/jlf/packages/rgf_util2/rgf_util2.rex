@@ -107,6 +107,14 @@
 
                   2018-09-30  - ppCondition2(): test whether the class .BSF (from BSF4ooRexx) is present before
                                 using it in the isA(.bsf) test
+                  2024-04-25  - add Jean Louis Faucher's changes to rgf_util2 to make it
+                                compatible on ooRexx 5.x
+                              - added private class "someRexxInfo" with the getter method
+                                "internalDigits" which returns 9 for 32-bit (default) and
+                                18 for 64-bit
+                              - new id2x(number) routine to create a hexadecimal rendering
+                                of the ~identityHash value to make it better legible,
+                                comprehensible
 
 
       purpose:    set of 3.2 utilities to ease programming of 3.2.0, e.g. offer sort2()- and
@@ -2699,9 +2707,9 @@ createCodeSnippet: procedure
   if \a1~isA(.string) then
   do
      if a1~isA(.Collection) then
-        return "["a1~string "("a1~items "items)" "id#_" || (a1~identityHash)"]"
+        return "["a1~string "("a1~items "items)" "id#_" || id2x(a1~identityHash)"]"
      else
-        return "["a1~string "id#_" || (a1~identityHash)"]"
+        return "["a1~string "id#_" || id2x(a1~identityHash)"]"
   end
 
   return "["escape2(a1)"]"
@@ -2751,7 +2759,7 @@ createCodeSnippet: procedure
         end
      end
 
-     return "["a1~string "id#_" || (a1~identityHash)"]"
+     return "["a1~string "id#_" || id2x(a1~identityHash)"]"
   end
 
   return pp2(a1)     -- rgf, 20091228
@@ -3477,4 +3485,51 @@ listCollection: procedure
         mb~~append(indent) ~~append(pp2(idx)) ~~append(lf)
   end
   return mb~string
+
+
+
+/** This routine creates a hexadecimal value from the identityHash number returned by .Object's
+    identityHash method taking the bitness of the ooRexx interpreter into account.
+    If running on a 64-bit interpreter the hexadeciimal value will be 16 characters
+    long, if running on a 32-bit interpreter it will be 8 characters long.
+
+    @param argVal the identityHash number returned by .Object's identityHash method
+    @param deliString on 64-bit systems: optional delimiter string for grouping eight hex digit
+                characters, defaults to underscore (_)
+    @return hexadecimal value
+    @since  2024-04-25
+    @author Rony G. Flatscher
+*/
+::routine id2x public       -- "pointer" to hexadecimal string: convert identityHash value to hexadecimal string
+  use strict arg argVal, deliString=("_")
+
+  iDigits=.someRexxInfo~internalDigits  -- get number of internal digits
+  numeric digits iDigits
+  val=argVal~d2x(iDigits)  -- convert to a hexadecimal string
+  if iDigits=9 then len=8; else len=16  -- determine length of hexadecimal value
+  hexval = val~right(len)  -- extract the hex digits representing 32 or 64 bit value
+  if iDigits=18, deliString<>"" then   -- insert delimiter into hexadecimal string
+     hexVal=hexVal~insert(deliString,8)
+  return hexVal
+
+/** Just parse the version once, then cache internalDigits */
+::class someRexxinfo    -- a private class
+
+/** Just parse the version once to determine size of internalDigigs,
+    then cache internalDigits. Defaults to 9 digits (32-bit), 18 digits
+    if 64-bit.
+*/
+::method init class
+  expose internalDigits
+  internalDigits=9      -- default: 32-bit
+  parse version version
+  if version~pos("64-bit") <> 0 then
+     internalDigits=18
+
+/** Getter method for internalDigits.
+*  @return internalDigits which is 9 for 32-bit and 18 for 64-bit ooRexx
+*/
+::method internalDigits class
+  expose internalDigits
+  return internalDigits
 
