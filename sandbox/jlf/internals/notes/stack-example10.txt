@@ -1,0 +1,579 @@
+The test suite crashes
+
+I can reproduce the crash under Windows ARM, same call stack as you.
+
+The data breakpoint triggers 2 times, but it's a normal situation.
+It's because of
+  .TraceObject~setMakeString(.resources~myMakeString)
+  .TraceObject~unsetMakeString   -- reset (uses default implementation)
+In both cases, a copy of the behaviour is assigned for this = RexxClass "TraceObject"
+
+
+>	rexx.dll!RexxObject::defineInstanceMethod(RexxString * msgname, MethodClass * methobj, RexxClass * scope) Line 2310	C++
+        {
+            ...
+            // copy primitive behaviour object and define the method, a copy is made to
+            // ensure that we don't update the behaviour of any other object, since they
+            // may have been sharing the mvd.
+            setField(behaviour, (RexxBehaviour *)behaviour->copy());
+            ...
+        }
+
+
+>	rexx.dll!RexxObject::deleteInstanceMethod(RexxString * msgname) Line 2335	C++
+        {
+            ...
+            // copy primitive behaviour object and define the method, a copy is made to
+            // ensure that we don't update the behaviour of any other object, since they
+            // may have been sharing the mvd.
+            setField(behaviour, (RexxBehaviour *)behaviour->copy());
+            ...
+        }
+
+
+I still don't know the root cause of the crash.
+I protected buffer in RexxActivation::traceSourceString but the crash still occurs.
+
+After the crash, I noticed that the attribute owningClass of the behaviour is NULL, which is not normal.
+I put a data breakpoint on owningClass but it doesnt trigger.
+
+But good news:
+If I put in comment the setMakeString & unsetMakeString, no more crash
+(well… I tested only once, maybe I was lucky)
+
+So there is probably something to investigate around the impacts of this assignement of behaviour->copy()
+
+================================================================================
+this = RexxClass "TraceObject"
+
+RexxObject *RexxObject::messageSend(RexxString *msgname, RexxObject **arguments, size_t  count, ProtectedObject &result)
+{
+    // check for a control stack condition
+    ActivityManager::currentActivity->checkStackSpace();
+    // see if we have a method defined
+    MethodClass *method_save = behaviour->methodLookup(msgname);
+
+
+{
+    // just get the object directly.  Unknown methods will return OREF_NULL.  However,
+    // explicit overrides are indicated by putting .nil in the table.  Our callers
+    // are dependent upon getting OREF_NULL back for unknown methods.
+    MethodClass *method = methodDictionary->getMethod(messageName);
+    if (method != TheNilObject)
+    {
+        return method;
+    }
+    return OREF_NULL;
+}
+
+
+RexxInternalObject *HashCollection::get(RexxInternalObject *key)
+{
+    return contents->get(key);
+}
+
+
+this->behaviour->methodDictionary
+
+
+This did not change the crash, here a snippet from the top of the call stack:
+
+>	rexx.dll!MethodDictionary::getMethod(RexxString * methodName=0x000001dc80009dd0) Line 69	C++
+ 	rexx.dll!RexxBehaviour::methodLookup(RexxString * messageName=0x000001dc80009dd0) Line 443	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname=0x000001dc80009dd0, RexxObject * * arguments=0x0000000000000000, unsigned __int64 count=0, ProtectedObject & result={...}) Line 871	C++
+ 	rexx.dll!CreateTraceObject(Activity * activity=0x000001dc80234eb0, RexxActivation * activation=0x000001dc946e7950, RexxString * traceline=0x000001dc946ed550) Line 3118	C++
+ 	rexx.dll!Activity::traceOutput(RexxActivation * activation=0x000001dc946e7950, RexxString * line=0x000001dc946ed550) Line 3162	C++
+ 	rexx.dll!RexxActivation::traceSourceString() Line 3913	C++
+ 	rexx.dll!RexxActivation::traceClause(RexxInstruction * clause=0x000001dc88d000e0, RexxActivation::TracePrefix prefix=TRACE_PREFIX_CLAUSE) Line 4203	C++
+ 	rexx.dll!RexxActivation::traceInstruction(RexxInstruction * v=0x000001dc88d000e0) Line 370	C++
+ 	rexx.dll!RexxInstructionAssignment::execute(RexxActivation * context=0x000001dc946e7950, ExpressionStack * stack=0x000001dc946e7ab8) Line 118	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver=0x000001dc8fcb5170, RexxString * name=0x000001dc88cff000, RexxObject * * _arglist=0x000001dc851acc60, unsigned __int64 _argcount=0, RexxInstruction * start=0x0000000000000000, ProtectedObject & resultObj={...}) Line 626	C++
+ 	rexx.dll!RexxCode::run(Activity * activity=0x000001dc80234eb0, MethodClass * method=0x000001dc88d017b0, RexxObject * receiver=0x000001dc8fcb5170, RexxString * msgname=0x000001dc88cff000, RexxObject * * argPtr=0x000001dc851acc60, unsigned __int64 argcount=0, ProtectedObject & result={...}) Line 211	C++
+ 	rexx.dll!MethodClass::run(Activity * activity=0x000001dc80234eb0, RexxObject * receiver=0x000001dc8fcb5170, RexxString * msgname=0x000001dc88cff000, RexxObject * * argPtr=0x000001dc851acc60, unsigned __int64 count=0, ProtectedObject & result={...}) Line 172	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname=0x000001dc88cff000, RexxObject * * arguments=0x000001dc851acc60, unsigned __int64 count=0, ProtectedObject & result={...}) Line 901	C++
+ 	rexx.dll!MessageClass::dispatch() Line 445	C++
+ 	rexx.dll!MessageClass::send() Line 413	C++
+ 	rexx.dll!MessageClass::sendRexx(RexxObject * * arguments=0x000001dc80e375b0, unsigned __int64 argCount=0) Line 329	C++
+ 	rexx.dll!CPPCode::run(Activity * activity=0x000001dc80234eb0, MethodClass * method=0x000001dc80133b60, RexxObject * receiver=0x000001dc8b4f56c0, RexxString * messageName=0x000001dc804d9290, RexxObject * * argPtr=0x000001dc80e375b0, unsigned __int64 count=0, ProtectedObject & result={...}) Line 147	C++
+ 	rexx.dll!MethodClass::run(Activity * activity=0x000001dc80234eb0, RexxObject * receiver=0x000001dc8b4f56c0, RexxString * msgname=0x000001dc804d9290, RexxObject * * argPtr=0x000001dc80e375b0, unsigned __int64 count=0, ProtectedObject & result={...}) Line 172	C++
+... cut ...
+Here MSV's Locals tab:
+
++		this	0x0000000000000000 <NULL>	MethodDictionary *
++		methodName	0x000001dc80009dd0 {hashValue=77184 length=3 numberStringValue=0x0000000000000000 <NULL> ...}	RexxString *
+
+exploding both entries:
+
+-		this	0x0000000000000000 <NULL>	MethodDictionary *
++		StringHashCollection	<struct at NULL>	StringHashCollection
+		instanceMethods	<Unable to read memory>
+		scopeList	<Unable to read memory>
+		scopeOrders	<Unable to read memory>
+-		methodName	0x000001dc80009dd0 {hashValue=77184 length=3 numberStringValue=0x0000000000000000 <NULL> ...}	RexxString *
++		RexxObject	{objectVariables=0x0000000000000000 <NULL> }	RexxObject
+		hashValue	77184	unsigned __int64
+		length	3	unsigned __int64
++		numberStringValue	0x0000000000000000 <NULL>	NumberString *
++		attributes	{flags={bits=18 } }	FlagSet<enum RexxString::StringFlag,32>
++		stringData	0x000001dc80009e14 "NEW"	char[4]
+Here the Threads tab:
+
+Not Flagged		5264	0	Worker Thread	ntdll.dll!TppWorkerThread	ntdll.dll!NtWaitForWorkViaWorkerFactory	Normal
+Not Flagged	>	19360	0	Main Thread	Main Thread	rexx.dll!MethodDictionary::getMethod	Normal
+Not Flagged		9892	0	Worker Thread	ANSI64.dll thread	ANSI64.dll!0000000068eb2390	Normal
+Not Flagged		23784	0	Worker Thread	rexx.dll!dispatch_activity_function()	win32u.dll!NtUserMsgWaitForMultipleObjectsEx	Normal
+Not Flagged		29144	0	Worker Thread	ntdll.dll!TppWorkerThread	ntdll.dll!NtWaitForWorkViaWorkerFactory	Normal
+Not Flagged		18216	0	Worker Thread	ntdll.dll!TppWorkerThread	ntdll.dll!NtWaitForWorkViaWorkerFactory	Normal
+Not Flagged		23764	0	Worker Thread	rexx.dll!dispatch_activity_function()	win32u.dll!NtUserMsgWaitForMultipleObjectsEx	Normal
+Not Flagged		22952	0	Worker Thread	rexx.dll!dispatch_activity_function()	win32u.dll!NtUserMsgWaitForMultipleObjectsEx	Normal
+Not Flagged		34708	0	Worker Thread	rexx.dll!dispatch_activity_function()	win32u.dll!NtUserMsgWaitForMultipleObjectsEx	Normal
+Not Flagged		40276	0	Worker Thread	ntdll.dll!TppWorkerThread	ntdll.dll!NtWaitForWorkViaWorkerFactory	Normal
+Not Flagged		41588	0	Worker Thread	ntdll.dll!TppWorkerThread	ntdll.dll!NtWaitForWorkViaWorkerFactory	Normal
+Not Flagged		20828	0	Worker Thread	combase.dll!CRpcThreadCache::RpcWorkerThreadEntry	combase.dll!WaitCoalesced	Normal
+Not Flagged		36464	0	Worker Thread	ntdll.dll!TppWorkerThread	ntdll.dll!NtWaitForWorkViaWorkerFactory	Normal
+
+-------------------------------------------------------------------------------------------
+
+Here the other version:
+
+Used the following version to get some debug output using fprintf():
+
+inline RexxClass *getRexxPackageTraceObject()    // only do the findClass() once
+{
+    static RexxClass *RexxPackageTraceObject = OREF_NULL;
+    if (RexxPackageTraceObject==OREF_NULL)
+    {
+        RexxObject *t = OREF_NULL;   // required for the findClass call
+        RexxPackageTraceObject = TheRexxPackage->findClass(GlobalNames::TRACEOBJECT, t);
+/* line # 3088 */ fprintf(stderr,"... getRexxPackageTraceObject():         (line=%d):         clsTraceObject=[%p]\n", __LINE__,RexxPackageTraceObject);fflush(stderr);
+    }
+   else
+    {
+        RexxObject *t = OREF_NULL;   // required for the findClass call
+        RexxClass *clsTraceObject = TheRexxPackage->findClass(GlobalNames::TRACEOBJECT, t);
+/* line # 3094 */ fprintf(stderr,"... getRexxPackageTraceObject(): in else (line=%d): RexxPackageTraceObject=[%p], clsTraceObject=[%p]\n", __LINE__, RexxPackageTraceObject, clsTraceObject);fflush(stderr);
+        if (RexxPackageTraceObject != clsTraceObject)
+        {
+/* line # 3097 */ fprintf(stderr,"... getRexxPackageTraceObject():         (line=%d): RexxPackageTraceObject=[%p], clsTraceObject=[%p]\n", __LINE__, RexxPackageTraceObject, clsTraceObject);fflush(stderr);
+            // Should not happen, put a breakpoint next line
+            RexxPackageTraceObject = clsTraceObject;
+        }
+    }
+    return RexxPackageTraceObject;
+}
+Ran it with the following output before the crash:
+
+... cut ...
+... getRexxPackageTraceObject(): in else (line=3094): RexxPackageTraceObject=[000002D1F100D190], clsTraceObject=[000002D1F100D190]
+... getRexxPackageTraceObject(): in else (line=3094): RexxPackageTraceObject=[000002D1F100D190], clsTraceObject=[000002D1F100D190]
+Executing ...\oorexx\test\trunk\ooRexx\base\keyword\USE.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\keyword\USELOCAL.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\keyword\VarRef.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\Macrospace.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\SysDumpVariables.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\SysFileDateTime.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\SysFileSearch.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\SysFileTree.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\SysFileXXX.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\SysFormatMessage.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\SysSearchPath.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\SysSleep.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\SysStemCopy.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\SysStemDelete.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\SysStemInsert.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\SysStemSort.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\platform\windows\SysBootDrive.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\platform\windows\SysCurPos.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\platform\windows\SysCurState.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\platform\windows\SysDrive.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\platform\windows\SysDriveMap.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\platform\windows\SysFileTree.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\platform\windows\SysGetXxxPathName.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\platform\windows\SysIni.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\platform\windows\SysIsFileDirectory.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\platform\windows\SysSystemDirectory.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\platform\windows\SysTextScreenRead.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\platform\windows\SysTextScreenSize.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\platform\windows\SysWinVer.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\rexxutil\platform\windows\SysWin_xxx_Printer.testGroup
+Executing ...\oorexx\test\trunk\ooRexx\base\runtime.objects\environmentEntries.testGroup
+... getRexxPackageTraceObject(): in else (line=3094): RexxPackageTraceObject=[000002D1F100D190], clsTraceObject=[000002D1F100D190]
+So it seems that the proper TraceObject class gets used, but something seems to be wrong with the methodDictionary (is NULL) used by RexxBehaviour.cpp.
+
+Here the top of the call stack:
+
+>	rexx.dll!MethodDictionary::getMethod(RexxString * methodName=0x000002d1f0fb7dd0) Line 69	C++
+ 	rexx.dll!RexxBehaviour::methodLookup(RexxString * messageName=0x000002d1f0fb7dd0) Line 443	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname=0x000002d1f0fb7dd0, RexxObject * * arguments=0x0000000000000000, unsigned __int64 count=0, ProtectedObject & result={...}) Line 871	C++
+ 	rexx.dll!CreateTraceObject(Activity * activity=0x000002d1f11e5eb0, RexxActivation * activation=0x000002d183bb3c00, RexxString * traceline=0x000002d183baf600) Line 3110	C++
+ 	rexx.dll!Activity::traceOutput(RexxActivation * activation=0x000002d183bb3c00, RexxString * line=0x000002d183baf600) Line 3154	C++
+ 	rexx.dll!RexxActivation::traceSourceString() Line 3913	C++
+ 	rexx.dll!RexxActivation::traceClause(RexxInstruction * clause=0x000002d1f9d77b10, RexxActivation::TracePrefix prefix=TRACE_PREFIX_CLAUSE) Line 4203	C++
+ 	rexx.dll!RexxActivation::traceInstruction(RexxInstruction * v=0x000002d1f9d77b10) Line 370	C++
+ 	rexx.dll!RexxInstructionAssignment::execute(RexxActivation * context=0x000002d183bb3c00, ExpressionStack * stack=0x000002d183bb3d68) Line 118	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver=0x000002d183972060, RexxString * name=0x000002d1f9d76a30, RexxObject * * _arglist=0x000002d183bb2270, unsigned __int64 _argcount=0, RexxInstruction * start=0x0000000000000000, ProtectedObject & resultObj={...}) Line 626	C++
+ 	rexx.dll!RexxCode::run(Activity * activity=0x000002d1f11e5eb0, MethodClass * method=0x000002d1f9d791e0, RexxObject * receiver=0x000002d183972060, RexxString * msgname=0x000002d1f9d76a30, RexxObject * * argPtr=0x000002d183bb2270, unsigned __int64 argcount=0, ProtectedObject & result={...}) Line 211	C++
+ 	rexx.dll!MethodClass::run(Activity * activity=0x000002d1f11e5eb0, RexxObject * receiver=0x000002d183972060, RexxString * msgname=0x000002d1f9d76a30, RexxObject * * argPtr=0x000002d183bb2270, unsigned __int64 count=0, ProtectedObject & result={...}) Line 172	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname=0x000002d1f9d76a30, RexxObject * * arguments=0x000002d183bb2270, unsigned __int64 count=0, ProtectedObject & result={...}) Line 901	C++
+ 	rexx.dll!MessageClass::dispatch() Line 445	C++
+ 	rexx.dll!MessageClass::send() Line 413	C++
+ 	rexx.dll!MessageClass::sendRexx(RexxObject * * arguments=0x000002d1f1dea5b0, unsigned __int64 argCount=0) Line 329	C++
+ 	rexx.dll!CPPCode::run(Activity * activity=0x000002d1f11e5eb0, MethodClass * method=0x000002d1f10e1b60, RexxObject * receiver=0x000002d183baf580, RexxString * messageName=0x000002d1f148a290, RexxObject * * argPtr=0x000002d1f1dea5b0, unsigned __int64 count=0, ProtectedObject & result={...}) Line 147	C++
+ 	rexx.dll!MethodClass::run(Activity * activity=0x000002d1f11e5eb0, RexxObject * receiver=0x000002d183baf580, RexxString * msgname=0x000002d1f148a290, RexxObject * * argPtr=0x000002d1f1dea5b0, unsigned __int64 count=0, ProtectedObject & result={...}) Line 172	C++
+... cut ...
+MVS shows the following under the Locals tab:
+
++		this	0x0000000000000000 <NULL>	MethodDictionary *
++		methodName	0x000002d1f0fb7dd0 {hashValue=77184 length=3 numberStringValue=0x0000000000000000 <NULL> ...}	RexxString *
+
+
+here first level exploded:
+
+-		this	0x0000000000000000 <NULL>	MethodDictionary *
++		StringHashCollection	<struct at NULL>	StringHashCollection
+		instanceMethods	<Unable to read memory>
+		scopeList	<Unable to read memory>
+		scopeOrders	<Unable to read memory>
+-		methodName	0x000002d1f0fb7dd0 {hashValue=77184 length=3 numberStringValue=0x0000000000000000 <NULL> ...}	RexxString *
++		RexxObject	{objectVariables=0x0000000000000000 <NULL> }	RexxObject
+		hashValue	77184	unsigned __int64
+		length	3	unsigned __int64
++		numberStringValue	0x0000000000000000 <NULL>	NumberString *
++		attributes	{flags={bits=18 } }	FlagSet<enum RexxString::StringFlag,32>
++		stringData	0x000002d1f0fb7e14 "NEW"	char[4]
+
+Here the thread list for completeness:
+
+Not Flagged		17192	0	Worker Thread	rexx.dll!dispatch_activity_function()	win32u.dll!NtUserMsgWaitForMultipleObjectsEx	Normal
+Not Flagged	>	17080	0	Main Thread	Main Thread	rexx.dll!MethodDictionary::getMethod	Normal
+Not Flagged		40720	0	Worker Thread	ANSI64.dll thread	ANSI64.dll!0000000068eb2390	Normal
+Not Flagged		512	0	Worker Thread	rexx.dll!dispatch_activity_function()	win32u.dll!NtUserMsgWaitForMultipleObjectsEx	Normal
+Not Flagged		33204	0	Worker Thread	ntdll.dll!TppWorkerThread	ntdll.dll!NtWaitForWorkViaWorkerFactory	Normal
+Not Flagged		32940	0	Worker Thread	ntdll.dll!TppWorkerThread	ntdll.dll!NtWaitForWorkViaWorkerFactory	Normal
+Not Flagged		30756	0	Worker Thread	rexx.dll!dispatch_activity_function()	win32u.dll!NtUserMsgWaitForMultipleObjectsEx	Normal
+Not Flagged		16848	0	Worker Thread	rexx.dll!dispatch_activity_function()	win32u.dll!NtUserMsgWaitForMultipleObjectsEx	Normal
+Not Flagged		41772	0	Worker Thread	ntdll.dll!TppWorkerThread	ntdll.dll!NtWaitForWorkViaWorkerFactory	Normal
+Not Flagged		41744	0	Worker Thread	ntdll.dll!TppWorkerThread	ntdll.dll!NtWaitForWorkViaWorkerFactory	Normal
+Not Flagged		36352	0	Worker Thread	combase.dll!CRpcThreadCache::RpcWorkerThreadEntry	combase.dll!WaitCoalesced	Normal
+Not Flagged		8356	0	Worker Thread	ntdll.dll!TppWorkerThread	ntdll.dll!NtWaitForWorkViaWorkerFactory	Normal
+
+
+
+
+
+=========================================================================================
+
+
+The following breakpoint was hit:
+When 0x209c72fb168 (Original Expression: (*((RexxInternalObject*)&(*((RexxObject*)RexxPackageTraceObject)))).behaviour) changes (8 bytes) in process 'rexx.exe'
+
+delete data breakpoint methodDictionary
+create data breakpoint methodDictionary for the new behaviour
+
+
+Executing ...\oorexx\official\test\trunk\ooRexx\base\keyword\SELECT.testGroup
+Executing ...\oorexx\official\test\trunk\ooRexx\base\keyword\SIGNAL.testGroup
+Executing ...\oorexx\official\test\trunk\ooRexx\base\keyword\SelectCase.testGroup
+Executing ...\oorexx\official\test\trunk\ooRexx\base\keyword\ShortCircuitAnd.testGroup
+Executing ...\oorexx\official\test\trunk\ooRexx\base\keyword\TRACE.testGroup
+Executing ...\oorexx\official\test\trunk\ooRexx\base\keyword\TRACE_TraceObject.testGroup
+  -- test setMakeString
+  .TraceObject~setMakeString(.resources~myMakeString)
+
+
+
+>	rexx.dll!RexxObject::defineInstanceMethod(RexxString * msgname, MethodClass * methobj, RexxClass * scope) Line 2310	C++
+        {
+            ...
+            // copy primitive behaviour object and define the method, a copy is made to
+            // ensure that we don't update the behaviour of any other object, since they
+            // may have been sharing the mvd.
+            setField(behaviour, (RexxBehaviour *)behaviour->copy());
+            ...
+        }
+ 	rexx.dll!RexxObject::setMethod(RexxString * name, MethodClass * methobj, RexxString * option) Line 1880	C++
+ 	    name = "makeStringImpl"
+ 	    MAKESTRINGIMPL
+ 	rexx.dll!CPPCode::run(Activity * activity, MethodClass * method, RexxObject * receiver, RexxString * messageName, RexxObject * * argPtr, unsigned __int64 count, ProtectedObject & result) Line 182	C++
+ 	rexx.dll!MethodClass::run(Activity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 count, ProtectedObject & result) Line 171	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned __int64 count, ProtectedObject & result) Line 900	C++
+ 	    msgname = "SETMETHOD"
+ 	    arguments[0] = "makeStringImpl"
+ 	    arguments[1] = array of 2 items
+ 	    count = 2
+ 	rexx.dll!ExpressionStack::send(RexxString * message, unsigned __int64 count, ProtectedObject & result) Line 80	C++
+ 	rexx.dll!RexxInstructionMessage::execute(RexxActivation * context, ExpressionStack * stack) Line 188	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * name, RexxObject * * _arglist, unsigned __int64 _argcount, RexxInstruction * start, ProtectedObject & resultObj) Line 626	C++
+ 	rexx.dll!RexxCode::run(Activity * activity, MethodClass * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 argcount, ProtectedObject & result) Line 210	C++
+ 	rexx.dll!MethodClass::run(Activity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 count, ProtectedObject & result) Line 171	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned __int64 count, ProtectedObject & result) Line 900	C++
+ 	    msgname = "SETMAKESTRING"
+ 	rexx.dll!ExpressionStack::send(RexxString * message, unsigned __int64 count, ProtectedObject & result) Line 80	C++
+ 	rexx.dll!RexxInstructionMessage::execute(RexxActivation * context, ExpressionStack * stack) Line 188	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * name, RexxObject * * _arglist, unsigned __int64 _argcount, RexxInstruction * start, ProtectedObject & resultObj) Line 626	C++
+ 	rexx.dll!RexxCode::run(Activity * activity, MethodClass * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 argcount, ProtectedObject & result) Line 210	C++
+ 	rexx.dll!MethodClass::run(Activity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 count, ProtectedObject & result) Line 171	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned __int64 count, ProtectedObject & result) Line 900	C++
+ 	rexx.dll!MessageClass::dispatch() Line 445	C++
+ 	rexx.dll!MessageClass::send() Line 412	C++
+ 	rexx.dll!MessageClass::sendRexx(RexxObject * * arguments, unsigned __int64 argCount) Line 328	C++
+ 	rexx.dll!CPPCode::run(Activity * activity, MethodClass * method, RexxObject * receiver, RexxString * messageName, RexxObject * * argPtr, unsigned __int64 count, ProtectedObject & result) Line 147	C++
+ 	rexx.dll!MethodClass::run(Activity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 count, ProtectedObject & result) Line 171	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned __int64 count, ProtectedObject & result) Line 900	C++
+ 	rexx.dll!ExpressionStack::send(RexxString * message, unsigned __int64 count, ProtectedObject & result) Line 80	C++
+ 	rexx.dll!RexxInstructionMessage::execute(RexxActivation * context, ExpressionStack * stack) Line 188	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * name, RexxObject * * _arglist, unsigned __int64 _argcount, RexxInstruction * start, ProtectedObject & resultObj) Line 626	C++
+ 	rexx.dll!RexxCode::run(Activity * activity, MethodClass * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 argcount, ProtectedObject & result) Line 210	C++
+ 	rexx.dll!MethodClass::run(Activity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 count, ProtectedObject & result) Line 171	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned __int64 count, ProtectedObject & result) Line 900	C++
+ 	rexx.dll!ExpressionStack::send(RexxString * message, unsigned __int64 count, ProtectedObject & result) Line 80	C++
+ 	rexx.dll!RexxInstructionMessage::execute(RexxActivation * context, ExpressionStack * stack) Line 188	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * name, RexxObject * * _arglist, unsigned __int64 _argcount, RexxInstruction * start, ProtectedObject & resultObj) Line 626	C++
+ 	rexx.dll!RexxCode::run(Activity * activity, MethodClass * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 argcount, ProtectedObject & result) Line 210	C++
+ 	rexx.dll!MethodClass::run(Activity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 count, ProtectedObject & result) Line 171	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned __int64 count, ProtectedObject & result) Line 900	C++
+ 	rexx.dll!ExpressionStack::send(RexxString * message, unsigned __int64 count, ProtectedObject & result) Line 80	C++
+ 	rexx.dll!RexxInstructionMessage::execute(RexxActivation * context, ExpressionStack * stack) Line 188	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * name, RexxObject * * _arglist, unsigned __int64 _argcount, RexxInstruction * start, ProtectedObject & resultObj) Line 626	C++
+ 	rexx.dll!RexxCode::run(Activity * activity, MethodClass * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 argcount, ProtectedObject & result) Line 210	C++
+ 	rexx.dll!MethodClass::run(Activity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 count, ProtectedObject & result) Line 171	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned __int64 count, ProtectedObject & result) Line 900	C++
+ 	rexx.dll!ExpressionStack::send(RexxString * message, unsigned __int64 count, ProtectedObject & result) Line 80	C++
+ 	rexx.dll!RexxInstructionMessage::execute(RexxActivation * context, ExpressionStack * stack) Line 188	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * name, RexxObject * * _arglist, unsigned __int64 _argcount, RexxInstruction * start, ProtectedObject & resultObj) Line 626	C++
+ 	rexx.dll!RexxCode::run(Activity * activity, MethodClass * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 argcount, ProtectedObject & result) Line 210	C++
+ 	rexx.dll!MethodClass::run(Activity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 count, ProtectedObject & result) Line 171	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned __int64 count, ProtectedObject & result) Line 900	C++
+ 	rexx.dll!ExpressionStack::send(RexxString * message, unsigned __int64 count, ProtectedObject & result) Line 80	C++
+ 	rexx.dll!RexxInstructionMessage::execute(RexxActivation * context, ExpressionStack * stack) Line 188	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * name, RexxObject * * _arglist, unsigned __int64 _argcount, RexxInstruction * start, ProtectedObject & resultObj) Line 626	C++
+ 	rexx.dll!RexxCode::call(Activity * activity, RoutineClass * routine, RexxString * routineName, RexxObject * * argPtr, unsigned __int64 argcount, RexxString * calltype, RexxString * environment, ActivationContext context, ProtectedObject & result) Line 187	C++
+ 	rexx.dll!RoutineClass::call(Activity * activity, RexxString * routineName, RexxObject * * argPtr, unsigned __int64 argcount, RexxString * calltype, RexxString * environment, ActivationContext context, ProtectedObject & result) Line 193	C++
+ 	rexx.dll!RexxActivation::callExternalRexx(RexxString * target, RexxObject * * arguments, unsigned __int64 argcount, RexxString * calltype, ProtectedObject & resultObj) Line 3092	C++
+ 	rexx.dll!SystemInterpreter::invokeExternalFunction(RexxActivation * activation, Activity * activity, RexxString * target, RexxObject * * arguments, unsigned __int64 argcount, RexxString * calltype, ProtectedObject & result) Line 107	C++
+ 	rexx.dll!RexxActivation::externalCall(RoutineClass * & routine, RexxString * target, RexxObject * * arguments, unsigned __int64 argcount, RexxString * calltype, ProtectedObject & resultObj) Line 3033	C++
+ 	rexx.dll!RexxExpressionFunction::evaluate(RexxActivation * context, ExpressionStack * stack) Line 214	C++
+ 	rexx.dll!RexxInstructionAssignment::execute(RexxActivation * context, ExpressionStack * stack) Line 129	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * name, RexxObject * * _arglist, unsigned __int64 _argcount, RexxInstruction * start, ProtectedObject & resultObj) Line 626	C++
+ 	rexx.dll!RexxCode::call(Activity * activity, RoutineClass * routine, RexxString * routineName, RexxObject * * argPtr, unsigned __int64 argcount, RexxString * calltype, RexxString * environment, ActivationContext context, ProtectedObject & result) Line 187	C++
+ 	rexx.dll!RoutineClass::runProgram(Activity * activity, RexxObject * * arguments, unsigned __int64 argCount, ProtectedObject & result) Line 264	C++
+ 	rexx.dll!CallProgramDispatcher::run() Line 243	C++
+ 	rexx.dll!NativeActivation::run(ActivityDispatcher & dispatcher) Line 1641	C++
+ 	rexx.dll!Activity::run(ActivityDispatcher & target) Line 3390	C++
+ 	rexx.dll!CallProgram(RexxThreadContext_ * c, const char * p, _RexxArrayObject * a) Line 512	C++
+ 	rexx.exe!RexxThreadContext_::CallProgram(const char * n, _RexxArrayObject * a) Line 1000	C++
+ 	rexx.exe!main(int argc, char * * argv) Line 226	C++
+ 	rexx.exe!invoke_main() Line 78	C++
+ 	rexx.exe!__scrt_common_main_seh() Line 288	C++
+ 	rexx.exe!__scrt_common_main() Line 330	C++
+ 	rexx.exe!mainCRTStartup() Line 16	C++
+ 	kernel32.dll!BaseThreadInitThunk()	Unknown
+ 	ntdll.dll!RtlUserThreadStart()	Unknown
+
+
+================================================================================
+The following breakpoint was hit:
+When 0x209c72fb168 (Original Expression: (*((RexxInternalObject*)&(*((RexxObject*)RexxPackageTraceObject)))).behaviour) changes (8 bytes) in process 'rexx.exe'
+
+delete data breakpoint methodDictionary
+create data breakpoint methodDictionary for the new behaviour
+
+
+Executing ...\oorexx\official\test\trunk\ooRexx\base\keyword\SELECT.testGroup
+Executing ...\oorexx\official\test\trunk\ooRexx\base\keyword\SIGNAL.testGroup
+Executing ...\oorexx\official\test\trunk\ooRexx\base\keyword\SelectCase.testGroup
+Executing ...\oorexx\official\test\trunk\ooRexx\base\keyword\ShortCircuitAnd.testGroup
+Executing ...\oorexx\official\test\trunk\ooRexx\base\keyword\TRACE.testGroup
+Executing ...\oorexx\official\test\trunk\ooRexx\base\keyword\TRACE_TraceObject.testGroup
+  .TraceObject~unsetMakeString   -- reset (uses default implementation)
+
+
+
+>	rexx.dll!RexxObject::deleteInstanceMethod(RexxString * msgname) Line 2335	C++
+        {
+            ...
+            // copy primitive behaviour object and define the method, a copy is made to
+            // ensure that we don't update the behaviour of any other object, since they
+            // may have been sharing the mvd.
+            setField(behaviour, (RexxBehaviour *)behaviour->copy());
+            ...
+        }
+        this = RexxClass "TraceObject"
+ 	rexx.dll!RexxObject::unsetMethod(RexxString * name) Line 1900	C++
+ 	rexx.dll!CPPCode::run(Activity * activity, MethodClass * method, RexxObject * receiver, RexxString * messageName, RexxObject * * argPtr, unsigned __int64 count, ProtectedObject & result) Line 174	C++
+ 	rexx.dll!MethodClass::run(Activity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 count, ProtectedObject & result) Line 171	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned __int64 count, ProtectedObject & result) Line 900	C++
+
+================================================================================
+Exception thrown at 0x0000000000000000 in rexx.exe: 0xC0000005: Access violation executing location 0x0000000000000000.
+
+
+Executing ...\oorexx\official\test\trunk\ooRexx\base\rexxutil\platform\windows\SysSystemDirectory.testGroup
+Executing ...\oorexx\official\test\trunk\ooRexx\base\rexxutil\platform\windows\SysTextScreenRead.testGroup
+Executing ...\oorexx\official\test\trunk\ooRexx\base\rexxutil\platform\windows\SysTextScreenSize.testGroup
+Executing ...\oorexx\official\test\trunk\ooRexx\base\rexxutil\platform\windows\SysWinVer.testGroup
+Executing ...\oorexx\official\test\trunk\ooRexx\base\rexxutil\platform\windows\SysWin_xxx_Printer.testGroup
+Executing ...\oorexx\official\test\trunk\ooRexx\base\runtime.objects\environmentEntries.testGroup
+
+
+ 	0000000000000000()	Unknown
+>	rexx.dll!MethodDictionary::getMethod(RexxString * methodName) Line 69	C++
+        class MethodDictionary: public StringHashCollection
+        {
+            ...
+            MethodClass *getMethod(RexxString *methodName) { return (MethodClass *)get(methodName); }
+                methodName = "NEW"
+                this = MethodClass
+                    scope="File"
+                    owningClass="Method"
+                    executableName="ABSOLUTEPATH"
+                    location(startLine=704, endLine=706)
+                    RexxInstructionUse
+                    package="REXX"
+ 	rexx.dll!RexxBehaviour::methodLookup(RexxString * messageName) Line 443	C++
+ 	    this=RexxBehaviour*
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned __int64 count, ProtectedObject & result) Line 871	C++
+ 	    {
+ 	        ...
+ 	        MethodClass *method_save = behaviour->methodLookup(msgname);
+ 	        ...
+ 	    }
+ 	    this=RexxClass "traceObject"
+ 	    behaviour: its owning class is NULL
+
+ 	rexx.dll!CreateTraceObject(Activity * activity, RexxActivation * activation, RexxString * traceline) Line 3097	C++
+ 	rexx.dll!Activity::traceOutput(RexxActivation * activation, RexxString * line) Line 3141	C++
+        {
+            // make sure this is a real string value (likely, since we constructed it in the first place)
+            Protected<RexxString> pline = line->stringTrace();
+            ...
+        }
+ 	    line="       +++ "WindowsNT METHOD Y:\local\rexx\oorexx\official\test\trunk\ooRexx\base\runtime.objects\environmentEntries.testGroup""
+ 	    TODO: protect line because stringTrace can trigger a GC
+ 	rexx.dll!RexxActivation::traceSourceString() Line 3911	C++
+ 	    outlentgh=127
+ 	    buffer="       +++ "WindowsNT METHOD Y:\local\rexx\oorexx\official\test\trunk\ooRexx\base\runtime.objects\environmentEntries.testGroup""
+ 	    TODO: protect buffer
+ 	rexx.dll!RexxActivation::traceClause(RexxInstruction * clause, RexxActivation::TracePrefix prefix) Line 4200	C++
+ 	rexx.dll!RexxActivation::traceInstruction(RexxInstruction * v) Line 370	C++
+ 	rexx.dll!RexxInstructionAssignment::execute(RexxActivation * context, ExpressionStack * stack) Line 118	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * name, RexxObject * * _arglist, unsigned __int64 _argcount, RexxInstruction * start, ProtectedObject & resultObj) Line 626	C++
+ 	rexx.dll!RexxCode::run(Activity * activity, MethodClass * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 argcount, ProtectedObject & result) Line 210	C++
+ 	rexx.dll!MethodClass::run(Activity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 count, ProtectedObject & result) Line 171	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned __int64 count, ProtectedObject & result) Line 900	C++
+ 	rexx.dll!MessageClass::dispatch() Line 445	C++
+ 	rexx.dll!MessageClass::send() Line 412	C++
+ 	rexx.dll!MessageClass::sendRexx(RexxObject * * arguments, unsigned __int64 argCount) Line 328	C++
+ 	rexx.dll!CPPCode::run(Activity * activity, MethodClass * method, RexxObject * receiver, RexxString * messageName, RexxObject * * argPtr, unsigned __int64 count, ProtectedObject & result) Line 147	C++
+ 	rexx.dll!MethodClass::run(Activity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 count, ProtectedObject & result) Line 171	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned __int64 count, ProtectedObject & result) Line 900	C++
+ 	rexx.dll!ExpressionStack::send(RexxString * message, unsigned __int64 count, ProtectedObject & result) Line 80	C++
+ 	rexx.dll!RexxInstructionMessage::execute(RexxActivation * context, ExpressionStack * stack) Line 188	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * name, RexxObject * * _arglist, unsigned __int64 _argcount, RexxInstruction * start, ProtectedObject & resultObj) Line 626	C++
+ 	rexx.dll!RexxCode::run(Activity * activity, MethodClass * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 argcount, ProtectedObject & result) Line 210	C++
+ 	rexx.dll!MethodClass::run(Activity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 count, ProtectedObject & result) Line 171	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned __int64 count, ProtectedObject & result) Line 900	C++
+ 	rexx.dll!ExpressionStack::send(RexxString * message, unsigned __int64 count, ProtectedObject & result) Line 80	C++
+ 	rexx.dll!RexxInstructionMessage::execute(RexxActivation * context, ExpressionStack * stack) Line 188	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * name, RexxObject * * _arglist, unsigned __int64 _argcount, RexxInstruction * start, ProtectedObject & resultObj) Line 626	C++
+ 	rexx.dll!RexxCode::run(Activity * activity, MethodClass * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 argcount, ProtectedObject & result) Line 210	C++
+ 	rexx.dll!MethodClass::run(Activity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 count, ProtectedObject & result) Line 171	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned __int64 count, ProtectedObject & result) Line 900	C++
+ 	rexx.dll!ExpressionStack::send(RexxString * message, unsigned __int64 count, ProtectedObject & result) Line 80	C++
+ 	rexx.dll!RexxInstructionMessage::execute(RexxActivation * context, ExpressionStack * stack) Line 188	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * name, RexxObject * * _arglist, unsigned __int64 _argcount, RexxInstruction * start, ProtectedObject & resultObj) Line 626	C++
+ 	rexx.dll!RexxCode::run(Activity * activity, MethodClass * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 argcount, ProtectedObject & result) Line 210	C++
+ 	rexx.dll!MethodClass::run(Activity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 count, ProtectedObject & result) Line 171	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned __int64 count, ProtectedObject & result) Line 900	C++
+ 	rexx.dll!ExpressionStack::send(RexxString * message, unsigned __int64 count, ProtectedObject & result) Line 80	C++
+ 	rexx.dll!RexxInstructionMessage::execute(RexxActivation * context, ExpressionStack * stack) Line 188	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * name, RexxObject * * _arglist, unsigned __int64 _argcount, RexxInstruction * start, ProtectedObject & resultObj) Line 626	C++
+ 	rexx.dll!RexxCode::run(Activity * activity, MethodClass * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 argcount, ProtectedObject & result) Line 210	C++
+ 	rexx.dll!MethodClass::run(Activity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 count, ProtectedObject & result) Line 171	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned __int64 count, ProtectedObject & result) Line 900	C++
+ 	rexx.dll!ExpressionStack::send(RexxString * message, unsigned __int64 count, ProtectedObject & result) Line 80	C++
+ 	rexx.dll!RexxInstructionMessage::execute(RexxActivation * context, ExpressionStack * stack) Line 188	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * name, RexxObject * * _arglist, unsigned __int64 _argcount, RexxInstruction * start, ProtectedObject & resultObj) Line 626	C++
+ 	rexx.dll!RexxCode::call(Activity * activity, RoutineClass * routine, RexxString * routineName, RexxObject * * argPtr, unsigned __int64 argcount, RexxString * calltype, RexxString * environment, ActivationContext context, ProtectedObject & result) Line 187	C++
+ 	rexx.dll!RoutineClass::call(Activity * activity, RexxString * routineName, RexxObject * * argPtr, unsigned __int64 argcount, RexxString * calltype, RexxString * environment, ActivationContext context, ProtectedObject & result) Line 193	C++
+ 	rexx.dll!RexxActivation::callExternalRexx(RexxString * target, RexxObject * * arguments, unsigned __int64 argcount, RexxString * calltype, ProtectedObject & resultObj) Line 3092	C++
+ 	rexx.dll!SystemInterpreter::invokeExternalFunction(RexxActivation * activation, Activity * activity, RexxString * target, RexxObject * * arguments, unsigned __int64 argcount, RexxString * calltype, ProtectedObject & result) Line 107	C++
+ 	rexx.dll!RexxActivation::externalCall(RoutineClass * & routine, RexxString * target, RexxObject * * arguments, unsigned __int64 argcount, RexxString * calltype, ProtectedObject & resultObj) Line 3033	C++
+ 	rexx.dll!RexxExpressionFunction::evaluate(RexxActivation * context, ExpressionStack * stack) Line 214	C++
+ 	rexx.dll!RexxInstructionAssignment::execute(RexxActivation * context, ExpressionStack * stack) Line 129	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * name, RexxObject * * _arglist, unsigned __int64 _argcount, RexxInstruction * start, ProtectedObject & resultObj) Line 626	C++
+ 	rexx.dll!RexxCode::call(Activity * activity, RoutineClass * routine, RexxString * routineName, RexxObject * * argPtr, unsigned __int64 argcount, RexxString * calltype, RexxString * environment, ActivationContext context, ProtectedObject & result) Line 187	C++
+ 	rexx.dll!RoutineClass::runProgram(Activity * activity, RexxObject * * arguments, unsigned __int64 argCount, ProtectedObject & result) Line 264	C++
+ 	rexx.dll!CallProgramDispatcher::run() Line 243	C++
+ 	rexx.dll!NativeActivation::run(ActivityDispatcher & dispatcher) Line 1641	C++
+ 	rexx.dll!Activity::run(ActivityDispatcher & target) Line 3390	C++
+ 	rexx.dll!CallProgram(RexxThreadContext_ * c, const char * p, _RexxArrayObject * a) Line 512	C++
+ 	rexx.exe!RexxThreadContext_::CallProgram(const char * n, _RexxArrayObject * a) Line 1000	C++
+ 	rexx.exe!main(int argc, char * * argv) Line 226	C++
+ 	rexx.exe!invoke_main() Line 78	C++
+ 	rexx.exe!__scrt_common_main_seh() Line 288	C++
+ 	rexx.exe!__scrt_common_main() Line 330	C++
+ 	rexx.exe!mainCRTStartup() Line 16	C++
+ 	kernel32.dll!BaseThreadInitThunk()	Unknown
+ 	ntdll.dll!RtlUserThreadStart()	Unknown
+
+
+================================================================================
+End of test suite blocked
+
+break all
+
+ 	win32u.dll!NtUserMsgWaitForMultipleObjectsEx()	Unknown
+ 	user32.dll!MsgWaitForMultipleObjects()	Unknown
+>	rexx.dll!waitHandle(void * s, bool bypassMessageLoop) Line 213	C++
+ 	rexx.dll!SysSemaphore::wait() Line 68	C++
+ 	rexx.dll!InterpreterInstance::terminate() Line 509	C++
+ 	    {
+ 	        ...
+            // if there are active threads still running, we need to wait until
+            // they all finish
+            if (!terminated)
+            {
+                terminationSem.wait();
+            }
+ 	        ...
+ 	    }
+
+ 	rexx.dll!Terminate(RexxInstance_ * c) Line 58	C++
+ 	rexx.exe!RexxInstance_::Terminate() Line 792	C++
+ 	rexx.exe!main(int argc, char * * argv) Line 244	C++
+ 	rexx.exe!invoke_main() Line 78	C++
+ 	rexx.exe!__scrt_common_main_seh() Line 288	C++
+ 	rexx.exe!__scrt_common_main() Line 330	C++
+ 	rexx.exe!mainCRTStartup() Line 16	C++
+ 	kernel32.dll!BaseThreadInitThunk()	Unknown
+ 	ntdll.dll!RtlUserThreadStart()	Unknown
+
+
+
+1 thread
+NtUserMsgWaitForMultipleObjectsEx()
+MsgWaitForMultipleObjects()
+waitHandle(void *, bool)
+SysMutex::request()
+MutexSemaphoreClass::request(RexxObject *)
+CPPCode::run(Activity *, MethodClass *, RexxObject *, RexxString *, RexxObject * *, unsigned __int64, ProtectedObject &)
+MethodClass::run(Activity *, RexxObject *, RexxString *, RexxObject * *, unsigned __int64, ProtectedObject &)
+RexxObject::messageSend(RexxString *, RexxObject * *, unsigned __int64, ProtectedObject &)
+    this=MutexSemaphoreClass
+ExpressionStack::send(RexxString *, unsigned __int64, ProtectedObject &)
+RexxExpressionMessage::evaluate(RexxActivation *, ExpressionStack *)
+    messageName="ACQUIRE
+RexxInstruction::evaluateArguments(RexxActivation *, ExpressionStack *, RexxInternalObject * *, unsigned __int64)
+RexxInstructionMessage::execute(RexxActivation *, ExpressionStack *)
+RexxActivation::run(RexxObject *, RexxString *, RexxObject * *, unsigned __int64, RexxInstruction *, ProtectedObject &)
+RexxActivation::dispatch()
+
+
+
+4 threads
+NtUserMsgWaitForMultipleObjectsEx()
+MsgWaitForMultipleObjects()
+waitHandle(void *, bool)
+SysSemaphore::wait()
+Activity::waitForRunPermission()
