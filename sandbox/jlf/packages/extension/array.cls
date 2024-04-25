@@ -795,7 +795,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
         source:4,a1=['string1',v1='string2',a2=[*v1,*a1],*a1] | inject:3,*a2
         source:4,a1=['string1',v1='string2',[*v1,*a1],*a1] | inject:4,*a1
     */
-    use strict arg maxItems=(-1), sparse="..", ellipsis="...", separator=",", val=(self), referencesTable=.nil, counter=({n=0; {expose n; n+=1; n}}~())
+    use strict arg maxItems=(-1), sparse="..", ellipsis="...", separator=",", val=(self), referencesTable=.nil, counter=0
     use named arg trace=.false, ppOptions. = (.Stem~new), ppOptions.expandCollection=(.CollectionPrettyPrinter~expandCollection)
     if trace then .traceOutput~say("       >I> Method .ArrayPrettyPrinter~ppRepresentation")
     if trace then trace i
@@ -808,7 +808,8 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
         reference~displayed = .true
         valstr = ""
         if reference~selfReference then do
-            reference~id = counter~() -- id assigned at first display, to have a natural progression
+            counter += 1
+            reference~id = counter -- id assigned at first display, to have a natural progression
             valstr = "e" || reference~id || "="
         end
         return valstr || "<"val~ppRepresentation(maxItems, sparse, ellipsis, separator, val~disclose, referencesTable, counter, trace: trace)">"
@@ -818,7 +819,8 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
         if reference~selfReference, reference~displayed then return "*a" || reference~id -- pointer to the array already displayed
         reference~displayed = .true
         if reference~selfReference then do
-            reference~id = counter~() -- id assigned at first display, to have a natural progression
+            counter += 1
+            reference~id = counter -- id assigned at first display, to have a natural progression
             valstr = "a" || reference~id || "=" || "["
         end
         else valstr = "["
