@@ -1807,7 +1807,7 @@ syntax:              -- propagate condition
      say "                       type:" pp2(coll~class)
      say "       default string value:" pp2(coll)
      -- .ArgUtil~validateClass("collection", coll, .Collection) -- must be of type Collection
-     return false -- nothing displayed
+     return .false -- nothing displayed
   end
   else      -- a collection in hand
   do
@@ -1856,7 +1856,7 @@ syntax:              -- propagate condition
      s~next
   end
   if \ interpreter_extended() then say "-"~copies(50)
-  return true -- not truncated
+  return .true -- not truncated
 
 
 /* A different way to display the current item (when interpreter_extended) */
