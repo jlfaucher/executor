@@ -1,4 +1,8 @@
 -- Compatibility with ooRexx 5
+
+.environment~setentry(.RexxInfo~id, .RexxInfo)
+
+
 ::class RexxInfo public
 
 ::method architecture class
