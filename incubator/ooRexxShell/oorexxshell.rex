@@ -896,7 +896,7 @@ Helpers
 
     if .CoactivitySupplier~isA(.Class), value~isA(.CoactivitySupplier) then .ooRexxShell~sayPrettyString(value) -- must not consume the datas
     else if .ooRexxShell~isExtended, value~isA(.enclosedArray), dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
-    else if .ooRexxShell~isExtended, value~isA(.array), value~dimension == 1, dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
+    else if value~hasMethod("ppRepresentation"), value~isA(.array), value~dimension == 1, dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
     else if value~isA(.Collection)/*, dumpLevel == 2*/  then .ooRexxShell~sayCollection(value, /*title*/, comparator, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
     -- if "==" (dumpLevel 2) then a supplier is displayed as a collection. A copy is made to not consume the datas.
     else if value~isA(.Supplier), dumpLevel == 2 then .ooRexxShell~sayCollection(value~copy, /*title*/, .comparator, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
@@ -1497,7 +1497,7 @@ Helpers
 ::method sayPPrepresentation class
     numeric digits -- stop any propagated settings, to have the default value for digits()
     use strict arg value /*enclosedArray or array*/, maxItems=(9~copies(digits())) /*no limit*/
-    if .ooRexxShell~isExtended then say value~ppRepresentation(maxItems) -- condensed output, limited to maxItems
+    if value~hasMethod("ppRepresentation") then say value~ppRepresentation(maxItems) -- condensed output, limited to maxItems
     else say value
 
 
