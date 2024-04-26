@@ -115,6 +115,7 @@
                               - new id2x(number) routine to create a hexadecimal rendering
                                 of the ~identityHash value to make it better legible,
                                 comprehensible
+                  2024-04-26  - do not use ~?() as  not available in ooRexx 4.2, use "if" instead
 
 
       purpose:    set of 3.2 utilities to ease programming of 3.2.0, e.g. offer sort2()- and
@@ -3506,7 +3507,8 @@ listCollection: procedure
   iDigits=.someRexxInfo~internalDigits  -- get number of internal digits
   numeric digits iDigits
   val=argVal~d2x(iDigits)  -- convert to a hexadecimal string
-  if iDigits=9 then len=8; else len=16  -- determine length of hexadecimal value
+  if iDigits=9 then len=8  -- hex string length
+               else len=16
   hexval = val~right(len)  -- extract the hex digits representing 32 or 64 bit value
   if iDigits=18, deliString<>"" then   -- insert delimiter into hexadecimal string
      hexVal=hexVal~insert(deliString,8)
