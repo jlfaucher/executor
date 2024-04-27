@@ -858,6 +858,7 @@ The code in charge of the partitioning do this test :
     if previousPartitionItem <> partitionItem then do
 and an error is raised because the two arguments are array, and the result is an array.
 Here, the goal is to test if the two arguments are the same object.
+
 Conclusion :
 The operators for array programming should be :
 - either activated only when needed, under control of the programmer.

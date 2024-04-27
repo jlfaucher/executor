@@ -3,9 +3,9 @@ Experimental ooRexx
 
 Miscellaneous notes:
 
+- [Overview of changes][overview_changes]
 - [Sandbox diary][sandbox_diary]
 - [Sandbox notes][sandbox_notes]
-- [Overview of changes][overview_changes]
 - [Instructions to build Executor][build_executor]
 
 Internal documentation:
