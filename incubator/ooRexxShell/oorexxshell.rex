@@ -185,6 +185,7 @@ if .platform~is("windows") then .ooRexxShell~readline = .false
 -- Deactivate the readline mode when the environment variable OOREXXSHELL_RLWRAP is defined.
 if value("OOREXXSHELL_RLWRAP", , "ENVIRONMENT") <> "" then .ooRexxShell~readline = .false
 
+-- Color settings (can be redefined by the end user)
 .ooRexxShell~defaultColor = "default"
 .ooRexxShell~errorColor = "bred"
 .ooRexxShell~infoColor = "bgreen"
@@ -192,6 +193,9 @@ if value("OOREXXSHELL_RLWRAP", , "ENVIRONMENT") <> "" then .ooRexxShell~readline
 .ooRexxShell~promptColor = "byellow"
 .ooRexxShell~traceColor = "purple"
 .ooRexxShell~commandColor = "bpurple"
+/*
+-- defaultBackground no longer supported
+-- if you want to use these colors then define them in the customization file
 if .platform~is("windows") then do
     if .color~defaultBackground == 0 /*black*/ then do
         .ooRexxShell~commentColor = "bcyan" -- instead of blue which is less readable
@@ -201,6 +205,7 @@ if .platform~is("windows") then do
         .ooRexxShell~promptColor = "yellow"
     end
 end
+*/
 
 .ooRexxShell~readlineAddress = readlineAddress()
 .ooRexxShell~systemAddress = systemAddress()
@@ -840,7 +845,7 @@ Helpers
     use strict arg command
 
     signal on syntax name transformSourceError -- the clauser can raise an error
-    if .ooRexxShell~isExtended then do
+    if .ooRexxShell~hasClauser then do
         -- Manage the "=" shortcut at the end of each clause
         sourceArray = .array~of(command)
         clauser = .Clauser~new(sourceArray)
@@ -853,7 +858,8 @@ Helpers
 
             if dumpLevel <> 0 then do
                 clause = clause~left(clause~length - dumpLevel)
-                clauser~clause = 'options "NOCOMMANDS";' clause '; if var("result") then call dumpResult result,' dumpLevel '; else call dumpResult ,' dumpLevel ';options "COMMANDS"'
+                if .ooRexxShell~isExtended then clauser~clause = 'options "NOCOMMANDS";' clause '; if var("result") then call dumpResult result,' dumpLevel '; else call dumpResult ,' dumpLevel ';options "COMMANDS"'
+                                           else clauser~clause = "result =" clause "; call dumpResult result," dumpLevel
             end
             clauser~nextClause
         end
@@ -948,8 +954,11 @@ Helpers
     call loadPackage "streamsocket.cls"
     call loadPackage "pipeline/pipe.cls"
     --call loadPackage "ooSQLite.cls"
-    .ooRexxShell~hasRgfUtil2Extended = .false
-    if loadPackage("rgf_util2/rgf_util2.rex"),, -- derived from the offical rgf_util2.rex (in BSF4ooRexx)
+
+    -- derived from the offical rgf_util2.rex (in BSF4ooRexx)
+    .ooRexxShell~hasRgfUtil2 = loadPackage("rgf_util2/rgf_util2.rex", .true) -- Try this one first (executor version), because I find also the other one (bsf4oorexx version)
+    if .ooRexxShell~hasRgfUtil2 == .false then .ooRexxShell~hasRgfUtil2 = loadPackage("rgf_util2.rex")
+    if .ooRexxShell~hasRgfUtil2 == .true,,
        .nil <> .context~package~findroutine("rgf_util_extended") then do
             .ooRexxShell~hasRgfUtil2Extended = .true
             .ooRexxShell~routine_dump2 = .context~package~findroutine("dump2")
@@ -960,10 +969,18 @@ Helpers
     .ooRexxShell~hasBsf = loadPackage("BSF.CLS")
     if value("UNO_INSTALLED",,"ENVIRONMENT") <> "" then call loadPackage "UNO.CLS"
 
+    if .Clauser~isA(.Class) then .ooRexxShell~hasClauser = .true
+                            else .ooRexxShell~hasClauser = loadPackage("oorexxshell_clauser.cls")
+
     if .ooRexxShell~isExtended then do
         .ooRexxShell~hasQueries = loadPackage("oorexxshell_queries.cls")
         call loadPackage "pipeline/pipe_extension.cls"
         call loadPackage "rgf_util2/rgf_util2_wrappers.rex"
+    end
+
+    call loadPackage .oorexxshell~customizationFile, .true
+
+    if .ooRexxShell~isExtended then do
         if .ooRexxShell~isInteractive then .ooRexxShell~sayComment("Unicode character names not loaded, execute: call loadUnicodeCharacterNames")
     end
 
@@ -1183,6 +1200,7 @@ Helpers
 ::attribute commandInterpreter class -- The current interpreter, can be the first word of inputrx, or the default interpreter
 ::attribute countCommentChars class
 ::attribute countCommentLines class
+::attribute customizationFile class
 ::attribute declareAll class
 ::attribute demo class
 ::attribute demoFast class
@@ -1190,8 +1208,10 @@ Helpers
 ::attribute error class -- Will be .true if the last command raised an error
 ::attribute gotoLabel class -- Either "" or the label to reach
 ::attribute hasBsf class -- Will be .true if BSF.cls has been loaded
+::attribute hasClauser class -- Will be .true if the Clauser class is available (either natively with Executor, or if oorexxshell_clauser.cls has been loaded
 ::attribute hasQueries class -- Will be true if oorexxshell_queries.cls has been loaded
 ::attribute hasRegex class -- Will be .true is regex.cls has been loaded
+::attribute hasRgfUtil2 class -- Will be .true if rgf_util2.rex has been loaded
 ::attribute hasRgfUtil2Extended class -- Will be .true if rgf_util2.rex has been loaded and is the extended version
 ::attribute historyFile class
 ::attribute initialAddress class -- The initial address on startup, not necessarily the system address (can be "THE")
@@ -1259,6 +1279,8 @@ Helpers
 ::attribute indentedErrorStream class -- Used by the command "<" to show the level of include
 
 ::method init class
+    .environment~setentry(self~id, self)
+    self~commandInterpreter = ""
     self~comparatorClass = .nil
     self~countCommentChars = 0
     self~countCommentLines = 0
@@ -1273,9 +1295,11 @@ Helpers
     self~error = .false
     self~gotoLabel = ""
     self~hasBsf = .false
+    self~hasClauser = .false
     self~hasIndentedStream = .false
     self~hasQueries = .false
     self~hasRegex = .false
+    self~hasRgfUtil2 = .false
     self~hasRgfUtil2Extended = .false
     self~indentedErrorStream = .nil
     self~indentedOutputStream = .nil
@@ -1317,6 +1341,9 @@ Helpers
     -- When possible, use a history file specific for ooRexxShell
     self~historyFile = HOME || "/.oorexxshell_history"
 
+    -- Allow customization by end user
+    self~customizationFile = HOME || "/.oorexxshell_customization.cls"
+
 
 ::method hasLastResult class
     expose lastResult
@@ -1332,14 +1359,17 @@ Helpers
     -- Remember: keep it compatible with ooRexx 4.2, don't use a literal array.
     messages = ,
     "commandInterpreter",
+    "customizationFile",
     "debug",
     "demo",
     "demoFast",
     "defaultSleepDelay",
     "hasBsf",
+    "hasClauser",
     "hasIndentedStream",
     "hasQueries",
     "hasRegex",
+    "hasRgfUtil2",
     "hasRgfUtil2Extended",
     "historyFile",
     "initialAddress",
@@ -1764,7 +1794,7 @@ Helpers
     -- That will allow to see immediatly which commands are available only in extended mode.
     use strict arg text
     if .ooRexxShell~checkQueryManagerPrerequisites(.false) then say text
-    else .ooRexxShell~sayError(text)
+    -- else .ooRexxShell~sayError(text)
 
 
 ::method helpCommands class
@@ -2388,8 +2418,8 @@ Helpers
 
 -- Initialized by .WindowsPlatform~init, not used by Linux & Darwin platforms.
 ::attribute default class
-::attribute defaultBackground class -- 0 to 15
-::attribute defaultForeground class -- 0 to 15
+-- ::attribute defaultBackground class -- 0 to 15
+-- ::attribute defaultForeground class -- 0 to 15
 
 ::method select class
     if \ .ooRexxShell~showColor then return -- you don't want the colors

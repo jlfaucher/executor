@@ -345,6 +345,49 @@ History of changes
 ==================
 
 -----------------------------------------------
+2024 apr 28
+
+No longer show the unsupported queries when using the "?" command.
+
+Color management:
+No longer support .color~defaultBackground and .color~defaultForeground.
+These attributes were used under Windows with GCI.
+GCI has been replaced by ANSI color sequences.
+
+When loading rgf_util2.rexx, try in this order:
+- with relative path "rgf_util2/rgf_util2.rex" (executor version)
+- without relative path "rgf_util2.rex" (bsf4oorexx version)
+
+Allow customization by end user:
+Load the optional file ".oorexxshell_customization.cls", from the HOME directory.
+This file is loaded last, after all preloaded packages.
+Careful! If this file triggers some errors, they are trapped and not displayed.
+Example of customization:
+    if .ooRexxShell~isInteractive then do
+        .ooRexxShell~readline = .true -- is .false by default under Windows
+        -- color settings for white background
+        .ooRexxShell~infoColor = "green"
+        .ooRexxShell~promptColor = "yellow"
+    end
+
+Better support of clauses ending with "=" or "==", when using ooRexx 5.
+The Clauser used by Executor is delivered with ooRexxShell and loaded if found.
+Now, several clauses are supported.
+Example:
+    say "1+1="; 1+1=; say; 1,2,3=; say; result==
+Output (with a special "ppString" rexx.img for ooRexx 5):
+    1+1=
+     2
+
+    [ 1, 2, 3]
+
+    an Array (3 items)
+     1 :  1
+     2 :  2
+     3 :  3
+
+
+-----------------------------------------------
 2024 apr 23
 
 Under Windows, GCI no longer needed for the colors.
