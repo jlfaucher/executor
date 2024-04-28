@@ -176,6 +176,10 @@
     return 0a == "00"
 
 
+::routine img_extended public
+    return .ExtendedRexxImg~isA(.Class)
+
+
    -- 2008-02-19, rgf:   abbrev      info, string [, n-length]
    /* if length is negative, then  */
 /* ======================================================================= */
@@ -1764,7 +1768,7 @@ syntax:              -- propagate condition
       comparator ... the comparator to use in sorting
 */
 ::routine dump2 public
-  if interpreter_extended() then
+  if interpreter_extended() | img_extended() then
   do
     -- JLF:
     -- I prefer a notation closer to the standard notation "a String" or "an Array"
@@ -1787,8 +1791,8 @@ syntax:              -- propagate condition
   if .nil=comparator, title~isA(.comparator) then
   do
      comparator=title
-     if interpreter_extended() then title=(/*"type: The" coll~class~id "class"*/ coll~defaultName)
-                               else title=("type: The" coll~class~id "class")
+     if interpreter_extended() | img_extended() then title=(/*"type: The" coll~class~id "class"*/ coll~defaultName)
+                                                else title=("type: The" coll~class~id "class")
   end
 
 
@@ -1796,7 +1800,7 @@ syntax:              -- propagate condition
   do
      s=coll
      len=5  -- define an arbitrary high width
-     if interpreter_extended() then
+     if interpreter_extended() | img_extended() then
      do
         availability = ""
         if \s~available then availability = "(nothing available)"
@@ -1820,7 +1824,7 @@ syntax:              -- propagate condition
   end
   else      -- a collection in hand
   do
-     if interpreter_extended() then
+     if interpreter_extended() | img_extended() then
      do
         shape = shape(coll, ", ")
         items = coll~items -- calculate once, can be long for big array
@@ -1834,7 +1838,7 @@ syntax:              -- propagate condition
      end
   end
 
-  if \ interpreter_extended() then say
+  if \ interpreter_extended() & \ img_extended() then say
   count=0
 
 
@@ -1847,8 +1851,8 @@ syntax:              -- propagate condition
   maxWidth=0
   s2=s~copy
   do maxCount while s2~available
-     if interpreter_extended() then maxWidth=max(maxWidth,(ppIndex2(s2~index, surroundIndexByQuotes)~length))
-                               else maxWidth=max(maxWidth,length(ppIndex2(s2~index)))
+     if interpreter_extended() | img_extended() then maxWidth=max(maxWidth,(ppIndex2(s2~index, surroundIndexByQuotes)~length))
+                                                else maxWidth=max(maxWidth,length(ppIndex2(s2~index)))
      s2~next
   end
 
@@ -1860,15 +1864,15 @@ syntax:              -- propagate condition
          say "..."
          return .false -- truncated
      end
-     if interpreter_extended() then call displayCurrentItem
-                               else say "   " "#" right(count,len)":" "index="ppIndex2(s~index)~left(maxWidth) "-> item="pp2(s~item)
+     if interpreter_extended() | img_extended() then call displayCurrentItem
+                                                else say "   " "#" right(count,len)":" "index="ppIndex2(s~index)~left(maxWidth) "-> item="pp2(s~item)
      s~next
   end
-  if \ interpreter_extended() then say "-"~copies(50)
+  if \ interpreter_extended() & \ img_extended() then say "-"~copies(50)
   return .true -- not truncated
 
 
-/* A different way to display the current item (when interpreter_extended) */
+/* A different way to display the current item (when interpreter_extended or img_extended) */
 displayCurrentItem:
          if s~item~isa(.array) & iterateOverItem then
          do
@@ -2710,6 +2714,7 @@ createCodeSnippet: procedure
      if a1~isA(.Collection) then
         return "["a1~string "("a1~items "items)" "id#_" || id2x(a1~identityHash)"]"
      else
+        if interpreter_extended() | img_extended() then return "("a1~string")" -- ppString at Object scope
         return "["a1~string "id#_" || id2x(a1~identityHash)"]"
   end
 
@@ -2760,6 +2765,7 @@ createCodeSnippet: procedure
         end
      end
 
+     if interpreter_extended() | img_extended() then return "("a1~string")" -- ppString at Object scope
      return "["a1~string "id#_" || id2x(a1~identityHash)"]"
   end
 
