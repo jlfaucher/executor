@@ -128,7 +128,7 @@ Some discussions in February 2011 about a better way to support extensions.
 At today 2024.02.01, nothing has been started to explore these ideas.
 
 
-https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/AANLkTik7q6Vjk7rxeLRJD3akKQEGz%2Bv3sAihBgm_EvGu%40mail.gmail.com/#msg27087090
+https://sourceforge.net/p/oorexx/mailman/message/27087090/
     > Just a few words about the changes I made in my sandbox : in fact I made
     > almost nothing ! Everything is in place in the current interpreter to
     > support this kind of extension... I had just to unlock the 'define' method
@@ -157,7 +157,7 @@ https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/AANLkTik7q6Vjk7rxeL
     Rick
 
 
-https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/AANLkTimU7A_TFsJ5BAKan0AdEsxedcQWnUixEXE3FxP0%40mail.gmail.com/#msg27087244
+https://sourceforge.net/p/oorexx/mailman/message/27087244/
     > 2011/2/19 Rick McGuire <obj...@gm...>
     >>
     >> I'm definitely -1 to implementing this feature in this manor.
@@ -173,7 +173,7 @@ https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/AANLkTimU7A_TFsJ5BA
     Rick
 
 
-https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/AANLkTikHcctAB%2BiwTsn6zj6_6FUr5HxSpyH8ivZRNQWm%40mail.gmail.com/#msg27087368
+https://sourceforge.net/p/oorexx/mailman/message/27087368/
     > ok :-)
     > Needless to say that i'm *very* interested by more details about what could
     > be this new capability.
@@ -204,7 +204,7 @@ https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/AANLkTikHcctAB%2Biw
     Rick
 
 
-https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/AANLkTik-WhHnK9JpUCXLu%3DfvK-gBTxdxzB-1a5XUyknq%40mail.gmail.com/#msg27087620
+https://sourceforge.net/p/oorexx/mailman/message/27087620/
     >> 1) what sort of class can be added as an extension?  Do we introduce a
     >> new class type?  Or just override mixin class?
     >
