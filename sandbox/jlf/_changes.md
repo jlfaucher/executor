@@ -1,24 +1,8 @@
 # Changes applied to ooRexx 4.2
 
-<!-- Credit: https://gist.github.com/joshbode/491ad0e678d456ea8ddc -->
-<style type="text/css">
-    /* automatic heading numbering */
-    h1 { counter-reset: h2counter; }
-    h2 { counter-reset: h3counter; }
-    h3 { counter-reset: h4counter; }
-    h4 { counter-reset: h5counter; }
-    h5 { counter-reset: h6counter; }
-    h6 { }
-    h2:before { counter-increment: h2counter; content: counter(h2counter) ".\0000a0\0000a0"; }
-    h3:before { counter-increment: h3counter; content: counter(h2counter) "." counter(h3counter) ".\0000a0\0000a0"; }
-    h4:before { counter-increment: h4counter; content: counter(h2counter) "." counter(h3counter) "." counter(h4counter) ".\0000a0\0000a0"; }
-    h5:before { counter-increment: h5counter; content: counter(h2counter) "." counter(h3counter) "." counter(h4counter) "." counter(h5counter) ".\0000a0\0000a0"; }
-    h6:before { counter-increment: h6counter; content: counter(h2counter) "." counter(h3counter) "." counter(h4counter) "." counter(h5counter) "." counter(h6counter) ".\0000a0\0000a0"; }
-</style>
-
 
 <!-- ======================================================================= -->
-## New native classes
+## 1.   New native classes
 <!-- ======================================================================= -->
 
 Exported classes
@@ -39,7 +23,7 @@ Internal classes
 
 
 <!-- ======================================================================= -->
-## Extensions
+## 2.   Extensions
 <!-- ======================================================================= -->
 
 See [Extension - Expression problem.txt](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/internals/notes/Extension%20-%20Expression%20problem.txt)
@@ -50,7 +34,7 @@ unlock the define method
 unlock the inherit method
 
 
-Add ::extension directive
+Add `::extension` directive
 
 ```
 >>-::EXTENSION--classname----+-------------------+-----------------><
@@ -58,21 +42,21 @@ Add ::extension directive
 ```
 
 
-This directive delegates to the methods .class~define and .class~inherit.  
+This directive delegates to the methods `.class~define` and `.class~inherit`.  
 The changes are allowed on predefined classes, and are propagated to existing instances.
 
-If the same method appears several times in a given ::extension directive, this is an error (because it's like that with ::class).  
+If the same method appears several times in a given `::extension` directive, this is an error (because it's like that with `::class`).  
 It's possible to extend a class several times in a same package.  
 It's possible to extend a class in different packages.  
-If the same method appears in several ::extension directives, there is no error:  
+If the same method appears in several `::extension` directives, there is no error:  
 the most recent replaces the older (because `define` works like that).
 
-When the extensions of a package are installed, the extension methods and the inherit declarations of each ::extension are processed in the order of declaration.  
+When the extensions of a package are installed, the `extension` methods and the `inherit` declarations of each `::extension` are processed in the order of declaration.  
 Each package is installed separately, this is the standard behaviour.  
 The visibility rules for classes are also standard, nothing special for extensions. Each package has its own visibility on classes.
 
 Currently, if the same method is extended several times, then it's the "last" extension who wins...  
-The definition of "last" depends on the order of resolution of ::requires  
+The definition of "last" depends on the order of resolution of `::requires`.  
 See [test_extension_order.rex](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/tests/extension/test_extension_order.rex)
 
 Unlike `::class`, you can have several `::extension` in the same source for the same class.  
@@ -95,7 +79,7 @@ but not for that:
 
 
 <!-- ======================================================================= -->
-## Tokenizer
+## 3.   Tokenizer
 <!-- ======================================================================= -->
 
 Support this notation:
@@ -139,11 +123,11 @@ Legacy programs are impacted when
 
 
 <!-- ======================================================================= -->
-## Parser
+## 4.   Parser
 <!-- ======================================================================= -->
 
 <!-- ------------------------------- -->
-### Refinement of tokens 'subclass' attribute
+### 4.1.   Refinement of tokens 'subclass' attribute
 <!-- ------------------------------- -->
 
 The scanner splits a source file in clauses, and decompose each clause in tokens.  
@@ -167,7 +151,7 @@ Works only with a debug version of ooRexx.
 
 
 <!-- ------------------------------- -->
-### `arg(...)`
+### 4.2.   `arg(...)`
 <!-- ------------------------------- -->
 
 For good or bad reason, `arg(1)` at the begining of a clause is recognized as an instruction, because arg is a keyword instruction.
@@ -177,7 +161,7 @@ So I decided to change the behavior of the parser to interpret as a function cal
 
 
 <!-- ------------------------------- -->
-### `=` `==`
+### 4.3.   `=` `==`
 <!-- ------------------------------- -->
 
 With implicit return, such an expression is quite common when filtering: `item==1`
@@ -208,7 +192,7 @@ good point, the lack of returned value is detected, must surround by parentheses
 
 
 <!-- ------------------------------- -->
-### Message term
+### 4.4.   Message term
 <!-- ------------------------------- -->
 
 Tilde-call message `"~()"`.
@@ -233,11 +217,11 @@ When the expression is evaluated, the target receives the message `"~()"`.
 
 
 <!-- ======================================================================= -->
-## Clauser
+## 5.   Clauser
 <!-- ======================================================================= -->
 
 <!-- ------------------------------- -->
-### Description
+### 5.1.   Description
 <!-- ------------------------------- -->
 
 The Clauser class is implemented in [RexxClasses/Parser.orx](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/trunk/interpreter/RexxClasses/Parser.orx).  
@@ -353,7 +337,7 @@ Output:
 
 
 <!-- ------------------------------- -->
-### Helper for immediate parsing
+### 5.2.   Helper for immediate parsing
 <!-- ------------------------------- -->
 
 ```REXX
@@ -363,7 +347,7 @@ For each RexxSourceLiteral created during the parsing, the interpreter will call
 
 
 <!-- ------------------------------- -->
-### Replace the current clause
+### 5.3.   Replace the current clause
 <!-- ------------------------------- -->
 
 ```REXX
@@ -377,7 +361,7 @@ If the current clause is multiline, then the remaining lines are made empty.
 
 
 <!-- ------------------------------- -->
-### Re-implementation in ooRexx of `RexxSource::comment` 
+### 5.4.   Re-implementation in ooRexx of `RexxSource::comment` 
 <!-- ------------------------------- -->
 
 ```REXX
@@ -388,7 +372,7 @@ Re-implementation in ooRexx of the native method `RexxSource::comment` which is 
 
 
 <!-- ------------------------------- -->
-### Re-implementation in ooRexx of `RexxSource::locateToken`
+### 5.5.   Re-implementation in ooRexx of `RexxSource::locateToken`
 <!-- ------------------------------- -->
 
 ```REXX
@@ -399,7 +383,7 @@ Re-implementation in ooRexx of the native method `RexxSource::locateToken` which
 
 
 <!-- ------------------------------- -->
-### Re-implementation in ooRexx of `RexxSource::nextSpecial`
+### 5.6.   Re-implementation in ooRexx of `RexxSource::nextSpecial`
 <!-- ------------------------------- -->
 
 ```REXX
@@ -410,7 +394,7 @@ Re-implementation in ooRexx of the native method `RexxSource::nextSpecial` which
 
 
 <!-- ------------------------------- -->
-### Re-implementation in ooRexx of a subset of `RexxSource::sourceNextToken`
+### 5.7.   Re-implementation in ooRexx of a subset of `RexxSource::sourceNextToken`
 <!-- ------------------------------- -->
 
 ```REXX
@@ -427,7 +411,7 @@ So a clause is always monoline, even if it's distributed on several lines in the
 
 
 <!-- ------------------------------- -->
-### Helper for immediate parsing.  
+### 5.8.   Helper for immediate parsing.  
 <!-- ------------------------------- -->
 
 ```REXX
@@ -446,7 +430,7 @@ If the first word is `::[xxx]` then raise an error (unknown tag)
 
 
 <!-- ------------------------------- -->
-### Helper to transform a source.  
+### 5.9.   Helper to transform a source.  
 <!-- ------------------------------- -->
 
 ```REXX
@@ -460,7 +444,7 @@ Possible transformations:
 
 
 <!-- ======================================================================= -->
-## numeric digits propagate
+## 6.   numeric digits propagate
 <!-- ======================================================================= -->
 
 The problem I wanted to fix:  
@@ -497,20 +481,20 @@ The option is available only with `NUMERIC DIGITS` but it controls the propagati
 
 
 <!-- ======================================================================= -->
-## Blocks (source literals)
+## 7.   Blocks (source literals)
 <!-- ======================================================================= -->
 
 A RexxBlock is a piece of source code surrounded by curly brackets.
 
 
 <!-- ------------------------------- -->
-### Big picture
+### 7.1.   Big picture
 <!-- ------------------------------- -->
 
 a RexxSourceLiteral is an internal rexx object, created by the parser, not accessible from ooRexx scripts.
 
 a RexxSourceLiteral holds the following properties, shared among all the RexxBlock instances created from it:
-- source: the text between the curly brackets `{...}` as an array of lines, including the tag ::xxx if any.
+- source: the text between the curly brackets `{...}` as an array of lines, including the tag `::xxx` if any.
 - package: the package which contain the source literal.
 - kind: kind of source, derived from the source's tag.
 - rawExecutable: routine or method created at load-time (immediate parsing).
@@ -526,7 +510,7 @@ In particular, when a RexxBlock is a closure's source, it will hold a snapshot o
 
 
 <!-- ------------------------------- -->
-### Kind of source
+### 7.2.   Kind of source
 <!-- ------------------------------- -->
 
 By default (no tag) the executable is a routine.  
@@ -548,7 +532,7 @@ If the source after the tag starts with `expose` then the doer is a coactive clo
 
 
 <!-- ======================================================================= -->
-## .ThreadLocal
+## 8.   .ThreadLocal
 <!-- ======================================================================= -->
 
 Implements the [feature request 378](https://sourceforge.net/p/oorexx/feature-requests/378/).  
@@ -571,11 +555,11 @@ rather than that:
 ```
 
 <!-- ======================================================================= -->
-## Coactivity
+## 9.   Coactivity
 <!-- ======================================================================= -->
 
 <!-- ------------------------------- -->
-### Dependency on native extensions
+### 9.1.   Dependency on native extensions
 <!-- ------------------------------- -->
 
 Implemented by [concurrency/coactivity.cls](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/packages/concurrency/coactivity.cls)  
@@ -586,7 +570,7 @@ with a dependency on these native extensions:
 
 
 <!-- ------------------------------- -->
-### Description
+### 9.2.   Description
 <!-- ------------------------------- -->
 
 A coactivity is an emulation of coroutine, named "coactivity" to follow the ooRexx vocabulary.  
@@ -637,7 +621,7 @@ A coactivity can be suspended, and can receive a new set of arguments after each
 ``` 
 
 <!-- ------------------------------- -->
-### Stackful coroutine
+### 9.3.   Stackful coroutine
 <!-- ------------------------------- -->
 
 A stackful coroutine is a coroutine able to suspend its execution from within nested calls.  
@@ -654,7 +638,7 @@ myCoactivity~start  <--------------+
 
 
 <!-- ------------------------------- -->
-### yield implementation
+### 9.4.   yield implementation
 <!-- ------------------------------- -->
 
 ```REXX
@@ -681,7 +665,7 @@ myCoactivity~start  <--------------+
 
 
 <!-- ======================================================================= -->
-## Closures
+## 10.   Closures
 <!-- ======================================================================= -->
 
 A closure is an object created from a block whose source first word after the optional tag is `expose`.  
@@ -689,7 +673,7 @@ A closure remembers the values of the variables defined in the outer environment
 
 
 <!-- ------------------------------- -->
-### Closure by value
+### 10.1.   Closure by value
 <!-- ------------------------------- -->
 
 The behaviour of the closure is a method generated from the block, which is attached to the closure under the name `"do"`.  
@@ -740,11 +724,11 @@ This is a very inefficient implementation, to replace by a native (C++) implemen
 
 
 <!-- ------------------------------- -->
-### Closure settings
+### 10.2.   Closure settings
 <!-- ------------------------------- -->
 
 <!-- -------------------- -->
-#### Standard ooRexx behavior
+#### 10.2.1.   Standard ooRexx behavior
 <!-- -------------------- -->
 
 When a routine or method is created, a new `RexxSource` (i.e. a package) is created.  
@@ -771,7 +755,7 @@ Nothing else is inherited.
 ```
 
 <!-- ------------------------- -->
-#### Q1 (answered and implemented)
+#### 10.2.2.   Q1 (answered and implemented)
 <!-- ------------------------- -->
 
 The raw executable created from a `RexxBlock` is a routine or a method.  
@@ -833,7 +817,7 @@ This indicator is used to activate specific behaviour, like inheritance of tople
 
 
 <!-- ----------------- -->
-#### Q2 (not yet answered)
+#### 10.2.3.   Q2 (not yet answered)
 <!-- ----------------- -->
 
 Same question for the settings of the `RexxActivation` in which the `RexxBlock` is evaluated.  
@@ -880,7 +864,7 @@ Output:
 
 
 <!-- ======================================================================= -->
-## New option NOCOMMANDS
+## 11.   New option NOCOMMANDS
 <!-- ======================================================================= -->
 
 Added an option to control execution of commands:
@@ -897,7 +881,7 @@ When using the option `NOCOMMANDS`, the value of the expression is stored in the
 
 
 <!-- ======================================================================= -->
-## No value
+## 12.   No value
 <!-- ======================================================================= -->
 
 This is not an extension, it's a standard functionality, but undocumented:  
@@ -912,7 +896,7 @@ I use this functionality to manage special variable like `i`, `infinity`, `indet
 
 
 <!-- ======================================================================= -->
-## Order of the argument checks for the boolean operators
+## 13.   Order of the argument checks for the boolean operators
 <!-- ======================================================================= -->
 
 Changed the order of the argument checks for the boolean operators.  
@@ -931,11 +915,11 @@ Now:
 ```
 
 <!-- ======================================================================= -->
-## Symmetric implementation of operator
+## 14.   Symmetric implementation of operator
 <!-- ======================================================================= -->
 
 <!-- ------------------------------- -->
-### Rationale
+### 14.1.   Rationale
 <!-- ------------------------------- -->
 
 The standard ooRexx doesn't allow to define symmetric overriding of operators.  
@@ -988,7 +972,7 @@ Now you can write:
 
 
 <!-- ------------------------------- -->
-### Design decisions
+### 14.2.   Design decisions
 <!-- ------------------------------- -->
 
 Modification of the following methods to give a chance for an alternative operator before forcing the second argument to a string:
@@ -1156,7 +1140,7 @@ That explains why I don't have an error...
 
 
 <!-- ------------------------------- -->
-### Shared implementation to rework
+### 14.3.   Shared implementation to rework
 <!-- ------------------------------- -->
 
 Some alternative messages are never sent by the interpreter, because there is a shared implementation for some operators.  
@@ -1201,14 +1185,14 @@ OP    RexxObject                          RexxInteger           RexxNumberString
 
 
 <!-- ======================================================================= -->
-## Positional arguments
+## 15.   Positional arguments
 <!-- ======================================================================= -->
 
 The correspondence between a caller's argument and a callee's argument is done using the argument's position.
 
 
 <!-- ------------------------------- -->
-### Argument list
+### 15.1.   Argument list
 <!-- ------------------------------- -->
 
 Keep the trailing omitted arguments.
@@ -1248,7 +1232,7 @@ is raised instead of
 
 
 <!-- ------------------------------- -->
-### Array literals
+### 15.2.   Array literals
 <!-- ------------------------------- -->
 
 Retrofit from ooRexx5 the parsing of an expression where the expression can be treated as a comma-separated list of subexpressions.  
@@ -1268,7 +1252,7 @@ Align implementation of forward arguments to keep the trailing omitted arguments
 
 
 <!-- ------------------------------- -->
-### Trailing blocks
+### 15.3.   Trailing blocks
 <!-- ------------------------------- -->
 
 Added support for trailing blocks (similar to Groovy & Swift syntax for closures):
@@ -1285,14 +1269,14 @@ Example:
 
 
 <!-- ======================================================================= -->
-## Named arguments
+## 16.   Named arguments
 <!-- ======================================================================= -->
 
 The correspondence between a caller's argument and a callee's argument is done using the argument's name.
 
 
 <!-- ------------------------------- -->
-### Description
+### 16.1.   Description
 <!-- ------------------------------- -->
 
 [Specification](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/docs/NamedArguments/NamedArguments-Spec.md)
@@ -1369,7 +1353,7 @@ Native methods not `A_COUNT` which support named arguments:
 ```
 
 <!-- ------------------------------- -->
-### Remaining todo
+### 16.2.   Remaining todo
 <!-- ------------------------------- -->
 
 `Message~new`  
@@ -1404,11 +1388,11 @@ And of course the C++ API of ooRexx...
 
 
 <!-- ======================================================================= -->
-## Dynamic target when sending a message
+## 17.   Dynamic target when sending a message
 <!-- ======================================================================= -->
 
 <!-- ------------------------------- -->
-### Description
+### 17.1.   Description
 <!-- ------------------------------- -->
 
 Add support for dynamic target when sending messages.  
@@ -1437,7 +1421,7 @@ New method `.Object~dynamicTarget` which returns the target in function of the a
 
 
 <!-- ------------------------------- -->
-### Default dynamic target
+### 17.2.   Default dynamic target
 <!-- ------------------------------- -->
 
 By default, the dynamic target is the receiver object.  
@@ -1454,7 +1438,7 @@ Examples:
 
 
 <!-- ------------------------------- -->
-### String dynamic target
+### 17.3.   String dynamic target
 <!-- ------------------------------- -->
 
 The `RexxString` class overrides the virtual method `dynamicTarget`:
@@ -1481,7 +1465,7 @@ Examples:
 
 
 <!-- ======================================================================= -->
-## Method search order
+## 18.   Method search order
 <!-- ======================================================================= -->
 
 (ooRexx5 has been modified to support that)
@@ -1506,7 +1490,7 @@ Before, was possible only from methods of the target object.
 
 
 <!-- ======================================================================= -->
-## Routines search order
+## 19.   Routines search order
 <!-- ======================================================================= -->
 
 New entry `GLOBALROUTINES` in `.environment`, which gives access to `TheFunctionDirectory`.
@@ -1563,11 +1547,11 @@ Example of builtin function override:
 ```
 
 <!-- ======================================================================= -->
-## Encoded strings
+## 20.   Encoded strings
 <!-- ======================================================================= -->
 
 <!-- ------------------------------- -->
-### Native integration
+### 20.1.   Native integration
 <!-- ------------------------------- -->
 
 The support of the encoded strings is implemented in [trunk/interpreter/classes/TextClass.cpp](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/trunk/interpreter/classes/TextClass.cpp).
@@ -1645,7 +1629,7 @@ Start native integration of RexxText in the interpreter.
 
 
 <!-- ------------------------------- -->
-### `isASCII`
+### 20.2.   `isASCII`
 <!-- ------------------------------- -->
 
 Add method `String~isASCII`
@@ -1673,7 +1657,7 @@ Impacted methods:
 
 
 <!-- ------------------------------- -->
-### Encoded string evaluation
+### 20.3.   Encoded string evaluation
 <!-- ------------------------------- -->
 
 Automatic conversion of `String` literals to `RexxText` instances.  
@@ -1700,7 +1684,7 @@ This is implemented with a dynamic target.
 
 
 <!-- ======================================================================= -->
-## Collection
+## 21.   Collection
 <!-- ======================================================================= -->
 
 Retrofit the method MapCollection~of from ooRexx5:
@@ -1743,11 +1727,11 @@ Examples:
 
 
 <!-- ======================================================================= -->
-## Performance
+## 22.   Performance
 <!-- ======================================================================= -->
 
 <!-- ------------------------------- -->
-### New option `NOMACROSPACE`
+### 22.1.   New option `NOMACROSPACE`
 <!-- ------------------------------- -->
 
 Each call to an external function (like `SysXxx` functions) triggers a communication with the `rxapi` server through a socket (`QUERY_MACRO`, to test is the function is defined in the macrospace).  
@@ -1776,7 +1760,7 @@ When using the option `NOMACROSPACE`, the macrospace is not queried.
 
 
 <!-- ------------------------------- -->
-### Optimization of `.context`
+### 22.2.   Optimization of `.context`
 <!-- ------------------------------- -->
 
 Changed the search order in `RexxDotVariable::evaluate`:  
@@ -1805,7 +1789,7 @@ Tested from ooRexxShell where more than 700 classes are loaded:
 
 
 <!-- ------------------------------- -->
-### Optimization of `SysActivity::yield`
+### 22.3.   Optimization of `SysActivity::yield`
 <!-- ------------------------------- -->
 
 [interpreter\platform\windows\SysActivity.hpp](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/trunk/interpreter/platform/windows/SysActivity.hpp)  
@@ -1821,7 +1805,7 @@ For the moment, `sleep(0)` under Windows works fine for me, and is quit faster t
 
 
 <!-- ------------------------------- -->
-### Performance notes
+### 22.4.   Performance notes
 <!-- ------------------------------- -->
 
 Apply fix for SVN bug #1402  
@@ -1862,7 +1846,7 @@ On return from the API entry, the destructors calls:
 
 
 <!-- ======================================================================= -->
-## Monitoring
+## 23.   Monitoring
 <!-- ======================================================================= -->
 
 Added counters for monitoring interpreter activities:
@@ -1878,11 +1862,11 @@ See [samples/concurrency/factorials_generators.rex](https://github.com/jlfaucher
 
 
 <!-- ======================================================================= -->
-## Security manager: optimization
+## 24.   Security manager: optimization
 <!-- ======================================================================= -->
 
 <!-- ------------------------------- -->
-### Optional methods
+### 24.1.   Optional methods
 <!-- ------------------------------- -->
 
 It's no longer mandatory to implement all the methods of a security manager.  
@@ -1891,7 +1875,7 @@ That can reduce drastically the number of security checkpoint messages sent by t
 
 
 <!-- ------------------------------- -->
-### Method unknownDisabled
+### 24.2.   Method unknownDisabled
 <!-- ------------------------------- -->
 
 This is an optimization available only with Executor.  
@@ -1908,7 +1892,7 @@ The test of existence is done only when the security manager is registered, not 
 
 
 <!-- ------------------------------- -->
-### Two messages for each check
+### 24.3.   Two messages for each check
 <!-- ------------------------------- -->
 
 Each access to the global `.environment` will raise two messages sent to the security manager:  
@@ -1933,7 +1917,7 @@ if `unknownDisabled` is not defined:
 
 
 <!-- ======================================================================= -->
-## Compatibility with classic rexx
+## 25.   Compatibility with classic rexx
 <!-- ======================================================================= -->
 
 Add support for variables `#` `@` `$` `¢`.
@@ -1978,7 +1962,7 @@ Add support for `/=` and `/==`
 
 
 <!-- ======================================================================= -->
-## oodialog
+## 26.   oodialog
 <!-- ======================================================================= -->
 
 This is a very old version of ooDialog.
@@ -1998,7 +1982,7 @@ Typically, we can pass UTF-8 string to ooDialog which convert them to UTF-16 str
 
 
 <!-- ======================================================================= -->
-## Thoughts about lazy evaluation of arguments
+## 27.   Thoughts about lazy evaluation of arguments
 <!-- ======================================================================= -->
 
 Not yet implemented.
