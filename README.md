@@ -426,7 +426,7 @@ I gave up my extensions.
 [named_arguments_test_cases_output]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/tests/extension/named_arguments-test.output.reference.txt "Test cases of named arguments (output)"
 [named_arguments_test_cases_script]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/tests/extension/named_arguments-test.rex "Test cases of named arguments (script)"
 [notes_unicode]: https://jlfaucher.github.io/executor.master/unicode/_notes-unicode.html
-[overview_changes]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/_changes.txt "Overview of changes"
+[overview_changes]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/_changes.md "Overview of changes"
 [pipes_documentation]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/packages/pipeline/pipe_readme.txt
 [rosetta_code_accumulator_factory]: http://rosettacode.org/wiki/Accumulator_factory "Rosetta code : Accumulator factory"
 [rosetta_code_closures_value_capture]: http://rosettacode.org/wiki/Closures/Value_capture "Rosetta code : Closures/Value capture"
