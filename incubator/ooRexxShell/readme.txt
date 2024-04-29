@@ -349,14 +349,17 @@ History of changes
 
 No longer show the unsupported queries when using the "?" command.
 
+
 Color management:
 No longer support .color~defaultBackground and .color~defaultForeground.
 These attributes were used under Windows with GCI.
 GCI has been replaced by ANSI color sequences.
 
+
 When loading rgf_util2.rexx, try in this order:
 - with relative path "rgf_util2/rgf_util2.rex" (executor version)
 - without relative path "rgf_util2.rex" (bsf4oorexx version)
+
 
 Allow customization by end user:
 Load the optional file ".oorexxshell_customization.cls", from the HOME directory.
@@ -369,6 +372,12 @@ Example of customization:
         .ooRexxShell~infoColor = "green"
         .ooRexxShell~promptColor = "yellow"
     end
+    .ooRexxShell~promptDirectory = .false -- Don't display the current directory
+    .ooRexxShell~promptInterpreter = .false -- Don't display the current interpreter name
+    .ooRexxShell~promptAddress = .false -- Don't display the current system address
+    .ooRexxShell~showInfos = .false -- Don't show duration and number of coactivities
+    .ooRexxShell~trapNoValue = .false -- Allow to use uninitialized variables when interpreting the command line
+
 
 Better support of clauses ending with "=" or "==", when using ooRexx 5.
 The Clauser used by Executor is delivered with ooRexxShell and loaded if found.
