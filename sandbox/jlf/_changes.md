@@ -57,7 +57,8 @@ The visibility rules for classes are also standard, nothing special for extensio
 
 Currently, if the same method is extended several times, then it's the "last" extension who wins...  
 The definition of "last" depends on the order of resolution of `::requires`.  
-See [test_extension_order.rex](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/tests/extension/test_extension_order.rex)
+See [test_extension_order.rex](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/tests/extension/test_extension_order.rex)  
+See [test_extension_order.output.reference.txt](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/tests/extension/test_extension_order.output.reference.txt)
 
 Unlike `::class`, you can have several `::extension` in the same source for the same class.  
 So the current check for duplicate method in an ExtensionDirective is not very useful.  
