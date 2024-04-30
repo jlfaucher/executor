@@ -452,7 +452,7 @@ The problem I wanted to fix:
 numeric digits has no effect on the called routines/methods.  
 Setting the precision at package level with `::option digits` is not helping when you want to test several settings interactively.  
 With one-liners, you can hardcode the precision where you do a calculation, but the code becomes polluted by these declarations.  
-If you don't want to hardcode the precision, the code is still more polluted with the use of arguments. See 2020 nov 16.
+If you don't want to hardcode the precision, the code is still more polluted with the use of arguments. See [Sandbox diary](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/_diary.txt) 2020 nov 16.
 
 ```REXX
     numeric digits 30
@@ -476,6 +476,7 @@ The option is available only with `NUMERIC DIGITS` but it controls the propagati
     numeric digits              -- default precision, local
     numeric digits propagate    -- default precision, digits form and fuzz are propagated
     numeric digits 30           -- precision is 30, local
+    1~10000~reduce("*")=        -- 2.84625960E+35659, the precision for this calculation is 9, it has not been propagated
     numeric digits propagate 30 -- precision is 30, digits form and fuzz are propagated
     1~10000~reduce("*")=        -- 2.84625968091705451890641321250E+35659, the precision has been propagated
 ```
@@ -897,10 +898,10 @@ I use this functionality to manage special variable like `i`, `infinity`, `indet
 
 
 <!-- ======================================================================= -->
-## 13.   Order of the argument checks for the boolean operators
+## 13.   Order of argument checking for Boolean operators
 <!-- ======================================================================= -->
 
-Changed the order of the argument checks for the boolean operators.  
+Changed the order of argument checking for Boolean operators.  
 In case of wrong value on both sides, the error about the right side was raised first.
 
 It's more clear to report an error about the left side when both sides are wrong, otherwise you have the wrong impression that only the right side is wrong (the evaluation is from left to right).
@@ -1316,7 +1317,7 @@ void CPPCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiv
 ```
 
 
-The callee can use the helper `NamedArguments.check` to collect the named arguments in a useful order.  
+The callee can use the helper `NamedArguments.match` to collect the named arguments in a useful order.  
 Example:
 
 ```C++
@@ -1639,7 +1640,7 @@ Add method `MutableBuffer~isASCII`
 Implementation more complex than for `String`, because mutable.  
 Try to avoid to rescan the whole buffer, when possible.  
 The native methods that modify the buffer are never scanning the buffer, they are just setting the boolean indicators `is_ASCII_checked` and `is_ASCII`.  
-It's only the Rexx method `~isASCII` which scans the whole buffer, if needed.
+It's only the Rexx method `~isASCII` which scans the whole buffer, if needed.  
 Impacted methods:
 
 ```C++
