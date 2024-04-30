@@ -44,7 +44,7 @@ end_of_options:
     inputobject = .stream~new(inputname)
     outputobject = .stream~new(outputname)
     if \ setupStreams(inputobject, outputobject, force) then exit -1
-    call transform inputname, inputobject, outputobject
+    call transform inputobject, outputobject
     exit 0
 
 option_force:
@@ -126,7 +126,7 @@ usage:
 -- Transformation the Markdown stream
 
 ::routine transform
-    use strict arg inputname, inputobject, outputobject
+    use strict arg inputobject, outputobject
 
     counter = .hierarchicalCounter~new
     contents = .list~new
