@@ -255,7 +255,7 @@ If the input line starts with a space then these commands are not recognized.
 < filename: read the file and put each line in the queue.
 color off|on: deactivate|activate the colors.
 debug off|on: deactivate|activate the full trace of the internals of ooRexxShell.
-demo off|on: deactivate|activate the demonstration mode.
+demo off|on|fast: deactivate|activate the demonstration mode.
 exit: exit ooRexxShell.
 goto <label>: used in a demo script to skip lines, until <label>: (note colon) is reached.
 indent+ | indent-: used by the command < to show the level of inclusion.
@@ -267,6 +267,7 @@ reload: exit the current session and reload all the packages/libraries.
 security off: deactivate the security manager. No transformation of commands.
 security on : activate the security manager. Transformation of commands.
 sleep [n] [no prompt]: used in demo mode to pause during n seconds (default 2 sec).
+test regression: activate the regression testing mode.
 trace off|on [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity][.verbose]]: deactivate|activate the trace.
 trap off|on [l[ostdigits]] [nom[ethod]] [nos[tring]] [nov[alue]] [s[yntax]]: deactivate|activate the conditions traps.
 
