@@ -124,7 +124,7 @@ exit RC
 error:
 condition = condition("O")
 if condition <> .nil then do
-    .ooRexxShell~sayCondition(condition)
+    .ooRexxShell~sayCondition(condition, /*shortFormat*/ .false)
     if .nil \== condition~traceback then .ooRexxShell~sayError(condition~traceback~makearray~tostring)
 end
 else say "SHOULD NOT HAPPEN: trapped an error, but no condition object to display"
@@ -191,8 +191,8 @@ if value("OOREXXSHELL_RLWRAP", , "ENVIRONMENT") <> "" then .ooRexxShell~readline
 .ooRexxShell~infoColor = "bgreen"
 .ooRexxShell~commentColor = "bblue"
 .ooRexxShell~promptColor = "byellow"
-.ooRexxShell~traceColor = "purple"
-.ooRexxShell~commandColor = "bpurple"
+.ooRexxShell~traceColor = "magenta"
+.ooRexxShell~commandColor = "bmagenta"
 /*
 -- defaultBackground no longer supported
 -- if you want to use these colors then define them in the customization file
@@ -489,7 +489,7 @@ dispatchCommand:
     if .ooRexxshell~securityManager~isEnabledByUser then .ooRexxShell~securityManager~isEnabled = .false
     options "COMMANDS" -- Commands must be enabled for proper execution of ooRexxShell
     call rxqueue "set", .ooRexxShell~queueName -- Back to the public ooRexxShell input queue
-    if .ooRexxShell~error then .ooRexxShell~sayCondition(condition("O"))
+    if .ooRexxShell~error then .ooRexxShell~sayCondition(condition("O"), /*shortFormat*/ .true)
     if RC <> 0 & \.ooRexxShell~error then do
         -- RC can be set by interpretCommand or by addressCommand
         -- Not displayed in case of error, because the integer portion of Code already provides the same value as RC
@@ -915,7 +915,7 @@ Helpers
 -- Load optional packages/libraries
 ::routine loadOptionalComponents
     -- Initial customization, before any preloaded package
-    call loadPackage .oorexxshell~customizationFile, .true
+    call loadPackage .oorexxshell~customizationFile, /*silent*/ .true, /*reportError*/ .true
 
     -- The routine stringChunks is used internally by ooRexxShell
     -- Try to load the stand-alone package (don't ::requires it, to avoid an error if not found)
@@ -959,7 +959,7 @@ Helpers
     --call loadPackage "ooSQLite.cls"
 
     -- derived from the offical rgf_util2.rex (in BSF4ooRexx)
-    .ooRexxShell~hasRgfUtil2 = loadPackage("rgf_util2/rgf_util2.rex", .true) -- Try this one first (executor version), because I find also the other one (bsf4oorexx version)
+    .ooRexxShell~hasRgfUtil2 = loadPackage("rgf_util2/rgf_util2.rex", /*silent*/ .true) -- Try this one first (executor version), because I find also the other one (bsf4oorexx version)
     if .ooRexxShell~hasRgfUtil2 == .false then .ooRexxShell~hasRgfUtil2 = loadPackage("rgf_util2.rex")
     if .ooRexxShell~hasRgfUtil2 == .true,,
        .nil <> .context~package~findroutine("rgf_util_extended") then do
@@ -969,7 +969,7 @@ Helpers
             .ooRexxShell~comparatorClass = .NumberComparator
     end
 
-    .ooRexxShell~hasBsf = loadPackage("BSF.CLS", .true)
+    .ooRexxShell~hasBsf = loadPackage("BSF.CLS", /*silent*/ .true)
     if value("UNO_INSTALLED",,"ENVIRONMENT") <> "" then call loadPackage "UNO.CLS"
 
     if .Clauser~isA(.Class) then .ooRexxShell~hasClauser = .true
@@ -982,7 +982,7 @@ Helpers
     end
 
     -- Second customization, after all preloaded packages
-    call loadPackage .oorexxshell~customizationFile2, .true
+    call loadPackage .oorexxshell~customizationFile2, /*silent*/ .true, /*reportError*/ .true
 
     if .ooRexxShell~isExtended then do
         if .ooRexxShell~isInteractive then .ooRexxShell~sayComment("Unicode character names not loaded, execute: call loadUnicodeCharacterNames")
@@ -1040,13 +1040,18 @@ Helpers
 
 -------------------------------------------------------------------------------
 ::routine loadPackage
-    use strict arg filename, silent=.false
+    use strict arg filename, silent=.false, reportError=.false
     signal on syntax name loadPackageError
     .context~package~loadPackage(filename)
     if .ooRexxShell~showInitialization then .ooRexxShell~sayInfo("loadPackage OK for" filename)
     return .true
     loadPackageError:
-    if \ silent then .ooRexxShell~sayError("loadPackage KO for" filename)
+    condition = condition("O")
+    if reportError, condition <> .nil, condition~code \== 43.901 then silent = .false -- It's an error other than file not found
+    if \ silent then do
+        .ooRexxShell~sayError("loadPackage KO for" filename)
+        if reportError then .ooRexxShell~sayCondition(condition, /*shortFormat*/ .false)
+    end
     return .false
 
 
@@ -1207,9 +1212,9 @@ Helpers
 ::attribute customizationFile class
 ::attribute customizationFile2 class
 ::attribute declareAll class
+::attribute defaultSleepDelay class
 ::attribute demo class
 ::attribute demoFast class
-::attribute defaultSleepDelay class
 ::attribute error class -- Will be .true if the last command raised an error
 ::attribute gotoLabel class -- Either "" or the label to reach
 ::attribute hasBsf class -- Will be .true if BSF.cls has been loaded
@@ -1285,6 +1290,7 @@ Helpers
 
 ::method init class
     .environment~setentry(self~id, self)
+    self~command = ""
     self~commandInterpreter = ""
     self~comparatorClass = .nil
     self~countCommentChars = 0
@@ -1294,9 +1300,6 @@ Helpers
     self~defaultSleepDelay = 2
     self~demo = .false
     self~demoFast = .false -- by default, the demo is slow (SysSleep is executed)
-    self~routine_dump2 = .nil
-    self~routine_pp2 = .nil
-    self~routine_stringChunks = .nil
     self~error = .false
     self~gotoLabel = ""
     self~hasBsf = .false
@@ -1308,6 +1311,8 @@ Helpers
     self~hasRgfUtil2Extended = .false
     self~indentedErrorStream = .nil
     self~indentedOutputStream = .nil
+    self~initialAddress = ""
+    self~initialArgument = ""
     self~isExtended = .false
     self~isInteractive = .false
     self~maxItemsDisplayed = 1000
@@ -1316,8 +1321,12 @@ Helpers
     self~promptDirectory = .true
     self~promptInterpreter = .true
     self~readline = .false
+    self~routine_dump2 = .nil
+    self~routine_pp2 = .nil
+    self~routine_stringChunks = .nil
     self~showColor = .false
     self~showComment = .false
+    self~showInfos = .false
     self~showInfosNext = .false
     self~showInitialization = .false
     self~showStackFrames = .false
@@ -1468,20 +1477,28 @@ Helpers
 
 
 ::method sayCondition class
-    use strict arg condition
+    use strict arg condition, shortFormat = .true
     if condition == .nil then return
 
     .ooRexxShell~traceback = condition~traceback
     .ooRexxShell~stackFrames = condition~stackFrames
     if .ooRexxShell~showStackFrames | \ (.ooRexxShell~isInteractive | .ooRexxShell~demo) then .ooRexxShell~sayStackFrames
 
-    if condition~condition <> "SYNTAX" then .ooRexxShell~sayError(condition~condition)
-    if condition~description <> .nil, condition~description <> "" then .ooRexxShell~sayError(condition~description)
+    if shortFormat then do
+        -- Here the file name and line number are irrelevant
+        if condition~condition <> "SYNTAX" then .ooRexxShell~sayError(condition~condition)
+        if condition~description <> .nil, condition~description <> "" then .ooRexxShell~sayError(condition~description)
 
-    -- For SYNTAX conditions
-    if condition~message <> .nil then .ooRexxShell~sayError(condition~message)
-    else if condition~errortext <> .nil then .ooRexxShell~sayError(condition~errortext)
-    if condition~code <> .nil then .ooRexxShell~sayError("Error code=" condition~code)
+        -- For SYNTAX conditions
+        if condition~message <> .nil then .ooRexxShell~sayError(condition~message)
+        else if condition~errortext <> .nil then .ooRexxShell~sayError(condition~errortext)
+        if condition~code <> .nil then .ooRexxShell~sayError("Error code=" condition~code)
+    end
+    else do
+        -- Here the file name and line number are relevant
+        .ooRexxShell~sayError("Error" condition~rc "running" condition~package~name "line" condition~position":" condition~errortext)
+        .ooRexxShell~sayError("Error" condition~code":" condition~message)
+    end
 
 
 ::method sayStackFrames class
@@ -1644,7 +1661,7 @@ Helpers
         filteringStream~flush
         .output~destination -- restore the previous destination
     end
-    .ooRexxShell~sayCondition(condition("O"))
+    .ooRexxShell~sayCondition(condition("O"), /*shortFormat*/ .false)
 
 
 ::method helpNoQueries class
@@ -2422,33 +2439,83 @@ Helpers
 ::class color
 -------------------------------------------------------------------------------
 
--- Initialized by .WindowsPlatform~init, not used by Linux & Darwin platforms.
-::attribute default class
--- ::attribute defaultBackground class -- 0 to 15
--- ::attribute defaultForeground class -- 0 to 15
+/*
+https://ss64.com/nt/syntax-ansi.html
+https://en.wikipedia.org/wiki/ANSI_escape_code
+*/
+
+::attribute background class set
+    expose background background_AES
+    use strict arg background
+    background_AES = self~ANSI_Escape_Sequence(background, /* isBackground */ .true)
+
+::attribute background class get
+
+
+::method init class
+    .environment~setentry(self~id, self)
+    self~background = ""
 
 ::method select class
-    if \ .ooRexxShell~showColor then return -- you don't want the colors
+    expose background_AES
     use strict arg color, stream=.output
-    if color~caselessEquals("default") then stream~charout(d2c(27)"[0m")
-    else if color~caselessEquals("bdefault") then stream~charout(d2c(27)"[1m")
-    else if color~caselessEquals("black") then stream~charout(d2c(27)"[0;30m")
-    else if color~caselessEquals("bblack") then stream~charout(d2c(27)"[1;30m")
-    else if color~caselessEquals("red") then stream~charout(d2c(27)"[0;31m")
-    else if color~caselessEquals("bred") then stream~charout(d2c(27)"[1;31m")
-    else if color~caselessEquals("green") then stream~charout(d2c(27)"[0;32m")
-    else if color~caselessEquals("bgreen") then stream~charout(d2c(27)"[1;32m")
-    else if color~caselessEquals("yellow") then stream~charout(d2c(27)"[0;33m")
-    else if color~caselessEquals("byellow") then stream~charout(d2c(27)"[1;33m")
-    else if color~caselessEquals("blue") then stream~charout(d2c(27)"[0;34m")
-    else if color~caselessEquals("bblue") then stream~charout(d2c(27)"[1;34m")
-    else if color~caselessEquals("purple") then stream~charout(d2c(27)"[0;35m")
-    else if color~caselessEquals("bpurple") then stream~charout(d2c(27)"[1;35m")
-    else if color~caselessEquals("cyan") then stream~charout(d2c(27)"[0;36m")
-    else if color~caselessEquals("bcyan") then stream~charout(d2c(27)"[1;36m")
-    else if color~caselessEquals("white") then stream~charout(d2c(27)"[0;37m")
-    else if color~caselessEquals("bwhite") then stream~charout(d2c(27)"[1;37m")
+
+    if \ .ooRexxShell~showColor then return -- you don't want the colors
+
+    color_AES = self~ANSI_Escape_Sequence(color)
+    stream~charout(background_AES)
+    stream~charout(color_AES)
     stream~flush -- to avoid filtering by filteringStream
+
+
+::method name2code class private
+    /*
+    Return -1 if color name unknown
+    otherwise return a number of 1 or 3 digits where
+    - the first digit is 0 (normal) or 1 (bold)
+    - the next 2 digits (if any) are the ANSI color code in decimal
+    */
+    use strict arg color
+
+    select
+        when color~caselessEquals("default") then return 0
+        when color~caselessEquals("bdefault") then return 1
+        when color~caselessEquals("black") then return 030
+        when color~caselessEquals("bblack") then return 130
+        when color~caselessEquals("red") then return 031
+        when color~caselessEquals("bred") then return 131
+        when color~caselessEquals("green") then return 032
+        when color~caselessEquals("bgreen") then return 132
+        when color~caselessEquals("yellow") then return 033
+        when color~caselessEquals("byellow") then return 133
+        when color~caselessEquals("blue") then return 034
+        when color~caselessEquals("bblue") then return 134
+        when color~caselessEquals("magenta") then return 035
+        when color~caselessEquals("bmagenta") then return 135
+        when color~caselessEquals("cyan") then return 036
+        when color~caselessEquals("bcyan") then return 136
+        when color~caselessEquals("white") then return 037
+        when color~caselessEquals("bwhite") then return 137
+        otherwise return -1
+    end
+
+
+::method ANSI_Escape_Sequence class private
+    use strict arg color, isBackground = .false
+    if color \== "" then do
+        code = self~name2code(color)
+        if code >= 0 then do
+            style = code~left(1)
+            code = code~substr(2)
+            if code == "" then color = d2c(27)"["style"m"   -- Esc[0m
+            else do
+                if isBackground then code += 10
+                color = d2c(27)"["style";"code"m"           -- Esc[0;30m
+            end
+        end
+        else nop -- assume the background is already an ANSI escape sequence, to display as-is
+    end
+    return color
 
 
 -------------------------------------------------------------------------------
@@ -2679,5 +2746,6 @@ Helpers
 
         syntax:
         address -- restore
-        .ooRexxShell~sayCondition(condition("O"))
+        -- Todo: display filename and line number (if we are executing < "filename")
+        .ooRexxShell~sayCondition(condition("O"), /*shortFormat*/ .true)
         return "evaluation_error"

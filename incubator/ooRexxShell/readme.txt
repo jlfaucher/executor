@@ -350,6 +350,8 @@ History of changes
 
 Customization by end user:
 The extension is now .rex, instead of .cls.
+Rework the error management. In case of error other than file not found, the
+error message is displayed even in silent mode.
 
 
 Customization by end user:
@@ -357,6 +359,12 @@ The optional file ".oorexxshell_customization.rex" is now loaded before any
 preloaded package. Typically used for color settings.
 A second optional file ".oorexxshell_customization2.rex" is loaded after all
 preloaded packages.
+
+
+Colors
+"purple" renamed "magenta"
+Add support for a background color.
+A color can be specified by name, or directly by an ANSI Escape Sequence.
 
 
 -----------------------------------------------
@@ -376,26 +384,39 @@ When loading rgf_util2.rexx, try in this order:
 - without relative path "rgf_util2.rex" (bsf4oorexx version)
 
 
-[Update 2024 May 1: extension .rex instead of .cls]
+[Update 2024 May 1] the file extension is ".rex" instead of ".cls".
 Allow customization by end user:
 Load the optional file ".oorexxshell_customization.rex", from the HOME directory.
-This file is loaded last, after all preloaded packages.
-Careful! If this file triggers some errors, they are trapped and not displayed.
+[Update 2024 May 1] This file is loaded first, before any preloaded package.
 Example of customization:
     if .ooRexxShell~isInteractive then do
-        -- if you want to bypass the bug "any byte >= 128 is replaced by \0"
-        .ooRexxShell~readline = .true -- is .false by default under Windows because history often broken
+        -- bypass the Windows bug "any byte >= 128 is replaced by \0"
+        .ooRexxShell~readline = .true -- .false by default under Windows because history often broken
+
         -- color settings for white background
+        .color~background = "white"
         .ooRexxShell~infoColor = "green"
         .ooRexxShell~promptColor = "yellow"
-        -- if you want to disable the colors
+
+        -- a color can be defined with an ANSI Escape Sequence
+        .color~background = d2c(27)"[1;32m" -- bgreen
+
+        -- disable the colors
         .ooRexxShell~showColor = .false
     end
+
+    -- Prompt setting
     .ooRexxShell~promptDirectory = .false -- Don't display the current directory
     .ooRexxShell~promptInterpreter = .false -- Don't display the current interpreter name
     .ooRexxShell~promptAddress = .false -- Don't display the current system address
     .ooRexxShell~showInfos = .false -- Don't show duration and number of coactivities
+
+    -- Error management
+    .ooRexxShell~trapLostDigits = .false
+    .ooRexxShell~trapNoMethod = .true
+    .ooRexxShell~trapNoString = .true
     .ooRexxShell~trapNoValue = .false -- Allow to use uninitialized variables when interpreting the command line
+    .ooRexxShell~trapSyntax = .false -- ooRexxShell will be interrupted at the first syntax error
 
 
 Better support of clauses ending with "=" or "==", when using ooRexx 5.
@@ -403,7 +424,7 @@ The Clauser used by Executor is delivered with ooRexxShell and loaded if found.
 Now, several clauses are supported.
 Example:
     say "1+1="; 1+1=; say; 1,2,3=; say; result==
-Output (with a special "ppString" rexx.img for ooRexx 5):
+Output (compact when the package "ppString.cls" has been loaded):
     1+1=
      2
 
