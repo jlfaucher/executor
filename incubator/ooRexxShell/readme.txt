@@ -346,6 +346,20 @@ History of changes
 ==================
 
 -----------------------------------------------
+2024 may 1
+
+Customization by end user:
+The extension is now .rex, instead of .cls.
+
+
+Customization by end user:
+The optional file ".oorexxshell_customization.rex" is now loaded before any
+preloaded package. Typically used for color settings.
+A second optional file ".oorexxshell_customization2.rex" is loaded after all
+preloaded packages.
+
+
+-----------------------------------------------
 2024 apr 28
 
 No longer show the unsupported queries when using the "?" command.
@@ -362,16 +376,20 @@ When loading rgf_util2.rexx, try in this order:
 - without relative path "rgf_util2.rex" (bsf4oorexx version)
 
 
+[Update 2024 May 1: extension .rex instead of .cls]
 Allow customization by end user:
-Load the optional file ".oorexxshell_customization.cls", from the HOME directory.
+Load the optional file ".oorexxshell_customization.rex", from the HOME directory.
 This file is loaded last, after all preloaded packages.
 Careful! If this file triggers some errors, they are trapped and not displayed.
 Example of customization:
     if .ooRexxShell~isInteractive then do
-        .ooRexxShell~readline = .true -- is .false by default under Windows
+        -- if you want to bypass the bug "any byte >= 128 is replaced by \0"
+        .ooRexxShell~readline = .true -- is .false by default under Windows because history often broken
         -- color settings for white background
         .ooRexxShell~infoColor = "green"
         .ooRexxShell~promptColor = "yellow"
+        -- if you want to disable the colors
+        .ooRexxShell~showColor = .false
     end
     .ooRexxShell~promptDirectory = .false -- Don't display the current directory
     .ooRexxShell~promptInterpreter = .false -- Don't display the current interpreter name

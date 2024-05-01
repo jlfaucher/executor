@@ -914,6 +914,9 @@ Helpers
 -------------------------------------------------------------------------------
 -- Load optional packages/libraries
 ::routine loadOptionalComponents
+    -- Initial customization, before any preloaded package
+    call loadPackage .oorexxshell~customizationFile, .true
+
     -- The routine stringChunks is used internally by ooRexxShell
     -- Try to load the stand-alone package (don't ::requires it, to avoid an error if not found)
     call loadPackage "extension/stringChunk.cls"
@@ -966,7 +969,7 @@ Helpers
             .ooRexxShell~comparatorClass = .NumberComparator
     end
 
-    .ooRexxShell~hasBsf = loadPackage("BSF.CLS")
+    .ooRexxShell~hasBsf = loadPackage("BSF.CLS", .true)
     if value("UNO_INSTALLED",,"ENVIRONMENT") <> "" then call loadPackage "UNO.CLS"
 
     if .Clauser~isA(.Class) then .ooRexxShell~hasClauser = .true
@@ -978,7 +981,8 @@ Helpers
         call loadPackage "rgf_util2/rgf_util2_wrappers.rex"
     end
 
-    call loadPackage .oorexxshell~customizationFile, .true
+    -- Second customization, after all preloaded packages
+    call loadPackage .oorexxshell~customizationFile2, .true
 
     if .ooRexxShell~isExtended then do
         if .ooRexxShell~isInteractive then .ooRexxShell~sayComment("Unicode character names not loaded, execute: call loadUnicodeCharacterNames")
@@ -1201,6 +1205,7 @@ Helpers
 ::attribute countCommentChars class
 ::attribute countCommentLines class
 ::attribute customizationFile class
+::attribute customizationFile2 class
 ::attribute declareAll class
 ::attribute demo class
 ::attribute demoFast class
@@ -1342,7 +1347,8 @@ Helpers
     self~historyFile = HOME || "/.oorexxshell_history"
 
     -- Allow customization by end user
-    self~customizationFile = HOME || "/.oorexxshell_customization.cls"
+    self~customizationFile = HOME || "/.oorexxshell_customization.rex"
+    self~customizationFile2 = HOME || "/.oorexxshell_customization2.rex"
 
 
 ::method hasLastResult class
