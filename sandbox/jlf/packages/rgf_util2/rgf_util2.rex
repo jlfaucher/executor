@@ -161,12 +161,6 @@
 
 .environment~rgf.symbol.chars=".!_?"
 
-::routine rgf_util_extended public
-  -- JLF:
-  -- To let test if the extended version of rgf_util2.rex is loaded
-  -- dump2 and pp2 takes more arguments in this extended version.
-
-
 ::routine interpreter_extended public
     -- In Executor
     --     The tokenizer has been modified to split a symbol of the form <number><after number> in two distinct tokens.
@@ -175,9 +169,16 @@
     a = 0
     return 0a == "00"
 
+::routine procedural_extended public
+    -- Will be true if "procedural/dispatcher.cls" has been loaded (for example by ooRexxShell).
+    -- rgf_util2 does not need to (and should not) directly load "procedural/dispatcher.cls".
+    return .ExtensionDispatcher~isA(.Class)
 
-::routine img_extended public
-    return .ExtendedRexxImg~isA(.Class)
+::routine rgf_util_extended public
+  -- Used internally to route the pretty print to Executor or to ExtensionDispatcher.
+  -- Used externally to test if the extended version of rgf_util2.rex is loaded
+  -- (dump2 and pp2 takes more arguments in this extended version).
+    return interpreter_extended() | procedural_extended()
 
 
    -- 2008-02-19, rgf:   abbrev      info, string [, n-length]
@@ -1747,14 +1748,11 @@ syntax:              -- propagate condition
    Helper to display the shape of an array.
 */
 
-::routine shape private -- jlf: private to avoid collision with array.cls where this routine is also declared
+::routine shape private
     use arg coll, separator=""
-    if coll~hasMethod("shapeToString"), coll~isA(.array) then
-    do
-        shape = coll~shapeToString
-        if shape <> "no shape" then shape = "shape" shape
-        return shape || separator
-    end
+    -- Extended
+    if coll~hasMethod("shapeToPrettyString") then return coll~shapeToPrettyString(separator)
+    if .ExtensionDispatcher~isA(.Class), .ExtensionDispatcher~hasMethod(coll, "shapeToPrettyString") then return .ExtensionDispatcher~shapeToPrettyString(coll, separator)
     return ""
 
 
@@ -1768,7 +1766,7 @@ syntax:              -- propagate condition
       comparator ... the comparator to use in sorting
 */
 ::routine dump2 public
-  if interpreter_extended() | img_extended() then
+  if rgf_util_extended() then
   do
     -- JLF:
     -- I prefer a notation closer to the standard notation "a String" or "an Array"
@@ -1779,7 +1777,7 @@ syntax:              -- propagate condition
     doer = .nil
     if .nil <> action then
     do
-      doer = action~doer
+      if interpreter_extended() then doer = action~doer
     end
   end
   else
@@ -1791,8 +1789,8 @@ syntax:              -- propagate condition
   if .nil=comparator, title~isA(.comparator) then
   do
      comparator=title
-     if interpreter_extended() | img_extended() then title=(/*"type: The" coll~class~id "class"*/ coll~defaultName)
-                                                else title=("type: The" coll~class~id "class")
+     if rgf_util_extended() then title=(/*"type: The" coll~class~id "class"*/ coll~defaultName)
+                            else title=("type: The" coll~class~id "class")
   end
 
 
@@ -1800,7 +1798,7 @@ syntax:              -- propagate condition
   do
      s=coll
      len=5  -- define an arbitrary high width
-     if interpreter_extended() | img_extended() then
+     if rgf_util_extended() then
      do
         availability = ""
         if \s~available then availability = "(nothing available)"
@@ -1824,7 +1822,7 @@ syntax:              -- propagate condition
   end
   else      -- a collection in hand
   do
-     if interpreter_extended() | img_extended() then
+     if rgf_util_extended() then
      do
         shape = shape(coll, ", ")
         items = coll~items -- calculate once, can be long for big array
@@ -1838,7 +1836,7 @@ syntax:              -- propagate condition
      end
   end
 
-  if \ interpreter_extended() & \ img_extended() then say
+  if \ rgf_util_extended() then say
   count=0
 
 
@@ -1851,8 +1849,8 @@ syntax:              -- propagate condition
   maxWidth=0
   s2=s~copy
   do maxCount while s2~available
-     if interpreter_extended() | img_extended() then maxWidth=max(maxWidth,(ppIndex2(s2~index, surroundIndexByQuotes)~length))
-                                                else maxWidth=max(maxWidth,length(ppIndex2(s2~index)))
+     if rgf_util_extended() then maxWidth=max(maxWidth,(ppIndex2(s2~index, surroundIndexByQuotes)~length))
+                            else maxWidth=max(maxWidth,length(ppIndex2(s2~index)))
      s2~next
   end
 
@@ -1864,15 +1862,15 @@ syntax:              -- propagate condition
          say "..."
          return .false -- truncated
      end
-     if interpreter_extended() | img_extended() then call displayCurrentItem
-                                                else say "   " "#" right(count,len)":" "index="ppIndex2(s~index)~left(maxWidth) "-> item="pp2(s~item)
+     if rgf_util_extended() then call displayCurrentItem
+                            else say "   " "#" right(count,len)":" "index="ppIndex2(s~index)~left(maxWidth) "-> item="pp2(s~item)
      s~next
   end
-  if \ interpreter_extended() & \ img_extended() then say "-"~copies(50)
+  if \ rgf_util_extended() then say "-"~copies(50)
   return .true -- not truncated
 
 
-/* A different way to display the current item (when interpreter_extended or img_extended) */
+/* A different way to display the current item (when rgf_util_extended) */
 displayCurrentItem:
          if s~item~isa(.array) & iterateOverItem then
          do
@@ -2707,14 +2705,15 @@ createCodeSnippet: procedure
 
   -- JLF to rework: surroundByQuotes is supported only by String~ppString
   -- Can't pass a named argument, to remain compatible with official ooRexx.
+  -- Extended
   if a1~hasMethod("ppString") then return a1~ppString(surroundByQuotes)
+  if .ExtensionDispatcher~isA(.Class), .ExtensionDispatcher~hasMethod(a1, "ppString") then return .ExtensionDispatcher~ppString(a1, surroundByQuotes)
 
   if \a1~isA(.string) then
   do
      if a1~isA(.Collection) then
         return "["a1~string "("a1~items "items)" "id#_" || id2x(a1~identityHash)"]"
      else
-        if interpreter_extended() | img_extended() then return "("a1~string")" -- ppString at Object scope
         return "["a1~string "id#_" || id2x(a1~identityHash)"]"
   end
 
@@ -2732,7 +2731,9 @@ createCodeSnippet: procedure
 
   -- JLF to rework: surroundByQuotes is supported only by String~ppString
   -- Can't pass a named argument, to remain compatible with official ooRexx.
+  -- Extended
   if a1~hasMethod("ppString") then return a1~ppString(surroundByQuotes)
+  if .ExtensionDispatcher~isA(.Class), .ExtensionDispatcher~hasMethod(a1, "ppString") then return .ExtensionDispatcher~ppString(a1, surroundByQuotes)
 
   if \a1~isA(.string) then
   do
@@ -2765,7 +2766,6 @@ createCodeSnippet: procedure
         end
      end
 
-     if interpreter_extended() | img_extended() then return "("a1~string")" -- ppString at Object scope
      return "["a1~string "id#_" || id2x(a1~identityHash)"]"
   end
 

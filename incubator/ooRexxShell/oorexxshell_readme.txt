@@ -272,6 +272,48 @@ trace off|on [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity][.verbose]]: deacti
 trap off|on [l[ostdigits]] [nom[ethod]] [nos[tring]] [nov[alue]] [s[yntax]]: deactivate|activate the conditions traps.
 
 
+Customization
+=============
+In the HOME directory:
+- The optional file ".oorexxshell_customization.rex" is loaded before any
+  preloaded package. Typically used for color settings.
+- A second optional file ".oorexxshell_customization2.rex" is loaded after all
+  preloaded packages.
+Example of customization:
+    -- Better to limit the customization to the interactive mode
+    if .ooRexxShell~isInteractive then do
+        -- bypass the Windows bug "any byte >= 128 is replaced by \0"
+        .ooRexxShell~readline = .true -- .false by default under Windows because history often broken
+
+        -- color settings for white background
+        .color~background = "white"
+        .ooRexxShell~infoColor = "green"
+        .ooRexxShell~promptColor = "yellow"
+
+        -- a color can be defined with an ANSI Escape Sequence
+        .color~background = d2c(27)"[1;32m" -- bgreen
+
+        -- a color can be defined with several styles
+        .ooRexxShell~errorColor = "underline blinking bred"
+
+        -- disable the colors
+        .ooRexxShell~showColor = .false
+
+        -- Prompt setting
+        .ooRexxShell~promptDirectory = .false -- Don't display the current directory
+        .ooRexxShell~promptInterpreter = .false -- Don't display the current interpreter name
+        .ooRexxShell~promptAddress = .false -- Don't display the current system address
+        .ooRexxShell~showInfos = .false -- Don't show duration and number of coactivities
+
+        -- Error management
+        .ooRexxShell~trapLostDigits = .false
+        .ooRexxShell~trapNoMethod = .true
+        .ooRexxShell~trapNoString = .true
+        .ooRexxShell~trapNoValue = .false -- Allow to use uninitialized variables when interpreting the command line
+        .ooRexxShell~trapSyntax = .false -- ooRexxShell will be interrupted at the first syntax error
+    end
+
+
 Known problems under Windows
 ============================
 
@@ -346,6 +388,24 @@ History of changes
 ==================
 
 -----------------------------------------------
+2024 may 4
+
+New commands to debug the color display:
+- color codes off   don't display the color codes
+- color codes on    display the color codes
+
+Add support for styles by name:
+bold, dim, italic, underline, blinking, inverse, hidden, strikethrough.
+
+Replace ~defaultColor by ~resetColor which resets not only the color but also
+the styles.
+
+Let combine several style names with a color name when defining an ooRexxShell color.
+Example:
+    .ooRexxShell~errorColor = "underline blinking bred"
+
+
+-----------------------------------------------
 2024 may 1
 
 Customization by end user:
@@ -388,35 +448,6 @@ When loading rgf_util2.rexx, try in this order:
 Allow customization by end user:
 Load the optional file ".oorexxshell_customization.rex", from the HOME directory.
 [Update 2024 May 1] This file is loaded first, before any preloaded package.
-Example of customization:
-    if .ooRexxShell~isInteractive then do
-        -- bypass the Windows bug "any byte >= 128 is replaced by \0"
-        .ooRexxShell~readline = .true -- .false by default under Windows because history often broken
-
-        -- color settings for white background
-        .color~background = "white"
-        .ooRexxShell~infoColor = "green"
-        .ooRexxShell~promptColor = "yellow"
-
-        -- a color can be defined with an ANSI Escape Sequence
-        .color~background = d2c(27)"[1;32m" -- bgreen
-
-        -- disable the colors
-        .ooRexxShell~showColor = .false
-    end
-
-    -- Prompt setting
-    .ooRexxShell~promptDirectory = .false -- Don't display the current directory
-    .ooRexxShell~promptInterpreter = .false -- Don't display the current interpreter name
-    .ooRexxShell~promptAddress = .false -- Don't display the current system address
-    .ooRexxShell~showInfos = .false -- Don't show duration and number of coactivities
-
-    -- Error management
-    .ooRexxShell~trapLostDigits = .false
-    .ooRexxShell~trapNoMethod = .true
-    .ooRexxShell~trapNoString = .true
-    .ooRexxShell~trapNoValue = .false -- Allow to use uninitialized variables when interpreting the command line
-    .ooRexxShell~trapSyntax = .false -- ooRexxShell will be interrupted at the first syntax error
 
 
 Better support of clauses ending with "=" or "==", when using ooRexx 5.
@@ -605,7 +636,7 @@ even if no package at all can be loaded.
 
 Tested by opening a fresh new console, going into the folder containing the rexx
 executable, and launching
-    /.rexx <path to>/oorexxshell.rex
+    ./rexx <path to>/oorexxshell.rex
 This test is done without setting PATH or any other environment variable.
 The script is successfully executed, with several packages not loaded because
 they are not in this folder.

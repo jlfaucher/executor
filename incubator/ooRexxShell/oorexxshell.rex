@@ -186,6 +186,7 @@ if .platform~is("windows") then .ooRexxShell~readline = .false
 if value("OOREXXSHELL_RLWRAP", , "ENVIRONMENT") <> "" then .ooRexxShell~readline = .false
 
 -- Color settings (can be redefined by the end user)
+.ooRexxShell~resetColor = "reset"
 .ooRexxShell~defaultColor = "default"
 .ooRexxShell~errorColor = "bred"
 .ooRexxShell~infoColor = "bgreen"
@@ -348,6 +349,10 @@ main: procedure
                 .ooRexxShell~showColor = .false
             when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("color on") then
                 .ooRexxShell~showColor = .true
+            when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("color codes off") then
+                .ooRexxShell~showColorCodes = .false
+            when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("color codes on") then
+                .ooRexxShell~showColorCodes = .true
 
             when .ooRexxShell~maybeCommand &.ooRexxShell~input~space~caselessEquals("debug off") then
                 .ooRexxShell~debug = .false
@@ -578,7 +583,7 @@ Helpers
         .color~select(.ooRexxShell~promptColor)
         --say
         say directory()
-        .color~select(.ooRexxShell~defaultColor)
+        .color~select(.ooRexxShell~resetColor)
     end
 
 ::routine prompt
@@ -901,11 +906,17 @@ Helpers
     if .nil <> .ooRexxShell~comparatorClass then comparator = .ooRexxShell~comparatorClass~new
 
     if .CoactivitySupplier~isA(.Class), value~isA(.CoactivitySupplier) then .ooRexxShell~sayPrettyString(value) -- must not consume the datas
+
     else if .ooRexxShell~isExtended, value~isA(.enclosedArray), dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
-    else if value~hasMethod("ppRepresentation"), value~isA(.array), value~dimension == 1, dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
+
+    else if value~hasMethod("ppRepresentation"),                                                         value~isA(.array), value~dimension == 1, dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
+    else if .ExtensionDispatcher~isA(.class), .ExtensionDispatcher~hasMethod(value, "ppRepresentation"), value~isA(.array), value~dimension == 1, dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
+
     else if value~isA(.Collection)/*, dumpLevel == 2*/  then .ooRexxShell~sayCollection(value, /*title*/, comparator, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
+
     -- if "==" (dumpLevel 2) then a supplier is displayed as a collection. A copy is made to not consume the datas.
     else if value~isA(.Supplier), dumpLevel == 2 then .ooRexxShell~sayCollection(value~copy, /*title*/, .comparator, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
+
     else .ooRexxShell~sayPrettyString(value)
 
     return value -- To get this value in the variable RESULT
@@ -923,14 +934,15 @@ Helpers
    .ooRexxShell~routine_stringChunks = .context~package~findroutine("stringChunks")
 
     -- The class IndentedStream is optional. Used internally by the "<" command.
-    .ooRexxShell~hasIndentedStream = loadPackage("utilities/indentedStream.cls")
+    .ooRexxShell~hasIndentedStream = loadPackage("utilities/indentedStream.cls", /*silent*/ .true)
 
     -- Load the extensions now, because some packages may depend on extensions
     -- for compatibility with ooRexx5 (ex: json, regex)
     .ooRexxShell~isExtended = .true
-    if \loadPackage("extension/extensions.cls", /*silent*/ .true) then do -- requires jlf sandbox ooRexx
+    if \loadPackage("extension/extensions.cls", /*silent*/ .true, /*reportError*/ .false) then do -- requires jlf sandbox ooRexx
         .ooRexxShell~isExtended = .false
         call loadPackage "extension/std/extensions-std.cls" -- works with standard ooRexx, but integration is weak
+        call loadPackage "procedural/dispatcher.cls" -- procedural version of a selection of Executor's extensions
     end
 
     if .platform~is("windows") then do
@@ -950,7 +962,14 @@ Helpers
     call loadLibrary "rxmath"
     call loadPackage "rxregexp.cls"
 
-    .ooRexxShell~hasRegex = loadPackage("regex/regex.cls")
+    /*
+    reportError = .false to not display this error:
+        Object ".STRINGTABLE" does not understand message "NEW"
+    .StringTable is a new class from ooRexx 5.
+    extension/collection.cls and procedural/collection.cls provide a compatible workaround.
+    ooRexx 4.2 and Executor will raise the error if the workaround is not loaded.
+    */
+    .ooRexxShell~hasRegex = loadPackage("regex/regex.cls", /*silent*/ .false, /*reportError*/ .false)
 
     call loadPackage "smtp.cls"
     call loadPackage "socket.cls"
@@ -959,7 +978,7 @@ Helpers
     --call loadPackage "ooSQLite.cls"
 
     -- derived from the offical rgf_util2.rex (in BSF4ooRexx)
-    .ooRexxShell~hasRgfUtil2 = loadPackage("rgf_util2/rgf_util2.rex", /*silent*/ .true) -- Try this one first (executor version), because I find also the other one (bsf4oorexx version)
+    .ooRexxShell~hasRgfUtil2 = loadPackage("rgf_util2/rgf_util2.rex", /*silent*/ .true, /*reportError*/ .true) -- Try this one first (executor version), because I find also the other one (bsf4oorexx version)
     if .ooRexxShell~hasRgfUtil2 == .false then .ooRexxShell~hasRgfUtil2 = loadPackage("rgf_util2.rex")
     if .ooRexxShell~hasRgfUtil2 == .true,,
        .nil <> .context~package~findroutine("rgf_util_extended") then do
@@ -969,7 +988,7 @@ Helpers
             .ooRexxShell~comparatorClass = .NumberComparator
     end
 
-    .ooRexxShell~hasBsf = loadPackage("BSF.CLS", /*silent*/ .true)
+    .ooRexxShell~hasBsf = loadPackage("BSF.CLS", /*silent*/ .true, /*reportError*/ .true)
     if value("UNO_INSTALLED",,"ENVIRONMENT") <> "" then call loadPackage "UNO.CLS"
 
     if .Clauser~isA(.Class) then .ooRexxShell~hasClauser = .true
@@ -1040,14 +1059,14 @@ Helpers
 
 -------------------------------------------------------------------------------
 ::routine loadPackage
-    use strict arg filename, silent=.false, reportError=.false
+    use strict arg filename, silent=.false, reportError=.true
     signal on syntax name loadPackageError
     .context~package~loadPackage(filename)
     if .ooRexxShell~showInitialization then .ooRexxShell~sayInfo("loadPackage OK for" filename)
     return .true
     loadPackageError:
     condition = condition("O")
-    if reportError, condition <> .nil, condition~code \== 43.901 then silent = .false -- It's an error other than file not found
+    if reportError, condition <> .nil, condition~code == 43.901 then reportError = .false -- It's an error other than file not found
     if \ silent then do
         .ooRexxShell~sayError("loadPackage KO for" filename)
         if reportError then .ooRexxShell~sayCondition(condition, /*shortFormat*/ .false)
@@ -1259,6 +1278,8 @@ Helpers
 ::attribute traceback class -- traceback of last error
 
 ::attribute showColor class
+::attribute showColorCodes class
+::attribute resetColor class
 ::attribute defaultColor class
 ::attribute errorColor class
 ::attribute infoColor class
@@ -1289,7 +1310,7 @@ Helpers
 ::attribute indentedErrorStream class -- Used by the command "<" to show the level of include
 
 ::method init class
-    .environment~setentry(self~id, self)
+    .environment~setentry(self~id, self) -- Make the .ooRexxShell class available from the customization file
     self~command = ""
     self~commandInterpreter = ""
     self~comparatorClass = .nil
@@ -1325,6 +1346,7 @@ Helpers
     self~routine_pp2 = .nil
     self~routine_stringChunks = .nil
     self~showColor = .false
+    self~showColorCodes = .false
     self~showComment = .false
     self~showInfos = .false
     self~showInfosNext = .false
@@ -1435,21 +1457,21 @@ Helpers
     use strict arg text=""
     .color~select(.ooRexxShell~infoColor, .output)
     .output~say(text)
-    .color~select(.ooRexxShell~defaultColor, .output)
+    .color~select(.ooRexxShell~resetColor, .output)
 
 
 ::method charoutInfo class
     use strict arg text=""
     .color~select(.ooRexxShell~infoColor, .output)
     .output~charout(text)
-    .color~select(.ooRexxShell~defaultColor, .output)
+    .color~select(.ooRexxShell~resetColor, .output)
 
 
 ::method sayComment class
     use strict arg text=""
     .color~select(.ooRexxShell~commentColor, .output)
     say text
-    .color~select(.ooRexxShell~defaultColor, .output)
+    .color~select(.ooRexxShell~resetColor, .output)
     .ooRexxShell~countCommentLines += 1
     .ooRexxShell~countCommentChars += text~length
 
@@ -1459,21 +1481,21 @@ Helpers
     use strict arg text=""
     .color~select(.ooRexxShell~commentColor, .output)
     call charout , text
-    .color~select(.ooRexxShell~defaultColor, .output)
+    .color~select(.ooRexxShell~resetColor, .output)
 
 
 ::method sayTrace class
     use strict arg text=""
     .color~select(.ooRexxShell~traceColor, .traceOutput)
     .traceOutput~say(text)
-    .color~select(.ooRexxShell~defaultColor, .traceOutput)
+    .color~select(.ooRexxShell~resetColor, .traceOutput)
 
 
 ::method sayError class
     use strict arg text=""
     .color~select(.ooRexxShell~errorColor, .error)
     .error~say(text)
-    .color~select(.ooRexxShell~defaultColor, .error)
+    .color~select(.ooRexxShell~resetColor, .error)
 
 
 ::method sayCondition class
@@ -1537,7 +1559,7 @@ Helpers
     if .ooRexxShell~routine_dump2 <> .nil then .ooRexxShell~routine_dump2~call(coll, title, comparator, iterateOverItem, surroundItemByQuotes, surroundIndexByQuotes, maxCount, action)
     else do
         say coll
-        -- no sort, no alignment, no nothing
+        -- no sort, no alignment, nothing
         -- if you want that then set your environment correctly to let load the extended rgf_util2
         supplier = coll~supplier
         do while supplier~available
@@ -1551,6 +1573,7 @@ Helpers
     numeric digits -- stop any propagated settings, to have the default value for digits()
     use strict arg value /*enclosedArray or array*/, maxItems=(9~copies(digits())) /*no limit*/
     if value~hasMethod("ppRepresentation") then say value~ppRepresentation(maxItems) -- condensed output, limited to maxItems
+    else if .ExtensionDispatcher~isA(.class), .ExtensionDispatcher~hasMethod(value, "ppRepresentation") then say .ExtensionDispatcher~ppRepresentation(value, maxItems) -- condensed output, limited to maxItems
     else say value
 
 
@@ -1578,7 +1601,7 @@ Helpers
             previousChar = char
         end
     end
-    .color~select(.ooRexxShell~defaultColor, .error)
+    .color~select(.ooRexxShell~resetColor, .error)
 
 
 ::method prettyString class
@@ -1588,6 +1611,7 @@ Helpers
     -- JLF to rework: surroundByQuotes is supported only by String~ppString
     -- Can't pass a named argument because I want to keep ooRexxShell compatible with official ooRexx.
     if value~hasMethod("ppString") then return value~ppString(surroundByQuotes)
+    if .ExtensionDispatcher~isA(.class), .ExtensionDispatcher~hasMethod(value, "ppString") then return .ExtensionDispatcher~ppString(value, surroundByQuotes)
     return value
 
 
@@ -1847,6 +1871,7 @@ Helpers
     say "    /* alone: Used in a demo to start a multiline comment. Ended by */ alone."
     say "    < filename: read the file and put each line in the queue."
     say "    color off|on: deactivate|activate the colors."
+    say "    color codes off|on: deactivate|activate the display of the color codes."
     say "    debug off|on: deactivate|activate the full trace of the internals of ooRexxShell."
     say "    demo off|on|fast: deactivate|activate the demonstration mode."
     say "    exit: exit ooRexxShell."
@@ -2453,8 +2478,9 @@ https://en.wikipedia.org/wiki/ANSI_escape_code
 
 
 ::method init class
-    .environment~setentry(self~id, self)
+    .environment~setentry(self~id, self) -- Make the .color class available from the customization file
     self~background = ""
+
 
 ::method select class
     expose background_AES
@@ -2462,60 +2488,101 @@ https://en.wikipedia.org/wiki/ANSI_escape_code
 
     if \ .ooRexxShell~showColor then return -- you don't want the colors
 
-    color_AES = self~ANSI_Escape_Sequence(color)
-    stream~charout(background_AES)
-    stream~charout(color_AES)
+    background = background_AES
+    color = self~ANSI_Escape_Sequence(color)
+    if .ooRexxShell~showColorCodes then do
+        -- Can't do that in ANSI_Escape_Sequence because background_AES is
+        -- calculated only when storing a value, not when using it.
+        background = background~changeStr(d2c(27), "ESC")
+        color = color~changeStr(d2c(27), "ESC")
+    end
+
+    stream~charout(background)
+    stream~charout(color)
+
     stream~flush -- to avoid filtering by filteringStream
 
 
 ::method name2code class private
     /*
     Return -1 if color name unknown
-    otherwise return a number of 1 or 3 digits where
-    - the first digit is 0 (normal) or 1 (bold)
-    - the next 2 digits (if any) are the ANSI color code in decimal
+    otherwise return a number of 1 or 2 or 3 digits.
+    - 1 digit:  Reset (0), style (1 to 9).
+    - 2 digits: Foreground color code (30 to 37), or foreground default color (39).
+                The corresponding background color code is foreground + 10.
+    - 3 digits: Style (first digit) followed by a foreground color code (next 2 digits).
     */
     use strict arg color
 
     select
-        when color~caselessEquals("default") then return 0
-        when color~caselessEquals("bdefault") then return 1
-        when color~caselessEquals("black") then return 030
+        when color~caselessEquals("reset") then return 0
+        when color~caselessEquals("bold") then return 1
+        when color~caselessEquals("faint") then return 2
+        when color~caselessEquals("italic") then return 3
+        when color~caselessEquals("underline") then return 4
+        when color~caselessEquals("blinking") then return 5
+        when color~caselessEquals("inverse") then return 7
+        when color~caselessEquals("hidden") then return 8
+        when color~caselessEquals("strikethrough") then return 9
+        when color~caselessEquals("black") then return 30
         when color~caselessEquals("bblack") then return 130
-        when color~caselessEquals("red") then return 031
+        when color~caselessEquals("red") then return 31
         when color~caselessEquals("bred") then return 131
-        when color~caselessEquals("green") then return 032
+        when color~caselessEquals("green") then return 32
         when color~caselessEquals("bgreen") then return 132
-        when color~caselessEquals("yellow") then return 033
+        when color~caselessEquals("yellow") then return 33
         when color~caselessEquals("byellow") then return 133
-        when color~caselessEquals("blue") then return 034
+        when color~caselessEquals("blue") then return 34
         when color~caselessEquals("bblue") then return 134
-        when color~caselessEquals("magenta") then return 035
+        when color~caselessEquals("magenta") then return 35
         when color~caselessEquals("bmagenta") then return 135
-        when color~caselessEquals("cyan") then return 036
+        when color~caselessEquals("cyan") then return 36
         when color~caselessEquals("bcyan") then return 136
-        when color~caselessEquals("white") then return 037
+        when color~caselessEquals("white") then return 37
         when color~caselessEquals("bwhite") then return 137
+        when color~caselessEquals("default") then return 39
         otherwise return -1
     end
 
 
 ::method ANSI_Escape_Sequence class private
+    /*
+    Convert a color to an ANSI escape sequence.
+    Color format:
+        (space* (color_name | black_box)? space*)*
+    If a part of the color format is not supported then assume this part is
+    already an ANSI escape sequence, to display as-is
+    */
     use strict arg color, isBackground = .false
-    if color \== "" then do
-        code = self~name2code(color)
+    buffer = .MutableBuffer~new
+    loop forever
+        wordIndex = color~wordIndex(1)
+        if wordIndex == 0 then do
+            buffer~append(color) -- empty or spaces only
+            leave
+        end
+        buffer~append(color~left(wordIndex - 1)) -- append the spaces before the 1st word
+        parse var color word1 color
+        code = self~name2code(word1)
         if code >= 0 then do
-            style = code~left(1)
-            code = code~substr(2)
-            if code == "" then color = d2c(27)"["style"m"   -- Esc[0m
-            else do
-                if isBackground then code += 10
-                color = d2c(27)"["style";"code"m"           -- Esc[0;30m
+            select
+                when code~length == 3 then  do
+                    style = code~left(1)
+                    code = code~substr(2)
+                    if isBackground then code += 10
+                    buffer~append(d2c(27)"["style";"code"m")                -- Esc[1;30m
+                end
+                when code~length == 2 then do
+                    if isBackground then code += 10
+                    buffer~append(d2c(27)"["code"m")                        -- Esc[30m
+                end
+                when code~length == 1 then buffer~append(d2c(27)"["code"m") -- Esc[1m
+                otherwise buffer~append(word1) -- black box
             end
         end
-        else nop -- assume the background is already an ANSI escape sequence, to display as-is
+        else buffer~append(word1)
     end
-    return color
+    return buffer~string
 
 
 -------------------------------------------------------------------------------

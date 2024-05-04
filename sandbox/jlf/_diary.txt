@@ -3,6 +3,35 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2024 Mai 04
+
+[Procedural extensions]
+
+I finalized the implementation of pretty print for ooRexx 5.
+That was an interesting project, with several design iterations.
+
+Iteration 1
+I started with routines in ppstring.cls, but quickly discovered that rgf_util2
+would need to require ppstring.cls to see the routines.
+
+Iteration 2
+I replaced the routines by class methods on a .PrettyPrinter class.
+All went good and eventually got something working.
+But I noticed a design glitch:
+I had the .PrettyPrinter~v method used to return an empty vector.
+This method has nothing to do with the pretty print… It’s an array functionality.
+
+Iteration 3
+Worked on a general “procedural” solution, not limited to pretty print.
+The design is described in procedural/dispatcher.cls.
+It’s similar to the C# static extension methods.
+But, unlike C#, it's not possible to use myObject~myMethod.
+Must use .ExtensionDispatcher~myMethod(myObject).
+
+Tested with ooRexx 4.2 and ooRexx 5.
+
+
+===============================================================================
 2024 Apr 24
 
 [Encoded strings]
