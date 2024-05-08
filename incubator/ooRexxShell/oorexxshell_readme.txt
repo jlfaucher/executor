@@ -311,6 +311,17 @@ Example of customization:
         .ooRexxShell~trapNoString = .true
         .ooRexxShell~trapNoValue = .false -- Allow to use uninitialized variables when interpreting the command line
         .ooRexxShell~trapSyntax = .false -- ooRexxShell will be interrupted at the first syntax error
+
+        -- Select the UTF-8 code page (Windows only)
+        "chcp 65001"
+
+        -- Load a package
+        -- if silent is false then a message is displayed when the package can't be loaded.
+        -- if reportError is true then the loading error is displayed.
+        hasLoadedMyPackage = loadPackage("full path or relative path of MyPackage.cls", /*silent*/ .false, /*reportError*/ .false)
+
+        -- Load a native library
+        hasLoadedMyLibrary = loadLibrary("full path or relative path of MyLibrary"
     end
 
 
@@ -319,12 +330,17 @@ Known problems under Windows
 
 - The colors are now handled with ANSI escape sequences.
   Prequisite: at least Windows 10.
+  If the colors are no supported under Windows 10 then see
+  https://ss64.com/nt/syntax-ansi.html
+  to modify the registry (VirtualTerminalLevel).
 
 - If you launch ooRexxShell from a .bat file, then you need to prepend cmd /c to have the
   doskey history working correctly.
       cmd /c ""my path to\rexx" "my path to\ooRexxShell""
 
-- The doskey history is fragile. It's not rare to loose the history.
+- The doskey history is fragile. It's not rare to lose the history.
+  That's why readline is off by default under Windows.
+  Readline off ==> We lose doskey macros and autocompletion of file names.
 
 - The default console code page is the OEMCP, which does not match the default ANSI code page (ACP).
   For example:
@@ -386,6 +402,28 @@ Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
 
 History of changes
 ==================
+
+-----------------------------------------------
+2024 may 7
+
+Modify the output of ?settings to display the full attribute expression and to
+indicate if the attribute can be customized. You should not customize the
+attrbutes listed [info].
+Example:
+?s
+a Directory (45 items)
+'[custom] .color~background'                            : ''
+'[custom] .ooRexxShell~debug'                           :  0
+'[custom] .ooRexxShell~defaultSleepDelay'               :  2
+...
+'[info]   .ooRexxShell~RC'                              :  0
+'[info]   .ooRexxShell~commandInterpreter'              : 'sh'
+'[info]   .ooRexxShell~customizationFile'               : '/Users/username/.oorexxshell_customization.rex'
+...
+
+
+Better implementation of quoted and unquoted (support of double quotes).
+
 
 -----------------------------------------------
 2024 may 4

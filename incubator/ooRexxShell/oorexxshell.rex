@@ -1066,7 +1066,7 @@ Helpers
     return .true
     loadPackageError:
     condition = condition("O")
-    if reportError, condition <> .nil, condition~code == 43.901 then reportError = .false -- It's an error other than file not found
+    if reportError, condition <> .nil, condition~code == 43.901 then reportError = .false -- Don't report the error "file not found"
     if \ silent then do
         .ooRexxShell~sayError("loadPackage KO for" filename)
         if reportError then .ooRexxShell~sayCondition(condition, /*shortFormat*/ .false)
@@ -1394,57 +1394,65 @@ Helpers
 
 ::method informations class
     -- Remember: keep it compatible with ooRexx 4.2, don't use a literal array.
+    -- [custom]     can be customized in the customization file
+    -- [info]       don't touch
     messages = ,
-    "commandInterpreter",
-    "customizationFile",
-    "debug",
-    "demo",
-    "demoFast",
-    "defaultSleepDelay",
-    "hasBsf",
-    "hasClauser",
-    "hasIndentedStream",
-    "hasQueries",
-    "hasRegex",
-    "hasRgfUtil2",
-    "hasRgfUtil2Extended",
-    "historyFile",
-    "initialAddress",
-    "initialArgument",
-    "interpreter",
-    "isExtended",
-    "isInteractive",
-    "maxItemsDisplayed",
-    "prompt",
-    "promptAddress",
-    "promptDirectory",
-    "promptInterpreter",
-    "queueName",
-    "queueInitialName",
-    "RC",
-    "readline",
-    "readlineAddress",
-    "settingsFile",
-    "showInfos",
-    "systemAddress",
-    "showColor",
-    "testRegression",
-    "traceDispatchCommand",
-    "traceFilter",
-    "traceReadline",
-    "trapLostdigits",
-    "trapNoMethod",
-    "trapNoString",
-    "trapNoValue",
-    "trapSyntax"
+    ",[info]   commandInterpreter",
+    ",[info]   customizationFile",
+    ",[custom] debug",
+    ",[custom] demo",
+    ",[custom] demoFast",
+    ",[custom] defaultSleepDelay",
+    ",[info]   hasBsf",
+    ",[info]   hasClauser",
+    ",[info]   hasIndentedStream",
+    ",[info]   hasQueries",
+    ",[info]   hasRegex",
+    ",[info]   hasRgfUtil2",
+    ",[info]   hasRgfUtil2Extended",
+    ",[info]   historyFile",
+    ",[info]   initialAddress",
+    ",[info]   initialArgument",
+    ",[info]   interpreter",
+    ",[info]   isExtended",
+    ",[info]   isInteractive",
+    ",[custom] maxItemsDisplayed",
+    ",[custom] promptAddress",
+    ",[custom] promptDirectory",
+    ",[custom] promptInterpreter",
+    ",[info]   queueName",
+    ",[info]   queueInitialName",
+    ",[info]   RC",
+    ",[custom] readline",
+    ",[info]   readlineAddress",
+    ",[info]   settingsFile",
+    ",[custom] showInfos",
+    ",[custom] systemAddress",
+    ",[custom] showColor",
+    ",[custom] testRegression",
+    ",[custom] traceDispatchCommand",
+    ",[custom] traceFilter",
+    ",[custom] traceReadline",
+    ",[custom] trapLostdigits",
+    ",[custom] trapNoMethod",
+    ",[custom] trapNoString",
+    ",[custom] trapNoValue",
+    ",[custom] trapSyntax"
     informations = .directory~new
-    do message over messages~subwords
-        value = .ooRexxshell~send(message)
-        informations~put(value, message)
+    do message over messages~makeArray(",")
+        message = message~strip
+        if message == "" then iterate
+        -- suffix made of 9 characters, the real message starts at 10
+        suffixLength = 9
+        prefix = message~left(suffixLength)
+        realMessage = message~substr(suffixLength + 1) -- remove prefix
+        value = .ooRexxshell~send(realMessage)
+        informations~put(value, prefix || ".ooRexxShell~" || realMessage)
     end
-    informations~put(.ooRexxShell~securityManager~isEnabledByUser, "securityManager~isEnabledByUser")
-    informations~put(.ooRexxShell~securityManager~traceCommand, "securityManager~traceCommand")
-    informations~put(.ooRexxShell~securityManager~verbose, "securityManager~verbose")
+    informations~put(.ooRexxShell~securityManager~isEnabledByUser,  "[custom] .ooRexxShell~securityManager~isEnabledByUser")
+    informations~put(.ooRexxShell~securityManager~traceCommand,     "[custom] .ooRexxShell~securityManager~traceCommand")
+    informations~put(.ooRexxShell~securityManager~verbose,          "[custom] .ooRexxShell~securityManager~verbose")
+    informations~put(.color~background,                             "[custom] .color~background")
 
     return informations
 
@@ -2465,6 +2473,7 @@ Helpers
 -------------------------------------------------------------------------------
 
 /*
+https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797
 https://ss64.com/nt/syntax-ansi.html
 https://en.wikipedia.org/wiki/ANSI_escape_code
 */
@@ -2725,14 +2734,14 @@ https://en.wikipedia.org/wiki/ANSI_escape_code
 ::routine quoted public
     -- Remember: keep it, because the method .String~quoted is NOT available with standard ooRexx.
     use strict arg string, quote='"'
-    return quote || string || quote
+    return quote || string~changestr(quote, quote~copies(2)) || quote
 
 
 ::routine unquoted public
     -- Remember: keep it, because the method .String~unquoted is NOT available with standard ooRexx.
     use strict arg string, quote='"'
     if string~left(1) == quote & string~right(1) == quote then
-        return string~substr(2, string~length - 2)
+        return string~substr(2, string~length - 2)~changeStr(quote~copies(2), quote)
     else
         return string
 
