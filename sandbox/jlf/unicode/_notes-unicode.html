@@ -2119,6 +2119,16 @@ For non-alphabetic scripts such as East Asian ideographs, collation can be eithe
 Collation can also be customized according to user preference, such as ignoring punctuation or not, putting uppercase before lowercase (or vice versa), and so on.
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr10/#Common_Misperceptions">https://www.unicode.org/reports/tr10/#Common_Misperceptions</a>
+Collation is not aligned with character sets or repertoires of characters.
+Collation is not code point (binary) order.
+Collation is not a property of strings.
+Collation order is not preserved under concatenation or substring operations, in general.
+Collation order is not preserved when comparing sort keys generated from different collation sequences.
+Collation order is not a stable sort.
+Collation order is not fixed.
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Unicode_equivalence">https://en.wikipedia.org/wiki/Unicode_equivalence</a>
 Short definition of NFD, NFC, NFKD, NFKC
 
@@ -4073,6 +4083,14 @@ Update grapheme cluster break rules to Unicode 15.1
 jlf: lot of discussions about stability that I did not try to understand.
 
 
+#4859
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/4859">https://github.com/unicode-org/icu4x/issues/4859</a>
+Make the normalizer work with new Unicode 16 normalization behaviors
+---
+jlf: they have this reference
+See topic 5.1 in <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/L2/L2024/24009r-utc178-properties-recs.pdf">https://www.unicode.org/L2/L2024/24009r-utc178-properties-recs.pdf</a>
+
+
 <hr><h2 id="utf8proc_title">utf8proc title</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://codeberg.org/dnkl/foot/pulls/100">https://codeberg.org/dnkl/foot/pulls/100</a>
 Grapheme shaping using libutf8proc #100
@@ -4212,6 +4230,21 @@ Syntax diagram FIND
     UTF8
     ASCII
     USASCII
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/zos/3.1.0?topic=sequences-ebcdic">https://www.ibm.com/docs/en/zos/3.1.0?topic=sequences-ebcdic</a>
+Table 1. EBCDIC Collating Sequence
+    Table 1 shows the collating sequence for EBCDIC character and unsigned decimal data.
+    The collating sequence ranges from low (00000000) to high (11111111).
+    The bit configurations which do not correspond to symbols (that is, 0 through 73,
+    81 through 89, and so forth) are not shown. Some of these correspond to control
+    commands for the printer and other devices.
+
+    ALTSEQ, CHALT, and LOCALE can be used to select alternate collating sequences
+    for character data.
+
+    Packed decimal, zoned decimal, fixed-point, and normalized floating-point data
+    are collated algebraically, that is, each quantity is interpreted as having a sign.
 
 
 <hr><h2 id="IBM_RPG_Lang">IBM RPG Lang</h2><hr>
