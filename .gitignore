@@ -19,3 +19,6 @@ Win32Dbg
 Win32Rel
 Win64Dbg
 Win64Rel
+/sandbox/jlf/demos/arch/
+/sandbox/jlf/trunk/interpreter/classes/support/m17n/icu4x/ffi/diplomat/cpp/include.old/
+/sandbox/jlf/trunk/interpreter/classes/support/m17n/uni-algo-v1.0.0/
