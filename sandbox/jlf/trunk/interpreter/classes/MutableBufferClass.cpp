@@ -74,6 +74,13 @@ RexxMutableBuffer *RexxMutableBufferClass::newRexx(RexxObject **args, size_t arg
 /* Function:  Allocate (and initialize) a string object                       */
 /******************************************************************************/
 {
+    // this method is defined on the object class, but this is actually attached
+    // to a class object instance.  Therefore, any use of the this pointer
+    // will be touching the wrong data.  Use the classThis pointer for calling
+    // any methods on this object from this method.
+    RexxClass *classThis = (RexxClass *)this;
+    classThis->checkAbstract(); // ooRexx5
+
     RexxString        *string;
     RexxMutableBuffer *newBuffer;         /* new mutable buffer object         */
     size_t            bufferLength = DEFAULT_BUFFER_LENGTH;
@@ -110,7 +117,7 @@ RexxMutableBuffer *RexxMutableBufferClass::newRexx(RexxObject **args, size_t arg
         bufferLength = string->getLength();
     }
     /* allocate the new object           */
-    newBuffer = new ((RexxClass *)this) RexxMutableBuffer(bufferLength, defaultSize);
+    newBuffer = new (classThis) RexxMutableBuffer(bufferLength, defaultSize);
     newBuffer->setLength(string->getLength());
     /* copy the content                  */
     newBuffer->copyData(0, string->getStringData(), string->getLength());

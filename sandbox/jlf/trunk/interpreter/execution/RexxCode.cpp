@@ -154,9 +154,14 @@ void RexxCode::liveGeneral(int reason)
 /* Function:  Generalized object marking                                      */
 /******************************************************************************/
 {
-  memory_mark_general(this->source);
-  memory_mark_general(this->start);
-  memory_mark_general(this->labels);
+    // Inspired by ooRexx5, but the approach is different...
+    // Instead of assigning package = TheRexxPackage when reason == PREPARINGIMAGE (unsupported by ooRexx4)
+    // I mark the RexxCode instance as belonging to the RexxPackage, and will return TheRexxPackage when asking its package.
+    if (reason == SAVINGIMAGE) this->setInRexxPackage();
+
+    memory_mark_general(this->source);
+    memory_mark_general(this->start);
+    memory_mark_general(this->labels);
 }
 
 void RexxCode::flatten(RexxEnvelope * envelope)

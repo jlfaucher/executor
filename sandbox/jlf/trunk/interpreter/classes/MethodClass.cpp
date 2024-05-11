@@ -90,6 +90,7 @@ RexxClass *BaseExecutable::findClass(RexxString *className)
 }
 
 
+// ooRexx5 uses setPackageObject
 /**
  * Set the source object into a routine or method executable.
  * This is generally used to attach a source context to a
@@ -129,6 +130,9 @@ BaseExecutable *BaseExecutable::setSourceObject(RexxSource *s)
  */
 PackageClass *BaseExecutable::getPackage()
 {
+    // Keep this test here, to override a possible source's package
+    if (code->isInRexxPackage()) return TheRexxPackage; // indirectly ooRexx5
+
     PackageClass *package = code->getPackage();
     if (package == OREF_NULL)
     {
@@ -425,6 +429,18 @@ RexxObject *RexxMethod::isPrivateRexx( )
 }
 
 /**
+ * Return the Package setting for a method object.
+ *
+ * @return .true if the method is package scope.  .false
+ *         otherwise.
+ */
+RexxObject *RexxMethod::isPackageRexx( )
+{
+    return booleanObject(isPackageScope());
+}
+
+
+/**
  * Return the Protected setting for a method object.
  *
  * @return .true if the method is protected.  .false otherwise.
@@ -436,25 +452,98 @@ RexxObject *RexxMethod::isProtectedRexx( )
 
 
 /**
+ * Indicate if this is an abstract method
+ *
+ * @return .true if the method is abstract.  .false otherwise.
+ */
+RexxObject *RexxMethod::isAbstractRexx( )
+{
+    return booleanObject(isAbstract());
+}
+
+
+/**
+ * Indicate if this method was defined as an attribute method
+ * (using ::attribute or ::method attribute)
+ *
+ * @return .true if the method is defined as an attribute.
+ *         .false otherwise.
+ */
+RexxObject *RexxMethod::isAttributeRexx( )
+{
+    return booleanObject(isAttribute());
+}
+
+
+/**
+ * Indicate if this method was defined as a constant method
+ * (using ::constant)
+ *
+ * @return .true if the method is defined as an attribute.
+ *         .false otherwise.
+ */
+RexxObject *RexxMethod::isConstantRexx( )
+{
+    return booleanObject(isConstant());
+}
+
+
+/**
+ * Returns the defining class scope for a method.  Returns .nil
+ * for any method not defined by a class scope.
+ *
+ * @return The scope class or .nil.
+ */
+RexxObject *RexxMethod::getScopeRexx()
+{
+    return resultOrNil(getScope());
+}
+
+
+/**
+ * Retrieve a string name for the method scope. If the scope is .nil,
+ * then ".NIL" is returned, otherwise the class name is used.
+ *
+ * @return A string name for the scope.
+ */
+RexxString *RexxMethod::getScopeName()
+{
+    return (RexxObject *)scope == TheNilObject ? OREF_DOTNIL : scope->getId();
+}
+
+
+/**
  * Set the entire set of method attributes with one call.  Used
  * during source compilation.
  *
- * @param _private   The private setting.
+ * @param _access   The access setting.
  * @param _protected The protected setting.
  * @param _guarded   The guarded setting.
  */
-void RexxMethod::setAttributes(bool _private, bool _protected, bool _guarded)
+void RexxMethod::setAttributes(AccessFlag _access, ProtectedFlag _protected, GuardFlag _guarded)
 {
-    if (_private)
+    switch (_access)
     {
-        setPrivate();
+        case PRIVATE_SCOPE:
+            setPrivate();
+            break;
+
+        case PACKAGE_SCOPE:
+            setPackageScope();
+            break;
+
+        // covers PUBLIC and DEFAULT
+        default:
+            break;
     }
-    if (_protected)
+
+    if (_protected == PROTECTED_METHOD)
     {
         setProtected();
     }
-    // guarded is the default, so we need to reverse this
-    if (!_guarded)
+
+    // both GUARDED and DEFAULT are guarded, so check for the reverse.
+    if (_guarded == UNGUARDED_METHOD)
     {
         setUnguarded();
     }
@@ -586,6 +675,13 @@ RexxMethod *RexxMethod::newRexx(
 /*            array                                                           */
 /******************************************************************************/
 {
+    // this method is defined as an instance method, but this is actually attached
+    // to a class object instance.  Therefore, any use of the this pointer
+    // will be touching the wrong data.  Use the classThis pointer for calling
+    // any methods on this object from this method.
+    RexxClass *classThis = (RexxClass *)this;
+    classThis->checkAbstract(); // ooRexx5
+
     RexxObject *pgmname;                 /* method name                       */
     RexxObject *_source;                 /* Array or string object            */
     RexxMethod *newMethod;               /* newly created method object       */
@@ -650,8 +746,8 @@ RexxMethod *RexxMethod::newRexx(
     newMethod = RexxMethod::newMethodObject(nameString, _source, IntegerTwo, sourceContext, isBlock);
     ProtectedObject p(newMethod);
     /* Give new object its behaviour     */
-    newMethod->setBehaviour(((RexxClass *)this)->getInstanceBehaviour());
-    if (((RexxClass *)this)->hasUninitDefined())          /* does object have an UNINT method  */
+    newMethod->setBehaviour(classThis->getInstanceBehaviour());
+    if (classThis->hasUninitDefined())          /* does object have an UNINT method  */
     {
         newMethod->hasUninit();              /* Make sure everyone is notified.   */
     }
@@ -666,6 +762,13 @@ RexxMethod *RexxMethod::newFileRexx(RexxString *filename)
 /* Function:  Create a method from a fully resolved file name                 */
 /******************************************************************************/
 {
+    // this method is defined on the object class, but this is actually attached
+    // to a class object instance.  Therefore, any use of the this pointer
+    // will be touching the wrong data.  Use the classThis pointer for calling
+    // any methods on this object from this method.
+    RexxClass *classThis = (RexxClass *)this;
+    classThis->checkAbstract(); // ooRexx5
+
     /* get the method name as a string   */
     filename = stringArgument(filename, OREF_positional, ARG_ONE);
     ProtectedObject p1(filename);
@@ -674,8 +777,8 @@ RexxMethod *RexxMethod::newFileRexx(RexxString *filename)
     ProtectedObject p2(newMethod);
     newMethod->setScope((RexxClass *)TheNilObject);
     /* Give new object its behaviour     */
-    newMethod->setBehaviour(((RexxClass *)this)->getInstanceBehaviour());
-    if (((RexxClass *)this)->hasUninitDefined())    /* does object have an UNINT method  */
+    newMethod->setBehaviour(classThis->getInstanceBehaviour());
+    if (classThis->hasUninitDefined())    /* does object have an UNINT method  */
     {
         newMethod->hasUninit();           /* Make sure everyone is notified.   */
     }
@@ -824,7 +927,7 @@ RexxClass *BaseCode::findClass(RexxString *className)
 }
 
 
-
+// ooRexx5 uses setPackageObject
 /**
  * Set a source object into a code context.  The default
  * implementation is just to return the same object without

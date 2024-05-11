@@ -50,7 +50,23 @@
 * many objects nested as desired - as long as the memory is not full. Recursive
 * data structure should cause no problem.
 ******************************************************************************/
+
+use arg rexxPackage
+
+-- add all of the public classes to .environment and to the
+-- REXX package
+publicClasses = .context~package~publicClasses
+
+do name over publicClasses
+   class = publicClasses[name]
+   .environment~put(class, name)
+   rexxPackage~addPublicClass(name, class)
+end
+
+
+/******************************************************************************/
 ::CLASS SerializeFunctions PUBLIC
+/******************************************************************************/
 
 ::METHOD Serialize CLASS
     use strict arg data, buffer=(.MutableBuffer~new)
@@ -153,9 +169,9 @@
     stringIndex = .Table~new
     -- store id -> object relation
     objectList = .Array~new
-/*    
+/*
     do i = 1 to 2
-        do j = 1 to 2 
+        do j = 1 to 2
             stat.i.j = 0
         end
     end

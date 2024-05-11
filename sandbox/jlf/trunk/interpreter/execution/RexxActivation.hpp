@@ -365,6 +365,22 @@ class ActivationSettings
    inline RexxSource *getEffectiveSourceObject() {
        return isInterpret() ? executable->getSourceObject() : sourceObject;
    }
+#if 0
+   PackageClass     *getPackageObject() { return packageObject; } // ooRexx5
+#else
+   PackageClass     *getPackageObject() { return sourceObject->getPackage(); } // ooRexx5 with adaptation
+#endif
+#if 0
+   inline PackageClass *getEffectivePackageObject() // ooRexx5
+   {
+       return isInterpret() ? executable->getPackageObject() : packageObject;
+   }
+#else
+   inline PackageClass *getEffectivePackageObject() // ooRexx5 with adaptation
+   {
+       return isInterpret() ? executable->getSourceObject()->getPackage() : sourceObject->getPackage();
+   }
+#endif
    PackageClass     *getPackage();
    RexxObject       *getLocalEnvironment(RexxString *name);
    RexxDirectory    *getThreadLocal();

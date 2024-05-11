@@ -39,6 +39,19 @@
 /* this is where the stream and queue classes are set up         */
 /*****************************************************************/
 
+use arg rexxPackage
+
+-- add all of the public classes to .environment and to the
+-- REXX package
+publicClasses = .context~package~publicClasses
+
+do name over publicClasses
+   class = publicClasses[name]
+   .environment~put(class, name)
+   rexxPackage~addPublicClass(name, class)
+end
+
+
 /*****************************************************************/
 /* This section sets up the directorys for the stream methods    */
 /*****************************************************************/
@@ -53,15 +66,7 @@
 .StreamSupplier~!REXXDefined
 .RexxQueue~!REXXDefined
 .File~!REXXDefined
-                                       /* add these classes to global, saved*/
-                                       /*environment                        */
-.environment~setentry('STREAM', .Stream)
-.environment~setentry('INPUTSTREAM', .InputStream)
-.environment~setentry('OUTPUTSTREAM', .OutputStream)
-.environment~setentry('INPUTOUTPUTSTREAM', .InputOutputStream)
-.environment~setentry('STREAMSUPPLIER', .StreamSupplier)
-.environment~setentry('REXXQUEUE', .RexxQueue)
-.environment~setentry('FILE', .File)
+
 
 -- mixin class objects used for stream types
 ::CLASS 'OutputStream' public MIXINCLASS Object
@@ -131,7 +136,7 @@ notready:
 /* Create the stream class                         */
 /***************************************************/
 
-::CLASS 'Stream' MIXINCLASS InputOutputStream
+::CLASS 'Stream' public MIXINCLASS InputOutputStream
 
 /******************************************************/
 /* init method for setup on stream instance           */
@@ -369,7 +374,7 @@ notready:                              /* standard notready handler         */
 use strict arg
 return .StreamSupplier~new(self)       /* return a stream supplier          */
 
-::CLASS 'StreamSupplier' subclass 'Supplier'   /* stream supplier class             */
+::CLASS 'StreamSupplier' public subclass 'Supplier'   /* stream supplier class             */
 
 ::METHOD init                          /* initialization method             */
                                        /* access the state information      */
@@ -437,7 +442,7 @@ return position
 /*****************************************************************/
 /* Create the rx_queue class and define its associated methods */
 /*****************************************************************/
-::CLASS 'RexxQueue'
+::CLASS 'RexxQueue' public
 ::METHOD create  CLASS   EXTERNAL 'LIBRARY REXX rexx_create_queue'
 ::METHOD delete  CLASS   EXTERNAL 'LIBRARY REXX rexx_delete_queue'
 ::METHOD exists  CLASS   EXTERNAL 'LIBRARY REXX rexx_queue_exists'
@@ -500,7 +505,7 @@ return position
 
 
 -- ooRexx File class
-::CLASS "File" inherit Comparable Orderable
+::CLASS "File" public inherit Comparable Orderable
 ::METHOD init
   expose path qualifiedPath
 

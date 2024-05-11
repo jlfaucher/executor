@@ -36,12 +36,22 @@
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 
--- The parser delegates to this class when parsing source literals
-.environment~setentry("CLAUSER", .Clauser)
+use arg rexxPackage
+
+-- add all of the public classes to .environment and to the
+-- REXX package
+publicClasses = .context~package~publicClasses
+
+do name over publicClasses
+   class = publicClasses[name]
+   .environment~put(class, name)
+   rexxPackage~addPublicClass(name, class)
+end
 
 
 -----------------------------------------------------------------------------
 -- Helper for source analysis & transformation.
+-- The parser delegates to the Clauser class when parsing source literals
 
 /*
     The Clauser works directly on the source array passed at creation.

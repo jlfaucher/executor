@@ -60,7 +60,7 @@
 #include "ProtectedObject.hpp"
 #include "PointerClass.hpp"
 #include "TextClass.hpp"
-
+#include "PackageClass.hpp"
 
 // singleton class instance
 RexxClass *RexxObject::classInstance = OREF_NULL;
@@ -570,8 +570,7 @@ void RexxObject::copyObjectVariables(RexxObject *newObj)
     }
 }
 
-RexxMethod * RexxObject::checkPrivate(
-    RexxMethod       * method)        /* method to check                   */
+RexxMethod * RexxObject::checkPrivate(RexxMethod *method, RexxErrorCodes &error)
 /******************************************************************************/
 /* Function:  Check a private method for accessibility.                       */
 /******************************************************************************/
@@ -589,6 +588,7 @@ RexxMethod * RexxObject::checkPrivate(
         // no sender means this is a routine or program context.  Definitely not allowed.
         if (sender == OREF_NULL)
         {
+            error = Error_No_method_private;
             return OREF_NULL;
         }
         // ok, now we check the various scope possibilities
@@ -609,8 +609,50 @@ RexxMethod * RexxObject::checkPrivate(
             }
         }
     }
+    // can't touch this...
+    error = Error_No_method_private;
     return OREF_NULL;                    /* return a failure indicator        */
 }
+
+/**
+ * Check a package method for accessibility.
+ *
+ * @param method The method object to check
+ * @param error  The error to be raised if this is not permitted.
+ *
+ * @return An executable method, or OREF_NULL if this cannot be called.
+ */
+RexxMethod *RexxObject::checkPackage(RexxMethod *method, RexxErrorCodes &error ) // ooRexx5
+{
+    // get the calling activation context
+    RexxActivationBase *activation = ActivityManager::currentActivity->getTopStackFrame();
+
+    // likely a topLevel call via SendMessage() API which is contextless.
+    if (activation == OREF_NULL)
+    {
+        error = Error_No_method_package;
+        return OREF_NULL;
+    }
+    // get the package from that frame.
+    PackageClass *callerPackage = activation->getPackage();
+
+    // it is possible this is a special native activation, which means there
+    // is no caller context. This is a no-go.
+    if (callerPackage == OREF_NULL)
+    {
+        return OREF_NULL;
+    }
+
+    // defined in the same package, this is good.
+    if (method->isSamePackage(callerPackage))
+    {
+        return method;
+    }
+    // can't touch this...
+    error = Error_No_method_package;
+    return OREF_NULL;
+}
+
 
 // Should be named sendWith
 RexxObject *RexxObject::sendMessage(RexxString *message, RexxArray *args, RexxDirectory *named_args)
@@ -806,14 +848,22 @@ bool RexxObject::messageSend(
 
     /* grab the method from this level   */
     RexxMethod *method_save = target->behaviour->methodLookup(msgname);
+
+    RexxErrorCodes error = Error_No_method_name;
+
     /* method exists...special processing*/
     if (method_save != OREF_NULL && method_save->isSpecial())
     {
         if (method_save->isPrivate())      /* actually private method?          */
         {
             /* go validate a private method      */
-            method_save = target->checkPrivate(method_save);
+            method_save = target->checkPrivate(method_save, error);
         }
+        else if (method_save->isPackageScope())
+        {
+            method_save = target->checkPackage(method_save, error);
+        }
+
         /* now process protected methods     */
         if (method_save != OREF_NULL && method_save->isProtected())
         {
@@ -831,7 +881,7 @@ bool RexxObject::messageSend(
     else if (processUnknown)
     {
         /* go process an unknown method      */
-        target->processUnknown(msgname, arguments, count, named_count, result);
+        target->processUnknown(error, msgname, arguments, count, named_count, result);
     }
     return false;
 }
@@ -859,14 +909,22 @@ bool RexxObject::messageSend(
     // to double check: if the target is different from this, maybe startscope will not be applicable
     /* go to the higher level            */
     RexxMethod *method_save = target->superMethod(msgname, startscope);
-    if (method_save != OREF_NULL && method_save->isProtected())
+
+    RexxErrorCodes error = Error_No_method_name;
+
+    if (method_save != OREF_NULL && method_save->isSpecial())
     {
         if (method_save->isPrivate())      /* actually private method?          */
         {
-            method_save = target->checkPrivate(method_save);
+            method_save = target->checkPrivate(method_save, error);
         }
-        /* go validate a private method      */
-        else                               /* really a protected method         */
+        else if (method_save->isPackageScope())
+        {
+            method_save = target->checkPackage(method_save, error);
+        }
+
+        // a protected method...this gets special send handling
+        if (method_save != OREF_NULL && method_save->isProtected())
         {
             target->processProtectedMethod(msgname, method_save, arguments, count, named_count, result);
             return true;
@@ -882,7 +940,7 @@ bool RexxObject::messageSend(
     else if (processUnknown)
     {
         /* go process an unknown method      */
-        target->processUnknown(msgname, arguments, count, named_count, result);
+        target->processUnknown(error, msgname, arguments, count, named_count, result);
     }
     return false;
 }
@@ -911,6 +969,7 @@ void RexxObject::processProtectedMethod(
 }
 
 void RexxObject::processUnknown(
+    RexxErrorCodes error,
     RexxString   * messageName,        /* message to issue                  */
     RexxObject  ** arguments,          /* actual message arguments          */
     size_t         count,              /* count of arguments                */
@@ -928,7 +987,7 @@ void RexxObject::processUnknown(
     /* no unknown method - try to raise  */
     /* a NOMETHOD condition, and if that */
     {
-        reportNomethod(messageName, this); /* fails, it is an error message     */
+        reportNomethod(error, messageName, this); /* fails, it is an error message     */
     }
 
     RexxArray *argumentArray = new_array(count);    /* get an array for the positional arguments    */
@@ -1186,7 +1245,7 @@ RexxText *RexxObject::makeText()
 {
     if (this->isBaseClass())             /* primitive object?                 */
         return (RexxText *)TheNilObject; /* this never converts               */
-    else                                 /* process as a string request       */
+    else                                 /* process as a text request         */
     {
         return (RexxText *)this->sendMessage(OREF_REQUEST, OREF_TEXT);
     }
@@ -2605,6 +2664,17 @@ RexxInteger *RexxObject::identityHashRexx()
 }
 
 
+/**
+ * Check if this is the Nil object.
+ *
+ * @return true if Nil, false otherwise.
+ */
+RexxObject *RexxObject::isNilRexx()
+{
+    return booleanObject(this == TheNilObject);
+}
+
+
 void RexxObject::uninit(void)
 /******************************************************************************/
 /* Function:  Exported Object INIT method                                     */
@@ -2630,7 +2700,14 @@ RexxObject *RexxObject::newRexx(RexxObject **arguments, size_t argCount, size_t 
 /* Function:  Exposed REXX NEW method                                         */
 /******************************************************************************/
 {
-    return new ((RexxClass *)this, arguments, argCount, named_argCount) RexxObject;
+    // this method is defined on the object class, but this is actually attached
+    // to a class object instance.  Therefore, any use of the this pointer
+    // will be touching the wrong data.  Use the classThis pointer for calling
+    // any methods on this object from this method.
+    RexxClass *classThis = (RexxClass *)this;
+    classThis->checkAbstract();
+
+    return new (classThis, arguments, argCount, named_argCount) RexxObject;
 }
 
 

@@ -2050,18 +2050,6 @@ void RexxSource::resolveDependencies()
 }
 
 
-#define DEFAULT_GUARD    0             /* using defualt guarding            */
-#define GUARDED_METHOD   1             /* method is a guarded one           */
-#define UNGUARDED_METHOD 2             /* method is unguarded               */
-
-#define DEFAULT_PROTECTION 0           /* using defualt protection          */
-#define PROTECTED_METHOD   1           /* security manager permission needed*/
-#define UNPROTECTED_METHOD 2           /* no protection.                    */
-
-#define DEFAULT_ACCESS_SCOPE      0    /* using defualt scope               */
-#define PUBLIC_SCOPE       1           /* publicly accessible               */
-#define PRIVATE_SCOPE      2           /* private scope                     */
-
 /**
  * Process a ::CLASS directive for a source file.
  */
@@ -2094,7 +2082,7 @@ void RexxSource::classDirective()
     // and also add to the classes list
     this->classes->append((RexxObject *)this->active_class);
 
-    int  Public = DEFAULT_ACCESS_SCOPE;   /* haven't seen the keyword yet      */
+    AccessFlag  Access = DEFAULT_ACCESS_SCOPE;   /* haven't seen the keyword yet      */
     for (;;)
     {                       /* now loop on the option keywords   */
         token = nextReal();            /* get the next token                */
@@ -2136,23 +2124,23 @@ void RexxSource::classDirective()
 
 
                 case SUBDIRECTIVE_PUBLIC:  /* ::CLASS name PUBLIC               */
-                    if (Public != DEFAULT_ACCESS_SCOPE)  /* already had one of these?         */
+                    if (Access != DEFAULT_ACCESS_SCOPE)  /* already had one of these?         */
                     {
                                              /* duplicates are invalid            */
                         syntaxError(Error_Invalid_subkeyword_class, token);
                     }
-                    Public = PUBLIC_SCOPE;   /* turn on the seen flag             */
+                    Access = PUBLIC_SCOPE;   /* turn on the seen flag             */
                                              /* just set this as a public object  */
                     this->active_class->setPublic();
                     break;
 
                 case SUBDIRECTIVE_PRIVATE: /* ::CLASS name PUBLIC               */
-                    if (Public != DEFAULT_ACCESS_SCOPE)  /* already had one of these?         */
+                    if (Access != DEFAULT_ACCESS_SCOPE)  /* already had one of these?         */
                     {
                                              /* duplicates are invalid            */
                         syntaxError(Error_Invalid_subkeyword_class, token);
                     }
-                    Public = PRIVATE_SCOPE;  /* turn on the seen flag             */
+                    Access = PRIVATE_SCOPE;  /* turn on the seen flag             */
                     break;
                     /* ::CLASS name SUBCLASS sclass      */
                 case SUBDIRECTIVE_SUBCLASS:
@@ -2212,6 +2200,19 @@ void RexxSource::classDirective()
                         token = nextReal();    /* step to the next token            */
                     }
                     previousToken();         /* step back a token                 */
+                    break;
+
+                // ooRexx5
+                // ::CLASS name ABSTRACT
+                case SUBDIRECTIVE_ABSTRACT:
+                    // already been specified?  this is an error
+                    if (this->active_class->isAbstract())
+                    {
+                        syntaxError(Error_Invalid_subkeyword_class, token);
+                    }
+
+                    // mark this as abstract
+                    this->active_class->setAbstract();
                     break;
 
                 default:                   /* invalid keyword                   */
@@ -2358,6 +2359,11 @@ void RexxSource::checkDuplicateMethod(RexxString *name, bool classMethod, int er
  */
 void RexxSource::addMethod(RexxString *name, RexxMethod *method, bool classMethod)
 {
+    // ooRexx5
+    // make sure this is attached to the source object for context information
+    //method->setPackageObject(package);
+    method->setSourceObject(this);
+
     if (this->active_extension != OREF_NULL)
     {
         active_extension->addMethod(name, method, classMethod);
@@ -2379,9 +2385,9 @@ void RexxSource::addMethod(RexxString *name, RexxMethod *method, bool classMetho
  */
 void RexxSource::methodDirective()
 {
-    int  Private = DEFAULT_ACCESS_SCOPE;    /* this is a public method           */
-    int  Protected = DEFAULT_PROTECTION;  /* and is not protected yet          */
-    int guard = DEFAULT_GUARD;       /* default is guarding               */
+    AccessFlag  Access = DEFAULT_ACCESS_SCOPE;    /* this is a public method           */
+    ProtectedFlag  Protected = DEFAULT_PROTECTION;  /* and is not protected yet          */
+    GuardFlag guard = DEFAULT_GUARD;       /* default is guarding               */
     bool Class = false;              /* default is an instance method     */
     bool Attribute = false;          /* init Attribute flag               */
     bool abstractMethod = false;     // this is an abstract method
@@ -2448,22 +2454,33 @@ void RexxSource::methodDirective()
                     /* ::METHOD name PRIVATE             */
                 case SUBDIRECTIVE_PRIVATE:
                     refineSubclass(token, IS_SUBDIRECTIVE);
-                    if (Private != DEFAULT_ACCESS_SCOPE)   /* already seen one of these?        */
+                    if (Access != DEFAULT_ACCESS_SCOPE)   /* already seen one of these?        */
                     {
                                              /* duplicates are invalid            */
                         syntaxError(Error_Invalid_subkeyword_method, token);
                     }
-                    Private = PRIVATE_SCOPE;           /* flag for later processing         */
+                    Access = PRIVATE_SCOPE;           /* flag for later processing         */
                     break;
+                // ::METHOD name PACKAGE
+                case SUBDIRECTIVE_PACKAGE:
+                    refineSubclass(token, IS_SUBDIRECTIVE);
+                    // has an access flag already been specified?
+                    if (Access != DEFAULT_ACCESS_SCOPE)
+                    {
+                        syntaxError(Error_Invalid_subkeyword_method, token);
+                    }
+                    Access = PACKAGE_SCOPE;
+                    break;
+
                     /* ::METHOD name PUBLIC             */
                 case SUBDIRECTIVE_PUBLIC:
                     refineSubclass(token, IS_SUBDIRECTIVE);
-                    if (Private != DEFAULT_ACCESS_SCOPE)   /* already seen one of these?        */
+                    if (Access != DEFAULT_ACCESS_SCOPE)   /* already seen one of these?        */
                     {
                                              /* duplicates are invalid            */
                         syntaxError(Error_Invalid_subkeyword_method, token);
                     }
-                    Private = PUBLIC_SCOPE;        /* flag for later processing         */
+                    Access = PUBLIC_SCOPE;        /* flag for later processing         */
                     break;
                     /* ::METHOD name PROTECTED           */
                 case SUBDIRECTIVE_PROTECTED:
@@ -2576,12 +2593,14 @@ void RexxSource::methodDirective()
             ProtectedObject p_procedure(procedure);
             // now create both getter and setting methods from the information.
             _method = createNativeMethod(internalname, library, procedure->concatToCstring("GET"));
-            _method->setAttributes(Private == PRIVATE_SCOPE, Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
+            _method->setAttributes(Access, Protected, guard);
+            // mark this as an attribute method
+            _method->setAttribute();
             // add to the compilation
             addMethod(internalname, _method, Class);
 
             _method = createNativeMethod(setterName, library, procedure->concatToCstring("SET"));
-            _method->setAttributes(Private == PRIVATE_SCOPE, Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
+            _method->setAttributes(Access, Protected, guard);
             // add to the compilation
             addMethod(setterName, _method, Class);
         }
@@ -2591,10 +2610,8 @@ void RexxSource::methodDirective()
             RexxVariableBase *retriever = this->getRetriever(name);
 
             // create the method pair and quit.
-            createAttributeGetterMethod(internalname, retriever, Class, Private == PRIVATE_SCOPE,
-                Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
-            createAttributeSetterMethod(setterName, retriever, Class, Private == PRIVATE_SCOPE,
-                Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
+            createAttributeGetterMethod(internalname, retriever, Class, Access, Protected, guard);
+            createAttributeSetterMethod(setterName, retriever, Class, Access, Protected, guard);
         }
         return;
     }
@@ -2606,6 +2623,9 @@ void RexxSource::methodDirective()
         // this uses a special code block
         BaseCode *code = new AbstractCode();
         _method = new RexxMethod(name, code);
+        _method->setSourceObject(this);
+        // make sure the method is marked abstract
+        _method->setAbstract();
     }
     /* not an external method?           */
     else if (externalname == OREF_NULL)
@@ -2635,7 +2655,7 @@ void RexxSource::methodDirective()
         // and make this into a method object.
         _method = createNativeMethod(name, library, procedure);
     }
-    _method->setAttributes(Private == PRIVATE_SCOPE, Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
+    _method->setAttributes(Access, Protected, guard);
     // add to the compilation
     addMethod(internalname, _method, Class);
 }
@@ -2886,9 +2906,9 @@ void RexxSource::decodeExternalMethod(RexxString *methodName, RexxString *extern
  */
 void RexxSource::attributeDirective()
 {
-    int  Private = DEFAULT_ACCESS_SCOPE;    /* this is a public method           */
-    int  Protected = DEFAULT_PROTECTION;  /* and is not protected yet          */
-    int  guard = DEFAULT_GUARD;       /* default is guarding               */
+    AccessFlag  Access = DEFAULT_ACCESS_SCOPE;    /* this is a public method           */
+    ProtectedFlag  Protected = DEFAULT_PROTECTION;  /* and is not protected yet          */
+    GuardFlag  guard = DEFAULT_GUARD;       /* default is guarding               */
     int  style = ATTRIBUTE_BOTH;      // by default, we create both methods for the attribute.
     bool Class = false;              /* default is an instance method     */
     bool abstractMethod = false;     // by default, creating a concrete method
@@ -2958,22 +2978,32 @@ void RexxSource::attributeDirective()
                     break;
                 case SUBDIRECTIVE_PRIVATE:
                     refineSubclass(token, IS_SUBDIRECTIVE);
-                    if (Private != DEFAULT_ACCESS_SCOPE)   /* already seen one of these?        */
+                    if (Access != DEFAULT_ACCESS_SCOPE)   /* already seen one of these?        */
                     {
                                              /* duplicates are invalid            */
                         syntaxError(Error_Invalid_subkeyword_attribute, token);
                     }
-                    Private = PRIVATE_SCOPE;           /* flag for later processing         */
+                    Access = PRIVATE_SCOPE;           /* flag for later processing         */
+                    break;
+                // define with package access
+                case SUBDIRECTIVE_PACKAGE:
+                    refineSubclass(token, IS_SUBDIRECTIVE);
+                    // must be first access specifier
+                    if (Access != DEFAULT_ACCESS_SCOPE)
+                    {
+                        syntaxError(Error_Invalid_subkeyword_attribute, token);
+                    }
+                    Access = PACKAGE_SCOPE;
                     break;
                     /* ::METHOD name PUBLIC             */
                 case SUBDIRECTIVE_PUBLIC:
                     refineSubclass(token, IS_SUBDIRECTIVE);
-                    if (Private != DEFAULT_ACCESS_SCOPE)   /* already seen one of these?        */
+                    if (Access != DEFAULT_ACCESS_SCOPE)   /* already seen one of these?        */
                     {
                                              /* duplicates are invalid            */
                         syntaxError(Error_Invalid_subkeyword_attribute, token);
                     }
-                    Private = PUBLIC_SCOPE;        /* flag for later processing         */
+                    Access = PUBLIC_SCOPE;        /* flag for later processing         */
                     break;
                     /* ::METHOD name PROTECTED           */
                 case SUBDIRECTIVE_PROTECTED:
@@ -3079,12 +3109,16 @@ void RexxSource::attributeDirective()
                 ProtectedObject p_procedure(procedure);
                 // now create both getter and setting methods from the information.
                 RexxMethod *_method = createNativeMethod(internalname, library, procedure->concatToCstring("GET"));
-                _method->setAttributes(Private == PRIVATE_SCOPE, Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
+                _method->setAttributes(Access, Protected, guard);
+                // mark this as an attribute method
+                _method->setAttribute();
                 // add to the compilation
                 addMethod(internalname, _method, Class);
 
                 _method = createNativeMethod(setterName, library, procedure->concatToCstring("SET"));
-                _method->setAttributes(Private == PRIVATE_SCOPE, Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
+                _method->setAttributes(Access, Protected, guard);
+                // mark this as an attribute method
+                _method->setAttribute();
                 // add to the compilation
                 addMethod(setterName, _method, Class);
             }
@@ -3092,18 +3126,14 @@ void RexxSource::attributeDirective()
             else if (abstractMethod)
             {
                 // create the method pair and quit.
-                createAbstractMethod(internalname, Class, Private == PRIVATE_SCOPE,
-                    Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
-                createAbstractMethod(setterName, Class, Private == PRIVATE_SCOPE,
-                    Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
+                createAbstractMethod(internalname, Class, Access, Protected, guard, true);
+                createAbstractMethod(setterName, Class, Access, Protected, guard, true);
             }
             else
             {
                 // create the method pair and quit.
-                createAttributeGetterMethod(internalname, retriever, Class, Private == PRIVATE_SCOPE,
-                    Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
-                createAttributeSetterMethod(setterName, retriever, Class, Private == PRIVATE_SCOPE,
-                    Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
+                createAttributeGetterMethod(internalname, retriever, Class, Access, Protected, guard);
+                createAttributeSetterMethod(setterName, retriever, Class, Access, Protected, guard);
             }
             break;
 
@@ -3130,7 +3160,9 @@ void RexxSource::attributeDirective()
                 }
                 // now create both getter and setting methods from the information.
                 RexxMethod *_method = createNativeMethod(internalname, library, procedure);
-                _method->setAttributes(Private == PRIVATE_SCOPE, Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
+                _method->setAttributes(Access, Protected, guard);
+                // mark this as an attribute method
+                _method->setAttribute();
                 // add to the compilation
                 addMethod(internalname, _method, Class);
             }
@@ -3140,20 +3172,17 @@ void RexxSource::attributeDirective()
                 // no code can follow abstract methods
                 this->checkDirective(Error_Translation_abstract_attribute);
                 // create the method pair and quit.
-                createAbstractMethod(internalname, Class, Private == PRIVATE_SCOPE,
-                    Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
+                createAbstractMethod(internalname, Class, Access, Protected, guard, true);
             }
             // either written in ooRexx or is automatically generated.
             else {
                 if (hasBody())
                 {
-                    createMethod(internalname, Class, Private == PRIVATE_SCOPE,
-                        Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
+                    createMethod(internalname, Class, Access, Protected, guard, true);
                 }
                 else
                 {
-                    createAttributeGetterMethod(internalname, retriever, Class, Private == PRIVATE_SCOPE,
-                        Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
+                    createAttributeGetterMethod(internalname, retriever, Class, Access, Protected, guard);
                 }
             }
             break;
@@ -3182,7 +3211,9 @@ void RexxSource::attributeDirective()
                 }
                 // now create both getter and setting methods from the information.
                 RexxMethod *_method = createNativeMethod(setterName, library, procedure);
-                _method->setAttributes(Private == PRIVATE_SCOPE, Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
+                _method->setAttributes(Access, Protected, guard);
+                // mark this as an attribute method
+                _method->setAttribute();
                 // add to the compilation
                 addMethod(setterName, _method, Class);
             }
@@ -3192,20 +3223,17 @@ void RexxSource::attributeDirective()
                 // no code can follow abstract methods
                 this->checkDirective(Error_Translation_abstract_attribute);
                 // create the method pair and quit.
-                createAbstractMethod(setterName, Class, Private == PRIVATE_SCOPE,
-                    Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
+                createAbstractMethod(setterName, Class, Access, Protected, guard, true);
             }
             else
             {
                 if (hasBody())        // just the getter method
                 {
-                    createMethod(setterName, Class, Private == PRIVATE_SCOPE,
-                        Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
+                    createMethod(setterName, Class, Access, Protected, guard, true);
                 }
                 else
                 {
-                    createAttributeSetterMethod(setterName, retriever, Class, Private == PRIVATE_SCOPE,
-                        Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
+                    createAttributeSetterMethod(setterName, retriever, Class, Access, Protected, guard);
                 }
             }
             break;
@@ -3303,7 +3331,7 @@ void RexxSource::constantDirective()
  *               The method's guarded attribute.
  */
 void RexxSource::createMethod(RexxString *name, bool classMethod,
-    bool privateMethod, bool protectedMethod, bool guardedMethod)
+    AccessFlag privateMethod, ProtectedFlag protectedMethod, GuardFlag guardedMethod, bool isAttribute)
 {
     // NOTE:  It is necessary to translate the block and protect the code
     // before allocating the RexxMethod object.  The new operator allocates the
@@ -3317,6 +3345,8 @@ void RexxSource::createMethod(RexxString *name, bool classMethod,
     /* go do the next block of code      */
     RexxMethod *_method = new RexxMethod(name, code);
     _method->setAttributes(privateMethod, protectedMethod, guardedMethod);
+    // mark with the attribute state
+    _method->setAttribute(isAttribute);
     // go add the method to the accumulator
     addMethod(name, _method, classMethod);
 }
@@ -3337,12 +3367,15 @@ void RexxSource::createMethod(RexxString *name, bool classMethod,
  *                  The method's guarded attribute.
  */
 void RexxSource::createAttributeGetterMethod(RexxString *name, RexxVariableBase *retriever,
-    bool classMethod, bool privateMethod, bool protectedMethod, bool guardedMethod)
+    bool classMethod, AccessFlag privateMethod, ProtectedFlag protectedMethod, GuardFlag guardedMethod)
 {
     // create the kernel method for the accessor
     BaseCode *code = new AttributeGetterCode(retriever);
     RexxMethod *_method = new RexxMethod(name, code);
+    _method->setSourceObject(this);
     _method->setAttributes(privateMethod, protectedMethod, guardedMethod);
+    // mark as an attribute method
+    _method->setAttribute();
     // add this to the target
     addMethod(name, _method, classMethod);
 }
@@ -3362,12 +3395,15 @@ void RexxSource::createAttributeGetterMethod(RexxString *name, RexxVariableBase 
  *               The method's guarded attribute.
  */
 void RexxSource::createAttributeSetterMethod(RexxString *name, RexxVariableBase *retriever,
-    bool classMethod, bool privateMethod, bool protectedMethod, bool guardedMethod)
+    bool classMethod, AccessFlag privateMethod, ProtectedFlag protectedMethod, GuardFlag guardedMethod)
 {
     // create the kernel method for the accessor
     BaseCode *code = new AttributeSetterCode(retriever);
     RexxMethod *_method = new RexxMethod(name, code);
+    _method->setSourceObject(this);
     _method->setAttributes(privateMethod, protectedMethod, guardedMethod);
+    // mark as an attribute method
+    _method->setAttribute();
     // add this to the target
     addMethod(name, _method, classMethod);
 }
@@ -3387,13 +3423,18 @@ void RexxSource::createAttributeSetterMethod(RexxString *name, RexxVariableBase 
  *               The method's guarded attribute.
  */
 void RexxSource::createAbstractMethod(RexxString *name,
-    bool classMethod, bool privateMethod, bool protectedMethod, bool guardedMethod)
+    bool classMethod, AccessFlag privateMethod, ProtectedFlag protectedMethod, GuardFlag guardedMethod, bool isAttribute)
 {
     // create the kernel method for the accessor
     // this uses a special code block
     BaseCode *code = new AbstractCode();
     RexxMethod * _method = new RexxMethod(name, code);
+    _method->setSourceObject(this);
     _method->setAttributes(privateMethod, protectedMethod, guardedMethod);
+    // mark with the attribute state
+    _method->setAttribute(isAttribute);
+    // and also mark as abstract
+    _method->setAbstract();
     // add this to the target
     addMethod(name, _method, classMethod);
 }
@@ -3410,7 +3451,11 @@ void RexxSource::createConstantGetterMethod(RexxString *name, RexxObject *value)
     ConstantGetterCode *code = new ConstantGetterCode(value);
     // add this as an unguarded method
     RexxMethod *method = new RexxMethod(name, code);
+    method->setSourceObject(this);
     method->setUnguarded();
+    // mark as a constant method
+    method->setConstant();
+
     if (active_class == OREF_NULL && active_extension == OREF_NULL)
     {
         addMethod(name, method, false);
@@ -3447,7 +3492,7 @@ void RexxSource::routineDirective()
     }
     this->flags |= _install;         /* have information to install       */
     RexxString *externalname = OREF_NULL;        /* no external name yet              */
-    int Public = DEFAULT_ACCESS_SCOPE;      /* not a public routine yet          */
+    AccessFlag Access = DEFAULT_ACCESS_SCOPE;      /* not a public routine yet          */
     for (;;)                         /* now loop on the option keywords   */
     {
         token = nextReal();            /* get the next token                */
@@ -3487,24 +3532,24 @@ void RexxSource::routineDirective()
                 /* ::ROUTINE name PUBLIC             */
             case SUBDIRECTIVE_PUBLIC:
                 refineSubclass(token, IS_SUBDIRECTIVE);
-                if (Public != DEFAULT_ACCESS_SCOPE)   /* already had one of these?         */
+                if (Access != DEFAULT_ACCESS_SCOPE)   /* already had one of these?         */
                 {
                     /* duplicates are invalid            */
                     syntaxError(Error_Invalid_subkeyword_routine, token);
 
                 }
-                Public = PUBLIC_SCOPE;     /* turn on the seen flag             */
+                Access = PUBLIC_SCOPE;     /* turn on the seen flag             */
                 break;
                 /* ::ROUTINE name PUBLIC             */
             case SUBDIRECTIVE_PRIVATE:
                 refineSubclass(token, IS_SUBDIRECTIVE);
-                if (Public != DEFAULT_ACCESS_SCOPE)   /* already had one of these?         */
+                if (Access != DEFAULT_ACCESS_SCOPE)   /* already had one of these?         */
                 {
                     /* duplicates are invalid            */
                     syntaxError(Error_Invalid_subkeyword_routine, token);
 
                 }
-                Public = PRIVATE_SCOPE;    /* turn on the seen flag             */
+                Access = PRIVATE_SCOPE;    /* turn on the seen flag             */
                 break;
 
             default:                     /* invalid keyword                   */
@@ -3556,7 +3601,7 @@ void RexxSource::routineDirective()
                 routine->setSourceObject(this);
                 /* add to the routine directory      */
                 this->routines->setEntry(name, routine);
-                if (Public == PUBLIC_SCOPE)    /* a public routine?                 */
+                if (Access == PUBLIC_SCOPE)    /* a public routine?                 */
                 {
                     /* add to the public directory too   */
                     this->public_routines->setEntry(name, routine);
@@ -3599,7 +3644,7 @@ void RexxSource::routineDirective()
                 routine->setSourceObject(this);
                 /* add to the routine directory      */
                 this->routines->setEntry(name, routine);
-                if (Public == PUBLIC_SCOPE)    /* a public routine?                 */
+                if (Access == PUBLIC_SCOPE)    /* a public routine?                 */
                 {
                     /* add to the public directory too   */
                     this->public_routines->setEntry(name, routine);
@@ -3624,7 +3669,7 @@ void RexxSource::routineDirective()
             RoutineClass *routine = new RoutineClass(name, code);
             /* add to the routine directory      */
             this->routines->setEntry(name, routine);
-            if (Public == PUBLIC_SCOPE)    /* a public routine?                 */
+            if (Access == PUBLIC_SCOPE)    /* a public routine?                 */
             {
                 /* add to the public directory too   */
                 this->public_routines->setEntry(name, routine);

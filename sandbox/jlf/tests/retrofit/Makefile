@@ -6,11 +6,10 @@
 # Under Macos and Linux, make will use in priority GNUmakefile.
 # Under Windows, nmake will ignore GNUmakefile and use Makefile.
 
-mainFiles = main_array
+# ooRexx scripts in the current directory
+scriptsFiles = class method
 
-# The demos can be used as non-regression tests
-demos = ..\..\demos
-demoFiles = executor-demo-array
+mainFiles = main_array_literal
 
 NMAKE = nmake /c /f Makefile
 
@@ -22,23 +21,22 @@ DIFF = diff
 
 help:
 	@echo make all
+	@-for %%f in ($(scriptsFiles)) do @echo nmake %%f
 	@-for %%f in ($(mainFiles)) do @echo nmake %%f
-	@-for %%f in ($(demoFiles)) do @echo nmake %%f
 	@echo make clean
 
 all:
+	@-for %%f in ($(scriptsFiles)) do @$(NMAKE) %%f
 	@-for %%f in ($(mainFiles)) do @$(NMAKE) %%f
-	@-for %%f in ($(demoFiles)) do @$(NMAKE) %%f
+
+$(scriptsFiles) :
+	rexx $@.rex > $@.output.txt 2>&1
+	$(DIFF) $@.output.reference.txt $@.output.txt > nul
 
 $(mainFiles) :
 	type $@.rex | oorexxshell test regression > $@.output.txt 2>&1
 	$(DIFF) $@.output.reference.txt $@.output.txt > nul
 
-$(demoFiles) :
-	@:: Don't display the current address in the prompt
-	(echo prompt off address & type $(demos)\$@.rex) | oorexxshell test regression > $@.output.txt 2>&1
-	$(DIFF) $@.output.reference.txt $@.output.txt > nul
-
 clean:
+	@-for %%f in ($(scriptsFiles)) do @del -f %%f.output.txt
 	@-for %%f in ($(mainFiles)) do @del -f %%f.output.txt
-	@-for %%f in ($(demoFiles)) do @del -f %%f.output.txt

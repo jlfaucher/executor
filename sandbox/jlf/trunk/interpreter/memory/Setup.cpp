@@ -88,6 +88,7 @@
 #include "StackFrameClass.hpp"
 #include "BlockClass.hpp"
 #include "TextClass.hpp"
+#include "SourceFile.hpp"
 
 
 void RexxMemory::defineKernelMethod(
@@ -135,6 +136,77 @@ void RexxMemory::definePrivateKernelMethod(
     // On 20/07/2014 rev 10318, official ooRexx was updated to no longer declare protected
     //method->setProtected();              /* make this protected               */
     method->setPrivate();                /* make this protected               */
+}
+
+
+/**
+ * Add a object to the kernel directory using the provided name.
+ *
+ * @param name   The name of the new environment entry.
+ * @param value  The value added.
+ */
+void RexxMemory::addToSystem(const char *name, RexxInternalObject *value) // ooRexx5
+{
+    // In ooRexx5, TheSystem is a StringTable which accepts RexxInternalObject*
+    // Here, TheSystem is a Directory which doesn't accept RexxInternalObject*
+    // Must cast...
+    TheSystem->put((RexxObject *)value, getGlobalName(name));
+}
+
+#if 0 // This ooRexx5 macro is not used.
+      // Use directly addToSystem.
+// Finish up one of the special classes (Integer and NumberString).  Those are
+// real classes, but are kept hidden.
+#define EndSpecialClassDefinition(name) \
+    addToSystem(#name, currentClass); \
+}
+#endif
+
+/**
+ * Finalize a system class during image construction.  This
+ * places the class in the Environment and also adds it to
+ * the Rexx package.
+ *
+ * @param name     The class name.
+ * @param classObj The class object.
+ */
+void RexxMemory::completeSystemClass(const char *name, RexxClass *classObj) // ooRexx5
+{
+    // this gets added to the environment and the package in an uppercase name.
+    RexxString *className = getGlobalName(name);
+
+#if 0 // Not activated. This is done by kernel_public
+    TheEnvironment->put(classObj, className);
+#endif
+
+    // this is added as a public class in this package.
+
+#if 0 // jlf: can't use addPublicClass (crash because classObj not finalized)
+    TheRexxPackage->addPublicClass(className, classObj);
+#else // Must use addInstalledClass (like ooRexx5)
+    TheRexxPackage->getSourceObject()->addInstalledClass(className, classObj, true);
+#endif
+}
+
+#if 0 // This ooRexx5 macro is not used.
+      // Use directly completeSystemClass.
+// Add the created class object to the environment under its name and close
+// the local variable scope
+#define EndClassDefinition(name) \
+    completeSystemClass(#name, currentClass); \
+}
+#endif
+
+
+/**
+ * Create the base Rexx package object.  All Rexx-defined classes
+ * in the image will be added to this package.
+ */
+void RexxMemory::createRexxPackage()
+{
+    // this is a dummy package named "REXX" with the place holder
+    // sourceless program source
+    rexxPackage = new PackageClass(new RexxSource(OREF_REXX));
 }
 
 
@@ -250,6 +322,9 @@ void RexxMemory::createImage(const char *imageTarget)
   TheCommonRetrievers->put((RexxObject *)new RexxParseVariable(OREF_RESULT, VARIABLE_RESULT), OREF_RESULT);
   memoryObject.enableOrefChecks();     /* enable setCheckOrefs...           */
 
+  // create the Rexx package so created classes can get added to it.
+  createRexxPackage(); // ooRexx5
+
 /******************************************************************************/
 /* The following Rexx classes that are exposed to the users are set up as    */
 /* subclassable classes.                                                     */
@@ -283,9 +358,11 @@ void RexxMemory::createImage(const char *imageTarget)
   defineProtectedKernelMethod(CHAR_METACLASS       ,TheClassBehaviour, CPPM(RexxClass::getMetaClass), 0);
   defineKernelMethod(CHAR_METHOD          ,TheClassBehaviour, CPPM(RexxClass::method), 1);
   defineKernelMethod(CHAR_METHODS         ,TheClassBehaviour, CPPM(RexxClass::methods), 1);
-  defineKernelMethod(CHAR_MIXINCLASS      ,TheClassBehaviour, CPPM(RexxClass::mixinclass), 3);
+  defineKernelMethod(CHAR_MIXINCLASS      ,TheClassBehaviour, CPPM(RexxClass::mixinClassRexx), 3);
   defineKernelMethod(CHAR_QUERYMIXINCLASS ,TheClassBehaviour, CPPM(RexxClass::queryMixinClass), 0);
-  defineKernelMethod(CHAR_SUBCLASS        ,TheClassBehaviour, CPPM(RexxClass::subclass), 3);
+  defineKernelMethod(CHAR_ISMETACLASS     ,TheClassBehaviour, CPPM(RexxClass::isMetaClassRexx), 0);     // ooRexx5
+  defineKernelMethod(CHAR_ISABSTRACT      ,TheClassBehaviour, CPPM(RexxClass::isAbstractRexx), 0);      // ooRexx5
+  defineKernelMethod(CHAR_SUBCLASS        ,TheClassBehaviour, CPPM(RexxClass::subclassRexx), 3);
   defineProtectedKernelMethod(CHAR_SUBCLASSES      ,TheClassBehaviour, CPPM(RexxClass::getSubClasses), 0);
   defineProtectedKernelMethod(CHAR_SUPERCLASSES    ,TheClassBehaviour, CPPM(RexxClass::getSuperClasses), 0);
   defineProtectedKernelMethod(CHAR_SUPERCLASS      ,TheClassBehaviour, CPPM(RexxClass::getSuperClass), 0);
@@ -298,6 +375,7 @@ void RexxMemory::createImage(const char *imageTarget)
   defineKernelMethod(CHAR_GREATERTHAN_LESSTHAN   ,TheClassBehaviour, CPPM(RexxClass::notEqual), 1);
   defineKernelMethod(CHAR_STRICT_BACKSLASH_EQUAL ,TheClassBehaviour, CPPM(RexxClass::notEqual), 1);
   defineKernelMethod(CHAR_ISSUBCLASSOF           ,TheClassBehaviour, CPPM(RexxClass::isSubclassOf), 1);
+  defineKernelMethod(CHAR_PACKAGE                ,TheClassBehaviour, CPPM(RexxClass::getPackage), 1);
   defineProtectedKernelMethod(CHAR_SHRIEKREXXDEFINED,TheClassBehaviour, CPPM(RexxClass::setRexxDefined), 0);
   defineKernelMethod(CHAR_DEFAULTNAME            ,TheClassBehaviour, CPPM(RexxClass::defaultNameRexx), 0);
   // this is explicitly inserted into the class behaviour because it gets used
@@ -309,6 +387,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* set the scope of the methods to   */
                                        /* the CLASS scope                   */
   TheClassBehaviour->setMethodDictionaryScope(TheClassClass);
+  completeSystemClass("CLASS", TheClassClass);
 
      /************************************************************************/
      /*                                                                      */
@@ -351,6 +430,7 @@ void RexxMemory::createImage(const char *imageTarget)
   defineKernelMethod(CHAR_STRING                 ,TheObjectBehaviour, CPPM(RexxObject::stringRexx), 0);
   defineKernelMethod(CHAR_ISINSTANCEOF           ,TheObjectBehaviour, CPPM(RexxObject::isInstanceOfRexx), 1);
   defineKernelMethod(CHAR_ISA                    ,TheObjectBehaviour, CPPM(RexxObject::isInstanceOfRexx), 1);
+  defineKernelMethod(CHAR_ISNIL                  ,TheObjectBehaviour, CPPM(RexxObject::isNilRexx), 1);
   defineKernelMethod(CHAR_INSTANCEMETHOD         ,TheObjectBehaviour, CPPM(RexxObject::instanceMethodRexx), 1);
   defineKernelMethod(CHAR_INSTANCEMETHODS        ,TheObjectBehaviour, CPPM(RexxObject::instanceMethodsRexx), 1);
   defineKernelMethod(CHAR_DYNAMICTARGET          ,TheObjectBehaviour, CPPM(RexxObject::dynamicTargetRexx), A_COUNT);
@@ -365,6 +445,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* method for OBJECT then CLASS      */
   TheObjectClass->subClassable(true);
   TheClassClass->subClassable(true);
+  completeSystemClass("OBJECT", TheObjectClass);
 
   /************************************** The rest of the classes can now be */
   /************************************** set up.                            */
@@ -424,6 +505,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheArrayClass->subClassable(false);
+  completeSystemClass("ARRAY", TheArrayClass);
 
   /***************************************************************************/
   /*           DIRECTORY                                                     */
@@ -466,6 +548,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheDirectoryClass->subClassable(false);
+  completeSystemClass("DIRECTORY", TheDirectoryClass);
 
 
   /***************************************************************************/
@@ -515,6 +598,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheListClass->subClassable(false);
+  completeSystemClass("LIST", TheListClass);
 
   /***************************************************************************/
   /*           MESSAGE                                                       */
@@ -549,6 +633,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheMessageClass->subClassable(true);
+  completeSystemClass("MESSAGE", TheMessageClass);
 
   /***************************************************************************/
   /*           METHOD                                                        */
@@ -573,6 +658,11 @@ void RexxMemory::createImage(const char *imageTarget)
   defineKernelMethod(CHAR_ISPROTECTED  ,TheMethodBehaviour, CPPM(RexxMethod::isProtectedRexx), 0);
   defineProtectedKernelMethod(CHAR_SETPROTECTED ,TheMethodBehaviour, CPPM(RexxMethod::setProtectedRexx), 0);
   defineProtectedKernelMethod(CHAR_SETSECURITYMANAGER ,TheMethodBehaviour, CPPM(RexxMethod::setSecurityManager), 1);
+  defineKernelMethod("ISPACKAGE"       ,TheMethodBehaviour, CPPM(RexxMethod::isPackageRexx), 0); // ooRexx5
+  defineKernelMethod("ISABSTRACT"      ,TheMethodBehaviour, CPPM(RexxMethod::isAbstractRexx), 0); // ooRexx5
+  defineKernelMethod("ISCONSTANT"      ,TheMethodBehaviour, CPPM(RexxMethod::isConstantRexx), 0); // ooRexx5
+  defineKernelMethod("ISATTRIBUTE"     ,TheMethodBehaviour, CPPM(RexxMethod::isAttributeRexx), 0); // ooRexx5
+  defineKernelMethod("SCOPE"           ,TheMethodBehaviour, CPPM(RexxMethod::getScopeRexx), 0); // ooRexx5
   defineKernelMethod(CHAR_SOURCE       ,TheMethodBehaviour, CPPM(BaseExecutable::source), 0);
   defineKernelMethod(CHAR_PACKAGE      ,TheMethodBehaviour, CPPM(BaseExecutable::getPackage), 0);
                                        /* set the scope of the methods to   */
@@ -582,6 +672,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheMethodClass->subClassable(true);
+  completeSystemClass("METHOD", TheMethodClass);
 
   /***************************************************************************/
   /*           ROUTINE                                                       */
@@ -610,6 +701,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheRoutineClass->subClassable(true);
+  completeSystemClass("ROUTINE", TheRoutineClass);
 
 
   /***************************************************************************/
@@ -659,6 +751,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   ThePackageClass->subClassable(true);
+  completeSystemClass("PACKAGE", ThePackageClass);
 
 
   /***************************************************************************/
@@ -699,6 +792,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheRexxContextClass->subClassable(true);
+  completeSystemClass("REXXCONTEXT", TheRexxContextClass);
 
   /***************************************************************************/
   /*           QUEUE                                                         */
@@ -755,6 +849,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheQueueClass->subClassable(false);
+  completeSystemClass("QUEUE", TheQueueClass);
 
   /***************************************************************************/
   /*           RELATION                                                      */
@@ -798,6 +893,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheRelationClass->subClassable(false);
+  completeSystemClass("RELATION", TheRelationClass);
 
   /***************************************************************************/
   /*           STEM                                                          */
@@ -849,6 +945,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheStemClass->subClassable(false);
+  completeSystemClass("STEM", TheStemClass);
 
   /***************************************************************************/
   /*           STRING                                                        */
@@ -979,6 +1076,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheStringClass->subClassable(false);
+  completeSystemClass("STRING", TheStringClass);
 
 
   /***************************************************************************/
@@ -1043,6 +1141,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheMutableBufferClass->subClassable(true);
+  completeSystemClass("MUTABLEBUFFER", TheMutableBufferClass);
 
   /***************************************************************************/
   /*             INTEGER                                                     */
@@ -1112,6 +1211,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheIntegerClass->subClassable(true);
+  addToSystem("INTEGER", TheIntegerClass);
 
   /***************************************************************************/
   /*             NUMBERSTRING                                                */
@@ -1181,6 +1281,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheNumberStringClass->subClassable(true);
+  addToSystem("NUMBERSTRING", TheNumberStringClass);
 
 
   /***************************************************************************/
@@ -1210,6 +1311,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheSupplierClass->subClassable(false);
+  completeSystemClass("SUPPLIER", TheSupplierClass);
 
   /***************************************************************************/
   /*           TABLE                                                         */
@@ -1249,6 +1351,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheTableClass->subClassable(false);
+  completeSystemClass("TABLE", TheTableClass);
 
   /***************************************************************************/
   /*           IDENTITYTABLE                                                 */
@@ -1288,6 +1391,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheIdentityTableClass->subClassable(false);
+  completeSystemClass("IDENTITYTABLE", TheIdentityTableClass);
 
 
   /***************************************************************************/
@@ -1316,6 +1420,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   ThePointerClass->subClassable(false);
+  completeSystemClass("POINTER", ThePointerClass);
 
 
   /***************************************************************************/
@@ -1341,6 +1446,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheBufferClass->subClassable(false);
+  completeSystemClass("BUFFER", TheBufferClass);
 
 
   /***************************************************************************/
@@ -1364,6 +1470,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheWeakReferenceClass->subClassable(false);
+  completeSystemClass("WEAKREFERENCE", TheWeakReferenceClass);
 
 
   /***************************************************************************/
@@ -1397,6 +1504,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheStackFrameClass->subClassable(false);
+  completeSystemClass("STACKFRAME", TheStackFrameClass);
 
   /***************************************************************************/
   /*           RexxBlock                                                     */
@@ -1425,6 +1533,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheRexxBlockClass->subClassable(true);
+  completeSystemClass("REXXBLOCK", TheRexxBlockClass);
 
   /***************************************************************************/
   /*           RexxText                                                      */
@@ -1442,6 +1551,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheRexxTextClass->subClassable(true);
+  completeSystemClass("REXXTEXT", TheRexxTextClass);
 
   /***************************************************************************/
   /*           Unicode                                                       */
@@ -1482,6 +1592,7 @@ void RexxMemory::createImage(const char *imageTarget)
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheUnicodeClass->subClassable(true);
+  completeSystemClass("UNICODE", TheUnicodeClass);
 
 
   /***************************************************************************/
@@ -1490,7 +1601,7 @@ void RexxMemory::createImage(const char *imageTarget)
     /* These classes don't have any class methods                            */
     /*  and are not subclassed from object                                   */
 
-#define kernel_public(name, object, dir)  ((RexxDirectory *)dir)->setEntry(getGlobalName(name), (RexxObject *)object)
+#define kernel_public(name, object, dir) ((RexxDirectory *)dir)->setEntry(getGlobalName(name), (RexxObject *)object)
 
   /* put the kernel-provided public objects in the environment directory */
   kernel_public(CHAR_ARRAY            ,TheArrayClass   ,TheEnvironment);
@@ -1578,11 +1689,13 @@ void RexxMemory::createImage(const char *imageTarget)
 
 
           // RexxObject *args = kernel_methods;   // temporary to avoid type-punning warnings
-          RexxObject *args[1];
-          args[0] = kernel_methods; // 1 positional argument
+          RexxObject *args[2];
+          args[0] = kernel_methods; // 1st positional argument
+          // we pass the internal Rexx package as an argument to the setup program.
+          args[1] = TheRexxPackage; // ooRexx5
           ProtectedObject result;
                                                /* now call BaseClasses to finish the image*/
-          loader->runProgram(ActivityManager::currentActivity, OREF_PROGRAM, OREF_NULL, (RexxObject **)&args, 1, 0, result);
+          loader->runProgram(ActivityManager::currentActivity, OREF_PROGRAM, OREF_NULL, (RexxObject **)&args, 2, 0, result);
       }
       catch (ActivityException )
       {
@@ -1591,6 +1704,11 @@ void RexxMemory::createImage(const char *imageTarget)
       }
 
   }
+
+  // TheRexxPackage has no classes after RESTORINGIMAGE
+  // Don't know why... Here, it has classes.
+  RexxDirectory *classes = TheRexxPackage->getClasses();
+  printf("********** TheRexxPackage classes=%zu\n", classes->items());
 
   /* define and suppress methods in the nil object */
   TheNilObject->defMethod(getGlobalName(CHAR_COPY), (RexxMethod *)TheNilObject);

@@ -3,6 +3,52 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2024 Mai 12
+
+[Compatibility with ooRexx5]
+
+Retrofit
+    .Class~isAbstract
+    .Class~isMetaclass
+    .Class~package
+
+    .Object~isNil       native
+
+    .Method~isPackage
+    .Method~isAbstract
+    .Method~isConstant
+    .Method~isAttribute
+    .Method~scope
+
+    ::CLASS option ABSTRACT
+    ::ATTRIBUTE option PACKAGE
+    ::METHOD option PACKAGE
+
+    .Context~package    extension
+
+Was not so easy for the management of packages...
+It's still a mix of RexxSource and PackageClass.
+ooRexx5 assigns TheRexxPackage during the "PREPARINGIMAGE" phase of rexx.img.
+ooRexx4 doesn't support this phase.
+As a workaround, I added a mark 'isInRexxPackage' which is set during the
+"SAVINGIMAGE" phase on ALL the objects which are alive. Some native classes are
+marked by their liveGeneral, like with ooRexx5:
+    RexxClass, CPPCode, RexxCode, RexxNativeCode.
+Currently, the mark 'isInRexxPackage' is tested for classes and methods (all
+kinds of methods):
+    RexxClass::getPackage()
+    if (this->isInRexxPackage()) return TheRexxPackage;
+
+    BaseExecutable::getPackage()
+    if (code->isInRexxPackage()) return TheRexxPackage;
+
+
+Still not working:
+The REXX Package has no class after RESTORINGIMAGE.
+Before SAVINGIMAGE, it has 59 classes.
+
+
+===============================================================================
 2024 Mai 04
 
 [Procedural extensions]

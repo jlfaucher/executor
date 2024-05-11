@@ -80,6 +80,11 @@ void RexxNativeCode::liveGeneral(int reason)
 /* Function:  Normal garbage collection live marking                          */
 /******************************************************************************/
 {
+    // Inspired by ooRexx5, but the approach is different...
+    // Instead of assigning package = TheRexxPackage when reason == PREPARINGIMAGE (unsupported by ooRexx4)
+    // I mark the RexxNativeCode instance as belonging to the RexxPackage, and will return TheRexxPackage when asking its package.
+    if (reason == SAVINGIMAGE) this->setInRexxPackage();
+
     memory_mark_general(this->package);
     memory_mark_general(this->name);
     memory_mark_general(this->source);
@@ -117,6 +122,7 @@ RexxClass *RexxNativeCode::findClass(RexxString *className)
 }
 
 
+// ooRexx5 uses setPackageObject
 /**
  * Set a source object into a native code context.  If the
  * object is already set, then this returns a copy of the code object.

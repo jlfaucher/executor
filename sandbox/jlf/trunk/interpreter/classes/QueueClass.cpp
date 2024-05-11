@@ -588,11 +588,18 @@ RexxObject *RexxQueue::newRexx(RexxObject **init_args, size_t argCount, size_t n
 /* Function:  Create an instance of a queue                                   */
 /******************************************************************************/
 {
+    // this method is defined on the object class, but this is actually attached
+    // to a class object instance.  Therefore, any use of the this pointer
+    // will be touching the wrong data.  Use the classThis pointer for calling
+    // any methods on this object from this method.
+    RexxClass *classThis = (RexxClass *)this;
+    classThis->checkAbstract(); // ooRexx5
+
     RexxObject *newObj =  new RexxQueue;             /* get a new queue                   */
     ProtectedObject p(newObj);
     /* Initialize the new list instance  */
-    newObj->setBehaviour(((RexxClass *)this)->getInstanceBehaviour());
-    if (((RexxClass *)this)->hasUninitDefined())
+    newObj->setBehaviour(classThis->getInstanceBehaviour());
+    if (classThis->hasUninitDefined())
     {
         newObj->hasUninit();
     }

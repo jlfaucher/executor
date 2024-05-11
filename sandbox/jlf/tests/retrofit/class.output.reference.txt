@@ -1,0 +1,136 @@
+Classes of The REXX Package:
+67 items
+ALARM                          : The Alarm class
+ALARMNOTIFICATION              : The AlarmNotification class
+ARGUTIL                        : The ArgUtil class
+ARRAY                          : The Array class
+BAG                            : The Bag class
+BAGMIXIN                       : The BagMixin class
+BUFFER                         : The Buffer class
+CASELESSCOLUMNCOMPARATOR       : The CaselessColumnComparator class
+CASELESSCOMPARATOR             : The CaselessComparator class
+CASELESSDESCENDINGCOMPARATOR   : The CaselessDescendingComparator class
+CIRCULARQUEUE                  : The CircularQueue class
+CLASS                          : The Class class
+COLLECTION                     : The Collection class
+COLUMNCOMPARATOR               : The ColumnComparator class
+COMPARABLE                     : The Comparable class
+COMPARATOR                     : The Comparator class
+DATETIME                       : The DateTime class
+DESCENDINGCOMPARATOR           : The DescendingComparator class
+DIRECTORY                      : The Directory class
+EVENTSEMAPHORE                 : The EventSemaphore class
+FILE                           : The File class
+IDENTITYTABLE                  : The IdentityTable class
+INPUTOUTPUTSTREAM              : The InputOutputStream class
+INPUTSTREAM                    : The InputStream class
+INVERTINGCOMPARATOR            : The InvertingComparator class
+LIST                           : The List class
+LOCALSERVER                    : The LocalServer class
+MANYITEMMIXIN                  : The ManyItemMixin class
+MAPCOLLECTION                  : The MapCollection class
+MESSAGE                        : The Message class
+MESSAGENOTIFICATION            : The MessageNotification class
+METHOD                         : The Method class
+MONITOR                        : The Monitor class
+MUTABLEBUFFER                  : The MutableBuffer class
+MUTEXSEMAPHORE                 : The MutexSemaphore class
+NUMERICCOMPARATOR              : The NumericComparator class
+OBJECT                         : The Object class
+ORDERABLE                      : The Orderable class
+ORDEREDCOLLECTION              : The OrderedCollection class
+OUTPUTSTREAM                   : The OutputStream class
+PACKAGE                        : The Package class
+POINTER                        : The Pointer class
+PROPERTIES                     : The Properties class
+QUEUE                          : The Queue class
+RELATION                       : The Relation class
+REXXCONTEXT                    : The RexxContext class
+REXXQUEUE                      : The RexxQueue class
+ROUTINE                        : The Routine class
+SET                            : The Set class
+SETCOLLECTION                  : The SetCollection class
+SETMIXIN                       : The SetMixin class
+SINGLETON                      : The Singleton class
+STACKFRAME                     : The StackFrame class
+STEM                           : The Stem class
+STREAM                         : The Stream class
+STREAMSUPPLIER                 : The StreamSupplier class
+STRING                         : The String class
+STRINGTABLE                    : The StringTable class
+SUPPLIER                       : The Supplier class
+SUPPLIERMIXIN                  : The SupplierMixin class
+TABLE                          : The Table class
+TICKER                         : The TICKER class
+TIMESPAN                       : The TimeSpan class
+TRACEOBJECT                    : The TraceObject class
+VALIDATE                       : The Validate class
+VARIABLEREFERENCE              : The VariableReference class
+WEAKREFERENCE                  : The WeakReference class
+
+Object ~package = REXX
+Object ~baseClass = Object
+Object ~metaClass = Class
+Object ~isAbstract = 0
+Object ~isMetaClass = 0
+Object ~queryMixinClass = 0
+
+Class ~package = REXX
+Class ~baseClass = Class
+Class ~metaClass = Class
+Class ~isAbstract = 0
+Class ~isMetaClass = 1
+Class ~queryMixinClass = 0
+
+Collection ~package = REXX
+Collection ~baseClass = Object
+Collection ~metaClass = Class
+Collection ~isAbstract = 0
+Collection ~isMetaClass = 0
+Collection ~queryMixinClass = 1
+
+Monitor ~package = REXX
+Monitor ~baseClass = Monitor
+Monitor ~metaClass = Class
+Monitor ~isAbstract = 0
+Monitor ~isMetaClass = 0
+Monitor ~queryMixinClass = 0
+
+Stream ~package = REXX
+Stream ~baseClass = Object
+Stream ~metaClass = Class
+Stream ~isAbstract = 0
+Stream ~isMetaClass = 0
+Stream ~queryMixinClass = 1
+
+abstractClass ~package = class.rex
+abstractClass ~baseClass = abstractClass
+abstractClass ~metaClass = Class
+abstractClass ~isAbstract = 1
+abstractClass ~isMetaClass = 0
+abstractClass ~queryMixinClass = 0
+
+concreteClass ~package = class.rex
+concreteClass ~baseClass = concreteClass
+concreteClass ~metaClass = Class
+concreteClass ~isAbstract = 0
+concreteClass ~isMetaClass = 0
+concreteClass ~queryMixinClass = 0
+
+mixinclass ~package = class.rex
+mixinclass ~baseClass = Object
+mixinclass ~metaClass = Class
+mixinclass ~isAbstract = 0
+mixinclass ~isMetaClass = 0
+mixinclass ~queryMixinClass = 1
+
+public class attribute
+public class method
+abstractClassNewError
+    Error 98 running class.rex line 48: Execution error.
+    Error 98.989: Class abstractClass is ABSTRACT and cannot be directly created.
+public class attribute
+public class method
+public instance attribute
+public instance method
+

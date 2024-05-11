@@ -57,6 +57,13 @@ StackFrameClass *RexxActivationFrame::createStackFrame()
     return activation->createStackFrame();
 }
 
+#if 0
+PackageClass *RexxActivationFrame::getPackage() // ooRexx5
+{
+    return activation->getEffectivePackageObject();
+}
+#endif
+
 RexxSource *RexxActivationFrame::getSource()
 {
     return activation->getEffectiveSourceObject();
@@ -76,6 +83,13 @@ StackFrameClass *NativeActivationFrame::createStackFrame()
 {
     return activation->createStackFrame();
 }
+
+#if 0
+PackageClass *NativeActivationFrame::getPackage() // ooRexx5
+{
+    return activation->getPackageObject();
+}
+#endif
 
 RexxSource *NativeActivationFrame::getSource()
 {
@@ -105,6 +119,13 @@ StackFrameClass *InternalActivationFrame::createStackFrame()
     ProtectedObject presult;
     return new (presult) StackFrameClass(FRAME_METHOD, name, frameMethod, target, new_array(count, argPtr), message, SIZE_MAX);
 }
+
+#if 0
+PackageClass *InternalActivationFrame::getPackage() // ooRexx5
+{
+    return OREF_NULL;
+}
+#endif
 
 RexxSource *InternalActivationFrame::getSource()
 {

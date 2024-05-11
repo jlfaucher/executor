@@ -66,6 +66,7 @@
   class BaseExecutable;
   class RexxActivity;
   class RexxText;
+  class PackageClass;
 
 
   enum
@@ -121,6 +122,8 @@ public:
     inline void setPrimitive() { flags &= ~IsNonPrimitive; }
     inline bool isNonPrimitive() { return (flags & IsNonPrimitive) != 0; }
     inline bool isPrimitive() { return (flags & IsNonPrimitive) == 0; }
+    inline void setInRexxPackage() { flags |= IsInRexxPackage; }
+    inline bool isInRexxPackage() { return (flags & IsInRexxPackage) != 0; }
     inline void initHeader(size_t l, size_t mark)
     {
         objectSize = l;
@@ -140,7 +143,8 @@ protected:
         ProxiedObject    =  0x0004,    // This requires a proxy
         ProxyObject      =  0x0008,    // This object is a PROXY(String) Obj
         IsNonPrimitive   =  0x0010,    // use for flattened objects to indicated behaviour status
-        NoRefBit         =  0x0020     // location of No References Bit.
+        NoRefBit         =  0x0020,    // location of No References Bit.
+        IsInRexxPackage  =  0x0040     // Object saved in rexx.img
 
     };
 
@@ -257,6 +261,8 @@ inline uintptr_t HASHOREF(RexxVirtualBase *r) { return ((uintptr_t)r) >> OREFSHI
      inline void   setNonPrimitive() { header.setNonPrimitive(); }
      inline bool   isPrimitive() { return header.isPrimitive(); }
      inline bool   isNonPrimitive() { return header.isNonPrimitive(); }
+     inline void   setInRexxPackage() { header.setInRexxPackage(); }
+     inline bool   isInRexxPackage() { return header.isInRexxPackage(); }
      inline bool   isObjectMarked(size_t markword) { return header.isObjectMarked(markword); }
      inline void   setObjectMark(size_t markword) { header.setObjectMark(markword); }
      inline void   clearObjectMark() { header.clearObjectMark(); }
@@ -434,6 +440,7 @@ class RexxObject : public RexxInternalObject {
      bool         isEqual(RexxObject *);
      bool         isInstanceOf(RexxClass *);
      RexxObject  *isInstanceOfRexx(RexxClass *);
+     RexxObject  *isNilRexx();
      RexxMethod   *instanceMethod(RexxString *);
      RexxSupplier *instanceMethods(RexxClass *);
      RexxMethod   *instanceMethodRexx(RexxString *);
@@ -460,8 +467,9 @@ class RexxObject : public RexxInternalObject {
      bool         messageSend(RexxString *, RexxObject **, size_t, size_t, ProtectedObject &, bool processUnknown=true, bool dynamicTarget=true);
      bool         messageSend(RexxString *, RexxObject **, size_t, size_t, RexxObject *, ProtectedObject &, bool processUnknown=true, bool dynamicTarget=true);
 
-     RexxMethod  *checkPrivate(RexxMethod *);
-     void         processUnknown(RexxString *, RexxObject **, size_t, size_t, ProtectedObject &);
+     RexxMethod  *checkPrivate(RexxMethod *, RexxErrorCodes &);
+     RexxMethod  *checkPackage(RexxMethod *, RexxErrorCodes &); // ooRexx5
+     void         processUnknown(RexxErrorCodes, RexxString *, RexxObject **, size_t, size_t, ProtectedObject &);
      void         processProtectedMethod(RexxString *, RexxMethod *, RexxObject **, size_t, size_t, ProtectedObject &);
 
      // This method should be named "sendWith"
@@ -630,6 +638,8 @@ public:
     virtual bool isStackBase() { return false; }
     virtual bool isRexxContext() { return false; }
     virtual RexxObject *getReceiver() { return OREF_NULL; }
+    virtual PackageClass *getPackage() { return OREF_NULL; } // ooRexx5
+
     inline void setPreviousStackFrame(RexxActivationBase *p) { previous = p; }
     inline RexxActivationBase *getPreviousStackFrame() { return previous; }
     inline BaseExecutable *getExecutable() { return executable; }

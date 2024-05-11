@@ -2738,6 +2738,8 @@ void *RexxArray::operator new(size_t newSize, size_t size, size_t maxSize, RexxC
 /* Function:  Low level array creation                                        */
 /******************************************************************************/
 {
+    arrayClass->checkAbstract(); // ooRexx5
+
     size_t bytes;
     RexxArray *newArray;
     /* is hintsize lower than minimal    */

@@ -42,16 +42,34 @@
 /*                                                                            */
 /******************************************************************************/
 
-use arg kernel_methods
+use arg kernel_methods, rexxPackage
+-- ooRexx5
+-- IMPORTANT NOTE: All classes contained in this package must be added to the
+-- rexxPackage using either addClass or addPublicClass. In general, all that is
+-- needed is to ensure the PUBLIC keyword is specified on the ::CLASS directive
+-- for any classes intended to be visible at the user level.
 
 say ('creating the system specific methods ...')
+
                                        /* name the common objects           */
 .environment~objectname = "The Environment Directory"
 .kernel~objectname = "The kernel directory"
 .nil~objectname = "The NIL object"
+-- ooRexx5
+rexxPackage~objectname = "The REXX Package"
+
+-- add all of the public classes to .environment and to the
+-- REXX package
+publicClasses = .context~package~publicClasses
+
+do name over publicClasses
+   class = publicClasses[name]
+   .environment~put(class, name)
+   rexxPackage~addPublicClass(name, class)
+end
 
 -- Add serialization support
-call "Serializable.orx"
+call "Serializable.orx" rexxPackage
 
 /*
 -- add object class & instance method for test
@@ -96,22 +114,6 @@ supplier_methods~put(.methods~supplier_supplier, 'SUPPLIER')
 
 .supplier~!define_methods(supplier_methods)
 .supplier~!rexxdefined
-
-.environment~setentry('COLLECTION', .collection)
-.environment~setentry('ORDEREDCOLLECTION', .orderedcollection)
-.environment~setentry('MAPCOLLECTION', .mapcollection)
-.environment~setentry('SETCOLLECTION', .setcollection)
-
-.environment~setentry('COMPARABLE', .comparable)
-.environment~setentry('COMPARATOR', .comparator)
-.environment~setentry('DESCENDINGCOMPARATOR', .descendingcomparator)
-.environment~setentry('CASELESSCOMPARATOR', .caselesscomparator)
-.environment~setentry('CASELESSDESCENDINGCOMPARATOR', .caselessdescendingcomparator)
-.environment~setentry('COLUMNCOMPARATOR', .columncomparator)
-.environment~setentry('CASELESSCOLUMNCOMPARATOR', .caselesscolumncomparator)
-.environment~setentry('INVERTINGCOMPARATOR', .invertingcomparator)
-.environment~setentry('NUMERICCOMPARATOR', .numericcomparator)
-.environment~setentry('ORDERABLE', .orderable)
 
 say ('creating .!server and defining its instance methods')
 server = .object~subclass('server')
@@ -181,27 +183,13 @@ queue_methods~put(.methods~queue_ro, "READOBJECT")
 .TimeSpan~!REXXDefined
 .ArgUtil~!REXXDefined
 
-.environment~setentry('MONITOR', .Monitor)
-.environment~setentry('SET', .Set)
-.environment~setentry('BAG', .Bag)
-.environment~setentry('CIRCULARQUEUE', .CircularQueue)
-.environment~setentry('PROPERTIES', .Properties)
-.environment~setentry('ALARM', .Alarm)
-.environment~setentry('DATETIME', .DateTime)
-.environment~setentry('TIMESPAN', .TimeSpan)
-.environment~setentry('ARGUTIL', .ArgUtil)
-.environment~setentry('VALIDATE', .Validate)
+call 'StreamClasses.orx' rexxPackage
 
-.environment~setEntry('SERIALIZABLE', .Serializable)
-.environment~setEntry('SERIALIZEFUNCTIONS', .SerializeFunctions)
+say 'Stream methods setup' rexxPackage
 
-call 'StreamClasses.orx'
+call 'Parser.orx' rexxPackage
 
-say 'Stream methods setup'
-
-call 'Parser.orx'
-
-call 'PlatformObjects.orx'                   -- now load platform-specific builtin classes
+call 'PlatformObjects.orx' rexxPackage       -- now load platform-specific builtin classes
 
 say ('Base objects created')
 
@@ -637,7 +625,7 @@ nomethod:
 -- tagging classes for Collection class types
 -- methods defined for all collection classes, abstract methods must be implemented
 -- by subclasses
-::CLASS 'Collection' MIXINCLASS Object
+::CLASS 'Collection' MIXINCLASS Object Public
 ::METHOD 'at'           ABSTRACT
 ::METHOD '[]'           ABSTRACT
 ::METHOD 'put'          ABSTRACT
@@ -882,7 +870,7 @@ nomethod:
 
 
 -- methods defined for OrderedCollection classes
-::CLASS 'OrderedCollection' MIXINCLASS Collection
+::CLASS 'OrderedCollection' MIXINCLASS Collection Public
 -- abstract methods for ordered insertion/deletion
 ::method 'insert' ABSTRACT
 ::method 'delete' ABSTRACT
@@ -1111,7 +1099,7 @@ nomethod:
 /* MAP COLLECTION                                                             */
 /******************************************************************************/
 
-::CLASS 'MapCollection' MIXINCLASS Collection
+::CLASS 'MapCollection' MIXINCLASS Collection Public
 
 /*****************************************/
 /* PUTALL        method                  */
@@ -1141,7 +1129,7 @@ nomethod:
 /* SET COLLECTION                                                             */
 /******************************************************************************/
 
-::CLASS 'SetCollection' MIXINCLASS Collection INHERIT Serializable
+::CLASS 'SetCollection' Public MIXINCLASS Collection INHERIT Serializable
 ::METHOD writeObject
     use strict arg handler
     handler~writeNumber(items)
@@ -1163,30 +1151,30 @@ nomethod:
 /******************************************************************************/
 
 -- sort comparison classes.
-::CLASS 'Comparable' MIXINCLASS Object
+::CLASS 'Comparable' MIXINCLASS Object Public
 ::METHOD compareTo ABSTRACT
 
-::CLASS 'Comparator' MIXINCLASS Object
+::CLASS 'Comparator' MIXINCLASS Object Public
 ::METHOD compare
 use strict arg left, right
 return left~compareTo(right)
 
-::CLASS 'DescendingComparator' MIXINCLASS Comparator
+::CLASS 'DescendingComparator' MIXINCLASS Comparator Public
 ::METHOD compare
 use strict arg left, right
 return -left~compareTo(right)
 
-::CLASS 'CaselessComparator' MIXINCLASS Comparator
+::CLASS 'CaselessComparator' MIXINCLASS Comparator Public
 ::METHOD compare
 use strict arg left, right
 return left~caselessCompareTo(right)
 
-::CLASS 'CaselessDescendingComparator' MIXINCLASS Comparator
+::CLASS 'CaselessDescendingComparator' MIXINCLASS Comparator Public
 ::METHOD compare
 use strict arg left, right
 return -left~caselessCompareTo(right)
 
-::CLASS 'ColumnComparator' MIXINCLASS Comparator
+::CLASS 'ColumnComparator' MIXINCLASS Comparator Public
 ::METHOD init
 expose start length
 use strict arg start, length
@@ -1197,7 +1185,7 @@ expose start length
 use strict arg left, right
 return left~compareTo(right, start, length)
 
-::CLASS 'InvertingComparator' MIXINCLASS Comparator
+::CLASS 'InvertingComparator' MIXINCLASS Comparator Public
 ::METHOD init
 expose comparator
 use strict arg comparator
@@ -1210,7 +1198,7 @@ return -comparator~compare(left, right)
 
 -- string sorting comparator to order items
 -- based on numeric comparison rules
-::CLASS 'NumericComparator' MIXINCLASS Comparator
+::CLASS 'NumericComparator' MIXINCLASS Comparator Public
 ::METHOD init
 expose precision
 use strict arg precision = (digits())
@@ -1228,7 +1216,7 @@ numeric digits precision
 -- value for an ordering comparison.
 return sign(left - right)
 
-::CLASS 'CaselessColumnComparator' MIXINCLASS Comparator
+::CLASS 'CaselessColumnComparator' MIXINCLASS Comparator Public
 ::METHOD init
 expose start length
 use strict arg start, length
@@ -1250,7 +1238,7 @@ return left~caselessCompareTo(right, start, length)
  /* are processed by the monitor unknown method.                           */
  /**************************************************************************/
 
-::CLASS 'Monitor'
+::CLASS 'Monitor' Public
 
 ::METHOD init
  /**************************************************************************/
@@ -1323,7 +1311,7 @@ return left~caselessCompareTo(right, start, length)
 /*    S E T                   C L A S S    */
 /* *************************************** */
 
-::CLASS 'Set' SUBCLASS table INHERIT setcollection
+::CLASS 'Set' Public SUBCLASS table INHERIT setcollection
 /*****************************************/
 /* OF         method                     */
 /*****************************************/
@@ -1490,7 +1478,7 @@ nomethod:                              -- unknown method sent
 /*    B A G                   C L A S S    */
 /* *************************************** */
 
-::CLASS 'Bag' SUBCLASS relation INHERIT setcollection
+::CLASS 'Bag' Public SUBCLASS relation INHERIT setcollection
 ::METHOD of CLASS
 
 new = self~new                         /* create a new bag                  */
@@ -1689,7 +1677,7 @@ nomethod:
  /* time. A pending alram request can also be cancelled.                   */
  /**************************************************************************/
 
-::CLASS 'Alarm' SUBCLASS object
+::CLASS 'Alarm' SUBCLASS object Public
 
 ::METHOD init
  /**************************************************************************/

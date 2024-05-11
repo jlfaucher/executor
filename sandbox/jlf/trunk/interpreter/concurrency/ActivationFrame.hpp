@@ -70,6 +70,9 @@ public:
     virtual RexxMethod *method() = 0;
     virtual StackFrameClass *createStackFrame() = 0;
     virtual RexxSource *getSource() = 0;
+#if 0
+    virtual PackageClass *getPackage() = 0; // ooRexx5
+#endif
 
 protected:
     ActivationFrame *next;             // the next activation frame in the chain
@@ -82,10 +85,13 @@ class RexxActivationFrame : public ActivationFrame
 public:
     inline RexxActivationFrame(RexxActivity *a, RexxActivation *context) : ActivationFrame(a), activation(context) { }
 
-    virtual RexxString *messageName();
-    virtual RexxMethod *method();
-    virtual StackFrameClass *createStackFrame();
-    virtual RexxSource *getSource();
+    virtual RexxString *messageName() override;
+    virtual RexxMethod *method() override;
+    virtual StackFrameClass *createStackFrame() override;
+    virtual RexxSource *getSource() override;
+#if 0
+    PackageClass *getPackage() override; // ooRexx5
+#endif
 
 protected:
     RexxActivation *activation;        // the activation backing this frame
@@ -97,10 +103,13 @@ class NativeActivationFrame : public ActivationFrame
 public:
     inline NativeActivationFrame(RexxActivity *a, RexxNativeActivation *context) : ActivationFrame(a), activation(context) { }
 
-    virtual RexxString *messageName();
-    virtual RexxMethod *method();
-    virtual StackFrameClass *createStackFrame();
-    virtual RexxSource *getSource();
+    virtual RexxString *messageName() override;
+    virtual RexxMethod *method() override;
+    virtual StackFrameClass *createStackFrame() override;
+    virtual RexxSource *getSource() override;
+#if 0
+    PackageClass *getPackage() override; // ooRexx5
+#endif
 
 protected:
     RexxNativeActivation *activation;        // the activation backing this frame
@@ -113,10 +122,13 @@ public:
     inline InternalActivationFrame(RexxActivity *a, RexxString *n, RexxObject *t, RexxMethod *m, RexxObject **args, size_t c, size_t nc)
         : ActivationFrame(a), name(n), target(t), frameMethod(m), argPtr(args), count(c), named_count(nc) { }
 
-    virtual RexxString *messageName();
-    virtual RexxMethod *method();
-    virtual StackFrameClass *createStackFrame();
-    virtual RexxSource *getSource();
+    virtual RexxString *messageName() override;
+    virtual RexxMethod *method() override;
+    virtual StackFrameClass *createStackFrame() override;
+    virtual RexxSource *getSource() override;
+#if 0
+    PackageClass *getPackage() override; // ooRexx5
+#endif
 
 protected:
     RexxString *name;                        // message name associated with the invocation
@@ -128,18 +140,22 @@ protected:
 };
 
 
+// named CompileActivationFrame in ooRexx5
 class ParseActivationFrame : public ActivationFrame
 {
 public:
     inline ParseActivationFrame(RexxActivity *a, RexxSource *s) : ActivationFrame(a), source(s) { }
 
-    virtual RexxString *messageName();
-    virtual RexxMethod *method();
-    virtual StackFrameClass *createStackFrame();
-    virtual RexxSource *getSource();
+    virtual RexxString *messageName() override;
+    virtual RexxMethod *method() override;
+    virtual StackFrameClass *createStackFrame() override;
+    virtual RexxSource *getSource() override;
+#if 0
+    PackageClass *getPackage() override; // ooRexx5
+#endif
 
 protected:
-    RexxSource *source;                      // the source object being parsed.
+    RexxSource *source;                      // the source object being parsed. // ooRexx5: LanguageParser *parser;
 };
 
 #endif

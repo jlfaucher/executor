@@ -286,12 +286,12 @@ inline void reportException(wholenumber_t error, const char *a1, RexxObject *a2,
     ActivityManager::currentActivity->reportAnException(error, a1, a2, a3, a4);
 }
 
-inline void reportNomethod(RexxString *message, RexxObject *receiver)
+inline void reportNomethod(RexxErrorCodes error, RexxString *message, RexxObject *receiver)
 {
     if (!ActivityManager::currentActivity->raiseCondition(OREF_NOMETHOD, OREF_NULL, message, receiver, OREF_NULL))
     {
                                            /* raise as a syntax error           */
-        reportException(Error_No_method_name, receiver, message);
+        reportException(error, receiver, message);
     }
 }
 

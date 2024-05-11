@@ -608,6 +608,13 @@ RoutineClass *RoutineClass::newRexx(
 /*            array                                                           */
 /******************************************************************************/
 {
+    // this method is defined on the object class, but this is actually attached
+    // to a class object instance.  Therefore, any use of the this pointer
+    // will be touching the wrong data.  Use the classThis pointer for calling
+    // any methods on this object from this method.
+    RexxClass *classThis = (RexxClass *)this;
+    classThis->checkAbstract(); // ooRexx5
+
     RexxObject *pgmname;                 /* method name                       */
     RexxObject *_source;                 /* Array or string object            */
     RexxObject *option = OREF_NULL;
@@ -657,8 +664,8 @@ RoutineClass *RoutineClass::newRexx(
     RoutineClass *newRoutine = newRoutineObject(nameString, _source, IntegerTwo, sourceContext, isBlock);
     ProtectedObject p(newRoutine);
     /* Give new object its behaviour     */
-    newRoutine->setBehaviour(((RexxClass *)this)->getInstanceBehaviour());
-    if (((RexxClass *)this)->hasUninitDefined())
+    newRoutine->setBehaviour(classThis->getInstanceBehaviour());
+    if (classThis->hasUninitDefined())
     {
         newRoutine->hasUninit();         /* Make sure everyone is notified.   */
     }
@@ -674,15 +681,22 @@ RoutineClass *RoutineClass::newFileRexx(
 /* Function:  Create a method from a fully resolved file name                 */
 /******************************************************************************/
 {
+    // this method is defined on the object class, but this is actually attached
+    // to a class object instance.  Therefore, any use of the this pointer
+    // will be touching the wrong data.  Use the classThis pointer for calling
+    // any methods on this object from this method.
+    RexxClass *classThis = (RexxClass *)this;
+    classThis->checkAbstract(); // ooRexx5
+
                                        /* get the method name as a string   */
   filename = stringArgument(filename, OREF_positional, ARG_ONE);
                                        /* finish up processing of this      */
   RoutineClass * newMethod = new RoutineClass(filename);
   ProtectedObject p2(newMethod);
                                        /* Give new object its behaviour     */
-  newMethod->setBehaviour(((RexxClass *)this)->getInstanceBehaviour());
+  newMethod->setBehaviour(classThis->getInstanceBehaviour());
   /* does object have an UNINT method  */
-   if (((RexxClass *)this)->hasUninitDefined())
+   if (classThis->hasUninitDefined())
    {
      newMethod->hasUninit();           /* Make sure everyone is notified.   */
    }

@@ -51,6 +51,7 @@
 #include "Token.hpp"
 #include "Clause.hpp"
 #include "SecurityManager.hpp"
+#include "MethodClass.hpp"
 
 class RexxInstruction;
 class RexxInstructionDo;
@@ -221,11 +222,11 @@ class RexxSource : public RexxInternalObject {
     void        optionsDirective();
     void        decodeExternalMethod(RexxString *methodName, RexxString *externalSpec, RexxString *&library, RexxString *&procedure);
     RexxMethod *createNativeMethod(RexxString *name, RexxString *library, RexxString *procedure);
-    void        createMethod(RexxString *name, bool classMethod, bool privateMethod, bool protectedMethod, bool guardedMethod);
-    void        createAttributeGetterMethod(RexxString *name, RexxVariableBase *retriever, bool classMethod, bool privateMethod, bool protectedMethod, bool guardedMethod);
-    void        createAttributeSetterMethod(RexxString *name, RexxVariableBase *retriever, bool classMethod, bool privateMethod, bool protectedMethod, bool guardedMethod);
+    void        createMethod(RexxString *name, bool classMethod, AccessFlag privateMethod, ProtectedFlag protectedMethod, GuardFlag guardedMethod, bool isAttribute);
+    void        createAttributeGetterMethod(RexxString *name, RexxVariableBase *retriever, bool classMethod, AccessFlag privateMethod, ProtectedFlag protectedMethod, GuardFlag guardedMethod);
+    void        createAttributeSetterMethod(RexxString *name, RexxVariableBase *retriever, bool classMethod, AccessFlag privateMethod, ProtectedFlag protectedMethod, GuardFlag guardedMethod);
     void        createConstantGetterMethod(RexxString *name, RexxObject *value);
-    void        createAbstractMethod(RexxString *name, bool classMethod, bool privateMethod, bool protectedMethod, bool guardedMethod);
+    void        createAbstractMethod(RexxString *name, bool classMethod, AccessFlag privateMethod, ProtectedFlag protectedMethod, GuardFlag guardedMethod, bool isAttribute);
     void        checkDuplicateMethod(RexxString *name, bool classMethod, int errorMsg);
     void        addMethod(RexxString *name, RexxMethod *method, bool classMethod);
     void        flushControl(RexxInstruction *);

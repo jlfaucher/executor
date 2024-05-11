@@ -57,7 +57,6 @@ P. PC..    'COPIPE'                             : 'String' 'Object' (pipe_extens
 P. P...    'COPIPEPROFILE'                      : 'String' 'Object' (pipe_extension.cls)
 P. P.G.    'COPY'                               : 'String' 'EncodedString' (text.cls)
 P. P.G.    'COUNTSTR2'                          : 'String' 'String' (rgf_util2_wrappers.rex)
-P. PCG.    'CR'                                 : 'String' 'String' (CoreClasses.orx)
 P. P.G.    'DELSTR2'                            : 'String' 'String' (rgf_util2_wrappers.rex)
 P. P.G.    'DELWORD2'                           : 'String' 'String' (rgf_util2_wrappers.rex)
 P. P.G.    'DEPTH'                              : 'String' 'Object' (array.cls)
@@ -145,8 +144,6 @@ P. P.G.    'ISNFC'                              : 'String' 'StringRexxTextInterf
 P. P.G.    'ISNFD'                              : 'String' 'StringRexxTextInterface' (text.cls)
 P. P.G.    'ISNFKC'                             : 'String' 'StringRexxTextInterface' (text.cls)
 P. P.G.    'ISNFKD'                             : 'String' 'StringRexxTextInterface' (text.cls)
-P. P.G.    'ISNIL'                              : 'String' 'Object' (object.cls)
-P. PCG.    'ISNIL'                              : 'String' 'Object' (object.cls)
 P. PCG.    'ISTEXTORBUFFERORSTRING'             : 'String' 'Object' (text.cls)
 P. P.G.    'ISTEXTORBUFFERORSTRING'             : 'String' 'EncodedString' (text.cls)
 P. P.G.    'ISTEXTORBUFFERORSTRING'             : 'String' 'Object' (text.cls)
@@ -171,8 +168,6 @@ P. P.G.    'NFC'                                : 'String' 'StringRexxTextInterf
 P. P.G.    'NFD'                                : 'String' 'StringRexxTextInterface' (text.cls)
 P. P.G.    'NFKC'                               : 'String' 'StringRexxTextInterface' (text.cls)
 P. P.G.    'NFKD'                               : 'String' 'StringRexxTextInterface' (text.cls)
-P. PCG.    'NL'                                 : 'String' 'String' (CoreClasses.orx)
-P. PCG.    'NULL'                               : 'String' 'String' (CoreClasses.orx)
 P. P.G.    'OVERLAY2'                           : 'String' 'String' (rgf_util2_wrappers.rex)
 P. P.G.    'PARSEWORDS2'                        : 'String' 'String' (rgf_util2_wrappers.rex)
 P. P...    'PARTIAL'                            : 'String' 'Doer' (doers.cls)
@@ -214,6 +209,7 @@ P. P.G.    'SETMETHOD1'                         : 'String' 'Object' (SETMETHOD1)
 P. P.G.    'SETUSERDATA'                        : 'String' 'Object' (object.cls)
 P. PCG.    'SETUSERDATA'                        : 'String' 'Object' (object.cls)
 P. P.G.    'SHAPE'                              : 'String' 'Object' (array.cls)
+P. P.G.    'SHAPETOPRETTYSTRING'                : 'String' 'Object' (array.cls)
 P. P.G.    'SHAPETOSTRING'                      : 'String' 'Object' (array.cls)
 P. P.G.    'SINGULARPLURAL'                     : 'String' 'StringHelpers' (string.cls)
 P. P.G.    'SINGULARPLURALCOUNT'                : 'String' 'StringHelpers' (string.cls)
@@ -225,7 +221,6 @@ P. P.G.    'STARTSWITH'                         : 'String' 'StringCompatibilityW
 P. P.G.    'SUBCHAR2'                           : 'String' 'String' (rgf_util2_wrappers.rex)
 P. P.G.    'SUBSTR2'                            : 'String' 'String' (rgf_util2_wrappers.rex)
 P. P.G.    'SUBWORD2'                           : 'String' 'String' (rgf_util2_wrappers.rex)
-P. PCG.    'TAB'                                : 'String' 'String' (CoreClasses.orx)
 P. P...    'TAKEC'                              : 'String' 'TextOrBufferOrStringFilter' (functionals.cls)
 P. P...    'TAKECI'                             : 'String' 'TextOrBufferOrStringFilter' (functionals.cls)
 P. P...    'TAKEFIRSTC'                         : 'String' 'TextOrBufferOrStringFilter' (functionals.cls)
@@ -294,8 +289,8 @@ P. P.G.    'WTF8'                               : 'String' 'StringRexxTextInterf
 P. PCG.    'XDIGIT'                             : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
 P. P.G.    '[]'                                 : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
 P. P...    '~()'                                : 'String' 'Doer' (doers.cls)
-[Info] [1] Class 'String' has 447 methods
-[Info] 274 lines displayed
+[Info] [1] Class 'String' has 448 methods
+[Info] 269 lines displayed
 
 /*
 Blocks

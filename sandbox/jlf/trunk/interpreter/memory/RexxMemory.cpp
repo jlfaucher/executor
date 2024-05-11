@@ -103,6 +103,7 @@ RexxDirectory *RexxMemory::functionsDir = OREF_NULL;      // statically defined 
 RexxDirectory *RexxMemory::commonRetrievers = OREF_NULL;
 RexxDirectory *RexxMemory::kernel = OREF_NULL;
 RexxDirectory *RexxMemory::system = OREF_NULL;
+PackageClass *RexxMemory::rexxPackage = OREF_NULL; // ooRexx5
 
 // locks for the memory process access
 SysMutex RexxMemory::flattenMutex("RexxMemory::flattenMutex");
@@ -925,6 +926,7 @@ void RexxMemory::restoreImage()
     TheNullPointer   = (RexxPointer *)saveArray->get(saveArray_NULLPOINTER);
     TheClassClass  = (RexxClass *)saveArray->get(saveArray_CLASS);
     TheCommonRetrievers = (RexxDirectory *)saveArray->get(saveArray_COMMON_RETRIEVERS);
+    TheRexxPackage = (PackageClass *)saveArray->get(saveArray_REXX_PACKAGE); // ooRexx5
 
     /* restore the global strings        */
     memoryObject.restoreStrings((RexxArray *)saveArray->get(saveArray_NAME_STRINGS));
@@ -953,6 +955,7 @@ void RexxMemory::live(size_t liveMark)
   memory_mark(this->variableCache);
   memory_mark(this->markTable);
   memory_mark(globalStrings);
+  memory_mark(rexxPackage);
   // now call the various subsystem managers to mark their references
   Interpreter::live(liveMark);
   SystemInterpreter::live(liveMark);
@@ -983,6 +986,7 @@ void RexxMemory::liveGeneral(int reason)
   memory_mark_general(this->variableCache);
   memory_mark_general(this->markTable);
   memory_mark_general(globalStrings);
+  memory_mark_general(rexxPackage);
   // now call the various subsystem managers to mark their references
   Interpreter::liveGeneral(reason);
   SystemInterpreter::liveGeneral(reason);
@@ -1747,7 +1751,8 @@ void RexxMemory::saveImage(const char *imageTarget)
     saveArray->put((RexxObject *)TheSystem,       saveArray_SYSTEM);
     saveArray->put((RexxObject *)TheFunctionsDirectory,  saveArray_FUNCTIONS);
     saveArray->put((RexxObject *)TheCommonRetrievers,    saveArray_COMMON_RETRIEVERS);
-    saveArray->put((RexxObject *)saveStrings(), saveArray_NAME_STRINGS);
+    saveArray->put((RexxObject *)saveStrings(),    saveArray_NAME_STRINGS);
+    saveArray->put((RexxObject *)TheRexxPackage,   saveArray_REXX_PACKAGE); // ooRexx5
 
     /* create the behaviour array        */
     primitive_behaviours= (RexxArray *)new_array(T_Last_Exported_Class + 1);
@@ -1788,8 +1793,21 @@ void RexxMemory::saveImage(const char *imageTarget)
         /* so point to the object in the     */
         /*image.                             */
         /* the buffer copy                   */
+
+#if 0 // jlf: has no effect on current tests, useless?
+      // Initially, I wanted to avoid impacting some 'liveGeneral' methods.
+      // But that didn't work. For example, the RexxClass class was not marked.
+
+        // The 'copyObject' variable name below is misleading.
+        // copyObject is the behaviour of the object's copy, NOT the object's copy
+        // [later] hum, not sure... strange manipulations are done with the behaviour
+        // and I don't understand them, for the moment.
+        ((RexxObject *)(image_buffer))->setInRexxPackage(); // Mark the object's copy as belonging to TheRexxPackage
+#endif
+
         RexxObject *copyObject = (RexxObject *)(image_buffer+(uintptr_t)markObject->behaviour);
 
+        // Some 'liveGeneral' methods will mark copyObject as belonging to TheRexxPackage
         copyObject->liveGeneral(SAVINGIMAGE); /* mark other referenced objs        */
         /* non-primitive behaviour?          */
         if (copyObject->isNonPrimitive())

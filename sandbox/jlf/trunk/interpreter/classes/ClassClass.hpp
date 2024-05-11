@@ -71,6 +71,8 @@
    RexxObject * notEqual(RexxObject *);
    RexxObject * setRexxDefined();
    RexxInteger *queryMixinClass();
+   RexxObject  *isMetaClassRexx(); // ooRexx5
+   RexxObject  *isAbstractRexx(); // ooRexx5
    RexxString  *getId();
    RexxClass   *getBaseClass();
    RexxClass   *getMetaClass();
@@ -102,18 +104,24 @@
    RexxObject *inherit(RexxClass *, RexxClass *);
    RexxObject *uninherit(RexxClass *);
    RexxObject *enhanced(RexxObject **, size_t, size_t);
-   RexxClass  *mixinclass(RexxString *, RexxClass *, RexxTable *);
-   RexxClass  *subclass(RexxString *, RexxClass *, RexxTable *);
+   RexxClass  *mixinclass(PackageClass *, RexxString *, RexxClass *, RexxTable *);
+   RexxClass  *subclass(PackageClass *, RexxString *, RexxClass *, RexxTable *);
+   RexxClass  *mixinClassRexx(RexxString *, RexxClass *, RexxObject *); // ooRexx5 because the C++ mixinclass method takes a new argument 'package'
+   RexxClass  *subclassRexx(RexxString *, RexxClass *, RexxObject *); // ooRexx5 because the C++ subclass method takes a new argument 'package'
    RexxClass  *newRexx(RexxObject **args, size_t argCount, size_t named_argCount);
    void        setMetaClass(RexxClass *);
    bool        isCompatibleWith(RexxClass *other);
    RexxObject *isSubclassOf(RexxClass *other);
    RexxString  *defaultNameRexx();
+   void        setPackage(PackageClass *s); // ooRexx5
+   PackageClass *getPackage(); // ooRexx5
+   void        completeNewObject(RexxObject *obj, RexxObject **initArgs = OREF_NULL, size_t argCount = 0); // ooRexx5
 
 
    inline bool         isRexxDefined() { return (classFlags & REXX_DEFINED) != 0; };
    inline bool         isMixinClass()  { return (classFlags & MIXIN) != 0; };
    inline bool         isMetaClass() { return (classFlags & META_CLASS) != 0; };
+   inline bool         isAbstract() { return (classFlags & ABSTRACT) != 0; } // ooRexx5
    inline bool         hasUninitDefined()   { return (classFlags & HAS_UNINIT) != 0; };
    inline void         setHasUninitDefined()   { classFlags |= HAS_UNINIT; };
    inline void         clearHasUninitDefined()   { classFlags &= ~HAS_UNINIT; };
@@ -126,8 +134,12 @@
    inline void         setNonPrimitive() { classFlags &= ~PRIMITIVE_CLASS; };
    inline RexxBehaviour *getInstanceBehaviour() {return this->instanceBehaviour;};
    inline void         setMetaClass() { classFlags |= META_CLASS; }
+   inline void         setAbstract() { classFlags |= ABSTRACT; } // ooRexx5
+   inline void         clearAbstract() { classFlags &= ~ABSTRACT; } // ooRex5
           void         addSubClass(RexxClass *);
           void         removeSubclass(RexxClass *c);
+          void         checkAbstract(); // ooRexx5
+          void         makeAbstract(); // ooRexx5
 
    static void processNewArgs(RexxObject **, size_t, RexxObject ***, size_t *, size_t, RexxObject **, RexxObject **);
 
@@ -143,7 +155,8 @@
         HAS_UNINIT        = 0x00000008,   // this class has an uninit method
         META_CLASS        = 0x00000010,   // this class is a meta class
         PRIMITIVE_CLASS   = 0x00000020,   // this is a primitive class
-        PARENT_HAS_UNINIT = 0x00000040
+        PARENT_HAS_UNINIT = 0x00000040,
+        ABSTRACT          = 0x00000080    // the class is abstract
      };
 
                                         /* Subclassable and subclassed       */
@@ -170,5 +183,6 @@
      uint32_t       classFlags;         /* top of this header file           */
 
      RexxList      *subClasses;         // our list of weak referenced subclasses
+     PackageClass  *package;            // source we're defined in (if any)
  };
  #endif

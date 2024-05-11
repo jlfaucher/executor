@@ -250,10 +250,18 @@ RexxObject  *RexxSupplierClass::newRexx(
 /* Function:  Public REXX supplier new method                               */
 /****************************************************************************/
 {
+    // this method is defined on the object class, but this is actually attached
+    // to a class object instance.  Therefore, any use of the this pointer
+    // will be touching the wrong data.  Use the classThis pointer for calling
+    // any methods on this object from this method.
+    RexxClass *classThis = (RexxClass *)this;
+    classThis->checkAbstract(); // ooRexx5
+
     RexxObject *newObj = new RexxSupplier();
     ProtectedObject p(newObj);
-    newObj->setBehaviour(this->getInstanceBehaviour());
-    if (this->hasUninitDefined())
+    // jlf: I replaced this by classThis. ok?
+    newObj->setBehaviour(classThis->getInstanceBehaviour());
+    if (classThis->hasUninitDefined())
     {
         newObj->hasUninit();
     }

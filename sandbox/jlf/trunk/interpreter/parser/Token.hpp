@@ -298,6 +298,7 @@ typedef int TokenClass;
 #define SUBDIRECTIVE_NOCOMMANDS  2523
 #define SUBDIRECTIVE_MACROSPACE  2524
 #define SUBDIRECTIVE_NOMACROSPACE 2525
+#define SUBDIRECTIVE_PACKAGE     2526
 
 /* condition keywords */
 #define IS_CONDITION         2600 // refined token subclass

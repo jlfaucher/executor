@@ -1,18 +1,6 @@
 -- Object can't inherit from a mixinclass (would raise "cannot inherit from itself")
 ::extension Object
 
-------------------------------
--- Compatibility with ooRexx 5
-------------------------------
-
-::method isNil class
-    return .nil == self
-
-
-::method isNil
-    return .nil == self
-
-
 ------------
 -- User data
 ------------

@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2009 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2019 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
 /* distribution. A copy is also available at the following address:           */
-/* http://www.oorexx.org/license.html                          */
+/* https://www.oorexx.org/license.html                                        */
 /*                                                                            */
 /* Redistribution and use in source and binary forms, with or                 */
 /* without modification, are permitted provided that the following            */
@@ -37,74 +37,135 @@
 /*----------------------------------------------------------------------------*/
 /******************************************************************************/
 /*                                                                            */
-/* Primitive Kernel Package class definitions                                 */
+/* Handy format-portable template class for bit sets                          */
 /*                                                                            */
 /******************************************************************************/
-#ifndef Included_PackageClass
-#define Included_PackageClass
 
-class RexxSource;
+#ifndef BitSet_Included
+#define BitSet_Included
 
-class PackageClass : public RexxObject
-{
-public:
-    void *operator new(size_t);
-    inline void *operator new(size_t size, void *ptr) { return ptr; };
-    PackageClass(RexxSource *source);
-    inline PackageClass(RESTORETYPE restoreType) { ; };
+/**
+ * This is a replacement for the std::bitset class that is more
+ * portable. For classes that are saved via rexxc compilation
+ * that use FlagSets, the different compiler implementations of
+ * the bitset class so not interoperate well. This ensures we
+ * have a single data format for saved bitsets across all of the
+ * interpreters.
+ *
+ * This is also simpler than the std bitset, limited to just 32
+ * bits in the set and only implementing the operations required
+ * by the interpreter.
+ */
+template<size_t TMaxBits> class BitSet
+{   // store fixed-length sequence of Boolean elements
+ public:
 
-    void live(size_t);
-    void liveGeneral(int reason);
-    void flatten(RexxEnvelope*);
+     // default constructor...uses all false values
+     BitSet() : bits(0) { }
 
-    static void createInstance();
-    static RexxClass *classInstance;
+     BitSet& set()
+     {
+         bits = ~((uint32_t)0);
+         return (*this);
+     }
 
-    RexxString *getName();
-    RexxArray *getSource();
-    RexxString *getSourceLine(size_t);
-    RexxInteger *getSourceSize();
-    RexxString *getSourceLineRexx(RexxObject *);
-    RexxObject  *setSecurityManager(RexxObject *);
+     inline BitSet& set(size_t pos, bool val = true)
+     {
+         // belt and braces, don't allow beyond the specified number of bits
+         if (pos <= TMaxBits)
+         {
+             if (val)
+             {
+                 bits |= (uint32_t)1 << pos;
+             }
+             else
+             {
+                 bits &= ~((uint32_t)1 << pos);
+             }
+         }
 
-    RexxDirectory *getClasses();
-    RexxDirectory *getPublicClasses();
-    RexxDirectory *getImportedClasses();
-    RexxDirectory *getMethods();
-    RexxDirectory *getRoutines();
-    RexxDirectory *getPublicRoutines();
-    RexxDirectory *getImportedRoutines();
-    RexxArray     *getImportedPackages();
-    PackageClass  *loadPackage(RexxString *name, RexxArray *source);
-    RexxObject    *addPackage(PackageClass *package);
-    RexxClass     *findClass(RexxString *name);
-    RexxClass     *findClassRexx(RexxString *name);
-    RoutineClass  *findRoutine(RexxString *name);
-    RoutineClass  *findRoutineRexx(RexxString *name);
-    RexxObject    *findProgramRexx(RexxObject *name);
-    RexxObject    *addRoutine(RexxString *name, RoutineClass *routine);
-    RexxObject    *addPublicRoutine(RexxString *name, RoutineClass *routine);
-    RexxObject    *addClass(RexxString *name, RexxClass *clazz);
-    RexxObject    *addPublicClass(RexxString *name, RexxClass *clazz);
-    RexxObject    *loadLibrary(RexxString *name);
-    RexxObject    *digits();
-    RexxObject    *fuzz();
-    RexxObject    *form();
-    RexxObject    *trace();
+         return (*this);
+     }
 
-    PackageClass  *newRexx(RexxObject **init_args, size_t argCount, size_t named_argCount);
+     BitSet& reset()
+     {
+         bits = 0;
+         return (*this);
+     }
 
-    inline RexxSource *getSourceObject() { return source; }
-    inline bool isRexxPackage() { return this == TheRexxPackage; } // ooRexx5
+     inline BitSet& reset(size_t pos)
+     {
+         return set(pos, false);
+     }
 
-protected:
-    RexxSource *source;             // the wrappered source object
+     BitSet& flip()
+     {
+         // flip the bits individually so we don't turn on any bits out of range
+         for (size_t i = 0; i < TMaxBits; i++)
+         {
+             flip(i);
+         }
+         return (*this);
+     }
+
+     inline BitSet& flip(size_t pos)
+     {
+         // belt and braces, don't allow beyond the specified number of bits
+         if (pos <= TMaxBits)
+         {
+             bits ^= (uint32_t)1 << pos;
+         }
+         return (*this);
+     }
+
+     inline bool test(size_t pos) const
+     {
+         // belt and braces, don't allow beyond the specified number of bits
+         if (pos <= TMaxBits)
+         {
+             return (bits & ((uint32_t)1 << pos)) != 0;
+         }
+         else
+         {
+             return false;
+         }
+     }
+
+     bool any() const
+     {
+         return bits != 0;
+     }
+
+     bool none() const
+     {
+         return bits == 0;
+     }
+
+     bool all() const
+     {
+         return count() == TMaxBits;
+     }
 
 
+ private:
+     size_t count() const
+     {
+         size_t c = 0;
+         for (size_t i = 0; i < TMaxBits; i++)
+         {
+             if (test(i))
+             {
+                 c++;
+             }
+         }
+         return c;
+     }
+
+
+
+    uint32_t bits;    // the bits in our bitset
 };
 
 
-inline PackageClass *new_package(RexxSource *s)  { return new PackageClass(s); }
 #endif
-
 

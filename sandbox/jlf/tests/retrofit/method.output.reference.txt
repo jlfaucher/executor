@@ -1,0 +1,486 @@
+----------
+method.cls
+----------
+
+.Object
+class method 'new' ~isAbstract = 0
+class method 'new' ~isAttribute = 0
+class method 'new' ~isConstant = 0
+class method 'new' ~isGuarded = 1
+class method 'new' ~isPackage = 0
+class method 'new' ~isPrivate = 0
+class method 'new' ~isProtected = 0
+class method 'new' ~package = REXX
+class method 'new' ~scope = Object
+class method 'new' ~source = 0 source lines
+
+.Object
+instance method 'superclass' ~isAbstract = 0
+instance method 'superclass' ~isAttribute = 0
+instance method 'superclass' ~isConstant = 0
+instance method 'superclass' ~isGuarded = 1
+instance method 'superclass' ~isPackage = 0
+instance method 'superclass' ~isPrivate = 0
+instance method 'superclass' ~isProtected = 1
+instance method 'superclass' ~package = REXX
+instance method 'superclass' ~scope = Class
+instance method 'superclass' ~source = 0 source lines
+
+.Object
+instance method 'objectName=' ~isAbstract = 0
+instance method 'objectName=' ~isAttribute = 0
+instance method 'objectName=' ~isConstant = 0
+instance method 'objectName=' ~isGuarded = 1
+instance method 'objectName=' ~isPackage = 0
+instance method 'objectName=' ~isPrivate = 0
+instance method 'objectName=' ~isProtected = 0
+instance method 'objectName=' ~package = REXX
+instance method 'objectName=' ~scope = Object
+instance method 'objectName=' ~source = 0 source lines
+
+.Object
+instance method 'objectName' ~isAbstract = 0
+instance method 'objectName' ~isAttribute = 0
+instance method 'objectName' ~isConstant = 0
+instance method 'objectName' ~isGuarded = 1
+instance method 'objectName' ~isPackage = 0
+instance method 'objectName' ~isPrivate = 0
+instance method 'objectName' ~isProtected = 0
+instance method 'objectName' ~package = REXX
+instance method 'objectName' ~scope = Object
+instance method 'objectName' ~source = 0 source lines
+
+.Object~new
+instance method 'isInstanceOf' ~isAbstract = 0
+instance method 'isInstanceOf' ~isAttribute = 0
+instance method 'isInstanceOf' ~isConstant = 0
+instance method 'isInstanceOf' ~isGuarded = 1
+instance method 'isInstanceOf' ~isPackage = 0
+instance method 'isInstanceOf' ~isPrivate = 0
+instance method 'isInstanceOf' ~isProtected = 0
+instance method 'isInstanceOf' ~package = REXX
+instance method 'isInstanceOf' ~scope = Object
+instance method 'isInstanceOf' ~source = 0 source lines
+
+.Object~new
+instance method 'objectName=' ~isAbstract = 0
+instance method 'objectName=' ~isAttribute = 0
+instance method 'objectName=' ~isConstant = 0
+instance method 'objectName=' ~isGuarded = 1
+instance method 'objectName=' ~isPackage = 0
+instance method 'objectName=' ~isPrivate = 0
+instance method 'objectName=' ~isProtected = 0
+instance method 'objectName=' ~package = REXX
+instance method 'objectName=' ~scope = Object
+instance method 'objectName=' ~source = 0 source lines
+
+.Object~new
+instance method 'objectName' ~isAbstract = 0
+instance method 'objectName' ~isAttribute = 0
+instance method 'objectName' ~isConstant = 0
+instance method 'objectName' ~isGuarded = 1
+instance method 'objectName' ~isPackage = 0
+instance method 'objectName' ~isPrivate = 0
+instance method 'objectName' ~isProtected = 0
+instance method 'objectName' ~package = REXX
+instance method 'objectName' ~scope = Object
+instance method 'objectName' ~source = 0 source lines
+
+.Stream
+class method 'new' ~isAbstract = 0
+class method 'new' ~isAttribute = 0
+class method 'new' ~isConstant = 0
+class method 'new' ~isGuarded = 1
+class method 'new' ~isPackage = 0
+class method 'new' ~isPrivate = 0
+class method 'new' ~isProtected = 0
+class method 'new' ~package = REXX
+class method 'new' ~scope = Object
+class method 'new' ~source = 0 source lines
+
+.Stream~new('stream')
+instance method 'position' ~isAbstract = 0
+instance method 'position' ~isAttribute = 0
+instance method 'position' ~isConstant = 0
+instance method 'position' ~isGuarded = 1
+instance method 'position' ~isPackage = 0
+instance method 'position' ~isPrivate = 0
+instance method 'position' ~isProtected = 0
+instance method 'position' ~package = REXX
+instance method 'position' ~scope = Stream
+instance method 'position' ~source = 0 source lines
+
+.Stream~new('stream')
+instance method 'command' ~isAbstract = 0
+instance method 'command' ~isAttribute = 0
+instance method 'command' ~isConstant = 0
+instance method 'command' ~isGuarded = 1
+instance method 'command' ~isPackage = 0
+instance method 'command' ~isPrivate = 0
+instance method 'command' ~isProtected = 0
+instance method 'command' ~package = REXX
+instance method 'command' ~scope = Stream
+instance method 'command' ~source = 0 source lines
+
+.myClass
+privateClassAttributeError
+    Error 97 running method.cls line 54: Object method not found.
+    Error 97.2: Object "The MYCLASS class" cannot accept private message "PRIVATEATTRIBUTE" from this context.
+package class attribute
+public class attribute
+
+.myClass
+class method 'abstractAttribute=' ~isAbstract = 1
+class method 'abstractAttribute=' ~isAttribute = 1
+class method 'abstractAttribute=' ~isConstant = 0
+class method 'abstractAttribute=' ~isGuarded = 1
+class method 'abstractAttribute=' ~isPackage = 0
+class method 'abstractAttribute=' ~isPrivate = 0
+class method 'abstractAttribute=' ~isProtected = 0
+class method 'abstractAttribute=' ~package = method.cls
+class method 'abstractAttribute=' ~scope = MYCLASS
+class method 'abstractAttribute=' ~source = 0 source lines
+
+.myClass
+class method 'abstractAttribute' ~isAbstract = 1
+class method 'abstractAttribute' ~isAttribute = 1
+class method 'abstractAttribute' ~isConstant = 0
+class method 'abstractAttribute' ~isGuarded = 1
+class method 'abstractAttribute' ~isPackage = 0
+class method 'abstractAttribute' ~isPrivate = 0
+class method 'abstractAttribute' ~isProtected = 0
+class method 'abstractAttribute' ~package = method.cls
+class method 'abstractAttribute' ~scope = MYCLASS
+class method 'abstractAttribute' ~source = 0 source lines
+
+.myClass
+class method 'privateAttribute=' ~isAbstract = 0
+class method 'privateAttribute=' ~isAttribute = 1
+class method 'privateAttribute=' ~isConstant = 0
+class method 'privateAttribute=' ~isGuarded = 1
+class method 'privateAttribute=' ~isPackage = 0
+class method 'privateAttribute=' ~isPrivate = 1
+class method 'privateAttribute=' ~isProtected = 0
+class method 'privateAttribute=' ~package = method.cls
+class method 'privateAttribute=' ~scope = MYCLASS
+class method 'privateAttribute=' ~source = 0 source lines
+
+.myClass
+class method 'privateAttribute' ~isAbstract = 0
+class method 'privateAttribute' ~isAttribute = 1
+class method 'privateAttribute' ~isConstant = 0
+class method 'privateAttribute' ~isGuarded = 1
+class method 'privateAttribute' ~isPackage = 0
+class method 'privateAttribute' ~isPrivate = 1
+class method 'privateAttribute' ~isProtected = 0
+class method 'privateAttribute' ~package = method.cls
+class method 'privateAttribute' ~scope = MYCLASS
+class method 'privateAttribute' ~source = 0 source lines
+
+.myClass
+class method 'packageAttribute=' ~isAbstract = 0
+class method 'packageAttribute=' ~isAttribute = 1
+class method 'packageAttribute=' ~isConstant = 0
+class method 'packageAttribute=' ~isGuarded = 1
+class method 'packageAttribute=' ~isPackage = 1
+class method 'packageAttribute=' ~isPrivate = 0
+class method 'packageAttribute=' ~isProtected = 0
+class method 'packageAttribute=' ~package = method.cls
+class method 'packageAttribute=' ~scope = MYCLASS
+class method 'packageAttribute=' ~source = 0 source lines
+
+.myClass
+class method 'packageAttribute' ~isAbstract = 0
+class method 'packageAttribute' ~isAttribute = 1
+class method 'packageAttribute' ~isConstant = 0
+class method 'packageAttribute' ~isGuarded = 1
+class method 'packageAttribute' ~isPackage = 1
+class method 'packageAttribute' ~isPrivate = 0
+class method 'packageAttribute' ~isProtected = 0
+class method 'packageAttribute' ~package = method.cls
+class method 'packageAttribute' ~scope = MYCLASS
+class method 'packageAttribute' ~source = 0 source lines
+
+.myClass
+class method 'publicAttribute=' ~isAbstract = 0
+class method 'publicAttribute=' ~isAttribute = 1
+class method 'publicAttribute=' ~isConstant = 0
+class method 'publicAttribute=' ~isGuarded = 1
+class method 'publicAttribute=' ~isPackage = 0
+class method 'publicAttribute=' ~isPrivate = 0
+class method 'publicAttribute=' ~isProtected = 0
+class method 'publicAttribute=' ~package = method.cls
+class method 'publicAttribute=' ~scope = MYCLASS
+class method 'publicAttribute=' ~source = 0 source lines
+
+.myClass
+class method 'publicAttribute' ~isAbstract = 0
+class method 'publicAttribute' ~isAttribute = 1
+class method 'publicAttribute' ~isConstant = 0
+class method 'publicAttribute' ~isGuarded = 1
+class method 'publicAttribute' ~isPackage = 0
+class method 'publicAttribute' ~isPrivate = 0
+class method 'publicAttribute' ~isProtected = 0
+class method 'publicAttribute' ~package = method.cls
+class method 'publicAttribute' ~scope = MYCLASS
+class method 'publicAttribute' ~source = 0 source lines
+
+.myClass
+privateClassMethodError
+    Error 97 running method.cls line 76: Object method not found.
+    Error 97.2: Object "The MYCLASS class" cannot accept private message "PRIVATEMETHOD" from this context.
+package class method
+public class method
+
+.myClass
+class method 'constant' ~isAbstract = 0
+class method 'constant' ~isAttribute = 0
+class method 'constant' ~isConstant = 1
+class method 'constant' ~isGuarded = 0
+class method 'constant' ~isPackage = 0
+class method 'constant' ~isPrivate = 0
+class method 'constant' ~isProtected = 0
+class method 'constant' ~package = method.cls
+class method 'constant' ~scope = MYCLASS
+class method 'constant' ~source = 0 source lines
+
+.myClass
+class method 'abstractMethod' ~isAbstract = 1
+class method 'abstractMethod' ~isAttribute = 0
+class method 'abstractMethod' ~isConstant = 0
+class method 'abstractMethod' ~isGuarded = 1
+class method 'abstractMethod' ~isPackage = 0
+class method 'abstractMethod' ~isPrivate = 0
+class method 'abstractMethod' ~isProtected = 0
+class method 'abstractMethod' ~package = method.cls
+class method 'abstractMethod' ~scope = MYCLASS
+class method 'abstractMethod' ~source = 0 source lines
+
+.myClass
+class method 'privateMethod' ~isAbstract = 0
+class method 'privateMethod' ~isAttribute = 0
+class method 'privateMethod' ~isConstant = 0
+class method 'privateMethod' ~isGuarded = 1
+class method 'privateMethod' ~isPackage = 0
+class method 'privateMethod' ~isPrivate = 1
+class method 'privateMethod' ~isProtected = 0
+class method 'privateMethod' ~package = method.cls
+class method 'privateMethod' ~scope = MYCLASS
+class method 'privateMethod' ~source = 1 source lines
+
+.myClass
+class method 'packageMethod' ~isAbstract = 0
+class method 'packageMethod' ~isAttribute = 0
+class method 'packageMethod' ~isConstant = 0
+class method 'packageMethod' ~isGuarded = 1
+class method 'packageMethod' ~isPackage = 1
+class method 'packageMethod' ~isPrivate = 0
+class method 'packageMethod' ~isProtected = 0
+class method 'packageMethod' ~package = method.cls
+class method 'packageMethod' ~scope = MYCLASS
+class method 'packageMethod' ~source = 1 source lines
+
+.myClass
+class method 'publicMethod' ~isAbstract = 0
+class method 'publicMethod' ~isAttribute = 0
+class method 'publicMethod' ~isConstant = 0
+class method 'publicMethod' ~isGuarded = 1
+class method 'publicMethod' ~isPackage = 0
+class method 'publicMethod' ~isPrivate = 0
+class method 'publicMethod' ~isProtected = 0
+class method 'publicMethod' ~package = method.cls
+class method 'publicMethod' ~scope = MYCLASS
+class method 'publicMethod' ~source = 1 source lines
+
+.myClass~new
+privateInstanceAttributeError
+    Error 97 running method.cls line 101: Object method not found.
+    Error 97.2: Object "a MYCLASS" cannot accept private message "PRIVATEATTRIBUTE" from this context.
+package instance attribute
+public instance attribute
+
+.myClass~new
+instance method 'abstractAttribute=' ~isAbstract = 1
+instance method 'abstractAttribute=' ~isAttribute = 1
+instance method 'abstractAttribute=' ~isConstant = 0
+instance method 'abstractAttribute=' ~isGuarded = 1
+instance method 'abstractAttribute=' ~isPackage = 0
+instance method 'abstractAttribute=' ~isPrivate = 0
+instance method 'abstractAttribute=' ~isProtected = 0
+instance method 'abstractAttribute=' ~package = method.cls
+instance method 'abstractAttribute=' ~scope = MYCLASS
+instance method 'abstractAttribute=' ~source = 0 source lines
+
+.myClass~new
+instance method 'abstractAttribute' ~isAbstract = 1
+instance method 'abstractAttribute' ~isAttribute = 1
+instance method 'abstractAttribute' ~isConstant = 0
+instance method 'abstractAttribute' ~isGuarded = 1
+instance method 'abstractAttribute' ~isPackage = 0
+instance method 'abstractAttribute' ~isPrivate = 0
+instance method 'abstractAttribute' ~isProtected = 0
+instance method 'abstractAttribute' ~package = method.cls
+instance method 'abstractAttribute' ~scope = MYCLASS
+instance method 'abstractAttribute' ~source = 0 source lines
+
+.myClass~new
+instance method 'privateAttribute=' ~isAbstract = 0
+instance method 'privateAttribute=' ~isAttribute = 1
+instance method 'privateAttribute=' ~isConstant = 0
+instance method 'privateAttribute=' ~isGuarded = 1
+instance method 'privateAttribute=' ~isPackage = 0
+instance method 'privateAttribute=' ~isPrivate = 1
+instance method 'privateAttribute=' ~isProtected = 0
+instance method 'privateAttribute=' ~package = method.cls
+instance method 'privateAttribute=' ~scope = MYCLASS
+instance method 'privateAttribute=' ~source = 0 source lines
+
+.myClass~new
+instance method 'privateAttribute' ~isAbstract = 0
+instance method 'privateAttribute' ~isAttribute = 1
+instance method 'privateAttribute' ~isConstant = 0
+instance method 'privateAttribute' ~isGuarded = 1
+instance method 'privateAttribute' ~isPackage = 0
+instance method 'privateAttribute' ~isPrivate = 1
+instance method 'privateAttribute' ~isProtected = 0
+instance method 'privateAttribute' ~package = method.cls
+instance method 'privateAttribute' ~scope = MYCLASS
+instance method 'privateAttribute' ~source = 0 source lines
+
+.myClass~new
+instance method 'packageAttribute=' ~isAbstract = 0
+instance method 'packageAttribute=' ~isAttribute = 1
+instance method 'packageAttribute=' ~isConstant = 0
+instance method 'packageAttribute=' ~isGuarded = 1
+instance method 'packageAttribute=' ~isPackage = 1
+instance method 'packageAttribute=' ~isPrivate = 0
+instance method 'packageAttribute=' ~isProtected = 0
+instance method 'packageAttribute=' ~package = method.cls
+instance method 'packageAttribute=' ~scope = MYCLASS
+instance method 'packageAttribute=' ~source = 0 source lines
+
+.myClass~new
+instance method 'packageAttribute' ~isAbstract = 0
+instance method 'packageAttribute' ~isAttribute = 1
+instance method 'packageAttribute' ~isConstant = 0
+instance method 'packageAttribute' ~isGuarded = 1
+instance method 'packageAttribute' ~isPackage = 1
+instance method 'packageAttribute' ~isPrivate = 0
+instance method 'packageAttribute' ~isProtected = 0
+instance method 'packageAttribute' ~package = method.cls
+instance method 'packageAttribute' ~scope = MYCLASS
+instance method 'packageAttribute' ~source = 0 source lines
+
+.myClass~new
+instance method 'publicAttribute=' ~isAbstract = 0
+instance method 'publicAttribute=' ~isAttribute = 1
+instance method 'publicAttribute=' ~isConstant = 0
+instance method 'publicAttribute=' ~isGuarded = 1
+instance method 'publicAttribute=' ~isPackage = 0
+instance method 'publicAttribute=' ~isPrivate = 0
+instance method 'publicAttribute=' ~isProtected = 0
+instance method 'publicAttribute=' ~package = method.cls
+instance method 'publicAttribute=' ~scope = MYCLASS
+instance method 'publicAttribute=' ~source = 0 source lines
+
+.myClass~new
+instance method 'publicAttribute' ~isAbstract = 0
+instance method 'publicAttribute' ~isAttribute = 1
+instance method 'publicAttribute' ~isConstant = 0
+instance method 'publicAttribute' ~isGuarded = 1
+instance method 'publicAttribute' ~isPackage = 0
+instance method 'publicAttribute' ~isPrivate = 0
+instance method 'publicAttribute' ~isProtected = 0
+instance method 'publicAttribute' ~package = method.cls
+instance method 'publicAttribute' ~scope = MYCLASS
+instance method 'publicAttribute' ~source = 0 source lines
+
+.myClass~new
+privateInstanceMethodError
+    Error 97 running method.cls line 124: Object method not found.
+    Error 97.2: Object "a MYCLASS" cannot accept private message "PRIVATEMETHOD" from this context.
+package instance method
+public instance method
+
+.myClass~new
+instance method 'constant' ~isAbstract = 0
+instance method 'constant' ~isAttribute = 0
+instance method 'constant' ~isConstant = 1
+instance method 'constant' ~isGuarded = 0
+instance method 'constant' ~isPackage = 0
+instance method 'constant' ~isPrivate = 0
+instance method 'constant' ~isProtected = 0
+instance method 'constant' ~package = method.cls
+instance method 'constant' ~scope = MYCLASS
+instance method 'constant' ~source = 0 source lines
+
+.myClass~new
+instance method 'abstractMethod' ~isAbstract = 1
+instance method 'abstractMethod' ~isAttribute = 0
+instance method 'abstractMethod' ~isConstant = 0
+instance method 'abstractMethod' ~isGuarded = 1
+instance method 'abstractMethod' ~isPackage = 0
+instance method 'abstractMethod' ~isPrivate = 0
+instance method 'abstractMethod' ~isProtected = 0
+instance method 'abstractMethod' ~package = method.cls
+instance method 'abstractMethod' ~scope = MYCLASS
+instance method 'abstractMethod' ~source = 0 source lines
+
+.myClass~new
+instance method 'privateMethod' ~isAbstract = 0
+instance method 'privateMethod' ~isAttribute = 0
+instance method 'privateMethod' ~isConstant = 0
+instance method 'privateMethod' ~isGuarded = 1
+instance method 'privateMethod' ~isPackage = 0
+instance method 'privateMethod' ~isPrivate = 1
+instance method 'privateMethod' ~isProtected = 0
+instance method 'privateMethod' ~package = method.cls
+instance method 'privateMethod' ~scope = MYCLASS
+instance method 'privateMethod' ~source = 1 source lines
+
+.myClass~new
+instance method 'packageMethod' ~isAbstract = 0
+instance method 'packageMethod' ~isAttribute = 0
+instance method 'packageMethod' ~isConstant = 0
+instance method 'packageMethod' ~isGuarded = 1
+instance method 'packageMethod' ~isPackage = 1
+instance method 'packageMethod' ~isPrivate = 0
+instance method 'packageMethod' ~isProtected = 0
+instance method 'packageMethod' ~package = method.cls
+instance method 'packageMethod' ~scope = MYCLASS
+instance method 'packageMethod' ~source = 1 source lines
+
+.myClass~new
+instance method 'publicMethod' ~isAbstract = 0
+instance method 'publicMethod' ~isAttribute = 0
+instance method 'publicMethod' ~isConstant = 0
+instance method 'publicMethod' ~isGuarded = 1
+instance method 'publicMethod' ~isPackage = 0
+instance method 'publicMethod' ~isPrivate = 0
+instance method 'publicMethod' ~isProtected = 0
+instance method 'publicMethod' ~package = method.cls
+instance method 'publicMethod' ~scope = MYCLASS
+instance method 'publicMethod' ~source = 1 source lines
+
+
+----------
+method.rex
+----------
+
+.myClass
+privateClassMethodError
+    Error 97 running method.rex line 16: Object method not found.
+    Error 97.2: Object "The MYCLASS class" cannot accept private message "PRIVATEMETHOD" from this context.
+packageClassMethodError
+    Error 97 running method.rex line 20: Object method not found.
+    Error 97.3: Object "The MYCLASS class" cannot accept package scope message "PACKAGEMETHOD" from a different package caller.
+public class method
+
+.myClass~new
+privateInstanceMethodError
+    Error 97 running method.rex line 34: Object method not found.
+    Error 97.2: Object "a MYCLASS" cannot accept private message "PRIVATEMETHOD" from this context.
+packageInstanceMethodError
+    Error 97 running method.rex line 38: Object method not found.
+    Error 97.3: Object "a MYCLASS" cannot accept package scope message "PACKAGEMETHOD" from a different package caller.
+public instance method

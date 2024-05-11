@@ -57,6 +57,7 @@
 #include "ActivityManager.hpp"
 #include "ProtectedObject.hpp"
 #include "WeakReferenceClass.hpp"
+#include "PackageClass.hpp"
 
 
 // singleton class instance
@@ -80,6 +81,7 @@ void RexxClass::live(size_t liveMark)
     memory_mark(this->classSuperClasses);
     memory_mark(this->instanceSuperClasses);
     memory_mark(this->subClasses);
+    memory_mark(this->package);
 }
 
 void RexxClass::liveGeneral(int reason)
@@ -87,6 +89,11 @@ void RexxClass::liveGeneral(int reason)
 /* Function:  Generalized object marking                                      */
 /******************************************************************************/
 {
+    // Inspired by ooRexx5, but the approach is different...
+    // Instead of assigning package = TheRexxPackage when reason == PREPARINGIMAGE (unsupported by ooRexx4)
+    // I mark the RexxClass instance as belonging to the RexxPackage, and will return TheRexxPackage when asking its package.
+    if (reason == SAVINGIMAGE) this->setInRexxPackage();
+
     memory_mark_general(this->objectVariables);
     memory_mark_general(this->id);
     memory_mark_general(this->classMethodDictionary);
@@ -99,6 +106,7 @@ void RexxClass::liveGeneral(int reason)
     memory_mark_general(this->classSuperClasses);
     memory_mark_general(this->instanceSuperClasses);
     memory_mark_general(this->subClasses);
+    memory_mark_general(this->package);
 }
 
 void RexxClass::flatten(RexxEnvelope *envelope)
@@ -250,6 +258,28 @@ RexxInteger *RexxClass::queryMixinClass()
                                        /* return true/false indicator       */
     return this->isMixinClass() ? TheTrueObject : TheFalseObject;
 }
+
+/**
+ * Test if a class can be used as a metaclass
+ *
+ * @return True if this is a metaclass, False if not.
+ */
+RexxObject *RexxClass::isMetaClassRexx() // ooRexx5
+{
+    return booleanObject(isMetaClass());
+}
+
+
+/**
+ * Test if this class is marked as abstract
+ *
+ * @return True if this is abstract, false if not
+ */
+RexxObject *RexxClass::isAbstractRexx() // ooRexx5
+{
+    return booleanObject(isAbstract());
+}
+
 
 RexxString *RexxClass::getId()
 /*****************************************************************************/
@@ -632,7 +662,7 @@ RexxObject *RexxClass::defineMethod(
     if ( this->isRexxDefined())
     {
         /* report as a nomethod condition    */
-        reportNomethod(lastMessageName(), this);
+        reportNomethod(Error_No_method_name, lastMessageName(), this);
     }
 #endif
     /* make sure there is at least one   */
@@ -797,7 +827,7 @@ RexxObject *RexxClass::deleteMethod(
     if (this->isRexxDefined())           /* check if this is a rexx class     */
     {
         /* report as a nomethod condition    */
-        reportNomethod(lastMessageName(), this);
+        reportNomethod(Error_No_method_name, lastMessageName(), this);
     }
     /* and that it can be a string        */
     method_name = stringArgument(method_name, OREF_positional, ARG_ONE)->upper();
@@ -1176,7 +1206,7 @@ RexxObject *RexxClass::inherit(
     if (this->isRexxDefined())           /* defined class being changed       */
     {
         /* report as a nomethod condition    */
-        reportNomethod(lastMessageName(), this);
+        reportNomethod(Error_No_method_name, lastMessageName(), this);
     }
 #endif
     requiredArgument(mixin_class, OREF_positional, ARG_ONE);      /* make sure it was passed in        */
@@ -1280,7 +1310,7 @@ RexxObject *RexxClass::uninherit(
     if (this->isRexxDefined())           /* class that is being changed       */
     {
         /* report as a nomethod condition    */
-        reportNomethod(lastMessageName(), this);
+        reportNomethod(Error_No_method_name,lastMessageName(), this);
     }
     requiredArgument(mixin_class, OREF_positional, ARG_ONE);      /* make sure it was passed in        */
 
@@ -1352,7 +1382,7 @@ RexxObject *RexxClass::enhanced(
     /* make sure it was a real value     */
     requiredArgument(enhanced_instance_mdict, OREF_positional, ARG_ONE);
     /* subclass the reciever class       */
-    RexxClass *dummy_subclass = this->subclass(new_string("Enhanced Subclass"), OREF_NULL, OREF_NULL);
+    RexxClass *dummy_subclass = this->subclass(OREF_NULL, new_string("Enhanced Subclass"), OREF_NULL, OREF_NULL);
     ProtectedObject p(dummy_subclass);
     /* turn into a real method dictionary*/
     enhanced_instance_mdict = dummy_subclass->methodDictionaryCreate(enhanced_instance_mdict, (RexxClass *)TheNilObject);
@@ -1380,7 +1410,25 @@ RexxObject *RexxClass::enhanced(
     return enhanced_object;              /* send back the new improved version*/
 }
 
+/**
+ * Create a mixinclass of a class directly from Rexx code.
+ *
+ * @param class_id   The id of the created class.
+ * @param meta_class The meta class to create this from.
+ * @param enhancing_class_methods
+ *                   Additional class methods.
+ *
+ * @return A created class object.
+ */
+RexxClass  *RexxClass::mixinClassRexx(RexxString  *class_id, RexxClass *meta_class, RexxObject *enhancing_class_methods)
+{
+    // just forward with no source object specified
+    return mixinclass(OREF_NULL, class_id, meta_class, (RexxTable *)enhancing_class_methods);
+}
+
+
 RexxClass  *RexxClass::mixinclass(
+    PackageClass *package,
     RexxString  * mixin_id,            /* ID name of the class              */
     RexxClass   * meta_class,          /* source meta class                 */
                                        /* extra class methods               */
@@ -1391,7 +1439,7 @@ RexxClass  *RexxClass::mixinclass(
 /*****************************************************************************/
 {
     /* call subclass with the parameters */
-    RexxClass *mixin_subclass = this->subclass(mixin_id, meta_class, enhancing_class_methods);
+    RexxClass *mixin_subclass = this->subclass(package, mixin_id, meta_class, enhancing_class_methods);
     mixin_subclass->setMixinClass();     /* turn on the mixin info            */
                                          /* change the base class to the base */
                                          /* class of the reciever             */
@@ -1405,7 +1453,25 @@ RexxClass  *RexxClass::mixinclass(
 }
 
 
+/**
+ * Create a subclass of a class directly from Rexx code.
+ *
+ * @param class_id   The id of the created class.
+ * @param meta_class The meta class to create this from.
+ * @param enhancing_class_methods
+ *                   Additional class methods.
+ *
+ * @return A created class object.
+ */
+RexxClass *RexxClass::subclassRexx(RexxString  *class_id, RexxClass *meta_class, RexxObject *enhancing_class_methods)
+{
+    // just forward with no source object specified
+    return subclass(OREF_NULL, class_id, meta_class, (RexxTable *)enhancing_class_methods);
+}
+
+
 RexxClass  *RexxClass::subclass(
+    PackageClass *package,
     RexxString  * class_id,            /* ID name of the class              */
     RexxClass   * meta_class,          /* source meta class                 */
                                        /* extra class methods               */
@@ -1429,6 +1495,10 @@ RexxClass  *RexxClass::subclass(
     /* get a copy of the metaclass class */
     meta_class->sendMessage(OREF_NEW, class_id, p);
     RexxClass *new_class = (RexxClass *)(RexxObject *)p;
+
+    // hook this up with the source as early as possible.
+    new_class->setPackage(package);
+
     if (this->isMetaClass())             /* if the superclass is a metaclass  */
     {
         new_class->setMetaClass();         /* mark the new class as a meta class*/
@@ -1589,6 +1659,62 @@ RexxString *RexxClass::defaultNameRexx()
 }
 
 
+/**
+ * Set the source object what a class was created in.  This
+ * will be the source that contains the ::class directive
+ * that defined the class.
+ *
+ * @param s      The package file containing the ::class directive that
+ *               created this class.
+ */
+void RexxClass::setPackage(PackageClass *s) // ooRexx5
+{
+    OrefSet(this, this->package, s);
+}
+
+/**
+ * Return the package containing the directive that
+ * defined a class.
+ *
+ * @return The package containing the directive that defined this
+ *         class, or .nil if this class was not created from a
+ *         directive.
+ */
+PackageClass *RexxClass::getPackage() // ooRexx5
+{
+    // ooRexx4: package not really managed, workaround...
+    if (this->isInRexxPackage()) return TheRexxPackage;
+
+    // return the package we've been associated with.
+    return (PackageClass *)resultOrNil(package);
+}
+
+
+// all of the new methods need to check if they are marked as
+// abstract as a subclass...this centralizes the check.
+void RexxClass::checkAbstract() // ooRexx5
+{
+    if (isAbstract())
+    {
+        reportException(Error_Execution_abstract_class, id);
+    }
+}
+
+
+/**
+ * Mark a class as abstract, if this is allowed for this
+ * type of class.
+ */
+void RexxClass::makeAbstract() // ooRexx5
+{
+    if (isMetaClass())
+    {
+        reportException(Error_Execution_abstract_metaclass, id);
+    }
+    setAbstract();
+}
+
+
 void  *RexxClass::operator new(size_t size,
     size_t size1,                      /* additional size                   */
     const char *className,             // The id string of the class
@@ -1653,6 +1779,10 @@ RexxClass  *RexxClass::newRexx(RexxObject **args, size_t argCount, size_t named_
     OrefSet(new_class, new_class->id, class_id);
     /* update cloned hashvalue           */
     ProtectedObject p(new_class);        /* better protect this               */
+
+    // no new class objects start out as abstract.
+    new_class->clearAbstract();
+
                                          /* make this into an instance of the */
                                          /* meta class                        */
     OrefSet(new_class, new_class->behaviour, (RexxBehaviour *)new_class->instanceBehaviour->copy());
@@ -1749,6 +1879,42 @@ void RexxClass::createInstance()
     TheClassClass->makeProxiedObject();
     new (TheClassClass) RexxClass;
 }
+
+
+// ooRexx5
+// jlf: not called (yet). Should be called by ALL the native classes.
+// High risk of regression!
+/**
+ * Perform common initialization steps on an object created
+ * by a new method from Rexx.  This handles subclass
+ * behaviour issues, uninit processing, etc.
+ *
+ * @param obj      The newly created object.  NOTE:  this assumes the
+ *                 caller has protected this object from garbage collection.
+ * @param initArgs A pointer to arguments intended for the INIT method.
+ * @param argCount The count of arguments.
+ */
+#if 0
+void RexxClass::completeNewObject(RexxObject *obj, RexxObject **initArgs, size_t argCount)
+{
+    // this is a good common place to perform the abstract checks
+    checkAbstract();
+
+    // set the behaviour (this might be a subclass, so don't assume the
+    // one from the base class is correct).
+    obj->setBehaviour(getInstanceBehaviour());
+    // a subclass might define an uninit method, so we need to
+    // check that also.
+    if (hasUninitDefined())
+    {
+        obj->requiresUninit();
+    }
+
+    ProtectedObject result;
+    // now send an INIT message to complete initialization.
+    obj->sendMessage(GlobalNames::INIT, initArgs, argCount, result);
+}
+#endif
 
 
 void RexxClass::processNewArgs(

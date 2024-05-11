@@ -88,9 +88,12 @@ public:
     void flatten(RexxEnvelope*);
 
     void run(RexxActivity *, RexxMethod *, RexxObject *, RexxString *,  RexxObject **, size_t, size_t, ProtectedObject &);
+    inline BaseCode *setSourceObject(RexxSource *s) { source = s; return this; }
+    inline RexxSource *getSourceObject() { return source; }
 
 protected:
     RexxVariableBase *attribute;      /* method attribute info             */
+    RexxSource *source;
 };
 
 
@@ -128,9 +131,12 @@ public:
     void flatten(RexxEnvelope*);
 
     void run(RexxActivity *, RexxMethod *, RexxObject *, RexxString *,  RexxObject **, size_t, size_t, ProtectedObject &);
+    inline BaseCode *setSourceObject(RexxSource *s) { source = s; return this; }
+    inline RexxSource *getSourceObject() { return source; }
 
 protected:
     RexxObject *constantValue;        // the returned constant value
+    RexxSource *source;
 };
 
 
@@ -146,8 +152,16 @@ public:
     inline void operator delete(void *, void *) { }
     inline AbstractCode() { }
     inline AbstractCode(RESTORETYPE restoreType) { }
+    void live(size_t);
+    void liveGeneral(int reason);
+    void flatten(RexxEnvelope*);
 
     void run(RexxActivity *, RexxMethod *, RexxObject *, RexxString *,  RexxObject **, size_t, size_t, ProtectedObject &);
+    inline BaseCode *setSourceObject(RexxSource *s) { source = s; return this; }
+    inline RexxSource *getSourceObject() { return source; }
+
+protected:
+    RexxSource *source;
 };
 
 #endif

@@ -45,6 +45,7 @@
 #define Included_ClassDirective
 
 #include "RexxDirective.hpp"
+#include "FlagSet.hpp"
 
 class RexxDirectory;
 class RexxClass;
@@ -65,6 +66,14 @@ class ClassDirective : public RexxDirective
     void liveGeneral(int reason);
     void flatten(RexxEnvelope *);
 
+    typedef enum
+    {
+       PUBLIC,                  // class has public scope
+       MIXIN,                   // this is a mixin class
+       ABSTRACT,                // this is an abstract class
+    } ClassProperties;
+
+
     inline RexxString *getName() { return publicName; }
     RexxClass *install(RexxSource *source, RexxActivation *activation);
 
@@ -77,8 +86,12 @@ class ClassDirective : public RexxDirective
     inline void setMetaClass(RexxString *m) { OrefSet(this, this->metaclassName, m); }
     inline RexxString *getSubClass() { return subclassName; }
     inline void setSubClass(RexxString *m) { OrefSet(this, this->subclassName, m); }
-    inline void setMixinClass(RexxString *m) { OrefSet(this, this->subclassName, m); mixinClass = true; }
-    inline void setPublic() { publicClass = true; }
+    inline void setMixinClass(RexxString *m) { OrefSet(this, this->subclassName, m); classFlags[MIXIN] = true; }
+    inline bool isMixinClass() { return classFlags[MIXIN]; }
+    inline void setPublic() { classFlags[PUBLIC] = true; }
+    inline bool isPublic() { return classFlags[PUBLIC]; }
+    inline void setAbstract() { classFlags[ABSTRACT] = true; }
+    inline bool isAbstract() { return classFlags[ABSTRACT]; }
     void addInherits(RexxString *name);
     void addMethod(RexxString *name, RexxMethod *method, bool classMethod);
     void addConstantMethod(RexxString *name, RexxMethod *method);
@@ -98,9 +111,8 @@ protected:
     RexxList   *inheritsClasses;    // the names of inherited classes
     RexxTable  *instanceMethods;    // the methods attached to this class
     RexxTable  *classMethods;       // the set of class methods
-    bool        publicClass;        // this is a public class
-    bool        mixinClass;         // this is a mixin class
     RexxDirectory *dependencies;    // in-package dependencies
+    FlagSet<ClassProperties, 32> classFlags; // class attributes
 };
 
 #endif

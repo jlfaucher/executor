@@ -294,6 +294,9 @@ class RexxMemory : public RexxInternalObject
   static void createStrings();
   static RexxArray *saveStrings();
   static void restoreStrings(RexxArray *stringArray);
+  static void addToSystem(const char *name, RexxInternalObject *classObj); // ooRexx5
+  static void completeSystemClass(const char *name, RexxClass *classObj); // ooRexx5
+  static void createRexxPackage(); // ooRexx5
 
   static void *virtualFunctionTable[];             /* table of virtual functions        */
   static PCPPM exportedMethods[];      /* start of exported methods table   */
@@ -308,6 +311,7 @@ class RexxMemory : public RexxInternalObject
   static RexxDirectory *commonRetrievers; // statically defined requires
   static RexxDirectory *kernel;           // the kernel directory
   static RexxDirectory *system;           // the system directory
+  static PackageClass *rexxPackage;       // the main rexx package // ooRexx5
 
 private:
 
@@ -330,6 +334,7 @@ enum
     saveArray_PACKAGES,
     saveArray_NULLA,
     saveArray_NULLPOINTER,
+    saveArray_REXX_PACKAGE, // ooRexx5
     saveArray_SYSTEM,
     saveArray_FUNCTIONS,
     saveArray_COMMON_RETRIEVERS,

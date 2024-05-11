@@ -15,3 +15,7 @@
 ::method internalDigits class
     if self~architecture == 32 then return 9
     else return 18
+
+
+::method package class
+    return .object~package -- TheRexxPackage

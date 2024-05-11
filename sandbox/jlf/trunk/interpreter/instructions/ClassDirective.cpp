@@ -181,17 +181,17 @@ RexxClass *ClassDirective::install(RexxSource *source, RexxActivation *activatio
     RexxClass *classObject;       // the class object we're creating
 
     // create the class object using the appropriate mechanism
-    if (mixinClass)
+    if (isMixinClass())
     {
-        classObject = subclass->mixinclass(idName, metaclass, classMethods);
+        classObject = subclass->mixinclass(source->getPackage(), idName, metaclass, classMethods);
     }
     else
     {
         /* doing a subclassing               */
-        classObject = subclass->subclass(idName, metaclass, classMethods);
+        classObject = subclass->subclass(source->getPackage(), idName, metaclass, classMethods);
     }
     /* add the class to the directory    */
-    source->addInstalledClass(publicName, classObject, publicClass);
+    source->addInstalledClass(publicName, classObject, isPublic());
 
     if (inheritsClasses != OREF_NULL)       /* have inherits to process?         */
     {
@@ -217,6 +217,14 @@ RexxClass *ClassDirective::install(RexxSource *source, RexxActivation *activatio
         /* define them to the class object   */
         classObject->defineMethods(instanceMethods);
     }
+
+    // ooRexx5
+    // if we had the abstract keyword specified, mark the class as abstract.
+    if (isAbstract())
+    {
+        classObject->makeAbstract();
+    }
+
     // the source needs this at the end so it call call the activate methods
     return classObject;
 }

@@ -62,6 +62,8 @@
 
 #include "RexxPlatformDefinitions.h"
 
+typedef wholenumber_t RexxErrorCodes; // ooRexx5 defines RexxErrorCodes as an enum type in RexxErrorCodes.h
+
 /******************************************************************************/
 /* Literal definitions                                                        */
 /******************************************************************************/
@@ -184,6 +186,7 @@ EXTERNMEM RexxMemory  memoryObject;   /* memory object                     */
 #define TheCommonRetrievers RexxMemory::commonRetrievers
 #define TheKernel RexxMemory::kernel
 #define TheSystem RexxMemory::system
+#define TheRexxPackage RexxMemory::rexxPackage
 
 #define TheNilObject RexxNilObject::nilObject
 
@@ -468,6 +471,29 @@ inline bool hasRexxTextArguments(RexxObject **arguments, size_t argcount, size_t
     }
     return false;
 }
+
+
+/**
+ * Handy function for situations where a NULL results needs
+ * translation into .nil.
+ *
+ * @param o      The result value.
+ *
+ * @return Either the result object, or TheNilObject.
+ */
+inline RexxObject *resultOrNil(RexxInternalObject *o) { return o != OREF_NULL ? (RexxObject *)o : TheNilObject; } // ooRexx5
+
+
+/**
+ * Handy method for transforming a boolean value into Rexx method
+ * boolean return values (i.e., .true or .false).
+ *
+ * @param v      The boolean value.
+ *
+ * @return Either TheTrueObject or TheFalseObject, depending on
+ *         the argument value.
+ */
+inline RexxObject *booleanObject(bool v) { return v ? TheTrueObject : TheFalseObject; } // ooRexx5
 
 
 /******************************************************************************/

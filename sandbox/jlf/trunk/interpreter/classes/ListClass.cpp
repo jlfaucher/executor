@@ -1236,11 +1236,19 @@ RexxList *RexxList::newRexx(
     /* macro version because the class   */
     /* object might actually be for a    */
     /* subclass                          */
+
+    // this method is defined on the object class, but this is actually attached
+    // to a class object instance.  Therefore, any use of the this pointer
+    // will be touching the wrong data.  Use the classThis pointer for calling
+    // any methods on this object from this method.
+    RexxClass *classThis = (RexxClass *)this;
+    classThis->checkAbstract(); // ooRexx5
+
     RexxList *newList = new RexxList;
     ProtectedObject p(newList);
     /* Give new object its behaviour     */
-    newList->setBehaviour(((RexxClass *)this)->getInstanceBehaviour());
-    if (((RexxClass *)this)->hasUninitDefined())
+    newList->setBehaviour(classThis->getInstanceBehaviour());
+    if (classThis->hasUninitDefined())
     {
         newList->hasUninit();
     }

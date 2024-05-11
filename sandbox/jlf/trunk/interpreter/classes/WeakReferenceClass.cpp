@@ -190,6 +190,13 @@ RexxObject *WeakReference::newRexx(RexxObject **init_args, size_t argCount, size
 /* Function:  Create a new string value (used primarily for subclasses)       */
 /******************************************************************************/
 {
+  // this method is defined on the object class, but this is actually attached
+  // to a class object instance.  Therefore, any use of the this pointer
+  // will be touching the wrong data.  Use the classThis pointer for calling
+  // any methods on this object from this method.
+  RexxClass *classThis = (RexxClass *)this;
+  classThis->checkAbstract(); // ooRexx5
+
   RexxObject *refObj;                  /* string value                      */
 
                                        /* break up the arguments            */
@@ -200,8 +207,8 @@ RexxObject *WeakReference::newRexx(RexxObject **init_args, size_t argCount, size
   RexxObject *newObj = new WeakReference(refObj);
   ProtectedObject p(newObj);
   // override the behaviour in case this is a subclass
-  newObj->setBehaviour(((RexxClass *)this)->getInstanceBehaviour());
-  if (((RexxClass *)this)->hasUninitDefined())
+  newObj->setBehaviour(classThis->getInstanceBehaviour());
+  if (classThis->hasUninitDefined())
   {
       newObj->hasUninit();
   }

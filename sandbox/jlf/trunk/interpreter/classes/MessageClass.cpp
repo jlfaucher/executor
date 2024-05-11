@@ -538,6 +538,13 @@ RexxObject *RexxMessage::newRexx(
 /* Function:  Rexx level new routine                                          */
 /******************************************************************************/
 {
+    // this method is defined on the object class, but this is actually attached
+    // to a class object instance.  Therefore, any use of the this pointer
+    // will be touching the wrong data.  Use the classThis pointer for calling
+    // any methods on this object from this method.
+    RexxClass *classThis = (RexxClass *)this;
+    classThis->checkAbstract(); // ooRexx5
+
     RexxArray  *argPtr = NULL;           // the arguments used with the message.
     ProtectedObject p_argPtr;
     size_t argCountMsg = 0;              // the count of positional arguments used with the message
@@ -655,11 +662,11 @@ RexxObject *RexxMessage::newRexx(
     /*create the new message object...   */
     RexxMessage *newMessage = new RexxMessage(_target, msgName, _startScope, argPtr->data(), argCountMsg, named_argCountMsg);
     /* actually a subclassed item?       */
-    if (((RexxClass *)this)->isPrimitive())
+    if (classThis->isPrimitive())
     {
         ProtectedObject p(newMessage);
         /* Give new object its behaviour     */
-        newMessage->setBehaviour(((RexxClass *)this)->getInstanceBehaviour());
+        newMessage->setBehaviour(classThis->getInstanceBehaviour());
         newMessage->sendMessage(OREF_INIT);/* call any rexx inits               */
     }
     return newMessage;                   /* return the new message            */

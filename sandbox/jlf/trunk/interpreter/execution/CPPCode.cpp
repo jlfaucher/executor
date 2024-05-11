@@ -43,6 +43,7 @@
 #include "Interpreter.hpp"
 #include "RexxVariableDictionary.hpp"
 #include "ActivationFrame.hpp"
+#include "SourceFile.hpp"
 
 
 /**
@@ -81,6 +82,11 @@ void CPPCode::liveGeneral(int reason)
 /* Function:  Generalized object marking                                      */
 /******************************************************************************/
 {
+    // Inspired by ooRexx5, but the approach is different...
+    // Instead of assigning package = TheRexxPackage when reason == PREPARINGIMAGE (unsupported by ooRexx4)
+    // I mark the CPPCode instance as belonging to the RexxPackage, and will return TheRexxPackage when asking its package.
+    if (reason == SAVINGIMAGE) this->setInRexxPackage();
+
     if (reason == RESTORINGIMAGE)        /* restoring the image?              */
     {
         this->cppEntry = exportedMethods[this->methodIndex];
@@ -272,6 +278,7 @@ void AttributeGetterCode::live(size_t liveMark)
 /******************************************************************************/
 {
   memory_mark(this->attribute);
+  memory_mark(this->source);
 }
 
 void AttributeGetterCode::liveGeneral(int reason)
@@ -279,7 +286,13 @@ void AttributeGetterCode::liveGeneral(int reason)
 /* Function:  Generalized object marking                                      */
 /******************************************************************************/
 {
-  memory_mark_general(this->attribute);
+    // Inspired by ooRexx5, but the approach is different...
+    // Instead of assigning package = TheRexxPackage when reason == PREPARINGIMAGE (unsupported by ooRexx4)
+    // I mark the AttributeGetterCode instance as belonging to the RexxPackage, and will return TheRexxPackage when asking its package.
+    if (reason == SAVINGIMAGE) this->setInRexxPackage();
+
+    memory_mark_general(this->attribute);
+    memory_mark_general(this->source);
 }
 
 void AttributeGetterCode::flatten(RexxEnvelope *envelope)
@@ -290,6 +303,7 @@ void AttributeGetterCode::flatten(RexxEnvelope *envelope)
   setUpFlatten(AttributeGetterCode)
 
   flatten_reference(newThis->attribute, envelope);
+  flatten_reference(newThis->source, envelope);
 
   cleanUpFlatten
 }
@@ -408,6 +422,7 @@ void ConstantGetterCode::live(size_t liveMark)
 /******************************************************************************/
 {
   memory_mark(this->constantValue);
+  memory_mark(this->source);
 }
 
 void ConstantGetterCode::liveGeneral(int reason)
@@ -415,7 +430,13 @@ void ConstantGetterCode::liveGeneral(int reason)
 /* Function:  Generalized object marking                                      */
 /******************************************************************************/
 {
-  memory_mark_general(this->constantValue);
+    // Inspired by ooRexx5, but the approach is different...
+    // Instead of assigning package = TheRexxPackage when reason == PREPARINGIMAGE (unsupported by ooRexx4)
+    // I mark the ConstantGetterCode instance as belonging to the RexxPackage, and will return TheRexxPackage when asking its package.
+    if (reason == SAVINGIMAGE) this->setInRexxPackage();
+
+    memory_mark_general(this->constantValue);
+    memory_mark_general(this->source);
 }
 
 void ConstantGetterCode::flatten(RexxEnvelope *envelope)
@@ -426,6 +447,7 @@ void ConstantGetterCode::flatten(RexxEnvelope *envelope)
   setUpFlatten(ConstantGetterCode)
 
   flatten_reference(newThis->constantValue, envelope);
+  flatten_reference(newThis->source, envelope);
 
   cleanUpFlatten
 }
@@ -466,6 +488,39 @@ void *AbstractCode::operator new(size_t size)
 {
     // just allocate ane return
     return new_object(size, T_AbstractCode);
+}
+
+void AbstractCode::live(size_t liveMark)
+/******************************************************************************/
+/* Function:  Normal garbage collection live marking                          */
+/******************************************************************************/
+{
+  memory_mark(this->source);
+}
+
+void AbstractCode::liveGeneral(int reason)
+/******************************************************************************/
+/* Function:  Generalized object marking                                      */
+/******************************************************************************/
+{
+    // Inspired by ooRexx5, but the approach is different...
+    // Instead of assigning package = TheRexxPackage when reason == PREPARINGIMAGE (unsupported by ooRexx4)
+    // I mark the AbstractCode instance as belonging to the RexxPackage, and will return TheRexxPackage when asking its package.
+    if (reason == SAVINGIMAGE) this->setInRexxPackage();
+
+    memory_mark_general(this->source);
+}
+
+void AbstractCode::flatten(RexxEnvelope *envelope)
+/******************************************************************************/
+/* Function:  Flatten an object                                               */
+/******************************************************************************/
+{
+  setUpFlatten(AbstractCode)
+
+  flatten_reference(newThis->source, envelope);
+
+  cleanUpFlatten
 }
 
 
@@ -554,6 +609,7 @@ CPPM(RexxObject::copyRexx),
 CPPM(RexxObject::defaultNameRexx),
 CPPM(RexxObject::unknownRexx),
 CPPM(RexxObject::isInstanceOfRexx),
+CPPM(RexxObject::isNilRexx),
 CPPM(RexxObject::instanceMethodRexx),
 CPPM(RexxObject::instanceMethodsRexx),
 CPPM(RexxObject::dynamicTargetRexx),
@@ -566,6 +622,8 @@ CPPM(RexxObject::newRexx),
 CPPM(RexxClass::setRexxDefined),       /* Class methods                     */
 CPPM(RexxClass::defaultNameRexx),
 CPPM(RexxClass::queryMixinClass),
+CPPM(RexxClass::isMetaClassRexx), // ooRexx5
+CPPM(RexxClass::isAbstractRexx), // ooRexx5
 CPPM(RexxClass::getId),
 CPPM(RexxClass::getBaseClass),
 CPPM(RexxClass::getMetaClass),
@@ -583,12 +641,13 @@ CPPM(RexxClass::methods),
 CPPM(RexxClass::inherit),
 CPPM(RexxClass::uninherit),
 CPPM(RexxClass::enhanced),
-CPPM(RexxClass::mixinclass),
-CPPM(RexxClass::subclass),
+CPPM(RexxClass::mixinClassRexx),
+CPPM(RexxClass::subclassRexx),
 CPPM(RexxClass::equal),
 CPPM(RexxClass::strictEqual),
 CPPM(RexxClass::notEqual),
 CPPM(RexxClass::isSubclassOf),
+CPPM(RexxClass::getPackage),
 
 CPPM(RexxClass::newRexx),
 
@@ -734,6 +793,11 @@ CPPM(RexxMethod::setSecurityManager),
 CPPM(RexxMethod::isGuardedRexx),
 CPPM(RexxMethod::isPrivateRexx),
 CPPM(RexxMethod::isProtectedRexx),
+CPPM(RexxMethod::isPackageRexx), // ooRexx5
+CPPM(RexxMethod::isAbstractRexx), // ooRexx5
+CPPM(RexxMethod::isConstantRexx), // ooRexx5
+CPPM(RexxMethod::isAttributeRexx), // ooRexx5
+CPPM(RexxMethod::getScopeRexx), // ooRexx5
 
 CPPM(RexxMethod::newFileRexx),
 CPPM(RexxMethod::newRexx),

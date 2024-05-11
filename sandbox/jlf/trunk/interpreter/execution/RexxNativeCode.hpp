@@ -59,7 +59,7 @@ class RexxNativeCode : public BaseCode
 
    virtual RexxSource *getSourceObject();
    virtual RexxClass *findClass(RexxString *className);
-   virtual BaseCode *setSourceObject(RexxSource *s);
+   virtual BaseCode *setSourceObject(RexxSource *s); // ooRexx5 uses setPackageObject
    SecurityManager *getSecurityManager();
 
 protected:

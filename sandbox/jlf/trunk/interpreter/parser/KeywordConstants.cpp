@@ -395,6 +395,7 @@ KeywordEntry RexxSource::subDirectives[] = {           /* language directive sub
     KeywordEntry(CHAR_MIXINCLASS,  SUBDIRECTIVE_MIXINCLASS),
     KeywordEntry(CHAR_NOCOMMANDS,  SUBDIRECTIVE_NOCOMMANDS),
     KeywordEntry(CHAR_NOMACROSPACE,SUBDIRECTIVE_NOMACROSPACE),
+    KeywordEntry(CHAR_PACKAGE,     SUBDIRECTIVE_PACKAGE),
     KeywordEntry(CHAR_PRIVATE,     SUBDIRECTIVE_PRIVATE),
     KeywordEntry(CHAR_PROTECTED,   SUBDIRECTIVE_PROTECTED),
     KeywordEntry(CHAR_PUBLIC,      SUBDIRECTIVE_PUBLIC),

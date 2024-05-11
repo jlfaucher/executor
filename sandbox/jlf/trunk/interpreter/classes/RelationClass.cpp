@@ -235,10 +235,24 @@ RexxObject *RexxRelation::newRexx(
 /* Function:  Create an instance of a relation                                */
 /******************************************************************************/
 {
+    // this method is defined on the object class, but this is actually attached
+    // to a class object instance.  Therefore, any use of the this pointer
+    // will be touching the wrong data.  Use the classThis pointer for calling
+    // any methods on this object from this method.
+    RexxClass *classThis = (RexxClass *)this;
+    classThis->checkAbstract(); // ooRexx5
+
     RexxRelation *newObj = new_relation();             /* get a new relation                */
     ProtectedObject p(newObj);
     /* object parse_assignment behaviour */
-    newObj->setBehaviour(((RexxClass *)this)->getInstanceBehaviour());
+    newObj->setBehaviour(classThis->getInstanceBehaviour());
+
+    // jlf: was missing, ok to add it?
+    if (classThis->hasUninitDefined())
+    {
+        newObj->hasUninit();
+    }
+
     /* Initialize the new list instance  */
     newObj->sendMessage(OREF_INIT, init_args, argCount, named_argCount);
     return newObj;                       /* return the new object             */
