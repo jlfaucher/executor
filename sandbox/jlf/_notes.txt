@@ -1572,6 +1572,40 @@ Needed retrofits for trunk/extensions/json.testGroup (Rony's version)
     2) ::options novalue error
 
 
+checkuninit
+review again
+ooRexx4 has few places (only RexxActivation::run)
+ooRexx5 has many places where checkuninit is called.
+    Activity.cpp		memoryObject.checkUninitQueue()
+    Activity::runThread
+    Activity::exitCurrentThread
+    Activity::run
+
+    ClassClass.cpp		checkUninit()
+    RexxClass::defineMethods
+    RexxClass::defineMethodsRexx
+    RexxClass::inheritInstanceMethods
+    RexxClass::buildFinalClassBehaviour
+    RexxClass::updateSubClasses
+    RexxClass::updateInstanceSubClasses
+    RexxClass::enhanced
+    RexxClass::subclass
+
+    NativeActivation.cpp		memoryObject.checkUninitQueue()
+    NativeActivation::run
+
+    ObjectClass.cpp		checkUninit()
+    RexxObject::defineInstanceMethod
+    RexxObject::deleteInstanceMethod
+
+    RexxActivation.cpp		memoryObject.checkUninitQueue()
+    RexxActivation::run
+
+    Implementation:
+    RexxMemory.hpp
+    RexxMemory.cpp
+
+
 ================================================================================
 Things I don't like in ooRexx4
 ================================================================================
