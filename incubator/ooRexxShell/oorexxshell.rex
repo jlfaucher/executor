@@ -926,7 +926,8 @@ Helpers
 -- Load optional packages/libraries
 ::routine loadOptionalComponents
     -- Initial customization, before any preloaded package
-    call loadPackage .oorexxshell~customizationFile, /*silent*/ .true, /*reportError*/ .true
+    -- Be silentLoaded when not interactive, to not display a full path which is incompatible with regression tests
+    call loadPackage .oorexxshell~customizationFile, /*silentLoaded*/ \ .ooRexxShell~isInteractive, /*silentNotLoaded*/ .true, /*reportError*/ .true
 
     -- The routine stringChunks is used internally by ooRexxShell
     -- Try to load the stand-alone package (don't ::requires it, to avoid an error if not found)
@@ -934,12 +935,12 @@ Helpers
    .ooRexxShell~routine_stringChunks = .context~package~findroutine("stringChunks")
 
     -- The class IndentedStream is optional. Used internally by the "<" command.
-    .ooRexxShell~hasIndentedStream = loadPackage("utilities/indentedStream.cls", /*silent*/ .true)
+    .ooRexxShell~hasIndentedStream = loadPackage("utilities/indentedStream.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true)
 
     -- Load the extensions now, because some packages may depend on extensions
     -- for compatibility with ooRexx5 (ex: json, regex)
     .ooRexxShell~isExtended = .true
-    if \loadPackage("extension/extensions.cls", /*silent*/ .true, /*reportError*/ .false) then do -- requires jlf sandbox ooRexx
+    if \loadPackage("extension/extensions.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true, /*reportError*/ .false) then do -- requires jlf sandbox ooRexx
         .ooRexxShell~isExtended = .false
         call loadPackage "extension/std/extensions-std.cls" -- works with standard ooRexx, but integration is weak
         call loadPackage "procedural/dispatcher.cls" -- procedural version of a selection of Executor's extensions
@@ -969,7 +970,7 @@ Helpers
     extension/collection.cls and procedural/collection.cls provide a compatible workaround.
     ooRexx 4.2 and Executor will raise the error if the workaround is not loaded.
     */
-    .ooRexxShell~hasRegex = loadPackage("regex/regex.cls", /*silent*/ .false, /*reportError*/ .false)
+    .ooRexxShell~hasRegex = loadPackage("regex/regex.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .false, /*reportError*/ .false)
 
     call loadPackage "smtp.cls"
     call loadPackage "socket.cls"
@@ -978,7 +979,7 @@ Helpers
     --call loadPackage "ooSQLite.cls"
 
     -- derived from the offical rgf_util2.rex (in BSF4ooRexx)
-    .ooRexxShell~hasRgfUtil2 = loadPackage("rgf_util2/rgf_util2.rex", /*silent*/ .true, /*reportError*/ .true) -- Try this one first (executor version), because I find also the other one (bsf4oorexx version)
+    .ooRexxShell~hasRgfUtil2 = loadPackage("rgf_util2/rgf_util2.rex", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true, /*reportError*/ .true) -- Try this one first (executor version), because I find also the other one (bsf4oorexx version)
     if .ooRexxShell~hasRgfUtil2 == .false then .ooRexxShell~hasRgfUtil2 = loadPackage("rgf_util2.rex")
     if .ooRexxShell~hasRgfUtil2 == .true,,
        .nil <> .context~package~findroutine("rgf_util_extended") then do
@@ -988,7 +989,7 @@ Helpers
             .ooRexxShell~comparatorClass = .NumberComparator
     end
 
-    .ooRexxShell~hasBsf = loadPackage("BSF.CLS", /*silent*/ .true, /*reportError*/ .true)
+    .ooRexxShell~hasBsf = loadPackage("BSF.CLS", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true, /*reportError*/ .true)
     if value("UNO_INSTALLED",,"ENVIRONMENT") <> "" then call loadPackage "UNO.CLS"
 
     if .Clauser~isA(.Class) then .ooRexxShell~hasClauser = .true
@@ -1001,7 +1002,8 @@ Helpers
     end
 
     -- Second customization, after all preloaded packages
-    call loadPackage .oorexxshell~customizationFile2, /*silent*/ .true, /*reportError*/ .true
+    -- Be silentLoaded when not interactive, to not display a full path which is incompatible with regression tests
+    call loadPackage .oorexxshell~customizationFile2, /*silentLoaded*/ \ .ooRexxShell~isInteractive, /*silentNotLoaded*/ .true, /*reportError*/ .true
 
     if .ooRexxShell~isExtended then do
         if .ooRexxShell~isInteractive then .ooRexxShell~sayComment("Unicode character names not loaded, execute: call loadUnicodeCharacterNames")
@@ -1059,15 +1061,15 @@ Helpers
 
 -------------------------------------------------------------------------------
 ::routine loadPackage
-    use strict arg filename, silent=.false, reportError=.true
+    use strict arg filename, silentLoaded=.false, silentNotLoaded=.false, reportError=.true
     signal on syntax name loadPackageError
     .context~package~loadPackage(filename)
-    if .ooRexxShell~showInitialization then .ooRexxShell~sayInfo("loadPackage OK for" filename)
+    if .ooRexxShell~showInitialization, \ silentLoaded then .ooRexxShell~sayInfo("loadPackage OK for" filename)
     return .true
     loadPackageError:
     condition = condition("O")
     if reportError, condition <> .nil, condition~code == 43.901 then reportError = .false -- Don't report the error "file not found"
-    if \ silent then do
+    if \ silentNotLoaded then do
         .ooRexxShell~sayError("loadPackage KO for" filename)
         if reportError then .ooRexxShell~sayCondition(condition, /*shortFormat*/ .false)
     end
