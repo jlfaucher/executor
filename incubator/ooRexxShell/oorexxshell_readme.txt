@@ -404,6 +404,26 @@ History of changes
 ==================
 
 -----------------------------------------------
+2024 may 18
+
+Preload the JDOR component of Rony.
+JDOR is not an interpreter like, say, Hostemu.
+So there is no entry for JDOR in the interpreters list.
+Instead, JDOR is activated with: address jdor.
+That allows to mix JDOR commands with ooRexx expressions.
+
+Settings: trapNoValue is now false by default.
+That's better for using JDOR (no need to surround the commands by quotes).
+
+Prompt: Fix the display of the 'address' part.
+Now the display is ooRexx[JDOR] instead of ooRexx[cmd] after issuing the command
+'address jdor'.
+
+Prompt: No longer display [ooRexx] when the interpreter is different from ooRexx.
+Reason: there is no address handler when the interpreter is not ooRexx.
+
+
+-----------------------------------------------
 2024 may 7
 
 Modify the output of ?settings to display the full attribute expression and to

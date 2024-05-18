@@ -306,7 +306,7 @@ main: procedure
         .ooRexxShell~inputrxPrevious = .ooRexxShell~inputrx
         .ooRexxShell~maybeCommandPrevious = .ooRexxShell~maybeCommand
 
-        .ooRexxShell~prompt = prompt(systemAddress())
+        .ooRexxShell~prompt = prompt(address())
         .ooRexxShell~inputrx = readline(.ooRexxShell~prompt)
         .ooRexxShell~input = .ooRexxShell~inputrx~strip -- remember: don't apply ~space here!
 
@@ -593,7 +593,7 @@ Helpers
     if .ooRexxShell~promptInterpreter then prompt = .ooRexxShell~interpreter
     if .ooRexxShell~promptAddress then do
         if .ooRexxShell~interpreter~caselessEquals("ooRexx") then prompt ||= "["currentAddress"]"
-                                                             else prompt ||= "[ooRexx]"
+                                                             -- else prompt ||= "[ooRexx]"
     end
     if .ooRexxShell~securityManager~isEnabledByUser then prompt ||= "> " ; else prompt ||= "!> "
     return prompt
@@ -990,6 +990,14 @@ Helpers
     end
 
     .ooRexxShell~hasBsf = loadPackage("BSF.CLS", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true, /*reportError*/ .true)
+
+    if loadPackage("jdor.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true, /*reportError*/ .true) then do
+        -- create JDOR handler
+        jdh=.bsf~new("org.oorexx.handlers.jdor.JavaDrawingHandler")
+        -- define "JDOR" address environment serviced by our JDOR handler
+        call BsfCommandHandler "add", "JDOR", jdh -- add command handler
+	end
+
     if value("UNO_INSTALLED",,"ENVIRONMENT") <> "" then call loadPackage "UNO.CLS"
 
     if .Clauser~isA(.Class) then .ooRexxShell~hasClauser = .true
@@ -1299,7 +1307,7 @@ Helpers
 ::attribute trapLostdigits class -- default true: the condition LOSTDIGITS is trapped when interpreting the command
 ::attribute trapNoMethod class -- default true
 ::attribute trapNoString class -- default false, will be true if I find a way to optimize the integration of alternative operators
-::attribute trapNoValue class -- default true
+::attribute trapNoValue class -- default false
 ::attribute trapSyntax class -- default true: the condition SYNTAX is trapped when interpreting the command
 
 ::attribute comparatorClass class -- The comparator class used to sort the collections for display, or .nil
@@ -1363,7 +1371,7 @@ Helpers
     self~trapLostdigits = .true
     self~trapNoMethod = .false
     self~trapNoString = .false
-    self~trapNoValue = .true
+    self~trapNoValue = .false
     self~trapSyntax = .true
 
     HOME = value("HOME",,"ENVIRONMENT") -- probably defined under MacOs and Linux, but maybe not under Windows
