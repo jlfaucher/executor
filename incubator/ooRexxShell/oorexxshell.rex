@@ -296,6 +296,9 @@ return
 -------------------------------------------------------------------------------
 main: procedure
 
+    -- Reset here, not in REPL because JDOR returns Java objects that might be needed later
+    .ooRexxShell~RC = 0
+
     REPL:
         if .ooRexxShell~debug then trace i ; else trace off
         call on halt name haltHandler
@@ -309,8 +312,6 @@ main: procedure
         .ooRexxShell~prompt = prompt(address())
         .ooRexxShell~inputrx = readline(.ooRexxShell~prompt)
         .ooRexxShell~input = .ooRexxShell~inputrx~strip -- remember: don't apply ~space here!
-
-        .ooRexxShell~RC = 0
 
         -- If the input starts with a space then no command recognition.
         .ooRexxShell~maybeCommand = .ooRexxShell~inputrx~left(1, ".") <> " "
@@ -481,10 +482,12 @@ haltHandler:
 -- Moreover don't call it, you must jump to (signal) it...
 dispatchCommand:
     call time 'r' -- to see how long this takes
-    RC = 0
+    -- RC = 0 -- No longer reset (first need: JDOR)
+    .ooRexxShell~securityManager~hasInterceptedCommand = .false -- will become .true if the command has been sent to the addressed environment
     .ooRexxShell~error = .false
     call rxqueue "set", .ooRexxShell~queueInitialName -- Reactivate the initial SESSION queue, for the command evaluation
     if .ooRexxshell~securityManager~isEnabledByUser then .ooRexxShell~securityManager~isEnabled = .true
+
     if .ooRexxShell~commandInterpreter~caselessEquals("ooRexx") then
         signal interpretCommand -- don't call
     else
@@ -494,23 +497,29 @@ dispatchCommand:
     if .ooRexxshell~securityManager~isEnabledByUser then .ooRexxShell~securityManager~isEnabled = .false
     options "COMMANDS" -- Commands must be enabled for proper execution of ooRexxShell
     call rxqueue "set", .ooRexxShell~queueName -- Back to the public ooRexxShell input queue
-    if .ooRexxShell~error then .ooRexxShell~sayCondition(condition("O"), /*shortFormat*/ .true)
-    if RC <> 0 & \.ooRexxShell~error then do
-        -- RC can be set by interpretCommand or by addressCommand
-        -- Not displayed in case of error, because the integer portion of Code already provides the same value as RC
-        .ooRexxShell~sayError("RC=" RC)
+
+    if .ooRexxShell~error then do
+        -- No need to display RC because the integer portion of condition~code provides the same value as RC
+        .ooRexxShell~sayCondition(condition("O"), /*shortFormat*/ .true)
     end
-    if RC <> 0 | .ooRexxShell~error then do
-        -- Not sure why I display that, because it's rather internal stuff (transformed command).
-        -- Today, I was surprised to see it, thinking I forgot to remove a debug display...
-        -- Decision: put in comment.
-        --if \.ooRexxShell~demo then .ooRexxShell~sayInfo(.ooRexxShell~command)
+    else do
+        /*
+        RC can be set by interpretCommand or by addressCommand.
+        - When interpretCommand: RC can be any value (for example, can be a Java object when using JDOR).
+        - When addressCommand: RC is a number. Generally, 0 means "no error".
+        */
+        if .ooRexxShell~securityManager~hasInterceptedCommand & RC \== 0 then do
+            if RC~hasMethod("toString") then .ooRexxShell~sayError("RC=" RC~toString) -- first need: JDOR
+                                        else .ooRexxShell~sayError("RC=" RC)
+        end
     end
+
     if .ooRexxShell~showInfos | .ooRexxShell~showInfosNext then do
         .ooRexxShell~sayInfo("Duration:" time('e')) -- elapsed duration
         if .ooRexxShell~isExtended, .Coactivity~count <> 0 then .ooRexxShell~sayInfo("#Coactivities:" .Coactivity~count) -- counter of coactivities
         .ooRexxShell~showInfosNext = .false
     end
+
     signal CONTINUE_REPL
 
 
@@ -676,6 +685,7 @@ Helpers
         .ooRexxShell~sayError("[readline] RC="RC)
         .ooRexxShell~sayError("[readline] Something is not working, fallback to raw input (no more history, no more globbing)")
     end
+    RC = .ooRexxShell~RC -- restore (first need: JDOR)
 
     return inputrx
 
@@ -927,7 +937,7 @@ Helpers
 ::routine loadOptionalComponents
     -- Initial customization, before any preloaded package
     -- Be silentLoaded when not interactive, to not display a full path which is incompatible with regression tests
-    call loadPackage .oorexxshell~customizationFile, /*silentLoaded*/ \ .ooRexxShell~isInteractive, /*silentNotLoaded*/ .true, /*reportError*/ .true
+    call loadPackage .oorexxshell~customizationFile, /*silentLoaded*/ \ .ooRexxShell~isInteractive, /*silentNotLoaded*/ .true
 
     -- The routine stringChunks is used internally by ooRexxShell
     -- Try to load the stand-alone package (don't ::requires it, to avoid an error if not found)
@@ -979,7 +989,7 @@ Helpers
     --call loadPackage "ooSQLite.cls"
 
     -- derived from the offical rgf_util2.rex (in BSF4ooRexx)
-    .ooRexxShell~hasRgfUtil2 = loadPackage("rgf_util2/rgf_util2.rex", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true, /*reportError*/ .true) -- Try this one first (executor version), because I find also the other one (bsf4oorexx version)
+    .ooRexxShell~hasRgfUtil2 = loadPackage("rgf_util2/rgf_util2.rex", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true) -- Try this one first (executor version), because I find also the other one (bsf4oorexx version)
     if .ooRexxShell~hasRgfUtil2 == .false then .ooRexxShell~hasRgfUtil2 = loadPackage("rgf_util2.rex")
     if .ooRexxShell~hasRgfUtil2 == .true,,
        .nil <> .context~package~findroutine("rgf_util_extended") then do
@@ -989,16 +999,13 @@ Helpers
             .ooRexxShell~comparatorClass = .NumberComparator
     end
 
-    .ooRexxShell~hasBsf = loadPackage("BSF.CLS", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true, /*reportError*/ .true)
+    .ooRexxShell~hasBsf = loadPackage("BSF.CLS")
 
-    if loadPackage("jdor.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true, /*reportError*/ .true) then do
-        -- create JDOR handler
-        jdh=.bsf~new("org.oorexx.handlers.jdor.JavaDrawingHandler")
-        -- define "JDOR" address environment serviced by our JDOR handler
-        call BsfCommandHandler "add", "JDOR", jdh -- add command handler
+    if .ooRexxShell~hasBsf then do
+        -- JDOR is not available for ooRexx 4.2 and Executor. Don't complain if not loaded.
+        if loadPackage("jdor.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true) then call initialize_JDOR
+        if value("UNO_INSTALLED",,"ENVIRONMENT") <> "" then call loadPackage "UNO.CLS"
 	end
-
-    if value("UNO_INSTALLED",,"ENVIRONMENT") <> "" then call loadPackage "UNO.CLS"
 
     if .Clauser~isA(.Class) then .ooRexxShell~hasClauser = .true
                             else .ooRexxShell~hasClauser = loadPackage("oorexxshell_clauser.cls")
@@ -1011,7 +1018,7 @@ Helpers
 
     -- Second customization, after all preloaded packages
     -- Be silentLoaded when not interactive, to not display a full path which is incompatible with regression tests
-    call loadPackage .oorexxshell~customizationFile2, /*silentLoaded*/ \ .ooRexxShell~isInteractive, /*silentNotLoaded*/ .true, /*reportError*/ .true
+    call loadPackage .oorexxshell~customizationFile2, /*silentLoaded*/ \ .ooRexxShell~isInteractive, /*silentNotLoaded*/ .true
 
     if .ooRexxShell~isExtended then do
         if .ooRexxShell~isInteractive then .ooRexxShell~sayComment("Unicode character names not loaded, execute: call loadUnicodeCharacterNames")
@@ -1081,6 +1088,20 @@ Helpers
         .ooRexxShell~sayError("loadPackage KO for" filename)
         if reportError then .ooRexxShell~sayCondition(condition, /*shortFormat*/ .false)
     end
+    return .false
+
+
+-------------------------------------------------------------------------------
+::routine initialize_JDOR
+    use strict arg -- none
+    signal on syntax name error
+   -- create JDOR handler
+    jdh=.bsf~new("org.oorexx.handlers.jdor.JavaDrawingHandler")
+   -- define "JDOR" address environment serviced by our JDOR handler
+    call BsfCommandHandler "add", "JDOR", jdh -- add command handler
+    return .true
+    error:
+    .ooRexxShell~sayError("JDOR initialization KO")
     return .false
 
 
@@ -2286,19 +2307,21 @@ Helpers
 -------------------------------------------------------------------------------
 ::class SecurityManager
 -------------------------------------------------------------------------------
--- Under the control of the user:
 
--- isEnabledByUser is true by default, can be set to false using the command 'security off'.
--- When false, the security manager is deactivated (typically for debug purpose).
-::attribute isEnabledByUser
-::attribute traceCommand
-::attribute verbose
+-- Under the control of the user:
+    -- isEnabledByUser is true by default, can be set to false using the command 'security off'.
+    -- When false, the security manager is deactivated (typically for debug purpose).
+    ::attribute isEnabledByUser
+    ::attribute traceCommand
+    ::attribute verbose
 
 -- Under the control of ooRexxShell
-::attribute isEnabled
+    ::attribute hasInterceptedCommand
+    ::attribute isEnabled
 
 
 ::method init
+   self~hasInterceptedCommand = .false
    self~isEnabledByUser = .true
    self~isEnabled = .false
    self~traceCommand = .false
@@ -2344,6 +2367,7 @@ Helpers
     if .ooRexxShell~debug then trace i ; else trace off
     use arg info
 
+    self~hasInterceptedCommand = .true -- tested by ooRexxShell to decide if RC is displayed
     isEnabled = self~isEnabledByUser & self~isEnabled
     if isEnabled then status = "enabled" ; else status = "disabled"
 

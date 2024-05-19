@@ -39,15 +39,20 @@ Example (Windows):
 ooRexx[CMD]> 'dir oorexx | find ".dll"'             -- here you need to surround by quotes
 ooRexx[CMD]> cmd dir oorexx | find ".dll"           -- unless you temporarily select cmd
 ooRexx[CMD]> say 1+2                                -- 3
+ooRexx[CMD]> address jdor                           -- select JDOR as command handler
+ooRexx[JDOR]> newImage 300 500                      -- create new bitmap
+ooRexx[JDOR]> winShow                               -- show frame
+ooRexx[JDOR]> moveTo (300-50)/2 (500-50)/2          -- mix JDOR command and ooRexx expressions
+ooRexx[JDOR]> drawRect 50 50
 ooRexx[CMD]> cmd                                    -- switch to the cmd interpreter
-CMD[ooRexx]> dir | find ".dll"                      -- raw command, no need of surrounding quotes
-CMD[ooRexx]> cd c:\program files
-CMD[ooRexx]> say 1+2                                -- error, the ooRexx interpreter is not active here
-CMD[ooRexx]> oorexx say 1+2                         -- you can temporarily select an interpreter
-CMD[ooRexx]> hostemu                                -- switch to the hostemu interpreter
-HostEmu[ooRexx]> execio * diskr "install.txt" (finis stem in.  -- store the contents of the file in the stem in.
-HostEmu[ooRexx]> oorexx in.=                        -- temporarily switch to ooRexx to display the stem
-HostEmu[ooRexx]> exit                               -- the exit command is supported whatever the interpreter
+CMD> dir | find ".dll"                              -- raw command, no need of surrounding quotes
+CMD> cd c:\program files
+CMD> say 1+2                                        -- error, the ooRexx interpreter is not active here
+CMD> oorexx say 1+2                                 -- you can temporarily select an interpreter
+CMD> hostemu                                        -- switch to the hostemu interpreter
+HostEmu> execio * diskr "install.txt" (finis stem in.  -- store the contents of the file in the stem in.
+HostEmu> oorexx in.=                                -- temporarily switch to ooRexx to display the stem
+HostEmu> exit                                       -- the exit command is supported whatever the interpreter
 
 
 Non-interactive mode
@@ -113,6 +118,8 @@ Solution 2
 
 Queries
 =======
+
+Most queries depend on extensions only available with Executor.
 
 ?: display help.
 ?bt: display the backtrace of the last error (same as ?tb).
@@ -237,13 +244,13 @@ zsh:           to activate the zsh interpreter.
 
 If the line starts with a space, then these words are not recognized as an interpreter name.
 Instead, the line is interpreted by oorexx, which maybe triggers an external command.
-ooRexx[bash]> bash
-bash[ooRexx]>                        You are still in ooRexxShell
-bash[ooRexx]> oorexx
-ooRexx[bash]>  bash                  Under MacOs, run BASH (/bin/bash)
+ooRexx[sh]> bash
+bash>                                You are still in ooRexxShell
+bash> oorexx
+ooRexx[sh]>  bash                    Under MacOs, run BASH (/bin/bash)
 /local/rexx/oorexx$                  You are no longer in ooRexxShell (see the prompt)
-/local/rexx/oorexx$ exit 0
-ooRexx[bash]>
+/local/rexx/oorexx$ exit 0           Return to ooRexxShell
+ooRexx[sh]>
 
 Commands
 ========
@@ -254,6 +261,7 @@ If the input line starts with a space then these commands are not recognized.
 /* alone: Used in a demo to start a multiline comment. Ended by */ alone.
 < filename: read the file and put each line in the queue.
 color off|on: deactivate|activate the colors.
+color codes off|on: deactivate|activate the display of the color codes.
 debug off|on: deactivate|activate the full trace of the internals of ooRexxShell.
 demo off|on|fast: deactivate|activate the demonstration mode.
 exit: exit ooRexxShell.
@@ -309,16 +317,17 @@ Example of customization:
         .ooRexxShell~trapLostDigits = .false
         .ooRexxShell~trapNoMethod = .true
         .ooRexxShell~trapNoString = .true
-        .ooRexxShell~trapNoValue = .false -- Allow to use uninitialized variables when interpreting the command line
+        .ooRexxShell~trapNoValue = .true -- raise an error when using an uninitialized variable
         .ooRexxShell~trapSyntax = .false -- ooRexxShell will be interrupted at the first syntax error
 
         -- Select the UTF-8 code page (Windows only)
         "chcp 65001"
 
         -- Load a package
-        -- if silent is false then a message is displayed when the package can't be loaded.
+        -- if silentLoaded is false then a message is displayed when the package has been loaded successfully.
+        -- if silentNotLoaded is false then a message is displayed when the package can't be loaded.
         -- if reportError is true then the loading error is displayed.
-        hasLoadedMyPackage = loadPackage("full path or relative path of MyPackage.cls", /*silent*/ .false, /*reportError*/ .false)
+        hasLoadedMyPackage = loadPackage("full path or relative path of MyPackage.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .false, /*reportError*/ .false)
 
         -- Load a native library
         hasLoadedMyLibrary = loadLibrary("full path or relative path of MyLibrary"
@@ -360,9 +369,9 @@ Known problems under Windows
 
 - Assuming you defined this doskey macro: ll=ls -lap $*
   you will see a difference of behavior between
-  CMD[ooRexx]> ll
+  CMD> ll
   and
-  CMD[ooRexx]> cmd ll
+  CMD> cmd ll
   and
   ooRexx[CMD]> 'll'
   and
@@ -381,6 +390,11 @@ Known problems under Windows
 
 Known problems under all platforms
 ==================================
+
+- Ctrl-C kills ooRexxShell, despite a call on halt.
+  RexxTry is much more robust in this regard.
+
+- In mode raw command, the quotes and the escape characters are sometimes not well supported.
 
 - When the first word of the command is an interpreter name, then it is assumed you want to
   temporarily select this interpreter. The first word is removed from the command passed to
@@ -402,6 +416,17 @@ Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
 
 History of changes
 ==================
+
+-----------------------------------------------
+2024 may 19
+
+The variable RC is no longer reset on each line interpretation.
+Reason: The JDOR command handler may return Java objects with which one can
+interact, if needed.
+
+The initialization of JDOR is more robust: ooRexxShell no longer breaks in case
+of error.
+
 
 -----------------------------------------------
 2024 may 18
@@ -824,7 +849,7 @@ to the number of lines).
 
 Add support for PowerShell core (pwsh).
     ooRexx[bash]> pwsh
-    pwsh[ooRexx]>
+    pwsh>
 
     Since pwsh is not (yet) supported natively as an address environment by ooRexx,
     the execution is delegated to the system interpreter:
@@ -832,10 +857,10 @@ Add support for PowerShell core (pwsh).
     - sh -c pwsh -command '<raw command>'
 
     As for the other shells, pwsh is a one-liner interpreter in ooRexxShell:
-    pwsh[ooRexx]> $i=1; echo $i             # display 1
+    pwsh> $i=1; echo $i                     # display 1
     If you split the previous command in 2 lines, it doesn't work:
-    pwsh[ooRexx]> $i=1
-    pwsh[ooRexx]> echo $i                   # display nothing because the variable i has no value
+    pwsh> $i=1
+    pwsh> echo $i                           # display nothing because the variable i has no value
 
 systemAddress has been aligned with ooRexx 5: default is "sh" for Linux/MacOs.
 But note the default address() for executor and ooRexx 4 is still bash.
