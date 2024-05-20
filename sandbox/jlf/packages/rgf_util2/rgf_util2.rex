@@ -1794,6 +1794,9 @@ syntax:              -- propagate condition
   end
 
 
+  if .ExtensionDispatcher~isA(.Class) then coll_isA_Collection = .ExtensionDispatcher~isA(coll, .Collection)
+                                      else coll_isA_Collection =  coll~isA(.Collection)
+
   if coll~isA(.supplier) then
   do
      s=coll
@@ -1809,7 +1812,7 @@ syntax:              -- propagate condition
         say title
      end
   end
-  else if \coll~isA(.Collection) then   -- make sure we have a Collection else
+  else if \coll_isA_Collection then   -- make sure we have a Collection else
   do
      if arg(2,"E") then    -- title omitted !
         say title
@@ -1840,7 +1843,7 @@ syntax:              -- propagate condition
   count=0
 
 
-  if coll~isA(.Collection) then
+  if coll_isA_Collection then
   do
      s=makeSortedSupplier(coll, comparator, maxCount)
   end
@@ -1922,9 +1925,22 @@ makeSortedSupplier: procedure
   numeric digits -- stop any propagated settings, to have the default value for digits()
   use arg coll, comparator=.nil, maxCount=(9~copies(digits()))
 
-  if coll~isA(.OrderedCollection) then
+  if .ExtensionDispatcher~isA(.Class) then
+  do
+      coll_isA_OrderedCollection = .ExtensionDispatcher~isA(coll, .OrderedCollection)
+      coll_isA_SetCollection = .ExtensionDispatcher~isA(coll, .SetCollection)
+      coll_isA_Array = .ExtensionDispatcher~isA(coll, .Array)
+  end
+  else
+  do
+      coll_isA_OrderedCollection =  coll~isA(.OrderedCollection)
+      coll_isA_SetCollection =  coll~isA(.SetCollection)
+      coll_isA_Array =  coll~isA(.Array)
+  end
+
+  if coll_isA_OrderedCollection then
   do  -- don't sort, just return the supplier
-     if coll~isA(.array) then
+     if coll_isA_Array then
      do
          if interpreter_extended() then
              return coll~supplier(maxCount+1) -- +1 to let display the ellipsis
@@ -1934,7 +1950,7 @@ makeSortedSupplier: procedure
      return coll~supplier -- optional argument maxCount not yet implemented
   end
 
-  if coll~isA(.SetCollection) then        -- use items part, sort it and return it as a supplier
+  if coll_isA_SetCollection then          -- use items part, sort it and return it as a supplier
   do
      arr=coll~allItems                    -- get array representation
      call sortArray arr, comparator       -- sort elements
@@ -2709,9 +2725,20 @@ createCodeSnippet: procedure
   if a1~hasMethod("ppString") then return a1~ppString(surroundByQuotes)
   if .ExtensionDispatcher~isA(.Class), .ExtensionDispatcher~hasMethod(a1, "ppString") then return .ExtensionDispatcher~ppString(a1, surroundByQuotes)
 
-  if \a1~isA(.string) then
+  if .ExtensionDispatcher~isA(.Class) then
   do
-     if a1~isA(.Collection) then
+      a1_isA_String = .ExtensionDispatcher~isA(a1, .String)
+      a1_isA_Collection = .ExtensionDispatcher~isA(a1, .Collection)
+  end
+  else
+  do
+      a1_isA_String =  a1~isA(.String)
+      a1_isA_Collection =  a1~isA(.Collection)
+  end
+
+  if \a1_isA_String then
+  do
+     if a1_isA_Collection then
         return "["a1~string "("a1~items "items)" "id#_" || id2x(a1~identityHash)"]"
      else
         return "["a1~string "id#_" || id2x(a1~identityHash)"]"
@@ -2735,9 +2762,20 @@ createCodeSnippet: procedure
   if a1~hasMethod("ppString") then return a1~ppString(surroundByQuotes)
   if .ExtensionDispatcher~isA(.Class), .ExtensionDispatcher~hasMethod(a1, "ppString") then return .ExtensionDispatcher~ppString(a1, surroundByQuotes)
 
-  if \a1~isA(.string) then
+  if .ExtensionDispatcher~isA(.Class) then
   do
-     if a1~isA(.array), a1~dimension=1 then
+      a1_isA_String = .ExtensionDispatcher~isA(a1, .String)
+      a1_isA_Array = .ExtensionDispatcher~isA(a1, .Array)
+  end
+  else
+  do
+      a1_isA_String =  a1~isA(.String)
+      a1_isA_Array =  a1~isA(.Array)
+  end
+
+  if \a1_isA_String then
+  do
+     if a1_isA_Array, a1~dimension=1 then
      do
         -- if a1~dimension=1 then   -- create comma-delimited list of index-values?
         do

@@ -9,8 +9,16 @@ Procedural version of the Executor's extended methods.
    quote/apostrophe.
 */
 ::method quoted_extension class
-  use strict arg string, quote='"'
-  return quote || string~changestr(quote, quote~copies(2)) || quote
+    use strict arg string, quote='"'
+    return quote || string~changestr(quote, quote~copies(2)) || quote
+
+
+::method unquoted_extension class
+    use strict arg string, quote='"'
+    if string~left(1) == quote & string~right(1) == quote then
+        return string~substr(2, string~length - 2)~changeStr(quote~copies(2), quote)
+    else
+        return string
 
 
 /******************************************************************************/

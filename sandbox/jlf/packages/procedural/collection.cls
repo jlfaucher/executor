@@ -48,7 +48,7 @@ All the collections will benefit from this display.
         return collection~class~id || .ExtensionDispatcher~ppString(collection~allItems, surroundByQuotes, expandCollection)
     end
     else do
-        return collection~class~id || .ExtensionDispatcher~ppString(collection~allItems~sortWith(.StringNumericComparator~new))
+        return collection~class~id || .ExtensionDispatcher~ppString(collection~allItems~sortWith(.StringNumericComparator~new), surroundByQuotes, expandCollection)
     end
 
 

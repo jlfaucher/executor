@@ -499,19 +499,11 @@ dispatchCommand:
     call rxqueue "set", .ooRexxShell~queueName -- Back to the public ooRexxShell input queue
 
     if .ooRexxShell~error then do
-        -- No need to display RC because the integer portion of condition~code provides the same value as RC
+        -- The integer portion of condition~code provides the same value as RC
         .ooRexxShell~sayCondition(condition("O"), /*shortFormat*/ .true)
     end
     else do
-        /*
-        RC can be set by interpretCommand or by addressCommand.
-        - When interpretCommand: RC can be any value (for example, can be a Java object when using JDOR).
-        - When addressCommand: RC is a number. Generally, 0 means "no error".
-        */
-        if .ooRexxShell~securityManager~hasInterceptedCommand & RC \== 0 then do
-            if RC~hasMethod("toString") then .ooRexxShell~sayError("RC=" RC~toString) -- first need: JDOR
-                                        else .ooRexxShell~sayError("RC=" RC)
-        end
+        if .ooRexxShell~securityManager~hasInterceptedCommand then .ooRexxShell~sayRC(RC)
     end
 
     if .ooRexxShell~showInfos | .ooRexxShell~showInfosNext then do
@@ -919,10 +911,11 @@ Helpers
 
     else if .ooRexxShell~isExtended, value~isA(.enclosedArray), dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
 
-    else if value~hasMethod("ppRepresentation"),                                                         value~isA(.array), value~dimension == 1, dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
-    else if .ExtensionDispatcher~isA(.class), .ExtensionDispatcher~hasMethod(value, "ppRepresentation"), value~isA(.array), value~dimension == 1, dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
+    else if value~hasMethod("ppRepresentation"),                                                         value~isA(.array),                       value~dimension == 1, dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
+    else if .ExtensionDispatcher~isA(.class), .ExtensionDispatcher~hasMethod(value, "ppRepresentation"), .ExtensionDispatcher~isA(value, .array), value~dimension == 1, dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
 
-    else if value~isA(.Collection)/*, dumpLevel == 2*/  then .ooRexxShell~sayCollection(value, /*title*/, comparator, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
+    else if value~isA(.Collection)                                                        /*, dumpLevel == 2*/  then .ooRexxShell~sayCollection(value, /*title*/, comparator, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
+    else if .ExtensionDispatcher~isA(.class), .ExtensionDispatcher~isA(value, .Collection)/*, dumpLevel == 2*/  then .ooRexxShell~sayCollection(value, /*title*/, comparator, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
 
     -- if "==" (dumpLevel 2) then a supplier is displayed as a collection. A copy is made to not consume the datas.
     else if value~isA(.Supplier), dumpLevel == 2 then .ooRexxShell~sayCollection(value~copy, /*title*/, .comparator, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
@@ -1528,6 +1521,21 @@ Helpers
     .color~select(.ooRexxShell~traceColor, .traceOutput)
     .traceOutput~say(text)
     .color~select(.ooRexxShell~resetColor, .traceOutput)
+
+
+::method sayRC class
+    /*
+    RC can be set by interpretCommand or by addressCommand.
+    - When interpretCommand: RC can be any value (for example, can be a Java object when using JDOR).
+    - When addressCommand: RC is a number. Generally, 0 means "no error".
+    */
+    use strict arg RC
+    if RC == 0 then return
+    .color~select(.ooRexxShell~errorColor, .error)
+    -- since RC can be any value (case of JDOR), display it as a result
+    call charout , "RC="
+    call dumpResult RC
+    .color~select(.ooRexxShell~resetColor, .error)
 
 
 ::method sayError class

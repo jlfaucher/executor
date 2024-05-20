@@ -4,6 +4,7 @@ Procedural version of the Executor's extended methods.
 
 ::requires "procedural/collection.cls"
 
+-- ::options trace r
 
 /******************************************************************************/
 -- Array helper routines
@@ -55,7 +56,7 @@ Procedural version of the Executor's extended methods.
 
 ::method shapeToPrettyString_extension class
     use strict arg object, separator=""
-    if object~isA(.array) then do
+    if .ExtensionDispatcher~isA(object, .array) then do
         shape = .ExtensionDispatcher~shapeToString(object)
         if shape <> "no shape" then shape = "shape" shape
         return shape || separator
@@ -64,20 +65,50 @@ Procedural version of the Executor's extended methods.
 
 
 /******************************************************************************/
+::class "APLArray" public
+
+/*
+                  | value                         | dimension | dimensions                    | size | shape
+------------------+-------------------------------+-----------+-------------------------------+------+-----------------------------
+.array~new        | an Array (no shape, 0 items)  | 0         | [0]                           | 0    | an Array (shape [], 0 items)
+.array~new(a())   | an Array (shape [], 0 items)  | 0         | an Array (no shape, 0 items)  | 1    | []
+.array~new(v())   | an Array (shape [], 0 items)  | 0         | an Array (no shape, 0 items)  | 1    | []
+a()               | an Array (shape [], 0 items)  | 0         | an Array (no shape, 0 items)  | 1    | []
+v()               | []                            | 1         | [0]                           | 0    | [0]
+*/
+::method shape_extension class
+    -- The shape of an array is an array which gives the size of each dimension (APL).
+    use strict arg array
+    dimensions = .ExtensionDispatcher~dimensions(array)
+    if array~dimension == 0 then do
+        -- Two cases:
+
+        -- array definitively with no dimension : .array~new(.array~new), also returned by a()
+        -- This case exist in APL : the scalars have no dimension, their shape is an empty vector
+        if dimensions~items == 0 then return v() -- empty vector (1 dimension, 0 item)
+
+        -- array with no dimension yet assigned (the first assignment will determine the dimension).
+        -- This case does not exist in APL
+        -- Bug ? self~dimensions returns [0]. It should return an array with no dimension.
+        return a() -- really no shape yet, return an array with no dimension.
+    end
+    return dimensions
+
+
+/******************************************************************************/
 ::class "ArrayPrettyPrinter" public
 
 -- Keep it. Same signature as other ppString.
 ::method ppString_extension class
     use strict arg array, surroundByQuotes=.true, expandCollection = (.CollectionPrettyPrinter~expandCollection)
-    -- surroundByQuotes and expandCollection not forwarded, for the moment
-    return .ExtensionDispatcher~ppRepresentation(array)
+    return .ExtensionDispatcher~ppRepresentation(array, surroundByQuotes, expandCollection)
 
 
 ::method ppRepresentation_extension class
     /*
     Return a condensed string representation of the array.
     Ex :
-    .PrettyPrinter~Array_ppRepresentation(.array~of(1,"two", .array~of(1, "two", 3), .array~of(1, "two"))) -- [ 1,'two',[ 1,'two', 3],[ 1,'two']]
+    .ExtensionDispatcher~ppString(.array~of(1,"two", .array~of(1, "two", 3), .array~of(1, "two"))) -- [ 1,'two',[ 1,'two', 3],[ 1,'two']]
 
     Recursive arrays are supported. A reference *R is inserted in the representation,
     where R is the reference of the part already displayed.
@@ -103,17 +134,18 @@ Procedural version of the Executor's extended methods.
                                         |                  |
                                         +----------------->+    Reference array already displayed : *a1
 
-    say .PrettyPrinter~Array_ppRepresentation(a)
+    say .ExtensionDispatcher~ppString(a)
         a1=['string1','string2',['string2',*a1],*a1]
 
     */
-    use strict arg array, maxItems=(-1), sparse="..", ellipsis="...", separator=",", val=(array), referencesTable=.nil, counter=0, trace=.false
+    use strict arg array, surroundByQuotes=.true, expandCollection = (.CollectionPrettyPrinter~expandCollection),,
+                   maxItems=(-1), sparse="..", ellipsis="...", separator=",", val=(array), referencesTable=.nil, counter=0, trace=.false
     expandCollection = .CollectionPrettyPrinter~expandCollection
     if trace then .traceOutput~say("       >I> Method ppRepresentation_extension")
     if trace then trace i
     -- Remember : this code has been duplicated in pipe.cls, routine dataflow_representation.
     if .nil == referencesTable then referencesTable = .ExtensionDispatcher~collectReferences(val, maxItems) -- do it before pretty printing, to display the reference identifiers only when needed
-    if val~isA(.array), val~dimension == 1 then do
+    if .ExtensionDispatcher~isA(val, .array), val~dimension == 1 then do
         reference = referencesTable[val]
         if reference~selfReference, reference~displayed then return "*a" || reference~id -- pointer to the array already displayed
         reference~displayed = .true
@@ -141,7 +173,7 @@ Procedural version of the Executor's extended methods.
                 valstr ||= sep || sparse
                 sep = separator
             end
-            valstr ||= sep || .ExtensionDispatcher~ppRepresentation(val, maxItems, sparse, ellipsis, separator, item, referencesTable, counter, trace)
+            valstr ||= sep || .ExtensionDispatcher~ppRepresentation(val, surroundByQuotes, expandCollection, maxItems, sparse, ellipsis, separator, item, referencesTable, counter, trace)
             sep = separator
             items += 1
             i = index + 1 -- next index
@@ -156,7 +188,7 @@ Procedural version of the Executor's extended methods.
         valstr ||= "]"
         return valstr
     end
-    else if val~isA(.array) then do
+    else if .ExtensionDispatcher~isA(val, .array) then do
         -- for the arrays with dimension <> 1, indicate their shape and item number
         valstr = val~string
         return "("valstr .ExtensionDispatcher~shapeToPrettyString(val, ", ") || val~items "items)"
@@ -170,7 +202,7 @@ Procedural version of the Executor's extended methods.
     -- Use the same logic as ppRepresentation to limit the number of items to analyze.
     -- When a referenced array is seen more than once, then the reference is marked as selfReference, to stop the infinite recursion.
     use strict arg array, maxItems=(-1), val=(array), referencesTable=(.identityTable~new)
-    if val~isA(.array), val~dimension == 1 then do
+    if .ExtensionDispatcher~isA(val, .array), val~dimension == 1 then do
         reference = referencesTable[val]
         if .nil <> reference then do
             reference~selfReference = .true
@@ -193,34 +225,6 @@ Procedural version of the Executor's extended methods.
         return referencesTable
     end
     return referencesTable
-
-
-/*
-                  | value                         | dimension | dimensions                    | size | shape
-------------------+-------------------------------+-----------+-------------------------------+------+-----------------------------
-.array~new        | an Array (no shape, 0 items)  | 0         | [0]                           | 0    | an Array (shape [], 0 items)
-.array~new(a())   | an Array (shape [], 0 items)  | 0         | an Array (no shape, 0 items)  | 1    | []
-.array~new(v())   | an Array (shape [], 0 items)  | 0         | an Array (no shape, 0 items)  | 1    | []
-a()               | an Array (shape [], 0 items)  | 0         | an Array (no shape, 0 items)  | 1    | []
-v()               | []                            | 1         | [0]                           | 0    | [0]
-*/
-::method shape_extension class
-    -- The shape of an array is an array which gives the size of each dimension (APL).
-    use strict arg array
-    dimensions = array~dimensions
-    if array~dimension == 0 then do
-        -- Two cases:
-
-        -- array definitively with no dimension : .array~new(.array~new), also returned by a()
-        -- This case exist in APL : the scalars have no dimension, their shape is an empty vector
-        if dimensions~items == 0 then return v() -- empty vector (1 dimension, 0 item)
-
-        -- array with no dimension yet assigned (the first assignment will determine the dimension).
-        -- This case does not exist in APL
-        -- Bug ? self~dimensions returns [0]. It should return an array with no dimension.
-        return a() -- really no shape yet, return an array with no dimension.
-    end
-    return dimensions
 
 
 /******************************************************************************/

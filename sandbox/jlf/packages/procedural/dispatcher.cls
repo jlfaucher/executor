@@ -35,7 +35,7 @@ The Object class can be extended in several packages.
 The naming convention for the Object's implementation classes is Object_<package>.
 Example:
     Object_object   defined in the package object.cls
-    Object_array    defined in the package object.cls
+    Object_array    defined in the package array.cls
 
 The ExtensionDispatcher class is a facade forwarding to the right implementation
 class. The search order is the same as the ooRexx interpreter search order for
@@ -58,13 +58,16 @@ dump2(collection, ...)
 .environment~setentry("ExtensionDispatcher", .ExtensionDispatcher)
 
 ::requires "procedural/array.cls"
+::requires "procedural/bsf.cls"
 ::requires "procedural/collection.cls"
 ::requires "procedural/object.cls"
 ::requires "procedural/string.cls"
 
+-- ::options trace r
 
 /******************************************************************************/
 ::class "ExtensionDispatcher" public
+/******************************************************************************/
 
 ::method hasMethod class
     if arg() == 1 then do
@@ -119,6 +122,7 @@ dump2(collection, ...)
     use strict arg object, raiseError = .true
     select
         when object~isA(.Array) then return .ArrayPrettyPrinter
+        when self~isA(object, .Array) then return .ArrayPrettyPrinter -- supports BSF array
         otherwise if raiseError then raise syntax 97.001 array (object, "collectReferences") -- Object method not found
     end
     return .nil
@@ -131,12 +135,63 @@ dump2(collection, ...)
 
 
 --------------------------------------------------------------------------------
+-- dimensions
+--------------------------------------------------------------------------------
+
+::method dimensions_implementationClass class private
+    use strict arg object, raiseError = .true
+    select
+        -- Extension of external classes
+        when object~class~id == "BSF_ARRAY_REFERENCE" then return .BSF_ARRAY_REFERENCE_EXTENSION
+
+        -- Already implemented, just forward to the object
+        otherwise return .ObjectForwarder
+    end
+    return .nil
+
+
+::method dimensions class
+    use strict arg object, ...
+    implementationClass = self~dimensions_implementationClass(object)
+    forward to (implementationClass) message "dimensions_extension"
+
+
+--------------------------------------------------------------------------------
+-- isA
+--------------------------------------------------------------------------------
+::method isA_implementationClass class private
+    use strict arg object, raiseError = .true
+    select
+        -- Extension of external classes
+        when .BSF~isA(.Class), object~isA(.BSF) then return .BSFObject
+
+        -- Already implemented, just forward to the object
+        otherwise return .ObjectForwarder
+    end
+    return .nil
+
+
+::method isA class
+    if arg() == 1 then do
+        -- Querying itself, not querying an extended object
+        forward class (super)
+    end
+    else do
+        -- Querying an extended object
+        use strict arg object, ...
+        implementationClass = self~isA_implementationClass(object)
+        forward to (implementationClass) message "isA_extension"
+    end
+
+
+--------------------------------------------------------------------------------
 -- ppRepresentation
 --------------------------------------------------------------------------------
 ::method ppRepresentation_implementationClass class private
     use strict arg object, raiseError = .true
     select
         when object~isA(.Array) then return .ArrayPrettyPrinter
+        when self~isA(object, .Array) then return .ArrayPrettyPrinter -- supports BSF array
         otherwise if raiseError then raise syntax 97.001 array (object, "ppRepresentation") -- Object method not found
     end
     return .nil
@@ -154,6 +209,11 @@ dump2(collection, ...)
 ::method ppString_implementationClass class private
     use strict arg object, raiseError = .true
     select
+        -- Extension of external classes
+        when .BSF~isA(.Class), object~isA(.BSF) then return .BSFPrettyPrinter
+
+        -- Extension of predefined classes
+        -- (classified by specialization and not alphabetically)
         when object~isA(.Array)          then return .ArrayPrettyPrinter
         when object~isA(.Collection)     then return .CollectionPrettyPrinter
         when object~isA(.MutableBuffer)  then return .MutableBufferPrettyPrinter
@@ -193,8 +253,9 @@ dump2(collection, ...)
 ::method shape_implementationClass class private
     use strict arg object, raiseError = .true
     select
-        when object~isA(.Array) then return .ArrayPrettyPrinter
-        otherwise                    return .Object_array
+        when object~isA(.Array) then       return .APLArray
+        when self~isA(object, .Array) then return .APLArray
+        otherwise                          return .Object_array
     end
     return .nil
 
@@ -231,3 +292,35 @@ dump2(collection, ...)
     use strict arg object, ...
     implementationClass = self~shapeToString_implementationClass(object)
     forward to (implementationClass) message "shapeToString_extension"
+
+
+--------------------------------------------------------------------------------
+-- unquoted
+--------------------------------------------------------------------------------
+::method unquoted_implementationClass class private
+    use strict arg object, raiseError = .true
+    select
+        when object~isA(.String) then return .StringHelpers
+        otherwise if raiseError  then raise syntax 97.001 array (object, "unquoted") -- Object method not found
+    end
+    return .nil
+
+
+::method unquoted class
+    use strict arg object, ...
+    implementationClass = self~unquoted_implementationClass(object)
+    forward to (implementationClass) message "unquoted_extension"
+
+
+/******************************************************************************/
+::class "ObjectForwarder" private
+/******************************************************************************/
+
+-- Convert a procedural call to an OO call.
+-- .ExtensionDispatcher~msg_EXTENSION(object, arg1, arg2, ...) --> object~msg(arg1, arg2, ...)
+::method unknown class
+    use arg msg, args
+    parse value msg with msg"_EXTENSION"
+    object = args[1]
+    args = args~section(2)
+    forward to (object) message (msg) arguments (args)

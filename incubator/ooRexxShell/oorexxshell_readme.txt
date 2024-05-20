@@ -418,6 +418,13 @@ History of changes
 ==================
 
 -----------------------------------------------
+2024 may 20
+
+Pretty print the BSF objects.
+The Java arrays are displayed like the ooRexx arrays (condensed or not).
+
+
+-----------------------------------------------
 2024 may 19
 
 The variable RC is no longer reset on each line interpretation.
