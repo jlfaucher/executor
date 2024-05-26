@@ -162,7 +162,9 @@ end
 -- We lose the doskey macros and the filename autocompletion. Too bad...
 if .platform~is("windows") then .ooRexxShell~readline = .false
 /*
-    jlf Nov 01, 2022:
+    May 24, 2024:
+    No longer reproducible under Windows 11 ARM
+    Nov 01, 2022:
     That makes weeks that I try to understand why UTF-8 strings containing accents are corrupted
     (any byte >= 128 is replaced by \0), whereas it worked flawlessly for years.
     I suddenly realize that it's because I deactivated the readline mode on Dec 20, 2020.
@@ -185,7 +187,7 @@ if .platform~is("windows") then .ooRexxShell~readline = .false
 -- Deactivate the readline mode when the environment variable OOREXXSHELL_RLWRAP is defined.
 if value("OOREXXSHELL_RLWRAP", , "ENVIRONMENT") <> "" then .ooRexxShell~readline = .false
 
--- Color settings (can be redefined by the end user)
+-- Color settings (can be customized by the end user)
 .ooRexxShell~resetColor = "reset"
 .ooRexxShell~defaultColor = "default"
 .ooRexxShell~errorColor = "bred"
@@ -992,6 +994,7 @@ Helpers
             .ooRexxShell~comparatorClass = .NumberComparator
     end
 
+    .local~bsf.quiet=.true -- BSF.CLS will not display the pick up messages
     .ooRexxShell~hasBsf = loadPackage("BSF.CLS")
 
     if .ooRexxShell~hasBsf then do
@@ -1423,6 +1426,7 @@ Helpers
     messages = ,
     ",[info]   commandInterpreter",
     ",[info]   customizationFile",
+    ",[info]   customizationFile2",
     ",[custom] debug",
     ",[custom] demo",
     ",[custom] demoFast",

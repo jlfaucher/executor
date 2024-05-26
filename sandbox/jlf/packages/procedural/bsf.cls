@@ -7,6 +7,16 @@ Procedural version of the Executor's extended methods.
 
 ::method isA_extension class
     use strict arg object, class
+
+    if object~hasMethod("bsf.isArray") then do
+        -- From BSF version 850.20240524, it's possible to test if a java object is an array:
+        objectIsArray = object~bsf.isArray
+    end
+    else do
+        -- To remain compatible with ooRexx 4.2 which can't use BSF version 850.20240524
+        objectIsArray = object~class~id == "BSF_ARRAY_REFERENCE"
+    end
+
     select
         when object~bsf.isA(.java.lang.String),     class == .String then return .true
         when object~bsf.isA(.java.lang.Boolean),    class == .String then return .true
@@ -19,10 +29,6 @@ Procedural version of the Executor's extended methods.
         when object~bsf.isA(.java.lang.Short),      class == .String then return .true
 
         /*
-        jlf: I dont't see an easy way to test if a java object is an array...
-        The BSF_ARRAY_REFERENCE class is not a public class.
-        I just can test object~class~id == "BSF_ARRAY_REFERENCE"
-
         arr = bsf.createArray(.bsf4rexx~int, 3, 4)
         arr[1,1] = 11
         arr[3,4] = 34
@@ -48,9 +54,9 @@ Procedural version of the Executor's extended methods.
         It is expected that this particular message gets only invoked by DO...OVER, which expects (as of ooRexx 5.0.0beta)
         a genuine Rexx array object to be returned
         */
-        when object~class~id == "BSF_ARRAY_REFERENCE", class == .Array then return .true
-        when object~class~id == "BSF_ARRAY_REFERENCE", class == .OrderedCollection then return .true
-        when object~class~id == "BSF_ARRAY_REFERENCE", class == .Collection then return .true
+        when objectIsArray, class == .Array then return .true
+        when objectIsArray, class == .OrderedCollection then return .true
+        when objectIsArray, class == .Collection then return .true
 
         otherwise return object~isA(class)
     end
