@@ -16,7 +16,7 @@ rxapi >/dev/null & # Workaround to avoid crash at first execution
 # then ooRexxShell will use a basic parse pull because rlwrap will manage the readline
 # otherwise it will use the bash readline.
 # A negative histsize means "don't modify the history file". ooRexxShell takes care of the history file.
-[ -x "`which rlwrap`" ] && export OOREXXSHELL_RLWRAP="rlwrap --complete-filenames --command-name oorexxshell --histsize -300"
+[ -x "`which rlwrap`" ] && export OOREXXSHELL_RLWRAP="rlwrap --no-warnings --complete-filenames --command-name oorexxshell --histsize -300"
 
 # Don't use rlwrap if ooRexxShell is not interactive.
 # I don't want the output be polluted by the cleaning of the bracketed paste mode.

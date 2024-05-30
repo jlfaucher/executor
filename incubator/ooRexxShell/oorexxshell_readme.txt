@@ -282,7 +282,9 @@ trap off|on [l[ostdigits]] [nom[ethod]] [nos[tring]] [nov[alue]] [s[yntax]]: dea
 
 Customization
 =============
-In the HOME directory:
+The customization files are searched first in the portable directory (if applicable),
+then in the user's home directory. It's possible to define customization files in
+both locations.
 - The optional file ".oorexxshell_customization.rex" is loaded before any
   preloaded package. Typically used for color settings.
 - A second optional file ".oorexxshell_customization2.rex" is loaded after all
@@ -416,6 +418,20 @@ Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
 
 History of changes
 ==================
+
+-----------------------------------------------
+2024 may 30
+
+Add support for a portable configuration.
+When ooRexxShell is executed using a portable version of ooRexx then
+- the .ini file is stored in the portable directory.
+- the customization files are searched first in the portable directory, then
+  in the user's home directory. It's possible to define customization files in
+  both locations.
+
+Note: for the moment, the history file is not stored in the portable directory
+because it breaks the history when using rlwrap.
+
 
 -----------------------------------------------
 2024 may 20

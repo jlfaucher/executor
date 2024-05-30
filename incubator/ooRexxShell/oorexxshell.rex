@@ -932,6 +932,7 @@ Helpers
 ::routine loadOptionalComponents
     -- Initial customization, before any preloaded package
     -- Be silentLoaded when not interactive, to not display a full path which is incompatible with regression tests
+    call loadPackage .oorexxshell~portableCustomizationFile, /*silentLoaded*/ \ .ooRexxShell~isInteractive, /*silentNotLoaded*/ .true
     call loadPackage .oorexxshell~customizationFile, /*silentLoaded*/ \ .ooRexxShell~isInteractive, /*silentNotLoaded*/ .true
 
     -- The routine stringChunks is used internally by ooRexxShell
@@ -1014,6 +1015,7 @@ Helpers
 
     -- Second customization, after all preloaded packages
     -- Be silentLoaded when not interactive, to not display a full path which is incompatible with regression tests
+    call loadPackage .oorexxshell~portableCustomizationFile2, /*silentLoaded*/ \ .ooRexxShell~isInteractive, /*silentNotLoaded*/ .true
     call loadPackage .oorexxshell~customizationFile2, /*silentLoaded*/ \ .ooRexxShell~isInteractive, /*silentNotLoaded*/ .true
 
     if .ooRexxShell~isExtended then do
@@ -1283,6 +1285,8 @@ Helpers
 ::attribute maxItemsDisplayed class -- The maximum number of items to display when displaying a collection
 ::attribute maybeCommand class -- Indicator used during the analysis of the command line
 ::attribute maybeCommandPrevious class
+::attribute portableCustomizationFile class
+::attribute portableCustomizationFile2 class
 ::attribute prompt class -- The prompt to display
 ::attribute promptAddress class -- .true by default: display the current system address in interpreter[address]
 ::attribute promptDirectory class -- .true by default: display the prompt directory
@@ -1391,22 +1395,29 @@ Helpers
     self~trapNoValue = .false
     self~trapSyntax = .true
 
-    HOME = value("HOME",,"ENVIRONMENT") -- probably defined under MacOs and Linux, but maybe not under Windows
-    if HOME == "" then do
-        HOMEDRIVE = value("HOMEDRIVE",,"ENVIRONMENT")
-        HOMEPATH = value("HOMEPATH",,"ENVIRONMENT")
-        HOME = HOMEDRIVE || HOMEPATH
-    end
+    PORTABLE_HOME = value("PACKAGES_HOME",,"ENVIRONMENT") -- will be defined when using a portable version of ooRexx
+
+    USER_HOME = value("HOME",,"ENVIRONMENT") -- probably defined under MacOs and Linux, but maybe not under Windows
+    if USER_HOME == "" then USER_HOME = value("USERPROFILE",,"ENVIRONMENT") -- Windows specific
 
     -- Use a property file to remember the current directory
-    self~settingsFile = HOME || "/.oorexxshell.ini"
+    -- if using a portable version then put the setting files there
+    if PORTABLE_HOME \== "" then self~settingsFile = PORTABLE_HOME || .file~separator || ".oorexxshell.ini"
+                            else self~settingsFile = USER_HOME || .file~separator || ".oorexxshell.ini"
 
     -- When possible, use a history file specific for ooRexxShell
-    self~historyFile = HOME || "/.oorexxshell_history"
+    -- For the moment, don't use PORTABLE_HOME because it doesn't work with rlwrap
+    self~historyFile = USER_HOME || .file~separator || ".oorexxshell_history"
 
     -- Allow customization by end user
-    self~customizationFile = HOME || "/.oorexxshell_customization.rex"
-    self~customizationFile2 = HOME || "/.oorexxshell_customization2.rex"
+    self~portableCustomizationFile = ""
+    self~portableCustomizationFile2 = ""
+    if PORTABLE_HOME \== "" then do
+        self~portableCustomizationFile = PORTABLE_HOME || .file~separator || ".oorexxshell_customization.rex"
+        self~portableCustomizationFile2 = PORTABLE_HOME || .file~separator || ".oorexxshell_customization2.rex"
+    end
+    self~customizationFile = USER_HOME || .file~separator || ".oorexxshell_customization.rex"
+    self~customizationFile2 = USER_HOME || .file~separator || ".oorexxshell_customization2.rex"
 
 
 ::method hasLastResult class
@@ -1445,6 +1456,8 @@ Helpers
     ",[info]   isExtended",
     ",[info]   isInteractive",
     ",[custom] maxItemsDisplayed",
+    ",[info]   portableCustomizationFile",
+    ",[info]   portableCustomizationFile2",
     ",[custom] promptAddress",
     ",[custom] promptDirectory",
     ",[custom] promptInterpreter",
