@@ -1281,10 +1281,12 @@ Helpers
 ::attribute interpreters class -- The set of interpreters that can be activated
 ::attribute isExtended class -- Will be .true if the extended ooRexx interpreter is used.
 ::attribute isInteractive class -- Are we in interactive mode ?
+::attribute isPortable class -- Will be .true if a portable ooRexx is used.
 ::attribute lastResult class -- result's value from the last interpreted line
 ::attribute maxItemsDisplayed class -- The maximum number of items to display when displaying a collection
 ::attribute maybeCommand class -- Indicator used during the analysis of the command line
 ::attribute maybeCommandPrevious class
+::attribute ooRexxHome class -- value of the environment variable OOREXX_HOME
 ::attribute portableCustomizationFile class
 ::attribute portableCustomizationFile2 class
 ::attribute prompt class -- The prompt to display
@@ -1296,6 +1298,7 @@ Helpers
 ::attribute RC class -- Return code from the last executed command
 ::attribute readline class -- When .true, the readline functionality is activated (history, tab expansion...)
 ::attribute readlineAddress class -- "CMD" under Windows, "bash" under Linux/MacOs
+::attribute rexxHome class -- value of the environment variable REXX_HOME
 ::attribute securityManager class
 ::attribute settingsFile class
 ::attribute showComment class
@@ -1395,26 +1398,30 @@ Helpers
     self~trapNoValue = .false
     self~trapSyntax = .true
 
-    PORTABLE_HOME = value("PACKAGES_HOME",,"ENVIRONMENT") -- will be defined when using a portable version of ooRexx
+    self~isPortable = value("PORTABLE_OOREXX",,"ENVIRONMENT") == "1"
+    self~ooRexxHome = value("OOREXX_HOME",,"ENVIRONMENT")
+    self~rexxHome = value("REXX_HOME",,"ENVIRONMENT")
+
+    PACKAGES_HOME = value("PACKAGES_HOME",,"ENVIRONMENT") -- will be defined when using a portable version of ooRexx
 
     USER_HOME = value("HOME",,"ENVIRONMENT") -- probably defined under MacOs and Linux, but maybe not under Windows
     if USER_HOME == "" then USER_HOME = value("USERPROFILE",,"ENVIRONMENT") -- Windows specific
 
     -- Use a property file to remember the current directory
     -- if using a portable version then put the setting files there
-    if PORTABLE_HOME \== "" then self~settingsFile = PORTABLE_HOME || .file~separator || ".oorexxshell.ini"
+    if PACKAGES_HOME \== "" then self~settingsFile = PACKAGES_HOME || .file~separator || ".oorexxshell.ini"
                             else self~settingsFile = USER_HOME || .file~separator || ".oorexxshell.ini"
 
     -- When possible, use a history file specific for ooRexxShell
-    -- For the moment, don't use PORTABLE_HOME because it doesn't work with rlwrap
+    -- For the moment, don't use PACKAGES_HOME because it doesn't work with rlwrap
     self~historyFile = USER_HOME || .file~separator || ".oorexxshell_history"
 
     -- Allow customization by end user
     self~portableCustomizationFile = ""
     self~portableCustomizationFile2 = ""
-    if PORTABLE_HOME \== "" then do
-        self~portableCustomizationFile = PORTABLE_HOME || .file~separator || ".oorexxshell_customization.rex"
-        self~portableCustomizationFile2 = PORTABLE_HOME || .file~separator || ".oorexxshell_customization2.rex"
+    if PACKAGES_HOME \== "" then do
+        self~portableCustomizationFile = PACKAGES_HOME || .file~separator || ".oorexxshell_customization.rex"
+        self~portableCustomizationFile2 = PACKAGES_HOME || .file~separator || ".oorexxshell_customization2.rex"
     end
     self~customizationFile = USER_HOME || .file~separator || ".oorexxshell_customization.rex"
     self~customizationFile2 = USER_HOME || .file~separator || ".oorexxshell_customization2.rex"
@@ -1455,7 +1462,9 @@ Helpers
     ",[info]   interpreter",
     ",[info]   isExtended",
     ",[info]   isInteractive",
+    ",[info]   isPortable",
     ",[custom] maxItemsDisplayed",
+    ",[info]   ooRexxHome",
     ",[info]   portableCustomizationFile",
     ",[info]   portableCustomizationFile2",
     ",[custom] promptAddress",
@@ -1466,6 +1475,7 @@ Helpers
     ",[info]   RC",
     ",[custom] readline",
     ",[info]   readlineAddress",
+    ",[info]   rexxHome",
     ",[info]   settingsFile",
     ",[custom] showInfos",
     ",[custom] systemAddress",
@@ -1971,22 +1981,29 @@ Helpers
     -- The current address can be anything, not necessarily the system address.
     -- Switch to the system address
     address value .ooRexxShell~systemAddress
+    DOC = .nil
+    if .ooRexxShell~rexxHome <> "" then do
+        DOC = .file~new("doc", .ooRexxShell~rexxHome)
+        if \ DOC~isDirectory then DOC = .nil
+    end
+    if .nil == DOC, .ooRexxShell~ooRexxHome <> "" then do
+        DOC = .file~new("doc", .ooRexxShell~ooRexxHome)
+        if \ DOC~isDirectory then DOC = .nil
+    end
+    if .nil == DOC then DOC = "http://www.oorexx.org/docs"
     select
-        when .platform~is("windows"), value("REXX_HOME",,"ENVIRONMENT") <> "" then do
-            /* issue the pdf as a command using quotes because the install dir may contain blanks */
-            'start "Rexx Online Documentation"' '"' || value("REXX_HOME",,"ENVIRONMENT") || "\doc\rexxref.pdf" || '"'
-        end
         when .platform~is("windows") then do
-            -- Fallback if REXX_HOME not defined: Web site
-            'start http://www.oorexx.org/docs'
+            'start "Rexx Documentation"' '"' || DOC || '"'
         end
-        when (.platform~is("aix") | .platform~is("linux") | .platform~is("sunos")), value("REXX_HOME",,"ENVIRONMENT") <> "" then do
-            'acroread "' || value("REXX_HOME",,"ENVIRONMENT") || '"/doc/rexxref.pdf&'
+        /*
+        when (.platform~is("aix") | .platform~is("linux") | .platform~is("sunos")) then do
+            -- How to open a directory or a URL?
         end
+        */
         when .platform~is("macosx") | .platform~is("darwin") then do
-            'open "http://www.oorexx.org/docs/"' -- not perfect: switch to Safari but the new window is not visible (at least on my machine).
+            'open "' || DOC || '"'
         end
-        otherwise .ooRexxShell~sayError("Open the URL 'http://www.oorexx.org/docs' in your favorite browser")
+        otherwise .ooRexxShell~sayError("See '" || DOC || "'")
     end
     address -- restore
 
