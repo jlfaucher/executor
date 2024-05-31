@@ -433,19 +433,18 @@ Note: for the moment, the history file is not stored in the portable directory
 because it breaks the history when using rlwrap.
 
 New attribute .ooRexxShell~isPortable.
-Will be true if the environment variable PORTABLE_OOREXX == "1"
+Will be true if the environment variable PORTABLE_OOREXX is equal to "1".
 
-New attribute .ooRexxShell~ooRexxHome.
-Root directory of the ooRexx installation, if available.
+New attribute .ooRexxShell~ooRexxHome (root directory of the ooRexx installation).
 This is the value of the environnement variable OOREXX_HOME.
-This variable is defined when .ooRexxShell~isPortable is .true.
 
-New attribute .ooRexxShell~rexxHome.
+New attribute .ooRexxShell~rexxHome (directory containing the rexx executable).
 This is the value of the environnement variable REXX_HOME.
-This variable is defined when .ooRexxShell~isPortable is .true.
 
 The documentation is searched in REXX_HOME and in OOREXX_HOME.
-If found, then the documentation is opened.
+If found, then the documentation directory is opened in a file explorer.
+Otherwise the URL https://www.oorexx.org/docs/ is opened in a WEB browser.
+Only Windows and macOS support this functionality.
 
 
 -----------------------------------------------
