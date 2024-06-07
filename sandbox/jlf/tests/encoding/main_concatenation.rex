@@ -1,3 +1,7 @@
+prompt off address directory
+trap on novalue
+demo on
+
 /*
 Remember:
 All the strings in this file are UTF-8.
@@ -9,9 +13,6 @@ That's why a text like "Noël"~text("unicode-8") will show
 The concatenation rules depend on the encoding and the asciiness, so the tests
 remain pertinent: in both representations, the string is not ASCII.
 */
-
-prompt off address directory
-demo on
 
 drop t
 t = "Joyeux"~text "Noel"

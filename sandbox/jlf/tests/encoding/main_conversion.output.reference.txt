@@ -1,3 +1,4 @@
+ooRexx> trap on novalue
 
 ooRexx> .context~package~encoding = "byte"
 
@@ -25166,3 +25167,4 @@ ooRexx> call display_cache t
 'WTF-16BE'                          : WTF-16BE (284 characters, 342 codepoints, 690 bytes, 0 error)               '[0000000100020003000400050006000700080009000A000B000C000D000E000F0010001100120013001400150016001700 
 'WTF-16LE'                          : WTF-16LE (284 characters, 342 codepoints, 690 bytes, 0 error)               '[00000100020003000400050006000700080009000A000B000C000D000E000F001000110012001300140015001600170018 
 'WTF-8'                             : WTF-8 not-ASCII (284 characters, 342 codepoints, 572 bytes, 0 error)        '[000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F] !"#$%&''()*+,-./0123456789:;<=>? 
+ooRexx> RC = 0

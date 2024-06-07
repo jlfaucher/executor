@@ -59,12 +59,12 @@ html:
 	@for f in $(testFiles); do make $$f.output.html; done
 
 $(testFiles) :
-	bash -i -c 'cat $@.rex | oorexxshell test regression > $@.output.txt 2>&1'
+	bash -i -c '( cat $@.rex ; echo RC = 0 ) | oorexxshell test regression > $@.output.txt 2>&1'
 	diff -q $@.output.reference.txt $@.output.txt
 
 $(demoFiles) :
 	@# Don't display the current address in the prompt
-	bash -i -c 'echo prompt off address | cat - $(demos)/$@.rex | oorexxshell test regression > $@.output.txt 2>&1'
+	bash -i -c '( echo prompt off address ; cat $(demos)/$@.rex ; echo RC = 0 ) | oorexxshell test regression > $@.output.txt 2>&1'
 	diff -q $@.output.reference.txt $@.output.txt
 
 $(scriptsFiles) :

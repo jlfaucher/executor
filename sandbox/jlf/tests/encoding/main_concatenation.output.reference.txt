@@ -1,3 +1,5 @@
+ooRexx> trap on novalue
+
 /*
 Remember:
 All the strings in this file are UTF-8.
@@ -9,7 +11,6 @@ That's why a text like "Noël"~text("unicode-8") will show
 The concatenation rules depend on the encoding and the asciiness, so the tests
 remain pertinent: in both representations, the string is not ASCII.
 */
-
 
 ooRexx> drop t
 ooRexx> t = "Joyeux"~text "Noel"
@@ -1439,3 +1440,4 @@ ooRexx> < include_concatenation_infos s/$(text)/t/
     ------------------------------------------
     -- End of file include_concatenation_infos
     ------------------------------------------
+ooRexx> RC = 0

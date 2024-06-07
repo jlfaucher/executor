@@ -42,7 +42,7 @@ $(scriptsFiles) :
 
 $(demoFiles) :
 	@:: Don't display the current address in the prompt
-	(echo prompt off address & type $(demos)\$@.rex) | oorexxshell test regression > $@.output.txt 2>&1
+	( echo prompt off address & type $(demos)\$@.rex & echo RC = 0) | oorexxshell test regression > $@.output.txt 2>&1
 	$(DIFF) $@.output.reference.txt $@.output.txt > nul
 
 clean:

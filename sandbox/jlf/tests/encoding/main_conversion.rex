@@ -1,4 +1,5 @@
 prompt off address directory
+trap on novalue
 demo on
 
 .context~package~encoding = "byte"
