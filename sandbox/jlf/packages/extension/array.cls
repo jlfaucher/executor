@@ -93,19 +93,6 @@ a33~each=
     return .true
 
 
-::routine shape public
-    -- Remember: same procedure is defined in rgf_util2
-    -- I don't want a dependency on rgf_util2 in this package,
-    -- must find a way to eliminate this double definition.
-    use arg coll, separator=""
-    if coll~hasMethod("shapeToString"), coll~isA(.array) then do
-        shape = coll~shapeToString
-        if shape <> "no shape" then shape = "shape" shape
-        return shape || separator
-    end
-    return ""
-
-
 /******************************************************************************/
 -- Object can't inherit from a mixinclass (would raise "cannot inherit from itself")
 ::extension Object -- APLObject
@@ -137,6 +124,16 @@ a33~each=
    shape = self~shape
    if shape~dimension == 0 then return "no shape"
    return "[" || shape~toString("L", ",") || "]"
+
+
+::method shapeToPrettyString
+    use strict arg separator=""
+    if self~isA(.array) then do
+        shape = self~shapeToString
+        if shape <> "no shape" then shape = "shape" shape
+        return shape || separator
+    end
+    return ""
 
 
 ::method depth
@@ -751,7 +748,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
     /*
     Return a condensed string representation of the array.
     Ex :
-    .array~of(1,"two", .array~of(1, "two", 3), .array~of(1, "two"))~ppRepresentation -- [ 1,'two',[ 1,'two', 3],[ 1,'two']]
+    .array~of(1,"two", .array~of(1, "two", 3), .array~of(1, "two"))~ppString -- [ 1,'two',[ 1,'two', 3],[ 1,'two']]
     Recursive arrays are supported. A reference *R is inserted in the representation,
     where R is the reference of the part already displayed.
     Ex :
@@ -776,7 +773,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
                                         |                  |
                                         +----------------->+    Reference array already displayed : *a1
 
-    say a~ppRepresentation
+    say a~ppString
         a1=['string1','string2',['string2',*a1],*a1]
 
     a~pipe(.console "dataflow")
@@ -860,7 +857,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
     else if val~isA(.array) then do
         -- for the arrays with dimension <> 1, indicate their shape and item number
         valstr = val~string
-        return "("valstr shape(val, ", ") || val~items "items)"
+        return "("valstr val~shapeToPrettyString(", ") || val~items "items)"
     end
     /*
     -- same logic in CollectionPrettyPrinter~ppstring, but here pass more parameters
@@ -899,7 +896,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
             reference~selfReference = .true
             return referencesTable
         end
-        referencesTable[val] = .reference~new
+        referencesTable[val] = .ObjectSelfReference~new
         val~collectReferences(maxItems, val~disclose, referencesTable)
         return referencesTable
     end
@@ -909,7 +906,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
             reference~selfReference = .true
             return referencesTable
         end
-        referencesTable[val] = .reference~new
+        referencesTable[val] = .ObjectSelfReference~new
         -- each item of the array is analyzed.
         items = 0 -- Not global. Each item being an array will have maxItems items inserted.
                   -- Maybe a global count could be useful... Will see on usage.
@@ -929,7 +926,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
 
 
 /******************************************************************************/
-::class reference private
+::class ObjectSelfReference private
 
 ::attribute selfReference   -- indicator of self reference
 ::attribute id              -- unique identifier, used for display of references by ppRepresentation

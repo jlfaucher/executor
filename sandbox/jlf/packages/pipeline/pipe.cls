@@ -1080,6 +1080,7 @@ else do
         -- To make a distinction between a real string and other objects, surround by (...)
         -- For the arrays, indicate their shape
         if val~hasMethod("shapeToString"), val~isA(.array) then valstr = "("valstr val~shapeToString")"
+        else if .ExtensionDispatcher~isA(.class), .ExtensionDispatcher~hasMethod("shapeToString"), val~isA(.array) then valstr = "("valstr .ExtensionDispatcher~shapeToString(val)")"
         else valstr = "("valstr")"
     end
     if isnum | \showPool then return valstr

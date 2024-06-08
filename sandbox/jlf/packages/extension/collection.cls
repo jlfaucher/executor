@@ -44,7 +44,22 @@ See output of concurrency/generator-test.rex
              1 : Array[ 1, 2, 3]
              2 : Array[ 4, 5, 6]
     */
-    if self~isa(.array) then return self~ppRepresentation
+    /*
+      The search order is NOT the order of classes returned by ~superclasses
+      otherwise it would be the ppString at Object level which would be called.
+         .array~superclasses==
+        an Array (shape [7], 7 items)
+         1 : (The Object class)
+         2 : (The Serializable class)
+         3 : (The OrderedCollection class)
+         4 : (The ArrayInitializer class)
+         5 : (The ArrayPrettyPrinter class)
+         6 : (The ArrayOperators class)
+         7 : (The APLArray class)
+    */
+    -- DON'T CALL ppString here! Otherwise stack overflow
+    -- KEEP IT! otherwise the 2 ppstring below will trigger a stack overflow
+    if self~isa(.array) then return self~ppRepresentation(: ppOptions.)
 
     -- This option is not applicable to arrays, hence this location of the test.
     -- For the moment, I don't activate by default the display of items for the
@@ -56,10 +71,10 @@ See output of concurrency/generator-test.rex
     -- todo ? add a parameter maxItems to ~allItems
     -- same logic in array~ppRepresentation
     if self~isA(.OrderedCollection) then do
-        return self~class~id || self~allItems~ppRepresentation(ppOptions. : ppOptions.)
+        return self~class~id || self~allItems~ppString(: ppOptions.)
     end
     else do
-        return self~class~id || self~allItems~sortWith(.StringNumericComparator~new)~ppRepresentation(ppOptions. : ppOptions.)
+        return self~class~id || self~allItems~sortWith(.StringNumericComparator~new)~ppString(: ppOptions.)
     end
 
 
