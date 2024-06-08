@@ -206,7 +206,7 @@ void RexxMemory::createRexxPackage()
 {
     // this is a dummy package named "REXX" with the place holder
     // sourceless program source
-    rexxPackage = new PackageClass(new RexxSource(OREF_REXX));
+    rexxPackage = new PackageClass(new RexxSource(OREF_REXX, "", 0));
 }
 
 
