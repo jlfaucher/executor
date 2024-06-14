@@ -978,6 +978,10 @@ Helpers
     if .ooRexxShell~hasBsf then do
         -- JDOR is not available for ooRexx 4.2 and Executor. Don't complain if not loaded.
         if loadPackage("jdor.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true) then call initialize_JDOR
+
+        -- JDORFX is not available for ooRexx 4.2 and Executor. Don't complain if not loaded.
+        if loadPackage("jdorfx.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true) then call initialize_JDORFX
+
         if environment_string("UNO_INSTALLED") <> "" then call loadPackage "UNO.CLS"
 	end
 
@@ -1070,13 +1074,23 @@ Helpers
 ::routine initialize_JDOR
     use strict arg -- none
     signal on syntax name error
-   -- create JDOR handler
-    jdh=.bsf~new("org.oorexx.handlers.jdor.JavaDrawingHandler")
-   -- define "JDOR" address environment serviced by our JDOR handler
-    call BsfCommandHandler "add", "JDOR", jdh -- add command handler
+    call addJdorHandler
     return .true
+
     error:
     .ooRexxShell~sayError("JDOR initialization KO")
+    return .false
+
+
+-------------------------------------------------------------------------------
+::routine initialize_JDORFX
+    use strict arg -- none
+    signal on syntax name error
+    call addJdorFXHandler
+    return .true
+
+    error:
+    .ooRexxShell~sayError("JDORFX initialization KO")
     return .false
 
 

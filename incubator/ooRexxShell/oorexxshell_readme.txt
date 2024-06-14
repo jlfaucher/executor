@@ -429,7 +429,13 @@ History of changes
 ==================
 
 -----------------------------------------------
-2024 june 10
+2024 june 14
+
+Preload the JDORFX component of Rony.
+
+
+-----------------------------------------------
+2024 june 14
 
 New attribute .ooRexxShell~userHome
 value of HOME or USERPROFILE
