@@ -282,58 +282,67 @@ trap off|on [l[ostdigits]] [nom[ethod]] [nos[tring]] [nov[alue]] [s[yntax]]: dea
 
 Customization
 =============
+The optional file "custom1.rex" is loaded before any preloaded package.
+Typically used for color settings.
+
+A second optional file "custom2.rex" is loaded after all preloaded packages.
+
 The customization files are searched first in the portable directory (if applicable),
-then in the user's home directory. It's possible to define customization files in
-both locations.
-- The optional file ".oorexxshell_customization.rex" is loaded before any
-  preloaded package. Typically used for color settings.
-- A second optional file ".oorexxshell_customization2.rex" is loaded after all
-  preloaded packages.
+    (.ooRexxShell~portableHome)/.config/oorexxshell/custom1.rex
+    (.ooRexxShell~portableHome)/.config/oorexxshell/custom1.rex
+then in the user's home directory.
+    XDG_CONFIG_HOME/oorexxshell/custom1.rex
+    XDG_CONFIG_HOME/oorexxshell/custom2.rex
+    or
+    (.ooRexxShell~userHome)/.config/oorexxshell/custom1.rex
+    (.ooRexxShell~userHome)/.config/oorexxshell/custom2.rex
+It's possible to define customization files in both locations.
+
 Example of customization:
-    -- Better to limit the customization to the interactive mode
-    if .ooRexxShell~isInteractive then do
-        -- bypass the Windows bug "any byte >= 128 is replaced by \0"
-        .ooRexxShell~readline = .true -- .false by default under Windows because history often broken
+-- Better to limit the customization to the interactive mode
+if .ooRexxShell~isInteractive then do
+    -- bypass the Windows bug "any byte >= 128 is replaced by \0"
+    .ooRexxShell~readline = .true -- .false by default under Windows because history often broken
 
-        -- color settings for white background
-        .color~background = "white"
-        .ooRexxShell~infoColor = "green"
-        .ooRexxShell~promptColor = "yellow"
+    -- color settings for white background
+    .color~background = "white"
+    .ooRexxShell~infoColor = "green"
+    .ooRexxShell~promptColor = "yellow"
 
-        -- a color can be defined with an ANSI Escape Sequence
-        .color~background = d2c(27)"[1;32m" -- bgreen
+    -- a color can be defined with an ANSI Escape Sequence
+    .color~background = d2c(27)"[1;32m" -- bgreen
 
-        -- a color can be defined with several styles
-        .ooRexxShell~errorColor = "underline blinking bred"
+    -- a color can be defined with several styles
+    .ooRexxShell~errorColor = "underline blinking bred"
 
-        -- disable the colors
-        .ooRexxShell~showColor = .false
+    -- disable the colors
+    .ooRexxShell~showColor = .false
 
-        -- Prompt setting
-        .ooRexxShell~promptDirectory = .false -- Don't display the current directory
-        .ooRexxShell~promptInterpreter = .false -- Don't display the current interpreter name
-        .ooRexxShell~promptAddress = .false -- Don't display the current system address
-        .ooRexxShell~showInfos = .false -- Don't show duration and number of coactivities
+    -- Prompt setting
+    .ooRexxShell~promptDirectory = .false -- Don't display the current directory
+    .ooRexxShell~promptInterpreter = .false -- Don't display the current interpreter name
+    .ooRexxShell~promptAddress = .false -- Don't display the current system address
+    .ooRexxShell~showInfos = .false -- Don't show duration and number of coactivities
 
-        -- Error management
-        .ooRexxShell~trapLostDigits = .false
-        .ooRexxShell~trapNoMethod = .true
-        .ooRexxShell~trapNoString = .true
-        .ooRexxShell~trapNoValue = .true -- raise an error when using an uninitialized variable
-        .ooRexxShell~trapSyntax = .false -- ooRexxShell will be interrupted at the first syntax error
+    -- Error management
+    .ooRexxShell~trapLostDigits = .false
+    .ooRexxShell~trapNoMethod = .true
+    .ooRexxShell~trapNoString = .true
+    .ooRexxShell~trapNoValue = .true -- raise an error when using an uninitialized variable
+    .ooRexxShell~trapSyntax = .false -- ooRexxShell will be interrupted at the first syntax error
 
-        -- Select the UTF-8 code page (Windows only)
-        "chcp 65001"
+    -- Select the UTF-8 code page (Windows only)
+    "chcp 65001"
 
-        -- Load a package
-        -- if silentLoaded is false then a message is displayed when the package has been loaded successfully.
-        -- if silentNotLoaded is false then a message is displayed when the package can't be loaded.
-        -- if reportError is true then the loading error is displayed.
-        hasLoadedMyPackage = loadPackage("full path or relative path of MyPackage.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .false, /*reportError*/ .false)
+    -- Load a package
+    -- if silentLoaded is false then a message is displayed when the package has been loaded successfully.
+    -- if silentNotLoaded is false then a message is displayed when the package can't be loaded.
+    -- if reportError is true then the loading error is displayed.
+    hasLoadedMyPackage = loadPackage("full path or relative path of MyPackage.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .false, /*reportError*/ .false)
 
-        -- Load a native library
-        hasLoadedMyLibrary = loadLibrary("full path or relative path of MyLibrary"
-    end
+    -- Load a native library
+    hasLoadedMyLibrary = loadLibrary("full path or relative path of MyLibrary"
+end
 
 
 Known problems under Windows
@@ -418,6 +427,50 @@ Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
 
 History of changes
 ==================
+
+-----------------------------------------------
+2024 june 10
+
+New attribute .ooRexxShell~userHome
+value of HOME or USERPROFILE
+
+New attribute .ooRexxShell~portableHome
+value of PACKAGES_HOME (subject to change)
+
+
+Application of (some) XDG recommendations.
+https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
+
+The old configuration/setting files are automatically migrated to the new paths.
+If the new file already exists, it is not overwritten, and the old file is kept.
+Old paths                               New paths
+~/.oorexxshell.ini                      ~/.local/state/oorexxshell/settings.ini
+~/.oorexxshell_customization.rex        ~/.config/oorexxshell/custom1.rex
+~/.oorexxshell_customization2.rex       ~/.config/oorexxshell/custom2.rex
+
+New attribute .ooRexxShell~configHome
+user-specific configurations (customization files)
+    XDG_CONFIG_HOME/oorexxshell
+    or (.ooRexxShell~userHome)/.config/oorexxshell
+
+New attribute .ooRexxShell~portableConfigHome
+user-specific configurations
+    (.ooRexxShell~portableHome)/.config/oorexxshell
+
+New attribute .ooRexxShell~runtimeDir
+user-specific non-essential runtime files
+    XDG_RUNTIME_DIR
+    or <TMPDIR>
+
+New attribute .ooRexxShell~stateHome
+State data that should persist between restarts (logs, history, settings, ...)
+    XDG_STATE_HOME/oorexxshell
+    or (.ooRexxShell~userHome)/.local/state/oorexxshell
+
+New attribute .ooRexxShell~portableStateHome
+State data that should persist between restarts (logs, history, settings, ...)
+    (.ooRexxShell~portableHome)/.local/state/oorexxshell
+
 
 -----------------------------------------------
 2024 may 30
@@ -534,6 +587,7 @@ Rework the error management. In case of error other than file not found, the
 error message is displayed even in silent mode.
 
 
+[Update 2024 June, 10] The locations and names have changed.
 Customization by end user:
 The optional file ".oorexxshell_customization.rex" is now loaded before any
 preloaded package. Typically used for color settings.
@@ -564,7 +618,8 @@ When loading rgf_util2.rexx, try in this order:
 - without relative path "rgf_util2.rex" (bsf4oorexx version)
 
 
-[Update 2024 May 1] the file extension is ".rex" instead of ".cls".
+[Update 2024 May, 1] the file extension is ".rex" instead of ".cls".
+[Update 2024 June, 10] The locations and names have changed.
 Allow customization by end user:
 Load the optional file ".oorexxshell_customization.rex", from the HOME directory.
 [Update 2024 May 1] This file is loaded first, before any preloaded package.

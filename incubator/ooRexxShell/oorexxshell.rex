@@ -185,30 +185,7 @@ if .platform~is("windows") then .ooRexxShell~readline = .false
 */
 
 -- Deactivate the readline mode when the environment variable OOREXXSHELL_RLWRAP is defined.
-if value("OOREXXSHELL_RLWRAP", , "ENVIRONMENT") <> "" then .ooRexxShell~readline = .false
-
--- Color settings (can be customized by the end user)
-.ooRexxShell~resetColor = "reset"
-.ooRexxShell~defaultColor = "default"
-.ooRexxShell~errorColor = "bred"
-.ooRexxShell~infoColor = "bgreen"
-.ooRexxShell~commentColor = "bblue"
-.ooRexxShell~promptColor = "byellow"
-.ooRexxShell~traceColor = "magenta"
-.ooRexxShell~commandColor = "bmagenta"
-/*
--- defaultBackground no longer supported
--- if you want to use these colors then define them in the customization file
-if .platform~is("windows") then do
-    if .color~defaultBackground == 0 /*black*/ then do
-        .ooRexxShell~commentColor = "bcyan" -- instead of blue which is less readable
-    end
-    if .color~defaultBackground == 15 /*white*/ then do
-        .ooRexxShell~infoColor = "green"
-        .ooRexxShell~promptColor = "yellow"
-    end
-end
-*/
+if environment_string("OOREXXSHELL_RLWRAP") <> "" then .ooRexxShell~readline = .false
 
 .ooRexxShell~readlineAddress = readlineAddress()
 .ooRexxShell~systemAddress = systemAddress()
@@ -932,8 +909,8 @@ Helpers
 ::routine loadOptionalComponents
     -- Initial customization, before any preloaded package
     -- Be silentLoaded when not interactive, to not display a full path which is incompatible with regression tests
-    call loadPackage .oorexxshell~portableCustomizationFile, /*silentLoaded*/ \ .ooRexxShell~isInteractive, /*silentNotLoaded*/ .true
-    call loadPackage .oorexxshell~customizationFile, /*silentLoaded*/ \ .ooRexxShell~isInteractive, /*silentNotLoaded*/ .true
+    call loadPackage .oorexxshell~portableCustomizationFile1, /*silentLoaded*/ \ .ooRexxShell~isInteractive, /*silentNotLoaded*/ .true
+    call loadPackage .oorexxshell~customizationFile1, /*silentLoaded*/ \ .ooRexxShell~isInteractive, /*silentNotLoaded*/ .true
 
     -- The routine stringChunks is used internally by ooRexxShell
     -- Try to load the stand-alone package (don't ::requires it, to avoid an error if not found)
@@ -1001,7 +978,7 @@ Helpers
     if .ooRexxShell~hasBsf then do
         -- JDOR is not available for ooRexx 4.2 and Executor. Don't complain if not loaded.
         if loadPackage("jdor.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true) then call initialize_JDOR
-        if value("UNO_INSTALLED",,"ENVIRONMENT") <> "" then call loadPackage "UNO.CLS"
+        if environment_string("UNO_INSTALLED") <> "" then call loadPackage "UNO.CLS"
 	end
 
     if .Clauser~isA(.Class) then .ooRexxShell~hasClauser = .true
@@ -1254,24 +1231,34 @@ Helpers
 ::constant reload 200 -- Arbitrary value that will be returned to the system, to indicate that a restart of the shell is requested
 
 ::attribute command class -- The current command to interpret, can be a substring of inputrx
+::attribute commandColor class
 ::attribute commandInterpreter class -- The current interpreter, can be the first word of inputrx, or the default interpreter
-::attribute countCommentChars class
-::attribute countCommentLines class
-::attribute customizationFile class
+::attribute commentColor class
+::attribute comparatorClass class -- The comparator class used to sort the collections for display, or .nil
+::attribute configHome class -- User-specific configurations (XDG_CONFIG_HOME)
+::attribute countCommentChars class -- Used in demo mode
+::attribute countCommentLines class -- Used in demo mode
+::attribute customizationFile1 class
 ::attribute customizationFile2 class
-::attribute declareAll class
-::attribute defaultSleepDelay class
+::attribute debug class
+::attribute declareAll class -- Command line option
+::attribute defaultSleepDelay class -- Used in demo mode
 ::attribute demo class
 ::attribute demoFast class
 ::attribute error class -- Will be .true if the last command raised an error
-::attribute gotoLabel class -- Either "" or the label to reach
+::attribute errorColor class
+::attribute gotoLabel class -- Used in demo mode: either "" or the label to reach
 ::attribute hasBsf class -- Will be .true if BSF.cls has been loaded
 ::attribute hasClauser class -- Will be .true if the Clauser class is available (either natively with Executor, or if oorexxshell_clauser.cls has been loaded
+::attribute hasIndentedStream class -- Will be true if indentedStream.cls has been loaded
 ::attribute hasQueries class -- Will be true if oorexxshell_queries.cls has been loaded
 ::attribute hasRegex class -- Will be .true is regex.cls has been loaded
 ::attribute hasRgfUtil2 class -- Will be .true if rgf_util2.rex has been loaded
 ::attribute hasRgfUtil2Extended class -- Will be .true if rgf_util2.rex has been loaded and is the extended version
 ::attribute historyFile class
+::attribute indentedErrorStream class -- Used by the command "<" to show the level of include
+::attribute indentedOutputStream class -- Used by the command "<" to show the level of include
+::attribute infoColor class
 ::attribute initialAddress class -- The initial address on startup, not necessarily the system address (can be "THE")
 ::attribute initialArgument class -- The command line argument on startup
 ::attribute input class -- The current input to interpret
@@ -1287,10 +1274,14 @@ Helpers
 ::attribute maybeCommand class -- Indicator used during the analysis of the command line
 ::attribute maybeCommandPrevious class
 ::attribute ooRexxHome class -- value of the environment variable OOREXX_HOME
-::attribute portableCustomizationFile class
+::attribute portableConfigHome class -- User-specific configurations
+::attribute portableCustomizationFile1 class
 ::attribute portableCustomizationFile2 class
+::attribute portableHome class
+::attribute portableStateHome class -- state data that should persist between restarts (logs, history, ...)
 ::attribute prompt class -- The prompt to display
 ::attribute promptAddress class -- .true by default: display the current system address in interpreter[address]
+::attribute promptColor class
 ::attribute promptDirectory class -- .true by default: display the prompt directory
 ::attribute promptInterpreter class -- .true by default: display the current interpreter name in interpreter[address]
 ::attribute queueName class -- Private queue for no interference with the user commands
@@ -1298,65 +1289,96 @@ Helpers
 ::attribute RC class -- Return code from the last executed command
 ::attribute readline class -- When .true, the readline functionality is activated (history, tab expansion...)
 ::attribute readlineAddress class -- "CMD" under Windows, "bash" under Linux/MacOs
+::attribute resetColor class
 ::attribute rexxHome class -- value of the environment variable REXX_HOME
+::attribute routine_dump2 class -- The routine dump2 of extended rgf_util, or .nil
+::attribute routine_pp2 class -- The routine pp2 of extended rgf_util, or .nil
+::attribute routine_stringChunks class -- The routine stringChunks, or .nil
+::attribute runtimeDir class -- User-specific non-essential runtime files (XDG_RUNTIME_DIR).
 ::attribute securityManager class
 ::attribute settingsFile class
+::attribute showColor class
+::attribute showColorCodes class
 ::attribute showComment class
 ::attribute showInfos class
 ::attribute showInfosNext class
-::attribute showInitialization class
-::attribute showStackFrames class
+::attribute showInitialization class -- Command line option
+::attribute showStackFrames class -- Command line option
 ::attribute stackFrames class -- stackframes of last error
+::attribute stateHome class -- state data that should persist between restarts (logs, history, ...) (XDG_STATE_HOME).
 ::attribute systemAddress class -- "CMD" under Windows, "sh" under Linux/MacOs
-::attribute testRegression class
+::attribute testRegression class -- a script can test this attribute to decide if some parts are deactivated to have repeatable results (for [non-]regression tests)
 ::attribute traceback class -- traceback of last error
-
-::attribute showColor class
-::attribute showColorCodes class
-::attribute resetColor class
-::attribute defaultColor class
-::attribute errorColor class
-::attribute infoColor class
-::attribute promptColor class
 ::attribute traceColor class
-::attribute commentColor class
-::attribute commandColor class
-
 ::attribute traceDispatchCommand class
 ::attribute traceFilter class
 ::attribute traceReadline class
-
-::attribute debug class
-
 ::attribute trapLostdigits class -- default true: the condition LOSTDIGITS is trapped when interpreting the command
 ::attribute trapNoMethod class -- default true
 ::attribute trapNoString class -- default false, will be true if I find a way to optimize the integration of alternative operators
 ::attribute trapNoValue class -- default false
 ::attribute trapSyntax class -- default true: the condition SYNTAX is trapped when interpreting the command
+::attribute userHome class
 
-::attribute comparatorClass class -- The comparator class used to sort the collections for display, or .nil
-::attribute routine_dump2 class -- The routine dump2 of extended rgf_util, or .nil
-::attribute routine_pp2 class -- The routine pp2 of extended rgf_util, or .nil
-::attribute routine_stringChunks class -- The routine stringChunks, or .nil
 
-::attribute hasIndentedStream class -- Will be true if indentedStream.cls has been loaded
-::attribute indentedOutputStream class -- Used by the command "<" to show the level of include
-::attribute indentedErrorStream class -- Used by the command "<" to show the level of include
+-- can't use init because depends on the class .color, not yet activated
+::method activate class
+    -- command line options
+    self~declareAll = .false
+    self~showInitialization = .false
+    self~showStackFrames = .false
 
-::method init class
-    .environment~setentry(self~id, self) -- Make the .ooRexxShell class available from the customization file
+    -- execution
     self~command = ""
     self~commandInterpreter = ""
-    self~comparatorClass = .nil
+    self~initialAddress = ""
+    self~initialArgument = ""
+    self~maybeCommand = .false
+
+    -- demo
     self~countCommentChars = 0
     self~countCommentLines = 0
-    self~debug = .false
-    self~declareAll = .false
     self~defaultSleepDelay = 2
     self~demo = .false
     self~demoFast = .false -- by default, the demo is slow (SysSleep is executed)
-    self~error = .false
     self~gotoLabel = ""
+
+    -- mode
+    self~isExtended = .false
+    self~isInteractive = .false
+    self~testRegression = .false
+
+    -- readline
+    self~promptAddress = .true
+    self~promptDirectory = .true
+    self~promptInterpreter = .true
+    self~readline = .false
+
+    -- displayer
+    self~maxItemsDisplayed = 1000
+    self~showColor = .true
+    self~showColorCodes = .false
+    self~showComment = .false
+    self~showInfos = .false
+    self~showInfosNext = .false
+
+    -- diagnostic
+    self~debug = .false
+    self~traceback = .array~new
+    self~traceReadline = .false
+    self~traceDispatchCommand = .false
+    self~traceFilter = .false
+
+    -- error management
+    self~error = .false
+    self~stackFrames = .list~new
+    self~trapLostdigits = .true
+    self~trapNoMethod = .false
+    self~trapNoString = .false
+    self~trapNoValue = .false
+    self~trapSyntax = .true
+
+    -- optional components
     self~hasBsf = .false
     self~hasClauser = .false
     self~hasIndentedStream = .false
@@ -1364,77 +1386,176 @@ Helpers
     self~hasRegex = .false
     self~hasRgfUtil2 = .false
     self~hasRgfUtil2Extended = .false
-    self~indentedErrorStream = .nil
-    self~indentedOutputStream = .nil
-    self~initialAddress = ""
-    self~initialArgument = ""
-    self~isExtended = .false
-    self~isInteractive = .false
-    self~maxItemsDisplayed = 1000
-    self~maybeCommand = .false
-    self~promptAddress = .true
-    self~promptDirectory = .true
-    self~promptInterpreter = .true
-    self~readline = .false
+
+    -- optional services
+    self~comparatorClass = .nil
     self~routine_dump2 = .nil
     self~routine_pp2 = .nil
     self~routine_stringChunks = .nil
-    self~showColor = .false
-    self~showColorCodes = .false
-    self~showComment = .false
-    self~showInfos = .false
-    self~showInfosNext = .false
-    self~showInitialization = .false
-    self~showStackFrames = .false
-    self~stackFrames = .list~new
-    self~testRegression = .false -- a script can test this attribute to decide if some parts are deactivated to have repeatable results (for [non-]regression tests)
-    self~traceReadline = .false
-    self~traceDispatchCommand = .false
-    self~traceFilter = .false
-    self~traceback = .array~new
-    self~trapLostdigits = .true
-    self~trapNoMethod = .false
-    self~trapNoString = .false
-    self~trapNoValue = .false
-    self~trapSyntax = .true
 
-    self~isPortable = value("PORTABLE_OOREXX",,"ENVIRONMENT") == "1"
-    self~ooRexxHome = value("OOREXX_HOME",,"ENVIRONMENT")
-    self~rexxHome = value("REXX_HOME",,"ENVIRONMENT")
+    self~indentedErrorStream = .nil
+    self~indentedOutputStream = .nil
 
-    PACKAGES_HOME = value("PACKAGES_HOME",,"ENVIRONMENT") -- will be defined when using a portable version of ooRexx
+    -- additional initializations
+    self~initColors
+    self~initEnvironment
 
-    USER_HOME = value("HOME",,"ENVIRONMENT") -- probably defined under MacOs and Linux, but maybe not under Windows
-    if USER_HOME == "" then USER_HOME = value("USERPROFILE",,"ENVIRONMENT") -- Windows specific
+
+::method initEnvironment class
+    .environment~setentry(self~id, self) -- Make the .ooRexxShell class available from the customization file
+
+    -- Environment variables defined when using a portable version of ooRexx
+    self~isPortable = environment_string("PORTABLE_OOREXX") == "1"
+    self~ooRexxHome = environment_directory_path("OOREXX_HOME")
+    self~rexxHome = environment_directory_path("REXX_HOME")
+    PACKAGES_HOME = environment_directory_path("PACKAGES_HOME") -- needed for migration
+    self~portableHome = ""
+    if self~isPortable then self~portableHome = PACKAGES_HOME -- could be an other value in the future
+
+    -- Application of (some) XDG recommendations.
+    -- https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
+    -- The XDG environment variables are maybe defined under Linux, probably not defined under MacOs and Windows
+    XDG_DATA_HOME = environment_directory_path("XDG_DATA_HOME")         -- not needed by ooRexxShell ($HOME/.local/share)
+    XDG_CONFIG_HOME = environment_directory_path("XDG_CONFIG_HOME")
+    XDG_STATE_HOME = environment_directory_path("XDG_STATE_HOME")
+    XDG_CACHE_HOME = environment_directory_path("XDG_CACHE_HOME")       -- not needed by ooRexxShell ($HOME/.cache)
+    XDG_RUNTIME_DIR = environment_directory_path("XDG_RUNTIME_DIR")
+
+    self~userHome = environment_directory_path("HOME") -- probably defined under MacOs and Linux, but maybe not under Windows
+    if self~userHome == "" then self~userHome = environment_directory_path("USERPROFILE") -- Windows specific
+
+    -- I don't use .file~temporaryPath because it's not available with ooRexx 4.2
+    TMPDIR = environment_directory_path("TMPDIR")
+    if TMPDIR == "" then TMPDIR = environment_directory_path("TMP")
+    if TMPDIR == "" then TMPDIR = environment_directory_path("TEMP")
+    if TMPDIR == "" then do
+        TMPDIR = self~userHome
+        dir = TMPDIR || .file~separator || "tmp"
+        if createDirectory(dir) >= 0 then TMPDIR = dir
+    end
+
+    -- .ooRexxShell~configHome is equivalent to $XDG_CONFIG_HOME
+    -- The recommended value is $HOME/.config
+    self~configHome = XDG_CONFIG_HOME
+    if self~configHome == "" then do
+        self~configHome = self~userHome
+        dir = self~userHome || .file~separator || ".config"
+        if createDirectory(dir) >= 0 then self~configHome = dir
+    end
+    dir = self~configHome || .file~separator || "oorexxshell"
+    if createDirectory(dir) >= 0 then self~configHome = dir
+
+    -- .ooRexxShell~portableConfigHome can be empty
+    self~portableConfigHome = self~portableHome
+    if self~portableConfigHome \== "" then do
+        dir = self~portableConfigHome || .file~separator || ".config" || .file~separator || "oorexxshell"
+        if createDirectory(dir) >= 0 then self~portableConfigHome = dir
+    end
+
+    -- .ooRexxShell~stateHome is equivalent to $XDG_STATE_HOME
+    -- The recommended value is $HOME/.local/state
+    self~stateHome = XDG_STATE_HOME
+    if self~stateHome == "" then do
+        self~stateHome = self~userHome
+        dir = self~userHome || .file~separator || ".local" || .file~separator || "state"
+        if createDirectory(dir) >= 0 then self~stateHome = dir
+    end
+    dir = self~stateHome || .file~separator || "oorexxshell"
+    if createDirectory(dir) >= 0 then self~stateHome = dir
+
+    -- .ooRexxShell~portableStateHome can be empty
+    self~portableStateHome = self~portableHome
+    if self~portableStateHome \== "" then do
+        dir = self~portableStateHome || .file~separator || ".local" || .file~separator || "state" || .file~separator || "oorexxshell"
+        if createDirectory(dir) >= 0 then self~portableStateHome = dir
+    end
+
+    -- .ooRexxShell~runtimeDir is equivalent to $XDG_RUNTIME_DIR
+    -- The recommended value is /run/user/$UID
+    -- https://0pointer.net/blog/projects/tmp.html
+    -- Point 2: You need a place to put your socket (or other communication primitive) and your code runs unprivileged: use a subdirectory beneath $XDG_RUNTIME_DIR.
+    self~runtimeDir = XDG_RUNTIME_DIR
+    if self~runtimeDir == "" then self~runtimeDir = TMPDIR
+    dir = self~runtimeDir || .file~separator || "oorexxshell"
+    if createDirectory(dir) >= 0 then self~runtimeDir = dir
 
     -- Use a property file to remember the current directory
-    -- if using a portable version then put the setting files there
-    if PACKAGES_HOME \== "" then self~settingsFile = PACKAGES_HOME || .file~separator || ".oorexxshell.ini"
-                            else self~settingsFile = USER_HOME || .file~separator || ".oorexxshell.ini"
+    -- If portable then put it in the portable bundle
+    dir = self~portableStateHome
+    if dir == "" then dir = self~stateHome
+    SETTINGS = "settings.ini"
+    self~settingsFile = dir || .file~separator || SETTINGS
 
     -- When possible, use a history file specific for ooRexxShell
-    -- For the moment, don't use PACKAGES_HOME because it doesn't work with rlwrap
-    self~historyFile = USER_HOME || .file~separator || ".oorexxshell_history"
+    -- For the moment, don't use portableStateHome or stateHome because it doesn't work with rlwrap
+    HISTORY_FILE = ".oorexxshell_history"
+    self~historyFile = self~userHome || .file~separator || HISTORY_FILE
 
     -- Allow customization by end user
-    self~portableCustomizationFile = ""
+    CUSTOM1 = "custom1.rex"
+    CUSTOM2 = "custom2.rex"
+    self~portableCustomizationFile1 = ""
     self~portableCustomizationFile2 = ""
-    if PACKAGES_HOME \== "" then do
-        self~portableCustomizationFile = PACKAGES_HOME || .file~separator || ".oorexxshell_customization.rex"
-        self~portableCustomizationFile2 = PACKAGES_HOME || .file~separator || ".oorexxshell_customization2.rex"
+    if self~portableConfigHome \== "" then do
+        self~portableCustomizationFile1 = self~portableConfigHome || .file~separator || CUSTOM1
+        self~portableCustomizationFile2 = self~portableConfigHome || .file~separator || CUSTOM2
     end
-    self~customizationFile = USER_HOME || .file~separator || ".oorexxshell_customization.rex"
-    self~customizationFile2 = USER_HOME || .file~separator || ".oorexxshell_customization2.rex"
+    self~customizationFile1 = self~configHome || .file~separator || CUSTOM1
+    self~customizationFile2 = self~configHome || .file~separator || CUSTOM2
+
+    -- Migration to XDG
+    call migrate PACKAGES_HOME, ".oorexxshell.ini",                 self~portableStateHome,     SETTINGS
+    call migrate self~userHome, ".oorexxshell.ini",                 self~stateHome,             SETTINGS
+    call migrate PACKAGES_HOME, ".oorexxshell_customization.rex",   self~portableConfigHome,    CUSTOM1
+    call migrate self~userHome, ".oorexxshell_customization.rex",   self~configHome,            CUSTOM1
+    call migrate PACKAGES_HOME, ".oorexxshell_customization2.rex",  self~portableConfigHome,    CUSTOM2
+    call migrate self~userHome, ".oorexxshell_customization2.rex",  self~configHome,            CUSTOM2
+
+    return
+
+    migrate: procedure
+        use strict arg sourceDir, sourcefile, targetDir, targetFile
+        source = sourceDir || .file~separator || sourceFile
+        target = targetDir || .file~separator || targetFile
+        if source \== target, SysFileExists(source), \ SysFileExists(target) then call move source, target
+        return
+
+    move: procedure
+        use strict arg source, target
+        code = SysFileMove(source, target)
+        if code == 0 then do
+            .ooRexxShell~sayComment("Migration to XDG: moved '" || source || "' to '" || target || "'")
+        end
+        else do
+            .ooRexxShell~sayError("Migration to XDG: failed to move '" || source || "' to '" || target || "'")
+            .ooRexxShell~sayError(SysGetErrorText(code))
+        end
+        return
 
 
-::method hasLastResult class
-    expose lastResult
-    return var("lastResult")
+::method initColors class
+    -- Color settings (can be customized by the end user)
+    .ooRexxShell~resetColor = "reset"
+    .ooRexxShell~errorColor = "bred"
+    .ooRexxShell~infoColor = "bgreen"
+    .ooRexxShell~commentColor = "bblue"
+    .ooRexxShell~promptColor = "byellow"
+    .ooRexxShell~traceColor = "magenta"
+    .ooRexxShell~commandColor = "bmagenta"
 
-
-::method dropLastResult class
-    expose lastResult
-    drop lastResult
+    /*
+    -- defaultBackground no longer supported
+    -- if you want to use these colors then define them in the customization file
+    if .platform~is("windows") then do
+        if .color~defaultBackground == 0 then do -- black
+            .ooRexxShell~commentColor = "bcyan" -- instead of blue which is less readable
+        end
+        if .color~defaultBackground == 15 then do -- white
+            .ooRexxShell~infoColor = "green"
+            .ooRexxShell~promptColor = "yellow"
+        end
+    end
+    */
 
 
 ::method informations class
@@ -1442,13 +1563,17 @@ Helpers
     -- [custom]     can be customized in the customization file
     -- [info]       don't touch
     messages = ,
+    ",[custom] commandColor",
     ",[info]   commandInterpreter",
-    ",[info]   customizationFile",
+    ",[custom] commentColor",
+    ",[info]   configHome",
+    ",[info]   customizationFile1",
     ",[info]   customizationFile2",
     ",[custom] debug",
     ",[custom] demo",
     ",[custom] demoFast",
     ",[custom] defaultSleepDelay",
+    ",[custom] errorColor",
     ",[info]   hasBsf",
     ",[info]   hasClauser",
     ",[info]   hasIndentedStream",
@@ -1457,6 +1582,7 @@ Helpers
     ",[info]   hasRgfUtil2",
     ",[info]   hasRgfUtil2Extended",
     ",[info]   historyFile",
+    ",[custom] infoColor",
     ",[info]   initialAddress",
     ",[info]   initialArgument",
     ",[info]   interpreter",
@@ -1465,9 +1591,13 @@ Helpers
     ",[info]   isPortable",
     ",[custom] maxItemsDisplayed",
     ",[info]   ooRexxHome",
-    ",[info]   portableCustomizationFile",
+    ",[info]   portableConfigHome",
+    ",[info]   portableCustomizationFile1",
     ",[info]   portableCustomizationFile2",
+    ",[info]   portableHome",
+    ",[info]   portableStateHome",
     ",[custom] promptAddress",
+    ",[custom] promptColor",
     ",[custom] promptDirectory",
     ",[custom] promptInterpreter",
     ",[info]   queueName",
@@ -1475,11 +1605,14 @@ Helpers
     ",[info]   RC",
     ",[custom] readline",
     ",[info]   readlineAddress",
+    ",[custom] resetColor",
     ",[info]   rexxHome",
+    ",[info]   runtimeDir",
     ",[info]   settingsFile",
-    ",[custom] showInfos",
-    ",[custom] systemAddress",
     ",[custom] showColor",
+    ",[custom] showInfos",
+    ",[info]   stateHome",
+    ",[custom] systemAddress",
     ",[custom] testRegression",
     ",[custom] traceDispatchCommand",
     ",[custom] traceFilter",
@@ -1488,7 +1621,8 @@ Helpers
     ",[custom] trapNoMethod",
     ",[custom] trapNoString",
     ",[custom] trapNoValue",
-    ",[custom] trapSyntax"
+    ",[custom] trapSyntax",
+    ",[info]   userHome"
     informations = .directory~new
     do message over messages~makeArray(",")
         message = message~strip
@@ -1506,6 +1640,20 @@ Helpers
     informations~put(.color~background,                             "[custom] .color~background")
 
     return informations
+
+
+-----------------
+-- Last result --
+-----------------
+
+::method hasLastResult class
+    expose lastResult
+    return var("lastResult")
+
+
+::method dropLastResult class
+    expose lastResult
+    drop lastResult
 
 
 ---------------
@@ -2426,7 +2574,7 @@ Helpers
     if \ isEnabled then return 0 -- delegate to system
 
     -- Use a temporary property file to remember the child process directory
-    temporarySettingsFile = .ooRexxShell~settingsFile"."SysQueryProcess("PID")
+    temporarySettingsFile = .ooRexxShell~runtimeDir || .file~separator || "oorexxshell-"SysQueryProcess("PID") || ".ini"
     if SysFileExists(temporarySettingsFile) then call SysFileDelete temporarySettingsFile -- will be created by the command execution, maybe
 
     newAddressCommand = self~adjustAddressCommand(info~address, info~command, temporarySettingsFile)
@@ -2731,7 +2879,7 @@ https://en.wikipedia.org/wiki/ANSI_escape_code
 ::method which
     -- The order of precedence in locating executable files is given by the PATHEXT environment variable.
     use strict arg filespec
-    pathext = value("PATHEXT",, "ENVIRONMENT")~translate(" ", ";")
+    pathext = environment_string("PATHEXT")~translate(" ", ";")
     if filespec("location", filespec) == "" then do
         if filespec("name", filespec)~pos(".") == 0 then do
             do while pathext <> ""
@@ -2855,6 +3003,39 @@ https://en.wikipedia.org/wiki/ANSI_escape_code
     if string~subchar(2) <> ":" then return .false
     letterDrive = string~subchar(1)~upper
     return letterDrive >= "A" & letterDrive <= "Z"
+
+
+::routine createDirectory public
+    -- Creates the specified directory (and recursively the parents if needed).
+    -- Returns 0 if the directory already exists.
+    -- Returns 1 if the directory has been created.
+    -- Returns -1 if the creation failed because a file (not a directory) with the same name already exists.
+    -- Returns -2 if the creation failed for any other reason.
+    use strict arg path
+    if SysIsFileDirectory(path) then return 0
+    if SysIsFile(path) then return -1
+    parent = filespec("location", path)
+    if parent == path then parent = filespec("location", path~substr(1, path~length - 1))
+    parentStatus = createDirectory(parent)
+    if parentStatus < 0 then return parentStatus
+    if SysMkDir(path) <> 0 then return -2
+    return 1
+
+
+::routine environment_string
+    use strict arg varname
+    return value(varname,, "ENVIRONMENT")
+
+
+::routine environment_directory_path
+    use strict arg varname
+    value = value(varname,, "ENVIRONMENT")
+    if value == "" then return value
+    dir = .file~new(value)
+    if dir~isDirectory then return dir~absolutePath -- normalized path, remove final "/" or "\", if any
+    .ooRexxShell~sayError(varname "is not a directory")
+    .ooRexxShell~sayError(dir~absolutePath)
+    raise syntax 98.900 array("Halt")
 
 
 ::routine interpretCondition public
