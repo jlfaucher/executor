@@ -1,14 +1,17 @@
-#
 #!/bin/sh
-#
-# Because of MacOs El Capitan : Don't put /bin/sh on the first line.
-# The variable DYLD_LIBRARY_PATH is unset because of System Integrity Protection.
-# SIP only affects Apple-supplied binaries.
-# Since sh is in /bin it is covered by SIP protections such that the library
-# load path environment variable is stripped before being executed.
-#
-# Bug or feature ? if the shebang is removed and replaced with a blank line,
-# the environment is inherited without being filtered by the default POSIX shell.
+
+# macOS: The variable DYLD_LIBRARY_PATH is unset because of System Integrity Protection.
+[ $EXECUTOR_LD_LIBRARY_PATH ] && export DYLD_LIBRARY_PATH=$EXECUTOR_DYLD_LIBRARY_PATH
+
+# Portable version
+prepend_path()
+{
+  if eval test -z "\"\$$1\"" || ! eval test -z "\"\${$1##*:$2:*}\"" -o -z "\"\${$1%%*:$2}\"" -o -z "\"\${$1##$2:*}\"" -o -z "\"\${$1##$2}\"" ; then
+    eval "export $1=$2:\$$1"
+  fi
+}
+prepend_path LD_LIBRARY_PATH $PREPEND_LIBRARY_PATH      # Linux
+prepend_path DYLD_LIBRARY_PATH $PREPEND_LIBRARY_PATH    # macOS
 
 rxapi >/dev/null & # Workaround to avoid crash at first execution
 
