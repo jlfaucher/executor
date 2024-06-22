@@ -3,6 +3,25 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2024 June 22
+
+No longer deliver ICU4X.
+I have an error when cloning the Github repository.
+    ~/rexx/oorexx$ git clone https://github.com/jlfaucher/executor.git
+    Cloning into 'executor'...
+    remote: Enumerating objects: 20591, done.
+    remote: Counting objects: 100% (7721/7721), done.
+    remote: Compressing objects: 100% (2380/2380), done.
+    error: 9080 bytes of body are still expected MiB | 248.00 KiB/s
+    fetch-pack: unexpected disconnect while reading sideband packet
+    fatal: early EOF
+    fatal: fetch-pack: invalid index-pack output
+
+I suspect it's because of the ICU4X libraries that I put in the source directory.
+Since I dont't use yet ICU4X, I decide to remove it from the Github repository.
+
+
+===============================================================================
 2024 Mai 12
 
 [Compatibility with ooRexx5]
