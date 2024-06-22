@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 11 Apr 2024
-</span><span style="font-weight:bold;color:green;">Input queue name: Sb95cQ600003f11ad0
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 22 Jun 2024
+</span><span style="font-weight:bold;color:green;">Input queue name: Sae6eQ600001c5ed80
 </span>
 <span style="font-weight:bold;color:blue;">----------------------------------
 </span><span style="font-weight:bold;color:blue;">-- Text encoding - Internal checks
@@ -41,7 +41,7 @@
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">Creation of a RexxText
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; 
+</span>ooRexx[bash]&gt; 
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">Next lines are no longer executed, for 2 reasons:
 </span><span style="font-weight:bold;color:blue;">- The method &quot;TEXT=&quot; should be declared package-scope but this is not supported by Executor.
@@ -57,9 +57,9 @@
 </span><span style="font-weight:bold;color:blue;">s~text = .RexxText~new(s)                -- ok, the RexxText is linked to s, now can be assigned to s~text
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~text(&quot;byte&quot;) || &quot;è&quot;~text(&quot;utf8&quot;)=    </span><span style="font-weight:bold;color:blue;">-- T'éè'   (was Cannot concatenate Byte with UTF-8)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~text(&quot;byte&quot;) || &quot;è&quot;~text(&quot;utf8&quot;)=    </span><span style="font-weight:bold;color:blue;">-- T'éè'   (was Cannot concatenate Byte with UTF-8)</span>
 T'éè'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~text(&quot;byte&quot;) || &quot;é&quot;~text(&quot;utf8&quot;)=    </span><span style="font-weight:bold;color:blue;">-- T'éé' encoded UTF-8</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~text(&quot;byte&quot;) || &quot;é&quot;~text(&quot;utf8&quot;)=    </span><span style="font-weight:bold;color:blue;">-- T'éé' encoded UTF-8</span>
 T'éé'
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">No error because the 2 occurences of the string &quot;é&quot; are the same interned string.
@@ -70,22 +70,22 @@ T'éé'
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">Byte encoding
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; 
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s = &quot;63 C3 B4 74 65 CC 81 F0 9F 91 8D&quot;x  </span><span style="font-weight:bold;color:blue;">-- An UTF-8 string. The Byte encoding works at byte level, as the String class</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s=                                       </span><span style="font-weight:bold;color:blue;">-- T'côté👍'</span>
+</span>ooRexx[bash]&gt; 
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">s = &quot;63 C3 B4 74 65 CC 81 F0 9F 91 8D&quot;x  </span><span style="font-weight:bold;color:blue;">-- An UTF-8 string. The Byte encoding works at byte level, as the String class</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">s=                                       </span><span style="font-weight:bold;color:blue;">-- T'côté👍'</span>
 T'côté👍'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.byte_encoding~decode(s, 1)=             </span><span style="font-weight:bold;color:blue;">-- 99 (63)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.byte_encoding~decode(s, 1)=             </span><span style="font-weight:bold;color:blue;">-- 99 (63)</span>
  99
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.byte_encoding~decode(s, 2)=             </span><span style="font-weight:bold;color:blue;">-- 195 (C3)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.byte_encoding~decode(s, 2)=             </span><span style="font-weight:bold;color:blue;">-- 195 (C3)</span>
  195
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.byte_encoding~decode(s, 12)=            </span><span style="font-weight:bold;color:blue;">-- .nil (end of string)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.byte_encoding~decode(s, 12)=            </span><span style="font-weight:bold;color:blue;">-- .nil (end of string)</span>
 (The NIL object)
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.byte_encoding~decode(s, 1, 2)=          </span><span style="font-weight:bold;color:blue;">-- 2 is an invalid codepoint size</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.byte_encoding~decode(s, 1, 2)=          </span><span style="font-weight:bold;color:blue;">-- 2 is an invalid codepoint size</span>
 <span style="font-weight:bold;color:red;">Byte encoding: 2 is an invalid size of byte sequence.
 </span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.byte_encoding~encode(65)=               </span><span style="font-weight:bold;color:blue;">-- T'A'</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.byte_encoding~encode(65)=               </span><span style="font-weight:bold;color:blue;">-- T'A'</span>
 T'A'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.byte_encoding~encode(256)=              </span><span style="font-weight:bold;color:blue;">-- 256 is an invalid codepoint (range 0..255)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.byte_encoding~encode(256)=              </span><span style="font-weight:bold;color:blue;">-- 256 is an invalid codepoint (range 0..255)</span>
 <span style="font-weight:bold;color:red;">Byte encoding: invalid codepoint 256 (0100x). Allowed range is 0..255.
 </span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span>
@@ -94,65 +94,65 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.byte_encoding~encod
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
 <span style="font-weight:bold;color:blue;">-- If you don't pass a size to ~decode then the method calculates it, while checking the validity of the encoding
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s = &quot;63 C3 B4 74 65 CC 81 F0 9F 91 8D&quot;x  </span><span style="font-weight:bold;color:blue;">-- An UTF-8 string: 'côté👍'</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~decode(s, 1)=             </span><span style="font-weight:bold;color:blue;">-- 99</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">s = &quot;63 C3 B4 74 65 CC 81 F0 9F 91 8D&quot;x  </span><span style="font-weight:bold;color:blue;">-- An UTF-8 string: 'côté👍'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~decode(s, 1)=             </span><span style="font-weight:bold;color:blue;">-- 99</span>
  99
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~nextCodepointIndexB(s, 1)= </span><span style="font-weight:bold;color:blue;">-- 2</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~nextCodepointIndexB(s, 1)= </span><span style="font-weight:bold;color:blue;">-- 2</span>
  2
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~decode(s, 2)=             </span><span style="font-weight:bold;color:blue;">-- 244</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~decode(s, 2)=             </span><span style="font-weight:bold;color:blue;">-- 244</span>
  244
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~nextCodepointIndexB(s, 2)= </span><span style="font-weight:bold;color:blue;">-- 4</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~nextCodepointIndexB(s, 2)= </span><span style="font-weight:bold;color:blue;">-- 4</span>
  4
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~decode(s, 8)=             </span><span style="font-weight:bold;color:blue;">-- 128077</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~decode(s, 8)=             </span><span style="font-weight:bold;color:blue;">-- 128077</span>
  128077
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~nextCodepointIndexB(s, 8)= </span><span style="font-weight:bold;color:blue;">-- 12</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~nextCodepointIndexB(s, 8)= </span><span style="font-weight:bold;color:blue;">-- 12</span>
  12
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~decode(s, 12)=            </span><span style="font-weight:bold;color:blue;">-- .nil (end of string)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~decode(s, 12)=            </span><span style="font-weight:bold;color:blue;">-- .nil (end of string)</span>
 (The NIL object)
 
 <span style="font-weight:bold;color:blue;">-- Example of check
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;63 C3 B4 74 65 CC 81 F0 9F 91 8D&quot;x~text(&quot;utf8&quot;)=           </span><span style="font-weight:bold;color:blue;">-- T'côté👍'</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;63 C3 B4 74 65 CC 81 F0 9F 91 8D&quot;x~text(&quot;utf8&quot;)=           </span><span style="font-weight:bold;color:blue;">-- T'côté👍'</span>
 T'côté👍'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">      &quot;B4 74 65 CC 81 F0 9F 91 8D&quot;x~text(&quot;utf8&quot;)~errors=    </span><span style="font-weight:bold;color:blue;">-- Invalid start byte</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">      &quot;B4 74 65 CC 81 F0 9F 91 8D&quot;x~text(&quot;utf8&quot;)~errors=    </span><span style="font-weight:bold;color:blue;">-- Invalid start byte</span>
 ['UTF-8 encoding: byte sequence at byte-position 1 has an invalid start byte 180 (B4x) (non-shortest form).']
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;63 C3    74 65 CC 81 F0 9F 91 8D&quot;x~text(&quot;utf8&quot;)~errors=    </span><span style="font-weight:bold;color:blue;">-- Invalid continuation byte</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;63 C3    74 65 CC 81 F0 9F 91 8D&quot;x~text(&quot;utf8&quot;)~errors=    </span><span style="font-weight:bold;color:blue;">-- Invalid continuation byte</span>
 ['UTF-8 encoding: byte sequence at byte-position 2 has an invalid continuation byte 116 (74x) at byte-position 3.']
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;63 C3 B4 74 65 CC 81 F0 9F 91&quot;x~text(&quot;utf8&quot;)~errors=       </span><span style="font-weight:bold;color:blue;">-- UTF-8 character is truncated</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;63 C3 B4 74 65 CC 81 F0 9F 91&quot;x~text(&quot;utf8&quot;)~errors=       </span><span style="font-weight:bold;color:blue;">-- UTF-8 character is truncated</span>
 ['UTF-8 encoding: byte sequence at byte-position 8 is truncated, expected 4 bytes.']
 
 <span style="font-weight:bold;color:blue;">-- If you pass a size to ~decode, the method assumes you know what you do, there is no check
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~decode(s, 2, 1)=          </span><span style="font-weight:bold;color:blue;">-- 67      invalid size, the result is wrong</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~decode(s, 2, 1)=          </span><span style="font-weight:bold;color:blue;">-- 67      invalid size, the result is wrong</span>
  67
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~decode(s, 2, 2)=          </span><span style="font-weight:bold;color:blue;">-- 244     correct</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~decode(s, 2, 2)=          </span><span style="font-weight:bold;color:blue;">-- 244     correct</span>
  244
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~decode(s, 2, 3)=          </span><span style="font-weight:bold;color:blue;">-- 15668   invalid size, the result is wrong</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~decode(s, 2, 3)=          </span><span style="font-weight:bold;color:blue;">-- 15668   invalid size, the result is wrong</span>
  15668
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~decode(s, 2, 4)=          </span><span style="font-weight:bold;color:blue;">-- 1002789  invalid size, the result is wrong</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~decode(s, 2, 4)=          </span><span style="font-weight:bold;color:blue;">-- 1002789  invalid size, the result is wrong</span>
  1002789
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~decode(s, 2, 5)=          </span><span style="font-weight:bold;color:blue;">-- UTF-8 encoding: 5 is an invalid codepoint size</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~decode(s, 2, 5)=          </span><span style="font-weight:bold;color:blue;">-- UTF-8 encoding: 5 is an invalid codepoint size</span>
 <span style="font-weight:bold;color:red;">UTF-8 encoding: 5 is an invalid size of byte sequence.
 </span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span>
 <span style="font-weight:bold;color:blue;">-- Encoding
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~encode(65)=               </span><span style="font-weight:bold;color:blue;">-- T'A'</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~encode(65)=               </span><span style="font-weight:bold;color:blue;">-- T'A'</span>
 T'A'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~encode(650)=              </span><span style="font-weight:bold;color:blue;">-- T'ʊ'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~encode(650)=              </span><span style="font-weight:bold;color:blue;">-- T'ʊ'</span>
 T'ʊ'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~encode(6500)=             </span><span style="font-weight:bold;color:blue;">-- T'ᥤ'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~encode(6500)=             </span><span style="font-weight:bold;color:blue;">-- T'ᥤ'</span>
 T'ᥤ'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~encode(65000)=            </span><span style="font-weight:bold;color:blue;">-- T'﷨'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~encode(65000)=            </span><span style="font-weight:bold;color:blue;">-- T'﷨'</span>
 T'﷨'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~encode(650000)=           </span><span style="font-weight:bold;color:blue;">-- T'򞬐'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~encode(650000)=           </span><span style="font-weight:bold;color:blue;">-- T'򞬐'</span>
 T'򞬐'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~encode(6500000)=          </span><span style="font-weight:bold;color:blue;">-- 6500000 is an invalid codepoint (range 0..1114111)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~encode(6500000)=          </span><span style="font-weight:bold;color:blue;">-- 6500000 is an invalid codepoint (range 0..1114111)</span>
 <span style="font-weight:bold;color:red;">UTF-8 encoding: invalid codepoint 6500000 (U+632EA0). Allowed range is 0..1114111.
 </span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~encode(55296)~errors==    </span><span style="font-weight:bold;color:blue;">-- 55296 is an invalid codepoint (high surrogate)</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~encode(55296)~errors==    </span><span style="font-weight:bold;color:blue;">-- 55296 is an invalid codepoint (high surrogate)</span>
 an Array (shape [3], 3 items)
  1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate, use WTF-8).'
  2 : 'UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).'
  3 : 'UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~encode(56320)~errors==    </span><span style="font-weight:bold;color:blue;">-- 56320 is an invalid codepoint (low surrogate)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~encode(56320)~errors==    </span><span style="font-weight:bold;color:blue;">-- 56320 is an invalid codepoint (low surrogate)</span>
 an Array (shape [3], 3 items)
  1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 176 (B0x) at byte-position 2 (low surrogate, use WTF-8).'
  2 : 'UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 176 (B0x) (non-shortest form).'
@@ -161,96 +161,96 @@ an Array (shape [3], 3 items)
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">UTF-16 encoding
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; 
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s = &quot;63 C3 B4 74 65 CC 81 F0 9F 91 8D&quot;x         </span><span style="font-weight:bold;color:blue;">-- An UTF-8 string: 'côté👍'</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">t16 = s~text(&quot;utf8&quot;)~utf16                      </span><span style="font-weight:bold;color:blue;">-- interpret the bytes as UTF-8 and convert them to UTF-16</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s16 = t16~string                                </span><span style="font-weight:bold;color:blue;">-- internal UTF-16 bytes</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">t16~string~c2x=                                 </span><span style="font-weight:bold;color:blue;">-- view raw internal bytes</span>
+</span>ooRexx[bash]&gt; 
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">s = &quot;63 C3 B4 74 65 CC 81 F0 9F 91 8D&quot;x         </span><span style="font-weight:bold;color:blue;">-- An UTF-8 string: 'côté👍'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">t16 = s~text(&quot;utf8&quot;)~utf16                      </span><span style="font-weight:bold;color:blue;">-- interpret the bytes as UTF-8 and convert them to UTF-16</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">s16 = t16~string                                </span><span style="font-weight:bold;color:blue;">-- internal UTF-16 bytes</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">t16~string~c2x=                                 </span><span style="font-weight:bold;color:blue;">-- view raw internal bytes</span>
 '006300F4007400650301D83DDC4D'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">t16~c2x=                                        </span><span style="font-weight:bold;color:blue;">-- view encoded codepoints</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">t16~c2x=                                        </span><span style="font-weight:bold;color:blue;">-- view encoded codepoints</span>
 '0063 00F4 0074 0065 0301 D83DDC4D'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">t16~c2u=                                        </span><span style="font-weight:bold;color:blue;">-- view decoded codepoints</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">t16~c2u=                                        </span><span style="font-weight:bold;color:blue;">-- view decoded codepoints</span>
 'U+0063 U+00F4 U+0074 U+0065 U+0301 U+1F44D'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">t16~c2g=                                        </span><span style="font-weight:bold;color:blue;">-- view encoded graphemes</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">t16~c2g=                                        </span><span style="font-weight:bold;color:blue;">-- view encoded graphemes</span>
 '0063 00F4 0074 00650301 D83DDC4D'
 
 <span style="font-weight:bold;color:blue;">-- If you don't pass a size to ~decode then the method calculates it, while checking the validity of the encoding
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~decode(s16, 1)=               </span><span style="font-weight:bold;color:blue;">-- 99</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~decode(s16, 1)=               </span><span style="font-weight:bold;color:blue;">-- 99</span>
  99
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~nextCodepointIndexB(s16, 1)=   </span><span style="font-weight:bold;color:blue;">-- 3</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~nextCodepointIndexB(s16, 1)=   </span><span style="font-weight:bold;color:blue;">-- 3</span>
  3
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~decode(s16, 3)=               </span><span style="font-weight:bold;color:blue;">-- 244</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~decode(s16, 3)=               </span><span style="font-weight:bold;color:blue;">-- 244</span>
  244
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~nextCodepointIndexB(s16, 3)=   </span><span style="font-weight:bold;color:blue;">-- 5</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~nextCodepointIndexB(s16, 3)=   </span><span style="font-weight:bold;color:blue;">-- 5</span>
  5
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~decode(s16, 11)=              </span><span style="font-weight:bold;color:blue;">-- 128077</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~decode(s16, 11)=              </span><span style="font-weight:bold;color:blue;">-- 128077</span>
  128077
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~nextCodepointIndexB(s16, 11)=  </span><span style="font-weight:bold;color:blue;">-- 15</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~nextCodepointIndexB(s16, 11)=  </span><span style="font-weight:bold;color:blue;">-- 15</span>
  15
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~decode(s16, 15)=              </span><span style="font-weight:bold;color:blue;">-- .nil (end of string)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~decode(s16, 15)=              </span><span style="font-weight:bold;color:blue;">-- .nil (end of string)</span>
 (The NIL object)
 
 <span style="font-weight:bold;color:blue;">-- Example of checks
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 DC00 D801 DC01&quot;x~text(&quot;utf16&quot;)~utf8=          </span><span style="font-weight:bold;color:blue;">-- T'𐀀𐐁'</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 DC00 D801 DC01&quot;x~text(&quot;utf16&quot;)~utf8=          </span><span style="font-weight:bold;color:blue;">-- T'𐀀𐐁'</span>
 T'𐀀𐐁'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">     &quot;DC00 D801 DC01&quot;x~text(&quot;utf16&quot;)~errors=        </span><span style="font-weight:bold;color:blue;">-- Unpaired low surrogate</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">     &quot;DC00 D801 DC01&quot;x~text(&quot;utf16&quot;)~errors=        </span><span style="font-weight:bold;color:blue;">-- Unpaired low surrogate</span>
 ['UTF-16BE encoding: unpaired low surrogate 56320 (U+DC00) at byte-position 1, use WTF-16.']
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">     &quot;DC00 D801 DC01&quot;x~text(&quot;wtf16&quot;)~errors=        </span><span style="font-weight:bold;color:blue;">-- acceptable when WTF-16</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">     &quot;DC00 D801 DC01&quot;x~text(&quot;wtf16&quot;)~errors=        </span><span style="font-weight:bold;color:blue;">-- acceptable when WTF-16</span>
 (The NIL object)
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">     &quot;DC00 D801 DC01&quot;x~text(&quot;wtf16&quot;)~utf8~errors==  </span><span style="font-weight:bold;color:blue;">-- but cannot be converted to UTF-8: invalid codepoint DC00x</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">     &quot;DC00 D801 DC01&quot;x~text(&quot;wtf16&quot;)~utf8~errors==  </span><span style="font-weight:bold;color:blue;">-- but cannot be converted to UTF-8: invalid codepoint DC00x</span>
 an Array (shape [3], 3 items)
  1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 176 (B0x) at byte-position 2 (low surrogate, use WTF-8).'
  2 : 'UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 176 (B0x) (non-shortest form).'
  3 : 'UTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 1000 D801 DC01&quot;x~text(&quot;utf16&quot;)~errors=        </span><span style="font-weight:bold;color:blue;">-- Invalid low surrogate</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 1000 D801 DC01&quot;x~text(&quot;utf16&quot;)~errors=        </span><span style="font-weight:bold;color:blue;">-- Invalid low surrogate</span>
 ['UTF-16BE encoding: invalid low surrogate 4096 (U+1000) at byte-position 3, use WTF-16.']
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 1000 D801 DC01&quot;x~text(&quot;wtf16&quot;)~errors=        </span><span style="font-weight:bold;color:blue;">-- acceptable when WTF-16</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 1000 D801 DC01&quot;x~text(&quot;wtf16&quot;)~errors=        </span><span style="font-weight:bold;color:blue;">-- acceptable when WTF-16</span>
 (The NIL object)
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 DC00 D801 DC&quot;x~text(&quot;utf16&quot;)~errors==         </span><span style="font-weight:bold;color:blue;">-- character is truncated. 2 errors reported because try with 4 bytes and then 2 bytes</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 DC00 D801 DC&quot;x~text(&quot;utf16&quot;)~errors==         </span><span style="font-weight:bold;color:blue;">-- character is truncated. 2 errors reported because try with 4 bytes and then 2 bytes</span>
 an Array (shape [2], 2 items)
  1 : 'UTF-16BE encoding: byte sequence at byte-position 5 is truncated, expected 4 bytes.'
  2 : 'UTF-16BE encoding: byte sequence at byte-position 7 is truncated, expected 2 bytes.'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 DC00 D801 DC&quot;x~text(&quot;wtf16&quot;)~errors==         </span><span style="font-weight:bold;color:blue;">-- this is also an error when WTF-16</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 DC00 D801 DC&quot;x~text(&quot;wtf16&quot;)~errors==         </span><span style="font-weight:bold;color:blue;">-- this is also an error when WTF-16</span>
 an Array (shape [2], 2 items)
  1 : 'WTF-16BE encoding: byte sequence at byte-position 5 is truncated, expected 4 bytes.'
  2 : 'WTF-16BE encoding: byte sequence at byte-position 7 is truncated, expected 2 bytes.'
 
 <span style="font-weight:bold;color:blue;">-- If you pass a size to ~decode, the method assumes you know what you do, there is no check
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~decode(s16, 3, 1)=            </span><span style="font-weight:bold;color:blue;">-- 1 is an invalid codepoint size</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~decode(s16, 3, 1)=            </span><span style="font-weight:bold;color:blue;">-- 1 is an invalid codepoint size</span>
 <span style="font-weight:bold;color:red;">UTF-16BE encoding: 1 is an invalid size of byte sequence.
 </span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~decode(s16, 3, 2)=            </span><span style="font-weight:bold;color:blue;">-- 244         correct</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~decode(s16, 3, 2)=            </span><span style="font-weight:bold;color:blue;">-- 244         correct</span>
  244
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~decode(s16, 3, 3)=            </span><span style="font-weight:bold;color:blue;">-- 3 is an invalid codepoint size</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~decode(s16, 3, 3)=            </span><span style="font-weight:bold;color:blue;">-- 3 is an invalid codepoint size</span>
 <span style="font-weight:bold;color:red;">UTF-16BE encoding: 3 is an invalid size of byte sequence.
 </span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~decode(s16, 3, 4)=            </span><span style="font-weight:bold;color:blue;">-- invalid size, the result is wrong</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~decode(s16, 3, 4)=            </span><span style="font-weight:bold;color:blue;">-- invalid size, the result is wrong</span>
 -56363916
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~decode(s16, 3, 5)=            </span><span style="font-weight:bold;color:blue;">-- 5 is an invalid codepoint size</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~decode(s16, 3, 5)=            </span><span style="font-weight:bold;color:blue;">-- 5 is an invalid codepoint size</span>
 <span style="font-weight:bold;color:red;">UTF-16BE encoding: 5 is an invalid size of byte sequence.
 </span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span>
 <span style="font-weight:bold;color:blue;">-- Encoding
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~encode(65)~c2x=               </span><span style="font-weight:bold;color:blue;">-- 0041</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~encode(65)~c2x=               </span><span style="font-weight:bold;color:blue;">-- 0041</span>
  0041
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~encode(650)~c2x=              </span><span style="font-weight:bold;color:blue;">-- 028A</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~encode(650)~c2x=              </span><span style="font-weight:bold;color:blue;">-- 028A</span>
 '028A'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~encode(6500)~c2x=             </span><span style="font-weight:bold;color:blue;">-- 1964</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~encode(6500)~c2x=             </span><span style="font-weight:bold;color:blue;">-- 1964</span>
  1964
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~encode(65000)~c2x=            </span><span style="font-weight:bold;color:blue;">-- FDE8</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~encode(65000)~c2x=            </span><span style="font-weight:bold;color:blue;">-- FDE8</span>
 'FDE8'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~encode(650000)~c2x=           </span><span style="font-weight:bold;color:blue;">-- DA3ADF10</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~encode(650000)~c2x=           </span><span style="font-weight:bold;color:blue;">-- DA3ADF10</span>
 'DA3ADF10'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~encode(6500000)~c2x=          </span><span style="font-weight:bold;color:blue;">-- 6500000 is an invalid codepoint</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~encode(6500000)~c2x=          </span><span style="font-weight:bold;color:blue;">-- 6500000 is an invalid codepoint</span>
 <span style="font-weight:bold;color:red;">UTF-16BE encoding: invalid codepoint 6500000 (U+632EA0). Allowed range is 0..1114111.
 </span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~encode(55296)~errors=         </span><span style="font-weight:bold;color:blue;">-- 55296 is an invalid codepoint (high surrogate)</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~encode(55296)~errors=         </span><span style="font-weight:bold;color:blue;">-- 55296 is an invalid codepoint (high surrogate)</span>
 ['UTF-16BE encoding: unpaired high surrogate 55296 (U+D800) at byte-position 1, use WTF-16.']
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.wtf16be_encoding~encode(55296)~errors=         </span><span style="font-weight:bold;color:blue;">-- acceptable when WTF-16</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.wtf16be_encoding~encode(55296)~errors=         </span><span style="font-weight:bold;color:blue;">-- acceptable when WTF-16</span>
 (The NIL object)
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~encode(56320)~errors=         </span><span style="font-weight:bold;color:blue;">-- 56320 is an invalid codepoint (low surrogate)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~encode(56320)~errors=         </span><span style="font-weight:bold;color:blue;">-- 56320 is an invalid codepoint (low surrogate)</span>
 ['UTF-16BE encoding: unpaired low surrogate 56320 (U+DC00) at byte-position 1, use WTF-16.']
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.wtf16be_encoding~encode(56320)~errors=         </span><span style="font-weight:bold;color:blue;">-- acceptable when WTF-16</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.wtf16be_encoding~encode(56320)~errors=         </span><span style="font-weight:bold;color:blue;">-- acceptable when WTF-16</span>
 (The NIL object)
 
 <span style="font-weight:bold;color:blue;">/*
@@ -258,38 +258,38 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.wtf16be_encoding~en
 </span><span style="font-weight:bold;color:blue;">and the latter one starts with a trail surrogate, both surrogates need to be
 </span><span style="font-weight:bold;color:blue;">removed and replaced with a 4-byte sequence.
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 DC01&quot;x~text(&quot;utf16&quot;)~utf8~string~c2x=     </span><span style="font-weight:bold;color:blue;">-- UTF-8 encoding of character U+10001 from its UTF-16 encoding</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;D800 DC01&quot;x~text(&quot;utf16&quot;)~utf8~string~c2x=     </span><span style="font-weight:bold;color:blue;">-- UTF-8 encoding of character U+10001 from its UTF-16 encoding</span>
 'F0908081'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">t1 = &quot;D800&quot;x~text(&quot;wtf16&quot;)                      </span><span style="font-weight:bold;color:blue;">-- An invalid UTF16 encoding, but a valid WTF-16 encoding (high surrogate)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">t2 = &quot;DC01&quot;x~text(&quot;wtf16&quot;)                      </span><span style="font-weight:bold;color:blue;">-- An invalid UTF16 encoding, but a valid WTF-16 encoding (low surrogate)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(t1 || t2)~utf16~c2x=                           </span><span style="font-weight:bold;color:blue;">-- The concatenation is valid UTF16...</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">t1 = &quot;D800&quot;x~text(&quot;wtf16&quot;)                      </span><span style="font-weight:bold;color:blue;">-- An invalid UTF16 encoding, but a valid WTF-16 encoding (high surrogate)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">t2 = &quot;DC01&quot;x~text(&quot;wtf16&quot;)                      </span><span style="font-weight:bold;color:blue;">-- An invalid UTF16 encoding, but a valid WTF-16 encoding (low surrogate)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">(t1 || t2)~utf16~c2x=                           </span><span style="font-weight:bold;color:blue;">-- The concatenation is valid UTF16...</span>
 'D800DC01'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(t1 || t2)~utf16~c2u=                           </span><span style="font-weight:bold;color:blue;">-- ... whose codepoint is U+10001</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">(t1 || t2)~utf16~c2u=                           </span><span style="font-weight:bold;color:blue;">-- ... whose codepoint is U+10001</span>
 'U+10001'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">t1~wtf8~string~c2x=                             </span><span style="font-weight:bold;color:blue;">-- WTF-8 encoding of U+D800 (high surrogate)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">t1~wtf8~string~c2x=                             </span><span style="font-weight:bold;color:blue;">-- WTF-8 encoding of U+D800 (high surrogate)</span>
 'EDA080'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">t2~wtf8~string~c2x=                             </span><span style="font-weight:bold;color:blue;">-- WTF-8 encoding of U+DC01 (low surrogate)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">t2~wtf8~string~c2x=                             </span><span style="font-weight:bold;color:blue;">-- WTF-8 encoding of U+DC01 (low surrogate)</span>
 'EDB081'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(t1~wtf8~string || t2~wtf8~string)~c2x=         </span><span style="font-weight:bold;color:blue;">-- The concatenation of both WTF8 can't be this (2 codepoints)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">(t1~wtf8~string || t2~wtf8~string)~c2x=         </span><span style="font-weight:bold;color:blue;">-- The concatenation of both WTF8 can't be this (2 codepoints)</span>
 'EDA080EDB081'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(t1~wtf8 || t2~wtf8)~c2x=                       </span><span style="font-weight:bold;color:blue;">-- The correct concatenation is 1 codepoint...</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">(t1~wtf8 || t2~wtf8)~c2x=                       </span><span style="font-weight:bold;color:blue;">-- The correct concatenation is 1 codepoint...</span>
 'F0908081'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(t1~wtf8 || t2~wtf8)~c2u=                       </span><span style="font-weight:bold;color:blue;">-- ... equal to U+10001</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">(t1~wtf8 || t2~wtf8)~c2u=                       </span><span style="font-weight:bold;color:blue;">-- ... equal to U+10001</span>
 'U+10001'
 
 <span style="font-weight:bold;color:blue;">-- WTF-8 view of this invalid concatenation
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(t1~wtf8~string || t2~wtf8~string)~text(&quot;wtf8&quot;)~errors==    </span><span style="font-weight:bold;color:blue;">-- High surrogate 55296 (D800x) followed by low surrogate 56321 (DC01x) is not allowed</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">(t1~wtf8~string || t2~wtf8~string)~text(&quot;wtf8&quot;)~errors==    </span><span style="font-weight:bold;color:blue;">-- High surrogate 55296 (D800x) followed by low surrogate 56321 (DC01x) is not allowed</span>
 an Array (shape [3], 3 items)
  1 : 'WTF-8 encoding: high surrogate 55296 (U+D800) at byte-position 1 followed by low surrogate 56321 (U+DC01) at byte-position 4 is not allowed.'
  2 : 'WTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).'
  3 : 'WTF-8 encoding: byte sequence at byte-position 3 has an invalid start byte 128 (80x) (non-shortest form).'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(t1~wtf8~string || t2~wtf8~string)~text(&quot;wtf8&quot;)~c2x=        </span><span style="font-weight:bold;color:blue;">-- EDA080 EDB081</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">(t1~wtf8~string || t2~wtf8~string)~text(&quot;wtf8&quot;)~c2x=        </span><span style="font-weight:bold;color:blue;">-- EDA080 EDB081</span>
 'ED A0 80 EDB081'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(t1~wtf8~string || t2~wtf8~string)~text(&quot;wtf8&quot;)~c2u=        </span><span style="font-weight:bold;color:blue;">-- U+FFFD U+FFFD U+FFFD U+DC01 (yes... not 6 replacement chars because the low surrogate alone is valid)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">(t1~wtf8~string || t2~wtf8~string)~text(&quot;wtf8&quot;)~c2u=        </span><span style="font-weight:bold;color:blue;">-- U+FFFD U+FFFD U+FFFD U+DC01 (yes... not 6 replacement chars because the low surrogate alone is valid)</span>
 'U+FFFD U+FFFD U+FFFD U+DC01'
 
 <span style="font-weight:bold;color:blue;">-- UTF-8 view of this invalid concatenation
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(t1~wtf8~string || t2~wtf8~string)~text(&quot;utf8&quot;)~errors==    </span><span style="font-weight:bold;color:blue;">-- High surrogate is not allowed, Low surrogate is not allowed</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">(t1~wtf8~string || t2~wtf8~string)~text(&quot;utf8&quot;)~errors==    </span><span style="font-weight:bold;color:blue;">-- High surrogate is not allowed, Low surrogate is not allowed</span>
 an Array (shape [6], 6 items)
  1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid continuation byte 160 (A0x) at byte-position 2 (high surrogate, use WTF-8).'
  2 : 'UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 160 (A0x) (non-shortest form).'
@@ -297,9 +297,9 @@ an Array (shape [6], 6 items)
  4 : 'UTF-8 encoding: byte sequence at byte-position 4 has an invalid continuation byte 176 (B0x) at byte-position 5 (low surrogate, use WTF-8).'
  5 : 'UTF-8 encoding: byte sequence at byte-position 5 has an invalid start byte 176 (B0x) (non-shortest form).'
  6 : 'UTF-8 encoding: byte sequence at byte-position 6 has an invalid start byte 129 (81x) (non-shortest form).'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(t1~wtf8~string || t2~wtf8~string)~text(&quot;utf8&quot;)~c2x=        </span><span style="font-weight:bold;color:blue;">-- EDA080 EDB081</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">(t1~wtf8~string || t2~wtf8~string)~text(&quot;utf8&quot;)~c2x=        </span><span style="font-weight:bold;color:blue;">-- EDA080 EDB081</span>
 'ED A0 80 ED B0 81'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(t1~wtf8~string || t2~wtf8~string)~text(&quot;utf8&quot;)~c2u=        </span><span style="font-weight:bold;color:blue;">-- U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">(t1~wtf8~string || t2~wtf8~string)~text(&quot;utf8&quot;)~c2u=        </span><span style="font-weight:bold;color:blue;">-- U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD</span>
 'U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD U+FFFD'
 
 <span style="font-weight:bold;color:blue;">/*
@@ -322,29 +322,29 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(t1~wtf8~string || t
 </span><span style="font-weight:bold;color:blue;">    000FFFF#    DBBF DFF#   F3 BF BF B#
 </span><span style="font-weight:bold;color:blue;">    0010FFF#    DBFF DFF#   F4 8F BF B#
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~encode(&quot;FDD0&quot;~x2d)~c2x=       </span><span style="font-weight:bold;color:blue;">-- FDD0</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf16be_encoding~encode(&quot;FDD0&quot;~x2d)~c2x=       </span><span style="font-weight:bold;color:blue;">-- FDD0</span>
 'FDD0'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~encode(&quot;FDD0&quot;~x2d)~c2x=          </span><span style="font-weight:bold;color:blue;">-- EFB790</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.utf8_encoding~encode(&quot;FDD0&quot;~x2d)~c2x=          </span><span style="font-weight:bold;color:blue;">-- EFB790</span>
 'EFB790'
 
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">Create the file ill_formed_utf8.txt and check its encoding.
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">file = .stream~new(&quot;ill_formed_utf8.txt&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">file~open(&quot;write replace&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">file~say(&quot;This file contains ill-formed UTF-8 characters.&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">file~say(      &quot;B4 74 65 CC 81 F0 9F 91 8D&quot;x~text(&quot;utf8&quot;)~string    &quot;Invalid start byte&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">file~say(&quot;63 C3    74 65 CC 81 F0 9F 91 8D&quot;x~text(&quot;utf8&quot;)~string    &quot;Invalid continuation byte&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">file~say(&quot;Next line, UTF-8 character is truncated&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">file~say(&quot;63 C3 B4 74 65 CC 81 F0 9F 91&quot;x~text(&quot;utf8&quot;)~string)    </span><span style="font-weight:bold;color:blue;">-- Don't add text, the purpose is to raise a 'truncated' error</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">t1 = &quot;D800&quot;x~text(&quot;wtf16&quot;)                                        </span><span style="font-weight:bold;color:blue;">-- An invalid UTF16 encoding, but a valid WTF-16 encoding (high surrogate)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">t2 = &quot;DC01&quot;x~text(&quot;wtf16&quot;)                                        </span><span style="font-weight:bold;color:blue;">-- An invalid UTF16 encoding, but a valid WTF-16 encoding (low surrogate)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">file~say(t1~wtf8~string                                             &quot;invalid UTF-8 but valid WTF8 (high surrogate)&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">file~say(t2~wtf8~string                                             &quot;invalid UTF-8 but valid WTF8 (low surrogate)&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">file~say( (t1~wtf8~string || t2~wtf8~string)~string                 &quot;The concatenation of both WTF8 can't be this (2 codepoints)&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">file~say( (t1~wtf8 || t2~wtf8)~string                               &quot;The correct concatenation is 1 codepoint&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">file~close</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">system rexx unicode/scripts/check_encoding utf8 ill_formed_utf8.txt</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">file = .stream~new(&quot;ill_formed_utf8.txt&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">file~open(&quot;write replace&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">file~say(&quot;This file contains ill-formed UTF-8 characters.&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">file~say(      &quot;B4 74 65 CC 81 F0 9F 91 8D&quot;x~text(&quot;utf8&quot;)~string    &quot;Invalid start byte&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">file~say(&quot;63 C3    74 65 CC 81 F0 9F 91 8D&quot;x~text(&quot;utf8&quot;)~string    &quot;Invalid continuation byte&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">file~say(&quot;Next line, UTF-8 character is truncated&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">file~say(&quot;63 C3 B4 74 65 CC 81 F0 9F 91&quot;x~text(&quot;utf8&quot;)~string)    </span><span style="font-weight:bold;color:blue;">-- Don't add text, the purpose is to raise a 'truncated' error</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">t1 = &quot;D800&quot;x~text(&quot;wtf16&quot;)                                        </span><span style="font-weight:bold;color:blue;">-- An invalid UTF16 encoding, but a valid WTF-16 encoding (high surrogate)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">t2 = &quot;DC01&quot;x~text(&quot;wtf16&quot;)                                        </span><span style="font-weight:bold;color:blue;">-- An invalid UTF16 encoding, but a valid WTF-16 encoding (low surrogate)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">file~say(t1~wtf8~string                                             &quot;invalid UTF-8 but valid WTF8 (high surrogate)&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">file~say(t2~wtf8~string                                             &quot;invalid UTF-8 but valid WTF8 (low surrogate)&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">file~say( (t1~wtf8~string || t2~wtf8~string)~string                 &quot;The concatenation of both WTF8 can't be this (2 codepoints)&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">file~say( (t1~wtf8 || t2~wtf8)~string                               &quot;The correct concatenation is 1 codepoint&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">file~close</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">system rexx unicode/scripts/check_encoding utf8 ill_formed_utf8.txt</span>
 Checking file &quot;ill_formed_utf8.txt&quot;
   line 2: UTF-8 encoding: byte sequence at byte-position 1 has an invalid start byte 180 (B4x) (non-shortest form).
   line 3: UTF-8 encoding: byte sequence at byte-position 2 has an invalid continuation byte 116 (74x) at byte-position 3.
@@ -364,7 +364,7 @@ Checking file &quot;ill_formed_utf8.txt&quot;
   15 errors
 Total: 15 errors
 <span style="font-weight:bold;color:red;">RC= 1
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">system rexx unicode/scripts/check_encoding wtf8 ill_formed_utf8.txt</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">system rexx unicode/scripts/check_encoding wtf8 ill_formed_utf8.txt</span>
 Checking file &quot;ill_formed_utf8.txt&quot;
   line 2: WTF-8 encoding: byte sequence at byte-position 1 has an invalid start byte 180 (B4x) (non-shortest form).
   line 3: WTF-8 encoding: byte sequence at byte-position 2 has an invalid continuation byte 116 (74x) at byte-position 3.
@@ -378,15 +378,15 @@ Total: 6 errors
 </span>
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">file = .stream~new(&quot;ill_formed_utf16.txt&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">file~open(&quot;write replace&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">file~say(&quot;This file contains ill-formed UTF-16 characters.&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">file~say(     &quot;DC00 D801 DC01&quot;x~text(&quot;utf16&quot;)~string        &quot;Unpaired low surrogate (acceptable when WTF-16)&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">file~say(&quot;D800 1000 D801 DC01&quot;x~text(&quot;utf16&quot;)~string        &quot;Invalid low surrogate (acceptable when WTF-16)&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">file~say(&quot;Next line, character is truncated. 2 errors reported because try with 4 bytes and then 2 bytes (this is also an error when WTF-16)&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">file~say(&quot;D800 DC00 D801 DC&quot;x~text(&quot;utf16&quot;)~string)       </span><span style="font-weight:bold;color:blue;">-- Don't add text, the purpose is to raise a 'truncated' error</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">file~close</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">system rexx unicode/scripts/check_encoding utf16 ill_formed_utf16.txt</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">file = .stream~new(&quot;ill_formed_utf16.txt&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">file~open(&quot;write replace&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">file~say(&quot;This file contains ill-formed UTF-16 characters.&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">file~say(     &quot;DC00 D801 DC01&quot;x~text(&quot;utf16&quot;)~string        &quot;Unpaired low surrogate (acceptable when WTF-16)&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">file~say(&quot;D800 1000 D801 DC01&quot;x~text(&quot;utf16&quot;)~string        &quot;Invalid low surrogate (acceptable when WTF-16)&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">file~say(&quot;Next line, character is truncated. 2 errors reported because try with 4 bytes and then 2 bytes (this is also an error when WTF-16)&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">file~say(&quot;D800 DC00 D801 DC&quot;x~text(&quot;utf16&quot;)~string)       </span><span style="font-weight:bold;color:blue;">-- Don't add text, the purpose is to raise a 'truncated' error</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">file~close</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">system rexx unicode/scripts/check_encoding utf16 ill_formed_utf16.txt</span>
 Checking file &quot;ill_formed_utf16.txt&quot;
   line 2: UTF-16BE encoding: unpaired low surrogate 56320 (U+DC00) at byte-position 1, use WTF-16.
   line 3: UTF-16BE encoding: invalid low surrogate 4096 (U+1000) at byte-position 3, use WTF-16.
@@ -396,7 +396,7 @@ Checking file &quot;ill_formed_utf16.txt&quot;
   5 errors
 Total: 5 errors
 <span style="font-weight:bold;color:red;">RC= 1
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">system rexx unicode/scripts/check_encoding wtf16 ill_formed_utf16.txt</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">system rexx unicode/scripts/check_encoding wtf16 ill_formed_utf16.txt</span>
 Checking file &quot;ill_formed_utf16.txt&quot;
   line 3: WTF-16BE encoding: byte sequence at byte-position 55 is truncated, expected 2 bytes.
   line 5: WTF-16BE encoding: byte sequence at byte-position 5 is truncated, expected 4 bytes.

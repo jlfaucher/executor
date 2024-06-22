@@ -21,10 +21,10 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 22 Apr 2024
-Input queue name: S13113Q600003f42b10
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 22 Jun 2024
+Input queue name: Saf22Q600001c5ef20
 
-ooRexx[sh]> call loadUnicodeCharacterNames
+ooRexx[bash]> call loadUnicodeCharacterNames
 Load the Unicode character names 15.1.0 
 ............................................
 Total loaded character names: 149813
@@ -61,13 +61,13 @@ Notice that 👩‍👨‍👩‍👧 constitute only 1 grapheme thanks to the Z
 */
 
 
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~description=
 'UTF-8 not-ASCII (6 characters, 12 codepoints, 34 bytes, 0 error)'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~c2u=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~c2u=
 'U+006E U+006F U+00EB U+006C U+1F469 U+200D U+1F468 U+200D U+1F469 U+200D U+1F467 U+1F385'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~c2x=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~c2x=
 '6E 6F C3AB 6C F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7 F09F8E85'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~c2g=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~c2g=
 '6E 6F C3AB 6C F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7 F09F8E85'
 
 
@@ -93,98 +93,98 @@ comparison operators. Thanks to the lump transformation, all the Unicode spaces
 are supported.
 */
 
-ooRexx[sh]> textNFC = "Noël"~NFC
-ooRexx[sh]> textNFC~UnicodeCharacters==
+ooRexx[bash]> textNFC = "Noël"~NFC
+ooRexx[bash]> textNFC~UnicodeCharacters==
 an Array (shape [4], 4 items)
  1 : ( "N"   U+004E Lu 1 "LATIN CAPITAL LETTER N" )
  2 : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
  3 : ( "ë"   U+00EB Ll 1 "LATIN SMALL LETTER E WITH DIAERESIS" )
  4 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
-ooRexx[sh]> textNFD="Noël"~NFD
-ooRexx[sh]> textNFD~UnicodeCharacters==
+ooRexx[bash]> textNFD="Noël"~NFD
+ooRexx[bash]> textNFD~UnicodeCharacters==
 an Array (shape [5], 5 items)
  1 : ( "N"   U+004E Lu 1 "LATIN CAPITAL LETTER N" )
  2 : ( "o"   U+006F Ll 1 "LATIN SMALL LETTER O" )
  3 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
  4 : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
  5 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
-ooRexx[sh]> (textNFC == textNFD)=                                               -- 1
+ooRexx[bash]> (textNFC == textNFD)=                                               -- 1
  1
-ooRexx[sh]> (textNFC = textNFD)=                                                -- 1
+ooRexx[bash]> (textNFC = textNFD)=                                                -- 1
  1
-ooRexx[sh]> (" "textNFC == textNFD" ")=                                         -- 0 because strict
+ooRexx[bash]> (" "textNFC == textNFD" ")=                                         -- 0 because strict
  0
-ooRexx[sh]> (" "textNFC = textNFD" ")=                                          -- 1
+ooRexx[bash]> (" "textNFC = textNFD" ")=                                          -- 1
  1
-ooRexx[sh]> (" "textNFC = (textNFD"\u{NBSP}")~unescape)=                        -- 1
+ooRexx[bash]> (" "textNFC = (textNFD"\u{NBSP}")~unescape)=                        -- 1
  1
-ooRexx[sh]> (" "textNFC = (textNFD"\u{ZWSP}")~unescape)=                        -- 1
+ooRexx[bash]> (" "textNFC = (textNFD"\u{ZWSP}")~unescape)=                        -- 1
  1
-ooRexx[sh]> ("-"textNFC = ("\u{OBLIQUE HYPHEN}"textNFD"\u{ZWSP}")~unescape)=    -- 1
+ooRexx[bash]> ("-"textNFC = ("\u{OBLIQUE HYPHEN}"textNFD"\u{ZWSP}")~unescape)=    -- 1
  1
 
 
 -- []
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"[3]=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"[3]=; result~description=
 T'ë'
 'UTF-8 not-ASCII (1 character, 1 codepoint, 2 bytes, 0 error)'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"[3,3]=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"[3,3]=; result~description=
 T'ël👩‍👨‍👩‍👧'
 'UTF-8 not-ASCII (3 characters, 9 codepoints, 28 bytes, 0 error)'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"[3,6]=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"[3,6]=; result~description=
 T'ël👩‍👨‍👩‍👧🎅'
 'UTF-8 not-ASCII (4 characters, 10 codepoints, 32 bytes, 0 error)'
 
 
 -- ?
-ooRexx[sh]> "0"~?("true", "false")=
+ooRexx[bash]> "0"~?("true", "false")=
 'false'
-ooRexx[sh]> "1"~?("true", "false")=
+ooRexx[bash]> "1"~?("true", "false")=
 'true'
-ooRexx[sh]> "not a boolean value"~?("true", "false")=
+ooRexx[bash]> "not a boolean value"~?("true", "false")=
 Logical value must be exactly "0" or "1"; found "not a boolean value".
 Error code= 34.901
-ooRexx[sh]> "not a boolean value 🤔"~?("true", "false")=
+ooRexx[bash]> "not a boolean value 🤔"~?("true", "false")=
 UTF-8 not-ASCII 'not a b...' is not compatible with a Rexx logical value.
 Error code= 23.900
-ooRexx[sh]> "0"~?("true 🤔", "false 🤔")=
+ooRexx[bash]> "0"~?("true 🤔", "false 🤔")=
 T'false 🤔'
-ooRexx[sh]> "1"~?("true 🤔", "false 🤔")=
+ooRexx[bash]> "1"~?("true 🤔", "false 🤔")=
 T'true 🤔'
 
 
 -- append
-ooRexx[sh]> "hello"~append(" ")~append("john")=
+ooRexx[bash]> "hello"~append(" ")~append("john")=
 'hello john'
-ooRexx[sh]> "\uD83D"~text("wtf8")~append("\uDE3F")~unescape=    -- High surrogate followed by low surrogate is valid WTF-8
+ooRexx[bash]> "\uD83D"~text("wtf8")~append("\uDE3F")~unescape=    -- High surrogate followed by low surrogate is valid WTF-8
 T'😿'
-ooRexx[sh]> "\uD83D"~text("utf8")~append("\uDE3F")~unescape=    -- High surrogate followed by low surrogate is INVALID UTF-8
+ooRexx[bash]> "\uD83D"~text("utf8")~append("\uDE3F")~unescape=    -- High surrogate followed by low surrogate is INVALID UTF-8
 T'������'
-ooRexx[sh]> -- Something to rework: the String BIF/BIM lose the encoding
+ooRexx[bash]> -- Something to rework: the String BIF/BIM lose the encoding
 -- Must use ~text to have the right encoding after concatenation of WTF-8 with UTF-8
 -- See diary on 2022 August 03: The ~unescape will manage correctly this concatenation when WTF-8
 -- Using ~~setEncoding("wtf8") instead of ~text("wtf8") doesn't work because the encoding is lost:
-ooRexx[sh]> "\uD83D"~text("wtf8")~append("\uDE3F")=; result~description=            -- T'\uD83D\uDE3F'  'WTF-8 ASCII (12 characters, 12 codepoints, 12 bytes, 0 error)'
+ooRexx[bash]> "\uD83D"~text("wtf8")~append("\uDE3F")=; result~description=            -- T'\uD83D\uDE3F'  'WTF-8 ASCII (12 characters, 12 codepoints, 12 bytes, 0 error)'
 T'\uD83D\uDE3F'
 'WTF-8 ASCII (12 characters, 12 codepoints, 12 bytes, 0 error)'
-ooRexx[sh]> "\uD83D"~text("wtf8")~append("\uDE3F")~unescape~c2x=                    -- 'F09F98BF'   good!
+ooRexx[bash]> "\uD83D"~text("wtf8")~append("\uDE3F")~unescape~c2x=                    -- 'F09F98BF'   good!
 'F09F98BF'
-ooRexx[sh]> "\uD83D"~~setEncoding("wtf8")~append("\uDE3F")=; result~description=    -- '\uD83D\uDE3F'   'UTF-8 ASCII by default (12 bytes)'
+ooRexx[bash]> "\uD83D"~~setEncoding("wtf8")~append("\uDE3F")=; result~description=    -- '\uD83D\uDE3F'   'UTF-8 ASCII by default (12 bytes)'
 '\uD83D\uDE3F'
 'UTF-8 ASCII by default (12 bytes)'
-ooRexx[sh]> "\uD83D"~~setEncoding("wtf8")~append("\uDE3F")~unescape~c2x=            -- 'ED A0 BD ED B8 BF'  not good!
+ooRexx[bash]> "\uD83D"~~setEncoding("wtf8")~append("\uDE3F")~unescape~c2x=            -- 'ED A0 BD ED B8 BF'  not good!
 'ED A0 BD ED B8 BF'
 
 
 -- c2d
-ooRexx[sh]> "e"~c2d=
+ooRexx[bash]> "e"~c2d=
  101
-ooRexx[sh]> "é"~c2d=
+ooRexx[bash]> "é"~c2d=
  50089
 
 
 -- c2x
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~c2x=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~c2x=
 '6E 6F C3AB 6C F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7 F09F8E85'
 
 
@@ -203,133 +203,133 @@ passing NFKC + stripIgnorable.
 
 -- caselessCompare
 -- casefold 2 characters: "ß" becomes "ss"
-ooRexx[sh]> "Bundesstraße im Freiland"~caselessCompare("Bundesstraße")=        -- 14
+ooRexx[bash]> "Bundesstraße im Freiland"~caselessCompare("Bundesstraße")=        -- 14
  14
-ooRexx[sh]> "Bundesstraße im Freiland"~caselessCompare("Bundesstraße", "_")=   -- 13
+ooRexx[bash]> "Bundesstraße im Freiland"~caselessCompare("Bundesstraße", "_")=   -- 13
  13
-ooRexx[sh]> "Bundesstraße im Freiland"~caselessCompare("bundesstrasse")=       -- 14
+ooRexx[bash]> "Bundesstraße im Freiland"~caselessCompare("bundesstrasse")=       -- 14
  14
-ooRexx[sh]> "Bundesstrasse im Freiland"~caselessCompare("bundesstraße")=       -- 15
+ooRexx[bash]> "Bundesstrasse im Freiland"~caselessCompare("bundesstraße")=       -- 15
  15
-ooRexx[sh]> "straßssßßssse"~compare("stra", "ß")=                              --  6
+ooRexx[bash]> "straßssßßssse"~compare("stra", "ß")=                              --  6
  6
-ooRexx[sh]> "straßssßßssse"~caselessCompare("stra", "ß")=                      -- 12 (not 13 because the last 's' matches only half of the casefolded pad "ß" which is "ss")
+ooRexx[bash]> "straßssßßssse"~caselessCompare("stra", "ß")=                      -- 12 (not 13 because the last 's' matches only half of the casefolded pad "ß" which is "ss")
  12
 
 
 -- caselessCompareTo
-ooRexx[sh]> "pere noel"~caselessCompareTo("Père Noël")=                    -- -1 (lesser)
+ooRexx[bash]> "pere noel"~caselessCompareTo("Père Noël")=                    -- -1 (lesser)
 -1
-ooRexx[sh]> "pere noel"~caselessCompareTo("Père Noël", stripMark:.true)=   --  0 (equal because the accents are ignored)
+ooRexx[bash]> "pere noel"~caselessCompareTo("Père Noël", stripMark:.true)=   --  0 (equal because the accents are ignored)
  0
 
 
 -- caselessEndsWith
-ooRexx[sh]> "hello"~caselessEndsWith("")=                  -- false
+ooRexx[bash]> "hello"~caselessEndsWith("")=                  -- false
  0
-ooRexx[sh]> "hello"~caselessEndsWith("O")=                 -- true
+ooRexx[bash]> "hello"~caselessEndsWith("O")=                 -- true
  1
-ooRexx[sh]> "hello"~caselessEndsWith("Ô")=                 -- false
+ooRexx[bash]> "hello"~caselessEndsWith("Ô")=                 -- false
  0
-ooRexx[sh]> "hello"~caselessEndsWith("Ô", stripMark:)=     -- true
+ooRexx[bash]> "hello"~caselessEndsWith("Ô", stripMark:)=     -- true
  1
 "noël👩‍👨‍👩‍👧🎅"~caselessEndsWith("🎅")=                -- true
  1
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~caselessEndsWith("👧🎅")=              -- false (not aligned with a grapheme)
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~caselessEndsWith("👧🎅")=              -- false (not aligned with a grapheme)
  0
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~caselessEndsWith("‍👧🎅")=             -- false (not aligned with a grapheme)
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~caselessEndsWith("‍👧🎅")=             -- false (not aligned with a grapheme)
  0
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~caselessEndsWith("👩‍👧🎅")=           -- false (not aligned with a grapheme)
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~caselessEndsWith("👩‍👧🎅")=           -- false (not aligned with a grapheme)
  0
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~caselessEndsWith("ël👩‍👨‍👩‍👧🎅")=   -- true
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~caselessEndsWith("ël👩‍👨‍👩‍👧🎅")=   -- true
  1
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~caselessEndsWith("ËL👩‍👨‍👩‍👧🎅")=   -- true
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~caselessEndsWith("ËL👩‍👨‍👩‍👧🎅")=   -- true
  1
 
 
 -- caselessEquals
-ooRexx[sh]> "ŒUF"~caselessEquals("œuf")=           -- 1
+ooRexx[bash]> "ŒUF"~caselessEquals("œuf")=           -- 1
  1
-ooRexx[sh]> "œuf"~caselessEquals("ŒUF")=           -- 1
+ooRexx[bash]> "œuf"~caselessEquals("ŒUF")=           -- 1
  1
-ooRexx[sh]> "Straße"~caselessEquals("strasse")=    -- 1
+ooRexx[bash]> "Straße"~caselessEquals("strasse")=    -- 1
  1
-ooRexx[sh]> "strasse"~caselessEquals("Straße")=    -- 1
+ooRexx[bash]> "strasse"~caselessEquals("Straße")=    -- 1
  1
 
 -- caselessEquals (cont.) strict versus non-strict
-ooRexx[sh]> string1 = "LE\u{IDEOGRAPHIC SPACE}PÈ\u{ZERO-WIDTH-SPACE}RE\u{HYPHEN}NOËL"~unescape
-ooRexx[sh]> string2 = "Le\u{OGHAM SPACE MARK}Père\u{EN DASH}No\u{ZERO-WIDTH-SPACE}ël"~unescape
-ooRexx[sh]> string1=                                                -- T'LE　PÈ​RE‐NOËL
+ooRexx[bash]> string1 = "LE\u{IDEOGRAPHIC SPACE}PÈ\u{ZERO-WIDTH-SPACE}RE\u{HYPHEN}NOËL"~unescape
+ooRexx[bash]> string2 = "Le\u{OGHAM SPACE MARK}Père\u{EN DASH}No\u{ZERO-WIDTH-SPACE}ël"~unescape
+ooRexx[bash]> string1=                                                -- T'LE　PÈ​RE‐NOËL
 T'LE　PÈ​RE‐NOËL'
-ooRexx[sh]> string2=                                                -- T'Le Père–No​ël'
+ooRexx[bash]> string2=                                                -- T'Le Père–No​ël'
 T'Le Père–No​ël'
-ooRexx[sh]> string1~c2x=                                            -- '4C 45 E38080 50 C388 E2808B 52 45 E28090 4E 4F C38B 4C'
+ooRexx[bash]> string1~c2x=                                            -- '4C 45 E38080 50 C388 E2808B 52 45 E28090 4E 4F C38B 4C'
 '4C 45 E38080 50 C388 E2808B 52 45 E28090 4E 4F C38B 4C'
-ooRexx[sh]> string2~c2x=                                            -- '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
+ooRexx[bash]> string2~c2x=                                            -- '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
 '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
-ooRexx[sh]> string1~caselessEquals(string2)=                        -- false (strict mode by default)
+ooRexx[bash]> string1~caselessEquals(string2)=                        -- false (strict mode by default)
  0
 
 -- The non-strict mode applies these transformations:
-ooRexx[sh]> string1~nfkd(casefold:, lump:, stripIgnorable:)~c2x=    -- '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
+ooRexx[bash]> string1~nfkd(casefold:, lump:, stripIgnorable:)~c2x=    -- '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
 '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
-ooRexx[sh]> string2~nfkd(casefold:, lump:, stripIgnorable:)~c2x=    -- '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
+ooRexx[bash]> string2~nfkd(casefold:, lump:, stripIgnorable:)~c2x=    -- '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
 '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
-ooRexx[sh]> string1~caselessEquals(string2, strict:.false)=         -- true (non-strict mode)
+ooRexx[bash]> string1~caselessEquals(string2, strict:.false)=         -- true (non-strict mode)
  1
 
 
 -- caselessMatch
 -- "Bundesschnellstraße"                                    -- at 14: "s", at 18:"ß"
 --  1234567890123456789
-ooRexx[sh]> "Bundesstraße im Freiland"~caselessMatch(14, "im")=    -- .true
+ooRexx[bash]> "Bundesstraße im Freiland"~caselessMatch(14, "im")=    -- .true
  1
 
 
 -- caselessMatchChar
 -- "Bundesschnellstraße"                               -- at 14: "s", at 18:"ß"
 --  1234567890123456789
-ooRexx[sh]> "Bundesschnellstraße"~caselessMatchChar(18, "s")=      -- 0    "ß" becomes "ss" which is 2 characters. "s" doesn't match "ss".
+ooRexx[bash]> "Bundesschnellstraße"~caselessMatchChar(18, "s")=      -- 0    "ß" becomes "ss" which is 2 characters. "s" doesn't match "ss".
  0
-ooRexx[sh]> "Bundesschnellstraße"~caselessMatchChar(19, "s")=      -- 0    "ß" becomes "ss" which is 2 characters. The character at 19 is "e", not the second "s"
+ooRexx[bash]> "Bundesschnellstraße"~caselessMatchChar(19, "s")=      -- 0    "ß" becomes "ss" which is 2 characters. The character at 19 is "e", not the second "s"
  0
-ooRexx[sh]> "Bundesschnellstraße"~caselessMatchChar(19, "e")=      -- 1    "ß" becomes "ss" which is 2 characters. The character at 19 is "e", not the second "s"
+ooRexx[bash]> "Bundesschnellstraße"~caselessMatchChar(19, "e")=      -- 1    "ß" becomes "ss" which is 2 characters. The character at 19 is "e", not the second "s"
  1
 
 -- caselessMatchChar (cont.)
 -- The ligature disappears when casefolded
-ooRexx[sh]> "baﬄe"~casefold=                                        -- T'baffle'
+ooRexx[bash]> "baﬄe"~casefold=                                        -- T'baffle'
 T'baffle'
-ooRexx[sh]> "BAFFLE"~caselessMatchChar(3, "ﬄ")=                     -- 0   The 3rd character "F" casefolded "f" doesn't match ""ﬄ"" casefolded "ffl"
+ooRexx[bash]> "BAFFLE"~caselessMatchChar(3, "ﬄ")=                     -- 0   The 3rd character "F" casefolded "f" doesn't match ""ﬄ"" casefolded "ffl"
  0
-ooRexx[sh]> "BAFFLE"~caselessMatchChar(5, "ﬄ")=                     -- 0   The 5th character "L" casefolded "l" doesn't match ""ﬄ"" casefolded "ffl"
+ooRexx[bash]> "BAFFLE"~caselessMatchChar(5, "ﬄ")=                     -- 0   The 5th character "L" casefolded "l" doesn't match ""ﬄ"" casefolded "ffl"
  0
-ooRexx[sh]> "BAFFLE"~caselessMatchChar(5, "L")=                      -- 1   There is a match on "l" at 5
+ooRexx[bash]> "BAFFLE"~caselessMatchChar(5, "L")=                      -- 1   There is a match on "l" at 5
  1
 
 -- caselessMatchChar (cont.)
 -- Some ligatures are not decomposed by NFKC.
-ooRexx[sh]> "ŒUF"~caselessEquals("oeuf")=                                  -- 0
+ooRexx[bash]> "ŒUF"~caselessEquals("oeuf")=                                  -- 0
  0
-ooRexx[sh]> "ŒUF"~caselessEquals("oeuf", normalization:.Unicode~NFKC)=     -- 0
+ooRexx[bash]> "ŒUF"~caselessEquals("oeuf", normalization:.Unicode~NFKC)=     -- 0
  0
 
 
 -- caselessPos
-ooRexx[sh]> "Père Noël Père Noël"~caselessPos("OË")=                   -- 7
+ooRexx[bash]> "Père Noël Père Noël"~caselessPos("OË")=                   -- 7
  7
-ooRexx[sh]> "Père Noël Père Noël"~caselessPos("OË", 8)=                -- 17
+ooRexx[bash]> "Père Noël Père Noël"~caselessPos("OË", 8)=                -- 17
  17
-ooRexx[sh]> "Père Noël Père Noël"~caselessPos("OË", 8, 10)=            -- 0
+ooRexx[bash]> "Père Noël Père Noël"~caselessPos("OË", 8, 10)=            -- 0
  0
-ooRexx[sh]> "Père Noël Père Noël"~caselessPos("OE")=                   -- 0
+ooRexx[bash]> "Père Noël Père Noël"~caselessPos("OE")=                   -- 0
  0
-ooRexx[sh]> "Père Noël Père Noël"~caselessPos("OE", stripMark:)=       -- 7
+ooRexx[bash]> "Père Noël Père Noël"~caselessPos("OE", stripMark:)=       -- 7
  7
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~caselessPos("🎅")=                  -- 6
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~caselessPos("🎅")=                  -- 6
  6
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~caselessPos("👧🎅")=               -- 0
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~caselessPos("👧🎅")=               -- 0
  0
 
 -- caselessPos in not-aligned mode
@@ -345,199 +345,199 @@ character position.
 The first number is the start of the matching.
 The second number is the end of the matching + 1.
 */
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~caselessPos("👧🎅", aligned:.false)=   -- [-5.27,+7.35]
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~caselessPos("👧🎅", aligned:.false)=   -- [-5.27,+7.35]
 [-5.27,+7.35]
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~caselessPos("👩‍👨‍👩‍👧🎅", aligned:.false)=   -- [+5.6,+7.35]
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~caselessPos("👩‍👨‍👩‍👧🎅", aligned:.false)=   -- [+5.6,+7.35]
 [+5.6,+7.35]
 
 
 -- center
-ooRexx[sh]> "noelFC"~center(10)=; result~description=              -- forward to String
+ooRexx[bash]> "noelFC"~center(10)=; result~description=              -- forward to String
 '  noelFC  '
 'UTF-8 ASCII by default (10 bytes)'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~center(10)=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~center(10)=; result~description=
 T'  noël👩‍👨‍👩‍👧🎅  '
 'UTF-8 not-ASCII (10 characters, 16 codepoints, 38 bytes, 0 error)'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~center(9)=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~center(9)=; result~description=
 T' noël👩‍👨‍👩‍👧🎅  '
 'UTF-8 not-ASCII (9 characters, 15 codepoints, 37 bytes, 0 error)'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~center(8)=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~center(8)=; result~description=
 T' noël👩‍👨‍👩‍👧🎅 '
 'UTF-8 not-ASCII (8 characters, 14 codepoints, 36 bytes, 0 error)'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~center(7)=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~center(7)=; result~description=
 T'noël👩‍👨‍👩‍👧🎅 '
 'UTF-8 not-ASCII (7 characters, 13 codepoints, 35 bytes, 0 error)'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~center(6)=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~center(6)=; result~description=
 T'noël👩‍👨‍👩‍👧🎅'
 'UTF-8 not-ASCII (6 characters, 12 codepoints, 34 bytes, 0 error)'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~center(5)=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~center(5)=; result~description=
 T'noël👩‍👨‍👩‍👧'
 'UTF-8 not-ASCII (5 characters, 11 codepoints, 30 bytes, 0 error)'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~center(4)=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~center(4)=; result~description=
 T'oël👩‍👨‍👩‍👧'
 'UTF-8 not-ASCII (4 characters, 10 codepoints, 29 bytes, 0 error)'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~center(3)=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~center(3)=; result~description=
 T'oël'
 'UTF-8 not-ASCII (3 characters, 3 codepoints, 4 bytes, 0 error)'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~center(2)=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~center(2)=; result~description=
 T'ël'
 'UTF-8 not-ASCII (2 characters, 2 codepoints, 3 bytes, 0 error)'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~center(1)=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~center(1)=; result~description=
 T'ë'
 'UTF-8 not-ASCII (1 character, 1 codepoint, 2 bytes, 0 error)'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~center(0)=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~center(0)=; result~description=
 T''
 'UTF-8 ASCII (0 character, 0 codepoint, 0 byte, 0 error)'
 
 -- center with pad
-ooRexx[sh]> "="~description=                                            -- 'UTF-8 ASCII (1 byte)'
+ooRexx[bash]> "="~description=                                            -- 'UTF-8 ASCII (1 byte)'
 'UTF-8 ASCII (1 byte)'
-ooRexx[sh]> "="~c2x=                                                    -- '3D'
+ooRexx[bash]> "="~c2x=                                                    -- '3D'
 '3D'
-ooRexx[sh]> "noelFC"~center(10, "=")=; result~description=              -- forward to String
+ooRexx[bash]> "noelFC"~center(10, "=")=; result~description=              -- forward to String
 '==noelFC=='
 'UTF-8 ASCII by default (10 bytes)'
-ooRexx[sh]> "═"~description=                                            -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'   (was 'UTF-8 not-ASCII (3 bytes)')
+ooRexx[bash]> "═"~description=                                            -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'   (was 'UTF-8 not-ASCII (3 bytes)')
 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
-ooRexx[sh]> "═"~description=                                            -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
+ooRexx[bash]> "═"~description=                                            -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
-ooRexx[sh]> "═"~c2x=                                                    -- 'E29590'
+ooRexx[bash]> "═"~c2x=                                                    -- 'E29590'
 'E29590'
-ooRexx[sh]> "noelFC"~center(10, "═")=; result~description=              -- don't forward to String because the pad is more than 1 byte
+ooRexx[bash]> "noelFC"~center(10, "═")=; result~description=              -- don't forward to String because the pad is more than 1 byte
 T'══noelFC══'
 'UTF-8 not-ASCII (10 characters, 10 codepoints, 18 bytes, 0 error)'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~center(10, "═")=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~center(10, "═")=; result~description=
 T'══noël👩‍👨‍👩‍👧🎅══'
 'UTF-8 not-ASCII (10 characters, 16 codepoints, 46 bytes, 0 error)'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~center(9, "═")=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~center(9, "═")=; result~description=
 T'═noël👩‍👨‍👩‍👧🎅══'
 'UTF-8 not-ASCII (9 characters, 15 codepoints, 43 bytes, 0 error)'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~center(8, "═")=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~center(8, "═")=; result~description=
 T'═noël👩‍👨‍👩‍👧🎅═'
 'UTF-8 not-ASCII (8 characters, 14 codepoints, 40 bytes, 0 error)'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~center(7, "═")=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~center(7, "═")=; result~description=
 T'noël👩‍👨‍👩‍👧🎅═'
 'UTF-8 not-ASCII (7 characters, 13 codepoints, 37 bytes, 0 error)'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~center(6, "═")=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~center(6, "═")=; result~description=
 T'noël👩‍👨‍👩‍👧🎅'
 'UTF-8 not-ASCII (6 characters, 12 codepoints, 34 bytes, 0 error)'
 
 
 -- compare
-ooRexx[sh]> "Bundesstraße im Freiland"~compare("Bundesstraße")=        -- 14
+ooRexx[bash]> "Bundesstraße im Freiland"~compare("Bundesstraße")=        -- 14
  14
-ooRexx[sh]> "Bundesstraße im Freiland"~compare("Bundesstraße", "_")=   -- 13
+ooRexx[bash]> "Bundesstraße im Freiland"~compare("Bundesstraße", "_")=   -- 13
  13
-ooRexx[sh]> "Bundesstraße im Freiland"~compare("Bundesstrasse")=       -- 11
+ooRexx[bash]> "Bundesstraße im Freiland"~compare("Bundesstrasse")=       -- 11
  11
-ooRexx[sh]> "Bundesstrasse im Freiland"~compare("Bundesstraße")=       -- 11
+ooRexx[bash]> "Bundesstrasse im Freiland"~compare("Bundesstraße")=       -- 11
  11
-ooRexx[sh]> "straßssßßssse"~compare("stra", "ß")=                      --  6
+ooRexx[bash]> "straßssßßssse"~compare("stra", "ß")=                      --  6
  6
 
 
 -- compareTo
-ooRexx[sh]> "pere noel"~compareTo("père noël")=                    -- -1 (lesser)
+ooRexx[bash]> "pere noel"~compareTo("père noël")=                    -- -1 (lesser)
 -1
-ooRexx[sh]> "pere noel"~compareTo("père noël", stripMark:.true)=   --  0 (equal because the accents are ignored)
+ooRexx[bash]> "pere noel"~compareTo("père noël", stripMark:.true)=   --  0 (equal because the accents are ignored)
  0
 
 
 -- contains
-ooRexx[sh]> "noel"~contains("oe")=            -- forward to String
+ooRexx[bash]> "noel"~contains("oe")=            -- forward to String
  1
-ooRexx[sh]> "noel"~contains("oe")=            -- forward to String
+ooRexx[bash]> "noel"~contains("oe")=            -- forward to String
  1
-ooRexx[sh]> "noel"~contains("oë")=
+ooRexx[bash]> "noel"~contains("oë")=
  0
-ooRexx[sh]> "noel"~contains("oë")=
+ooRexx[bash]> "noel"~contains("oë")=
  0
-ooRexx[sh]> "noël"~contains("oe")=
+ooRexx[bash]> "noël"~contains("oe")=
  0
-ooRexx[sh]> "noël"~contains("oe")=
+ooRexx[bash]> "noël"~contains("oe")=
  0
-ooRexx[sh]> "noël"~contains("oë")=
+ooRexx[bash]> "noël"~contains("oë")=
  1
-ooRexx[sh]> "noël"~contains("oë")=
+ooRexx[bash]> "noël"~contains("oë")=
  1
 
 
 -- copies
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~copies(4)=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~copies(4)=; result~description=
 T'noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅'
 'UTF-8 not-ASCII (24 characters, 48 codepoints, 136 bytes, 0 error)'
 
 
 -- endsWith
-ooRexx[sh]> "hello"~endsWith("")=                  -- false
+ooRexx[bash]> "hello"~endsWith("")=                  -- false
  0
-ooRexx[sh]> "hello"~endsWith("o")=                 -- true
+ooRexx[bash]> "hello"~endsWith("o")=                 -- true
  1
-ooRexx[sh]> "hello"~endsWith("ô")=                 -- false
+ooRexx[bash]> "hello"~endsWith("ô")=                 -- false
  0
-ooRexx[sh]> "hello"~endsWith("ô", stripMark:)=     -- true
+ooRexx[bash]> "hello"~endsWith("ô", stripMark:)=     -- true
  1
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~endsWith("🎅")=                -- true
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~endsWith("🎅")=                -- true
  1
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~endsWith("👧🎅")=              -- false (not aligned with a grapheme)
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~endsWith("👧🎅")=              -- false (not aligned with a grapheme)
  0
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~endsWith("‍👧🎅")=             -- false (not aligned with a grapheme)
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~endsWith("‍👧🎅")=             -- false (not aligned with a grapheme)
  0
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~endsWith("👩‍👧🎅")=           -- false (not aligned with a grapheme)
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~endsWith("👩‍👧🎅")=           -- false (not aligned with a grapheme)
  0
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~endsWith("ël👩‍👨‍👩‍👧🎅")=   -- true
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~endsWith("ël👩‍👨‍👩‍👧🎅")=   -- true
  1
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~endsWith("ËL👩‍👨‍👩‍👧🎅")=   -- false
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~endsWith("ËL👩‍👨‍👩‍👧🎅")=   -- false
  0
 
 
 -- equals
-ooRexx[sh]> "ŒUF"~lower~equals("œuf")=             -- true
+ooRexx[bash]> "ŒUF"~lower~equals("œuf")=             -- true
  1
-ooRexx[sh]> "ŒUF"~equals("œuf")=                   -- false (would be true if caseless)
+ooRexx[bash]> "ŒUF"~equals("œuf")=                   -- false (would be true if caseless)
  0
-ooRexx[sh]> "œuf"~equals("ŒUF")=                   -- false (would be true if caseless)
+ooRexx[bash]> "œuf"~equals("ŒUF")=                   -- false (would be true if caseless)
  0
-ooRexx[sh]> "Straße"~lower~equals("straße")=       -- true (U+00DF "LATIN SMALL LETTER SHARP S" remains unchanged since it's already a lower letter)
+ooRexx[bash]> "Straße"~lower~equals("straße")=       -- true (U+00DF "LATIN SMALL LETTER SHARP S" remains unchanged since it's already a lower letter)
  1
-ooRexx[sh]> "Straße"~casefold~equals("strasse")=   -- true (U+00DF "LATIN SMALL LETTER SHARP S" becomes "ss" when casefolded)
+ooRexx[bash]> "Straße"~casefold~equals("strasse")=   -- true (U+00DF "LATIN SMALL LETTER SHARP S" becomes "ss" when casefolded)
  1
-ooRexx[sh]> "Straße"~equals("strasse")=            -- false (would be true if caseless)
+ooRexx[bash]> "Straße"~equals("strasse")=            -- false (would be true if caseless)
  0
-ooRexx[sh]> "strasse"~equals("Straße")=            -- false (would be true if caseless)
+ooRexx[bash]> "strasse"~equals("Straße")=            -- false (would be true if caseless)
  0
 
 -- equals (cont.) strict versus non-strict
-ooRexx[sh]> string1 = "Le\u{IDEOGRAPHIC SPACE}Pè\u{ZERO-WIDTH-SPACE}re\u{HYPHEN}Noël"~unescape
-ooRexx[sh]> string2 = "Le\u{OGHAM SPACE MARK}Père\u{EN DASH}No\u{ZERO-WIDTH-SPACE}ël"~unescape
-ooRexx[sh]> string1=                                    -- T'Le　Pè​re‐Noël'
+ooRexx[bash]> string1 = "Le\u{IDEOGRAPHIC SPACE}Pè\u{ZERO-WIDTH-SPACE}re\u{HYPHEN}Noël"~unescape
+ooRexx[bash]> string2 = "Le\u{OGHAM SPACE MARK}Père\u{EN DASH}No\u{ZERO-WIDTH-SPACE}ël"~unescape
+ooRexx[bash]> string1=                                    -- T'Le　Pè​re‐Noël'
 T'Le　Pè​re‐Noël'
-ooRexx[sh]> string2=                                    -- T'Le Père–No​ël'
+ooRexx[bash]> string2=                                    -- T'Le Père–No​ël'
 T'Le Père–No​ël'
-ooRexx[sh]> string1~c2x=                                -- '4C 65 E38080 50 C3A8 E2808B 72 65 E28090 4E 6F C3AB 6C'
+ooRexx[bash]> string1~c2x=                                -- '4C 65 E38080 50 C3A8 E2808B 72 65 E28090 4E 6F C3AB 6C'
 '4C 65 E38080 50 C3A8 E2808B 72 65 E28090 4E 6F C3AB 6C'
-ooRexx[sh]> string2~c2x=                                -- '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
+ooRexx[bash]> string2~c2x=                                -- '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
 '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
-ooRexx[sh]> string1~equals(string2)=                    -- false (strict mode by default)
+ooRexx[bash]> string1~equals(string2)=                    -- false (strict mode by default)
  0
-ooRexx[sh]> -- The non-strict mode applies these transformations:
-ooRexx[sh]> string1~nfkd(lump:, stripIgnorable:)~c2x=   -- '4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'
+ooRexx[bash]> -- The non-strict mode applies these transformations:
+ooRexx[bash]> string1~nfkd(lump:, stripIgnorable:)~c2x=   -- '4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'
 '4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'
-ooRexx[sh]> string2~nfkd(lump:, stripIgnorable:)~c2x=   -- '4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'
+ooRexx[bash]> string2~nfkd(lump:, stripIgnorable:)~c2x=   -- '4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'
 '4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'
-ooRexx[sh]> string1~equals(string2, strict:.false)=     -- true (non-strict mode)
+ooRexx[bash]> string1~equals(string2, strict:.false)=     -- true (non-strict mode)
  1
 
 
 -- hashCode
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~hashCode~class=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~hashCode~class=
 (The String class)
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~hashCode~c2x=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~hashCode~c2x=
 '8FA5DCDA35AE1A58'
 
 
 -- left
-ooRexx[sh]> do i=0 to 9; "left("i") = " || "noël👩‍👨‍👩‍👧🎅"~left(i)=; end
+ooRexx[bash]> do i=0 to 9; "left("i") = " || "noël👩‍👨‍👩‍👧🎅"~left(i)=; end
 T'left(0) = '
 T'left(1) = n'
 T'left(2) = no'
@@ -548,7 +548,7 @@ T'left(6) = noël👩‍👨‍👩‍👧🎅'
 T'left(7) = noël👩‍👨‍👩‍👧🎅 '
 T'left(8) = noël👩‍👨‍👩‍👧🎅  '
 T'left(9) = noël👩‍👨‍👩‍👧🎅   '
-ooRexx[sh]> do i=0 to 9; "left("i", ▷) = " || "noël👩‍👨‍👩‍👧🎅"~left(i, "▷")=; end
+ooRexx[bash]> do i=0 to 9; "left("i", ▷) = " || "noël👩‍👨‍👩‍👧🎅"~left(i, "▷")=; end
 T'left(0, ▷) = '
 T'left(1, ▷) = n'
 T'left(2, ▷) = no'
@@ -562,158 +562,158 @@ T'left(9, ▷) = noël👩‍👨‍👩‍👧🎅▷▷▷'
 
 
 -- length
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~length=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~length=
  6
 
 
 -- lower
-ooRexx[sh]> "LE PÈRE NOËL EST FATIGUÉ..."~lower=       -- T'le père noël est fatigué...'
+ooRexx[bash]> "LE PÈRE NOËL EST FATIGUÉ..."~lower=       -- T'le père noël est fatigué...'
 T'le père noël est fatigué...'
 
 
 -- match
-ooRexx[sh]> "noel"~match(2, "oe")=            -- forward to String
+ooRexx[bash]> "noel"~match(2, "oe")=            -- forward to String
  1
-ooRexx[sh]> "noel"~match(2, "oe")=            -- forward to String
+ooRexx[bash]> "noel"~match(2, "oe")=            -- forward to String
  1
-ooRexx[sh]> "noel"~match(2, "oë")=
+ooRexx[bash]> "noel"~match(2, "oë")=
  0
-ooRexx[sh]> "noel"~match(2, "oë")=
+ooRexx[bash]> "noel"~match(2, "oë")=
  0
-ooRexx[sh]> "noël"~match(2, "oe")=
+ooRexx[bash]> "noël"~match(2, "oe")=
  0
-ooRexx[sh]> "noël"~match(2, "oe")=
+ooRexx[bash]> "noël"~match(2, "oe")=
  0
-ooRexx[sh]> "noël"~match(2, "oë")=
+ooRexx[bash]> "noël"~match(2, "oë")=
  1
-ooRexx[sh]> "noël"~match(2, "oë")=
+ooRexx[bash]> "noël"~match(2, "oë")=
  1
-ooRexx[sh]> "noël"~match(2, "oël")=
+ooRexx[bash]> "noël"~match(2, "oël")=
  1
-ooRexx[sh]> "noël"~match(2, "oël")=
+ooRexx[bash]> "noël"~match(2, "oël")=
  1
-ooRexx[sh]> "noël"~match(3, "ë")=
+ooRexx[bash]> "noël"~match(3, "ë")=
  1
-ooRexx[sh]> "noël"~match(3, "ë")=
+ooRexx[bash]> "noël"~match(3, "ë")=
  1
-ooRexx[sh]> "noël"~match(3, "ël")=
+ooRexx[bash]> "noël"~match(3, "ël")=
  1
-ooRexx[sh]> "noël"~match(3, "ël")=
+ooRexx[bash]> "noël"~match(3, "ël")=
  1
-ooRexx[sh]> "noël"~match(4, "l")=
+ooRexx[bash]> "noël"~match(4, "l")=
  1
-ooRexx[sh]> "noël"~match(4, "l")=
+ooRexx[bash]> "noël"~match(4, "l")=
  1
 
 
 -- matchChar
-ooRexx[sh]> "noel"~matchChar(3, "Ee")=        -- forward to String
+ooRexx[bash]> "noel"~matchChar(3, "Ee")=        -- forward to String
  1
-ooRexx[sh]> "noel"~matchChar(3, "Ee")=        -- forward to String
+ooRexx[bash]> "noel"~matchChar(3, "Ee")=        -- forward to String
  1
-ooRexx[sh]> "noel"~matchChar(3, "EËeë")=
+ooRexx[bash]> "noel"~matchChar(3, "EËeë")=
  1
-ooRexx[sh]> "noel"~matchChar(3, "EËeë")=
+ooRexx[bash]> "noel"~matchChar(3, "EËeë")=
  1
-ooRexx[sh]> "noël"~matchChar(3, "EËeë")=
+ooRexx[bash]> "noël"~matchChar(3, "EËeë")=
  1
-ooRexx[sh]> "noël"~matchChar(3, "EËeë")=
+ooRexx[bash]> "noël"~matchChar(3, "EËeë")=
  1
-ooRexx[sh]> "noël"~matchChar(3, "EËeë")=
+ooRexx[bash]> "noël"~matchChar(3, "EËeë")=
  1
-ooRexx[sh]> "noël"~matchChar(3, "Ee", stripMark:)= -- remove the accents from the tested string
+ooRexx[bash]> "noël"~matchChar(3, "Ee", stripMark:)= -- remove the accents from the tested string
  1
-ooRexx[sh]> "noël"~matchChar(4, "Ll")=
+ooRexx[bash]> "noël"~matchChar(4, "Ll")=
  1
-ooRexx[sh]> "noël"~matchChar(4, "Ll")=
+ooRexx[bash]> "noël"~matchChar(4, "Ll")=
  1
 
 -- matchChar (cont.)
 -- "Bundesschnellstraße"                               -- at 14: "s", at 18:"ß"
 --  1234567890123456789
-ooRexx[sh]> "Bundesschnellstraße"~matchChar(14, "s")=              -- 1
+ooRexx[bash]> "Bundesschnellstraße"~matchChar(14, "s")=              -- 1
  1
-ooRexx[sh]> "Bundesschnellstraße"~matchChar(18, "s")=              -- 0
+ooRexx[bash]> "Bundesschnellstraße"~matchChar(18, "s")=              -- 0
  0
-ooRexx[sh]> "Bundesschnellstraße"~matchChar(18, "ß")=              -- 1
+ooRexx[bash]> "Bundesschnellstraße"~matchChar(18, "ß")=              -- 1
  1
 
 -- matchChar (cont.)
 -- The ligature disappears in NFK[CD] but not in NF[CD]
-ooRexx[sh]> "baﬄe"~matchChar(3, "f")=                               -- 0     "ﬄ" is ONE character, doesn't match "f"
+ooRexx[bash]> "baﬄe"~matchChar(3, "f")=                               -- 0     "ﬄ" is ONE character, doesn't match "f"
  0
-ooRexx[sh]> "baﬄe"~matchChar(3, "ﬄ")=                              -- 1     There is a match because "ﬄ" on both sides
+ooRexx[bash]> "baﬄe"~matchChar(3, "ﬄ")=                              -- 1     There is a match because "ﬄ" on both sides
  1
-ooRexx[sh]> "baﬄe"~matchChar(3, "ﬄ", normalization:.Unicode~NFKD)= -- 1     There is a match because "ﬄ" on both sides
+ooRexx[bash]> "baﬄe"~matchChar(3, "ﬄ", normalization:.Unicode~NFKD)= -- 1     There is a match because "ﬄ" on both sides
  1
-ooRexx[sh]> "baﬄe"~matchChar(3, "f", normalization:.Unicode~NFKD)=  -- 0     The 3rd character "ﬄ" becomes "ffl" (3 characters), doesn't match "f"
+ooRexx[bash]> "baﬄe"~matchChar(3, "f", normalization:.Unicode~NFKD)=  -- 0     The 3rd character "ﬄ" becomes "ffl" (3 characters), doesn't match "f"
  0
-ooRexx[sh]> "baﬄe"~matchChar(4, "f", normalization:.Unicode~NFKD)=  -- 0     The 4th character is "e", doesn't match "f"
+ooRexx[bash]> "baﬄe"~matchChar(4, "f", normalization:.Unicode~NFKD)=  -- 0     The 4th character is "e", doesn't match "f"
  0
-ooRexx[sh]> "baﬄe"~matchChar(4, "e", normalization:.Unicode~NFKD)=  -- 1     The 4th character is "e", does match "e"
+ooRexx[bash]> "baﬄe"~matchChar(4, "e", normalization:.Unicode~NFKD)=  -- 1     The 4th character is "e", does match "e"
  1
 
 
 -- pos
-ooRexx[sh]> "noel"~pos("oe")=                 -- forward to String
+ooRexx[bash]> "noel"~pos("oe")=                 -- forward to String
  2
-ooRexx[sh]> "noel"~pos("oe")=                 -- forward to String
+ooRexx[bash]> "noel"~pos("oe")=                 -- forward to String
  2
-ooRexx[sh]> "noel"~pos("oë")=
+ooRexx[bash]> "noel"~pos("oë")=
  0
-ooRexx[sh]> "noel"~pos("oë")=
+ooRexx[bash]> "noel"~pos("oë")=
  0
-ooRexx[sh]> "noël"~pos("oe")=
+ooRexx[bash]> "noël"~pos("oe")=
  0
-ooRexx[sh]> "noël"~pos("oe")=
+ooRexx[bash]> "noël"~pos("oe")=
  0
-ooRexx[sh]> "noël"~pos("oë")=
+ooRexx[bash]> "noël"~pos("oë")=
  2
-ooRexx[sh]> "noël"~pos("oë")=
+ooRexx[bash]> "noël"~pos("oë")=
  2
-ooRexx[sh]> "noël"~pos("l")=
+ooRexx[bash]> "noël"~pos("l")=
  4
-ooRexx[sh]> "noël"~pos("l")=
+ooRexx[bash]> "noël"~pos("l")=
  4
-ooRexx[sh]> "Père Noël Père Noël"~pos("oë")=                        -- 7
+ooRexx[bash]> "Père Noël Père Noël"~pos("oë")=                        -- 7
  7
-ooRexx[sh]> "Père Noël Père Noël"~pos("oë", 8)=                     -- 17
+ooRexx[bash]> "Père Noël Père Noël"~pos("oë", 8)=                     -- 17
  17
-ooRexx[sh]> "Père Noël Père Noël"~pos("oë", 8, 10)=                 -- 0
+ooRexx[bash]> "Père Noël Père Noël"~pos("oë", 8, 10)=                 -- 0
  0
-ooRexx[sh]> "Père Noël Père Noël"~pos("oe")=                        -- 0
+ooRexx[bash]> "Père Noël Père Noël"~pos("oe")=                        -- 0
  0
-ooRexx[sh]> "Père Noël Père Noël"~pos("oe", stripMark:)=            -- 7
+ooRexx[bash]> "Père Noël Père Noël"~pos("oe", stripMark:)=            -- 7
  7
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~pos("🎅")=                      -- 6
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~pos("🎅")=                      -- 6
  6
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~pos("👧🎅")=                    -- 0
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~pos("👧🎅")=                    -- 0
  0
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~pos("👧🎅", aligned:.false)=    -- [-5.27,+7.35]
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~pos("👧🎅", aligned:.false)=    -- [-5.27,+7.35]
 [-5.27,+7.35]
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~pos("👩‍👨‍👩‍👧🎅", aligned:.false)=   -- [+5.6,+7.35]
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~pos("👩‍👨‍👩‍👧🎅", aligned:.false)=   -- [+5.6,+7.35]
 [+5.6,+7.35]
 
 
 -- reverse (correct)
-ooRexx[sh]> "noël"~c2x=            -- '6E 6F C3AB 6C'
+ooRexx[bash]> "noël"~c2x=            -- '6E 6F C3AB 6C'
 '6E 6F C3AB 6C'
-ooRexx[sh]> "noël"~reverse~c2x=    -- '6C C3AB 6F 6E'
+ooRexx[bash]> "noël"~reverse~c2x=    -- '6C C3AB 6F 6E'
 '6C C3AB 6F 6E'
-ooRexx[sh]> "noël"~reverse=        -- T'lëon'
+ooRexx[bash]> "noël"~reverse=        -- T'lëon'
 T'lëon'
 
 -- reverse (correct)    (was reverse (wrong) before automatic conversion of string literals to text)
-ooRexx[sh]> "noël"~c2x=             -- '6E6FC3AB6C'
+ooRexx[bash]> "noël"~c2x=             -- '6E6FC3AB6C'
 '6E 6F C3AB 6C'
-ooRexx[sh]> "noël"~reverse~c2x=     -- '6C C3AB 6F 6E'  (was '6CABC36F6E' before automatic conversion of string literals to text)
+ooRexx[bash]> "noël"~reverse~c2x=     -- '6C C3AB 6F 6E'  (was '6CABC36F6E' before automatic conversion of string literals to text)
 '6C C3AB 6F 6E'
-ooRexx[sh]> "noël"~reverse=         -- T'lëon'
+ooRexx[bash]> "noël"~reverse=         -- T'lëon'
 T'lëon'
 
 
 -- right
-ooRexx[sh]> do i=0 to 9; "right("i") = " || "noël👩‍👨‍👩‍👧🎅"~right(i)=; end
+ooRexx[bash]> do i=0 to 9; "right("i") = " || "noël👩‍👨‍👩‍👧🎅"~right(i)=; end
 T'right(0) = '
 T'right(1) = 🎅'
 T'right(2) = 👩‍👨‍👩‍👧🎅'
@@ -724,7 +724,7 @@ T'right(6) = noël👩‍👨‍👩‍👧🎅'
 T'right(7) =  noël👩‍👨‍👩‍👧🎅'
 T'right(8) =   noël👩‍👨‍👩‍👧🎅'
 T'right(9) =    noël👩‍👨‍👩‍👧🎅'
-ooRexx[sh]> do i=0 to 9; "right("i", ▷) = " || "noël👩‍👨‍👩‍👧🎅"~right(i, "▷")=; end
+ooRexx[bash]> do i=0 to 9; "right("i", ▷) = " || "noël👩‍👨‍👩‍👧🎅"~right(i, "▷")=; end
 T'right(0, ▷) = '
 T'right(1, ▷) = 🎅'
 T'right(2, ▷) = 👩‍👨‍👩‍👧🎅'
@@ -738,52 +738,52 @@ T'right(9, ▷) = ▷▷▷noël👩‍👨‍👩‍👧🎅'
 
 
 -- subchar
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~subchar(3)=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~subchar(3)=; result~description=
 T'ë'
 'UTF-8 not-ASCII (1 character, 1 codepoint, 2 bytes, 0 error)'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~subchar(4)=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~subchar(4)=; result~description=
 T'l'
 'UTF-8 ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~subchar(5)=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~subchar(5)=; result~description=
 T'👩‍👨‍👩‍👧'
 'UTF-8 not-ASCII (1 character, 7 codepoints, 25 bytes, 0 error)'
 
 
 -- substr
-ooRexx[sh]> "noel"~substr(3, 3, "x")=; result~description=   -- forward to String
+ooRexx[bash]> "noel"~substr(3, 3, "x")=; result~description=   -- forward to String
 'elx'
 'UTF-8 ASCII by default (3 bytes)'
-ooRexx[sh]> "noel"~substr(3, 3, "▷")=; result~description=   -- T'el▷' (was: self is a String: error because the pad character is 3 bytes)
+ooRexx[bash]> "noel"~substr(3, 3, "▷")=; result~description=   -- T'el▷' (was: self is a String: error because the pad character is 3 bytes)
 T'el▷'
 'UTF-8 not-ASCII (3 characters, 3 codepoints, 5 bytes, 0 error)'
-ooRexx[sh]> "noel"~substr(3, 3, "▷")=; result~description=   -- T'el▷' (was: self is a String: error because the pad character is 3 bytes)
+ooRexx[bash]> "noel"~substr(3, 3, "▷")=; result~description=   -- T'el▷' (was: self is a String: error because the pad character is 3 bytes)
 T'el▷'
 'UTF-8 not-ASCII (3 characters, 3 codepoints, 5 bytes, 0 error)'
-ooRexx[sh]> "noel"~substr(3, 3, "▷")=; result~description=   -- no error because self is a RexxText and the pad character is one character when converted to the default encoding
+ooRexx[bash]> "noel"~substr(3, 3, "▷")=; result~description=   -- no error because self is a RexxText and the pad character is one character when converted to the default encoding
 T'el▷'
 'UTF-8 not-ASCII (3 characters, 3 codepoints, 5 bytes, 0 error)'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~substr(3, 3, "▷")=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~substr(3, 3, "▷")=; result~description=
 T'ël👩‍👨‍👩‍👧'
 'UTF-8 not-ASCII (3 characters, 9 codepoints, 28 bytes, 0 error)'
-ooRexx[sh]> "noël👩‍👨‍👩‍👧🎅"~substr(3, 6, "▷")=; result~description=
+ooRexx[bash]> "noël👩‍👨‍👩‍👧🎅"~substr(3, 6, "▷")=; result~description=
 T'ël👩‍👨‍👩‍👧🎅▷▷'
 'UTF-8 not-ASCII (6 characters, 12 codepoints, 38 bytes, 0 error)'
 
 
 -- upper
-ooRexx[sh]> "Le père Noël est fatigué..."~upper=       -- T'LE PÈRE NOËL EST FATIGUÉ...'
+ooRexx[bash]> "Le père Noël est fatigué..."~upper=       -- T'LE PÈRE NOËL EST FATIGUÉ...'
 T'LE PÈRE NOËL EST FATIGUÉ...'
 
 
 
 
 -- x2c
-ooRexx[sh]> "F09F9180"~x2c=
+ooRexx[bash]> "F09F9180"~x2c=
 '👀'
-ooRexx[sh]> "not an hexadecimal value"~x2c
+ooRexx[bash]> "not an hexadecimal value"~x2c
 Only 0-9, a-f, A-F, and whitespace characters are valid in a hexadecimal string; character found "n".
 Error code= 93.933
-ooRexx[sh]> "not an hexadecimal value 🤔"~x2c
+ooRexx[bash]> "not an hexadecimal value 🤔"~x2c
 UTF-8 not-ASCII 'not an ...' is not compatible with a Rexx hexadecimal value.
 Error code= 23.900
 
@@ -806,7 +806,7 @@ Frequency of each character, ignoring the accents:
 %{"E" => 1, "i" => 2, "l" => 1, "r" => 1, "x" => 1}
 */
 
-ooRexx[sh]> "Notre père Noël 🎅"~transform(stripMark:)~reduce(by: "characters", initial: .stem~new~~put(0)){accu[item~string] += 1}=
+ooRexx[bash]> "Notre père Noël 🎅"~transform(stripMark:)~reduce(by: "characters", initial: .stem~new~~put(0)){accu[item~string] += 1}=
 a Stem (9 items)
 '🎅' :  1
 ' '    :  3
@@ -829,20 +829,20 @@ The only needed methods on RexxText are
     ~subwords   (still to implement)
 */
 
-ooRexx[sh]> g="Noël 🎅"~generateC
-ooRexx[sh]> g~()=       -- T'N'
+ooRexx[bash]> g="Noël 🎅"~generateC
+ooRexx[bash]> g~()=       -- T'N'
 T'N'
-ooRexx[sh]> g~()=       -- T'o'
+ooRexx[bash]> g~()=       -- T'o'
 T'o'
-ooRexx[sh]> g~()=       -- T'ë'
+ooRexx[bash]> g~()=       -- T'ë'
 T'ë'
-ooRexx[sh]> g~()=       -- T'l'
+ooRexx[bash]> g~()=       -- T'l'
 T'l'
-ooRexx[sh]> g~()=       -- T' '
+ooRexx[bash]> g~()=       -- T' '
 T' '
-ooRexx[sh]> g~()=       -- T'🎅'
+ooRexx[bash]> g~()=       -- T'🎅'
 T'🎅'
-ooRexx[sh]> g~()=       -- [no result]
+ooRexx[bash]> g~()=       -- [no result]
 [no result]
 
 
@@ -859,80 +859,80 @@ RexxText to the regular expression engine regex.cls, and see what happens...
 Relax the constraint "self~isCompatibleWithByteString" when converting a RexxText
 to a String. That allows to go further in the tests of regular expression.
 */
-ooRexx[sh]> unckeckedConversionToString = .Unicode~unckeckedConversionToString -- backup
-ooRexx[sh]> .Unicode~unckeckedConversionToString = .true
+ooRexx[bash]> unckeckedConversionToString = .Unicode~unckeckedConversionToString -- backup
+ooRexx[bash]> .Unicode~unckeckedConversionToString = .true
 
-ooRexx[sh]> pB = .Pattern~compile("a.c")
-ooRexx[sh]> pT = .Pattern~compile("a.c")
-ooRexx[sh]> pB~matches("abc")=                              -- 1
+ooRexx[bash]> pB = .Pattern~compile("a.c")
+ooRexx[bash]> pT = .Pattern~compile("a.c")
+ooRexx[bash]> pB~matches("abc")=                              -- 1
  1
-ooRexx[sh]> pT~matches("abc")=                              -- 1
+ooRexx[bash]> pT~matches("abc")=                              -- 1
  1
-ooRexx[sh]> pB~matches("aôc")=                              -- 1    (was 0 (KO) before automatic conversion of string literals to text)
+ooRexx[bash]> pB~matches("aôc")=                              -- 1    (was 0 (KO) before automatic conversion of string literals to text)
  1
-ooRexx[sh]> pT~matches("aôc")=                              -- 1
+ooRexx[bash]> pT~matches("aôc")=                              -- 1
  1
-ooRexx[sh]> pB~matches("a🎅c")=                             -- 1    (was 0 (KO) before automatic conversion of string literals to text)
+ooRexx[bash]> pB~matches("a🎅c")=                             -- 1    (was 0 (KO) before automatic conversion of string literals to text)
  1
-ooRexx[sh]> pT~matches("a🎅c")=                             -- 1
+ooRexx[bash]> pT~matches("a🎅c")=                             -- 1
  1
 
-ooRexx[sh]> pB = .Pattern~compile("🤶...🎅")
-ooRexx[sh]> pT = .Pattern~compile("🤶...🎅")
-ooRexx[sh]> pB~matches("🤶123🎅")=                          -- 1
+ooRexx[bash]> pB = .Pattern~compile("🤶...🎅")
+ooRexx[bash]> pT = .Pattern~compile("🤶...🎅")
+ooRexx[bash]> pB~matches("🤶123🎅")=                          -- 1
  1
-ooRexx[sh]> pT~matches("🤶123🎅")=                          -- 1
+ooRexx[bash]> pT~matches("🤶123🎅")=                          -- 1
  1
-ooRexx[sh]> pB~matches("🤶🐕2🐈🎅")=                        -- 1    (was 0 (KO) before automatic conversion of string literals to text)
+ooRexx[bash]> pB~matches("🤶🐕2🐈🎅")=                        -- 1    (was 0 (KO) before automatic conversion of string literals to text)
  1
-ooRexx[sh]> pT~matches("🤶🐕2🐈🎅")=                        -- 1
+ooRexx[bash]> pT~matches("🤶🐕2🐈🎅")=                        -- 1
  1
-ooRexx[sh]> pB~matches("🤶🐕👩‍👨‍👩‍👧🐈🎅")=          -- 1    (was 0 (KO) before automatic conversion of string literals to text)
+ooRexx[bash]> pB~matches("🤶🐕👩‍👨‍👩‍👧🐈🎅")=          -- 1    (was 0 (KO) before automatic conversion of string literals to text)
  1
-ooRexx[sh]> pT~matches("🤶🐕👩‍👨‍👩‍👧🐈🎅")=          -- 1
+ooRexx[bash]> pT~matches("🤶🐕👩‍👨‍👩‍👧🐈🎅")=          -- 1
  1
 
 -- "🤶" or "🎅"
-ooRexx[sh]> pB = .Pattern~compile("🤶|🎅")
-ooRexx[sh]> pT = .Pattern~compile("🤶|🎅")
-ooRexx[sh]> pB~startsWith("🤶🎅c")=                        -- 1
+ooRexx[bash]> pB = .Pattern~compile("🤶|🎅")
+ooRexx[bash]> pT = .Pattern~compile("🤶|🎅")
+ooRexx[bash]> pB~startsWith("🤶🎅c")=                        -- 1
  1
-ooRexx[sh]> pT~startsWith("🤶🎅c")=                        -- 1
+ooRexx[bash]> pT~startsWith("🤶🎅c")=                        -- 1
  1
-ooRexx[sh]> pB~startsWith("🎅🤶c")=                        -- 1
+ooRexx[bash]> pB~startsWith("🎅🤶c")=                        -- 1
  1
-ooRexx[sh]> pT~startsWith("🎅🤶c")=                        -- 1
+ooRexx[bash]> pT~startsWith("🎅🤶c")=                        -- 1
  1
-ooRexx[sh]> r = pB~find("xxx🤶🎅cxxx")
-ooRexx[sh]> r~matched=; r~start=; r~end=; r=; r~length=     -- now ok (r~end was 8 and r~length was 4 before automatic conversion of string literals to text)
- 1
- 4
- 5
-(a MatchResult)
- 1
-ooRexx[sh]> r = pT~find("xxx🤶🎅cxxx")
-ooRexx[sh]> r~matched=; r~start=; r~end=; r=; r~length=
+ooRexx[bash]> r = pB~find("xxx🤶🎅cxxx")
+ooRexx[bash]> r~matched=; r~start=; r~end=; r=; r~length=     -- now ok (r~end was 8 and r~length was 4 before automatic conversion of string literals to text)
  1
  4
  5
 (a MatchResult)
  1
-ooRexx[sh]> r = pB~find("xxx🎅🤶cxxx")
-ooRexx[sh]> r~matched=; r~start=; r~end=; r=; r~length=     -- now ok (r~end was 8 and r~length was 4 before automatic conversion of string literals to text)
+ooRexx[bash]> r = pT~find("xxx🤶🎅cxxx")
+ooRexx[bash]> r~matched=; r~start=; r~end=; r=; r~length=
  1
  4
  5
 (a MatchResult)
  1
-ooRexx[sh]> r = pT~find("xxx🎅🤶cxxx")
-ooRexx[sh]> r~matched=; r~start=; r~end=; r=; r~length=
+ooRexx[bash]> r = pB~find("xxx🎅🤶cxxx")
+ooRexx[bash]> r~matched=; r~start=; r~end=; r=; r~length=     -- now ok (r~end was 8 and r~length was 4 before automatic conversion of string literals to text)
+ 1
+ 4
+ 5
+(a MatchResult)
+ 1
+ooRexx[bash]> r = pT~find("xxx🎅🤶cxxx")
+ooRexx[bash]> r~matched=; r~start=; r~end=; r=; r~length=
  1
  4
  5
 (a MatchResult)
  1
 
-ooRexx[sh]> .Unicode~unckeckedConversionToString = unckeckedConversionToString -- restore
+ooRexx[bash]> .Unicode~unckeckedConversionToString = unckeckedConversionToString -- restore
 
 
 -----------------------------------------
@@ -946,21 +946,21 @@ RexxText, otherwise the BIF forwards to RexxString.
 */
 
 -- Function 'center'
-ooRexx[sh]> "═"~description=                                -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'   (was 'UTF-8 not-ASCII (3 bytes)')
+ooRexx[bash]> "═"~description=                                -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'   (was 'UTF-8 not-ASCII (3 bytes)')
 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
-ooRexx[sh]> "═"~description=                                -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
+ooRexx[bash]> "═"~description=                                -- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
-ooRexx[sh]> "═"~c2x=                                        -- 'E29590'
+ooRexx[bash]> "═"~c2x=                                        -- 'E29590'
 'E29590'
-ooRexx[sh]> center("hello", 20, "═")=                       -- T'═══════hello════════'
+ooRexx[bash]> center("hello", 20, "═")=                       -- T'═══════hello════════'
 T'═══════hello════════'
-ooRexx[sh]> center("hello", 20, "═")~description=           -- 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
+ooRexx[bash]> center("hello", 20, "═")~description=           -- 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
 
 -- Function 'left'
-ooRexx[sh]> left("hello", 20, "═")=                         -- T'hello═══════════════'
+ooRexx[bash]> left("hello", 20, "═")=                         -- T'hello═══════════════'
 T'hello═══════════════'
-ooRexx[sh]> left("hello", 20, "═")~description=             -- 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
+ooRexx[bash]> left("hello", 20, "═")~description=             -- 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
 
 
@@ -978,59 +978,59 @@ is more easy to control and to understand.
 
 -- UTF-8 encoding
 
-ooRexx[sh]> "Noel"~isCompatibleWithByteString=              -- 1
+ooRexx[bash]> "Noel"~isCompatibleWithByteString=              -- 1
  1
-ooRexx[sh]> length("Noel")=                                 -- 4 because "Noel"~length = 4
+ooRexx[bash]> length("Noel")=                                 -- 4 because "Noel"~length = 4
  4
-ooRexx[sh]> "Noël"~isCompatibleWithByteString=              -- 0
+ooRexx[bash]> "Noël"~isCompatibleWithByteString=              -- 0
  0
-ooRexx[sh]> length("Noël")=                                 -- 4 because "Noël" is a RexxText   (was TODO: 4 because "Noël"~text~length = 4)
+ooRexx[bash]> length("Noël")=                                 -- 4 because "Noël" is a RexxText   (was TODO: 4 because "Noël"~text~length = 4)
  4
-ooRexx[sh]> "Noël"~length=                                  -- 4 because "Noël" is a RexxText   (was "5 because String remains byte-oriented, not impacted by the default encoding" before automatic conversion of string literals to text)
+ooRexx[bash]> "Noël"~length=                                  -- 4 because "Noël" is a RexxText   (was "5 because String remains byte-oriented, not impacted by the default encoding" before automatic conversion of string literals to text)
  4
 
 -- UTF-16BE encoding
-ooRexx[sh]> s = "0041004200430044"x
-ooRexx[sh]> s=                                              -- '[00]A[00]B[00]C[00]D'
+ooRexx[bash]> s = "0041004200430044"x
+ooRexx[bash]> s=                                              -- '[00]A[00]B[00]C[00]D'
 '[00]A[00]B[00]C[00]D'
-ooRexx[sh]> s~isCompatibleWithByteString=                   -- 1
+ooRexx[bash]> s~isCompatibleWithByteString=                   -- 1
  1
-ooRexx[sh]> s~description=                                  -- 'UTF-8 ASCII (8 bytes)'
+ooRexx[bash]> s~description=                                  -- 'UTF-8 ASCII (8 bytes)'
 'UTF-8 ASCII (8 bytes)'
-ooRexx[sh]> length(s)=                                      -- 8 because encoding UTF-8 ASCII is compatible with String
+ooRexx[bash]> length(s)=                                      -- 8 because encoding UTF-8 ASCII is compatible with String
  8
-ooRexx[sh]> s~encoding = "UTF16"
-ooRexx[sh]> s~isCompatibleWithByteString=                   -- 0
+ooRexx[bash]> s~encoding = "UTF16"
+ooRexx[bash]> s~isCompatibleWithByteString=                   -- 0
  0
-ooRexx[sh]> s~description=                                  -- 'UTF-16BE (8 bytes)'
+ooRexx[bash]> s~description=                                  -- 'UTF-16BE (8 bytes)'
 'UTF-16BE (8 bytes)'
-ooRexx[sh]> s~length=                                       -- 8 because String is always byte-oriented (ignores the encoding)
+ooRexx[bash]> s~length=                                       -- 8 because String is always byte-oriented (ignores the encoding)
  8
-ooRexx[sh]> length(s)=                                      -- 8    (was TODO: 4 because forwards to Text (encoding UTF-16BE is not compatible with String))
+ooRexx[bash]> length(s)=                                      -- 8    (was TODO: 4 because forwards to Text (encoding UTF-16BE is not compatible with String))
  8
-ooRexx[sh]> s~utf8=                                         -- T'ABCD'
+ooRexx[bash]> s~utf8=                                         -- T'ABCD'
 T'ABCD'
 
 -- UTF-32 encoding
-ooRexx[sh]> s = "0000004100000042"x
-ooRexx[sh]> s=                                              -- '[000000]A[000000]B'
+ooRexx[bash]> s = "0000004100000042"x
+ooRexx[bash]> s=                                              -- '[000000]A[000000]B'
 '[000000]A[000000]B'
-ooRexx[sh]> s~isCompatibleWithByteString=                   -- 1
+ooRexx[bash]> s~isCompatibleWithByteString=                   -- 1
  1
-ooRexx[sh]> s~description=                                  -- 'UTF-8 ASCII (8 bytes)'
+ooRexx[bash]> s~description=                                  -- 'UTF-8 ASCII (8 bytes)'
 'UTF-8 ASCII (8 bytes)'
-ooRexx[sh]> length(s)=                                      -- 8 because encoding UTF-8 ASCII is compatible with String
+ooRexx[bash]> length(s)=                                      -- 8 because encoding UTF-8 ASCII is compatible with String
  8
-ooRexx[sh]> s~encoding = "UTF32"
-ooRexx[sh]> s~isCompatibleWithByteString=                   -- 0
+ooRexx[bash]> s~encoding = "UTF32"
+ooRexx[bash]> s~isCompatibleWithByteString=                   -- 0
  0
-ooRexx[sh]> s~description=                                  -- 'UTF-32BE (8 bytes)'
+ooRexx[bash]> s~description=                                  -- 'UTF-32BE (8 bytes)'
 'UTF-32BE (8 bytes)'
-ooRexx[sh]> s~length=                                       -- 8 because String is always byte-oriented (ignores the encoding)
+ooRexx[bash]> s~length=                                       -- 8 because String is always byte-oriented (ignores the encoding)
  8
-ooRexx[sh]> length(s)=                                      -- 8    (was TODO: 2 because forwards to Text (encoding UTF-32 is not compatible with String))
+ooRexx[bash]> length(s)=                                      -- 8    (was TODO: 2 because forwards to Text (encoding UTF-32 is not compatible with String))
  8
-ooRexx[sh]> s~utf8=                                         -- T'AB'
+ooRexx[bash]> s~utf8=                                         -- T'AB'
 T'AB'
 
 

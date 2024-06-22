@@ -9,12 +9,10 @@ demo on
 The prototype is currently using 3 libraries:
 - utf8proc    https://github.com/JuliaStrings/utf8proc
 - uni-algo    https://github.com/uni-algo/uni-algo
-- icu4x       https://github.com/unicode-org/icu4x
 
 Current usage:
 - utf8proc is used for grapheme segmentation, characters properties, normalization, simple upper/lower/title.
 - uni-algo is used for full upper/lower/title.
-- icu4x will be used for locale-aware services (segmentation, collation, translation, formatting).
 */
 sleep no prompt
 
@@ -259,7 +257,6 @@ to uppercase to capital sharp s.
 
 /*
 Another example of wrong result for upper/lower
-TODO: plug ICU4X and see if the result is ok with Locale “Turkish (Turkey)” (tr_TR)
 */
 sleep no prompt
 

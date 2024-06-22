@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 11 Apr 2024
-</span><span style="font-weight:bold;color:green;">Input queue name: Sb946Q600003f11ad0
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 22 Jun 2024
+</span><span style="font-weight:bold;color:green;">Input queue name: Sae16Q600001c5ecb0
 </span>
 <span style="font-weight:bold;color:blue;">----------------------
 </span><span style="font-weight:bold;color:blue;">-- Executor extensions
@@ -55,7 +55,7 @@
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
 <span style="font-weight:bold;color:blue;">-- Query listing all the methods added by extension on the class String
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">?cmi string &lt;&gt; (rexx)</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">?cmi string &lt;&gt; (rexx)</span>
 
 <span style="font-weight:bold;color:green;">[Info] [1] Class 'String' P. (REXX)
 </span>P. P.G.    '?'                                  : 'String' 'LogicalExtension' (logical.cls)
@@ -64,6 +64,8 @@ P. PCG.    'ALNUM'                              : 'String' 'StringCompatibilityW
 P. PCG.    'ALPHA'                              : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
 P. P...    'ARITY'                              : 'String' 'Doer' (doers.cls)
 P. PCG.    'BLANK'                              : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
+P. P.G.    'BYTE'                               : 'String' 'StringRexxTextInterface' (text.cls)
+P. P.G.    'BYTES'                              : 'String' 'StringRexxTextInterface' (text.cls)
 P. P.G.    'C2G'                                : 'String' 'StringRexxTextInterface' (text.cls)
 P. P.G.    'C2U'                                : 'String' 'StringRexxTextInterface' (text.cls)
 P. P.G.    'CALL'                               : 'String' 'String' (rgf_util2_wrappers.rex)
@@ -90,12 +92,12 @@ P. PC..    'COPIPE'                             : 'String' 'Object' (pipe_extens
 P. P...    'COPIPEPROFILE'                      : 'String' 'Object' (pipe_extension.cls)
 P. P.G.    'COPY'                               : 'String' 'EncodedString' (text.cls)
 P. P.G.    'COUNTSTR2'                          : 'String' 'String' (rgf_util2_wrappers.rex)
-P. PCG.    'CR'                                 : 'String' 'String' (CoreClasses.orx)
 P. P.G.    'DELSTR2'                            : 'String' 'String' (rgf_util2_wrappers.rex)
 P. P.G.    'DELWORD2'                           : 'String' 'String' (rgf_util2_wrappers.rex)
 P. P.G.    'DEPTH'                              : 'String' 'Object' (array.cls)
 P. P.G.    'DESCRIPTION'                        : 'String' 'StringRexxTextInterface' (text.cls)
 P. P.G.    'DESCRIPTIONFORERROR'                : 'String' 'StringRexxTextInterface' (text.cls)
+P. P.G.    'DETACH'                             : 'String' 'EncodedString' (text.cls)
 P. PCG.    'DIGIT'                              : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
 P. P.G.    'DISCLOSE'                           : 'String' 'Object' (array.cls)
 P. P...    'DO'                                 : 'String' 'StringDoer' (doers.cls)
@@ -177,11 +179,9 @@ P. P.G.    'ISNFC'                              : 'String' 'StringRexxTextInterf
 P. P.G.    'ISNFD'                              : 'String' 'StringRexxTextInterface' (text.cls)
 P. P.G.    'ISNFKC'                             : 'String' 'StringRexxTextInterface' (text.cls)
 P. P.G.    'ISNFKD'                             : 'String' 'StringRexxTextInterface' (text.cls)
-P. P.G.    'ISNIL'                              : 'String' 'Object' (object.cls)
-P. PCG.    'ISNIL'                              : 'String' 'Object' (object.cls)
+P. PCG.    'ISTEXTORBUFFERORSTRING'             : 'String' 'Object' (text.cls)
 P. P.G.    'ISTEXTORBUFFERORSTRING'             : 'String' 'EncodedString' (text.cls)
 P. P.G.    'ISTEXTORBUFFERORSTRING'             : 'String' 'Object' (text.cls)
-P. PCG.    'ISTEXTORBUFFERORSTRING'             : 'String' 'Object' (text.cls)
 P. P.G.    'ISUPPER'                            : 'String' 'StringRexxTextInterface' (text.cls)
 P. P.G.    'JOIN'                               : 'String' 'StringHelpers' (string.cls)
 P. P.G.    'LASTPOS2'                           : 'String' 'String' (rgf_util2_wrappers.rex)
@@ -203,8 +203,6 @@ P. P.G.    'NFC'                                : 'String' 'StringRexxTextInterf
 P. P.G.    'NFD'                                : 'String' 'StringRexxTextInterface' (text.cls)
 P. P.G.    'NFKC'                               : 'String' 'StringRexxTextInterface' (text.cls)
 P. P.G.    'NFKD'                               : 'String' 'StringRexxTextInterface' (text.cls)
-P. PCG.    'NL'                                 : 'String' 'String' (CoreClasses.orx)
-P. PCG.    'NULL'                               : 'String' 'String' (CoreClasses.orx)
 P. P.G.    'OVERLAY2'                           : 'String' 'String' (rgf_util2_wrappers.rex)
 P. P.G.    'PARSEWORDS2'                        : 'String' 'String' (rgf_util2_wrappers.rex)
 P. P...    'PARTIAL'                            : 'String' 'Doer' (doers.cls)
@@ -246,6 +244,7 @@ P. P.G.    'SETMETHOD1'                         : 'String' 'Object' (SETMETHOD1)
 P. P.G.    'SETUSERDATA'                        : 'String' 'Object' (object.cls)
 P. PCG.    'SETUSERDATA'                        : 'String' 'Object' (object.cls)
 P. P.G.    'SHAPE'                              : 'String' 'Object' (array.cls)
+P. P.G.    'SHAPETOPRETTYSTRING'                : 'String' 'Object' (array.cls)
 P. P.G.    'SHAPETOSTRING'                      : 'String' 'Object' (array.cls)
 P. P.G.    'SINGULARPLURAL'                     : 'String' 'StringHelpers' (string.cls)
 P. P.G.    'SINGULARPLURALCOUNT'                : 'String' 'StringHelpers' (string.cls)
@@ -257,7 +256,6 @@ P. P.G.    'STARTSWITH'                         : 'String' 'StringCompatibilityW
 P. P.G.    'SUBCHAR2'                           : 'String' 'String' (rgf_util2_wrappers.rex)
 P. P.G.    'SUBSTR2'                            : 'String' 'String' (rgf_util2_wrappers.rex)
 P. P.G.    'SUBWORD2'                           : 'String' 'String' (rgf_util2_wrappers.rex)
-P. PCG.    'TAB'                                : 'String' 'String' (CoreClasses.orx)
 P. P...    'TAKEC'                              : 'String' 'TextOrBufferOrStringFilter' (functionals.cls)
 P. P...    'TAKECI'                             : 'String' 'TextOrBufferOrStringFilter' (functionals.cls)
 P. P...    'TAKEFIRSTC'                         : 'String' 'TextOrBufferOrStringFilter' (functionals.cls)
@@ -326,8 +324,8 @@ P. P.G.    'WTF8'                               : 'String' 'StringRexxTextInterf
 P. PCG.    'XDIGIT'                             : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
 P. P.G.    '[]'                                 : 'String' 'StringCompatibilityWithOORexx5' (string.cls)
 P. P...    '~()'                                : 'String' 'Doer' (doers.cls)
-<span style="font-weight:bold;color:green;">[Info] [1] Class 'String' has 442 methods
-</span><span style="font-weight:bold;color:green;">[Info] 271 lines displayed
+<span style="font-weight:bold;color:green;">[Info] [1] Class 'String' has 448 methods
+</span><span style="font-weight:bold;color:green;">[Info] 269 lines displayed
 </span>
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">Blocks
@@ -349,7 +347,7 @@ P. P...    '~()'                                : 'String' 'Doer' (doers.cls)
 </span><span style="font-weight:bold;color:blue;">A RexxBlock is created each time the RexxSourceLiteral is evaluated, and is accessible from ooRexx scripts.
 </span><span style="font-weight:bold;color:blue;">When a RexxBlock is a closure's source, it will hold a snapshot of the context's variables.
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">?cm RexxBlock</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">?cm RexxBlock</span>
 
 <span style="font-weight:bold;color:green;">[Info] [1] Class 'RexxBlock' P. (REXX)
 </span>P. P.G.    'COPY'          : 'RexxBlock' (REXX)
@@ -361,14 +359,14 @@ P. P.G.    'SOURCE'        : 'RexxBlock' (REXX)
 P. P.G.    'VARIABLES'     : 'RexxBlock' (REXX)
 <span style="font-weight:bold;color:green;">[Info] [1] Class 'RexxBlock' has 7 methods
 </span><span style="font-weight:bold;color:green;">[Info] 10 lines displayed
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">block = {say &quot;Hello&quot;}</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">block~rawExecutable=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">block = {say &quot;Hello&quot;}</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">block~rawExecutable=</span>
 (a Routine)
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">block~executable=               </span><span style="font-weight:bold;color:blue;">-- not yet executed, the cache is empty</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">block~executable=               </span><span style="font-weight:bold;color:blue;">-- not yet executed, the cache is empty</span>
 (The NIL object)
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">block~do</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">block~do</span>
 Hello
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">block~executable=               </span><span style="font-weight:bold;color:blue;">-- now the cache has a value: a Routine</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">block~executable=               </span><span style="font-weight:bold;color:blue;">-- now the cache has a value: a Routine</span>
 (a Routine)
 
 <span style="font-weight:bold;color:blue;">/*
@@ -381,9 +379,9 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">block~executable=   
 </span><span style="font-weight:bold;color:blue;">When the expression is evaluated, the target receives the message &quot;~()&quot; which
 </span><span style="font-weight:bold;color:blue;">forwards the message &quot;do&quot;.
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">{say &quot;hello&quot;}~()</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">{say &quot;hello&quot;}~()</span>
 hello
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">?m do                           </span><span style="font-weight:bold;color:blue;">-- classes supporting the message &quot;do&quot;</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">?m do                           </span><span style="font-weight:bold;color:blue;">-- classes supporting the message &quot;do&quot;</span>
 P. P.G.    'CLASSES' : 'Package' (REXX)
 PM P.G.    'DO'      : 'Doer' (doers.cls)
 PM P...    'DO'      : 'CoactivityDoer' (doers.cls)
@@ -400,7 +398,7 @@ PM P...    'DO'      : 'TextDoer' (doers.cls)
 </span><span style="font-weight:bold;color:blue;">    f{...} is equivalent to f({...})
 </span><span style="font-weight:bold;color:blue;">    f(a1,a2,...){...} is equivalent to f(a1,a2,...,{...})
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">10~times{2 * arg(1)}=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">10~times{2 * arg(1)}=</span>
 [ 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
 
 <span style="font-weight:bold;color:blue;">/*
@@ -411,7 +409,7 @@ PM P...    'DO'      : 'TextDoer' (doers.cls)
 </span><span style="font-weight:bold;color:blue;">    use auto named args
 </span><span style="font-weight:bold;color:blue;">lets the caller inject named variables in the scope of the callee.
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">{use auto named arg; say n1 n2 n3; .context~namedArgs}~(n1:1, n2:2, n3:3)=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">{use auto named arg; say n1 n2 n3; .context~namedArgs}~(n1:1, n2:2, n3:3)=</span>
 1 2 3
 a Directory (3 items)
 'N1' :  1
@@ -420,7 +418,7 @@ a Directory (3 items)
 
 <span style="font-weight:bold;color:blue;">-- An auto named argument never overwrites a variable already assigned
 </span><span style="font-weight:bold;color:blue;">-- Here, n1 is not overwritten with 1
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">{n1=10; use auto named arg; say n1 n2 n3; .context~namedArgs}~(n1:1, n2:2, n3:3)=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">{n1=10; use auto named arg; say n1 n2 n3; .context~namedArgs}~(n1:1, n2:2, n3:3)=</span>
 10 2 3
 a Directory (3 items)
 'N1' :  1
@@ -431,10 +429,10 @@ a Directory (3 items)
 </span><span style="font-weight:bold;color:blue;">At parse-time, the source is transformed to accept auto named arguments, and to
 </span><span style="font-weight:bold;color:blue;">return implicitely the result of the last evaluated expression.
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">block = {say &quot;Hello&quot;}</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">block~source=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">block = {say &quot;Hello&quot;}</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">block~source=</span>
 ['say &quot;Hello&quot;']
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">block~rawExecutable~source==</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">block~rawExecutable~source==</span>
 an Array (shape [2], 2 items)
  1 : 'use auto named arg ; options &quot;NOCOMMANDS&quot; ; say &quot;Hello&quot;'
  2 : 'if var(&quot;result&quot;) then return result'
@@ -447,13 +445,13 @@ an Array (shape [2], 2 items)
 </span><span style="font-weight:bold;color:blue;">If its constraints on positional and/or named arguments are incompatible with
 </span><span style="font-weight:bold;color:blue;">the expectations of the higher-order function then an error will be raised.
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; 
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">10~times{use strict arg v; 2 * v}=  </span><span style="font-weight:bold;color:blue;">-- Not compatible, an error is raised</span>
+</span>ooRexx[bash]&gt; 
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">10~times{use strict arg v; 2 * v}=  </span><span style="font-weight:bold;color:blue;">-- Not compatible, an error is raised</span>
 <span style="font-weight:bold;color:red;">Too many positional arguments in invocation of &lt;anonymous&gt;; maximum expected is 1.
 </span><span style="font-weight:bold;color:red;">Error code= 40.4
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">10~times{use arg v; 2 * v}=         </span><span style="font-weight:bold;color:blue;">-- Compatible</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">10~times{use arg v; 2 * v}=         </span><span style="font-weight:bold;color:blue;">-- Compatible</span>
 [ 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">10~times{2 * item}=                 </span><span style="font-weight:bold;color:blue;">-- No need to declare &quot;item&quot;</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">10~times{2 * item}=                 </span><span style="font-weight:bold;color:blue;">-- No need to declare &quot;item&quot;</span>
 [ 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
 
 <span style="font-weight:bold;color:blue;">/*
@@ -472,9 +470,9 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">10~times{2 * item}= 
 </span><span style="font-weight:bold;color:blue;">    self~next
 </span><span style="font-weight:bold;color:blue;">end
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(10,20,30)~reduce(&quot;+&quot;)=                                 </span><span style="font-weight:bold;color:blue;">-- case arity &lt; 3</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">(10,20,30)~reduce(&quot;+&quot;)=                                 </span><span style="font-weight:bold;color:blue;">-- case arity &lt; 3</span>
  60
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(10,20,30)~reduce(initial:0){accu + item ** index}=     </span><span style="font-weight:bold;color:blue;">-- case arity &gt;= 3</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">(10,20,30)~reduce(initial:0){accu + item ** index}=     </span><span style="font-weight:bold;color:blue;">-- case arity &gt;= 3</span>
  27410
 
 <span style="font-weight:bold;color:blue;">/*
@@ -489,13 +487,13 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(10,20,30)~reduce(in
 </span><span style="font-weight:bold;color:blue;">from the closure will have no impact on the original context (hence the name
 </span><span style="font-weight:bold;color:blue;">&quot;closure by value&quot;).
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">newCounter={use arg n=0; {expose n; use arg i=0; n+=i; n}}</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">counter1 = newCounter~()        </span><span style="font-weight:bold;color:blue;">-- start at 0 (default)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">counter2 = newCounter~(20)      </span><span style="font-weight:bold;color:blue;">-- start at 20</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">counter1~() counter2~()=        </span><span style="font-weight:bold;color:blue;">-- 0 20</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">newCounter={use arg n=0; {expose n; use arg i=0; n+=i; n}}</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">counter1 = newCounter~()        </span><span style="font-weight:bold;color:blue;">-- start at 0 (default)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">counter2 = newCounter~(20)      </span><span style="font-weight:bold;color:blue;">-- start at 20</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">counter1~() counter2~()=        </span><span style="font-weight:bold;color:blue;">-- 0 20</span>
 '0 20'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">do 5; counter1~(+1); counter2~(-2); end</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">counter1~() counter2~()=        </span><span style="font-weight:bold;color:blue;">-- 5 10</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">do 5; counter1~(+1); counter2~(-2); end</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">counter1~() counter2~()=        </span><span style="font-weight:bold;color:blue;">-- 5 10</span>
 '5 10'
 
 <span style="font-weight:bold;color:blue;">/*
@@ -519,12 +517,12 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">counter1~() counter2
 </span><span style="font-weight:bold;color:blue;">A coactivity remembers its internal state. It can be called several times, the
 </span><span style="font-weight:bold;color:blue;">execution is resumed after the last executed &quot;.yield[]&quot; or &quot;call yield&quot;.
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">generator = {::coactivity i=0; do forever; call yield i; i+=1; end}</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">generator~()=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">generator = {::coactivity i=0; do forever; call yield i; i+=1; end}</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">generator~()=</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">generator~makeArray(10)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">generator~makeArray(10)=</span>
 [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">generator~()=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">generator~()=</span>
  11
 
 <span style="font-weight:bold;color:blue;">/*
@@ -541,162 +539,162 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">generator~()=</span>
 </span><span style="font-weight:bold;color:blue;">1        (activation) ? activation-&gt;getReserveCount() : 0               // settings.object_variables-&gt;getReserveCount()
 </span><span style="font-weight:bold;color:blue;">*        (activation &amp;&amp; activation-&gt;isObjectScopeLocked()) ? '*' : ' ') // object_scope == SCOPE_RESERVED
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:blue;">-- Raw output, not easy to read
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">system RXTRACE_CONCURRENCY=ON rexx concurrency_trace.rex</span>
-00000000e519a080 000000004a817c40 0000000000000000 00000       1 *-* .demo~new~exec(1)
-00000000e519a080 000000004a817c40 0000000000000000 00000         &gt;E&gt;   .DEMO =&gt; &quot;The DEMO class&quot;
-00000000e519a080 000000004a817c40 0000000000000000 00000         &gt;M&gt;   &quot;NEW&quot; =&gt; &quot;a DEMO&quot;
-00000000e519a080 000000004a817c40 0000000000000000 00000         &gt;L&gt;   &quot;1&quot;
-00000000e519a080 000000004a817c40 0000000000000000 00000         &gt;A&gt;   &quot;1&quot;
-00000000e519a080 000000004a820ec0 000000004a821130 00000         &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
-00000000e519a080 000000004a820ec0 000000004a821130 00001*      8 *-* use arg id
-00000000e519a080 000000004a820ec0 000000004a821130 00001*        &gt;&gt;&gt;   &quot;1&quot;
-00000000e519a080 000000004a820ec0 000000004a821130 00001*        &gt;=&gt;   ID &lt;= &quot;1&quot;
-00000000e519a080 000000004a820ec0 000000004a821130 00001*      9 *-* reply
-000000006ff13000 000000004a820ec0 000000004a821130 00001*        &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
-00000000e519a080 000000004a817c40 0000000000000000 00000       2 *-* .demo~new~exec(2)
-000000006ff13000 000000004a820ec0 000000004a821130 00001*     10 *-* do 2
-00000000e519a080 000000004a817c40 0000000000000000 00000         &gt;E&gt;   .DEMO =&gt; &quot;The DEMO class&quot;
-000000006ff13000 000000004a820ec0 000000004a821130 00001*        &gt;L&gt;     &quot;2&quot;
-00000000e519a080 000000004a817c40 0000000000000000 00000         &gt;M&gt;   &quot;NEW&quot; =&gt; &quot;a DEMO&quot;
-000000006ff13000 000000004a820ec0 000000004a821130 00001*        &gt;&gt;&gt;     &quot;2&quot;
-00000000e519a080 000000004a817c40 0000000000000000 00000         &gt;L&gt;   &quot;2&quot;
-000000006ff13000 000000004a820ec0 000000004a821130 00001*     11 *-*   say &quot;TASK&quot; id
-00000000e519a080 000000004a817c40 0000000000000000 00000         &gt;A&gt;   &quot;2&quot;
-000000006ff13000 000000004a820ec0 000000004a821130 00001*        &gt;L&gt;     &quot;TASK&quot;
-00000000e519a080 000000004a82e7f0 000000004a82ea60 00000         &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
-000000006ff13000 000000004a820ec0 000000004a821130 00001*        &gt;V&gt;     ID =&gt; &quot;1&quot;
-00000000e519a080 000000004a82e7f0 000000004a82ea60 00001*      8 *-* use arg id
-000000006ff13000 000000004a820ec0 000000004a821130 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 1&quot;
-00000000e519a080 000000004a82e7f0 000000004a82ea60 00001*        &gt;&gt;&gt;   &quot;2&quot;
-000000006ff13000 000000004a820ec0 000000004a821130 00001*        &gt;&gt;&gt;     &quot;TASK 1&quot;
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:blue;">-- Raw output, not easy to read
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">system RXTRACE_CONCURRENCY=ON rexx concurrency_trace.rex</span>
+00000000e1606080 0000000049818130 0000000000000000 00000       1 *-* .demo~new~exec(1)
+00000000e1606080 0000000049818130 0000000000000000 00000         &gt;E&gt;   .DEMO =&gt; &quot;The DEMO class&quot;
+00000000e1606080 0000000049818130 0000000000000000 00000         &gt;M&gt;   &quot;NEW&quot; =&gt; &quot;a DEMO&quot;
+00000000e1606080 0000000049818130 0000000000000000 00000         &gt;L&gt;   &quot;1&quot;
+00000000e1606080 0000000049818130 0000000000000000 00000         &gt;A&gt;   &quot;1&quot;
+00000000e1606080 00000000498214d0 0000000049821740 00000         &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
+00000000e1606080 00000000498214d0 0000000049821740 00001*      8 *-* use arg id
+00000000e1606080 00000000498214d0 0000000049821740 00001*        &gt;&gt;&gt;   &quot;1&quot;
+00000000e1606080 00000000498214d0 0000000049821740 00001*        &gt;=&gt;   ID &lt;= &quot;1&quot;
+00000000e1606080 00000000498214d0 0000000049821740 00001*      9 *-* reply
+00000000e1606080 0000000049818130 0000000000000000 00000       2 *-* .demo~new~exec(2)
+000000006feab000 00000000498214d0 0000000049821740 00001*        &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
+00000000e1606080 0000000049818130 0000000000000000 00000         &gt;E&gt;   .DEMO =&gt; &quot;The DEMO class&quot;
+000000006feab000 00000000498214d0 0000000049821740 00001*     10 *-* do 2
+00000000e1606080 0000000049818130 0000000000000000 00000         &gt;M&gt;   &quot;NEW&quot; =&gt; &quot;a DEMO&quot;
+000000006feab000 00000000498214d0 0000000049821740 00001*        &gt;L&gt;     &quot;2&quot;
+00000000e1606080 0000000049818130 0000000000000000 00000         &gt;L&gt;   &quot;2&quot;
+000000006feab000 00000000498214d0 0000000049821740 00001*        &gt;&gt;&gt;     &quot;2&quot;
+00000000e1606080 0000000049818130 0000000000000000 00000         &gt;A&gt;   &quot;2&quot;
+000000006feab000 00000000498214d0 0000000049821740 00001*     11 *-*   say &quot;TASK&quot; id
+00000000e1606080 000000004982e710 000000004982e980 00000         &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
+000000006feab000 00000000498214d0 0000000049821740 00001*        &gt;L&gt;     &quot;TASK&quot;
+00000000e1606080 000000004982e710 000000004982e980 00001*      8 *-* use arg id
+000000006feab000 00000000498214d0 0000000049821740 00001*        &gt;V&gt;     ID =&gt; &quot;1&quot;
+00000000e1606080 000000004982e710 000000004982e980 00001*        &gt;&gt;&gt;   &quot;2&quot;
+000000006feab000 00000000498214d0 0000000049821740 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 1&quot;
+00000000e1606080 000000004982e710 000000004982e980 00001*        &gt;=&gt;   ID &lt;= &quot;2&quot;
+000000006feab000 00000000498214d0 0000000049821740 00001*        &gt;&gt;&gt;     &quot;TASK 1&quot;
 TASK 1
-00000000e519a080 000000004a82e7f0 000000004a82ea60 00001*        &gt;=&gt;   ID &lt;= &quot;2&quot;
-000000006ff13000 000000004a820ec0 000000004a821130 00001*     12 *-*   call syssleep 1
-00000000e519a080 000000004a82e7f0 000000004a82ea60 00001*      9 *-* reply
-000000006ff13000 000000004a820ec0 000000004a821130 00001*        &gt;L&gt;     &quot;1&quot;
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*        &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
-000000006ff13000 000000004a820ec0 000000004a821130 00001*        &gt;A&gt;     &quot;1&quot;
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*     10 *-* do 2
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*        &gt;L&gt;     &quot;2&quot;
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*        &gt;&gt;&gt;     &quot;2&quot;
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*     11 *-*   say &quot;TASK&quot; id
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*        &gt;L&gt;     &quot;TASK&quot;
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*        &gt;V&gt;     ID =&gt; &quot;2&quot;
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 2&quot;
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*        &gt;&gt;&gt;     &quot;TASK 2&quot;
+00000000e1606080 000000004982e710 000000004982e980 00001*      9 *-* reply
+000000006feab000 00000000498214d0 0000000049821740 00001*     12 *-*   call syssleep 1
+00000000700b7000 000000004982e710 000000004982e980 00001*        &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
+000000006feab000 00000000498214d0 0000000049821740 00001*        &gt;L&gt;     &quot;1&quot;
+00000000700b7000 000000004982e710 000000004982e980 00001*     10 *-* do 2
+000000006feab000 00000000498214d0 0000000049821740 00001*        &gt;A&gt;     &quot;1&quot;
+00000000700b7000 000000004982e710 000000004982e980 00001*        &gt;L&gt;     &quot;2&quot;
+00000000700b7000 000000004982e710 000000004982e980 00001*        &gt;&gt;&gt;     &quot;2&quot;
+00000000700b7000 000000004982e710 000000004982e980 00001*     11 *-*   say &quot;TASK&quot; id
+00000000700b7000 000000004982e710 000000004982e980 00001*        &gt;L&gt;     &quot;TASK&quot;
+00000000700b7000 000000004982e710 000000004982e980 00001*        &gt;V&gt;     ID =&gt; &quot;2&quot;
+00000000700b7000 000000004982e710 000000004982e980 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 2&quot;
+00000000700b7000 000000004982e710 000000004982e980 00001*        &gt;&gt;&gt;     &quot;TASK 2&quot;
 TASK 2
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*     12 *-*   call syssleep 1
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*        &gt;L&gt;     &quot;1&quot;
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*        &gt;A&gt;     &quot;1&quot;
-000000006ff13000 000000004a820ec0 000000004a821130 00001*        &gt;&gt;&gt;     &quot;0&quot;
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*        &gt;&gt;&gt;     &quot;0&quot;
-000000006ff13000 000000004a820ec0 000000004a821130 00001*     13 *-* end
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*     13 *-* end
-000000006ff13000 000000004a820ec0 000000004a821130 00001*     10 *-* do 2
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*     10 *-* do 2
-000000006ff13000 000000004a820ec0 000000004a821130 00001*     11 *-*   say &quot;TASK&quot; id
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*     11 *-*   say &quot;TASK&quot; id
-000000006ff13000 000000004a820ec0 000000004a821130 00001*        &gt;L&gt;     &quot;TASK&quot;
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*        &gt;L&gt;     &quot;TASK&quot;
-000000006ff13000 000000004a820ec0 000000004a821130 00001*        &gt;V&gt;     ID =&gt; &quot;1&quot;
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*        &gt;V&gt;     ID =&gt; &quot;2&quot;
-000000006ff13000 000000004a820ec0 000000004a821130 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 1&quot;
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 2&quot;
-000000006ff13000 000000004a820ec0 000000004a821130 00001*        &gt;&gt;&gt;     &quot;TASK 1&quot;
+00000000700b7000 000000004982e710 000000004982e980 00001*     12 *-*   call syssleep 1
+00000000700b7000 000000004982e710 000000004982e980 00001*        &gt;L&gt;     &quot;1&quot;
+00000000700b7000 000000004982e710 000000004982e980 00001*        &gt;A&gt;     &quot;1&quot;
+00000000700b7000 000000004982e710 000000004982e980 00001*        &gt;&gt;&gt;     &quot;0&quot;
+000000006feab000 00000000498214d0 0000000049821740 00001*        &gt;&gt;&gt;     &quot;0&quot;
+00000000700b7000 000000004982e710 000000004982e980 00001*     13 *-* end
+000000006feab000 00000000498214d0 0000000049821740 00001*     13 *-* end
+00000000700b7000 000000004982e710 000000004982e980 00001*     10 *-* do 2
+000000006feab000 00000000498214d0 0000000049821740 00001*     10 *-* do 2
+00000000700b7000 000000004982e710 000000004982e980 00001*     11 *-*   say &quot;TASK&quot; id
+000000006feab000 00000000498214d0 0000000049821740 00001*     11 *-*   say &quot;TASK&quot; id
+00000000700b7000 000000004982e710 000000004982e980 00001*        &gt;L&gt;     &quot;TASK&quot;
+000000006feab000 00000000498214d0 0000000049821740 00001*        &gt;L&gt;     &quot;TASK&quot;
+00000000700b7000 000000004982e710 000000004982e980 00001*        &gt;V&gt;     ID =&gt; &quot;2&quot;
+000000006feab000 00000000498214d0 0000000049821740 00001*        &gt;V&gt;     ID =&gt; &quot;1&quot;
+00000000700b7000 000000004982e710 000000004982e980 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 2&quot;
+000000006feab000 00000000498214d0 0000000049821740 00001*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 1&quot;
+00000000700b7000 000000004982e710 000000004982e980 00001*        &gt;&gt;&gt;     &quot;TASK 2&quot;
+000000006feab000 00000000498214d0 0000000049821740 00001*        &gt;&gt;&gt;     &quot;TASK 1&quot;
+TASK 2
 TASK 1
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*        &gt;&gt;&gt;     &quot;TASK 2&quot;
-000000006ff13000 000000004a820ec0 000000004a821130 00001*     12 *-*   call syssleep 1
-TASK 2
-000000006ff13000 000000004a820ec0 000000004a821130 00001*        &gt;L&gt;     &quot;1&quot;
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*     12 *-*   call syssleep 1
-000000006ff13000 000000004a820ec0 000000004a821130 00001*        &gt;A&gt;     &quot;1&quot;
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*        &gt;L&gt;     &quot;1&quot;
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*        &gt;A&gt;     &quot;1&quot;
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*        &gt;&gt;&gt;     &quot;0&quot;
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*     13 *-* end
-000000007011f000 000000004a82e7f0 000000004a82ea60 00001*     10 *-* do 2
-000000006ff13000 000000004a820ec0 000000004a821130 00001*        &gt;&gt;&gt;     &quot;0&quot;
-000000006ff13000 000000004a820ec0 000000004a821130 00001*     13 *-* end
-000000006ff13000 000000004a820ec0 000000004a821130 00001*     10 *-* do 2
-ooRexx[sh]&gt; <span style="font-weight:bold;color:blue;">-- Human-readable output, generated by piping the output through tracer.rex
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">system RXTRACE_CONCURRENCY=ON rexx concurrency_trace.rex 2&gt;&amp;1 | rexx trace/tracer.rex</span>
-T1   A1                     1 *-* .demo~new~exec(1)
-T1   A1                       &gt;E&gt;   .DEMO =&gt; &quot;The DEMO class&quot;
-T1   A1                       &gt;M&gt;   &quot;NEW&quot; =&gt; &quot;a DEMO&quot;
-T1   A1                       &gt;L&gt;   &quot;1&quot;
-T1   A1                       &gt;A&gt;   &quot;1&quot;
-T1   A2     V1                &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
-T1   A2     V1      1*      8 *-* use arg id
-T1   A2     V1      1*        &gt;&gt;&gt;   &quot;1&quot;
-T1   A2     V1      1*        &gt;=&gt;   ID &lt;= &quot;1&quot;
-T1   A2     V1      1*      9 *-* reply
-T1   A1                     2 *-* .demo~new~exec(2)
-T2   A2     V1      1*        &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
-T1   A1                       &gt;E&gt;   .DEMO =&gt; &quot;The DEMO class&quot;
-T2   A2     V1      1*     10 *-* do 2
-T1   A1                       &gt;M&gt;   &quot;NEW&quot; =&gt; &quot;a DEMO&quot;
-T2   A2     V1      1*        &gt;L&gt;     &quot;2&quot;
-T1   A1                       &gt;L&gt;   &quot;2&quot;
-T2   A2     V1      1*        &gt;&gt;&gt;     &quot;2&quot;
-T1   A1                       &gt;A&gt;   &quot;2&quot;
-T2   A2     V1      1*     11 *-*   say &quot;TASK&quot; id
-T1   A3     V2                &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
-T2   A2     V1      1*        &gt;L&gt;     &quot;TASK&quot;
-T1   A3     V2      1*      8 *-* use arg id
-T2   A2     V1      1*        &gt;V&gt;     ID =&gt; &quot;1&quot;
-T1   A3     V2      1*        &gt;&gt;&gt;   &quot;2&quot;
-T2   A2     V1      1*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 1&quot;
-T1   A3     V2      1*        &gt;=&gt;   ID &lt;= &quot;2&quot;
-T2   A2     V1      1*        &gt;&gt;&gt;     &quot;TASK 1&quot;
+00000000700b7000 000000004982e710 000000004982e980 00001*     12 *-*   call syssleep 1
+000000006feab000 00000000498214d0 0000000049821740 00001*     12 *-*   call syssleep 1
+00000000700b7000 000000004982e710 000000004982e980 00001*        &gt;L&gt;     &quot;1&quot;
+000000006feab000 00000000498214d0 0000000049821740 00001*        &gt;L&gt;     &quot;1&quot;
+00000000700b7000 000000004982e710 000000004982e980 00001*        &gt;A&gt;     &quot;1&quot;
+000000006feab000 00000000498214d0 0000000049821740 00001*        &gt;A&gt;     &quot;1&quot;
+00000000700b7000 000000004982e710 000000004982e980 00001*        &gt;&gt;&gt;     &quot;0&quot;
+00000000700b7000 000000004982e710 000000004982e980 00001*     13 *-* end
+00000000700b7000 000000004982e710 000000004982e980 00001*     10 *-* do 2
+000000006feab000 00000000498214d0 0000000049821740 00001*        &gt;&gt;&gt;     &quot;0&quot;
+000000006feab000 00000000498214d0 0000000049821740 00001*     13 *-* end
+000000006feab000 00000000498214d0 0000000049821740 00001*     10 *-* do 2
+ooRexx[bash]&gt; <span style="font-weight:bold;color:blue;">-- Human-readable output, generated by piping the output through tracer.rex
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">system RXTRACE_CONCURRENCY=ON rexx concurrency_trace.rex 2&gt;&amp;1 | rexx trace/tracer.rex</span>
+T0   A1                     1 *-* .demo~new~exec(1)
+T0   A1                       &gt;E&gt;   .DEMO =&gt; &quot;The DEMO class&quot;
+T0   A1                       &gt;M&gt;   &quot;NEW&quot; =&gt; &quot;a DEMO&quot;
+T0   A1                       &gt;L&gt;   &quot;1&quot;
+T0   A1                       &gt;A&gt;   &quot;1&quot;
+T0   A2     V1                &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
+T0   A2     V1      1*      8 *-* use arg id
+T0   A2     V1      1*        &gt;&gt;&gt;   &quot;1&quot;
+T0   A2     V1      1*        &gt;=&gt;   ID &lt;= &quot;1&quot;
+T0   A2     V1      1*      9 *-* reply
+T0   A1                     2 *-* .demo~new~exec(2)
+T1   A2     V1      1*        &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
+T0   A1                       &gt;E&gt;   .DEMO =&gt; &quot;The DEMO class&quot;
+T1   A2     V1      1*     10 *-* do 2
+T0   A1                       &gt;M&gt;   &quot;NEW&quot; =&gt; &quot;a DEMO&quot;
+T1   A2     V1      1*        &gt;L&gt;     &quot;2&quot;
+T0   A1                       &gt;L&gt;   &quot;2&quot;
+T1   A2     V1      1*        &gt;&gt;&gt;     &quot;2&quot;
+T0   A1                       &gt;A&gt;   &quot;2&quot;
+T1   A2     V1      1*     11 *-*   say &quot;TASK&quot; id
+T0   A3     V2                &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
+T1   A2     V1      1*        &gt;L&gt;     &quot;TASK&quot;
+T0   A3     V2      1*      8 *-* use arg id
+T1   A2     V1      1*        &gt;V&gt;     ID =&gt; &quot;1&quot;
+T0   A3     V2      1*        &gt;&gt;&gt;   &quot;2&quot;
+T1   A2     V1      1*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 1&quot;
+T0   A3     V2      1*        &gt;=&gt;   ID &lt;= &quot;2&quot;
+T1   A2     V1      1*        &gt;&gt;&gt;     &quot;TASK 1&quot;
 TASK 1
-T1   A3     V2      1*      9 *-* reply
-T2   A2     V1      1*     12 *-*   call syssleep 1
-T3   A3     V2      1*        &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
-T2   A2     V1      1*        &gt;L&gt;     &quot;1&quot;
-T3   A3     V2      1*     10 *-* do 2
-T2   A2     V1      1*        &gt;A&gt;     &quot;1&quot;
-T3   A3     V2      1*        &gt;L&gt;     &quot;2&quot;
-T3   A3     V2      1*        &gt;&gt;&gt;     &quot;2&quot;
-T3   A3     V2      1*     11 *-*   say &quot;TASK&quot; id
-T3   A3     V2      1*        &gt;L&gt;     &quot;TASK&quot;
-T3   A3     V2      1*        &gt;V&gt;     ID =&gt; &quot;2&quot;
-T3   A3     V2      1*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 2&quot;
-T3   A3     V2      1*        &gt;&gt;&gt;     &quot;TASK 2&quot;
+T0   A3     V2      1*      9 *-* reply
+T1   A2     V1      1*     12 *-*   call syssleep 1
+T2   A3     V2      1*        &gt;I&gt; Method &quot;EXEC&quot; with scope &quot;DEMO&quot; in package &quot;/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos/concurrency_trace.rex&quot;.
+T1   A2     V1      1*        &gt;L&gt;     &quot;1&quot;
+T2   A3     V2      1*     10 *-* do 2
+T1   A2     V1      1*        &gt;A&gt;     &quot;1&quot;
+T2   A3     V2      1*        &gt;L&gt;     &quot;2&quot;
+T2   A3     V2      1*        &gt;&gt;&gt;     &quot;2&quot;
+T2   A3     V2      1*     11 *-*   say &quot;TASK&quot; id
+T2   A3     V2      1*        &gt;L&gt;     &quot;TASK&quot;
+T2   A3     V2      1*        &gt;V&gt;     ID =&gt; &quot;2&quot;
+T2   A3     V2      1*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 2&quot;
+T2   A3     V2      1*        &gt;&gt;&gt;     &quot;TASK 2&quot;
 TASK 2
-T3   A3     V2      1*     12 *-*   call syssleep 1
-T3   A3     V2      1*        &gt;L&gt;     &quot;1&quot;
-T3   A3     V2      1*        &gt;A&gt;     &quot;1&quot;
-T2   A2     V1      1*        &gt;&gt;&gt;     &quot;0&quot;
-T3   A3     V2      1*        &gt;&gt;&gt;     &quot;0&quot;
-T2   A2     V1      1*     13 *-* end
-T3   A3     V2      1*     13 *-* end
-T2   A2     V1      1*     10 *-* do 2
-T3   A3     V2      1*     10 *-* do 2
-T2   A2     V1      1*     11 *-*   say &quot;TASK&quot; id
-T3   A3     V2      1*     11 *-*   say &quot;TASK&quot; id
-T2   A2     V1      1*        &gt;L&gt;     &quot;TASK&quot;
-T3   A3     V2      1*        &gt;L&gt;     &quot;TASK&quot;
-T2   A2     V1      1*        &gt;V&gt;     ID =&gt; &quot;1&quot;
-T3   A3     V2      1*        &gt;V&gt;     ID =&gt; &quot;2&quot;
-T2   A2     V1      1*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 1&quot;
-T3   A3     V2      1*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 2&quot;
-T2   A2     V1      1*        &gt;&gt;&gt;     &quot;TASK 1&quot;
+T2   A3     V2      1*     12 *-*   call syssleep 1
+T2   A3     V2      1*        &gt;L&gt;     &quot;1&quot;
+T2   A3     V2      1*        &gt;A&gt;     &quot;1&quot;
+T1   A2     V1      1*        &gt;&gt;&gt;     &quot;0&quot;
+T2   A3     V2      1*        &gt;&gt;&gt;     &quot;0&quot;
+T1   A2     V1      1*     13 *-* end
+T2   A3     V2      1*     13 *-* end
+T1   A2     V1      1*     10 *-* do 2
+T2   A3     V2      1*     10 *-* do 2
+T1   A2     V1      1*     11 *-*   say &quot;TASK&quot; id
+T2   A3     V2      1*     11 *-*   say &quot;TASK&quot; id
+T1   A2     V1      1*        &gt;L&gt;     &quot;TASK&quot;
+T2   A3     V2      1*        &gt;L&gt;     &quot;TASK&quot;
+T1   A2     V1      1*        &gt;V&gt;     ID =&gt; &quot;1&quot;
+T2   A3     V2      1*        &gt;V&gt;     ID =&gt; &quot;2&quot;
+T1   A2     V1      1*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 1&quot;
+T2   A3     V2      1*        &gt;O&gt;     &quot; &quot; =&gt; &quot;TASK 2&quot;
+T1   A2     V1      1*        &gt;&gt;&gt;     &quot;TASK 1&quot;
 TASK 1
-T3   A3     V2      1*        &gt;&gt;&gt;     &quot;TASK 2&quot;
-T2   A2     V1      1*     12 *-*   call syssleep 1
+T2   A3     V2      1*        &gt;&gt;&gt;     &quot;TASK 2&quot;
+T1   A2     V1      1*     12 *-*   call syssleep 1
 TASK 2
-T2   A2     V1      1*        &gt;L&gt;     &quot;1&quot;
-T3   A3     V2      1*     12 *-*   call syssleep 1
-T2   A2     V1      1*        &gt;A&gt;     &quot;1&quot;
-T3   A3     V2      1*        &gt;L&gt;     &quot;1&quot;
-T3   A3     V2      1*        &gt;A&gt;     &quot;1&quot;
-T2   A2     V1      1*        &gt;&gt;&gt;     &quot;0&quot;
-T3   A3     V2      1*        &gt;&gt;&gt;     &quot;0&quot;
-T2   A2     V1      1*     13 *-* end
-T3   A3     V2      1*     13 *-* end
-T2   A2     V1      1*     10 *-* do 2
-T3   A3     V2      1*     10 *-* do 2
+T1   A2     V1      1*        &gt;L&gt;     &quot;1&quot;
+T2   A3     V2      1*     12 *-*   call syssleep 1
+T1   A2     V1      1*        &gt;A&gt;     &quot;1&quot;
+T2   A3     V2      1*        &gt;L&gt;     &quot;1&quot;
+T2   A3     V2      1*        &gt;A&gt;     &quot;1&quot;
+T1   A2     V1      1*        &gt;&gt;&gt;     &quot;0&quot;
+T2   A3     V2      1*        &gt;&gt;&gt;     &quot;0&quot;
+T1   A2     V1      1*     13 *-* end
+T2   A3     V2      1*     13 *-* end
+T1   A2     V1      1*     10 *-* do 2
+T2   A3     V2      1*     10 *-* do 2
 
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">Symmetric implementation of operator
@@ -717,17 +715,17 @@ T3   A3     V2      1*     10 *-* do 2
 </span><span style="font-weight:bold;color:blue;">Behave as if the alternate implementation did not exist, and raise the exception
 </span><span style="font-weight:bold;color:blue;">related to the left argument.
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">1 + (10, 20)=                           </span><span style="font-weight:bold;color:blue;">-- array programming</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">1 + (10, 20)=                           </span><span style="font-weight:bold;color:blue;">-- array programming</span>
 [ 11, 21]
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~text~utf16 &quot;John&quot;~text~utf16=   </span><span style="font-weight:bold;color:blue;">-- encoded strings</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~text~utf16 &quot;John&quot;~text~utf16=   </span><span style="font-weight:bold;color:blue;">-- encoded strings</span>
 T'[00]h[00]e[00]l[00]l[00]o[00] [00]J[00]o[00]h[00]n'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">2*(3-2i)=                               </span><span style="font-weight:bold;color:blue;">-- complex numbers</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">2*(3-2i)=                               </span><span style="font-weight:bold;color:blue;">-- complex numbers</span>
 (6-4i)
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">a = (1, 2); a~append(a); a=             </span><span style="font-weight:bold;color:blue;">-- self-referencing array, its depth is infinite</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">a = (1, 2); a~append(a); a=             </span><span style="font-weight:bold;color:blue;">-- self-referencing array, its depth is infinite</span>
 a1=[ 1, 2,*a1]
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">1 + a~depth=                            </span><span style="font-weight:bold;color:blue;">-- arithmetic with infinity</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">1 + a~depth=                            </span><span style="font-weight:bold;color:blue;">-- arithmetic with infinity</span>
 (The positive infinity)
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">5 * (a~depth - a~depth)=                </span><span style="font-weight:bold;color:blue;">-- arithmetic with indeterminate</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">5 * (a~depth - a~depth)=                </span><span style="font-weight:bold;color:blue;">-- arithmetic with indeterminate</span>
 (The indeterminate value)
 
 <span style="font-weight:bold;color:blue;">/*
@@ -737,9 +735,9 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">5 * (a~depth - a~dep
 </span><span style="font-weight:bold;color:blue;">see RexxActivation::novalueHandler).
 </span><span style="font-weight:bold;color:blue;">The class GlobalVariables is used to manage global variables like i, infinity, indeterminate.
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.local~novalue=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.local~novalue=</span>
 (The GlobalVariables class)
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">?cm globalvariables</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">?cm globalvariables</span>
 
 <span style="font-weight:bold;color:green;">[Info] [1] Class 'GlobalVariables' P. (novalue.cls)
 </span>P. PCG.    'DECLARE' : 'GlobalVariables' (novalue.cls)
@@ -748,7 +746,7 @@ P. PCG.    'NOVALUE' : 'GlobalVariables' (novalue.cls)
 P. PCG.    'VALUES'  : 'GlobalVariables' (novalue.cls)
 <span style="font-weight:bold;color:green;">[Info] [1] Class 'GlobalVariables' has 4 methods
 </span><span style="font-weight:bold;color:green;">[Info] 7 lines displayed
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.globalvariables~values=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.globalvariables~values=</span>
 a Directory (4 items)
 'COMPLEXINFINITY' : (The complex infinity)
 'I'               : (0+1i)
@@ -765,13 +763,13 @@ a Directory (4 items)
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">Range iterator
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">1~9=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">1~9=</span>
 [ 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">The collection is displayed one item per line when the line ends with ==
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">1~9==</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">1~9==</span>
 an Array (shape [9], 9 items)
  1 :  1
  2 :  2
@@ -786,7 +784,7 @@ an Array (shape [9], 9 items)
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">The precision of the range iterator is automatically adjusted
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">1~9(by:1e-100, for:10)==</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">1~9(by:1e-100, for:10)==</span>
 an Array (shape [10], 10 items)
  1  :  1
  2  :  1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001
@@ -802,7 +800,7 @@ an Array (shape [10], 10 items)
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">To get the last 10 values of the range, pass for:-10
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">1~9(by:1e-100, for:-10)==</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">1~9(by:1e-100, for:-10)==</span>
 an Array (shape [10], 10 items)
  1  :  8.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999991
  2  :  8.9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999992
@@ -835,7 +833,7 @@ an Array (shape [10], 10 items)
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">Implementation of the Y combinator with memoization:
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">?ms YM</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">?ms YM</span>
 PM P...    'YM' : 'RoutineDoer' (doers.cls)
  &gt; 0001 use named arg verbose=.false
  &gt; 0002     if verbose then trace i
@@ -869,37 +867,37 @@ PM P...    'YM' : 'RoutineDoer' (doers.cls)
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">Application to Fibonacci:
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">almost_fib = { use arg fib; {expose fib ; use arg n; if n==0 then return 0; if n==1 then return 1; if n&lt;0 then return fib~(n+2) - fib~(n+1); return fib~(n-2) + fib~(n-1)}}</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">almost_fib = { use arg fib; {expose fib ; use arg n; if n==0 then return 0; if n==1 then return 1; if n&lt;0 then return fib~(n+2) - fib~(n+1); return fib~(n-2) + fib~(n-1)}}</span>
 
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">The not-memoizing version needs around 15 sec.
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">fib_Y = almost_fib~Y</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">fib_Y~(23)=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">fib_Y = almost_fib~Y</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">fib_Y~(23)=</span>
  28657
-<span style="font-weight:bold;color:green;">Duration: 3.540490
+<span style="font-weight:bold;color:green;">Duration: 5.081846
 </span><span style="font-weight:bold;color:green;">#Coactivities: 1
 </span>
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">The memoizing version calculates almost instantly.
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">fib_YM = almost_fib~YM</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">fib_YM~(23)=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">fib_YM = almost_fib~YM</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">fib_YM~(23)=</span>
  28657
-<span style="font-weight:bold;color:green;">Duration: 0.012352
+<span style="font-weight:bold;color:green;">Duration: 0.010145
 </span><span style="font-weight:bold;color:green;">#Coactivities: 1
 </span>
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">fib_Y and fib_YM are closures.
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">fib_YM~executable=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">fib_YM~executable=</span>
 (a Closure)
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">fib_YM~executable~variables=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">fib_YM~executable~variables=</span>
 a Directory (1 items)
 'FIB' : (a RexxBlock)
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">fib_YM~executable~variables[&quot;FIB&quot;]~executable=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">fib_YM~executable~variables[&quot;FIB&quot;]~executable=</span>
 (a Closure)
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">fib_YM~executable~variables[&quot;FIB&quot;]~executable~variables=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">fib_YM~executable~variables[&quot;FIB&quot;]~executable~variables=</span>
 a Directory (7 items)
 'F'          : (a Routine)
 'SELF'       : (a Closure)
@@ -912,7 +910,7 @@ a Directory (7 items)
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">TABLE is the table of values memoized by fib_YM for the calculation of fib_YM~(23).
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">fib_YM~executable~variables[&quot;FIB&quot;]~executable~variables[&quot;TABLE&quot;]=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">fib_YM~executable~variables[&quot;FIB&quot;]~executable~variables[&quot;TABLE&quot;]=</span>
 a Table (23 items)
  0  :  0
  1  :  1
@@ -942,8 +940,8 @@ a Table (23 items)
 </span><span style="font-weight:bold;color:blue;">Both fib_Y and fib_YM are subject to stack overflow.
 </span><span style="font-weight:bold;color:blue;">But fib_YM can be used by steps, to calculate very big fibonacci numbers, thanks to the memoization.
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">numeric digits propagate 100</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">do i=1 to 500; r = fib_YM~(i*50); if i//50=0 then say &quot;fib_YM~(&quot;i*50&quot;)=&quot;r; end</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">numeric digits propagate 100</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">do i=1 to 500; r = fib_YM~(i*50); if i//50=0 then say &quot;fib_YM~(&quot;i*50&quot;)=&quot;r; end</span>
 fib_YM~(2500)=1.317090516751949629522763087125316412066606964992507141887746936727530870405038425764503130123186429E+522
 fib_YM~(5000)=3.878968454388325633701916308325905312082127714646245106160597214895550139044037097010822916462210799E+1044
 fib_YM~(7500)=1.142396523152058704722048892865690419848718663331756079795903059573826364358830526396432108051699207E+1567
@@ -954,7 +952,7 @@ fib_YM~(17500)=8.594475392487880685715609318313958956965186135981014406583281854
 fib_YM~(20000)=2.531162323732361242240155003520607291766356485802485278951929841991312781760541315230153423463759229E+4179
 fib_YM~(22500)=7.454536101973301545514060322899628474921968473702388044321015228379740189148914655473430519859925903E+4701
 fib_YM~(25000)=2.195438355517303012780791914841720922849015222302155773145178112730662303998294388326731046697794993E+5224
-<span style="font-weight:bold;color:green;">Duration: 2.241227
+<span style="font-weight:bold;color:green;">Duration: 2.382621
 </span><span style="font-weight:bold;color:green;">#Coactivities: 1
 </span>
 <span style="font-weight:bold;color:blue;">/*

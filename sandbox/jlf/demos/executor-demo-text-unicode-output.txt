@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 22 Apr 2024
-Input queue name: S12c96Q600003f428a0
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 22 Jun 2024
+Input queue name: Sacc7Q600001c5ebe0
 
 --------------------
 -- Unicode libraries
@@ -32,12 +32,10 @@ Input queue name: S12c96Q600003f428a0
 The prototype is currently using 3 libraries:
 - utf8proc    https://github.com/JuliaStrings/utf8proc
 - uni-algo    https://github.com/uni-algo/uni-algo
-- icu4x       https://github.com/unicode-org/icu4x
 
 Current usage:
 - utf8proc is used for grapheme segmentation, characters properties, normalization, simple upper/lower/title.
 - uni-algo is used for full upper/lower/title.
-- icu4x will be used for locale-aware services (segmentation, collation, translation, formatting).
 */
 
 
@@ -46,24 +44,24 @@ Current usage:
 ---------------------
 
 -- Unicode version
-ooRexx[sh]> .unicode~version=               -- 15.1.0
+ooRexx[bash]> .unicode~version=               -- 15.1.0
 '15.1.0'
 
 -- Unicode character names are not loaded by default
-ooRexx[sh]> call loadUnicodeCharacterNames
+ooRexx[bash]> call loadUnicodeCharacterNames
 Load the Unicode character names 15.1.0 
 ............................................
 Total loaded character names: 149813
 Total character name aliases: 473
 Unicode character intervals not expanded, execute: call expandUnicodeCharacterIntervals
-ooRexx[sh]> .unicode~characters=
+ooRexx[bash]> .unicode~characters=
 (an UnicodeCharacterSupplier count=44185 size=918000)
 
 /*
 Unicode character names defined by interval are not loaded by default.
 The following method gives informations about these intervals.
 */
-ooRexx[sh]> .Unicode~informations=
+ooRexx[bash]> .Unicode~informations=
 a Directory (13 items)
 'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=17 notExpanded:17 intervals, 105693 characters)
 'characters'                         : (an UnicodeCharacterSupplier count=44185 size=918000)
@@ -80,7 +78,7 @@ a Directory (13 items)
 'version'                            : '15.1.0'
 
 -- Select the characters whose category is Cc (Control)
-ooRexx[sh]> .unicode~characters~select{item~categoryName=="Cc"}==
+ooRexx[bash]> .unicode~characters~select{item~categoryName=="Cc"}==
 an Array (shape [65], 65 items)
  1  : ( ""    U+0000 Cc 0 "", "NULL", "NUL" )
  2  : ( ""    U+0001 Cc 0 "", "START OF HEADING", "SOH" )
@@ -151,7 +149,7 @@ an Array (shape [65], 65 items)
 -- Select the characters whose name contains "rex"
 -- Loose matching rule UAX44-LM2, see https://unicode.org/reports/tr44/#Matching_Names
 -- Spaces are ignored (among others), that's why "LETTER EXTRA" is matching "*rex*"
-ooRexx[sh]> .unicode~characters("*rex*")==
+ooRexx[bash]> .unicode~characters("*rex*")==
 an Array (shape [15], 15 items)
  1  : ( "꜌"   U+A70C Sk 1 "MODIFIER LETTER EXTRA-LOW DOTTED TONE BAR" )
  2  : ( "˩"   U+02E9 Sk 1 "MODIFIER LETTER EXTRA-LOW TONE BAR" )
@@ -174,7 +172,7 @@ Regular expressions are supported:
     .unicode~characters("/^math.*psi$")==
 returns all the characters whose name starts with "math" and ends with "psi".
 */
-ooRexx[sh]> .unicode~characters("/^math.*psi$")==
+ooRexx[bash]> .unicode~characters("/^math.*psi$")==
 an Array (shape [10], 10 items)
  1  : ( "𝚿"   U+1D6BF Lu 1 "MATHEMATICAL BOLD CAPITAL PSI" )
  2  : ( "𝛙"   U+1D6D9 Ll 1 "MATHEMATICAL BOLD SMALL PSI" )
@@ -188,9 +186,9 @@ an Array (shape [10], 10 items)
  10 : ( "𝟁"   U+1D7C1 Ll 1 "MATHEMATICAL SANS-SERIF BOLD ITALIC SMALL PSI" )
 
 -- longest name
-ooRexx[sh]> .unicode~characters~reduce{if accu~name~length < item~name~length then item }=
+ooRexx[bash]> .unicode~characters~reduce{if accu~name~length < item~name~length then item }=
 ( "🮨"   U+1FBA8 So 1 "BOX DRAWINGS LIGHT DIAGONAL UPPER CENTRE TO MIDDLE LEFT AND MIDDLE RIGHT TO LOWER CENTRE" )
-ooRexx[sh]> result~name~length=
+ooRexx[bash]> result~name~length=
  88
 
 /*
@@ -209,47 +207,47 @@ modify the lexer, for the moment.
 */
 
 -- Character by name
-ooRexx[sh]> "hello\u{space}John\n"~text~unescape=                           -- T'hello John[0A]'
+ooRexx[bash]> "hello\u{space}John\n"~text~unescape=                           -- T'hello John[0A]'
 T'hello John[0A]'
-ooRexx[sh]> "The \u{t-rex} shows his \u{flexed biceps}!"~text~unescape=     -- T'The 🦖 shows his 💪!'
+ooRexx[bash]> "The \u{t-rex} shows his \u{flexed biceps}!"~text~unescape=     -- T'The 🦖 shows his 💪!'
 T'The 🦖 shows his 💪!'
 
 -- Character by codepoint
-ooRexx[sh]> "hello\u{20}John\n"~text~unescape=                              -- T'hello John[0A]'
+ooRexx[bash]> "hello\u{20}John\n"~text~unescape=                              -- T'hello John[0A]'
 T'hello John[0A]'
-ooRexx[sh]> "hello\u0020John\n"~text~unescape=                              -- T'hello John[0A]'
+ooRexx[bash]> "hello\u0020John\n"~text~unescape=                              -- T'hello John[0A]'
 T'hello John[0A]'
-ooRexx[sh]> "hello\U00000020John\n"~text~unescape=                          -- T'hello John[0A]'
+ooRexx[bash]> "hello\U00000020John\n"~text~unescape=                          -- T'hello John[0A]'
 T'hello John[0A]'
 
 -- Name versus codepoint
-ooRexx[sh]> "\u{bed} is different from \u{0bed}"~text~unescape=             -- T'🛏 is different from ௭'
+ooRexx[bash]> "\u{bed} is different from \u{0bed}"~text~unescape=             -- T'🛏 is different from ௭'
 T'🛏 is different from ௭'
-ooRexx[sh]> .unicode~character("bed")=                                      -- ( "🛏"   U+1F6CF So 1 "BED" )
+ooRexx[bash]> .unicode~character("bed")=                                      -- ( "🛏"   U+1F6CF So 1 "BED" )
 ( "🛏"   U+1F6CF So 1 "BED" )
-ooRexx[sh]> .unicode~character("bed", hexadecimal:)=                        -- ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
+ooRexx[bash]> .unicode~character("bed", hexadecimal:)=                        -- ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
 ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
-ooRexx[sh]> .unicode~character("U+0bed")=                                   -- ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
+ooRexx[bash]> .unicode~character("U+0bed")=                                   -- ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
 ( "௭"   U+0BED Nd 1 "TAMIL DIGIT SEVEN" )
 
 -- High surrogate followed by low surrogate is invalid UTF-8
-ooRexx[sh]> "\uD83D\uDE3F"~text~unescape=                                   -- T'??????'
+ooRexx[bash]> "\uD83D\uDE3F"~text~unescape=                                   -- T'??????'
 T'������'
 
 -- High surrogate followed by low surrogate is valid WTF-8
-ooRexx[sh]> "\uD83D\uDE3F"~text("wtf8")~unescape=                           -- T'😿'
+ooRexx[bash]> "\uD83D\uDE3F"~text("wtf8")~unescape=                           -- T'😿'
 T'😿'
 
 -- \u is not supported for Byte encoding, you can use \x{X..X}
-ooRexx[sh]> "hello\u{20}John\n"~text("byte")~unescape=                      -- Byte encoding: \u not supported.
+ooRexx[bash]> "hello\u{20}John\n"~text("byte")~unescape=                      -- Byte encoding: \u not supported.
 Byte encoding: \u not supported.
 Error code= 23.900
-ooRexx[sh]> "hello\x{20}John\n"~text("byte")~unescape=                      -- T'hello John[0A]'
+ooRexx[bash]> "hello\x{20}John\n"~text("byte")~unescape=                      -- T'hello John[0A]'
 T'hello John[0A]'
 
 -- The method unescape is available only for Byte, UTF-8 and WTF-8.
 -- No implementation for UTF-16, WTF-16, UTF-32.
-ooRexx[sh]> "hello\u{U+20}John\n"~text~utf16~unescape=                      -- Method UNESCAPE is ABSTRACT and cannot be directly invoked.
+ooRexx[bash]> "hello\u{U+20}John\n"~text~utf16~unescape=                      -- Method UNESCAPE is ABSTRACT and cannot be directly invoked.
 Method UNESCAPE is ABSTRACT and cannot be directly invoked.
 Error code= 93.965
 
@@ -260,11 +258,11 @@ Error code= 93.965
 
 -- Category
 -- http://www.unicode.org/reports/tr44/#General_Category_Values
-ooRexx[sh]> .unicode~codepointCategoryNames=
+ooRexx[bash]> .unicode~codepointCategoryNames=
 ['Cn','Lu','Ll','Lt','Lm','Lo','Mn','Mc','Me','Nd','Nl','No','Pc','Pd','Ps','Pe','Pi','Pf','Po','Sm','Sc','Sk','So','Zs','Zl','Zp','Cc','Cf','Cs','Co']
 
 -- First character of each category
-ooRexx[sh]> seen = .directory~new; .unicode~characters~each{expose seen; v = item~categoryName; if seen[v] == .nil then seen[v] = item}; seen=
+ooRexx[bash]> seen = .directory~new; .unicode~characters~each{expose seen; v = item~categoryName; if seen[v] == .nil then seen[v] = item}; seen=
 a Directory (28 items)
 'Cc' : ( ""    U+0000 Cc 0 "", "NULL", "NUL" )
 'Cf' : ( "­"   U+00AD Cf 1 "SOFT HYPHEN", "SHY" )
@@ -300,7 +298,7 @@ a Directory (28 items)
 -- Canonical combining classes are defined in the Unicode Standard as integers in the range 0...254.
 -- For convenience, the standard assigns symbolic names to a subset of these combining classes.
 -- First character of each combining class
-ooRexx[sh]> seen = .directory~new; .unicode~characters~each{expose seen; v = item~combiningClass; if seen[cv] == .nil then seen[v] = item}; seen=
+ooRexx[bash]> seen = .directory~new; .unicode~characters~each{expose seen; v = item~combiningClass; if seen[cv] == .nil then seen[v] = item}; seen=
 a Directory (56 items)
  0   : ( "󠇯"    U+E01EF Mn 0 "VARIATION SELECTOR-256", "VS256" )
  1   : ( "𝅩"    U+1D169 Mn 0 "MUSICAL SYMBOL COMBINING TREMOLO-3" )
@@ -361,11 +359,11 @@ a Directory (56 items)
 
 -- Bidirectionnal class
 -- http://www.unicode.org/reports/tr44/#Bidi_Class_Values
-ooRexx[sh]> .unicode~codepointBidiClassNames=
+ooRexx[bash]> .unicode~codepointBidiClassNames=
 ['L','LRE','LRO','R','AL','RLE','RLO','PDF','EN','ES','ET','AN','CS','NSM','BN','B','S','WS','ON','LRI','RLI','FSI','PDI']
 
 -- First character of each bidirectionnal class
-ooRexx[sh]> seen = .directory~new; .unicode~characters~each{expose seen; v = item~bidiClassName; if seen[v] == .nil then seen[v] = item}; seen=
+ooRexx[bash]> seen = .directory~new; .unicode~characters~each{expose seen; v = item~bidiClassName; if seen[v] == .nil then seen[v] = item}; seen=
 a Directory (23 items)
 'AL'  : ( "؈"   U+0608 Sm 1 "ARABIC RAY" )
 'AN'  : ( "؀"    U+0600 Cf 0 "ARABIC NUMBER SIGN" )
@@ -394,7 +392,7 @@ a Directory (23 items)
 -- Bidi mirrored (boolean)
 -- https://unicode.org/reports/tr9/
 -- First 10 characters such as bidiMirrored == .true
-ooRexx[sh]> .unicode~characters~pipe(.select {item~bidiMirrored} | .take 10 | .console)
+ooRexx[bash]> .unicode~characters~pipe(.select {item~bidiMirrored} | .take 10 | .console)
 40 : ( "("   U+0028 Ps 1 "LEFT PARENTHESIS" )
 41 : ( ")"   U+0029 Pe 1 "RIGHT PARENTHESIS" )
 60 : ( "<"   U+003C Sm 1 "LESS-THAN SIGN" )
@@ -408,11 +406,11 @@ ooRexx[sh]> .unicode~characters~pipe(.select {item~bidiMirrored} | .take 10 | .c
 
 -- Decomposition type
 -- https://unicode.org/reports/tr15/
-ooRexx[sh]> .unicode~codepointDecompositionTypeNames=
+ooRexx[bash]> .unicode~codepointDecompositionTypeNames=
 ['None','Font','Nobreak','Initial','Medial','Final','Isolated','Circle','Super','Sub','Vertical','Wide','Narrow','Small','Square','Fraction','Compat']
 
 -- First character of each decomposition type
-ooRexx[sh]> seen = .directory~new; .unicode~characters~each{expose seen; v = item~decompositionTypeName; if seen[v] == .nil then seen[v] = item}; seen=
+ooRexx[bash]> seen = .directory~new; .unicode~characters~each{expose seen; v = item~decompositionTypeName; if seen[v] == .nil then seen[v] = item}; seen=
 a Directory (17 items)
 'Circle'   : ( "①"   U+2460 No 1 "CIRCLED DIGIT ONE" )
 'Compat'   : ( "¨"   U+00A8 Sk 1 "DIAERESIS" )
@@ -436,7 +434,7 @@ a Directory (17 items)
 -- http://www.unicode.org/review/pr-5.html
 -- http://unicode.org/L2/L2002/02368-default-ignorable.html
 -- First 10 characters such as ignorable == .true
-ooRexx[sh]> .unicode~characters~pipe(.select {item~ignorable} | .take 10 | .console)
+ooRexx[bash]> .unicode~characters~pipe(.select {item~ignorable} | .take 10 | .console)
 173 : ( "­"   U+00AD Cf 1 "SOFT HYPHEN", "SHY" )
 847 : ( "͏"    U+034F Mn 0 "COMBINING GRAPHEME JOINER", "CGJ" )
 1564 : ( "؜"    U+061C Cf 0 "ARABIC LETTER MARK", "ALM" )
@@ -451,7 +449,7 @@ ooRexx[sh]> .unicode~characters~pipe(.select {item~ignorable} | .take 10 | .cons
 -- Boundary (boolean)
 -- http://unicode.org/reports/tr29/tr29-6.html
 -- First 10 characters such as controlBoundary == .true
-ooRexx[sh]> .unicode~characters~pipe(.select {item~controlBoundary} | .take 10 | .console)
+ooRexx[bash]> .unicode~characters~pipe(.select {item~controlBoundary} | .take 10 | .console)
 0 : ( ""    U+0000 Cc 0 "", "NULL", "NUL" )
 1 : ( ""    U+0001 Cc 0 "", "START OF HEADING", "SOH" )
 2 : ( ""    U+0002 Cc 0 "", "START OF TEXT", "STX" )
@@ -465,7 +463,7 @@ ooRexx[sh]> .unicode~characters~pipe(.select {item~controlBoundary} | .take 10 |
 
 -- Char width
 -- First character of each width value
-ooRexx[sh]> seen = .directory~new; .unicode~characters~each{expose seen; v = item~charWidth; if seen[v] == .nil then seen[v] = item}; seen=
+ooRexx[bash]> seen = .directory~new; .unicode~characters~each{expose seen; v = item~charWidth; if seen[v] == .nil then seen[v] = item}; seen=
 a Directory (3 items)
  0 : ( ""    U+0000 Cc 0 "", "NULL", "NUL" )
  1 : ( " "   U+0020 Zs 1 "SPACE", "SP" )
@@ -473,11 +471,11 @@ a Directory (3 items)
 
 -- Bound class
 -- https://unicode.org/reports/tr29/
-ooRexx[sh]> .unicode~codepointBoundClassNames=
+ooRexx[bash]> .unicode~codepointBoundClassNames=
 ['START','XX','CR','LF','CN','EX','L','V','T','LV','LVT','RI','SM','PP','ZWJ','EB','EM','GAZ','EBG','EXTENDED_PICTOGRAPHIC','E_ZWG']
 
 -- First character of each bound class
-ooRexx[sh]> seen = .directory~new; .unicode~characters~each{expose seen; v = item~boundClassName; if seen[v] == .nil then seen[v] = item}; seen=
+ooRexx[bash]> seen = .directory~new; .unicode~characters~each{expose seen; v = item~boundClassName; if seen[v] == .nil then seen[v] = item}; seen=
 a Directory (15 items)
 'CN'                    : ( ""    U+0000 Cc 0 "", "NULL", "NUL" )
 'CR'                    : ( ""    U+000D Cc 0 "", "CARRIAGE RETURN", "CR" )
@@ -497,7 +495,7 @@ a Directory (15 items)
 
 -- isLower
 -- Forty-first to fifthieth characters such as isLower == .true
-ooRexx[sh]> .unicode~characters~pipe(.select {item~isLower} | .take 50 | .take "last" 10 | .console)
+ooRexx[bash]> .unicode~characters~pipe(.select {item~isLower} | .take 50 | .take "last" 10 | .console)
 234 : ( "ê"   U+00EA Ll 1 "LATIN SMALL LETTER E WITH CIRCUMFLEX" )
 235 : ( "ë"   U+00EB Ll 1 "LATIN SMALL LETTER E WITH DIAERESIS" )
 236 : ( "ì"   U+00EC Ll 1 "LATIN SMALL LETTER I WITH GRAVE" )
@@ -511,7 +509,7 @@ ooRexx[sh]> .unicode~characters~pipe(.select {item~isLower} | .take 50 | .take "
 
 -- isUpper
 -- Forty-first to fifthieth characters such as isUpper == .true
-ooRexx[sh]> .unicode~characters~pipe(.select {item~isUpper} | .take 50 | .take "last" 10 | .console)
+ooRexx[bash]> .unicode~characters~pipe(.select {item~isUpper} | .take 50 | .take "last" 10 | .console)
 206 : ( "Î"   U+00CE Lu 1 "LATIN CAPITAL LETTER I WITH CIRCUMFLEX" )
 207 : ( "Ï"   U+00CF Lu 1 "LATIN CAPITAL LETTER I WITH DIAERESIS" )
 208 : ( "Ð"   U+00D0 Lu 1 "LATIN CAPITAL LETTER ETH" )
@@ -531,8 +529,8 @@ ooRexx[sh]> .unicode~characters~pipe(.select {item~isUpper} | .take 50 | .take "
 See https://www.w3.org/TR/charmod-norm/
 Case folding is the process of making two texts which differ only in case identical for comparison purposes.
 */
-ooRexx[sh]> 
-ooRexx[sh]> ("sTrasse", "straße", "STRASSE")~each{item~text~casefold}==
+ooRexx[bash]> 
+ooRexx[bash]> ("sTrasse", "straße", "STRASSE")~each{item~text~casefold}==
 an Array (shape [3], 3 items)
  1 : T'strasse'
  2 : T'strasse'
@@ -546,22 +544,22 @@ See https://github.com/JuliaLang/julia/issues/7848
 Example:
 The name of the second largest city in Turkey is "Diyarbakır", which contains both the dotted and dotless letters i.
 */
-ooRexx[sh]> 
-ooRexx[sh]> "DİYARBAKIR"~text~casefold=     -- T'di̇yarbakir'   should be diyarbakır
+ooRexx[bash]> 
+ooRexx[bash]> "DİYARBAKIR"~text~casefold=     -- T'di̇yarbakir'   should be diyarbakır
 T'di̇yarbakir'
 
 ----------------------
 -- Unicode upper lower
 ----------------------
 
-ooRexx[sh]> smallSharpS = .unicode~character("LATIN SMALL LETTER SHARP S")  --  ( "ß"   U+00DF Ll 1 "LATIN SMALL LETTER SHARP S" )
-ooRexx[sh]> smallSharpS~toUpperSimple=                                      --  7838 (codepoint in decimal)
+ooRexx[bash]> smallSharpS = .unicode~character("LATIN SMALL LETTER SHARP S")  --  ( "ß"   U+00DF Ll 1 "LATIN SMALL LETTER SHARP S" )
+ooRexx[bash]> smallSharpS~toUpperSimple=                                      --  7838 (codepoint in decimal)
  7838
-ooRexx[sh]> smallSharpS~toUpperFull=                                        --  TODO: 83 83 (codepoints in decimal)
+ooRexx[bash]> smallSharpS~toUpperFull=                                        --  TODO: 83 83 (codepoints in decimal)
  7838
-ooRexx[sh]> .Unicode~character(smallSharpS~toUpperSimple)=                  --  ( "ẞ"   U+1E9E Lu 1 "LATIN CAPITAL LETTER SHARP S" )
+ooRexx[bash]> .Unicode~character(smallSharpS~toUpperSimple)=                  --  ( "ẞ"   U+1E9E Lu 1 "LATIN CAPITAL LETTER SHARP S" )
 ( "ẞ"   U+1E9E Lu 1 "LATIN CAPITAL LETTER SHARP S" )
-ooRexx[sh]> "ß"~text~upper=                                                 --  TODO: T'SS'
+ooRexx[bash]> "ß"~text~upper=                                                 --  TODO: T'SS'
 T'ẞ'
 
 /*
@@ -578,12 +576,11 @@ to uppercase to capital sharp s.
 
 /*
 Another example of wrong result for upper/lower
-TODO: plug ICU4X and see if the result is ok with Locale “Turkish (Turkey)” (tr_TR)
 */
 
-ooRexx[sh]> "Diyarbakır"~text~upper=                            -- T'DIYARBAKIR'   should be DİYARBAKIR
+ooRexx[bash]> "Diyarbakır"~text~upper=                            -- T'DIYARBAKIR'   should be DİYARBAKIR
 T'DIYARBAKIR'
-ooRexx[sh]> "DİYARBAKIR"~text~lower=                            -- T'diyarbakir'
+ooRexx[bash]> "DİYARBAKIR"~text~lower=                            -- T'diyarbakir'
 T'diyarbakir'
 
 
@@ -599,9 +596,9 @@ Takes a byte string as input (UTF-8 encoded), returns a new transformed byte str
 TODO: Add support for UTF-16, UTF-32
 */
 
-ooRexx[sh]> string = "\u{BEL}Le\u{IDEOGRAPHIC SPACE}\u{OGHAM SPACE MARK}\u{ZERO-WIDTH-SPACE}Père\t\u{HYPHEN}\u{SOFT-HYPHEN}\u{EN DASH}\u{EM DASH}Noël\x{EFB790}\r\n"
-ooRexx[sh]> text = string~text~unescape
-ooRexx[sh]> text~UnicodeCharacters==
+ooRexx[bash]> string = "\u{BEL}Le\u{IDEOGRAPHIC SPACE}\u{OGHAM SPACE MARK}\u{ZERO-WIDTH-SPACE}Père\t\u{HYPHEN}\u{SOFT-HYPHEN}\u{EN DASH}\u{EM DASH}Noël\x{EFB790}\r\n"
+ooRexx[bash]> text = string~text~unescape
+ooRexx[bash]> text~UnicodeCharacters==
 an Array (shape [22], 22 items)
  1  : ( ""    U+0007 Cc 0 "", "ALERT", "BEL" )
  2  : ( "L"   U+004C Lu 1 "LATIN CAPITAL LETTER L" )
@@ -653,15 +650,15 @@ Possible transformations:
  22 : ( ""    U+000A Cc 0 "", "LINE FEED" )                         <-- CR+LF replaceable by " " with STRIPCC:
 */
 
-ooRexx[sh]> text=                                                               -- T'[07]Le　 ​Père[09]‐­–—Noël﷐[0D0A]'
+ooRexx[bash]> text=                                                               -- T'[07]Le　 ​Père[09]‐­–—Noël﷐[0D0A]'
 T'[07]Le　 ​Père[09]‐­–—Noël﷐[0D0A]'
 
 -- Performs unicode case folding, to be able to do a case-insensitive string comparison.
-ooRexx[sh]> .Unicode~utf8proc_transform(text~string, casefold:)=                --  '[07]le　 ​père[09]‐­–—noël﷐[0D0A]'
+ooRexx[bash]> .Unicode~utf8proc_transform(text~string, casefold:)=                --  '[07]le　 ​père[09]‐­–—noël﷐[0D0A]'
 '[07]le　 ​père[09]‐­–—noël﷐[0D0A]'
 
 -- Strip "default ignorable characters" such as SOFT-HYPHEN or ZERO-WIDTH-SPACE
-ooRexx[sh]> .Unicode~utf8proc_transform(text~string, stripIgnorable:)=          --  '[07]Le　 Père[09]‐–—Noël﷐[0D0A]'
+ooRexx[bash]> .Unicode~utf8proc_transform(text~string, stripIgnorable:)=          --  '[07]Le　 Père[09]‐–—Noël﷐[0D0A]'
 '[07]Le　 Père[09]‐–—Noël﷐[0D0A]'
 
 -- Lumps certain characters together. See lump.md for details:
@@ -670,37 +667,37 @@ ooRexx[sh]> .Unicode~utf8proc_transform(text~string, stripIgnorable:)=          
 -- jlf: I was expecting to have only one space and one "-" but that's not the case
 -- Seems working as designed...
 -- All the concerned characters become the same character, but still remain distinct characters.
-ooRexx[sh]> .Unicode~utf8proc_transform(text~string, lump:)=                    --  '[07]Le  ​Père[09]-­--Noël﷐[0D0A]'
+ooRexx[bash]> .Unicode~utf8proc_transform(text~string, lump:)=                    --  '[07]Le  ​Père[09]-­--Noël﷐[0D0A]'
 '[07]Le  ​Père[09]-­--Noël﷐[0D0A]'
 
 -- NLF2LF: Convert LF, CRLF, CR and NEL into LF
-ooRexx[sh]> .Unicode~utf8proc_transform(text~string, NLF:1)=                    --  '[07]Le　 ​Père[09]‐­–—Noël﷐[0A]'
+ooRexx[bash]> .Unicode~utf8proc_transform(text~string, NLF:1)=                    --  '[07]Le　 ​Père[09]‐­–—Noël﷐[0A]'
 '[07]Le　 ​Père[09]‐­–—Noël﷐[0A]'
 
 -- NLF2LS: Convert LF, CRLF, CR and NEL into LS (U+2028 Zl 0 "LINE SEPARATOR")
-ooRexx[sh]> .Unicode~utf8proc_transform(text~string, NLF:2)=                    --  '[07]Le　 ​Père[09]‐­–—Noël﷐'
+ooRexx[bash]> .Unicode~utf8proc_transform(text~string, NLF:2)=                    --  '[07]Le　 ​Père[09]‐­–—Noël﷐'
 '[07]Le　 ​Père[09]‐­–—Noël﷐ '
 
 -- NLF2PS: convert LF, CRLF, CR and NEL into PS (U+2029 Zp 0 "PARAGRAPH SEPARATOR")
-ooRexx[sh]> .Unicode~utf8proc_transform(text~string, NLF:3)=                    --  '[07]Le　 ​Père[09]‐­–—Noël﷐ '
+ooRexx[bash]> .Unicode~utf8proc_transform(text~string, NLF:3)=                    --  '[07]Le　 ​Père[09]‐­–—Noël﷐ '
 '[07]Le　 ​Père[09]‐­–—Noël﷐ '
 
 -- Strips and/or converts control characters.
-ooRexx[sh]> .Unicode~utf8proc_transform(text~string, stripCC:)=                 --  'Le　 ​Père ‐­–—Noël﷐ '
+ooRexx[bash]> .Unicode~utf8proc_transform(text~string, stripCC:)=                 --  'Le　 ​Père ‐­–—Noël﷐ '
 'Le　 ​Père ‐­–—Noël﷐ '
 
 -- Strips all character markings.
 -- This includes non-spacing, spacing and enclosing (i.e. accents).
 -- This option works only with normalization.
-ooRexx[sh]> .Unicode~utf8proc_transform(text~string, stripMark:, normalization:1)=  --  '[07]Le　 ​Pere[09]‐­–—Noel﷐[0D0A]'
+ooRexx[bash]> .Unicode~utf8proc_transform(text~string, stripMark:, normalization:1)=  --  '[07]Le　 ​Pere[09]‐­–—Noel﷐[0D0A]'
 '[07]Le　 ​Pere[09]‐­–—Noel﷐[0D0A]'
 
 -- Strips unassigned codepoints.
-ooRexx[sh]> .Unicode~utf8proc_transform(text~string, stripNA:)=                 --  '[07]Le　 ​Père[09]‐­–—Noël[0D0A]'
+ooRexx[bash]> .Unicode~utf8proc_transform(text~string, stripNA:)=                 --  '[07]Le　 ​Père[09]‐­–—Noël[0D0A]'
 '[07]Le　 ​Père[09]‐­–—Noël[0D0A]'
 
 -- Application of several options
-ooRexx[sh]> .Unicode~utf8proc_transform(text~string, casefold:, lump:, normalization:1, stripIgnorable:, stripCC:, stripMark:, stripNA:)= --  'le  pere ---noel '
+ooRexx[bash]> .Unicode~utf8proc_transform(text~string, casefold:, lump:, normalization:1, stripIgnorable:, stripCC:, stripMark:, stripNA:)= --  'le  pere ---noel '
 'le  pere ---noel '
 
 /*
@@ -754,28 +751,28 @@ The methods NFxx sets the corresponding indicator isNFxx
 - on the result text : 1
 */
 
-ooRexx[sh]> "only ASCII"~text~isNFC=                        -- 1
+ooRexx[bash]> "only ASCII"~text~isNFC=                        -- 1
  1
-ooRexx[sh]> "only ASCII"~text~isNFD=                        -- 1
+ooRexx[bash]> "only ASCII"~text~isNFD=                        -- 1
  1
-ooRexx[sh]> "only ASCII"~text~isNFKC=                       -- 1
+ooRexx[bash]> "only ASCII"~text~isNFKC=                       -- 1
  1
-ooRexx[sh]> "only ASCII"~text~isNFKD=                       -- 1
+ooRexx[bash]> "only ASCII"~text~isNFKD=                       -- 1
  1
-ooRexx[sh]> text = "Noël"~text
-ooRexx[sh]> text~isNFC=                                     -- 1
+ooRexx[bash]> text = "Noël"~text
+ooRexx[bash]> text~isNFC=                                     -- 1
  1
-ooRexx[sh]> text~isNFD=                                     -- -1
+ooRexx[bash]> text~isNFD=                                     -- -1
 -1
-ooRexx[sh]> textNFC = text~NFC
-ooRexx[sh]> textNFD = text~NFD
-ooRexx[sh]> text~isNFC=                                     -- 1
+ooRexx[bash]> textNFC = text~NFC
+ooRexx[bash]> textNFD = text~NFD
+ooRexx[bash]> text~isNFC=                                     -- 1
  1
-ooRexx[sh]> text~isNFD=                                     -- 0
+ooRexx[bash]> text~isNFD=                                     -- 0
  0
-ooRexx[sh]> textNFC~isNFC=                                  -- 1
+ooRexx[bash]> textNFC~isNFC=                                  -- 1
  1
-ooRexx[sh]> textNFD~isNFD=                                  -- 1
+ooRexx[bash]> textNFD~isNFD=                                  -- 1
  1
 
 /*
@@ -785,12 +782,12 @@ The normalized text can be memorized on the original text:
 From now, the returned NFD is always the memorized text.
 */
 
-ooRexx[sh]> text = xrange("0", "FF"x)~text("cp1252")~utf8
-ooRexx[sh]> text=
+ooRexx[bash]> text = xrange("0", "FF"x)~text("cp1252")~utf8
+ooRexx[bash]> text=
 T'0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ'
-ooRexx[sh]> text~isNFD=
+ooRexx[bash]> text~isNFD=
 -1
-ooRexx[sh]> textNFD = text~NFD(memorize:)
+ooRexx[bash]> textNFD = text~NFD(memorize:)
 text~nfd~"==":.object( textNFD)=                -- 1 (this is really the same object)
  1
 
@@ -805,7 +802,7 @@ Some remarks about the string used in the next demo:
   The ligature disappears in NFK[CD] but not in NF[CD]
 */
 
-ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~UnicodeCharacters==
+ooRexx[bash]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~UnicodeCharacters==
 an Array (shape [22], 22 items)
  1  : ( "ä"   U+00E4 Ll 1 "LATIN SMALL LETTER A WITH DIAERESIS" )
  2  : ( "ö"   U+00F6 Ll 1 "LATIN SMALL LETTER O WITH DIAERESIS" )
@@ -829,9 +826,9 @@ an Array (shape [22], 22 items)
  20 : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
  21 : ( "ﬄ"   U+FB04 Ll 1 "LATIN SMALL LIGATURE FFL" )
  22 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
-ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~description=      -- 'UTF-8 not-ASCII (18 characters, 22 codepoints, 34 bytes, 0 error)'
+ooRexx[bash]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~description=      -- 'UTF-8 not-ASCII (18 characters, 22 codepoints, 34 bytes, 0 error)'
 'UTF-8 not-ASCII (18 characters, 22 codepoints, 34 bytes, 0 error)'
-ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~upper=            -- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE
+ooRexx[bash]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~upper=            -- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE
 T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
 
 /*
@@ -841,7 +838,7 @@ Canonical Decomposition
 Characters are decomposed by canonical equivalence, and multiple combining characters are arranged in a specific order.
 */
 
-ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~UnicodeCharacters==
+ooRexx[bash]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~UnicodeCharacters==
 an Array (shape [26], 26 items)
  1  : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
  2  : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
@@ -869,9 +866,9 @@ an Array (shape [26], 26 items)
  24 : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
  25 : ( "ﬄ"   U+FB04 Ll 1 "LATIN SMALL LIGATURE FFL" )
  26 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
-ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~description=  -- 'UTF-8 not-ASCII (18 characters, 26 codepoints, 39 bytes, 0 error)'
+ooRexx[bash]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~description=  -- 'UTF-8 not-ASCII (18 characters, 26 codepoints, 39 bytes, 0 error)'
 'UTF-8 not-ASCII (18 characters, 26 codepoints, 39 bytes, 0 error)'
-ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~upper=        -- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
+ooRexx[bash]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfd~upper=        -- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
 T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
 
 /*
@@ -881,7 +878,7 @@ Canonical Decomposition, followed by Canonical Composition
 Characters are decomposed and then recomposed by canonical equivalence.
 */
 
-ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~UnicodeCharacters==
+ooRexx[bash]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~UnicodeCharacters==
 an Array (shape [19], 19 items)
  1  : ( "ä"   U+00E4 Ll 1 "LATIN SMALL LETTER A WITH DIAERESIS" )
  2  : ( "ö"   U+00F6 Ll 1 "LATIN SMALL LETTER O WITH DIAERESIS" )
@@ -902,9 +899,9 @@ an Array (shape [19], 19 items)
  17 : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
  18 : ( "ﬄ"   U+FB04 Ll 1 "LATIN SMALL LIGATURE FFL" )
  19 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
-ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~description=  -- 'UTF-8 not-ASCII (18 characters, 19 codepoints, 31 bytes, 0 error)'
+ooRexx[bash]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~description=  -- 'UTF-8 not-ASCII (18 characters, 19 codepoints, 31 bytes, 0 error)'
 'UTF-8 not-ASCII (18 characters, 19 codepoints, 31 bytes, 0 error)'
-ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~upper=        -- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
+ooRexx[bash]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfc~upper=        -- T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
 T'ÄÖÜ ÄÖÜ X̂ ϔ ﷺ BAﬄE'
 
 /*
@@ -914,7 +911,7 @@ Compatibility Decomposition (K is used to stand for compatibility to avoid confu
 Characters are decomposed by compatibility, and multiple combining characters are arranged in a specific order.
 */
 
-ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~UnicodeCharacters==
+ooRexx[bash]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~UnicodeCharacters==
 an Array (shape [45], 45 items)
  1  : ( "a"   U+0061 Ll 1 "LATIN SMALL LETTER A" )
  2  : ( "̈"    U+0308 Mn 0 "COMBINING DIAERESIS" )
@@ -961,9 +958,9 @@ an Array (shape [45], 45 items)
  43 : ( "f"   U+0066 Ll 1 "LATIN SMALL LETTER F" )
  44 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
  45 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
-ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~description= -- 'UTF-8 not-ASCII (37 characters, 45 codepoints, 69 bytes, 0 error)'
+ooRexx[bash]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~description= -- 'UTF-8 not-ASCII (37 characters, 45 codepoints, 69 bytes, 0 error)'
 'UTF-8 not-ASCII (37 characters, 45 codepoints, 69 bytes, 0 error)'
-ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~upper=       -- T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE
+ooRexx[bash]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkd~upper=       -- T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE
 T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE'
 
 /*
@@ -973,7 +970,7 @@ Compatibility Decomposition, followed by Canonical Composition
 Characters are decomposed by compatibility, then recomposed by canonical equivalence.
 */
 
-ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~UnicodeCharacters==
+ooRexx[bash]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~UnicodeCharacters==
 an Array (shape [38], 38 items)
  1  : ( "ä"   U+00E4 Ll 1 "LATIN SMALL LETTER A WITH DIAERESIS" )
  2  : ( "ö"   U+00F6 Ll 1 "LATIN SMALL LETTER O WITH DIAERESIS" )
@@ -1013,19 +1010,19 @@ an Array (shape [38], 38 items)
  36 : ( "f"   U+0066 Ll 1 "LATIN SMALL LETTER F" )
  37 : ( "l"   U+006C Ll 1 "LATIN SMALL LETTER L" )
  38 : ( "e"   U+0065 Ll 1 "LATIN SMALL LETTER E" )
-ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~description= -- 'UTF-8 not-ASCII (37 characters, 38 codepoints, 61 bytes, 0 error)'
+ooRexx[bash]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~description= -- 'UTF-8 not-ASCII (37 characters, 38 codepoints, 61 bytes, 0 error)'
 'UTF-8 not-ASCII (37 characters, 38 codepoints, 61 bytes, 0 error)'
-ooRexx[sh]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~upper=       -- T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE'
+ooRexx[bash]> "äöü äöü x̂ ϔ ﷺ baﬄe"~text~nfkc~upper=       -- T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE'
 T'ÄÖÜ ÄÖÜ X̂ Ϋ صلى الله عليه وسلم BAFFLE'
 
 -- The normalization forms are implemented only for UTF-8 and WTF-8.
-ooRexx[sh]> "D800 DC01"x~text("utf16")~nfd~UnicodeCharacters==    -- Method TRANSFORM is ABSTRACT and cannot be directly invoked.
+ooRexx[bash]> "D800 DC01"x~text("utf16")~nfd~UnicodeCharacters==    -- Method TRANSFORM is ABSTRACT and cannot be directly invoked.
 Method TRANSFORM is ABSTRACT and cannot be directly invoked.
 Error code= 93.965
-ooRexx[sh]> "D800 DC01"x~text("utf16")~utf8~nfd~UnicodeCharacters==
+ooRexx[bash]> "D800 DC01"x~text("utf16")~utf8~nfd~UnicodeCharacters==
 an Array (shape [1], 1 items)
  1 : ( "𐀁"   U+10001 Lo 1 "LINEAR B SYLLABLE B038 E" )
-ooRexx[sh]> "\uD800\uDC01"~text("wtf8")~unescape~nfd~UnicodeCharacters==
+ooRexx[bash]> "\uD800\uDC01"~text("wtf8")~unescape~nfd~UnicodeCharacters==
 an Array (shape [1], 1 items)
  1 : ( "𐀁"   U+10001 Lo 1 "LINEAR B SYLLABLE B038 E" )
 

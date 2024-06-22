@@ -31,10 +31,10 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 22 Apr 2024
-</span><span style="font-weight:bold;color:green;">Input queue name: S13113Q600003f42b10
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 22 Jun 2024
+</span><span style="font-weight:bold;color:green;">Input queue name: Saf22Q600001c5ef20
 </span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.1.0 
 </span>............................................<span style="font-weight:bold;color:green;">
 </span><span style="font-weight:bold;color:green;">Total loaded character names: 149813
@@ -71,13 +71,13 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeChar
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
 
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~description=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~description=</span>
 'UTF-8 not-ASCII (6 characters, 12 codepoints, 34 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~c2u=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~c2u=</span>
 'U+006E U+006F U+00EB U+006C U+1F469 U+200D U+1F468 U+200D U+1F469 U+200D U+1F467 U+1F385'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~c2x=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~c2x=</span>
 '6E 6F C3AB 6C F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7 F09F8E85'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~c2g=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~c2g=</span>
 '6E 6F C3AB 6C F09F91A9E2808DF09F91A8E2808DF09F91A9E2808DF09F91A7 F09F8E85'
 
 
@@ -103,98 +103,98 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍�
 </span><span style="font-weight:bold;color:blue;">are supported.
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">textNFC = &quot;Noël&quot;~NFC</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">textNFC~UnicodeCharacters==</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">textNFC = &quot;Noël&quot;~NFC</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">textNFC~UnicodeCharacters==</span>
 an Array (shape [4], 4 items)
  1 : ( &quot;N&quot;   U+004E Lu 1 &quot;LATIN CAPITAL LETTER N&quot; )
  2 : ( &quot;o&quot;   U+006F Ll 1 &quot;LATIN SMALL LETTER O&quot; )
  3 : ( &quot;ë&quot;   U+00EB Ll 1 &quot;LATIN SMALL LETTER E WITH DIAERESIS&quot; )
  4 : ( &quot;l&quot;   U+006C Ll 1 &quot;LATIN SMALL LETTER L&quot; )
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">textNFD=&quot;Noël&quot;~NFD</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">textNFD~UnicodeCharacters==</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">textNFD=&quot;Noël&quot;~NFD</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">textNFD~UnicodeCharacters==</span>
 an Array (shape [5], 5 items)
  1 : ( &quot;N&quot;   U+004E Lu 1 &quot;LATIN CAPITAL LETTER N&quot; )
  2 : ( &quot;o&quot;   U+006F Ll 1 &quot;LATIN SMALL LETTER O&quot; )
  3 : ( &quot;e&quot;   U+0065 Ll 1 &quot;LATIN SMALL LETTER E&quot; )
  4 : ( &quot;̈&quot;    U+0308 Mn 0 &quot;COMBINING DIAERESIS&quot; )
  5 : ( &quot;l&quot;   U+006C Ll 1 &quot;LATIN SMALL LETTER L&quot; )
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(textNFC == textNFD)=                                               </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">(textNFC == textNFD)=                                               </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(textNFC = textNFD)=                                                </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">(textNFC = textNFD)=                                                </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(&quot; &quot;textNFC == textNFD&quot; &quot;)=                                         </span><span style="font-weight:bold;color:blue;">-- 0 because strict</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">(&quot; &quot;textNFC == textNFD&quot; &quot;)=                                         </span><span style="font-weight:bold;color:blue;">-- 0 because strict</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(&quot; &quot;textNFC = textNFD&quot; &quot;)=                                          </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">(&quot; &quot;textNFC = textNFD&quot; &quot;)=                                          </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(&quot; &quot;textNFC = (textNFD&quot;\u{NBSP}&quot;)~unescape)=                        </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">(&quot; &quot;textNFC = (textNFD&quot;\u{NBSP}&quot;)~unescape)=                        </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(&quot; &quot;textNFC = (textNFD&quot;\u{ZWSP}&quot;)~unescape)=                        </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">(&quot; &quot;textNFC = (textNFD&quot;\u{ZWSP}&quot;)~unescape)=                        </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">(&quot;-&quot;textNFC = (&quot;\u{OBLIQUE HYPHEN}&quot;textNFD&quot;\u{ZWSP}&quot;)~unescape)=    </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">(&quot;-&quot;textNFC = (&quot;\u{OBLIQUE HYPHEN}&quot;textNFD&quot;\u{ZWSP}&quot;)~unescape)=    </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
 
 
 <span style="font-weight:bold;color:blue;">-- []
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;[3]=; result~description=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;[3]=; result~description=</span>
 T'ë'
 'UTF-8 not-ASCII (1 character, 1 codepoint, 2 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;[3,3]=; result~description=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;[3,3]=; result~description=</span>
 T'ël👩‍👨‍👩‍👧'
 'UTF-8 not-ASCII (3 characters, 9 codepoints, 28 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;[3,6]=; result~description=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;[3,6]=; result~description=</span>
 T'ël👩‍👨‍👩‍👧🎅'
 'UTF-8 not-ASCII (4 characters, 10 codepoints, 32 bytes, 0 error)'
 
 
 <span style="font-weight:bold;color:blue;">-- ?
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;0&quot;~?(&quot;true&quot;, &quot;false&quot;)=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;0&quot;~?(&quot;true&quot;, &quot;false&quot;)=</span>
 'false'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;1&quot;~?(&quot;true&quot;, &quot;false&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;1&quot;~?(&quot;true&quot;, &quot;false&quot;)=</span>
 'true'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;not a boolean value&quot;~?(&quot;true&quot;, &quot;false&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;not a boolean value&quot;~?(&quot;true&quot;, &quot;false&quot;)=</span>
 <span style="font-weight:bold;color:red;">Logical value must be exactly &quot;0&quot; or &quot;1&quot;; found &quot;not a boolean value&quot;.
 </span><span style="font-weight:bold;color:red;">Error code= 34.901
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;not a boolean value 🤔&quot;~?(&quot;true&quot;, &quot;false&quot;)=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;not a boolean value 🤔&quot;~?(&quot;true&quot;, &quot;false&quot;)=</span>
 <span style="font-weight:bold;color:red;">UTF-8 not-ASCII 'not a b...' is not compatible with a Rexx logical value.
 </span><span style="font-weight:bold;color:red;">Error code= 23.900
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;0&quot;~?(&quot;true 🤔&quot;, &quot;false 🤔&quot;)=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;0&quot;~?(&quot;true 🤔&quot;, &quot;false 🤔&quot;)=</span>
 T'false 🤔'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;1&quot;~?(&quot;true 🤔&quot;, &quot;false 🤔&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;1&quot;~?(&quot;true 🤔&quot;, &quot;false 🤔&quot;)=</span>
 T'true 🤔'
 
 
 <span style="font-weight:bold;color:blue;">-- append
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~append(&quot; &quot;)~append(&quot;john&quot;)=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~append(&quot; &quot;)~append(&quot;john&quot;)=</span>
 'hello john'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;\uD83D&quot;~text(&quot;wtf8&quot;)~append(&quot;\uDE3F&quot;)~unescape=    </span><span style="font-weight:bold;color:blue;">-- High surrogate followed by low surrogate is valid WTF-8</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;\uD83D&quot;~text(&quot;wtf8&quot;)~append(&quot;\uDE3F&quot;)~unescape=    </span><span style="font-weight:bold;color:blue;">-- High surrogate followed by low surrogate is valid WTF-8</span>
 T'😿'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;\uD83D&quot;~text(&quot;utf8&quot;)~append(&quot;\uDE3F&quot;)~unescape=    </span><span style="font-weight:bold;color:blue;">-- High surrogate followed by low surrogate is INVALID UTF-8</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;\uD83D&quot;~text(&quot;utf8&quot;)~append(&quot;\uDE3F&quot;)~unescape=    </span><span style="font-weight:bold;color:blue;">-- High surrogate followed by low surrogate is INVALID UTF-8</span>
 T'������'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:blue;">-- Something to rework: the String BIF/BIM lose the encoding
+ooRexx[bash]&gt; <span style="font-weight:bold;color:blue;">-- Something to rework: the String BIF/BIM lose the encoding
 </span><span style="font-weight:bold;color:blue;">-- Must use ~text to have the right encoding after concatenation of WTF-8 with UTF-8
 </span><span style="font-weight:bold;color:blue;">-- See diary on 2022 August 03: The ~unescape will manage correctly this concatenation when WTF-8
 </span><span style="font-weight:bold;color:blue;">-- Using ~~setEncoding(&quot;wtf8&quot;) instead of ~text(&quot;wtf8&quot;) doesn't work because the encoding is lost:
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;\uD83D&quot;~text(&quot;wtf8&quot;)~append(&quot;\uDE3F&quot;)=; result~description=            </span><span style="font-weight:bold;color:blue;">-- T'\uD83D\uDE3F'  'WTF-8 ASCII (12 characters, 12 codepoints, 12 bytes, 0 error)'</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;\uD83D&quot;~text(&quot;wtf8&quot;)~append(&quot;\uDE3F&quot;)=; result~description=            </span><span style="font-weight:bold;color:blue;">-- T'\uD83D\uDE3F'  'WTF-8 ASCII (12 characters, 12 codepoints, 12 bytes, 0 error)'</span>
 T'\uD83D\uDE3F'
 'WTF-8 ASCII (12 characters, 12 codepoints, 12 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;\uD83D&quot;~text(&quot;wtf8&quot;)~append(&quot;\uDE3F&quot;)~unescape~c2x=                    </span><span style="font-weight:bold;color:blue;">-- 'F09F98BF'   good!</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;\uD83D&quot;~text(&quot;wtf8&quot;)~append(&quot;\uDE3F&quot;)~unescape~c2x=                    </span><span style="font-weight:bold;color:blue;">-- 'F09F98BF'   good!</span>
 'F09F98BF'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;\uD83D&quot;~~setEncoding(&quot;wtf8&quot;)~append(&quot;\uDE3F&quot;)=; result~description=    </span><span style="font-weight:bold;color:blue;">-- '\uD83D\uDE3F'   'UTF-8 ASCII by default (12 bytes)'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;\uD83D&quot;~~setEncoding(&quot;wtf8&quot;)~append(&quot;\uDE3F&quot;)=; result~description=    </span><span style="font-weight:bold;color:blue;">-- '\uD83D\uDE3F'   'UTF-8 ASCII by default (12 bytes)'</span>
 '\uD83D\uDE3F'
 'UTF-8 ASCII by default (12 bytes)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;\uD83D&quot;~~setEncoding(&quot;wtf8&quot;)~append(&quot;\uDE3F&quot;)~unescape~c2x=            </span><span style="font-weight:bold;color:blue;">-- 'ED A0 BD ED B8 BF'  not good!</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;\uD83D&quot;~~setEncoding(&quot;wtf8&quot;)~append(&quot;\uDE3F&quot;)~unescape~c2x=            </span><span style="font-weight:bold;color:blue;">-- 'ED A0 BD ED B8 BF'  not good!</span>
 'ED A0 BD ED B8 BF'
 
 
 <span style="font-weight:bold;color:blue;">-- c2d
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;e&quot;~c2d=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;e&quot;~c2d=</span>
  101
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~c2d=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~c2d=</span>
  50089
 
 
 <span style="font-weight:bold;color:blue;">-- c2x
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~c2x=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~c2x=</span>
 '6E 6F C3AB 6C F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7 F09F8E85'
 
 
@@ -213,133 +213,133 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;é&quot;~c2d=<
 
 <span style="font-weight:bold;color:blue;">-- caselessCompare
 </span><span style="font-weight:bold;color:blue;">-- casefold 2 characters: &quot;ß&quot; becomes &quot;ss&quot;
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstraße im Freiland&quot;~caselessCompare(&quot;Bundesstraße&quot;)=        </span><span style="font-weight:bold;color:blue;">-- 14</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstraße im Freiland&quot;~caselessCompare(&quot;Bundesstraße&quot;)=        </span><span style="font-weight:bold;color:blue;">-- 14</span>
  14
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstraße im Freiland&quot;~caselessCompare(&quot;Bundesstraße&quot;, &quot;_&quot;)=   </span><span style="font-weight:bold;color:blue;">-- 13</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstraße im Freiland&quot;~caselessCompare(&quot;Bundesstraße&quot;, &quot;_&quot;)=   </span><span style="font-weight:bold;color:blue;">-- 13</span>
  13
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstraße im Freiland&quot;~caselessCompare(&quot;bundesstrasse&quot;)=       </span><span style="font-weight:bold;color:blue;">-- 14</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstraße im Freiland&quot;~caselessCompare(&quot;bundesstrasse&quot;)=       </span><span style="font-weight:bold;color:blue;">-- 14</span>
  14
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstrasse im Freiland&quot;~caselessCompare(&quot;bundesstraße&quot;)=       </span><span style="font-weight:bold;color:blue;">-- 15</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstrasse im Freiland&quot;~caselessCompare(&quot;bundesstraße&quot;)=       </span><span style="font-weight:bold;color:blue;">-- 15</span>
  15
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;straßssßßssse&quot;~compare(&quot;stra&quot;, &quot;ß&quot;)=                              </span><span style="font-weight:bold;color:blue;">--  6</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;straßssßßssse&quot;~compare(&quot;stra&quot;, &quot;ß&quot;)=                              </span><span style="font-weight:bold;color:blue;">--  6</span>
  6
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;straßssßßssse&quot;~caselessCompare(&quot;stra&quot;, &quot;ß&quot;)=                      </span><span style="font-weight:bold;color:blue;">-- 12 (not 13 because the last 's' matches only half of the casefolded pad &quot;ß&quot; which is &quot;ss&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;straßssßßssse&quot;~caselessCompare(&quot;stra&quot;, &quot;ß&quot;)=                      </span><span style="font-weight:bold;color:blue;">-- 12 (not 13 because the last 's' matches only half of the casefolded pad &quot;ß&quot; which is &quot;ss&quot;)</span>
  12
 
 
 <span style="font-weight:bold;color:blue;">-- caselessCompareTo
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;pere noel&quot;~caselessCompareTo(&quot;Père Noël&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- -1 (lesser)</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;pere noel&quot;~caselessCompareTo(&quot;Père Noël&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- -1 (lesser)</span>
 -1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;pere noel&quot;~caselessCompareTo(&quot;Père Noël&quot;, stripMark:.true)=   </span><span style="font-weight:bold;color:blue;">--  0 (equal because the accents are ignored)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;pere noel&quot;~caselessCompareTo(&quot;Père Noël&quot;, stripMark:.true)=   </span><span style="font-weight:bold;color:blue;">--  0 (equal because the accents are ignored)</span>
  0
 
 
 <span style="font-weight:bold;color:blue;">-- caselessEndsWith
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~caselessEndsWith(&quot;&quot;)=                  </span><span style="font-weight:bold;color:blue;">-- false</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~caselessEndsWith(&quot;&quot;)=                  </span><span style="font-weight:bold;color:blue;">-- false</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~caselessEndsWith(&quot;O&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- true</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~caselessEndsWith(&quot;O&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- true</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~caselessEndsWith(&quot;Ô&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- false</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~caselessEndsWith(&quot;Ô&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- false</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~caselessEndsWith(&quot;Ô&quot;, stripMark:)=     </span><span style="font-weight:bold;color:blue;">-- true</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~caselessEndsWith(&quot;Ô&quot;, stripMark:)=     </span><span style="font-weight:bold;color:blue;">-- true</span>
  1
 <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~caselessEndsWith(&quot;🎅&quot;)=                </span><span style="font-weight:bold;color:blue;">-- true</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~caselessEndsWith(&quot;👧🎅&quot;)=              </span><span style="font-weight:bold;color:blue;">-- false (not aligned with a grapheme)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~caselessEndsWith(&quot;👧🎅&quot;)=              </span><span style="font-weight:bold;color:blue;">-- false (not aligned with a grapheme)</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~caselessEndsWith(&quot;‍👧🎅&quot;)=             </span><span style="font-weight:bold;color:blue;">-- false (not aligned with a grapheme)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~caselessEndsWith(&quot;‍👧🎅&quot;)=             </span><span style="font-weight:bold;color:blue;">-- false (not aligned with a grapheme)</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~caselessEndsWith(&quot;👩‍👧🎅&quot;)=           </span><span style="font-weight:bold;color:blue;">-- false (not aligned with a grapheme)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~caselessEndsWith(&quot;👩‍👧🎅&quot;)=           </span><span style="font-weight:bold;color:blue;">-- false (not aligned with a grapheme)</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~caselessEndsWith(&quot;ël👩‍👨‍👩‍👧🎅&quot;)=   </span><span style="font-weight:bold;color:blue;">-- true</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~caselessEndsWith(&quot;ël👩‍👨‍👩‍👧🎅&quot;)=   </span><span style="font-weight:bold;color:blue;">-- true</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~caselessEndsWith(&quot;ËL👩‍👨‍👩‍👧🎅&quot;)=   </span><span style="font-weight:bold;color:blue;">-- true</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~caselessEndsWith(&quot;ËL👩‍👨‍👩‍👧🎅&quot;)=   </span><span style="font-weight:bold;color:blue;">-- true</span>
  1
 
 
 <span style="font-weight:bold;color:blue;">-- caselessEquals
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;ŒUF&quot;~caselessEquals(&quot;œuf&quot;)=           </span><span style="font-weight:bold;color:blue;">-- 1</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;ŒUF&quot;~caselessEquals(&quot;œuf&quot;)=           </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;œuf&quot;~caselessEquals(&quot;ŒUF&quot;)=           </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;œuf&quot;~caselessEquals(&quot;ŒUF&quot;)=           </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Straße&quot;~caselessEquals(&quot;strasse&quot;)=    </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Straße&quot;~caselessEquals(&quot;strasse&quot;)=    </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;strasse&quot;~caselessEquals(&quot;Straße&quot;)=    </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;strasse&quot;~caselessEquals(&quot;Straße&quot;)=    </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
 
 <span style="font-weight:bold;color:blue;">-- caselessEquals (cont.) strict versus non-strict
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1 = &quot;LE\u{IDEOGRAPHIC SPACE}PÈ\u{ZERO-WIDTH-SPACE}RE\u{HYPHEN}NOËL&quot;~unescape</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string2 = &quot;Le\u{OGHAM SPACE MARK}Père\u{EN DASH}No\u{ZERO-WIDTH-SPACE}ël&quot;~unescape</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1=                                                </span><span style="font-weight:bold;color:blue;">-- T'LE　PÈ​RE‐NOËL</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">string1 = &quot;LE\u{IDEOGRAPHIC SPACE}PÈ\u{ZERO-WIDTH-SPACE}RE\u{HYPHEN}NOËL&quot;~unescape</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">string2 = &quot;Le\u{OGHAM SPACE MARK}Père\u{EN DASH}No\u{ZERO-WIDTH-SPACE}ël&quot;~unescape</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">string1=                                                </span><span style="font-weight:bold;color:blue;">-- T'LE　PÈ​RE‐NOËL</span>
 T'LE　PÈ​RE‐NOËL'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string2=                                                </span><span style="font-weight:bold;color:blue;">-- T'Le Père–No​ël'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">string2=                                                </span><span style="font-weight:bold;color:blue;">-- T'Le Père–No​ël'</span>
 T'Le Père–No​ël'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~c2x=                                            </span><span style="font-weight:bold;color:blue;">-- '4C 45 E38080 50 C388 E2808B 52 45 E28090 4E 4F C38B 4C'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">string1~c2x=                                            </span><span style="font-weight:bold;color:blue;">-- '4C 45 E38080 50 C388 E2808B 52 45 E28090 4E 4F C38B 4C'</span>
 '4C 45 E38080 50 C388 E2808B 52 45 E28090 4E 4F C38B 4C'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string2~c2x=                                            </span><span style="font-weight:bold;color:blue;">-- '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">string2~c2x=                                            </span><span style="font-weight:bold;color:blue;">-- '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'</span>
 '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~caselessEquals(string2)=                        </span><span style="font-weight:bold;color:blue;">-- false (strict mode by default)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">string1~caselessEquals(string2)=                        </span><span style="font-weight:bold;color:blue;">-- false (strict mode by default)</span>
  0
 
 <span style="font-weight:bold;color:blue;">-- The non-strict mode applies these transformations:
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~nfkd(casefold:, lump:, stripIgnorable:)~c2x=    </span><span style="font-weight:bold;color:blue;">-- '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">string1~nfkd(casefold:, lump:, stripIgnorable:)~c2x=    </span><span style="font-weight:bold;color:blue;">-- '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'</span>
 '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string2~nfkd(casefold:, lump:, stripIgnorable:)~c2x=    </span><span style="font-weight:bold;color:blue;">-- '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">string2~nfkd(casefold:, lump:, stripIgnorable:)~c2x=    </span><span style="font-weight:bold;color:blue;">-- '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'</span>
 '6C 65 20 70 65 CC80 72 65 2D 6E 6F 65 CC88 6C'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~caselessEquals(string2, strict:.false)=         </span><span style="font-weight:bold;color:blue;">-- true (non-strict mode)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">string1~caselessEquals(string2, strict:.false)=         </span><span style="font-weight:bold;color:blue;">-- true (non-strict mode)</span>
  1
 
 
 <span style="font-weight:bold;color:blue;">-- caselessMatch
 </span><span style="font-weight:bold;color:blue;">-- &quot;Bundesschnellstraße&quot;                                    -- at 14: &quot;s&quot;, at 18:&quot;ß&quot;
 </span><span style="font-weight:bold;color:blue;">--  1234567890123456789
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstraße im Freiland&quot;~caselessMatch(14, &quot;im&quot;)=    </span><span style="font-weight:bold;color:blue;">-- .true</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstraße im Freiland&quot;~caselessMatch(14, &quot;im&quot;)=    </span><span style="font-weight:bold;color:blue;">-- .true</span>
  1
 
 
 <span style="font-weight:bold;color:blue;">-- caselessMatchChar
 </span><span style="font-weight:bold;color:blue;">-- &quot;Bundesschnellstraße&quot;                               -- at 14: &quot;s&quot;, at 18:&quot;ß&quot;
 </span><span style="font-weight:bold;color:blue;">--  1234567890123456789
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~caselessMatchChar(18, &quot;s&quot;)=      </span><span style="font-weight:bold;color:blue;">-- 0    &quot;ß&quot; becomes &quot;ss&quot; which is 2 characters. &quot;s&quot; doesn't match &quot;ss&quot;.</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~caselessMatchChar(18, &quot;s&quot;)=      </span><span style="font-weight:bold;color:blue;">-- 0    &quot;ß&quot; becomes &quot;ss&quot; which is 2 characters. &quot;s&quot; doesn't match &quot;ss&quot;.</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~caselessMatchChar(19, &quot;s&quot;)=      </span><span style="font-weight:bold;color:blue;">-- 0    &quot;ß&quot; becomes &quot;ss&quot; which is 2 characters. The character at 19 is &quot;e&quot;, not the second &quot;s&quot;</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~caselessMatchChar(19, &quot;s&quot;)=      </span><span style="font-weight:bold;color:blue;">-- 0    &quot;ß&quot; becomes &quot;ss&quot; which is 2 characters. The character at 19 is &quot;e&quot;, not the second &quot;s&quot;</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~caselessMatchChar(19, &quot;e&quot;)=      </span><span style="font-weight:bold;color:blue;">-- 1    &quot;ß&quot; becomes &quot;ss&quot; which is 2 characters. The character at 19 is &quot;e&quot;, not the second &quot;s&quot;</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~caselessMatchChar(19, &quot;e&quot;)=      </span><span style="font-weight:bold;color:blue;">-- 1    &quot;ß&quot; becomes &quot;ss&quot; which is 2 characters. The character at 19 is &quot;e&quot;, not the second &quot;s&quot;</span>
  1
 
 <span style="font-weight:bold;color:blue;">-- caselessMatchChar (cont.)
 </span><span style="font-weight:bold;color:blue;">-- The ligature disappears when casefolded
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~casefold=                                        </span><span style="font-weight:bold;color:blue;">-- T'baffle'</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~casefold=                                        </span><span style="font-weight:bold;color:blue;">-- T'baffle'</span>
 T'baffle'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~caselessMatchChar(3, &quot;ﬄ&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- 0   The 3rd character &quot;F&quot; casefolded &quot;f&quot; doesn't match &quot;&quot;ﬄ&quot;&quot; casefolded &quot;ffl&quot;</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~caselessMatchChar(3, &quot;ﬄ&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- 0   The 3rd character &quot;F&quot; casefolded &quot;f&quot; doesn't match &quot;&quot;ﬄ&quot;&quot; casefolded &quot;ffl&quot;</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~caselessMatchChar(5, &quot;ﬄ&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- 0   The 5th character &quot;L&quot; casefolded &quot;l&quot; doesn't match &quot;&quot;ﬄ&quot;&quot; casefolded &quot;ffl&quot;</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~caselessMatchChar(5, &quot;ﬄ&quot;)=                     </span><span style="font-weight:bold;color:blue;">-- 0   The 5th character &quot;L&quot; casefolded &quot;l&quot; doesn't match &quot;&quot;ﬄ&quot;&quot; casefolded &quot;ffl&quot;</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~caselessMatchChar(5, &quot;L&quot;)=                      </span><span style="font-weight:bold;color:blue;">-- 1   There is a match on &quot;l&quot; at 5</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;BAFFLE&quot;~caselessMatchChar(5, &quot;L&quot;)=                      </span><span style="font-weight:bold;color:blue;">-- 1   There is a match on &quot;l&quot; at 5</span>
  1
 
 <span style="font-weight:bold;color:blue;">-- caselessMatchChar (cont.)
 </span><span style="font-weight:bold;color:blue;">-- Some ligatures are not decomposed by NFKC.
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;ŒUF&quot;~caselessEquals(&quot;oeuf&quot;)=                                  </span><span style="font-weight:bold;color:blue;">-- 0</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;ŒUF&quot;~caselessEquals(&quot;oeuf&quot;)=                                  </span><span style="font-weight:bold;color:blue;">-- 0</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;ŒUF&quot;~caselessEquals(&quot;oeuf&quot;, normalization:.Unicode~NFKC)=     </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;ŒUF&quot;~caselessEquals(&quot;oeuf&quot;, normalization:.Unicode~NFKC)=     </span><span style="font-weight:bold;color:blue;">-- 0</span>
  0
 
 
 <span style="font-weight:bold;color:blue;">-- caselessPos
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~caselessPos(&quot;OË&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 7</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~caselessPos(&quot;OË&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 7</span>
  7
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~caselessPos(&quot;OË&quot;, 8)=                </span><span style="font-weight:bold;color:blue;">-- 17</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~caselessPos(&quot;OË&quot;, 8)=                </span><span style="font-weight:bold;color:blue;">-- 17</span>
  17
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~caselessPos(&quot;OË&quot;, 8, 10)=            </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~caselessPos(&quot;OË&quot;, 8, 10)=            </span><span style="font-weight:bold;color:blue;">-- 0</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~caselessPos(&quot;OE&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~caselessPos(&quot;OE&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- 0</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~caselessPos(&quot;OE&quot;, stripMark:)=       </span><span style="font-weight:bold;color:blue;">-- 7</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~caselessPos(&quot;OE&quot;, stripMark:)=       </span><span style="font-weight:bold;color:blue;">-- 7</span>
  7
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~caselessPos(&quot;🎅&quot;)=                  </span><span style="font-weight:bold;color:blue;">-- 6</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~caselessPos(&quot;🎅&quot;)=                  </span><span style="font-weight:bold;color:blue;">-- 6</span>
  6
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~caselessPos(&quot;👧🎅&quot;)=               </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~caselessPos(&quot;👧🎅&quot;)=               </span><span style="font-weight:bold;color:blue;">-- 0</span>
  0
 
 <span style="font-weight:bold;color:blue;">-- caselessPos in not-aligned mode
@@ -355,199 +355,199 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍�
 </span><span style="font-weight:bold;color:blue;">The first number is the start of the matching.
 </span><span style="font-weight:bold;color:blue;">The second number is the end of the matching + 1.
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~caselessPos(&quot;👧🎅&quot;, aligned:.false)=   </span><span style="font-weight:bold;color:blue;">-- [-5.27,+7.35]</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~caselessPos(&quot;👧🎅&quot;, aligned:.false)=   </span><span style="font-weight:bold;color:blue;">-- [-5.27,+7.35]</span>
 [-5.27,+7.35]
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~caselessPos(&quot;👩‍👨‍👩‍👧🎅&quot;, aligned:.false)=   </span><span style="font-weight:bold;color:blue;">-- [+5.6,+7.35]</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~caselessPos(&quot;👩‍👨‍👩‍👧🎅&quot;, aligned:.false)=   </span><span style="font-weight:bold;color:blue;">-- [+5.6,+7.35]</span>
 [+5.6,+7.35]
 
 
 <span style="font-weight:bold;color:blue;">-- center
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noelFC&quot;~center(10)=; result~description=              </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noelFC&quot;~center(10)=; result~description=              </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
 '  noelFC  '
 'UTF-8 ASCII by default (10 bytes)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(10)=; result~description=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(10)=; result~description=</span>
 T'  noël👩‍👨‍👩‍👧🎅  '
 'UTF-8 not-ASCII (10 characters, 16 codepoints, 38 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(9)=; result~description=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(9)=; result~description=</span>
 T' noël👩‍👨‍👩‍👧🎅  '
 'UTF-8 not-ASCII (9 characters, 15 codepoints, 37 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(8)=; result~description=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(8)=; result~description=</span>
 T' noël👩‍👨‍👩‍👧🎅 '
 'UTF-8 not-ASCII (8 characters, 14 codepoints, 36 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(7)=; result~description=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(7)=; result~description=</span>
 T'noël👩‍👨‍👩‍👧🎅 '
 'UTF-8 not-ASCII (7 characters, 13 codepoints, 35 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(6)=; result~description=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(6)=; result~description=</span>
 T'noël👩‍👨‍👩‍👧🎅'
 'UTF-8 not-ASCII (6 characters, 12 codepoints, 34 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(5)=; result~description=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(5)=; result~description=</span>
 T'noël👩‍👨‍👩‍👧'
 'UTF-8 not-ASCII (5 characters, 11 codepoints, 30 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(4)=; result~description=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(4)=; result~description=</span>
 T'oël👩‍👨‍👩‍👧'
 'UTF-8 not-ASCII (4 characters, 10 codepoints, 29 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(3)=; result~description=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(3)=; result~description=</span>
 T'oël'
 'UTF-8 not-ASCII (3 characters, 3 codepoints, 4 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(2)=; result~description=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(2)=; result~description=</span>
 T'ël'
 'UTF-8 not-ASCII (2 characters, 2 codepoints, 3 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(1)=; result~description=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(1)=; result~description=</span>
 T'ë'
 'UTF-8 not-ASCII (1 character, 1 codepoint, 2 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(0)=; result~description=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(0)=; result~description=</span>
 T''
 'UTF-8 ASCII (0 character, 0 codepoint, 0 byte, 0 error)'
 
 <span style="font-weight:bold;color:blue;">-- center with pad
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;=&quot;~description=                                            </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 ASCII (1 byte)'</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;=&quot;~description=                                            </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 ASCII (1 byte)'</span>
 'UTF-8 ASCII (1 byte)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;=&quot;~c2x=                                                    </span><span style="font-weight:bold;color:blue;">-- '3D'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;=&quot;~c2x=                                                    </span><span style="font-weight:bold;color:blue;">-- '3D'</span>
 '3D'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noelFC&quot;~center(10, &quot;=&quot;)=; result~description=              </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noelFC&quot;~center(10, &quot;=&quot;)=; result~description=              </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
 '==noelFC=='
 'UTF-8 ASCII by default (10 bytes)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~description=                                            </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'   (was 'UTF-8 not-ASCII (3 bytes)')</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~description=                                            </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'   (was 'UTF-8 not-ASCII (3 bytes)')</span>
 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~description=                                            </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~description=                                            </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'</span>
 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~c2x=                                                    </span><span style="font-weight:bold;color:blue;">-- 'E29590'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~c2x=                                                    </span><span style="font-weight:bold;color:blue;">-- 'E29590'</span>
 'E29590'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noelFC&quot;~center(10, &quot;═&quot;)=; result~description=              </span><span style="font-weight:bold;color:blue;">-- don't forward to String because the pad is more than 1 byte</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noelFC&quot;~center(10, &quot;═&quot;)=; result~description=              </span><span style="font-weight:bold;color:blue;">-- don't forward to String because the pad is more than 1 byte</span>
 T'══noelFC══'
 'UTF-8 not-ASCII (10 characters, 10 codepoints, 18 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(10, &quot;═&quot;)=; result~description=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(10, &quot;═&quot;)=; result~description=</span>
 T'══noël👩‍👨‍👩‍👧🎅══'
 'UTF-8 not-ASCII (10 characters, 16 codepoints, 46 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(9, &quot;═&quot;)=; result~description=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(9, &quot;═&quot;)=; result~description=</span>
 T'═noël👩‍👨‍👩‍👧🎅══'
 'UTF-8 not-ASCII (9 characters, 15 codepoints, 43 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(8, &quot;═&quot;)=; result~description=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(8, &quot;═&quot;)=; result~description=</span>
 T'═noël👩‍👨‍👩‍👧🎅═'
 'UTF-8 not-ASCII (8 characters, 14 codepoints, 40 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(7, &quot;═&quot;)=; result~description=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(7, &quot;═&quot;)=; result~description=</span>
 T'noël👩‍👨‍👩‍👧🎅═'
 'UTF-8 not-ASCII (7 characters, 13 codepoints, 37 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(6, &quot;═&quot;)=; result~description=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~center(6, &quot;═&quot;)=; result~description=</span>
 T'noël👩‍👨‍👩‍👧🎅'
 'UTF-8 not-ASCII (6 characters, 12 codepoints, 34 bytes, 0 error)'
 
 
 <span style="font-weight:bold;color:blue;">-- compare
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstraße im Freiland&quot;~compare(&quot;Bundesstraße&quot;)=        </span><span style="font-weight:bold;color:blue;">-- 14</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstraße im Freiland&quot;~compare(&quot;Bundesstraße&quot;)=        </span><span style="font-weight:bold;color:blue;">-- 14</span>
  14
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstraße im Freiland&quot;~compare(&quot;Bundesstraße&quot;, &quot;_&quot;)=   </span><span style="font-weight:bold;color:blue;">-- 13</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstraße im Freiland&quot;~compare(&quot;Bundesstraße&quot;, &quot;_&quot;)=   </span><span style="font-weight:bold;color:blue;">-- 13</span>
  13
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstraße im Freiland&quot;~compare(&quot;Bundesstrasse&quot;)=       </span><span style="font-weight:bold;color:blue;">-- 11</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstraße im Freiland&quot;~compare(&quot;Bundesstrasse&quot;)=       </span><span style="font-weight:bold;color:blue;">-- 11</span>
  11
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstrasse im Freiland&quot;~compare(&quot;Bundesstraße&quot;)=       </span><span style="font-weight:bold;color:blue;">-- 11</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesstrasse im Freiland&quot;~compare(&quot;Bundesstraße&quot;)=       </span><span style="font-weight:bold;color:blue;">-- 11</span>
  11
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;straßssßßssse&quot;~compare(&quot;stra&quot;, &quot;ß&quot;)=                      </span><span style="font-weight:bold;color:blue;">--  6</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;straßssßßssse&quot;~compare(&quot;stra&quot;, &quot;ß&quot;)=                      </span><span style="font-weight:bold;color:blue;">--  6</span>
  6
 
 
 <span style="font-weight:bold;color:blue;">-- compareTo
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;pere noel&quot;~compareTo(&quot;père noël&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- -1 (lesser)</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;pere noel&quot;~compareTo(&quot;père noël&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- -1 (lesser)</span>
 -1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;pere noel&quot;~compareTo(&quot;père noël&quot;, stripMark:.true)=   </span><span style="font-weight:bold;color:blue;">--  0 (equal because the accents are ignored)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;pere noel&quot;~compareTo(&quot;père noël&quot;, stripMark:.true)=   </span><span style="font-weight:bold;color:blue;">--  0 (equal because the accents are ignored)</span>
  0
 
 
 <span style="font-weight:bold;color:blue;">-- contains
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~contains(&quot;oe&quot;)=            </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~contains(&quot;oe&quot;)=            </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~contains(&quot;oe&quot;)=            </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~contains(&quot;oe&quot;)=            </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~contains(&quot;oë&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~contains(&quot;oë&quot;)=</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~contains(&quot;oë&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~contains(&quot;oë&quot;)=</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~contains(&quot;oe&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~contains(&quot;oe&quot;)=</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~contains(&quot;oe&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~contains(&quot;oe&quot;)=</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~contains(&quot;oë&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~contains(&quot;oë&quot;)=</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~contains(&quot;oë&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~contains(&quot;oë&quot;)=</span>
  1
 
 
 <span style="font-weight:bold;color:blue;">-- copies
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~copies(4)=; result~description=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~copies(4)=; result~description=</span>
 T'noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅noël👩‍👨‍👩‍👧🎅'
 'UTF-8 not-ASCII (24 characters, 48 codepoints, 136 bytes, 0 error)'
 
 
 <span style="font-weight:bold;color:blue;">-- endsWith
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~endsWith(&quot;&quot;)=                  </span><span style="font-weight:bold;color:blue;">-- false</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~endsWith(&quot;&quot;)=                  </span><span style="font-weight:bold;color:blue;">-- false</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~endsWith(&quot;o&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- true</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~endsWith(&quot;o&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- true</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~endsWith(&quot;ô&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- false</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~endsWith(&quot;ô&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- false</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~endsWith(&quot;ô&quot;, stripMark:)=     </span><span style="font-weight:bold;color:blue;">-- true</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;hello&quot;~endsWith(&quot;ô&quot;, stripMark:)=     </span><span style="font-weight:bold;color:blue;">-- true</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~endsWith(&quot;🎅&quot;)=                </span><span style="font-weight:bold;color:blue;">-- true</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~endsWith(&quot;🎅&quot;)=                </span><span style="font-weight:bold;color:blue;">-- true</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~endsWith(&quot;👧🎅&quot;)=              </span><span style="font-weight:bold;color:blue;">-- false (not aligned with a grapheme)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~endsWith(&quot;👧🎅&quot;)=              </span><span style="font-weight:bold;color:blue;">-- false (not aligned with a grapheme)</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~endsWith(&quot;‍👧🎅&quot;)=             </span><span style="font-weight:bold;color:blue;">-- false (not aligned with a grapheme)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~endsWith(&quot;‍👧🎅&quot;)=             </span><span style="font-weight:bold;color:blue;">-- false (not aligned with a grapheme)</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~endsWith(&quot;👩‍👧🎅&quot;)=           </span><span style="font-weight:bold;color:blue;">-- false (not aligned with a grapheme)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~endsWith(&quot;👩‍👧🎅&quot;)=           </span><span style="font-weight:bold;color:blue;">-- false (not aligned with a grapheme)</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~endsWith(&quot;ël👩‍👨‍👩‍👧🎅&quot;)=   </span><span style="font-weight:bold;color:blue;">-- true</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~endsWith(&quot;ël👩‍👨‍👩‍👧🎅&quot;)=   </span><span style="font-weight:bold;color:blue;">-- true</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~endsWith(&quot;ËL👩‍👨‍👩‍👧🎅&quot;)=   </span><span style="font-weight:bold;color:blue;">-- false</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~endsWith(&quot;ËL👩‍👨‍👩‍👧🎅&quot;)=   </span><span style="font-weight:bold;color:blue;">-- false</span>
  0
 
 
 <span style="font-weight:bold;color:blue;">-- equals
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;ŒUF&quot;~lower~equals(&quot;œuf&quot;)=             </span><span style="font-weight:bold;color:blue;">-- true</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;ŒUF&quot;~lower~equals(&quot;œuf&quot;)=             </span><span style="font-weight:bold;color:blue;">-- true</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;ŒUF&quot;~equals(&quot;œuf&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- false (would be true if caseless)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;ŒUF&quot;~equals(&quot;œuf&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- false (would be true if caseless)</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;œuf&quot;~equals(&quot;ŒUF&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- false (would be true if caseless)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;œuf&quot;~equals(&quot;ŒUF&quot;)=                   </span><span style="font-weight:bold;color:blue;">-- false (would be true if caseless)</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Straße&quot;~lower~equals(&quot;straße&quot;)=       </span><span style="font-weight:bold;color:blue;">-- true (U+00DF &quot;LATIN SMALL LETTER SHARP S&quot; remains unchanged since it's already a lower letter)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Straße&quot;~lower~equals(&quot;straße&quot;)=       </span><span style="font-weight:bold;color:blue;">-- true (U+00DF &quot;LATIN SMALL LETTER SHARP S&quot; remains unchanged since it's already a lower letter)</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Straße&quot;~casefold~equals(&quot;strasse&quot;)=   </span><span style="font-weight:bold;color:blue;">-- true (U+00DF &quot;LATIN SMALL LETTER SHARP S&quot; becomes &quot;ss&quot; when casefolded)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Straße&quot;~casefold~equals(&quot;strasse&quot;)=   </span><span style="font-weight:bold;color:blue;">-- true (U+00DF &quot;LATIN SMALL LETTER SHARP S&quot; becomes &quot;ss&quot; when casefolded)</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Straße&quot;~equals(&quot;strasse&quot;)=            </span><span style="font-weight:bold;color:blue;">-- false (would be true if caseless)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Straße&quot;~equals(&quot;strasse&quot;)=            </span><span style="font-weight:bold;color:blue;">-- false (would be true if caseless)</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;strasse&quot;~equals(&quot;Straße&quot;)=            </span><span style="font-weight:bold;color:blue;">-- false (would be true if caseless)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;strasse&quot;~equals(&quot;Straße&quot;)=            </span><span style="font-weight:bold;color:blue;">-- false (would be true if caseless)</span>
  0
 
 <span style="font-weight:bold;color:blue;">-- equals (cont.) strict versus non-strict
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1 = &quot;Le\u{IDEOGRAPHIC SPACE}Pè\u{ZERO-WIDTH-SPACE}re\u{HYPHEN}Noël&quot;~unescape</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string2 = &quot;Le\u{OGHAM SPACE MARK}Père\u{EN DASH}No\u{ZERO-WIDTH-SPACE}ël&quot;~unescape</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1=                                    </span><span style="font-weight:bold;color:blue;">-- T'Le　Pè​re‐Noël'</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">string1 = &quot;Le\u{IDEOGRAPHIC SPACE}Pè\u{ZERO-WIDTH-SPACE}re\u{HYPHEN}Noël&quot;~unescape</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">string2 = &quot;Le\u{OGHAM SPACE MARK}Père\u{EN DASH}No\u{ZERO-WIDTH-SPACE}ël&quot;~unescape</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">string1=                                    </span><span style="font-weight:bold;color:blue;">-- T'Le　Pè​re‐Noël'</span>
 T'Le　Pè​re‐Noël'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string2=                                    </span><span style="font-weight:bold;color:blue;">-- T'Le Père–No​ël'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">string2=                                    </span><span style="font-weight:bold;color:blue;">-- T'Le Père–No​ël'</span>
 T'Le Père–No​ël'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~c2x=                                </span><span style="font-weight:bold;color:blue;">-- '4C 65 E38080 50 C3A8 E2808B 72 65 E28090 4E 6F C3AB 6C'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">string1~c2x=                                </span><span style="font-weight:bold;color:blue;">-- '4C 65 E38080 50 C3A8 E2808B 72 65 E28090 4E 6F C3AB 6C'</span>
 '4C 65 E38080 50 C3A8 E2808B 72 65 E28090 4E 6F C3AB 6C'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string2~c2x=                                </span><span style="font-weight:bold;color:blue;">-- '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">string2~c2x=                                </span><span style="font-weight:bold;color:blue;">-- '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'</span>
 '4C 65 E19A80 50 C3A8 72 65 E28093 4E 6F E2808B C3AB 6C'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~equals(string2)=                    </span><span style="font-weight:bold;color:blue;">-- false (strict mode by default)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">string1~equals(string2)=                    </span><span style="font-weight:bold;color:blue;">-- false (strict mode by default)</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:blue;">-- The non-strict mode applies these transformations:
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~nfkd(lump:, stripIgnorable:)~c2x=   </span><span style="font-weight:bold;color:blue;">-- '4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:blue;">-- The non-strict mode applies these transformations:
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">string1~nfkd(lump:, stripIgnorable:)~c2x=   </span><span style="font-weight:bold;color:blue;">-- '4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'</span>
 '4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string2~nfkd(lump:, stripIgnorable:)~c2x=   </span><span style="font-weight:bold;color:blue;">-- '4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">string2~nfkd(lump:, stripIgnorable:)~c2x=   </span><span style="font-weight:bold;color:blue;">-- '4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'</span>
 '4C 65 20 50 65 CC80 72 65 2D 4E 6F 65 CC88 6C'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">string1~equals(string2, strict:.false)=     </span><span style="font-weight:bold;color:blue;">-- true (non-strict mode)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">string1~equals(string2, strict:.false)=     </span><span style="font-weight:bold;color:blue;">-- true (non-strict mode)</span>
  1
 
 
 <span style="font-weight:bold;color:blue;">-- hashCode
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~hashCode~class=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~hashCode~class=</span>
 (The String class)
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~hashCode~c2x=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~hashCode~c2x=</span>
 '8FA5DCDA35AE1A58'
 
 
 <span style="font-weight:bold;color:blue;">-- left
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">do i=0 to 9; &quot;left(&quot;i&quot;) = &quot; || &quot;noël👩‍👨‍👩‍👧🎅&quot;~left(i)=; end</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">do i=0 to 9; &quot;left(&quot;i&quot;) = &quot; || &quot;noël👩‍👨‍👩‍👧🎅&quot;~left(i)=; end</span>
 T'left(0) = '
 T'left(1) = n'
 T'left(2) = no'
@@ -558,7 +558,7 @@ T'left(6) = noël👩‍👨‍👩‍👧🎅'
 T'left(7) = noël👩‍👨‍👩‍👧🎅 '
 T'left(8) = noël👩‍👨‍👩‍👧🎅  '
 T'left(9) = noël👩‍👨‍👩‍👧🎅   '
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">do i=0 to 9; &quot;left(&quot;i&quot;, ▷) = &quot; || &quot;noël👩‍👨‍👩‍👧🎅&quot;~left(i, &quot;▷&quot;)=; end</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">do i=0 to 9; &quot;left(&quot;i&quot;, ▷) = &quot; || &quot;noël👩‍👨‍👩‍👧🎅&quot;~left(i, &quot;▷&quot;)=; end</span>
 T'left(0, ▷) = '
 T'left(1, ▷) = n'
 T'left(2, ▷) = no'
@@ -572,158 +572,158 @@ T'left(9, ▷) = noël👩‍👨‍👩‍👧🎅▷▷▷'
 
 
 <span style="font-weight:bold;color:blue;">-- length
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~length=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~length=</span>
  6
 
 
 <span style="font-weight:bold;color:blue;">-- lower
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;LE PÈRE NOËL EST FATIGUÉ...&quot;~lower=       </span><span style="font-weight:bold;color:blue;">-- T'le père noël est fatigué...'</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;LE PÈRE NOËL EST FATIGUÉ...&quot;~lower=       </span><span style="font-weight:bold;color:blue;">-- T'le père noël est fatigué...'</span>
 T'le père noël est fatigué...'
 
 
 <span style="font-weight:bold;color:blue;">-- match
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~match(2, &quot;oe&quot;)=            </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~match(2, &quot;oe&quot;)=            </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~match(2, &quot;oe&quot;)=            </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~match(2, &quot;oe&quot;)=            </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~match(2, &quot;oë&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~match(2, &quot;oë&quot;)=</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~match(2, &quot;oë&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~match(2, &quot;oë&quot;)=</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(2, &quot;oe&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(2, &quot;oe&quot;)=</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(2, &quot;oe&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(2, &quot;oe&quot;)=</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(2, &quot;oë&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(2, &quot;oë&quot;)=</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(2, &quot;oë&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(2, &quot;oë&quot;)=</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(2, &quot;oël&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(2, &quot;oël&quot;)=</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(2, &quot;oël&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(2, &quot;oël&quot;)=</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(3, &quot;ë&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(3, &quot;ë&quot;)=</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(3, &quot;ë&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(3, &quot;ë&quot;)=</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(3, &quot;ël&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(3, &quot;ël&quot;)=</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(3, &quot;ël&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(3, &quot;ël&quot;)=</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(4, &quot;l&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(4, &quot;l&quot;)=</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(4, &quot;l&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~match(4, &quot;l&quot;)=</span>
  1
 
 
 <span style="font-weight:bold;color:blue;">-- matchChar
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~matchChar(3, &quot;Ee&quot;)=        </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~matchChar(3, &quot;Ee&quot;)=        </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~matchChar(3, &quot;Ee&quot;)=        </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~matchChar(3, &quot;Ee&quot;)=        </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~matchChar(3, &quot;EËeë&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~matchChar(3, &quot;EËeë&quot;)=</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~matchChar(3, &quot;EËeë&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~matchChar(3, &quot;EËeë&quot;)=</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~matchChar(3, &quot;EËeë&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~matchChar(3, &quot;EËeë&quot;)=</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~matchChar(3, &quot;EËeë&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~matchChar(3, &quot;EËeë&quot;)=</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~matchChar(3, &quot;EËeë&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~matchChar(3, &quot;EËeë&quot;)=</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~matchChar(3, &quot;Ee&quot;, stripMark:)= </span><span style="font-weight:bold;color:blue;">-- remove the accents from the tested string</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~matchChar(3, &quot;Ee&quot;, stripMark:)= </span><span style="font-weight:bold;color:blue;">-- remove the accents from the tested string</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~matchChar(4, &quot;Ll&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~matchChar(4, &quot;Ll&quot;)=</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~matchChar(4, &quot;Ll&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~matchChar(4, &quot;Ll&quot;)=</span>
  1
 
 <span style="font-weight:bold;color:blue;">-- matchChar (cont.)
 </span><span style="font-weight:bold;color:blue;">-- &quot;Bundesschnellstraße&quot;                               -- at 14: &quot;s&quot;, at 18:&quot;ß&quot;
 </span><span style="font-weight:bold;color:blue;">--  1234567890123456789
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~matchChar(14, &quot;s&quot;)=              </span><span style="font-weight:bold;color:blue;">-- 1</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~matchChar(14, &quot;s&quot;)=              </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~matchChar(18, &quot;s&quot;)=              </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~matchChar(18, &quot;s&quot;)=              </span><span style="font-weight:bold;color:blue;">-- 0</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~matchChar(18, &quot;ß&quot;)=              </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Bundesschnellstraße&quot;~matchChar(18, &quot;ß&quot;)=              </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
 
 <span style="font-weight:bold;color:blue;">-- matchChar (cont.)
 </span><span style="font-weight:bold;color:blue;">-- The ligature disappears in NFK[CD] but not in NF[CD]
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~matchChar(3, &quot;f&quot;)=                               </span><span style="font-weight:bold;color:blue;">-- 0     &quot;ﬄ&quot; is ONE character, doesn't match &quot;f&quot;</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~matchChar(3, &quot;f&quot;)=                               </span><span style="font-weight:bold;color:blue;">-- 0     &quot;ﬄ&quot; is ONE character, doesn't match &quot;f&quot;</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~matchChar(3, &quot;ﬄ&quot;)=                              </span><span style="font-weight:bold;color:blue;">-- 1     There is a match because &quot;ﬄ&quot; on both sides</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~matchChar(3, &quot;ﬄ&quot;)=                              </span><span style="font-weight:bold;color:blue;">-- 1     There is a match because &quot;ﬄ&quot; on both sides</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~matchChar(3, &quot;ﬄ&quot;, normalization:.Unicode~NFKD)= </span><span style="font-weight:bold;color:blue;">-- 1     There is a match because &quot;ﬄ&quot; on both sides</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~matchChar(3, &quot;ﬄ&quot;, normalization:.Unicode~NFKD)= </span><span style="font-weight:bold;color:blue;">-- 1     There is a match because &quot;ﬄ&quot; on both sides</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~matchChar(3, &quot;f&quot;, normalization:.Unicode~NFKD)=  </span><span style="font-weight:bold;color:blue;">-- 0     The 3rd character &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 characters), doesn't match &quot;f&quot;</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~matchChar(3, &quot;f&quot;, normalization:.Unicode~NFKD)=  </span><span style="font-weight:bold;color:blue;">-- 0     The 3rd character &quot;ﬄ&quot; becomes &quot;ffl&quot; (3 characters), doesn't match &quot;f&quot;</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~matchChar(4, &quot;f&quot;, normalization:.Unicode~NFKD)=  </span><span style="font-weight:bold;color:blue;">-- 0     The 4th character is &quot;e&quot;, doesn't match &quot;f&quot;</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~matchChar(4, &quot;f&quot;, normalization:.Unicode~NFKD)=  </span><span style="font-weight:bold;color:blue;">-- 0     The 4th character is &quot;e&quot;, doesn't match &quot;f&quot;</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~matchChar(4, &quot;e&quot;, normalization:.Unicode~NFKD)=  </span><span style="font-weight:bold;color:blue;">-- 1     The 4th character is &quot;e&quot;, does match &quot;e&quot;</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;baﬄe&quot;~matchChar(4, &quot;e&quot;, normalization:.Unicode~NFKD)=  </span><span style="font-weight:bold;color:blue;">-- 1     The 4th character is &quot;e&quot;, does match &quot;e&quot;</span>
  1
 
 
 <span style="font-weight:bold;color:blue;">-- pos
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~pos(&quot;oe&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~pos(&quot;oe&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
  2
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~pos(&quot;oe&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~pos(&quot;oe&quot;)=                 </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
  2
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~pos(&quot;oë&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~pos(&quot;oë&quot;)=</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~pos(&quot;oë&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~pos(&quot;oë&quot;)=</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~pos(&quot;oe&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~pos(&quot;oe&quot;)=</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~pos(&quot;oe&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~pos(&quot;oe&quot;)=</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~pos(&quot;oë&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~pos(&quot;oë&quot;)=</span>
  2
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~pos(&quot;oë&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~pos(&quot;oë&quot;)=</span>
  2
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~pos(&quot;l&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~pos(&quot;l&quot;)=</span>
  4
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~pos(&quot;l&quot;)=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~pos(&quot;l&quot;)=</span>
  4
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~pos(&quot;oë&quot;)=                        </span><span style="font-weight:bold;color:blue;">-- 7</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~pos(&quot;oë&quot;)=                        </span><span style="font-weight:bold;color:blue;">-- 7</span>
  7
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~pos(&quot;oë&quot;, 8)=                     </span><span style="font-weight:bold;color:blue;">-- 17</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~pos(&quot;oë&quot;, 8)=                     </span><span style="font-weight:bold;color:blue;">-- 17</span>
  17
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~pos(&quot;oë&quot;, 8, 10)=                 </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~pos(&quot;oë&quot;, 8, 10)=                 </span><span style="font-weight:bold;color:blue;">-- 0</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~pos(&quot;oe&quot;)=                        </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~pos(&quot;oe&quot;)=                        </span><span style="font-weight:bold;color:blue;">-- 0</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~pos(&quot;oe&quot;, stripMark:)=            </span><span style="font-weight:bold;color:blue;">-- 7</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Père Noël Père Noël&quot;~pos(&quot;oe&quot;, stripMark:)=            </span><span style="font-weight:bold;color:blue;">-- 7</span>
  7
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~pos(&quot;🎅&quot;)=                      </span><span style="font-weight:bold;color:blue;">-- 6</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~pos(&quot;🎅&quot;)=                      </span><span style="font-weight:bold;color:blue;">-- 6</span>
  6
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~pos(&quot;👧🎅&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~pos(&quot;👧🎅&quot;)=                    </span><span style="font-weight:bold;color:blue;">-- 0</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~pos(&quot;👧🎅&quot;, aligned:.false)=    </span><span style="font-weight:bold;color:blue;">-- [-5.27,+7.35]</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~pos(&quot;👧🎅&quot;, aligned:.false)=    </span><span style="font-weight:bold;color:blue;">-- [-5.27,+7.35]</span>
 [-5.27,+7.35]
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~pos(&quot;👩‍👨‍👩‍👧🎅&quot;, aligned:.false)=   </span><span style="font-weight:bold;color:blue;">-- [+5.6,+7.35]</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~pos(&quot;👩‍👨‍👩‍👧🎅&quot;, aligned:.false)=   </span><span style="font-weight:bold;color:blue;">-- [+5.6,+7.35]</span>
 [+5.6,+7.35]
 
 
 <span style="font-weight:bold;color:blue;">-- reverse (correct)
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~c2x=            </span><span style="font-weight:bold;color:blue;">-- '6E 6F C3AB 6C'</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~c2x=            </span><span style="font-weight:bold;color:blue;">-- '6E 6F C3AB 6C'</span>
 '6E 6F C3AB 6C'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~reverse~c2x=    </span><span style="font-weight:bold;color:blue;">-- '6C C3AB 6F 6E'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~reverse~c2x=    </span><span style="font-weight:bold;color:blue;">-- '6C C3AB 6F 6E'</span>
 '6C C3AB 6F 6E'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~reverse=        </span><span style="font-weight:bold;color:blue;">-- T'lëon'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~reverse=        </span><span style="font-weight:bold;color:blue;">-- T'lëon'</span>
 T'lëon'
 
 <span style="font-weight:bold;color:blue;">-- reverse (correct)    (was reverse (wrong) before automatic conversion of string literals to text)
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~c2x=             </span><span style="font-weight:bold;color:blue;">-- '6E6FC3AB6C'</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~c2x=             </span><span style="font-weight:bold;color:blue;">-- '6E6FC3AB6C'</span>
 '6E 6F C3AB 6C'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~reverse~c2x=     </span><span style="font-weight:bold;color:blue;">-- '6C C3AB 6F 6E'  (was '6CABC36F6E' before automatic conversion of string literals to text)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~reverse~c2x=     </span><span style="font-weight:bold;color:blue;">-- '6C C3AB 6F 6E'  (was '6CABC36F6E' before automatic conversion of string literals to text)</span>
 '6C C3AB 6F 6E'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~reverse=         </span><span style="font-weight:bold;color:blue;">-- T'lëon'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël&quot;~reverse=         </span><span style="font-weight:bold;color:blue;">-- T'lëon'</span>
 T'lëon'
 
 
 <span style="font-weight:bold;color:blue;">-- right
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">do i=0 to 9; &quot;right(&quot;i&quot;) = &quot; || &quot;noël👩‍👨‍👩‍👧🎅&quot;~right(i)=; end</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">do i=0 to 9; &quot;right(&quot;i&quot;) = &quot; || &quot;noël👩‍👨‍👩‍👧🎅&quot;~right(i)=; end</span>
 T'right(0) = '
 T'right(1) = 🎅'
 T'right(2) = 👩‍👨‍👩‍👧🎅'
@@ -734,7 +734,7 @@ T'right(6) = noël👩‍👨‍👩‍👧🎅'
 T'right(7) =  noël👩‍👨‍👩‍👧🎅'
 T'right(8) =   noël👩‍👨‍👩‍👧🎅'
 T'right(9) =    noël👩‍👨‍👩‍👧🎅'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">do i=0 to 9; &quot;right(&quot;i&quot;, ▷) = &quot; || &quot;noël👩‍👨‍👩‍👧🎅&quot;~right(i, &quot;▷&quot;)=; end</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">do i=0 to 9; &quot;right(&quot;i&quot;, ▷) = &quot; || &quot;noël👩‍👨‍👩‍👧🎅&quot;~right(i, &quot;▷&quot;)=; end</span>
 T'right(0, ▷) = '
 T'right(1, ▷) = 🎅'
 T'right(2, ▷) = 👩‍👨‍👩‍👧🎅'
@@ -748,52 +748,52 @@ T'right(9, ▷) = ▷▷▷noël👩‍👨‍👩‍👧🎅'
 
 
 <span style="font-weight:bold;color:blue;">-- subchar
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~subchar(3)=; result~description=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~subchar(3)=; result~description=</span>
 T'ë'
 'UTF-8 not-ASCII (1 character, 1 codepoint, 2 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~subchar(4)=; result~description=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~subchar(4)=; result~description=</span>
 T'l'
 'UTF-8 ASCII (1 character, 1 codepoint, 1 byte, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~subchar(5)=; result~description=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~subchar(5)=; result~description=</span>
 T'👩‍👨‍👩‍👧'
 'UTF-8 not-ASCII (1 character, 7 codepoints, 25 bytes, 0 error)'
 
 
 <span style="font-weight:bold;color:blue;">-- substr
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~substr(3, 3, &quot;x&quot;)=; result~description=   </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~substr(3, 3, &quot;x&quot;)=; result~description=   </span><span style="font-weight:bold;color:blue;">-- forward to String</span>
 'elx'
 'UTF-8 ASCII by default (3 bytes)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~substr(3, 3, &quot;▷&quot;)=; result~description=   </span><span style="font-weight:bold;color:blue;">-- T'el▷' (was: self is a String: error because the pad character is 3 bytes)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~substr(3, 3, &quot;▷&quot;)=; result~description=   </span><span style="font-weight:bold;color:blue;">-- T'el▷' (was: self is a String: error because the pad character is 3 bytes)</span>
 T'el▷'
 'UTF-8 not-ASCII (3 characters, 3 codepoints, 5 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~substr(3, 3, &quot;▷&quot;)=; result~description=   </span><span style="font-weight:bold;color:blue;">-- T'el▷' (was: self is a String: error because the pad character is 3 bytes)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~substr(3, 3, &quot;▷&quot;)=; result~description=   </span><span style="font-weight:bold;color:blue;">-- T'el▷' (was: self is a String: error because the pad character is 3 bytes)</span>
 T'el▷'
 'UTF-8 not-ASCII (3 characters, 3 codepoints, 5 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~substr(3, 3, &quot;▷&quot;)=; result~description=   </span><span style="font-weight:bold;color:blue;">-- no error because self is a RexxText and the pad character is one character when converted to the default encoding</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noel&quot;~substr(3, 3, &quot;▷&quot;)=; result~description=   </span><span style="font-weight:bold;color:blue;">-- no error because self is a RexxText and the pad character is one character when converted to the default encoding</span>
 T'el▷'
 'UTF-8 not-ASCII (3 characters, 3 codepoints, 5 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~substr(3, 3, &quot;▷&quot;)=; result~description=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~substr(3, 3, &quot;▷&quot;)=; result~description=</span>
 T'ël👩‍👨‍👩‍👧'
 'UTF-8 not-ASCII (3 characters, 9 codepoints, 28 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~substr(3, 6, &quot;▷&quot;)=; result~description=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;noël👩‍👨‍👩‍👧🎅&quot;~substr(3, 6, &quot;▷&quot;)=; result~description=</span>
 T'ël👩‍👨‍👩‍👧🎅▷▷'
 'UTF-8 not-ASCII (6 characters, 12 codepoints, 38 bytes, 0 error)'
 
 
 <span style="font-weight:bold;color:blue;">-- upper
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Le père Noël est fatigué...&quot;~upper=       </span><span style="font-weight:bold;color:blue;">-- T'LE PÈRE NOËL EST FATIGUÉ...'</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Le père Noël est fatigué...&quot;~upper=       </span><span style="font-weight:bold;color:blue;">-- T'LE PÈRE NOËL EST FATIGUÉ...'</span>
 T'LE PÈRE NOËL EST FATIGUÉ...'
 
 
 
 
 <span style="font-weight:bold;color:blue;">-- x2c
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;F09F9180&quot;~x2c=</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;F09F9180&quot;~x2c=</span>
 '👀'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;not an hexadecimal value&quot;~x2c</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;not an hexadecimal value&quot;~x2c</span>
 <span style="font-weight:bold;color:red;">Only 0-9, a-f, A-F, and whitespace characters are valid in a hexadecimal string; character found &quot;n&quot;.
 </span><span style="font-weight:bold;color:red;">Error code= 93.933
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;not an hexadecimal value 🤔&quot;~x2c</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;not an hexadecimal value 🤔&quot;~x2c</span>
 <span style="font-weight:bold;color:red;">UTF-8 not-ASCII 'not an ...' is not compatible with a Rexx hexadecimal value.
 </span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span>
@@ -816,7 +816,7 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;not an hexadec
 </span><span style="font-weight:bold;color:blue;">%{&quot;E&quot; =&gt; 1, &quot;i&quot; =&gt; 2, &quot;l&quot; =&gt; 1, &quot;r&quot; =&gt; 1, &quot;x&quot; =&gt; 1}
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Notre père Noël 🎅&quot;~transform(stripMark:)~reduce(by: &quot;characters&quot;, initial: .stem~new~~put(0)){accu[item~string] += 1}=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Notre père Noël 🎅&quot;~transform(stripMark:)~reduce(by: &quot;characters&quot;, initial: .stem~new~~put(0)){accu[item~string] += 1}=</span>
 a Stem (9 items)
 '🎅' :  1
 ' '    :  3
@@ -839,20 +839,20 @@ a Stem (9 items)
 </span><span style="font-weight:bold;color:blue;">    ~subwords   (still to implement)
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">g=&quot;Noël 🎅&quot;~generateC</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">g~()=       </span><span style="font-weight:bold;color:blue;">-- T'N'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">g=&quot;Noël 🎅&quot;~generateC</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">g~()=       </span><span style="font-weight:bold;color:blue;">-- T'N'</span>
 T'N'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">g~()=       </span><span style="font-weight:bold;color:blue;">-- T'o'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">g~()=       </span><span style="font-weight:bold;color:blue;">-- T'o'</span>
 T'o'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">g~()=       </span><span style="font-weight:bold;color:blue;">-- T'ë'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">g~()=       </span><span style="font-weight:bold;color:blue;">-- T'ë'</span>
 T'ë'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">g~()=       </span><span style="font-weight:bold;color:blue;">-- T'l'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">g~()=       </span><span style="font-weight:bold;color:blue;">-- T'l'</span>
 T'l'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">g~()=       </span><span style="font-weight:bold;color:blue;">-- T' '</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">g~()=       </span><span style="font-weight:bold;color:blue;">-- T' '</span>
 T' '
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">g~()=       </span><span style="font-weight:bold;color:blue;">-- T'🎅'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">g~()=       </span><span style="font-weight:bold;color:blue;">-- T'🎅'</span>
 T'🎅'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">g~()=       </span><span style="font-weight:bold;color:blue;">-- [no result]</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">g~()=       </span><span style="font-weight:bold;color:blue;">-- [no result]</span>
 [no result]
 
 
@@ -869,80 +869,80 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">g~()=       </span><
 </span><span style="font-weight:bold;color:blue;">Relax the constraint &quot;self~isCompatibleWithByteString&quot; when converting a RexxText
 </span><span style="font-weight:bold;color:blue;">to a String. That allows to go further in the tests of regular expression.
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">unckeckedConversionToString = .Unicode~unckeckedConversionToString </span><span style="font-weight:bold;color:blue;">-- backup</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~unckeckedConversionToString = .true</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">unckeckedConversionToString = .Unicode~unckeckedConversionToString </span><span style="font-weight:bold;color:blue;">-- backup</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.Unicode~unckeckedConversionToString = .true</span>
 
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB = .Pattern~compile(&quot;a.c&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT = .Pattern~compile(&quot;a.c&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;abc&quot;)=                              </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">pB = .Pattern~compile(&quot;a.c&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">pT = .Pattern~compile(&quot;a.c&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;abc&quot;)=                              </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;abc&quot;)=                              </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;abc&quot;)=                              </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;aôc&quot;)=                              </span><span style="font-weight:bold;color:blue;">-- 1    (was 0 (KO) before automatic conversion of string literals to text)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;aôc&quot;)=                              </span><span style="font-weight:bold;color:blue;">-- 1    (was 0 (KO) before automatic conversion of string literals to text)</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;aôc&quot;)=                              </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;aôc&quot;)=                              </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;a🎅c&quot;)=                             </span><span style="font-weight:bold;color:blue;">-- 1    (was 0 (KO) before automatic conversion of string literals to text)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;a🎅c&quot;)=                             </span><span style="font-weight:bold;color:blue;">-- 1    (was 0 (KO) before automatic conversion of string literals to text)</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;a🎅c&quot;)=                             </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;a🎅c&quot;)=                             </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
 
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB = .Pattern~compile(&quot;🤶...🎅&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT = .Pattern~compile(&quot;🤶...🎅&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;🤶123🎅&quot;)=                          </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">pB = .Pattern~compile(&quot;🤶...🎅&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">pT = .Pattern~compile(&quot;🤶...🎅&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;🤶123🎅&quot;)=                          </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;🤶123🎅&quot;)=                          </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;🤶123🎅&quot;)=                          </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;🤶🐕2🐈🎅&quot;)=                        </span><span style="font-weight:bold;color:blue;">-- 1    (was 0 (KO) before automatic conversion of string literals to text)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;🤶🐕2🐈🎅&quot;)=                        </span><span style="font-weight:bold;color:blue;">-- 1    (was 0 (KO) before automatic conversion of string literals to text)</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;🤶🐕2🐈🎅&quot;)=                        </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;🤶🐕2🐈🎅&quot;)=                        </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;🤶🐕👩‍👨‍👩‍👧🐈🎅&quot;)=          </span><span style="font-weight:bold;color:blue;">-- 1    (was 0 (KO) before automatic conversion of string literals to text)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">pB~matches(&quot;🤶🐕👩‍👨‍👩‍👧🐈🎅&quot;)=          </span><span style="font-weight:bold;color:blue;">-- 1    (was 0 (KO) before automatic conversion of string literals to text)</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;🤶🐕👩‍👨‍👩‍👧🐈🎅&quot;)=          </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">pT~matches(&quot;🤶🐕👩‍👨‍👩‍👧🐈🎅&quot;)=          </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
 
 <span style="font-weight:bold;color:blue;">-- &quot;🤶&quot; or &quot;🎅&quot;
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB = .Pattern~compile(&quot;🤶|🎅&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT = .Pattern~compile(&quot;🤶|🎅&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~startsWith(&quot;🤶🎅c&quot;)=                        </span><span style="font-weight:bold;color:blue;">-- 1</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">pB = .Pattern~compile(&quot;🤶|🎅&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">pT = .Pattern~compile(&quot;🤶|🎅&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">pB~startsWith(&quot;🤶🎅c&quot;)=                        </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT~startsWith(&quot;🤶🎅c&quot;)=                        </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">pT~startsWith(&quot;🤶🎅c&quot;)=                        </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pB~startsWith(&quot;🎅🤶c&quot;)=                        </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">pB~startsWith(&quot;🎅🤶c&quot;)=                        </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">pT~startsWith(&quot;🎅🤶c&quot;)=                        </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">pT~startsWith(&quot;🎅🤶c&quot;)=                        </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r = pB~find(&quot;xxx🤶🎅cxxx&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r=; r~length=     </span><span style="font-weight:bold;color:blue;">-- now ok (r~end was 8 and r~length was 4 before automatic conversion of string literals to text)</span>
- 1
- 4
- 5
-(a MatchResult)
- 1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r = pT~find(&quot;xxx🤶🎅cxxx&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r=; r~length=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">r = pB~find(&quot;xxx🤶🎅cxxx&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r=; r~length=     </span><span style="font-weight:bold;color:blue;">-- now ok (r~end was 8 and r~length was 4 before automatic conversion of string literals to text)</span>
  1
  4
  5
 (a MatchResult)
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r = pB~find(&quot;xxx🎅🤶cxxx&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r=; r~length=     </span><span style="font-weight:bold;color:blue;">-- now ok (r~end was 8 and r~length was 4 before automatic conversion of string literals to text)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">r = pT~find(&quot;xxx🤶🎅cxxx&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r=; r~length=</span>
  1
  4
  5
 (a MatchResult)
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r = pT~find(&quot;xxx🎅🤶cxxx&quot;)</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r=; r~length=</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">r = pB~find(&quot;xxx🎅🤶cxxx&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r=; r~length=     </span><span style="font-weight:bold;color:blue;">-- now ok (r~end was 8 and r~length was 4 before automatic conversion of string literals to text)</span>
+ 1
+ 4
+ 5
+(a MatchResult)
+ 1
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">r = pT~find(&quot;xxx🎅🤶cxxx&quot;)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">r~matched=; r~start=; r~end=; r=; r~length=</span>
  1
  4
  5
 (a MatchResult)
  1
 
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~unckeckedConversionToString = unckeckedConversionToString </span><span style="font-weight:bold;color:blue;">-- restore</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.Unicode~unckeckedConversionToString = unckeckedConversionToString </span><span style="font-weight:bold;color:blue;">-- restore</span>
 
 
 <span style="font-weight:bold;color:blue;">-----------------------------------------
@@ -956,21 +956,21 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">.Unicode~unckeckedCo
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
 <span style="font-weight:bold;color:blue;">-- Function 'center'
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~description=                                </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'   (was 'UTF-8 not-ASCII (3 bytes)')</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~description=                                </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'   (was 'UTF-8 not-ASCII (3 bytes)')</span>
 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~description=                                </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~description=                                </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'</span>
 'UTF-8 not-ASCII (1 character, 1 codepoint, 3 bytes, 0 error)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~c2x=                                        </span><span style="font-weight:bold;color:blue;">-- 'E29590'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;═&quot;~c2x=                                        </span><span style="font-weight:bold;color:blue;">-- 'E29590'</span>
 'E29590'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">center(&quot;hello&quot;, 20, &quot;═&quot;)=                       </span><span style="font-weight:bold;color:blue;">-- T'═══════hello════════'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">center(&quot;hello&quot;, 20, &quot;═&quot;)=                       </span><span style="font-weight:bold;color:blue;">-- T'═══════hello════════'</span>
 T'═══════hello════════'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">center(&quot;hello&quot;, 20, &quot;═&quot;)~description=           </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">center(&quot;hello&quot;, 20, &quot;═&quot;)~description=           </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'</span>
 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
 
 <span style="font-weight:bold;color:blue;">-- Function 'left'
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">left(&quot;hello&quot;, 20, &quot;═&quot;)=                         </span><span style="font-weight:bold;color:blue;">-- T'hello═══════════════'</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">left(&quot;hello&quot;, 20, &quot;═&quot;)=                         </span><span style="font-weight:bold;color:blue;">-- T'hello═══════════════'</span>
 T'hello═══════════════'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">left(&quot;hello&quot;, 20, &quot;═&quot;)~description=             </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">left(&quot;hello&quot;, 20, &quot;═&quot;)~description=             </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'</span>
 'UTF-8 not-ASCII (20 characters, 20 codepoints, 50 bytes, 0 error)'
 
 
@@ -988,59 +988,59 @@ ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">left(&quot;hello&quo
 </span>
 <span style="font-weight:bold;color:blue;">-- UTF-8 encoding
 </span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Noel&quot;~isCompatibleWithByteString=              </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Noel&quot;~isCompatibleWithByteString=              </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">length(&quot;Noel&quot;)=                                 </span><span style="font-weight:bold;color:blue;">-- 4 because &quot;Noel&quot;~length = 4</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">length(&quot;Noel&quot;)=                                 </span><span style="font-weight:bold;color:blue;">-- 4 because &quot;Noel&quot;~length = 4</span>
  4
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~isCompatibleWithByteString=              </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~isCompatibleWithByteString=              </span><span style="font-weight:bold;color:blue;">-- 0</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">length(&quot;Noël&quot;)=                                 </span><span style="font-weight:bold;color:blue;">-- 4 because &quot;Noël&quot; is a RexxText   (was TODO: 4 because &quot;Noël&quot;~text~length = 4)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">length(&quot;Noël&quot;)=                                 </span><span style="font-weight:bold;color:blue;">-- 4 because &quot;Noël&quot; is a RexxText   (was TODO: 4 because &quot;Noël&quot;~text~length = 4)</span>
  4
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~length=                                  </span><span style="font-weight:bold;color:blue;">-- 4 because &quot;Noël&quot; is a RexxText   (was &quot;5 because String remains byte-oriented, not impacted by the default encoding&quot; before automatic conversion of string literals to text)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~length=                                  </span><span style="font-weight:bold;color:blue;">-- 4 because &quot;Noël&quot; is a RexxText   (was &quot;5 because String remains byte-oriented, not impacted by the default encoding&quot; before automatic conversion of string literals to text)</span>
  4
 
 <span style="font-weight:bold;color:blue;">-- UTF-16BE encoding
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s = &quot;0041004200430044&quot;x</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s=                                              </span><span style="font-weight:bold;color:blue;">-- '[00]A[00]B[00]C[00]D'</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">s = &quot;0041004200430044&quot;x</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">s=                                              </span><span style="font-weight:bold;color:blue;">-- '[00]A[00]B[00]C[00]D'</span>
 '[00]A[00]B[00]C[00]D'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~isCompatibleWithByteString=                   </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">s~isCompatibleWithByteString=                   </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~description=                                  </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 ASCII (8 bytes)'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">s~description=                                  </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 ASCII (8 bytes)'</span>
 'UTF-8 ASCII (8 bytes)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">length(s)=                                      </span><span style="font-weight:bold;color:blue;">-- 8 because encoding UTF-8 ASCII is compatible with String</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">length(s)=                                      </span><span style="font-weight:bold;color:blue;">-- 8 because encoding UTF-8 ASCII is compatible with String</span>
  8
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~encoding = &quot;UTF16&quot;</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~isCompatibleWithByteString=                   </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">s~encoding = &quot;UTF16&quot;</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">s~isCompatibleWithByteString=                   </span><span style="font-weight:bold;color:blue;">-- 0</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~description=                                  </span><span style="font-weight:bold;color:blue;">-- 'UTF-16BE (8 bytes)'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">s~description=                                  </span><span style="font-weight:bold;color:blue;">-- 'UTF-16BE (8 bytes)'</span>
 'UTF-16BE (8 bytes)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~length=                                       </span><span style="font-weight:bold;color:blue;">-- 8 because String is always byte-oriented (ignores the encoding)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">s~length=                                       </span><span style="font-weight:bold;color:blue;">-- 8 because String is always byte-oriented (ignores the encoding)</span>
  8
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">length(s)=                                      </span><span style="font-weight:bold;color:blue;">-- 8    (was TODO: 4 because forwards to Text (encoding UTF-16BE is not compatible with String))</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">length(s)=                                      </span><span style="font-weight:bold;color:blue;">-- 8    (was TODO: 4 because forwards to Text (encoding UTF-16BE is not compatible with String))</span>
  8
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~utf8=                                         </span><span style="font-weight:bold;color:blue;">-- T'ABCD'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">s~utf8=                                         </span><span style="font-weight:bold;color:blue;">-- T'ABCD'</span>
 T'ABCD'
 
 <span style="font-weight:bold;color:blue;">-- UTF-32 encoding
-</span>ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s = &quot;0000004100000042&quot;x</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s=                                              </span><span style="font-weight:bold;color:blue;">-- '[000000]A[000000]B'</span>
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">s = &quot;0000004100000042&quot;x</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">s=                                              </span><span style="font-weight:bold;color:blue;">-- '[000000]A[000000]B'</span>
 '[000000]A[000000]B'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~isCompatibleWithByteString=                   </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">s~isCompatibleWithByteString=                   </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~description=                                  </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 ASCII (8 bytes)'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">s~description=                                  </span><span style="font-weight:bold;color:blue;">-- 'UTF-8 ASCII (8 bytes)'</span>
 'UTF-8 ASCII (8 bytes)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">length(s)=                                      </span><span style="font-weight:bold;color:blue;">-- 8 because encoding UTF-8 ASCII is compatible with String</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">length(s)=                                      </span><span style="font-weight:bold;color:blue;">-- 8 because encoding UTF-8 ASCII is compatible with String</span>
  8
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~encoding = &quot;UTF32&quot;</span>
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~isCompatibleWithByteString=                   </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">s~encoding = &quot;UTF32&quot;</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">s~isCompatibleWithByteString=                   </span><span style="font-weight:bold;color:blue;">-- 0</span>
  0
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~description=                                  </span><span style="font-weight:bold;color:blue;">-- 'UTF-32BE (8 bytes)'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">s~description=                                  </span><span style="font-weight:bold;color:blue;">-- 'UTF-32BE (8 bytes)'</span>
 'UTF-32BE (8 bytes)'
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~length=                                       </span><span style="font-weight:bold;color:blue;">-- 8 because String is always byte-oriented (ignores the encoding)</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">s~length=                                       </span><span style="font-weight:bold;color:blue;">-- 8 because String is always byte-oriented (ignores the encoding)</span>
  8
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">length(s)=                                      </span><span style="font-weight:bold;color:blue;">-- 8    (was TODO: 2 because forwards to Text (encoding UTF-32 is not compatible with String))</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">length(s)=                                      </span><span style="font-weight:bold;color:blue;">-- 8    (was TODO: 2 because forwards to Text (encoding UTF-32 is not compatible with String))</span>
  8
-ooRexx[sh]&gt; <span style="font-weight:bold;color:purple;">s~utf8=                                         </span><span style="font-weight:bold;color:blue;">-- T'AB'</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">s~utf8=                                         </span><span style="font-weight:bold;color:blue;">-- T'AB'</span>
 T'AB'
 
 
