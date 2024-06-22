@@ -156,13 +156,15 @@ RexxObject  *RexxSourceLiteral::evaluate(
                                        /* trace if necessary                */
     context->traceIntermediate(value, TRACE_PREFIX_LITERAL);
 
+    // The encoding of a block is equal to the encoding of its definition package
     PackageClass *package = context->getPackage();
     ProtectedObject result;
-    bool messageUnderstood = package->messageSend(OREF_ENCODING, OREF_NULL, 0, 0, result, false);
+    // OREF_SETENCODING instead of OREF_ENCODING:
+    // With a single message, force the package's encoding to be stored, if not already done, and retrieve its encoding
+    bool messageUnderstood = package->messageSend(OREF_SETENCODING, OREF_NULL, 0, 0, result, false);
     if (messageUnderstood && (RexxObject *)result != OREF_NULL) // the package has an encoding
     {
         RexxObject *packageEncoding = (RexxObject *)result;
-        // The encoding of a block is equal to the encoding of its definition package
         RexxObject *args[1];
         args[0] = packageEncoding; // positional argument
         messageUnderstood = value->messageSend(OREF_SETENCODING, args, 1, 0, result, false);

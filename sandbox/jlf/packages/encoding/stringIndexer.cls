@@ -44,6 +44,10 @@ Depends on
 ::constant isCompatibleWithASCII 0
 
 
+::method canBeDefaultEncoding class
+    return self~isCompatibleWithASCII
+
+
 ::method codeUnitSizeInBytes class abstract -- constant 1 2 or 4
 
 
@@ -297,6 +301,10 @@ For example, if startB==6 then previousCodepointIndexB==3
 
 ::method encoding
     return self~class
+
+
+::method canBeDefaultEncoding
+    return self~encoding~isCompatibleWithASCII
 
 
 ::method description

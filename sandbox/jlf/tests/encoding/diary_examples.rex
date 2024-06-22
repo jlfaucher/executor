@@ -8,6 +8,55 @@ call loadUnicodeCharacterNames
 
 
 -- ===============================================================================
+-- 2024 June 22
+
+/*
+Only ASCII compatible encodings can be used as the default encoding.
+*/
+.stringIndexer~pipe(.subclasses "recursive" | .select {item~canBeDefaultEncoding} | .console)
+/*
+Reason:
+The interpreter can return ASCII strings with no stored encoding (per design).
+In this case their encoding is the default encoding.
+This encoding must be compatible with ASCII.
+Examples:
+*/
+oldEncoding = .encoding~setDefaultEncoding("byte")          -- ok
+.encoding~defaultEncoding = "cp1252"                        -- ok
+.encoding~defaultEncoding = "utf8"                          -- ok
+.encoding~defaultEncoding = "wtf8"                          -- ok
+.encoding~defaultEncoding = "unicode8"                      -- ok
+.encoding~defaultEncoding = "utf16"                         -- Encoding: 'utf16' is not supported as default encoding. Must be compatible with ASCII
+.encoding~defaultEncoding = "utf32"                         -- Encoding: 'utf32' is not supported as default encoding. Must be compatible with ASCII
+.encoding~setDefaultEncoding(oldEncoding)=                  -- (The Unicode8_Encoding class)    last default encoding successfully assigned
+
+system
+executor --encoding byte -e "say .encoding~defaultEncoding"     -- The Byte_Encoding class
+executor --encoding utf-8 -e "say .encoding~defaultEncoding"    -- The UTF8_Encoding class
+executor --encoding utf-16 -e "say .encoding~defaultEncoding"   -- "utf-16" is an invalid default encoding
+oorexx
+
+
+/*
+The method setEncoding has now a default value for its 'encoding' argument, which
+is the current self encoding. This is useful when the encoding is not stored, and
+we want to make it stored. The "setEncoding" message without arguments will be sent
+from native methods, without having to send the "encoding" message before.
+Examples:
+*/
+s = "a" "string"
+s~hasEncoding=          -- 0
+s~encoding=             -- (The UTF8_Encoding class)
+s~setEncoding           -- make the current encoding persistent if not already stored
+s~hasEncoding=          -- 1
+s~encoding=             -- (The UTF8_Encoding class)
+
+t = "Père" "Noël"
+t~hasEncoding=          -- 1    true because a RexxText has always an encoding
+t~string~hasEncoding=   -- 1    true because linked to a RexxText
+
+
+-- ===============================================================================
 -- 2024 Apr 24
 
 /*
@@ -130,15 +179,17 @@ Note: the method ~encoding never returns .nil. It returns the default encoding
 when no encoding is stored.
 Examples:
 */
-.context~package~hasEncoding=                       -- 0                            The encoding is not stored
-.context~package~encoding=                          -- (The UTF8_Encoding class)    It's the default encoding
-oldEncoding = .context~package~setEncoding("byte")
-oldEncoding=                                        -- (The NIL object)
-.context~package~hasEncoding=                       -- 1                            The encoding is stored
-.context~package~encoding=                          -- (The Byte_Encoding class)
-.context~package~setEncoding(oldEncoding)=          -- (The Byte_Encoding class)    Previous encoding
-.context~package~hasEncoding=                       -- 0                            Return to non-stored encoding
-.context~package~encoding=                          -- (The UTF8_Encoding class)    It's the default encoding
+package = {}~rawExecutable~package          -- Use a package different from ooRexxShell
+package~setEncoding(.nil)                   -- reset the package encoding, no stored encoding
+package~hasEncoding=                        -- 0                                    The encoding is not stored
+package~encoding=                           -- (The Byte_Encoding class)            It's the default encoding for a package not requiring text.cls
+oldEncoding = package~setEncoding("cp1252")
+oldEncoding=                                -- (The NIL object)
+package~hasEncoding=                        -- 1                                    The encoding is stored
+package~encoding=                           -- (The WINDOWS1252_Encoding class)
+package~setEncoding(oldEncoding)=           -- (The WINDOWS1252_Encoding class)     Previous encoding
+package~hasEncoding=                        -- 0                                    Return to non-stored encoding
+package~encoding=                           -- (The Byte_Encoding class)            It's the default encoding for a package not requiring text.cls
 
 
 /*
@@ -509,12 +560,12 @@ Example, assuming the default encoding is UTF-8:
 "Noel"~setEncoding("windows-1252")=     -- (The UTF8_Encoding class)    (previous encoding)
 "Noël"~setEncoding("byte")=             -- (The UTF8_Encoding class)    (previous encoding)
 /*
-Example, when the default encoding is Byte:
+Example, when the package encoding is Byte:
 */
-oldEncoding = .encoding~setDefaultEncoding("byte")
+oldEncoding = .context~package~setEncoding("byte")
 "Noel"~setEncoding("windows-1252")=     -- (The Byte_Encoding class)    (previous encoding)
-"Noël"~setEncoding("byte")=             -- (The Byte_Encoding class)    (previous encoding)
-.encoding~setDefaultEncoding(oldEncoding)
+"Noël"~setEncoding("utf8")=             -- (The Byte_Encoding class)    (previous encoding)
+.context~package~setEncoding(oldEncoding)
 
 
 /*
@@ -4368,8 +4419,8 @@ Strangely, the new implementation is also faster when all the characters are ASC
 
 Benchmark using a version where the flag isASCII is not stored:
 */
--- MUST declare the byte encoding as default encoding, otherwise "é" is converted to text and the concatenation is catastrophically long!
-previousEncoding = .encoding~setDefaultEncoding("byte") -- backup and change to Byte
+-- The package encoding MUST be the byte encoding, otherwise "é" is converted to text and the concatenation is catastrophically long!
+previousEncoding = .context~package~setEncoding("byte") -- backup and change to Byte
 big10m = "0123456789"~copies(1e6)
 s = big10m                              -- 10 millions of ASCII characters, must check all of them
 -- do 1000; s~isASCIIold; end              -- 9.3s
@@ -4384,7 +4435,7 @@ big5m = "01234"~copies(1e6)
 s = big5m || "é" || big5m               -- 1 non-ASCII character in the middle of 10 millions of ASCII characters
 -- do 1000; s~isASCIIold; end              -- 4.7s
 do 1000; s~isASCII; end                 -- 0.001s
-.encoding~setDefaultEncoding(previousEncoding) -- restore
+.context~package~setEncoding(previousEncoding) -- restore
 
 
 -- ===============================================================================

@@ -5,6 +5,65 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 ===============================================================================
 2024 June 22
 
+[Encoded strings]
+
+Only ASCII compatible encodings can be used as the default encoding.
+.stringIndexer~pipe(.subclasses "recursive" | .select {item~canBeDefaultEncoding} | .console)
+    1 : (The Byte_Encoding class)
+    1 : (The ISO88591_Encoding class)
+    2 : (The IBM1252_Encoding class)
+    3 : (The WINDOWS1252_Encoding class)
+    4 : (The IBM437_Encoding class)
+    4 : (The WTF8_Encoding class)
+    9 : (The UTF8_Encoding class)
+    12 : (The Unicode8_Encoding class)
+Reason:
+The interpreter can return ASCII strings with no stored encoding (per design).
+In this case their encoding is the default encoding.
+This encoding must be compatible with ASCII.
+Examples:
+    oldEncoding = .encoding~setDefaultEncoding("byte")          -- ok
+    .encoding~defaultEncoding = "cp1252"                        -- ok
+    .encoding~defaultEncoding = "utf8"                          -- ok
+    .encoding~defaultEncoding = "wtf8"                          -- ok
+    .encoding~defaultEncoding = "unicode8"                      -- ok
+    .encoding~defaultEncoding = "utf16"                         -- Encoding: 'utf16' is not supported as default encoding. Must be compatible with ASCII
+    .encoding~defaultEncoding = "utf32"                         -- Encoding: 'utf32' is not supported as default encoding. Must be compatible with ASCII
+    .encoding~setDefaultEncoding(oldEncoding)=                  -- (The Unicode8_Encoding class)    last default encoding successfully assigned
+
+    executor --encoding byte -e "say .encoding~defaultEncoding"     -- The Byte_Encoding class
+    executor --encoding utf-8 -e "say .encoding~defaultEncoding"    -- The The UTF8_Encoding class
+    executor --encoding utf-16 -e "say .encoding~defaultEncoding"   -- "utf-16" is an invalid default encoding
+
+
+The method setEncoding has now a default value for its 'encoding' argument, which
+is the current self encoding. This is useful when the encoding is not stored, and
+we want to make it stored. The "setEncoding" message without arguments will be sent
+from native methods, without having to send the "encoding" message before.
+Examples:
+    s = "a" "string"
+    s~hasEncoding=          -- 0
+    s~encoding=             -- (The UTF8_Encoding class)
+    s~setEncoding           -- make the current encoding persistent if not already stored
+    s~hasEncoding=          -- 1
+    s~encoding=             -- (The UTF8_Encoding class)
+
+    t = "Père" "Noël"
+    t~hasEncoding=          -- 1    true because a RexxText has always an encoding
+    t~string~hasEncoding=   -- 1    true because linked to a RexxText
+
+
+New native methods:
+    .Package~!setEncoding
+    .MutableBuffer~!setEncoding
+to store directly the encoding on PackageClass and RexxMutableBuffer instances.
+Currently I have a dual storage (managed by extension, and managed by these methods).
+In the end, only the native storage will remain.
+
+
+===============================================================================
+2024 June 22
+
 No longer deliver ICU4X.
 I have an error when cloning the Github repository.
     ~/rexx/oorexx$ git clone https://github.com/jlfaucher/executor.git
@@ -43,7 +102,7 @@ But not under Windows.
 
 
 ===============================================================================
-2024 Mai 12
+2024 May 12
 
 [Compatibility with ooRexx5]
 
@@ -89,7 +148,7 @@ Before SAVINGIMAGE, it has 59 classes.
 
 
 ===============================================================================
-2024 Mai 04
+2024 May 04
 
 [Procedural extensions]
 
@@ -122,19 +181,61 @@ Tested with ooRexx 4.2 and ooRexx 5.
 
 [Encoded strings]
 
+To check:
+    CHAROUT, LINEOUT, STREAM
+
+    ADDRESS, ARG, BEEP, CONDITION, DATE, DIGITS, DIRECTORY, ENDLOCAL, ERRORTEXT,
+    FILESPEC, FORM, FUZZ, QUALIFY, QUEUED, RANDOM, RXFUNCADD, RXFUNCDROP,
+    RXFUNCQUERY, RXQUEUE, SETLOCAL, SOURCELINE, SYMBOL, TIME, TRACE, USERID,
+    VALUE, VAR
+
+
 TODO
 Don't lose the encoding at String level when creating new strings.
-BIM returning a constant string: dataType
-BIM returning a boolean: abbrev, contains, containsWord, endsWith, equals, match, matchChar, startsWith
-BIM returning a decimal number: abs, c2d, ceiling, compare, compareTo, countStr, floor, format, lastPos, length, max, min, modulo, pos, round, sign, trunc, verify, wordIndex, wordLength, wordPos, words, x2d
-BIM returning an hexadecimal number: b2x, c2x, d2x
-BIM returning a binary number: x2b
-BIM returning a byte string: bitAnd, bitOr, bitXor, decodeBase64, encodeBase64, hashCode
-BIM creating a string: d2c, x2c
-BIM returning a string, not needing the concatenation rules: [], copies, delStr, delWord, lower, makeString, reverse, strip, subChar, subWord, upper, word
-BIM returning an array of strings, not needing the concatenation rules: makeArray, subWords
-BIM returning a string, needing the concatenation rules: append, center, changeStr, insert, left, overlay, replaceAt, right, space, substr, translate
-BIM not impacted: "?"
+Literals
+    (package encoding)  string literal, hexadecimal string literal, binary string literal
+Class methods
+    (default) BIM returning an ASCII constant string: alnum, alpha, blank, cntrl, cr, digit, graph, lower, nl, null, print, punct, space, tab, upper, xdigit
+    (same)    BIM returning a string, not needing the concatenation rules: new
+Instance methods
+    (Default) BIM returning an ASCII constant string: dataType
+    (Default) BIF returning an ASCII constant string: DATATYPE
+    (Default) BIM returning a boolean: abbrev, contains, containsWord, endsWith, equals, match, matchChar, startsWith
+    (Default) BIF returning a boolean: ABBREV
+    (Default) OPE returning a boolean: = \= >< <> > < >= \< <= \> & | && prefix\
+    (Default) BIM returning a decimal number: abs, c2d, ceiling, compare, compareTo, countStr, floor, format, lastPos, length, max, min, modulo, pos, round, sign, trunc, verify, wordIndex, wordLength, wordPos, words, x2d
+    (Default) BIF returning a decimal number: ABS, C2D,          COMPARE,            COUNTSTR,        FORMAT, LASTPOS, LENGTH, MAX, MIN,         POS,        SIGN, TRUNC, VERIFY, WORDINDEX, WORDLENGTH, WORDPOS, WORDS, X2D
+    (Default) OPE returning a decimal number: + - * / % // ** prefix- prefix+
+    (Default) BIM returning an hexadecimal number: b2x, c2x, d2x
+    (Default) BIF returning an hexadecimal number: B2X, C2X, D2X
+    (Default) BIM returning a binary number: x2b
+    (Default) BIF returning a binary number: X2B
+    (Byte)    BIM returning a byte string: bitAnd, bitOr, bitXor, decodeBase64, encodeBase64, hashCode
+    (Byte)    BIF returning a byte string: BITAND, BITOR, BITXOR
+    (?)       BIM creating a string maybe not ASCII: d2c, x2c
+    (?)       BIF creating a string maybe not ASCII: D2C, X2C, XRANGE
+    (same)    BIM returning a string, not needing the concatenation rules: [], copies, delStr, delWord, lower, makeString, reverse, strip, subChar, subWord, upper, word
+    (same)    BIF returning a string, not needing the concatenation rules:     COPIES, DELSTR, DELWORD, LOWER,             REVERSE, STRIP,          SUBWORD, UPPER, WORD
+    (same)    BIM returning an array of strings, not needing the concatenation rules: makeArray, subWords
+    (concat)  BIM returning a string, needing the concatenation rules: append, center, centre, changeStr, insert, left, overlay, replaceAt, right, space, substr, translate
+    (concat)  BIF returning a string, needing the concatenation rules:         CENTER, CENTRE, CHANGESTR, INSERT, LEFT, OVERLAY,            RIGHT, SPACE, SUBSTR, TRANSLATE
+    (concat)  OPE returning a string, needing the concatenation rules: "" || " "
+    (N/A)     BIM not impacted: "?"
+Stream
+    (stream encoding)   BIM returning a string: charIn, lineIn
+    (stream encoding)   BIF returning a string: CHARIN, LINEIN
+    (stream encoding)   BIM returning an array of strings: arrayIn
+    (Default)           BIM returning a decimal number: chars, lines
+    (Default)           BIF returning a decimal number: CHARS, LINES
+    (Default)           BIM returning an ASCII constant string:
+    (Default)           BIF returning an ASCII constant string: DATATYPE
+
+
+TODO
+Don't lose the encoding when using a MutableBuffer.
+I don't repeat the BIM already covered for String.
+Instance methods
+    (concat)  BIM needing the concatenation rules: []=
 
 
 Rework the support of encoding for RexxBlock.

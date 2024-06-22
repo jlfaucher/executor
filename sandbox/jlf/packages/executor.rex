@@ -77,11 +77,11 @@ default_encoding:
         signal usage
     end
     call shift_c_args -- remove encoding
-    defaultEncoding = getEncoding(encodingName)
+    defaultEncoding = getEncoding(encodingName, /*forDefaultEncoding:*/ .true)
     if defaultEncoding == .nil then do
-        .error~say(encodingName~quoted "is an invalid encoding.")
-        .error~say("Supported encodings:")
-        call saySupportedEncodings, indent:4, stream:.error
+        .error~say(encodingName~quoted "is an invalid default encoding.")
+        .error~say("Supported default encodings:")
+        call saySupportedDefaultEncodings, indent:4, stream:.error
         return -1
     end
     actions~append{ return .true } -- keep it, it's a way to know that an action was requested
@@ -253,11 +253,11 @@ trap_error:
 -------------------------------------------------------------------------------
 -- Helpers for encodings
 
-::routine saySupportedEncodings
+::routine saySupportedDefaultEncodings
     use strict arg -- none
     use strict named arg indent=0, stream=.output
     spaces = " "~copies(indent)
-    encodings = .encoding~list~table
+    encodings = .encoding~defaultEncodingList
     allIndexes = encodings~allIndexes
     widthMax = 0
     do encodingName over allIndexes
@@ -269,10 +269,11 @@ trap_error:
 
 
 ::routine getEncoding
-    use strict arg encodingName
+    use strict arg encodingName, forDefaultEncoding=.false
     signal on syntax name invalid_encoding
         encoding = .encoding~factory(encodingName)
     signal off syntax
+    if forDefaultEncoding, \ encoding~canBeDefaultEncoding then signal invalid_encoding
     return encoding
 
     invalid_encoding:
@@ -482,11 +483,8 @@ Without this requires, the blocks used in this script were not initialized corre
 -- For setUserData, getUserData
 ::requires "extension/object.cls"
 
--- For the class .Encoding
+-- For the list of possible default encodings
 ::requires "encoding/stringEncoding.cls"
-
--- For Supplier~table
-::requires "extension/collection.cls"
 
 
 -------------------------------------------------------------------------------

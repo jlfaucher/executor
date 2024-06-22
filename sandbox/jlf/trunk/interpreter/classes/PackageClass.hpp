@@ -97,8 +97,22 @@ public:
     inline RexxSource *getSourceObject() { return source; }
     inline bool isRexxPackage() { return this == TheRexxPackage; } // ooRexx5
 
+    inline RexxObject *getEncoding() { return this->encoding; }
+    inline void setEncoding(RexxObject *e)
+    {
+        OrefSet(this, this->encoding, e);
+        if (e != OREF_NULL) this->setHasReferences();
+    }
+    inline RexxObject *setEncodingRexx(RexxObject *e)
+    {
+        RexxObject *previousEncoding = this->getEncoding();
+        this->setEncoding(e);
+        return previousEncoding;
+    }
+
 protected:
     RexxSource *source;             // the wrappered source object
+    RexxObject *encoding;           // package encoding (annotation)
 
 
 };

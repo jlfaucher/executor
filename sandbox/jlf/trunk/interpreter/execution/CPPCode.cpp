@@ -838,6 +838,7 @@ CPPM(PackageClass::digits),
 CPPM(PackageClass::form),
 CPPM(PackageClass::fuzz),
 CPPM(PackageClass::trace),
+CPPM(PackageClass::setEncodingRexx),
 
 CPPM(PackageClass::newRexx),
 
@@ -1081,6 +1082,7 @@ CPPM(RexxMutableBuffer::wordPos),
 CPPM(RexxMutableBuffer::caselessWordPos),
 CPPM(RexxMutableBuffer::delWord),
 CPPM(RexxMutableBuffer::isASCIIRexx),
+CPPM(RexxMutableBuffer::setEncodingRexx),
 
 CPPM(RexxSupplier::available),         /* Supplier methods                  */
 CPPM(RexxSupplier::next),

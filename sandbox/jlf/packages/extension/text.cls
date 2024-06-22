@@ -189,7 +189,7 @@ because startByte = string~subchar(indexB)
     if \var("myText") then do -- no stored counterpart
         myText = .RexxText~new(self, textEncoding) -- store the RexxText counterpart created from itself with specified encoding
         -- self~!setText(myText) -- Object "<string>" does not understand message "!SETTEXT"
-        forward to (self) message "!SETTEXT" array(myText) -- no dynamic target
+        forward to (self) message "!SETTEXT" array(myText) continue -- no dynamic target
     end
     else if arg(1, "e") then do
         -- If the encoding was explicitely specified then change the encoding
@@ -222,7 +222,7 @@ because startByte = string~subchar(indexB)
         if aText~isA(.RexxText), aText~string~identityHash == self~identityHash then do
             myText = aText -- store the RexxText counterpart passed by argument
             -- self~!setText(myText) -- Object "<string>" does not understand message "!SETTEXT"
-            forward to (self) message "!SETTEXT" array(myText) -- no dynamic target
+            forward to (self) message "!SETTEXT" array(myText) continue -- no dynamic target
         end
         else raise syntax 23.900 array("EncodedString: the counterpart must be a RexxText linked to this String")
     end
@@ -277,7 +277,7 @@ because startByte = string~subchar(indexB)
 
 
 ::method setEncoding
-    use strict arg newEncoding
+    use strict arg newEncoding=(self~encoding)
     if self~hasEncoding then previousEncoding = self~encoding
                         else previousEncoding = .nil
     self~encoding = newEncoding
@@ -391,12 +391,18 @@ Always return the string (see also the implementation on MutableBuffer and RexxT
 ::attribute encoding set
     expose encoding
     use strict arg newEncoding
-    if .nil == newEncoding then drop encoding
-    else encoding = .Encoding~factory(newEncoding, self~string)
+    if .nil == newEncoding then do
+        drop encoding
+        self~!setEncoding -- OREF_NULL
+    end
+    else do
+        encoding = .Encoding~factory(newEncoding, self~string)
+        self~!setEncoding(encoding)
+    end
 
 
 ::method setEncoding
-    use strict arg newEncoding
+    use strict arg newEncoding=(self~encoding)
     if self~hasEncoding then previousEncoding = self~encoding
                         else previousEncoding = .nil
     self~encoding = newEncoding
@@ -567,12 +573,18 @@ Return directly the buffer, without requesting a string from it.
 ::attribute encoding set
     expose encoding
     use strict arg newEncoding
-    if .nil == newEncoding then drop encoding
-    else encoding = .Encoding~factory(newEncoding, self~string)
+    if .nil == newEncoding then do
+        drop encoding
+        self~!setEncoding -- OREF_NULL
+    end
+    else do
+        encoding = .Encoding~factory(newEncoding, self~string)
+        self~!setEncoding(encoding)
+    end
 
 
 ::method setEncoding
-    use strict arg newEncoding
+    use strict arg newEncoding=(self~encoding)
     if self~hasEncoding then previousEncoding = self~encoding
                         else previousEncoding = .nil
     self~encoding = newEncoding
@@ -784,7 +796,7 @@ Always return the string.
 
 
 ::method setEncoding
-    use strict arg newEncoding
+    use strict arg newEncoding=(self~encoding)
     previousEncoding = self~encoding -- can't be .nil because a RexxText has always an encoding
     self~encoding = newEncoding
     return previousEncoding

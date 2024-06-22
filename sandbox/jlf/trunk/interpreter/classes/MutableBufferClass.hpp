@@ -158,6 +158,19 @@ class RexxMutableBufferClass : public RexxClass {
        else this->Attributes &= ~STRING_ISASCII;
    }
 
+   inline RexxObject *getEncoding() { return this->encoding; }
+   inline void setEncoding(RexxObject *e)
+   {
+       OrefSet(this, this->encoding, e);
+       if (e != OREF_NULL) this->setHasReferences();
+   }
+   inline RexxObject *setEncodingRexx(RexxObject *e)
+   {
+       RexxObject *previousEncoding = this->getEncoding();
+       this->setEncoding(e);
+       return previousEncoding;
+   }
+
    static void createInstance();
    static RexxClass *classInstance;
 
@@ -166,6 +179,7 @@ class RexxMutableBufferClass : public RexxClass {
    size_t            defaultSize;     /* default size when emptied       */
    size_t            dataLength;      // current length of data in bytes
    size_t             Attributes;      /* buffer attributes               */
+   RexxObject        *encoding;        // mutable buffer encoding (annotation)
    RexxBuffer        *data;            /* buffer used for the data        */
  };
 

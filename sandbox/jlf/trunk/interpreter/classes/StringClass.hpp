@@ -552,7 +552,7 @@ inline char IntToHexDigit(int n)
    size_t length;                      /* string length in bytes          */
    RexxNumberString *NumberString;     /* lookaside information           */
    RexxObject *text;                   // The text counterpart or OREF_NULL
-   RexxObject *encoding;               // Placeholder, not yet the real encoding.
+   RexxObject *encoding;               // string encoding (annotation)
    size_t Attributes;                  /* string attributes               */
    char stringData[4];                 /* Start of the string data part   */
  };

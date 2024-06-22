@@ -744,6 +744,7 @@ void RexxMemory::createImage(const char *imageTarget)
   defineKernelMethod("FORM"                   ,ThePackageBehaviour, CPPM(PackageClass::form), 0);
   defineKernelMethod("FUZZ"                   ,ThePackageBehaviour, CPPM(PackageClass::fuzz), 0);
   defineKernelMethod("TRACE"                  ,ThePackageBehaviour, CPPM(PackageClass::trace), 0);
+  defineKernelMethod("!SETENCODING"           ,ThePackageBehaviour, CPPM(PackageClass::setEncodingRexx), 1);
                                        /* set the scope of the methods to   */
                                        /* this classes oref                 */
   ThePackageBehaviour->setMethodDictionaryScope(ThePackageClass);
@@ -1134,6 +1135,7 @@ void RexxMemory::createImage(const char *imageTarget)
   defineKernelMethod(CHAR_CASELESSWORDPOS              ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::caselessWordPos), 2);
   defineKernelMethod(CHAR_DELWORD                      ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::delWord), 2);
   defineKernelMethod(CHAR_ISASCII                      ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::isASCIIRexx), 0);
+  defineKernelMethod("!SETENCODING"                    ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::setEncodingRexx), 1);
 
                                        /* set the scope of the methods to   */
                                        /* this classes oref                 */

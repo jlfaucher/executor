@@ -158,15 +158,15 @@ void RexxString::checkTE(RESTORETYPE restoreType)
 /*
 Called ONCE at start-up (per interpreter)
 
-#0	0x00000001006cddf8 in RexxString::RexxString(RESTORETYPE) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:159
-#1	0x0000000100703520 in RexxMemory::buildVirtualFunctionTable() at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/behaviour/VirtualFunctionTable.cpp:253
+#0	RexxString::RexxString(RESTORETYPE) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/classes/StringClass.cpp:159
+#1	RexxMemory::buildVirtualFunctionTable() at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/behaviour/VirtualFunctionTable.cpp:253
        objectPtr = new (objectLoc) RexxString(RESTOREIMAGE);
        virtualFunctionTable[T_String] = getVftPointer(objectLoc);
-#2	0x0000000100737394 in RexxMemory::initialize(bool, char const*) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/memory/RexxMemory.cpp:207
-#3	0x00000001007a2ee0 in Interpreter::startInterpreter(Interpreter::InterpreterStartupMode, char const*) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/runtime/Interpreter.cpp:134
-#4	0x00000001007a3470 in Interpreter::createInterpreterInstance(RexxOption*) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/runtime/Interpreter.cpp:305
-#5	0x00000001007a334c in Interpreter::createInstance(RexxInstance_*&, RexxThreadContext_*&, RexxOption*) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/runtime/Interpreter.cpp:263
-#6	0x00000001006f6f6c in ::RexxCreateInterpreter(RexxInstance **, RexxThreadContext **, RexxOption *) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/api/InterpreterAPI.cpp:383
+#2	RexxMemory::initialize(bool, char const*) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/memory/RexxMemory.cpp:207
+#3	Interpreter::startInterpreter(Interpreter::InterpreterStartupMode, char const*) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/runtime/Interpreter.cpp:134
+#4	Interpreter::createInterpreterInstance(RexxOption*) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/runtime/Interpreter.cpp:305
+#5	in Interpreter::createInstance(RexxInstance_*&, RexxThreadContext_*&, RexxOption*) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/runtime/Interpreter.cpp:263
+#6	::RexxCreateInterpreter(RexxInstance **, RexxThreadContext **, RexxOption *) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/api/InterpreterAPI.cpp:383
 */
 RexxString::RexxString(RESTORETYPE restoreType)
 {
@@ -2416,7 +2416,7 @@ RexxObject *RexxString::evaluate(
 #endif // fix encoding
 
     RexxObject *value = this;    // by default, evaluate to itself
-    if (this->text == OREF_NULL) // this->text can be the text counterpart, or this
+    if (this->text == OREF_NULL) // this->text can be the text counterpart, or this, or OREF_NULL
     {
 #if debug_encoding // debug encoding
         printf("RexxString::evaluate 1st evaluation for %p '%s'\n", this, this->getStringData());
@@ -2431,7 +2431,9 @@ RexxObject *RexxString::evaluate(
         RexxObject *packageEncoding = OREF_NULL;
         const char *packageEncodingName = "<NULL>";
         ProtectedObject result;
-        bool messageUnderstood = package->messageSend(OREF_ENCODING, OREF_NULL, 0, 0, result, false);
+        // OREF_SETENCODING instead of OREF_ENCODING:
+        // With a single message, force the package's encoding to be stored, if not already done, and retrieve its encoding
+        bool messageUnderstood = package->messageSend(OREF_SETENCODING, OREF_NULL, 0, 0, result, false);
         if (messageUnderstood && (RexxObject *)result != OREF_NULL) // the package has an encoding
         {
             packageEncoding = (RexxObject *)result;
@@ -2462,6 +2464,14 @@ RexxObject *RexxString::evaluate(
                 messageUnderstood = packageEncoding->messageSend(OREF_ISBYTE, OREF_NULL, 0, 0, result, false);
                 if (messageUnderstood && ((RexxObject *)result)->integerValue(9)->getValue() == 0) // not byte encoding
                 {
+                    // The string has currently no encoding (1st evaluation).
+                    // Must store the package encoding on the string before requesting a RexxText
+                    // otherwise the resulting text encoding will be the default encoding.
+                    RexxObject *args[1];
+                    args[0] = packageEncoding; // positional argument
+                    bool messageUnderstood = this->messageSend(OREF_SETENCODING, args, 1, 0, result, false);
+                    // OREF_SETENCODING do that: this~!setEncoding(packageEncoding);
+
                     // Convert to RexxText
                     messageUnderstood = this->messageSend(OREF_TEXT, OREF_NULL, 0, 0, result, false);
                     if (messageUnderstood && (RexxObject *)result != OREF_NULL)

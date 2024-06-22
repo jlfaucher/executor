@@ -7,6 +7,8 @@ That's why I put the Encoding class in the global environment.
 
 
 ::requires "encoding/stringIndexer.cls"
+::requires "extension/functionals.cls"  -- For map
+
 
 /*
 Remember: don't requires the packages "xxx_encoding.cls" because that would create
@@ -170,7 +172,12 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
 ::attribute defaultEncoding class set
     expose defaultEncoding
     use strict arg encoding
-    defaultEncoding = self~factory(encoding)
+    newEncoding = self~factory(encoding)
+    if newEncoding~canBeDefaultEncoding then do
+        defaultEncoding = newEncoding
+        return
+    end
+    raise syntax 93.900 array("Encoding: '"encoding"' is not supported as default encoding. Must be compatible with ASCII")
 
 
 ::method setDefaultEncoding class
@@ -190,7 +197,12 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
 ::attribute defaultInputEncoding class set
     expose defaultInputEncoding
     use strict arg encoding
-    defaultInputEncoding = self~factory(encoding)
+    newEncoding = self~factory(encoding)
+    if newEncoding~canBeDefaultEncoding then do
+        defaultInputEncoding = newEncoding
+        return
+    end
+    raise syntax 93.900 array("Encoding: '"encoding"' is not supported as default encoding. Must be compatible with ASCII")
 
 
 ::method setDefaultInputEncoding class
@@ -210,7 +222,12 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
 ::attribute defaultOutputEncoding class set
     expose defaultOutputEncoding
     use strict arg encoding
-    defaultOutputEncoding = self~factory(encoding)
+    newEncoding = self~factory(encoding)
+    if newEncoding~canBeDefaultEncoding then do
+        defaultOutputEncoding = newEncoding
+        return
+    end
+    raise syntax 93.900 array("Encoding: '"encoding"' is not supported as default encoding. Must be compatible with ASCII")
 
 
 ::method setDefaultOutputEncoding class
@@ -985,7 +1002,14 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
 ::method list class
     expose encodings
     use strict arg -- none
-    return encodings~supplier
+    return encodings~copy
+
+
+-- Returns a list of encodings that can be used as default encoding
+::method defaultEncodingList class
+    expose encodings
+    use strict arg -- none
+    return encodings~map{if item~canBeDefaultEncoding then item}
 
 
 ::method factory class

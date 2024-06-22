@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 22 Apr 2024
-</span><span style="font-weight:bold;color:green;">Input queue name: ScbeQ600003f06560
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 22 Jun 2024
+</span><span style="font-weight:bold;color:green;">Input queue name: Sc177Q600001c5f400
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
 <span style="font-weight:bold;color:green;">Load the Unicode character names 15.1.0 
@@ -43,6 +43,113 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacte
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeTranscodings = .false</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeTransformations = .false</span>
+
+
+<span style="font-weight:bold;color:blue;">-- ===============================================================================
+</span><span style="font-weight:bold;color:blue;">-- 2024 June 22
+</span>
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Only ASCII compatible encodings can be used as the default encoding.
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">.stringIndexer~pipe(.subclasses &quot;recursive&quot; | .select {item~canBeDefaultEncoding} | .console)</span>
+1 : (The Byte_Encoding class)
+1 : (The ISO88591_Encoding class)
+2 : (The IBM1252_Encoding class)
+3 : (The WINDOWS1252_Encoding class)
+4 : (The IBM437_Encoding class)
+4 : (The WTF8_Encoding class)
+9 : (The UTF8_Encoding class)
+12 : (The Unicode8_Encoding class)
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">Reason:
+</span><span style="font-weight:bold;color:blue;">The interpreter can return ASCII strings with no stored encoding (per design).
+</span><span style="font-weight:bold;color:blue;">In this case their encoding is the default encoding.
+</span><span style="font-weight:bold;color:blue;">This encoding must be compatible with ASCII.
+</span><span style="font-weight:bold;color:blue;">Examples:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">oldEncoding = .encoding~setDefaultEncoding(&quot;byte&quot;)          </span><span style="font-weight:bold;color:blue;">-- ok</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">.encoding~defaultEncoding = &quot;cp1252&quot;                        </span><span style="font-weight:bold;color:blue;">-- ok</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">.encoding~defaultEncoding = &quot;utf8&quot;                          </span><span style="font-weight:bold;color:blue;">-- ok</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">.encoding~defaultEncoding = &quot;wtf8&quot;                          </span><span style="font-weight:bold;color:blue;">-- ok</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">.encoding~defaultEncoding = &quot;unicode8&quot;                      </span><span style="font-weight:bold;color:blue;">-- ok</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">.encoding~defaultEncoding = &quot;utf16&quot;                         </span><span style="font-weight:bold;color:blue;">-- Encoding: 'utf16' is not supported as default encoding. Must be compatible with ASCII</span>
+<span style="font-weight:bold;color:red;">Encoding: 'utf16' is not supported as default encoding. Must be compatible with ASCII.
+</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">.encoding~defaultEncoding = &quot;utf32&quot;                         </span><span style="font-weight:bold;color:blue;">-- Encoding: 'utf32' is not supported as default encoding. Must be compatible with ASCII</span>
+<span style="font-weight:bold;color:red;">Encoding: 'utf32' is not supported as default encoding. Must be compatible with ASCII.
+</span><span style="font-weight:bold;color:red;">Error code= 93.900
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">.encoding~setDefaultEncoding(oldEncoding)=                  </span><span style="font-weight:bold;color:blue;">-- (The Unicode8_Encoding class)    last default encoding successfully assigned</span>
+(The Unicode8_Encoding class)
+
+ooRexx&gt; <span style="font-weight:bold;color:purple;">system</span>
+sh&gt; <span style="font-weight:bold;color:purple;">executor </span><span style="font-weight:bold;color:blue;">--encoding byte -e &quot;say .encoding~defaultEncoding&quot;     -- The Byte_Encoding class</span>
+The Byte_Encoding class
+sh&gt; <span style="font-weight:bold;color:purple;">executor </span><span style="font-weight:bold;color:blue;">--encoding utf-8 -e &quot;say .encoding~defaultEncoding&quot;    -- The UTF8_Encoding class</span>
+The UTF8_Encoding class
+sh&gt; <span style="font-weight:bold;color:purple;">executor </span><span style="font-weight:bold;color:blue;">--encoding utf-16 -e &quot;say .encoding~defaultEncoding&quot;   -- &quot;utf-16&quot; is an invalid default encoding</span>
+&quot;utf-16&quot; is an invalid default encoding.
+Supported default encodings:
+    28591            : The ISO88591_Encoding class
+    437              : The IBM437_Encoding class
+    819              : The ISO88591_Encoding class
+    8859             : The ISO88591_Encoding class
+    88591            : The ISO88591_Encoding class
+    ASCII8BIT        : The Byte_Encoding class
+    BINARY           : The Byte_Encoding class
+    BYTE             : The Byte_Encoding class
+    BYTES            : The Byte_Encoding class
+    CP1252           : The WINDOWS1252_Encoding class
+    CP437            : The IBM437_Encoding class
+    CP5348           : The WINDOWS1252_Encoding class
+    CP65001          : The UTF8_Encoding class
+    CP819            : The ISO88591_Encoding class
+    CSISOLATIN1      : The ISO88591_Encoding class
+    CSPC8CODEPAGE437 : The IBM437_Encoding class
+    CSWINDOWS1252    : The WINDOWS1252_Encoding class
+    IBM1252          : The IBM1252_Encoding class
+    IBM437           : The IBM437_Encoding class
+    IBM5348          : The WINDOWS1252_Encoding class
+    IBM819           : The ISO88591_Encoding class
+    ISO88591         : The ISO88591_Encoding class
+    ISO885911987     : The ISO88591_Encoding class
+    ISOIR100         : The ISO88591_Encoding class
+    L1               : The ISO88591_Encoding class
+    LATIN            : The ISO88591_Encoding class
+    LATIN1           : The ISO88591_Encoding class
+    UNICODE8         : The Unicode8_Encoding class
+    UTF8             : The UTF8_Encoding class
+    WE8ISO8859P1     : The ISO88591_Encoding class
+    WINDOWS1252      : The WINDOWS1252_Encoding class
+    WINDOWS28591     : The ISO88591_Encoding class
+    WINDOWS437       : The IBM437_Encoding class
+    WTF8             : The WTF8_Encoding class
+<span style="font-weight:bold;color:red;">RC= 255
+</span>sh&gt; <span style="font-weight:bold;color:purple;">oorexx</span>
+
+
+<span style="font-weight:bold;color:blue;">/*
+</span><span style="font-weight:bold;color:blue;">The method setEncoding has now a default value for its 'encoding' argument, which
+</span><span style="font-weight:bold;color:blue;">is the current self encoding. This is useful when the encoding is not stored, and
+</span><span style="font-weight:bold;color:blue;">we want to make it stored. The &quot;setEncoding&quot; message without arguments will be sent
+</span><span style="font-weight:bold;color:blue;">from native methods, without having to send the &quot;encoding&quot; message before.
+</span><span style="font-weight:bold;color:blue;">Examples:
+</span><span style="font-weight:bold;color:blue;">*/
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">s = &quot;a&quot; &quot;string&quot;</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">s~hasEncoding=          </span><span style="font-weight:bold;color:blue;">-- 0</span>
+ 0
+ooRexx&gt; <span style="font-weight:bold;color:purple;">s~encoding=             </span><span style="font-weight:bold;color:blue;">-- (The UTF8_Encoding class)</span>
+(The UTF8_Encoding class)
+ooRexx&gt; <span style="font-weight:bold;color:purple;">s~setEncoding           </span><span style="font-weight:bold;color:blue;">-- make the current encoding persistent if not already stored</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">s~hasEncoding=          </span><span style="font-weight:bold;color:blue;">-- 1</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">s~encoding=             </span><span style="font-weight:bold;color:blue;">-- (The UTF8_Encoding class)</span>
+(The UTF8_Encoding class)
+
+ooRexx&gt; <span style="font-weight:bold;color:purple;">t = &quot;Père&quot; &quot;Noël&quot;</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">t~hasEncoding=          </span><span style="font-weight:bold;color:blue;">-- 1    true because a RexxText has always an encoding</span>
+ 1
+ooRexx&gt; <span style="font-weight:bold;color:purple;">t~string~hasEncoding=   </span><span style="font-weight:bold;color:blue;">-- 1    true because linked to a RexxText</span>
+ 1
 
 
 <span style="font-weight:bold;color:blue;">-- ===============================================================================
@@ -230,23 +337,25 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">s~setEncoding(.nil)     
 </span><span style="font-weight:bold;color:blue;">when no encoding is stored.
 </span><span style="font-weight:bold;color:blue;">Examples:
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">.context~package~hasEncoding=                       </span><span style="font-weight:bold;color:blue;">-- 0                            The encoding is not stored</span>
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">package = {}~rawExecutable~package          </span><span style="font-weight:bold;color:blue;">-- Use a package different from ooRexxShell</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">package~setEncoding(.nil)                   </span><span style="font-weight:bold;color:blue;">-- reset the package encoding, no stored encoding</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">package~hasEncoding=                        </span><span style="font-weight:bold;color:blue;">-- 0                                    The encoding is not stored</span>
  0
-ooRexx&gt; <span style="font-weight:bold;color:purple;">.context~package~encoding=                          </span><span style="font-weight:bold;color:blue;">-- (The UTF8_Encoding class)    It's the default encoding</span>
-(The UTF8_Encoding class)
-ooRexx&gt; <span style="font-weight:bold;color:purple;">oldEncoding = .context~package~setEncoding(&quot;byte&quot;)</span>
-ooRexx&gt; <span style="font-weight:bold;color:purple;">oldEncoding=                                        </span><span style="font-weight:bold;color:blue;">-- (The NIL object)</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">package~encoding=                           </span><span style="font-weight:bold;color:blue;">-- (The Byte_Encoding class)            It's the default encoding for a package not requiring text.cls</span>
+(The Byte_Encoding class)
+ooRexx&gt; <span style="font-weight:bold;color:purple;">oldEncoding = package~setEncoding(&quot;cp1252&quot;)</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">oldEncoding=                                </span><span style="font-weight:bold;color:blue;">-- (The NIL object)</span>
 (The NIL object)
-ooRexx&gt; <span style="font-weight:bold;color:purple;">.context~package~hasEncoding=                       </span><span style="font-weight:bold;color:blue;">-- 1                            The encoding is stored</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">package~hasEncoding=                        </span><span style="font-weight:bold;color:blue;">-- 1                                    The encoding is stored</span>
  1
-ooRexx&gt; <span style="font-weight:bold;color:purple;">.context~package~encoding=                          </span><span style="font-weight:bold;color:blue;">-- (The Byte_Encoding class)</span>
-(The Byte_Encoding class)
-ooRexx&gt; <span style="font-weight:bold;color:purple;">.context~package~setEncoding(oldEncoding)=          </span><span style="font-weight:bold;color:blue;">-- (The Byte_Encoding class)    Previous encoding</span>
-(The Byte_Encoding class)
-ooRexx&gt; <span style="font-weight:bold;color:purple;">.context~package~hasEncoding=                       </span><span style="font-weight:bold;color:blue;">-- 0                            Return to non-stored encoding</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">package~encoding=                           </span><span style="font-weight:bold;color:blue;">-- (The WINDOWS1252_Encoding class)</span>
+(The WINDOWS1252_Encoding class)
+ooRexx&gt; <span style="font-weight:bold;color:purple;">package~setEncoding(oldEncoding)=           </span><span style="font-weight:bold;color:blue;">-- (The WINDOWS1252_Encoding class)     Previous encoding</span>
+(The WINDOWS1252_Encoding class)
+ooRexx&gt; <span style="font-weight:bold;color:purple;">package~hasEncoding=                        </span><span style="font-weight:bold;color:blue;">-- 0                                    Return to non-stored encoding</span>
  0
-ooRexx&gt; <span style="font-weight:bold;color:purple;">.context~package~encoding=                          </span><span style="font-weight:bold;color:blue;">-- (The UTF8_Encoding class)    It's the default encoding</span>
-(The UTF8_Encoding class)
+ooRexx&gt; <span style="font-weight:bold;color:purple;">package~encoding=                           </span><span style="font-weight:bold;color:blue;">-- (The Byte_Encoding class)            It's the default encoding for a package not requiring text.cls</span>
+(The Byte_Encoding class)
 
 
 <span style="font-weight:bold;color:blue;">/*
@@ -787,14 +896,14 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">    &quot;noël&quot; &q
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~setEncoding(&quot;byte&quot;)=             </span><span style="font-weight:bold;color:blue;">-- (The UTF8_Encoding class)    (previous encoding)</span>
 (The UTF8_Encoding class)
 <span style="font-weight:bold;color:blue;">/*
-</span><span style="font-weight:bold;color:blue;">Example, when the default encoding is Byte:
+</span><span style="font-weight:bold;color:blue;">Example, when the package encoding is Byte:
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">oldEncoding = .encoding~setDefaultEncoding(&quot;byte&quot;)</span>
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">oldEncoding = .context~package~setEncoding(&quot;byte&quot;)</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noel&quot;~setEncoding(&quot;windows-1252&quot;)=     </span><span style="font-weight:bold;color:blue;">-- (The Byte_Encoding class)    (previous encoding)</span>
 (The Byte_Encoding class)
-ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~setEncoding(&quot;byte&quot;)=             </span><span style="font-weight:bold;color:blue;">-- (The Byte_Encoding class)    (previous encoding)</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;Noël&quot;~setEncoding(&quot;utf8&quot;)=             </span><span style="font-weight:bold;color:blue;">-- (The Byte_Encoding class)    (previous encoding)</span>
 (The Byte_Encoding class)
-ooRexx&gt; <span style="font-weight:bold;color:purple;">.encoding~setDefaultEncoding(oldEncoding)</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">.context~package~setEncoding(oldEncoding)</span>
 
 
 <span style="font-weight:bold;color:blue;">/*
@@ -8763,8 +8872,8 @@ P.         'WTF8_Encoding'                    : (wtf8_encoding.cls)
 </span><span style="font-weight:bold;color:blue;">
 </span><span style="font-weight:bold;color:blue;">Benchmark using a version where the flag isASCII is not stored:
 </span><span style="font-weight:bold;color:blue;">*/
-</span><span style="font-weight:bold;color:blue;">-- MUST declare the byte encoding as default encoding, otherwise &quot;é&quot; is converted to text and the concatenation is catastrophically long!
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">previousEncoding = .encoding~setDefaultEncoding(&quot;byte&quot;) </span><span style="font-weight:bold;color:blue;">-- backup and change to Byte</span>
+</span><span style="font-weight:bold;color:blue;">-- The package encoding MUST be the byte encoding, otherwise &quot;é&quot; is converted to text and the concatenation is catastrophically long!
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">previousEncoding = .context~package~setEncoding(&quot;byte&quot;) </span><span style="font-weight:bold;color:blue;">-- backup and change to Byte</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">big10m = &quot;0123456789&quot;~copies(1e6)</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">s = big10m                              </span><span style="font-weight:bold;color:blue;">-- 10 millions of ASCII characters, must check all of them</span>
 <span style="font-weight:bold;color:blue;">-- do 1000; s~isASCIIold; end              -- 9.3s
@@ -8779,7 +8888,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">big5m = &quot;01234&quot
 ooRexx&gt; <span style="font-weight:bold;color:purple;">s = big5m || &quot;é&quot; || big5m               </span><span style="font-weight:bold;color:blue;">-- 1 non-ASCII character in the middle of 10 millions of ASCII characters</span>
 <span style="font-weight:bold;color:blue;">-- do 1000; s~isASCIIold; end              -- 4.7s
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">do 1000; s~isASCII; end                 </span><span style="font-weight:bold;color:blue;">-- 0.001s</span>
-ooRexx&gt; <span style="font-weight:bold;color:purple;">.encoding~setDefaultEncoding(previousEncoding) </span><span style="font-weight:bold;color:blue;">-- restore</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">.context~package~setEncoding(previousEncoding) </span><span style="font-weight:bold;color:blue;">-- restore</span>
 
 
 <span style="font-weight:bold;color:blue;">-- ===============================================================================
