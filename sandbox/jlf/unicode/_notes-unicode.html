@@ -552,6 +552,10 @@ jlf: nothing new in this article, just reusing infos from other sites.
 jlf: did not read all the comments
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Mathematical_operators_and_symbols_in_Unicode">https://en.wikipedia.org/wiki/Mathematical_operators_and_symbols_in_Unicode</a>
+This article covers all Unicode characters with a derived property of "Math".
+
+
 <hr><h2 id="U__notation__Unicode_escape_sequence">U+ notation, Unicode escape sequence</h2><hr>
 29/05/2021
 <a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/1273693/why-is-u-used-to-designate-a-unicode-code-point/8891355">https://stackoverflow.com/questions/1273693/why-is-u-used-to-designate-a-unicode-code-point/8891355</a>
@@ -3099,6 +3103,52 @@ jlf: next is an answer on icu-support@lists.sourceforge.net
         <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr10/#Searching">https://www.unicode.org/reports/tr10/#Searching</a>
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://docs.google.com/document/d/1_sbbFermCe24uK9Q59AOSY2XKnl2qQPCTrmUExrcDaI/edit#heading=h.86zz4h2lnsqb">https://docs.google.com/document/d/1_sbbFermCe24uK9Q59AOSY2XKnl2qQPCTrmUExrcDaI/edit#heading=h.86zz4h2lnsqb</a>
+[icu-design] Mixed locales
+Mail from Rich Williams
+The topic of mixed locales (aka region-based inheritance/fallback) came up in
+this morning’s CLDR/iCU design meeting, and it sounded like maybe it was time to
+restart the discussion we had on this topic a couple years ago.
+I was asked to again send around the proposal I wrote up for this back then.
+So here it is.
+
+
+[icu-support] Rounding collated strings up/down
+    On Thu, May 9, 2024 at 2:56 PM Stefan Kandic &lt;stefan.kandic@databricks.com&gt; wrote:
+        | Let's say you are working with a string "abcdef" with utf8 binary collation
+        | and you want to truncate it to only 3 characters,
+        | rounded down version would just be "abc" =&gt; all strings that are greater than
+        | the original are also greater than the new one
+Markus Scherer
+    The complication here would be contractions and expansions, and interactions with
+    normalization.
+
+    It would probably be best if you normalized the input to NFD, or at least to
+    something that fits "FCD" (which is supported in ICU), in order to avoid canonical
+    reordering.
+
+    Then you should be able to use a CollationElementIterator and observe when its
+    source text index moves. When you are inside an expansion, it should remain the
+    same for several collation elements.
+    And when it moves, it will have consumed multiple characters for a contraction.
+    For example, in Slovak it will move from before "ch" to after it, not in between.
+
+        | rounded up version would be "abd" or even "ab" + utf8 max character
+        | =&gt; all strings that are less than the original are also less than the new one
+
+    This kind of "rounding up" is supported in CLDR/ICU collation.
+    Take your lower bound and append a U+FFFF.
+    See <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr35/tr35-collation.html#tailored_noncharacter_weights">https://www.unicode.org/reports/tr35/tr35-collation.html#tailored_noncharacter_weights</a>
+
+        | Basically, idea is to get truncated values to save on storage but also to have
+        | sortKey(roundedDown) &lt; sortKey(original) &lt; sortKey(roundedUp) be as tight bound
+        | as possible.
+
+    Try to avoid "rounding down" because it's messy.
+    ICU uses several tricks to "compress" sort keys while maintaining their binary order.
+    Note that sort keys are not stable across Unicode/CLDR/ICU versions.
+
+
 <hr><h2 id="ICU_demos">ICU demos</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://icu4c-demos.unicode.org/icu-bin/icudemos">https://icu4c-demos.unicode.org/icu-bin/icudemos</a>
 todo: review
@@ -3895,30 +3945,46 @@ to know informations in this thread. In particular this URL:
 
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/3284#issuecomment-1911226051">https://github.com/unicode-org/icu4x/issues/3284#issuecomment-1911226051</a>
 Should the Segmenter types accept a locale?
----
-Steven Loomis:
-Please put it into the API.
-I was doing planning on a work item to move this forward.
-This is for example languages that want to keep "ch" together etc.
----
-jlf: so it appears from the discussion that ICU4C implements specific rules that
-are not part of UAX #29.
----
-sffc
-The conclusions from the discussion of this issue with the CLDR design group:
-- Grapheme clusters should not be language-specific; baked into much low-level
-  processing (e.g., Swift, font mappings) which we don’t want to be language-specific
-- Content locale/text language parameter (not UI locale): Potential for accuracy;
-  make it optional, name it well
-- Ok to leave the locale on the constructor; benefit: more specific data loading
-  even for existing dictionaries &amp; models
-My suggested path forward for this issue, then, is to add an options bag to the
-WordSegmenter, LineSegmenter, and SentenceSegmenter constructors with an optional
-content_locale field of type &amp;LanguageIdentifier.
----
-Steven Loomis
-This makes no sense and contradicts the long standing requests.
-I would have joined, did not realize this was coming up today.
+    ---
+    Steven Loomis:
+    Please put it into the API.
+    I was doing planning on a work item to move this forward.
+    This is for example languages that want to keep "ch" together etc.
+    ---
+    jlf: so it appears from the discussion that ICU4C implements specific rules that
+    are not part of UAX #29.
+    ---
+    Markus Scherer:
+        No language parameter for grapheme cluster segmenter
+    +1
+        Language parameter for the other three segmenters
+    +1
+    ---
+    sffc
+    The conclusions from the discussion of this issue with the CLDR design group:
+    - Grapheme clusters should not be language-specific; baked into much low-level
+      processing (e.g., Swift, font mappings) which we don’t want to be language-specific
+    - Content locale/text language parameter (not UI locale): Potential for accuracy;
+      make it optional, name it well
+    - Ok to leave the locale on the constructor; benefit: more specific data loading
+      even for existing dictionaries &amp; models
+    My suggested path forward for this issue, then, is to add an options bag to the
+    WordSegmenter, LineSegmenter, and SentenceSegmenter constructors with an optional
+    content_locale field of type &amp;LanguageIdentifier.
+    ---
+    Steven Loomis
+    This makes no sense and contradicts the long standing requests.
+    I would have joined, did not realize this was coming up today.
+    ---
+    sffc
+    Based on additional discussion in the email thread, I would like to move forward
+    with the recommendation in #3284 (comment), with the additional understanding
+    that we may add support for locale-based grapheme segmentation in the future if
+    CLDR adds data for this, but it might take the form of another (fifth) segmenter type.
+    Concretely:
+    - All segmenters retain a new or try_new function without an options bag
+    - Word, Sentence, and Line segmenters get a try_new_with_options function that
+      includes a content_locale option
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/58">https://github.com/unicode-org/icu4x/issues/58</a>
@@ -3928,15 +3994,6 @@ Design a cohesive solution for supported locales
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/tc39/proposal-intl-segmenter/issues/133">https://github.com/tc39/proposal-intl-segmenter/issues/133</a>
 Custom Dictionaries
 and a political point of view from a Hong Kong immigrant.
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/3284">https://github.com/unicode-org/icu4x/issues/3284</a>
-Should the Segmenter types accept a locale?
-Markus Scherer:
-    No language parameter for grapheme cluster segmenter
-+1
-    Language parameter for the other three segmenters
-+1
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/3990">https://github.com/unicode-org/icu4x/issues/3990</a>
@@ -5842,6 +5899,11 @@ utf8proc:
      5 : ( "‍"    U+200D Cf 0 "ZERO WIDTH JOINER", "ZWJ" )
      6 : ( "🌈"  U+1F308 So 2 "RAINBOW" )
      7 : ( "!"   U+0021 Po 1 "EXCLAMATION MARK" )
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.reddit.com/r/golang/comments/1d19uon/why_can_the_go_string_type_contain_invalid_utf8/">https://www.reddit.com/r/golang/comments/1d19uon/why_can_the_go_string_type_contain_invalid_utf8/</a>
+Why can the Go `string` type contain invalid UTF-8 data?
+jlf: nothing interesting, it's Go vs Rust, and nobody wins.
 
 
 <hr><h2 id="jRuby_lang">jRuby lang</h2><hr>
