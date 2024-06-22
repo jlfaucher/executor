@@ -1819,6 +1819,9 @@ Currently it's
     self~settingsFile = HOME || "/.oorexxshell.ini"
     self~historyFile = HOME || "/.oorexxshell_history"
 
+11/06/2024 done
+
+
 ================================================================================
 ICU4X
 ================================================================================
