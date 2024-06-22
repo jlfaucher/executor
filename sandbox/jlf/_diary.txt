@@ -20,6 +20,27 @@ I have an error when cloning the Github repository.
 I suspect it's because of the ICU4X libraries that I put in the source directory.
 Since I dont't use yet ICU4X, I decide to remove it from the Github repository.
 
+After push:
+The error is still there.
+No error when using ssh, but this is not a solution because works only for me (password)
+
+Workaround:
+use --depth 1
+git clone --depth 1 https://github.com/jlfaucher/executor.git
+
+Strange... after the git clone, I have changes reported by git status.
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   sandbox/jlf/demos/executor-demo-extensions-output.html
+        modified:   sandbox/jlf/demos/executor-demo-extensions-output.txt
+        modified:   sandbox/jlf/demos/ooRexxShell-demo-queries-output.html
+        modified:   sandbox/jlf/demos/ooRexxShell-demo-queries-output.txt
+        modified:   sandbox/jlf/tests/encoding/diary_examples.output.html
+git restore does not make them disapear.
+I's maybe related to EOL, I have that under macOS, under WSL.
+But not under Windows.
+
 
 ===============================================================================
 2024 Mai 12

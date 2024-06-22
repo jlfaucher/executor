@@ -1559,7 +1559,6 @@ Example of builtin function override:
 The support of the encoded strings is implemented in [trunk/interpreter/classes/TextClass.cpp](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/trunk/interpreter/classes/TextClass.cpp).
     
 Libraries:
-- [trunk/interpreter/classes/support/m17n/icu4x](https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/trunk/interpreter/classes/support/m17n/icu4x)
 - [trunk/interpreter/classes/support/m17n/uni-algo](https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/trunk/interpreter/classes/support/m17n/uni-algo)
 - [trunk/interpreter/classes/support/m17n/utf8proc](https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/trunk/interpreter/classes/support/m17n/utf8proc)
 

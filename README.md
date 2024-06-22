@@ -38,7 +38,6 @@ Main ideas explored with this prototype:
 Prototype based on:
 - [utf8proc][utf8proc]
 - [uni-algo][uni_algo]
-- [ICU4X][ICU4X]
 
 Notes about Unicode:
 - [URLs with annotations][notes_unicode]
@@ -416,7 +415,6 @@ I gave up my extensions.
 [encoded_strings_concatenation]: https://jlfaucher.github.io/executor.master/tests/encoding/main_concatenation.output.html
 [encoded_strings_diary_exemples]: https://jlfaucher.github.io/executor.master/tests/encoding/diary_examples.output.html
 [encoded_strings_transcoding]: https://jlfaucher.github.io/executor.master/tests/encoding/main_conversion.output.html
-[ICU4X]: https://github.com/unicode-org/icu4x
 [internal_documentation_classes]: https://jlfaucher.github.io/executor.master/doxygen/html/classes.html
 [internal_documentation_files]: https://jlfaucher.github.io/executor.master/doxygen/html/files.html
 [internal_notes]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/internals/notes "Internal notes"
