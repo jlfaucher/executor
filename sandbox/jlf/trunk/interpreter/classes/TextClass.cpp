@@ -682,7 +682,7 @@ RexxObject *Unicode::utf8proc_transform(RexxString *string, RexxObject **named_a
 {
     string = stringArgument(string, OREF_positional, ARG_ONE);
 
-    // use strict named arg casefold(5) = .false, lump= .false, nlf = 0, normalization(4) = 0, stripCC(6) = .false, stripIgnorable(6)= .false, stripMark(6) = .false, stripNA(6) = .false
+    // use strict named arg casefold = .false, lump= .false, nlf = 0, normalization = 0, stripCC = .false, stripIgnorable= .false, stripMark = .false, stripNA = .false
     NamedArguments expectedNamedArguments(8); // 8 named arguments
     expectedNamedArguments[0] = NamedArgument("CASEFOLD",      TheFalseObject); // default value = .false
     expectedNamedArguments[1] = NamedArgument("LUMP",          TheFalseObject); // default value = .false
