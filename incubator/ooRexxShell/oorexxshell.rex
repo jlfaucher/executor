@@ -584,7 +584,7 @@ Helpers
     -- Bypass a bug in official ooRexx 4 which delegates to system() when the passed address is bash.
     -- The bug is that system() delegates to /bin/sh, and should be called only when the passed address is sh.
     -- Because of this bug, the readline procedure (which depends on bash) is not working and must be deactivated.
-    if .ooRexxShell~isInteractive, .ooRexxShell~readlineAddress~caselessEquals("bash") then do
+    if .ooRexxShell~readline, .ooRexxShell~isInteractive, .ooRexxShell~readlineAddress~caselessEquals("bash") then do
         address value .ooRexxShell~readlineAddress
             "echo $BASH_VERSION | rxqueue "quoted(.ooRexxShell~queueName)" /lifo"
         address -- restore
