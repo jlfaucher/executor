@@ -3,6 +3,16 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2024 Jul 02
+
+Align the result of the C2X BIF with the result of the C2X BIM
+c2x("Noël")=    -- '4E 6F C3AB 6C' (was '4E6FC3AB6C')
+"Noël"~c2x=     -- '4E 6F C3AB 6C'
+c2x("Noel")=    -- '4E6F656C' (unchanged)
+"Noel"~c2x=     -- '4E6F656C' (unchanged)
+
+
+===============================================================================
 2024 June 22
 
 [Encoded strings]

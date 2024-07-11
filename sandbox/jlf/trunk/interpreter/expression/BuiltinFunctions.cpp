@@ -945,6 +945,9 @@ BUILTIN(X2B)
 BUILTIN(C2X)
 {
     fix_args(C2X);                       /* check on required number of args  */
+
+    TEXT_BIF_TARGET1(C2X, string);
+
                                          /* must have the first string        */
     RexxString *string = required_string(C2X, string);
     return string->c2x();                /* do the c2x function               */
