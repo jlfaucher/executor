@@ -1495,7 +1495,7 @@ bitAnd                          full, always forward to String
 bitOr                           full, always forward to String
 bitXor                          full, always forward to String
 c2d                             full, always forward to String
-c2x                             full, always forward to String
+c2x                             full
 caselessAbbrev
 caselessChangeStr
 caselessCompare                 full UTF-8
