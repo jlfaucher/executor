@@ -1,4 +1,3 @@
-https://martinheinz.dev/blog/97
 Python is 32 years old language, yet it still doesn't have proper, true parallelism/concurrency.
 This is going to change soon, thanks to introduction of a "Per-Interpreter GIL"
 (Global Interpreter Lock) which will land in Python 3.12.
@@ -27,6 +26,8 @@ processes found in languages like Go and Clojure.
 ===============================================================================
 
 https://github.com/llvm/llvm-project/blob/main/llvm/docs/Atomics.rst
+LLVM Atomic Instructions and Concurrency Guide
+
 
 ===================================================================================
 Extracted from
@@ -170,6 +171,7 @@ them even if the language had them.”
 
 maksimum
 Yes, async/await. https://docs.python.org/3/library/asyncio-task.html#awaitabl...
+Coroutines and Tasks
 
 
 weff_
@@ -296,9 +298,6 @@ http://www.haskell.org/haskellwiki/GHC/Data_Parallel_Haskell
 
 
 http://herbsutter.com/welcome-to-the-jungle/
-
-
-http://soniacodes.wordpress.com/2011/03/15/concurrency-review/
 
 
 http://threadingbuildingblocks.org/
@@ -657,3 +656,270 @@ RexxVariableDictionary * RexxActivation::getObjectVariables()
     /* return the vdict                  */
     return this->settings.object_variables;
 }
+
+
+================================================================================
+code review
+================================================================================
+
+I interlace your comments with the C++ source, because only the source code is the truth.
+Had no time to reword your description (because I think some parts should be reworded).
+
+
+> On 7 Jul 2024, at 12:20, Rony G. Flatscher <Rony.Flatscher@wu.ac.at> wrote:
+
+> having slept over it, maybe it is a good idea to reconcile all aspects that can be observed and understood by the comments, and try to come up with the most simple description, that is understandable and complete. This is such an attempt:
+
+    +1
+    Not an easy subject, the description must be compared with the source code, again and again.
+
+> ooRexx does not employ a binary guard lock, rather a count based guard lock, with the following rules:
+    ok, you explained already that in rexxref:
+    "L5": "L" stands for scope lock count and the number (a counter) indicates how many object scope lock reservations have taken place at that point in time. Whenever another guarded method of the same scope gets invoked the object's scope lock count increases by one, upon return the object's scope lock count decreases by one.
+
+
+
+> if the guard lock count is > 0 for a specific invocation, then only invocations of guarded methods are possible on that specific invocation (no matter on which thread in the case of REPLY);
+    To reword because unguarded methods can access, as written in point 4.
+    “specific invocation” sounds incorrect when talking about lock count. Should be “specific scope”
+
+    The scope lock is a property of the invocation (RexxActivation):
+        // guard scopy settings
+        typedef enum
+        {
+            SCOPE_RELEASED = 0,
+            SCOPE_RESERVED = 1,
+        } GuardStatus;
+        GuardStatus     objectScope;     // reserve/release state of variables
+    “scopy” is not a typo on my part.
+    Don’t know if it’s a typo by the programmer, or if it’s intentional.
+
+    The lock count is a property of the scope’s variables (VariableDictionnary):
+        unsigned short reserveCount;         // number of times reserved
+        RexxClass *scope;                    // scopy of this object dictionary
+
+
+> an attempt to invoke of a guarded method from any other invocation (would run on a separate thread) gets blocked, waiting on the guard lock count to drop to 0 before attempting to acquire the guard lock,
+    ok, same comment as the previous:
+    The critical resource is the scope’s variables (technically the VariableDictionnary)
+
+    reserve() is called when the method requesting the access to the scope’s variables is guarded:
+
+    /**
+     * Reserve a scope on an object, waiting for completion if this
+     * is already reserved by another activity
+     *
+     * @param activity The activity reserving the scope.
+     */
+    void VariableDictionary::reserve(Activity *activity)
+    {
+        // not reserved at all?  This is easy.
+        if (reservingActivity == OREF_NULL)
+        {
+            // Activity objects are automatically safe from
+            // garbage collection and this is something we
+            // want to occur as quickly a possible, so just assign
+            // this value directly without worrying about old-to-new issues.
+            reservingActivity = activity;
+            reserveCount = 1;
+        }
+        // doing this again on the same stack?  Just bump the
+        // nesting count. Note that nested activities created via
+        // attach thread will count as being part of the same activity
+        // stack since they are on the same system thread.
+        else if (activity->isSameActivityStack(reservingActivity))
+        {
+            reserveCount++;
+        }
+        // we have an access collision.  We need to wait on this one.
+        else
+        {
+            reservingActivity->checkDeadLock(activity);
+            // this one we need to use setField()
+            if (waitingActivities == OREF_NULL)
+            {
+                setField(waitingActivities, new_array());
+            }
+            // add to the end of the queue
+            waitingActivities->append(activity);
+            // ok, now we wait
+            activity->waitReserve(this);
+        }
+    }
+
+    release() is called when the guarded method is ended, or when it executes guard off:
+
+    /**
+     * Release the lock on an object's variable dictionary.
+     *
+     * @param activity The activity owning the lock.
+     */
+    void VariableDictionary::release(Activity *activity)
+    {
+        reserveCount--;
+        // if this is the last reserver on this activity, we just clear everything out
+        if (reserveCount == 0)
+        {
+            // setField() not required here.  See comment in reserve()
+            reservingActivity = OREF_NULL;
+            // potential waiters?
+            if (waitingActivities != OREF_NULL && !waitingActivities->isEmpty())
+            {
+                // remove the first item and make it the new reserver
+                reservingActivity = (Activity *)waitingActivities->removeFirst();
+                reserveCount = 1;
+                // wake up the waiting activity.
+                reservingActivity->guardPost();
+            }
+        }
+    }
+
+
+> if a REPLY keyword statement is processed in a currently guarded method the remainder of the invocation will remain guarded such that no other guarded methods can be invoked from different invocations (on different threads), this keeps serializing access to guarded methods from different invocations as they get blocked,
+
+> if a REPLY keyword statement is processed in a currently unguarded method the remainder of the invocation will continue on a different thread also unguarded; in this case if the guard lock count is 0 a guarded method could get invoked in between of the switch to the new thread,
+    ok
+
+    transfer is called by RexxActivation::run when objectScope == SCOPE_RESERVED (i.e. when the invocation holds the scope lock).
+    Here, the reserveCount is >= 1.
+
+
+    /**
+     * Transfer the variable dictionary lock to another
+     * activity.  Occurs when a reply has been issued.
+     *
+     * @param activity The new activity.
+     *
+     * @return true if the reservation could transfer, false if there
+     *         is nesting taking place that prevents this from occurring.
+     */
+    bool VariableDictionary::transfer(Activity *activity)
+    {
+        // if there is only a single level of nesting, just change the reserving activity
+        if (reserveCount == 1)
+        {
+            // NOTE:  Not using setField
+            reservingActivity = activity;
+            // indicate the transfer is complete
+            return true;
+        }
+        // multiple nesting levels...we perform a release for this activation level,
+        // but this activity still owns the lock.
+        else
+        {
+            release(activity);
+            // could not release.
+            return false;
+        }
+    }
+
+    In RexxActivation::run when in REPLIED state:
+                    // if we have the scope lock, try to transfer it to the new activity.  If
+                    // the lock is nested on this activity, then we will need to
+                    // obtain it when we start running on the new thread.
+                    if (objectScope == SCOPE_RESERVED)
+                    {
+                        if (!settings.objectVariables->transfer(activity))
+                        {
+                            // this will tell us that we need to try grabbing this again.
+                            settings.setTransferFailed(true);
+                        }
+                    }
+
+    In RexxActivation, the part after the reply, in the new thread:
+        // resuming on a new thread after a reply
+        else
+        {
+            // if we could not keep the guard lock when we were spun off, then
+            // we need to reacquire (and potentially wait) for the lock now.
+            if (settings.hasTransferFailed())
+            {
+                settings.objectVariables->reserve(activity);
+                // turn off the failure flag in case we spin off again.
+                settings.setTransferFailed(false);
+            }
+        }
+
+
+
+> unguarded methods can always be invoked from any thread independent of guarded methods.
+    ok
+
+    In RexxActivation::run, we can see that reserve is called only when the method is guarded
+    so an unguarded method is not blocked:
+                // this is a method call.  We need to do some method setup.
+                else
+                {
+                    // guarded methods need to reserve the object scope
+                    if (isGuarded())
+                    {
+                        // get the object variables and reserve these
+                        settings.objectVariables = receiver->getObjectVariables(scope);
+
+                        // For proper diagnostic in case of deadlock, do the trace now
+                        traceEntry();
+
+                        settings.objectVariables->reserve(activity);
+                        objectScope = SCOPE_RESERVED;
+                    }
+                    // initialize the SELF and SUPER variables
+                    setLocalVariable(GlobalNames::SELF, VARIABLE_SELF, receiver);
+                    setLocalVariable(GlobalNames::SUPER, VARIABLE_SUPER, receiver->superScope(scope));
+                }
+
+    We can see in the code above that settings.objectVariables is assigned only when the method is guarded.
+    But there is also this method which takes care of settings.objectVariables.
+
+    /**
+     * Return the object variables dictionary for the current
+     * scope level.
+     *
+     * @return the target object variables.
+     */
+    VariableDictionary* RexxActivation::getObjectVariables()
+    {
+        // not retrieved yet?  We need the dictionary from the current method scope.
+        if (settings.objectVariables == OREF_NULL)
+        {
+            settings.objectVariables = receiver->getObjectVariables(scope);
+            // are we a guarded method?  Get the guard lock now.
+            if (isGuarded())
+            {
+                settings.objectVariables->reserve(activity);
+                objectScope = SCOPE_RESERVED;
+            }
+        }
+        return settings.objectVariables;
+    }
+
+
+> This would imply that in your deadlock example that the invocation of M2 in the routine's invocation blocks until the lock count drops to 0 in the M1 invocation as that invocation has a guard lock count > 0.
+
+    yes but the lock count is a property of the scope’s variables, not a property of an invocation.
+
+
+Illustration (the full trace is in the mail)
+
+[T2 I3 G   A1 L1 *  ]  10 *-* reply
+[T2 I3 G   A1 L1 *  ]     <I< Method "INIT" with scope "CLZ"
+[T2 I2]                   >>>   "a CLZ"
+[T2 I2]                 2 *-* call syssleep 0.5
+[T3 I3 G   A1 L1 *  ]     >I> Method "INIT" with scope “CLZ”            rule 3: still guarded
+[T3 I3 G   A1 L1 *  ]  12 *-* self~m1                                   rule 1: invokation on the same thread
+[T3 I4 G   A1 L1    ]     >I> Method "M1" with scope “CLZ”              early entry trace, before a possible reservation: the guard lock counter and guard lock are not yet updated
+[T3 I4 G   A1 L2 *  ]  15 *-* expose a   -- exclusive access            attribute pool reserved from the same thread, not blocking, counter + 1 = 2 (It’s not the expose instruction which changes the counter)
+The guard off in M1 will release the attribute pool, but the counter will still be 1.
+The invokation o~m2 from another thread will be blocked: dead-lock.
+
+
+[T2 I3 G   A1 L1 *  ]  10 *-* reply
+[T2 I3 G   A1 L1 *  ]     <I< Method "INIT" with scope "CLZ"
+[T2 I2]                   >>>   "a CLZ"
+[T2 I2]                 2 *-* call syssleep 0.5
+[T3 I3 G   A1 L1 *  ]     >I> Method "INIT" with scope “CLZ”            rule 3: still guarded
+[T3 I3 G   A1 L1 *  ]  11 *-* guard off  -- now no deadlock anymore     release the attribute pool. The trace is done before the effective release
+[T3 I3 G u A1 L0    ]  12 *-* self~m1    -- now unguarded               attribute pool released: counter - 1 = 0
+[T3 I4 G   A1 L0    ]     >I> Method "M1" with scope "CLZ"
+[T3 I4 G   A1 L1 *  ]  15 *-* expose a   -- exclusive access            attribute pool reserved from the same thread, not blocking, counter + 1 = 1
+The guard off in M1 will release the attribute pool, and the counter will become 0.
+The invokation o~m2 from another thread will not be blocked: no dead-lock.
