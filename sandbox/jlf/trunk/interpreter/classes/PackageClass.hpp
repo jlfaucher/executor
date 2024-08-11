@@ -112,7 +112,7 @@ public:
 
 protected:
     RexxSource *source;             // the wrappered source object
-    RexxObject *encoding;           // package encoding (annotation)
+    RexxObject *encoding;           // package encoding or OREF_NULL
 
 
 };

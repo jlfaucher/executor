@@ -179,7 +179,7 @@ class RexxMutableBufferClass : public RexxClass {
    size_t            defaultSize;     /* default size when emptied       */
    size_t            dataLength;      // current length of data in bytes
    size_t             Attributes;      /* buffer attributes               */
-   RexxObject        *encoding;        // mutable buffer encoding (annotation)
+   RexxObject        *encoding;        // mutable buffer encoding or OREF_NULL
    RexxBuffer        *data;            /* buffer used for the data        */
  };
 
