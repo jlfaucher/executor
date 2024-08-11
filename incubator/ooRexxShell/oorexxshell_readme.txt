@@ -289,7 +289,7 @@ A second optional file "custom2.rex" is loaded after all preloaded packages.
 
 The customization files are searched first in the portable directory (if applicable),
     (.ooRexxShell~portableHome)/.config/oorexxshell/custom1.rex
-    (.ooRexxShell~portableHome)/.config/oorexxshell/custom1.rex
+    (.ooRexxShell~portableHome)/.config/oorexxshell/custom2.rex
 then in the user's home directory.
     XDG_CONFIG_HOME/oorexxshell/custom1.rex
     XDG_CONFIG_HOME/oorexxshell/custom2.rex

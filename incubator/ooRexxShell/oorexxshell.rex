@@ -2111,7 +2111,7 @@ Helpers
     say "    debug off|on: deactivate|activate the full trace of the internals of ooRexxShell."
     say "    demo off|on|fast: deactivate|activate the demonstration mode."
     say "    exit: exit ooRexxShell."
-    say "    goto <label>: used in a demo script to skip lines, until <label>: (note colon) is reached."
+    say "    goto <label>: used in a demo script to skip lines, until <label:> (note colon) is reached."
     say "    indent+ | indent-: used by the command < to show the level of inclusion."
     say "    infos off|on|next: deactivate|activate the display of informations after each execution."
     say "    prompt off|on [a[ddress]] [d[irectoy]] [i[nterpret]]: deactivate|activate the display of the prompt components."
