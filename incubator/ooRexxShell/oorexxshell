@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # macOS: The variable DYLD_LIBRARY_PATH is unset because of System Integrity Protection.
-[ $EXECUTOR_LD_LIBRARY_PATH ] && export DYLD_LIBRARY_PATH=$EXECUTOR_DYLD_LIBRARY_PATH
+[ $EXECUTOR_DYLD_LIBRARY_PATH ] && export DYLD_LIBRARY_PATH=$EXECUTOR_DYLD_LIBRARY_PATH
 
 # Portable version
 prepend_path()
