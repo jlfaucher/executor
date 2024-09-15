@@ -375,11 +375,13 @@ Depends on
 
 ::method UTF8
     use strict arg -- none
+    -- The named arguments are automatically forwarded
     forward message "transcodeTo" arguments ( .array~of(.UTF8_Encoding) )
 
 
 ::method WTF8
     use strict arg -- none
+    -- The named arguments are automatically forwarded
     forward message "transcodeTo" arguments ( .array~of(.WTF8_Encoding) )
 
 
@@ -389,11 +391,13 @@ Depends on
 
 ::method UTF16BE
     use strict arg -- none
+    -- The named arguments are automatically forwarded
     forward message "transcodeTo" arguments ( .array~of(.UTF16BE_Encoding) )
 
 
 ::method UTF16LE
     use strict arg -- none
+    -- The named arguments are automatically forwarded
     forward message "transcodeTo" arguments ( .array~of(.UTF16LE_Encoding) )
 
 
@@ -403,11 +407,13 @@ Depends on
 
 ::method WTF16BE
     use strict arg -- none
+    -- The named arguments are automatically forwarded
     forward message "transcodeTo" arguments ( .array~of(.WTF16BE_Encoding) )
 
 
 ::method WTF16LE
     use strict arg -- none
+    -- The named arguments are automatically forwarded
     forward message "transcodeTo" arguments ( .array~of(.WTF16LE_Encoding) )
 
 
@@ -417,11 +423,13 @@ Depends on
 
 ::method UTF32BE
     use strict arg -- none
+    -- The named arguments are automatically forwarded
     forward message "transcodeTo" arguments ( .array~of(.UTF32BE_Encoding) )
 
 
 ::method UTF32LE
     use strict arg -- none
+    -- The named arguments are automatically forwarded
     forward message "transcodeTo" arguments ( .array~of(.UTF32LE_Encoding) )
 
 
@@ -431,19 +439,23 @@ Depends on
 
 ::method UnicodeN
     use strict arg -- none
+    -- The named arguments are automatically forwarded
     forward message "transcodeTo" arguments ( .array~of("UnicodeN") )
 
 
 ::method Unicode8
     use strict arg -- none
+    -- The named arguments are automatically forwarded
     forward message "transcodeTo" arguments ( .array~of(.Unicode8_Encoding) )
 
 
 ::method Unicode16
     use strict arg -- none
+    -- The named arguments are automatically forwarded
     forward message "transcodeTo" arguments ( .array~of(.Unicode16_Encoding) )
 
 
 ::method Unicode32
     use strict arg -- none
+    -- The named arguments are automatically forwarded
     forward message "transcodeTo" arguments ( .array~of(.Unicode32_Encoding) )
