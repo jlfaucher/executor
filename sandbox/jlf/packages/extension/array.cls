@@ -943,6 +943,39 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
 
 ::attribute defaultSparseValue
 
+/*
+Element-wise
+
+https://en.wiktionary.org/wiki/elementwise
+(mathematics) Obtained by operating on one element (of a matrix etc) at a time
+
+https://en.wikipedia.org/wiki/Hadamard_product_(matrices)
+In mathematics, the Hadamard product (also known as the element-wise product,
+entrywise product or Schur product) is a binary operation that takes in two
+matrices of the same dimensions and returns a matrix of the multiplied
+corresponding elements.
+jlf: the section "In programming languages" is interesting...
+- In MATLAB, the Hadamard product is expressed as "dot multiply":
+  a .* b, or the function call: times(a, b)
+- The programming language Julia has similar syntax as MATLAB, where Hadamard
+  multiplication is called broadcast multiplication and also denoted with a .* b
+- The NumPy numerical library interprets a*b or a.multiply(b) as the Hadamard
+  product, and uses a@b or a.matmul(b) for the matrix product.
+- In C++, the Eigen library provides a cwiseProduct member function for the
+  Matrix class (a.cwiseProduct(b))
+- In Fortran, R, APL, J and Wolfram Language (Mathematica), the multiplication
+  operator * or × apply the Hadamard product, whereas the matrix product is
+  written using matmul, %*%, +.×, +/ .* and ., respectively.
+
+https://www.maplesoft.com/support/help/maple/view.aspx?path=operators%2Felementwise
+- An element-wise operation allows you to distribute the operation over the
+  elements of a data container.
+- An element-wise function allows you to apply a function to the elements of a
+  data container.
+- The data container can be a list, set, table, Array, Matrix, or Vector.
+
+*/
+
 ::method leftElementWise
     /*
     A copy of all nested arrays is done. The self-references are adjusted.
