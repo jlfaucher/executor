@@ -890,14 +890,6 @@ void RexxMemory::restoreImage()
             /*  Yes, mark other referenced objs  */
             ((RexxObject *)objectPointer)->liveGeneral(RESTORINGIMAGE);
 
-#if debug_encoding
-        if (primitiveTypeNum == T_String)
-        {
-            RexxString *string = (RexxString *)objectPointer;
-            printf("RexxMemory::restoreImage string=%p text=%p encoding=%p %s\n", string, string->getText(), string->getEncoding(), string->getStringData());
-        }
-#endif
-
         /* Point to next object in image..   */
         objectPointer += ((RexxObject *)objectPointer)->getObjectSize();
 

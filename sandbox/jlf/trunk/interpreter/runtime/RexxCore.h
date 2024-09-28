@@ -92,9 +92,6 @@ const int ARG_NINE   = 9;
 const int ARG_TEN    = 10;
 
 
-#define debug_encoding 0
-
-
 /* Object Reference Assignment */
 // #define CHECKOREFS 1
 #ifndef CHECKOREFS

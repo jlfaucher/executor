@@ -4767,10 +4767,6 @@ RexxString *RexxSource::commonString(
         this->strings->put(string, string);/* add this to the table             */
         result = string;                   /* also the final value              */
     }
-#if debug_encoding // debug encoding
-    if ((string->getText() != OREF_NULL && string->getText() != string) || (string->getEncoding() != OREF_NULL && string->getEncoding() != string)) printf("RexxSource::commonString string (in) PANIC string=%p text=%p encoding=%p %s\n", string, string->getText(), string->getEncoding(), string->getStringData());
-    if ((result->getText() != OREF_NULL && result->getText() != result) || (result->getEncoding() != OREF_NULL && result->getEncoding() != result)) printf("RexxSource::commonString result (out) PANIC result=%p text=%p encoding=%p %s\n", result, result->getText(), result->getEncoding(), result->getStringData());
-#endif // debug encoding
     return result;                       /* return the string                 */
 }
 

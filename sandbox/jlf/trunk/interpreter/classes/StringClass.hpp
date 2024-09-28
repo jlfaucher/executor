@@ -126,8 +126,6 @@ inline char IntToHexDigit(int n)
    RexxString();
    // inline RexxString(RESTORETYPE restoreType) { ; };
    RexxString(RESTORETYPE restoreType);
-   void checkTE(const char *method);
-   void checkTE(RESTORETYPE restoreType);
 
    void        live(size_t);
    void        liveGeneral(int reason);

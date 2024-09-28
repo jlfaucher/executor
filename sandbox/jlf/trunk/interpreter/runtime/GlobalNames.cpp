@@ -55,14 +55,7 @@ void RexxMemory::createStrings()
                                        /* redefine the GLOBAL_NAME macro    */
                                        /* to create each of the strings     */
 #undef GLOBAL_NAME
-#if debug_encoding // debug encoding
-    // Never had a PANIC
-    #define GLOBAL_NAME(name, value) \
-        OREF_##name = getGlobalName(value); \
-        if (OREF_##name->getEncoding() != OREF_NULL && OREF_##name->getEncoding() != OREF_##name) printf("RexxMemory::createStrings PANIC string=%p encoding=%p %s\n", OREF_##name, OREF_##name->getEncoding(), OREF_##name->getStringData());
-#else
-    #define GLOBAL_NAME(name, value) OREF_##name = getGlobalName(value);
-#endif
+#define GLOBAL_NAME(name, value) OREF_##name = getGlobalName(value);
 
 #include "GlobalNames.h"             /* now create the strings            */
 }
@@ -88,13 +81,7 @@ RexxArray *RexxMemory::saveStrings()
                                        /* to save each string in the array  */
                                        /* at its relative offset            */
   #undef GLOBAL_NAME
-#if debug_encoding // debug encoding
-  #define GLOBAL_NAME(name, value) \
-      stringArray->put((RexxObject *)OREF_##name, stringCount); stringCount++; \
-      if (OREF_##name->getEncoding() != OREF_NULL && OREF_##name->getEncoding() != OREF_##name) printf("RexxMemory::saveStrings PANIC string=%p encoding=%p %s\n", OREF_##name, OREF_##name->getEncoding(), OREF_##name->getStringData());
-#else
   #define GLOBAL_NAME(name, value) stringArray->put((RexxObject *)OREF_##name, stringCount); stringCount++;
-#endif
 
   stringCount = 1;                     /* start with the first string       */
   #include "GlobalNames.h"             /* now save the strings              */
@@ -111,19 +98,7 @@ void RexxMemory::restoreStrings(RexxArray *stringArray)
                                        /* to create and give a count of the */
                                        /* strings created                   */
   #undef GLOBAL_NAME
-#if debug_encoding // debug encoding
-  // there is indeed a PANIC if I don't initialize text and encoding
-  // initialize text and encoding to NULL (otherwise I have a non-NULL value which is an invalid pointer, don' know why)
-  // #define GLOBAL_NAME(name, value) OREF_##name = *strings++;
-  #define GLOBAL_NAME(name, value) \
-      OREF_##name = *strings++; \
-      if (OREF_##name->getEncoding() != OREF_NULL && OREF_##name->getEncoding() != OREF_##name) printf("RexxMemory::restoreStrings PANIC string=%p encoding=%p %s\n", OREF_##name, OREF_##name->getEncoding(), OREF_##name->getStringData()); \
-      printf("RexxMemory::restoreStrings before initialize OREF_##name=%p text=%p encoding=%p %s\n", OREF_##name, OREF_##name->getText(), OREF_##name->getEncoding(), OREF_##name->getStringData()); \
-      OREF_##name->setText(OREF_NULL); \
-      OREF_##name->setEncoding(OREF_NULL);
-#else
   #define GLOBAL_NAME(name, value) OREF_##name = *strings++;
-#endif
 
   RexxString **strings = (RexxString **)stringArray->data();
   #include "GlobalNames.h"                 /* now restore the strings           */
